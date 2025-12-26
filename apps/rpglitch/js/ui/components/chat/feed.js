@@ -4,6 +4,7 @@ import { VirtualFeed } from "./virtual-feed.js";
 import { events, EVENTS } from "../../../core/events.js";
 import { renderMessage, getBubbleClass } from "./bubble.js"; // Circular safe
 import { updatePortraits, applyFractalAmbience } from "../../image-gen-ui.js";
+import { ThemeService } from "../../services/theme.js";
 import { log } from "../../../core/utils.js";
 
 // --- STATE ---
@@ -88,15 +89,29 @@ export function showTypingIndicator(
     } else if (type === "user" && selectedEntities.user) {
       signatureColor = selectedEntities.user.signatureColor;
     } else if (type === "fractal" && selectedEntities.fractal) {
-      signatureColor = selectedEntities.fractal.signatureColor;
+      // [FIX] Fallback for Fractals if DB field is missing
+      signatureColor = selectedEntities.fractal.signatureColor || "pink";
+    }
+
+    // [FIX] Explicit Override (from options)
+    if (typeof typeOrOptions === "object" && typeOrOptions.signatureColor) {
+      signatureColor = typeOrOptions.signatureColor;
     }
 
     // [ARCHITECT] Use shared classification logic or explicit class
-    const modifier = explicitClass || getBubbleClass(type, selectedEntities);
+    let modifier = explicitClass || getBubbleClass(type, selectedEntities);
+
+    // [FIX] Enforce Fractal Class
+    if (type === "fractal") {
+      modifier = "chat-bubble--fractal";
+    }
+
     let classes = ["chat-bubble", "typing-bubble", modifier];
 
     if (signatureColor && signatureColor !== "default") {
       classes.push(`signature-${signatureColor}`);
+      // [FIX] Apply CSS Variable for Fractal Support
+      ThemeService.apply(bubble, signatureColor);
     }
 
     bubble.className = classes.join(" ");
@@ -151,13 +166,15 @@ export async function renderChat(storyId) {
 
   if (!story) return;
 
-  let [ai, user] = await Promise.all([
+  let [ai, user, fractal] = await Promise.all([
     entities.get("character", story.aiId),
     entities.get("character", story.userId),
+    entities.get("fractal", story.fractalId),
   ]);
 
   selectedEntities.ai = ai;
   selectedEntities.user = user;
+  selectedEntities.fractal = fractal;
 
   // [NEW] Concluded State Locking
   const concludedBanner = document.querySelector("#story-concluded");
@@ -264,7 +281,7 @@ export async function renderChat(storyId) {
 
     return {
       ...m,
-      _contextEntities: { ai: ai, user: user },
+      _contextEntities: { ai: ai, user: user, fractal: fractal },
       _renderOptions: {
         isLast,
         messageId: m.id,

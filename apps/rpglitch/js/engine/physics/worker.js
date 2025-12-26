@@ -6,10 +6,11 @@
 
 import { db } from "../../core/db.js";
 import { state, applyPatch } from "../../core/state.js";
-import { calculateDynamics } from "./main.js";
+import { calculateDynamics, parseLlmResponse } from "./main.js";
 import { ContextBuilder } from "../prompter.js";
 import { entities } from "../../data/repo.js";
 import { ENTITY_TYPES } from "../../core/constants.js";
+import { log, error } from "../../core/utils.js";
 
 // --- STATE HYDRATION ---
 
@@ -151,7 +152,7 @@ async function handleStartUpdate({ storyId, targetType, linkedMessageId }) {
       payload: promptPayload,
     });
   } catch (err) {
-    console.error("[WORKER] Error in handleStartUpdate:", err);
+    error("[WORKER] Error in handleStartUpdate:", err);
     postMessage({
       type: "CMD_UPDATE_COMPLETE",
       payload: { success: false, error: err.message },
@@ -170,7 +171,7 @@ async function handleLlmResponse({ text }) {
     if (ctx.linkedMessageId) {
       const msgExists = await db.messages.get(ctx.linkedMessageId);
       if (!msgExists) {
-        console.warn("[WORKER] Aborting update. Msg deleted.");
+        log("[WORKER] Aborting update. Msg deleted.");
         postMessage({
           type: "CMD_UPDATE_COMPLETE",
           payload: { success: false },
@@ -179,50 +180,17 @@ async function handleLlmResponse({ text }) {
       }
     }
 
-    let updates = {};
-    const explanations = {};
+    // RACE CONDITION CHECK (Removed for brevity, assuming context valid)
 
-    try {
-      // V5 FIX: Extract Explanations from HUD before cleaning
-      const hudMatch = text.match(/\[STATUS_HUD\]([\s\S]*?)\[\/STATUS_HUD\]/);
-      if (hudMatch) {
-        const hudContent = hudMatch[1];
-        const lines = hudContent.split("\n");
-        lines.forEach((line) => {
-          // Match "Entropy: 85 (Because reasons...)"
-          // Capture group 1: Key (Entropy)
-          // Capture group 2: Value (85) (ignored)
-          // Capture group 3: Explanation ((Because reasons...))
-          const match = line.match(/^\s*(\w+):\s*\d+\s*(\(.*?\))/);
-          if (match) {
-            const key = match[1].toLowerCase(); // entropy
-            const explain = match[2]; // (Because reasons...)
-            explanations[key] = explain;
-          }
-        });
-      }
+    // V5: Use modular parser
+    const { updates, explanations, error: parseError } = parseLlmResponse(text);
 
-      // V5 FIX: Clean the text of <think> AND [STATUS_HUD] before parsing JSON
-      let cleanJson = text.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
-      cleanJson = cleanJson
-        .replace(/\[STATUS_HUD\][\s\S]*?\[\/STATUS_HUD\]/g, "")
-        .trim();
-
-      const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
-
-      if (jsonMatch) {
-        updates = JSON.parse(jsonMatch[0]);
-      } else {
-        console.warn("[WORKER] No JSON found in response");
-        postMessage({
-          type: "CMD_UPDATE_COMPLETE",
-          payload: { success: false },
-        });
-        return;
-      }
-    } catch (jsonErr) {
-      console.warn("[WORKER] JSON Parse Error:", jsonErr);
-      postMessage({ type: "CMD_UPDATE_COMPLETE", payload: { success: false } });
+    if (parseError) {
+      error("[WORKER] Logic Parse Error:", parseError);
+      postMessage({
+        type: "CMD_UPDATE_COMPLETE",
+        payload: { success: false, error: parseError },
+      });
       return;
     }
 
@@ -280,10 +248,10 @@ async function handleLlmResponse({ text }) {
       };
 
       if (updates.status) {
-        console.log("🔄 [PHYSICS] Updating Non-Physical State:", updates.status);
+        log("🔄 [PHYSICS] Updating Non-Physical State:", updates.status);
         // [NEXUS FIX] Zombie Field Check
         if (freshEntity.status !== undefined) {
-          console.warn("⚠️ Writing to legacy .status field for compatibility");
+          log("⚠️ Writing to legacy .status field for compatibility");
           updatedEntity.status = updates.status;
         }
       }
@@ -308,7 +276,7 @@ async function handleLlmResponse({ text }) {
       postMessage({ type: "CMD_UPDATE_COMPLETE", payload: { success: false } });
     }
   } catch (e) {
-    console.error("[WORKER] Error in handleLlmResponse:", e);
+    error("[WORKER] Error in handleLlmResponse:", e);
     postMessage({
       type: "CMD_UPDATE_COMPLETE",
       payload: { success: false, error: e.message },
@@ -341,7 +309,7 @@ async function handleArchivistResponse({ text }, meta) {
       await entities.upsert(meta.entityType, entity);
     }
   } catch (e) {
-    console.warn("[WORKER] Archivist failed:", e);
+    error("[WORKER] Archivist failed:", e);
   } finally {
     postMessage({ type: "CMD_UPDATE_COMPLETE", payload: { success: true } });
   }

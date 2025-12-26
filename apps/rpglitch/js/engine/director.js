@@ -147,7 +147,7 @@ export const TurnManager = {
 
     const story = state.story.byId[storyId];
 
-    // 1. SIGNAL: Typing Started
+    // 1. SIGNAL: Typing Started (Initial assumption: AI)
     events.dispatchEvent(
       new CustomEvent(EVENTS.TYPING_STARTED, {
         detail: { role: "ai", characterId: story.aiId },
@@ -193,7 +193,15 @@ export const TurnManager = {
         try {
           // 2. GENERATE
           const response = await LlmService.generate(payload, llmOptions);
-          events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
+          // Note: We don't stop typing here yet if we might do visuals,
+          // but for safety we can signal a opaque stop if needed, or just wait.
+          // Actually, let's keep the dots flowing until we know if we need visuals?
+          // Current logic stops them here.
+          events.dispatchEvent(
+            new CustomEvent(EVENTS.TYPING_STOPPED, {
+              detail: { role: "ai", characterId: story.aiId },
+            }),
+          );
 
           // 2.1 REFUSAL CHECK (Director Intervention)
           if (TurnManager._checkRefusal(response)) {
@@ -238,10 +246,9 @@ export const TurnManager = {
             // Clean Text (Always remove the raw tag)
             finalResponseText = response.replace(visualMatch[0], "").trim();
 
-            // If Developer Mode is ON, append the debug info nicely
-            if (state.settings.developerMode) {
-              finalResponseText += `\n\n> [!NOTE]\n> **Image Prompt:** ${visualPrompt}`;
-            }
+            // [FIX] Inject the Native UI Placeholder for bubble.js to render
+            // This allows the "Debug Prompt" block to work
+            finalResponseText += `\n\n{{__IMG_PROMPT__}}${visualPrompt}{{/__IMG_PROMPT__}}`;
           }
 
           // 4. VISUALS (Synchronous Generation)
@@ -250,9 +257,18 @@ export const TurnManager = {
 
           if (visualPrompt) {
             // [UX] Keep the magic alive (Restart typing indicator since we stopped it after text gen)
+            // Determine Role based on targetType
+            let targetRole = "ai";
+            let targetId = story.aiId;
+
+            if (targetType === "fractal") {
+              targetRole = "fractal";
+              targetId = story.fractalId;
+            }
+
             events.dispatchEvent(
               new CustomEvent(EVENTS.TYPING_STARTED, {
-                detail: { role: "ai", characterId: story.aiId },
+                detail: { role: targetRole, characterId: targetId },
               }),
             );
 
@@ -293,7 +309,19 @@ export const TurnManager = {
               // Optionally append an error note to metadata?
             } finally {
               // [UX] Cycle Complete. Stop the dots.
-              events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
+              // Use the same targetRole/Id derived above
+              let targetRole = "ai";
+              let targetId = story.aiId;
+              if (targetType === "fractal") {
+                targetRole = "fractal";
+                targetId = story.fractalId;
+              }
+
+              events.dispatchEvent(
+                new CustomEvent(EVENTS.TYPING_STOPPED, {
+                  detail: { role: targetRole, characterId: targetId },
+                }),
+              );
             }
           }
 
@@ -352,18 +380,23 @@ export const TurnManager = {
 
           // [NEXUS FIX] Stream Resilience Circuit
           if (e.message.includes(ERROR_MESSAGES.CONNECTION_LOST)) {
-             if (retryCount < MAX_STREAM_RETRIES) {
-                 console.warn(`⚠️ [TEXT-GEN] Stream interrupted. Triggering Auto-Reroll... (Attempt ${retryCount + 1}/${MAX_STREAM_RETRIES})`);
+            if (retryCount < MAX_STREAM_RETRIES) {
+              console.warn(
+                `⚠️ [TEXT-GEN] Stream interrupted. Triggering Auto-Reroll... (Attempt ${retryCount + 1}/${MAX_STREAM_RETRIES})`,
+              );
 
-                 // HARD WIRED RETRY with Backoff
-                 await new Promise((r) => setTimeout(r, 1000 * (retryCount + 1)));
+              // HARD WIRED RETRY with Backoff
+              await new Promise((r) => setTimeout(r, 1000 * (retryCount + 1)));
 
-                 // [FIX] Pass incremented retryCount to avoid infinite loop
-                 return TurnManager._executeTurn(storyId, payload, { ...options, retryCount: retryCount + 1 });
-             } else {
-                 console.error("❌ [TEXT-GEN] Max Auto-Rerolls exceeded.");
-                 throw e;
-             }
+              // [FIX] Pass incremented retryCount to avoid infinite loop
+              return TurnManager._executeTurn(storyId, payload, {
+                ...options,
+                retryCount: retryCount + 1,
+              });
+            } else {
+              console.error("❌ [TEXT-GEN] Max Auto-Rerolls exceeded.");
+              throw e;
+            }
           }
 
           if (attempts >= MAX_ATTEMPTS) throw e;
@@ -391,7 +424,33 @@ export const TurnManager = {
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
       applyPatch({ ui: { fsm: "error" } });
     } finally {
-      events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
+      // [FIX] Pass Context to Orchestrator for Physics Targeting
+      const story = state.story.byId[storyId];
+      // Resolve ID based on role - default to AI if unknown, but be safer
+      // If we had a specific targetType valid, use it?
+      // Actually, GENERATION_COMPLETED is mostly for the AI's turn.
+      // But if we generated for a Fractal, we should pass that ID.
+
+      // Heuristic: If we are here, we likely just finished an AI or Fractal turn.
+      // We don't easily know WHICH one without tracking it better in specific scope.
+      // However, usually we default to AI.
+      // Let's try to check the 'targetType' if we can scope it, but it's local var.
+      // Wait, 'generate' methods are usually specific.
+
+      // Safer Fallback: Just pass the AI ID for now, BUT verify it exists.
+      const charId = story ? story.aiId : null;
+      console.log(
+        `[Director] Dispatching GENERATION_COMPLETED. Role: AI, ID: ${charId}`,
+      );
+
+      events.dispatchEvent(
+        new CustomEvent(EVENTS.GENERATION_COMPLETED, {
+          detail: {
+            role: "ai",
+            characterId: charId,
+          },
+        }),
+      );
     }
   },
 
@@ -413,7 +472,11 @@ export const TurnManager = {
       await TurnManager._executeTurn(storyId, payload, { mode: "create" });
     } catch (e) {
       error("Context Build Error", e);
-      events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
+      events.dispatchEvent(
+        new CustomEvent(EVENTS.GENERATION_COMPLETED, {
+          detail: { role: "ai" },
+        }),
+      );
     }
   },
 
@@ -552,8 +615,11 @@ export const TurnManager = {
 
   generateOpening: async (storyId) => {
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
+    const story = state.story.byId[storyId];
     events.dispatchEvent(
-      new CustomEvent(EVENTS.TYPING_STARTED, { detail: { role: "narrator" } }),
+      new CustomEvent(EVENTS.TYPING_STARTED, {
+        detail: { role: "fractal", characterId: story.fractalId },
+      }),
     );
 
     try {
@@ -577,8 +643,7 @@ export const TurnManager = {
         attempts++;
         try {
           response = await LlmService.generate(payload, {
-            onToken: () =>
-              events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED)),
+            // [FIX] Do NOT stop typing on first token. Let the finally block handle it.
           });
           break; // Success
         } catch (e) {
@@ -595,7 +660,7 @@ export const TurnManager = {
 
       await db.messages.add({
         storyId,
-        role: "narrator",
+        role: "fractal",
         type: "OOC",
         text: response,
         createdAt: Date.now(),
@@ -623,8 +688,11 @@ export const TurnManager = {
     const storyId = TurnManager.requireActive();
 
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
+    const story = state.story.byId[storyId];
     events.dispatchEvent(
-      new CustomEvent(EVENTS.TYPING_STARTED, { detail: { role: "narrator" } }),
+      new CustomEvent(EVENTS.TYPING_STARTED, {
+        detail: { role: "fractal", characterId: story.fractalId },
+      }),
     );
 
     try {
@@ -647,8 +715,7 @@ export const TurnManager = {
         attempts++;
         try {
           response = await LlmService.generate(payload, {
-            onToken: () =>
-              events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED)),
+            // [FIX] Do NOT stop typing on first token.
           });
           break; // Success
         } catch (e) {
@@ -664,7 +731,7 @@ export const TurnManager = {
       // 2. Save Epilogue
       await db.messages.add({
         storyId,
-        role: "narrator",
+        role: "fractal",
         type: "OOC",
         text: response,
         createdAt: Date.now(),

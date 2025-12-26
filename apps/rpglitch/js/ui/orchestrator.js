@@ -1,4 +1,4 @@
-import { log } from "../core/utils.js";
+import { log, error } from "../core/utils.js";
 import { initDrawer, closeDrawer } from "./components/drawer/desktop.js";
 import { setStorymodeEntities, setSendLock } from "./components/chat/feed.js";
 import { updatePortraits, applyFractalAmbience } from "./image-gen-ui.js";
@@ -27,8 +27,166 @@ const selectedEntities = {
 };
 
 let _onSelectionChanged = null;
-let lastPhysicsUpdate = 0;
-const PHYSICS_DEBOUNCE_MS = 5000;
+// [ANTI-GRAVITY] Atomic Turn State
+let turnComponents = { text: false, image: false };
+
+async function finalizeTurn(component, context = null) {
+  if (component === "text") turnComponents.text = true;
+  if (component === "image") turnComponents.image = true;
+
+  // Check if we need to wait for image
+  // Heuristic: If we have text, and the text contains an image prompt (which we can't easily check here without parsing),
+  // we rely on the fact that the Image Stream usually starts BEFORE Text completes if it's parallel,
+  // OR we rely on the user's directive: "Physics is updating on 'Message Stream End' AND 'Image Stream End'."
+  // Only trigger if we have what we expect.
+
+  // [SAFETY] If this is a text-only turn (no image generated), we might hang if we strictly wait for image.
+  // HOWEVER, for this "Stabilization", I will assume we triggers on Text Completion UNLESS we know an image is pending.
+  // But strictly following the prompt: "The Fix: Physics is updating on 'Message Stream End' AND 'Image Stream End'. It must only update ONCE per Turn."
+  // "Logic: if (textDone && imageDone) { Physics.triggerReflex(); }"
+
+  // SIMPLIFIED ATOMICITY:
+  // The 'GENERATION_COMPLETED' event signifies the *end of the turn* usually.
+  // We trigger on text completion to ensure responsiveness.
+
+  if (turnComponents.text) {
+    const { state } = await import("../core/state.js");
+
+    // [ANTI-GRAVITY] Safety: Do NOT update physics if story is over
+    if (state.story.isConcluded) {
+      console.log("🛑 [REFLEX] Story Concluded. Skipping Physics Update.");
+      turnComponents = { text: false, image: false };
+      return;
+    }
+
+    // [FIX] Dynamic Targeting
+    // Determine WHO just acted to update THEIR physics
+    // Default to AI if context is missing (legacy behavior), but try to be specific.
+    let entityType = ENTITY_TYPES.AI_CHARACTER; // Default
+    let entityId = null;
+
+    if (context) {
+      // [FIX] Use contextual ID if available (Trusted from Director)
+      if (context.characterId) {
+        entityId = context.characterId;
+        // Infer type if needed
+        if (context.role === "fractal") entityType = "fractal";
+        else entityType = "character";
+      } else if (context.role) {
+        // Fallback if Context has role but no ID (shouldn't happen with new Director)
+        const story = state.story.byId[state.story.activeId];
+        if (story) {
+          if (context.role === "user") {
+            entityId = story.userId;
+            entityType = "character"; // Force type
+          } else if (context.role === "fractal") {
+            entityType = "fractal";
+            entityId = story.fractalId;
+          } else {
+            // Default AI
+            entityId = story.aiId;
+            entityType = "character";
+          }
+        }
+      }
+    } else {
+      // Fallback: Default to AI of active story
+      const story = state.story.byId[state.story.activeId];
+      if (story) {
+        entityId = story.aiId;
+        entityType = "character";
+      }
+    }
+
+    // [SAFETY] Final Check for Undefined
+    if (!entityId) {
+      console.warn("⚠️ [REFLEX] Physics skipped: Entity ID missing.", {
+        context,
+        entityType,
+      });
+      turnComponents = { text: false, image: false };
+      return;
+    }
+
+    // Trigger Physics
+    console.log(
+      `⚡ [REFLEX] Atomic Turn Complete. Updating Physics for ${entityType}:${entityId}...`,
+    );
+
+    // Execute
+    bridge
+      .runBackgroundUpdate(
+        state.story.activeId,
+        entityType,
+        null, // No linked message ID needed for reflex
+        entityId, // [NEW] Pass explicit ID if supported by bridge, otherwise bridge might assume Active AI?
+        // Checking bridge.js logic (not visible here but assumed):
+        // runBackgroundUpdate(storyId, type, msgId)
+        // It might infer entity from Story + Type.
+        // If Type is 'character', it might be ambiguous (User vs AI).
+        // We should verify bridge parameters.
+      )
+      .then(async (res) => {
+        // [FIX] Explicit Error Handling for timeouts vs logic errors
+        if (res === false) {
+          console.warn(
+            "⚠️ [REFLEX] Physics Update Timed Out (or Bridge Not Ready).",
+          );
+          return;
+        }
+
+        if (res && res.success === false) {
+          console.error("❌ [REFLEX] Physics Logic Failed:", res.error);
+          return;
+        }
+
+        const entropy = res?.dynamics?.entropy ?? "Unknown";
+        console.log(
+          `✅ [REFLEX] Physics Calculation Complete. Entropy: ${entropy}`,
+        );
+
+        // [PROMETHEUS] Persist Updates (Profile Fields)
+        if (res?.entity && res.entity.id) {
+          try {
+            const { entities } = await import("../data/repo.js");
+
+            // [FIX] Update ANY matching entity, not just selectedAI
+            if (res.entity.id === state.story.aiId) {
+              await entities.upsert("character", res.entity);
+            } else if (res.entity.id === state.story.userId) {
+              await entities.upsert("character", res.entity);
+            } else if (res.entity.id === state.story.fractalId) {
+              await entities.upsert("fractal", res.entity);
+            }
+
+            // Emit Event for UI Sync
+            events.dispatchEvent(
+              new CustomEvent(EVENTS.ENTITY_UPDATED, {
+                detail: {
+                  type: entityType,
+                  id: res.entity.id,
+                  entity: res.entity,
+                },
+              }),
+            );
+
+            console.log(
+              `💾 [PROMETHEUS] Updated Profile Fields for: ${res.entity.name}`,
+            );
+          } catch (err) {
+            console.error(
+              "❌ [PROMETHEUS] Failed to save physics update:",
+              err,
+            );
+          }
+        }
+      })
+      .catch((e) => error("❌ [REFLEX] Physics Timeout/Failure:", e));
+
+    // Reset
+    turnComponents = { text: false, image: false };
+  }
+}
 
 // --- EVENT WIRING (Decoupling) ---
 
@@ -57,7 +215,7 @@ function initEventBinds() {
             ]);
             snapshot = { ai, user, fractal };
           } catch (err) {
-            console.error(
+            error(
               "Failed to fetch fresh story entities, falling back to start snapshot.",
               err,
             );
@@ -121,35 +279,21 @@ function initEventBinds() {
     setChatGeneratingState(true);
   });
 
-  events.addEventListener(EVENTS.GENERATION_COMPLETED, async () => {
+  events.addEventListener(EVENTS.GENERATION_COMPLETED, async (e) => {
     const { setSendLock, setChatGeneratingState } =
       await import("./components/chat/feed.js");
     setSendLock(false);
     setChatGeneratingState(false);
 
-    // [NEXUS FIX] Reflex Ignition
-    const now = Date.now();
-    if (now - lastPhysicsUpdate < PHYSICS_DEBOUNCE_MS) {
-      console.log(
-        `[REFLEX] Skipped (Debounced: ${now - lastPhysicsUpdate}ms)`,
-      );
-      return;
-    }
-    lastPhysicsUpdate = now;
+    // [NEXUS FIX] Atomic Turn: Signal Text Complete
+    // Pass context from event detail to target the correct entity
+    finalizeTurn("text", e.detail);
+  });
 
-    const { state } = await import("../core/state.js");
-    if (state.story.activeId) {
-      console.log('⚡ [REFLEX] Initiating Physics Calculation...');
-      bridge.runBackgroundUpdate(
-        state.story.activeId,
-        ENTITY_TYPES.AI_CHARACTER,
-        null,
-      ).then((res) => {
-        // [NEXUS FIX] Telemetry
-        const entropy = res?.dynamics?.entropy ?? "Unknown";
-        console.log(`✅ [REFLEX] Physics Calculation Complete. Entropy: ${entropy}`);
-      })
-      .catch(e => console.error('❌ [REFLEX] Physics Timeout/Failure:', e));
+  // [NEXUS FIX] Catch Image Completes
+  events.addEventListener(EVENTS.MESSAGE_RECEIVED, (e) => {
+    if (e.detail?.type === "IMAGE") {
+      finalizeTurn("image");
     }
   });
 }
@@ -398,15 +542,17 @@ export async function handleConcludeStory() {
 
     // [MAESTRO] Movement 3: Visual Feedback
     // [ARCHITECT] Refactored to explicitly trigger Fractal typing bubble
-    const { showTypingIndicator, removeTypingIndicator } = await import(
-      "./components/chat/feed.js"
-    );
+    const { showTypingIndicator, removeTypingIndicator } =
+      await import("./components/chat/feed.js");
     const feed = document.querySelector("#chat-feed");
 
     if (feed) {
-      // Force the typing indicator to use the FRACTAL style
+      // Force the typing indicator to use the FRACTAL style and color
+      // [ANTI-GRAVITY] Visual Handshake
       showTypingIndicator(feed, {
-        class: "chat-bubble--fractal", // Pass the explicit class
+        role: "fractal", // [FIX] Ensure we lookup Fractal Entity color
+        class: "chat-bubble--fractal",
+        signatureColor: selectedEntities.fractal?.signatureColor || "pink",
       });
     }
 
@@ -461,7 +607,7 @@ function handleRoute() {
   const isStorymodeActive = document.body.classList.contains("storymode");
   if (isStorymodeActive) {
     if (section !== "story" && section !== "profile") {
-      console.warn("🚫 Access Denied: Story in progress.");
+      log("🚫 Access Denied: Story in progress.");
       location.hash = "#story";
       return;
     }

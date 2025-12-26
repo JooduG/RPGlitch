@@ -44,7 +44,6 @@
 
 /* --- ACTION BAR (Button Group) --- */
 
-/* --- ACTION BAR (Button Group) --- */
 .storyboard-actions {
   display: flex;
   justify-content: center;
@@ -85,14 +84,6 @@
 
   // Extend Glass Pill Logic
   @extend %btn-group-pill;
-
-  // Ensure buttons inside use the standard physics
-  button,
-  .btn {
-    @include btn-base;
-    @include btn-physics;
-    @include btn-disabled;
-  }
 }
 
 @include mobile {

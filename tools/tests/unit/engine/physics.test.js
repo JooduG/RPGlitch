@@ -1,5 +1,8 @@
 import { jest } from "@jest/globals";
-import { calculateDynamics } from "../../../../apps/rpglitch/js/engine/physics/main.js";
+import {
+  calculateDynamics,
+  parseLlmResponse,
+} from "../../../../apps/rpglitch/js/engine/physics/main.js";
 import { ContextBuilder } from "../../../../apps/rpglitch/js/engine/prompter.js";
 
 // --- MOCKS ---
@@ -128,94 +131,140 @@ describe("PROMETHEUS ENGINE V5", () => {
     });
   });
 
-  // ==========================================
-  // LAYER 2: THE BRIDGE (Context Integration)
-  // ==========================================
-  describe("ContextBuilder (Physics Injection)", () => {
-    let builder;
-
-    beforeEach(() => {
-      builder = new ContextBuilder("story-1");
-      jest.clearAllMocks();
-
-      // Mock Entity Resolution
-      entities.getSnapshot.mockResolvedValue({
-        id: "char-ai",
-        name: "AI",
-        type: "character",
-        dynamics: {
-          entropy: 10,
-          permeability: 10,
-          velocity: 10,
-          resonance: 10,
-        },
-      });
-      entities.get.mockResolvedValue({
-        id: "char-ai",
-        name: "AI",
-        type: "character",
-      });
+  describe("LLM Response Parser (parseLlmResponse)", () => {
+    test("Standard Parse: JSON + HUD + Explanations", () => {
+      const input = `
+        [STATUS_HUD]
+        Entropy: 50 (Stable)
+        Velocity: 10 (Slow)
+        [/STATUS_HUD]
+        {
+          "dynamics": { "entropy": 50 }
+        }
+      `;
+      const result = parseLlmResponse(input);
+      expect(result.error).toBeNull();
+      expect(result.updates.dynamics.entropy).toBe(50);
+      expect(result.explanations.entropy).toBe("(Stable)");
     });
 
-    test("buildUpdater injects forcedDynamics into CURRENT_STATE", async () => {
-      const forcedDynamics = {
-        entropy: 55,
-        permeability: 44,
-        velocity: 33,
-        resonance: 22,
-        _flags: { panicSpiral: true },
-      };
-
-      const payload = await builder.buildUpdater(
-        "ai_character",
-        forcedDynamics,
-      );
-
-      // V5 Check: Ensure system prompt is correct
-      expect(payload.system).toContain("[SYSTEM: PROMETHEUS_PHYSICS_V5]");
-
-      // Check that forced dynamics are injected into the JSON block
-      expect(payload.system).toContain('"entropy": 55');
-      expect(payload.system).toContain('"permeability": 44');
-      // The _flags might be stringified in the JSON, so checking specific values is safer
-      expect(payload.system).toContain('"panicSpiral": true');
+    test("Resilience: Handles // Comments (The Fix)", () => {
+      const input = `
+        {
+          "dynamics": {
+            "entropy": 50 // This comment used to break JSON.parse
+          }
+        }
+      `;
+      const result = parseLlmResponse(input);
+      expect(result.error).toBeNull();
+      expect(result.updates.dynamics.entropy).toBe(50);
     });
 
-    test("buildUpdater includes Calibration Matrix (Bell Curve Logic)", async () => {
-      const payload = await builder.buildUpdater("ai_character", null);
+    test("Resilience: Strips <think> tags", () => {
+      const input = `
+        <think>
+        This should be ignored.
+        </think>
+        { "valid": true }
+      `;
+      const result = parseLlmResponse(input);
+      expect(result.updates.valid).toBe(true);
+    });
 
-      expect(payload.system).toContain("[SYSTEM: PROMETHEUS_PHYSICS_V5]");
-      // V5 uses <CALIBRATION_TABLE>
-      expect(payload.system).toContain("<CALIBRATION_TABLE>");
-      expect(payload.system).toContain("<PHYSICS_LAWS>");
+    test("Error Handling: Returns error on malformed JSON", () => {
+      const input = "{ bad json ";
+      const result = parseLlmResponse(input);
+      expect(result.error).toBeDefined();
+      expect(result.updates).toEqual({});
+    });
+  });
+});
+
+// ==========================================
+// LAYER 2: THE BRIDGE (Context Integration)
+// ==========================================
+describe("ContextBuilder (Physics Injection)", () => {
+  let builder;
+
+  beforeEach(() => {
+    builder = new ContextBuilder("story-1");
+    jest.clearAllMocks();
+
+    // Mock Entity Resolution
+    entities.getSnapshot.mockResolvedValue({
+      id: "char-ai",
+      name: "AI",
+      type: "character",
+      dynamics: {
+        entropy: 10,
+        permeability: 10,
+        velocity: 10,
+        resonance: 10,
+      },
+    });
+    entities.get.mockResolvedValue({
+      id: "char-ai",
+      name: "AI",
+      type: "character",
     });
   });
 
-  // ==========================================
-  // LAYER 3: THE ARCHIVIST (Memory Logic)
-  // ==========================================
-  describe("The Archivist", () => {
-    let builder;
+  test("buildUpdater injects forcedDynamics into CURRENT_STATE", async () => {
+    const forcedDynamics = {
+      entropy: 55,
+      permeability: 44,
+      velocity: 33,
+      resonance: 22,
+      _flags: { panicSpiral: true },
+    };
 
-    beforeEach(() => {
-      builder = new ContextBuilder("story-1");
-    });
+    const payload = await builder.buildUpdater("ai_character", forcedDynamics);
 
-    test("buildArchivist generates compression prompt", async () => {
-      const mockEntity = {
-        name: "TestChar",
-        type: "character",
-        past: "A very long log...",
-      };
+    // V5 Check: Ensure system prompt is correct
+    expect(payload.system).toContain("[SYSTEM: PROMETHEUS_PHYSICS_V5]");
 
-      const payload = await builder.buildArchivist(mockEntity);
+    // Check that forced dynamics are injected into the JSON block
+    expect(payload.system).toContain('"entropy": 55');
+    expect(payload.system).toContain('"permeability": 44');
+    // The _flags might be stringified in the JSON, so checking specific values is safer
+    expect(payload.system).toContain('"panicSpiral": true');
+  });
 
-      // V5 Check
-      expect(payload.system).toContain("[SYSTEM: PROMETHEUS_ARCHIVIST_V5]");
-      expect(payload.system).toContain("Do NOT delete Proper Nouns");
-      expect(payload.system).toContain("TestChar");
-      // Ensure temp is lowered for precision
-      expect(payload.params.temperature).toBeLessThan(0.5);
-    });
+  test("buildUpdater includes Calibration Matrix (Bell Curve Logic)", async () => {
+    const payload = await builder.buildUpdater("ai_character", null);
+
+    expect(payload.system).toContain("[SYSTEM: PROMETHEUS_PHYSICS_V5]");
+    // V5 uses <CALIBRATION_TABLE>
+    expect(payload.system).toContain("<CALIBRATION_TABLE>");
+    expect(payload.system).toContain("<PHYSICS_LAWS>");
+  });
+});
+
+// ==========================================
+// LAYER 3: THE ARCHIVIST (Memory Logic)
+// ==========================================
+describe("The Archivist", () => {
+  let builder;
+
+  beforeEach(() => {
+    builder = new ContextBuilder("story-1");
+  });
+
+  test("buildArchivist generates compression prompt", async () => {
+    const mockEntity = {
+      name: "TestChar",
+      type: "character",
+      past: "A very long log...",
+    };
+
+    const payload = await builder.buildArchivist(mockEntity);
+
+    // V5 Check
+    expect(payload.system).toContain("[SYSTEM: PROMETHEUS_ARCHIVIST_V5]");
+    expect(payload.system).toContain("Do NOT delete Proper Nouns");
+    expect(payload.system).toContain("TestChar");
+    // Ensure temp is lowered for precision
+    expect(payload.params.temperature).toBeLessThan(0.5);
   });
 });

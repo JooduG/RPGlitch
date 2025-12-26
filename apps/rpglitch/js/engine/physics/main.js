@@ -86,3 +86,50 @@ export function calculateDynamics(currentDynamics) {
     _flags: flags,
   };
 }
+
+// V5: Extracted Parsing Logic for Unit Testing
+export function parseLlmResponse(text) {
+  const result = {
+    updates: {},
+    explanations: {},
+    error: null,
+  };
+
+  try {
+    // 1. Extract Explanations from HUD before cleaning
+    const hudMatch = text.match(/\[STATUS_HUD\]([\s\S]*?)\[\/STATUS_HUD\]/);
+    if (hudMatch) {
+      const hudContent = hudMatch[1];
+      const lines = hudContent.split("\n");
+      lines.forEach((line) => {
+        // Match "Entropy: 85 (Because reasons...)"
+        // Cap groups: 1=Key, 2=Explanation
+        const match = line.match(/^\s*(\w+):\s*\d+\s*(\(.*?\))/);
+        if (match) {
+          const key = match[1].toLowerCase();
+          result.explanations[key] = match[2];
+        }
+      });
+    }
+
+    // 2. Clean Text (Think, HUD, Comments)
+    let cleanJson = text
+      .replace(/<think>[\s\S]*?<\/think>/g, "")
+      .replace(/\[STATUS_HUD\][\s\S]*?\[\/STATUS_HUD\]/g, "")
+      .replace(/\s+\/\/.*$/gm, "") // FIX: Remove // comments (EOL or Inline)
+      .trim();
+
+    // 3. Extract JSON
+    const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
+
+    if (jsonMatch) {
+      result.updates = JSON.parse(jsonMatch[0]);
+    } else {
+      result.error = "No JSON block found";
+    }
+  } catch (e) {
+    result.error = e.message;
+  }
+
+  return result;
+}

@@ -19,16 +19,11 @@
   z-index: #{z(overlay)};
 
   // Visuals handled by material-glass
-  // background: rgb(var(--dark-background-rgb, 17 25 31) / 85%);
-  // backdrop-filter: blur(15px);
-  // box-shadow: 0 4px 20px rgb(0 0 0 / 20%);
   border-bottom: 1px solid rgb(255 255 255 / 5%);
   padding: 0.5rem 1rem;
   margin: 1rem auto 0;
   width: 100%;
   max-width: var(--app-container-max);
-
-  // border-radius: var(--pico-radius); // inherited
   transition: all 0.3s ease;
 
   // Context: Hide when story is active (Focus Mode)
@@ -38,11 +33,6 @@
     pointer-events: none;
   }
 }
-
-/* --- UTILITY: Icon Hover Effect (Moved to _buttons.scss) --- */
-
-/* --- UTILITY: Ghost Button (Moved to _buttons.scss) --- */
-// See components/_buttons.scss
 
 // Button Groups in Header
 .top-bar-left,

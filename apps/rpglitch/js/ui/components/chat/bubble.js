@@ -103,13 +103,19 @@ export function getBubbleClass(role, entities) {
 
   // 2. Fractal is a SPECIAL Narrator (High Priority)
   // This can be from an explicit 'fractal' role or an 'ai' role with a fractal entity type.
-  if (role === "fractal" || (role === "ai" && entities?.ai?.type === "fractal")) {
+  // 2. Fractal is a SPECIAL Narrator (High Priority)
+  // [ANTI-GRAVITY] Sovereignty Enforcement: Check Entity Type FIRST
+  if (
+    role === "fractal" ||
+    (entities?.fractal && role === "fractal") ||
+    (role === "ai" && entities?.ai?.type === "fractal")
+  ) {
     return "chat-bubble--fractal";
   }
 
-  // 3. Narrator is the fallback for system messages
+  // 3. Narrator/System -> Fractal Protocol (Unified)
   if (role === "narrator" || role === "system" || !role) {
-    return "chat-bubble--narrator";
+    return "chat-bubble--fractal";
   }
 
   // 4. Standard Character
@@ -130,13 +136,13 @@ export function renderMessage(
 
   // Handle DEBUG / Physics Logs
   if (type === "DEBUG") {
-    div.className = "debug-block developer-content";
+    div.className = "debug-card developer-content";
     // [FIX] Strip the raw [STATUS_HUD] block, as we often have a formatted "PHYSICS UPDATE" below it
     const cleanDebugText = (text || "").replace(
       /\[STATUS_HUD\][\s\S]*?\[\/STATUS_HUD\]/g,
       "",
     );
-    div.innerHTML = `<div class="physics-log">${sanitizeHtml(cleanDebugText.trim())}</div>`;
+    div.innerHTML = `<div class="debug-content">${sanitizeHtml(cleanDebugText.trim())}</div>`;
     container.appendChild(div);
     return;
   }
@@ -253,12 +259,11 @@ export function renderMessage(
     if (options.metadata && Object.keys(options.metadata).length > 0) {
       const jsonStr = JSON.stringify(options.metadata, null, 2);
       debugHtml += `
-          <div class="debug-block developer-content">
-              <div class="physics-log"><strong>[METADATA]</strong>\n${jsonStr.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+          <div class="debug-card developer-content">
+             <div class="debug-header">METADATA</div>
+             <div class="debug-content">${jsonStr.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
           </div>`;
     }
-
-    const promptMap = new Map();
 
     if (role === "ai") {
       // 1. Extract HUD
@@ -267,8 +272,9 @@ export function renderMessage(
       );
       if (hudMatch) {
         debugHtml += `
-          <div class="debug-block developer-content">
-              <div class="physics-log"><strong>[AI INTENT]</strong>\n${sanitizeHtml(hudMatch[1].trim())}</div>
+          <div class="debug-card developer-content">
+               <div class="debug-header">AI INTENT</div>
+               <div class="debug-content">${sanitizeHtml(hudMatch[1].trim())}</div>
           </div>`;
         cleanText = cleanText.replace(hudMatch[0], "");
       }
@@ -277,24 +283,20 @@ export function renderMessage(
       const jsonMatch = cleanText.match(/\{[\s\S]*?"dynamics"[\s\S]*?\}/);
       if (jsonMatch) {
         debugHtml += `
-          <div class="debug-block developer-content status-hud">
-              <div class="physics-log"><strong>[STATE DATA]</strong>\n${sanitizeHtml(jsonMatch[0].trim())}</div>
+          <div class="debug-card debug-card--hud developer-content">
+              <div class="debug-header">STATE DATA</div>
+              <div class="debug-content">${sanitizeHtml(jsonMatch[0].trim())}</div>
           </div>`;
         cleanText = cleanText.replace(jsonMatch[0], "");
       }
 
       // 2.5 Mask Image Prompts (X-Ray Vision)
-      // [NEXUS FIX] Simple masking strategy to survive DOMPurify
-      // We do NOT extract content, just mask the tags themselves.
-      // Supports attributes via regex.
-      cleanText = cleanText.replace(
-        /<image_prompt([\s\S]*?)>/g,
-        "[[__IMG_PROMPT_START__$1]]",
-      );
-      cleanText = cleanText.replace(
-        /<\/image_prompt>/g,
-        "[[__IMG_PROMPT_END__]]",
-      );
+      // [NEXUS FIX] Token Masking Strategy
+      // Capture attributes (if any) to preserve them or just handle the tag generically
+      // [FIX] Use IMGPROMPT (No underscores) to avoid Markdown parser collision
+      cleanText = cleanText
+        .replace(/<image_prompt(.*?)>/g, "{{IMGPROMPT$1}}")
+        .replace(/<\/image_prompt>/g, "{{/IMGPROMPT}}");
 
       // 3. Extract Physiology Tags (e.g., <Orion.Biceps>)
       // Matches: <Name.Property> Value (until newline)
@@ -304,8 +306,8 @@ export function renderMessage(
       if (physMatches) {
         physMatches.forEach((match) => {
           debugHtml += `
-            <div class="debug-block developer-content">
-                <div class="physics-log"><strong>[PHYSIOLOGY]</strong>\n${sanitizeHtml(match.trim())}</div>
+            <div class="debug-card developer-content">
+                <div class="debug-content"><strong>[PHYSIOLOGY]</strong>\n${sanitizeHtml(match.trim())}</div>
             </div>`;
           cleanText = cleanText.replace(match, "");
         });
@@ -332,25 +334,33 @@ export function renderMessage(
     const formattedThought = formatMessageText(thoughtContent);
 
     // [NEXUS FIX] Unmask Image Prompts
-    // Restore the tags but wrap them in the debug container
-    // We use a regex to capture any attributes saved in the start tag placeholder
-    formattedMain = formattedMain.replace(
-      /\[\[__IMG_PROMPT_START__([\s\S]*?)\]\]/g,
-      (match, attrs) => {
-        const attrsDisplay = attrs.trim()
-          ? ` (${sanitizeHtml(attrs.trim())})`
-          : "";
-        return `<div class="debug-image-prompt-container" data-dev-visible><span class="label">🎨 RAW PROMPT${attrsDisplay}:</span><span class="content">`;
-      },
-    );
+    // Restore the tags but wrap them in the Debug Container
+    // We match the tag with captured attributes
+    formattedMain = formattedMain
+      .replace(
+        /\{\{IMGPROMPT([\s\S]*?)\}\}/g, // [FIX] No underscores to prevent MD collision
+        `
+        <div class="debug-card debug-card--prompt developer-content">
+            <div class="debug-header">Image Prompt $1</div>
+            <div class="debug-content">
+        `.trim(),
+      )
+      .replace(
+        /\{\{\/IMGPROMPT\}\}/g,
+        `
+            </div>
+        </div>
+        `.trim(),
+      );
 
-    formattedMain = formattedMain.replace(
-      /\[\[__IMG_PROMPT_END__\]\]/g,
-      "</span></div>",
-    );
+    // [CLEANUP] Remove "Note:" or "!NOTE" garbage inside the prompt block if it leaked
+    // This is a post-process hack because the prompt is already HTML formatted.
+    // We target the content inside physics-log.
+    // Actually, formattedMain is a string. We can try to regex replace known garbage.
+    formattedMain = formattedMain.replace(/(!NOTE|Note:|Important:)\s*/g, "");
 
     if (thoughtContent) {
-      contentHtml = `<div class="thought-trace developer-content"><div class="thought-label">AI REASONING</div>${formattedThought}</div><div class="message-content">${formattedMain}</div>`;
+      contentHtml = `<div class="debug-card debug-card--thought developer-content"><div class="debug-header">AI REASONING</div><div class="debug-content">${formattedThought}</div></div><div class="message-content">${formattedMain}</div>`;
     } else {
       contentHtml = formattedMain;
     }

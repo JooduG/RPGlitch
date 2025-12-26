@@ -19,10 +19,6 @@
   // Overrides for Drawer Shape
   border-bottom: none;
   border-radius: 20px 20px 0 0;
-
-  // Removed hardcoded visuals in favor of extend
-  // background: rgb(26 34 42 / 98%);
-  // box-shadow: 0 -10px 40px rgb(0 0 0 / 50%);
   z-index: #{z(drawer)};
   display: flex;
   flex-direction: column;

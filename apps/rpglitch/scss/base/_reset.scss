@@ -7,19 +7,18 @@
    ============================================================================ */
 
 :root {
-  // --- LAYOUT & GRID CONFIG ---
+  // --- LAYOUT CONFIG ---
   --top-bar-height: 3rem;
   --app-container-max: 100%;
   --app-container-pad: 1rem;
   --header-height: 6rem;
 
-  // Shared 3-column stage layout
+  // Shared 3-column layout
   --layout-left-col: 1fr;
   --layout-center-col: 2fr;
   --layout-right-col: 1fr;
 
-  // --- Z-INDEX LAYER MAP ---
-  // (Maps SASS variables to CSS variables for runtime usage)
+  // --- Z-INDEX MAP ---
   --z-base: #{z(base)};
   --z-chip: #{z(chip)};
   --z-chin-container: #{z(chin-container)};
@@ -61,12 +60,12 @@
   --color-accent: #ff7ad5;
   --signature-text-on: #fff;
 
-  // Initialize all signature vars dynamically
+  // Initialize signature vars
   @each $name, $data in $signature-colors {
     --signature-#{$name}: #{map.get($data, color)};
   }
 
-  // [New] Dynamic Background Gradient Variables
+  // Gradient Variables
   --bg-grad-1: #{$gradient-color-1};
   --bg-grad-2: #{$gradient-color-2};
   --bg-grad-3: #{$gradient-color-3};
@@ -74,24 +73,22 @@
 }
 
 // --- DYNAMIC SIGNATURE UTILITY ---
-// Replaces the old static loops. Powered by ThemeService.js
+// Powered by ThemeService.js
 .themed-signature {
   // Defaults (Purple)
   --current-sig: var(--signature-color, #8b5cf6);
   --current-sig-rgb: var(--signature-rgb, 139 92 246);
 
   // Auto-calculated variants
-  --signature-10: rgba(var(--current-sig-rgb), 0.1);
-  --signature-20: rgba(var(--current-sig-rgb), 0.2);
-  --signature-50: rgba(var(--current-sig-rgb), 0.5); // New
+  --signature-10: rgb(var(--current-sig-rgb) / 10%);
+  --signature-20: rgb(var(--current-sig-rgb) / 20%);
+  --signature-50: rgb(var(--current-sig-rgb) / 50%);
 
-  // Usage
   color: var(--current-sig);
   border-color: var(--current-sig);
 }
 
 // --- DARK THEME OVERRIDES ---
-// High-contrast adjustments for the game interface
 [data-theme="dark"] {
   --pico-background-color: #0f1116;
   --pico-card-background-color: #1a1d2e;
@@ -130,7 +127,7 @@ body {
   font-family: var(--pico-font-family, sans-serif);
   color: var(--pico-color);
 
-  // APP BACKGROUND: Gradient + Texture
+  // APP BACKGROUND
   background-image: linear-gradient(
     to bottom right,
     var(--bg-grad-1),
@@ -152,7 +149,7 @@ body::before {
   z-index: 2;
 }
 
-// DYNAMIC FRACTAL BACKGROUND
+// FRACTAL BACKGROUND
 #fractal-background {
   position: fixed;
   inset: 0;
@@ -167,7 +164,9 @@ body::before {
   transition: opacity 2s ease-in-out;
 }
 
-// --- CRITICAL COMPONENT RESET ---
+// --- COMPONENT RESETS ---
+
+// Reset 'article' to remove Pico's card defaults for layout containers
 article {
   background: transparent !important;
   box-shadow: none !important;
@@ -177,6 +176,7 @@ article {
 }
 
 // --- UTILITIES ---
+
 .muted,
 .placeholder-text {
   font-style: italic;
@@ -196,14 +196,15 @@ article {
 }
 
 // --- INTERACTIVE ---
-// Tactile lift effect for all buttons (Delegated to _buttons.scss)
+
+// Tactile cursor for buttons
 button,
 [type="button"],
 [type="submit"] {
   cursor: pointer;
 }
 
-/* --- DEVELOPER MODE TOGGLE --- */
+/* --- DEVELOPER MODE --- */
 body:not(.mode-developer) .developer-content {
   display: none !important;
 }

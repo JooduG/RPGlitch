@@ -19,10 +19,6 @@ dialog.modal {
   @extend %material-glass-heavy;
 
   // Glassmorphic Base (Replaced by @extend)
-  // background: rgba(18, 20, 30, 60%);
-  // backdrop-filter: blur(16px);
-  // border: 1px solid rgba(255, 255, 255, 10%);
-  // box-shadow: ...
 
   // Keep specific layout/animation
   opacity: 0;

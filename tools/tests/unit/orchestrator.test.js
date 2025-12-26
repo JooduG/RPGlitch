@@ -12,6 +12,9 @@ jest.mock("../../../apps/rpglitch/js/ui/components/drawer/desktop.js", () => ({
 jest.mock("../../../apps/rpglitch/js/ui/components/chat/feed.js", () => ({
   setStorymodeEntities: jest.fn(),
   setSendLock: jest.fn(),
+  setChatGeneratingState: jest.fn(),
+  showTypingIndicator: jest.fn(),
+  removeTypingIndicator: jest.fn(),
 }));
 jest.mock("../../../apps/rpglitch/js/ui/image-gen-ui.js", () => ({
   updatePortraits: jest.fn(),
@@ -49,10 +52,25 @@ jest.mock("../../../apps/rpglitch/js/core/events.js", () => ({
   },
 }));
 
+jest.mock("../../../apps/rpglitch/js/engine/physics/bridge.js", () => ({
+  bridge: {
+    runBackgroundUpdate: jest.fn(),
+  },
+}));
+
 // Mock Dynamic Imports
 jest.mock("../../../apps/rpglitch/js/core/state.js", () => ({
   state: {
-    story: { activeId: "story-123" },
+    story: {
+      activeId: "story-123",
+      byId: {
+        "story-123": {
+          aiId: "ai-1",
+          userId: "user-1",
+          fractalId: "fractal-1",
+        },
+      },
+    },
   },
 }));
 
@@ -68,6 +86,38 @@ jest.mock("../../../apps/rpglitch/js/core/db.js", () => ({
 }));
 
 describe("Orchestrator UI", () => {
+  let handlers = {};
+  let bridgeMock;
+  let eventsMock;
+
+  beforeAll(async () => {
+    // 1. Import Dependencies (Stubbing happened via jest.mock above)
+    const eventsModule =
+      await import("../../../apps/rpglitch/js/core/events.js");
+    eventsMock = eventsModule.events;
+    const { EVENTS } = eventsModule;
+
+    const bridgeModule =
+      await import("../../../apps/rpglitch/js/engine/physics/bridge.js");
+    bridgeMock = bridgeModule.bridge;
+
+    // 2. Import Orchestrator (Triggers initEventBinds ONCE)
+    await import("../../../apps/rpglitch/js/ui/orchestrator.js");
+
+    // 3. Capture Handlers from the mock calls *before* any test clears them
+    const findHandler = (evt) => {
+      const call = eventsMock.addEventListener.mock.calls.find(
+        (c) => c[0] === evt,
+      );
+      return call ? call[1] : null;
+    };
+
+    handlers[EVENTS.STORY_LOADED] = findHandler(EVENTS.STORY_LOADED);
+    handlers[EVENTS.GENERATION_COMPLETED] = findHandler(
+      EVENTS.GENERATION_COMPLETED,
+    );
+  });
+
   beforeEach(() => {
     // Reset DOM state
     document.body.innerHTML = `
@@ -81,27 +131,17 @@ describe("Orchestrator UI", () => {
     document.body.className = "";
     document.body.id = "test-body";
 
-    // Ensure requestAnimationFrame is mocked
     if (!global.requestAnimationFrame) {
       global.requestAnimationFrame = (cb) => cb();
     }
 
+    // Clear usage data, but Mocks/Modules persist
     jest.clearAllMocks();
-  });
-
-  afterEach(() => {
-    jest.resetModules();
-    document.body.className = "";
-    document.body.id = "";
   });
 
   test("sanity check dom", () => {
     document.body.className = "";
-    const currentClasses = document.body.className.split(" ");
-    const cleanClasses = currentClasses.filter((c) => !c.startsWith("theme-"));
-    document.body.className = cleanClasses.join(" ");
     document.body.classList.add("theme-cyber");
-    expect(document.body.classList.contains("theme-cyber")).toBe(true);
     expect(document.body.className).toContain("theme-cyber");
   });
 
@@ -134,27 +174,58 @@ describe("Orchestrator UI", () => {
       return Promise.resolve({ id });
     });
 
-    // Import Orchestrator (triggers initEventBinds)
-    await import("../../../apps/rpglitch/js/ui/orchestrator.js");
-
-    const eventsModule =
-      await import("../../../apps/rpglitch/js/core/events.js");
-    const { events, EVENTS } = eventsModule;
-
-    // Find the STORY_LOADED handler
-    const handler = events.addEventListener.mock.calls.find(
-      (call) => call[0] === EVENTS.STORY_LOADED,
-    )[1];
+    const handler = handlers["story-loaded"]; // EVENTS.STORY_LOADED
     expect(handler).toBeDefined();
 
-    // Trigger the handler
+    // Trigger
     await handler();
 
-    // Verification
     expect(document.body.classList.contains("theme-cyber")).toBe(true);
-
     const uiUtils =
       await import("../../../apps/rpglitch/js/ui/services/ui-utils.js");
     expect(uiUtils.setAppBackground).toHaveBeenCalledWith("blue");
+  });
+
+  test("physics logging: warns on timeout", async () => {
+    const consoleWarn = jest
+      .spyOn(console, "warn")
+      .mockImplementation(() => {});
+    bridgeMock.runBackgroundUpdate.mockResolvedValue(false);
+
+    const handler = handlers["gen-complete"]; // EVENTS.GENERATION_COMPLETED
+    expect(handler).toBeDefined();
+
+    await handler({ detail: { role: "ai" } });
+
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(bridgeMock.runBackgroundUpdate).toHaveBeenCalled();
+    expect(consoleWarn).toHaveBeenCalledWith(
+      expect.stringContaining("Physics Update Timed Out"),
+    );
+
+    consoleWarn.mockRestore();
+  });
+
+  test("physics logging: errors on logic failure", async () => {
+    const consoleError = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    bridgeMock.runBackgroundUpdate.mockResolvedValue({
+      success: false,
+      error: "Critical Fail",
+    });
+
+    const handler = handlers["gen-complete"];
+    expect(handler).toBeDefined();
+
+    await handler({ detail: { role: "ai" } });
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    expect(consoleError).toHaveBeenCalledWith(
+      expect.stringContaining("Physics Logic Failed"),
+      "Critical Fail",
+    );
+
+    consoleError.mockRestore();
   });
 });

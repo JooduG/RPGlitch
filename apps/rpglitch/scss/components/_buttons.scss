@@ -1,11 +1,11 @@
 @use "../abstracts" as *;
 
 /* ============================================================================
-   COMPONENT: BUTTONS (THE UNIVERSAL PROTOCOL)
+   COMPONENT: BUTTONS
    Single Source of Truth for all interactive triggers.
    ============================================================================ */
 
-// --- MIXINS (MAESTRO SPEC) ---
+// --- MIXINS ---
 @mixin btn-base {
   display: inline-flex;
   align-items: center;
@@ -65,7 +65,7 @@
   }
 }
 
-// --- 1. THE BASE ATOM (MAESTRO SPEC) ---
+// --- 1. THE BASE ATOM ---
 // Define placeholder first to allow extensions
 %ui-btn {
   @include btn-base;
@@ -339,7 +339,13 @@
 
     // Provide a consistent hover background for non-solid button variants.
     // NOTE: If adding new solid buttons, exclude them here to preserve their background.
-    &:hover:not(:disabled, .disabled, .btn-primary, .btn-secondary, .btn-glass) {
+    &:hover:not(
+        :disabled,
+        .disabled,
+        .btn-primary,
+        .btn-secondary,
+        .btn-glass
+      ) {
       background: $ui-glass-hover;
     }
   }

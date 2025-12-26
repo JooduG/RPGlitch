@@ -2,7 +2,11 @@
 import { state, applyPatch } from "../core/state.js";
 import { entities } from "../data/repo.js";
 import { TurnManager } from "../engine/director.js";
-import { updatePortraits, applyFractalAmbience, updateDeveloperModeClass } from "./image-gen-ui.js";
+import {
+  updatePortraits,
+  applyFractalAmbience,
+  updateDeveloperModeClass,
+} from "./image-gen-ui.js";
 import { error } from "../core/utils.js";
 import { showAlert } from "./orchestrator.js";
 import { EVENTS, events } from "../core/events.js";
@@ -207,6 +211,22 @@ export function initStoryboardStage(views) {
         if (Object.keys(updates).length > 0) {
           _onUpdateSelection(updates);
         }
+      }
+    }
+  });
+
+  // [PROMETHEUS] Live Updates during Story
+  events.addEventListener(EVENTS.ENTITY_UPDATED, (e) => {
+    const entity = e.detail;
+    if (state.story.activeId && entity) {
+      if (state.selectedAI && state.selectedAI.id === entity.id) {
+        applyPatch({ selectedAI: entity });
+      }
+      if (state.selectedUser && state.selectedUser.id === entity.id) {
+        applyPatch({ selectedUser: entity });
+      }
+      if (state.selectedFractal && state.selectedFractal.id === entity.id) {
+        applyPatch({ selectedFractal: entity });
       }
     }
   });

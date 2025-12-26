@@ -1,9 +1,7 @@
 @use "sass:map";
 
-/* ============================================================================
-   ABSTRACTS: VARIABLES
-   Colors, Breakpoints, Z-Index, and Config.
-   ============================================================================ */
+// --- HELPERS: VARIABLES ---
+// Colors, Breakpoints, Z-Index, and Config.
 
 // --- PALETTE: APP THEME ---
 $gradient-color-1: #181c2f;
@@ -12,37 +10,24 @@ $gradient-color-3: #1a3a4a;
 $gradient-color-4: #2a1a3a;
 
 // --- PALETTE: SYSTEM ---
-// Critical override for Pico's delete/danger states
 $pico-del-color: #dc3545;
 
 // --- PALETTE: SIGNATURES ---
-// Single Source of Truth for character/UI themes
-// --- PALETTE: SIGNATURES (Auto-Generated) ---
-// Sourced from apps/rpglitch/js/core/constants.js matches
-// See tools/build/app.js for generation logic.
 @forward "palette-generated";
 
-// --- PALETTE: DEBUG / X-RAY ---
-$debug-violet-500: #8b5cf6;
-$debug-violet-300: #d8b4fe;
-$debug-cyan-500: #06b6d4;
-$debug-cyan-400: #22d3ee;
-$debug-cyan-200: #a5f3fc;
-
-// --- SPACING SYSTEM (RHYTHM) ---
-// Base unit: 1rem (16px)
+// --- SPACING SYSTEM ---
 :root {
   --transition-speed: 0.2s;
   --scale-active: 0.98;
-  --space-xs: 0.25rem; // 4px
-  --space-sm: 0.5rem; // 8px
-  --space-sm-md: 0.75rem; // 12px (Intermediate)
-  --space-md: 1rem; // 16px
-  --space-md-lg: 1.25rem; // 20px (Intermediate)
-  --space-lg: 1.5rem; // 24px
-  --space-xl: 2rem; // 32px
-  --space-2xl: 3rem; // 48px
-  --space-3xl: 5rem; // 80px
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-sm-md: 0.75rem;
+  --space-md: 1rem;
+  --space-md-lg: 1.25rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 5rem;
 }
 
 // --- BREAKPOINTS ---
@@ -50,14 +35,13 @@ $breakpoint-mobile: 768px;
 $breakpoint-tablet: 1024px;
 
 // --- TYPOGRAPHY & EFFECTS ---
-$text-shadow-vibrant: 0 1px 2px rgba(0, 0, 0, 60%);
+$text-shadow-vibrant: 0 1px 2px rgb(0 0 0 / 60%);
 
 // --- UI TOKENS ---
 $ui-glass-border: rgb(255 255 255 / 10%);
 $ui-glass-hover: rgb(255 255 255 / 5%);
 
 // --- Z-INDEX SCALE ---
-// Centralized map to prevent layering conflicts
 $z-map: (
   base: 10,
   chip: 20,

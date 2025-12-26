@@ -1,10 +1,8 @@
 @use "sass:map";
 @use "variables" as *;
 
-/* ============================================================================
-   ABSTRACTS: MIXINS & FUNCTIONS
-   Reusable logic and helpers.
-   ============================================================================ */
+// --- HELPERS: MIXINS & FUNCTIONS ---
+// Reusable logic and helpers.
 
 // Helper function to access z-indices
 @function z($key) {
@@ -38,11 +36,9 @@
   $track-color: transparent,
   $thumb-hover-color: rgb(0 0 0 / 70%)
 ) {
-  // Firefox
   scrollbar-width: thin;
   scrollbar-color: $thumb-color $track-color;
 
-  // Webkit / Blink
   &::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -57,21 +53,29 @@
     border-radius: 4px;
     border: 2px solid $track-color;
     transition: background-color 0.2s ease;
-  }
 
-  &::-webkit-scrollbar-thumb:hover {
-    background-color: $thumb-hover-color;
+    &:hover {
+      background-color: $thumb-hover-color;
+    }
   }
 }
 
 // --- SHARED UI PLACEHOLDERS ---
+
+// Base Glass Style
+%glass-base {
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: var(--pico-radius);
+}
+
 // Glassmorphism Pill Container (Button Groups / Inputs)
 %glass-pill {
+  @extend %glass-base;
+
   background: rgb(0 0 0 / 40%);
   backdrop-filter: blur(10px);
   box-shadow: 0 10px 30px rgb(0 0 0 / 50%);
   border-radius: 50px;
-  border: 1px solid rgb(255 255 255 / 10%);
 }
 
 // Common Card Physics (Hover/Focus)
@@ -97,8 +101,6 @@
       0 6px 16px rgb(0 0 0 / 20%);
   }
 }
-
-// --- SHARED UI PLACEHOLDERS ---
 
 // Defines the shimmering loading state
 %skeleton {
@@ -165,20 +167,21 @@
 
 // 1. The Standard Glass (Used for Cards, UI Panels)
 %material-glass {
-  background: rgba(18, 20, 30, 60%); // The standard tint
-  backdrop-filter: blur(16px); // The standard blur
-  border: 1px solid rgba(255, 255, 255, 10%);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 20%);
-  border-radius: var(--pico-radius);
+  @extend %glass-base;
+
+  background: rgb(18 20 30 / 60%);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 4px 6px rgb(0 0 0 / 20%);
 }
 
-// 2. The Heavy Glass (Used for Modals, Drawers - things that need more contrast)
+// 2. The Heavy Glass (Used for Modals, Drawers)
 %material-glass-heavy {
-  background: rgba(18, 20, 30, 85%); // Darker for readability
+  @extend %glass-base;
+
+  background: rgb(18 20 30 / 85%);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 10%);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 60%); // Deep elevation
-  border-radius: 12px;
+  box-shadow: 0 20px 40px rgb(0 0 0 / 60%);
+  border-radius: 12px; // Override base radius
 }
 
 // 3. Interactive Surface (Hover states for cards)
@@ -190,8 +193,8 @@
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 40%);
-    border-color: rgba(255, 255, 255, 25%);
+    box-shadow: 0 12px 24px rgb(0 0 0 / 40%);
+    border-color: rgb(255 255 255 / 25%);
   }
 }
 
@@ -203,7 +206,7 @@
   width: 100%;
 
   // Depth Physics
-  background: rgba(0, 0, 0, 30%); // Darker than the glass panels
+  background: rgb(0 0 0 / 30%);
   border: 1px solid var(--pico-muted-border-color);
   border-radius: var(--pico-radius);
 
@@ -220,9 +223,9 @@
 
   &:focus {
     outline: none;
-    background: rgba(0, 0, 0, 50%); // Deepen on focus
+    background: rgb(0 0 0 / 50%);
     border-color: var(--pico-primary);
-    box-shadow: 0 0 0 1px var(--pico-primary); // Subtle glow
+    box-shadow: 0 0 0 1px var(--pico-primary);
   }
 
   &::placeholder {
@@ -234,6 +237,6 @@
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    background: rgba(255, 255, 255, 5%);
+    background: rgb(255 255 255 / 5%);
   }
 }

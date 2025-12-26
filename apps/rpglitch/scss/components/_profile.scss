@@ -199,7 +199,7 @@
         @include btn-base;
         @include btn-physics;
         @include btn-disabled;
-        @extend %glass-pill; // [Maestro] Pill Shape
+        @extend %glass-pill; // Pill Shape
 
         padding: 0 0.75rem;
         gap: 0.4rem;
@@ -217,7 +217,7 @@
         @include btn-base;
         @include btn-physics;
         @include btn-disabled;
-        @extend %glass-pill; // [Maestro] Pill Shape
+        @extend %glass-pill; // Pill Shape
 
         padding: 0 0.75rem;
         white-space: nowrap;
@@ -420,7 +420,7 @@ $placeholder-opacity: 0.4;
   }
 }
 
-/* --- MAESTRO LAYOUT SYSTEM (2-Column Grid) --- */
+/* --- LAYOUT SYSTEM (2-Column Grid) --- */
 .profile-row {
   display: grid;
   grid-template-columns: minmax(80px, 120px) 1fr; // Tighter label column

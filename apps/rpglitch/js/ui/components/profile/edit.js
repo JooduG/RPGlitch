@@ -17,6 +17,7 @@ import {
 import { state } from "../../../core/state.js";
 import { VisualManager } from "../../services/visuals.js";
 import { generateStream } from "../../../engine/llm.js";
+import { events, EVENTS } from "../../../core/events.js";
 
 import { PROFILE_STRUCTURE, LABEL_MAP, SPLIT_HEADERS } from "./constants.js";
 import {
@@ -215,11 +216,11 @@ export async function renderProfileEdit(screen, entity, type, id) {
 
     if (imageInput.value.trim().length > 0) {
       // Enhance Mode (Sparkles)
-      magicBtn.innerHTML = `${SPARKLES_ICON_SVG} Enhance Prompt`;
+      magicBtn.innerHTML = `${SPARKLES_ICON_SVG} Enhance`;
       magicBtn.dataset.mode = "enhance";
     } else {
       // Extract Mode (Wand)
-      magicBtn.innerHTML = `${WAND_ICON_SVG} Extract Appearance`;
+      magicBtn.innerHTML = `${WAND_ICON_SVG} Extract`;
       magicBtn.dataset.mode = "extract";
     }
   }
@@ -436,13 +437,17 @@ export async function renderProfileEdit(screen, entity, type, id) {
         // MODE B: ENHANCE (Existing Text)
         if (currentVal) {
           try {
-            const prompt = `Rewrite this image prompt for the FLUX model. Use descriptive prose, natural lighting terms, and high fidelity. Keep it concise but vivid.\n\nInput: "${currentVal}"`;
+            // [FIX] Inject Identity Context to prevent Gender/Subject Swapping
+            const subjectGender = (entity.gender || "").toLowerCase();
+            const subjectContext = `Subject: ${entity.name} (${entity.type}). Gender: ${subjectGender}.`;
+
+            const prompt = `Rewrite this image prompt for the FLUX model. ${subjectContext}\nUse descriptive prose, natural lighting terms, and high fidelity. Keep it concise but vivid.\n\nInput: "${currentVal}"`;
 
             // Stream Logic via llm.js
             const fullText = await generateStream({
               payload: {
                 system:
-                  "You are a backend image prompt processor. OUTPUT RAW TEXT ONLY. 1. Do NOT use headers like 'Revised Prompt'. 2. Do NOT use quotation marks around the prompt. 3. Do NOT add 'Notes' or explanations at the end. 4. Just output the descriptive text block ready for the image generator.",
+                  "You are a backend image prompt processor. Preserve the subject's gender and identity. OUTPUT RAW TEXT ONLY. 1. Do NOT use headers like 'Revised Prompt'. 2. Do NOT use quotation marks around the prompt. 3. Do NOT add 'Notes' or explanations at the end. 4. Just output the descriptive text block ready for the image generator.",
                 messages: [{ role: "user", text: prompt }],
                 params: {
                   temperature: 0.7,
@@ -464,7 +469,10 @@ export async function renderProfileEdit(screen, entity, type, id) {
             imageInput.dispatchEvent(new Event("input"));
           } catch (llmErr) {
             console.error(llmErr);
-            showAlert("Enhance Failed", "The muse is silent. (Check AI Plugin)");
+            showAlert(
+              "Enhance Failed",
+              "The muse is silent. (Check AI Plugin)",
+            );
           }
         }
         // MODE A: AUTO-WRITE (Empty Input)
@@ -724,6 +732,48 @@ export async function renderProfileEdit(screen, entity, type, id) {
 
   footerActions.appendChild(btnGroup);
   form.appendChild(footerActions);
+
+  // --- LIVE SYNC ---
+  const handleEntityUpdate = (e) => {
+    // Check if update matches this entity
+    if (e.detail?.id === id && e.detail?.entity) {
+      console.log(`[PROFILE] Received Live Update for ${id}`);
+      const fresh = e.detail.entity;
+
+      // Update Dynamics Only (Preserve user edits in text fields if any?)
+      // Actually, physics primarily updates dynamics.
+      if (fresh.dynamics && state.settings.developerMode) {
+        const w = screen.querySelector(".dynamics-widget");
+        if (w) {
+          // Re-render widget
+          w.innerHTML = "";
+          renderDynamicsWidget(
+            screen.querySelector("[data-profile-sections]"),
+            fresh,
+            "edit",
+          );
+        }
+      }
+
+      // Note: fully re-rendering inputs might clobber user typing.
+      // We assume physics updates happen during Story Mode, where the user isn't heavily editing per se,
+      // but if they have the modal open, they might be.
+      // Safe bet: Update Dynamics and maybe Header stats if we had them.
+    }
+  };
+  events.addEventListener(EVENTS.ENTITY_UPDATED, handleEntityUpdate);
+
+  // Cleanup listener when modal closes
+  // (We don't have a direct "close" event here easily, but we can hook the remove)
+  // This is a bit leaky if we're not careful.
+  // Ideally `closeProfileModal` handles cleanup.
+  // For now, we can attach it to the screen element's removal?
+  // Or just rely on the fact that `renderProfileEdit` clears the screen or creates a new one?
+  // WeakMap or similar?
+  // Let's attach a cleanup method to the screen element?
+  screen._cleanupProfile = () => {
+    events.removeEventListener(EVENTS.ENTITY_UPDATED, handleEntityUpdate);
+  };
 
   screen.appendChild(layout);
 }

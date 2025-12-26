@@ -88,6 +88,7 @@
   textarea[name="message"] {
     @extend %input-deep;
 
+    border-radius: 999px var(--pico-radius) var(--pico-radius) 999px;
     height: auto;
     min-height: 3rem;
     max-height: 12rem;
@@ -340,19 +341,6 @@
    5. MESSAGES (Bubbles) - REFACTORED ("Clean Slate" Protocol)
    ============================================================================ */
 
-.debug-console-output {
-  display: none !important;
-  background: #000;
-  border: 1px solid var(--color-accent-pink);
-  font-family: monospace;
-  padding: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-body.mode-developer .debug-console-output {
-  display: block !important;
-}
-
 // --- BASE BUBBLE ---
 .chat-bubble {
   padding: var(--space-md) var(--space-md-lg);
@@ -456,157 +444,148 @@ body.mode-developer .debug-console-output {
   --msg-bg: var(--pico-form-element-background-color);
 }
 
-// 3. NARRATOR
-.chat-bubble--narrator {
+// 3. FRACTAL (Unified System/Narrator Protocol)
+.chat-bubble--fractal {
+  // --- BASE GEOMETRY (Formerly Narrator) ---
   align-self: center;
   text-align: center;
   width: fit-content;
-  max-width: 40vw;
+  max-width: 40vw; // Unified width
   margin-inline: auto;
   text-wrap: balance;
-  border-radius: 2px;
-
-  --msg-bg: var(--pico-card-background-color);
-
-  border-left: 2px solid var(--pico-muted-border-color) !important;
+  border-radius: var(--msg-radius); // Unified radius
   font-style: normal !important;
 
-  .narrator-prefix {
-    display: none;
-  }
-}
-
-// 4. FRACTAL (Divine Protocol)
-.chat-bubble--fractal {
-  @extend .chat-bubble--narrator;
-
-  // Variables
-  --color-signature-main: var(--signature-color, var(--pico-primary-background));
+  // --- VARIABLES ---
+  --color-signature-main: var(
+    --signature-color,
+    var(--pico-primary-background)
+  );
   --color-signature-glow: var(--signature-color, rgba(255, 255, 255, 50%));
-  --radius-xl: var(--space-xl);
 
-  // Appearance - FORCE overrides
+  // --- APPEARANCE (Divine Protocol) ---
   background-color: var(--color-signature-main) !important;
-  color: #ffffff !important;
+  color: #fff !important;
   border: none !important;
   box-shadow: 0 4px 12px var(--color-signature-glow);
 
-  // Geometry Overrides (Narrator + Character Soul)
-  border-radius: var(--radius-xl);
-  max-width: 85%;
-
-  // Ensure tail is gone (handled by narrator extend usually)
+  // Eliminate Tail
   &::before,
   &::after {
     display: none !important;
   }
-}
 
-// 5. META/OOC
-.chat-bubble[data-type="OOC"],
-.chat-bubble.developer-command {
-  align-self: center !important;
-  border-radius: var(--msg-radius);
-  background: rgb(0 0 0 / 40%) !important;
-  backdrop-filter: blur(4px);
-  border: 1px solid var(--pico-muted-border-color) !important;
-  font-style: italic;
+  // Hide Narrator Prefix (Legacy safety)
+  .narrator-prefix {
+    display: none;
+  }
 
-  --msg-color: var(--pico-muted-color);
-}
-
-// --- DEBUG BLOCKS ---
-%debug-block {
-  background: rgb(15 23 42 / 95%);
-  box-shadow: 0 4px 6px rgb(0 0 0 / 20%);
-  padding: 0;
-  border: 1px solid var(--pico-muted-border-color);
-  border-left: 3px solid var(--pico-primary);
-  border-radius: 4px;
-  align-self: center;
-  max-width: 95%;
-  width: 95%;
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-  display: none;
-  flex-direction: column;
-  height: auto;
-  min-height: auto;
-
-  .physics-log {
-    font-family: "Courier New", monospace;
-    font-size: 0.75rem;
-    color: #a0aec0;
-    text-align: left;
-    white-space: pre-wrap;
-    line-height: 1.4;
-    padding: 0.75rem 1rem;
-    margin: 0;
-    width: 100%;
+  // [ANTI-GRAVITY] Fractal Typing Dots
+  .typing-dot {
+    opacity: 0.9;
   }
 }
 
-%debug-block-image-prompt {
-  border-left: 3px solid $debug-violet-500;
+// Dynamic Signature Colors
+// Generates .chat-bubble.signature-{name} classes
+@each $name, $data in $signature-colors {
+  $color: map.get($data, "color");
 
-  .debug-label {
-    background: rgba($debug-violet-500, 0.2);
-    color: $debug-violet-300;
-    font-size: 0.65em;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    padding: 0.25rem 0.5rem;
-    border-bottom: 1px solid rgba($debug-violet-500, 0.3);
-    text-transform: uppercase;
-  }
+  .chat-bubble.signature-#{$name} {
+    border-color: rgba($color, 0.5) !important;
+    box-shadow: 0 2px 8px rgba($color, 0.15);
 
-  .physics-log {
-    color: $debug-violet-300;
-  }
-}
-
-.debug-block {
-  @extend %debug-block;
-}
-
-.debug-block--image-prompt {
-  @extend %debug-block-image-prompt;
-}
-
-.debug-prompt-block {
-  @extend %debug-block;
-  @extend %debug-block-image-prompt;
-
-  display: none;
-
-  body.mode-developer & {
-    display: block;
-  }
-}
-
-.status-hud {
-  border-left: 3px solid $debug-cyan-500;
-
-  .physics-log {
-    color: $debug-cyan-200;
-    font-size: 0.7rem;
-
-    strong {
-      display: block;
-      color: $debug-cyan-400;
-      margin-bottom: 0.25rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+    // Fractal-specific subtle tint
+    &.chat-bubble--fractal {
+      background: linear-gradient(
+        135deg,
+        rgba($color, 0.1),
+        rgba($color, 0.05)
+      );
     }
   }
 }
 
-// [NEXUS FIX] Stale HUD Visuals
-.status-hud--stale {
+// --- 5. UNIFIED TECHNICAL CARD (The "Debug Protocol") ---
+// Merges: Debug, Physics Log, Status HUD, Thoughts, Image Prompts
+.debug-card {
+  display: none !important; // Hidden by default
+  flex-direction: column;
+  background: rgb(15 23 42 / 95%);
+  border: 1px solid var(--pico-muted-border-color);
+  border-left: 3px solid var(--pico-primary);
+  border-radius: 4px;
+  padding: 0.5rem;
+  margin: 0.5rem auto; // Center it like a system message
+  width: auto;
+  max-width: 95%;
+  font-family: "Courier New", monospace;
+  font-size: 0.75rem;
+  color: #a0aec0;
+  white-space: pre-wrap;
+  line-height: 1.4;
+  box-shadow: 0 4px 6px rgb(0 0 0 / 20%);
+  align-self: center;
+  text-align: left;
+
+  // Developer Mode visibility
+  body.mode-developer & {
+    display: flex !important;
+  }
+
+  // --- INTERNAL STRUCTURE ---
+  .debug-header {
+    font-size: 0.65em;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.25rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid rgb(255 255 255 / 10%);
+    color: var(--pico-primary);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .debug-content {
+    width: 100%;
+  }
+
+  // --- VARIANTS (Contextual Coloring) ---
+
+  // 1. Thought Trace (AI Reasoning)
+  &.debug-card--thought {
+    border-left-color: var(--color-accent-gold, #f59e0b);
+
+    .debug-header {
+      color: var(--color-accent-gold, #f59e0b);
+    }
+  }
+
+  // 2. Image Prompts
+  &.debug-card--prompt {
+    border-left-color: var(--color-accent-pink, #ec4899);
+
+    .debug-header {
+      color: var(--color-accent-pink, #ec4899);
+    }
+  }
+
+  // 3. Status/Physics HUD
+  &.debug-card--hud {
+    border-left-color: var(--color-accent-cyan, #06b6d4);
+
+    .debug-header {
+      color: var(--color-accent-cyan, #06b6d4);
+    }
+  }
+
+  // 4. Stale State
+  &.is-stale {
     opacity: 0.5;
     text-decoration: line-through;
     filter: grayscale(1);
-    pointer-events: none; // No interaction
+  }
 }
 
 // --- SIGNATURE COLOR LOGIC ---
@@ -633,7 +612,10 @@ body.mode-developer .debug-console-output {
   display: flex;
   align-items: center;
   gap: 6px;
-  background-color: var(--color-signature-main, var(--pico-form-element-background-color));
+  background-color: var(
+    --color-signature-main,
+    var(--pico-form-element-background-color)
+  );
   color: #fff;
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
   opacity: 0;
@@ -648,23 +630,21 @@ body.mode-developer .debug-console-output {
     }
   }
 
-  &.chat-bubble--narrator {
-    align-self: center;
-    margin-inline: auto;
-  }
-
   // Fractal typing support
   &.chat-bubble--fractal {
     // Variable Mapping for typing bubble context
-    --color-signature-main: var(--signature-color, var(--pico-primary-background));
+    --color-signature-main: var(
+      --signature-color,
+      var(--pico-primary-background)
+    );
 
     align-self: center;
     margin-inline: auto;
     background-color: var(--color-signature-main) !important;
-    box-shadow: 0 4px 12px var(--color-signature-glow, rgba(255,255,255,50%));
+    box-shadow: 0 4px 12px var(--color-signature-glow, rgba(255, 255, 255, 50%));
 
     .typing-dot {
-      background-color: #ffffff !important;
+      background-color: #fff !important;
     }
   }
 }
@@ -785,41 +765,6 @@ body.mode-developer .debug-console-output {
       margin-bottom: 0;
     }
   }
-
-  .message-content,
-  .message-actions {
-    display: none !important;
-  }
-}
-
-// THOUGHT TRACE
-.thought-trace {
-  display: block;
-  width: 100%;
-  text-align: left !important;
-  font-size: 0.85em;
-  margin-bottom: 0.25rem;
-  padding: 0.75rem 1rem;
-  background: rgb(0 0 0 / 80%);
-  border-left: 3px solid var(--pico-primary);
-  border-radius: 4px;
-  font-style: normal !important;
-  white-space: pre-wrap;
-
-  body.mode-developer & {
-    display: block !important;
-  }
-
-  .thought-label {
-    font-size: 0.65em;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 0.25rem;
-    font-weight: 800;
-    font-style: normal;
-    display: block;
-    color: var(--pico-primary);
-  }
 }
 
 // SAFETY LOCK
@@ -871,14 +816,24 @@ body.mode-developer .debug-console-output {
     font-weight: 600;
 
     .loading-spinner {
+      @extend %spinner-base;
+
       width: 20px;
       height: 20px;
-      border: 2px solid var(--pico-muted-color);
-      border-top-color: transparent;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
+
+      --spinner-width: 2px;
+      --spinner-color: var(--pico-muted-color);
     }
   }
+}
+
+// Unified Spinner Base (Shared)
+%spinner-base {
+  border: var(--spinner-width, 2px) solid
+    var(--spinner-color, var(--pico-muted-color));
+  border-top-color: transparent !important; // override border-top
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
 .image-wrapper {
@@ -909,12 +864,15 @@ body.mode-developer .debug-console-output {
       background: rgb(0 0 0 / 20%);
 
       .reroll-spinner {
+        @extend %spinner-base;
+
         width: 40px;
         height: 40px;
-        border: 4px solid rgb(255 255 255 / 30%);
-        border-top: 4px solid #fff;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
+
+        --spinner-width: 4px;
+        --spinner-color: rgb(255 255 255 / 30%); // mute the full ring
+
+        border-top-color: #fff !important; // active segment color
       }
     }
   }
@@ -946,30 +904,7 @@ body.mode-developer .debug-console-output {
 }
 
 // --- CONCLUDED STATE CONTROLS ---
-.concluded-controls {
-  position: fixed;
-  bottom: 3rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2000;
-  display: flex;
-  gap: 0.5rem;
-
-  @extend %material-glass;
-
-  padding: 0.5rem;
-  background: rgba(0, 0, 0, 80%);
-  border: 1px solid var(--pico-primary);
-
-  button {
-    margin: 0;
-    font-size: 0.85rem;
-    padding: 0.5rem 1rem;
-
-    @include btn-base;
-    @include btn-physics;
-  }
-}
+// Moved to _storyboard.scss to unify with Storyboard Pills & deduplicate code.
 
 #story-concluded {
   margin-bottom: 1rem;
@@ -1001,27 +936,27 @@ body.mode-developer {
 }
 
 .debug-image-prompt-container {
-    display: none;
+  display: none;
 }
 
 body.mode-developer .debug-image-prompt-container {
+  display: block;
+  background: #000;
+  border: 1px dashed var(--color-accent-pink);
+  padding: var(--space-xs);
+  margin-top: var(--space-xs);
+  font-family: monospace;
+  font-size: 0.8em;
+  color: var(--color-accent-pink);
+
+  .label {
+    font-weight: bold;
     display: block;
-    background: #000;
-    border: 1px dashed var(--color-accent-pink);
-    padding: var(--space-xs);
-    margin-top: var(--space-xs);
-    font-family: monospace;
-    font-size: 0.8em;
-    color: var(--color-accent-pink);
+    margin-bottom: 2px;
+  }
 
-    .label {
-        font-weight: bold;
-        display: block;
-        margin-bottom: 2px;
-    }
-
-    .content {
-        color: #fff;
-        opacity: 0.9;
-    }
+  .content {
+    color: #fff;
+    opacity: 0.9;
+  }
 }

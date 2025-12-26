@@ -7,7 +7,7 @@ import {
 } from "../../services/ui-utils.js";
 import { getVisualState } from "../../../data/models.js";
 import { entities } from "../../../data/repo.js";
-import { escapeHtml } from "../../../core/utils.js";
+import { escapeHtml, log } from "../../../core/utils.js";
 import { state } from "../../../core/state.js";
 import { PROFILE_STRUCTURE, LABEL_MAP, SPLIT_HEADERS } from "./constants.js";
 
@@ -128,7 +128,7 @@ export async function renderProfileView(
   const { events, EVENTS } = await import("../../../core/events.js");
   const onEntityUpdate = (e) => {
     if (e.detail && e.detail.id === entity.id) {
-      console.log(`⚡ [PROFILE] Live Update Received for ${entity.name}`);
+      log(`⚡ [PROFILE] Live Update Received for ${entity.name}`);
 
       // Refresh In-Memory Entity
       Object.assign(entity, e.detail);
@@ -186,7 +186,7 @@ export async function renderProfileView(
     // ⚡ BOLT REFACTOR: Use shared row logic
     const { row, contentCol } = createProfileRow(
       groupConfig.label.split(" (")[0],
-      LABEL_MAP[groupKey] || ""
+      LABEL_MAP[groupKey] || "",
     );
 
     if (groupConfig.type === "nested") {
@@ -197,7 +197,7 @@ export async function renderProfileView(
       // Order: Non-Physical (Mental) Left, Physical Right
       const keys = ["mental", "physical"];
 
-      keys.forEach(key => {
+      keys.forEach((key) => {
         // [FIX] Ensure field exists in config to prevent access errors if schema changes
         if (!groupConfig.fields[key]) return;
 
@@ -222,7 +222,6 @@ export async function renderProfileView(
         splitWrap.appendChild(splitCol);
       });
       contentCol.appendChild(splitWrap);
-
     } else {
       // String type (Past/Future)
       const val = entity[groupKey] || "";
