@@ -25,19 +25,18 @@ import {
   getOnUpdateSelection,
   getActiveSlotKey,
 } from "./controller.js";
-import { showAlert, showConfirm } from "../../orchestrator.js";
+import { showAlert, showConfirm } from "../../services/modals.js";
 
-function autoResize(el) {
+const autoResize = (el) => {
   el.style.height = "auto";
   el.style.height = el.scrollHeight + "px";
-}
+};
 
 // Helper to access nested properties safely (e.g. entity.forever.physical)
-function getNestedValue(obj, path) {
-  return path.split(".").reduce((acc, part) => acc && acc[part], obj) || "";
-}
+const getNestedValue = (obj, path) =>
+  path.split(".").reduce((acc, part) => acc && acc[part], obj) || "";
 
-function getLiveEntityFromForm(form, baseEntity) {
+const getLiveEntityFromForm = (form, baseEntity) => {
   const live = { ...baseEntity };
 
   // Explicitly scrape name and description if available
@@ -61,9 +60,9 @@ function getLiveEntityFromForm(form, baseEntity) {
   });
 
   return live;
-}
+};
 
-export async function renderProfileEdit(screen, entity, type, id) {
+export const renderProfileEdit = async (screen, entity, type, id) => {
   // Setup Visuals
   setTopBarRight("form");
 
@@ -192,7 +191,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
     }
   };
 
-  function updateButtonState() {
+  const updateButtonState = () => {
     const val = imageInput.value.trim();
     const hasPending = !!imageInput.dataset.pendingUrl;
 
@@ -206,9 +205,9 @@ export async function renderProfileEdit(screen, entity, type, id) {
       actionButton.textContent = "Use URL";
       actionButton.dataset.action = "use-url";
     }
-  }
+  };
 
-  function updateMagicButtonState() {
+  const updateMagicButtonState = () => {
     if (!magicBtn) return;
 
     const WAND_ICON_SVG = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 7l-1.2-2.8L16 3l-1.2 2.8L12 7l2.8 1.2L16 11l1.2-2.8L20 7zm-9 6l-2.3-5L6.5 3 4.2 8 2 10.3l5 2.3L4.7 17l2.3 5L9.3 17l5-2.3L12 13z"/></svg>`;
@@ -223,7 +222,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
       magicBtn.innerHTML = `${WAND_ICON_SVG} Extract`;
       magicBtn.dataset.mode = "extract";
     }
-  }
+  };
 
   imageInput.addEventListener("input", () => {
     if (imageInput.dataset.pendingUrl) delete imageInput.dataset.pendingUrl;
@@ -427,156 +426,131 @@ export async function renderProfileEdit(screen, entity, type, id) {
   });
 
   // --- MAGIC PROMPT LOGIC ---
+  const handleEnhancePrompt = async (currentVal) => {
+    // [FIX] Inject Identity Context to prevent Gender/Subject Swapping
+    const subjectGender = (entity.gender || "").toLowerCase();
+    const subjectContext = `Subject: ${entity.name} (${entity.type}). Gender: ${subjectGender}.`;
+
+    const prompt = `Rewrite this image prompt for the FLUX model. ${subjectContext}\nUse descriptive prose, natural lighting terms, and high fidelity. Keep it concise but vivid.\n\nInput: "${currentVal}"`;
+
+    const fullText = await generateStream({
+      payload: {
+        system:
+          "You are a backend image prompt processor. Preserve the subject's gender and identity. OUTPUT RAW TEXT ONLY. 1. Do NOT use headers like 'Revised Prompt'. 2. Do NOT use quotation marks around the prompt. 3. Do NOT add 'Notes' or explanations at the end. 4. Just output the descriptive text block ready for the image generator.",
+        messages: [{ role: "user", text: prompt }],
+        params: {
+          temperature: 0.7,
+          maxTokens: 200,
+          model: "flux-prompter",
+        },
+      },
+    });
+
+    return fullText
+      .replace(/^\s*(\*\*.*?\*\*|Revised.*?Prompt:)\s*/gim, "")
+      .replace(/Note:[\s\S]*$/i, "")
+      .trim()
+      .replace(/^["']|["']$/g, "")
+      .trim();
+  };
+
+  const handleAutoWritePrompt = async () => {
+    const liveEntity = getLiveEntityFromForm(form, entity);
+
+    // 1. Gender Enforcement
+    const gender = (liveEntity.gender || entity.gender || "").toLowerCase();
+    const pronouns = (
+      liveEntity.pronouns ||
+      entity.pronouns ||
+      ""
+    ).toLowerCase();
+    const isMale =
+      gender === "male" || gender === "man" || pronouns.includes("he/");
+    const isFemale =
+      gender === "female" || gender === "woman" || pronouns.includes("she/");
+
+    let genderKeywords = "";
+    if (isMale) genderKeywords = "Male, Man, Masculine features, chiseled";
+    else if (isFemale) genderKeywords = "Female, Woman, Feminine features";
+
+    // 2. Style Injection
+    let styleKeywords = "";
+    let negParts = [];
+
+    if (isFractal) {
+      styleKeywords =
+        "Hyper-realistic texture, Macro photography, Cinematic lighting, Optical illusion";
+      negParts.push("Humans, People, Face, Eyes");
+    } else {
+      styleKeywords =
+        "Photorealistic Profile Picture, 8k, raw photo, natural skin texture, visible pores, cinematic lighting, sharp focus";
+    }
+
+    // 3. Negative Prompting
+    if (isMale) negParts.push("woman, girl, female, boobs, feminine");
+    else if (isFemale) negParts.push("man, boy, male, masculine, facial hair");
+
+    negParts.push("text, watermark, blurry, low quality");
+    const finalNeg = negParts.join(", ");
+
+    // 4. Color Injection
+    const sigKey = paletteSelect
+      ? paletteSelect.value
+      : entity.signatureColor || "default";
+    const readableColor = sigKey
+      .split("_")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
+    const colorInjection = `${readableColor} lighting, ${readableColor} accents`;
+
+    // 5. Build Final Prompt
+    const subject = `A portrait of ${liveEntity.name}`;
+    let descSources = [
+      liveEntity.forever?.physical,
+      liveEntity.present?.physical,
+    ].filter(Boolean);
+
+    if (descSources.length === 0) {
+      if (liveEntity.appearance) descSources.push(liveEntity.appearance);
+      else descSources.push(`${liveEntity.type} - A mysterious figure`);
+    }
+
+    const baseDesc = descSources.join(", ");
+    const promptParts = [
+      styleKeywords,
+      colorInjection,
+      genderKeywords,
+      subject,
+      baseDesc,
+    ].filter((p) => p && p.trim() !== "");
+
+    return { pos: promptParts.join(", "), neg: finalNeg };
+  };
+
   if (magicBtn) {
-    magicBtn.addEventListener("click", async (e) => {
+    magicBtn.onclick = async (e) => {
       e.preventDefault();
       try {
         setBusy(true);
         const currentVal = imageInput.value.trim();
 
-        // MODE B: ENHANCE (Existing Text)
         if (currentVal) {
-          try {
-            // [FIX] Inject Identity Context to prevent Gender/Subject Swapping
-            const subjectGender = (entity.gender || "").toLowerCase();
-            const subjectContext = `Subject: ${entity.name} (${entity.type}). Gender: ${subjectGender}.`;
-
-            const prompt = `Rewrite this image prompt for the FLUX model. ${subjectContext}\nUse descriptive prose, natural lighting terms, and high fidelity. Keep it concise but vivid.\n\nInput: "${currentVal}"`;
-
-            // Stream Logic via llm.js
-            const fullText = await generateStream({
-              payload: {
-                system:
-                  "You are a backend image prompt processor. Preserve the subject's gender and identity. OUTPUT RAW TEXT ONLY. 1. Do NOT use headers like 'Revised Prompt'. 2. Do NOT use quotation marks around the prompt. 3. Do NOT add 'Notes' or explanations at the end. 4. Just output the descriptive text block ready for the image generator.",
-                messages: [{ role: "user", text: prompt }],
-                params: {
-                  temperature: 0.7,
-                  maxTokens: 200,
-                  model: "flux-prompter", // Metadata for tracking
-                },
-              },
-            });
-
-            // Clean up the response
-            let cleanText = fullText
-              .replace(/^\s*(\*\*.*?\*\*|Revised.*?Prompt:)\s*/gim, "") // Remove headers and labels at the start of lines
-              .replace(/Note:[\s\S]*$/i, "") // Remove trailing notes
-              .trim() // Trim first to expose quotes
-              .replace(/^["']|["']$/g, "") // Remove surrounding quotes
-              .trim(); // Trim again just in case
-
-            imageInput.value = cleanText;
-            imageInput.dispatchEvent(new Event("input"));
-          } catch (llmErr) {
-            console.error(llmErr);
-            showAlert(
-              "Enhance Failed",
-              "The muse is silent. (Check AI Plugin)",
-            );
-          }
+          const cleanText = await handleEnhancePrompt(currentVal);
+          imageInput.value = cleanText;
+        } else {
+          const { pos, neg } = await handleAutoWritePrompt();
+          imageInput.value = pos;
+          imageInput.dataset.negativePrompt = neg;
         }
-        // MODE A: AUTO-WRITE (Empty Input)
-        else {
-          // Scrape LIVE values using helper
-          const liveEntity = getLiveEntityFromForm(form, entity);
-
-          // --- BRAIN TRANSPLANT: Deterministic Prompt Engineering ---
-
-          // 1. Gender Enforcement
-          const gender = (
-            liveEntity.gender ||
-            entity.gender ||
-            ""
-          ).toLowerCase();
-          const pronouns = (
-            liveEntity.pronouns ||
-            entity.pronouns ||
-            ""
-          ).toLowerCase();
-          const isMale =
-            gender === "male" || gender === "man" || pronouns.includes("he/");
-          const isFemale =
-            gender === "female" ||
-            gender === "woman" ||
-            pronouns.includes("she/");
-
-          let genderKeywords = "";
-          if (isMale)
-            genderKeywords = "Male, Man, Masculine features, chiseled";
-          else if (isFemale)
-            genderKeywords = "Female, Woman, Feminine features";
-
-          // 2. Style Injection
-          let styleKeywords = "";
-          let negParts = [];
-
-          if (isFractal) {
-            // [FIX] Semantic Repair for Fractals
-            styleKeywords =
-              "Hyper-realistic texture, Macro photography, Cinematic lighting, Optical illusion";
-            negParts.push("Humans, People, Face, Eyes");
-          } else {
-            // Default to Character
-            styleKeywords =
-              "Photorealistic Profile Picture, 8k, raw photo, natural skin texture, visible pores, cinematic lighting, sharp focus";
-          }
-
-          // 3. Negative Prompting (Gender & Base)
-          if (isMale) negParts.push("woman, girl, female, boobs, feminine");
-          else if (isFemale)
-            negParts.push("man, boy, male, masculine, facial hair");
-
-          negParts.push("text, watermark, blurry, low quality");
-          const finalNeg = negParts.join(", ");
-
-          // 4. Color Injection (Signature Color)
-          // Convert "neon_blue" -> "Neon Blue"
-          const sigKey = paletteSelect
-            ? paletteSelect.value
-            : entity.signatureColor || "default";
-          const readableColor = sigKey
-            .split("_")
-            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-            .join(" ");
-          const colorInjection = `${readableColor} lighting, ${readableColor} accents`;
-
-          // 5. The Wiring (Construct Rich Prompt)
-          const subject = `A portrait of ${liveEntity.name}`;
-
-          let descSources = [
-            liveEntity.forever?.physical,
-            liveEntity.present?.physical,
-          ].filter(Boolean);
-
-          if (descSources.length === 0) {
-            if (liveEntity.appearance) descSources.push(liveEntity.appearance);
-            else descSources.push(`${liveEntity.type} - A mysterious figure`);
-          }
-
-          const baseDesc = descSources.join(", ");
-
-          const promptParts = [
-            styleKeywords,
-            colorInjection,
-            genderKeywords,
-            subject,
-            baseDesc,
-          ].filter((p) => p && p.trim() !== "");
-
-          const finalPos = promptParts.join(", ");
-
-          imageInput.value = finalPos;
-          imageInput.dataset.negativePrompt = finalNeg;
-          imageInput.dispatchEvent(new Event("input"));
-        }
+        imageInput.dispatchEvent(new Event("input"));
       } catch (err) {
-        console.error("Magic Prompt failed", err);
+        error("Magic Prompt failed", err);
         showAlert("Error", "The Maestro is silent. Please try again.");
       } finally {
         setBusy(false);
         updateButtonState();
       }
-    });
+    };
   }
 
   // --- DYNAMICS ---
@@ -621,77 +595,47 @@ export async function renderProfileEdit(screen, entity, type, id) {
 
   // Save
   const saveBtn = document.createElement("button");
-  saveBtn.className = "btn-primary btn-icon-raise"; // Ghost + Primary
+  saveBtn.className = "btn-primary btn-icon-raise";
   saveBtn.innerHTML = `<svg class="icon" viewBox="0 0 24 24" style="width:1.2em; height:1.2em; vertical-align:middle;"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3-3 3zm3-10H5V5h10v4z"/></svg>`;
   saveBtn.title = "Save Profile";
   saveBtn.onclick = async (e) => {
     e.preventDefault();
-    const nameVal = nameInput.value.trim();
-    if (!nameVal) return showAlert("Validation", "Name is required");
+    const live = getLiveEntityFromForm(form, entity);
 
-    // Gather Tags
-    let tagsArray = [];
-    const tagInputEl = form.querySelector('[data-edit-field="tags"]');
-    if (tagInputEl) {
-      tagsArray = tagInputEl.value
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean);
-    } else {
-      tagsArray = entity.tags || [];
-    }
+    if (!live.name?.trim()) return showAlert("Validation", "Name is required");
 
+    // Patch visual alignment
     const finalImageUrl = escapeHtml(
       imageInput.dataset.pendingUrl || imageInput.value.trim(),
     );
+    localVisuals.profilePictureUrl = finalImageUrl;
+    localVisuals.signatureColour = paletteSelect.value; // Sync palette choice
 
-    if (localVisuals) {
-      localVisuals.profilePictureUrl = finalImageUrl;
-    }
-
-    // Base Data
+    // Merge everything
     const data = {
-      name: escapeHtml(nameVal),
-      description: escapeHtml(descInput.value.trim()),
+      ...live,
+      name: escapeHtml(live.name),
+      description: escapeHtml(live.description),
       profilePictureUrl: finalImageUrl,
       signatureColour: escapeHtml(paletteSelect.value.trim()),
-      tags: tagsArray,
       visuals: localVisuals,
       povStyle: isFractal
         ? form.querySelector('[data-edit-field="povStyle"]')?.value ||
           entity.povStyle ||
           "IMMERSIVE"
         : undefined,
-      // Initialize nested containers
-      forever: {},
-      present: {},
     };
 
-    // Scrape Fields from DOM
-    // Iterate all textareas with data-edit-field
+    // Sanitize any root or nested strings
     const allInputs = form.querySelectorAll("textarea[data-edit-field]");
     allInputs.forEach((input) => {
       const fieldKey = input.dataset.editField;
-      if (
-        [
-          "name",
-          "description",
-          "tags",
-          "povStyle",
-          "profilePictureUrl",
-        ].includes(fieldKey)
-      )
-        return; // Handled separately
-
+      if (["name", "description", "povStyle"].includes(fieldKey)) return;
       const val = escapeHtml(input.value.trim());
-
       if (fieldKey.includes(".")) {
-        // Handle nested: "forever.physical"
         const [parent, child] = fieldKey.split(".");
-        if (!data[parent]) data[parent] = {};
-        data[parent][child] = val;
+        if (data[parent]) data[parent][child] = val;
       } else {
-        // Handle root string: "past"
         data[fieldKey] = val;
       }
     });
@@ -712,7 +656,6 @@ export async function renderProfileEdit(screen, entity, type, id) {
       } else {
         await entities.upsert(type, { ...entity, ...data });
 
-        // Force update of the underlying selection
         const _onUpdateSelection = getOnUpdateSelection();
         if (_onUpdateSelection) {
           const activeKey = getActiveSlotKey();
@@ -724,8 +667,8 @@ export async function renderProfileEdit(screen, entity, type, id) {
       }
       closeProfileModal();
     } catch (err) {
-      console.error(err);
-      showAlert("Saving Failed", "Failed to save.");
+      error("Saving Failed", err);
+      showAlert("Saving Failed", "Failed to save profile.");
     }
   };
   btnGroup.appendChild(saveBtn);
@@ -776,4 +719,4 @@ export async function renderProfileEdit(screen, entity, type, id) {
   };
 
   screen.appendChild(layout);
-}
+};

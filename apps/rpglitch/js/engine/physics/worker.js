@@ -10,11 +10,13 @@ import { calculateDynamics, parseLlmResponse } from "./main.js";
 import { ContextBuilder } from "../prompter.js";
 import { entities } from "../../data/repo.js";
 import { ENTITY_TYPES } from "../../core/constants.js";
-import { log, error } from "../../core/utils.js";
+import { error } from "../../core/utils.js";
 
 // --- STATE HYDRATION ---
 
-async function hydrateState(storyId) {
+// --- STATE HYDRATION ---
+
+const hydrateState = async (storyId) => {
   const [settings, story, messages] = await Promise.all([
     db.settings.get("app-settings"),
     db.stories.get(storyId),
@@ -31,35 +33,28 @@ async function hydrateState(storyId) {
       byStoryId: { [storyId]: messages || [] },
     },
   });
-}
+};
 
 // --- UTILS ---
 
-// V5 UPGRADE: Generates the specific block that bubble.js renders as a UI Bar
-// V5 UPGRADE: Generates the specific block that bubble.js renders as a UI Bar
-// V5 UPGRADE: Generates the specific block that bubble.js renders as a UI Bar
-function createPhysicsDebugLog(
+const createPhysicsDebugLog = (
   oldDynamics,
   newDynamics,
   entityName,
   explanations = {},
-) {
+) => {
   const flags = newDynamics._flags || {};
-
-  // 1. The Narrative Log (For the Developer)
   let debugText = `**PHYSICS UPDATE: ${entityName || "Unknown"}**\n`;
 
   const formatLine = (label, key) => {
-    const oldVal = oldDynamics[key];
     const newVal = newDynamics[key];
     const explain = explanations[key] ? ` ${explanations[key]}` : "";
-    return `${label}: ${oldVal} -> ${newVal}${explain}\n`;
+    return `${label}: ${oldDynamics[key]} -> ${newVal}${explain}\n`;
   };
 
-  debugText += formatLine("Entropy", "entropy");
-  debugText += formatLine("Velocity", "velocity");
-  debugText += formatLine("Permeability", "permeability");
-  debugText += formatLine("Resonance", "resonance");
+  ["entropy", "velocity", "permeability", "resonance"].forEach((key) => {
+    debugText += formatLine(key.charAt(0).toUpperCase() + key.slice(1), key);
+  });
 
   if (flags.panicSpiral)
     debugText += ">> LAW 4: PANIC SPIRAL (Velocity Forced Up)\n";
@@ -67,224 +62,13 @@ function createPhysicsDebugLog(
     debugText += ">> LAW 2: FOG OF WAR (Resonance Dampened)\n";
 
   return debugText;
-}
-
-// ... (skip down to handleLlmResponse, but we can't skip in replace, so we just target the needed part)
-// Actually, I can replace the function and the handler call setup.
-// Let's do this in two chunks if possible, or one big chunk if they are contiguous.
-// They are NOT contiguous (lines 38-56 vs 143-203). replace_file_content works on a single contiguous block.
-// I MUST use multi_replace_file_content.
-
-// --- MESSAGE HANDLER ---
-
-self.onmessage = async (e) => {
-  const { type, payload, meta } = e.data;
-
-  if (type === "CMD_START_UPDATE") {
-    await handleStartUpdate(payload);
-  } else if (type === "CMD_LLM_RESPONSE") {
-    if (meta && meta.isArchivist) {
-      await handleArchivistResponse(payload, meta);
-    } else {
-      await handleLlmResponse(payload);
-    }
-  }
 };
 
 // --- LOGIC ---
 
 let pendingContext = null;
 
-async function handleStartUpdate({ storyId, targetType, linkedMessageId }) {
-  // console.log("[WORKER] Starting Background Update...");
-
-  try {
-    await hydrateState(storyId);
-
-    const builder = new ContextBuilder(storyId);
-    const story = state.story.byId[storyId];
-
-    if (!story) {
-      postMessage({ type: "CMD_UPDATE_COMPLETE", payload: { success: false } });
-      return;
-    }
-
-    let entity = null;
-    if (targetType === ENTITY_TYPES.AI_CHARACTER)
-      entity = await entities.get("character", story.aiId);
-    else if (targetType === ENTITY_TYPES.USER_CHARACTER)
-      entity = await entities.get("character", story.userId);
-    else if (targetType === ENTITY_TYPES.FRACTAL)
-      entity = await entities.get("fractal", story.fractalId);
-
-    if (!entity) {
-      postMessage({ type: "CMD_UPDATE_COMPLETE", payload: { success: false } });
-      return;
-    }
-
-    // 1. Calculate algorithmic fallback
-    const oldDynamics = entity.dynamics || {
-      entropy: 10,
-      permeability: 50,
-      velocity: 10,
-      resonance: 10,
-    };
-    const fallbackDynamics = calculateDynamics(oldDynamics);
-
-    // 2. Build Prompt
-    const promptPayload = await builder.buildUpdater(targetType, null);
-
-    // Store context
-    pendingContext = {
-      storyId,
-      targetType,
-      targetEntityId: entity.id,
-      linkedMessageId,
-      oldDynamics,
-      fallbackDynamics,
-      entityName: entity.name,
-      entityType: entity.type,
-    };
-
-    // 3. Request LLM Execution
-    postMessage({
-      type: "CMD_LLM_REQUEST",
-      payload: promptPayload,
-    });
-  } catch (err) {
-    error("[WORKER] Error in handleStartUpdate:", err);
-    postMessage({
-      type: "CMD_UPDATE_COMPLETE",
-      payload: { success: false, error: err.message },
-    });
-  }
-}
-
-async function handleLlmResponse({ text }) {
-  if (!pendingContext) return;
-
-  const ctx = pendingContext;
-  pendingContext = null;
-
-  try {
-    // Race Condition Check
-    if (ctx.linkedMessageId) {
-      const msgExists = await db.messages.get(ctx.linkedMessageId);
-      if (!msgExists) {
-        log("[WORKER] Aborting update. Msg deleted.");
-        postMessage({
-          type: "CMD_UPDATE_COMPLETE",
-          payload: { success: false },
-        });
-        return;
-      }
-    }
-
-    // RACE CONDITION CHECK (Removed for brevity, assuming context valid)
-
-    // V5: Use modular parser
-    const { updates, explanations, error: parseError } = parseLlmResponse(text);
-
-    if (parseError) {
-      error("[WORKER] Logic Parse Error:", parseError);
-      postMessage({
-        type: "CMD_UPDATE_COMPLETE",
-        payload: { success: false, error: parseError },
-      });
-      return;
-    }
-
-    // Apply Logic
-    const aiDynamics = updates.dynamics || {};
-    const finalDynamics = {
-      entropy: aiDynamics.entropy ?? ctx.fallbackDynamics.entropy,
-      permeability:
-        aiDynamics.permeability ?? ctx.fallbackDynamics.permeability,
-      velocity: aiDynamics.velocity ?? ctx.fallbackDynamics.velocity,
-      resonance: aiDynamics.resonance ?? ctx.fallbackDynamics.resonance,
-    };
-
-    // Log Debug Message with HUD Block
-    const debugText = createPhysicsDebugLog(
-      ctx.oldDynamics,
-      finalDynamics,
-      ctx.entityName,
-      explanations,
-    );
-
-    await db.messages.add({
-      storyId: ctx.storyId,
-      role: "system",
-      type: "DEBUG",
-      text: debugText,
-      createdAt: Date.now() + 1,
-    });
-
-    // Update Entity
-    const freshEntity = await entities.get(ctx.entityType, ctx.targetEntityId);
-
-    if (freshEntity) {
-      // [NEXUS FIX] Map 'status' to entity.present.nonPhysical
-      let presentState = updates.present || freshEntity.present || {};
-      if (updates.status) {
-        // [NEXUS FIX] Handle legacy string state migration safely
-        const base =
-          typeof presentState === "string"
-            ? { physical: presentState }
-            : typeof presentState === "object" && presentState !== null
-              ? presentState
-              : {};
-        presentState = { ...base, nonPhysical: updates.status };
-      }
-
-      const updatedEntity = {
-        ...freshEntity,
-        forever: updates.forever || freshEntity.forever,
-        past: updates.past || freshEntity.past,
-        present: presentState,
-        future: updates.future || freshEntity.future,
-        dynamics: finalDynamics,
-        updatedAt: Date.now(),
-      };
-
-      if (updates.status) {
-        log("🔄 [PHYSICS] Updating Non-Physical State:", updates.status);
-        // [NEXUS FIX] Zombie Field Check
-        if (freshEntity.status !== undefined) {
-          log("⚠️ Writing to legacy .status field for compatibility");
-          updatedEntity.status = updates.status;
-        }
-      }
-
-      // Archivist Logic
-      const MAX_PAST_LENGTH = 2000;
-      if (updatedEntity.past && updatedEntity.past.length > MAX_PAST_LENGTH) {
-        await entities.upsert(ctx.entityType, updatedEntity);
-        await handleArchivist(updatedEntity, ctx.storyId);
-      } else {
-        await entities.upsert(ctx.entityType, updatedEntity);
-        postMessage({
-          type: "CMD_UPDATE_COMPLETE",
-          payload: {
-            success: true,
-            dynamics: finalDynamics,
-            entity: updatedEntity,
-          },
-        });
-      }
-    } else {
-      postMessage({ type: "CMD_UPDATE_COMPLETE", payload: { success: false } });
-    }
-  } catch (e) {
-    error("[WORKER] Error in handleLlmResponse:", e);
-    postMessage({
-      type: "CMD_UPDATE_COMPLETE",
-      payload: { success: false, error: e.message },
-    });
-  }
-}
-
-async function handleArchivist(entity, storyId) {
+const handleArchivist = async (entity, storyId) => {
   try {
     const builder = new ContextBuilder(storyId);
     const archPayload = await builder.buildArchivist(entity);
@@ -297,12 +81,11 @@ async function handleArchivist(entity, storyId) {
   } catch (e) {
     postMessage({ type: "CMD_UPDATE_COMPLETE", payload: { success: true } });
   }
-}
+};
 
-async function handleArchivistResponse({ text }, meta) {
+const handleArchivistResponse = async ({ text }, meta) => {
   try {
     const summary = text.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
-
     const entity = await entities.get(meta.entityType, meta.entityId);
     if (entity && summary && summary.length < entity.past.length) {
       entity.past = summary;
@@ -313,4 +96,166 @@ async function handleArchivistResponse({ text }, meta) {
   } finally {
     postMessage({ type: "CMD_UPDATE_COMPLETE", payload: { success: true } });
   }
-}
+};
+
+const handleStartUpdate = async ({ storyId, targetType, linkedMessageId }) => {
+  try {
+    await hydrateState(storyId);
+    const builder = new ContextBuilder(storyId);
+    const story = state.story.byId[storyId];
+
+    if (!story)
+      return postMessage({
+        type: "CMD_UPDATE_COMPLETE",
+        payload: { success: false },
+      });
+
+    let entity = await entities.get(
+      targetType === ENTITY_TYPES.FRACTAL ? "fractal" : "character",
+      targetType === ENTITY_TYPES.AI_CHARACTER
+        ? story.aiId
+        : targetType === ENTITY_TYPES.USER_CHARACTER
+          ? story.userId
+          : story.fractalId,
+    );
+
+    if (!entity)
+      return postMessage({
+        type: "CMD_UPDATE_COMPLETE",
+        payload: { success: false },
+      });
+
+    const oldDynamics = entity.dynamics || {
+      entropy: 10,
+      permeability: 50,
+      velocity: 10,
+      resonance: 10,
+    };
+    const promptPayload = await builder.buildUpdater(targetType, null);
+
+    pendingContext = {
+      storyId,
+      targetType,
+      targetEntityId: entity.id,
+      linkedMessageId,
+      oldDynamics,
+      fallbackDynamics: calculateDynamics(oldDynamics),
+      entityName: entity.name,
+      entityType: entity.type,
+    };
+
+    postMessage({ type: "CMD_LLM_REQUEST", payload: promptPayload });
+  } catch (err) {
+    error("[WORKER] Error in handleStartUpdate:", err);
+    postMessage({
+      type: "CMD_UPDATE_COMPLETE",
+      payload: { success: false, error: err.message },
+    });
+  }
+};
+
+const handleLlmResponse = async ({ text }) => {
+  if (!pendingContext) return;
+  const ctx = pendingContext;
+  pendingContext = null;
+
+  try {
+    if (ctx.linkedMessageId && !(await db.messages.get(ctx.linkedMessageId))) {
+      return postMessage({
+        type: "CMD_UPDATE_COMPLETE",
+        payload: { success: false },
+      });
+    }
+
+    const { updates, explanations, error: parseError } = parseLlmResponse(text);
+    if (parseError) {
+      error("[WORKER] Logic Parse Error:", parseError);
+      return postMessage({
+        type: "CMD_UPDATE_COMPLETE",
+        payload: { success: false, error: parseError },
+      });
+    }
+
+    const aiD = updates.dynamics || {};
+    const finalDynamics = {
+      entropy: aiD.entropy ?? ctx.fallbackDynamics.entropy,
+      permeability: aiD.permeability ?? ctx.fallbackDynamics.permeability,
+      velocity: aiD.velocity ?? ctx.fallbackDynamics.velocity,
+      resonance: aiD.resonance ?? ctx.fallbackDynamics.resonance,
+    };
+
+    await db.messages.add({
+      storyId: ctx.storyId,
+      role: "system",
+      type: "DEBUG",
+      text: createPhysicsDebugLog(
+        ctx.oldDynamics,
+        finalDynamics,
+        ctx.entityName,
+        explanations,
+      ),
+      createdAt: Date.now() + 1,
+    });
+
+    const freshEntity = await entities.get(ctx.entityType, ctx.targetEntityId);
+    if (!freshEntity)
+      return postMessage({
+        type: "CMD_UPDATE_COMPLETE",
+        payload: { success: false },
+      });
+
+    let presentState = updates.present || freshEntity.present || {};
+    if (updates.status) {
+      const base =
+        typeof presentState === "string"
+          ? { physical: presentState }
+          : presentState || {};
+      presentState = { ...base, nonPhysical: updates.status };
+    }
+
+    const updatedEntity = {
+      ...freshEntity,
+      forever: updates.forever || freshEntity.forever,
+      past: updates.past || freshEntity.past,
+      present: presentState,
+      future: updates.future || freshEntity.future,
+      dynamics: finalDynamics,
+      updatedAt: Date.now(),
+    };
+
+    if (updates.status && freshEntity.status !== undefined)
+      updatedEntity.status = updates.status;
+
+    if (updatedEntity.past?.length > 2000) {
+      await entities.upsert(ctx.entityType, updatedEntity);
+      await handleArchivist(updatedEntity, ctx.storyId);
+    } else {
+      await entities.upsert(ctx.entityType, updatedEntity);
+      postMessage({
+        type: "CMD_UPDATE_COMPLETE",
+        payload: {
+          success: true,
+          dynamics: finalDynamics,
+          entity: updatedEntity,
+        },
+      });
+    }
+  } catch (e) {
+    error("[WORKER] Error in handleLlmResponse:", e);
+    postMessage({
+      type: "CMD_UPDATE_COMPLETE",
+      payload: { success: false, error: e.message },
+    });
+  }
+};
+
+// --- MESSAGE HANDLER ---
+
+self.onmessage = async (e) => {
+  const { type, payload, meta } = e.data;
+  if (type === "CMD_START_UPDATE") await handleStartUpdate(payload);
+  else if (type === "CMD_LLM_RESPONSE") {
+    if (meta?.isArchivist) await handleArchivistResponse(payload, meta);
+    else await handleLlmResponse(payload);
+  }
+};

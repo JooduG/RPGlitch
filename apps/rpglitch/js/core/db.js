@@ -53,7 +53,7 @@ db.on("populate", async (trans) => {
 /**
  * Initializes the database connection.
  */
-export async function init() {
+export const init = async () => {
   try {
     await db.open();
     log("[RPGlitch DB] Database opened successfully.");
@@ -65,7 +65,7 @@ export async function init() {
     );
     throw err;
   }
-}
+};
 
 // 4. Export the database instance so other modules can use it
 export { db };

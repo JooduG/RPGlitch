@@ -225,97 +225,92 @@ const STORAGE_VERSION = 3;
 
 // --- DATA UTILITIES (No DOM logic) ---
 
-// [NEW] Visual State Helper (The Safe Accessor)
-export function getVisualState(entity) {
-  // If modern structure exists, return it
-  if (entity.visuals) return entity.visuals;
+/**
+ * Visual State Accessor
+ * Ensures safe access to visual properties with sensible defaults.
+ */
+export const getVisualState = (entity = {}) => {
+  return (
+    entity.visuals || {
+      flipped: false,
+      profilePictureUrl: "",
+      fullBodyUrl: "",
+      scale: 1.0,
+      yOffset: 0,
+    }
+  );
+};
 
-  // Fallback for legacy entities (Migration on read)
-  // [ STRICT MODE: Return empty default if no visuals ]
-  return {
-    flipped: false,
-    profilePictureUrl: "",
-    fullBodyUrl: "",
-    scale: 1.0,
-    yOffset: 0,
-  };
-}
+/**
+ * Main Normalizer
+ * Enforces the "Temporal Hybrid 6" data structure across the app.
+ * Handles migration from legacy flat structures to nested temporal models.
+ */
+export const normalize = (base = {}) => {
+  const {
+    name = "",
+    description = "",
+    icon = null,
+    signatureColor = "",
+    forever = {},
+    present = {},
+    past = "",
+    future = "",
+    tags = [],
+    visuals = null,
+    simulation = null,
+    dynamics = null,
+    _backupState = null,
+    _lastUpdateMsgId = null,
+    customData = { plot: [] },
+  } = base;
 
-export function normalize(base = {}) {
-  const safeTags = (
-    Array.isArray(base.tags)
-      ? base.tags
-      : base.tags
-        ? String(base.tags).split(",")
-        : []
-  )
+  const safeTags = (Array.isArray(tags) ? tags : String(tags || "").split(","))
     .map((s) => sanitizeHtml(String(s).trim()))
     .filter(Boolean);
 
-  // Determine avatar URL (Strict Check)
-  // [FIX] Check both nested visual state AND root (for seeding/simple imports)
   const existingAvatar =
-    (base.visuals && base.visuals.profilePictureUrl) ||
-    base.profilePictureUrl ||
-    "";
-
-  // --- MIGRATION LOGIC (Strictly Nested Temporal Data Model) ---
-  const forever = base.forever || {};
-  const present = base.present || {};
+    (visuals && visuals.profilePictureUrl) || base.profilePictureUrl || "";
 
   return {
-    name: sanitizeHtml(base.name || "").trim(),
-    description: sanitizeHtml(base.description || "").trim(), // 🔒 HUMAN ONLY: Do not use in AI Prompts (Notes/Meta)
-    profilePictureUrl: sanitizeHtml(existingAvatar).trim(), // Keep sync for now
-    icon: base.icon || null,
+    name: sanitizeHtml(name).trim(),
+    description: sanitizeHtml(description).trim(), // 🔒 Human-only metadata
+    profilePictureUrl: sanitizeHtml(existingAvatar).trim(),
+    icon,
     signatureColor: (() => {
-      const existing = sanitizeHtml(base.signatureColor || "").trim();
-      return existing && existing !== "default"
-        ? existing
-        : getRandomSignatureKey();
+      const color = sanitizeHtml(signatureColor).trim();
+      return color && color !== "default" ? color : getRandomSignatureKey();
     })(),
 
-    // [V6] TEMPORAL HYBRID FIELDS (Nested Objects)
+    // [V6] TEMPORAL HYBRID FIELDS
     forever: {
-      physical: sanitizeHtml(forever.physical || base.appearance || "").trim(), // Anchor
-      mental: sanitizeHtml(forever.mental || base.identity || "").trim(), // Identity
+      physical: sanitizeHtml(forever.physical || base.appearance || "").trim(),
+      mental: sanitizeHtml(forever.mental || base.identity || "").trim(),
     },
-
     present: {
-      physical: sanitizeHtml(present.physical || base.outfit || "").trim(), // Outfit
-      mental: sanitizeHtml(present.mental || base.status || "").trim(), // Status
+      physical: sanitizeHtml(present.physical || base.outfit || "").trim(),
+      mental: sanitizeHtml(present.mental || base.status || "").trim(),
     },
-
-    past: sanitizeHtml(base.past || "").trim(),
-    future: sanitizeHtml(base.future || "").trim(),
+    past: sanitizeHtml(past).trim(),
+    future: sanitizeHtml(future).trim(),
 
     tags: safeTags,
-
-    // [NEW] Visual State Container
-    visuals: base.visuals || {
+    visuals: visuals || {
       flipped: false,
       profilePictureUrl: existingAvatar,
       fullBodyUrl: "",
       scale: 1.0,
       yOffset: 0,
     },
-
-    // [NEW] Simulation State (Fractal support)
-    simulation: base.simulation || null,
-
-    // V4.2: NARRATIVE PHYSICS
-    dynamics: base.dynamics || null,
-
-    // V4.2: ROLLBACK SYSTEM (Hidden Fields)
-    _backupState: base._backupState || null,
-    _lastUpdateMsgId: base._lastUpdateMsgId || null,
-
-    // [NEW] Custom Data Container (for plot hooks/meta)
-    customData: base.customData || { plot: [] },
+    simulation,
+    dynamics,
+    _backupState,
+    _lastUpdateMsgId,
+    customData,
   };
-}
+};
 
-export function formatPremade(entity, type) {
+export const formatPremade = (entity, type) => {
   const flattenedEntity = {
     ...entity,
     ...(entity.sections || {}),
@@ -331,6 +326,6 @@ export function formatPremade(entity, type) {
     ...normalize(flattenedEntity),
     updatedAt: 0,
   };
-}
+};
 
 export { premade, STORAGE_VERSION };

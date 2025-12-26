@@ -7,47 +7,28 @@ import { LightboxService } from "../../services/lightbox.js";
 import { renderChat } from "./feed.js";
 import { TurnManager } from "../../../engine/director.js";
 
-// --- STATE: Active Edits ---
-const activeEdits = new Map(); // messageId -> { text: string }
+const activeEdits = new Map();
+export const activeRerolls = new Set();
+window.activeRerolls = activeRerolls;
 
-// --- HELPER: Markdown Formatter ---
-function formatMessageText(text) {
+const formatMessageText = (text) => {
   if (!text) return "";
-
-  // 1. Sanitize FIRST
   let safeText = sanitizeHtml(text);
-
-  // 1.5. Bold Italic (***text***) -> <b><i>text</i></b>
   safeText = safeText.replace(/\*\*\*(.*?)\*\*\*/g, "<b><i>$1</i></b>");
-
-  // 2. Bold (**text**) -> <b>text</b>
   safeText = safeText.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>");
   safeText = safeText.replace(/__([^_]+)__/g, "<b>$1</b>");
-
-  // 3. Italics (*text*) -> <i>text</i>
   safeText = safeText.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<i>$1</i>");
   safeText = safeText.replace(/(?<!_)_([^_]+)_(?!_)/g, "<i>$1</i>");
-
-  // 4. Line Breaks -> <br>
   safeText = safeText.replace(/\n/g, "<br>");
-
   return safeText;
-}
+};
 
-// --- HELPER: Image Attachment ---
-function renderImageAttachment(imageUrl, options) {
+const renderImageAttachment = (imageUrl, options) => {
   const wrapper = document.createElement("div");
   wrapper.className = "image-wrapper";
 
-  // Check Reroll State
-  if (
-    options.messageId &&
-    window.setRerollState &&
-    window.activeRerolls?.has(options.messageId)
-  ) {
+  if (options.messageId && window.activeRerolls?.has(options.messageId)) {
     wrapper.classList.add("rerolling");
-
-    // Add Spinner Overlay
     const overlay = document.createElement("div");
     overlay.className = "reroll-overlay";
     overlay.innerHTML = `<div class="reroll-spinner"></div>`;
@@ -59,18 +40,14 @@ function renderImageAttachment(imageUrl, options) {
   img.alt = "Generated Image";
   img.className = "generated-image";
   img.loading = "lazy";
-
-  // [NEW] Open Lightbox on Click
   img.style.cursor = "zoom-in";
   img.onclick = (e) => {
     e.stopPropagation();
-    // Pass options with callback
     LightboxService.open(imageUrl, {
       ...options,
       onReroll: () => {
         if (window.setRerollState) {
           window.setRerollState(options.messageId, true);
-          // Immediate DOM update
           if (wrapper) wrapper.classList.add("rerolling");
         }
       },
@@ -79,51 +56,24 @@ function renderImageAttachment(imageUrl, options) {
 
   wrapper.appendChild(img);
   return wrapper;
-}
+};
 
-// --- STATE: Active Rerolls ---
-export const activeRerolls = new Set();
-window.activeRerolls = activeRerolls;
-
-export function setRerollState(messageId, isActive) {
-  if (isActive) {
-    activeRerolls.add(messageId);
-  } else {
-    activeRerolls.delete(messageId);
-  }
-}
+export const setRerollState = (messageId, isActive) => {
+  if (isActive) activeRerolls.add(messageId);
+  else activeRerolls.delete(messageId);
+};
 window.setRerollState = setRerollState;
 
-// --- CORE: Bubble Classification (Refactored) ---
-export function getBubbleClass(role, entities) {
-  // 1. User is always User
-  if (role === "user") {
-    return "chat-bubble--user";
-  }
-
-  // 2. Fractal is a SPECIAL Narrator (High Priority)
-  // This can be from an explicit 'fractal' role or an 'ai' role with a fractal entity type.
-  // 2. Fractal is a SPECIAL Narrator (High Priority)
-  // [ANTI-GRAVITY] Sovereignty Enforcement: Check Entity Type FIRST
-  if (
-    role === "fractal" ||
-    (entities?.fractal && role === "fractal") ||
-    (role === "ai" && entities?.ai?.type === "fractal")
-  ) {
+export const getBubbleClass = (role, entities) => {
+  if (role === "user") return "chat-bubble--user";
+  if (role === "fractal" || (role === "ai" && entities?.ai?.type === "fractal"))
     return "chat-bubble--fractal";
-  }
-
-  // 3. Narrator/System -> Fractal Protocol (Unified)
-  if (role === "narrator" || role === "system" || !role) {
+  if (role === "narrator" || role === "system" || !role)
     return "chat-bubble--fractal";
-  }
-
-  // 4. Standard Character
   return "chat-bubble--character";
-}
+};
 
-// --- CORE: Render Message ---
-export function renderMessage(
+export const renderMessage = (
   container,
   role,
   text,
@@ -131,13 +81,11 @@ export function renderMessage(
   type,
   entities,
   options = {},
-) {
+) => {
   const div = document.createElement("div");
 
-  // Handle DEBUG / Physics Logs
   if (type === "DEBUG") {
     div.className = "debug-card developer-content";
-    // [FIX] Strip the raw [STATUS_HUD] block, as we often have a formatted "PHYSICS UPDATE" below it
     const cleanDebugText = (text || "").replace(
       /\[STATUS_HUD\][\s\S]*?\[\/STATUS_HUD\]/g,
       "",
@@ -149,7 +97,6 @@ export function renderMessage(
 
   const bubbleModifier = getBubbleClass(role, entities);
 
-  // Handle IMAGE Type
   if (type === "IMAGE") {
     div.className = `chat-bubble ${bubbleModifier} story-image-container`;
     const imageContainer = renderImageAttachment(text, { ...options, role });
@@ -158,10 +105,7 @@ export function renderMessage(
     return;
   }
 
-  // Standard Text Message
-  // Base class + Modifier (Architecture Requirement)
   let classList = ["chat-bubble", bubbleModifier];
-
   let signatureColor = null;
   let visuals = null;
 
@@ -175,13 +119,11 @@ export function renderMessage(
     (role === "fractal" || bubbleModifier === "chat-bubble--fractal") &&
     entities?.fractal
   ) {
-    // Support Fractal signature color if available
     signatureColor = entities.fractal.signatureColor;
   } else if (
     bubbleModifier === "chat-bubble--fractal" &&
     entities?.ai?.simulation
   ) {
-    // Fallback: Fractal masquerading as AI, use AI signature (often modified by theme)
     signatureColor = entities.ai.signatureColor;
   }
 
@@ -189,24 +131,12 @@ export function renderMessage(
   div.setAttribute("role", "log-item");
   div.setAttribute("data-type", type || "IC");
 
-  // [FIX] Add message ID for DOM targeting (Reroll Feedback)
-  if (options.messageId) {
-    div.setAttribute("data-message-id", options.messageId);
-  }
-
-  if (signatureColor && signatureColor !== "default") {
+  if (options.messageId) div.setAttribute("data-message-id", options.messageId);
+  if (signatureColor && signatureColor !== "default")
     ThemeService.apply(div, signatureColor);
-  }
+  if (visuals?.flipped) div.setAttribute("data-flipped", "true");
+  if (characterName) div.setAttribute("data-character-name", characterName);
 
-  if (visuals && visuals.flipped) {
-    div.setAttribute("data-flipped", "true");
-  }
-
-  if (characterName) {
-    div.setAttribute("data-character-name", characterName);
-  }
-
-  // --- TIMESTAMP FORMATTER ---
   const formatTime = (ts) => {
     if (!ts) return "";
     return new Date(ts).toLocaleTimeString([], {
@@ -216,268 +146,172 @@ export function renderMessage(
     });
   };
 
-  // --- READ RECEIPT LOGIC ---
   let statusHtml = "";
   if (role === "user" && options.timestamp) {
     const statusText = options.isLast ? "Delivered" : "Read";
-    statusHtml = `<div class="message-status">
-      <span class="status-text">${statusText}</span>
-    </div>`;
+    statusHtml = `<div class="message-status"><span class="status-text">${statusText}</span></div>`;
   }
 
   const timeHtml = options.timestamp
     ? `<span class="message-time">${formatTime(options.timestamp)}</span>`
     : "";
 
-  // --- Content Rendering ---
-
   if (activeEdits.has(options.messageId)) {
     div.classList.add("is-editing");
-
     const onSave = async (id, newText) => {
       if (TurnManager) {
-        if (role === "user") {
-          await TurnManager.editUserMessage(id, newText);
-        } else if (role === "ai") {
-          await TurnManager.editAiMessage(id, newText);
-        }
+        if (role === "user") await TurnManager.editUserMessage(id, newText);
+        else if (role === "ai") await TurnManager.editAiMessage(id, newText);
       }
     };
-
-    const editUI = renderEditInterface(options.messageId, role, onSave);
-    div.appendChild(editUI);
+    div.appendChild(renderEditInterface(options.messageId, role, onSave));
   } else {
-    let contentHtml = "";
-
-    // --- HUD EXTRACTOR (V5) ---
-    // Remove the raw stats block from visible text.
-    // We create a special debug container for it.
     let debugHtml = "";
     let cleanText = text;
 
-    // [NEW] Parity: Inject Metadata Info (e.g. Token Counts)
     if (options.metadata && Object.keys(options.metadata).length > 0) {
       const jsonStr = JSON.stringify(options.metadata, null, 2);
-      debugHtml += `
-          <div class="debug-card developer-content">
-             <div class="debug-header">METADATA</div>
-             <div class="debug-content">${jsonStr.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
-          </div>`;
+      debugHtml += `<div class="debug-card developer-content"><div class="debug-header">METADATA</div><div class="debug-content">${jsonStr.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div></div>`;
     }
 
     if (role === "ai") {
-      // 1. Extract HUD
       const hudMatch = cleanText.match(
         /\[STATUS_HUD\]([\s\S]*?)\[\/STATUS_HUD\]/,
       );
       if (hudMatch) {
-        debugHtml += `
-          <div class="debug-card developer-content">
-               <div class="debug-header">AI INTENT</div>
-               <div class="debug-content">${sanitizeHtml(hudMatch[1].trim())}</div>
-          </div>`;
+        debugHtml += `<div class="debug-card developer-content"><div class="debug-header">AI INTENT</div><div class="debug-content">${sanitizeHtml(hudMatch[1].trim())}</div></div>`;
         cleanText = cleanText.replace(hudMatch[0], "");
       }
 
-      // 2. Extract JSON (The "dynamics" block) -> [STATUS HUD]
       const jsonMatch = cleanText.match(/\{[\s\S]*?"dynamics"[\s\S]*?\}/);
       if (jsonMatch) {
-        debugHtml += `
-          <div class="debug-card debug-card--hud developer-content">
-              <div class="debug-header">STATE DATA</div>
-              <div class="debug-content">${sanitizeHtml(jsonMatch[0].trim())}</div>
-          </div>`;
+        debugHtml += `<div class="debug-card debug-card--hud developer-content"><div class="debug-header">STATE DATA</div><div class="debug-content">${sanitizeHtml(jsonMatch[0].trim())}</div></div>`;
         cleanText = cleanText.replace(jsonMatch[0], "");
       }
 
-      // 2.5 Mask Image Prompts (X-Ray Vision)
-      // [NEXUS FIX] Token Masking Strategy
-      // Capture attributes (if any) to preserve them or just handle the tag generically
-      // [FIX] Use IMGPROMPT (No underscores) to avoid Markdown parser collision
       cleanText = cleanText
         .replace(/<image_prompt(.*?)>/g, "{{IMGPROMPT$1}}")
         .replace(/<\/image_prompt>/g, "{{/IMGPROMPT}}");
 
-      // 3. Extract Physiology Tags (e.g., <Orion.Biceps>)
-      // Matches: <Name.Property> Value (until newline)
       const physMatches = cleanText.match(
         /<[a-zA-Z0-9]+\.[a-zA-Z0-9]+>.*?(?:\n|$)/g,
       );
       if (physMatches) {
         physMatches.forEach((match) => {
-          debugHtml += `
-            <div class="debug-card developer-content">
-                <div class="debug-content"><strong>[PHYSIOLOGY]</strong>\n${sanitizeHtml(match.trim())}</div>
-            </div>`;
+          debugHtml += `<div class="debug-card developer-content"><div class="debug-content"><strong>[PHYSIOLOGY]</strong>\n${sanitizeHtml(match.trim())}</div></div>`;
           cleanText = cleanText.replace(match, "");
         });
       }
-
       cleanText = cleanText.trim();
     }
 
     const thinkMatch = cleanText.match(/<think>([\s\S]*?)<\/think>/i);
-    let thoughtContent = "";
     let mainContent = cleanText;
+    let thoughtContent = "";
 
     if (thinkMatch) {
       thoughtContent = thinkMatch[1].trim();
       mainContent = cleanText.replace(thinkMatch[0], "").trim();
     }
 
-    // Sanitize Meta-Leaks
-    mainContent = mainContent.replace(/\*\*Step \d:.*?\*\*/gi, "");
-    mainContent = mainContent.replace(/^Step \d:.*?$/gim, "");
-    mainContent = mainContent.replace(/\n{3,}/g, "\n\n").trim();
+    mainContent = mainContent
+      .replace(/\*\*Step \d:.*?\*\*/gi, "")
+      .replace(/^Step \d:.*?$/gim, "")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
 
     let formattedMain = formatMessageText(mainContent);
     const formattedThought = formatMessageText(thoughtContent);
 
-    // [NEXUS FIX] Unmask Image Prompts
-    // Restore the tags but wrap them in the Debug Container
-    // We match the tag with captured attributes
     formattedMain = formattedMain
       .replace(
-        /\{\{IMGPROMPT([\s\S]*?)\}\}/g, // [FIX] No underscores to prevent MD collision
-        `
-        <div class="debug-card debug-card--prompt developer-content">
-            <div class="debug-header">Image Prompt $1</div>
-            <div class="debug-content">
-        `.trim(),
+        /\{\{IMGPROMPT([\s\S]*?)\}\}/g,
+        `<div class="debug-card debug-card--prompt developer-content"><div class="debug-header">Image Prompt $1</div><div class="debug-content">`,
       )
-      .replace(
-        /\{\{\/IMGPROMPT\}\}/g,
-        `
-            </div>
-        </div>
-        `.trim(),
-      );
+      .replace(/\{\{\/IMGPROMPT\}\}/g, `</div></div>`);
 
-    // [CLEANUP] Remove "Note:" or "!NOTE" garbage inside the prompt block if it leaked
-    // This is a post-process hack because the prompt is already HTML formatted.
-    // We target the content inside physics-log.
-    // Actually, formattedMain is a string. We can try to regex replace known garbage.
     formattedMain = formattedMain.replace(/(!NOTE|Note:|Important:)\s*/g, "");
 
-    if (thoughtContent) {
-      contentHtml = `<div class="debug-card debug-card--thought developer-content"><div class="debug-header">AI REASONING</div><div class="debug-content">${formattedThought}</div></div><div class="message-content">${formattedMain}</div>`;
-    } else {
-      contentHtml = formattedMain;
-    }
+    const contentHtml = thoughtContent
+      ? `<div class="debug-card debug-card--thought developer-content"><div class="debug-header">AI REASONING</div><div class="debug-content">${formattedThought}</div></div><div class="message-content">${formattedMain}</div>`
+      : formattedMain;
 
-    // Append the hidden Debug HUD (It will show only if .developer-mode is active via CSS)
     div.innerHTML = contentHtml + timeHtml + statusHtml + debugHtml;
 
     if (options.attachmentUrl) {
-      const imageContainer = renderImageAttachment(options.attachmentUrl, {
-        ...options,
-        role,
-      });
-      div.appendChild(imageContainer);
-    } else if (
-      options.metadata &&
-      options.metadata.visualPrompt &&
-      role === "ai"
-    ) {
-      // [UX] PLACEHOLDER FOR GENERATING IMAGE
+      div.appendChild(
+        renderImageAttachment(options.attachmentUrl, { ...options, role }),
+      );
+    } else if (options.metadata?.visualPrompt && role === "ai") {
       const placeholder = document.createElement("div");
       placeholder.className = "image-placeholder";
-      placeholder.innerHTML = `
-        <div class="loading-spinner"></div>
-        <span>Generating Visual...</span>
-      `;
+      placeholder.innerHTML = `<div class="loading-spinner"></div><span>Generating Visual...</span>`;
       div.appendChild(placeholder);
     }
 
-    // --- Message Actions (Hover) ---
     const actionsDiv = document.createElement("div");
     actionsDiv.className = "message-actions";
 
-    // --- Message Actions (Hover) ---
-    // [MODIFIED] Image Actions moved to Lightbox
-    // We only keep text actions here.
-
-    // [MODIFIED] Image Actions moved to Lightbox
-    // We only keep text actions here.
-
-    // [TEXT ACTIONS]
     if (role === "ai" && options.isLast) {
-      const btnContinue = createIconBtn(
-        `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>`,
-        "Continue",
-        () => {
-          if (TurnManager) TurnManager.extendAiResponse();
-        },
+      actionsDiv.appendChild(
+        createIconBtn(
+          `<svg class="icon" viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>`,
+          "Continue",
+          () => TurnManager?.extendAiResponse(),
+        ),
       );
-      actionsDiv.appendChild(btnContinue);
-
-      // --- FIX: REROLL LOGIC MOVED HERE ---
-      // Replaced the 'orchestrator' call with direct Logic + Shift detection
-      const btnReroll = createIconBtn(
-        `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>`,
-        "Reroll Message",
-        () => {}, // Handled globally by ui-handlers.js (capture phase)
-        "ghost-icon-btn btn-regenerate",
+      actionsDiv.appendChild(
+        createIconBtn(
+          `<svg class="icon" viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>`,
+          "Reroll Message",
+          () => {},
+          "ghost-icon-btn btn-regenerate",
+        ),
       );
-      actionsDiv.appendChild(btnReroll);
-
-      const btnEdit = createIconBtn(
-        `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`,
-        "Edit Message",
-        (e) => {
-          startEditMode(options.messageId, text);
-        },
+      actionsDiv.appendChild(
+        createIconBtn(
+          `<svg class="icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`,
+          "Edit Message",
+          () => startEditMode(options.messageId, text),
+        ),
       );
-      actionsDiv.appendChild(btnEdit);
     } else if (role === "user" && options.isLastUserMessage) {
-      const btnEdit = createIconBtn(
-        `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`,
-        "Edit Message",
-        (e) => {
-          startEditMode(options.messageId, text);
-        },
+      actionsDiv.appendChild(
+        createIconBtn(
+          `<svg class="icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`,
+          "Edit Message",
+          () => startEditMode(options.messageId, text),
+        ),
       );
-      actionsDiv.appendChild(btnEdit);
     }
 
-    if (actionsDiv.hasChildNodes()) {
-      div.appendChild(actionsDiv);
-    }
+    if (actionsDiv.hasChildNodes()) div.appendChild(actionsDiv);
   }
-
   container.appendChild(div);
-}
+};
 
-// --- EDITING LOGIC ---
-
-export function startEditMode(messageId, originalText) {
+export const startEditMode = (messageId, originalText) => {
   if (activeEdits.has(messageId)) return;
-
   const cleanText = originalText
     .replace(/<think>[\s\S]*?<\/think>/gi, "")
     .trim();
-
   activeEdits.set(messageId, { text: cleanText });
   if (state.story.activeId) renderChat(state.story.activeId);
-}
+};
 
-function renderEditInterface(messageId, role, onSaveCallback) {
+const renderEditInterface = (messageId, role, onSaveCallback) => {
   const draft = activeEdits.get(messageId);
-  const textValue = draft ? draft.text : "";
-
-  const editContainer = document.createElement("div");
-  editContainer.className = "edit-container";
+  const container = document.createElement("div");
+  container.className = "edit-container";
 
   const textarea = document.createElement("textarea");
-  textarea.value = textValue;
+  textarea.value = draft?.text || "";
   textarea.className = "edit-textarea";
-
-  textarea.oninput = (e) => {
+  textarea.oninput = (e) =>
     activeEdits.set(messageId, { ...draft, text: e.target.value });
-  };
 
-  const controlsDiv = document.createElement("div");
-  controlsDiv.className = "edit-controls";
+  const controls = document.createElement("div");
+  controls.className = "edit-controls";
 
   const btnSave = document.createElement("button");
   btnSave.className = "primary small";
@@ -487,17 +321,14 @@ function renderEditInterface(messageId, role, onSaveCallback) {
   btnCancel.className = "secondary outline small";
   btnCancel.textContent = "Cancel";
 
-  controlsDiv.appendChild(btnCancel);
-  controlsDiv.appendChild(btnSave);
-
-  editContainer.appendChild(textarea);
-  editContainer.appendChild(controlsDiv);
+  controls.appendChild(btnCancel);
+  controls.appendChild(btnSave);
+  container.appendChild(textarea);
+  container.appendChild(controls);
 
   requestAnimationFrame(() => {
-    if (document.activeElement !== textarea) {
-      textarea.focus();
-      textarea.setSelectionRange(textarea.value.length, textarea.value.length);
-    }
+    textarea.focus();
+    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
   });
 
   btnCancel.onclick = (e) => {
@@ -509,15 +340,10 @@ function renderEditInterface(messageId, role, onSaveCallback) {
   btnSave.onclick = async (e) => {
     e.stopPropagation();
     const newText = textarea.value.trim();
-    if (!newText) return;
-
-    if (onSaveCallback) {
-      await onSaveCallback(messageId, newText);
-    }
-
+    if (newText && onSaveCallback) await onSaveCallback(messageId, newText);
     activeEdits.delete(messageId);
     if (state.story.activeId) renderChat(state.story.activeId);
   };
 
-  return editContainer;
-}
+  return container;
+};

@@ -6,24 +6,20 @@ import { renderProfileEdit } from "./edit.js";
 
 // CALLBACK: Router must inject this
 let _onUpdateSelection = null;
-export function setProfileCallbacks(callbacks) {
+export const setProfileCallbacks = (callbacks) => {
   if (callbacks.onUpdateSelection)
     _onUpdateSelection = callbacks.onUpdateSelection;
-}
+};
 
-export function getOnUpdateSelection() {
-  return _onUpdateSelection;
-}
+export const getOnUpdateSelection = () => _onUpdateSelection;
 
 // Shared State (Local to this module)
 let activeSlotKey = null;
 
-export function getActiveSlotKey() {
-  return activeSlotKey;
-}
+export const getActiveSlotKey = () => activeSlotKey;
 
 // --- MODAL MANAGEMENT ---
-export function closeProfileModal() {
+export const closeProfileModal = () => {
   const screen = document.querySelector("#profile-screen");
   if (screen) {
     screen.classList.remove("is-open");
@@ -40,14 +36,14 @@ export function closeProfileModal() {
   }
   document.body.classList.remove("profile-view-active");
   activeSlotKey = null;
-}
+};
 
-export function openProfileModal(type, id, slotKey = null) {
+export const openProfileModal = (type, id, slotKey = null) => {
   activeSlotKey = slotKey;
   renderProfilePage(type.toLowerCase(), id);
-}
+};
 
-export async function refreshProfileIfOpen() {
+export const refreshProfileIfOpen = async () => {
   const screen = document.querySelector("#profile-screen");
   if (screen && screen.classList.contains("is-open") && activeSlotKey) {
     const hash = location.hash.replace("#", "");
@@ -56,7 +52,7 @@ export async function refreshProfileIfOpen() {
       await renderProfilePage(parts[1], parts[2]);
     }
   }
-}
+};
 
 // Subscribe to background updates
 events.addEventListener(EVENTS.DB_UPDATED, (data) => {
@@ -81,7 +77,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 // --- ORCHESTRATOR ---
-export async function renderProfilePage(type, id, forceEditMode = false) {
+export const renderProfilePage = async (type, id, forceEditMode = false) => {
   const screen = document.querySelector("#profile-screen");
   if (!screen) return;
 
@@ -143,4 +139,4 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
       renderProfilePage(type, id, editing),
     );
   }
-}
+};

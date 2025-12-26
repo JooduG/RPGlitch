@@ -28,29 +28,25 @@ import { PALETTE } from "./constants.js";
 // Alias for backward compatibility
 // [REMOVED] Legacy SIGNATURE_COLORS alias
 
-// --- Color & Visual Utilities (Consolidated) ---
+// --- Color & Visual Utilities ---
 
-export function getSignatureColor(key) {
-  return PALETTE[key] || PALETTE.default;
-}
+export const getSignatureColor = (key) => PALETTE[key] || PALETTE.default;
 
-export function getRandomSignatureKey() {
+export const getRandomSignatureKey = () => {
   const keys = Object.keys(PALETTE).filter((k) => k !== "default");
   return keys[Math.floor(Math.random() * keys.length)];
-}
+};
 
-export function getDeterministicColor(seed) {
-  // Tests expect a color even for empty seeds in some legacy paths
+export const getDeterministicColor = (seed) => {
   if (!seed) return `hsl(0, 0%, 50%)`;
   let hash = 0;
   for (let i = 0; i < seed.length; i++)
     hash = seed.charCodeAt(i) + ((hash << 5) - hash);
   const hue = Math.abs(hash) % 360;
   return `hsl(${hue}, 40%, 60%)`;
-}
+};
 
-export function getSignature(entity = {}) {
-  // Fallback to 'default' string to ensure a color is generated
+export const getSignature = (entity = {}) => {
   if (!entity) return getDeterministicColor("default");
 
   if (entity.signatureColor && entity.signatureColor !== "default") {
@@ -60,13 +56,11 @@ export function getSignature(entity = {}) {
     .filter(Boolean)
     .join(",");
   return getDeterministicColor(seed || entity.id || entity.type || "default");
-}
+};
 
-export function getContrastColor(hex) {
+export const getContrastColor = (hex) => {
   if (!hex || typeof hex !== "string") return "#000";
-
   if (hex.startsWith("var(")) return "#fff";
-
   if (hex.startsWith("#")) hex = hex.slice(1);
   if (hex.length === 3)
     hex = hex
@@ -83,12 +77,12 @@ export function getContrastColor(hex) {
 
   const yiq = (r * 299 + g * 587 + b * 114) / 1000;
   return yiq >= 128 ? "#000" : "#fff";
-}
+};
 
 /**
  * Darkens a hex color by a percentage (0-1).
  */
-export function darkenColor(hex, amount) {
+export const darkenColor = (hex, amount) => {
   if (!hex || typeof hex !== "string") return hex;
   if (hex.startsWith("#")) hex = hex.slice(1);
   if (hex.length === 3)
@@ -108,12 +102,12 @@ export function darkenColor(hex, amount) {
   b = Math.floor(b * (1 - amount));
 
   return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-}
+};
 
 /**
  * Mixes two hex colors by a weight (0-1).
  */
-export function mixHex(c1, c2, weight) {
+export const mixHex = (c1, c2, weight) => {
   const parse = (c) => {
     c = c.replace("#", "");
     if (c.length === 3)
@@ -136,11 +130,11 @@ export function mixHex(c1, c2, weight) {
   const b = Math.round(b1 + (b2 - b1) * w);
 
   return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-}
+};
 
 // --- Security & HTML Utilities ---
 
-export function escapeHtml(str) {
+export const escapeHtml = (str) => {
   if (typeof str !== "string") return "";
   return str
     .replace(/&/g, "&amp;")
@@ -148,16 +142,12 @@ export function escapeHtml(str) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
-}
+};
 
-export function sanitizeHtml(html) {
+export const sanitizeHtml = (html) => {
   const value = typeof html === "string" ? html : String(html ?? "");
 
-  // 🛡️ WORKER SAFETY PATCH: [Crash Fixed]
-  // In a WebWorker, 'window' is undefined. Accessing window.DOMPurify would throw if we didn't check window first.
-  // We explicitly handle the worker case to avoid "DOMPurify not found" warnings in the console which confuse debugging.
   if (typeof window === "undefined" || !window.DOMPurify) {
-    // Only warn if we are in a window context where DOMPurify *should* be present
     if (typeof window !== "undefined") {
       console.warn("DOMPurify not found, falling back to escapeHtml");
     }
@@ -170,11 +160,11 @@ export function sanitizeHtml(html) {
     error("Sanitization failed:", err);
     return "";
   }
-}
+};
 
 // --- Validation ---
 
-export function isValidImageUrl(urlString, allowLog = false) {
+export const isValidImageUrl = (urlString, allowLog = false) => {
   if (typeof urlString !== "string" || urlString.length < 5) return false;
   try {
     const urlObj = new URL(urlString);
@@ -182,13 +172,13 @@ export function isValidImageUrl(urlString, allowLog = false) {
     if (urlObj.protocol === "data:") return urlString.startsWith("data:image/");
     if (urlObj.protocol === "blob:") return true;
     return IMAGE_EXTENSION_REGEX.test(urlObj.pathname);
-  } catch (error) {
-    if (allowLog) log("[Validation] URL parse error:", error.message);
+  } catch (err) {
+    if (allowLog) log("[Validation] URL parse error:", err.message);
     return false;
   }
-}
+};
 
-export function extractImageUrl(result) {
+export const extractImageUrl = (result) => {
   let url;
   if (result?.imageUrl && typeof result.imageUrl === "string")
     url = result.imageUrl;
@@ -204,13 +194,13 @@ export function extractImageUrl(result) {
     return url === "" ? undefined : url;
   }
   return undefined;
-}
+};
 
 // --- Debug & Logging ---
 
 let isDebug = false;
 
-export async function initDebugMode() {
+export const initDebugMode = async () => {
   try {
     const { db } = await import("./db.js");
     const settings = await db.settings.get("app-settings");
@@ -222,17 +212,17 @@ export async function initDebugMode() {
     isDebug = false;
   }
   return isDebug;
-}
+};
 
-export function log(...args) {
+export const log = (...args) => {
   if (isDebug) console.log("[RPGlitch]", ...args);
-}
+};
 
-export function error(...args) {
+export const error = (...args) => {
   console.error("[RPGlitch]", ...args);
-}
+};
 
-export async function setDebug(on) {
+export const setDebug = async (on) => {
   isDebug = !!on;
   try {
     const { db } = await import("./db.js");
@@ -244,18 +234,23 @@ export async function setDebug(on) {
     error("Failed to save debug mode to settings:", e);
   }
   return isDebug;
-}
+};
 
 // --- Generic Utilities ---
 
-export function generateUUID() {
+export const generateUUID = () => {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+
+  // Fallback for legacy environments
   let d = new Date().getTime();
   let d2 =
     (typeof performance !== "undefined" &&
       performance.now &&
       performance.now() * 1000) ||
     0;
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
     let r = Math.random() * 16;
     if (d > 0) {
       r = ((d + r) % 16) | 0;
@@ -266,17 +261,17 @@ export function generateUUID() {
     }
     return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
   });
-}
+};
 
-export function debounce(fn, wait = 250) {
+export const debounce = (fn, wait = 250) => {
   let t;
   return (...args) => {
     clearTimeout(t);
     t = setTimeout(() => fn.apply(null, args), wait);
   };
-}
+};
 
-export async function handleAsyncError(asyncFn, options = {}) {
+export const handleAsyncError = async (asyncFn, options = {}) => {
   const {
     errorMessage = "An error occurred. Please try again.",
     context = "operation",
@@ -295,10 +290,10 @@ export async function handleAsyncError(asyncFn, options = {}) {
 
     return fallback;
   }
-}
+};
 
 // --- Plugins Mocking ---
-export function mockPlugins() {
+export const mockPlugins = () => {
   window.pluginAi = async () => "Mock AI Response";
   window.pluginTextToImage = async () => "https://via.placeholder.com/512x768";
   window.pluginRemember = { get: () => null, set: () => {} };
@@ -306,35 +301,29 @@ export function mockPlugins() {
   window.pluginUpload = {
     upload: async () => "https://via.placeholder.com/150",
   };
-}
+};
 
 // --- Dynamic Sampling ---
 
-function mapRange(value, inMin, inMax, outMin, outMax) {
+const mapRange = (value, inMin, inMax, outMin, outMax) => {
   return ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
-}
+};
 
-export function calculateBlendedParams(ai, user, fractal) {
-  // 1. Safety Defaults
+export const calculateBlendedParams = (ai, user, fractal) => {
   const defaults = { entropy: 10, velocity: 10, resonance: 10 };
-
   const getDyn = (entity) => entity?.dynamics || defaults;
 
   const aiDyn = getDyn(ai);
   const userDyn = getDyn(user);
   const fractalDyn = getDyn(fractal);
 
-  // 2. Temperature (Creativity/Chaos)
-  // Formula: (Fractal_Entropy * 0.7) + (AI_Entropy * 0.3)
-  // Mapping: 0-100 -> 0.5-1.35
+  // 1. Temperature (Chaos)
   const rawTemp =
     fractalDyn.entropy * PHYSICS_CONFIG.TEMP_ENTROPY_WEIGHT_FRACTAL +
     aiDyn.entropy * PHYSICS_CONFIG.TEMP_ENTROPY_WEIGHT_AI;
   const temperature = mapRange(rawTemp, 0, 100, PHYSICS_CONFIG.TEMP_BASE, 1.35);
 
-  // 3. Repetition Penalty (Pacing)
-  // Formula: Max of AI, User, Fractal Velocities
-  // Mapping: 0-100 -> 1.0-1.18
+  // 2. Repetition Penalty (Pacing)
   const rawRep = Math.max(
     aiDyn.velocity,
     userDyn.velocity,
@@ -348,15 +337,18 @@ export function calculateBlendedParams(ai, user, fractal) {
     1.18,
   );
 
-  // 4. Top_P (Focus/Coherence)
-  // Formula: AI_Resonance
-  // Mapping: 0-100 -> 1.0 down to 0.65
-  const rawTopP = aiDyn.resonance;
-  const top_p = mapRange(rawTopP, 0, 100, PHYSICS_CONFIG.TOP_P_BASE, 0.65);
+  // 3. Top_P (Focus)
+  const top_p = mapRange(
+    aiDyn.resonance,
+    0,
+    100,
+    PHYSICS_CONFIG.TOP_P_BASE,
+    0.65,
+  );
 
   return {
     temperature: parseFloat(temperature.toFixed(2)),
     repetition_penalty: parseFloat(repetition_penalty.toFixed(2)),
     top_p: parseFloat(top_p.toFixed(2)),
   };
-}
+};

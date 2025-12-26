@@ -1,20 +1,23 @@
+import { ERROR_MESSAGES } from "../core/constants.js";
+import { log, error as utilsError } from "../core/utils.js";
+
 /**
  * Service to abstract the Perchance AI plugin (`window.ai`).
  * Handles formatting, error management, and plugin communication.
  */
-export class LlmService {
+export const LlmService = {
   /**
    * Generates text using the AI plugin.
    * @param {Object} payload - The context payload { system, messages, params, stopSequences, startWith }.
    * @param {Object} options - Execution options { temperature, silent, signal, onToken }.
    * @returns {Promise<string>} The generated text.
    */
-  static async generate(payload, options = {}) {
+  generate: async (payload, options = {}) => {
     if (!window.ai) {
       const msg = "Perchance AI plugin not available.";
       if (!options.silent) {
         // We only alert if not silent, but we always throw so the caller can handle flow.
-        console.error(msg);
+        utilsError(msg);
         alert(msg);
       }
       throw new Error(msg);
@@ -22,7 +25,7 @@ export class LlmService {
 
     // 1. Format History
     // Critical: Use m.characterName if available. Format: "Name: Message"
-    const chatHistory = this._formatHistory(payload.messages || []);
+    const chatHistory = LlmService._formatHistory(payload.messages || []);
 
     // 2. Construct Final Instruction
     const instruction = [
@@ -35,7 +38,6 @@ export class LlmService {
 
     try {
       // 3. Prepare Plugin Options
-      // We prioritize function-level options over payload params
       const genOptions = {
         temperature: options.temperature ?? payload.params?.temperature,
         top_p: options.top_p ?? payload.params?.top_p,
@@ -45,28 +47,26 @@ export class LlmService {
         model: options.model ?? payload.params?.model,
         stop_sequences: payload.stopSequences || [],
         signal: options.signal,
-        silent: options.silent, // Pass silent flag to plugin wrapper if it supports it
+        silent: options.silent,
       };
 
       // 4. Call Plugin
       const result = await window.ai(instruction, genOptions);
 
-      // Simulate streaming callback if provided (since window.ai awaits full response currently)
+      // Simulate streaming callback if provided
       if (options.onToken && typeof options.onToken === "function") {
         options.onToken(result);
       }
 
       return result;
-    } catch (error) {
+    } catch (err) {
       if (options.silent) {
-        // If silent, we log to console but do NOT alert or dispatch global errors here.
-        // We re-throw so the caller (e.g. TurnManager) knows it failed.
-        console.warn("[LlmService] Silent Generation Error:", error);
-        throw error;
+        log("[LlmService] Silent Generation Error (Suppressed):", err);
+        throw err;
       }
 
       // Handle specific connection errors
-      const errString = String(error);
+      const errString = String(err);
 
       // [STALE SESSION HANDLING]
       // Detect 400/403/Fetch errors typical of expiring Perchance sessions
@@ -77,10 +77,10 @@ export class LlmService {
         errString.includes("Fetch failed");
 
       if (isStale) {
-        console.warn("[LlmService] Stale Session Detected. Suppressing error.");
+        log("[LlmService] Stale Session Detected.");
 
         // Dynamic import to avoid circular dependency
-        const { showAlert } = await import("../ui/orchestrator.js");
+        const { showAlert } = await import("../ui/services/modals.js");
 
         // Show non-blocking notice (User must refresh)
         showAlert(
@@ -88,7 +88,7 @@ export class LlmService {
           "Your connection to the AI engine has expired. Please refresh the page to reconnect.",
         );
 
-        // SUPPRESS: Do not re-throw. Return null/empty to fail gracefully.
+        // Return null to fail gracefully
         return null;
       }
 
@@ -97,26 +97,24 @@ export class LlmService {
         errString.includes("timeout") ||
         errString.includes("NetworkError")
       ) {
-        // [NEXUS FIX] Use shared constant for reliable detection
-        const { ERROR_MESSAGES } = await import("../core/constants.js");
-        console.error("[LlmService] Network Error:", error);
+        utilsError("[LlmService] Network Error:", err);
         throw new Error(
           `${ERROR_MESSAGES.CONNECTION_LOST} This is often caused by Ad-Blockers blocking the 'keep-alive' signal. Please check your network settings.`,
         );
       }
 
       // Re-throw unknown errors
-      throw error;
+      throw err;
     }
-  }
+  },
 
   /**
    * Formats the message history for the LLM.
    * @param {Array} messages - List of message objects { role, text, characterName }.
    * @returns {string} Formatted history string.
    */
-  static _formatHistory(messages) {
-    return messages
+  _formatHistory: (messages) =>
+    messages
       .map((m) => {
         // Map roles to labels
         let label = "Character";
@@ -128,6 +126,5 @@ export class LlmService {
 
         return `${label}: ${m.text}`;
       })
-      .join("\n\n");
-  }
-}
+      .join("\n\n"),
+};

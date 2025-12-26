@@ -52,8 +52,12 @@ const creativityMap = {
   10: { gScale: 20, aiTemp: 0.1 },
 };
 
-// ====== DYNAMIC INSTRUCTION BUILDER (THE VISUAL DIRECTOR) ======
-function getScribeInstruction(userPrompt) {
+/**
+ * DYNAMIC INSTRUCTION BUILDER (THE VISUAL DIRECTOR)
+ * @param {string} userPrompt
+ * @returns {string}
+ */
+export const getScribeInstruction = (userPrompt) => {
   const lists = window.glitchLists || {
     styles: [
       "Cinematic Reality",
@@ -102,10 +106,14 @@ SUGGESTED AESTHETICS (Use these as a baseline, but ensure cohesion):
 </EXAMPLE_OUTPUT>
 
 RETURN ONLY THE FINAL IMAGE DESCRIPTION.`;
-}
+};
 
-// ====== CHAOS (ENTROPY) ENGINE ======
-function getChaosInstruction(userPrompt) {
+/**
+ * CHAOS (ENTROPY) ENGINE
+ * @param {string} userPrompt
+ * @returns {string}
+ */
+export const getChaosInstruction = (userPrompt) => {
   const lists = window.glitchLists || {
     styles: [
       "Surrealism",
@@ -156,7 +164,7 @@ FORCED MUTATIONS:
 </EXAMPLE_OUTPUT>
 
 RETURN ONLY THE MUTATED PROMPT.`;
-}
+};
 
 // ====== STATE EDITOR (TRANSFIGURE) ======
 const AI_TRANSFIGURE_INSTRUCTION = `[SYSTEM: SEMANTIC_STATE_EDITOR_V2.0]
@@ -199,7 +207,12 @@ window.undoState = { type: null, prompt: null, instruction: null };
 
 // ====== UTILITY & UI FUNCTIONS ======
 
-function extractAiResponse(aiResponse) {
+/**
+ * Extracts text from AI response.
+ * @param {any} aiResponse
+ * @returns {string}
+ */
+export const extractAiResponse = (aiResponse) => {
   if (!aiResponse) return "";
   let text = "";
   if (typeof aiResponse.generatedText === "string")
@@ -209,20 +222,29 @@ function extractAiResponse(aiResponse) {
 
   const match = text.trim().match(/(?:Prompt:)\s*([\s\S]*)/i);
   return match ? match[1].trim() : text.trim();
-}
+};
 
-function setPromptInputValue(text, isUndo = false) {
+/**
+ * Sets the prompt input value.
+ * @param {string} text
+ * @param {boolean} isUndo
+ */
+const setPromptInputValue = (text, isUndo = false) => {
   const promptInput = document.getElementById("promptInput");
   if (promptInput) {
     promptInput.value = text;
     mainPromptContent = text;
     if (!isUndo)
       promptInput.dispatchEvent(new Event("input", { bubbles: true }));
-    else checkAllButtonStates();
+    else if (typeof checkAllButtonStates === "function") checkAllButtonStates();
   }
-}
+};
 
-function setUiLockState(isLocked) {
+/**
+ * Sets the UI lock state during processing.
+ * @param {boolean} isLocked
+ */
+const setUiLockState = (isLocked) => {
   const elements = [
     document.getElementById("promptInput"),
     document.getElementById("instructionInput"),
@@ -242,19 +264,29 @@ function setUiLockState(isLocked) {
   const genBtn = document.getElementById("generate-button");
   if (genBtn) {
     if (isLocked) genBtn.disabled = false;
-    else checkAllButtonStates();
+    else if (typeof checkAllButtonStates === "function") checkAllButtonStates();
   }
-}
+};
 
-function validatePrompt(prompt) {
+/**
+ * Validates the prompt before submission.
+ * @param {string} prompt
+ * @returns {string|null}
+ */
+export const validatePrompt = (prompt) => {
   if (!prompt || prompt.trim().length === 0) {
     alert("Prompt cannot be empty");
     return null;
   }
   return prompt.trim();
-}
+};
 
-function validateSeed(seed) {
+/**
+ * Validates the image seed.
+ * @param {any} seed
+ * @returns {number|string}
+ */
+export const validateSeed = (seed) => {
   if (seed === "" || seed === null || typeof seed === "undefined") return "";
   const parsed = parseInt(seed, 10);
   if (isNaN(parsed) || parsed < 0) {
@@ -262,11 +294,11 @@ function validateSeed(seed) {
     return "";
   }
   return parsed;
-}
+};
 
 // ====== SETTINGS & STATE MANAGEMENT ======
 
-function updateDerivedSettings() {
+const updateDerivedSettings = () => {
   const mc = Number(masterCreativity);
   const selectedSettings = creativityMap[String(mc)] || {
     gScale: 7,
@@ -276,17 +308,17 @@ function updateDerivedSettings() {
   currentAiTemperature = selectedSettings.aiTemp;
   const creativityValueEl = document.getElementById("masterCreativityValue");
   if (creativityValueEl) creativityValueEl.innerText = mc;
-}
+};
 
-function handleSeedInput(value) {
+const handleSeedInput = (value) => {
   const trimmedValue = value.trim();
   imgSeed =
     trimmedValue === "" || isNaN(Number(trimmedValue))
       ? trimmedValue
       : Number(trimmedValue);
-}
+};
 
-async function rememberSettings() {
+const rememberSettings = async () => {
   try {
     const instructionInput = document.getElementById("instructionInput");
     const instructionsPanel = document.getElementById("instructionsPanel");
@@ -306,9 +338,9 @@ async function rememberSettings() {
   } catch (error) {
     console.error("Failed to save settings to IndexedDB:", error);
   }
-}
+};
 
-async function loadSavedSettings() {
+const loadSavedSettings = async () => {
   try {
     const settings = await db.settings.get("app-settings");
     if (!settings) return;
@@ -345,25 +377,27 @@ async function loadSavedSettings() {
         instructionsPanel.style.display = settings.instructionsVisible
           ? "block"
           : "none";
-        if (settings.instructionsVisible) checkAllButtonStates();
+        if (settings.instructionsVisible)
+          if (typeof checkAllButtonStates === "function")
+            checkAllButtonStates();
       }
     }
   } catch (error) {
     console.error("Failed to load settings from IndexedDB:", error);
   }
-}
+};
 
-function handleTextareaKeyDown(event) {
+const handleTextareaKeyDown = (event) => {
   if (event.key === "Enter" && !event.shiftKey) {
     event.preventDefault();
     const generateButton = document.getElementById("generate-button");
     if (generateButton && !generateButton.disabled) generateButton.click();
   }
-}
+};
 
 // ====== AI PROCESSING ======
 
-function handleAiMagicSelection(selectElement) {
+const handleAiMagicSelection = (selectElement) => {
   const selection = selectElement.value;
   if (selection === "placeholder") return;
 
@@ -383,9 +417,9 @@ function handleAiMagicSelection(selectElement) {
   }
   selectElement.value = "placeholder";
   rememberSettings();
-}
+};
 
-function handleAiButtonClick(processType) {
+const handleAiButtonClick = (processType) => {
   if (window.activeAiProcess) return;
   const instructions = document.getElementById("instructionInput")?.value || "";
   if (processType === "transfigure" && !instructions.trim()) {
@@ -399,9 +433,9 @@ function handleAiButtonClick(processType) {
   }
   updateDerivedSettings();
   executeAiProcess(processType, mainPromptContent, instructions);
-}
+};
 
-async function executeAiProcess(type, prompt, instructions) {
+const executeAiProcess = async (type, prompt, instructions) => {
   window.activeAiProcess = type;
   window.undoState.prompt = prompt;
   window.undoState.instruction = instructions;
@@ -461,9 +495,9 @@ async function executeAiProcess(type, prompt, instructions) {
     window.activeAiProcess = null;
     setUiLockState(false);
   }
-}
+};
 
-function handleManualPromptChange() {
+const handleManualPromptChange = () => {
   if (
     window.undoState.type &&
     window.undoState.prompt &&
@@ -471,11 +505,11 @@ function handleManualPromptChange() {
   ) {
     resetSmartButton();
   }
-  checkAllButtonStates();
+  if (typeof checkAllButtonStates === "function") checkAllButtonStates();
   rememberSettings();
-}
+};
 
-function setUndoState(type) {
+const setUndoState = (type) => {
   window.undoState.type = type;
   const generateButton = document.getElementById("generate-button");
   let typeName = type.charAt(0).toUpperCase() + type.slice(1);
@@ -485,9 +519,9 @@ function setUndoState(type) {
   generateButton.textContent = `Undo ${typeName}`;
   generateButton.className = "secondary";
   generateButton.onclick = handleUndoClick;
-}
+};
 
-function resetSmartButton() {
+const resetSmartButton = () => {
   const generateButton = document.getElementById("generate-button");
   if (!generateButton) return;
   generateButton.textContent = "Generate Images";
@@ -496,19 +530,19 @@ function resetSmartButton() {
   window.undoState.type = null;
   window.undoState.prompt = null;
   window.undoState.instruction = null;
-  checkAllButtonStates();
-}
+  if (typeof checkAllButtonStates === "function") checkAllButtonStates();
+};
 
-function handleUndoClick() {
+const handleUndoClick = () => {
   setPromptInputValue(window.undoState.prompt, true);
   if (window.undoState.type === "transfigure") {
     const instInput = document.getElementById("instructionInput");
     if (instInput) instInput.value = window.undoState.instruction;
   }
   resetSmartButton();
-}
+};
 
-function startTimerOnButton() {
+const startTimerOnButton = () => {
   const generateButton = document.getElementById("generate-button");
   let seconds = 0;
   generateButton.textContent = `Cancel (0s)`;
@@ -525,9 +559,9 @@ function startTimerOnButton() {
       clearInterval(window.aiProcessInterval);
     }
   }, 1000);
-}
+};
 
-function setCommandState(commandType) {
+const setCommandState = (commandType) => {
   const generateButton = document.getElementById("generate-button");
   let text = "",
     className = "";
@@ -544,12 +578,12 @@ function setCommandState(commandType) {
   generateButton.textContent = text;
   generateButton.className = className;
   generateButton.onclick = () => handleAiButtonClick(commandType);
-  checkAllButtonStates();
-}
+  if (typeof checkAllButtonStates === "function") checkAllButtonStates();
+};
 
 // ====== IMAGE GENERATION ======
 
-async function handleSummonClick() {
+const handleSummonClick = async () => {
   localStorage.setItem("okayToShowNSFWUntil", "0");
 
   const generateButton = document.getElementById("generate-button");
@@ -569,12 +603,16 @@ async function handleSummonClick() {
       return;
     }
 
-    document.getElementById("output").innerHTML = buildImageGenerationHtml();
+    const outputEl = document.getElementById("output");
+    if (outputEl) {
+      outputEl.innerHTML = buildImageGenerationHtml();
+    }
 
     document.querySelectorAll(".quad-cell").forEach((cell) => {
-      const prompt = safeDecodeURIComponent(
-        cell.closest(".quad-block").dataset.prompt,
-      );
+      const promptAttr = cell.closest(".quad-block")?.dataset.prompt;
+      if (!promptAttr) return;
+
+      const prompt = safeDecodeURIComponent(promptAttr);
       const seed = cell.dataset.seed;
       const resolution = cell.dataset.resolution;
 
@@ -598,9 +636,9 @@ async function handleSummonClick() {
     generateButton.setAttribute("aria-busy", "false");
     generateButton.disabled = false;
   }
-}
+};
 
-function buildImageGenerationHtml() {
+const buildImageGenerationHtml = () => {
   updateDerivedSettings();
   const n = Number(numImagesToGen);
   let outputHtml = "";
@@ -647,11 +685,11 @@ function buildImageGenerationHtml() {
     }
   }
   return outputHtml;
-}
+};
 
 // ====== STARTUP ======
 
-async function waitForPlugins(requiredPlugins, timeout = 10000) {
+const waitForPlugins = async (requiredPlugins, timeout = 10000) => {
   if (TEST_MODE) return true;
   const startTime = Date.now();
   console.log(`[ImageGlitch] Waiting for plugins:`, requiredPlugins);
@@ -667,9 +705,9 @@ async function waitForPlugins(requiredPlugins, timeout = 10000) {
     await new Promise((r) => setTimeout(r, 500));
   }
   return false;
-}
+};
 
-async function main() {
+const main = async () => {
   const generateButton = document.getElementById("generate-button");
   const aiMagicSelect = document.getElementById("aiMagicSelect");
   const numImagesSelect = document.getElementById("numImagesSelect");
@@ -685,7 +723,7 @@ async function main() {
   if (numImagesSelect)
     numImagesSelect.addEventListener("change", () => {
       numImagesToGen = Number(numImagesSelect.value);
-      checkAllButtonStates();
+      if (typeof checkAllButtonStates === "function") checkAllButtonStates();
       rememberSettings();
     });
   if (imgSeedInput)
@@ -728,9 +766,9 @@ async function main() {
   } else {
     console.warn("[ImageGlitch] Lists NOT found. Using default fallback.");
   }
-}
+};
 
-function addImageOverlays() {
+const addImageOverlays = () => {
   document.querySelectorAll(".solo-block, .quad-cell").forEach((el) => {
     if (el.querySelector(".image-overlay")) return;
     const seed = el.dataset.seed;
@@ -767,9 +805,9 @@ function addImageOverlays() {
       rerollImage(el, el.dataset.resolution);
     });
   });
-}
+};
 
-function downloadImage(container) {
+const downloadImage = (container) => {
   const img = container.querySelector("img, canvas");
   if (!img) return;
   const link = document.createElement("a");
@@ -801,9 +839,9 @@ function downloadImage(container) {
       link.click();
     }
   }
-}
+};
 
-function rerollImage(container, resolution) {
+const rerollImage = (container, resolution) => {
   const prompt = safeDecodeURIComponent(
     container.closest(".quad-block")?.dataset.prompt ||
       container.dataset.prompt,
@@ -840,14 +878,14 @@ function rerollImage(container, resolution) {
     }
   }
   container.dataset.seed = newSeed;
-}
+};
 
-function checkAllButtonStates() {
+const checkAllButtonStates = () => {
   const btn = document.getElementById("generate-button");
-  const prompt = document.getElementById("promptInput");
-  if (!btn || !prompt) return;
-  const isEmpty = !prompt.value.trim();
+  const promptInput = document.getElementById("promptInput");
+  if (!btn || !promptInput) return;
+  const isEmpty = !promptInput.value.trim();
   if (!window.activeAiProcess) btn.disabled = isEmpty;
-}
+};
 
 document.addEventListener("DOMContentLoaded", main);

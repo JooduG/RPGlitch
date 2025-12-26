@@ -11,10 +11,9 @@ import { error } from "../core/utils.js";
 import { showAlert } from "./orchestrator.js";
 import { EVENTS, events } from "../core/events.js";
 
-// MODIFIED: Exported for testing
-export function generateDynamicTitle(ai, user, fractal) {
-  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
+export const generateDynamicTitle = (ai, user, fractal) => {
   const isTechVibe = fractal?.simulation?.cssTheme === "theme-smartphone";
 
   const epicPrefixes = [
@@ -26,7 +25,6 @@ export function generateDynamicTitle(ai, user, fractal) {
     "Chronicles of",
     "The Journey of",
   ];
-
   const techPrefixes = [
     "Chat Log:",
     "Session:",
@@ -40,47 +38,36 @@ export function generateDynamicTitle(ai, user, fractal) {
 
   const chars = [ai, user].filter(Boolean);
   const totalChars = chars.length;
-
-  let content = "";
   const names = chars.map((c) => c.name).join(" & ");
 
   if (isTechVibe) {
     const prefix = pick(techPrefixes);
-    if (totalChars > 0) {
-      return `${prefix} ${names}`;
-    } else {
-      return `${prefix} Guest User`;
-    }
-  } else {
-    const prefix = pick(epicPrefixes);
-    const hasFractal = !!fractal;
-
-    if (totalChars > 0 && hasFractal) {
-      content = `${names} in ${fractal.name}`;
-    } else if (totalChars > 0 && !hasFractal) {
-      content = names;
-    } else if (totalChars === 0 && hasFractal) {
-      const fractalPrefixes = [
-        "Adventures in",
-        "Tales from",
-        "The World of",
-        "Journey to",
-      ];
-      return `${pick(fractalPrefixes)} ${fractal.name}`;
-    } else {
-      return "My New Story";
-    }
-
-    return `${prefix} ${content}`;
+    return totalChars > 0 ? `${prefix} ${names}` : `${prefix} Guest User`;
   }
-}
 
-// --- CONTROLLER ACTIONS ---
+  const prefix = pick(epicPrefixes);
+  const hasFractal = !!fractal;
 
-async function handleBeginStory() {
+  if (totalChars > 0 && hasFractal)
+    return `${prefix} ${names} in ${fractal.name}`;
+  if (totalChars > 0) return `${prefix} ${names}`;
+  if (hasFractal) {
+    const fractalPrefixes = [
+      "Adventures in",
+      "Tales from",
+      "The World of",
+      "Journey to",
+    ];
+    return `${pick(fractalPrefixes)} ${fractal.name}`;
+  }
+  return "My New Story";
+};
+
+const handleBeginStory = async () => {
   const { selectedAI, selectedUser, selectedFractal, storyTitle } = state;
-  if (!selectedAI || !selectedUser || !selectedFractal)
+  if (!selectedAI || !selectedUser || !selectedFractal) {
     return showAlert("Selection Incomplete", "Please select all entities.");
+  }
 
   try {
     const id = await TurnManager.createFromSelection({
@@ -106,27 +93,20 @@ async function handleBeginStory() {
     error("Begin Story Failed", e);
     showAlert("Error", "Could not start story.");
   }
-}
+};
 
-async function handleShuffle(views) {
+const handleShuffle = async (views) => {
   try {
     const chars = await entities.list("character");
     const fractals = await entities.list("fractal");
 
-    if (chars.length < 1) {
-      console.warn("Not enough characters to shuffle");
-      return;
-    }
-
-    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+    if (chars.length < 1) return;
 
     const ai = pick(chars);
     let user = pick(chars);
 
     if (chars.length > 1) {
-      while (user.id === ai.id) {
-        user = pick(chars);
-      }
+      while (user.id === ai.id) user = pick(chars);
     }
 
     const fractal = fractals.length > 0 ? pick(fractals) : null;
@@ -138,15 +118,14 @@ async function handleShuffle(views) {
   } catch (e) {
     error("Shuffle failed:", e);
   }
-}
+};
 
 export const SetupManager = {
   startStory: handleBeginStory,
   shuffle: handleShuffle,
 };
 
-// --- INIT LOGIC ---
-export function initStoryboardStage(views) {
+export const initStoryboardStage = (views) => {
   const titleStoryboard = document.querySelector("#title-storyboard");
   const titleStorymode = document.querySelector("#title-storymode");
   const beginBtn = document.querySelector("#begin-story");
@@ -208,26 +187,20 @@ export function initStoryboardStage(views) {
             state.selectedFractal.id,
           );
 
-        if (Object.keys(updates).length > 0) {
-          _onUpdateSelection(updates);
-        }
+        if (Object.keys(updates).length > 0) _onUpdateSelection(updates);
       }
     }
   });
 
-  // [PROMETHEUS] Live Updates during Story
   events.addEventListener(EVENTS.ENTITY_UPDATED, (e) => {
     const entity = e.detail;
     if (state.story.activeId && entity) {
-      if (state.selectedAI && state.selectedAI.id === entity.id) {
+      if (state.selectedAI?.id === entity.id)
         applyPatch({ selectedAI: entity });
-      }
-      if (state.selectedUser && state.selectedUser.id === entity.id) {
+      if (state.selectedUser?.id === entity.id)
         applyPatch({ selectedUser: entity });
-      }
-      if (state.selectedFractal && state.selectedFractal.id === entity.id) {
+      if (state.selectedFractal?.id === entity.id)
         applyPatch({ selectedFractal: entity });
-      }
     }
   });
 
@@ -235,28 +208,23 @@ export function initStoryboardStage(views) {
     titleStoryboard.setAttribute("contenteditable", "true");
     titleStoryboard.title = "Double-click to re-roll title";
 
-    const handleInput = (e) => {
+    titleStoryboard.addEventListener("input", (e) => {
       const val = e.target.textContent.trim();
       if (titleStorymode) titleStorymode.textContent = val;
       applyPatch({ isCustomTitle: true, storyTitle: val });
-    };
+    });
 
-    const handleReset = () => {
+    titleStoryboard.addEventListener("dblclick", () => {
       const { selectedAI, selectedUser, selectedFractal } = state;
       const newTitle = generateDynamicTitle(
         selectedAI,
         selectedUser,
         selectedFractal,
       );
-
       titleStoryboard.textContent = newTitle;
       if (titleStorymode) titleStorymode.textContent = newTitle;
-
       applyPatch({ isCustomTitle: false, storyTitle: newTitle });
-    };
-
-    titleStoryboard.addEventListener("input", handleInput);
-    titleStoryboard.addEventListener("dblclick", handleReset);
+    });
   }
 
   if (beginBtn) {
@@ -270,4 +238,4 @@ export function initStoryboardStage(views) {
       handleShuffle(views);
     });
   }
-}
+};

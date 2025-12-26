@@ -32,35 +32,44 @@ export const DIRECTOR_NOTES = {
 
 const ALL_KEYS = Object.keys(DIRECTOR_NOTES);
 
-// --- THE LOGIC MAP ---
-export function analyzeRejection(rejectedText, userLastInput) {
+// --- HELPERS ---
+
+const pickOne = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const getRandomNote = () => pickOne(ALL_KEYS);
+
+// Simple Jaccard Similarity (Token Overlap)
+const calculateOverlap = (str1, str2) => {
+  if (!str1 || !str2) return 0;
+  const set1 = new Set(str1.split(/\s+/));
+  const set2 = new Set(str2.split(/\s+/));
+  const intersection = new Set([...set1].filter((x) => set2.has(x)));
+  const union = new Set([...set1, ...set2]);
+  return union.size === 0 ? 0 : intersection.size / union.size;
+};
+
+// --- LOGIC ---
+
+export const analyzeRejection = (rejectedText = "", userLastInput = "") => {
   if (!rejectedText) return getRandomNote();
 
   const cleanText = rejectedText.toLowerCase();
-  const cleanUser = userLastInput ? userLastInput.toLowerCase() : "";
+  const cleanUser = userLastInput.toLowerCase();
 
-  // 1. THE "ONE-LINER" DETECTOR (Too Short)
-  // Strategy: Expansion & Internalization
+  // 1. THE "ONE-LINER" DETECTOR (Expansion)
   if (rejectedText.length < 150) {
     return pickOne([
       "The Stream of Consciousness",
       "The Sensory Zoom",
-      "The Satirist", // Wit helps expand short content
+      "The Satirist",
     ]);
   }
 
-  // 2. THE "WALL OF TEXT" DETECTOR (Too Long)
-  // Strategy: Physical grounding, Brevity, or De-escalation
+  // 2. THE "WALL OF TEXT" DETECTOR (Brevity)
   if (rejectedText.length > 800) {
-    return pickOne([
-      "The Prop Master",
-      "The Cold Stoic",
-      "The Safety Valve", // Calms down manic generation
-    ]);
+    return pickOne(["The Prop Master", "The Cold Stoic", "The Safety Valve"]);
   }
 
-  // 3. THE "SIMP" DETECTOR (Too Polite/Passive)
-  // Strategy: Conflict, Aggression, or Mockery
+  // 3. THE "SIMP" DETECTOR (Conflict)
   const passiveKeywords = [
     "understand",
     "sorry",
@@ -75,55 +84,28 @@ export function analyzeRejection(rejectedText, userLastInput) {
   ];
   if (passiveKeywords.some((word) => cleanText.includes(word))) {
     return pickOne([
-      "The Bad Detective", // Aggression
-      "The Satirist", // Mockery
-      "The Unreliable Narrator", // Conflict
+      "The Bad Detective",
+      "The Satirist",
+      "The Unreliable Narrator",
     ]);
   }
 
   // 4. THE "ECHO" DETECTOR (Repetition)
-  // Strategy: Subtext or Factual Reset
   if (calculateOverlap(cleanText, cleanUser) > 0.6) {
-    return pickOne([
-      "The Subtext Heavy",
-      "The Archivist", // Forces a reset to facts
-    ]);
+    return pickOne(["The Subtext Heavy", "The Archivist"]);
   }
 
-  // 5. THE CHAOS FACTOR (Default)
   return getRandomNote();
-}
+};
 
-// --- HELPERS ---
-
-export function getDirectorInstruction(noteKey) {
+export const getDirectorInstruction = (noteKey) => {
   const instruction =
     DIRECTOR_NOTES[noteKey] || DIRECTOR_NOTES["The Sensory Zoom"];
 
-  // PROMETHEUS V5 FORMAT
   return `
 <DIRECTOR_OVERRIDE>
-ACTION: CUT. The previous take was rejected.
+ACTION: CUT. Previous take rejected.
 NEW DIRECTION: "${noteKey}"
 INSTRUCTION: ${instruction}
 </DIRECTOR_OVERRIDE>`;
-}
-
-function pickOne(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-function getRandomNote() {
-  return pickOne(ALL_KEYS);
-}
-
-// Simple Jaccard Similarity (Token Overlap)
-function calculateOverlap(str1, str2) {
-  if (!str1 || !str2) return 0;
-  const set1 = new Set(str1.split(/\s+/));
-  const set2 = new Set(str2.split(/\s+/));
-  const intersection = new Set([...set1].filter((x) => set2.has(x)));
-  const union = new Set([...set1, ...set2]);
-  if (union.size === 0) return 0;
-  return intersection.size / union.size;
-}
+};

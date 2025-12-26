@@ -13,6 +13,36 @@ import { IMG_RESOLUTION, ERROR_MESSAGES } from "../core/constants.js";
 
 const MAX_STREAM_RETRIES = 3;
 
+// --- INTERNAL HELPERS ---
+
+/**
+ * Parses the raw AI response to extract visual prompts and clean technical artifacts.
+ */
+const parseAiResponse = (response) => {
+  let text = response
+    .replace(/STOP SEQUENCE.*$/i, "")
+    .replace(/STOP PROTOCOL.*$/i, "")
+    .replace(/\(Glitch must react\).*$/i, "")
+    .trim();
+
+  let visualPrompt = null;
+  let targetType = "ai";
+
+  const visualMatch = response.match(
+    /<image_prompt(?:\s+target="([^"]+)")?>([\s\S]*?)<\/image_prompt>/i,
+  );
+
+  if (visualMatch) {
+    if (visualMatch[1]) targetType = visualMatch[1].toLowerCase();
+    visualPrompt = visualMatch[2].trim();
+    text = response.replace(visualMatch[0], "").trim();
+    // Inject custom delimiters for UI parsing
+    text += `\n\n{{__IMG_PROMPT__}}${visualPrompt}{{/__IMG_PROMPT__}}`;
+  }
+
+  return { text, visualPrompt, targetType };
+};
+
 export const TurnManager = {
   requireActive: () => {
     if (!state.story.activeId) throw new Error("No active story.");
@@ -31,11 +61,7 @@ export const TurnManager = {
       "cant",
       "cannot",
     ];
-    // If it contains markers AND is relatively short (refusals are usually short)
-    if (markers.some((m) => clean.includes(m)) && text.length < 300) {
-      return true;
-    }
-    return false;
+    return markers.some((m) => clean.includes(m)) && text.length < 300;
   },
 
   createFromSelection: async (data) => {
@@ -51,16 +77,12 @@ export const TurnManager = {
       updatedAt: Date.now(),
       isConcluded: 0,
       snapshots: {
-        start: {
-          ai: startAi,
-          user: startUser,
-          fractal: startFractal,
-        },
+        start: { ai: startAi, user: startUser, fractal: startFractal },
         end: null,
       },
     });
 
-    const storyWithId = { ...data, id: id };
+    const storyWithId = { ...data, id };
 
     applyPatch({
       story: { activeId: id, byId: { [id]: storyWithId } },
@@ -68,7 +90,6 @@ export const TurnManager = {
     });
 
     events.dispatchEvent(new CustomEvent(EVENTS.STORY_LOADED));
-
     return id;
   },
 
@@ -140,14 +161,59 @@ export const TurnManager = {
    * Centralized Turn Execution Method
    * Encapsulates the entire lifecycle: Signal -> Generate -> Parse -> Save -> Visuals -> Physics.
    */
-  _executeTurn: async (storyId, payload, options = {}) => {
-    const mode = options.mode || "create"; // 'create' | 'append'
-    const appendTargetId = options.appendTargetId || null;
-    const retryCount = options.retryCount || 0; // [NEXUS FIX] Track retries to prevent loops
+  _handleVisuals: async (storyId, visualPrompt, targetType) => {
+    const story = state.story.byId[storyId];
+    let targetRole = "ai";
+    let targetId = story.aiId;
 
+    if (targetType === "fractal") {
+      targetRole = "fractal";
+      targetId = story.fractalId;
+    }
+
+    events.dispatchEvent(
+      new CustomEvent(EVENTS.TYPING_STARTED, {
+        detail: { role: targetRole, characterId: targetId },
+      }),
+    );
+
+    try {
+      const builder = new ContextBuilder(storyId);
+      let vTarget = "character";
+      if (targetType === "fractal" || targetType === "scene") vTarget = "scene";
+
+      const vPayload = await builder.buildVisualizer(vTarget);
+      vPayload.system += `\n<RAW_INTENT>\n${visualPrompt}\n</RAW_INTENT>`;
+
+      const refinedPrompt = await LlmService.generate(vPayload, {
+        maxTokens: 300,
+        temperature: 0.7,
+      });
+
+      const imageUrl = await VisualManager.generate(refinedPrompt, {
+        resolution: IMG_RESOLUTION,
+      });
+
+      return { imageUrl, refinedPrompt };
+    } catch (visErr) {
+      error("[PROMETHEUS] Auto-Visual Failed:", visErr);
+      return { imageUrl: null, refinedPrompt: null };
+    } finally {
+      events.dispatchEvent(
+        new CustomEvent(EVENTS.TYPING_STOPPED, {
+          detail: { role: targetRole, characterId: targetId },
+        }),
+      );
+    }
+  },
+
+  _executeTurn: async (storyId, payload, options = {}) => {
+    const mode = options.mode || "create";
+    const appendTargetId = options.appendTargetId || null;
+    const retryCount = options.retryCount || 0;
     const story = state.story.byId[storyId];
 
-    // 1. SIGNAL: Typing Started (Initial assumption: AI)
+    // 1. SIGNAL
     events.dispatchEvent(
       new CustomEvent(EVENTS.TYPING_STARTED, {
         detail: { role: "ai", characterId: story.aiId },
@@ -163,28 +229,12 @@ export const TurnManager = {
       entities.get("fractal", story.fractalId),
     ]);
 
-    const genOptions = calculateBlendedParams(
-      aiEntity,
-      userEntity,
-      fractalEntity,
-    );
-
     const llmOptions = {
-      ...genOptions,
+      ...calculateBlendedParams(aiEntity, userEntity, fractalEntity),
       signal: ctrl.signal,
-      onToken: () =>
-        events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED)),
     };
 
-    log(
-      `[PROMETHEUS] Vibe Check: Temp ${genOptions.temperature} | Speed ${genOptions.repetition_penalty}`,
-    );
-
     try {
-      let finalResponseText = "";
-      let visualPrompt = null;
-      let targetType = "ai";
-      let aiMsgId;
       let attempts = 0;
       const MAX_ATTEMPTS = 3;
 
@@ -193,212 +243,90 @@ export const TurnManager = {
         try {
           // 2. GENERATE
           const response = await LlmService.generate(payload, llmOptions);
-          // Note: We don't stop typing here yet if we might do visuals,
-          // but for safety we can signal a opaque stop if needed, or just wait.
-          // Actually, let's keep the dots flowing until we know if we need visuals?
-          // Current logic stops them here.
           events.dispatchEvent(
             new CustomEvent(EVENTS.TYPING_STOPPED, {
               detail: { role: "ai", characterId: story.aiId },
             }),
           );
 
-          // 2.1 REFUSAL CHECK (Director Intervention)
+          // 2.1 REFUSAL CHECK
           if (TurnManager._checkRefusal(response)) {
-            const lastUserMsg = (payload.messages || [])
-              .filter((m) => m.role === "user")
-              .pop();
-            const varianceKey = analyzeRejection(response, lastUserMsg?.text);
-            const instruction = getDirectorInstruction(varianceKey);
-
-            log(
-              `[PROMETHEUS] Refusal/Glitch Detected. Attempt ${attempts}/${MAX_ATTEMPTS}. Intervening with: ${varianceKey}`,
+            const lastUserMsg = (payload.messages || []).findLast(
+              (m) => m.role === "user",
             );
+            const varianceKey = analyzeRejection(response, lastUserMsg?.text);
+            payload.system += `\n\n${getDirectorInstruction(varianceKey)}`;
 
-            // Inject Spicy Direction and loop back
-            payload.system += `\n\n${instruction}`;
-
+            log(`[PROMETHEUS] Refusal detected. Retrying with ${varianceKey}`);
             if (attempts < MAX_ATTEMPTS) continue;
-            // If we hit the limit, proceed with what we have or let it fail
           }
 
           // 3. PARSE
-          // [ELEGANCE FILTER] Strip technical prompting artifacts if they leak
-          finalResponseText = response
-            .replace(/STOP SEQUENCE.*$/i, "") // Kill anything after "STOP SEQUENCE"
-            .replace(/STOP PROTOCOL.*$/i, "") // Kill anything after "STOP PROTOCOL"
-            .replace(/\(Glitch must react\).*$/i, "") // Kill the specific instruction leak
-            .trim();
+          const { text, visualPrompt, targetType } = parseAiResponse(response);
 
-          visualPrompt = null;
-          targetType = "ai";
-
-          // Regex captures: [1] = target (optional), [2] = prompt content
-          // Using [\s\S]*? to match across newlines/multiline prompts
-          const visualMatch = response.match(
-            /<image_prompt(?:\s+target="([^"]+)")?>([\s\S]*?)<\/image_prompt>/i,
-          );
-
-          if (visualMatch) {
-            if (visualMatch[1]) targetType = visualMatch[1].toLowerCase();
-            visualPrompt = visualMatch[2].trim();
-
-            // Clean Text (Always remove the raw tag)
-            finalResponseText = response.replace(visualMatch[0], "").trim();
-
-            // [FIX] Inject the Native UI Placeholder for bubble.js to render
-            // This allows the "Debug Prompt" block to work
-            finalResponseText += `\n\n{{__IMG_PROMPT__}}${visualPrompt}{{/__IMG_PROMPT__}}`;
-          }
-
-          // 4. VISUALS (Synchronous Generation)
-          let imageUrl = null;
-          let refinedPrompt = null;
-
+          // 4. VISUALS
+          let visuals = { imageUrl: null, refinedPrompt: null };
           if (visualPrompt) {
-            // [UX] Keep the magic alive (Restart typing indicator since we stopped it after text gen)
-            // Determine Role based on targetType
-            let targetRole = "ai";
-            let targetId = story.aiId;
-
-            if (targetType === "fractal") {
-              targetRole = "fractal";
-              targetId = story.fractalId;
-            }
-
-            events.dispatchEvent(
-              new CustomEvent(EVENTS.TYPING_STARTED, {
-                detail: { role: targetRole, characterId: targetId },
-              }),
+            visuals = await TurnManager._handleVisuals(
+              storyId,
+              visualPrompt,
+              targetType,
             );
-
-            log(
-              `[PROMETHEUS] Visual Prompt Detected: ${visualPrompt} (Target: ${targetType})`,
-            );
-
-            try {
-              // A. Build the Visual Director Prompt (Lens Selector)
-              const builder = new ContextBuilder(storyId);
-              // Map targetType to what prompter expects ('character', 'scene', 'fractal')
-              let vTarget = "character";
-              if (targetType === "user" || targetType === "ai")
-                vTarget = "character";
-              if (targetType === "fractal" || targetType === "scene")
-                vTarget = "scene";
-
-              const vPayload = await builder.buildVisualizer(vTarget);
-
-              // Inject the raw intent
-              vPayload.system += `\n<RAW_INTENT>\n${visualPrompt}\n</RAW_INTENT>`;
-
-              // B. Generate the "Flux Specification" via LLM
-              refinedPrompt = await LlmService.generate(vPayload, {
-                maxTokens: 300,
-                temperature: 0.7,
-              });
-
-              log(`[PROMETHEUS] Refined Flux Spec:`, refinedPrompt);
-
-              // C. Generate Image
-              imageUrl = await VisualManager.generate(refinedPrompt, {
-                resolution: IMG_RESOLUTION,
-              });
-            } catch (visErr) {
-              console.error("[PROMETHEUS] Auto-Visual Failed:", visErr);
-              // Fallback: We proceed to save the text even if image fails
-              // Optionally append an error note to metadata?
-            } finally {
-              // [UX] Cycle Complete. Stop the dots.
-              // Use the same targetRole/Id derived above
-              let targetRole = "ai";
-              let targetId = story.aiId;
-              if (targetType === "fractal") {
-                targetRole = "fractal";
-                targetId = story.fractalId;
-              }
-
-              events.dispatchEvent(
-                new CustomEvent(EVENTS.TYPING_STOPPED, {
-                  detail: { role: targetRole, characterId: targetId },
-                }),
-              );
-            }
           }
 
-          // 5. SAVE (Persistence)
-          const aiChar = await entities.get("character", story.aiId);
+          // 5. SAVE
+          let aiMsgId;
+          const metadata = visualPrompt
+            ? { visualPrompt, targetType, refinedPrompt: visuals.refinedPrompt }
+            : null;
 
           if (mode === "append" && appendTargetId) {
-            // Append Logic
-            const originalMsg = await db.messages.get(appendTargetId);
-            if (!originalMsg)
-              throw new Error("Cannot append: Message not found");
-
-            const fullText = originalMsg.text + " " + finalResponseText;
-            const updatePayload = { text: fullText };
-            if (imageUrl) {
-              updatePayload.attachmentUrl = imageUrl;
-              updatePayload.metadata = {
-                ...(originalMsg.metadata || {}),
-                visualPrompt,
-                targetType,
-                refinedPrompt,
-              };
+            const original = await db.messages.get(appendTargetId);
+            const update = { text: original.text + " " + text };
+            if (visuals.imageUrl) {
+              update.attachmentUrl = visuals.imageUrl;
+              update.metadata = { ...(original.metadata || {}), ...metadata };
             }
-            await db.messages.update(appendTargetId, updatePayload);
+            await db.messages.update(appendTargetId, update);
             aiMsgId = appendTargetId;
           } else {
-            // Create Logic
             aiMsgId = await db.messages.add({
               storyId,
               role: "ai",
               type: "IC",
-              text: finalResponseText,
-              characterName: aiChar?.name || "Narrator",
+              text,
+              characterName: aiEntity?.name || "Narrator",
               createdAt: Date.now(),
-              attachmentUrl: imageUrl, // Null if failed or none
-              metadata: visualPrompt
-                ? { visualPrompt, targetType, refinedPrompt }
-                : null,
+              attachmentUrl: visuals.imageUrl,
+              metadata,
             });
           }
 
           // 6. PHYSICS
-          const payloadMeta = payload.meta;
-          if (payloadMeta && payloadMeta.triggerUpdate) {
+          if (payload.meta?.triggerUpdate) {
             TurnManager.runBackgroundUpdate(
               storyId,
-              payloadMeta.updateTarget,
+              payload.meta.updateTarget,
               aiMsgId,
             );
           }
-
-          // Success! Break out of retry loop
           break;
         } catch (e) {
           if (e.name === "AbortError") throw e;
-
-          // [NEXUS FIX] Stream Resilience Circuit
           if (e.message.includes(ERROR_MESSAGES.CONNECTION_LOST)) {
             if (retryCount < MAX_STREAM_RETRIES) {
               console.warn(
                 `⚠️ [TEXT-GEN] Stream interrupted. Triggering Auto-Reroll... (Attempt ${retryCount + 1}/${MAX_STREAM_RETRIES})`,
               );
-
-              // HARD WIRED RETRY with Backoff
               await new Promise((r) => setTimeout(r, 1000 * (retryCount + 1)));
-
-              // [FIX] Pass incremented retryCount to avoid infinite loop
               return TurnManager._executeTurn(storyId, payload, {
                 ...options,
                 retryCount: retryCount + 1,
               });
-            } else {
-              console.error("❌ [TEXT-GEN] Max Auto-Rerolls exceeded.");
-              throw e;
             }
+            console.error("❌ [TEXT-GEN] Max Auto-Rerolls exceeded.");
+            throw e;
           }
-
           if (attempts >= MAX_ATTEMPTS) throw e;
           log(
             `[PROMETHEUS] Generation Glitch. Retrying ${attempts + 1}/${MAX_ATTEMPTS}...`,
@@ -407,7 +335,6 @@ export const TurnManager = {
         }
       }
 
-      // Finish Up
       await TurnManager.loadMessages(storyId);
       events.dispatchEvent(
         new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
@@ -424,54 +351,25 @@ export const TurnManager = {
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
       applyPatch({ ui: { fsm: "error" } });
     } finally {
-      // [FIX] Pass Context to Orchestrator for Physics Targeting
-      const story = state.story.byId[storyId];
-      // Resolve ID based on role - default to AI if unknown, but be safer
-      // If we had a specific targetType valid, use it?
-      // Actually, GENERATION_COMPLETED is mostly for the AI's turn.
-      // But if we generated for a Fractal, we should pass that ID.
-
-      // Heuristic: If we are here, we likely just finished an AI or Fractal turn.
-      // We don't easily know WHICH one without tracking it better in specific scope.
-      // However, usually we default to AI.
-      // Let's try to check the 'targetType' if we can scope it, but it's local var.
-      // Wait, 'generate' methods are usually specific.
-
-      // Safer Fallback: Just pass the AI ID for now, BUT verify it exists.
-      const charId = story ? story.aiId : null;
-      console.log(
-        `[Director] Dispatching GENERATION_COMPLETED. Role: AI, ID: ${charId}`,
-      );
-
       events.dispatchEvent(
         new CustomEvent(EVENTS.GENERATION_COMPLETED, {
-          detail: {
-            role: "ai",
-            characterId: charId,
-          },
+          detail: { role: "ai", characterId: story?.aiId },
         }),
       );
     }
   },
 
-  // --- PUBLIC METHODS REFACTORED ---
+  // --- PUBLIC METHODS ---
 
   generateAiResponse: async (storyId, options = {}) => {
-    options = options || {};
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
-
     try {
       const builder = new ContextBuilder(storyId);
       const payload = await builder.build("", options);
-
-      // Inject Instruction if provided
-      if (options.instruction) {
-        payload.system += `\n\n${options.instruction}`;
-      }
-
+      if (options.instruction) payload.system += `\n\n${options.instruction}`;
       await TurnManager._executeTurn(storyId, payload, { mode: "create" });
     } catch (e) {
-      error("Context Build Error", e);
+      error("Response Gen Error", e);
       events.dispatchEvent(
         new CustomEvent(EVENTS.GENERATION_COMPLETED, {
           detail: { role: "ai" },
@@ -480,24 +378,21 @@ export const TurnManager = {
     }
   },
 
-  // REFLEX UPGRADE: Accept options for varianceInstruction
   send: async (text, options = {}) => {
     if (!text) return;
     const storyId = TurnManager.requireActive();
-
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
 
-    // Save User Msg
     try {
       const story = state.story.byId[storyId];
-      const userChar = await entities.get("character", story.userId);
+      const user = await entities.get("character", story.userId);
 
       await db.messages.add({
         storyId,
         role: "user",
         type: "IC",
         text,
-        characterName: userChar?.name || "User",
+        characterName: user?.name || "User",
         createdAt: Date.now(),
       });
 
@@ -506,11 +401,8 @@ export const TurnManager = {
         new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
       );
 
-      // Build & Execute
       const builder = new ContextBuilder(storyId);
-      // Pass options (e.g. varianceInstruction) to the builder
       const payload = await builder.build(text, options);
-
       await TurnManager._executeTurn(storyId, payload, { mode: "create" });
     } catch (e) {
       error("Send Error", e);
@@ -523,38 +415,27 @@ export const TurnManager = {
     const msgs = state.messages.byStoryId[storyId] || [];
     if (msgs.length === 0) return;
 
-    const lastMsg = msgs[msgs.length - 1];
+    const last = msgs[msgs.length - 1];
+    if (last.role !== "ai" && last.role !== "narrator") return;
 
-    if (lastMsg.role !== "ai" && lastMsg.role !== "narrator") {
-      console.warn("Cannot regenerate user message.");
-      return;
-    }
-
-    const lastUserMsg = msgs
-      .slice()
-      .reverse()
-      .find((m) => m.role === "user");
-    const userText = lastUserMsg ? lastUserMsg.text : "";
-
-    let directorNote;
+    let note;
     if (manualInstruction === "VANILLA") {
       log(`[PROMETHEUS] Regenerating with VANILLA strategy (No Variance).`);
-      directorNote = null;
+      note = null;
     } else if (manualInstruction) {
       log(
         `[PROMETHEUS] Regenerating with Manual Instruction: ${manualInstruction}`,
       );
-      directorNote = `[SYSTEM: DIRECTOR_OVERRIDE]\nDirective: ${manualInstruction}`;
+      note = `[SYSTEM: DIRECTOR_OVERRIDE]\nDirective: ${manualInstruction}`;
     } else {
-      const varianceKey = analyzeRejection(lastMsg.text, userText);
-      directorNote = getDirectorInstruction(varianceKey);
-      log(`[PROMETHEUS] Regenerating with strategy: ${varianceKey}`);
+      const lastUser = msgs.findLast((m) => m.role === "user");
+      const key = analyzeRejection(last.text, lastUser?.text || "");
+      note = getDirectorInstruction(key);
+      log(`[PROMETHEUS] Regenerating with strategy: ${key}`);
     }
 
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
-
-    // Delete Last Msg
-    await db.messages.delete(lastMsg.id);
+    await db.messages.delete(last.id);
     await TurnManager.loadMessages(storyId);
     events.dispatchEvent(
       new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
@@ -562,14 +443,10 @@ export const TurnManager = {
 
     try {
       const builder = new ContextBuilder(storyId);
-      // Pass the director note as varianceInstruction
-      const payload = await builder.build("", {
-        varianceInstruction: directorNote,
-      });
-
+      const payload = await builder.build("", { varianceInstruction: note });
       await TurnManager._executeTurn(storyId, payload, { mode: "create" });
     } catch (e) {
-      error("Regen Setup Error", e);
+      error("Regen Error", e);
       events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
     }
   },
@@ -579,24 +456,18 @@ export const TurnManager = {
     const msgs = state.messages.byStoryId[storyId] || [];
     if (msgs.length === 0) return;
 
-    const lastMsg = msgs[msgs.length - 1];
-    if (lastMsg.role !== "ai" && lastMsg.role !== "narrator") {
-      console.warn("Cannot extend non-AI message.");
-      return;
-    }
+    const last = msgs[msgs.length - 1];
+    if (last.role !== "ai" && last.role !== "narrator") return;
 
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
-
     try {
       const builder = new ContextBuilder(storyId);
       const payload = await builder.build();
-
       payload.system +=
-        "\n\n[SYSTEM: CONTINUATION_PROTOCOL]\nContinue the narrative immediately from the last sentence. Do not repeat text. Do not generate a <think> block. Just write the next paragraph.";
-
+        "\n\n[SYSTEM: CONTINUATION_PROTOCOL]\nContinue immediately. Do not repeat. No <think> tags.";
       await TurnManager._executeTurn(storyId, payload, {
         mode: "append",
-        appendTargetId: lastMsg.id,
+        appendTargetId: last.id,
       });
     } catch (e) {
       error("Extend Error", e);
@@ -604,12 +475,12 @@ export const TurnManager = {
     }
   },
 
-  runBackgroundUpdate: async (storyId, targetType, linkedMessageId) => {
+  runBackgroundUpdate: async (storyId, target, mid) => {
     try {
       log(`[PROMETHEUS] Offloading update to Worker...`);
-      await bridge.runBackgroundUpdate(storyId, targetType, linkedMessageId);
+      await bridge.runBackgroundUpdate(storyId, target, mid);
     } catch (e) {
-      console.error("[PROMETHEUS] Background update error:", e);
+      error("Background Update Error", e);
     }
   },
 
@@ -642,10 +513,8 @@ export const TurnManager = {
       while (attempts < MAX_ATTEMPTS) {
         attempts++;
         try {
-          response = await LlmService.generate(payload, {
-            // [FIX] Do NOT stop typing on first token. Let the finally block handle it.
-          });
-          break; // Success
+          response = await LlmService.generate(payload);
+          break;
         } catch (e) {
           if (e.name === "AbortError") throw e;
           if (attempts >= MAX_ATTEMPTS) throw e;
@@ -673,7 +542,7 @@ export const TurnManager = {
 
       await TurnManager.generateAiResponse(storyId);
     } catch (e) {
-      error("Opening Gen Failed", e);
+      error("Opening Gen Error", e);
       window.dispatchEvent(
         new CustomEvent("app-error", {
           detail: { error: e, type: "generation" },
@@ -686,7 +555,6 @@ export const TurnManager = {
 
   concludeStory: async () => {
     const storyId = TurnManager.requireActive();
-
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
     const story = state.story.byId[storyId];
     events.dispatchEvent(
@@ -714,9 +582,7 @@ export const TurnManager = {
       while (attempts < MAX_ATTEMPTS) {
         attempts++;
         try {
-          response = await LlmService.generate(payload, {
-            // [FIX] Do NOT stop typing on first token.
-          });
+          response = await LlmService.generate(payload);
           break; // Success
         } catch (e) {
           if (e.name === "AbortError") throw e;
@@ -739,7 +605,6 @@ export const TurnManager = {
       });
 
       // 3. Update Story Body
-      const story = state.story.byId[storyId];
       const [endAi, endUser, endFractal] = await Promise.all([
         entities.get("character", story.aiId),
         entities.get("character", story.userId),
@@ -749,15 +614,11 @@ export const TurnManager = {
       await db.stories.update(storyId, {
         isConcluded: 1,
         concludedAt: Date.now(),
-        "snapshots.end": {
-          ai: endAi,
-          user: endUser,
-          fractal: endFractal,
-        },
+        "snapshots.end": { ai: endAi, user: endUser, fractal: endFractal },
       });
 
-      const updatedStory = await db.stories.get(storyId);
-      applyPatch({ story: { byId: { [storyId]: updatedStory } } });
+      const updated = await db.stories.get(storyId);
+      applyPatch({ story: { byId: { [storyId]: updated } } });
 
       // 4. Refresh UI
       await TurnManager.loadMessages(storyId);
@@ -778,18 +639,14 @@ export const TurnManager = {
   enhanceUserDraft: async (draftText) => {
     const storyId = TurnManager.requireActive();
     if (!storyId) return null;
-
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
     try {
       const builder = new ContextBuilder(storyId);
       const payload = await builder.buildGhostwriter(draftText);
-
-      // Using LlmService directly
       const response = await LlmService.generate(payload, {});
-
       return response.trim().replace(/^"|"$/g, "");
     } catch (e) {
-      error("[TurnManager] Ghostwrite error:", e);
+      error("Ghostwrite error:", e);
       window.dispatchEvent(
         new CustomEvent("app-error", {
           detail: { error: e, type: "generation" },
@@ -806,7 +663,6 @@ export const TurnManager = {
     if (!storyId) return;
 
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
-
     try {
       log("[TurnManager] Generating visual from draft:", draftText);
 
@@ -820,7 +676,7 @@ export const TurnManager = {
         type: "IMAGE",
         text: imageUrl,
         metadata: { prompt: draftText },
-        timestamp: Date.now(),
+        createdAt: Date.now(),
       });
 
       await TurnManager.loadMessages(storyId);
@@ -828,7 +684,7 @@ export const TurnManager = {
         new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
       );
     } catch (e) {
-      error("[TurnManager] Image Gen failed:", e);
+      error("Image Gen failed:", e);
       window.dispatchEvent(
         new CustomEvent("app-error", {
           detail: { error: e, type: "generation" },
@@ -842,13 +698,12 @@ export const TurnManager = {
   regenerateMessageImage: async (messageId) => {
     const storyId = TurnManager.requireActive();
     const message = await db.messages.get(messageId);
-    if (!message || !message.metadata || !message.metadata.visualPrompt) {
+    if (!message?.metadata?.visualPrompt) {
       console.warn("[TurnManager] Cannot reroll image: missing metadata.");
       return;
     }
 
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
-
     if (window.setRerollState) window.setRerollState(messageId, true);
     events.dispatchEvent(
       new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
@@ -860,7 +715,6 @@ export const TurnManager = {
 
       const builder = new ContextBuilder(storyId);
 
-      // V5 UPGRADE: Use Builder + LLM
       let vTarget = "character";
       if (targetType === "fractal" || targetType === "scene") vTarget = "scene";
 
@@ -880,25 +734,19 @@ export const TurnManager = {
         attachmentUrl: imageUrl,
         metadata: { ...message.metadata, refinedPrompt },
       });
-
-      if (window.setRerollState) window.setRerollState(messageId, false);
-
-      await TurnManager.loadMessages(storyId);
-      events.dispatchEvent(
-        new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
-      );
     } catch (e) {
-      error("[TurnManager] Reroll Image Failed:", e);
+      error("Reroll Image Failed:", e);
       window.dispatchEvent(
         new CustomEvent("app-error", {
           detail: { error: e, type: "generation" },
         }),
       );
+    } finally {
       if (window.setRerollState) window.setRerollState(messageId, false);
+      await TurnManager.loadMessages(storyId);
       events.dispatchEvent(
         new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
       );
-    } finally {
       events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
     }
   },
@@ -912,8 +760,7 @@ export const TurnManager = {
     const isMessenger =
       fractal &&
       (fractal.name === "Messenger" ||
-        (fractal.simulation &&
-          fractal.simulation.directorMode === "TEXT_PROTOCOL"));
+        fractal.simulation?.directorMode === "TEXT_PROTOCOL");
 
     if (!isMessenger) {
       window.dispatchEvent(
@@ -929,13 +776,7 @@ export const TurnManager = {
       return;
     }
 
-    const prompts = [
-      "Send me a pic!",
-      "Show me.",
-      "Send a photo?",
-      "Can I see?",
-      "Pics or it didn't happen.",
-    ];
+    const prompts = ["Pic!", "Show me.", "Photo?", "See?", "Pics!"];
     const text = prompts[Math.floor(Math.random() * prompts.length)];
 
     await db.messages.add({
@@ -954,9 +795,7 @@ export const TurnManager = {
     const instruction = `
 <DIRECTOR_OVERRIDE>
 ACTION: Send a photo now.
-FORMAT: Write the message text, then include <image_prompt target="AI|USER|FRACTAL">Description of the photo</image_prompt>.
-Use target="AI" for yourself, "USER" for the other person, or "FRACTAL" for the environment.
-EXAMPLE: "Here it is! <image_prompt target="AI">Selfie in the mirror, holding phone, flash on</image_prompt>"
+FORMAT: Text + <image_prompt target="AI|USER|FRACTAL">Description</image_prompt>.
 </DIRECTOR_OVERRIDE>`;
 
     await TurnManager.generateAiResponse(storyId, { instruction });
@@ -965,7 +804,5 @@ EXAMPLE: "Here it is! <image_prompt target="AI">Selfie in the mirror, holding ph
 
 events.addEventListener(EVENTS.DB_UPDATED, async () => {
   const activeId = state.story.activeId;
-  if (activeId) {
-    await TurnManager.loadMessages(activeId);
-  }
+  if (activeId) await TurnManager.loadMessages(activeId);
 });

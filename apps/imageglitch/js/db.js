@@ -24,7 +24,7 @@ db.version(1).stores({
  * Initializes the database connection.
  * If the database has a corrupt schema, delete it and recreate fresh.
  */
-export async function init() {
+export const init = async () => {
   try {
     return await db.open();
   } catch (err) {
@@ -77,7 +77,7 @@ export async function init() {
       throw err;
     }
   }
-}
+};
 
 // Export database instance
 export { db };

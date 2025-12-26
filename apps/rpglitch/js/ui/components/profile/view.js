@@ -7,22 +7,21 @@ import {
 } from "../../services/ui-utils.js";
 import { getVisualState } from "../../../data/models.js";
 import { entities } from "../../../data/repo.js";
-import { escapeHtml, log } from "../../../core/utils.js";
+import { escapeHtml, log, error } from "../../../core/utils.js";
 import { state } from "../../../core/state.js";
 import { PROFILE_STRUCTURE, LABEL_MAP, SPLIT_HEADERS } from "./constants.js";
 
 // Helper to access nested properties safely
-function getNestedValue(obj, path) {
-  return path.split(".").reduce((acc, part) => acc && acc[part], obj) || "";
-}
+const getNestedValue = (obj, path) =>
+  path.split(".").reduce((acc, part) => acc && acc[part], obj) || "";
 
-export async function renderProfileView(
+export const renderProfileView = async (
   screen,
   entity,
   type,
   id,
   onSwitchToEdit,
-) {
+) => {
   // Setup Visuals
   setTopBarRight("profile");
 
@@ -109,7 +108,7 @@ export async function renderProfileView(
           }),
         );
       } catch (err) {
-        console.error("Failed to auto-save flip state:", err);
+        error("Failed to auto-save flip state:", err);
       }
     }
   };
@@ -139,7 +138,7 @@ export async function renderProfileView(
         if (el) el.innerHTML = escapeHtml(val);
       };
 
-      updateField("mental", getNestedValue(entity, "present.nonPhysical"));
+      updateField("mental", getNestedValue(entity, "present.mental"));
       updateField("physical", getNestedValue(entity, "present.physical"));
 
       // Refresh Dynamics (if present)
@@ -158,7 +157,6 @@ export async function renderProfileView(
   events.addEventListener(EVENTS.ENTITY_UPDATED, onEntityUpdate);
 
   // [CLEANUP] Remove listener when removed from DOM
-  // We use a MutationObserver to detect when 'layout' is detached.
   const observer = new MutationObserver(() => {
     if (!document.body.contains(layout)) {
       events.removeEventListener(EVENTS.ENTITY_UPDATED, onEntityUpdate);
@@ -176,29 +174,24 @@ export async function renderProfileView(
   const descDisplay = document.createElement("p");
   descDisplay.className = "profile-desc-display";
   descDisplay.textContent = entity.description || "";
-  // Logic for Auto-Write is handled in edit.js
   headerWrap.appendChild(descDisplay);
 
   // --- SECTIONS (Maestro 2-Column Grid) ---
   const secWrap = form.querySelector("[data-profile-sections]");
 
   const createRow = (groupKey, groupConfig) => {
-    // ⚡ BOLT REFACTOR: Use shared row logic
     const { row, contentCol } = createProfileRow(
       groupConfig.label.split(" (")[0],
       LABEL_MAP[groupKey] || "",
     );
 
     if (groupConfig.type === "nested") {
-      // Split Layout (Forever/Present)
       const splitWrap = document.createElement("div");
       splitWrap.className = "split-content";
 
-      // Order: Non-Physical (Mental) Left, Physical Right
       const keys = ["mental", "physical"];
 
       keys.forEach((key) => {
-        // [FIX] Ensure field exists in config to prevent access errors if schema changes
         if (!groupConfig.fields[key]) return;
 
         const val = getNestedValue(entity, `${groupKey}.${key}`);
@@ -214,7 +207,6 @@ export async function renderProfileView(
         const readField = document.createElement("div");
         readField.className = "profile-field-text-read";
         readField.setAttribute("data-read", "");
-        // [NEXUS FIX] Add key for live updates
         readField.setAttribute("data-split-key", key);
         readField.innerHTML = escapeHtml(val);
         splitCol.appendChild(readField);
@@ -223,7 +215,6 @@ export async function renderProfileView(
       });
       contentCol.appendChild(splitWrap);
     } else {
-      // String type (Past/Future)
       const val = entity[groupKey] || "";
       const readField = document.createElement("div");
       readField.className = "profile-field-text-read";
@@ -263,11 +254,10 @@ export async function renderProfileView(
     footerActions.appendChild(statusMsg);
   } else {
     const editBtn = document.createElement("button");
-    editBtn.className = "btn-ghost btn-icon-raise"; // Ghost style with contrast text
-    editBtn.style.width = "100%"; // Restore full width
+    editBtn.className = "btn-ghost btn-icon-raise";
+    editBtn.style.width = "auto";
     editBtn.innerHTML = `<svg class="icon" viewBox="0 0 24 24" style="width:1.2em; height:1.2em; vertical-align:middle;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75-1.83 1.83z"/></svg>`;
     editBtn.title = "Edit Profile";
-    editBtn.style.width = "auto";
     editBtn.onclick = (e) => {
       e.preventDefault();
       onSwitchToEdit(true);
@@ -277,4 +267,4 @@ export async function renderProfileView(
 
   form.appendChild(footerActions);
   screen.appendChild(layout);
-}
+};

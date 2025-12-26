@@ -22,7 +22,7 @@ export const state = {
   ui: { fsm: "idle" },
 };
 
-export function applyPatch(patch) {
+export const applyPatch = (patch) => {
   const merge = (target, source) => {
     for (const key in source) {
       if (
@@ -43,4 +43,4 @@ export function applyPatch(patch) {
   events.dispatchEvent(
     new CustomEvent(EVENTS.STATE_CHANGED, { detail: { patch } }),
   );
-}
+};
