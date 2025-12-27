@@ -11,15 +11,43 @@ const activeEdits = new Map();
 export const activeRerolls = new Set();
 window.activeRerolls = activeRerolls;
 
+// ⚡ BOLT OPTIMIZATION: Cached Regex Patterns
+// Preventing recompilation of Regex objects on every message render.
+const REGEX = {
+  BOLD_ITALIC: /\*\*\*(.*?)\*\*\*/g,
+  BOLD: /\*\*(.*?)\*\*/g,
+  BOLD_UNDERSCORE: /__([^_]+)__/g,
+  ITALIC: /(?<!\*)\*([^*]+)\*(?!\*)/g,
+  ITALIC_UNDERSCORE: /(?<!_)_([^_]+)_(?!_)/g,
+  NEWLINE: /\n/g,
+  STATUS_HUD: /\[STATUS_HUD\]([\s\S]*?)\[\/STATUS_HUD\]/,
+  STATUS_HUD_GLOBAL: /\[STATUS_HUD\]([\s\S]*?)\[\/STATUS_HUD\]/g,
+  DYNAMICS: /\{[\s\S]*?"dynamics"[\s\S]*?\}/,
+  IMAGE_PROMPT_OPEN: /<image_prompt(.*?)>/g,
+  IMAGE_PROMPT_CLOSE: /<\/image_prompt>/g,
+  PHYSIOLOGY: /<[a-zA-Z0-9]+\.[a-zA-Z0-9]+>.*?(?:\n|$)/g,
+  THINK: /<think>([\s\S]*?)<\/think>/i,
+  STEP_MARKER: /\*\*Step \d:.*?\*\*/gi,
+  STEP_START: /^Step \d:.*?$/gim,
+  MULTIPLE_NEWLINES: /\n{3,}/g,
+  IMG_PROMPT_TAG: /\{\{IMGPROMPT([\s\S]*?)\}\}/g,
+  IMG_PROMPT_CLOSE_TAG: /\{\{\/IMGPROMPT\}\}/g,
+  NOTES: /(!NOTE|Note:|Important:)\s*/g,
+  JSON_CHARS_AMP: /&/g,
+  JSON_CHARS_LT: /</g,
+  JSON_CHARS_GT: />/g,
+  THINK_TAG_GLOBAL: /<think>[\s\S]*?<\/think>/gi
+};
+
 const formatMessageText = (text) => {
   if (!text) return "";
   let safeText = sanitizeHtml(text);
-  safeText = safeText.replace(/\*\*\*(.*?)\*\*\*/g, "<b><i>$1</i></b>");
-  safeText = safeText.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>");
-  safeText = safeText.replace(/__([^_]+)__/g, "<b>$1</b>");
-  safeText = safeText.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<i>$1</i>");
-  safeText = safeText.replace(/(?<!_)_([^_]+)_(?!_)/g, "<i>$1</i>");
-  safeText = safeText.replace(/\n/g, "<br>");
+  safeText = safeText.replace(REGEX.BOLD_ITALIC, "<b><i>$1</i></b>");
+  safeText = safeText.replace(REGEX.BOLD, "<b>$1</b>");
+  safeText = safeText.replace(REGEX.BOLD_UNDERSCORE, "<b>$1</b>");
+  safeText = safeText.replace(REGEX.ITALIC, "<i>$1</i>");
+  safeText = safeText.replace(REGEX.ITALIC_UNDERSCORE, "<i>$1</i>");
+  safeText = safeText.replace(REGEX.NEWLINE, "<br>");
   return safeText;
 };
 
@@ -87,7 +115,7 @@ export const renderMessage = (
   if (type === "DEBUG") {
     div.className = "debug-card developer-content";
     const cleanDebugText = (text || "").replace(
-      /\[STATUS_HUD\][\s\S]*?\[\/STATUS_HUD\]/g,
+      REGEX.STATUS_HUD_GLOBAL,
       "",
     );
     div.innerHTML = `<div class="debug-content">${sanitizeHtml(cleanDebugText.trim())}</div>`;
@@ -171,30 +199,30 @@ export const renderMessage = (
 
     if (options.metadata && Object.keys(options.metadata).length > 0) {
       const jsonStr = JSON.stringify(options.metadata, null, 2);
-      debugHtml += `<div class="debug-card developer-content"><div class="debug-header">METADATA</div><div class="debug-content">${jsonStr.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div></div>`;
+      debugHtml += `<div class="debug-card developer-content"><div class="debug-header">METADATA</div><div class="debug-content">${jsonStr.replace(REGEX.JSON_CHARS_AMP, "&amp;").replace(REGEX.JSON_CHARS_LT, "&lt;").replace(REGEX.JSON_CHARS_GT, "&gt;")}</div></div>`;
     }
 
     if (role === "ai") {
       const hudMatch = cleanText.match(
-        /\[STATUS_HUD\]([\s\S]*?)\[\/STATUS_HUD\]/,
+        REGEX.STATUS_HUD,
       );
       if (hudMatch) {
         debugHtml += `<div class="debug-card developer-content"><div class="debug-header">AI INTENT</div><div class="debug-content">${sanitizeHtml(hudMatch[1].trim())}</div></div>`;
         cleanText = cleanText.replace(hudMatch[0], "");
       }
 
-      const jsonMatch = cleanText.match(/\{[\s\S]*?"dynamics"[\s\S]*?\}/);
+      const jsonMatch = cleanText.match(REGEX.DYNAMICS);
       if (jsonMatch) {
         debugHtml += `<div class="debug-card debug-card--hud developer-content"><div class="debug-header">STATE DATA</div><div class="debug-content">${sanitizeHtml(jsonMatch[0].trim())}</div></div>`;
         cleanText = cleanText.replace(jsonMatch[0], "");
       }
 
       cleanText = cleanText
-        .replace(/<image_prompt(.*?)>/g, "{{IMGPROMPT$1}}")
-        .replace(/<\/image_prompt>/g, "{{/IMGPROMPT}}");
+        .replace(REGEX.IMAGE_PROMPT_OPEN, "{{IMGPROMPT$1}}")
+        .replace(REGEX.IMAGE_PROMPT_CLOSE, "{{/IMGPROMPT}}");
 
       const physMatches = cleanText.match(
-        /<[a-zA-Z0-9]+\.[a-zA-Z0-9]+>.*?(?:\n|$)/g,
+        REGEX.PHYSIOLOGY,
       );
       if (physMatches) {
         physMatches.forEach((match) => {
@@ -205,7 +233,7 @@ export const renderMessage = (
       cleanText = cleanText.trim();
     }
 
-    const thinkMatch = cleanText.match(/<think>([\s\S]*?)<\/think>/i);
+    const thinkMatch = cleanText.match(REGEX.THINK);
     let mainContent = cleanText;
     let thoughtContent = "";
 
@@ -215,9 +243,9 @@ export const renderMessage = (
     }
 
     mainContent = mainContent
-      .replace(/\*\*Step \d:.*?\*\*/gi, "")
-      .replace(/^Step \d:.*?$/gim, "")
-      .replace(/\n{3,}/g, "\n\n")
+      .replace(REGEX.STEP_MARKER, "")
+      .replace(REGEX.STEP_START, "")
+      .replace(REGEX.MULTIPLE_NEWLINES, "\n\n")
       .trim();
 
     let formattedMain = formatMessageText(mainContent);
@@ -225,12 +253,12 @@ export const renderMessage = (
 
     formattedMain = formattedMain
       .replace(
-        /\{\{IMGPROMPT([\s\S]*?)\}\}/g,
+        REGEX.IMG_PROMPT_TAG,
         `<div class="debug-card debug-card--prompt developer-content"><div class="debug-header">Image Prompt $1</div><div class="debug-content">`,
       )
-      .replace(/\{\{\/IMGPROMPT\}\}/g, `</div></div>`);
+      .replace(REGEX.IMG_PROMPT_CLOSE_TAG, `</div></div>`);
 
-    formattedMain = formattedMain.replace(/(!NOTE|Note:|Important:)\s*/g, "");
+    formattedMain = formattedMain.replace(REGEX.NOTES, "");
 
     const contentHtml = thoughtContent
       ? `<div class="debug-card debug-card--thought developer-content"><div class="debug-header">AI REASONING</div><div class="debug-content">${formattedThought}</div></div><div class="message-content">${formattedMain}</div>`
@@ -293,7 +321,7 @@ export const renderMessage = (
 export const startEditMode = (messageId, originalText) => {
   if (activeEdits.has(messageId)) return;
   const cleanText = originalText
-    .replace(/<think>[\s\S]*?<\/think>/gi, "")
+    .replace(REGEX.THINK_TAG_GLOBAL, "")
     .trim();
   activeEdits.set(messageId, { text: cleanText });
   if (state.story.activeId) renderChat(state.story.activeId);
