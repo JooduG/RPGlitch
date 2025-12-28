@@ -200,9 +200,6 @@ export class VirtualFeed {
       this.container.appendChild(this.footer);
     } else if (!this.footer) {
       // Cleanup footer if removed
-      const existing = this.container.querySelector("#active-typing-indicator");
-      // Note: The footer logic in setFooter might pass a specific element.
-      // If footer is null but we have extra children?
       // Best to ensure container only has: spacerTop, wrapper, spacerBottom, [footer]
       while (this.container.children.length > 3) {
         if (this.container.lastElementChild !== this.spacerBottom) {
@@ -247,17 +244,6 @@ export class VirtualFeed {
 
   setFooter(element) {
     this.footer = element;
-    // If element is null, we should remove existing footer immediately?
-    // render() handles it, but let's be safe.
-    if (!element) {
-       // Loop to find and remove any footer (anything after spacerBottom)
-       let next = this.spacerBottom.nextSibling;
-       while(next) {
-         let toRemove = next;
-         next = next.nextSibling;
-         toRemove.remove();
-       }
-    }
     this.render();
   }
 
