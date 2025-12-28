@@ -169,12 +169,10 @@ export class VirtualFeed {
       const cacheKey = this.getItemCacheKey(item);
 
       // Smart Reuse Check: cache key equality
-      if (existing && existing._vCacheKey !== undefined) {
-        if (existing._vCacheKey === cacheKey) {
-          fragment.appendChild(existing);
-          this.resizeObserver.observe(existing); // Re-observe
-          reused = true;
-        }
+      if (existing && existing._vCacheKey === cacheKey) {
+        fragment.appendChild(existing);
+        this.resizeObserver.observe(existing); // Re-observe
+        reused = true;
       }
 
       if (!reused) {
@@ -191,12 +189,6 @@ export class VirtualFeed {
 
     // 5. Commit to DOM (Content Only)
     this.contentContainer.appendChild(fragment);
-
-    // Footer is handled separately via setFooter (appended to container)
-    // We don't touch it here unless it was removed?
-    // Wait, constructor appended it? No, setFooter does.
-    // setFooter appends to this.container.
-    // this.container has [SpacerTop, Content, SpacerBottom, (Footer)]
 
     // 6. Restore Scroll Position
     if (isAtBottom) {

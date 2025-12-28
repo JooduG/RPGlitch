@@ -168,22 +168,16 @@ export async function renderChat(storyId) {
           const opts = item._renderOptions || {};
           const ctx = item._contextEntities || {};
           // Construct a unique string key for the visual state
-          // Using IDs for entities to avoid object reference issues if they are re-fetched
-          return (
-            item.id +
-            "|" +
-            item.text +
-            "|" +
-            (item.role || "") +
-            "|" +
-            (opts.isLast ? "1" : "0") +
-            "|" +
-            (ctx.ai?.id || "") +
-            "|" +
-            (ctx.user?.id || "") +
-            "|" +
-            (ctx.fractal?.id || "")
-          );
+          // Using JSON.stringify ensures robust key generation avoiding separator collisions
+          return JSON.stringify([
+            item.id,
+            item.text,
+            item.role || "",
+            opts.isLast ? "1" : "0",
+            ctx.ai?.id || "",
+            ctx.user?.id || "",
+            ctx.fractal?.id || "",
+          ]);
         },
       },
     );
