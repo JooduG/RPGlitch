@@ -202,7 +202,12 @@ export class VirtualFeed {
       // Cleanup footer if removed by iterating backwards and removing any non-core elements.
       for (let i = this.container.children.length - 1; i >= 0; i--) {
         const child = this.container.children[i];
-        if (child !== this.spacerTop && child !== this.contentWrapper && child !== this.spacerBottom) {
+        if (
+          child !== this.spacerTop &&
+          child !== this.contentWrapper &&
+          child !== this.spacerBottom &&
+          child !== this.footer
+        ) {
           child.remove();
         }
       }
@@ -241,8 +246,28 @@ export class VirtualFeed {
   }
 
   setFooter(element) {
+    // 1. Remove old footer if exists
+    if (this.footer && this.footer.parentNode === this.container) {
+      this.footer.remove();
+    }
+
     this.footer = element;
-    this.render();
+
+    // 2. Append new footer immediately if provided
+    if (this.footer) {
+      this.container.appendChild(this.footer);
+      // Auto-scroll to show it if we were near bottom
+      const scrollTop = this.container.scrollTop;
+      const clientHeight = this.container.clientHeight;
+      const scrollHeight = this.container.scrollHeight;
+      const isAtBottom = scrollHeight - scrollTop - clientHeight < 100;
+
+      if (isAtBottom) {
+        requestAnimationFrame(() => {
+          this.container.scrollTop = this.container.scrollHeight;
+        });
+      }
+    }
   }
 
   _updateSpacerHeightsOnly() {
