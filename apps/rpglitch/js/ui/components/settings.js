@@ -360,12 +360,20 @@ if (!confirmed) {
     const grid = document.querySelector("#library-grid");
     if (!grid) return;
 
-    // Loading State
-    grid.innerHTML = "<p><small>Loading...</small></p>";
-    // Ensure grid has drawer styling
+    // 🎨 PALETTE UX: Refined Loading State
+    // Ensure grid has drawer styling first
     grid.classList.add("drawer-grid");
-    // Remove default grid style if it conflicts, or just ensure .drawer-grid overrides?
-    // .drawer-grid uses minmax(120px, 1fr) which is good.
+
+    // Add pulsing skeleton loader via Template
+    const tplLoading = document.getElementById("tpl-loading-library");
+    if (tplLoading) {
+      grid.innerHTML = "";
+      grid.appendChild(tplLoading.content.cloneNode(true));
+    } else {
+      // Fallback: The template is part of the core HTML and should always exist.
+      error('Template "tpl-loading-library" not found.');
+      grid.innerHTML = '<div class="drawer-empty" aria-busy="true"><p class="muted">Loading library...</p></div>';
+    }
 
     try {
       const stories = await import("../../data/repo.js").then((m) =>
