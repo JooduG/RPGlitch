@@ -162,20 +162,11 @@ export class VirtualFeed {
       const existing = existingNodes.get(item.id);
       let reused = false;
 
+      const cacheState = this._getCacheState(item);
+
       // Smart Reuse Check: content equality
       if (existing && existing._vCache) {
-        const c = existing._vCache;
-        const opts = item._renderOptions || {};
-        const ctx = item._contextEntities || {};
-
-        if (
-          c.text === item.text && // String ref check (fast)
-          c.role === item.role &&
-          c.isLast === opts.isLast &&
-          c.ai === ctx.ai && // Object ref check (fast)
-          c.user === ctx.user &&
-          c.fractal === ctx.fractal
-        ) {
+        if (this._isCacheMatch(existing._vCache, cacheState)) {
           fragment.appendChild(existing);
           this.resizeObserver.observe(existing); // Re-observe
           reused = true;
@@ -188,17 +179,8 @@ export class VirtualFeed {
         if (newNode) {
           newNode.dataset.virtualId = item.id;
           this.resizeObserver.observe(newNode);
-          // Cache checks for next run
-          const opts = item._renderOptions || {};
-          const ctx = item._contextEntities || {};
-          newNode._vCache = {
-            text: item.text,
-            role: item.role,
-            isLast: opts.isLast,
-            ai: ctx.ai,
-            user: ctx.user,
-            fractal: ctx.fractal,
-          };
+          // Store for next run
+          newNode._vCache = cacheState;
         }
       }
     }
@@ -218,6 +200,36 @@ export class VirtualFeed {
     } else {
       this.container.scrollTop = scrollTop;
     }
+  }
+
+  /**
+   * Helper: Extract properties relevant for cache invalidation.
+   */
+  _getCacheState(item) {
+    const opts = item._renderOptions || {};
+    const ctx = item._contextEntities || {};
+    return {
+      text: item.text,
+      role: item.role,
+      isLast: opts.isLast,
+      ai: ctx.ai,
+      user: ctx.user,
+      fractal: ctx.fractal,
+    };
+  }
+
+  /**
+   * Helper: Compare two cache states for equality.
+   */
+  _isCacheMatch(cache, state) {
+    return (
+      cache.text === state.text && // String ref check (fast)
+      cache.role === state.role &&
+      cache.isLast === state.isLast &&
+      cache.ai === state.ai && // Object ref check (fast)
+      cache.user === state.user &&
+      cache.fractal === state.fractal
+    );
   }
 
   _onResize(entries) {
