@@ -8,7 +8,8 @@ const PORT = 8080;
 const ROOT = path.resolve(__dirname, '..', 'apps/rpglitch');
 
 const server = http.createServer((req, res) => {
-  const unsafeUrl = req.url === '/' ? 'RPGlitch.html' : req.url;
+  // Reviewer feedback: Default to index.html as it is the standard source entry point
+  const unsafeUrl = req.url === '/' ? 'index.html' : req.url;
 
   // Prevent path traversal attacks.
   const resolvedPath = path.normalize(path.join(ROOT, unsafeUrl));
@@ -26,6 +27,7 @@ const server = http.createServer((req, res) => {
     '.js': 'application/javascript',
     '.css': 'text/css',
     '.json': 'application/json',
+    '.html': 'text/html',
   };
   const contentType = mimeTypes[ext] || 'text/html';
 
