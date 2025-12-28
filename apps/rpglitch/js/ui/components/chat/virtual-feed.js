@@ -24,6 +24,9 @@ export class VirtualFeed {
     this.spacerTop.style.height = "0px";
     this.spacerTop.style.width = "100%";
 
+    this.contentWrapper = document.createElement("div");
+    this.contentWrapper.className = "virtual-content-wrapper";
+
     this.spacerBottom = document.createElement("div");
     this.spacerBottom.className = "virtual-spacer-bottom";
     this.spacerBottom.style.height = "0px";
@@ -50,6 +53,9 @@ export class VirtualFeed {
 
     // Initial setup
     this.container.innerHTML = "";
+    this.container.appendChild(this.spacerTop);
+    this.container.appendChild(this.contentWrapper);
+    this.container.appendChild(this.spacerBottom);
   }
 
   /**
@@ -157,6 +163,9 @@ export class VirtualFeed {
 
     this._prev = renderState;
 
+    // ⚡ BOLT OPTIMIZATION: DOM Recycling
+    // Instead of rebuilding the entire container, we only update the spacers
+    // and the specific items in the content wrapper.
     this.spacerTop.style.height = `${topHeight}px`;
     this.spacerBottom.style.height = `${bottomHeight}px`;
 
@@ -183,16 +192,20 @@ export class VirtualFeed {
     });
 
     // 5. Commit to DOM
-    while (this.container.firstChild) {
-      this.container.firstChild.remove();
-    }
+    this.contentWrapper.innerHTML = "";
+    this.contentWrapper.appendChild(fragment);
 
-    this.container.appendChild(this.spacerTop);
-    this.container.appendChild(fragment);
-    this.container.appendChild(this.spacerBottom);
-
-    if (this.footer) {
+    // Ensure footer is at the end (if it changed)
+    if (this.footer && this.container.lastElementChild !== this.footer) {
       this.container.appendChild(this.footer);
+    } else if (!this.footer && this.container.children.length > 3) {
+      // Cleanup footer if removed by iterating backwards and removing any non-core elements.
+      for (let i = this.container.children.length - 1; i >= 0; i--) {
+        const child = this.container.children[i];
+        if (child !== this.spacerTop && child !== this.contentWrapper && child !== this.spacerBottom) {
+          child.remove();
+        }
+      }
     }
 
     // 6. Restore Scroll Position

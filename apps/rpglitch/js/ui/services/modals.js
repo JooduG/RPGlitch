@@ -1,4 +1,5 @@
 import { TurnManager } from "../../engine/director.js";
+import { sanitizeHtml } from "../../core/utils.js";
 
 /**
  * Standardized Modal Service
@@ -109,6 +110,8 @@ export const showErrorModal = (
   message = "Something went wrong.",
 ) => {
   const dialog = getDialog("error-modal");
+  // 🛡️ SENTINEL SECURITY PATCH: [Risk Mitigated]
+  // Sanitized innerHTML assignment to prevent XSS via error messages.
   dialog.innerHTML = `
     <article class="modal-content">
       <header>
@@ -118,7 +121,7 @@ export const showErrorModal = (
         </button>
       </header>
       <div class="modal-body">
-        <p id="error-msg">${errorType === "network" ? "The connection to the AI was lost or timed out." : message}</p>
+        <p id="error-msg">${errorType === "network" ? "The connection to the AI was lost or timed out." : sanitizeHtml(message)}</p>
       </div>
       <footer>
         <button id="btn-err-retry-vanilla" class="secondary">Retry (Vanilla)</button>
