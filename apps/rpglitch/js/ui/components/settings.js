@@ -360,12 +360,16 @@ if (!confirmed) {
     const grid = document.querySelector("#library-grid");
     if (!grid) return;
 
-    // Loading State
-    grid.innerHTML = "<p><small>Loading...</small></p>";
-    // Ensure grid has drawer styling
+    // 🎨 PALETTE UX: Refined Loading State
+    // Ensure grid has drawer styling first
     grid.classList.add("drawer-grid");
-    // Remove default grid style if it conflicts, or just ensure .drawer-grid overrides?
-    // .drawer-grid uses minmax(120px, 1fr) which is good.
+
+    // Add pulsing skeleton loader
+    grid.innerHTML = `
+      <div class="drawer-empty" aria-busy="true">
+        <p class="muted">Loading library...</p>
+      </div>
+    `;
 
     try {
       const stories = await import("../../data/repo.js").then((m) =>
