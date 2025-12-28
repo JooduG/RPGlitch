@@ -370,12 +370,9 @@ if (!confirmed) {
       grid.innerHTML = "";
       grid.appendChild(tplLoading.content.cloneNode(true));
     } else {
-      // Fallback
-      grid.innerHTML = `
-        <div class="drawer-empty" aria-busy="true">
-          <p class="muted">Loading library...</p>
-        </div>
-      `;
+      // Fallback: The template is part of the core HTML and should always exist.
+      error('Template "tpl-loading-library" not found.');
+      grid.innerHTML = '<p class="muted">Loading library...</p>';
     }
 
     try {
