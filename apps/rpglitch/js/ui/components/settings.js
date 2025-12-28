@@ -367,7 +367,8 @@ if (!confirmed) {
     // Add pulsing skeleton loader via Template
     const tplLoading = document.getElementById("tpl-loading-library");
     if (tplLoading) {
-      grid.replaceChildren(tplLoading.content.cloneNode(true));
+      grid.innerHTML = "";
+      grid.appendChild(tplLoading.content.cloneNode(true));
     } else {
       // Fallback
       grid.innerHTML = `

@@ -178,7 +178,10 @@
   text-align: center;
   padding: 2rem;
   gap: var(--space-md);
-  animation: fade-in 0.3s ease-out;
+
+  &:not([aria-busy="true"]) {
+    animation: fade-in 0.3s ease-out;
+  }
 
   .empty-icon {
     width: 4rem;
