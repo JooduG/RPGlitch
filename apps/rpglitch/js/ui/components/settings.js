@@ -364,12 +364,19 @@ if (!confirmed) {
     // Ensure grid has drawer styling first
     grid.classList.add("drawer-grid");
 
-    // Add pulsing skeleton loader
-    grid.innerHTML = `
-      <div class="drawer-empty" aria-busy="true">
-        <p class="muted">Loading library...</p>
-      </div>
-    `;
+    // Add pulsing skeleton loader via Template
+    const tplLoading = document.getElementById("tpl-loading-library");
+    if (tplLoading) {
+      grid.innerHTML = "";
+      grid.appendChild(tplLoading.content.cloneNode(true));
+    } else {
+      // Fallback
+      grid.innerHTML = `
+        <div class="drawer-empty" aria-busy="true">
+          <p class="muted">Loading library...</p>
+        </div>
+      `;
+    }
 
     try {
       const stories = await import("../../data/repo.js").then((m) =>

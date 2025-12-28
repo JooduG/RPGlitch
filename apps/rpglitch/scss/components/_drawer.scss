@@ -186,7 +186,7 @@
     opacity: 0.2;
     fill: currentcolor;
     margin-bottom: var(--space-xs);
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, opacity 0.3s ease;
   }
 
   &:hover .empty-icon {
