@@ -199,10 +199,13 @@ export const renderProfileView = async (
         const splitCol = document.createElement("div");
         splitCol.className = "split-column";
 
-        const header = document.createElement("div");
-        header.className = "split-header";
-        header.textContent = SPLIT_HEADERS[key];
-        splitCol.appendChild(header);
+        // [FIX] Only show headers for "forever" to avoid duplicates in "present"
+        if (groupKey === "forever") {
+          const header = document.createElement("div");
+          header.className = "split-header";
+          header.textContent = SPLIT_HEADERS[key];
+          splitCol.appendChild(header);
+        }
 
         const readField = document.createElement("div");
         readField.className = "profile-field-text-read";

@@ -387,10 +387,13 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
         const splitCol = document.createElement("div");
         splitCol.className = "split-column";
 
-        const header = document.createElement("div");
-        header.className = "split-header";
-        header.textContent = SPLIT_HEADERS[subKey];
-        splitCol.appendChild(header);
+        // [FIX] Only show headers for "forever" (first row) to avoid duplicates in "present"
+        if (key === "forever") {
+          const header = document.createElement("div");
+          header.className = "split-header";
+          header.textContent = SPLIT_HEADERS[subKey];
+          splitCol.appendChild(header);
+        }
 
         const input = document.createElement("textarea");
         input.className = "profile-input";

@@ -37,7 +37,7 @@ const parseAiResponse = (response) => {
     visualPrompt = visualMatch[2].trim();
     text = response.replace(visualMatch[0], "").trim();
     // Inject custom delimiters for UI parsing
-    text += `\n\n{{__IMG_PROMPT__}}${visualPrompt}{{/__IMG_PROMPT__}}`;
+    text += `\n\n<image_prompt>${visualPrompt}</image_prompt>`;
   }
 
   return { text, visualPrompt, targetType };
@@ -555,25 +555,42 @@ export const TurnManager = {
 
   concludeStory: async () => {
     const storyId = TurnManager.requireActive();
-    events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
     const story = state.story.byId[storyId];
+
+    // [FIX] Ensure UI has the correct color by fetching the entity first
+    let signatureColor = "pink";
+    try {
+      const fractal = await entities.get("fractal", story.fractalId);
+      // Prefer pink over default purple for Fractals unless explicit overrides exist
+      if (
+        fractal &&
+        fractal.signatureColor &&
+        fractal.signatureColor !== "default"
+      ) {
+        signatureColor = fractal.signatureColor;
+      }
+    } catch (e) {
+      console.warn("Could not fetch fractal for typing color", e);
+    }
+
+    events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
     events.dispatchEvent(
       new CustomEvent(EVENTS.TYPING_STARTED, {
-        detail: { role: "fractal", characterId: story.fractalId },
+        detail: {
+          role: "fractal",
+          characterId: story.fractalId,
+          signatureColor: signatureColor,
+        },
       }),
     );
 
     try {
       // 1. Generate Epilogue
       const builder = new ContextBuilder(storyId);
-      const payload = await builder.build();
+      const payload = await builder.buildConclusion();
 
-      payload.system += payload.strategy.getFractalKernel(
-        "CONCLUSION",
-        payload.fractal,
-        payload.ai,
-        payload.user,
-      );
+      if (!payload)
+        throw new Error("Conclusion strategy not supported for this fractal.");
 
       let response;
       let attempts = 0;

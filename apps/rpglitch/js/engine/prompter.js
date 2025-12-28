@@ -305,7 +305,8 @@ Return the stats in this block:
 
 {
   "status": "Updated state description.",
-  "dynamics": { "entropy": Number, "permeability": Number, "velocity": Number, "resonance": Number }
+  "dynamics": { "entropy": Number, "permeability": Number, "velocity": Number, "resonance": Number },
+  "present": { "physical": "New physical description", "mental": "New mental/emotional state" }
 }
 </OUTPUT_FORMAT>`;
 
@@ -445,5 +446,27 @@ REWRITE the draft immersive prose (1st Person POV from ${user.name}).
     const payload = await this.build("");
     payload.system += `\n\n${varianceInstruction}`;
     return payload;
+  }
+
+  async buildConclusion() {
+    const story = state.story.byId[this.storyId];
+    if (!story) throw new Error(`Story ${this.storyId} not found`);
+
+    const [ai, user, fractal] = await this._resolveEntities(story);
+    const history = state.messages.byStoryId[this.storyId] || [];
+    const strategy = this._resolveStrategy(fractal);
+
+    const system = strategy.getFractalKernel("CONCLUSION", fractal, ai, user);
+
+    return system
+      ? {
+          system,
+          messages: this._sanitizeHistory(history),
+          params: { ...state.settings, maxTokens: 600 },
+          fractal,
+          ai,
+          user,
+        }
+      : null;
   }
 }

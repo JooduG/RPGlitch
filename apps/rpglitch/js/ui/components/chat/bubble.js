@@ -169,8 +169,17 @@ export const renderMessage = (
     let debugHtml = "";
     let cleanText = text;
 
-    if (options.metadata && Object.keys(options.metadata).length > 0) {
-      const jsonStr = JSON.stringify(options.metadata, null, 2);
+    const excludedKeys = ["visualPrompt", "targetType", "refinedPrompt"];
+    const debugMeta = options.metadata
+      ? Object.fromEntries(
+          Object.entries(options.metadata).filter(
+            ([k]) => !excludedKeys.includes(k),
+          ),
+        )
+      : {};
+
+    if (Object.keys(debugMeta).length > 0) {
+      const jsonStr = JSON.stringify(debugMeta, null, 2);
       debugHtml += `<div class="debug-card developer-content"><div class="debug-header">METADATA</div><div class="debug-content">${jsonStr.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div></div>`;
     }
 
@@ -190,8 +199,8 @@ export const renderMessage = (
       }
 
       cleanText = cleanText
-        .replace(/<image_prompt(.*?)>/g, "{{IMGPROMPT$1}}")
-        .replace(/<\/image_prompt>/g, "{{/IMGPROMPT}}");
+        .replace(/<(?:image_prompt|image)(.*?)>/g, "{{IMGPROMPT$1}}")
+        .replace(/<\/(?:image_prompt|image)>/g, "{{/IMGPROMPT}}");
 
       const physMatches = cleanText.match(
         /<[a-zA-Z0-9]+\.[a-zA-Z0-9]+>.*?(?:\n|$)/g,
@@ -224,11 +233,56 @@ export const renderMessage = (
     const formattedThought = formatMessageText(thoughtContent);
 
     formattedMain = formattedMain
+      // .replace(/\{\{IMGPROMPT\}\}/g, "") // Clean up unused marker if regex was weird
       .replace(
-        /\{\{IMGPROMPT([\s\S]*?)\}\}/g,
-        `<div class="debug-card debug-card--prompt developer-content"><div class="debug-header">Image Prompt $1</div><div class="debug-content">`,
+        /\{\{IMGPROMPT.*?\}\}([\s\S]*?)\{\{\/IMGPROMPT\}\}/g,
+        (match, content) => {
+          // [REFINE] Rich Visual Director Card
+          // If we have metadata, use it for a "Clean" display
+          const meta = options.metadata || {};
+          const rawPrompt = meta.visualPrompt || content; // Fallback to content if metadata missing
+          const target = meta.targetType || "Unknown";
+          const refined = meta.refinedPrompt;
+
+          // Escape for safe HTML
+          const safeRaw = rawPrompt
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+          const safeRefined = refined
+            ? refined
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+            : null;
+
+          return `
+        <div class="debug-card debug-card--prompt developer-content">
+          <div class="debug-header">
+            <span>Visual Director</span>
+            <span style="font-weight:normal; opacity:0.7">Target: ${target}</span>
+          </div>
+          <div class="debug-content">
+            <div class="director-grid">
+              <div class="director-row">
+                <div class="director-label">Intent</div>
+                <div class="director-value">${safeRaw}</div>
+              </div>
+              ${
+                safeRefined
+                  ? `
+              <div class="director-row">
+                <div class="director-label">Refined</div>
+                <div class="director-value">${safeRefined}</div>
+              </div>`
+                  : ""
+              }
+            </div>
+          </div>
+        </div>`;
+        },
       )
-      .replace(/\{\{\/IMGPROMPT\}\}/g, `</div></div>`);
+      .replace(/\{\{\/IMGPROMPT\}\}/g, "");
 
     formattedMain = formattedMain.replace(/(!NOTE|Note:|Important:)\s*/g, "");
 

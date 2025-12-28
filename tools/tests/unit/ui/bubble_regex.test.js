@@ -68,7 +68,7 @@ Target confirmed.
     );
 
     const bubble = container.querySelector(".chat-bubble");
-    console.log("BUBBLE HTML:", bubble.innerHTML);
+    // console.log("BUBBLE HTML:", bubble.innerHTML);
     expect(bubble).not.toBeNull();
 
     // Check if the debug block is present (now .debug-card--prompt)
@@ -76,18 +76,18 @@ Target confirmed.
     expect(debugBlock).not.toBeNull();
     expect(debugBlock.classList.contains("developer-content")).toBe(true);
 
-    // Check content inside the debug block
-    // The content is wrapped in .debug-content
-    const logContent = debugBlock.querySelector(".debug-content").innerHTML;
+    // [UPDATED] Check for new Grid Structure
+    const directorRows = debugBlock.querySelectorAll(".director-row");
+    expect(directorRows.length).toBeGreaterThan(0);
 
-    // We expect the content to be present. Note that newlines might be replaced by <br> or similar
-    // depending on formatMessageText.
-    // formatMessageText replaces \n with <br>.
-    // So "A cyberpunk city,\nneon lights," -> "A cyberpunk city,<br>neon lights,"
+    const values = Array.from(
+      debugBlock.querySelectorAll(".director-value"),
+    ).map((el) => el.innerHTML);
+    const combinedValues = values.join(" ");
 
-    expect(logContent).toContain("A cyberpunk city,");
-    expect(logContent).toContain("neon lights,");
-    expect(logContent).toContain("rainy streets");
+    expect(combinedValues).toContain("A cyberpunk city,");
+    expect(combinedValues).toContain("neon lights,");
+    expect(combinedValues).toContain("rainy streets");
   });
 
   test("should correctly render inline image prompts", () => {
@@ -106,7 +106,10 @@ Target confirmed.
     const debugBlock = container.querySelector(".debug-card--prompt");
     expect(debugBlock).not.toBeNull();
 
-    const logContent = debugBlock.querySelector(".debug-content").innerHTML;
-    expect(logContent).toContain("A cat");
+    const values = Array.from(
+      debugBlock.querySelectorAll(".director-value"),
+    ).map((el) => el.innerHTML);
+    const combinedValues = values.join(" ");
+    expect(combinedValues).toContain("A cat");
   });
 });

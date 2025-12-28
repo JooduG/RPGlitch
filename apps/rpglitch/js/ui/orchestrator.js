@@ -172,8 +172,17 @@ const initEventBinds = () => {
   events.addEventListener(EVENTS.TYPING_STARTED, async (e) => {
     const { showTypingIndicator } = await import("./components/chat/feed.js");
     const feed = document.querySelector("#chat-feed");
-    if (feed && e.detail)
-      showTypingIndicator(feed, e.detail.role, e.detail.characterId);
+    if (feed && e.detail) {
+      // Pass the entire detail object (which may contain role, characterId, signatureColor)
+      // to match showTypingIndicator(container, typeOrOptions, entityId) structure
+      showTypingIndicator(feed, e.detail, e.detail.characterId);
+    }
+  });
+
+  events.addEventListener(EVENTS.TYPING_STOPPED, async () => {
+    const { removeTypingIndicator } = await import("./components/chat/feed.js");
+    const feed = document.querySelector("#chat-feed");
+    if (feed) removeTypingIndicator(feed);
   });
 
   events.addEventListener(EVENTS.TYPING_STOPPED, async () => {
@@ -213,22 +222,17 @@ export const handleConcludeStory = async () => {
     if (form) form.style.display = "none";
 
     const { TurnManager } = await import("../engine/director.js");
-    const { showTypingIndicator, removeTypingIndicator } =
-      await import("./components/chat/feed.js");
+    // const { showTypingIndicator, removeTypingIndicator } = await import("./components/chat/feed.js"); // Handled via events
     const feed = document.querySelector("#chat-feed");
 
     if (feed) {
-      showTypingIndicator(feed, {
-        role: "fractal",
-        class: "chat-bubble--fractal",
-        signatureColor: selectedEntities.fractal?.signatureColor || "pink",
-      });
+      // Event driven typing indicator will handle this
     }
 
     try {
       await TurnManager.concludeStory();
     } finally {
-      if (feed) removeTypingIndicator(feed);
+      // if (feed) removeTypingIndicator(feed); // Handled via events
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
     }
   }
