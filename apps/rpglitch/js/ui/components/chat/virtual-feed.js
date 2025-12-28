@@ -15,7 +15,8 @@ export class VirtualFeed {
   constructor(container, renderItemCallback, options = {}) {
     this.container = container;
     this.renderCallback = renderItemCallback;
-    this.getItemCacheKey = options.getItemCacheKey || ((item) => JSON.stringify(item));
+    this.getItemCacheKey =
+      options.getItemCacheKey || ((item) => JSON.stringify(item));
 
     this.items = [];
     this.heights = new Map(); // itemId -> actual pixel height
@@ -213,7 +214,7 @@ export class VirtualFeed {
           newNode._vCacheKey = cacheKey;
         }
       }
-    });
+    }
 
     // 5. Commit to DOM
     this.contentWrapper.innerHTML = "";
