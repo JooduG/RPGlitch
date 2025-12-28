@@ -8,26 +8,41 @@ export class VirtualFeed {
   /**
    * @param {HTMLElement} container - The scrollable container
    * @param {Function} renderItemCallback - (item, container) => void. Function to render a single item.
+   * @param {Object} options - Configuration options
+   * @param {Function} [options.getItemCacheKey] - Function to generate a unique cache key for an item.
+   *                                             If references match, DOM is reused.
    */
-  constructor(container, renderItemCallback) {
+  constructor(container, renderItemCallback, options = {}) {
     this.container = container;
     this.renderCallback = renderItemCallback;
+    this.getItemCacheKey = options.getItemCacheKey || ((item) => item.id);
 
     this.items = [];
     this.heights = new Map(); // itemId -> actual pixel height
     this.estimatedHeight = 150; // A reasonable guess for a message (text + padding)
     this.buffer = 5; // Extra items to render above/below viewport
 
-    // Create Spacers
+    // Clean container
+    this.container.innerHTML = "";
+
+    // Create Structure: SpacerTop -> ContentContainer -> SpacerBottom -> (Footer)
     this.spacerTop = document.createElement("div");
     this.spacerTop.className = "virtual-spacer-top";
     this.spacerTop.style.height = "0px";
     this.spacerTop.style.width = "100%";
 
+    this.contentContainer = document.createElement("div");
+    this.contentContainer.className = "virtual-content";
+    this.contentContainer.style.width = "100%";
+
     this.spacerBottom = document.createElement("div");
     this.spacerBottom.className = "virtual-spacer-bottom";
     this.spacerBottom.style.height = "0px";
     this.spacerBottom.style.width = "100%";
+
+    this.container.appendChild(this.spacerTop);
+    this.container.appendChild(this.contentContainer);
+    this.container.appendChild(this.spacerBottom);
 
     // State Loop
     this.resizeObserver = new ResizeObserver(this._onResize.bind(this));
@@ -47,9 +62,6 @@ export class VirtualFeed {
       },
       { passive: true },
     );
-
-    // Initial setup
-    this.container.innerHTML = "";
   }
 
   /**
@@ -137,19 +149,11 @@ export class VirtualFeed {
     this.spacerBottom.style.height = `${bottomHeight}px`;
 
     // 4. Recycle & Render
-    // ⚡ BOLT OPTIMIZATION: DOM Recycling to prevent Layout Thrashing
+    // ⚡ BOLT OPTIMIZATION: DOM Recycling with Dedicated Container
     const existingNodes = new Map();
-    // Detach all children to recycle or remove
-    while (this.container.firstElementChild) {
-      const el = this.container.firstElementChild;
-      if (
-        el === this.spacerTop ||
-        el === this.spacerBottom ||
-        el === this.footer
-      ) {
-        el.remove();
-        continue;
-      }
+    // Detach children from contentContainer only
+    while (this.contentContainer.firstElementChild) {
+      const el = this.contentContainer.firstElementChild;
       if (el.dataset.virtualId) existingNodes.set(el.dataset.virtualId, el);
       el.remove();
     }
@@ -162,11 +166,11 @@ export class VirtualFeed {
       const existing = existingNodes.get(item.id);
       let reused = false;
 
-      const cacheState = this._getCacheState(item);
+      const cacheKey = this.getItemCacheKey(item);
 
-      // Smart Reuse Check: content equality
-      if (existing && existing._vCache) {
-        if (this._isCacheMatch(existing._vCache, cacheState)) {
+      // Smart Reuse Check: cache key equality
+      if (existing && existing._vCacheKey !== undefined) {
+        if (existing._vCacheKey === cacheKey) {
           fragment.appendChild(existing);
           this.resizeObserver.observe(existing); // Re-observe
           reused = true;
@@ -180,19 +184,19 @@ export class VirtualFeed {
           newNode.dataset.virtualId = item.id;
           this.resizeObserver.observe(newNode);
           // Store for next run
-          newNode._vCache = cacheState;
+          newNode._vCacheKey = cacheKey;
         }
       }
     }
 
-    // 5. Commit to DOM
-    this.container.appendChild(this.spacerTop);
-    this.container.appendChild(fragment);
-    this.container.appendChild(this.spacerBottom);
+    // 5. Commit to DOM (Content Only)
+    this.contentContainer.appendChild(fragment);
 
-    if (this.footer) {
-      this.container.appendChild(this.footer);
-    }
+    // Footer is handled separately via setFooter (appended to container)
+    // We don't touch it here unless it was removed?
+    // Wait, constructor appended it? No, setFooter does.
+    // setFooter appends to this.container.
+    // this.container has [SpacerTop, Content, SpacerBottom, (Footer)]
 
     // 6. Restore Scroll Position
     if (isAtBottom) {
@@ -200,36 +204,6 @@ export class VirtualFeed {
     } else {
       this.container.scrollTop = scrollTop;
     }
-  }
-
-  /**
-   * Helper: Extract properties relevant for cache invalidation.
-   */
-  _getCacheState(item) {
-    const opts = item._renderOptions || {};
-    const ctx = item._contextEntities || {};
-    return {
-      text: item.text,
-      role: item.role,
-      isLast: opts.isLast,
-      ai: ctx.ai,
-      user: ctx.user,
-      fractal: ctx.fractal,
-    };
-  }
-
-  /**
-   * Helper: Compare two cache states for equality.
-   */
-  _isCacheMatch(cache, state) {
-    return (
-      cache.text === state.text && // String ref check (fast)
-      cache.role === state.role &&
-      cache.isLast === state.isLast &&
-      cache.ai === state.ai && // Object ref check (fast)
-      cache.user === state.user &&
-      cache.fractal === state.fractal
-    );
   }
 
   _onResize(entries) {
@@ -255,8 +229,13 @@ export class VirtualFeed {
   }
 
   setFooter(element) {
+    if (this.footer) {
+      this.footer.remove();
+    }
     this.footer = element;
-    this.render();
+    if (this.footer) {
+      this.container.appendChild(this.footer);
+    }
   }
 
   _updateSpacerHeightsOnly() {

@@ -148,17 +148,45 @@ export async function renderChat(storyId) {
   }
 
   if (!virtualFeed) {
-    virtualFeed = new VirtualFeed(feed, (container, message, index) => {
-      renderMessage(
-        container,
-        message.role,
-        message.text,
-        message.characterName,
-        message.type || "IC",
-        message._contextEntities,
-        message._renderOptions,
-      );
-    });
+    virtualFeed = new VirtualFeed(
+      feed,
+      (container, message, index) => {
+        renderMessage(
+          container,
+          message.role,
+          message.text,
+          message.characterName,
+          message.type || "IC",
+          message._contextEntities,
+          message._renderOptions,
+        );
+      },
+      {
+        // ⚡ BOLT OPTIMIZATION: Custom Cache Logic
+        // Decouples VirtualFeed from item structure
+        getItemCacheKey: (item) => {
+          const opts = item._renderOptions || {};
+          const ctx = item._contextEntities || {};
+          // Construct a unique string key for the visual state
+          // Using IDs for entities to avoid object reference issues if they are re-fetched
+          return (
+            item.id +
+            "|" +
+            item.text +
+            "|" +
+            (item.role || "") +
+            "|" +
+            (opts.isLast ? "1" : "0") +
+            "|" +
+            (ctx.ai?.id || "") +
+            "|" +
+            (ctx.user?.id || "") +
+            "|" +
+            (ctx.fractal?.id || "")
+          );
+        },
+      },
+    );
   }
 
   const msgs = state.messages.byStoryId[storyId] || [];
