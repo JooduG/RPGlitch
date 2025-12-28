@@ -8,17 +8,24 @@ export class VirtualFeed {
   /**
    * @param {HTMLElement} container - The scrollable container
    * @param {Function} renderItemCallback - (item, container) => void. Function to render a single item.
+   * @param {Object} options - Configuration options
+   * @param {Function} [options.getItemCacheKey] - Function to generate a unique cache key for an item.
+   *                                             If references match, DOM is reused.
    */
-  constructor(container, renderItemCallback) {
+  constructor(container, renderItemCallback, options = {}) {
     this.container = container;
     this.renderCallback = renderItemCallback;
+    this.getItemCacheKey = options.getItemCacheKey || ((item) => JSON.stringify(item));
 
     this.items = [];
     this.heights = new Map(); // itemId -> actual pixel height
     this.estimatedHeight = 150; // A reasonable guess for a message (text + padding)
     this.buffer = 5; // Extra items to render above/below viewport
 
-    // Create Spacers
+    // Clean container
+    this.container.innerHTML = "";
+
+    // Create Structure: SpacerTop -> ContentContainer -> SpacerBottom -> (Footer)
     this.spacerTop = document.createElement("div");
     this.spacerTop.className = "virtual-spacer-top";
     this.spacerTop.style.height = "0px";
@@ -31,6 +38,10 @@ export class VirtualFeed {
     this.spacerBottom.className = "virtual-spacer-bottom";
     this.spacerBottom.style.height = "0px";
     this.spacerBottom.style.width = "100%";
+
+    this.container.appendChild(this.spacerTop);
+    this.container.appendChild(this.contentContainer);
+    this.container.appendChild(this.spacerBottom);
 
     // State Loop
     this.resizeObserver = new ResizeObserver(this._onResize.bind(this));
@@ -169,25 +180,38 @@ export class VirtualFeed {
     this.spacerTop.style.height = `${topHeight}px`;
     this.spacerBottom.style.height = `${bottomHeight}px`;
 
-    // 4. Render Items
-    this.resizeObserver.disconnect();
+    // 4. Recycle & Render
+    // ⚡ BOLT OPTIMIZATION: DOM Recycling with Dedicated Container
+    const existingNodes = new Map();
+    // Detach children from contentContainer only
+    while (this.contentContainer.firstElementChild) {
+      const el = this.contentContainer.firstElementChild;
+      if (el.dataset.virtualId) existingNodes.set(el.dataset.virtualId, el);
+      el.remove();
+    }
 
+    this.resizeObserver.disconnect();
     const fragment = document.createDocumentFragment();
 
     for (let i = startIndex; i <= endIndex; i++) {
       const item = this.items[i];
-      // Pass fragment as container
-      this.renderCallback(fragment, item, i);
-    }
+      const existing = existingNodes.get(item.id);
 
-    // Tag and Observe
-    const children = Array.from(fragment.children);
-    children.forEach((el, idx) => {
-      const dataIndex = startIndex + idx;
-      const item = this.items[dataIndex];
-      if (item) {
-        el.dataset.virtualId = item.id;
-        this.resizeObserver.observe(el);
+      const cacheKey = this.getItemCacheKey(item);
+
+      // Smart Reuse Check: cache key equality
+      if (existing && existing._vCacheKey === cacheKey) {
+        fragment.appendChild(existing);
+        this.resizeObserver.observe(existing); // Re-observe
+      } else {
+        this.renderCallback(fragment, item, i);
+        const newNode = fragment.lastElementChild;
+        if (newNode) {
+          newNode.dataset.virtualId = item.id;
+          this.resizeObserver.observe(newNode);
+          // Store for next run
+          newNode._vCacheKey = cacheKey;
+        }
       }
     });
 
@@ -215,10 +239,8 @@ export class VirtualFeed {
 
     // 6. Restore Scroll Position
     if (isAtBottom) {
-      // Stick to bottom
       this.container.scrollTop = this.container.scrollHeight;
     } else {
-      // Restore previous position
       this.container.scrollTop = scrollTop;
     }
   }
