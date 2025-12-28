@@ -9,7 +9,7 @@ const mockSanitize = jest.fn((val) => {
   // A more robust mock to catch script tags and common event handlers.
   return val
     .replace(/<script.*?>.*?<\/script>/gi, "[[SANITIZED_SCRIPT]]")
-    .replace(/\s(on\w+)=(".*?"|'.*?')/gi, ' $1="[[SANITIZED_ATTR]]"');
+    .replace(/\s(on\w+)=(?:\".*?\"|'.*?'|[^>\s]+)/gi, ' $1="[[SANITIZED_ATTR]]"');
 });
 
 global.window.DOMPurify = {
