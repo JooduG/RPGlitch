@@ -24,6 +24,9 @@ export class VirtualFeed {
     this.spacerTop.style.height = "0px";
     this.spacerTop.style.width = "100%";
 
+    this.contentWrapper = document.createElement("div");
+    this.contentWrapper.className = "virtual-content-wrapper";
+
     this.spacerBottom = document.createElement("div");
     this.spacerBottom.className = "virtual-spacer-bottom";
     this.spacerBottom.style.height = "0px";
@@ -50,6 +53,9 @@ export class VirtualFeed {
 
     // Initial setup
     this.container.innerHTML = "";
+    this.container.appendChild(this.spacerTop);
+    this.container.appendChild(this.contentWrapper);
+    this.container.appendChild(this.spacerBottom);
   }
 
   /**
@@ -157,6 +163,9 @@ export class VirtualFeed {
 
     this._prev = renderState;
 
+    // ⚡ BOLT OPTIMIZATION: DOM Recycling
+    // Instead of rebuilding the entire container, we only update the spacers
+    // and the specific items in the content wrapper.
     this.spacerTop.style.height = `${topHeight}px`;
     this.spacerBottom.style.height = `${bottomHeight}px`;
 
@@ -183,16 +192,25 @@ export class VirtualFeed {
     });
 
     // 5. Commit to DOM
-    while (this.container.firstChild) {
-      this.container.firstChild.remove();
-    }
+    this.contentWrapper.innerHTML = "";
+    this.contentWrapper.appendChild(fragment);
 
-    this.container.appendChild(this.spacerTop);
-    this.container.appendChild(fragment);
-    this.container.appendChild(this.spacerBottom);
-
-    if (this.footer) {
+    // Ensure footer is at the end (if it changed)
+    if (this.footer && this.container.lastElementChild !== this.footer) {
       this.container.appendChild(this.footer);
+    } else if (!this.footer) {
+      // Cleanup footer if removed
+      const existing = this.container.querySelector("#active-typing-indicator");
+      // Note: The footer logic in setFooter might pass a specific element.
+      // If footer is null but we have extra children?
+      // Best to ensure container only has: spacerTop, wrapper, spacerBottom, [footer]
+      while (this.container.children.length > 3) {
+        if (this.container.lastElementChild !== this.spacerBottom) {
+           this.container.lastElementChild.remove();
+        } else {
+           break;
+        }
+      }
     }
 
     // 6. Restore Scroll Position
@@ -229,6 +247,17 @@ export class VirtualFeed {
 
   setFooter(element) {
     this.footer = element;
+    // If element is null, we should remove existing footer immediately?
+    // render() handles it, but let's be safe.
+    if (!element) {
+       // Loop to find and remove any footer (anything after spacerBottom)
+       let next = this.spacerBottom.nextSibling;
+       while(next) {
+         let toRemove = next;
+         next = next.nextSibling;
+         toRemove.remove();
+       }
+    }
     this.render();
   }
 
