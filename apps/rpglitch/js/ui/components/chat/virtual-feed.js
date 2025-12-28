@@ -164,7 +164,6 @@ export class VirtualFeed {
     for (let i = startIndex; i <= endIndex; i++) {
       const item = this.items[i];
       const existing = existingNodes.get(item.id);
-      let reused = false;
 
       const cacheKey = this.getItemCacheKey(item);
 
@@ -172,10 +171,7 @@ export class VirtualFeed {
       if (existing && existing._vCacheKey === cacheKey) {
         fragment.appendChild(existing);
         this.resizeObserver.observe(existing); // Re-observe
-        reused = true;
-      }
-
-      if (!reused) {
+      } else {
         this.renderCallback(fragment, item, i);
         const newNode = fragment.lastElementChild;
         if (newNode) {
