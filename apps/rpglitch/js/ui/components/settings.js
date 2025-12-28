@@ -33,13 +33,16 @@ export const StoryOptionsController = {
         const storyState = card.dataset.storyState;
         const storyTitle = card.dataset.storyTitle;
 
-if (!storyId || !storyTitle) return;
+        if (!storyId || !storyTitle) return;
 
-let confirmed = storyState === 'concluded';
-if (!confirmed) {
-  const { showConfirm } = await import('../orchestrator.js');
-  confirmed = await showConfirm('Load Story?', 'Load "' + storyTitle + '"?');
-}
+        let confirmed = storyState === "concluded";
+        if (!confirmed) {
+          const { showConfirm } = await import("../orchestrator.js");
+          confirmed = await showConfirm(
+            "Load Story?",
+            'Load "' + storyTitle + '"?',
+          );
+        }
 
         if (confirmed) {
           await StoryOptionsController.loadStory(storyId);
@@ -169,7 +172,7 @@ if (!confirmed) {
     this.renderStories();
 
     // 4. Update Developer Mode Toggle
-    // [FIX] Force Sync on Init (in case body class was lost)
+    // Force Sync on Init (in case body class was lost)
     if (state.settings.developerMode) {
       document.body.classList.add("mode-developer");
     }
@@ -188,7 +191,6 @@ if (!confirmed) {
         } else {
           document.body.classList.remove("mode-developer");
         }
-
       };
     } else {
       error(
@@ -226,7 +228,7 @@ if (!confirmed) {
         e.preventDefault();
         const story = state.story.byId[state.story.activeId];
 
-        // [FIX] Fetch real entity to check type/name (bypassing UUID mismatch)
+        // Fetch real entity to check type/name (bypassing UUID mismatch)
         const fractal = story
           ? await entities.get("fractal", story.fractalId)
           : null;
@@ -372,7 +374,8 @@ if (!confirmed) {
     } else {
       // Fallback: The template is part of the core HTML and should always exist.
       error('Template "tpl-loading-library" not found.');
-      grid.innerHTML = '<div class="drawer-empty" aria-busy="true"><p class="muted">Loading library...</p></div>';
+      grid.innerHTML =
+        '<div class="drawer-empty" aria-busy="true"><p class="muted">Loading library...</p></div>';
     }
 
     try {
@@ -388,7 +391,8 @@ if (!confirmed) {
           grid.appendChild(tpl.content.cloneNode(true));
         } else {
           // Fallback if template is missing
-          grid.innerHTML = "<p style='grid-column: 1 / -1; text-align: center;'><small>Your library is empty.</small></p>";
+          grid.innerHTML =
+            "<p style='grid-column: 1 / -1; text-align: center;'><small>Your library is empty.</small></p>";
         }
         return;
       }

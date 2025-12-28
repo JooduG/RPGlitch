@@ -199,7 +199,7 @@ export const renderProfileView = async (
         const splitCol = document.createElement("div");
         splitCol.className = "split-column";
 
-        // [FIX] Only show headers for "forever" to avoid duplicates in "present"
+        // Only show headers for "forever" to avoid duplicates in "present"
         if (groupKey === "forever") {
           const header = document.createElement("div");
           header.className = "split-header";

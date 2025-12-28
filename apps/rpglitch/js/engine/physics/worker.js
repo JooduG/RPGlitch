@@ -204,7 +204,7 @@ const handleLlmResponse = async ({ text }) => {
         payload: { success: false },
       });
 
-    // [FIX] Deep Merge for Present State to prevent overwriting existing keys
+    // Deep Merge for Present State to prevent overwriting existing keys
     const currentPresent = freshEntity.present || {};
     let incomingPresent = updates.present || {};
 

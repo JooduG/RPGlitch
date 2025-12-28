@@ -89,11 +89,11 @@ export function showTypingIndicator(
     } else if (type === "user" && selectedEntities.user) {
       signatureColor = selectedEntities.user.signatureColor;
     } else if (type === "fractal" && selectedEntities.fractal) {
-      // [FIX] Fallback for Fractals if DB field is missing
+      // Fallback for Fractals if DB field is missing
       signatureColor = selectedEntities.fractal.signatureColor || "pink";
     }
 
-    // [FIX] Explicit Override (from options)
+    // Explicit Override (from options)
     if (typeof typeOrOptions === "object" && typeOrOptions.signatureColor) {
       signatureColor = typeOrOptions.signatureColor;
     }
@@ -101,7 +101,7 @@ export function showTypingIndicator(
     // [ARCHITECT] Use shared classification logic or explicit class
     let modifier = explicitClass || getBubbleClass(type, selectedEntities);
 
-    // [FIX] Enforce Fractal Class
+    // Enforce Fractal Class
     if (type === "fractal") {
       modifier = "chat-bubble--fractal";
     }
@@ -110,7 +110,7 @@ export function showTypingIndicator(
 
     if (signatureColor && signatureColor !== "default") {
       classes.push(`signature-${signatureColor}`);
-      // [FIX] Apply CSS Variable for Fractal Support
+      // Apply CSS Variable for Fractal Support
       ThemeService.apply(bubble, signatureColor);
     }
 
@@ -140,7 +140,7 @@ export async function renderChat(storyId) {
   const feed = document.querySelector("#chat-feed");
   if (!feed) return;
 
-  // [FIX] Enforce Developer Mode class on Body based on settings
+  // Enforce Developer Mode class on Body based on settings
   if (state.settings && state.settings.developerMode) {
     document.body.classList.add("mode-developer");
   } else {
@@ -191,7 +191,7 @@ export async function renderChat(storyId) {
       form.style.display = "none";
     }
 
-    // [FIX] Inject Concluded Controls - Independent of Form
+    // Inject Concluded Controls - Independent of Form
     const existingControls = document.querySelectorAll(".concluded-controls");
 
     // Only inject if not already present to prevent flickering/thrashing

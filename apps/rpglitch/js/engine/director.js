@@ -557,7 +557,7 @@ export const TurnManager = {
     const storyId = TurnManager.requireActive();
     const story = state.story.byId[storyId];
 
-    // [FIX] Ensure UI has the correct color by fetching the entity first
+    // Ensure UI has the correct color by fetching the entity first
     let signatureColor = "pink";
     try {
       const fractal = await entities.get("fractal", story.fractalId);
