@@ -56,7 +56,7 @@ export const refreshProfileIfOpen = async () => {
 
 // Subscribe to background updates
 events.addEventListener(EVENTS.DB_UPDATED, (data) => {
-  // [FIX] Ignore updates that came from the view itself (like flipping)
+  // Ignore updates that came from the view itself (like flipping)
   if (data?.detail?.source === "profile-view") return;
   refreshProfileIfOpen();
 });

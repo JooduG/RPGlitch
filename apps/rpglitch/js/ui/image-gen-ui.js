@@ -1,4 +1,4 @@
-import { escapeHtml, log } from "../core/utils.js";
+import { log } from "../core/utils.js";
 import { getPictureHTML } from "./services/ui-utils.js";
 
 // [SECURITY] This module handles UI only. Keyword extraction is in VisualManager (ui/services/visuals.js).
@@ -99,7 +99,7 @@ export function updatePortraits(aiCharacter, userCharacter) {
     if (nameDiv) nameDiv.className = "character-name-overlay";
 
     if (imgDiv) {
-      imgDiv.innerHTML = "";
+      imgDiv.replaceChildren();
       if (ent) {
         const isFractal = ent.type === "fractal";
         const picture = getPictureHTML(ent, {
@@ -113,7 +113,9 @@ export function updatePortraits(aiCharacter, userCharacter) {
     }
 
     if (nameDiv) {
-      nameDiv.innerHTML = `<h2>${escapeHtml(ent?.name || label)}</h2>`;
+      const h2 = document.createElement("h2");
+      h2.textContent = ent?.name || label;
+      nameDiv.replaceChildren(h2);
     }
   };
   setPort("#storymode-user-portrait", userCharacter, "You");

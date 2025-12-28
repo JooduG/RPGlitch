@@ -204,13 +204,24 @@ const handleLlmResponse = async ({ text }) => {
         payload: { success: false },
       });
 
-    let presentState = updates.present || freshEntity.present || {};
+    // Deep Merge for Present State to prevent overwriting existing keys
+    const currentPresent = freshEntity.present || {};
+    let incomingPresent = updates.present || {};
+
+    // Handle legacy string output from LLM
+    if (typeof incomingPresent === "string") {
+      incomingPresent = { physical: incomingPresent };
+    }
+
+    // MERGE: Spread existing first, then override with new data
+    const presentState = {
+      ...currentPresent,
+      ...incomingPresent,
+    };
+
+    // Legacy Status Support (merges into nonPhysical)
     if (updates.status) {
-      const base =
-        typeof presentState === "string"
-          ? { physical: presentState }
-          : presentState || {};
-      presentState = { ...base, nonPhysical: updates.status };
+      presentState.nonPhysical = updates.status;
     }
 
     const updatedEntity = {

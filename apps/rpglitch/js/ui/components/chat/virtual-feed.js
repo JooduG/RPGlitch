@@ -31,9 +31,8 @@ export class VirtualFeed {
     this.spacerTop.style.height = "0px";
     this.spacerTop.style.width = "100%";
 
-    this.contentContainer = document.createElement("div");
-    this.contentContainer.className = "virtual-content";
-    this.contentContainer.style.width = "100%";
+    this.contentWrapper = document.createElement("div");
+    this.contentWrapper.className = "virtual-content-wrapper";
 
     this.spacerBottom = document.createElement("div");
     this.spacerBottom.className = "virtual-spacer-bottom";
@@ -62,6 +61,12 @@ export class VirtualFeed {
       },
       { passive: true },
     );
+
+    // Initial setup
+    this.container.innerHTML = "";
+    this.container.appendChild(this.spacerTop);
+    this.container.appendChild(this.contentWrapper);
+    this.container.appendChild(this.spacerBottom);
   }
 
   /**
@@ -145,6 +150,33 @@ export class VirtualFeed {
     }
     const bottomHeight = totalContentHeight - bottomBase;
 
+    // ⚡ BOLT OPTIMIZATION: Prevent DOM Trashing
+    // Encapsulate state for maintainable comparison
+    const renderState = {
+      start: startIndex,
+      end: endIndex,
+      top: topHeight,
+      bottom: bottomHeight,
+      items: this.items,
+    };
+
+    if (
+      this._prev &&
+      Object.keys(renderState).every(
+        (key) => this._prev[key] === renderState[key],
+      )
+    ) {
+      if (isAtBottom) {
+        this.container.scrollTop = this.container.scrollHeight;
+      }
+      return;
+    }
+
+    this._prev = renderState;
+
+    // ⚡ BOLT OPTIMIZATION: DOM Recycling
+    // Instead of rebuilding the entire container, we only update the spacers
+    // and the specific items in the content wrapper.
     this.spacerTop.style.height = `${topHeight}px`;
     this.spacerBottom.style.height = `${bottomHeight}px`;
 
@@ -181,10 +213,29 @@ export class VirtualFeed {
           newNode._vCacheKey = cacheKey;
         }
       }
-    }
+    });
 
-    // 5. Commit to DOM (Content Only)
-    this.contentContainer.appendChild(fragment);
+    // 5. Commit to DOM
+    this.contentWrapper.innerHTML = "";
+    this.contentWrapper.appendChild(fragment);
+
+    // Ensure footer is at the end (if it changed)
+    if (this.footer && this.container.lastElementChild !== this.footer) {
+      this.container.appendChild(this.footer);
+    } else if (!this.footer && this.container.children.length > 3) {
+      // Cleanup footer if removed by iterating backwards and removing any non-core elements.
+      for (let i = this.container.children.length - 1; i >= 0; i--) {
+        const child = this.container.children[i];
+        if (
+          child !== this.spacerTop &&
+          child !== this.contentWrapper &&
+          child !== this.spacerBottom &&
+          child !== this.footer
+        ) {
+          child.remove();
+        }
+      }
+    }
 
     // 6. Restore Scroll Position
     if (isAtBottom) {
@@ -217,12 +268,27 @@ export class VirtualFeed {
   }
 
   setFooter(element) {
-    if (this.footer) {
+    // 1. Remove old footer if exists
+    if (this.footer && this.footer.parentNode === this.container) {
       this.footer.remove();
     }
+
     this.footer = element;
+
+    // 2. Append new footer immediately if provided
     if (this.footer) {
       this.container.appendChild(this.footer);
+      // Auto-scroll to show it if we were near bottom
+      const scrollTop = this.container.scrollTop;
+      const clientHeight = this.container.clientHeight;
+      const scrollHeight = this.container.scrollHeight;
+      const isAtBottom = scrollHeight - scrollTop - clientHeight < 100;
+
+      if (isAtBottom) {
+        requestAnimationFrame(() => {
+          this.container.scrollTop = this.container.scrollHeight;
+        });
+      }
     }
   }
 

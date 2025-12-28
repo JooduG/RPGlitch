@@ -66,7 +66,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
   // Setup Visuals
   setTopBarRight("form");
 
-  // [FIX] Randomize color immediately so placeholder gets it too
+  // Randomize color immediately so placeholder gets it too
   const currentColor = entity.signatureColor || getRandomSignatureKey();
 
   // Create a local "live" entity for rendering the initial state
@@ -95,7 +95,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
     });
     if (heroPic) {
       heroPic.classList.add("hero-bleed");
-      applyVisualsToImage(heroPic); // [FIX] Pass the wrapper directly
+      applyVisualsToImage(heroPic);
       heroWrap.appendChild(heroPic);
     }
   }
@@ -183,7 +183,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
       const curPic = heroWrap.querySelector(".picture");
       if (newPic) {
         newPic.classList.add("hero-bleed");
-        applyVisualsToImage(newPic); // [FIX] Pass the wrapper directly
+        applyVisualsToImage(newPic);
 
         if (curPic) curPic.replaceWith(newPic);
         else heroWrap.appendChild(newPic);
@@ -323,7 +323,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
       const curPic = heroWrap.querySelector(".picture");
       if (curPic && newPic) {
         newPic.classList.add("hero-bleed");
-        applyVisualsToImage(newPic); // [FIX] Pass the wrapper directly
+        applyVisualsToImage(newPic);
         curPic.replaceWith(newPic);
       }
       const nameInput = form.querySelector(".profile-name-input");
@@ -387,10 +387,13 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
         const splitCol = document.createElement("div");
         splitCol.className = "split-column";
 
-        const header = document.createElement("div");
-        header.className = "split-header";
-        header.textContent = SPLIT_HEADERS[subKey];
-        splitCol.appendChild(header);
+        // Only show headers for "forever" (first row) to avoid duplicates in "present"
+        if (key === "forever") {
+          const header = document.createElement("div");
+          header.className = "split-header";
+          header.textContent = SPLIT_HEADERS[subKey];
+          splitCol.appendChild(header);
+        }
 
         const input = document.createElement("textarea");
         input.className = "profile-input";
@@ -427,7 +430,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
 
   // --- MAGIC PROMPT LOGIC ---
   const handleEnhancePrompt = async (currentVal) => {
-    // [FIX] Inject Identity Context to prevent Gender/Subject Swapping
+    // Inject Identity Context to prevent Gender/Subject Swapping
     const subjectGender = (entity.gender || "").toLowerCase();
     const subjectContext = `Subject: ${entity.name} (${entity.type}). Gender: ${subjectGender}.`;
 
@@ -680,7 +683,6 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
   const handleEntityUpdate = (e) => {
     // Check if update matches this entity
     if (e.detail?.id === id && e.detail?.entity) {
-      console.log(`[PROFILE] Received Live Update for ${id}`);
       const fresh = e.detail.entity;
 
       // Update Dynamics Only (Preserve user edits in text fields if any?)
