@@ -11,7 +11,8 @@ export function createIconBtn(
 ) {
   const btn = document.createElement("button");
   btn.className = className;
-  btn.innerHTML = iconSvg;
+  // 🛡️ SENTINEL SECURITY PATCH: XSS Mitigation
+  btn.innerHTML = sanitizeHtml(iconSvg);
   btn.title = title;
   btn.type = "button";
   btn.onclick = (e) => {
