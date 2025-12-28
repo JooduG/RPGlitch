@@ -133,60 +133,77 @@ export class VirtualFeed {
     }
     const bottomHeight = totalContentHeight - bottomBase;
 
-    // ⚡ BOLT OPTIMIZATION: Prevent DOM Trashing
-    // Encapsulate state for maintainable comparison
-    const renderState = {
-      start: startIndex,
-      end: endIndex,
-      top: topHeight,
-      bottom: bottomHeight,
-      items: this.items,
-    };
-
-    if (
-      this._prev &&
-      Object.keys(renderState).every(
-        (key) => this._prev[key] === renderState[key],
-      )
-    ) {
-      if (isAtBottom) {
-        this.container.scrollTop = this.container.scrollHeight;
-      }
-      return;
-    }
-
-    this._prev = renderState;
-
     this.spacerTop.style.height = `${topHeight}px`;
     this.spacerBottom.style.height = `${bottomHeight}px`;
 
-    // 4. Render Items
-    this.resizeObserver.disconnect();
+    // 4. Recycle & Render
+    // ⚡ BOLT OPTIMIZATION: DOM Recycling to prevent Layout Thrashing
+    const existingNodes = new Map();
+    // Detach all children to recycle or remove
+    while (this.container.firstElementChild) {
+      const el = this.container.firstElementChild;
+      if (
+        el === this.spacerTop ||
+        el === this.spacerBottom ||
+        el === this.footer
+      ) {
+        el.remove();
+        continue;
+      }
+      if (el.dataset.virtualId) existingNodes.set(el.dataset.virtualId, el);
+      el.remove();
+    }
 
+    this.resizeObserver.disconnect();
     const fragment = document.createDocumentFragment();
 
     for (let i = startIndex; i <= endIndex; i++) {
       const item = this.items[i];
-      // Pass fragment as container
-      this.renderCallback(fragment, item, i);
-    }
+      const existing = existingNodes.get(item.id);
+      let reused = false;
 
-    // Tag and Observe
-    const children = Array.from(fragment.children);
-    children.forEach((el, idx) => {
-      const dataIndex = startIndex + idx;
-      const item = this.items[dataIndex];
-      if (item) {
-        el.dataset.virtualId = item.id;
-        this.resizeObserver.observe(el);
+      // Smart Reuse Check: content equality
+      if (existing && existing._vCache) {
+        const c = existing._vCache;
+        const opts = item._renderOptions || {};
+        const ctx = item._contextEntities || {};
+
+        if (
+          c.text === item.text && // String ref check (fast)
+          c.role === item.role &&
+          c.isLast === opts.isLast &&
+          c.ai === ctx.ai && // Object ref check (fast)
+          c.user === ctx.user &&
+          c.fractal === ctx.fractal
+        ) {
+          fragment.appendChild(existing);
+          this.resizeObserver.observe(existing); // Re-observe
+          reused = true;
+        }
       }
-    });
+
+      if (!reused) {
+        this.renderCallback(fragment, item, i);
+        const newNode = fragment.lastElementChild;
+        if (newNode) {
+          newNode.dataset.virtualId = item.id;
+          this.resizeObserver.observe(newNode);
+          // Cache checks for next run
+          const opts = item._renderOptions || {};
+          const ctx = item._contextEntities || {};
+          newNode._vCache = {
+            text: item.text,
+            role: item.role,
+            isLast: opts.isLast,
+            ai: ctx.ai,
+            user: ctx.user,
+            fractal: ctx.fractal,
+          };
+        }
+      }
+    }
 
     // 5. Commit to DOM
-    while (this.container.firstChild) {
-      this.container.firstChild.remove();
-    }
-
     this.container.appendChild(this.spacerTop);
     this.container.appendChild(fragment);
     this.container.appendChild(this.spacerBottom);
@@ -197,10 +214,8 @@ export class VirtualFeed {
 
     // 6. Restore Scroll Position
     if (isAtBottom) {
-      // Stick to bottom
       this.container.scrollTop = this.container.scrollHeight;
     } else {
-      // Restore previous position
       this.container.scrollTop = scrollTop;
     }
   }
