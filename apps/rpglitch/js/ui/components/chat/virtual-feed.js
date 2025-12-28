@@ -198,7 +198,7 @@ export class VirtualFeed {
     // Ensure footer is at the end (if it changed)
     if (this.footer && this.container.lastElementChild !== this.footer) {
       this.container.appendChild(this.footer);
-    } else if (!this.footer) {
+    } else if (!this.footer && this.container.children.length > 3) {
       // Cleanup footer if removed by iterating backwards and removing any non-core elements.
       for (let i = this.container.children.length - 1; i >= 0; i--) {
         const child = this.container.children[i];
