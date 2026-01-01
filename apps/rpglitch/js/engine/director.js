@@ -9,7 +9,13 @@ import { analyzeRejection, getDirectorInstruction } from "./variance.js";
 import { bridge } from "./physics/bridge.js";
 import { events, EVENTS } from "../core/events.js";
 import { VisualManager } from "../ui/services/visuals.js";
-import { IMG_RESOLUTION, ERROR_MESSAGES } from "../core/constants.js";
+import {
+  IMG_RESOLUTION,
+  ERROR_MESSAGES,
+  ROLES,
+  REFUSAL_TRIGGERS,
+  DEFAULT_COLORS,
+} from "../core/constants.js";
 
 const MAX_STREAM_RETRIES = 3;
 
@@ -26,7 +32,7 @@ const parseAiResponse = (response) => {
     .trim();
 
   let visualPrompt = null;
-  let targetType = "ai";
+  let targetType = ROLES.AI;
 
   const visualMatch = response.match(
     /<image_prompt(?:\s+target="([^"]+)")?>([\s\S]*?)<\/image_prompt>/i,
@@ -52,23 +58,14 @@ export const TurnManager = {
   _checkRefusal: (text) => {
     if (!text || text.length < 15) return true;
     const clean = text.toLowerCase();
-    const markers = [
-      "sorry",
-      "apologize",
-      "understand",
-      "as an ai",
-      "language model",
-      "cant",
-      "cannot",
-    ];
-    return markers.some((m) => clean.includes(m)) && text.length < 300;
+    return REFUSAL_TRIGGERS.some((m) => clean.includes(m)) && text.length < 300;
   },
 
   createFromSelection: async (data) => {
     const [startAi, startUser, startFractal] = await Promise.all([
       entities.get("character", data.aiId),
       entities.get("character", data.userId),
-      entities.get("fractal", data.fractalId),
+      entities.get(ROLES.FRACTAL, data.fractalId),
     ]);
 
     const id = await db.stories.add({
@@ -163,11 +160,11 @@ export const TurnManager = {
    */
   _handleVisuals: async (storyId, visualPrompt, targetType) => {
     const story = state.story.byId[storyId];
-    let targetRole = "ai";
+    let targetRole = ROLES.AI;
     let targetId = story.aiId;
 
-    if (targetType === "fractal") {
-      targetRole = "fractal";
+    if (targetType === ROLES.FRACTAL) {
+      targetRole = ROLES.FRACTAL;
       targetId = story.fractalId;
     }
 
@@ -180,7 +177,8 @@ export const TurnManager = {
     try {
       const builder = new ContextBuilder(storyId);
       let vTarget = "character";
-      if (targetType === "fractal" || targetType === "scene") vTarget = "scene";
+      if (targetType === ROLES.FRACTAL || targetType === "scene")
+        vTarget = "scene";
 
       const vPayload = await builder.buildVisualizer(vTarget);
       vPayload.system += `\n<RAW_INTENT>\n${visualPrompt}\n</RAW_INTENT>`;
@@ -216,7 +214,7 @@ export const TurnManager = {
     // 1. SIGNAL
     events.dispatchEvent(
       new CustomEvent(EVENTS.TYPING_STARTED, {
-        detail: { role: "ai", characterId: story.aiId },
+        detail: { role: ROLES.AI, characterId: story.aiId },
       }),
     );
 
@@ -226,7 +224,7 @@ export const TurnManager = {
     const [aiEntity, userEntity, fractalEntity] = await Promise.all([
       entities.get("character", story.aiId),
       entities.get("character", story.userId),
-      entities.get("fractal", story.fractalId),
+      entities.get(ROLES.FRACTAL, story.fractalId),
     ]);
 
     const llmOptions = {
@@ -245,14 +243,14 @@ export const TurnManager = {
           const response = await LlmService.generate(payload, llmOptions);
           events.dispatchEvent(
             new CustomEvent(EVENTS.TYPING_STOPPED, {
-              detail: { role: "ai", characterId: story.aiId },
+              detail: { role: ROLES.AI, characterId: story.aiId },
             }),
           );
 
           // 2.1 REFUSAL CHECK
           if (TurnManager._checkRefusal(response)) {
             const lastUserMsg = (payload.messages || []).findLast(
-              (m) => m.role === "user",
+              (m) => m.role === ROLES.USER,
             );
             const varianceKey = analyzeRejection(response, lastUserMsg?.text);
             payload.system += `\n\n${getDirectorInstruction(varianceKey)}`;
@@ -292,7 +290,7 @@ export const TurnManager = {
           } else {
             aiMsgId = await db.messages.add({
               storyId,
-              role: "ai",
+              role: ROLES.AI,
               type: "IC",
               text,
               characterName: aiEntity?.name || "Narrator",
@@ -353,7 +351,7 @@ export const TurnManager = {
     } finally {
       events.dispatchEvent(
         new CustomEvent(EVENTS.GENERATION_COMPLETED, {
-          detail: { role: "ai", characterId: story?.aiId },
+          detail: { role: ROLES.AI, characterId: story?.aiId },
         }),
       );
     }
@@ -372,7 +370,7 @@ export const TurnManager = {
       error("Response Gen Error", e);
       events.dispatchEvent(
         new CustomEvent(EVENTS.GENERATION_COMPLETED, {
-          detail: { role: "ai" },
+          detail: { role: ROLES.AI },
         }),
       );
     }
@@ -389,7 +387,7 @@ export const TurnManager = {
 
       await db.messages.add({
         storyId,
-        role: "user",
+        role: ROLES.USER,
         type: "IC",
         text,
         characterName: user?.name || "User",
@@ -416,7 +414,7 @@ export const TurnManager = {
     if (msgs.length === 0) return;
 
     const last = msgs[msgs.length - 1];
-    if (last.role !== "ai" && last.role !== "narrator") return;
+    if (last.role !== ROLES.AI && last.role !== ROLES.NARRATOR) return;
 
     let note;
     if (manualInstruction === "VANILLA") {
@@ -428,7 +426,7 @@ export const TurnManager = {
       );
       note = `[SYSTEM: DIRECTOR_OVERRIDE]\nDirective: ${manualInstruction}`;
     } else {
-      const lastUser = msgs.findLast((m) => m.role === "user");
+      const lastUser = msgs.findLast((m) => m.role === ROLES.USER);
       const key = analyzeRejection(last.text, lastUser?.text || "");
       note = getDirectorInstruction(key);
       log(`[PROMETHEUS] Regenerating with strategy: ${key}`);
@@ -457,7 +455,7 @@ export const TurnManager = {
     if (msgs.length === 0) return;
 
     const last = msgs[msgs.length - 1];
-    if (last.role !== "ai" && last.role !== "narrator") return;
+    if (last.role !== ROLES.AI && last.role !== ROLES.NARRATOR) return;
 
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
     try {
@@ -489,7 +487,7 @@ export const TurnManager = {
     const story = state.story.byId[storyId];
     events.dispatchEvent(
       new CustomEvent(EVENTS.TYPING_STARTED, {
-        detail: { role: "fractal", characterId: story.fractalId },
+        detail: { role: ROLES.FRACTAL, characterId: story.fractalId },
       }),
     );
 
@@ -558,9 +556,9 @@ export const TurnManager = {
     const story = state.story.byId[storyId];
 
     // Ensure UI has the correct color by fetching the entity first
-    let signatureColor = "pink";
+    let signatureColor = DEFAULT_COLORS.FRACTAL;
     try {
-      const fractal = await entities.get("fractal", story.fractalId);
+      const fractal = await entities.get(ROLES.FRACTAL, story.fractalId);
       // Prefer pink over default purple for Fractals unless explicit overrides exist
       if (
         fractal &&
@@ -577,7 +575,7 @@ export const TurnManager = {
     events.dispatchEvent(
       new CustomEvent(EVENTS.TYPING_STARTED, {
         detail: {
-          role: "fractal",
+          role: ROLES.FRACTAL,
           characterId: story.fractalId,
           signatureColor: signatureColor,
         },
@@ -614,7 +612,7 @@ export const TurnManager = {
       // 2. Save Epilogue
       await db.messages.add({
         storyId,
-        role: "fractal",
+        role: ROLES.FRACTAL,
         type: "OOC",
         text: response,
         createdAt: Date.now(),
@@ -625,7 +623,7 @@ export const TurnManager = {
       const [endAi, endUser, endFractal] = await Promise.all([
         entities.get("character", story.aiId),
         entities.get("character", story.userId),
-        entities.get("fractal", story.fractalId),
+        entities.get(ROLES.FRACTAL, story.fractalId),
       ]);
 
       await db.stories.update(storyId, {
@@ -689,7 +687,7 @@ export const TurnManager = {
 
       await db.messages.add({
         storyId,
-        role: "narrator",
+        role: ROLES.NARRATOR,
         type: "IMAGE",
         text: imageUrl,
         metadata: { prompt: draftText },
@@ -733,7 +731,8 @@ export const TurnManager = {
       const builder = new ContextBuilder(storyId);
 
       let vTarget = "character";
-      if (targetType === "fractal" || targetType === "scene") vTarget = "scene";
+      if (targetType === ROLES.FRACTAL || targetType === "scene")
+        vTarget = "scene";
 
       const vPayload = await builder.buildVisualizer(vTarget);
       vPayload.system += `\n<RAW_INTENT>\n${visualPrompt}\n</RAW_INTENT>`;
@@ -772,7 +771,7 @@ export const TurnManager = {
     const storyId = TurnManager.requireActive();
     const story = state.story.byId[storyId];
     const fractal = story
-      ? await entities.get("fractal", story.fractalId)
+      ? await entities.get(ROLES.FRACTAL, story.fractalId)
       : null;
     const isMessenger =
       fractal &&
@@ -798,7 +797,7 @@ export const TurnManager = {
 
     await db.messages.add({
       storyId,
-      role: "user",
+      role: ROLES.USER,
       type: "IC",
       text,
       createdAt: Date.now(),

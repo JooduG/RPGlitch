@@ -82,3 +82,26 @@ export const AVATAR_PLACEHOLDERS = {
   default:
     "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJjdXJyZW50Q29xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIi8+PHBhdGggZD0iTTEyIDhhNCA0IDAgMSAwIDAtOCA0IDQgMCAwIDAgMCA4eiIvPjxwYXRoIGQ9Ik02IDIxdi0yYTYgNiAwIDAgMSAxMiAweiIvPjwvc3ZnPg==",
 };
+
+// --- LOGIC AND ROLES ---
+
+export const ROLES = {
+  AI: "ai",
+  USER: "user",
+  FRACTAL: "fractal",
+  NARRATOR: "narrator",
+};
+
+export const REFUSAL_TRIGGERS = [
+  "sorry",
+  "apologize",
+  "understand",
+  "as an ai",
+  "language model",
+  "cant",
+  "cannot",
+];
+
+export const DEFAULT_COLORS = {
+  FRACTAL: "pink",
+};
