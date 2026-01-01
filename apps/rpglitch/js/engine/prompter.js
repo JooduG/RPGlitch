@@ -253,80 +253,68 @@ TONE: Casual, direct, unprompted.
     };
   }
 
-  async buildUpdater(targetType, forcedDynamics = null) {
-    const story = state.story.byId[this.storyId];
-    const [ai, user, fractal] = await this._resolveEntities(story);
-    const history = state.messages.byStoryId[this.storyId] || [];
-    const recentHistory = history.slice(-6);
+  async buildPulse(entity, history, activePlotThreads = []) {
+    const activeText = activePlotThreads.length
+      ? activePlotThreads.map((t, i) => `[Index ${i}] "${t}"`).join("\n")
+      : "No active threads.";
 
-    let targetEntity;
-    let roleInstruction;
-
-    if (targetType === "ai_character") {
-      targetEntity = ai;
-      roleInstruction = `ROLE: Subconscious Manager of ${ai.name}. Govern stress and emotional state.`;
-    } else if (targetType === "user_character") {
-      targetEntity = user;
-      roleInstruction = `ROLE: Profiling Engine for ${user.name}. Update their 'Present State'.`;
-    } else {
-      targetEntity = fractal;
-      roleInstruction = `ROLE: World Sim. Track environmental decay and entropy.`;
-    }
-
-    const currentDynamics = targetEntity.dynamics || {
+    const currentDynamics = entity.dynamics || {
       entropy: 10,
-      permeability: 50,
       velocity: 10,
-      resonance: 10,
+      density: 50,
+      coherence: 50,
     };
 
-    const system = `[SYSTEM: PROMETHEUS_PHYSICS_V5]
-${roleInstruction}
+    const system = `[SYSTEM: SIMULATION_PULSE_V1]
+[ROLE: STATE_MANAGER]
 
-${PROMPT_BLOCKS.PHYSICS_LAWS}
-${PROMPT_BLOCKS.CALIBRATION_TABLE}
+<CORE_DIRECTIVE>
+Analyze the recent conversation history. Update the internal state of the simulation (Dynamics, Plot, Present State) to reflect the narrative progression.
+</CORE_DIRECTIVE>
+
+<INPUT_CONTEXT>
+**Current Dynamics:**
+${JSON.stringify(currentDynamics, null, 2)}
+
+**Active Plot Threads:**
+${activeText}
+
+**Present State:**
+"${entity.present?.physical || "Unknown"}"
+</INPUT_CONTEXT>
 
 <INSTRUCTION>
-1. **Think:** Explain why values are changing based on recent dialogue.
-2. **Update:** Return the new JSON.
+1. **Analyze:** Has the atmosphere changed? (Chaos/Pacing/Detail/Stability)
+2. **Plot:** Have any active threads been resolved by specific events? Are there new threads?
+3. **Update:** Return a strict JSON object.
 </INSTRUCTION>
 
-<CURRENT_STATE>
-${JSON.stringify(
-  {
-    forever_context: formatSection(targetEntity.forever),
-    present_context: formatSection(targetEntity.present),
-    dynamics: forcedDynamics || currentDynamics,
-  },
-  null,
-  2,
-)}
-</CURRENT_STATE>
-
-<OUTPUT_FORMAT>
-Return the stats in this block:
-\`\`\`
-// [STATUS_HUD]
-// Entropy: (New Value)
-// Velocity: (New Value)
-// Permeability: (New Value)
-// Resonance: (New Value)
-// [/STATUS_HUD]
-\`\`\`
-
+<OUTPUT_SCHEMA>
 {
-  "status": "Updated state description.",
-  "dynamics": { "entropy": Number, "permeability": Number, "velocity": Number, "resonance": Number },
-  "present": { "physical": "New physical description", "mental": "New mental/emotional state" }
+  "dynamics": {
+    "entropy": "0-100 (Chaos/Tension)",
+    "velocity": "0-100 (Pacing/Action)",
+    "density": "0-100 (Lore/Detail)",
+    "coherence": "0-100 (Stability/Focus)"
+  },
+  "plot": {
+    "resolved_indices": [Array of Integers matching the content of completed Active Threads],
+    "new_threads": [Array of Strings for NEW significant objectives triggered by events]
+  },
+  "present": "A concise, updated description of the character's current physical and emotional state (e.g., 'Wounded, anxious, holding a key')."
 }
-</OUTPUT_FORMAT>`;
+</OUTPUT_SCHEMA>`;
 
     return {
       system,
-      messages: this._sanitizeHistory(recentHistory),
-      params: { ...state.settings, maxTokens: 800, temperature: 0.2 },
-      targetEntityId: targetEntity.id,
-      targetType: targetEntity.type,
+      messages: this._sanitizeHistory(history),
+      params: {
+        ...state.settings,
+        maxTokens: 500,
+        temperature: 0.2, // Low temp for logic
+        response_format: { type: "json_object" },
+      },
+      forceJson: true, // Internal flag for LlmService if needed
     };
   }
 

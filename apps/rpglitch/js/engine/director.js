@@ -302,11 +302,8 @@ export const TurnManager = {
 
           // 6. PHYSICS
           if (payload.meta?.triggerUpdate) {
-            TurnManager.runBackgroundUpdate(
-              storyId,
-              payload.meta.updateTarget,
-              aiMsgId,
-            );
+            // Non-blocking Pulse
+            TurnManager._runPulse(storyId, story.aiId);
           }
           break;
         } catch (e) {
@@ -473,12 +470,125 @@ export const TurnManager = {
     }
   },
 
-  runBackgroundUpdate: async (storyId, target, mid) => {
+  _runPulse: async (storyId, aiId) => {
     try {
-      log(`[PROMETHEUS] Offloading update to Worker...`);
-      await bridge.runBackgroundUpdate(storyId, target, mid);
+      log(`[TurnManager] ✨ Initiating Simulation Pulse...`);
+      const story = state.story.byId[storyId];
+      const aiEntity = await entities.get("character", aiId);
+      const history = await TurnManager.loadMessages(storyId);
+
+      // 1. Build Pulse Prompt
+      const builder = new ContextBuilder(storyId);
+      const activeThreads = aiEntity.customData?.plot?.active || [];
+      // Use last ~15 messages (Modulo 5 * 3) for context
+      const pulseHistory = history.slice(-15);
+
+      const payload = await builder.buildPulse(
+        aiEntity,
+        pulseHistory,
+        activeThreads,
+      );
+
+      // 2. Execute LLM Request
+      const response = await LlmService.generate(payload, {
+        json: true,
+      });
+
+      // 3. Parse CSS/JSON
+      let data;
+      try {
+        // Attempt to clean markdown code blocks if present
+        const jsonText = response.replace(/```json\n|```/g, "").trim();
+        data = JSON.parse(jsonText);
+      } catch (parseErr) {
+        console.warn("[TurnManager] Pulse JSON Parse Failed:", response);
+        return; // Abort if invalid
+      }
+
+      // 4. Apply Updates
+      if (data) {
+        let needsSave = false;
+        const updates = { customData: { ...aiEntity.customData } };
+
+        // Apply Dynamics
+        if (data.dynamics) {
+          // Clamp values 0-100
+          const clamp = (n) => Math.min(100, Math.max(0, n || 0));
+          updates.dynamics = {
+            entropy: clamp(data.dynamics.entropy),
+            velocity: clamp(data.dynamics.velocity),
+            density: clamp(data.dynamics.density),
+            coherence: clamp(data.dynamics.coherence),
+          };
+          needsSave = true;
+          log("[TurnManager] Dynamics Updated:", updates.dynamics);
+        }
+
+        // Apply Present State
+        if (data.present && typeof data.present === "string") {
+          updates.present = {
+            ...aiEntity.present,
+            physical: data.present, // Simpler string update for now
+            // mental: data.present // Could split if schema matched
+          };
+          needsSave = true;
+        }
+
+        // Apply Plot Logic
+        if (data.plot) {
+          const currentActive = [...(updates.customData.plot.active || [])];
+          let currentResolved = [...(updates.customData.plot.resolved || [])];
+
+          // Move resolved indices
+          if (
+            data.plot.resolved_indices &&
+            Array.isArray(data.plot.resolved_indices)
+          ) {
+            // Sort descending to remove without index shift issues
+            const indicesToRemove = data.plot.resolved_indices
+              .filter((i) => i >= 0 && i < currentActive.length)
+              .sort((a, b) => b - a);
+
+            indicesToRemove.forEach((idx) => {
+              const removed = currentActive.splice(idx, 1)[0];
+              if (removed) currentResolved.unshift(removed);
+            });
+          }
+
+          // Add new threads
+          if (data.plot.new_threads && Array.isArray(data.plot.new_threads)) {
+            data.plot.new_threads.forEach((t) => {
+              if (typeof t === "string" && !currentActive.includes(t)) {
+                currentActive.push(t);
+              }
+            });
+          }
+
+          updates.customData.plot = {
+            active: currentActive,
+            resolved: currentResolved,
+          };
+          needsSave = true;
+          log("[TurnManager] Plot Updated:", updates.customData.plot);
+        }
+
+        // 5. Persist
+        if (needsSave) {
+          await entities.upsert("character", {
+            ...aiEntity,
+            ...updates,
+          });
+
+          // Dispatch Event for UI Refresh
+          events.dispatchEvent(
+            new CustomEvent(EVENTS.ENTITY_UPDATED, {
+              detail: { id: aiId, ...updates },
+            }),
+          );
+        }
+      }
     } catch (e) {
-      error("Background Update Error", e);
+      error("Pulse Error", e);
     }
   },
 
