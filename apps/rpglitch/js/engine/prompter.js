@@ -161,6 +161,16 @@ ACTION: Attempt to flee the scene immediately.
     return null;
   };
 
+  _resolvePlot = (entity) => {
+    const threads = entity.customData?.plot?.active || [];
+    if (threads.length === 0) return null;
+
+    return `<PLOT_CONTEXT>
+Active Threads:
+${threads.map((t) => `- ${t}`).join("\n")}
+</PLOT_CONTEXT>`;
+  };
+
   // --- MAIN BUILDERS ---
 
   async build(userInput, options = {}) {
@@ -208,6 +218,7 @@ ACTION: Attempt to flee the scene immediately.
       strategy.formatFractal(fractal),
       strategy.formatActive(ai),
       strategy.formatPartner(user),
+      this._resolvePlot(ai),
       PROMPT_BLOCKS.LORE_STUB,
     ];
 

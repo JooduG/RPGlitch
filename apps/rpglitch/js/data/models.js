@@ -262,8 +262,13 @@ export const normalize = (base = {}) => {
     dynamics = null,
     _backupState = null,
     _lastUpdateMsgId = null,
-    customData = { plot: [] },
+    customData = { plot: { active: [], resolved: [] } },
   } = base;
+
+  // Strict enforcement of Phase 1 Plot Schema
+  const finalCustomData = customData?.plot?.active
+    ? customData
+    : { plot: { active: [], resolved: [] } };
 
   const safeTags = (Array.isArray(tags) ? tags : String(tags || "").split(","))
     .map((s) => sanitizeHtml(String(s).trim()))
@@ -306,7 +311,7 @@ export const normalize = (base = {}) => {
     dynamics,
     _backupState,
     _lastUpdateMsgId,
-    customData,
+    customData: finalCustomData,
   };
 };
 
