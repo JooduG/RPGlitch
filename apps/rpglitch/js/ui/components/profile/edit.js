@@ -74,15 +74,15 @@ const renderPlotEditor = (container, entity) => {
   const wrapper = document.createElement("div");
   wrapper.className = "profile-section plot-editor-widget";
   wrapper.style.marginTop = "var(--spacing)";
-  wrapper.style.background = "rgba(0, 0, 0, 0.2)";
+  wrapper.style.background = "var(--pico-card-background-color)";
   wrapper.style.padding = "10px";
   wrapper.style.borderRadius = "8px";
 
   // Header
-  const header = document.createElement("div");
-  header.className = "profile-label";
-  header.textContent = "Plot Threads (Director)";
+  const header = document.createElement("h4");
+  header.textContent = "Director Controls: Plot";
   header.style.marginBottom = "8px";
+  header.style.fontSize = "1em";
   header.style.color = `var(--color-${entity.signatureColor || "default"})`;
   wrapper.appendChild(header);
 
@@ -104,9 +104,6 @@ const renderPlotEditor = (container, entity) => {
   // Item Factory
   const createItem = (text, type) => {
     const li = document.createElement("li");
-    // Class used for scraping
-    li.className =
-      type === "active" ? "plot-active-item" : "plot-resolved-item";
     li.style.display = "flex";
     li.style.justifyContent = "space-between";
     li.style.alignItems = "center";
@@ -115,13 +112,31 @@ const renderPlotEditor = (container, entity) => {
     li.style.background = "rgba(255,255,255,0.05)";
     li.style.borderRadius = "4px";
 
-    // Text Span (The content we want to scrape)
-    const span = document.createElement("span");
-    span.textContent = text;
-    span.style.flex = "1";
-    span.style.marginRight = "10px";
-    span.style.wordBreak = "break-word";
-    li.appendChild(span);
+    if (type === "active") {
+      li.className = "plot-active-item-wrapper";
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = text;
+      input.className = "plot-active-input profile-input"; // Scrape class
+      input.style.marginBottom = "0";
+      input.style.flex = "1";
+      input.style.marginRight = "10px";
+      input.style.background = "transparent";
+      input.style.border = "none";
+      input.style.color = "inherit";
+      input.placeholder = "Plot thread details...";
+      li.appendChild(input);
+    } else {
+      li.className = "plot-resolved-item"; // Scrape class (container)
+      const span = document.createElement("span");
+      span.textContent = text;
+      span.className = "plot-resolved-text"; // Scrape class (text)
+      span.style.flex = "1";
+      span.style.marginRight = "10px";
+      span.style.wordBreak = "break-word";
+      span.style.textDecoration = "line-through";
+      li.appendChild(span);
+    }
 
     // Actions
     const actions = document.createElement("div");
@@ -138,10 +153,10 @@ const renderPlotEditor = (container, entity) => {
       resolveBtn.title = "Resolve";
       resolveBtn.onclick = (e) => {
         e.preventDefault();
+        const currentText = li.querySelector("input").value;
         li.remove();
-        // Move to resolved list
         resolvedList.insertBefore(
-          createItem(text, "resolved"),
+          createItem(currentText, "resolved"),
           resolvedList.firstChild,
         );
       };
@@ -186,7 +201,6 @@ const renderPlotEditor = (container, entity) => {
   input.placeholder = "New plot thread...";
   input.className = "profile-input";
   input.style.marginBottom = "0";
-  // Allow Enter key to add
   input.onkeydown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -195,7 +209,7 @@ const renderPlotEditor = (container, entity) => {
   };
 
   const addBtn = document.createElement("button");
-  addBtn.textContent = "+";
+  addBtn.textContent = "Add";
   addBtn.className = "btn-icon-raise";
   addBtn.style.width = "auto";
   addBtn.onclick = (e) => {
@@ -211,10 +225,9 @@ const renderPlotEditor = (container, entity) => {
   controls.appendChild(addBtn);
   wrapper.appendChild(controls);
 
-  // Resolved Header/Divider
+  // Resolved Header
   const resLabel = document.createElement("div");
-  resLabel.className = "profile-label";
-  resLabel.textContent = "History";
+  resLabel.textContent = "Resolved History";
   resLabel.style.fontSize = "0.8em";
   resLabel.style.marginTop = "10px";
   resLabel.style.opacity = "0.5";
@@ -771,6 +784,25 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
 
     if (!live.name?.trim()) return showAlert("Validation", "Name is required");
 
+    // Scrape Plot Data (Director Mode)
+    let plotData = entity.customData?.plot || { active: [], resolved: [] };
+    const plotContainer = form.querySelector(".plot-editor-widget");
+    if (plotContainer) {
+      const activeInputs = Array.from(
+        plotContainer.querySelectorAll(".plot-active-input"),
+      );
+      const resolvedItems = Array.from(
+        plotContainer.querySelectorAll(".plot-resolved-text"),
+      );
+
+      plotData = {
+        active: activeInputs.map((el) => el.value.trim()).filter((v) => v),
+        resolved: resolvedItems
+          .map((el) => el.textContent.trim())
+          .filter((v) => v),
+      };
+    }
+
     // Patch visual alignment
     const finalImageUrl = escapeHtml(
       imageInput.dataset.pendingUrl || imageInput.value.trim(),
@@ -786,6 +818,10 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
       profilePictureUrl: finalImageUrl,
       signatureColour: escapeHtml(paletteSelect.value.trim()),
       visuals: localVisuals,
+      customData: {
+        ...entity.customData,
+        plot: plotData,
+      },
       povStyle: isFractal
         ? form.querySelector('[data-edit-field="povStyle"]')?.value ||
           entity.povStyle ||
