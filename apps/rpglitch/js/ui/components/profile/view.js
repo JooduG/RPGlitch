@@ -44,7 +44,11 @@ const renderPlotWidget = (container, entity) => {
   content.style.borderRadius = "8px";
 
   if (active.length === 0 && resolved.length === 0) {
-    content.innerHTML = `<em class="muted">No plot threads tracked.</em>`;
+    const emptyMsg = document.createElement("div");
+    emptyMsg.className = "muted";
+    emptyMsg.style.fontStyle = "italic";
+    emptyMsg.textContent = "No plot threads tracked.";
+    content.appendChild(emptyMsg);
   } else {
     const ul = document.createElement("ul");
     ul.style.listStyle = "none";

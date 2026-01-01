@@ -4,6 +4,8 @@ import { handleAsyncError, log } from "../../../core/utils.js";
 import { renderProfileView } from "./view.js";
 import { renderProfileEdit } from "./edit.js";
 
+import { state } from "../../../core/state.js"; // [FIX] Import state for Dev Mode check
+
 // CALLBACK: Router must inject this
 let _onUpdateSelection = null;
 export const setProfileCallbacks = (callbacks) => {
@@ -90,8 +92,11 @@ export const renderProfilePage = async (type, id, forceEditMode = false) => {
   else screen.classList.remove("profile-view--fractal");
 
   // Check Gameplay Status (Lock)
+  // Check Gameplay Status (Lock)
   const isGameplay = document.body.classList.contains("storymode");
-  let isEditing = (id === "new" || forceEditMode) && !isGameplay;
+  const isDev = state.settings?.developerMode;
+  // [FIX] Allow edit if New OR (ForceEdit AND (Not Gameplay OR DevMode))
+  let isEditing = id === "new" || (forceEditMode && (!isGameplay || isDev));
 
   let entity;
 

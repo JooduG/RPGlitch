@@ -40,10 +40,6 @@ export class VirtualFeed {
     this.spacerBottom.style.height = "0px";
     this.spacerBottom.style.width = "100%";
 
-    this.container.appendChild(this.spacerTop);
-    this.container.appendChild(this.contentContainer);
-    this.container.appendChild(this.spacerBottom);
-
     // State Loop
     this.resizeObserver = new ResizeObserver(this._onResize.bind(this));
 
@@ -184,9 +180,9 @@ export class VirtualFeed {
     // 4. Recycle & Render
     // ⚡ BOLT OPTIMIZATION: DOM Recycling with Dedicated Container
     const existingNodes = new Map();
-    // Detach children from contentContainer only
-    while (this.contentContainer.firstElementChild) {
-      const el = this.contentContainer.firstElementChild;
+    // Detach children from contentWrapper only
+    while (this.contentWrapper.firstElementChild) {
+      const el = this.contentWrapper.firstElementChild;
       if (el.dataset.virtualId) existingNodes.set(el.dataset.virtualId, el);
       el.remove();
     }
