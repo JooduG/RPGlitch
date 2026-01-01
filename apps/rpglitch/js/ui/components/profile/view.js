@@ -35,7 +35,7 @@ const renderPlotWidget = (container, entity) => {
   // Apply signature color to the header text
   const colorVar = `var(--color-${entity.signatureColor || "default"})`;
   header.style.color = colorVar;
-  header.innerHTML = `PLOT TRACKER <span style="opacity:0.6; font-size:0.8em; margin-left:5px; color:var(--muted-color)">[DIRECTOR]</span>`;
+  header.innerHTML = "PLOT TRACKER";
   section.appendChild(header);
 
   const content = document.createElement("div");
