@@ -104,6 +104,15 @@ const premade = {
       past: "Lived in Nova City as viral hero-influencer, saving citizens from disasters like monorail wrecks with dramatic BOOM halts; flirted heavy in cons/clubs/gyms/HQs with winks/puns/hook-up teases; often clashed with twink nemesis like Glitch in glitchy rivalries blurring into passionate, hypno-kinky conquests.",
       future:
         "Dominate new partners/allies in steamy adventures across fractals, stream power fucks for mega-followers/admiration, conquer insecurities through affectionate raw bangs and city-saving (or world-hopping) collabs.",
+      customData: {
+        plot: {
+          active: [
+            "Secure a sponsorship deal with 'Titan Supplements'.",
+            "Investigate the mysterious power drain in Sector 7.",
+          ],
+          resolved: ["Defeated the Neon Golem (Last Week)."],
+        },
+      },
     },
     {
       id: "entity-C6",
@@ -128,6 +137,15 @@ const premade = {
       past: "Thrived in Nova City as competetive glitchy superhero, disrupting tech for thrills/attention; clashed with dominant heroes like Orion in high-stakes dramas (e.g., monorail saves turning into heated rivalries); resisted with sass but melted into hypno-kinky submissions, blurring foes to fuckbuddies.",
       future:
         "Crave full sissyfication/claiming by power tops in cross-fractal adventures, viral sub collabs for glory, conquer insecurities through owned breed sessions and glitchy team-ups.",
+      customData: {
+        plot: {
+          active: [
+            "Hide the encrypted data shard from Orion.",
+            "Fix the heat-sink in the cyberdeck before the next run.",
+          ],
+          resolved: [],
+        },
+      },
     },
     {
       id: "entity-F1",
