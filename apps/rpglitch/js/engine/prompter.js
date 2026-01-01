@@ -280,7 +280,7 @@ ${JSON.stringify(currentDynamics, null, 2)}
 ${activeText}
 
 **Present State:**
-"${entity.present?.physical || "Unknown"}"
+${formatSection(entity.present)}
 </INPUT_CONTEXT>
 
 <INSTRUCTION>
@@ -301,7 +301,10 @@ ${activeText}
     "resolved_indices": [Array of Integers matching the content of completed Active Threads],
     "new_threads": [Array of Strings for NEW significant objectives triggered by events]
   },
-  "present": "A concise, updated description of the character's current physical and emotional state (e.g., 'Wounded, anxious, holding a key')."
+  "state": {
+    "physical": "Concise visual description (clothing, wounds, position)",
+    "mental": "Internal emotional state, thoughts, focus"
+  }
 }
 </OUTPUT_SCHEMA>`;
 

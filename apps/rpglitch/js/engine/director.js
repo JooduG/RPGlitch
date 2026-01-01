@@ -6,7 +6,7 @@ import { entities } from "../data/repo.js";
 import { error, calculateBlendedParams, log } from "../core/utils.js";
 import { ContextBuilder } from "./prompter.js";
 import { analyzeRejection, getDirectorInstruction } from "./variance.js";
-import { bridge } from "./physics/bridge.js";
+// import { bridge } from "./physics/bridge.js";
 import { events, EVENTS } from "../core/events.js";
 import { VisualManager } from "../ui/services/visuals.js";
 import {
@@ -273,7 +273,7 @@ export const TurnManager = {
           }
 
           // 5. SAVE
-          let aiMsgId;
+          // let aiMsgId; // Unused
           const metadata = visualPrompt
             ? { visualPrompt, targetType, refinedPrompt: visuals.refinedPrompt }
             : null;
@@ -286,9 +286,9 @@ export const TurnManager = {
               update.metadata = { ...(original.metadata || {}), ...metadata };
             }
             await db.messages.update(appendTargetId, update);
-            aiMsgId = appendTargetId;
+            // aiMsgId = appendTargetId; // Unused
           } else {
-            aiMsgId = await db.messages.add({
+            await db.messages.add({
               storyId,
               role: ROLES.AI,
               type: "IC",
@@ -473,7 +473,7 @@ export const TurnManager = {
   _runPulse: async (storyId, aiId) => {
     try {
       log(`[TurnManager] ✨ Initiating Simulation Pulse...`);
-      const story = state.story.byId[storyId];
+      // const story = state.story.byId[storyId]; // Unused
       const aiEntity = await entities.get("character", aiId);
       const history = await TurnManager.loadMessages(storyId);
 
@@ -524,12 +524,25 @@ export const TurnManager = {
           log("[TurnManager] Dynamics Updated:", updates.dynamics);
         }
 
-        // Apply Present State
-        if (data.present && typeof data.present === "string") {
+        // Apply Present State (Split Physical/Mental)
+        if (data.state) {
+          const currentPresent =
+            typeof aiEntity.present === "object" && aiEntity.present !== null
+              ? aiEntity.present
+              : { physical: String(aiEntity.present || ""), mental: "" };
+
+          updates.present = {
+            ...currentPresent,
+            physical: data.state.physical || currentPresent.physical || "",
+            mental: data.state.mental || currentPresent.mental || "",
+          };
+          needsSave = true;
+          log("[TurnManager] State Updated:", updates.present);
+        } else if (data.present && typeof data.present === "string") {
+          // Fallback for legacy schema
           updates.present = {
             ...aiEntity.present,
-            physical: data.present, // Simpler string update for now
-            // mental: data.present // Could split if schema matched
+            physical: data.present,
           };
           needsSave = true;
         }
@@ -555,12 +568,15 @@ export const TurnManager = {
             });
           }
 
-          // Add new threads
+          // Add new threads (LIFO: Add to Top)
           if (data.plot.new_threads && Array.isArray(data.plot.new_threads)) {
-            data.plot.new_threads.forEach((t) => {
-              if (typeof t === "string" && !currentActive.includes(t)) {
-                currentActive.push(t);
-              }
+            const newThreads = data.plot.new_threads.filter(
+              (t) => typeof t === "string" && !currentActive.includes(t),
+            );
+            // Do NOT reverse. Unshifting in chronological order (A, B) results in (B, A, ...Old).
+            // This places the MOST RECENT event (B) at the top of the stack (Index 0).
+            newThreads.forEach((t) => {
+              currentActive.unshift(t);
             });
           }
 

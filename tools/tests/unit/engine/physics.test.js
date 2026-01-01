@@ -210,34 +210,53 @@ describe("ContextBuilder (Physics Injection)", () => {
     });
   });
 
-  test("buildUpdater injects forcedDynamics into CURRENT_STATE", async () => {
-    const forcedDynamics = {
-      entropy: 55,
-      permeability: 44,
-      velocity: 33,
-      resonance: 22,
-      _flags: { panicSpiral: true },
+  test("buildPulse injects dynamics into INPUT_CONTEXT", async () => {
+    const mockEntity = {
+      id: "char-ai",
+      name: "AI",
+      type: "character",
+      dynamics: {
+        entropy: 55,
+        permeability: 44,
+        velocity: 33,
+        resonance: 22,
+      },
+      present: {
+        physical: "Test Physical",
+        mental: "Test Mental",
+      },
     };
 
-    const payload = await builder.buildUpdater("ai_character", forcedDynamics);
+    const history = [{ role: "user", text: "HI" }];
+    const activeThreads = ["Thread 1"];
 
-    // V5 Check: Ensure system prompt is correct
-    expect(payload.system).toContain("[SYSTEM: PROMETHEUS_PHYSICS_V5]");
+    const payload = await builder.buildPulse(
+      mockEntity,
+      history,
+      activeThreads,
+    );
 
-    // Check that forced dynamics are injected into the JSON block
+    // V1 Check: Ensure system prompt is correct
+    expect(payload.system).toContain("[SYSTEM: SIMULATION_PULSE_V1]");
+
+    // Check that dynamics are injected
     expect(payload.system).toContain('"entropy": 55');
     expect(payload.system).toContain('"permeability": 44');
-    // The _flags might be stringified in the JSON, so checking specific values is safer
-    expect(payload.system).toContain('"panicSpiral": true');
+
+    // Check plot injection
+    expect(payload.system).toContain('[Index 0] "Thread 1"');
+
+    // Check state injection
+    expect(payload.system).toContain("Test Physical");
+    expect(payload.system).toContain("Test Mental");
   });
 
-  test("buildUpdater includes Calibration Matrix (Bell Curve Logic)", async () => {
-    const payload = await builder.buildUpdater("ai_character", null);
+  test("buildPulse mandates strict JSON schema", async () => {
+    const mockEntity = { dynamics: {} };
+    const payload = await builder.buildPulse(mockEntity, []);
 
-    expect(payload.system).toContain("[SYSTEM: PROMETHEUS_PHYSICS_V5]");
-    // V5 uses <CALIBRATION_TABLE>
-    expect(payload.system).toContain("<CALIBRATION_TABLE>");
-    expect(payload.system).toContain("<PHYSICS_LAWS>");
+    expect(payload.system).toContain("<OUTPUT_SCHEMA>");
+    expect(payload.params.response_format.type).toBe("json_object");
   });
 });
 

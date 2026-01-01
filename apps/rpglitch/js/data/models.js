@@ -326,7 +326,6 @@ export const normalize = (base = {}) => {
       yOffset: 0,
     },
     simulation,
-    simulation,
     dynamics: {
       entropy: 10,
       velocity: 10,
