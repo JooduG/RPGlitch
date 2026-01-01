@@ -332,7 +332,7 @@ export const renderProfileView = async (
 
   const isGameplay = document.body.classList.contains("storymode");
 
-  if (isGameplay) {
+  if (isGameplay && !state.settings.developerMode) {
     const statusMsg = document.createElement("div");
     statusMsg.className = "muted";
     statusMsg.style.width = "100%";

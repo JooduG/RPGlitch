@@ -60,6 +60,169 @@ const getLiveEntityFromForm = (form, baseEntity) => {
   });
 
   return live;
+  return live;
+};
+
+/**
+ * Interactive Plot Editor (Director Mode)
+ */
+const renderPlotEditor = (container, entity) => {
+  const plot = entity.customData?.plot || { active: [], resolved: [] };
+  const activeData = plot.active || [];
+  const resolvedData = plot.resolved || [];
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "profile-section plot-editor-widget";
+  wrapper.style.marginTop = "var(--spacing)";
+  wrapper.style.background = "rgba(0, 0, 0, 0.2)";
+  wrapper.style.padding = "10px";
+  wrapper.style.borderRadius = "8px";
+
+  // Header
+  const header = document.createElement("div");
+  header.className = "profile-label";
+  header.textContent = "Plot Threads (Director)";
+  header.style.marginBottom = "8px";
+  header.style.color = `var(--color-${entity.signatureColor || "default"})`;
+  wrapper.appendChild(header);
+
+  // Active List
+  const activeList = document.createElement("ul");
+  activeList.className = "plot-list active-list";
+  activeList.style.listStyle = "none";
+  activeList.style.padding = "0";
+  activeList.style.margin = "0 0 10px 0";
+
+  // Resolved List
+  const resolvedList = document.createElement("ul");
+  resolvedList.className = "plot-list resolved-list";
+  resolvedList.style.listStyle = "none";
+  resolvedList.style.padding = "0";
+  resolvedList.style.margin = "10px 0 0 0";
+  resolvedList.style.opacity = "0.6";
+
+  // Item Factory
+  const createItem = (text, type) => {
+    const li = document.createElement("li");
+    // Class used for scraping
+    li.className =
+      type === "active" ? "plot-active-item" : "plot-resolved-item";
+    li.style.display = "flex";
+    li.style.justifyContent = "space-between";
+    li.style.alignItems = "center";
+    li.style.marginBottom = "5px";
+    li.style.padding = "5px";
+    li.style.background = "rgba(255,255,255,0.05)";
+    li.style.borderRadius = "4px";
+
+    // Text Span (The content we want to scrape)
+    const span = document.createElement("span");
+    span.textContent = text;
+    span.style.flex = "1";
+    span.style.marginRight = "10px";
+    span.style.wordBreak = "break-word";
+    li.appendChild(span);
+
+    // Actions
+    const actions = document.createElement("div");
+    actions.style.display = "flex";
+    actions.style.gap = "5px";
+    actions.style.flexShrink = "0";
+
+    if (type === "active") {
+      const resolveBtn = document.createElement("button");
+      resolveBtn.textContent = "✓";
+      resolveBtn.className = "btn-ghost small";
+      resolveBtn.style.width = "auto";
+      resolveBtn.style.padding = "2px 8px";
+      resolveBtn.title = "Resolve";
+      resolveBtn.onclick = (e) => {
+        e.preventDefault();
+        li.remove();
+        // Move to resolved list
+        resolvedList.insertBefore(
+          createItem(text, "resolved"),
+          resolvedList.firstChild,
+        );
+      };
+      actions.appendChild(resolveBtn);
+    }
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "×";
+    deleteBtn.className = "btn-ghost danger small";
+    deleteBtn.style.color = "var(--pico-del-color)";
+    deleteBtn.style.width = "auto";
+    deleteBtn.style.padding = "2px 8px";
+    deleteBtn.title = "Delete";
+    deleteBtn.onclick = (e) => {
+      e.preventDefault();
+      li.remove();
+    };
+    actions.appendChild(deleteBtn);
+
+    li.appendChild(actions);
+    return li;
+  };
+
+  // Populate Lists
+  activeData.forEach((text) =>
+    activeList.appendChild(createItem(text, "active")),
+  );
+  resolvedData.forEach((text) =>
+    resolvedList.appendChild(createItem(text, "resolved")),
+  );
+
+  wrapper.appendChild(activeList);
+
+  // Add New Controls
+  const controls = document.createElement("div");
+  controls.style.display = "flex";
+  controls.style.gap = "5px";
+  controls.style.marginBottom = "10px";
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.placeholder = "New plot thread...";
+  input.className = "profile-input";
+  input.style.marginBottom = "0";
+  // Allow Enter key to add
+  input.onkeydown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addBtn.click();
+    }
+  };
+
+  const addBtn = document.createElement("button");
+  addBtn.textContent = "+";
+  addBtn.className = "btn-icon-raise";
+  addBtn.style.width = "auto";
+  addBtn.onclick = (e) => {
+    e.preventDefault();
+    const val = input.value.trim();
+    if (val) {
+      activeList.appendChild(createItem(val, "active"));
+      input.value = "";
+    }
+  };
+
+  controls.appendChild(input);
+  controls.appendChild(addBtn);
+  wrapper.appendChild(controls);
+
+  // Resolved Header/Divider
+  const resLabel = document.createElement("div");
+  resLabel.className = "profile-label";
+  resLabel.textContent = "History";
+  resLabel.style.fontSize = "0.8em";
+  resLabel.style.marginTop = "10px";
+  resLabel.style.opacity = "0.5";
+  wrapper.appendChild(resLabel);
+
+  wrapper.appendChild(resolvedList);
+
+  container.appendChild(wrapper);
 };
 
 export const renderProfileEdit = async (screen, entity, type, id) => {
@@ -562,6 +725,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
     (type === "character" || type === "fractal")
   ) {
     renderDynamicsWidget(secWrap, entity, "edit");
+    renderPlotEditor(secWrap, entity);
   }
 
   // --- FOOTER ACTIONS ---
@@ -651,6 +815,19 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
           data.dynamics[input.dataset.editDynamic] = parseInt(input.value, 10);
         });
       }
+
+      // Scrape Plot Data
+      const activeDivs = screen.querySelectorAll(".plot-active-item span");
+      const resolvedDivs = screen.querySelectorAll(".plot-resolved-item span");
+
+      const active = Array.from(activeDivs).map((el) => el.textContent);
+      const resolved = Array.from(resolvedDivs).map((el) => el.textContent);
+
+      // Merge safe
+      data.customData = {
+        ...(entity.customData || {}),
+        plot: { active, resolved },
+      };
     }
 
     try {
