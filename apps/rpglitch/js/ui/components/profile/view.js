@@ -15,6 +15,90 @@ import { PROFILE_STRUCTURE, LABEL_MAP, SPLIT_HEADERS } from "./constants.js";
 const getNestedValue = (obj, path) =>
   path.split(".").reduce((acc, part) => acc && acc[part], obj) || "";
 
+/**
+ * Renders the Plot Thread Viewer (Director Mode Only)
+ */
+const renderPlotWidget = (container, entity) => {
+  const plot = entity.customData?.plot || { active: [], resolved: [] };
+  const active = plot.active || [];
+  const resolved = plot.resolved || [];
+
+  const section = document.createElement("div");
+  section.className = "profile-section";
+  section.style.marginTop = "var(--spacing)";
+
+  // Header
+  const header = document.createElement("div");
+  header.className = "profile-label";
+  header.style.marginBottom = "0.5rem";
+
+  // Apply signature color to the header text
+  const colorVar = `var(--color-${entity.signatureColor || "default"})`;
+  header.style.color = colorVar;
+  header.innerHTML = `PLOT TRACKER <span style="opacity:0.6; font-size:0.8em; margin-left:5px; color:var(--muted-color)">[DIRECTOR]</span>`;
+  section.appendChild(header);
+
+  const content = document.createElement("div");
+  content.style.background = "rgba(0,0,0,0.2)";
+  content.style.padding = "10px";
+  content.style.borderRadius = "8px";
+
+  if (active.length === 0 && resolved.length === 0) {
+    content.innerHTML = `<em class="muted">No plot threads tracked.</em>`;
+  } else {
+    const ul = document.createElement("ul");
+    ul.style.listStyle = "none";
+    ul.style.padding = "0";
+    ul.style.margin = "0";
+
+    active.forEach((t) => {
+      const li = document.createElement("li");
+      li.style.marginBottom = "4px";
+      li.style.display = "flex";
+      li.style.alignItems = "baseline";
+
+      const bullet = document.createElement("span");
+      bullet.innerHTML = "●";
+      bullet.style.color = colorVar;
+      bullet.style.marginRight = "8px";
+      bullet.style.fontSize = "0.8em";
+
+      const text = document.createElement("span");
+      text.textContent = t;
+
+      li.appendChild(bullet);
+      li.appendChild(text);
+      ul.appendChild(li);
+    });
+
+    resolved.forEach((t) => {
+      const li = document.createElement("li");
+      li.className = "muted";
+      li.style.textDecoration = "line-through";
+      li.style.marginBottom = "4px";
+      li.style.display = "flex";
+      li.style.alignItems = "baseline";
+
+      const bullet = document.createElement("span");
+      bullet.innerHTML = "○";
+      bullet.style.marginRight = "8px";
+      bullet.style.fontSize = "0.8em";
+      bullet.style.opacity = "0.5";
+
+      const text = document.createElement("span");
+      text.textContent = t;
+
+      li.appendChild(bullet);
+      li.appendChild(text);
+      ul.appendChild(li);
+    });
+    content.appendChild(ul);
+  }
+
+  section.appendChild(content);
+  container.appendChild(section);
+};
+
 export const renderProfileView = async (
   screen,
   entity,
@@ -239,6 +323,7 @@ export const renderProfileView = async (
     (type === "character" || type === "fractal")
   ) {
     renderDynamicsWidget(secWrap, entity, "view");
+    renderPlotWidget(secWrap, entity);
   }
 
   // --- FOOTER ACTIONS ---
