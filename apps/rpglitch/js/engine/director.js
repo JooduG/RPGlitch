@@ -5,6 +5,7 @@ import { entities } from "../data/repo.js";
 
 import { error, calculateBlendedParams, log } from "../core/utils.js";
 import { ContextBuilder } from "./prompter.js";
+import { calculateDynamics } from "./physics/main.js";
 import { analyzeRejection, getDirectorInstruction } from "./variance.js";
 // import { bridge } from "./physics/bridge.js";
 import { events, EVENTS } from "../core/events.js";
@@ -512,16 +513,19 @@ export const TurnManager = {
 
         // Apply Dynamics
         if (data.dynamics) {
-          // Clamp values 0-100
-          const clamp = (n) => Math.min(100, Math.max(0, n || 0));
+          const newDynamics = calculateDynamics(
+            data.dynamics,
+            // Fallback: If no baseline, use current dynamics as the anchor (Assumed Normality)
+            aiEntity.baseline || aiEntity.dynamics || {},
+          );
           updates.dynamics = {
-            entropy: clamp(data.dynamics.entropy),
-            velocity: clamp(data.dynamics.velocity),
-            density: clamp(data.dynamics.density),
-            coherence: clamp(data.dynamics.coherence),
+            entropy: newDynamics.entropy,
+            velocity: newDynamics.velocity,
+            permeability: newDynamics.permeability,
+            resonance: newDynamics.resonance,
           };
           needsSave = true;
-          log("[TurnManager] Dynamics Updated:", updates.dynamics);
+          log("[TurnManager] Dynamics Updated (Physics V5):", updates.dynamics);
         }
 
         // Apply Present State (Split Physical/Mental)

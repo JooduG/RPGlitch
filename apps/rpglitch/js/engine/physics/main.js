@@ -1,12 +1,11 @@
-// apps/rpglitch/js/engine-physics.js
 import { PHYSICS_CONFIG } from "./config.js";
-import { log } from "../../core/utils.js";
+import { log, clamp } from "../../core/utils.js";
 
 /**
- * THE PROMETHEUS PHYSICS ENGINE (V4.2)
+ * THE PROMETHEUS PHYSICS ENGINE (V5.0)
  * Calculates the "Thermodynamics" of the narrative.
  */
-export const calculateDynamics = (currentDynamics) => {
+export const calculateDynamics = (currentDynamics, baseline = {}) => {
   const d = {
     entropy: 10,
     permeability: 50,
@@ -15,12 +14,12 @@ export const calculateDynamics = (currentDynamics) => {
     ...currentDynamics,
   };
 
-  const clamp = (n) => Math.min(100, Math.max(0, Math.round(n)));
   const flags = {
     echoChamber: false,
     glassCannon: false,
     panicSpiral: false,
     fogOfWar: false,
+    gravityPull: false,
   };
 
   // --- LAW 1: THE ADRENALINE SHIELD ---
@@ -65,11 +64,32 @@ export const calculateDynamics = (currentDynamics) => {
     flags.glassCannon = true;
   }
 
+  // --- LAW 7: RELATIVE GRAVITY (New) ---
+  const keys = ["entropy", "velocity", "permeability", "resonance"];
+  const GRAVITY_FACTOR = 0.1; // 10% pull per turn
+
+  keys.forEach((key) => {
+    // If entity has a custom baseline (e.g. Orions Velocity: 70), use it. Else 50.
+    const target =
+      typeof baseline[key] === "number"
+        ? baseline[key]
+        : PHYSICS_CONFIG.GRAVITY_BASELINE || 50;
+
+    const current = d[key];
+    const diff = target - current;
+
+    // Apply gravity
+    if (Math.abs(diff) > 1) {
+      d[key] += diff * GRAVITY_FACTOR;
+      flags.gravityPull = true;
+    }
+  });
+
   return {
-    entropy: clamp(d.entropy),
-    permeability: clamp(d.permeability),
-    velocity: clamp(d.velocity),
-    resonance: clamp(d.resonance),
+    entropy: clamp(Math.round(d.entropy)),
+    permeability: clamp(Math.round(d.permeability)),
+    velocity: clamp(Math.round(d.velocity)),
+    resonance: clamp(Math.round(d.resonance)),
     _flags: flags,
   };
 };

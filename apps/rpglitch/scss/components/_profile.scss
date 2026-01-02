@@ -547,13 +547,49 @@ $placeholder-opacity: 0.4;
   border: 1px solid transparent;
 }
 
-/* --- DEVELOPER MODE --- */
-input[type="number"][data-edit-dynamic] {
-  padding: 0.4rem;
-  height: auto;
-  font-family: monospace;
-  font-size: 0.9rem;
-  border: 1px solid var(--pico-muted-border-color);
+/* --- DEVELOPER MODE (Vibe Update) --- */
+.profile-dev-section {
+  @extend %input-deep;
+
+  margin-top: var(--space-md);
+  padding: var(--space-sm);
+  border-radius: var(--pico-radius);
+  border: 1px dotted var(--pico-muted-border-color);
+  background: rgba(var(--pico-primary-rgb), 0.05); // Very subtle tech glow
+
+  .dev-widget-header {
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--pico-primary);
+    margin-bottom: var(--space-sm);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    &::before {
+      content: "[DEV_OPS]";
+      opacity: 0.5;
+      font-size: 0.6rem;
+    }
+  }
+
+  .dev-text {
+    font-family: var(--pico-font-family-monospace);
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+}
+
+input[type="number"][data-edit-dynamic],
+input[type="number"][data-dynamics-target] {
+  @extend %input-deep;
+
+  font-family: var(--pico-font-family-monospace);
+  text-align: center;
+  padding: 0.2rem;
+  border-color: rgba(var(--pico-primary-rgb), 0.3);
 }
 
 /* --- STATE TOGGLING --- */

@@ -1,4 +1,4 @@
-import { log, error } from "../core/utils.js";
+import { log } from "../core/utils.js";
 import { initDrawer, closeDrawer } from "./components/drawer/desktop.js";
 import { setStorymodeEntities, setSendLock } from "./components/chat/feed.js";
 import { updatePortraits, applyFractalAmbience } from "./image-gen-ui.js";
@@ -16,8 +16,6 @@ import {
   setProfileCallbacks,
 } from "./components/profile/controller.js";
 import { events, EVENTS } from "../core/events.js";
-import { bridge } from "../engine/physics/bridge.js";
-import { ENTITY_TYPES } from "../core/constants.js";
 import {
   showAlert,
   showConfirm,
@@ -47,24 +45,19 @@ const finalizeTurn = async (component, context = null) => {
       return;
     }
 
-    let entityType = ENTITY_TYPES.AI_CHARACTER;
     let entityId = null;
 
     if (context?.characterId) {
       entityId = context.characterId;
-      entityType = context.role === "fractal" ? "fractal" : "character";
     } else {
       const story = state.story.byId[state.story.activeId];
       if (story) {
         if (context?.role === "user") {
           entityId = story.userId;
-          entityType = "character";
         } else if (context?.role === "fractal") {
           entityId = story.fractalId;
-          entityType = "fractal";
         } else {
           entityId = story.aiId;
-          entityType = "character";
         }
       }
     }
@@ -76,49 +69,8 @@ const finalizeTurn = async (component, context = null) => {
     }
 
     log(
-      `⚡ [REFLEX] Atomic Turn Complete. Updating Physics for ${entityType}:${entityId}...`,
+      `⚡ [REFLEX] Atomic Turn Complete. Physics update handled by director.js.`,
     );
-
-    bridge
-      .runBackgroundUpdate(state.story.activeId, entityType, null)
-      .then(async (res) => {
-        if (!res) {
-          console.warn("Physics Update Timed Out");
-          return;
-        }
-
-        if (res.success === false) {
-          console.error("Physics Logic Failed", res.error || "Unknown Error");
-          return;
-        }
-
-        log(
-          `✅ [REFLEX] Physics Calculation Complete. Entropy: ${res?.dynamics?.entropy ?? "Unknown"}`,
-        );
-
-        if (res.entity?.id) {
-          try {
-            const { entities } = await import("../data/repo.js");
-            await entities.upsert(
-              res.entity.id === state.story.fractalId ? "fractal" : "character",
-              res.entity,
-            );
-
-            events.dispatchEvent(
-              new CustomEvent(EVENTS.ENTITY_UPDATED, {
-                detail: {
-                  type: entityType,
-                  id: res.entity.id,
-                  entity: res.entity,
-                },
-              }),
-            );
-          } catch (err) {
-            error("❌ [PROMETHEUS] Failed to save physics update:", err);
-          }
-        }
-      })
-      .catch((e) => error("❌ [REFLEX] Physics Timeout/Failure:", e));
 
     turnComponents = { text: false, image: false };
   }

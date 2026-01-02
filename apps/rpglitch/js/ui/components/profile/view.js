@@ -326,7 +326,20 @@ export const renderProfileView = async (
     state.settings.developerMode &&
     (type === "character" || type === "fractal")
   ) {
-    renderDynamicsWidget(secWrap, entity, "view");
+    const isStoryMode = document.body.classList.contains("storymode");
+    if (isStoryMode) {
+      renderDynamicsWidget(secWrap, entity, "view", {
+        label: "DYNAMICS: CURRENT VALUE",
+        tooltip: "", // User requested removal
+        source: "dynamics",
+      });
+    } else {
+      renderDynamicsWidget(secWrap, entity, "view", {
+        label: "DYNAMICS: DEFAULT VALUE",
+        tooltip: "", // User requested removal
+        source: "baseline",
+      });
+    }
     renderPlotWidget(secWrap, entity);
   }
 

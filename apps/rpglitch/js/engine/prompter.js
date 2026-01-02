@@ -162,13 +162,20 @@ ACTION: Attempt to flee the scene immediately.
   };
 
   _resolvePlot = (entity) => {
-    const threads = entity.customData?.plot?.active || [];
-    if (threads.length === 0) return null;
+    const active = entity.customData?.plot?.active || [];
+    const resolved = entity.customData?.plot?.resolved || [];
 
-    return `<PLOT_CONTEXT>
-Active Threads:
-${threads.map((t) => `- ${t}`).join("\n")}
-</PLOT_CONTEXT>`;
+    if (active.length === 0 && resolved.length === 0) return null;
+
+    let text = "<PLOT_CONTEXT>\n";
+    if (active.length > 0) {
+      text += `Active Threads (Ongoing Objectives):\n${active.map((t) => `- ${t}`).join("\n")}\n`;
+    }
+    if (resolved.length > 0) {
+      text += `Resolved Threads (Past Accomplishments):\n${resolved.map((t) => `- ${t}`).join("\n")}\n`;
+    }
+    text += "</PLOT_CONTEXT>";
+    return text;
   };
 
   // --- MAIN BUILDERS ---
@@ -261,8 +268,8 @@ TONE: Casual, direct, unprompted.
     const currentDynamics = entity.dynamics || {
       entropy: 10,
       velocity: 10,
-      density: 50,
-      coherence: 50,
+      permeability: 50,
+      resonance: 10,
     };
 
     const system = `[SYSTEM: SIMULATION_PULSE_V1]
@@ -286,7 +293,8 @@ ${formatSection(entity.present)}
 <INSTRUCTION>
 1. **Analyze:** Has the atmosphere changed? (Chaos/Pacing/Detail/Stability)
 2. **Plot:** Have any active threads been resolved by specific events? Are there new threads?
-3. **Update:** Return a strict JSON object.
+3. **Constraint:** MAX 1 NEW THREAD per turn. Only create a thread for major narrative shifts.
+4. **Update:** Return a strict JSON object.
 </INSTRUCTION>
 
 <OUTPUT_SCHEMA>
@@ -294,8 +302,8 @@ ${formatSection(entity.present)}
   "dynamics": {
     "entropy": "0-100 (Chaos/Tension)",
     "velocity": "0-100 (Pacing/Action)",
-    "density": "0-100 (Lore/Detail)",
-    "coherence": "0-100 (Stability/Focus)"
+    "permeability": "0-100 (Vulnerability/Openness)",
+    "resonance": "0-100 (Connection/Vibe)"
   },
   "plot": {
     "resolved_indices": [Array of Integers matching the content of completed Active Threads],

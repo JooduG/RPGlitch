@@ -58,26 +58,56 @@ export function createProfileRow(labelText, subLabelText = "") {
   return { row, labelCol, contentCol };
 }
 
-export function renderDynamicsWidget(container, entity, mode = "view") {
-  const dyns = entity.dynamics || {
-    entropy: 50,
-    permeability: 50,
-    velocity: 50,
-    resonance: 50,
-  };
+export function renderDynamicsWidget(
+  container,
+  entity,
+  mode = "view",
+  options = {},
+) {
+  // Options destructuring with defaults
+  const {
+    label = "DYNAMICS",
+    tooltip = "Current Simulation State",
+    source = "dynamics", // 'dynamics' or 'baseline'
+  } = options;
+
+  // Determine values based on source
+  let values;
+  if (source === "baseline") {
+    // If baseline is missing, assume current dynamics represent the default personality
+    values = entity.baseline ||
+      entity.dynamics || {
+        entropy: 50,
+        permeability: 50,
+        velocity: 50,
+        resonance: 50,
+      };
+  } else {
+    values = entity.dynamics || {
+      entropy: 50,
+      permeability: 50,
+      velocity: 50,
+      resonance: 50,
+    };
+  }
 
   const isEdit = mode === "edit";
   const isFractal = entity.type === "fractal";
 
-  // [REFACTOR] Use Maestro 2-Column Grid (Profile Row)
-  const { row, contentCol } = createProfileRow("DYNAMICS", "Hidden Metrics");
+  // createProfileRow returns { row, labelCol, contentCol }
+  const { row, contentCol, labelCol } = createProfileRow(label, "");
+  row.classList.add("profile-dev-section");
 
-  // [LOGIC] Conditional Layout (Fractal = 1x4, Character = 2x2)
+  // Add Tooltip to Label Column if exists
+  if (labelCol && tooltip) {
+    labelCol.setAttribute("data-tooltip", tooltip);
+    labelCol.style.cursor = "help"; // Visual hint
+  }
+
   const wrapper = document.createElement("div");
 
-  // Helper to render a card
   const renderCard = (key) => {
-    let val = Number(dyns[key]);
+    let val = Number(values[key]);
     if (isNaN(val)) val = 50;
 
     const card = document.createElement("div");
@@ -85,9 +115,18 @@ export function renderDynamicsWidget(container, entity, mode = "view") {
     const labelHtml = `<div class="dynamics-label">${sanitizeHtml(key)}</div>`;
 
     if (isEdit) {
+      // Data attribute distinguishes source (data-edit-dynamic="entropy" vs data-edit-baseline="entropy")
+      // Actually edit.js uses `data-edit-dynamic` generally, but we need to know WHICH target.
+      // We will use `data-dynamics-target="${source}"` and `data-dynamics-key="${key}"`
       card.innerHTML = `
         ${labelHtml}
-        <input type="number" class="dynamics-input" data-edit-dynamic="${key}" value="${val}" min="0" max="100">
+        <input type="number" 
+               class="dynamics-input" 
+               data-dynamics-target="${source}" 
+               data-dynamics-key="${key}" 
+               value="${val}" 
+               min="0" 
+               max="100">
       `;
     } else {
       card.innerHTML = `
@@ -100,20 +139,13 @@ export function renderDynamicsWidget(container, entity, mode = "view") {
 
   if (isFractal) {
     wrapper.className = "dynamics-grid--linear";
-
-    const keys = ["entropy", "permeability", "velocity", "resonance"];
-    keys.forEach((key) => {
+    ["entropy", "permeability", "velocity", "resonance"].forEach((key) => {
       wrapper.appendChild(renderCard(key));
     });
   } else {
-    // Original 2x2 Split
     wrapper.className = "split-content";
-
-    // Column 1: Non-Physical / Mental (Entropy, Permeability)
     const colLeft = document.createElement("div");
     colLeft.className = "split-column";
-
-    // Column 2: Physical (Velocity, Resonance)
     const colRight = document.createElement("div");
     colRight.className = "split-column";
 
@@ -357,8 +389,9 @@ export function renderTags(container, entity, options = {}) {
   const { singleTag = false } = options;
 
   if (singleTag) {
-    const entityType = entity.type || entity.kind || "Entity";
-    const typeLabel = entityType.charAt(0).toUpperCase() + entityType.slice(1);
+    const typeLabel =
+      (entity.type || entity.kind || "Entity").charAt(0).toUpperCase() +
+      (entity.type || entity.kind || "Entity").slice(1);
     const wrap = document.createElement("div");
     wrap.className = "tag-chips";
     const chip = document.createElement("span");

@@ -305,6 +305,9 @@ export const mockPlugins = () => {
 
 // --- Dynamic Sampling ---
 
+export const clamp = (n, min = 0, max = 100) =>
+  Math.min(max, Math.max(min, Number(n) || 0));
+
 const mapRange = (value, inMin, inMax, outMin, outMax) => {
   return ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
 };

@@ -59,7 +59,44 @@ const getLiveEntityFromForm = (form, baseEntity) => {
     }
   });
 
-  return live;
+  // --- DYNAMICS SCRAPING ---
+  // [NEW] Supports Context-Aware "Baseline" vs "Current Value" editing
+  const dynInputs = form.querySelectorAll("input[data-dynamics-target]");
+  if (dynInputs.length > 0) {
+    live.dynamics = {
+      ...(baseEntity.dynamics || {
+        entropy: 50,
+        permeability: 50,
+        velocity: 50,
+        resonance: 50,
+      }),
+    };
+    live.baseline = {
+      ...(baseEntity.baseline || {
+        entropy: 50,
+        permeability: 50,
+        velocity: 50,
+        resonance: 50,
+      }),
+    };
+
+    dynInputs.forEach((input) => {
+      const target = input.dataset.dynamicsTarget; // 'baseline' or 'dynamics'
+      const key = input.dataset.dynamicsKey;
+      const val = parseInt(input.value, 10) || 50;
+
+      if (target === "baseline") {
+        // Editing Baseline sets the Anchor AND resets the Current State to match
+        // (Assuming if you change who they are, you change how they start)
+        live.baseline[key] = val;
+        live.dynamics[key] = val;
+      } else {
+        // Editing Dynamics only changes the Momentary State
+        live.dynamics[key] = val;
+      }
+    });
+  }
+
   return live;
 };
 
@@ -72,17 +109,12 @@ const renderPlotEditor = (container, entity) => {
   const resolvedData = plot.resolved || [];
 
   const wrapper = document.createElement("div");
-  wrapper.className = "profile-section plot-editor-widget";
-  wrapper.style.marginTop = "var(--spacing)";
-  wrapper.style.background = "var(--pico-card-background-color)";
-  wrapper.style.padding = "10px";
-  wrapper.style.borderRadius = "8px";
+  wrapper.className = "profile-section plot-editor-widget profile-dev-section";
 
   // Header
   const header = document.createElement("h4");
   header.textContent = "Director Controls: Plot";
-  header.style.marginBottom = "8px";
-  header.style.fontSize = "1em";
+  header.className = "dev-widget-header";
   header.style.color = `var(--color-${entity.signatureColor || "default"})`;
   wrapper.appendChild(header);
 
@@ -737,7 +769,27 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
     state.settings.developerMode &&
     (type === "character" || type === "fractal")
   ) {
-    renderDynamicsWidget(secWrap, entity, "edit");
+    const isStoryMode = document.body.classList.contains("storymode");
+
+    if (isStoryMode) {
+      // [CONTEXT: ACTIVE STORY]
+      // Editing "Current State" (Temporary fluctuations)
+      renderDynamicsWidget(secWrap, entity, "edit", {
+        label: "DYNAMICS: CURRENT VALUE",
+        tooltip: "",
+        source: "dynamics",
+      });
+    } else {
+      // [CONTEXT: ROSTER / STORYBOARD]
+      // Editing "Baseline" (Personality)
+      // This is the "Center of Gravity" for the character.
+      renderDynamicsWidget(secWrap, entity, "edit", {
+        label: "DYNAMICS: DEFAULT VALUE",
+        tooltip: "",
+        source: "baseline",
+      });
+    }
+
     renderPlotEditor(secWrap, entity);
   }
 

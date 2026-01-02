@@ -22,6 +22,7 @@ export const NarrativePrompts = {
 1. **LOCALIZATION:** STRICTLY METRIC (SI). Use meters (m), liters (l), grams (g), Celsius (°C). Use 24-hour clock (e.g., "14:30"). Use AU/UK English spelling (Colour, Centre).
 2. **LINGUISTIC_FIREWALL:** BANNED TOKENS: "As an AI", "I'm sorry", "Apologies", "However", "Crucial", "Consult a professional", "Remember".
 3. **IMMERSION_LOCK:** Do NOT label sections (e.g., "**Analysis:**"). Just write pure narrative.
+4. **NO_META_LABELS:** FORBIDDEN from explicitly writing "The Hook:" or "Hook:". End your response with a natural prompt for the partner.
 </SYSTEM_DIRECTIVES>`,
 
   formatActive: (entity, role, options = { includeUrge: true }) => {

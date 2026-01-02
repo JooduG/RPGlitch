@@ -52,12 +52,6 @@ jest.mock("../../../apps/rpglitch/js/core/events.js", () => ({
   },
 }));
 
-jest.mock("../../../apps/rpglitch/js/engine/physics/bridge.js", () => ({
-  bridge: {
-    runBackgroundUpdate: jest.fn(),
-  },
-}));
-
 // Mock Dynamic Imports
 jest.mock("../../../apps/rpglitch/js/core/state.js", () => ({
   state: {
@@ -87,7 +81,7 @@ jest.mock("../../../apps/rpglitch/js/core/db.js", () => ({
 
 describe("Orchestrator UI", () => {
   let handlers = {};
-  let bridgeMock;
+
   let eventsMock;
 
   beforeAll(async () => {
@@ -96,10 +90,6 @@ describe("Orchestrator UI", () => {
       await import("../../../apps/rpglitch/js/core/events.js");
     eventsMock = eventsModule.events;
     const { EVENTS } = eventsModule;
-
-    const bridgeModule =
-      await import("../../../apps/rpglitch/js/engine/physics/bridge.js");
-    bridgeMock = bridgeModule.bridge;
 
     // 2. Import Orchestrator (Triggers initEventBinds ONCE)
     await import("../../../apps/rpglitch/js/ui/orchestrator.js");
@@ -184,48 +174,5 @@ describe("Orchestrator UI", () => {
     const uiUtils =
       await import("../../../apps/rpglitch/js/ui/services/ui-utils.js");
     expect(uiUtils.setAppBackground).toHaveBeenCalledWith("blue");
-  });
-
-  test("physics logging: warns on timeout", async () => {
-    const consoleWarn = jest
-      .spyOn(console, "warn")
-      .mockImplementation(() => {});
-    bridgeMock.runBackgroundUpdate.mockResolvedValue(false);
-
-    const handler = handlers["gen-complete"]; // EVENTS.GENERATION_COMPLETED
-    expect(handler).toBeDefined();
-
-    await handler({ detail: { role: "ai" } });
-
-    await new Promise((resolve) => setTimeout(resolve, 10));
-    expect(bridgeMock.runBackgroundUpdate).toHaveBeenCalled();
-    expect(consoleWarn).toHaveBeenCalledWith(
-      expect.stringContaining("Physics Update Timed Out"),
-    );
-
-    consoleWarn.mockRestore();
-  });
-
-  test("physics logging: errors on logic failure", async () => {
-    const consoleError = jest
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
-    bridgeMock.runBackgroundUpdate.mockResolvedValue({
-      success: false,
-      error: "Critical Fail",
-    });
-
-    const handler = handlers["gen-complete"];
-    expect(handler).toBeDefined();
-
-    await handler({ detail: { role: "ai" } });
-    await new Promise((resolve) => setTimeout(resolve, 10));
-
-    expect(consoleError).toHaveBeenCalledWith(
-      expect.stringContaining("Physics Logic Failed"),
-      "Critical Fail",
-    );
-
-    consoleError.mockRestore();
   });
 });
