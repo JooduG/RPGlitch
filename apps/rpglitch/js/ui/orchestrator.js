@@ -163,8 +163,22 @@ const initEventBinds = () => {
     // Voice Feedback
     const { voiceService } = await import("../services/voice-service.js");
     voiceService.init();
+
+    // [FIX] Resolve Voice ID from Character Entity
+    const { entities } = await import("../data/repo.js");
+    let voiceId = null;
+
+    if (e.detail?.characterId) {
+      try {
+        const char = await entities.get("character", e.detail.characterId);
+        if (char && char.voiceId) voiceId = char.voiceId;
+      } catch (err) {
+        // Fallback to default if entity fetch fails
+      }
+    }
+
     // ALWAYS call speak, even if empty, to ensure VoiceService can manage the loop state (Restart if needed)
-    voiceService.speak(e.detail?.text || "");
+    voiceService.speak(e.detail?.text || "", voiceId);
 
     finalizeTurn("text", e.detail);
   });

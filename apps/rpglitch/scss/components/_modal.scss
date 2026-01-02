@@ -34,6 +34,7 @@ dialog.modal {
   // Layout
   display: flex;
   flex-direction: column;
+  max-height: 85vh; // [FIX] Constraint height
 
   // Variation: Wide (for Profile/Settings)
   &.modal-content--wide {
@@ -68,6 +69,7 @@ dialog.modal {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-shrink: 0; // [FIX] Header shouldn't shrink
 
     h3 {
       margin: 0;
@@ -97,8 +99,8 @@ dialog.modal {
 
   // Body Content
   .modal-body {
-    flex: 1; // Grow to fill space (important for Settings)
-    overflow-y: auto; // Scroll content if needed
+    flex: 1; // [FIX] Grow to fill space
+    overflow: hidden auto; // [FIX] Scroll here // [FIX] Prevent horizontal scroll
     padding: var(--space-lg);
     font-size: 0.95rem;
     line-height: 1.6;
@@ -137,6 +139,7 @@ dialog.modal {
     @extend %btn-group-split;
 
     border-top: 1px solid $ui-glass-border;
+    flex-shrink: 0; // [FIX] Footer shouldn't shrink
   }
 }
 
@@ -151,6 +154,12 @@ dialog.modal {
 // ============================================================================
 // EXTRACTED SETTINGS STYLES (Refactor from Index.html)
 // ============================================================================
+
+// [FIX] Scroll container overrides
+.settings-group {
+  max-height: none !important;
+  overflow: visible !important;
+}
 
 .settings-panel {
   @extend %material-glass;

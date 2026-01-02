@@ -7,34 +7,35 @@ export class VoiceService {
     this.enabled = true;
     this.usePuter = false;
     this.puterAudio = null;
-    this.currentVoiceId = "Rachel"; // Default Neural Voice
+    this.currentVoiceId = "joanna"; // Default AWS Voice
 
-    // VOICE ROSTER (Neural -> Native Fallback Mappings)
+    // VOICE ROSTER (AWS Polly -> Native Fallback Mappings)
     this.ROSTER = {
-      Rachel: {
-        id: "21m00Tcm4TlvDq8ikWAM",
-        name: "Rachel (Female)",
-        fallback: ["female", "woman", "zira", "google us english"],
+      joanna: {
+        id: "Joanna",
+        name: "Joanna (Default)",
+        provider: "aws-polly",
+        nativeMatch: ["Zira", "Female", "Google US English"],
       },
-      Adam: {
-        id: "pNInz6obpgDQGcFmaJgB",
-        name: "Adam (Male)",
-        fallback: ["male", "man", "david", "guy"],
+      joey: {
+        id: "Joey",
+        name: "Joey (Deep)",
+        provider: "aws-polly",
+        nativeMatch: ["Male", "Mark", "David", "Google US English"],
+        pitch: 0.9,
       },
-      Antoni: {
-        id: "ErXwobaYiN019PkySvjV",
-        name: "Antoni (Male)",
-        fallback: ["male", "man", "david", "mark"],
+      matthew: {
+        id: "Matthew",
+        name: "Matthew (Clear)",
+        provider: "aws-polly",
+        nativeMatch: ["Male", "Mark", "David"],
       },
-      Elli: {
-        id: "MF3mGyEYCl7XYWlgE9yC",
-        name: "Elli (Female)",
-        fallback: ["female", "woman", "zira"],
-      },
-      Josh: {
-        id: "TxGEqnHWrfWFTfGW9XjX",
-        name: "Josh (Deep)",
-        fallback: ["male", "man", "david"],
+      ivy: {
+        id: "Ivy",
+        name: "Ivy (Young)",
+        provider: "aws-polly",
+        nativeMatch: ["Female", "Zira", "Google US English"],
+        pitch: 1.2,
       },
     };
 
@@ -68,6 +69,18 @@ export class VoiceService {
       this.currentVoiceId = voiceKey;
       console.log(`[VoiceService] Voice set to: ${voiceKey}`);
     }
+  }
+
+  async preview(voiceKey) {
+    const originalId = this.currentVoiceId;
+    this.setVoice(voiceKey);
+    await this.speak("System check. Audio nominal.");
+    this.currentVoiceId = originalId; // Revert after preview if needed, or keep?
+    // User request implies "Preview" works on the selected ID.
+    // Usually previewing selects it implicitly in the UI, so setVoice is fine.
+    // But if we just want to hear it without committing, we might want to pass ID to speak.
+    // For now, let's assume UI calls setVoice then speak, or we just rely on speak using current.
+    // Actually, I'll allow speak to take an optional override.
   }
 
   async connectPuter() {
@@ -142,7 +155,7 @@ export class VoiceService {
     } catch (err) {}
   }
 
-  async speak(text) {
+  async speak(text, voiceIdOverride = null) {
     this._emitStateChange();
     if (!this.enabled) {
       if (this.callMode) this._restartLoop("Disabled");
@@ -170,17 +183,17 @@ export class VoiceService {
       return;
     }
 
-    const voiceConfig =
-      this.ROSTER[this.currentVoiceId] || this.ROSTER["Rachel"];
+    const targetId = voiceIdOverride || this.currentVoiceId;
+    const voiceConfig = this.ROSTER[targetId] || this.ROSTER["joanna"];
 
-    // --- NEURAL TTS ---
+    // --- AWS POLLY (via Puter) ---
     if (this.usePuter && window.puter) {
       try {
-        console.log(`[VOICE] Neural: ${voiceConfig.name}`);
+        console.log(`[VOICE] AWS: ${voiceConfig.name}`);
         const audio = await window.puter.ai.txt2speech(cleanText, {
-          provider: "elevenlabs",
+          provider: "aws-polly",
           voice: voiceConfig.id,
-          model: "eleven_turbo_v2_5",
+          model: "standard", // standard or neural, defaulting standard for strict mapping
         });
 
         this.puterAudio = audio;
@@ -202,7 +215,7 @@ export class VoiceService {
         audio.play();
         return;
       } catch (err) {
-        console.error("Neural failed, falling back.", err);
+        console.error("AWS failed, falling back.", err);
       }
     }
 
@@ -214,7 +227,7 @@ export class VoiceService {
     if (this.voices.length === 0) this.voices = this.synth.getVoices();
 
     let chosenVoice = null;
-    const keywords = voiceConfig.fallback || [];
+    const keywords = voiceConfig.nativeMatch || [];
 
     // 1. Try exact keyword match
     for (const word of keywords) {
@@ -229,6 +242,7 @@ export class VoiceService {
       chosenVoice = this.voices.find((v) => v.lang.startsWith("en"));
 
     if (chosenVoice) utterance.voice = chosenVoice;
+    if (voiceConfig.pitch) utterance.pitch = voiceConfig.pitch;
 
     utterance.onend = () => {
       if (this._watchdogTimer) clearTimeout(this._watchdogTimer);

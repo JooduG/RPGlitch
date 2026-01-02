@@ -638,27 +638,40 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
     secWrap.appendChild(row);
   });
 
-  // [NEW] VOICE SELECTOR
+  // [NEW] VOICE SELECTOR (AWS Polly Roster)
   // Inject after standard sections, but HIDDEN for Fractals
   const { row: voiceRow, contentCol: voiceContent } = createProfileRow(
     "VOICE",
     "NARRATIVE AUDIO",
   );
 
-  const voiceWrap = document.createElement("div");
-  voiceWrap.style.display = "flex";
-  voiceWrap.style.gap = "10px";
-  voiceWrap.style.alignItems = "center";
+  // User-requested structure
+  const voiceGroup = document.createElement("div");
+  voiceGroup.className = "form-group voice-selector-group";
+  voiceGroup.style.width = "100%";
 
-  // Selector
+  const label = document.createElement("label");
+  label.textContent = "Voice Model";
+  label.style.display = "block";
+  label.style.marginBottom = "0.5rem";
+  label.style.fontSize = "0.75rem";
+  label.style.opacity = "0.7";
+  voiceGroup.appendChild(label);
+
+  const flexRow = document.createElement("div");
+  flexRow.className = "flex-row";
+  flexRow.style.display = "flex";
+  flexRow.style.gap = "0.5rem";
+  flexRow.style.alignItems = "center";
+
   const voiceSelect = document.createElement("select");
-  voiceSelect.className = "profile-input";
+  voiceSelect.id = "profile-voice";
+  voiceSelect.className = "rpg-input";
   voiceSelect.dataset.editField = "voiceId"; // Binds to entity.voiceId
-  voiceSelect.style.marginBottom = "0";
   voiceSelect.style.flex = "1";
+  voiceSelect.style.marginBottom = "0";
 
-  // Populate
-  // Populate
+  // Populate from VoiceService
   import("../../../services/voice-service.js").then(({ voiceService }) => {
     const roster = voiceService.getVoices();
     let hasMatch = false;
@@ -668,7 +681,6 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
       opt.value = v.id;
       opt.textContent = v.name;
 
-      // Strict check for persistence
       if (entity.voiceId === v.id) {
         opt.selected = true;
         hasMatch = true;
@@ -676,41 +688,32 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
       voiceSelect.appendChild(opt);
     });
 
-    // Default fallback if no match found (or new entity)
+    // Fallback default
     if (!hasMatch && roster.length > 0) {
-      voiceSelect.value = roster[0].id; // Rachel default
-    }
-
-    // Force persistence check log
-    if (state.settings.developerMode) {
-      console.log(
-        `[Voice] Loading Profile. Entity Voice: ${entity.voiceId}, Selected: ${voiceSelect.value}`,
-      );
+      voiceSelect.value = "joanna"; // AWS Default
     }
   });
 
-  // Preview Button
   const previewBtn = document.createElement("button");
-  previewBtn.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
-  previewBtn.className = "btn-ghost";
+  previewBtn.type = "button";
+  previewBtn.id = "preview-voice";
+  previewBtn.className = "rpg-btn small icon-only";
+  previewBtn.innerHTML = "🔊";
   previewBtn.title = "Preview Voice";
-  previewBtn.style.padding = "0.5rem";
   previewBtn.onclick = async (e) => {
     e.preventDefault();
     const { voiceService } = await import("../../../services/voice-service.js");
-
-    // FIX: Force Init ensuring enabled state and roster load
-    await voiceService.init();
-
-    const selectedVoice = voiceSelect.value;
-    if (selectedVoice) {
-      voiceService.setVoice(selectedVoice);
-      voiceService.speak("System check. Audio nominal.");
+    await voiceService.init(); // Ensure initialized
+    const selectedId = voiceSelect.value;
+    if (selectedId) {
+      voiceService.preview(selectedId);
     }
   };
-  voiceWrap.appendChild(voiceSelect);
-  voiceWrap.appendChild(previewBtn);
-  voiceContent.appendChild(voiceWrap);
+
+  flexRow.appendChild(voiceSelect);
+  flexRow.appendChild(previewBtn);
+  voiceGroup.appendChild(flexRow);
+  voiceContent.appendChild(voiceGroup);
   secWrap.appendChild(voiceRow);
 
   // FIX: Hide for Fractals
