@@ -160,6 +160,49 @@
   }
 }
 
+#btn-mic {
+  // Base styles are set inline in input.js for strict alignment,
+  // but we handle states here.
+  transition: all 0.2s ease;
+  border-radius: 50%; // Circular pulse effect
+
+  &.call-active {
+    // "Phone Off Hook" state (Loop Active, Waiting for AI)
+    color: var(--pico-primary) !important;
+    background-color: rgba(
+      45,
+      212,
+      191,
+      15%
+    ); // Hardcoded fallback or use var if available
+
+    box-shadow: 0 0 0 1px var(--pico-primary);
+  }
+
+  &.listening {
+    // "Mic Open" state
+    color: #fff !important;
+    background-color: #ef4444 !important; // Red
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 60%) !important;
+    animation: mic-pulse 1.5s infinite;
+  }
+}
+
+@keyframes mic-pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
 // Dynamic Button Glow
 @each $name, $data in $signature-colors {
   $color: map.get($data, color);

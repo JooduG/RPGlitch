@@ -163,9 +163,8 @@ const initEventBinds = () => {
     // Voice Feedback
     const { voiceService } = await import("../services/voice-service.js");
     voiceService.init();
-    if (e.detail?.text) {
-      voiceService.speak(e.detail.text);
-    }
+    // ALWAYS call speak, even if empty, to ensure VoiceService can manage the loop state (Restart if needed)
+    voiceService.speak(e.detail?.text || "");
 
     finalizeTurn("text", e.detail);
   });

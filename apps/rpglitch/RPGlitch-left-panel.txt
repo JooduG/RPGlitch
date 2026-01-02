@@ -29,7 +29,9 @@ clientSideConfig
       mood: [JSON.stringify(rpgMood.selectAll.map(i => i.text || i))],
       quality: [JSON.stringify(rpgQuality.selectAll.map(i => i.text || i))],
       sounds: [JSON.stringify(rpgSounds.selectAll.map(i => i.text || i))],
-      settings: [JSON.stringify(rpgSettings.selectAll.map(i => i.text || i))]
+      settings: {
+        voiceEnabled: true
+      }
     \};
   </script>
 
@@ -110,9 +112,6 @@ rpgMood
 
 rpgSounds
   notification = https://user.uploads.dev/file/50dc061d6ed6439719d283d042e9c172.wav
-
-rpgSettings
-  voiceEnabled = true
 
 // --- EXPORTS TO JS ---
 pluginAi = ai

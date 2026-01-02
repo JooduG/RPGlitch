@@ -249,6 +249,8 @@ export const TurnManager = {
       signal: ctrl.signal,
     };
 
+    let generatedText = null;
+
     try {
       let attempts = 0;
       const MAX_ATTEMPTS = 3;
@@ -267,14 +269,12 @@ export const TurnManager = {
           // 2.1 REFUSAL CHECK
           if (TurnManager._checkRefusal(response)) {
             // VARIANCE DISABLED (PULSE LOGIC UPDATE)
-            // const varianceKey = analyzeRejection(response, lastUserMsg?.text);
-            // payload.system += `\n\n${getDirectorInstruction(varianceKey)}`;
-            // log(`[PROMETHEUS] Refusal detected. Retrying with ${varianceKey}`);
             if (attempts < MAX_ATTEMPTS) continue;
           }
 
           // 3. PARSE
           const { text, visualPrompt, targetType } = parseAiResponse(response);
+          generatedText = text; // Capture for event dispatch
 
           // 4. VISUALS
           let visuals = { imageUrl: null, refinedPrompt: null };
@@ -367,7 +367,11 @@ export const TurnManager = {
     } finally {
       events.dispatchEvent(
         new CustomEvent(EVENTS.GENERATION_COMPLETED, {
-          detail: { role: ROLES.AI, characterId: story?.aiId },
+          detail: {
+            role: ROLES.AI,
+            characterId: story?.aiId,
+            text: generatedText, // Pass text to Orchestrator/VoiceService
+          },
         }),
       );
     }
