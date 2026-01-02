@@ -643,6 +643,16 @@
       background-color: #fff !important;
     }
   }
+
+  // User typing support (Right Aligned)
+  &.chat-bubble--user {
+    align-self: flex-end; // Force right side
+    margin-left: 10vw; // Mirror of AI's margin-right
+    margin-right: var(--space-xl); // Mirror of AI's margin-left
+
+    // Ensure the border radius matches user bubbles (Round-Square-Round-Round)
+    // REMOVED: border-radius: var(--pico-border-radius) 0 var(--pico-border-radius) var(--pico-border-radius);
+  }
 }
 
 .typing-dot {

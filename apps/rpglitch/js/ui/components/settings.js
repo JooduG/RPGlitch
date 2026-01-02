@@ -140,33 +140,7 @@ export const StoryOptionsController = {
       });
     }
 
-    // Ghostwriter Wiring
-    const ghostBtn = modal.querySelector("#btn-ghostwriter");
-    if (ghostBtn) {
-      ghostBtn.addEventListener("click", async (e) => {
-        e.preventDefault();
-        const inputField = document.querySelector(
-          "#story-form [name='message']",
-        );
-        const draft = inputField ? inputField.value : "";
-
-        if (!draft || !draft.trim()) {
-          showAlert(
-            "Ghostwriter",
-            "Please type a rough draft in the chat box first!",
-          );
-          return;
-        }
-
-        StoryOptionsController.close();
-
-        const enhanced = await TurnManager.enhanceUserDraft(draft);
-        if (enhanced && inputField) {
-          inputField.value = enhanced;
-          inputField.focus();
-        }
-      });
-    }
+    // Ghostwriter Wiring (Handler moved to ui/handlers.js)
 
     // 3. Render Library (Always, for both modes)
     this.renderStories();

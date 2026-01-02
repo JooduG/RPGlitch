@@ -221,6 +221,12 @@ ACTION: Attempt to flee the scene immediately.
 
     const systemPromptParts = [
       strategy.getCharacterKernel(ai.name, user.name),
+      `
+<FORMAT_GUARD>
+1. ABSOLUTE PROHIBITION: Do NOT use meta-labels (e.g., "The Hook:", "Result:", "Scene:").
+2. THOUGHTS: Must use XML tags \`<think>\` and \`</think>\`. DO NOT use markdown (*think*).
+3. NARRATIVE: Start the narrative response immediately after the </think> closing tag.
+</FORMAT_GUARD>`,
       this._resolveAtmosphere(dynamics),
       strategy.formatFractal(fractal),
       strategy.formatActive(ai),
@@ -439,6 +445,7 @@ ${strategy.formatPartner(ai)}
 
 <GHOSTWRITER_DIRECTIVE>
 REWRITE the draft immersive prose (1st Person POV from ${user.name}).
+CRITICAL: Do NOT use <think> blocks. Output ONLY the narrative text.
 </GHOSTWRITER_DIRECTIVE>
 
 <USER_DRAFT>

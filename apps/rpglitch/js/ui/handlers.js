@@ -125,6 +125,47 @@ export function initUIHandlers() {
         await TurnManager.regenerateMessageImage(msgId);
         return;
       }
+
+      // 6. GHOSTWRITE
+      if (target.matches("#btn-ghostwrite")) {
+        e.preventDefault();
+
+        const inputField = document.querySelector(
+          "#story-form textarea[name='message']",
+        );
+        const draft = inputField ? inputField.value : "";
+
+        if (!draft || !draft.trim()) {
+          const { showAlert } = await import("./orchestrator.js");
+          showAlert(
+            "Ghostwriter",
+            "Please type a rough draft in the chat box first!",
+          );
+          return;
+        }
+
+        const { StoryOptionsController } =
+          await import("./components/settings.js");
+        StoryOptionsController.close();
+
+        if (inputField) inputField.value = "";
+
+        // This method will be added to director.js next
+        try {
+          if (TurnManager.ghostwrite) {
+            await TurnManager.ghostwrite(draft);
+          } else {
+            console.error("TurnManager.ghostwrite not implemented yet");
+            inputField.value = draft; // Restore if failed
+          }
+        } catch (err) {
+          console.error("[Ghostwrite] Error:", err);
+          const { showAlert } = await import("./orchestrator.js");
+          showAlert("Ghostwrite Error", `Failed to execute: ${err.message}`);
+          inputField.value = draft; // Restore text so user doesn't lose it
+        }
+        return;
+      }
     },
     true,
   );

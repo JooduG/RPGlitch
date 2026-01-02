@@ -80,6 +80,21 @@ const App = {
       // 2. Initialize Storyboard Stage
       initStoryboardStage(App.views);
 
+      // 2.5 Restore Active Story (Persistence)
+      const lastActiveId = localStorage.getItem("rpglitch_active_story");
+      if (lastActiveId) {
+        try {
+          await TurnManager.load(parseInt(lastActiveId, 10));
+          log(`[Universal Stage] Restored active story: ${lastActiveId}`);
+        } catch (restoreErr) {
+          console.warn(
+            "[Universal Stage] Could not restore story:",
+            restoreErr,
+          );
+          localStorage.removeItem("rpglitch_active_story");
+        }
+      }
+
       // --- CLOCK UPDATE ---
       setInterval(() => {
         const clock = document.getElementById("phone-clock");

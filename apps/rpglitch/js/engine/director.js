@@ -30,6 +30,11 @@ const parseAiResponse = (response) => {
     .replace(/STOP SEQUENCE.*$/i, "")
     .replace(/STOP PROTOCOL.*$/i, "")
     .replace(/\(Glitch must react\).*$/i, "")
+    // Nuclear Option: Strip Meta-Labels from Narrative
+    .replace(
+      /(?:^|\n)(?:The )?(?:Hook|Result|Scene|Analysis|Meta|Response):\s*/gi,
+      "$1",
+    )
     .trim();
 
   let visualPrompt = null;
@@ -52,7 +57,13 @@ const parseAiResponse = (response) => {
 
 export const TurnManager = {
   requireActive: () => {
-    if (!state.story.activeId) throw new Error("No active story.");
+    if (!state.story.activeId) {
+      console.error(
+        "[TurnManager] requireActive failed. Current state:",
+        state,
+      );
+      throw new Error("No active story.");
+    }
     return state.story.activeId;
   },
 
@@ -87,6 +98,7 @@ export const TurnManager = {
       mode: "storymode",
     });
 
+    localStorage.setItem("rpglitch_active_story", id);
     events.dispatchEvent(new CustomEvent(EVENTS.STORY_LOADED));
     return id;
   },
@@ -102,6 +114,7 @@ export const TurnManager = {
         mode: "storymode",
       });
 
+      localStorage.setItem("rpglitch_active_story", story.id);
       await TurnManager.loadMessages(story.id);
       events.dispatchEvent(new CustomEvent(EVENTS.STORY_LOADED));
     } catch (e) {
@@ -213,9 +226,12 @@ export const TurnManager = {
     const story = state.story.byId[storyId];
 
     // 1. SIGNAL
+    const signalRole = options.ghostwrite ? ROLES.USER : ROLES.AI;
+    const signalId = options.ghostwrite ? story.userId : story.aiId;
+
     events.dispatchEvent(
       new CustomEvent(EVENTS.TYPING_STARTED, {
-        detail: { role: ROLES.AI, characterId: story.aiId },
+        detail: { role: signalRole, characterId: signalId },
       }),
     );
 
@@ -279,6 +295,11 @@ export const TurnManager = {
             ? { visualPrompt, targetType, refinedPrompt: visuals.refinedPrompt }
             : null;
 
+          const role = options.ghostwrite ? ROLES.USER : ROLES.AI;
+          const characterName = options.ghostwrite
+            ? userEntity?.name || "User"
+            : aiEntity?.name || "Narrator";
+
           if (mode === "append" && appendTargetId) {
             const original = await db.messages.get(appendTargetId);
             const update = { text: original.text + " " + text };
@@ -291,10 +312,10 @@ export const TurnManager = {
           } else {
             await db.messages.add({
               storyId,
-              role: ROLES.AI,
+              role,
               type: "IC",
               text,
-              characterName: aiEntity?.name || "Narrator",
+              characterName,
               createdAt: Date.now(),
               attachmentUrl: visuals.imageUrl,
               metadata,
@@ -801,6 +822,21 @@ export const TurnManager = {
     } finally {
       events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
     }
+  },
+
+  ghostwrite: async (text) => {
+    const storyId = TurnManager.requireActive();
+    if (!storyId) return;
+
+    // 1. Build Payload (User Logic)
+    const builder = new ContextBuilder(storyId);
+    const payload = await builder.buildGhostwriter(text);
+
+    // 2. Execute Turn (Saves as User Message)
+    await TurnManager._executeTurn(storyId, payload, { ghostwrite: true });
+
+    // 3. Trigger Active AI Response (The Consequence)
+    await TurnManager.generateAiResponse(storyId);
   },
 
   generateVisualFromDraft: async (draftText) => {
