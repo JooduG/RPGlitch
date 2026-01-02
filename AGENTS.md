@@ -34,3 +34,17 @@ Below is your map to the `.agent/` directory.
 - **Glossary:** [.agent/knowledge/glossary.md](.agent/knowledge/glossary.md)
 - **Plugin Bridge:** [.agent/knowledge/plugin-bridge.md](.agent/knowledge/plugin-bridge.md)
 - **Anti-Patterns:** [.agent/knowledge/anti-patterns.md](.agent/knowledge/anti-patterns.md)
+
+## 🎥 The Director (Engine)
+
+- **Pulse Hierarchy:**
+  1. **Gravity (Physics):** The immutable baseline. Values naturally decay to 50.
+  2. **The Pulse (AI):** A background process that observes the narrative. It ONLY intervenes (updates state/plot) if events deviate significantly from the baseline.
+  3. **The Sanitizer:** A regex-based firewall in `director.js` that strips meta-labels (e.g., "Hook:", "Result:") from AI output to ensure pure narrative flow.
+
+## ✍️ The Ghostwriter
+
+- **Draft Mode:** The Ghostwriter no longer auto-sends messages.
+  - **Input:** User Intent (Type in box).
+  - **Process:** Generates "Player Persona" prose.
+  - **Output:** Populates the `textarea` for User review/Edit.

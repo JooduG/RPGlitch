@@ -36,9 +36,25 @@
 _Critical features and power tools to complete the product experience._
 **Legend:** `S`=Small, `M`=Medium, `L`=Large, `XL`=Epic
 
-| Item                    | Category | Impact | Effort | Dependencies | Notes                                                                           |
-| :---------------------- | :------- | :----- | :----- | :----------- | :------------------------------------------------------------------------------ |
-| **Plot Thread Tracker** | [Data]   | M      | S      | `DB`         | Add `customData.plot` (`active`, `resolved`) to schema. Hidden from UI for now. |
+| **Simulation Pulse** | [Logic] | XL | L | `Physics` | ✅ **COMPLETED (V3):** Gravity-based baseline, auto-logging. |
+| **Ghostwriter 2.0** | [UX] | L | M | `UI` | ✅ **COMPLETED:** Draft Mode, Player Persona, Intent-based. |
+| **Input UI Refinement** | [UI] | S | S | `CSS` | ✅ **COMPLETED:** Smart Pill, Clamped Height. |
+
+---
+
+## 🔮 Phase 2.5: The Archivist (Memory Optimization)
+
+_The next critical step to enable long-term play without token limits._
+
+### The Archivist Spec
+
+- **Trigger:** Every ~20 turns OR when `entity.past` exceeds N tokens.
+- **Job:** Analyze the raw "Captain's Log" entries in `entity.past`.
+  - _Input:_ "[Turn 15] Lost arm. [Turn 16] Found a medkit."
+  - _Process:_ Rewrite into cohesive narrative summary.
+- **Output:** "During the siege, he lost his left arm but managed to stabilize it with a found medkit."
+- **Action:** Replace the raw log list with this specific summary.
+- **Goal:** Keep prompts lean while retaining critical history.
 
 ---
 

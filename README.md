@@ -67,3 +67,11 @@ graph TD
 - **Build:** `npm run build:apps`
 - **Validate:** `npm run validate` (Runs Lint + Test)
 - **Deploy:** `npm run deploy` (Full Pipeline)
+
+## 📌 State of the Union (Jan 2026)
+
+**Milestone: The Heartbeat & The Ghost**
+
+The system has achieved **Narrative Autonomy**. The "Simulation Pulse" now beats in the background, grounding the chaotic AI imagination with a Physics-based gravity model. The "Ghostwriter" has evolved from a simple auto-complete into a sophisticated partner that respects user intent.
+
+**Ready for Phase 2.5:** With the engine now generating rich memory logs (`log_entry`), the next logical step is **The Archivist**—a system to compress these raw memories into a cohesive history, ensuring the story can go on forever.
