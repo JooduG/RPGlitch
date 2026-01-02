@@ -115,11 +115,11 @@ class VoiceService {
 
   speak(text) {
     console.error(
-      `🗣️ [VOICE] Request to speak: "${(text || "").substring(0, 50)}..."`,
+      `🗣️ [VOICE] Request to speak raw length: ${text ? text.length : 0}`,
     );
     this._emitStateChange();
 
-    // 1. Handle Disabled/No-Synth Case (Still maintain Loop if active)
+    // 1. Handle Disabled/No-Synth Case
     if (!this.enabled || !this.synth) {
       if (this.callMode) this._restartLoop("Service Disabled");
       return;
@@ -130,28 +130,57 @@ class VoiceService {
     if (this._watchdogTimer) clearTimeout(this._watchdogTimer);
 
     // 3. Clean Text
-    const cleanText = (text || "")
-      .replace(/<[^>]*>?/gm, "")
-      .replace(/\(.*?\)/g, "")
-      .trim();
+    let cleanText = text || "";
+
+    // A. Remove <think> blocks entirely (including content)
+    cleanText = cleanText.replace(/<think>[\s\S]*?<\/think>/gi, "");
+
+    // B. Remove other HTML tags but keep their content
+    cleanText = cleanText.replace(/<[^>]*>?/gm, "");
+
+    // C. Remove Markdown (Asterisks, Underscores for bold/italic)
+    // Matches **text**, *text*, __text__, _text_
+    cleanText = cleanText.replace(/[\*_]{1,3}/g, "");
+
+    // D. Remove parentheticals (OOC content)
+    cleanText = cleanText.replace(/\(.*?\)/g, "");
+
+    // E. Final Trim
+    cleanText = cleanText.trim();
 
     // 4. Handle Empty Text (Restart Loop Immediately)
     if (!cleanText) {
-      console.error("🗣️ [VOICE] No audible text. Restarting loop.");
+      console.error(
+        "🗣️ [VOICE] No audible text after cleaning. Restarting loop.",
+      );
       if (this.callMode) this._restartLoop("Empty Text");
       return;
     }
 
     // 5. Build Utterance
     const utterance = new SpeechSynthesisUtterance(cleanText);
-    const voices = this.synth.getVoices();
-    const preferredVoice = voices.find(
-      (v) =>
-        v.name.includes("Google US English") ||
-        v.name.includes("Zira") ||
-        (v.lang === "en-US" && v.name.includes("Natural")),
-    );
-    if (preferredVoice) utterance.voice = preferredVoice;
+
+    // Ensure voices are loaded
+    if (this.voices.length === 0) {
+      this.voices = this.synth.getVoices();
+    }
+
+    // Improved Voice Selection Strategy (Deterministic - Male Preference)
+    // Priority: Edge Online (Natural Male) -> Windows Native (Male) -> Generic Male -> Any English
+    const preferredVoice =
+      this.voices.find((v) => v.name.includes("Microsoft Guy")) ||
+      this.voices.find((v) => v.name.includes("Microsoft David")) ||
+      this.voices.find((v) => v.name.includes("Microsoft Mark")) ||
+      this.voices.find(
+        (v) => v.name.toLowerCase().includes("male") && v.lang.startsWith("en"),
+      ) ||
+      this.voices.find((v) => v.lang === "en-US");
+
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+      // Only log if it changes (optional, but good for debug)
+      // console.log(`[VOICE] Selected: ${preferredVoice.name}`);
+    }
 
     // 6. Events
     utterance.onend = () => {
@@ -167,19 +196,15 @@ class VoiceService {
     };
 
     // 7. Watchdog (Force restart if TTS hangs)
-    // Estimate duration: 100ms per character + 2000ms buffer
     const durationEst = cleanText.length * 100 + 2000;
     this._watchdogTimer = setTimeout(() => {
-      console.error(
-        "🗣️ [VOICE] Watchdog triggered (TTS hung). Forcing loop restart.",
-      );
-      this.synth.cancel(); // Kill stuck TTS
+      console.error("🗣️ [VOICE] Watchdog triggered. Forcing loop restart.");
+      this.synth.cancel();
       if (this.callMode) this._restartLoop("Watchdog");
     }, durationEst);
 
     // 8. Speak
     this.synth.speak(utterance);
-    // Note: State change emitted at start of function
   }
 
   _restartLoop(reason) {

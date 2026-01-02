@@ -53,37 +53,63 @@ class AudioService {
     // 2. Debounce
     const now = Date.now();
     if (now - this.lastPlayed < this.threshold) {
-      console.log("[AudioService] Play skipped: Debounced.");
       return;
     }
     this.lastPlayed = now;
 
-    // Parse URL from window.rpgLists.sounds
-    // Format: "key = value"
     let url = null;
 
-    // Try Config First
+    // 3. Config Lookup (Robust Parsing)
     if (window.rpgLists?.sounds) {
-      const soundData = window.rpgLists.sounds.find((s) => s.startsWith(key));
-      if (soundData) url = soundData.split("=")[1]?.trim();
+      try {
+        let soundList = window.rpgLists.sounds;
+
+        // Handle Perchance "Array of JSON String" wrapper
+        // Example: ['["notification = https://..."]']
+        if (
+          Array.isArray(soundList) &&
+          soundList.length > 0 &&
+          typeof soundList[0] === "string"
+        ) {
+          try {
+            // Parse the inner JSON string
+            soundList = JSON.parse(soundList[0]);
+          } catch (e) {
+            // If parsing fails, maybe it's already a raw array? Keep going.
+            console.warn("[AudioService] JSON parse warning:", e);
+          }
+        }
+
+        // Now search the list
+        if (Array.isArray(soundList)) {
+          const soundEntry = soundList.find((s) => s.startsWith(key));
+          if (soundEntry) {
+            // Extract URL (everything after the first '=')
+            const parts = soundEntry.split("=");
+            if (parts.length > 1) {
+              url = parts.slice(1).join("=").trim();
+            }
+          }
+        }
+      } catch (e) {
+        console.error("[AudioService] Config lookup failed:", e);
+      }
     }
 
-    // Fallback for notification if config failed
+    // 4. Fallback
     if (!url && key === "notification") {
-      console.warn("[AudioService] Config missing. Using fallback URL.");
+      console.warn(
+        "[AudioService] Config missing/parse error. Using fallback.",
+      );
       url =
         "https://user.uploads.dev/file/50dc061d6ed6439719d283d042e9c172.wav";
     }
 
-    if (!url) {
-      console.warn(`[AudioService] No URL found for '${key}'.`);
-      return;
-    }
+    if (!url) return;
 
+    // 5. Playback
     try {
-      console.log(`[AudioService] Playing sound: ${key}`);
       let buffer = this.buffers.get(key);
-
       if (!buffer) {
         const response = await fetch(url);
         const arrayBuffer = await response.arrayBuffer();
@@ -96,7 +122,6 @@ class AudioService {
       source.connect(this.audioContext.destination);
       source.start(0);
     } catch (e) {
-      // Fail silently to avoid breaking the app
       console.warn("[AudioService] Playback error:", e);
     }
   }
