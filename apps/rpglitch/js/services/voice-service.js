@@ -1,14 +1,14 @@
-// Imports removed (unused)
-
-class VoiceService {
+export class VoiceService {
   constructor() {
     this.synth = window.speechSynthesis;
     this.recognition = null;
     this.isListening = false;
     this.voices = [];
     this.enabled = true; // Default to true, or load from config
+    this.usePuter = false; // Flag for Puter.js usage
+    this.puterAudio = null; // Track current Puter audio
 
-    // Initialize Voices (Handle async loading)
+    // Initialize Native Voices (Handle async loading)
     if (this.synth) {
       this.synth.onvoiceschanged = () => {
         this.voices = this.synth.getVoices();
@@ -22,13 +22,39 @@ class VoiceService {
     if (window.rpgLists?.settings?.voiceEnabled !== undefined) {
       this.enabled = window.rpgLists.settings.voiceEnabled;
     }
-    // Force logs to console.error for visibility during debug
+    // Check if Puter is already signed in (optional check, but good for UX)
+    if (window.puter && window.puter.auth && window.puter.auth.isSignedIn()) {
+      this.usePuter = true;
+      console.log(
+        "[VoiceService] Puter.js detected and signed in. Neural voices enabled.",
+      );
+    }
+
     console.error(
       "[VoiceService] Initialized. Enabled:",
       this.enabled,
       "Speech supported:",
       !!this.synth,
+      "Puter:",
+      this.usePuter,
     );
+  }
+
+  async connectPuter() {
+    if (!window.puter) {
+      console.error("[VoiceService] Puter.js not loaded.");
+      return false;
+    }
+    try {
+      console.log("[VoiceService] Attempting Puter Sign In...");
+      await window.puter.auth.signIn();
+      this.usePuter = true;
+      console.log("[VoiceService] Puter Sign In Successful.");
+      return true;
+    } catch (err) {
+      console.error("[VoiceService] Puter Sign In Failed:", err);
+      return false;
+    }
   }
 
   toggleListen(onPartial, onFinal) {
@@ -71,9 +97,6 @@ class VoiceService {
       this.isListening = false;
       this._emitStateChange();
       // NOTE: We do NOT auto-restart here. We wait for Speak to finish or manual restart.
-      // If we simply stopped listening without speaking (silence), we might want to re-listen?
-      // For now, let's assume 'silence' -> 'send empty' -> 'no response' -> 'silence'.
-      // Preventing infinite loops requires care.
     };
 
     this.recognition.onresult = (event) => {
@@ -113,38 +136,36 @@ class VoiceService {
     }
   }
 
-  speak(text) {
+  async speak(text) {
     console.error(
       `🗣️ [VOICE] Request to speak raw length: ${text ? text.length : 0}`,
     );
     this._emitStateChange();
 
     // 1. Handle Disabled/No-Synth Case
-    if (!this.enabled || !this.synth) {
+    if (!this.enabled) {
       if (this.callMode) this._restartLoop("Service Disabled");
       return;
     }
 
     // 2. Cancel previous
-    this.synth.cancel();
+    if (this.synth) this.synth.cancel();
+    if (this.puterAudio) {
+      this.puterAudio.pause();
+      this.puterAudio = null;
+    }
     if (this._watchdogTimer) clearTimeout(this._watchdogTimer);
 
     // 3. Clean Text
     let cleanText = text || "";
-
     // A. Remove <think> blocks entirely (including content)
     cleanText = cleanText.replace(/<think>[\s\S]*?<\/think>/gi, "");
-
     // B. Remove other HTML tags but keep their content
     cleanText = cleanText.replace(/<[^>]*>?/gm, "");
-
     // C. Remove Markdown (Asterisks, Underscores for bold/italic)
-    // Matches **text**, *text*, __text__, _text_
     cleanText = cleanText.replace(/[\*_]{1,3}/g, "");
-
     // D. Remove parentheticals (OOC content)
     cleanText = cleanText.replace(/\(.*?\)/g, "");
-
     // E. Final Trim
     cleanText = cleanText.trim();
 
@@ -157,6 +178,59 @@ class VoiceService {
       return;
     }
 
+    // --- PUTER.JS (High Quality) ---
+    if (this.usePuter && window.puter) {
+      try {
+        console.log(
+          "🗣️ [VOICE] Attempting Neural TTS (ElevenLabs via Puter)...",
+        );
+        const audio = await window.puter.ai.txt2speech(cleanText, {
+          provider: "elevenlabs",
+          voice: "21m00Tcm4TlvDq8ikWAM", // Rachel
+          model: "eleven_turbo_v2_5",
+        });
+
+        this.puterAudio = audio;
+
+        // Events for consistent loop handling
+        audio.onended = () => {
+          console.error("🗣️ [VOICE] Neural TTS Finished.");
+          if (this._watchdogTimer) clearTimeout(this._watchdogTimer);
+          if (this.callMode) this._restartLoop("Neural TTS Finished");
+          this.puterAudio = null;
+        };
+
+        audio.onerror = (e) => {
+          console.error("🗣️ [VOICE] Neural TTS Error:", e);
+          // Fallback will happen? No, we are in async flow. Just force restart loop or fallback logic?
+          // If it errors here, we might want to try Native.
+          // But for now let's just log and restart loop.
+          if (this._watchdogTimer) clearTimeout(this._watchdogTimer);
+          if (this.callMode) this._restartLoop("Neural TTS Error");
+        };
+
+        // Watchdog for Neural
+        const durationEst = cleanText.length * 100 + 5000; // Little more buffer for network
+        this._watchdogTimer = setTimeout(() => {
+          console.error("🗣️ [VOICE] Neural Watchdog triggered.");
+          if (this.puterAudio) this.puterAudio.pause();
+          if (this.callMode) this._restartLoop("Neural Watchdog");
+        }, durationEst);
+
+        audio.play();
+        return; // EXIT FUNCTION, DO NOT RUN NATIVE
+      } catch (err) {
+        console.error(
+          "🗣️ [VOICE] Puter TTS Failed (401? Network?). Falling back to Native.",
+          err,
+        );
+        // Fall through to Native
+      }
+    }
+
+    // --- NATIVE SPEECH SYNTHESIS (Fallback) ---
+    if (!this.synth) return;
+
     // 5. Build Utterance
     const utterance = new SpeechSynthesisUtterance(cleanText);
 
@@ -166,7 +240,6 @@ class VoiceService {
     }
 
     // Improved Voice Selection Strategy (Deterministic - Male Preference)
-    // Priority: Edge Online (Natural Male) -> Windows Native (Male) -> Generic Male -> Any English
     const preferredVoice =
       this.voices.find((v) => v.name.includes("Microsoft Guy")) ||
       this.voices.find((v) => v.name.includes("Microsoft David")) ||
@@ -178,13 +251,11 @@ class VoiceService {
 
     if (preferredVoice) {
       utterance.voice = preferredVoice;
-      // Only log if it changes (optional, but good for debug)
-      // console.log(`[VOICE] Selected: ${preferredVoice.name}`);
     }
 
     // 6. Events
     utterance.onend = () => {
-      console.error("🗣️ [VOICE] Finished speaking.");
+      console.error("🗣️ [VOICE] Native TTS Finished.");
       if (this._watchdogTimer) clearTimeout(this._watchdogTimer);
       if (this.callMode) this._restartLoop("TTS Finished");
     };
@@ -218,6 +289,10 @@ class VoiceService {
     this.callMode = false; // Kill the loop
     if (this._watchdogTimer) clearTimeout(this._watchdogTimer);
     if (this.synth) this.synth.cancel();
+    if (this.puterAudio) {
+      this.puterAudio.pause();
+      this.puterAudio = null;
+    }
     if (this.recognition)
       try {
         this.recognition.stop();

@@ -4,6 +4,7 @@ import { TurnManager } from "../../engine/director.js";
 import { entities } from "../../data/repo.js";
 import { showAlert, handleConcludeStory } from "../orchestrator.js";
 import { log, error, sanitizeHtml } from "../../core/utils.js";
+import { voiceService } from "../../services/voice-service.js";
 
 export const StoryOptionsController = {
   async init() {
@@ -17,6 +18,54 @@ export const StoryOptionsController = {
       if (tpl) {
         contentContainer.innerHTML = ""; // Clear existing
         contentContainer.appendChild(tpl.content.cloneNode(true));
+      }
+    }
+
+    // [NEW] Custom Injection for Voice settings (Since template is static)
+    // Run AFTER template injection
+    // FIX: Template uses .modal-body, not .settings-body
+    const settingsBody = modal.querySelector(".modal-body");
+    // Ensure we don't duplicate if re-running
+    if (settingsBody && !modal.querySelector("#btn-connect-puter")) {
+      const voiceGroup = document.createElement("div");
+      voiceGroup.className = "settings-group";
+      voiceGroup.innerHTML = `
+            <h3>Voice Engine</h3>
+            <div class="setting-row">
+                <label>Enable Neural Voice (Puter.js)</label>
+                <button id="btn-connect-puter" class="rpg-btn">✨ Connect Account</button>
+            </div>
+            <hr>
+        `;
+      settingsBody.insertBefore(voiceGroup, settingsBody.firstChild);
+
+      // Listener
+      const btnPuter = voiceGroup.querySelector("#btn-connect-puter");
+      if (btnPuter) {
+        // Init State Check
+        if (
+          window.puter &&
+          window.puter.auth &&
+          window.puter.auth.isSignedIn()
+        ) {
+          btnPuter.textContent = "Connected";
+          btnPuter.disabled = true;
+        }
+
+        btnPuter.addEventListener("click", async (e) => {
+          e.preventDefault();
+          e.target.textContent = "Connecting...";
+          e.target.disabled = true;
+
+          const success = await voiceService.connectPuter();
+          if (success) {
+            e.target.textContent = "Connected";
+            // Keep disabled
+          } else {
+            e.target.textContent = "Failed (Retry)";
+            e.target.disabled = false;
+          }
+        });
       }
     }
 
