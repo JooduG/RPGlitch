@@ -6,7 +6,7 @@ import { entities } from "../data/repo.js";
 import { error, calculateBlendedParams, log } from "../core/utils.js";
 import { ContextBuilder } from "./prompter.js";
 import { calculateDynamics } from "./physics/main.js";
-import { analyzeRejection, getDirectorInstruction } from "./variance.js";
+// import { analyzeRejection, getDirectorInstruction } from "./variance.js";
 // import { bridge } from "./physics/bridge.js";
 import { events, EVENTS } from "../core/events.js";
 import { VisualManager } from "../ui/services/visuals.js";
@@ -269,10 +269,10 @@ export const TurnManager = {
             const lastUserMsg = (payload.messages || []).findLast(
               (m) => m.role === ROLES.USER,
             );
-            const varianceKey = analyzeRejection(response, lastUserMsg?.text);
-            payload.system += `\n\n${getDirectorInstruction(varianceKey)}`;
-
-            log(`[PROMETHEUS] Refusal detected. Retrying with ${varianceKey}`);
+            // VARIANCE DISABLED (PULSE LOGIC UPDATE)
+            // const varianceKey = analyzeRejection(response, lastUserMsg?.text);
+            // payload.system += `\n\n${getDirectorInstruction(varianceKey)}`;
+            // log(`[PROMETHEUS] Refusal detected. Retrying with ${varianceKey}`);
             if (attempts < MAX_ATTEMPTS) continue;
           }
 
@@ -445,10 +445,11 @@ export const TurnManager = {
       );
       note = `[SYSTEM: DIRECTOR_OVERRIDE]\nDirective: ${manualInstruction}`;
     } else {
-      const lastUser = msgs.findLast((m) => m.role === ROLES.USER);
-      const key = analyzeRejection(last.text, lastUser?.text || "");
-      note = getDirectorInstruction(key);
-      log(`[PROMETHEUS] Regenerating with strategy: ${key}`);
+      // VARIANCE DISABLED
+      // const lastUser = msgs.findLast((m) => m.role === ROLES.USER);
+      // const key = analyzeRejection(last.text, lastUser?.text || "");
+      // note = getDirectorInstruction(key);
+      // log(`[PROMETHEUS] Regenerating with strategy: ${key}`);
     }
 
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
@@ -519,18 +520,25 @@ export const TurnManager = {
       // 3. Parse CSS/JSON
       let data;
       try {
-        // Attempt to clean markdown code blocks if present
         const jsonText = response.replace(/```json\n|```/g, "").trim();
         data = JSON.parse(jsonText);
       } catch (parseErr) {
         console.warn("[TurnManager] Pulse JSON Parse Failed:", response);
-        return; // Abort if invalid
+        return;
       }
 
       // 4. Apply Updates
       if (data) {
         let needsSave = false;
         const updates = { customData: { ...aiEntity.customData } };
+
+        // 4.1 LOG ENTRY (Long Term Memory)
+        if (data.log_entry && typeof data.log_entry === "string") {
+          const entry = `\n[Turn ${state.turnCount}] ${data.log_entry}`;
+          updates.past = (aiEntity.past || "") + entry;
+          needsSave = true;
+          log(`[TurnManager] 🧠 New Memory Engram:`, entry);
+        }
 
         // Apply Dynamics
         if (data.dynamics) {
@@ -826,17 +834,21 @@ export const TurnManager = {
 
   ghostwrite: async (text) => {
     const storyId = TurnManager.requireActive();
-    if (!storyId) return;
+    if (!storyId) return null;
 
     // 1. Build Payload (User Logic)
     const builder = new ContextBuilder(storyId);
     const payload = await builder.buildGhostwriter(text);
 
-    // 2. Execute Turn (Saves as User Message)
-    await TurnManager._executeTurn(storyId, payload, { ghostwrite: true });
+    // 2. Generate Draft (No Execution)
+    const response = await LlmService.generate(payload, {
+      maxTokens: 300,
+      temperature: 0.7,
+    });
 
-    // 3. Trigger Active AI Response (The Consequence)
-    await TurnManager.generateAiResponse(storyId);
+    // 3. Sanitize & Return
+    const { text: cleanText } = parseAiResponse(response);
+    return cleanText;
   },
 
   generateVisualFromDraft: async (draftText) => {

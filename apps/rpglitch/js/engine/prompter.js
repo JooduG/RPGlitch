@@ -286,7 +286,7 @@ Analyze the recent conversation history. Update the internal state of the simula
 </CORE_DIRECTIVE>
 
 <INPUT_CONTEXT>
-**Current Dynamics:**
+**Baseline Dynamics (Gravity):**
 ${JSON.stringify(currentDynamics, null, 2)}
 
 **Active Plot Threads:**
@@ -297,28 +297,30 @@ ${formatSection(entity.present)}
 </INPUT_CONTEXT>
 
 <INSTRUCTION>
-1. **Analyze:** Has the atmosphere changed? (Chaos/Pacing/Detail/Stability)
-2. **Plot:** Have any active threads been resolved by specific events? Are there new threads?
-3. **Constraint:** MAX 1 NEW THREAD per turn. Only create a thread for major narrative shifts.
-4. **Update:** Return a strict JSON object.
+1. **Analyze:** Has the atmosphere changed from the Baseline?
+2. **Plot:** Have any active threads been resolved? Are there new threads?
+3. **Log:** If the state changed significantly (e.g., injury, location change, major realization), write a concise log entry for long-term memory.
+4. **Constraint:** MAX 1 NEW THREAD per turn.
+5. **Update:** Return a strict JSON object.
 </INSTRUCTION>
 
 <OUTPUT_SCHEMA>
 {
   "dynamics": {
-    "entropy": "0-100 (Chaos/Tension)",
-    "velocity": "0-100 (Pacing/Action)",
-    "permeability": "0-100 (Vulnerability/Openness)",
-    "resonance": "0-100 (Connection/Vibe)"
+    "entropy": "0-100",
+    "velocity": "0-100",
+    "permeability": "0-100",
+    "resonance": "0-100"
   },
   "plot": {
-    "resolved_indices": [Array of Integers matching the content of completed Active Threads],
-    "new_threads": [Array of Strings for NEW significant objectives triggered by events]
+    "resolved_indices": [],
+    "new_threads": []
   },
   "state": {
-    "physical": "Concise visual description (clothing, wounds, position)",
-    "mental": "Internal emotional state, thoughts, focus"
-  }
+    "physical": "Concise visual description",
+    "mental": "Internal emotional state"
+  },
+  "log_entry": "String (nullable). E.g., 'Lost left arm' or 'Realized the truth'. Null if no major change."
 }
 </OUTPUT_SCHEMA>`;
 
@@ -444,13 +446,13 @@ ${strategy.formatPartner(ai)}
 </CONTEXT>
 
 <GHOSTWRITER_DIRECTIVE>
-REWRITE the draft immersive prose (1st Person POV from ${user.name}).
-CRITICAL: Do NOT use <think> blocks. Output ONLY the narrative text.
-</GHOSTWRITER_DIRECTIVE>
-
-<USER_DRAFT>
-"${draftText}"
-</USER_DRAFT>`;
+You are the PLAYER (The Protagonist). You are interacting with ${ai.name}.
+Draft the Player's next action/dialogue.
+Base it on this intent: "${draftText}".
+If intent is empty, improvise a logical response.
+Output ONLY the narrative text.
+CRITICAL: Do NOT use <think> blocks.
+</GHOSTWRITER_DIRECTIVE>`;
 
     return {
       system,

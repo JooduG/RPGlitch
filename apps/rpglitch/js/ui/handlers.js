@@ -148,21 +148,41 @@ export function initUIHandlers() {
           await import("./components/settings.js");
         StoryOptionsController.close();
 
-        if (inputField) inputField.value = "";
+        if (inputField) {
+          inputField.disabled = true;
+          inputField.dataset.original = inputField.value; // Backup
+          inputField.value = "Ghostwriting..."; // Visual Feedback
+          inputField.style.opacity = "0.5";
+        }
 
-        // This method will be added to director.js next
         try {
           if (TurnManager.ghostwrite) {
-            await TurnManager.ghostwrite(draft);
+            // Updated: Returns text, does NOT send.
+            const result = await TurnManager.ghostwrite(draft);
+
+            if (result && inputField) {
+              inputField.value = result;
+              // Manually triggering input event to resize if needed
+              inputField.dispatchEvent(new Event("input", { bubbles: true }));
+              inputField.focus();
+            } else if (inputField) {
+              inputField.value = draft; // Restore on empty result
+            }
           } else {
             console.error("TurnManager.ghostwrite not implemented yet");
-            inputField.value = draft; // Restore if failed
+            if (inputField) inputField.value = draft;
           }
         } catch (err) {
           console.error("[Ghostwrite] Error:", err);
           const { showAlert } = await import("./orchestrator.js");
           showAlert("Ghostwrite Error", `Failed to execute: ${err.message}`);
-          inputField.value = draft; // Restore text so user doesn't lose it
+          if (inputField) inputField.value = draft;
+        } finally {
+          if (inputField) {
+            inputField.disabled = false;
+            inputField.style.opacity = "1";
+            inputField.focus();
+          }
         }
         return;
       }
