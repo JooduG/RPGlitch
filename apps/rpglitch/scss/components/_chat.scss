@@ -163,8 +163,18 @@
 #btn-mic {
   // Base styles are set inline in input.js for strict alignment,
   // but we handle states here.
-  transition: all 0.2s ease;
-  border-radius: 50%; // Circular pulse effect
+  transition: all 0.2s ease; // Circular pulse effect
+
+  // FIX: Force square shape with fixed size, do not stretch
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  flex: 0 0 2.5rem !important;
+  border-radius: 50%;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  margin: 0 !important;
+  aspect-ratio: 1 / 1;
 
   &.call-active {
     // "Phone Off Hook" state (Loop Active, Waiting for AI)

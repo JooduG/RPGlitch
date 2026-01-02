@@ -638,6 +638,86 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
     secWrap.appendChild(row);
   });
 
+  // [NEW] VOICE SELECTOR
+  // Inject after standard sections, but HIDDEN for Fractals
+  const { row: voiceRow, contentCol: voiceContent } = createProfileRow(
+    "VOICE",
+    "NARRATIVE AUDIO",
+  );
+
+  const voiceWrap = document.createElement("div");
+  voiceWrap.style.display = "flex";
+  voiceWrap.style.gap = "10px";
+  voiceWrap.style.alignItems = "center";
+
+  // Selector
+  const voiceSelect = document.createElement("select");
+  voiceSelect.className = "profile-input";
+  voiceSelect.dataset.editField = "voiceId"; // Binds to entity.voiceId
+  voiceSelect.style.marginBottom = "0";
+  voiceSelect.style.flex = "1";
+
+  // Populate
+  // Populate
+  import("../../../services/voice-service.js").then(({ voiceService }) => {
+    const roster = voiceService.getVoices();
+    let hasMatch = false;
+
+    roster.forEach((v) => {
+      const opt = document.createElement("option");
+      opt.value = v.id;
+      opt.textContent = v.name;
+
+      // Strict check for persistence
+      if (entity.voiceId === v.id) {
+        opt.selected = true;
+        hasMatch = true;
+      }
+      voiceSelect.appendChild(opt);
+    });
+
+    // Default fallback if no match found (or new entity)
+    if (!hasMatch && roster.length > 0) {
+      voiceSelect.value = roster[0].id; // Rachel default
+    }
+
+    // Force persistence check log
+    if (state.settings.developerMode) {
+      console.log(
+        `[Voice] Loading Profile. Entity Voice: ${entity.voiceId}, Selected: ${voiceSelect.value}`,
+      );
+    }
+  });
+
+  // Preview Button
+  const previewBtn = document.createElement("button");
+  previewBtn.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+  previewBtn.className = "btn-ghost";
+  previewBtn.title = "Preview Voice";
+  previewBtn.style.padding = "0.5rem";
+  previewBtn.onclick = async (e) => {
+    e.preventDefault();
+    const { voiceService } = await import("../../../services/voice-service.js");
+
+    // FIX: Force Init ensuring enabled state and roster load
+    await voiceService.init();
+
+    const selectedVoice = voiceSelect.value;
+    if (selectedVoice) {
+      voiceService.setVoice(selectedVoice);
+      voiceService.speak("System check. Audio nominal.");
+    }
+  };
+  voiceWrap.appendChild(voiceSelect);
+  voiceWrap.appendChild(previewBtn);
+  voiceContent.appendChild(voiceWrap);
+  secWrap.appendChild(voiceRow);
+
+  // FIX: Hide for Fractals
+  if (type === "fractal") {
+    voiceRow.style.display = "none";
+  }
+
   // --- MAGIC PROMPT LOGIC ---
   const handleEnhancePrompt = async (currentVal) => {
     // Inject Identity Context to prevent Gender/Subject Swapping
@@ -873,6 +953,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
       profilePictureUrl: finalImageUrl,
       signatureColour: escapeHtml(paletteSelect.value.trim()),
       visuals: localVisuals,
+      voiceId: form.querySelector('[data-edit-field="voiceId"]')?.value, // [FIX] Persist Voice
       customData: {
         ...entity.customData,
         plot: plotData,
@@ -923,8 +1004,10 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
 
     try {
       if (id === "new") {
+        console.log("[Profile] Creating New Entity. Data:", data);
         await entities.create(type, data);
       } else {
+        console.log(`[Profile] Updating ${id}. VoiceID: ${data.voiceId}`); // DEBUG
         await entities.upsert(type, { ...entity, ...data });
 
         const _onUpdateSelection = getOnUpdateSelection();

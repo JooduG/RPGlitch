@@ -278,6 +278,7 @@ export const normalize = (base = {}) => {
     visuals = null,
     simulation = null,
     dynamics = null,
+    voiceId = null, // [V6] Added Voice ID Persistence
     _backupState = null,
     _lastUpdateMsgId = null,
     customData = { plot: { active: [], resolved: [] } },
@@ -333,6 +334,7 @@ export const normalize = (base = {}) => {
       coherence: 50,
       ...(dynamics || {}),
     },
+    voiceId, // Persist Voice ID
     _backupState,
     _lastUpdateMsgId,
     customData: finalCustomData,
