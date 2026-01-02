@@ -22,6 +22,7 @@ import {
   showPrompt,
   showErrorModal,
 } from "./services/modals.js";
+import { audioService } from "../services/audio-service.js";
 
 const selectedEntities = {
   ai: null,
@@ -77,6 +78,8 @@ const finalizeTurn = async (component, context = null) => {
 };
 
 const initEventBinds = () => {
+  audioService.init();
+
   events.addEventListener(EVENTS.STORY_LOADED, async () => {
     const state = await import("../core/state.js").then((m) => m.state);
     if (!state.story.activeId) return;
@@ -155,6 +158,7 @@ const initEventBinds = () => {
       await import("./components/chat/feed.js");
     setSendLock(false);
     setChatGeneratingState(false);
+    audioService.play("notification");
     finalizeTurn("text", e.detail);
   });
 

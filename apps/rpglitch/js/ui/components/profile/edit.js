@@ -18,6 +18,7 @@ import { state } from "../../../core/state.js";
 import { VisualManager } from "../../services/visuals.js";
 import { generateStream } from "../../../engine/llm.js";
 import { events, EVENTS } from "../../../core/events.js";
+import { audioService } from "../../../services/audio-service.js";
 
 import { PROFILE_STRUCTURE, LABEL_MAP, SPLIT_HEADERS } from "./constants.js";
 import {
@@ -473,6 +474,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
         if (url) {
           imageInput.dataset.pendingUrl = url;
           updatePreview(url);
+          audioService.play("notification");
         }
       } catch (e) {
         error(e);
@@ -748,6 +750,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
         if (currentVal) {
           const cleanText = await handleEnhancePrompt(currentVal);
           imageInput.value = cleanText;
+          audioService.play("notification");
         } else {
           const { pos, neg } = await handleAutoWritePrompt();
           imageInput.value = pos;

@@ -266,9 +266,6 @@ export const TurnManager = {
 
           // 2.1 REFUSAL CHECK
           if (TurnManager._checkRefusal(response)) {
-            const lastUserMsg = (payload.messages || []).findLast(
-              (m) => m.role === ROLES.USER,
-            );
             // VARIANCE DISABLED (PULSE LOGIC UPDATE)
             // const varianceKey = analyzeRejection(response, lastUserMsg?.text);
             // payload.system += `\n\n${getDirectorInstruction(varianceKey)}`;

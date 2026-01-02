@@ -14,7 +14,7 @@ upload = {import:upload-plugin}
 // --- BUILDER & CONFIG ---
 // We inject the configuration script into the head of the HTML
 buildApp() =>
-  var html = {import:apps/rpglitch/index.html}
+  var html = {import:apps/rpglitch/RPGlitch.html}
   var htmlWithConfig = html.replace("</head>", [clientSideConfig] + "</head>")
   return htmlWithConfig
 
@@ -27,7 +27,8 @@ clientSideConfig
       tech: [JSON.stringify(rpgTech.selectAll.map(i => i.text || i))],
       composition: [JSON.stringify(rpgComposition.selectAll.map(i => i.text || i))],
       mood: [JSON.stringify(rpgMood.selectAll.map(i => i.text || i))],
-      quality: [JSON.stringify(rpgQuality.selectAll.map(i => i.text || i))]
+      quality: [JSON.stringify(rpgQuality.selectAll.map(i => i.text || i))],
+      sounds: [JSON.stringify(rpgSounds.selectAll.map(i => i.text || i))]
     \};
   </script>
 
@@ -105,6 +106,9 @@ rpgMood
   peaceful, serene, quiet
   romantic, affectionate, soft
   spooky, haunted, ominous
+
+rpgSounds
+  notification = https://user.uploads.dev/file/50dc061d6ed6439719d283d042e9c172.wav
 
 // --- EXPORTS TO JS ---
 pluginAi = ai

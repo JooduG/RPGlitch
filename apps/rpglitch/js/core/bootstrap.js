@@ -207,7 +207,7 @@ const App = {
       }
 
       App.setupPlugins();
-      await App.waitForConfig(isLocal ? 100 : 2000);
+      await App.waitForConfig(isLocal ? 100 : 10000);
       await db.open();
 
       // Always run the seeder to replenish deleted factory items
