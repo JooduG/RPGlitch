@@ -88,16 +88,17 @@
   textarea[name="message"] {
     @extend %input-deep;
 
-    border-radius: 999px var(--pico-radius) var(--pico-radius) 999px;
+    // SMART PILL SHAPE
+    border-radius: 24px; // Fixed px value for consistent corners
+    min-height: 48px;
+    max-height: 200px; // Prevent explosion
+    padding: 12px 20px;
     height: auto;
-    min-height: 3rem;
-    max-height: 12rem;
     margin-bottom: 0;
     vertical-align: middle;
     resize: none;
-    overflow-y: hidden;
+    overflow-y: auto; // Allow scroll when maxed
     transition: height 0.1s ease;
-    padding: var(--space-sm-md) 0 var(--space-sm-md) var(--space-lg);
     width: auto;
     flex: 1 1 auto;
 

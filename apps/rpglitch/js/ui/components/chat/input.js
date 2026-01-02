@@ -11,7 +11,7 @@ export function initChatInput() {
 
   // Auto-resize function for textarea
   const adjustHeight = () => {
-    input.style.height = "auto";
+    input.style.height = "auto"; // Reset to shrink if needed
     input.style.height = input.scrollHeight + "px";
   };
 
