@@ -4,7 +4,6 @@ import { TurnManager } from "../../engine/director.js";
 import { entities } from "../../data/repo.js";
 import { showAlert, handleConcludeStory } from "../orchestrator.js";
 import { log, error, sanitizeHtml } from "../../core/utils.js";
-import { voiceService } from "../../services/voice-service.js";
 
 export const StoryOptionsController = {
   async init() {

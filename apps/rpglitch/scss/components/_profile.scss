@@ -716,6 +716,35 @@ input[type="number"][data-dynamics-target] {
     }
   }
 
+  // Voice Controls Stack
+  .voice-controls-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--pico-muted-color);
+        min-width: 40px;
+        margin: 0;
+      }
+
+      input[type="range"] {
+        flex: 1;
+        margin: 0;
+        height: 6px; // Compact
+      }
+    }
+  }
+
   .split-content {
     gap: 1rem;
   }

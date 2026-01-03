@@ -164,21 +164,46 @@ const initEventBinds = () => {
     const { voiceService } = await import("../services/voice-service.js");
     voiceService.init();
 
-    // [FIX] Resolve Voice ID from Character Entity
+    // [FIX] Resolve Voice ID & Biometrics from Character Entity
     const { entities } = await import("../data/repo.js");
     let voiceId = null;
+    let rateMod = 1.0;
 
     if (e.detail?.characterId) {
       try {
         const char = await entities.get("character", e.detail.characterId);
-        if (char && char.voiceId) voiceId = char.voiceId;
+
+        if (char) {
+          // 1. Identity
+          if (char.voiceId) voiceId = char.voiceId;
+
+          // 2. Base Personality (Set Global Base)
+          voiceService.setRate(char.voiceRate || 1.0);
+          voiceService.setPitch(char.voicePitch || 1.0);
+
+          // 3. Biometric Modulation (Transient)
+          // Physics: Velocity (Speed) -> Rate
+          // Entropy (Chaos) -> Pitch
+          const dyn = char.dynamics || { velocity: 50, entropy: 50 };
+
+          // Velocity: 0 (Slow) -> 100 (Fast). Center 50.
+          // Range: +/- 0.25 (0.75x to 1.25x)
+          rateMod = 1.0 + (dyn.velocity - 50) / 200;
+
+          // Entropy unused for Pitch now (User Request)
+          // pitchMod = 1.0;
+        }
       } catch (err) {
-        // Fallback to default if entity fetch fails
+        // Fallback
+        console.warn("[Orchestrator] Voice fetch failed:", err);
       }
     }
 
-    // ALWAYS call speak, even if empty, to ensure VoiceService can manage the loop state (Restart if needed)
-    voiceService.speak(e.detail?.text || "", voiceId);
+    // ALWAYS call speak
+    voiceService.speak(e.detail?.text || "", voiceId, {
+      rate: rateMod,
+      pitch: 1.0,
+    });
 
     finalizeTurn("text", e.detail);
   });

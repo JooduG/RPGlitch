@@ -46,6 +46,15 @@ const getLiveEntityFromForm = (form, baseEntity) => {
   if (nameEl) live.name = nameEl.value;
   if (descEl) live.description = descEl.value;
 
+  // [NEW] Explicit Voice Data Scraping
+  const voiceIdEl = form.querySelector('[data-edit-field="voiceId"]');
+  const rateEl = form.querySelector('[data-edit-field="voiceRate"]');
+  const pitchEl = form.querySelector('[data-edit-field="voicePitch"]');
+
+  if (voiceIdEl) live.voiceId = voiceIdEl.value;
+  if (rateEl) live.voiceRate = parseFloat(rateEl.value);
+  if (pitchEl) live.voicePitch = parseFloat(pitchEl.value);
+
   Object.keys(PROFILE_STRUCTURE).forEach((key) => {
     const config = PROFILE_STRUCTURE[key];
     if (config.type === "nested") {
@@ -642,7 +651,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
   // Inject after standard sections, but HIDDEN for Fractals
   const { row: voiceRow, contentCol: voiceContent } = createProfileRow(
     "VOICE",
-    "NARRATIVE AUDIO",
+    "SPEED & PITCH",
   );
 
   // User-requested structure
@@ -650,50 +659,44 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
   voiceGroup.className = "form-group voice-selector-group";
   voiceGroup.style.width = "100%";
 
+  // Label "Voice Model" removed as requested
+  /*
   const label = document.createElement("label");
   label.textContent = "Voice Model";
-  label.style.display = "block";
-  label.style.marginBottom = "0.5rem";
-  label.style.fontSize = "0.75rem";
-  label.style.opacity = "0.7";
+  ...
   voiceGroup.appendChild(label);
+  */
 
-  const flexRow = document.createElement("div");
-  flexRow.className = "flex-row";
-  flexRow.style.display = "flex";
-  flexRow.style.gap = "0.5rem";
-  flexRow.style.alignItems = "center";
+  // Create Control Stack
+  const voiceStack = document.createElement("div");
+  voiceStack.className = "voice-controls-stack";
+
+  // 1. Voice Selector Row
+  const selectorRow = document.createElement("div");
+  selectorRow.style.display = "flex";
+  selectorRow.style.gap = "0.5rem";
+  selectorRow.style.alignItems = "center";
 
   const voiceSelect = document.createElement("select");
   voiceSelect.id = "profile-voice";
   voiceSelect.className = "rpg-input";
-  voiceSelect.dataset.editField = "voiceId"; // Binds to entity.voiceId
+  voiceSelect.dataset.editField = "voiceId";
   voiceSelect.style.flex = "1";
   voiceSelect.style.marginBottom = "0";
 
-  // Populate from Native VoiceService
+  // Populate
   import("../../../services/voice-service.js").then(
     async ({ voiceService }) => {
-      // Ensure voices are loaded (Native API is async)
       await voiceService.init();
-
       const roster = voiceService.getVoices();
       let hasMatch = false;
 
-      // Clear existing (in case of re-render)
       voiceSelect.innerHTML = "";
-
-      // 1. Add "Default / System" option
-      // const defaultOpt = document.createElement("option");
-      // defaultOpt.value = "";
-      // defaultOpt.textContent = "System Default";
-      // voiceSelect.appendChild(defaultOpt);
 
       roster.forEach((v) => {
         const opt = document.createElement("option");
-        opt.value = v.uri; // Persistence Key: URI
-        opt.textContent = v.name; // Display Name
-
+        opt.value = v.uri;
+        opt.textContent = v.name;
         if (entity.voiceId === v.uri) {
           opt.selected = true;
           hasMatch = true;
@@ -701,13 +704,8 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
         voiceSelect.appendChild(opt);
       });
 
-      // Fallback: If no match found (or new entity), select the first "Natural" voice if available
-      if (!hasMatch && roster.length > 0) {
-        // Auto-select the first one (Tier 1 is sorted first)
-        // BUT only if entity.voiceId is empty. If it has a value that's missing, maybe warn?
-        if (!entity.voiceId) {
-          voiceSelect.value = roster[0].uri;
-        }
+      if (!hasMatch && roster.length > 0 && !entity.voiceId) {
+        voiceSelect.value = roster[0].uri;
       }
     },
   );
@@ -718,21 +716,119 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
   previewBtn.className = "rpg-btn small icon-only";
   previewBtn.innerHTML = "🔊";
   previewBtn.title = "Preview Voice";
+
+  selectorRow.appendChild(voiceSelect);
+  selectorRow.appendChild(previewBtn);
+  voiceStack.appendChild(selectorRow);
+
+  // 2. Sliders (Rate & Pitch)
+  // Helper to make sliders
+  const makeSlider = (id, label, field, val, min, max) => {
+    const wrap = document.createElement("div");
+    wrap.className = "slider-row";
+    wrap.style.flex = "1";
+    wrap.style.display = "flex"; // Ensure centering if label is gone
+    wrap.style.alignItems = "center";
+
+    if (label) {
+      const lbl = document.createElement("label");
+      lbl.textContent = label;
+      lbl.htmlFor = id;
+      lbl.style.marginRight = "0.5rem"; // Add spacing explicitly
+      lbl.style.marginBottom = "0"; // Reset pico default
+      wrap.appendChild(lbl);
+    }
+
+    const inp = document.createElement("input");
+    inp.type = "range";
+    inp.id = id;
+    inp.dataset.editField = field;
+    inp.min = min;
+    inp.max = max;
+    inp.step = "0.1";
+    inp.value = val || 1.0;
+    inp.style.marginBottom = "0";
+    // Add tooltip for accessibility if label is hidden
+    if (!label) inp.title = field === "voiceRate" ? "Speed" : "Pitch";
+
+    wrap.appendChild(inp);
+    return { wrap, inp };
+  };
+
+  const sliderContainer = document.createElement("div");
+  sliderContainer.style.display = "flex";
+  sliderContainer.style.gap = "1rem";
+  sliderContainer.style.marginTop = "0.5rem"; // Slightly more space
+
+  const rateUI = makeSlider(
+    "v-rate",
+    null, // Minimalist: No Label
+    "voiceRate",
+    entity.voiceRate,
+    "0.5",
+    "2.0",
+  );
+  const pitchUI = makeSlider(
+    "v-pitch",
+    null, // Minimalist: No Label
+    "voicePitch",
+    entity.voicePitch,
+    "0.1",
+    "2.0",
+  );
+
+  sliderContainer.appendChild(rateUI.wrap);
+  sliderContainer.appendChild(pitchUI.wrap);
+  voiceStack.appendChild(sliderContainer);
+
+  // Preview Logic
   previewBtn.onclick = async (e) => {
     e.preventDefault();
     const { voiceService } = await import("../../../services/voice-service.js");
-    const selectedURI = voiceSelect.value;
-    if (selectedURI) {
-      voiceService.speak(
-        "Voice systems online. Ready for interaction.",
-        selectedURI,
-      );
+    const uri = voiceSelect.value;
+    const r = parseFloat(rateUI.inp.value);
+    const p = parseFloat(pitchUI.inp.value);
+
+    // UI Feedback
+    const originalIcon = previewBtn.innerHTML;
+    previewBtn.innerHTML = "🎶";
+
+    if (uri) {
+      voiceService.preview(uri, r, p);
+    }
+
+    setTimeout(() => (previewBtn.innerHTML = originalIcon), 2000);
+  };
+
+  // 3. Dynamic UI Updates (Disable Pitch for Natural Voices)
+  const updateControlState = () => {
+    const selected = voiceSelect.options[voiceSelect.selectedIndex];
+    if (!selected) return;
+
+    const isNatural = selected.text.includes("Online (Natural)");
+
+    pitchUI.inp.disabled = isNatural;
+    pitchUI.wrap.style.opacity = isNatural ? "0.5" : "1.0";
+
+    // Tooltip on MouseOver (Wrapper)
+    if (isNatural) {
+      pitchUI.wrap.title = "Online (Natural) voices manage their own pitch.";
+    } else {
+      pitchUI.wrap.removeAttribute("title");
     }
   };
 
-  flexRow.appendChild(voiceSelect);
-  flexRow.appendChild(previewBtn);
-  voiceGroup.appendChild(flexRow);
+  voiceSelect.addEventListener("change", updateControlState);
+
+  // Poll for population (since it's async)
+  const initCheck = setInterval(() => {
+    if (voiceSelect.options.length > 0) {
+      updateControlState();
+      clearInterval(initCheck);
+    }
+  }, 100);
+
+  voiceGroup.appendChild(voiceStack);
   voiceContent.appendChild(voiceGroup);
   secWrap.appendChild(voiceRow);
 
