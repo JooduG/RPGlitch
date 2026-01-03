@@ -671,28 +671,46 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
   voiceSelect.style.flex = "1";
   voiceSelect.style.marginBottom = "0";
 
-  // Populate from VoiceService
-  import("../../../services/voice-service.js").then(({ voiceService }) => {
-    const roster = voiceService.getVoices();
-    let hasMatch = false;
+  // Populate from Native VoiceService
+  import("../../../services/voice-service.js").then(
+    async ({ voiceService }) => {
+      // Ensure voices are loaded (Native API is async)
+      await voiceService.init();
 
-    roster.forEach((v) => {
-      const opt = document.createElement("option");
-      opt.value = v.id;
-      opt.textContent = v.name;
+      const roster = voiceService.getVoices();
+      let hasMatch = false;
 
-      if (entity.voiceId === v.id) {
-        opt.selected = true;
-        hasMatch = true;
+      // Clear existing (in case of re-render)
+      voiceSelect.innerHTML = "";
+
+      // 1. Add "Default / System" option
+      // const defaultOpt = document.createElement("option");
+      // defaultOpt.value = "";
+      // defaultOpt.textContent = "System Default";
+      // voiceSelect.appendChild(defaultOpt);
+
+      roster.forEach((v) => {
+        const opt = document.createElement("option");
+        opt.value = v.uri; // Persistence Key: URI
+        opt.textContent = v.name; // Display Name
+
+        if (entity.voiceId === v.uri) {
+          opt.selected = true;
+          hasMatch = true;
+        }
+        voiceSelect.appendChild(opt);
+      });
+
+      // Fallback: If no match found (or new entity), select the first "Natural" voice if available
+      if (!hasMatch && roster.length > 0) {
+        // Auto-select the first one (Tier 1 is sorted first)
+        // BUT only if entity.voiceId is empty. If it has a value that's missing, maybe warn?
+        if (!entity.voiceId) {
+          voiceSelect.value = roster[0].uri;
+        }
       }
-      voiceSelect.appendChild(opt);
-    });
-
-    // Fallback default
-    if (!hasMatch && roster.length > 0) {
-      voiceSelect.value = "joanna"; // AWS Default
-    }
-  });
+    },
+  );
 
   const previewBtn = document.createElement("button");
   previewBtn.type = "button";
@@ -703,10 +721,12 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
   previewBtn.onclick = async (e) => {
     e.preventDefault();
     const { voiceService } = await import("../../../services/voice-service.js");
-    await voiceService.init(); // Ensure initialized
-    const selectedId = voiceSelect.value;
-    if (selectedId) {
-      voiceService.preview(selectedId);
+    const selectedURI = voiceSelect.value;
+    if (selectedURI) {
+      voiceService.speak(
+        "Voice systems online. Ready for interaction.",
+        selectedURI,
+      );
     }
   };
 

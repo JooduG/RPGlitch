@@ -1,297 +1,136 @@
+import { log, error } from "../core/utils.js";
+
+/**
+ * Native Voice Service
+ * Relies 100% on browser SpeechSynthesis.
+ * Prioritizes "Natural" voices (Edge/Azure) > Google > Microsoft.
+ */
 export class VoiceService {
   constructor() {
-    this.synth = window.speechSynthesis;
-    this.recognition = null;
-    this.isListening = false;
     this.voices = [];
-    this.enabled = true;
-    this.usePuter = false;
-    this.puterAudio = null;
-    this.currentVoiceId = "joanna"; // Default AWS Voice
-
-    // VOICE ROSTER (AWS Polly -> Native Fallback Mappings)
-    this.ROSTER = {
-      joanna: {
-        id: "Joanna",
-        name: "Joanna (Default)",
-        provider: "aws-polly",
-        nativeMatch: ["Zira", "Female", "Google US English"],
-      },
-      joey: {
-        id: "Joey",
-        name: "Joey (Deep)",
-        provider: "aws-polly",
-        nativeMatch: ["Male", "Mark", "David", "Google US English"],
-        pitch: 0.9,
-      },
-      matthew: {
-        id: "Matthew",
-        name: "Matthew (Clear)",
-        provider: "aws-polly",
-        nativeMatch: ["Male", "Mark", "David"],
-      },
-      ivy: {
-        id: "Ivy",
-        name: "Ivy (Young)",
-        provider: "aws-polly",
-        nativeMatch: ["Female", "Zira", "Google US English"],
-        pitch: 1.2,
-      },
-    };
-
-    if (this.synth) {
-      this.synth.onvoiceschanged = () => {
-        this.voices = this.synth.getVoices();
-      };
-      this.voices = this.synth.getVoices();
-    }
+    this.currentVoiceURI = null;
+    this.synth = window.speechSynthesis;
+    this.isReady = false;
   }
 
-  init() {
-    if (window.rpgLists?.settings?.voiceEnabled !== undefined) {
-      this.enabled = window.rpgLists.settings.voiceEnabled;
+  async init() {
+    if (this.isReady) return;
+
+    // Load voices
+    await this._loadVoices();
+
+    // Listener for async loading (Chrome/Edge quirks)
+    if (this.synth.onvoiceschanged !== undefined) {
+      this.synth.onvoiceschanged = () => this._loadVoices();
     }
-    if (window.puter?.auth?.isSignedIn()) {
-      this.usePuter = true;
-      console.log("[VoiceService] Puter signed in.");
-    }
+
+    this.isReady = true;
+    log("[VoiceService] Native Service Initialized.");
+  }
+
+  _loadVoices() {
+    return new Promise((resolve) => {
+      let rawVoices = this.synth.getVoices();
+
+      // Retry if empty (common browser race condition)
+      if (rawVoices.length === 0) {
+        setTimeout(() => {
+          rawVoices = this.synth.getVoices();
+          this._processVoices(rawVoices);
+          resolve();
+        }, 100);
+      } else {
+        this._processVoices(rawVoices);
+        resolve();
+      }
+    });
+  }
+
+  /**
+   * Curates and sorts voices by quality tier.
+   * Tier 1: "Natural" (Edge/Azure)
+   * Tier 2: "Google" (Chrome)
+   * Tier 3: "Microsoft" (Windows Standard)
+   */
+  _processVoices(rawList) {
+    this.voices = rawList
+      .filter((v) => v.name.match(/Natural|Google|Microsoft/i)) // Filter for known decent providers
+      .map((v) => ({
+        name: v.name,
+        uri: v.voiceURI,
+        lang: v.lang,
+        _ref: v, // Keep reference to native object
+        tier: this._getTier(v.name),
+      }))
+      .sort((a, b) => a.tier - b.tier); // Sort by quality (Lower is better)
+
+    log(`[VoiceService] Loaded ${this.voices.length} voices.`);
+  }
+
+  _getTier(name) {
+    if (name.includes("Natural")) return 1;
+    if (name.includes("Google")) return 2;
+    if (name.includes("Microsoft")) return 3;
+    return 9;
   }
 
   getVoices() {
-    return Object.keys(this.ROSTER).map((key) => ({
-      id: key, // Use Key as ID for internal tracking
-      name: this.ROSTER[key].name,
-    }));
+    return this.voices;
   }
 
-  setVoice(voiceKey) {
-    if (this.ROSTER[voiceKey]) {
-      this.currentVoiceId = voiceKey;
-      console.log(`[VoiceService] Voice set to: ${voiceKey}`);
-    }
-  }
+  /**
+   * Speaks the text using the native engine.
+   * @param {string} text - The text to speak.
+   * @param {string} [voiceURI] - Optional override. Uses currentVoiceURI if null.
+   */
+  speak(text, voiceURI = null) {
+    if (!text) return;
 
-  async preview(voiceKey) {
-    const originalId = this.currentVoiceId;
-    this.setVoice(voiceKey);
-    await this.speak("System check. Audio nominal.");
-    this.currentVoiceId = originalId; // Revert after preview if needed, or keep?
-    // User request implies "Preview" works on the selected ID.
-    // Usually previewing selects it implicitly in the UI, so setVoice is fine.
-    // But if we just want to hear it without committing, we might want to pass ID to speak.
-    // For now, let's assume UI calls setVoice then speak, or we just rely on speak using current.
-    // Actually, I'll allow speak to take an optional override.
-  }
-
-  async connectPuter() {
-    if (!window.puter) return false;
-    try {
-      await window.puter.auth.signIn();
-      this.usePuter = true;
-      return true;
-    } catch (err) {
-      console.error(err);
-      return false;
-    }
-  }
-
-  toggleListen(onPartial, onFinal) {
-    if (this.isListening || this.callMode) {
-      this.stop();
-    } else {
-      this.callMode = true;
-      this.listen(onPartial, onFinal);
-    }
-    this._emitStateChange();
-  }
-
-  listen(onPartial, onFinal) {
-    if (!("webkitSpeechRecognition" in window)) return;
-
-    this._savedPartial = onPartial;
-    this._savedFinal = onFinal;
-
-    if (this.recognition)
-      try {
-        this.recognition.abort();
-      } catch (e) {}
-
-    this.recognition = new window.webkitSpeechRecognition();
-    this.recognition.continuous = false;
-    this.recognition.interimResults = true;
-    this.recognition.lang = "en-US";
-
-    this.recognition.onstart = () => {
-      this.isListening = true;
-      this._emitStateChange();
-    };
-
-    this.recognition.onend = () => {
-      this.isListening = false;
-      this._emitStateChange();
-    };
-
-    this.recognition.onresult = (event) => {
-      let interim = "";
-      let final = "";
-
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) final += event.results[i][0].transcript;
-        else interim += event.results[i][0].transcript;
-      }
-
-      if (onPartial && interim) onPartial(interim);
-      if (onFinal && final) {
-        if (this.recognition)
-          try {
-            this.recognition.stop();
-          } catch (e) {}
-        onFinal(final);
-      }
-    };
-
-    try {
-      this.recognition.start();
-    } catch (err) {}
-  }
-
-  async speak(text, voiceIdOverride = null) {
-    this._emitStateChange();
-    if (!this.enabled) {
-      if (this.callMode) this._restartLoop("Disabled");
-      return;
-    }
-
-    // Reset Audio
-    if (this.synth) this.synth.cancel();
-    if (this.puterAudio) {
-      this.puterAudio.pause();
-      this.puterAudio = null;
-    }
-    if (this._watchdogTimer) clearTimeout(this._watchdogTimer);
-
-    // Clean Text
-    let cleanText = (text || "")
-      .replace(/<think>[\s\S]*?<\/think>/gi, "")
-      .replace(/<[^>]*>?/gm, "")
-      .replace(/[\*_]{1,3}/g, "")
-      .replace(/\(.*?\)/g, "")
+    // 1. The Lobotomy (Clean internal monologues)
+    const cleanText = text
+      .replace(/<think>[\s\S]*?<\/think>/gi, "") // Remove thought blocks
+      .replace(/\*/g, "") // Remove asterisks
       .trim();
 
-    if (!cleanText) {
-      if (this.callMode) this._restartLoop("Empty");
-      return;
-    }
+    if (!cleanText) return;
 
-    const targetId = voiceIdOverride || this.currentVoiceId;
-    const voiceConfig = this.ROSTER[targetId] || this.ROSTER["joanna"];
+    // 2. Cancel current speech
+    this.stop();
 
-    // --- AWS POLLY (via Puter) ---
-    if (this.usePuter && window.puter) {
-      try {
-        console.log(`[VOICE] AWS: ${voiceConfig.name}`);
-        const audio = await window.puter.ai.txt2speech(cleanText, {
-          provider: "aws-polly",
-          voice: voiceConfig.id,
-          model: "standard", // standard or neural, defaulting standard for strict mapping
-        });
+    // 3. Select Voice
+    const targetURI = voiceURI || this.currentVoiceURI;
+    const voiceObj = this._findVoice(targetURI);
 
-        this.puterAudio = audio;
-        audio.onended = () => {
-          if (this._watchdogTimer) clearTimeout(this._watchdogTimer);
-          if (this.callMode) this._restartLoop("Done");
-          this.puterAudio = null;
-        };
-
-        // Watchdog
-        this._watchdogTimer = setTimeout(
-          () => {
-            if (this.puterAudio) this.puterAudio.pause();
-            if (this.callMode) this._restartLoop("Watchdog");
-          },
-          cleanText.length * 100 + 5000,
-        );
-
-        audio.play();
-        return;
-      } catch (err) {
-        console.error("AWS failed, falling back.", err);
-      }
-    }
-
-    // --- NATIVE FALLBACK ---
-    if (!this.synth) return;
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-
-    // Smart Fallback Selection
-    if (this.voices.length === 0) this.voices = this.synth.getVoices();
-
-    let chosenVoice = null;
-    const keywords = voiceConfig.nativeMatch || [];
-
-    // 1. Try exact keyword match
-    for (const word of keywords) {
-      chosenVoice = this.voices.find((v) =>
-        v.name.toLowerCase().includes(word.toLowerCase()),
+    if (!voiceObj) {
+      console.warn(
+        `[VoiceService] Voice not found: ${targetURI}. Using default.`,
       );
-      if (chosenVoice) break;
     }
 
-    // 2. Default to any English
-    if (!chosenVoice)
-      chosenVoice = this.voices.find((v) => v.lang.startsWith("en"));
+    // 4. Create Utterance
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.voice = voiceObj ? voiceObj._ref : null; // Native object
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
 
-    if (chosenVoice) utterance.voice = chosenVoice;
-    if (voiceConfig.pitch) utterance.pitch = voiceConfig.pitch;
-
-    utterance.onend = () => {
-      if (this._watchdogTimer) clearTimeout(this._watchdogTimer);
-      if (this.callMode) this._restartLoop("Done");
-    };
-
-    this._watchdogTimer = setTimeout(
-      () => {
-        this.synth.cancel();
-        if (this.callMode) this._restartLoop("Watchdog");
-      },
-      cleanText.length * 100 + 2000,
-    );
-
+    // 5. Speak
     this.synth.speak(utterance);
   }
 
-  _restartLoop(reason) {
-    if (!this.callMode || !this._savedFinal) return;
-    setTimeout(() => this.listen(this._savedPartial, this._savedFinal), 200);
-  }
-
   stop() {
-    this.callMode = false;
-    if (this._watchdogTimer) clearTimeout(this._watchdogTimer);
-    if (this.synth) this.synth.cancel();
-    if (this.puterAudio) {
-      this.puterAudio.pause();
-      this.puterAudio = null;
+    if (this.synth.speaking) {
+      this.synth.cancel();
     }
-    if (this.recognition)
-      try {
-        this.recognition.stop();
-      } catch (e) {}
-    this.isListening = false;
-    this._emitStateChange();
   }
 
-  _emitStateChange() {
-    const btn = document.querySelector("#btn-mic");
-    if (!btn) return;
-    btn.style = ""; // Reset inline
-    btn.classList.remove("listening", "call-active");
+  _findVoice(uri) {
+    if (!uri) return this.voices[0]; // Default to best available
+    return this.voices.find((v) => v.uri === uri) || this.voices[0];
+  }
 
-    if (this.isListening) {
-      btn.classList.add("listening", "call-active");
-    } else if (this.callMode) {
-      btn.classList.add("call-active");
-    }
+  preview(uri) {
+    this.speak("Systems nominal. Voice synthesis operational.", uri);
   }
 }
 
