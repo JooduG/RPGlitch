@@ -107,6 +107,10 @@ export class VoiceService {
   setCallMode(enabled) {
     this.callMode = !!enabled;
     log(`[VoiceService] Call Mode: ${this.callMode ? "ON" : "OFF"}`);
+    // DISPATCH EVENT for UI Sync (Strict Mode)
+    document.dispatchEvent(
+      new CustomEvent("call_mode_changed", { detail: { mode: this.callMode } }),
+    );
   }
 
   /**

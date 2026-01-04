@@ -151,6 +151,10 @@ const initEventBinds = () => {
       await import("./components/chat/feed.js");
     setSendLock(true);
     setChatGeneratingState(true);
+    // [STRICT SYNC] Force Input UI Update
+    if (window._chatInput && window._chatInput.updateUIState) {
+      window._chatInput.updateUIState();
+    }
   });
 
   events.addEventListener(EVENTS.GENERATION_COMPLETED, async (e) => {
@@ -166,6 +170,11 @@ const initEventBinds = () => {
 
     // 3. Update States
     setChatGeneratingState(false);
+
+    // [STRICT SYNC] Force Input UI Update
+    if (window._chatInput && window._chatInput.updateUIState) {
+      window._chatInput.updateUIState();
+    }
 
     audioService.play("notification");
 

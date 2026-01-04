@@ -222,6 +222,31 @@
       background: transparent !important;
     }
   }
+
+  // Status Light: Recording (User Speaking) - RED PULSE
+  &.status-recording {
+    color: var(--pico-del-color) !important;
+    animation: pulse-red 1.5s infinite;
+    opacity: 1 !important; // Override disabled state
+    filter: none !important;
+
+    &:disabled {
+      opacity: 1 !important;
+      cursor: default !important;
+    }
+  }
+
+  // Status Light: AI Active (Thinking/Speaking) - BLUE GLOW
+  &.status-ai-active {
+    color: var(--pico-primary) !important;
+    filter: drop-shadow(0 0 5px var(--pico-primary));
+    opacity: 1 !important; // Override disabled state
+
+    &:disabled {
+      opacity: 1 !important;
+      cursor: default !important;
+    }
+  }
 }
 
 @keyframes mic-pulse {

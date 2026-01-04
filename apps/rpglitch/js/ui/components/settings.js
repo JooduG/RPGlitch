@@ -53,41 +53,23 @@ export const StoryOptionsController = {
         callModeToggle.addEventListener("change", async (e) => {
           try {
             const isEnabled = e.target.checked;
-            // 1. Update Service State
+            // 1. Update Service State (Triggers "call_mode_changed" -> updates input.js UI)
             voiceService.setCallMode(isEnabled);
 
-            // 2. Manage Mic Button Interface
-            const micBtn = document.querySelector("#btn-mic");
-            if (micBtn) {
-              if (isEnabled) {
-                // Turn ON Call Mode
-                micBtn.classList.add("is-call-mode");
-                micBtn.classList.add("call-mode-active");
-                // Auto-start listening logic (via Service or click simulation)
-                // Safe approach: trigger click if not active
-                if (!voiceService.isListening) {
-                  // Simulate interaction to unlock audio context if needed
-                  micBtn.click();
-                }
-              } else {
-                // Turn OFF Call Mode - FULL RESET
-                voiceService.stopListening();
-
-                micBtn.classList.remove("is-call-mode");
-                micBtn.classList.remove("call-mode-active");
-                micBtn.classList.remove("active");
-
-                // CRITICAL: Restore Interaction
-                micBtn.disabled = false;
-
-                // Restore Input Field Logic too
-                document.dispatchEvent(new Event("call_mode_changed"));
-
-                const input = document.querySelector(
-                  'textarea[name="message"]',
-                );
-                if (input) input.disabled = false;
+            // 2. Manage Actual Audio Process
+            if (isEnabled) {
+              // Auto-start listening logic
+              if (!voiceService.isListening) {
+                // Simulate interaction to unlock audio context if needed
+                // const micBtn = document.querySelector("#btn-mic");
+                // if (micBtn) micBtn.click(); // [REMOVED] Don't simulate click, just start listening if we want auto-start.
+                // Actually, for "Strict Mode", we might want to wait for the user to initiate or auto-start via service.
+                // Let's stick to the directive: "Action: Call voiceService.setCallMode(checked)."
+                // "Immediate Update: Ensure this action triggers a UI state update in input.js" - handled by event.
               }
+            } else {
+              // Turn OFF Call Mode - Stop Listening
+              voiceService.stopListening();
             }
           } catch (err) {
             console.error("Call Mode Toggle Error:", err);
