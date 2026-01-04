@@ -4,7 +4,7 @@ const STORAGE_KEY = "rpglitch_audio_settings";
 
 class AudioService {
   constructor() {
-    console.log("[AudioService] Service instantiated.");
+    log("[AudioService] Service instantiated.");
     this.audioContext = null;
     this.buffers = new Map();
     this.unlocked = false;
@@ -34,14 +34,11 @@ class AudioService {
       STORAGE_KEY,
       JSON.stringify({ notificationsEnabled: this.notificationsEnabled }),
     );
-    console.log(
-      "[AudioService] Notifications set to:",
-      this.notificationsEnabled,
-    );
+    log("[AudioService] Notifications set to:", this.notificationsEnabled);
   }
 
   init() {
-    console.log("[AudioService] Initializing event listeners...");
+    log("[AudioService] Initializing event listeners...");
     const unlockHandler = () => {
       this.unlock();
       document.body.removeEventListener("click", unlockHandler);

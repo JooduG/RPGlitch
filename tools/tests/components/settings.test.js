@@ -86,7 +86,6 @@ describe("StoryOptionsController", () => {
     document.body.innerHTML = `
         <template id="tpl-settings-modal">
           <div class="settings-body">
-            <input id="setting-custom-js" type="text" />
             <textarea id="setting-story-instructions"></textarea>
           </div>
         </template>
@@ -94,7 +93,6 @@ describe("StoryOptionsController", () => {
         <div id="settings" hidden>
           <div class="modal-content">
             <div class="settings-body">
-              <input id="setting-custom-js" type="text" />
               <textarea id="setting-story-instructions"></textarea>
             </div>
           </div>
@@ -118,50 +116,6 @@ describe("StoryOptionsController", () => {
     db.settings.get.mockResolvedValue({});
   });
 
-  test("init() populates customJs from db", async () => {
-    db.settings.get.mockResolvedValue({ customJs: "console.log('hi')" });
-
-    // Initialize
-    await StoryOptionsController.init();
-
-    // wait for promises to settle
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    // Check input value
-    const input = document.querySelector("#setting-custom-js");
-    expect(input.value).toBe("console.log('hi')");
-  });
-
-  test("init() saves customJs on input", async () => {
-    db.settings.get.mockResolvedValue({ customJs: "old" });
-
-    StoryOptionsController.init();
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    const input = document.querySelector("#setting-custom-js");
-    input.value = "new val";
-
-    // Trigger input event
-    const event = new Event("input", { bubbles: true });
-    input.dispatchEvent(event);
-
-    // Expect applyPatch
-    expect(applyPatch).toHaveBeenCalledWith({
-      settings: { customJs: "new val" },
-    });
-
-    // Expect db.put
-    // Wait for the async callback
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    expect(db.settings.get).toHaveBeenCalled(); // It gets called again inside the listener
-    expect(db.settings.put).toHaveBeenCalledWith(
-      expect.objectContaining({
-        customJs: "new val",
-      }),
-    );
-  });
-
   test("init() populates story instructions from db", async () => {
     db.settings.get.mockResolvedValue({
       storyOpeningInstructions: "Be nice",
@@ -175,17 +129,17 @@ describe("StoryOptionsController", () => {
   });
 
   test("chat settings button opens modal", async () => {
-      await StoryOptionsController.init();
+    await StoryOptionsController.init();
 
-      const btn = document.querySelector("#btn-settings-placeholder");
+    const btn = document.querySelector("#btn-settings-placeholder");
 
-      // Spy on StoryOptionsController.open
-      const openSpy = jest.spyOn(StoryOptionsController, 'open');
+    // Spy on StoryOptionsController.open
+    const openSpy = jest.spyOn(StoryOptionsController, "open");
 
-      btn.click();
+    btn.click();
 
-      expect(openSpy).toHaveBeenCalled();
+    expect(openSpy).toHaveBeenCalled();
 
-      openSpy.mockRestore();
+    openSpy.mockRestore();
   });
 });

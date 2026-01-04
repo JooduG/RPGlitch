@@ -15,6 +15,7 @@ jest.mock("../../../apps/rpglitch/js/ui/image-gen-ui.js", () => ({
 }));
 jest.mock("../../../apps/rpglitch/js/core/utils.js", () => ({
   error: jest.fn(),
+  log: jest.fn(),
 }));
 
 import { generateDynamicTitle } from "../../../apps/rpglitch/js/ui/setup.js";

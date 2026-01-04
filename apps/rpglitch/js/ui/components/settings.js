@@ -5,6 +5,9 @@ import { entities } from "../../data/repo.js";
 import { showAlert, handleConcludeStory } from "../orchestrator.js";
 import { log, error, sanitizeHtml } from "../../core/utils.js";
 
+import { voiceService } from "../../services/voice-service.js";
+import { audioService } from "../../services/audio-service.js";
+
 export const StoryOptionsController = {
   async init() {
     const modal = document.querySelector("#settings");
@@ -35,15 +38,15 @@ export const StoryOptionsController = {
       // but strictly 'settings-section-audio' for identification
       audioSection.className = "settings-section settings-section-audio";
       audioSection.innerHTML = `
-        <h3>Audio & Accessibility</h3>
-        <div class="settings-panel">
+        <h3>Audio</h3>
+        <div class="settings-panel settings-panel-grid">
             <label class="settings-label" for="setting-call-mode">
                 <input type="checkbox" id="setting-call-mode" role="switch">
-                Hands-Free Call Mode
+                Call Mode
             </label>
             <label class="settings-label" for="setting-notifications">
                 <input type="checkbox" id="setting-notifications" role="switch">
-                Notification Sounds
+                Notifications
             </label>
         </div>
         <hr>
@@ -51,38 +54,30 @@ export const StoryOptionsController = {
       // Inject at the very top (prepend)
       settingsBody.prepend(audioSection);
 
-      // Bind Listeners (Dynamic Imports to avoid circular deps)
-      Promise.all([
-        import("../../services/voice-service.js"),
-        import("../../services/audio-service.js"),
-      ]).then(([{ voiceService }, { audioService }]) => {
-        // 1. Call Mode Wiring
-        const callToggle = audioSection.querySelector("#setting-call-mode");
-        if (callToggle) {
-          callToggle.checked = voiceService.callMode;
-          callToggle.addEventListener("change", async (e) => {
-            try {
-              const isEnabled = e.target.checked;
-              if (isEnabled) await voiceService.init();
-              voiceService.setCallMode(isEnabled);
-            } catch (err) {
-              console.error("Call Mode Toggle Error:", err);
-              e.target.checked = !e.target.checked; // Revert
-            }
-          });
-        }
+      // 1. Call Mode Wiring
+      const callToggle = audioSection.querySelector("#setting-call-mode");
+      if (callToggle) {
+        callToggle.checked = voiceService.callMode;
+        callToggle.addEventListener("change", async (e) => {
+          try {
+            const isEnabled = e.target.checked;
+            if (isEnabled) await voiceService.init();
+            voiceService.setCallMode(isEnabled);
+          } catch (err) {
+            console.error("Call Mode Toggle Error:", err);
+            e.target.checked = !e.target.checked; // Revert
+          }
+        });
+      }
 
-        // 2. Notifications Wiring
-        const notifToggle = audioSection.querySelector(
-          "#setting-notifications",
-        );
-        if (notifToggle) {
-          notifToggle.checked = audioService.notificationsEnabled;
-          notifToggle.addEventListener("change", (e) => {
-            audioService.setNotifications(e.target.checked);
-          });
-        }
-      });
+      // 2. Notifications Wiring
+      const notifToggle = audioSection.querySelector("#setting-notifications");
+      if (notifToggle) {
+        notifToggle.checked = audioService.notificationsEnabled;
+        notifToggle.addEventListener("change", (e) => {
+          audioService.setNotifications(e.target.checked);
+        });
+      }
     }
 
     // ⚡ BOLT OPTIMIZATION: Event Delegation
@@ -118,7 +113,6 @@ export const StoryOptionsController = {
     const btn = document.querySelector("#btn-options");
     const closeBtn = modal.querySelector(".close");
     const resetBtn = modal.querySelector("#btn-reset-story");
-    const customJsInput = modal.querySelector("#setting-custom-js");
     const storyInstructionsInput = modal.querySelector(
       "#setting-story-instructions",
     );
@@ -278,22 +272,6 @@ export const StoryOptionsController = {
       });
     }
 
-    // Custom JS Wiring
-    if (customJsInput) {
-      const s = await db.settings.get("app-settings");
-      if (s && s.customJs) customJsInput.value = s.customJs;
-
-      customJsInput.addEventListener("input", (e) => {
-        const val = e.target.value;
-        applyPatch({ settings: { customJs: val } });
-        (async () => {
-          const s = await db.settings.get("app-settings");
-          const newSettings = s || { id: "app-settings" };
-          newSettings.customJs = val;
-          await db.settings.put(newSettings);
-        })();
-      });
-    }
     // Story Instructions
     if (storyInstructionsInput) {
       const s = await db.settings.get("app-settings");
@@ -336,12 +314,41 @@ export const StoryOptionsController = {
       isConcluded = true;
     }
 
-    const lobbySection = modal.querySelector(".settings-section-lobby");
-    const gameSection = modal.querySelector(".settings-section-storymode");
+    const lobbySection = modal.querySelector(".settings-section-lobby"); // Story Setup
+
+    // Split sections for Story Mode
+    const visualsSection = modal.querySelector(".settings-section-visuals");
+    const sessionSection = modal.querySelector(".settings-section-session");
+
     const librarySection = modal.querySelector(".settings-section-library");
+    const advancedSection = modal.querySelector(".settings-section-advanced");
+
+    // VISIBILITY STATE MACHINE
+    // ----------------------------------------------------------------
+    // STATE A: LOBBY (!hasActiveStory)
+    // - Audio
+    // - Lobby Setup (Visible)
+    // - Library (Visible)
+    // - Advanced (Visible)
+    // - Visuals (Hidden)
+    // - Session (Hidden)
+
+    // STATE B: STORY (hasActiveStory)
+    // - Audio
+    // - Visuals (Visible)
+    // - Library (Visible - placed between)
+    // - Session (Visible)
+    // - Advanced (Visible)
+    // - Lobby Setup (Hidden)
 
     if (lobbySection) lobbySection.hidden = hasActiveStory;
-    if (gameSection) gameSection.hidden = !hasActiveStory || isConcluded;
+
+    // Game Controls
+    if (visualsSection) visualsSection.hidden = !hasActiveStory || isConcluded;
+    if (sessionSection) sessionSection.hidden = !hasActiveStory || isConcluded;
+
+    if (librarySection) librarySection.hidden = false;
+    if (advancedSection) advancedSection.hidden = false;
     if (librarySection) librarySection.hidden = false;
 
     const concludeBtn = modal.querySelector("#btn-conclude-story");
@@ -391,16 +398,22 @@ export const StoryOptionsController = {
       );
 
       if (stories.length === 0) {
-        const tpl = document.getElementById("tpl-empty-library");
-        if (tpl) {
-          grid.innerHTML = "";
-          grid.appendChild(tpl.content.cloneNode(true));
-        } else {
-          grid.innerHTML =
-            "<p style='grid-column: 1 / -1; text-align: center;'><small>Your library is empty.</small></p>";
-        }
+        // [FIX] Hide library section if empty
+        const librarySection = document.querySelector(
+          ".settings-section-library",
+        );
+        if (librarySection) librarySection.hidden = true;
+
+        // Clear grid
+        grid.innerHTML = "";
         return;
       }
+
+      // Ensure visible if stories exist
+      const librarySection = document.querySelector(
+        ".settings-section-library",
+      );
+      if (librarySection) librarySection.hidden = false;
 
       grid.innerHTML = "";
 
