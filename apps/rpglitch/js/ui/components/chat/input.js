@@ -2,7 +2,7 @@ import { TurnManager } from "../../../engine/director.js";
 import { voiceService } from "../../../services/voice-service.js";
 
 export const ChatInputController = {
-  updateUIState: null, // Will be assigned during init
+  updateUIState: null,
 };
 
 export function initChatInput() {
@@ -12,7 +12,7 @@ export function initChatInput() {
   const input = form.querySelector("textarea[name='message']");
   const btn = form.querySelector('button[type="submit"]');
 
-  // Inject mic button if missing
+  // Inject mic button if missing (Fixed SVG)
   let micBtn = form.querySelector("#btn-mic");
   if (!micBtn) {
     const settingsBtn = form.querySelector("#btn-settings-placeholder");
@@ -22,6 +22,7 @@ export function initChatInput() {
       micBtn.id = "btn-mic";
       micBtn.className = "btn-ghost btn-icon-raise";
       micBtn.style.cssText = "padding: 0 var(--space-sm-md);";
+      // Clean, standard Material Mic Icon
       micBtn.innerHTML = `
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon" style="width: 1.25em; height: 1.25em;">
           <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
@@ -37,12 +38,12 @@ export function initChatInput() {
 
   // --- STRICT STATE MANAGEMENT ---
   const state = {
-    isThinking: false, // Orchestrator isGenerating
-    isCallMode: false, // VoiceService.callMode
-    isListening: false, // VoiceService.isListening
-    isSpeaking: false, // VoiceService.isSpeaking
+    isThinking: false,
+    isCallMode: false,
+    isListening: false,
+    isSpeaking: false,
     hasText: false,
-    baseText: "", // [FIX] Track text before speech for appending
+    baseText: "",
   };
 
   const updateUIState = () => {
@@ -54,75 +55,61 @@ export function initChatInput() {
 
     if (!_btn || !_input) return;
 
-    // [FIX] Capture base text when starting to listen
-    if (voiceService.isListening && !state.isListening) {
-      state.baseText = _input.value;
-    }
-
+    // Sync State
     state.hasText = _input.value.trim().length > 0;
     state.isCallMode = voiceService.callMode;
     state.isListening = voiceService.isListening;
     state.isSpeaking = voiceService.isSpeaking;
 
+    // Capture base text when listening starts
+    if (voiceService.isListening && !state.isListening) {
+      state.baseText = _input.value;
+    }
+
     let sendDisabled = false;
     let micDisabled = false;
     let inputDisabled = false;
 
-    // RULE SET
+    // --- LOGIC MATRIX ---
     if (state.isCallMode) {
-      // [CALL MODE]
-      // ABSOLUTE LOCK: Input is ALWAYS disabled. User speaks, AI speaks. No typing.
+      // CALL MODE: Hands-free lock
       inputDisabled = true;
-      // Send button is technically "disabled" for clicking, but we might want to hide it or keep it disabled.
-      sendDisabled = true;
-
-      // Mic Button is a STATUS LIGHT only. Locked to prevent manual interference during Call Mode loop.
-      // But we might want it clickable to STOP the loop/call mode?
-      // For now, per spec: "Mic button becomes a status light" -> disabled but visible.
-      micDisabled = true;
+      sendDisabled = true; // Auto-sends
+      micDisabled = true; // Status light only
+    } else if (state.isThinking || state.isSpeaking) {
+      // AI BUSY: Queueing allowed, Action blocked
+      inputDisabled = false; // ALLOWED: User can type "next" thought
+      sendDisabled = true; // BLOCKED: Wait for turn
+      micDisabled = true; // BLOCKED: Wait for turn
+    } else if (state.isListening) {
+      // USER SPEAKING: Live Transcript
+      inputDisabled = false; // ALLOWED: See transcript update
+      sendDisabled = true; // BLOCKED: Wait for finish
+      micDisabled = false; // ALLOWED: Click to Stop
     } else {
-      // [STANDARD MODE]
-      if (state.isThinking || state.isSpeaking) {
-        // AI BUSY -> LOCK ALL
-        inputDisabled = true;
-        sendDisabled = true;
-        micDisabled = true; // Wait your turn
-      } else if (state.isListening) {
-        // USER SPEAKING -> LOCK SEND, INPUT (Focus on voice)
-        inputDisabled = true;
-        sendDisabled = true;
-        micDisabled = false; // Enable to allow toggle OFF
-      } else {
-        // IDLE -> OPEN
-        inputDisabled = false;
-        sendDisabled = !state.hasText;
-        micDisabled = false;
-      }
+      // IDLE
+      inputDisabled = false;
+      sendDisabled = !state.hasText;
+      micDisabled = false;
     }
 
-    // APPLY
+    // Apply
     _btn.disabled = sendDisabled;
-    if (sendDisabled) _btn.classList.add("disabled");
-    else _btn.classList.remove("disabled");
-
+    _btn.classList.toggle("disabled", sendDisabled);
     _input.disabled = inputDisabled;
     _form.dataset.busy = (state.isThinking || state.isCallMode).toString();
 
     if (_mic) {
       _mic.disabled = micDisabled;
-
-      // Cleanup Classes
       _mic.classList.remove(
-        "disabled",
         "status-recording",
         "status-ai-active",
         "is-call-mode",
       );
 
-      if (micDisabled) _mic.classList.add("disabled");
       if (state.isCallMode) _mic.classList.add("is-call-mode");
 
-      // STATUS LIGHTS (Override disabled opacity)
+      // Status Visuals
       if (state.isListening) {
         _mic.classList.add("status-recording");
       } else if (state.isThinking || state.isSpeaking) {
@@ -136,16 +123,17 @@ export function initChatInput() {
   // --- LISTENERS ---
 
   if (micBtn) {
-    micBtn.addEventListener("click", async () => {
-      // Manual Toggle (Standard Mode Only, since Call Mode disables click)
-      if (micBtn.disabled) return;
+    micBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      // Manual Toggle (Standard Mode Only)
+      if (state.isCallMode) return;
 
       await voiceService.init();
 
       if (state.isListening) {
         voiceService.stopListening();
       } else {
-        voiceService.toggleListen(); // Events handle the rest
+        voiceService.toggleListen();
       }
     });
   }
@@ -175,9 +163,10 @@ export function initChatInput() {
     const val = input.value.trim();
     if (val) {
       input.value = "";
+      state.baseText = ""; // Reset voice buffer
       if (input.tagName === "TEXTAREA") adjustHeight();
 
-      state.isThinking = true; // Optimistic update
+      state.isThinking = true;
       updateUIState();
 
       await TurnManager.send(val);
@@ -199,26 +188,22 @@ export function initChatInput() {
     updateUIState();
   });
 
-  // Handle Transcript Updates
   document.addEventListener("voice:input", (e) => {
     const { transcript, isFinal } = e.detail;
 
-    // [FIX] Update Input with Append Logic
-    // Uses baseText captured at start of listen session + current transcript
+    // Append Logic
     const separator = state.baseText && state.baseText.length > 0 ? " " : "";
     const newText = state.baseText + separator + transcript;
 
     input.value = newText;
     if (input.tagName === "TEXTAREA") adjustHeight();
-    input.dispatchEvent(new Event("input"));
 
-    // AUTO-SEND (Call Mode Only) on Final
+    // CALL MODE AUTO-SEND
     if (state.isCallMode && isFinal && transcript.trim().length > 0) {
-      form.requestSubmit();
-    }
-
-    // Update baseText if final (so next utterance appends to this one)
-    if (isFinal) {
+      // Tiny delay to ensure UI updates before send
+      setTimeout(() => form.requestSubmit(), 50);
+      state.baseText = newText; // Sync for safety
+    } else if (isFinal) {
       state.baseText = newText;
     }
   });

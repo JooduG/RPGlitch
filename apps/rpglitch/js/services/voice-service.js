@@ -1,9 +1,9 @@
-import { log, error } from "../core/utils.js";
+// import { log, error } from "../core/utils.js"; // Unused
 
 /**
  * Native Voice Service (Biometric Edition)
- * Pure native SpeechSynthesis with dynamic Rate/Pitch modulation.
- * Supports "Call Mode" loop via SpeechRecognition.
+ * Pure native SpeechSynthesis with dynamic Rate.
+ * Pitch Modulation DISABLED for stability.
  */
 export class VoiceService {
   constructor() {
@@ -16,23 +16,20 @@ export class VoiceService {
     this.synth = window.speechSynthesis;
     this.recognition = null;
     this.isReady = false;
-
-    // Mic State
     this.isListening = false;
+    this.STORAGE_KEY = "rpglitch_voice_settings";
   }
 
   async init() {
     if (this.isReady) return;
 
-    // Load voices
+    this._loadSettings(); // Restore user prefs
     await this._loadVoices();
 
-    // Listener for async loading
     if (this.synth.onvoiceschanged !== undefined) {
       this.synth.onvoiceschanged = () => this._loadVoices();
     }
 
-    // Init Recognition if supported
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
@@ -42,22 +39,44 @@ export class VoiceService {
       this.recognition.interimResults = true;
       this.recognition.maxAlternatives = 1;
 
-      this.recognition.onresult = (event) =>
-        this._handleRecognitionResult(event);
-      this.recognition.onerror = (event) => this._handleRecognitionError(event);
+      this.recognition.onresult = (e) => this._handleRecognitionResult(e);
+      this.recognition.onerror = (e) => this._handleRecognitionError(e);
       this.recognition.onend = () => this._handleRecognitionEnd();
-    } else {
-      log("[VoiceService] SpeechRecognition not supported in this browser.");
     }
 
     this.isReady = true;
-    log("[VoiceService] Native Biometric Service Initialized.");
+  }
+
+  _loadSettings() {
+    try {
+      const saved = localStorage.getItem(this.STORAGE_KEY);
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data.uri) this.currentVoiceURI = data.uri;
+        if (data.rate) this.baseRate = data.rate;
+        if (data.pitch) this.basePitch = data.pitch;
+      }
+    } catch (e) {
+      console.warn("Failed to load voice settings", e);
+    }
+  }
+
+  _saveSettings() {
+    try {
+      const data = {
+        uri: this.currentVoiceURI,
+        rate: this.baseRate,
+        pitch: this.basePitch,
+      };
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+    } catch (e) {
+      console.warn("Failed to save voice settings", e);
+    }
   }
 
   _loadVoices() {
     return new Promise((resolve) => {
       let rawVoices = this.synth.getVoices();
-
       if (rawVoices.length === 0) {
         setTimeout(() => {
           rawVoices = this.synth.getVoices();
@@ -81,15 +100,13 @@ export class VoiceService {
         tier: this._getScore(v.name),
       }))
       .sort((a, b) => a.tier - b.tier);
-
-    log(`[VoiceService] Loaded ${this.voices.length} voices.`);
   }
 
   _getScore(name) {
-    if (name.includes("Online (Natural)")) return 1; // Edge Top Tier
-    if (name.includes("Natural")) return 2; // Generic Natural
-    if (name.includes("Google")) return 3; // Chrome
-    if (name.includes("Microsoft")) return 4; // Windows Standard
+    if (name.includes("Online (Natural)")) return 1;
+    if (name.includes("Natural")) return 2;
+    if (name.includes("Google")) return 3;
+    if (name.includes("Microsoft")) return 4;
     return 9;
   }
 
@@ -99,29 +116,22 @@ export class VoiceService {
 
   setVoice(uri) {
     this.currentVoiceURI = uri;
+    this._saveSettings();
   }
 
   setRate(val) {
     this.baseRate = Math.max(0.5, Math.min(2.0, parseFloat(val) || 1.0));
+    this._saveSettings();
   }
 
   setPitch(val) {
     this.basePitch = Math.max(0.1, Math.min(2.0, parseFloat(val) || 1.0));
+    this._saveSettings();
   }
 
   setCallMode(enabled) {
     this.callMode = !!enabled;
-    log(`[VoiceService] Call Mode: ${this.callMode ? "ON" : "OFF"}`);
-
-    // Dispatch Generic State Change for UI
     this._dispatchStateChange();
-
-    // Dispatch Specific Event for direct listeners
-    document.dispatchEvent(
-      new CustomEvent("call_mode_changed", { detail: { mode: this.callMode } }),
-    );
-
-    // [FIX] Kickstart Loop if Idle
     if (this.callMode && !this.isSpeaking && !this.isListening) {
       this.listen();
     }
@@ -139,57 +149,33 @@ export class VoiceService {
     );
   }
 
-  /**
-   * Speaks text with optional biometric modifiers.
-   * @param {string} text
-   * @param {string|null} voiceURI - Override voice
-   * @param {object} modifiers - { rate: 1.0, pitch: 1.0 } (Multipliers)
-   * @param {function} onEndCallback - Called when speech finishes
-   */
   speak(text, voiceURI = null, modifiers = {}, onEndCallback = null) {
     if (!text) return;
-
-    // 1. The Lobotomy (Clean tags)
     const cleanText = text
-      .replace(/<think>[\s\S]*?<\/think>/gi, "")
-      .replace(/<[^>]*>/g, "") // Remove all HTML tags
+      .replace(/<[^>]*>/g, "")
       .replace(/\*/g, "")
       .trim();
-
     if (!cleanText) {
       if (onEndCallback) onEndCallback();
       return;
     }
 
-    // Cancel current
     this.synth.cancel();
-
-    // 2. Utterance
     const utterance = new SpeechSynthesisUtterance(cleanText);
 
-    // 3. Select Voice
     const targetURI = voiceURI || this.currentVoiceURI;
     const voiceObj =
       this.voices.find((v) => v.uri === targetURI) || this.voices[0];
-    if (voiceObj) {
-      utterance.voice = voiceObj._ref;
-    }
+    if (voiceObj) utterance.voice = voiceObj._ref;
 
-    // 4. Biometrics (Modifiers * Base)
-    // Rate: Base * Mod. Clamped 0.1 - 10.0
+    // RATE: Dynamic
     const modRate = modifiers.rate || 1.0;
-    let finalRate = this.baseRate * modRate;
-    finalRate = Math.max(0.1, Math.min(10.0, finalRate));
+    utterance.rate = Math.max(0.1, Math.min(10.0, this.baseRate * modRate));
 
-    // Pitch: Base * Mod. Clamped 0.1 - 2.0
-    const modPitch = modifiers.pitch || 1.0;
-    let finalPitch = this.basePitch * modPitch;
-    finalPitch = Math.max(0.1, Math.min(2.0, finalPitch));
+    // PITCH: LOCKED (Stability Fix)
+    // We ignore modifiers.pitch to prevent browser crashes
+    utterance.pitch = this.basePitch;
 
-    utterance.rate = finalRate;
-    utterance.pitch = finalPitch;
-
-    // 5. Events
     utterance.onstart = () => {
       this.isSpeaking = true;
       this._dispatchStateChange();
@@ -199,16 +185,16 @@ export class VoiceService {
       this.isSpeaking = false;
       this._dispatchStateChange();
 
-      // TRIGGER LISTEN (If Call Mode is Active)
+      // LOOP LOGIC
       if (this.callMode) {
-        this.listen();
+        setTimeout(() => this.listen(), 200); // Brief pause before listening
       }
 
       if (onEndCallback) onEndCallback();
     };
 
     utterance.onerror = (e) => {
-      error("[VoiceService] Speech Error:", e);
+      console.error("Speech Error:", e);
       this.isSpeaking = false;
       this._dispatchStateChange();
       if (onEndCallback) onEndCallback();
@@ -217,55 +203,22 @@ export class VoiceService {
     this.synth.speak(utterance);
   }
 
-  /**
-   * Preview a voice setting
-   */
-  preview(uri, rate, pitch) {
-    // Temporary overrides
-    const oldRate = this.baseRate;
-    const oldPitch = this.basePitch;
-
-    if (rate) this.setRate(rate);
-    if (pitch) this.setPitch(pitch);
-
-    this.speak("Audio check. Systems nominal.", uri, {}, () => {
-      // Restore
-      this.baseRate = oldRate;
-      this.basePitch = oldPitch;
-    });
-  }
-
-  /**
-   * Toggle Listen (Helper)
-   */
-  async toggleListen(onPartial, onFinal, onEnd) {
+  async toggleListen() {
     if (this.isListening) {
       this.stopListening();
-      if (onEnd) onEnd();
-      return false;
     } else {
-      this.listen(onPartial, onFinal, onEnd);
-      return true;
+      this.listen();
     }
   }
 
-  /**
-   * Listen for speech (Mic)
-   * All callbacks are optional as the service dispatches global events.
-   */
-  listen(onPartial, onFinal, onEnd) {
-    if (!this.recognition) return;
-    if (this.isListening) return;
-
-    // Store callbacks for this session
-    this._currentCallbacks = { onPartial, onFinal, onEnd };
-
+  listen() {
+    if (!this.recognition || this.isListening) return;
     try {
       this.recognition.start();
       this.isListening = true;
       this._dispatchStateChange();
     } catch (e) {
-      error("Mic Start Fail:", e);
+      console.error("Mic Start Fail:", e);
       this.isListening = false;
       this._dispatchStateChange();
     }
@@ -274,7 +227,6 @@ export class VoiceService {
   stopListening() {
     if (this.recognition && this.isListening) {
       this.recognition.stop();
-      // State change handled in onend
     }
   }
 
@@ -282,34 +234,19 @@ export class VoiceService {
     const transcript = Array.from(event.results)
       .map((r) => r[0].transcript)
       .join("");
-
     const isFinal = event.results[0].isFinal;
-
-    // Dispatch generic event for Input to catch
     document.dispatchEvent(
-      new CustomEvent("voice:input", {
-        detail: { transcript, isFinal },
-      }),
+      new CustomEvent("voice:input", { detail: { transcript, isFinal } }),
     );
-
-    if (this._currentCallbacks) {
-      if (isFinal && this._currentCallbacks.onFinal)
-        this._currentCallbacks.onFinal(transcript);
-      else if (this._currentCallbacks.onPartial)
-        this._currentCallbacks.onPartial(transcript);
-    }
   }
 
   _handleRecognitionError(event) {
-    error("[VoiceService] Mic Error:", event.error);
-    // State handled in onend
+    console.warn("Mic Error:", event.error);
   }
 
   _handleRecognitionEnd() {
     this.isListening = false;
     this._dispatchStateChange();
-    if (this._currentCallbacks?.onEnd) this._currentCallbacks.onEnd();
-    this._currentCallbacks = null;
   }
 }
 

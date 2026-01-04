@@ -33,6 +33,19 @@
   }
 }
 
+/* 1. TYPING ANIMATION KEYFRAMES */
+@keyframes typing-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+
+  30% {
+    transform: translateY(-6px);
+  }
+}
+
 // Virtual Scrolling Spacers
 .virtual-spacer-top,
 .virtual-spacer-bottom {
@@ -179,61 +192,19 @@
 #btn-mic {
   @extend %chat-action-btn;
 
-  // Mic-Specific Status Colors
-
-  // Call Mode (Blue Standby)
-  &.call-mode-active {
-    color: var(--pico-primary) !important;
-
-    &:disabled {
-      opacity: 1 !important;
-      filter: none !important;
-      transform: none !important;
-    }
-  }
-
-  // Active Recording (Red)
-  &.active {
-    color: var(--pico-del-color) !important;
-    animation: pulse-red 1.5s infinite;
-
-    // [FIX] No Mouseover Effect when Recording
-    &:hover {
-      background: transparent !important;
-      transform: none !important;
-      color: var(--pico-del-color) !important;
-    }
-
-    &:disabled {
-      opacity: 1 !important;
-      filter: none !important;
-      transform: none !important;
-    }
-  }
-
-  // Call Mode Interaction Lock
-  &.is-call-mode {
-    cursor: default !important;
-    pointer-events: none !important;
-
-    // [FIX] Ensure no hover in Call Mode either
-    &:hover {
-      transform: none !important;
-      background: transparent !important;
-      box-shadow: none !important;
-    }
-  }
-
   // Status Light: Recording (User Speaking) - RED PULSE
   &.status-recording {
     color: var(--pico-del-color) !important;
     animation: pulse-red 1.5s infinite;
     opacity: 1 !important; // Override disabled state
     filter: none !important;
+    pointer-events: auto !important; // ALLOW CLICK TO STOP
+    cursor: pointer !important;
 
     &:disabled {
       opacity: 1 !important;
-      cursor: default !important;
+      cursor: pointer !important; // Override disabled cursor
+      pointer-events: auto !important;
     }
   }
 
@@ -243,34 +214,22 @@
     filter: drop-shadow(0 0 5px var(--pico-primary));
     opacity: 1 !important; // Override disabled state
 
+    // Call Mode: LOCKED
+    &.is-call-mode {
+      pointer-events: none !important;
+      cursor: default !important;
+    }
+
     &:disabled {
       opacity: 1 !important;
       cursor: default !important;
     }
   }
 
-  // [STRICT] Override Global Disabled Opacity if Status Present
-  &:disabled {
-    &.status-recording {
-      opacity: 1 !important;
-      cursor: not-allowed;
-      pointer-events: none;
-      filter: none !important;
-      background: transparent !important;
-      border: 1px solid transparent !important;
-      color: var(--pico-del-color) !important;
-      animation: pulse-red 1.5s infinite;
-    }
-
-    &.status-ai-active {
-      opacity: 1 !important;
-      cursor: not-allowed;
-      pointer-events: none;
-      filter: drop-shadow(0 0 5px var(--pico-primary)) !important;
-      background: transparent !important;
-      border: 1px solid transparent !important;
-      color: var(--pico-primary) !important;
-    }
+  // Call Mode Global Lock
+  &.is-call-mode {
+    cursor: default !important;
+    pointer-events: none !important;
   }
 }
 
@@ -812,6 +771,19 @@
   opacity: 0;
   animation: slide-in-up 0.3s ease-out forwards;
   border-radius: 999px;
+
+  .typing-dot {
+    // Add Animation
+    animation: typing-bounce 1.4s infinite ease-in-out both;
+
+    &:nth-child(1) {
+      animation-delay: -0.32s;
+    }
+
+    &:nth-child(2) {
+      animation-delay: -0.16s;
+    }
+  }
 
   @each $name, $data in $signature-colors {
     $color: map.get($data, color);
