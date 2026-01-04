@@ -56,21 +56,10 @@ export const StoryOptionsController = {
             // 1. Update Service State (Triggers "call_mode_changed" -> updates input.js UI)
             voiceService.setCallMode(isEnabled);
 
-            // 2. Manage Actual Audio Process
-            if (isEnabled) {
-              // Auto-start listening logic
-              if (!voiceService.isListening) {
-                // Simulate interaction to unlock audio context if needed
-                // const micBtn = document.querySelector("#btn-mic");
-                // if (micBtn) micBtn.click(); // [REMOVED] Don't simulate click, just start listening if we want auto-start.
-                // Actually, for "Strict Mode", we might want to wait for the user to initiate or auto-start via service.
-                // Let's stick to the directive: "Action: Call voiceService.setCallMode(checked)."
-                // "Immediate Update: Ensure this action triggers a UI state update in input.js" - handled by event.
-              }
-            } else {
-              // Turn OFF Call Mode - Stop Listening
-              voiceService.stopListening();
-            }
+            // Note: We do NOT auto-start listening here as per strict mode rules.
+            // Call Mode merely locks the UI into "Hands Free" mode.
+            // The user must click the mic ONCE to start the loop, or we can trigger it.
+            // For now, following instructions: Just set the mode. The Orchestrator manages the loop start if needed.
           } catch (err) {
             console.error("Call Mode Toggle Error:", err);
             // Revert toggle if failed

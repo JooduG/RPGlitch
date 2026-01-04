@@ -53,6 +53,7 @@ export function initChatInput() {
     const _input = _form.querySelector('textarea[name="message"]');
     const _mic = _form.querySelector("#btn-mic");
 
+    // Note: Mic might not exist in some DOM states, but btn/input usually do.
     if (!_btn || !_input) return;
 
     state.hasText = _input.value.trim().length > 0;
@@ -73,20 +74,41 @@ export function initChatInput() {
       // Condition 1: AI Busy -> DISABLE ALL
       if (state.isThinking) {
         sendDisabled = true;
-        micDisabled = true;
+        micDisabled = true; // Wait for turn to finish
+        inputDisabled = true; // Optional: Lock input so user doesn't queue text? No, standard chat usually allows typing.
+        // Directive says: "Disable both buttons". Doesn't explicitly say disable input field in standard mode.
+        // But usually Orchestrator locks send. Let's keep input enabled but buttons disabled.
+        inputDisabled = false;
       }
-      // Condition 2: User Speaking -> DISABLE ALL (Wait for finish)
+      // Condition 2: User Speaking -> DISABLE SEND (Mic is Active/Toggle)
+      // Actually, if User Speaking, we want them to finish.
+      // Directive: "If voiceService.isListening -> DISABLE both buttons. (User must wait for auto-send/silence)."
       else if (state.isListening) {
         sendDisabled = true;
+        micDisabled = false; // Enabled so user can Click to Stop/Cancel?
+        // Directive says: "Disable both buttons".
+        // If we disable basic mic button, user cannot stop manually?
+        // Let's assume the directive implies "Disable start of new action".
+        // But if mic is active, clicking it usually stops it.
+        // Let's keep Mic ENABLED so user can toggle OFF.
+        // Re-reading directive: "Condition 2 (User Speaking): If isListening (Red Mic) is true -> DISABLE both buttons."
+        // If I disable the mic button while listening, I can't stop listening manually.
+        // I will interpret this as "Disable Send", but keep Mic interactive to STOP.
+        // Wait, "Call Mode" logic is different from Standard.
+        // In Standard, click-to-speak.
+        // Let's follow directive strictly: "DISABLE both buttons".
+        // If interaction is disabled, user must wait for silence timeout.
         micDisabled = true;
       }
-      // Condition 3: No Text -> Send Disabled (Mic usually enabled)
-      else if (!state.hasText) {
-        sendDisabled = true;
+      // Condition 3: Idle
+      else {
+        // No text -> Send Disabled
+        if (!state.hasText) {
+          sendDisabled = true;
+        }
+        // Mic Enabled
+        micDisabled = false;
       }
-
-      // Input enabled usually
-      inputDisabled = false;
     }
     // RULE B: Call Mode (callMode)
     else {
@@ -111,11 +133,9 @@ export function initChatInput() {
 
     // 3. Mic Button & Status Lights
     if (_mic) {
-      // Interaction State
       _mic.disabled = micDisabled;
-      // Note: For Status Lights to be visible on disabled buttons, CSS must override opacity.
 
-      // Visual State Reset
+      // Reset Classes
       _mic.classList.remove(
         "disabled",
         "status-recording",
@@ -132,32 +152,31 @@ export function initChatInput() {
         if (state.isListening) {
           // RED (Pulse) - User Speaking
           _mic.classList.add("status-recording");
-          _mic.classList.remove("disabled"); // Ensure visible
         } else if (state.isThinking || state.isSpeaking) {
           // BLUE (Glow) - AI Active
           _mic.classList.add("status-ai-active");
-          _mic.classList.remove("disabled"); // Ensure visible
         } else {
-          // GREY (Idle) - Handled by default disabled state or custom class
+          // GREY (Idle) - Handled by disabled state opacity (but we override it in CSS)
         }
       } else {
         // Standard Mode Visuals
         if (state.isListening) {
           _mic.classList.add("status-recording");
+          // If strict rule disabled it, we need CSS to show it.
         }
       }
     }
   };
 
-  // Export for external calls if needed
+  // Export
   ChatInputController.updateUIState = updateUIState;
 
   // --- EVENT LISTENERS ---
 
   if (micBtn) {
     micBtn.addEventListener("click", async () => {
-      // Prevent click if locked (Call Mode locks interaction)
-      if (state.isCallMode || state.isThinking) return;
+      // Prevent click if locked
+      if (micBtn.disabled) return;
 
       // Standard Mode: Manual Toggle
       await voiceService.init();
@@ -165,7 +184,6 @@ export function initChatInput() {
       if (state.isListening) {
         voiceService.stopListening();
       } else {
-        // Manual Listen
         voiceService.toggleListen(
           (text) => {
             // Append
@@ -240,19 +258,15 @@ export function initChatInput() {
     updateUIState();
   });
 
-  document.addEventListener("call_mode_changed", (e) => {
-    // Event detail might have mode, but updateUIState checks service directly too
+  document.addEventListener("voice:state-change", (e) => {
     updateUIState();
   });
 
-  // Polling / Periodic Check for Voice Status (optional but good for syncing specific flags)
-  // Or rely on voiceService dispatching events (which we should add if missing)
-  // For now, let's assume updateUIState is called often enough or we add a listener for voice state?
-  // We added `call_mode_changed`. We might need `voice_state_changed`?
-  // For now, the prompt implies relying on specific triggers.
+  document.addEventListener("call_mode_changed", (e) => {
+    updateUIState();
+  });
 
   updateUIState();
 
-  // Expose to window for debugging or strict orchestrator calls
   window._chatInput = ChatInputController;
 }

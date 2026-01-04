@@ -107,9 +107,25 @@ export class VoiceService {
   setCallMode(enabled) {
     this.callMode = !!enabled;
     log(`[VoiceService] Call Mode: ${this.callMode ? "ON" : "OFF"}`);
-    // DISPATCH EVENT for UI Sync (Strict Mode)
+
+    // Dispatch Generic State Change for UI
+    this._dispatchStateChange();
+
+    // Dispatch Specific Event for direct listeners
     document.dispatchEvent(
       new CustomEvent("call_mode_changed", { detail: { mode: this.callMode } }),
+    );
+  }
+
+  _dispatchStateChange() {
+    document.dispatchEvent(
+      new CustomEvent("voice:state-change", {
+        detail: {
+          callMode: this.callMode,
+          isListening: this.isListening,
+          isSpeaking: this.isSpeaking,
+        },
+      }),
     );
   }
 
@@ -166,16 +182,19 @@ export class VoiceService {
     // 5. Events
     utterance.onstart = () => {
       this.isSpeaking = true;
+      this._dispatchStateChange();
     };
 
     utterance.onend = () => {
       this.isSpeaking = false;
+      this._dispatchStateChange();
       if (onEndCallback) onEndCallback();
     };
 
     utterance.onerror = (e) => {
       error("[VoiceService] Speech Error:", e);
       this.isSpeaking = false;
+      this._dispatchStateChange();
       if (onEndCallback) onEndCallback();
     };
 
@@ -225,6 +244,7 @@ export class VoiceService {
     if (this.isListening) return;
 
     this.isListening = true;
+    this._dispatchStateChange();
 
     // Play subtle cue? Maybe later.
 
@@ -243,10 +263,12 @@ export class VoiceService {
     this.recognition.onerror = (event) => {
       error("[VoiceService] Mic Error:", event.error);
       this.isListening = false;
+      this._dispatchStateChange();
     };
 
     this.recognition.onend = () => {
       this.isListening = false;
+      this._dispatchStateChange();
       if (onEnd) onEnd();
     };
 
@@ -257,6 +279,7 @@ export class VoiceService {
     if (this.recognition && this.isListening) {
       this.recognition.stop();
       this.isListening = false;
+      this._dispatchStateChange();
     }
   }
 }
