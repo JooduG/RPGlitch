@@ -1,9 +1,9 @@
-// import { log, error } from "../core/utils.js"; // Unused
-
 /**
- * Native Voice Service (Biometric Edition)
- * Pure native SpeechSynthesis with dynamic Rate.
- * Pitch Modulation DISABLED for stability.
+ * Native Voice Service
+ *
+ * A "Native-First" implementation of text-to-speech and speech-to-text.
+ * Utilizes 'window.speechSynthesis' and 'window.webkitSpeechRecognition'.
+ * Designed for privacy (zero-knowledge) and reliability (no cloud APIs).
  */
 export class VoiceService {
   constructor() {
@@ -175,7 +175,6 @@ export class VoiceService {
 
     // ENSURE ENGINE IS AWAKE
     if (this.synth.paused) {
-      console.log("Resuming paused synth...");
       this.synth.resume();
     }
     this.synth.cancel();
@@ -222,17 +221,10 @@ export class VoiceService {
 
       // Loop Logic
       if (this.callMode) {
-        console.log("Call Mode Active. Queuing listener...");
         this._loopTimeout = setTimeout(() => {
           if (!this.isSpeaking && !this.isListening && this.callMode) {
-            console.log("Starting Loop Listen...");
             this.listen();
           } else {
-            console.log("Loop Listen Cancelled (State Mismatch):", {
-              speaking: this.isSpeaking,
-              listening: this.isListening,
-              mode: this.callMode,
-            });
             // Force recovery if we are stuck
             if (this.callMode && !this.isListening) this.listen();
           }
@@ -280,7 +272,6 @@ export class VoiceService {
 
       console.warn("Full Speak Error:", e);
 
-      // CIRCUIT BREAKER TRIGGER REMOVED PER USER REQUEST
       // We still fall back for *this* attempt (via doneCallback(false)),
       // but we do not permanently blacklist the voice for the session.
 
@@ -355,7 +346,6 @@ export class VoiceService {
           e.error,
         );
 
-        // CIRCUIT BREAKER TRIGGER REMOVED PER USER REQUEST
         // We log the error but do not add to blacklist.
         if (e.error === "synthesis-failed" && utterance.voice) {
           console.warn(
@@ -364,7 +354,6 @@ export class VoiceService {
         }
 
         if (currentStickyLevel < 1) {
-          console.log(`Retrying Chunk ${chunkIndex} with System Voice...`);
           // Bump level and retry SAME chunk
           speakNext(currentStickyLevel + 1);
         } else {

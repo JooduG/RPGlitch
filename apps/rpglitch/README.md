@@ -111,6 +111,13 @@ RPGlitch supersedes standard chatbot patterns by implementing a **Simulation Eng
 
 ---
 
+## 🔊 Audio Architecture
+
+- **Stack:** 100% Native (`window.speechSynthesis`, `window.SpeechRecognition`).
+- **Privacy:** "Zero-Knowledge" Audio (No voice data leaves the client).
+- **Call Mode:** "Infinite Loop" architecture (Auto-Listen -> Transcription -> Auto-Submit -> AI Response -> Auto-Listen).
+- **State Management:** "Hands-Free Lock" (Input disabled during Call Mode to prevent state collisions).
+
 ## The "Freedom Protocol"
 
 RPGlitch implements a client-side stability layer to ensure uninterrupted operation on the hosting platform.

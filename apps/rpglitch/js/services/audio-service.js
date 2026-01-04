@@ -8,6 +8,34 @@ class AudioService {
     this.unlocked = false;
     this.lastPlayed = 0;
     this.threshold = 500; // debounce in ms (Refined requirement)
+    this.notificationsEnabled = true;
+    this._loadSettings(); // Restore state from storage
+  }
+
+  _loadSettings() {
+    try {
+      const stored = localStorage.getItem("rpglitch_audio_settings");
+      if (stored) {
+        const settings = JSON.parse(stored);
+        if (typeof settings.notificationsEnabled === "boolean") {
+          this.notificationsEnabled = settings.notificationsEnabled;
+        }
+      }
+    } catch (e) {
+      console.warn("[AudioService] Failed to load settings:", e);
+    }
+  }
+
+  setNotifications(enabled) {
+    this.notificationsEnabled = !!enabled;
+    localStorage.setItem(
+      "rpglitch_audio_settings",
+      JSON.stringify({ notificationsEnabled: this.notificationsEnabled }),
+    );
+    console.log(
+      "[AudioService] Notifications set to:",
+      this.notificationsEnabled,
+    );
   }
 
   init() {
@@ -47,6 +75,11 @@ class AudioService {
   }
 
   async play(key) {
+    // 0. Filter Notifications if disabled
+    if (key === "notification" && !this.notificationsEnabled) {
+      return;
+    }
+
     // 1. Check unlock state
     if (!this.unlocked || !this.audioContext) return;
 

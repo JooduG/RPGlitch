@@ -20,41 +20,63 @@ export const StoryOptionsController = {
       }
     }
 
-    // [NEW] Call Mode Toggle Injection (Story Mode Exclusive)
-    const storyGroup = contentContainer.querySelector(
-      ".settings-section-storymode .settings-panel",
-    );
-    // Remove old audio group if present (cleanup)
-    const oldAudio = contentContainer.querySelector(".settings-section-audio");
-    if (oldAudio) oldAudio.remove();
-
-    if (storyGroup && !modal.querySelector("#setting-call-mode")) {
-      const modeWrap = document.createElement("label");
-      modeWrap.className = "settings-label";
-      modeWrap.htmlFor = "setting-call-mode";
-      modeWrap.innerHTML = `
-        <input type="checkbox" id="setting-call-mode" role="switch">
-        Continuous Call Mode
+    // [NEW] Global Audio & Voice Settings Injection
+    const settingsBody = contentContainer.querySelector(".settings-body");
+    // Check if our sections already exist to prevent duplicate injection
+    if (
+      settingsBody &&
+      !settingsBody.querySelector(".settings-section-audio")
+    ) {
+      const audioSection = document.createElement("div");
+      audioSection.className = "settings-section-audio";
+      audioSection.innerHTML = `
+        <h5>Audio & Voice</h5>
+        <div class="settings-panel">
+            <label class="settings-label" for="setting-call-mode">
+                <input type="checkbox" id="setting-call-mode" role="switch">
+                Hands-Free Call Mode
+            </label>
+            <label class="settings-label" for="setting-notifications">
+                <input type="checkbox" id="setting-notifications" role="switch">
+                Notification Sounds
+            </label>
+        </div>
+        <hr>
       `;
-      storyGroup.appendChild(modeWrap);
-    }
+      // Inject at the very top
+      settingsBody.prepend(audioSection);
 
-    // Call Mode Listener & Auto-Start
-    const callModeToggle = modal.querySelector("#setting-call-mode");
-    if (callModeToggle) {
-      import("../../services/voice-service.js").then(({ voiceService }) => {
-        callModeToggle.checked = voiceService.callMode;
-        callModeToggle.addEventListener("change", async (e) => {
-          try {
-            const isEnabled = e.target.checked;
-            if (isEnabled) await voiceService.init();
-            voiceService.setCallMode(isEnabled);
-          } catch (err) {
-            console.error("Call Mode Toggle Error:", err);
-            // Revert toggle if failed
-            e.target.checked = !e.target.checked;
-          }
-        });
+      // Bind Listeners (Dynamic Imports)
+      Promise.all([
+        import("../../services/voice-service.js"),
+        import("../../services/audio-service.js"),
+      ]).then(([{ voiceService }, { audioService }]) => {
+        // 1. Call Mode
+        const callToggle = audioSection.querySelector("#setting-call-mode");
+        if (callToggle) {
+          callToggle.checked = voiceService.callMode;
+          callToggle.addEventListener("change", async (e) => {
+            try {
+              const isEnabled = e.target.checked;
+              if (isEnabled) await voiceService.init();
+              voiceService.setCallMode(isEnabled);
+            } catch (err) {
+              console.error("Call Mode Toggle Error:", err);
+              e.target.checked = !e.target.checked; // Revert
+            }
+          });
+        }
+
+        // 2. Notifications
+        const notifToggle = audioSection.querySelector(
+          "#setting-notifications",
+        );
+        if (notifToggle) {
+          notifToggle.checked = audioService.notificationsEnabled;
+          notifToggle.addEventListener("change", (e) => {
+            audioService.setNotifications(e.target.checked);
+          });
+        }
       });
     }
 

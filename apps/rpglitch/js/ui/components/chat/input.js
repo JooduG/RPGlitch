@@ -36,7 +36,7 @@ export function initChatInput() {
 
   if (!input || !btn) return;
 
-  // --- STRICT STATE MANAGEMENT ---
+  // State Management
   const state = {
     isThinking: false,
     isCallMode: false,
@@ -70,7 +70,7 @@ export function initChatInput() {
     let micDisabled = false;
     let inputDisabled = false;
 
-    // --- LOGIC MATRIX ---
+    // UI State Logic
     if (state.isCallMode) {
       // CALL MODE: Complete Lockout (Hands-free)
       inputDisabled = true;
@@ -79,11 +79,11 @@ export function initChatInput() {
     } else if (state.isThinking || state.isSpeaking) {
       // AI BUSY: Queueing Allowed, Actions Blocked
       inputDisabled = false; // User can type next message
-      sendDisabled = true; // STRICT DISABLE
-      micDisabled = true; // STRICT DISABLE
+      sendDisabled = true; // Disable while AI is working
+      micDisabled = true; // Disable while AI is working
     } else if (state.isListening) {
       // USER SPEAKING: Focus on Voice
-      inputDisabled = true; // STRICT DISABLE (User Request)
+      inputDisabled = true; // Disable while AI is working
       sendDisabled = true; // Wait for finish
       micDisabled = false; // Allowed: Click to Stop
     } else {
@@ -159,7 +159,7 @@ export function initChatInput() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    // [CRITICAL FIX] Allow submission if Call Mode is active, bypassing the disabled button check
+    // Allow submission in Call Mode
     if (btn.disabled && !state.isCallMode) return;
 
     const val = input.value.trim();
@@ -186,12 +186,8 @@ export function initChatInput() {
     updateUIState();
   });
 
-  // Fallback (If strictly needed, though GENERATION_COMPLETED should cover it)
-  // Director generally doesn't emit 'generation:ended', assuming typo in previous thought, relying on CONSTANTS
-  // Checking CONSTANTS: GENERATION_COMPLETED is the key.
-
   document.addEventListener("voice:state-change", () => {
-    // [UX] Clear Input on Call Mode Activation
+    // Clear Input on Call Mode Activation
     if (voiceService.callMode && !state.isCallMode) {
       input.value = "";
       state.baseText = "";
