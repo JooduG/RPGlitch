@@ -128,16 +128,8 @@ const initEventBinds = () => {
     const { showTypingIndicator } = await import("./components/chat/feed.js");
     const feed = document.querySelector("#chat-feed");
     if (feed && e.detail) {
-      // Pass the entire detail object (which may contain role, characterId, signatureColor)
-      // to match showTypingIndicator(container, typeOrOptions, entityId) structure
       showTypingIndicator(feed, e.detail, e.detail.characterId);
     }
-  });
-
-  events.addEventListener(EVENTS.TYPING_STOPPED, async () => {
-    const { removeTypingIndicator } = await import("./components/chat/feed.js");
-    const feed = document.querySelector("#chat-feed");
-    if (feed) removeTypingIndicator(feed);
   });
 
   events.addEventListener(EVENTS.TYPING_STOPPED, async () => {
@@ -151,7 +143,7 @@ const initEventBinds = () => {
       await import("./components/chat/feed.js");
     setSendLock(true);
     setChatGeneratingState(true);
-    // [STRICT SYNC] Force Input UI Update
+    // [STRICT SYNC] Force Input UI Update -> input.js listens to event, but we double check
     if (window._chatInput && window._chatInput.updateUIState) {
       window._chatInput.updateUIState();
     }
@@ -163,8 +155,6 @@ const initEventBinds = () => {
     voiceService.init();
 
     // 2. Resolve UI Controllers
-    // [FIX] State managed by input.js via GENERATION_COMPLETED event
-    // No need to manually toggle locks here.
     const { setChatGeneratingState } =
       await import("./components/chat/feed.js");
 
@@ -182,6 +172,9 @@ const initEventBinds = () => {
     const { entities } = await import("../data/repo.js");
     let voiceId = null;
     let rateMod = 1.0;
+
+    // Default pitch
+    let pitchMod = 1.0;
 
     if (e.detail?.characterId) {
       try {
@@ -203,70 +196,66 @@ const initEventBinds = () => {
           rateMod = 1.0 + (dyn.velocity - 50) / 200;
 
           // Entropy (Chaos) -> Pitch
-          // [DISABLED per User Request: Natural voices ignore pitch, causing inconsistency]
-          const pitchMod = 1.0;
+          // [DISABLED per User Request: Natural voices ignore pitch modulation to avoid artifacts]
+          pitchMod = 1.0;
 
-          // Debug
-          // console.log(`[BioVoice] V:${dyn.velocity} E:${dyn.entropy} -> R:${rateMod.toFixed(2)} P:${pitchMod.toFixed(2)}`);
-
-          // SPEAK (Only if Continuous Call Mode is Enabled)
-          // SPEAK (Only if Continuous Call Mode is Enabled)
           // SPEAK
-          voiceService.speak(
-            e.detail?.text || "",
-            voiceId,
-            { rate: rateMod, pitch: pitchMod },
-            // CALLBACK: End of Speech
-            () => {
-              if (voiceService.callMode) {
+          // [FIX] Only Auto-Speak if Call Mode is Active
+          if (voiceService.callMode) {
+            voiceService.speak(
+              e.detail?.text || "",
+              voiceId,
+              { rate: rateMod, pitch: pitchMod },
+              // CALLBACK: End of Speech
+              () => {
                 // --- CALL MODE LOOP ---
+                // If Call Mode is active, the VoiceService.onend will trigger listen() automatically if configured,
+                // or we can explicitly handle the loop here for robustness.
 
-                // Ensure UI stays disabled (Redundant safety)
-                const input = document.querySelector(
-                  'textarea[name="message"]',
-                );
-                const micBtn = document.querySelector("#btn-mic");
-                if (input) input.disabled = true;
-                if (micBtn) micBtn.disabled = true;
+                if (voiceService.callMode) {
+                  // Ensure UI is cleanly handled.
+                  // input.js should already be locked.
 
-                // Restart Listening DIRECTLY
-                voiceService.listen(
-                  (text) => {
-                    // onPartial
-                    if (input) {
-                      input.value = text;
-                      input.dispatchEvent(new Event("input"));
-                    }
-                  },
-                  (text) => {
-                    // onFinal
-                    if (input) {
-                      input.value = text;
-                      input.dispatchEvent(new Event("input"));
-
-                      // Auto-Send Logic
-                      if (text && text.trim().length > 0) {
-                        import("../engine/director.js").then(
-                          ({ TurnManager }) => {
-                            TurnManager.send(text);
-                            // Clear input
-                            if (input) input.value = "";
-                          },
-                        );
+                  // Explicitly Loop:
+                  voiceService.listen(
+                    (text) => {
+                      // onPartial: Update UI
+                      const input = document.querySelector(
+                        'textarea[name="message"]',
+                      );
+                      if (input) {
+                        input.value = text;
+                        input.dispatchEvent(new Event("input"));
                       }
-                    }
-                  },
-                  () => {
-                    // onEnd
-                    // No specific UI reset needed here as input.js handles state
-                  },
-                );
-              } else {
-                // --- STANDARD MODE ---
-                // Input.js handles unlocking UI via 'voice:state-change' (isSpeaking -> false)
-              }
-            },
-          );
+                    },
+                    (text) => {
+                      // onFinal: Auto-Send
+                      const input = document.querySelector(
+                        'textarea[name="message"]',
+                      );
+                      if (input) {
+                        input.value = text;
+                        input.dispatchEvent(new Event("input"));
+
+                        // Auto-Send Logic
+                        if (text && text.trim().length > 0) {
+                          import("../engine/director.js").then(
+                            ({ TurnManager }) => {
+                              TurnManager.send(text);
+                              input.value = "";
+                            },
+                          );
+                        }
+                      }
+                    },
+                    () => {
+                      // onEnd: No action needed
+                    },
+                  );
+                }
+              },
+            );
+          }
         }
       } catch (err) {
         console.warn("[Orchestrator] Voice fetch failed:", err);
@@ -295,17 +284,10 @@ export const handleConcludeStory = async () => {
     if (form) form.style.display = "none";
 
     const { TurnManager } = await import("../engine/director.js");
-    // const { showTypingIndicator, removeTypingIndicator } = await import("./components/chat/feed.js"); // Handled via events
-    const feed = document.querySelector("#chat-feed");
-
-    if (feed) {
-      // Event driven typing indicator will handle this
-    }
 
     try {
       await TurnManager.concludeStory();
     } finally {
-      // if (feed) removeTypingIndicator(feed); // Handled via events
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
     }
   }

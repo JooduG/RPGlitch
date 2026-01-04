@@ -20,9 +20,6 @@ export const StoryOptionsController = {
       }
     }
 
-    // [CLEANUP] Voice settings removed (Native Service used by default)
-    // No injection needed for Puter/Auth.
-
     // [NEW] Call Mode Toggle Injection (Story Mode Exclusive)
     const storyGroup = contentContainer.querySelector(
       ".settings-section-storymode .settings-panel",
@@ -35,9 +32,6 @@ export const StoryOptionsController = {
       const modeWrap = document.createElement("label");
       modeWrap.className = "settings-label";
       modeWrap.htmlFor = "setting-call-mode";
-      // Style: Toggle Left, Label Right (Flex row-reverse or just order)
-      // Pico.css default label>input[type=checkbox] might need specific CSS or order.
-      // User requested "harmony" with dev mode.
       modeWrap.innerHTML = `
         <input type="checkbox" id="setting-call-mode" role="switch">
         Continuous Call Mode
@@ -53,13 +47,7 @@ export const StoryOptionsController = {
         callModeToggle.addEventListener("change", async (e) => {
           try {
             const isEnabled = e.target.checked;
-            // 1. Update Service State (Triggers "call_mode_changed" -> updates input.js UI)
             voiceService.setCallMode(isEnabled);
-
-            // Note: We do NOT auto-start listening here as per strict mode rules.
-            // Call Mode merely locks the UI into "Hands Free" mode.
-            // The user must click the mic ONCE to start the loop, or we can trigger it.
-            // For now, following instructions: Just set the mode. The Orchestrator manages the loop start if needed.
           } catch (err) {
             console.error("Call Mode Toggle Error:", err);
             // Revert toggle if failed
@@ -70,7 +58,6 @@ export const StoryOptionsController = {
     }
 
     // ⚡ BOLT OPTIMIZATION: Event Delegation
-    // Replaced multiple individual listeners with a single document-level delegate on the grid.
     const libraryGrid = modal.querySelector("#library-grid");
     if (libraryGrid) {
       libraryGrid.addEventListener("click", async (e) => {
@@ -103,14 +90,12 @@ export const StoryOptionsController = {
     const btn = document.querySelector("#btn-options");
     const closeBtn = modal.querySelector(".close");
     const resetBtn = modal.querySelector("#btn-reset-story");
-    // Removed unused toggle var
     const customJsInput = modal.querySelector("#setting-custom-js");
     const storyInstructionsInput = modal.querySelector(
       "#setting-story-instructions",
     );
 
     const concludeBtn = modal.querySelector("#btn-conclude-story");
-
     const chatSettingsBtn = document.querySelector("#btn-settings-placeholder");
 
     // Open Options (Storyboard)
@@ -139,10 +124,6 @@ export const StoryOptionsController = {
       if (e.target === modal) StoryOptionsController.close();
     });
 
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) StoryOptionsController.close();
-    });
-
     // Close on Escape
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
@@ -161,19 +142,15 @@ export const StoryOptionsController = {
           ),
         )
       ) {
-        // If in game, prepare to switch back to storyboard
-
         await db.delete();
-        await db.open(); // Re-open after delete
+        await db.open();
 
-        // Reset state
         applyPatch({
           mode: "storyboard",
           story: { activeId: null, byId: {} },
           storyTitle: "My Story",
         });
 
-        // Force clean reload (strip hash/query to ensure back to lobby)
         window.location.href = window.location.pathname;
       }
     });
@@ -183,19 +160,16 @@ export const StoryOptionsController = {
       concludeBtn.addEventListener("click", async (e) => {
         e.preventDefault();
         if (state.story.activeId) {
-          StoryOptionsController.close(); // Close immediately per user request involved interactions
+          StoryOptionsController.close();
           await handleConcludeStory();
         }
       });
     }
 
-    // Ghostwriter Wiring (Handler moved to ui/handlers.js)
-
-    // 3. Render Library (Always, for both modes)
+    // 3. Render Library
     this.renderStories();
 
     // 4. Update Developer Mode Toggle
-    // Force Sync on Init (in case body class was lost)
     if (state.settings.developerMode) {
       document.body.classList.add("mode-developer");
     }
@@ -208,7 +182,6 @@ export const StoryOptionsController = {
         log("[Settings] Developer Mode Toggled:", isChecked);
         applyPatch({ settings: { developerMode: isChecked } });
 
-        // Immediate UI Update
         if (isChecked) {
           document.body.classList.add("mode-developer");
         } else {
@@ -244,14 +217,13 @@ export const StoryOptionsController = {
       });
     }
 
-    // [NEW] Request Photo Update Wiring
+    // Request Photo
     const btnRequestPhoto = modal.querySelector("#btn-request-photo");
     if (btnRequestPhoto) {
       btnRequestPhoto.addEventListener("click", async (e) => {
         e.preventDefault();
         const story = state.story.byId[state.story.activeId];
 
-        // Fetch real entity to check type/name (bypassing UUID mismatch)
         const fractal = story
           ? await entities.get("fractal", story.fractalId)
           : null;
@@ -264,13 +236,12 @@ export const StoryOptionsController = {
         if (!story || !isMessenger) {
           showAlert(
             "Feature Unavailable",
-            `Feature unavailable. Exclusive to Messenger Mode. (Current ID: ${story?.fractalId})`,
+            `Feature unavailable. Exclusive to Messenger Mode.`,
           );
           return;
         }
 
         StoryOptionsController.close();
-        // We will implement requestVisual on TurnManager next
         if (typeof TurnManager.requestVisual === "function") {
           await TurnManager.requestVisual();
         } else {
@@ -287,7 +258,6 @@ export const StoryOptionsController = {
       customJsInput.addEventListener("input", (e) => {
         const val = e.target.value;
         applyPatch({ settings: { customJs: val } });
-        // Use async IIFE for event handler logic if needed, but db.put is fire-and-forget or we can just async the handler
         (async () => {
           const s = await db.settings.get("app-settings");
           const newSettings = s || { id: "app-settings" };
@@ -296,7 +266,7 @@ export const StoryOptionsController = {
         })();
       });
     }
-    // Story Instructions Wiring
+    // Story Instructions
     if (storyInstructionsInput) {
       const s = await db.settings.get("app-settings");
       if (s && s.storyOpeningInstructions)
@@ -332,10 +302,7 @@ export const StoryOptionsController = {
         state.settings.storyOpeningInstructions || "";
     }
 
-    // State-Based Visibility Logic
     const hasActiveStory = !!state.story.activeId;
-
-    // Check if the current active story is actually concluded (Read-Only Mode)
     let isConcluded = false;
     if (hasActiveStory && state.story.byId[state.story.activeId]?.isConcluded) {
       isConcluded = true;
@@ -345,16 +312,10 @@ export const StoryOptionsController = {
     const gameSection = modal.querySelector(".settings-section-storymode");
     const librarySection = modal.querySelector(".settings-section-library");
 
-    // 1. STORY CONFIG (Lobby) -> Only if NO Active Story
     if (lobbySection) lobbySection.hidden = hasActiveStory;
-
-    // 2. GAME ACTIONS -> Only if Active Start AND NOT Concluded
     if (gameSection) gameSection.hidden = !hasActiveStory || isConcluded;
-
-    // 3. LIBRARY -> Always Visible
     if (librarySection) librarySection.hidden = false;
 
-    // Update Conclude Button State (Redundant check but keeps safety)
     const concludeBtn = modal.querySelector("#btn-conclude-story");
     if (concludeBtn) {
       concludeBtn.disabled = !hasActiveStory;
@@ -363,7 +324,6 @@ export const StoryOptionsController = {
     modal.removeAttribute("hidden");
     modal.classList.add("is-open");
 
-    // Only render stories if in lobby mode (Saved Stories is in lobby section)
     if (!hasActiveStory) {
       StoryOptionsController.renderStories();
     }
@@ -385,17 +345,13 @@ export const StoryOptionsController = {
     const grid = document.querySelector("#library-grid");
     if (!grid) return;
 
-    // 🎨 PALETTE UX: Refined Loading State
-    // Ensure grid has drawer styling first
     grid.classList.add("drawer-grid");
 
-    // Add pulsing skeleton loader via Template
     const tplLoading = document.getElementById("tpl-loading-library");
     if (tplLoading) {
       grid.innerHTML = "";
       grid.appendChild(tplLoading.content.cloneNode(true));
     } else {
-      // Fallback: The template is part of the core HTML and should always exist.
       error('Template "tpl-loading-library" not found.');
       grid.innerHTML =
         '<div class="drawer-empty" aria-busy="true"><p class="muted">Loading library...</p></div>';
@@ -407,57 +363,43 @@ export const StoryOptionsController = {
       );
 
       if (stories.length === 0) {
-        // [🎨 PALETTE UX: Refined Empty State]
         const tpl = document.getElementById("tpl-empty-library");
         if (tpl) {
           grid.innerHTML = "";
           grid.appendChild(tpl.content.cloneNode(true));
         } else {
-          // Fallback if template is missing
           grid.innerHTML =
             "<p style='grid-column: 1 / -1; text-align: center;'><small>Your library is empty.</small></p>";
         }
         return;
       }
 
-      grid.innerHTML = ""; // Clear loader
+      grid.innerHTML = "";
 
       const { getPictureHTML, TooltipService } =
         await import("../services/ui-utils.js").then(async (m) => {
-          // We might need to handle circular deps or just dynamic import.
-          // ui-utils doesn't export getVisualState usually?
-          // Wait, desktop.js imported getVisualState from models.js.
-          // Let's import that too.
           await import("../../data/models.js");
           return { ...m };
         });
 
-      // Initialize global tooltips
       TooltipService.init();
 
-      // We need ThemeService for applying color? Or just manual?
-      // Drawer uses ThemeService.apply(card, color). Let's import it.
       const { ThemeService } = await import("../services/theme.js");
 
       stories.forEach((story) => {
-        // --- Create Drawer Card ---
         const card = document.createElement("button");
         card.className = "drawer-card story-drawer-card";
-        card.type = "button"; // accessible
-        card.setAttribute("data-tooltip", story.title); // [Tooltip]
+        card.type = "button";
+        card.setAttribute("data-tooltip", story.title);
 
-        // ⚡ BOLT OPTIMIZATION: Data Attributes
         card.dataset.storyId = story.id;
         card.dataset.storyState = story.state;
         card.dataset.storyTitle = story.title;
 
-        // 1. Signature Color
         if (story.signatureColor) {
           ThemeService.apply(card, story.signatureColor);
         }
 
-        // 2. Picture (Fractal)
-        // We need a mock entity structure for getPictureHTML
         const dimEntity = {
           name: story.fractalName,
           type: "fractal",
@@ -468,14 +410,8 @@ export const StoryOptionsController = {
         const pic = getPictureHTML(dimEntity, { cover: true });
         card.appendChild(pic);
 
-        // 3. Label (Title + Tags)
-        // Drawer cards usually have a bottom label.
-        // We want: Title (colored), Status, Date.
-        // The default .drawer-card-label is just text. We might need Custom HTML inside.
-
         const labelContainer = document.createElement("div");
         labelContainer.className = "drawer-card-label";
-        // Override styles for this specific use case if needed, or use inline for now.
         labelContainer.style.height = "auto";
         labelContainer.style.textAlign = "left";
         labelContainer.style.padding = "0.75rem";
@@ -483,21 +419,15 @@ export const StoryOptionsController = {
         labelContainer.style.flexDirection = "column";
         labelContainer.style.gap = "0.25rem";
 
-        // Status Badge
         const isConcluded = story.state === "concluded";
         const statusHtml = isConcluded
           ? `<span style="font-size:0.6em; text-transform:uppercase; opacity:0.7; letter-spacing:1px; color:var(--pico-muted-color);">Concluded</span>`
           : `<span style="font-size:0.6em; text-transform:uppercase; letter-spacing:1px; color:var(--signature-color);">Active</span>`;
 
-        // Date
         const dateStr = new Date(story.lastPlayed).toLocaleDateString(
           undefined,
           { month: "short", day: "numeric", year: "numeric" },
         );
-
-        // Title (Signature Color)
-        // We use var(--signature-color) which is set by ThemeService on the card.
-        // .drawer-card-label default sets color to var(--signature-color)!
 
         labelContainer.innerHTML = `
             <div style="font-weight:700; line-height:1.2; font-size:0.8rem; margin-bottom:0.25rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
@@ -512,10 +442,6 @@ export const StoryOptionsController = {
         `;
 
         card.appendChild(labelContainer);
-
-        // Click Action REMOVED in favor of delegation
-        // card.onclick = ...
-
         grid.appendChild(card);
       });
     } catch (err) {

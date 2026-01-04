@@ -41,6 +41,11 @@ export class VoiceService {
       this.recognition.lang = "en-US";
       this.recognition.interimResults = true;
       this.recognition.maxAlternatives = 1;
+
+      this.recognition.onresult = (event) =>
+        this._handleRecognitionResult(event);
+      this.recognition.onerror = (event) => this._handleRecognitionError(event);
+      this.recognition.onend = () => this._handleRecognitionEnd();
     } else {
       log("[VoiceService] SpeechRecognition not supported in this browser.");
     }
@@ -115,6 +120,11 @@ export class VoiceService {
     document.dispatchEvent(
       new CustomEvent("call_mode_changed", { detail: { mode: this.callMode } }),
     );
+
+    // [FIX] Kickstart Loop if Idle
+    if (this.callMode && !this.isSpeaking && !this.isListening) {
+      this.listen();
+    }
   }
 
   _dispatchStateChange() {
@@ -191,10 +201,7 @@ export class VoiceService {
 
       // TRIGGER LISTEN (If Call Mode is Active)
       if (this.callMode) {
-        // If a specific callback was provided (e.g., from Orchestrator), it handles the logic
-        // Otherwise we might trigger strictly here.
-        // Current logic: Orchestrator passes a callback that calls .listen().
-        // We'll trust the callback.
+        this.listen();
       }
 
       if (onEndCallback) onEndCallback();
@@ -244,54 +251,19 @@ export class VoiceService {
 
   /**
    * Listen for speech (Mic)
-   * @param {function} onPartial - Real-time transcript
-   * @param {function} onFinal - Final result
-   * @param {function} onEnd - Called when listening stops (for any reason)
+   * All callbacks are optional as the service dispatches global events.
    */
   listen(onPartial, onFinal, onEnd) {
     if (!this.recognition) return;
     if (this.isListening) return;
 
-    this.isListening = true;
-    this._dispatchStateChange();
-
-    this.recognition.onresult = (event) => {
-      const transcript = Array.from(event.results)
-        .map((r) => r[0].transcript)
-        .join("");
-
-      // Dispatch generic event for Input to catch
-      document.dispatchEvent(
-        new CustomEvent("voice:input", {
-          detail: { transcript, isFinal: event.results[0].isFinal },
-        }),
-      );
-
-      if (event.results[0].isFinal) {
-        if (onFinal) onFinal(transcript);
-      } else {
-        if (onPartial) onPartial(transcript);
-      }
-    };
-
-    this.recognition.onerror = (event) => {
-      error("[VoiceService] Mic Error:", event.error);
-      this.isListening = false;
-      this._dispatchStateChange();
-      if (onEnd) onEnd();
-    };
-
-    this.recognition.onend = () => {
-      // Debounce slightly to prevent state flicker
-      setTimeout(() => {
-        this.isListening = false;
-        this._dispatchStateChange();
-        if (onEnd) onEnd();
-      }, 100);
-    };
+    // Store callbacks for this session
+    this._currentCallbacks = { onPartial, onFinal, onEnd };
 
     try {
       this.recognition.start();
+      this.isListening = true;
+      this._dispatchStateChange();
     } catch (e) {
       error("Mic Start Fail:", e);
       this.isListening = false;
@@ -304,6 +276,40 @@ export class VoiceService {
       this.recognition.stop();
       // State change handled in onend
     }
+  }
+
+  _handleRecognitionResult(event) {
+    const transcript = Array.from(event.results)
+      .map((r) => r[0].transcript)
+      .join("");
+
+    const isFinal = event.results[0].isFinal;
+
+    // Dispatch generic event for Input to catch
+    document.dispatchEvent(
+      new CustomEvent("voice:input", {
+        detail: { transcript, isFinal },
+      }),
+    );
+
+    if (this._currentCallbacks) {
+      if (isFinal && this._currentCallbacks.onFinal)
+        this._currentCallbacks.onFinal(transcript);
+      else if (this._currentCallbacks.onPartial)
+        this._currentCallbacks.onPartial(transcript);
+    }
+  }
+
+  _handleRecognitionError(event) {
+    error("[VoiceService] Mic Error:", event.error);
+    // State handled in onend
+  }
+
+  _handleRecognitionEnd() {
+    this.isListening = false;
+    this._dispatchStateChange();
+    if (this._currentCallbacks?.onEnd) this._currentCallbacks.onEnd();
+    this._currentCallbacks = null;
   }
 }
 

@@ -42,6 +42,7 @@ export function initChatInput() {
     isListening: false, // VoiceService.isListening
     isSpeaking: false, // VoiceService.isSpeaking
     hasText: false,
+    baseText: "", // [FIX] Track text before speech for appending
   };
 
   const updateUIState = () => {
@@ -52,6 +53,11 @@ export function initChatInput() {
     const _mic = _form.querySelector("#btn-mic");
 
     if (!_btn || !_input) return;
+
+    // [FIX] Capture base text when starting to listen
+    if (voiceService.isListening && !state.isListening) {
+      state.baseText = _input.value;
+    }
 
     state.hasText = _input.value.trim().length > 0;
     state.isCallMode = voiceService.callMode;
@@ -67,30 +73,28 @@ export function initChatInput() {
       // [CALL MODE]
       // ABSOLUTE LOCK: Input is ALWAYS disabled. User speaks, AI speaks. No typing.
       inputDisabled = true;
+      // Send button is technically "disabled" for clicking, but we might want to hide it or keep it disabled.
       sendDisabled = true;
 
-      // Mic Button is a STATUS LIGHT only. Locked to prevent manual interference.
+      // Mic Button is a STATUS LIGHT only. Locked to prevent manual interference during Call Mode loop.
+      // But we might want it clickable to STOP the loop/call mode?
+      // For now, per spec: "Mic button becomes a status light" -> disabled but visible.
       micDisabled = true;
     } else {
       // [STANDARD MODE]
-
       if (state.isThinking || state.isSpeaking) {
         // AI BUSY -> LOCK ALL
-        inputDisabled = true; // No queuing
+        inputDisabled = true;
         sendDisabled = true;
         micDisabled = true; // Wait your turn
       } else if (state.isListening) {
         // USER SPEAKING -> LOCK SEND, INPUT (Focus on voice)
-        // Keep Mic Enabled so they can click to Stop if needed?
-        // Logic: If I click mic to stop, I want to edit.
-        inputDisabled = false; // Allow editing while speaking? No, usually replaces text.
-        inputDisabled = true; // Lock while recording
+        inputDisabled = true;
         sendDisabled = true;
-        micDisabled = false; // ENABLED to allow STOP toggle
+        micDisabled = false; // Enable to allow toggle OFF
       } else {
         // IDLE -> OPEN
         inputDisabled = false;
-        // Send depends on text
         sendDisabled = !state.hasText;
         micDisabled = false;
       }
@@ -133,6 +137,7 @@ export function initChatInput() {
 
   if (micBtn) {
     micBtn.addEventListener("click", async () => {
+      // Manual Toggle (Standard Mode Only, since Call Mode disables click)
       if (micBtn.disabled) return;
 
       await voiceService.init();
@@ -198,14 +203,23 @@ export function initChatInput() {
   document.addEventListener("voice:input", (e) => {
     const { transcript, isFinal } = e.detail;
 
-    // Update Text Area
-    input.value = transcript;
+    // [FIX] Update Input with Append Logic
+    // Uses baseText captured at start of listen session + current transcript
+    const separator = state.baseText && state.baseText.length > 0 ? " " : "";
+    const newText = state.baseText + separator + transcript;
+
+    input.value = newText;
     if (input.tagName === "TEXTAREA") adjustHeight();
     input.dispatchEvent(new Event("input"));
 
     // AUTO-SEND (Call Mode Only) on Final
     if (state.isCallMode && isFinal && transcript.trim().length > 0) {
       form.requestSubmit();
+    }
+
+    // Update baseText if final (so next utterance appends to this one)
+    if (isFinal) {
+      state.baseText = newText;
     }
   });
 

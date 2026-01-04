@@ -220,6 +220,7 @@
     &:hover {
       transform: none !important;
       background: transparent !important;
+      box-shadow: none !important;
     }
   }
 
@@ -646,6 +647,56 @@
   }
 }
 
+// [FIX] Message Actions (Extend/Reroll/Edit) visibility
+.message-actions {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+  padding-top: var(--space-xs);
+  border-top: 1px solid rgba(255, 255, 255, 10%);
+  opacity: 0; // Hidden by default
+  transition: opacity 0.2s ease;
+  pointer-events: none; // Prevent accidental clicks when hidden
+
+  button,
+  .icon-btn {
+    opacity: 0.7;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 4px;
+    background: transparent;
+    border: none;
+    color: inherit;
+    border-radius: 4px;
+
+    &:hover {
+      opacity: 1;
+      background: rgba(255, 255, 255, 10%);
+    }
+
+    svg {
+      width: 1.25em;
+      height: 1.25em;
+      fill: currentcolor;
+    }
+  }
+}
+
+// Show on hover
+.chat-bubble:hover .message-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+// Mobile: Always visible (usability)
+@include mobile {
+  .message-actions {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
 // --- 5. UNIFIED TECHNICAL CARD (The "Debug Protocol") ---
 // Merges: Debug, Physics Log, Status HUD, Thoughts, Image Prompts
 .debug-card {
@@ -793,354 +844,5 @@
     align-self: flex-end; // Force right side
     margin-left: 10vw; // Mirror of AI's margin-right
     margin-right: var(--space-xl); // Mirror of AI's margin-left
-
-    // Ensure the border radius matches user bubbles (Round-Square-Round-Round)
-    // REMOVED: border-radius: var(--pico-border-radius) 0 var(--pico-border-radius) var(--pico-border-radius);
   }
-}
-
-.typing-dot {
-  width: 6px;
-  height: 6px;
-  background: currentcolor;
-  border-radius: 50%;
-  animation: fluid-bounce 1.4s infinite ease-in-out both;
-
-  &:nth-child(1) {
-    animation-delay: -0.32s;
-  }
-
-  &:nth-child(2) {
-    animation-delay: -0.16s;
-  }
-}
-
-@keyframes fluid-bounce {
-  0%,
-  80%,
-  100% {
-    transform: scale(0);
-  }
-
-  40% {
-    transform: scale(1);
-  }
-}
-
-@keyframes slide-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-// --- CONTEXT Actions ---
-.message-actions {
-  display: none;
-  position: absolute;
-  top: -12px;
-  right: 10px;
-  background: var(--pico-card-background-color);
-  border: 1px solid var(--pico-muted-border-color);
-  border-radius: var(--pico-border-radius);
-  padding: 2px;
-  gap: 4px;
-  box-shadow: 0 2px 5px rgb(0 0 0 / 20%);
-  z-index: 10;
-
-  .ghost-icon-btn {
-    appearance: none;
-    background: transparent;
-    border: none;
-    color: var(--pico-muted-color);
-    cursor: pointer;
-    font-size: 0.75rem;
-    padding: 2px 6px;
-    margin: 0;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-    line-height: 1;
-
-    &:hover {
-      transform: translateY(-1px);
-      color: var(--pico-primary);
-    }
-  }
-}
-
-.chat-bubble:hover .message-actions {
-  display: flex;
-}
-
-// INLINE EDITING
-.chat-bubble.is-editing {
-  flex-direction: column;
-  align-items: stretch;
-  background-color: var(--pico-card-background-color);
-  border: 1px solid var(--pico-primary-border);
-  width: 100%;
-
-  textarea.edit-input {
-    width: 100%;
-    min-height: 100px;
-    background: transparent;
-    border: none;
-    color: inherit;
-    font-family: inherit;
-    font-size: inherit;
-    resize: vertical;
-    padding: 0;
-    margin-bottom: 0.5rem;
-
-    &:focus {
-      outline: none;
-      box-shadow: none;
-    }
-  }
-
-  .edit-controls {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-
-    button {
-      width: auto;
-      padding: 4px 12px;
-      font-size: 0.8rem;
-      margin-bottom: 0;
-    }
-  }
-}
-
-// SAFETY LOCK
-#chat-feed.generating .chat-bubble:hover .message-actions {
-  display: none !important;
-}
-
-/* =========================================
-   7. IMAGE OVERLAYS (Advanced Media)
-   ========================================= */
-#chat-feed .chat-bubble.story-image-container {
-  padding: 0 !important;
-  border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  max-width: 80vw !important;
-  width: auto !important;
-  min-width: 200px;
-  margin-right: auto;
-  margin-left: auto;
-
-  &.chat-bubble--character {
-    margin-right: auto;
-    margin-left: 2rem;
-  }
-
-  &.chat-bubble--user {
-    margin-left: auto;
-    margin-right: 2rem;
-  }
-
-  &.chat-bubble--character.theme-smartphone-fix {
-    margin-left: 8px !important;
-  }
-
-  .image-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-sm-md);
-    padding: 2rem;
-    background: rgba(0, 0, 0, 20%);
-    border-radius: 8px;
-    border: 1px dashed var(--pico-muted-border-color);
-    color: var(--pico-muted-color);
-    width: 100%;
-    min-width: 300px;
-    font-size: 0.85rem;
-    font-weight: 600;
-
-    .loading-spinner {
-      @extend %spinner-base;
-
-      width: 20px;
-      height: 20px;
-
-      --spinner-width: 2px;
-      --spinner-color: var(--pico-muted-color);
-    }
-  }
-}
-
-// Unified Spinner Base (Shared)
-%spinner-base {
-  border: var(--spinner-width, 2px) solid
-    var(--spinner-color, var(--pico-muted-color));
-  border-top-color: transparent !important; // override border-top
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-.image-wrapper {
-  position: relative;
-  border-radius: 12px !important;
-  overflow: hidden;
-  line-height: 0;
-  width: 100%;
-  min-width: 300px;
-  margin-top: 0.5rem;
-
-  &.rerolling {
-    .generated-image {
-      filter: blur(4px);
-      transition: filter 0.3s ease;
-    }
-
-    .reroll-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 5;
-      background: rgb(0 0 0 / 20%);
-
-      .reroll-spinner {
-        @extend %spinner-base;
-
-        width: 40px;
-        height: 40px;
-
-        --spinner-width: 4px;
-        --spinner-color: rgb(255 255 255 / 30%); // mute the full ring
-
-        border-top-color: #fff !important; // active segment color
-      }
-    }
-  }
-
-  img.generated-image {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 12px !important;
-    transition: transform 0.2s ease;
-
-    &:hover {
-      transform: scale(1.01);
-    }
-
-    width: 100%;
-    object-fit: contain;
-  }
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-// --- CONCLUDED STATE CONTROLS ---
-// Moved to _storyboard.scss to unify with Storyboard Pills & deduplicate code.
-
-#story-concluded {
-  margin-bottom: 1rem;
-  text-align: center;
-  padding: 0.5rem;
-  background: var(--pico-primary-background);
-  color: var(--pico-primary-inverse);
-  border-radius: var(--pico-radius);
-  font-weight: bold;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  font-size: 0.8rem;
-}
-
-// Hide Director/Debug content by default
-.developer-content {
-  display: none;
-}
-
-body.mode-developer {
-  .developer-content {
-    display: block;
-    animation: fadeIn 0.3s ease;
-  }
-
-  .debug-block {
-    display: flex;
-  }
-}
-
-.debug-image-prompt-container {
-  display: none;
-}
-
-body.mode-developer .debug-image-prompt-container {
-  display: block;
-  background: #000;
-  border: 1px dashed var(--color-accent-pink);
-  padding: var(--space-xs);
-  margin-top: var(--space-xs);
-  font-family: monospace;
-  font-size: 0.8em;
-  color: var(--color-accent-pink);
-
-  .label {
-    font-weight: bold;
-    display: block;
-    margin-bottom: 2px;
-  }
-
-  .content {
-    color: #fff;
-    opacity: 0.9;
-  }
-}
-
-// --- VISUAL DIRECTOR GRID ---
-.director-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.director-row {
-  display: flex;
-  gap: 0.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 5%);
-  padding-bottom: 0.5rem;
-
-  &:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-}
-
-.director-label {
-  flex: 0 0 60px;
-  font-weight: bold;
-  opacity: 0.6;
-  text-transform: uppercase;
-  font-size: 0.85em;
-  letter-spacing: 0.05em;
-}
-
-.director-value {
-  flex: 1;
-  opacity: 0.9;
-  word-break: break-word;
 }
