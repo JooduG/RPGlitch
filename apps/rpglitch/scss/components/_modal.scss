@@ -44,19 +44,18 @@ dialog.modal {
 
   // Variation: Dialog (Flush Footer for Alert/Confirm/Prompt)
   &.modal-content--dialog {
+    // Dialogs should shrink to fit content, not expand
+    height: auto;
+
     .modal-body {
       text-align: left;
+      flex: 0 1 auto; // Don't force expand
     }
 
     footer {
       @extend %btn-group-split;
 
       border-top: 1px solid $ui-glass-border;
-
-      // Dialog-specific overrides if necessary, otherwise the extend handles it.
-      // The %btn-group-split uses var(--space-sm-md) (12px),
-      // whereas previous code used var(--pico-radius).
-      // Since the request is to unify, using the split group is correct.
     }
   }
 
@@ -99,12 +98,25 @@ dialog.modal {
 
   // Body Content
   .modal-body {
-    flex: 1; // [FIX] Grow to fill space
-    overflow: hidden auto; // [FIX] Scroll here // [FIX] Prevent horizontal scroll
     padding: var(--space-lg);
-    font-size: 0.95rem;
-    line-height: 1.6;
     color: rgba(255, 255, 255, 80%);
+    line-height: 1.6;
+    font-size: 0.95rem; // Kept from original
+
+    // [FIX] Scrollable Area
+    flex: 1; // [FIX] Grow to fill space
+    overflow-y: auto; // [FIX] Scroll here
+    min-height: 0; // Flaxbox jailbreak
+
+    // Custom Scrollbar
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 20%);
+      border-radius: 3px;
+    }
 
     p {
       margin-bottom: var(--space-md);

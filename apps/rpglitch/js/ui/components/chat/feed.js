@@ -36,32 +36,13 @@ export function setChatGeneratingState(isGenerating) {
 }
 
 export function setSendLock(isLocked, disableInput = false) {
+  // [DEPRECATED] State is now managed centrally in input.js via events.
+  // Keeping function signature to prevent crashes if called elsewhere.
+  /*
   const form = document.querySelector("#story-form");
   if (!form) return;
-
-  const btn = form.querySelector('button[type="submit"]');
-  const input = form.querySelector('[name="message"]');
-
-  if (btn) {
-    if (isLocked) {
-      btn.disabled = true;
-      btn.dataset.locked = "true";
-      btn.classList.add("muted");
-    } else {
-      delete btn.dataset.locked;
-      btn.classList.remove("muted");
-
-      const hasText = input && input.value.trim().length > 0;
-      btn.disabled = !hasText;
-    }
-  }
-
-  if (input) {
-    input.disabled = isLocked && disableInput;
-    if (!isLocked) {
-      input.focus();
-    }
-  }
+  // ... Legacy code removed to prevent conflicts ...
+  */
 }
 
 // --- INDICATORS ---

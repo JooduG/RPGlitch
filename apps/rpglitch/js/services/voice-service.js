@@ -1,8 +1,9 @@
-import { log } from "../core/utils.js";
+import { log, error } from "../core/utils.js";
 
 /**
  * Native Voice Service (Biometric Edition)
  * Pure native SpeechSynthesis with dynamic Rate/Pitch modulation.
+ * Supports "Call Mode" loop via SpeechRecognition.
  */
 export class VoiceService {
   constructor() {
@@ -10,8 +11,14 @@ export class VoiceService {
     this.currentVoiceURI = null;
     this.baseRate = 1.0;
     this.basePitch = 1.0;
+    this.callMode = false;
+    this.isSpeaking = false;
     this.synth = window.speechSynthesis;
+    this.recognition = null;
     this.isReady = false;
+
+    // Mic State
+    this.isListening = false;
   }
 
   async init() {
@@ -23,6 +30,19 @@ export class VoiceService {
     // Listener for async loading
     if (this.synth.onvoiceschanged !== undefined) {
       this.synth.onvoiceschanged = () => this._loadVoices();
+    }
+
+    // Init Recognition if supported
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      this.recognition = new SpeechRecognition();
+      this.recognition.continuous = false;
+      this.recognition.lang = "en-US";
+      this.recognition.interimResults = true;
+      this.recognition.maxAlternatives = 1;
+    } else {
+      log("[VoiceService] SpeechRecognition not supported in this browser.");
     }
 
     this.isReady = true;
@@ -84,85 +104,156 @@ export class VoiceService {
     this.basePitch = Math.max(0.1, Math.min(2.0, parseFloat(val) || 1.0));
   }
 
+  setCallMode(enabled) {
+    this.callMode = !!enabled;
+    log(`[VoiceService] Call Mode: ${this.callMode ? "ON" : "OFF"}`);
+  }
+
   /**
    * Speaks text with optional biometric modifiers.
    * @param {string} text
    * @param {string|null} voiceURI - Override voice
    * @param {object} modifiers - { rate: 1.0, pitch: 1.0 } (Multipliers)
+   * @param {function} onEndCallback - Called when speech finishes
    */
-  speak(text, voiceURI = null, modifiers = {}) {
+  speak(text, voiceURI = null, modifiers = {}, onEndCallback = null) {
     if (!text) return;
 
-    // 1. The Lobotomy
+    // 1. The Lobotomy (Clean tags)
     const cleanText = text
       .replace(/<think>[\s\S]*?<\/think>/gi, "")
+      .replace(/<[^>]*>/g, "") // Remove all HTML tags
       .replace(/\*/g, "")
       .trim();
 
-    if (!cleanText) return;
-
-    // 2. Stop previous
-    this.stop();
-
-    // 3. Resolve Voice
-    const targetURI = voiceURI || this.currentVoiceURI;
-    const voiceObj = this._findVoice(targetURI);
-
-    if (!voiceObj) {
-      console.warn(`[VoiceService] Voice missing: ${targetURI}`);
+    if (!cleanText) {
+      if (onEndCallback) onEndCallback();
+      return;
     }
 
-    // 4. Calculate Biometrics
-    const modRate = modifiers.rate || 1.0;
-    const modPitch = modifiers.pitch || 1.0;
+    // Cancel current
+    this.synth.cancel();
 
-    let finalRate = this.baseRate * modRate;
-    let finalPitch = this.basePitch * modPitch;
-
-    // Clamp
-    finalRate = Math.max(0.1, Math.min(10.0, finalRate));
-    finalPitch = Math.max(0.1, Math.min(2.0, finalPitch)); // Browser limits usually 0-2
-
-    console.log(
-      `🗣️ Speaking [${voiceObj?.name || "Default"}] Rate: ${finalRate.toFixed(2)} Pitch: ${finalPitch.toFixed(2)}`,
-    );
-
-    // 5. Utterance
+    // 2. Utterance
     const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.voice = voiceObj ? voiceObj._ref : null;
+
+    // 3. Select Voice
+    const targetURI = voiceURI || this.currentVoiceURI;
+    const voiceObj =
+      this.voices.find((v) => v.uri === targetURI) || this.voices[0];
+    if (voiceObj) {
+      utterance.voice = voiceObj._ref;
+    }
+
+    // 4. Biometrics (Modifiers * Base)
+    // Rate: Base * Mod. Clamped 0.1 - 10.0
+    const modRate = modifiers.rate || 1.0;
+    let finalRate = this.baseRate * modRate;
+    finalRate = Math.max(0.1, Math.min(10.0, finalRate));
+
+    // Pitch: Base * Mod. Clamped 0.1 - 2.0
+    const modPitch = modifiers.pitch || 1.0;
+    let finalPitch = this.basePitch * modPitch;
+    finalPitch = Math.max(0.1, Math.min(2.0, finalPitch));
+
     utterance.rate = finalRate;
     utterance.pitch = finalPitch;
-    utterance.volume = 1.0;
+
+    // 5. Events
+    utterance.onstart = () => {
+      this.isSpeaking = true;
+    };
+
+    utterance.onend = () => {
+      this.isSpeaking = false;
+      if (onEndCallback) onEndCallback();
+    };
+
+    utterance.onerror = (e) => {
+      error("[VoiceService] Speech Error:", e);
+      this.isSpeaking = false;
+      if (onEndCallback) onEndCallback();
+    };
 
     this.synth.speak(utterance);
   }
 
-  stop() {
-    if (this.synth.speaking) {
-      this.synth.cancel();
-    }
-  }
-
-  _findVoice(uri) {
-    if (!uri) return this.voices[0];
-    return this.voices.find((v) => v.uri === uri) || this.voices[0];
-  }
-
+  /**
+   * Preview a voice setting
+   */
   preview(uri, rate, pitch) {
-    // Temp override for preview
+    // Temporary overrides
+    const oldRate = this.baseRate;
+    const oldPitch = this.basePitch;
+
     if (rate) this.setRate(rate);
     if (pitch) this.setPitch(pitch);
 
-    this.speak("Audio check. Systems nominal.", uri);
+    this.speak("Audio check. Systems nominal.", uri, {}, () => {
+      // Restore
+      this.baseRate = oldRate;
+      this.basePitch = oldPitch;
+    });
+  }
 
-    // Restore logic handled by UI state usually, but strictly `speak` uses instance state
-    // so we should reset if this was just a preview?
-    // Actually, `preview` usually implies testing current settings.
-    // The UI should call setRate/setPitch before previewing.
-    // Let's assume UI updates state first.
+  /**
+   * Toggle Listen (Helper)
+   */
+  async toggleListen(onPartial, onFinal, onEnd) {
+    if (this.isListening) {
+      this.stopListening();
+      if (onEnd) onEnd();
+      return false;
+    } else {
+      this.listen(onPartial, onFinal, onEnd);
+      return true;
+    }
+  }
 
-    // Revert if passed explicitly? No, let's keep it simple.
-    // The UI calls setRate/setPitch on input, then calls preview().
+  /**
+   * Listen for speech (Mic)
+   * @param {function} onPartial - Real-time transcript
+   * @param {function} onFinal - Final result
+   * @param {function} onEnd - Called when listening stops (for any reason)
+   */
+  listen(onPartial, onFinal, onEnd) {
+    if (!this.recognition) return;
+    if (this.isListening) return;
+
+    this.isListening = true;
+
+    // Play subtle cue? Maybe later.
+
+    this.recognition.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .map((r) => r[0].transcript)
+        .join("");
+
+      if (event.results[0].isFinal) {
+        if (onFinal) onFinal(transcript);
+      } else {
+        if (onPartial) onPartial(transcript);
+      }
+    };
+
+    this.recognition.onerror = (event) => {
+      error("[VoiceService] Mic Error:", event.error);
+      this.isListening = false;
+    };
+
+    this.recognition.onend = () => {
+      this.isListening = false;
+      if (onEnd) onEnd();
+    };
+
+    this.recognition.start();
+  }
+
+  stopListening() {
+    if (this.recognition && this.isListening) {
+      this.recognition.stop();
+      this.isListening = false;
+    }
   }
 }
 

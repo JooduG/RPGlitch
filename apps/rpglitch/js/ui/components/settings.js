@@ -21,7 +21,82 @@ export const StoryOptionsController = {
     }
 
     // [CLEANUP] Voice settings removed (Native Service used by default)
-    // No injection needed.
+    // No injection needed for Puter/Auth.
+
+    // [NEW] Call Mode Toggle Injection (Story Mode Exclusive)
+    const storyGroup = contentContainer.querySelector(
+      ".settings-section-storymode .settings-panel",
+    );
+    // Remove old audio group if present (cleanup)
+    const oldAudio = contentContainer.querySelector(".settings-section-audio");
+    if (oldAudio) oldAudio.remove();
+
+    if (storyGroup && !modal.querySelector("#setting-call-mode")) {
+      const modeWrap = document.createElement("label");
+      modeWrap.className = "settings-label";
+      modeWrap.htmlFor = "setting-call-mode";
+      // Style: Toggle Left, Label Right (Flex row-reverse or just order)
+      // Pico.css default label>input[type=checkbox] might need specific CSS or order.
+      // User requested "harmony" with dev mode.
+      modeWrap.innerHTML = `
+        <input type="checkbox" id="setting-call-mode" role="switch">
+        Continuous Call Mode
+      `;
+      storyGroup.appendChild(modeWrap);
+    }
+
+    // Call Mode Listener & Auto-Start
+    const callModeToggle = modal.querySelector("#setting-call-mode");
+    if (callModeToggle) {
+      import("../../services/voice-service.js").then(({ voiceService }) => {
+        callModeToggle.checked = voiceService.callMode;
+        callModeToggle.addEventListener("change", async (e) => {
+          try {
+            const isEnabled = e.target.checked;
+            // 1. Update Service State
+            voiceService.setCallMode(isEnabled);
+
+            // 2. Manage Mic Button Interface
+            const micBtn = document.querySelector("#btn-mic");
+            if (micBtn) {
+              if (isEnabled) {
+                // Turn ON Call Mode
+                micBtn.classList.add("is-call-mode");
+                micBtn.classList.add("call-mode-active");
+                // Auto-start listening logic (via Service or click simulation)
+                // Safe approach: trigger click if not active
+                if (!voiceService.isListening) {
+                  // Simulate interaction to unlock audio context if needed
+                  micBtn.click();
+                }
+              } else {
+                // Turn OFF Call Mode - FULL RESET
+                voiceService.stopListening();
+
+                micBtn.classList.remove("is-call-mode");
+                micBtn.classList.remove("call-mode-active");
+                micBtn.classList.remove("active");
+
+                // CRITICAL: Restore Interaction
+                micBtn.disabled = false;
+
+                // Restore Input Field Logic too
+                document.dispatchEvent(new Event("call_mode_changed"));
+
+                const input = document.querySelector(
+                  'textarea[name="message"]',
+                );
+                if (input) input.disabled = false;
+              }
+            }
+          } catch (err) {
+            console.error("Call Mode Toggle Error:", err);
+            // Revert toggle if failed
+            e.target.checked = !e.target.checked;
+          }
+        });
+      });
+    }
 
     // ⚡ BOLT OPTIMIZATION: Event Delegation
     // Replaced multiple individual listeners with a single document-level delegate on the grid.

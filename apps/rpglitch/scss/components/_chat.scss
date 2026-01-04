@@ -108,94 +108,119 @@
   }
 
   button[type="submit"] {
-    @extend %btn;
+    @extend %chat-action-btn;
 
+    margin-left: var(--space-xs);
     margin-bottom: 0;
     flex: 0 0 auto !important;
-    width: auto !important;
-    padding-right: var(--space-lg);
-    color: var(--pico-muted-color);
+    padding-right: 0;
+  }
+}
+
+// [HARMONIZATION] Unified Chat Action Button Style
+%chat-action-btn {
+  @extend %btn;
+
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+  color: var(--pico-muted-color) !important;
+  padding: 0;
+  margin: 0;
+
+  // [HARMONIZATION] Unified Width (Send Button Standard)
+  width: 3rem !important;
+  height: 2.5rem !important; // Keep height standard
+  flex: 0 0 3rem !important; // Prevent shrink
+  font-size: 0.85rem;
+  border-radius: var(--pico-radius) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer;
+
+  .icon {
+    width: 1.25em;
+    height: 1.25em;
+    fill: currentcolor;
+    transition: transform 0.2s ease;
+  }
+
+  &:hover:not(:disabled) {
+    background: transparent !important;
+    color: var(--pico-primary) !important;
+    transform: translateY(-2px);
+    box-shadow: none !important;
 
     .icon {
-      width: 1.25em;
-      height: 1.25em;
-      fill: currentcolor;
+      transform: none !important;
     }
+  }
+
+  &:disabled,
+  &.disabled {
+    opacity: 0.4 !important;
+    filter: grayscale(1) !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    transform: none !important;
+    color: var(--pico-muted-color) !important;
+    box-shadow: none !important;
   }
 }
 
 #btn-settings-placeholder {
-  @extend %btn;
+  @extend %chat-action-btn;
 
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  padding: 0 var(--space-sm-md);
-  width: auto;
-  flex: 0 0 auto;
-  color: var(--pico-muted-color);
-  transition: all 0.2s ease;
-  height: auto;
-  min-height: 2.25rem;
-  font-size: 0.85rem;
-  margin-bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  vertical-align: middle;
-
-  span {
-    display: inline-block;
-    transition: transform 0.2s ease;
-  }
-
-  &:hover {
-    background: transparent;
-    color: var(--pico-primary);
-    box-shadow: none !important;
-
-    span {
-      transform: translateY(-2px);
-    }
-  }
+  margin-right: var(--space-xs);
 }
 
 #btn-mic {
-  // Base styles are set inline in input.js for strict alignment,
-  // but we handle states here.
-  transition: all 0.2s ease; // Circular pulse effect
+  @extend %chat-action-btn;
 
-  // FIX: Force square shape with fixed size, do not stretch
-  width: 2.5rem !important;
-  height: 2.5rem !important;
-  flex: 0 0 2.5rem !important;
-  border-radius: 50%;
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  margin: 0 !important;
-  aspect-ratio: 1 / 1;
+  // Mic-Specific Status Colors
 
-  &.call-active {
-    // "Phone Off Hook" state (Loop Active, Waiting for AI)
+  // Call Mode (Blue Standby)
+  &.call-mode-active {
     color: var(--pico-primary) !important;
-    background-color: rgba(
-      45,
-      212,
-      191,
-      15%
-    ); // Hardcoded fallback or use var if available
 
-    box-shadow: 0 0 0 1px var(--pico-primary);
+    &:disabled {
+      opacity: 1 !important;
+      filter: none !important;
+      transform: none !important;
+    }
   }
 
-  &.listening {
-    // "Mic Open" state
-    color: #fff !important;
-    background-color: #ef4444 !important; // Red
-    border-color: #ef4444 !important;
-    box-shadow: 0 0 15px rgba(239, 68, 68, 60%) !important;
-    animation: mic-pulse 1.5s infinite;
+  // Active Recording (Red)
+  &.active {
+    color: var(--pico-del-color) !important;
+    animation: pulse-red 1.5s infinite;
+
+    // [FIX] No Mouseover Effect when Recording
+    &:hover {
+      background: transparent !important;
+      transform: none !important;
+      color: var(--pico-del-color) !important;
+    }
+
+    &:disabled {
+      opacity: 1 !important;
+      filter: none !important;
+      transform: none !important;
+    }
+  }
+
+  // Call Mode Interaction Lock
+  &.is-call-mode {
+    cursor: default !important;
+    pointer-events: none !important;
+
+    // [FIX] Ensure no hover in Call Mode either
+    &:hover {
+      transform: none !important;
+      background: transparent !important;
+    }
   }
 }
 
@@ -205,11 +230,27 @@
   }
 
   50% {
-    transform: scale(1.1);
+    transform: scale(1.05);
+  } // Toned down
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-red {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.05); // Toned down from 1.1
+    opacity: 0.7; // Softer fade
   }
 
   100% {
     transform: scale(1);
+    opacity: 1;
   }
 }
 

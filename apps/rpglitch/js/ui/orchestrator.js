@@ -154,15 +154,20 @@ const initEventBinds = () => {
   });
 
   events.addEventListener(EVENTS.GENERATION_COMPLETED, async (e) => {
-    const { setSendLock, setChatGeneratingState } =
-      await import("./components/chat/feed.js");
-    setSendLock(false);
-    setChatGeneratingState(false);
-    audioService.play("notification");
-
-    // Voice Feedback
+    // 1. Resolve Voice Service & State FIRST
     const { voiceService } = await import("../services/voice-service.js");
     voiceService.init();
+
+    // 2. Resolve UI Controllers
+    // [FIX] State managed by input.js via GENERATION_COMPLETED event
+    // No need to manually toggle locks here.
+    const { setChatGeneratingState } =
+      await import("./components/chat/feed.js");
+
+    // 3. Update States
+    setChatGeneratingState(false);
+
+    audioService.play("notification");
 
     // [FIX] Resolve Voice ID & Biometrics from Character Entity
     const { entities } = await import("../data/repo.js");
@@ -181,29 +186,96 @@ const initEventBinds = () => {
           voiceService.setRate(char.voiceRate || 1.0);
           voiceService.setPitch(char.voicePitch || 1.0);
 
-          // 3. Biometric Modulation (Transient)
-          // Physics: Velocity (Speed) -> Rate
-          // Entropy (Chaos) -> Pitch
+          // 3. Biometric Modulation (Physics -> Voice)
           const dyn = char.dynamics || { velocity: 50, entropy: 50 };
 
-          // Velocity: 0 (Slow) -> 100 (Fast). Center 50.
-          // Range: +/- 0.25 (0.75x to 1.25x)
+          // Velocity (Speed) -> Rate
+          // 0 (Slow) -> 100 (Fast). Center 50. Range: +/- 0.25
           rateMod = 1.0 + (dyn.velocity - 50) / 200;
 
-          // Entropy unused for Pitch now (User Request)
-          // pitchMod = 1.0;
+          // Entropy (Chaos) -> Pitch
+          // [DISABLED per User Request: Natural voices ignore pitch, causing inconsistency]
+          const pitchMod = 1.0;
+
+          // Debug
+          // console.log(`[BioVoice] V:${dyn.velocity} E:${dyn.entropy} -> R:${rateMod.toFixed(2)} P:${pitchMod.toFixed(2)}`);
+
+          // SPEAK (Only if Continuous Call Mode is Enabled)
+          // SPEAK (Only if Continuous Call Mode is Enabled)
+          if (voiceService.callMode) {
+            // [HARMONIZATION] Enforce Disabled Input during Speech
+            const input = document.querySelector('textarea[name="message"]');
+            const micBtn = document.querySelector("#btn-mic");
+            if (input) input.disabled = true;
+            if (micBtn) micBtn.disabled = true;
+
+            voiceService.speak(
+              e.detail?.text || "",
+              voiceId,
+              { rate: rateMod, pitch: pitchMod },
+              // CALLBACK: Call Mode Loop (Finished Speaking)
+              () => {
+                if (voiceService.callMode) {
+                  // Ensure UI stays disabled
+                  if (input) input.disabled = true;
+                  if (micBtn) micBtn.disabled = true;
+
+                  // Restart Listening DIRECTLY (Bypass Click Handler which stops it!)
+                  voiceService.listen(
+                    (text) => {
+                      // onPartial
+                      if (input) {
+                        input.value = text;
+                        input.dispatchEvent(new Event("input"));
+                      }
+                    },
+                    (text) => {
+                      // onFinal
+                      if (input) {
+                        input.value = text;
+                        input.dispatchEvent(new Event("input"));
+
+                        // Auto-Send Logic
+                        if (text && text.trim().length > 0) {
+                          import("../engine/director.js").then(
+                            ({ TurnManager }) => {
+                              TurnManager.send(text);
+                              // Clear input so next loop is clean
+                              if (input) input.value = "";
+                            },
+                          );
+                        }
+                      }
+                    },
+                    () => {
+                      // onEnd
+                      if (micBtn) {
+                        micBtn.classList.remove("active");
+                        if (voiceService.callMode)
+                          micBtn.classList.add("call-mode-active");
+                      }
+                    },
+                  );
+
+                  // Update UI to "Listening" State
+                  if (micBtn) {
+                    micBtn.classList.add("active");
+                    micBtn.classList.remove("call-mode-active");
+                    // Ensure is-call-mode is present
+                    micBtn.classList.add("is-call-mode");
+                  }
+                }
+              },
+            );
+          }
         }
       } catch (err) {
-        // Fallback
         console.warn("[Orchestrator] Voice fetch failed:", err);
       }
+    } else {
+      // Fallback for non-character agents (e.g. Narrator)
+      voiceService.speak(e.detail?.text || "");
     }
-
-    // ALWAYS call speak
-    voiceService.speak(e.detail?.text || "", voiceId, {
-      rate: rateMod,
-      pitch: 1.0,
-    });
 
     finalizeTurn("text", e.detail);
   });
