@@ -6,6 +6,7 @@ import { ThemeService } from "../../services/theme.js";
 import { LightboxService } from "../../services/lightbox.js";
 import { renderChat } from "./feed.js";
 import { TurnManager } from "../../../engine/director.js";
+import { voiceService } from "../../../services/voice-service.js";
 
 const activeEdits = new Map();
 export const activeRerolls = new Set();
@@ -305,6 +306,28 @@ export const renderMessage = (
 
     const actionsDiv = document.createElement("div");
     actionsDiv.className = "message-actions";
+
+    // [NEW] Read Aloud Button
+    if (role !== "user") {
+      let targetEntity = null;
+      if (role === "ai") targetEntity = entities?.ai;
+      else if (role === "fractal") targetEntity = entities?.fractal;
+
+      const voiceId = targetEntity?.voiceId || null;
+      const modifiers = {
+        rate: targetEntity?.voiceRate || 1.0,
+        pitch: targetEntity?.voicePitch || 1.0,
+      };
+
+      actionsDiv.appendChild(
+        createIconBtn(
+          `<svg class="icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`,
+          "Read Message",
+          () => voiceService.speak(mainContent, voiceId, modifiers),
+          "btn-action-read",
+        ),
+      );
+    }
 
     if (role === "ai" && options.isLast) {
       actionsDiv.appendChild(
