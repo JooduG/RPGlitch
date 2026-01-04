@@ -47,6 +47,7 @@ export const StoryOptionsController = {
         callModeToggle.addEventListener("change", async (e) => {
           try {
             const isEnabled = e.target.checked;
+            if (isEnabled) await voiceService.init();
             voiceService.setCallMode(isEnabled);
           } catch (err) {
             console.error("Call Mode Toggle Error:", err);

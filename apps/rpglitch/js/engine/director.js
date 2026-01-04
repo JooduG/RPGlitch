@@ -321,7 +321,7 @@ export const TurnManager = {
 
           // 6. PHYSICS
           if (payload.meta?.triggerUpdate) {
-            // Non-blocking Pulse
+            // Non-blocking Pulse (Reverted: User prefers speed over strict UI locking)
             TurnManager._runPulse(storyId, story.aiId);
           }
           break;

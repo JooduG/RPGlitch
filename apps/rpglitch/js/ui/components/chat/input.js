@@ -1,5 +1,6 @@
 import { TurnManager } from "../../../engine/director.js";
 import { voiceService } from "../../../services/voice-service.js";
+import { events, EVENTS } from "../../../core/events.js";
 
 export const ChatInputController = {
   updateUIState: null,
@@ -22,7 +23,6 @@ export function initChatInput() {
       micBtn.id = "btn-mic";
       micBtn.className = "btn-ghost btn-icon-raise";
       micBtn.style.cssText = "padding: 0 var(--space-sm-md);";
-      // Clean, standard Material Mic Icon
       micBtn.innerHTML = `
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon" style="width: 1.25em; height: 1.25em;">
           <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
@@ -72,20 +72,20 @@ export function initChatInput() {
 
     // --- LOGIC MATRIX ---
     if (state.isCallMode) {
-      // CALL MODE: Hands-free lock
+      // CALL MODE: Complete Lockout (Hands-free)
       inputDisabled = true;
-      sendDisabled = true; // Auto-sends
-      micDisabled = true; // Status light only
+      sendDisabled = true; // Auto-sends via script
+      micDisabled = true; // Visual status only
     } else if (state.isThinking || state.isSpeaking) {
-      // AI BUSY: Queueing allowed, Action blocked
-      inputDisabled = false; // ALLOWED: User can type "next" thought
-      sendDisabled = true; // BLOCKED: Wait for turn
-      micDisabled = true; // BLOCKED: Wait for turn
+      // AI BUSY: Queueing Allowed, Actions Blocked
+      inputDisabled = false; // User can type next message
+      sendDisabled = true; // STRICT DISABLE
+      micDisabled = true; // STRICT DISABLE
     } else if (state.isListening) {
-      // USER SPEAKING: Live Transcript
-      inputDisabled = false; // ALLOWED: See transcript update
-      sendDisabled = true; // BLOCKED: Wait for finish
-      micDisabled = false; // ALLOWED: Click to Stop
+      // USER SPEAKING: Focus on Voice
+      inputDisabled = true; // STRICT DISABLE (User Request)
+      sendDisabled = true; // Wait for finish
+      micDisabled = false; // Allowed: Click to Stop
     } else {
       // IDLE
       inputDisabled = false;
@@ -126,7 +126,7 @@ export function initChatInput() {
     micBtn.addEventListener("click", async (e) => {
       e.preventDefault();
       // Manual Toggle (Standard Mode Only)
-      if (state.isCallMode) return;
+      if (state.isCallMode || micBtn.disabled) return;
 
       await voiceService.init();
 
@@ -158,7 +158,9 @@ export function initChatInput() {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (btn.disabled) return;
+
+    // [CRITICAL FIX] Allow submission if Call Mode is active, bypassing the disabled button check
+    if (btn.disabled && !state.isCallMode) return;
 
     const val = input.value.trim();
     if (val) {
@@ -174,17 +176,27 @@ export function initChatInput() {
   });
 
   // --- GLOBAL EVENTS ---
-  document.addEventListener("generation_started", () => {
+  events.addEventListener(EVENTS.GENERATION_STARTED, () => {
     state.isThinking = true;
     updateUIState();
   });
 
-  document.addEventListener("generation_completed", () => {
+  events.addEventListener(EVENTS.GENERATION_COMPLETED, () => {
     state.isThinking = false;
     updateUIState();
   });
 
+  // Fallback (If strictly needed, though GENERATION_COMPLETED should cover it)
+  // Director generally doesn't emit 'generation:ended', assuming typo in previous thought, relying on CONSTANTS
+  // Checking CONSTANTS: GENERATION_COMPLETED is the key.
+
   document.addEventListener("voice:state-change", () => {
+    // [UX] Clear Input on Call Mode Activation
+    if (voiceService.callMode && !state.isCallMode) {
+      input.value = "";
+      state.baseText = "";
+      if (input.tagName === "TEXTAREA") adjustHeight();
+    }
     updateUIState();
   });
 
@@ -200,9 +212,11 @@ export function initChatInput() {
 
     // CALL MODE AUTO-SEND
     if (state.isCallMode && isFinal && transcript.trim().length > 0) {
-      // Tiny delay to ensure UI updates before send
-      setTimeout(() => form.requestSubmit(), 50);
-      state.baseText = newText; // Sync for safety
+      state.baseText = newText;
+      // Slight delay to ensure DOM update, then Force Submit
+      setTimeout(() => {
+        form.requestSubmit();
+      }, 50);
     } else if (isFinal) {
       state.baseText = newText;
     }

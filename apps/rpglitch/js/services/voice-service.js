@@ -18,6 +18,7 @@ export class VoiceService {
     this.isReady = false;
     this.isListening = false;
     this.STORAGE_KEY = "rpglitch_voice_settings";
+    this._loopTimeout = null; // Prevent double-triggering logic
   }
 
   async init() {
@@ -132,8 +133,11 @@ export class VoiceService {
   setCallMode(enabled) {
     this.callMode = !!enabled;
     this._dispatchStateChange();
-    if (this.callMode && !this.isSpeaking && !this.isListening) {
-      this.listen();
+    if (this.callMode) {
+      if (!this.isSpeaking && !this.isListening) this.listen();
+    } else {
+      // FIX: Auto-stop listening when Call Mode is disabled to unlock UI
+      if (this.isListening) this.stopListening();
     }
   }
 
@@ -151,56 +155,237 @@ export class VoiceService {
 
   speak(text, voiceURI = null, modifiers = {}, onEndCallback = null) {
     if (!text) return;
+
+    // 1. Force Stop Listening (Closes mic, resets state)
+    if (this.isListening) {
+      this.stopListening();
+    }
+
+    // Aggressive cleanup
     const cleanText = text
+      .replace(/<think>[\s\S]*?<\/think>/gi, "")
       .replace(/<[^>]*>/g, "")
       .replace(/\*/g, "")
       .trim();
+
     if (!cleanText) {
       if (onEndCallback) onEndCallback();
       return;
     }
 
+    // ENSURE ENGINE IS AWAKE
+    if (this.synth.paused) {
+      console.log("Resuming paused synth...");
+      this.synth.resume();
+    }
     this.synth.cancel();
-    const utterance = new SpeechSynthesisUtterance(cleanText);
 
-    const targetURI = voiceURI || this.currentVoiceURI;
-    const voiceObj =
-      this.voices.find((v) => v.uri === targetURI) || this.voices[0];
-    if (voiceObj) utterance.voice = voiceObj._ref;
+    // Strategy:
+    // 1. Try Full Text (Preferred Voice) -> Delivers best quality/continuity.
+    // 2. If 'synthesis-failed' or 'error', Switch to CHUNKED method.
+    // 3. If Chunked fails, Switch to System Voice.
 
-    // RATE: Dynamic
-    const modRate = modifiers.rate || 1.0;
-    utterance.rate = Math.max(0.1, Math.min(10.0, this.baseRate * modRate));
-
-    // PITCH: LOCKED (Stability Fix)
-    // We ignore modifiers.pitch to prevent browser crashes
-    utterance.pitch = this.basePitch;
-
-    utterance.onstart = () => {
-      this.isSpeaking = true;
-      this._dispatchStateChange();
+    const attemptSpeak = (textToSpeak, mode = "FULL", retryCount = 0) => {
+      // Delay slightly to let synth.cancel() flush
+      setTimeout(() => {
+        if (mode === "FULL") {
+          this._speakFull(textToSpeak, voiceURI, modifiers, (success) => {
+            if (success) {
+              handleFinish();
+            } else {
+              console.warn("Full Text Failed. Switching to Chunking...");
+              attemptSpeak(textToSpeak, "CHUNKED", 0);
+            }
+          });
+        } else {
+          // Chunked Mode (Robust)
+          this._speakChunked(
+            textToSpeak,
+            voiceURI,
+            modifiers,
+            retryCount,
+            () => {
+              handleFinish();
+            },
+          );
+        }
+      }, 50);
     };
 
-    utterance.onend = () => {
+    const handleFinish = () => {
       this.isSpeaking = false;
+      this._currentUtterance = null;
       this._dispatchStateChange();
 
-      // LOOP LOGIC
-      if (this.callMode) {
-        setTimeout(() => this.listen(), 200); // Brief pause before listening
-      }
-
+      if (this._loopTimeout) clearTimeout(this._loopTimeout);
       if (onEndCallback) onEndCallback();
+
+      // Loop Logic
+      if (this.callMode) {
+        console.log("Call Mode Active. Queuing listener...");
+        this._loopTimeout = setTimeout(() => {
+          if (!this.isSpeaking && !this.isListening && this.callMode) {
+            console.log("Starting Loop Listen...");
+            this.listen();
+          } else {
+            console.log("Loop Listen Cancelled (State Mismatch):", {
+              speaking: this.isSpeaking,
+              listening: this.isListening,
+              mode: this.callMode,
+            });
+            // Force recovery if we are stuck
+            if (this.callMode && !this.isListening) this.listen();
+          }
+        }, 300);
+      }
+    };
+
+    attemptSpeak(cleanText, "FULL");
+  }
+
+  // Helper: Get Fresh Voice Object (prevents Stale Reference Bug)
+  _getFreshVoice(uri) {
+    const freshList = this.synth.getVoices();
+
+    // CIRCUIT BREAKER CHECK
+    return (
+      freshList.find((v) => v.voiceURI === uri) ||
+      freshList.find((v) => v.default) ||
+      freshList[0]
+    );
+  }
+
+  _speakFull(text, voiceURI, modifiers, doneCallback) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    this._currentUtterance = utterance; // GC Fix
+
+    const targetURI = voiceURI || this.currentVoiceURI;
+
+    // DYNAMIC FETCH: Do not use cached objects
+    const voiceObj = this._getFreshVoice(targetURI);
+    if (voiceObj) utterance.voice = voiceObj;
+
+    const modRate = modifiers.rate || 1.0;
+    utterance.rate = Math.max(0.5, Math.min(2.0, this.baseRate * modRate));
+    utterance.pitch = this.basePitch;
+
+    let hasError = false;
+
+    utterance.onend = () => {
+      if (!hasError) doneCallback(true);
     };
 
     utterance.onerror = (e) => {
-      console.error("Speech Error:", e);
-      this.isSpeaking = false;
-      this._dispatchStateChange();
-      if (onEndCallback) onEndCallback();
+      if (e.error === "interrupted") return;
+
+      console.warn("Full Speak Error:", e);
+
+      // CIRCUIT BREAKER TRIGGER REMOVED PER USER REQUEST
+      // We still fall back for *this* attempt (via doneCallback(false)),
+      // but we do not permanently blacklist the voice for the session.
+
+      hasError = true;
+      doneCallback(false);
     };
 
-    this.synth.speak(utterance);
+    try {
+      this.isSpeaking = true;
+      this._dispatchStateChange();
+      this.synth.speak(utterance);
+    } catch (e) {
+      console.error("Synth Exception:", e);
+      doneCallback(false);
+    }
+  }
+
+  _speakChunked(text, voiceURI, modifiers, startRetryLevel, doneCallback) {
+    const chunks = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [text];
+    let chunkIndex = 0;
+    // STICKY FALLBACK: If we fallback, we stay fallen back for this specific utterance loop
+    let currentStickyLevel = startRetryLevel;
+
+    const speakNext = (retryLevel) => {
+      if (chunkIndex >= chunks.length) {
+        doneCallback();
+        return;
+      }
+
+      const chunkText = chunks[chunkIndex].trim();
+      if (!chunkText) {
+        chunkIndex++;
+        speakNext(retryLevel);
+        return;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(chunkText);
+      this._currentUtterance = utterance;
+
+      // UPDATE STICKY LEVEL if retry is higher
+      if (retryLevel > currentStickyLevel) {
+        currentStickyLevel = retryLevel;
+      }
+
+      // Level 0: Preferred, Level 1: System
+      if (currentStickyLevel === 0) {
+        const targetURI = voiceURI || this.currentVoiceURI;
+        // The _getFreshVoice helper will handle blacklisted voices automatically
+        const voiceObj = this._getFreshVoice(targetURI);
+
+        if (voiceObj) utterance.voice = voiceObj;
+        // Reset rates for stability in chunked mode
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+      } else {
+        // System Fallback
+        utterance.voice = null;
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+      }
+
+      utterance.onend = () => {
+        chunkIndex++;
+        // Maintain the current sticky level for the next chunk
+        speakNext(currentStickyLevel);
+      };
+
+      utterance.onerror = (e) => {
+        if (e.error === "interrupted") return;
+        console.warn(
+          `Chunk ${chunkIndex} failed (Level ${currentStickyLevel}):`,
+          e.error,
+        );
+
+        // CIRCUIT BREAKER TRIGGER REMOVED PER USER REQUEST
+        // We log the error but do not add to blacklist.
+        if (e.error === "synthesis-failed" && utterance.voice) {
+          console.warn(
+            `Voice failed (Chunk): ${utterance.voice.voiceURI}. Retrying chunk with fallback...`,
+          );
+        }
+
+        if (currentStickyLevel < 1) {
+          console.log(`Retrying Chunk ${chunkIndex} with System Voice...`);
+          // Bump level and retry SAME chunk
+          speakNext(currentStickyLevel + 1);
+        } else {
+          console.warn(`Chunk ${chunkIndex} failed all retries. Skipping.`);
+          chunkIndex++;
+          speakNext(currentStickyLevel); // Keep sticky level, skip chunk
+        }
+      };
+
+      try {
+        this.synth.speak(utterance);
+      } catch (e) {
+        if (currentStickyLevel < 1) speakNext(currentStickyLevel + 1);
+        else {
+          chunkIndex++;
+          speakNext(currentStickyLevel);
+        }
+      }
+    };
+
+    speakNext(currentStickyLevel);
   }
 
   async toggleListen() {

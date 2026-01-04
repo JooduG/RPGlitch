@@ -55,7 +55,7 @@
   transition: height 0.05s linear;
 }
 
-/* 2. INPUT AREA (Untouched) */
+/* 2. INPUT AREA */
 #story-input-area {
   flex-shrink: 0;
   padding: 0 var(--space-lg);
@@ -102,15 +102,15 @@
     @extend %input-deep;
 
     // SMART PILL SHAPE
-    border-radius: 24px; // Fixed px value for consistent corners
+    border-radius: 24px;
     min-height: 48px;
-    max-height: 200px; // Prevent explosion
+    max-height: 200px;
     padding: 12px 20px;
     height: auto;
     margin-bottom: 0;
     vertical-align: middle;
     resize: none;
-    overflow-y: auto; // Allow scroll when maxed
+    overflow-y: auto;
     transition: height 0.1s ease;
     width: auto;
     flex: 1 1 auto;
@@ -140,11 +140,9 @@
   color: var(--pico-muted-color) !important;
   padding: 0;
   margin: 0;
-
-  // [HARMONIZATION] Unified Width (Send Button Standard)
   width: 3rem !important;
-  height: 2.5rem !important; // Keep height standard
-  flex: 0 0 3rem !important; // Prevent shrink
+  height: 2.5rem !important;
+  flex: 0 0 3rem !important;
   font-size: 0.85rem;
   border-radius: var(--pico-radius) !important;
   display: flex !important;
@@ -196,14 +194,14 @@
   &.status-recording {
     color: var(--pico-del-color) !important;
     animation: pulse-red 1.5s infinite;
-    opacity: 1 !important; // Override disabled state
+    opacity: 1 !important;
     filter: none !important;
-    pointer-events: auto !important; // ALLOW CLICK TO STOP
+    pointer-events: auto !important;
     cursor: pointer !important;
 
     &:disabled {
       opacity: 1 !important;
-      cursor: pointer !important; // Override disabled cursor
+      cursor: pointer !important;
       pointer-events: auto !important;
     }
   }
@@ -212,9 +210,8 @@
   &.status-ai-active {
     color: var(--pico-primary) !important;
     filter: drop-shadow(0 0 5px var(--pico-primary));
-    opacity: 1 !important; // Override disabled state
+    opacity: 1 !important;
 
-    // Call Mode: LOCKED
     &.is-call-mode {
       pointer-events: none !important;
       cursor: default !important;
@@ -240,7 +237,8 @@
 
   50% {
     transform: scale(1.05);
-  } // Toned down
+  }
+
   100% {
     transform: scale(1);
   }
@@ -253,8 +251,8 @@
   }
 
   50% {
-    transform: scale(1.05); // Toned down from 1.1
-    opacity: 0.7; // Softer fade
+    transform: scale(1.05);
+    opacity: 0.7;
   }
 
   100% {
@@ -437,11 +435,7 @@
   }
 }
 
-/* ============================================================================
-   5. MESSAGES (Bubbles) - REFACTORED ("Clean Slate" Protocol)
-   ============================================================================ */
-
-// --- BASE BUBBLE ---
+/* 5. MESSAGES (Bubbles) */
 .chat-bubble {
   padding: var(--space-md) var(--space-md-lg);
   max-width: 50vw;
@@ -453,10 +447,9 @@
   margin-bottom: var(--space-lg);
   text-wrap: pretty;
 
-  // Defaults
   --msg-bg: var(--pico-form-element-background-color);
   --msg-radius: var(--pico-radius);
-  --msg-color: #fff; // Source of Truth
+  --msg-color: #fff;
 
   color: var(--msg-color) !important;
   text-shadow: $text-shadow-vibrant;
@@ -469,7 +462,6 @@
     padding: var(--space-sm-md) var(--space-md);
   }
 
-  // MARKDOWN STYLES
   b,
   strong {
     font-weight: 800;
@@ -518,9 +510,6 @@
   }
 }
 
-// --- MODIFIERS (The Visual Hierarchy) ---
-
-// 1. USER
 .chat-bubble--user {
   align-self: flex-end;
   text-align: left;
@@ -532,7 +521,6 @@
   --msg-bg: var(--pico-primary-background);
 }
 
-// 2. CHARACTER (AI)
 .chat-bubble--character {
   align-self: flex-start;
   text-align: left;
@@ -544,58 +532,47 @@
   --msg-bg: var(--pico-form-element-background-color);
 }
 
-// 3. FRACTAL (Unified System/Narrator Protocol)
 .chat-bubble--fractal {
-  // --- BASE GEOMETRY (Formerly Narrator) ---
   align-self: center;
   text-align: center;
   width: fit-content;
-  max-width: 40vw; // Unified width
+  max-width: 40vw;
   margin-inline: auto;
   text-wrap: balance;
-  border-radius: var(--msg-radius); // Unified radius
+  border-radius: var(--msg-radius);
   font-style: normal !important;
 
-  // --- VARIABLES ---
   --color-signature-main: var(
     --signature-color,
     var(--pico-primary-background)
   );
   --color-signature-glow: var(--signature-color, rgba(255, 255, 255, 50%));
 
-  // --- APPEARANCE (Divine Protocol) ---
   background-color: var(--color-signature-main) !important;
   color: #fff !important;
   border: none !important;
   box-shadow: 0 4px 12px var(--color-signature-glow);
 
-  // Eliminate Tail
   &::before,
   &::after {
     display: none !important;
   }
 
-  // Hide Narrator Prefix (Legacy safety)
   .narrator-prefix {
     display: none;
   }
 
-  // [ANTI-GRAVITY] Fractal Typing Dots
   .typing-dot {
     opacity: 0.9;
   }
 }
 
-// Dynamic Signature Colors
-// Generates .chat-bubble.signature-{name} classes
 @each $name, $data in $signature-colors {
   $color: map.get($data, "color");
-
   .chat-bubble.signature-#{$name} {
     border-color: rgba($color, 0.5) !important;
     box-shadow: 0 2px 8px rgba($color, 0.15);
 
-    // Fractal-specific subtle tint
     &.chat-bubble--fractal {
       background: linear-gradient(
         135deg,
@@ -606,16 +583,15 @@
   }
 }
 
-// [FIX] Message Actions (Extend/Reroll/Edit) visibility
 .message-actions {
   display: flex;
   gap: var(--space-sm);
   margin-top: var(--space-sm);
   padding-top: var(--space-xs);
   border-top: 1px solid rgba(255, 255, 255, 10%);
-  opacity: 0; // Hidden by default
+  opacity: 0;
   transition: opacity 0.2s ease;
-  pointer-events: none; // Prevent accidental clicks when hidden
+  pointer-events: none;
 
   button,
   .icon-btn {
@@ -642,13 +618,11 @@
   }
 }
 
-// Show on hover
 .chat-bubble:hover .message-actions {
   opacity: 1;
   pointer-events: auto;
 }
 
-// Mobile: Always visible (usability)
 @include mobile {
   .message-actions {
     opacity: 1;
@@ -656,17 +630,16 @@
   }
 }
 
-// --- 5. UNIFIED TECHNICAL CARD (The "Debug Protocol") ---
-// Merges: Debug, Physics Log, Status HUD, Thoughts, Image Prompts
+/* Debug Card (Untouched) */
 .debug-card {
-  display: none !important; // Hidden by default
+  display: none !important;
   flex-direction: column;
   background: rgb(15 23 42 / 95%);
   border: 1px solid var(--pico-muted-border-color);
   border-left: 3px solid var(--pico-primary);
   border-radius: 4px;
   padding: 0.5rem;
-  margin: 0.5rem auto; // Center it like a system message
+  margin: 0.5rem auto;
   width: auto;
   max-width: 95%;
   font-family: "Courier New", monospace;
@@ -678,12 +651,10 @@
   align-self: center;
   text-align: left;
 
-  // Developer Mode visibility
   body.mode-developer & {
     display: flex !important;
   }
 
-  // --- INTERNAL STRUCTURE ---
   .debug-header {
     font-size: 0.65em;
     font-weight: 800;
@@ -701,9 +672,6 @@
     width: 100%;
   }
 
-  // --- VARIANTS (Contextual Coloring) ---
-
-  // 1. Thought Trace (AI Reasoning)
   &.debug-card--thought {
     border-left-color: var(--color-accent-gold, #f59e0b);
 
@@ -712,7 +680,6 @@
     }
   }
 
-  // 2. Image Prompts
   &.debug-card--prompt {
     border-left-color: var(--color-accent-pink, #ec4899);
 
@@ -721,7 +688,6 @@
     }
   }
 
-  // 3. Status/Physics HUD
   &.debug-card--hud {
     border-left-color: var(--color-accent-cyan, #06b6d4);
 
@@ -730,7 +696,6 @@
     }
   }
 
-  // 4. Stale State
   &.is-stale {
     opacity: 0.5;
     text-decoration: line-through;
@@ -738,20 +703,17 @@
   }
 }
 
-// --- SIGNATURE COLOR LOGIC ---
 @each $name, $data in $signature-colors {
   $color: map.get($data, color);
-
   .chat-bubble.chat-bubble--user.signature-#{$name} {
     --msg-bg: #{$color};
   }
-
   .chat-bubble.chat-bubble--character.signature-#{$name} {
     --msg-bg: #{$color};
   }
 }
 
-// --- TYPING INDICATOR ---
+/* TYPING INDICATOR */
 .typing-bubble {
   padding: var(--space-sm-md) var(--space-md);
   margin-bottom: var(--space-md);
@@ -772,8 +734,13 @@
   animation: slide-in-up 0.3s ease-out forwards;
   border-radius: 999px;
 
+  // [FIX] ANIMATION VISIBILITY
   .typing-dot {
-    // Add Animation
+    display: inline-block; // Essential for transform
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: currentcolor;
     animation: typing-bounce 1.4s infinite ease-in-out both;
 
     &:nth-child(1) {
@@ -787,15 +754,12 @@
 
   @each $name, $data in $signature-colors {
     $color: map.get($data, color);
-
     &.signature-#{$name} {
       background-color: #{$color} !important;
     }
   }
 
-  // Fractal typing support
   &.chat-bubble--fractal {
-    // Variable Mapping for typing bubble context
     --color-signature-main: var(
       --signature-color,
       var(--pico-primary-background)
@@ -804,17 +768,16 @@
     align-self: center;
     margin-inline: auto;
     background-color: var(--color-signature-main) !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 10%); // [POLISH] Flat/Clean look for typing dots
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 10%);
 
     .typing-dot {
       background-color: #fff !important;
     }
   }
 
-  // User typing support (Right Aligned)
   &.chat-bubble--user {
-    align-self: flex-end; // Force right side
-    margin-left: 10vw; // Mirror of AI's margin-right
-    margin-right: var(--space-xl); // Mirror of AI's margin-left
+    align-self: flex-end;
+    margin-left: 10vw;
+    margin-right: var(--space-xl);
   }
 }
