@@ -66,23 +66,31 @@ class AudioService {
 
         // Handle Perchance "Array of JSON String" wrapper
         // Example: ['["notification = https://..."]']
-        if (
-          Array.isArray(soundList) &&
-          soundList.length > 0 &&
-          typeof soundList[0] === "string"
-        ) {
+        if (Array.isArray(soundList) && soundList.length > 0) {
+          // Robust Parse
           try {
-            // Parse the inner JSON string
-            soundList = JSON.parse(soundList[0]);
+            // If it's a string, try to parse it (it might be a JSON array string)
+            if (
+              typeof soundList[0] === "string" &&
+              soundList[0].trim().startsWith("[")
+            ) {
+              soundList = JSON.parse(soundList[0]);
+            }
+            // If it turns out not to be an array after parse, reset
+            if (!Array.isArray(soundList)) soundList = [];
           } catch (e) {
-            // If parsing fails, maybe it's already a raw array? Keep going.
             console.warn("[AudioService] JSON parse warning:", e);
+            soundList = []; // Safe fallback
           }
+        } else {
+          soundList = [];
         }
 
         // Now search the list
         if (Array.isArray(soundList)) {
-          const soundEntry = soundList.find((s) => s.startsWith(key));
+          const soundEntry = soundList.find(
+            (s) => typeof s === "string" && s.startsWith(key),
+          );
           if (soundEntry) {
             // Extract URL (everything after the first '=')
             const parts = soundEntry.split("=");

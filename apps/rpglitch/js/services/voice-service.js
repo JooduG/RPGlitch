@@ -188,6 +188,15 @@ export class VoiceService {
     utterance.onend = () => {
       this.isSpeaking = false;
       this._dispatchStateChange();
+
+      // TRIGGER LISTEN (If Call Mode is Active)
+      if (this.callMode) {
+        // If a specific callback was provided (e.g., from Orchestrator), it handles the logic
+        // Otherwise we might trigger strictly here.
+        // Current logic: Orchestrator passes a callback that calls .listen().
+        // We'll trust the callback.
+      }
+
       if (onEndCallback) onEndCallback();
     };
 
@@ -246,12 +255,17 @@ export class VoiceService {
     this.isListening = true;
     this._dispatchStateChange();
 
-    // Play subtle cue? Maybe later.
-
     this.recognition.onresult = (event) => {
       const transcript = Array.from(event.results)
         .map((r) => r[0].transcript)
         .join("");
+
+      // Dispatch generic event for Input to catch
+      document.dispatchEvent(
+        new CustomEvent("voice:input", {
+          detail: { transcript, isFinal: event.results[0].isFinal },
+        }),
+      );
 
       if (event.results[0].isFinal) {
         if (onFinal) onFinal(transcript);
@@ -264,22 +278,31 @@ export class VoiceService {
       error("[VoiceService] Mic Error:", event.error);
       this.isListening = false;
       this._dispatchStateChange();
-    };
-
-    this.recognition.onend = () => {
-      this.isListening = false;
-      this._dispatchStateChange();
       if (onEnd) onEnd();
     };
 
-    this.recognition.start();
+    this.recognition.onend = () => {
+      // Debounce slightly to prevent state flicker
+      setTimeout(() => {
+        this.isListening = false;
+        this._dispatchStateChange();
+        if (onEnd) onEnd();
+      }, 100);
+    };
+
+    try {
+      this.recognition.start();
+    } catch (e) {
+      error("Mic Start Fail:", e);
+      this.isListening = false;
+      this._dispatchStateChange();
+    }
   }
 
   stopListening() {
     if (this.recognition && this.isListening) {
       this.recognition.stop();
-      this.isListening = false;
-      this._dispatchStateChange();
+      // State change handled in onend
     }
   }
 }

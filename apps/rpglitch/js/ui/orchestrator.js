@@ -211,72 +211,62 @@ const initEventBinds = () => {
 
           // SPEAK (Only if Continuous Call Mode is Enabled)
           // SPEAK (Only if Continuous Call Mode is Enabled)
-          if (voiceService.callMode) {
-            // [HARMONIZATION] Enforce Disabled Input during Speech
-            const input = document.querySelector('textarea[name="message"]');
-            const micBtn = document.querySelector("#btn-mic");
-            if (input) input.disabled = true;
-            if (micBtn) micBtn.disabled = true;
+          // SPEAK
+          voiceService.speak(
+            e.detail?.text || "",
+            voiceId,
+            { rate: rateMod, pitch: pitchMod },
+            // CALLBACK: End of Speech
+            () => {
+              if (voiceService.callMode) {
+                // --- CALL MODE LOOP ---
 
-            voiceService.speak(
-              e.detail?.text || "",
-              voiceId,
-              { rate: rateMod, pitch: pitchMod },
-              // CALLBACK: Call Mode Loop (Finished Speaking)
-              () => {
-                if (voiceService.callMode) {
-                  // Ensure UI stays disabled
-                  if (input) input.disabled = true;
-                  if (micBtn) micBtn.disabled = true;
+                // Ensure UI stays disabled (Redundant safety)
+                const input = document.querySelector(
+                  'textarea[name="message"]',
+                );
+                const micBtn = document.querySelector("#btn-mic");
+                if (input) input.disabled = true;
+                if (micBtn) micBtn.disabled = true;
 
-                  // Restart Listening DIRECTLY (Bypass Click Handler which stops it!)
-                  voiceService.listen(
-                    (text) => {
-                      // onPartial
-                      if (input) {
-                        input.value = text;
-                        input.dispatchEvent(new Event("input"));
+                // Restart Listening DIRECTLY
+                voiceService.listen(
+                  (text) => {
+                    // onPartial
+                    if (input) {
+                      input.value = text;
+                      input.dispatchEvent(new Event("input"));
+                    }
+                  },
+                  (text) => {
+                    // onFinal
+                    if (input) {
+                      input.value = text;
+                      input.dispatchEvent(new Event("input"));
+
+                      // Auto-Send Logic
+                      if (text && text.trim().length > 0) {
+                        import("../engine/director.js").then(
+                          ({ TurnManager }) => {
+                            TurnManager.send(text);
+                            // Clear input
+                            if (input) input.value = "";
+                          },
+                        );
                       }
-                    },
-                    (text) => {
-                      // onFinal
-                      if (input) {
-                        input.value = text;
-                        input.dispatchEvent(new Event("input"));
-
-                        // Auto-Send Logic
-                        if (text && text.trim().length > 0) {
-                          import("../engine/director.js").then(
-                            ({ TurnManager }) => {
-                              TurnManager.send(text);
-                              // Clear input so next loop is clean
-                              if (input) input.value = "";
-                            },
-                          );
-                        }
-                      }
-                    },
-                    () => {
-                      // onEnd
-                      if (micBtn) {
-                        micBtn.classList.remove("active");
-                        if (voiceService.callMode)
-                          micBtn.classList.add("call-mode-active");
-                      }
-                    },
-                  );
-
-                  // Update UI to "Listening" State
-                  if (micBtn) {
-                    micBtn.classList.add("active");
-                    micBtn.classList.remove("call-mode-active");
-                    // Ensure is-call-mode is present
-                    micBtn.classList.add("is-call-mode");
-                  }
-                }
-              },
-            );
-          }
+                    }
+                  },
+                  () => {
+                    // onEnd
+                    // No specific UI reset needed here as input.js handles state
+                  },
+                );
+              } else {
+                // --- STANDARD MODE ---
+                // Input.js handles unlocking UI via 'voice:state-change' (isSpeaking -> false)
+              }
+            },
+          );
         }
       } catch (err) {
         console.warn("[Orchestrator] Voice fetch failed:", err);
