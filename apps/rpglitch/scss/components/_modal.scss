@@ -34,7 +34,8 @@ dialog.modal {
   // Layout
   display: flex;
   flex-direction: column;
-  max-height: 85vh; // [FIX] Constraint height
+  max-height: none; // [FIX] Removed constraint per user request
+  height: auto; // Allow growth
 
   // Variation: Wide (for Profile/Settings)
   &.modal-content--wide {
@@ -44,8 +45,10 @@ dialog.modal {
 
   // Variation: Dialog (Flush Footer for Alert/Confirm/Prompt)
   &.modal-content--dialog {
-    // Dialogs should shrink to fit content, not expand
+    // Dialogs should shrink to fit content
     height: auto;
+
+    // Restore max-width for small dialogs if needed, or rely on base
 
     .modal-body {
       text-align: left;
@@ -103,12 +106,12 @@ dialog.modal {
     line-height: 1.6;
     font-size: 0.95rem; // Kept from original
 
-    // [FIX] Scrollable Area
-    flex: 1; // [FIX] Grow to fill space
-    overflow-y: auto; // [FIX] Scroll here
-    min-height: 0; // Flaxbox jailbreak
+    // [FIX] Removed internal scroll
+    flex: 1 1 auto;
+    overflow: visible;
+    min-height: 0;
 
-    // Custom Scrollbar
+    // Custom Scrollbar (kept just in case, though unused if no overflow)
     &::-webkit-scrollbar {
       width: 6px;
     }

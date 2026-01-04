@@ -12,7 +12,10 @@ export const StoryOptionsController = {
 
     // Inject Template Content if empty
     const contentContainer = modal.querySelector(".modal-content");
-    if (contentContainer && !contentContainer.querySelector(".settings-body")) {
+    if (
+      contentContainer &&
+      !contentContainer.querySelector(".settings-controls")
+    ) {
       const tpl = document.getElementById("tpl-settings-modal");
       if (tpl) {
         contentContainer.innerHTML = ""; // Clear existing
@@ -21,16 +24,18 @@ export const StoryOptionsController = {
     }
 
     // [NEW] Global Audio & Voice Settings Injection
-    const settingsBody = contentContainer.querySelector(".settings-body");
+    const settingsBody = contentContainer.querySelector(".settings-controls");
     // Check if our sections already exist to prevent duplicate injection
     if (
       settingsBody &&
       !settingsBody.querySelector(".settings-section-audio")
     ) {
       const audioSection = document.createElement("div");
-      audioSection.className = "settings-section-audio";
+      // Use 'settings-section' class for consistent styling if needed,
+      // but strictly 'settings-section-audio' for identification
+      audioSection.className = "settings-section settings-section-audio";
       audioSection.innerHTML = `
-        <h5>Audio & Voice</h5>
+        <h3>Audio & Accessibility</h3>
         <div class="settings-panel">
             <label class="settings-label" for="setting-call-mode">
                 <input type="checkbox" id="setting-call-mode" role="switch">
@@ -43,15 +48,15 @@ export const StoryOptionsController = {
         </div>
         <hr>
       `;
-      // Inject at the very top
+      // Inject at the very top (prepend)
       settingsBody.prepend(audioSection);
 
-      // Bind Listeners (Dynamic Imports)
+      // Bind Listeners (Dynamic Imports to avoid circular deps)
       Promise.all([
         import("../../services/voice-service.js"),
         import("../../services/audio-service.js"),
       ]).then(([{ voiceService }, { audioService }]) => {
-        // 1. Call Mode
+        // 1. Call Mode Wiring
         const callToggle = audioSection.querySelector("#setting-call-mode");
         if (callToggle) {
           callToggle.checked = voiceService.callMode;
@@ -67,7 +72,7 @@ export const StoryOptionsController = {
           });
         }
 
-        // 2. Notifications
+        // 2. Notifications Wiring
         const notifToggle = audioSection.querySelector(
           "#setting-notifications",
         );

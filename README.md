@@ -70,7 +70,7 @@ graph TD
 
 ## 📌 State of the Union (Jan 2026)
 
-**Milestone: The Heartbeat & The Ghost**
+### **Milestone: The Heartbeat & The Ghost**
 
 The system has achieved **Narrative Autonomy**. The "Simulation Pulse" now beats in the background, grounding the chaotic AI imagination with a Physics-based gravity model. The "Ghostwriter" has evolved from a simple auto-complete into a sophisticated partner that respects user intent.
 

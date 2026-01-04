@@ -1,5 +1,7 @@
 import { log } from "../core/utils.js";
 
+const STORAGE_KEY = "rpglitch_audio_settings";
+
 class AudioService {
   constructor() {
     console.log("[AudioService] Service instantiated.");
@@ -7,14 +9,14 @@ class AudioService {
     this.buffers = new Map();
     this.unlocked = false;
     this.lastPlayed = 0;
-    this.threshold = 500; // debounce in ms (Refined requirement)
+    this.threshold = 500; // debounce in ms
     this.notificationsEnabled = true;
-    this._loadSettings(); // Restore state from storage
+    this._loadSettings();
   }
 
   _loadSettings() {
     try {
-      const stored = localStorage.getItem("rpglitch_audio_settings");
+      const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const settings = JSON.parse(stored);
         if (typeof settings.notificationsEnabled === "boolean") {
@@ -29,7 +31,7 @@ class AudioService {
   setNotifications(enabled) {
     this.notificationsEnabled = !!enabled;
     localStorage.setItem(
-      "rpglitch_audio_settings",
+      STORAGE_KEY,
       JSON.stringify({ notificationsEnabled: this.notificationsEnabled }),
     );
     console.log(
@@ -40,7 +42,6 @@ class AudioService {
 
   init() {
     console.log("[AudioService] Initializing event listeners...");
-    // One-time listener to unlock audio
     const unlockHandler = () => {
       this.unlock();
       document.body.removeEventListener("click", unlockHandler);
@@ -75,15 +76,12 @@ class AudioService {
   }
 
   async play(key) {
-    // 0. Filter Notifications if disabled
     if (key === "notification" && !this.notificationsEnabled) {
       return;
     }
 
-    // 1. Check unlock state
     if (!this.unlocked || !this.audioContext) return;
 
-    // 2. Debounce
     const now = Date.now();
     if (now - this.lastPlayed < this.threshold) {
       return;
@@ -92,40 +90,31 @@ class AudioService {
 
     let url = null;
 
-    // 3. Config Lookup (Robust Parsing)
     if (window.rpgLists?.sounds) {
       try {
         let soundList = window.rpgLists.sounds;
-
-        // Handle Perchance "Array of JSON String" wrapper
-        // Example: ['["notification = https://..."]']
         if (Array.isArray(soundList) && soundList.length > 0) {
-          // Robust Parse
           try {
-            // If it's a string, try to parse it (it might be a JSON array string)
             if (
               typeof soundList[0] === "string" &&
               soundList[0].trim().startsWith("[")
             ) {
               soundList = JSON.parse(soundList[0]);
             }
-            // If it turns out not to be an array after parse, reset
             if (!Array.isArray(soundList)) soundList = [];
           } catch (e) {
             console.warn("[AudioService] JSON parse warning:", e);
-            soundList = []; // Safe fallback
+            soundList = [];
           }
         } else {
           soundList = [];
         }
 
-        // Now search the list
         if (Array.isArray(soundList)) {
           const soundEntry = soundList.find(
             (s) => typeof s === "string" && s.startsWith(key),
           );
           if (soundEntry) {
-            // Extract URL (everything after the first '=')
             const parts = soundEntry.split("=");
             if (parts.length > 1) {
               url = parts.slice(1).join("=").trim();
@@ -137,16 +126,13 @@ class AudioService {
       }
     }
 
-    // 4. Fallback
     if (!url && key === "notification") {
-      // console.warn("[AudioService] Config missing/parse error. Using fallback.");
       url =
         "https://user.uploads.dev/file/50dc061d6ed6439719d283d042e9c172.wav";
     }
 
     if (!url) return;
 
-    // 5. Playback
     try {
       let buffer = this.buffers.get(key);
       if (!buffer) {
