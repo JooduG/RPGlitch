@@ -118,7 +118,7 @@ export function renderDynamicsWidget(
       // Data attribute distinguishes source (data-edit-dynamic="entropy" vs data-edit-baseline="entropy")
       // Actually edit.js uses `data-edit-dynamic` generally, but we need to know WHICH target.
       // We will use `data-dynamics-target="${source}"` and `data-dynamics-key="${key}"`
-      card.innerHTML = `
+      card.innerHTML = sanitizeHtml(`
         ${labelHtml}
         <input type="number" 
                class="dynamics-input" 
@@ -127,12 +127,12 @@ export function renderDynamicsWidget(
                value="${val}" 
                min="0" 
                max="100">
-      `;
+      `);
     } else {
-      card.innerHTML = `
+      card.innerHTML = sanitizeHtml(`
         ${labelHtml}
         <div class="dynamics-value">${val}%</div>
-      `;
+      `);
     }
     return card;
   };

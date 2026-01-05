@@ -81,18 +81,15 @@ const App = {
       initStoryboardStage(App.views);
 
       // 2.5 Restore Active Story (Persistence)
-      const lastActiveId = localStorage.getItem("rpglitch_active_story");
-      if (lastActiveId) {
-        try {
+      try {
+        const activeStorySetting = await db.settings.get("active_story");
+        if (activeStorySetting && activeStorySetting.value) {
+          const lastActiveId = activeStorySetting.value;
           await TurnManager.load(parseInt(lastActiveId, 10));
           log(`[Universal Stage] Restored active story: ${lastActiveId}`);
-        } catch (restoreErr) {
-          console.warn(
-            "[Universal Stage] Could not restore story:",
-            restoreErr,
-          );
-          localStorage.removeItem("rpglitch_active_story");
         }
+      } catch (restoreErr) {
+        console.warn("[Universal Stage] Could not restore story:", restoreErr);
       }
 
       // --- CLOCK UPDATE ---

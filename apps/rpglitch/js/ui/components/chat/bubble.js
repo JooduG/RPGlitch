@@ -246,16 +246,8 @@ export const renderMessage = (
           const refined = meta.refinedPrompt;
 
           // Escape for safe HTML
-          const safeRaw = rawPrompt
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
-          const safeRefined = refined
-            ? refined
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-            : null;
+          const safeRaw = sanitizeHtml(rawPrompt);
+          const safeRefined = refined ? sanitizeHtml(refined) : null;
 
           return `
         <div class="debug-card debug-card--prompt developer-content">
