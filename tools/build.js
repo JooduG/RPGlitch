@@ -47,17 +47,15 @@ const PERCHANCE_BRIDGE = `
   }
 
   /* ⚙️ CONFIG BRIDGE */
-  // We wrap this in a try-catch or check existence because lists might be slow to load
+  window.rpgLists = window.rpgLists || {};
   try {
-    if (typeof rpgLists !== "undefined") {
-      window.rpgLists = rpgLists;
-    } else {
-       console.warn("rpgLists is undefined. Using empty object.");
-       window.rpgLists = {};
+    // Attempt to pull from global namespace if injected by Perchance Left Panel
+    const externalConfig = (typeof rpgLists !== 'undefined') ? rpgLists : null;
+    if (externalConfig) {
+      Object.assign(window.rpgLists, externalConfig);
     }
   } catch (e) {
-    console.warn("rpgLists bridge error", e);
-    window.rpgLists = {};
+    console.warn("rpgLists bridge sync error", e);
   }
 </script>
 `;

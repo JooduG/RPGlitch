@@ -157,12 +157,20 @@ const App = {
   },
 
   async waitForConfig(timeout = 5000) {
+    // Proactively initialize to prevent early "undefined" warnings from services
+    window.rpgLists = window.rpgLists || {};
+
     const start = Date.now();
-    // Wait for window.rpgLists (injected by left panel)
-    while (!window.rpgLists && Date.now() - start < timeout) {
+    // Wait for window.rpgLists to populated with actual data (keys)
+    // The left panel should inject it.
+    while (
+      Object.keys(window.rpgLists).length === 0 &&
+      Date.now() - start < timeout
+    ) {
       await new Promise((r) => setTimeout(r, 100));
     }
-    if (window.rpgLists) {
+
+    if (Object.keys(window.rpgLists).length > 0) {
       log(
         "[RPGlitch] Config loaded successfully:",
         Object.keys(window.rpgLists),

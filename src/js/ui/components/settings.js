@@ -1,7 +1,6 @@
 import { db } from "../../core/db.js";
 import { applyPatch, state } from "../../core/state.js";
 import { TurnManager } from "../../engine/director.js";
-import { entities } from "../../data/repo.js";
 import { showAlert, handleConcludeStory } from "../orchestrator.js";
 import { log, error, sanitizeHtml } from "../../core/utils.js";
 
@@ -246,20 +245,8 @@ export const StoryOptionsController = {
         e.preventDefault();
         const story = state.story.byId[state.story.activeId];
 
-        const fractal = story
-          ? await entities.get("fractal", story.fractalId)
-          : null;
-        const isMessenger =
-          fractal &&
-          (fractal.name === "Messenger" ||
-            (fractal.simulation &&
-              fractal.simulation.directorMode === "TEXT_PROTOCOL"));
-
-        if (!story || !isMessenger) {
-          showAlert(
-            "Feature Unavailable",
-            `Feature unavailable. Exclusive to Messenger Mode.`,
-          );
+        if (!story) {
+          showAlert("Feature Unavailable", `No active story found.`);
           return;
         }
 

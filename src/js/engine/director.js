@@ -948,28 +948,6 @@ export const TurnManager = {
 
   requestVisual: async () => {
     const storyId = TurnManager.requireActive();
-    const story = state.story.byId[storyId];
-    const fractal = story
-      ? await entities.get(ROLES.FRACTAL, story.fractalId)
-      : null;
-    const isMessenger =
-      fractal &&
-      (fractal.name === "Messenger" ||
-        fractal.simulation?.directorMode === "TEXT_PROTOCOL");
-
-    if (!isMessenger) {
-      window.dispatchEvent(
-        new CustomEvent("app-error", {
-          detail: {
-            error: new Error(
-              "Feature unavailable. This feature is only available in Messenger Mode.",
-            ),
-            type: "feature-unavailable",
-          },
-        }),
-      );
-      return;
-    }
 
     const prompts = ["Pic!", "Show me.", "Photo?", "See?", "Pics!"];
     const text = prompts[Math.floor(Math.random() * prompts.length)];

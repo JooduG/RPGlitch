@@ -382,7 +382,7 @@ Full Body: Keep all.
 
 <OUTPUT_FORMAT>
 Return ONLY the final prompt string (No Markdown).
-Structure: [Framing], [Anchor Traits], [Outfit], [Action/Pose], [Environment], [Lighting], [Vibe Tags]
+Structure: Framing, Anchor Traits, Outfit, Action/Pose, Environment, Lighting, Vibe Tags (comma separated).
 </OUTPUT_FORMAT>`;
 
     return {
