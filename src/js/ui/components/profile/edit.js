@@ -1030,7 +1030,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
   // Save
   const saveBtn = document.createElement("button");
   saveBtn.className = "btn-primary btn-icon-raise";
-  saveBtn.innerHTML = `<svg class="icon" viewBox="0 0 24 24" style="width:1.2em; height:1.2em; vertical-align:middle;"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3-3 3zm3-10H5V5h10v4z"/></svg>`;
+  saveBtn.innerHTML = `<svg class="icon" viewBox="0 0 24 24" style="width:1.2em; height:1.2em; vertical-align:middle;"><path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z"/></svg>`;
   saveBtn.title = "Save Profile";
   saveBtn.onclick = async (e) => {
     e.preventDefault();

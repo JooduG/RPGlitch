@@ -153,6 +153,16 @@ export class VoiceService {
     );
   }
 
+  preview(voiceURI, rate, pitch) {
+    if (this.isSpeaking) {
+      this.synth.cancel();
+      this.isSpeaking = false;
+      return;
+    }
+    const text = "System online. Voice calibrated.";
+    this.speak(text, voiceURI, { rate, pitch });
+  }
+
   speak(text, voiceURI = null, modifiers = {}, onEndCallback = null) {
     if (!text) return;
 

@@ -98,7 +98,7 @@ export const TurnManager = {
       mode: "storymode",
     });
 
-    await db.settings.put({ key: "active_story", value: id });
+    await db.settings.put({ id: "active_story", value: id });
     events.dispatchEvent(new CustomEvent(EVENTS.STORY_LOADED));
     return id;
   },
@@ -114,7 +114,7 @@ export const TurnManager = {
         mode: "storymode",
       });
 
-      await db.settings.put({ key: "active_story", value: story.id });
+      await db.settings.put({ id: "active_story", value: story.id });
       await TurnManager.loadMessages(story.id);
       events.dispatchEvent(new CustomEvent(EVENTS.STORY_LOADED));
     } catch (e) {
