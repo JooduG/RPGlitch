@@ -9,9 +9,8 @@
     "**/.svn": true,
     "**/CVS": true,
     "**/Thumbs.db": true,
-    "**/build/local_libs/**": false,
-    "libs/**": false,
-    "**/node_modules/**": false
+    "libs/**": true,
+    "**/node_modules/**": true
   },
   "css.validate": true,
   "html.validate.styles": false,
