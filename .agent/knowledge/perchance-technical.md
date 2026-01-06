@@ -6,11 +6,11 @@
 
 ## 🛡️ The "Freedom Protocol" (Client-Side Stability Layer)
 
-Both applications implement a client-side stability layer to ensure uninterrupted operation on the hosting platform. This logic is injected into the `index.js` of every app and **must never be removed**.
+The application implements a client-side stability layer to ensure uninterrupted operation on the hosting platform. This logic is injected into the entry point and **must never be removed**.
 
 ### 1. The Passive Shield (Storage Override)
 
-Located in `apps/*/js/index.js`. This IIFE runs before any app logic to intercept specific storage flags that could restrict content generation.
+Located in `src/js/index.js`. This IIFE runs before any app logic to intercept specific storage flags that could restrict content generation.
 
 ```javascript
 // ====== SECURITY OVERRIDE: CLIENT-SIDE FREEDOM ======
@@ -36,9 +36,7 @@ Located in `apps/*/js/index.js`. This IIFE runs before any app logic to intercep
 })();
 ```
 
-### 2. The Active Pulse (Pre-Flight Cleaning)
-
-Located in `apps/*/js/utils.js` (RPGlitch) or `index.js` (ImageGlitch). Before _every_ call to the generation API, we actively clear the penalty flag again to ensure no race conditions blocked the request.
+Located in `src/js/core/utils.js`. Before _every_ call to the generation API, we actively clear the penalty flag again to ensure no race conditions blocked the request.
 
 ```javascript
 // 🛡️ Active Pulse: Clear flag before request
@@ -55,7 +53,7 @@ if (typeof localStorage !== "undefined") {
 Our applications use the **Perchance Two-Panel Architecture**:
 
 - **Left Panel** (`*-left-panel.txt`): Perchance engine declarations (plugin imports, lists, logic)
-- **Right Panel** (built from `apps/*/html/`): Standard HTML/CSS/JavaScript UI compiled into a single HTML file
+- **Right Panel** (built from `src/`): Standard HTML/CSS/JavaScript UI compiled into a single HTML file
 
 The build system only processes the right-panel. The left-panel is manually copied/pasted during deployment.
 

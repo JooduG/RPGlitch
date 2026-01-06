@@ -10,10 +10,10 @@ Below is your map to the `.agent/` directory.
 - **Perchance Technical Manual:** [.agent/knowledge/perchance-technical.md](.agent/knowledge/perchance-technical.md)
 - **Perchance Guide:** [.agent/knowledge/perchance-guide.md](.agent/knowledge/perchance-guide.md)
 
-## 📂 Sub-Project Context
+## 📂 Project Context
 
-- **RPGlitch:** [apps/rpglitch/README.md](apps/rpglitch/README.md)
-- **ImageGlitch:** [apps/imageglitch/README.md](apps/imageglitch/README.md)
+- **RPGlitch:** [README.md](README.md) (Core Architecture & Gameplay)
+- **Legacy ImageGlitch:** [LEGACY_IMAGEGLITCH.md](LEGACY_IMAGEGLITCH.md) (Ejected)
 
 ## 📜 The Code of Law (Rules)
 

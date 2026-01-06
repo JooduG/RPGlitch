@@ -141,41 +141,28 @@ While the engine allows for unrestricted narrative content, the application itse
 ## Source Structure
 
 ```text
-apps/rpglitch/
+src/
 ├── RPGlitch-left-panel.txt    # Perchance engine imports
-├── html/
-│   └── index.html             # Main UI template
+├── index.html                 # Main UI template
 ├── js/
-│   ├── core/                  # App Foundation
-│   │   ├── bootstrap.js       # Entry Point & Error Handling
-│   │   ├── db.js              # Dexie Schema & DB Access
-│   │   └── events.js          # Event Bus
-│   ├── data/                  # Data Layer
-│   │   ├── models.js          # Entity definitions & Normalization
-│   │   └── repo.js            # Database Operations
-│   ├── engine/                # Simulation Logic
-│   │   ├── director.js        # Game Loop & State Management
-│   │   ├── worker.js          # Background Physics Calculation
-│   │   └── bridge.js          # Worker Communication
-│   └── ui/                    # User Interface
-│       ├── orchestrator.js    # View Management
-│       └── components/        # UI Widgets
+│   ├── core/                  # App Foundation (Bootstrap, DB, Events)
+│   ├── data/                  # Data Layer (Models, Repo)
+│   ├── engine/                # Simulation Logic (Director, Worker, Bridge)
+│   ├── services/              # Shared Services (Theme, Audio, LLM)
+│   └── ui/                    # User Interface (Orchestrator, Components)
 └── scss/
-    ├── index.scss             # Main entry point
-    ├── abstracts/             # Variables & Mixins
-    ├── base/                  # Reset & Typography
-    ├── layout/                # Grid & Modes
-    └── components/            # UI Components
+    ├── index.scss             # Entry point
+    └── ...                    # Modular SCSS structure
 ```
 
 ## Build
 
 ```bash
 # Build RPGlitch
-npm run build:rpglitch
+npm run build
 
 # Output location
-apps/rpglitch/RPGlitch.html
+dist/RPGlitch.html
 ```
 
 ## Technology Stack

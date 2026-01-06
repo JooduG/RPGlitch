@@ -54,9 +54,7 @@ graph TD
 
 ```text
 /
-├── apps/                  # Application Source Code
-│   ├── rpglitch/          # Main RPG App
-│   └── imageglitch/       # Image Gen Helper
+├── src/                   # Flat Source Code (RPGlitch)
 ├── libs/                  # Vendored Dependencies (No CDN)
 ├── tools/                 # Build & Maintenance Scripts
 └── .agent/                # AI Context & Planning
@@ -64,9 +62,11 @@ graph TD
 
 ## Critical Workflows
 
-- **Build:** `npm run build:apps`
-- **Validate:** `npm run validate` (Runs Lint + Test)
-- **Deploy:** `npm run deploy` (Full Pipeline)
+- **Dev:** `npm run dev` (Watch + Server)
+- **Build:** `npm run build` (Single File Bundle)
+- **Validate:** `npm run validate` (Lint + Test + Hygiene)
+- **Deploy:** `npm run deploy` (Validate + Build)
+- **Sync:** `npm run sync` (Local Context Refresh)
 
 ## 📌 State of the Union (Jan 2026)
 

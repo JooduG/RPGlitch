@@ -29,7 +29,7 @@ Before generating artifacts, we must ensure the codebase is healthy.
 
 ## 2. The Build Process
 
-We compile the Source (`apps/*/html/`) into the Artifact (`apps/*/`).
+We compile the Source (`src/`) into the Artifact (`dist/`).
 
 1. **Execute Build:**
    - Command:
