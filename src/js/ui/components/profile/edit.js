@@ -843,7 +843,16 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
     const subjectGender = (entity.gender || "").toLowerCase();
     const subjectContext = `Subject: ${entity.name} (${entity.type}). Gender: ${subjectGender}.`;
 
-    const prompt = `Rewrite this image prompt for the FLUX model. ${subjectContext}\nUse descriptive prose, natural lighting terms, and high fidelity. Keep it concise but vivid.\n\nInput: "${currentVal}"`;
+    // [MODIFIED] Inject Color Branding
+    const sigKey = paletteSelect
+      ? paletteSelect.value
+      : entity.signatureColor || "default";
+    const readableColor = sigKey
+      .split("_")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
+
+    const prompt = `Rewrite this image prompt for the FLUX model. ${subjectContext}\nStylistic Constraint: Integrate "${readableColor}" into the lighting, background, or accents.\nUse descriptive prose, natural lighting terms, and high fidelity. Keep it concise but vivid.\n\nInput: "${currentVal}"`;
 
     const fullText = await generateStream({
       payload: {

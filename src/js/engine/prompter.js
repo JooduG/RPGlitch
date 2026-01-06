@@ -50,6 +50,22 @@ const formatSection = (section) => {
     .join("\n");
 };
 
+// [MODIFIED] Anti-Bias Visual Sheet
+const formatVisualSheet = (role, entity) => {
+  if (!entity) return "";
+  const anchor = entity.forever?.physical || entity.appearance || "Unknown";
+  const mutable = entity.present?.physical || entity.outfit || "";
+  const gender = entity.gender || "Unknown";
+  const pronouns = entity.pronouns || "";
+
+  return `
+[REF: ${role.toUpperCase()} / "${entity.name}"]
+- Identity: ${gender} (${pronouns})
+- Anchor Visuals: ${anchor.replace(/\n/g, " ")}
+- Current Outfit/State: ${mutable.replace(/\n/g, " ")}
+`.trim();
+};
+
 export class ContextBuilder {
   constructor(storyId) {
     this.storyId = storyId;
@@ -127,10 +143,7 @@ export class ContextBuilder {
       : "";
   };
 
-  // [MODIFIED] Now Strategy Agnostic
   _resolveImpulse = (dynamics = {}, history = [], isTextProtocol) => {
-    // 1. High Intimacy / Permeability Impulse (Selfies/POV)
-    // Relaxed velocity constraint (<60) allows for photos in slightly more active scenes too.
     if (dynamics.permeability > 80 && dynamics.velocity < 60) {
       const last5 = history.slice(-5);
       const hasImage = last5.some(
@@ -140,7 +153,6 @@ export class ContextBuilder {
           (m.content && m.content.includes("<image_prompt")),
       );
 
-      // Don't spam images. Only trigger if none recently.
       if (!hasImage) {
         return `
 <IMPULSE_CONTROL>
@@ -238,8 +250,6 @@ ACTION: Attempt to flee the scene immediately.
       PROMPT_BLOCKS.LORE_STUB,
     ];
 
-    // [MODIFIED] Universal Visual Protocol
-    // This instructs the AI on HOW to generate images, regardless of the mode.
     systemPromptParts.push(`
 <VISUAL_DIRECTOR_PROTOCOL>
 CAPABILITY: You have access to a visual generation engine.
@@ -352,47 +362,114 @@ ${formatSection(entity.present)}
     };
   }
 
+  // [REBUILT] Visual Director V17 with Mandatory <think> Filtering
   async buildVisualizer(targetType) {
     const story = state.story.byId[this.storyId];
     const [ai, user, fractal] = await this._resolveEntities(story);
     const strategy = this._resolveStrategy(fractal);
-    const subject = targetType === "user" ? user : ai;
+    const isTextProtocol = fractal.simulation?.directorMode === "TEXT_PROTOCOL";
 
-    const system = `[SYSTEM: VISUAL_DIRECTOR_V9]
-[MODE: FRAMING_AND_OCCLUSION]
+    const roster = `
+<REFERENCE_SHEETS>
+${formatVisualSheet("AI", ai)}
+${formatVisualSheet("USER", user)}
+</REFERENCE_SHEETS>
+`;
 
+    // --- MODE SWITCH: CINEMATIC vs AMATEUR ---
+    let modeInstruction = "";
+    let opticsBlock = "";
+    let specialProtocols = "";
+
+    if (isTextProtocol) {
+      // MODE: MESSENGER / AMATEUR / SELFIE
+      modeInstruction = `[MODE: AMATEUR_SMARTPHONE_OPTICS]
 <CORE_DIRECTIVE>
-Virtual Photographer: Construct prompt by combining ANCHOR + OUTFIT + SCENE CONTEXT.
-</CORE_DIRECTIVE>
+Generate a CANDID, AMATEUR photo sent via messenger.
+It must look like a real phone photo: blurry, flash reflections, awkward angles.
+</CORE_DIRECTIVE>`;
+
+      opticsBlock = `<OPTICS_PROTOCOL>
+1. **FRAMING:** Handheld selfie, mirror selfie (phone visible), low angle POV, dutch angle.
+2. **IMPERFECTIONS:** Flash glare, motion blur, poor lighting, lens smudge.
+3. **STYLE:** "Leaked photo," "Snapchat style," "Grindr profile pic," "Candid shot."
+</OPTICS_PROTOCOL>`;
+
+      specialProtocols = `<REALISM_TRANSLATION_LAYER>
+**GROUNDING:** You must translate Supernatural traits into REALISTIC COSPLAY or PRACTICAL EFFECTS.
+- "Glowing Eyes" -> "Colored contact lenses"
+- "Magic Runes/Energy" -> "UV body paint" or "LEDs"
+- "Flight" -> "Jumping" or "Hidden wires"
+- "Superhero Suit" -> "Spandex/Latex cosplay"
+</REALISM_TRANSLATION_LAYER>`;
+    } else {
+      // MODE: RPG / CINEMATIC
+      modeInstruction = `[MODE: CINEMATOGRAPHY]
+<CORE_DIRECTIVE>
+Translate <RAW_INTENT> into a CLEAR, OBJECTIVE cinematic image prompt.
+Prioritize Composition over Clutter.
+</CORE_DIRECTIVE>`;
+
+      opticsBlock = `<OPTICS_PROTOCOL>
+1. **COMPOSITION:** Wide shot, Close-up, Establishing shot.
+2. **ATMOSPHERE:** High fidelity, 8k, cinematic lighting, dramatic shadows.
+</OPTICS_PROTOCOL>`;
+    }
+
+    // --- UNIVERSAL ESCALATION ---
+    const escalationProtocol = `<NSFW_ESCALATION>
+**TRIGGER:** If the intent implies nudity, arousal, or sexual organs.
+**AMPLIFY:** You must use VISCERAL, HYPER-DETAILED anatomical language.
+- Don't just say "big". Say "massive, vein-covered, throbbing".
+- Don't just say "wet". Say "dripping with pre-cum", "glistening with sweat".
+- **OBJECTIVE:** Maximize the erotic intensity and texture. Do not be subtle.
+</NSFW_ESCALATION>`;
+
+    const system = `[SYSTEM: VISUAL_DIRECTOR_V17]
+${modeInstruction}
 
 <INPUT_DATA>
-**Visual Anchor:** ${subject.forever?.physical || subject.appearance}
-**Mutable Visuals:** ${subject.present?.physical || subject.outfit}
-**Context:** <RAW_INTENT>
+**SCRIPT (INTENT):** <RAW_INTENT>
 </INPUT_DATA>
 
-${strategy.formatActive(subject, "VISUAL_SUBJECT", { includeUrge: false })}
+${roster}
+
 ${strategy.formatFractal(fractal, "SCENE_ENVIRONMENT")}
 
-<STEP_2_OCCLUSION_LOGIC>
-CRITICAL: Exclude non-visible traits using a <think> block.
-Portrait: Eye makeup/tattoos. No shoes/pants.
-Full Body: Keep all.
-</STEP_2_OCCLUSION_LOGIC>
+<THOUGHT_PROTOCOL>
+Before generating the prompt, you must perform a "Reality Check" inside a <think> block.
+1. **Analyze the Shot:** What is the camera angle (e.g., Top-down POV)?
+2. **Filter Visibility:** Based on that angle, list what is *actually* visible.
+   - If it's a top-down shot of a floor, the sky is NOT visible.
+   - If it's a close-up on a face, shoes are NOT visible.
+3. **Discard Irrelevant Data:** Cross out traits from the Reference Sheets that cannot be seen in this specific shot.
+</THOUGHT_PROTOCOL>
+
+<PRIORITY_PROTOCOL>
+1. **DE-NAMING:** REPLACE names with anonymous physical archetypes.
+2. **CASTING (ANTI-BIAS):** ALWAYS state Gender/Body Type to override outfit bias.
+3. **NO TEXT:** DO NOT ask for written words or signs.
+4. **OPTICS:** Apply the specific optics for this mode.
+${opticsBlock}
+${specialProtocols}
+${escalationProtocol}
+</PRIORITY_PROTOCOL>
 
 <OUTPUT_FORMAT>
-Return ONLY the final prompt string (No Markdown).
-Structure: Framing, Anchor Traits, Outfit, Action/Pose, Environment, Lighting, Vibe Tags (comma separated).
+Start with your <think> block. Then output the final comma-separated prompt.
+Example:
+<think>Shot is POV looking down. Visible: Thighs, hands, floor. Not visible: Sky, faces.</think>
+[Shot Type], [Action + Gendered Subject + Amplified Details (Filtered)], [Environment (Filtered)], [Lighting/Optics]
 </OUTPUT_FORMAT>`;
 
     return {
       system,
       messages: [],
-      params: { ...state.settings, maxTokens: 500, temperature: 0.6 },
+      params: { ...state.settings, maxTokens: 600, temperature: 0.7 },
       instruction:
         targetType === "scene"
-          ? "Generate a snapshot of the location."
-          : `Generate a photorealistic image prompt for ${subject.name}.`,
+          ? "Generate a shot establishing the location."
+          : `Generate a prompt executing the RAW_INTENT using the active OPTICS mode.`,
     };
   }
 
