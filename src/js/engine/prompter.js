@@ -127,10 +127,11 @@ export class ContextBuilder {
       : "";
   };
 
+  // [MODIFIED] Now Strategy Agnostic
   _resolveImpulse = (dynamics = {}, history = [], isTextProtocol) => {
-    if (!isTextProtocol) return null;
-
-    if (dynamics.permeability > 85 && dynamics.velocity < 40) {
+    // 1. High Intimacy / Permeability Impulse (Selfies/POV)
+    // Relaxed velocity constraint (<60) allows for photos in slightly more active scenes too.
+    if (dynamics.permeability > 80 && dynamics.velocity < 60) {
       const last5 = history.slice(-5);
       const hasImage = last5.some(
         (m) =>
@@ -139,12 +140,14 @@ export class ContextBuilder {
           (m.content && m.content.includes("<image_prompt")),
       );
 
+      // Don't spam images. Only trigger if none recently.
       if (!hasImage) {
         return `
 <IMPULSE_CONTROL>
 STATE: High Intimacy (${dynamics.permeability}%).
-URGE: You feel a biological need to be validated.
-ACTION: Send a selfie. Use <image_prompt target="AI">...</image_prompt>.
+URGE: You feel a biological need to be validated or shared.
+ACTION: Capture the moment visually.
+PROTOCOL: Use <image_prompt target="AI">Describe the visual scene or selfie here...</image_prompt>.
 </IMPULSE_CONTROL>`;
       }
     }
@@ -234,6 +237,18 @@ ACTION: Attempt to flee the scene immediately.
       this._resolvePlot(ai),
       PROMPT_BLOCKS.LORE_STUB,
     ];
+
+    // [MODIFIED] Universal Visual Protocol
+    // This instructs the AI on HOW to generate images, regardless of the mode.
+    systemPromptParts.push(`
+<VISUAL_DIRECTOR_PROTOCOL>
+CAPABILITY: You have access to a visual generation engine.
+TRIGGER: 
+1. If the user explicitly asks for a picture (e.g., "Send me a photo", "Show me").
+2. If your internal IMPULSE_CONTROL suggests it.
+SYNTAX: Embed the prompt within the narrative: <image_prompt target="AI/SCENE">Visual description...</image_prompt>
+</VISUAL_DIRECTOR_PROTOCOL>
+`);
 
     if (history.length === 0 && isTextProtocol) {
       systemPromptParts.push(`

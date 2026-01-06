@@ -155,12 +155,20 @@ export class VoiceService {
 
   preview(voiceURI, rate, pitch) {
     if (this.isSpeaking) {
-      this.synth.cancel();
-      this.isSpeaking = false;
+      this.stop(); // Use new stop method
       return;
     }
     const text = "System online. Voice calibrated.";
     this.speak(text, voiceURI, { rate, pitch });
+  }
+
+  // [NEW] Explicit Stop Command
+  stop() {
+    this.synth.cancel();
+    this.isSpeaking = false;
+    this._currentUtterance = null;
+    if (this._loopTimeout) clearTimeout(this._loopTimeout);
+    this._dispatchStateChange();
   }
 
   speak(text, voiceURI = null, modifiers = {}, onEndCallback = null) {
@@ -170,6 +178,9 @@ export class VoiceService {
     if (this.isListening) {
       this.stopListening();
     }
+
+    // Stop any current speech
+    this.synth.cancel();
 
     // Aggressive cleanup
     const cleanText = text
@@ -187,7 +198,6 @@ export class VoiceService {
     if (this.synth.paused) {
       this.synth.resume();
     }
-    this.synth.cancel();
 
     // Strategy:
     // 1. Try Full Text (Preferred Voice) -> Delivers best quality/continuity.
@@ -197,6 +207,9 @@ export class VoiceService {
     const attemptSpeak = (textToSpeak, mode = "FULL", retryCount = 0) => {
       // Delay slightly to let synth.cancel() flush
       setTimeout(() => {
+        // Guard: If stop() was called during timeout, abort
+        if (this.synth.speaking && mode !== "FULL") return;
+
         if (mode === "FULL") {
           this._speakFull(textToSpeak, voiceURI, modifiers, (success) => {
             if (success) {
@@ -222,6 +235,9 @@ export class VoiceService {
     };
 
     const handleFinish = () => {
+      // Check if we were manually stopped to avoid ghost triggers
+      // if (!this.isSpeaking) return;
+
       this.isSpeaking = false;
       this._currentUtterance = null;
       this._dispatchStateChange();
@@ -242,7 +258,15 @@ export class VoiceService {
       }
     };
 
-    attemptSpeak(cleanText, "FULL");
+    try {
+      this.isSpeaking = true;
+      this._dispatchStateChange();
+      attemptSpeak(cleanText, "FULL");
+    } catch (e) {
+      this.isSpeaking = false;
+      this._dispatchStateChange();
+      console.error("Speak start failed", e);
+    }
   }
 
   // Helper: Get Fresh Voice Object (prevents Stale Reference Bug)
@@ -278,7 +302,10 @@ export class VoiceService {
     };
 
     utterance.onerror = (e) => {
-      if (e.error === "interrupted") return;
+      if (e.error === "interrupted") {
+        // Normal interruption (stop button)
+        return;
+      }
 
       console.warn("Full Speak Error:", e);
 
@@ -290,8 +317,6 @@ export class VoiceService {
     };
 
     try {
-      this.isSpeaking = true;
-      this._dispatchStateChange();
       this.synth.speak(utterance);
     } catch (e) {
       console.error("Synth Exception:", e);
@@ -306,6 +331,9 @@ export class VoiceService {
     let currentStickyLevel = startRetryLevel;
 
     const speakNext = (retryLevel) => {
+      // Guard against manual stop
+      if (!this.isSpeaking) return;
+
       if (chunkIndex >= chunks.length) {
         doneCallback();
         return;

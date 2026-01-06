@@ -5,7 +5,7 @@ import autoprefixer from "autoprefixer";
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
-import { JSDOM } from "jsdom";
+import { JSDOM, VirtualConsole } from "jsdom";
 
 // --- PATHS ---
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -108,7 +108,15 @@ async function build() {
     bundleJs(WORKER_JS),
   ]);
 
-  const dom = new JSDOM(rawHtml);
+  const virtualConsole = new VirtualConsole();
+  virtualConsole.on("jsdomError", (error) => {
+    if (error.message.includes("Could not parse CSS stylesheet")) {
+      return;
+    }
+    console.error(error);
+  });
+
+  const dom = new JSDOM(rawHtml, { virtualConsole });
   const doc = dom.window.document;
 
   // 1. CLEANUP: Remove dev scripts/links

@@ -12,6 +12,10 @@ const activeEdits = new Map();
 export const activeRerolls = new Set();
 window.activeRerolls = activeRerolls;
 
+// ICONS
+const ICON_PLAY = `<svg class="icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`;
+const ICON_STOP = `<svg class="icon" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>`;
+
 const formatMessageText = (text) => {
   if (!text) return "";
   let safeText = sanitizeHtml(text);
@@ -299,7 +303,7 @@ export const renderMessage = (
     const actionsDiv = document.createElement("div");
     actionsDiv.className = "message-actions";
 
-    // [NEW] Read Aloud Button
+    // [MODIFIED] Dynamic Read/Stop Button
     if (role !== "user") {
       let targetEntity = null;
       if (role === "ai") targetEntity = entities?.ai;
@@ -311,14 +315,62 @@ export const renderMessage = (
         pitch: targetEntity?.voicePitch || 1.0,
       };
 
-      actionsDiv.appendChild(
-        createIconBtn(
-          `<svg class="icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`,
-          "Read Message",
-          () => voiceService.speak(mainContent, voiceId, modifiers),
-          "btn-action-read",
-        ),
+      // Create the button using a container to allow easy icon swapping
+      const readBtn = createIconBtn(
+        ICON_PLAY,
+        "Read Message",
+        () => {
+          // Click handler logic defined below to keep closure scope
+        },
+        "btn-action-read js-voice-control", // Add marker class
       );
+
+      // --- Internal State Management for this Button ---
+      const updateButtonState = (isSpeaking) => {
+        if (isSpeaking) {
+          readBtn.innerHTML = ICON_STOP; // Directly set if createIconBtn wraps it
+          // Actually, createIconBtn in this repo usually returns a button with the SVG inside.
+          // Let's be safe and just replace innerHTML for the whole button content if needed,
+          // or target the .icon class.
+          const iconEl = readBtn.querySelector(".icon");
+          if (iconEl) iconEl.outerHTML = ICON_STOP;
+          else readBtn.innerHTML = ICON_STOP;
+
+          readBtn.title = "Stop Speaking";
+          readBtn.onclick = (e) => {
+            e.stopPropagation();
+            voiceService.stop();
+          };
+          readBtn.classList.add("active-speaking");
+        } else {
+          const iconEl = readBtn.querySelector(".icon");
+          if (iconEl) iconEl.outerHTML = ICON_PLAY;
+          else readBtn.innerHTML = ICON_PLAY;
+
+          readBtn.title = "Read Message";
+          readBtn.onclick = (e) => {
+            e.stopPropagation();
+            voiceService.speak(mainContent, voiceId, modifiers);
+          };
+          readBtn.classList.remove("active-speaking");
+        }
+      };
+
+      // Initial State
+      updateButtonState(voiceService.isSpeaking);
+
+      // Event Listener (Self-Managed)
+      const safeHandler = (e) => {
+        if (!div.isConnected) {
+          document.removeEventListener("voice:state-change", safeHandler);
+          return;
+        }
+        updateButtonState(e.detail.isSpeaking);
+      };
+
+      document.addEventListener("voice:state-change", safeHandler);
+
+      actionsDiv.appendChild(readBtn);
     }
 
     if (role === "ai" && options.isLast) {
