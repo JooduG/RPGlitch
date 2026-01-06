@@ -1,146 +1,133 @@
-/* eslint-disable no-console */
-const esbuild = require("esbuild");
-const sass = require("sass");
-const postcss = require("postcss");
-const autoprefixer = require("autoprefixer");
-const fs = require("fs/promises");
-const path = require("path");
-const jsdom = require("jsdom");
-const { JSDOM } = jsdom;
+import esbuild from "esbuild";
+import * as sass from "sass";
+import postcss from "postcss";
+import autoprefixer from "autoprefixer";
+import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
+import { JSDOM } from "jsdom";
 
-const CONFIG = {
-  SRC_DIR: "src",
-  LIBS_DIR: "libs",
-  DIST_DIR: "dist",
-  ENTRY: "src/js/core/bootstrap.js",
-  STYLES: "src/scss/index.scss",
-  HTML: "src/index.html",
-  WORKER: "src/js/engine/physics/worker.js",
-};
+// --- PATHS ---
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = path.resolve(__dirname, "..");
+const SRC_DIR = path.join(REPO_ROOT, "src");
+const DIST_DIR = path.join(REPO_ROOT, "dist");
+const LIBS_DIR = path.join(REPO_ROOT, "libs");
 
-async function build() {
-  console.log("🚧 Starting Build...");
-  const startTime = Date.now();
+// --- CONFIG ---
+const ENTRY_JS = path.join(SRC_DIR, "js/core/bootstrap.js");
+const ENTRY_SCSS = path.join(SRC_DIR, "scss/index.scss");
+const HTML_TEMPLATE = path.join(SRC_DIR, "index.html");
+const WORKER_JS = path.join(SRC_DIR, "js/engine/physics/worker.js");
 
-  // 1. Prepare Dist
+// --- UTILS ---
+async function compileStyles() {
+  console.log("🎨 Compiling SCSS...");
+  const picoPath = path.join(LIBS_DIR, "pico.min.css");
+  let pico = "";
   try {
-    await fs.mkdir(CONFIG.DIST_DIR, { recursive: true });
+    pico = await fs.readFile(picoPath, "utf8");
   } catch (e) {
-    /* ignore */
+    console.warn("⚠️ Warning: pico.min.css not found in libs/. Skipping.");
   }
 
-  // 2. Compile SCSS
-  console.log("🎨 Compiling Styles...");
-  const sassResult = sass.compile(CONFIG.STYLES, {
-    style: "compressed",
-    loadPaths: ["node_modules"],
-  });
-  const postcssResult = await postcss([autoprefixer]).process(sassResult.css, {
+  const result = await sass.compileAsync(ENTRY_SCSS);
+  const processed = await postcss([autoprefixer]).process(result.css, {
     from: undefined,
   });
-  const cssContent = postcssResult.css;
 
-  // 3. Bundle Main JS
-  console.log("📦 Bundling Application...");
-  const jsResult = await esbuild.build({
-    entryPoints: [CONFIG.ENTRY],
-    bundle: true,
-    minify: true,
-    format: "iife",
-    platform: "browser",
-    write: false,
-    globalName: "AppBundle",
-  });
-  const jsContent = jsResult.outputFiles[0].text;
-
-  // 4. Prepare Worker Source
-  console.log("⚙️ Preparing Worker...");
-  // Read Dexie lib for worker
-  const dexieLib = await fs.readFile(
-    path.join(CONFIG.LIBS_DIR, "dexie.min.js"),
-    "utf8",
-  );
-
-  // Bundle Worker Code
-  const workerResult = await esbuild.build({
-    entryPoints: [CONFIG.WORKER],
-    bundle: true,
-    minify: true,
-    format: "iife",
-    platform: "browser",
-    write: false,
-  });
-  const workerCode = workerResult.outputFiles[0].text;
-
-  // Combine Dexie + Worker
-  const workerSource = `${dexieLib}\n${workerCode}`;
-
-  // 5. Read Libraries
-  console.log("📚 loading Libraries...");
-  const libs = [
-    "cash.min.js",
-    "dexie.min.js",
-    "purify.min.js",
-    "_hyperscript.min.js",
-  ];
-
-  const libContents = [];
-  for (const lib of libs) {
-    const content = await fs.readFile(path.join(CONFIG.LIBS_DIR, lib), "utf8");
-    libContents.push({ name: lib, content });
-  }
-
-  // 6. Inject into HTML
-  console.log("💉 Injecting Assets...");
-  const htmlRaw = await fs.readFile(CONFIG.HTML, "utf8");
-  const dom = new JSDOM(htmlRaw);
-  const document = dom.window.document;
-
-  // Use a predictable set of cleanup rules
-  const cleanSelectors = [
-    'script[src*="build/local_libs"]',
-    'script[src*="node_modules"]',
-    'link[rel="stylesheet"][href*="scss/index.scss"]',
-  ];
-
-  cleanSelectors.forEach((selector) => {
-    document.querySelectorAll(selector).forEach((el) => el.remove());
-  });
-
-  // Inject CSS
-  const styleEl = document.createElement("style");
-  styleEl.textContent = cssContent;
-  document.head.appendChild(styleEl);
-
-  // Inject Worker Source (window.RPGLITCH_WORKER_SOURCE)
-  // JSON.stringify prevents syntax errors from quotes/newlines in source
-  const workerScriptEl = document.createElement("script");
-  workerScriptEl.id = "rpglitch-worker-source";
-  workerScriptEl.textContent = `window.RPGLITCH_WORKER_SOURCE = ${JSON.stringify(workerSource)};`;
-  document.body.appendChild(workerScriptEl);
-
-  // Inject Libs
-  for (const lib of libContents) {
-    const s = document.createElement("script");
-    s.textContent = lib.content;
-    document.body.appendChild(s);
-  }
-
-  // Inject App
-  const appScript = document.createElement("script");
-  appScript.textContent = jsContent;
-  document.body.appendChild(appScript);
-
-  // 7. Write Output
-  const finalHtml = dom.serialize();
-  const outputPath = path.join(CONFIG.DIST_DIR, "RPGlitch.html");
-  await fs.writeFile(outputPath, finalHtml);
-
-  console.log(`✅ Build Complete in ${Date.now() - startTime}ms`);
-  console.log(`📄 Output: ${outputPath}`);
+  // Combine Pico + App CSS
+  return pico + "\n" + processed.css;
 }
 
-build().catch((err) => {
-  console.error("❌ Build Failed:", err);
+async function bundleJs(entry) {
+  console.log(`📦 Bundling ${path.basename(entry)}...`);
+  const result = await esbuild.build({
+    entryPoints: [entry],
+    bundle: true,
+    minify: true,
+    write: false,
+    format: "iife",
+    globalName: "AppBundle", // Helps with debugging
+  });
+  return result.outputFiles[0].text;
+}
+
+async function build() {
+  console.log("🔥 Building RPGlitch...");
+  await fs.mkdir(DIST_DIR, { recursive: true });
+
+  // 1. Prepare Assets
+  const [css, appJs, rawHtml, workerJs] = await Promise.all([
+    compileStyles(),
+    bundleJs(ENTRY_JS),
+    fs.readFile(HTML_TEMPLATE, "utf8"),
+    bundleJs(WORKER_JS),
+  ]);
+
+  // 2. Load Template
+  const dom = new JSDOM(rawHtml);
+  const doc = dom.window.document;
+
+  // 3. THE PURGE: Remove ALL existing scripts and CSS links
+  console.log("🧹 Purging zombie tags...");
+  const scripts = doc.querySelectorAll("script");
+  scripts.forEach((s) => s.remove());
+
+  const links = doc.querySelectorAll("link[rel='stylesheet']");
+  links.forEach((l) => l.remove());
+
+  // 4. Inject CSS (Inline)
+  const styleTag = doc.createElement("style");
+  styleTag.textContent = css;
+  doc.head.appendChild(styleTag);
+
+  // 5. Inject Worker (Inline)
+  if (workerJs) {
+    const dexiePath = path.join(LIBS_DIR, "dexie.min.js");
+    let dexie = "";
+    try {
+      dexie = await fs.readFile(dexiePath, "utf8");
+    } catch (e) {
+      console.warn("⚠️ Dexie not found for worker.");
+    }
+
+    const workerScript = doc.createElement("script");
+    workerScript.id = "rpglitch-worker-source";
+    workerScript.textContent = `window.RPGLITCH_WORKER_SOURCE = ${JSON.stringify(dexie + ";\n" + workerJs)};`;
+    doc.body.appendChild(workerScript);
+  }
+
+  // 6. Inject Main JS + Libs
+  // Note: We use 'purify' and 'dexie' from libs. 'cash' if available.
+  const libFiles = [
+    "purify.min.js",
+    "dexie.min.js",
+    "_hyperscript.min.js",
+    "cash.min.js",
+  ];
+  let libContent = "";
+
+  for (const file of libFiles) {
+    try {
+      const content = await fs.readFile(path.join(LIBS_DIR, file), "utf8");
+      libContent += content + ";\n";
+    } catch (e) {
+      console.log(`ℹ️ Note: Optional lib ${file} not found.`);
+    }
+  }
+
+  const mainScript = doc.createElement("script");
+  mainScript.textContent = libContent + ";\n" + appJs;
+  doc.body.appendChild(mainScript);
+
+  // 7. Write Output
+  const outputHtml = dom.serialize();
+  await fs.writeFile(path.join(DIST_DIR, "RPGlitch.html"), outputHtml);
+  console.log("✅ Build Complete: dist/RPGlitch.html");
+}
+
+build().catch((e) => {
+  console.error(e);
   process.exit(1);
 });
