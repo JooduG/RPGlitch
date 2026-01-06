@@ -64,10 +64,24 @@ export const generateDynamicTitle = (ai, user, fractal) => {
 };
 
 const handleBeginStory = async () => {
-  const { selectedAI, selectedUser, selectedFractal, storyTitle } = state;
+  // [FIX] Race Condition Hardening
+  // Sometimes button enables before state propagation completes.
+  let { selectedAI, selectedUser, selectedFractal, storyTitle } = state;
+
+  if (!selectedAI || !selectedUser || !selectedFractal) {
+    // Wait briefly for any pending updates
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    // Re-read state
+    ({ selectedAI, selectedUser, selectedFractal, storyTitle } = state);
+  }
+
   if (!selectedAI || !selectedUser || !selectedFractal) {
     return showAlert("Selection Incomplete", "Please select all entities.");
   }
+
+  // Prevent double-clicks
+  const beginBtn = document.querySelector("#begin-story");
+  if (beginBtn) beginBtn.disabled = true;
 
   try {
     const id = await TurnManager.createFromSelection({
@@ -92,6 +106,8 @@ const handleBeginStory = async () => {
   } catch (e) {
     error("Begin Story Failed", e);
     showAlert("Error", "Could not start story.");
+    // Re-enable on failure
+    if (beginBtn) beginBtn.disabled = false;
   }
 };
 

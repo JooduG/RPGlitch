@@ -1,6 +1,7 @@
 import { TurnManager } from "../../../engine/director.js";
 import { voiceService } from "../../../services/voice-service.js";
 import { events, EVENTS } from "../../../core/events.js";
+import { state } from "../../../core/state.js"; // [FIX] Import state
 
 export const ChatInputController = {
   updateUIState: null,
@@ -37,7 +38,7 @@ export function initChatInput() {
   if (!input || !btn) return;
 
   // State Management
-  const state = {
+  const localState = {
     isThinking: false,
     isCallMode: false,
     isListening: false,
@@ -56,14 +57,14 @@ export function initChatInput() {
     if (!_btn || !_input) return;
 
     // Sync State
-    state.hasText = _input.value.trim().length > 0;
-    state.isCallMode = voiceService.callMode;
-    state.isListening = voiceService.isListening;
-    state.isSpeaking = voiceService.isSpeaking;
+    localState.hasText = _input.value.trim().length > 0;
+    localState.isCallMode = voiceService.callMode;
+    localState.isListening = voiceService.isListening;
+    localState.isSpeaking = voiceService.isSpeaking;
 
     // Capture base text when listening starts
-    if (voiceService.isListening && !state.isListening) {
-      state.baseText = _input.value;
+    if (voiceService.isListening && !localState.isListening) {
+      localState.baseText = _input.value;
     }
 
     let sendDisabled = false;
@@ -71,17 +72,17 @@ export function initChatInput() {
     let inputDisabled = false;
 
     // UI State Logic
-    if (state.isCallMode) {
+    if (localState.isCallMode) {
       // CALL MODE: Complete Lockout (Hands-free)
       inputDisabled = true;
       sendDisabled = true; // Auto-sends via script
       micDisabled = true; // Visual status only
-    } else if (state.isThinking || state.isSpeaking) {
+    } else if (localState.isThinking || localState.isSpeaking) {
       // AI BUSY: Queueing Allowed, Actions Blocked
       inputDisabled = false; // User can type next message
       sendDisabled = true; // Disable while AI is working
       micDisabled = true; // Disable while AI is working
-    } else if (state.isListening) {
+    } else if (localState.isListening) {
       // USER SPEAKING: Focus on Voice
       inputDisabled = true; // Disable while AI is working
       sendDisabled = true; // Wait for finish
@@ -89,7 +90,7 @@ export function initChatInput() {
     } else {
       // IDLE
       inputDisabled = false;
-      sendDisabled = !state.hasText;
+      sendDisabled = !localState.hasText;
       micDisabled = false;
     }
 
@@ -97,7 +98,9 @@ export function initChatInput() {
     _btn.disabled = sendDisabled;
     _btn.classList.toggle("disabled", sendDisabled);
     _input.disabled = inputDisabled;
-    _form.dataset.busy = (state.isThinking || state.isCallMode).toString();
+    _form.dataset.busy = (
+      localState.isThinking || localState.isCallMode
+    ).toString();
 
     if (_mic) {
       _mic.disabled = micDisabled;
@@ -107,12 +110,12 @@ export function initChatInput() {
         "is-call-mode",
       );
 
-      if (state.isCallMode) _mic.classList.add("is-call-mode");
+      if (localState.isCallMode) _mic.classList.add("is-call-mode");
 
       // Status Visuals
-      if (state.isListening) {
+      if (localState.isListening) {
         _mic.classList.add("status-recording");
-      } else if (state.isThinking || state.isSpeaking) {
+      } else if (localState.isThinking || localState.isSpeaking) {
         _mic.classList.add("status-ai-active");
       }
     }
@@ -126,11 +129,11 @@ export function initChatInput() {
     micBtn.addEventListener("click", async (e) => {
       e.preventDefault();
       // Manual Toggle (Standard Mode Only)
-      if (state.isCallMode || micBtn.disabled) return;
+      if (localState.isCallMode || micBtn.disabled) return;
 
       await voiceService.init();
 
-      if (state.isListening) {
+      if (localState.isListening) {
         voiceService.stopListening();
       } else {
         voiceService.toggleListen();
@@ -160,15 +163,21 @@ export function initChatInput() {
     e.preventDefault();
 
     // Allow submission in Call Mode
-    if (btn.disabled && !state.isCallMode) return;
+    if (btn.disabled && !localState.isCallMode) return;
+
+    // [FIX] Strict Guard: Cannot send if no active story
+    if (!state.story.activeId) {
+      console.warn("[ChatInput] Blocked send: No active story.");
+      return;
+    }
 
     const val = input.value.trim();
     if (val) {
       input.value = "";
-      state.baseText = ""; // Reset voice buffer
+      localState.baseText = ""; // Reset voice buffer
       if (input.tagName === "TEXTAREA") adjustHeight();
 
-      state.isThinking = true;
+      localState.isThinking = true;
       updateUIState();
 
       await TurnManager.send(val);
@@ -177,20 +186,20 @@ export function initChatInput() {
 
   // --- GLOBAL EVENTS ---
   events.addEventListener(EVENTS.GENERATION_STARTED, () => {
-    state.isThinking = true;
+    localState.isThinking = true;
     updateUIState();
   });
 
   events.addEventListener(EVENTS.GENERATION_COMPLETED, () => {
-    state.isThinking = false;
+    localState.isThinking = false;
     updateUIState();
   });
 
   document.addEventListener("voice:state-change", () => {
     // Clear Input on Call Mode Activation
-    if (voiceService.callMode && !state.isCallMode) {
+    if (voiceService.callMode && !localState.isCallMode) {
       input.value = "";
-      state.baseText = "";
+      localState.baseText = "";
       if (input.tagName === "TEXTAREA") adjustHeight();
     }
     updateUIState();
@@ -199,22 +208,27 @@ export function initChatInput() {
   document.addEventListener("voice:input", (e) => {
     const { transcript, isFinal } = e.detail;
 
+    // [FIX] Strict Guard: Ignore voice input if no story is running
+    // This prevents "No active story" errors if Call Mode is left on in the menu.
+    if (!state.story.activeId) return;
+
     // Append Logic
-    const separator = state.baseText && state.baseText.length > 0 ? " " : "";
-    const newText = state.baseText + separator + transcript;
+    const separator =
+      localState.baseText && localState.baseText.length > 0 ? " " : "";
+    const newText = localState.baseText + separator + transcript;
 
     input.value = newText;
     if (input.tagName === "TEXTAREA") adjustHeight();
 
     // CALL MODE AUTO-SEND
-    if (state.isCallMode && isFinal && transcript.trim().length > 0) {
-      state.baseText = newText;
+    if (localState.isCallMode && isFinal && transcript.trim().length > 0) {
+      localState.baseText = newText;
       // Slight delay to ensure DOM update, then Force Submit
       setTimeout(() => {
         form.requestSubmit();
       }, 50);
     } else if (isFinal) {
-      state.baseText = newText;
+      localState.baseText = newText;
     }
   });
 
