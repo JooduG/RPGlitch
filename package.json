@@ -2,11 +2,27 @@
   "name": "joodug-rpglitch",
   "version": "1.0.0",
   "scripts": {
-    "start": "npm run build && http-server dist -o",
-    "build": "node tools/build.js",
+    "dev": "npm-run-all --parallel watch start",
+    "start": "http-server dist",
     "watch": "node tools/watch.js",
-    "lint": "eslint src/**/*.js",
-    "test": "jest"
+    "build": "node tools/build.js",
+    "lint": "npm-run-all --parallel lint:js lint:css lint:html",
+    "lint:fix": "npm-run-all --parallel lint:js:fix lint:css:fix",
+    "lint:js": "eslint src",
+    "lint:js:fix": "eslint src --fix",
+    "lint:css": "stylelint \"src/**/*.scss\"",
+    "lint:css:fix": "stylelint \"src/**/*.scss\" --fix",
+    "lint:html": "node tools/qa/htmlhint.js",
+    "test": "jest",
+    "hygiene": "node tools/ops/hygiene.js",
+    "analyze": "node tools/qa/analyze-css.js",
+    "validate": "npm-run-all lint test hygiene",
+    "deploy": "npm run validate && npm run build",
+    "sync": "node tools/ops/sync.js --all",
+    "sync:libs": "node tools/ops/sync.js --libs",
+    "sync:ignores": "node tools/ops/sync.js --ignores",
+    "sync:mcp": "node tools/ops/sync.js --mcp",
+    "qa:diagnostics": "node tools/qa/diagnostics.js"
   },
   "dependencies": {
     "dexie": "^3.2.4",
@@ -14,14 +30,25 @@
     "http-server": "^14.1.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.5",
+    "@babel/preset-env": "^7.28.5",
     "autoprefixer": "^10.4.14",
+    "babel-jest": "^30.2.0",
     "chokidar": "^3.5.3",
     "esbuild": "^0.18.11",
     "eslint": "^8.45.0",
+    "eslint-plugin-jest": "^29.12.1",
+    "fake-indexeddb": "^6.2.5",
+    "htmlhint": "^1.8.0",
     "jest": "^29.6.1",
+    "jest-environment-jsdom": "^30.2.0",
     "jsdom": "^22.1.0",
     "npm-run-all": "^4.1.5",
     "postcss": "^8.4.26",
-    "sass": "^1.64.1"
+    "postcss-scss": "^4.0.9",
+    "sass": "^1.64.1",
+    "stylelint": "^16.26.1",
+    "stylelint-config-standard": "^39.0.1",
+    "stylelint-config-standard-scss": "^16.0.0"
   }
 }

@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test("Fractal Typing Dots Visibility", async ({ page }) => {
   // 1. Load the local HTML file (Build Artifact)
   const filePath =
-    "file:///c:/Users/johng/Documents/GitHub/default/apps/rpglitch/RPGlitch.html";
+    "file:///c:/Users/johng/Documents/GitHub/default/src/RPGlitch.html";
   console.log(`Navigating to: ${filePath}`);
 
   // Monitor Console

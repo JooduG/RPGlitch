@@ -1123,10 +1123,8 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
 
     try {
       if (id === "new") {
-        console.log("[Profile] Creating New Entity. Data:", data);
         await entities.create(type, data);
       } else {
-        console.log(`[Profile] Updating ${id}. VoiceID: ${data.voiceId}`); // DEBUG
         await entities.upsert(type, { ...entity, ...data });
 
         const _onUpdateSelection = getOnUpdateSelection();

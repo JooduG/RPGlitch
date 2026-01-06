@@ -1,86 +1,83 @@
-import fs from "fs";
-import path from "path";
-import { glob } from "glob";
+const fs = require("fs");
+const path = require("path");
 
-// --- SETUP ---
+const SEARCH_DIR = "src";
+const WARNING_KEYWORD = "console.log";
+const ERROR_KEYWORD = "alert";
 
-// Config
-const SEARCH_DIR = "apps";
-const IGNORE_PATTERNS = ["**/node_modules/**", "**/build/**", "**/*.d.ts"];
+let warningCount = 0;
+let errorCount = 0;
 
-// Files that are allowed to have 0 internal references (Entry Points)
-const ENTRY_POINTS = ["setup.js", "index.js", "bootstrap.js", "index.scss"];
+const EXCLUDE_FILES = [
+  path.join("src", "js", "core", "utils.js"),
+  path.join("src", "js", "ui", "services", "modals.js"),
+];
 
-async function scan() {
-  console.log("🧹 RPGlitch Hygiene Scanner");
-  console.log("---------------------------");
+function scanFile(filePath) {
+  // Check if file is excluded (using relative paths for portability)
+  if (EXCLUDE_FILES.some((ex) => filePath.includes(ex))) return;
 
-  // 1. Find all candidates (Including entry points, so we can see what THEY import)
-  const files = await glob(`${SEARCH_DIR}/**/*.{js,scss}`, {
-    ignore: IGNORE_PATTERNS,
+  const content = fs.readFileSync(filePath, "utf8");
+  const lines = content.split("\n");
+
+  // Regex specifically targeting function calls, not within strings or property names
+  // and ignoring lines that start with common comment patterns
+  const warningRegex = /console\.log\(/;
+  const errorRegex = /\balert\(/;
+  const commentRegex = /^\s*(\/\/|\*|\/\*)/;
+
+  lines.forEach((line, index) => {
+    // Skip logical comments
+    if (commentRegex.test(line)) return;
+
+    if (warningRegex.test(line)) {
+      console.warn(`[WARNING] Found "console.log" in ${filePath}:${index + 1}`);
+      console.warn(`    ${line.trim()}`);
+      warningCount++;
+    }
+    if (errorRegex.test(line)) {
+      console.error(`[ERROR] Found "alert" in ${filePath}:${index + 1}`);
+      console.error(`    ${line.trim()}`);
+      errorCount++;
+    }
   });
-  console.log(`Found ${files.length} files to analyze.`);
-
-  // 2. Load all content into memory (Repo is small enough)
-  const allContent = files.map((f) => ({
-    path: f,
-    content: fs.readFileSync(f, "utf-8"),
-    basename: path.basename(f, path.extname(f)), // e.g. "button" from "button.js"
-    filename: path.basename(f),
-  }));
-
-  const possibleOrphans = [];
-
-  // 3. Check each file
-  for (const file of allContent) {
-    // Skip entry points from being reported as orphans
-    if (ENTRY_POINTS.includes(file.filename)) continue;
-
-    let references = 0;
-    let searchNames = [file.basename];
-
-    // SCSS Specific Logic
-    if (file.path.endsWith(".scss")) {
-      // 1. Handle partials: "_foo.scss" -> search for "foo"
-      if (file.basename.startsWith("_")) {
-        searchNames.push(file.basename.substring(1));
-      }
-      // 2. Handle index files: "dir/_index.scss" -> search for "dir"
-      if (file.basename === "_index") {
-        const parentDir = path.basename(path.dirname(file.path));
-        searchNames.push(parentDir);
-      }
-    }
-
-    const searchPath = file.path.replace(/\\/g, "/"); // Normalize for JS imports
-
-    for (const other of allContent) {
-      if (other.path === file.path) continue;
-
-      // Check if ANY of the search names appear in the other file
-      if (
-        searchNames.some((name) => other.content.includes(name)) ||
-        other.content.includes(searchPath)
-      ) {
-        references++;
-        break; // Found one, it's safe
-      }
-    }
-
-    if (references === 0) {
-      possibleOrphans.push(file.path);
-    }
-  }
-
-  // 4. Report
-  if (possibleOrphans.length === 0) {
-    console.log("✨ Clean! No obvious orphans found.");
-  } else {
-    console.log(`⚠️  Found ${possibleOrphans.length} potential orphans:`);
-    possibleOrphans.forEach((p) => console.log(`   - ${p}`));
-    console.log("\n(Note: False positives possible. Verify before deleting.)");
-    // process.exit(1); // Removed exit 1 so it doesn't fail the build/workflow if just reporting
-  }
 }
 
-scan().catch(console.error);
+function walkDir(dir) {
+  if (!fs.existsSync(dir)) {
+    console.error(`Directory not found: ${dir}`);
+    process.exit(1);
+  }
+  const files = fs.readdirSync(dir);
+
+  files.forEach((file) => {
+    const filePath = path.join(dir, file);
+    const stat = fs.statSync(filePath);
+
+    if (stat.isDirectory()) {
+      walkDir(filePath);
+    } else if (
+      file.endsWith(".js") ||
+      file.endsWith(".jsx") ||
+      file.endsWith(".ts") ||
+      file.endsWith(".tsx")
+    ) {
+      scanFile(filePath);
+    }
+  });
+}
+
+console.log(`Starting Hygiene Scan in "${SEARCH_DIR}"...`);
+walkDir(SEARCH_DIR);
+
+console.log("--- Hygiene Scan Complete ---");
+console.log(`Warnings: ${warningCount}`);
+console.log(`Errors:   ${errorCount}`);
+
+if (errorCount > 0) {
+  console.error(`Hygiene Check Failed! Found ${errorCount} errors.`);
+  process.exit(1);
+} else {
+  console.log("Hygiene Check Passed.");
+  process.exit(0);
+}

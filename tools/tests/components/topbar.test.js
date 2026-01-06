@@ -1,4 +1,4 @@
-jest.mock("../../../apps/rpglitch/js/data/repo.js", () => ({
+jest.mock("../../../src/js/data/repo.js", () => ({
   entities: {
     list: jest.fn().mockReturnValue([]),
   },
@@ -6,7 +6,7 @@ jest.mock("../../../apps/rpglitch/js/data/repo.js", () => ({
   _allItemsCache: {},
 }));
 
-jest.mock("../../../apps/rpglitch/js/ui/components/chat/feed.js", () => ({
+jest.mock("../../../src/js/ui/components/chat/feed.js", () => ({
   renderChat: jest.fn(),
   setGameplayEntities: jest.fn(),
   showTypingIndicator: jest.fn(),
@@ -15,7 +15,7 @@ jest.mock("../../../apps/rpglitch/js/ui/components/chat/feed.js", () => ({
   setChatGeneratingState: jest.fn(),
 }));
 
-jest.mock("../../../apps/rpglitch/js/ui/services/visuals.js", () => ({
+jest.mock("../../../src/js/ui/services/visuals.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
   updateDirectorModeClass: jest.fn(),
@@ -27,10 +27,10 @@ async function loadApp(html) {
 
   // Re-import modules to get a fresh state
   jest.resetModules();
-  const utils = await import("../../../apps/rpglitch/js/core/utils.js");
+  const utils = await import("../../../src/js/core/utils.js");
   const uiUtils =
-    await import("../../../apps/rpglitch/js/ui/services/ui-utils.js");
-  const index = await import("../../../apps/rpglitch/js/core/bootstrap.js");
+    await import("../../../src/js/ui/services/ui-utils.js");
+  const index = await import("../../../src/js/core/bootstrap.js");
 
   // App object is now constructed from re-imported modules
   const App = {

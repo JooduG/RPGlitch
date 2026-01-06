@@ -1,44 +1,56 @@
-#!/usr/bin/env node
-/**
- * Run HTMLHint from the project root directory.
- *
- * It correctly locates .htmlhintrc and .htmlhintignore in the root.
- */
-const path = await import("path");
-const { fileURLToPath } = await import("url");
-const { spawnSync } = await import("child_process");
+const fs = require("fs");
+const path = require("path");
+// Note: Requires 'htmlhint' to be installed or available in the environment.
+// If 'htmlhint' is missing from package.json dependencies, please install it: npm install --save-dev htmlhint
+const HTMLHint = require("htmlhint").HTMLHint;
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const SEARCH_DIR = "src";
+let errorCount = 0;
 
-// Determine the root of the repository
-// tools/qa -> tools -> root
-const ROOT = path.resolve(__dirname, "../..");
+function lintFile(filePath) {
+  const content = fs.readFileSync(filePath, "utf8");
+  const messages = HTMLHint.verify(content);
 
-// Get the user's file glob (defaulting to all HTML files in apps/)
-const userGlob = process.argv[2] || "apps/**/*.html";
+  if (messages.length > 0) {
+    console.log(`Issues found in ${filePath}:`);
+    messages.forEach((msg) => {
+      const type = msg.type === "error" ? "[ERROR]" : "[WARNING]";
+      console.log(
+        `${type} Line ${msg.line}, Col ${msg.col}: ${msg.message} (${msg.rule.id})`,
+      );
+      if (msg.type === "error") {
+        errorCount++;
+      }
+    });
+  }
+}
 
-// Arguments passed directly to HTMLHint
-const args = [
-  // Use the user's glob as provided
-  userGlob,
-  "--config",
-  // The config file is expected to be in the root (ROOT)
-  path.join(ROOT, ".htmlhintrc"),
-];
+function walkDir(dir) {
+  if (!fs.existsSync(dir)) {
+    console.error(`Directory not found: ${dir}`);
+    process.exit(1);
+  }
+  const files = fs.readdirSync(dir);
 
-// Execute htmlhint from the ROOT directory to correctly pick up .htmlhintignore.
-console.log(`Running HTMLHint from: ${ROOT}`);
-console.log(`Checking files: ${userGlob}`);
+  files.forEach((file) => {
+    const filePath = path.join(dir, file);
+    const stat = fs.statSync(filePath);
 
-const res = spawnSync(
-  process.platform === "win32" ? "npx.cmd" : "npx",
-  ["-y", "htmlhint", ...args],
-  {
-    stdio: "inherit",
-    cwd: ROOT,
-    env: process.env,
-  },
-);
+    if (stat.isDirectory()) {
+      walkDir(filePath);
+    } else if (file.endsWith(".html")) {
+      lintFile(filePath);
+    }
+  });
+}
 
-process.exit(res.status ?? 0);
+console.log(`Starting HTMLHint scan in "${SEARCH_DIR}"...`);
+walkDir(SEARCH_DIR);
+
+if (errorCount > 0) {
+  console.error(`HTMLHint Failed! Found ${errorCount} errors.`);
+  process.exit(1);
+} else {
+  console.log("HTMLHint Passed.");
+  process.exit(0);
+}

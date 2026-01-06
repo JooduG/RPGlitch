@@ -344,9 +344,9 @@
 
   left: var(--space-md);
   right: auto;
-  border-color: rgba(var(--signature-rgb, 255 255 255), 0.5);
+  border-color: rgb(var(--signature-rgb, 255 255 255), 0.5);
   color: var(--signature-color, #fff);
-  text-shadow: 0 0 10px rgba(var(--signature-rgb, 255 255 255), 0.3);
+  text-shadow: 0 0 10px rgb(var(--signature-rgb, 255 255 255), 0.3);
 }
 
 #storymode-user-portrait {
@@ -439,7 +439,7 @@
 .chat-bubble {
   padding: var(--space-md) var(--space-md-lg);
   max-width: 50vw;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
   animation: message-slide-in 0.3s ease;
   position: relative;
@@ -546,7 +546,7 @@
     --signature-color,
     var(--pico-primary-background)
   );
-  --color-signature-glow: var(--signature-color, rgba(255, 255, 255, 50%));
+  --color-signature-glow: var(--signature-color, rgb(255, 255, 255, 50%));
 
   background-color: var(--color-signature-main) !important;
   color: #fff !important;
@@ -588,7 +588,7 @@
   gap: var(--space-sm);
   margin-top: var(--space-sm);
   padding-top: var(--space-xs);
-  border-top: 1px solid rgba(255, 255, 255, 10%);
+  border-top: 1px solid rgb(255, 255, 255, 10%);
   opacity: 0;
   transition: opacity 0.2s ease;
   pointer-events: none;
@@ -607,7 +607,7 @@
 
     &:hover {
       opacity: 1;
-      background: rgba(255, 255, 255, 10%);
+      background: rgb(255, 255, 255, 10%);
     }
 
     svg {
@@ -768,7 +768,7 @@
     align-self: center;
     margin-inline: auto;
     background-color: var(--color-signature-main) !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 10%);
+    box-shadow: 0 1px 3px rgb(0, 0, 0, 10%);
 
     .typing-dot {
       background-color: #fff !important;

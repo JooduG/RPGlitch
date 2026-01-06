@@ -1,22 +1,16 @@
 #!/usr/bin/env node
 
-import fs from "fs";
-import path from "path";
-import postcss from "postcss";
-import * as sass from "sass"; // Sass export pattern
-import autoprefixer from "autoprefixer";
-import { fileURLToPath } from "url";
+const fs = require("fs");
+const path = require("path");
+const postcss = require("postcss");
+const sass = require("sass");
+const autoprefixer = require("autoprefixer");
 
-// ESM equivalent of __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// CommonJS equivalent of __dirname is globally available
 
-async function compileScssToString(appName = "rpglitch") {
-  // UPDATED PATH: ../../apps
-  const scssPath = path.join(
-    __dirname,
-    `../../apps/${appName}/scss/index.scss`,
-  );
+async function compileScssToString() {
+  // UPDATED PATH: ../../src/scss/index.scss
+  const scssPath = path.join(__dirname, "../../src/scss/index.scss");
   // UPDATED PATH: ../../libs
   const picoCssPath = path.resolve(__dirname, "../..", "libs", "pico.min.css");
 
@@ -24,7 +18,15 @@ async function compileScssToString(appName = "rpglitch") {
     throw new Error(`SCSS file not found at ${scssPath}`);
   }
 
-  const picoCss = fs.readFileSync(picoCssPath, "utf8");
+  // Check if pico exists, if not, might warn but proceed if possible, though sass compile might depend on it?
+  // The original code read it and concatenated.
+  let picoCss = "";
+  if (fs.existsSync(picoCssPath)) {
+    picoCss = fs.readFileSync(picoCssPath, "utf8");
+  } else {
+    console.warn(`Warning: Pico CSS not found at ${picoCssPath}`);
+  }
+
   const sassResult = sass.compile(scssPath);
   const combinedCss = picoCss + "\n" + sassResult.css;
   const postcssResult = await postcss([autoprefixer]).process(combinedCss, {
@@ -113,7 +115,7 @@ function findRedundantSelectors(ast) {
 
 // --- MAIN BUILD PIPELINE CLASS (Combination) ---
 
-export default class CSSBuildPipeline {
+class CSSBuildPipeline {
   constructor(cssFilePath, originalContent = null) {
     this.cssFilePath = cssFilePath;
     this.originalContent =
@@ -282,13 +284,12 @@ export default class CSSBuildPipeline {
   }
 }
 
-// Main execution block (ECMAScript compatible)
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+// Main execution block (CommonJS compatible)
+if (require.main === module) {
   (async () => {
     try {
-      const appName = process.argv[2] || "rpglitch";
-      console.log(`🔍 Analyzing CSS for: ${appName}`);
-      const cssContent = await compileScssToString(appName);
+      console.log(`🔍 Analyzing SCSS/CSS...`);
+      const cssContent = await compileScssToString();
       const pipeline = new CSSBuildPipeline("in-memory.css", cssContent); // Pass content directly
       const report = pipeline.runBuild(false); // Run the pipeline without writing to disk
       console.log(JSON.stringify(report.initialAnalysis, null, 2));
@@ -301,3 +302,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     }
   })();
 }
+
+module.exports = CSSBuildPipeline;

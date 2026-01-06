@@ -38,7 +38,7 @@ export const VisualManager = {
 
     // 1. SANITIZATION (Remove <think> and brackets)
     let cleanPrompt = prompt.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
-    cleanPrompt = cleanPrompt.replace(/[\[\]\{\}]/g, "");
+    cleanPrompt = cleanPrompt.replace(/[[]\]{}]/g, "");
     cleanPrompt = cleanPrompt.replace(/\n/g, ", ");
 
     // 2. THE REALISM HAMMER (Force Injection)

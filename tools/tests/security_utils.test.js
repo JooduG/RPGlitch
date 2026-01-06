@@ -16,8 +16,8 @@ global.window.DOMPurify = {
   sanitize: mockSanitize
 };
 
-import { createIconBtn } from "../../apps/rpglitch/js/ui/services/ui-utils.js";
-import { sanitizeHtml } from "../../apps/rpglitch/js/core/utils.js";
+import { createIconBtn } from "../../src/js/ui/services/ui-utils.js";
+import { sanitizeHtml } from "../../src/js/core/utils.js";
 
 describe("Security: createIconBtn", () => {
   beforeEach(() => {

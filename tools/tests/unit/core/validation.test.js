@@ -4,8 +4,8 @@ import {
   sanitizeHtml,
   getSignatureColor,
   getContrastColor,
-} from "../../../../apps/rpglitch/js/core/utils.js";
-import { PALETTE as SIGNATURE_COLORS } from "../../../../apps/rpglitch/js/core/constants.js";
+} from "../../../../src/js/core/utils.js";
+import { PALETTE as SIGNATURE_COLORS } from "../../../../src/js/core/constants.js";
 
 // Mock DOMPurify for sanitizeHtml tests
 global.DOMPurify = {

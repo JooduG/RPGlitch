@@ -5,7 +5,7 @@ import { jest } from '@jest/globals';
 const mockStoriesList = jest.fn();
 
 // Mock db to prevent crash in repo.js
-jest.unstable_mockModule('../../apps/rpglitch/js/core/db.js', () => ({
+jest.unstable_mockModule('../../src/js/core/db.js', () => ({
     db: {
         settings: { get: jest.fn() },
         stories: {},
@@ -14,7 +14,7 @@ jest.unstable_mockModule('../../apps/rpglitch/js/core/db.js', () => ({
 }));
 
 // Mock ui-utils
-jest.unstable_mockModule('../../apps/rpglitch/js/ui/services/ui-utils.js', () => ({
+jest.unstable_mockModule('../../src/js/ui/services/ui-utils.js', () => ({
     getPictureHTML: () => {
         const div = document.createElement('div');
         div.className = 'picture';
@@ -36,7 +36,7 @@ jest.unstable_mockModule('../../apps/rpglitch/js/ui/services/ui-utils.js', () =>
 }));
 
 // Mock theme service
-jest.unstable_mockModule('../../apps/rpglitch/js/ui/services/theme.js', () => ({
+jest.unstable_mockModule('../../src/js/ui/services/theme.js', () => ({
     ThemeService: { apply: jest.fn() }
 }));
 
@@ -47,11 +47,11 @@ describe('Security Vulnerability Check - Settings', () => {
 
     beforeAll(async () => {
         // Import repo and monkey-patch
-        repo = await import('../../apps/rpglitch/js/data/repo.js');
+        repo = await import('../../src/js/data/repo.js');
         // Save original to restore later if needed (not needed for one test file)
         repo.stories.list = mockStoriesList;
 
-        const module = await import('../../apps/rpglitch/js/ui/components/settings.js');
+        const module = await import('../../src/js/ui/components/settings.js');
         StoryOptionsController = module.StoryOptionsController;
     });
 

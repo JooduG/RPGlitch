@@ -1,16 +1,20 @@
 #!/usr/bin/env node
 
-import fs from "fs";
-import path from "path";
-import https from "https";
-import crypto from "crypto";
-import dotenv from "dotenv";
-import { execSync } from "child_process";
-import { fileURLToPath } from "url";
+const fs = require("fs");
+const path = require("path");
+const https = require("https");
+const crypto = require("crypto");
+const { execSync } = require("child_process");
+
+// Try to require dotenv if available, otherwise mock it or fail gracefully if critical
+let dotenv;
+try {
+  dotenv = require("dotenv");
+} catch (e) {
+  // dotenv might not be installed in all environments
+}
 
 // --- GENERIC SETUP & UTILITIES ---
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, "../..");
 
 function readJson(filePath) {
@@ -221,9 +225,10 @@ function syncMcp() {
   const masterMcp = readJson(masterMcpPath);
   if (Object.keys(masterMcp).length === 0) return;
 
-  const envMap = fs.existsSync(envPath)
-    ? { ...process.env, ...dotenv.parse(fs.readFileSync(envPath)) }
-    : { ...process.env };
+  const envMap =
+    fs.existsSync(envPath) && dotenv
+      ? { ...process.env, ...dotenv.parse(fs.readFileSync(envPath)) }
+      : { ...process.env };
 
   const substituteEnvVariables = (obj) =>
     JSON.parse(
@@ -297,8 +302,6 @@ function syncMcpToClaudeCode() {
     );
   }
 }
-
-// --- GENERATE HUB LOGIC - REMOVED ---
 
 // --- MAIN CLI LOGIC ---
 async function main() {

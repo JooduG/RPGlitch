@@ -8,7 +8,7 @@
 dialog.modal {
   // Pico Override for Backdrop
   &::backdrop {
-    background-color: rgba(0, 0, 0, 60%) !important;
+    background-color: rgb(0, 0, 0, 60%) !important;
     backdrop-filter: blur(8px) !important;
     opacity: 1 !important;
   }
@@ -36,12 +36,12 @@ dialog.modal {
   flex-direction: column;
   max-height: none;
   height: auto; // Allow growth
-  border: 1px solid rgba(255, 255, 255, 10%); // [FIX] Subtle border for main modal content itself
+  border: 1px solid rgb(255, 255, 255, 10%); // [FIX] Subtle border for main modal content itself
 
   // Variation: Wide (for Profile/Settings)
   &.modal-content--wide {
     max-width: 800px;
-    background: rgba(18, 20, 30, 85%); // Maintain readability for wide content
+    background: rgb(18, 20, 30, 85%); // Maintain readability for wide content
   }
 
   // Variation: Dialog (Flush Footer for Alert/Confirm/Prompt)
@@ -65,8 +65,8 @@ dialog.modal {
 
   // Header
   header {
-    background: rgba(255, 255, 255, 3%);
-    border-bottom: 1px solid rgba(255, 255, 255, 5%);
+    background: rgb(255, 255, 255, 3%);
+    border-bottom: 1px solid rgb(255, 255, 255, 5%);
     padding: var(--space-sm) var(--space-md); // [FIX] Tighter header
     margin-bottom: 0;
     display: flex;
@@ -80,8 +80,8 @@ dialog.modal {
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 1px; // Cyberpunk tracking
-      color: rgba(255, 255, 255, 90%);
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 50%);
+      color: rgb(255, 255, 255, 90%);
+      text-shadow: 0 2px 4px rgb(0, 0, 0, 50%);
     }
 
     .close {
@@ -103,7 +103,7 @@ dialog.modal {
   // Body Content
   .modal-body {
     padding: var(--space-md); // [FIX] Reduced from lg
-    color: rgba(255, 255, 255, 80%);
+    color: rgb(255, 255, 255, 80%);
     line-height: 1.6;
     font-size: 0.95rem; // Kept from original
 
@@ -118,7 +118,7 @@ dialog.modal {
     }
 
     &::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 20%);
+      background: rgb(255, 255, 255, 20%);
       border-radius: 3px;
     }
 
@@ -138,7 +138,7 @@ dialog.modal {
       label {
         font-size: 0.85rem;
         font-weight: 600;
-        color: rgba(255, 255, 255, 60%);
+        color: rgb(255, 255, 255, 60%);
         text-transform: uppercase;
         letter-spacing: 0.5px;
       }
@@ -312,7 +312,7 @@ dialog.modal {
   text-transform: uppercase;
   letter-spacing: 1px;
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 90%);
+  color: rgb(255, 255, 255, 90%);
 }
 
 .btn-reset-data {

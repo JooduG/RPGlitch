@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test("Fractal Color Verification (Opening & Conclusion)", async ({ page }) => {
   // 1. Load the App
   const filePath =
-    "file:///c:/Users/johng/Documents/GitHub/default/apps/rpglitch/RPGlitch.html";
+    "file:///c:/Users/johng/Documents/GitHub/default/src/RPGlitch.html";
   console.log(`Navigating to: ${filePath}`);
   await page.goto(filePath);
   await page.waitForTimeout(2000); // Init

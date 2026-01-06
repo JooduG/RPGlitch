@@ -1,24 +1,24 @@
 import { jest } from "@jest/globals";
 
 // Mock dependencies to avoid side effects during import
-jest.mock("../../../apps/rpglitch/js/core/state.js", () => ({
+jest.mock("../../../src/js/core/state.js", () => ({
   state: {},
   applyPatch: jest.fn(),
 }));
-jest.mock("../../../apps/rpglitch/js/data/repo.js", () => ({ entities: {} }));
-jest.mock("../../../apps/rpglitch/js/engine/director.js", () => ({
+jest.mock("../../../src/js/data/repo.js", () => ({ entities: {} }));
+jest.mock("../../../src/js/engine/director.js", () => ({
   StoryController: {},
 }));
-jest.mock("../../../apps/rpglitch/js/ui/image-gen-ui.js", () => ({
+jest.mock("../../../src/js/ui/image-gen-ui.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
 }));
-jest.mock("../../../apps/rpglitch/js/core/utils.js", () => ({
+jest.mock("../../../src/js/core/utils.js", () => ({
   error: jest.fn(),
   log: jest.fn(),
 }));
 
-import { generateDynamicTitle } from "../../../apps/rpglitch/js/ui/setup.js";
+import { generateDynamicTitle } from "../../../src/js/ui/setup.js";
 
 describe("Storyboard Title Logic", () => {
   const mockAi = { name: "Alice" };

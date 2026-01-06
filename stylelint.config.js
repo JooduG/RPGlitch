@@ -1,9 +1,7 @@
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
 const master = require("./ignores.master.json");
 
 /** @type {import('stylelint').Config} */
-export default {
+module.exports = {
   // one source of truth for ignore globs
   ignoreFiles: master.stylelintIgnore || [],
   extends: ["stylelint-config-standard", "stylelint-config-standard-scss"],

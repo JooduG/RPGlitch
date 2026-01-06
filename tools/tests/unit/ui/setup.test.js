@@ -1,11 +1,11 @@
-import { initStoryboardStage } from "../../../../apps/rpglitch/js/ui/setup.js";
-import { events, EVENTS } from "../../../../apps/rpglitch/js/core/events.js";
-import { state } from "../../../../apps/rpglitch/js/core/state.js";
-import { entities } from "../../../../apps/rpglitch/js/data/repo.js";
+import { initStoryboardStage } from "../../../../src/js/ui/setup.js";
+import { events, EVENTS } from "../../../../src/js/core/events.js";
+import { state } from "../../../../src/js/core/state.js";
+import { entities } from "../../../../src/js/data/repo.js";
 
 // Mock dependencies
 jest.mock(
-  "../../../../apps/rpglitch/js/ui/components/profile/controller.js",
+  "../../../../src/js/ui/components/profile/controller.js",
   () => ({
     getOnUpdateSelection: jest.fn(() => jest.fn()),
     setProfileCallbacks: jest.fn(),
@@ -17,17 +17,17 @@ jest.mock(
   }),
 );
 
-jest.mock("../../../../apps/rpglitch/js/ui/image-gen-ui.js", () => ({
+jest.mock("../../../../src/js/ui/image-gen-ui.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
   updateDeveloperModeClass: jest.fn(),
 }));
 
-jest.mock("../../../../apps/rpglitch/js/ui/orchestrator.js", () => ({
+jest.mock("../../../../src/js/ui/orchestrator.js", () => ({
   showAlert: jest.fn(),
 }));
 
-jest.mock("../../../../apps/rpglitch/js/data/repo.js", () => ({
+jest.mock("../../../../src/js/data/repo.js", () => ({
   entities: {
     get: jest.fn(),
     list: jest.fn(),

@@ -520,9 +520,9 @@ $placeholder-opacity: 0.4;
 
   &:focus {
     outline: none;
-    background: rgba(0, 0, 0, 50%);
+    background: rgb(0, 0, 0, 50%);
     border-color: var(--pico-primary);
-    box-shadow: 0 0 0 2px rgba(var(--pico-primary-rgb), 0.2);
+    box-shadow: 0 0 0 2px rgb(var(--pico-primary-rgb), 0.2);
   }
 
   &::placeholder {
@@ -535,7 +535,7 @@ $placeholder-opacity: 0.4;
 .profile-input {
   @extend %profile-field-base;
 
-  background: rgba(0, 0, 0, 30%);
+  background: rgb(0, 0, 0, 30%);
   border: 1px solid var(--pico-muted-border-color);
 }
 
@@ -555,7 +555,7 @@ $placeholder-opacity: 0.4;
   padding: var(--space-sm);
   border-radius: var(--pico-radius);
   border: 1px dotted var(--pico-muted-border-color);
-  background: rgba(var(--pico-primary-rgb), 0.05); // Very subtle tech glow
+  background: rgb(var(--pico-primary-rgb), 0.05); // Very subtle tech glow
 
   .dev-widget-header {
     font-size: 0.75rem;
@@ -589,7 +589,7 @@ input[type="number"][data-dynamics-target] {
   font-family: var(--pico-font-family-monospace);
   text-align: center;
   padding: 0.2rem;
-  border-color: rgba(var(--pico-primary-rgb), 0.3);
+  border-color: rgb(var(--pico-primary-rgb), 0.3);
 }
 
 /* --- STATE TOGGLING --- */
@@ -632,7 +632,7 @@ input[type="number"][data-dynamics-target] {
     border-radius: 0;
     padding: 1rem;
     border: none;
-    border-right: 1px solid rgba(255, 255, 255, 10%);
+    border-right: 1px solid rgb(255, 255, 255, 10%);
 
     &:last-child {
       border-right: none;
@@ -710,7 +710,7 @@ input[type="number"][data-dynamics-target] {
       align-items: baseline;
       gap: 0.5rem;
       padding-top: 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 10%);
+      border-bottom: 1px solid rgb(255, 255, 255, 10%);
       padding-bottom: 0.25rem;
       margin-bottom: 0.25rem;
     }

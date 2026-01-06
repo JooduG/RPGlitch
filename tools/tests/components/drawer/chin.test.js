@@ -3,13 +3,13 @@ import { describe, test, expect, afterEach, jest } from "@jest/globals";
 // Mocks must be defined before imports in ESM if using babel-jest,
 // here we stick to the pattern used in previous tests.
 
-jest.mock("../../../../apps/rpglitch/js/data/repo.js", () => ({
+jest.mock("../../../../src/js/data/repo.js", () => ({
   entities: { list: jest.fn().mockReturnValue([]) },
   seedPremades: jest.fn().mockResolvedValue(),
   _allItemsCache: {},
 }));
 
-jest.mock("../../../../apps/rpglitch/js/ui/components/chat/feed.js", () => ({
+jest.mock("../../../../src/js/ui/components/chat/feed.js", () => ({
   renderChat: jest.fn(),
   setGameplayEntities: jest.fn(),
   showTypingIndicator: jest.fn(),
@@ -18,7 +18,7 @@ jest.mock("../../../../apps/rpglitch/js/ui/components/chat/feed.js", () => ({
   setChatGeneratingState: jest.fn(),
 }));
 
-jest.mock("../../../../apps/rpglitch/js/ui/services/visuals.js", () => ({
+jest.mock("../../../../src/js/ui/services/visuals.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
   updateDirectorModeClass: jest.fn(),
@@ -30,10 +30,10 @@ async function loadApp(html) {
 
   // Note: Adjust paths relative to THIS file location (tools/tests/components/drawer)
   // apps is at ../../../../apps
-  const utils = await import("../../../../apps/rpglitch/js/core/utils.js");
+  const utils = await import("../../../../src/js/core/utils.js");
   const uiUtils =
-    await import("../../../../apps/rpglitch/js/ui/services/ui-utils.js");
-  const index = await import("../../../../apps/rpglitch/js/core/bootstrap.js");
+    await import("../../../../src/js/ui/services/ui-utils.js");
+  const index = await import("../../../../src/js/core/bootstrap.js");
 
   const App = { ...index, ...utils, ...uiUtils };
   return { App };

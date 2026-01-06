@@ -9,6 +9,7 @@
     "**/.svn": true,
     "**/CVS": true,
     "**/Thumbs.db": true,
+    "**/build/local_libs/**": false,
     "libs/**": true,
     "**/node_modules/**": true
   },

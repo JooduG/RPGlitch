@@ -1,35 +1,35 @@
-import { renderMessage } from "../../../../apps/rpglitch/js/ui/components/chat/bubble.js";
+import { renderMessage } from "../../../../src/js/ui/components/chat/bubble.js";
 
 // Mock dependencies to avoid circular references and side effects
-jest.mock("../../../../apps/rpglitch/js/ui/components/chat/feed.js", () => ({
+jest.mock("../../../../src/js/ui/components/chat/feed.js", () => ({
   renderChat: jest.fn(),
   showTypingIndicator: jest.fn(),
 }));
 
-jest.mock("../../../../apps/rpglitch/js/engine/director.js", () => ({
+jest.mock("../../../../src/js/engine/director.js", () => ({
   TurnManager: {
     editUserMessage: jest.fn(),
     editAiMessage: jest.fn(),
   },
 }));
 
-jest.mock("../../../../apps/rpglitch/js/ui/services/lightbox.js", () => ({
+jest.mock("../../../../src/js/ui/services/lightbox.js", () => ({
   LightboxService: {
     open: jest.fn(),
   },
 }));
 
-jest.mock("../../../../apps/rpglitch/js/core/state.js", () => ({
+jest.mock("../../../../src/js/core/state.js", () => ({
   state: { story: { activeId: null } },
 }));
 
-jest.mock("../../../../apps/rpglitch/js/ui/services/theme.js", () => ({
+jest.mock("../../../../src/js/ui/services/theme.js", () => ({
   ThemeService: { apply: jest.fn() },
 }));
 
-import { createIconBtn } from "../../../../apps/rpglitch/js/ui/services/ui-utils.js";
+import { createIconBtn } from "../../../../src/js/ui/services/ui-utils.js";
 
-jest.mock("../../../../apps/rpglitch/js/ui/services/ui-utils.js", () => ({
+jest.mock("../../../../src/js/ui/services/ui-utils.js", () => ({
   createIconBtn: jest.fn(),
 }));
 

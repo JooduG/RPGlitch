@@ -18,7 +18,9 @@ export const LlmService = {
       if (!options.silent) {
         // We only alert if not silent, but we always throw so the caller can handle flow.
         utilsError(msg);
-        alert(msg);
+        import("../ui/services/modals.js").then(({ showAlert }) => {
+          showAlert("Engine Error", msg);
+        });
       }
       throw new Error(msg);
     }

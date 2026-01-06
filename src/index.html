@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>RPGlitch - AI Storytelling Platform</title>
 
-
     <script src="../libs/dexie.min.js"></script>
     <script src="../libs/cash.min.js"></script>
     <script src="../libs/purify.min.js"></script>
-
 
     <link rel="stylesheet" href="../scss/index.scss" />
   </head>
@@ -34,8 +32,17 @@
     <dialog id="emergency-modal">
       <article>
         <header>
-          <button type="button" class="close" aria-label="Close" onclick="this.closest('dialog').close()">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+          <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            onclick="this.closest('dialog').close()"
+          >
+            <svg class="icon" viewBox="0 0 24 24">
+              <path
+                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+              />
+            </svg>
           </button>
           Error
         </header>
@@ -70,11 +77,7 @@
       >
         <div class="stage-content--storyboard">
           <article class="entity-card">
-            <button
-              id="btn-select-ai"
-              type="button"
-              class="card-slot shimmer"
-            >
+            <button id="btn-select-ai" type="button" class="card-slot shimmer">
               <span class="slot-category">AI Character</span>
               <span class="slot-icon">
                 <svg viewBox="0 0 24 24" fill="currentColor">
@@ -138,7 +141,12 @@
                   />
                 </svg>
               </button>
-              <button id="btn-options" class="btn-ghost" aria-label="Settings" title="Settings">
+              <button
+                id="btn-options"
+                class="btn-ghost"
+                aria-label="Settings"
+                title="Settings"
+              >
                 <svg
                   class="icon"
                   xmlns="http://www.w3.org/2000/svg"
@@ -268,7 +276,12 @@
                 </button>
 
                 <!-- SEND (Last) -->
-                <button type="submit" class="btn-ghost btn-icon-raise" disabled aria-label="Send">
+                <button
+                  type="submit"
+                  class="btn-ghost btn-icon-raise"
+                  disabled
+                  aria-label="Send"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -344,25 +357,60 @@
       <header>
         <h3>Settings</h3>
         <button type="button" class="close" aria-label="Close">
-          <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+          <svg class="icon" viewBox="0 0 24 24">
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+            />
+          </svg>
         </button>
       </header>
       <div class="settings-controls modal-body">
-        
         <!-- VISUALS & TOOLS (Story Mode) -->
         <div class="settings-section settings-section-visuals" hidden>
-           <div class="settings-panel">
+          <div class="settings-panel">
             <div role="group" class="btn-group-pill">
               <button id="btn-ghostwrite" class="secondary">
-                <svg class="icon icon-prefix" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.46 2.94 8.24 7 9.5v-3.08c-2.37-.5-4-2.57-4-5.01 0-3.31 2.69-6 6-6s6 2.69 6 6c0 2.45-1.63 4.51-4 5.01v3.08c4.06-1.26 7-5.04 7-9.5 0-5.52-4.48-10-10-10zm-3 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                <svg
+                  class="icon icon-prefix"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12c0 4.46 2.94 8.24 7 9.5v-3.08c-2.37-.5-4-2.57-4-5.01 0-3.31 2.69-6 6-6s6 2.69 6 6c0 2.45-1.63 4.51-4 5.01v3.08c4.06-1.26 7-5.04 7-9.5 0-5.52-4.48-10-10-10zm-3 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                  />
+                </svg>
                 Ghostwrite
               </button>
-              <button id="btn-generate-visual-draft" class="secondary output" title="Generate Image">
-                <svg class="icon icon-prefix" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5S18.33 12 17.5 12z"/></svg>
+              <button
+                id="btn-generate-visual-draft"
+                class="secondary output"
+                title="Generate Image"
+              >
+                <svg
+                  class="icon icon-prefix"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5S18.33 12 17.5 12z"
+                  />
+                </svg>
                 Vis
               </button>
-              <button id="btn-request-photo" class="secondary output" title="Request Photo">
-                <svg class="icon icon-prefix" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7c0 1.66-1.34 3-3 3s-3-1.34-3-3 1.34-3 3-3 3 1.34 3 3z"/></svg>
+              <button
+                id="btn-request-photo"
+                class="secondary output"
+                title="Request Photo"
+              >
+                <svg
+                  class="icon icon-prefix"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7c0 1.66-1.34 3-3 3s-3-1.34-3-3 1.34-3 3-3 3 1.34 3 3z"
+                  />
+                </svg>
                 Photo
               </button>
             </div>
@@ -391,13 +439,23 @@
             <p><small>Loading library...</small></p>
           </div>
         </div>
-        
+
         <!-- SESSION CONTROL (Conclude) -->
         <div class="settings-section settings-section-session" hidden>
-             <button id="btn-conclude-story" class="outline warning btn-full-width" title="Conclude">
-                <svg class="icon icon-prefix" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z" /></svg>
-                End Story
-             </button>
+          <button
+            id="btn-conclude-story"
+            class="outline warning btn-full-width"
+            title="Conclude"
+          >
+            <svg
+              class="icon icon-prefix"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+            >
+              <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z" />
+            </svg>
+            End Story
+          </button>
         </div>
 
         <!-- ADVANCED (Dev Mode, Reset) -->
@@ -405,22 +463,27 @@
           <h3>Advanced</h3>
           <div class="settings-panel settings-panel-grid">
             <label for="setting-developer-mode" class="settings-label">
-              <input type="checkbox" id="setting-developer-mode" role="switch" />
+              <input
+                type="checkbox"
+                id="setting-developer-mode"
+                role="switch"
+              />
               Developer Mode
             </label>
             <button
               id="btn-reset-story"
               class="outline contrast btn-icon-raise btn-reset-data"
             >
-              <svg class="icon" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+              <svg class="icon" viewBox="0 0 24 24">
+                <path
+                  d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+                />
+              </svg>
               Reset Data
             </button>
           </div>
         </div>
-
       </div>
-    </template>
-
     </template>
 
     <template id="tpl-profile-page">
@@ -550,7 +613,9 @@
       <template id="tpl-empty-library">
         <div class="drawer-empty">
           <svg class="empty-icon" viewBox="0 0 24 24">
-            <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"/>
+            <path
+              d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"
+            />
           </svg>
           <h4>Your Library is Empty</h4>
           <p>Stories you start will appear here.</p>
@@ -603,83 +668,138 @@
 
     <!-- CONFIRMATION MODAL -->
     <template id="tpl-confirm-modal">
-        <article class="modal-content modal-content--dialog">
-            <header>
-                <h3 id="confirm-title">Confirm</h3>
-            </header>
-            <div class="modal-body">
-                <p id="confirm-message">Are you sure?</p>
-            </div>
-            <footer>
-                <button id="btn-confirm-cancel" class="btn-ghost btn-icon-raise" aria-label="Cancel">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                </button>
-                <button id="btn-confirm-ok" class="btn-primary btn-icon-raise" aria-label="Confirm">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                </button>
-            </footer>
-        </article>
+      <article class="modal-content modal-content--dialog">
+        <header>
+          <h3 id="confirm-title">Confirm</h3>
+        </header>
+        <div class="modal-body">
+          <p id="confirm-message">Are you sure?</p>
+        </div>
+        <footer>
+          <button
+            id="btn-confirm-cancel"
+            class="btn-ghost btn-icon-raise"
+            aria-label="Cancel"
+          >
+            <svg class="icon" viewBox="0 0 24 24">
+              <path
+                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+              />
+            </svg>
+          </button>
+          <button
+            id="btn-confirm-ok"
+            class="btn-primary btn-icon-raise"
+            aria-label="Confirm"
+          >
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+            </svg>
+          </button>
+        </footer>
+      </article>
     </template>
 
     <!-- ALERT MODAL -->
     <template id="tpl-alert-modal">
-        <article class="modal-content modal-content--dialog">
-            <header>
-                <h3 id="alert-title">Alert</h3>
-            </header>
-            <div class="modal-body">
-                <p id="alert-message">Notice</p>
-            </div>
-            <footer>
-                <button id="btn-alert-ok" class="btn-primary btn-icon-raise" aria-label="OK">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                </button>
-            </footer>
-        </article>
+      <article class="modal-content modal-content--dialog">
+        <header>
+          <h3 id="alert-title">Alert</h3>
+        </header>
+        <div class="modal-body">
+          <p id="alert-message">Notice</p>
+        </div>
+        <footer>
+          <button
+            id="btn-alert-ok"
+            class="btn-primary btn-icon-raise"
+            aria-label="OK"
+          >
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+            </svg>
+          </button>
+        </footer>
+      </article>
     </template>
 
     <!-- PROMPT MODAL -->
     <template id="tpl-prompt-modal">
-        <article class="modal-content modal-content--dialog">
-            <header>
-                <h3 id="prompt-title">Prompt</h3>
-            </header>
-            <div class="modal-body">
-                <p id="prompt-message">Enter value:</p>
-                <div class="input-group">
-                    <input type="text" id="prompt-input" autocomplete="off">
-                </div>
-            </div>
-            <footer>
-                <button id="btn-prompt-cancel" class="btn-ghost btn-icon-raise" aria-label="Cancel">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                </button>
-                <button id="btn-prompt-ok" class="btn-primary btn-icon-raise" aria-label="Confirm">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                </button>
-            </footer>
-        </article>
+      <article class="modal-content modal-content--dialog">
+        <header>
+          <h3 id="prompt-title">Prompt</h3>
+        </header>
+        <div class="modal-body">
+          <p id="prompt-message">Enter value:</p>
+          <div class="input-group">
+            <input type="text" id="prompt-input" autocomplete="off" />
+          </div>
+        </div>
+        <footer>
+          <button
+            id="btn-prompt-cancel"
+            class="btn-ghost btn-icon-raise"
+            aria-label="Cancel"
+          >
+            <svg class="icon" viewBox="0 0 24 24">
+              <path
+                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+              />
+            </svg>
+          </button>
+          <button
+            id="btn-prompt-ok"
+            class="btn-primary btn-icon-raise"
+            aria-label="Confirm"
+          >
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+            </svg>
+          </button>
+        </footer>
+      </article>
     </template>
 
     <!-- CONCLUDED STORY CONTROLS (Floating Pill Design) -->
     <template id="tpl-concluded-controls">
-        <div class="concluded-controls btn-group-pill">
-            <!-- Settings -->
-             <button id="btn-concluded-settings" class="btn-ghost" aria-label="Settings">
-                <svg class="icon" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-            </button>
+      <div class="concluded-controls btn-group-pill">
+        <!-- Settings -->
+        <button
+          id="btn-concluded-settings"
+          class="btn-ghost"
+          aria-label="Settings"
+        >
+          <svg class="icon" viewBox="0 0 24 24">
+            <path
+              d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"
+            />
+          </svg>
+        </button>
 
-            <!-- Delete -->
-             <button id="btn-concluded-delete" class="btn-ghost" aria-label="Delete Story" title="Delete Story">
-                <svg class="icon" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-            </button>
+        <!-- Delete -->
+        <button
+          id="btn-concluded-delete"
+          class="btn-ghost"
+          aria-label="Delete Story"
+          title="Delete Story"
+        >
+          <svg class="icon" viewBox="0 0 24 24">
+            <path
+              d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+            />
+          </svg>
+        </button>
 
-            <!-- Storyboard (Finish) -->
-             <button id="btn-concluded-close" class="btn-primary">
-                Storyboard
-                <svg class="icon" viewBox="0 0 24 24"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
-            </button>
-        </div>
+        <!-- Storyboard (Finish) -->
+        <button id="btn-concluded-close" class="btn-primary">
+          Storyboard
+          <svg class="icon" viewBox="0 0 24 24">
+            <path
+              d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
+            />
+          </svg>
+        </button>
+      </div>
     </template>
   </body>
 </html>

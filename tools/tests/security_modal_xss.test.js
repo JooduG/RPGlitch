@@ -1,6 +1,6 @@
 
 import { jest } from '@jest/globals';
-import { showErrorModal } from '../../apps/rpglitch/js/ui/services/modals.js';
+import { showErrorModal } from '../../src/js/ui/services/modals.js';
 
 // Mock DOMPurify globally
 global.window.DOMPurify = {
@@ -13,7 +13,7 @@ HTMLDialogElement.prototype.showModal = jest.fn();
 HTMLDialogElement.prototype.close = jest.fn();
 
 // Mock TurnManager
-jest.mock('../../apps/rpglitch/js/engine/director.js', () => ({
+jest.mock('../../src/js/engine/director.js', () => ({
   TurnManager: {
     regenerate: jest.fn(),
   }

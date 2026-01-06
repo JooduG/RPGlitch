@@ -33,7 +33,7 @@ test.describe("RPGlitch Image Upload and Generation", () => {
       window.superFetch = async () => {};
     });
 
-    await page.goto("http://localhost:8080/apps/rpglitch/index.html", {
+    await page.goto("http://localhost:8080/src/index.html", {
       waitUntil: "networkidle",
     });
   });
