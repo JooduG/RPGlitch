@@ -3,8 +3,10 @@ import { entities } from "../../../data/repo.js";
 import { handleAsyncError, log } from "../../../core/utils.js";
 import { renderProfileView } from "./view.js";
 import { renderProfileEdit } from "./edit.js";
-
-import { state } from "../../../core/state.js"; // [FIX] Import state for Dev Mode check
+import { state } from "../../../core/state.js";
+import { VisualManager } from "../../services/visuals.js";
+import { ContextBuilder } from "../../../engine/prompter.js";
+import { LlmService } from "../../../services/llm-service.js";
 
 // CALLBACK: Router must inject this
 let _onUpdateSelection = null;
@@ -58,20 +60,17 @@ export const refreshProfileIfOpen = async () => {
 
 // Subscribe to background updates
 events.addEventListener(EVENTS.DB_UPDATED, (data) => {
-  // Ignore updates that came from the view itself (like flipping)
   if (data?.detail?.source === "profile-view") return;
   refreshProfileIfOpen();
 });
 
 // --- INITIALIZATION ---
-// Bind backdrop click using delegation (handles early load / test envs)
 document.addEventListener("click", (e) => {
   if (e.target && e.target.id === "profile-screen") {
     closeProfileModal();
   }
 });
 
-// Bind Escape key to close modal
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     closeProfileModal();
@@ -91,11 +90,8 @@ export const renderProfilePage = async (type, id, forceEditMode = false) => {
   if (isFractal) screen.classList.add("profile-view--fractal");
   else screen.classList.remove("profile-view--fractal");
 
-  // Check Gameplay Status (Lock)
-  // Check Gameplay Status (Lock)
   const isGameplay = document.body.classList.contains("storymode");
   const isDev = state.settings?.developerMode;
-  // [FIX] Allow edit if New OR (ForceEdit AND (Not Gameplay OR DevMode))
   let isEditing = id === "new" || (forceEditMode && (!isGameplay || isDev));
 
   let entity;
@@ -109,19 +105,11 @@ export const renderProfilePage = async (type, id, forceEditMode = false) => {
     }
     isEditing = true;
   } else {
-    // If we have an ephemeral entity matching the ID, use it (preview mode)
-    // Otherwise fetch from DB
     entity = await handleAsyncError(async () => await entities.get(type, id), {
       errorMessage: "Could not load profile.",
       context: "load profile",
       fallback: null,
     });
-    log(
-      "[Controller] Fetched entity:",
-      id,
-      "Visuals:",
-      JSON.stringify(entity?.visuals),
-    );
   }
 
   if (!entity) {
@@ -129,14 +117,12 @@ export const renderProfilePage = async (type, id, forceEditMode = false) => {
     return;
   }
 
-  // Clear & Prepare Screen
   screen.textContent = "";
   screen.className = "profile-view";
   screen.classList.add("is-open");
   if (isFractal) screen.classList.add("profile-view--fractal");
   screen.classList.toggle("is-editing", isEditing);
 
-  // Delegate to View or Edit Renderer
   if (isEditing) {
     await renderProfileEdit(screen, entity, type, id);
   } else {
@@ -145,11 +131,8 @@ export const renderProfilePage = async (type, id, forceEditMode = false) => {
     );
   }
 };
-import { db } from "../../../core/db.js";
-import { VisualManager } from "../../services/visuals.js";
-import { ContextBuilder } from "../../../engine/prompter.js";
-import { LlmService } from "../../../services/llm-service.js";
 
+// --- CONTROLLER ACTIONS ---
 export const ProfileController = {
   save: async (id, data) => {
     await entities.update("character", id, data);
@@ -181,6 +164,7 @@ export const ProfileController = {
         character.description || character.name,
       );
 
+      // 4. Generate the optimized prompt
       // 4. Generate the optimized prompt
       const refinedPrompt = await LlmService.generate({ system, messages: [] });
 
