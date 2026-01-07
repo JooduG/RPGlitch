@@ -106,4 +106,21 @@ export class ContextBuilder {
     const system = Strategies.profileGenerator(characterDescription);
     return { system, messages: [] };
   }
+
+  async buildProfileEnhancer(currentPrompt, entity, paletteColor) {
+    const gender = (entity.gender || "unknown").toLowerCase();
+    const identity = `${entity.name || "Unknown"} (${entity.type || "entity"})`;
+    // Format color: "dark_blue" -> "Dark Blue"
+    const color = (paletteColor || "default")
+      .split("_")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
+
+    const system = Strategies.profileEnhancer(currentPrompt, {
+      gender,
+      identity,
+      color,
+    });
+    return { system, messages: [] };
+  }
 }

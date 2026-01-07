@@ -16,9 +16,11 @@ import {
 } from "../../../core/utils.js";
 import { state } from "../../../core/state.js";
 import { VisualManager } from "../../services/visuals.js";
-import { generateStream } from "../../../engine/llm.js";
+
 import { events, EVENTS } from "../../../core/events.js";
 import { audioService } from "../../../services/audio-service.js";
+import { ContextBuilder } from "../../../engine/prompter.js";
+import { LlmService } from "../../../services/llm-service.js";
 
 import { PROFILE_STRUCTURE, LABEL_MAP, SPLIT_HEADERS } from "./constants.js";
 import {
@@ -838,41 +840,21 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
   }
 
   // --- MAGIC PROMPT LOGIC ---
+  // --- MAGIC PROMPT LOGIC ---
   const handleEnhancePrompt = async (currentVal) => {
-    // Inject Identity Context to prevent Gender/Subject Swapping
-    const subjectGender = (entity.gender || "").toLowerCase();
-    const subjectContext = `Subject: ${entity.name} (${entity.type}). Gender: ${subjectGender}.`;
+    // 1. Build Strategy
+    const builder = new ContextBuilder(null);
+    const { system } = await builder.buildProfileEnhancer(
+      currentVal,
+      entity,
+      paletteSelect ? paletteSelect.value : entity.signatureColor,
+    );
 
-    // [MODIFIED] Inject Color Branding
-    const sigKey = paletteSelect
-      ? paletteSelect.value
-      : entity.signatureColor || "default";
-    const readableColor = sigKey
-      .split("_")
-      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(" ");
+    // 2. Invoke Prometheus
+    const refinedPrompt = await LlmService.generate({ system, messages: [] });
 
-    const prompt = `Rewrite this image prompt for the FLUX model. ${subjectContext}\nStylistic Constraint: Integrate "${readableColor}" into the lighting, background, or accents.\nUse descriptive prose, natural lighting terms, and high fidelity. Keep it concise but vivid.\n\nInput: "${currentVal}"`;
-
-    const fullText = await generateStream({
-      payload: {
-        system:
-          "You are a backend image prompt processor. Preserve the subject's gender and identity. OUTPUT RAW TEXT ONLY. 1. Do NOT use headers like 'Revised Prompt'. 2. Do NOT use quotation marks around the prompt. 3. Do NOT add 'Notes' or explanations at the end. 4. Just output the descriptive text block ready for the image generator.",
-        messages: [{ role: "user", text: prompt }],
-        params: {
-          temperature: 0.7,
-          maxTokens: 200,
-          model: "flux-prompter",
-        },
-      },
-    });
-
-    return fullText
-      .replace(/^\s*(\*\*.*?\*\*|Revised.*?Prompt:)\s*/gim, "")
-      .replace(/Note:[\s\S]*$/i, "")
-      .trim()
-      .replace(/^["']|["']$/g, "")
-      .trim();
+    // 3. Simple Cleanup (Just in case)
+    return refinedPrompt.replace(/^["']|["']$/g, "").trim();
   };
 
   const handleAutoWritePrompt = async () => {

@@ -128,4 +128,26 @@ Constraints:
 4. Focus on: 8k, raw photo, natural skin texture, cinematic lighting, sharp focus.
 `;
   },
+  /**
+   * Profile Enhancement (Magic Wand)
+   */
+  profileEnhancer: (currentPrompt, contextData) => {
+    const { gender, identity, color } = contextData;
+    return `
+[SYSTEM: PROMETHEUS_OPTICS_V5.2]
+[SUBROUTINE: PROMPT_REFINEMENT]
+Role: Visual Cortex Optimization.
+Objective: Refine the user's raw input into a high-fidelity image prompt.
+Context:
+- Subject: ${identity}
+- Gender: ${gender}
+- Signature Color: ${color} (Integrate subtly into lighting/accents)
+Input: "${currentPrompt}"
+Constraints:
+1. OUTPUT RAW TEXT ONLY.
+2. NO headers, NO explanations.
+3. Enhance descriptors for texture, lighting, and composition.
+4. Maintain the original intent but upgrade quality to 8k photorealistic.
+`;
+  },
 };
