@@ -58,7 +58,7 @@ const renderLabelWithMagic = (label, fieldKey) => {
 };
 
 // [NEW] Helper: Wrap Input with Magic Overlay
-const wrapInputWithMagic = (inputEl, fieldKey) => {
+const wrapInputWithMagic = (inputEl, fieldKey, entityType) => {
   // Exclude Description/Name/Dynamics from Magic
   if (
     fieldKey === "description" ||
@@ -78,7 +78,7 @@ const wrapInputWithMagic = (inputEl, fieldKey) => {
   btn.innerHTML = `✨`;
   btn.onclick = (e) => {
     e.preventDefault();
-    Librarian.enhanceField(fieldKey);
+    Librarian.enhanceField(fieldKey, entityType);
   };
 
   // Input goes in first, then button (overlay)
@@ -692,7 +692,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
         input.addEventListener("input", () => autoResize(input));
 
         // [REF] Wrap input with Magic Button
-        const protectedInput = wrapInputWithMagic(input, magicKey);
+        const protectedInput = wrapInputWithMagic(input, magicKey, type);
         splitCol.appendChild(protectedInput);
         setTimeout(() => autoResize(input), 0);
 
@@ -711,7 +711,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
       input.addEventListener("input", () => autoResize(input));
 
       // [REF] Wrap input with Magic Button
-      const protectedInput = wrapInputWithMagic(input, key);
+      const protectedInput = wrapInputWithMagic(input, key, type);
       contentCol.appendChild(protectedInput);
       setTimeout(() => autoResize(input), 0);
     }

@@ -31,7 +31,7 @@ export const Librarian = {
     };
   },
 
-  enhanceField: async (targetField) => {
+  enhanceField: async (targetField, entityType = "character") => {
     const inputId = `input-${targetField.replace(/_/g, "-")}`;
     const inputEl = document.getElementById(inputId);
     const btnId = `btn-magic-${targetField}`;
@@ -61,6 +61,9 @@ export const Librarian = {
       const currentContent = inputEl.value.trim();
       const contextData = Librarian._scrapeContext();
 
+      // Inject Entity Type into context
+      contextData.type = entityType;
+
       // 3. Build Prompt
       const builder = new ContextBuilder(null);
       const payload = await builder.buildLibrarian(
@@ -69,7 +72,7 @@ export const Librarian = {
         contextData,
       );
 
-      log(`[Librarian] Enhancing ${targetField}...`);
+      log(`[Librarian] Enhancing ${targetField} for ${entityType}...`);
 
       // 4. Generate
       const result = await LlmService.generate(payload);
