@@ -144,3 +144,15 @@ export const showErrorModal = (
 
   dialog.showModal();
 };
+
+export const closeAll = () => {
+  document.querySelectorAll("dialog.modal").forEach((d) => d.remove());
+};
+
+export const Modal = {
+  showAlert,
+  showConfirm,
+  showPrompt,
+  showErrorModal,
+  closeAll,
+};

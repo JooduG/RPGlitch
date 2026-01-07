@@ -558,7 +558,7 @@
     display: none !important;
   }
 
-  .narrator-prefix {
+  .fractal-prefix {
     display: none;
   }
 
@@ -580,6 +580,23 @@
         rgba($color, 0.05)
       );
     }
+  }
+}
+
+.is-epilogue {
+  border: 2px solid var(--pico-primary) !important;
+  box-shadow: 0 0 20px rgb(var(--pico-primary-rgb), 0.5) !important;
+  font-family: serif;
+  font-size: 1.1em;
+
+  &::before {
+    content: "EPILOGUE";
+    display: block;
+    font-size: 0.7em;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin-bottom: 0.5em;
+    opacity: 0.8;
   }
 }
 

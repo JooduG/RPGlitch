@@ -8,6 +8,7 @@ jest.mock("../../../src/js/core/state.js", () => ({
     settings: {
       directorMode: false,
       storyOpeningInstructions: "",
+      storyPrologueInstructions: "",
     },
     story: {
       activeId: null,
@@ -118,7 +119,7 @@ describe("StoryOptionsController", () => {
 
   test("init() populates story instructions from db", async () => {
     db.settings.get.mockResolvedValue({
-      storyOpeningInstructions: "Be nice",
+      storyPrologueInstructions: "Be nice",
     });
 
     StoryOptionsController.init();

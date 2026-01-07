@@ -139,7 +139,7 @@ export async function renderChat(storyId) {
           message.characterName,
           message.type || "IC",
           message._contextEntities,
-          message._renderOptions,
+          { ...message._renderOptions, isEpilogue: message.isEpilogue },
         );
       },
       {
@@ -179,13 +179,17 @@ export async function renderChat(storyId) {
   selectedEntities.user = user;
   selectedEntities.fractal = fractal;
 
-  // [NEW] Concluded State Locking
-  const concludedBanner = document.querySelector("#story-concluded");
+  // [NEW] Epilogue State Locking
+  const epilogueBanner = document.querySelector("#story-epilogue-banner");
   const form = document.querySelector("#story-form");
 
+  // Clean up old banners if any
+  if (epilogueBanner) epilogueBanner.hidden = true;
+
   if (story.isConcluded) {
-    if (concludedBanner) {
-      concludedBanner.hidden = false;
+    if (epilogueBanner) {
+      epilogueBanner.hidden = true; // FORCE HIDE (User request)
+      epilogueBanner.remove(); // DESTROY
     }
 
     // Hide Form if present
@@ -194,29 +198,33 @@ export async function renderChat(storyId) {
       form.style.display = "none";
     }
 
-    // Inject Concluded Controls - Independent of Form
-    const existingControls = document.querySelectorAll(".concluded-controls");
+    // Inject Epilogue Controls - Independent of Form
+    const cleanupSelectors = [".concluded-controls", ".epilogue-controls"];
+    cleanupSelectors.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((el) => el.remove());
+    });
 
-    // Only inject if not already present to prevent flickering/thrashing
-    if (existingControls.length === 0) {
-      const tpl = document.getElementById("tpl-concluded-controls");
+    const tpl = document.getElementById("tpl-epilogue-controls");
 
-      if (tpl) {
-        const clone = tpl.content.cloneNode(true);
-        document.body.appendChild(clone);
-      }
-    } else {
-      // Ensure they are visible if hidden
-      existingControls.forEach((el) => (el.hidden = false));
+    if (tpl) {
+      const clone = tpl.content.cloneNode(true);
+      // [FIX] Inject into the MAIN story container so it hides when switching views
+      // Must use #stage-center to avoid injecting into sidebars (which clip content)
+      const container = document.querySelector(
+        "#stage-center .stage-content--storymode",
+      );
+      if (container) container.appendChild(clone);
     }
 
     // Re-query to ensure we get the fresh element
-    const controls = document.querySelector(".concluded-controls");
+    const controls = document.querySelector(".epilogue-controls");
+    if (!controls) return;
+
+    // bind events
     if (controls) {
-      // Bind Events
-      const btnSettings = controls.querySelector("#btn-concluded-settings");
-      const btnDelete = controls.querySelector("#btn-concluded-delete");
-      const btnClose = controls.querySelector("#btn-concluded-close");
+      const btnSettings = controls.querySelector("#btn-epilogue-nav-settings");
+      const btnDelete = controls.querySelector("#btn-epilogue-nav-delete");
+      const btnClose = controls.querySelector("#btn-epilogue-nav-close");
 
       if (btnSettings) {
         btnSettings.onclick = () => {
@@ -239,7 +247,11 @@ export async function renderChat(storyId) {
         };
       }
       if (btnClose) {
-        btnClose.onclick = () => {
+        btnClose.onclick = async () => {
+          // Clear active story so we boot into a fresh storyboard
+          const db = await import("../../../core/db.js").then((m) => m.db);
+          await db.settings.put({ id: "active_story", value: null });
+
           controls.remove();
           window.location.hash = "";
           window.location.reload();
@@ -248,10 +260,10 @@ export async function renderChat(storyId) {
     }
   } else {
     // CLEANUP: Ensure controls are removed if we revived the story
-    const controls = document.querySelector(".concluded-controls");
+    const controls = document.querySelector(".epilogue-controls");
     if (controls) controls.remove();
 
-    if (concludedBanner) concludedBanner.hidden = true;
+    if (epilogueBanner) epilogueBanner.hidden = true;
     if (form) {
       form.hidden = false;
       form.style.display = "";

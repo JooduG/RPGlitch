@@ -74,13 +74,13 @@
   // Color handled by .primary class in .btn-group-pill logic
 }
 
-// --- CONCLUDED CONTROLS (Floating Pill) ---
-.concluded-controls {
+// --- EPILOGUE CONTROLS (Floating Pill) ---
+.epilogue-controls {
   position: fixed;
   bottom: 3rem;
   left: 50%;
   transform: translateX(-50%);
-  z-index: z(modal); // Ensure above everything
+  z-index: 1000; // z(modal) verification
 
   // Extend Glass Pill Logic
   @extend %btn-group-pill;

@@ -1,4 +1,5 @@
 import { log } from "../core/utils.js";
+import { TurnManager } from "../engine/director.js";
 import { initDrawer, closeDrawer } from "./components/drawer/desktop.js";
 import { setStorymodeEntities, setSendLock } from "./components/chat/feed.js";
 import { updatePortraits, applyFractalAmbience } from "./image-gen-ui.js";
@@ -23,6 +24,36 @@ import {
   showErrorModal,
 } from "./services/modals.js";
 import { audioService } from "../services/audio-service.js";
+
+export const Orchestrator = {
+  /**
+   * Called when a new story is created and loaded.
+   * Trigger the Prologue sequence.
+   */
+  initStory: async (storyId) => {
+    log("[Orchestrator] Initializing Story:", storyId);
+    // REFACTORED: generateOpening -> generatePrologue
+    await TurnManager.generatePrologue(storyId);
+  },
+
+  /**
+   * Called when the user clicks "Conclude Story".
+   * Trigger the Epilogue sequence.
+   */
+  endStory: async () => {
+    log("[Orchestrator] Triggering Epilogue");
+    // REFACTORED: concludeStory -> triggerEpilogue
+    await TurnManager.triggerEpilogue();
+  },
+
+  submitInput: async (text) => {
+    await TurnManager.send(text);
+  },
+
+  reroll: async () => {
+    await TurnManager.regenerate();
+  },
+};
 
 const selectedEntities = {
   ai: null,
@@ -286,7 +317,7 @@ export const handleConcludeStory = async () => {
     const { TurnManager } = await import("../engine/director.js");
 
     try {
-      await TurnManager.concludeStory();
+      await TurnManager.triggerEpilogue();
     } finally {
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
     }

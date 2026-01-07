@@ -305,7 +305,7 @@
     border-color: var(--pico-primary);
   }
 
-  &.concluded {
+  &.epilogue-state {
     filter: grayscale(0.5) brightness(0.8);
 
     &:hover {

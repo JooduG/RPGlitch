@@ -262,19 +262,24 @@ export const StoryOptionsController = {
     // Story Instructions
     if (storyInstructionsInput) {
       const s = await db.settings.get("app-settings");
-      if (s && s.storyOpeningInstructions)
-        storyInstructionsInput.value = s.storyOpeningInstructions;
+      if (s && s.storyPrologueInstructions)
+        storyInstructionsInput.value = s.storyPrologueInstructions;
 
-      storyInstructionsInput.addEventListener("input", (e) => {
+      storyInstructionsInput.oninput = (e) => {
         const val = e.target.value;
-        applyPatch({ settings: { storyOpeningInstructions: val } });
+        // Update State
+        const newSettings = { ...state.settings };
+        newSettings.storyPrologueInstructions = val;
+        applyPatch({ settings: { storyPrologueInstructions: val } });
+
+        // Update DB
         (async () => {
           const s = await db.settings.get("app-settings");
-          const newSettings = s || { id: "app-settings" };
-          newSettings.storyOpeningInstructions = val;
-          await db.settings.put(newSettings);
+          const dbSettings = s || { id: "app-settings" };
+          dbSettings.storyPrologueInstructions = val;
+          await db.settings.put(dbSettings);
         })();
-      });
+      };
     }
   },
 
@@ -292,7 +297,7 @@ export const StoryOptionsController = {
     );
     if (storyInstructionsInput) {
       storyInstructionsInput.value =
-        state.settings.storyOpeningInstructions || "";
+        state.settings.storyPrologueInstructions || "";
     }
 
     const hasActiveStory = !!state.story.activeId;
@@ -338,9 +343,21 @@ export const StoryOptionsController = {
     if (advancedSection) advancedSection.hidden = false;
     if (librarySection) librarySection.hidden = false;
 
-    const concludeBtn = modal.querySelector("#btn-conclude-story");
-    if (concludeBtn) {
-      concludeBtn.disabled = !hasActiveStory;
+    const epilogueBtn = modal.querySelector("#btn-trigger-epilogue");
+    if (epilogueBtn) {
+      epilogueBtn.disabled = !hasActiveStory;
+      epilogueBtn.onclick = async () => {
+        // Close settings, then trigger
+        const settingsModal = document.querySelector("#settings");
+        if (settingsModal) {
+          settingsModal.classList.remove("is-open");
+          settingsModal.setAttribute("hidden", "");
+        }
+
+        // TRIGGER
+        const { Orchestrator } = await import("../orchestrator.js");
+        await Orchestrator.endStory();
+      };
     }
 
     modal.removeAttribute("hidden");

@@ -24,7 +24,7 @@ export const DIRECTOR_NOTES = {
     "Strip all warmth. The character becomes professional, distant, and clinically detached. Short sentences.",
   "The Prop Master":
     "The character must interact with an object in the environment (fidgeting, cleaning, loading) to break up speech.",
-  "The Unreliable Narrator":
+  "The Unreliable Fractal":
     "The character misinterprets the user's intent. Take offense where none was meant, or assume flirtation.",
   "The Subtext Heavy":
     "The character says one thing but clearly means another. Focus on the tension between words and feelings.",
@@ -86,7 +86,7 @@ export const analyzeRejection = (rejectedText = "", userLastInput = "") => {
     return pickOne([
       "The Bad Detective",
       "The Satirist",
-      "The Unreliable Narrator",
+      "The Unreliable Fractal",
     ]);
   }
 

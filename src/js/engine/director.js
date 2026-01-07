@@ -1,6 +1,7 @@
 import { db } from "../core/db.js";
 import { state, applyPatch } from "../core/state.js";
 import { LlmService } from "../services/llm-service.js";
+import { audioService } from "../services/audio-service.js";
 import { entities } from "../data/repo.js";
 
 import { error, calculateBlendedParams, log } from "../core/utils.js";
@@ -295,7 +296,7 @@ export const TurnManager = {
           const role = options.ghostwrite ? ROLES.USER : ROLES.AI;
           const characterName = options.ghostwrite
             ? userEntity?.name || "User"
-            : aiEntity?.name || "Narrator";
+            : aiEntity?.name || "AI";
 
           if (mode === "append" && appendTargetId) {
             const original = await db.messages.get(appendTargetId);
@@ -434,7 +435,8 @@ export const TurnManager = {
     if (msgs.length === 0) return;
 
     const last = msgs[msgs.length - 1];
-    if (last.role !== ROLES.AI && last.role !== ROLES.NARRATOR) return;
+    // REFACTORED: Check for FRACTAL instead of NARRATOR
+    if (last.role !== ROLES.AI && last.role !== ROLES.FRACTAL) return;
 
     let note;
     if (manualInstruction === "VANILLA") {
@@ -476,7 +478,8 @@ export const TurnManager = {
     if (msgs.length === 0) return;
 
     const last = msgs[msgs.length - 1];
-    if (last.role !== ROLES.AI && last.role !== ROLES.NARRATOR) return;
+    // REFACTORED: Check for FRACTAL instead of NARRATOR
+    if (last.role !== ROLES.AI && last.role !== ROLES.FRACTAL) return;
 
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
     try {
@@ -642,7 +645,8 @@ export const TurnManager = {
     }
   },
 
-  generateOpening: async (storyId) => {
+  // RENAMED: generateOpening -> generatePrologue
+  generatePrologue: async (storyId) => {
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
     const story = state.story.byId[storyId];
     events.dispatchEvent(
@@ -653,16 +657,17 @@ export const TurnManager = {
 
     try {
       const builder = new ContextBuilder(storyId);
-      const payload = await builder.buildOpening();
+      // REFACTORED CALL
+      const payload = await builder.buildPrologue();
 
       if (!payload) {
-        log("[RPGlitch] No narrator opening. Triggering AI First Message.");
+        log("[RPGlitch] No prologue strategy. Triggering AI First Message.");
         events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
         await TurnManager.generateAiResponse(storyId);
         return;
       }
 
-      log("[RPGlitch] Opening Prompt:", payload.system);
+      log("[RPGlitch] Prologue Prompt:", payload.system);
 
       let response;
       let attempts = 0;
@@ -676,21 +681,24 @@ export const TurnManager = {
         } catch (e) {
           if (e.name === "AbortError") throw e;
           if (attempts >= MAX_ATTEMPTS) throw e;
-          log(
-            `[PROMETHEUS] Opening Gen Glitch. Retrying ${attempts + 1}/${MAX_ATTEMPTS}...`,
-          );
           await new Promise((r) => setTimeout(r, 1000 * attempts));
         }
       }
 
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
 
+      // Fetch Fractal Name for the message
+      const fractalEntity = await entities.get(ROLES.FRACTAL, story.fractalId);
+      const characterName = fractalEntity?.name || "Fractal";
+
       await db.messages.add({
         storyId,
-        role: "fractal",
+        role: ROLES.FRACTAL, // REFACTORED: FRACTAL
         type: "OOC",
         text: response,
+        characterName: characterName, // REFACTORED: Explicit Name
         createdAt: Date.now(),
+        metadata: { phase: "prologue" },
       });
 
       await TurnManager.loadMessages(storyId);
@@ -698,9 +706,12 @@ export const TurnManager = {
         new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
       );
 
+      // [AUDIO] Trigger Default Message Sound (standardizing)
+      audioService.play("notification");
+
       await TurnManager.generateAiResponse(storyId);
     } catch (e) {
-      error("Opening Gen Error", e);
+      error("Prologue Gen Error", e);
       window.dispatchEvent(
         new CustomEvent("app-error", {
           detail: { error: e, type: "generation" },
@@ -711,15 +722,14 @@ export const TurnManager = {
     }
   },
 
-  concludeStory: async () => {
+  // RENAMED: concludeStory -> triggerEpilogue
+  triggerEpilogue: async () => {
     const storyId = TurnManager.requireActive();
     const story = state.story.byId[storyId];
 
-    // Ensure UI has the correct color by fetching the entity first
     let signatureColor = DEFAULT_COLORS.FRACTAL;
     try {
       const fractal = await entities.get(ROLES.FRACTAL, story.fractalId);
-      // Prefer pink over default purple for Fractals unless explicit overrides exist
       if (
         fractal &&
         fractal.signatureColor &&
@@ -743,12 +753,11 @@ export const TurnManager = {
     );
 
     try {
-      // 1. Generate Epilogue
       const builder = new ContextBuilder(storyId);
-      const payload = await builder.buildConclusion();
+      // REFACTORED CALL
+      const payload = await builder.buildEpilogue();
 
-      if (!payload)
-        throw new Error("Conclusion strategy not supported for this fractal.");
+      if (!payload) throw new Error("Epilogue strategy not supported.");
 
       let response;
       let attempts = 0;
@@ -758,28 +767,28 @@ export const TurnManager = {
         attempts++;
         try {
           response = await LlmService.generate(payload);
-          break; // Success
+          break;
         } catch (e) {
           if (e.name === "AbortError") throw e;
           if (attempts >= MAX_ATTEMPTS) throw e;
-          log(
-            `[PROMETHEUS] Epilogue Gen Glitch. Retrying ${attempts + 1}/${MAX_ATTEMPTS}...`,
-          );
           await new Promise((r) => setTimeout(r, 1000 * attempts));
         }
       }
 
-      // 2. Save Epilogue
+      const fractalEntity = await entities.get(ROLES.FRACTAL, story.fractalId);
+      const characterName = fractalEntity?.name || "Fractal";
+
       await db.messages.add({
         storyId,
-        role: ROLES.FRACTAL,
+        role: ROLES.FRACTAL, // REFACTORED: FRACTAL
         type: "OOC",
         text: response,
+        characterName: characterName, // REFACTORED: Explicit Name
         createdAt: Date.now(),
         isEpilogue: true,
+        metadata: { phase: "epilogue" },
       });
 
-      // 3. Update Story Body
       const [endAi, endUser, endFractal] = await Promise.all([
         entities.get("character", story.aiId),
         entities.get("character", story.userId),
@@ -787,7 +796,7 @@ export const TurnManager = {
       ]);
 
       await db.stories.update(storyId, {
-        isConcluded: 1,
+        isConcluded: 1, // Kept for DB compatibility, means "Epilogue Complete"
         concludedAt: Date.now(),
         "snapshots.end": { ai: endAi, user: endUser, fractal: endFractal },
       });
@@ -795,11 +804,13 @@ export const TurnManager = {
       const updated = await db.stories.get(storyId);
       applyPatch({ story: { byId: { [storyId]: updated } } });
 
-      // 4. Refresh UI
       await TurnManager.loadMessages(storyId);
 
       const { renderChat } = await import("../ui/components/chat/feed.js");
       await renderChat(storyId);
+
+      // [AUDIO] Trigger Default Message Sound (standardizing)
+      audioService.play("notification");
     } catch (e) {
       error("Epilogue Failed", e);
       window.dispatchEvent(

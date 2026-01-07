@@ -73,7 +73,7 @@ export const getBubbleClass = (role, entities) => {
   if (role === "user") return "chat-bubble--user";
   if (role === "fractal" || (role === "ai" && entities?.ai?.type === "fractal"))
     return "chat-bubble--fractal";
-  if (role === "narrator" || role === "system" || !role)
+  if (role === "fractal" || role === "system" || !role)
     return "chat-bubble--fractal";
   return "chat-bubble--character";
 };
@@ -141,6 +141,7 @@ export const renderMessage = (
     ThemeService.apply(div, signatureColor);
   if (visuals?.flipped) div.setAttribute("data-flipped", "true");
   if (characterName) div.setAttribute("data-character-name", characterName);
+  if (options.isEpilogue) div.classList.add("is-epilogue");
 
   const formatTime = (ts) => {
     if (!ts) return "";

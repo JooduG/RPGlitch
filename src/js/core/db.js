@@ -40,8 +40,9 @@ db.on("populate", async (trans) => {
       model: "default",
       debugMode: false,
       developerMode: false,
-      storyOpeningInstructions: "",
-      storyboardSelection: { narrator: null, user: null, fractal: null },
+      storyOpeningInstructions: "", // Legacy key kept for hydration safety, but UI uses Prologue
+      storyPrologueInstructions: "",
+      storyboardSelection: { fractal: null, user: null },
     });
     log("[RPGlitch DB] Default settings created successfully.");
   } catch (err) {

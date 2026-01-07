@@ -17,7 +17,7 @@ export const state = {
     model: "default",
     historyLength: 10,
     developerMode: false,
-    storyOpeningInstructions: "",
+    storyPrologueInstructions: "",
   },
   ui: { fsm: "idle" },
 };

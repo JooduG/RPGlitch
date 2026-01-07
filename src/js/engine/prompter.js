@@ -498,7 +498,8 @@ Start with a <think> block, then the compressed narrative.
     };
   }
 
-  async buildOpening() {
+  // RENAMED: generateOpening -> buildPrologue
+  async buildPrologue() {
     const story = state.story.byId[this.storyId];
     if (!story) throw new Error(`Story ${this.storyId} not found`);
 
@@ -506,11 +507,11 @@ Start with a <think> block, then the compressed narrative.
     const strategy = this._resolveStrategy(fractal);
 
     const system = strategy.getFractalKernel(
-      "OPENING_SCENE",
+      "PROLOGUE_SCENE",
       fractal,
       ai,
       user,
-      state.settings.storyOpeningInstructions,
+      state.settings.storyPrologueInstructions, // Use State or Settings
     );
 
     return system
@@ -559,25 +560,28 @@ CRITICAL: Do NOT use <think> blocks.
     return payload;
   }
 
-  async buildConclusion() {
+  // RENAMED: buildConclusion -> buildEpilogue
+  async buildEpilogue() {
     const story = state.story.byId[this.storyId];
     if (!story) throw new Error(`Story ${this.storyId} not found`);
 
-    const [ai, user, fractal] = await this._resolveEntities(story);
+    const [, , fractal] = await this._resolveEntities(story);
     const history = state.messages.byStoryId[this.storyId] || [];
-    const strategy = this._resolveStrategy(fractal);
 
-    const system = strategy.getFractalKernel("CONCLUSION", fractal, ai, user);
+    let system = `[SYSTEM: EPILOGUE_MODE]\n`;
+    // REFACTORED: "Narrator" -> "Fractal"
+    system += `Role: Act as the Fractal (${fractal ? fractal.name : "System"}).\n`;
+    system += `Goal: Provide a satisfying epilogue to the current narrative arc.\n`;
+    system += `Instruction: Summarize the final state, offer closure, and perhaps a hint of what comes next. The story is ending.`;
 
-    return system
-      ? {
-          system,
-          messages: this._sanitizeHistory(history),
-          params: { ...state.settings, maxTokens: 600 },
-          fractal,
-          ai,
-          user,
-        }
-      : null;
+    const contextMsgs = history
+      .slice(-10)
+      .map((m) => ({ role: m.role, content: m.text }));
+
+    return {
+      system,
+      messages: contextMsgs,
+      params: { ...state.settings, maxTokens: 600 },
+    };
   }
 }

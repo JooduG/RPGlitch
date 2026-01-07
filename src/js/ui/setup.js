@@ -101,7 +101,7 @@ const handleBeginStory = async () => {
       requestAnimationFrame(() => setTimeout(resolve, 0)),
     );
 
-    await TurnManager.generateOpening(id);
+    await TurnManager.generatePrologue(id);
     await TurnManager.load(id);
   } catch (e) {
     error("Begin Story Failed", e);

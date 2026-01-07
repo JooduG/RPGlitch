@@ -86,22 +86,26 @@ export const AVATAR_PLACEHOLDERS = {
 // --- LOGIC AND ROLES ---
 
 export const ROLES = {
-  AI: "ai",
   USER: "user",
+  AI: "ai",
+  // REFACTORED: Narrator is dead. Long live the Fractal.
   FRACTAL: "fractal",
-  NARRATOR: "narrator",
+  // Legacy support alias if needed by old DB records, but code uses FRACTAL
+  SYSTEM: "system",
 };
 
 export const REFUSAL_TRIGGERS = [
-  "sorry",
-  "apologize",
-  "understand",
-  "as an ai",
-  "language model",
-  "cant",
-  "cannot",
+  "i cannot",
+  "i can't",
+  "cannot generate",
+  "policy",
+  "guidelines",
+  "sorry, but",
 ];
 
 export const DEFAULT_COLORS = {
-  FRACTAL: "pink",
+  USER: "#aecbfa", // Soft Blue
+  AI: "#fde293", // Soft Yellow
+  FRACTAL: "#e8eaed", // Soft Grey (formerly Narrator)
+  SYSTEM: "#f28b82", // Soft Red
 };
