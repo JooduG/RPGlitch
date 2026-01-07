@@ -145,3 +145,73 @@ export const renderProfilePage = async (type, id, forceEditMode = false) => {
     );
   }
 };
+import { db } from "../../../core/db.js";
+import { VisualManager } from "../../services/visuals.js";
+import { ContextBuilder } from "../../../engine/prompter.js";
+import { LlmService } from "../../../services/llm-service.js";
+
+export const ProfileController = {
+  save: async (id, data) => {
+    await entities.update("character", id, data);
+    events.dispatchEvent(
+      new CustomEvent(EVENTS.ENTITY_UPDATED, { detail: { id, ...data } }),
+    );
+  },
+
+  /**
+   * Generates a new profile picture based on the character's description.
+   * Uses Prometheus Engine v5.2 Optics.
+   */
+  generatePortrait: async (characterId) => {
+    try {
+      // 1. Fetch Character Data
+      const character = await entities.get("character", characterId);
+      if (!character) throw new Error("Character not found");
+
+      // 2. Notify UI (Start Loading)
+      const btn = document.getElementById("profile-gen-btn");
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Invoking Prometheus...";
+      }
+
+      // 3. Build Prompt Strategy
+      const builder = new ContextBuilder(null);
+      const { system } = await builder.buildProfileGenerator(
+        character.description || character.name,
+      );
+
+      // 4. Generate the optimized prompt
+      const refinedPrompt = await LlmService.generate({ system, messages: [] });
+
+      // 5. Generate the Image
+      const imageUrl = await VisualManager.generate(refinedPrompt, {
+        resolution: { width: 512, height: 768 }, // Portrait Aspect Ratio
+      });
+
+      // 6. Save & Update UI
+      await entities.update("character", characterId, { avatar: imageUrl });
+
+      const imgEl = document.querySelector(
+        `.profile-avatar[data-id="${characterId}"]`,
+      );
+      if (imgEl) imgEl.src = imageUrl;
+
+      // 7. Notify System
+      events.dispatchEvent(
+        new CustomEvent(EVENTS.ENTITY_UPDATED, {
+          detail: { id: characterId, avatar: imageUrl },
+        }),
+      );
+    } catch (e) {
+      console.error("Profile Gen Failed:", e);
+    } finally {
+      // Reset UI
+      const btn = document.getElementById("profile-gen-btn");
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Reroll Portrait";
+      }
+    }
+  },
+};

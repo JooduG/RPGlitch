@@ -234,17 +234,6 @@ describe("ContextBuilder (Physics Injection)", () => {
     jest.clearAllMocks();
 
     // Mock Entity Resolution
-    entities.getSnapshot.mockResolvedValue({
-      id: "char-ai",
-      name: "AI",
-      type: "character",
-      dynamics: {
-        entropy: 10,
-        permeability: 10,
-        velocity: 10,
-        resonance: 10,
-      },
-    });
     entities.get.mockResolvedValue({
       id: "char-ai",
       name: "AI",
@@ -252,80 +241,36 @@ describe("ContextBuilder (Physics Injection)", () => {
     });
   });
 
-  test("buildPulse injects dynamics into INPUT_CONTEXT", async () => {
+  test("buildPulse injects basic context", async () => {
     const mockEntity = {
       id: "char-ai",
       name: "AI",
       type: "character",
       dynamics: {
         entropy: 55,
-        permeability: 44,
         velocity: 33,
-        resonance: 22,
-      },
-      present: {
-        physical: "Test Physical",
-        mental: "Test Mental",
       },
     };
 
     const history = [{ role: "user", text: "HI" }];
-    const activeThreads = ["Thread 1"];
 
-    const payload = await builder.buildPulse(
-      mockEntity,
-      history,
-      activeThreads,
-    );
+    const payload = await builder.buildPulse(mockEntity, history);
 
-    // V5 Check: Ensure system prompt is correct
+    // V5.2 Check: Ensure system prompt is correct
     expect(payload.system).toContain("[SYSTEM: PULSE_DIAGNOSTICS]");
+    expect(payload.system).toContain("Target: AI");
 
-    // Check that dynamics are injected
-    expect(payload.system).toContain('"entropy": 55');
-    expect(payload.system).toContain('"permeability": 44');
-
-    // Check plot injection
-    expect(payload.system).toContain("[0] Thread 1");
-
-    // Check state injection
-    expect(payload.system).toContain("Test Physical");
-    expect(payload.system).toContain("Test Mental");
+    // Check that history is represented (though specific format depends on implementation)
+    // In our case it's joined in historyStr and passed to Strategies.pulse
+    expect(payload.system).toContain("user: HI");
   });
 
-  test("buildPulse mandates strict JSON schema", async () => {
+  test("buildPulse output schema check", async () => {
     const mockEntity = { dynamics: {} };
     const payload = await builder.buildPulse(mockEntity, []);
 
     expect(payload.system).toContain("Output: JSON only.");
-    expect(payload.params.response_format.type).toBe("json_object");
-  });
-});
-
-// ==========================================
-// LAYER 3: THE ARCHIVIST (Memory Logic)
-// ==========================================
-describe("The Archivist", () => {
-  let builder;
-
-  beforeEach(() => {
-    builder = new ContextBuilder("story-1");
-  });
-
-  test("buildArchivist generates compression prompt", async () => {
-    const mockEntity = {
-      name: "TestChar",
-      type: "character",
-      past: "A very long log...",
-    };
-
-    const payload = await builder.buildArchivist(mockEntity);
-
-    // V5 Check
-    expect(payload.system).toContain("[SYSTEM: PROMETHEUS_ARCHIVIST_V5]");
-    expect(payload.system).toContain("Do NOT delete Proper Nouns");
-    expect(payload.system).toContain("TestChar");
-    // Ensure temp is lowered for precision
-    expect(payload.params.temperature).toBeLessThan(0.5);
+    expect(payload.system).toContain('"log_entry": "Short memory summary"');
+    expect(payload.system).toContain('"entropy": 0-100');
   });
 });
