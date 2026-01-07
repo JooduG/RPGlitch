@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 
-const fs = require("fs");
-const path = require("path");
-const postcss = require("postcss");
-const sass = require("sass");
-const autoprefixer = require("autoprefixer");
+import fs from "fs";
+import path from "path";
+import postcss from "postcss";
+import * as sass from "sass";
+import autoprefixer from "autoprefixer";
+import { fileURLToPath } from "url";
 
-// CommonJS equivalent of __dirname is globally available
+// ESM replacement for __dirname
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 async function compileScssToString() {
   // UPDATED PATH: ../../src/scss/index.scss
@@ -18,8 +20,6 @@ async function compileScssToString() {
     throw new Error(`SCSS file not found at ${scssPath}`);
   }
 
-  // Check if pico exists, if not, might warn but proceed if possible, though sass compile might depend on it?
-  // The original code read it and concatenated.
   let picoCss = "";
   if (fs.existsSync(picoCssPath)) {
     picoCss = fs.readFileSync(picoCssPath, "utf8");
@@ -35,14 +35,8 @@ async function compileScssToString() {
   return postcssResult.css;
 }
 
-// --- PURE ANALYSIS FUNCTIONS (from CSSAnalyzerAndCleaner) ---
+// --- PURE ANALYSIS FUNCTIONS ---
 
-/**
- * Calculates a simplified specificity score for a given selector.
- * Note: This is a basic implementation.
- * @param {string} selector The CSS selector to analyze.
- * @returns {number} The calculated specificity score.
- */
 function calculateSpecificity(selector) {
   const idMatches = (selector.match(/#/g) || []).length * 100;
   const classMatches = (selector.match(/\./g) || []).length * 10;
@@ -50,11 +44,6 @@ function calculateSpecificity(selector) {
   return idMatches + classMatches + elementMatches;
 }
 
-/**
- * Finds rules with empty or minimal declarations.
- * @param {postcss.Root} ast The PostCSS Abstract Syntax Tree.
- * @returns {string[]} An array of selectors for potentially unused rules.
- */
 function findUnusedRules(ast) {
   const unusedRules = [];
   ast.walkRules((rule) => {
@@ -73,11 +62,6 @@ function findUnusedRules(ast) {
   return unusedRules;
 }
 
-/**
- * Analyzes all selectors in the CSS.
- * @param {postcss.Root} ast The PostCSS Abstract Syntax Tree.
- * @returns {{total: number, specificityBreakdown: {selector: string, specificity: number}[]}}
- */
 function analyzeTotalSelectors(ast) {
   const selectors = [];
   ast.walkRules((rule) => {
@@ -95,11 +79,6 @@ function analyzeTotalSelectors(ast) {
   };
 }
 
-/**
- * Finds selectors that are defined more than once.
- * @param {postcss.Root} ast The PostCSS Abstract Syntax Tree.
- * @returns {{selector: string, count: number}[]}
- */
 function findRedundantSelectors(ast) {
   const selectorCounts = {};
   ast.walkRules((rule) => {
@@ -113,9 +92,9 @@ function findRedundantSelectors(ast) {
     .map(([selector, count]) => ({ selector, count }));
 }
 
-// --- MAIN BUILD PIPELINE CLASS (Combination) ---
+// --- MAIN BUILD PIPELINE CLASS ---
 
-class CSSBuildPipeline {
+export default class CSSBuildPipeline {
   constructor(cssFilePath, originalContent = null) {
     this.cssFilePath = cssFilePath;
     this.originalContent =
@@ -128,11 +107,6 @@ class CSSBuildPipeline {
     this.finalAnalysis = {};
   }
 
-  /**
-   * Extracts design tokens from a given CSS string.
-   * @param {postcss.Root} ast The PostCSS Abstract Syntax Tree.
-   * @returns {Object} Parsed design tokens.
-   */
   extractDesignTokens(ast) {
     const tokens = { spacing: [], fontSize: [], colors: [], borderRadius: [] };
 
@@ -154,11 +128,7 @@ class CSSBuildPipeline {
     return tokens;
   }
 
-  /**
-   * Step 1: Cleans the CSS by removing comments and unnecessary newlines.
-   */
   runCleanup() {
-    // Run initial analysis before cleaning to report on the *original* file quality
     this.initialAnalysis = {
       totalSelectors: analyzeTotalSelectors(this.ast).total,
       topSpecificSelectors: analyzeTotalSelectors(
@@ -177,22 +147,16 @@ class CSSBuildPipeline {
     console.log("✅ Cleanup complete: Comments and excess whitespace removed.");
   }
 
-  /**
-   * Step 2: Generates and appends atomic utility classes.
-   * @returns {string} The generated classes.
-   */
   generateAtomicClasses() {
     let atomicClasses =
       "\n\n/* --- DYNAMICALLY GENERATED ATOMIC UTILITIES --- */\n\n";
 
-    // --- MARGIN/PADDING (Hard-coded) ---
     [0, 0.25, 0.5, 1, 1.5, 2].forEach((size) => {
       const sizeStr = size.toString().replace(".", "-");
       atomicClasses += `.m-${sizeStr} { margin: ${size}rem; }\n`;
       atomicClasses += `.p-${sizeStr} { padding: ${size}rem; }\n`;
     });
 
-    // --- COLOR UTILITIES (From Extracted Tokens) ---
     atomicClasses += "\n/* Color Utilities from Design Tokens */\n";
     const colorVariants = ["bg", "text"];
     this.designTokens.colors.forEach((color) => {
@@ -203,27 +167,20 @@ class CSSBuildPipeline {
       });
     });
 
-    // --- RESPONSIVE UTILITIES (Hard-coded) ---
     atomicClasses += "\n/* Responsive Display */\n";
     atomicClasses += `@media (max-width: 768px) { .md\\:hidden { display: none; } }\n`;
 
     return atomicClasses;
   }
 
-  /**
-   * Step 3: Executes the full build pipeline and writes the file.
-   * @param {boolean} [writeToFile=false] Whether to write the final CSS and reports to disk.
-   */
   runBuild(writeToFile = false) {
     this.runCleanup();
     const generatedClasses = this.generateAtomicClasses();
     this.finalContent = this.cleanedContent + generatedClasses;
 
-    // Run final analysis on the *combined* content
     const astFinal = postcss.parse(this.finalContent);
     this.finalAnalysis = analyzeTotalSelectors(astFinal);
 
-    // Count generated classes for the report
     const generatedClassCount = (generatedClasses.match(/\./g) || []).length;
 
     if (writeToFile) {
@@ -241,9 +198,6 @@ class CSSBuildPipeline {
     };
   }
 
-  /**
-   * Outputs the final consolidated report.
-   */
   outputReport() {
     const report = {
       metadata: {
@@ -259,14 +213,13 @@ class CSSBuildPipeline {
         ),
         totalGeneratedClasses:
           (this.finalContent.match(/\.m-/g) || []).length +
-          (this.finalContent.match(/\.(bg|text)-/g) || []).length, // Simplified count
+          (this.finalContent.match(/\.(bg|text)-/g) || []).length,
       },
       qualityAnalysis_Initial: this.initialAnalysis,
       qualityAnalysis_Final: {
         totalSelectors_Final: this.finalAnalysis.total,
         topSpecificSelectors_Final:
           this.finalAnalysis.specificityBreakdown.slice(0, 5),
-        // Note: Redundancy check on the FINAL output should ideally be done before generation, but included here for completeness
       },
       recommendations: [
         "Continue migration to auto-generated utility classes to simplify hand-written CSS.",
@@ -284,14 +237,20 @@ class CSSBuildPipeline {
   }
 }
 
-// Main execution block (CommonJS compatible)
-if (require.main === module) {
+// Main execution block (ESM compatible)
+// In ESM, import.meta.url is the current file URL.
+// process.argv[1] is the entry point file path.
+// We compare them to check if this file is being run directly.
+
+import { pathToFileURL } from "url";
+
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     try {
       console.log(`🔍 Analyzing SCSS/CSS...`);
       const cssContent = await compileScssToString();
-      const pipeline = new CSSBuildPipeline("in-memory.css", cssContent); // Pass content directly
-      const report = pipeline.runBuild(false); // Run the pipeline without writing to disk
+      const pipeline = new CSSBuildPipeline("in-memory.css", cssContent);
+      const report = pipeline.runBuild(false);
       console.log(JSON.stringify(report.initialAnalysis, null, 2));
     } catch (error) {
       console.error(
@@ -302,5 +261,3 @@ if (require.main === module) {
     }
   })();
 }
-
-module.exports = CSSBuildPipeline;

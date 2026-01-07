@@ -1,15 +1,20 @@
 #!/usr/bin/env node
 
-const fs = require("fs");
-const path = require("path");
-const https = require("https");
-const crypto = require("crypto");
-const { execSync } = require("child_process");
+import fs from "fs";
+import path from "path";
+import https from "https";
+import crypto from "crypto";
+import { execSync } from "child_process";
+import { fileURLToPath } from "url";
 
-// Try to require dotenv if available, otherwise mock it or fail gracefully if critical
+// ESM replacement for __dirname
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Try to import dotenv if available
 let dotenv;
 try {
-  dotenv = require("dotenv");
+  // Use dynamic import for optional dependency
+  dotenv = await import("dotenv");
 } catch (e) {
   // dotenv might not be installed in all environments
 }
@@ -227,7 +232,7 @@ function syncMcp() {
 
   const envMap =
     fs.existsSync(envPath) && dotenv
-      ? { ...process.env, ...dotenv.parse(fs.readFileSync(envPath)) }
+      ? { ...process.env, ...dotenv.default.parse(fs.readFileSync(envPath)) } // Note: dotenv.default for ESM default import
       : { ...process.env };
 
   const substituteEnvVariables = (obj) =>

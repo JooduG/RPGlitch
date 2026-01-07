@@ -1,7 +1,9 @@
-const fs = require("fs");
-const path = require("path");
-// Note: Requires 'htmlhint' to be installed or available in the environment.
-// If 'htmlhint' is missing from package.json dependencies, please install it: npm install --save-dev htmlhint
+import fs from "fs";
+import path from "path";
+import { createRequire } from "module";
+
+// HTMLHint doesn't export strict ESM named exports in some versions, so we use createRequire
+const require = createRequire(import.meta.url);
 const HTMLHint = require("htmlhint").HTMLHint;
 
 const SEARCH_DIR = "src";

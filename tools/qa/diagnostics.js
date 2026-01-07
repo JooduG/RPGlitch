@@ -2,18 +2,15 @@
 
 /**
  * Automation Script: Collect Browser Diagnostics from BrowserTools MCP/Server
- *
- * - Fetches console logs, errors, network logs
- * - Runs accessibility, performance, SEO, and best practices audits
- * - Captures a screenshot
- * - Saves all results to a timestamped folder (JSON and text)
- *
- * Usage: node scripts/automation-collect-diagnostics.js
  */
 
-const fs = require("fs");
-const path = require("path");
-const axios = require("axios");
+import fs from "fs";
+import path from "path";
+import axios from "axios";
+import { fileURLToPath } from "url";
+
+// ESM replacement for __dirname
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const SERVER_URL =
   process.env.BROWSERTOOLS_SERVER_URL || "http://localhost:3025";

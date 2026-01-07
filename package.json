@@ -1,6 +1,7 @@
 {
   "name": "joodug-rpglitch",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "dev": "npm-run-all --parallel watch start",
     "start": "http-server dist",

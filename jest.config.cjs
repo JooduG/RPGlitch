@@ -7,7 +7,7 @@ const config = {
   reporters: ["default"],
   roots: ["<rootDir>/tools/tests"],
   transform: {
-    "^.+\\.m?[tj]sx?$": ["babel-jest", { configFile: "./babel.config.js" }],
+    "^.+\\.m?[tj]sx?$": ["babel-jest", { configFile: "./babel.config.cjs" }],
   },
   transformIgnorePatterns: ["/node_modules/(?!cash-dom|dexie|jsdom)"],
   testPathIgnorePatterns: [

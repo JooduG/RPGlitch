@@ -1,9 +1,10 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 
 const SEARCH_DIR = "src";
-const WARNING_KEYWORD = "console.log";
-const ERROR_KEYWORD = "alert";
+// Unused but kept for clarity or future use if extended
+// const WARNING_KEYWORD = "console.log";
+// const ERROR_KEYWORD = "alert";
 
 let warningCount = 0;
 let errorCount = 0;

@@ -1,5 +1,5 @@
-const chokidar = require("chokidar");
-const { spawn } = require("child_process");
+import chokidar from "chokidar";
+import { spawn } from "child_process";
 
 console.log("Starting watch mode...");
 
@@ -8,6 +8,7 @@ function triggerBuild() {
   if (timeout) clearTimeout(timeout);
   timeout = setTimeout(() => {
     console.log("Changes detected. Rebuilding...");
+    // Inherit stdio so colors and output are preserved
     const build = spawn("node", ["tools/build.js"], { stdio: "inherit" });
     build.on("close", (code) => {
       if (code === 0) console.log("Build complete.");
