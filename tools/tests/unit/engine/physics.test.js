@@ -58,8 +58,11 @@ describe("PROMETHEUS ENGINE V5", () => {
       };
       const output = calculateDynamics(input);
       // DEBUGGING: Force fail to see actual values
-      // DEBUGGING: Removed
-      // Check logical bounds instead
+      if (output.permeability !== 68 || output.velocity !== 91) {
+        throw new Error(
+          `DEBUG: Perm=${output.permeability}, Vel=${output.velocity}`,
+        );
+      }
       expect(output.permeability).toBeLessThan(75);
       expect(output.velocity).toBeGreaterThanOrEqual(90);
     });
@@ -275,15 +278,26 @@ describe("ContextBuilder (Physics Injection)", () => {
       activeThreads,
     );
 
-    // V5 Check: Skip for debug
-    expect(true).toBe(true);
+    // V5 Check: Ensure system prompt is correct
+    expect(payload.system).toContain("[SYSTEM: PULSE_DIAGNOSTICS]");
+
+    // Check that dynamics are injected
+    expect(payload.system).toContain('"entropy": 55');
+    expect(payload.system).toContain('"permeability": 44');
+
+    // Check plot injection
+    expect(payload.system).toContain("[0] Thread 1");
+
+    // Check state injection
+    expect(payload.system).toContain("Test Physical");
+    expect(payload.system).toContain("Test Mental");
   });
 
-  test.skip("buildPulse mandates strict JSON schema", async () => {
+  test("buildPulse mandates strict JSON schema", async () => {
     const mockEntity = { dynamics: {} };
     const payload = await builder.buildPulse(mockEntity, []);
 
-    expect(payload.system).toContain("<OUTPUT_SCHEMA>");
+    expect(payload.system).toContain("Output: JSON only.");
     expect(payload.params.response_format.type).toBe("json_object");
   });
 });
@@ -307,7 +321,11 @@ describe("The Archivist", () => {
 
     const payload = await builder.buildArchivist(mockEntity);
 
-    // V5 Check: Skip
-    expect(true).toBe(true);
+    // V5 Check
+    expect(payload.system).toContain("[SYSTEM: PROMETHEUS_ARCHIVIST_V5]");
+    expect(payload.system).toContain("Do NOT delete Proper Nouns");
+    expect(payload.system).toContain("TestChar");
+    // Ensure temp is lowered for precision
+    expect(payload.params.temperature).toBeLessThan(0.5);
   });
 });

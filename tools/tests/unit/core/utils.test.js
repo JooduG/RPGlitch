@@ -1,4 +1,4 @@
-import { JSDOM } from "jsdom";
+import { db } from "../../../../src/js/core/db.js";
 
 jest.mock("../../../../src/js/core/db.js", () => ({
   db: {
@@ -7,6 +7,7 @@ jest.mock("../../../../src/js/core/db.js", () => ({
       get: jest.fn().mockResolvedValue({}),
       put: jest.fn().mockResolvedValue(),
     },
+    open: jest.fn().mockResolvedValue(),
   },
 }));
 
@@ -33,77 +34,44 @@ jest.mock("../../../../src/js/ui/orchestrator.js", () => ({
   showAlert: jest.fn(),
 }));
 
-afterEach(() => {
-  delete global.window;
-  delete global.document;
-  delete global.App;
+let utils, uiUtils;
+
+beforeAll(async () => {
+  utils = await import("../../../../src/js/core/utils.js");
+  uiUtils = await import("../../../../src/js/ui/services/ui-utils.js");
 });
 
-async function loadApp() {
-  const dom = new JSDOM("<!doctype html><html><body></body></html>", {
-    runScripts: "outside-only",
-  });
+beforeEach(() => {
+  document.body.innerHTML = "";
+  jest.clearAllMocks();
+});
 
-  global.window = dom.window;
-  global.document = dom.window.document;
-
-  // Provide proper Dexie mock
-  dom.window.Dexie = jest.fn(function (name) {
-    this.name = name;
-    this.version = jest.fn().mockReturnThis();
-    this.stores = jest.fn().mockReturnThis();
-    this.upgrade = jest.fn().mockReturnThis();
-    this.open = jest.fn().mockResolvedValue();
-  });
-  dom.window.DOMPurify = {};
-  dom.window._hyperscript = {};
-  dom.window.$ = function () {};
-
-  jest.resetModules();
-  const utils = await import("../../../../src/js/core/utils.js");
-  const uiUtils =
-    await import("../../../../src/js/ui/services/ui-utils.js");
-  const index = await import("../../../../src/js/core/bootstrap.js");
-
-  dom.window.App = {
-    ...index,
-    ...utils,
-    ...uiUtils,
-  };
-
-  // Return the isolated JSDOM context and the loaded App instance
-  return { dom, App: dom.window.App };
-}
-
-test("hideEl hides by element or id", async () => {
-  const { dom, App } = await loadApp();
-  const document = dom.window.document;
+test("hideEl hides by element or id", () => {
   document.body.innerHTML = '<div id="test-el"></div>';
   const el = document.getElementById("test-el");
-  expect(typeof App.hideEl).toBe("function");
-  App.hideEl(el, document);
+  expect(typeof uiUtils.hideEl).toBe("function");
+  uiUtils.hideEl(el, document);
   expect(el.hasAttribute("hidden")).toBe(true);
+
   el.removeAttribute("hidden");
   // Using the string ID should work the same
-  App.hideEl("test-el", document);
+  uiUtils.hideEl("test-el", document);
   expect(el.hasAttribute("hidden")).toBe(true);
 });
 
-test("showEl reveals element by removing hidden attribute", async () => {
-  const { dom, App } = await loadApp();
-  const document = dom.window.document;
+test("showEl reveals element by removing hidden attribute", () => {
   document.body.innerHTML = '<div id="test-el" hidden="hidden"></div>';
   const el = document.getElementById("test-el");
-  App.showEl(el, document);
+  uiUtils.showEl(el, document);
   expect(el.hasAttribute("hidden")).toBe(false);
+
   el.setAttribute("hidden", "hidden");
-  App.showEl("test-el", document);
+  uiUtils.showEl("test-el", document);
   expect(el.hasAttribute("hidden")).toBe(false);
 });
 
 test("handleAsyncError executes async function and returns result on success", async () => {
-  const { App } = await loadApp();
-  const result = await App.handleAsyncError(async () => "success", {
+  const result = await utils.handleAsyncError(async () => "success", {
     context: "test operation",
     showAlert: false,
   });
@@ -111,12 +79,10 @@ test("handleAsyncError executes async function and returns result on success", a
 });
 
 test("handleAsyncError catches errors and returns fallback value", async () => {
-  const { App } = await loadApp();
   const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-  const orchestrator =
-    await import("../../../../src/js/ui/orchestrator.js");
+  const orchestrator = await import("../../../../src/js/ui/orchestrator.js");
 
-  const result = await App.handleAsyncError(
+  const result = await utils.handleAsyncError(
     async () => {
       throw new Error("Test error");
     },
@@ -128,12 +94,8 @@ test("handleAsyncError catches errors and returns fallback value", async () => {
     },
   );
 
-  // Wait for the dynamic import and promise chain to resolve
-  // Since handleAsyncError does not await the alert (it's fire-and-forget in the catch block),
-  // we might need a small delay or use setImmediate if available.
-  // Ideally, handleAsyncError should await the alert if it wants to be testable, but it's a util.
-  // We can just wait a tick.
-  await new Promise((resolve) => setTimeout(resolve, 10));
+  // Wait for dynamic import inside handleAsyncError
+  await new Promise((resolve) => setTimeout(resolve, 50));
 
   expect(result).toBe("fallback value");
   expect(consoleErrorSpy).toHaveBeenCalledWith(
@@ -150,13 +112,11 @@ test("handleAsyncError catches errors and returns fallback value", async () => {
 });
 
 test("handleAsyncError suppresses alert when showAlert is false", async () => {
-  const { App } = await loadApp();
   const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-  const orchestrator =
-    await import("../../../../src/js/ui/orchestrator.js");
+  const orchestrator = await import("../../../../src/js/ui/orchestrator.js");
   orchestrator.showAlert.mockClear();
 
-  await App.handleAsyncError(
+  await utils.handleAsyncError(
     async () => {
       throw new Error("Test error");
     },
@@ -168,7 +128,7 @@ test("handleAsyncError suppresses alert when showAlert is false", async () => {
     },
   );
 
-  await new Promise((resolve) => setTimeout(resolve, 0));
+  await new Promise((resolve) => setTimeout(resolve, 50));
 
   expect(orchestrator.showAlert).not.toHaveBeenCalled();
   expect(consoleErrorSpy).toHaveBeenCalled();
@@ -176,9 +136,7 @@ test("handleAsyncError suppresses alert when showAlert is false", async () => {
   consoleErrorSpy.mockRestore();
 });
 
-test("replaceEventHandler replaces existing event listener", async () => {
-  const { dom, App } = await loadApp();
-  const document = dom.window.document;
+test("replaceEventHandler replaces existing event listener", () => {
   document.body.innerHTML = '<button id="test-btn">Click me</button>';
   const btn = document.getElementById("test-btn");
 
@@ -191,27 +149,26 @@ test("replaceEventHandler replaces existing event listener", async () => {
   };
 
   // Add first handler
-  App.replaceEventHandler(btn, "click", handler1, "_testHandler");
+  uiUtils.replaceEventHandler(btn, "click", handler1, "_testHandler");
   btn.click();
   expect(callCount).toBe(1);
 
   // Replace with second handler
-  App.replaceEventHandler(btn, "click", handler2, "_testHandler");
+  uiUtils.replaceEventHandler(btn, "click", handler2, "_testHandler");
   btn.click();
   expect(callCount).toBe(11); // Should be 1 + 10, not 1 + 1 + 10
 
   // Verify first handler was removed
   btn.click();
-  expect(callCount).toBe(21); // Should be 11 + 10, confirming only handler2 is active
+  expect(callCount).toBe(21); // Should be 11 + 10
 });
 
-test("replaceEventHandler handles null element gracefully", async () => {
-  const { App } = await loadApp();
+test("replaceEventHandler handles null element gracefully", () => {
   const handler = jest.fn();
 
   // Should not throw
   expect(() => {
-    App.replaceEventHandler(null, "click", handler, "_testHandler");
+    uiUtils.replaceEventHandler(null, "click", handler, "_testHandler");
   }).not.toThrow();
 
   expect(handler).not.toHaveBeenCalled();

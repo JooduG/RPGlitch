@@ -8,14 +8,19 @@ jest.mock("../../../src/js/core/state.js", () => ({
 jest.mock("../../../src/js/data/repo.js", () => ({ entities: {} }));
 jest.mock("../../../src/js/engine/director.js", () => ({
   StoryController: {},
+  TurnManager: {},
 }));
 jest.mock("../../../src/js/ui/image-gen-ui.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
+  updateDeveloperModeClass: jest.fn(),
 }));
 jest.mock("../../../src/js/core/utils.js", () => ({
   error: jest.fn(),
   log: jest.fn(),
+}));
+jest.mock("../../../src/js/ui/orchestrator.js", () => ({
+  showAlert: jest.fn(),
 }));
 
 import { generateDynamicTitle } from "../../../src/js/ui/setup.js";
