@@ -21,6 +21,7 @@ import { events, EVENTS } from "../../../core/events.js";
 import { audioService } from "../../../services/audio-service.js";
 import { ContextBuilder } from "../../../engine/prompter.js";
 import { LlmService } from "../../../services/llm-service.js";
+import { Librarian } from "../../../engine/librarian.js";
 
 import { PROFILE_STRUCTURE, LABEL_MAP, SPLIT_HEADERS } from "./constants.js";
 import {
@@ -38,6 +39,54 @@ const autoResize = (el) => {
 // Helper to access nested properties safely (e.g. entity.forever.physical)
 const getNestedValue = (obj, path) =>
   path.split(".").reduce((acc, part) => acc && acc[part], obj) || "";
+
+// Helper: Magic Button Label (Standardized Label)
+const renderLabelWithMagic = (label, fieldKey) => {
+  const wrapper = document.createElement("div");
+  wrapper.className =
+    "flex justify-between items-center mb-1 label-magic-wrapper";
+  wrapper.style.display = "flex";
+  wrapper.style.justifyContent = "space-between";
+  wrapper.style.width = "100%";
+
+  const span = document.createElement("span");
+  span.className = "main-label";
+  span.textContent = label;
+
+  wrapper.appendChild(span);
+  return wrapper;
+};
+
+// [NEW] Helper: Wrap Input with Magic Overlay
+const wrapInputWithMagic = (inputEl, fieldKey) => {
+  // Exclude Description/Name/Dynamics from Magic
+  if (
+    fieldKey === "description" ||
+    fieldKey === "name" ||
+    fieldKey.includes("dynamics")
+  ) {
+    return inputEl;
+  }
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "magic-input-wrapper";
+
+  const btn = document.createElement("button");
+  btn.id = `btn-magic-${fieldKey}`;
+  btn.className = "magic-btn-overlay";
+  btn.title = "Ask Librarian to Enhance";
+  btn.innerHTML = `✨`;
+  btn.onclick = (e) => {
+    e.preventDefault();
+    Librarian.enhanceField(fieldKey);
+  };
+
+  // Input goes in first, then button (overlay)
+  wrapper.appendChild(inputEl);
+  wrapper.appendChild(btn);
+
+  return wrapper;
+};
 
 const getLiveEntityFromForm = (form, baseEntity) => {
   const live = { ...baseEntity };
@@ -557,7 +606,9 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
   const headerWrap = form.querySelector("[data-profile-header]");
   headerWrap.innerHTML = "";
 
+  // Naming the inputs for Librarian Access
   const nameInput = document.createElement("textarea");
+  nameInput.id = "input-name"; // ID for scraping
   nameInput.className = "profile-name-input";
   nameInput.dataset.editField = "name";
   nameInput.value = entity.name || "";
@@ -569,6 +620,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
   setTimeout(() => autoResize(nameInput), 0);
 
   const descInput = document.createElement("textarea");
+  descInput.id = "input-description"; // Explicit naming although Black Sited
   descInput.className = "profile-desc-input";
   descInput.dataset.editField = "description";
   descInput.value = entity.description || "";
@@ -612,37 +664,55 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
         if (key === "forever") {
           const header = document.createElement("div");
           header.className = "split-header";
-          header.textContent = SPLIT_HEADERS[subKey];
+          header.style.display = "flex";
+          // [POLISH] Center headers for better visual hierarchy
+          header.style.justifyContent = "center";
+
+          const title = document.createElement("span");
+          title.textContent = SPLIT_HEADERS[subKey];
+          header.appendChild(title);
+
           splitCol.appendChild(header);
+        } else if (key === "present") {
+          // [POLISH] Removed duplicate headers for "Present" fields as requested.
+          // The visual hierarchy is clearer without them, or relied on the row label.
         }
 
         const input = document.createElement("textarea");
         input.className = "profile-input";
         const finalPath = `${key}.${subKey}`;
+        const librarianId = `input-${key}-${subKey}`; // input-forever-physical
+        const magicKey = `${key}_${subKey}`; // forever_physical
+
+        input.id = librarianId;
         input.value = getNestedValue(entity, finalPath);
         input.dataset.editField = finalPath;
         input.rows = fieldConfig.rows || 2;
         input.placeholder = fieldConfig.placeholder || "";
         input.addEventListener("input", () => autoResize(input));
 
-        splitCol.appendChild(input);
+        // [REF] Wrap input with Magic Button
+        const protectedInput = wrapInputWithMagic(input, magicKey);
+        splitCol.appendChild(protectedInput);
         setTimeout(() => autoResize(input), 0);
 
         splitWrap.appendChild(splitCol);
       });
       contentCol.appendChild(splitWrap);
-    }
-    // Case 2: String Fields (Past/Future)
-    else if (config.type === "string") {
+    } else if (config.type === "string") {
+      // Case 2: String Fields (Past/Future)
       const input = document.createElement("textarea");
       input.className = "profile-input";
+      input.id = `input-${key.replace(/_/g, "-")}`; // ID for Librarian
       input.value = entity[key] || "";
       input.dataset.editField = key;
       input.rows = config.rows || 4;
       input.placeholder = config.placeholder || "";
       input.addEventListener("input", () => autoResize(input));
 
-      contentCol.appendChild(input);
+      // [REF] Wrap input with Magic Button
+      const protectedInput = wrapInputWithMagic(input, key);
+      contentCol.appendChild(protectedInput);
       setTimeout(() => autoResize(input), 0);
     }
 

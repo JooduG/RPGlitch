@@ -508,7 +508,7 @@ $placeholder-opacity: 0.4;
   border-radius: var(--pico-radius);
   color: var(--pico-color);
   font-family: inherit;
-  font-size: 0.95rem;
+  font-size: 0.85rem; // [POLISH] Smaller font for better readability
   padding: 0.6rem 0.8rem;
   line-height: 1.5;
   transition:
@@ -537,6 +537,51 @@ $placeholder-opacity: 0.4;
 
   background: rgb(0, 0, 0, 30%);
   border: 1px solid var(--pico-muted-border-color);
+}
+
+// [NEW] Magic Input Overlay
+.magic-input-wrapper {
+  position: relative;
+  width: 100%;
+  flex: 1; // Ensure it grows in flex containers
+  display: flex; // Ensure height matches content
+
+  .profile-input {
+    width: 100%; // Ensure input fills wrapper
+  }
+
+  .magic-btn-overlay {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    z-index: 5;
+    opacity: 0;
+    font-size: 0.85rem;
+    padding: 2px 6px;
+    background: rgb(0 0 0 / 60%);
+    backdrop-filter: blur(4px);
+    border: 1px solid var(--pico-muted-border-color);
+    border-radius: 4px;
+    color: var(--pico-primary);
+    cursor: pointer;
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+    transform: translateY(-2px); // Slight lift
+
+    &:hover {
+      background: var(--pico-primary);
+      color: #000;
+      border-color: var(--pico-primary);
+    }
+  }
+
+  // Show on Hover
+  &:hover .magic-btn-overlay,
+  .magic-btn-overlay:focus {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .profile-field-text-read {

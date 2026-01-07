@@ -123,4 +123,13 @@ export class ContextBuilder {
     });
     return { system, messages: [] };
   }
+
+  async buildLibrarian(targetField, currentContent, contextData) {
+    const system = Strategies.librarian(
+      targetField,
+      currentContent,
+      contextData,
+    );
+    return { system, messages: [] };
+  }
 }
