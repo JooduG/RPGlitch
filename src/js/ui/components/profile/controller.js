@@ -1,6 +1,6 @@
 import { events, EVENTS } from "../../../core/events.js";
 import { entities } from "../../../data/repo.js";
-import { handleAsyncError, log } from "../../../core/utils.js";
+import { handleAsyncError } from "../../../core/utils.js";
 import { renderProfileView } from "./view.js";
 import { renderProfileEdit } from "./edit.js";
 import { state } from "../../../core/state.js";
@@ -165,7 +165,6 @@ export const ProfileController = {
       );
 
       // 4. Generate the optimized prompt
-      // 4. Generate the optimized prompt
       const refinedPrompt = await LlmService.generate({ system, messages: [] });
 
       // 5. Generate the Image
@@ -189,12 +188,16 @@ export const ProfileController = {
       );
     } catch (e) {
       console.error("Profile Gen Failed:", e);
+      const btn = document.getElementById("profile-gen-btn");
+      if (btn) btn.textContent = "Failed. Retry?";
     } finally {
       // Reset UI
       const btn = document.getElementById("profile-gen-btn");
-      if (btn) {
+      if (btn && btn.textContent !== "Failed. Retry?") {
         btn.disabled = false;
         btn.textContent = "Reroll Portrait";
+      } else if (btn) {
+        btn.disabled = false;
       }
     }
   },
