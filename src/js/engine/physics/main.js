@@ -23,46 +23,44 @@ export const calculateDynamics = (currentDynamics, baseline = {}) => {
   };
 
   // --- LAW 1: THE ADRENALINE SHIELD ---
-  if (d.velocity > PHYSICS_CONSTANTS.ADRENALINE_VELOCITY_THRESHOLD) {
+  if (d.velocity > PHYSICS_CONSTANTS.ADRENALINE_THRESHOLD) {
     const penalty = PHYSICS_CONSTANTS.ADRENALINE_PENALTY;
-    if (d.permeability > PHYSICS_CONSTANTS.ADRENALINE_PERMEABILITY_MIN) {
+    if (d.permeability > PHYSICS_CONSTANTS.ADRENALINE_MIN_PERM) {
       d.permeability = clamp(d.permeability - penalty);
       log(`[PHYSICS] Adrenaline Shield: Permeability -${penalty}`);
     }
   }
 
   // --- LAW 2: THE FOG OF WAR ---
-  if (d.entropy > PHYSICS_CONSTANTS.FOG_ENTROPY_THRESHOLD) {
-    d.resonance = clamp(
-      d.resonance - PHYSICS_CONSTANTS.FOG_RESONANCE_DAMPENING,
-    );
+  if (d.entropy > PHYSICS_CONSTANTS.FOG_THRESHOLD) {
+    d.resonance = clamp(d.resonance - PHYSICS_CONSTANTS.FOG_DAMPENING);
     flags.fogOfWar = true;
     log("[PHYSICS] Fog of War: Resonance dampened.");
   }
 
   // --- LAW 3: THE COOL-DOWN ---
-  if (d.velocity < PHYSICS_CONSTANTS.CALM_VELOCITY_THRESHOLD) {
-    d.entropy = clamp(d.entropy - PHYSICS_CONSTANTS.CALM_ENTROPY_REDUCTION);
+  if (d.velocity < PHYSICS_CONSTANTS.COOLDOWN_THRESHOLD) {
+    d.entropy = clamp(d.entropy - PHYSICS_CONSTANTS.COOLDOWN_REDUCTION);
     log("[PHYSICS] Cool-Down: Entropy reduced.");
   }
 
   // --- LAW 4: THE PANIC SPIRAL ---
-  if (d.entropy > PHYSICS_CONSTANTS.PANIC_ENTROPY_THRESHOLD) {
-    d.velocity = clamp(d.velocity + PHYSICS_CONSTANTS.PANIC_VELOCITY_BOOST);
+  if (d.entropy > PHYSICS_CONSTANTS.PANIC_THRESHOLD) {
+    d.velocity = clamp(d.velocity + PHYSICS_CONSTANTS.PANIC_BOOST);
     flags.panicSpiral = true;
     log("[PHYSICS] Panic Spiral: Velocity forced up.");
   }
 
   // --- LAW 5: THE ECHO CHAMBER ---
   if (
-    d.resonance > PHYSICS_CONSTANTS.ECHO_RESONANCE_THRESHOLD &&
-    d.entropy < PHYSICS_CONSTANTS.ECHO_ENTROPY_MAX
+    d.resonance > PHYSICS_CONSTANTS.ECHO_THRESHOLD_RES &&
+    d.entropy < PHYSICS_CONSTANTS.ECHO_THRESHOLD_ENT
   ) {
     flags.echoChamber = true;
   }
 
   // --- LAW 6: THE GLASS CANNON ---
-  if (d.permeability > PHYSICS_CONSTANTS.GLASS_PERMEABILITY_THRESHOLD) {
+  if (d.permeability > PHYSICS_CONSTANTS.GLASS_THRESHOLD) {
     flags.glassCannon = true;
   }
 

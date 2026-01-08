@@ -7,8 +7,7 @@ import { entities } from "../data/repo.js";
 import { error, calculateBlendedParams, log } from "../core/utils.js";
 import { ContextBuilder } from "./prompter.js";
 import { calculateDynamics } from "./physics/main.js";
-// import { analyzeRejection, getDirectorInstruction } from "./variance.js";
-// import { bridge } from "./physics/bridge.js";
+import { PHYSICS_CONSTANTS } from "./physics/config.js"; // IMPORT CONFIG
 import { events, EVENTS } from "../core/events.js";
 import { VisualManager } from "../ui/services/visuals.js";
 import {
@@ -23,15 +22,11 @@ const MAX_STREAM_RETRIES = 3;
 
 // --- INTERNAL HELPERS ---
 
-/**
- * Parses the raw AI response to extract visual prompts and clean technical artifacts.
- */
 const parseAiResponse = (response) => {
   let text = response
     .replace(/STOP SEQUENCE.*$/i, "")
     .replace(/STOP PROTOCOL.*$/i, "")
     .replace(/\(Glitch must react\).*$/i, "")
-    // Nuclear Option: Strip Meta-Labels from Narrative
     .replace(
       /(?:^|\n)(?:The )?(?:Hook|Result|Scene|Analysis|Meta|Response):\s*/gi,
       "$1",
@@ -49,7 +44,6 @@ const parseAiResponse = (response) => {
     if (visualMatch[1]) targetType = visualMatch[1].toLowerCase();
     visualPrompt = visualMatch[2].trim();
     text = response.replace(visualMatch[0], "").trim();
-    // Inject custom delimiters for UI parsing
     text += `\n\n<image_prompt>${visualPrompt}</image_prompt>`;
   }
 
@@ -169,10 +163,6 @@ export const TurnManager = {
 
   // --- THE CORE PIPELINE ---
 
-  /**
-   * Centralized Turn Execution Method
-   * Encapsulates the entire lifecycle: Signal -> Generate -> Parse -> Save -> Visuals -> Physics.
-   */
   _handleVisuals: async (storyId, visualPrompt, targetType) => {
     const story = state.story.byId[storyId];
     let targetRole = ROLES.AI;
@@ -267,15 +257,13 @@ export const TurnManager = {
             }),
           );
 
-          // 2.1 REFUSAL CHECK
           if (TurnManager._checkRefusal(response)) {
-            // VARIANCE DISABLED (PULSE LOGIC UPDATE)
             if (attempts < MAX_ATTEMPTS) continue;
           }
 
           // 3. PARSE
           const { text, visualPrompt, targetType } = parseAiResponse(response);
-          generatedText = text; // Capture for event dispatch
+          generatedText = text;
 
           // 4. VISUALS
           let visuals = { imageUrl: null, refinedPrompt: null };
@@ -288,7 +276,6 @@ export const TurnManager = {
           }
 
           // 5. SAVE
-          // let aiMsgId; // Unused
           const metadata = visualPrompt
             ? { visualPrompt, targetType, refinedPrompt: visuals.refinedPrompt }
             : null;
@@ -306,7 +293,6 @@ export const TurnManager = {
               update.metadata = { ...(original.metadata || {}), ...metadata };
             }
             await db.messages.update(appendTargetId, update);
-            // aiMsgId = appendTargetId; // Unused
           } else {
             await db.messages.add({
               storyId,
@@ -320,32 +306,33 @@ export const TurnManager = {
             });
           }
 
-          // 6. PHYSICS
-          if (payload.meta?.triggerUpdate) {
-            // Non-blocking Pulse (Reverted: User prefers speed over strict UI locking)
+          // 6. PHYSICS (HEARTBEAT LOGIC)
+          // We check the history length to determine the heartbeat.
+          const msgs = await TurnManager.loadMessages(storyId);
+          // Filter only IC messages to count "Turns"
+          const aiTurns = msgs.filter((m) => m.role === ROLES.AI).length;
+
+          // If turn count is a multiple of the rate (and not 0), PULSE.
+          if (aiTurns > 0 && aiTurns % PHYSICS_CONSTANTS.HEARTBEAT_RATE === 0) {
+            log(`[Director] ❤️ Heartbeat Triggered (Turn ${aiTurns})`);
+            // Fire and forget - don't await this or UI will hang
             TurnManager._runPulse(storyId, story.aiId);
           }
+
           break;
         } catch (e) {
           if (e.name === "AbortError") throw e;
           if (e.message.includes(ERROR_MESSAGES.CONNECTION_LOST)) {
             if (retryCount < MAX_STREAM_RETRIES) {
-              console.warn(
-                `⚠️ [TEXT-GEN] Stream interrupted. Triggering Auto-Reroll... (Attempt ${retryCount + 1}/${MAX_STREAM_RETRIES})`,
-              );
               await new Promise((r) => setTimeout(r, 1000 * (retryCount + 1)));
               return TurnManager._executeTurn(storyId, payload, {
                 ...options,
                 retryCount: retryCount + 1,
               });
             }
-            console.error("❌ [TEXT-GEN] Max Auto-Rerolls exceeded.");
             throw e;
           }
           if (attempts >= MAX_ATTEMPTS) throw e;
-          log(
-            `[PROMETHEUS] Generation Glitch. Retrying ${attempts + 1}/${MAX_ATTEMPTS}...`,
-          );
           await new Promise((r) => setTimeout(r, 1000 * attempts));
         }
       }
@@ -371,7 +358,7 @@ export const TurnManager = {
           detail: {
             role: ROLES.AI,
             characterId: story?.aiId,
-            text: generatedText, // Pass text to Orchestrator/VoiceService
+            text: generatedText,
           },
         }),
       );
@@ -435,7 +422,6 @@ export const TurnManager = {
     if (msgs.length === 0) return;
 
     const last = msgs[msgs.length - 1];
-    // REFACTORED: Check for FRACTAL instead of NARRATOR
     if (last.role !== ROLES.AI && last.role !== ROLES.FRACTAL) return;
 
     let note;
@@ -447,12 +433,6 @@ export const TurnManager = {
         `[PROMETHEUS] Regenerating with Manual Instruction: ${manualInstruction}`,
       );
       note = `[SYSTEM: DIRECTOR_OVERRIDE]\nDirective: ${manualInstruction}`;
-    } else {
-      // VARIANCE DISABLED
-      // const lastUser = msgs.findLast((m) => m.role === ROLES.USER);
-      // const key = analyzeRejection(last.text, lastUser?.text || "");
-      // note = getDirectorInstruction(key);
-      // log(`[PROMETHEUS] Regenerating with strategy: ${key}`);
     }
 
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
@@ -478,7 +458,6 @@ export const TurnManager = {
     if (msgs.length === 0) return;
 
     const last = msgs[msgs.length - 1];
-    // REFACTORED: Check for FRACTAL instead of NARRATOR
     if (last.role !== ROLES.AI && last.role !== ROLES.FRACTAL) return;
 
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
@@ -497,17 +476,16 @@ export const TurnManager = {
     }
   },
 
+  // CENTRALIZED PULSE LOGIC (Migrated from Worker)
   _runPulse: async (storyId, aiId) => {
     try {
       log(`[TurnManager] ✨ Initiating Simulation Pulse...`);
-      // const story = state.story.byId[storyId]; // Unused
       const aiEntity = await entities.get("character", aiId);
       const history = await TurnManager.loadMessages(storyId);
 
-      // 1. Build Pulse Prompt
+      // 1. Build Pulse Pulse
       const builder = new ContextBuilder(storyId);
       const activeThreads = aiEntity.customData?.plot?.active || [];
-      // Use last ~15 messages (Modulo 5 * 3) for context
       const pulseHistory = history.slice(-15);
 
       const payload = await builder.buildPulse(
@@ -521,7 +499,7 @@ export const TurnManager = {
         json: true,
       });
 
-      // 3. Parse CSS/JSON
+      // 3. Parse JSON
       let data;
       try {
         const jsonText = response.replace(/```json\n|```/g, "").trim();
@@ -538,17 +516,16 @@ export const TurnManager = {
 
         // 4.1 LOG ENTRY (Long Term Memory)
         if (data.log_entry && typeof data.log_entry === "string") {
-          const entry = `\n[Turn ${state.turnCount}] ${data.log_entry}`;
+          const entry = `\n[Turn ${state.turnCount || history.length}] ${data.log_entry}`;
           updates.past = (aiEntity.past || "") + entry;
           needsSave = true;
           log(`[TurnManager] 🧠 New Memory Engram:`, entry);
         }
 
-        // Apply Dynamics
+        // Apply Dynamics (USING PHYSICS MAIN.JS)
         if (data.dynamics) {
           const newDynamics = calculateDynamics(
             data.dynamics,
-            // Fallback: If no baseline, use current dynamics as the anchor (Assumed Normality)
             aiEntity.baseline || aiEntity.dynamics || {},
           );
           updates.dynamics = {
@@ -557,11 +534,21 @@ export const TurnManager = {
             permeability: newDynamics.permeability,
             resonance: newDynamics.resonance,
           };
+
+          // Debug Message
+          if (newDynamics._flags) {
+            const flags = newDynamics._flags;
+            let debugMsg = "";
+            if (flags.panicSpiral) debugMsg += ">> PANIC SPIRAL ACTIVE\n";
+            if (flags.fogOfWar) debugMsg += ">> FOG OF WAR ACTIVE\n";
+            if (debugMsg) log(debugMsg);
+          }
+
           needsSave = true;
-          log("[TurnManager] Dynamics Updated (Physics V5):", updates.dynamics);
+          log("[TurnManager] Dynamics Updated:", updates.dynamics);
         }
 
-        // Apply Present State (Split Physical/Mental)
+        // Apply Present State
         if (data.state) {
           const currentPresent =
             typeof aiEntity.present === "object" && aiEntity.present !== null
@@ -576,7 +563,6 @@ export const TurnManager = {
           needsSave = true;
           log("[TurnManager] State Updated:", updates.present);
         } else if (data.present && typeof data.present === "string") {
-          // Fallback for legacy schema
           updates.present = {
             ...aiEntity.present,
             physical: data.present,
@@ -589,12 +575,10 @@ export const TurnManager = {
           const currentActive = [...(updates.customData.plot.active || [])];
           let currentResolved = [...(updates.customData.plot.resolved || [])];
 
-          // Move resolved indices
           if (
             data.plot.resolved_indices &&
             Array.isArray(data.plot.resolved_indices)
           ) {
-            // Sort descending to remove without index shift issues
             const indicesToRemove = data.plot.resolved_indices
               .filter((i) => i >= 0 && i < currentActive.length)
               .sort((a, b) => b - a);
@@ -605,13 +589,10 @@ export const TurnManager = {
             });
           }
 
-          // Add new threads (LIFO: Add to Top)
           if (data.plot.new_threads && Array.isArray(data.plot.new_threads)) {
             const newThreads = data.plot.new_threads.filter(
               (t) => typeof t === "string" && !currentActive.includes(t),
             );
-            // Do NOT reverse. Unshifting in chronological order (A, B) results in (B, A, ...Old).
-            // This places the MOST RECENT event (B) at the top of the stack (Index 0).
             newThreads.forEach((t) => {
               currentActive.unshift(t);
             });
@@ -632,7 +613,6 @@ export const TurnManager = {
             ...updates,
           });
 
-          // Dispatch Event for UI Refresh
           events.dispatchEvent(
             new CustomEvent(EVENTS.ENTITY_UPDATED, {
               detail: { id: aiId, ...updates },
@@ -645,7 +625,6 @@ export const TurnManager = {
     }
   },
 
-  // RENAMED: generateOpening -> generatePrologue
   generatePrologue: async (storyId) => {
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
     const story = state.story.byId[storyId];
@@ -657,7 +636,6 @@ export const TurnManager = {
 
     try {
       const builder = new ContextBuilder(storyId);
-      // REFACTORED CALL
       const payload = await builder.buildPrologue();
 
       if (!payload) {
@@ -687,16 +665,15 @@ export const TurnManager = {
 
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
 
-      // Fetch Fractal Name for the message
       const fractalEntity = await entities.get(ROLES.FRACTAL, story.fractalId);
       const characterName = fractalEntity?.name || "Fractal";
 
       await db.messages.add({
         storyId,
-        role: ROLES.FRACTAL, // REFACTORED: FRACTAL
+        role: ROLES.FRACTAL,
         type: "OOC",
         text: response,
-        characterName: characterName, // REFACTORED: Explicit Name
+        characterName: characterName,
         createdAt: Date.now(),
         metadata: { phase: "prologue" },
       });
@@ -706,7 +683,6 @@ export const TurnManager = {
         new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
       );
 
-      // [AUDIO] Trigger Default Message Sound (standardizing)
       audioService.play("notification");
 
       await TurnManager.generateAiResponse(storyId);
@@ -722,7 +698,6 @@ export const TurnManager = {
     }
   },
 
-  // RENAMED: concludeStory -> triggerEpilogue
   triggerEpilogue: async () => {
     const storyId = TurnManager.requireActive();
     const story = state.story.byId[storyId];
@@ -754,7 +729,6 @@ export const TurnManager = {
 
     try {
       const builder = new ContextBuilder(storyId);
-      // REFACTORED CALL
       const payload = await builder.buildEpilogue();
 
       if (!payload) throw new Error("Epilogue strategy not supported.");
@@ -780,10 +754,10 @@ export const TurnManager = {
 
       await db.messages.add({
         storyId,
-        role: ROLES.FRACTAL, // REFACTORED: FRACTAL
+        role: ROLES.FRACTAL,
         type: "OOC",
         text: response,
-        characterName: characterName, // REFACTORED: Explicit Name
+        characterName: characterName,
         createdAt: Date.now(),
         isEpilogue: true,
         metadata: { phase: "epilogue" },
@@ -796,7 +770,7 @@ export const TurnManager = {
       ]);
 
       await db.stories.update(storyId, {
-        isConcluded: 1, // Kept for DB compatibility, means "Epilogue Complete"
+        isConcluded: 1,
         concludedAt: Date.now(),
         "snapshots.end": { ai: endAi, user: endUser, fractal: endFractal },
       });
@@ -809,7 +783,6 @@ export const TurnManager = {
       const { renderChat } = await import("../ui/components/chat/feed.js");
       await renderChat(storyId);
 
-      // [AUDIO] Trigger Default Message Sound (standardizing)
       audioService.play("notification");
     } catch (e) {
       error("Epilogue Failed", e);
@@ -848,17 +821,14 @@ export const TurnManager = {
     const storyId = TurnManager.requireActive();
     if (!storyId) return null;
 
-    // 1. Build Payload (User Logic)
     const builder = new ContextBuilder(storyId);
     const payload = await builder.buildGhostwriter(text);
 
-    // 2. Generate Draft (No Execution)
     const response = await LlmService.generate(payload, {
       maxTokens: 300,
       temperature: 0.7,
     });
 
-    // 3. Sanitize & Return
     const { text: cleanText } = parseAiResponse(response);
     return cleanText;
   },

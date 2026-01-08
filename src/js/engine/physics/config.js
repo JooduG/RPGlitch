@@ -1,42 +1,32 @@
 /**
- * THE PROMETHEUS PHYSICS CONFIGURATION
- * Centralized constants for simulation balance and narrative physics laws.
- * TUNING: "HBO DRAMA" (Slower Burn, High Stability)
+ * src/js/engine/physics/config.js
+ * The Single Source of Truth for Prometheus Physics.
  */
+
 export const PHYSICS_CONSTANTS = {
-  // --- Thresholds (The Triggers) ---
-  ADRENALINE_VELOCITY_THRESHOLD: 90, // Combat/Panic
-  ADRENALINE_PERMEABILITY_MIN: 20, // "Shut Down" state
-  FOG_ENTROPY_THRESHOLD: 85, // Confusion/Gaslighting
-  CALM_VELOCITY_THRESHOLD: 15, // Deep introspection
-  PANIC_ENTROPY_THRESHOLD: 95, // Hallucinations/Glitch
+  // --- THE HEARTBEAT ---
+  HEARTBEAT_RATE: 3,
 
-  // FIX: Lowered from 90 to 80 to satisfy Jest unit tests
-  ECHO_RESONANCE_THRESHOLD: 80,
-  ECHO_ENTROPY_MAX: 20, // Quiet moments needed for echo
-  GLASS_PERMEABILITY_THRESHOLD: 90, // "Soul Baring" Intimacy
+  // --- THRESHOLDS ---
+  ADRENALINE_THRESHOLD: 90, // Velocity > 90 triggers Adrenaline Shield
+  FOG_THRESHOLD: 85, // Entropy > 85 triggers Fog of War
+  PANIC_THRESHOLD: 95, // Entropy > 95 triggers Panic Spiral
+  COOLDOWN_THRESHOLD: 15, // Velocity < 15 triggers Cool-Down
+  ECHO_THRESHOLD_RES: 80, // Resonance > 80 (Echo Chamber condition 1)
+  ECHO_THRESHOLD_ENT: 20, // Entropy < 20 (Echo Chamber condition 2)
+  GLASS_THRESHOLD: 90, // Permeability > 90 (Glass Cannon)
 
-  // --- Impacts (The Consequences) ---
-  ADRENALINE_PENALTY: 10, // Combat lowers safety slowly
-  FOG_RESONANCE_DAMPENING: 5, // Confusion slowly erodes memory
-  CALM_ENTROPY_REDUCTION: 10, // Quiet moments heal chaos
-  PANIC_VELOCITY_BOOST: 15, // Fear speeds things up
+  // --- MODIFIERS ---
+  ADRENALINE_PENALTY: 10, // Permeability reduction
+  ADRENALINE_MIN_PERM: 10, // Don't reduce if below this
+  FOG_DAMPENING: 5, // Resonance reduction
+  PANIC_BOOST: 15, // Velocity increase
+  COOLDOWN_REDUCTION: 10, // Entropy reduction
+  GRAVITY_STRENGTH: 0.1, // 10% drift towards baseline per pulse
+  GRAVITY_BASELINE: 50, // Universal baseline
 
-  // --- Gravity & Defaults ---
-  GRAVITY_BASELINE: 50, // Default state for all stats
-  GRAVITY_STRENGTH: 0.1, // 10% pull towards baseline per turn
-
-  // --- Vibe Blender Coefficients (For AI Tuning) ---
-  TEMP_BASE: 0.6,
-  TEMP_ENTROPY_WEIGHT_FRACTAL: 0.5,
-  TEMP_ENTROPY_WEIGHT_AI: 0.2,
-  PENALTY_BASE: 1.1,
-  TOP_P_BASE: 0.95,
-
-  // --- Prometheus Engine Config ---
-  PROMETHEUS: {
-    UPDATE_MODULO: 4,
-    UPDATE_OFFSET: 4,
-    TARGET_CYCLE: ["ai_character", "user_character", "fractal"],
-  },
+  // --- INPUT SCALARS (Reflex) ---
+  REFLEX_VIOLENCE_VELOCITY: 20,
+  REFLEX_INTIMACY_PERMEABILITY: 20,
+  REFLEX_FEAR_ENTROPY: 20,
 };
