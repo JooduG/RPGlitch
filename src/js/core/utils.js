@@ -1,6 +1,6 @@
 // apps/rpglitch/js/core-utils.js
 
-import { PHYSICS_CONFIG } from "../engine/physics/config.js";
+import { PHYSICS_CONSTANTS } from "../engine/physics/config.js";
 
 // --- Constants ---
 const VALID_PROTOCOLS = ["https:", "http:", "blob:", "data:"];
@@ -322,9 +322,15 @@ export const calculateBlendedParams = (ai, user, fractal) => {
 
   // 1. Temperature (Chaos)
   const rawTemp =
-    fractalDyn.entropy * PHYSICS_CONFIG.TEMP_ENTROPY_WEIGHT_FRACTAL +
-    aiDyn.entropy * PHYSICS_CONFIG.TEMP_ENTROPY_WEIGHT_AI;
-  const temperature = mapRange(rawTemp, 0, 100, PHYSICS_CONFIG.TEMP_BASE, 1.35);
+    fractalDyn.entropy * PHYSICS_CONSTANTS.TEMP_ENTROPY_WEIGHT_FRACTAL +
+    aiDyn.entropy * PHYSICS_CONSTANTS.TEMP_ENTROPY_WEIGHT_AI;
+  const temperature = mapRange(
+    rawTemp,
+    0,
+    100,
+    PHYSICS_CONSTANTS.TEMP_BASE,
+    1.35,
+  );
 
   // 2. Repetition Penalty (Pacing)
   const rawRep = Math.max(
@@ -336,7 +342,7 @@ export const calculateBlendedParams = (ai, user, fractal) => {
     rawRep,
     0,
     100,
-    PHYSICS_CONFIG.PENALTY_BASE,
+    PHYSICS_CONSTANTS.PENALTY_BASE,
     1.18,
   );
 
@@ -345,7 +351,7 @@ export const calculateBlendedParams = (ai, user, fractal) => {
     aiDyn.resonance,
     0,
     100,
-    PHYSICS_CONFIG.TOP_P_BASE,
+    PHYSICS_CONSTANTS.TOP_P_BASE,
     0.65,
   );
 

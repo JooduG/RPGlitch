@@ -3,7 +3,7 @@
  * Centralized constants for simulation balance and narrative physics laws.
  * TUNING: "HBO DRAMA" (Slower Burn, High Stability)
  */
-export const PHYSICS_CONFIG = {
+export const PHYSICS_CONSTANTS = {
   // --- Thresholds (The Triggers) ---
   ADRENALINE_VELOCITY_THRESHOLD: 90, // Combat/Panic
   ADRENALINE_PERMEABILITY_MIN: 20, // "Shut Down" state
@@ -21,6 +21,10 @@ export const PHYSICS_CONFIG = {
   FOG_RESONANCE_DAMPENING: 5, // Confusion slowly erodes memory
   CALM_ENTROPY_REDUCTION: 10, // Quiet moments heal chaos
   PANIC_VELOCITY_BOOST: 15, // Fear speeds things up
+
+  // --- Gravity & Defaults ---
+  GRAVITY_BASELINE: 50, // Default state for all stats
+  GRAVITY_STRENGTH: 0.1, // 10% pull towards baseline per turn
 
   // --- Vibe Blender Coefficients (For AI Tuning) ---
   TEMP_BASE: 0.6,

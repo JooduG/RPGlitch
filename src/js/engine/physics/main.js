@@ -1,4 +1,4 @@
-import { PHYSICS_CONFIG } from "./config.js";
+import { PHYSICS_CONSTANTS } from "./config.js";
 import { log, clamp } from "../../core/utils.js";
 
 /**
@@ -23,57 +23,59 @@ export const calculateDynamics = (currentDynamics, baseline = {}) => {
   };
 
   // --- LAW 1: THE ADRENALINE SHIELD ---
-  if (d.velocity > PHYSICS_CONFIG.ADRENALINE_VELOCITY_THRESHOLD) {
-    const penalty = PHYSICS_CONFIG.ADRENALINE_PENALTY;
-    if (d.permeability > PHYSICS_CONFIG.ADRENALINE_PERMEABILITY_MIN) {
+  if (d.velocity > PHYSICS_CONSTANTS.ADRENALINE_VELOCITY_THRESHOLD) {
+    const penalty = PHYSICS_CONSTANTS.ADRENALINE_PENALTY;
+    if (d.permeability > PHYSICS_CONSTANTS.ADRENALINE_PERMEABILITY_MIN) {
       d.permeability = clamp(d.permeability - penalty);
       log(`[PHYSICS] Adrenaline Shield: Permeability -${penalty}`);
     }
   }
 
   // --- LAW 2: THE FOG OF WAR ---
-  if (d.entropy > PHYSICS_CONFIG.FOG_ENTROPY_THRESHOLD) {
-    d.resonance = clamp(d.resonance - PHYSICS_CONFIG.FOG_RESONANCE_DAMPENING);
+  if (d.entropy > PHYSICS_CONSTANTS.FOG_ENTROPY_THRESHOLD) {
+    d.resonance = clamp(
+      d.resonance - PHYSICS_CONSTANTS.FOG_RESONANCE_DAMPENING,
+    );
     flags.fogOfWar = true;
     log("[PHYSICS] Fog of War: Resonance dampened.");
   }
 
   // --- LAW 3: THE COOL-DOWN ---
-  if (d.velocity < PHYSICS_CONFIG.CALM_VELOCITY_THRESHOLD) {
-    d.entropy = clamp(d.entropy - PHYSICS_CONFIG.CALM_ENTROPY_REDUCTION);
+  if (d.velocity < PHYSICS_CONSTANTS.CALM_VELOCITY_THRESHOLD) {
+    d.entropy = clamp(d.entropy - PHYSICS_CONSTANTS.CALM_ENTROPY_REDUCTION);
     log("[PHYSICS] Cool-Down: Entropy reduced.");
   }
 
   // --- LAW 4: THE PANIC SPIRAL ---
-  if (d.entropy > PHYSICS_CONFIG.PANIC_ENTROPY_THRESHOLD) {
-    d.velocity = clamp(d.velocity + PHYSICS_CONFIG.PANIC_VELOCITY_BOOST);
+  if (d.entropy > PHYSICS_CONSTANTS.PANIC_ENTROPY_THRESHOLD) {
+    d.velocity = clamp(d.velocity + PHYSICS_CONSTANTS.PANIC_VELOCITY_BOOST);
     flags.panicSpiral = true;
     log("[PHYSICS] Panic Spiral: Velocity forced up.");
   }
 
   // --- LAW 5: THE ECHO CHAMBER ---
   if (
-    d.resonance > PHYSICS_CONFIG.ECHO_RESONANCE_THRESHOLD &&
-    d.entropy < PHYSICS_CONFIG.ECHO_ENTROPY_MAX
+    d.resonance > PHYSICS_CONSTANTS.ECHO_RESONANCE_THRESHOLD &&
+    d.entropy < PHYSICS_CONSTANTS.ECHO_ENTROPY_MAX
   ) {
     flags.echoChamber = true;
   }
 
   // --- LAW 6: THE GLASS CANNON ---
-  if (d.permeability > PHYSICS_CONFIG.GLASS_PERMEABILITY_THRESHOLD) {
+  if (d.permeability > PHYSICS_CONSTANTS.GLASS_PERMEABILITY_THRESHOLD) {
     flags.glassCannon = true;
   }
 
-  // --- LAW 7: RELATIVE GRAVITY (New) ---
+  // --- LAW 7: RELATIVE GRAVITY ---
   const keys = ["entropy", "velocity", "permeability", "resonance"];
-  const GRAVITY_FACTOR = 0.1; // 10% pull per turn
+  const GRAVITY_FACTOR = PHYSICS_CONSTANTS.GRAVITY_STRENGTH;
 
   keys.forEach((key) => {
-    // If entity has a custom baseline (e.g. Orions Velocity: 70), use it. Else 50.
+    // If entity has a custom baseline (e.g. Orions Velocity: 70), use it. Else default (50).
     const target =
       typeof baseline[key] === "number"
         ? baseline[key]
-        : PHYSICS_CONFIG.GRAVITY_BASELINE || 50;
+        : PHYSICS_CONSTANTS.GRAVITY_BASELINE;
 
     const current = d[key];
     const diff = target - current;

@@ -14,8 +14,6 @@ import { error } from "../../core/utils.js";
 
 // --- STATE HYDRATION ---
 
-// --- STATE HYDRATION ---
-
 const hydrateState = async (storyId) => {
   const [settings, story, messages] = await Promise.all([
     db.settings.get("app-settings"),
@@ -133,13 +131,16 @@ const handleStartUpdate = async ({ storyId, targetType, linkedMessageId }) => {
     };
     const promptPayload = await builder.buildUpdater(targetType, null);
 
+    // Calculate baseline physics (Gravity, Decay) as fallback
+    const fallbackDynamics = calculateDynamics(oldDynamics);
+
     pendingContext = {
       storyId,
       targetType,
       targetEntityId: entity.id,
       linkedMessageId,
       oldDynamics,
-      fallbackDynamics: calculateDynamics(oldDynamics),
+      fallbackDynamics,
       entityName: entity.name,
       entityType: entity.type,
     };
@@ -177,11 +178,14 @@ const handleLlmResponse = async ({ text }) => {
     }
 
     const aiD = updates.dynamics || {};
+
+    // Merge AI updates with Physics Baseline (Gravity/Decay already applied in fallbackDynamics)
     const finalDynamics = {
       entropy: aiD.entropy ?? ctx.fallbackDynamics.entropy,
       permeability: aiD.permeability ?? ctx.fallbackDynamics.permeability,
       velocity: aiD.velocity ?? ctx.fallbackDynamics.velocity,
       resonance: aiD.resonance ?? ctx.fallbackDynamics.resonance,
+      _flags: aiD._flags || ctx.fallbackDynamics._flags, // Preserve flags
     };
 
     await db.messages.add({
