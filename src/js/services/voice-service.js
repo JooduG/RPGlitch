@@ -136,7 +136,6 @@ export class VoiceService {
     if (this.callMode) {
       if (!this.isSpeaking && !this.isListening) this.listen();
     } else {
-      // FIX: Auto-stop listening when Call Mode is disabled to unlock UI
       if (this.isListening) this.stopListening();
     }
   }
