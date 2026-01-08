@@ -157,26 +157,44 @@ const App = {
   },
 
   async waitForConfig(timeout = 5000) {
-    // Proactively initialize to prevent early "undefined" warnings from services
-    window.rpgLists = window.rpgLists || {};
-
     const start = Date.now();
-    // Wait for window.rpgLists to populated with actual data (keys)
-    // The left panel should inject it.
-    while (
-      Object.keys(window.rpgLists).length === 0 &&
-      Date.now() - start < timeout
-    ) {
+    log("[RPGlitch] 📡 Scanning for Left Panel Configuration...");
+
+    // BRIDGE REPAIR: Do NOT shim window.rpgLists immediately.
+    // Wait for the external script (Left Panel) to define it.
+    while (Date.now() - start < timeout) {
+      // 1. Check Local Scope
+      if (typeof window.rpgLists !== "undefined") {
+        break;
+      }
+
+      // 2. Check Parent Scope (Iframe Bridge)
+      // Sometimes Perchance defines variables in the parent window depending on context.
+      try {
+        if (window.parent && typeof window.parent.rpgLists !== "undefined") {
+          log("[RPGlitch] 🌉 Bridge established via window.parent.");
+          window.rpgLists = window.parent.rpgLists;
+          break;
+        }
+      } catch (e) {
+        // Cross-origin issues are expected in some envs, ignore.
+      }
+
       await new Promise((r) => setTimeout(r, 100));
     }
 
+    // Safety Net: Now we shim it to ensure the app doesn't crash if config is missing.
+    window.rpgLists = window.rpgLists || {};
+
     if (Object.keys(window.rpgLists).length > 0) {
       log(
-        "[RPGlitch] Config loaded successfully:",
+        "[RPGlitch] 🟢 Config loaded successfully:",
         Object.keys(window.rpgLists),
       );
     } else {
-      console.warn("[RPGlitch] ⚠️ Config timeout. Using internal defaults.");
+      console.warn(
+        "[RPGlitch] 🟡 Config timeout or empty. Defaulting to safe mode (Internal Lists).",
+      );
     }
   },
 
@@ -206,13 +224,14 @@ const App = {
       if (isLocal) {
         mockPlugins();
         // Skip wait for config if local to avoid artificial delay
-        window.rpgLists = window.rpgLists || {};
+        // BUT: We still want to allow a local index.html to inject it if present.
+        // window.rpgLists = window.rpgLists || {}; // Removed to allow waitForConfig to check properly
       } else {
         await App.waitForPlugins(["pluginAi", "pluginTextToImage"]);
       }
 
       App.setupPlugins();
-      await App.waitForConfig(isLocal ? 100 : 2000);
+      await App.waitForConfig(isLocal ? 500 : 3000); // Give local a small window too
       await db.open();
 
       // Always run the seeder to replenish deleted factory items
