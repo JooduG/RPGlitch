@@ -583,9 +583,15 @@ export const TurnManager = {
               .filter((i) => i >= 0 && i < currentActive.length)
               .sort((a, b) => b - a);
 
+            // [DEBUG] Capture resolved strings for UI
+            data.plot.resolved_debug = [];
+
             indicesToRemove.forEach((idx) => {
               const removed = currentActive.splice(idx, 1)[0];
-              if (removed) currentResolved.unshift(removed);
+              if (removed) {
+                currentResolved.unshift(removed);
+                data.plot.resolved_debug.push(removed);
+              }
             });
           }
 
@@ -619,6 +625,25 @@ export const TurnManager = {
             }),
           );
         }
+
+        // [LOG] Inject Pulse into Chat (Visible only in Dev Mode)
+
+        // [CONTEXT] Add entity name for UI display
+        data.entity = aiEntity.name || "Unknown Entity";
+
+        await db.messages.add({
+          storyId,
+          role: "system",
+          type: "DEBUG",
+          text: JSON.stringify(data, null, 2),
+          characterName: "System",
+          createdAt: Date.now(),
+          metadata: { debugType: "PULSE HEARTBEAT" },
+        });
+
+        events.dispatchEvent(
+          new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
+        );
       }
     } catch (e) {
       error("Pulse Error", e);

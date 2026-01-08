@@ -90,13 +90,47 @@ export const renderMessage = (
   const div = document.createElement("div");
 
   if (type === "DEBUG") {
-    div.className = "debug-card developer-content";
-    const cleanDebugText = (text || "").replace(
-      /\[STATUS_HUD\][\s\S]*?\[\/STATUS_HUD\]/g,
-      "",
-    );
-    div.innerHTML = `<div class="debug-content">${sanitizeHtml(cleanDebugText.trim())}</div>`;
-    container.appendChild(div);
+    const details = document.createElement("details");
+    details.className = "debug-card developer-content";
+    const debugTitle = options.metadata?.debugType || "DEBUG INFO";
+
+    if (debugTitle === "PULSE HEARTBEAT") {
+      details.classList.add("debug-card--pulse");
+    }
+
+    details.open = true; // [USER REQUEST] Expanded by default
+
+    let contentHtml = sanitizeHtml((text || "").trim());
+
+    // [POLISH] Rich Pulse Heartbeat
+    if (debugTitle === "PULSE HEARTBEAT") {
+      try {
+        const data = JSON.parse(text);
+        // Helper to render state (string or object)
+        const renderState = (val) => {
+          if (typeof val === "string") return sanitizeHtml(val);
+          if (typeof val === "object" && val !== null) {
+            return Object.entries(val)
+              .map(
+                ([k, v]) =>
+                  `<div style="margin-top:0.25rem"><strong style="opacity:0.8">${sanitizeHtml(k)}:</strong> ${sanitizeHtml(v)}</div>`,
+              )
+              .join("");
+          }
+          return "";
+        };
+
+        contentHtml = `<div class="director-grid">${data.entity ? `<div class="director-row" style="border-left: 2px solid #a78bfa;"><div class="director-label" style="color:#a78bfa;">Target Entity</div><div class="director-value" style="font-weight:bold; color:#a78bfa;">${sanitizeHtml(data.entity)}</div></div>` : ""}${data.log_entry ? `<div class="director-row"><div class="director-label">Log Entry</div><div class="director-value">${sanitizeHtml(data.log_entry)}</div></div>` : ""}${data.dynamics ? `<div class="director-row"><div class="director-label">Dynamics</div><div class="director-value" style="display:flex; gap:1rem; flex-wrap:wrap;"><span>Entropy: ${data.dynamics.entropy}</span><span>Velocity: ${data.dynamics.velocity}</span><span>Resonance: ${data.dynamics.resonance}</span><span>Permeability: ${data.dynamics.permeability}</span></div></div>` : ""}${data.state?.physical ? `<div class="director-row"><div class="director-label">Physical</div><div class="director-value">${renderState(data.state.physical)}</div></div>` : ""}${data.state?.mental ? `<div class="director-row"><div class="director-label">Mental</div><div class="director-value">${renderState(data.state.mental)}</div></div>` : ""}${data.plot?.new_threads && data.plot.new_threads.length > 0 ? `<div class="director-row"><div class="director-label">New Threads</div><div class="director-value">${data.plot.new_threads.map((t) => `<div>• ${sanitizeHtml(t)}</div>`).join("")}</div></div>` : ""}${data.plot?.resolved_debug && data.plot.resolved_debug.length > 0 ? `<div class="director-row"><div class="director-label" style="color:#f87171;">Resolved</div><div class="director-value" style="color:#f87171; text-decoration: line-through; opacity: 0.8;">${data.plot.resolved_debug.map((t) => `<div>• ${sanitizeHtml(t)}</div>`).join("")}</div></div>` : ""}</div>`;
+      } catch (e) {
+        // Fallback to raw if parse fails
+      }
+    }
+
+    details.innerHTML = `
+      <summary class="debug-header">${debugTitle}</summary>
+      <div class="debug-content">${contentHtml}</div>
+    `;
+    container.appendChild(details);
     return;
   }
 
@@ -186,21 +220,13 @@ export const renderMessage = (
 
     if (Object.keys(debugMeta).length > 0) {
       const jsonStr = JSON.stringify(debugMeta, null, 2);
-      debugHtml += `<div class="debug-card developer-content"><div class="debug-header">METADATA</div><div class="debug-content">${jsonStr.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div></div>`;
+      debugHtml += `<details class="debug-card developer-content"><summary class="debug-header">DEBUG METADATA</summary><div class="debug-content">${jsonStr.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div></details>`;
     }
 
     if (role === "ai") {
-      const hudMatch = cleanText.match(
-        /\[STATUS_HUD\]([\s\S]*?)\[\/STATUS_HUD\]/,
-      );
-      if (hudMatch) {
-        debugHtml += `<div class="debug-card developer-content"><div class="debug-header">AI INTENT</div><div class="debug-content">${sanitizeHtml(hudMatch[1].trim())}</div></div>`;
-        cleanText = cleanText.replace(hudMatch[0], "");
-      }
-
       const jsonMatch = cleanText.match(/\{[\s\S]*?"dynamics"[\s\S]*?\}/);
       if (jsonMatch) {
-        debugHtml += `<div class="debug-card debug-card--hud developer-content"><div class="debug-header">STATE DATA</div><div class="debug-content">${sanitizeHtml(jsonMatch[0].trim())}</div></div>`;
+        debugHtml += `<details class="debug-card debug-card--hud developer-content"><summary class="debug-header">STATE DATA</summary><div class="debug-content">${sanitizeHtml(jsonMatch[0].trim())}</div></details>`;
         cleanText = cleanText.replace(jsonMatch[0], "");
       }
 
@@ -208,15 +234,6 @@ export const renderMessage = (
         .replace(/<(?:image_prompt|image)(.*?)>/g, "{{IMGPROMPT$1}}")
         .replace(/<\/(?:image_prompt|image)>/g, "{{/IMGPROMPT}}");
 
-      const physMatches = cleanText.match(
-        /<[a-zA-Z0-9]+\.[a-zA-Z0-9]+>.*?(?:\n|$)/g,
-      );
-      if (physMatches) {
-        physMatches.forEach((match) => {
-          debugHtml += `<div class="debug-card developer-content"><div class="debug-content"><strong>[PHYSIOLOGY]</strong>\n${sanitizeHtml(match.trim())}</div></div>`;
-          cleanText = cleanText.replace(match, "");
-        });
-      }
       cleanText = cleanText.trim();
     }
 
@@ -254,30 +271,7 @@ export const renderMessage = (
           const safeRaw = sanitizeHtml(rawPrompt);
           const safeRefined = refined ? sanitizeHtml(refined) : null;
 
-          return `
-        <div class="debug-card debug-card--prompt developer-content">
-          <div class="debug-header">
-            <span>Visual Director</span>
-            <span style="font-weight:normal; opacity:0.7">Target: ${target}</span>
-          </div>
-          <div class="debug-content">
-            <div class="director-grid">
-              <div class="director-row">
-                <div class="director-label">Intent</div>
-                <div class="director-value">${safeRaw}</div>
-              </div>
-              ${
-                safeRefined
-                  ? `
-              <div class="director-row">
-                <div class="director-label">Refined</div>
-                <div class="director-value">${safeRefined}</div>
-              </div>`
-                  : ""
-              }
-            </div>
-          </div>
-        </div>`;
+          return `<details class="debug-card debug-card--visuals developer-content" open><summary class="debug-header"><span>Visual Director</span><span style="font-weight:normal; opacity:0.7">Target: ${target}</span></summary><div class="debug-content"><div class="director-grid"><div class="director-row"><div class="director-label">Intent</div><div class="director-value">${safeRaw}</div></div>${safeRefined ? `<div class="director-row"><div class="director-label">Refined</div><div class="director-value">${safeRefined}</div></div>` : ""}</div></div></details>`;
         },
       )
       .replace(/\{\{\/IMGPROMPT\}\}/g, "");
@@ -285,7 +279,7 @@ export const renderMessage = (
     formattedMain = formattedMain.replace(/(!NOTE|Note:|Important:)\s*/g, "");
 
     const contentHtml = thoughtContent
-      ? `<div class="debug-card debug-card--thought developer-content"><div class="debug-header">AI REASONING</div><div class="debug-content">${formattedThought}</div></div><div class="message-content">${formattedMain}</div>`
+      ? `<details class="debug-card debug-card--thought developer-content" open><summary class="debug-header">AI REASONING</summary><div class="debug-content">${formattedThought}</div></details><div class="message-content">${formattedMain}</div>`
       : formattedMain;
 
     div.innerHTML = contentHtml + timeHtml + statusHtml + debugHtml;

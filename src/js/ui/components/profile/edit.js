@@ -41,21 +41,6 @@ const getNestedValue = (obj, path) =>
   path.split(".").reduce((acc, part) => acc && acc[part], obj) || "";
 
 // Helper: Magic Button Label (Standardized Label)
-const renderLabelWithMagic = (label, fieldKey) => {
-  const wrapper = document.createElement("div");
-  wrapper.className =
-    "flex justify-between items-center mb-1 label-magic-wrapper";
-  wrapper.style.display = "flex";
-  wrapper.style.justifyContent = "space-between";
-  wrapper.style.width = "100%";
-
-  const span = document.createElement("span");
-  span.className = "main-label";
-  span.textContent = label;
-
-  wrapper.appendChild(span);
-  return wrapper;
-};
 
 // [NEW] Helper: Wrap Input with Magic Overlay
 const wrapInputWithMagic = (inputEl, fieldKey, entityType) => {

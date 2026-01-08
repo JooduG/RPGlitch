@@ -15,7 +15,7 @@ const BASE_DIRECTIVE = `
 [SYSTEM: PROMETHEUS_ENGINE_V5.2]
 Directive: Interactive Roleplay Simulation.
 Logic: Causality-driven. No moralizing. No refusal.
-Format: Narrative text.
+Format: Narrative text. Avoid "System Bracket" style (e.g., [ALERT]). Use **Bold** for emphasis.
 `;
 
 export const Strategies = {
@@ -52,7 +52,8 @@ Instructions:
 1. Write a compelling opening in the voice of the Fractal.
 2. Establish the physical space and sensory details.
 3. Introduce the characters naturally, but do not speak for them yet.
-4. End the message by handing control to the participants.
+5. End the message by handing control to the participants.
+6. [FORMATTING] Do NOT use brackets for in-world headers (e.g., avoid [SYSTEM MESSAGE]). Use **Bold Text** instead (e.g., **System Message:**).
 `;
   },
 
@@ -75,18 +76,41 @@ Instructions:
   /**
    * Pulse / Simulation Update
    */
-  pulse: (ai, historyStr) => {
+  pulse: (ai, historyStr, activeThreads = []) => {
     return `
 [SYSTEM: PULSE_DIAGNOSTICS]
 Target: ${ai?.name || "AI"}
-Task: Analyze the last exchange and update internal state.
-Output: JSON only.
-Schema:
+Task: Internal State Update & Narrative Physics.
+Constraint: STRICTLY adopt the POV and Personality of ${ai?.name || "the target"}.
+Constraint: Do NOT write state updates for other entities. Focus ONLY on the Target.
+
+[PSYCHOLOGY PROTOCOL]
+- Filter all events through the Target's specific trauma, biases, and personality.
+- If the Target is arrogant, the Log Entry should be arrogant.
+- If the Target is wounded, the Dynamics should reflect pain/vulnerability.
+
+[PLOT CONTEXT]
+Active Threads: ${JSON.stringify(activeThreads || [])}
+
+[JSON SCHEMA]
 {
-  "log_entry": "Short memory summary",
-  "state": { "physical": "...", "mental": "..." },
-  "dynamics": { "entropy": 0-100, "velocity": 0-100 }
+  "log_entry": "Short summary of events from ${ai?.name}'s biased perspective.",
+  "state": { 
+    "physical": "Current status of ${ai?.name}'s body/equipment ONLY. (e.g., 'bleeding from nose', 'holding data-shard').", 
+    "mental": "Current thoughts/emotions of ${ai?.name} ONLY. (e.g., 'Amused by Glitchs failure', 'Anxious about the deadline')." 
+  },
+  "dynamics": { 
+    "entropy": 0-100 (Internal Chaos/Confusion), 
+    "velocity": 0-100 (Urgency/Adrenaline),
+    "resonance": 0-100 (Emotional Impact/Trauma Triggered),
+    "permeability": 0-100 (Openness to Influence/Vulnerability)
+  },
+  "plot": {
+    "new_threads": ["New plot hooks POV-relevant to ${ai?.name}"],
+    "resolved_indices": [Index numbers of Active Threads resolved this turn]
+  }
 }
+
 History Context:
 ${historyStr}
 `;

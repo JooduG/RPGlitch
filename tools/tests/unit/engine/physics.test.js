@@ -262,15 +262,18 @@ describe("ContextBuilder (Physics Injection)", () => {
 
     // Check that history is represented (though specific format depends on implementation)
     // In our case it's joined in historyStr and passed to Strategies.pulse
-    expect(payload.system).toContain("user: HI");
+    expect(payload.system).toContain("[user]: HI");
   });
 
   test("buildPulse output schema check", async () => {
-    const mockEntity = { dynamics: {} };
+    const mockEntity = { name: "AI", dynamics: {} };
     const payload = await builder.buildPulse(mockEntity, []);
 
-    expect(payload.system).toContain("Output: JSON only.");
-    expect(payload.system).toContain('"log_entry": "Short memory summary"');
+    // Updated for V5.2 Schema
+    expect(payload.system).toContain("[JSON SCHEMA]");
+    expect(payload.system).toContain(
+      '"log_entry": "Short summary of events from AI\'s biased perspective."',
+    );
     expect(payload.system).toContain('"entropy": 0-100');
   });
 });

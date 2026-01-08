@@ -7,5 +7,5 @@
 self.onmessage = async (e) => {
   // Logic cleared to prevent Split-Brain state.
   // The Director now handles the Pulse directly.
-  console.log("[WORKER] Worker is idle. Physics handled by Main Thread.");
+  // console.log("[WORKER] Worker is idle. Physics handled by Main Thread.");
 };

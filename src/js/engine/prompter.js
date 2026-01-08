@@ -3,133 +3,133 @@ import { entities } from "../data/repo.js";
 import { ROLES } from "../core/constants.js";
 import { Strategies } from "./strategies.js";
 
+// --- CONTEXT BUILDER ---
+
 export class ContextBuilder {
   constructor(storyId) {
     this.storyId = storyId;
-    // Handle null storyId for non-story generation tasks (Profile Gen)
     this.story = storyId ? state.story.byId[storyId] : null;
   }
 
-  async _getEntities() {
-    // 1. Try DB Fetch
-    let ai = await entities.get("character", this.story?.aiId);
-    let user = await entities.get("character", this.story?.userId);
-    let fractal = await entities.get(ROLES.FRACTAL, this.story?.fractalId);
+  /**
+   * Builds the standard roleplay prompt.
+   * Fetches AI, User, Fractal entities + Message History.
+   */
+  async build(instruction, options = {}) {
+    if (!this.story) throw new Error("No active story for ContextBuilder");
 
-    // 2. Try Snapshot Fallback
-    const snapshot = this.story?.snapshots?.start || {};
+    const [ai, user, fractal] = await Promise.all([
+      entities.get("character", this.story.aiId),
+      entities.get("character", this.story.userId),
+      entities.get(ROLES.FRACTAL, this.story.fractalId),
+    ]);
 
-    // 3. Robust Fallbacks (Prevents "Character: undefined" in prompt)
-    if (!ai)
-      ai = snapshot.ai || {
-        name: "The AI",
-        description: "An interactive character.",
-      };
-    if (!user)
-      user = snapshot.user || {
-        name: "The User",
-        description: "The protagonist.",
-      };
-    if (!fractal)
-      fractal = snapshot.fractal || {
-        name: "The System",
-        description: "The world engine.",
-      };
+    const messages = state.messages.byStoryId[this.storyId] || [];
 
-    return { ai, user, fractal };
-  }
+    // Map to LLM format
+    const llmMessages = messages.map((m) => ({
+      role: m.role === ROLES.USER ? "user" : "model",
+      content: m.text,
+    }));
 
-  async build(userText = "", options = {}) {
-    const { ai, user, fractal } = await this._getEntities();
-    const msgs = state.messages.byStoryId[this.storyId] || [];
+    // If user is currently typing (instruction), append it?
+    // Actually normally 'instruction' here comes from user input if not saved yet,
+    // but Director usually saves it first.
+    // If instruction is passed, we append it as user message?
+    // Director.js usage: `builder.build(text, options)`
+    // If text is provided, push it?
+    if (instruction) {
+      llmMessages.push({
+        role: "user",
+        content: instruction,
+      });
+    }
 
-    let system = Strategies.standard(
+    const system = Strategies.standard(
       ai,
       user,
       fractal,
       options.varianceInstruction,
     );
 
-    const messages = msgs.map((m) => ({
-      role: m.role,
-      content: m.text,
-    }));
-
     return {
       system,
-      messages,
-      userText,
+      messages: llmMessages,
     };
   }
 
+  /**
+   * Builds the Prologue prompt.
+   */
   async buildPrologue() {
-    const { fractal } = await this._getEntities();
-    const context = this.story?.summary || "A new encounter.";
+    if (!this.story) throw new Error("No active story");
+    const fractal = await entities.get(ROLES.FRACTAL, this.story.fractalId);
+    if (!fractal) return null;
+
+    // Prologue uses a summary or initial context?
+    // Strategies.prologue takes (fractal, context)
+    // We can pass the story title or premise if available?
+    // For now, pass empty context or story title.
+    const context = this.story.storyTitle || "A new journey begins.";
+
     const system = Strategies.prologue(fractal, context);
     return { system, messages: [] };
   }
 
+  /**
+   * Builds the Epilogue prompt.
+   */
   async buildEpilogue() {
-    const { fractal } = await this._getEntities();
-    const msgs = state.messages.byStoryId[this.storyId] || [];
+    if (!this.story) throw new Error("No active story");
+    const fractal = await entities.get(ROLES.FRACTAL, this.story.fractalId);
     const system = Strategies.epilogue(fractal);
-
-    // Include recent context
-    const contextMsgs = msgs
-      .slice(-10)
-      .map((m) => ({ role: m.role, content: m.text }));
-    return { system, messages: contextMsgs };
-  }
-
-  async buildPulse(ai, history, activeThreads) {
-    const historyStr = history.map((m) => `${m.role}: ${m.text}`).join("\n");
-    const safeAi = ai || { name: "AI" };
-    const system = Strategies.pulse(safeAi, historyStr);
     return { system, messages: [] };
   }
 
-  async buildGhostwriter(draft) {
-    return {
-      system: `[ROLE: GHOSTWRITER]\nRefine this text to be more evocative:\n"${draft}"`,
-      messages: [],
-    };
+  /**
+   * Builds the Pulse (Heartbeat) prompt.
+   */
+  async buildPulse(aiEntity, historyMessages, activeThreads) {
+    // Convert history messages array to string block
+    const historyText = historyMessages
+      .map((m) => `[${m.role}]: ${m.text}`)
+      .join("\n");
+
+    const system = Strategies.pulse(aiEntity, historyText, activeThreads);
+    return { system, messages: [] };
   }
 
+  /**
+   * Builds a Visualizer prompt.
+   */
   async buildVisualizer(targetType) {
-    return {
-      system: Strategies.visualizer(targetType, ""),
-      messages: [],
-    };
-  }
-
-  async buildProfileGenerator(characterDescription) {
-    const system = Strategies.profileGenerator(characterDescription);
+    // Visualizer needs the last few messages to understand context?
+    // Strategies.visualizer takes (targetType, rawIntent)
+    // Here we are likely just returning the system prompt wrapper.
+    // The "rawIntent" is usually appended by the Director.
+    const system = Strategies.visualizer(targetType, "");
     return { system, messages: [] };
   }
 
-  async buildProfileEnhancer(currentPrompt, entity, paletteColor) {
-    const gender = (entity.gender || "unknown").toLowerCase();
-    const identity = `${entity.name || "Unknown"} (${entity.type || "entity"})`;
-    // Format color: "dark_blue" -> "Dark Blue"
-    const color = (paletteColor || "default")
-      .split("_")
-      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(" ");
+  /**
+   * Builds Profile Generation prompts.
+   */
+  buildProfileGenerator(description) {
+    const system = Strategies.profileGenerator(description);
+    return { system, messages: [] };
+  }
 
-    const system = Strategies.profileEnhancer(currentPrompt, {
-      gender,
-      identity,
+  async buildProfileEnhancer(prompt, entity, color) {
+    const system = Strategies.profileEnhancer(prompt, {
+      gender: (entity.gender || "unknown").toLowerCase(),
+      identity: `${entity.name || "Unknown"} (${entity.type || "entity"})`,
       color,
     });
     return { system, messages: [] };
   }
 
-  async buildLibrarian(targetField, currentContent, contextData) {
-    const system = Strategies.librarian(
-      targetField,
-      currentContent,
-      contextData,
-    );
+  buildLibrarian(field, content, context) {
+    const system = Strategies.librarian(field, content, context);
     return { system, messages: [] };
   }
 }

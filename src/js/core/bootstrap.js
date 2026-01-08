@@ -1,4 +1,4 @@
-// apps/rpglitch/js/index.js
+// src/js/core/bootstrap.js
 import { seedPremades } from "../data/repo.js";
 import { initViews } from "../ui/orchestrator.js";
 import { db } from "./db.js";
@@ -198,8 +198,6 @@ const App = {
     }
   },
 
-  // mockPlugins moved to core-utils.js
-
   async initializeApp() {
     const modal = document.querySelector("#boot-skeleton");
 
@@ -223,15 +221,13 @@ const App = {
 
       if (isLocal) {
         mockPlugins();
-        // Skip wait for config if local to avoid artificial delay
-        // BUT: We still want to allow a local index.html to inject it if present.
-        // window.rpgLists = window.rpgLists || {}; // Removed to allow waitForConfig to check properly
       } else {
         await App.waitForPlugins(["pluginAi", "pluginTextToImage"]);
       }
 
       App.setupPlugins();
-      await App.waitForConfig(isLocal ? 500 : 3000); // Give local a small window too
+      // Increased timeout slightly to account for Perchance script loading lag
+      await App.waitForConfig(isLocal ? 500 : 4000);
       await db.open();
 
       // Always run the seeder to replenish deleted factory items
@@ -245,8 +241,6 @@ const App = {
 
       // Auto-recovery for schema conflicts
       if (e.message && e.message.includes("changing primary key")) {
-        // alert("Database schema conflict detected. Resetting database..."); // Optional: silent execution preferred for UX?
-        // Let's be transparent but quick.
         console.warn(
           "[RPGlitch] Nuke protocol initiated due to schema conflict.",
         );
@@ -277,8 +271,6 @@ const App = {
 };
 
 // --- EXPOSE APP TO WINDOW ---
-// This ensures tests and debuggers can see the App object
-// even after esbuild bundles it into an IIFE.
 window.App = App;
 
 App.initializeWhenReady = async function () {

@@ -72,7 +72,7 @@ Target confirmed.
     expect(bubble).not.toBeNull();
 
     // Check if the debug block is present (now .debug-card--prompt)
-    const debugBlock = bubble.querySelector(".debug-card--prompt");
+    const debugBlock = bubble.querySelector(".debug-card--visuals");
     expect(debugBlock).not.toBeNull();
     expect(debugBlock.classList.contains("developer-content")).toBe(true);
 
@@ -103,7 +103,7 @@ Target confirmed.
       { messageId: "msg-2" },
     );
 
-    const debugBlock = container.querySelector(".debug-card--prompt");
+    const debugBlock = container.querySelector(".debug-card--visuals");
     expect(debugBlock).not.toBeNull();
 
     const values = Array.from(
