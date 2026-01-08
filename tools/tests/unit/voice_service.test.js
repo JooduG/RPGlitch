@@ -33,10 +33,6 @@ describe('VoiceService', () => {
     mockRecognition = {
       start: jest.fn(),
       stop: jest.fn(),
-      continuous: false,
-      lang: 'en-US',
-      interimResults: true,
-      maxAlternatives: 1,
       onend: null, // Allow service to set this
     };
     const MockSpeechRecognition = jest.fn(() => mockRecognition);
