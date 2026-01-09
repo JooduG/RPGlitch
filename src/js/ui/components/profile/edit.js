@@ -1119,6 +1119,12 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
       signatureColour: escapeHtml(paletteSelect.value.trim()),
       visuals: localVisuals,
       voiceId: form.querySelector('[data-edit-field="voiceId"]')?.value, // [FIX] Persist Voice
+      voiceRate: parseFloat(
+        form.querySelector('[data-edit-field="voiceRate"]')?.value || "1.0",
+      ),
+      voicePitch: parseFloat(
+        form.querySelector('[data-edit-field="voicePitch"]')?.value || "1.0",
+      ),
       customData: {
         ...entity.customData,
         plot: plotData,

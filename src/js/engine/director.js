@@ -80,7 +80,12 @@ const parseAiResponse = (response) => {
 
     // Re-inject for UI display
     visualPrompts.forEach((vp) => {
-      text += `\n\n<image_prompt target="${vp.target}" aspect="${vp.aspect}">${vp.prompt}</image_prompt>`;
+      // [CLEANUP] Ensure the display prompt doesn't have leaked tags
+      const displayPrompt = vp.prompt
+        .replace(/<think>[\s\S]*?<\/think>/gi, "")
+        .replace(/<image_prompt[^>]*>|<\/image_prompt>/gi, "")
+        .trim();
+      text += `\n\n<image_prompt target="${vp.target}" aspect="${vp.aspect}">${displayPrompt}</image_prompt>`;
     });
   }
 
@@ -200,14 +205,17 @@ export const TurnManager = {
 
   // --- THE CORE PIPELINE ---
 
-  _handleVisuals: async (storyId, visualPrompt, targetType) => {
+  _handleVisuals: async (storyId, visualPrompt, targetType, options = {}) => {
     const story = state.story.byId[storyId];
     let targetRole = ROLES.AI;
     let targetId = story.aiId;
 
-    if (targetType === ROLES.FRACTAL) {
+    if (targetType === ROLES.FRACTAL || targetType === "scene") {
       targetRole = ROLES.FRACTAL;
       targetId = story.fractalId;
+    } else if (targetType === ROLES.USER) {
+      targetRole = ROLES.USER;
+      targetId = story.userId;
     }
 
     events.dispatchEvent(
@@ -218,9 +226,8 @@ export const TurnManager = {
 
     try {
       const builder = new ContextBuilder(storyId);
-      let vTarget = "character";
-      if (targetType === ROLES.FRACTAL || targetType === "scene")
-        vTarget = "scene";
+      let vTarget = targetType || "character";
+      if (targetType === ROLES.FRACTAL) vTarget = "scene";
 
       const vPayload = await builder.buildVisualizer(vTarget);
       vPayload.system += `\n<RAW_INTENT>\n${visualPrompt}\n</RAW_INTENT>`;
@@ -230,14 +237,28 @@ export const TurnManager = {
         temperature: PHYSICS_CONSTANTS.VISUAL_TEMP_DEFAULT,
       });
 
-      const imageUrl = await VisualManager.generate(refinedPrompt, {
-        resolution: IMG_RESOLUTION,
+      // [FEATURE] Extract Optics Thoughts for UI
+      const thinkMatch = refinedPrompt.match(/<think>([\s\S]*?)<\/think>/i);
+      const opticsThoughts = thinkMatch ? thinkMatch[1].trim() : null;
+
+      // [HARDEN] Strip any leaked Narrative tags from the Refined Prompt
+      const cleanRefinedPrompt = refinedPrompt
+        .replace(/<think>[\s\S]*?<\/think>/gi, "")
+        .replace(/<image_prompt[^>]*>|<\/image_prompt>/gi, "")
+        .trim();
+
+      const resolution = VisualManager.getResolutionForMode(
+        options.aspect || vTarget,
+      );
+
+      const imageUrl = await VisualManager.generate(cleanRefinedPrompt, {
+        resolution,
       });
 
-      return { imageUrl, refinedPrompt };
+      return { imageUrl, refinedPrompt: cleanRefinedPrompt, opticsThoughts };
     } catch (visErr) {
       error("[PROMETHEUS] Auto-Visual Failed:", visErr);
-      return { imageUrl: null, refinedPrompt: null };
+      return { imageUrl: null, refinedPrompt: null, opticsThoughts: null };
     } finally {
       events.dispatchEvent(
         new CustomEvent(EVENTS.TYPING_STOPPED, {
@@ -426,25 +447,33 @@ export const TurnManager = {
           let refinedPrompts = [];
 
           if (visualPrompts && visualPrompts.length > 0) {
-            log(
-              `[TurnManager] 📸 Multi-Shot Triggered: ${visualPrompts.length} images`,
+            // [RESTRICTION] Single-Shot Protocol Enforced
+            // We take the LAST prompt as it usually contains the most refined idea from the chain of thought.
+            // Or the FIRST one? Usually AI writes linear, so First might be better?
+            // Actually, if they write multiple, the last one might be "summary".
+            // Let's stick to the FIRST valid prompt to avoid "summary" images.
+            const primaryPrompt = visualPrompts[0];
+
+            log(`[TurnManager] 📸 Visual Triggered: ${primaryPrompt.target}`);
+
+            // Generate single image
+            const result = await TurnManager._handleVisuals(
+              storyId,
+              primaryPrompt.prompt,
+              primaryPrompt.target,
+              { aspect: primaryPrompt.aspect },
             );
 
-            // Generate all images in parallel
-            const visualResults = await Promise.all(
-              visualPrompts.map((vp) =>
-                TurnManager._handleVisuals(storyId, vp.prompt, vp.target, {
-                  aspect: vp.aspect,
-                }),
-              ),
-            );
-
-            imageUrls = visualResults
-              .map((r) => r.imageUrl)
-              .filter((url) => url);
-            refinedPrompts = visualResults
-              .map((r) => r.refinedPrompt)
-              .filter((p) => p);
+            if (result.imageUrl) {
+              imageUrls = [result.imageUrl];
+              refinedPrompts = [result.refinedPrompt];
+              // [FEATURE] Store thoughts for UI
+              if (result.opticsThoughts) {
+                // We'll store this as a parallel array or just a property if we enforce single-shot
+                // Since we are enforcing single-shot at line 446, let's just make it an array to be safe
+                options.opticsThoughts = [result.opticsThoughts];
+              }
+            }
           }
 
           // 5. SAVE
@@ -454,6 +483,7 @@ export const TurnManager = {
                   visualPrompts, // Store raw array
                   targetType,
                   refinedPrompts, // Store refined array
+                  opticsThoughts: options.opticsThoughts || [], // [FEATURE] Add to metadata
                 }
               : null;
 
@@ -737,7 +767,29 @@ export const TurnManager = {
       // 3. Parse JSON
       let data;
       try {
-        const jsonText = response.replace(/```json\n|```/g, "").trim();
+        let jsonText = "";
+        // [RESILIENCE] Handle String Objects / Text Plugin Wrappers
+        if (typeof response === "object" && response !== null) {
+          jsonText =
+            response.generatedText ||
+            response.text ||
+            (response.toString ? response.toString() : String(response));
+        } else {
+          jsonText = String(response);
+        }
+
+        // Extract JSON block (greedy match for outer braces)
+        const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          jsonText = jsonMatch[0];
+        } else {
+          // Fallback: strip markdown if regex failed
+          jsonText = jsonText.replace(/```json\n?|```/g, "").trim();
+        }
+
+        // [FIX] Strip explicit plus signs (e.g., "val": +15) which break JSON
+        jsonText = jsonText.replace(/:\s*\+(\d+)/g, ": $1");
+
         data = JSON.parse(jsonText);
       } catch (parseErr) {
         console.warn("[TurnManager] Pulse JSON Parse Failed:", response);
@@ -1193,9 +1245,8 @@ export const TurnManager = {
 
       const builder = new ContextBuilder(storyId);
 
-      let vTarget = "character";
-      if (targetType === ROLES.FRACTAL || targetType === "scene")
-        vTarget = "scene";
+      let vTarget = targetType || "character";
+      if (targetType === ROLES.FRACTAL) vTarget = "scene";
 
       const vPayload = await builder.buildVisualizer(vTarget);
       vPayload.system += `\n<RAW_INTENT>\n${visualPrompt}\n</RAW_INTENT>`;
@@ -1205,8 +1256,12 @@ export const TurnManager = {
         temperature: 0.3,
       });
 
+      const resolution = VisualManager.getResolutionForMode(
+        message.aspect || vTarget,
+      );
+
       const imageUrl = await VisualManager.generate(refinedPrompt, {
-        resolution: IMG_RESOLUTION,
+        resolution,
       });
 
       await db.messages.update(messageId, {

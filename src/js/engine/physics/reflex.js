@@ -45,8 +45,6 @@ export function scanReflex(text) {
 // Generates instructions based on CURRENT state levels (Laws)
 import { PHYSICS_CONSTANTS } from "./config.js";
 
-// ... scanReflex remains unchanged ...
-
 // Generates instructions based on CURRENT state levels (Laws)
 export function getReflexInstruction(dynamics) {
   if (!dynamics) return "";

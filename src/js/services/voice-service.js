@@ -98,12 +98,26 @@ export class VoiceService {
         uri: v.voiceURI,
         lang: v.lang,
         _ref: v,
-        tier: this._getScore(v.name),
+        langScore: this._getLangScore(v.lang),
+        qualityScore: this._getQualityScore(v.name),
       }))
-      .sort((a, b) => a.tier - b.tier);
+      .sort((a, b) => {
+        // Primary Sort: Language Preference
+        if (a.langScore !== b.langScore) return a.langScore - b.langScore;
+        // Secondary Sort: Voice Quality
+        return a.qualityScore - b.qualityScore;
+      });
   }
 
-  _getScore(name) {
+  _getLangScore(lang) {
+    if (!lang) return 9;
+    const l = lang.toLowerCase();
+    if (l.startsWith("en")) return 0; // English First
+    if (l.startsWith("sv")) return 1; // Swedish Second
+    return 9; // Others
+  }
+
+  _getQualityScore(name) {
     if (name.includes("Online (Natural)")) return 1;
     if (name.includes("Natural")) return 2;
     if (name.includes("Google")) return 3;
@@ -272,12 +286,18 @@ export class VoiceService {
   _getFreshVoice(uri) {
     const freshList = this.synth.getVoices();
 
-    // CIRCUIT BREAKER CHECK
-    return (
-      freshList.find((v) => v.voiceURI === uri) ||
-      freshList.find((v) => v.default) ||
-      freshList[0]
-    );
+    // 1. Exact URI Match
+    let match = freshList.find((v) => v.voiceURI === uri);
+
+    // 2. Fuzzy Name Match (Case-insensitive)
+    if (!match && uri) {
+      match = freshList.find((v) =>
+        v.name.toLowerCase().includes(uri.toLowerCase()),
+      );
+    }
+
+    // 3. Fallbacks
+    return match || freshList.find((v) => v.default) || freshList[0];
   }
 
   _speakFull(text, voiceURI, modifiers, doneCallback) {

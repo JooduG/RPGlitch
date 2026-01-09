@@ -209,7 +209,14 @@ export const renderMessage = (
     let debugHtml = "";
     let cleanText = text;
 
-    const excludedKeys = ["visualPrompt", "targetType", "refinedPrompt"];
+    const excludedKeys = [
+      "visualPrompt",
+      "targetType",
+      "refinedPrompt",
+      "visualPrompts",
+      "refinedPrompts",
+      "aspect",
+    ];
     const debugMeta = options.metadata
       ? Object.fromEntries(
           Object.entries(options.metadata).filter(
@@ -266,15 +273,66 @@ export const renderMessage = (
           // [REFINE] Rich Visual Director Card
           // If we have metadata, use it for a "Clean" display
           const meta = options.metadata || {};
-          const rawPrompt = meta.visualPrompt || content; // Fallback to content if metadata missing
-          const target = meta.targetType || "Unknown";
-          const refined = meta.refinedPrompt;
+
+          //Robust Data Extraction (Arrays vs Legacy)
+          const rawPrompt =
+            meta.visualPrompt ||
+            (meta.visualPrompts && meta.visualPrompts[0]
+              ? meta.visualPrompts[0].prompt
+              : content);
+          const target =
+            meta.targetType ||
+            (meta.visualPrompts && meta.visualPrompts[0]
+              ? meta.visualPrompts[0].target
+              : "Unknown");
+          const aspect =
+            meta.aspect ||
+            (meta.visualPrompts && meta.visualPrompts[0]
+              ? meta.visualPrompts[0].aspect
+              : "Portrait");
+          const refined =
+            meta.refinedPrompt ||
+            (meta.refinedPrompts && meta.refinedPrompts[0]
+              ? meta.refinedPrompts[0]
+              : null);
+          const thoughts =
+            meta.opticsThoughts && meta.opticsThoughts[0]
+              ? meta.opticsThoughts[0]
+              : null;
 
           // Escape for safe HTML
           const safeRaw = sanitizeHtml(rawPrompt);
           const safeRefined = refined ? sanitizeHtml(refined) : null;
+          const safeThoughts = thoughts ? sanitizeHtml(thoughts) : null;
 
-          return `<details class="debug-card debug-card--visuals developer-content" open><summary class="debug-header"><span>Visual Director</span><span style="font-weight:normal; opacity:0.7">Target: ${target}</span></summary><div class="debug-content"><div class="director-grid"><div class="director-row"><div class="director-label">Intent</div><div class="director-value">${safeRaw}</div></div>${safeRefined ? `<div class="director-row"><div class="director-label">Refined</div><div class="director-value">${safeRefined}</div></div>` : ""}</div></div></details>`;
+          return `
+          <details class="debug-card debug-card--visuals developer-content" open>
+            <summary class="debug-header">
+              <span>Visual Director (v5.6)</span>
+              <div style="display:flex; gap:1rem; opacity:0.8; font-weight:normal;">
+                <span>Target: <b>${target.toUpperCase()}</b></span>
+                <span>Aspect: <b>${aspect.toUpperCase()}</b></span>
+              </div>
+            </summary>
+            <div class="debug-content">
+              <div class="director-grid">
+                ${
+                  safeThoughts
+                    ? `
+                <div class="director-row">
+                  <div class="director-label" style="color:#f472b6;">Optics Brain</div>
+                  <div class="director-value" style="font-family:monospace; font-size:0.85em; color:#fbcfe8; white-space: pre-wrap;">${safeThoughts}</div>
+                </div>`
+                    : ""
+                }
+                <div class="director-row">
+                  <div class="director-label">Intent</div>
+                  <div class="director-value" style="font-style:italic; color:#e2e8f0;">${safeRaw}</div>
+                </div>
+                ${safeRefined ? `<div class="director-row"><div class="director-label">Output Prompt</div><div class="director-value" style="font-family:monospace; font-size:0.85em; color:#a5b4fc;">${safeRefined}</div></div>` : ""}
+              </div>
+            </div>
+          </details>`;
         },
       )
       .replace(/\{\{\/IMGPROMPT\}\}/g, "");

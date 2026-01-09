@@ -339,7 +339,6 @@ export const calculateBlendedParams = (ai, user, fractal) => {
   const fractalDyn = getDyn(fractal);
 
   // 1. Temperature (Chaos)
-  // 1. Temperature (Chaos)
   const rawTemp =
     fractalDyn.entropy * PHYSICS_CONSTANTS.TEMP_ENTROPY_WEIGHT_FRACTAL +
     aiDyn.entropy * PHYSICS_CONSTANTS.TEMP_ENTROPY_WEIGHT_AI;

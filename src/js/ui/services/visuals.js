@@ -36,8 +36,11 @@ export const VisualManager = {
 
     log(`[Visuals] Raw Input: ${prompt.substring(0, 50)}...`);
 
-    // 1. SANITIZATION (Remove <think>, brackets, and Perchance list syntax)
-    let cleanPrompt = prompt.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
+    // 1. SANITIZATION (Remove tags and Perchance list syntax)
+    let cleanPrompt = prompt
+      .replace(/<think>[\s\S]*?<\/think>/gi, "")
+      .replace(/<image_prompt[^>]*>|<\/image_prompt>/gi, "")
+      .trim();
     // Brackets [ ] and Braces { } trigger Perchance list evaluation.
     // We must remove them or escape them. Removal is safer for simple prompting.
     cleanPrompt = cleanPrompt.replace(/[[\]{}]/g, "");

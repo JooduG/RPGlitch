@@ -10,6 +10,8 @@ const premade = {
       description: "Cybernetic warrior forging light into weapons.",
       type: "Character",
       signatureColor: "yellow",
+      voiceRate: 1.0,
+      voicePitch: 1.0,
       dynamics: { entropy: 45, permeability: 40, velocity: 60, resonance: 55 },
       forever: {
         physical:
@@ -29,7 +31,10 @@ const premade = {
       name: "Mystic Bard",
       description: "Traveling musician who weaves spells with song.",
       type: "Character",
+      voiceId: "Zira", // Preference
       signatureColor: "orange",
+      voiceRate: 1.0,
+      voicePitch: 1.0, // Neural voices often ignore pitch
       dynamics: { entropy: 55, permeability: 60, velocity: 50, resonance: 60 },
       forever: {
         physical: "(elven ears:1.3), (glowing eyes:1.1), (slender frame)",
@@ -49,6 +54,8 @@ const premade = {
       description: "Stealthy thief powered by ticking gears.",
       type: "Character",
       signatureColor: "lime",
+      voiceRate: 1.1, // Fast/Clicky
+      voicePitch: 1.0,
       dynamics: { entropy: 40, permeability: 40, velocity: 55, resonance: 45 },
       forever: {
         physical: "(clockwork joints:1.5), (brass details), (hooded face)",
@@ -67,7 +74,10 @@ const premade = {
       name: "Shadow Whisperer",
       description: "Mysterious figure communing with darkness.",
       type: "Character",
+      voiceId: "Zira",
       signatureColor: "zinc",
+      voiceRate: 0.85, // Slow/Whispery
+      voicePitch: 1.0,
       dynamics: { entropy: 55, permeability: 60, velocity: 40, resonance: 55 },
       forever: {
         physical: "(pale skin), (shadowy aura:1.4), (void eyes)",
@@ -86,7 +96,10 @@ const premade = {
       description:
         "Cheesy pink himbo superhero with glowing runes, monster muscles, and a thirst for viral saves.",
       type: "Character",
+      voiceId: "Microsoft Brian Online (Natural) - English (United States)", // Preference
       signatureColor: "pink",
+      voiceRate: 1.05,
+      voicePitch: 1.0,
       dynamics: { entropy: 50, permeability: 55, velocity: 60, resonance: 60 },
       forever: {
         physical:
@@ -119,7 +132,10 @@ const premade = {
       description:
         "Bratty cyan twink hacker who talks big but melts into a hypno-sissy the second a real dom flexes.",
       type: "Character",
+      voiceId: "Microsoft Mitchell Online (Natural)  - English (New Zealand)", // Preference
       signatureColor: "cyan",
+      voiceRate: 1.35, // Manic/Fast
+      voicePitch: 1.0,
       dynamics: { entropy: 55, permeability: 60, velocity: 60, resonance: 55 },
       forever: {
         physical:
@@ -334,6 +350,9 @@ export const normalize = (base = {}) => {
       ...(dynamics || {}),
     },
     voiceId, // Persist Voice ID
+    voiceRate: base.voiceRate !== undefined ? parseFloat(base.voiceRate) : 1.0,
+    voicePitch:
+      base.voicePitch !== undefined ? parseFloat(base.voicePitch) : 1.0,
     _backupState,
     _lastUpdateMsgId,
     customData: finalCustomData,
