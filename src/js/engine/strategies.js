@@ -84,8 +84,13 @@ Task: Internal State Update & Narrative Physics.
 Constraint: STRICTLY adopt the POV and Personality of ${ai?.name || "the target"}.
 Constraint: Do NOT write state updates for other entities. Focus ONLY on the Target.
 
+[TARGET PROFILE]
+Identity/Psychology: ${ai?.forever_mental || "Unknown"}
+Physicality: ${ai?.forever_physical || "Unknown"}
+Current State: ${ai?.present_mental || "Unknown"}
+
 [PSYCHOLOGY PROTOCOL]
-- Filter all events through the Target's specific trauma, biases, and personality.
+- Filter all events through the Target's specific trauma, biases, and personality defined in [TARGET PROFILE].
 - If the Target is arrogant, the Log Entry should be arrogant.
 - If the Target is wounded, the Dynamics should reflect pain/vulnerability.
 
@@ -100,10 +105,10 @@ Active Threads: ${JSON.stringify(activeThreads || [])}
     "mental": "Current thoughts/emotions of ${ai?.name} ONLY. (e.g., 'Amused by Glitchs failure', 'Anxious about the deadline')." 
   },
   "dynamics": { 
-    "entropy": 0-100 (Internal Chaos/Confusion), 
-    "velocity": 0-100 (Urgency/Adrenaline),
-    "resonance": 0-100 (Emotional Impact/Trauma Triggered),
-    "permeability": 0-100 (Openness to Influence/Vulnerability)
+    "entropy": "+/- Integer (e.g. +10, -5). How much chaotic/stressful was this window?", 
+    "velocity": "+/- Integer. Did the pacing speed up (+) or slow down (-)?",
+    "resonance": "+/- Integer. Did we hit deep emotional chords (+) or stay surface level (-)?",
+    "permeability": "+/- Integer. Did they open up (+) or close off (-)?"
   },
   "plot": {
     "new_threads": ["New plot hooks POV-relevant to ${ai?.name}"],

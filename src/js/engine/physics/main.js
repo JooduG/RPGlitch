@@ -6,52 +6,89 @@ import { log, clamp } from "../../core/utils.js";
  * Calculates the "Thermodynamics" of the narrative.
  */
 export const calculateDynamics = (currentDynamics, baseline = {}) => {
-  const d = {
-    entropy: 10,
-    permeability: 50,
-    velocity: 10,
-    resonance: 10,
-    ...currentDynamics,
-  };
-
+  let d = { ...currentDynamics };
   const flags = {
     echoChamber: false,
     glassCannon: false,
-    panicSpiral: false,
-    fogOfWar: false,
+    ironBunker: false, // New
+    theVenus: false, // New
     gravityPull: false,
+    // Add dynamic law flags
+    adrenalineShield: false,
+    deepBreath: false, // New
+    fogOfWar: false,
+    crystallization: false, // New
+    obsession: false, // New
+    apathy: false, // New
   };
 
-  // --- LAW 1: THE ADRENALINE SHIELD ---
-  if (d.velocity > PHYSICS_CONSTANTS.ADRENALINE_THRESHOLD) {
-    const penalty = PHYSICS_CONSTANTS.ADRENALINE_PENALTY;
-    if (d.permeability > PHYSICS_CONSTANTS.ADRENALINE_MIN_PERM) {
-      d.permeability = clamp(d.permeability - penalty);
-      log(`[PHYSICS] Adrenaline Shield: Permeability -${penalty}`);
-    }
+  const applyChange = (stat, amount) => {
+    d[stat] += amount;
+  };
+
+  // --- 1. CORE LAWS LOOP (High/Low) ---
+
+  // VELOCITY
+  if (d.velocity > PHYSICS_CONSTANTS.LAW_HIGH) {
+    flags.adrenalineShield = true;
+    applyChange("permeability", PHYSICS_CONSTANTS.ADRENALINE_PERM);
+    applyChange("resonance", PHYSICS_CONSTANTS.ADRENALINE_RES);
+    log(
+      `[PHYSICS] Adrenaline: Perm ${PHYSICS_CONSTANTS.ADRENALINE_PERM}, Res ${PHYSICS_CONSTANTS.ADRENALINE_RES}`,
+    );
+  } else if (d.velocity < PHYSICS_CONSTANTS.LAW_LOW) {
+    flags.deepBreath = true;
+    applyChange("resonance", PHYSICS_CONSTANTS.DEEP_BREATH_RES);
+    applyChange("entropy", PHYSICS_CONSTANTS.DEEP_BREATH_ENT);
+    log(
+      `[PHYSICS] Deep Breath: Res +${PHYSICS_CONSTANTS.DEEP_BREATH_RES}, Ent ${PHYSICS_CONSTANTS.DEEP_BREATH_ENT}`,
+    );
   }
 
-  // --- LAW 2: THE FOG OF WAR ---
-  if (d.entropy > PHYSICS_CONSTANTS.FOG_THRESHOLD) {
-    d.resonance = clamp(d.resonance - PHYSICS_CONSTANTS.FOG_DAMPENING);
+  // ENTROPY
+  if (d.entropy > PHYSICS_CONSTANTS.LAW_HIGH) {
     flags.fogOfWar = true;
-    log("[PHYSICS] Fog of War: Resonance dampened.");
+    applyChange("resonance", PHYSICS_CONSTANTS.FOG_RES);
+    applyChange("velocity", PHYSICS_CONSTANTS.FOG_VEL);
+    log(
+      `[PHYSICS] Fog of War: Res ${PHYSICS_CONSTANTS.FOG_RES}, Vel +${PHYSICS_CONSTANTS.FOG_VEL}`,
+    );
+  } else if (d.entropy < PHYSICS_CONSTANTS.LAW_LOW) {
+    flags.crystallization = true;
+    applyChange("permeability", PHYSICS_CONSTANTS.CRYSTAL_PERM);
+    applyChange("velocity", PHYSICS_CONSTANTS.CRYSTAL_VEL);
+    log(
+      `[PHYSICS] Crystallization: Perm ${PHYSICS_CONSTANTS.CRYSTAL_PERM}, Vel ${PHYSICS_CONSTANTS.CRYSTAL_VEL}`,
+    );
   }
 
-  // --- LAW 3: THE COOL-DOWN ---
-  if (d.velocity < PHYSICS_CONSTANTS.COOLDOWN_THRESHOLD) {
-    d.entropy = clamp(d.entropy - PHYSICS_CONSTANTS.COOLDOWN_REDUCTION);
-    log("[PHYSICS] Cool-Down: Entropy reduced.");
+  // PERMEABILITY
+  if (d.permeability > PHYSICS_CONSTANTS.LAW_HIGH) {
+    flags.glassCannon = true; // Logged for Director
+  } else if (d.permeability < PHYSICS_CONSTANTS.LAW_LOW) {
+    flags.ironBunker = true; // Logged for Director
   }
 
-  // --- LAW 4: THE PANIC SPIRAL ---
-  if (d.entropy > PHYSICS_CONSTANTS.PANIC_THRESHOLD) {
-    d.velocity = clamp(d.velocity + PHYSICS_CONSTANTS.PANIC_BOOST);
-    flags.panicSpiral = true;
-    log("[PHYSICS] Panic Spiral: Velocity forced up.");
+  // RESONANCE
+  if (d.resonance > PHYSICS_CONSTANTS.LAW_HIGH) {
+    flags.obsession = true;
+    applyChange("entropy", PHYSICS_CONSTANTS.OBSESSION_ENT);
+    applyChange("permeability", PHYSICS_CONSTANTS.OBSESSION_PERM);
+    log(
+      `[PHYSICS] Obsession: Ent ${PHYSICS_CONSTANTS.OBSESSION_ENT}, Perm ${PHYSICS_CONSTANTS.OBSESSION_PERM}`,
+    );
+  } else if (d.resonance < PHYSICS_CONSTANTS.LAW_LOW) {
+    flags.apathy = true;
+    applyChange("velocity", PHYSICS_CONSTANTS.APATHY_VEL);
+    applyChange("entropy", PHYSICS_CONSTANTS.APATHY_ENT);
+    log(
+      `[PHYSICS] Apathy: Vel ${PHYSICS_CONSTANTS.APATHY_VEL}, Ent +${PHYSICS_CONSTANTS.APATHY_ENT}`,
+    );
   }
 
-  // --- LAW 5: THE ECHO CHAMBER ---
+  // --- 2. SPECIAL CASES ---
+
+  // THE ECHO CHAMBER
   if (
     d.resonance > PHYSICS_CONSTANTS.ECHO_THRESHOLD_RES &&
     d.entropy < PHYSICS_CONSTANTS.ECHO_THRESHOLD_ENT
@@ -59,17 +96,19 @@ export const calculateDynamics = (currentDynamics, baseline = {}) => {
     flags.echoChamber = true;
   }
 
-  // --- LAW 6: THE GLASS CANNON ---
-  if (d.permeability > PHYSICS_CONSTANTS.GLASS_THRESHOLD) {
-    flags.glassCannon = true;
+  // THE VENUS
+  if (
+    d.velocity < PHYSICS_CONSTANTS.VENUS_THRESHOLD_VEL &&
+    d.permeability > PHYSICS_CONSTANTS.VENUS_THRESHOLD_PERM
+  ) {
+    flags.theVenus = true;
   }
 
-  // --- LAW 7: RELATIVE GRAVITY ---
+  // --- 3. GRAVITY ---
   const keys = ["entropy", "velocity", "permeability", "resonance"];
   const GRAVITY_FACTOR = PHYSICS_CONSTANTS.GRAVITY_STRENGTH;
 
   keys.forEach((key) => {
-    // If entity has a custom baseline (e.g. Orions Velocity: 70), use it. Else default (50).
     const target =
       typeof baseline[key] === "number"
         ? baseline[key]
@@ -78,9 +117,13 @@ export const calculateDynamics = (currentDynamics, baseline = {}) => {
     const current = d[key];
     const diff = target - current;
 
-    // Apply gravity
-    if (Math.abs(diff) > 1) {
-      d[key] += diff * GRAVITY_FACTOR;
+    if (Math.abs(diff) > 0) {
+      let change = diff * GRAVITY_FACTOR;
+      // Ensure minimum tick of 1.0
+      if (Math.abs(change) < 1.0) {
+        change = Math.sign(diff) * 1.0;
+      }
+      d[key] += change;
       flags.gravityPull = true;
     }
   });

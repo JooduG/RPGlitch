@@ -49,82 +49,165 @@ describe("PROMETHEUS ENGINE V5", () => {
   // LAYER 1: THE LAWS OF PHYSICS (Unit Tests)
   // ==========================================
   describe("Physics Engine (calculateDynamics)", () => {
-    test("Law 1: Adrenaline Shield (High Velocity reduces Permeability)", () => {
+    // --- VELOCITY LAWS ---
+    test("Law 1: Adrenaline Shield (Vel > 90)", () => {
+      // Effect: Perm -10, Res -5
       const input = {
-        entropy: 10,
-        permeability: 80,
+        entropy: 50,
+        permeability: 50,
         velocity: 95,
-        resonance: 10,
+        resonance: 50,
       };
       const output = calculateDynamics(input);
-      // DEBUGGING: Force fail to see actual values
-      if (output.permeability !== 68 || output.velocity !== 91) {
-        throw new Error(
-          `DEBUG: Perm=${output.permeability}, Vel=${output.velocity}`,
-        );
-      }
-      expect(output.permeability).toBeLessThan(75);
-      expect(output.velocity).toBeGreaterThanOrEqual(90);
+
+      // Perm: 50 - 10 = 40. Gravity(50) -> 40 + (50-40)*0.1 = 41.
+      expect(output.permeability).toBe(41);
+      // Res: 50 - 5 = 45. Gravity(50) -> 45 + (50-45)*0.1 = 45.5 -> 46 (Min Tick).
+      expect(output.resonance).toBe(46);
+      expect(output._flags.adrenalineShield).toBeTruthy();
     });
 
-    test("Law 2: Fog of War (High Entropy reduces Resonance)", () => {
+    test("Law: Deep Breath (Vel < 10)", () => {
+      // Effect: Res +10, Ent -5
       const input = {
-        entropy: 90,
+        entropy: 50,
+        permeability: 50,
+        velocity: 5,
+        resonance: 50,
+      };
+      const output = calculateDynamics(input);
+
+      // Res: 50 + 10 = 60. Gravity -> 60 + (50-60)*0.1 = 59.
+      expect(output.resonance).toBe(59);
+      // Ent: 50 - 5 = 45. Gravity -> 45.5 -> 46.
+      expect(output.entropy).toBe(46);
+      expect(output._flags.deepBreath).toBeTruthy();
+    });
+
+    // --- ENTROPY LAWS ---
+    test("Law: Fog of War (Ent > 90)", () => {
+      // Effect: Res -5, Vel +10
+      const input = {
+        entropy: 95,
         permeability: 50,
         velocity: 50,
         resonance: 50,
       };
       const output = calculateDynamics(input);
 
-      // Dampening: 50 - 5 = 45.
-      // Gravity: 45 + (50 - 45)*0.1 = 45.5 => Round to 46
+      // Res: 45 -> 46 (Gravity).
       expect(output.resonance).toBe(46);
+      // Vel: 60 -> 59 (Gravity).
+      expect(output.velocity).toBe(59);
       expect(output._flags.fogOfWar).toBeTruthy();
     });
 
-    test("Law 3: Cool-Down (Low Velocity reduces Entropy)", () => {
+    test("Law: Crystallization (Ent < 10)", () => {
+      // Effect: Perm -10, Vel -5
       const input = {
-        entropy: 50,
+        entropy: 5,
         permeability: 50,
-        velocity: 10,
+        velocity: 50,
         resonance: 50,
       };
       const output = calculateDynamics(input);
 
-      // Cool-down: 50 - 10 = 40.
-      // Gravity: 40 + (50 - 40)*0.1 = 41
-      expect(output.entropy).toBe(41);
+      // Perm: 40 -> 41.
+      expect(output.permeability).toBe(41);
+      // Vel: 45 -> 46.
+      expect(output.velocity).toBe(46);
+      expect(output._flags.crystallization).toBeTruthy();
     });
 
-    test("Law 4: Panic Spiral (Critical Entropy forces Velocity up)", () => {
+    // --- PERMEABILITY LAWS ---
+    test("Law: Glass Cannon (Perm > 90)", () => {
+      // Effect: Flag Only (Director handles multipliers)
       const input = {
-        entropy: 99,
-        permeability: 50,
-        velocity: 40,
-        resonance: 10,
+        entropy: 50,
+        permeability: 95,
+        velocity: 50,
+        resonance: 50,
       };
       const output = calculateDynamics(input);
-
-      // Panic Boost: 40 + 15 = 55.
-      // Gravity: 55 + (50 - 55)*0.1 = 54.5 => Round to 55
-      expect(output.velocity).toBe(55);
-      expect(output._flags.panicSpiral).toBeTruthy();
+      expect(output._flags.glassCannon).toBeTruthy();
     });
 
-    test("Law 5: Echo Chamber (Logic Flag Only)", () => {
+    test("Law: Iron Bunker (Perm < 10)", () => {
+      // Effect: Flag Only
       const input = {
-        entropy: 10,
+        entropy: 50,
+        permeability: 5,
+        velocity: 50,
+        resonance: 50,
+      };
+      const output = calculateDynamics(input);
+      expect(output._flags.ironBunker).toBeTruthy();
+    });
+
+    // --- RESONANCE LAWS ---
+    test("Law: Obsession (Res > 90)", () => {
+      // Effect: Ent -10, Perm -5
+      const input = {
+        entropy: 50,
         permeability: 50,
-        velocity: 10,
+        velocity: 50,
         resonance: 95,
       };
       const output = calculateDynamics(input);
 
+      // Ent: 40 -> 41.
+      expect(output.entropy).toBe(41);
+      // Perm: 45 -> 46.
+      expect(output.permeability).toBe(46);
+      expect(output._flags.obsession).toBeTruthy();
+    });
+
+    test("Law: Apathy (Res < 10)", () => {
+      // Effect: Vel -10, Ent +5
+      const input = {
+        entropy: 50,
+        permeability: 50,
+        velocity: 50,
+        resonance: 5,
+      };
+      const output = calculateDynamics(input);
+
+      // Vel: 40 -> 41.
+      expect(output.velocity).toBe(41);
+      // Ent: 55 -> 54.5 -> 54. Note: Gravity 55->50 is -0.5. Min Tick is -1. 55-1 = 54.
+      // Wait: 50 + 5 = 55. Gravity Pull = (50 - 55) * 0.1 = -0.5.
+      // Min tick logic: If diff != 0 and abs(pull) < 1, use sign(diff) * 1.
+      // Diff = -5. Sign is -1. Change is -1.
+      // New Value = 55 + (-1) = 54.
+      expect(output.entropy).toBe(54);
+      expect(output._flags.apathy).toBeTruthy();
+    });
+
+    // --- SPECIAL CASES ---
+    test("Special: The Echo Chamber (Res > 80, Ent < 20)", () => {
+      const input = {
+        entropy: 10,
+        permeability: 50,
+        velocity: 50,
+        resonance: 85,
+      };
+      const output = calculateDynamics(input);
       expect(output._flags.echoChamber).toBeTruthy();
     });
 
-    test("Law 7: Relative Gravity (Universal)", () => {
-      // Test Universal Baseline (50)
+    test("Special: The Venus (Vel < 20, Perm > 80)", () => {
+      const input = {
+        entropy: 50,
+        permeability: 85,
+        velocity: 10,
+        resonance: 50,
+      };
+      const output = calculateDynamics(input);
+      expect(output._flags.theVenus).toBeTruthy();
+    });
+
+    // --- GRAVITY ---
+    test("Gravity: Universal Baseline (50)", () => {
       const input = {
         entropy: 100,
         permeability: 50,
@@ -132,43 +215,45 @@ describe("PROMETHEUS ENGINE V5", () => {
         resonance: 50,
       };
       const output = calculateDynamics(input);
-
-      // 100 + (50-100)*0.1 = 95
+      // 100 -> 95. (Diff -50, Pull -5).
       expect(output.entropy).toBe(95);
-      expect(output._flags.gravityPull).toBeTruthy();
+      // Note: No laws trigger at 100 because specific checks are > 90
+      // But Fog of War triggers at > 90. So Ent 100 triggers Fog.
+      // Fog effect: Res -5, Vel +10.
+      // Output Res: 50 - 5 = 45 -> 46.
+      // Output Vel: 50 + 10 = 60 -> 59.
+      expect(output.resonance).toBe(46);
+      expect(output.velocity).toBe(59);
     });
 
-    test("Law 7: Relative Gravity (Custom Baseline)", () => {
+    test("Gravity: Custom Baseline", () => {
       const input = {
         entropy: 50,
         permeability: 50,
         velocity: 50,
         resonance: 50,
       };
-      const baseline = { entropy: 80 }; // Naturally chaotic
-
+      // Baseline 80.
+      const baseline = { entropy: 80 };
       const output = calculateDynamics(input, baseline);
-
-      // 50 + (80-50)*0.1 = 53
+      // 50 + (80-50)*0.1 = 53.
       expect(output.entropy).toBe(53);
     });
 
-    test("Bounds Clamping (0-100)", () => {
+    test("Bounds Clamping", () => {
       const input = {
         entropy: -50,
         permeability: 150,
-        velocity: 10,
-        resonance: 10,
+        velocity: 50,
+        resonance: 50,
       };
       const output = calculateDynamics(input);
-
-      // Notes on Logic Trace:
-      // 1. Law 3 (Cool-Down): Velocity (10) < 15.
-      //    Entropy (-50) -> -60 -> Clamped to 0.
-      // 2. Gravity: Entropy (0) -> 0 + (50-0)*0.1 = 5.
-      expect(output.entropy).toBe(5);
-
-      // Permeability (150) -> Gravity (150 + (50-150)*0.1 = 140) -> Clamped to 100
+      // Clamped to 0 and 100 before Gravity? No, usually calculate then clamp final.
+      // But implementation applies laws THEN gravity THEN clamp.
+      // Ent (-50) -> Gravity toward 50?
+      // Implementation doesn't clamp inputs.
+      // Ent -50. Diff = 100. Pull = 10. New = -40. Clamped = 0.
+      expect(output.entropy).toBe(0);
       expect(output.permeability).toBe(100);
     });
   });
@@ -250,11 +335,13 @@ describe("ContextBuilder (Physics Injection)", () => {
         entropy: 55,
         velocity: 33,
       },
+      customData: { plot: { active: [] } }, // Ensure activeThreads are mocked if accessed
     };
 
     const history = [{ role: "user", text: "HI" }];
 
-    const payload = await builder.buildPulse(mockEntity, history);
+    // New Signature: (target, others, history, activeThreads)
+    const payload = await builder.buildPulse(mockEntity, [], history, []);
 
     // V5.2 Check: Ensure system prompt is correct
     expect(payload.system).toContain("[SYSTEM: PULSE_DIAGNOSTICS]");
@@ -267,13 +354,15 @@ describe("ContextBuilder (Physics Injection)", () => {
 
   test("buildPulse output schema check", async () => {
     const mockEntity = { name: "AI", dynamics: {} };
-    const payload = await builder.buildPulse(mockEntity, []);
+    // New Signature
+    const payload = await builder.buildPulse(mockEntity, [], [], []);
 
     // Updated for V5.2 Schema
     expect(payload.system).toContain("[JSON SCHEMA]");
     expect(payload.system).toContain(
       '"log_entry": "Short summary of events from AI\'s biased perspective."',
     );
-    expect(payload.system).toContain('"entropy": 0-100');
+    // Update to match new delta schema if necessary, or generic check
+    expect(payload.system).toContain('"dynamics": {');
   });
 });

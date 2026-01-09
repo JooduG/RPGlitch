@@ -7,7 +7,8 @@ import { entities } from "../data/repo.js";
 import { error, calculateBlendedParams, log } from "../core/utils.js";
 import { ContextBuilder } from "./prompter.js";
 import { calculateDynamics } from "./physics/main.js";
-import { PHYSICS_CONSTANTS } from "./physics/config.js"; // IMPORT CONFIG
+import { PHYSICS_CONSTANTS } from "./physics/config.js";
+import { scanReflex, getReflexInstruction } from "./physics/reflex.js";
 import { events, EVENTS } from "../core/events.js";
 import { VisualManager } from "../ui/services/visuals.js";
 import {
@@ -240,6 +241,125 @@ export const TurnManager = {
       signal: ctrl.signal,
     };
 
+    // [REFLEX SYSTEM] Scan User Input for Physics Triggers
+    // Always check the last message for triggers if it was from the User.
+    // We do this before generating the AI response.
+    const lastMsg = state.messages.byStoryId[storyId]?.slice(-1)[0];
+    if (lastMsg && lastMsg.role === ROLES.USER) {
+      const reflex = scanReflex(lastMsg.text);
+      if (reflex) {
+        log(`[TurnManager] ⚡ Reflex Triggered: ${reflex.type}`, reflex.deltas);
+
+        // 1. Apply Immediate Physics Update
+        const currentDynamics = aiEntity.dynamics || {};
+        const newDynamics = { ...currentDynamics };
+        const ledger = aiEntity.customData?.reflex_ledger || {
+          velocity: 0,
+          entropy: 0,
+          resonance: 0,
+          permeability: 0,
+        };
+
+        Object.entries(reflex.deltas).forEach(([key, value]) => {
+          let finalValue = value;
+
+          // [LAW] GLASS CANNON (Perm > 90): Double Incoming Entropy
+          if (
+            key === "entropy" &&
+            currentDynamics.permeability > PHYSICS_CONSTANTS.LAW_HIGH
+          ) {
+            finalValue *= PHYSICS_CONSTANTS.GLASS_ENT_MULT;
+            log(`[PHYSICS] 💎 Glass Cannon: Entropy Doubled!`);
+          }
+
+          // [LAW] IRON BUNKER (Perm < 10): Halve Incoming Resonance
+          if (
+            key === "resonance" &&
+            currentDynamics.permeability < PHYSICS_CONSTANTS.LAW_LOW
+          ) {
+            finalValue *= PHYSICS_CONSTANTS.BUNKER_RES_MULT;
+            log(`[PHYSICS] 🛡️ Iron Bunker: Resonance Resisted (0.5x)`);
+          }
+
+          // [SPECIAL] ECHO CHAMBER (Res > 80, Ent < 20): Zero Incoming Entropy
+          if (
+            key === "entropy" &&
+            currentDynamics.resonance > PHYSICS_CONSTANTS.ECHO_THRESHOLD_RES &&
+            currentDynamics.entropy < PHYSICS_CONSTANTS.ECHO_THRESHOLD_ENT
+          ) {
+            finalValue = 0;
+            log(`[PHYSICS] 🕸️ Echo Chamber: Entropy Rejected (0x)`);
+          }
+
+          // [SPECIAL] THE VENUS (Vel < 20, Perm > 80): Double Gain, Zero Loss
+          if (
+            key === "resonance" &&
+            currentDynamics.velocity < PHYSICS_CONSTANTS.VENUS_THRESHOLD_VEL &&
+            currentDynamics.permeability >
+              PHYSICS_CONSTANTS.VENUS_THRESHOLD_PERM
+          ) {
+            if (finalValue > 0) {
+              finalValue *= 2;
+              log(`[PHYSICS] 🌺 The Venus: Resonance Absorbed (2x)`);
+            } else {
+              finalValue = 0;
+              log(`[PHYSICS] 🌺 The Venus: Resonance Loss Ignored`);
+            }
+          }
+
+          newDynamics[key] = (newDynamics[key] || 0) + finalValue;
+          ledger[key] = (ledger[key] || 0) + finalValue; // Track for Pulse Audit
+        });
+
+        // Save Reflex Update
+        await entities.upsert("character", {
+          ...aiEntity,
+          dynamics: newDynamics,
+          customData: {
+            ...aiEntity.customData,
+            reflex_ledger: ledger,
+          },
+        });
+
+        // [PHYSICS] Apply Laws of Physics Immediately (Real-Time)
+        // We run calculateDynamics here to ensure thresholds (e.g. Adrenaline Shield) apply instantly,
+        // rather than waiting for the Pulse (which might be 9 turns away).
+        const lawsAppliedDynamics = calculateDynamics(
+          newDynamics,
+          aiEntity.baseline || aiEntity.dynamics || {},
+        );
+
+        // If Laws caused changes, update again
+        if (
+          JSON.stringify(lawsAppliedDynamics) !== JSON.stringify(newDynamics)
+        ) {
+          log(`[TurnManager] ⚖️ Physics Laws Applied Immediately`);
+          await entities.upsert("character", {
+            ...aiEntity,
+            dynamics: lawsAppliedDynamics,
+            customData: {
+              ...aiEntity.customData,
+              reflex_ledger: ledger, // Ledger stays same, as Laws are "System" changes, not "Reflex" changes
+            },
+          });
+          // We use the post-laws dynamics for the instruction check below
+          Object.assign(newDynamics, lawsAppliedDynamics);
+        }
+
+        // 2. Inject Instruction (If Laws Validation Passes)
+        // We check the NEW dynamics state. If it crosses the threshold, we inject.
+        const validationInstruction = getReflexInstruction(newDynamics);
+        if (validationInstruction) {
+          payload.system += `\n\n${validationInstruction}`;
+          log(`[TurnManager] 📝 Reflex Instruction Injected (Threshold Met)`);
+        } else {
+          log(
+            `[TurnManager] 🤫 Reflex Instruction Skipped (Threshold Not Met)`,
+          );
+        }
+      }
+    }
+
     let generatedText = null;
 
     try {
@@ -313,10 +433,32 @@ export const TurnManager = {
           const aiTurns = msgs.filter((m) => m.role === ROLES.AI).length;
 
           // If turn count is a multiple of the rate (and not 0), PULSE.
+          // ROTATION: Turn 3 (AI) -> Turn 6 (User) -> Turn 9 (Fractal)
           if (aiTurns > 0 && aiTurns % PHYSICS_CONSTANTS.HEARTBEAT_RATE === 0) {
-            log(`[Director] ❤️ Heartbeat Triggered (Turn ${aiTurns})`);
-            // Fire and forget - don't await this or UI will hang
-            TurnManager._runPulse(storyId, story.aiId);
+            const cycleIndex = (aiTurns / PHYSICS_CONSTANTS.HEARTBEAT_RATE) % 3;
+            let targetId = story.aiId; // Default (Index 1 or 0 if math weird/modulo 1)
+            let targetType = "AI";
+
+            // Turn 3 (3/3 = 1 % 3 = 1) -> AI
+            // Turn 6 (6/3 = 2 % 3 = 2) -> USER
+            // Turn 9 (9/3 = 3 % 3 = 0) -> FRACTAL
+
+            if (cycleIndex === 2) {
+              targetId = story.userId;
+              targetType = "USER";
+            } else if (cycleIndex === 0) {
+              targetId = story.fractalId;
+              targetType = "FRACTAL";
+            } else {
+              targetType = "AI";
+            }
+
+            if (targetId) {
+              log(
+                `[Director] ❤️ Heartbeat Triggered (Turn ${aiTurns}) - Target: ${targetType} (${targetId})`,
+              );
+              TurnManager._runPulse(storyId, targetId);
+            }
           }
 
           break;
@@ -477,19 +619,47 @@ export const TurnManager = {
   },
 
   // CENTRALIZED PULSE LOGIC (Migrated from Worker)
-  _runPulse: async (storyId, aiId) => {
+  _runPulse: async (storyId, targetId) => {
     try {
       log(`[TurnManager] ✨ Initiating Simulation Pulse...`);
-      const aiEntity = await entities.get("character", aiId);
-      const history = await TurnManager.loadMessages(storyId);
+
+      const story = await db.stories.get(storyId);
+      if (!story) {
+        console.warn(`[TurnManager] Pulse Story Not Found: ${storyId}`);
+        return;
+      }
+
+      // 0. Fetch All Actors for Context
+      const allEntities = await Promise.all([
+        entities.get("character", story.aiId),
+        entities.get("character", story.userId),
+        entities.get(ROLES.FRACTAL, story.fractalId),
+      ]);
+      // Filter out nulls (e.g. if Fractal doesn't exist yet)
+      const validEntities = allEntities.filter((e) => e);
+
+      // Identify Target & Others
+      const targetEntity = validEntities.find((e) => e.id === targetId);
+      const others = validEntities.filter((e) => e.id !== targetId);
+
+      if (!targetEntity) {
+        console.warn(`[TurnManager] Pulse Target Not Found: ${targetId}`);
+        return;
+      }
 
       // 1. Build Pulse Pulse
       const builder = new ContextBuilder(storyId);
-      const activeThreads = aiEntity.customData?.plot?.active || [];
-      const pulseHistory = history.slice(-15);
+      const activeThreads = targetEntity.customData?.plot?.active || [];
+
+      // Fetch history for context
+      const msgs = await TurnManager.loadMessages(storyId);
+
+      // Window = Heartbeat Rate (3) * Approx Msgs Per Turn (3: AI, User, Fractal?) = 9
+      const pulseHistory = msgs.slice(-9);
 
       const payload = await builder.buildPulse(
-        aiEntity,
+        targetEntity,
+        others,
         pulseHistory,
         activeThreads,
       );
@@ -512,48 +682,91 @@ export const TurnManager = {
       // 4. Apply Updates
       if (data) {
         let needsSave = false;
-        const updates = { customData: { ...aiEntity.customData } };
+        const updates = { customData: { ...targetEntity.customData } };
 
         // 4.1 LOG ENTRY (Long Term Memory)
         if (data.log_entry && typeof data.log_entry === "string") {
           const entry = `\n[Turn ${state.turnCount || history.length}] ${data.log_entry}`;
-          updates.past = (aiEntity.past || "") + entry;
+          updates.past = (targetEntity.past || "") + entry;
           needsSave = true;
           log(`[TurnManager] 🧠 New Memory Engram:`, entry);
         }
 
-        // Apply Dynamics (USING PHYSICS MAIN.JS)
+        // Apply Dynamics (RECONCILIATION LOGIC)
         if (data.dynamics) {
-          const newDynamics = calculateDynamics(
-            data.dynamics,
-            aiEntity.baseline || aiEntity.dynamics || {},
+          const currentDynamics = targetEntity.dynamics || {
+            entropy: 50,
+            velocity: 50,
+            resonance: 50,
+            permeability: 50,
+          };
+          const ledger = targetEntity.customData?.reflex_ledger || {
+            entropy: 0,
+            velocity: 0,
+            resonance: 0,
+            permeability: 0,
+          };
+          const finalDynamics = { ...currentDynamics };
+
+          Object.keys(currentDynamics).forEach((key) => {
+            // 1. Get AI's "Total Delta" assessment (e.g. +15)
+            const aiDelta = parseInt(data.dynamics[key]) || 0;
+
+            // 2. Subtract what Reflex already did (e.g. +10)
+            const reflexAlreadyApplied = ledger[key] || 0;
+
+            // 3. Determine remaining correction needed
+            const correction = aiDelta - reflexAlreadyApplied;
+
+            // 4. Apply Correction
+            // Note: We clamp here to ensure safety, but logic is primarily additive
+            let newVal = (currentDynamics[key] || 0) + correction;
+            newVal = Math.max(0, Math.min(100, newVal));
+
+            finalDynamics[key] = newVal;
+          });
+
+          // Apply Gravity & Config Rules via Main Physics Engine
+          const processedDynamics = calculateDynamics(
+            finalDynamics,
+            targetEntity.baseline || targetEntity.dynamics || {},
           );
+
           updates.dynamics = {
-            entropy: newDynamics.entropy,
-            velocity: newDynamics.velocity,
-            permeability: newDynamics.permeability,
-            resonance: newDynamics.resonance,
+            entropy: processedDynamics.entropy,
+            velocity: processedDynamics.velocity,
+            permeability: processedDynamics.permeability,
+            resonance: processedDynamics.resonance,
           };
 
-          // Debug Message
-          if (newDynamics._flags) {
-            const flags = newDynamics._flags;
+          // debug flags from physics engine
+          if (processedDynamics._flags) {
+            const flags = processedDynamics._flags;
             let debugMsg = "";
             if (flags.panicSpiral) debugMsg += ">> PANIC SPIRAL ACTIVE\n";
             if (flags.fogOfWar) debugMsg += ">> FOG OF WAR ACTIVE\n";
             if (debugMsg) log(debugMsg);
           }
 
+          // CLEAR LEDGER AFTER RECONCILIATION
+          updates.customData.reflex_ledger = {
+            entropy: 0,
+            velocity: 0,
+            resonance: 0,
+            permeability: 0,
+          };
+
           needsSave = true;
-          log("[TurnManager] Dynamics Updated:", updates.dynamics);
+          log("[TurnManager] Dynamics Reconciled:", updates.dynamics);
         }
 
         // Apply Present State
         if (data.state) {
           const currentPresent =
-            typeof aiEntity.present === "object" && aiEntity.present !== null
-              ? aiEntity.present
-              : { physical: String(aiEntity.present || ""), mental: "" };
+            typeof targetEntity.present === "object" &&
+            targetEntity.present !== null
+              ? targetEntity.present
+              : { physical: String(targetEntity.present || ""), mental: "" };
 
           updates.present = {
             ...currentPresent,
@@ -564,7 +777,7 @@ export const TurnManager = {
           log("[TurnManager] State Updated:", updates.present);
         } else if (data.present && typeof data.present === "string") {
           updates.present = {
-            ...aiEntity.present,
+            ...targetEntity.present,
             physical: data.present,
           };
           needsSave = true;
@@ -615,13 +828,13 @@ export const TurnManager = {
         // 5. Persist
         if (needsSave) {
           await entities.upsert("character", {
-            ...aiEntity,
+            ...targetEntity,
             ...updates,
           });
 
           events.dispatchEvent(
             new CustomEvent(EVENTS.ENTITY_UPDATED, {
-              detail: { id: aiId, ...updates },
+              detail: { id: targetId, ...updates },
             }),
           );
         }
@@ -629,7 +842,7 @@ export const TurnManager = {
         // [LOG] Inject Pulse into Chat (Visible only in Dev Mode)
 
         // [CONTEXT] Add entity name for UI display
-        data.entity = aiEntity.name || "Unknown Entity";
+        data.entity = targetEntity.name || "Unknown Entity";
 
         await db.messages.add({
           storyId,

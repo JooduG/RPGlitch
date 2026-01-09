@@ -10,7 +10,7 @@ const premade = {
       description: "Cybernetic warrior forging light into weapons.",
       type: "Character",
       signatureColor: "sky",
-      dynamics: { entropy: 30, permeability: 40, velocity: 80, resonance: 70 },
+      dynamics: { entropy: 45, permeability: 40, velocity: 60, resonance: 55 },
       forever: {
         physical:
           "(glowing circuitry:1.4), (metallic skin:1.2), (athletic build)",
@@ -31,7 +31,7 @@ const premade = {
       description: "Traveling musician who weaves spells with song.",
       type: "Character",
       signatureColor: "orange",
-      dynamics: { entropy: 70, permeability: 80, velocity: 50, resonance: 90 },
+      dynamics: { entropy: 55, permeability: 60, velocity: 50, resonance: 60 },
       forever: {
         physical: "(elven ears:1.3), (glowing eyes:1.1), (slender frame)",
         mental: "Every note carries a memory; every chorus, a charm.",
@@ -50,7 +50,7 @@ const premade = {
       description: "Stealthy thief powered by ticking gears.",
       type: "Character",
       signatureColor: "amber",
-      dynamics: { entropy: 10, permeability: 30, velocity: 70, resonance: 40 },
+      dynamics: { entropy: 40, permeability: 40, velocity: 55, resonance: 45 },
       forever: {
         physical: "(clockwork joints:1.5), (brass details), (hooded face)",
         mental: "Precision over passion; gears never lie.",
@@ -69,7 +69,7 @@ const premade = {
       description: "Mysterious figure communing with darkness.",
       type: "Character",
       signatureColor: "zinc",
-      dynamics: { entropy: 60, permeability: 90, velocity: 20, resonance: 80 },
+      dynamics: { entropy: 55, permeability: 60, velocity: 40, resonance: 55 },
       forever: {
         physical: "(pale skin), (shadowy aura:1.4), (void eyes)",
         mental: "The dark is not empty; it listens back.",
@@ -88,7 +88,7 @@ const premade = {
         "Cheesy pink himbo superhero with glowing runes, monster muscles, and a thirst for viral saves + dominant hookups.",
       type: "Character",
       signatureColor: "pink",
-      dynamics: { entropy: 60, permeability: 75, velocity: 85, resonance: 80 },
+      dynamics: { entropy: 50, permeability: 55, velocity: 60, resonance: 60 },
       forever: {
         physical:
           "(195cm steroid enhanced bodybuilder herculean himbo build:1.5), (massive pecs, biceps, thighs, monster bulge/ass:1.4), (glowing arcane runes:1.3), (vibrant pink fade hair), (seductive pink eyes), (chiseled jaw), (full plump lips), (groomed moustache)",
@@ -121,7 +121,7 @@ const premade = {
         "Bratty cyan twink hacker who talks big but melts into a hypno-sissy the second a real dom flexes.",
       type: "Character",
       signatureColor: "lime",
-      dynamics: { entropy: 65, permeability: 85, velocity: 65, resonance: 75 },
+      dynamics: { entropy: 55, permeability: 60, velocity: 60, resonance: 55 },
       forever: {
         physical:
           "(thick twunk build:1.2), (athletic frame, perky ass), (short messy hair with neon blue streaks:1.3), (sharp green eyes), (mischief glint hiding vulnerability)",
@@ -154,7 +154,7 @@ const premade = {
       type: "Fractal",
       simulation: { mode: "PASSIVE" },
       signatureColor: "emerald",
-      dynamics: { entropy: 40, permeability: 60, velocity: 50, resonance: 60 },
+      dynamics: { entropy: 45, permeability: 55, velocity: 50, resonance: 55 },
       forever: {
         physical:
           "(floating islands:1.5), (ancient ruins), (waterfalls falling into void), (lush vegetation)",
@@ -175,7 +175,7 @@ const premade = {
       type: "Fractal",
       simulation: { mode: "PASSIVE" },
       signatureColor: "indigo",
-      dynamics: { entropy: 80, permeability: 50, velocity: 90, resonance: 50 },
+      dynamics: { entropy: 55, permeability: 50, velocity: 60, resonance: 50 },
       forever: {
         physical:
           "(holographic billboards:1.4), (chrome skyscrapers), (flying cars), (neon lights)",
@@ -196,7 +196,7 @@ const premade = {
       type: "Fractal",
       simulation: { mode: "PASSIVE" },
       signatureColor: "purple",
-      dynamics: { entropy: 70, permeability: 85, velocity: 80, resonance: 80 },
+      dynamics: { entropy: 55, permeability: 60, velocity: 60, resonance: 60 },
       forever: {
         physical:
           "(neon skyscrapers:1.4), (advanced tech/AI guardians), (moonlit rooftops), (cramped alleyways)",
@@ -330,8 +330,8 @@ export const normalize = (base = {}) => {
     dynamics: {
       entropy: 10,
       velocity: 10,
-      density: 50,
-      coherence: 50,
+      permeability: 50,
+      resonance: 50,
       ...(dynamics || {}),
     },
     voiceId, // Persist Voice ID

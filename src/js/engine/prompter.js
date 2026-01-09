@@ -89,13 +89,18 @@ export class ContextBuilder {
   /**
    * Builds the Pulse (Heartbeat) prompt.
    */
-  async buildPulse(aiEntity, historyMessages, activeThreads) {
+  async buildPulse(targetEntity, others, historyMessages, activeThreads) {
     // Convert history messages array to string block
     const historyText = historyMessages
       .map((m) => `[${m.role}]: ${m.text}`)
       .join("\n");
 
-    const system = Strategies.pulse(aiEntity, historyText, activeThreads);
+    const system = Strategies.pulse(
+      targetEntity,
+      others,
+      historyText,
+      activeThreads,
+    );
     return { system, messages: [] };
   }
 
