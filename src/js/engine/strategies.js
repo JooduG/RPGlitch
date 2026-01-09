@@ -132,16 +132,41 @@ USER CHARACTER: ${user?.name || "User"}
   /**
    * The Epilogue (Closure) - VISUALS DISABLED
    */
-  epilogue: (fractal) => {
+  epilogue: (fractal, context) => {
+    const { ai, user, history } = context || {};
+
     return `
 ${BASE_DIRECTIVE}
 [PHASE: EPILOGUE]
-Actor: ${fractal ? fractal.name : "Fractal Entity"}.
-Objective: Conclude the simulation.
-Instructions:
-1. Summarize the outcome of the story.
-2. Provide closure for the characters.
-3. Reflect on the events that transpired.
+Actor: ${fractal ? fractal.name : "Fractal Entity"} (The sentient environment).
+Objective: Conclude the simulation. Tie up loose ends and forecast the future.
+
+[STORY SO FAR]
+${history || "No records found."}
+
+[CONTEXT: THE WORLD]
+${fractal ? `- Identity: ${fractal.name}` : ""}
+- Current State (Present): ${fractal?.present?.physical || "Unknown"}
+- Destiny (Future): ${fractal?.future || "Unknown"}
+
+[CONTEXT: THE PARTICIPANTS]
+AI CHARACTER (YOU): ${ai?.name || "AI"}
+- State (Present): ${ai?.present?.mental || "Unknown"}
+- Destiny (Future): ${ai?.future || "Unknown"}
+
+USER CHARACTER: ${user?.name || "User"}
+- State (Present): ${user?.present?.mental || "Unknown"}
+- Destiny (Future): ${user?.future || "Unknown"}
+
+[CONSTRAINTS]
+1. Write a compelling conclusion in the voice of the Fractal.
+2. **BREVITY PROTOCOL:** Output must be 3-4 paragraphs maximum.
+3. **CLOSURE:** Summarize the immediate aftermath of the story's events.
+4. **FORECASTING:** Use the **Destiny (Future)** fields to hint at what happens *next* for each character.
+5. **REFLECTION:** How has this interaction changed the World?
+6. **STRICT SFTU:** Do NOT write dialogue for the User. You may describe their departure or final state.
+7. **DEDUPLICATION:** Events may be referenced across [STORY SO FAR] and multiple [CONTEXT] profiles (AI/User/Fractal). Treat all overlapping mentions as **single confirmations** of the same truth. Do NOT list the same event multiple times.
+8. [FORMATTING] Use **Bold Text** for system markers.
 `;
   },
 
@@ -195,10 +220,10 @@ Your response must be a SINGLE valid JSON block matching this schema:
   },
 
   /**
-   * Visualizer (Pure Prompt Gen)
+   * Prometheus Maestro (Pure Prompt Gen)
    */
-  visualizer: (targetType, rawIntent, context) => {
-    const { ai, user, fractal } = context || {};
+  maestro: (targetType, rawIntent, context) => {
+    const { ai, user, fractal, history, mode = "visualize" } = context || {};
     let ctxBlock = "";
 
     // [STRICT CONTEXT SCOPING]
@@ -237,15 +262,28 @@ Constraint: **SOLO PROTOCOL.** This image MUST feature ONLY the AI. Do NOT inclu
     }
 
     return `
-[SYSTEM: PROMETHEUS_OPTICS_V5.4]
-[MODULE: VISUALIZER_RUNTIME]
+[SYSTEM: PROMETHEUS_MAESTRO_V5.6]
+[MODULE: MAESTRO_RUNTIME]
 Role: Backend Image Prompt Processor.
 Task: Convert the User's intent into a high-fidelity Stable Diffusion prompt.
 Target: ${targetType}
+[MODE: ${mode.toUpperCase()}]
 [VISUALS_AUTHORIZED]
 [THINK_AUTHORIZED]
 
+[RECENT CONTEXT]
+${history || "No recent history."}
+
 ${ctxBlock}
+
+[INSTRUCTIONS: ${mode.toUpperCase()}]
+${
+  mode === "extract"
+    ? `Objective: Scrape the provided Description/Profile to generate a brand new photorealistic portrait prompt. Focus on physical traits, lighting, and cinematic composition.`
+    : mode === "enhance"
+      ? `Objective: Refine the User's raw prompt into a high-fidelity visual description. Upgrade lighting, texture, and technical descriptors while preserving original intent.`
+      : `Objective: Standard operation. Convert the User's intent into a single impactful image prompt.`
+}
 
 Input Context (Intent): "${rawIntent || "See raw input"}"
 
@@ -268,44 +306,7 @@ Input Context (Intent): "${rawIntent || "See raw input"}"
   },
 
   /**
-   * Profile Picture Generator
-   */
-  profileGenerator: (currentDescription) => {
-    return `
-[SYSTEM: PROMETHEUS_OPTICS_V5.2]
-[SUBROUTINE: PROFILE_SYNTHESIS]
-Role: Visual Cortex Optimization.
-Objective: Generate a photorealistic profile picture prompt based on the character description.
-Input Data: "${currentDescription}"
-Constraints:
-1. Preserve gender and identity.
-2. OUTPUT RAW TEXT ONLY.
-3. NO headers, NO quotes, NO explanations.
-4. Focus on: 8k, raw photo, natural skin texture, cinematic lighting, sharp focus.
-`;
-  },
-  /**
-   * Profile Enhancement (Magic Wand)
-   */
-  profileEnhancer: (currentPrompt, contextData) => {
-    const { gender, identity, color } = contextData;
-    return `
-[SYSTEM: PROMETHEUS_OPTICS_V5.2]
-[SUBROUTINE: PROMPT_REFINEMENT]
-Role: Visual Cortex Optimization.
-Objective: Refine the user's raw input into a high-fidelity image prompt.
-Context:
-- Subject: ${identity}
-- Gender: ${gender}
-- Signature Color: ${color} (Integrate subtly into lighting/accents)
-Input: "${currentPrompt}"
-Constraints:
-1. OUTPUT RAW TEXT ONLY.
-2. NO headers, NO explanations.
-3. Enhance descriptors for texture, lighting, and composition.
-4. Maintain the original intent but upgrade quality to 8k photorealistic.
-`;
-  },
+   * Prometheus Librarian v2.0
 
   /**
    * PROMETHEUS LIBRARIAN v1.0

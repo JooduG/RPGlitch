@@ -1390,7 +1390,7 @@ export const TurnManager = {
       let vTarget = targetType || "character";
       if (targetType === ROLES.FRACTAL) vTarget = "scene";
 
-      const vPayload = await builder.buildVisualizer(vTarget);
+      const vPayload = await builder.buildMaestroPrompt(vTarget);
       vPayload.system += `\n<RAW_INTENT>\n${visualPrompt}\n</RAW_INTENT>`;
 
       const refinedPrompt = await LlmService.generate(vPayload, {

@@ -143,7 +143,7 @@ export const ProfileController = {
 
   /**
    * Generates a new profile picture based on the character's description.
-   * Uses Prometheus Engine v5.2 Optics.
+   * Uses Prometheus Maestro V5.6 (Maestro Extract).
    */
   generatePortrait: async (characterId) => {
     try {
@@ -160,7 +160,7 @@ export const ProfileController = {
 
       // 3. Build Prompt Strategy
       const builder = new ContextBuilder(null);
-      const { system } = await builder.buildProfileGenerator(
+      const { system } = await builder.buildMaestroExtract(
         character.description || character.name,
       );
 

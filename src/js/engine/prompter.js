@@ -113,7 +113,20 @@ export class ContextBuilder {
   async buildEpilogue() {
     if (!this.story) throw new Error("No active story");
     const fractal = await entities.get(ROLES.FRACTAL, this.story.fractalId);
-    const system = Strategies.epilogue(fractal);
+    const ai = await entities.get(ROLES.AI, this.story.aiId);
+    const user = await entities.get(ROLES.USER, this.story.userId);
+
+    // Fetch History (Last 30 turns for deep context, matching Archivist)
+    const rawMessages = state.messages.byStoryId[this.storyId] || [];
+    const history = rawMessages
+      .slice(-30)
+      .map((m) => {
+        const name = m.characterName || (m.role === ROLES.USER ? "User" : "AI");
+        return `[${name}]: ${m.text}`;
+      })
+      .join("\n");
+
+    const system = Strategies.epilogue(fractal, { ai, user, history });
     return { system, messages: [] };
   }
 
@@ -141,13 +154,9 @@ export class ContextBuilder {
   }
 
   /**
-   * Builds a Visualizer prompt.
+   * Builds a Maestro (Visualizer) prompt.
    */
-  async buildVisualizer(targetType) {
-    // Visualizer needs the last few messages to understand context?
-    // Strategies.visualizer takes (targetType, rawIntent)
-    // Here we are likely just returning the system prompt wrapper.
-    // The "rawIntent" is usually appended by the Director.
+  async buildMaestroPrompt(targetType) {
     // Fetch all context entities for physical grounding
     const [ai, user, fractal] = await Promise.all([
       entities.get("character", this.story.aiId),
@@ -155,34 +164,43 @@ export class ContextBuilder {
       entities.get(ROLES.FRACTAL, this.story.fractalId),
     ]);
 
-    const context = { ai, user, fractal };
-    const visualCortexInstructions = Strategies.visualizer(
-      targetType,
-      null,
-      context,
-    );
+    // Fetch History (Last 5 turns for immediate context)
+    const rawMessages = state.messages.byStoryId[this.storyId] || [];
+    const history = rawMessages
+      .slice(-5)
+      .map((m) => {
+        const name = m.characterName || (m.role === ROLES.USER ? "User" : "AI");
+        return `[${name}]: ${m.text}`;
+      })
+      .join("\n");
+
+    const context = { ai, user, fractal, history };
+    const maestroInstructions = Strategies.maestro(targetType, null, context);
 
     return {
-      system: visualCortexInstructions,
+      system: maestroInstructions,
       messages: [],
       stopSequences: ["\n", "User:", "Character:"], // Tighten visual stops
     };
   }
 
-  /**
-   * Builds Profile Generation prompts.
-   */
-  buildProfileGenerator(description) {
-    const system = Strategies.profileGenerator(description);
+  buildMaestroExtract(description) {
+    const system = Strategies.maestro("ai", description, {
+      mode: "extract",
+    });
     return { system, messages: [] };
   }
 
-  async buildProfileEnhancer(prompt, entity, color) {
-    const system = Strategies.profileEnhancer(prompt, {
-      gender: (entity.gender || "unknown").toLowerCase(),
-      identity: `${entity.name || "Unknown"} (${entity.type || "entity"})`,
-      color,
-    });
+  async buildMaestroEnhance(prompt, entity, color) {
+    // Determine target type for context scoping
+    const targetType = entity.type === "fractal" ? "scene" : "ai";
+    const context = {
+      mode: "enhance",
+      ai: entity.type !== "fractal" ? entity : null,
+      fractal: entity.type === "fractal" ? entity : null,
+    };
+
+    const system = Strategies.maestro(targetType, prompt, context);
     return { system, messages: [] };
   }
 

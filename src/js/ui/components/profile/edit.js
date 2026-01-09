@@ -899,7 +899,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
   const handleEnhancePrompt = async (currentVal) => {
     // 1. Build Strategy
     const builder = new ContextBuilder(null);
-    const { system } = await builder.buildProfileEnhancer(
+    const { system } = await builder.buildMaestroEnhance(
       currentVal,
       entity,
       paletteSelect ? paletteSelect.value : entity.signatureColor,
