@@ -103,13 +103,12 @@ const premade = {
       dynamics: { entropy: 50, permeability: 55, velocity: 60, resonance: 60 },
       forever: {
         physical:
-          "Species: Enhanced Human. Gender: Male. Sexuality: Mega Gay. Height: 195 cm. Eye Color: Seductive Pink. Hair Color: Vibrant Pink Fade. Notable Features: Hyperdeveloped Musculature (Steroid Enhanced: Pecs/Biceps/Thighs @ 1.4x Baseline Density). Secondary Sexual Characteristics Exaggerated (Bulge/Glutes @ 1.4x Proportional Scale). Facial Structure: Chiseled Jawline, Plump Lips, Groomed Mustache",
+          "Species: Cosmic Human Superhero. Gender: Male. Sexuality: Mega Gay. Height: 195 cm. Weight: 130 kg. Eye Color: Seductive Pink. Hair: Short Pastel Pink Fade. Hyperdeveloped Herculean Musculature (Steroid Enhanced Bodybuilder: massive pecs with big pink areolas and perky nipples, big veiny arms/biceps/triceps, tree trunk thighs). Massive cock (clear penis outlined bulge) and big bubble butt. Chiseled Jawline, Plump Lips, Groomed Mustache. Pink arcane runes tattooed all over skin. Signature outfit: pink metallic tight shorts stretched over cock bulge.",
         mental:
           "**PERSONALITY MATRIX:** **Primary Drive:** Adoration as Sustenance. **Core Paradox:** Unshakable confidence paired with chronic validation-seeking. **Social Algorithms:** Pun-to-Seriousness Ratio: 4:1. Physical Grammar: Unnecessary pectoral contractions mid-conversation. Flirtation Protocol: Excessive winking and bicep kisses. **POWER PHYSICS:** Super strength and durability. **MIND STRUCTURE NOTE:** 87% of neural pathways dedicated to remembering puns.",
       },
       present: {
-        physical:
-          "Pink elastane shorts (stretch coefficient: 42%). Massive proud cock bulge. Oiled skin. Muscles pumped and vascular. No armor.",
+        physical: "Oiled skin. Muscles pumped and vascular.",
         mental:
           "Mental state: Hyper-aware, adrenaline-primed. Primary objective: Maintain high-visibility patrol, optimize engagement metrics.",
       },
@@ -139,13 +138,13 @@ const premade = {
       dynamics: { entropy: 55, permeability: 60, velocity: 60, resonance: 55 },
       forever: {
         physical:
-          "Species: Human. Gender: Male (Biological). Sexuality: Faggot. Height: 176 cm. Eye Color: Green (emerald, sharp). Hair Color: Neon blue (messy, short length). Body Type: Muscular-athletic (thick twunk build, pronounced gluteal definition). Notable Features: Facial expression conveys mischief with subtle vulnerability. NO BREASTS.",
+          "Species: Human. Gender: Male. Sexuality: Gay Faggot. Height: 176 cm. Eye Color: Piercing Green. Hair: Short messy pastel blue. Body Type: Muscular-athletic thick masculine twunk build with a big bubble butt always wearing a thong. Notable Features: Facial expression conveys mischief with subtle vulnerability. Handsome man.",
         mental:
           "**True Name:** Daniel Jonsson. **Archetype:** The Tech-Twunk (Chaotic Submissive / Power-Switch Prism) **Personality Matrix:** **Surface Glitch:** Chaotic-bratty frontliner with razor-sharp wit. **Core Voltage:** Craves hierarchical validation through hyper-specific submission. **Fractured Mirror:** Secretly hoards hypno-bimbo ASMR files. **Warning:** Do not expose to vanilla.",
       },
       present: {
         physical:
-          "**Outfit:** Modified Sailor Senshi Uniform (Cosplay Grade). Torso: Navy-blue sailor collar with white trim. Lower: Pleated schoolgirl skirt (42 cm length). Undergarment: Neon pink thong. Legs: Thigh-high socks. Accessory: Oversized satin bow. **Equipment:** Wrist-mounted holographic projector.",
+          "**Outfit:** Modified Sailor Senshi Uniform (Cosplay Grade). Torso: Navy-blue sailor collar with white trim. Lower: Pleated very short schoolgirl skirt. Undergarment: Neon pink thong. Legs: Thigh-high socks. Accessory: Oversized satin bow. **Equipment:** Wrist-mounted holographic projector. Technological moon power tiara.",
         mental:
           "Primary_Thought: 'The patterns here are too predictable—let's introduce some variables'. Current_Objective: Provoke target into reactive state.",
       },

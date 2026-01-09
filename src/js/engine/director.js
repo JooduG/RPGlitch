@@ -24,7 +24,10 @@ const MAX_STREAM_RETRIES = 3;
 // --- INTERNAL HELPERS ---
 
 const parseAiResponse = (response) => {
-  let text = response
+  if (!response) {
+    return { text: "", visualPrompts: [], targetType: ROLES.AI, aspect: null };
+  }
+  let text = String(response)
     .replace(/STOP SEQUENCE.*$/i, "")
     .replace(/STOP PROTOCOL.*$/i, "")
     .replace(/\(Glitch must react\).*$/i, "")
@@ -93,7 +96,7 @@ const parseAiResponse = (response) => {
 };
 
 export const TurnManager = {
-  requireActive: () => {
+  requireActive() {
     if (!state.story.activeId) {
       console.error(
         "[TurnManager] requireActive failed. Current state:",
@@ -104,7 +107,7 @@ export const TurnManager = {
     return state.story.activeId;
   },
 
-  _checkRefusal: (text) => {
+  _checkRefusal(text) {
     if (!text || text.length < 15) return true;
     const clean = text.toLowerCase();
     return REFUSAL_TRIGGERS.some((m) => clean.includes(m)) && text.length < 300;
@@ -253,6 +256,7 @@ export const TurnManager = {
 
       const imageUrl = await VisualManager.generate(cleanRefinedPrompt, {
         resolution,
+        guidanceScale: options.guidanceScale,
       });
 
       return { imageUrl, refinedPrompt: cleanRefinedPrompt, opticsThoughts };
@@ -268,7 +272,7 @@ export const TurnManager = {
     }
   },
 
-  _executeTurn: async (storyId, payload, options = {}) => {
+  async _executeTurn(storyId, payload, options = {}) {
     const mode = options.mode || "create";
     const appendTargetId = options.appendTargetId || null;
     const retryCount = options.retryCount || 0;
@@ -293,9 +297,16 @@ export const TurnManager = {
       entities.get(ROLES.FRACTAL, story.fractalId),
     ]);
 
+    const blended = calculateBlendedParams(aiEntity, userEntity, fractalEntity);
     const llmOptions = {
-      ...calculateBlendedParams(aiEntity, userEntity, fractalEntity),
+      temperature: blended.temperature,
+      repetition_penalty: blended.repetition_penalty,
+      top_p: blended.top_p,
       signal: ctrl.signal,
+    };
+
+    const visualOptions = blended.visual || {
+      guidanceScale: PHYSICS_CONSTANTS.GUIDANCE_BASE,
     };
 
     // [REFLEX SYSTEM] Scan User Input for Physics Triggers
@@ -448,10 +459,6 @@ export const TurnManager = {
 
           if (visualPrompts && visualPrompts.length > 0) {
             // [RESTRICTION] Single-Shot Protocol Enforced
-            // We take the LAST prompt as it usually contains the most refined idea from the chain of thought.
-            // Or the FIRST one? Usually AI writes linear, so First might be better?
-            // Actually, if they write multiple, the last one might be "summary".
-            // Let's stick to the FIRST valid prompt to avoid "summary" images.
             const primaryPrompt = visualPrompts[0];
 
             log(`[TurnManager] 📸 Visual Triggered: ${primaryPrompt.target}`);
@@ -461,7 +468,10 @@ export const TurnManager = {
               storyId,
               primaryPrompt.prompt,
               primaryPrompt.target,
-              { aspect: primaryPrompt.aspect },
+              {
+                aspect: primaryPrompt.aspect,
+                guidanceScale: visualOptions.guidanceScale,
+              },
             );
 
             if (result.imageUrl) {
@@ -515,38 +525,50 @@ export const TurnManager = {
             });
           }
 
-          // 6. PHYSICS (HEARTBEAT LOGIC)
-          // We check the history length to determine the heartbeat.
-          const msgs = await TurnManager.loadMessages(storyId);
+          // 6. PHYSICS & MEMORY LOGIC (The Split-Brain Heartbeat)
+          const msgs = await this.loadMessages(storyId);
           // Filter only IC messages to count "Turns"
           const aiTurns = msgs.filter((m) => m.role === ROLES.AI).length;
 
-          // If turn count is a multiple of the rate (and not 0), PULSE.
-          // ROTATION: Turn 3 (AI) -> Turn 6 (User) -> Turn 9 (Fractal)
-          if (aiTurns > 0 && aiTurns % PHYSICS_CONSTANTS.HEARTBEAT_RATE === 0) {
-            const cycleIndex = (aiTurns / PHYSICS_CONSTANTS.HEARTBEAT_RATE) % 3;
-            let targetId = story.aiId; // Default (Index 1 or 0 if math weird/modulo 1)
-            let targetType = "AI";
-
-            // Turn 3 (3/3 = 1 % 3 = 1) -> AI
-            // Turn 6 (6/3 = 2 % 3 = 2) -> USER
-            // Turn 9 (9/3 = 3 % 3 = 0) -> FRACTAL
-
-            if (cycleIndex === 2) {
-              targetId = story.userId;
-              targetType = "USER";
-            } else if (cycleIndex === 0) {
-              targetId = story.fractalId;
-              targetType = "FRACTAL";
-            } else {
-              targetType = "AI";
+          if (aiTurns > 0) {
+            // A. FAST LOOP: AI HEARTBEAT (Every 5 Turns)
+            // Focus: Physics, Internal State, Immediate Logic
+            if (aiTurns % PHYSICS_CONSTANTS.HEARTBEAT_RATE === 0) {
+              log(
+                `[Director] ❤️ Heartbeat Triggered (Turn ${aiTurns}) - Target: AI`,
+              );
+              this._runPulse(storyId, story.aiId);
             }
 
-            if (targetId) {
-              log(
-                `[Director] ❤️ Heartbeat Triggered (Turn ${aiTurns}) - Target: ${targetType} (${targetId})`,
-              );
-              TurnManager._runPulse(storyId, targetId);
+            // B. SLOW LOOP: ARCHIVIST (Every 10 Turns)
+            // Focus: Deep Memory, Profile Evolution, Long-term Changes
+            if (aiTurns % PHYSICS_CONSTANTS.ARCHIVIST_RATE === 0) {
+              const cycleIndex =
+                (aiTurns / PHYSICS_CONSTANTS.ARCHIVIST_RATE) % 3;
+              let targetId = story.aiId;
+              let targetRole = ROLES.AI;
+
+              // Turn 10 (10/10 = 1 % 3 = 1) -> USER
+              // Turn 20 (20/10 = 2 % 3 = 2) -> FRACTAL
+              // Turn 30 (30/10 = 3 % 3 = 0) -> AI
+
+              if (cycleIndex === 1) {
+                targetId = story.userId;
+                targetRole = ROLES.USER;
+              } else if (cycleIndex === 2) {
+                targetId = story.fractalId;
+                targetRole = ROLES.FRACTAL;
+              } else {
+                targetId = story.aiId;
+                targetRole = ROLES.AI;
+              }
+
+              if (targetId) {
+                log(
+                  `[Director] 📜 Archivist Triggered (Turn ${aiTurns}) - Target: ${targetRole}`,
+                );
+                this._runArchivist(storyId, targetId, targetRole);
+              }
             }
           }
 
@@ -556,7 +578,7 @@ export const TurnManager = {
           if (e.message.includes(ERROR_MESSAGES.CONNECTION_LOST)) {
             if (retryCount < MAX_STREAM_RETRIES) {
               await new Promise((r) => setTimeout(r, 1000 * (retryCount + 1)));
-              return TurnManager._executeTurn(storyId, payload, {
+              return this._executeTurn(storyId, payload, {
                 ...options,
                 retryCount: retryCount + 1,
               });
@@ -568,7 +590,7 @@ export const TurnManager = {
         }
       }
 
-      await TurnManager.loadMessages(storyId);
+      await this.loadMessages(storyId);
       events.dispatchEvent(
         new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
       );
@@ -714,7 +736,7 @@ export const TurnManager = {
   },
 
   // CENTRALIZED PULSE LOGIC (Migrated from Worker)
-  _runPulse: async (storyId, targetId) => {
+  async _runPulse(storyId, targetId) {
     try {
       log(`[TurnManager] ✨ Initiating Simulation Pulse...`);
 
@@ -749,8 +771,8 @@ export const TurnManager = {
       // Fetch history for context
       const msgs = await TurnManager.loadMessages(storyId);
 
-      // Window = Heartbeat Rate (3) * Approx Msgs Per Turn (3: AI, User, Fractal?) = 9
-      const pulseHistory = msgs.slice(-9);
+      // Window = Heartbeat Rate (5) * Approx Msgs Per Turn (3: AI, User, Fractal?) = 15
+      const pulseHistory = msgs.slice(-15);
 
       const payload = await builder.buildPulse(
         targetEntity,
@@ -982,6 +1004,104 @@ export const TurnManager = {
     }
   },
 
+  // ARCHIVIST LOGIC (Slow Loop - Memory & Profile)
+  async _runArchivist(storyId, targetId, role) {
+    try {
+      log(`[TurnManager] 📜 Initiating Archivist Protocol for ${role}...`);
+
+      const targetEntity = await entities.get(
+        role === ROLES.FRACTAL ? "fractal" : "character",
+        targetId,
+      );
+      if (!targetEntity) {
+        console.warn(`[TurnManager] Archivist Target Not Found: ${targetId}`);
+        return;
+      }
+
+      // 1. Context Build
+      const builder = new ContextBuilder(storyId);
+      const msgs = await this.loadMessages(storyId);
+      // Deep History (Last ~30 turns for context)
+      const historySlice = msgs.slice(-30);
+
+      const payload = await builder.buildArchivist(
+        targetEntity,
+        historySlice,
+        role,
+      );
+
+      // 2. LLM Gen
+      const response = await LlmService.generate(payload, { json: true });
+
+      // 3. Parse and Apply
+      let data;
+      try {
+        let jsonText =
+          typeof response === "object"
+            ? response.generatedText || response.text
+            : String(response);
+        const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) jsonText = jsonMatch[0];
+        jsonText = jsonText.replace(/```json\n?|```/g, "").trim();
+        data = JSON.parse(jsonText);
+      } catch (parseErr) {
+        console.warn("[TurnManager] Archivist JSON Parse Failed", parseErr);
+        return;
+      }
+
+      if (data) {
+        const updates = {};
+        let needsSave = false;
+
+        // Update Past (Append)
+        if (data.past_update) {
+          const entry = `\n[Archivist Entry] ${data.past_update}`;
+          updates.past = (targetEntity.past || "") + entry;
+          needsSave = true;
+          log(`[TurnManager] 📜 Archived Memory for ${targetEntity.name}`);
+        }
+
+        // Update Present State
+        if (data.state) {
+          updates.present = {
+            ...(targetEntity.present || {}),
+            ...data.state,
+          };
+          needsSave = true;
+        }
+
+        // Update Forever (Evolution)
+        if (data.forever_update) {
+          updates.forever = {
+            ...(targetEntity.forever || {}),
+            ...data.forever_update,
+          };
+          needsSave = true;
+          log(
+            `[TurnManager] 🧬 FRACTAL EVOLUTION DETECTED for ${targetEntity.name}`,
+          );
+        }
+
+        if (needsSave) {
+          await entities.upsert(
+            role === ROLES.FRACTAL ? "fractal" : "character",
+            {
+              ...targetEntity,
+              ...updates,
+            },
+          );
+          events.dispatchEvent(
+            new CustomEvent(EVENTS.ENTITY_UPDATED, {
+              detail: { id: targetId, ...updates },
+            }),
+          );
+        }
+      }
+    } catch (e) {
+      error("Archivist Error", e);
+    }
+  },
+
   generatePrologue: async (storyId) => {
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
     const story = state.story.byId[storyId];
@@ -1011,7 +1131,10 @@ export const TurnManager = {
       while (attempts < MAX_ATTEMPTS) {
         attempts++;
         try {
-          response = await LlmService.generate(payload);
+          response = await LlmService.generate({
+            ...payload,
+            temperature: 0.3,
+          });
           break;
         } catch (e) {
           if (e.name === "AbortError") throw e;
@@ -1198,8 +1321,25 @@ export const TurnManager = {
     try {
       log("[TurnManager] Generating visual from draft:", draftText);
 
+      const story = state.story.byId[storyId];
+      const [aiEntity, userEntity, fractalEntity] = await Promise.all([
+        entities.get("character", story.aiId),
+        entities.get("character", story.userId),
+        entities.get(ROLES.FRACTAL, story.fractalId),
+      ]);
+
+      const blended = calculateBlendedParams(
+        aiEntity,
+        userEntity,
+        fractalEntity,
+      );
+      const visualOptions = blended.visual || {
+        guidanceScale: PHYSICS_CONSTANTS.GUIDANCE_BASE,
+      };
+
       const imageUrl = await VisualManager.generate(draftText, {
         resolution: IMG_RESOLUTION,
+        guidanceScale: visualOptions.guidanceScale,
       });
 
       await db.messages.add({
@@ -1258,12 +1398,29 @@ export const TurnManager = {
         temperature: 0.3,
       });
 
+      const story = state.story.byId[storyId];
+      const [aiEntity, userEntity, fractalEntity] = await Promise.all([
+        entities.get("character", story.aiId),
+        entities.get("character", story.userId),
+        entities.get(ROLES.FRACTAL, story.fractalId),
+      ]);
+
+      const blended = calculateBlendedParams(
+        aiEntity,
+        userEntity,
+        fractalEntity,
+      );
+      const visualOptions = blended.visual || {
+        guidanceScale: PHYSICS_CONSTANTS.GUIDANCE_BASE,
+      };
+
       const resolution = VisualManager.getResolutionForMode(
         message.aspect || vTarget,
       );
 
       const imageUrl = await VisualManager.generate(refinedPrompt, {
         resolution,
+        guidanceScale: visualOptions.guidanceScale,
       });
 
       await db.messages.update(messageId, {

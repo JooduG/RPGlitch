@@ -50,6 +50,7 @@ describe("PROMETHEUS ENGINE V5", () => {
   // ==========================================
   describe("Physics Engine (calculateDynamics)", () => {
     // --- VELOCITY LAWS ---
+    // --- VELOCITY LAWS ---
     test("Law 1: Adrenaline Shield (Vel > 90)", () => {
       // Effect: Perm -10, Res -5
       const input = {
@@ -60,9 +61,9 @@ describe("PROMETHEUS ENGINE V5", () => {
       };
       const output = calculateDynamics(input);
 
-      // Perm: 50 - 10 = 40. Gravity(50) -> 40 + (50-40)*0.1 = 41.
-      expect(output.permeability).toBe(41);
-      // Res: 50 - 5 = 45. Gravity(50) -> 45 + (50-45)*0.1 = 45.5 -> 46 (Min Tick).
+      // Perm: 50 - 10 = 40. Gravity(50) -> 40 + (50-40)*0.25 = 42.5 -> 43.
+      expect(output.permeability).toBe(43);
+      // Res: 50 - 5 = 45. Gravity(50) -> 45 + (50-45)*0.25 = 46.25 -> 46.
       expect(output.resonance).toBe(46);
       expect(output._flags.adrenalineShield).toBeTruthy();
     });
@@ -77,9 +78,9 @@ describe("PROMETHEUS ENGINE V5", () => {
       };
       const output = calculateDynamics(input);
 
-      // Res: 50 + 10 = 60. Gravity -> 60 + (50-60)*0.1 = 59.
-      expect(output.resonance).toBe(59);
-      // Ent: 50 - 5 = 45. Gravity -> 45.5 -> 46.
+      // Res: 50 + 10 = 60. Gravity -> 60 + (50-60)*0.25 = 57.5 -> 58.
+      expect(output.resonance).toBe(58);
+      // Ent: 50 - 5 = 45. Gravity -> 45 + 1.25 = 46.25 -> 46.
       expect(output.entropy).toBe(46);
       expect(output._flags.deepBreath).toBeTruthy();
     });
@@ -95,10 +96,10 @@ describe("PROMETHEUS ENGINE V5", () => {
       };
       const output = calculateDynamics(input);
 
-      // Res: 45 -> 46 (Gravity).
+      // Res: 45 -> 46.25 -> 46.
       expect(output.resonance).toBe(46);
-      // Vel: 60 -> 59 (Gravity).
-      expect(output.velocity).toBe(59);
+      // Vel: 60 -> 57.5 -> 58.
+      expect(output.velocity).toBe(58);
       expect(output._flags.fogOfWar).toBeTruthy();
     });
 
@@ -112,9 +113,9 @@ describe("PROMETHEUS ENGINE V5", () => {
       };
       const output = calculateDynamics(input);
 
-      // Perm: 40 -> 41.
-      expect(output.permeability).toBe(41);
-      // Vel: 45 -> 46.
+      // Perm: 40 -> 42.5 -> 43.
+      expect(output.permeability).toBe(43);
+      // Vel: 45 -> 46.25 -> 46.
       expect(output.velocity).toBe(46);
       expect(output._flags.crystallization).toBeTruthy();
     });
@@ -155,9 +156,9 @@ describe("PROMETHEUS ENGINE V5", () => {
       };
       const output = calculateDynamics(input);
 
-      // Ent: 40 -> 41.
-      expect(output.entropy).toBe(41);
-      // Perm: 45 -> 46.
+      // Ent: 40 -> 42.5 -> 43.
+      expect(output.entropy).toBe(43);
+      // Perm: 45 -> 46.25 -> 46.
       expect(output.permeability).toBe(46);
       expect(output._flags.obsession).toBeTruthy();
     });
@@ -172,13 +173,9 @@ describe("PROMETHEUS ENGINE V5", () => {
       };
       const output = calculateDynamics(input);
 
-      // Vel: 40 -> 41.
-      expect(output.velocity).toBe(41);
-      // Ent: 55 -> 54.5 -> 54. Note: Gravity 55->50 is -0.5. Min Tick is -1. 55-1 = 54.
-      // Wait: 50 + 5 = 55. Gravity Pull = (50 - 55) * 0.1 = -0.5.
-      // Min tick logic: If diff != 0 and abs(pull) < 1, use sign(diff) * 1.
-      // Diff = -5. Sign is -1. Change is -1.
-      // New Value = 55 + (-1) = 54.
+      // Vel: 40 -> 42.5 -> 43.
+      expect(output.velocity).toBe(43);
+      // Ent: 55 -> 53.75 -> 54.
       expect(output.entropy).toBe(54);
       expect(output._flags.apathy).toBeTruthy();
     });
@@ -215,15 +212,13 @@ describe("PROMETHEUS ENGINE V5", () => {
         resonance: 50,
       };
       const output = calculateDynamics(input);
-      // 100 -> 95. (Diff -50, Pull -5).
-      expect(output.entropy).toBe(95);
-      // Note: No laws trigger at 100 because specific checks are > 90
-      // But Fog of War triggers at > 90. So Ent 100 triggers Fog.
-      // Fog effect: Res -5, Vel +10.
-      // Output Res: 50 - 5 = 45 -> 46.
-      // Output Vel: 50 + 10 = 60 -> 59.
+      // 100 -> 87.5 -> 88.
+      expect(output.entropy).toBe(88);
+      // Note: Fog of War at 100
+      // Res: 45 -> 46.25 -> 46.
+      // Vel: 60 -> 57.5 -> 58.
       expect(output.resonance).toBe(46);
-      expect(output.velocity).toBe(59);
+      expect(output.velocity).toBe(58);
     });
 
     test("Gravity: Custom Baseline", () => {
@@ -236,8 +231,8 @@ describe("PROMETHEUS ENGINE V5", () => {
       // Baseline 80.
       const baseline = { entropy: 80 };
       const output = calculateDynamics(input, baseline);
-      // 50 + (80-50)*0.1 = 53.
-      expect(output.entropy).toBe(53);
+      // 50 + (80-50)*0.25 = 57.5 -> 58.
+      expect(output.entropy).toBe(58);
     });
 
     test("Bounds Clamping", () => {

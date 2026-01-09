@@ -25,9 +25,6 @@ const IMAGE_EXTENSION_REGEX = new RegExp(
 
 import { PALETTE } from "./constants.js";
 
-// Alias for backward compatibility
-// [REMOVED] Legacy SIGNATURE_COLORS alias
-
 // --- Color & Visual Utilities ---
 
 export const getSignatureColor = (key) => PALETTE[key] || PALETTE.default;
@@ -331,8 +328,8 @@ const mapRange = (value, inMin, inMax, outMin, outMax) => {
 };
 
 export const calculateBlendedParams = (ai, user, fractal) => {
-  const defaults = { entropy: 10, velocity: 10, resonance: 10 };
-  const getDyn = (entity) => entity?.dynamics || defaults;
+  const defaults = { entropy: 10, velocity: 10, resonance: 10, permanence: 10 };
+  const getDyn = (entity) => ({ ...defaults, ...entity?.dynamics });
 
   const aiDyn = getDyn(ai);
   const userDyn = getDyn(user);
@@ -376,9 +373,22 @@ export const calculateBlendedParams = (ai, user, fractal) => {
     0.65,
   );
 
+  // 4. Guidance Scale (Visual Stability)
+  // Inverse relationship: High Entropy = Low Guidance (Hallucination)
+  const guidance_scale = mapRange(
+    aiDyn.entropy,
+    0,
+    100,
+    PHYSICS_CONSTANTS.GUIDANCE_MAX,
+    PHYSICS_CONSTANTS.GUIDANCE_MIN,
+  );
+
   return {
     temperature: parseFloat(temperature.toFixed(2)),
     repetition_penalty: parseFloat(repetition_penalty.toFixed(2)),
     top_p: parseFloat(top_p.toFixed(2)),
+    visual: {
+      guidanceScale: parseFloat(guidance_scale.toFixed(1)),
+    },
   };
 };

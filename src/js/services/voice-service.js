@@ -5,6 +5,8 @@
  * Utilizes 'window.speechSynthesis' and 'window.webkitSpeechRecognition'.
  * Designed for privacy (zero-knowledge) and reliability (no cloud APIs).
  */
+import { log } from "../core/utils.js";
+
 export class VoiceService {
   constructor() {
     this.voices = [];
@@ -19,6 +21,9 @@ export class VoiceService {
     this.isListening = false;
     this.STORAGE_KEY = "rpglitch_voice_settings";
     this._loopTimeout = null; // Prevent double-triggering logic
+    this._silenceTimer = null;
+    this.SILENCE_TIMEOUT = 2000; // 2 seconds leeway
+    this._recognitionTranscript = ""; // Persistent transcript buffer
   }
 
   async init() {
@@ -35,8 +40,8 @@ export class VoiceService {
       window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       this.recognition = new SpeechRecognition();
-      this.recognition.continuous = false;
-      this.recognition.lang = "en-US";
+      this.recognition.continuous = true; // Stay on despite pauses
+      this.recognition.lang = navigator.language || "en-US";
       this.recognition.interimResults = true;
       this.recognition.maxAlternatives = 1;
 
@@ -445,9 +450,11 @@ export class VoiceService {
   listen() {
     if (!this.recognition || this.isListening) return;
     try {
+      this._recognitionTranscript = ""; // Reset buffer
       this.recognition.start();
       this.isListening = true;
       this._dispatchStateChange();
+      this._resetSilenceTimer();
     } catch (e) {
       console.error("Mic Start Fail:", e);
       this.isListening = false;
@@ -462,20 +469,52 @@ export class VoiceService {
   }
 
   _handleRecognitionResult(event) {
-    const transcript = Array.from(event.results)
-      .map((r) => r[0].transcript)
-      .join("");
-    const isFinal = event.results[0].isFinal;
+    let transcript = "";
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+
+    this._recognitionTranscript = transcript;
+    this._resetSilenceTimer();
+
     document.dispatchEvent(
-      new CustomEvent("voice:input", { detail: { transcript, isFinal } }),
+      new CustomEvent("voice:input", {
+        detail: {
+          transcript: this._recognitionTranscript,
+          isFinal: false, // We handle finality via our silence timer
+        },
+      }),
     );
   }
 
+  _resetSilenceTimer() {
+    if (this._silenceTimer) clearTimeout(this._silenceTimer);
+    if (!this.isListening) return;
+
+    this._silenceTimer = setTimeout(() => {
+      if (this.isListening && this._recognitionTranscript.trim().length > 0) {
+        log("[Voice] Silence detected. Finalizing input.");
+        // Notify UI that we are "done"
+        document.dispatchEvent(
+          new CustomEvent("voice:input", {
+            detail: {
+              transcript: this._recognitionTranscript,
+              isFinal: true,
+            },
+          }),
+        );
+        this.stopListening();
+      }
+    }, this.SILENCE_TIMEOUT);
+  }
+
   _handleRecognitionError(event) {
+    if (event.error === "no-speech") return; // Expected during silence
     console.warn("Mic Error:", event.error);
   }
 
   _handleRecognitionEnd() {
+    if (this._silenceTimer) clearTimeout(this._silenceTimer);
     this.isListening = false;
     this._dispatchStateChange();
   }

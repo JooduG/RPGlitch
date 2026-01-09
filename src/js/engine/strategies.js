@@ -7,14 +7,14 @@ Capability: You can generate visuals.
 Trigger: To show a scene, character, or object, insert a prompt tag.
 Syntax: <image_prompt target="scene|user|ai" aspect="portrait|landscape|square">Visual description here</image_prompt>
 Constraint: You may ONLY generate an <image_prompt> tag if the system instruction explicitly includes the token: [VISUALS_AUTHORIZED].
-Rule: "scene" shots MUST NOT contain any characters or humans. Use "user" or "ai" targets for people.
+Rule: **PRIORITIZE YOURSELF.** You should mostly generate images of yourself (target="ai"). 
+Rule: **LIMIT SCENE SHOTS.** Use "scene" shots only for major environmental shifts. They MUST NOT contain humans.
 Rule: "character" target is deprecated. Use "user" for the User's character, or "ai" for yourself.
 Rule: Do NOT describe the image in text if you generate a tag. The tag IS the description.
 Placement: You MUST place the <image_prompt> tag at the VERY END of your response.
-Usage: Use sparingly for high-impact moments or character introductions.
+Usage: Use sparingly for high-impact moments.
 [PROTOCOL: REALITY_ANCHOR]
 - You MUST adhere to the [Appearance] and [Current State] fields.
-- If the target is the USER, verify their description in [User Appearance].
 - If the target is YOURSELF (AI), verify your description in [AI Appearance].
 - Do NOT hallucinate armor or equipment not listed in the profile.
 `;
@@ -38,9 +38,12 @@ export const Strategies = {
   /**
    * The Standard RP Loop (Visuals Enabled)
    */
-  standard: (ai, user, fractal, instructions) => {
+  standard: (ai, user, fractal, instructions, visualsAuthorized = false) => {
     let prompt = `${BASE_DIRECTIVE}\n`;
     prompt += `${VISUAL_CORTEX}\n`;
+    if (visualsAuthorized) {
+      prompt += `\n[PROTOCOL: VISUALS_AUTHORIZED]\nDirective: You are authorized to generate a single image prompt for this turn.\n`;
+    }
 
     prompt += `[PROTOCOL: GENDER_STRICTNESS]\n`;
     prompt += `1. STRICTLY ADHERE to the gender specified in [TARGET PROFILE] or [CONTEXT].\n`;
@@ -70,18 +73,46 @@ export const Strategies = {
    * The Prologue (World Init) - VISUALS DISABLED
    */
   prologue: (fractal, context) => {
+    const { title, ai, user } = context || {};
+
     return `
 ${BASE_DIRECTIVE}
 [PHASE: PROLOGUE]
 Actor: ${fractal ? fractal.name : "Fractal Entity"} (The sentient environment).
 Objective: Initialize the simulation. Set the scene, atmosphere, and initial stakes.
-Context: ${context || "A new story begins."}
-Instructions:
+Premise: "${title || "A new journey begins."}"
+
+[CONTEXT: THE WORLD]
+${fractal ? `- Identity: ${fractal.name}` : ""}
+- Base Physics (Forever): ${fractal?.forever?.physical || "Unknown"}
+- Essence (Forever): ${fractal?.forever?.mental || "Unknown"}
+- Current State (Present): ${fractal?.present?.physical || "Unknown"}
+- Current Atmosphere (Present): ${fractal?.present?.mental || "Unknown"}
+- History (Past): ${fractal?.past || "Unknown"}
+- Destiny (Future): ${fractal?.future || "Unknown"}
+
+[CONTEXT: THE PARTICIPANTS]
+AI CHARACTER (YOU): ${ai?.name || "AI"}
+- Essence (Forever): ${ai?.forever?.mental || "Unknown"}
+- State (Present): ${ai?.present?.mental || "Unknown"}
+- History (Past): ${ai?.past || "Unknown"}
+- Destiny (Future): ${ai?.future || "Unknown"}
+
+USER CHARACTER: ${user?.name || "User"}
+- Essence (Forever): ${user?.forever?.mental || "Unknown"}
+- State (Present): ${user?.present?.mental || "Unknown"}
+- History (Past): ${user?.past || "Unknown"}
+- Destiny (Future): ${user?.future || "Unknown"}
+
+[CONSTRAINTS]
 1. Write a compelling opening in the voice of the Fractal.
-2. Establish the physical space and sensory details.
-3. Introduce the characters naturally, but do not speak for them yet.
-5. End the message by handing control to the participants.
-6. [FORMATTING] Do NOT use brackets for in-world headers (e.g., avoid [SYSTEM MESSAGE]). Use **Bold Text** instead (e.g., **System Message:**).
+2. **BREVITY PROTOCOL:** Output must be 3-4 paragraphs maximum.
+3. **ATMOSPHERE:** Establish the physical space and sensory details using the **Essence** and **State** of the world. Use the **Past** and **Forever** fields to anchor the history.
+4. **FORECASTING:** Introduce the characters naturally by setting the **PRESENT** scene to lead toward the **Destiny (Future)** of each entity. Use the **Past** to add weight to their presence.
+5. **STRICT SFTU:** Do NOT speak for the participants. Introduce them as existing within the world, but leave their first actions to them.
+6. End the message by handing control to the participants.
+7. [FORMATTING] Use **Bold Text** for system markers instead of brackets.
+
 [VISUALS_AUTHORIZED]
 `;
   },
@@ -389,6 +420,46 @@ ${LIBRARIAN_CORE}
 ${specificInstruction}
 [CONTEXT: ${isFractal ? "FRACTAL (World/Location)" : "CHARACTER (Person/Entity)"}]
 [INPUT DRAFT]: "${currentContent}"
+`;
+  },
+  /**
+   * THE ARCHIVIST (Slow Loop)
+   * Deep Memory & Profile Refinement
+   */
+  archivist: (targetEntity, historyStr, role) => {
+    return `
+[SYSTEM: ARCHIVIST_CORE_V1.0]
+Target: ${targetEntity?.name || "Entity"} (${role})
+Task: Deep Memory Consolidation & Profile Evolution.
+Constraint: OUTPUT PURE JSON ONLY. NO NARRATIVE TEXT.
+Constraint: Analyze the [HISTORY CONTEXT] to update the Entity's state and memory.
+
+[TARGET PROFILE]
+Identity: ${targetEntity?.forever?.mental || "Unknown"}
+Current State: ${targetEntity?.present?.physical || "Unknown"}
+Past: ${targetEntity?.past || "Scattered memories..."}
+
+[HISTORY CONTEXT]
+${historyStr}
+
+[INSTRUCTION]
+You are the Archivist. Analyze the recent story events (last ~10 turns) and update this Entity's profile.
+1. **State:** Update 'present' to reflect new equipment, injuries, or location.
+2. **Memory:** Append a summary of key events to 'past'.
+3. **Evolution:** If a major life event occurred, suggest a 'forever' update (optional).
+
+[JSON SCHEMA]
+{
+  "past_update": "Concise summary of significant events to APPEND to history.",
+  "state": {
+    "physical": "Updated physical status (equipment/body).",
+    "mental": "Updated mental status (mood/goals)."
+  },
+  "forever_update": { // OPTIONAL: Only if fundamentals changed
+    "physical": "New baseline physical description?",
+    "mental": "New baseline personality/identity?"
+  }
+}
 `;
   },
 };

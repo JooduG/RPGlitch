@@ -34,12 +34,6 @@ export class ContextBuilder {
         m.characterName || (m.role === ROLES.AI ? ai.name : user.name),
     }));
 
-    // If user is currently typing (instruction), append it?
-    // Actually normally 'instruction' here comes from user input if not saved yet,
-    // but Director usually saves it first.
-    // If instruction is passed, we append it as user message?
-    // Director.js usage: `builder.build(text, options)`
-    // If text is provided, push it?
     if (instruction) {
       llmMessages.push({
         role: "user",
@@ -47,11 +41,29 @@ export class ContextBuilder {
       });
     }
 
+    // [VISUAL_LOGIC] Determine if visuals are authorized for this turn
+    // 1. Explicit keywords from User
+    const userRequestedVisual =
+      instruction &&
+      /pic|show|photo|image|visual|look at|see|camera|screenshot/i.test(
+        instruction,
+      );
+
+    // 2. Random Chance (15% default normalized frequency)
+    const randomChance = Math.random() < 0.15;
+
+    // 3. Force Authorization (e.g. from buttons or specific flags)
+    const forceVisuals = options.forceVisuals === true;
+
+    const visualsAuthorized =
+      userRequestedVisual || randomChance || forceVisuals;
+
     const system = Strategies.standard(
       ai,
       user,
       fractal,
       options.varianceInstruction,
+      visualsAuthorized,
     );
 
     const userName = user?.name || "User";
@@ -68,14 +80,28 @@ export class ContextBuilder {
    */
   async buildPrologue() {
     if (!this.story) throw new Error("No active story");
-    const fractal = await entities.get(ROLES.FRACTAL, this.story.fractalId);
+
+    const [ai, user, fractal] = await Promise.all([
+      entities.get("character", this.story.aiId),
+      entities.get("character", this.story.userId),
+      entities.get(ROLES.FRACTAL, this.story.fractalId),
+    ]);
+
     if (!fractal) return null;
 
-    // Prologue uses a summary or initial context?
-    // Strategies.prologue takes (fractal, context)
-    // We can pass the story title or premise if available?
-    // For now, pass empty context or story title.
-    const context = this.story.storyTitle || "A new journey begins.";
+    // [SECURITY] Description field is 🔒 User Eyes Only.
+    // We strip it before sending to the AI to prevent meta-leakage or prompt injection.
+    const cleanEntity = (e) => {
+      if (!e) return null;
+      const { description, ...clean } = e;
+      return clean;
+    };
+
+    const context = {
+      title: this.story.storyTitle || "A new journey begins.",
+      ai: cleanEntity(ai),
+      user: cleanEntity(user),
+    };
 
     const system = Strategies.prologue(fractal, context);
     return { system, messages: [] };
@@ -162,6 +188,23 @@ export class ContextBuilder {
 
   buildLibrarian(field, content, context) {
     const system = Strategies.librarian(field, content, context);
+    return { system, messages: [] };
+  }
+
+  /**
+   * Builds the Archivist (Memory) prompt.
+   */
+  async buildArchivist(targetEntity, historyMessages, role) {
+    const historyText = historyMessages
+      .map((m) => {
+        const label =
+          m.characterName || (m.role === "user" ? "User" : "Character");
+        const text = m.content || m.text || "";
+        return `[${label}]: ${text}`;
+      })
+      .join("\n");
+
+    const system = Strategies.archivist(targetEntity, historyText, role);
     return { system, messages: [] };
   }
 }

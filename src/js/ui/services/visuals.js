@@ -77,7 +77,7 @@ export const VisualManager = {
         resolution: resolution,
         negativePrompt: negativePrompt,
         removeBackground: options.removeBackground || false,
-        guidanceScale: 7.5, // Slightly higher for better prompt adherence
+        guidanceScale: options.guidanceScale || 8, // Dynamic or fallback to 8
         seed: -1,
       });
 

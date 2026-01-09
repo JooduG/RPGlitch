@@ -5,7 +5,8 @@
 
 export const PHYSICS_CONSTANTS = {
   // --- THE HEARTBEAT ---
-  HEARTBEAT_RATE: 3,
+  HEARTBEAT_RATE: 5, // AI Physics Pulse (Fast Loop)
+  ARCHIVIST_RATE: 10, // Deep Memory Update (Slow Loop)
 
   // --- THRESHOLDS (Symmetric Model) ---
   LAW_HIGH: 90, // Triggers "Extreme State" Law
@@ -64,4 +65,9 @@ export const PHYSICS_CONSTANTS = {
 
   PENALTY_BASE: 1.05,
   TOP_P_BASE: 0.85,
+
+  // --- VISUAL DYNAMICS (Image Generation) ---
+  GUIDANCE_BASE: 7, // Standard prompt adherence
+  GUIDANCE_MIN: 4, // High Entropy = Chaos/Hallucination
+  GUIDANCE_MAX: 10, // Low Entropy = Strict adherence
 };
