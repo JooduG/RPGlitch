@@ -24,6 +24,7 @@ import {
   showErrorModal,
 } from "./services/modals.js";
 import { audioService } from "../services/audio-service.js";
+import { state, applyPatch } from "../core/state.js";
 
 export const Orchestrator = {
   /**
@@ -32,7 +33,6 @@ export const Orchestrator = {
    */
   initStory: async (storyId) => {
     log("[Orchestrator] Initializing Story:", storyId);
-    // REFACTORED: generateOpening -> generatePrologue
     await TurnManager.generatePrologue(storyId);
   },
 
@@ -42,7 +42,6 @@ export const Orchestrator = {
    */
   endStory: async () => {
     log("[Orchestrator] Triggering Epilogue");
-    // REFACTORED: concludeStory -> triggerEpilogue
     await TurnManager.triggerEpilogue();
   },
 
@@ -302,6 +301,26 @@ const initEventBinds = () => {
   events.addEventListener(EVENTS.MESSAGE_RECEIVED, (e) => {
     if (e.detail?.type === "IMAGE") finalizeTurn("image");
   });
+
+  // --- STATE-DRIVEN UI MANAGEMENT ---
+  events.addEventListener(EVENTS.STATE_CHANGED, (e) => {
+    const { patch } = e.detail;
+
+    // 1. Mode Management (Lobby vs Game)
+    if (patch.mode) {
+      document.body.classList.remove("storyboard", "storymode");
+      document.body.classList.add(patch.mode);
+      log(`[UI] Mode switched: ${patch.mode}`);
+    }
+
+    // 2. Developer Mode
+    if (patch.settings && patch.settings.developerMode !== undefined) {
+      document.body.classList.toggle(
+        "mode-developer",
+        patch.settings.developerMode,
+      );
+    }
+  });
 };
 
 export const handleConcludeStory = async () => {
@@ -340,18 +359,6 @@ export {
   showErrorModal,
 };
 
-const showStoryboard = () => {
-  document.body.classList.remove("profile-view-active", "storymode");
-  document.body.classList.add("mode-storyboard");
-  closeProfileModal();
-};
-
-const showStoryScreen = () => {
-  document.body.classList.remove("profile-view-active", "mode-storyboard");
-  document.body.classList.add("storymode");
-  closeProfileModal();
-};
-
 const parseHash = () => {
   const [path] = location.hash.slice(1).split("?");
   return path.split("/").filter(Boolean);
@@ -372,18 +379,17 @@ const handleRoute = () => {
   }
 
   if (section === "profile" && isType(entityType) && id) {
-    if (
-      !document.body.classList.contains("storymode") &&
-      !document.body.classList.contains("mode-storyboard")
-    ) {
-      document.body.classList.add("mode-storyboard");
+    if (state.mode !== "storymode") {
+      applyPatch({ mode: "storyboard" });
     }
     renderProfilePage(entityType, id);
     closeDrawer();
   } else if (section === "story") {
-    showStoryScreen();
+    applyPatch({ mode: "storymode" });
+    closeProfileModal();
   } else {
-    showStoryboard();
+    applyPatch({ mode: "storyboard" });
+    closeProfileModal();
   }
 };
 

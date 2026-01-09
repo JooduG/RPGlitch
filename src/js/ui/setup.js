@@ -91,8 +91,6 @@ const handleBeginStory = async () => {
       fractalId: selectedFractal.id,
     });
 
-    document.body.classList.remove("mode-storyboard");
-    document.body.classList.add("storymode");
     applyPatch({ mode: "storymode" });
 
     updatePortraits(selectedAI, selectedUser);

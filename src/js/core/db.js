@@ -40,7 +40,6 @@ db.on("populate", async (trans) => {
       model: "default",
       debugMode: false,
       developerMode: false,
-      storyOpeningInstructions: "", // Legacy key kept for hydration safety, but UI uses Prologue
       storyPrologueInstructions: "",
       storyboardSelection: { fractal: null, user: null },
     });

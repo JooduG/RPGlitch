@@ -1,27 +1,33 @@
 import { extractImageUrl, log, error } from "../../core/utils.js";
 
 /**
- * THE VISUAL MANAGER (V7.3: THE REALISM HAMMER)
+ * THE VISUAL MANAGER
  * Handles interaction with the Perchance Text-to-Image Plugin.
- * FORCEFULLY injects realism tags into every single prompt.
+ * Injects technical photography references and stylistic glitches.
  */
 
 const VISUAL_CONSTANTS = {
-  // COMPULSORY REALISM TAGS. These will be prepended to EVERY prompt.
+  // HIGH-FIDELITY REALISM ANCHORS
   REALISM_ANCHOR:
-    "raw photo, amateur phone photography, flash photography, realistic skin texture, pores, acne scars, imperfections, high iso, film grain, unpolished, snapchat quality",
+    "ultra-sharp raw photo, Kodak Portra 400 film stock, authentic skin textures, subtle imperfections, natural cinematic lighting, shot on Fujifilm X-T5, high-end candid, professional color grading",
 
-  // THE FIREWALL (Strict Anti-Anime)
-  // [AMATEUR UPDATE] Removed "bad anatomy, blurry, low resolution" to allow glitches/realism
+  // THE FIREWALL (Strict Anti-Anime & Synthetic looks)
   NEGATIVE_CONSTRAINTS:
-    "anime, cartoon, illustration, drawing, 3d render, painting, sketch, smooth skin, plastic skin, doll-like, glowing skin, matte, perfect lighting, rendered, cgi, unreal engine, video game",
+    "anime, cartoon, illustration, drawing, 3d render, painting, sketch, rendered, cgi, unreal engine, video game, bad anatomy, blurry, low resolution, plastic skin, airbrushed, glowing eyes",
 
   CAMERA_ARTIFACTS: [
-    "motion blur, out of focus hand, harsh flash, red eye, dirty lens",
-    "low light noise, grain, cctv footage, security camera angle",
-    "unflattering angle, double chin, blurry background, photobomber",
-    "reflection in mirror, fingerprints on glass, overexposed",
-    "shaky camera, slightly out of focus, lens flare, thumb over lens",
+    "motion blur, harsh cinematic shadows, lens flare, rim light",
+    "low light film grain, cctv security angle, volumetric bounce",
+    "unflattering candid angle, blurry background, 35mm lens clarity",
+    "reflection in glass, dusty lens, slightly overexposed rim",
+    "handheld camera shake, soft 85mm bokeh, neon ambient glow",
+  ],
+
+  STYLE_GLITCHES: [
+    "bioluminescent body paint, subdermal LED implants, latex texture, tactical gear",
+    "glitch art distortion, analog video noise, digital chromatic aberration, holographic sheen",
+    "cybernetic enhancements, carbon fiber plating, wet skin texture, high-contrast neon",
+    "distorted reality, fractured glass effects, infrared color palette, ethereal glow",
   ],
 
   DEFAULT_RESOLUTION: "512x768",
@@ -34,29 +40,28 @@ export const VisualManager = {
     options = options || {};
     if (!window.textToImage) throw new Error("Image plugin not loaded.");
 
-    log(`[Visuals] Raw Input: ${prompt.substring(0, 50)}...`);
+    log(`[Visuals] Raw Input: ${prompt.substring(0, 40)}...`);
 
-    // 1. SANITIZATION (Remove tags and Perchance list syntax)
+    // 1. SANITIZATION
     let cleanPrompt = prompt
       .replace(/<think>[\s\S]*?<\/think>/gi, "")
       .replace(/<image_prompt[^>]*>|<\/image_prompt>/gi, "")
       .trim();
-    // Brackets [ ] and Braces { } trigger Perchance list evaluation.
-    // We must remove them or escape them. Removal is safer for simple prompting.
+
     cleanPrompt = cleanPrompt.replace(/[[\]{}]/g, "");
-    // Remove potential double-brace list calls ({{list}}) just in case
     cleanPrompt = cleanPrompt.replace(/\{\{.*?\}\}/g, "");
     cleanPrompt = cleanPrompt.replace(/\n/g, ", ");
 
-    // 2. THE REALISM HAMMER (Force Injection)
-    // We prepend the realism anchor to ensure it's the first thing Flux sees.
+    // 2. THE REALISM HAMMER
     const randomArtifact =
       VISUAL_CONSTANTS.CAMERA_ARTIFACTS[
         Math.floor(Math.random() * VISUAL_CONSTANTS.CAMERA_ARTIFACTS.length)
       ];
-    const finalPrompt = `${VISUAL_CONSTANTS.REALISM_ANCHOR}, (${randomArtifact}:1.3), ${cleanPrompt}`;
 
-    log(`[Visuals] Final Realism Prompt: ${finalPrompt.substring(0, 100)}...`);
+    // Weighted anchor for stronger influence
+    const finalPrompt = `((${VISUAL_CONSTANTS.REALISM_ANCHOR}):1.2), (${randomArtifact}:1.3), ${cleanPrompt}`;
+
+    log(`[Visuals] Final Prompt: ${finalPrompt.substring(0, 100)}...`);
 
     let negativePrompt = options.negative || "";
     if (!negativePrompt.includes("anime")) {
@@ -72,7 +77,7 @@ export const VisualManager = {
         resolution: resolution,
         negativePrompt: negativePrompt,
         removeBackground: options.removeBackground || false,
-        guidanceScale: 7,
+        guidanceScale: 7.5, // Slightly higher for better prompt adherence
         seed: -1,
       });
 
@@ -106,7 +111,7 @@ export const VisualManager = {
     });
   },
 
-  // --- PROMPT ENGINEERING (MANUAL FALLBACK) ---
+  // --- PROMPT ENGINEERING ---
 
   composePrompt(
     entity,
@@ -115,14 +120,10 @@ export const VisualManager = {
     options = {},
   ) {
     const name = entity.name || "Subject";
-    // [V6] NESTED ACCESSORS
-    const appearance =
-      entity.forever?.physical || entity.appearance || entity.forever || "";
-    const outfit =
-      entity.present?.physical ||
-      entity.outfit ||
-      entity.present ||
-      "casual clothes";
+
+    // TEMPORAL HYBRID 6: Using primary physical fields
+    const appearance = entity.forever?.physical || "";
+    const outfit = entity.present?.physical || "casual streetwear";
 
     let anchor = "";
     const traits = (appearance + " " + outfit).toLowerCase();
@@ -138,35 +139,32 @@ export const VisualManager = {
       anchor = "(FEMALE:1.6), (WOMAN:1.5)";
     }
 
-    // Mass Weighting
-    if (
-      traits.includes("bodybuilder") ||
-      traits.includes("steroid") ||
-      traits.includes("muscle")
-    ) {
-      anchor += ", (HYPER-MUSCULAR:1.4), (MASSIVE BUILD:1.3)";
+    // Mass / Detail Weighting
+    if (traits.includes("bodybuilder") || traits.includes("muscle")) {
+      anchor += ", (HYPER-MUSCULAR:1.4), (MASSIVE PHYSIQUE:1.3)";
     }
 
-    const realityFilter =
-      "bioluminescent body paint, subdermal LED implants, latex texture, tactical gear";
+    // Dynamic Style Glitch
+    const styleGlitch =
+      VISUAL_CONSTANTS.STYLE_GLITCHES[
+        Math.floor(Math.random() * VISUAL_CONSTANTS.STYLE_GLITCHES.length)
+      ];
 
     const isFractal = entity.type === "fractal" || entity.kind === "fractal";
     let action = extraContext ? extraContext.trim() : "standing candidly";
-    if (isFractal && !extraContext) action = "panoramic view";
+    if (isFractal && !extraContext) action = "panoramic abstract macro view";
 
     const parts = [
       anchor,
-      `Subject: ${name}, ${action}`,
-      `Physical Details: ${appearance}, ${outfit}`,
-      `Material Effects: ${realityFilter}`,
+      `(Subject: ${name}:1.2), ${action}`,
+      `Physical: ${appearance}`,
+      `Outfit: ${outfit}`,
+      `Aesthetic: ${styleGlitch}`,
     ];
 
     const finalPrompt = parts.filter(Boolean).join(", ");
 
-    log(
-      "[VisualManager] Assembled Manual Prompt (Pre-Injection):",
-      finalPrompt,
-    );
+    log("[VisualManager] Assembled Prompt:", finalPrompt);
     return finalPrompt;
   },
 

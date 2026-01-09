@@ -11,6 +11,8 @@
 .stage-content--storymode {
   display: none; // HIDE by default
   opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
   transition: opacity 0.3s ease;
   width: 100%;
   height: 100%;
@@ -23,7 +25,7 @@
 /* =========================================
    MODE: STORYBOARD (LOBBY)
    ========================================= */
-body.mode-storyboard {
+body.storyboard {
   // [NEW] 5-Track Grid: 1fr (gap) | 2fr (left) | 4fr (center) | 2fr (right) | 1fr (gap)
   // Total 10 units. Outer gaps are 1 unit (10%). Side panels 2 units (20%). Center 4 units (40%).
   .universal-stage {
@@ -50,7 +52,8 @@ body.mode-storyboard {
     opacity: 1;
     z-index: 10;
     padding: var(--app-container-pad, 1rem);
-    pointer-events: none; // Pass through clicks interactions
+    pointer-events: auto;
+    visibility: visible;
   }
 
   // Explicitly HIDE Gameplay Content
@@ -89,7 +92,8 @@ body.storymode {
     opacity: 1;
     z-index: 10;
     animation: fade-in 0.8s ease;
-    pointer-events: auto; // Re-enable clicks!
+    pointer-events: auto;
+    visibility: visible;
   }
 
   // Explicitly HIDE Storyboard Content

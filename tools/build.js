@@ -18,7 +18,6 @@ const LIBS_DIR = path.join(REPO_ROOT, "libs");
 const ENTRY_JS = path.join(SRC_DIR, "js/core/bootstrap.js");
 const ENTRY_SCSS = path.join(SRC_DIR, "scss/index.scss");
 const HTML_TEMPLATE = path.join(SRC_DIR, "index.html");
-const WORKER_JS = path.join(SRC_DIR, "js/engine/physics/worker.js");
 
 // --- PERCHANCE BRIDGE ---
 // This injects the Left Panel lists into the Right Panel JS scope.
@@ -99,11 +98,10 @@ async function build() {
   console.log("🔥 Building RPGlitch...");
   await fs.mkdir(DIST_DIR, { recursive: true });
 
-  const [css, appJs, rawHtml, workerJs] = await Promise.all([
+  const [css, appJs, rawHtml] = await Promise.all([
     compileStyles(),
     bundleJs(ENTRY_JS),
     fs.readFile(HTML_TEMPLATE, "utf8"),
-    bundleJs(WORKER_JS),
   ]);
 
   const virtualConsole = new VirtualConsole();
@@ -126,27 +124,6 @@ async function build() {
   const styleTag = doc.createElement("style");
   styleTag.textContent = css;
   doc.head.appendChild(styleTag);
-
-  // 3. INJECT WORKER
-  if (workerJs) {
-    const dexiePath = path.join(LIBS_DIR, "dexie.min.js");
-    let dexie = "";
-    try {
-      dexie = await fs.readFile(dexiePath, "utf8");
-    } catch (e) {
-      console.warn("⚠️ Dexie not found.");
-    }
-
-    const workerScript = doc.createElement("script");
-    workerScript.id = "rpglitch-worker-source";
-    workerScript.textContent = `window.RPGLITCH_WORKER_SOURCE = ${JSON.stringify(
-      dexie + ";\n" + workerJs,
-    )
-      .replace(/</g, "\\u003c")
-      .replace(/\u2028/g, "\\u2028")
-      .replace(/\u2029/g, "\\u2029")};`;
-    doc.body.appendChild(workerScript);
-  }
 
   // 4. INJECT LIBS + APP
   const libFiles = [

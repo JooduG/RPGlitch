@@ -803,7 +803,9 @@ export const TurnManager = {
 
         // 4.1 LOG ENTRY (Long Term Memory)
         if (data.log_entry && typeof data.log_entry === "string") {
-          const entry = `\n[Turn ${state.turnCount || history.length}] ${data.log_entry}`;
+          // [FIX] Calculate logical turn count from history
+          const turnCount = msgs.filter((m) => m.role === "model").length;
+          const entry = `\n[Turn ${turnCount}] ${data.log_entry}`;
           updates.past = (targetEntity.past || "") + entry;
           needsSave = true;
           log(`[TurnManager] 🧠 New Memory Engram:`, entry);

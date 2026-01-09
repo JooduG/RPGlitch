@@ -34,18 +34,26 @@ export const PHYSICS_CONSTANTS = {
   DEEP_BREATH_ENT: -5, // Stillness reduces chaos
   CRYSTAL_PERM: -10, // Rigidity reduces openness
   CRYSTAL_VEL: -5, // Rigidity reduces speed
+
   BUNKER_RES_MULT: 0.5, // Iron Bunker reduces Incoming Resonance (Resistance)
   APATHY_VEL: -10, // Depression reduces speed (Stagnation)
   APATHY_ENT: 5, // Depression increases chaos (Rot)
 
-  GRAVITY_STRENGTH: 0.1, // 10% drift towards baseline
+  GRAVITY_STRENGTH: 0.25, // 25% drift towards baseline
   GRAVITY_BASELINE: 50, // Universal baseline
 
   // --- INPUT SCALARS (Reflex) ---
-  REFLEX_VIOLENCE_VELOCITY: 20,
-  REFLEX_INTIMACY_PERMEABILITY: 20,
-  REFLEX_INTIMACY_RESONANCE: 10,
-  REFLEX_FEAR_ENTROPY: 20,
+  REFLEX_VIOLENCE_VELOCITY: 10,
+  REFLEX_INTIMACY_PERMEABILITY: 5,
+  REFLEX_INTIMACY_RESONANCE: 5,
+  REFLEX_FEAR_ENTROPY: 10,
+  REFLEX_SYNCHRONY_RESONANCE: 10,
+
+  // --- DAMPENERS (Negative Reflex) ---
+  REFLEX_STASIS_VELOCITY: -10,
+  REFLEX_SHIELDED_PERMEABILITY: -10,
+  REFLEX_ORDERED_ENTROPY: -10,
+  REFLEX_DETACHED_RESONANCE: -10,
 
   // --- LLM GENERATION PARAMS ---
   TEMP_BASE: 0.7, // Base Roleplay Temp (Low Entropy)

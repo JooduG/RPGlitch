@@ -35,36 +35,31 @@ This explains the new WebWorker & Event Bus flow we just implemented.
 ```mermaid
 sequenceDiagram
     participant User
-    participant UI as 🖥️ UI (Main Thread)
+    participant UI as 🖥️ UI
     participant Bus as 📢 EventBus
-    participant Bridge as 🌉 WorkerBridge
-    participant Worker as ⚙️ Worker (Logic)
-    participant DB as 💾 Dexie (IndexedDB)
+    participant Dir as 🎬 Director
+    participant DB as 💾 Dexie
     participant AI as 🧠 LLM Service
 
     Note over User, AI: The "Prometheus" Turn Cycle
 
     User->>UI: Types Message
     UI->>DB: Save User Message
-    UI->>Bridge: runBackgroundUpdate()
-    Bridge->>Worker: CMD_START_UPDATE
+    UI->>Dir: send()
 
     rect rgb(20, 20, 20)
-        Note right of Worker: Background Thread
-        Worker->>Worker: Calculate Physics (Entropy)
-        Worker->>Worker: Build Prompt (Context)
+        Note right of Dir: Main Thread Execution
+        Dir->>Dir: Calculate Physics (Reflex)
+        Dir->>Dir: Build Prompt (ContextBuilder)
 
-        Worker->>Bridge: CMD_LLM_REQUEST
-        Bridge->>AI: generateStream()
-        AI-->>Bridge: Stream Tokens
-        Bridge-->>Worker: CMD_LLM_RESPONSE
+        Dir->>AI: LlmService.generate()
+        AI-->>Dir: Response Text
 
-        Worker->>DB: Save AI Message
-        Worker->>DB: Update Entity States
+        Dir->>DB: Save AI Message
+        Dir->>DB: Update Entity States
     end
 
-    Worker-->>Bridge: CMD_UPDATE_COMPLETE
-    Bridge->>Bus: Dispatch "DB_UPDATED"
+    Dir->>Bus: Dispatch "CHAT_REFRESH"
     Bus->>UI: Trigger Re-render
     UI->>DB: Fetch Latest Messages
     UI-->>User: Show Response
@@ -147,7 +142,7 @@ src/
 ├── js/
 │   ├── core/                  # App Foundation (Bootstrap, DB, Events)
 │   ├── data/                  # Data Layer (Models, Repo)
-│   ├── engine/                # Simulation Logic (Director, Worker, Bridge)
+│   ├── engine/                # Simulation Logic (Director, Physics)
 │   ├── services/              # Shared Services (Theme, Audio, LLM)
 │   └── ui/                    # User Interface (Orchestrator, Components)
 └── scss/
