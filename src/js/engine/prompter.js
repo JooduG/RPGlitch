@@ -30,6 +30,8 @@ export class ContextBuilder {
     const llmMessages = messages.map((m) => ({
       role: m.role === ROLES.USER ? "user" : "model",
       content: m.text,
+      characterName:
+        m.characterName || (m.role === ROLES.AI ? ai.name : user.name),
     }));
 
     // If user is currently typing (instruction), append it?
@@ -52,9 +54,12 @@ export class ContextBuilder {
       options.varianceInstruction,
     );
 
+    const userName = user?.name || "User";
+
     return {
       system,
       messages: llmMessages,
+      stopSequences: [`\n${userName}:`, "\nUser:", "\nCharacter:"],
     };
   }
 
@@ -92,7 +97,12 @@ export class ContextBuilder {
   async buildPulse(targetEntity, others, historyMessages, activeThreads) {
     // Convert history messages array to string block
     const historyText = historyMessages
-      .map((m) => `[${m.role}]: ${m.text}`)
+      .map((m) => {
+        const label =
+          m.characterName || (m.role === "user" ? "User" : "Character");
+        const text = m.content || m.text || "";
+        return `[${label}]: ${text}`;
+      })
       .join("\n");
 
     const system = Strategies.pulse(
@@ -124,10 +134,13 @@ export class ContextBuilder {
       targetType,
       null,
       context,
-    ); // rawIntent is appended by Director later
+    );
 
-    // Director.js appends <RAW_INTENT> manually, so we just return the system block here.
-    return { system: visualCortexInstructions, messages: [] };
+    return {
+      system: visualCortexInstructions,
+      messages: [],
+      stopSequences: ["\n", "User:", "Character:"], // Tighten visual stops
+    };
   }
 
   /**

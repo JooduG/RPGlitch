@@ -126,7 +126,9 @@ export const LlmService = {
           label = "User";
         }
 
-        return `${label}: ${m.text}`;
+        // Schema Harmonization: Use .content (V6) or .text (Legacy)
+        const text = m.content || m.text || "";
+        return `${label}: ${text}`;
       })
       .join("\n\n"),
 };

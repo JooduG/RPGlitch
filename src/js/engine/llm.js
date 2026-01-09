@@ -16,7 +16,8 @@ export const generateStream = async ({
   const chatHistory = (payload.messages || [])
     .map((m) => {
       const label = m.role === "user" ? "User" : m.characterName || "Character";
-      return `${label}: ${m.text}`;
+      const text = m.content || m.text || "";
+      return `${label}: ${text}`;
     })
     .join("\n\n");
 

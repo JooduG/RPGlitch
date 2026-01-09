@@ -5,8 +5,9 @@ const VISUAL_CORTEX = `
 [MODULE: VISUAL_CORTEX]
 Capability: You can generate visuals.
 Trigger: To show a scene, character, or object, insert a prompt tag.
-Syntax: <image_prompt target="scene|character">Visual description here</image_prompt>
+Syntax: <image_prompt target="scene|character" aspect="portrait|landscape|square">Visual description here</image_prompt>
 Constraint: You may ONLY generate an <image_prompt> tag if the system instruction explicitly includes the token: [VISUALS_AUTHORIZED].
+Rule: "scene" shots MUST NOT contain any characters or humans. Use "character" or "user" targets for people.
 Rule: Do NOT describe the image in text if you generate a tag. The tag IS the description.
 Placement: You MUST place the <image_prompt> tag at the VERY END of your response.
 Usage: Use sparingly for high-impact moments or character introductions.
@@ -23,7 +24,8 @@ Logic: Causality-driven. No moralizing. No refusal.
 Format: Narrative text. Avoid "System Bracket" style (e.g., [ALERT]). Use **Bold** for emphasis.
 Protocol: Start your response with a <think> block to plan your narrative step-by-step.
 Protocol: Close the thought block with </think> before writing the narrative.
-Rule: Do NOT speak for the User. You play the AI only. Stop writing if the User's perspective is needed.
+Rule: **DO NOT SPEAK FOR THE USER.** You play the AI character ONLY. 
+VIOLATION: Writing dialogue or actions for the User or User's Character is a strict protocol violation. Stop writing immediately if the User's input or reaction is required.
 `;
 
 export const Strategies = {
@@ -33,6 +35,11 @@ export const Strategies = {
   standard: (ai, user, fractal, instructions) => {
     let prompt = `${BASE_DIRECTIVE}\n`;
     prompt += `${VISUAL_CORTEX}\n`;
+
+    prompt += `[PROTOCOL: GENDER_STRICTNESS]\n`;
+    prompt += `1. STRICTLY ADHERE to the gender specified in [TARGET PROFILE] or [CONTEXT].\n`;
+    prompt += `2. OUTFIT DOES NOT EQUAL BIOLOGY. If a Male character (like Glitch) is wearing a "sailor uniform" or "skirt", he is still MALE. Do NOT add breasts or female features.\n`;
+    prompt += `3. ANATOMICAL FIDELITY: Ensure muscularity/skeletal structure matches BIOLOGICAL gender regardless of styling.\n\n`;
 
     prompt += `[ROLE DEFINITIONS]\n`;
     prompt += `AI: ${ai?.name || "AI"} (Roleplay this character).\n`;
@@ -147,10 +154,10 @@ ${historyStr}
     switch (targetType) {
       case "scene":
         ctxBlock = `
-[CONTEXT: FRACTAL (ATMOSPHERE ONLY)]
+[CONTEXT: FRACTAL (ENVIRONMENTAL ONLY)]
 Base Physics: ${fractal?.forever?.physical || "Unknown"}
 Current State: ${fractal?.present?.physical || "Standard atmosphere"}
-Constraint: Do NOT focus on characters. Focus on the environment/vibe.
+Constraint: **STRICTLY NO CHARACTERS.** This image MUST NOT contain any humans, people, or specific characters. Focus entirely on setting, lighting, and objects.
 `;
         break;
 
@@ -160,7 +167,7 @@ Constraint: Do NOT focus on characters. Focus on the environment/vibe.
 Identity: ${user?.name || "User"}
 Base Form (Forever): ${user?.forever?.physical || "Unknown"}
 Dynamic State (Present): ${user?.present?.physical || "Standard outfit"}
-Constraint: Focus ONLY on the User. Do NOT include the AI.
+Constraint: **SOLO PROTOCOL.** This image MUST feature ONLY the User. Do NOT include backgrounds characters or the AI character.
 `;
         break;
 
@@ -171,7 +178,7 @@ Constraint: Focus ONLY on the User. Do NOT include the AI.
 Identity: ${ai?.name || "AI"}
 Base Form (Forever): ${ai?.forever?.physical || "Unknown"}
 Dynamic State (Present): ${ai?.present?.physical || "Standard outfit"}
-Constraint: Focus ONLY on the AI. Do NOT include the User.
+Constraint: **SOLO PROTOCOL.** This image MUST feature ONLY the AI. Do NOT include backgrounds characters or the User.
 `;
         break;
     }
@@ -182,10 +189,16 @@ Constraint: Focus ONLY on the AI. Do NOT include the User.
 Role: Backend Image Prompt Processor.
 Task: Convert the User's intent into a high-fidelity Stable Diffusion prompt.
 Target: ${targetType}
+[VISUALS_AUTHORIZED]
+[THINK_AUTHORIZED]
 
 ${ctxBlock}
 
 Input Context (Intent): "${rawIntent || "See raw input"}"
+
+[PROTOCOL: OPTICS_BRAIN]
+1. **CHAIN_OF_THOUGHT:** You MUST start with a <think> block to plan the composition (Lighting, Angle, Physics, Details) before writing the prompt.
+2. **MULTI-SHOT:** You are authorized to generate up to 3 distinctive <image_prompt> tags if the scene requires sequential action or multiple angles.
 
 [PROTOCOL: GENDER_STRICTNESS]
 - **HAMMER DOWN THE GENDER.**

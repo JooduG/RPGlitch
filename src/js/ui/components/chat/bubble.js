@@ -287,14 +287,38 @@ export const renderMessage = (
 
     div.innerHTML = contentHtml + timeHtml + statusHtml + debugHtml;
 
-    if (options.attachmentUrl) {
+    if (options.attachments && options.attachments.length > 0) {
+      // [NEW] Gallery Mode
+      const gallery = document.createElement("div");
+      gallery.className = "image-gallery";
+
+      // Basic Grid Styling (Inline for safety, but ideal in CSS)
+      if (options.attachments.length > 1) {
+        gallery.style.display = "grid";
+        gallery.style.gap = "0.5rem";
+        // 2 images = 2 cols, 3 images = 3 cols (or 2+1 layout)
+        gallery.style.gridTemplateColumns = `repeat(${Math.min(options.attachments.length, 3)}, 1fr)`;
+      } else {
+        gallery.className = "image-wrapper"; // Fallback to single wrapper style if just 1
+      }
+
+      options.attachments.forEach((url, index) => {
+        // Reuse renderImageAttachment logic but maybe simplified wrapper?
+        // Actually, renderImageAttachment creates a wrapper. We might need to append wrappers to the gallery.
+        const imgWrapper = renderImageAttachment(url, { ...options, index });
+        gallery.appendChild(imgWrapper);
+      });
+
+      div.appendChild(gallery);
+    } else if (options.attachmentUrl) {
+      // Legacy Fallback
       div.appendChild(
         renderImageAttachment(options.attachmentUrl, { ...options, role }),
       );
     } else if (options.metadata?.visualPrompt && role === "ai") {
       const placeholder = document.createElement("div");
       placeholder.className = "image-placeholder";
-      placeholder.innerHTML = `<div class="loading-spinner"></div><span>Generating Visual...</span>`;
+      placeholder.innerHTML = `<div class="loading-spinner"></div><span>Generating Visuals...</span>`;
       div.appendChild(placeholder);
     }
 

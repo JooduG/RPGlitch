@@ -349,7 +349,7 @@ describe("ContextBuilder (Physics Injection)", () => {
 
     // Check that history is represented (though specific format depends on implementation)
     // In our case it's joined in historyStr and passed to Strategies.pulse
-    expect(payload.system).toContain("[user]: HI");
+    expect(payload.system).toContain("[User]: HI");
   });
 
   test("buildPulse output schema check", async () => {

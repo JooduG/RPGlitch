@@ -170,6 +170,7 @@ export const VisualManager = {
   getResolutionForMode: (mode) => {
     if (mode === "scene" || mode === "landscape") return "768x512";
     if (mode === "portrait" || mode === "selfie") return "512x768";
+    if (mode === "square") return "768x768";
     return VISUAL_CONSTANTS.DEFAULT_RESOLUTION;
   },
 };
