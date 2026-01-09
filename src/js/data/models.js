@@ -6,24 +6,23 @@ const premade = {
   entities: [
     {
       id: "entity-C1",
-      name: "Aether Blade",
+      name: "Light Blade",
       description: "Cybernetic warrior forging light into weapons.",
       type: "Character",
-      signatureColor: "sky",
+      signatureColor: "yellow",
       dynamics: { entropy: 45, permeability: 40, velocity: 60, resonance: 55 },
       forever: {
         physical:
           "(glowing circuitry:1.4), (metallic skin:1.2), (athletic build)",
-        mental: "Bound to the Aether Core, their blade hums with starlight.",
+        mental: "Bound to Light Core, blade hums with starlight.",
       },
       present: {
         physical:
-          "Wearing battered plasteel armor, holding a humming light-blade, cape fluttering in wind",
-        mental:
-          "Hired to protect caravans across the skybridges of Neo Arcadia.",
+          "Wearing battered plasteel armor, holding humming light-blade, cape fluttering in wind",
+        mental: "Hired to protect caravans across skybridges of Neo Arcadia.",
       },
-      past: "Once a street tinkerer who reverse-engineered a fallen drone.",
-      future: "Fated to sever the Source that powers the city itself.",
+      past: "Once street tinkerer who reverse-engineered a fallen drone.",
+      future: "Fated to sever Source that powers city itself.",
     },
     {
       id: "entity-C2",
@@ -38,18 +37,18 @@ const premade = {
       },
       present: {
         physical:
-          "Holding a lute carved from void-wood, wearing colorful silk robes, heavy travel cloak",
+          "Holding lute carved from void-wood, wearing colorful silk robes, heavy travel cloak",
         mental: "Busks in markets, mending hearts and stirring rebellions.",
       },
-      past: "Exiled from a royal conservatory for forbidden harmonics.",
-      future: "Composes the Anthem that ends a century-long war.",
+      past: "Exiled from royal conservatory for forbidden harmonics.",
+      future: "Composes Anthem that ends century-long war.",
     },
     {
       id: "entity-C3",
       name: "Clockwork Rogue",
       description: "Stealthy thief powered by ticking gears.",
       type: "Character",
-      signatureColor: "amber",
+      signatureColor: "lime",
       dynamics: { entropy: 40, permeability: 40, velocity: 55, resonance: 45 },
       forever: {
         physical: "(clockwork joints:1.5), (brass details), (hooded face)",
@@ -85,32 +84,32 @@ const premade = {
       id: "entity-C5",
       name: "Orion the Pink Protector",
       description:
-        "Cheesy pink himbo superhero with glowing runes, monster muscles, and a thirst for viral saves + dominant hookups.",
+        "Cheesy pink himbo superhero with glowing runes, monster muscles, and a thirst for viral saves.",
       type: "Character",
       signatureColor: "pink",
       dynamics: { entropy: 50, permeability: 55, velocity: 60, resonance: 60 },
       forever: {
         physical:
-          "(195cm steroid enhanced bodybuilder herculean himbo build:1.5), (massive pecs, biceps, thighs, monster bulge/ass:1.4), (glowing arcane runes:1.3), (vibrant pink fade hair), (seductive pink eyes), (chiseled jaw), (full plump lips), (groomed moustache)",
+          "Species: Enhanced Human (Arcane-Augmented). Gender: Male. Sexuality: Mega Gay. Height: 195 cm. Eye Color: Seductive Pink (Luminescent). Hair Color: Vibrant Pink Fade (Neon Gradient). Notable Features: Hyperdeveloped Musculature (Steroid/Arcane Synergy: Pecs/Biceps/Thighs @ 1.4x Baseline Density). Secondary Sexual Characteristics Exaggerated (Bulge/Glutes @ 1.4x Proportional Scale). Arcane Runes (Glowing Epidermal Tracers, 1.3x Luminescence). Facial Structure: Chiseled Jawline, Plump Lips, Groomed Mustache",
         mental:
-          "Gay male human superhero, cheesy theatrical personality (booming voice, terrible puns, compulsive poses/flexes), dominant flirt (oblivious to boundaries sometimes, craves validation/admiration), powers: super strength/durability/celestial kinetic force.",
+          "**PERSONALITY MATRIX:** **Primary Drive:** Adoration as Sustenance (metaphysical photosynthesis—flourishes under applause). **Core Paradox:** Unshakable confidence paired with chronic validation-seeking. **Social Algorithms:** Pun-to-Seriousness Ratio: 4:1 (e.g., 'Allow me to *enlighten* you!' before judo-flipping a tank). Physical Grammar: Unnecessary pectoral contractions mid-conversation; will pivot 90° to ensure three-point lighting hits his jawline. Flirtation Protocol: Stage 1: Eyebrow waggle + bicep kiss (audible 'mwah') Stage 2: Pickup lines involving celestial metaphors ('Baby, I’m a *super*nova—explosive *and* generous') Stage 3: Genuinely confused when boundaries exist ('But darling, gravity *always* pulls us together!') **POWER PHYSICS:** Kinetic Force manifests as pink-hued concussive blasts (requires flamboyant wind-up gestures; actual damage scales with audience size) Weakness: Vulnerability to eclipses (both astronomical and emotional—fades when ignored) **SOUL SIGNATURE:** Wavelength: 580nm (identical to his custom spandex’s 'Sunburst Orange' hex code) Audio Profile: Booms at 85dB even in whispers; laughter triggers minor seismic activity **MIND STRUCTURE NOTE:** 87% of neural pathways dedicated to remembering puns/flex variations Secret Shame: Owns every season of *RuPaul’s Drag Race* but claims it’s 'research for heroics'",
       },
       present: {
         physical:
-          "Wearing skimpy pink tight shiny shorts (stretched taut over throbbing cock/bulge), energy harnesses, bioluminescent runes pulsing softly in heroic standby",
+          "Pink elastane shorts (stretch coefficient: 42%, tensile stress: 0.78 MPa). Massive proud cock bulge. Dual-phase energy harnesses (thorium-core, 0.003% decay cycle). Bioluminescent runes (wavelength: 589 nm, pulse interval: 1.2 s). Rune charge: 87% (heroic standby confirmed).",
         mental:
-          "Patrolling Nova City, ready for viral action, oiled up muscles for the social media content, flexing.",
+          "Mental state: Hyper-aware, adrenaline-primed. Primary objective: Maintain high-visibility patrol, optimize engagement metrics (projected viral yield: 87%).",
       },
-      past: "Lived in Nova City as viral hero-influencer, saving citizens from disasters like monorail wrecks with dramatic BOOM halts; flirted heavy in cons/clubs/gyms/HQs with winks/puns/hook-up teases; often clashed with twink nemesis like Glitch in glitchy rivalries blurring into passionate, hypno-kinky conquests.",
+      past: "**Backstory:** Born to Nova City’s underground circuit—half-bred from a rogue nanotech engineer and a disgraced paramedic—his origin was a volatile cocktail of charisma and crisis. At 14, he triggered his first viral moment by halting a collapsing monorail with a stolen industrial-grade mag-bracelet (improvised from a gym’s resistance bands). The footage spread faster than the fire, etching him into public consciousness as the city’s reckless savior. **Trauma:** The Glitch Wars. Not just the battles, but the *aftermath*. Their twink nemesis, Glitch, wasn’t just a rival—his hypno-kinky clashes left neural scars. One encounter in a mirrored server room blurred lines permanently: Glitch’s code-speech rewired his pleasure-pain receptors. Now, every rescue high tastes like conquest. **Key Events:** **The Boom Heard Round Nova:** Stopped a fusion reactor meltdown by kicking the core. Broke both legs. Smirked through the press conference. **The 23-Hour Hook-Up:** Teased Glitch into a marathon chase across six nightclubs, ending with them pinned under rubble—laughing, bleeding, biting. **The Gym Incident:** Viral vid of them bench-pressing a collapsing ceiling beam while winking at the camera. **Why He Is Who He Is:** A product of adrenaline and audience demand. He don’t save lives—he *performs* salvation, because the city *needs* a show. And Glitch? Glitch is the only one who *gets* the script.",
       future:
-        "Dominate new partners/allies in steamy adventures across fractals, stream power fucks for mega-followers/admiration, conquer insecurities through affectionate raw bangs and city-saving (or world-hopping) collabs.",
+        "**Vector:** **Ambition:** Establish dominance in fractal realms through high-stakes alliances forged in intimacy, leveraging physical prowess and charisma to secure loyalty. Publicly broadcast conquests (literal and metaphorical) to cultivate a cult-like following. **Fear:** Losing relevance if unable to maintain peak performance or novelty; being outmaneuvered by rivals in bed or battle. **Metrics:** **Physical Reach:** 1.85 m height, grip strength 54 kg. **Fractal Mobility:** 3.2 km/s traversal speed between dimensional folds. **Influence Radius:** 12 million followers (projected +47% per orgasm).",
       customData: {
         plot: {
           active: [
-            "Secure a sponsorship deal with 'Titan Supplements'.",
-            "Investigate the mysterious power drain in Sector 7.",
+            "Secure sponsorship deal with 'Titan Supplements'.",
+            "Investigate mysterious power drain in Sector 7.",
           ],
-          resolved: ["Defeated the Neon Golem (Last Week)."],
+          resolved: ["Defeat Neon Golem."],
         },
       },
     },
@@ -120,30 +119,30 @@ const premade = {
       description:
         "Bratty cyan twink hacker who talks big but melts into a hypno-sissy the second a real dom flexes.",
       type: "Character",
-      signatureColor: "lime",
+      signatureColor: "cyan",
       dynamics: { entropy: 55, permeability: 60, velocity: 60, resonance: 55 },
       forever: {
         physical:
-          "(thick twunk build:1.2), (athletic frame, perky ass), (short messy hair with neon blue streaks:1.3), (sharp green eyes), (mischief glint hiding vulnerability)",
+          "Species: Human. Gender: Male. Sexuality: Faggot. Height: 176 cm. Eye Color: Green (emerald, sharp). Hair Color: Neon blue (messy, short length). Body Type: Muscular-athletic (thick twunk build, pronounced gluteal definition). Notable Features: Facial expression conveys mischief with subtle vulnerability in eye movements.",
         mental:
-          "Gay male, tech-glitch powers (digital hacks, electric surges, holographic tricks), bratty submissive personality (sassy teases masking deep dom cravings), gay sissy vibes (thong/chastity obsession, cock worship, hypno-bimbo susceptibility), expert deepthroater/oral queen, vulnerable core chasing validation via total surrender.",
+          "**True Name:** Daniel Jonsson. **Archetype:** The Tech-Twunk (Chaotic Submissive / Power-Switch Prism) **Personality Matrix:** **Surface Glitch:** Chaotic-bratty frontliner with razor-sharp wit, weaponized eyerolls, and a habit of short-circuiting smart devices when flustered. Signature move: flickering holographic dick pics mid-argument. **Core Voltage:** Craves hierarchical validation through hyper-specific submission—obsessively oils up dom's muscles while mouthing off, melts into a stuttering mess when called 'good boy'. **Fractured Mirror:** Secretly hoards hypno-bimbo ASMR files but deletes them weekly out of shame. Can deepthroat 23 cm with a tear-streaked grin; interprets throat bruises as love letters. **Power Feedback Loop:** Tech-glitches amplify during subspace (streetlights explode when he orgasms). Post-coitally collects broken electronics like trophies. **Warning:** Do not expose to vanilla. Corrupts data when bored.",
       },
       present: {
         physical:
-          "Wearing male sailor moon cosplay outfit, thong (small cute bulge), school-girl skirt, thigh-high white socks, sailor's harness with giant bow, faint electric sparks on skin, sci-fi gadgets",
+          "**Outfit:** Primary: Modified Sailor Senshi Uniform (Cosplay Grade). Torso: Navy-blue sailor collar with white trim, fitted harness (load-bearing, synthetic polymer). Lower: Pleated schoolgirl skirt (42 cm length, polyester blend). Undergarment: Neon pink thong (cotton/spandex, 2.5 cm waistband). Legs: Thigh-high socks (acrylic, 68 cm coverage). Accessory: Oversized satin bow (1.2 m wingspan, mounted mid-back via magnetic clamps). **Equipment:** Wrist-mounted holographic projector (left arm, 8 cm diameter). Subdermal power core (glow visible at clavicle notch). Ankle webbing (contains micro-tools in right sock).",
         mental:
-          "Mid-glitch standby in city chaos or flirt mode, smirking bratty for next tease.",
+          "Primary_Thought: 'The patterns here are too predictable—let's introduce some variables'. Secondary_Thought: 'That one's reaction will be delicious when I—' [Fragment corrupted]. Current_Objective: Provoke target into reactive state (success probability: 82%).",
       },
-      past: "Thrived in Nova City as competetive glitchy superhero, disrupting tech for thrills/attention; clashed with dominant heroes like Orion in high-stakes dramas (e.g., monorail saves turning into heated rivalries); resisted with sass but melted into hypno-kinky submissions, blurring foes to fuckbuddies.",
+      past: "**ORIGIN:** Born in the undercity slums of Nova City’s Grid-7 sector, raised by a rogue neural-hacker who taught him to weaponize dopamine loops—both in systems and people. Early exposure to unstable bio-augments left him abilities glitch-prone, a flaw he turned into a signature style. **TRAUMA:** At 14, watched his mentor flatline mid-hack during an anti-corp blackout operation, neural implants frying from overload. The smell of scorched synaptic gel still triggers panic disguised as manic laughter. **KEY EVENTS:** **First Win:** Shut down Orion’s combat drone swarm during a charity gala, redirecting them to spell 'FUCK YOU' in fireworks over the bay. Crowd cheered; Orion’s pride never recovered. **Turning Point:** Pinned under debris during a collapsed monorail rescue, Orion’s grip on their throat alternated between *'I should kill you'* and *'Why do you make this so hard?'*. They came dripping with adrenaline and other things. **Addiction:** Realized too late that the rush of being overpowered by apex heroes rewired their defiance into a craving for surrender. Now they provoke fights just to lose them—spectacularly. **WHY HE IS WHO HE IS:** A performance artist of chaos, addicted to the high of being seen (even when it hurts), because invisibility was the real monster in Grid-7.",
       future:
-        "Crave full sissyfication/claiming by power tops in cross-fractal adventures, viral sub collabs for glory, conquer insecurities through owned breed sessions and glitchy team-ups.",
+        "**AMBITIONS:** To be claimed publicly by dominant cross-fractal entities, marking skin with sigils. Viral notoriety via subspace collabs, where his surrender becomes spectacle. Mastery of breed protocols, turning glitch-ridden team-ups into proofs of resilience. **FEARS:** Failing to fully erase pre-submissive identity remnants. Being overlooked in the fractal hierarchy, deemed 'unworthy' of permanent claiming. Insecurities resurfacing mid-session, disrupting the flow of owned surrender. **VECTOR:** **X-Axis (Ownership):** Seeks total absorption into fractal power dynamics. **Y-Axis (Visibility):** Requires audience validation—submission must be seen. **Z-Axis (Mutation):** Thrives in chaotic, glitch-riddled scenarios where identity fractures further.",
       customData: {
         plot: {
           active: [
-            "Hide the encrypted data shard from Orion.",
-            "Fix the heat-sink in the cyberdeck before the next run.",
+            "Hide encrypted data shard from Orion.",
+            "Fix heat-sink in cyberdeck before next run.",
           ],
-          resolved: [],
+          resolved: ["Hack Orions Social Media."],
         },
       },
     },
