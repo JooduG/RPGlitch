@@ -112,8 +112,22 @@ export class ContextBuilder {
     // Strategies.visualizer takes (targetType, rawIntent)
     // Here we are likely just returning the system prompt wrapper.
     // The "rawIntent" is usually appended by the Director.
-    const system = Strategies.visualizer(targetType, "");
-    return { system, messages: [] };
+    // Fetch all context entities for physical grounding
+    const [ai, user, fractal] = await Promise.all([
+      entities.get("character", this.story.aiId),
+      entities.get("character", this.story.userId),
+      entities.get(ROLES.FRACTAL, this.story.fractalId),
+    ]);
+
+    const context = { ai, user, fractal };
+    const visualCortexInstructions = Strategies.visualizer(
+      targetType,
+      null,
+      context,
+    ); // rawIntent is appended by Director later
+
+    // Director.js appends <RAW_INTENT> manually, so we just return the system block here.
+    return { system: visualCortexInstructions, messages: [] };
   }
 
   /**

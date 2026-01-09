@@ -52,6 +52,7 @@ export async function openDrawer(
   // --- CLEAN CSS-ONLY POSITIONING ---
   drawer.style.cssText = ""; // Reset any legacy inline styles
   drawer.removeAttribute("hidden");
+  drawer.setAttribute("aria-hidden", "false");
 
   // Force reflow
   void drawer.offsetWidth;
@@ -86,6 +87,7 @@ export function closeDrawer() {
     setTimeout(() => {
       if (!drawer.classList.contains("is-open")) {
         drawer.setAttribute("hidden", "");
+        drawer.setAttribute("aria-hidden", "true");
         drawer.style.cssText = "";
       }
     }, 300);

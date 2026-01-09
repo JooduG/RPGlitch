@@ -191,7 +191,7 @@ export const TurnManager = {
 
       const refinedPrompt = await LlmService.generate(vPayload, {
         maxTokens: 300,
-        temperature: 0.7,
+        temperature: PHYSICS_CONSTANTS.VISUAL_TEMP_DEFAULT,
       });
 
       const imageUrl = await VisualManager.generate(refinedPrompt, {
@@ -559,6 +559,12 @@ export const TurnManager = {
   },
 
   regenerate: async (manualInstruction = null) => {
+    // [FIX] Crash Prevention: Check state before requiring strict ID
+    if (!state.story.activeId) {
+      console.warn("[TurnManager] Regenerate ignored: No active story.");
+      return;
+    }
+
     const storyId = TurnManager.requireActive();
     const msgs = state.messages.byStoryId[storyId] || [];
     if (msgs.length === 0) return;
@@ -1137,7 +1143,7 @@ export const TurnManager = {
 
       const refinedPrompt = await LlmService.generate(vPayload, {
         maxTokens: 300,
-        temperature: 0.7,
+        temperature: 0.3,
       });
 
       const imageUrl = await VisualManager.generate(refinedPrompt, {
@@ -1188,6 +1194,7 @@ export const TurnManager = {
 <DIRECTOR_OVERRIDE>
 ACTION: Send a photo now.
 FORMAT: Text + <image_prompt target="AI|USER|FRACTAL">Description</image_prompt>.
+[VISUALS_AUTHORIZED]
 </DIRECTOR_OVERRIDE>`;
 
     await TurnManager.generateAiResponse(storyId, { instruction });

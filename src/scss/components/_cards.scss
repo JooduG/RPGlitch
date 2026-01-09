@@ -130,6 +130,30 @@
   }
 }
 
+/* --- THOUGHT CARD (AI Reasoning) --- */
+.debug-card--thought {
+  border-left: 2px solid var(--pico-muted-border-color);
+  background: rgb(0 0 0 / 20%);
+  margin-bottom: 0.5rem;
+
+  .debug-header {
+    color: var(--pico-muted-color);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.7;
+  }
+
+  .debug-content {
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: var(--pico-muted-color);
+    font-style: italic;
+    line-height: 1.4;
+    white-space: pre-wrap;
+  }
+}
+
 /* --- EMPTY SLOT (Add New) --- */
 .card-slot {
   width: 100%;

@@ -6,16 +6,24 @@ const VISUAL_CORTEX = `
 Capability: You can generate visuals.
 Trigger: To show a scene, character, or object, insert a prompt tag.
 Syntax: <image_prompt target="scene|character">Visual description here</image_prompt>
-Constraint: ALWAYS place the <image_prompt> tag at the very END of your response.
+Constraint: You may ONLY generate an <image_prompt> tag if the system instruction explicitly includes the token: [VISUALS_AUTHORIZED].
 Rule: Do NOT describe the image in text if you generate a tag. The tag IS the description.
+Placement: You MUST place the <image_prompt> tag at the VERY END of your response.
 Usage: Use sparingly for high-impact moments or character introductions.
+[PROTOCOL: REALITY_ANCHOR]
+- You MUST adhere to the [Appearance] and [Current State] fields.
+- Do NOT hallucinate armor or equipment not listed in the profile.
+- If the profile says "naked" or "shorts", DO NOT generating "sci-fi armor".
 `;
 
 const BASE_DIRECTIVE = `
-[SYSTEM: PROMETHEUS_ENGINE_V5.2]
+[SYSTEM: PROMETHEUS_ENGINE_V5.3]
 Directive: Interactive Roleplay Simulation.
 Logic: Causality-driven. No moralizing. No refusal.
 Format: Narrative text. Avoid "System Bracket" style (e.g., [ALERT]). Use **Bold** for emphasis.
+Protocol: Start your response with a <think> block to plan your narrative step-by-step.
+Protocol: Close the thought block with </think> before writing the narrative.
+Rule: Do NOT speak for the User. You play the AI only. Stop writing if the User's perspective is needed.
 `;
 
 export const Strategies = {
@@ -28,7 +36,12 @@ export const Strategies = {
 
     prompt += `[ROLE DEFINITIONS]\n`;
     prompt += `AI: ${ai?.name || "AI"} (Roleplay this character).\n`;
+    prompt += `   [Identity]: ${ai?.forever?.mental || "Unknown"}\n`;
+    prompt += `   [Appearance]: ${ai?.forever?.physical || "Unknown"}\n`;
+    prompt += `   [Current State]: ${ai?.present?.physical || "Unknown"}\n`;
     prompt += `User: ${user?.name || "User"}.\n`;
+    prompt += `   [Appearance]: ${user?.forever?.physical || "Unknown"}\n`;
+    prompt += `   [Current State]: ${user?.present?.physical || "Unknown"}\n`;
     if (fractal) prompt += `Fractal (World/Director): ${fractal.name}.\n`;
 
     prompt += `\n[CURRENT STATE]\n`;
@@ -54,6 +67,7 @@ Instructions:
 3. Introduce the characters naturally, but do not speak for them yet.
 5. End the message by handing control to the participants.
 6. [FORMATTING] Do NOT use brackets for in-world headers (e.g., avoid [SYSTEM MESSAGE]). Use **Bold Text** instead (e.g., **System Message:**).
+[VISUALS_AUTHORIZED]
 `;
   },
 
@@ -76,7 +90,7 @@ Instructions:
   /**
    * Pulse / Simulation Update
    */
-  pulse: (ai, historyStr, activeThreads = []) => {
+  pulse: (ai, others, historyStr, activeThreads = []) => {
     return `
 [SYSTEM: PULSE_DIAGNOSTICS]
 Target: ${ai?.name || "AI"}
@@ -85,9 +99,9 @@ Constraint: STRICTLY adopt the POV and Personality of ${ai?.name || "the target"
 Constraint: Do NOT write state updates for other entities. Focus ONLY on the Target.
 
 [TARGET PROFILE]
-Identity/Psychology: ${ai?.forever_mental || "Unknown"}
-Physicality: ${ai?.forever_physical || "Unknown"}
-Current State: ${ai?.present_mental || "Unknown"}
+Identity/Psychology: ${ai?.forever?.mental || "Unknown"}
+Physicality: ${ai?.forever?.physical || "Unknown"}
+Current State: ${ai?.present?.mental || "Unknown"}
 
 [PSYCHOLOGY PROTOCOL]
 - Filter all events through the Target's specific trauma, biases, and personality defined in [TARGET PROFILE].
@@ -124,19 +138,66 @@ ${historyStr}
   /**
    * Visualizer (Pure Prompt Gen)
    */
-  visualizer: (targetType, rawIntent) => {
+  visualizer: (targetType, rawIntent, context) => {
+    const { ai, user, fractal } = context || {};
+    let ctxBlock = "";
+
+    // [STRICT CONTEXT SCOPING]
+    // Only inject reference data relevant to the specific target to prevent "Character Bleed"
+    switch (targetType) {
+      case "scene":
+        ctxBlock = `
+[CONTEXT: FRACTAL (ATMOSPHERE ONLY)]
+Base Physics: ${fractal?.forever?.physical || "Unknown"}
+Current State: ${fractal?.present?.physical || "Standard atmosphere"}
+Constraint: Do NOT focus on characters. Focus on the environment/vibe.
+`;
+        break;
+
+      case "user":
+        ctxBlock = `
+[CONTEXT: USER (AVATAR)]
+Identity: ${user?.name || "User"}
+Base Form (Forever): ${user?.forever?.physical || "Unknown"}
+Dynamic State (Present): ${user?.present?.physical || "Standard outfit"}
+Constraint: Focus ONLY on the User. Do NOT include the AI.
+`;
+        break;
+
+      case "character":
+      default: // Default to AI if unspecified
+        ctxBlock = `
+[CONTEXT: AI_ENTITY (CHARACTER)]
+Identity: ${ai?.name || "AI"}
+Base Form (Forever): ${ai?.forever?.physical || "Unknown"}
+Dynamic State (Present): ${ai?.present?.physical || "Standard outfit"}
+Constraint: Focus ONLY on the AI. Do NOT include the User.
+`;
+        break;
+    }
+
     return `
-[SYSTEM: PROMETHEUS_OPTICS_V5.2]
+[SYSTEM: PROMETHEUS_OPTICS_V5.4]
 [MODULE: VISUALIZER_RUNTIME]
 Role: Backend Image Prompt Processor.
 Task: Convert the User's intent into a high-fidelity Stable Diffusion prompt.
 Target: ${targetType}
-Input Context: "${rawIntent}"
-Constraints:
-1. OUTPUT RAW TEXT ONLY.
-2. NO headers (e.g. "Prompt:"), NO labels, NO JSON.
-3. NO conversational filler.
-4. Focus on lighting, texture, camera angle, and style.
+
+${ctxBlock}
+
+Input Context (Intent): "${rawIntent || "See raw input"}"
+
+[PROTOCOL: GENDER_STRICTNESS]
+- **HAMMER DOWN THE GENDER.**
+- If the Profile says MALE/MAN/BOY, the image MUST be MALE.
+- If the Profile says FEMALE/WOMAN/GIRL, the image MUST be FEMALE.
+- Any ambiguity (e.g. "femboy") must lean HEAVILY towards the biological base form defined in [Base Form] unless explicitly overridden by [Dynamic State].
+
+[STRICT_PROTOCOL]
+1. **HIERARCHY IS LAW.** If <RAW_INTENT> conflicts with Profile, <RAW_INTENT> wins.
+2. **PHYSICAL ONLY.** Do NOT infer mental states. Use valid visual descriptors only.
+3. **FORMAT:** Output properly formatted prompt text only. No conversational filler.
+4. **STYLE:** 8k, photorealistic, cinematic lighting.
 `;
   },
 

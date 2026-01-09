@@ -112,4 +112,47 @@ Target confirmed.
     const combinedValues = values.join(" ");
     expect(combinedValues).toContain("A cat");
   });
+
+  describe("Bubble UI - Thought Block Regex", () => {
+    test("should parse <think> tags", () => {
+      const input = "<think>Planning move...</think>Action!";
+      renderMessage(
+        container,
+        "ai",
+        input,
+        "AI",
+        "TEXT",
+        {},
+        { messageId: "t1" },
+      );
+
+      const thoughtCard = container.querySelector(".debug-card--thought");
+      expect(thoughtCard).not.toBeNull();
+      expect(thoughtCard.textContent).toContain("Planning move...");
+
+      const content = container.querySelector(".message-content");
+      expect(content.textContent).toContain("Action!");
+      expect(content.textContent).not.toContain("Planning move...");
+    });
+
+    test("should parse legacy [THOUGHTS] tags", () => {
+      const input = "[THOUGHTS]\nLegacy plan...\n[/THOUGHTS]\nLegacy Action!";
+      renderMessage(
+        container,
+        "ai",
+        input,
+        "AI",
+        "TEXT",
+        {},
+        { messageId: "t2" },
+      );
+
+      const thoughtCard = container.querySelector(".debug-card--thought");
+      expect(thoughtCard).not.toBeNull();
+      expect(thoughtCard.textContent).toContain("Legacy plan...");
+
+      const content = container.querySelector(".message-content");
+      expect(content.textContent).toContain("Legacy Action!");
+    });
+  });
 });

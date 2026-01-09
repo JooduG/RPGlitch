@@ -237,7 +237,10 @@ export const renderMessage = (
       cleanText = cleanText.trim();
     }
 
-    const thinkMatch = cleanText.match(/<think>([\s\S]*?)<\/think>/i);
+    // [MODIFIED] Support both <think> and legacy [THOUGHTS]
+    const thinkMatch = cleanText.match(
+      /(?:<think>|\[THOUGHTS\])([\s\S]*?)(?:<\/think>|\[\/THOUGHTS\]|$)/i,
+    );
     let mainContent = cleanText;
     let thoughtContent = "";
 

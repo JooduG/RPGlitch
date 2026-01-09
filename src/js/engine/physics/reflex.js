@@ -99,6 +99,14 @@ INSTRUCTION: Cold. Clinical. View them as a variable.`);
 
   if (instructions.length === 0) return "";
 
+  // --- 3. VISUAL AUTHORIZATION (Startle or Seduce) ---
+  // Only authorize visuals if the moment is High Drama (Critical Thresholds)
+  const isCritical = Object.values(d).some((val) => val >= 90 || val <= 10);
+
+  if (isCritical) {
+    instructions.push("[VISUALS_AUTHORIZED]");
+  }
+
   return `
 <REFLEX_TRIGGER>
 ${instructions.join("\n")}

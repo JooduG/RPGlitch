@@ -7,7 +7,7 @@ import {
 } from "../../services/ui-utils.js";
 import { getVisualState } from "../../../data/models.js";
 import { entities } from "../../../data/repo.js";
-import { escapeHtml, log, error } from "../../../core/utils.js";
+import { escapeHtml, log, error, parseMarkdown } from "../../../core/utils.js";
 import { state } from "../../../core/state.js";
 import { PROFILE_STRUCTURE, LABEL_MAP, SPLIT_HEADERS } from "./constants.js";
 
@@ -261,7 +261,7 @@ export const renderProfileView = async (
 
   const descDisplay = document.createElement("p");
   descDisplay.className = "profile-desc-display";
-  descDisplay.textContent = entity.description || "";
+  descDisplay.innerHTML = parseMarkdown(entity.description || "");
   headerWrap.appendChild(descDisplay);
 
   // --- SECTIONS (Maestro 2-Column Grid) ---
@@ -299,7 +299,7 @@ export const renderProfileView = async (
         readField.className = "profile-field-text-read";
         readField.setAttribute("data-read", "");
         readField.setAttribute("data-split-key", key);
-        readField.innerHTML = escapeHtml(val);
+        readField.innerHTML = parseMarkdown(val);
         splitCol.appendChild(readField);
 
         splitWrap.appendChild(splitCol);
@@ -310,7 +310,7 @@ export const renderProfileView = async (
       const readField = document.createElement("div");
       readField.className = "profile-field-text-read";
       readField.setAttribute("data-read", "");
-      readField.innerHTML = escapeHtml(val);
+      readField.innerHTML = parseMarkdown(val);
       contentCol.appendChild(readField);
     }
 

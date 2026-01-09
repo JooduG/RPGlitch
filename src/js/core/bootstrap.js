@@ -227,7 +227,7 @@ const App = {
 
       App.setupPlugins();
       // Increased timeout slightly to account for Perchance script loading lag
-      await App.waitForConfig(isLocal ? 500 : 4000);
+      await App.waitForConfig(isLocal ? 500 : 8000);
       await db.open();
 
       // Always run the seeder to replenish deleted factory items

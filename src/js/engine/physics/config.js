@@ -46,4 +46,14 @@ export const PHYSICS_CONSTANTS = {
   REFLEX_INTIMACY_PERMEABILITY: 20,
   REFLEX_INTIMACY_RESONANCE: 10,
   REFLEX_FEAR_ENTROPY: 20,
+
+  // --- LLM GENERATION PARAMS ---
+  TEMP_BASE: 0.7, // Base Roleplay Temp (Low Entropy)
+  TEMP_ENTROPY_WEIGHT_AI: 0.8, // How much AI Entropy affects Chaos
+  TEMP_ENTROPY_WEIGHT_FRACTAL: 0.2, // How much Fractal Entropy affects Chaos
+
+  VISUAL_TEMP_DEFAULT: 0.45, // Lower temp for stable image prompting
+
+  PENALTY_BASE: 1.05,
+  TOP_P_BASE: 0.85,
 };

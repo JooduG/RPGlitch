@@ -162,6 +162,24 @@ export const sanitizeHtml = (html) => {
   }
 };
 
+export const parseMarkdown = (text) => {
+  if (typeof text !== "string") return "";
+
+  // 1. Escape HTML (Security First)
+  let html = escapeHtml(text);
+
+  // 2. Bold (**text**)
+  html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+  // 3. Italics (*text*)
+  html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
+
+  // 4. Line Breaks
+  html = html.replace(/\n/g, "<br>");
+
+  return html;
+};
+
 // --- Validation ---
 
 export const isValidImageUrl = (urlString, allowLog = false) => {
@@ -321,16 +339,20 @@ export const calculateBlendedParams = (ai, user, fractal) => {
   const fractalDyn = getDyn(fractal);
 
   // 1. Temperature (Chaos)
+  // 1. Temperature (Chaos)
   const rawTemp =
     fractalDyn.entropy * PHYSICS_CONSTANTS.TEMP_ENTROPY_WEIGHT_FRACTAL +
     aiDyn.entropy * PHYSICS_CONSTANTS.TEMP_ENTROPY_WEIGHT_AI;
-  const temperature = mapRange(
-    rawTemp,
-    0,
-    100,
-    PHYSICS_CONSTANTS.TEMP_BASE,
-    1.35,
-  );
+
+  // Piecewise Mapping:
+  // Entropy 0-50  -> Temp 0.3 - 0.7
+  // Entropy 50-100 -> Temp 0.7 - 1.0
+  let temperature;
+  if (rawTemp <= 50) {
+    temperature = mapRange(rawTemp, 0, 50, 0.3, PHYSICS_CONSTANTS.TEMP_BASE);
+  } else {
+    temperature = mapRange(rawTemp, 50, 100, PHYSICS_CONSTANTS.TEMP_BASE, 1.0);
+  }
 
   // 2. Repetition Penalty (Pacing)
   const rawRep = Math.max(
