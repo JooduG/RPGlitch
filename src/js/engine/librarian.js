@@ -75,7 +75,7 @@ export const Librarian = {
       log(`[Librarian] Enhancing ${targetField} for ${entityType}...`);
 
       // 4. Generate
-      const result = await LlmService.generate(payload);
+      const result = await LlmService.generate(payload, { temperature: 0.6 });
 
       // 5. Update UI
       inputEl.value = result.trim();

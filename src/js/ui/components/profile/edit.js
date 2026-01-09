@@ -1108,7 +1108,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
       imageInput.dataset.pendingUrl || imageInput.value.trim(),
     );
     localVisuals.profilePictureUrl = finalImageUrl;
-    localVisuals.signatureColour = paletteSelect.value; // Sync palette choice
+    localVisuals.signatureColor = paletteSelect.value; // Sync palette choice
 
     // Merge everything
     const data = {
@@ -1116,7 +1116,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
       name: escapeHtml(live.name),
       description: escapeHtml(live.description),
       profilePictureUrl: finalImageUrl,
-      signatureColour: escapeHtml(paletteSelect.value.trim()),
+      signatureColor: escapeHtml(paletteSelect.value.trim()),
       visuals: localVisuals,
       voiceId: form.querySelector('[data-edit-field="voiceId"]')?.value, // [FIX] Persist Voice
       voiceRate: parseFloat(
@@ -1175,7 +1175,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
 
     try {
       if (id === "new") {
-        await entities.create(type, data);
+        await entities.upsert(type, data);
       } else {
         await entities.upsert(type, { ...entity, ...data });
 

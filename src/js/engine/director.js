@@ -1133,7 +1133,7 @@ export const TurnManager = {
         try {
           response = await LlmService.generate({
             ...payload,
-            temperature: 0.3,
+            temperature: 0.2,
           });
           break;
         } catch (e) {

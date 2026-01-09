@@ -388,7 +388,7 @@ export const calculateBlendedParams = (ai, user, fractal) => {
     repetition_penalty: parseFloat(repetition_penalty.toFixed(2)),
     top_p: parseFloat(top_p.toFixed(2)),
     visual: {
-      guidanceScale: parseFloat(guidance_scale.toFixed(1)),
+      guidanceScale: Math.round(guidance_scale),
     },
   };
 };

@@ -31,7 +31,11 @@ VIOLATION: Writing dialogue, thoughts, feelings, or actions for the User's chara
 - Do NOT describe the User's physical reactions (gasping, blushing, trembling) unless they successfully performed an action.
 - Do NOT make decisions for the User.
 Format: Narrative text. Avoid "System Bracket" style. Use **Bold** for emphasis.
-Protocol: Start with a <think> block to plan your narrative. Close with </think>.
+Protocol: 
+1. Start with a <think> block for internal causal analysis, plot forecasting, and logic checks. 
+2. **STRICT SEPARATION:** The actual narrative response MUST be written AFTER the </think> block. Do NOT write the story inside the thinking block.
+3. The thinking block is for the AI's "internal monologue" only.
+
 `;
 
 export const Strategies = {
@@ -105,13 +109,21 @@ USER CHARACTER: ${user?.name || "User"}
 - Destiny (Future): ${user?.future || "Unknown"}
 
 [CONSTRAINTS]
-1. Write a compelling opening in the voice of the Fractal.
-2. **BREVITY PROTOCOL:** Output must be 3-4 paragraphs maximum.
-3. **ATMOSPHERE:** Establish the physical space and sensory details using the **Essence** and **State** of the world. Use the **Past** and **Forever** fields to anchor the history.
-4. **FORECASTING:** Introduce the characters naturally by setting the **PRESENT** scene to lead toward the **Destiny (Future)** of each entity. Use the **Past** to add weight to their presence.
-5. **STRICT SFTU:** Do NOT speak for the participants. Introduce them as existing within the world, but leave their first actions to them.
-6. End the message by handing control to the participants.
-7. [FORMATTING] Use **Bold Text** for system markers instead of brackets.
+1. Write a compelling opening in the voice of the Fractal (the sentient world).
+2. **BREVITY PROTOCOL:** Output must be 3-4 paragraphs maximum. No walls of text.
+3. **ATMOSPHERE:** Use the **Base Physics** and **Essence** of the world to establish the sensory reality. Use the **Forever** field to ground the eternal "vibe" and the **Past** to anchor the history.
+4. **FORECASTING & PLOT SETUP:** 
+   - Analyze the **Destiny (Future)** of all entities. 
+   - Paint the **PRESENT** scene specifically to lead toward those futures. 
+   - The world should feel like it is "leaning" or "accelerating" toward the inevitable destinies described.
+5. **PARTICIPANT INJECTION:** Introduce the AI and User characters naturally based on their **Essence** and **History**. 
+   - Use their **Past** to explain *why* they are here.
+   - Use their **State** to describe their immediate readiness.
+   - Do NOT speak for them; describe them as elements of the world's current composition.
+6. **STRICT SFTU:** Never write dialogue or internal states for the participants.
+7. **NARRATIVE FLOW:** Write the 3-4 paragraphs of story text IMMEDIATELY AFTER the </think> block.
+8. End the message by handing control to the participants (e.g., "The stage is set. Your turn.").
+9. [FORMATTING] Use **Bold Text** for system markers instead of brackets.
 
 [VISUALS_AUTHORIZED]
 `;
@@ -305,10 +317,18 @@ Constraints:
 Role: High-Fidelity Data Architect.
 Objective: Refine or synthesize specific data fields for an Entity Database.
 Constraints:
-1.  **METRIC SYSTEM ONLY:** Use cm, m, kg, km.
+1.  **NARRATIVE PROSE:** Priority is flowing, evocative text. Avoid lists and bullet points if possible.
 2.  **BLACK SITE PROTOCOL:** Do not access "Description".
 3.  **FORMAT:** Raw text block. No "Here is the text" headers.
 4.  **ENTITY AWARENESS:** Adjust output based on Entity Type (Character vs. Fractal).
+5.  **MEASUREMENTS:** Use metric (cm, m, kg) only if it naturally fits the prose. Do not force technical data blocks.
+
+[MODULE: TEMPORAL_GUARDRAILS]
+Directive: You MUST strictly isolate the content based on the target temporal zone.
+- **ZONE: FOREVER**: Focus on immutable laws, essential nature, and biological/metaphysical foundations. Do NOT mention current events or specific historical dates.
+- **ZONE: PAST**: Focus on fixed history, origin stories, and completed actions. Use past tense. Do NOT describe current status or future potential.
+- **ZONE: PRESENT**: Focus on the immediate snapshot of "Now". Describe current state, equipment, mood, and environment. Do NOT include backstory or long-term destiny.
+- **ZONE: FUTURE**: Focus on trajectory, ambitions, and potentiality. Use future-pointing language. Do NOT repeat current status.
 `;
 
     let specificInstruction = "";
@@ -320,44 +340,49 @@ Constraints:
         case "forever_physical":
           specificInstruction = `
 [TARGET: FRACTAL (Physical Laws & Geography)]
+Zone: FOREVER
 Focus: Terrain, Architecture, Physics Anomalies, Scale.
-Mandatory: Dimensions (if applicable), Atmosphere, Visual Style.
-Task: Describe the physical reality of this location.
+Task: Describe the immutable physical reality of this location. What are the eternal constants of this space?
 `;
           break;
         case "forever_mental":
           specificInstruction = `
 [TARGET: FRACTAL (Culture & Logic)]
+Zone: FOREVER
 Focus: Society, History, Laws, Danger Level.
-Task: Describe the social or metaphysical rules of this place.
+Task: Describe the essential social or metaphysical rules that govern this place eternally.
 `;
           break;
         case "past":
           specificInstruction = `
 [TARGET: FRACTAL (History)]
+Zone: PAST
 Focus: Founding events, Wars, Cataclysms.
-Task: Summarize the timeline that shaped this location.
+Task: Summarize the timeline that shaped this location. Focus ONLY on historical events that have already concluded.
 `;
           break;
         case "present_physical":
           specificInstruction = `
 [TARGET: FRACTAL (Current State)]
+Zone: PRESENT
 Focus: Weather, Destruction Level, Population Density.
-Task: Snapshot of the location right now.
+Task: Provide a narrative snapshot of the location right now. Focus ONLY on the immediate environmental state.
 `;
           break;
         case "present_mental":
           specificInstruction = `
 [TARGET: FRACTAL (Atmosphere/Mood)]
+Zone: PRESENT
 Focus: Tension, Public Morale, Ambient Vibe.
-Task: Describe the feeling of being here right now.
+Task: Describe the immediate feeling of being here right now.
 `;
           break;
         case "future":
           specificInstruction = `
 [TARGET: FRACTAL (Destiny)]
+Zone: FUTURE
 Focus: Impending Doom, Political Shifts, Evolution.
-Task: Where is this world heading? Include a 'PROPHECY' if applicable.
+Task: Describe the trajectory of this world. Focus ONLY on what is yet to come.
 `;
           break;
       }
@@ -369,44 +394,49 @@ Task: Where is this world heading? Include a 'PROPHECY' if applicable.
         case "forever_physical":
           specificInstruction = `
 [TARGET: CHARACTER (Biology)]
-Focus: Species, Gender, Height (cm), Eye/Hair Color.
-Task: Define the physical vessel.
+Zone: FOREVER
+Focus: Species, Gender, Height, Appearance.
+Task: Describe the character's biological foundation and eternal physical traits.
 `;
           break;
         case "forever_mental":
           specificInstruction = `
 [TARGET: CHARACTER (Identity)]
+Zone: FOREVER
 Focus: True Name, Archetype, Personality Matrix.
-Task: Define the soul and mind.
+Task: Describe the character's essential soul and core personality that does not change.
 `;
           break;
         case "past":
           specificInstruction = `
 [TARGET: CHARACTER (Backstory)]
+Zone: PAST
 Focus: Origin, Trauma, Key Events.
-Task: Explain why they are who they are.
+Task: Explain the history that made them. Focus ONLY on events in the past.
 `;
           break;
         case "present_physical":
           specificInstruction = `
 [TARGET: CHARACTER (State)]
+Zone: PRESENT
 Focus: Inventory, Wounds, Outfit.
-Task: Snapshot of equipment and body status.
+Task: Provide a narrative snapshot of the character's equipment and physical status right now.
 `;
           break;
         case "present_mental":
           specificInstruction = `
 [TARGET: CHARACTER (Mood)]
+Zone: PRESENT
 Focus: Current Thoughts, Objectives, Mental Status.
-Task: Snapshot of the mind.
+Task: Describe the character's immediate internal state and current priorities.
 `;
           break;
         case "future":
           specificInstruction = `
 [TARGET: CHARACTER (Goals)]
+Zone: FUTURE
 Focus: Ambitions, Fears.
-**SPECIAL:** Include a 'PROPHECY' line.
-Task: Define their vector.
+Task: Describe the character's future trajectory. What are they chasing?
 `;
           break;
       }
