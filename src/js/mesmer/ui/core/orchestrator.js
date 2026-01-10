@@ -1,4 +1,5 @@
 import { log } from "../../../gamemaster/utils.js";
+import { entities } from "../../../scholar/repository.js";
 import { GameMaster } from "../../../gamemaster/index.js";
 import { initDrawer } from "../components/drawer/desktop.js";
 import { setStorymodeEntities, setSendLock } from "../components/chat/feed.js";
@@ -126,7 +127,6 @@ const initEventBinds = () => {
       snapshot = story.snapshots.end;
     } else {
       try {
-        const { entities } = await import("../../scholar/repository.js");
         const [ai, user, fractal] = await Promise.all([
           entities.get("character", story.aiId),
           entities.get("character", story.userId),
@@ -203,7 +203,6 @@ const initEventBinds = () => {
     audioService.play("notification");
 
     // [FIX] Resolve Voice ID & Biometrics from Character Entity
-    const { entities } = await import("../../../scholar/repository.js");
     let voiceId = null;
     let rateMod = 1.0;
 

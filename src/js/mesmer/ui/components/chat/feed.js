@@ -148,7 +148,11 @@ export async function renderChat(storyId) {
           message.characterName,
           message.type || "IC",
           message._contextEntities,
-          { ...message._renderOptions, isEpilogue: message.isEpilogue },
+          {
+            ...message._renderOptions,
+            isEpilogue: message.isEpilogue,
+            metadata: message.metadata,
+          },
         );
       },
       {

@@ -45,6 +45,9 @@ jest.mock("../../src/js/mesmer/ui/core/theme.js", () => ({
   ThemeService: { apply: jest.fn() },
 }));
 
+// Mock library (side effect import)
+jest.mock("../../src/js/scholar/library.js", () => ({}));
+
 describe("Security Vulnerability Check - Settings", () => {
   let StoryOptionsController;
   let repo;

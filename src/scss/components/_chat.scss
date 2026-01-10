@@ -436,6 +436,22 @@
 }
 
 /* 5. MESSAGES (Bubbles) */
+
+// MESSENGER EXCEPTION (Implicit: doesn't get .story-image-container via JS logic?
+// No, I added the class in JS regardless for TYPE=IMAGE, but I can condition it there
+// OR override it here. Let's rely on the JS adding the base class .story-image-container
+// but NOT adding .is-landscape/.is-portrait for Messenger, allowing it to fall back?
+// Actually, `bubble.js` logic adds `.story-image-container` ALWAYS for `type === "IMAGE"`.
+// But for messenger, we want it INSIDE the bubble.
+// So I should modify JS to NOT add `story-image-container` if it is Messenger check?
+// OR make `story-image-container` cleaner.
+
+// Let's refine the CSS strategy:
+// If it's Messenger, we WANT the padding and background.
+// So `story-image-container` should NOT apply to Messenger.
+// I will update the Bubble.js logic in the NEXT step to conditionally apply the class.
+// But first let me define the styles here assuming I fix logical application.
+
 .chat-bubble {
   padding: var(--space-md) var(--space-md-lg);
   max-width: 50vw;
@@ -866,5 +882,59 @@
     color: #e2e8f0;
     white-space: pre-wrap; /* Preserve content formatting */
     line-height: 1.4;
+  }
+}
+
+/* 6. CINEMATIC OVERRIDES (Ensure these win over default bubble colors) */
+.chat-bubble.story-image-container {
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  overflow: visible;
+  box-shadow: none !important;
+  display: flex !important; // Ensure flex
+  flex-direction: column;
+  max-width: none !important; // Unconstrain
+  margin-bottom: var(--space-xl); // Clean separation
+  align-self: center; // Default to center
+
+  // BASE: Reset margins for full control
+  margin-left: 0;
+  margin-right: 0;
+
+  .image-wrapper {
+    width: 100%;
+    height: auto;
+    display: block;
+    line-height: 0;
+  }
+
+  .generated-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: var(--pico-radius);
+    object-fit: cover;
+    box-shadow: 0 8px 32px rgb(0 0 0 / 50%); // Even deeper shadow for cinematic pop
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.005); // Tiny micro-interaction
+    }
+  }
+
+  // VARIANT: LANDSCAPE (Cinematic)
+  // Goal: Match the exact horizontal boundaries of bubbles with margins
+  &.is-landscape {
+    width: auto !important;
+    align-self: stretch !important;
+    margin-inline: var(--space-xl) !important;
+  }
+
+  // VARIANT: PORTRAIT (Fractal Match)
+  // Goal: Exact same width as fractal messages (40vw) & Centered
+  &.is-portrait {
+    width: 40vw !important;
+    margin-inline: auto !important;
   }
 }

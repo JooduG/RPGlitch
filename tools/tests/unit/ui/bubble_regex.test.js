@@ -75,26 +75,16 @@ Target confirmed.
     );
 
     const bubble = container.querySelector(".chat-bubble");
-    // console.log("BUBBLE HTML:", bubble.innerHTML);
     expect(bubble).not.toBeNull();
 
-    // Check if the debug block is present (now .debug-card--prompt)
+    // [UPDATED] Check that debug block is REMOVED from bubble
     const debugBlock = bubble.querySelector(".debug-card--visuals");
-    expect(debugBlock).not.toBeNull();
-    expect(debugBlock.classList.contains("developer-content")).toBe(true);
+    expect(debugBlock).toBeNull();
 
-    // [UPDATED] Check for new Grid Structure
-    const directorRows = debugBlock.querySelectorAll(".director-row");
-    expect(directorRows.length).toBeGreaterThan(0);
-
-    const values = Array.from(
-      debugBlock.querySelectorAll(".director-value"),
-    ).map((el) => el.innerHTML);
-    const combinedValues = values.join(" ");
-
-    expect(combinedValues).toContain("A cyberpunk city,");
-    expect(combinedValues).toContain("neon lights,");
-    expect(combinedValues).toContain("rainy streets");
+    // Check that prompt text is NOT in the main content
+    const content = bubble.querySelector(".message-content") || bubble;
+    expect(content.textContent).not.toContain("A cyberpunk city");
+    expect(content.textContent).toContain("Target confirmed.");
   });
 
   test("should correctly render inline image prompts", () => {
@@ -111,13 +101,11 @@ Target confirmed.
     );
 
     const debugBlock = container.querySelector(".debug-card--visuals");
-    expect(debugBlock).not.toBeNull();
+    expect(debugBlock).toBeNull();
 
-    const values = Array.from(
-      debugBlock.querySelectorAll(".director-value"),
-    ).map((el) => el.innerHTML);
-    const combinedValues = values.join(" ");
-    expect(combinedValues).toContain("A cat");
+    const bubble = container.querySelector(".chat-bubble");
+    expect(bubble.textContent).not.toContain("A cat");
+    expect(bubble.textContent).toContain("Image: . Done.");
   });
 
   describe("Bubble UI - Thought Block Regex", () => {

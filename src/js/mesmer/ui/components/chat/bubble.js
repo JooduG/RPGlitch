@@ -60,6 +60,30 @@ const renderImageAttachment = (imageUrl, options) => {
     });
   };
 
+  // [VISUAL REFINEMENT] Dynamic Sizing Logic
+  // 1. Messenger Check: If "Messenger" (entity-F4), keep default behavior (inside bubble).
+  // 2. Cinematic Check: If NOT Messenger, apply explicit width classes based on aspect ratio.
+  const isMessenger =
+    options.entities?.fractal?.id === "entity-F4" ||
+    (options.role === "fractal" &&
+      options.entities?.fractal?.name === "Messenger"); // Fallback check
+
+  if (!isMessenger) {
+    img.onload = () => {
+      const bubble = wrapper.closest(".chat-bubble");
+      if (bubble) {
+        // Reset specific alignment classes first
+        bubble.classList.remove("is-portrait", "is-landscape");
+
+        if (img.naturalWidth > img.naturalHeight) {
+          bubble.classList.add("is-landscape");
+        } else {
+          bubble.classList.add("is-portrait");
+        }
+      }
+    };
+  }
+
   wrapper.appendChild(img);
   return wrapper;
 };
@@ -143,14 +167,28 @@ export const renderMessage = (
 
   const bubbleModifier = getBubbleClass(role, entities);
 
+  // [VISUAL REFINEMENT] Logic for "Inside Bubble" vs "Cinematic"
+  // 1. Messenger: Inside Bubble (No special container class, inherits default chat-bubble styles)
+  // 2. Others: Cinematic (story-image-container strips padding/bg)
+  const isMessenger =
+    entities?.fractal?.id === "entity-F4" ||
+    (role === "fractal" && entities?.fractal?.name === "Messenger");
+
   if (type === "IMAGE") {
-    div.className = `chat-bubble ${bubbleModifier} story-image-container`;
-    // [FIX] Use attachmentUrl if available, otherwise fallback to text (legacy)
     const imgSrc =
       options.attachmentUrl ||
       (options.attachments && options.attachments[0]) ||
       text;
-    const imageContainer = renderImageAttachment(imgSrc, { ...options, role });
+
+    const containerClass = isMessenger ? "" : "story-image-container";
+    div.className = `chat-bubble ${bubbleModifier} ${containerClass}`;
+
+    // Pass entities to allow Messenger detection
+    const imageContainer = renderImageAttachment(imgSrc, {
+      ...options,
+      role,
+      entities,
+    });
     div.appendChild(imageContainer);
     container.appendChild(div);
     return;
@@ -221,26 +259,7 @@ export const renderMessage = (
     let debugHtml = "";
     let cleanText = text;
 
-    const excludedKeys = [
-      "visualPrompt",
-      "targetType",
-      "refinedPrompt",
-      "visualPrompts",
-      "refinedPrompts",
-      "aspect",
-    ];
-    const debugMeta = options.metadata
-      ? Object.fromEntries(
-          Object.entries(options.metadata).filter(
-            ([k]) => !excludedKeys.includes(k),
-          ),
-        )
-      : {};
-
-    if (Object.keys(debugMeta).length > 0) {
-      const jsonStr = JSON.stringify(debugMeta, null, 2);
-      debugHtml += `<details class="debug-card developer-content"><summary class="debug-header">DEBUG METADATA</summary><div class="debug-content">${jsonStr.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div></details>`;
-    }
+    // [REMOVED] DEBUG METADATA block (Now in Lightbox)
 
     if (role === "ai") {
       const jsonMatch = cleanText.match(/\{[\s\S]*?"dynamics"[\s\S]*?\}/);
@@ -279,75 +298,8 @@ export const renderMessage = (
 
     formattedMain = formattedMain
       // .replace(/\{\{IMGPROMPT\}\}/g, "") // Clean up unused marker if regex was weird
-      .replace(
-        /\{\{IMGPROMPT.*?\}\}([\s\S]*?)\{\{\/IMGPROMPT\}\}/g,
-        (match, content) => {
-          // [REFINE] Rich Visual Director Card
-          // If we have metadata, use it for a "Clean" display
-          const meta = options.metadata || {};
-
-          //Robust Data Extraction (Arrays vs Legacy)
-          const rawPrompt =
-            meta.visualPrompt ||
-            (meta.visualPrompts && meta.visualPrompts[0]
-              ? meta.visualPrompts[0].prompt
-              : content);
-          const target =
-            meta.targetType ||
-            (meta.visualPrompts && meta.visualPrompts[0]
-              ? meta.visualPrompts[0].target
-              : "Unknown");
-          const aspect =
-            meta.aspect ||
-            (meta.visualPrompts && meta.visualPrompts[0]
-              ? meta.visualPrompts[0].aspect
-              : "Portrait");
-          const refined =
-            meta.refinedPrompt ||
-            (meta.refinedPrompts && meta.refinedPrompts[0]
-              ? meta.refinedPrompts[0]
-              : null);
-          const thoughts =
-            meta.opticsThoughts && meta.opticsThoughts[0]
-              ? meta.opticsThoughts[0]
-              : null;
-
-          // Escape for safe HTML
-          const safeRaw = sanitizeHtml(rawPrompt);
-          const safeRefined = refined ? sanitizeHtml(refined) : null;
-          const safeThoughts = thoughts ? sanitizeHtml(thoughts) : null;
-
-          return `
-          <details class="debug-card debug-card--visuals developer-content" open>
-            <summary class="debug-header">
-              <span>Visual Director (v5.6)</span>
-              <div style="display:flex; gap:1rem; opacity:0.8; font-weight:normal;">
-                <span>Target: <b>${target.toUpperCase()}</b></span>
-                <span>Aspect: <b>${aspect.toUpperCase()}</b></span>
-              </div>
-            </summary>
-            <div class="debug-content">
-              <div class="director-grid">
-                ${
-                  safeThoughts
-                    ? `
-                <div class="director-row">
-                  <div class="director-label" style="color:#f472b6;">Optics Brain</div>
-                  <div class="director-value" style="font-family:monospace; font-size:0.85em; color:#fbcfe8; white-space: pre-wrap;">${safeThoughts}</div>
-                </div>`
-                    : ""
-                }
-                <div class="director-row">
-                  <div class="director-label">Intent</div>
-                  <div class="director-value" style="font-style:italic; color:#e2e8f0;">${safeRaw}</div>
-                </div>
-                ${safeRefined ? `<div class="director-row"><div class="director-label">Output Prompt</div><div class="director-value" style="font-family:monospace; font-size:0.85em; color:#a5b4fc;">${safeRefined}</div></div>` : ""}
-              </div>
-            </div>
-          </details>`;
-        },
-      )
-      .replace(/\{\{\/IMGPROMPT\}\}/g, "");
+      .replace(/\{\{IMGPROMPT.*?\}\}[\s\S]*?\{\{\/IMGPROMPT\}\}/g, "")
+      .replace(/\{\/IMGPROMPT\}\}/g, "");
 
     formattedMain = formattedMain.replace(/(!NOTE|Note:|Important:)\s*/g, "");
 
@@ -383,12 +335,18 @@ export const renderMessage = (
       });
 
       div.appendChild(gallery);
-    } else */ if (options.attachmentUrl) {
-      // Legacy Fallback
+      div.appendChild(gallery);
+    } else */ if (options.attachmentUrl && isMessenger) {
+      // Messenger: Keep image INSIDE the bubble padding
       div.appendChild(
-        renderImageAttachment(options.attachmentUrl, { ...options, role }),
+        renderImageAttachment(options.attachmentUrl, {
+          ...options,
+          role,
+          entities,
+        }),
       );
-    } else if (options.metadata?.visualPrompt && role === "ai") {
+    } else if (options.metadata?.visualPrompt && role === "ai" && isMessenger) {
+      // Messenger: Keep placeholder inside bubble
       const placeholder = document.createElement("div");
       placeholder.className = "image-placeholder";
       placeholder.innerHTML = `<div class="loading-spinner"></div><span>Generating Visuals...</span>`;
@@ -503,7 +461,49 @@ export const renderMessage = (
 
     if (actionsDiv.hasChildNodes()) div.appendChild(actionsDiv);
   }
+
+  // 1. Append the main bubble (Text/Actions)
   container.appendChild(div);
+
+  // 2. [VISUAL REFINEMENT] Split Rendering for Cinematic Attachments
+  // If we have an image/placeholder and it's NOT Messenger, render it as a separate sibling
+  if (!isMessenger) {
+    const imgSrc =
+      options.attachmentUrl || (options.attachments && options.attachments[0]);
+
+    if (imgSrc) {
+      const imageBubbleDiv = document.createElement("div");
+      imageBubbleDiv.className = `chat-bubble ${bubbleModifier} story-image-container`;
+
+      // Apply signature variables to the separate bubble
+      if (signatureColor && signatureColor !== "default") {
+        ThemeService.apply(imageBubbleDiv, signatureColor);
+      }
+
+      imageBubbleDiv.appendChild(
+        renderImageAttachment(imgSrc, {
+          ...options,
+          role,
+          entities,
+        }),
+      );
+      container.appendChild(imageBubbleDiv);
+    } else if (options.metadata?.visualPrompt && role === "ai") {
+      // Separate Placeholder for Cinematic Generation
+      const placeholderBubble = document.createElement("div");
+      placeholderBubble.className = `chat-bubble ${bubbleModifier} story-image-container`;
+
+      if (signatureColor && signatureColor !== "default") {
+        ThemeService.apply(placeholderBubble, signatureColor);
+      }
+
+      const placeholder = document.createElement("div");
+      placeholder.className = "image-placeholder";
+      placeholder.innerHTML = `<div class="loading-spinner"></div><span>Generating Visuals...</span>`;
+      placeholderBubble.appendChild(placeholder);
+      container.appendChild(placeholderBubble);
+    }
+  }
 };
 
 export const startEditMode = (messageId, originalText) => {

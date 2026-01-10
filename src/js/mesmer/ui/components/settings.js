@@ -1,7 +1,10 @@
 import { db } from "../../../scholar/db.js";
+import { stories } from "../../../scholar/repository.js";
 import { store as state, applyPatch } from "../../../gamemaster/index.js";
 import { GameMaster } from "../../../gamemaster/index.js";
 import { showAlert, handleConcludeStory } from "../core/orchestrator.js";
+import { getPictureHTML } from "../core/utils.js";
+import { ThemeService } from "../core/theme.js";
 import { log, error, sanitizeHtml } from "../../../gamemaster/utils.js";
 
 import { voiceService } from "../../audio/voice.js";
@@ -390,11 +393,9 @@ export const StoryOptionsController = {
     }
 
     try {
-      const stories = await import("../../../scholar/repository.js").then((m) =>
-        m.stories.list(),
-      );
+      const storyList = await stories.list();
 
-      if (stories.length === 0) {
+      if (storyList.length === 0) {
         // [FIX] Hide library section if empty
         const librarySection = document.querySelector(
           ".settings-section-library",
@@ -414,17 +415,14 @@ export const StoryOptionsController = {
 
       grid.innerHTML = "";
 
-      const { getPictureHTML, TooltipService } =
-        await import("../core/utils.js").then(async (m) => {
-          await import("../../../scholar/library.js");
-          return { ...m };
-        });
+      grid.innerHTML = "";
 
-      TooltipService.init();
+      // [OPTIMIZATION] Library import removed (no side effects)
+      // TooltipService and ThemeService are now static imports
 
-      const { ThemeService } = await import("../core/theme.js");
+      // TooltipService.init();
 
-      stories.forEach((story) => {
+      storyList.forEach((story) => {
         const card = document.createElement("button");
         card.className = "drawer-card story-drawer-card";
         card.type = "button";

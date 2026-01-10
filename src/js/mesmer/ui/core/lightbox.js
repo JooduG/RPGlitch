@@ -3,7 +3,8 @@
  * Handles the full-screen display of generated images.
  */
 import { downloadImage, createIconBtn } from "./utils.js";
-import { GameMaster } from "../../../gamemaster/index.js";
+import { GameMaster, store as state } from "../../../gamemaster/index.js";
+import { sanitizeHtml } from "../../../gamemaster/utils.js";
 
 const LIGHTBOX_ID = "lightbox-overlay";
 
@@ -11,6 +12,7 @@ export const LightboxService = {
   element: null,
   imageEl: null,
   actionsEl: null,
+  debugVisible: false,
 
   init() {
     if (document.getElementById(LIGHTBOX_ID)) return;
@@ -30,11 +32,16 @@ export const LightboxService = {
     img.alt = "Fullscreen View";
     content.appendChild(img);
 
-    // 4. Create Actions Container
     const actions = document.createElement("div");
     actions.className = "lightbox-actions";
-    // Append actions TO content (Unified Card)
+
+    // [NEW] Debug Info Container
+    const debug = document.createElement("div");
+    debug.className = "lightbox-debug developer-content";
+
+    // Append actions and debug TO content
     content.appendChild(actions);
+    content.appendChild(debug);
 
     // Append content to overlay
     overlay.appendChild(content);
@@ -46,6 +53,7 @@ export const LightboxService = {
     this.element = overlay;
     this.imageEl = img;
     this.actionsEl = actions;
+    this.debugEl = debug;
 
     // 7. Bind Events (Backdrop Click)
     overlay.addEventListener("click", (e) => {
@@ -76,7 +84,9 @@ export const LightboxService = {
 
     this.imageEl.src = imageUrl;
     this.element.classList.add("is-visible");
+    this.debugVisible = false; // Reset toggle on open
     this._renderActions(imageUrl, context);
+    this._renderDebug(context.metadata);
   },
 
   close() {
@@ -122,7 +132,78 @@ export const LightboxService = {
       this.actionsEl.appendChild(btnReroll);
     }
 
+    // 3. Inspector Button (Dev Mode)
+    const isDev = state.settings?.developerMode;
+    if (isDev && context.metadata) {
+      const btnInfo = createIconBtn(
+        `<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>`,
+        "Toggle Metadata",
+        () => {
+          this.debugVisible = !this.debugVisible;
+          this.debugEl.classList.toggle("is-active", this.debugVisible);
+        },
+        "btn-ghost btn-metadata-toggle",
+      );
+      this.actionsEl.appendChild(btnInfo);
+    }
+
     // Append Download Last (Right)
     this.actionsEl.appendChild(btnDownload);
+  },
+
+  _renderDebug(metadata) {
+    if (!this.debugEl) return;
+    this.debugEl.innerHTML = "";
+
+    this.debugEl.classList.remove("is-active");
+
+    const isDev = state.settings?.developerMode;
+    if (!isDev || !metadata) {
+      return;
+    }
+
+    // Adapted from bubble.js Visual Director card
+    const rawPrompt =
+      metadata.visualPrompt ||
+      metadata.visualPrompts?.[0]?.prompt ||
+      "No prompt data";
+    const target =
+      metadata.targetType || metadata.visualPrompts?.[0]?.target || "Unknown";
+    const aspect =
+      metadata.aspect || metadata.visualPrompts?.[0]?.aspect || "Portrait";
+    const refined =
+      metadata.refinedPrompt || metadata.refinedPrompts?.[0] || null;
+    const thoughts = metadata.opticsThoughts?.[0] || null;
+
+    const safeRaw = sanitizeHtml(rawPrompt);
+    const safeRefined = refined ? sanitizeHtml(refined) : null;
+    const safeThoughts = thoughts ? sanitizeHtml(thoughts) : null;
+
+    this.debugEl.innerHTML = `
+      <div class="metadata-glass">
+        <div class="metadata-header">
+          <span class="metadata-title">VISUAL_DIRECTOR_OUTPUT</span>
+          <div class="metadata-badges">
+            <span class="badge">${target.toUpperCase()}</span>
+            <span class="badge">${aspect.toUpperCase()}</span>
+          </div>
+        </div>
+        <div class="metadata-body">
+          ${safeThoughts ? `<div class="metadata-thought">“${safeThoughts}”</div>` : ""}
+          <div class="metadata-row">
+            <span class="label">INTENT</span>
+            <span class="value italic">${safeRaw}</span>
+          </div>
+          ${
+            safeRefined
+              ? `<div class="metadata-row">
+            <span class="label">OUTPUT</span>
+            <span class="value mono">${safeRefined}</span>
+          </div>`
+              : ""
+          }
+        </div>
+      </div>
+    `;
   },
 };

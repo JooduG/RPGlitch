@@ -179,19 +179,36 @@
 
       // Round 3: Balanced Image Frame
       &.story-image-container {
-        padding: var(--space-sm-md) !important;
-        width: auto !important;
+        padding: 0 !important;
+        background: transparent !important;
+        width: 100% !important;
+        max-width: none !important;
+        box-shadow: none !important;
+        align-self: center !important;
+
+        &.is-portrait {
+          width: 80vw !important;
+          margin-left: auto !important;
+          margin-right: auto !important;
+        }
+
+        &.is-landscape {
+          width: 100% !important;
+          margin-left: 0 !important;
+          margin-right: 0 !important;
+        }
 
         .image-wrapper {
           border-radius: 12px;
-          margin-top: var(--space-sm-md);
           width: 100%;
           line-height: 0;
           display: block;
+          margin-top: 0;
 
           img {
             display: block !important;
             width: 100% !important;
+            border-radius: 12px;
           }
         }
       }
