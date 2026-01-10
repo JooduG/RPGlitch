@@ -527,6 +527,8 @@ export const updateStoryboardSelection = (newSelection) => {
   }
 };
 
+import { initChatInput } from "./components/chat/input.js";
+
 export const initViews = async (deps = {}) => {
   if (deps.onSelectionChanged) _onSelectionChanged = deps.onSelectionChanged;
 
@@ -539,6 +541,7 @@ export const initViews = async (deps = {}) => {
 
   // 2. Initialize Components
   initDrawer();
+  initChatInput(); // [FIX] Restore Chat Input Logic
   bindDrawerTrigger(
     "#btn-select-ai",
     "character",

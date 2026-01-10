@@ -178,6 +178,15 @@ export class ContextBuilder {
     return { system, messages: [] };
   }
 
+  /**
+   * [FIX] Maestro Enhance (Profile Editor Magic Wand)
+   * Wraps Mesmer logic to support the UI's specific call signature.
+   */
+  async buildMaestroEnhance(prompt, entity, signatureColor) {
+    // Reuse Mesmer's enhance logic
+    return this.buildMesmerEnhance(prompt, entity);
+  }
+
   // =========================================================================
   // 3. KNOWLEDGE & MEMORY (Scholar)
   // =========================================================================

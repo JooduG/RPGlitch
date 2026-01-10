@@ -909,7 +909,15 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
     // 2. Invoke Prometheus
     const refinedPrompt = await LlmService.generate({ system, messages: [] });
 
-    // 3. Simple Cleanup (Just in case)
+    // 3. Extract <image_prompt> content if present
+    const imageMatch = refinedPrompt.match(
+      /<image_prompt>([\s\S]*?)<\/image_prompt>/i,
+    );
+    if (imageMatch && imageMatch[1]) {
+      return imageMatch[1].trim();
+    }
+
+    // Fallback: Clean formatting if no tags found
     return refinedPrompt.replace(/^["']|["']$/g, "").trim();
   };
 

@@ -142,8 +142,13 @@ export const Director = {
     const story = state.story.byId[storyId];
 
     // 1. SIGNAL
-    const signalRole = options.ghostwrite ? ROLES.USER : ROLES.AI;
-    const signalId = options.ghostwrite ? story.userId : story.aiId;
+    let signalRole = options.ghostwrite ? ROLES.USER : ROLES.AI;
+    let signalId = options.ghostwrite ? story.userId : story.aiId;
+
+    if (mode === "prologue" || mode === "epilogue") {
+      signalRole = ROLES.FRACTAL;
+      signalId = story.fractalId;
+    }
 
     events.dispatchEvent(
       new CustomEvent(EVENTS.TYPING_STARTED, {
@@ -263,10 +268,15 @@ export const Director = {
                 }
               : null;
 
-          const role = options.ghostwrite ? ROLES.USER : ROLES.AI;
-          const characterName = options.ghostwrite
+          let role = options.ghostwrite ? ROLES.USER : ROLES.AI;
+          let characterName = options.ghostwrite
             ? userEntity?.name || "User"
             : aiEntity?.name || "AI";
+
+          if (mode === "prologue" || mode === "epilogue") {
+            role = ROLES.FRACTAL; // Or ROLES.NARRATOR
+            characterName = fractalEntity?.name || "Narrator";
+          }
 
           if (mode === "append" && appendTargetId) {
             const original = await db.messages.get(appendTargetId);
@@ -338,6 +348,12 @@ export const Director = {
         new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
       );
       applyPatch({ ui: { fsm: "done" } });
+
+      // [PROLOGUE AUTO-START]
+      if (mode === "prologue") {
+        log("[Director] 🎬 Prologue Complete. Triggering First Turn.");
+        setTimeout(() => Director.playTurn(storyId), 250);
+      }
     } catch (e) {
       if (e.name === "AbortError") throw e;
       error("Execution Error", e);
@@ -352,8 +368,14 @@ export const Director = {
       events.dispatchEvent(
         new CustomEvent(EVENTS.GENERATION_COMPLETED, {
           detail: {
-            role: ROLES.AI,
-            characterId: story?.aiId,
+            role:
+              mode === "prologue" || mode === "epilogue"
+                ? ROLES.FRACTAL
+                : ROLES.AI,
+            characterId:
+              mode === "prologue" || mode === "epilogue"
+                ? story?.fractalId
+                : story?.aiId,
             text: generatedText,
           },
         }),

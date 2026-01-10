@@ -14,6 +14,15 @@
   min-height: 300px;
   overflow: hidden;
 
+  // [FIX] Enforce rounding to match %modal-shell (24px)
+  // This prevents the "Outside the Modal" visual bug where corners aren't clipped.
+  border-top-left-radius: 24px;
+  border-bottom-left-radius: 24px;
+
+  // Fix clipping in some browsers
+  isolation: isolate;
+  transform: translateZ(0);
+
   .hero-wrap,
   .picture {
     width: 100%;

@@ -298,7 +298,7 @@ export function dismissLoadingUI() {
 export function getPictureHTML(entity, options = {}) {
   const { cover = false, landscape = false } = options;
   const div = document.createElement("div");
-  div.className = "picture-container";
+  div.className = "picture-container picture"; // [FIX] Added 'picture' for selector/CSS targeting
   if (cover) div.classList.add("picture-cover");
   if (landscape) div.classList.add("picture-landscape");
 
@@ -318,8 +318,20 @@ export function getPictureHTML(entity, options = {}) {
     div.classList.add("picture-placeholder");
     if (entity.signatureColor) {
       ThemeService.apply(div, entity.signatureColor);
+      // [FIX] Force signature background for placeholders (Requested by User)
+      div.style.backgroundColor = "var(--signature-color)";
+      div.style.color = "#fff"; // Icon always white
     }
-    div.textContent = (entity.name || "?")[0].toUpperCase();
+
+    // [FIX] Use Silhouette Icon instead of Letter
+    div.innerHTML = `<svg class="placeholder-icon" viewBox="0 0 24 24" fill="currentColor" style="width:50%; height:50%; opacity:1;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+
+    // Ensure centering & full coverage
+    div.style.width = "100%";
+    div.style.height = "100%";
+    div.style.display = "flex";
+    div.style.alignItems = "center";
+    div.style.justifyContent = "center";
   }
 
   return div;
