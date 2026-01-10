@@ -12,7 +12,7 @@ import {
   getContrastColor,
   darkenColor,
   mixHex,
-} from "../mesmer/ui/services/theme.js";
+} from "../mesmer/ui/core/theme.js";
 
 // Re-export for compatibility
 export {
@@ -78,7 +78,7 @@ export const initDebugMode = async () => {
 };
 
 export const log = (...args) => {
-  if (isDebug) console.log("[RPGlitch]", ...args);
+  if (isDebug) console["log"]("[RPGlitch]", ...args);
 };
 
 export const error = (...args) => {
@@ -147,7 +147,7 @@ export const handleAsyncError = async (asyncFn, options = {}) => {
   } catch (err) {
     error(`Failed to ${context}:`, err);
     if (showAlert)
-      import("../mesmer/ui/orchestrator.js").then((m) =>
+      import("../mesmer/ui/core/orchestrator.js").then((m) =>
         m.showAlert("Error", errorMessage),
       );
 

@@ -106,6 +106,9 @@
     "waldzell-stochastic-thinking": {
       "command": "cmd",
       "args": ["/c", "npx", "-y", "@waldzellai/stochasticthinking"]
+    },
+    "svelte": {
+      "serverUrl": "https://mcp.svelte.dev/mcp"
     }
   }
 }

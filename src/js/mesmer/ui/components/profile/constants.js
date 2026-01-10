@@ -56,3 +56,9 @@ export const SPLIT_HEADERS = {
   mental: "Non-Physical",
   physical: "Physical",
 };
+
+export const UI_STRINGS = {
+  VOICE_HEADER: "VOICE",
+  VOICE_SUBHEADER: "SPEED & PITCH",
+  DESC_WARNING: "FOR HUMAN EYES ONLY! NEVER USED BY AI.",
+};

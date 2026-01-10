@@ -1,11 +1,11 @@
-import { ThemeService, PALETTE } from "../../services/theme.js";
+import { ThemeService, PALETTE } from "../../core/theme.js";
 import {
   getPictureHTML,
   setTopBarRight,
   renderDynamicsWidget,
   createProfileRow,
-} from "../../services/ui-utils.js";
-import { VisualManager } from "../../services/visuals.js";
+} from "../../core/utils.js";
+import { VisualManager } from "../visuals/manager.js";
 import {
   entities,
   Scholar,
@@ -24,15 +24,20 @@ import {
   store as state,
 } from "../../../../gamemaster/index.js";
 import { LlmService } from "../../../../gamemaster/llm.js";
-import { audioService } from "../../../audio.js";
+import { audioService } from "../../../audio/service.js";
 
-import { PROFILE_STRUCTURE, LABEL_MAP, SPLIT_HEADERS } from "./constants.js";
+import {
+  PROFILE_STRUCTURE,
+  LABEL_MAP,
+  SPLIT_HEADERS,
+  UI_STRINGS,
+} from "./constants.js";
 import {
   closeProfileModal,
   getOnUpdateSelection,
   getActiveSlotKey,
 } from "./controller.js";
-import { showAlert, showConfirm } from "../../services/modals.js";
+import { showAlert, showConfirm } from "../../core/modal.js";
 
 const autoResize = (el) => {
   el.style.height = "auto";
@@ -368,7 +373,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
   const fileInput = imageOverlay.querySelector(
     '[data-profile-field="fileInput"]',
   );
-  const paletteSelect = imageOverlay.querySelector(
+  const signatureColorSelect = imageOverlay.querySelector(
     'select[name="signatureColour"]',
   );
   const magicBtn = imageOverlay.querySelector(
@@ -379,14 +384,14 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
   const bgToggle = imageOverlay.querySelector(".btn-subtle-toggle");
   if (bgToggle) bgToggle.style.display = isFractal ? "none" : "flex";
 
-  // Palette Options
-  if (paletteSelect && paletteSelect.options.length === 0) {
+  // Signature Color Options
+  if (signatureColorSelect && signatureColorSelect.options.length === 0) {
     Object.keys(PALETTE).forEach((key) => {
       if (key === "default") return;
       const option = document.createElement("option");
       option.value = key;
       option.textContent = key.charAt(0).toUpperCase() + key.slice(1);
-      paletteSelect.appendChild(option);
+      signatureColorSelect.appendChild(option);
     });
   }
 
@@ -404,7 +409,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
     imageInput,
     actionButton,
     fileInput,
-    paletteSelect,
+    signatureColorSelect,
     magicBtn,
   ].filter(Boolean);
 
@@ -562,14 +567,14 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
     }
   });
 
-  // Color Palette
-  if (paletteSelect) {
-    Array.from(paletteSelect.options).forEach((opt) => {
+  // Check for Signature Color Select
+  if (signatureColorSelect) {
+    Array.from(signatureColorSelect.options).forEach((opt) => {
       opt.selected = opt.value === currentColor;
     });
 
-    paletteSelect.addEventListener("change", () => {
-      const newColor = paletteSelect.value;
+    signatureColorSelect.addEventListener("change", () => {
+      const newColor = signatureColorSelect.value;
       const rawVal = imageInput.dataset.pendingUrl || imageInput.value.trim();
       const urlToCheck = rawVal && rawVal !== "" ? rawVal : null;
 
@@ -617,6 +622,17 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
   descInput.addEventListener("input", () => autoResize(descInput));
   headerWrap.appendChild(descInput);
   setTimeout(() => autoResize(descInput), 0);
+
+  // [NEW] Description Warning
+  const descWarning = document.createElement("div");
+  descWarning.className = "profile-desc-warning";
+  descWarning.textContent = UI_STRINGS.DESC_WARNING;
+  descWarning.style.color = "var(--pico-color-red-400)";
+  descWarning.style.fontSize = "0.75rem";
+  descWarning.style.marginTop = "0.25rem";
+  descWarning.style.fontStyle = "italic";
+  descWarning.style.textAlign = "center";
+  headerWrap.appendChild(descWarning);
 
   // --- SECTIONS (Maestro 2-Column Grid) ---
   const secWrap = form.querySelector("[data-profile-sections]");
@@ -710,8 +726,8 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
   // [NEW] VOICE SELECTOR (AWS Polly Roster)
   // Inject after standard sections, but HIDDEN for Fractals
   const { row: voiceRow, contentCol: voiceContent } = createProfileRow(
-    "VOICE",
-    "SPEED & PITCH",
+    UI_STRINGS.VOICE_HEADER,
+    UI_STRINGS.VOICE_SUBHEADER,
   );
 
   // User-requested structure
@@ -745,7 +761,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
   voiceSelect.style.marginBottom = "0";
 
   // Populate
-  import("../../../voice.js").then(async ({ voiceService }) => {
+  import("../../../audio/voice.js").then(async ({ voiceService }) => {
     await voiceService.init();
     const roster = voiceService.getVoices();
     let hasMatch = false;
@@ -842,7 +858,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
   // Preview Logic
   previewBtn.onclick = async (e) => {
     e.preventDefault();
-    const { voiceService } = await import("../../../voice.js");
+    const { voiceService } = await import("../../../audio/voice.js");
     const uri = voiceSelect.value;
     const r = parseFloat(rateUI.inp.value);
     const p = parseFloat(pitchUI.inp.value);
@@ -896,14 +912,13 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
   }
 
   // --- MAGIC PROMPT LOGIC ---
-  // --- MAGIC PROMPT LOGIC ---
   const handleEnhancePrompt = async (currentVal) => {
     // 1. Build Strategy
     const builder = new ContextBuilder(null);
     const { system } = await builder.buildMaestroEnhance(
       currentVal,
       entity,
-      paletteSelect ? paletteSelect.value : entity.signatureColor,
+      signatureColorSelect ? signatureColorSelect.value : entity.signatureColor,
     );
 
     // 2. Invoke Prometheus
@@ -961,8 +976,8 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
     const finalNeg = negParts.join(", ");
 
     // 4. Color Injection
-    const sigKey = paletteSelect
-      ? paletteSelect.value
+    const sigKey = signatureColorSelect
+      ? signatureColorSelect.value
       : entity.signatureColor || "default";
     const readableColor = sigKey
       .split("_")
@@ -1117,7 +1132,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
       imageInput.dataset.pendingUrl || imageInput.value.trim(),
     );
     localVisuals.profilePictureUrl = finalImageUrl;
-    localVisuals.signatureColor = paletteSelect.value; // Sync palette choice
+    localVisuals.signatureColor = signatureColorSelect.value; // Sync signature color choice
 
     // Merge everything
     const data = {
@@ -1125,7 +1140,7 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
       name: escapeHtml(live.name),
       description: escapeHtml(live.description),
       profilePictureUrl: finalImageUrl,
-      signatureColor: escapeHtml(paletteSelect.value.trim()),
+      signatureColor: escapeHtml(signatureColorSelect.value.trim()),
       visuals: localVisuals,
       voiceId: form.querySelector('[data-edit-field="voiceId"]')?.value, // [FIX] Persist Voice
       voiceRate: parseFloat(

@@ -23,7 +23,7 @@ jest.mock("../../src/js/scholar/db.js", () => ({
   },
 }));
 
-jest.mock("../../src/js/mesmer/ui/services/ui-utils.js", () => ({
+jest.mock("../../src/js/mesmer/ui/core/utils.js", () => ({
   getPictureHTML: () => globalThis.document.createElement("div"),
   TooltipService: { init: jest.fn() },
   createIconBtn: jest.fn(),
@@ -41,7 +41,7 @@ jest.mock("../../src/js/mesmer/ui/services/ui-utils.js", () => ({
 }));
 
 // Mock theme service
-jest.mock("../../src/js/mesmer/ui/services/theme.js", () => ({
+jest.mock("../../src/js/mesmer/ui/core/theme.js", () => ({
   ThemeService: { apply: jest.fn() },
 }));
 

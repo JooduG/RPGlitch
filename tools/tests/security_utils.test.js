@@ -19,7 +19,7 @@ global.window.DOMPurify = {
   sanitize: mockSanitize,
 };
 
-import { createIconBtn } from "../../src/js/mesmer/ui/services/ui-utils.js";
+import { createIconBtn } from "../../src/js/mesmer/ui/core/utils.js";
 import { sanitizeHtml } from "../../src/js/gamemaster/utils.js";
 
 describe("Security: createIconBtn", () => {

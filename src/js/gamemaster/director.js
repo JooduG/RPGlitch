@@ -67,6 +67,16 @@ export const Director = {
     log(`[Director] 📸 Manual Visual Request: ${targetType}`);
 
     try {
+      // 1. SIGNAL
+      events.dispatchEvent(
+        new CustomEvent(EVENTS.TYPING_STARTED, {
+          detail: {
+            role: ROLES.AI,
+            characterId: state.story.byId[storyId].aiId,
+          },
+        }),
+      );
+
       const result = await Mesmer.visualize(
         storyId,
         "Cinematic high-fidelity photo.",
@@ -78,6 +88,8 @@ export const Director = {
       }
     } catch (e) {
       error("Visual Request Failed", e);
+    } finally {
+      events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
     }
   },
 
@@ -91,9 +103,20 @@ export const Director = {
     log(`[Director] 📸 Generating Visual from Draft: ${draft}`);
 
     try {
-      // Use "enhance" mode to upgrade the draft
+      // 1. SIGNAL
+      events.dispatchEvent(
+        new CustomEvent(EVENTS.TYPING_STARTED, {
+          detail: {
+            role: ROLES.AI,
+            characterId: state.story.byId[storyId].aiId,
+          },
+        }),
+      );
+
+      // 2. VISUALIZE with explicit characteristics enhancement
       const result = await Mesmer.visualize(storyId, draft, "character", {
         mode: "enhance",
+        guidanceScale: CONFIG.VISUALS.GUIDANCE_BASE || 8,
       });
 
       if (result.imageUrl) {
@@ -101,6 +124,8 @@ export const Director = {
       }
     } catch (e) {
       error("Draft Visual Failed", e);
+    } finally {
+      events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
     }
   },
 

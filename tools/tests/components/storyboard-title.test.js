@@ -10,7 +10,7 @@ jest.mock("../../../src/js/gamemaster/index.js", () => ({
   StoryController: {},
   TurnManager: {},
 }));
-jest.mock("../../../src/js/mesmer/ui/image-gen-ui.js", () => ({
+jest.mock("../../../src/js/mesmer/ui/components/visuals/generator.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
   updateDeveloperModeClass: jest.fn(),
@@ -19,11 +19,11 @@ jest.mock("../../../src/js/gamemaster/utils.js", () => ({
   error: jest.fn(),
   log: jest.fn(),
 }));
-jest.mock("../../../src/js/mesmer/ui/orchestrator.js", () => ({
+jest.mock("../../../src/js/mesmer/ui/core/orchestrator.js", () => ({
   showAlert: jest.fn(),
 }));
 
-import { generateDynamicTitle } from "../../../src/js/mesmer/ui/setup.js";
+import { generateDynamicTitle } from "../../../src/js/mesmer/ui/storyboard.js";
 
 describe("Storyboard Title Logic", () => {
   const mockAi = { name: "Alice" };

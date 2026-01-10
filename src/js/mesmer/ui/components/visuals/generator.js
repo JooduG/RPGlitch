@@ -1,13 +1,13 @@
-import { log } from "../../gamemaster/utils.js";
-import { getPictureHTML } from "./services/ui-utils.js";
+import { log } from "../../../../gamemaster/utils.js";
+import { getPictureHTML } from "../../core/utils.js";
 
 // [SECURITY] This module handles UI only. Keyword extraction is in VisualManager (ui/services/visuals.js).
 // Confirmed: No entity.description usage here.
-import { VisualManager } from "./services/visuals.js";
-import { store as state } from "../../gamemaster/index.js";
-import { CONFIG, RGB_MAP } from "../../gamemaster/config.js";
-import { ThemeService } from "./services/theme.js";
-import { openProfileModal } from "./components/profile/controller.js";
+import { VisualManager } from "./manager.js";
+import { store as state } from "../../../../gamemaster/index.js";
+import { RGB_MAP } from "../../../../gamemaster/config.js";
+import { ThemeService } from "../../core/theme.js";
+import { openProfileModal } from "../profile/controller.js";
 
 // --- VISUALS: Developer Mode & Ambience ---
 

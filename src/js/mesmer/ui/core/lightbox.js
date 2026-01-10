@@ -2,7 +2,7 @@
  * LightboxService
  * Handles the full-screen display of generated images.
  */
-import { downloadImage, createIconBtn } from "./ui-utils.js";
+import { downloadImage, createIconBtn } from "./utils.js";
 import { GameMaster } from "../../../gamemaster/index.js";
 
 const LIGHTBOX_ID = "lightbox-overlay";

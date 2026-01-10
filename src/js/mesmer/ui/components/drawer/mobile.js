@@ -1,9 +1,9 @@
 // apps/rpglitch/js/ui-chin.js
 import { entities } from "../../../../scholar/repository.js";
 import { error } from "../../../../gamemaster/utils.js";
-import { getPictureHTML } from "../../services/ui-utils.js";
+import { getPictureHTML } from "../../core/utils.js";
 
-import { ThemeService } from "../../services/theme.js";
+import { ThemeService } from "../../core/theme.js";
 import { openDrawer } from "./desktop.js";
 import { openProfileModal } from "../profile/controller.js";
 
@@ -11,10 +11,95 @@ import { openProfileModal } from "../profile/controller.js";
 let localSelectedEntities = {};
 let _onUpdateSelection = null;
 
-export function setChinCallbacks(callbacks) {
+export function setMobileDrawerCallbacks(callbacks) {
   if (callbacks.onUpdateSelection)
     _onUpdateSelection = callbacks.onUpdateSelection;
 }
+
+export const MobileDrawerUI = {
+  init: () => {
+    // ⚡ BOLT OPTIMIZATION: Event Delegation
+    if (MobileDrawerUI._initialized) return;
+    MobileDrawerUI._initialized = true;
+
+    document.addEventListener("click", (e) => {
+      // 1. Handle Backdrop Click
+      const container = document.getElementById("mobile-drawer-container");
+      if (
+        container &&
+        !container.hidden &&
+        e.target.id === "mobile-drawer-backdrop"
+      ) {
+        MobileDrawerUI.closeAll();
+        return;
+      }
+
+      // 2. Handle Trigger Click (Delegation)
+      const btn = e.target.closest("[data-mobile-drawer]");
+      if (btn) {
+        const name = btn.getAttribute("data-mobile-drawer");
+        MobileDrawerUI.toggle(name);
+      }
+    });
+
+    // 3. Handle ESC Key
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        MobileDrawerUI.closeAll();
+      }
+    });
+  },
+  open: (name) => {
+    MobileDrawerUI.closeAll();
+    const el = document.querySelector(
+      `.mobile-drawer[data-mobile-drawer="${name}"]`,
+    );
+    const container = document.getElementById("mobile-drawer-container");
+    const backdrop = document.getElementById("mobile-drawer-backdrop");
+
+    if (el) el.removeAttribute("hidden");
+    if (container) {
+      container.removeAttribute("hidden");
+      container.style.pointerEvents = "auto";
+    }
+    if (backdrop) backdrop.removeAttribute("hidden");
+  },
+  close: (name) => {
+    const el = document.querySelector(
+      `.mobile-drawer[data-mobile-drawer="${name}"]`,
+    );
+    if (el) el.setAttribute("hidden", "");
+
+    const visible = document.querySelector(".mobile-drawer:not([hidden])");
+    if (!visible) {
+      const container = document.getElementById("mobile-drawer-container");
+      if (container) {
+        container.setAttribute("hidden", "");
+        container.style.pointerEvents = "none";
+      }
+      const backdrop = document.getElementById("mobile-drawer-backdrop");
+      if (backdrop) backdrop.setAttribute("hidden", "");
+    }
+  },
+  closeAll: () => {
+    const drawers = document.querySelectorAll(".mobile-drawer");
+    drawers.forEach((c) => c.setAttribute("hidden", ""));
+    const container = document.getElementById("mobile-drawer-container");
+    if (container) {
+      container.setAttribute("hidden", "");
+      container.style.pointerEvents = "none";
+    }
+    const backdrop = document.getElementById("mobile-drawer-backdrop");
+    if (backdrop) backdrop.setAttribute("hidden", "");
+  },
+  toggle: (name) => {
+    const el = document.querySelector(
+      `.mobile-drawer[data-mobile-drawer="${name}"]`,
+    );
+    if (el && !el.hasAttribute("hidden")) MobileDrawerUI.close(name);
+    else MobileDrawerUI.open(name);
+  },
+};
 
 export function updateLocalSelection(selection) {
   localSelectedEntities = { ...selection };

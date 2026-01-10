@@ -13,7 +13,7 @@ jest.mock("../../../../src/js/gamemaster/index.js", () => ({
   },
 }));
 
-jest.mock("../../../../src/js/mesmer/ui/services/lightbox.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/core/lightbox.js", () => ({
   LightboxService: {
     open: jest.fn(),
   },
@@ -23,13 +23,13 @@ jest.mock("../../../../src/js/gamemaster/store.js", () => ({
   state: { story: { activeId: null } },
 }));
 
-jest.mock("../../../../src/js/mesmer/ui/services/theme.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/core/theme.js", () => ({
   ThemeService: { apply: jest.fn() },
 }));
 
-import { createIconBtn } from "../../../../src/js/mesmer/ui/services/ui-utils.js";
+import { createIconBtn } from "../../../../src/js/mesmer/ui/core/utils.js";
 
-jest.mock("../../../../src/js/mesmer/ui/services/ui-utils.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/core/utils.js", () => ({
   createIconBtn: jest.fn(),
 }));
 
@@ -40,6 +40,13 @@ describe("Bubble UI - Image Prompt Regex", () => {
     container = document.createElement("div");
     // Setup mock to return a real element, safe inside beforeEach
     createIconBtn.mockImplementation(() => document.createElement("button"));
+
+    // [TEST-ONLY] Mock DOMPurify to silence "not found" warnings
+    if (!window.DOMPurify) {
+      window.DOMPurify = {
+        sanitize: (val) => val,
+      };
+    }
   });
 
   test("should correctly render multi-line image prompts", () => {

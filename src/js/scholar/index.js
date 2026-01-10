@@ -12,8 +12,8 @@
 
 import { LlmService } from "../gamemaster/llm.js";
 import { log, error } from "../gamemaster/utils.js";
-import { showAlert } from "../mesmer/ui/services/modals.js";
-import { audioService } from "../mesmer/audio.js";
+import { showAlert } from "../mesmer/ui/core/modal.js";
+import { audioService } from "../mesmer/audio/service.js";
 
 // Sub-Modules
 import { ContextBuilder } from "./context.js";

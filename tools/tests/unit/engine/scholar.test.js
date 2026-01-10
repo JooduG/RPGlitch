@@ -23,13 +23,13 @@ jest.mock("../../../../src/js/gamemaster/utils.js", () => ({
   error: jest.fn(),
 }));
 
-jest.mock("../../../../src/js/mesmer/audio.js", () => ({
+jest.mock("../../../../src/js/mesmer/audio/service.js", () => ({
   audioService: {
     play: jest.fn(),
   },
 }));
 
-jest.mock("../../../../src/js/mesmer/ui/services/modals.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/core/modal.js", () => ({
   showAlert: jest.fn(),
 }));
 
@@ -75,7 +75,9 @@ describe("Scholar System", () => {
   test("archive() handles JSON parsing errors gracefully", async () => {
     LlmService.generate.mockResolvedValue("Invalid JSON");
 
+    const consoleSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
     const result = await Scholar.archive({ name: "Test" }, [], "character");
+    consoleSpy.mockRestore();
 
     expect(result).toBeNull();
   });

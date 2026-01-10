@@ -1,11 +1,11 @@
-import { ThemeService } from "../../services/theme.js";
+import { ThemeService } from "../../core/theme.js";
 import {
   getPictureHTML,
   setTopBarRight,
   renderDynamicsWidget,
   createProfileRow,
-} from "../../services/ui-utils.js";
-import { VisualManager } from "../../services/visuals.js";
+} from "../../core/utils.js";
+import { VisualManager } from "../visuals/manager.js";
 import { entities } from "../../../../scholar/repository.js";
 import {
   escapeHtml,

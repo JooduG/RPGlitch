@@ -1,7 +1,7 @@
-import { audioService } from "./audio.js";
-import { ThemeService } from "./ui/services/theme.js";
+import { audioService } from "./audio/service.js";
+import { ThemeService } from "./ui/core/theme.js";
 import { LlmService } from "../gamemaster/llm.js";
-import { VisualManager } from "./ui/services/visuals.js";
+import { VisualManager } from "./ui/components/visuals/manager.js";
 import { events, EVENTS, store as state } from "../gamemaster/index.js";
 import { CONFIG, ROLES } from "../gamemaster/config.js";
 import { entities, ContextBuilder } from "../scholar/index.js";

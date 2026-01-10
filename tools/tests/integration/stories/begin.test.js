@@ -54,7 +54,7 @@ jest.mock("../../../../src/js/mesmer/ui/components/chat/feed.js", () => ({
   setChatGeneratingState: jest.fn(),
 }));
 
-jest.mock("../../../../src/js/mesmer/ui/services/visuals.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/components/visuals/manager.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
   updateDirectorModeClass: jest.fn(),

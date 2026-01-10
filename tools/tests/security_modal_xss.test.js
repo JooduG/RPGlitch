@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { showErrorModal } from "../../src/js/mesmer/ui/services/modals.js";
+import { showErrorModal } from "../../src/js/mesmer/ui/core/modal.js";
 
 // Mock DOMPurify globally
 global.window.DOMPurify = {

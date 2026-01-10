@@ -1,4 +1,4 @@
-import { extractImageUrl, log, error } from "../../../gamemaster/utils.js";
+import { extractImageUrl, log, error } from "../../../../gamemaster/utils.js";
 
 /**
  * THE VISUAL MANAGER
@@ -15,22 +15,27 @@ const VISUAL_CONSTANTS = {
   NEGATIVE_CONSTRAINTS:
     "anime, cartoon, illustration, drawing, 3d render, painting, sketch, rendered, cgi, unreal engine, video game, bad anatomy, blurry, low resolution, plastic skin, airbrushed, glowing eyes",
 
-  CAMERA_ARTIFACTS: [
-    "motion blur, harsh cinematic shadows, lens flare, rim light",
-    "low light film grain, cctv security angle, volumetric bounce",
-    "unflattering candid angle, blurry background, 35mm lens clarity",
-    "reflection in glass, dusty lens, slightly overexposed rim",
-    "handheld camera shake, soft 85mm bokeh, neon ambient glow",
-  ],
-
-  STYLE_GLITCHES: [
-    "bioluminescent body paint, subdermal LED implants, latex texture, tactical gear",
-    "glitch art distortion, analog video noise, digital chromatic aberration, holographic sheen",
-    "cybernetic enhancements, carbon fiber plating, wet skin texture, high-contrast neon",
-    "distorted reality, fractured glass effects, infrared color palette, ethereal glow",
-  ],
-
   DEFAULT_RESOLUTION: "512x768",
+};
+
+// Helper: Fetch random item from window.rpgLists (injected by Left Panel)
+const getList = (key, fallback = []) => {
+  if (window.rpgLists && window.rpgLists[key]) {
+    try {
+      // Perchance exports lists as an array containing a single JSON string
+      const raw = window.rpgLists[key][0];
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr) && arr.length > 0) {
+        return arr[Math.floor(Math.random() * arr.length)];
+      }
+    } catch (e) {
+      console.warn(`[Visuals] Failed to parse list '${key}'`, e);
+    }
+  }
+  if (fallback.length > 0) {
+    return fallback[Math.floor(Math.random() * fallback.length)];
+  }
+  return "";
 };
 
 export const VisualManager = {
@@ -53,10 +58,9 @@ export const VisualManager = {
     cleanPrompt = cleanPrompt.replace(/\n/g, ", ");
 
     // 2. THE REALISM HAMMER
-    const randomArtifact =
-      VISUAL_CONSTANTS.CAMERA_ARTIFACTS[
-        Math.floor(Math.random() * VISUAL_CONSTANTS.CAMERA_ARTIFACTS.length)
-      ];
+    const randomArtifact = getList("artifacts", [
+      "motion blur, cinematic shadows", // Fallback
+    ]);
 
     // Weighted anchor for stronger influence
     const finalPrompt = `((${VISUAL_CONSTANTS.REALISM_ANCHOR}):1.2), (${randomArtifact}:1.3), ${cleanPrompt}`;
@@ -81,13 +85,24 @@ export const VisualManager = {
         seed: -1,
       });
 
-      if (typeof result === "string" && result.startsWith("(")) {
+      if (
+        typeof result === "string" &&
+        (result.startsWith("(") || result.includes("invalid_key"))
+      ) {
         throw new Error(result);
       }
 
       return typeof result === "string" ? result : extractImageUrl(result);
     } catch (e) {
       error("[VisualManager] Generation failed:", e);
+      if (String(e).includes("invalid_key")) {
+        import("../../core/modal.js").then(({ showAlert }) => {
+          showAlert(
+            "Visual Engine Error",
+            "The image generation key is invalid. Please refresh the page.",
+          );
+        });
+      }
       throw e;
     }
   },
@@ -145,10 +160,9 @@ export const VisualManager = {
     }
 
     // Dynamic Style Glitch
-    const styleGlitch =
-      VISUAL_CONSTANTS.STYLE_GLITCHES[
-        Math.floor(Math.random() * VISUAL_CONSTANTS.STYLE_GLITCHES.length)
-      ];
+    const styleGlitch = getList("glitches", [
+      "bioluminescent accents, digital noise", // Fallback
+    ]);
 
     const isFractal = entity.type === "fractal" || entity.kind === "fractal";
     let action = extraContext ? extraContext.trim() : "standing candidly";
@@ -169,7 +183,7 @@ export const VisualManager = {
   },
 
   getResolutionForMode: (mode) => {
-    if (mode === "scene" || mode === "landscape") return "768x512";
+    if (mode === "landscape" || mode === "scene") return "768x512";
     if (mode === "portrait" || mode === "selfie") return "512x768";
     if (mode === "square") return "768x768";
     return VISUAL_CONSTANTS.DEFAULT_RESOLUTION;

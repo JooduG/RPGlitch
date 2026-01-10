@@ -1,9 +1,9 @@
 // apps/rpglitch/js/drawer.js
 import { entities } from "../../../../scholar/repository.js";
 import { log, error } from "../../../../gamemaster/utils.js";
-import { getPictureHTML } from "../../services/ui-utils.js";
+import { getPictureHTML } from "../../core/utils.js";
 
-import { ThemeService } from "../../services/theme.js";
+import { ThemeService } from "../../core/theme.js";
 
 const DRAWER_ID = "entity-drawer";
 const BACKDROP_ID = "entity-drawer-backdrop";

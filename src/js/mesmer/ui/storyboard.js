@@ -11,9 +11,9 @@ import {
   updatePortraits,
   applyFractalAmbience,
   updateDeveloperModeClass,
-} from "./image-gen-ui.js";
+} from "./components/visuals/generator.js";
 import { error } from "../../gamemaster/utils.js";
-import { showAlert } from "./orchestrator.js";
+import { showAlert } from "./core/orchestrator.js";
 
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 

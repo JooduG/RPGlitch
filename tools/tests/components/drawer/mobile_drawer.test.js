@@ -1,8 +1,6 @@
 import { describe, test, expect, afterEach, jest } from "@jest/globals";
 
-// Mocks must be defined before imports in ESM if using babel-jest,
-// here we stick to the pattern used in previous tests.
-
+// Mocks
 jest.mock("../../../../src/js/scholar/repository.js", () => ({
   entities: { list: jest.fn().mockReturnValue([]) },
   seedPremades: jest.fn().mockResolvedValue(),
@@ -18,24 +16,28 @@ jest.mock("../../../../src/js/mesmer/ui/components/chat/feed.js", () => ({
   setChatGeneratingState: jest.fn(),
 }));
 
-jest.mock("../../../../src/js/mesmer/ui/services/visuals.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/components/visuals/manager.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
   updateDirectorModeClass: jest.fn(),
+}));
+
+// We need to mock openDrawer from desktop because mobile.js imports it
+jest.mock("../../../../src/js/mesmer/ui/components/drawer/desktop.js", () => ({
+  openDrawer: jest.fn(),
 }));
 
 async function loadApp(html) {
   document.body.innerHTML = html;
   jest.resetModules();
 
-  // Note: Adjust paths relative to THIS file location (tools/tests/components/drawer)
-  // apps is at ../../../../apps
   const utils = await import("../../../../src/js/gamemaster/utils.js");
-  const uiUtils =
-    await import("../../../../src/js/mesmer/ui/services/ui-utils.js");
+  const uiUtils = await import("../../../../src/js/mesmer/ui/core/utils.js");
+  const mobileDrawer =
+    await import("../../../../src/js/mesmer/ui/components/drawer/mobile.js");
   const index = await import("../../../../src/js/gamemaster/bootstrap.js");
 
-  const App = { ...index, ...utils, ...uiUtils };
+  const App = { ...index, ...utils, ...uiUtils, ...mobileDrawer };
   return { App };
 }
 
@@ -45,45 +47,45 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-describe("Drawer/Chin Component", () => {
+describe("Drawer/Mobile Component", () => {
   test("open/close toggles visibility attributes", async () => {
     const html = `<!doctype html><html><body>
-            <div id="chin-container" hidden><div class="chin" data-chin="stories" hidden></div></div>
+            <div id="mobile-drawer-container" hidden><div class="mobile-drawer" data-mobile-drawer="stories" hidden></div></div>
         </body></html>`;
     const { App } = await loadApp(html);
 
-    App.chin.init();
-    App.chin.open("stories");
+    App.MobileDrawerUI.init();
+    App.MobileDrawerUI.open("stories");
 
     await new Promise((r) => setTimeout(r, 0));
 
-    const container = document.getElementById("chin-container");
-    const panel = document.querySelector('[data-chin="stories"]');
+    const container = document.getElementById("mobile-drawer-container");
+    const panel = document.querySelector('[data-mobile-drawer="stories"]');
     expect(container.hidden).toBe(false);
     expect(panel.hidden).toBe(false);
 
-    App.chin.close("stories");
+    App.MobileDrawerUI.close("stories");
     await new Promise((r) => setTimeout(r, 0));
     expect(panel.hidden).toBe(true);
   });
 
-  test("outside click closes chin", async () => {
+  test("outside click closes drawer", async () => {
     const html = `<!doctype html><html><body>
             <header id="top-bar"></header>
-            <div id="chin-container" style="pointer-events: none;">
-                <div id="chin-backdrop" hidden></div>
-                <div class="chin" data-chin="stories" hidden></div>
+            <div id="mobile-drawer-container" style="pointer-events: none;">
+                <div id="mobile-drawer-backdrop" hidden></div>
+                <div class="mobile-drawer" data-mobile-drawer="stories" hidden></div>
             </div>
         </body></html>`;
     const { App } = await loadApp(html);
-    App.chin.init();
-    App.chin.open("stories");
+    App.MobileDrawerUI.init();
+    App.MobileDrawerUI.open("stories");
 
     await new Promise((r) => setTimeout(r, 0));
-    const container = document.getElementById("chin-container");
+    const container = document.getElementById("mobile-drawer-container");
     expect(container.hidden).toBe(false);
 
-    const backdrop = document.getElementById("chin-backdrop");
+    const backdrop = document.getElementById("mobile-drawer-backdrop");
     backdrop.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
 
     await new Promise((r) => setTimeout(r, 0));

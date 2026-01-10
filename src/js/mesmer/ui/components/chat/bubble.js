@@ -1,12 +1,12 @@
 import { sanitizeHtml } from "../../../../gamemaster/utils.js";
-import { createIconBtn } from "../../services/ui-utils.js";
-import { VisualManager } from "../../services/visuals.js";
+import { createIconBtn } from "../../core/utils.js";
+import { VisualManager } from "../visuals/manager.js";
 import { store as state } from "../../../../gamemaster/index.js";
-import { ThemeService } from "../../services/theme.js";
-import { LightboxService } from "../../services/lightbox.js";
+import { ThemeService } from "../../core/theme.js";
+import { LightboxService } from "../../core/lightbox.js";
 import { renderChat } from "./feed.js";
 import { GameMaster } from "../../../../gamemaster/index.js";
-import { voiceService } from "../../../voice.js";
+import { voiceService } from "../../../audio/voice.js";
 
 const activeEdits = new Map();
 export const activeRerolls = new Set();
@@ -44,7 +44,8 @@ const renderImageAttachment = (imageUrl, options) => {
   img.src = imageUrl;
   img.alt = "Generated Image";
   img.className = "generated-image";
-  img.loading = "lazy";
+  img.loading = "eager"; // [INTERVENTION] Disable lazy loading for story moments
+  img.decoding = "async";
   img.style.cursor = "zoom-in";
   img.onclick = (e) => {
     e.stopPropagation();
@@ -71,10 +72,16 @@ window.setRerollState = setRerollState;
 
 export const getBubbleClass = (role, entities) => {
   if (role === "user") return "chat-bubble--user";
-  if (role === "fractal" || (role === "ai" && entities?.ai?.type === "fractal"))
-    return "chat-bubble--fractal";
-  if (role === "fractal" || role === "system" || !role)
-    return "chat-bubble--fractal";
+
+  // Strict Fractal Detection (Type based)
+  const isFractal =
+    role === "fractal" ||
+    role === "narrator" ||
+    role === "system" ||
+    entities?.ai?.type === "fractal";
+
+  if (isFractal) return "chat-bubble--fractal";
+
   return "chat-bubble--character";
 };
 
@@ -138,7 +145,12 @@ export const renderMessage = (
 
   if (type === "IMAGE") {
     div.className = `chat-bubble ${bubbleModifier} story-image-container`;
-    const imageContainer = renderImageAttachment(text, { ...options, role });
+    // [FIX] Use attachmentUrl if available, otherwise fallback to text (legacy)
+    const imgSrc =
+      options.attachmentUrl ||
+      (options.attachments && options.attachments[0]) ||
+      text;
+    const imageContainer = renderImageAttachment(imgSrc, { ...options, role });
     div.appendChild(imageContainer);
     container.appendChild(div);
     return;
@@ -345,6 +357,9 @@ export const renderMessage = (
 
     div.innerHTML = contentHtml + timeHtml + statusHtml + debugHtml;
 
+    /*
+    // [TODO] Revive Gallery Mode if we support multiple attachments again.
+    // Currently styled inline and unused.
     if (options.attachments && options.attachments.length > 0) {
       // [NEW] Gallery Mode
       const gallery = document.createElement("div");
@@ -368,7 +383,7 @@ export const renderMessage = (
       });
 
       div.appendChild(gallery);
-    } else if (options.attachmentUrl) {
+    } else */ if (options.attachmentUrl) {
       // Legacy Fallback
       div.appendChild(
         renderImageAttachment(options.attachmentUrl, { ...options, role }),

@@ -1,10 +1,10 @@
 import { Mesmer } from "../../../../src/js/mesmer/index.js";
-import { audioService } from "../../../../src/js/mesmer/audio.js";
-import { ThemeService } from "../../../../src/js/mesmer/ui/services/theme.js";
+import { audioService } from "../../../../src/js/mesmer/audio/service.js";
+import { ThemeService } from "../../../../src/js/mesmer/ui/core/theme.js";
 
 // Mock dependencies
-jest.mock("../../../../src/js/mesmer/audio.js");
-jest.mock("../../../../src/js/mesmer/ui/services/theme.js");
+jest.mock("../../../../src/js/mesmer/audio/service.js");
+jest.mock("../../../../src/js/mesmer/ui/core/theme.js");
 
 describe("Mesmer Engine", () => {
   beforeEach(() => {

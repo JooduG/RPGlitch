@@ -1,5 +1,5 @@
 import { GameMaster } from "../../../../gamemaster/index.js";
-import { voiceService } from "../../../voice.js";
+import { voiceService } from "../../../audio/voice.js";
 import {
   events,
   EVENTS,

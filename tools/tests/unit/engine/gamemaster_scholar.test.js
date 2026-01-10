@@ -1,7 +1,7 @@
 import { jest } from "@jest/globals";
 
 // 1. Mock dependencies
-jest.mock("../../../../src/js/mesmer/audio.js", () => ({
+jest.mock("../../../../src/js/mesmer/audio/service.js", () => ({
   audioService: { play: jest.fn() },
 }));
 
@@ -97,7 +97,7 @@ jest.mock("../../../../src/js/warden/index.js", () => ({
   calculateDynamics: jest.fn((d) => d),
 }));
 
-jest.mock("../../../../src/js/mesmer/ui/services/visuals.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/components/visuals/manager.js", () => ({
   VisualManager: {
     generate: jest.fn(),
     getResolutionForMode: jest.fn(),

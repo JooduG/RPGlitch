@@ -18,7 +18,7 @@ export const LlmService = {
       if (!options.silent) {
         // We only alert if not silent, but we always throw so the caller can handle flow.
         utilsError(msg);
-        import("../mesmer/ui/services/modals.js").then(({ showAlert }) => {
+        import("../mesmer/ui/core/modal.js").then(({ showAlert }) => {
           showAlert("Engine Error", msg);
         });
       }
@@ -76,19 +76,26 @@ export const LlmService = {
         errString.includes("400") ||
         errString.includes("401") ||
         errString.includes("403") ||
-        errString.includes("Fetch failed");
+        errString.includes("Fetch failed") ||
+        errString.includes("invalid_key");
 
       if (isStale) {
-        log("[LlmService] Stale Session Detected.");
+        log("[LlmService] Stale Session or Invalid Key Detected.");
 
         // Dynamic import to avoid circular dependency
-        const { showAlert } = await import("../mesmer/ui/services/modals.js");
+        const { showAlert } = await import("../mesmer/ui/core/modal.js");
 
-        // Show non-blocking notice (User must refresh)
-        showAlert(
-          "Session Stale",
-          "Your connection to the AI engine has expired. Please refresh the page to reconnect.",
-        );
+        if (errString.includes("invalid_key")) {
+          showAlert(
+            "Engine Error",
+            "The AI engine reported an invalid key. This usually happens after a brief period of inactivity. Please refresh the page.",
+          );
+        } else {
+          showAlert(
+            "Session Stale",
+            "Your connection to the AI engine has expired. Please refresh the page to reconnect.",
+          );
+        }
 
         // Return null to fail gracefully
         return null;

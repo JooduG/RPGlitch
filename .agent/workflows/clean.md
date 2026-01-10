@@ -1,29 +1,38 @@
 ---
-description: Aggressive cleanup protocol. Runs linters and tests in a fix-loop until the codebase is green.
+description: Aggressive cleanup protocol. Runs linters, formatters, and tests in a fix-loop until the codebase is spotless.
 ---
 
 # 🧹 Deep Clean Protocol
 
-1. **Auto-Fix (Turbo):**
-   - Run the standard fixers without asking:
+> **Goal:** Ensure the codebase is syntactically perfect and test-green.
 
-     ```bash
-     // turbo
-     npm run lint:fix
-     // turbo
-     npm run format
-     ```
+1. **Auto-Fix (The Scrub):**
+   - Run standard fixers to catch low-hanging fruit.
 
-2. **Test & Report:**
-   - Run the test suite:
+   ```bash
+   // turbo
+   npm run lint:fix
+   ```
 
-     ```bash
-     // turbo
-     npm test
-     ```
+2. **Test & Verify (The Audit):**
+   - Run the full test suite.
 
-   - **Condition:** If tests fail, fix the specific error and GOTO Step 1.
-   - **Condition:** If tests pass, stop.
+   ```bash
+   // turbo
+   npm test
+   ```
 
-3. **Verify Hygiene:**
-   - Check `tools/ops/hygiene.js` (if applicable) to ensure no `console.log` left behind.
+   - **Condition:**
+     - 🔴 **FAIL:** Fix specific errors, then GOTO Step 1.
+     - 🟢 **PASS:** Proceed to Step 3.
+
+3. **Hygiene Check (The White Glove):**
+   - Scan for "developer leftovers" like `console.log` or `debugger`.
+
+   ```bash
+   // turbo
+   npm run hygiene
+   ```
+
+4. **Final Report:**
+   - Output: "✨ Codebase is CLEAN and GREEN."

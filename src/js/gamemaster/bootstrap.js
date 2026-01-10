@@ -1,8 +1,8 @@
 // src/js/gamemaster/bootstrap.js
 import { seedPremades } from "../scholar/repository.js";
-import { initViews } from "../mesmer/ui/orchestrator.js";
+import { initViews } from "../mesmer/ui/core/orchestrator.js";
 import { db } from "../scholar/db.js";
-import { log, error, initDebugMode, mockPlugins } from "./utils.js";
+import { log, initDebugMode, mockPlugins } from "./utils.js";
 
 // --- THE FREEDOM PROTOCOL (Platform Shield) ---
 /**
@@ -32,7 +32,7 @@ if (typeof window !== "undefined") {
         localStorage.removeItem(key);
       }
     });
-    console.log("[Shield] Freedom Protocol Active.");
+    log("[Shield] Freedom Protocol Active.");
   } catch (e) {
     console.warn("[Shield] Storage intercept failed.");
   }
@@ -61,28 +61,28 @@ const waitForConfig = async () => {
 
 export const App = {
   async init() {
-    console.log("[Bootstrap] 🚀 RPGlitch Starting...");
+    log("[Bootstrap] 🚀 RPGlitch Starting...");
 
     try {
       // 0. Pre-Flight Checks
-      console.log("[Bootstrap] Step 0: Pre-Flight...");
+      log("[Bootstrap] Step 0: Pre-Flight...");
       await waitForConfig();
 
-      console.log("[Bootstrap] Step 1: Stability Layer...");
+      log("[Bootstrap] Step 1: Stability Layer...");
       await initDebugMode();
       mockPlugins();
 
       // 1. Data Layer
-      console.log("[Bootstrap] Step 2: Data Layer (Opening DB)...");
+      log("[Bootstrap] Step 2: Data Layer (Opening DB)...");
       await db.open();
-      console.log("[Bootstrap] Database Ready. Seeding content...");
+      log("[Bootstrap] Database Ready. Seeding content...");
       await seedPremades();
 
       // 2. UI Layer
-      console.log("[Bootstrap] Step 3: UI Layer (Initializing Views)...");
+      log("[Bootstrap] Step 3: UI Layer (Initializing Views)...");
       await initViews();
 
-      console.log("[Bootstrap] 🏁 System Online.");
+      log("[Bootstrap] 🏁 System Online.");
     } catch (err) {
       console.error("[Bootstrap] ❌ Critical Launch Failure:", err);
       // Fallback UI

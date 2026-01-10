@@ -15,7 +15,7 @@ jest.mock("../../../src/js/mesmer/ui/components/chat/feed.js", () => ({
   setChatGeneratingState: jest.fn(),
 }));
 
-jest.mock("../../../src/js/mesmer/ui/services/visuals.js", () => ({
+jest.mock("../../../src/js/mesmer/ui/components/visuals/manager.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
   updateDirectorModeClass: jest.fn(),
@@ -28,8 +28,7 @@ async function loadApp(html) {
   // Re-import modules to get a fresh state
   jest.resetModules();
   const utils = await import("../../../src/js/gamemaster/utils.js");
-  const uiUtils =
-    await import("../../../src/js/mesmer/ui/services/ui-utils.js");
+  const uiUtils = await import("../../../src/js/mesmer/ui/common/utils.js");
   const index = await import("../../../src/js/gamemaster/bootstrap.js");
 
   // App object is now constructed from re-imported modules

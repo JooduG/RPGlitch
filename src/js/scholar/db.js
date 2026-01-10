@@ -34,7 +34,7 @@ db.on("blocked", () => {
 });
 
 db.on("versionchange", () => {
-  console.log("[RPGlitch DB] Database version change detected. Refreshing...");
+  log("[RPGlitch DB] Database version change detected. Refreshing...");
   db.close();
   if (typeof window !== "undefined") window.location.reload();
 });

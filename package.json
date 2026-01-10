@@ -18,8 +18,8 @@
     "test": "jest",
     "hygiene": "node tools/ops/hygiene.js",
     "analyze": "node tools/qa/analyze-css.js",
-    "validate": "npm-run-all lint test hygiene",
-    "deploy": "npm run validate && npm run build",
+    "validate": "npm-run-all lint:fix test hygiene",
+    "deploy": "npm run sync && npm run validate && npm run build",
     "sync": "node tools/ops/sync.js --all",
     "sync:libs": "node tools/ops/sync.js --libs",
     "sync:ignores": "node tools/ops/sync.js --ignores",
@@ -29,7 +29,9 @@
   "dependencies": {
     "dexie": "^3.2.4",
     "dompurify": "^3.0.5",
-    "http-server": "^14.1.1"
+    "esbuild-svelte": "^0.9.4",
+    "http-server": "^14.1.1",
+    "svelte": "^5.46.1"
   },
   "devDependencies": {
     "@babel/core": "^7.28.5",
@@ -51,6 +53,7 @@
     "sass": "^1.64.1",
     "stylelint": "^16.26.1",
     "stylelint-config-standard": "^39.0.1",
-    "stylelint-config-standard-scss": "^16.0.0"
+    "stylelint-config-standard-scss": "^16.0.0",
+    "svelte-preprocess": "^6.0.3"
   }
 }

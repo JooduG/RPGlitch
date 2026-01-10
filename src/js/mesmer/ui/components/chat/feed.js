@@ -6,8 +6,8 @@ import {
 import { entities } from "../../../../scholar/repository.js";
 import { VirtualFeed } from "./virtual-feed.js";
 import { renderMessage, getBubbleClass } from "./bubble.js"; // Circular safe
-import { updatePortraits, applyFractalAmbience } from "../../image-gen-ui.js";
-import { ThemeService } from "../../services/theme.js";
+import { updatePortraits, applyFractalAmbience } from "../visuals/generator.js";
+import { ThemeService } from "../../core/theme.js";
 import { log } from "../../../../gamemaster/utils.js";
 
 // --- STATE ---
@@ -67,34 +67,40 @@ export function showTypingIndicator(
       type = typeOrOptions.role || "ai"; // Fallback role if needed
     }
 
+    // [ARCHITECT] Refined Role & Color Resolution
+    let resolvedRole = type;
     let signatureColor = null;
-    if (type === "ai" && selectedEntities.ai) {
-      signatureColor = selectedEntities.ai.signatureColor;
-    } else if (type === "user" && selectedEntities.user) {
-      signatureColor = selectedEntities.user.signatureColor;
-    } else if (type === "fractal" && selectedEntities.fractal) {
-      // Fallback for Fractals if DB field is missing
-      signatureColor = selectedEntities.fractal.signatureColor || "pink";
+
+    if (type === "ai") {
+      const ai = selectedEntities.ai;
+      if (ai) {
+        signatureColor = ai.signatureColor;
+        // [ARCHITECT] Only shift to fractal role IF we don't have an explicit character role
+        if (ai.type === "fractal" && !typeOrOptions.role) {
+          resolvedRole = "fractal";
+        }
+      }
+    } else if (type === "user") {
+      signatureColor = selectedEntities.user?.signatureColor;
+    } else if (type === "fractal") {
+      signatureColor = selectedEntities.fractal?.signatureColor || "pink";
     }
 
-    // Explicit Override (from options)
-    if (typeof typeOrOptions === "object" && typeOrOptions.signatureColor) {
-      signatureColor = typeOrOptions.signatureColor;
+    // Explicit Overrides
+    if (typeof typeOrOptions === "object") {
+      if (typeOrOptions.role) resolvedRole = typeOrOptions.role;
+      if (typeOrOptions.signatureColor)
+        signatureColor = typeOrOptions.signatureColor;
     }
 
-    // [ARCHITECT] Use shared classification logic or explicit class
-    let modifier = explicitClass || getBubbleClass(type, selectedEntities);
+    let modifier =
+      explicitClass || getBubbleClass(resolvedRole, selectedEntities);
 
-    // Enforce Fractal Class
-    if (type === "fractal") {
-      modifier = "chat-bubble--fractal";
-    }
-
+    // Final Class Composition
     let classes = ["chat-bubble", "typing-bubble", modifier];
 
     if (signatureColor && signatureColor !== "default") {
       classes.push(`signature-${signatureColor}`);
-      // Apply CSS Variable for Fractal Support
       ThemeService.apply(bubble, signatureColor);
     }
 
@@ -240,7 +246,7 @@ export async function renderChat(storyId) {
       }
       if (btnDelete) {
         btnDelete.onclick = async () => {
-          const { showConfirm } = await import("../../orchestrator.js");
+          const { showConfirm } = await import("../../core/orchestrator.js");
           if (await showConfirm("Delete Story?", "This cannot be undone.")) {
             const db = await import("../../../../scholar/db.js").then(
               (m) => m.db,

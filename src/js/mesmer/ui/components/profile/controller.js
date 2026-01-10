@@ -27,6 +27,10 @@ export const getActiveSlotKey = () => activeSlotKey;
 export const closeProfileModal = () => {
   const screen = document.querySelector("#profile-screen");
   if (screen) {
+    if (typeof screen._cleanupProfile === "function") {
+      screen._cleanupProfile();
+      delete screen._cleanupProfile;
+    }
     screen.classList.remove("is-open");
     screen.setAttribute("hidden", "");
     screen.classList.remove("profile-view--fractal");

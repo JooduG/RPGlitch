@@ -28,7 +28,7 @@ jest.mock("../../../../src/js/scholar/db.js", () => ({
 }));
 
 // 2. UI/Engine Layers (Critical to mock these to avoid DOM/Window access at top level)
-jest.mock("../../../../src/js/mesmer/ui/orchestrator.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/core/orchestrator.js", () => ({
   initViews: jest.fn().mockResolvedValue({}),
 }));
 
@@ -40,7 +40,7 @@ jest.mock("../../../../src/js/mesmer/ui/components/settings.js", () => ({
   StoryOptionsController: { init: jest.fn() },
 }));
 
-jest.mock("../../../../src/js/mesmer/ui/setup.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/storyboard.js", () => ({
   initStoryboardStage: jest.fn(),
   StoryboardController: {},
 }));
@@ -63,7 +63,7 @@ jest.mock("../../../../src/js/mesmer/ui/components/chat/feed.js", () => ({
   setChatGeneratingState: jest.fn(),
 }));
 
-jest.mock("../../../../src/js/mesmer/ui/services/visuals.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/components/visuals/manager.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
   updateDirectorModeClass: jest.fn(),

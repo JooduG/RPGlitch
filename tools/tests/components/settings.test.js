@@ -70,7 +70,7 @@ jest.mock("../../../src/js/scholar/db.js", () => ({
 }));
 
 // Mock ui-views
-jest.mock("../../../src/js/mesmer/ui/orchestrator.js", () => ({
+jest.mock("../../../src/js/mesmer/ui/core/orchestrator.js", () => ({
   router: {
     handleRoute: jest.fn(),
   },

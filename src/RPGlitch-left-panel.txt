@@ -30,6 +30,8 @@ clientSideConfig
       mood: [JSON.stringify(rpgMood.selectAll.map(i => i.text || i))],
       quality: [JSON.stringify(rpgQuality.selectAll.map(i => i.text || i))],
       sounds: [JSON.stringify(rpgSounds.selectAll.map(i => i.text || i))],
+      artifacts: [JSON.stringify(rpgArtifacts.selectAll.map(i => i.text || i))],
+      glitches: [JSON.stringify(rpgGlitches.selectAll.map(i => i.text || i))],
       settings: {
         voiceEnabled: true
       }
@@ -110,6 +112,19 @@ rpgMood
   peaceful, serene, quiet
   romantic, affectionate, soft
   spooky, haunted, ominous
+
+rpgArtifacts
+  motion blur, harsh cinematic shadows, lens flare, rim light
+  low light film grain, cctv security angle, volumetric bounce
+  unflattering candid angle, blurry background, 35mm lens clarity
+  reflection in glass, dusty lens, slightly overexposed rim
+  handheld camera shake, soft 85mm bokeh, neon ambient glow
+
+rpgGlitches
+  bioluminescent body paint, subdermal LED implants, latex texture, tactical gear
+  glitch art distortion, analog video noise, digital chromatic aberration, holographic sheen
+  cybernetic enhancements, carbon fiber plating, wet skin texture, high-contrast neon
+  distorted reality, fractured glass effects, infrared color palette, ethereal glow
 
 rpgSounds
   notification = https://user.uploads.dev/file/50dc061d6ed6439719d283d042e9c172.wav

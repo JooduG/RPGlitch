@@ -1,11 +1,11 @@
 import { db } from "../../../scholar/db.js";
 import { store as state, applyPatch } from "../../../gamemaster/index.js";
 import { GameMaster } from "../../../gamemaster/index.js";
-import { showAlert, handleConcludeStory } from "../orchestrator.js";
+import { showAlert, handleConcludeStory } from "../core/orchestrator.js";
 import { log, error, sanitizeHtml } from "../../../gamemaster/utils.js";
 
-import { voiceService } from "../../voice.js";
-import { audioService } from "../../audio.js";
+import { voiceService } from "../../audio/voice.js";
+import { audioService } from "../../audio/service.js";
 
 export const StoryOptionsController = {
   async init() {
@@ -95,7 +95,7 @@ export const StoryOptionsController = {
 
         let confirmed = storyState === "concluded";
         if (!confirmed) {
-          const { showConfirm } = await import("../orchestrator.js");
+          const { showConfirm } = await import("../core/orchestrator.js");
           confirmed = await showConfirm(
             "Load Story?",
             'Load "' + storyTitle + '"?',
@@ -110,7 +110,6 @@ export const StoryOptionsController = {
     }
 
     const btn = document.querySelector("#btn-options");
-    const closeBtn = modal.querySelector(".close");
     const resetBtn = modal.querySelector("#btn-reset-story");
     const storyInstructionsInput = modal.querySelector(
       "#setting-story-instructions",
@@ -135,12 +134,6 @@ export const StoryOptionsController = {
       });
     }
 
-    // Close Options
-    closeBtn?.addEventListener("click", (e) => {
-      e.preventDefault();
-      StoryOptionsController.close();
-    });
-
     modal.addEventListener("click", (e) => {
       if (e.target === modal) StoryOptionsController.close();
     });
@@ -156,7 +149,7 @@ export const StoryOptionsController = {
     resetBtn?.addEventListener("click", async (e) => {
       e.preventDefault();
       if (
-        await import("../orchestrator.js").then((m) =>
+        await import("../core/orchestrator.js").then((m) =>
           m.showConfirm(
             "Reset All Data?",
             "Are you sure you want to reset ALL data? This will clear your current story and all settings.",
@@ -355,7 +348,7 @@ export const StoryOptionsController = {
         }
 
         // TRIGGER
-        const { Orchestrator } = await import("../orchestrator.js");
+        const { Orchestrator } = await import("../core/orchestrator.js");
         await Orchestrator.endStory();
       };
     }
@@ -422,14 +415,14 @@ export const StoryOptionsController = {
       grid.innerHTML = "";
 
       const { getPictureHTML, TooltipService } =
-        await import("../services/ui-utils.js").then(async (m) => {
+        await import("../core/utils.js").then(async (m) => {
           await import("../../../scholar/library.js");
           return { ...m };
         });
 
       TooltipService.init();
 
-      const { ThemeService } = await import("../services/theme.js");
+      const { ThemeService } = await import("../core/theme.js");
 
       stories.forEach((story) => {
         const card = document.createElement("button");

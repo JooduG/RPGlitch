@@ -1,9 +1,6 @@
-import { mixHex, sanitizeHtml } from "../../../gamemaster/utils.js";
-import { CONFIG, RGB_MAP } from "../../../gamemaster/config.js";
-import { VisualManager } from "./visuals.js";
+import { sanitizeHtml } from "../../../gamemaster/utils.js";
+import { VisualManager } from "../components/visuals/manager.js";
 import { ThemeService } from "./theme.js";
-
-const { PALETTE } = CONFIG;
 
 // [NEW] Shared UI Components
 export function createIconBtn(
@@ -165,78 +162,9 @@ export function renderDynamicsWidget(
   container.appendChild(row);
 }
 
-// --- UI Helpers (Chin, TopBar) ---
+// --- UI Helpers (Mobile Drawer / Bottom Sheet, TopBar) ---
 
-export const chin = {
-  init: () => {
-    // ⚡ BOLT OPTIMIZATION: Event Delegation
-    // Replaced multiple individual listeners with a single document-level delegate.
-    // Handles current and future [data-chin] elements automatically.
-    if (chin._initialized) return;
-    chin._initialized = true;
-
-    document.addEventListener("click", (e) => {
-      // 1. Handle Backdrop Click
-      const container = document.getElementById("chin-container");
-      if (container && !container.hidden && e.target.id === "chin-backdrop") {
-        chin.closeAll();
-        return;
-      }
-
-      // 2. Handle Trigger Click (Delegation)
-      const btn = e.target.closest("[data-chin]");
-      if (btn) {
-        // Optional: Safety check if we want to restrict to buttons only,
-        // but closest() usually implies intent.
-        // e.stopPropagation();
-        const name = btn.getAttribute("data-chin");
-        chin.toggle(name);
-      }
-    });
-  },
-  open: (name) => {
-    chin.closeAll();
-    const el = document.querySelector(`.chin[data-chin="${name}"]`);
-    const container = document.getElementById("chin-container");
-    const backdrop = document.getElementById("chin-backdrop");
-
-    if (el) el.removeAttribute("hidden");
-    if (container) {
-      container.removeAttribute("hidden");
-      container.style.pointerEvents = "auto";
-    }
-    if (backdrop) backdrop.removeAttribute("hidden");
-  },
-  close: (name) => {
-    const el = document.querySelector(`.chin[data-chin="${name}"]`);
-    if (el) el.setAttribute("hidden", "");
-
-    const visible = document.querySelector(".chin:not([hidden])");
-    if (!visible) {
-      const container = document.getElementById("chin-container");
-      if (container) {
-        container.setAttribute("hidden", "");
-        container.style.pointerEvents = "none";
-      }
-    }
-  },
-  closeAll: () => {
-    const chins = document.querySelectorAll(".chin");
-    chins.forEach((c) => c.setAttribute("hidden", ""));
-    const container = document.getElementById("chin-container");
-    if (container) {
-      container.setAttribute("hidden", "");
-      container.style.pointerEvents = "none";
-    }
-    const backdrop = document.getElementById("chin-backdrop");
-    if (backdrop) backdrop.setAttribute("hidden", "");
-  },
-  toggle: (name) => {
-    const el = document.querySelector(`.chin[data-chin="${name}"]`);
-    if (el && !el.hasAttribute("hidden")) chin.close(name);
-    else chin.open(name);
-  },
-};
+// --- UI Helpers (Mobile Drawer / Bottom Sheet, TopBar) ---
 
 export function setTopBarRight(mode) {
   const doc = document;
@@ -325,13 +253,6 @@ export function getPictureHTML(entity, options = {}) {
 
     // [FIX] Use Silhouette Icon instead of Letter
     div.innerHTML = `<svg class="placeholder-icon" viewBox="0 0 24 24" fill="currentColor" style="width:50%; height:50%; opacity:1;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
-
-    // Ensure centering & full coverage
-    div.style.width = "100%";
-    div.style.height = "100%";
-    div.style.display = "flex";
-    div.style.alignItems = "center";
-    div.style.justifyContent = "center";
   }
 
   return div;

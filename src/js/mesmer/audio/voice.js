@@ -5,7 +5,7 @@
  * Utilizes 'window.speechSynthesis' and 'window.webkitSpeechRecognition'.
  * Designed for privacy (zero-knowledge) and reliability (no cloud APIs).
  */
-import { log } from "../gamemaster/utils.js";
+import { log } from "../../gamemaster/utils.js";
 
 export class VoiceService {
   constructor() {

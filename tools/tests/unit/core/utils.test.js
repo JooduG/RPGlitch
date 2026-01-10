@@ -11,9 +11,9 @@ jest.mock("../../../../src/js/scholar/db.js", () => ({
   },
 }));
 
-jest.mock("../../../../src/js/mesmer/ui/services/ui-utils.js", () => {
+jest.mock("../../../../src/js/mesmer/ui/core/utils.js", () => {
   const actual = jest.requireActual(
-    "../../../../src/js/mesmer/ui/services/ui-utils.js",
+    "../../../../src/js/mesmer/ui/core/utils.js",
   );
   return {
     ...actual,
@@ -30,13 +30,13 @@ jest.mock("../../../../src/js/mesmer/ui/components/chat/feed.js", () => ({
   setChatGeneratingState: jest.fn(),
 }));
 
-jest.mock("../../../../src/js/mesmer/ui/services/visuals.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/components/visuals/manager.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
   updateDirectorModeClass: jest.fn(),
 }));
 
-jest.mock("../../../../src/js/mesmer/ui/orchestrator.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/core/orchestrator.js", () => ({
   showAlert: jest.fn(),
 }));
 
@@ -44,7 +44,7 @@ let utils, uiUtils;
 
 beforeAll(async () => {
   utils = await import("../../../../src/js/gamemaster/utils.js");
-  uiUtils = await import("../../../../src/js/mesmer/ui/services/ui-utils.js");
+  uiUtils = await import("../../../../src/js/mesmer/ui/core/utils.js");
 });
 
 beforeEach(() => {
@@ -87,7 +87,7 @@ test("handleAsyncError executes async function and returns result on success", a
 test("handleAsyncError catches errors and returns fallback value", async () => {
   const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
   const orchestrator =
-    await import("../../../../src/js/mesmer/ui/orchestrator.js");
+    await import("../../../../src/js/mesmer/ui/core/orchestrator.js");
 
   const result = await utils.handleAsyncError(
     async () => {
@@ -121,7 +121,7 @@ test("handleAsyncError catches errors and returns fallback value", async () => {
 test("handleAsyncError suppresses alert when showAlert is false", async () => {
   const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
   const orchestrator =
-    await import("../../../../src/js/mesmer/ui/orchestrator.js");
+    await import("../../../../src/js/mesmer/ui/core/orchestrator.js");
   orchestrator.showAlert.mockClear();
 
   await utils.handleAsyncError(

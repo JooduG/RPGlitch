@@ -145,22 +145,22 @@ This first selects an animal, then a verb, then outputs a formatted sentence usi
 
 ## Core Syntax Reference
 
-| Syntax/Property | Description |
-|:---|:---|
-| `listName` | Defines a list. Items are indented below it. |
-| `[listName]` | Selects and outputs one random item from the list. |
-| `{item1\|item2}` | Shorthand for selecting one random item from an inline list. |
-| `^n` | Sets the selection weight of an item. Example: `item^2`. |
-| `[id = list]` | Stores the selected item from `list` in the identifier `id`. |
-| `.selectMany(n)` | Selects `n` items from a list, allowing duplicates. |
-| `.selectUnique(n)` | Selects `n` unique items from a list. |
-| `.consumableList` | Creates a list where items are removed after being selected. |
-| `.joinItems("sep")` | Joins selected items with a separator. Example: `.joinItems(", ")`. |
-| `.titleCase` / `.upperCase` / `.lowerCase` | Case transformations. |
-| `.pluralForm` / `.pastTense` | Grammatical transformations. |
-| `{a}` | Outputs "a" or "an" based on the next word. |
-| `{s}` | Appends "s" to the previous word for simple pluralization. |
-| `{min-max}` | Selects a random integer or letter from a range. |
+| Syntax/Property                            | Description                                                         |
+| :----------------------------------------- | :------------------------------------------------------------------ |
+| `listName`                                 | Defines a list. Items are indented below it.                        |
+| `[listName]`                               | Selects and outputs one random item from the list.                  |
+| `{item1\|item2}`                           | Shorthand for selecting one random item from an inline list.        |
+| `^n`                                       | Sets the selection weight of an item. Example: `item^2`.            |
+| `[id = list]`                              | Stores the selected item from `list` in the identifier `id`.        |
+| `.selectMany(n)`                           | Selects `n` items from a list, allowing duplicates.                 |
+| `.selectUnique(n)`                         | Selects `n` unique items from a list.                               |
+| `.consumableList`                          | Creates a list where items are removed after being selected.        |
+| `.joinItems("sep")`                        | Joins selected items with a separator. Example: `.joinItems(", ")`. |
+| `.titleCase` / `.upperCase` / `.lowerCase` | Case transformations.                                               |
+| `.pluralForm` / `.pastTense`               | Grammatical transformations.                                        |
+| `{a}`                                      | Outputs "a" or "an" based on the next word.                         |
+| `{s}`                                      | Appends "s" to the previous word for simple pluralization.          |
+| `{min-max}`                                | Selects a random integer or letter from a range.                    |
 
 ---
 
@@ -210,7 +210,7 @@ The message style input field (for chat apps) accepts CSS with powerful features
 
 ```css
 .message-bubble {
-  background-color: light-dark(#EEEEEE, #333333);
+  background-color: light-dark(#eeeeee, #333333);
   color: light-dark(black, white);
 }
 ```
@@ -330,12 +330,12 @@ Instead of a static biography, advanced apps inject a **Real-Time Snapshot** of 
 
 For complex RPGs or simulations, a simple "Description" field is insufficient. Adopt the **Four-Field Schema** to separate immutable truths from temporary states.
 
-| Field | Name | Purpose |
-|:---|:---|:---|
-| **forever** | Truth | Immutable traits and core personality. |
-| **present** | State | Mutable details: Clothing, Wounds, Inventory. |
-| **past** | Log | Compressed narrative log. |
-| **future** | Vector | Current goals and impending threats. |
+| Field       | Name   | Purpose                                       |
+| :---------- | :----- | :-------------------------------------------- |
+| **forever** | Truth  | Immutable traits and core personality.        |
+| **present** | State  | Mutable details: Clothing, Wounds, Inventory. |
+| **past**    | Log    | Compressed narrative log.                     |
+| **future**  | Vector | Current goals and impending threats.          |
 
 **Why this works:**
 Separating `<PRESENT>` from `<FOREVER>` allows a character to change clothes, get injured, or change moods without "forgetting" who they are. The AI is instructed to prioritize `<PRESENT>` for the immediate scene while checking `<FOREVER>` for consistency.
@@ -363,7 +363,7 @@ Current Entropy: ${gameState.entropy}% (High Chaos)
 Current Velocity: ${gameState.velocity}% (Fast Paced)
 </NARRATIVE_PHYSICS>
 Mandate: Your prose rhythm MUST reflect these values.
-`
+`;
 ```
 
 ---
@@ -380,12 +380,12 @@ The `oc` (Online-Character or Online-Chat) object is the central hub for scripti
 
 The entire chat history is accessible as a mutable array at `oc.thread.messages`.
 
-| Property | Type | Description |
-|:---|:---|:---|
-| `author` | String | "user", "ai", or "system" |
-| `content` | String | The message text |
-| `hiddenFrom` | Array | Controls visibility. `["user"]` hides from UI. |
-| `expectsReply` | Boolean | If true, triggers AI generation immediately. |
+| Property       | Type    | Description                                    |
+| :------------- | :------ | :--------------------------------------------- |
+| `author`       | String  | "user", "ai", or "system"                      |
+| `content`      | String  | The message text                               |
+| `hiddenFrom`   | Array   | Controls visibility. `["user"]` hides from UI. |
+| `expectsReply` | Boolean | If true, triggers AI generation immediately.   |
 
 ### The Message Rendering Pipeline
 
@@ -419,8 +419,8 @@ For applications focused on textual interaction (chat bots, simple RPGs), the ar
 
 For applications focused on generative imagery, the architecture uses a **Two-Stage Pipeline**: Compile → Render.
 
-- **Stage 1 (Probability):** Perchance lists select *what* to draw.
-- **Stage 2 (Weighting):** Diffusion syntax (`(keyword:1.2)`) controls *how* it draws.
+- **Stage 1 (Probability):** Perchance lists select _what_ to draw.
+- **Stage 2 (Weighting):** Diffusion syntax (`(keyword:1.2)`) controls _how_ it draws.
 - **Pipeline:** Lists -\> Prompt String -\> `textToImage()` -\> Display.
 
 ## Section 7: Pattern C: The Simulation Engine (Advanced)
@@ -434,7 +434,7 @@ For applications that require deep state persistence, complex world logic, and l
 The architecture is built on three distinct roles:
 
 1. **The Actor (Foreground):** The primary LLM call that generates the prose/dialogue the user sees. It has no memory of its own; it only knows what is in the current context window.
-2. **The Simulator (Background):** A hidden, secondary process that calculates the *consequences* of the action. It updates the database (health, inventory, world state) based on what happened.
+2. **The Simulator (Background):** A hidden, secondary process that calculates the _consequences_ of the action. It updates the database (health, inventory, world state) based on what happened.
 3. **The Archivist (Maintenance):** A background process that manages context window space. It compresses old logs into "Memories" and ensures the `<PAST>` field remains dense and relevant.
 
 ### 2\. The "Heartbeat" Protocol
@@ -452,8 +452,8 @@ In a standard chat, "Regenerate" just rolls the dice again. In a Simulation Engi
 **The Loop:**
 
 1. **Rejection:** The user rejects Message A.
-2. **Analysis:** The Engine compares Message A to the User's inputs to determine *why* it failed (e.g., "Too repetitive," "Ignored instructions").
-3. **Variance Injection:** The Engine generates a temporary **"Director Note"** (e.g., *"Critique: The previous attempt was too passive. Increase aggression by 20%."*).
+2. **Analysis:** The Engine compares Message A to the User's inputs to determine _why_ it failed (e.g., "Too repetitive," "Ignored instructions").
+3. **Variance Injection:** The Engine generates a temporary **"Director Note"** (e.g., _"Critique: The previous attempt was too passive. Increase aggression by 20%."_).
 4. **State Rollback:** Crucially, any background updates triggered by Message A (e.g., damage taken) are reverted to prevent "Ghost Memories."
 5. **Execution:** The Actor generates Message B with the new Director Note guiding it.
 
@@ -469,23 +469,23 @@ This architecture requires abandoning the `oc` object for logic.
 
 ```javascript
 async function handleTurn(userInput) {
-    // 1. Commit User Input to DB
-    await db.messages.add({ role: 'user', text: userInput });
+  // 1. Commit User Input to DB
+  await db.messages.add({ role: "user", text: userInput });
 
-    // 2. Build Context (Kernel + World + Entity Snapshots)
-    // Actual implementation usage:
-    const builder = new ContextBuilder(storyId);
-    const prompt = await builder.build();
+  // 2. Build Context (Kernel + World + Entity Snapshots)
+  // Actual implementation usage:
+  const builder = new ContextBuilder(storyId);
+  const prompt = await builder.build();
 
-    // 3. Call The Actor
-    const response = await window.ai(prompt);
+  // 3. Call The Actor
+  const response = await window.ai(prompt);
 
-    // 4. Commit AI Response to DB
-    await db.messages.add({ role: 'ai', text: response });
+  // 4. Commit AI Response to DB
+  await db.messages.add({ role: "ai", text: response });
 
-    // 5. Trigger Background Simulation (Fire and Forget)
-    // Does NOT block the UI. Updates stats/inventory in the background.
-    TurnManager.runBackgroundUpdate(storyId);
+  // 5. Trigger Background Simulation (Fire and Forget)
+  // Does NOT block the UI. Updates stats/inventory in the background.
+  TurnManager.runBackgroundUpdate(storyId);
 }
 ```
 
@@ -571,6 +571,6 @@ The architecture treats all text as "radioactive"—it must be decontaminated be
 
 **4.1.0 (2025-11-20)** — **Complete Restructuring**
 
-- Merged MASTER\_ARCHITECT section into main content.
+- Merged MASTER_ARCHITECT section into main content.
 - Reorganized into logical progression sections.
 - Moved app-specific details to PERCHANCE.md.

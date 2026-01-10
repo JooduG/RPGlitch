@@ -6,7 +6,7 @@ jest.mock("../../../../src/js/gamemaster/utils.js", () => ({
   error: jest.fn(),
 }));
 
-jest.mock("../../../../src/js/mesmer/ui/services/ui-utils.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/core/utils.js", () => ({
   getPictureHTML: jest.fn(() => {
     const doc = globalThis.document;
     if (doc && doc.createElement) {
@@ -18,7 +18,7 @@ jest.mock("../../../../src/js/mesmer/ui/services/ui-utils.js", () => ({
   }),
 }));
 
-jest.mock("../../../../src/js/mesmer/ui/services/visuals.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/components/visuals/manager.js", () => ({
   getVisualState: jest.fn(() => ({ flipped: false })),
 }));
 

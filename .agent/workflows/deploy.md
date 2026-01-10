@@ -1,59 +1,54 @@
 ---
-description: Automated pipeline. Syncs config, Lints, Tests, Builds apps, Verifies artifacts, and generates Copy-Paste instructions for Perchance deployment.
+description: Automated pipeline. Syncs config, builds the Monolith, verifies artifacts, and generates Copy-Paste instructions.
 ---
 
 # 🚀 Deployment Workflow
 
-This workflow automates the build, test, and verification pipeline for Perchance deployment.
+> **Goal:** Build the Single File Monolith (`RPGlitch.html`) and prepare for Perchance upload.
 
-## 1. Quality Assurance (The Gatekeepers)
-
-Before generating artifacts, we must ensure the codebase is healthy.
+## Phase 1: Pre-Flight Checks
 
 1. **Sync Configuration:**
-   - Command:
-     // turbo
-     `npm run sync`
-   - _Goal:_ Ensure all configs and ignore files are up to date.
-2. **Lint & Fix:**
-   - Command:
-     // turbo
-     `npm run lint:fix`
-   - _Goal:_ Auto-fix styling and JS issues.
-3. **Test Suite:**
-   - Command:
-     // turbo
-     `npm run test`
-   - _Goal:_ Verify logic integrity.
-   - **CRITICAL:** If tests fail, **STOP IMMEDIATELY**. Report the failure and do not proceed to build.
 
-## 2. The Build Process
+   ```bash
+   // turbo
+   npm run sync
+   ```
 
-We compile the Source (`src/`) into the Artifact (`dist/`).
+2. **Validate Integrity:**
+   - Ensure no "Toxic" `innerHTML` or missing "Freedom Protocol" locks.
 
-1. **Execute Build:**
-   - Command:
-     // turbo
-     `npm run build:apps`
-   - _Goal:_ Runs `esbuild` + `sass`, bundles JS (IIFE), and inlines assets.
+   ```bash
+   // turbo
+   npm run validate
+   ```
+
+   - **CRITICAL:** If validation fails, **ABORT**.
+
+## Phase 2: The Build
+
+1. **Compile Monolith:**
+
+   ```bash
+   // turbo
+   npm run build
+   ```
+
+   - _Note:_ This runs `esbuild` to stick everything into `dist/`.
+
 2. **Verify Artifacts:**
-   - **Action:** Check the file statistics (size and timestamp) of:
-     - `src/RPGlitch-left-panel.txt`
-     - `dist/RPGlitch.html`
-   - **Check:** Ensure files are > 0 bytes and modified within the last minute.
+   - Check `dist/RPGlitch.html` exists and is > 0 bytes.
 
-## 3. The Deployment Handoff
+## Phase 3: The Handoff
 
-Antigravity cannot paste into the browser, so we prepare the user for the "Manual Bridge".
+Antigravity cannot access the browser, so you serve the bridge.
 
-1. **Analyze Changes:**
-   - Read `src/RPGlitch-left-panel.txt`.
-   - _Action:_ Briefly summarize any _new_ plugin imports or list structure changes since the last session.
-2. **Instructions:**
-   - Output the following final message:
-     > **✅ Build Successful & Verified.**
-     >
-     > **1. Left Panel (Engine):** Copy content from `src/RPGlitch-left-panel.txt` to the **Lists** panel.
-     > **2. Right Panel (Stage):** Copy content from `dist/RPGlitch.html` to the **HTML** panel.
-     >
-     > _Don't forget to save and refresh!_
+1. **Generate Instructions:**
+   - Output the following box:
+
+   > **✅ Build Complete.**
+   >
+   > **1. Left Panel (Engine):** Copy `src/RPGlitch-left-panel.txt` -> **Perchance Lists Panel**.
+   > **2. Right Panel (Stage):** Copy `dist/RPGlitch.html` -> **Perchance HTML Panel**.
+   >
+   > _"If it looks real, it is real."_

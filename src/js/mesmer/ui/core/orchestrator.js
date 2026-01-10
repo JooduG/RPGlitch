@@ -1,36 +1,29 @@
-import { log } from "../../gamemaster/utils.js";
-import { GameMaster } from "../../gamemaster/index.js";
-import { initDrawer, closeDrawer } from "./components/drawer/desktop.js";
-import { setStorymodeEntities, setSendLock } from "./components/chat/feed.js";
-import { updatePortraits, applyFractalAmbience } from "./image-gen-ui.js";
-import { setAppBackground } from "./services/ui-utils.js";
+import { log } from "../../../gamemaster/utils.js";
+import { GameMaster } from "../../../gamemaster/index.js";
+import { initDrawer } from "../components/drawer/desktop.js";
+import { setStorymodeEntities, setSendLock } from "../components/chat/feed.js";
 import {
-  updateLocalSelection,
-  bindDrawerTrigger,
-  renderEntityPreview,
-  openDrawerFor,
-  setChinCallbacks,
-} from "./components/drawer/mobile.js";
-import {
-  renderProfilePage,
-  closeProfileModal,
-  setProfileCallbacks,
-} from "./components/profile/controller.js";
+  updatePortraits,
+  applyFractalAmbience,
+} from "../components/visuals/generator.js";
+
+import { setMobileDrawerCallbacks } from "../components/drawer/mobile.js";
+import { setProfileCallbacks } from "../components/profile/controller.js";
 import {
   showAlert,
   showConfirm,
   showPrompt,
   showErrorModal,
-} from "./services/modals.js";
-import { audioService } from "../audio.js";
-import { initStoryboardStage } from "./setup.js";
-import { StoryOptionsController } from "./components/settings.js";
-import {
-  events,
-  EVENTS,
-  store as state,
-  applyPatch,
-} from "../../gamemaster/index.js";
+} from "../core/modal.js";
+import { audioService } from "../../audio/service.js";
+import { initStoryboardStage } from "../storyboard.js";
+import { StoryOptionsController } from "../components/settings.js";
+import { events, EVENTS } from "../../../gamemaster/index.js";
+import { initChatInput } from "../components/chat/input.js";
+
+// [NEW] Internal Modules
+import { Router } from "./router.js";
+import { SelectionManager } from "./selection.js";
 
 export const Orchestrator = {
   /**
@@ -59,22 +52,16 @@ export const Orchestrator = {
     await GameMaster.regenerate();
   },
 
+  // Proxy to SelectionManager (Backward Compatibility)
   setOnSelectionChanged: (handler) => {
-    _onSelectionChanged = handler;
+    SelectionManager.setOnSelectionChanged(handler);
   },
 
   updateStoryboardSelection: (newSelection) => {
-    updateStoryboardSelection(newSelection);
+    SelectionManager.update(newSelection);
   },
 };
 
-const selectedEntities = {
-  ai: null,
-  user: null,
-  fractal: null,
-};
-
-let _onSelectionChanged = null;
 let turnComponents = { text: false, image: false };
 
 const finalizeTurn = async (component, context = null) => {
@@ -82,7 +69,7 @@ const finalizeTurn = async (component, context = null) => {
   if (component === "image") turnComponents.image = true;
 
   if (turnComponents.text) {
-    const { store: state } = await import("../../gamemaster/index.js");
+    const { store: state } = await import("../../../gamemaster/index.js");
 
     if (state.story.isConcluded) {
       log("🛑 [REFLEX] Story Concluded. Skipping Physics Update.");
@@ -125,12 +112,12 @@ const initEventBinds = () => {
   audioService.init();
 
   events.addEventListener(EVENTS.STORY_LOADED, async () => {
-    const state = await import("../../gamemaster/index.js").then(
+    const state = await import("../../../gamemaster/index.js").then(
       (m) => m.store,
     );
     if (!state.story.activeId) return;
 
-    const db = await import("../../scholar/db.js").then((m) => m.db);
+    const db = await import("../../../scholar/db.js").then((m) => m.db);
     const story = await db.stories.get(state.story.activeId);
     if (!story) return;
 
@@ -155,7 +142,7 @@ const initEventBinds = () => {
     updatePortraits(snapshot.ai, snapshot.user);
     if (snapshot.fractal) applyFractalAmbience(snapshot.fractal);
 
-    updateStoryboardSelection({
+    SelectionManager.update({
       aiCharacter: snapshot.ai,
       userCharacter: snapshot.user,
       fractal: snapshot.fractal,
@@ -166,12 +153,12 @@ const initEventBinds = () => {
     document
       .querySelectorAll(".status-hud")
       .forEach((hud) => hud.classList.add("status-hud--stale"));
-    const { renderChat } = await import("./components/chat/feed.js");
+    const { renderChat } = await import("../components/chat/feed.js");
     if (e.detail?.storyId) await renderChat(e.detail.storyId);
   });
 
   events.addEventListener(EVENTS.TYPING_STARTED, async (e) => {
-    const { showTypingIndicator } = await import("./components/chat/feed.js");
+    const { showTypingIndicator } = await import("../components/chat/feed.js");
     const feed = document.querySelector("#chat-feed");
     if (feed && e.detail) {
       showTypingIndicator(feed, e.detail, e.detail.characterId);
@@ -179,14 +166,15 @@ const initEventBinds = () => {
   });
 
   events.addEventListener(EVENTS.TYPING_STOPPED, async () => {
-    const { removeTypingIndicator } = await import("./components/chat/feed.js");
+    const { removeTypingIndicator } =
+      await import("../components/chat/feed.js");
     const feed = document.querySelector("#chat-feed");
     if (feed) removeTypingIndicator(feed);
   });
 
   events.addEventListener(EVENTS.GENERATION_STARTED, async () => {
     const { setSendLock, setChatGeneratingState } =
-      await import("./components/chat/feed.js");
+      await import("../components/chat/feed.js");
     setSendLock(true);
     setChatGeneratingState(true);
     // [STRICT SYNC] Force Input UI Update -> input.js listens to event, but we double check
@@ -197,12 +185,12 @@ const initEventBinds = () => {
 
   events.addEventListener(EVENTS.GENERATION_COMPLETED, async (e) => {
     // 1. Resolve Voice Service & State FIRST
-    const { voiceService } = await import("../voice.js");
+    const { voiceService } = await import("../../audio/voice.js");
     voiceService.init();
 
     // 2. Resolve UI Controllers
     const { setChatGeneratingState } =
-      await import("./components/chat/feed.js");
+      await import("../components/chat/feed.js");
 
     // 3. Update States
     setChatGeneratingState(false);
@@ -215,7 +203,7 @@ const initEventBinds = () => {
     audioService.play("notification");
 
     // [FIX] Resolve Voice ID & Biometrics from Character Entity
-    const { entities } = await import("../../scholar/repository.js");
+    const { entities } = await import("../../../scholar/repository.js");
     let voiceId = null;
     let rateMod = 1.0;
 
@@ -285,7 +273,7 @@ const initEventBinds = () => {
 
                         // Auto-Send Logic
                         if (text && text.trim().length > 0) {
-                          import("../../gamemaster/index.js").then(
+                          import("../../../gamemaster/index.js").then(
                             ({ GameMaster }) => {
                               GameMaster.send(text);
                               input.value = "";
@@ -326,7 +314,7 @@ const initEventBinds = () => {
     if (patch.mode) {
       document.body.classList.remove("storyboard", "storymode");
       document.body.classList.add(patch.mode);
-      console.log(`[Orchestrator] Mode switched to: ${patch.mode}`);
+      log(`[Orchestrator] Mode switched to: ${patch.mode}`);
     }
 
     // 2. Developer Mode
@@ -349,7 +337,7 @@ export const handleConcludeStory = async () => {
     const form = document.querySelector("#story-form");
     if (form) form.style.display = "none";
 
-    const { GameMaster } = await import("../../gamemaster/index.js");
+    const { GameMaster } = await import("../../../gamemaster/index.js");
 
     try {
       await GameMaster.triggerEpilogue();
@@ -363,177 +351,12 @@ window.addEventListener("app-error", (e) => {
   showErrorModal(e.detail?.type || "generic", e.detail?.error?.message);
 });
 
-// initEventBinds(); // Moved to initViews for correct sequencing
-
-export {
-  setStorymodeEntities,
-  updatePortraits,
-  setSendLock,
-  showAlert,
-  showConfirm,
-  showPrompt,
-  showErrorModal,
-};
-
-const parseHash = () => {
-  const [path] = location.hash.slice(1).split("?");
-  return path.split("/").filter(Boolean);
-};
-
-const handleRoute = () => {
-  const [section, entityType, id] = parseHash();
-  const isType = (t) => t === "character" || t === "fractal";
-
-  closeDrawer();
-
-  if (document.body.classList.contains("storymode")) {
-    if (section !== "story" && section !== "profile") {
-      log("🚫 Access Denied: Story in progress.");
-      location.hash = "#story";
-      return;
-    }
-  }
-
-  if (section === "profile" && isType(entityType) && id) {
-    if (state.mode !== "storymode") {
-      applyPatch({ mode: "storyboard" });
-    }
-    renderProfilePage(entityType, id);
-    closeDrawer();
-  } else if (section === "story") {
-    applyPatch({ mode: "storymode" });
-    closeProfileModal();
-  } else {
-    applyPatch({ mode: "storyboard" });
-    closeProfileModal();
-  }
-};
-
-// [REMOVED] handleRoute moved to initViews for deterministic sequencing
-// window.addEventListener("hashchange", handleRoute);
-// document.addEventListener(
-//   "DOMContentLoaded",
-//   () => {
-//     handleRoute();
-//     document
-//       .querySelectorAll("button[data-chin]")
-//       .forEach((btn) => btn.classList.add("entity-drawer-button"));
-//     document
-//       .querySelectorAll('form[role="search"]')
-//       .forEach((form) =>
-//         form.addEventListener("submit", (e) => e.preventDefault()),
-//       );
-//   },
-//   { once: true },
-// );
-
-export const updateStoryboardSelection = (newSelection) => {
-  if (newSelection.aiCharacter !== undefined)
-    selectedEntities.ai = newSelection.aiCharacter;
-  if (newSelection.userCharacter !== undefined)
-    selectedEntities.user = newSelection.userCharacter;
-  if (newSelection.fractal !== undefined) {
-    selectedEntities.fractal = newSelection.fractal;
-    log("[UI] Selecting Fractal:", newSelection.fractal);
-    setAppBackground(selectedEntities.fractal?.signatureColor);
-    applyFractalAmbience(selectedEntities.fractal);
-
-    const toRemove = [...document.body.classList].filter((c) =>
-      c.startsWith("theme-"),
-    );
-    document.body.classList.remove(...toRemove);
-
-    const newTheme = selectedEntities.fractal?.simulation?.cssTheme;
-    if (newTheme) {
-      document.body.classList.add(newTheme);
-      log(`[UI] Applied theme: ${newTheme}`);
-    }
-  }
-
-  updateLocalSelection(selectedEntities);
-
-  const updateSlot = (key, entity, btnId, previewId, type, titleOverride) => {
-    const previewEl = document.querySelector(previewId);
-    const btn = document.querySelector(btnId);
-
-    if (entity) {
-      if (previewEl) {
-        const onEdit = () => {
-          const container = btn ? btn.closest(".entity-card") : null;
-          openDrawerFor(type, key, previewId, btn, container, titleOverride);
-        };
-
-        renderEntityPreview(
-          previewId,
-          entity,
-          btn,
-          type,
-          onEdit,
-          type === "fractal",
-          key,
-        );
-        previewEl.hidden = false;
-        previewEl.classList.remove("fade-in");
-        void previewEl.offsetWidth;
-        previewEl.classList.add("fade-in");
-      }
-      if (btn) {
-        btn.hidden = true;
-        btn.classList.remove("shimmer");
-      }
-    } else {
-      if (previewEl) {
-        previewEl.hidden = true;
-        previewEl.classList.remove("fade-in");
-      }
-      if (btn) {
-        btn.hidden = false;
-        btn.classList.add("shimmer");
-      }
-    }
-  };
-
-  updateSlot(
-    "aiCharacter",
-    selectedEntities.ai,
-    "#btn-select-ai",
-    "#ai-character-preview",
-    "character",
-    "Select AI Character",
-  );
-  updateSlot(
-    "userCharacter",
-    selectedEntities.user,
-    "#btn-select-user",
-    "#user-character-preview",
-    "character",
-    "Select User Character",
-  );
-  updateSlot(
-    "fractal",
-    selectedEntities.fractal,
-    "#btn-select-fractal",
-    "#fractal-preview",
-    "fractal",
-    "Select Fractal",
-  );
-
-  if (_onSelectionChanged) {
-    _onSelectionChanged({
-      aiCharacter: selectedEntities.ai,
-      userCharacter: selectedEntities.user,
-      fractal: selectedEntities.fractal,
-    });
-  }
-};
-
-import { initChatInput } from "./components/chat/input.js";
-
 export const initViews = async (deps = {}) => {
-  if (deps.onSelectionChanged) _onSelectionChanged = deps.onSelectionChanged;
+  if (deps.onSelectionChanged)
+    SelectionManager.setOnSelectionChanged(deps.onSelectionChanged);
 
   const setOnSelectionChanged = (handler) => {
-    _onSelectionChanged = handler;
+    SelectionManager.setOnSelectionChanged(handler);
   };
 
   // 1. Wire Events
@@ -541,35 +364,17 @@ export const initViews = async (deps = {}) => {
 
   // 2. Initialize Components
   initDrawer();
-  initChatInput(); // [FIX] Restore Chat Input Logic
-  bindDrawerTrigger(
-    "#btn-select-ai",
-    "character",
-    "#ai-character-preview",
-    "aiCharacter",
-    "Select AI Character",
-  );
-  bindDrawerTrigger(
-    "#btn-select-user",
-    "character",
-    "#user-character-preview",
-    "userCharacter",
-    "Select User Character",
-  );
-  bindDrawerTrigger(
-    "#btn-select-fractal",
-    "fractal",
-    "#fractal-preview",
-    "fractal",
-    "Select Fractal",
-  );
+  initChatInput();
 
-  setChinCallbacks({
-    onUpdateSelection: updateStoryboardSelection,
+  // Initialize Selection Triggers
+  SelectionManager.initTriggers();
+
+  setMobileDrawerCallbacks({
+    onUpdateSelection: SelectionManager.update,
   });
 
   setProfileCallbacks({
-    onUpdateSelection: updateStoryboardSelection,
+    onUpdateSelection: SelectionManager.update,
   });
 
   // 3. Initialize Domain Managers
@@ -579,21 +384,18 @@ export const initViews = async (deps = {}) => {
   // 4. Remove Boot Skeleton
   const skeleton = document.querySelector("#boot-skeleton");
   if (skeleton) {
-    console.log("[Orchestrator] Hiding Boot Skeleton...");
+    log("[Orchestrator] Hiding Boot Skeleton...");
     skeleton.classList.add("fade-out");
-    // Remove from DOM after transition to avoid z-index or interaction issues
     setTimeout(() => {
       skeleton.style.display = "none";
       skeleton.remove();
-    }, 600); // Slightly more than scss transition (0.5s)
+    }, 600);
   }
 
-  // 4. Process Initial Route
-  console.log("[Orchestrator] Processing initial route...");
-  handleRoute();
+  // 5. Initialize Router (handles initial route and hash events)
+  Router.init();
 
-  // 5. Global UI Prep
-  window.addEventListener("hashchange", handleRoute);
+  // 6. Global UI Prep
   document.querySelectorAll("button[data-chin]").forEach((btn) => {
     btn.classList.add("entity-drawer-button");
   });
@@ -603,6 +405,16 @@ export const initViews = async (deps = {}) => {
 
   return {
     setOnSelectionChanged,
-    updateStoryboardSelection,
+    updateStoryboardSelection: SelectionManager.update,
   };
+};
+
+export {
+  setStorymodeEntities,
+  updatePortraits,
+  setSendLock,
+  showAlert,
+  showConfirm,
+  showPrompt,
+  showErrorModal,
 };

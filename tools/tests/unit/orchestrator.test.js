@@ -16,12 +16,12 @@ jest.mock("../../../src/js/mesmer/ui/components/chat/feed.js", () => ({
   showTypingIndicator: jest.fn(),
   removeTypingIndicator: jest.fn(),
 }));
-jest.mock("../../../src/js/mesmer/ui/image-gen-ui.js", () => ({
+jest.mock("../../../src/js/mesmer/ui/components/visuals/generator.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
   updateDeveloperModeClass: jest.fn(),
 }));
-jest.mock("../../../src/js/mesmer/ui/setup.js", () => ({
+jest.mock("../../../src/js/mesmer/ui/storyboard.js", () => ({
   initStoryboardStage: jest.fn(),
 }));
 jest.mock("../../../src/js/mesmer/ui/components/settings.js", () => ({
@@ -31,7 +31,7 @@ jest.mock("../../../src/js/mesmer/ui/components/settings.js", () => ({
     close: jest.fn(),
   },
 }));
-jest.mock("../../../src/js/mesmer/ui/services/ui-utils.js", () => ({
+jest.mock("../../../src/js/mesmer/ui/core/utils.js", () => ({
   setAppBackground: jest.fn(),
 }));
 jest.mock("../../../src/js/mesmer/ui/components/drawer/mobile.js", () => ({
@@ -39,7 +39,7 @@ jest.mock("../../../src/js/mesmer/ui/components/drawer/mobile.js", () => ({
   bindDrawerTrigger: jest.fn(),
   renderEntityPreview: jest.fn(),
   openDrawerFor: jest.fn(),
-  setChinCallbacks: jest.fn(),
+  setMobileDrawerCallbacks: jest.fn(),
 }));
 jest.mock("../../../src/js/mesmer/ui/components/profile/controller.js", () => ({
   renderProfilePage: jest.fn(),
@@ -97,7 +97,7 @@ describe("Orchestrator UI", () => {
 
     // 2. Import Orchestrator
     const { initViews } =
-      await import("../../../src/js/mesmer/ui/orchestrator.js");
+      await import("../../../src/js/mesmer/ui/core/orchestrator.js");
     await initViews(); // Triggers initEventBinds and registers handlers
 
     // 3. Capture Handlers from the mock calls *before* any test clears them
@@ -177,8 +177,7 @@ describe("Orchestrator UI", () => {
     await handler();
 
     expect(document.body.classList.contains("theme-cyber")).toBe(true);
-    const uiUtils =
-      await import("../../../src/js/mesmer/ui/services/ui-utils.js");
+    const uiUtils = await import("../../../src/js/mesmer/ui/core/utils.js");
     expect(uiUtils.setAppBackground).toHaveBeenCalledWith("blue");
   });
 });

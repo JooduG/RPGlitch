@@ -14,13 +14,16 @@ jest.mock(
   }),
 );
 
-jest.mock("../../../../src/js/mesmer/ui/image-gen-ui.js", () => ({
-  updatePortraits: jest.fn(),
-  applyFractalAmbience: jest.fn(),
-  updateDeveloperModeClass: jest.fn(),
-}));
+jest.mock(
+  "../../../../src/js/mesmer/ui/components/visuals/generator.js",
+  () => ({
+    updatePortraits: jest.fn(),
+    applyFractalAmbience: jest.fn(),
+    updateDeveloperModeClass: jest.fn(),
+  }),
+);
 
-jest.mock("../../../../src/js/mesmer/ui/orchestrator.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/core/orchestrator.js", () => ({
   showAlert: jest.fn(),
 }));
 
@@ -61,7 +64,7 @@ jest.mock("../../../../src/js/gamemaster/utils.js", () => ({
   log: jest.fn(),
 }));
 
-import { initStoryboardStage } from "../../../../src/js/mesmer/ui/setup.js";
+import { initStoryboardStage } from "../../../../src/js/mesmer/ui/storyboard.js";
 import {
   events,
   EVENTS,

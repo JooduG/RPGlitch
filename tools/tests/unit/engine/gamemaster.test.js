@@ -2,7 +2,7 @@ import { jest } from "@jest/globals";
 
 // Mock dependencies BEFORE importing the module under test
 // Removed mock for SUT
-jest.mock("../../../../src/js/mesmer/audio.js", () => ({
+jest.mock("../../../../src/js/mesmer/audio/service.js", () => ({
   audioService: { play: jest.fn() },
 }));
 jest.mock("../../../../src/js/gamemaster/store.js", () => ({
@@ -73,7 +73,7 @@ jest.mock("../../../../src/js/warden/index.js", () => ({
   calculateDynamics: jest.fn((d) => d),
 }));
 
-jest.mock("../../../../src/js/mesmer/ui/services/visuals.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/components/visuals/manager.js", () => ({
   VisualManager: {
     generate: jest.fn(),
     getResolutionForMode: jest.fn(),
