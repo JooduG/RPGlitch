@@ -3,10 +3,11 @@ import { jest } from "@jest/globals";
 // We must mock these BEFORE importing the module under test.
 
 // Mock app-state
-jest.mock("../../../src/js/core/state.js", () => ({
-  state: {
+// Mock gamemaster/index.js (Consolidated)
+jest.mock("../../../src/js/gamemaster/index.js", () => {
+  const mockState = {
     settings: {
-      directorMode: false,
+      developerMode: false,
       storyOpeningInstructions: "",
       storyPrologueInstructions: "",
     },
@@ -14,12 +15,32 @@ jest.mock("../../../src/js/core/state.js", () => ({
       activeId: null,
       byId: {},
     },
-  },
-  applyPatch: jest.fn(),
-}));
+  };
+  return {
+    state: mockState,
+    store: mockState,
+    applyPatch: jest.fn(),
+    GameMaster: {
+      load: jest.fn(),
+      loadAll: jest.fn(),
+      createFromSelection: jest.fn(),
+    },
+    StoryController: {
+      concludeStory: jest.fn(),
+      enhanceUserDraft: jest.fn(),
+      generateVisualFromDraft: jest.fn(),
+      requestVisual: jest.fn(),
+    },
+    events: new EventTarget(),
+    EVENTS: {
+      DB_UPDATED: "db-updated",
+      STORY_LOADED: "story-loaded",
+    },
+  };
+});
 
 // Mock core-db
-jest.mock("../../../src/js/core/db.js", () => ({
+jest.mock("../../../src/js/scholar/db.js", () => ({
   db: {
     settings: {
       get: jest.fn(),
@@ -49,33 +70,25 @@ jest.mock("../../../src/js/core/db.js", () => ({
 }));
 
 // Mock ui-views
-jest.mock("../../../src/js/ui/orchestrator.js", () => ({
+jest.mock("../../../src/js/mesmer/ui/orchestrator.js", () => ({
   router: {
     handleRoute: jest.fn(),
   },
 }));
 
-// Mock manager-turns (StoryController)
-jest.mock("../../../src/js/engine/director.js", () => ({
-  StoryController: {
-    concludeStory: jest.fn(),
-    enhanceUserDraft: jest.fn(),
-    generateVisualFromDraft: jest.fn(),
-    requestVisual: jest.fn(),
-  },
-}));
+// Mocks consolidated above
 
 // Mock entity-crud
-jest.mock("../../../src/js/data/repo.js", () => ({
+jest.mock("../../../src/js/scholar/repository.js", () => ({
   entities: {
     get: jest.fn(),
   },
 }));
 
 // 2. Import Module Under Test
-import { StoryOptionsController } from "../../../src/js/ui/components/settings.js";
-import { applyPatch } from "../../../src/js/core/state.js";
-import { db } from "../../../src/js/core/db.js";
+import { StoryOptionsController } from "../../../src/js/mesmer/ui/components/settings.js";
+import { applyPatch } from "../../../src/js/gamemaster/index.js";
+import { db } from "../../../src/js/scholar/db.js";
 
 describe("StoryOptionsController", () => {
   beforeEach(() => {

@@ -2,10 +2,10 @@ import {
   isValidImageUrl,
   extractImageUrl,
   sanitizeHtml,
-  getSignatureColor,
+  getSignatureKey as getSignatureColor,
   getContrastColor,
-} from "../../../../src/js/core/utils.js";
-import { PALETTE as SIGNATURE_COLORS } from "../../../../src/js/core/constants.js";
+} from "../../../../src/js/gamemaster/utils.js";
+import { PALETTE as SIGNATURE_COLORS } from "../../../../src/js/gamemaster/config.js";
 
 // Mock DOMPurify for sanitizeHtml tests
 global.DOMPurify = {

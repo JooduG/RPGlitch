@@ -1,35 +1,35 @@
-import { renderMessage } from "../../../../src/js/ui/components/chat/bubble.js";
+import { renderMessage } from "../../../../src/js/mesmer/ui/components/chat/bubble.js";
 
 // Mock dependencies to avoid circular references and side effects
-jest.mock("../../../../src/js/ui/components/chat/feed.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/components/chat/feed.js", () => ({
   renderChat: jest.fn(),
   showTypingIndicator: jest.fn(),
 }));
 
-jest.mock("../../../../src/js/engine/director.js", () => ({
+jest.mock("../../../../src/js/gamemaster/index.js", () => ({
   TurnManager: {
     editUserMessage: jest.fn(),
     editAiMessage: jest.fn(),
   },
 }));
 
-jest.mock("../../../../src/js/ui/services/lightbox.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/services/lightbox.js", () => ({
   LightboxService: {
     open: jest.fn(),
   },
 }));
 
-jest.mock("../../../../src/js/core/state.js", () => ({
+jest.mock("../../../../src/js/gamemaster/store.js", () => ({
   state: { story: { activeId: null } },
 }));
 
-jest.mock("../../../../src/js/ui/services/theme.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/services/theme.js", () => ({
   ThemeService: { apply: jest.fn() },
 }));
 
-import { createIconBtn } from "../../../../src/js/ui/services/ui-utils.js";
+import { createIconBtn } from "../../../../src/js/mesmer/ui/services/ui-utils.js";
 
-jest.mock("../../../../src/js/ui/services/ui-utils.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/services/ui-utils.js", () => ({
   createIconBtn: jest.fn(),
 }));
 

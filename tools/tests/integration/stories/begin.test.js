@@ -6,8 +6,8 @@ import {
   test,
   expect,
 } from "@jest/globals";
-import { init as initDB, db } from "../../../../src/js/core/db.js";
-import { premade } from "../../../../src/js/data/models.js";
+import { init as initDB, db } from "../../../../src/js/scholar/db.js";
+import { premade } from "../../../../src/js/scholar/library.js";
 import { JSDOM } from "jsdom"; // ADDED: ensure JSDOM is available for new JSDOM(...) in beforeEach
 
 // Mock the Perchance global and its plugins
@@ -25,10 +25,8 @@ global.crypto = {
 };
 
 // Mock UI-related functions to prevent JSDOM errors and memory leaks
-jest.mock("../../../../src/js/core/utils.js", () => {
-  const actual = jest.requireActual(
-    "../../../../src/js/core/utils.js",
-  );
+jest.mock("../../../../src/js/gamemaster/utils.js", () => {
+  const actual = jest.requireActual("../../../../src/js/gamemaster/utils.js");
   return {
     ...actual,
     dismissLoadingUI: jest.fn(),
@@ -47,7 +45,7 @@ jest.mock("../../../../src/js/core/utils.js", () => {
   };
 });
 
-jest.mock("../../../../src/js/ui/components/chat/feed.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/components/chat/feed.js", () => ({
   renderChat: jest.fn(),
   setGameplayEntities: jest.fn(),
   showTypingIndicator: jest.fn(),
@@ -56,7 +54,7 @@ jest.mock("../../../../src/js/ui/components/chat/feed.js", () => ({
   setChatGeneratingState: jest.fn(),
 }));
 
-jest.mock("../../../../src/js/ui/services/visuals.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/services/visuals.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
   updateDirectorModeClass: jest.fn(),
@@ -153,7 +151,7 @@ let mockAttachStoryboardListeners = jest.fn(async (doc) => {
   }
 });
 
-jest.mock("../../../../src/js/core/bootstrap.js", () => ({
+jest.mock("../../../../src/js/gamemaster/bootstrap.js", () => ({
   App: mockApp,
   initializeWhenReady: mockInitializeWhenReady,
   _attachStoryboardListeners: mockAttachStoryboardListeners,

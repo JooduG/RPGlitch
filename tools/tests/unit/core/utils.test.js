@@ -1,6 +1,6 @@
-import { db } from "../../../../src/js/core/db.js";
+import { db } from "../../../../src/js/scholar/db.js";
 
-jest.mock("../../../../src/js/core/db.js", () => ({
+jest.mock("../../../../src/js/scholar/db.js", () => ({
   db: {
     on: jest.fn(),
     settings: {
@@ -11,11 +11,17 @@ jest.mock("../../../../src/js/core/db.js", () => ({
   },
 }));
 
-jest.mock("../../../../src/js/data/models.js", () => ({
-  getPictureHTML: jest.fn(),
-}));
+jest.mock("../../../../src/js/mesmer/ui/services/ui-utils.js", () => {
+  const actual = jest.requireActual(
+    "../../../../src/js/mesmer/ui/services/ui-utils.js",
+  );
+  return {
+    ...actual,
+    getPictureHTML: jest.fn(),
+  };
+});
 
-jest.mock("../../../../src/js/ui/components/chat/feed.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/components/chat/feed.js", () => ({
   renderChat: jest.fn(),
   setGameplayEntities: jest.fn(),
   showTypingIndicator: jest.fn(),
@@ -24,21 +30,21 @@ jest.mock("../../../../src/js/ui/components/chat/feed.js", () => ({
   setChatGeneratingState: jest.fn(),
 }));
 
-jest.mock("../../../../src/js/ui/services/visuals.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/services/visuals.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
   updateDirectorModeClass: jest.fn(),
 }));
 
-jest.mock("../../../../src/js/ui/orchestrator.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/orchestrator.js", () => ({
   showAlert: jest.fn(),
 }));
 
 let utils, uiUtils;
 
 beforeAll(async () => {
-  utils = await import("../../../../src/js/core/utils.js");
-  uiUtils = await import("../../../../src/js/ui/services/ui-utils.js");
+  utils = await import("../../../../src/js/gamemaster/utils.js");
+  uiUtils = await import("../../../../src/js/mesmer/ui/services/ui-utils.js");
 });
 
 beforeEach(() => {
@@ -80,7 +86,8 @@ test("handleAsyncError executes async function and returns result on success", a
 
 test("handleAsyncError catches errors and returns fallback value", async () => {
   const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-  const orchestrator = await import("../../../../src/js/ui/orchestrator.js");
+  const orchestrator =
+    await import("../../../../src/js/mesmer/ui/orchestrator.js");
 
   const result = await utils.handleAsyncError(
     async () => {
@@ -113,7 +120,8 @@ test("handleAsyncError catches errors and returns fallback value", async () => {
 
 test("handleAsyncError suppresses alert when showAlert is false", async () => {
   const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-  const orchestrator = await import("../../../../src/js/ui/orchestrator.js");
+  const orchestrator =
+    await import("../../../../src/js/mesmer/ui/orchestrator.js");
   orchestrator.showAlert.mockClear();
 
   await utils.handleAsyncError(

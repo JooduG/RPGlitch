@@ -1,12 +1,12 @@
 import { jest, describe, beforeEach, test, expect } from "@jest/globals";
 
 // 1. Mock External Dependencies
-jest.mock("../../../../src/js/core/utils.js", () => ({
+jest.mock("../../../../src/js/gamemaster/utils.js", () => ({
   log: jest.fn(),
   error: jest.fn(),
 }));
 
-jest.mock("../../../../src/js/ui/services/ui-utils.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/services/ui-utils.js", () => ({
   getPictureHTML: jest.fn(() => {
     const doc = globalThis.document;
     if (doc && doc.createElement) {
@@ -18,12 +18,12 @@ jest.mock("../../../../src/js/ui/services/ui-utils.js", () => ({
   }),
 }));
 
-jest.mock("../../../../src/js/data/models.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/services/visuals.js", () => ({
   getVisualState: jest.fn(() => ({ flipped: false })),
 }));
 
 // Mock entity-crud.js to control `entities.list` resolution
-jest.mock("../../../../src/js/data/repo.js", () => ({
+jest.mock("../../../../src/js/scholar/repository.js", () => ({
   entities: {
     list: jest.fn(),
   },
@@ -56,13 +56,12 @@ describe("Drawer Component", () => {
 
     // Import drawer.js dynamically
     const drawerModule =
-      await import("../../../../src/js/ui/components/drawer/desktop.js");
+      await import("../../../../src/js/mesmer/ui/components/drawer/desktop.js");
     _openDrawer = drawerModule.openDrawer;
     _closeDrawer = drawerModule.closeDrawer;
 
     // Re-import the mocked entities to control the instance used by drawer.js
-    const crudModule =
-      await import("../../../../src/js/data/repo.js");
+    const crudModule = await import("../../../../src/js/scholar/repository.js");
     _entities = crudModule.entities;
 
     // Reset mocks on the fresh instance

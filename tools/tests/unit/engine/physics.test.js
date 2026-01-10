@@ -1,13 +1,10 @@
 import { jest } from "@jest/globals";
-import {
-  calculateDynamics,
-  parseLlmResponse,
-} from "../../../../src/js/engine/physics/main.js";
-import { ContextBuilder } from "../../../../src/js/engine/prompter.js";
+import { Warden } from "../../../../src/js/warden/index.js";
+import { ContextBuilder } from "../../../../src/js/scholar/index.js";
 
 // --- MOCKS ---
 // We mock the store and entities to isolate the logic from the database/browser
-jest.mock("../../../../src/js/core/state.js", () => ({
+jest.mock("../../../../src/js/gamemaster/store.js", () => ({
   state: {
     story: {
       byId: {
@@ -31,9 +28,17 @@ jest.mock("../../../../src/js/core/state.js", () => ({
       model: "test-model",
     },
   },
+  events: {
+    addEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+    removeEventListener: jest.fn(),
+  },
+  EVENTS: {
+    DB_UPDATED: "DB_UPDATED",
+  },
 }));
 
-jest.mock("../../../../src/js/data/repo.js", () => ({
+jest.mock("../../../../src/js/scholar/repository.js", () => ({
   entities: {
     get: jest.fn(),
     getSnapshot: jest.fn(),
@@ -42,14 +47,13 @@ jest.mock("../../../../src/js/data/repo.js", () => ({
 }));
 
 // Import the mocked entities to configure return values in tests
-import { entities } from "../../../../src/js/data/repo.js";
+import { entities } from "../../../../src/js/scholar/repository.js";
 
 describe("PROMETHEUS ENGINE V5", () => {
   // ==========================================
   // LAYER 1: THE LAWS OF PHYSICS (Unit Tests)
   // ==========================================
-  describe("Physics Engine (calculateDynamics)", () => {
-    // --- VELOCITY LAWS ---
+  describe("Physics Engine (Warden.applyLaws)", () => {
     // --- VELOCITY LAWS ---
     test("Law 1: Adrenaline Shield (Vel > 90)", () => {
       // Effect: Perm -10, Res -5
@@ -59,7 +63,7 @@ describe("PROMETHEUS ENGINE V5", () => {
         velocity: 95,
         resonance: 50,
       };
-      const output = calculateDynamics(input);
+      const output = Warden.applyLaws(input);
 
       // Perm: 50 - 10 = 40. Gravity(50) -> 40 + (50-40)*0.25 = 42.5 -> 43.
       expect(output.permeability).toBe(43);
@@ -76,7 +80,7 @@ describe("PROMETHEUS ENGINE V5", () => {
         velocity: 5,
         resonance: 50,
       };
-      const output = calculateDynamics(input);
+      const output = Warden.applyLaws(input);
 
       // Res: 50 + 10 = 60. Gravity -> 60 + (50-60)*0.25 = 57.5 -> 58.
       expect(output.resonance).toBe(58);
@@ -94,7 +98,7 @@ describe("PROMETHEUS ENGINE V5", () => {
         velocity: 50,
         resonance: 50,
       };
-      const output = calculateDynamics(input);
+      const output = Warden.applyLaws(input);
 
       // Res: 45 -> 46.25 -> 46.
       expect(output.resonance).toBe(46);
@@ -111,7 +115,7 @@ describe("PROMETHEUS ENGINE V5", () => {
         velocity: 50,
         resonance: 50,
       };
-      const output = calculateDynamics(input);
+      const output = Warden.applyLaws(input);
 
       // Perm: 40 -> 42.5 -> 43.
       expect(output.permeability).toBe(43);
@@ -129,7 +133,7 @@ describe("PROMETHEUS ENGINE V5", () => {
         velocity: 50,
         resonance: 50,
       };
-      const output = calculateDynamics(input);
+      const output = Warden.applyLaws(input);
       expect(output._flags.glassCannon).toBeTruthy();
     });
 
@@ -141,7 +145,7 @@ describe("PROMETHEUS ENGINE V5", () => {
         velocity: 50,
         resonance: 50,
       };
-      const output = calculateDynamics(input);
+      const output = Warden.applyLaws(input);
       expect(output._flags.ironBunker).toBeTruthy();
     });
 
@@ -154,7 +158,7 @@ describe("PROMETHEUS ENGINE V5", () => {
         velocity: 50,
         resonance: 95,
       };
-      const output = calculateDynamics(input);
+      const output = Warden.applyLaws(input);
 
       // Ent: 40 -> 42.5 -> 43.
       expect(output.entropy).toBe(43);
@@ -171,7 +175,7 @@ describe("PROMETHEUS ENGINE V5", () => {
         velocity: 50,
         resonance: 5,
       };
-      const output = calculateDynamics(input);
+      const output = Warden.applyLaws(input);
 
       // Vel: 40 -> 42.5 -> 43.
       expect(output.velocity).toBe(43);
@@ -188,7 +192,7 @@ describe("PROMETHEUS ENGINE V5", () => {
         velocity: 50,
         resonance: 85,
       };
-      const output = calculateDynamics(input);
+      const output = Warden.applyLaws(input);
       expect(output._flags.echoChamber).toBeTruthy();
     });
 
@@ -199,7 +203,7 @@ describe("PROMETHEUS ENGINE V5", () => {
         velocity: 10,
         resonance: 50,
       };
-      const output = calculateDynamics(input);
+      const output = Warden.applyLaws(input);
       expect(output._flags.theVenus).toBeTruthy();
     });
 
@@ -211,7 +215,7 @@ describe("PROMETHEUS ENGINE V5", () => {
         velocity: 50,
         resonance: 50,
       };
-      const output = calculateDynamics(input);
+      const output = Warden.applyLaws(input);
       // 100 -> 87.5 -> 88.
       expect(output.entropy).toBe(88);
       // Note: Fog of War at 100
@@ -230,7 +234,7 @@ describe("PROMETHEUS ENGINE V5", () => {
       };
       // Baseline 80.
       const baseline = { entropy: 80 };
-      const output = calculateDynamics(input, baseline);
+      const output = Warden.applyLaws(input, baseline);
       // 50 + (80-50)*0.25 = 57.5 -> 58.
       expect(output.entropy).toBe(58);
     });
@@ -242,7 +246,7 @@ describe("PROMETHEUS ENGINE V5", () => {
         velocity: 50,
         resonance: 50,
       };
-      const output = calculateDynamics(input);
+      const output = Warden.applyLaws(input);
       // Clamped to 0 and 100 before Gravity? No, usually calculate then clamp final.
       // But implementation applies laws THEN gravity THEN clamp.
       // Ent (-50) -> Gravity toward 50?
@@ -253,7 +257,7 @@ describe("PROMETHEUS ENGINE V5", () => {
     });
   });
 
-  describe("LLM Response Parser (parseLlmResponse)", () => {
+  describe("LLM Response Parser (Warden.parse)", () => {
     test("Standard Parse: JSON + HUD + Explanations", () => {
       const input = `
         [STATUS_HUD]
@@ -264,7 +268,7 @@ describe("PROMETHEUS ENGINE V5", () => {
           "dynamics": { "entropy": 50 }
         }
       `;
-      const result = parseLlmResponse(input);
+      const result = Warden.parse(input);
       expect(result.error).toBeNull();
       expect(result.updates.dynamics.entropy).toBe(50);
       expect(result.explanations.entropy).toBe("(Stable)");
@@ -278,7 +282,7 @@ describe("PROMETHEUS ENGINE V5", () => {
           }
         }
       `;
-      const result = parseLlmResponse(input);
+      const result = Warden.parse(input);
       expect(result.error).toBeNull();
       expect(result.updates.dynamics.entropy).toBe(50);
     });
@@ -290,13 +294,13 @@ describe("PROMETHEUS ENGINE V5", () => {
         </think>
         { "valid": true }
       `;
-      const result = parseLlmResponse(input);
+      const result = Warden.parse(input);
       expect(result.updates.valid).toBe(true);
     });
 
     test("Error Handling: Returns error on malformed JSON", () => {
       const input = "{ bad json ";
-      const result = parseLlmResponse(input);
+      const result = Warden.parse(input);
       expect(result.error).toBeDefined();
       expect(result.updates).toEqual({});
     });
@@ -321,7 +325,7 @@ describe("ContextBuilder (Physics Injection)", () => {
     });
   });
 
-  test("buildPulse injects basic context", async () => {
+  test("buildWardenPrompt injects basic context", async () => {
     const mockEntity = {
       id: "char-ai",
       name: "AI",
@@ -336,21 +340,26 @@ describe("ContextBuilder (Physics Injection)", () => {
     const history = [{ role: "user", text: "HI" }];
 
     // New Signature: (target, others, history, activeThreads)
-    const payload = await builder.buildPulse(mockEntity, [], history, []);
+    const payload = await builder.buildWardenPrompt(
+      mockEntity,
+      [],
+      history,
+      [],
+    );
 
-    // V5.2 Check: Ensure system prompt is correct
-    expect(payload.system).toContain("[SYSTEM: PULSE_DIAGNOSTICS]");
+    // V5.6 Check: Ensure system prompt is correct
+    expect(payload.system).toContain("[SYSTEM: PROMETHEUS_WARDEN]");
     expect(payload.system).toContain("Target: AI");
 
     // Check that history is represented (though specific format depends on implementation)
-    // In our case it's joined in historyStr and passed to Strategies.pulse
+    // In our case it's joined in historyStr and passed to Strategies.warden
     expect(payload.system).toContain("[User]: HI");
   });
 
-  test("buildPulse output schema check", async () => {
+  test("buildWardenPrompt output schema check", async () => {
     const mockEntity = { name: "AI", dynamics: {} };
     // New Signature
-    const payload = await builder.buildPulse(mockEntity, [], [], []);
+    const payload = await builder.buildWardenPrompt(mockEntity, [], [], []);
 
     // Updated for V5.2 Schema
     expect(payload.system).toContain("[JSON SCHEMA]");

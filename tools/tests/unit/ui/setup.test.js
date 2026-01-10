@@ -1,49 +1,72 @@
 import { jest } from "@jest/globals";
 
 // Mock dependencies (Must be above imports in some ESM setups)
-jest.mock("../../../../src/js/ui/components/profile/controller.js", () => ({
-  getOnUpdateSelection: jest.fn(() => jest.fn()),
-  setProfileCallbacks: jest.fn(),
-  getActiveSlotKey: jest.fn(),
-  closeProfileModal: jest.fn(),
-  openProfileModal: jest.fn(),
-  refreshProfileIfOpen: jest.fn(),
-  renderProfilePage: jest.fn(),
-}));
+jest.mock(
+  "../../../../src/js/mesmer/ui/components/profile/controller.js",
+  () => ({
+    getOnUpdateSelection: jest.fn(() => jest.fn()),
+    setProfileCallbacks: jest.fn(),
+    getActiveSlotKey: jest.fn(),
+    closeProfileModal: jest.fn(),
+    openProfileModal: jest.fn(),
+    refreshProfileIfOpen: jest.fn(),
+    renderProfilePage: jest.fn(),
+  }),
+);
 
-jest.mock("../../../../src/js/ui/image-gen-ui.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/image-gen-ui.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
   updateDeveloperModeClass: jest.fn(),
 }));
 
-jest.mock("../../../../src/js/ui/orchestrator.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/orchestrator.js", () => ({
   showAlert: jest.fn(),
 }));
 
-jest.mock("../../../../src/js/data/repo.js", () => ({
+jest.mock("../../../../src/js/scholar/repository.js", () => ({
   entities: {
     get: jest.fn(),
     list: jest.fn(),
   },
 }));
 
-jest.mock("../../../../src/js/engine/director.js", () => ({
-  TurnManager: {
-    createFromSelection: jest.fn(),
-    generatePrologue: jest.fn(),
-    load: jest.fn(),
-  },
-}));
+jest.mock("../../../../src/js/gamemaster/index.js", () => {
+  const mockState = {
+    settings: {
+      developerMode: false,
+    },
+    story: {
+      activeId: null,
+    },
+  };
+  return {
+    GameMaster: {
+      createFromSelection: jest.fn(),
+      generatePrologue: jest.fn(),
+      load: jest.fn(),
+    },
+    events: new EventTarget(),
+    EVENTS: {
+      DB_UPDATED: "db-updated",
+      STORY_LOADED: "story-loaded",
+    },
+    store: mockState,
+    state: mockState,
+  };
+});
 
-jest.mock("../../../../src/js/core/utils.js", () => ({
+jest.mock("../../../../src/js/gamemaster/utils.js", () => ({
   error: jest.fn(),
   log: jest.fn(),
 }));
 
-import { initStoryboardStage } from "../../../../src/js/ui/setup.js";
-import { events, EVENTS } from "../../../../src/js/core/events.js";
-import { state } from "../../../../src/js/core/state.js";
+import { initStoryboardStage } from "../../../../src/js/mesmer/ui/setup.js";
+import {
+  events,
+  EVENTS,
+  store as state,
+} from "../../../../src/js/gamemaster/index.js";
 
 describe("setup.js", () => {
   beforeEach(() => {
@@ -61,7 +84,8 @@ describe("setup.js", () => {
   });
 
   it("should handle DB_UPDATED event and call entities.get", async () => {
-    const { entities } = await import("../../../../src/js/data/repo.js");
+    const { entities } =
+      await import("../../../../src/js/scholar/repository.js");
     const views = {
       setOnSelectionChanged: jest.fn(),
       updateStoryboardSelection: jest.fn(),

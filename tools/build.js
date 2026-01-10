@@ -15,7 +15,7 @@ const DIST_DIR = path.join(REPO_ROOT, "dist");
 const LIBS_DIR = path.join(REPO_ROOT, "libs");
 
 // --- CONFIG ---
-const ENTRY_JS = path.join(SRC_DIR, "js/core/bootstrap.js");
+const ENTRY_JS = path.join(SRC_DIR, "js/gamemaster/bootstrap.js");
 const ENTRY_SCSS = path.join(SRC_DIR, "scss/index.scss");
 const HTML_TEMPLATE = path.join(SRC_DIR, "index.html");
 

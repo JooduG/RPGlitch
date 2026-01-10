@@ -1,8 +1,7 @@
+import { jest } from "@jest/globals";
+import { VoiceService } from "../../../src/js/mesmer/voice.js";
 
-import { jest } from '@jest/globals';
-import { VoiceService } from '../../../src/js/services/voice-service.js';
-
-describe('VoiceService', () => {
+describe("VoiceService", () => {
   const {
     speechSynthesis: originalSpeechSynthesis,
     SpeechSynthesisUtterance: originalSpeechSynthesisUtterance,
@@ -52,8 +51,8 @@ describe('VoiceService', () => {
     window.webkitSpeechRecognition = originalWebkitSpeechRecognition;
   });
 
-  describe('setCallMode(true)', () => {
-    test('should start listening if not speaking or listening', () => {
+  describe("setCallMode(true)", () => {
+    test("should start listening if not speaking or listening", () => {
       voiceService.isSpeaking = false;
       voiceService.isListening = false;
 
@@ -64,7 +63,7 @@ describe('VoiceService', () => {
       expect(voiceService.isListening).toBe(true);
     });
 
-    test('should not start listening if already speaking', () => {
+    test("should not start listening if already speaking", () => {
       voiceService.isSpeaking = true;
       voiceService.isListening = false;
 
@@ -74,7 +73,7 @@ describe('VoiceService', () => {
       expect(mockRecognition.start).not.toHaveBeenCalled();
     });
 
-    test('should not start listening if already listening', () => {
+    test("should not start listening if already listening", () => {
       voiceService.isListening = true;
 
       voiceService.setCallMode(true);
@@ -84,8 +83,8 @@ describe('VoiceService', () => {
     });
   });
 
-  describe('setCallMode(false)', () => {
-    test('should stop listening and update state on recognition end', () => {
+  describe("setCallMode(false)", () => {
+    test("should stop listening and update state on recognition end", () => {
       // Setup state as listening
       voiceService.callMode = true;
       voiceService.isListening = true;
@@ -102,7 +101,7 @@ describe('VoiceService', () => {
       expect(voiceService.isListening).toBe(false);
     });
 
-    test('should not stop listening if not currently listening', () => {
+    test("should not stop listening if not currently listening", () => {
       voiceService.callMode = true;
       voiceService.isListening = false;
 

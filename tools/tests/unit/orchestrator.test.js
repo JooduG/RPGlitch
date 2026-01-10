@@ -1,44 +1,52 @@
 import { jest } from "@jest/globals";
 
 // Mock Top-Level Imports
-jest.mock("../../../src/js/core/utils.js", () => ({
+jest.mock("../../../src/js/gamemaster/utils.js", () => ({
   log: jest.fn(),
   error: jest.fn(),
 }));
-jest.mock("../../../src/js/ui/components/drawer/desktop.js", () => ({
+jest.mock("../../../src/js/mesmer/ui/components/drawer/desktop.js", () => ({
   initDrawer: jest.fn(),
   closeDrawer: jest.fn(),
 }));
-jest.mock("../../../src/js/ui/components/chat/feed.js", () => ({
+jest.mock("../../../src/js/mesmer/ui/components/chat/feed.js", () => ({
   setStorymodeEntities: jest.fn(),
   setSendLock: jest.fn(),
   setChatGeneratingState: jest.fn(),
   showTypingIndicator: jest.fn(),
   removeTypingIndicator: jest.fn(),
 }));
-jest.mock("../../../src/js/ui/image-gen-ui.js", () => ({
+jest.mock("../../../src/js/mesmer/ui/image-gen-ui.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
+  updateDeveloperModeClass: jest.fn(),
 }));
-jest.mock("../../../src/js/ui/services/ui-utils.js", () => ({
+jest.mock("../../../src/js/mesmer/ui/setup.js", () => ({
+  initStoryboardStage: jest.fn(),
+}));
+jest.mock("../../../src/js/mesmer/ui/components/settings.js", () => ({
+  StoryOptionsController: {
+    init: jest.fn(),
+    open: jest.fn(),
+    close: jest.fn(),
+  },
+}));
+jest.mock("../../../src/js/mesmer/ui/services/ui-utils.js", () => ({
   setAppBackground: jest.fn(),
 }));
-jest.mock("../../../src/js/ui/components/drawer/mobile.js", () => ({
+jest.mock("../../../src/js/mesmer/ui/components/drawer/mobile.js", () => ({
   updateLocalSelection: jest.fn(),
   bindDrawerTrigger: jest.fn(),
   renderEntityPreview: jest.fn(),
   openDrawerFor: jest.fn(),
   setChinCallbacks: jest.fn(),
 }));
-jest.mock(
-  "../../../src/js/ui/components/profile/controller.js",
-  () => ({
-    renderProfilePage: jest.fn(),
-    closeProfileModal: jest.fn(),
-    setProfileCallbacks: jest.fn(),
-  }),
-);
-jest.mock("../../../src/js/core/events.js", () => ({
+jest.mock("../../../src/js/mesmer/ui/components/profile/controller.js", () => ({
+  renderProfilePage: jest.fn(),
+  closeProfileModal: jest.fn(),
+  setProfileCallbacks: jest.fn(),
+}));
+jest.mock("../../../src/js/gamemaster/store.js", () => ({
   events: {
     addEventListener: jest.fn(),
   },
@@ -50,10 +58,6 @@ jest.mock("../../../src/js/core/events.js", () => ({
     GENERATION_STARTED: "gen-start",
     GENERATION_COMPLETED: "gen-complete",
   },
-}));
-
-// Mock Dynamic Imports
-jest.mock("../../../src/js/core/state.js", () => ({
   state: {
     story: {
       activeId: "story-123",
@@ -66,9 +70,10 @@ jest.mock("../../../src/js/core/state.js", () => ({
       },
     },
   },
+  applyPatch: jest.fn(),
 }));
 
-jest.mock("../../../src/js/core/db.js", () => ({
+jest.mock("../../../src/js/scholar/db.js", () => ({
   db: {
     stories: {
       get: jest.fn(),
@@ -86,13 +91,14 @@ describe("Orchestrator UI", () => {
 
   beforeAll(async () => {
     // 1. Import Dependencies (Stubbing happened via jest.mock above)
-    const eventsModule =
-      await import("../../../src/js/core/events.js");
+    const eventsModule = await import("../../../src/js/gamemaster/store.js");
     eventsMock = eventsModule.events;
     const { EVENTS } = eventsModule;
 
-    // 2. Import Orchestrator (Triggers initEventBinds ONCE)
-    await import("../../../src/js/ui/orchestrator.js");
+    // 2. Import Orchestrator
+    const { initViews } =
+      await import("../../../src/js/mesmer/ui/orchestrator.js");
+    await initViews(); // Triggers initEventBinds and registers handlers
 
     // 3. Capture Handlers from the mock calls *before* any test clears them
     const findHandler = (evt) => {
@@ -156,7 +162,7 @@ describe("Orchestrator UI", () => {
       },
     };
 
-    const dbModule = await import("../../../src/js/core/db.js");
+    const dbModule = await import("../../../src/js/scholar/db.js");
     dbModule.db.stories.get.mockResolvedValue(mockStory);
     dbModule.db.entities.get.mockImplementation((id) => {
       if (id === "fractal-1")
@@ -172,7 +178,7 @@ describe("Orchestrator UI", () => {
 
     expect(document.body.classList.contains("theme-cyber")).toBe(true);
     const uiUtils =
-      await import("../../../src/js/ui/services/ui-utils.js");
+      await import("../../../src/js/mesmer/ui/services/ui-utils.js");
     expect(uiUtils.setAppBackground).toHaveBeenCalledWith("blue");
   });
 });

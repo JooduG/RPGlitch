@@ -3,13 +3,13 @@ import { describe, test, expect, afterEach, jest } from "@jest/globals";
 // === EXTENSIVE MOCKING TO PREVENT CRASHES ===
 
 // 1. Data Layer
-jest.mock("../../../../src/js/data/repo.js", () => ({
+jest.mock("../../../../src/js/scholar/repository.js", () => ({
   entities: { list: jest.fn().mockReturnValue([]) },
   seedPremades: jest.fn().mockResolvedValue(),
   _allItemsCache: {},
 }));
 
-jest.mock("../../../../src/js/core/db.js", () => ({
+jest.mock("../../../../src/js/scholar/db.js", () => ({
   db: {
     open: jest.fn().mockResolvedValue(),
     isOpen: jest.fn().mockReturnValue(false),
@@ -28,33 +28,33 @@ jest.mock("../../../../src/js/core/db.js", () => ({
 }));
 
 // 2. UI/Engine Layers (Critical to mock these to avoid DOM/Window access at top level)
-jest.mock("../../../../src/js/ui/orchestrator.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/orchestrator.js", () => ({
   initViews: jest.fn().mockResolvedValue({}),
 }));
 
-jest.mock("../../../../src/js/engine/director.js", () => ({
+jest.mock("../../../../src/js/gamemaster/index.js", () => ({
   StoryController: {},
 }));
 
-jest.mock("../../../../src/js/ui/components/settings.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/components/settings.js", () => ({
   StoryOptionsController: { init: jest.fn() },
 }));
 
-jest.mock("../../../../src/js/ui/setup.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/setup.js", () => ({
   initStoryboardStage: jest.fn(),
   StoryboardController: {},
 }));
 
-jest.mock("../../../../src/js/ui/components/chat/input.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/components/chat/input.js", () => ({
   initChatInput: jest.fn(),
 }));
 
-jest.mock("../../../../src/js/core/state.js", () => ({
+jest.mock("../../../../src/js/gamemaster/store.js", () => ({
   state: { settings: { directorMode: false } },
   applyPatch: jest.fn(),
 }));
 
-jest.mock("../../../../src/js/ui/components/chat/feed.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/components/chat/feed.js", () => ({
   renderChat: jest.fn(),
   setGameplayEntities: jest.fn(),
   showTypingIndicator: jest.fn(),
@@ -63,13 +63,13 @@ jest.mock("../../../../src/js/ui/components/chat/feed.js", () => ({
   setChatGeneratingState: jest.fn(),
 }));
 
-jest.mock("../../../../src/js/ui/services/visuals.js", () => ({
+jest.mock("../../../../src/js/mesmer/ui/services/visuals.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
   updateDirectorModeClass: jest.fn(),
 }));
 
-jest.mock("../../../../src/js/core/utils.js", () => ({
+jest.mock("../../../../src/js/gamemaster/utils.js", () => ({
   log: jest.fn(),
   error: jest.fn(),
   initDebugMode: jest.fn(),
@@ -79,8 +79,7 @@ jest.mock("../../../../src/js/core/utils.js", () => ({
 async function loadApp() {
   jest.resetModules();
   // Import Dynamic to ensure mocks are applied
-  const bootstrap =
-    await import("../../../../src/js/core/bootstrap.js");
+  const bootstrap = await import("../../../../src/js/gamemaster/bootstrap.js");
   return { App: bootstrap.App };
 }
 
