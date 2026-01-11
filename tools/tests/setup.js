@@ -32,7 +32,32 @@ if (typeof Worker === "undefined") {
 }
 
 // Mock Dexie Globally (for core-db.js ESM compliance)
+// Mock Dexie Globally (for core-db.js ESM compliance)
 if (typeof global.Dexie === "undefined") {
   const Dexie = require("dexie").default || require("dexie");
   global.Dexie = Dexie;
+}
+
+// [TEST MOCK] Svelte 5 Runes Polyfill for Jest
+// Since Jest runs in a Node/JSDOM environment without the Svelte compiler transforms,
+// we need to globally define these "Runes" so they don't throw ReferenceErrors.
+// This is a naive mock sufficient for unit tests.
+if (typeof global.$state === "undefined") {
+  global.$state = (initial) => initial; // Pass-through for simple values
+  // Minimal proxy support could be added if tests demand it, but identity is safer for now.
+}
+if (typeof global.$derived === "undefined") {
+  global.$derived = (fn) => (typeof fn === "function" ? fn() : fn); // Evaluate immediately
+}
+if (typeof global.$effect === "undefined") {
+  global.$effect = () => {}; // No-op
+}
+if (typeof global.$props === "undefined") {
+  global.$props = () => ({}); // Return empty object
+}
+if (typeof global.$bindable === "undefined") {
+  global.$bindable = (initial) => initial; // Pass-through
+}
+if (typeof global.$inspect === "undefined") {
+  global.$inspect = () => {}; // No-op
 }

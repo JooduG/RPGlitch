@@ -22,6 +22,9 @@ const config = {
     "**/?(*.)+(spec|test).[tj]s?(x)",
     "**/?(*.)+(spec|test).mjs",
   ],
+  moduleNameMapper: {
+    "^.+\\.svelte$": "<rootDir>/tools/tests/mockSvelte.js",
+  },
 };
 
 module.exports = config;

@@ -2,6 +2,7 @@
 
     import Stage from './artificer/Stage.svelte';
     import VitalsPane from './scholar/VitalsPane.svelte';
+    import Profile from './scholar/Profile.svelte'; // 📜 Scholar
     import ControlPanel from './warden/ControlPanel.svelte'; // 🛡️ Warden
     import SettingsButton from './artificer/hud/SettingsButton.svelte'; // ⚒️ Trigger
     import { app } from './artificer/stores/app.svelte.js';
@@ -39,6 +40,10 @@
     {#if app.controlPanelOpen}
         <ControlPanel />
     {/if}
+
+    {#if app.profileOpen}
+        <Profile />
+    {/if}
 </main>
 
 <style lang="scss">
@@ -48,7 +53,7 @@
         width: 100vw;
         height: 100vh;
         overflow: hidden;
-        z-index: 50; /* Ensure it sits above legacy content but below modals if needed */
+        z-index: 9000; /* Ensure it sits above legacy content (was 50) */
         pointer-events: none; /* Let clicks pass through to legacy app by default */
     }
 

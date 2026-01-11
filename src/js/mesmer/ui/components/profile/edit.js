@@ -664,8 +664,8 @@ export const renderProfileEdit = async (screen, entity, type, id) => {
         const splitCol = document.createElement("div");
         splitCol.className = "split-column";
 
-        // Only show headers for "forever" (first row) to avoid duplicates in "present"
-        if (key === "forever") {
+        // Only show headers for "eternal" (first row) to avoid duplicates in "present"
+        if (key === "eternal") {
           const header = document.createElement("div");
           header.className = "split-header";
           header.style.display = "flex";

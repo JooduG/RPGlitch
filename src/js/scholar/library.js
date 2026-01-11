@@ -23,7 +23,7 @@ export const premade = {
       voiceRate: 1.0,
       voicePitch: 1.0,
       dynamics: { entropy: 45, permeability: 40, velocity: 60, resonance: 55 },
-      forever: {
+      eternal: {
         physical:
           "(glowing circuitry:1.4), (metallic skin:1.2), (athletic build)",
         mental: "Bound to Light Core, blade hums with starlight.",
@@ -46,7 +46,7 @@ export const premade = {
       voiceRate: 1.0,
       voicePitch: 1.0,
       dynamics: { entropy: 55, permeability: 60, velocity: 50, resonance: 60 },
-      forever: {
+      eternal: {
         physical: "(elven ears:1.3), (glowing eyes:1.1), (slender frame)",
         mental: "Every note carries a memory; every chorus, a charm.",
       },
@@ -67,7 +67,7 @@ export const premade = {
       voiceRate: 1.1,
       voicePitch: 1.0,
       dynamics: { entropy: 40, permeability: 40, velocity: 55, resonance: 45 },
-      forever: {
+      eternal: {
         physical: "(clockwork joints:1.5), (brass details), (hooded face)",
         mental: "Precision over passion; gears never lie.",
       },
@@ -89,7 +89,7 @@ export const premade = {
       voiceRate: 0.85,
       voicePitch: 1.0,
       dynamics: { entropy: 55, permeability: 60, velocity: 40, resonance: 55 },
-      forever: {
+      eternal: {
         physical: "(pale skin), (shadowy aura:1.4), (void eyes)",
         mental: "The dark is not empty; it listens back.",
       },
@@ -111,7 +111,7 @@ export const premade = {
       voiceRate: 1.05,
       voicePitch: 1.0,
       dynamics: { entropy: 50, permeability: 55, velocity: 60, resonance: 60 },
-      forever: {
+      eternal: {
         physical:
           "Species: Cosmic Human Superhero. Gender: Male. Sexuality: Mega Gay. Height: 195 cm. Weight: 130 kg. Eye Color: Seductive Pink. Hair: Short Pastel Pink Fade. Hyperdeveloped Herculean Musculature (Steroid Enhanced Bodybuilder: massive pecs with big pink areolas and perky nipples, big veiny arms/biceps/triceps, tree trunk thighs). Massive cock (clear penis outlined bulge) and big bubble butt. Chiseled Jawline, Plump Lips, Groomed Mustache. Pink arcane runes tattooed all over skin. Signature outfit: pink metallic tight shorts stretched over cock bulge.",
         mental:
@@ -146,7 +146,7 @@ export const premade = {
       voiceRate: 1.35,
       voicePitch: 1.0,
       dynamics: { entropy: 55, permeability: 60, velocity: 60, resonance: 55 },
-      forever: {
+      eternal: {
         physical:
           "Species: Human. Gender: Male. Sexuality: Gay Faggot. Height: 176 cm. Eye Color: Piercing Green. Hair: Short messy pastel blue. Body Type: Muscular-athletic thick masculine twunk build with a big bubble butt always wearing a thong. Notable Features: Facial expression conveys mischief with subtle vulnerability. Handsome man.",
         mental:
@@ -179,7 +179,7 @@ export const premade = {
       simulation: { mode: "PASSIVE" },
       signatureColor: "emerald",
       dynamics: { entropy: 45, permeability: 55, velocity: 50, resonance: 55 },
-      forever: {
+      eternal: {
         physical:
           "(floating islands:1.5), (ancient ruins), (waterfalls falling into void), (lush vegetation)",
         mental: "Isles drift on leylines braided like song.",
@@ -200,7 +200,7 @@ export const premade = {
       simulation: { mode: "PASSIVE" },
       signatureColor: "indigo",
       dynamics: { entropy: 55, permeability: 50, velocity: 60, resonance: 50 },
-      forever: {
+      eternal: {
         physical:
           "(holographic billboards:1.4), (chrome skyscrapers), (flying cars), (neon lights)",
         mental: "Dreams scaffold towers; intent becomes steel.",
@@ -221,7 +221,7 @@ export const premade = {
       simulation: { mode: "PASSIVE" },
       signatureColor: "purple",
       dynamics: { entropy: 55, permeability: 60, velocity: 60, resonance: 60 },
-      forever: {
+      eternal: {
         physical:
           "A vertical labyrinth of self-similar structures, each skyscraper (avg. height 1.2 km) tessellates into smaller neon-lit segments (repeating at 400 m, 133 m, 44 m intervals). Gravity fluctuates between 0.7-1.3 Earth standard, strongest near the AI guardian cores (density: 18 kg/cm³). Alleyways contract dynamically (min. width: 23 cm), their walls coated in frictionless quantum glass. The atmosphere is ionized argon-oxygen mix (62% opacity) causing permanent moonlit refraction—even at noon, shadows cast at 17° angles. Rooftops feature non-Euclidean overgrowth (vines with tensile strength of 4,000 MPa).",
         mental:
@@ -249,7 +249,7 @@ export const premade = {
         cssTheme: "theme-smartphone",
         directorMode: "TEXT_PROTOCOL",
       },
-      forever: {
+      eternal: {
         physical: "(smartphone screen:1.5), (chat interface), (digital avatar)",
         mental: "A digital communication channel.",
       },
@@ -277,7 +277,7 @@ export const normalize = (base = {}) => {
     description = "",
     icon = null,
     signatureColor = "",
-    forever = {},
+    eternal = {},
     present = {},
     past = "",
     future = "",
@@ -313,9 +313,9 @@ export const normalize = (base = {}) => {
     })(),
 
     // TEMPORAL HYBRID FIELDS
-    forever: {
-      physical: sanitizeHtml(forever.physical || base.appearance || "").trim(),
-      mental: sanitizeHtml(forever.mental || base.identity || "").trim(),
+    eternal: {
+      physical: sanitizeHtml(eternal.physical || base.appearance || "").trim(),
+      mental: sanitizeHtml(eternal.mental || base.identity || "").trim(),
     },
     present: {
       physical: sanitizeHtml(present.physical || base.outfit || "").trim(),

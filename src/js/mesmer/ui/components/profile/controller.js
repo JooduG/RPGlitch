@@ -24,117 +24,44 @@ let activeSlotKey = null;
 export const getActiveSlotKey = () => activeSlotKey;
 
 // --- MODAL MANAGEMENT ---
+// --- MODAL MANAGEMENT ---
+import { app } from "../../../../../artificer/stores/app.svelte.js";
+import { runtime } from "../../../../../scholar/stores/runtime.svelte.js";
+
 export const closeProfileModal = () => {
-  const screen = document.querySelector("#profile-screen");
-  if (screen) {
-    if (typeof screen._cleanupProfile === "function") {
-      screen._cleanupProfile();
-      delete screen._cleanupProfile;
-    }
-    screen.classList.remove("is-open");
-    screen.setAttribute("hidden", "");
-    screen.classList.remove("profile-view--fractal");
-    if (location.hash.includes("#profile")) {
-      const base = location.pathname + location.search;
-      history.replaceState(
-        "",
-        document.title,
-        base + (document.body.classList.contains("storymode") ? "#story" : ""),
-      );
-    }
-  }
-  document.body.classList.remove("profile-view-active");
+  app.toggleProfile(false);
   activeSlotKey = null;
 };
 
-export const openProfileModal = (type, id, slotKey = null) => {
+export const openProfileModal = async (type, id, slotKey = null) => {
   activeSlotKey = slotKey;
-  renderProfilePage(type.toLowerCase(), id);
-};
-
-export const refreshProfileIfOpen = async () => {
-  const screen = document.querySelector("#profile-screen");
-  if (screen && screen.classList.contains("is-open") && activeSlotKey) {
-    const hash = location.hash.replace("#", "");
-    const parts = hash.split("/"); // profile/character/id
-    if (parts[0] === "profile" && parts.length === 3) {
-      await renderProfilePage(parts[1], parts[2]);
-    }
-  }
-};
-
-// Subscribe to background updates
-events.addEventListener(EVENTS.DB_UPDATED, (data) => {
-  if (data?.detail?.source === "profile-view") return;
-  refreshProfileIfOpen();
-});
-
-// --- INITIALIZATION ---
-document.addEventListener("click", (e) => {
-  if (e.target && e.target.id === "profile-screen") {
-    closeProfileModal();
-  }
-});
-
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    closeProfileModal();
-  }
-});
-
-// --- ORCHESTRATOR ---
-export const renderProfilePage = async (type, id, forceEditMode = false) => {
-  const screen = document.querySelector("#profile-screen");
-  if (!screen) return;
-
-  screen.removeAttribute("hidden");
-  document.body.classList.add("profile-view-active");
-  screen.classList.add("is-open");
-
-  const isFractal = type === "fractal";
-  if (isFractal) screen.classList.add("profile-view--fractal");
-  else screen.classList.remove("profile-view--fractal");
-
-  const isGameplay = document.body.classList.contains("storymode");
-  const isDev = state.settings?.developerMode;
-  let isEditing = id === "new" || (forceEditMode && (!isGameplay || isDev));
-
-  let entity;
 
   if (id === "new") {
-    if (window.ephemeralEntity) {
-      entity = { ...window.ephemeralEntity, kind: type };
-      delete entity.id;
-    } else {
-      entity = { kind: type, type: type, sections: {} };
-    }
-    isEditing = true;
-  } else {
-    entity = await handleAsyncError(async () => await entities.get(type, id), {
-      errorMessage: "Could not load profile.",
-      context: "load profile",
-      fallback: null,
-    });
-  }
-
-  if (!entity) {
-    closeProfileModal();
+    // Handle new entity logic later or pass defaults
     return;
   }
 
-  screen.textContent = "";
-  screen.className = "profile-view";
-  screen.classList.add("is-open");
-  if (isFractal) screen.classList.add("profile-view--fractal");
-  screen.classList.toggle("is-editing", isEditing);
+  try {
+    const entity = await entities.get(type, id);
+    if (entity) {
+      // Normalize legacy fields if needed
+      if (entity.forever && !entity.eternal) entity.eternal = entity.forever;
 
-  if (isEditing) {
-    await renderProfileEdit(screen, entity, type, id);
-  } else {
-    await renderProfileView(screen, entity, type, id, (editing) =>
-      renderProfilePage(type, id, editing),
-    );
+      runtime.updateCharacter(entity);
+      app.toggleProfile(true);
+    }
+  } catch (e) {
+    console.error("Failed to open profile:", e);
   }
+};
+
+export const refreshProfileIfOpen = async () => {
+  // No-op for now in new architecture
+};
+
+// --- LEGACY COMPATIBILITY (Keep renderProfilePage but redirect) ---
+export const renderProfilePage = async (type, id, forceEditMode = false) => {
+  openProfileModal(type, id);
 };
 
 // --- CONTROLLER ACTIONS ---

@@ -3,6 +3,7 @@ export const app = $state({
   // Navigation
   view: "lobby", // 'lobby' | 'game'
   controlPanelOpen: false,
+  profileOpen: false,
 
   // 🎛️ SETTINGS (User Preferences)
   settings: {
@@ -23,6 +24,9 @@ export const app = $state({
   // Actions
   toggleControlPanel() {
     this.controlPanelOpen = !this.controlPanelOpen;
+  },
+  toggleProfile() {
+    this.profileOpen = !this.profileOpen;
   },
   setView(v) {
     this.view = v;
@@ -61,3 +65,8 @@ export const app = $state({
     this.streaming.nodeId = null;
   },
 });
+
+if (typeof window !== "undefined") {
+  window.app = app;
+  window.rpgApp = app;
+}

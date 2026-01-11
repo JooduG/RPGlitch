@@ -26,20 +26,40 @@ jest.mock("../../../../src/js/mesmer/ui/components/drawer/desktop.js", () => ({
   openDrawer: jest.fn(),
 }));
 
-// Mock Bootstrap to avoid Svelte/ESM issues in legacy tests
 jest.mock("../../../../src/js/gamemaster/bootstrap.js", () => ({
   AppBootstrap: { init: jest.fn() },
+}));
+
+jest.mock("../../../../src/App.svelte", () => ({}));
+
+// Mock Bootstrap to avoid Svelte/ESM issues in legacy tests
+
+// Mock artificer app store
+jest.mock("../../../../src/artificer/stores/app.svelte.js", () => ({
+  app: {
+    toggleProfile: jest.fn(),
+    view: "lobby",
+    controlPanelOpen: false,
+  },
+}));
+
+// Mock scholar runtime store
+jest.mock("../../../../src/scholar/stores/runtime.svelte.js", () => ({
+  runtime: {
+    character: {},
+    updateCharacter: jest.fn(),
+    sync: jest.fn(),
+  },
 }));
 
 async function loadApp(html) {
   document.body.innerHTML = html;
   jest.resetModules();
 
-  const utils = await import("../../../../src/js/gamemaster/utils.js");
-  const uiUtils = await import("../../../../src/js/mesmer/ui/core/utils.js");
-  const mobileDrawer =
-    await import("../../../../src/js/mesmer/ui/components/drawer/mobile.js");
-  const index = await import("../../../../src/js/gamemaster/bootstrap.js");
+  const utils = require("../../../../src/js/gamemaster/utils.js");
+  const uiUtils = require("../../../../src/js/mesmer/ui/core/utils.js");
+  const mobileDrawer = require("../../../../src/js/mesmer/ui/components/drawer/mobile.js");
+  const index = require("../../../../src/js/gamemaster/bootstrap.js");
 
   const App = { ...index, ...utils, ...uiUtils, ...mobileDrawer };
   return { App };

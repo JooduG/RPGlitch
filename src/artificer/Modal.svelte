@@ -1,7 +1,9 @@
 <script>
     let { 
+        title, 
+        icon, 
         onclose, 
-        variant = 'transparent', // 'transparent' (Stacks) | 'card' (Box) | 'media' (Image)
+        variant = 'standard', // 'standard' | 'entity' | 'transparent' | 'media'
         children 
     } = $props();
 
@@ -15,13 +17,25 @@
 <div 
     class="modal-backdrop" 
     onclick={(e) => { if(e.target === e.currentTarget) onclose(); }}
-    onkeydown={(e) => { if(e.key === 'Escape') onclose(); }}
-    tabindex="-1"
     role="dialog"
     aria-modal="true"
 >
-    <div class="modal-stage variant-{variant}">
-        {@render children()}
+    <div class="modal-shell variant-{variant}">
+        
+        {#if variant === 'standard' && title}
+            <div class="modal-header">
+                <span class="title">{icon} {title}</span>
+                <button class="close-btn" onclick={onclose}>×</button>
+            </div>
+        {/if}
+
+        <div class="modal-body">
+            {@render children()}
+        </div>
+
+        {#if variant === 'entity'}
+            <button class="entity-close" onclick={onclose}>×</button>
+        {/if}
     </div>
 </div>
 
@@ -30,47 +44,83 @@
         position: fixed;
         inset: 0;
         background: rgba(0, 0, 0, 0.85);
-        backdrop-filter: blur(8px);
-        z-index: 9000;
+        backdrop-filter: blur(5px);
+        z-index: 9999;
         display: flex;
         justify-content: center;
         align-items: center;
         animation: fade-in 0.2s ease-out;
         padding: 1rem;
-        pointer-events: auto; /* Capture clicks */
+        pointer-events: auto; /* Re-enable clicks inside the modal */
     }
 
-    .modal-stage {
+    .modal-shell {
+        display: flex;
+        flex-direction: column;
         animation: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        max-height: 100%;
-        overflow-y: auto;
         
-        /* Hide scrollbar */
-        scrollbar-width: none; 
-        &::-webkit-scrollbar { display: none; }
-
-        &.variant-transparent {
-            background: transparent;
-            width: 380px;
-            max-width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem; 
-        }
-
-        &.variant-card {
+        &.variant-standard {
             background: #18181b;
             border: 1px solid #27272a;
             border-radius: 8px;
-            padding: 1rem;
             width: 450px;
+            max-width: 100%;
+            max-height: 85vh;
+            .modal-body { padding: 1rem; overflow-y: auto; }
         }
-        
-        &.variant-media {
-            width: auto; height: auto;
+
+        &.variant-entity {
+            background: #09090b; /* Darker background */
+            border: 1px solid #27272a;
+            border-radius: 12px;
+            
+            /* Flexible Sizing per user request */
+            width: 900px;
+            max-width: 95vw;
+            height: 700px;
+            max-height: 95vh;
+            
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            
+            .modal-body { 
+                padding: 0; /* Full bleed */
+                height: 100%; 
+                overflow: hidden; /* Prevent spill */
+                border-radius: 12px;
+            }
+        }
+
+        &.variant-transparent {
+            background: transparent;
+            width: 400px;
+            max-width: 100%;
+            max-height: 90vh;
+            .modal-body { padding: 0; overflow-y: auto; }
         }
     }
 
+    .entity-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(0,0,0,0.5);
+        color: white;
+        border: none;
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 100; /* Above everything */
+        font-size: 1.2rem;
+        display: flex; align-items: center; justify-content: center;
+        transition: background 0.2s;
+        
+        &:hover { background: #ef4444; }
+    }
+
+    .modal-header { padding: 0.75rem 1rem; display: flex; justify-content: space-between; border-bottom: 1px solid #333; color: #ccc; }
+    .close-btn { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1.2rem; }
+
     @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes scale-in { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes scale-in { from { transform: scale(0.98); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 </style>

@@ -7,6 +7,8 @@
    ============================================================================ */
 
 /* --- TITLE INPUT --- */
+
+/* --- TITLE INPUT --- */
 .story-title-input {
   background: transparent;
   border: none;
@@ -20,12 +22,13 @@
   padding: 0.5rem;
   transition: border-color 0.3s ease;
   line-height: 1.2;
-  min-height: 3.5em; // Reserve space for 2 lines
+  min-height: 3.5em;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   pointer-events: auto;
+  text-shadow: 0 4px 12px rgb(0, 0, 0, 50%); // [ADDED] Shadow
 
   &::placeholder {
     color: rgb(255 255 255 / 30%);
@@ -47,25 +50,50 @@
 .storyboard-actions {
   display: flex;
   justify-content: center;
-  pointer-events: auto; // Re-enable interaction
-}
+  pointer-events: auto;
 
-.storyboard-actions [role="group"] {
-  // Inherits .btn-group-pill logic
-  // Just layout specifics here if needed
-  display: inline-flex; // Re-enforce flex context
+  // Floating Pill Container
+  [role="group"] {
+    background: rgb(15, 23, 42, 80%); // Slate-900 / 80%
+    border: 1px solid rgb(255, 255, 255, 10%);
+    backdrop-filter: blur(12px);
+    border-radius: 9999px; // Pill
+    padding: 4px;
+    box-shadow: 0 10px 25px -5px rgb(0, 0, 0, 50%);
+    display: inline-flex;
+    gap: 4px; // Spacing between buttons
+
+    button {
+      border-radius: 9999px !important; // Inner Pills
+      border: none;
+      background: transparent;
+      color: #94a3b8; // Slate-400
+      transition: all 0.2s;
+
+      &:hover {
+        color: #fff;
+        background: rgb(255, 255, 255, 10%);
+      }
+    }
+  }
 }
 
 /* 1. Left: Options */
 #btn-options {
-  // Styles handled by .btn-group-pill
   display: flex;
+  width: 48px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
 }
 
 /* 2. Middle: Shuffle */
 #btn-shuffle {
-  // Styles handled by .btn-group-pill
   display: flex;
+  width: 48px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
 }
 
 /* 3. Right: Begin Story */

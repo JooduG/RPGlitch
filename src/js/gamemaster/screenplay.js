@@ -41,10 +41,10 @@ export const Screenplay = {
 
     prompt += `[ROLE DEFINITIONS]\n`;
     prompt += `AI (YOU): ${ai?.name || "AI"} (Roleplay this character ONLY). 
-- Appearance: ${ai?.forever?.physical || "Unknown"}
+- Appearance: ${ai?.eternal?.physical || "Unknown"}
 - Current State: ${ai?.present?.physical || "Standard outfit"}\n`;
     prompt += `USER (TARGET): ${user?.name || "User"} (Observer/Lead). 
-- Appearance: ${user?.forever?.physical || "Unknown"}
+- Appearance: ${user?.eternal?.physical || "Unknown"}
 - Current State: ${user?.present?.physical || "Standard outfit"}\n`;
     if (fractal) prompt += `FRACTAL (WORLD): ${fractal.name}.\n`;
 
@@ -73,8 +73,8 @@ Premise: "${title || "A new journey begins."}"
 
 [CONTEXT: THE WORLD]
 ${fractal ? `- Identity: ${fractal.name}` : ""}
-- Base Physics (Forever): ${fractal?.forever?.physical || "Unknown"}
-- Essence (Forever): ${fractal?.forever?.mental || "Unknown"}
+- Base Physics (Eternal): ${fractal?.eternal?.physical || "Unknown"}
+- Essence (Eternal): ${fractal?.eternal?.mental || "Unknown"}
 - Current State (Present): ${fractal?.present?.physical || "Unknown"}
 - Current Atmosphere (Present): ${fractal?.present?.mental || "Unknown"}
 - History (Past): ${fractal?.past || "Unknown"}
@@ -82,13 +82,13 @@ ${fractal ? `- Identity: ${fractal.name}` : ""}
 
 [CONTEXT: THE PARTICIPANTS]
 AI CHARACTER (YOU): ${ai?.name || "AI"}
-- Essence (Forever): ${ai?.forever?.mental || "Unknown"}
+- Essence (Eternal): ${ai?.eternal?.mental || "Unknown"}
 - State (Present): ${ai?.present?.mental || "Unknown"}
 - History (Past): ${ai?.past || "Unknown"}
 - Destiny (Future): ${ai?.future || "Unknown"}
 
 USER CHARACTER: ${user?.name || "User"}
-- Essence (Forever): ${user?.forever?.mental || "Unknown"}
+- Essence (Eternal): ${user?.eternal?.mental || "Unknown"}
 - State (Present): ${user?.present?.mental || "Unknown"}
 - History (Past): ${user?.past || "Unknown"}
 - Destiny (Future): ${user?.future || "Unknown"}
@@ -96,7 +96,7 @@ USER CHARACTER: ${user?.name || "User"}
 [CONSTRAINTS]
 1. Write a compelling opening in the voice of the Fractal (the sentient world).
 2. **BREVITY PROTOCOL:** Output must be 3-4 paragraphs maximum. No walls of text.
-3. **ATMOSPHERE:** Use the **Base Physics** and **Essence** of the world to establish the sensory reality. Use the **Forever** field to ground the eternal "vibe" and the **Past** to anchor the history.
+3. **ATMOSPHERE:** Use the **Base Physics** and **Essence** of the world to establish the sensory reality. Use the **Eternal** field to ground the eternal "vibe" and the **Past** to anchor the history.
 4. **FORECASTING & PLOT SETUP:** 
    - Analyze the **Destiny (Future)** of all entities. 
    - Paint the **PRESENT** scene specifically to lead toward those futures. 

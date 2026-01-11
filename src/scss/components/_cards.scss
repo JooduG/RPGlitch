@@ -226,41 +226,59 @@
 
 /* --- PREVIEW (Filled) --- */
 .entity-preview.card-filled {
-  @extend %material-glass;
+  // @extend %material-glass; // [REMOVED] for Solid Split Look
   @extend %material-interactive;
 
   width: 100%;
-  aspect-ratio: 2 / 3;
+  aspect-ratio: 2 / 3; // Default Portrait
   border-radius: 16px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   z-index: #{z(chip)};
 
+  // Base Card Background (Dark Bottom)
+  background: #11151c;
+  border: 1px solid var(--pico-muted-border-color);
+  box-shadow: 0 10px 30px -10px rgb(0, 0, 0, 50%);
+
   &[data-signature] {
     border-color: var(--signature-color);
   }
 
   .card-media {
-    flex: 2;
-    min-height: 50%;
-    background: #000;
+    flex: 6; // 60% Top
+    background: var(--signature-color, #333); // Fallback
     position: relative;
     pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    // ensure image covers if present
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    // ensure placeholder fills
+    .picture {
+      background-color: transparent !important; // Let parent color show
+    }
   }
 
   .card-body {
-    flex: 1;
-    min-height: 100px;
+    flex: 4; // 40% Bottom
     padding: 1.5rem;
-    background: inherit;
-    border-top: 1px solid rgb(255 255 255 / 5%);
+    background: inherit; // Matches parent #11151c
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start; // Align to top of section
     color: #fff;
     pointer-events: auto;
     text-align: left;
+    border-top: none;
 
     // Pass through clicks on text block
     h4,
@@ -269,31 +287,29 @@
     }
 
     h4 {
-      margin: 0;
+      margin: 0 0 0.5rem;
       font-size: 1.1rem;
-      font-weight: 700;
+      font-weight: 800; // Extra Bold
       color: var(--signature-color, #fff);
       line-height: 1.2;
       text-wrap: balance;
     }
 
     p {
-      font-size: 0.85rem;
-      color: #fff;
+      font-size: 0.8rem;
+      color: #94a3b8; // Slate-400
       font-style: normal;
       opacity: 1;
       margin: 0;
       line-height: 1.4;
       overflow: hidden;
       display: -webkit-box;
-      -webkit-line-clamp: 3;
-      line-clamp: 3;
+      -webkit-line-clamp: 4;
+      line-clamp: 4;
       -webkit-box-orient: vertical;
       text-wrap: pretty;
     }
   }
-
-  // Hover styles are now handled by %material-interactive
 }
 
 // Logic: Hide slot if preview is filled

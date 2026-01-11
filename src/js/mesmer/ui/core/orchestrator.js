@@ -1,6 +1,6 @@
 import { log } from "../../../gamemaster/utils.js";
 import { entities } from "../../../scholar/repository.js";
-import { GameMaster } from "../../../gamemaster/index.js";
+import { GameMaster, applyPatch } from "../../../gamemaster/index.js";
 import { initDrawer } from "../components/drawer/desktop.js";
 import { setStorymodeEntities, setSendLock } from "../components/chat/feed.js";
 import {
@@ -407,6 +407,21 @@ export const initViews = async (deps = {}) => {
   document.querySelectorAll('form[role="search"]').forEach((form) => {
     form.addEventListener("submit", (e) => e.preventDefault());
   });
+
+  // [VISUAL OVERHAUL] Force Default Selection for Demo (MOVED)
+  const { premade } = await import("../../../scholar/library.js");
+  const ai = premade.entities.find((e) => e.id === "entity-C3"); // Clockwork Rogue
+  const user = premade.entities.find((e) => e.id === "entity-C1"); // Light Blade
+  const fractal = premade.entities.find((e) => e.id === "entity-F2"); // Neo Arcadia
+
+  if (ai && user && fractal) {
+    applyPatch({ isCustomTitle: false }); // Enable Dynamic Title
+    SelectionManager.update({
+      aiCharacter: ai,
+      userCharacter: user,
+      fractal: fractal,
+    });
+  }
 
   return {
     setOnSelectionChanged,

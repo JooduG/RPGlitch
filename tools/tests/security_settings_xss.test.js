@@ -48,6 +48,25 @@ jest.mock("../../src/js/mesmer/ui/core/theme.js", () => ({
 // Mock library (side effect import)
 jest.mock("../../src/js/scholar/library.js", () => ({}));
 
+// Mock artificer app store
+jest.mock("../../src/artificer/stores/app.svelte.js", () => ({
+  // Note: Jest mocks by path text, ensure path is correct relative to test file or root
+  app: {
+    toggleProfile: jest.fn(),
+    view: "lobby",
+    controlPanelOpen: false,
+  },
+}));
+
+// Mock scholar runtime store
+jest.mock("../../src/scholar/stores/runtime.svelte.js", () => ({
+  runtime: {
+    character: {},
+    updateCharacter: jest.fn(),
+    sync: jest.fn(),
+  },
+}));
+
 describe("Security Vulnerability Check - Settings", () => {
   let StoryOptionsController;
   let repo;

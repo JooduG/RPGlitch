@@ -1,6 +1,6 @@
 export const PROFILE_STRUCTURE = {
-  forever: {
-    label: "FOREVER (Immutable Core)",
+  eternal: {
+    label: "ETERNAL (Immutable Core)",
     type: "nested", // Signal to renderer that this contains sub-fields
     fields: {
       physical: {
@@ -46,7 +46,7 @@ export const PROFILE_STRUCTURE = {
 };
 
 export const LABEL_MAP = {
-  forever: "Immutable Traits",
+  eternal: "Immutable Traits",
   present: "Current State",
   past: "Memories & History",
   future: "Ambitions & Goals",

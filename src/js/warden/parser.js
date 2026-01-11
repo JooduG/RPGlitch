@@ -21,8 +21,8 @@ Constraint: OUTPUT PURE JSON ONLY. NO NARRATIVE TEXT.
 Constraint: Do NOT write state updates for other entities. Focus ONLY on the Target.
 
 [TARGET PROFILE]
-Identity/Psychology: ${ai?.forever?.mental || "Unknown"}
-Physicality: ${ai?.forever?.physical || "Unknown"}
+Identity/Psychology: ${ai?.eternal?.mental || "Unknown"}
+Physicality: ${ai?.eternal?.physical || "Unknown"}
 Current State: ${ai?.present?.mental || "Unknown"}
 
 [HISTORY CONTEXT]
