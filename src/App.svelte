@@ -1,11 +1,13 @@
 <script>
     import { app } from './artificer/stores/app.svelte.js';
+    import { runtime } from './scholar/stores/runtime.svelte.js';
     import Stage from './artificer/Stage.svelte';
     import ChatLog from './artificer/chat/ChatLog.svelte';
     import InputBar from './artificer/input/InputBar.svelte';
     import Panel from './artificer/Panel.svelte';
     import Storyboard from './artificer/lobby/Storyboard.svelte';
     import Message from './artificer/chat/Message.svelte';
+    import VitalsPane from './scholar/VitalsPane.svelte';
 
     // Temporary State for Demo (Migrating to Store later)
     let messages = $state([
@@ -31,13 +33,20 @@
             });
         }
     });
+
+    // Auto-Sync Bridge: Listen to legacy events
+    $effect(() => {
+         const interval = setInterval(() => runtime.sync(), 1000); // Polling sync for now
+         return () => clearInterval(interval);
+    });
 </script>
 
-{#if app.view === 'lobby'}
-    <Storyboard />
-{:else}
-    <Stage>
-        {#snippet leftPanel()}
+<main class="app-root">
+    {#if app.view === 'lobby'}
+        <Storyboard />
+    {:else}
+        <Stage>
+            {#snippet leftPanel()}
             <Panel title={app.selectedAi?.name || "AI"} variant="glass">
                 <div style="padding: 1rem; color: #888;">
                     <img src={app.selectedAi?.avatar} alt="Avatar" style="width: 100%; border-radius: 8px; margin-bottom: 1rem;" />
@@ -73,9 +82,31 @@
             </Panel>
         {/snippet}
     </Stage>
-{/if}
+
+    <div class="hud-layer top-right">
+        <VitalsPane />
+    </div>
+    {/if}
+</main>
 
 <style lang="scss">
+    .app-root {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .hud-layer {
+        position: absolute;
+        z-index: 50; /* Above Stage */
+        pointer-events: none; /* Let clicks pass through empty areas */
+        
+        &.top-right {
+            top: 1rem;
+            right: 1rem;
+        }
+    }
 
 
     .chat-viewport {
