@@ -14,7 +14,14 @@
     "image": "readonly",
     "ai": "readonly",
     "Dexie": "readonly",
-    "DOMPurify": "readonly"
+    "DOMPurify": "readonly",
+    "$state": "readonly",
+    "$derived": "readonly",
+    "$effect": "readonly",
+    "$props": "readonly",
+    "$bindable": "readonly",
+    "$snippet": "readonly",
+    "$inspect": "readonly"
   },
   "rules": {
     "no-unused-vars": [

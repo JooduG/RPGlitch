@@ -1,0 +1,96 @@
+<script>
+    let { onsend } = $props();
+    let value = $state("");
+
+    function handleSend() {
+        if (!value.trim()) return;
+        onsend(value);
+        value = ""; // Clear
+    }
+
+    function handleKeydown(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSend();
+        }
+    }
+</script>
+
+<div class="input-bar">
+    <textarea
+        class="input-area"
+        bind:value
+        onkeydown={handleKeydown}
+        placeholder="Type a message..."
+        rows="1"
+    ></textarea>
+    <button class="send-btn" onclick={handleSend} disabled={!value.trim()}>
+        Send
+    </button>
+</div>
+
+<style lang="scss">
+    .input-bar {
+        display: flex;
+        gap: 0.75rem; /* Larger gap */
+        padding: 1.25rem; /* Chunkier padding */
+        background: rgba(5, 5, 5, 0.8);
+        backdrop-filter: blur(12px);
+        border-top: 1px solid #27272a;
+        width: 100%;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5); /* Lift it up */
+    }
+
+    .input-area {
+        flex: 1;
+        background: #18181b; /* Zinc 900 */
+        border: 1px solid #27272a;
+        border-radius: 8px;
+        color: #e4e4e7;
+        padding: 1rem; /* More breathing room */
+        resize: none;
+        outline: none;
+        font-family: inherit;
+        font-size: 1rem; /* readable size */
+        line-height: 1.5;
+        transition: all 0.2s ease;
+        
+        &:focus {
+            background: #27272a;
+            border-color: #3f3f46;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+        }
+    }
+
+    .send-btn {
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0 2rem; /* Wide button */
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+
+        &:hover:not(:disabled) {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 10px -1px rgba(37, 99, 235, 0.3);
+        }
+
+        &:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        &:disabled {
+            background: #1e293b;
+            color: #475569;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+    }
+</style>

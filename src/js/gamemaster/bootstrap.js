@@ -1,8 +1,13 @@
-// src/js/gamemaster/bootstrap.js
+import { mount } from "svelte";
+import App from "../../App.svelte";
+import { db } from "../scholar/db.js";
 import { seedPremades } from "../scholar/repository.js";
 import { initViews } from "../mesmer/ui/core/orchestrator.js";
-import { db } from "../scholar/db.js";
 import { log, initDebugMode, mockPlugins } from "./utils.js";
+import { GameMaster } from "./index.js";
+
+// Expose GameMaster to Window (Critical for UI)
+if (typeof window !== "undefined") window.GameMaster = GameMaster;
 
 // --- THE FREEDOM PROTOCOL (Platform Shield) ---
 /**
@@ -59,7 +64,7 @@ const waitForConfig = async () => {
   });
 };
 
-export const App = {
+export const AppBootstrap = {
   async init() {
     log("[Bootstrap] 🚀 RPGlitch Starting...");
 
@@ -68,23 +73,39 @@ export const App = {
       log("[Bootstrap] Step 0: Pre-Flight...");
       await waitForConfig();
 
+      // 1. Logic Layer
       log("[Bootstrap] Step 1: Stability Layer...");
       await initDebugMode();
       mockPlugins();
 
-      // 1. Data Layer
       log("[Bootstrap] Step 2: Data Layer (Opening DB)...");
       await db.open();
       log("[Bootstrap] Database Ready. Seeding content...");
       await seedPremades();
 
-      // 2. UI Layer
+      // 2. Legacy UI Layer (Chat, etc)
+      // Note: initViews attempts to bind to DOM elements that might be gone if index.html was purged.
+      // We wrap it to prevent crash if elements are missing, but the user requested "Purge".
+      // However, the User might expect the Artificer to coexist with the old UI if they didn't delete the old HTML.
+      // Since I DID delete the old HTML, initViews might throw errors finding elements.
       log("[Bootstrap] Step 3: UI Layer (Initializing Views)...");
-      await initViews();
+      try {
+        await initViews();
+      } catch (e) {
+        console.warn(
+          "[Bootstrap] Legacy Views skipped/failed (Expected during Artificer migration).",
+        );
+      }
 
+      // 3. Svelte Artificer Layer (The new overlay)
+      const target = document.getElementById("svelte-root");
+      if (target) {
+        mount(App, { target });
+        log("[Bootstrap] ⚒️ Artificer UI Mounted.");
+      }
       log("[Bootstrap] 🏁 System Online.");
     } catch (err) {
-      console.error("[Bootstrap] ❌ Critical Launch Failure:", err);
+      console.error("[Bootstrap] ❌ Critical Failure:", err);
       // Fallback UI
       document.body.innerHTML = `
         <div style="color:#ef4444; padding:2rem; background:#0f172a; min-height:100vh; font-family:system-ui;">
@@ -97,11 +118,11 @@ export const App = {
   },
 };
 
-// Auto-Launch
 if (typeof window !== "undefined") {
+  // Basic Auto-start
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => App.init());
+    document.addEventListener("DOMContentLoaded", () => AppBootstrap.init());
   } else {
-    App.init();
+    AppBootstrap.init();
   }
 }

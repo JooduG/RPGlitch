@@ -22,9 +22,13 @@ jest.mock("../../../../src/js/mesmer/ui/components/visuals/manager.js", () => ({
   updateDirectorModeClass: jest.fn(),
 }));
 
-// We need to mock openDrawer from desktop because mobile.js imports it
 jest.mock("../../../../src/js/mesmer/ui/components/drawer/desktop.js", () => ({
   openDrawer: jest.fn(),
+}));
+
+// Mock Bootstrap to avoid Svelte/ESM issues in legacy tests
+jest.mock("../../../../src/js/gamemaster/bootstrap.js", () => ({
+  AppBootstrap: { init: jest.fn() },
 }));
 
 async function loadApp(html) {

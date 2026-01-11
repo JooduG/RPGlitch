@@ -12,18 +12,18 @@ import { events, EVENTS, state as store, applyPatch } from "./store.js";
 // This object mimics the old "GameMaster" export to minimize breaking changes
 export const GameMaster = {
   // Session Methods
-  requireActive: Session.requireActive,
-  createFromSelection: Session.createFromSelection,
-  load: Session.load,
-  loadMessages: Session.loadMessages,
-  editUserMessage: Session.editUserMessage,
-  editAiMessage: Session.editAiMessage,
-  send: Session.send,
-  regenerate: Session.regenerate,
-  extendAiResponse: Session.extendAiResponse,
+  requireActive: (...args) => Session.requireActive(...args),
+  createFromSelection: (...args) => Session.createFromSelection(...args),
+  load: (...args) => Session.load(...args),
+  loadMessages: (...args) => Session.loadMessages(...args),
+  editUserMessage: (...args) => Session.editUserMessage(...args),
+  editAiMessage: (...args) => Session.editAiMessage(...args),
+  send: (...args) => Session.send(...args),
+  regenerate: (...args) => Session.regenerate(...args),
+  extendAiResponse: (...args) => Session.extendAiResponse(...args),
 
   // Director Methods
-  generateAiResponse: Director.playTurn,
+  generateAiResponse: (...args) => Director.playTurn(...args),
   generatePrologue: async (storyId) => {
     const { ContextBuilder } = await import("../scholar/index.js");
     const builder = new ContextBuilder(storyId);
@@ -37,13 +37,14 @@ export const GameMaster = {
     const payload = await builder.buildEpilogue();
     if (payload) await Director.execute(storyId, payload, { mode: "epilogue" });
   },
-  requestVisual: Director.requestVisual,
-  generateVisualFromDraft: Director.generateVisualFromDraft,
-  _executeTurn: Director.execute,
+  requestVisual: (...args) => Director.requestVisual(...args),
+  generateVisualFromDraft: (...args) =>
+    Director.generateVisualFromDraft(...args),
+  _executeTurn: (...args) => Director.execute(...args),
 
   // Private helpers potentially used by legacy tests
-  _runWarden: Director._runWarden,
-  _runArchivist: Director._runArchivistCycle,
+  _runWarden: (...args) => Director._runWarden(...args),
+  _runArchivist: (...args) => Director._runArchivistCycle(...args),
 };
 
 // New API Exports
