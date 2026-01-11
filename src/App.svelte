@@ -1,140 +1,76 @@
 <script>
+
+    import Stage from './artificer/Stage.svelte';
+    import VitalsPane from './scholar/VitalsPane.svelte';
+    import ControlPanel from './warden/ControlPanel.svelte'; // 🛡️ Warden
+    import SettingsButton from './artificer/hud/SettingsButton.svelte'; // ⚒️ Trigger
     import { app } from './artificer/stores/app.svelte.js';
     import { runtime } from './scholar/stores/runtime.svelte.js';
-    import Stage from './artificer/Stage.svelte';
-    import ChatLog from './artificer/chat/ChatLog.svelte';
-    import InputBar from './artificer/input/InputBar.svelte';
-    import Panel from './artificer/Panel.svelte';
-    import Storyboard from './artificer/lobby/Storyboard.svelte';
-    import Message from './artificer/chat/Message.svelte';
-    import VitalsPane from './scholar/VitalsPane.svelte';
-
-    // Temporary State for Demo (Migrating to Store later)
-    let messages = $state([
-        { text: "System Initialized. Welcome to The Artificer UI.", sender: "system", timestamp: new Date() },
-        { text: "The rigid grid structure is active.", sender: "ai", timestamp: new Date() }
-    ]);
-
-    function handleSend(text) {
-        // Add User Message
-        messages.push({ text, sender: "user", timestamp: new Date() });
-    }
-
-    let scrollContainer = $state();
     
+    // Auto-Sync Bridge
     $effect(() => {
-        // Run dependency check
-        app.messages;
-        
-        if (scrollContainer) {
-            // Use requestAnimationFrame to wait for DOM update
-            requestAnimationFrame(() => {
-                scrollContainer.scrollTop = scrollContainer.scrollHeight;
-            });
-        }
-    });
-
-    // Auto-Sync Bridge: Listen to legacy events
-    $effect(() => {
-         const interval = setInterval(() => runtime.sync(), 1000); // Polling sync for now
+         const interval = setInterval(() => runtime.sync(), 1000);
          return () => clearInterval(interval);
     });
 </script>
 
 <main class="app-root">
     {#if app.view === 'lobby'}
-        <Storyboard />
+         <!-- Hybrid Mode: Legacy Lobby View -->
+         
+         <div class="hud-layer">
+             <div class="bottom-right">
+                 <SettingsButton /> 
+             </div>
+         </div>
     {:else}
-        <Stage>
-            {#snippet leftPanel()}
-            <Panel title={app.selectedAi?.name || "AI"} variant="glass">
-                <div style="padding: 1rem; color: #888;">
-                    <img src={app.selectedAi?.avatar} alt="Avatar" style="width: 100%; border-radius: 8px; margin-bottom: 1rem;" />
-                    <p>{app.selectedAi?.description || "No Data"}</p>
-                </div>
-            </Panel>
-        {/snippet}
+        <!-- Hybrid Mode: Legacy Game View -->
 
-        {#snippet centerPanel()}
-                <div class="chat-viewport">
-                <div class="chat-scroll-area" bind:this={scrollContainer}>
-                    {#each app.messages as msg (msg.id || Math.random())}
-                        <Message 
-                            text={msg.text} 
-                            sender={msg.role} 
-                            timestamp={new Date(msg.createdAt)}
-                            attachments={msg.attachments || []} 
-                        />
-                    {/each}
-                </div>
-                <div class="input-container">
-                    <InputBar onsend={(text) => window.GameMaster.send(text)} />
-                </div>
+        <div class="hud-layer">
+            <div class="top-right">
+                <VitalsPane />
             </div>
-        {/snippet}
+            <div class="bottom-right">
+                <SettingsButton />
+            </div>
+        </div>
+    {/if}
 
-        {#snippet rightPanel()}
-            <Panel title={app.selectedUser?.name || "User"} variant="glass">
-                <div style="padding: 1rem; color: #888;">
-                     <img src={app.selectedUser?.avatar} alt="Avatar" style="width: 100%; border-radius: 8px; margin-bottom: 1rem;" />
-                    <p>{app.selectedUser?.description || "No Data"}</p>
-                </div>
-            </Panel>
-        {/snippet}
-    </Stage>
-
-    <div class="hud-layer top-right">
-        <VitalsPane />
-    </div>
+    {#if app.controlPanelOpen}
+        <ControlPanel />
     {/if}
 </main>
 
 <style lang="scss">
     .app-root {
-        position: relative;
+        position: fixed; /* Overlay mode */
+        inset: 0;
         width: 100vw;
         height: 100vh;
         overflow: hidden;
+        z-index: 50; /* Ensure it sits above legacy content but below modals if needed */
+        pointer-events: none; /* Let clicks pass through to legacy app by default */
     }
 
     .hud-layer {
         position: absolute;
-        z-index: 50; /* Above Stage */
-        pointer-events: none; /* Let clicks pass through empty areas */
-        
-        &.top-right {
+        inset: 0;
+        pointer-events: none;
+        z-index: 50;
+        padding: 1rem;
+
+        .top-right {
+            position: absolute;
             top: 1rem;
             right: 1rem;
+            pointer-events: auto;
+        }
+
+        .bottom-right {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            pointer-events: auto;
         }
     }
-
-
-    .chat-viewport {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        position: relative;
-    }
-
-    .chat-scroll-area {
-        flex: 1;
-        overflow-y: auto;
-        padding-bottom: 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        
-        /* Hide Scrollbar */
-        scrollbar-width: none; /* Firefox */
-        -ms-overflow-style: none; /* IE/Edge */
-        &::-webkit-scrollbar {
-            display: none; /* Chrome/Safari */
-        }
-    }
-
-    .input-container {
-        flex-shrink: 0;
-        z-index: 10;
-    }
-
 </style>

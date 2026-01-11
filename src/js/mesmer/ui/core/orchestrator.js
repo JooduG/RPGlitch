@@ -380,7 +380,7 @@ export const initViews = async (deps = {}) => {
   initStoryboardStage(Orchestrator);
   StoryOptionsController.init();
 
-  // 4. Remove Boot Skeleton
+  // 4. Remove Boot Skeleton & Show Main Stage
   const skeleton = document.querySelector("#boot-skeleton");
   if (skeleton) {
     log("[Orchestrator] Hiding Boot Skeleton...");
@@ -389,6 +389,12 @@ export const initViews = async (deps = {}) => {
       skeleton.style.display = "none";
       skeleton.remove();
     }, 600);
+  }
+
+  const main = document.querySelector("#main");
+  if (main) {
+    main.removeAttribute("hidden");
+    log("[Orchestrator] Main Stage Activated.");
   }
 
   // 5. Initialize Router (handles initial route and hash events)

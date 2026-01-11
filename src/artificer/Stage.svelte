@@ -2,27 +2,34 @@
     let { 
         leftPanel, 
         centerPanel, 
-        rightPanel 
+        rightPanel,
+        transparent = false
     } = $props();
 </script>
 
-<div class="universal-stage">
+<div class="universal-stage" class:is-transparent={transparent}>
     <!-- Track 1: Margin -->
     <div class="margin-col"></div>
 
     <!-- Track 2: Left Panel (AI) -->
     <aside class="stage-column left-panel">
-        {@render leftPanel?.()}
+        {#if leftPanel}
+            {@render leftPanel()}
+        {/if}
     </aside>
 
     <!-- Track 3: Center Stage (Chat) -->
     <main class="stage-column center-stage">
-        {@render centerPanel?.()}
+        {#if centerPanel}
+            {@render centerPanel()}
+        {/if}
     </main>
 
     <!-- Track 4: Right Panel (User) -->
     <aside class="stage-column right-panel">
-        {@render rightPanel?.()}
+        {#if rightPanel}
+            {@render rightPanel()}
+        {/if}
     </aside>
 
     <!-- Track 5: Margin -->
@@ -38,7 +45,7 @@
         overflow: hidden;
         position: fixed;
         inset: 0;
-        z-index: 100;
+        z-index: 0; /* Changed from 100 to 0 to sit behind HUD (50) */
         
         /* Atmospheric Background */
         background-color: #020202;
@@ -53,6 +60,10 @@
                 rgba(10, 10, 15, 0.8) 0%,
                 transparent 50%
             );
+        
+        &.is-transparent {
+            background: transparent;
+        }
         
         pointer-events: none;
 
