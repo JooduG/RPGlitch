@@ -5,6 +5,14 @@ class AppStore {
   controlPanelOpen = $state(false);
   profileOpen = $state(false);
 
+  // 🎭 LOBBY SELECTION STATE
+  selectedAi = $state(null);
+  selectedUser = $state(null);
+  selectedFractal = $state(null);
+  aiList = $state([]);
+  userList = $state([]);
+  fractalList = $state([]);
+
   // 🎛️ SETTINGS (User Preferences)
   settings = $state({
     sound: true, // Notification Sounds

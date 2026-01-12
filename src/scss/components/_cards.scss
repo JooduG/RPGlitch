@@ -119,15 +119,6 @@
   box-shadow: none !important;
   border: none !important;
   pointer-events: none; // Allow clicks to pass through gaps
-
-  &.fractal-card {
-    max-width: 600px;
-
-    .card-slot,
-    .entity-preview.card-filled {
-      aspect-ratio: 16 / 9;
-    }
-  }
 }
 
 /* --- THOUGHT CARD (AI Reasoning) --- */

@@ -41,6 +41,23 @@
   }
 }
 
+/* --- BACKDROP (Added) --- */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 60%);
+  backdrop-filter: blur(4px);
+  z-index: calc(#{z(drawer)} - 1);
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+
+  &[hidden] {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
 /* --- HEADER --- */
 .drawer-header {
   padding: 1rem 1.5rem;
@@ -189,7 +206,9 @@
     opacity: 0.2;
     fill: currentcolor;
     margin-bottom: var(--space-xs);
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    transition:
+      transform 0.3s ease,
+      opacity 0.3s ease;
   }
 
   &:hover .empty-icon {

@@ -68,6 +68,11 @@ describe("Drawer Component", () => {
     _entities.list.mockReset();
     jest.clearAllMocks();
 
+    // Mock requestAnimationFrame to execute synchronously
+    jest
+      .spyOn(window, "requestAnimationFrame")
+      .mockImplementation((cb) => cb());
+
     // Initialize the drawer
     drawerModule.initDrawer();
   });

@@ -49,10 +49,15 @@ describe("Scholar System", () => {
   test("consult() enhances a field via LLM", async () => {
     LlmService.generate.mockResolvedValue("Refined Memory");
 
-    await Scholar.consult("past", "character");
+    const mockChar = {
+      name: "Test Subject",
+      timeline: { past: "Old Memory" },
+      type: "character",
+    };
 
-    const input = document.getElementById("input-past");
-    expect(input.value).toBe("Refined Memory");
+    const result = await Scholar.consult("past", mockChar);
+
+    expect(result).toBe("Refined Memory");
     expect(LlmService.generate).toHaveBeenCalled();
   });
 

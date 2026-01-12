@@ -30,94 +30,75 @@ export const Scholar = {
   // =========================================================================
 
   /**
-   * Scrape the current values from the active Edit Form.
-   * NOTE: We intentionally DO NOT scrape the Description field.
-   */
-  _scrapeContext: () => {
-    const getVal = (id) => {
-      const el = document.getElementById(id);
-      return el ? el.value.trim() : "";
-    };
-
-    return {
-      name: getVal("input-name"),
-      // NO DESCRIPTION
-      forever_physical: getVal("input-forever-physical"),
-      forever_mental: getVal("input-forever-mental"),
-      past: getVal("input-past"),
-      present_physical: getVal("input-present-physical"),
-      present_mental: getVal("input-present-mental"),
-      future: getVal("input-future"),
-    };
-  },
-
-  /**
    * Refines a specific field using the Scholar's knowledge.
-   * Used by the "Magic Sparkle" buttons in the Profile Editor.
+   * Now pure logic (no DOM manipulation).
    */
-  consult: async (targetField, entityType = "character") => {
-    const inputId = `input-${targetField.replace(/_/g, "-")}`;
-    const inputEl = document.getElementById(inputId);
-    const btnId = `btn-magic-${targetField}`;
-    const btnEl = document.getElementById(btnId);
-
-    if (!inputEl) {
-      console.warn(`[Scholar] Input not found: ${inputId}`);
-      return;
-    }
-
+  consult: async (targetField, contextChar = {}) => {
     try {
-      // A. UI State: Loading
-      if (btnEl) {
-        btnEl.dataset.original = btnEl.innerHTML;
-        btnEl.innerHTML = "⏳";
-        btnEl.disabled = true;
-        btnEl.classList.add("animate-pulse");
-      }
+      const entityType = contextChar.type || "character";
 
-      if (inputEl) {
-        inputEl.disabled = true;
-        inputEl.style.opacity = "0.7";
-      }
+      // Flatten Context for ContextBuilder
+      const contextData = {
+        name: contextChar.name || "Subject",
+        type: entityType,
+        forever_physical: contextChar.eternal?.physical || "",
+        forever_mental: contextChar.eternal?.mental || "",
+        past: contextChar.timeline?.past || "",
+        future: contextChar.timeline?.future || "",
+        present_physical: contextChar.present?.physical || "",
+        present_mental: contextChar.present?.mental || "",
+      };
 
-      // B. Build Context & Prompt
-      const currentContent = inputEl.value.trim();
-      const contextData = Scholar._scrapeContext();
-      contextData.type = entityType;
+      // Extract current content
+      // Handle nested keys like "eternal.physical"
+      const keys = targetField.split(".");
+      let currentContent = contextChar;
+      for (const k of keys) {
+        currentContent = currentContent?.[k];
+      }
+      if (typeof currentContent !== "string") currentContent = "";
 
       const builder = new ContextBuilder(null);
+      // Map "eternal.physical" -> "forever_physical" for prompt builder if needed?
+      // Actually ContextBuilder likely expects specific field names.
+      // We'll pass raw targetField and let builder handle or we handle mapping.
+      // Looking at legacy _scrapeContext, keys were "input-forever-physical".
+      // builder.buildScholarPrompt likely switches on targetField.
+
       const payload = builder.buildScholarPrompt(
         targetField,
         currentContent,
         contextData,
-      ); // Not async
+      );
 
       log(`[Scholar] Consulting on ${targetField} for ${entityType}...`);
 
-      // C. Generate
-      const result = await LlmService.generate(payload, { temperature: 0.6 });
-
-      // D. Apply Result
-      inputEl.value = result.trim();
-      inputEl.dispatchEvent(new Event("input", { bubbles: true }));
-
+      const result = await LlmService.generate(payload, { temperature: 0.7 });
       audioService.play("notification");
+      return result.trim();
     } catch (e) {
       error("[Scholar] Failed:", e);
-      showAlert("The Scholar is offline.");
-    } finally {
-      // E. UI State: Reset
-      if (btnEl) {
-        btnEl.innerHTML = btnEl.dataset.original || "✨";
-        btnEl.disabled = false;
-        btnEl.classList.remove("animate-pulse");
-      }
+      throw e;
+    }
+  },
 
-      if (inputEl) {
-        inputEl.disabled = false;
-        inputEl.style.opacity = "1";
-        inputEl.focus();
-      }
+  /**
+   * Enhances a visual prompt using the LLM.
+   */
+  enhanceVisual: async (currentPrompt, contextChar = {}) => {
+    try {
+      const builder = new ContextBuilder(null);
+      // Delegate to ContextBuilder -> Mesmer.templateVisual
+      const payload = await builder.buildMesmerEnhance(
+        currentPrompt,
+        contextChar,
+      );
+
+      const result = await LlmService.generate(payload, { temperature: 0.7 });
+      return result.trim();
+    } catch (e) {
+      error("[Scholar] Visual Enhance Failed:", e);
+      throw e;
     }
   },
 

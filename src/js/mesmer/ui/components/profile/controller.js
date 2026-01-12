@@ -1,11 +1,4 @@
-import {
-  events,
-  EVENTS,
-  store as state,
-} from "../../../../gamemaster/index.js";
-import { handleAsyncError } from "../../../../gamemaster/utils.js";
-import { renderProfileView } from "./view.js";
-import { renderProfileEdit } from "./edit.js";
+import { events, EVENTS } from "../../../../gamemaster/index.js";
 import { entities } from "../../../../scholar/index.js";
 import { Mesmer } from "../../../index.js";
 
@@ -64,58 +57,7 @@ export const renderProfilePage = async (type, id, forceEditMode = false) => {
   openProfileModal(type, id);
 };
 
-// --- CONTROLLER ACTIONS ---
-export const ProfileController = {
-  save: async (id, data) => {
-    await entities.update("character", id, data);
-    events.dispatchEvent(
-      new CustomEvent(EVENTS.ENTITY_UPDATED, { detail: { id, ...data } }),
-    );
-  },
-
-  /**
-   * Generates a new profile picture based on the character's description.
-   * Uses Prometheus Mesmer V3.0 (Mesmer Extract).
-   */
-  generatePortrait: async (characterId) => {
-    try {
-      // 1. Notify UI (Start Loading)
-      const btn = document.getElementById("profile-gen-btn");
-      if (btn) {
-        btn.disabled = true;
-        btn.textContent = "Invoking Prometheus...";
-      }
-
-      // 2. Delegate to Mesmer Engine
-      const imageUrl = await Mesmer.extract(characterId);
-
-      // 3. Save & Update UI
-      await entities.update("character", characterId, { avatar: imageUrl });
-
-      const imgEl = document.querySelector(
-        `.profile-avatar[data-id="${characterId}"]`,
-      );
-      if (imgEl) imgEl.src = imageUrl;
-
-      // 4. Notify System
-      events.dispatchEvent(
-        new CustomEvent(EVENTS.ENTITY_UPDATED, {
-          detail: { id: characterId, avatar: imageUrl },
-        }),
-      );
-    } catch (e) {
-      console.error("Profile Gen Failed:", e);
-      const btn = document.getElementById("profile-gen-btn");
-      if (btn) btn.textContent = "Failed. Retry?";
-    } finally {
-      // Reset UI
-      const btn = document.getElementById("profile-gen-btn");
-      if (btn && btn.textContent !== "Failed. Retry?") {
-        btn.disabled = false;
-        btn.textContent = "Reroll Portrait";
-      } else if (btn) {
-        btn.disabled = false;
-      }
-    }
-  },
-};
+/* 
+   LEGACY CONTROLLER DEPRECATED 
+   Logic moved to src/scholar/Profile.svelte 
+*/
