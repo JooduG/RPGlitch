@@ -57,7 +57,10 @@ export async function openDrawer(
   // Force reflow
   void drawer.offsetWidth;
 
-  drawer.classList.add("is-open");
+  // Use requestAnimationFrame to ensure the transition plays
+  requestAnimationFrame(() => {
+    drawer.classList.add("is-open");
+  });
 
   // Show Backdrop
   if (backdrop) {

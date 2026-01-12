@@ -22,7 +22,16 @@
     aria-modal="true"
     tabindex="-1"
 >
-    <div class="modal-shell variant-{variant}">
+    <div 
+        class="modal-shell variant-{variant}"
+        onclick={(e) => { 
+            // For canvas mode, creating a "pass-through" click handler
+            // If the user clicks the layout container (empty space), close the modal
+            if (variant === 'canvas' && e.target === e.currentTarget) onclose(); 
+        }}
+        onkeydown={(e) => { if (e.key === 'Escape') onclose(); }}
+        role="presentation"
+    >
         
         {#if variant === 'standard' && title}
             <div class="modal-header">

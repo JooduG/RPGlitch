@@ -30,7 +30,15 @@ export const Router = {
       }
     }
 
-    if (section === "profile" && isType(entityType) && id) {
+    if (
+      section === "profile" &&
+      isType(entityType) &&
+      id &&
+      id !== "undefined" &&
+      id !== "null" &&
+      id !== "new" && // Prevent premature 'new' triggers if necessary, though 'new' might be valid for creation? actually 'new' is valid.
+      id.length > 2 // Basic sanitary check
+    ) {
       if (state.mode !== "storymode") {
         applyPatch({ mode: "storyboard" });
       }
