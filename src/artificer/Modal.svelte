@@ -17,8 +17,10 @@
 <div 
     class="modal-backdrop" 
     onclick={(e) => { if(e.target === e.currentTarget) onclose(); }}
+    onkeydown={(e) => { if (e.key === 'Escape') onclose(); }}
     role="dialog"
     aria-modal="true"
+    tabindex="-1"
 >
     <div class="modal-shell variant-{variant}">
         
@@ -97,6 +99,27 @@
             max-width: 100%;
             max-height: 90vh;
             .modal-body { padding: 0; overflow-y: auto; }
+        }
+
+        &.variant-canvas {
+            background: transparent;
+            border: none;
+            width: 100%;
+            height: 100%;
+            max-width: none;
+            max-height: none;
+            pointer-events: none; /* Layout container only */
+            
+            .modal-body { 
+                width: 100%; 
+                height: 100%; 
+                padding: 2rem; 
+                display: flex; 
+                align-items: center; 
+                justify-content: center; 
+                pointer-events: auto; /* Re-enable content interaction */
+                overflow: hidden;
+            }
         }
     }
 

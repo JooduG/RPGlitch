@@ -1,70 +1,78 @@
 // ⚒️ ARTIFICER: UI State Manager
-export const app = $state({
+class AppStore {
   // Navigation
-  view: "lobby", // 'lobby' | 'game'
-  controlPanelOpen: false,
-  profileOpen: false,
+  view = $state("lobby"); // 'lobby' | 'game'
+  controlPanelOpen = $state(false);
+  profileOpen = $state(false);
 
   // 🎛️ SETTINGS (User Preferences)
-  settings: {
+  settings = $state({
     sound: true, // Notification Sounds
     callMode: false, // UI Layout Mode
     streamText: true, // True = Real-time chunks, False = Instant
     autoScroll: true, // Follow chat
     devMode: false,
-  },
+  });
 
   // 🌊 STREAMING STATE (Real-time data from LLM)
-  streaming: {
+  streaming = $state({
     active: false,
     content: "",
     nodeId: null, // ID of the message being generated
-  },
+  });
 
   // Actions
-  toggleControlPanel() {
+  toggleControlPanel = () => {
     this.controlPanelOpen = !this.controlPanelOpen;
-  },
-  toggleProfile() {
+  };
+
+  toggleProfile = () => {
     this.profileOpen = !this.profileOpen;
-  },
-  setView(v) {
+  };
+
+  setView = (v) => {
     this.view = v;
-  },
+  };
 
   // Settings Mutators
-  toggleSound() {
+  toggleSound = () => {
     this.settings.sound = !this.settings.sound;
-  },
-  toggleCallMode() {
+  };
+
+  toggleCallMode = () => {
     this.settings.callMode = !this.settings.callMode;
-  },
-  toggleStreamText() {
+  };
+
+  toggleStreamText = () => {
     this.settings.streamText = !this.settings.streamText;
-  },
-  toggleAutoScroll() {
+  };
+
+  toggleAutoScroll = () => {
     this.settings.autoScroll = !this.settings.autoScroll;
-  },
-  toggleDevMode() {
+  };
+
+  toggleDevMode = () => {
     this.settings.devMode = !this.settings.devMode;
-  },
+  };
 
   // Streaming Mutators (Called by GameMaster/LLM)
-  startStream(id) {
+  startStream = (id) => {
     this.streaming.active = true;
     this.streaming.content = "";
     this.streaming.nodeId = id;
-  },
+  };
 
-  updateStream(chunk) {
+  updateStream = (chunk) => {
     this.streaming.content += chunk;
-  },
+  };
 
-  endStream() {
+  endStream = () => {
     this.streaming.active = false;
     this.streaming.nodeId = null;
-  },
-});
+  };
+}
+
+export const app = new AppStore();
 
 if (typeof window !== "undefined") {
   window.app = app;

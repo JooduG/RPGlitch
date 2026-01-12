@@ -16,7 +16,6 @@ import { log } from "../gamemaster/utils.js";
 // Sub-Modules
 import * as Security from "./security.js";
 import * as Physics from "./physics.js";
-import * as Variance from "./variance.js";
 import * as Parser from "./parser.js";
 
 import { CONFIG } from "../gamemaster/config.js";
@@ -188,7 +187,7 @@ export const Warden = {
   },
 
   // =========================================================================
-  // 3. NARRATIVE DIRECTION (The Director)
+  // 3. NARRATIVE DIRECTION
   // =========================================================================
 
   /**
@@ -199,8 +198,8 @@ export const Warden = {
 
     // A. Reroll / Correction
     if (mode === "reroll" || rejectedText) {
-      const noteKey = Variance.analyzeRejection(rejectedText, userLastInput);
-      return Variance.getDirectorInstruction(noteKey);
+      const noteKey = Physics.analyzeRejection(rejectedText, userLastInput);
+      return Physics.getDirectorInstruction(noteKey);
     }
 
     // B. Physics Enforcement
@@ -211,8 +210,8 @@ export const Warden = {
 
     // C. Random Injection
     if (mode === "random") {
-      const noteKey = Variance.analyzeRejection(""); // Helper returns random
-      return Variance.getDirectorInstruction(noteKey);
+      const noteKey = Physics.analyzeRejection(""); // Helper returns random
+      return Physics.getDirectorInstruction(noteKey);
     }
 
     return "";
@@ -232,52 +231,52 @@ export const Warden = {
       instructions.push({
         code: "HIGH_VELOCITY",
         val: d.velocity,
-        task: Variance.DIRECTOR_NOTES["High Velocity"],
+        task: Physics.DIRECTOR_NOTES["High Velocity"],
       });
     if (f.deepBreath)
       instructions.push({
         code: "LOW_VELOCITY",
         val: d.velocity,
-        task: Variance.DIRECTOR_NOTES["Low Velocity"],
+        task: Physics.DIRECTOR_NOTES["Low Velocity"],
       });
 
     if (f.fogOfWar)
       instructions.push({
         code: "HIGH_ENTROPY",
         val: d.entropy,
-        task: Variance.DIRECTOR_NOTES["High Entropy"],
+        task: Physics.DIRECTOR_NOTES["High Entropy"],
       });
     if (f.crystallization)
       instructions.push({
         code: "LOW_ENTROPY",
         val: d.entropy,
-        task: Variance.DIRECTOR_NOTES["Low Entropy"],
+        task: Physics.DIRECTOR_NOTES["Low Entropy"],
       });
 
     if (f.glassCannon)
       instructions.push({
         code: "HIGH_PERMEABILITY",
         val: d.permeability,
-        task: Variance.DIRECTOR_NOTES["High Permeability"],
+        task: Physics.DIRECTOR_NOTES["High Permeability"],
       });
     if (f.ironBunker)
       instructions.push({
         code: "LOW_PERMEABILITY",
         val: d.permeability,
-        task: Variance.DIRECTOR_NOTES["Low Permeability"],
+        task: Physics.DIRECTOR_NOTES["Low Permeability"],
       });
 
     if (f.obsession)
       instructions.push({
         code: "HIGH_RESONANCE",
         val: d.resonance,
-        task: Variance.DIRECTOR_NOTES["High Resonance"],
+        task: Physics.DIRECTOR_NOTES["High Resonance"],
       });
     if (f.apathy)
       instructions.push({
         code: "LOW_RESONANCE",
         val: d.resonance,
-        task: Variance.DIRECTOR_NOTES["Low Resonance"],
+        task: Physics.DIRECTOR_NOTES["Low Resonance"],
       });
 
     if (instructions.length === 0) return "";
@@ -303,7 +302,7 @@ ${content}${visualAuth}
   },
 
   authorizeVisuals: (instruction, options) => {
-    return Variance.analyzeVisualAuthorization(instruction, options);
+    return Physics.analyzeVisualAuthorization(instruction, options);
   },
 
   // =========================================================================

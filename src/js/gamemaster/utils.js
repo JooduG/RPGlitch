@@ -169,6 +169,7 @@ export const mockPlugins = () => {
 // --- Dynamic Sampling ---
 
 // --- Dynamic Sampling moved to Warden/Physics ---
+// --- Dynamic Sampling moved to Warden/Physics ---
 import { calculateBlendedParams } from "../warden/physics.js";
 export { calculateBlendedParams };
 export const clamp = (n, min = 0, max = 100) =>

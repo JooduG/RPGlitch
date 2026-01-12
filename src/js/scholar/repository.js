@@ -79,7 +79,13 @@ export const entities = {
 
   async get(type, id) {
     try {
-      const item = await db.entities.get(id);
+      let item = await db.entities.get(id);
+
+      // Fallback to Premades if not in DB
+      if (!item) {
+        item = premade.entities.find((e) => e.id === id);
+      }
+
       return item && item.type === type.toLowerCase() ? item : null;
     } catch (err) {
       error(`Failed to get ${type} with id ${id}:`, err);

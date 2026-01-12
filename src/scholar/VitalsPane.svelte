@@ -8,7 +8,7 @@
 </script>
 
 <div class="vitals-pane">
-    <Panel title="{runtime.character.name}" icon="👤">
+    <Panel title={runtime.character.name} icon="👤">
         <div class="stats-grid">
             <div class="stat-row">
                 <span class="label">HP</span>

@@ -80,7 +80,7 @@
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        pointer-events: auto; /* Enable interaction within columns */
+        pointer-events: none; /* Allow clicks to pass through empty columns */
         min-height: 0; 
     }
 
