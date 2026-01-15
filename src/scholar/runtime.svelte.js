@@ -21,6 +21,7 @@ function createRuntimeStore() {
       voice: { rate: 1.0, pitch: 1.0 },
       visuals: {
         avatar: null, // URL
+        avatarSeed: 0, // Used for transition keys
         signatureColor: "#84cc16", // Default Lime
         noBackground: false,
       },
@@ -108,18 +109,32 @@ function createRuntimeStore() {
       }
     },
 
+    // 🔬 VIBE INJECTION (Called by GameMaster)
+    updateVibe(entityId, newColor, newSeed) {
+      const targets = [
+        state.character,
+        state.userCharacter,
+        state.aiCharacter,
+        state.storyFractal,
+      ];
+      targets.forEach((t) => {
+        if (t && t.id === entityId) {
+          if (newColor) t.visuals.signatureColor = newColor;
+          if (newSeed !== undefined) t.visuals.avatarSeed = newSeed;
+        }
+      });
+    },
+
     // 🔴 UPDATE: Write to DB
-    async save() {
+    async save(turn = null) {
       if (!state.storyId) return;
       try {
-        // Import app dynamically or assume global for specific UI state like 'turn'
-        // Ideally pass in 'turn' or 'feed' but for now accessing global 'app' is the pattern
-        const { app } = await import("../artificer/state.svelte.js");
+        // [FIX] Turn is passed directly to avoid circular dependency with App Store
+        const targetTurn = turn ?? 0;
 
         await db.stories.update(state.storyId, {
-          turn: app.simulation.turn,
+          turn: targetTurn,
           lastPlayed: Date.now(),
-          // We might want to save the feed too, but let's stick to turns for now as per prompt instructions
         });
       } catch (err) {
         console.error("[Scholar] Story Save Failed:", err);

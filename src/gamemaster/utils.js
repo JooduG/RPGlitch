@@ -158,13 +158,27 @@ export const handleAsyncError = async (asyncFn, options = {}) => {
 
 // --- Plugins Mocking ---
 export const mockPlugins = () => {
-  window.pluginAi = async () => "Mock AI Response";
-  window.pluginTextToImage = async () => "https://via.placeholder.com/512x768";
-  window.pluginRemember = { get: () => null, set: () => {} };
-  window.pluginSuperFetch = async () => ({ text: async () => "" });
-  window.pluginUpload = {
-    upload: async () => "https://via.placeholder.com/150",
-  };
+  // Ensure window.ai exists for local dev if not provided by Perchance
+  if (typeof window !== "undefined") {
+    window.ai = window.ai || (async () => "Mock AI Response (Plugin Missing)");
+    window.pluginAi = window.ai; // Backwards compat
+    window.pluginTextToImage = async () =>
+      "https://via.placeholder.com/512x768";
+    window.pluginRemember = { get: () => null, set: () => {} };
+    window.pluginSuperFetch = async () => ({ text: async () => "" });
+    window.pluginUpload = {
+      upload: async () => "https://via.placeholder.com/150",
+    };
+
+    // Ensure rpgLists exists to prevent bootstrap timeout
+    if (!window.rpgLists) {
+      window.rpgLists = {
+        ai: [],
+        user: [],
+        fractal: [],
+      };
+    }
+  }
 };
 
 // --- Dynamic Sampling ---

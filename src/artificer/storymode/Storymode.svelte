@@ -5,6 +5,7 @@
   import Message from "./Message.svelte";
   import Skeleton from "../Skeleton.svelte";
   import { app } from "../state.svelte.js";
+  import { session } from "../../gamemaster/session.svelte.js";
 
   // --- STATE ---
   let scrollRef = $state(null);
@@ -62,6 +63,16 @@
             <!-- Thinking Indicator using Message bubble for consistency -->
             <div class="thinking-container">
               <Skeleton variant="text" width="60%" />
+            </div>
+          {:else if feed.length === 0}
+            <div class="empty-feed-fallback">
+              <p>
+                Establishing context stream... If the screen remains black,
+                please check your network or AI plugin settings.
+              </p>
+              <button class="btn-retry" onclick={() => session.retry()}
+                >Retry Connection</button
+              >
             </div>
           {/if}
         </div>
@@ -135,6 +146,36 @@
     ); // Blend with chat
     padding-bottom: 0; // InputBar likely has its own padding
     z-index: 10;
+  }
+
+  .empty-feed-fallback {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    color: #666;
+    gap: 1rem;
+
+    p {
+      max-width: 400px;
+    }
+
+    .btn-retry {
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      color: #999;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+      }
+    }
   }
 
   @keyframes pulse {

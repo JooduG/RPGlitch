@@ -141,7 +141,7 @@ export const Mesmer = {
 
       // 4. Generate the Image
       const imageUrl = await VisualManager.generate(refinedPrompt, {
-        resolution: { width: 512, height: 768 }, // Portrait Aspect Ratio
+        resolution: "512x768", // Portrait Aspect Ratio
       });
 
       // 5. Save Logic (Managed by Caller or Repo, but here we can return the URL)

@@ -20,14 +20,21 @@
   import { themeStore } from "../../mesmer/logic/theme.svelte.js";
   import { app } from "../state.svelte.js";
   import Skeleton from "../Skeleton.svelte";
+  import { fade } from "svelte/transition";
 
   // Derived Values
   let isEmpty = $derived(!entity);
   let isLoading = $derived(app.simulation.loading);
+  let isProcessing = $derived(
+    ["scanning reality", "synthesizing", "saving"].includes(
+      app.simulation.status,
+    ),
+  );
 
   let signatureColor = $derived(themeStore.getSignatureColor(entity));
   let signatureRgb = $derived(themeStore.hexToRgb(signatureColor));
   let avatar = $derived(entity?.visuals?.avatar);
+  let avatarSeed = $derived(entity?.visuals?.avatarSeed || avatar);
 </script>
 
 <div
@@ -35,6 +42,7 @@
   class:fractal-card={type === "fractal"}
   class:is-empty={isEmpty}
   class:is-loading={isLoading}
+  class:is-processing={isProcessing}
   style="--signature-color: {signatureColor}; --signature-rgb: {signatureRgb};"
 >
   {#if isLoading}
@@ -69,11 +77,14 @@
       {:else if type === "fractal"}
         <div class="fractal-diamond">♦</div>
       {:else if avatar}
-        <img
-          src={avatar}
-          alt="{entity?.name || 'Entity'} Avatar"
-          class="avatar-icon"
-        />
+        {#key avatarSeed}
+          <img
+            src={avatar}
+            alt="{entity?.name || 'Entity'} Avatar"
+            class="avatar-icon"
+            transition:fade={{ duration: 300 }}
+          />
+        {/key}
       {:else}
         <div class="avatar-placeholder">?</div>
       {/if}
@@ -172,6 +183,10 @@
       box-shadow: none;
       background: transparent;
       pointer-events: none;
+    }
+
+    &.is-processing {
+      @extend %skeleton;
     }
   }
 

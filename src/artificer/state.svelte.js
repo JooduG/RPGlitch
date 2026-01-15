@@ -2,6 +2,7 @@
 import { themeStore } from "../mesmer/logic/theme.svelte.js";
 
 export class AppStore {
+  initialized = false;
   // Navigation
   view = $state("lobby"); // 'lobby' | 'game'
   controlPanelOpen = $state(false);
@@ -22,6 +23,15 @@ export class AppStore {
     feed: [], // NARRATIVE: The story so far
     status: "idle", // idle | generating | saving
   });
+
+  // 🌩️ UI TENSION (Reactive Intensity)
+  tension = $derived(
+    ["scanning reality", "synthesizing", "saving"].includes(
+      this.simulation.status,
+    )
+      ? 1
+      : 0,
+  );
 
   // 🎛️ SETTINGS (User Preferences)
   settings = $state({
@@ -66,7 +76,8 @@ export class AppStore {
   // --- LIFECYCLE ---
 
   init() {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || this.initialized) return;
+    this.initialized = true;
 
     // 1. Load Settings
     const saved = localStorage.getItem("rpg_settings");
@@ -212,4 +223,5 @@ export const app = new AppStore();
 if (typeof window !== "undefined") {
   window.app = app;
   window.rpgApp = app;
+  window.state = app; // [LEGACY BRIDGE] Map global state to new reactive store
 }

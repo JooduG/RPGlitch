@@ -26,14 +26,7 @@
     }
   }
 
-  // Init Bridges
-  $effect(() => {
-    // 1. Wake up the Warden (Load Settings)
-    app.init();
-
-    // 2. Wake up the Chrono (Time Service)
-    // No more polling. The Director is now a reactive service (chrono).
-  });
+  // No more polling. The Director is now a reactive service (chrono).
 
   // --- Global Effect: Settings Sync ---
   $effect(() => {
@@ -63,6 +56,9 @@
   });
 
   onMount(() => {
+    // 1. Wake up the Warden (Load Settings)
+    app.init();
+
     const refreshHandler = (e) => {
       // Sync on events
       if (e.detail?.storyId === runtime.storyId || !e.detail) {
@@ -89,6 +85,7 @@
   class="app-container"
   class:view-lobby={app.view === "lobby"}
   class:view-game={app.view === "game"}
+  class:has-tension={app.tension > 0}
 >
   <!-- GLOBAL: Lightbox Overlay -->
   {#if app.lightboxOpen}
@@ -148,6 +145,27 @@
         The 10-column system is managed strictly within Layout.svelte.
         App.svelte only handles the top-level app-container and modal overlays.
     */
+
+    &.has-tension {
+      animation: reality-tremor 4s infinite ease-in-out;
+      filter: saturate(1.2) contrast(1.1);
+    }
+  }
+
+  @keyframes reality-tremor {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    25% {
+      transform: translate(-1px, 1px) scale(1.002);
+    }
+    50% {
+      transform: translate(1px, -1px) scale(0.998);
+    }
+    75% {
+      transform: translate(-1px, -1px) scale(1.001);
+    }
   }
 
   .telemetry-gutter {

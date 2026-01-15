@@ -3,6 +3,7 @@ import { app } from "../artificer/state.svelte.js";
 import { events, EVENTS } from "./bus.js";
 // We need the GameMaster facade for high-level operations like Prologue
 import { GameMaster } from "./index.js";
+import { runtime } from "../scholar/runtime.svelte.js";
 
 /**
  * 🎬 REACTIVE SESSION MANAGER
@@ -112,6 +113,9 @@ export class ReactiveSession {
         velocity: Math.floor(Math.random() * 100),
         reflex: "Active",
       };
+
+      // PHASE 4: PERSIST (Scholar)
+      await runtime.save(app.simulation.turn);
     } catch (e) {
       app.log(`Simulation Error: ${e.message}`, "error");
       console.error("[ReactiveSession] AdvanceTurn Failed:", e);
@@ -137,6 +141,7 @@ export class ReactiveSession {
     } finally {
       this.loading = false;
       app.simulation.loading = false;
+      app.simulation.status = "idle";
     }
   }
 }

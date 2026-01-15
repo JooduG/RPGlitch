@@ -35,14 +35,14 @@ export const VisualManager = {
       case "landscape":
       case "scene":
       case "fractal":
-        return "landscape"; // 16:9 or similar
+        return "768x512";
       case "portrait":
       case "character":
       case "user":
       case "ai":
-        return "portrait"; // 2:3 or similar
+        return "512x768";
       default:
-        return "square";
+        return "512x512";
     }
   },
 
