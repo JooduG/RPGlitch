@@ -13,8 +13,17 @@
 
   // Init Bridges
   $effect(() => {
+    // 1. Wake up the Warden (Load Settings)
+    app.init();
+
+    // 2. Wake up the GM (Start Listening)
     status.init(); // Start listening to GM events
-    const interval = setInterval(() => runtime.sync(), 1000);
+
+    // 3. Wake up the Scholar (Sync Loop)
+    // Note: Ideally, we pass the active Story ID here from the URL router
+    // For now, we let it try to auto-discover
+    const interval = setInterval(() => runtime.sync(), 2000); // Poll every 2s
+
     return () => clearInterval(interval);
   });
 

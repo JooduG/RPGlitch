@@ -23,6 +23,41 @@ class AppStore {
     devMode: false,
   });
 
+  // --- LIFECYCLE ---
+
+  init() {
+    if (typeof window === "undefined") return;
+
+    // 1. Load Settings
+    const saved = localStorage.getItem("rpg_settings");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Merge to ensure new keys are preserved
+        this.settings = { ...this.settings, ...parsed };
+        console.log("[Warden] Settings Loaded:", this.settings);
+      } catch (e) {
+        console.error("[Warden] Settings Corrupt:", e);
+      }
+    }
+  }
+
+  saveSettings() {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("rpg_settings", JSON.stringify(this.settings));
+
+    // 2. Broadcast to Legacy Global (Immediate Sync)
+    // This is important for parts of the app that still rely on the global config
+    if (typeof window !== "undefined") {
+      window.RPGLITCH_CONFIG = {
+        sound: this.settings.sound,
+        autoScroll: this.settings.autoScroll,
+        textSpeed: this.settings.streamText ? 30 : 0,
+        devMode: this.settings.devMode,
+      };
+    }
+  }
+
   // 🎭 MESMER: Visual Experience (Lightbox)
   lightbox = $state({
     active: false,
@@ -62,25 +97,30 @@ class AppStore {
     this.lightbox.src = null;
   };
 
-  // Settings Mutators
+  // Settings Mutators (Auto-Save)
   toggleSound = () => {
     this.settings.sound = !this.settings.sound;
+    this.saveSettings();
   };
 
   toggleCallMode = () => {
     this.settings.callMode = !this.settings.callMode;
+    this.saveSettings();
   };
 
   toggleStreamText = () => {
     this.settings.streamText = !this.settings.streamText;
+    this.saveSettings();
   };
 
   toggleAutoScroll = () => {
     this.settings.autoScroll = !this.settings.autoScroll;
+    this.saveSettings();
   };
 
   toggleDevMode = () => {
     this.settings.devMode = !this.settings.devMode;
+    this.saveSettings();
   };
 
   // Streaming Mutators (Called by GameMaster/LLM)
