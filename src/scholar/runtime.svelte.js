@@ -109,6 +109,23 @@ function createRuntimeStore() {
     },
 
     // 🔴 UPDATE: Write to DB
+    async save() {
+      if (!state.storyId) return;
+      try {
+        // Import app dynamically or assume global for specific UI state like 'turn'
+        // Ideally pass in 'turn' or 'feed' but for now accessing global 'app' is the pattern
+        const { app } = await import("../artificer/state.svelte.js");
+
+        await db.stories.update(state.storyId, {
+          turn: app.simulation.turn,
+          lastPlayed: Date.now(),
+          // We might want to save the feed too, but let's stick to turns for now as per prompt instructions
+        });
+      } catch (err) {
+        console.error("[Scholar] Story Save Failed:", err);
+      }
+    },
+
     async updateCharacter(data) {
       // Optimistic UI Update
       Object.assign(state.character, data);

@@ -38,6 +38,27 @@ export const Warden = {
   // =========================================================================
 
   /**
+   * PHENOMENOLOGY LOOP
+   * 1. Scans text for Reflex triggers.
+   * 2. Applies Reflex Deltas to the Entity.
+   * 3. Logic: Returns any immediate narrative directives.
+   */
+  process: async (text, entity) => {
+    // 1. Scan
+    const reflex = Warden.scan(text);
+    if (!reflex) return null;
+
+    // 2. Apply (Side Effect: Updates DB & Entity State)
+    await Warden.apply(entity, reflex);
+
+    // 3. Return Context for Director
+    return {
+      reflexId: reflex.type,
+      dynamics: entity.dynamics, // Updated state
+    };
+  },
+
+  /**
    * Pure Physics Calculation (Delegate).
    */
   applyLaws: (dynamics, baseline) => Physics.applyLaws(dynamics, baseline),

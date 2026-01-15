@@ -85,6 +85,7 @@
         {roleLabel}
       </span>
       <h3>{entity?.name || `Select ${roleLabel}`}</h3>
+
       <p>{entity?.description || "Click to browse choices..."}</p>
     </button>
   {/if}
@@ -257,8 +258,6 @@
       color: #a1a1aa;
       font-size: 0.95rem;
       line-height: 1.5;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
       line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;

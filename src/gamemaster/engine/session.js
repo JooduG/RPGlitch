@@ -164,12 +164,14 @@ export const Session = {
 
       await _refreshUI(storyId);
 
-      // 2. Build Context & Execute
-      const builder = new ContextBuilder(storyId);
-      const payload = await builder.build(text, options);
+      await _refreshUI(storyId);
 
-      // Delegate to Director
-      await Director.execute(storyId, payload, { mode: "create" });
+      // 2. Delegate to Chrono (The Heartbeat) for Turn Processing
+      // This handles Warden (Physics) -> GameMaster (AI) -> Scholar (Save)
+      // dynamic import or use the global attached to window if avoiding cycles is hard,
+      // but we should try to import if possible. Since Session is in engine/, importing from parent ../chrono.svelte.js is fine.
+      const { chrono } = await import("../chrono.svelte.js");
+      await chrono.advanceTurn(text);
     } catch (e) {
       error("Send Error", e);
       events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
