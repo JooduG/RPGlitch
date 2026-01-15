@@ -10,7 +10,7 @@ import { ROLES } from "../../gamemaster/config.js";
 import { Screenplay } from "../../gamemaster/screenplay.js";
 import { Warden } from "../../warden/index.js";
 import { Mesmer } from "../../mesmer/index.js";
-import { templateConsult, templateArchive } from "./prose.js";
+import { templateConsult, templateEcho } from "./prose.js";
 
 export class ContextBuilder {
   constructor(storyId) {
@@ -218,7 +218,7 @@ Analyze the last message and output JSON:
     return { system, messages: [] };
   }
 
-  async buildScholarArchivistPrompt(targetEntity, historyMessages, role) {
+  async buildScholarEchoPrompt(targetEntity, historyMessages, role) {
     const historyText = historyMessages
       .map((m) => {
         const label =
@@ -228,7 +228,7 @@ Analyze the last message and output JSON:
       })
       .join("\n");
 
-    const system = templateArchive(targetEntity, historyText, role);
+    const system = templateEcho(targetEntity, historyText, role);
     return { system, messages: [] };
   }
 }

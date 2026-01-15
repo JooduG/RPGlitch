@@ -341,11 +341,11 @@ export const Director = {
               );
             }
 
-            // B. SLOW LOOP (Archivist)
-            if (aiTurns % PHYSICS.ARCHIVIST_RATE === 0) {
+            // B. SLOW LOOP (Echo)
+            if (aiTurns % PHYSICS.ECHO_RATE === 0) {
               // Fire and forget
-              Director._runArchivistCycle(storyId, aiTurns, story).catch((e) =>
-                error("Archivist Pulse Error", e),
+              Director._runEchoCycle(storyId, aiTurns, story).catch((e) =>
+                error("Echo Pulse Error", e),
               );
             }
           }
@@ -548,8 +548,8 @@ export const Director = {
     }
   },
 
-  async _runArchivistCycle(storyId, aiTurns, story) {
-    const cycleIndex = (aiTurns / PHYSICS.ARCHIVIST_RATE) % 3;
+  async _runEchoCycle(storyId, aiTurns, story) {
+    const cycleIndex = (aiTurns / PHYSICS.ECHO_RATE) % 3;
     let targetId = story.aiId;
     let targetRole = ROLES.AI;
 
@@ -562,7 +562,7 @@ export const Director = {
     }
 
     if (targetId) {
-      log(`[Director] 📜 Archivist Triggered - Target: ${targetRole}`);
+      log(`[Director] 📜 Echo Triggered - Target: ${targetRole}`);
       const targetEntity = await entities.get(
         targetRole === ROLES.FRACTAL ? "fractal" : "character",
         targetId,
@@ -570,9 +570,9 @@ export const Director = {
       if (!targetEntity) return;
 
       const msgs = await Session.loadMessages(storyId);
-      const recentHistory = msgs.slice(-PHYSICS.ARCHIVIST_RATE * 2);
+      const recentHistory = msgs.slice(-PHYSICS.ECHO_RATE * 2);
 
-      const updates = await Scholar.archive(
+      const updates = await Scholar.echo(
         targetEntity,
         recentHistory,
         targetRole,
@@ -582,18 +582,24 @@ export const Director = {
         let dirty = false;
         // Apply updates
         const newEntity = { ...targetEntity };
-        if (updates.past) {
-          // Scholar returns { past, present, forever } keys directly
-          newEntity.past = updates.past;
+        if (updates.past_update) {
+          // Echo returns { past_update, state, forever_update }
+          newEntity.past =
+            (targetEntity.past || "") + "\n" + updates.past_update;
           dirty = true;
         }
-        if (updates.present) {
-          newEntity.present = updates.present;
+        if (updates.state) {
+          newEntity.present = {
+            ...targetEntity.present,
+            ...updates.state,
+          };
           dirty = true;
         }
-        if (updates.forever) {
-          // If Scholar updates forever
-          newEntity.forever = updates.forever;
+        if (updates.forever_update) {
+          newEntity.forever = {
+            ...targetEntity.forever,
+            ...updates.forever_update,
+          };
           dirty = true;
         }
 
@@ -602,7 +608,7 @@ export const Director = {
             targetRole === ROLES.FRACTAL ? "fractal" : "character",
             newEntity,
           );
-          log(`[Director] 📜 Archivist Updates Applied for ${targetRole}`);
+          log(`[Director] 📜 Echo Resonance Applied for ${targetRole}`);
         }
       }
     }

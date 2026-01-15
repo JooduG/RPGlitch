@@ -7,7 +7,7 @@
  * - Library: Static knowledge & rules.
  * - Repository: Database access.
  * - Context (Tactician): Prompt assembly.
- * - Archivist: Deep memory processing.
+ * - Echo: Temporal resonance & memory processing.
  */
 
 import { LlmService } from "../gamemaster/llm.js";
@@ -17,7 +17,9 @@ import { audioService } from "../mesmer/audio/service.js";
 
 // Sub-Modules
 import { ContextBuilder } from "./library/context.js";
-import { archiveMemory } from "./library/archivist.js";
+import { Echo } from "./library/echo.js";
+
+const echo = new Echo();
 
 // Re-Exports for Convenience
 export { ContextBuilder } from "./library/context.js";
@@ -103,13 +105,13 @@ export const Scholar = {
   },
 
   // =========================================================================
-  // 2. THE ARCHIVIST (Deep Memory)
+  // 2. THE ECHO (Temporal Resonance)
   // =========================================================================
 
   /**
    * Compresses recent history into the entity's long-term memory.
    */
-  archive: async (targetEntity, historySlice, role = "character") => {
-    return await archiveMemory(targetEntity, historySlice, role);
+  echo: async (targetEntity, historySlice, role = "character") => {
+    return await echo.memorize(targetEntity, historySlice, role);
   },
 };

@@ -106,10 +106,10 @@ jest.mock("../../../../src/mesmer/logic/manager.js", () => ({
 
 jest.mock("../../../../src/scholar/index.js", () => ({
   Scholar: {
-    archive: jest.fn().mockImplementation((entity, history, role) => {
+    echo: jest.fn().mockImplementation((entity, history, role) => {
       return Promise.resolve({
-        past: (entity.past || "") + `\n[Scholar Archive] New Event.`,
-        present: { physical: "Tired" },
+        past_update: "[Echo Resonance] New Event.",
+        state: { physical: "Tired" },
       });
     }),
     consult: jest.fn(),
@@ -122,7 +122,7 @@ jest.mock("../../../../src/scholar/index.js", () => ({
     build: jest.fn().mockResolvedValue({ system: "mock", messages: [] }),
     buildWardenPrompt: jest.fn().mockResolvedValue({ system: "mock-warden" }),
     buildScholarPrompt: jest.fn(),
-    buildScholarArchivistPrompt: jest.fn(),
+    buildScholarEchoPrompt: jest.fn(),
     buildMesmerVisual: jest.fn(),
   })),
 }));
@@ -145,10 +145,10 @@ import { Scholar } from "../../../../src/scholar/index.js";
 import { CONFIG } from "../../../../src/gamemaster/config.js";
 const PHYSICS_CONSTANTS = CONFIG.PHYSICS;
 
-describe("GameMaster Archivist & Heartbeat Logic", () => {
+describe("GameMaster Echo & Heartbeat Logic", () => {
   test("Config Constants are correct", () => {
     expect(PHYSICS_CONSTANTS.HEARTBEAT_RATE).toBe(5);
-    expect(PHYSICS_CONSTANTS.ARCHIVIST_RATE).toBe(10);
+    expect(PHYSICS_CONSTANTS.ECHO_RATE).toBe(10);
   });
 
   beforeEach(() => {
@@ -158,7 +158,7 @@ describe("GameMaster Archivist & Heartbeat Logic", () => {
       .spyOn(Director, "_runWarden")
       .mockImplementation(() => Promise.resolve());
     jest
-      .spyOn(Director, "_runArchivistCycle")
+      .spyOn(Director, "_runEchoCycle")
       .mockImplementation(() => Promise.resolve());
   });
 
@@ -184,57 +184,57 @@ describe("GameMaster Archivist & Heartbeat Logic", () => {
     setupMocks(5);
     await GameMaster._executeTurn("story-1", {}, {});
     expect(Director._runWarden).toHaveBeenCalledWith("story-1", "char-ai");
-    expect(Director._runArchivistCycle).not.toHaveBeenCalled();
+    expect(Director._runEchoCycle).not.toHaveBeenCalled();
   });
 
-  test("Turn 10: Triggers AI Pulse AND User Archivist", async () => {
+  test("Turn 10: Triggers AI Pulse AND User Echo", async () => {
     setupMocks(10);
     await GameMaster._executeTurn("story-1", {}, {});
     expect(Director._runWarden).toHaveBeenCalledWith("story-1", "char-ai");
-    expect(Director._runArchivistCycle).toHaveBeenCalledWith(
+    expect(Director._runEchoCycle).toHaveBeenCalledWith(
       "story-1",
       10,
       expect.any(Object),
     );
   });
 
-  test("Turn 20: Triggers AI Pulse AND Fractal Archivist", async () => {
+  test("Turn 20: Triggers AI Pulse AND Fractal Echo", async () => {
     setupMocks(20);
     await GameMaster._executeTurn("story-1", {}, {});
     expect(Director._runWarden).toHaveBeenCalledWith("story-1", "char-ai");
-    expect(Director._runArchivistCycle).toHaveBeenCalledWith(
+    expect(Director._runEchoCycle).toHaveBeenCalledWith(
       "story-1",
       20,
       expect.any(Object),
     );
   });
 
-  test("Turn 30: Triggers AI Pulse AND AI Archivist", async () => {
+  test("Turn 30: Triggers AI Pulse AND AI Echo", async () => {
     setupMocks(30);
     await GameMaster._executeTurn("story-1", {}, {});
     expect(Director._runWarden).toHaveBeenCalledWith("story-1", "char-ai");
-    expect(Director._runArchivistCycle).toHaveBeenCalledWith(
+    expect(Director._runEchoCycle).toHaveBeenCalledWith(
       "story-1",
       30,
       expect.any(Object),
     );
   });
 
-  test("_runArchivistCycle delegates to Scholar and updates Entity", async () => {
-    Director._runArchivistCycle.mockRestore();
+  test("_runEchoCycle delegates to Scholar and updates Entity", async () => {
+    Director._runEchoCycle.mockRestore();
 
     const targetEntity = { id: "char-user", name: "User", past: "Old." };
     entities.get.mockResolvedValue(targetEntity);
     jest.spyOn(Session, "loadMessages").mockResolvedValue([]);
 
-    await Director._runArchivistCycle("story-1", 10, mockStory);
+    await Director._runEchoCycle("story-1", 10, mockStory);
 
-    expect(Scholar.archive).toHaveBeenCalled();
+    expect(Scholar.echo).toHaveBeenCalled();
     expect(entities.upsert).toHaveBeenCalled();
 
     const updateArgs = entities.upsert.mock.calls[0][1];
     expect(updateArgs.past).toContain("Old.");
-    expect(updateArgs.past).toContain("[Scholar Archive] New Event.");
+    expect(updateArgs.past).toContain("[Echo Resonance] New Event.");
     expect(updateArgs.present.physical).toBe("Tired");
   });
 });

@@ -104,8 +104,11 @@ export class ReactiveSession {
       );
       await Session.send(text);
 
-      // PHASE 3: ARCHIVIST (Memory)
-      app.log("Archivist saving memory and syncing database...", "db");
+      // PHASE 3: ECHO (Resonance)
+      app.log(
+        "Echo recording temporal resonance and syncing database...",
+        "db",
+      );
 
       // Update HUD causality (Example: reading from Warden state if available)
       app.causalityReport = {

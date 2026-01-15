@@ -16,8 +16,9 @@ export class ChronoStore {
    * 1. Locks UI (Loading)
    * 2. Processes Physics (Warden)
    * 3. Generates Narrative (GameMaster)
-   * 4. Saves State (Scholar)
-   * 5. Unlocks UI
+   * 4. Echo Resonance (Scholar)
+   * 5. Anchoring State (Runtime)
+   * 6. Unlocks UI
    */
   async advanceTurn(input = null) {
     if (app.simulation.loading) return; // Prevent double-clicks
@@ -77,13 +78,13 @@ export class ChronoStore {
         input: finalInput,
       });
 
-      // 4. MEMORY: Commit to Truth (Archivist/Scholar)
-      app.simulation.status = "saving"; // Phase 3
-      app.log("Archivist committing state to memory...", "db");
+      // 4. ECHO: Commit to Resonance (Echo/Scholar)
+      app.simulation.status = "echoing"; // Phase 3
+      app.log("Echo recording temporal resonance...", "db");
       app.simulation.turn += 1;
 
-      // Persist the state
-      await runtime.save();
+      // 5. ANCHOR: Persist the timeline
+      await runtime.save(app.simulation.turn);
     } catch (error) {
       app.log(`Time Fracture: ${error.message}`, "error");
       console.error("[Chrono] 💥 Time Fracture:", error);

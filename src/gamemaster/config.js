@@ -25,7 +25,7 @@ export const CONFIG = {
   // --- PHYSICS HEARTBEAT ---
   PHYSICS: {
     HEARTBEAT_RATE: 5,
-    ARCHIVIST_RATE: 10,
+    ECHO_RATE: 10,
 
     // LAW THRESHOLDS
     LAW_HIGH: 90,

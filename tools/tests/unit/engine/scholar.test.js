@@ -12,9 +12,9 @@ jest.mock("../../../../src/scholar/library/context.js", () => ({
     buildScholarPrompt: jest
       .fn()
       .mockResolvedValue({ system: "PROMPT", messages: [] }),
-    buildScholarArchivistPrompt: jest
+    buildScholarEchoPrompt: jest
       .fn()
-      .mockResolvedValue({ system: "ARCHIVE_PROMPT", messages: [] }),
+      .mockResolvedValue({ system: "ECHO_PROMPT", messages: [] }),
   })),
 }));
 
@@ -57,7 +57,7 @@ describe("Scholar System", () => {
     expect(LlmService.generate).toHaveBeenCalled();
   });
 
-  test("archive() processes history and returns updates", async () => {
+  test("echo() processes history and returns updates", async () => {
     LlmService.generate.mockResolvedValue(
       JSON.stringify({
         past_update: "New Memory",
@@ -65,7 +65,7 @@ describe("Scholar System", () => {
       }),
     );
 
-    const result = await Scholar.archive({ name: "Test" }, [], "character");
+    const result = await Scholar.echo({ name: "Test" }, [], "character");
 
     expect(result).toEqual({
       past_update: "New Memory",
@@ -73,11 +73,11 @@ describe("Scholar System", () => {
     });
   });
 
-  test("archive() handles JSON parsing errors gracefully", async () => {
+  test("echo() handles JSON parsing errors gracefully", async () => {
     LlmService.generate.mockResolvedValue("Invalid JSON");
 
     const consoleSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
-    const result = await Scholar.archive({ name: "Test" }, [], "character");
+    const result = await Scholar.echo({ name: "Test" }, [], "character");
     consoleSpy.mockRestore();
 
     expect(result).toBeNull();

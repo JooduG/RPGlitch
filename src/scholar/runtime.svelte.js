@@ -1,6 +1,7 @@
 // 📜 SCHOLAR: The Runtime State
 import { db } from "./database/db.js"; // The Legacy DB Wrapper
 import { entities } from "./database/repository.js";
+import { events, EVENTS } from "../gamemaster/bus.js";
 
 function createRuntimeStore() {
   let state = $state({
@@ -160,7 +161,28 @@ function createRuntimeStore() {
         console.warn("[Scholar] Cannot save: No Character ID linked.");
       }
     },
+
+    // 👂 INTERNAL: Sync with external updates (Warden, Echo)
+    _initListeners() {
+      events.addEventListener(EVENTS.ENTITY_UPDATED, (e) => {
+        const { id, ...updates } = e.detail;
+
+        const targets = [
+          state.character,
+          state.userCharacter,
+          state.aiCharacter,
+          state.storyFractal,
+        ];
+
+        targets.forEach((t) => {
+          if (t && t.id === id) {
+            Object.assign(t, updates);
+          }
+        });
+      });
+    },
   };
 }
 
 export const runtime = createRuntimeStore();
+runtime._initListeners();

@@ -148,13 +148,13 @@ ${specificInstruction}
 };
 
 /**
- * Template: Scholar Archive (Deep Memory)
- * Used by The Archivist to compress recent events into long-term memory.
+ * Template: Scholar Echo (Deep Memory)
+ * Used by The Echo system to compress recent events into long-term memory.
  */
-export const templateArchive = (targetEntity, historyStr, role) => {
+export const templateEcho = (targetEntity, historyStr, role) => {
   return `
 [SYSTEM: PROMETHEUS_SCHOLAR_V2.0]
-[MODULE: ARCHIVIST_RUNTIME]
+[MODULE: ECHO_RUNTIME]
 Target: ${targetEntity?.name || "Entity"} (${role})
 Task: Deep Memory Consolidation & Profile Evolution.
 Constraint: OUTPUT PURE JSON ONLY. NO NARRATIVE TEXT.

@@ -60,7 +60,7 @@ export const GameMaster = {
 
   // Private helpers potentially used by legacy tests
   _runWarden: (...args) => Director._runWarden(...args),
-  _runArchivist: (...args) => Director._runArchivistCycle(...args),
+  _runEcho: (...args) => Director._runEchoCycle(...args),
 };
 
 // New API Exports
