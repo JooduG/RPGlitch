@@ -23,7 +23,23 @@ export const GameMaster = {
   extendAiResponse: (...args) => Session.extendAiResponse(...args),
 
   // Director Methods
-  generateAiResponse: (...args) => Director.playTurn(...args),
+  // Director Methods
+  generateAiResponse: async (storyId, options = {}) => {
+    // [CONTEXT BROKER] Assemble Dynamic Context
+    // This replaces the old Director.playTurn which used the rigid ContextBuilder
+    const { LlmService, ContextBroker } = await import("./llm.js");
+
+    // 1. ASSEMBLE (Modular Context)
+    // We assume 'options.input' is the user's action or empty for AI turn
+    const payload = await ContextBroker.assemble(options.input || "", "prose");
+
+    // 2. EXECUTE (Director Cycle)
+    // Director.execute handles the LLM call, visuals, and persistence
+    await Director.execute(storyId, payload, {
+      ...options,
+      mode: "create",
+    });
+  },
   generatePrologue: async (storyId) => {
     const { ContextBuilder } = await import("../scholar/index.js");
     const builder = new ContextBuilder(storyId);

@@ -1,5 +1,151 @@
+import { app } from "../artificer/state.svelte.js";
+import { runtime } from "../scholar/runtime.svelte.js";
+import { EVENTS, events } from "./bus.js";
 import { ERROR_MESSAGES } from "./config.js";
-import { log, error as utilsError } from "./utils.js";
+import { error as utilsError, log } from "./utils.js";
+
+/**
+ * 🧠 CONTEXT BROKER
+ * The "Cortex" that assembles Simulation State into Narrative Context.
+ * Modular, Dynamic, and State-Aware.
+ */
+export class ContextBroker {
+  /**
+   * Assembles a context payload for the LLM based on the current phase.
+   * @param {string} action - The user's input or triggered action.
+   * @param {string} type - 'prose' | 'physics' | 'visual'
+   * @returns {Promise<Object>} The payload { system, messages, ... }
+   */
+  static async assemble(action, type = "prose") {
+    // 1. Identify Requirements
+    const requirements = this.getRequiredContext(type);
+
+    // 2. Fetch Modular Data from Runtime (Single Source of Truth)
+    const context = {
+      kernel: requirements.includes("kernel") ? this.pullKernel() : null,
+      world: requirements.includes("world") ? this.pullWorld() : null,
+      entity: requirements.includes("entity") ? this.pullEntity() : null,
+      delta: action,
+    };
+
+    // 3. Construct System Prompt
+    const system = this.injectLayers(context, type);
+
+    // 4. Format Messages
+    // We assume the Director/Session handles the message history loading separately
+    // but the payload needs strict structure.
+    return {
+      system,
+      // Messages will be appended by Director usually, but we define the shape here
+      messages: [],
+      params: {
+        temperature: type === "physics" ? 0.3 : 0.8, // Dynamic Temp
+      },
+    };
+  }
+
+  /**
+   * Determines what data fragments are needed for a specific phase.
+   */
+  static getRequiredContext(phase) {
+    switch (phase) {
+      case "physics":
+        return ["kernel", "world"]; // Physics only needs rules + environment
+      case "visual":
+        return ["world", "entity"]; // Visuals need description + setting
+      case "prose":
+      default:
+        return ["kernel", "world", "entity"]; // Prose needs everything
+    }
+  }
+
+  // --- LAYER FETCHERS ---
+
+  static pullKernel() {
+    return {
+      rules: "Release Control. The simulation is live. Output prose directly.",
+      // Global simulation constants could go here
+    };
+  }
+
+  static pullWorld() {
+    // Pull from the fractal/world entity in runtime
+    const fractal = runtime.storyFractal || {};
+    return {
+      title: fractal.name || "Unknown World",
+      lore: fractal.description || "",
+      // Dynamic world state (weather, time) if available
+      state: fractal.present || {},
+    };
+  }
+
+  static pullEntity() {
+    // Pull the active entities for this turn
+    // In a prose turn, we focus on the AI Character + User Context
+    const ai = runtime.aiCharacter || {};
+    const user = runtime.userCharacter || {};
+
+    return {
+      ai: {
+        name: ai.name || "AI",
+        role: ai.role || "Assistant",
+        // Flattened fragments for injection
+        fragments: [
+          ai.past,
+          ai.present?.physical,
+          ai.present?.mental,
+          ai.eternal?.physical,
+          ai.eternal?.mental,
+        ].filter(Boolean),
+      },
+      user: {
+        name: user.name || "User",
+        fragments: [user.description, user.present?.physical].filter(Boolean),
+      },
+    };
+  }
+
+  // --- INJECTION ENGINE ---
+
+  static injectLayers(context, type) {
+    const layers = [];
+
+    // LAYER 1: KERNEL (Simulation Rules)
+    if (context.kernel) {
+      layers.push(`[SYSTEM_KERNEL]\n${context.kernel.rules}`);
+    }
+
+    // LAYER 2: WORLD (Environment)
+    if (context.world) {
+      layers.push(
+        `[WORLD_LAYER]\nLOC: ${context.world.title}\nDAT: ${context.world.lore}`,
+      );
+      if (context.world.state) {
+        layers.push(`ENV: ${JSON.stringify(context.world.state)}`);
+      }
+    }
+
+    // LAYER 3: ENTITY (Persona & State)
+    if (context.entity) {
+      const { ai, user } = context.entity;
+
+      let entityBlock = `[ENTITY_LAYER]\n`;
+      entityBlock += `ACTOR: ${ai.name} (${ai.role})\n`;
+      entityBlock += `CONTEXT:\n${ai.fragments.join("\n")}\n`;
+
+      entityBlock += `\nINTERACTOR: ${user.name}\n`;
+      entityBlock += `CONTEXT:\n${user.fragments.join("\n")}`;
+
+      layers.push(entityBlock);
+    }
+
+    // LAYER 4: DELTA (Action)
+    // Note: The actual conversation history is usually appended as messages,
+    // only specific override instructions go here.
+
+    return layers.join("\n\n");
+  }
+}
 
 /**
  * Service to abstract the Perchance AI plugin (`window.ai`).
@@ -8,25 +154,16 @@ import { log, error as utilsError } from "./utils.js";
 export const LlmService = {
   /**
    * Generates text using the AI plugin.
-   * @param {Object} payload - The context payload { system, messages, params, stopSequences, startWith }.
-   * @param {Object} options - Execution options { temperature, silent, signal, onToken }.
-   * @returns {Promise<string>} The generated text.
+   * Now supports DIRECT STREAMING to app state.
    */
   generate: async (payload, options = {}) => {
     if (!window.ai) {
       const msg = "Perchance AI plugin not available.";
-      if (!options.silent) {
-        // We only alert if not silent, but we always throw so the caller can handle flow.
-        utilsError(msg);
-        // import("../../js/mesmer/ui/core/modal.js").then(({ showAlert }) => {
-        //   showAlert("Engine Error", msg);
-        // });
-      }
+      if (!options.silent) utilsError(msg);
       throw new Error(msg);
     }
 
-    // 1. Format History
-    // Critical: Use m.characterName if available. Format: "Name: Message"
+    // 1. Format History (Legacy Adapter)
     const chatHistory = LlmService._formatHistory(payload.messages || []);
 
     // 2. Construct Final Instruction
@@ -41,7 +178,7 @@ export const LlmService = {
     try {
       // 3. Prepare Plugin Options
       const genOptions = {
-        temperature: options.temperature ?? payload.params?.temperature,
+        temperature: options.temperature ?? payload.params?.temperature ?? 0.8,
         top_p: options.top_p ?? payload.params?.top_p,
         repetition_penalty:
           options.repetition_penalty ?? payload.params?.repetition_penalty,
@@ -52,88 +189,62 @@ export const LlmService = {
         silent: options.silent,
       };
 
-      // 4. Call Plugin
-      const result = await window.ai(instruction, genOptions);
+      // 4. STREAMING HANDLER
+      // We inject the onToken handler to update the global app state
+      const onToken = (chunk) => {
+        // Update App Store
+        if (!app.streaming.active) {
+          app.startStream(payload.nodeId || "temp");
+        }
+        app.updateStream(chunk);
 
-      // Simulate streaming callback if provided
-      if (options.onToken && typeof options.onToken === "function") {
-        options.onToken(result);
-      }
+        // Call original callback if exists
+        if (options.onToken) options.onToken(chunk);
+      };
+
+      // 5. Call Plugin
+      // Note: window.ai signature is (prompt, options)
+      // The 'onToken' callback is passed inside options for the plugin
+      const result = await window.ai(instruction, {
+        ...genOptions,
+        onToken, // Inject our stream handler
+      });
+
+      app.endStream(); // Ensure stream closes on completion
 
       return result;
     } catch (err) {
+      app.endStream(); // Safer release
+
       if (options.silent) {
         log("[LlmService] Silent Generation Error (Suppressed):", err);
         throw err;
       }
 
-      // Handle specific connection errors
       const errString = String(err);
 
-      // [STALE SESSION HANDLING]
-      // Detect 400/403/Fetch errors typical of expiring Perchance sessions
-      const isStale =
-        errString.includes("400") ||
-        errString.includes("401") ||
-        errString.includes("403") ||
-        errString.includes("Fetch failed") ||
-        errString.includes("invalid_key");
-
-      const showAlert = (title, msg) =>
-        console.warn(`[ALERT] ${title}: ${msg}`); // Fallback for headless/test envs
-
-      if (isStale) {
-        log("[LlmService] Stale Session or Invalid Key Detected.");
-
-        // Dynamic import to avoid circular dependency
-        // const { showAlert } = await import("../../js/mesmer/ui/core/modal.js");
-
-        if (errString.includes("invalid_key")) {
-          log("Invalid Key Error: The AI engine reported an invalid key.");
-        } else {
-          showAlert(
-            "Session Stale",
-            "Your connection to the AI engine has expired. Please refresh the page to reconnect.",
-          );
-        }
-
-        // Return null to fail gracefully
-        return null;
-      }
-
+      // Basic Error Handling
       if (
         errString.includes("stream keep alive") ||
-        errString.includes("timeout") ||
-        errString.includes("NetworkError")
+        errString.includes("timeout")
       ) {
         utilsError("[LlmService] Network Error:", err);
-        throw new Error(
-          `${ERROR_MESSAGES.CONNECTION_LOST} This is often caused by Ad-Blockers blocking the 'keep-alive' signal. Please check your network settings.`,
-        );
+        throw new Error(`${ERROR_MESSAGES.CONNECTION_LOST}`);
       }
 
-      // Re-throw unknown errors
+      // Re-throw
       throw err;
     }
   },
 
   /**
    * Formats the message history for the LLM.
-   * @param {Array} messages - List of message objects { role, text, characterName }.
-   * @returns {string} Formatted history string.
    */
   _formatHistory: (messages) =>
     messages
       .map((m) => {
-        // Map roles to labels
-        let label = "Character";
-        if (m.characterName) {
-          label = m.characterName;
-        } else if (m.role === "user") {
-          label = "User";
-        }
-
-        // Schema Harmonization: Use .content (V6) or .text (Legacy)
+        let label =
+          m.characterName || (m.role === "user" ? "User" : "Character");
         const text = m.content || m.text || "";
         return `${label}: ${text}`;
       })
