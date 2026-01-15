@@ -11,6 +11,52 @@ const clamp = (n, min = 0, max = 100) =>
 const { PHYSICS: PHYSICS_CONSTANTS } = CONFIG;
 
 // ============================================================================
+// 0. CAUSALITY ENGINE (Deterministic Physics)
+// ============================================================================
+
+export const PhysicsEngine = {
+  /**
+   * Evaluates an action against the world state constraints.
+   * @param {string} action - The raw user input.
+   * @param {Object} worldState - The current state of the Fractal/World (props, room).
+   * @returns {Object} { result: 'success' | 'failure', narrativeConstraint: string }
+   */
+  evaluate: (action, worldState = {}) => {
+    if (!action) return { result: "success", constraint: null };
+
+    const text = action.trim().toLowerCase();
+
+    // A. INTENT: OPEN/UNLOCK
+    if (/open|unlock|enter|go throu/i.test(text)) {
+      if (worldState.isLocked === true) {
+        // Check for key (Simplistic for now - assumes we'd check inventory if implemented)
+        // For now, if it's locked, it's locked.
+        return {
+          result: "failure",
+          constraint:
+            "The target is physically locked and you do not possess the key.",
+        };
+      }
+    }
+
+    // B. INTENT: TAKE/GRAB
+    if (/take|grab|steal|pick up/i.test(text)) {
+      // Placeholder for fixed constraints (e.g. heavy objects)
+      if (worldState.isAnchored === true) {
+        return {
+          result: "failure",
+          constraint:
+            "The object is bolted to the structure and cannot be moved.",
+        };
+      }
+    }
+
+    // Default: Physics allows it.
+    return { result: "success", constraint: null };
+  },
+};
+
+// ============================================================================
 // 1. REFLEX REGISTRY (Zero-Latency Triggers)
 // ============================================================================
 

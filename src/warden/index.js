@@ -39,20 +39,36 @@ export const Warden = {
 
   /**
    * PHENOMENOLOGY LOOP
-   * 1. Scans text for Reflex triggers.
-   * 2. Applies Reflex Deltas to the Entity.
-   * 3. Logic: Returns any immediate narrative directives.
+   * 1. Checks Causality (Physics Intent vs World State).
+   * 2. Scans text for Reflex triggers.
+   * 3. Applies Reflex Deltas to the Entity.
+   * 4. Logic: Returns any immediate narrative directives.
    */
-  process: async (text, entity) => {
-    // 1. Scan
+  process: async (text, entity, worldState = {}) => {
+    // 0. Causality Check (Deterministic)
+    const causality = Physics.PhysicsEngine.evaluate(text, worldState);
+
+    // If physics forbids the action, WE STOP HERE.
+    // The Director will receive this report and force the Narrative to explain the failure.
+    if (causality.result === "failure") {
+      log(`[Warden] 🚫 Causality Violation: ${causality.constraint}`);
+      return {
+        causality,
+        reflexId: null,
+        dynamics: entity.dynamics,
+      };
+    }
+
+    // 1. Scan (Phenomenology)
     const reflex = Warden.scan(text);
-    if (!reflex) return null;
+    if (!reflex) return { causality }; // Pass success report
 
     // 2. Apply (Side Effect: Updates DB & Entity State)
     await Warden.apply(entity, reflex);
 
     // 3. Return Context for Director
     return {
+      causality,
       reflexId: reflex.type,
       dynamics: entity.dynamics, // Updated state
     };

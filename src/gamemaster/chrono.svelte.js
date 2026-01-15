@@ -36,8 +36,29 @@ export class ChronoStore {
       // 2. OBSERVATION: Process Input & Physics (Warden)
       // We pass the current runtime character context to the Warden
       let wardenContext = null;
+      let finalInput = input;
+
       if (input && runtime.character) {
-        wardenContext = await Warden.process(input, runtime.character);
+        // Pass World State (Fractal) for Causality Checks
+        wardenContext = await Warden.process(
+          input,
+          runtime.character,
+          runtime.storyFractal || {},
+        );
+
+        // 🛑 CAUSALITY CHECK
+        if (
+          wardenContext &&
+          wardenContext.causality &&
+          wardenContext.causality.result === "failure"
+        ) {
+          // We override the 'Action' to be a System Constraint.
+          // This forces the AI to narrate the failure instead of the action.
+          finalInput = `[SYSTEM]: The user attempted '${input}' but failed because: "${wardenContext.causality.constraint}". Describe this failed attempt briefly and dryly.`;
+
+          // Visual Feedback (Glitch)
+          app.simulation.status = "causality violation";
+        }
       }
 
       // 3. SYNTHESIS: Generate Narrative (GameMaster)
@@ -45,7 +66,10 @@ export class ChronoStore {
 
       // The GM facade maps generateAiResponse -> Director.playTurn(storyId, options)
       // We pass wardenContext in options if needed, though Warden likely already updated DB.
-      await GameMaster.generateAiResponse(storyId, { wardenContext });
+      await GameMaster.generateAiResponse(storyId, {
+        wardenContext,
+        input: finalInput,
+      });
 
       // 4. MEMORY: Commit to Truth (Archivist/Scholar)
       app.simulation.status = "saving"; // Phase 3
