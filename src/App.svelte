@@ -112,7 +112,7 @@
   {/if}
 
   <!-- TELEMETRY HUD -->
-  {#if app.settings.debugMode}
+  {#if app.settings.devMode}
     <div class="telemetry-gutter">
       <DebugPanel />
     </div>

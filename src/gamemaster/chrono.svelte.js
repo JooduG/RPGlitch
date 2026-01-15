@@ -31,6 +31,7 @@ export class ChronoStore {
     // 1. STASIS: Lock the Universe
     app.simulation.loading = true;
     app.simulation.status = "scanning reality"; // Phase 1
+    app.log("Warden scanning causality and physics...", "system");
 
     try {
       // 2. OBSERVATION: Process Input & Physics (Warden)
@@ -52,6 +53,10 @@ export class ChronoStore {
           wardenContext.causality &&
           wardenContext.causality.result === "failure"
         ) {
+          app.log(
+            `Causality Violation: ${wardenContext.causality.constraint}`,
+            "error",
+          );
           // We override the 'Action' to be a System Constraint.
           // This forces the AI to narrate the failure instead of the action.
           finalInput = `[SYSTEM]: The user attempted '${input}' but failed because: "${wardenContext.causality.constraint}". Describe this failed attempt briefly and dryly.`;
@@ -63,6 +68,7 @@ export class ChronoStore {
 
       // 3. SYNTHESIS: Generate Narrative (GameMaster)
       app.simulation.status = "forecasting"; // Phase 2
+      app.log(`LLM synthesizing turn ${app.simulation.turn + 1}...`, "ai");
 
       // The GM facade maps generateAiResponse -> Director.playTurn(storyId, options)
       // We pass wardenContext in options if needed, though Warden likely already updated DB.
@@ -73,11 +79,13 @@ export class ChronoStore {
 
       // 4. MEMORY: Commit to Truth (Archivist/Scholar)
       app.simulation.status = "saving"; // Phase 3
+      app.log("Archivist committing state to memory...", "db");
       app.simulation.turn += 1;
 
       // Persist the state
       await runtime.save();
     } catch (error) {
+      app.log(`Time Fracture: ${error.message}`, "error");
       console.error("[Chrono] 💥 Time Fracture:", error);
 
       // Push error to feed so user knows what happened

@@ -1,154 +1,92 @@
 <script>
   import { app } from "../state.svelte.js";
-  import { runtime } from "../../scholar/runtime.svelte.js";
 
-  // Auto-scroll the log feed
-  let logContainer = $state(null);
+  // Auto-scroll logic for log feed
+  let logEnd = $state(null);
 
   $effect(() => {
-    if (app.logs.length && logContainer) {
-      logContainer.scrollTop = 0; // Newest on top, or reversed? User said "scrolling text panel"
-      // Usually debug logs scroll to bottom if newest is at bottom.
-      // My state pushes to unshift (newest at top).
+    if (app.logs.length && logEnd) {
+      logEnd.scrollIntoView({ behavior: "smooth" });
     }
   });
 
   const getLogColor = (type) => {
     switch (type) {
       case "system":
-        return "#38bdf8"; // Sky
+        return "#38bdf8"; // system (blue)
       case "ai":
-        return "#a855f7"; // Purple
-      case "db":
-        return "#eab308"; // Yellow
+        return "#a855f7"; // ai (purple)
       case "error":
-        return "#ef4444"; // Red
+        return "#ef4444"; // error (red)
+      case "world":
+        return "#22c55e"; // world (green)
+      case "db":
+        return "#eab308"; // fallback db (yellow)
       default:
-        return "#94a3b8"; // Slate
+        return "#94a3b8"; // default (slate)
     }
   };
 </script>
 
 <div class="debug-panel">
   <header class="debug-header">
-    <div class="debug-title">TELEMETRY v1.0</div>
+    <div class="debug-title">DIAGNOSTIC TELEMETRY HUD</div>
     <div class="debug-stats">
       <span>TURN: {app.simulation.turn}</span>
-      <span>STATUS: {app.simulation.status.toUpperCase()}</span>
+      <span>READY: {app.canStart ? "YES" : "NO"}</span>
     </div>
   </header>
 
-  <section class="causality-grid">
-    <div class="metric">
-      <span class="label">ENTROPY</span>
-      <div class="val">{app.causalityReport.entropy}%</div>
-      <div class="bar-bg">
-        <div
-          class="bar-fill"
-          style:width="{app.causalityReport.entropy}%"
-        ></div>
-      </div>
-    </div>
-    <div class="metric">
-      <span class="label">VELOCITY</span>
-      <div class="val">{app.causalityReport.velocity}%</div>
-      <div class="bar-bg">
-        <div
-          class="bar-fill"
-          style:width="{app.causalityReport.velocity}%"
-        ></div>
-      </div>
-    </div>
-    <div class="metric full">
-      <span class="label">REFLEX</span>
-      <div class="val">{app.causalityReport.reflex}</div>
-    </div>
-  </section>
-
-  <div class="log-feed" bind:this={logContainer}>
-    {#each app.logs as entry (entry.id)}
+  <div class="log-feed">
+    {#each [...app.logs].reverse() as entry (entry.id)}
       <div class="log-entry" style:border-left-color={getLogColor(entry.type)}>
         <span class="timestamp">[{entry.timestamp}]</span>
         <span class="type" style:color={getLogColor(entry.type)}
           >{entry.type.toUpperCase()}</span
         >
-        <p class="message">{entry.message}</p>
+        <span class="message">{entry.message}</span>
       </div>
     {/each}
+    <div bind:this={logEnd}></div>
   </div>
 
   <footer class="debug-footer">
-    ACTIVE: {runtime.isReady ? "LINKED" : "PENDING"}
+    MODE: {app.settings.devMode ? "DEV_BYPASS_ACTIVE" : "STANDARD"}
   </footer>
 </div>
 
 <style lang="scss">
   .debug-panel {
-    width: 100%;
-    height: 100%;
-    background: rgba(10, 10, 15, 0.9);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     flex-direction: column;
-    font-family: "JetBrains Mono", monospace;
-    font-size: 11px;
+    height: 100%;
+    width: 100%;
+    background: rgba(10, 10, 15, 0.95);
     color: #94a3b8;
-    backdrop-filter: blur(8px);
+    font-family: "JetBrains Mono", "Courier New", monospace;
+    font-size: 10px;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
     overflow: hidden;
   }
 
   .debug-header {
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.03);
+    padding: 12px 10px;
+    background: rgba(255, 255, 255, 0.05);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
     .debug-title {
       font-weight: 800;
       color: #fff;
-      margin-bottom: 4px;
-      letter-spacing: 1px;
+      margin-bottom: 5px;
+      letter-spacing: 0.5px;
     }
 
     .debug-stats {
       display: flex;
-      justify-content: space-between;
+      gap: 15px;
+      font-weight: 600;
       color: #38bdf8;
-    }
-  }
-
-  .causality-grid {
-    padding: 10px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-
-    .metric {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-
-      &.full {
-        grid-column: span 2;
-      }
-      .label {
-        font-size: 9px;
-        opacity: 0.6;
-      }
-      .val {
-        color: #fff;
-        font-weight: 600;
-      }
-
-      .bar-bg {
-        height: 2px;
-        background: rgba(255, 255, 255, 0.1);
-        .bar-fill {
-          height: 100%;
-          background: #38bdf8;
-          transition: width 0.3s ease;
-        }
-      }
     }
   }
 
@@ -158,43 +96,51 @@
     padding: 10px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
 
-    /* Custom Scrollbar */
     &::-webkit-scrollbar {
-      width: 4px;
+      width: 3px;
     }
     &::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.2);
     }
 
     .log-entry {
       border-left: 2px solid;
-      padding-left: 8px;
-      line-height: 1.4;
+      padding-left: 6px;
+      line-height: 1.2;
+      animation: fadeIn 0.2s ease-out;
 
       .timestamp {
-        opacity: 0.4;
-        margin-right: 4px;
+        color: rgba(255, 255, 255, 0.3);
+        margin-right: 5px;
       }
       .type {
-        font-weight: 800;
-        margin-right: 4px;
+        font-weight: 900;
+        margin-right: 5px;
       }
       .message {
-        margin: 0;
-        color: #cbd5e1;
-        word-break: break-all;
+        color: #e2e8f0;
       }
     }
   }
 
   .debug-footer {
-    padding: 8px;
-    background: rgba(0, 0, 0, 0.3);
-    text-align: center;
+    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.4);
     font-size: 9px;
-    letter-spacing: 0.5px;
+    color: #64748b;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateX(-5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
 </style>

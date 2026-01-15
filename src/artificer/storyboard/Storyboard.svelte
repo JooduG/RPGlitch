@@ -57,6 +57,20 @@
   // --- ACTIONS ---
 
   async function startStory() {
+    // 🛡️ LOBBY BYPASS LOGIC
+    if (app.settings.devMode) {
+      app.log("Lobby Bypass Triggered (DEV_MODE)", "system");
+
+      const selection = {
+        ai: app.selectedAi || { id: "dev_ai", name: "Dev AI" },
+        user: app.selectedUser || { id: "dev_user", name: "Dev User" },
+        fractal: app.selectedFractal || { id: "dev_world", name: "Dev World" },
+      };
+
+      await session.start(selection);
+      return;
+    }
+
     if (!app.selectedAi || !app.selectedUser || !app.selectedFractal) return;
 
     await session.start({
