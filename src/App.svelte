@@ -140,28 +140,31 @@
       height: 100%;
     }
 
-    /* Mode Switching Logic (Migrated from _modes.scss) */
+    /* Mode Switching Logic (Refactored to Unified 1-2-4-2-1 Grid) */
     :global(.universal-stage) {
       transition: grid-template-columns 0.4s ease;
-    }
-  }
-
-  /* Lobby Mode Styles */
-  .app-container.view-lobby {
-    :global(.universal-stage) {
       grid-template-columns: 1fr 2fr 4fr 2fr 1fr;
-    }
-  }
-
-  /* Game Mode Styles */
-  .app-container.view-game {
-    :global(.universal-stage) {
-      grid-template-columns: 2fr 6fr 2fr;
 
       @media (max-width: 1024px) {
         grid-template-columns: 1fr;
         grid-template-rows: 60px 1fr;
       }
+    }
+  }
+
+  /* Shared Grid Config for all views */
+  .app-container.view-lobby,
+  .app-container.view-game {
+    :global(.universal-stage) {
+      /* Both views now share the same 5-column architecture */
+      grid-template-columns: 1fr 2fr 4fr 2fr 1fr;
+    }
+  }
+
+  /* Specific Layout constraints within the game view */
+  .app-container.view-game {
+    :global(.story-container) {
+      grid-column: 3; /* Central pillar only */
     }
   }
 
