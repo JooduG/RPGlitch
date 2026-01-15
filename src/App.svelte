@@ -12,15 +12,15 @@
   import { runtime } from "./scholar/runtime.svelte.js";
   import { events, EVENTS, state as gameState } from "./gamemaster/bus.js";
 
+  import { chrono } from "./artificer/stores/chrono.svelte.js";
+
   // Init Bridges
   $effect(() => {
     // 1. Wake up the Warden (Load Settings)
     app.init();
 
-    // 2. Wake up the Scholar (Sync Loop)
-    const interval = setInterval(() => runtime.sync(), 2000); // Poll every 2s
-
-    return () => clearInterval(interval);
+    // 2. Wake up the Chrono (Time Service)
+    // No more polling. The Director is now a reactive service (chrono).
   });
 
   // --- Global Effect: Settings Sync ---

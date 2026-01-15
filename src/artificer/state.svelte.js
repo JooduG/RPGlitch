@@ -18,9 +18,9 @@ export class AppStore {
 
   // 🧬 SIMULATION STATE (The Heartbeat)
   simulation = $state({
-    loading: false,
-    turn: 0,
-    feed: [], // Narrative Items
+    loading: false, // STASIS: True when Chrono is processing
+    turn: 0, // CHRONO: Current time step
+    feed: [], // NARRATIVE: The story so far
     status: "idle", // idle | generating | saving
   });
 
