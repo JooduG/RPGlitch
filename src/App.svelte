@@ -1,15 +1,19 @@
 <script>
-  import Stage from "./artificer/Stage.svelte";
-  import VitalsPane from "./scholar/VitalsPane.svelte";
+  import { onMount } from "svelte";
+  import Layout from "./artificer/Layout.svelte";
+
   import Profile from "./scholar/Profile.svelte";
   import ControlPanel from "./warden/ControlPanel.svelte";
-  import SettingsButton from "./artificer/hud/SettingsButton.svelte";
-  import StoryboardPill from "./artificer/hud/StoryboardPill.svelte";
+  import Button from "./artificer/Button.svelte";
+  import StoryboardPill from "./artificer/storyboard/StoryboardPill.svelte";
   import Lightbox from "./mesmer/Lightbox.svelte";
+  import Storyboard from "./artificer/storyboard/Storyboard.svelte";
+  import Storymode from "./artificer/storymode/Storymode.svelte";
 
-  import { app } from "./artificer/stores/app.svelte.js";
-  import { runtime } from "./scholar/stores/runtime.svelte.js";
-  import { status } from "./gamemaster/stores/status.svelte.js"; // New Svelte Store location
+  import { app } from "./artificer/state.svelte.js";
+  import { runtime } from "./scholar/runtime.svelte.js";
+  import { events, EVENTS, state as gameState } from "./gamemaster/bus.js";
+  import { Session } from "./gamemaster/engine/session.js";
 
   // Init Bridges
   $effect(() => {
@@ -17,7 +21,7 @@
     app.init();
 
     // 2. Wake up the GM (Start Listening)
-    status.init(); // Start listening to GM events
+    // status.init(); // Start listening to GM events (Removed legacy store ref)
 
     // 3. Wake up the Scholar (Sync Loop)
     // Note: Ideally, we pass the active Story ID here from the URL router
@@ -27,8 +31,11 @@
     return () => clearInterval(interval);
   });
 
-  // ⚡ SETTINGS SYNC (Svelte -> Legacy JS)
+  // --- Global Effect: Settings Sync ---
   $effect(() => {
+    // Keep overlay in sync with App Store
+    // status.overlay = app.showSettings; // (Removed legacy store ref)
+
     if (typeof window !== "undefined") {
       window.RPGLITCH_CONFIG = {
         sound: app.settings.sound,
@@ -38,70 +45,134 @@
       };
     }
   });
+
+  // --- Message Sync Logic ---
+  let messages = $state([]);
+
+  function updateMessages() {
+    if (runtime.storyId && gameState.messages.byStoryId[runtime.storyId]) {
+      messages = gameState.messages.byStoryId[runtime.storyId];
+    } else {
+      messages = [];
+    }
+  }
+
+  $effect(() => {
+    // Initial sync interaction
+    if (runtime.storyId) {
+      updateMessages();
+    }
+  });
+
+  onMount(() => {
+    // Listen for Game Master events
+    const refreshHandler = (e) => {
+      if (e.detail?.storyId === runtime.storyId || !e.detail) {
+        updateMessages();
+      }
+    };
+
+    events.addEventListener(EVENTS.CHAT_REFRESH, refreshHandler);
+    events.addEventListener(EVENTS.STORY_LOADED, refreshHandler);
+    events.addEventListener(EVENTS.MESSAGE_RECEIVED, refreshHandler); // JIC
+
+    return () => {
+      events.removeEventListener(EVENTS.CHAT_REFRESH, refreshHandler);
+      events.removeEventListener(EVENTS.STORY_LOADED, refreshHandler);
+      events.removeEventListener(EVENTS.MESSAGE_RECEIVED, refreshHandler);
+    };
+  });
 </script>
 
-<main class="app-root">
+<div
+  class="app-container"
+  class:view-lobby={app.view === "lobby"}
+  class:view-game={app.view === "game"}
+>
+  <!-- GLOBAL: Lightbox Overlay -->
+  {#if app.lightboxOpen}
+    <Lightbox src={app.lightboxSrc} onClose={() => app.closeLightbox()} />
+  {/if}
+
+  <!-- GLOBAL: Profile Modal -->
+  {#if app.profileOpen}
+    <Profile
+      entityId={app.profileTargetId}
+      entityType={app.profileTargetType}
+      onClose={() => app.closeProfile()}
+    />
+  {/if}
+
+  <!-- GLOBAL: Control Panel (Settings / Admin) -->
+  {#if app.controlPanelOpen}
+    <div class="modal-overlay">
+      <ControlPanel />
+    </div>
+  {/if}
+
+  <!-- VIEW: Lobby -->
   {#if app.view === "lobby"}
-    <Stage transparent={true} />
-    <div class="hud-layer">
-      <!-- LOBBY: Storyboard Pill (Center Bottom) -->
-      <div class="bottom-center"><StoryboardPill /></div>
+    <!-- Background Layer for Lobby -->
+    <Layout transparent={true} />
+
+    <div style="position: relative; z-index: 10;">
+      <Storyboard />
     </div>
   {:else}
-    <Stage transparent={true} />
-    <div class="hud-layer">
-      <div class="top-right"><VitalsPane /></div>
-      <!-- GAME: Settings Button (Corner) -->
-      <div class="bottom-right"><SettingsButton /></div>
-    </div>
+    <Storymode />
   {/if}
-
-  {#if app.controlPanelOpen}
-    <ControlPanel />
-  {/if}
-  {#if app.profileOpen}
-    <Profile />
-  {/if}
-
-  <Lightbox />
-</main>
+</div>
 
 <style lang="scss">
-  :global {
-    @import "./scss/index.scss";
-  }
-  .app-root {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
+  /* Global Reset/Base is handled in index.scss */
+
+  .app-container {
+    width: 100%;
+    height: 100%;
     overflow: hidden;
-    pointer-events: none;
+    position: relative;
+    background: #000; /* Fallback */
+
+    :global(html),
+    :global(body) {
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Mode Switching Logic (Migrated from _modes.scss) */
+    :global(.universal-stage) {
+      transition: grid-template-columns 0.4s ease;
+    }
   }
-  .hud-layer {
-    position: absolute;
+
+  /* Lobby Mode Styles */
+  .app-container.view-lobby {
+    :global(.universal-stage) {
+      grid-template-columns: 1fr 2fr 4fr 2fr 1fr;
+    }
+  }
+
+  /* Game Mode Styles */
+  .app-container.view-game {
+    :global(.universal-stage) {
+      grid-template-columns: 2fr 6fr 2fr;
+
+      @media (max-width: 1024px) {
+        grid-template-columns: 1fr;
+        grid-template-rows: 60px 1fr;
+      }
+    }
+  }
+
+  .modal-overlay {
+    position: fixed;
     inset: 0;
-    pointer-events: none;
-    z-index: 50;
-    padding: 1rem;
-    .top-right {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      pointer-events: auto;
-    }
-    .bottom-right {
-      position: absolute;
-      bottom: 1rem;
-      right: 1rem;
-      pointer-events: auto;
-    }
-    .bottom-center {
-      position: absolute;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
-      pointer-events: auto;
-      z-index: 60; // Above standard HUD
-    }
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 150; /* Above HUD */
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 </style>

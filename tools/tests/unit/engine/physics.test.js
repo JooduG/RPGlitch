@@ -1,10 +1,10 @@
 import { jest } from "@jest/globals";
-import { Warden } from "../../../../src/js/warden/index.js";
+import { Warden } from "../../../../src/warden/index.js";
 import { ContextBuilder } from "../../../../src/scholar/index.js";
 
 // --- MOCKS ---
 // We mock the store and entities to isolate the logic from the database/browser
-jest.mock("../../../../src/js/gamemaster/store.js", () => ({
+jest.mock("../../../../src/gamemaster/bus.js", () => ({
   state: {
     story: {
       byId: {
@@ -64,8 +64,6 @@ describe("PROMETHEUS ENGINE V5", () => {
         resonance: 50,
       };
       const output = Warden.applyLaws(input);
-
-      // Perm: 50 - 10 = 40. Gravity(50) -> 40 + (50-40)*0.25 = 42.5 -> 43.
       expect(output.permeability).toBe(43);
       // Res: 50 - 5 = 45. Gravity(50) -> 45 + (50-45)*0.25 = 46.25 -> 46.
       expect(output.resonance).toBe(46);

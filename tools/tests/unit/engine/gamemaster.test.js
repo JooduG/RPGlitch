@@ -2,10 +2,10 @@ import { jest } from "@jest/globals";
 
 // Mock dependencies BEFORE importing the module under test
 // Removed mock for SUT
-jest.mock("../../../../src/js/mesmer/audio/service.js", () => ({
+jest.mock("../../../../src/mesmer/audio/service.js", () => ({
   audioService: { play: jest.fn() },
 }));
-jest.mock("../../../../src/js/gamemaster/store.js", () => ({
+jest.mock("../../../../src/gamemaster/bus.js", () => ({
   events: {
     dispatchEvent: jest.fn(),
     addEventListener: jest.fn(),
@@ -50,7 +50,7 @@ jest.mock("../../../../src/scholar/database/db.js", () => ({
   },
 }));
 
-jest.mock("../../../../src/js/gamemaster/llm.js", () => ({
+jest.mock("../../../../src/gamemaster/services/llm.js", () => ({
   LlmService: {
     generate: jest.fn(),
   },
@@ -63,24 +63,20 @@ jest.mock("../../../../src/scholar/database/repository.js", () => ({
   },
 }));
 
-jest.mock("../../../../src/js/gamemaster/utils.js", () => ({
+jest.mock("../../../../src/gamemaster/utils.js", () => ({
   error: jest.fn(),
   log: jest.fn(),
   calculateBlendedParams: jest.fn(() => ({ temperature: 0.7 })),
 }));
 
-jest.mock("../../../../src/js/warden/index.js", () => ({
-  calculateDynamics: jest.fn((d) => d),
-}));
-
-jest.mock("../../../../src/js/mesmer/ui/components/visuals/manager.js", () => ({
+jest.mock("../../../../src/mesmer/logic/manager.js", () => ({
   VisualManager: {
     generate: jest.fn(),
     getResolutionForMode: jest.fn(),
   },
 }));
 
-jest.mock("../../../../src/js/warden/index.js", () => ({
+jest.mock("../../../../src/warden/index.js", () => ({
   Warden: {
     scan: jest.fn(),
     enforce: jest.fn(),
@@ -92,9 +88,10 @@ jest.mock("../../../../src/js/warden/index.js", () => ({
     template: jest.fn(),
     apply: jest.fn(),
   },
+  calculateDynamics: jest.fn((d) => d),
 }));
 
-jest.mock("../../../../src/js/mesmer/index.js", () => ({
+jest.mock("../../../../src/mesmer/index.js", () => ({
   Mesmer: {
     visualize: jest.fn().mockResolvedValue({ imageUrl: "mock-url" }),
   },
@@ -118,8 +115,8 @@ jest.mock("../../../../src/scholar/index.js", () => {
 });
 
 // Import module under test
-import { GameMaster } from "../../../../src/js/gamemaster/index.js";
-import { LlmService } from "../../../../src/js/gamemaster/llm.js";
+import { GameMaster } from "../../../../src/gamemaster/index.js";
+import { LlmService } from "../../../../src/gamemaster/services/llm.js";
 import { entities } from "../../../../src/scholar/index.js";
 import { db } from "../../../../src/scholar/database/db.js";
 

@@ -5,7 +5,7 @@
  */
 
 import { db } from "./db.js";
-import { log, error } from "../../js/gamemaster/utils.js";
+import { log, error } from "../../gamemaster/utils.js";
 import { normalize, premade, STORAGE_VERSION } from "../library/library.js";
 
 // ============================================================================
@@ -16,6 +16,29 @@ export const seedPremades = async () => {
   log("[RPGlitch] Verifying starter content...");
   try {
     const existing = await db.entities.toArray();
+
+    // 1.1 SELF-HEALING: Fix Case Sensitivity (Fractal -> fractal)
+    // Detect entities with capitalized types and fix them in-place
+    const toFix = existing.filter(
+      (e) => e.type && e.type !== e.type.toLowerCase(),
+    );
+    if (toFix.length > 0) {
+      log(
+        `[Factory] Healing ${toFix.length} entities with incorrect casing...`,
+      );
+      const updates = toFix.map((e) => ({
+        ...e,
+        type: e.type.toLowerCase(),
+        updatedAt: Date.now(),
+      }));
+      await db.entities.bulkPut(updates);
+
+      // Update our local cache of 'existing' so we don't double-add below
+      updates.forEach((u) => {
+        const index = existing.findIndex((e) => e.id === u.id);
+        if (index !== -1) existing[index] = u;
+      });
+    }
 
     // Map premade entities to blueprints
     const blueprints = premade.entities.map((e) => ({

@@ -9,7 +9,7 @@ export const PATHS = {
   SRC: path.join(REPO_ROOT, "src"),
   DIST: path.join(REPO_ROOT, "dist"),
   LIBS: path.join(REPO_ROOT, "libs"),
-  ENTRY_JS: path.join(REPO_ROOT, "src/js/gamemaster/bootstrap.js"), // Correct entry point?
+  ENTRY_JS: path.join(REPO_ROOT, "src/gamemaster/bootstrap.js"), // Correct entry point
   ENTRY_SCSS: path.join(REPO_ROOT, "src/scss/index.scss"),
   HTML_TEMPLATE: path.join(REPO_ROOT, "src/index.html"),
 };

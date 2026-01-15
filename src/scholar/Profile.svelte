@@ -1,20 +1,27 @@
 <script>
   import Modal from "../artificer/Modal.svelte";
   import Button from "../artificer/Button.svelte";
-  import { app } from "../artificer/stores/app.svelte.js";
-  import { runtime } from "./stores/runtime.svelte.js";
-  import { VisualManager } from "../js/mesmer/ui/components/visuals/manager.js";
-  import { store } from "../js/gamemaster/index.js";
+  import { app } from "../artificer/state.svelte.js";
+  import { runtime } from "./runtime.svelte.js";
+  import { VisualManager } from "../mesmer/logic/manager.js";
+  import { store } from "../gamemaster/index.js";
   import { Scholar, entities } from "./index.js";
-  import { CONFIG } from "../js/gamemaster/config.js";
+  import { CONFIG } from "../gamemaster/config.js";
 
-  import { voiceService } from "../js/mesmer/audio/voice.js";
-  import { audioService } from "../js/mesmer/audio/service.js";
-  import { getRandomSignatureKey } from "../js/gamemaster/utils.js";
+  import { voiceService } from "../mesmer/audio/voice.js";
+  import { audioService } from "../mesmer/audio/service.js";
+  import { themeStore } from "../mesmer/logic/theme.svelte.js";
 
   let isEditing = $state(false);
-  // [FIX] Initialize as a deep clone to prevent live mutation of global state
-  let char = $state(JSON.parse(JSON.stringify(runtime.character)));
+  let isSaving = $state(false);
+
+  function normalize() {
+    char = themeStore.normalizeEntity(app.editingEntity || runtime.character);
+  }
+
+  let char = $state(
+    themeStore.normalizeEntity(app.editingEntity || runtime.character),
+  );
 
   // Developer Mode determines if we show raw JSON in the right panel
   let devMode = $derived(app.settings.devMode);
@@ -30,47 +37,17 @@
 
   // Voice Logic
   let voices = $state([]);
-  let selectedVoice = $derived(voices.find((v) => v.uri === char.voice.uri));
+  let selectedVoice = $derived(voices.find((v) => v.uri === char.voice?.uri));
   let isNaturalVoice = $derived(
     selectedVoice &&
-      (selectedVoice.name.toLowerCase().includes("natural") ||
-        selectedVoice.name.includes("Neural")),
+      (selectedVoice.name?.toLowerCase().includes("natural") ||
+        selectedVoice.name?.includes("Neural")),
   );
 
   // Plot Logic (Dev Mode)
   let plotInput = $state("");
 
   $effect(() => {
-    // [LOGIC] Normalize Data Wiring
-    if (char) {
-      // Signature Color Fallback: Visuals -> Root -> Default
-      if (!char.visuals) char.visuals = {};
-      if (!char.visuals.signatureColor) {
-        let col = char.signatureColor || "default";
-        // Wiring Fix: If legacy key (e.g. "pink"), map to HEX
-        if (!col.startsWith("#") && CONFIG.PALETTE[col]) {
-          col = CONFIG.PALETTE[col];
-        }
-        // Fallback to default hex if still invalid or "default" key
-        if (!col.startsWith("#")) col = CONFIG.PALETTE.default || "#84cc16";
-
-        char.visuals.signatureColor = col;
-      }
-
-      // Avatar Fallback: Visuals -> Root ProfilePictureUrl -> Root Avatar
-      if (!char.visuals.avatar) {
-        char.visuals.avatar = char.profilePictureUrl || char.avatar || "";
-      }
-
-      // Voice Fallback: Voice Object -> ID -> Default
-      if (!char.voice) char.voice = {};
-      if (!char.voice.uri) {
-        char.voice.uri = char.voiceId || ""; // Legacy root field
-      }
-      if (!char.voice.rate) char.voice.rate = char.voiceRate || 1.0;
-      if (!char.voice.pitch) char.voice.pitch = char.voicePitch || 1.0;
-    }
-
     const initVoices = async () => {
       await voiceService.init();
       voices = voiceService.getVoices();
@@ -100,11 +77,23 @@
       console.log("Saved character to DB:", rawChar.id);
 
       // [FIX] Update global runtime state only AFTER successful save
-      Object.assign(runtime.character, rawChar);
+      // Identify target slot... for now we just update the object in memory if it matches
+      if (app.editingEntity && app.editingEntity.id === rawChar.id) {
+        Object.assign(app.editingEntity, rawChar);
+      }
+      // Also update runtime.character if it matches (User editing themselves)
+      if (runtime.character.id === rawChar.id) {
+        Object.assign(runtime.character, rawChar);
+      }
+      // Update AI/Fractal slots if matched
+      if (runtime.aiCharacter && runtime.aiCharacter.id === rawChar.id) {
+        Object.assign(runtime.aiCharacter, rawChar);
+      }
+      if (runtime.storyFractal && runtime.storyFractal.id === rawChar.id) {
+        Object.assign(runtime.storyFractal, rawChar);
+      }
 
       isEditing = false;
-      // Force reactivity update for the UI if needed
-      char = { ...char };
     } catch (e) {
       console.error("[RPGlitch] Failed to save character:", e);
       alert("Failed to save character. Please try again.");
@@ -263,7 +252,8 @@
   function handleImplicitClose() {
     if (isEditing) {
       // Soft Cancel: Revert to readonly, stay open
-      char = JSON.parse(JSON.stringify(runtime.character));
+      const target = app.editingEntity || runtime.character;
+      char = normalize(target);
       isEditing = false;
     } else {
       // Hard Close: Exit profile
@@ -403,9 +393,9 @@
                   class="icon-btn"
                   onclick={() =>
                     voiceService.preview(
-                      char.voice.uri,
-                      char.voice.rate,
-                      char.voice.pitch,
+                      char.voice?.uri,
+                      char.voice?.rate,
+                      char.voice?.pitch,
                     )}
                   title="Preview Voice">🔊</button
                 >
@@ -417,7 +407,7 @@
                   max="2"
                   step="0.1"
                   bind:value={char.voice.rate}
-                  title="Rate: {Number(char.voice.rate).toFixed(1)}x"
+                  title="Rate: {Number(char.voice?.rate || 1).toFixed(1)}x"
                 />
                 <input
                   type="range"
@@ -427,7 +417,7 @@
                   bind:value={char.voice.pitch}
                   disabled={isNaturalVoice}
                   style="opacity: {isNaturalVoice ? 0.5 : 1}"
-                  title="Pitch: {Number(char.voice.pitch).toFixed(1)}"
+                  title="Pitch: {Number(char.voice?.pitch || 1).toFixed(1)}"
                 />
               </div>
             </div>

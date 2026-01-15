@@ -4,12 +4,12 @@
  * Assembles the raw state of the world into structured prompts for the AI.
  */
 
-import { state } from "../../js/gamemaster/store.js";
+import { state } from "../../gamemaster/bus.js";
 import { entities } from "../database/repository.js";
-import { ROLES } from "../../js/gamemaster/config.js";
-import { Screenplay } from "../../js/gamemaster/screenplay.js";
-import { Warden } from "../../js/warden/index.js";
-import { Mesmer } from "../../js/mesmer/index.js";
+import { ROLES } from "../../gamemaster/config.js";
+import { Screenplay } from "../../gamemaster/screenplay.js";
+import { Warden } from "../../warden/index.js";
+import { Mesmer } from "../../mesmer/index.js";
 import { templateConsult, templateArchive } from "./prose.js";
 
 export class ContextBuilder {
@@ -121,12 +121,33 @@ export class ContextBuilder {
     historyMessages,
     activeThreads,
   ) {
-    const system = Warden.compose(
-      targetEntity,
-      others,
-      historyMessages,
-      activeThreads,
-    );
+    // WARDEN PROMPT COMPOSITION (Inlined from deprecated Warden.compose)
+    const system = `
+[SYSTEM: PROMETHEUS_WARDEN]
+You are THE WARDEN.
+Your goal is to analyze the narrative and enforce the Laws of Physics.
+
+ENTITIES:
+Target: ${targetEntity.name} (${targetEntity.role || targetEntity.type})
+Others:
+${others.map((e) => `- ${e.name} (${e.role || e.type})`).join("\n")}
+
+ACTIVE THREADS:
+${activeThreads.join("\n")}
+
+HISTORY:
+${Array.isArray(historyMessages) ? historyMessages.map((m) => `[${(m.role || "User").charAt(0).toUpperCase() + (m.role || "User").slice(1)}]: ${m.text}`).join("\n") : historyMessages}
+
+Analyze the last message and output JSON:
+[JSON SCHEMA]
+{
+  "dynamics": { "entropy": 0-100, "velocity": 0-100, "permeability": 0-100, "resonance": 0-100 },
+  "reflexes": ["list", "of", "detected", "reflexes"],
+  "reasoning": "Explanation of the analysis",
+  "log_entry": "Short summary of events from AI's biased perspective."
+}
+`.trim();
+
     return { system, messages: [] };
   }
 

@@ -1,4 +1,5 @@
 import fs from "fs/promises";
+import path from "path";
 import { PATHS } from "./builder/config.js";
 import { compileStyles } from "./builder/styles.js";
 import { bundleJs } from "./builder/scripts.js";
@@ -39,6 +40,3 @@ build().catch((e) => {
   console.error(e);
   process.exit(1);
 });
-
-// Import path for final write (since it wasn't in the destructured imports)
-import path from "path";

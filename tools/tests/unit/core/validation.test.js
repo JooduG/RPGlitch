@@ -4,8 +4,8 @@ import {
   sanitizeHtml,
   getSignatureKey as getSignatureColor,
   getContrastColor,
-} from "../../../../src/js/gamemaster/utils.js";
-import { PALETTE as SIGNATURE_COLORS } from "../../../../src/js/gamemaster/config.js";
+} from "../../../../src/gamemaster/utils.js";
+import { PALETTE as SIGNATURE_COLORS } from "../../../../src/gamemaster/config.js";
 
 // Mock DOMPurify for sanitizeHtml tests
 global.DOMPurify = {

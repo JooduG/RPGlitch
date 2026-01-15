@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { VoiceService } from "../../../src/js/mesmer/audio/voice.js";
+import { VoiceService } from "../../../src/mesmer/audio/voice.js";
 
 describe("VoiceService", () => {
   const {

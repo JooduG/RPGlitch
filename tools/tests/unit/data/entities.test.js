@@ -4,7 +4,7 @@
  */
 
 // [FIX] Updated import path: getSignature is now in core-utils.js
-import { getSignature } from "../../../../src/js/gamemaster/utils.js";
+import { getSignature } from "../../../../src/gamemaster/utils.js";
 
 describe("getSignature()", () => {
   describe("Modern entities with signatureColor", () => {

@@ -1,7 +1,7 @@
 // apps/rpglitch/js/core-db.js
 "use strict";
 
-import { log, error } from "../../js/gamemaster/utils.js";
+import { log, error } from "../../gamemaster/utils.js";
 
 // 1. Create the database instance.
 let Dexie;

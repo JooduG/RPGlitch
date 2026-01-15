@@ -2,7 +2,7 @@
   import Modal from "../artificer/Modal.svelte";
   import Panel from "../artificer/Panel.svelte";
   import Button from "../artificer/Button.svelte";
-  import { app } from "../artificer/stores/app.svelte.js";
+  import { app } from "../artificer/state.svelte.js";
   import { db } from "../scholar/database/db.js";
 
   function handleAction(action) {

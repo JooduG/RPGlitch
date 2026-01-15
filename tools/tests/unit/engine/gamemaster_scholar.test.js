@@ -1,11 +1,11 @@
 import { jest } from "@jest/globals";
 
 // 1. Mock dependencies
-jest.mock("../../../../src/js/mesmer/audio/service.js", () => ({
+jest.mock("../../../../src/mesmer/audio/service.js", () => ({
   audioService: { play: jest.fn() },
 }));
 
-jest.mock("../../../../src/js/gamemaster/store.js", () => ({
+jest.mock("../../../../src/gamemaster/bus.js", () => ({
   state: {
     story: {
       byId: {
@@ -37,7 +37,7 @@ jest.mock("../../../../src/js/gamemaster/store.js", () => ({
   },
 }));
 
-jest.mock("../../../../src/js/gamemaster/llm.js", () => ({
+jest.mock("../../../../src/gamemaster/services/llm.js", () => ({
   LlmService: {
     generate: jest.fn().mockResolvedValue("Some AI Response"),
   },
@@ -67,7 +67,7 @@ jest.mock("../../../../src/scholar/database/repository.js", () => ({
   },
 }));
 
-jest.mock("../../../../src/js/gamemaster/utils.js", () => ({
+jest.mock("../../../../src/gamemaster/utils.js", () => ({
   error: jest.fn(),
   log: jest.fn(),
   calculateBlendedParams: jest.fn(() => ({
@@ -78,7 +78,7 @@ jest.mock("../../../../src/js/gamemaster/utils.js", () => ({
   })),
 }));
 
-jest.mock("../../../../src/js/warden/index.js", () => ({
+jest.mock("../../../../src/warden/index.js", () => ({
   Warden: {
     scan: jest.fn(),
     enforce: jest.fn(),
@@ -97,7 +97,7 @@ jest.mock("../../../../src/js/warden/index.js", () => ({
   calculateDynamics: jest.fn((d) => d),
 }));
 
-jest.mock("../../../../src/js/mesmer/ui/components/visuals/manager.js", () => ({
+jest.mock("../../../../src/mesmer/logic/manager.js", () => ({
   VisualManager: {
     generate: jest.fn(),
     getResolutionForMode: jest.fn(),
@@ -127,22 +127,22 @@ jest.mock("../../../../src/scholar/index.js", () => ({
   })),
 }));
 
-jest.mock("../../../../src/js/mesmer/index.js", () => ({
+jest.mock("../../../../src/mesmer/index.js", () => ({
   Mesmer: {
     visualize: jest.fn().mockResolvedValue({ imageUrl: "mock-url" }),
   },
 }));
 
 // 2. Imports
-import { Director } from "../../../../src/js/gamemaster/director.js";
-import { Session } from "../../../../src/js/gamemaster/session.js";
-import { GameMaster } from "../../../../src/js/gamemaster/index.js";
-import { LlmService } from "../../../../src/js/gamemaster/llm.js";
+import { Director } from "../../../../src/gamemaster/engine/director.js";
+import { Session } from "../../../../src/gamemaster/engine/session.js";
+import { GameMaster } from "../../../../src/gamemaster/index.js";
+import { LlmService } from "../../../../src/gamemaster/services/llm.js";
 import { entities } from "../../../../src/scholar/index.js";
 import { db } from "../../../../src/scholar/database/db.js";
 import { Scholar } from "../../../../src/scholar/index.js";
 
-import { CONFIG } from "../../../../src/js/gamemaster/config.js";
+import { CONFIG } from "../../../../src/gamemaster/config.js";
 const PHYSICS_CONSTANTS = CONFIG.PHYSICS;
 
 describe("GameMaster Archivist & Heartbeat Logic", () => {

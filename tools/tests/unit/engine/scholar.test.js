@@ -1,7 +1,7 @@
 import { jest } from "@jest/globals";
 
 // Mock dependencies
-jest.mock("../../../../src/js/gamemaster/llm.js", () => ({
+jest.mock("../../../../src/gamemaster/services/llm.js", () => ({
   LlmService: {
     generate: jest.fn(),
   },
@@ -18,23 +18,19 @@ jest.mock("../../../../src/scholar/library/context.js", () => ({
   })),
 }));
 
-jest.mock("../../../../src/js/gamemaster/utils.js", () => ({
+jest.mock("../../../../src/gamemaster/utils.js", () => ({
   log: jest.fn(),
   error: jest.fn(),
 }));
 
-jest.mock("../../../../src/js/mesmer/audio/service.js", () => ({
+jest.mock("../../../../src/mesmer/audio/service.js", () => ({
   audioService: {
     play: jest.fn(),
   },
 }));
 
-jest.mock("../../../../src/js/mesmer/ui/core/modal.js", () => ({
-  showAlert: jest.fn(),
-}));
-
 import { Scholar } from "../../../../src/scholar/index.js";
-import { LlmService } from "../../../../src/js/gamemaster/llm.js";
+import { LlmService } from "../../../../src/gamemaster/services/llm.js";
 import { ContextBuilder } from "../../../../src/scholar/index.js";
 
 describe("Scholar System", () => {

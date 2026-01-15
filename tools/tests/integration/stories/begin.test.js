@@ -25,8 +25,8 @@ global.crypto = {
 };
 
 // Mock UI-related functions to prevent JSDOM errors and memory leaks
-jest.mock("../../../../src/js/gamemaster/utils.js", () => {
-  const actual = jest.requireActual("../../../../src/js/gamemaster/utils.js");
+jest.mock("../../../../src/gamemaster/utils.js", () => {
+  const actual = jest.requireActual("../../../../src/gamemaster/utils.js");
   return {
     ...actual,
     dismissLoadingUI: jest.fn(),
@@ -35,7 +35,6 @@ jest.mock("../../../../src/js/gamemaster/utils.js", () => {
     installUIBlockerAttributeObserver: jest.fn(),
     enableAutoUnlock: jest.fn(),
     chin: {
-      ...actual.chin,
       init: jest.fn(),
       open: jest.fn(),
       close: jest.fn(),
@@ -45,7 +44,7 @@ jest.mock("../../../../src/js/gamemaster/utils.js", () => {
   };
 });
 
-jest.mock("../../../../src/js/mesmer/ui/components/visuals/manager.js", () => ({
+jest.mock("../../../../src/mesmer/logic/manager.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
   updateDirectorModeClass: jest.fn(),
@@ -142,7 +141,7 @@ let mockAttachStoryboardListeners = jest.fn(async (doc) => {
   }
 });
 
-jest.mock("../../../../src/js/gamemaster/bootstrap.js", () => ({
+jest.mock("../../../../src/gamemaster/bootstrap.js", () => ({
   App: mockApp,
   initializeWhenReady: mockInitializeWhenReady,
   _attachStoryboardListeners: mockAttachStoryboardListeners,
