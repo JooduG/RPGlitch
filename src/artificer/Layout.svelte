@@ -163,7 +163,7 @@
     flex-direction: column;
     justify-content: center; /* PERFECT VERTICAL CENTERING */
     transition: all 0.6s ease;
-    overflow: hidden;
+    overflow: visible;
     min-height: 0;
     pointer-events: auto;
     grid-row: 1; /* Shared row */

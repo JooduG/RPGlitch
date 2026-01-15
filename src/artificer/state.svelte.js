@@ -16,6 +16,14 @@ export class AppStore {
   fractalList = $state([]);
   lobbyReady = $state(false);
 
+  // 🧬 SIMULATION STATE (The Heartbeat)
+  simulation = $state({
+    loading: false,
+    turn: 0,
+    feed: [], // Narrative Items
+    status: "idle", // idle | generating | saving
+  });
+
   // 🎛️ SETTINGS (User Preferences)
   settings = $state({
     sound: true, // Notification Sounds

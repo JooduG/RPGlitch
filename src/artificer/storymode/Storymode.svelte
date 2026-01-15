@@ -1,135 +1,210 @@
 <script>
   import Layout from "../Layout.svelte";
-  import StorymodePanel from "./StorymodePanel.svelte";
-  import InputBar from "./InputBar.svelte";
-  import Message from "./Message.svelte";
+  import StoryboardCard from "../storyboard/StoryboardCard.svelte";
+  import Skeleton from "../components/Skeleton.svelte";
   import { app } from "../state.svelte.js";
+  import { session } from "../../gamemaster/session.svelte.js";
 
-  // Messages are derived from global store (or passed in, but app.messages is the standard)
-  let messages = $derived(app.messages || []);
+  // --- STATE ---
+  let inputVal = $state("");
+  let scrollRef = $state(null);
 
-  let scrollContainer;
+  // Derived
+  let feed = $derived(app.simulation.feed || []);
+  let isThinking = $derived(app.simulation.loading);
 
+  // --- ACTIONS ---
+  async function submitTurn() {
+    if (!inputVal.trim() || isThinking) return;
+    const text = inputVal;
+    inputVal = ""; // Optimistic clear
+    await session.send(text);
+  }
+
+  function onKey(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      submitTurn();
+    }
+  }
+
+  // Auto-scroll logic
   $effect(() => {
-    if (messages.length && scrollContainer) {
-      // Auto-scroll to bottom on new messages
-      // We use requestAnimationFrame to ensure DOM is updated
-      requestAnimationFrame(() => {
-        if (scrollContainer) {
-          scrollContainer.scrollTop = scrollContainer.scrollHeight;
-        }
-      });
+    if (feed.length && scrollRef) {
+      scrollRef.scrollTop = scrollRef.scrollHeight;
     }
   });
-
-  // --- Helpers for Slot Content ---
 </script>
 
-<div class="storymode-wrapper">
+<div class="storymode-container">
   <Layout>
+    {#snippet header()}
+      <div class="header-container">
+        <h1>{app.story?.storyTitle || "Simulation in Progress"}</h1>
+      </div>
+    {/snippet}
+
+    <!-- LEFT: AI Companion -->
     {#snippet left()}
-      <StorymodePanel entity={app.selectedAi} />
+      <StoryboardCard
+        type="ai"
+        entity={app.selectedAi}
+        roleLabel="AI Companion"
+        onViewProfile={() => app.toggleProfile(true, app.selectedAi)}
+      />
     {/snippet}
 
+    <!-- CENTER: Feed & Input -->
     {#snippet center()}
-      <!-- 1. The Header (Formerly ContextCard) -->
-      <div class="center-header">
-        <!-- Reuse StorymodePanel for the fractal context, customized via props if needed,
-              or just wrap it. ContextCard was just a wrapper with isFractal={true}.
-              StorymodePanel detects fractal type automatically. -->
-        <div class="fractal-wrapper">
-          <StorymodePanel entity={app.selectedFractal} />
-        </div>
-      </div>
-
-      <!-- 2. The Chat Log (Formerly ChatLog.svelte) -->
-      <div class="chat-wrapper">
-        <div class="chat-log" bind:this={scrollContainer}>
-          {#each messages as msg}
-            <Message
-              text={msg.text}
-              sender={msg.sender}
-              timestamp={msg.timestamp}
-            />
+      <div class="game-stage">
+        <!-- Narrative Feed -->
+        <div class="feed-scroll" bind:this={scrollRef}>
+          {#each feed as msg}
+            <div class="msg-bubble {msg.role}">
+              <span class="sender">{msg.characterName}</span>
+              <p>{@html msg.text}</p>
+            </div>
           {/each}
-        </div>
-      </div>
 
-      <!-- 3. The Input Bar -->
-      <div class="input-wrapper">
-        <InputBar />
+          {#if isThinking}
+            <div class="msg-bubble ai thinking">
+              <Skeleton variant="text" width="60%" />
+            </div>
+          {/if}
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+          <input
+            type="text"
+            bind:value={inputVal}
+            onkeydown={onKey}
+            placeholder="What do you do?"
+            disabled={isThinking}
+            autocomplete="off"
+          />
+        </div>
       </div>
     {/snippet}
 
+    <!-- RIGHT: User Persona -->
     {#snippet right()}
-      <StorymodePanel entity={app.selectedUser} />
+      <StoryboardCard
+        type="user"
+        entity={app.selectedUser}
+        roleLabel="User Persona"
+        onViewProfile={() => app.toggleProfile(true, app.selectedUser)}
+      />
     {/snippet}
   </Layout>
 </div>
 
 <style lang="scss">
-  .storymode-wrapper {
+  .storymode-container {
     width: 100%;
     height: 100%;
   }
 
-  /* Center Column Layout */
-
-  /* Header: Fixed height, sits at top */
-  .center-header {
-    width: 100%;
-    flex-shrink: 0;
-    z-index: 10;
-    pointer-events: auto;
-    /* Visual separation if desired, or let the panel handle it */
-    padding: 0.5rem;
+  .header-container {
+    text-align: center;
+    h1 {
+      font-size: 1.5rem;
+      color: #fff;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
   }
 
-  /* Chat Wrapper: Fills remaining space */
-  .chat-wrapper {
-    flex: 1;
+  .game-stage {
     width: 100%;
-    min-height: 0; /* Important for flex scrolling */
+    height: 100%; // Fill Layout center slot
     display: flex;
     flex-direction: column;
     position: relative;
-    pointer-events: auto;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
   }
 
-  .chat-log {
+  .feed-scroll {
     flex: 1;
     overflow-y: auto;
     padding: 1rem;
-    padding-bottom: 2rem;
-
-    /* Scrollbar styling */
-    &::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    &::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    &::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 3px;
-    }
-  }
-
-  /* Input Wrapper: Fixed at bottom */
-  .input-wrapper {
-    width: 100%;
-    flex-shrink: 0;
-    pointer-events: auto;
-    z-index: 20;
-  }
-
-  /* Fractal Header Wrapper to ensure correct sizing within the center stack */
-  .fractal-wrapper {
-    /* You might want to constrain height or style it differently than side panels */
-    /* For now, just a pass-through */
-    width: 100%;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    gap: 1rem;
+
+    /* Hide Scrollbar */
+    &::-webkit-scrollbar {
+      width: 0px;
+    }
+    scrollbar-width: none;
+  }
+
+  .msg-bubble {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 1rem;
+    border-radius: 12px;
+    max-width: 90%;
+    align-self: flex-start;
+    animation: fadeIn 0.3s ease-out;
+
+    &.user {
+      align-self: flex-end;
+      background: rgba(var(--pico-primary-rgb), 0.2);
+      text-align: right;
+    }
+
+    .sender {
+      font-size: 0.7rem;
+      opacity: 0.7;
+      display: block;
+      margin-bottom: 0.2rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    p {
+      margin: 0;
+      line-height: 1.5;
+    }
+  }
+
+  .input-area {
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+
+    input {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: #111;
+      color: #fff;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: var(--pico-primary);
+        box-shadow: 0 0 10px rgba(var(--pico-primary-rgb), 0.3);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 </style>

@@ -18,9 +18,12 @@
   } = $props();
 
   import { themeStore } from "../../mesmer/logic/theme.svelte.js";
+  import { app } from "../state.svelte.js";
+  import Skeleton from "../components/Skeleton.svelte";
 
   // Derived Values
   let isEmpty = $derived(!entity);
+  let isLoading = $derived(app.simulation.loading);
 
   let signatureColor = $derived(themeStore.getSignatureColor(entity));
   let signatureRgb = $derived(themeStore.hexToRgb(signatureColor));
@@ -31,54 +34,60 @@
   class="split-card {type}-card"
   class:fractal-card={type === "fractal"}
   class:is-empty={isEmpty}
+  class:is-loading={isLoading}
   style="--signature-color: {signatureColor}; --signature-rgb: {signatureRgb};"
 >
-  <!-- Top Half: Visuals & Trigger for Profile -->
-  <button
-    class="card-top"
-    onclick={onViewProfile}
-    aria-label="View {roleLabel} Profile"
-    disabled={isEmpty}
-  >
-    {#if isEmpty}
-      <div class="slot-icon">
-        {#if type === "fractal"}
-          <svg viewBox="0 0 24 24" class="icon"
-            ><path
-              fill="currentColor"
-              d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z"
-            /></svg
-          >
-        {:else}
-          <svg viewBox="0 0 24 24" class="icon"
-            ><path
-              fill="currentColor"
-              d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
-            /></svg
-          >
-        {/if}
-      </div>
-    {:else if type === "fractal"}
-      <div class="fractal-diamond">♦</div>
-    {:else if avatar}
-      <img
-        src={avatar}
-        alt="{entity?.name || 'Entity'} Avatar"
-        class="avatar-icon"
-      />
-    {:else}
-      <div class="avatar-placeholder">?</div>
-    {/if}
-  </button>
+  {#if isLoading}
+    <!-- Skeleton State -->
+    <Skeleton variant="card" width="100%" height="100%" />
+  {:else}
+    <!-- Top Half: Visuals & Trigger for Profile -->
+    <button
+      class="card-top"
+      onclick={onViewProfile}
+      aria-label="View {roleLabel} Profile"
+      disabled={isEmpty}
+    >
+      {#if isEmpty}
+        <div class="slot-icon">
+          {#if type === "fractal"}
+            <svg viewBox="0 0 24 24" class="icon"
+              ><path
+                fill="currentColor"
+                d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z"
+              /></svg
+            >
+          {:else}
+            <svg viewBox="0 0 24 24" class="icon"
+              ><path
+                fill="currentColor"
+                d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+              /></svg
+            >
+          {/if}
+        </div>
+      {:else if type === "fractal"}
+        <div class="fractal-diamond">♦</div>
+      {:else if avatar}
+        <img
+          src={avatar}
+          alt="{entity?.name || 'Entity'} Avatar"
+          class="avatar-icon"
+        />
+      {:else}
+        <div class="avatar-placeholder">?</div>
+      {/if}
+    </button>
 
-  <!-- Bottom Half: Info & Trigger for Selection -->
-  <button class="card-bottom" onclick={onSelect}>
-    <span class="role-label" style="color: var(--signature-color)">
-      {roleLabel}
-    </span>
-    <h3>{entity?.name || `Select ${roleLabel}`}</h3>
-    <p>{entity?.description || "Click to browse choices..."}</p>
-  </button>
+    <!-- Bottom Half: Info & Trigger for Selection -->
+    <button class="card-bottom" onclick={onSelect}>
+      <span class="role-label" style="color: var(--signature-color)">
+        {roleLabel}
+      </span>
+      <h3>{entity?.name || `Select ${roleLabel}`}</h3>
+      <p>{entity?.description || "Click to browse choices..."}</p>
+    </button>
+  {/if}
 </div>
 
 <style lang="scss">
@@ -110,6 +119,7 @@
     height: auto;
     margin: auto;
     justify-self: center; /* Enforce centering in grid track */
+    position: relative; /* Context for absolute positioning if needed */
 
     /* Signature Border Sync */
     border: 1px solid rgba(var(--signature-rgb) / 0.2);
@@ -127,7 +137,7 @@
       }
     }
 
-    &:hover:not(.is-empty) {
+    &:hover:not(.is-empty):not(.is-loading) {
       transform: translateY(-8px) scale(1.02);
       box-shadow: 0 30px 60px rgba(var(--signature-rgb) / 0.3);
       border-color: var(--signature-color);
@@ -153,6 +163,14 @@
           height: 48px;
         }
       }
+    }
+
+    /* Skeleton Override */
+    &.is-loading {
+      border: none;
+      box-shadow: none;
+      background: transparent;
+      pointer-events: none;
     }
   }
 

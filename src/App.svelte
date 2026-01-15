@@ -4,8 +4,6 @@
 
   import Profile from "./scholar/Profile.svelte";
   import ControlPanel from "./warden/ControlPanel.svelte";
-  import Button from "./artificer/Button.svelte";
-  import StoryboardPill from "./artificer/storyboard/StoryboardPill.svelte";
   import Lightbox from "./mesmer/Lightbox.svelte";
   import Storyboard from "./artificer/storyboard/Storyboard.svelte";
   import Storymode from "./artificer/storymode/Storymode.svelte";
@@ -13,19 +11,13 @@
   import { app } from "./artificer/state.svelte.js";
   import { runtime } from "./scholar/runtime.svelte.js";
   import { events, EVENTS, state as gameState } from "./gamemaster/bus.js";
-  import { Session } from "./gamemaster/engine/session.js";
 
   // Init Bridges
   $effect(() => {
     // 1. Wake up the Warden (Load Settings)
     app.init();
 
-    // 2. Wake up the GM (Start Listening)
-    // status.init(); // Start listening to GM events (Removed legacy store ref)
-
-    // 3. Wake up the Scholar (Sync Loop)
-    // Note: Ideally, we pass the active Story ID here from the URL router
-    // For now, we let it try to auto-discover
+    // 2. Wake up the Scholar (Sync Loop)
     const interval = setInterval(() => runtime.sync(), 2000); // Poll every 2s
 
     return () => clearInterval(interval);
@@ -33,9 +25,6 @@
 
   // --- Global Effect: Settings Sync ---
   $effect(() => {
-    // Keep overlay in sync with App Store
-    // status.overlay = app.showSettings; // (Removed legacy store ref)
-
     if (typeof window !== "undefined") {
       window.RPGLITCH_CONFIG = {
         sound: app.settings.sound,
@@ -46,27 +35,24 @@
     }
   });
 
-  // --- Message Sync Logic ---
-  let messages = $state([]);
-
+  // --- Message Sync Logic (Feed) ---
   function updateMessages() {
     if (runtime.storyId && gameState.messages.byStoryId[runtime.storyId]) {
-      messages = gameState.messages.byStoryId[runtime.storyId];
+      app.simulation.feed = gameState.messages.byStoryId[runtime.storyId];
     } else {
-      messages = [];
+      app.simulation.feed = [];
     }
   }
 
   $effect(() => {
-    // Initial sync interaction
     if (runtime.storyId) {
       updateMessages();
     }
   });
 
   onMount(() => {
-    // Listen for Game Master events
     const refreshHandler = (e) => {
+      // Sync on events
       if (e.detail?.storyId === runtime.storyId || !e.detail) {
         updateMessages();
       }
@@ -74,7 +60,7 @@
 
     events.addEventListener(EVENTS.CHAT_REFRESH, refreshHandler);
     events.addEventListener(EVENTS.STORY_LOADED, refreshHandler);
-    events.addEventListener(EVENTS.MESSAGE_RECEIVED, refreshHandler); // JIC
+    events.addEventListener(EVENTS.MESSAGE_RECEIVED, refreshHandler);
 
     return () => {
       events.removeEventListener(EVENTS.CHAT_REFRESH, refreshHandler);
@@ -110,15 +96,10 @@
     </div>
   {/if}
 
-  <!-- VIEW: Lobby -->
+  <!-- MAIN VIEW SWITCHER -->
   {#if app.view === "lobby"}
-    <!-- Background Layer for Lobby -->
-    <Layout transparent={true} />
-
-    <div style="position: relative; z-index: 10;">
-      <Storyboard />
-    </div>
-  {:else}
+    <Storyboard />
+  {:else if app.view === "game"}
     <Storymode />
   {/if}
 </div>
@@ -131,7 +112,7 @@
     height: 100%;
     overflow: hidden;
     position: relative;
-    background: #000; /* Fallback */
+    background: #000;
 
     :global(html),
     :global(body) {
@@ -140,20 +121,15 @@
       height: 100%;
     }
 
-    /* Mode Switching Logic (Refactored to Unified 1-2-4-2-1 Grid) */
+    /* 
+        GRID DEFINITION: 1-2-4-2-1
+        Enforced via Layout.svelte usually, but App container sets the stage context 
+    */
     :global(.universal-stage) {
       transition: grid-template-columns 0.4s ease;
-      /* 
-         GRID DEFINITION: 1-2-4-2-1
-         1fr: Margin
-         2fr: AI / Left Panel
-         4fr: Center (Story)
-         2fr: User / Right Panel
-         1fr: Margin
-      */
       grid-template-columns: 1fr 2fr 4fr 2fr 1fr;
-      align-items: center; /* Vertical Center */
-      justify-items: center; /* Horizontal Center */
+      align-items: center;
+      justify-items: center;
 
       @media (max-width: 1024px) {
         grid-template-columns: 1fr;
@@ -162,19 +138,12 @@
     }
   }
 
-  /* Specific Layout constraints within the game view */
-  .app-container.view-game {
-    :global(.story-container) {
-      grid-column: 3; /* Central pillar only */
-    }
-  }
-
   .modal-overlay {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(4px);
-    z-index: 150; /* Above HUD */
+    z-index: 150;
     display: flex;
     justify-content: center;
     align-items: center;
