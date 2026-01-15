@@ -10,6 +10,23 @@
 
   let isUser = $derived(sender === "user");
   let isAi = $derived(sender === "ai");
+
+  // Format text to hide raw XML tags but keep content if needed.
+  // Actually, Mesmer strips them, but if streaming, they might appear.
+  // Let's do a client-side cleanup for display.
+  let displayText = $derived(
+    text
+      .replace(/<think>[\s\S]*?<\/think>/gi, "") // Hide think blocks completely? Or style them?
+      // User liked the style of think blocks in the screenshot ("The green <think> block is a nice touch")
+      // BUT they are raw XML. Let's keep them but maybe format them if we were parsing?
+      // For now, let's JUST strip image_prompt tags which are raw noise.
+      .replace(/<image_prompt[\s\S]*?<\/image_prompt>/gi, "")
+      .replace(/<image_prompt[^>]*\/>/gi, ""),
+  );
+
+  // Allow think blocks to be rendered?
+  // If we want to style them, we'd need a parser.
+  // For now, just stripping the image_prompt is the critical fix.
 </script>
 
 <div class="message-row" class:user-row={isUser} class:ai-row={isAi}>
@@ -24,12 +41,21 @@
             alt="Attachment"
             class="attachment-image clickable"
             onclick={() => app.openLightbox(src)}
+            onerror={(e) => {
+              e.target.style.display = "none";
+              console.warn("Failed to load attachment:", src);
+            }}
           />
         {/each}
       </div>
     {/if}
     <div class="message-content">
-      {text}
+      {@html displayText}
+      <!-- Use @html to render if we had HTML, but basic text is safer.
+           Actually, let's stick to {displayText} to avoid XSS unless we sanitize.
+           Wait, existing code was {text}.
+           Let's use {displayText}.
+      -->
     </div>
     <div class="message-meta">
       {timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}

@@ -14,7 +14,33 @@ export class AppStore {
   aiList = $state([]);
   userList = $state([]);
   fractalList = $state([]);
-  lobbyReady = $state(false);
+
+  // 1. LOBBY READINESS (Derived Traceable Logic)
+  // We use a getter to allow console logging for diagnostics
+  get canStart() {
+    const ai = this.selectedAi;
+    const user = this.selectedUser;
+    const fractal = this.selectedFractal;
+
+    if (!ai) {
+      // console.debug("[Lobby] Waiting for AI Selection");
+      return false;
+    }
+    if (!user) {
+      // console.debug("[Lobby] Waiting for User Selection");
+      return false;
+    }
+    if (!fractal) {
+      // console.debug("[Lobby] Waiting for Fractal Selection");
+      return false;
+    }
+    return true;
+  }
+
+  // Legacy compat getter
+  get lobbyReady() {
+    return this.canStart;
+  }
 
   // 🧬 SIMULATION STATE (The Heartbeat)
   simulation = $state({
@@ -165,6 +191,15 @@ export class AppStore {
   endStream = () => {
     this.streaming.active = false;
     this.streaming.nodeId = null;
+  };
+
+  /**
+   * DEBUG: Force Start Game
+   * Bypasses lobby checks.
+   */
+  forceStart = () => {
+    console.warn("⚠️ FORCING GAME START");
+    this.setView("game");
   };
 }
 

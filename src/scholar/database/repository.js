@@ -135,7 +135,8 @@ export const entities = {
       await db.entities.put(saved);
 
       if (!options?.silent) {
-        const { events, EVENTS } = await import("../../js/gamemaster/index.js");
+        // FIX: Correct Import Path (Removed 'js/')
+        const { events, EVENTS } = await import("../../gamemaster/index.js");
         events.dispatchEvent(
           new CustomEvent(EVENTS.DB_UPDATED, {
             detail: { id, type, store: "entities" },

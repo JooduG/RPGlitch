@@ -26,6 +26,27 @@ export const VisualManager = {
   },
 
   /**
+   * Returns resolution format based on target mode.
+   * @param {string} mode - 'portrait' | 'landscape' | 'square' | 'scene' | 'character'
+   * @returns {string} - "portrait", "landscape", "square"
+   */
+  getResolutionForMode(mode) {
+    switch (mode) {
+      case "landscape":
+      case "scene":
+      case "fractal":
+        return "landscape"; // 16:9 or similar
+      case "portrait":
+      case "character":
+      case "user":
+      case "ai":
+        return "portrait"; // 2:3 or similar
+      default:
+        return "square";
+    }
+  },
+
+  /**
    * Generates an image from a prompt.
    * @param {string} prompt
    * @param {Object} options { resolution, removeBackground }

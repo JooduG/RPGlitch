@@ -50,8 +50,10 @@
   <button
     class="pill-btn btn-begin"
     onclick={onBegin}
-    disabled={!app.lobbyReady}
-    title="Start Simulation"
+    disabled={!app.canStart}
+    title={app.canStart
+      ? "Start Simulation"
+      : "Select an AI, User, and Reality first"}
   >
     Begin Story
     <svg class="icon icon-right" viewBox="0 0 24 24" fill="currentColor">

@@ -1,6 +1,5 @@
 import { app } from "../artificer/state.svelte.js";
 import { runtime } from "../scholar/runtime.svelte.js";
-import { EVENTS, events } from "./bus.js";
 import { ERROR_MESSAGES } from "./config.js";
 import { error as utilsError, log } from "./utils.js";
 

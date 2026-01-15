@@ -122,20 +122,10 @@
     }
 
     /* 
-        GRID DEFINITION: 1-2-4-2-1
-        Enforced via Layout.svelte usually, but App container sets the stage context 
+        GRID ARCHITECTURE Note:
+        The 10-column system is managed strictly within Layout.svelte.
+        App.svelte only handles the top-level app-container and modal overlays.
     */
-    :global(.universal-stage) {
-      transition: grid-template-columns 0.4s ease;
-      grid-template-columns: 1fr 2fr 4fr 2fr 1fr;
-      align-items: center;
-      justify-items: center;
-
-      @media (max-width: 1024px) {
-        grid-template-columns: 1fr;
-        grid-template-rows: 60px 1fr;
-      }
-    }
   }
 
   .modal-overlay {

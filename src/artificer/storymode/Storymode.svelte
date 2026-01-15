@@ -1,57 +1,41 @@
 <script>
   import Layout from "../Layout.svelte";
-  import StoryboardCard from "../storyboard/StoryboardCard.svelte";
+  import StorymodePanel from "./StorymodePanel.svelte";
+  import InputBar from "./InputBar.svelte";
+  import Message from "./Message.svelte";
   import Skeleton from "../Skeleton.svelte";
   import { app } from "../state.svelte.js";
-  import { session } from "../../gamemaster/session.svelte.js";
 
   // --- STATE ---
-  let inputVal = $state("");
   let scrollRef = $state(null);
 
   // Derived
   let feed = $derived(app.simulation.feed || []);
   let isThinking = $derived(app.simulation.loading);
 
-  // --- ACTIONS ---
-  async function submitTurn() {
-    if (!inputVal.trim() || isThinking) return;
-    const text = inputVal;
-    inputVal = ""; // Optimistic clear
-    await session.send(text);
-  }
-
-  function onKey(e) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      submitTurn();
-    }
-  }
-
   // Auto-scroll logic
   $effect(() => {
-    if (feed.length && scrollRef) {
-      scrollRef.scrollTop = scrollRef.scrollHeight;
+    if ((feed.length || app.streaming.active) && scrollRef) {
+      // Small timeout to allow DOM render
+      setTimeout(() => {
+        if (scrollRef) scrollRef.scrollTop = scrollRef.scrollHeight;
+      }, 0);
     }
   });
+
+  // Helper to map DB role to UI sender
+  function mapRole(role) {
+    if (role === "assistant") return "ai";
+    return role;
+  }
 </script>
 
 <div class="storymode-container">
-  <Layout>
-    {#snippet header()}
-      <div class="header-container">
-        <h1>{app.story?.storyTitle || "Simulation in Progress"}</h1>
-      </div>
-    {/snippet}
-
-    <!-- LEFT: AI Companion -->
+  <!-- CINEMATIC LAYOUT: 2-6-2 -->
+  <Layout mode="cinematic">
+    <!-- LEFT: AI Companion (Full Bleed) -->
     {#snippet left()}
-      <StoryboardCard
-        type="ai"
-        entity={app.selectedAi}
-        roleLabel="AI Companion"
-        onViewProfile={() => app.toggleProfile(true, app.selectedAi)}
-      />
+      <StorymodePanel entity={app.selectedAi} mode="full" />
     {/snippet}
 
     <!-- CENTER: Feed & Input -->
@@ -60,41 +44,38 @@
         <!-- Narrative Feed -->
         <div class="feed-scroll" bind:this={scrollRef}>
           {#each feed as msg}
-            <div class="msg-bubble {msg.role}">
-              <span class="sender">{msg.characterName}</span>
-              <p>{@html msg.text}</p>
-            </div>
+            <Message
+              text={msg.text}
+              sender={mapRole(msg.role)}
+              timestamp={msg.timestamp ? new Date(msg.timestamp) : new Date()}
+              attachments={msg.attachments}
+            />
           {/each}
 
-          {#if isThinking}
-            <div class="msg-bubble ai thinking">
+          {#if app.streaming?.active}
+            <Message
+              text={app.streaming.content}
+              sender="ai"
+              timestamp={new Date()}
+            />
+          {:else if isThinking}
+            <!-- Thinking Indicator using Message bubble for consistency -->
+            <div class="thinking-container">
               <Skeleton variant="text" width="60%" />
             </div>
           {/if}
         </div>
 
-        <!-- Input Area -->
-        <div class="input-area">
-          <input
-            type="text"
-            bind:value={inputVal}
-            onkeydown={onKey}
-            placeholder="What do you do?"
-            disabled={isThinking}
-            autocomplete="off"
-          />
+        <!-- Sticky Input Bar -->
+        <div class="input-container">
+          <InputBar disabled={isThinking} />
         </div>
       </div>
     {/snippet}
 
-    <!-- RIGHT: User Persona -->
+    <!-- RIGHT: User Persona (Full Bleed) -->
     {#snippet right()}
-      <StoryboardCard
-        type="user"
-        entity={app.selectedUser}
-        roleLabel="User Persona"
-        onViewProfile={() => app.toggleProfile(true, app.selectedUser)}
-      />
+      <StorymodePanel entity={app.selectedUser} mode="full" />
     {/snippet}
   </Layout>
 </div>
@@ -103,108 +84,66 @@
   .storymode-container {
     width: 100%;
     height: 100%;
-  }
-
-  .header-container {
-    text-align: center;
-    h1 {
-      font-size: 1.5rem;
-      color: #fff;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-    }
+    background: #09090b; /* Deep sync with cinemtaic feel */
   }
 
   .game-stage {
     width: 100%;
-    height: 100%; // Fill Layout center slot
+    height: 100%;
     display: flex;
     flex-direction: column;
     position: relative;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
-    overflow: hidden;
+    background: #000;
   }
 
   .feed-scroll {
     flex: 1;
     overflow-y: auto;
-    padding: 1rem;
+    overflow-x: hidden;
+    padding: 1rem 0; /* Vertical padding */
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0; /* Message component handles its own spacing/padding */
 
-    /* Hide Scrollbar */
+    /* Smooth Scroll */
+    scroll-behavior: smooth;
+
+    /* Hide Scrollbar but keep functionality */
     &::-webkit-scrollbar {
-      width: 0px;
+      width: 6px;
     }
-    scrollbar-width: none;
-  }
-
-  .msg-bubble {
-    background: rgba(0, 0, 0, 0.5);
-    padding: 1rem;
-    border-radius: 12px;
-    max-width: 90%;
-    align-self: flex-start;
-    animation: fadeIn 0.3s ease-out;
-
-    &.user {
-      align-self: flex-end;
-      background: rgba(var(--pico-primary-rgb), 0.2);
-      text-align: right;
-    }
-
-    .sender {
-      font-size: 0.7rem;
-      opacity: 0.7;
-      display: block;
-      margin-bottom: 0.2rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    p {
-      margin: 0;
-      line-height: 1.5;
+    &::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 3px;
     }
   }
 
-  .input-area {
-    padding: 1rem;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(8px);
-
-    input {
-      width: 100%;
-      padding: 1rem;
-      border-radius: 8px;
-      border: 1px solid #333;
-      background: #111;
-      color: #fff;
-      font-size: 1rem;
-      transition: border-color 0.2s;
-
-      &:focus {
-        outline: none;
-        border-color: var(--pico-primary);
-        box-shadow: 0 0 10px rgba(var(--pico-primary-rgb), 0.3);
-      }
-
-      &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-    }
+  .thinking-container {
+    padding: 1rem 1.5rem;
+    opacity: 0.7;
+    animation: pulse 1.5s infinite ease-in-out;
   }
 
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
+  /* Input Container sits at the bottom */
+  .input-container {
+    flex-shrink: 0;
+    width: 100%;
+    background: linear-gradient(
+      to top,
+      #000 80%,
+      transparent
+    ); // Blend with chat
+    padding-bottom: 0; // InputBar likely has its own padding
+    z-index: 10;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 0.5;
     }
-    to {
-      opacity: 1;
-      transform: translateY(0);
+    50% {
+      opacity: 0.8;
     }
   }
 </style>

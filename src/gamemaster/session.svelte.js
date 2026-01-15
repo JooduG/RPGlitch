@@ -1,5 +1,8 @@
 import { Session } from "./engine/session.js";
 import { app } from "../artificer/state.svelte.js";
+import { events, EVENTS } from "./bus.js";
+// We need the GameMaster facade for high-level operations like Prologue
+import { GameMaster } from "./index.js";
 
 /**
  * 🎬 REACTIVE SESSION MANAGER
@@ -9,6 +12,29 @@ import { app } from "../artificer/state.svelte.js";
 export class ReactiveSession {
   loading = $state(false);
   error = $state(null);
+
+  constructor() {
+    this._initListeners();
+  }
+
+  _initListeners() {
+    // 1. Sync Feed on Database Updates
+    events.addEventListener(EVENTS.CHAT_REFRESH, async ({ detail }) => {
+      // Fetch latest messages from DB through the Engine
+      const msgs = await Session.loadMessages(detail.storyId);
+      // Update Svelte 5 State (Reactivity Trigger)
+      app.simulation.feed = msgs;
+    });
+
+    // 2. Sync Loading State (e.g. triggered by Director internals)
+    events.addEventListener(EVENTS.GENERATION_STARTED, () => {
+      app.simulation.loading = true;
+    });
+
+    events.addEventListener(EVENTS.GENERATION_COMPLETED, () => {
+      app.simulation.loading = false;
+    });
+  }
 
   /**
    * Start a new story from the Lobby.
@@ -30,14 +56,17 @@ export class ReactiveSession {
         storyTitle,
       });
 
-      // 2. Sync Runtime (This might also be handled by the Session internals, but explicit is good)
-      // Note: Session.createFromSelection already dispatches events, but we want to be sure.
-
-      // 3. Switch View
+      // 3. Switch View (Immediate Feedback)
       app.setView("game");
+
+      // 4. Trigger Prologue Generation
+      // This will run the Director, hit the API, and stream content to the feed
+      await GameMaster.generatePrologue(storyId);
     } catch (e) {
       console.error("[ReactiveSession] Start Failed:", e);
       this.error = e.message;
+      // If failed, maybe go back to lobby?
+      // app.setView("lobby");
     } finally {
       this.loading = false;
       app.simulation.loading = false;

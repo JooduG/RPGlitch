@@ -27,7 +27,7 @@ export const GameMaster = {
   generateAiResponse: async (storyId, options = {}) => {
     // [CONTEXT BROKER] Assemble Dynamic Context
     // This replaces the old Director.playTurn which used the rigid ContextBuilder
-    const { LlmService, ContextBroker } = await import("./llm.js");
+    const { ContextBroker } = await import("./llm.js");
 
     // 1. ASSEMBLE (Modular Context)
     // We assume 'options.input' is the user's action or empty for AI turn

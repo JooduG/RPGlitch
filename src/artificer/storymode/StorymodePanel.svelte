@@ -1,7 +1,7 @@
 <script>
   import { app } from "../state.svelte.js";
 
-  let { entity } = $props();
+  let { entity, mode = "card" } = $props(); // mode: 'card' | 'full'
 
   // Default Fallback
   let visuals = $derived(entity?.visuals || {});
@@ -9,58 +9,96 @@
   let description = $derived(entity?.description || "No data available.");
   let signatureColor = $derived(visuals.signatureColor || "#84cc16"); // Lime default
   let avatar = $derived(visuals.avatar || "");
-
-  // Check if it's a fractal to adjust styling if needed
   let isFractal = $derived(entity?.type === "fractal");
 </script>
 
-<div class="entity-card" style="--entity-color: {signatureColor}">
-  <!-- AVATAR AREA -->
-  <button
-    class="avatar-btn"
-    onclick={() => app.toggleProfile(true, entity)}
-    aria-label="Edit {name}"
-  >
-    {#if avatar}
-      <img
-        src={avatar}
-        alt={name}
-        class:no-bg={visuals.noBackground}
-        class:flipped={visuals.flipped}
-      />
-    {:else}
-      <div class="placeholder">
-        {name.substring(0, 2).toUpperCase()}
+<!-- DYNAMIC CLASS BASED ON MODE -->
+<div
+  class="panel-container"
+  class:mode-card={mode === "card"}
+  class:mode-full={mode === "full"}
+  style="--entity-color: {signatureColor}"
+>
+  {#if mode === "card"}
+    <!-- === CARD MODE (Standard Lobby/Profile) === -->
+    <button
+      class="avatar-btn"
+      onclick={() => app.toggleProfile(true, entity)}
+      aria-label="Edit {name}"
+    >
+      {#if avatar}
+        <img
+          src={avatar}
+          alt={name}
+          class:no-bg={visuals.noBackground}
+          class:flipped={visuals.flipped}
+        />
+      {:else}
+        <div class="placeholder">
+          {name.substring(0, 2).toUpperCase()}
+        </div>
+      {/if}
+      <div class="glow-ring"></div>
+    </button>
+
+    <div class="info-block">
+      <h3 class="name" style="color: var(--entity-color)">{name}</h3>
+      <p class="description">{description}</p>
+    </div>
+  {:else}
+    <!-- === FULL MODE (Cinematic Side Panel) === -->
+    <div
+      class="full-bleed-visual"
+      role="button"
+      tabindex="0"
+      onclick={() => app.toggleProfile(true, entity)}
+      onkeydown={(e) => e.key === "Enter" && app.toggleProfile(true, entity)}
+      aria-label="View Profile: {name}"
+    >
+      {#if avatar}
+        <img
+          src={avatar}
+          alt={name}
+          class="bg-image"
+          class:flipped={visuals.flipped}
+        />
+      {:else}
+        <div class="placeholder-full">
+          <span>{name}</span>
+        </div>
+      {/if}
+
+      <!-- Gradient Overlay for Text Readability -->
+      <div class="cinematic-overlay">
+        <h3 class="cinematic-name">{name}</h3>
       </div>
-    {/if}
-
-    <!-- Hover Glow Element -->
-    <div class="glow-ring"></div>
-  </button>
-
-  <!-- INFO AREA -->
-  <div class="info-block">
-    <h3 class="name" style="color: var(--entity-color)">{name}</h3>
-    <p class="description">{description}</p>
-  </div>
+    </div>
+  {/if}
 </div>
 
 <style lang="scss">
-  .entity-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
+  .panel-container {
     width: 100%;
     height: 100%;
-    padding: 1rem;
-    gap: 1.5rem;
-    pointer-events: auto; /* [FIX] Enable interaction */
+    pointer-events: auto;
 
-    /* Subtle Entrance */
-    opacity: 0;
-    animation: fadeIn 0.8s ease forwards;
+    &.mode-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1rem;
+      gap: 1.5rem;
+      opacity: 0;
+      animation: fadeIn 0.8s ease forwards;
+    }
+
+    &.mode-full {
+      position: relative;
+      overflow: hidden;
+      /* No padding, no gap */
+    }
   }
 
   @keyframes fadeIn {
@@ -69,19 +107,18 @@
     }
   }
 
+  /* === CARD STYLES === */
   .avatar-btn {
     position: relative;
-    width: 160px; /* Base size */
+    width: 160px;
     height: 160px;
-    border-radius: 50%; /* Circle by default? Or Card shape? Let's go Circle for avatars */
+    border-radius: 50%;
     background: rgba(0, 0, 0, 0.3);
     border: none;
     padding: 0;
     cursor: pointer;
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     outline: none;
-
-    /* Glassy BG */
     backdrop-filter: blur(4px);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 
@@ -105,7 +142,6 @@
         border: none;
         background: transparent;
       }
-
       &.flipped {
         transform: scaleX(-1);
       }
@@ -125,7 +161,6 @@
       border: 2px solid var(--entity-color);
     }
 
-    /* The Selection/Hover Glow */
     .glow-ring {
       position: absolute;
       inset: -4px;
@@ -160,10 +195,80 @@
       margin: 0;
       display: -webkit-box;
       line-clamp: 4;
-      -webkit-line-clamp: 4; /* Limit lines */
+      -webkit-line-clamp: 4;
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+  }
+
+  /* === FULL MODE STYLES === */
+  .full-bleed-visual {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    cursor: pointer;
+    background: #000;
+
+    .bg-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.8;
+      transition:
+        opacity 0.3s ease,
+        transform 10s ease-out; /* Slow zoom effect? */
+
+      &.flipped {
+        transform: scaleX(-1);
+      }
+    }
+
+    &:hover .bg-image {
+      opacity: 1;
+      // transform: scale(1.02); // Maybe subtle zoom
+    }
+
+    .placeholder-full {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(to bottom, #111, #222);
+      color: var(--entity-color);
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .cinematic-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 2rem 1rem 1rem;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .cinematic-name {
+      font-family: var(--font-display, sans-serif);
+      color: var(--entity-color);
+      font-size: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin: 0;
+      text-align: center;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+      opacity: 0.8;
+      transition: opacity 0.3s;
+    }
+
+    &:hover .cinematic-name {
+      opacity: 1;
     }
   }
 
@@ -174,7 +279,9 @@
       height: 100px;
     }
     .info-block {
-      display: none; /* Hide text on mobile grid to save space? Or reduce? */
+      display: none;
     }
+
+    /* .mode-full styles handled by Layout grid changes or global mobile styles */
   }
 </style>

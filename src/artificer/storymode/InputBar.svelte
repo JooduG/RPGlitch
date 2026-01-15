@@ -1,6 +1,7 @@
 <script>
   import { Session } from "../../gamemaster/engine/session.js";
 
+  let { disabled = false } = $props();
   let value = $state("");
   let textarea;
 
@@ -12,7 +13,7 @@
 
   async function handleSend() {
     const text = value.trim();
-    if (!text) return;
+    if (!text || disabled) return;
 
     value = ""; // Clear immediately for UX
     adjustHeight(); // Reset height
@@ -46,8 +47,13 @@
     oninput={handleInput}
     placeholder="Type a message..."
     rows="1"
+    {disabled}
   ></textarea>
-  <button class="send-btn" onclick={handleSend} disabled={!value.trim()}>
+  <button
+    class="send-btn"
+    onclick={handleSend}
+    disabled={!value.trim() || disabled}
+  >
     Send
   </button>
 </div>
@@ -57,11 +63,15 @@
     display: flex;
     gap: 0.75rem; /* Larger gap */
     padding: 1.25rem; /* Chunkier padding */
-    background: rgba(5, 5, 5, 0.8);
-    backdrop-filter: blur(12px);
-    border-top: 1px solid #27272a;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.95) 20%,
+      transparent 100%
+    );
+    /* Removed solid backdrop border to blend better */
+    /* border-top: 1px solid #27272a; */
     width: 100%;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5); /* Lift it up */
+    /* box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5); */ /* Replaced with gradient fade */
     align-items: flex-end; /* Align bottom when resizing */
   }
 
