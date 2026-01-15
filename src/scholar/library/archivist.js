@@ -4,7 +4,7 @@
  * Handles the consolidation of short-term history into long-term entity profiles.
  */
 
-import { LlmService } from "../../gamemaster/services/llm.js";
+import { LlmService } from "../../gamemaster/llm.js";
 import { ContextBuilder } from "./context.js";
 import { log, error } from "../../gamemaster/utils.js";
 

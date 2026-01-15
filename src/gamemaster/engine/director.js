@@ -1,7 +1,7 @@
 // src/js/gamemaster/director.js
 import { db } from "../../scholar/database/db.js";
 import { state, applyPatch, events, EVENTS } from "../bus.js"; // Updated import
-import { LlmService } from "../services/llm.js";
+import { LlmService } from "../llm.js";
 import { entities, ContextBuilder, Scholar } from "../../scholar/index.js";
 import { Warden } from "../../warden/index.js";
 import { error, calculateBlendedParams, log } from "../utils.js";

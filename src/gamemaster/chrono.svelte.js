@@ -1,8 +1,8 @@
 // ⏳ CHRONO: The Heartbeat of Time
 // Manages the strict turn-based progression of the simulation.
 
-import { app } from "../state.svelte.js";
-import { runtime } from "../../scholar/runtime.svelte.js";
+import { app } from "../artificer/state.svelte.js";
+import { runtime } from "../scholar/runtime.svelte.js";
 
 export class ChronoStore {
   // No local state needed, acts as a controller for app.simulation
@@ -18,8 +18,6 @@ export class ChronoStore {
    */
   async advanceTurn(input = null) {
     if (app.simulation.loading) return; // Prevent double-clicks
-
-    console.log(`[Chrono] ⏳ Advancing to Turn ${app.simulation.turn + 1}...`);
 
     // 1. STASIS: Lock the Universe
     app.simulation.loading = true;
@@ -46,7 +44,6 @@ export class ChronoStore {
       // 5. RESURRECTION: Unlock the Universe
       app.simulation.loading = false;
       app.simulation.status = "idle";
-      console.log(`[Chrono] ✅ Turn Complete.`);
     }
   }
 }

@@ -37,7 +37,7 @@ jest.mock("../../../../src/gamemaster/bus.js", () => ({
   },
 }));
 
-jest.mock("../../../../src/gamemaster/services/llm.js", () => ({
+jest.mock("../../../../src/gamemaster/llm.js", () => ({
   LlmService: {
     generate: jest.fn().mockResolvedValue("Some AI Response"),
   },
@@ -137,7 +137,7 @@ jest.mock("../../../../src/mesmer/index.js", () => ({
 import { Director } from "../../../../src/gamemaster/engine/director.js";
 import { Session } from "../../../../src/gamemaster/engine/session.js";
 import { GameMaster } from "../../../../src/gamemaster/index.js";
-import { LlmService } from "../../../../src/gamemaster/services/llm.js";
+import { LlmService } from "../../../../src/gamemaster/llm.js";
 import { entities } from "../../../../src/scholar/index.js";
 import { db } from "../../../../src/scholar/database/db.js";
 import { Scholar } from "../../../../src/scholar/index.js";

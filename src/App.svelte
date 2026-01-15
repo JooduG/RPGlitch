@@ -12,7 +12,7 @@
   import { runtime } from "./scholar/runtime.svelte.js";
   import { events, EVENTS, state as gameState } from "./gamemaster/bus.js";
 
-  import { chrono } from "./artificer/stores/chrono.svelte.js";
+  import { chrono } from "./gamemaster/chrono.svelte.js";
 
   // Init Bridges
   $effect(() => {

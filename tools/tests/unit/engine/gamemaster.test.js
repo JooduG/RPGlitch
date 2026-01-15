@@ -50,7 +50,7 @@ jest.mock("../../../../src/scholar/database/db.js", () => ({
   },
 }));
 
-jest.mock("../../../../src/gamemaster/services/llm.js", () => ({
+jest.mock("../../../../src/gamemaster/llm.js", () => ({
   LlmService: {
     generate: jest.fn(),
   },
@@ -116,7 +116,7 @@ jest.mock("../../../../src/scholar/index.js", () => {
 
 // Import module under test
 import { GameMaster } from "../../../../src/gamemaster/index.js";
-import { LlmService } from "../../../../src/gamemaster/services/llm.js";
+import { LlmService } from "../../../../src/gamemaster/llm.js";
 import { entities } from "../../../../src/scholar/index.js";
 import { db } from "../../../../src/scholar/database/db.js";
 

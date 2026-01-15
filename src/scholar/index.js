@@ -10,7 +10,7 @@
  * - Archivist: Deep memory processing.
  */
 
-import { LlmService } from "../gamemaster/services/llm.js";
+import { LlmService } from "../gamemaster/llm.js";
 import { log, error } from "../gamemaster/utils.js";
 
 import { audioService } from "../mesmer/audio/service.js";

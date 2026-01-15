@@ -19,7 +19,7 @@
 
   import { themeStore } from "../../mesmer/logic/theme.svelte.js";
   import { app } from "../state.svelte.js";
-  import Skeleton from "../components/Skeleton.svelte";
+  import Skeleton from "../Skeleton.svelte";
 
   // Derived Values
   let isEmpty = $derived(!entity);

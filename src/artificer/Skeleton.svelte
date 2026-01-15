@@ -18,7 +18,7 @@
 </div>
 
 <style lang="scss">
-  @use "../../scss/abstracts" as *;
+  @use "../scss/abstracts" as *;
   /* 
      The base .skeleton class is defined in src/scss/components/_skeletons.scss 
      We import abstracts here just in case we need variables, but the actual 

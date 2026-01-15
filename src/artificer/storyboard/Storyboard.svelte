@@ -6,7 +6,7 @@
   import Layout from "../Layout.svelte";
   import StoryboardPill from "./StoryboardPill.svelte";
   import StoryboardCard from "./StoryboardCard.svelte";
-  import Skeleton from "../components/Skeleton.svelte";
+  import Skeleton from "../Skeleton.svelte";
 
   // --- STATE ---
   let loading = $state(true);

@@ -1,7 +1,7 @@
 <script>
   import Layout from "../Layout.svelte";
   import StoryboardCard from "../storyboard/StoryboardCard.svelte";
-  import Skeleton from "../components/Skeleton.svelte";
+  import Skeleton from "../Skeleton.svelte";
   import { app } from "../state.svelte.js";
   import { session } from "../../gamemaster/session.svelte.js";
 

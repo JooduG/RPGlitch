@@ -1,7 +1,7 @@
 import { audioService } from "./audio/service.js";
 import { ThemeService } from "./logic/theme.js";
 import { VisualManager } from "./logic/manager.js";
-import { LlmService } from "../gamemaster/services/llm.js";
+import { LlmService } from "../gamemaster/llm.js";
 // import { VisualManager } from "./ui/components/visuals/manager.js"; // Legacy UI Manager - probably delete this import if VisualManager is legacy UI?
 // Checking file usage... VisualManager seems to be legacy.
 // Let's comment it out for now.

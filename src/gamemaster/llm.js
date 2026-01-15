@@ -1,5 +1,5 @@
-import { ERROR_MESSAGES } from "../config.js";
-import { log, error as utilsError } from "../utils.js";
+import { ERROR_MESSAGES } from "./config.js";
+import { log, error as utilsError } from "./utils.js";
 
 /**
  * Service to abstract the Perchance AI plugin (`window.ai`).
