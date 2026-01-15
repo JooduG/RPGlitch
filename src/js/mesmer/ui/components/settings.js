@@ -1,5 +1,5 @@
-import { db } from "../../../scholar/db.js";
-import { stories } from "../../../scholar/repository.js";
+import { db } from "../../../../scholar/database/db.js";
+import { stories } from "../../../../scholar/database/repository.js";
 import { store as state, applyPatch } from "../../../gamemaster/index.js";
 import { GameMaster } from "../../../gamemaster/index.js";
 import { showAlert, handleConcludeStory } from "../core/orchestrator.js";

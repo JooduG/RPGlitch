@@ -7,7 +7,7 @@ jest.mock("../../../../src/js/gamemaster/llm.js", () => ({
   },
 }));
 
-jest.mock("../../../../src/js/scholar/context.js", () => ({
+jest.mock("../../../../src/scholar/library/context.js", () => ({
   ContextBuilder: jest.fn().mockImplementation(() => ({
     buildScholarPrompt: jest
       .fn()
@@ -33,9 +33,9 @@ jest.mock("../../../../src/js/mesmer/ui/core/modal.js", () => ({
   showAlert: jest.fn(),
 }));
 
-import { Scholar } from "../../../../src/js/scholar/index.js";
+import { Scholar } from "../../../../src/scholar/index.js";
 import { LlmService } from "../../../../src/js/gamemaster/llm.js";
-import { ContextBuilder } from "../../../../src/js/scholar/index.js";
+import { ContextBuilder } from "../../../../src/scholar/index.js";
 
 describe("Scholar System", () => {
   beforeEach(() => {

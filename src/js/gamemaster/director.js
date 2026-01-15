@@ -1,8 +1,8 @@
 // src/js/gamemaster/director.js
-import { db } from "../scholar/db.js";
+import { db } from "../../scholar/database/db.js";
 import { state, applyPatch, events, EVENTS } from "./store.js"; // Updated import
 import { LlmService } from "./llm.js";
-import { entities, ContextBuilder, Scholar } from "../scholar/index.js";
+import { entities, ContextBuilder, Scholar } from "../../scholar/index.js";
 import { Warden } from "../warden/index.js";
 import { error, calculateBlendedParams, log } from "./utils.js";
 import { Mesmer } from "../mesmer/index.js";

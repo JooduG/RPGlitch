@@ -4,7 +4,10 @@
  * Contains the immutable definitions of premade entities and the normalization logic (Schema).
  */
 
-import { sanitizeHtml, getRandomSignatureKey } from "../gamemaster/utils.js";
+import {
+  sanitizeHtml,
+  getRandomSignatureKey,
+} from "../../js/gamemaster/utils.js";
 
 export const STORAGE_VERSION = 3;
 

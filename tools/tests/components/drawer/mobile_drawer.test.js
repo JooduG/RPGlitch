@@ -1,20 +1,13 @@
 import { describe, test, expect, afterEach, jest } from "@jest/globals";
 
 // Mocks
-jest.mock("../../../../src/js/scholar/repository.js", () => ({
+jest.mock("../../../../src/scholar/database/repository.js", () => ({
   entities: { list: jest.fn().mockReturnValue([]) },
   seedPremades: jest.fn().mockResolvedValue(),
   _allItemsCache: {},
 }));
 
-jest.mock("../../../../src/js/mesmer/ui/components/chat/feed.js", () => ({
-  renderChat: jest.fn(),
-  setGameplayEntities: jest.fn(),
-  showTypingIndicator: jest.fn(),
-  removeTypingIndicator: jest.fn(),
-  setSendLock: jest.fn(),
-  setChatGeneratingState: jest.fn(),
-}));
+// feed.js mock removed
 
 jest.mock("../../../../src/js/mesmer/ui/components/visuals/manager.js", () => ({
   updatePortraits: jest.fn(),

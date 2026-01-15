@@ -10,19 +10,19 @@
  * - Archivist: Deep memory processing.
  */
 
-import { LlmService } from "../gamemaster/llm.js";
-import { log, error } from "../gamemaster/utils.js";
+import { LlmService } from "../js/gamemaster/llm.js";
+import { log, error } from "../js/gamemaster/utils.js";
 
-import { audioService } from "../mesmer/audio/service.js";
+import { audioService } from "../js/mesmer/audio/service.js";
 
 // Sub-Modules
-import { ContextBuilder } from "./context.js";
-import { archiveMemory } from "./archivist.js";
+import { ContextBuilder } from "./library/context.js";
+import { archiveMemory } from "./library/archivist.js";
 
 // Re-Exports for Convenience
-export { ContextBuilder } from "./context.js";
-export { entities, stories, seedPremades } from "./repository.js";
-export { premade } from "./library.js";
+export { ContextBuilder } from "./library/context.js";
+export { entities, stories, seedPremades } from "./database/repository.js";
+export { premade } from "./library/library.js";
 
 export const Scholar = {
   // =========================================================================

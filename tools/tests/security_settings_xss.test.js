@@ -15,7 +15,7 @@ jest.mock("../../src/js/gamemaster/index.js", () => ({
 }));
 
 // Mock db
-jest.mock("../../src/js/scholar/db.js", () => ({
+jest.mock("../../src/scholar/database/db.js", () => ({
   db: {
     settings: { get: jest.fn() },
     stories: { get: jest.fn(), put: jest.fn(), delete: jest.fn() },
@@ -46,7 +46,7 @@ jest.mock("../../src/js/mesmer/ui/core/theme.js", () => ({
 }));
 
 // Mock library (side effect import)
-jest.mock("../../src/js/scholar/library.js", () => ({}));
+jest.mock("../../src/scholar/library/library.js", () => ({}));
 
 // Mock artificer app store
 jest.mock("../../src/artificer/stores/app.svelte.js", () => ({
@@ -73,7 +73,7 @@ describe("Security Vulnerability Check - Settings", () => {
 
   beforeAll(async () => {
     // Import repo and monkey-patch
-    repo = await import("../../src/js/scholar/repository.js");
+    repo = await import("../../src/scholar/database/repository.js");
     // Save original to restore later if needed (not needed for one test file)
     repo.stories.list = mockStoriesList;
 

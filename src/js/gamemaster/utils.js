@@ -65,7 +65,7 @@ let isDebug = false;
 
 export const initDebugMode = async () => {
   try {
-    const { db } = await import("../scholar/db.js");
+    const { db } = await import("../../scholar/database/db.js");
     const settings = await db.settings.get("app-settings");
     if (settings && typeof settings.debugMode !== "undefined") {
       isDebug = !!settings.debugMode;
@@ -88,7 +88,7 @@ export const error = (...args) => {
 export const setDebug = async (on) => {
   isDebug = !!on;
   try {
-    const { db } = await import("../scholar/db.js");
+    const { db } = await import("../../scholar/database/db.js");
     let settings = await db.settings.get("app-settings");
     if (!settings) settings = { id: "app-settings" };
     settings.debugMode = isDebug;

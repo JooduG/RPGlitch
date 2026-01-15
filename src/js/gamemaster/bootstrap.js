@@ -1,7 +1,7 @@
 import { mount } from "svelte";
 import App from "../../App.svelte";
-import { db } from "../scholar/db.js";
-import { seedPremades } from "../scholar/repository.js";
+import { db } from "../../scholar/database/db.js";
+import { seedPremades } from "../../scholar/database/repository.js";
 import { initViews } from "../mesmer/ui/core/orchestrator.js";
 import { log, initDebugMode, mockPlugins } from "./utils.js";
 import { GameMaster } from "./index.js";

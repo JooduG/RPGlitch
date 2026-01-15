@@ -1,8 +1,10 @@
 <script>
   import { onMount } from "svelte";
   import { app } from "../stores/app.svelte.js";
-  import { entities } from "../../js/scholar/repository.js";
+  import { entities } from "../../scholar/database/repository.js";
   import { Session } from "../../js/gamemaster/session.js";
+  import { runtime } from "../../scholar/stores/runtime.svelte.js";
+  import { db } from "../../scholar/database/db.js";
   import Button from "../Button.svelte";
   import Panel from "../Panel.svelte";
 
@@ -21,10 +23,14 @@
       app.userList = users;
       app.fractalList = fractals;
 
-      // Explicitly Reset Selections (User Requirement: "Welcome Modal is gone, but cards pre-selected")
-      app.selectedAi = null;
-      app.selectedUser = null;
-      app.selectedFractal = null;
+      // Auto-select defaults if list is populated
+      // This ensures we have a valid state even if the user just clicks a fractal card
+      if (!app.selectedAi && ais.length > 0) app.selectedAi = ais[0];
+      if (!app.selectedUser && users.length > 0) {
+        // Try to find a user that isn't the AI
+        app.selectedUser =
+          users.find((u) => u.id !== app.selectedAi?.id) || users[0];
+      }
 
       loading = false;
     } catch (e) {
@@ -32,20 +38,35 @@
     }
   });
 
+  async function handleFractalSelect(fractal) {
+    app.selectedFractal = fractal;
+    await startStory();
+  }
+
   async function startStory() {
-    if (!app.selectedAi || !app.selectedUser || !app.selectedFractal) return;
+    if (!app.selectedAi || !app.selectedUser || !app.selectedFractal) {
+      alert("Please select an AI, a User, and a World.");
+      return;
+    }
 
     initializing = true;
     try {
       console.log("[Storyboard] Creating new session...");
-      await Session.createFromSelection({
+
+      const newStoryId = await Session.createFromSelection({
         aiId: app.selectedAi.id,
         userId: app.selectedUser.id,
         fractalId: app.selectedFractal.id,
         storyTitle: `The ${app.selectedFractal.name} Protocol`,
       });
-      console.log("[Storyboard] Session created, switching view.");
-      app.setView("story");
+
+      console.log("[Storyboard] Story created:", newStoryId);
+
+      // Wake up the Scholar
+      await runtime.sync(newStoryId);
+
+      console.log("[Storyboard] Session synced, switching view.");
+      app.setView("game");
     } catch (err) {
       console.error("Failed to start story:", err);
       alert("Failed to initialize session. Check console.");
@@ -58,93 +79,51 @@
 <div class="lobby-layout">
   <div class="header">
     <h1>New Story</h1>
-    <p>Select your roster to begin</p>
+    <p>Select a Reality to Initialize</p>
   </div>
 
   {#if loading}
     <div class="loading">Initializing Repository...</div>
   {:else}
-    <div class="card-grid">
-      <!-- AI Selector -->
-      <Panel title="AI Companion">
-        <div class="selection-col">
-          <select bind:value={app.selectedAi} class="entity-select">
-            <option value={null} disabled selected>Select an AI...</option>
+    <div class="roster-section">
+      <!-- Optional: Allow changing AI/User from top bar? For now, focused on cards per prompt -->
+      <div class="roster-controls">
+        <label>
+          <span>AI Companion:</span>
+          <select bind:value={app.selectedAi} class="entity-select compact">
             {#each app.aiList as entity}
               <option value={entity}>{entity.name}</option>
             {/each}
           </select>
-          {#if app.selectedAi}
-            <div class="preview">
-              <div
-                class="avatar"
-                style="background-image: url({app.selectedAi
-                  .profilePictureUrl || ''})"
-              ></div>
-              <p class="desc">
-                {app.selectedAi.summary || "No description available."}
-              </p>
-            </div>
-          {/if}
-        </div>
-      </Panel>
-
-      <!-- Fractal Selector -->
-      <Panel title="Fractal (World)">
-        <div class="selection-col">
-          <select bind:value={app.selectedFractal} class="entity-select">
-            <option value={null} disabled selected>Select a World...</option>
-            {#each app.fractalList as entity}
-              <option value={entity}>{entity.name}</option>
-            {/each}
-          </select>
-          {#if app.selectedFractal}
-            <div class="preview">
-              <div
-                class="avatar"
-                style="background-image: url({app.selectedFractal
-                  .profilePictureUrl || ''})"
-              ></div>
-              <p class="desc">
-                {app.selectedFractal.summary || "No description available."}
-              </p>
-            </div>
-          {/if}
-        </div>
-      </Panel>
-
-      <!-- User Selector -->
-      <Panel title="Your Character">
-        <div class="selection-col">
-          <select bind:value={app.selectedUser} class="entity-select">
-            <option value={null} disabled selected>Select a Persona...</option>
+        </label>
+        <label>
+          <span>User Persona:</span>
+          <select bind:value={app.selectedUser} class="entity-select compact">
             {#each app.userList as entity}
               <option value={entity}>{entity.name}</option>
             {/each}
           </select>
-          {#if app.selectedUser}
-            <div class="preview">
-              <div
-                class="avatar"
-                style="background-image: url({app.selectedUser
-                  .profilePictureUrl || ''})"
-              ></div>
-              <p class="desc">
-                {app.selectedUser.summary || "No description available."}
-              </p>
-            </div>
-          {/if}
-        </div>
-      </Panel>
+        </label>
+      </div>
     </div>
 
-    <div class="action-bar">
-      <Button
-        label={initializing ? "Initializing..." : "Begin Session"}
-        onclick={startStory}
-        variant="primary"
-        disabled={initializing}
-      />
+    <div class="card-grid">
+      {#each app.fractalList as fractal}
+        <button
+          class="fractal-card"
+          onclick={() => handleFractalSelect(fractal)}
+          disabled={initializing}
+        >
+          <div
+            class="card-bg"
+            style="background-image: url({fractal.profilePictureUrl || ''})"
+          ></div>
+          <div class="card-overlay">
+            <h3>{fractal.name}</h3>
+            <p>{fractal.summary || "No description available."}</p>
+          </div>
+        </button>
+      {/each}
     </div>
   {/if}
 </div>
@@ -174,71 +153,144 @@
     }
   }
 
-  .card-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-    flex: 1;
-    min-height: 0;
+  .roster-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
 
-    @media (max-width: 768px) {
-      grid-template-columns: 1fr;
+  .roster-controls {
+    display: flex;
+    gap: 2rem;
+    background: rgba(24, 24, 27, 0.8);
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    border: 1px solid #27272a;
+    backdrop-filter: blur(8px);
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #a1a1aa;
+      font-size: 0.9rem;
+      font-weight: 500;
     }
   }
 
-  .selection-col {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    height: 100%;
-  }
-
-  .entity-select {
-    background: #18181b;
+  .entity-select.compact {
+    background: #09090b;
     border: 1px solid #27272a;
-    color: #fff;
-    padding: 0.75rem;
+    color: #e4e4e7;
+    padding: 0.4rem 0.8rem;
     border-radius: 6px;
-    width: 100%;
     outline: none;
+    min-width: 200px;
+    font-size: 0.9rem;
+    cursor: pointer;
 
     &:focus {
       border-color: #3b82f6;
     }
   }
 
-  .preview {
-    flex: 1;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 6px;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    text-align: center;
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    overflow-y: auto;
+    padding-bottom: 2rem;
 
-    .avatar {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background-color: #27272a;
-      background-size: cover;
-      background-position: center;
-      border: 2px solid #3f3f46;
+    /* Scrollbar styling */
+    &::-webkit-scrollbar {
+      width: 8px;
     }
-
-    .desc {
-      font-size: 0.875rem;
-      color: #a1a1aa;
-      line-height: 1.5;
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: #3f3f46;
+      border-radius: 4px;
     }
   }
 
-  .action-bar {
+  .fractal-card {
+    position: relative;
+    height: 320px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #27272a;
+    background: #09090b;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+    text-align: left;
     display: flex;
-    justify-content: center;
-    padding-top: 1rem;
+    flex-direction: column;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.5);
+      border-color: #3f3f46;
+
+      .card-bg {
+        transform: scale(1.05);
+      }
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: wait;
+    }
+  }
+
+  .card-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.5s ease;
+    z-index: 1;
+  }
+
+  .card-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.95),
+      rgba(0, 0, 0, 0.6),
+      transparent
+    );
+    padding: 2rem 1.5rem 1.5rem;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    h3 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: white;
+      font-weight: 700;
+    }
+
+    p {
+      margin: 0;
+      color: #d4d4d8;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
   }
 
   .loading {

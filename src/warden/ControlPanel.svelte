@@ -3,7 +3,7 @@
   import Panel from "../artificer/Panel.svelte";
   import Button from "../artificer/Button.svelte";
   import { app } from "../artificer/stores/app.svelte.js";
-  import { db } from "../js/scholar/db.js";
+  import { db } from "../scholar/database/db.js";
 
   function handleAction(action) {
     console.log("Action:", action);

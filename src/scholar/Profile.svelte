@@ -5,7 +5,7 @@
   import { runtime } from "./stores/runtime.svelte.js";
   import { VisualManager } from "../js/mesmer/ui/components/visuals/manager.js";
   import { store } from "../js/gamemaster/index.js";
-  import { Scholar, entities } from "../js/scholar/index.js";
+  import { Scholar, entities } from "./index.js";
   import { CONFIG } from "../js/gamemaster/config.js";
 
   import { voiceService } from "../js/mesmer/audio/voice.js";

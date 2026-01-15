@@ -1,5 +1,5 @@
 // apps/rpglitch/js/ui-chin.js
-import { entities } from "../../../../scholar/repository.js";
+import { entities } from "../../../../../scholar/database/repository.js";
 import { error } from "../../../../gamemaster/utils.js";
 import { getPictureHTML } from "../../core/utils.js";
 

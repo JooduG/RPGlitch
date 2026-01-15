@@ -1,6 +1,6 @@
-import { db } from "../../../../src/js/scholar/db.js";
+import { db } from "../../../../src/scholar/database/db.js";
 
-jest.mock("../../../../src/js/scholar/db.js", () => ({
+jest.mock("../../../../src/scholar/database/db.js", () => ({
   db: {
     on: jest.fn(),
     settings: {
@@ -20,15 +20,6 @@ jest.mock("../../../../src/js/mesmer/ui/core/utils.js", () => {
     getPictureHTML: jest.fn(),
   };
 });
-
-jest.mock("../../../../src/js/mesmer/ui/components/chat/feed.js", () => ({
-  renderChat: jest.fn(),
-  setGameplayEntities: jest.fn(),
-  showTypingIndicator: jest.fn(),
-  removeTypingIndicator: jest.fn(),
-  setSendLock: jest.fn(),
-  setChatGeneratingState: jest.fn(),
-}));
 
 jest.mock("../../../../src/js/mesmer/ui/components/visuals/manager.js", () => ({
   updatePortraits: jest.fn(),

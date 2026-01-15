@@ -23,7 +23,7 @@ jest.mock("../../../../src/js/mesmer/ui/components/visuals/manager.js", () => ({
 }));
 
 // Mock entity-crud.js to control `entities.list` resolution
-jest.mock("../../../../src/js/scholar/repository.js", () => ({
+jest.mock("../../../../src/scholar/database/repository.js", () => ({
   entities: {
     list: jest.fn(),
   },
@@ -61,7 +61,8 @@ describe("Drawer Component", () => {
     _closeDrawer = drawerModule.closeDrawer;
 
     // Re-import the mocked entities to control the instance used by drawer.js
-    const crudModule = await import("../../../../src/js/scholar/repository.js");
+    const crudModule =
+      await import("../../../../src/scholar/database/repository.js");
     _entities = crudModule.entities;
 
     // Reset mocks on the fresh instance

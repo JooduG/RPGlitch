@@ -43,7 +43,7 @@ jest.mock("../../../../src/js/gamemaster/llm.js", () => ({
   },
 }));
 
-jest.mock("../../../../src/js/scholar/db.js", () => ({
+jest.mock("../../../../src/scholar/database/db.js", () => ({
   db: {
     stories: { get: jest.fn(), update: jest.fn(), add: jest.fn() },
     messages: {
@@ -60,7 +60,7 @@ jest.mock("../../../../src/js/scholar/db.js", () => ({
   },
 }));
 
-jest.mock("../../../../src/js/scholar/repository.js", () => ({
+jest.mock("../../../../src/scholar/database/repository.js", () => ({
   entities: {
     get: jest.fn(),
     upsert: jest.fn(),
@@ -104,7 +104,7 @@ jest.mock("../../../../src/js/mesmer/ui/components/visuals/manager.js", () => ({
   },
 }));
 
-jest.mock("../../../../src/js/scholar/index.js", () => ({
+jest.mock("../../../../src/scholar/index.js", () => ({
   Scholar: {
     archive: jest.fn().mockImplementation((entity, history, role) => {
       return Promise.resolve({
@@ -138,9 +138,9 @@ import { Director } from "../../../../src/js/gamemaster/director.js";
 import { Session } from "../../../../src/js/gamemaster/session.js";
 import { GameMaster } from "../../../../src/js/gamemaster/index.js";
 import { LlmService } from "../../../../src/js/gamemaster/llm.js";
-import { entities } from "../../../../src/js/scholar/index.js";
-import { db } from "../../../../src/js/scholar/db.js";
-import { Scholar } from "../../../../src/js/scholar/index.js";
+import { entities } from "../../../../src/scholar/index.js";
+import { db } from "../../../../src/scholar/database/db.js";
+import { Scholar } from "../../../../src/scholar/index.js";
 
 import { CONFIG } from "../../../../src/js/gamemaster/config.js";
 const PHYSICS_CONSTANTS = CONFIG.PHYSICS;

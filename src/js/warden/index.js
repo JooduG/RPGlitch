@@ -10,7 +10,7 @@
  * - Parser: Prompt Engineering & Response Parsing
  */
 
-import { entities } from "../scholar/repository.js";
+import { entities } from "../../scholar/database/repository.js";
 import { log } from "../gamemaster/utils.js";
 
 // Sub-Modules

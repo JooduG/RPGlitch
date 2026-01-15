@@ -4,12 +4,12 @@
  * Assembles the raw state of the world into structured prompts for the AI.
  */
 
-import { state } from "../gamemaster/store.js";
-import { entities } from "./repository.js";
-import { ROLES } from "../gamemaster/config.js";
-import { Screenplay } from "../gamemaster/screenplay.js";
-import { Warden } from "../warden/index.js";
-import { Mesmer } from "../mesmer/index.js";
+import { state } from "../../js/gamemaster/store.js";
+import { entities } from "../database/repository.js";
+import { ROLES } from "../../js/gamemaster/config.js";
+import { Screenplay } from "../../js/gamemaster/screenplay.js";
+import { Warden } from "../../js/warden/index.js";
+import { Mesmer } from "../../js/mesmer/index.js";
 import { templateConsult, templateArchive } from "./prose.js";
 
 export class ContextBuilder {

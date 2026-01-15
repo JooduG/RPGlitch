@@ -4,7 +4,7 @@ import { LlmService } from "../gamemaster/llm.js";
 import { VisualManager } from "./ui/components/visuals/manager.js";
 import { events, EVENTS, store as state } from "../gamemaster/index.js";
 import { CONFIG, ROLES } from "../gamemaster/config.js";
-import { entities, ContextBuilder } from "../scholar/index.js";
+import { entities, ContextBuilder } from "../../scholar/index.js";
 import { error } from "../gamemaster/utils.js";
 
 const { PHYSICS } = CONFIG;

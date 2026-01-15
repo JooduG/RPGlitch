@@ -5,8 +5,8 @@
  */
 
 import { db } from "./db.js";
-import { log, error } from "../gamemaster/utils.js";
-import { normalize, premade, STORAGE_VERSION } from "./library.js";
+import { log, error } from "../../js/gamemaster/utils.js";
+import { normalize, premade, STORAGE_VERSION } from "../library/library.js";
 
 // ============================================================================
 // 1. DATA SEEDING (The Factory)
@@ -112,7 +112,7 @@ export const entities = {
       await db.entities.put(saved);
 
       if (!options?.silent) {
-        const { events, EVENTS } = await import("../gamemaster/index.js");
+        const { events, EVENTS } = await import("../../js/gamemaster/index.js");
         events.dispatchEvent(
           new CustomEvent(EVENTS.DB_UPDATED, {
             detail: { id, type, store: "entities" },

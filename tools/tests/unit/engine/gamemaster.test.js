@@ -37,7 +37,7 @@ jest.mock("../../../../src/js/gamemaster/store.js", () => ({
   applyPatch: jest.fn(),
 }));
 
-jest.mock("../../../../src/js/scholar/db.js", () => ({
+jest.mock("../../../../src/scholar/database/db.js", () => ({
   db: {
     stories: { get: jest.fn(), add: jest.fn(), update: jest.fn() },
     messages: {
@@ -56,7 +56,7 @@ jest.mock("../../../../src/js/gamemaster/llm.js", () => ({
   },
 }));
 
-jest.mock("../../../../src/js/scholar/repository.js", () => ({
+jest.mock("../../../../src/scholar/database/repository.js", () => ({
   entities: {
     get: jest.fn(),
     upsert: jest.fn(),
@@ -100,7 +100,7 @@ jest.mock("../../../../src/js/mesmer/index.js", () => ({
   },
 }));
 
-jest.mock("../../../../src/js/scholar/index.js", () => {
+jest.mock("../../../../src/scholar/index.js", () => {
   return {
     ContextBuilder: jest.fn().mockImplementation(() => ({
       build: jest.fn().mockResolvedValue({ system: "mock", messages: [] }),
@@ -120,8 +120,8 @@ jest.mock("../../../../src/js/scholar/index.js", () => {
 // Import module under test
 import { GameMaster } from "../../../../src/js/gamemaster/index.js";
 import { LlmService } from "../../../../src/js/gamemaster/llm.js";
-import { entities } from "../../../../src/js/scholar/index.js";
-import { db } from "../../../../src/js/scholar/db.js";
+import { entities } from "../../../../src/scholar/index.js";
+import { db } from "../../../../src/scholar/database/db.js";
 
 describe("GameMaster Logic", () => {
   beforeEach(() => {

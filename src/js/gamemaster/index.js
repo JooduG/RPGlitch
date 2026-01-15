@@ -25,14 +25,14 @@ export const GameMaster = {
   // Director Methods
   generateAiResponse: (...args) => Director.playTurn(...args),
   generatePrologue: async (storyId) => {
-    const { ContextBuilder } = await import("../scholar/index.js");
+    const { ContextBuilder } = await import("../../scholar/index.js");
     const builder = new ContextBuilder(storyId);
     const payload = await builder.buildPrologue();
     if (payload) await Director.execute(storyId, payload, { mode: "prologue" });
   },
   triggerEpilogue: async () => {
     const storyId = Session.requireActive();
-    const { ContextBuilder } = await import("../scholar/index.js");
+    const { ContextBuilder } = await import("../../scholar/index.js");
     const builder = new ContextBuilder(storyId);
     const payload = await builder.buildEpilogue();
     if (payload) await Director.execute(storyId, payload, { mode: "epilogue" });

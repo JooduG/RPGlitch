@@ -40,7 +40,7 @@ jest.mock("../../../src/js/gamemaster/index.js", () => {
 });
 
 // Mock core-db
-jest.mock("../../../src/js/scholar/db.js", () => ({
+jest.mock("../../../src/scholar/database/db.js", () => ({
   db: {
     settings: {
       get: jest.fn(),
@@ -79,7 +79,7 @@ jest.mock("../../../src/js/mesmer/ui/core/orchestrator.js", () => ({
 // Mocks consolidated above
 
 // Mock entity-crud
-jest.mock("../../../src/js/scholar/repository.js", () => ({
+jest.mock("../../../src/scholar/database/repository.js", () => ({
   entities: {
     get: jest.fn(),
   },
@@ -88,7 +88,7 @@ jest.mock("../../../src/js/scholar/repository.js", () => ({
 // 2. Import Module Under Test
 import { StoryOptionsController } from "../../../src/js/mesmer/ui/components/settings.js";
 import { applyPatch } from "../../../src/js/gamemaster/index.js";
-import { db } from "../../../src/js/scholar/db.js";
+import { db } from "../../../src/scholar/database/db.js";
 
 describe("StoryOptionsController", () => {
   beforeEach(() => {

@@ -9,21 +9,13 @@ jest.mock("../../../src/js/mesmer/ui/components/drawer/desktop.js", () => ({
   initDrawer: jest.fn(),
   closeDrawer: jest.fn(),
 }));
-jest.mock("../../../src/js/mesmer/ui/components/chat/feed.js", () => ({
-  setStorymodeEntities: jest.fn(),
-  setSendLock: jest.fn(),
-  setChatGeneratingState: jest.fn(),
-  showTypingIndicator: jest.fn(),
-  removeTypingIndicator: jest.fn(),
-}));
+
 jest.mock("../../../src/js/mesmer/ui/components/visuals/generator.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
   updateDeveloperModeClass: jest.fn(),
 }));
-jest.mock("../../../src/js/mesmer/ui/storyboard.js", () => ({
-  initStoryboardStage: jest.fn(),
-}));
+// storyboard.js mock removed
 jest.mock("../../../src/js/mesmer/ui/components/settings.js", () => ({
   StoryOptionsController: {
     init: jest.fn(),
@@ -73,7 +65,7 @@ jest.mock("../../../src/js/gamemaster/store.js", () => ({
   applyPatch: jest.fn(),
 }));
 
-jest.mock("../../../src/js/scholar/db.js", () => ({
+jest.mock("../../../src/scholar/database/db.js", () => ({
   db: {
     stories: {
       get: jest.fn(),
@@ -162,7 +154,7 @@ describe("Orchestrator UI", () => {
       },
     };
 
-    const dbModule = await import("../../../src/js/scholar/db.js");
+    const dbModule = await import("../../../src/scholar/database/db.js");
     dbModule.db.stories.get.mockResolvedValue(mockStory);
     dbModule.db.entities.get.mockImplementation((id) => {
       if (id === "fractal-1")

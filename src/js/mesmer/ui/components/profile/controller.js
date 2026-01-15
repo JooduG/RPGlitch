@@ -1,4 +1,4 @@
-import { entities } from "../../../../scholar/index.js";
+import { entities } from "../../../../../scholar/index.js";
 
 // CALLBACK: Router must inject this
 let _onUpdateSelection = null;

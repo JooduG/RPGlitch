@@ -1,5 +1,5 @@
 // 📜 SCHOLAR: The Runtime State
-import { db } from "../../js/scholar/db.js"; // The Legacy DB Wrapper
+import { db } from "../database/db.js"; // The Legacy DB Wrapper
 
 function createRuntimeStore() {
   let state = $state({

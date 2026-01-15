@@ -6,8 +6,8 @@ import {
   test,
   expect,
 } from "@jest/globals";
-import { init as initDB, db } from "../../../../src/js/scholar/db.js";
-import { premade } from "../../../../src/js/scholar/library.js";
+import { init as initDB, db } from "../../../../src/scholar/database/db.js";
+import { premade } from "../../../../src/scholar/library/library.js";
 import { JSDOM } from "jsdom"; // ADDED: ensure JSDOM is available for new JSDOM(...) in beforeEach
 
 // Mock the Perchance global and its plugins
@@ -44,15 +44,6 @@ jest.mock("../../../../src/js/gamemaster/utils.js", () => {
     },
   };
 });
-
-jest.mock("../../../../src/js/mesmer/ui/components/chat/feed.js", () => ({
-  renderChat: jest.fn(),
-  setGameplayEntities: jest.fn(),
-  showTypingIndicator: jest.fn(),
-  removeTypingIndicator: jest.fn(),
-  setSendLock: jest.fn(),
-  setChatGeneratingState: jest.fn(),
-}));
 
 jest.mock("../../../../src/js/mesmer/ui/components/visuals/manager.js", () => ({
   updatePortraits: jest.fn(),

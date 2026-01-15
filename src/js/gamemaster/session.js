@@ -1,9 +1,9 @@
 // src/js/gamemaster/session.js
-import { db } from "../scholar/db.js";
+import { db } from "../../scholar/database/db.js";
 import { state, applyPatch, events, EVENTS } from "./store.js";
-import { entities } from "../scholar/index.js";
+import { entities } from "../../scholar/index.js";
 import { Director } from "./director.js";
-import { ContextBuilder } from "../scholar/index.js";
+import { ContextBuilder } from "../../scholar/index.js";
 import { error } from "./utils.js";
 import { ROLES } from "./config.js";
 

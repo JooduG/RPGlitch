@@ -1,8 +1,8 @@
 import { log } from "../../../gamemaster/utils.js";
-import { entities } from "../../../scholar/repository.js";
+import { entities } from "../../../../scholar/database/repository.js";
 import { GameMaster, applyPatch } from "../../../gamemaster/index.js";
 import { initDrawer } from "../components/drawer/desktop.js";
-import { setStorymodeEntities, setSendLock } from "../components/chat/feed.js";
+// import { setStorymodeEntities, setSendLock } from "../components/chat/feed.js";
 import {
   updatePortraits,
   applyFractalAmbience,
@@ -17,10 +17,10 @@ import {
   showErrorModal,
 } from "../core/modal.js";
 import { audioService } from "../../audio/service.js";
-import { initStoryboardStage } from "../storyboard.js";
+// import { initStoryboardStage } from "../storyboard.js";
 import { StoryOptionsController } from "../components/settings.js";
 import { events, EVENTS } from "../../../gamemaster/index.js";
-import { initChatInput } from "../components/chat/input.js";
+// import { initChatInput } from "../components/chat/input.js";
 
 // [NEW] Internal Modules
 import { Router } from "./router.js";
@@ -118,7 +118,9 @@ const initEventBinds = () => {
     );
     if (!state.story.activeId) return;
 
-    const db = await import("../../../scholar/db.js").then((m) => m.db);
+    const db = await import("../../../../scholar/database/db.js").then(
+      (m) => m.db,
+    );
     const story = await db.stories.get(state.story.activeId);
     if (!story) return;
 
@@ -138,7 +140,7 @@ const initEventBinds = () => {
       }
     }
 
-    setStorymodeEntities(snapshot.ai, snapshot.user, snapshot.fractal);
+    // setStorymodeEntities(snapshot.ai, snapshot.user, snapshot.fractal);
     updatePortraits(snapshot.ai, snapshot.user);
     if (snapshot.fractal) applyFractalAmbience(snapshot.fractal);
 
@@ -153,30 +155,30 @@ const initEventBinds = () => {
     document
       .querySelectorAll(".status-hud")
       .forEach((hud) => hud.classList.add("status-hud--stale"));
-    const { renderChat } = await import("../components/chat/feed.js");
-    if (e.detail?.storyId) await renderChat(e.detail.storyId);
+    /* const { renderChat } = await import("../components/chat/feed.js");
+    if (e.detail?.storyId) await renderChat(e.detail.storyId); */
   });
 
   events.addEventListener(EVENTS.TYPING_STARTED, async (e) => {
-    const { showTypingIndicator } = await import("../components/chat/feed.js");
+    /* const { showTypingIndicator } = await import("../components/chat/feed.js");
     const feed = document.querySelector("#chat-feed");
     if (feed && e.detail) {
       showTypingIndicator(feed, e.detail, e.detail.characterId);
-    }
+    } */
   });
 
-  events.addEventListener(EVENTS.TYPING_STOPPED, async () => {
+  /* events.addEventListener(EVENTS.TYPING_STOPPED, async () => {
     const { removeTypingIndicator } =
       await import("../components/chat/feed.js");
     const feed = document.querySelector("#chat-feed");
     if (feed) removeTypingIndicator(feed);
-  });
+  }); */
 
   events.addEventListener(EVENTS.GENERATION_STARTED, async () => {
-    const { setSendLock, setChatGeneratingState } =
+    /* const { setSendLock, setChatGeneratingState } =
       await import("../components/chat/feed.js");
     setSendLock(true);
-    setChatGeneratingState(true);
+    setChatGeneratingState(true); */
     // [STRICT SYNC] Force Input UI Update -> input.js listens to event, but we double check
     if (window._chatInput && window._chatInput.updateUIState) {
       window._chatInput.updateUIState();
@@ -189,11 +191,11 @@ const initEventBinds = () => {
     voiceService.init();
 
     // 2. Resolve UI Controllers
-    const { setChatGeneratingState } =
-      await import("../components/chat/feed.js");
+    /* const { setChatGeneratingState } =
+      await import("../components/chat/feed.js"); */
 
     // 3. Update States
-    setChatGeneratingState(false);
+    // setChatGeneratingState(false);
 
     // [STRICT SYNC] Force Input UI Update
     if (window._chatInput && window._chatInput.updateUIState) {
@@ -363,7 +365,7 @@ export const initViews = async (deps = {}) => {
 
   // 2. Initialize Components
   initDrawer();
-  initChatInput();
+  // initChatInput();
 
   // Initialize Selection Triggers
   SelectionManager.initTriggers();
@@ -377,7 +379,7 @@ export const initViews = async (deps = {}) => {
   });
 
   // 3. Initialize Domain Managers
-  initStoryboardStage(Orchestrator);
+  // initStoryboardStage(Orchestrator);
   StoryOptionsController.init();
 
   // 4. Remove Boot Skeleton & Show Main Stage
@@ -409,7 +411,7 @@ export const initViews = async (deps = {}) => {
   });
 
   // [VISUAL OVERHAUL] Force Default Selection for Demo (MOVED)
-  const { premade } = await import("../../../scholar/library.js");
+  const { premade } = await import("../../../../scholar/library/library.js");
   const ai = premade.entities.find((e) => e.id === "entity-C3"); // Clockwork Rogue
   const user = premade.entities.find((e) => e.id === "entity-C1"); // Light Blade
   const fractal = premade.entities.find((e) => e.id === "entity-F2"); // Neo Arcadia
@@ -430,9 +432,9 @@ export const initViews = async (deps = {}) => {
 };
 
 export {
-  setStorymodeEntities,
+  // setStorymodeEntities,
   updatePortraits,
-  setSendLock,
+  // setSendLock,
   showAlert,
   showConfirm,
   showPrompt,
