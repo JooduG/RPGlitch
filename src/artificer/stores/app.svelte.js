@@ -12,6 +12,7 @@ class AppStore {
   aiList = $state([]);
   userList = $state([]);
   fractalList = $state([]);
+  lobbyReady = $state(false);
 
   // 🎛️ SETTINGS (User Preferences)
   settings = $state({

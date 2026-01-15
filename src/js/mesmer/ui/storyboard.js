@@ -14,6 +14,7 @@ import {
 } from "./components/visuals/generator.js";
 import { error } from "../../gamemaster/utils.js";
 import { showAlert } from "./core/orchestrator.js";
+import { app } from "../../../artificer/stores/app.svelte.js"; // [NEW] Link to Svelte Store
 
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
@@ -151,6 +152,11 @@ export const initStoryboardStage = (views) => {
 
   updateDeveloperModeClass();
 
+  // [NEW] Global Event Listeners for Svelte Components
+  // Attaching to window to catch events from isolated Svelte components
+  window.addEventListener("RPGLITCH_SHUFFLE", () => handleShuffle(views));
+  window.addEventListener("RPGLITCH_BEGIN_STORY", () => handleBeginStory());
+
   views.setOnSelectionChanged((sel) => {
     const { aiCharacter, userCharacter, fractal } = sel;
     applyPatch({
@@ -167,12 +173,16 @@ export const initStoryboardStage = (views) => {
         userCharacter,
         fractal,
       );
-      titleStoryboard.textContent = newTitle;
-      titleStorymode.textContent = newTitle;
+      if (titleStoryboard) titleStoryboard.textContent = newTitle;
+      if (titleStorymode) titleStorymode.textContent = newTitle;
       applyPatch({ storyTitle: newTitle });
     }
 
-    const ready = aiCharacter && userCharacter && fractal;
+    const ready = !!(aiCharacter && userCharacter && fractal);
+
+    // [BRIDGE] Sync to Svelte App Store
+    app.lobbyReady = ready;
+
     if (beginBtn) {
       beginBtn.disabled = !ready;
       beginBtn.classList.toggle("disabled", !ready);

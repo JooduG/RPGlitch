@@ -1,6 +1,4 @@
-import { events, EVENTS } from "../../../../gamemaster/index.js";
 import { entities } from "../../../../scholar/index.js";
-import { Mesmer } from "../../../index.js";
 
 // CALLBACK: Router must inject this
 let _onUpdateSelection = null;

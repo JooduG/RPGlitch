@@ -4,6 +4,7 @@
   import Profile from "./scholar/Profile.svelte";
   import ControlPanel from "./warden/ControlPanel.svelte";
   import SettingsButton from "./artificer/hud/SettingsButton.svelte";
+  import StoryboardPill from "./artificer/hud/StoryboardPill.svelte";
 
   import { app } from "./artificer/stores/app.svelte.js";
   import { runtime } from "./scholar/stores/runtime.svelte.js";
@@ -33,12 +34,14 @@
   {#if app.view === "lobby"}
     <Stage transparent={true} />
     <div class="hud-layer">
-      <div class="bottom-right"><SettingsButton /></div>
+      <!-- LOBBY: Storyboard Pill (Center Bottom) -->
+      <div class="bottom-center"><StoryboardPill /></div>
     </div>
   {:else}
     <Stage transparent={true} />
     <div class="hud-layer">
       <div class="top-right"><VitalsPane /></div>
+      <!-- GAME: Settings Button (Corner) -->
       <div class="bottom-right"><SettingsButton /></div>
     </div>
   {/if}
@@ -52,7 +55,9 @@
 </main>
 
 <style lang="scss">
-  @import "./scss/index.scss";
+  :global {
+    @import "./scss/index.scss";
+  }
   .app-root {
     position: relative;
     width: 100vw;
@@ -77,6 +82,14 @@
       bottom: 1rem;
       right: 1rem;
       pointer-events: auto;
+    }
+    .bottom-center {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: auto;
+      z-index: 60; // Above standard HUD
     }
   }
 </style>
