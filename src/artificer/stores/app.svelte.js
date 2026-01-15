@@ -23,6 +23,13 @@ class AppStore {
     devMode: false,
   });
 
+  // 🎭 MESMER: Visual Experience (Lightbox)
+  lightbox = $state({
+    active: false,
+    src: null,
+    caption: "",
+  });
+
   // 🌊 STREAMING STATE (Real-time data from LLM)
   streaming = $state({
     active: false,
@@ -41,6 +48,18 @@ class AppStore {
 
   setView = (v) => {
     this.view = v;
+  };
+
+  // Lightbox Actions
+  openLightbox = (src, caption = "") => {
+    this.lightbox.active = true;
+    this.lightbox.src = src;
+    this.lightbox.caption = caption;
+  };
+
+  closeLightbox = () => {
+    this.lightbox.active = false;
+    this.lightbox.src = null;
   };
 
   // Settings Mutators

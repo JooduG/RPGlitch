@@ -3,7 +3,7 @@
     title,
     icon,
     onclose,
-    variant = "standard", // 'standard' | 'entity' | 'transparent' | 'media'
+    variant = "standard", // 'standard' | 'entity' | 'transparent' | 'media' | 'preview'
     children,
   } = $props();
 
@@ -57,7 +57,7 @@
       {@render children()}
     </div>
 
-    {#if variant === "entity"}
+    {#if variant === "entity" || variant === "preview"}
       <button class="entity-close" onclick={onclose}>×</button>
     {/if}
   </div>
@@ -147,6 +147,27 @@
         justify-content: center;
         pointer-events: auto; /* Re-enable content interaction */
         overflow: hidden;
+      }
+    }
+
+    /* PREVIEW: Lightbox (Image only) */
+    &.variant-preview {
+      background: transparent;
+      width: auto;
+      height: auto;
+      max-width: 95vw;
+      max-height: 95vh;
+      border: none;
+      box-shadow: none;
+      position: relative;
+      pointer-events: none; /* Let clicks pass through shell to backdrop */
+
+      .modal-body {
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        pointer-events: auto; /* Catch clicks on image */
       }
     }
   }

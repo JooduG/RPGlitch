@@ -5,6 +5,7 @@
   import ControlPanel from "./warden/ControlPanel.svelte";
   import SettingsButton from "./artificer/hud/SettingsButton.svelte";
   import StoryboardPill from "./artificer/hud/StoryboardPill.svelte";
+  import Lightbox from "./mesmer/Lightbox.svelte";
 
   import { app } from "./artificer/stores/app.svelte.js";
   import { runtime } from "./scholar/stores/runtime.svelte.js";
@@ -52,6 +53,8 @@
   {#if app.profileOpen}
     <Profile />
   {/if}
+
+  <Lightbox />
 </main>
 
 <style lang="scss">
