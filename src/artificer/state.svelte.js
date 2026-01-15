@@ -57,7 +57,28 @@ export class AppStore {
     streamText: true, // True = Real-time chunks, False = Instant
     autoScroll: true, // Follow chat
     devMode: false,
+    debugMode: false, // Diagnostic HUD
   });
+
+  // 🧪 TELEMETRY (Developer HUD)
+  logs = $state([]);
+  causalityReport = $state({
+    entropy: 0,
+    velocity: 0,
+    reflex: "Stable",
+  });
+
+  log(message, type = "system") {
+    const entry = {
+      id: Math.random().toString(36).substring(7),
+      timestamp: new Date().toLocaleTimeString(),
+      message,
+      type, // 'system' | 'ai' | 'db' | 'error'
+    };
+    this.logs.unshift(entry);
+    if (this.logs.length > 100) this.logs.pop();
+    console.debug(`[Telemetry:${type.toUpperCase()}] ${message}`);
+  }
 
   // --- LIFECYCLE ---
 

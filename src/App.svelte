@@ -5,6 +5,7 @@
   import Profile from "./scholar/Profile.svelte";
   import ControlPanel from "./warden/ControlPanel.svelte";
   import Lightbox from "./mesmer/Lightbox.svelte";
+  import DebugPanel from "./artificer/debug/DebugPanel.svelte";
   import Storyboard from "./artificer/storyboard/Storyboard.svelte";
   import Storymode from "./artificer/storymode/Storymode.svelte";
 
@@ -13,6 +14,17 @@
   import { events, EVENTS, state as gameState } from "./gamemaster/bus.js";
 
   import { chrono } from "./gamemaster/chrono.svelte.js";
+
+  // --- Hotkeys ---
+  function handleKeydown(e) {
+    // Shift + D to toggle Diagnostic HUD
+    if (e.shiftKey && e.key === "D") {
+      app.settings.debugMode = !app.settings.debugMode;
+      app.log(
+        `Telemetry HUD ${app.settings.debugMode ? "Enabled" : "Disabled"}`,
+      );
+    }
+  }
 
   // Init Bridges
   $effect(() => {
@@ -62,10 +74,13 @@
     events.addEventListener(EVENTS.STORY_LOADED, refreshHandler);
     events.addEventListener(EVENTS.MESSAGE_RECEIVED, refreshHandler);
 
+    window.addEventListener("keydown", handleKeydown);
+
     return () => {
       events.removeEventListener(EVENTS.CHAT_REFRESH, refreshHandler);
       events.removeEventListener(EVENTS.STORY_LOADED, refreshHandler);
       events.removeEventListener(EVENTS.MESSAGE_RECEIVED, refreshHandler);
+      window.removeEventListener("keydown", handleKeydown);
     };
   });
 </script>
@@ -93,6 +108,13 @@
   {#if app.controlPanelOpen}
     <div class="modal-overlay">
       <ControlPanel />
+    </div>
+  {/if}
+
+  <!-- TELEMETRY HUD -->
+  {#if app.settings.debugMode}
+    <div class="telemetry-gutter">
+      <DebugPanel />
     </div>
   {/if}
 
@@ -126,6 +148,20 @@
         The 10-column system is managed strictly within Layout.svelte.
         App.svelte only handles the top-level app-container and modal overlays.
     */
+  }
+
+  .telemetry-gutter {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 10%; // Matches Col 1 of the 10-column grid
+    height: 100vh;
+    z-index: 2000;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+
+    @media (max-width: 1024px) {
+      display: none; // Hide HUD on mobile/small screens
+    }
   }
 
   .modal-overlay {
