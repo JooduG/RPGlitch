@@ -11,7 +11,7 @@
    * 5. Margin (1fr) - Spacer
    */
 
-  let { header, left, center, right, transparent = false } = $props();
+  let { header, footer, left, center, right, transparent = false } = $props();
 </script>
 
 <div class="universal-stage" class:is-transparent={transparent}>
@@ -19,7 +19,7 @@
   <div class="gutter-col start"></div>
 
   {#if header}
-    <!-- Header: Spans Center 3 Columns -->
+    <!-- Header: Spans Center 3 Columns, Top Aligned -->
     <header class="stage-header">
       {@render header()}
     </header>
@@ -46,6 +46,13 @@
     {/if}
   </aside>
 
+  {#if footer}
+    <!-- Footer: Spans Center 3 Columns, Bottom Aligned -->
+    <footer class="stage-footer">
+      {@render footer()}
+    </footer>
+  {/if}
+
   <!-- Track 5: Margin -->
   <div class="gutter-col end"></div>
 </div>
@@ -56,7 +63,7 @@
   .universal-stage {
     display: grid;
     grid-template-columns: 1fr 2fr 4fr 2fr 1fr;
-    grid-template-rows: 1fr; /* Single row: Header and Content overlap */
+    grid-template-rows: 1fr; /* Single row: Overlap Everything */
     height: 100%;
     width: 100%;
     overflow: hidden;
@@ -84,7 +91,7 @@
     /* Mobile Stack */
     @media (max-width: 768px) {
       grid-template-columns: 1fr;
-      grid-template-rows: min-content 1fr;
+      grid-template-rows: min-content 1fr min-content;
 
       .stage-column--side {
         display: none;
@@ -92,6 +99,16 @@
 
       .stage-header {
         grid-column: 1 / -1;
+        position: relative; /* Flow normally on mobile */
+        height: auto;
+        padding: 1rem;
+      }
+
+      .stage-footer {
+        grid-column: 1 / -1;
+        position: relative;
+        height: auto;
+        padding: 1rem;
       }
     }
   }
@@ -102,16 +119,40 @@
   }
 
   .stage-header {
-    grid-column: 2 / 5; /* 80% width (Cols 2, 3, 4) */
-    grid-row: 1; /* Shared row */
+    grid-column: 2 / 5; /* 80% width */
+    grid-row: 1;
     z-index: 100;
     pointer-events: none;
+
+    /* Layout Physics */
+    align-self: stretch; /* Override App.svelte's centered alignment */
+    height: 100%; /* Force full height overlap */
     display: flex;
     justify-content: center;
-    align-items: center; /* Center everything within the full viewport height */
+    align-items: flex-start; /* Push content to TOP */
+    padding-top: 15vh;
 
     & :global(> *) {
-      pointer-events: auto; /* Allow interactions with title/inputs */
+      pointer-events: auto;
+    }
+  }
+
+  .stage-footer {
+    grid-column: 2 / 5; /* 80% width */
+    grid-row: 1;
+    z-index: 100;
+    pointer-events: none;
+
+    /* Layout Physics */
+    align-self: stretch; /* Override App.svelte's centered alignment */
+    height: 100%; /* Force full height overlap */
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* Push content to BOTTOM */
+    padding-bottom: 15vh;
+
+    & :global(> *) {
+      pointer-events: auto;
     }
   }
 
@@ -131,13 +172,14 @@
   .stage-column--center {
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Center the middle card too */
+    justify-content: center; /* Center the middle card */
+    align-items: center; /* Horizontal Center */
     height: 100%;
-    overflow: hidden;
+    overflow: visible; /* Allow overflow if needed */
     grid-row: 1;
     grid-column: 3;
 
-    // Spotlight effect (Migrated from _grid.scss)
+    // Spotlight effect
     background: radial-gradient(
       circle at center,
       rgb(255 255 255 / 3%) 0%,

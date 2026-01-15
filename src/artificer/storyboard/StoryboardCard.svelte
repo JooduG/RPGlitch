@@ -73,7 +73,7 @@
 
   <!-- Bottom Half: Info & Trigger for Selection -->
   <button class="card-bottom" onclick={onSelect}>
-    <span class="role-label">
+    <span class="role-label" style="color: var(--signature-color)">
       {roleLabel}
     </span>
     <h3>{entity?.name || `Select ${roleLabel}`}</h3>
@@ -95,27 +95,42 @@
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
     transition:
       transform 0.3s ease,
-      box-shadow 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow 0.3s ease,
+      border-color 0.3s ease;
 
-    width: 300px; /* Standard Width */
-    height: 480px;
+    /* Geometric Containment Variables */
+    --portrait-w: 15vw;
+    --portrait-h: 24vw; /* 10/16 aspect ratio roughly derived */
+    --landscape-w: 24vw;
+    --landscape-h: 15vw; /* 16/10 aspect ratio */
 
-    /* Specific modification for the Center Card */
+    /* Default: Side Card (Portrait) */
+    width: var(--portrait-w);
+    aspect-ratio: 10 / 16;
+    height: auto;
+    margin: auto;
+    justify-self: center; /* Enforce centering in grid track */
+
+    /* Signature Border Sync */
+    border: 1px solid rgba(var(--signature-rgb) / 0.2);
+
+    /* Center Card (Fractal/Landscape) */
     &.fractal-card {
-      width: 420px; /* Wider */
-      height: 380px;
-      transform: scale(1.05); /* Slight prominence */
+      width: var(--landscape-w);
+      aspect-ratio: 16 / 10;
+      height: auto;
+      transform: scale(1.02);
       z-index: 10;
 
       .card-top {
-        flex: 1.2; /* More visual space */
+        flex: 1.4; /* More room for fractal geometry */
       }
     }
 
     &:hover:not(.is-empty) {
-      transform: translateY(-10px) scale(1.02);
-      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 30px 60px rgba(var(--signature-rgb) / 0.3);
+      border-color: var(--signature-color);
       z-index: 20;
     }
 
@@ -153,18 +168,18 @@
     position: relative;
     background-color: var(--signature-color);
     transition: filter 0.2s ease;
+    overflow: hidden; /* Ensure images don't bleed */
 
     /* Interactive */
     &:hover {
-      filter: brightness(1.1);
+      filter: brightness(1.15);
     }
 
     .avatar-icon {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      object-fit: cover;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      height: 100%;
+      object-fit: cover; /* Strict cover to prevent warping */
+      border-radius: 0; /* Full bleed */
     }
 
     .avatar-placeholder {
@@ -174,9 +189,9 @@
     }
 
     .fractal-diamond {
-      font-size: 4rem;
+      font-size: 5rem;
       color: #fff;
-      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+      filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6));
     }
   }
 
@@ -185,7 +200,7 @@
     flex: 0.8;
     background: #09090b; /* Dark Slate */
     border: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(var(--signature-rgb) / 0.2);
     padding: 1.5rem;
     text-align: left;
     display: flex;
@@ -194,32 +209,36 @@
     gap: 0.5rem;
     cursor: pointer;
     transition: background 0.2s;
+    overflow: hidden;
 
     &:hover {
-      background: #18181b;
+      background: #111114;
     }
 
     .role-label {
       font-size: 0.75rem;
       text-transform: uppercase;
-      letter-spacing: 1px;
-      font-weight: 700;
+      letter-spacing: 1.5px;
+      font-weight: 800;
       margin-bottom: 0.25rem;
-      color: var(--signature-color);
     }
 
     h3 {
       margin: 0;
       color: #fff;
-      font-size: 1.25rem;
-      font-weight: 700;
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     p {
       margin: 0;
       color: #a1a1aa;
-      font-size: 0.9rem;
-      line-height: 1.4;
+      font-size: 0.95rem;
+      line-height: 1.5;
       display: -webkit-box;
       -webkit-line-clamp: 3;
       line-clamp: 3;

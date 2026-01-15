@@ -118,7 +118,14 @@
 {:else}
   <!-- The Universal Layout -->
   <Layout>
-    <!-- Track: Left (AI) -->
+    <!-- Snippet: Header (Title) -->
+    {#snippet header()}
+      <div class="header-container">
+        <h1>{storyTitle}</h1>
+      </div>
+    {/snippet}
+
+    <!-- Viewport: Left (AI) -->
     {#snippet left()}
       <StoryboardCard
         type="ai"
@@ -129,30 +136,18 @@
       />
     {/snippet}
 
-    <!-- Snippet: Center (Title + Fractal + Pill) -->
+    <!-- Snippet: Center (Fractal Only) -->
     {#snippet center()}
-      <div class="center-stage-wrapper">
-        <!-- Title: Grouped with the card for relative positioning -->
-        <div class="header-container">
-          <h1>{storyTitle}</h1>
-        </div>
-
-        <StoryboardCard
-          type="fractal"
-          entity={app.selectedFractal}
-          roleLabel="Current Reality"
-          onSelect={() => openSelectionDrawer("fractal")}
-          onViewProfile={() => openProfile(app.selectedFractal)}
-        />
-
-        <!-- The Footer (Pill) - Grouped with the card -->
-        <div class="controls-layer">
-          <StoryboardPill />
-        </div>
-      </div>
+      <StoryboardCard
+        type="fractal"
+        entity={app.selectedFractal}
+        roleLabel="Current Reality"
+        onSelect={() => openSelectionDrawer("fractal")}
+        onViewProfile={() => openProfile(app.selectedFractal)}
+      />
     {/snippet}
 
-    <!-- Snippet: Right (User) -->
+    <!-- Viewport: Right (User) -->
     {#snippet right()}
       <StoryboardCard
         type="user"
@@ -162,6 +157,13 @@
         onViewProfile={() => openProfile(app.selectedUser)}
       />
     {/snippet}
+
+    <!-- Snippet: Footer (Pill controls) -->
+    {#snippet footer()}
+      <div class="controls-layer">
+        <StoryboardPill />
+      </div>
+    {/snippet}
   </Layout>
 {/if}
 
@@ -169,11 +171,9 @@
   /* Header Styling */
   .header-container {
     text-align: center;
-    width: 80vw; /* Spans 80% of screen regardless of column width */
+    width: 80vw;
     display: flex;
     justify-content: center;
-    position: relative;
-    z-index: 100;
     pointer-events: none;
 
     h1 {
@@ -199,24 +199,10 @@
     transform: translate(-50%, -50%);
   }
 
-  /* Center Stage Wrapper to stack Title, Card, and Pill */
-  .center-stage-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    gap: 8vh; /* DISTANCE ANCHORED TO THE MIDDLE CARD */
-    position: relative;
-    padding: 2vh 0;
-  }
-
-  /* Redundant styles removed - now in StoryboardCard.svelte */
+  /* Center Stage Wrapper removed as Layout handles alignment now */
 
   .controls-layer {
-    /* No longer absolute, part of the flex stack for precise distance */
     width: max-content;
-    z-index: 30;
     pointer-events: auto;
   }
 </style>

@@ -143,21 +143,22 @@
     /* Mode Switching Logic (Refactored to Unified 1-2-4-2-1 Grid) */
     :global(.universal-stage) {
       transition: grid-template-columns 0.4s ease;
+      /* 
+         GRID DEFINITION: 1-2-4-2-1
+         1fr: Margin
+         2fr: AI / Left Panel
+         4fr: Center (Story)
+         2fr: User / Right Panel
+         1fr: Margin
+      */
       grid-template-columns: 1fr 2fr 4fr 2fr 1fr;
+      align-items: center; /* Vertical Center */
+      justify-items: center; /* Horizontal Center */
 
       @media (max-width: 1024px) {
         grid-template-columns: 1fr;
         grid-template-rows: 60px 1fr;
       }
-    }
-  }
-
-  /* Shared Grid Config for all views */
-  .app-container.view-lobby,
-  .app-container.view-game {
-    :global(.universal-stage) {
-      /* Both views now share the same 5-column architecture */
-      grid-template-columns: 1fr 2fr 4fr 2fr 1fr;
     }
   }
 
