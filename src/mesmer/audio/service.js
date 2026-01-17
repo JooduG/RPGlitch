@@ -1,4 +1,4 @@
-import { log } from "../../gamemaster/utils.js";
+const log = console.log;
 
 const STORAGE_KEY = "rpglitch_audio_settings";
 

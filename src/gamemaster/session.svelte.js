@@ -1,4 +1,4 @@
-import { Session } from "./engine/session.js";
+import { Session } from "./session.js";
 import { app } from "../artificer/state.svelte.js";
 import { events, EVENTS } from "./bus.js";
 // We need the GameMaster facade for high-level operations like Prologue
@@ -7,7 +7,7 @@ import { runtime } from "../scholar/runtime.svelte.js";
 
 /**
  * 🎬 REACTIVE SESSION MANAGER
- * Bridges the imperative Session/Director engine with Svelte 5 Reactivity.
+ * Bridges the imperative Session/GameMaster engine with Svelte 5 Reactivity.
  * Replaces the old "director.svelte.js" store.
  */
 export class ReactiveSession {
@@ -27,7 +27,7 @@ export class ReactiveSession {
       app.simulation.feed = msgs;
     });
 
-    // 2. Sync Loading State (e.g. triggered by Director internals)
+    // 2. Sync Loading State (e.g. triggered by GameMaster internals)
     events.addEventListener(EVENTS.GENERATION_STARTED, () => {
       app.simulation.loading = true;
     });
@@ -61,7 +61,7 @@ export class ReactiveSession {
       app.setView("game");
 
       // 4. Trigger Prologue Generation
-      // This will run the Director, hit the API, and stream content to the feed
+      // This will run the GameMaster, hit the API, and stream content to the feed
       await GameMaster.generatePrologue(storyId);
     } catch (e) {
       console.error("[ReactiveSession] Start Failed:", e);

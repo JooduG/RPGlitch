@@ -69,13 +69,6 @@ jest.mock("../../../../src/js/mesmer/ui/components/visuals/manager.js", () => ({
   updateDirectorModeClass: jest.fn(),
 }));
 
-jest.mock("../../../../src/js/gamemaster/utils.js", () => ({
-  log: jest.fn(),
-  error: jest.fn(),
-  initDebugMode: jest.fn(),
-  mockPlugins: jest.fn(),
-}));
-
 async function loadApp() {
   jest.resetModules();
   // Import Dynamic to ensure mocks are applied

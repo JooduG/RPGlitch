@@ -6,8 +6,8 @@ import {
   test,
   expect,
 } from "@jest/globals";
-import { init as initDB, db } from "../../../../src/scholar/database/db.js";
-import { premade } from "../../../../src/scholar/library/library.js";
+import { init as initDB, db } from "../../../src/scholar/database/db.js";
+import { premade } from "../../../src/scholar/library/library.js";
 import { JSDOM } from "jsdom"; // ADDED: ensure JSDOM is available for new JSDOM(...) in beforeEach
 
 // Mock the Perchance global and its plugins
@@ -25,26 +25,9 @@ global.crypto = {
 };
 
 // Mock UI-related functions to prevent JSDOM errors and memory leaks
-jest.mock("../../../../src/gamemaster/utils.js", () => {
-  const actual = jest.requireActual("../../../../src/gamemaster/utils.js");
-  return {
-    ...actual,
-    dismissLoadingUI: jest.fn(),
-    startUIWatchdog: jest.fn(),
-    installUIRecoveryHooks: jest.fn(),
-    installUIBlockerAttributeObserver: jest.fn(),
-    enableAutoUnlock: jest.fn(),
-    chin: {
-      init: jest.fn(),
-      open: jest.fn(),
-      close: jest.fn(),
-      closeAll: jest.fn(),
-      toggle: jest.fn(),
-    },
-  };
-});
+// Utils mock removed as file was deleted.
 
-jest.mock("../../../../src/mesmer/logic/manager.js", () => ({
+jest.mock("../../../src/mesmer/logic/manager.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
   updateDirectorModeClass: jest.fn(),
@@ -141,7 +124,7 @@ let mockAttachStoryboardListeners = jest.fn(async (doc) => {
   }
 });
 
-jest.mock("../../../../src/gamemaster/bootstrap.js", () => ({
+jest.mock("../../../src/gamemaster/bootstrap.js", () => ({
   App: mockApp,
   initializeWhenReady: mockInitializeWhenReady,
   _attachStoryboardListeners: mockAttachStoryboardListeners,

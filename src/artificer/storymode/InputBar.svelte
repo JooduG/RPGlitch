@@ -1,5 +1,5 @@
 <script>
-  import { Session } from "../../gamemaster/engine/session.js";
+  import { Session } from "../../gamemaster/session.js";
 
   let { disabled = false } = $props();
   let value = $state("");

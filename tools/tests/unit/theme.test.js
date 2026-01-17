@@ -1,29 +1,30 @@
 /**
- * Unit tests for getSignature() function
- * Testing backward-compatible fallback logic for entity brand colors
+ * Unit tests for ThemeStore and Color Generation logic
+ * Ported from legacy entities.test.js
  */
 
-// [FIX] Updated import path: getSignature is now in core-utils.js
-import { getSignature } from "../../../../src/gamemaster/utils.js";
+import { themeStore } from "../../../src/mesmer/logic/theme.svelte.js";
 
-describe("getSignature()", () => {
+describe("ThemeStore Color Generation", () => {
+  const getSignature = (e) => themeStore.getSignatureColor(e);
+
   describe("Modern entities with signatureColor", () => {
-    test("returns CSS variable for entity with signatureColor", () => {
+    test("returns hex value for entity with signatureColor", () => {
       const entity = { signatureColor: "cyan" };
       const result = getSignature(entity);
-      expect(result).toBe("var(--signature-cyan)");
+      expect(result).toBe("#06b6d4"); // PALETTE.cyan
     });
 
-    test("returns CSS variable for entity with pink signatureColor", () => {
+    test("returns hex value for entity with pink signatureColor", () => {
       const entity = { signatureColor: "pink" };
       const result = getSignature(entity);
-      expect(result).toBe("var(--signature-pink)");
+      expect(result).toBe("#ec4899"); // PALETTE.pink
     });
 
-    test("returns CSS variable for entity with emerald signatureColor", () => {
+    test("returns hex value for entity with emerald signatureColor", () => {
       const entity = { signatureColor: "emerald" };
       const result = getSignature(entity);
-      expect(result).toBe("var(--signature-emerald)");
+      expect(result).toBe("#10b981"); // PALETTE.emerald
     });
 
     test('skips signatureColor when set to "default"', () => {

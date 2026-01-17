@@ -13,7 +13,7 @@ export const status = $state({
   init() {
     if (typeof window === "undefined") return;
 
-    // Listen for Legacy Director Events
+    // Listen for GameMaster Events
     document.addEventListener("rpg:typing-start", () => this.setBusy(true));
     document.addEventListener("rpg:typing-stop", () => this.setBusy(false));
   },

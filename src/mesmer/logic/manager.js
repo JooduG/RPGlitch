@@ -4,7 +4,8 @@
  * Handles prompt composition and image generation calls.
  */
 
-import { log, error } from "../../gamemaster/utils.js";
+const log = console.log;
+const error = console.error;
 
 export const VisualManager = {
   /**

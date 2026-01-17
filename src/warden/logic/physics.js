@@ -330,11 +330,11 @@ export const calculateBlendedParams = (ai, user, fractal) => {
 // ============================================================================
 
 /**
- * THE DIRECTOR'S PLAYBOOK (WARDEN MODULE)
+ * THE GAMEMASTER'S PLAYBOOK (WARDEN MODULE)
  * Strategies for creative guidance, rerolls, and visual authorization.
  */
 
-export const DIRECTOR_NOTES = {
+export const GAMEMASTER_NOTES = {
   // --- PHYSICS DRIVERS (Deterministic) ---
   "High Velocity":
     "Pacing is rapid-fire. Sentences are bullets. Action dictates reality. No internal monologue.",
@@ -366,7 +366,7 @@ export const DIRECTOR_NOTES = {
     "Tactile grounding. Focus on an object—cleaning a gun, rolling a coin, adjusting a lens—to break the flow.",
 };
 
-const ALL_KEYS = Object.keys(DIRECTOR_NOTES);
+const ALL_KEYS = Object.keys(GAMEMASTER_NOTES);
 
 // --- HELPERS ---
 
@@ -386,7 +386,7 @@ const calculateOverlap = (str1, str2) => {
 // --- LOGIC ---
 
 /**
- * Analyzes rejected text to determine the best Director Note override.
+ * Analyzes rejected text to determine the best GameMaster Note override.
  */
 export const analyzeRejection = (rejectedText = "", userLastInput = "") => {
   if (!rejectedText) return getRandomNote();
@@ -433,12 +433,12 @@ export const analyzeRejection = (rejectedText = "", userLastInput = "") => {
   return getRandomNote();
 };
 
-export const getDirectorInstruction = (noteKey) => {
+export const getGameMasterInstruction = (noteKey) => {
   const instruction =
-    DIRECTOR_NOTES[noteKey] || DIRECTOR_NOTES["High Permeability"];
+    GAMEMASTER_NOTES[noteKey] || GAMEMASTER_NOTES["High Permeability"];
 
   return `
-[DIRECTOR_OVERRIDE]
+[GAMEMASTER_OVERRIDE]
 ACTION: CUT. Previous take rejected.
 NEW DIRECTION: "${noteKey}"
 INSTRUCTION: ${instruction}

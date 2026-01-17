@@ -5,7 +5,7 @@
   import Profile from "./scholar/Profile.svelte";
   import ControlPanel from "./warden/ControlPanel.svelte";
   import Lightbox from "./mesmer/Lightbox.svelte";
-  import DebugPanel from "./artificer/debug/DebugPanel.svelte";
+  import DebugPanel from "./warden/DebugPanel.svelte";
   import Storyboard from "./artificer/storyboard/Storyboard.svelte";
   import Storymode from "./artificer/storymode/Storymode.svelte";
 
@@ -26,7 +26,7 @@
     }
   }
 
-  // No more polling. The Director is now a reactive service (chrono).
+  // No more polling. The GameMaster is now a reactive service (chrono).
 
   // --- Global Effect: Settings Sync ---
   $effect(() => {

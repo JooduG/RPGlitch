@@ -11,7 +11,8 @@
  */
 
 import { LlmService } from "../gamemaster/llm.js";
-import { log, error } from "../gamemaster/utils.js";
+const log = console.log;
+const error = console.error;
 
 import { audioService } from "../mesmer/audio/service.js";
 
@@ -28,7 +29,7 @@ export { premade } from "./library/library.js";
 
 export const Scholar = {
   // =========================================================================
-  // 1. THE LIBRARIAN (UI Assistance)
+  // 1. THE CONSULTANT (UI Assistance)
   // =========================================================================
 
   /**

@@ -1,10 +1,8 @@
-import { Mesmer } from "../../../../src/mesmer/index.js";
-import { audioService } from "../../../../src/mesmer/audio/service.js";
-import { ThemeService } from "../../../../src/mesmer/logic/theme.js";
+import { Mesmer } from "../../../src/mesmer/index.js";
+import { audioService } from "../../../src/mesmer/audio/service.js";
 
 // Mock dependencies
-jest.mock("../../../../src/mesmer/audio/service.js");
-jest.mock("../../../../src/mesmer/logic/theme.js");
+jest.mock("../../../src/mesmer/audio/service.js");
 
 describe("Mesmer Engine", () => {
   beforeEach(() => {
@@ -19,15 +17,15 @@ describe("Mesmer Engine", () => {
   });
 
   describe("Theme (Mood)", () => {
-    test("setTheme() delegates to ThemeService", () => {
+    test("setTheme() sets css variable", () => {
       const el = document.createElement("div");
       Mesmer.setTheme(el, "cyan");
-      expect(ThemeService.apply).toHaveBeenCalledWith(el, "cyan");
+      expect(el.style.getPropertyValue("--primary")).toBe("cyan");
     });
 
-    test("getColor() delegates to ThemeService", () => {
-      Mesmer.getColor("cyan");
-      expect(ThemeService.getColor).toHaveBeenCalledWith("cyan");
+    test("getColor() returns correct hex", () => {
+      expect(Mesmer.getColor("cyan")).toBe("#00ffff");
+      expect(Mesmer.getColor("unknown")).toBe("unknown");
     });
   });
 

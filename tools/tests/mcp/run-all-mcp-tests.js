@@ -57,6 +57,7 @@ class StdioJsonRpc {
   }
   _onData(chunk) {
     this.buf = Buffer.concat([this.buf, chunk]);
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       const headerEnd = this.buf.indexOf("\r\n\r\n");
       if (headerEnd === -1) break;

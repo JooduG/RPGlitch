@@ -1,5 +1,5 @@
 import { audioService } from "./audio/service.js";
-import { ThemeService } from "./logic/theme.js";
+// import { ThemeService } from "./logic/theme.js"; // Deleted
 import { VisualManager } from "./logic/manager.js";
 import { LlmService } from "../gamemaster/llm.js";
 // import { VisualManager } from "./ui/components/visuals/manager.js"; // Legacy UI Manager - probably delete this import if VisualManager is legacy UI?
@@ -9,7 +9,7 @@ import { LlmService } from "../gamemaster/llm.js";
 import { events, EVENTS, store as state } from "../gamemaster/index.js";
 import { CONFIG, ROLES } from "../gamemaster/config.js";
 import { entities, ContextBuilder } from "../scholar/index.js";
-import { error } from "../gamemaster/utils.js";
+const error = console.error;
 
 const { PHYSICS } = CONFIG;
 const PHYSICS_CONSTANTS = PHYSICS;
@@ -32,26 +32,37 @@ export const Mesmer = {
 
   // --- THEME (ILLUSION: MOOD) ---
 
-  /**
-   * Apply a signature color theme to a DOM element.
-   * @param {HTMLElement} element
-   * @param {string} colorName
-   */
+  // Theme Service Stub (Inline)
   setTheme: (element, colorName) => {
-    return ThemeService.apply(element, colorName);
+    if (!element) return;
+    element.style.setProperty("--primary", colorName); // Basic
+    // Could map 'cyan' to hex etc.
   },
 
   /**
    * Get the hex code for a color name.
    */
   getColor: (colorName) => {
-    return ThemeService.getColor(colorName);
+    // Basic map
+    const colors = {
+      cyan: "#00ffff",
+      magenta: "#ff00ff",
+      lime: "#00ff00",
+      yellow: "#ffff00",
+      orange: "#ffa500",
+      zinc: "#71717a",
+      emerald: "#10b981",
+      indigo: "#6366f1",
+      purple: "#a855f7",
+      pink: "#ec4899",
+    };
+    return colors[colorName] || colorName;
   },
 
   // --- VISUALS (ILLUSION: LIGHT) ---
 
   /**
-   * Visualizer Pipeline (Migrated from Director._handleVisuals)
+   * Visualizer Pipeline (Migrated from GameMaster._handleVisuals)
    * Generates a scene or character image based on a raw intent.
    */
   visualize: async (storyId, visualPrompt, targetType, options = {}) => {

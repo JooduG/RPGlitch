@@ -1,7 +1,10 @@
+// Replaced utils import
 import { app } from "../artificer/state.svelte.js";
 import { runtime } from "../scholar/runtime.svelte.js";
 import { ERROR_MESSAGES } from "./config.js";
-import { error as utilsError, log } from "./utils.js";
+
+const utilsError = console.error;
+const log = console.log;
 
 /**
  * 🧠 CONTEXT BROKER
@@ -31,11 +34,11 @@ export class ContextBroker {
     const system = this.injectLayers(context, type);
 
     // 4. Format Messages
-    // We assume the Director/Session handles the message history loading separately
+    // We assume the GameMaster/Session handles the message history loading separately
     // but the payload needs strict structure.
     return {
       system,
-      // Messages will be appended by Director usually, but we define the shape here
+      // Messages will be appended by GameMaster usually, but we define the shape here
       messages: [],
       params: {
         temperature: type === "physics" ? 0.3 : 0.8, // Dynamic Temp

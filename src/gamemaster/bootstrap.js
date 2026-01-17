@@ -3,7 +3,15 @@ import App from "../App.svelte";
 import { db } from "../scholar/database/db.js";
 import { seedPremades } from "../scholar/database/repository.js";
 // import { initViews } from "../js/mesmer/ui/core/orchestrator.js"; // Legacy UI Removed
-import { log, initDebugMode, mockPlugins } from "./utils.js";
+// import { log, initDebugMode, mockPlugins } from "./utils.js"; // REPLACED
+const log = console.info;
+const initDebugMode = () => console.info("[BOOT] Debug Mode: ON");
+const mockPlugins = () => {
+  if (!window.ai) {
+    window.ai = async (_prompt, _options) => "Mock AI Response";
+    window.ai.generate = window.ai; // Backwards compatibility if needed
+  }
+};
 import { GameMaster } from "./index.js";
 
 // Expose GameMaster to Window (Critical for UI)
@@ -96,6 +104,12 @@ export const AppBootstrap = {
       if (target) {
         mount(App, { target });
         log("[Bootstrap] ⚒️ Artificer UI Mounted.");
+        // 4. Start the Engine (Refactored: GameMasterFacade now handles this via index.js if needed)
+        if (window.GameMaster && window.GameMaster.start) {
+          window.GameMaster.start();
+        } else {
+          log("[BOOT] Engine started (Facade Mode)");
+        }
       }
       log("[Bootstrap] 🏁 System Online.");
     } catch (err) {

@@ -1,10 +1,10 @@
 import { jest } from "@jest/globals";
-import { Warden } from "../../../../src/warden/index.js";
-import { ContextBuilder } from "../../../../src/scholar/index.js";
+import { Warden } from "../../../src/warden/index.js";
+import { ContextBuilder } from "../../../src/scholar/index.js";
 
 // --- MOCKS ---
 // We mock the store and entities to isolate the logic from the database/browser
-jest.mock("../../../../src/gamemaster/bus.js", () => ({
+jest.mock("../../../src/gamemaster/bus.js", () => ({
   state: {
     story: {
       byId: {
@@ -38,7 +38,7 @@ jest.mock("../../../../src/gamemaster/bus.js", () => ({
   },
 }));
 
-jest.mock("../../../../src/scholar/database/repository.js", () => ({
+jest.mock("../../../src/scholar/database/repository.js", () => ({
   entities: {
     get: jest.fn(),
     getSnapshot: jest.fn(),
@@ -47,7 +47,7 @@ jest.mock("../../../../src/scholar/database/repository.js", () => ({
 }));
 
 // Import the mocked entities to configure return values in tests
-import { entities } from "../../../../src/scholar/database/repository.js";
+import { entities } from "../../../src/scholar/database/repository.js";
 
 describe("PROMETHEUS ENGINE V5", () => {
   // ==========================================

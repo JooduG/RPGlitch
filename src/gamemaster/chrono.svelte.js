@@ -71,7 +71,7 @@ export class ChronoStore {
       app.simulation.status = "forecasting"; // Phase 2
       app.log(`LLM synthesizing turn ${app.simulation.turn + 1}...`, "ai");
 
-      // The GM facade maps generateAiResponse -> Director.playTurn(storyId, options)
+      // The GM facade maps generateAiResponse -> GameMaster.generateAiResponse(storyId, options)
       // We pass wardenContext in options if needed, though Warden likely already updated DB.
       await GameMaster.generateAiResponse(storyId, {
         wardenContext,

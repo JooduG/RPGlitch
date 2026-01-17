@@ -7,10 +7,9 @@
 import { state } from "../../gamemaster/bus.js";
 import { entities } from "../database/repository.js";
 import { ROLES } from "../../gamemaster/config.js";
-import { Screenplay } from "../../gamemaster/screenplay.js";
 import { Warden } from "../../warden/index.js";
 import { Mesmer } from "../../mesmer/index.js";
-import { templateConsult, templateEcho } from "./prose.js";
+import { templateConsult, templateEcho, Screenplay } from "./prose.js";
 
 export class ContextBuilder {
   constructor(storyId) {
@@ -213,7 +212,7 @@ Analyze the last message and output JSON:
   // =========================================================================
 
   buildScholarPrompt(field, content, context) {
-    // Replaces buildLibrarian
+    // Replaces buildScholarPrompt
     const system = templateConsult(field, content, context);
     return { system, messages: [] };
   }

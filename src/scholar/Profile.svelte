@@ -8,7 +8,7 @@
   import { Scholar, entities } from "./index.js";
   import { CONFIG } from "../gamemaster/config.js";
 
-  import { voiceService } from "../mesmer/audio/voice.js";
+  import { voiceService } from "../mesmer/audio/voice.svelte.js";
   import { audioService } from "../mesmer/audio/service.js";
   import { themeStore } from "../mesmer/logic/theme.svelte.js";
 
@@ -36,7 +36,8 @@
   let magicBusy = $state({});
 
   // Voice Logic
-  let voices = $state([]);
+  // [MODERNIZED] Use Reactive Service directly (No manual sync)
+  let voices = $derived(voiceService.voices);
   let selectedVoice = $derived(voices.find((v) => v.uri === char.voice?.uri));
   let isNaturalVoice = $derived(
     selectedVoice &&
@@ -47,20 +48,7 @@
   // Plot Logic (Dev Mode)
   let plotInput = $state("");
 
-  $effect(() => {
-    const initVoices = async () => {
-      await voiceService.init();
-      voices = voiceService.getVoices();
-    };
-    initVoices();
-    if (window.speechSynthesis.onvoiceschanged !== undefined) {
-      window.speechSynthesis.onvoiceschanged = () => {
-        voiceService._loadVoices().then(() => {
-          voices = voiceService.getVoices();
-        });
-      };
-    }
-  });
+  // Voice service is auto-reactive
 
   async function save() {
     isSaving = true;

@@ -1,8 +1,6 @@
 import * as sass from "sass";
 import postcss from "postcss";
 import autoprefixer from "autoprefixer";
-import fs from "fs/promises";
-import path from "path";
 import { PATHS } from "./config.js";
 
 export async function compileStyles() {

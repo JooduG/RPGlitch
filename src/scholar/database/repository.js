@@ -5,7 +5,8 @@
  */
 
 import { db } from "./db.js";
-import { log, error } from "../../gamemaster/utils.js";
+const log = console.log;
+const error = console.error;
 import { normalize, premade, STORAGE_VERSION } from "../library/library.js";
 
 // ============================================================================
