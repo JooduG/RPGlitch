@@ -1,26 +1,30 @@
+/* FILE: src/mesmer/index.js */
 import { audioService } from "./audio/service.js";
-// import { ThemeService } from "./logic/theme.js"; // Deleted
+import { voiceService } from "./audio/voice.svelte.js"; // <--- THE NEW REACTIVE VOICE
 import { VisualManager } from "./logic/manager.js";
 import { LlmService } from "../gamemaster/llm.js";
-// import { VisualManager } from "./ui/components/visuals/manager.js"; // Legacy UI Manager - probably delete this import if VisualManager is legacy UI?
-// Checking file usage... VisualManager seems to be legacy.
-// Let's comment it out for now.
-// import { VisualManager } from "./ui/components/visuals/manager.js";
 import { events, EVENTS, store as state } from "../gamemaster/index.js";
 import { CONFIG, ROLES } from "../gamemaster/config.js";
 import { entities, ContextBuilder } from "../scholar/index.js";
-const error = console.error;
 
+const error = console.error;
 const { PHYSICS } = CONFIG;
 const PHYSICS_CONSTANTS = PHYSICS;
 
 /**
  * THE MESMER
- * The Illusionist. Master of Light (Visuals), Sound (Audio), and Mood (Theme).
- * Consolidates "Prometheus Maestro" with Audio/Theme services.
+ * The Illusionist. Master of Light (Visuals), Sound (Audio/Voice), and Mood (Theme).
+ * Consolidates "Prometheus Maestro" with Audio/Voice/Theme services.
  */
 export const Mesmer = {
   // --- AUDIO (ILLUSION: SOUND) ---
+
+  /**
+   * The Native Voice Store (Svelte 5 Reactive)
+   * Usage: Mesmer.voice.speak("Hello")
+   * usage: $derived(Mesmer.voice.isSpeaking)
+   */
+  voice: voiceService,
 
   /**
    * Play a sound effect or notification.
@@ -32,18 +36,18 @@ export const Mesmer = {
 
   // --- THEME (ILLUSION: MOOD) ---
 
-  // Theme Service Stub (Inline)
+  /**
+   * Set the primary theme color dynamically.
+   */
   setTheme: (element, colorName) => {
     if (!element) return;
-    element.style.setProperty("--primary", colorName); // Basic
-    // Could map 'cyan' to hex etc.
+    element.style.setProperty("--primary", colorName);
   },
 
   /**
    * Get the hex code for a color name.
    */
   getColor: (colorName) => {
-    // Basic map
     const colors = {
       cyan: "#00ffff",
       magenta: "#ff00ff",
@@ -62,7 +66,7 @@ export const Mesmer = {
   // --- VISUALS (ILLUSION: LIGHT) ---
 
   /**
-   * Visualizer Pipeline (Migrated from GameMaster._handleVisuals)
+   * Visualizer Pipeline
    * Generates a scene or character image based on a raw intent.
    */
   visualize: async (storyId, visualPrompt, targetType, options = {}) => {
@@ -132,36 +136,23 @@ export const Mesmer = {
   },
 
   /**
-   * Extraction Pipeline (Migrated from ProfileController.generatePortrait)
+   * Extraction Pipeline
    * Scrapes a description to generate a portrait.
    */
   extract: async (characterId) => {
     try {
-      // 1. Fetch Character Data
       const character = await entities.get("character", characterId);
       if (!character) throw new Error("Character not found");
 
-      // 2. Build Prompt Strategy
       const builder = new ContextBuilder(null);
       const { system } = await builder.buildMesmerExtract(
         character.description || character.name,
       );
 
-      // 3. Generate the optimized prompt
       const refinedPrompt = await LlmService.generate({ system, messages: [] });
-
-      // 4. Generate the Image
       const imageUrl = await VisualManager.generate(refinedPrompt, {
-        resolution: "512x768", // Portrait Aspect Ratio
+        resolution: "512x768",
       });
-
-      // 5. Save Logic (Managed by Caller or Repo, but here we can return the URL)
-      // The original controller updated the entity. Should we do it here?
-      // Yes, Mesmer is an Engine component, it can mutate state if requested.
-      // But adhering to "Illusionist" role, maybe it just returns the illusion?
-      // "ProfileController" called `entities.update`.
-      // Let's return the URL and let the Controller update the DB to keep separation of concerns.
-      // Controller manages State. Mesmer manages Illusions.
 
       return imageUrl;
     } catch (e) {
@@ -171,17 +162,11 @@ export const Mesmer = {
   },
 
   // --- PROMPT TEMPLATES ---
-  // Migrated from Strategies.maestro
 
-  /**
-   * Template: Mesmer Visual (Prompt Generation)
-   */
   templateVisual: (targetType, rawIntent, context) => {
     const { ai, user, fractal, history, mode = "visualize" } = context || {};
     let ctxBlock = "";
 
-    // [STRICT CONTEXT SCOPING]
-    // Only inject reference data relevant to the specific target to prevent "Character Bleed"
     switch (targetType) {
       case "scene":
         ctxBlock = `
@@ -203,8 +188,8 @@ Constraint: **SOLO PROTOCOL.** This image MUST feature ONLY the User. Do NOT inc
         break;
 
       case "ai":
-      case "character": // [REVERT] Back to AI default. "My Character" = AI.
-      default: // Default to AI if unspecified or "self"
+      case "character":
+      default:
         ctxBlock = `
 [CONTEXT: AI_ENTITY (CHARACTER)]
 Identity: ${ai?.name || "AI"}
@@ -258,9 +243,4 @@ Input Context (Intent): "${rawIntent || "See raw input"}"
 4. **STYLE:** 8k, photorealistic, cinematic lighting.
 `;
   },
-
-  /**
-   * CONSTANTS
-   */
-  // VISUAL_CORTEX moved to constants.js
 };

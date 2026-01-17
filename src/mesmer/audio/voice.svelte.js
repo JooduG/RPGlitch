@@ -23,7 +23,7 @@ export class VoiceStore {
       this._loadVoices();
 
       // Handle async voice loading
-      if (this._synth.onvoiceschanged !== undefined) {
+      if (this._synth && this._synth.onvoiceschanged !== undefined) {
         this._synth.onvoiceschanged = () => this._loadVoices();
       }
     }
