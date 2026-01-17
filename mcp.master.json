@@ -72,7 +72,7 @@
     "npm-sentinel": {
       "command": "cmd",
       "args": ["/c", "npx", "-y", "@nekzus/mcp-server@latest"],
-      "disabled": true
+      "disabled": false
     },
     "pollinations": {
       "command": "cmd",

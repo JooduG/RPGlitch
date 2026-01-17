@@ -48,13 +48,38 @@ $effect(() => {
 });
 ```
 
+## 2. Component API
+
+### 📦 Props (`$props`)
+
+- **Legacy (BANNED):** `export let data;`
+- **Modern (REQUIRED):**
+
+```javascript
+let { name = "Anon", visible = false } = $props();
+```
+
+### 🔗 Two-Way Binding (`$bindable`)
+
+- **Modern (REQUIRED):**
+
+```javascript
+let { value = $bindable() } = $props();
+```
+
+### 🖱️ Events & Attributes
+
+- **Rule:** Use standard HTML attributes.
+- ❌ `on:click` -> ✅ `onclick`
+- ❌ `class:active={isActive}` -> ✅ `class={isActive ? "active" : ""}` (Standard JS)
+
 ## 3. The Agentic Protocol (MCP Tools)
 
 **You MUST use the Svelte MCP Toolbelt for complex UI tasks.**
 
 ### Phase 1: Discovery
 
-- **Tool:** Use the Svelte MCP to **Search** documentation.
+- **Tool:** Use the Svelte MCP to **Search** documentation (`search_documentation`).
 - **Query:** Look for "runes", "snippets", or "reactivity" to ensure you are using v5 patterns.
 
 ### Phase 2: Acquisition

@@ -13,15 +13,15 @@
 
 ## 🛠️ MCP Tool Matrix
 
-| Intent    | Tool                 |
-| :-------- | :------------------- |
-| **Logic** | `sequentialthinking` |
-| **Docs**  | `context7`           |
-| **Repo**  | `deepwiki`           |
-| **UI**    | `svelte-docs`        |
+| Intent      | Tool                                |
+| :---------- | :---------------------------------- |
+| **Logic**   | `sequentialthinking`                |
+| **Docs**    | `context7` / `search_documentation` |
+| **Repo**    | `deepwiki` / `search_code` (GitHub) |
+| **Hygiene** | `npmVulnerabilities`                |
 
 ## 🚀 Standard Operating Procedures
 
 - **Refactor:** `npm run lint:fix` loop.
 - **Deploy:** Use the `/deploy` workflow.
-- **Errors:** Use the `/continue` workflow.
+- **Clean:** Use the `/clean` workflow (Includes Vulnerability Scan).
