@@ -13,7 +13,7 @@ window.DOMPurify = DOMPurify;
 
 // Import and run the full bootstrap sequence
 // This handles: Freedom Protocol, DB init, seedPremades, Svelte mount, GameMaster
-import { AppBootstrap } from "./gamemaster/bootstrap.js";
+import "./gamemaster/bootstrap.js";
 
 // AppBootstrap handles its own DOMContentLoaded check
 // See bootstrap.js lines 129-135

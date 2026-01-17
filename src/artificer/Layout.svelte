@@ -125,7 +125,7 @@
     z-index: 100;
     pointer-events: none;
     align-self: stretch;
-    height: 100%;
+    /* height: 100%; <-- Removed */
     display: flex;
     justify-content: center;
 
@@ -139,7 +139,8 @@
     padding-top: 15vh;
   }
   .stage-footer {
-    align-items: flex-end;
+    align-self: flex-end; /* Push to bottom of grid cell */
+    /* align-items: flex-end; <-- Removed (Defaults to stretch/center depending on flux) */
     padding-bottom: 15vh;
   }
 

@@ -113,5 +113,8 @@
 
   .controls-layer {
     margin-top: auto;
+    pointer-events: auto; /* Ensure clickable */
+    display: flex;
+    justify-content: center;
   }
 </style>

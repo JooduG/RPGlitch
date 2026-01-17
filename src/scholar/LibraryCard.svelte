@@ -144,15 +144,17 @@
       .entity-name {
         font-size: 0.85rem;
         font-weight: 800;
-        color: #fff;
-        white-space: nowrap;
+        color: var(--signature-color);
+        display: -webkit-box;
+        line-clamp: 2;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
         overflow: hidden;
-        text-overflow: ellipsis;
       }
 
       .entity-desc {
         font-size: 0.7rem;
-        color: rgba(255, 255, 255, 0.5);
+        color: #ffffff;
         line-height: 1.3;
         display: -webkit-box;
         line-clamp: 2;

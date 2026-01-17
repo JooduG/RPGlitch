@@ -83,6 +83,8 @@
       window.removeEventListener("keydown", handleKeydown);
     };
   });
+  import Typography from "./mesmer/ui/Typography.svelte";
+  /* ... imports ... */
 </script>
 
 {#if mounted}
@@ -93,6 +95,7 @@
     class:has-tension={app.tension > 0}
     transition:fade={{ duration: 800 }}
   >
+    <Typography />
     <!-- FRACTAL BACKGROUND -->
     {#if app.selectedFractal?.profilePictureUrl}
       <div

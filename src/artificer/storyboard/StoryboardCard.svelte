@@ -97,10 +97,9 @@
 
     <!-- Bottom Half: Info & Trigger for Selection -->
     <button class="card-bottom" onclick={onSelect}>
-      <span class="role-label" style="color: var(--signature-color)">
-        {roleLabel}
-      </span>
-      <h3>{entity?.name || `Select ${roleLabel}`}</h3>
+      <h3 style="color: var(--signature-color)">
+        {entity?.name || `Select ${roleLabel}`}
+      </h3>
 
       <p>{entity?.description || "Click to browse choices..."}</p>
     </button>
@@ -292,31 +291,28 @@
       background: #111114;
     }
 
-    .role-label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      font-weight: 800;
-      margin-bottom: 0.25rem;
-    }
-
     h3 {
       margin: 0;
-      color: #fff;
+      color: #fff; /* Overridden inline but good fallback */
       font-size: 1.4rem;
       font-weight: 800;
       letter-spacing: -0.5px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      line-height: normal; /* "Nova City" Fix: 1.3 was interacting poorly with clamp */
+      padding-block: 4px; /* More breathing room for descenders */
+      overflow: visible; /* Let it bleed slightly if needed, container catches it */
+      display: block; /* Remove line clamp conflict */
+      /* display: -webkit-box;  <-- Removing clamp for now to ensure visibility */
+      /* line-clamp: 2; */
     }
 
     p {
       margin: 0;
-      color: #a1a1aa;
+      color: #ffffff;
       font-size: 0.95rem;
       line-height: 1.5;
+      display: -webkit-box;
       line-clamp: 3;
+      -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
