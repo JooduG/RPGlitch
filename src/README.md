@@ -73,36 +73,38 @@ RPGlitch supersedes standard chatbot patterns by implementing a **Simulation Eng
 
 - **Role:** Context Architect.
 - **Function:** Assembles the prompt using a **Layered Injection Strategy**.
-  - **Layer 1 (System):** Enforces absolute agency and format strictness.
-  - **Layer 2 (Fractal):** Injects environmental constants (weather, physics).
-  - **Layer 3 (Entity):** Injects the real-time snapshot of the character.
+- **Layer 1 (System):** Enforces absolute agency and format strictness.
+- **Layer 2 (Fractal):** Injects environmental constants (weather, physics).
+- **Layer 3 (Entity):** Injects the real-time snapshot of the character.
+
 - **Key Feature:** Implements the **Hierarchy of Truth** (Present State overrides Permanent Traits) to prevent hallucinations.
 
 ### 2. The Physicist (`js/engine-physics.js`)
 
 - **Role:** State Simulation.
 - **Function:** A background process that runs _after_ the AI writes prose. It calculates abstract narrative variables to steer the next turn:
-  - **Entropy:** Measures narrative chaos and disorder.
-  - **Velocity:** Measures pacing and urgency.
-  - **Permeability:** Measures emotional openness or defensiveness.
+- **Entropy:** Measures narrative chaos and disorder.
+- **Velocity:** Measures pacing and urgency.
+- **Permeability:** Measures emotional openness or defensiveness.
+
 - **Mechanism:** These values are injected into the next prompt to mathematically force the AI's writing style to match the dramatic moment.
 
 ### 3. The Manager (`js/manager-turns.js`)
 
 - **Role:** Orchestration & Developer Mode.
 - **Function:**
-  - **Turn Loop:** Handles the user input -> database -> prompt -> AI -> database cycle.
-  - **Developer Mode:** If a message is rejected (regenerated), it injects a hidden **Variance Directive** (e.g., "Increase aggression") to ensure the retry is distinctly different.
-  - **State Rollback:** Prevents "ghost memories" by reverting physics updates when a turn is deleted.
-  - **Director Mode:** Internal monologues (`<think>`) and raw debugging data are now hidden by default and controlled via the Settings toggle.
-  - **Continuation Protocol:** The engine allows extending AI responses seamlessly using the "Continue" action.
+- **Turn Loop:** Handles the user input -> database -> prompt -> AI -> database cycle.
+- **Developer Mode:** If a message is rejected (regenerated), it injects a hidden **Variance Directive** (e.g., "Increase aggression") to ensure the retry is distinctly different.
+- **State Rollback:** Prevents "ghost memories" by reverting physics updates when a turn is deleted.
+- **Director Mode:** Internal monologues (`<think>`) and raw debugging data are now hidden by default and controlled via the Settings toggle.
+- **Continuation Protocol:** The engine allows extending AI responses seamlessly using the "Continue" action.
 
 ### 4. The Shield (`js/index.js` & `js/utils.js`)
 
 - **Role:** Platform Compliance & Stability.
 - **Function:**
-  - **Passive Shield:** Intercepts storage calls to prevent the hosting platform from flagging the session.
-  - **Active Pulse:** Clears penalty flags immediately before every generation request to ensure zero downtime.
+- **Passive Shield:** Intercepts storage calls to prevent the hosting platform from flagging the session.
+- **Active Pulse:** Clears penalty flags immediately before every generation request to ensure zero downtime.
 
 ---
 
@@ -137,17 +139,26 @@ While the engine allows for unrestricted narrative content, the application itse
 
 ```text
 src/
-├── RPGlitch-left-panel.txt    # Perchance engine imports
-├── index.html                 # Main UI template
-├── js/
-│   ├── core/                  # App Foundation (Bootstrap, DB, Events)
-│   ├── data/                  # Data Layer (Models, Repo)
-│   ├── engine/                # Simulation Logic (Director, Physics)
-│   ├── services/              # Shared Services (Theme, Audio, LLM)
-│   └── ui/                    # User Interface (Orchestrator, Components)
-└── scss/
-    ├── index.scss             # Entry point
-    └── ...                    # Modular SCSS structure
+├── RPGlitch-left-panel.txt   # Perchance engine imports
+├── index.html                # Main UI template (Vite Entry)
+├── App.svelte                # Root Component
+├── artificer/                # 🎨 The Body (UI Components)
+│   ├── storyboard/           # The 10-col Grid
+│   ├── storymode/            # The Chat Interface
+│   └── state.svelte.js       # Global UI State
+├── gamemaster/               # 🧠 The Brain (Orchestration)
+│   ├── chrono.svelte.js      # Time & Turn Logic
+│   └── llm.js                # AI Generation Service
+├── mesmer/                   # 👁️ The Senses (Audio/Visual)
+│   └── voice.svelte.js       # Reactive Voice Store
+├── scholar/                  # 📚 The Memory (Database)
+│   ├── library/              # The "Echo" Repository
+│   └── index.js              # Database Entry
+├── warden/                   # 🛡️ The Law (Security/Parser)
+│   └── index.js              # DOMPurify & Validation
+└── scss/                     # 💅 The Skin (Design System)
+    ├── index.scss            # Main entry
+    └── ...                   # 7-1 Architecture
 ```
 
 ## Build
@@ -169,6 +180,6 @@ dist/RPGlitch.html
 
 ## Related Documentation
 
-- [Deployment & Integration Guide](../../.agent/knowledge/perchance-technical.md)
-- [UI/UX Guidelines](../../.agent/rules/style.md)
-- [Agent Protocol](../../AGENTS.md)
+- [Deployment & Integration Guide](../.agent/knowledge/perchance-technical.md)
+- [UI/UX Guidelines](../.agent/rules/style.md)
+- [Agent Protocol](../AGENTS.md)

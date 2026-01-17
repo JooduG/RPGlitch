@@ -18,7 +18,7 @@
 | **Logic** | `sequentialthinking` |
 | **Docs**  | `context7`           |
 | **Repo**  | `deepwiki`           |
-| **UI**    | `svelte-autofixer`   |
+| **UI**    | `svelte-docs`        |
 
 ## 🚀 Standard Operating Procedures
 

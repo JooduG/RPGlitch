@@ -48,58 +48,28 @@ $effect(() => {
 });
 ```
 
-## 2. Component API
+## 3. The Agentic Protocol (MCP Tools)
 
-### 📦 Props (`$props`)
+**You MUST use the Svelte MCP Toolbelt for complex UI tasks.**
 
-- **Legacy (BANNED):** `export let data;`
-- **Modern (REQUIRED):**
+### Phase 1: Discovery
 
-```javascript
-let { name = "Anon", visible = false } = $props();
-```
+- **Tool:** Use the Svelte MCP to **Search** documentation.
+- **Query:** Look for "runes", "snippets", or "reactivity" to ensure you are using v5 patterns.
 
-### 🔗 Two-Way Binding (`$bindable`)
+### Phase 2: Acquisition
 
-- **Modern (REQUIRED):**
+- **Tool:** Fetch the specific documentation page.
+- **Goal:** Get the strict syntax. **DO NOT GUESS.**
 
-```javascript
-let { value = $bindable() } = $props();
-```
+### Phase 3: Construction (Manual Strictness)
 
-### 🖱️ Events & Attributes
+- **Action:** Since an auto-fixer is not available, you must **Lint** your own code against the "Runes Bible" before outputting.
+- **Strictness:** Do not ship legacy `export let` or `writable` stores.
 
-- **Rule:** Use standard HTML attributes.
-- ❌ `on:click` -> ✅ `onclick`
-- ❌ `class:active={isActive}` -> ✅ `class={isActive ? "active" : ""}` (Standard JS)
+### Phase 4: Delivery
 
-## 3. Global State Management
-
-**DO NOT** use `writable()` stores. State belongs in `.svelte.js` modules.
-
-### ✅ The Correct Pattern (Classes)
-
-```javascript
-/* src/mesmer/audio/voice.svelte.js */
-class VoiceStore {
-  isSpeaking = $state(false);
-  volume = $state(0.8);
-
-  speak(text) {
-    this.isSpeaking = true;
-    // ... logic
-  }
-}
-export const voice = new VoiceStore();
-```
-
-### ❌ The Banned Pattern (Stores)
-
-```javascript
-/* BAD */
-import { writable } from "svelte/store"; // DELETE THIS
-export const voice = writable({ isSpeaking: false });
-```
+- **Constraint:** NEVER output code if it hasn't been mentally validated against the Svelte 5 rules.
 
 ## 4. Coding Standards
 
