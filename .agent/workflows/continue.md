@@ -4,42 +4,26 @@ description: Resilience Protocol. Analyzes broken state, fixes syntax errors cau
 
 # 🔄 Resilience & Recovery Protocol
 
-This workflow triggers when the Agent or User detects an interruption (e.g., "Network Error", "Max Tokens", or a crashed output).
+> **Goal:** Recover context after an interruption or token limit cut.
 
-## 1. State Analysis (Turbo)
+## 1. State Analysis
 
-First, identify which file was left in a "zombie" state.
+1. **Check Status:** Run `git status` or list active files.
+2. **Reload Rules (CRITICAL):**
+   - You **MUST** read `.agent/rules/architecture.md` and `.agent/rules/svelte-5.md` before writing a single line of code.
+   - _Reason:_ Without this, you might hallucinate Svelte 4 syntax.
 
-1. **Check Status:**
-   - Run command:
+## 2. Syntax Repair
 
-     ```bash
-     // turbo
-     git status
-     ```
+Interruptions often leave unclosed brackets.
 
-2. **Identify Target:** Look for the modified file that matches the user's last request.
+1. **Auto-Repair:** Run `npm run lint:fix`.
+2. **Manual Check:** If the last file ended abruptly, close the blocks manually (`}});`).
 
-## 2. Syntax Repair (The Tourniquet)
+## 3. Resume Operation
 
-Interruptions often leave unclosed brackets `}` or broken strings. We must fix the structure before adding logic.
-
-1. **Auto-Repair:**
-   - Run the linter to attempt an auto-close of blocks:
-
-     ```bash
-     // turbo
-     npm run lint:fix
-     ```
-
-2. **Manual Check:**
-   - If `lint:fix` fails, read the **last 20 lines** of the target file.
-   - **Action:** Manually append the missing `});` or closing tags to make the file valid.
-
-## 3. Context Re-Acquisition
-
-1. **Read Artifacts:** Review the active **Task List Artifact**. Which box is unchecked?
-2. **Resume:**
-   - **DO NOT** rewrite the entire file.
-   - **DO** generate a `Diff` that starts exactly where the previous code cut off.
-   - **Prompt:** "Resuming task [X] from line [Y]..."
+1. **Identify the Task:** Read `task.md` or the last user prompt.
+2. **Continue:**
+   - **DO NOT** rewrite the whole file if it's large.
+   - **DO** use `sed` or `append` if possible, OR rewrite only the missing chunk.
+   - **Prompt:** "Resuming [Task Name]..."

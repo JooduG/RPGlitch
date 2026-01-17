@@ -4,35 +4,27 @@ description: Aggressive cleanup protocol. Runs linters, formatters, and tests in
 
 # 🧹 Deep Clean Protocol
 
-> **Goal:** Ensure the codebase is syntactically perfect and test-green.
+> **Goal:** Purge legacy code, zombie files, and enforce strict hygiene.
+> **Constraint:** Zero Tolerance. No warnings allowed.
 
-1. **Auto-Fix (The Scrub):**
-   - Run standard fixers to catch low-hanging fruit.
+## 1. The Purge
 
-   ```bash
-   // turbo
-   npm run lint:fix
-   ```
+1. **Target:** Identify the specific folders/files to delete.
+2. **Execute:** Use `rm -rf` or file system deletion tools.
+3. **Verify:** Check that the path returns 404/Missing.
 
-2. **Test & Verify (The Audit):**
-   - Run the full test suite.
+## 2. The Sterilization (Hygiene & Lint)
 
-   ```bash
-   // turbo
-   npm test
-   ```
+After deleting files, you **MUST** run the full suite.
 
-   - **Condition:**
-     - 🔴 **FAIL:** Fix specific errors, then GOTO Step 1.
-     - 🟢 **PASS:** Proceed to Step 3.
+1. **Hygiene:** Run `npm run hygiene` (Executes `tools/ops/hygiene.js`).
+   - **FAIL:** Any "Unused Export" or "Dead Import".
+2. **Lint:** Run `npm run lint:fix`.
+   - **FAIL:** Any ESLint warning or formatting error.
+3. **Test:** Run `npm test`.
+   - **FAIL:** Any broken unit test.
 
-3. **Hygiene Check (The White Glove):**
-   - Scan for "developer leftovers" like `console.log` or `debugger`.
+## 3. The Rebuild
 
-   ```bash
-   // turbo
-   npm run hygiene
-   ```
-
-4. **Final Report:**
-   - Output: "✨ Codebase is CLEAN and GREEN."
+1. **Sync:** Run `npm run sync` to regenerate auto-generated lists (e.g., Palette).
+2. **Confirm:** "System Clean. Hygiene Passed. 0 Warnings."

@@ -3,97 +3,55 @@ trigger: always_on
 description: Contains mandatory coding standards, tech stack constraints (Node 22, Pico.css, Dexie.js), and monorepo architecture rules. Apply this rule whenever writing, refactoring, or reviewing code.
 ---
 
-# 🛠️ Technology Stack & Constraints
+# 🛠️ The Tech Stack (Svelte 5 Native)
 
-Defines the hard technical constraints and tooling choices for the project.
+> **Directive:** Modern Standards Only. No Legacy Debt. Maximum Integrity.
 
-> **Core Principle:** Vanilla at the core, clean dependencies, maximum integrity.
+## 1. Core Framework
 
----
+- **Engine:** **Svelte 5 (Runes)**.
+- **Paradigm:** Reactivity via `$state`, `$derived`, `$effect`.
+- **Constraint:** `writable()` and `readable()` stores are **DEPRECATED** for internal logic. Use `.svelte.js` modules for global state.
 
-## 1. Runtime Environment
+## 2. Build & Runtime
 
-### 🟢 Node.js (Build Time)
+- **Bundler:** **Vite 6+** (Replaces esbuild).
+- **Target:** **Single HTML Monolith** (The "Artifact").
+  - CSS, JS, and Assets must be **inlined**.
+  - No external HTTP requests for core functionality (Offline First).
+- **Environment:** Node.js 22.x (Build Time).
+- **Legacy Ban:** No CommonJS (`require`). No Polyfills for dead browsers.
 
-- **Version:** 22.x
-- **Role:** Build pipeline, linting, testing.
-- **Constraint:** No server-side runtime logic (Client-only app).
+## 3. Data & Persistence
 
-### 🌐 Browser (Runtime)
+- **Database:** **Dexie.js** (IndexedDB Wrapper).
+- **Pattern:** The "Echo" Repository Pattern (`src/scholar/library/echo.js`).
+- **Constraint:** **NEVER** access `localStorage` directly in UI components. All persistence goes through the Scholar API.
+- **Protocol:** `db.version(n)` must be strictly sequential.
 
-- **Target:** Modern ES Modules (ESM).
-- **Format:** **Single HTML File** (The "Monolith").
-  - CSS, JS, and Assets must be inlined for distribution.
-  - No external HTTP requests for core functionality.
+## 4. Styling (The Artificer)
 
----
-
-## 2. The Persistence Layer
-
-### 💾 Dexie.js (IndexedDB)
-
-- **Role:** The **Single Source of Truth** for detailed state.
-- **Protocol:**
-  - **Versioning:** `db.version(n)` must be strictly sequential. **NEVER** modify a shipped version.
-  - **Flow:** Unidirectional (UI writes to DB -> DB updates triggering Reactivity -> UI updates).
-- **Safety:** Use transactions for multi-table updates.
-
-### 🔒 LocalStorage
-
-- **Role:** Critical session/settings persistence.
-- **Constraint:** Protected by the **Freedom Protocol** (Overridden getters/setters in `index.js`). **DO NOT** remove these overrides.
-
----
-
-## 3. Frontend Architecture
-
-### ⚡ JavaScript (Core)
-
-- **Flavor:** Vanilla ES Modules.
-- **Role:** Business logic, game engines, workers.
-- **Forbidden:** `require()`, `var`.
-
-### 🧩 UI Engine (Svelte 5)
-
-- **Framework:** Svelte 5 (Runes).
-- **Tooling:** `esbuild-svelte` (Required in build pipeline).
-- **Mandate:** All new UI components must be Svelte.
-- **Legacy:** Existing Vanilla UI is permitted but deprecated.
-
-### 🎨 CSS & Styling
-
-- **Engine:** SCSS (Sass) -> PostCSS -> CSS.
-- **Framework:** **Pico.css** (Semantic HTML base).
-- **Icons:** **Inline SVG** only.
+- **Framework:** **Pico.css** (Semantic HTML).
+- **Preprocessor:** **SCSS** (Sass).
+- **Architecture:** 7-1 Pattern (Abstracts, Base, Components, Layouts).
+- **Icons:** **Inline SVG** Only.
   - ❌ No FontAwesome / External Icon Fonts.
   - ✅ `<svg class="icon">...</svg>`
 
----
+## 5. Security & Integrity
 
-## 4. Build Pipeline (The Forge)
+- **Sanitization:** **DOMPurify**.
+- **Rule:** `innerHTML` is toxic. If you must use it (`@html`), the content **MUST** be passed through `DOMPurify.sanitize()`.
+- **Network:** Default is Offline. Explicit user action required for Fetch (e.g., AI Gen).
 
-### 🔨 Tools
+## 6. Testing & Quality
 
-- **Bundler:** `esbuild` (Fast, efficient).
-- **Styles:** `sass` (Logic), `postcss` (Compatibility).
+- **Unit Test:** **Vitest** (Native ESM).
+- **Component Test:** **Vitest / Testing Library**.
+- **Linting:** ESLint + Prettier + MarkdownLint.
 
-### 📦 Asset Strategy
+## 7. The Perchance Bridge
 
-- **Development:** Symlinks/Copies to `dist/` for speed.
-- **Production:** **Base64 Inline** (Images) / **Raw Inline** (CSS/JS).
-  - The final artifact must be fully offline-capable.
-
----
-
-## 5. Security Constraints
-
-### 🛡️ Content Integrity
-
-- **Rule:** `innerHTML` is toxic.
-- **Mandate:** ALL HTML injection MUST be sanitized via `DOMPurify.sanitize()`.
-- **No Exceptions.**
-
-### 📡 Network Policy
-
-- **Default:** Offline / Local-First.
-- **Exceptions:** Explicit user-initiated fetch (e.g., AI generation, cloud sync).
+- **Context:** The app runs inside a strictly sandboxed `<iframe>` on `perchance.org`.
+- **Communication:** `window.parent.postMessage` (The only way out).
+- **Variables:** `window.ai` and `window.rpgLists` are injected globals.

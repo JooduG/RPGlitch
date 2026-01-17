@@ -5,53 +5,54 @@ description: Contains protocols for using generative media tools. Apply this rul
 
 # 🎨 Mesmer: The Visual Protocol
 
-The "Super Mega Awesome" Style Guide. Apply this whenever generating UI, CSS, or designing components.
-
 > **The Directive:** "If it looks real, it is real."
-> **The Stack:** Svelte 5 (Runes) + Pico.css + SCSS.
+> **The Stack:** Svelte 5 (Runes) + Custom SCSS (Pico-inspired).
 > **The Architecture:** Single HTML Monolith (No external requests).
-
----
 
 ## 1. The Icon Mandate (Interaction Design)
 
-**Core Principle:** Clarity > Decoration.
+**Core Principle:** Clarity > Decoration. Naked icons are toxic.
 
 - **Primary Actions:** MUST use **Text Labels** (e.g., `<button>Save</button>`).
 - **Icon-Only Buttons:**
-  - 🛑 **FORBIDDEN:** Naked icons `<button><svg>...</svg></button>`
+  - 🛑 **FORBIDDEN:** Naked icons `<button><svg>...</svg></button>`.
   - ✅ **REQUIRED:** Descriptive attributes:
 
-    ```html
-    <button aria-label="Settings" title="Settings">
-      <svg class="icon">...</svg>
-    </button>
-    ```
-
-- **Reason:** Accessibility and "Chat Bubble" density management.
-
----
+```html
+<button aria-label="Settings" title="Settings">
+  <svg class="icon">...</svg>
+</button>
+```
 
 ## 2. Visual Physics (Layout Engine)
 
-### 🌉 The Universal Stage (Desktop)
+The application uses a unified 10-column grid system with two distinct modes.
 
-A rigid 10-column grid derived from `src/scss/base/_grid.scss`.
+### 🧱 Mode A: Storyboard (The Dashboard)
+
+The standard "Widescreen" view with breathing room.
 
 | Section    | Width | Role                 |
-| :--------- | :---- | :------------------- |
+| ---------- | ----- | -------------------- |
 | **Margin** | `1fr` | Left Gutter          |
 | **AI**     | `2fr` | Avatar & Status      |
-| **Stage**  | `4fr` | The Narrative (Chat) |
+| **Stage**  | `4fr` | The Narrative Output |
 | **User**   | `2fr` | Controls & Input     |
 | **Margin** | `1fr` | Right Gutter         |
 
-- **Height:** `100vh` (Fixed).
-- **Overflow:** `hidden` (No body scroll).
+### 💬 Mode B: Storymode (The Chat)
 
-### 📱 Smartphone Mode (`< 768px`)
+The "Zoomed In" immersive view. Margins are collapsed to maximize narrative space.
 
-The "Physical Device" simulation for mobile contexts.
+| Section   | Width | Role                     |
+| --------- | ----- | ------------------------ |
+| **AI**    | `2fr` | Avatar & Status          |
+| **Stage** | `6fr` | The Narrative (Expanded) |
+| **User**  | `2fr` | Controls & Input         |
+
+### 📱 Smartphone Mode (< 768px)
+
+The "Physical Device" simulation.
 
 - **Grid:** Collapses to **Single Column (`1fr`)**.
 - **The Bezel:** Container simulates a phone frame (`border: 14px solid`, `radius: 36px`).
@@ -69,30 +70,14 @@ Prevent chat logs from breaking the fixed layout.
 }
 ```
 
----
-
 ## 3. Style Architecture (SCSS)
 
-### 🧱 The 7-1 Pattern
+The `src/scss/` directory is the single source of truth.
 
-- `abstracts/`: Variables, Mixins (`_variables.scss`).
-- `base/`: Reset, Typography, Grid.
-- `components/`: Cards, Buttons, Inputs.
-- `layout/`: The 10-col grid system.
-
-### 🎨 The Palette
-
-- **Backgrounds:** Dark Gradient (`#181c2f` -> `#2a1a3a`).
-- **Accents:** **Signature Colors** (Dynamic per entity).
-- **System:** Pico.css defaults.
-
-### 🚫 Prohibitions
-
-1. **NO Tailwind.** (We use semantic CSS).
-2. **NO External Fonts.** (System fonts or Inline Base64 only).
-3. **NO Generic Names.** (Use BEM-lite or component-scoped identifiers).
-
----
+1. **Abstracts:** Variables, Mixins (`_variables.scss`).
+2. **Base:** Reset, Typography, Grid.
+3. **Components:** Cards, Buttons, Inputs (Atomic blocks).
+4. **Layouts:** The 10-col Grid logic.
 
 ## 4. UI Polish Standards
 
@@ -104,38 +89,25 @@ Use the SCSS placeholders from `_mixins.scss`:
 - **Heavy:** `@extend %material-glass-heavy;` (Blur 20px, 85% Opacity).
 - **Usage:** Nameplates, Modals, Toasts.
 
-### 🫧 Message Bubbles (`.story-message`)
+### 🫧 Message Bubbles (.story-message)
 
 - **Typography:** `white-space: pre-wrap` (Respect AI formatting).
 - **Tail Physics:**
-  - **AI:** Points Left (Incoming).
-  - **User:** Points Right (Outgoing).
-  - **Narrator:** Centered, Italic, No Tail.
-- **Coloring:** MUST inherit `Signature Color` if available.
+- **AI:** Points Left (Incoming).
+- **User:** Points Right (Outgoing).
+- **Narrator:** Centered, Italic, No Tail.
 
 ### 🦶 The Mobile Drawer ("The Chin")
 
-replaces sidebars on mobile.
+Replaces sidebars on mobile.
 
 - **Behavior:** Slide-up bottom sheet.
-- **Dismiss:** Click outside or `ESC`.
 - **Z-Index:** `2000` (Above everything except Toasts).
 
----
-
-## 5. Component Development Checklist
-
-1. **Structure:** Use HTML5 Semantic Tags (`<header>`, `<main>`, `<footer>`).
-2. **Style:** Write SCSS in the `<style lang="scss">` block.
-3. **Logic:** Use Svelte 5 Runes (`$state`, `$derived`).
-4. **Icons:** Copy raw SVG path into `<svg class="icon">`.
-
----
-
-## 6. Z-Index Scale (Source of Truth)
+## 5. Z-Index Scale (Source of Truth)
 
 | Layer     | Value   | Context          |
-| :-------- | :------ | :--------------- |
+| --------- | ------- | ---------------- |
 | `base`    | `10`    | Standard Content |
 | `ui`      | `50`    | Controls, HUD    |
 | `overlay` | `100`   | Dimmed Backdrops |

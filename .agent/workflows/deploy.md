@@ -4,40 +4,25 @@ description: Automated pipeline. Syncs config, builds the Monolith, verifies art
 
 # 🚀 Deployment Workflow
 
-> **Goal:** Build the Single File Monolith (`RPGlitch.html`) and prepare for Perchance upload.
+> **Goal:** Build the Single File Monolith (`RPGlitch.html`) via Vite.
 
 ## Phase 1: Pre-Flight Checks
 
 1. **Sync Configuration:**
-
-   ```bash
-   // turbo
-   npm run sync
-   ```
-
+   - Run `npm run sync`.
 2. **Validate Integrity:**
-   - Ensure no "Toxic" `innerHTML` or missing "Freedom Protocol" locks.
-
-   ```bash
-   // turbo
-   npm run validate
-   ```
-
+   - Run `npm run validate`.
    - **CRITICAL:** If validation fails, **ABORT**.
 
 ## Phase 2: The Build
 
 1. **Compile Monolith:**
-
-   ```bash
-   // turbo
-   npm run build
-   ```
-
-   - _Note:_ This runs `esbuild` to stick everything into `dist/`.
+   - Run `npm run build`.
+   - **Note:** This invokes **Vite** to bundle and inline all assets.
 
 2. **Verify Artifacts:**
    - Check `dist/RPGlitch.html` exists and is > 0 bytes.
+   - Verify no external `<script src="...">` tags exist in the output.
 
 ## Phase 3: The Handoff
 

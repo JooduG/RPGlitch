@@ -4,39 +4,34 @@ description: Generates new Svelte 5 components with correct boilerplate, styles,
 
 # 🏗️ Component Scaffolder
 
-> **Goal:** Create a new UI component that adheres to Mesmer standards immediately.
+> **Goal:** Create a new UI component that adheres to Artificer standards immediately.
 
 1. **Define Specs:**
-   - Ask user: "Name?" (e.g., `user-card`), "Purpose?".
+   - Ask user: "Name?" (e.g., `UserCard`), "Domain?" (e.g., `storyboard`, `chat`, `common`).
 
-2. **Generate File (`src/js/mesmer/ui/components/<name>.svelte`):**
+2. **Generate File (`src/artificer/<domain>/<Name>.svelte`):**
    - **Template:**
 
      ```svelte
      <script>
+       /** @type {{ visible?: boolean }} */
        let { visible = true } = $props();
        let internalState = $state(0);
      </script>
 
      {#if visible}
-       <article class="<name>">
-         <!-- Content -->
-       </article>
+       <article class="<name>"></article>
      {/if}
 
      <style lang="scss">
-       .<name> {
-         // SCSS here
+       .<name > {
+         // SCSS here (Use @import '../abstracts/variables'; if needed)
        }
      </style>
      ```
 
 3. **Register:**
-   - Ensure it's exported/imported where needed (e.g., `index.js`).
+   - Ensure it's accessible to the parent layout.
 
 4. **Lint:**
-
-   ```bash
-   // turbo
-   npm run lint:fix
-   ```
+   - Run `npm run lint:fix` to ensure formatting.

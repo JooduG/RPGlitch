@@ -2,87 +2,66 @@
 trigger: always_on
 ---
 
-# 🏗️ Mental Model: System Architecture
+# 🏗️ Mental Model: The Reactive Engine (Svelte 5)
 
-> **The Bicameral Mind:** A hybrid organism where chaos (AI) and order (Code) co-evolve.
+> **The Living Graph:** A reactive system where State (`$state`) drives Reality (UI) without imperative glue.
 
----
+## 1. The Reactive Cycle (The Heartbeat)
 
-## 1. The Bicameral Architecture
+The system operates on a strict **Unidirectional Data Flow**. We do not manually update the DOM. We update the _State_, and the DOM reacts.
 
-The system operates on two distinct planes of existence:
+1. **Input (User/System):** Triggers `Chrono.advanceTurn()` or a reactive input.
+1. **Physics (Warden):** Validates causality, security, and entropy.
+1. **Synthesis (Gamemaster):** The LLM hallucinates the narrative outcome.
+1. **Resonance (Scholar):** `Echo` consolidates the event into `Dexie` (DB) via `runtime.save()`.
+1. **Reaction (Mesmer/Artificer):** Svelte Runes (`$state`, `$derived`) automatically update the UI.
 
-### 🧠 Left Hemisphere (The Dreamer)
+## 2. The Five Pillars
 
-- **Role:** Creative generation, randomness, narrative possibilities.
-- **Tech:** **Perchance Engine** (Declarative Lists).
-- **Interface:** `window.ai` (The subconscious connection).
+### 🕰️ 1. Gamemaster (The Executive)
 
-### ⚙️ Right Hemisphere (The Architect)
+- **Role:** Time, Logic & Orchestration.
+- **Core:** `src/gamemaster/chrono.svelte.js` (The Timekeeper).
+- **Responsibility:** Manages the turn lifecycle (`idle` -> `scanning` -> `forecasting` -> `echoing`).
+- **Constraint:** Logic here is pure. No UI code.
 
-- **Role:** Logic, physics, rendering, state management.
-- **Tech:** **Javascript Enclave** (Imperative Logic).
-- **Structure:** The Four Pillars (see below).
+### 🛠️ 2. Artificer (The Body)
 
-### 🌉 The Corpus Callosum (Bridge)
+- **Role:** Structure, Form, & Tooling.
+- **Core:** `src/artificer/` (UI Kit) & `tools/` (Build System).
+- **Global State:** `src/artificer/state.svelte.js` (The App's "Consciousness").
+- **Responsibility:**
+  - Provides the atomic building blocks (`Card`, `Button`, `Layout`).
+  - Manages the `Storymode` (Chat) and `Storyboard` (Grid) interfaces.
+  - Handles the build pipeline (Vite).
 
-- **Concept:** Synchronizes the dream with reality.
-- **Implementation:**
-  - **Infrastructure:** `tools/build.js` injects the `PERCHANCE_BRIDGE` shim to map global variables (`ai` -> `window.ai`).
-  - **Logic:** `src/js/gamemaster/llm.js` abstracts the API calls to the AI Native Plugin.
+### 🎭 3. Mesmer (The Senses)
 
----
+- **Role:** Sensory Output (Visuals, Audio, Theme).
+- **Core:** `src/mesmer/index.js` (The Facade).
+- **Reactive Stores:**
+  - `voice.svelte.js` (TTS State).
+  - `theme.svelte.js` (Color/Style State).
+- **Responsibility:** The "Illusionist" that paints over the Artificer's structures. Handles Text-to-Speech and Stable Diffusion requests.
 
-## 2. The Four Pillars (Right Hemisphere)
+### 📚 4. Scholar (The Archivist)
 
-The Javascript codebase is strictly organized into four domains:
+- **Role:** Persistence & Truth.
+- **Core:** `src/scholar/library/echo.js`.
+- **Tech:** **Dexie.js**.
+- **Responsibility:** `runtime.save()` is the **ONLY** way to anchor reality to disk. If it isn't in Scholar, it didn't happen.
 
-### 🎭 1. GameMaster (The Executive)
+### 🛡️ 5. Warden (The Protector)
 
-- **Location:** `src/js/gamemaster/`
-- **Role:** Orchestration, Decision Making, AI Interface.
-- **Key Modules:** `Director` (Loop), `Session` (Flow), `LlmService` (Bridge).
+- **Role:** Security & Physics.
+- **Core:** `src/warden/`.
+- **Responsibility:** Sanitizes inputs and enforces "World Physics" before the LLM is allowed to speak.
 
-### 👁️ 2. Mesmer (The Illusionist)
+## 3. The "Svelte 5 Native" Law (STRICT)
 
-- **Location:** `src/js/mesmer/`
-- **Role:** Presentation, UI, Audio, Sensory Output.
-- **Tech:** **Svelte 5** (Runes) + **Pico.css**.
-- **Motto:** "If it looks real, it is real."
-
-### 📜 3. Scholar (The Archivist)
-
-- **Location:** `src/js/scholar/`
-- **Role:** Memory, History, Truth.
-- **Tech:** **Dexie.js** (IndexedDB).
-- **Mandate:** The Single Source of Truth. If it's not in the Scholar's library, it didn't happen.
-
-### 🛡️ 4. Warden (The Protector)
-
-- **Location:** `src/js/warden/`
-- **Role:** Physics, Security, Entropy, Variance.
-- **Key Modules:** `Physics` (Thermodynamics), `Security` (Sanitization).
-
----
-
-## 3. The Simulation Loop (The Heartbeat)
-
-1. **Pulse:** `GameMaster.Director` triggers a frame.
-2. **Observation:** `Warden.Physics` scans the narrative for thermodynamic shifts (Velocity/Entropy).
-3. **Synthesis:** `GameMaster` decides the next state.
-4. **Memory:** `Scholar` commits the state to the DB.
-5. **Rendering:** `Mesmer` observes the DB change and updates the DOM (Reactivity).
-
----
-
-## 4. The Freedom Protocol
-
-- **Constraint:** User data belongs to the User.
-- **Mechanism:** `localStorage` getters/setters are intercepted in `src/js/gamemaster/bootstrap.js` to prevent platform-side data eviction.
-- **Sanitization:** `Warden.Security` strictly filters all inputs to prevent injection.
-
-## 5. Deployment Architecture
-
-- **Build Target:** Single HTML Monolith (`dist/RPGlitch.html`).
-- **Dependencies:** Inlined by `esbuild`.
-- **Bridge:** Left-Panel variables (`ai`, `rpgLists`) are automatically mapped to `window` scope by the build injector.
+1. **Runes Over Everything:** Use `$state`, `$derived`, `$effect`, and `$props`.
+   - ❌ **BAN:** `writable`, `readable` (Svelte 4 Stores).
+   - ❌ **BAN:** `export let` (Legacy Props).
+1. **Universal Reactivity:** Global state lives in `.svelte.js` modules (e.g., `voice.svelte.js`), NEVER in UI components. UI components just consume them.
+1. **No Direct DOM:** Never use `document.querySelector` or `getElementById`. Bind to state.
+1. **No Legacy Loops:** The old `engine/` loop is dead. Use `Chrono` (State Machine).

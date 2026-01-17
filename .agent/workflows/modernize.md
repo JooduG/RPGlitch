@@ -2,40 +2,28 @@
 description: Safe refactoring pipeline. Upgrades legacy logic to Svelte 5 Runes and enforces architectural standards.
 ---
 
-# 🛠️ Modernization Protocol
+# ⚡ Modernization Workflow (Svelte 5)
 
-> **Goal:** Upgrade legacy code to the **Runes Standard** without breaking functionality.
+> **Goal:** Upgrade a legacy component to the "Runes Standard".
 
-## Phase 1: Analysis
+## 1. Analysis
 
-1. **Scan for Debt:**
-   - Look for: `let x;` (Legacy State), `$:` (Legacy Reactive), `var`, `require()`.
-2. **Draft Plan:**
-   - Create a checklist: "Convert `count` to `$state`", "Convert `$: double` to `$derived`".
+1. **Read:** Open the target file.
+2. **Identify Legacy Patterns:**
+   - `export let` -> **Needs `$props()`**.
+   - `let variable;` (reactive) -> **Needs `$state()`**.
+   - `$: value = ...` -> **Needs `$derived()`**.
+   - `createEventDispatcher` -> **Needs Callback Props**.
 
-## Phase 2: The Safety Net
+## 2. Refactoring (The Transaction)
 
-1. **Snapshot Behavior:**
-   - If no tests exist, write a basic test to capture current inputs/outputs.
+**Rule:** Do not migrate "halfway". The file must be 100% Runes or 0%.
 
-   ```bash
-   // turbo
-   npm test tests/<target>.test.js
-   ```
+1. **Imports:** Ensure `.svelte.js` stores are imported, NOT `writable` stores.
+2. **Script:** Rewrite the `<script>` block using the **Runes Bible** (`.agent/rules/svelte-5.md`).
+3. **Template:** Update event listeners (`on:click` -> `onclick`).
 
-## Phase 3: The Upgrade
+## 3. Verification
 
-1. **Refactor:**
-   - Apply **Runes** syntax strictly.
-   - Move complex logic to `.svelte.js` files.
-2. **Verify:**
-
-   ```bash
-   // turbo
-   npm run lint:fix
-   // turbo
-   npm test
-   ```
-
-3. **Final Polish:**
-   - Ensure code matches `style.md` (Pico classes, no Tailwind).
+1. **Lint:** Run `npm run lint`.
+2. **Logic Check:** "Does this component still talk to the `Chrono` or `Mesmer` correctly?"

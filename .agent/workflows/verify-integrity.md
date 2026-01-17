@@ -8,14 +8,14 @@ description: Security Audit. Verifies the Freedom Protocol, Anti-Censorship laye
 
 ## 1. Freedom Protocol Check
 
-- **Target:** `src/js/gamemaster/bootstrap.js`
+- **Target:** `src/gamemaster/bootstrap.js`
 - **Rule:** Ensure `localStorage` overrides are present and active.
 - **Fail:** If missing, **STOP** and restore immediately.
 
 ## 2. Sanitization Scan (Zero-Trust)
 
 - **Target:** All `.js` / `.svelte` files.
-- **Rule:** `innerHTML =` MUST be wrapped in `DOMPurify.sanitize(...)`.
+- **Rule:** `innerHTML =` or `@html` MUST be wrapped in `DOMPurify.sanitize(...)`.
 - **Fail:** Any raw assignment is a **Critical Vulnerability**.
 
 ## 3. Report
