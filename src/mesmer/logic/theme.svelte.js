@@ -145,6 +145,43 @@ class ThemeStore {
     // Basic hex mixing
     return color1; // Placeholder to satisfy imports
   }
+
+  /**
+   * Generates a smart initial string from an entity name.
+   * Filters out common stopwords unless they are the only word.
+   * Max 3 characters.
+   */
+  getInitials(name) {
+    if (!name) return "?";
+
+    const stopWords = new Set([
+      "the",
+      "a",
+      "an",
+      "of",
+      "in",
+      "and",
+      "or",
+      "for",
+      "to",
+      "at",
+      "by",
+      "with",
+    ]);
+
+    const words = name.trim().split(/\s+/);
+
+    // Filter stopwords, but keep them if it results in an empty list (e.g. name is "The")
+    let filteredWords = words.filter((w) => !stopWords.has(w.toLowerCase()));
+    if (filteredWords.length === 0) filteredWords = words;
+
+    // Take up to 3 initials
+    return filteredWords
+      .slice(0, 3)
+      .map((w) => w.charAt(0))
+      .join("")
+      .toUpperCase();
+  }
 }
 
 export const themeStore = new ThemeStore();

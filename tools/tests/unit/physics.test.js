@@ -1,10 +1,10 @@
-import { jest } from "@jest/globals";
+import { describe, test, expect, vi, beforeEach } from "vitest";
 import { Warden } from "../../../src/warden/index.js";
 import { ContextBuilder } from "../../../src/scholar/index.js";
 
 // --- MOCKS ---
 // We mock the store and entities to isolate the logic from the database/browser
-jest.mock("../../../src/gamemaster/bus.js", () => ({
+vi.mock("../../../src/gamemaster/bus.js", () => ({
   state: {
     story: {
       byId: {
@@ -29,20 +29,20 @@ jest.mock("../../../src/gamemaster/bus.js", () => ({
     },
   },
   events: {
-    addEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-    removeEventListener: jest.fn(),
+    addEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+    removeEventListener: vi.fn(),
   },
   EVENTS: {
     DB_UPDATED: "DB_UPDATED",
   },
 }));
 
-jest.mock("../../../src/scholar/database/repository.js", () => ({
+vi.mock("../../../src/scholar/database/repository.js", () => ({
   entities: {
-    get: jest.fn(),
-    getSnapshot: jest.fn(),
-    createSnapshot: jest.fn(),
+    get: vi.fn(),
+    getSnapshot: vi.fn(),
+    createSnapshot: vi.fn(),
   },
 }));
 
@@ -313,7 +313,7 @@ describe("ContextBuilder (Physics Injection)", () => {
 
   beforeEach(() => {
     builder = new ContextBuilder("story-1");
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Mock Entity Resolution
     entities.get.mockResolvedValue({

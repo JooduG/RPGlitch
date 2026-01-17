@@ -1,9 +1,13 @@
+import { describe, test, expect, vi } from "vitest";
 import { Security } from "../../../src/warden/index.js";
 
 const sanitizeHtml = Security.sanitize;
 
 // Mock DOMPurify for sanitizeHtml tests
-jest.mock("dompurify", () => require("../mocks/dompurify.js"));
+vi.mock("dompurify", async () => {
+  const mockModule = await import("../mocks/dompurify.js");
+  return mockModule;
+});
 
 describe("validation.js", () => {
   // [REMOVED] isValidImageUrl and extractImageUrl tests (Functions deprecated/moved)

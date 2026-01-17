@@ -1,15 +1,10 @@
 <script>
-  import { app } from "../state.svelte.js";
+  import { app } from "../../gamemaster/state.svelte.js";
+  import { storyboard } from "./storyboardActions.svelte.js";
 
-  // Dispatch Global Events for Legacy Wiring
-  // We use window events because the receivers are in legacy JS files (storyboard.js)
-  const onShuffle = () => {
-    window.dispatchEvent(new CustomEvent("RPGLITCH_SHUFFLE"));
-  };
-
-  const onBegin = () => {
-    window.dispatchEvent(new CustomEvent("RPGLITCH_BEGIN_STORY"));
-  };
+  // Direct function calls (CustomEvents blocked in Perchance sandbox)
+  const onShuffle = () => storyboard.shuffle();
+  const onBegin = () => storyboard.beginStory();
 </script>
 
 <div class="storyboard-pill">
@@ -69,7 +64,7 @@
     background: rgba(20, 20, 25, 0.8);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 9999px; // Full pill
+    border-radius: 9999px; /* Full pill */
     padding: 0.25rem 0.5rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     pointer-events: auto;

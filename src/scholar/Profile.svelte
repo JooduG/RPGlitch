@@ -1,7 +1,7 @@
 <script>
   import Modal from "../artificer/Modal.svelte";
   import Button from "../artificer/Button.svelte";
-  import { app } from "../artificer/state.svelte.js";
+  import { app } from "../gamemaster/state.svelte.js";
   import { runtime } from "./runtime.svelte.js";
   import { VisualManager } from "../mesmer/logic/manager.js";
   import { store } from "../gamemaster/index.js";

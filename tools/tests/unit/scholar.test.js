@@ -1,18 +1,18 @@
-import { jest } from "@jest/globals";
+import { describe, test, expect, vi, beforeEach } from "vitest";
 
 // Mock dependencies
-jest.mock("../../../src/gamemaster/llm.js", () => ({
+vi.mock("../../../src/gamemaster/llm.js", () => ({
   LlmService: {
-    generate: jest.fn(),
+    generate: vi.fn(),
   },
 }));
 
-jest.mock("../../../src/scholar/library/context.js", () => ({
-  ContextBuilder: jest.fn().mockImplementation(() => ({
-    buildScholarPrompt: jest
+vi.mock("../../../src/scholar/library/context.js", () => ({
+  ContextBuilder: vi.fn().mockImplementation(() => ({
+    buildScholarPrompt: vi
       .fn()
       .mockResolvedValue({ system: "PROMPT", messages: [] }),
-    buildScholarEchoPrompt: jest
+    buildScholarEchoPrompt: vi
       .fn()
       .mockResolvedValue({ system: "ECHO_PROMPT", messages: [] }),
   })),
@@ -20,9 +20,9 @@ jest.mock("../../../src/scholar/library/context.js", () => ({
 
 // utils.js mock removed
 
-jest.mock("../../../src/mesmer/audio/service.js", () => ({
+vi.mock("../../../src/mesmer/audio/service.js", () => ({
   audioService: {
-    play: jest.fn(),
+    play: vi.fn(),
   },
 }));
 
@@ -31,7 +31,7 @@ import { LlmService } from "../../../src/gamemaster/llm.js";
 
 describe("Scholar System", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     document.body.innerHTML = `
       <input id="input-past" value="Old Memory" />
       <button id="btn-magic-past">✨</button>
@@ -72,7 +72,7 @@ describe("Scholar System", () => {
   test("echo() handles JSON parsing errors gracefully", async () => {
     LlmService.generate.mockResolvedValue("Invalid JSON");
 
-    const consoleSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const result = await Scholar.echo({ name: "Test" }, [], "character");
     consoleSpy.mockRestore();
 

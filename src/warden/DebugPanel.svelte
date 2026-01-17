@@ -1,5 +1,5 @@
 <script>
-  import { app } from "../artificer/state.svelte.js";
+  import { app } from "../gamemaster/state.svelte.js";
 
   // Auto-scroll logic for log feed
   let logEnd = $state(null);

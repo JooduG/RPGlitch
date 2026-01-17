@@ -1,5 +1,5 @@
 // Replaced utils import
-import { app } from "../artificer/state.svelte.js";
+import { app } from "./state.svelte.js";
 import { runtime } from "../scholar/runtime.svelte.js";
 import { ERROR_MESSAGES } from "./config.js";
 

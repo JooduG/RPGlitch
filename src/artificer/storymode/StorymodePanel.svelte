@@ -1,5 +1,5 @@
 <script>
-  import { app } from "../state.svelte.js";
+  import { app } from "../../gamemaster/state.svelte.js";
 
   let { entity, mode = "card" } = $props(); // mode: 'card' | 'full'
 
@@ -226,7 +226,7 @@
 
     &:hover .bg-image {
       opacity: 1;
-      // transform: scale(1.02); // Maybe subtle zoom
+      /* transform: scale(1.02); // Maybe subtle zoom */
     }
 
     .placeholder-full {

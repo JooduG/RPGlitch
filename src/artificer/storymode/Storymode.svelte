@@ -4,7 +4,7 @@
   import InputBar from "./InputBar.svelte";
   import Message from "./Message.svelte";
   import Skeleton from "../Skeleton.svelte";
-  import { app } from "../state.svelte.js";
+  import { app } from "../../gamemaster/state.svelte.js";
   import { session } from "../../gamemaster/session.svelte.js";
 
   // --- STATE ---
@@ -143,8 +143,8 @@
       to top,
       #000 80%,
       transparent
-    ); // Blend with chat
-    padding-bottom: 0; // InputBar likely has its own padding
+    ); /* Blend with chat */
+    padding-bottom: 0; /* InputBar likely has its own padding */
     z-index: 10;
   }
 

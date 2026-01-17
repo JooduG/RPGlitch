@@ -18,7 +18,7 @@
   } = $props();
 
   import { themeStore } from "../../mesmer/logic/theme.svelte.js";
-  import { app } from "../state.svelte.js";
+  import { app } from "../../gamemaster/state.svelte.js";
   import Skeleton from "../Skeleton.svelte";
   import { fade } from "svelte/transition";
 
@@ -45,38 +45,41 @@
   class:is-processing={isProcessing}
   style="--signature-color: {signatureColor}; --signature-rgb: {signatureRgb};"
 >
-  {#if isLoading}
-    <!-- Skeleton State -->
-    <Skeleton variant="card" width="100%" height="100%" />
-  {:else}
+  {#snippet emptyState()}
+    <button
+      class="empty-card"
+      onclick={onSelect}
+      aria-label="Select {roleLabel}"
+    >
+      <span class="empty-label">{roleLabel}</span>
+      <div class="empty-icon">
+        {#if type === "fractal"}
+          <svg viewBox="0 0 24 24" class="icon">
+            <path
+              fill="currentColor"
+              d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z"
+            />
+          </svg>
+        {:else}
+          <svg viewBox="0 0 24 24" class="icon">
+            <path
+              fill="currentColor"
+              d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+            />
+          </svg>
+        {/if}
+      </div>
+    </button>
+  {/snippet}
+
+  {#snippet populatedState()}
     <!-- Top Half: Visuals & Trigger for Profile -->
     <button
       class="card-top"
       onclick={onViewProfile}
       aria-label="View {roleLabel} Profile"
-      disabled={isEmpty}
     >
-      {#if isEmpty}
-        <div class="slot-icon">
-          {#if type === "fractal"}
-            <svg viewBox="0 0 24 24" class="icon"
-              ><path
-                fill="currentColor"
-                d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z"
-              /></svg
-            >
-          {:else}
-            <svg viewBox="0 0 24 24" class="icon"
-              ><path
-                fill="currentColor"
-                d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
-              /></svg
-            >
-          {/if}
-        </div>
-      {:else if type === "fractal"}
-        <div class="fractal-diamond">♦</div>
-      {:else if avatar}
+      {#if avatar}
         {#key avatarSeed}
           <img
             src={avatar}
@@ -86,7 +89,9 @@
           />
         {/key}
       {:else}
-        <div class="avatar-placeholder">?</div>
+        <div class="avatar-placeholder">
+          {themeStore.getInitials(entity?.name)}
+        </div>
       {/if}
     </button>
 
@@ -99,6 +104,14 @@
 
       <p>{entity?.description || "Click to browse choices..."}</p>
     </button>
+  {/snippet}
+
+  {#if isLoading}
+    <Skeleton variant="card" width="100%" height="100%" />
+  {:else if isEmpty}
+    {@render emptyState()}
+  {:else}
+    {@render populatedState()}
   {/if}
 </div>
 
@@ -157,23 +170,47 @@
     }
 
     &.is-empty {
-      background: rgba(255, 255, 255, 0.03);
-      border: 2px dashed rgba(var(--signature-rgb) / 0.15);
-      cursor: default;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(10, 10, 15, 0.8);
+      cursor: pointer;
+      transition: all 0.3s ease;
 
-      .card-top {
-        cursor: default;
-        &:hover {
-          filter: none;
-        }
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        border-color: rgba(255, 255, 255, 0.2);
       }
+    }
+  }
 
-      .slot-icon {
-        color: rgba(255, 255, 255, 0.2);
-        svg {
-          width: 48px;
-          height: 48px;
-        }
+  /* Empty Card: Unified dark design matching legacy */
+  .empty-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    width: 100%;
+    height: 100%;
+    padding: 2rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+
+    .empty-label {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .empty-icon {
+      color: rgba(255, 255, 255, 0.4);
+
+      .icon {
+        width: 32px;
+        height: 32px;
       }
     }
 
@@ -214,18 +251,24 @@
       height: 100%;
       object-fit: cover; /* Strict cover to prevent warping */
       border-radius: 0; /* Full bleed */
+      transition: transform 0.6s ease;
+    }
+
+    &:hover .avatar-icon {
+      transform: scale(1.05);
     }
 
     .avatar-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      color: #ffffff;
       font-size: 3rem;
-      color: rgba(255, 255, 255, 0.8);
-      font-weight: bold;
-    }
-
-    .fractal-diamond {
-      font-size: 5rem;
-      color: #fff;
-      filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6));
+      font-weight: 800;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
   }
 

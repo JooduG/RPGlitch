@@ -1,19 +1,7 @@
-// apps/rpglitch/js/core-db.js
-"use strict";
+import Dexie from "dexie";
 
 const log = console.log;
 const error = console.error;
-
-// 1. Create the database instance.
-let Dexie;
-if (typeof window !== "undefined" && window.Dexie) {
-  Dexie = window.Dexie;
-} else if (typeof self !== "undefined" && self.Dexie) {
-  // WebWorker environment
-  Dexie = self.Dexie;
-} else if (typeof globalThis !== "undefined" && globalThis.Dexie) {
-  Dexie = globalThis.Dexie;
-}
 
 const db = new Dexie("rpglitch");
 

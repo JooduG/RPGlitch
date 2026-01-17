@@ -9,11 +9,14 @@
   import Storyboard from "./artificer/storyboard/Storyboard.svelte";
   import Storymode from "./artificer/storymode/Storymode.svelte";
 
-  import { app } from "./artificer/state.svelte.js";
+  import { app } from "./gamemaster/state.svelte.js";
   import { runtime } from "./scholar/runtime.svelte.js";
   import { events, EVENTS, state as gameState } from "./gamemaster/bus.js";
 
   import { chrono } from "./gamemaster/chrono.svelte.js";
+  import { fade } from "svelte/transition";
+
+  let mounted = $state(false);
 
   // --- Hotkeys ---
   function handleKeydown(e) {
@@ -56,6 +59,7 @@
   });
 
   onMount(() => {
+    mounted = true;
     // 1. Wake up the Warden (Load Settings)
     app.init();
 
@@ -81,47 +85,59 @@
   });
 </script>
 
-<div
-  class="app-container"
-  class:view-lobby={app.view === "lobby"}
-  class:view-game={app.view === "game"}
-  class:has-tension={app.tension > 0}
->
-  <!-- GLOBAL: Lightbox Overlay -->
-  {#if app.lightboxOpen}
-    <Lightbox src={app.lightboxSrc} onClose={() => app.closeLightbox()} />
-  {/if}
+{#if mounted}
+  <div
+    class="app-container"
+    class:view-lobby={app.view === "lobby"}
+    class:view-game={app.view === "game"}
+    class:has-tension={app.tension > 0}
+    transition:fade={{ duration: 800 }}
+  >
+    <!-- FRACTAL BACKGROUND -->
+    {#if app.selectedFractal?.profilePictureUrl}
+      <div
+        id="fractal-background"
+        style="background-image: url('{app.selectedFractal
+          .profilePictureUrl}'); opacity: {app.view === 'game' ? 0.4 : 0.15};"
+      ></div>
+    {/if}
 
-  <!-- GLOBAL: Profile Modal -->
-  {#if app.profileOpen}
-    <Profile
-      entityId={app.profileTargetId}
-      entityType={app.profileTargetType}
-      onClose={() => app.closeProfile()}
-    />
-  {/if}
+    <!-- GLOBAL: Lightbox Overlay -->
+    {#if app.lightboxOpen}
+      <Lightbox src={app.lightboxSrc} onClose={() => app.closeLightbox()} />
+    {/if}
 
-  <!-- GLOBAL: Control Panel (Settings / Admin) -->
-  {#if app.controlPanelOpen}
-    <div class="modal-overlay">
-      <ControlPanel />
-    </div>
-  {/if}
+    <!-- GLOBAL: Profile Modal -->
+    {#if app.profileOpen}
+      <Profile
+        entityId={app.profileTargetId}
+        entityType={app.profileTargetType}
+        onClose={() => app.closeProfile()}
+      />
+    {/if}
 
-  <!-- TELEMETRY HUD -->
-  {#if app.settings.devMode}
-    <div class="telemetry-gutter">
-      <DebugPanel />
-    </div>
-  {/if}
+    <!-- GLOBAL: Control Panel (Settings / Admin) -->
+    {#if app.controlPanelOpen}
+      <div class="modal-overlay">
+        <ControlPanel />
+      </div>
+    {/if}
 
-  <!-- MAIN VIEW SWITCHER -->
-  {#if app.view === "lobby"}
-    <Storyboard />
-  {:else if app.view === "game"}
-    <Storymode />
-  {/if}
-</div>
+    <!-- TELEMETRY HUD -->
+    {#if app.settings.devMode}
+      <div class="telemetry-gutter">
+        <DebugPanel />
+      </div>
+    {/if}
+
+    <!-- MAIN VIEW SWITCHER -->
+    {#if app.view === "lobby"}
+      <Storyboard />
+    {:else if app.view === "game"}
+      <Storymode />
+    {/if}
+  </div>
+{/if}
 
 <style lang="scss">
   /* Global Reset/Base is handled in index.scss */
@@ -152,6 +168,19 @@
     }
   }
 
+  #fractal-background {
+    position: fixed;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    pointer-events: none;
+    z-index: 0;
+    transition:
+      opacity 2s ease-in-out,
+      filter 2s ease-in-out;
+    filter: blur(8px) brightness(0.3);
+  }
+
   @keyframes reality-tremor {
     0%,
     100% {
@@ -172,13 +201,13 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 10%; // Matches Col 1 of the 10-column grid
+    width: 10%; /* Matches Col 1 of the 10-column grid */
     height: 100vh;
     z-index: 2000;
     border-right: 1px solid rgba(255, 255, 255, 0.1);
 
     @media (max-width: 1024px) {
-      display: none; // Hide HUD on mobile/small screens
+      display: none; /* Hide HUD on mobile/small screens */
     }
   }
 

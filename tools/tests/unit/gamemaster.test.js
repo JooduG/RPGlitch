@@ -1,30 +1,30 @@
-import { jest } from "@jest/globals";
+import { describe, it, test, expect, vi, beforeEach } from "vitest";
 import { GameMaster } from "../../../src/gamemaster/index.js";
 import { EVENTS } from "../../../src/gamemaster/bus.js";
 
 // --- MOCKS ---
 
-jest.mock("../../../src/gamemaster/session.js", () => ({
+vi.mock("../../../src/gamemaster/session.js", () => ({
   Session: {
-    addAiMessage: jest.fn(),
-    requireActive: jest.fn().mockReturnValue("story-1"),
+    addAiMessage: vi.fn(),
+    requireActive: vi.fn().mockReturnValue("story-1"),
   },
 }));
 
-jest.mock("../../../src/gamemaster/llm.js", () => {
+vi.mock("../../../src/gamemaster/llm.js", () => {
   return {
     LlmService: {
-      generate: jest.fn(),
+      generate: vi.fn(),
     },
     ContextBroker: class {
-      static assemble = jest.fn();
+      static assemble = vi.fn();
     },
   };
 });
 
-jest.mock("../../../src/gamemaster/bus.js", () => ({
+vi.mock("../../../src/gamemaster/bus.js", () => ({
   events: {
-    dispatchEvent: jest.fn(),
+    dispatchEvent: vi.fn(),
   },
   EVENTS: {
     GENERATION_STARTED: "gen:started",
@@ -33,7 +33,7 @@ jest.mock("../../../src/gamemaster/bus.js", () => ({
   state: {},
 }));
 
-jest.mock("../../../src/scholar/runtime.svelte.js", () => ({
+vi.mock("../../../src/scholar/runtime.svelte.js", () => ({
   runtime: {
     aiCharacter: { name: "AI" },
   },
@@ -46,7 +46,7 @@ import { events } from "../../../src/gamemaster/bus.js";
 
 describe("GameMaster Facade", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("generateAiResponse", () => {
@@ -75,7 +75,7 @@ describe("GameMaster Facade", () => {
     test("should handle errors and dispatch completion event", async () => {
       ContextBroker.assemble.mockRejectedValue(new Error("Assembly Failed"));
 
-      const consoleSpy = jest
+      const consoleSpy = vi
         .spyOn(console, "error")
         .mockImplementation(() => {});
 

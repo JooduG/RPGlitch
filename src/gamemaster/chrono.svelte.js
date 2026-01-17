@@ -1,7 +1,7 @@
 // ⏳ CHRONO: The Heartbeat of Time
 // Manages the strict turn-based progression of the simulation.
 
-import { app } from "../artificer/state.svelte.js";
+import { app } from "./state.svelte.js";
 import { runtime } from "../scholar/runtime.svelte.js";
 import { Warden } from "../warden/index.js";
 import { GameMaster } from "./index.js";

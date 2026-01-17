@@ -3,6 +3,7 @@
  * Ported from legacy entities.test.js
  */
 
+import { describe, test, expect } from "vitest";
 import { themeStore } from "../../../src/mesmer/logic/theme.svelte.js";
 
 describe("ThemeStore Color Generation", () => {

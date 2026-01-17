@@ -1,5 +1,5 @@
 import { Session } from "./session.js";
-import { app } from "../artificer/state.svelte.js";
+import { app } from "./state.svelte.js";
 import { events, EVENTS } from "./bus.js";
 // We need the GameMaster facade for high-level operations like Prologue
 import { GameMaster } from "./index.js";

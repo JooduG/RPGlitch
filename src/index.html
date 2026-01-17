@@ -4,16 +4,76 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>RPGlitch SOTA</title>
-
-    <script src="../libs/dexie.min.js"></script>
-    <script src="../libs/purify.min.js"></script>
-
-    <link rel="stylesheet" href="../scss/index.scss" />
   </head>
 
   <body class="storyboard">
-    <!-- CORE ROOT -->
-    <div id="svelte-root"></div>
+    <!-- CORE ROOT (Static skeleton shows during bootstrap, replaced by Svelte) -->
+    <div id="svelte-root">
+      <style>
+        .boot-skeleton {
+          display: grid;
+          grid-template-columns: repeat(10, 1fr);
+          height: 100vh;
+          width: 100%;
+          /* Gradient from _variables.scss: #181c2f -> #23243a -> #1a3a4a -> #2a1a3a */
+          background: linear-gradient(
+            to bottom right,
+            #181c2f,
+            #23243a 50%,
+            #1a3a4a 75%,
+            #2a1a3a
+          );
+          background-attachment: fixed;
+          position: fixed;
+          inset: 0;
+        }
+        .boot-skeleton .card {
+          background: linear-gradient(
+            90deg,
+            #1e1e2e 25%,
+            #2a2a3e 50%,
+            #1e1e2e 75%
+          );
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+          border-radius: 24px;
+          justify-self: center;
+          align-self: center;
+        }
+        /* Side cards: Portrait - grid cols 2-3 and 8-9 */
+        .boot-skeleton .card-left {
+          grid-column: 2 / span 2;
+          grid-row: 1;
+          width: 15vw;
+          height: 24vw; /* Portrait: taller than wide */
+        }
+        .boot-skeleton .card-center {
+          grid-column: 4 / span 4;
+          grid-row: 1;
+          width: 24vw;
+          height: 15vw; /* Landscape: wider than tall */
+        }
+        .boot-skeleton .card-right {
+          grid-column: 8 / span 2;
+          grid-row: 1;
+          width: 15vw;
+          height: 24vw; /* Portrait: taller than wide */
+        }
+        @keyframes shimmer {
+          0% {
+            background-position: 200% 0;
+          }
+          100% {
+            background-position: -200% 0;
+          }
+        }
+      </style>
+      <div class="boot-skeleton">
+        <div class="card card-left"></div>
+        <div class="card card-center"></div>
+        <div class="card card-right"></div>
+      </div>
+    </div>
 
     <!-- ACCESSIBILITY BYPASS -->
     <a href="#svelte-root" class="skip-link">Skip to main content</a>
@@ -61,19 +121,7 @@
 
     <div id="profile-screen" hidden></div>
 
-    <div id="entity-drawer" class="entity-drawer" aria-hidden="true" hidden>
-      <div class="drawer-handle"></div>
-      <header class="drawer-header">
-        <h3 id="entity-drawer-title">Select Item</h3>
-      </header>
-      <div id="entity-drawer-content" class="drawer-content"></div>
-    </div>
-    <div
-      id="entity-drawer-backdrop"
-      class="drawer-backdrop"
-      aria-hidden="true"
-      hidden
-    ></div>
+    <!-- Legacy entity drawer and backdrop removed - now handled by Svelte -->
 
     <!-- LEGACY PROFILE TEMPLATE DELETED -->
 
@@ -309,5 +357,8 @@
         </button>
       </div>
     </template>
+
+    <!-- VITE MODULE ENTRY POINT -->
+    <script type="module" src="/main.js"></script>
   </body>
 </html>

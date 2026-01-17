@@ -85,8 +85,8 @@
     z-index: 0;
     transform: translateZ(0);
 
-    /* Atmospheric Background */
-    background: #000;
+    /* Atmospheric Background - transparent to show body's gradient */
+    background: transparent;
     color: #fff;
     transition: all 0.6s ease;
     pointer-events: none;

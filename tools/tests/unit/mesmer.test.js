@@ -1,12 +1,13 @@
+import { describe, test, expect, vi, beforeEach } from "vitest";
 import { Mesmer } from "../../../src/mesmer/index.js";
 import { audioService } from "../../../src/mesmer/audio/service.js";
 
 // Mock dependencies
-jest.mock("../../../src/mesmer/audio/service.js");
+vi.mock("../../../src/mesmer/audio/service.js");
 
 describe("Mesmer Engine", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("Audio (Identity)", () => {

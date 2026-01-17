@@ -1,5 +1,5 @@
 <script>
-  import { app } from "../state.svelte.js";
+  import { app } from "../../gamemaster/state.svelte.js";
 
   let {
     text = "",

@@ -16,6 +16,16 @@ export class AppStore {
   userList = $state([]);
   fractalList = $state([]);
 
+  // 📝 STORY TITLE STATE
+  storyTitle = $state("My New Story");
+  isCustomTitle = $state(false);
+
+  // 📥 ENTITY DRAWER STATE
+  drawer = $state({
+    open: false,
+    type: null, // 'ai' | 'user' | 'fractal'
+  });
+
   // 🧬 SIMULATION STATE (The Heartbeat)
   simulation = $state({
     loading: false, // STASIS: True when Chrono is processing
@@ -125,6 +135,102 @@ export class AppStore {
   // Actions
   toggleControlPanel = () => {
     this.controlPanelOpen = !this.controlPanelOpen;
+  };
+
+  // Drawer Actions
+  openDrawer = (type) => {
+    this.drawer.open = true;
+    this.drawer.type = type;
+  };
+
+  closeDrawer = () => {
+    this.drawer.open = false;
+    this.drawer.type = null;
+  };
+
+  selectEntity = (type, entity) => {
+    if (type === "ai") this.selectedAi = entity;
+    else if (type === "user") this.selectedUser = entity;
+    else if (type === "fractal") this.selectedFractal = entity;
+
+    // Update dynamic title if not custom
+    if (!this.isCustomTitle) {
+      this.storyTitle = this.generateDynamicTitle();
+    }
+
+    this.closeDrawer();
+  };
+
+  /**
+   * Generates a dynamic title based on selected entities and current theme
+   */
+  generateDynamicTitle() {
+    const isSmartphone = this.settings.callMode;
+    const standardPrefixes = [
+      "The Story of",
+      "The Adventures of",
+      "The Tale of",
+      "The Legend of",
+      "The Saga of",
+      "Chronicles of",
+      "The Journey of",
+    ];
+    const smartphonePrefixes = [
+      "Chat Log:",
+      "Session:",
+      "Messenger.exe:",
+      "New Thread:",
+      "Encrypted Feed:",
+      "Connection:",
+      "Archive:",
+      "RELAY //",
+    ];
+
+    const entities = [this.selectedAi, this.selectedUser].filter(Boolean);
+    const entityNames = entities.map((e) => e.name).join(" & ");
+    const hasFractal = !!this.selectedFractal;
+
+    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+    if (isSmartphone) {
+      const prefix = pick(smartphonePrefixes);
+      return entities.length > 0
+        ? `${prefix} ${entityNames}`
+        : `${prefix} Guest User`;
+    }
+
+    const prefix = pick(standardPrefixes);
+    if (entities.length > 0 && hasFractal) {
+      return `${prefix} ${entityNames} in ${this.selectedFractal.name}`;
+    } else if (entities.length > 0) {
+      return `${prefix} ${entityNames}`;
+    } else if (hasFractal) {
+      const fractalPrefixes = [
+        "Adventures in",
+        "Tales from",
+        "The World of",
+        "Journey to",
+      ];
+      return `${pick(fractalPrefixes)} ${this.selectedFractal.name}`;
+    }
+
+    return "My New Story";
+  }
+
+  /**
+   * Manually sets a custom title, locking it from auto-updates
+   */
+  setTitle = (val) => {
+    this.storyTitle = val;
+    this.isCustomTitle = true;
+  };
+
+  /**
+   * Resets the custom lock and generates a fresh dynamic title
+   */
+  rerollTitle = () => {
+    this.isCustomTitle = false;
+    this.storyTitle = this.generateDynamicTitle();
   };
 
   editingEntity = $state(null);
