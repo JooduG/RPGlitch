@@ -17,7 +17,6 @@ $signature-red: #ef4444;
 $signature-emerald: #10b981;
 $signature-amber: #f59e0b;
 $signature-yellow: #eab308;
-
 $signature-colors: (
   "purple": (
     "color": $signature-purple,
@@ -56,15 +55,26 @@ $card-background-dark: #1a1d2e;
 $form-background: #3b4b5d;
 $form-background-dark: #1a1d2e;
 $component-bg: #050505;
-$component-bg-rgb: 5, 5, 5;
 
 // --- PALETTE: SYSTEM ---
-$pico-del-color: #dc3545;
-$color-accent: #ff7ad5;
-$muted-color-light: #a0a0a0;
-$muted-color-dark: #94a3b8;
-$border-color-light: #555;
-$border-color-dark: #334155;
+$white: #fff;
+$app-del-color: #dc3545;
+$app-del-rgb: 220 53 69;
+$app-accent-color: #ff7ad5;
+$app-muted-light: #a0a0a0;
+$app-muted-dark: #94a3b8;
+$app-border-light: #555;
+$app-border-dark: #334155;
+$app-color-light: #fff;
+$app-color-dark: #f1f5f9;
+
+// --- PALETTE: TYPOGRAPHY ---
+$app-h1-color-light: #fff;
+$app-h1-color-dark: #f8fafc;
+$app-h2-color-light: #fff;
+$app-h2-color-dark: #f8fafc;
+$app-h3-color-light: #eee;
+$app-h3-color-dark: #f1f5f9;
 
 // --- PALETTE: APP THEME ---
 $app-primary: $signature-purple;
@@ -85,7 +95,7 @@ $gradient-color-4: #2a1a3a;
 // --- TYPOGRAPHY: FONTS ---
 $emoji-stack:
   "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-$font-heading: "Ubuntu", sans-serif;
+$font-heading: ("Ubuntu", sans-serif, $emoji-stack);
 $font-body: ("Inter", sans-serif, $emoji-stack);
 $font-monospace: (
   "Menlo",
@@ -98,7 +108,6 @@ $font-monospace: (
   "monospace",
   $emoji-stack
 );
-$font-family-headings: "Ubuntu", sans-serif, $emoji-stack;
 
 // --- TYPOGRAPHY: SCALING ---
 $viewport-scaling: (
@@ -117,18 +126,48 @@ $h-spacing: (
   h6: 1.5rem,
 );
 
+// --- TYPOGRAPHY: METRICS ---
+$line-height-base: 1.5;
+$font-weight-base: 400;
+$font-weight-bold: 700;
+$border-width-base: 0.0625rem;
+$outline-width-base: 0.125rem;
+$spacing-base: 1rem;
+
+// --- TEXT HIERARCHY (Opacity) ---
+$text-primary-opacity: 1;
+$text-secondary-opacity: 0.75;
+$text-tertiary-opacity: 0.5;
+$text-muted-opacity: 0.38;
+
 // --- LAYOUT & METRICS ---
-$top-bar-height: 3rem;
-$header-height: 6rem;
 $app-container-pad: 1rem;
 $border-radius: 0.25rem;
 $transition-speed: 0.2s;
+$opacity-disabled: 0.4;
 $spacing-xs: 0.25rem;
 $spacing-sm: 0.5rem;
 $spacing-sm-md: 0.75rem;
 $spacing-md: 1rem;
+$spacing-md-lg: 1.25rem;
 $spacing-lg: 1.5rem;
 $spacing-xl: 2rem;
+$spacing-2xl: 3rem;
+$spacing-3xl: 5rem;
+
+// --- COMPONENT METRICS ---
+$form-element-pad-v: 0.75rem;
+$form-element-pad-h: 1rem;
+$nav-link-pad-v: 0.5rem;
+$nav-link-pad-h: 0.5rem;
+$btn-danger-alpha: 0.1;
+$btn-ghost-hover-alpha: 0.05;
+$btn-outline-hover-alpha: 0.02;
+$btn-glass-hover-alpha: 0.1;
+$btn-glass-border-alpha: 0.1;
+$btn-glass-border-hover-alpha: 0.3;
+$signature-default: #8b5cf6;
+$signature-default-rgb: 139 92 246;
 
 // --- BREAKPOINTS ---
 $breakpoint-mobile: 768px;
@@ -137,7 +176,41 @@ $breakpoint-tablet: 1024px;
 // --- UI TOKENS ---
 $ui-glass-border: rgb(255 255 255 / 10%);
 $ui-glass-hover: rgb(255 255 255 / 5%);
+$ui-glass-interactive-border: rgb(255 255 255 / 25%);
 $rp-text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
+$shadow-sm: 0 2px 8px rgb(0 0 0 / 15%);
+$shadow-md: 0 4px 6px rgb(0 0 0 / 20%);
+$shadow-lg: 0 10px 30px rgb(0 0 0 / 50%);
+$shadow-xl: 0 20px 40px rgb(0 0 0 / 60%);
+$shadow-interactive-hover: 0 12px 24px rgb(0 0 0 / 40%);
+$shadow-card-hover: 0 6px 16px rgb(0 0 0 / 20%);
+
+// --- UI TOKENS: GLASSMORPHISM ---
+$glass-pill-bg: rgb(0 0 0 / 40%);
+$glass-pill-blur: 10px;
+$glass-pill-radius: 50px;
+$glass-standard-bg: rgb(18 20 30 / 60%);
+$glass-standard-blur: 16px;
+$glass-heavy-bg: rgb(18 20 30 / 85%);
+$glass-heavy-blur: 20px;
+$glass-heavy-radius: 12px;
+
+// --- UI TOKENS: PHYSICS ---
+$physics-transition-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
+$physics-hover-y: -4px;
+$physics-btn-hover-y: -1px;
+$physics-btn-active-scale: 0.98;
+
+// --- COMPONENT SPECIFIC ---
+$btn-min-height: 2.25rem;
+$btn-font-size: 0.85rem;
+$btn-group-split-height: 3.5rem;
+$btn-group-split-radius: 0.75rem;
+$input-font-size: 0.95rem;
+$input-bg: rgb(0 0 0 / 30%);
+$input-bg-focus: rgb(0 0 0 / 50%);
+$illusion-shimmer-color: rgb(255 255 255 / 3%);
+$illusion-shimmer-highlight: rgb(255 255 255 / 6%);
 
 // --- Z-INDEX SCALE ---
 $z-map: (

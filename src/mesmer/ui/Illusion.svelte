@@ -22,8 +22,8 @@
   @use "../scss/abstracts/mixins" as *;
   @use "../scss/abstracts/placeholders" as *;
 
-  .skeleton {
-    background: rgba(255, 255, 255, 0.05); /* Base 'bone' color */
+  .illusion {
+    background: rgba($white, 0.05); /* Base 'bone' color */
     border-radius: 8px;
     overflow: hidden;
     position: relative;
@@ -47,23 +47,20 @@
     &::after {
       content: "";
       position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
+      inset: 0;
       transform: translateX(-100%);
       background-image: linear-gradient(
         90deg,
-        rgba(255, 255, 255, 0) 0,
-        rgba(255, 255, 255, 0.05) 20%,
-        rgba(255, 255, 255, 0.1) 60%,
-        rgba(255, 255, 255, 0)
+        transparent 0,
+        $illusion-shimmer-color 20%,
+        $illusion-shimmer-highlight 60%,
+        transparent
       );
-      animation: shimmer 5s infinite;
+      animation: illusion-shimmer 5s infinite;
     }
   }
 
-  @keyframes shimmer {
+  @keyframes illusion-shimmer {
     100% {
       transform: translateX(100%);
     }

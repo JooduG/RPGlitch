@@ -1,46 +1,90 @@
+@use "../abstracts/mixins" as *;
+@use "../abstracts/variables" as vars;
+
 /* ============================================================================
-   BASE: RESET
+   BASE RESETS
    ============================================================================ */
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+* {
+  @include custom-scrollbar;
 }
 
+html,
 body {
+  height: 100%;
+  width: 100%;
   margin: 0;
-  padding: 0;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: var(--font-body);
+  color: var(--app-color);
+  background-color: var(--app-background);
+  background-image: radial-gradient(
+    circle at 50% 0%,
+    var(--bg-grad-1),
+    var(--bg-grad-2) 50%,
+    var(--bg-grad-3) 75%,
+    var(--bg-grad-4)
+  );
+  background-size: cover;
 }
 
-img,
-video,
-svg {
-  display: block;
-  max-width: 100%;
+// Noise Filter Overlay
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 2;
 }
 
-input,
-button,
-textarea,
-select {
-  font: inherit;
+#fractal-background {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  filter: blur(8px) brightness(0.3);
+  transform: scale(1.1);
+  pointer-events: none;
+  transition: opacity 2s ease-in-out;
 }
 
-[hidden] {
+.muted,
+.placeholder-text {
+  font-style: italic;
+  color: var(--app-muted) !important;
+}
+
+.danger,
+.danger:active,
+.danger:hover {
+  background: var(--app-del);
+  border-color: var(--app-del);
+  color: vars.$white;
+}
+
+body:not(.mode-developer) .developer-content {
   display: none !important;
 }
 
-button {
-  cursor: pointer;
+body.modal-open {
+  overflow: hidden;
 }
 
-article {
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
+/* ACCESSIBILITY BYPASS LINK */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: var(--app-primary);
+  color: vars.$white;
+  padding: 8px;
+  z-index: 10000;
+  transition: top 0.2s;
+
+  &:focus {
+    top: 0;
+  }
 }

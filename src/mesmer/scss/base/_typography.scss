@@ -12,51 +12,51 @@
   font-size: 100%;
 
   // --- THEME COLORS ---
-  --app-h1-color: #fff;
-  --app-h2-color: #fff;
-  --app-h3-color: #eee;
+  --app-h1-color: #{vars.$app-h1-color-light};
+  --app-h2-color: #{vars.$app-h2-color-light};
+  --app-h3-color: #{vars.$app-h3-color-light};
 
   // Dark Theme Overrides for Typography
   &[data-theme="dark"] {
-    --app-h1-color: #f8fafc;
-    --app-h2-color: #f8fafc;
-    --app-h3-color: #f1f5f9;
+    --app-h1-color: #{vars.$app-h1-color-dark};
+    --app-h2-color: #{vars.$app-h2-color-dark};
+    --app-h3-color: #{vars.$app-h3-color-dark};
   }
 
   // --- GENERIC METRICS (De-branded) ---
-  --line-height: 1.5;
-  --font-weight: 400;
+  --line-height: #{vars.$line-height-base};
+  --font-weight: #{vars.$font-weight-base};
   --border-radius: #{vars.$border-radius};
-  --border-width: 0.0625rem;
-  --outline-width: 0.125rem;
+  --border-width: #{vars.$border-width-base};
+  --outline-width: #{vars.$outline-width-base};
   --transition: #{vars.$transition-speed} ease-in-out;
-  --spacing: 1rem;
+  --spacing: #{vars.$spacing-base};
 
   // --- SPACING SCALE ---
   --space-xs: #{vars.$spacing-xs};
   --space-sm: #{vars.$spacing-sm};
-  --space-sm-md: 0.75rem;
+  --space-sm-md: #{vars.$spacing-sm-md};
   --space-md: #{vars.$spacing-md};
-  --space-md-lg: 1.25rem;
+  --space-md-lg: #{vars.$spacing-md-lg};
   --space-lg: #{vars.$spacing-lg};
   --space-xl: #{vars.$spacing-xl};
-  --space-2xl: 3rem;
-  --space-3xl: 5rem;
+  --space-2xl: #{vars.$spacing-2xl};
+  --space-3xl: #{vars.$spacing-3xl};
 
   // --- TEXT HIERARCHY (Opacity-Based) ---
-  --text-primary: 1;
-  --text-secondary: 0.75;
-  --text-tertiary: 0.5;
-  --text-muted: 0.38;
+  --text-primary: #{vars.$text-primary-opacity};
+  --text-secondary: #{vars.$text-secondary-opacity};
+  --text-tertiary: #{vars.$text-tertiary-opacity};
+  --text-muted: #{vars.$text-muted-opacity};
 
   // --- COMPONENT METRICS ---
-  --form-element-spacing-vertical: 0.75rem;
-  --form-element-spacing-horizontal: 1rem;
-  --nav-link-spacing-vertical: 0.5rem;
-  --nav-link-spacing-horizontal: 0.5rem;
+  --form-element-spacing-vertical: #{vars.$form-element-pad-v};
+  --form-element-spacing-horizontal: #{vars.$form-element-pad-h};
+  --nav-link-spacing-vertical: #{vars.$nav-link-pad-v};
+  --nav-link-spacing-horizontal: #{vars.$nav-link-pad-h};
 
   // Font Families
-  --font-heading: #{vars.$font-family-headings};
+  --font-heading: #{vars.$font-heading};
   --font-mono: #{vars.$font-monospace};
   --font-body: #{vars.$font-body};
 

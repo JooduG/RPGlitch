@@ -9,6 +9,7 @@
   import { app } from "./gamemaster/state.svelte.js";
 
   import { onMount } from "svelte";
+  import { fade } from "svelte/transition";
 
   let mounted = $state(false);
 
@@ -25,7 +26,6 @@
     class:has-tension={app.tension > 0}
     transition:fade={{ duration: 800 }}
   >
-    <Typography />
     <!-- FRACTAL BACKGROUND -->
     {#if app.selectedFractal?.profilePictureUrl}
       <div

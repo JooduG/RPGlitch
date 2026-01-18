@@ -37,8 +37,8 @@
 </script>
 
 {#if loading}
-  <!-- Global Skeleton Loader -->
-  <div class="skeleton-boot">
+  <!-- Global Illusion Loader -->
+  <div class="illusion-boot">
     <Illusion variant="card" width="25vh" height="40vh" />
     <Illusion variant="card" width="40vh" height="25vh" />
     <Illusion variant="card" width="25vh" height="40vh" />
@@ -101,7 +101,7 @@
   }
 
   /* Boot Loader: Matches Layout.svelte 10-col grid */
-  .skeleton-boot {
+  .illusion-boot {
     display: grid;
     grid-template-columns: repeat(10, 1fr);
     height: 100vh;

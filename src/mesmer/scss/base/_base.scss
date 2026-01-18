@@ -19,15 +19,14 @@
   --z-toast: #{map.get(vars.$z-map, toast)};
 
   // --- THEME VARIABLES ---
-  --app-color: #fff;
-  --app-muted: #{vars.$muted-color-light};
-  --app-border: #{vars.$border-color-light};
-  --app-del: #{vars.$pico-del-color};
+  --app-color: #{vars.$app-color-light};
+  --app-muted: #{vars.$app-muted-light};
+  --app-border: #{vars.$app-border-light};
+  --app-del: #{vars.$app-del-color};
   --app-background: #{vars.$app-background};
   --card-background: #{vars.$card-background};
   --form-background: #{vars.$form-background};
   --app-component-bg: #{vars.$component-bg};
-  --app-component-bg-rgb: #{vars.$component-bg-rgb};
 
   // Primary Colors (From Tokens)
   --app-primary: #{vars.$app-primary};
@@ -42,7 +41,7 @@
 
   // --- APP UTILITIES ---
   --rp-text-shadow: #{vars.$rp-text-shadow};
-  --color-accent: #{vars.$color-accent};
+  --color-accent: #{vars.$app-accent-color};
   --signature-text-on: #{vars.$signature-text-on};
 
   // Initialize signature vars (Forwarded from tokens -> palette-generated)
@@ -59,8 +58,8 @@
 
 // --- DYNAMIC SIGNATURE UTILITY ---
 .themed-signature {
-  --current-sig: var(--signature-color, #8b5cf6);
-  --current-sig-rgb: var(--signature-rgb, 139 92 246);
+  --current-sig: var(--signature-color, #{vars.$signature-default});
+  --current-sig-rgb: var(--signature-rgb, #{vars.$signature-default-rgb});
   --signature-10: rgb(var(--current-sig-rgb) / 10%);
   --signature-20: rgb(var(--current-sig-rgb) / 20%);
   --signature-50: rgb(var(--current-sig-rgb) / 50%);
@@ -70,100 +69,11 @@
 }
 
 // --- DARK THEME OVERRIDES ---
-// --- DARK THEME OVERRIDES ---
 [data-theme="dark"] {
   --app-background: #{vars.$app-background-dark};
   --card-background: #{vars.$card-background-dark};
   --form-background: #{vars.$form-background-dark};
-  --app-color: #f1f5f9;
-  --app-muted: #{vars.$muted-color-dark};
-  --app-border: #{vars.$border-color-dark};
-}
-
-/* ============================================================================
-   BASE RESETS
-   ============================================================================ */
-
-* {
-  @include custom-scrollbar;
-}
-
-html,
-body {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  font-family: var(--font-body);
-  color: var(--app-color);
-  background-color: var(--app-background);
-  background-image: radial-gradient(
-    circle at 50% 0%,
-    var(--bg-grad-1),
-    var(--bg-grad-2) 50%,
-    var(--bg-grad-3) 75%,
-    var(--bg-grad-4)
-  );
-  background-size: cover;
-}
-
-// Noise Filter Overlay
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  opacity: 0.03;
-  pointer-events: none;
-  z-index: 2;
-}
-
-#fractal-background {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0;
-  filter: blur(8px) brightness(0.3);
-  transform: scale(1.1);
-  pointer-events: none;
-  transition: opacity 2s ease-in-out;
-}
-
-.muted,
-.placeholder-text {
-  font-style: italic;
-  color: var(--app-muted) !important;
-}
-
-.danger,
-.danger:active,
-.danger:hover {
-  background: var(--app-del);
-  border-color: var(--app-del);
-  color: #fff;
-}
-
-body:not(.mode-developer) .developer-content {
-  display: none !important;
-}
-
-body.modal-open {
-  overflow: hidden;
-}
-
-/* ACCESSIBILITY BYPASS LINK */
-.skip-link {
-  position: absolute;
-  top: -100px;
-  left: 0;
-  background: var(--app-primary);
-  color: white;
-  padding: 8px;
-  z-index: 10000;
-  transition: top 0.2s;
-
-  &:focus {
-    top: 0;
-  }
+  --app-color: #{vars.$app-color-dark};
+  --app-muted: #{vars.$app-muted-dark};
+  --app-border: #{vars.$app-border-dark};
 }

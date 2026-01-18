@@ -21,7 +21,7 @@
 
   &.danger:hover:not(:disabled, .disabled) {
     color: var(--app-del);
-    background: rgb(220 53 69 / 10%);
+    background: rgba(vars.$app-del-color, vars.$btn-danger-alpha);
   }
 }
 

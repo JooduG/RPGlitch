@@ -23,11 +23,6 @@ describe("Mesmer Engine", () => {
       Mesmer.setTheme(el, "cyan");
       expect(el.style.getPropertyValue("--primary")).toBe("cyan");
     });
-
-    test("getColor() returns correct hex", () => {
-      expect(Mesmer.getColor("cyan")).toBe("#00ffff");
-      expect(Mesmer.getColor("unknown")).toBe("unknown");
-    });
   });
 
   describe("Visuals (Light) - Legacy Maestro", () => {

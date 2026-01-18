@@ -17,43 +17,40 @@
 // Glassmorphism Pill Container (Button Groups / Inputs)
 %glass-pill {
   @extend %glass-base;
-
-  background: rgb(0 0 0 / 40%);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 10px 30px rgb(0 0 0 / 50%);
-  border-radius: 50px;
+  background: $glass-pill-bg;
+  backdrop-filter: blur($glass-pill-blur);
+  box-shadow: $shadow-lg;
+  border-radius: $glass-pill-radius;
 }
 
 // 1. The Standard Glass (Used for Cards, UI Panels)
 %material-glass {
   @extend %glass-base;
-
-  background: rgb(18 20 30 / 60%);
-  backdrop-filter: blur(16px);
-  box-shadow: 0 4px 6px rgb(0 0 0 / 20%);
+  background: $glass-standard-bg;
+  backdrop-filter: blur($glass-standard-blur);
+  box-shadow: $shadow-md;
 }
 
 // 2. The Heavy Glass (Used for Modals, Drawers)
 %material-glass-heavy {
   @extend %glass-base;
-
-  background: rgb(18 20 30 / 85%);
-  backdrop-filter: blur(20px);
-  box-shadow: 0 20px 40px rgb(0 0 0 / 60%);
-  border-radius: 12px; // Override base radius
+  background: $glass-heavy-bg;
+  backdrop-filter: blur($glass-heavy-blur);
+  box-shadow: $shadow-xl;
+  border-radius: $glass-heavy-radius; // Override base radius
 }
 
 // 3. Interactive Surface (Hover states for cards)
 %material-interactive {
   transition:
-    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform 0.3s $physics-transition-elastic,
     box-shadow 0.3s ease,
     border-color 0.3s ease;
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgb(0 0 0 / 40%);
-    border-color: rgb(255 255 255 / 25%);
+    transform: translateY($physics-hover-y);
+    box-shadow: $shadow-interactive-hover;
+    border-color: $ui-glass-interactive-border;
   }
 }
 
@@ -62,20 +59,20 @@
 %btn-physics {
   // Hover State
   &:hover:not(:disabled, .disabled) {
-    transform: translateY(-1px);
+    transform: translateY($physics-btn-hover-y);
     filter: brightness(1.1);
   }
 
   // Active State
   &:active:not(:disabled, .disabled) {
-    transform: scale(var(--scale-active, 0.98));
+    transform: scale(var(--scale-active, #{$physics-btn-active-scale}));
   }
 }
 
 %btn-disabled {
   &:disabled,
   &.disabled {
-    opacity: 0.4;
+    opacity: $opacity-disabled;
     cursor: not-allowed;
     filter: grayscale(1);
     pointer-events: auto;
@@ -85,9 +82,9 @@
   }
 }
 
-// --- LOADING SKELETON ---
+// --- OPTICAL ILLUSION ---
 
-%skeleton {
+%illusion {
   position: relative;
   overflow: hidden;
   min-height: 1rem;
@@ -100,18 +97,18 @@
     background-image: linear-gradient(
       90deg,
       transparent 0,
-      rgb(255, 255, 255, 3%) 20%,
-      rgb(255, 255, 255, 6%) 60%,
+      $illusion-shimmer-color 20%,
+      $illusion-shimmer-highlight 60%,
       transparent
     );
-    animation: shimmer 5s infinite;
+    animation: illusion-shimmer 5s infinite;
     content: "";
   }
 }
 
 // --- CARD BASES ---
 %card-base {
-  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
+  box-shadow: $shadow-sm;
   background: var(--card-background, #2b3848);
   border-radius: var(--border-radius);
   color: var(--app-color);
@@ -123,13 +120,13 @@
   &:hover,
   &:has(:focus-visible) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgb(0 0 0 / 20%);
+    box-shadow: $shadow-card-hover;
   }
 
   &:has(:focus-visible) {
     box-shadow:
       0 0 0 2px var(--app-primary-focus),
-      0 6px 16px rgb(0 0 0 / 20%);
+      $shadow-card-hover;
   }
 }
 
@@ -140,12 +137,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  min-height: 2.25rem;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  min-height: $btn-min-height;
   font-family: inherit;
-  font-weight: 700;
-  font-size: 0.85rem;
+  font-weight: $font-weight-bold;
+  font-size: $btn-font-size;
   line-height: 1;
   text-decoration: none;
   cursor: pointer;
@@ -188,11 +185,11 @@
 
   background: var(--app-primary);
   color: var(--app-primary-inverse);
-  box-shadow: 0 4px 6px rgb(0 0 0 / 20%);
+  box-shadow: $shadow-md;
 
   &:hover:not(:disabled, .disabled) {
     background: var(--app-primary-hover);
-    box-shadow: 0 6px 12px rgb(0 0 0 / 30%);
+    box-shadow: $shadow-sm;
   }
 }
 
@@ -203,7 +200,7 @@
   border-color: transparent;
 
   &:hover:not(:disabled, .disabled) {
-    background: rgb(255 255 255 / 5%);
+    background: rgba($white, $btn-ghost-hover-alpha);
     color: var(--app-color);
   }
 }
@@ -217,7 +214,7 @@
   &:hover:not(:disabled, .disabled) {
     border-color: var(--app-primary);
     color: var(--app-primary);
-    background: rgb(255 255 255 / 2%);
+    background: rgba($white, $btn-outline-hover-alpha);
   }
 }
 
@@ -237,15 +234,15 @@
 %btn-glass {
   @extend %btn;
 
-  background: rgb(0 0 0 / 40%);
+  background: $glass-pill-bg;
   backdrop-filter: blur(8px);
-  border: 1px solid rgb(255 255 255 / 10%);
-  color: #fff;
+  border: 1px solid rgba($white, $btn-glass-border-alpha);
+  color: $white;
 
   &:hover:not(:disabled, .disabled) {
-    background: rgb(255 255 255 / 10%);
-    border-color: rgb(255 255 255 / 30%);
-    color: #fff;
+    background: rgba($white, $btn-glass-hover-alpha);
+    border-color: rgba($white, $btn-glass-border-hover-alpha);
+    color: $white;
   }
 }
 
@@ -269,7 +266,7 @@
     }
 
     &:not(:last-child) {
-      border-right: 1px solid rgb(255 255 255 / 10%);
+      border-right: 1px solid $ui-glass-border;
     }
   }
 }
@@ -296,7 +293,7 @@
     }
 
     &:not(:last-child) {
-      border-right: 1px solid rgb(255 255 255 / 10%);
+      border-right: 1px solid $ui-glass-border;
     }
   }
 }
@@ -317,7 +314,7 @@
     flex: 1 1 0;
     margin: 0;
     border-radius: 0;
-    height: 3.5rem;
+    height: $btn-group-split-height;
     border: none;
 
     &:not(:last-child) {
@@ -325,11 +322,11 @@
     }
 
     &:first-child {
-      border-bottom-left-radius: 0.75rem;
+      border-bottom-left-radius: $btn-group-split-radius;
     }
 
     &:last-child {
-      border-bottom-right-radius: 0.75rem;
+      border-bottom-right-radius: $btn-group-split-radius;
     }
 
     &:hover:not(
@@ -352,16 +349,17 @@
   width: 100%;
 
   // Depth Physics
-  background: rgb(0 0 0 / 30%);
+  background: $input-bg;
   border: 1px solid var(--app-border);
   border-radius: var(--border-radius);
 
   // Typography
   color: var(--app-color);
-  font-family: inherit;
-  font-size: 0.95rem;
-  padding: 0.75rem 1rem;
-  line-height: 1.5;
+  font-family: var(--font-body);
+  font-size: $input-font-size;
+  padding: var(--form-element-spacing-vertical)
+    var(--form-element-spacing-horizontal);
+  line-height: var(--line-height);
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease,
@@ -369,7 +367,7 @@
 
   &:focus {
     outline: none;
-    background: rgb(0 0 0 / 50%);
+    background: $input-bg-focus;
     border-color: var(--app-primary);
     box-shadow: 0 0 0 1px var(--app-primary);
   }

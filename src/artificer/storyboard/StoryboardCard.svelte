@@ -109,7 +109,7 @@
   @use "../../mesmer/scss/abstracts/placeholders" as *;
 
   .split-card {
-    @include card-common;
+    @extend %card-base;
     @extend %material-interactive;
 
     display: flex;
