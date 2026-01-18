@@ -20,9 +20,9 @@
 
   // --- THEME VARIABLES ---
   --app-color: #{vars.$app-color-light};
-  --app-muted: #{vars.$app-muted-light};
-  --app-border: #{vars.$app-border-light};
-  --app-del: #{vars.$app-del-color};
+  --app-muted: #{vars.$muted-light};
+  --app-border: #{vars.$border-light};
+  --app-del: #{vars.$color-danger};
   --app-background: #{vars.$app-background};
   --card-background: #{vars.$card-background};
   --form-background: #{vars.$form-background};
@@ -41,8 +41,8 @@
 
   // --- APP UTILITIES ---
   --rp-text-shadow: #{vars.$rp-text-shadow};
-  --color-accent: #{vars.$app-accent-color};
-  --signature-text-on: #{vars.$signature-text-on};
+  --color-accent: #{vars.$app-accent};
+  --signature-text-on: #{vars.$white};
 
   // Initialize signature vars (Forwarded from tokens -> palette-generated)
   @each $name, $data in vars.$signature-colors {
@@ -58,8 +58,8 @@
 
 // --- DYNAMIC SIGNATURE UTILITY ---
 .themed-signature {
-  --current-sig: var(--signature-color, #{vars.$signature-default});
-  --current-sig-rgb: var(--signature-rgb, #{vars.$signature-default-rgb});
+  --current-sig: var(--signature-color, #{vars.$signature-violet});
+  --current-sig-rgb: var(--signature-rgb, 139 92 246);
   --signature-10: rgb(var(--current-sig-rgb) / 10%);
   --signature-20: rgb(var(--current-sig-rgb) / 20%);
   --signature-50: rgb(var(--current-sig-rgb) / 50%);
@@ -74,6 +74,6 @@
   --card-background: #{vars.$card-background-dark};
   --form-background: #{vars.$form-background-dark};
   --app-color: #{vars.$app-color-dark};
-  --app-muted: #{vars.$app-muted-dark};
-  --app-border: #{vars.$app-border-dark};
+  --app-muted: #{vars.$muted-dark};
+  --app-border: #{vars.$border-dark};
 }

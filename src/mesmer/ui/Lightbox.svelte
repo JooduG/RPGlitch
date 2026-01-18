@@ -1,14 +1,14 @@
 <script>
-  import { app } from "../gamemaster/state.svelte.js";
-  import Modal from "./Modal.svelte";
+  import Modal from "../../artificer/Modal.svelte";
+  import { closeLightbox, lightbox } from "./lightbox.svelte.js";
 </script>
 
-{#if app.lightbox.active}
-  <Modal variant="preview" onclose={() => app.closeLightbox()}>
+{#if lightbox.active}
+  <Modal variant="preview" onclose={closeLightbox}>
     <div class="preview-stage">
-      <img src={app.lightbox.src} alt={app.lightbox.caption || "Preview"} />
-      {#if app.lightbox.caption}
-        <div class="caption">{app.lightbox.caption}</div>
+      <img src={lightbox.src} alt={lightbox.caption || "Preview"} />
+      {#if lightbox.caption}
+        <div class="caption">{lightbox.caption}</div>
       {/if}
     </div>
   </Modal>

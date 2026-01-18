@@ -1,9 +1,11 @@
 import { mdsvex } from "mdsvex";
 import sveltePreprocess from "svelte-preprocess";
 
-const config = {
+export default {
   preprocess: [sveltePreprocess(), mdsvex()],
   extensions: [".svelte", ".svx"],
+  vitePlugin: {
+    inspector: true,
+    toggleKeyCombo: "alt-x",
+  },
 };
-
-export default config;

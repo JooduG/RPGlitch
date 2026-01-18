@@ -2,7 +2,7 @@
 
 **Purpose:** Comprehensive reference for understanding the Perchance platform, from fundamental procedural generation to advanced AI-driven applications.
 
-**Note:** This guide is **application-agnostic**. For RPGlitch and ImageGlitch specific deployment, build configuration, and troubleshooting, see [PERCHANCE.md](./PERCHANCE.md) and [CLAUDE.md](./CLAUDE.md).
+**Note:** This guide is **application-agnostic**. For RPGlitch and ImageGlitch specific deployment, build configuration, and troubleshooting, see [README.md](../../README.md).
 
 ---
 
@@ -29,12 +29,10 @@ A generator's logic is primarily defined in the **Lists Panel** of the editor UI
 A list is created by defining a name, followed by its items on subsequent lines. Each item must be indented with a single tab or two spaces.
 
 ```text
-
 animal
 pig
 cow
 zebra
-
 ```
 
 ### Referencing Lists
@@ -48,9 +46,7 @@ To use a list, its name is enclosed in square brackets (`[]`). When the engine e
 For simple, inline random choices without creating a formal list, use curly brackets (`{}`) with items separated by a vertical bar (`|`):
 
 ```text
-
 The cow is {very|extremely} large.
-
 ```
 
 For single-item lists, use shorthand: `listName = [item]`
@@ -73,12 +69,10 @@ Use two forward slashes (`//`) to comment. Any text following `//` on the same l
 The likelihood of an item being selected can be modified using the caret (`^`) operator followed by a number. Default weight is 1.
 
 ```text
-
 condiment
 pepper^2      // Twice as likely
 salt           // Default weight
 chilli flakes^0.5  // Half as likely
-
 ```
 
 ### Selection Methods
@@ -125,10 +119,8 @@ To create coherent outputs, you must often store and reuse a randomly selected v
 The syntax `[identifierName = listName]` assigns a randomly selected item to an identifier. The stored value can then be reused elsewhere:
 
 ```text
-
 [f = flower.selectOne]
 The [f] is beautiful. I love the smell of the [f].
-
 ```
 
 ### Multi-Action Execution
@@ -136,9 +128,7 @@ The [f] is beautiful. I love the smell of the [f].
 Multiple assignments and operations can be performed within a single set of square brackets by separating them with commas. Only the final operation's result is displayed as output:
 
 ```text
-
 [a = animal, v = verb, a.upperCase + " " + v.pastTense]
-
 ```
 
 This first selects an animal, then a verb, then outputs a formatted sentence using both stored values.
@@ -370,7 +360,7 @@ Mandate: Your prose rhythm MUST reflect these values.
 
 ## Section 6: Programming with the `oc` Object
 
-**⚠️ ARCHITECTURAL NOTE:** This section details the standard Perchance API (oc). This is the default for most chat characters. However, RPGlitch utilizes Pattern C (The Simulation Engine) and bypasses the oc object entirely in favor of a custom StoryController backed by Dexie.js. If you are working on RPGlitch core logic, ignore this section and reference [apps/rpglitch/js/manager-turns.js](apps/rpglitch/js/manager-turns.js).
+**⚠️ ARCHITECTURAL NOTE:** This section details the standard Perchance API (oc). This is the default for most chat characters. However, RPGlitch utilizes Pattern C (The Simulation Engine) and bypasses the oc object entirely in favor of a custom state machine. If you are working on RPGlitch core logic, ignore this section and reference [src/gamemaster/chrono.svelte.js](../../src/gamemaster/chrono.svelte.js).
 
 The `oc` (Online-Character or Online-Chat) object is the central hub for scripting in the standard AI Character Chat environment.
 
@@ -553,10 +543,20 @@ The architecture treats all text as "radioactive"—it must be decontaminated be
 
 ## Related Documentation in This Repository
 
-- **[PERCHANCE.md](./PERCHANCE.md)** — Deployment, build configuration, and RPGlitch/ImageGlitch specific integration
-- **[CLAUDE.md](./CLAUDE.md)** — Development protocols, coding standards, and project workflow
-- **[design-system.md](./design-system.md)** — UI/UX guidelines and component library
-- **[README.md](./README.md)** — Project overview and quick start
+- [glossary.md](./glossary.md)
+- [structure.md](./structure.md)
+- [anti-patterns.md](./anti-patterns.md)
+- [architecture.md](../rules/architecture.md)
+- [primary-directive.md](../rules/primary-directive.md)
+- [security.md](../rules/security.md)
+- [style.md](../rules/style.md)
+- [tech-stack.md](../rules/tech-stack.md)
+- [svelte-5.md](../rules/svelte-5.md)
+- [scss-styling.md](../rules/scss-styling.md)
+- [html-dom.md](../rules/html-dom.md)
+- [js-logic.md](../rules/js-logic.md)
+- [reasoning.md](../rules/reasoning.md)
+- [roadmap.md](../planning/roadmap.md)
 
 ---
 

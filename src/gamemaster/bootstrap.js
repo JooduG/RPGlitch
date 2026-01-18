@@ -2,6 +2,7 @@ import { mount } from "svelte";
 import App from "../App.svelte";
 import { db } from "../scholar/database/db.js";
 import { seedPremades } from "../scholar/database/repository.js";
+import { GameMaster } from "./index.js";
 // import { initViews } from "../js/mesmer/ui/core/orchestrator.js"; // Legacy UI Removed
 // import { log, initDebugMode, mockPlugins } from "./utils.js"; // REPLACED
 const log = console.info;
@@ -12,7 +13,6 @@ const mockPlugins = () => {
     window.ai.generate = window.ai; // Backwards compatibility if needed
   }
 };
-import { GameMaster } from "./index.js";
 
 // Expose GameMaster to Window (Critical for UI)
 if (typeof window !== "undefined") window.GameMaster = GameMaster;
@@ -102,7 +102,7 @@ export const AppBootstrap = {
       // 3. Svelte Artificer Layer (The new overlay)
       const target = document.getElementById("svelte-root");
       if (target) {
-        target.innerHTML = ""; // Clear skeleton
+        target.innerHTML = ""; // Clear illusion
         mount(App, { target });
         log("[Bootstrap] ⚒️ Artificer UI Mounted.");
         // 4. Start the Engine (Refactored: GameMasterFacade now handles this via index.js if needed)

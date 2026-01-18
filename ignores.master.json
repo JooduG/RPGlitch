@@ -23,7 +23,8 @@
     "gha-creds-*.json",
     "nul",
     "*.css.map",
-    "test-results/"
+    "test-results/",
+    "scribbles.md"
   ],
   "linters": {
     "eslint": [
@@ -78,7 +79,8 @@
       "/coverage",
       "/dist",
       ".markdownlint.json",
-      "*.resolved"
+      "*.resolved",
+      "scribbles.md"
     ],
     "prettier": [
       "*.bak",

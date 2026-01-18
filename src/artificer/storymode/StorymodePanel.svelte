@@ -22,7 +22,7 @@
   {#if mode === "card"}
     <!-- === CARD MODE (Standard Lobby/Profile) === -->
     <Button
-      class="avatar-btn"
+      class="profile-picture-btn"
       variant="ghost"
       onclick={() => app.toggleProfile(true, entity)}
       aria-label="Edit {name}"
@@ -109,7 +109,7 @@
   }
 
   /* === CARD STYLES === */
-  :global(.avatar-btn.btn) {
+  :global(.profile-picture-btn.btn) {
     position: relative;
     width: 160px;
     height: 160px;
@@ -276,7 +276,7 @@
 
   /* Mobile Scaling */
   @media (max-width: 768px) {
-    :global(.avatar-btn.btn) {
+    :global(.profile-picture-btn.btn) {
       width: 100px;
       height: 100px;
     }

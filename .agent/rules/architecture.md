@@ -65,3 +65,10 @@ The system operates on a strict **Unidirectional Data Flow**. We do not manually
 1. **Universal Reactivity:** Global state lives in `.svelte.js` modules (e.g., `voice.svelte.js`), NEVER in UI components. UI components just consume them.
 1. **No Direct DOM:** Never use `document.querySelector` or `getElementById`. Bind to state.
 1. **No Legacy Loops:** The old `engine/` loop is dead. Use `Chrono` (State Machine).
+
+## 4. Strategic Orchestration (The Hybrid Model)
+
+We avoid the "Manager-Mediator" bottleneck by utilizing a hybrid orchestration/choreography pattern:
+
+- **Orchestration (Inside Bounded Contexts):** `Chrono` acts as the central orchestrator for the Turn Lifecycle, ensuring strict sequencing of physics, logic, and synthesis.
+- **Choreography (Between Pillars):** Pillars react to state changes in other pillars via native Svelte reactivity (`$effect`, `$derived`). For example, `Scholar` automatically persists changes when `Chrono` completes a turn, and `Mesmer` visualizes state without being explicitly "told" to by the Gamemaster.

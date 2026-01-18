@@ -21,8 +21,8 @@ function createRuntimeStore() {
       // 🎭 Visuals & Voice
       voice: { rate: 1.0, pitch: 1.0 },
       visuals: {
-        avatar: null, // URL
-        avatarSeed: 0, // Used for transition keys
+        profilePicture: null, // URL
+        profilePictureSeed: 0, // Used for transition keys
         signatureColor: "#84cc16", // Default Lime
         noBackground: false,
       },
@@ -121,7 +121,7 @@ function createRuntimeStore() {
       targets.forEach((t) => {
         if (t && t.id === entityId) {
           if (newColor) t.visuals.signatureColor = newColor;
-          if (newSeed !== undefined) t.visuals.avatarSeed = newSeed;
+          if (newSeed !== undefined) t.visuals.profilePictureSeed = newSeed;
         }
       });
     },

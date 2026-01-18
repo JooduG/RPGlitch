@@ -60,3 +60,16 @@ We adhere to a "Local-First, Cloud-Augmented" hybrid model.
 - **Strict Rule:** **NO SECRETS** in the client bundle.
 - **Protocol:** API keys for external services (if any) must be user-provided or handled via a secure proxy, never hardcoded.
 - **Build Tools:** Use `.env` only for local build scripts (`tools/`).
+
+### 🛡️ Agent Defense (Deny List)
+
+To mitigate Prompt Injection and Data Exfiltration vectors, the following rules apply to all AI Agents:
+
+- **File Deny List:** Agents are strictly forbidden from reading or displaying the contents of the following files:
+  - `.env`
+  - `id_rsa`, `id_ed25519` (and any SSH keys)
+  - `kubeconfig`
+  - `credentials.json`
+  - Any files containing `_SECRET`, `_KEY`, or `_TOKEN` in their name (heuristic block).
+- **Network Allow List:** Outbound requests from agents must be restricted to verified domains (e.g., `github.com`, `perchance.org`, `npmjs.com`). Unrecognized IP addresses or domains are blocked by default.
+- **Credential Protocol:** sensitive credentials (like `GEMINI_API_KEY`) must be injected into the agent's environment as variables that the agent can **use** (e.g., via tool calls) but **cannot read or print** in its own output or thought process.

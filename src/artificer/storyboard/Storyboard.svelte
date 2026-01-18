@@ -111,15 +111,15 @@
     align-items: center; /* Center items in their row */
     align-content: center; /* Center the row in the container */
 
-    & :global(.skeleton:nth-child(1)) {
+    & :global(.illusion:nth-child(1)) {
       grid-column: 2 / span 2;
       justify-self: center;
     }
-    & :global(.skeleton:nth-child(2)) {
+    & :global(.illusion:nth-child(2)) {
       grid-column: 4 / span 4;
       justify-self: center;
     }
-    & :global(.skeleton:nth-child(3)) {
+    & :global(.illusion:nth-child(3)) {
       grid-column: 8 / span 2;
       justify-self: center;
     }
@@ -131,11 +131,11 @@
       padding-bottom: 0;
       align-items: center;
 
-      & :global(.skeleton:nth-child(1)),
-      & :global(.skeleton:nth-child(3)) {
+      & :global(.illusion:nth-child(1)),
+      & :global(.illusion:nth-child(3)) {
         display: none;
       }
-      & :global(.skeleton:nth-child(2)) {
+      & :global(.illusion:nth-child(2)) {
         grid-column: 1 / -1;
       }
     }

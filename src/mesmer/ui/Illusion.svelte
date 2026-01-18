@@ -1,6 +1,6 @@
 <script>
   let {
-    variant = "card", // 'card' | 'text' | 'hero' | 'avatar'
+    variant = "card", // 'card' | 'text' | 'hero' | 'profilePicture'
     width = "100%",
     height = "auto",
     aspectRatio = "auto",
@@ -33,7 +33,7 @@
       border-radius: 24px;
     }
 
-    &.avatar {
+    &.profilePicture {
       border-radius: 50%;
     }
 

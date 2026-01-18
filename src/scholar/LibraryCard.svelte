@@ -33,11 +33,14 @@
       <img
         src={avatar}
         alt="{name} Avatar"
-        class="avatar-image"
+        class="profile-picture-image"
         transition:fade={{ duration: 200 }}
       />
     {:else}
-      <div class="avatar-placeholder" class:fractal-mode={type === "fractal"}>
+      <div
+        class="profile-picture-placeholder"
+        class:fractal-mode={type === "fractal"}
+      >
         {themeStore.getInitials(name)}
       </div>
     {/if}
@@ -92,14 +95,14 @@
       overflow: hidden;
       position: relative;
 
-      .avatar-image {
+      .profile-picture-image {
         width: 100%;
         height: 100%;
         object-fit: cover;
         transition: transform 0.6s ease;
       }
 
-      .avatar-placeholder {
+      .profile-picture-placeholder {
         display: flex;
         align-items: center;
         justify-content: center;

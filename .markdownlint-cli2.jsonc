@@ -12,6 +12,7 @@
     "/.npm",
     "/coverage",
     "/dist",
-    "libs/**"
+    "libs/**",
+    "scribbles.md"
   ]
 }

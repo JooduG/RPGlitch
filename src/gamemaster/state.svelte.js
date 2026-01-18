@@ -15,26 +15,6 @@ export class AppStore {
   aiList = $state([]);
   userList = $state([]);
   fractalList = $state([]);
-
-  // 📝 STORY TITLE STATE
-  storyTitle = $state("Your story begins here...");
-  isCustomTitle = $state(false);
-  titleRerollCount = $state(0); // Reactive counter to trigger title recalculation
-
-  /**
-   * Structured title parts for colored rendering
-   * Returns an array of { text, color? } objects
-   */
-  storyTitleParts = $derived.by(() => {
-    if (this.isCustomTitle) {
-      // Custom titles are plain white
-      return [{ text: this.storyTitle }];
-    }
-    // Reference titleRerollCount to trigger recalculation on reroll
-    void this.titleRerollCount;
-    return this.generateColoredTitleParts();
-  });
-
   // 📥 ENTITY DRAWER STATE
   drawer = $state({
     open: false,
@@ -134,14 +114,7 @@ export class AppStore {
     }
   }
 
-  // 🎭 MESMER: Visual Experience (Lightbox)
-  lightbox = $state({
-    active: false,
-    src: null,
-    caption: "",
-  });
-
-  // 🌊 STREAMING STATE (Real-time data from LLM)
+  //  STREAMING STATE (Real-time data from LLM)
   streaming = $state({
     active: false,
     content: "",
@@ -168,192 +141,8 @@ export class AppStore {
     if (type === "ai") this.selectedAi = entity;
     else if (type === "user") this.selectedUser = entity;
     else if (type === "fractal") this.selectedFractal = entity;
-
-    // Update dynamic title if not custom
-    if (!this.isCustomTitle) {
-      this.storyTitle = this.generateDynamicTitle();
-    }
-
     this.closeDrawer();
   };
-
-  /**
-   * Generates a dynamic title based on selected entities and current theme
-   */
-  generateDynamicTitle() {
-    const isSmartphone = this.settings.callMode;
-    const standardPrefixes = [
-      "The Story of",
-      "The Adventures of",
-      "The Tale of",
-      "The Legend of",
-      "The Saga of",
-      "Chronicles of",
-      "The Journey of",
-    ];
-    const smartphonePrefixes = [
-      "Chat Log:",
-      "Session:",
-      "Messenger.exe:",
-      "New Thread:",
-      "Encrypted Feed:",
-      "Connection:",
-      "Archive:",
-      "RELAY //",
-    ];
-
-    const entities = [this.selectedAi, this.selectedUser].filter(Boolean);
-    const entityNames = entities.map((e) => e.name).join(" & ");
-    const hasFractal = !!this.selectedFractal;
-
-    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-
-    if (isSmartphone) {
-      const prefix = pick(smartphonePrefixes);
-      return entities.length > 0
-        ? `${prefix} ${entityNames}`
-        : `${prefix} Guest User`;
-    }
-
-    const prefix = pick(standardPrefixes);
-    if (entities.length > 0 && hasFractal) {
-      return `${prefix} ${entityNames} in ${this.selectedFractal.name}`;
-    } else if (entities.length > 0) {
-      return `${prefix} ${entityNames}`;
-    } else if (hasFractal) {
-      const fractalPrefixes = [
-        "Adventures in",
-        "Tales from",
-        "The World of",
-        "Journey to",
-      ];
-      return `${pick(fractalPrefixes)} ${this.selectedFractal.name}`;
-    }
-
-    return "Your story begins here...";
-  }
-
-  /**
-   * Generates structured title parts with entity colors for rich rendering
-   * @returns {Array<{text: string, color?: string}>}
-   */
-  generateColoredTitleParts() {
-    const getColor = (entity) => themeStore.getSignatureColor(entity);
-
-    const isSmartphone = this.settings.callMode;
-    const standardPrefixes = [
-      "The Story of",
-      "The Adventures of",
-      "The Tale of",
-      "The Legend of",
-      "The Saga of",
-      "Chronicles of",
-      "The Journey of",
-    ];
-    const smartphonePrefixes = [
-      "Chat Log:",
-      "Session:",
-      "Messenger.exe:",
-      "New Thread:",
-      "Encrypted Feed:",
-      "Connection:",
-      "Archive:",
-      "RELAY //",
-    ];
-
-    const ai = this.selectedAi;
-    const user = this.selectedUser;
-    const fractal = this.selectedFractal;
-
-    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-
-    // Smartphone mode - simpler format
-    if (isSmartphone) {
-      const prefix = pick(smartphonePrefixes);
-      const parts = [{ text: `${prefix} ` }];
-
-      if (ai && user) {
-        parts.push({ text: ai.name, color: getColor(ai) });
-        parts.push({ text: " & " });
-        parts.push({ text: user.name, color: getColor(user) });
-      } else if (ai) {
-        parts.push({ text: ai.name, color: getColor(ai) });
-      } else if (user) {
-        parts.push({ text: user.name, color: getColor(user) });
-      } else {
-        parts.push({ text: "Guest User" });
-      }
-      return parts;
-    }
-
-    // Standard mode - full format
-    const hasEntities = ai || user;
-    const hasFractal = !!fractal;
-
-    if (hasEntities && hasFractal) {
-      const prefix = pick(standardPrefixes);
-      const parts = [{ text: `${prefix} ` }]; // Space in prefix
-
-      if (ai && user) {
-        parts.push({ text: ai.name, color: getColor(ai) });
-        parts.push({ text: " & " }); // Standard spacing
-        parts.push({ text: user.name, color: getColor(user) });
-      } else if (ai) {
-        parts.push({ text: ai.name, color: getColor(ai) });
-      } else {
-        parts.push({ text: user.name, color: getColor(user) });
-      }
-
-      parts.push({ text: " in " }); // Standard spacing
-      parts.push({ text: fractal.name, color: getColor(fractal) });
-      return parts;
-    } else if (hasEntities) {
-      const prefix = pick(standardPrefixes);
-      const parts = [{ text: `${prefix} ` }]; // Space in prefix
-
-      if (ai && user) {
-        parts.push({ text: ai.name, color: getColor(ai) });
-        parts.push({ text: " & " }); // Standard spacing
-        parts.push({ text: user.name, color: getColor(user) });
-      } else if (ai) {
-        parts.push({ text: ai.name, color: getColor(ai) });
-      } else {
-        parts.push({ text: user.name, color: getColor(user) });
-      }
-      return parts;
-    } else if (hasFractal) {
-      const fractalPrefixes = [
-        "Adventures in",
-        "Tales from",
-        "The World of",
-        "Journey to",
-      ];
-      const prefix = pick(fractalPrefixes);
-      return [
-        { text: `${prefix} ` },
-        { text: fractal.name, color: getColor(fractal) },
-      ];
-    }
-
-    return [{ text: "Your story begins here..." }];
-  }
-
-  /**
-   * Manually sets a custom title, locking it from auto-updates
-   */
-  setTitle = (val) => {
-    this.storyTitle = val;
-    this.isCustomTitle = true;
-  };
-
-  /**
-   * Resets the custom lock and generates a fresh dynamic title
-   */
-  rerollTitle = () => {
-    this.isCustomTitle = false;
-    this.titleRerollCount++; // Trigger $derived recalculation
-  };
-
   editingEntity = $state(null);
 
   toggleProfile = (forceState = null, entity = null) => {
@@ -363,34 +152,10 @@ export class AppStore {
       this.profileOpen = !this.profileOpen;
     }
 
-    // If opening with a specific entity, set it
-    // If just toggling, we might keep previous or default
+    // If opening with a specific entity, normalize and set it
     if (entity) {
-      this.editingEntity = this.normalizeEntity(entity);
+      this.editingEntity = themeStore.normalizeEntity(entity);
     }
-  };
-
-  /**
-   * Ensure entity has all required UI properties to prevent rendering crashes
-   */
-  normalizeEntity(entity) {
-    return themeStore.normalizeEntity(entity);
-  }
-
-  setView = (v) => {
-    this.view = v;
-  };
-
-  // Lightbox Actions
-  openLightbox = (src, caption = "") => {
-    this.lightbox.active = true;
-    this.lightbox.src = src;
-    this.lightbox.caption = caption;
-  };
-
-  closeLightbox = () => {
-    this.lightbox.active = false;
-    this.lightbox.src = null;
   };
 
   // Settings Mutators (Auto-Save)
@@ -441,7 +206,7 @@ export class AppStore {
    */
   forceStart = () => {
     console.warn("⚠️ FORCING GAME START");
-    this.setView("game");
+    this.view = "game";
   };
 }
 

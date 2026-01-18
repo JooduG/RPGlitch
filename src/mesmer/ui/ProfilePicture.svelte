@@ -3,18 +3,18 @@
    * @typedef {Object} Entity
    * @property {string} name
    * @property {Object} [visuals]
-   * @property {string} [visuals.avatar] // Keeping schema property name as is for now
-   * @property {string} [visuals.avatarSeed]
+   * @property {string} [visuals.profilePicture]
+   * @property {string} [visuals.profilePictureSeed]
    * @property {string} [visuals.signatureColor]
    * @property {boolean} [visuals.noBackground]
    * @property {boolean} [visuals.flipped]
    */
 
-  let { entity, ...rest } = $props();
-
   import { fade } from "svelte/transition";
-  import { AVATAR_PLACEHOLDERS } from "../../gamemaster/config.js";
+  import { PROFILE_PICTURE_PLACEHOLDERS } from "../../gamemaster/config.js";
   import { themeStore } from "../logic/theme.svelte.js";
+
+  let { entity, ...rest } = $props();
 
   // Derived Reactive Properties
   let pictureUrl = $derived(entity?.visuals?.profilePictureUrl);
@@ -25,7 +25,7 @@
   // Visual Transforms
   let isNoBg = $derived(entity?.visuals?.noBackground);
   let isFlipped = $derived(entity?.visuals?.flipped);
-  let pictureSeed = $derived(entity?.visuals?.avatarSeed || pictureUrl);
+  let pictureSeed = $derived(entity?.visuals?.profilePictureSeed || pictureUrl);
 </script>
 
 <div class="picture-root" style="--picture-color: {signatureColor};" {...rest}>
@@ -42,7 +42,11 @@
     {/key}
   {:else}
     <div class="picture-placeholder">
-      <img src={AVATAR_PLACEHOLDERS.default} alt="" class="placeholder-icon" />
+      <img
+        src={PROFILE_PICTURE_PLACEHOLDERS.default}
+        alt=""
+        class="placeholder-icon"
+      />
       <span class="initials">{initials}</span>
     </div>
   {/if}

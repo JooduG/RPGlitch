@@ -17,6 +17,7 @@
 // Glassmorphism Pill Container (Button Groups / Inputs)
 %glass-pill {
   @extend %glass-base;
+
   background: $glass-pill-bg;
   backdrop-filter: blur($glass-pill-blur);
   box-shadow: $shadow-lg;
@@ -26,6 +27,7 @@
 // 1. The Standard Glass (Used for Cards, UI Panels)
 %material-glass {
   @extend %glass-base;
+
   background: $glass-standard-bg;
   backdrop-filter: blur($glass-standard-blur);
   box-shadow: $shadow-md;
@@ -34,6 +36,7 @@
 // 2. The Heavy Glass (Used for Modals, Drawers)
 %material-glass-heavy {
   @extend %glass-base;
+
   background: $glass-heavy-bg;
   backdrop-filter: blur($glass-heavy-blur);
   box-shadow: $shadow-xl;

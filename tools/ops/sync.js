@@ -313,7 +313,73 @@ function syncMcpToClaudeCode() {
   }
 }
 
-// --- MAIN CLI LOGIC ---
+// --- SYNC COLORS FROM config.js TO _variables.scss ---
+function syncColors() {
+  console.log(
+    "\n🎨 Syncing signature colors from config.js to _variables.scss...",
+  );
+
+  const configPath = path.join(REPO_ROOT, "src/gamemaster/config.js");
+  const scssPath = path.join(
+    REPO_ROOT,
+    "src/mesmer/scss/abstracts/_variables.scss",
+  );
+
+  if (!fs.existsSync(configPath)) {
+    console.error("❌ config.js not found");
+    return;
+  }
+
+  if (!fs.existsSync(scssPath)) {
+    console.error("❌ _variables.scss not found");
+    return;
+  }
+
+  // Read config.js and extract PALETTE
+  const configContent = fs.readFileSync(configPath, "utf8");
+  const paletteMatch = configContent.match(/PALETTE:\s*\{([^}]+)\}/s);
+
+  if (!paletteMatch) {
+    console.error("❌ Could not find PALETTE in config.js");
+    return;
+  }
+
+  // Parse palette entries: key: "value" or key: "#value"
+  const paletteEntries = {};
+  const entryRegex = /(\w+):\s*["']([^"']+)["']/g;
+  let match;
+  while ((match = entryRegex.exec(paletteMatch[1])) !== null) {
+    paletteEntries[match[1]] = match[2];
+  }
+
+  console.log(`  Found ${Object.keys(paletteEntries).length} palette colors`);
+
+  // Read SCSS and update signature colors
+  let scssContent = fs.readFileSync(scssPath, "utf8");
+
+  // Update each signature color variable
+  let updatedCount = 0;
+  for (const [name, hex] of Object.entries(paletteEntries)) {
+    if (name === "default") continue; // Skip default, it's an alias
+
+    const varName = `$signature-${name}`;
+    const regex = new RegExp(`(\\${varName}:\\s*)#[0-9a-fA-F]{6}`, "g");
+
+    if (regex.test(scssContent)) {
+      scssContent = scssContent.replace(regex, `$1${hex}`);
+      updatedCount++;
+    }
+  }
+
+  if (updatedCount > 0) {
+    fs.writeFileSync(scssPath, scssContent, "utf8");
+    console.log(
+      `✅ Updated ${updatedCount} signature colors in _variables.scss`,
+    );
+  } else {
+    console.log("ℹ️  No colors needed updating (already in sync)");
+  }
+}
 async function main() {
   const args = process.argv.slice(2).reduce((acc, arg) => {
     const [key, value] = arg.split("=");
@@ -327,6 +393,7 @@ async function main() {
 
   if (runAll || args.ignores) syncIgnores();
   if (runAll || args.mcp) syncMcp();
+  if (runAll || args.colors) syncColors();
   if (args.claude) syncMcpToClaudeCode();
 }
 

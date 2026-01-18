@@ -1,12 +1,13 @@
 <script>
-  import Lightbox from "./artificer/Lightbox.svelte";
   import Storyboard from "./artificer/storyboard/Storyboard.svelte";
   import Storymode from "./artificer/storymode/Storymode.svelte";
+  import Lightbox from "./mesmer/ui/Lightbox.svelte";
   import Profile from "./scholar/Profile.svelte";
   import ControlPanel from "./warden/ui/ControlPanel.svelte";
   import DebugPanel from "./warden/ui/DebugPanel.svelte";
 
   import { app } from "./gamemaster/state.svelte.js";
+  import { lightbox } from "./mesmer/ui/lightbox.svelte.js";
 
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
@@ -36,8 +37,8 @@
     {/if}
 
     <!-- GLOBAL: Lightbox Overlay -->
-    {#if app.lightboxOpen}
-      <Lightbox src={app.lightboxSrc} onClose={() => app.closeLightbox()} />
+    {#if lightbox.active}
+      <Lightbox />
     {/if}
 
     <!-- GLOBAL: Profile Modal -->
