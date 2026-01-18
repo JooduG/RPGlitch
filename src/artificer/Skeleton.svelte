@@ -19,19 +19,13 @@
 
 <style lang="scss">
   @use "../scss/abstracts" as *;
-  /* 
-     The base .skeleton class is defined in src/scss/components/_skeletons.scss 
-     We import abstracts here just in case we need variables, but the actual 
-     animation logic is global or imported via the main stylesheet.
-     
-     See: src/scss/components/_skeletons.scss
-  */
 
   .skeleton {
     background: rgba(255, 255, 255, 0.05); /* Base 'bone' color */
     border-radius: 8px;
     overflow: hidden;
     position: relative;
+    min-height: 1rem;
 
     &.card {
       border-radius: 24px;
@@ -63,7 +57,7 @@
         rgba(255, 255, 255, 0.1) 60%,
         rgba(255, 255, 255, 0)
       );
-      animation: shimmer 2s infinite;
+      animation: shimmer 5s infinite;
     }
   }
 

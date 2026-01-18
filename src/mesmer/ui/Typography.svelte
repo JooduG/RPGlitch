@@ -6,17 +6,17 @@
 </script>
 
 <svelte:head>
-  <!-- Outfit: Headings (400 Regular, 800 ExtraBold) -->
+  <!-- Roboto: Headings (400 Regular, 700 Bold, 900 Black) -->
   <!-- Inter: Body (400 Regular, 600 SemiBold) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@400;800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Roboto:wght@400;700;900&display=swap"
     rel="stylesheet"
   />
   <!-- 
     === ALTS (Uncomment to use) === 
-    Roboto:  family=Roboto:wght@400;700;900 (Too Plain)
+    Outfit:  family=Outfit:wght@400;800 (Previous)
     Kanit:   family=Kanit:wght@400;800 (Previous)
     Sci-Fi:  family=Space+Grotesk:wght@400;700 
     Fantasy: family=Cinzel:wght@500;900

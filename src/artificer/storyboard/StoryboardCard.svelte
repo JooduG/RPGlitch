@@ -57,7 +57,7 @@
           <svg viewBox="0 0 24 24" class="icon">
             <path
               fill="currentColor"
-              d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z"
+              d="M19,12L12,22L5,12L12,2M12,2L19,12H5L12,2Z"
             />
           </svg>
         {:else}
@@ -97,11 +97,12 @@
 
     <!-- Bottom Half: Info & Trigger for Selection -->
     <button class="card-bottom" onclick={onSelect}>
-      <h3 style="color: var(--signature-color)">
-        {entity?.name || `Select ${roleLabel}`}
-      </h3>
-
-      <p>{entity?.description || "Click to browse choices..."}</p>
+      <div class="text-half title-half">
+        <h3>{entity?.name || `Select ${roleLabel}`}</h3>
+      </div>
+      <div class="text-half desc-half">
+        <p>{entity?.description || "Click to browse choices..."}</p>
+      </div>
     </button>
   {/snippet}
 
@@ -130,34 +131,34 @@
       transform 0.3s ease,
       box-shadow 0.3s ease,
       border-color 0.3s ease;
+    container-type: inline-size;
 
     /* Geometric Containment Variables */
-    --portrait-w: 15vw;
-    --portrait-h: 24vw; /* 10/16 aspect ratio roughly derived */
-    --landscape-w: 24vw;
-    --landscape-h: 15vw; /* 16/10 aspect ratio */
+    --long-side: 40vh;
+    --short-side: 25vh;
 
     /* Default: Side Card (Portrait) */
-    width: var(--portrait-w);
-    aspect-ratio: 10 / 16;
-    height: auto;
+    height: var(--long-side);
+    width: var(--short-side);
     margin: auto;
-    justify-self: center; /* Enforce centering in grid track */
-    position: relative; /* Context for absolute positioning if needed */
+    justify-self: center;
+    position: relative;
 
     /* Signature Border Sync */
     border: 1px solid rgba(var(--signature-rgb) / 0.2);
 
     /* Center Card (Fractal/Landscape) */
     &.fractal-card {
-      width: var(--landscape-w);
-      aspect-ratio: 16 / 10;
-      height: auto;
+      height: var(--short-side);
+      width: var(--long-side);
       transform: scale(1.02);
       z-index: 10;
 
       .card-top {
-        flex: 1.4; /* More room for fractal geometry */
+        height: 50%;
+      }
+      .card-bottom {
+        height: 50%;
       }
     }
 
@@ -170,65 +171,13 @@
 
     &.is-empty {
       border: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(10, 10, 15, 0.8);
-      cursor: pointer;
-      transition: all 0.3s ease;
-
-      &:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
-        border-color: rgba(255, 255, 255, 0.2);
-      }
+      background: rgba(10, 10, 15, 0.5);
     }
   }
 
-  /* Empty Card: Unified dark design matching legacy */
-  .empty-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1.5rem;
-    width: 100%;
-    height: 100%;
-    padding: 2rem;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-
-    .empty-label {
-      font-size: 0.75rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      color: rgba(255, 255, 255, 0.6);
-    }
-
-    .empty-icon {
-      color: rgba(255, 255, 255, 0.4);
-
-      .icon {
-        width: 32px;
-        height: 32px;
-      }
-    }
-
-    /* Skeleton Override */
-    &.is-loading {
-      border: none;
-      box-shadow: none;
-      background: transparent;
-      pointer-events: none;
-    }
-
-    &.is-processing {
-      @extend %skeleton;
-    }
-  }
-
-  /* Top Half: Visuals & Trigger for Profile */
   .card-top {
-    flex: 1;
+    height: 60%; /* Characters: 60/40 Split */
+    width: 100%;
     border: none;
     padding: 0;
     display: flex;
@@ -237,19 +186,26 @@
     cursor: pointer;
     position: relative;
     background-color: var(--signature-color);
-    transition: filter 0.2s ease;
-    overflow: hidden; /* Ensure images don't bleed */
+    overflow: hidden;
 
-    /* Interactive */
-    &:hover {
-      filter: brightness(1.15);
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+      );
+      transform: translateX(-100%);
+      animation: shimmer 5s infinite;
     }
 
     .avatar-icon {
       width: 100%;
       height: 100%;
-      object-fit: cover; /* Strict cover to prevent warping */
-      border-radius: 0; /* Full bleed */
+      object-fit: cover;
       transition: transform 0.6s ease;
     }
 
@@ -258,63 +214,103 @@
     }
 
     .avatar-placeholder {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-      background: transparent;
-      color: #ffffff;
+      color: #fff;
       font-size: 3rem;
       font-weight: 800;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
   }
 
-  /* Bottom Half: Info & Trigger for Selection */
   .card-bottom {
-    flex: 0.8;
-    background: #09090b; /* Dark Slate */
+    height: 40%;
+    width: 100%;
+    background: #09090b;
     border: none;
     border-top: 1px solid rgba(var(--signature-rgb) / 0.2);
-    padding: 1.5rem;
-    text-align: left;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    gap: 0.5rem;
+    padding: 0;
     cursor: pointer;
-    transition: background 0.2s;
-    overflow: hidden;
 
-    &:hover {
-      background: #111114;
+    .text-half {
+      height: 50%;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 1.25rem;
     }
 
-    h3 {
-      margin: 0;
-      color: #fff; /* Overridden inline but good fallback */
-      font-size: 1.4rem;
+    .title-half {
+      justify-content: flex-end;
+      padding-bottom: 0.25rem;
+
+      h3 {
+        margin: 0;
+        color: rgb(var(--signature-rgb));
+        font-family: var(--font-heading);
+        font-weight: 900;
+        font-size: clamp(1rem, 10cqw, 1.8rem);
+        line-height: 1.1;
+        text-align: left;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+    }
+
+    .desc-half {
+      justify-content: flex-start;
+      padding-top: 0.25rem;
+
+      p {
+        margin: 0;
+        color: white;
+        text-align: left;
+        font-size: clamp(0.7rem, 6cqw, 0.95rem);
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-wrap: pretty;
+      }
+    }
+  }
+
+  .empty-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    background: transparent;
+    border: none;
+
+    .empty-label {
+      font-size: 0.7rem;
       font-weight: 800;
-      letter-spacing: -0.5px;
-      line-height: normal; /* "Nova City" Fix: 1.3 was interacting poorly with clamp */
-      padding-block: 4px; /* More breathing room for descenders */
-      overflow: visible; /* Let it bleed slightly if needed, container catches it */
-      display: block; /* Remove line clamp conflict */
-      /* display: -webkit-box;  <-- Removing clamp for now to ensure visibility */
-      /* line-clamp: 2; */
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.5);
     }
 
-    p {
-      margin: 0;
-      color: #ffffff;
-      font-size: 0.95rem;
-      line-height: 1.5;
-      display: -webkit-box;
-      line-clamp: 3;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+    .empty-icon {
+      color: rgba(255, 255, 255, 0.3);
+      width: 32px;
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    50% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(100%);
     }
   }
 </style>

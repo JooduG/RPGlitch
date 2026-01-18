@@ -1,5 +1,5 @@
 @use "sass:map";
-@use "../abstracts" as *;
+@use "abstracts" as *;
 
 /* ============================================================================
    BASE: RESET & ROOT VARIABLES
@@ -114,6 +114,21 @@
   &::-webkit-scrollbar {
     display: none;
   }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: balance;
+}
+
+p,
+li,
+figcaption {
+  text-wrap: pretty;
 }
 
 html,

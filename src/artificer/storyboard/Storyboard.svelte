@@ -41,9 +41,9 @@
 {#if loading}
   <!-- Global Skeleton Loader -->
   <div class="skeleton-boot">
-    <Skeleton variant="card" width="15vw" height="24vw" />
-    <Skeleton variant="card" width="24vw" height="15vw" />
-    <Skeleton variant="card" width="15vw" height="24vw" />
+    <Skeleton variant="card" width="28.125vh" height="45vh" />
+    <Skeleton variant="card" width="56vh" height="35vh" />
+    <Skeleton variant="card" width="28.125vh" height="45vh" />
   </div>
 {:else}
   <Layout>
@@ -58,7 +58,7 @@
       <StoryboardCard
         type="ai"
         entity={app.selectedAi}
-        roleLabel="Select AI Companion"
+        roleLabel="AI Character"
         onSelect={() => app.openDrawer("ai")}
         onViewProfile={() => app.toggleProfile(true, app.selectedAi)}
       />
@@ -69,7 +69,7 @@
       <StoryboardCard
         type="fractal"
         entity={app.selectedFractal}
-        roleLabel="Select Fractal"
+        roleLabel="Fractal"
         onSelect={() => app.openDrawer("fractal")}
         onViewProfile={() => app.toggleProfile(true, app.selectedFractal)}
       />
@@ -80,7 +80,7 @@
       <StoryboardCard
         type="user"
         entity={app.selectedUser}
-        roleLabel="Select User Persona"
+        roleLabel="Your Persona"
         onSelect={() => app.openDrawer("user")}
         onViewProfile={() => app.toggleProfile(true, app.selectedUser)}
       />

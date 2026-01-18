@@ -27,12 +27,15 @@
 
 <style lang="scss">
   h1 {
-    font-size: 2.5rem;
+    font-size: clamp(1.2rem, 4vw, 2.2rem);
     margin: 0;
     cursor: text;
     transition: color 0.2s ease;
     border-radius: 8px;
     padding: 0.25rem 0.75rem;
+    text-wrap: balance;
+    max-width: 80vw;
+    margin-inline: auto;
 
     &:hover {
       background: rgba(255, 255, 255, 0.05);

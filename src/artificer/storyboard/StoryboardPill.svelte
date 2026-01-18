@@ -96,7 +96,9 @@
 
     &:hover:not(:disabled) {
       color: #fff;
-      background: rgba(255, 255, 255, 0.05);
+      background: transparent;
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+      transform: scale(1.1);
     }
 
     &:active:not(:disabled) {
