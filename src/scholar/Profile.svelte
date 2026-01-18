@@ -429,13 +429,14 @@
           <!-- DATA BOARD -->
           <div class="hero-data">
             <div class="header">
-              <input
+              <textarea
                 class="name-input"
+                rows="2"
                 bind:value={char.name}
                 readonly={!isEditing}
                 placeholder="Name"
                 style="color: var(--hero-color)"
-              />
+              ></textarea>
             </div>
 
             <div class="scroll-content">
@@ -460,7 +461,7 @@
                   <div class="main-label">FOREVER</div>
                   <div class="sub-label">Immutable Traits</div>
                 </div>
-                <div>
+                <div class="field-cell">
                   {@render magicField(
                     null,
                     char.eternal,
@@ -469,7 +470,7 @@
                     4,
                   )}
                 </div>
-                <div>
+                <div class="field-cell">
                   {@render magicField(
                     null,
                     char.eternal,
@@ -484,7 +485,7 @@
                   <div class="main-label">PRESENT</div>
                   <div class="sub-label">Current State</div>
                 </div>
-                <div>
+                <div class="field-cell">
                   {@render magicField(
                     null,
                     char.present,
@@ -493,7 +494,7 @@
                     4,
                   )}
                 </div>
-                <div>
+                <div class="field-cell">
                   {@render magicField(
                     null,
                     char.present,
@@ -809,20 +810,26 @@
   }
 
   .header {
-    padding: 1rem 2rem;
+    padding: 2rem 2rem 0.5rem 2rem; /* [DESIGN] More top padding, condensed bottom */
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start; /* [FIX] Allow top alignment for multi-line */
     /* No border bottom, cleaner look */
     .name-input {
       font-family: var(--font-heading);
       font-weight: 700;
-      font-size: 2.5rem;
+      font-size: 3rem;
+      line-height: 1.15; /* [FIX] Tighter line height for 2-line titles */
       background: transparent;
       border: none;
       width: 100%;
+      text-wrap-style: balance;
+      align-content: end;
       outline: none;
+      text-align: left;
       transition: color 0.3s;
+      resize: none; /* [FIX] Prevent manual resizing */
+      overflow: hidden; /* [FIX] Hide scrollbar */
       &::placeholder {
         color: #333;
       }
@@ -834,13 +841,14 @@
     justify-content: flex-end;
     gap: 1rem;
     padding: 1.5rem 2rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 0;
     background: rgba(0, 0, 0, 0.2);
   }
 
   .scroll-content {
-    padding: 0 2rem 2rem 2rem;
+    padding: 0 2rem;
     flex: 1;
+    box-sizing: border-box; /* [FIX] Ensure padding is included in width */
   }
 
   .subtitle {
@@ -853,24 +861,35 @@
     width: 100%;
     padding: 0;
     resize: none;
-    margin: 0;
+    margin: 0 0 1.5rem 0; /* [DESIGN] Add breathing room before labels */
+    text-align: left; /* [FIX] Left-align */
   }
 
   /* GRID MATRIX SYSTEM */
   .matrix-grid {
     display: grid;
-    grid-template-columns: 120px 1fr 1fr; /* [POLISH] Widen labels to 120px */
-    gap: 1.5rem 1rem; /* [POLISH] larger row gap (1.5rem), tight col gap (1rem) */
-    align-items: start; /* [POLISH] Top align for clean hierarchy */
+    grid-template-columns: 90px minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1rem;
+    align-items: stretch;
     margin: 0;
+  }
+
+  /* [FIX] Field cells use flexbox to stretch children to full height */
+  .field-cell {
+    display: flex;
+    flex-direction: column;
+
+    /* All direct children stretch to fill */
+    > * {
+      flex: 1;
+    }
   }
 
   .grid-header {
     font-family: var(--font-heading);
     font-size: 0.7rem;
     font-weight: bold;
-    color: #52525b;
-    opacity: var(--text-tertiary);
+    color: #a1a1aa; /* [FIX] Brighter color - was #52525b */
     text-transform: uppercase;
     letter-spacing: 1px;
     text-align: center;
@@ -884,21 +903,24 @@
 
   .label-col {
     text-align: right;
+    display: flex; /* [FIX] Enable flexbox for centering */
+    flex-direction: column;
+    justify-content: center; /* [FIX] Vertically center the label with text fields */
+    align-items: flex-end; /* [FIX] Keep text right-aligned */
+    min-height: 100%; /* [FIX] Match height of sibling fields */
+
     .main-label {
       font-family: var(--font-heading);
       font-weight: 700;
       font-size: 0.95rem; /* [POLISH] Slightly larger */
       color: var(--hero-color);
-      opacity: var(--text-primary);
       letter-spacing: 0.5px;
       text-transform: uppercase;
-      /* Ensure text breaks if needed, but centering handles main alignment */
     }
     .sub-label {
       font-family: var(--font-body);
       font-size: 0.65rem;
-      color: #52525b;
-      opacity: var(--text-tertiary);
+      color: #9ca3af; /* [FIX] Brighter sub-label - was #52525b */
       line-height: 1.2;
     }
   }
@@ -910,17 +932,21 @@
   .clean-area,
   .clean-box {
     width: 100%;
+    height: 100%; /* [FIX] Sync heights - both fields fill grid cell */
+    min-height: 80px;
     background: #121215;
     border: 1px solid #1f1f22;
     color: #d4d4d8;
     font-family: var(--font-body);
     font-size: 0.85rem;
-    line-height: 1.6; /* Increased for readability */
+    line-height: 1.6;
     resize: none;
-    padding: 0.75rem 1rem; /* Added padding for edit mode */
     border-radius: 8px;
     transition: border-color 0.2s;
-    white-space: pre-wrap; /* Respect line breaks */
+    white-space: pre-wrap;
+    text-align: left;
+    box-sizing: border-box;
+    overflow: hidden;
     &:focus {
       outline: none;
       border-color: var(--hero-color);
@@ -1163,6 +1189,7 @@
     white-space: pre-wrap; /* Respect line breaks */
     word-break: break-word;
     transition: border-color 0.2s;
+    box-sizing: border-box;
 
     &:hover {
       border-color: rgba(255, 255, 255, 0.15);
