@@ -28,9 +28,10 @@
       app.fractalList = fractals;
 
       // Do NOT auto-select - let user choose via drawer
-      loading = false;
     } catch (e) {
       console.error("Failed to load lobby:", e);
+    } finally {
+      loading = false;
     }
   });
 </script>

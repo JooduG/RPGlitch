@@ -19,15 +19,12 @@
     "/.DS_Store",
     "/coverage",
     "/dist",
-    "apps/imageglitch/imageglitch.html",
-    "apps/rpglitch/RPGlitch.html",
-    "apps/rpglitch/worker.js",
-    "apps/rpglitch/worker.js.map",
     "gha-creds-*.json",
     "libs/**",
     "mcp.json",
     "node_modules",
     "node_modules/",
-    "nul"
+    "nul",
+    "test-results/"
   ]
 }

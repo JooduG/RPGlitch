@@ -4,10 +4,10 @@
  * Handles CRUD operations for Entities and Stories using Dexie.
  */
 
+import { normalize, premade, STORAGE_VERSION } from "../library/library.js";
 import { db } from "./db.js";
 const log = console.log;
 const error = console.error;
-import { normalize, premade, STORAGE_VERSION } from "../library/library.js";
 
 // ============================================================================
 // 1. DATA SEEDING (The Factory)
@@ -18,33 +18,10 @@ export const seedPremades = async () => {
   try {
     const existing = await db.entities.toArray();
 
-    // 1.1 SELF-HEALING: Fix Case Sensitivity (Fractal -> fractal)
-    // Detect entities with capitalized types and fix them in-place
-    const toFix = existing.filter(
-      (e) => e.type && e.type !== e.type.toLowerCase(),
-    );
-    if (toFix.length > 0) {
-      log(
-        `[Factory] Healing ${toFix.length} entities with incorrect casing...`,
-      );
-      const updates = toFix.map((e) => ({
-        ...e,
-        type: e.type.toLowerCase(),
-        updatedAt: Date.now(),
-      }));
-      await db.entities.bulkPut(updates);
-
-      // Update our local cache of 'existing' so we don't double-add below
-      updates.forEach((u) => {
-        const index = existing.findIndex((e) => e.id === u.id);
-        if (index !== -1) existing[index] = u;
-      });
-    }
-
     // Map premade entities to blueprints
     const blueprints = premade.entities.map((e) => ({
       ...e,
-      kind: e.type.toLowerCase(),
+      kind: e.type,
     }));
 
     const toAdd = [];
@@ -65,7 +42,7 @@ export const seedPremades = async () => {
           ...normalized,
           id: crypto.randomUUID(),
           originId: bp.id,
-          type: type.toLowerCase(),
+          type: type,
           isPremade: 0,
           isCustom: 1,
           isSnapshot: 0,
@@ -92,8 +69,7 @@ export const seedPremades = async () => {
 export const entities = {
   async list(type) {
     try {
-      const reqType = type.toLowerCase();
-      const items = await db.entities.where("type").equals(reqType).toArray();
+      const items = await db.entities.where("type").equals(type).toArray();
       return items.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
     } catch (err) {
       error(`Error listing ${type}:`, err);
@@ -110,7 +86,7 @@ export const entities = {
         item = premade.entities.find((e) => e.id === id);
       }
 
-      return item && item.type === type.toLowerCase() ? item : null;
+      return item && item.type === type ? item : null;
     } catch (err) {
       error(`Failed to get ${type} with id ${id}:`, err);
       return null;
@@ -126,7 +102,7 @@ export const entities = {
         ...base,
         ...normalize({ ...base, ...entity }),
         id,
-        type: type.toLowerCase(),
+        type: type,
         isCustom: 1,
         isPremade: 0,
         version: STORAGE_VERSION,
@@ -155,7 +131,7 @@ export const entities = {
   async remove(type, id) {
     try {
       const item = await db.entities.get(id);
-      if (item && item.type === type.toLowerCase()) {
+      if (item && item.type === type) {
         return db.entities.delete(id);
       }
     } catch (err) {

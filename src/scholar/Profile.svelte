@@ -1,16 +1,16 @@
 <script>
-  import Modal from "../artificer/Modal.svelte";
   import Button from "../artificer/Button.svelte";
+  import Modal from "../artificer/Modal.svelte";
+  import { CONFIG } from "../gamemaster/config.js";
   import { app } from "../gamemaster/state.svelte.js";
-  import { runtime } from "./runtime.svelte.js";
+  import { audioService } from "../mesmer/audio/service.js";
+  import { voiceService } from "../mesmer/audio/voice.svelte.js";
   import { VisualManager } from "../mesmer/logic/manager.js";
   import { themeStore } from "../mesmer/logic/theme.svelte.js";
   import ProfilePicture from "../mesmer/ui/ProfilePicture.svelte";
-  import { CONFIG } from "../gamemaster/config.js";
-  import { Scholar } from "./index.js";
-  import { voiceService } from "../mesmer/audio/voice.svelte.js";
   import { entities } from "./database/repository.js";
-  import { audioService } from "../mesmer/audio/service.js";
+  import { Scholar } from "./index.js";
+  import { runtime } from "./runtime.svelte.js";
 
   let isEditing = $state(false);
   let isSaving = $state(false);
@@ -48,8 +48,6 @@
   // Plot Logic (Dev Mode)
   let plotInput = $state("");
 
-  // Voice service is auto-reactive
-
   async function save() {
     isSaving = true;
     try {
@@ -59,8 +57,8 @@
       // IndexedDB cannot clone Proxies, so we must deep copy raw data
       const rawChar = JSON.parse(JSON.stringify(char));
 
-      // Ensure type is lowercase for repository
-      const type = (rawChar.type || "character").toLowerCase();
+      // Type should already be lowercase
+      const type = rawChar.type || "character";
       await entities.upsert(type, rawChar);
       console.log("Saved character to DB:", rawChar.id);
 
@@ -117,7 +115,7 @@
         removeBackground: char.visuals.noBackground,
       });
       if (url) {
-        char.visuals.avatar = url;
+        char.visuals.profilePictureUrl = url;
       }
     } catch (e) {
       console.error("Paint failed:", e);
@@ -132,7 +130,7 @@
 
   async function handleUploadUrl() {
     if (isPromptUrl) {
-      char.visuals.avatar = visualPrompt.trim();
+      char.visuals.profilePictureUrl = visualPrompt.trim();
       visualPrompt = "";
     }
   }
@@ -156,7 +154,7 @@
     try {
       visualBusy = true;
       const url = await VisualManager.upload(file);
-      if (url) char.visuals.avatar = url;
+      if (url) char.visuals.profilePictureUrl = url;
     } catch (err) {
       console.error(err);
     } finally {
@@ -524,7 +522,7 @@
                 </div>
               </div>
             </div>
-            <!-- ACTION FOOTER -->
+
             <!-- ACTION FOOTER -->
             <div class="card-footer">
               {#if isEditing}
@@ -600,7 +598,7 @@
               </div>
 
               <div class="plot-list">
-                {#each char.customData?.plot?.active || [] as thread, i (i + thread)}
+                {#each char.customData?.plot?.active || [] as thread, i (i)}
                   <div class="plot-item active">
                     <span class="bullet" style="color: var(--hero-color)"
                       >●</span
@@ -623,7 +621,7 @@
                   </div>
                 {/each}
 
-                {#each char.customData?.plot?.resolved || [] as thread, i (i + thread)}
+                {#each char.customData?.plot?.resolved || [] as thread, i (i)}
                   <div class="plot-item resolved">
                     <span class="bullet">○</span>
                     <span class="text">{thread}</span>
@@ -639,7 +637,7 @@
             {:else}
               <!-- READ ONLY MODE -->
               <ul class="plot-read-only">
-                {#each char.customData?.plot?.active || [] as thread (thread)}
+                {#each char.customData?.plot?.active || [] as thread, i (i)}
                   <li>
                     <span class="bullet" style="color: var(--hero-color)"
                       >●</span
@@ -650,7 +648,7 @@
                 {#if (char.customData?.plot?.active || []).length === 0}
                   <li class="empty">No active plot threads.</li>
                 {/if}
-                {#each char.customData?.plot?.resolved || [] as thread (thread)}
+                {#each char.customData?.plot?.resolved || [] as thread, i (i)}
                   <li class="resolved">
                     {thread}
                   </li>
@@ -677,10 +675,7 @@
           {rows}
         ></textarea>
       {:else}
-        <div
-          class="read-only-box"
-          style="max-height: {rows * 1.5 + 2}rem; min-height: 3rem;"
-        >
+        <div class="read-only-box">
           <span class="read-only-text">{parent[key] || ""}</span>
         </div>
       {/if}
@@ -920,11 +915,12 @@
     color: #d4d4d8;
     font-family: var(--font-body);
     font-size: 0.85rem;
-    line-height: 1.5;
+    line-height: 1.6; /* Increased for readability */
     resize: none;
-    padding: 0;
+    padding: 0.75rem 1rem; /* Added padding for edit mode */
     border-radius: 8px;
     transition: border-color 0.2s;
+    white-space: pre-wrap; /* Respect line breaks */
     &:focus {
       outline: none;
       border-color: var(--hero-color);
@@ -944,17 +940,15 @@
     color: #d4d4d8;
     font-family: var(--font-body);
     font-size: 0.85rem;
+    line-height: 1.6; /* Increased for readability */
     padding: 0; /* Clear padding */
     border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start; /* [FIX] Left Align Text */
-    padding-left: 0; /* Clear area padding 0 */
-    overflow: hidden;
+    display: block; /* Allow natural block flow */
+    white-space: pre-wrap; /* Respect line breaks from AI */
+    word-break: break-word; /* Prevent overflow */
   }
   .read-only-text {
-    max-height: 100%;
-    overflow-y: auto;
+    display: block;
     width: 100%;
   }
 
@@ -1154,25 +1148,20 @@
     accent-color: var(--hero-color);
   }
 
-  /* READ ONLY TEXT DISPLAY */
+  /* READ ONLY TEXT DISPLAY - Enhanced for flowing content */
   .read-only-box {
     width: 100%;
-    background: rgba(
-      255,
-      255,
-      255,
-      0.03
-    ); /* [POLISH] Consistent with clean-box */
+    background: rgba(255, 255, 255, 0.03); /* Subtle visible background */
     border: 1px solid rgba(255, 255, 255, 0.05);
     color: #d4d4d8;
     font-family: var(--font-body);
+    font-size: 0.85rem;
+    line-height: 1.65; /* Generous line-height for readability */
     padding: 0.75rem 1rem;
     border-radius: 8px;
-    display: flex;
-    align-items: flex-start; /* Top align for multiline */
-    justify-content: flex-start;
-    overflow: hidden;
-    text-align: left;
+    display: block;
+    white-space: pre-wrap; /* Respect line breaks */
+    word-break: break-word;
     transition: border-color 0.2s;
 
     &:hover {
@@ -1180,8 +1169,7 @@
     }
   }
   .read-only-text {
-    max-height: 100%;
-    overflow-y: auto;
+    display: block;
     width: 100%;
   }
 

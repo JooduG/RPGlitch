@@ -3,7 +3,7 @@
  * Ported from legacy entities.test.js
  */
 
-import { describe, test, expect } from "vitest";
+import { describe, expect, test } from "vitest";
 import { themeStore } from "../../../src/mesmer/logic/theme.svelte.js";
 
 describe("ThemeStore Color Generation", () => {
@@ -11,31 +11,21 @@ describe("ThemeStore Color Generation", () => {
 
   describe("Modern entities with signatureColor", () => {
     test("returns hex value for entity with signatureColor", () => {
-      const entity = { signatureColor: "cyan" };
+      const entity = { visuals: { signatureColor: "cyan" } };
       const result = getSignature(entity);
       expect(result).toBe("#06b6d4"); // PALETTE.cyan
     });
 
     test("returns hex value for entity with pink signatureColor", () => {
-      const entity = { signatureColor: "pink" };
+      const entity = { visuals: { signatureColor: "pink" } };
       const result = getSignature(entity);
       expect(result).toBe("#ec4899"); // PALETTE.pink
     });
 
     test("returns hex value for entity with emerald signatureColor", () => {
-      const entity = { signatureColor: "emerald" };
+      const entity = { visuals: { signatureColor: "emerald" } };
       const result = getSignature(entity);
       expect(result).toBe("#10b981"); // PALETTE.emerald
-    });
-
-    test('skips signatureColor when set to "default"', () => {
-      const entity = {
-        signatureColor: "default",
-        name: "Test Entity",
-      };
-      const result = getSignature(entity);
-      // Should fall through to deterministic color generation
-      expect(result).toMatch(/^hsl\(\d+, 40%, 60%\)$/);
     });
   });
 
@@ -102,7 +92,7 @@ describe("ThemeStore Color Generation", () => {
     });
 
     test("handles entity with empty signatureColor string", () => {
-      const entity = { signatureColor: "" };
+      const entity = { visuals: { signatureColor: "" } };
       const result = getSignature(entity);
       // Empty string is falsy, should fall through
       expect(result).toMatch(/^hsl\(\d+, 40%, 60%\)$/);

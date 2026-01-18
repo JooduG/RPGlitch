@@ -1,5 +1,5 @@
-import { defineConfig } from "vitest/config";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [svelte({ hot: !process.env.VITEST })],
@@ -33,7 +33,7 @@ export default defineConfig({
     // Test file patterns
     include: ["tools/tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
     // Exclude patterns
-    exclude: ["node_modules", "dist", ".git", "**/*.e2e.{test,spec}.{js,ts}"],
+    exclude: ["node_modules", "dist", ".git", "tools/tests/e2e/**"],
   },
   resolve: {
     alias: {

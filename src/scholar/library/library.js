@@ -21,10 +21,9 @@ export const premade = {
       id: "entity-C1",
       name: "Light Blade",
       description: "Cybernetic warrior forging light into weapons.",
-      type: "Character",
-      signatureColor: "yellow",
-      voiceRate: 1.0,
-      voicePitch: 1.0,
+      type: "character",
+      visuals: { signatureColor: "yellow" },
+      voice: { uri: "", rate: 1.0, pitch: 1.0 },
       dynamics: { entropy: 45, permeability: 40, velocity: 60, resonance: 55 },
       eternal: {
         physical:
@@ -43,11 +42,9 @@ export const premade = {
       id: "entity-C2",
       name: "Mystic Bard",
       description: "Traveling musician who weaves spells with song.",
-      type: "Character",
-      voiceId: "Zira",
-      signatureColor: "orange",
-      voiceRate: 1.0,
-      voicePitch: 1.0,
+      type: "character",
+      visuals: { signatureColor: "orange" },
+      voice: { uri: "Zira", rate: 1.0, pitch: 1.0 },
       dynamics: { entropy: 55, permeability: 60, velocity: 50, resonance: 60 },
       eternal: {
         physical: "(elven ears:1.3), (glowing eyes:1.1), (slender frame)",
@@ -65,10 +62,9 @@ export const premade = {
       id: "entity-C3",
       name: "Clockwork Rogue",
       description: "Stealthy thief powered by ticking gears.",
-      type: "Character",
-      signatureColor: "lime",
-      voiceRate: 1.1,
-      voicePitch: 1.0,
+      type: "character",
+      visuals: { signatureColor: "lime" },
+      voice: { uri: "", rate: 1.1, pitch: 1.0 },
       dynamics: { entropy: 40, permeability: 40, velocity: 55, resonance: 45 },
       eternal: {
         physical: "(clockwork joints:1.5), (brass details), (hooded face)",
@@ -86,11 +82,9 @@ export const premade = {
       id: "entity-C4",
       name: "Shadow Whisperer",
       description: "Mysterious figure communing with darkness.",
-      type: "Character",
-      voiceId: "Zira",
-      signatureColor: "zinc",
-      voiceRate: 0.85,
-      voicePitch: 1.0,
+      type: "character",
+      visuals: { signatureColor: "zinc" },
+      voice: { uri: "Zira", rate: 0.85, pitch: 1.0 },
       dynamics: { entropy: 55, permeability: 60, velocity: 40, resonance: 55 },
       eternal: {
         physical: "(pale skin), (shadowy aura:1.4), (void eyes)",
@@ -108,11 +102,13 @@ export const premade = {
       name: "Orion the Pink Protector",
       description:
         "Cheesy pink himbo superhero with glowing runes, monster muscles, and a thirst for viral saves.",
-      type: "Character",
-      voiceId: "Microsoft Brian Online (Natural) - English (United States)",
-      signatureColor: "pink",
-      voiceRate: 1.05,
-      voicePitch: 1.0,
+      type: "character",
+      visuals: { signatureColor: "pink" },
+      voice: {
+        uri: "Microsoft Brian Online (Natural) - English (United States)",
+        rate: 1.05,
+        pitch: 1.0,
+      },
       dynamics: { entropy: 50, permeability: 55, velocity: 60, resonance: 60 },
       eternal: {
         physical:
@@ -143,11 +139,13 @@ export const premade = {
       name: "Glitch the Tech-Twunk",
       description:
         "Bratty cyan twink hacker who talks big but melts into a hypno-sissy the second a real dom flexes.",
-      type: "Character",
-      voiceId: "Microsoft Mitchell Online (Natural)  - English (New Zealand)",
-      signatureColor: "cyan",
-      voiceRate: 1.35,
-      voicePitch: 1.0,
+      type: "character",
+      visuals: { signatureColor: "cyan" },
+      voice: {
+        uri: "Microsoft Mitchell Online (Natural)  - English (New Zealand)",
+        rate: 1.35,
+        pitch: 1.0,
+      },
       dynamics: { entropy: 55, permeability: 60, velocity: 60, resonance: 55 },
       eternal: {
         physical:
@@ -178,9 +176,9 @@ export const premade = {
       id: "entity-F1",
       name: "Eldoria",
       description: "Floating isles bound by ancient magic.",
-      type: "Fractal",
+      type: "fractal",
+      visuals: { signatureColor: "emerald" },
       simulation: { mode: "PASSIVE" },
-      signatureColor: "emerald",
       dynamics: { entropy: 45, permeability: 55, velocity: 50, resonance: 55 },
       eternal: {
         physical:
@@ -199,9 +197,9 @@ export const premade = {
       id: "entity-F2",
       name: "Neo Arcadia",
       description: "Futuristic metropolis built on dream tech.",
-      type: "Fractal",
+      type: "fractal",
+      visuals: { signatureColor: "indigo" },
       simulation: { mode: "PASSIVE" },
-      signatureColor: "indigo",
       dynamics: { entropy: 55, permeability: 50, velocity: 60, resonance: 50 },
       eternal: {
         physical:
@@ -220,9 +218,9 @@ export const premade = {
       name: "Nova City",
       description:
         "Neon-soaked queer utopia where heroes pose, villains cruise, and thunderstorms are just foreplay for city-wide orgies.",
-      type: "Fractal",
+      type: "fractal",
+      visuals: { signatureColor: "purple" },
       simulation: { mode: "PASSIVE" },
-      signatureColor: "purple",
       dynamics: { entropy: 55, permeability: 60, velocity: 60, resonance: 60 },
       eternal: {
         physical:
@@ -244,9 +242,9 @@ export const premade = {
       id: "entity-F4",
       name: "Messenger",
       description: "A standard mobile messaging interface.",
-      type: "Fractal",
+      type: "fractal",
+      visuals: { signatureColor: "cyan" },
       icon: "messenger",
-      signatureColor: "cyan",
       simulation: {
         mode: "ACTIVE",
         cssTheme: "theme-smartphone",
@@ -279,7 +277,7 @@ export const normalize = (base = {}) => {
     name = "",
     description = "",
     icon = null,
-    signatureColor = "",
+    type = "",
     eternal = {},
     present = {},
     past = "",
@@ -306,16 +304,19 @@ export const normalize = (base = {}) => {
     (visuals && visuals.profilePictureUrl) || base.profilePictureUrl || "";
 
   return {
+    // ========================================
+    // CORE METADATA
+    // ========================================
     name: sanitizeHtml(name).trim(),
-    description: sanitizeHtml(description).trim(), // 🔒 Human-only metadata
+    description: sanitizeHtml(description).trim(),
     profilePictureUrl: sanitizeHtml(existingAvatar).trim(),
     icon,
-    signatureColor: (() => {
-      const color = sanitizeHtml(signatureColor).trim();
-      return color && color !== "default" ? color : getRandomSignatureKey();
-    })(),
+    type: type,
+    tags: safeTags,
 
-    // TEMPORAL HYBRID FIELDS
+    // ========================================
+    // TEMPORAL HYBRID (6-Field System)
+    // ========================================
     eternal: {
       physical: sanitizeHtml(eternal.physical || base.appearance || "").trim(),
       mental: sanitizeHtml(eternal.mental || base.identity || "").trim(),
@@ -327,15 +328,9 @@ export const normalize = (base = {}) => {
     past: sanitizeHtml(past).trim(),
     future: sanitizeHtml(future).trim(),
 
-    tags: safeTags,
-    visuals: visuals || {
-      flipped: false,
-      profilePictureUrl: existingAvatar,
-      fullBodyUrl: "",
-      scale: 1.0,
-      yOffset: 0,
-    },
-    simulation,
+    // ========================================
+    // DYNAMICS (Physics Sliders)
+    // ========================================
     dynamics: {
       entropy: 10,
       velocity: 10,
@@ -343,13 +338,37 @@ export const normalize = (base = {}) => {
       resonance: 50,
       ...(dynamics || {}),
     },
-    voiceId,
-    voiceRate: base.voiceRate !== undefined ? parseFloat(base.voiceRate) : 1.0,
-    voicePitch:
-      base.voicePitch !== undefined ? parseFloat(base.voicePitch) : 1.0,
+
+    // ========================================
+    // VISUALS (Appearance & Theming)
+    // ========================================
+    visuals: {
+      flipped: visuals?.flipped || false,
+      profilePictureUrl: existingAvatar,
+      signatureColor: (() => {
+        const color = sanitizeHtml(
+          String(visuals?.signatureColor || ""),
+        ).trim();
+        return color || getRandomSignatureKey();
+      })(),
+    },
+
+    // ========================================
+    // VOICE (TTS Configuration)
+    // ========================================
+    voice: {
+      uri: voiceId || "",
+      rate: base.voiceRate !== undefined ? parseFloat(base.voiceRate) : 1.0,
+      pitch: base.voicePitch !== undefined ? parseFloat(base.voicePitch) : 1.0,
+    },
+
+    // ========================================
+    // PLOT TRACKER & INTERNAL STATE
+    // ========================================
+    customData: finalCustomData,
+    simulation,
     _backupState,
     _lastUpdateMsgId,
-    customData: finalCustomData,
   };
 };
 
@@ -362,7 +381,7 @@ export const formatPremade = (entity, type) => {
 
   return {
     ...flattenedEntity,
-    type: type.toLowerCase(),
+    type: type,
     isPremade: 1,
     isCustom: 0,
     version: STORAGE_VERSION,

@@ -9,7 +9,7 @@
   let name = $derived(entity?.name || "Unknown");
   let description = $derived(entity?.description || "No data available.");
   let signatureColor = $derived(visuals.signatureColor || "#84cc16"); // Lime default
-  let avatar = $derived(visuals.avatar || "");
+  let avatar = $derived(visuals.profilePictureUrl || "");
 </script>
 
 <!-- DYNAMIC CLASS BASED ON MODE -->

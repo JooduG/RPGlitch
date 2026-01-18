@@ -1,22 +1,4 @@
 {
-  "config": {
-    "default": true,
-    "MD013": false,
-    "MD033": false
-  },
-  "globs": [
-    "README.md",
-    "AGENTS.md",
-    "CLAUDE.md",
-    "GEMINI.md",
-    "design-system.md",
-    "PERCHANCE.md",
-    "perchance-development-guide.md",
-    "plan.md",
-    "apps/**/*.md",
-    "docs/**/*.md",
-    "tests/**/*.md"
-  ],
   "ignores": [
     "**/.git/**",
     "**/archive/**",
@@ -25,14 +7,11 @@
     "*.log",
     "*.resolved",
     "*.tmp",
-    ".gemini/**",
     ".markdownlint.json",
     "/.DS_Store",
     "/.npm",
     "/coverage",
     "/dist",
-    "apps/imageglitch/imageglitch.html",
-    "apps/rpglitch/RPGlitch.html",
     "libs/**"
   ]
 }

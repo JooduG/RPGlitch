@@ -5,13 +5,8 @@
     "*.tmp",
     "**/.git/**",
     "**/archive/**",
-    "**/archive/**",
     "**/build/local_libs/**",
     "libs/**",
-    "apps/rpglitch/RPGlitch.html",
-    "apps/imageglitch/imageglitch.html",
-    "apps/rpglitch/worker.js",
-    "apps/rpglitch/worker.js.map",
     "/.DS_Store",
     ".env",
     ".env.*.local",
@@ -27,7 +22,8 @@
     "node_modules/",
     "gha-creds-*.json",
     "nul",
-    "*.css.map"
+    "*.css.map",
+    "test-results/"
   ],
   "linters": {
     "eslint": [
@@ -37,8 +33,6 @@
       "**/.git/**",
       "**/archive/**",
       "libs/**",
-      "apps/rpglitch/RPGlitch.html",
-      "apps/imageglitch/imageglitch.html",
       "**/node_modules/**",
       "/.DS_Store",
       "/.npm",
@@ -52,8 +46,6 @@
       "**/.git/**",
       "**/archive/**",
       "libs/**",
-      "apps/rpglitch/RPGlitch.html",
-      "apps/imageglitch/imageglitch.html",
       "**/node_modules/**",
       "/.DS_Store",
       "/.npm",
@@ -67,8 +59,6 @@
       "**/.git/**",
       "**/archive/**",
       "libs/**",
-      "apps/rpglitch/RPGlitch.html",
-      "apps/imageglitch/imageglitch.html",
       "**/node_modules/**",
       "/.DS_Store",
       "/.npm",
@@ -82,16 +72,29 @@
       "**/.git/**",
       "**/archive/**",
       "libs/**",
-      "apps/rpglitch/RPGlitch.html",
-      "apps/imageglitch/imageglitch.html",
       "**/node_modules/**",
       "/.DS_Store",
       "/.npm",
       "/coverage",
       "/dist",
       ".markdownlint.json",
-      "*.resolved",
-      ".gemini/**"
+      "*.resolved"
+    ],
+    "prettier": [
+      "*.bak",
+      "*.log",
+      "*.tmp",
+      "**/.git/**",
+      "**/archive/**",
+      "libs/**",
+      "**/node_modules/**",
+      "/.DS_Store",
+      "/.npm",
+      "/coverage",
+      "/dist",
+      "package-lock.json",
+      "pnpm-lock.yaml",
+      "yarn.lock"
     ]
   },
   "vscode": {
@@ -104,7 +107,15 @@
       "libs/**": true,
       "**/node_modules/**": true,
       "mcp.json": true,
-      ".mcp.json": true
+      ".mcp.json": true,
+      "**/.gitignore": true,
+      "**/.prettierignore": true,
+      "**/package-lock.json": true,
+      "**/pnpm-lock.yaml": true,
+      "**/yarn.lock": true,
+      "**/.htmlhintignore": true,
+      "**/.stylelintignore": true,
+      "**/jsconfig.json": true
     }
   }
 }

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-import fs from "fs";
-import path from "path";
-import https from "https";
-import crypto from "crypto";
 import { execSync } from "child_process";
+import crypto from "crypto";
+import fs from "fs";
+import https from "https";
+import path from "path";
 import { fileURLToPath } from "url";
 
 // ESM replacement for __dirname
@@ -196,6 +196,11 @@ function syncIgnores() {
   writeTextFile(
     path.join(REPO_ROOT, ".htmlhintignore"),
     header + (masterIgnores.linters?.htmlhint || []).join("\n") + "\n",
+  );
+
+  writeTextFile(
+    path.join(REPO_ROOT, ".prettierignore"),
+    header + (masterIgnores.linters?.prettier || []).join("\n") + "\n",
   );
 
   const markdownlintConfigPath = path.join(

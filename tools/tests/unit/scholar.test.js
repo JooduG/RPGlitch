@@ -1,22 +1,29 @@
 import { describe, test, expect, vi, beforeEach } from "vitest";
 
 // Mock dependencies
-vi.mock("../../../src/gamemaster/llm.js", () => ({
-  LlmService: {
-    generate: vi.fn(),
-  },
-}));
+vi.mock("../../../src/gamemaster/llm.js", () => {
+  return {
+    LlmService: {
+      generate: vi.fn(),
+    },
+  };
+});
 
-vi.mock("../../../src/scholar/library/context.js", () => ({
-  ContextBuilder: vi.fn().mockImplementation(() => ({
-    buildScholarPrompt: vi
-      .fn()
-      .mockResolvedValue({ system: "PROMPT", messages: [] }),
-    buildScholarEchoPrompt: vi
-      .fn()
-      .mockResolvedValue({ system: "ECHO_PROMPT", messages: [] }),
-  })),
-}));
+vi.mock("../../../src/scholar/library/context.js", () => {
+  return {
+    ContextBuilder: class {
+      buildScholarPrompt = vi
+        .fn()
+        .mockResolvedValue({ system: "PROMPT", messages: [] });
+      buildScholarEchoPrompt = vi
+        .fn()
+        .mockResolvedValue({ system: "ECHO_PROMPT", messages: [] });
+      buildMesmerEnhance = vi
+        .fn()
+        .mockResolvedValue({ system: "ENHANCE", messages: [] });
+    },
+  };
+});
 
 // utils.js mock removed
 

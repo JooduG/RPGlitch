@@ -1,7 +1,7 @@
 // 📜 SCHOLAR: The Runtime State
+import { events, EVENTS } from "../gamemaster/bus.js";
 import { db } from "./database/db.js"; // The Legacy DB Wrapper
 import { entities } from "./database/repository.js";
-import { events, EVENTS } from "../gamemaster/bus.js";
 
 function createRuntimeStore() {
   let state = $state({
@@ -83,7 +83,7 @@ function createRuntimeStore() {
         const [userData, aiData, fractalData] = await Promise.all([
           entities.get("character", story.userId),
           entities.get("character", story.aiId || "unknown_ai"),
-          entities.get("fractal", story.fractalId || story.id), // Fallback: Story ID often doubles as Fractal ID in some schemas
+          entities.get("fractal", story.fractalId),
         ]);
 
         if (userData) {

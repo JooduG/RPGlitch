@@ -12,9 +12,18 @@
     "libs/**": true,
     "**/node_modules/**": true,
     "mcp.json": true,
-    ".mcp.json": true
+    ".mcp.json": true,
+    "**/.gitignore": true,
+    "**/.prettierignore": true,
+    "**/package-lock.json": true,
+    "**/pnpm-lock.yaml": true,
+    "**/yarn.lock": true,
+    "**/.htmlhintignore": true,
+    "**/.stylelintignore": true,
+    "**/jsconfig.json": true
   },
   "css.validate": true,
   "html.validate.styles": false,
-  "css.lint.unknownAtRules": "ignore"
+  "css.lint.unknownAtRules": "ignore",
+  "typescript.tsdk": "node_modules\\typescript\\lib"
 }

@@ -6,7 +6,6 @@
    * @property {Object} [visuals]
    * @property {string} [visuals.signatureColor]
    * @property {string} [visuals.avatar]
-   * @property {string} [signatureColor]
    */
 
   let {
@@ -19,10 +18,10 @@
 
   import Button from "../Button.svelte";
 
-  import { themeStore } from "../../mesmer/logic/theme.svelte.js";
   import { app } from "../../gamemaster/state.svelte.js";
-  import Skeleton from "../Skeleton.svelte";
+  import { themeStore } from "../../mesmer/logic/theme.svelte.js";
   import ProfilePicture from "../../mesmer/ui/ProfilePicture.svelte";
+  import Skeleton from "../Skeleton.svelte";
 
   // Derived Values
   let isEmpty = $derived(!entity);

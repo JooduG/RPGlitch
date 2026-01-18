@@ -12,14 +12,12 @@
 
   let { entity, ...rest } = $props();
 
-  import { themeStore } from "../logic/theme.svelte.js";
-  import { AVATAR_PLACEHOLDERS } from "../../gamemaster/config.js";
   import { fade } from "svelte/transition";
+  import { AVATAR_PLACEHOLDERS } from "../../gamemaster/config.js";
+  import { themeStore } from "../logic/theme.svelte.js";
 
   // Derived Reactive Properties
-  let pictureUrl = $derived(
-    entity?.visuals?.profilePictureUrl || entity?.visuals?.avatar,
-  );
+  let pictureUrl = $derived(entity?.visuals?.profilePictureUrl);
   let name = $derived(entity?.name || "Entity");
   let signatureColor = $derived(themeStore.getSignatureColor(entity));
   let initials = $derived(themeStore.getInitials(name));

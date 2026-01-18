@@ -5,8 +5,6 @@
 **/.git/**
 **/archive/**
 libs/**
-apps/rpglitch/RPGlitch.html
-apps/imageglitch/imageglitch.html
 **/node_modules/**
 /.DS_Store
 /.npm

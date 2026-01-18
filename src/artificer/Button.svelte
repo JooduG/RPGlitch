@@ -3,7 +3,7 @@
     label,
     variant = "primary", // primary | secondary | ghost | danger | glass
     size = "md", // sm | md
-    class: className = "", // Allow local overrides
+    className = "", // Allow local overrides (use className="..." when calling)
     children, // For icons/complex content
     ...restProps // Pass through onclick, disabled, etc.
   } = $props();

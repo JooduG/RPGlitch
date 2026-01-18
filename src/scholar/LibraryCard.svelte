@@ -9,12 +9,12 @@
     onViewProfile,
   } = $props();
 
-  import { themeStore } from "../mesmer/logic/theme.svelte.js";
   import { fade } from "svelte/transition";
+  import { themeStore } from "../mesmer/logic/theme.svelte.js";
 
   let signatureColor = $derived(themeStore.getSignatureColor(entity));
   let signatureRgb = $derived(themeStore.hexToRgb(signatureColor));
-  let avatar = $derived(entity?.visuals?.avatar);
+  let avatar = $derived(entity?.visuals?.profilePictureUrl);
   let name = $derived(entity?.name || "Untitled");
 </script>
 

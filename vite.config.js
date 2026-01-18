@@ -1,3 +1,4 @@
+import devtoolsJson from "vite-plugin-devtools-json";
 import { defineConfig } from "vitest/config";
 import { playwright } from "@vitest/browser-playwright";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
@@ -7,7 +8,7 @@ export default defineConfig({
   // Set root to src directory where index.html is located
   root: "src",
 
-  plugins: [svelte(), viteSingleFile()],
+  plugins: [svelte(), viteSingleFile(), devtoolsJson()],
 
   build: {
     // Target modern browsers (no legacy support)
@@ -43,14 +44,14 @@ export default defineConfig({
         // Clean output naming
         entryFileNames: "RPGlitch.js",
 
-        assetFileNames: "RPGlitch.[ext]"
-      }
-    }
+        assetFileNames: "RPGlitch.[ext]",
+      },
+    },
   },
 
   resolve: {
     // Support for Svelte file resolution
-    extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json", ".svelte"]
+    extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json", ".svelte"],
   },
 
   server: {
@@ -58,7 +59,7 @@ export default defineConfig({
     port: 3000,
 
     strictPort: false,
-    open: false
+    open: false,
   },
 
   preview: { port: 8080 },
@@ -76,12 +77,12 @@ export default defineConfig({
           browser: {
             enabled: true,
             provider: playwright(),
-            instances: [{ browser: "chromium", headless: true }]
+            instances: [{ browser: "chromium", headless: true }],
           },
 
           include: ["src/**/*.svelte.{test,spec}.{js,ts}"],
-          exclude: ["src/lib/server/**"]
-        }
+          exclude: ["src/lib/server/**"],
+        },
       },
 
       {
@@ -91,9 +92,9 @@ export default defineConfig({
           name: "server",
           environment: "node",
           include: ["src/**/*.{test,spec}.{js,ts}"],
-          exclude: ["src/**/*.svelte.{test,spec}.{js,ts}"]
-        }
-      }
-    ]
-  }
+          exclude: ["src/**/*.svelte.{test,spec}.{js,ts}"],
+        },
+      },
+    ],
+  },
 });

@@ -31,15 +31,14 @@ class ThemeStore {
 
     // 1. VISUALS
     if (!e.visuals) e.visuals = {};
-    if (e.signatureColor && !e.visuals.signatureColor) {
-      e.visuals.signatureColor = e.signatureColor;
-    }
-    const baseColor = e.visuals.signatureColor || "default";
-    if (PALETTE[baseColor]) {
+    const baseColor = e.visuals.signatureColor || "";
+    // If it's a PALETTE key, convert to hex
+    if (baseColor && PALETTE[baseColor]) {
       e.visuals.signatureColor = PALETTE[baseColor];
     }
+    // If still empty or invalid, keep it empty (will fall through to deterministic)
     if (!e.visuals.signatureColor) {
-      e.visuals.signatureColor = PALETTE.default;
+      e.visuals.signatureColor = "";
     }
 
     // [FIX] Ensure voice object exists to prevent "rate" TypeError in Profile.svelte
@@ -91,19 +90,20 @@ class ThemeStore {
    */
   getSignatureColor(entity) {
     if (entity) {
-      const color = entity.visuals?.signatureColor || entity.signatureColor;
+      const color = entity.visuals?.signatureColor;
 
-      if (color && color !== "default") {
+      if (color) {
         // If it's a known palette key, return the hex
         if (PALETTE[color]) return PALETTE[color];
         return color; // Return raw hex
       }
     }
 
+    // Fallback to deterministic color based on entity properties
     const seed = [entity?.name || "", ...(entity?.tags || [])]
       .filter(Boolean)
       .join(",");
-    return this.getDeterministicColor(seed || entity?.id || "default");
+    return this.getDeterministicColor(seed || entity?.id || "");
   }
 
   /**
