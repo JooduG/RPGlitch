@@ -3,9 +3,9 @@
   import Layout from "./artificer/Layout.svelte";
 
   import Profile from "./scholar/Profile.svelte";
-  import ControlPanel from "./warden/ControlPanel.svelte";
-  import Lightbox from "./mesmer/Lightbox.svelte";
-  import DebugPanel from "./warden/DebugPanel.svelte";
+  import ControlPanel from "./warden/ui/ControlPanel.svelte";
+  import Lightbox from "./mesmer/ui/Lightbox.svelte";
+  import DebugPanel from "./warden/ui/DebugPanel.svelte";
   import Storyboard from "./artificer/storyboard/Storyboard.svelte";
   import Storymode from "./artificer/storymode/Storymode.svelte";
 

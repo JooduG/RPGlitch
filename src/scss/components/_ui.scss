@@ -64,10 +64,13 @@
   display: inline-flex;
   align-items: center;
   padding: 0.25rem 0.75rem;
-  border-radius: 999px; // Pill
-  background: var(--signature, var(--pico-contrast));
-  color: var(--signature-contrast, #fff);
-  font-size: 0.75rem;
+  border-radius: 999px; // Depth Physics
+  background: rgb(0 0 0 / 30%);
+  border: 1px solid var(--app-border);
+
+  // Typography
+  color: var(--app-color);
+  font-family: inherit;
   font-weight: 700;
   line-height: 1;
   box-shadow: 0 2px 4px rgb(0 0 0 / 30%);
@@ -91,13 +94,13 @@
 .tag-chip {
   padding: 0.35rem 0.85rem;
   border-radius: 999px;
-  background: var(--pico-primary-background);
+  background: var(--app-primary);
   color: #fff;
   font-size: 0.85rem;
   transition: background 0.2s;
 
   &:hover {
-    background: var(--pico-primary-hover);
+    background: var(--app-primary-hover);
   }
 }
 
@@ -124,7 +127,7 @@
 
 // Select specific fix (add arrow space)
 #settings-form select {
-  background-image: var(--pico-icon-chevron);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgba(160,160,160,1)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-position: center right 0.75rem;
   background-size: 1rem auto;
   background-repeat: no-repeat;

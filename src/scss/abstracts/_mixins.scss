@@ -59,7 +59,7 @@
 // Base Glass Style
 %glass-base {
   border: 1px solid rgb(255 255 255 / 10%);
-  border-radius: var(--pico-radius);
+  border-radius: var(--border-radius);
 }
 
 // Glassmorphism Pill Container (Button Groups / Inputs)
@@ -75,9 +75,9 @@
 // Common Card Physics (Hover/Focus)
 @mixin card-common {
   box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
-  background: var(--pico-card-background-color, #2b3848);
-  border-radius: var(--pico-radius);
-  color: var(--pico-contrast);
+  background: var(--card-background, #2b3848);
+  border-radius: var(--border-radius);
+  color: var(--app-color);
   padding: 0;
   transition:
     transform 0.3s ease,
@@ -91,7 +91,7 @@
 
   &:has(:focus-visible) {
     box-shadow:
-      0 0 0 2px var(--pico-primary-focus),
+      0 0 0 2px var(--app-primary-focus),
       0 6px 16px rgb(0 0 0 / 20%);
   }
 }
@@ -101,7 +101,7 @@
   position: relative;
   overflow: hidden;
   min-height: 1rem;
-  background-color: var(--pico-card-background-color, #1e293b);
+  background-color: var(--card-background, #1e293b);
 
   &::after {
     position: absolute;
@@ -201,11 +201,11 @@
 
   // Depth Physics
   background: rgb(0 0 0 / 30%);
-  border: 1px solid var(--pico-muted-border-color);
-  border-radius: var(--pico-radius);
+  border: 1px solid var(--app-border);
+  border-radius: var(--border-radius);
 
   // Typography
-  color: var(--pico-color);
+  color: var(--app-color);
   font-family: inherit;
   font-size: 0.95rem;
   padding: 0.75rem 1rem;
@@ -218,12 +218,12 @@
   &:focus {
     outline: none;
     background: rgb(0 0 0 / 50%);
-    border-color: var(--pico-primary);
-    box-shadow: 0 0 0 1px var(--pico-primary);
+    border-color: var(--app-primary);
+    box-shadow: 0 0 0 1px var(--app-primary);
   }
 
   &::placeholder {
-    color: var(--pico-muted-color);
+    color: var(--app-muted);
     opacity: 0.7;
     font-style: italic;
   }

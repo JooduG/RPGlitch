@@ -17,6 +17,7 @@
     right,
     transparent = false,
     mode = "standard", // 'standard' | 'cinematic'
+    align = "center", // 'center' | 'end' | 'start'
   } = $props();
 </script>
 
@@ -24,6 +25,11 @@
   class="universal-stage"
   class:is-transparent={transparent}
   class:layout-cinematic={mode === "cinematic"}
+  style="--stage-align: {align === 'end'
+    ? 'flex-end'
+    : align === 'start'
+      ? 'flex-start'
+      : 'center'}"
 >
   <!-- Track 1: Margin -->
   <div class="gutter-col start"></div>
@@ -151,6 +157,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: var(--stage-align, center);
     transition: all 0.6s ease;
     overflow: visible;
     min-height: 0;

@@ -833,7 +833,7 @@
     align-items: center;
     /* No border bottom, cleaner look */
     .name-input {
-      font-family: serif;
+      font-family: var(--font-heading);
       font-weight: 900;
       font-size: 2.5rem;
       background: transparent;
@@ -863,7 +863,7 @@
   }
 
   .subtitle {
-    font-family: "Inter", sans-serif;
+    font-family: var(--font-body);
     font-size: 1rem;
     color: #a1a1aa;
     background: transparent;
@@ -960,7 +960,7 @@
     background: #121215;
     border: 1px solid #1f1f22;
     color: #d4d4d8;
-    font-family: "Inter", sans-serif;
+    font-family: var(--font-body);
     line-height: 1.5;
     resize: none;
     padding: 1rem;
@@ -983,7 +983,7 @@
     background: transparent;
     border: 1px solid transparent; /* Maintain sizing alignment */
     color: #d4d4d8;
-    font-family: "Inter", sans-serif;
+    font-family: var(--font-body);
     padding: 1rem 0; /* Vertical padding */
     border-radius: 8px;
     display: flex;
@@ -1014,7 +1014,7 @@
     background: #000;
     color: #a1a1aa;
     border: 1px solid #333;
-    font-family: monospace;
+    font-family: var(--font-mono);
     font-size: 0.8rem;
     padding: 0.75rem;
     border-radius: 6px;
@@ -1271,7 +1271,7 @@
     background: transparent;
     border: 1px solid transparent; /* Maintain sizing alignment */
     color: #d4d4d8;
-    font-family: "Inter", sans-serif;
+    font-family: var(--font-body);
     padding: 1rem 0; /* Vertical padding */
     border-radius: 8px;
     display: flex;

@@ -41,12 +41,12 @@
 {#if loading}
   <!-- Global Skeleton Loader -->
   <div class="skeleton-boot">
-    <Skeleton variant="card" width="28.125vh" height="45vh" />
-    <Skeleton variant="card" width="56vh" height="35vh" />
-    <Skeleton variant="card" width="28.125vh" height="45vh" />
+    <Skeleton variant="card" width="25vh" height="40vh" />
+    <Skeleton variant="card" width="40vh" height="25vh" />
+    <Skeleton variant="card" width="25vh" height="40vh" />
   </div>
 {:else}
-  <Layout>
+  <Layout align="end">
     {#snippet header()}
       <div class="header-container">
         <StoryboardDynamicTitle />
@@ -102,13 +102,45 @@
     text-align: center;
   }
 
-  /* Boot Loader centering */
+  /* Boot Loader: Matches Layout.svelte 10-col grid */
   .skeleton-boot {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
     height: 100vh;
-    gap: 2rem;
+    width: 100%;
+    position: fixed;
+    inset: 0;
+    align-items: flex-end;
+    padding-bottom: 25vh; /* Grounded shelf look */
+
+    & :global(.skeleton:nth-child(1)) {
+      grid-column: 2 / span 2;
+      justify-self: center;
+    }
+    & :global(.skeleton:nth-child(2)) {
+      grid-column: 4 / span 4;
+      justify-self: center;
+    }
+    & :global(.skeleton:nth-child(3)) {
+      grid-column: 8 / span 2;
+      justify-self: center;
+    }
+
+    /* Mobile Stack */
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      /* Remove the shelf padding on mobile so it centers or fits better vertically */
+      padding-bottom: 0;
+      align-items: center;
+
+      & :global(.skeleton:nth-child(1)),
+      & :global(.skeleton:nth-child(3)) {
+        display: none;
+      }
+      & :global(.skeleton:nth-child(2)) {
+        grid-column: 1 / -1;
+      }
+    }
   }
 
   .controls-layer {

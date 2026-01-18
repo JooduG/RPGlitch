@@ -1,9 +1,9 @@
 <script>
-  import Modal from "../artificer/Modal.svelte";
-  import Panel from "../artificer/Panel.svelte";
-  import Button from "../artificer/Button.svelte";
-  import { app } from "../gamemaster/state.svelte.js";
-  import { db } from "../scholar/database/db.js";
+  import Modal from "../../artificer/Modal.svelte";
+  import Panel from "../../artificer/Panel.svelte";
+  import Button from "../../artificer/Button.svelte";
+  import { app } from "../../gamemaster/state.svelte.js";
+  import { db } from "../../scholar/database/db.js";
 
   function handleAction(action) {
     console.log("Action:", action);
@@ -99,7 +99,7 @@
     margin-bottom: 0.5rem;
 
     h2 {
-      font-family: serif;
+      font-family: var(--font-heading);
       font-weight: normal;
       font-size: 1.2rem;
       color: #e4e4e7;
@@ -127,7 +127,7 @@
     .label {
       font-size: 0.9rem;
       color: #a1a1aa;
-      font-family: sans-serif;
+      font-family: var(--font-body);
     }
   }
 

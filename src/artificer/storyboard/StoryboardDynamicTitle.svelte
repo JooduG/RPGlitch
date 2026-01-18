@@ -29,6 +29,7 @@
   h1 {
     font-size: clamp(1.2rem, 4vw, 2.2rem);
     margin: 0;
+    font-family: var(--font-heading);
     cursor: text;
     transition: color 0.2s ease;
     border-radius: 8px;

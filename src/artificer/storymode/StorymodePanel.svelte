@@ -159,6 +159,7 @@
       background: rgba(255, 255, 255, 0.05);
       border-radius: 50%;
       border: 2px solid var(--entity-color);
+      font-family: var(--font-heading);
     }
 
     .glow-ring {
@@ -180,7 +181,7 @@
     max-width: 240px;
 
     .name {
-      font-family: var(--font-display, sans-serif);
+      font-family: var(--font-heading);
       font-size: 1.25rem;
       margin: 0;
       text-transform: uppercase;
@@ -239,6 +240,7 @@
       color: var(--entity-color);
       font-size: 1.5rem;
       font-weight: bold;
+      font-family: var(--font-heading);
       text-transform: uppercase;
     }
 
@@ -255,7 +257,7 @@
     }
 
     .cinematic-name {
-      font-family: var(--font-display, sans-serif);
+      font-family: var(--font-heading);
       color: var(--entity-color);
       font-size: 1.5rem;
       text-transform: uppercase;

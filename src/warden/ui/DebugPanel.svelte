@@ -1,5 +1,5 @@
 <script>
-  import { app } from "../gamemaster/state.svelte.js";
+  import { app } from "../../gamemaster/state.svelte.js";
 
   // Auto-scroll logic for log feed
   let logEnd = $state(null);
@@ -63,7 +63,7 @@
     width: 100%;
     background: rgba(10, 10, 15, 0.95);
     color: #94a3b8;
-    font-family: "JetBrains Mono", "Courier New", monospace;
+    font-family: var(--font-mono);
     font-size: 10px;
     border-right: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);

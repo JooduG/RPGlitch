@@ -163,7 +163,8 @@
       font-weight: 800;
       letter-spacing: 1px;
       text-transform: uppercase;
-      color: var(--pico-h3-color);
+      font-family: var(--font-heading);
+      color: var(--app-h3-color);
     }
   }
 
@@ -193,20 +194,22 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: var(--pico-muted-color);
+    color: var(--app-muted);
     gap: 0.5rem;
     cursor: pointer;
     transition: all 0.2s ease;
 
     &:hover {
-      border-color: var(--pico-primary);
-      color: var(--pico-primary);
+      border-color: var(--app-primary);
+      color: var(--app-primary);
       background: rgb(255 255 255 / 3%);
       transform: translateY(-4px);
     }
 
     .drawer-card-icon {
-      font-size: 1.5rem;
+      font-size: clamp(1.2rem, 4vw, 2.2rem);
+      font-family: var(--font-heading);
+      margin: 0;
     }
 
     .drawer-card-label {
@@ -224,7 +227,7 @@
     justify-content: center;
     min-height: 200px;
     width: 100%;
-    color: var(--pico-muted-color);
+    color: var(--app-muted);
     text-align: center;
     padding: 2rem;
     gap: 1rem;
@@ -245,15 +248,17 @@
 
     h4 {
       margin: 0;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--pico-h4-color);
+      font-size: 0.85rem;
+      font-weight: 800;
+      font-family: var(--font-heading);
+      color: var(--signature-color);
     }
 
     p {
       margin: 0;
       font-size: 0.9rem;
       opacity: 0.7;
+      font-family: var(--font-body);
     }
   }
 

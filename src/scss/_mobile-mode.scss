@@ -70,7 +70,7 @@
       justify-content: space-between;
       padding: var(--space-sm-md) var(--space-lg) 0.5rem;
       font-size: 0.75rem;
-      color: var(--pico-muted-color);
+      color: var(--app-muted);
       font-weight: 600;
       letter-spacing: 0.05em;
 
@@ -161,7 +161,7 @@
       // USER (Right)
       &.chat-bubble--user {
         background: rgb(var(--user-signature-rgb)) !important;
-        color: var(--pico-primary-inverse) !important;
+        color: var(--app-primary-inverse) !important;
         border-bottom-right-radius: 4px !important;
         align-self: flex-end !important;
         text-align: left !important;

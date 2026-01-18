@@ -52,9 +52,9 @@
   cursor: pointer;
   pointer-events: auto;
   border: 1px solid transparent;
-  border-radius: var(--pico-radius);
+  border-radius: var(--border-radius);
   background: transparent;
-  color: var(--pico-color);
+  color: var(--app-color);
   transition:
     background-color var(--transition-speed, 0.2s) ease-out,
     color var(--transition-speed, 0.2s) ease-out,
@@ -77,9 +77,9 @@
   &:focus-visible {
     outline: none;
     box-shadow:
-      0 0 0 2px var(--pico-primary-focus),
-      0 0 0 4px rgb(var(--pico-primary), 0.3);
-    border-color: var(--pico-primary);
+      0 0 0 2px var(--app-primary-focus),
+      0 0 0 4px rgb(var(--app-primary), 0.3);
+    border-color: var(--app-primary);
   }
 }
 
@@ -87,12 +87,12 @@
 %btn-primary {
   @extend %btn;
 
-  background: var(--pico-primary);
-  color: var(--pico-primary-inverse);
+  background: var(--app-primary);
+  color: var(--app-primary-inverse);
   box-shadow: 0 4px 6px rgb(0 0 0 / 20%);
 
   &:hover:not(:disabled, .disabled) {
-    background: var(--pico-primary-hover);
+    background: var(--app-primary-hover);
     box-shadow: 0 6px 12px rgb(0 0 0 / 30%);
   }
 }
@@ -100,24 +100,24 @@
 %btn-ghost {
   @extend %btn;
 
-  color: var(--pico-muted-color);
+  color: var(--app-muted);
   border-color: transparent;
 
   &:hover:not(:disabled, .disabled) {
     background: rgb(255 255 255 / 5%);
-    color: var(--pico-color);
+    color: var(--app-color);
   }
 }
 
 %btn-outline {
   @extend %btn;
 
-  border-color: var(--pico-muted-border-color);
-  color: var(--pico-muted-color);
+  border-color: var(--app-border);
+  color: var(--app-muted);
 
   &:hover:not(:disabled, .disabled) {
-    border-color: var(--pico-primary);
-    color: var(--pico-primary);
+    border-color: var(--app-primary);
+    color: var(--app-primary);
     background: rgb(255 255 255 / 2%);
   }
 }
@@ -125,13 +125,13 @@
 %btn-secondary {
   @extend %btn;
 
-  background: var(--pico-secondary-background, #5d6b89);
-  color: var(--pico-secondary-inverse, #fff);
-  border-color: var(--pico-secondary-border, #5d6b89);
+  background: var(--app-secondary);
+  color: var(--app-secondary-inverse);
+  border-color: var(--app-secondary);
 
   &:hover:not(:disabled, .disabled) {
-    background: var(--pico-secondary-hover, #48536b);
-    border-color: var(--pico-secondary-hover, #48536b);
+    background: var(--app-secondary-hover);
+    border-color: var(--app-secondary-hover);
   }
 }
 
@@ -164,7 +164,7 @@
   @extend %btn-ghost;
 
   &.danger:hover:not(:disabled, .disabled) {
-    color: var(--pico-del-color);
+    color: var(--app-del);
     background: rgb(220 53 69 / 10%);
   }
 }
@@ -203,11 +203,11 @@
     margin: 0;
 
     &:first-child {
-      border-radius: var(--pico-radius) 0 0 var(--pico-radius);
+      border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
     &:last-child {
-      border-radius: 0 var(--pico-radius) var(--pico-radius) 0;
+      border-radius: 0 var(--border-radius) var(--border-radius) 0;
     }
 
     &:not(:last-child) {

@@ -27,33 +27,28 @@
   --z-drawer: #{z(drawer)};
   --z-toast: #{z(toast)};
 
-  // --- PICO THEME OVERRIDES ---
-  --pico-color: #fff;
-  --pico-h1-color: #fff;
-  --pico-h2-color: #fff;
-  --pico-h3-color: #eee;
-  --pico-primary: var(--signature-purple);
-  --pico-primary-contrast: #fff;
-  --pico-primary-background: var(--signature-purple);
-  --pico-form-element-background-color: #3b4b5d;
-  --pico-muted-color: #a0a0a0;
-  --pico-muted-border-color: #555;
-  --pico-del-color: #{$pico-del-color};
-  --pico-radius: 0.5rem;
-  --pico-box-shadow: 0;
-  --pico-card-box-shadow: 0;
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 5%);
+  // --- THEME VARIABLES ---
+  --app-color: #fff;
+  --app-h1-color: #fff;
+  --app-h2-color: #fff;
+  --app-h3-color: #eee;
+  --app-muted: #a0a0a0;
+  --app-border: #555;
+  --app-del: #{$pico-del-color};
+  --app-background: #11191f;
+  --card-background: #2b3848;
+  --form-background: #3b4b5d;
 
-  // Spacing Resets
-  --pico-nav-element-spacing-vertical: 0;
-  --pico-nav-element-spacing-horizontal: 0;
-  --pico-nav-link-spacing-vertical: var(--pico-form-element-spacing-vertical);
-  --pico-nav-link-spacing-horizontal: var(
-    --pico-form-element-spacing-horizontal
-  );
-  --pico-typography-spacing-vertical: 0;
-  --pico-typography-spacing-horizontal: 0;
-  --pico-spacing: 0;
+  // Primary Colors
+  --app-primary: var(--signature-purple);
+  --app-primary-inverse: #fff;
+  --app-primary-hover: #4f46e5; // Default fallback
+  --app-primary-focus: rgb(79 70 229 / 50%);
+
+  // Secondary Colors
+  --app-secondary: #5d6b89;
+  --app-secondary-inverse: #fff;
+  --app-secondary-hover: #48536b;
 
   // --- APP UTILITIES ---
   --rp-text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
@@ -89,18 +84,19 @@
 }
 
 // --- DARK THEME OVERRIDES ---
+// --- DARK THEME OVERRIDES ---
 [data-theme="dark"] {
-  --pico-background-color: #0f1116;
-  --pico-card-background-color: #1a1d2e;
-  --pico-form-element-background-color: #1a1d2e;
-  --pico-color: #f1f5f9;
-  --pico-h1-color: #f8fafc;
-  --pico-h2-color: #f8fafc;
-  --pico-h3-color: #f1f5f9;
-  --pico-muted-color: #94a3b8;
-  --pico-muted-border-color: #334155;
-  --pico-primary-hover: #4f46e5;
-  --pico-primary-focus: rgb(79 70 229 / 50%);
+  --app-background: #0f1116;
+  --card-background: #1a1d2e;
+  --form-background: #1a1d2e;
+  --app-color: #f1f5f9;
+  --app-h1-color: #f8fafc;
+  --app-h2-color: #f8fafc;
+  --app-h3-color: #f1f5f9;
+  --app-muted: #94a3b8;
+  --app-border: #334155;
+  --app-primary-hover: #4f46e5;
+  --app-primary-focus: rgb(79 70 229 / 50%);
 }
 
 /* ============================================================================
@@ -116,41 +112,25 @@
   }
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  text-wrap: balance;
-}
-
-p,
-li,
-figcaption {
-  text-wrap: pretty;
-}
+// Typography resets moved to src/mesmer/ui/_typography.scss
 
 html,
 body {
   height: 100%;
   width: 100%;
   margin: 0;
-  padding: 0;
-  overflow: hidden;
-  overscroll-behavior: none;
-  font-family: var(--pico-font-family, sans-serif);
-  color: var(--pico-color);
+  font-family: var(--font-body);
+  color: var(--app-color);
+  background-color: var(--app-background); // Use new var
 
-  // APP BACKGROUND
-  background-image: linear-gradient(
-    to bottom right,
+  // Background with gradients
+  background-image: radial-gradient(
+    circle at 50% 0%,
     var(--bg-grad-1),
     var(--bg-grad-2) 50%,
     var(--bg-grad-3) 75%,
     var(--bg-grad-4)
   );
-  background-attachment: fixed;
   background-size: cover;
 }
 

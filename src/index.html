@@ -13,6 +13,8 @@
         .boot-skeleton {
           display: grid;
           grid-template-columns: repeat(10, 1fr);
+          align-items: flex-end;
+          padding-bottom: 25vh;
           height: 100vh;
           width: 100%;
           /* Gradient from _variables.scss: #181c2f -> #23243a -> #1a3a4a -> #2a1a3a */
@@ -27,6 +29,7 @@
           position: fixed;
           inset: 0;
         }
+
         .boot-skeleton .card {
           background: linear-gradient(
             90deg,
@@ -40,31 +43,56 @@
           justify-self: center;
           align-self: center;
         }
+
         /* Side cards: Portrait - grid cols 2-3 and 8-9 */
         .boot-skeleton .card-left {
           grid-column: 2 / span 2;
           grid-row: 1;
-          width: 28.125vh;
-          height: 45vh; /* Portrait: taller than wide */
+          width: 25vh;
+          height: 40vh;
+          /* Portrait: taller than wide */
         }
+
         .boot-skeleton .card-center {
           grid-column: 4 / span 4;
           grid-row: 1;
-          width: 56vh;
-          height: 35vh; /* Landscape: wider than tall */
+          width: 40vh;
+          height: 25vh;
+          /* Landscape: wider than tall */
         }
+
         .boot-skeleton .card-right {
           grid-column: 8 / span 2;
           grid-row: 1;
-          width: 28.125vh;
-          height: 45vh; /* Portrait: taller than wide */
+          width: 25vh;
+          height: 40vh;
+          /* Portrait: taller than wide */
         }
+
         @keyframes shimmer {
           0% {
             background-position: 200% 0;
           }
+
           100% {
             background-position: -200% 0;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .boot-skeleton {
+            grid-template-columns: 1fr;
+            padding-bottom: 0;
+            align-items: center;
+          }
+
+          .boot-skeleton .card-left,
+          .boot-skeleton .card-right {
+            display: none;
+          }
+
+          .boot-skeleton .card-center {
+            grid-column: 1 / -1;
           }
         }
       </style>
@@ -121,76 +149,6 @@
 
     <div id="profile-screen" hidden></div>
 
-    <!-- Legacy entity drawer and backdrop removed - now handled by Svelte -->
-
-    <!-- LEGACY PROFILE TEMPLATE DELETED -->
-
-    <div id="global-templates" hidden aria-hidden="true">
-      <template id="tpl-placeholder-icon-character"
-        ><svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-        >
-          <path
-            d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-3.33 0-8 1.67-8 5v3h16v-3c0-3.33-4.67-5-8-5z"
-          /></svg
-      ></template>
-      <template id="tpl-placeholder-icon-fractal"
-        ><svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-        >
-          <path d="M12 2L5 11L12 22L19 11Z" />
-        </svg>
-      </template>
-      <template id="tpl-placeholder-icon-messenger"
-        ><svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-        >
-          <path
-            d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V6c0-1.1-.9-2-2-2z"
-            transform="translate(2, 2) scale(0.83)"
-          />
-        </svg>
-      </template>
-      <template id="tpl-placeholder-icon-default"
-        ><svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-        >
-          <rect x="4" y="4" width="16" height="16" rx="2" /></svg
-      ></template>
-
-      <template id="tpl-empty-library">
-        <div class="drawer-empty">
-          <svg class="empty-icon" viewBox="0 0 24 24">
-            <path
-              d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"
-            />
-          </svg>
-          <h4>Your Library is Empty</h4>
-          <p>Stories you start will appear here.</p>
-        </div>
-      </template>
-
-      <template id="tpl-loading-library">
-        <div class="drawer-empty" aria-busy="true">
-          <p class="muted">Loading library...</p>
-        </div>
-      </template>
-
-      <template id="tpl-typing-indicator">
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-      </template>
-    </div>
-
     <script>
       if (typeof ai !== "undefined") {
         window.ai = ai;
@@ -216,105 +174,10 @@
 
     <div id="dev-hud" style="display: none"></div>
 
-    <!-- SCRIPTS REMOVED: Bundled via bootstrap.js -->
     <!-- GLOBAL STYLES FOR DYNAMIC ELEMENTS -->
     <style>
       /* Reserved for critical dynamic overrides */
     </style>
-
-    <!-- CONFIRMATION MODAL -->
-    <template id="tpl-confirm-modal">
-      <article class="modal-content modal-content--dialog">
-        <header>
-          <h3 id="confirm-title">Confirm</h3>
-        </header>
-        <div class="modal-body">
-          <p id="confirm-message">Are you sure?</p>
-        </div>
-        <footer>
-          <button
-            id="btn-confirm-cancel"
-            class="btn-ghost btn-icon-raise"
-            aria-label="Cancel"
-          >
-            <svg class="icon" viewBox="0 0 24 24">
-              <path
-                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-              />
-            </svg>
-          </button>
-          <button
-            id="btn-confirm-ok"
-            class="btn-primary btn-icon-raise"
-            aria-label="Confirm"
-          >
-            <svg class="icon" viewBox="0 0 24 24">
-              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-            </svg>
-          </button>
-        </footer>
-      </article>
-    </template>
-
-    <!-- ALERT MODAL -->
-    <template id="tpl-alert-modal">
-      <article class="modal-content modal-content--dialog">
-        <header>
-          <h3 id="alert-title">Alert</h3>
-        </header>
-        <div class="modal-body">
-          <p id="alert-message">Notice</p>
-        </div>
-        <footer>
-          <button
-            id="btn-alert-ok"
-            class="btn-primary btn-icon-raise"
-            aria-label="OK"
-          >
-            <svg class="icon" viewBox="0 0 24 24">
-              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-            </svg>
-          </button>
-        </footer>
-      </article>
-    </template>
-
-    <!-- PROMPT MODAL -->
-    <template id="tpl-prompt-modal">
-      <article class="modal-content modal-content--dialog">
-        <header>
-          <h3 id="prompt-title">Prompt</h3>
-        </header>
-        <div class="modal-body">
-          <p id="prompt-message">Enter value:</p>
-          <div class="input-group">
-            <input type="text" id="prompt-input" autocomplete="off" />
-          </div>
-        </div>
-        <footer>
-          <button
-            id="btn-prompt-cancel"
-            class="btn-ghost btn-icon-raise"
-            aria-label="Cancel"
-          >
-            <svg class="icon" viewBox="0 0 24 24">
-              <path
-                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-              />
-            </svg>
-          </button>
-          <button
-            id="btn-prompt-ok"
-            class="btn-primary btn-icon-raise"
-            aria-label="Confirm"
-          >
-            <svg class="icon" viewBox="0 0 24 24">
-              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-            </svg>
-          </button>
-        </footer>
-      </article>
-    </template>
 
     <!-- EPILOGUE CONTROLS (Floating Pill Design) -->
     <template id="tpl-epilogue-controls">

@@ -57,7 +57,7 @@
 
   .drawer-card {
     aspect-ratio: 2 / 3;
-    background: var(--pico-card-background-color);
+    background: var(--card-background);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 12px;
     position: relative;
@@ -144,6 +144,7 @@
       .entity-name {
         font-size: 0.85rem;
         font-weight: 800;
+        font-family: var(--font-heading);
         color: var(--signature-color);
         display: -webkit-box;
         line-clamp: 2;
