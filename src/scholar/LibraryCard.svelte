@@ -16,7 +16,6 @@
   let signatureRgb = $derived(themeStore.hexToRgb(signatureColor));
   let avatar = $derived(entity?.visuals?.avatar);
   let name = $derived(entity?.name || "Untitled");
-  let description = $derived(entity?.description || "");
 </script>
 
 <button
@@ -46,7 +45,6 @@
 
   <div class="card-info">
     <span class="entity-name">{name}</span>
-    <span class="entity-desc" title={description}>{description}</span>
   </div>
 
   <div class="signature-bar"></div>
@@ -118,23 +116,11 @@
       }
     }
 
-    &:hover {
-      .avatar-image,
-      .avatar-placeholder {
-        transform: scale(1.05);
-      }
-
-      .avatar-placeholder.fractal-mode {
-        transform: scale(1.1) rotate(5deg);
-      }
-    }
-
     .card-info {
-      flex: 1;
-      padding: 0.75rem;
+      flex: 0.6;
+      padding: var(--space-sm) var(--space-sm-md);
       display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
+      align-items: center;
       background: linear-gradient(
         to bottom,
         rgba(0, 0, 0, 0.4),
@@ -143,20 +129,10 @@
 
       .entity-name {
         font-size: 0.85rem;
-        font-weight: 800;
+        font-weight: 700;
         font-family: var(--font-heading);
         color: var(--signature-color);
-        display: -webkit-box;
-        line-clamp: 2;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-
-      .entity-desc {
-        font-size: 0.7rem;
-        color: #ffffff;
-        line-height: 1.3;
+        text-wrap: balance;
         display: -webkit-box;
         line-clamp: 2;
         -webkit-line-clamp: 2;

@@ -63,6 +63,13 @@ $font-monospace:
   --space-2xl: 3rem;
   --space-3xl: 5rem;
 
+  // --- TEXT HIERARCHY (Opacity-Based) ---
+  // Semantic opacity levels for consistent visual weight
+  --text-primary: 1; // Titles, critical info
+  --text-secondary: 0.75; // Body text, descriptions
+  --text-tertiary: 0.5; // Hints, placeholders, metadata
+  --text-muted: 0.38; // Disabled, ultra-subtle
+
   // --- COMPONENT METRICS ---
   --form-element-spacing-vertical: 0.75rem;
   --form-element-spacing-horizontal: 1rem;

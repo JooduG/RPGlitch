@@ -116,7 +116,11 @@
 
   /* --- DRAWER CONTAINER --- */
   .entity-drawer {
-    @extend %material-glass-heavy;
+    /* Solid, fully opaque drawer - no glass effect */
+    background: rgb(18, 24, 34);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: none;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
 
     /* --- POSITIONING --- */
     position: fixed;
@@ -128,7 +132,6 @@
     max-height: 85vh;
 
     /* --- SHAPE & LAYERS --- */
-    border-bottom: none;
     border-radius: 20px 20px 0 0;
     z-index: z(drawer);
     display: flex;
@@ -154,7 +157,8 @@
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid rgb(255 255 255 / 10%);
-    background: rgb(0 0 0 / 20%);
+    background: rgb(12, 16, 24); /* Fully opaque, slightly darker */
+    border-radius: 20px 20px 0 0; /* Match drawer corners */
     flex-shrink: 0;
 
     h3 {

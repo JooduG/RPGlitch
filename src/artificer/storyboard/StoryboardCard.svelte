@@ -215,8 +215,8 @@
 
     .avatar-placeholder {
       color: #fff;
-      font-size: 3rem;
-      font-weight: 800;
+      font-size: 1.75rem;
+      font-weight: 600;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
       font-family: var(--font-heading);
     }
@@ -225,68 +225,65 @@
   .card-bottom {
     height: 40%;
     width: 100%;
-    background: #09090b;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.4),
+      rgba(0, 0, 0, 0.85)
+    );
     border: none;
     border-top: 1px solid rgba(var(--signature-rgb) / 0.2);
     display: flex;
     flex-direction: column;
-    padding: 0.5rem;
+    justify-content: center;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-md-lg);
     cursor: pointer;
 
     .text-half {
-      height: 50%;
       width: 100%;
-      display: flex;
-      flex-direction: column;
-      padding: 0 1.25rem;
     }
 
     .title-half {
-      justify-content: flex-end;
-      padding-bottom: 0rem;
-
       h3 {
         margin: 0;
         color: rgb(var(--signature-rgb));
-        font-family: var(--font-heading);
-        font-weight: 900;
-        font-size: 1.25rem;
-        line-height: 1.1;
+        font-size: 1rem;
+        font-weight: 700;
+        line-height: 1.25;
         text-align: left;
+        word-break: break-word;
+        overflow-wrap: anywhere;
 
         display: -webkit-box;
         -webkit-line-clamp: 2;
         line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        text-overflow: ellipsis;
 
-        word-break: break-word;
-        overflow-wrap: anywhere;
+        /* Fractal cards get 1 line only */
+        .fractal-card & {
+          -webkit-line-clamp: 1;
+          line-clamp: 1;
+        }
       }
     }
 
     .desc-half {
-      justify-content: flex-start;
-      padding-top: 0rem;
-
       p {
         margin: 0;
         color: white;
+        opacity: var(--text-secondary);
+        font-size: 0.8125rem;
         text-align: left;
-        font-size: 0.875rem;
-        line-height: 1.3;
+        line-height: 1.35;
+        word-break: break-word;
+        overflow-wrap: anywhere;
 
         display: -webkit-box;
         -webkit-line-clamp: 2;
         line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        text-overflow: ellipsis;
-
-        text-wrap: pretty;
-        word-break: break-word;
-        overflow-wrap: anywhere;
       }
     }
   }
