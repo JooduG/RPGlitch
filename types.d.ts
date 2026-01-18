@@ -228,6 +228,45 @@ interface ApplicationState {
   };
 }
 
+// --- PERCHANCE INTEGRATION ---
+
+/**
+ * Native Perchance "Open Chat" Object.
+ * Available globally as `window.oc`.
+ */
+interface Oc {
+  /**
+   * The current character metadata.
+   */
+  character: {
+    name: string;
+    description?: string;
+    [key: string]: any;
+  };
+
+  /**
+   * The thread/channel communication layer.
+   */
+  thread: {
+    /** Listen for events from the host */
+    on(event: string, callback: (data: any) => void): void;
+    /** Emit events to the host (if supported) */
+    emit?(event: string, data: any): void;
+    /** Shared data channel */
+    customData: any;
+  };
+
+  /**
+   * Get all messages in the current thread.
+   */
+  getMessages(): Promise<Message[]> | Message[];
+}
+
+interface Window {
+  oc?: Oc;
+  bridge?: any;
+}
+
 // --- USAGE EXAMPLE ---
 //
 // /** @type {Entity} */

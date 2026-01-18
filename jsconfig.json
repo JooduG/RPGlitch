@@ -19,12 +19,17 @@
     "/.DS_Store",
     "/coverage",
     "/dist",
+    "ANEX.md",
+    "NOTION_MASTER_SCRAPE.md",
     "gha-creds-*.json",
     "libs/**",
+    "llms.md",
     "mcp.json",
     "node_modules",
     "node_modules/",
     "nul",
+    "scribbles-summary.md",
+    "scribbles.md",
     "test-results/"
   ]
 }

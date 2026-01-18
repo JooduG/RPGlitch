@@ -72,7 +72,7 @@
     "npm-sentinel": {
       "command": "cmd",
       "args": ["/c", "npx", "-y", "@nekzus/mcp-server@latest"],
-      "disabled": false
+      "disabled": true
     },
     "pollinations": {
       "command": "cmd",
@@ -97,7 +97,13 @@
       "args": ["/c", "npx", "-y", "@notionhq/notion-mcp-server"],
       "env": {
         "OPENAPI_MCP_HEADERS": "{\"Authorization\": \"Bearer ntn_G88285873721qxg9rblWEklLtZ23kefD8UQx1aspS6L4qE\", \"Notion-Version\": \"2022-06-28\"}"
-      }
+      },
+      "disabled": true
+    },
+
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
     }
   }
 }

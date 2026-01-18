@@ -24,7 +24,11 @@
     "nul",
     "*.css.map",
     "test-results/",
-    "scribbles.md"
+    "scribbles.md",
+    "scribbles-summary.md",
+    "llms.md",
+    "ANEX.md",
+    "NOTION_MASTER_SCRAPE.md"
   ],
   "linters": {
     "eslint": [
@@ -80,7 +84,11 @@
       "/dist",
       ".markdownlint.json",
       "*.resolved",
-      "scribbles.md"
+      "scribbles.md",
+      "scribbles-summary.md",
+      "llms.md",
+      "ANEX.md",
+      "NOTION_MASTER_SCRAPE.md"
     ],
     "prettier": [
       "*.bak",

@@ -5,6 +5,8 @@ import { seedPremades } from "../scholar/database/repository.js";
 import { GameMaster } from "./index.js";
 // import { initViews } from "../js/mesmer/ui/core/orchestrator.js"; // Legacy UI Removed
 // import { log, initDebugMode, mockPlugins } from "./utils.js"; // REPLACED
+import { bridge } from "../warden/bridge.js";
+
 const log = console.info;
 const initDebugMode = () => console.info("[BOOT] Debug Mode: ON");
 const mockPlugins = () => {
@@ -14,8 +16,11 @@ const mockPlugins = () => {
   }
 };
 
-// Expose GameMaster to Window (Critical for UI)
-if (typeof window !== "undefined") window.GameMaster = GameMaster;
+// Expose GameMaster and Bridge to Window (Critical for UI & Debugging)
+if (typeof window !== "undefined") {
+  window.GameMaster = GameMaster;
+  window.bridge = bridge;
+}
 
 // --- THE FREEDOM PROTOCOL (Platform Shield) ---
 /**

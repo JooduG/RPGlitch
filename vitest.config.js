@@ -31,7 +31,10 @@ export default defineConfig({
       },
     },
     // Test file patterns
-    include: ["tools/tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+    include: [
+      "tools/tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
+      "src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
+    ],
     // Exclude patterns
     exclude: ["node_modules", "dist", ".git", "tools/tests/e2e/**"],
   },

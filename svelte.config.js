@@ -5,7 +5,10 @@ export default {
   preprocess: [sveltePreprocess(), mdsvex()],
   extensions: [".svelte", ".svx"],
   vitePlugin: {
-    inspector: true,
-    toggleKeyCombo: "alt-x",
+    inspector: {
+      toggleKeyCombo: "alt-x",
+      showToggleButton: "always",
+      toggleButtonPos: "bottom-right",
+    },
   },
 };

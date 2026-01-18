@@ -12,7 +12,11 @@
     "/.npm",
     "/coverage",
     "/dist",
+    "ANEX.md",
+    "NOTION_MASTER_SCRAPE.md",
     "libs/**",
+    "llms.md",
+    "scribbles-summary.md",
     "scribbles.md"
   ]
 }

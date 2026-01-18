@@ -3,7 +3,7 @@ trigger: glob
 globs: **/*.svelte, **/*.svelte.js
 ---
 
-# ⚡ The Svelte 5 Protocol (Runes Update)
+# ⚡ The Svelte 5 Protocol (Runes Update v2)
 
 > **Directive:** PURE Svelte 5. No Legacy Syntax. No "Hybrid" Code.
 > **Architecture:** Vite 6 + Single File Monolith.
@@ -18,10 +18,20 @@ The source of truth. Deeply reactive by default.
 
 - **Proxy:** Objects and arrays are deeply reactive proxies.
 - **Usage:**
-
   ```javascript
   let count = $state(0);
   let user = $state({ name: "John", age: 25 });
+  ```
+
+### 🚅 Raw State (`$state.raw`)
+
+**New in v2:** Use for performance optimization on large datasets that do not require deep reactivity.
+
+- **Use Case:** Large Lorebooks, 3D Models, Third-party configurations.
+- **Behavior:** Shallow reactivity. Only updates when the component reference itself changes.
+- **Syntax:**
+  ```javascript
+  let heavyData = $state.raw(largeJsonBlob);
   ```
 
 ### 🧮 Derived (`$derived`)
@@ -30,7 +40,6 @@ Computed state. Glitch-free & Memoized.
 
 - **Syntax:** `let double = $derived(count * 2);`
 - **Complex:** Use `$derived.by()` for blocks.
-
   ```javascript
   let total = $derived.by(() => {
     let sum = 0;
@@ -43,10 +52,11 @@ Computed state. Glitch-free & Memoized.
 
 Side effects (DOM, IO). Use sparingly.
 
-- **Syntax:**
+- **Standard:** Runs _after_ DOM updates.
 
   ```javascript
   $effect(() => {
+    // Analytics or external sync
     console.log(count);
     return () => {
       /* cleanup */
@@ -54,19 +64,36 @@ Side effects (DOM, IO). Use sparingly.
   });
   ```
 
-- **Pre-update:** Use `$effect.pre` for DOM measurements before paint.
+- **Pre-Update (`$effect.pre`):** Runs _before_ DOM updates.
+  - **Use Case:** Managing scroll positions/autoscroll before new content pushes layout.
+  ```javascript
+  $effect.pre(() => {
+    const autoScroll = div.scrollHeight - div.scrollTop === div.clientHeight;
+  });
+  ```
 - **Untrack:** Use `untrack(() => ...)` to read a signal without subscribing.
+
+### 🕵️ Inspection (`$inspect`)
+
+**Debugging:** Replaces `console.log` for reactive variables.
+
+- **Syntax:** `$inspect(variable).with(console.trace);`
+- **Behavior:** Logs whenever the dependency changes.
 
 ## 2. Component API
 
 ### 📦 Props (`$props`)
 
-- **Syntax:** `let { key = "default" } = $props();`
-- **Rest:** `let { a, ...rest } = $props();`
+**Mandatory Pattern:** Destructure immediately.
+
+- **Correct:** `let { title, count = 0 } = $props();`
+- **Incorrect:** `let props = $props();` (Harder to track dependencies).
+- **Rest Props:** `let { a, ...rest } = $props();`
 
 ### 🔗 Two-Way Binding (`$bindable`)
 
 - **Syntax:** `let { value = $bindable() } = $props();`
+- **Constraint:** Use sparingly. Prefer "Props Down, Events Up" unidirectional flow.
 
 ### 🧩 Snippets (`#snippet`)
 
@@ -113,7 +140,19 @@ Replaces `<slot>`.
 
 - **Constraint:** NEVER output code if it hasn't been mentally validated against the Svelte 5 rules.
 
-## 5. Coding Standards
+## 5. The Anti-Patterns (Strict Ban List)
+
+**Violating these rules breaks the build.**
+
+| Anti-Pattern               | Replacement        | Reason                                                              |
+| :------------------------- | :----------------- | :------------------------------------------------------------------ |
+| `export let`               | `$props()`         | Legacy syntax confuses the compiler in Runes mode.                  |
+| `writable()`, `readable()` | `$state()`         | Svelte 4 Stores are technical debt.                                 |
+| `$: variable = ...`        | `$derived()`       | The "labeled statement" syntax is deprecated.                       |
+| `console.log($state)`      | `$inspect($state)` | `console.log` runs once; `$inspect` tracks changes.                 |
+| `className`                | `class`            | Svelte HTML attributes match the DOM API, but `class` is supported. |
+
+## 6. Coding Standards
 
 ### 📂 File Structure
 
@@ -132,15 +171,14 @@ Replaces `<slot>`.
 - **NO** External CSS files (Encapsulation is key).
 - Follow the **Style Protocol** in `.agent/rules/style.md`.
 
-## 6. Advanced Templating
+## 7. Advanced Templating
 
 ### 🧹 Lifecycle
 
 - **Mounting:** `onMount` is still valid for one-time setup (e.g., Canvas init).
 - **Updates:** Use `$effect` for reaction to state changes.
 
-## 7. Migration Strategy (Bottom-Up)
+## 8. Migration Strategy (Bottom-Up)
 
-- Migrate leaf components first.
-- Use `.svelte.js` for shared state stores.
-- Do not mix legacy `export let` with Runes.
+- **Atomic Migration:** A file must be 100% Runes or 0% Legacy. No hybrids.
+- **Top-Down State:** Migrate `.svelte.js` stores first, then components.
