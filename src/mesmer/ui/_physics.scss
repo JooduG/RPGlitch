@@ -1,8 +1,7 @@
 @use "sass:map";
-@use "variables" as *;
+@use "tokens" as *;
 
 // --- HELPERS: MIXINS & FUNCTIONS ---
-// Reusable logic and helpers.
 
 // Helper function to access z-indices
 @function z($key) {
@@ -11,13 +10,13 @@
 
 // --- RESPONSIVE HELPERS ---
 @mixin mobile {
-  @media (width <=$breakpoint-mobile) {
+  @media (width <= $breakpoint-mobile) {
     @content;
   }
 }
 
 @mixin tablet {
-  @media (width <=$breakpoint-tablet) {
+  @media (width <= $breakpoint-tablet) {
     @content;
   }
 }
@@ -58,7 +57,7 @@
 
 // Base Glass Style
 %glass-base {
-  border: 1px solid rgb(255 255 255 / 10%);
+  border: 1px solid $ui-glass-border;
   border-radius: var(--border-radius);
 }
 

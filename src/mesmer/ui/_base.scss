@@ -1,17 +1,18 @@
 @use "sass:map";
-@use "abstracts" as *;
+@use "tokens" as *;
 
 /* ============================================================================
    BASE: RESET & ROOT VARIABLES
    CSS Variables, Reset, and Global Utilities.
+   Refactored for Mesmer.
    ============================================================================ */
 
 :root {
   // --- LAYOUT CONFIG ---
-  --top-bar-height: 3rem;
+  --top-bar-height: #{$top-bar-height};
   --app-container-max: 100%;
-  --app-container-pad: 1rem;
-  --header-height: 6rem;
+  --app-container-pad: #{$app-container-pad};
+  --header-height: #{$header-height};
 
   // Shared 3-column layout
   --layout-left-col: 1fr;
@@ -19,13 +20,13 @@
   --layout-right-col: 1fr;
 
   // --- Z-INDEX MAP ---
-  --z-base: #{z(base)};
-  --z-chip: #{z(chip)};
-  --z-mobile-drawer: #{z(mobile-drawer-container)};
-  --z-overlay: #{z(overlay)};
-  --z-modal: #{z(modal)};
-  --z-drawer: #{z(drawer)};
-  --z-toast: #{z(toast)};
+  --z-base: #{map.get($z-map, base)};
+  --z-chip: #{map.get($z-map, chip)};
+  --z-mobile-drawer: #{map.get($z-map, mobile-drawer-container)};
+  --z-overlay: #{map.get($z-map, overlay)};
+  --z-modal: #{map.get($z-map, modal)};
+  --z-drawer: #{map.get($z-map, drawer)};
+  --z-toast: #{map.get($z-map, toast)};
 
   // --- THEME VARIABLES ---
   --app-color: #fff;
@@ -39,23 +40,23 @@
   --card-background: #2b3848;
   --form-background: #3b4b5d;
 
-  // Primary Colors
-  --app-primary: var(--signature-purple);
-  --app-primary-inverse: #fff;
-  --app-primary-hover: #4f46e5; // Default fallback
-  --app-primary-focus: rgb(79 70 229 / 50%);
+  // Primary Colors (From Tokens)
+  --app-primary: #{$app-primary};
+  --app-primary-inverse: #{$app-primary-inverse};
+  --app-primary-hover: #{$app-primary-hover};
+  --app-primary-focus: #{$app-primary-focus};
 
-  // Secondary Colors
-  --app-secondary: #5d6b89;
-  --app-secondary-inverse: #fff;
-  --app-secondary-hover: #48536b;
+  // Secondary Colors (From Tokens)
+  --app-secondary: #{$app-secondary};
+  --app-secondary-inverse: #{$app-secondary-inverse};
+  --app-secondary-hover: #{$app-secondary-hover};
 
   // --- APP UTILITIES ---
-  --rp-text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
-  --color-accent: #ff7ad5;
-  --signature-text-on: #fff;
+  --rp-text-shadow: #{$rp-text-shadow};
+  --color-accent: #{$color-accent};
+  --signature-text-on: #{$signature-text-on};
 
-  // Initialize signature vars
+  // Initialize signature vars (Forwarded from tokens -> palette-generated)
   @each $name, $data in $signature-colors {
     --signature-#{$name}: #{map.get($data, color)};
   }
@@ -68,13 +69,9 @@
 }
 
 // --- DYNAMIC SIGNATURE UTILITY ---
-// Powered by ThemeService.js
 .themed-signature {
-  // Defaults (Purple)
   --current-sig: var(--signature-color, #8b5cf6);
   --current-sig-rgb: var(--signature-rgb, 139 92 246);
-
-  // Auto-calculated variants
   --signature-10: rgb(var(--current-sig-rgb) / 10%);
   --signature-20: rgb(var(--current-sig-rgb) / 20%);
   --signature-50: rgb(var(--current-sig-rgb) / 50%);
@@ -83,7 +80,6 @@
   border-color: var(--current-sig);
 }
 
-// --- DARK THEME OVERRIDES ---
 // --- DARK THEME OVERRIDES ---
 [data-theme="dark"] {
   --app-background: #0f1116;
@@ -95,8 +91,6 @@
   --app-h3-color: #f1f5f9;
   --app-muted: #94a3b8;
   --app-border: #334155;
-  --app-primary-hover: #4f46e5;
-  --app-primary-focus: rgb(79 70 229 / 50%);
 }
 
 /* ============================================================================
@@ -112,8 +106,6 @@
   }
 }
 
-// Typography resets moved to src/mesmer/ui/_typography.scss
-
 html,
 body {
   height: 100%;
@@ -121,9 +113,7 @@ body {
   margin: 0;
   font-family: var(--font-body);
   color: var(--app-color);
-  background-color: var(--app-background); // Use new var
-
-  // Background with gradients
+  background-color: var(--app-background);
   background-image: radial-gradient(
     circle at 50% 0%,
     var(--bg-grad-1),
@@ -144,7 +134,6 @@ body::before {
   z-index: 2;
 }
 
-// FRACTAL BACKGROUND
 #fractal-background {
   position: fixed;
   inset: 0;
@@ -159,9 +148,6 @@ body::before {
   transition: opacity 2s ease-in-out;
 }
 
-// --- COMPONENT RESETS ---
-
-// Reset 'article' to remove Pico's card defaults for layout containers
 article {
   background: transparent !important;
   box-shadow: none !important;
@@ -170,32 +156,10 @@ article {
   margin: 0 !important;
 }
 
-// --- UTILITIES ---
-
 .muted,
 .placeholder-text {
   font-style: italic;
-  color: var(--pico-muted-color) !important;
-}
-
-// --- ACCESSIBILITY ---
-.skip-link {
-  position: absolute;
-  top: -100px;
-  left: 0;
-  background: var(--app-background);
-  color: var(--app-primary);
-  padding: 0.5rem 1rem;
-  z-index: var(--z-toast);
-  transition: top 0.2s ease-in-out;
-  text-decoration: none;
-  font-weight: bold;
-  border-bottom-right-radius: 8px;
-
-  &:focus {
-    top: 0;
-    outline: 2px solid var(--app-primary);
-  }
+  color: var(--app-muted) !important;
 }
 
 [hidden] {
@@ -205,26 +169,37 @@ article {
 .danger,
 .danger:active,
 .danger:hover {
-  background: var(--pico-del-color, #dc3545);
-  border-color: var(--pico-del-color, #dc3545);
+  background: var(--app-del);
+  border-color: var(--app-del);
   color: #fff;
 }
 
-// --- INTERACTIVE ---
-
-// Tactile cursor for buttons
 button,
 [type="button"],
 [type="submit"] {
   cursor: pointer;
 }
 
-/* --- DEVELOPER MODE --- */
 body:not(.mode-developer) .developer-content {
   display: none !important;
 }
 
-/* Helper to lock body scroll when modals are open */
 body.modal-open {
   overflow: hidden;
+}
+
+/* ACCESSIBILITY BYPASS LINK */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: var(--app-primary);
+  color: white;
+  padding: 8px;
+  z-index: 10000;
+  transition: top 0.2s;
+
+  &:focus {
+    top: 0;
+  }
 }

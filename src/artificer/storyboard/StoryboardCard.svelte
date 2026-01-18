@@ -17,10 +17,12 @@
     onViewProfile,
   } = $props();
 
+  import Button from "../Button.svelte";
+
   import { themeStore } from "../../mesmer/logic/theme.svelte.js";
   import { app } from "../../gamemaster/state.svelte.js";
   import Skeleton from "../Skeleton.svelte";
-  import { fade } from "svelte/transition";
+  import ProfilePicture from "../../mesmer/ui/ProfilePicture.svelte";
 
   // Derived Values
   let isEmpty = $derived(!entity);
@@ -33,8 +35,6 @@
 
   let signatureColor = $derived(themeStore.getSignatureColor(entity));
   let signatureRgb = $derived(themeStore.hexToRgb(signatureColor));
-  let avatar = $derived(entity?.visuals?.avatar);
-  let avatarSeed = $derived(entity?.visuals?.avatarSeed || avatar);
 </script>
 
 <div
@@ -46,8 +46,9 @@
   style="--signature-color: {signatureColor}; --signature-rgb: {signatureRgb};"
 >
   {#snippet emptyState()}
-    <button
-      class="empty-card"
+    <Button
+      className="empty-card"
+      variant="ghost"
       onclick={onSelect}
       aria-label="Select {roleLabel}"
     >
@@ -69,41 +70,29 @@
           </svg>
         {/if}
       </div>
-    </button>
+    </Button>
   {/snippet}
 
   {#snippet populatedState()}
     <!-- Top Half: Visuals & Trigger for Profile -->
-    <button
-      class="card-top"
+    <Button
+      className="card-top"
+      variant="ghost"
       onclick={onViewProfile}
       aria-label="View {roleLabel} Profile"
     >
-      {#if avatar}
-        {#key avatarSeed}
-          <img
-            src={avatar}
-            alt="{entity?.name || 'Entity'} Avatar"
-            class="avatar-icon"
-            transition:fade={{ duration: 300 }}
-          />
-        {/key}
-      {:else}
-        <div class="avatar-placeholder">
-          {themeStore.getInitials(entity?.name)}
-        </div>
-      {/if}
-    </button>
+      <ProfilePicture {entity} />
+    </Button>
 
     <!-- Bottom Half: Info & Trigger for Selection -->
-    <button class="card-bottom" onclick={onSelect}>
+    <Button className="card-bottom" variant="ghost" onclick={onSelect}>
       <div class="text-half title-half">
         <h3>{entity?.name || `Select ${roleLabel}`}</h3>
       </div>
       <div class="text-half desc-half">
         <p>{entity?.description || "Click to browse choices..."}</p>
       </div>
-    </button>
+    </Button>
   {/snippet}
 
   {#if isLoading}
@@ -116,7 +105,8 @@
 </div>
 
 <style lang="scss">
-  @use "../../scss/abstracts" as *;
+  @use "../../mesmer/ui/tokens" as *;
+  @use "../../mesmer/ui/physics" as *;
 
   .split-card {
     @include card-common;
@@ -154,11 +144,16 @@
       transform: scale(1.02);
       z-index: 10;
 
-      .card-top {
+      :global(.card-top) {
         height: 50%;
       }
-      .card-bottom {
+      :global(.card-bottom) {
         height: 50%;
+      }
+
+      :global(.card-bottom.btn .title-half h3) {
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
       }
     }
 
@@ -175,7 +170,7 @@
     }
   }
 
-  .card-top {
+  :global(.card-top.btn) {
     height: 60%; /* Characters: 60/40 Split */
     width: 100%;
     border: none;
@@ -183,10 +178,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
     position: relative;
     background-color: var(--signature-color);
     overflow: hidden;
+    border-radius: 0; /* Reset radius */
 
     &::after {
       content: "";
@@ -201,28 +196,9 @@
       transform: translateX(-100%);
       animation: shimmer 5s infinite;
     }
-
-    .avatar-icon {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.6s ease;
-    }
-
-    &:hover .avatar-icon {
-      transform: scale(1.05);
-    }
-
-    .avatar-placeholder {
-      color: #fff;
-      font-size: 1.75rem;
-      font-weight: 600;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      font-family: var(--font-heading);
-    }
   }
 
-  .card-bottom {
+  :global(.card-bottom.btn) {
     height: 40%;
     width: 100%;
     background: linear-gradient(
@@ -237,7 +213,7 @@
     justify-content: center;
     gap: var(--space-xs);
     padding: var(--space-sm) var(--space-md-lg);
-    cursor: pointer;
+    border-radius: 0; /* Reset radius */
 
     .text-half {
       width: 100%;
@@ -260,11 +236,7 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
 
-        /* Fractal cards get 1 line only */
-        .fractal-card & {
-          -webkit-line-clamp: 1;
-          line-clamp: 1;
-        }
+        /* Fractal cards get 1 line only - Moved to .fractal-card block */
       }
     }
 
@@ -288,7 +260,7 @@
     }
   }
 
-  .empty-card {
+  :global(.empty-card.btn) {
     flex: 1;
     display: flex;
     flex-direction: column;

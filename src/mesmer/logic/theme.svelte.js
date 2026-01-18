@@ -59,7 +59,7 @@ class ThemeStore {
     if (!e.dynamics) {
       e.dynamics = {
         chaos: 50,
-        order: 50,
+        order: 51,
         entropy: 50,
         velocity: 50,
       };
@@ -141,7 +141,7 @@ class ThemeStore {
     return "#" + (g | (r << 8) | (b << 16)).toString(16).padStart(6, "0");
   }
 
-  mixHex(color1, color2, weight = 50) {
+  mixHex(color1) {
     // Basic hex mixing
     return color1; // Placeholder to satisfy imports
   }

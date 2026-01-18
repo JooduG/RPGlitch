@@ -5,7 +5,8 @@
    Architecture: 7-1 Pattern (Adapted)
    ============================================================================ */
 
-@use "reset";
+@use "../mesmer/ui/base";
 @use "../mesmer/ui/typography";
 @use "mobile-mode";
-@use "components";
+@use "../mesmer/ui/buttons";
+@use "tooltip";

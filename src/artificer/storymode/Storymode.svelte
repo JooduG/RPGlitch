@@ -6,6 +6,7 @@
   import Skeleton from "../Skeleton.svelte";
   import { app } from "../../gamemaster/state.svelte.js";
   import { session } from "../../gamemaster/session.svelte.js";
+  import Button from "../Button.svelte";
 
   // --- STATE ---
   let scrollRef = $state(null);
@@ -44,7 +45,7 @@
       <div class="game-stage">
         <!-- Narrative Feed -->
         <div class="feed-scroll" bind:this={scrollRef}>
-          {#each feed as msg}
+          {#each feed as msg (msg)}
             <Message
               text={msg.text}
               sender={mapRole(msg.role)}
@@ -70,9 +71,12 @@
                 Establishing context stream... If the screen remains black,
                 please check your network or AI plugin settings.
               </p>
-              <button class="btn-retry" onclick={() => session.retry()}
-                >Retry Connection</button
-              >
+              <Button
+                className="btn-retry"
+                variant="ghost"
+                onclick={() => session.retry()}
+                label="Retry Connection"
+              />
             </div>
           {/if}
         </div>
@@ -162,14 +166,12 @@
       max-width: 400px;
     }
 
-    .btn-retry {
+    :global(.btn-retry) {
       padding: 0.5rem 1rem;
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 4px;
       color: #999;
-      cursor: pointer;
-      transition: all 0.2s;
 
       &:hover {
         background: rgba(255, 255, 255, 0.15);

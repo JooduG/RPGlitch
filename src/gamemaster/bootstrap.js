@@ -8,7 +8,7 @@ const log = console.info;
 const initDebugMode = () => console.info("[BOOT] Debug Mode: ON");
 const mockPlugins = () => {
   if (!window.ai) {
-    window.ai = async (_prompt, _options) => "Mock AI Response";
+    window.ai = async () => "Mock AI Response";
     window.ai.generate = window.ai; // Backwards compatibility if needed
   }
 };
@@ -26,7 +26,7 @@ if (typeof window !== "undefined") window.GameMaster = GameMaster;
 if (typeof window !== "undefined") {
   try {
     const _lsSet = localStorage.setItem;
-    localStorage.setItem = function (key, val) {
+    localStorage.setItem = function (key) {
       // Intercept and ignore platform-side restriction flags
       if (
         key &&
@@ -46,7 +46,7 @@ if (typeof window !== "undefined") {
       }
     });
     log("[Shield] Freedom Protocol Active.");
-  } catch (e) {
+  } catch {
     console.warn("[Shield] Storage intercept failed.");
   }
 }

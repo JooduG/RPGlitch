@@ -81,7 +81,7 @@ export class ContextBuilder {
     // [SECURITY] Strip Description (Reviewer Eyes Only)
     const cleanEntity = (e) => {
       if (!e) return null;
-      const { description, ...clean } = e;
+      const { description, ...clean } = e; // eslint-disable-line no-unused-vars
       return clean;
     };
 
@@ -202,6 +202,7 @@ Analyze the last message and output JSON:
    * [FIX] Maestro Enhance (Profile Editor Magic Wand)
    * Wraps Mesmer logic to support the UI's specific call signature.
    */
+  // eslint-disable-next-line no-unused-vars
   async buildMaestroEnhance(prompt, entity, signatureColor) {
     // Reuse Mesmer's enhance logic
     return this.buildMesmerEnhance(prompt, entity);

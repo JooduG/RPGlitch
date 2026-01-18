@@ -3,9 +3,10 @@
    * Warden Confirm Modal
    * A promise-based confirmation dialog.
    */
-  import { onMount } from "svelte";
+
   import { fade, scale } from "svelte/transition";
   import { quintOut } from "svelte/easing";
+  import Button from "../../artificer/Button.svelte";
 
   let {
     title = "Confirm Action",
@@ -56,8 +57,9 @@
     <article class="warden-modal">
       <header>
         <h3>{title}</h3>
-        <button
-          class="btn-ghost icon-only"
+        <Button
+          variant="ghost"
+          class="icon-only"
           onclick={handleCancel}
           aria-label="Close"
         >
@@ -71,7 +73,7 @@
               d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
             />
           </svg>
-        </button>
+        </Button>
       </header>
 
       <div class="content">
@@ -79,16 +81,13 @@
       </div>
 
       <footer>
-        <button class="btn-ghost" onclick={handleCancel}>
-          {cancelLabel}
-        </button>
-        <button
-          class="btn-danger"
+        <Button variant="ghost" onclick={handleCancel} label={cancelLabel} />
+        <Button
+          variant="danger"
           onclick={handleConfirm}
           bind:this={confirmBtn}
-        >
-          {confirmLabel}
-        </button>
+          label={confirmLabel}
+        />
       </footer>
     </article>
   </dialog>
@@ -103,7 +102,8 @@
 {/if}
 
 <style lang="scss">
-  @use "../../scss/abstracts" as *;
+  @use "../../mesmer/ui/tokens" as *;
+  @use "../../mesmer/ui/physics" as *;
 
   dialog {
     background: transparent;
@@ -171,44 +171,17 @@
     }
   }
 
-  /* Buttons */
-  button {
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 600;
-    border-radius: 6px;
-    padding: 0.5rem 1rem;
-    transition: all 0.2s;
+  /* Button styling delegated to Button component */
+  :global(.warden-modal .icon-only.btn) {
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
 
-    &.btn-ghost {
-      background: transparent;
-      color: #94a3b8;
-
-      &:hover {
-        background: rgba(255, 255, 255, 0.05);
-        color: #f1f5f9;
-      }
-    }
-
-    &.btn-danger {
-      background: #ef4444;
-      color: white;
-
-      &:hover {
-        background: #dc2626;
-      }
-    }
-
-    &.icon-only {
-      padding: 0.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      .icon {
-        width: 1.25rem;
-        height: 1.25rem;
-      }
+    .icon {
+      width: 1.25rem;
+      height: 1.25rem;
     }
   }
 </style>

@@ -1,5 +1,6 @@
 @use "sass:map";
-@use "../../scss/abstracts" as *;
+@use "tokens" as *;
+@use "physics" as *;
 
 /* ============================================================================
    TYPOGRAPHY SYSTEM

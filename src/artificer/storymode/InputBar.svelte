@@ -1,5 +1,6 @@
 <script>
   import { Session } from "../../gamemaster/session.js";
+  import Button from "../Button.svelte";
 
   let { disabled = false } = $props();
   let value = $state("");
@@ -49,13 +50,13 @@
     rows="1"
     {disabled}
   ></textarea>
-  <button
+  <Button
     class="send-btn"
+    variant="primary"
     onclick={handleSend}
     disabled={!value.trim() || disabled}
-  >
-    Send
-  </button>
+    label="Send"
+  />
 </div>
 
 <style lang="scss">
@@ -100,36 +101,16 @@
     }
   }
 
-  .send-btn {
-    background: #2563eb;
-    color: white;
-    border: none;
-    border-radius: 8px;
+  :global(.input-bar .send-btn.btn) {
+    /* Extending primary button with specific overrides */
     padding: 0 2rem; /* Wide button */
-    height: 3.5rem; /* Match approximate height of single line input with padding */
-    font-weight: 600;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: all 0.2s;
+    height: 3.5rem; /* Match input height */
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+    border-radius: 8px;
+    font-size: 0.95rem;
 
-    &:hover:not(:disabled) {
-      background: #1d4ed8;
-      transform: translateY(-1px);
-      box-shadow: 0 6px 10px -1px rgba(37, 99, 235, 0.3);
-    }
-
-    &:active:not(:disabled) {
-      transform: translateY(0);
-    }
-
-    &:disabled {
-      background: #1e293b;
-      color: #475569;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
+    /* Original hover/active states are handled by variant="primary" mostly */
+    /* but we keep specific overrides if needed */
   }
 </style>

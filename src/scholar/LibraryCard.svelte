@@ -51,7 +51,8 @@
 </button>
 
 <style lang="scss">
-  @use "../scss/abstracts" as *;
+  @use "../mesmer/ui/tokens" as *;
+  @use "../mesmer/ui/physics" as *;
 
   .drawer-card {
     aspect-ratio: 2 / 3;

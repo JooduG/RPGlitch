@@ -21,7 +21,14 @@
 <Modal variant="transparent" onclose={() => app.toggleControlPanel()}>
   <div class="header">
     <h2>Weaving</h2>
-    <button class="close" onclick={() => app.toggleControlPanel()}>×</button>
+    <Button
+      class="close"
+      variant="ghost"
+      onclick={() => app.toggleControlPanel()}
+      aria-label="Close"
+    >
+      ×
+    </Button>
   </div>
 
   <Panel>
@@ -106,15 +113,20 @@
       margin: 0;
       font-style: italic;
     }
-    .close {
+    /* Use :global() to style the inner button element of the component */
+    :global(.close) {
       background: none;
       border: none;
       font-size: 1.5rem;
       color: #71717a;
       cursor: pointer;
       transition: color 0.2s;
+      padding: 0 0.5rem; /* Adjust padding for button component */
+      line-height: 1;
+      min-width: auto; /* Override default button width if any of standard btn styles interfere */
       &:hover {
         color: #fff;
+        background: transparent; /* specific override for ghost hover */
       }
     }
   }

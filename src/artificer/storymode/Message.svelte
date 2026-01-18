@@ -1,4 +1,5 @@
 <script>
+  import DOMPurify from "dompurify";
   import { app } from "../../gamemaster/state.svelte.js";
 
   let {
@@ -33,7 +34,7 @@
   <div class="message-bubble" class:user-bubble={isUser} class:ai-bubble={isAi}>
     {#if attachments.length > 0}
       <div class="attachments">
-        {#each attachments as src}
+        {#each attachments as src (src)}
           <!-- svelte-ignore a11y_click_events_have_key_events -->
           <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
           <img
@@ -50,7 +51,8 @@
       </div>
     {/if}
     <div class="message-content">
-      {@html displayText}
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      {@html DOMPurify.sanitize(displayText)}
       <!-- Use @html to render if we had HTML, but basic text is safer.
            Actually, let's stick to {displayText} to avoid XSS unless we sanitize.
            Wait, existing code was {text}.

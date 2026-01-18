@@ -5,6 +5,7 @@
    */
   import { fade, scale } from "svelte/transition";
   import { quintOut } from "svelte/easing";
+  import Button from "../../artificer/Button.svelte";
 
   let {
     title = "System Alert",
@@ -54,9 +55,12 @@
       </div>
 
       <footer>
-        <button class="btn-primary" onclick={handleClose} bind:this={okBtn}>
-          {buttonLabel}
-        </button>
+        <Button
+          variant="primary"
+          onclick={handleClose}
+          bind:this={okBtn}
+          label={buttonLabel}
+        />
       </footer>
     </article>
   </dialog>
@@ -71,7 +75,8 @@
 {/if}
 
 <style lang="scss">
-  @use "../../scss/abstracts" as *;
+  @use "../../mesmer/ui/tokens" as *;
+  @use "../../mesmer/ui/physics" as *;
 
   dialog {
     background: transparent;
@@ -151,18 +156,5 @@
     }
   }
 
-  button.btn-primary {
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 600;
-    border-radius: 6px;
-    padding: 0.5rem 1.5rem;
-    background: #3b82f6; /* Blue 500 */
-    color: white;
-    transition: all 0.2s;
-
-    &:hover {
-      background: #2563eb; /* Blue 600 */
-    }
-  }
+  /* button styles removed - utilizing Button component */
 </style>

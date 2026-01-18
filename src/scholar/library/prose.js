@@ -11,14 +11,14 @@ Context: ${JSON.stringify(context)}
 Provide a better description.
 `;
 
-export const templateEcho = (entity, history, role) => `
+export const templateEcho = (entity, history) => `
 [SYSTEM: ECHO]
 Summarize history for ${entity.name}:
 ${history}
 `;
 
 export const Screenplay = {
-  standard: (ai, user, fractal, variance, visualAuth) => `
+  standard: (ai, user, fractal) => `
 [SCENE START]
 World: ${fractal.name}
 Characters: ${ai.name}, ${user.name}
@@ -29,7 +29,7 @@ Roleplay on.
 World: ${fractal.name}
 Intro: ${context.title}
 `,
-  epilogue: (fractal, { ai, user, history }) => `
+  epilogue: (fractal, { history }) => `
 [EPILOGUE]
 History: ${history}
 Wrap it up.

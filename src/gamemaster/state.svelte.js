@@ -17,8 +17,23 @@ export class AppStore {
   fractalList = $state([]);
 
   // 📝 STORY TITLE STATE
-  storyTitle = $state("My New Story");
+  storyTitle = $state("Your story begins here...");
   isCustomTitle = $state(false);
+  titleRerollCount = $state(0); // Reactive counter to trigger title recalculation
+
+  /**
+   * Structured title parts for colored rendering
+   * Returns an array of { text, color? } objects
+   */
+  storyTitleParts = $derived.by(() => {
+    if (this.isCustomTitle) {
+      // Custom titles are plain white
+      return [{ text: this.storyTitle }];
+    }
+    // Reference titleRerollCount to trigger recalculation on reroll
+    void this.titleRerollCount;
+    return this.generateColoredTitleParts();
+  });
 
   // 📥 ENTITY DRAWER STATE
   drawer = $state({
@@ -74,6 +89,7 @@ export class AppStore {
   log(message, type = "system") {
     const entry = {
       id: Math.random().toString(36).substring(7),
+      // eslint-disable-next-line svelte/prefer-svelte-reactivity
       timestamp: new Date().toLocaleTimeString(),
       message,
       type, // 'system' | 'ai' | 'db' | 'error'
@@ -214,7 +230,112 @@ export class AppStore {
       return `${pick(fractalPrefixes)} ${this.selectedFractal.name}`;
     }
 
-    return "My New Story";
+    return "Your story begins here...";
+  }
+
+  /**
+   * Generates structured title parts with entity colors for rich rendering
+   * @returns {Array<{text: string, color?: string}>}
+   */
+  generateColoredTitleParts() {
+    const getColor = (entity) => themeStore.getSignatureColor(entity);
+
+    const isSmartphone = this.settings.callMode;
+    const standardPrefixes = [
+      "The Story of",
+      "The Adventures of",
+      "The Tale of",
+      "The Legend of",
+      "The Saga of",
+      "Chronicles of",
+      "The Journey of",
+    ];
+    const smartphonePrefixes = [
+      "Chat Log:",
+      "Session:",
+      "Messenger.exe:",
+      "New Thread:",
+      "Encrypted Feed:",
+      "Connection:",
+      "Archive:",
+      "RELAY //",
+    ];
+
+    const ai = this.selectedAi;
+    const user = this.selectedUser;
+    const fractal = this.selectedFractal;
+
+    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+    // Smartphone mode - simpler format
+    if (isSmartphone) {
+      const prefix = pick(smartphonePrefixes);
+      const parts = [{ text: `${prefix} ` }];
+
+      if (ai && user) {
+        parts.push({ text: ai.name, color: getColor(ai) });
+        parts.push({ text: " & " });
+        parts.push({ text: user.name, color: getColor(user) });
+      } else if (ai) {
+        parts.push({ text: ai.name, color: getColor(ai) });
+      } else if (user) {
+        parts.push({ text: user.name, color: getColor(user) });
+      } else {
+        parts.push({ text: "Guest User" });
+      }
+      return parts;
+    }
+
+    // Standard mode - full format
+    const hasEntities = ai || user;
+    const hasFractal = !!fractal;
+
+    if (hasEntities && hasFractal) {
+      const prefix = pick(standardPrefixes);
+      const parts = [{ text: `${prefix} ` }]; // Space in prefix
+
+      if (ai && user) {
+        parts.push({ text: ai.name, color: getColor(ai) });
+        parts.push({ text: " & " }); // Standard spacing
+        parts.push({ text: user.name, color: getColor(user) });
+      } else if (ai) {
+        parts.push({ text: ai.name, color: getColor(ai) });
+      } else {
+        parts.push({ text: user.name, color: getColor(user) });
+      }
+
+      parts.push({ text: " in " }); // Standard spacing
+      parts.push({ text: fractal.name, color: getColor(fractal) });
+      return parts;
+    } else if (hasEntities) {
+      const prefix = pick(standardPrefixes);
+      const parts = [{ text: `${prefix} ` }]; // Space in prefix
+
+      if (ai && user) {
+        parts.push({ text: ai.name, color: getColor(ai) });
+        parts.push({ text: " & " }); // Standard spacing
+        parts.push({ text: user.name, color: getColor(user) });
+      } else if (ai) {
+        parts.push({ text: ai.name, color: getColor(ai) });
+      } else {
+        parts.push({ text: user.name, color: getColor(user) });
+      }
+      return parts;
+    } else if (hasFractal) {
+      const fractalPrefixes = [
+        "Adventures in",
+        "Tales from",
+        "The World of",
+        "Journey to",
+      ];
+      const prefix = pick(fractalPrefixes);
+      return [
+        { text: `${prefix} ` },
+        { text: fractal.name, color: getColor(fractal) },
+      ];
+    }
+
+    return [{ text: "Your story begins here..." }];
   }
 
   /**
@@ -230,7 +351,7 @@ export class AppStore {
    */
   rerollTitle = () => {
     this.isCustomTitle = false;
-    this.storyTitle = this.generateDynamicTitle();
+    this.titleRerollCount++; // Trigger $derived recalculation
   };
 
   editingEntity = $state(null);

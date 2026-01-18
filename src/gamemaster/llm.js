@@ -109,7 +109,7 @@ export class ContextBroker {
 
   // --- INJECTION ENGINE ---
 
-  static injectLayers(context, type) {
+  static injectLayers(context) {
     const layers = [];
 
     // LAYER 1: KERNEL (Simulation Rules)

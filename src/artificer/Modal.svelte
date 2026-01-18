@@ -1,4 +1,5 @@
 <script>
+  import Button from "./Button.svelte";
   let {
     title,
     icon,
@@ -49,7 +50,7 @@
     {#if variant === "standard" && title}
       <div class="modal-header">
         <span class="title">{icon} {title}</span>
-        <button class="close-btn" onclick={onclose}>×</button>
+        <Button class="close-btn" variant="ghost" onclick={onclose} label="×" />
       </div>
     {/if}
 
@@ -58,7 +59,12 @@
     </div>
 
     {#if variant === "entity" || variant === "preview"}
-      <button class="entity-close" onclick={onclose}>×</button>
+      <Button
+        className="entity-close"
+        variant="ghost"
+        onclick={onclose}
+        label="×"
+      />
     {/if}
   </div>
 </div>
@@ -172,7 +178,8 @@
     }
   }
 
-  .entity-close {
+  /* We rely on global class because Button component encapsulates it */
+  :global(.entity-close) {
     position: absolute;
     top: 1rem;
     right: 1rem;
@@ -182,13 +189,14 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    cursor: pointer;
-    z-index: 100; /* Above everything */
-    font-size: 1.2rem;
-    display: flex;
+
+    /* Center the X content */
+    display: flex; /* Button already has this usually, but enforcing */
     align-items: center;
     justify-content: center;
-    transition: background 0.2s;
+
+    font-size: 1.2rem;
+    z-index: 100 !important; /* Ensure visibility */
 
     &:hover {
       background: #ef4444;
@@ -202,12 +210,11 @@
     border-bottom: 1px solid #333;
     color: #ccc;
   }
-  .close-btn {
-    background: none;
-    border: none;
+  :global(.close-btn) {
+    /* Extending ghost button */
     color: #aaa;
-    cursor: pointer;
     font-size: 1.2rem;
+    padding: 0 0.5rem; /* Adjust padding for close icon */
   }
 
   @keyframes fade-in {

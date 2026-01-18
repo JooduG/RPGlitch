@@ -69,7 +69,7 @@ function createRuntimeStore() {
           } else {
             return; // truly no active story
           }
-        } catch (e) {
+        } catch {
           return;
         }
       }

@@ -4,13 +4,13 @@
   import { app } from "../gamemaster/state.svelte.js";
   import { runtime } from "./runtime.svelte.js";
   import { VisualManager } from "../mesmer/logic/manager.js";
-  import { store } from "../gamemaster/index.js";
-  import { Scholar, entities } from "./index.js";
-  import { CONFIG } from "../gamemaster/config.js";
-
-  import { voiceService } from "../mesmer/audio/voice.svelte.js";
-  import { audioService } from "../mesmer/audio/service.js";
   import { themeStore } from "../mesmer/logic/theme.svelte.js";
+  import ProfilePicture from "../mesmer/ui/ProfilePicture.svelte";
+  import { CONFIG } from "../gamemaster/config.js";
+  import { Scholar } from "./index.js";
+  import { voiceService } from "../mesmer/audio/voice.svelte.js";
+  import { entities } from "./database/repository.js";
+  import { audioService } from "../mesmer/audio/service.js";
 
   let isEditing = $state(false);
   let isSaving = $state(false);
@@ -166,7 +166,7 @@
 
   // --- MAGIC BUTTON HANDLERS ---
 
-  async function consultScholar(field, contextType) {
+  async function consultScholar(field) {
     if (magicBusy[field]) return;
     try {
       magicBusy[field] = true;
@@ -240,8 +240,7 @@
   function handleImplicitClose() {
     if (isEditing) {
       // Soft Cancel: Revert to readonly, stay open
-      const target = app.editingEntity || runtime.character;
-      char = normalize(target);
+      normalize();
       isEditing = false;
     } else {
       // Hard Close: Exit profile
@@ -277,39 +276,44 @@
               ></textarea>
               <div class="controls-grid">
                 {#if !hasPromptContent}
-                  <button
+                  <Button
+                    label="🔮 Extract"
                     onclick={handleExtract}
                     disabled={visualBusy}
-                    title="Extract description from profile">🔮 Extract</button
-                  >
-                  <button
+                    title="Extract description from profile"
+                  />
+                  <Button
+                    label="📂 Upload"
                     onclick={handleUpload}
                     disabled={visualBusy}
-                    title="Upload Reference">📂 Upload</button
-                  >
+                    title="Upload Reference"
+                  />
                 {:else if isPromptUrl}
-                  <button onclick={handleUploadUrl} disabled={visualBusy}
-                    >🔗 Use URL</button
-                  >
-                  <button
-                    class="ghost"
+                  <Button
+                    label="🔗 Use URL"
+                    onclick={handleUploadUrl}
+                    disabled={visualBusy}
+                  />
+                  <Button
+                    label="❌ Clear"
+                    variant="ghost"
                     onclick={() => (visualPrompt = "")}
-                    disabled={visualBusy}>❌ Clear</button
-                  >
+                    disabled={visualBusy}
+                  />
                 {:else}
-                  <button
+                  <Button
+                    label="✨ Enhance"
                     onclick={handleEnhancePrompt}
                     disabled={visualBusy}
-                    title="Enhance prompt with AI">✨ Enhance</button
-                  >
-                  <button
-                    class="primary"
+                    title="Enhance prompt with AI"
+                  />
+                  <Button
+                    label={visualBusy ? "🎨 Painting..." : "🎨 Paint"}
+                    variant="primary"
                     onclick={handlePaint}
                     disabled={visualBusy}
                     title="Generate Image"
-                  >
-                    {visualBusy ? "🎨 Painting..." : "🎨 Paint"}
-                  </button>
+                  />
                 {/if}
                 <input
                   type="file"
@@ -325,31 +329,33 @@
           <div class="panel-section">
             <div class="field-stack">
               <div class="controls-grid compact">
-                <button
-                  class="toggle-btn"
-                  class:active={char.visuals.noBackground}
+                <Button
+                  variant="ghost"
+                  className="toggle-btn {char.visuals.noBackground
+                    ? 'active'
+                    : ''}"
                   disabled={visualBusy}
                   onclick={() =>
                     (char.visuals.noBackground = !char.visuals.noBackground)}
                   title="Toggle Transparent Background"
                 >
                   {char.visuals.noBackground ? "No BG: ON" : "No BG: OFF"}
-                </button>
-                <button
-                  class="toggle-btn"
-                  class:active={char.visuals.flipped}
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="toggle-btn {char.visuals.flipped ? 'active' : ''}"
                   disabled={visualBusy}
                   onclick={() => (char.visuals.flipped = !char.visuals.flipped)}
                   title="Flip Image Horizontally"
                 >
                   {char.visuals.flipped ? "Flip: ON" : "Flip: OFF"}
-                </button>
+                </Button>
               </div>
 
               <div class="range-row">
                 <div class="color-grid">
                   <!-- Ensure Orange (#f97316) is available -->
-                  {#each Object.entries( { ...CONFIG.PALETTE, orange: "#f97316" }, ) as [name, hex]}
+                  {#each Object.entries( { ...CONFIG.PALETTE, orange: "#f97316" }, ) as [name, hex] (name)}
                     {#if name !== "default"}
                       <button
                         class="color-swatch"
@@ -373,19 +379,20 @@
               <div class="voice-row">
                 <select id="voice-select" bind:value={char.voice.uri}>
                   <option value="">System Default</option>
-                  {#each voices as voice}
+                  {#each voices as voice (voice.uri)}
                     <option value={voice.uri}>{voice.name}</option>
                   {/each}
                 </select>
-                <button
-                  class="icon-btn"
+                <Button
+                  variant="ghost"
+                  className="icon-btn"
                   onclick={() =>
                     voiceService.preview(
                       char.voice?.uri,
                       char.voice?.rate,
                       char.voice?.pitch,
                     )}
-                  title="Preview Voice">🔊</button
+                  title="Preview Voice">🔊</Button
                 >
               </div>
               <div class="slider-grid">
@@ -418,20 +425,7 @@
         <div class="hero-layout">
           <!-- VISUALS (Image Only) -->
           <div class="hero-visuals">
-            <div class="image-layer">
-              {#if char.visuals.avatar}
-                <img
-                  src={char.visuals.avatar}
-                  alt="Hero"
-                  class:no-bg={char.visuals.noBackground}
-                  class:flipped={char.visuals.flipped}
-                />
-              {:else}
-                <div class="placeholder" style="color: var(--hero-color)">
-                  MAX
-                </div>
-              {/if}
-            </div>
+            <ProfilePicture entity={char} />
           </div>
 
           <!-- DATA BOARD -->
@@ -539,7 +533,12 @@
                   variant="danger"
                   onclick={deleteEntity}
                 />
-                <Button label="Save Changes" variant="primary" onclick={save} />
+                <Button
+                  label="Save Changes"
+                  variant="primary"
+                  onclick={save}
+                  disabled={isSaving}
+                />
               {:else}
                 <Button
                   label="Edit"
@@ -556,7 +555,7 @@
       <div class="satellite right panel-box" class:visible={devMode}>
         <div class="panel-section">
           <div class="dynamics-grid">
-            {#each Object.entries(char.dynamics || {}) as [k, v]}
+            {#each Object.entries(char.dynamics || {}) as [k, v] (k)}
               <div class="dynamic-item">
                 <span class="label">{k}</span>
                 {#if isEditing}
@@ -601,35 +600,38 @@
               </div>
 
               <div class="plot-list">
-                {#each char.customData?.plot?.active || [] as thread, i}
+                {#each char.customData?.plot?.active || [] as thread, i (i + thread)}
                   <div class="plot-item active">
                     <span class="bullet" style="color: var(--hero-color)"
                       >●</span
                     >
                     <span class="text">{thread}</span>
                     <div class="actions">
-                      <button
-                        class="icon-btn"
+                      <Button
+                        variant="ghost"
+                        className="icon-btn"
                         onclick={() => resolvePlotThread(i)}
-                        title="Resolve">✓</button
+                        title="Resolve">✓</Button
                       >
-                      <button
-                        class="icon-btn danger"
+                      <Button
+                        variant="ghost"
+                        className="icon-btn danger"
                         onclick={() => deletePlotThread("active", i)}
-                        title="Delete">×</button
+                        title="Delete">×</Button
                       >
                     </div>
                   </div>
                 {/each}
 
-                {#each char.customData?.plot?.resolved || [] as thread, i}
+                {#each char.customData?.plot?.resolved || [] as thread, i (i + thread)}
                   <div class="plot-item resolved">
                     <span class="bullet">○</span>
                     <span class="text">{thread}</span>
-                    <button
-                      class="icon-btn danger"
+                    <Button
+                      variant="ghost"
+                      className="icon-btn danger"
                       onclick={() => deletePlotThread("resolved", i)}
-                      title="Delete">×</button
+                      title="Delete">×</Button
                     >
                   </div>
                 {/each}
@@ -637,7 +639,7 @@
             {:else}
               <!-- READ ONLY MODE -->
               <ul class="plot-read-only">
-                {#each char.customData?.plot?.active || [] as thread}
+                {#each char.customData?.plot?.active || [] as thread (thread)}
                   <li>
                     <span class="bullet" style="color: var(--hero-color)"
                       >●</span
@@ -648,7 +650,7 @@
                 {#if (char.customData?.plot?.active || []).length === 0}
                   <li class="empty">No active plot threads.</li>
                 {/if}
-                {#each char.customData?.plot?.resolved || [] as thread}
+                {#each char.customData?.plot?.resolved || [] as thread (thread)}
                   <li class="resolved">
                     {thread}
                   </li>
@@ -675,27 +677,34 @@
           {rows}
         ></textarea>
       {:else}
-        <div class="read-only-box" style="height: {rows * 1.5 + 2}rem;">
+        <div
+          class="read-only-box"
+          style="max-height: {rows * 1.5 + 2}rem; min-height: 3rem;"
+        >
           <span class="read-only-text">{parent[key] || ""}</span>
         </div>
       {/if}
 
       {#if isEditing}
-        <button
+        <Button
           id={getMagicBtnId(fieldKey)}
-          class="magic-btn"
+          className="magic-btn"
+          variant="ghost"
           onclick={() => consultScholar(fieldKey, char.type)}
           disabled={magicBusy[fieldKey]}
           title="Consult Scholar"
         >
           {magicBusy[fieldKey] ? "⏳" : "✨"}
-        </button>
+        </Button>
       {/if}
     </div>
   </div>
 {/snippet}
 
 <style lang="scss">
+  @use "../mesmer/ui/tokens" as *;
+  @use "../mesmer/ui/physics" as *;
+
   /* WORKBENCH LAYOUT */
   .workbench {
     display: flex;
@@ -711,9 +720,10 @@
 
   /* CARD STRUCTURE */
   .profile-card {
-    width: 850px;
-    height: 650px;
-    background: #09090b;
+    width: 90vw;
+    max-width: 1100px;
+    height: 100%; /* [FIX] Fill Modal Height */
+    background: #050505; /* [POLISH] Deeper background */
     border: 1px solid #27272a;
     border-radius: 12px;
     overflow: hidden;
@@ -722,7 +732,7 @@
     flex-direction: column;
     z-index: 10;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    flex-shrink: 0; /* [FIX] Prevent flex squashing */
+    flex-shrink: 0;
   }
 
   /* SATELLITE CONTAINER */
@@ -793,48 +803,25 @@
     background: #000;
     position: relative;
     overflow: hidden;
-    .image-layer {
-      width: 100%;
-      height: 100%;
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        &.no-bg {
-          object-fit: contain;
-        }
-        &.flipped {
-          transform: scaleX(-1);
-        }
-      }
-      .placeholder {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 4rem;
-        color: #333;
-      }
-    }
   }
 
   .hero-data {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    overflow: hidden;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto; /* [FIX] Unified Scrolling */
   }
 
   .header {
-    padding: 1.5rem 2rem;
+    padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     /* No border bottom, cleaner look */
     .name-input {
       font-family: var(--font-heading);
-      font-weight: 900;
+      font-weight: 700;
       font-size: 2.5rem;
       background: transparent;
       border: none;
@@ -858,37 +845,40 @@
 
   .scroll-content {
     padding: 0 2rem 2rem 2rem;
-    overflow-y: auto;
     flex: 1;
   }
 
   .subtitle {
     font-family: var(--font-body);
-    font-size: 1rem;
+    font-size: 0.95rem;
     color: #a1a1aa;
+    opacity: var(--text-secondary);
     background: transparent;
     border: none;
     width: 100%;
     padding: 0;
     resize: none;
-    margin-bottom: 2rem;
+    margin: 0;
   }
 
   /* GRID MATRIX SYSTEM */
   .matrix-grid {
     display: grid;
-    grid-template-columns: 80px 1fr 1fr;
-    gap: 1.5rem;
-    align-items: center; /* [FIX] Center items vertically */
-    margin-top: 1rem;
+    grid-template-columns: 120px 1fr 1fr; /* [POLISH] Widen labels to 120px */
+    gap: 1.5rem 1rem; /* [POLISH] larger row gap (1.5rem), tight col gap (1rem) */
+    align-items: start; /* [POLISH] Top align for clean hierarchy */
+    margin: 0;
   }
 
   .grid-header {
+    font-family: var(--font-heading);
     font-size: 0.7rem;
     font-weight: bold;
     color: #52525b;
+    opacity: var(--text-tertiary);
     text-transform: uppercase;
     letter-spacing: 1px;
+    text-align: center;
     &.left {
       grid-column: 2;
     }
@@ -899,59 +889,27 @@
 
   .label-col {
     text-align: right;
-    padding-top: 0.5rem;
     .main-label {
-      font-weight: 900;
-      font-size: 0.8rem;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 0.95rem; /* [POLISH] Slightly larger */
       color: var(--hero-color);
+      opacity: var(--text-primary);
       letter-spacing: 0.5px;
       text-transform: uppercase;
       /* Ensure text breaks if needed, but centering handles main alignment */
     }
     .sub-label {
+      font-family: var(--font-body);
       font-size: 0.65rem;
       color: #52525b;
+      opacity: var(--text-tertiary);
       line-height: 1.2;
-      margin-top: 2px;
     }
   }
 
   .span-2 {
     grid-column: 2 / 4;
-  }
-
-  /* MAGIC BOX */
-  .magic-wrapper {
-    position: relative;
-    width: 100%;
-    height: 100%;
-  }
-  .magic-btn {
-    position: absolute;
-    top: 0.25rem;
-    right: 0.25rem;
-    background: rgba(0, 0, 0, 0.3);
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-    padding: 0.25rem 0.5rem;
-    opacity: 0.4;
-    transition: all 0.2s;
-    font-size: 1rem;
-    &:hover {
-      opacity: 1;
-      background: rgba(255, 255, 255, 0.1);
-    }
-    &:disabled {
-      cursor: wait;
-      animation: spin 1s linear infinite;
-    }
-  }
-
-  @keyframes spin {
-    100% {
-      transform: rotate(360deg);
-    }
   }
 
   .clean-area,
@@ -961,9 +919,10 @@
     border: 1px solid #1f1f22;
     color: #d4d4d8;
     font-family: var(--font-body);
+    font-size: 0.85rem;
     line-height: 1.5;
     resize: none;
-    padding: 1rem;
+    padding: 0;
     border-radius: 8px;
     transition: border-color 0.2s;
     &:focus {
@@ -984,12 +943,13 @@
     border: 1px solid transparent; /* Maintain sizing alignment */
     color: #d4d4d8;
     font-family: var(--font-body);
-    padding: 1rem 0; /* Vertical padding */
+    font-size: 0.85rem;
+    padding: 0; /* Clear padding */
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: flex-start; /* [FIX] Left Align Text */
-    padding-left: 1rem; /* [FIX] Add padding for left alignment */
+    padding-left: 0; /* Clear area padding 0 */
     overflow: hidden;
   }
   .read-only-text {
@@ -1000,8 +960,8 @@
 
   /* Darker boxes for the grid items to match screenshot */
   .clean-box {
-    background: #0e0e11;
-    border-color: #1a1a1d;
+    background: rgba(255, 255, 255, 0.03); /* [POLISH] Subtle surface */
+    border-color: rgba(255, 255, 255, 0.05);
   }
 
   /* VISUAL ENGINE STYLES */
@@ -1029,34 +989,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 0.5rem;
   }
-  button {
-    background: #18181b;
-    border: 1px solid #27272a;
-    color: #e4e4e7;
-    padding: 0.5rem;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    &:hover:not(:disabled) {
-      background: #27272a;
-    }
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    &.primary {
-      background: var(--hero-color);
-      color: #000;
-      border-color: var(--hero-color);
-      font-weight: bold;
-    }
-    &.ghost {
-      background: transparent;
-      border-color: transparent;
-      color: #a1a1aa;
-    }
-  }
+  /* button { ... } Removed: All buttons refactored to Button.svelte */
 
   /* FORM ROW / FIELD STACK */
   .field-stack {
@@ -1132,27 +1065,6 @@
     margin-bottom: 1rem;
   }
 
-  .toggle-btn {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #71717a;
-    font-size: 0.75rem;
-    padding: 0.4rem;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s;
-    &:hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: #e4e4e7;
-    }
-    &.active {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--hero-color);
-      border-color: var(--hero-color);
-      box-shadow: 0 0 10px -2px var(--hero-color);
-    }
-  }
-
   /* PLOT WIDGET */
   .plot-widget {
     display: flex;
@@ -1217,20 +1129,6 @@
     }
   }
 
-  .icon-btn {
-    background: transparent;
-    border: none;
-    color: #71717a;
-    cursor: pointer;
-    font-size: 0.9rem;
-    padding: 0 0.25rem;
-    &:hover {
-      color: #e4e4e7;
-    }
-    &.danger:hover {
-      color: #ef4444;
-    }
-  }
   /* AUDIO CONTROLS */
   .voice-row {
     display: flex;
@@ -1243,15 +1141,6 @@
       flex: 1;
       height: 100%; /* Fill container */
       margin-bottom: 0;
-    }
-
-    button {
-      height: 100%; /* Match select */
-      aspect-ratio: 1; /* Square */
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 48px;
     }
   }
 
@@ -1268,18 +1157,27 @@
   /* READ ONLY TEXT DISPLAY */
   .read-only-box {
     width: 100%;
-    background: transparent;
-    border: 1px solid transparent; /* Maintain sizing alignment */
+    background: rgba(
+      255,
+      255,
+      255,
+      0.03
+    ); /* [POLISH] Consistent with clean-box */
+    border: 1px solid rgba(255, 255, 255, 0.05);
     color: #d4d4d8;
     font-family: var(--font-body);
-    padding: 1rem 0; /* Vertical padding */
+    padding: 0.75rem 1rem;
     border-radius: 8px;
     display: flex;
-    align-items: center;
-    justify-content: flex-start; /* [FIX] Left Align Text */
-    padding-left: 0.5rem; /* [FIX] Check padding */
+    align-items: flex-start; /* Top align for multiline */
+    justify-content: flex-start;
     overflow: hidden;
     text-align: left;
+    transition: border-color 0.2s;
+
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+    }
   }
   .read-only-text {
     max-height: 100%;

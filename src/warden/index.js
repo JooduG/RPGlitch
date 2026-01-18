@@ -18,6 +18,7 @@ export const escape = (str) => {
 };
 
 // Stub for now, can be expanded
+// eslint-disable-next-line no-unused-vars
 export const checkRefusal = (text) => false;
 export const clean = (text) => (text ? text.trim() : "");
 
@@ -44,6 +45,7 @@ import { parsePhysicsResponse } from "./logic/parser.js";
 export const Warden = {
   sanitize,
   escape,
+  // eslint-disable-next-line no-unused-vars
   authorizeVisuals: (prompt, options) => true,
   applyLaws,
   parse: parsePhysicsResponse,

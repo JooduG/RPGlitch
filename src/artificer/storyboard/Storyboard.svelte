@@ -13,9 +13,6 @@
   let loading = $state(true);
 
   // Derived Title for Display
-  let storyTitle = $derived(
-    `The Journey of ${app.selectedAi?.name || "..."} & ${app.selectedUser?.name || "..."} in ${app.selectedFractal?.name || "..."}`,
-  );
 
   onMount(async () => {
     try {
@@ -110,8 +107,8 @@
     width: 100%;
     position: fixed;
     inset: 0;
-    align-items: flex-end;
-    padding-bottom: 25vh; /* Grounded shelf look */
+    align-items: center; /* Center items in their row */
+    align-content: center; /* Center the row in the container */
 
     & :global(.skeleton:nth-child(1)) {
       grid-column: 2 / span 2;

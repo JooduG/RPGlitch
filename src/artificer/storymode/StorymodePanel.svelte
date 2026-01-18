@@ -1,5 +1,6 @@
 <script>
   import { app } from "../../gamemaster/state.svelte.js";
+  import Button from "../Button.svelte";
 
   let { entity, mode = "card" } = $props(); // mode: 'card' | 'full'
 
@@ -9,7 +10,6 @@
   let description = $derived(entity?.description || "No data available.");
   let signatureColor = $derived(visuals.signatureColor || "#84cc16"); // Lime default
   let avatar = $derived(visuals.avatar || "");
-  let isFractal = $derived(entity?.type === "fractal");
 </script>
 
 <!-- DYNAMIC CLASS BASED ON MODE -->
@@ -21,8 +21,9 @@
 >
   {#if mode === "card"}
     <!-- === CARD MODE (Standard Lobby/Profile) === -->
-    <button
+    <Button
       class="avatar-btn"
+      variant="ghost"
       onclick={() => app.toggleProfile(true, entity)}
       aria-label="Edit {name}"
     >
@@ -39,7 +40,7 @@
         </div>
       {/if}
       <div class="glow-ring"></div>
-    </button>
+    </Button>
 
     <div class="info-block">
       <h3 class="name" style="color: var(--entity-color)">{name}</h3>
@@ -108,7 +109,7 @@
   }
 
   /* === CARD STYLES === */
-  .avatar-btn {
+  :global(.avatar-btn.btn) {
     position: relative;
     width: 160px;
     height: 160px;
@@ -116,7 +117,6 @@
     background: rgba(0, 0, 0, 0.3);
     border: none;
     padding: 0;
-    cursor: pointer;
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     outline: none;
     backdrop-filter: blur(4px);
@@ -276,7 +276,7 @@
 
   /* Mobile Scaling */
   @media (max-width: 768px) {
-    .avatar-btn {
+    :global(.avatar-btn.btn) {
       width: 100px;
       height: 100px;
     }

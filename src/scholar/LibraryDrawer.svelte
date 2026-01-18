@@ -4,7 +4,6 @@
    * Internalized drawer and card styling.
    */
   import { app } from "../gamemaster/state.svelte.js";
-  import { themeStore } from "../mesmer/logic/theme.svelte.js";
   import { fade, fly } from "svelte/transition";
   import { quintOut } from "svelte/easing";
   import LibraryCard from "./LibraryCard.svelte";
@@ -112,7 +111,8 @@
 {/if}
 
 <style lang="scss">
-  @use "../scss/abstracts" as *;
+  @use "../mesmer/ui/tokens" as *;
+  @use "../mesmer/ui/physics" as *;
 
   /* --- DRAWER CONTAINER --- */
   .entity-drawer {

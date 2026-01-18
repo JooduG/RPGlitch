@@ -1,6 +1,5 @@
 <script>
   import { onMount } from "svelte";
-  import Layout from "./artificer/Layout.svelte";
 
   import Profile from "./scholar/Profile.svelte";
   import ControlPanel from "./warden/ui/ControlPanel.svelte";
@@ -13,7 +12,6 @@
   import { runtime } from "./scholar/runtime.svelte.js";
   import { events, EVENTS, state as gameState } from "./gamemaster/bus.js";
 
-  import { chrono } from "./gamemaster/chrono.svelte.js";
   import { fade } from "svelte/transition";
 
   let mounted = $state(false);

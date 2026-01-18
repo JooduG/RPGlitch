@@ -1,5 +1,6 @@
-@use "../abstracts/variables" as vars;
-@use "../abstracts" as *;
+@use "tokens" as vars;
+@use "tokens" as *;
+@use "physics" as *;
 
 /* ============================================================================
    COMPONENT: BUTTONS
