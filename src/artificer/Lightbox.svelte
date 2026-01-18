@@ -1,6 +1,6 @@
 <script>
-  import Modal from "../../artificer/Modal.svelte";
-  import { app } from "../../gamemaster/state.svelte.js";
+  import { app } from "../gamemaster/state.svelte.js";
+  import Modal from "./Modal.svelte";
 </script>
 
 {#if app.lightbox.active}

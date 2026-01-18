@@ -18,8 +18,9 @@
 </div>
 
 <style lang="scss">
-  @use "../mesmer/ui/tokens" as *;
-  @use "../mesmer/ui/physics" as *;
+  @use "../scss/abstracts/variables" as *;
+  @use "../scss/abstracts/mixins" as *;
+  @use "../scss/abstracts/placeholders" as *;
 
   .skeleton {
     background: rgba(255, 255, 255, 0.05); /* Base 'bone' color */

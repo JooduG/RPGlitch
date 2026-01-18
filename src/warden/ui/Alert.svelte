@@ -3,8 +3,8 @@
    * Warden Alert Modal
    * Simple informational dialog.
    */
-  import { fade, scale } from "svelte/transition";
   import { quintOut } from "svelte/easing";
+  import { fade, scale } from "svelte/transition";
   import Button from "../../artificer/Button.svelte";
 
   let {
@@ -75,8 +75,9 @@
 {/if}
 
 <style lang="scss">
-  @use "../../mesmer/ui/tokens" as *;
-  @use "../../mesmer/ui/physics" as *;
+  @use "../../mesmer/scss/abstracts/variables" as *;
+  @use "../../mesmer/scss/abstracts/mixins" as *;
+  @use "../../mesmer/scss/abstracts/placeholders" as *;
 
   dialog {
     background: transparent;

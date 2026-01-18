@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 // Mock dependencies
 vi.mock("../../../src/gamemaster/llm.js", () => {
@@ -27,14 +27,14 @@ vi.mock("../../../src/scholar/library/context.js", () => {
 
 // utils.js mock removed
 
-vi.mock("../../../src/mesmer/audio/service.js", () => ({
-  audioService: {
+vi.mock("../../../src/mesmer/audio/sound-effects.js", () => ({
+  soundEffects: {
     play: vi.fn(),
   },
 }));
 
-import { Scholar } from "../../../src/scholar/index.js";
 import { LlmService } from "../../../src/gamemaster/llm.js";
+import { Scholar } from "../../../src/scholar/index.js";
 
 describe("Scholar System", () => {
   beforeEach(() => {

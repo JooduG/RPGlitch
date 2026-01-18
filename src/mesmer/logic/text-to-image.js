@@ -7,7 +7,7 @@
 const log = console.log;
 const error = console.error;
 
-export const VisualManager = {
+export const TextToImage = {
   /**
    * Composes a visual prompt from a character profile.
    * @param {Object} entity
@@ -55,18 +55,18 @@ export const VisualManager = {
    */
   async generate(prompt, options = {}) {
     if (!window.textToImage) {
-      error("[VisualManager] textToImage plugin not found.");
+      error("[The_Mesmer] textToImage plugin not found.");
       return null;
     }
 
     try {
-      log("[VisualManager] Generating:", prompt, options);
+      log("[The_Mesmer] Generating:", prompt, options);
       // Mocking the plugin call, assuming perchant textToImage API
       // In a real scenario, this matches the plugin signature
       const result = await window.textToImage(prompt, options);
       return result?.url || result; // Adapt to plugin return type
     } catch (e) {
-      error("[VisualManager] Generation failed:", e);
+      error("[The_Mesmer] Generation failed:", e);
       return null;
     }
   },
@@ -78,16 +78,16 @@ export const VisualManager = {
    */
   async upload(file) {
     if (!window.upload) {
-      error("[VisualManager] upload plugin not found.");
+      error("[The_Mesmer] upload plugin not found.");
       return null;
     }
 
     try {
-      log("[VisualManager] Uploading file:", file.name);
+      log("[The_Mesmer] Uploading file:", file.name);
       const result = await window.upload(file);
       return result?.url || result;
     } catch (e) {
-      error("[VisualManager] Upload failed:", e);
+      error("[The_Mesmer] Upload failed:", e);
       return null;
     }
   },

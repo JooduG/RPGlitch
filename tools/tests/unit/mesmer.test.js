@@ -1,9 +1,9 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+import { soundEffects } from "../../../src/mesmer/audio/sound-effects.js";
 import { Mesmer } from "../../../src/mesmer/index.js";
-import { audioService } from "../../../src/mesmer/audio/service.js";
 
 // Mock dependencies
-vi.mock("../../../src/mesmer/audio/service.js");
+vi.mock("../../../src/mesmer/audio/sound-effects.js");
 
 describe("Mesmer Engine", () => {
   beforeEach(() => {
@@ -13,7 +13,7 @@ describe("Mesmer Engine", () => {
   describe("Audio (Identity)", () => {
     test("play() delegates to audioService", () => {
       Mesmer.play("notification");
-      expect(audioService.play).toHaveBeenCalledWith("notification");
+      expect(soundEffects.play).toHaveBeenCalledWith("notification");
     });
   });
 

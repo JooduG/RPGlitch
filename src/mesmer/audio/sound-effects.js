@@ -2,9 +2,9 @@ const log = console.log;
 
 const STORAGE_KEY = "rpglitch_audio_settings";
 
-class AudioService {
+class SoundEffectsService {
   constructor() {
-    log("[AudioService] Service instantiated.");
+    log("[The_Mesmer] Service instantiated.");
     this.audioContext = null;
     this.buffers = new Map();
     this.unlocked = false;
@@ -24,7 +24,7 @@ class AudioService {
         }
       }
     } catch (e) {
-      console.warn("[AudioService] Failed to load settings:", e);
+      console.warn("[The_Mesmer] Failed to load settings:", e);
     }
   }
 
@@ -34,11 +34,11 @@ class AudioService {
       STORAGE_KEY,
       JSON.stringify({ notificationsEnabled: this.notificationsEnabled }),
     );
-    log("[AudioService] Notifications set to:", this.notificationsEnabled);
+    log("[The_Mesmer] Notifications set to:", this.notificationsEnabled);
   }
 
   init() {
-    log("[AudioService] Initializing event listeners...");
+    log("[The_Mesmer] Initializing event listeners...");
     const unlockHandler = () => {
       this.unlock();
       document.body.removeEventListener("click", unlockHandler);
@@ -66,9 +66,9 @@ class AudioService {
       }
 
       this.unlocked = true;
-      log("🔊 [AUDIO] Context unlocked and ready.");
+      log("🔊 [The_Mesmer] Context unlocked and ready.");
     } catch (e) {
-      log("⚠️ [AUDIO] Failed to unlock AudioContext:", e);
+      log("⚠️ [The_Mesmer] Failed to unlock AudioContext:", e);
     }
   }
 
@@ -100,7 +100,7 @@ class AudioService {
             }
             if (!Array.isArray(soundList)) soundList = [];
           } catch (e) {
-            console.warn("[AudioService] JSON parse warning:", e);
+            console.warn("[The_Mesmer] JSON parse warning:", e);
             soundList = [];
           }
         } else {
@@ -119,7 +119,7 @@ class AudioService {
           }
         }
       } catch (e) {
-        console.error("[AudioService] Config lookup failed:", e);
+        console.error("[The_Mesmer] Config lookup failed:", e);
       }
     }
 
@@ -144,9 +144,9 @@ class AudioService {
       source.connect(this.audioContext.destination);
       source.start(0);
     } catch (e) {
-      console.warn("[AudioService] Playback error:", e);
+      console.warn("[The_Mesmer] Playback error:", e);
     }
   }
 }
 
-export const audioService = new AudioService();
+export const soundEffects = new SoundEffectsService();

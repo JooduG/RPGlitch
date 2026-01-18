@@ -1,0 +1,152 @@
+@use "sass:map";
+@use "sass:color";
+
+/* ============================================================================
+   ABSTRACT: VARIABLES
+   Single source of truth for Design Tokens (Sass Variables).
+   No CSS output.
+   ============================================================================ */
+
+// --- PALETTE: SIGNATURE ---
+$signature-purple: #a855f7;
+$signature-cyan: #06b6d4;
+$signature-blue: #3b82f6;
+$signature-orange: #f97316;
+$signature-pink: #ec4899;
+$signature-red: #ef4444;
+$signature-emerald: #10b981;
+$signature-amber: #f59e0b;
+$signature-yellow: #eab308;
+
+$signature-colors: (
+  "purple": (
+    "color": $signature-purple,
+  ),
+  "cyan": (
+    "color": $signature-cyan,
+  ),
+  "blue": (
+    "color": $signature-blue,
+  ),
+  "orange": (
+    "color": $signature-orange,
+  ),
+  "pink": (
+    "color": $signature-pink,
+  ),
+  "red": (
+    "color": $signature-red,
+  ),
+  "emerald": (
+    "color": $signature-emerald,
+  ),
+  "amber": (
+    "color": $signature-amber,
+  ),
+  "yellow": (
+    "color": $signature-yellow,
+  ),
+);
+
+// --- PALETTE: THEME SURFACES ---
+$app-background: #11191f;
+$app-background-dark: #0f1116;
+$card-background: #2b3848;
+$card-background-dark: #1a1d2e;
+$form-background: #3b4b5d;
+$form-background-dark: #1a1d2e;
+$component-bg: #050505;
+$component-bg-rgb: 5, 5, 5;
+
+// --- PALETTE: SYSTEM ---
+$pico-del-color: #dc3545;
+$color-accent: #ff7ad5;
+$muted-color-light: #a0a0a0;
+$muted-color-dark: #94a3b8;
+$border-color-light: #555;
+$border-color-dark: #334155;
+
+// --- PALETTE: APP THEME ---
+$app-primary: $signature-purple;
+$app-primary-inverse: #fff;
+$app-primary-hover: color.adjust($signature-purple, $lightness: 5%);
+$app-primary-focus: color.adjust($signature-purple, $lightness: 10%);
+$app-secondary: $signature-blue;
+$app-secondary-inverse: #fff;
+$app-secondary-hover: color.adjust($signature-blue, $lightness: 5%);
+$signature-text-on: #fff;
+
+// --- GRADIENTS ---
+$gradient-color-1: #181c2f;
+$gradient-color-2: #23243a;
+$gradient-color-3: #1a3a4a;
+$gradient-color-4: #2a1a3a;
+
+// --- TYPOGRAPHY: FONTS ---
+$emoji-stack:
+  "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+$font-heading: "Ubuntu", sans-serif;
+$font-body: ("Inter", sans-serif, $emoji-stack);
+$font-monospace: (
+  "Menlo",
+  "Consolas",
+  "Roboto Mono",
+  "Ubuntu Monospace",
+  "Noto Mono",
+  "Oxygen Mono",
+  "Liberation Mono",
+  "monospace",
+  $emoji-stack
+);
+$font-family-headings: "Ubuntu", sans-serif, $emoji-stack;
+
+// --- TYPOGRAPHY: SCALING ---
+$viewport-scaling: (
+  576px: 106.25%,
+  768px: 112.5%,
+  1024px: 118.75%,
+  1280px: 125%,
+  1536px: 131.25%,
+);
+$h-spacing: (
+  h1: 3rem,
+  h2: 2.625rem,
+  h3: 2.25rem,
+  h4: 1.874rem,
+  h5: 1.6875rem,
+  h6: 1.5rem,
+);
+
+// --- LAYOUT & METRICS ---
+$top-bar-height: 3rem;
+$header-height: 6rem;
+$app-container-pad: 1rem;
+$border-radius: 0.25rem;
+$transition-speed: 0.2s;
+$spacing-xs: 0.25rem;
+$spacing-sm: 0.5rem;
+$spacing-sm-md: 0.75rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.5rem;
+$spacing-xl: 2rem;
+
+// --- BREAKPOINTS ---
+$breakpoint-mobile: 768px;
+$breakpoint-tablet: 1024px;
+
+// --- UI TOKENS ---
+$ui-glass-border: rgb(255 255 255 / 10%);
+$ui-glass-hover: rgb(255 255 255 / 5%);
+$rp-text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
+
+// --- Z-INDEX SCALE ---
+$z-map: (
+  base: 10,
+  chip: 20,
+  ui: 50,
+  mobile-drawer-container: 90,
+  overlay: 100,
+  modal: 150,
+  drawer: 2000,
+  toast: 10000,
+);

@@ -1,7 +1,7 @@
 <script>
+  import Button from "../../artificer/Button.svelte";
   import { app } from "../../gamemaster/state.svelte.js";
   import { storyboard } from "./storyboardActions.svelte.js";
-  import Button from "../../artificer/Button.svelte";
 
   // Direct function calls (CustomEvents blocked in Perchance sandbox)
   const onShuffle = () => storyboard.shuffle();
@@ -68,9 +68,7 @@
     display: flex;
     align-items: center;
     background: rgba(
-      20,
-      20,
-      25,
+      var(--app-component-bg-rgb),
       0.85
     ); /* Slightly darker for better contrast */
     backdrop-filter: blur(12px);

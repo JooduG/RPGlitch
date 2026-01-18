@@ -74,8 +74,9 @@
 </div>
 
 <style lang="scss">
-  @use "../mesmer/ui/tokens" as *;
-  @use "../mesmer/ui/physics" as *;
+  @use "../mesmer/scss/abstracts/variables" as *;
+  @use "../mesmer/scss/abstracts/mixins" as *;
+  @use "../mesmer/scss/abstracts/placeholders" as *;
 
   /* ------------------------------------------------------------
      THE 10-COLUMN GRID SYSTEM
@@ -144,7 +145,7 @@
   .stage-header {
     /* Position from vertical center, not from top edge */
     position: absolute;
-    top: calc(50% - 20rem); /* 22rem above center (adjust to taste) */
+    top: calc(50% - 40%);
     left: 0;
     right: 0;
     align-items: flex-end; /* Align content to bottom of header area */
@@ -152,9 +153,7 @@
   .stage-footer {
     /* Position from vertical center, not from bottom edge */
     position: absolute;
-    bottom: calc(
-      50% - 17rem
-    ); /* 18rem below center (accounts for pill height) */
+    bottom: calc(50% - 35%);
     left: 0;
     right: 0;
     align-items: flex-start; /* Align content to top of footer area */

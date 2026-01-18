@@ -1,15 +1,28 @@
 /* FILE: src/mesmer/index.js */
-import { audioService } from "./audio/service.js";
-import { voiceService } from "./audio/voice.svelte.js"; // <--- THE NEW REACTIVE VOICE
-import { VisualManager } from "./logic/manager.js";
-import { LlmService } from "../gamemaster/llm.js";
-import { events, EVENTS, store as state } from "../gamemaster/index.js";
 import { CONFIG, ROLES } from "../gamemaster/config.js";
-import { entities, ContextBuilder } from "../scholar/index.js";
+import { events, EVENTS, store as state } from "../gamemaster/index.js";
+import { LlmService } from "../gamemaster/llm.js";
+import { ContextBuilder, entities } from "../scholar/index.js";
+import { soundEffects } from "./audio/sound-effects.js";
+import { textToSpeech } from "./audio/text-to-speech.svelte.js"; // <--- THE NEW REACTIVE VOICE
+import { TextToImage } from "./logic/text-to-image.js";
 
 const error = console.error;
 const { PHYSICS } = CONFIG;
 const PHYSICS_CONSTANTS = PHYSICS;
+
+export const VISUAL_CORTEX = `
+[VISUAL_CORTEX]
+- You have access to a visual generation engine.
+- To generate an image, output a separate line: <image_prompt>Description of the image</image_prompt>.
+- The description should be visual, detailed, and artistic.
+- Do NOT include the <image_prompt> block inside the <think> block.
+`;
+
+export const MESMER_CONSTANTS = {
+  FADE_DURATION: 300,
+  TOAST_DURATION: 3000,
+};
 
 /**
  * THE MESMER
@@ -24,14 +37,14 @@ export const Mesmer = {
    * Usage: Mesmer.voice.speak("Hello")
    * usage: $derived(Mesmer.voice.isSpeaking)
    */
-  voice: voiceService,
+  voice: textToSpeech,
 
   /**
    * Play a sound effect or notification.
    * @param {string} soundId - "notification", "click", "error", etc.
    */
   play: (soundId) => {
-    return audioService.play(soundId);
+    return soundEffects.play(soundId);
   },
 
   // --- THEME (ILLUSION: MOOD) ---
@@ -42,25 +55,6 @@ export const Mesmer = {
   setTheme: (element, colorName) => {
     if (!element) return;
     element.style.setProperty("--primary", colorName);
-  },
-
-  /**
-   * Get the hex code for a color name.
-   */
-  getColor: (colorName) => {
-    const colors = {
-      cyan: "#00ffff",
-      magenta: "#ff00ff",
-      lime: "#00ff00",
-      yellow: "#ffff00",
-      orange: "#ffa500",
-      zinc: "#71717a",
-      emerald: "#10b981",
-      indigo: "#6366f1",
-      purple: "#a855f7",
-      pink: "#ec4899",
-    };
-    return colors[colorName] || colorName;
   },
 
   // --- VISUALS (ILLUSION: LIGHT) ---
@@ -113,18 +107,18 @@ export const Mesmer = {
         .replace(/<image_prompt[^>]*>|<\/image_prompt>/gi, "")
         .trim();
 
-      const resolution = VisualManager.getResolutionForMode(
+      const resolution = TextToImage.getResolutionForMode(
         options.aspect || vTarget,
       );
 
-      const imageUrl = await VisualManager.generate(cleanRefinedPrompt, {
+      const imageUrl = await TextToImage.generate(cleanRefinedPrompt, {
         resolution,
         guidanceScale: options.guidanceScale,
       });
 
       return { imageUrl, refinedPrompt: cleanRefinedPrompt, opticsThoughts };
     } catch (visErr) {
-      error("[MESMER] Visual Generation Failed:", visErr);
+      error("[The_Mesmer] Visual Generation Failed:", visErr);
       return { imageUrl: null, refinedPrompt: null, opticsThoughts: null };
     } finally {
       events.dispatchEvent(
@@ -150,13 +144,13 @@ export const Mesmer = {
       );
 
       const refinedPrompt = await LlmService.generate({ system, messages: [] });
-      const imageUrl = await VisualManager.generate(refinedPrompt, {
+      const imageUrl = await TextToImage.generate(refinedPrompt, {
         resolution: "512x768",
       });
 
       return imageUrl;
     } catch (e) {
-      error("[MESMER] Extraction Failed:", e);
+      error("[The_Mesmer] Extraction Failed:", e);
       throw e;
     }
   },

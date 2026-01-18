@@ -1,13 +1,13 @@
 <script>
   import { onMount } from "svelte";
   import { app } from "../../gamemaster/state.svelte.js";
+  import Illusion from "../../mesmer/ui/Illusion.svelte";
   import { entities } from "../../scholar/database/repository.js";
-  import Layout from "../Layout.svelte";
-  import StoryboardPill from "./StoryboardPill.svelte";
-  import StoryboardCard from "./StoryboardCard.svelte";
   import LibraryDrawer from "../../scholar/LibraryDrawer.svelte";
-  import Skeleton from "../Skeleton.svelte";
+  import Layout from "../Layout.svelte";
+  import StoryboardCard from "./StoryboardCard.svelte";
   import StoryboardDynamicTitle from "./StoryboardDynamicTitle.svelte";
+  import StoryboardPill from "./StoryboardPill.svelte";
 
   // --- STATE ---
   let loading = $state(true);
@@ -39,9 +39,9 @@
 {#if loading}
   <!-- Global Skeleton Loader -->
   <div class="skeleton-boot">
-    <Skeleton variant="card" width="25vh" height="40vh" />
-    <Skeleton variant="card" width="40vh" height="25vh" />
-    <Skeleton variant="card" width="25vh" height="40vh" />
+    <Illusion variant="card" width="25vh" height="40vh" />
+    <Illusion variant="card" width="40vh" height="25vh" />
+    <Illusion variant="card" width="25vh" height="40vh" />
   </div>
 {:else}
   <Layout align="end">

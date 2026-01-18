@@ -1,9 +1,10 @@
-@use "../mesmer/ui/tokens" as *;
-@use "../mesmer/ui/physics" as *;
+@use "../abstracts/variables" as vars;
+@use "../abstracts/mixins" as *;
+@use "../abstracts/placeholders" as *;
 
 /* ============================================================================
    LAYOUT: SMARTPHONE MODE (MESSENGER THEME)
-   Transforms the UI into a handheld device simulation.
+   Transforms the UI into a handheld device simulation (Storymode).
    ============================================================================ */
 
 .theme-smartphone.storymode {
@@ -161,8 +162,8 @@
 
       // USER (Right)
       &.chat-bubble--user {
-        background: rgb(var(--user-signature-rgb)) !important;
-        color: var(--app-primary-inverse) !important;
+        background: rgb(var(--user-signature-rgb));
+        color: var(--app-primary-inverse);
         border-bottom-right-radius: 4px !important;
         align-self: flex-end !important;
         text-align: left !important;
@@ -170,8 +171,8 @@
 
       // AI (Left)
       &.chat-bubble--character {
-        background: rgb(var(--ai-signature-rgb)) !important;
-        color: #fff !important;
+        background: rgb(var(--ai-signature-rgb));
+        color: #fff;
         border-bottom-left-radius: 4px !important;
         align-self: flex-start !important;
         margin-left: var(--space-sm) !important;
@@ -216,7 +217,7 @@
     }
 
     .typing-bubble {
-      background-color: rgb(var(--ai-signature-rgb)) !important;
+      background-color: rgb(var(--ai-signature-rgb));
       border-radius: 18px !important;
       border-bottom-left-radius: 4px !important;
       margin-left: var(--space-sm) !important;

@@ -1,16 +1,27 @@
 <script>
+  import DOMPurify from "dompurify";
   import Button from "../artificer/Button.svelte";
   import Modal from "../artificer/Modal.svelte";
   import { CONFIG } from "../gamemaster/config.js";
   import { app } from "../gamemaster/state.svelte.js";
-  import { audioService } from "../mesmer/audio/service.js";
-  import { voiceService } from "../mesmer/audio/voice.svelte.js";
-  import { VisualManager } from "../mesmer/logic/manager.js";
+  import { soundEffects } from "../mesmer/audio/sound-effects.js";
+  import { textToSpeech } from "../mesmer/audio/text-to-speech.svelte.js";
+  import { TextToImage } from "../mesmer/logic/text-to-image.js";
   import { themeStore } from "../mesmer/logic/theme.svelte.js";
   import ProfilePicture from "../mesmer/ui/ProfilePicture.svelte";
   import { entities } from "./database/repository.js";
   import { Scholar } from "./index.js";
   import { runtime } from "./runtime.svelte.js";
+
+  // --- UTILS ---
+  function formatMarkdownLite(text) {
+    if (!text) return "";
+    // Bold: **text**
+    let html = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    // Italic: *text*
+    html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
+    return html;
+  }
 
   let isEditing = $state(false);
   let isSaving = $state(false);
@@ -37,7 +48,7 @@
 
   // Voice Logic
   // [MODERNIZED] Use Reactive Service directly (No manual sync)
-  let voices = $derived(voiceService.voices);
+  let voices = $derived(textToSpeech.voices);
   let selectedVoice = $derived(voices.find((v) => v.uri === char.voice?.uri));
   let isNaturalVoice = $derived(
     selectedVoice &&
@@ -101,16 +112,26 @@
     }
   }
 
-  // --- VISUAL ENGINE HANDLERS ---
+  $effect(() => {
+    // Watch for ID changes to reset local UI state
+    // This replaces the {#key} wrapper which was causing reconciliation crashes
+    if (char?.id) {
+      visualPrompt = "";
+      magicBusy = {};
+      isEditing = false;
+    }
+  });
+
+  // --- AUDIO & VISUAL LOGIC ---
 
   async function handleExtract() {
-    visualPrompt = VisualManager.composePrompt(char);
+    visualPrompt = TextToImage.composePrompt(char);
   }
 
   async function handlePaint() {
     try {
       visualBusy = true;
-      const url = await VisualManager.generate(visualPrompt, {
+      const url = await TextToImage.generate(visualPrompt, {
         resolution: char.type === "fractal" ? "768x768" : "512x768",
         removeBackground: char.visuals.noBackground,
       });
@@ -140,7 +161,7 @@
       visualBusy = true;
       // Use new AI-powered enhancer
       visualPrompt = await Scholar.enhanceVisual(visualPrompt, char);
-      audioService.play("notification");
+      soundEffects.play("notification");
     } catch (e) {
       console.error("Enhance failed:", e);
     } finally {
@@ -153,7 +174,7 @@
     if (!file) return;
     try {
       visualBusy = true;
-      const url = await VisualManager.upload(file);
+      const url = await TextToImage.upload(file);
       if (url) char.visuals.profilePictureUrl = url;
     } catch (err) {
       console.error(err);
@@ -248,419 +269,424 @@
 </script>
 
 {#if char && char.id}
-  <Modal variant="canvas" onclose={handleImplicitClose}>
-    <!-- Apply the signature color to the workbench so children can inherit it -->
-    <!-- Wiring Fix: allow click on workbench to close -->
-    <div
-      class="workbench"
-      style="--hero-color: {char.visuals.signatureColor}"
-      role="presentation"
-      onclick={(e) => {
-        // Soft Cancel / Close logic
-        if (e.target === e.currentTarget) handleImplicitClose();
-      }}
-    >
-      <!-- LEFT SATELLITE: Creative Tools (Now Split) -->
-      <div class="satellite left" class:visible={isEditing}>
-        <!-- VISUAL BOX -->
-        <div class="panel-box top">
-          <div class="panel-section">
-            <div class="visual-engine">
-              <textarea
-                bind:value={visualPrompt}
-                disabled={visualBusy}
-                placeholder="Describe appearance..."
-                rows="4"
-              ></textarea>
-              <div class="controls-grid">
-                {#if !hasPromptContent}
-                  <Button
-                    label="🔮 Extract"
-                    onclick={handleExtract}
-                    disabled={visualBusy}
-                    title="Extract description from profile"
+  {#key char.id}
+    <Modal variant="canvas" onclose={handleImplicitClose}>
+      <!-- Apply the signature color to the workbench so children can inherit it -->
+      <!-- Wiring Fix: allow click on workbench to close -->
+      <div
+        class="workbench"
+        style="--hero-color: {char.visuals.signatureColor}"
+        role="presentation"
+        onclick={(e) => {
+          // Soft Cancel / Close logic
+          if (e.target === e.currentTarget) handleImplicitClose();
+        }}
+      >
+        <!-- LEFT SATELLITE: Creative Tools (Now Split) -->
+        <div class="satellite left" class:visible={isEditing}>
+          <!-- VISUAL BOX -->
+          <div class="panel-box top">
+            <div class="panel-section">
+              <div class="visual-engine">
+                <textarea
+                  bind:value={visualPrompt}
+                  disabled={visualBusy}
+                  placeholder="Describe appearance..."
+                  rows="4"
+                ></textarea>
+                <div class="controls-grid">
+                  {#if !hasPromptContent}
+                    <Button
+                      label="🔮 Extract"
+                      onclick={handleExtract}
+                      disabled={visualBusy}
+                      title="Extract description from profile"
+                    />
+                    <Button
+                      label="📂 Upload"
+                      onclick={handleUpload}
+                      disabled={visualBusy}
+                      title="Upload Reference"
+                    />
+                  {:else if isPromptUrl}
+                    <Button
+                      label="🔗 Use URL"
+                      onclick={handleUploadUrl}
+                      disabled={visualBusy}
+                    />
+                    <Button
+                      label="❌ Clear"
+                      variant="ghost"
+                      onclick={() => (visualPrompt = "")}
+                      disabled={visualBusy}
+                    />
+                  {:else}
+                    <Button
+                      label="✨ Enhance"
+                      onclick={handleEnhancePrompt}
+                      disabled={visualBusy}
+                      title="Enhance prompt with AI"
+                    />
+                    <Button
+                      label={visualBusy ? "🎨 Painting..." : "🎨 Paint"}
+                      variant="primary"
+                      onclick={handlePaint}
+                      disabled={visualBusy}
+                      title="Generate Image"
+                    />
+                  {/if}
+                  <input
+                    type="file"
+                    id="profile-upload-trigger"
+                    hidden
+                    onchange={handleFileChange}
+                    accept="image/*"
                   />
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-section">
+              <div class="field-stack">
+                <div class="controls-grid compact">
                   <Button
-                    label="📂 Upload"
-                    onclick={handleUpload}
-                    disabled={visualBusy}
-                    title="Upload Reference"
-                  />
-                {:else if isPromptUrl}
-                  <Button
-                    label="🔗 Use URL"
-                    onclick={handleUploadUrl}
-                    disabled={visualBusy}
-                  />
-                  <Button
-                    label="❌ Clear"
                     variant="ghost"
-                    onclick={() => (visualPrompt = "")}
+                    className="toggle-btn {char.visuals.noBackground
+                      ? 'active'
+                      : ''}"
                     disabled={visualBusy}
-                  />
-                {:else}
+                    onclick={() =>
+                      (char.visuals.noBackground = !char.visuals.noBackground)}
+                    title="Toggle Transparent Background"
+                  >
+                    {char.visuals.noBackground ? "No BG: ON" : "No BG: OFF"}
+                  </Button>
                   <Button
-                    label="✨ Enhance"
-                    onclick={handleEnhancePrompt}
+                    variant="ghost"
+                    className="toggle-btn {char.visuals.flipped
+                      ? 'active'
+                      : ''}"
                     disabled={visualBusy}
-                    title="Enhance prompt with AI"
-                  />
-                  <Button
-                    label={visualBusy ? "🎨 Painting..." : "🎨 Paint"}
-                    variant="primary"
-                    onclick={handlePaint}
-                    disabled={visualBusy}
-                    title="Generate Image"
-                  />
-                {/if}
-                <input
-                  type="file"
-                  id="profile-upload-trigger"
-                  hidden
-                  onchange={handleFileChange}
-                  accept="image/*"
-                />
+                    onclick={() =>
+                      (char.visuals.flipped = !char.visuals.flipped)}
+                    title="Flip Image Horizontally"
+                  >
+                    {char.visuals.flipped ? "Flip: ON" : "Flip: OFF"}
+                  </Button>
+                </div>
+
+                <div class="range-row">
+                  <div class="color-grid">
+                    <!-- Ensure Orange (#f97316) is available -->
+                    {#each Object.entries(CONFIG.PALETTE || {}) as [name, hex] (name)}
+                      {#if name !== "default"}
+                        <button
+                          class="color-swatch"
+                          style="background: {hex}"
+                          class:active={char.visuals.signatureColor === hex}
+                          onclick={() => setSignatureColor(hex)}
+                          title={name}
+                        ></button>
+                      {/if}
+                    {/each}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="panel-section">
-            <div class="field-stack">
-              <div class="controls-grid compact">
-                <Button
-                  variant="ghost"
-                  className="toggle-btn {char.visuals.noBackground
-                    ? 'active'
-                    : ''}"
-                  disabled={visualBusy}
-                  onclick={() =>
-                    (char.visuals.noBackground = !char.visuals.noBackground)}
-                  title="Toggle Transparent Background"
-                >
-                  {char.visuals.noBackground ? "No BG: ON" : "No BG: OFF"}
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="toggle-btn {char.visuals.flipped ? 'active' : ''}"
-                  disabled={visualBusy}
-                  onclick={() => (char.visuals.flipped = !char.visuals.flipped)}
-                  title="Flip Image Horizontally"
-                >
-                  {char.visuals.flipped ? "Flip: ON" : "Flip: OFF"}
-                </Button>
-              </div>
-
-              <div class="range-row">
-                <div class="color-grid">
-                  <!-- Ensure Orange (#f97316) is available -->
-                  {#each Object.entries( { ...CONFIG.PALETTE, orange: "#f97316" }, ) as [name, hex] (name)}
-                    {#if name !== "default"}
-                      <button
-                        class="color-swatch"
-                        style="background: {hex}"
-                        class:active={char.visuals.signatureColor === hex}
-                        onclick={() => setSignatureColor(hex)}
-                        title={name}
-                      ></button>
-                    {/if}
-                  {/each}
+          <!-- AUDIO BOX -->
+          <div class="panel-box bottom">
+            <div class="panel-section">
+              <div class="field-stack">
+                <div class="voice-row">
+                  <select id="voice-select" bind:value={char.voice.uri}>
+                    <option value="">System Default</option>
+                    {#each voices as voice, i (i)}
+                      <option value={voice.uri}>{voice.name}</option>
+                    {/each}
+                  </select>
+                  <Button
+                    variant="ghost"
+                    className="icon-btn"
+                    onclick={() =>
+                      textToSpeech.preview(
+                        char.voice?.uri,
+                        char.voice?.rate,
+                        char.voice?.pitch,
+                      )}
+                    title="Preview Voice">🔊</Button
+                  >
+                </div>
+                <div class="slider-grid">
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="2"
+                    step="0.1"
+                    bind:value={char.voice.rate}
+                    title="Rate: {Number(char.voice?.rate || 1).toFixed(1)}x"
+                  />
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="2"
+                    step="0.1"
+                    bind:value={char.voice.pitch}
+                    disabled={isNaturalVoice}
+                    style="opacity: {isNaturalVoice ? 0.5 : 1}"
+                    title="Pitch: {Number(char.voice?.pitch || 1).toFixed(1)}"
+                  />
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- AUDIO BOX -->
-        <div class="panel-box bottom">
-          <div class="panel-section">
-            <div class="field-stack">
-              <div class="voice-row">
-                <select id="voice-select" bind:value={char.voice.uri}>
-                  <option value="">System Default</option>
-                  {#each voices as voice (voice.uri)}
-                    <option value={voice.uri}>{voice.name}</option>
-                  {/each}
-                </select>
-                <Button
-                  variant="ghost"
-                  className="icon-btn"
-                  onclick={() =>
-                    voiceService.preview(
-                      char.voice?.uri,
-                      char.voice?.rate,
-                      char.voice?.pitch,
-                    )}
-                  title="Preview Voice">🔊</Button
-                >
-              </div>
-              <div class="slider-grid">
-                <input
-                  type="range"
-                  min="0.5"
-                  max="2"
-                  step="0.1"
-                  bind:value={char.voice.rate}
-                  title="Rate: {Number(char.voice?.rate || 1).toFixed(1)}x"
-                />
-                <input
-                  type="range"
-                  min="0.5"
-                  max="2"
-                  step="0.1"
-                  bind:value={char.voice.pitch}
-                  disabled={isNaturalVoice}
-                  style="opacity: {isNaturalVoice ? 0.5 : 1}"
-                  title="Pitch: {Number(char.voice?.pitch || 1).toFixed(1)}"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- CENTER: The Entity Card (WYSIWYG) -->
-      <div class="profile-card">
-        <div class="hero-layout">
-          <!-- VISUALS (Image Only) -->
-          <div class="hero-visuals">
-            <ProfilePicture entity={char} />
-          </div>
-
-          <!-- DATA BOARD -->
-          <div class="hero-data">
-            <div class="header">
-              <textarea
-                class="name-input"
-                rows="2"
-                bind:value={char.name}
-                readonly={!isEditing}
-                placeholder="Name"
-                style="color: var(--hero-color)"
-              ></textarea>
+        <!-- CENTER: The Entity Card (WYSIWYG) -->
+        <div class="profile-card">
+          <div class="hero-layout">
+            <!-- VISUALS (Image Only) -->
+            <div class="hero-visuals">
+              <ProfilePicture entity={char} />
             </div>
 
-            <div class="scroll-content">
-              <!-- Subtitle -->
-              <div class="field description-field">
+            <!-- DATA BOARD -->
+            <div class="hero-data">
+              <div class="header">
                 <textarea
-                  class="clean-area subtitle"
-                  bind:value={char.description}
+                  class="name-input"
+                  rows="2"
+                  bind:value={char.name}
                   readonly={!isEditing}
-                  placeholder="Character Description"
+                  placeholder="Name"
+                  style="color: var(--hero-color)"
                 ></textarea>
               </div>
 
-              <!-- Grid Matrix -->
-              <div class="matrix-grid">
-                <!-- HEADER ROW -->
-                <div class="grid-header left">NON-PHYSICAL</div>
-                <div class="grid-header right">PHYSICAL</div>
-
-                <!-- ETERNAL ROW -->
-                <div class="label-col">
-                  <div class="main-label">FOREVER</div>
-                  <div class="sub-label">Immutable Traits</div>
-                </div>
-                <div class="field-cell">
-                  {@render magicField(
-                    null,
-                    char.eternal,
-                    "mental",
-                    "eternal.mental",
-                    4,
-                  )}
-                </div>
-                <div class="field-cell">
-                  {@render magicField(
-                    null,
-                    char.eternal,
-                    "physical",
-                    "eternal.physical",
-                    4,
-                  )}
+              <div class="scroll-content">
+                <!-- Subtitle -->
+                <div class="field description-field">
+                  <textarea
+                    class="clean-area subtitle"
+                    bind:value={char.description}
+                    readonly={!isEditing}
+                    placeholder="Character Description"
+                  ></textarea>
                 </div>
 
-                <!-- PRESENT ROW -->
-                <div class="label-col">
-                  <div class="main-label">PRESENT</div>
-                  <div class="sub-label">Current State</div>
-                </div>
-                <div class="field-cell">
-                  {@render magicField(
-                    null,
-                    char.present,
-                    "mental",
-                    "present.mental",
-                    4,
-                  )}
-                </div>
-                <div class="field-cell">
-                  {@render magicField(
-                    null,
-                    char.present,
-                    "physical",
-                    "present.physical",
-                    4,
-                  )}
-                </div>
+                <!-- Grid Matrix -->
+                <div class="matrix-grid">
+                  <!-- HEADER ROW -->
+                  <div class="grid-header left">NON-PHYSICAL</div>
+                  <div class="grid-header right">PHYSICAL</div>
 
-                <!-- PAST ROW -->
-                <div class="label-col">
-                  <div class="main-label">PAST</div>
-                  <div class="sub-label">Memories & History</div>
-                </div>
-                <div class="span-2">
-                  {@render magicField(null, char, "past", "past", 4)}
-                </div>
+                  <!-- ETERNAL ROW -->
+                  <div class="label-col">
+                    <div class="main-label">FOREVER</div>
+                    <div class="sub-label">Immutable Traits</div>
+                  </div>
+                  <div class="field-cell">
+                    {@render magicField(
+                      null,
+                      char.eternal,
+                      "mental",
+                      "eternal.mental",
+                      4,
+                    )}
+                  </div>
+                  <div class="field-cell">
+                    {@render magicField(
+                      null,
+                      char.eternal,
+                      "physical",
+                      "eternal.physical",
+                      4,
+                    )}
+                  </div>
 
-                <!-- FUTURE ROW -->
-                <div class="label-col">
-                  <div class="main-label">FUTURE</div>
-                  <div class="sub-label">Ambitions & Goals</div>
-                </div>
-                <div class="span-2">
-                  {@render magicField(null, char, "future", "future", 4)}
+                  <!-- PRESENT ROW -->
+                  <div class="label-col">
+                    <div class="main-label">PRESENT</div>
+                    <div class="sub-label">Current State</div>
+                  </div>
+                  <div class="field-cell">
+                    {@render magicField(
+                      null,
+                      char.present,
+                      "mental",
+                      "present.mental",
+                      4,
+                    )}
+                  </div>
+                  <div class="field-cell">
+                    {@render magicField(
+                      null,
+                      char.present,
+                      "physical",
+                      "present.physical",
+                      4,
+                    )}
+                  </div>
+
+                  <!-- PAST ROW -->
+                  <div class="label-col">
+                    <div class="main-label">PAST</div>
+                    <div class="sub-label">Memories & History</div>
+                  </div>
+                  <div class="span-2">
+                    {@render magicField(null, char, "past", "past", 4)}
+                  </div>
+
+                  <!-- FUTURE ROW -->
+                  <div class="label-col">
+                    <div class="main-label">FUTURE</div>
+                    <div class="sub-label">Ambitions & Goals</div>
+                  </div>
+                  <div class="span-2">
+                    {@render magicField(null, char, "future", "future", 4)}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- ACTION FOOTER -->
-            <div class="card-footer">
+              <!-- ACTION FOOTER -->
+              <div class="card-footer">
+                {#if isEditing}
+                  <Button
+                    label="Delete"
+                    variant="danger"
+                    onclick={deleteEntity}
+                  />
+                  <Button
+                    label="Save Changes"
+                    variant="primary"
+                    onclick={save}
+                    disabled={isSaving}
+                  />
+                {:else}
+                  <Button
+                    label="Edit"
+                    variant="secondary"
+                    onclick={() => (isEditing = true)}
+                  />
+                {/if}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT SATELLITE: Dev Tools -->
+        <div class="satellite right panel-box" class:visible={devMode}>
+          <div class="panel-section">
+            <div class="dynamics-grid">
+              {#each Object.entries(char.dynamics || {}) as [k, v] (k)}
+                <div class="dynamic-item">
+                  <span class="label">{k}</span>
+                  {#if isEditing}
+                    <input
+                      type="range"
+                      class="dynamic-slider"
+                      min="0"
+                      max="100"
+                      bind:value={char.dynamics[k]}
+                      title="{k}: {v}"
+                    />
+                  {:else}
+                    <div class="bar-bg">
+                      <div
+                        class="bar-fill"
+                        style="width: {v}%; background: var(--hero-color);"
+                      ></div>
+                    </div>
+                  {/if}
+                </div>
+              {/each}
+            </div>
+          </div>
+
+          <!-- PLOT TRACKER (New) -->
+          <div class="panel-section">
+            <div class="plot-widget">
               {#if isEditing}
-                <Button
-                  label="Delete"
-                  variant="danger"
-                  onclick={deleteEntity}
-                />
-                <Button
-                  label="Save Changes"
-                  variant="primary"
-                  onclick={save}
-                  disabled={isSaving}
-                />
+                <div class="plot-controls">
+                  <input
+                    type="text"
+                    class="rpg-input small"
+                    placeholder="New plot thread..."
+                    bind:value={plotInput}
+                    onkeydown={(e) => e.key === "Enter" && addPlotThread()}
+                  />
+                  <Button
+                    label="Add"
+                    variant="secondary"
+                    onclick={addPlotThread}
+                  />
+                </div>
+
+                <div class="plot-list">
+                  {#each char.customData?.plot?.active || [] as thread, i (i)}
+                    <div class="plot-item active">
+                      <span class="bullet" style="color: var(--hero-color)"
+                        >●</span
+                      >
+                      <span class="text">{thread}</span>
+                      <div class="actions">
+                        <Button
+                          variant="ghost"
+                          className="icon-btn"
+                          onclick={() => resolvePlotThread(i)}
+                          title="Resolve">✓</Button
+                        >
+                        <Button
+                          variant="ghost"
+                          className="icon-btn danger"
+                          onclick={() => deletePlotThread("active", i)}
+                          title="Delete">×</Button
+                        >
+                      </div>
+                    </div>
+                  {/each}
+
+                  {#each char.customData?.plot?.resolved || [] as thread, i (i)}
+                    <div class="plot-item resolved">
+                      <span class="bullet">○</span>
+                      <span class="text">{thread}</span>
+                      <Button
+                        variant="ghost"
+                        className="icon-btn danger"
+                        onclick={() => deletePlotThread("resolved", i)}
+                        title="Delete">×</Button
+                      >
+                    </div>
+                  {/each}
+                </div>
               {:else}
-                <Button
-                  label="Edit"
-                  variant="secondary"
-                  onclick={() => (isEditing = true)}
-                />
+                <!-- READ ONLY MODE -->
+                <ul class="plot-read-only">
+                  {#each char.customData?.plot?.active || [] as thread, i (i)}
+                    <li>
+                      <span class="bullet" style="color: var(--hero-color)"
+                        >●</span
+                      >
+                      {thread}
+                    </li>
+                  {/each}
+                  {#if (char.customData?.plot?.active || []).length === 0}
+                    <li class="empty">No active plot threads.</li>
+                  {/if}
+                  {#each char.customData?.plot?.resolved || [] as thread, i (i)}
+                    <li class="resolved">
+                      {thread}
+                    </li>
+                  {/each}
+                </ul>
               {/if}
             </div>
           </div>
         </div>
       </div>
-
-      <!-- RIGHT SATELLITE: Dev Tools -->
-      <div class="satellite right panel-box" class:visible={devMode}>
-        <div class="panel-section">
-          <div class="dynamics-grid">
-            {#each Object.entries(char.dynamics || {}) as [k, v] (k)}
-              <div class="dynamic-item">
-                <span class="label">{k}</span>
-                {#if isEditing}
-                  <input
-                    type="range"
-                    class="dynamic-slider"
-                    min="0"
-                    max="100"
-                    bind:value={char.dynamics[k]}
-                    title="{k}: {v}"
-                  />
-                {:else}
-                  <div class="bar-bg">
-                    <div
-                      class="bar-fill"
-                      style="width: {v}%; background: var(--hero-color);"
-                    ></div>
-                  </div>
-                {/if}
-              </div>
-            {/each}
-          </div>
-        </div>
-
-        <!-- PLOT TRACKER (New) -->
-        <div class="panel-section">
-          <div class="plot-widget">
-            {#if isEditing}
-              <div class="plot-controls">
-                <input
-                  type="text"
-                  class="rpg-input small"
-                  placeholder="New plot thread..."
-                  bind:value={plotInput}
-                  onkeydown={(e) => e.key === "Enter" && addPlotThread()}
-                />
-                <Button
-                  label="Add"
-                  variant="secondary"
-                  onclick={addPlotThread}
-                />
-              </div>
-
-              <div class="plot-list">
-                {#each char.customData?.plot?.active || [] as thread, i (i)}
-                  <div class="plot-item active">
-                    <span class="bullet" style="color: var(--hero-color)"
-                      >●</span
-                    >
-                    <span class="text">{thread}</span>
-                    <div class="actions">
-                      <Button
-                        variant="ghost"
-                        className="icon-btn"
-                        onclick={() => resolvePlotThread(i)}
-                        title="Resolve">✓</Button
-                      >
-                      <Button
-                        variant="ghost"
-                        className="icon-btn danger"
-                        onclick={() => deletePlotThread("active", i)}
-                        title="Delete">×</Button
-                      >
-                    </div>
-                  </div>
-                {/each}
-
-                {#each char.customData?.plot?.resolved || [] as thread, i (i)}
-                  <div class="plot-item resolved">
-                    <span class="bullet">○</span>
-                    <span class="text">{thread}</span>
-                    <Button
-                      variant="ghost"
-                      className="icon-btn danger"
-                      onclick={() => deletePlotThread("resolved", i)}
-                      title="Delete">×</Button
-                    >
-                  </div>
-                {/each}
-              </div>
-            {:else}
-              <!-- READ ONLY MODE -->
-              <ul class="plot-read-only">
-                {#each char.customData?.plot?.active || [] as thread, i (i)}
-                  <li>
-                    <span class="bullet" style="color: var(--hero-color)"
-                      >●</span
-                    >
-                    {thread}
-                  </li>
-                {/each}
-                {#if (char.customData?.plot?.active || []).length === 0}
-                  <li class="empty">No active plot threads.</li>
-                {/if}
-                {#each char.customData?.plot?.resolved || [] as thread, i (i)}
-                  <li class="resolved">
-                    {thread}
-                  </li>
-                {/each}
-              </ul>
-            {/if}
-          </div>
-        </div>
-      </div>
-    </div>
-  </Modal>
+    </Modal>
+  {/key}
 {/if}
 
 {#snippet magicField(label, parent, key, fieldKey, rows = 3)}
@@ -677,7 +703,13 @@
         ></textarea>
       {:else}
         <div class="read-only-box">
-          <span class="read-only-text">{parent[key] || ""}</span>
+          <!-- eslint-disable svelte/no-at-html-tags -->
+          <span class="read-only-text"
+            >{@html DOMPurify.sanitize(
+              formatMarkdownLite(parent[key] || ""),
+            )}</span
+          >
+          <!-- eslint-enable svelte/no-at-html-tags -->
         </div>
       {/if}
 
@@ -698,8 +730,9 @@
 {/snippet}
 
 <style lang="scss">
-  @use "../mesmer/ui/tokens" as *;
-  @use "../mesmer/ui/physics" as *;
+  @use "../mesmer/scss/abstracts/variables" as *;
+  @use "../mesmer/scss/abstracts/mixins" as *;
+  @use "../mesmer/scss/abstracts/placeholders" as *;
 
   /* WORKBENCH LAYOUT */
   .workbench {
@@ -719,8 +752,8 @@
     width: 90vw;
     max-width: 1100px;
     height: 100%; /* [FIX] Fill Modal Height */
-    background: #050505; /* [POLISH] Deeper background */
-    border: 1px solid #27272a;
+    background: var(--app-component-bg);
+    border: 5px solid var(--hero-color);
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
@@ -818,7 +851,7 @@
     .name-input {
       font-family: var(--font-heading);
       font-weight: 700;
-      font-size: 3rem;
+      font-size: 3.5rem;
       line-height: 1.15; /* [FIX] Tighter line height for 2-line titles */
       background: transparent;
       border: none;
@@ -929,6 +962,25 @@
     grid-column: 2 / 4;
   }
 
+  /* [FIX] Wrappers for height sync */
+  .field-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    label {
+      flex-shrink: 0;
+      margin-bottom: 0.25rem;
+    }
+  }
+
+  .magic-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    position: relative;
+    height: 100%; /* Ensure it fills parent */
+  }
+
   .clean-area,
   .clean-box {
     width: 100%;
@@ -938,7 +990,6 @@
     border: 1px solid #1f1f22;
     color: #d4d4d8;
     font-family: var(--font-body);
-    font-size: 0.85rem;
     line-height: 1.6;
     resize: none;
     border-radius: 8px;
@@ -961,6 +1012,7 @@
   /* READ ONLY TEXT DISPLAY */
   .read-only-box {
     width: 100%;
+    height: 100%;
     background: transparent;
     border: 1px solid transparent; /* Maintain sizing alignment */
     color: #d4d4d8;
@@ -976,6 +1028,7 @@
   .read-only-text {
     display: block;
     width: 100%;
+    text-align: left;
   }
 
   /* Darker boxes for the grid items to match screenshot */

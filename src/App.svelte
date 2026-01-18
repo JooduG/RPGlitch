@@ -1,88 +1,20 @@
 <script>
-  import { onMount } from "svelte";
-
-  import Profile from "./scholar/Profile.svelte";
-  import ControlPanel from "./warden/ui/ControlPanel.svelte";
-  import Lightbox from "./mesmer/ui/Lightbox.svelte";
-  import DebugPanel from "./warden/ui/DebugPanel.svelte";
+  import Lightbox from "./artificer/Lightbox.svelte";
   import Storyboard from "./artificer/storyboard/Storyboard.svelte";
   import Storymode from "./artificer/storymode/Storymode.svelte";
+  import Profile from "./scholar/Profile.svelte";
+  import ControlPanel from "./warden/ui/ControlPanel.svelte";
+  import DebugPanel from "./warden/ui/DebugPanel.svelte";
 
   import { app } from "./gamemaster/state.svelte.js";
-  import { runtime } from "./scholar/runtime.svelte.js";
-  import { events, EVENTS, state as gameState } from "./gamemaster/bus.js";
 
-  import { fade } from "svelte/transition";
+  import { onMount } from "svelte";
 
   let mounted = $state(false);
 
-  // --- Hotkeys ---
-  function handleKeydown(e) {
-    // Shift + D to toggle Diagnostic HUD
-    if (e.shiftKey && e.key === "D") {
-      app.settings.debugMode = !app.settings.debugMode;
-      app.log(
-        `Telemetry HUD ${app.settings.debugMode ? "Enabled" : "Disabled"}`,
-      );
-    }
-  }
-
-  // No more polling. The GameMaster is now a reactive service (chrono).
-
-  // --- Global Effect: Settings Sync ---
-  $effect(() => {
-    if (typeof window !== "undefined") {
-      window.RPGLITCH_CONFIG = {
-        sound: app.settings.sound,
-        autoScroll: app.settings.autoScroll,
-        textSpeed: app.settings.streamText ? 30 : 0,
-        devMode: app.settings.devMode,
-      };
-    }
-  });
-
-  // --- Message Sync Logic (Feed) ---
-  function updateMessages() {
-    if (runtime.storyId && gameState.messages.byStoryId[runtime.storyId]) {
-      app.simulation.feed = gameState.messages.byStoryId[runtime.storyId];
-    } else {
-      app.simulation.feed = [];
-    }
-  }
-
-  $effect(() => {
-    if (runtime.storyId) {
-      updateMessages();
-    }
-  });
-
   onMount(() => {
     mounted = true;
-    // 1. Wake up the Warden (Load Settings)
-    app.init();
-
-    const refreshHandler = (e) => {
-      // Sync on events
-      if (e.detail?.storyId === runtime.storyId || !e.detail) {
-        updateMessages();
-      }
-    };
-
-    events.addEventListener(EVENTS.CHAT_REFRESH, refreshHandler);
-    events.addEventListener(EVENTS.STORY_LOADED, refreshHandler);
-    events.addEventListener(EVENTS.MESSAGE_RECEIVED, refreshHandler);
-
-    window.addEventListener("keydown", handleKeydown);
-
-    return () => {
-      events.removeEventListener(EVENTS.CHAT_REFRESH, refreshHandler);
-      events.removeEventListener(EVENTS.STORY_LOADED, refreshHandler);
-      events.removeEventListener(EVENTS.MESSAGE_RECEIVED, refreshHandler);
-      window.removeEventListener("keydown", handleKeydown);
-    };
   });
-  import Typography from "./mesmer/ui/Typography.svelte";
-  /* ... imports ... */
 </script>
 
 {#if mounted}

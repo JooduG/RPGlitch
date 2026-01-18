@@ -20,7 +20,8 @@
     "**/yarn.lock": true,
     "**/.htmlhintignore": true,
     "**/.stylelintignore": true,
-    "**/jsconfig.json": true
+    "**/jsconfig.json": true,
+    "test-results/**": true
   },
   "css.validate": true,
   "html.validate.styles": false,

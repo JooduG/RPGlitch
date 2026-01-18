@@ -68,7 +68,7 @@ export class VoiceStore {
     const voice =
       this.voices.find((v) => v.uri === this.selectedVoice) || this.voices[0];
     if (!voice) {
-      console.warn("[Voice] No voice available.");
+      console.warn("[The_Mesmer] No voice available.");
       return;
     }
 
@@ -85,12 +85,31 @@ export class VoiceStore {
     };
 
     this._utterance.onerror = (e) => {
-      console.warn("[Voice] Synthesis error", e);
+      console.warn("[The_Mesmer] Synthesis error", e);
       this.isSpeaking = false;
       this._utterance = null;
     };
 
     this._synth.speak(this._utterance);
+  }
+
+  preview(uri, rate = 1.0, pitch = 1.0) {
+    if (!this._synth) return;
+    this.stop();
+
+    const voice = this.voices.find((v) => v.uri === uri) || this.voices[0];
+    if (!voice) return;
+
+    this.isSpeaking = true;
+    const utterance = new SpeechSynthesisUtterance("Previewing voice system.");
+    utterance.voice = voice._ref;
+    utterance.rate = rate;
+    utterance.pitch = pitch;
+
+    utterance.onend = () => (this.isSpeaking = false);
+    utterance.onerror = () => (this.isSpeaking = false);
+
+    this._synth.speak(utterance);
   }
 
   stop() {
@@ -102,4 +121,4 @@ export class VoiceStore {
   }
 }
 
-export const voiceService = new VoiceStore();
+export const textToSpeech = new VoiceStore();

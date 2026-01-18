@@ -30,7 +30,7 @@
 <style lang="scss">
   /* 
      STRICT RULE: No local styles here. 
-     All standard button styles live in src/mesmer/ui/_buttons.scss 
+     All standard button styles live in src/mesmer/scss/components/_buttons.scss 
      This ensures a single source of truth for the design system.
   */
 </style>

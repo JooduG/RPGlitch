@@ -1,0 +1,162 @@
+@use "sass:map";
+@use "../abstracts/variables" as vars;
+
+/* ============================================================================
+   BASE: TYPOGRAPHY
+   Modular Scaling & Hierarchy
+   Location: src/scss/base/_typography.scss
+   ============================================================================ */
+
+:root {
+  // Baseline
+  font-size: 100%;
+
+  // --- THEME COLORS ---
+  --app-h1-color: #fff;
+  --app-h2-color: #fff;
+  --app-h3-color: #eee;
+
+  // Dark Theme Overrides for Typography
+  &[data-theme="dark"] {
+    --app-h1-color: #f8fafc;
+    --app-h2-color: #f8fafc;
+    --app-h3-color: #f1f5f9;
+  }
+
+  // --- GENERIC METRICS (De-branded) ---
+  --line-height: 1.5;
+  --font-weight: 400;
+  --border-radius: #{vars.$border-radius};
+  --border-width: 0.0625rem;
+  --outline-width: 0.125rem;
+  --transition: #{vars.$transition-speed} ease-in-out;
+  --spacing: 1rem;
+
+  // --- SPACING SCALE ---
+  --space-xs: #{vars.$spacing-xs};
+  --space-sm: #{vars.$spacing-sm};
+  --space-sm-md: 0.75rem;
+  --space-md: #{vars.$spacing-md};
+  --space-md-lg: 1.25rem;
+  --space-lg: #{vars.$spacing-lg};
+  --space-xl: #{vars.$spacing-xl};
+  --space-2xl: 3rem;
+  --space-3xl: 5rem;
+
+  // --- TEXT HIERARCHY (Opacity-Based) ---
+  --text-primary: 1;
+  --text-secondary: 0.75;
+  --text-tertiary: 0.5;
+  --text-muted: 0.38;
+
+  // --- COMPONENT METRICS ---
+  --form-element-spacing-vertical: 0.75rem;
+  --form-element-spacing-horizontal: 1rem;
+  --nav-link-spacing-vertical: 0.5rem;
+  --nav-link-spacing-horizontal: 0.5rem;
+
+  // Font Families
+  --font-heading: #{vars.$font-family-headings};
+  --font-mono: #{vars.$font-monospace};
+  --font-body: #{vars.$font-body};
+
+  // Generate media queries from map for Adaptive Root Scaling
+  @each $width, $scale in vars.$viewport-scaling {
+    @media (min-width: $width) {
+      font-size: $scale;
+    }
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  margin-top: 0;
+  color: inherit;
+  text-wrap: balance;
+
+  --font-weight: 700;
+}
+
+// 3. Hierarchy & Vertical Rhythm (Descending Rem Scale)
+h1 {
+  font-size: 2rem;
+  line-height: 1.125;
+  margin-top: map.get(vars.$h-spacing, h1);
+}
+
+h2 {
+  font-size: 1.75rem;
+  line-height: 1.15;
+  margin-top: map.get(vars.$h-spacing, h2);
+}
+
+h3 {
+  font-size: 1.5rem;
+  line-height: 1.175;
+  margin-top: map.get(vars.$h-spacing, h3);
+}
+
+h4 {
+  font-size: 1.25rem;
+  line-height: 1.2;
+  margin-top: map.get(vars.$h-spacing, h4);
+}
+
+h5 {
+  font-size: 1.125rem;
+  line-height: 1.225;
+  margin-top: map.get(vars.$h-spacing, h5);
+}
+
+h6 {
+  font-size: 1rem;
+  line-height: 1.25;
+  margin-top: map.get(vars.$h-spacing, h6);
+}
+
+// Table Headers
+thead th,
+tfoot th,
+thead td,
+tfoot td {
+  font-weight: 600;
+  border-width: 0.1875rem;
+}
+
+// 4. Technical Elements
+kbd {
+  font-weight: bolder;
+}
+
+pre,
+code,
+kbd,
+samp {
+  font-family: var(--font-mono);
+}
+
+small {
+  font-size: 0.875em;
+}
+
+a {
+  text-decoration: underline;
+
+  &.secondary,
+  &.contrast {
+    text-decoration: underline;
+  }
+}
+
+// Resets
+p,
+li,
+figcaption {
+  text-wrap: pretty;
+}

@@ -16,7 +16,7 @@
 
 <style lang="scss">
   .panel {
-    background: #09090b; /* Zinc 950 essentially */
+    background: var(--app-component-bg); /* Zinc 950 essentially */
     border: 1px solid #27272a;
     border-radius: 8px;
     box-shadow:

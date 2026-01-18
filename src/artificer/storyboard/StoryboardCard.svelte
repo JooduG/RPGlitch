@@ -20,8 +20,8 @@
 
   import { app } from "../../gamemaster/state.svelte.js";
   import { themeStore } from "../../mesmer/logic/theme.svelte.js";
+  import Illusion from "../../mesmer/ui/Illusion.svelte";
   import ProfilePicture from "../../mesmer/ui/ProfilePicture.svelte";
-  import Skeleton from "../Skeleton.svelte";
 
   // Derived Values
   let isEmpty = $derived(!entity);
@@ -95,7 +95,7 @@
   {/snippet}
 
   {#if isLoading}
-    <Skeleton variant="card" width="100%" height="100%" />
+    <Illusion variant="card" width="100%" height="100%" />
   {:else if isEmpty}
     {@render emptyState()}
   {:else}
@@ -104,8 +104,9 @@
 </div>
 
 <style lang="scss">
-  @use "../../mesmer/ui/tokens" as *;
-  @use "../../mesmer/ui/physics" as *;
+  @use "../../mesmer/scss/abstracts/variables" as *;
+  @use "../../mesmer/scss/abstracts/mixins" as *;
+  @use "../../mesmer/scss/abstracts/placeholders" as *;
 
   .split-card {
     @include card-common;
@@ -222,9 +223,7 @@
       h3 {
         margin: 0;
         color: rgb(var(--signature-rgb));
-        font-size: 1rem;
         font-weight: 700;
-        line-height: 1.25;
         text-align: left;
         word-break: break-word;
         overflow-wrap: anywhere;

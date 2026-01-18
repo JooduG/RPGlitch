@@ -1,12 +1,12 @@
 <script>
+  import { session } from "../../gamemaster/session.svelte.js";
+  import { app } from "../../gamemaster/state.svelte.js";
+  import Illusion from "../../mesmer/ui/Illusion.svelte";
+  import Button from "../Button.svelte";
   import Layout from "../Layout.svelte";
-  import StorymodePanel from "./StorymodePanel.svelte";
   import InputBar from "./InputBar.svelte";
   import Message from "./Message.svelte";
-  import Skeleton from "../Skeleton.svelte";
-  import { app } from "../../gamemaster/state.svelte.js";
-  import { session } from "../../gamemaster/session.svelte.js";
-  import Button from "../Button.svelte";
+  import StorymodePanel from "./StorymodePanel.svelte";
 
   // --- STATE ---
   let scrollRef = $state(null);
@@ -63,7 +63,7 @@
           {:else if isThinking}
             <!-- Thinking Indicator using Message bubble for consistency -->
             <div class="thinking-container">
-              <Skeleton variant="text" width="60%" />
+              <Illusion variant="text" width="60%" />
             </div>
           {:else if feed.length === 0}
             <div class="empty-feed-fallback">

@@ -1,0 +1,68 @@
+@use "../abstracts/variables" as vars;
+@use "../abstracts/placeholders" as *;
+
+/* ============================================================================
+   COMPONENT: BUTTONS
+   Refactored for SCSS 7-1 Architecture.
+   ============================================================================ */
+
+// --- EXPOSED CLASSES (Using Placeholders) ---
+
+.btn {
+  @extend %btn;
+}
+
+.btn-primary {
+  @extend %btn-primary;
+}
+
+.btn-ghost {
+  @extend %btn-ghost;
+
+  &.danger:hover:not(:disabled, .disabled) {
+    color: var(--app-del);
+    background: rgb(220 53 69 / 10%);
+  }
+}
+
+.btn-outline {
+  @extend %btn-outline;
+}
+
+.btn-secondary,
+.secondary,
+.contrast {
+  @extend %btn-secondary;
+}
+
+.btn-glass {
+  @extend %btn-glass;
+}
+
+// --- UTILITY SHAPES ---
+
+.btn-round {
+  padding: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+}
+
+// --- BUTTON GROUPS ---
+
+.btn-group-joined {
+  @extend %btn-group-joined;
+}
+
+.btn-icon-raise:hover svg.icon {
+  transform: translateY(-2px) scale(1.1);
+}
+
+.btn-group-pill {
+  @extend %btn-group-pill;
+}
+
+// Custom split logic (retained if not covered by placeholder)
+.btn-group-split {
+  @extend %btn-group-split;
+}

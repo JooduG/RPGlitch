@@ -3,9 +3,9 @@
    * LibraryDrawer - Slide-up bottom sheet for selecting entities.
    * Internalized drawer and card styling.
    */
-  import { app } from "../gamemaster/state.svelte.js";
-  import { fade, fly } from "svelte/transition";
   import { quintOut } from "svelte/easing";
+  import { fade, fly } from "svelte/transition";
+  import { app } from "../gamemaster/state.svelte.js";
   import LibraryCard from "./LibraryCard.svelte";
 
   // Derived from drawer state
@@ -111,13 +111,14 @@
 {/if}
 
 <style lang="scss">
-  @use "../mesmer/ui/tokens" as *;
-  @use "../mesmer/ui/physics" as *;
+  @use "../mesmer/scss/abstracts/variables" as *;
+  @use "../mesmer/scss/abstracts/mixins" as *;
+  @use "../mesmer/scss/abstracts/placeholders" as *;
 
   /* --- DRAWER CONTAINER --- */
   .entity-drawer {
     /* Solid, fully opaque drawer - no glass effect */
-    background: rgb(18, 24, 34);
+    background: var(--app-component-bg);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-bottom: none;
     box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);

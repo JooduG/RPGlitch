@@ -4,7 +4,7 @@
  */
 import Dexie from "dexie";
 import DOMPurify from "dompurify";
-import "./scss/index.scss";
+import "./mesmer/scss/app.scss";
 
 // 🚑 EMERGENCY POLYFILL: Expose to window for legacy code/perchance integration
 // Must happen BEFORE any other code runs

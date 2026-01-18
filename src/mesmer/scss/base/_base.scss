@@ -1,5 +1,6 @@
 @use "sass:map";
-@use "tokens" as *;
+@use "../abstracts/variables" as vars;
+@use "../abstracts/mixins" as *;
 
 /* ============================================================================
    BASE: RESET & ROOT VARIABLES
@@ -8,64 +9,52 @@
    ============================================================================ */
 
 :root {
-  // --- LAYOUT CONFIG ---
-  --top-bar-height: #{$top-bar-height};
-  --app-container-max: 100%;
-  --app-container-pad: #{$app-container-pad};
-  --header-height: #{$header-height};
-
-  // Shared 3-column layout
-  --layout-left-col: 1fr;
-  --layout-center-col: 2fr;
-  --layout-right-col: 1fr;
-
   // --- Z-INDEX MAP ---
-  --z-base: #{map.get($z-map, base)};
-  --z-chip: #{map.get($z-map, chip)};
-  --z-mobile-drawer: #{map.get($z-map, mobile-drawer-container)};
-  --z-overlay: #{map.get($z-map, overlay)};
-  --z-modal: #{map.get($z-map, modal)};
-  --z-drawer: #{map.get($z-map, drawer)};
-  --z-toast: #{map.get($z-map, toast)};
+  --z-base: #{map.get(vars.$z-map, base)};
+  --z-chip: #{map.get(vars.$z-map, chip)};
+  --z-mobile-drawer: #{map.get(vars.$z-map, mobile-drawer-container)};
+  --z-overlay: #{map.get(vars.$z-map, overlay)};
+  --z-modal: #{map.get(vars.$z-map, modal)};
+  --z-drawer: #{map.get(vars.$z-map, drawer)};
+  --z-toast: #{map.get(vars.$z-map, toast)};
 
   // --- THEME VARIABLES ---
   --app-color: #fff;
-  --app-h1-color: #fff;
-  --app-h2-color: #fff;
-  --app-h3-color: #eee;
-  --app-muted: #a0a0a0;
-  --app-border: #555;
-  --app-del: #{$pico-del-color};
-  --app-background: #11191f;
-  --card-background: #2b3848;
-  --form-background: #3b4b5d;
+  --app-muted: #{vars.$muted-color-light};
+  --app-border: #{vars.$border-color-light};
+  --app-del: #{vars.$pico-del-color};
+  --app-background: #{vars.$app-background};
+  --card-background: #{vars.$card-background};
+  --form-background: #{vars.$form-background};
+  --app-component-bg: #{vars.$component-bg};
+  --app-component-bg-rgb: #{vars.$component-bg-rgb};
 
   // Primary Colors (From Tokens)
-  --app-primary: #{$app-primary};
-  --app-primary-inverse: #{$app-primary-inverse};
-  --app-primary-hover: #{$app-primary-hover};
-  --app-primary-focus: #{$app-primary-focus};
+  --app-primary: #{vars.$app-primary};
+  --app-primary-inverse: #{vars.$app-primary-inverse};
+  --app-primary-hover: #{vars.$app-primary-hover};
+  --app-primary-focus: #{vars.$app-primary-focus};
 
   // Secondary Colors (From Tokens)
-  --app-secondary: #{$app-secondary};
-  --app-secondary-inverse: #{$app-secondary-inverse};
-  --app-secondary-hover: #{$app-secondary-hover};
+  --app-secondary: #{vars.$app-secondary};
+  --app-secondary-inverse: #{vars.$app-secondary-inverse};
+  --app-secondary-hover: #{vars.$app-secondary-hover};
 
   // --- APP UTILITIES ---
-  --rp-text-shadow: #{$rp-text-shadow};
-  --color-accent: #{$color-accent};
-  --signature-text-on: #{$signature-text-on};
+  --rp-text-shadow: #{vars.$rp-text-shadow};
+  --color-accent: #{vars.$color-accent};
+  --signature-text-on: #{vars.$signature-text-on};
 
   // Initialize signature vars (Forwarded from tokens -> palette-generated)
-  @each $name, $data in $signature-colors {
+  @each $name, $data in vars.$signature-colors {
     --signature-#{$name}: #{map.get($data, color)};
   }
 
   // Gradient Variables
-  --bg-grad-1: #{$gradient-color-1};
-  --bg-grad-2: #{$gradient-color-2};
-  --bg-grad-3: #{$gradient-color-3};
-  --bg-grad-4: #{$gradient-color-4};
+  --bg-grad-1: #{vars.$gradient-color-1};
+  --bg-grad-2: #{vars.$gradient-color-2};
+  --bg-grad-3: #{vars.$gradient-color-3};
+  --bg-grad-4: #{vars.$gradient-color-4};
 }
 
 // --- DYNAMIC SIGNATURE UTILITY ---
@@ -81,16 +70,14 @@
 }
 
 // --- DARK THEME OVERRIDES ---
+// --- DARK THEME OVERRIDES ---
 [data-theme="dark"] {
-  --app-background: #0f1116;
-  --card-background: #1a1d2e;
-  --form-background: #1a1d2e;
+  --app-background: #{vars.$app-background-dark};
+  --card-background: #{vars.$card-background-dark};
+  --form-background: #{vars.$form-background-dark};
   --app-color: #f1f5f9;
-  --app-h1-color: #f8fafc;
-  --app-h2-color: #f8fafc;
-  --app-h3-color: #f1f5f9;
-  --app-muted: #94a3b8;
-  --app-border: #334155;
+  --app-muted: #{vars.$muted-color-dark};
+  --app-border: #{vars.$border-color-dark};
 }
 
 /* ============================================================================
@@ -98,12 +85,7 @@
    ============================================================================ */
 
 * {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  @include custom-scrollbar;
 }
 
 html,
@@ -148,22 +130,10 @@ body::before {
   transition: opacity 2s ease-in-out;
 }
 
-article {
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
 .muted,
 .placeholder-text {
   font-style: italic;
   color: var(--app-muted) !important;
-}
-
-[hidden] {
-  display: none !important;
 }
 
 .danger,
@@ -172,12 +142,6 @@ article {
   background: var(--app-del);
   border-color: var(--app-del);
   color: #fff;
-}
-
-button,
-[type="button"],
-[type="submit"] {
-  cursor: pointer;
 }
 
 body:not(.mode-developer) .developer-content {

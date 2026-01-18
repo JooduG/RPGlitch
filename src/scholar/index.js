@@ -14,7 +14,7 @@ import { LlmService } from "../gamemaster/llm.js";
 const log = console.log;
 const error = console.error;
 
-import { audioService } from "../mesmer/audio/service.js";
+import { soundEffects } from "../mesmer/audio/sound-effects.js";
 
 // Sub-Modules
 import { ContextBuilder } from "./library/context.js";
@@ -23,8 +23,8 @@ import { Echo } from "./library/echo.js";
 const echo = new Echo();
 
 // Re-Exports for Convenience
+export { entities, seedPremades, stories } from "./database/repository.js";
 export { ContextBuilder } from "./library/context.js";
-export { entities, stories, seedPremades } from "./database/repository.js";
 export { premade } from "./library/library.js";
 
 export const Scholar = {
@@ -77,7 +77,7 @@ export const Scholar = {
       log(`[Scholar] Consulting on ${targetField} for ${entityType}...`);
 
       const result = await LlmService.generate(payload, { temperature: 0.7 });
-      audioService.play("notification");
+      soundEffects.play("notification");
       return result.trim();
     } catch (e) {
       error("[Scholar] Failed:", e);
