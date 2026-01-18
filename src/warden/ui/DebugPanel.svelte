@@ -80,6 +80,7 @@
       color: #fff;
       margin-bottom: 5px;
       letter-spacing: 0.5px;
+      font-family: var(--font-mono);
     }
 
     .debug-stats {

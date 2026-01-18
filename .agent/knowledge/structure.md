@@ -46,3 +46,9 @@ graph LR
 
 - **Perchance Panel:** Holds `window.ai` and `rpgLists` (The Platform).
 - **Svelte Application:** Consumes `window.ai` via `src/gamemaster/llm.js`.
+
+## 4. Documentation Standards
+
+- **Knowledge:** `.agent/knowledge/*.md` (Concepts)
+- **Rules:** `.agent/rules/*.md` (Strict Directives)
+- **Artifacts:** `brain/<id>/*.md` (Progress)

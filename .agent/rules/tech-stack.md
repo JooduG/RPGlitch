@@ -31,12 +31,13 @@ description: Contains mandatory coding standards, tech stack constraints (Node 2
 
 ## 4. Styling (The Artificer)
 
-- **Framework:** **Pico.css** (Semantic HTML).
+- **Framework:** **Pico.css** (Semantic HTML) - _Abstracts Only_.
 - **Preprocessor:** **SCSS** (Sass).
 - **Architecture:** 7-1 Pattern (Abstracts, Base, Components, Layouts).
 - **Icons:** **Inline SVG** Only.
   - ❌ No FontAwesome / External Icon Fonts.
-  - ✅ `<svg class="icon">...</svg>`
+  - ✅ `<svg class="icon">...</svg>` (Use `currentColor`).
+- **Variables:** Use `--app-*` exclusively. ❌ Ban `--pico-*`.
 
 ## 5. Security & Integrity
 

@@ -1,12 +1,13 @@
 ---
-trigger: always_on
+trigger: glob
 description: Contains protocols for using generative media tools. Apply this rule whenever the user requests visual assets (images, logos, mockups) or when the conversation context implies a need for creative visualization.
+globs: **/*.scss, **/*.svelte
 ---
 
 # 🎨 Mesmer: The Visual Protocol
 
 > **The Directive:** "If it looks real, it is real."
-> **The Stack:** Svelte 5 (Runes) + Custom SCSS (Pico-inspired).
+> **The Stack:** Svelte 5 (Runes) + Custom SCSS (Standardized).
 > **The Architecture:** Single HTML Monolith (No external requests).
 
 ## 1. The Icon Mandate (Interaction Design)
@@ -26,37 +27,13 @@ description: Contains protocols for using generative media tools. Apply this rul
 
 ## 2. Visual Physics (Layout Engine)
 
-The application uses a unified 10-column grid system with two distinct modes.
+The application uses a unified 10-column grid system (`src/scss/layouts/_grid.scss`).
 
-### 🧱 Mode A: Storyboard (The Dashboard)
+### Modes
 
-The standard "Widescreen" view with breathing room.
-
-| Section    | Width | Role                 |
-| ---------- | ----- | -------------------- |
-| **Margin** | `1fr` | Left Gutter          |
-| **AI**     | `2fr` | Avatar & Status      |
-| **Stage**  | `4fr` | The Narrative Output |
-| **User**   | `2fr` | Controls & Input     |
-| **Margin** | `1fr` | Right Gutter         |
-
-### 💬 Mode B: Storymode (The Chat)
-
-The "Zoomed In" immersive view. Margins are collapsed to maximize narrative space.
-
-| Section   | Width | Role                     |
-| --------- | ----- | ------------------------ |
-| **AI**    | `2fr` | Avatar & Status          |
-| **Stage** | `6fr` | The Narrative (Expanded) |
-| **User**  | `2fr` | Controls & Input         |
-
-### 📱 Smartphone Mode (< 768px)
-
-The "Physical Device" simulation.
-
-- **Grid:** Collapses to **Single Column (`1fr`)**.
-- **The Bezel:** Container simulates a phone frame (`border: 14px solid`, `radius: 36px`).
-- **Hidden:** Side columns (AI/User portraits) yield to the "Drawer".
+- **Mode A (Storyboard):** 1-2-4-2-1 Grid.
+- **Mode B (Storymode):** 2-6-2 Grid (Immersive).
+- **Mobile:** Single column with Drawer system.
 
 ### ⛓️ The Flexbox Jail (Scroll Containment)
 
@@ -74,8 +51,8 @@ Prevent chat logs from breaking the fixed layout.
 
 The `src/scss/` directory is the single source of truth.
 
-1. **Abstracts:** Variables, Mixins (`_variables.scss`).
-2. **Base:** Reset, Typography, Grid.
+1. **Abstracts:** Variables (`--app-*`), Mixins.
+2. **Base:** Reset, Typography (`_typography.scss`), Grid.
 3. **Components:** Cards, Buttons, Inputs (Atomic blocks).
 4. **Layouts:** The 10-col Grid logic.
 
@@ -93,9 +70,9 @@ Use the SCSS placeholders from `_mixins.scss`:
 
 - **Typography:** `white-space: pre-wrap` (Respect AI formatting).
 - **Tail Physics:**
-- **AI:** Points Left (Incoming).
-- **User:** Points Right (Outgoing).
-- **Narrator:** Centered, Italic, No Tail.
+  - **AI:** Points Left (Incoming).
+  - **User:** Points Right (Outgoing).
+  - **Narrator:** Centered, Italic, No Tail.
 
 ### 🦶 The Mobile Drawer ("The Chin")
 

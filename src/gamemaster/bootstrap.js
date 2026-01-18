@@ -102,6 +102,7 @@ export const AppBootstrap = {
       // 3. Svelte Artificer Layer (The new overlay)
       const target = document.getElementById("svelte-root");
       if (target) {
+        target.innerHTML = ""; // Clear skeleton
         mount(App, { target });
         log("[Bootstrap] ⚒️ Artificer UI Mounted.");
         // 4. Start the Engine (Refactored: GameMasterFacade now handles this via index.js if needed)

@@ -24,8 +24,11 @@ export default defineConfig({
       ],
     },
     // Mock IndexedDB for Scholar tests
-    deps: {
-      inline: ["fake-indexeddb"],
+    // Mock IndexedDB for Scholar tests
+    server: {
+      deps: {
+        inline: ["fake-indexeddb"],
+      },
     },
     // Test file patterns
     include: ["tools/tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],

@@ -41,7 +41,7 @@
         letter-spacing: 0.05em;
         font-weight: 600;
         color: #a1a1aa; /* Zinc 400 */
-        font-family: var(--font-body);
+        font-family: var(--font-heading);
       }
 
       .deco {

@@ -1,8 +1,9 @@
 ---
-trigger: always_on
+trigger: glob
+globs: **/*.svelte, **/*.svelte.js
 ---
 
-# ⚡ The Svelte 5 Protocol (Runes Edition)
+# ⚡ The Svelte 5 Protocol (Runes Update)
 
 > **Directive:** PURE Svelte 5. No Legacy Syntax. No "Hybrid" Code.
 > **Architecture:** Vite 6 + Single File Monolith.
@@ -15,65 +16,81 @@ We use **Runes** for all reactivity. The old `$` syntax is dead.
 
 The source of truth. Deeply reactive by default.
 
-- **Legacy (BANNED):** `let x;` (Top level reactivity)
-- **Modern (REQUIRED):**
+- **Proxy:** Objects and arrays are deeply reactive proxies.
+- **Usage:**
 
-```javascript
-let count = $state(0);
-let user = $state({ name: "John", age: 25 });
-```
+  ```javascript
+  let count = $state(0);
+  let user = $state({ name: "John", age: 25 });
+  ```
 
 ### 🧮 Derived (`$derived`)
 
-Computed state. Glitch-free.
+Computed state. Glitch-free & Memoized.
 
-- **Legacy (BANNED):** `$: double = count * 2;`
-- **Modern (REQUIRED):**
+- **Syntax:** `let double = $derived(count * 2);`
+- **Complex:** Use `$derived.by()` for blocks.
 
-```javascript
-let double = $derived(count * 2);
-```
+  ```javascript
+  let total = $derived.by(() => {
+    let sum = 0;
+    for (const item of items) sum += item.value;
+    return sum;
+  });
+  ```
 
 ### 💥 Effects (`$effect`)
 
-Side effects (DOM, IO).
+Side effects (DOM, IO). Use sparingly.
 
-- **Legacy (BANNED):** `$: if (x) ...`
-- **Modern (REQUIRED):**
+- **Syntax:**
 
-```javascript
-$effect(() => {
-  console.log(count);
-  return () => cleanup();
-});
-```
+  ```javascript
+  $effect(() => {
+    console.log(count);
+    return () => {
+      /* cleanup */
+    };
+  });
+  ```
+
+- **Pre-update:** Use `$effect.pre` for DOM measurements before paint.
+- **Untrack:** Use `untrack(() => ...)` to read a signal without subscribing.
 
 ## 2. Component API
 
 ### 📦 Props (`$props`)
 
-- **Legacy (BANNED):** `export let data;`
-- **Modern (REQUIRED):**
-
-```javascript
-let { name = "Anon", visible = false } = $props();
-```
+- **Syntax:** `let { key = "default" } = $props();`
+- **Rest:** `let { a, ...rest } = $props();`
 
 ### 🔗 Two-Way Binding (`$bindable`)
 
-- **Modern (REQUIRED):**
+- **Syntax:** `let { value = $bindable() } = $props();`
 
-```javascript
-let { value = $bindable() } = $props();
+### 🧩 Snippets (`#snippet`)
+
+Replaces `<slot>`.
+
+```svelte
+{#snippet figure(src, caption)}
+  <figure>
+    <img {src} alt={caption} />
+    <figcaption>{caption}</figcaption>
+  </figure>
+{/snippet}
+
+{@render figure(url, "Caption")}
 ```
 
-### 🖱️ Events & Attributes
+## 3. Events (`onclick`)
 
-- **Rule:** Use standard HTML attributes.
-- ❌ `on:click` -> ✅ `onclick`
-- ❌ `class:active={isActive}` -> ✅ `class={isActive ? "active" : ""}` (Standard JS)
+- **Standard:** Use standard HTML attributes (lowercase).
+  - ✅ `<button onclick={handleClick}>`
+  - ❌ `<button on:click={handleClick}>`
+  - ❌ `<button on:keydown={...}>` -> ✅ `<button onkeydown={...}>`
 
-## 3. The Agentic Protocol (MCP Tools)
+## 4. The Agentic Protocol (MCP Tools)
 
 **You MUST use the Svelte MCP Toolbelt for complex UI tasks.**
 
@@ -96,7 +113,7 @@ let { value = $bindable() } = $props();
 
 - **Constraint:** NEVER output code if it hasn't been mentally validated against the Svelte 5 rules.
 
-## 4. Coding Standards
+## 5. Coding Standards
 
 ### 📂 File Structure
 
@@ -115,24 +132,15 @@ let { value = $bindable() } = $props();
 - **NO** External CSS files (Encapsulation is key).
 - Follow the **Style Protocol** in `.agent/rules/style.md`.
 
-## 5. Advanced Templating
-
-### 🧩 Snippets (`#snippet`)
-
-Replaces complex `<slot>` usage.
-
-```svelte
-{#snippet figure(src, caption)}
-  <figure>
-    <img {src} alt={caption} />
-    <figcaption>{caption}</figcaption>
-  </figure>
-{/snippet}
-
-{@render figure(imageUrl, "A beautiful view")}
-```
+## 6. Advanced Templating
 
 ### 🧹 Lifecycle
 
 - **Mounting:** `onMount` is still valid for one-time setup (e.g., Canvas init).
 - **Updates:** Use `$effect` for reaction to state changes.
+
+## 7. Migration Strategy (Bottom-Up)
+
+- Migrate leaf components first.
+- Use `.svelte.js` for shared state stores.
+- Do not mix legacy `export let` with Runes.

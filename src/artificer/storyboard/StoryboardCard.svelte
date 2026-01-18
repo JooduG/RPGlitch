@@ -250,7 +250,7 @@
         color: rgb(var(--signature-rgb));
         font-family: var(--font-heading);
         font-weight: 900;
-        font-size: clamp(0.9rem, 8cqw, 1.5rem);
+        font-size: 1.25rem;
         line-height: 1.1;
         text-align: left;
 
@@ -274,7 +274,7 @@
         margin: 0;
         color: white;
         text-align: left;
-        font-size: clamp(0.7rem, 6cqw, 0.9rem);
+        font-size: 0.875rem;
         line-height: 1.3;
 
         display: -webkit-box;

@@ -7,7 +7,7 @@
 
 1. **[Primary Directive](.agent/rules/primary-directive.md):** No hallucinations. Use MCP tools.
 2. **[Architecture](.agent/rules/architecture.md):** Single File Monolith. No Request/Response loops.
-3. **[Tech Stack](.agent/rules/tech-stack.md):** Svelte 5 Runes. No SvelteKit. No Tailwind.
+3. **[Tech Stack](.agent/rules/tech-stack.md):** Svelte 5 Runes. Vite 6. Native SCSS (No Utility Soup).
 4. **[Style](.agent/rules/style.md):** "If it looks real, it is real."
 5. **[Security](.agent/rules/security.md):** Zero-Trust. `DOMPurify` everything.
 

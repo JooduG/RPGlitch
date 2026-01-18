@@ -23,7 +23,8 @@ This document explicitly lists patterns that are **strictly forbidden** or **hig
 - ❌ **Unsanitized `innerHTML`:** Never use `@html` without `DOMPurify.sanitize()`.
 - ❌ **Raw `localStorage`:** Do not access `localStorage` directly (violates Freedom Protocol). Use `src/scholar/`.
 
-## 4. UI/UX
+## 4. UI/UX & Styling
 
 - ❌ **Fixed Widths:** Avoid fixed pixel widths (`px`) for main layout containers. Use the Grid (`fr`).
 - ❌ **Utility Soup:** Do not use long Tailwind-style class strings. Use semantic SCSS components.
+- ❌ **Legacy Variables:** `var(--pico-*)` usage is **BANNED**. Use `var(--app-*)`.

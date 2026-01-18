@@ -128,6 +128,7 @@
     white-space: pre-wrap;
     line-height: 1.6;
     font-size: 1rem; /* 16px */
+    font-family: var(--font-body);
   }
 
   .message-meta {

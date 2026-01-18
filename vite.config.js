@@ -15,6 +15,7 @@ export default defineConfig({
     cssCodeSplit: false,
     // Output to dist directory (relative to project root, not src)
     outDir: "../dist",
+    emptyOutDir: true,
     // Generate minified production bundle
     minify: "esbuild",
     // Sourcemaps for debugging (disable for final production)

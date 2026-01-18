@@ -10,6 +10,22 @@
     <!-- CORE ROOT (Static skeleton shows during bootstrap, replaced by Svelte) -->
     <div id="svelte-root">
       <style>
+        body {
+          margin: 0;
+          background-color: #11191f;
+          background-image: radial-gradient(
+            circle at 50% 0%,
+            #181c2f,
+            #23243a 50%,
+            #1a3a4a 75%,
+            #2a1a3a
+          );
+          background-size: cover;
+          background-attachment: fixed;
+          background-repeat: no-repeat;
+          height: 100vh;
+        }
+
         .boot-skeleton {
           display: grid;
           grid-template-columns: repeat(10, 1fr);
@@ -17,15 +33,6 @@
           padding-bottom: 25vh;
           height: 100vh;
           width: 100%;
-          /* Gradient from _variables.scss: #181c2f -> #23243a -> #1a3a4a -> #2a1a3a */
-          background: linear-gradient(
-            to bottom right,
-            #181c2f,
-            #23243a 50%,
-            #1a3a4a 75%,
-            #2a1a3a
-          );
-          background-attachment: fixed;
           position: fixed;
           inset: 0;
         }
