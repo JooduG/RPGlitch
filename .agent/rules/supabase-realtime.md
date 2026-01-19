@@ -1,7 +1,7 @@
 ---
 trigger: glob
 description: Standards for Supabase Realtime, Multiplayer, and Event Broadcasts in RPGlitch
-globs: ["src/gamemaster/**/*.js", "src/gamemaster/**/*.svelte.js"]
+globs: src/gamemaster/**/*.js, src/gamemaster/**/*.svelte.js, src/warden/bridge.js,
 ---
 
 # Supabase Realtime & Multiplayer (Gamemaster Domain)

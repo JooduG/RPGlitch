@@ -1,6 +1,6 @@
 ---
 trigger: glob
-globs: ["src/scholar/**/*.js", "src/scholar/**/*.json"]
+globs: src/scholar/**/*.js, src/scholar/**/*.svelte.js, src/scholar/**/*.json, tools/generate_readable_lorebook.js,
 ---
 
 # Scholar Memory & Vector Search (Pinecone MCP)

@@ -1,6 +1,6 @@
 ---
 trigger: glob
-globs: ["supabase/functions/**/*.ts"]
+globs: supabase/functions/**/*.ts,
 ---
 
 # Supabase Edge Functions

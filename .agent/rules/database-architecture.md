@@ -1,7 +1,6 @@
 ---
 trigger: glob
-globs:
-  ["supabase/**/*.sql", "supabase/**/_.toml", "src/scholar/database/**/_.js"]
+globs: supabase/**/*.sql, supabase/**/*.toml, migrations/**/*.sql, src/scholar/database/**/*.js, tools/ops/**/*.js,
 ---
 
 # Database Architecture & Security
