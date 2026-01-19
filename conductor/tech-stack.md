@@ -1,6 +1,7 @@
 # Tech Stack
 
 ## Core Technologies
+
 - **Programming Language:** JavaScript (ESM)
 - **Frontend Framework:** Svelte 5 (Runes)
 - **Bundler:** Vite 6+
