@@ -1,4 +1,4 @@
-Brand Design Skill
+# Brand Design Skill
 
 Skill Directory Structure
 You need to create a folder named brand-identity inside your .agent/skills/ directory. Inside that folder, create the following structure:
@@ -22,7 +22,7 @@ description: Provides the single source of truth for brand guidelines, design to
 
 ---
 
-# Brand Identity & Guidelines
+## Brand Identity & Guidelines
 
 **Brand Name:** [INSERT BRAND NAME HERE]
 
@@ -89,7 +89,7 @@ If you are writing marketing copy, error messages, documentation, or user-facing
    Define the strict technical rules here. This stops the agent from randomly using Bootstrap when you want Tailwind.
    Markdown
 
-# Preferred Tech Stack & Implementation Rules
+## Preferred Tech Stack & Implementation Rules
 
 When generating code or UI components for this brand, you **MUST** strictly adhere to the following technology choices.
 
@@ -124,7 +124,7 @@ When generating code or UI components for this brand, you **MUST** strictly adhe
    Simple rules for how the agent should "speak" when writing on behalf of the brand.
    Markdown
 
-# Copywriting: Voice & Tone Guidelines
+## Copywriting: Voice & Tone Guidelines
 
 When generating text, adhere to this brand persona.
 
