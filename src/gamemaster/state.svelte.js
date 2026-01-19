@@ -29,6 +29,13 @@ export class AppStore {
     status: "idle", // idle | generating | saving
   });
 
+  // 🔮 FATE SYSTEM (Fortune)
+  fate = $state({
+    active: false, // UI Trigger (The Eye Opens)
+    hand: [], // Cards available to pick
+    selected: null, // The chosen card
+  });
+
   // 🌩️ UI TENSION (Reactive Intensity)
   tension = $derived(
     ["scanning reality", "synthesizing", "saving"].includes(

@@ -1,6 +1,7 @@
 <script>
   import DOMPurify from "dompurify";
   import { app } from "../../gamemaster/state.svelte.js";
+  import SceneHeader from "../hud/SceneHeader.svelte";
 
   let {
     text = "",
@@ -13,25 +14,44 @@
   let isAi = $derived(sender === "ai");
 
   // Format text to hide raw XML tags but keep content if needed.
-  // Actually, Mesmer strips them, but if streaming, they might appear.
-  // Let's do a client-side cleanup for display.
-  let displayText = $derived(
+  let rawText = $derived(
     text
-      .replace(/<think>[\s\S]*?<\/think>/gi, "") // Hide think blocks completely? Or style them?
-      // User liked the style of think blocks in the screenshot ("The green <think> block is a nice touch")
-      // BUT they are raw XML. Let's keep them but maybe format them if we were parsing?
-      // For now, let's JUST strip image_prompt tags which are raw noise.
+      .replace(/<think>[\s\S]*?<\/think>/gi, "")
       .replace(/<image_prompt[\s\S]*?<\/image_prompt>/gi, "")
       .replace(/<image_prompt[^>]*\/>/gi, ""),
   );
 
-  // Allow think blocks to be rendered?
-  // If we want to style them, we'd need a parser.
-  // For now, just stripping the image_prompt is the critical fix.
+  // 🕵️ SCENE HEADER PARSING (The Warden's Eye)
+  // Pattern: 『 [Location] · [Time] · [Weather] 』
+  let headerMatch = $derived(
+    rawText.match(/^『\s*\[(.*?)]\s*·\s*\[(.*?)]\s*·\s*\[(.*?)]\s*』/),
+  );
+
+  let sceneData = $derived(
+    headerMatch
+      ? {
+          location: headerMatch[1],
+          time: headerMatch[2],
+          weather: headerMatch[3],
+        }
+      : null,
+  );
+
+  // Remove the header from the body text if found
+  let displayText = $derived(
+    headerMatch ? rawText.replace(headerMatch[0], "").trim() : rawText,
+  );
 </script>
 
 <div class="message-row" class:user-row={isUser} class:ai-row={isAi}>
   <div class="message-bubble" class:user-bubble={isUser} class:ai-bubble={isAi}>
+    <!-- SCENE HEADER (If detected) -->
+    {#if sceneData}
+      <div class="scene-header-wrapper">
+        <SceneHeader {...sceneData} />
+      </div>
+    {/if}
+
     {#if attachments.length > 0}
       <div class="attachments">
         {#each attachments as src (src)}

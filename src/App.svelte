@@ -1,4 +1,5 @@
 <script>
+  import StatusHUD from "./artificer/hud/StatusHUD.svelte";
   import Storyboard from "./artificer/storyboard/Storyboard.svelte";
   import Storymode from "./artificer/storymode/Storymode.svelte";
   import Lightbox from "./mesmer/ui/Lightbox.svelte";
@@ -56,6 +57,13 @@
         <ControlPanel />
       </div>
     {/if}
+
+    <!-- ARCANA: STATUS HUD (The Warden) -->
+    <StatusHUD
+      chronoValue={app.simulation.turn}
+      entropyValue={app.causalityReport.entropy}
+      fateActive={app.fate.active}
+    />
 
     <!-- TELEMETRY HUD -->
     {#if app.settings.devMode}

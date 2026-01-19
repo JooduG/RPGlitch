@@ -1,0 +1,117 @@
+{
+    "fortune_deck": [
+        {
+            "id": "star",
+            "name": "The Star (XVII)",
+            "concept": "Hope, Healing, Vulnerability",
+            "roleplay_function": "The path of Optimism and Recovery",
+            "guidelines": "The choice must involve lowering defenses, offering mercy, or trusting in a positive outcome despite the odds.",
+            "tone": "Gentle, cleansing, open",
+            "css_front": "front-star",
+            "css_back": "back-star"
+        },
+        {
+            "id": "tower",
+            "name": "The Tower (XVI)",
+            "concept": "Chaos, Upheaval, Sudden Destruction",
+            "roleplay_function": "The path of Radical Disruption",
+            "guidelines": "The choice must involve shattering the status quo, causing a scene, or breaking structures/laws violently.",
+            "tone": "Explosive, sudden, catastrophic",
+            "css_front": "front-tower",
+            "css_back": "back-tower"
+        },
+        {
+            "id": "devil",
+            "name": "The Devil (XV)",
+            "concept": "Temptation, Materialism, Bondage",
+            "roleplay_function": "The path of Indulgence and Obsession",
+            "guidelines": "The choice must involve giving in to base desires (lust, greed, power), accepting a dark bargain, or enslaving others.",
+            "tone": "Seductive, heavy, binding",
+            "css_front": "front-devil",
+            "css_back": "back-devil"
+        },
+        {
+            "id": "hanged_man",
+            "name": "The Hanged Man (XII)",
+            "concept": "Suspension, Sacrifice, New Perspective",
+            "roleplay_function": "The path of Strategic Passivity",
+            "guidelines": "The choice must involve waiting, doing nothing, surrendering control to gain insight, or self-sacrifice.",
+            "tone": "Static, martyred, patient",
+            "css_front": "front-hanged",
+            "css_back": "back-hanged"
+        },
+        {
+            "id": "death",
+            "name": "Death (XIII)",
+            "concept": "Endings, Transformation, Severance",
+            "roleplay_function": "The path of Irreversible Change",
+            "guidelines": "The choice must involve closing a chapter forever, cutting ties, or a final goodbye.",
+            "tone": "Cold, absolute, final",
+            "css_front": "front-death",
+            "css_back": "back-death"
+        },
+        {
+            "id": "sun",
+            "name": "The Sun (XIX)",
+            "concept": "Revelation, Vitality, Absolute Truth",
+            "roleplay_function": "The path of Direct Action",
+            "guidelines": "The choice must involve stepping into the light, refusing to hide, or physical assertion.",
+            "tone": "Confident, burning, undeniable",
+            "css_front": "front-sun",
+            "css_back": "back-sun"
+        },
+        {
+            "id": "world",
+            "name": "The World (XXI)",
+            "concept": "Completion, Mastery, Wholeness",
+            "roleplay_function": "The path of Ultimate Success",
+            "guidelines": "The choice must involve achieving a goal, uniting disparate parts, or executing a plan perfectly.",
+            "tone": "Triumphant, complete, whole",
+            "css_front": "front-world",
+            "css_back": "back-world"
+        },
+        {
+            "id": "judgement",
+            "name": "Judgement (XX)",
+            "concept": "Absolution, Reckoning, Awakening",
+            "roleplay_function": "The path of Moral Verdict",
+            "guidelines": "The choice must involve making a definitive judgment on the past, answering a calling, or declaring guilt/innocence.",
+            "tone": "Resonant, decisive, karmic",
+            "css_front": "front-judgement",
+            "css_back": "back-judgement"
+        },
+        {
+            "id": "moon",
+            "name": "The Moon (XVIII)",
+            "concept": "Illusion, Intuition, The Subconscious",
+            "roleplay_function": "The path of Subterfuge and Guile",
+            "guidelines": "The choice must involve navigating shadows, deception, or trusting gut instincts over logic.",
+            "tone": "Mysterious, fluid, psychological",
+            "css_front": "front-moon",
+            "css_back": "back-moon"
+        },
+        {
+            "id": "temperance",
+            "name": "Temperance (XIV)",
+            "concept": "Alchemy, Synthesis, Patience",
+            "roleplay_function": "The path of Balance and Transmutation",
+            "guidelines": "The choice must involve blending opposites, finding a middle ground, or waiting for the right moment.",
+            "tone": "Calm, medicinal, transformative",
+            "css_front": "front-temperance",
+            "css_back": "back-temperance"
+        }
+    ],
+    "pentarchy": {
+        "gamemaster_mechanics": {
+            "stylistic_interventions": {
+                "content": {
+                    "The Stream": "Focus on the uninterrupted flow of consciousness. Avoid pauses. Let the narrative spill over.",
+                    "The Prop": "Center the action around a physical object in the scene. Give it weight, texture, and history.",
+                    "The Satirist": "Adopt a tone of detached amusement. Highlight the absurdity of the situation.",
+                    "The Anchor": "Ground the scene in visceral, unchanging reality. Focus on the mundane details that persist.",
+                    "The Shadow": "Focus on the unsaid, the hidden motives, and the darkened corners of the mind."
+                }
+            }
+        }
+    }
+}

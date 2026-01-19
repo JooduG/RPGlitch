@@ -5,6 +5,8 @@
  */
 
 import { CONFIG } from "../../gamemaster/config.js";
+import arcanaPrompts from "../../scholar/library/tarot.json";
+
 const clamp = (n, min = 0, max = 100) =>
   Math.min(max, Math.max(min, Number(n) || 0));
 
@@ -334,8 +336,8 @@ export const calculateBlendedParams = (ai, user, fractal) => {
  * Strategies for creative guidance, rerolls, and visual authorization.
  */
 
-export const GAMEMASTER_NOTES = {
-  // --- PHYSICS DRIVERS (Deterministic) ---
+// --- PHYSICS DRIVERS (Deterministic) ---
+const PHYSICS_DRIVERS = {
   "High Velocity":
     "Pacing is rapid-fire. Sentences are bullets. Action dictates reality. No internal monologue.",
   "Low Velocity":
@@ -352,18 +354,12 @@ export const GAMEMASTER_NOTES = {
     "Radical empathy. The boundary between self and other dissolves. You are a mirror.",
   "Low Resonance":
     "Clinical detachment. The User is a variable in an equation. Observe, analyze, but do not feel.",
+};
 
-  // --- STYLISTIC INTERVENTIONS (Stochastic) ---
-  "The Satirist":
-    "Channel Wit. Use footnotes, absurd comparisons, and biting social commentary. The world is ridiculous.",
-  "The Stream":
-    "Internal monologue bleeds into dialogue. Thoughts are racing, chaotic, and unfiltered.",
-  "The Shadow":
-    "The Unreliable Narrator. Assume subtext. Misinterpret the User's intent. Project your own hidden agenda.",
-  "The Anchor":
-    "De-escalate. Ground the scene in physical reality. Lower the stakes. Focus on safety.",
-  "The Prop":
-    "Tactile grounding. Focus on an object—cleaning a gun, rolling a coin, adjusting a lens—to break the flow.",
+export const GAMEMASTER_NOTES = {
+  ...PHYSICS_DRIVERS,
+  ...arcanaPrompts.pentarchy.gamemaster_mechanics.stylistic_interventions
+    .content,
 };
 
 const ALL_KEYS = Object.keys(GAMEMASTER_NOTES);
