@@ -26,5 +26,6 @@
   "css.validate": true,
   "html.validate.styles": false,
   "css.lint.unknownAtRules": "ignore",
-  "typescript.tsdk": "node_modules\\typescript\\lib"
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "markdown.validate.enabled": true
 }
