@@ -72,9 +72,25 @@
     },
     "agentProtocolFile": "../AGENTS.md",
     "hooks": {
-        "session_start": ".gemini/hooks/on_start.sh"
+        "enabled": true,
+        "session_start": ["powershell.exe -ExecutionPolicy Bypass -File .gemini/hooks/on_start.ps1"],
+        "SessionStart": [
+            {
+                "matcher": "startup",
+                "hooks": [
+                    {
+                        "name": "reality-check",
+                        "type": "command",
+                        "command": "powershell.exe -ExecutionPolicy Bypass -File .gemini/hooks/on_start.ps1",
+                        "description": "RPGlitch Environment Reality Check",
+                        "timeout": 30000
+                    }
+                ]
+            }
+        ]
     },
     "tools": {
-        "useRipgrep": true
+        "useRipgrep": true,
+        "enableHooks": true
     }
 }

@@ -6,6 +6,7 @@ project:
 
 agents:
   primary_role: "Antigravity Architect"
+  enforcement_level: "flexible" # Options: strict, flexible, experimental
   context_root: ".agent/"
   protocol: "Triad"
   prime_directive: "AGENTS.md"

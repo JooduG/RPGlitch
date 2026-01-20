@@ -16,15 +16,21 @@
   // Format text to hide raw XML tags but keep content if needed.
   let rawText = $derived(
     text
-      .replace(/<think>[\s\S]*?<\/think>/gi, "")
       .replace(/<image_prompt[\s\S]*?<\/image_prompt>/gi, "")
       .replace(/<image_prompt[^>]*\/>/gi, ""),
   );
 
+  let thinkBlock = $derived.by(() => {
+    const match = text.match(/<think>([\s\S]*?)<\/think>/i);
+    return match ? match[1].trim() : null;
+  });
+
+  let cleanText = $derived(rawText.replace(/<think>[\s\S]*?<\/think>/gi, ""));
+
   // 🕵️ SCENE HEADER PARSING (The Warden's Eye)
   // Pattern: 『 [Location] · [Time] · [Weather] 』
   let headerMatch = $derived(
-    rawText.match(/^『\s*\[(.*?)]\s*·\s*\[(.*?)]\s*·\s*\[(.*?)]\s*』/),
+    cleanText.match(/^『\s*\[(.*?)]\s*·\s*\[(.*?)]\s*·\s*\[(.*?)]\s*』/),
   );
 
   let sceneData = $derived(
@@ -39,7 +45,7 @@
 
   // Remove the header from the body text if found
   let displayText = $derived(
-    headerMatch ? rawText.replace(headerMatch[0], "").trim() : rawText,
+    headerMatch ? cleanText.replace(headerMatch[0], "").trim() : cleanText,
   );
 </script>
 
@@ -49,6 +55,14 @@
     {#if sceneData}
       <div class="scene-header-wrapper">
         <SceneHeader {...sceneData} />
+      </div>
+    {/if}
+
+    <!-- DIRECTOR MODE: THINK BLOCK -->
+    {#if app.settings.debugMode && thinkBlock}
+      <div class="think-block">
+        <div class="think-label">🎬 DIRECTOR THOUGHTS</div>
+        <div class="think-content">{thinkBlock}</div>
       </div>
     {/if}
 
@@ -143,6 +157,30 @@
       color: #ecfdf5;
       border-bottom-left-radius: 2px;
       box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+    }
+  }
+
+  .think-block {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+
+    .think-label {
+      font-size: 0.65rem;
+      font-weight: 900;
+      color: #38bdf8;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.4rem;
+    }
+
+    .think-content {
+      color: rgba(255, 255, 255, 0.6);
+      font-family: var(--font-mono);
+      font-style: italic;
+      white-space: pre-wrap;
     }
   }
 

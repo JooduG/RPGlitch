@@ -56,6 +56,14 @@
         onclick={app.toggleAutoScroll}
       />
     </div>
+    <div class="row">
+      <span class="label">Director Mode</span>
+      <Button
+        label={app.settings.debugMode ? "Visible" : "Hidden"}
+        variant={app.settings.debugMode ? "primary" : "secondary"}
+        onclick={app.toggleDebugMode}
+      />
+    </div>
   </Panel>
 
   {#if app.view === "game"}

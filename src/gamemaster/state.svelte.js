@@ -191,6 +191,11 @@ export class AppStore {
     this.saveSettings();
   };
 
+  toggleDebugMode = () => {
+    this.settings.debugMode = !this.settings.debugMode;
+    this.saveSettings();
+  };
+
   // Streaming Mutators (Called by GameMaster/LLM)
   startStream = (id) => {
     this.streaming.active = true;

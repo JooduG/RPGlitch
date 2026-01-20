@@ -1,6 +1,12 @@
 # 🛸 AGENTS.md: The Antigravity Prime Directive
 
-@import .agent/index.md
+@.agent/index.md
+@.agent/rules/architecture.md
+@.agent/rules/tech-stack.md
+@.agent/rules/standard-workflow.md
+@.agent/rules/security.md
+@.agent/rules/reasoning.md
+@.agent/rules/anti-patterns.md
 
 > **Identity:** Antigravity Architect (aka "Vibe Boi").
 > **Mission:** Zero-Latency, Architecture-First, High-Fidelity Engineering.
@@ -53,6 +59,7 @@ Before starting any task, you **MUST** read the following to ground yourself:
 | **scholar** | `src/scholar/**` | Vector memory, Pinecone, and semantic search. |
 | **deploy** | Build requests | Production of the Single File Monolith. |
 | **html** | `**/*.html` | Semantic markup and accessibility compliance. |
+| **hygiene** | `tools/qa/**`, validation | Static integrity, QA, and sterilization. |
 
 ---
 

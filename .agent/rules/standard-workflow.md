@@ -4,6 +4,16 @@ trigger: always_on
 
 # Workflow Principles & Quality Gates
 
+## Enforcement Levels
+
+The rigidity of the workflow is determined by the `enforcement_level` set in `.agent/config.yaml`.
+
+| Level | Description | TDD Requirement | Quality Gates |
+| :--- | :--- | :--- | :--- |
+| **Strict** | Production-ready hardening. | Mandatory Red-Green-Refactor. | All gates required. |
+| **Flexible** | Balanced development. | Recommended for complex logic. | Core gates required. |
+| **Experimental** | Rapid prototyping. | Optional. | Minimal gates (Lint/Build). |
+
 ## Guiding Principles
 
 1. **The Plan is the Source of Truth:** All work must be tracked in `plan.md`
