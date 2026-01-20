@@ -46,16 +46,7 @@ These files are the project's scratchpads—brain-dumps for the **right here, ri
 
 ---
 
-## Workflow: Skill Management & Standardization
-
-### 🛠️ Lifecycle of a Skill
-
-When managing behavioral modules in `.agent/skills/`:
-
-1.  **Creation**: Create `<skill-name>/` with a mandatory `SKILL.md`. Include trigger globs in the `description` for AI understanding.
-2.  **Installation**: For NEW skills, run `gemini skills install .agent/skills/<skill-name>/`.
-3.  **Updating**: If you modify a `SKILL.md`, use the `/skills reload` command (or restart the session) to pick up changes. No re-install is needed.
-4.  **Removal**: To delete a skill, run `gemini skills uninstall <skill-name>` and then delete the folder.
+## Workflow: Skill Content & Standardization
 
 ### ✍️ Content Authoring
 
