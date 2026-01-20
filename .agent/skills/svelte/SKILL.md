@@ -32,4 +32,4 @@ description: Triggers on **/*.svelte, **/*.svelte.js, or where otherwise relevan
 ## Resources
 
 - [Svelte 5 Runes Documentation](https://svelte.dev/docs/runes)
-- [Antigravity Svelte Cheat Sheet]
+- [Svelte 5 Cheat Sheet](../../knowledge/svelte5-cheatsheet.md)

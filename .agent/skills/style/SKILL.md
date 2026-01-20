@@ -29,23 +29,28 @@ This skill enforces core constraints for visual design and technical implementat
 ## Instructions
 
 ### 1. SCSS Standards
+
 - **Prefix**: Use `--app-*` for variables.
 - **Nesting**: Maximum depth of 3.
 - **Class Naming**: Use `kebab-case`. Avoid IDs for styling.
 - **Icons**: Use **Inline SVG** only. No external icon fonts.
 
 ### 2. Brand Constraints
+
 - **Voice**: Professional, direct, and efficient.
 - **Terminology**: Use "Use" instead of "Utilize".
 
 ## Resources
 
 ### Core Mixins
+
 - **Glassmorphism**: `%material-glass` (Blur 16px, 60% Opacity).
 - **Character Portraits**: Use the `Triptych` pattern (3-state sliding viewports).
 
 ### Knowledge Base
-- [Design Tokens](../../knowledge/design-tokens.json)
-- [Voice & Tone](../../knowledge/voice-tone.md)
+
+- [Design Tokens](../../knowledge/design/design-tokens.json)
+- [Voice & Tone](../../knowledge/design/voice-tone.md)
+- [Colors](../../knowledge/design/colors.json)
 - [Global Glossary](../../knowledge/glossary.md)
 - [Design Lists Scripts](../../knowledge/reference/design-lists/scripts/)

@@ -54,8 +54,8 @@ python3 .agent/knowledge/reference/design-lists/scripts/search.py "<query>" --de
 
 This creates:
 
-- `design-system/MASTER.md` — Global Source of Truth with all design rules
-- `design-system/pages/` — Folder for page-specific overrides
+- `.agent/knowledge/design/MASTER.md` — Global Source of Truth with all design rules
+- `.agent/knowledge/design/pages/` — Folder for page-specific overrides
 
 ### Step 3: Supplement with Detailed Searches (as needed)
 

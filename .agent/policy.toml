@@ -1,62 +1,91 @@
 # RPGlitch Policy Engine Configuration
+# Schema: Official Gemini CLI Policy Engine (docs/core/policy-engine.md)
 
-# 1. Global Governance
-[policy]
-default_decision = "ask_user" # Default to safety
-priority = "Admin"
+# ============================================================================
+# LOW RISK - AUTO-ALLOW (Priority 100-199)
+# ============================================================================
 
-# 2. Automated Approvals (Low Risk)
-[[rules]]
-name = "Allow Routine Git Operations"
-tool = "run_shell_command"
-args = { command = "^git (status|diff|log|branch|add).*" }
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = ["git status", "git diff", "git log", "git branch", "git add"]
 decision = "allow"
+priority = 100
 
-[[rules]]
-name = "Allow Repository Discovery"
-tool = "run_shell_command"
-args = { command = "^(ls -R|dir|ls).*" }
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = ["ls", "dir", "ls -R", "cat", "type", "head", "tail"]
 decision = "allow"
+priority = 100
 
-[[rules]]
-name = "Allow Safe Code Reading"
-tool = "read_file"
+[[rule]]
+toolName = "view_file"
 decision = "allow"
+priority = 100
 
-# 3. High Risk / Guardrails (Deny/Ask)
-[[rules]]
-name = "Safe Zone: Read-Only Governance"
-tool = "write_file"
-args = { file_path = "^.agent/rules/.*" }
+[[rule]]
+toolName = "view_file_outline"
+decision = "allow"
+priority = 100
+
+[[rule]]
+toolName = "grep_search"
+decision = "allow"
+priority = 100
+
+[[rule]]
+toolName = "find_by_name"
+decision = "allow"
+priority = 100
+
+# ============================================================================
+# MEDIUM RISK - ALLOW WITH SCOPE (Priority 200-299)
+# ============================================================================
+
+[[rule]]
+toolName = ["write_to_file", "replace_file_content", "multi_replace_file_content"]
+argsPattern = '"TargetFile":"[^"]*src/'
+decision = "allow"
+priority = 200
+
+[[rule]]
+toolName = ["write_to_file", "replace_file_content", "multi_replace_file_content"]
+argsPattern = '"TargetFile":"[^"]*\\.agent/'
+decision = "allow"
+priority = 200
+
+# ============================================================================
+# HIGH RISK - DENY (Priority 300-399)
+# ============================================================================
+
+[[rule]]
+toolName = "run_shell_command"
+commandRegex = "(rm -rf|del /q|Format-Volume|rmdir /s)"
 decision = "deny"
+priority = 300
 
-[[rules]]
-name = "Safe Zone: Allow Source Edits"
-tool = "write_file"
-args = { file_path = "^src/.*" }
-decision = "allow"
-
-[[rules]]
-name = "Prevent Raw Deletions"
-tool = "run_shell_command"
-args = { command = ".*(rm -rf|del /q|Format-Volume).*" }
+[[rule]]
+toolName = ["write_to_file", "replace_file_content"]
+argsPattern = '"TargetFile":"[^"]*\\.agent/rules/'
 decision = "deny"
+priority = 350
 
-[[rules]]
-name = "Require Confirmation for Cross-Domain Edits"
-tool = "write_file"
-args = { file_path = "^(?!\.agent/|src/).*" } # Any edit outside .agent/ or src/
+[[rule]]
+toolName = ["write_to_file", "replace_file_content"]
+argsPattern = "(AI_KEY|API_SECRET|sk_live|-----BEGIN RSA PRIVATE KEY-----)"
+decision = "deny"
+priority = 400
+
+# ============================================================================
+# DEFAULT - ASK USER (Priority 0-99)
+# ============================================================================
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "npm"
 decision = "ask_user"
+priority = 50
 
-[[rules]]
-name = "Enforce DOMPurify for HTML injections"
-tool = "replace"
-args = { new_string = ".*(@html|innerHTML).*", old_string = "^(?!.*DOMPurify\.sanitize).*" }
+[[rule]]
+toolName = ["write_to_file", "replace_file_content", "multi_replace_file_content"]
 decision = "ask_user"
-
-# 4. Security
-[[rules]]
-name = "Prevent Secret Leaks"
-tool = "write_file"
-args = { content = ".*(AI_KEY|API_SECRET|sk_live|-----BEGIN RSA PRIVATE KEY-----).*" }
-decision = "deny"
+priority = 10

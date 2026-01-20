@@ -31,3 +31,9 @@ The system voice should be immersive, drawing the user into the story. For AI-ge
 - A clean, minimalist interface with intuitive navigation, ensuring ease of use and reduced cognitive load.
 - Rich, atmospheric visuals that enhance and complement the roleplaying themes.
 - Customizable themes and color palettes, allowing users to personalize their experience.
+
+**Design Resources:**
+
+- [Design Tokens](./knowledge/design/design-tokens.json)
+- [Voice & Tone Guidelines](./knowledge/design/voice-tone.md)
+- [Color Palette](./knowledge/design/colors.json)
