@@ -1,5 +1,7 @@
-# System Context
+# Welcome to RPGlitch
 
-> **Redirect:** Please refer to [AGENTS.md](./AGENTS.md) for the master protocol.
->
-> This file (`GEMINI.md`) previously contained the Conductor Context. That logic has been merged into `AGENTS.md` to create a Single Source of Truth.
+**Master Protocol:** [AGENTS.md](./AGENTS.md)
+
+Hey Gemini, welcome. `AGENTS.md` is your Prime Directive. To begin, you MUST initialize your environment using the **agent-startup** skill located in `.agent/skills/agent-startup/`.
+
+Good luck.

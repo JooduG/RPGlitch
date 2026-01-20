@@ -11,88 +11,76 @@
 **Crucial:** You are operating within the **Triad** architecture. Your context is unified under the `.agent/` root, split between *Passive Governance* (rules), *Specialized Skills* (capabilities), and *Active State* (tasks).
 
 ### 🚀 Initialization (Context Validation)
-Before any operation, all agents **MUST** validate their environment:
-1.  **Read Config:** Load `.agent/config.yaml` to determine project scope and role.
-2.  **Validate Tooling:** Load `.agent/tooling.json` to ensure required MCP servers and tools are available.
-3.  **Check Startup:** Verify `.gemini/on_startup.sh` has been implemented for environment preparation.
+Before any operation, all agents **MUST** validate their environment using the **agent-startup** skill:
+1.  **Read Config:** Load `.agent/config.yaml`.
+2.  **Validate Tooling:** Load `.agent/tooling.json`.
+3.  **Check Types:** Read `types.d.ts`.
+4.  **Check Startup:** Execute `.gemini/on_startup.sh`.
 
 ### 🔍 How to Locate Files
-1.  **Active State:** Check `.agent/index.md` first.
+Use the **agent-sync** protocol and the **Repo Overview** in `.agent/index.md` to resolve paths:
+1.  **Active State:** Check `.agent/index.md` first for the repository structure.
     -   **Product Definition:** `.agent/product.md`
     -   **Tech Stack:** `.agent/rules/tech-stack.md`
     -   **Workflow:** `.agent/rules/workflow.md`
 2.  **Passive Governance:** Check `.agent/rules/`.
-    -   **Architecture:** `.agent/rules/architecture.md`
-    -   **Security:** `.agent/rules/security.md`
-    -   **Tech Stack:** `.agent/rules/tech-stack.md`
-    -   **Workflow:** `.agent/rules/workflow.md`
-    -   **Anti-Patterns:** `.agent/rules/anti-patterns.md`
-    -   **Reasoning:** `.agent/rules/reasoning.md`
-3.  **Specialized Capabilities:** Check `.agent/skills/`.
+3.  **Specialized Capabilities:** See the **Skill Matrix** below.
 
 ### ⚡ Dynamic Context Hooks
-Before starting any task, you **MUST** read the following to ground yourself in the current reality:
+Before starting any task, you **MUST** read the following to ground yourself:
 1.  `.agent/config.yaml` (Project-wide settings)
 2.  `.agent/product.md` (What are we building?)
 3.  `.agent/tasks.md` (What are we doing right now?)
-4.  `.agent/rules/tech-stack.md` (What tools are we using?)
 
 ---
 
-## 2. 🧠 The MCP Enforcement Matrix
+## 2. 🧠 The Skill Matrix
 
-**Rule:** You **MUST** use the designated MCP Server for these intents. Do not guess APIs.
+| Skill | Trigger / Context | Purpose |
+| :--- | :--- | :--- |
+| **agent-startup** | Initialization / Session Start | Mandatory environment validation. |
+| **agent-sync** | `AGENTS.md`, `.agent/config.yaml`, `types.d.ts` | Bidirectional state & type synchronization. |
+| **artificer** | `src/artificer/**` | UI components, layouts, and storyboard features. |
+| **tasks** | `.agent/tasks.md` | TDD lifecycle, commit standards, and checkpointing. |
+| **docs** | `**/*.md`, `.agent/**` | Documentation and skill-creation governance. |
+| **svelte** | `**/*.svelte`, `**/*.svelte.js` | Svelte 5 Runes, Vite 6, and reactivity. |
+| **javascript** | `**/*.js` | Logic modules, Google style, and state management. |
+| **style** | `**/*.scss`, `**/*.css` | SCSS architecture (7-1 pattern) and brand identity. |
+| **developer-database** | `supabase/**`, `migrations/**`, `**/*.sql` | SQL migrations and Supabase realtime logic. |
+| **perchance** | `src/gamemaster/llm.js`, Perchance plugins | Platform integration and AI plugin management. |
+| **scholar** | `src/scholar/**` | Vector memory, Pinecone, and semantic search. |
+| **deploy** | Build requests | Production of the Single File Monolith. |
+| **html** | `**/*.html` | Semantic markup and accessibility compliance. |
+
+---
+
+## 3. 🧠 The MCP Enforcement Matrix
 
 | Intent Category | Active Server | Primary Tool | Triggers |
 | :--- | :--- | :--- | :--- |
 | **📘 Docs & Libs** | **Context7** | `resolve_library_id` | "How do I use X?", "Library help" |
 | **🧠 Deep Logic** | **Sequential** | `sequentialthinking` | "Plan this", "Logic check", "Complex refactor" |
 | **🔎 Code Search** | **GitHub** | `search_code` | "Find usage of X", "Search repo" |
-| **🗺️ Architecture** | **DeepWiki** | `read_wiki_structure` | "Explain architecture" |
 | **🛡️ Supply Chain** | **NPM** | `npmVulnerabilities` | "Check security", "Audit deps" |
 
-### Operational Protocols
--   **Context7:** Always `resolve_library_id` before fetching docs.
--   **Sequential Thinking:** Use for any task > Level 1 complexity. Breakdown steps explicitly.
--   **Artifact Loop:** 1. Triage -> 2. Plan (Sequential) -> 3. Execute -> 4. Verify.
--   **Execution Loop:** Look up relevant files via the **Triad Protocol**.
 ---
 
-## 3. 🛠️ The Tech Stack (Svelte 5 Native)
+## 4. 🛠️ The Tech Stack (Svelte 5 Native)
 
 > **Source of Truth:** `.agent/rules/tech-stack.md`.
-> **Standards:** `.agent/rules/`.
 
-### Core Mandates
 1.  **Runes Only:** `$state`, `$derived`, `$effect`, `$props`.
-    -   ❌ **BAN:** `writable`, `readable` (Legacy Stores).
-    -   ❌ **BAN:** `export let` (Legacy Props).
-2.  **Single File Monolith:** The output must be a single HTML file (Vite 6).
-    -   All CSS/JS inlined. No external HTTP requests for core functionality.
-3.  **Styling:** Native SCSS. No Tailwind utility soup.
-    -   Use `src/scss/` architecture (7-1 pattern).
+2.  **Single File Monolith:** Output is a single HTML file (Vite 6).
+3.  **Styling:** Native SCSS (7-1 pattern). No Tailwind.
 4.  **Persistence:** Dexie.js (IndexedDB).
-    -   ❌ **BAN:** Raw `localStorage` for complex state.
-
----
-
-## 4. 🛡️ Security & Integrity
-
-> **Detailed Guide:** `.agent/rules/security.md`.
-
-1.  **Freedom Protocol:** `src/gamemaster/bootstrap.js` contains anti-censorship overrides. **DO NOT TOUCH.**
-2.  **Zero-Trust:** `innerHTML` and `@html` are radioactive.
-    -   ✅ **REQUIRED:** `DOMPurify.sanitize(content)`.
-3.  **Secrets:** No API keys in client-side code.
 
 ---
 
 ## 5. 🚀 Execution Loop
 
-**When receiving a prompt:**
-1.  **Analyze:** Is this a *Strategic* (Plan), *Tactical* (Design), or *Operational* (Code) request?
-2.  **Resolve:** Look up the relevant files via the **Triad Protocol**.
-3.  **Execute:** Use **Sequential Thinking** to plan if complex.
-4.  **Verify:** Run `npm run lint` and `npm test` before declaring victory.
+1.  **Analyze:** Is this Strategic, Tactical, or Operational?
+2.  **Resolve:** Use the **Triad Protocol** to locate context.
+3.  **Execute:** Use **Sequential Thinking** for complexity.
+4.  **Verify:** Run `npm run validate` before declaring victory.
 
 *"If it looks real, it is real."*
