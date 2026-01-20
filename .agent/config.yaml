@@ -8,13 +8,27 @@ agents:
   primary_role: "Antigravity Architect"
   context_root: ".agent/"
   protocol: "Triad"
+  overrides:
+    summarizeToolOutput: true
+    enableToolOutputTruncation: true
+    compressionThreshold: 0.8
   
 environment:
   temp_dir: "C:\Users\johng\.gemini\tmp\"
   os: "win32"
   package_manager: "npm"
 
+context:
+  fileName: "GEMINI.md"
+  discoveryMaxDirs: 3
+  includeDirectories: [".agent", "src", "libs"]
+
 tooling:
   required_manifest: ".agent/tooling.json"
   startup_script: ".gemini/on_startup.sh"
+  allowed: ["*"]
+  exclude: ["rm", "format"] # Safety: exclude destructive raw shell commands
 
+model:
+  maxSessionTurns: 50
+  compressionThreshold: 0.75

@@ -1,6 +1,14 @@
 # Project Context
 
-## Repository Overview
+## 📜 Passive Governance (Rules)
+@import ./rules/architecture.md
+@import ./rules/tech-stack.md
+@import ./rules/security.md
+@import ./rules/standard-workflow.md
+@import ./rules/anti-patterns.md
+@import ./rules/reasoning.md
+
+## 📂 Repository Overview
 - `src/`: Core application source.
   - `artificer/`: UI Components and Layouts.
   - `gamemaster/`: Logic, State, and AI Engine.
@@ -11,16 +19,8 @@
 - `tools/`: Development, QA, and Hygiene scripts.
 - `migrations/`: Database schema history.
 
-## Definition
+## 🧭 Navigation
 - [Product Definition](./product.md)
-- [Tech Stack](../rules/tech-stack.md)
 - [Knowledge Base](../knowledge/)
-
-## Workflow
-- [Workflow](../rules/workflow.md)
-- [Code Style Guides](./code_styleguides/)
-
-## Management
-- [Tracks Registry](./tracks.md)
-- [Tracks Directory](./tracks/)
+- [Tracks Registry](./tasks.md)
 - [Ideas & Possibilities](./ideas/)

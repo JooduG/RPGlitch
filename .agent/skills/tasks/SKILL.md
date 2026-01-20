@@ -11,17 +11,14 @@ description: Triggers on .agent/tasks.md or where otherwise relevant. Governs th
 - Moving through the Red-Green-Refactor cycle.
 - Finalizing a task or phase in `.agent/tasks.md`.
 
-## Workflow
+## 📋 Task Management Workflow
 
-1.  **Select Task**: Choose the next sequential task from `.agent/tasks.md`.
-2.  **Mark In Progress**: Update `.agent/tasks.md` status to `[~]`.
-3.  **Red Phase**: Create failing unit tests that define the "Success" state.
-4.  **Green Phase**: Implement the minimum code to pass the tests.
-5.  **Refactor**: Clean code and tests without changing behavior.
-6.  **Verify**: Run coverage and project-specific checks (e.g., `npm run check`).
-7.  **Commit**: Use `<type>(<scope>): <description>` format.
-8.  **Notes**: Attach task summaries using `git notes`.
-9.  **Record**: Update `.agent/tasks.md` with status `[x]` and the commit hash.
+1.  **Initialize**: Use the `write_todos` tool to create a clear, multi-step plan for the current objective. This ensures focus and allows for progress tracking.
+2.  **TDD Lifecycle**:
+    -   **Red**: Write a failing test in `tools/tests/unit/` or `tools/tests/e2e/`.
+    -   **Green**: Implement minimum code to pass.
+    -   **Refactor**: Cleanup and check against `anti-patterns.md`.
+3.  **Checkpoint**: After each major todo item is completed, update the task state and commit.
 
 ## Instructions
 

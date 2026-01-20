@@ -1,0 +1,50 @@
+# RPGlitch Policy Engine Configuration
+
+# 1. Global Governance
+[policy]
+default_decision = "ask_user" # Default to safety
+priority = "Admin"
+
+# 2. Automated Approvals (Low Risk)
+[[rules]]
+name = "Allow Routine Git Operations"
+tool = "run_shell_command"
+args = { command = "^git (status|diff|log|branch|add).*" }
+decision = "allow"
+
+[[rules]]
+name = "Allow Repository Discovery"
+tool = "run_shell_command"
+args = { command = "^(ls -R|dir|ls).*" }
+decision = "allow"
+
+[[rules]]
+name = "Allow Safe Code Reading"
+tool = "read_file"
+decision = "allow"
+
+# 3. High Risk / Guardrails (Deny/Ask)
+[[rules]]
+name = "Prevent Raw Deletions"
+tool = "run_shell_command"
+args = { command = ".*(rm -rf|del /q|Format-Volume).*" }
+decision = "deny"
+
+[[rules]]
+name = "Require Confirmation for Cross-Domain Edits"
+tool = "write_file"
+args = { file_path = "^(?!\.agent/|src/).*" } # Any edit outside .agent/ or src/
+decision = "ask_user"
+
+[[rules]]
+name = "Enforce DOMPurify for HTML injections"
+tool = "replace"
+args = { new_string = ".*(@html|innerHTML).*", old_string = "^(?!.*DOMPurify\.sanitize).*" }
+decision = "ask_user"
+
+# 4. Security
+[[rules]]
+name = "Prevent Secret Leaks"
+tool = "write_file"
+args = { content = ".*(AI_KEY|API_SECRET|sk_live|-----BEGIN RSA PRIVATE KEY-----).*" }
+decision = "deny"
