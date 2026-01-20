@@ -1,6 +1,6 @@
 ---
 name: svelte
-description: Triggers on all .svelte and .svelte.js files or where otherwise relevant. Implements the Svelte 5 Protocol using Runes and Vite 6.
+description: Triggers on **/*.svelte, **/*.svelte.js, or where otherwise relevant. Implements the Svelte 5 Protocol using Runes and Vite 6.
 ---
 
 # Svelte: The Runes Protocol

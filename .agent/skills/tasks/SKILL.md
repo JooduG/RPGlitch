@@ -1,6 +1,6 @@
 ---
 name: tasks
-description: Triggers whenever a coding task is initiated or completed. Governs the TDD lifecycle, commit standards, and phase checkpointing.
+description: Triggers on .agent/tasks.md or where otherwise relevant. Governs the TDD lifecycle, commit standards, and phase checkpointing.
 ---
 
 # Tasks: TDD & Integrity Skill

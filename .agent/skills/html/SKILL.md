@@ -1,6 +1,6 @@
 ---
 name: html
-description: Triggers on all .html files or where otherwise relevant. Governs semantic markup standards, accessibility compliance, and DOM interaction.
+description: Triggers on **/*.html or where otherwise relevant. Governs semantic markup standards, accessibility compliance, and DOM interaction.
 ---
 
 # HTML: Semantic & Accessibility Skill

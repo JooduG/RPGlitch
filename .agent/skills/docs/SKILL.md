@@ -1,7 +1,6 @@
 ---
 name: docs
-description: Triggers whenever working on a .md file or within the .agent/ directory.
-globs: ["**/*.md", ".agent/**"]
+description: Triggers on **/*.md, .agent/**, or where otherwise relevant.
 ---
 
 # Docs: Living Memory & Skill Architecture
@@ -47,14 +46,22 @@ These files are the project's scratchpads—brain-dumps for the **right here, ri
 
 ---
 
-## Workflow: Skill Creation & Standardization
+## Workflow: Skill Management & Standardization
 
-When creating a new behavior module in `.agent/skills/`:
+### 🛠️ Lifecycle of a Skill
 
-1. **Structure Setup**: Create `<skill-name>/` with a mandatory `SKILL.md`.
-2. **Metadata Definition**: Add YAML frontmatter with `name` (folder name) and a concise `description`.
-3. **Content Authoring**: Write brief instructions using bullet points and code blocks.
-4. **Knowledge Linkage**: Place specific reference objects in a nested `knowledge/` subfolder.
+When managing behavioral modules in `.agent/skills/`:
+
+1.  **Creation**: Create `<skill-name>/` with a mandatory `SKILL.md`. Include trigger globs in the `description` for AI understanding.
+2.  **Installation**: For NEW skills, run `gemini skills install .agent/skills/<skill-name>/`.
+3.  **Updating**: If you modify a `SKILL.md`, use the `/skills reload` command (or restart the session) to pick up changes. No re-install is needed.
+4.  **Removal**: To delete a skill, run `gemini skills uninstall <skill-name>` and then delete the folder.
+
+### ✍️ Content Authoring
+
+- **Metadata Definition**: Add YAML frontmatter with `name` (folder name) and a concise `description`.
+- **Logic**: Write brief instructions using bullet points and code blocks.
+- **Knowledge Linkage**: Place specific reference objects in a nested `knowledge/` subfolder.
 
 ---
 

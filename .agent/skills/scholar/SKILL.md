@@ -1,6 +1,6 @@
 ---
 name: scholar
-description: Triggers on all files in src/scholar/ or where otherwise relevant. Governs long-term memory management, Pinecone MCP integration, and semantic search.
+description: Triggers on src/scholar/** or where otherwise relevant. Governs long-term memory management, Pinecone MCP integration, and semantic search.
 ---
 
 # Scholar: Vector Memory Skill
@@ -13,9 +13,9 @@ description: Triggers on all files in src/scholar/ or where otherwise relevant. 
 
 ## Workflow
 
-1.  **Ingestion**: Read source text -> Chunk by entity -> Embed -> Upsert to Pinecone.
-2.  **Search**: Generate a semantic query -> Apply metadata filters -> Execute via MCP.
-3.  **Synthesis**: Integrate retrieved results into the LLM context window.
+1. **Ingestion**: Read source text -> Chunk by entity -> Embed -> Upsert to Pinecone.
+2. **Search**: Generate a semantic query -> Apply metadata filters -> Execute via MCP.
+3. **Synthesis**: Integrate retrieved results into the LLM context window.
 
 ## Instructions
 

@@ -1,0 +1,18 @@
+{
+  "required_mcp_servers": [
+    "context7",
+    "github",
+    "svelte",
+    "pinecone",
+    "sequentialthinking"
+  ],
+  "standard_tools": [
+    "search_file_content",
+    "read_file",
+    "run_shell_command",
+    "replace",
+    "write_file",
+    "activate_skill"
+  ],
+  "validation_command": "npm run validate"
+}

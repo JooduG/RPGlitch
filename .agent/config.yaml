@@ -1,0 +1,20 @@
+project:
+  name: "RPGlitch"
+  type: "Local-First Roleplaying Engine"
+  architecture: "Triad"
+  version: "1.0.0"
+
+agents:
+  primary_role: "Antigravity Architect"
+  context_root: ".agent/"
+  protocol: "Triad"
+  
+environment:
+  temp_dir: "C:\Users\johng\.gemini\tmp\"
+  os: "win32"
+  package_manager: "npm"
+
+tooling:
+  required_manifest: ".agent/tooling.json"
+  startup_script: ".gemini/on_startup.sh"
+

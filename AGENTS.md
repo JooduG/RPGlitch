@@ -10,6 +10,12 @@
 
 **Crucial:** You are operating within the **Triad** architecture. Your context is unified under the `.agent/` root, split between *Passive Governance* (rules), *Specialized Skills* (capabilities), and *Active State* (tasks).
 
+### 🚀 Initialization (Context Validation)
+Before any operation, all agents **MUST** validate their environment:
+1.  **Read Config:** Load `.agent/config.yaml` to determine project scope and role.
+2.  **Validate Tooling:** Load `.agent/tooling.json` to ensure required MCP servers and tools are available.
+3.  **Check Startup:** Verify `.gemini/on_startup.sh` has been implemented for environment preparation.
+
 ### 🔍 How to Locate Files
 1.  **Active State:** Check `.agent/index.md` first.
     -   **Product Definition:** `.agent/product.md`
@@ -26,9 +32,10 @@
 
 ### ⚡ Dynamic Context Hooks
 Before starting any task, you **MUST** read the following to ground yourself in the current reality:
-1.  `.agent/product.md` (What are we building?)
-2.  `.agent/tasks.md` (What are we doing right now?)
-3.  `.agent/rules/tech-stack.md` (What tools are we using?)
+1.  `.agent/config.yaml` (Project-wide settings)
+2.  `.agent/product.md` (What are we building?)
+3.  `.agent/tasks.md` (What are we doing right now?)
+4.  `.agent/rules/tech-stack.md` (What tools are we using?)
 
 ---
 

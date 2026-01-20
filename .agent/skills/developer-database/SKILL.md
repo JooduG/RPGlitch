@@ -1,6 +1,6 @@
 ---
 name: developer-database
-description: Triggers on all .sql and .ts files in supabase/ or migrations/, or where otherwise relevant. Governs database architecture, SQL migrations, and Supabase realtime logic.
+description: Triggers on supabase/**, migrations/**, **/*.sql, or where otherwise relevant. Governs database architecture, SQL migrations, and Supabase realtime logic.
 ---
 
 # Developer Database: Architecture & Realtime Skill

@@ -1,6 +1,6 @@
 ---
 name: style
-description: Triggers on all .scss, .css, and .svelte files or where otherwise relevant. Governs brand identity, visual design standards, and SCSS architecture.
+description: Triggers on **/*.scss, **/*.css, or where otherwise relevant. Governs brand identity, visual design standards, and SCSS architecture.
 ---
 
 # Style: Brand & SCSS Skill

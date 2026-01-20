@@ -1,3 +1,9 @@
+---
+trigger: always_on
+description: This document explicitly lists patterns that are **strictly forbidden** or **highly discouraged** in the JooduG monorepo.
+globs: *
+---
+
 # ⛔ Anti-Patterns & Forbidden Practices
 
 This document explicitly lists patterns that are **strictly forbidden** or **highly discouraged** in the JooduG monorepo.

@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # Tech Stack & Antigravity Ecosystem
 
 > **Context:** This document outlines the mandatory engineering constraints (Rules) and the operational strategy for the Agentic Ecosystem.
@@ -14,8 +18,8 @@
 
 - **Bundler:** **Vite 6+** (Replaces esbuild).
 - **Target:** **Single HTML Monolith** (The "Artifact").
-  - All CSS, JS, and Assets must be **inlined**.
-  - No external HTTP requests for core functionality (Offline First).
+    - All CSS, JS, and Assets must be **inlined**.
+    - No external HTTP requests for core functionality (Offline First).
 - **Environment:** Node.js 22.x (Build Time).
 - **Legacy Ban:** No CommonJS (`require`). No Polyfills for dead browsers.
 
@@ -32,8 +36,8 @@
 - **Preprocessor:** **SCSS** (Sass).
 - **Architecture:** 7-1 Pattern (Abstracts, Base, Components, Layouts).
 - **Icons:** **Inline SVG** Only.
-  - ❌ No FontAwesome / External Icon Fonts.
-  - ✅ `<svg class="icon">...</svg>` (Use `currentColor`).
+    - ❌ No FontAwesome / External Icon Fonts.
+    - ✅ `<svg class="icon">...</svg>` (Use `currentColor`).
 - **Variables:** Use `--app-*` exclusively. ❌ Ban `--pico-*`.
 
 ## 5. Security & Integrity
@@ -54,33 +58,38 @@
 > **Philosophy:** Agents are "Managers," not just "Typists."
 
 ### 7.1 Model Layers
+
 - **Tier 1 (Cortex):** Gemini 3.0 Pro / Claude 3.5 Sonnet. Used for Planning, complex refactors, and logic.
 - **Tier 2 (Reflex):** Gemini 2.x Flash. Used for "Fast Mode" tasks like CSS tweaks, docs, and tests.
 
 ### 7.2 Security Architecture (Prompt Injection Defense)
+
 - **File Deny List:** Strict block on SSH keys, `.env`, and secret credentials.
 - **Network Allow List:** Restricted to verified domains (`github.com`, `perchance.org`).
 - **Zero-Trust Sanitization:** All AI-injected content passes through `DOMPurify`.
 
 ## 8. Standards & Protocols
 
--   **JavaScript:** [./javascript.md](./javascript.md)
--   **Style (SCSS):** [./style.md](./style.md)
--   **HTML & A11y:** [./html.md](./html.md)
--   **Brand Identity:** [./brand/README.md](./brand/README.md)
+- **JavaScript:** [./javascript.md](./javascript.md)
+- **Style (SCSS):** [./style.md](./style.md)
+- **HTML & A11y:** [./html.md](./html.md)
+- **Brand Identity:** [./brand/README.md](./brand/README.md)
 
 ## 9. Implementation Guidelines (Brand Specific)
 
 ### 9.1 SCSS Usage
+
 - Use CSS Variables defined in [./style.md](./style.md).
 - **Dark Mode:** Support dark mode using standard media queries or class-based toggles.
 
 ### 9.2 Component Patterns
+
 - **Buttons:** Primary actions must use the solid Primary color.
 - **Forms:** Labels must always be placed _above_ input fields.
 - **Layout:** Use CSS Grid (10-column system) and Flexbox.
 
 ### 9.3 Forbidden Patterns
+
 - Do NOT use jQuery.
 - Do NOT use Bootstrap classes.
 - Do NOT use Tailwind classes.

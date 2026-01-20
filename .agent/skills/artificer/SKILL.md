@@ -1,6 +1,6 @@
 ---
 name: artificer
-description: Triggers on all files in src/artificer/ or where otherwise relevant. Governs the crafting of UI components, layouts, and storyboard features.
+description: Triggers on src/artificer/** or where otherwise relevant. Governs the crafting of UI components, layouts, and storyboard features.
 ---
 
 # Artificer: UI & Layout Skill

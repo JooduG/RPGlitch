@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: Triggers on all .js and .svelte.js files or where otherwise relevant. Governs logic module creation, Google style standards, and application state management.
+description: Triggers on **/*.js, **/*.svelte.js, or where otherwise relevant. Governs logic module creation, Google style standards, and application state management.
 ---
 
 # JavaScript: Logic & State Skill
