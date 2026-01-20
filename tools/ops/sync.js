@@ -233,6 +233,8 @@ function syncMcp() {
     console.log("\n🔄 Syncing MCP configurations...")
     const masterMcpPath = path.join(REPO_ROOT, "mcp.master.json")
     const envPath = path.join(REPO_ROOT, ".env")
+    const geminiSettingsPath = path.join(REPO_ROOT, ".gemini", "settings.json")
+
     const masterMcp = readJson(masterMcpPath)
     if (Object.keys(masterMcp).length === 0) return
 
@@ -254,7 +256,64 @@ function syncMcp() {
 
     const resolvedMcp = substituteEnvVariables(masterMcp)
 
+    // 1. Write to mcp.json (for generic usage - keep original format)
     writeJson(path.join(REPO_ROOT, "mcp.json"), resolvedMcp)
+
+    // 2. Update .gemini/settings.json (with Gemini-specific transformations)
+    if (fs.existsSync(geminiSettingsPath)) {
+        console.log(
+            `  Updating ${path.relative(REPO_ROOT, geminiSettingsPath)}...`
+        )
+        try {
+            const geminiSettings = readJson(geminiSettingsPath)
+
+            if (resolvedMcp.mcpServers) {
+                const geminiMcpServers = {}
+
+                for (const [name, config] of Object.entries(
+                    resolvedMcp.mcpServers
+                )) {
+                    // Skip disabled servers
+                    if (config.disabled === true) {
+                        continue
+                    }
+
+                    const newConfig = { ...config }
+
+                    // Remove keys not supported by Gemini CLI
+                    delete newConfig.disabled
+                    delete newConfig.disabledTools
+
+                    // Rename serverUrl to url (Gemini expects 'url' for SSE)
+                    if (newConfig.serverUrl) {
+                        newConfig.url = newConfig.serverUrl
+                        delete newConfig.serverUrl
+                    }
+
+                    geminiMcpServers[name] = newConfig
+                }
+
+                geminiSettings.mcpServers = geminiMcpServers
+                writeJson(geminiSettingsPath, geminiSettings)
+                console.log(
+                    `  ✅ Updated mcpServers in .gemini/settings.json (with adaptations)`
+                )
+            } else {
+                console.log(
+                    `  ⚠️ No mcpServers found in master config, skipping .gemini/settings.json update`
+                )
+            }
+        } catch (err) {
+            console.error(
+                `  ❌ Failed to update .gemini/settings.json: ${err.message}`
+            )
+        }
+    } else {
+        console.log(
+            `  Reference to .gemini/settings.json not found, skipping update.`
+        )
+    }
+
     console.log("✅ MCP sync complete.")
 }
 

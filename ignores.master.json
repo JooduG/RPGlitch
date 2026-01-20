@@ -25,7 +25,7 @@
         "*.css.map",
         "test-results/",
         "scribbles.md",
-        "scribbles-summary.md",
+        "scrubbles.md",
         "llms.md",
         "/.agent/knowledge/ANEX.md"
     ],
@@ -84,7 +84,7 @@
             ".markdownlint.json",
             "*.resolved",
             "scribbles.md",
-            "scribbles-summary.md",
+            "scrubbles.md",
             "llms.md",
             "/.agent/knowledge/ANEX.md"
         ],

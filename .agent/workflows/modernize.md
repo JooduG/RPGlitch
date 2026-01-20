@@ -20,7 +20,7 @@ description: Safe refactoring pipeline. Upgrades legacy logic to Svelte 5 Runes 
 **Rule:** Do not migrate "halfway". The file must be 100% Runes or 0%.
 
 1. **Imports:** Ensure `.svelte.js` stores are imported, NOT `writable` stores.
-2. **Script:** Rewrite the `<script>` block using the **Runes Bible** (`.agent/rules/svelte-5.md`).
+2. **Script:** Rewrite the `<script>` block using the **Runes Bible** (`.agent/skills/svelte/SKILL.md`).
 3. **Template:** Update event listeners (`on:click` -> `onclick`).
 
 ## 3. Verification

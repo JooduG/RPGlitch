@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename);
 
 const INPUT_FILE = path.join(
   __dirname,
-  "../../.agent/knowledge/ideas/ANEX_Lorebook.json",
+  "../../.agent/knowledge/lorebook/knowledge/ANEX_Lorebook.json",
 );
 const OUTPUT_DIR = path.join(__dirname, "../../migrations");
 

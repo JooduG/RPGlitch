@@ -10,7 +10,7 @@ description: Resilience Protocol. Analyzes broken state, fixes syntax errors cau
 
 1. **Check Status:** Run `git status` or list active files.
 2. **Reload Rules (CRITICAL):**
-   - You **MUST** read `.agent/rules/architecture.md` and `.agent/rules/svelte-5.md` before writing a single line of code.
+   - You **MUST** read `.agent/rules/architecture.md` and `.agent/skills/svelte/SKILL.md` before writing a single line of code.
    - _Reason:_ Without this, you might hallucinate Svelte 4 syntax.
 
 ## 2. Syntax Repair
