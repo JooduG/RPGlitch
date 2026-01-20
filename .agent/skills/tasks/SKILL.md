@@ -13,12 +13,12 @@ description: Triggers on .agent/tasks.md or where otherwise relevant. Governs th
 
 ## 📋 Task Management Workflow
 
-1.  **Initialize**: Use the `write_todos` tool to create a clear, multi-step plan for the current objective. This ensures focus and allows for progress tracking.
+1.  **Initialize**: Maintain a clear, multi-step plan for the current objective directly in `.agent/tasks.md`. Use `replace` or `write_file` to keep the state updated (e.g., `[ ]` to `[~]` to `[x]`). This ensures focus and allows for progress tracking across sessions.
 2.  **TDD Lifecycle**:
     -   **Red**: Write a failing test in `tools/tests/unit/` or `tools/tests/e2e/`.
     -   **Green**: Implement minimum code to pass.
     -   **Refactor**: Cleanup and check against `anti-patterns.md`.
-3.  **Checkpoint**: After each major todo item is completed, update the task state and commit.
+3.  **Checkpoint**: After each major todo item is completed, update the task state in `.agent/tasks.md` and commit.
 
 ## Instructions
 

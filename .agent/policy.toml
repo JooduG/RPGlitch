@@ -25,6 +25,18 @@ decision = "allow"
 
 # 3. High Risk / Guardrails (Deny/Ask)
 [[rules]]
+name = "Safe Zone: Read-Only Governance"
+tool = "write_file"
+args = { file_path = "^.agent/rules/.*" }
+decision = "deny"
+
+[[rules]]
+name = "Safe Zone: Allow Source Edits"
+tool = "write_file"
+args = { file_path = "^src/.*" }
+decision = "allow"
+
+[[rules]]
 name = "Prevent Raw Deletions"
 tool = "run_shell_command"
 args = { command = ".*(rm -rf|del /q|Format-Volume).*" }

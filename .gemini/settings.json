@@ -71,6 +71,9 @@
         "preferredEditor": "antigravity"
     },
     "agentProtocolFile": "../AGENTS.md",
+    "hooks": {
+        "session_start": ".gemini/hooks/on_start.sh"
+    },
     "tools": {
         "useRipgrep": true
     }

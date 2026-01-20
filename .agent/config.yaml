@@ -8,6 +8,8 @@ agents:
   primary_role: "Antigravity Architect"
   context_root: ".agent/"
   protocol: "Triad"
+  prime_directive: "AGENTS.md"
+  policy: ".agent/policy.toml"
   overrides:
     summarizeToolOutput: true
     enableToolOutputTruncation: true
