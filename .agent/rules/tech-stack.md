@@ -70,9 +70,9 @@ trigger: always_on
 
 ## 8. Standards & Protocols
 
-- **JavaScript:** See [javascript skill](../skills/javascript/SKILL.md)
-- **Style (SCSS):** See [style skill](../skills/style/SKILL.md)
-- **HTML & A11y:** See [html skill](../skills/html/SKILL.md)
+- **JavaScript:** See [javascript skill](../global_skills/javascript/SKILL.md)
+- **Style (SCSS):** See [style skill](../global_skills/style/SKILL.md)
+- **HTML & A11y:** See [html skill](../global_skills/html/SKILL.md)
 - **Brand Identity:** See [design resources](../knowledge/design/)
 
 ## 9. Implementation Guidelines (Brand Specific)

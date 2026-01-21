@@ -1,96 +1,124 @@
 {
-    "ui": {
-        "accessibility": {
-            "screenReader": false
-        },
-        "showMemoryUsage": false,
-        "theme": "Atom One"
+  "ui": {
+    "accessibility": {
+      "screenReader": false
     },
-    "context": {
-        "loadMemoryFromIncludeDirectories": true,
-        "fileFiltering": {
-            "respectGitIgnore": false
-        }
-    },
-    "security": {
-        "folderTrust": {
-            "featureEnabled": true,
-            "enabled": true
-        },
-        "auth": {
-            "selectedType": "oauth-personal"
-        }
-    },
-    "ide": {
-        "hasSeenNudge": true,
-        "enabled": true
-    },
-    "mcpServers": {
-        "chrome-devtools": {
-            "command": "cmd",
-            "args": ["/c", "npx", "chrome-devtools-mcp@latest"]
-        },
-        "context7": {
-            "headers": {
-                "CONTEXT7_API_KEY": "ctx7sk-47294459-6c98-4af4-8546-a3616fe3d7d9"
-            },
-            "url": "https://mcp.context7.com/mcp"
-        },
-        "deepwiki": {
-            "url": "https://mcp.deepwiki.com/sse"
-        },
-        "github": {
-            "headers": {
-                "Authorization": "Bearer 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"
-            },
-            "url": "https://api.githubcopilot.com/mcp"
-        },
-        "mcp-sequentialthinking-tools": {
-            "command": "cmd",
-            "args": ["/c", "npx", "-y", "mcp-sequentialthinking-tools"]
-        },
-        "waldzell-clear-thought": {
-            "command": "cmd",
-            "args": ["/c", "npx", "-y", "@waldzellai/clear-thought"]
-        },
-        "waldzell-stochastic-thinking": {
-            "command": "cmd",
-            "args": ["/c", "npx", "-y", "@waldzellai/stochasticthinking"]
-        },
-        "svelte": {
-            "command": "cmd",
-            "args": ["/c", "npx", "-y", "@sveltejs/mcp"]
-        },
-        "playwright": {
-            "command": "npx",
-            "args": ["@playwright/mcp@latest"]
-        }
-    },
-    "general": {
-        "enablePromptCompletion": true,
-        "preferredEditor": "antigravity"
-    },
-    "agentProtocolFile": "../AGENTS.md",
-    "hooks": {
-        "enabled": true,
-        "session_start": ["powershell.exe -ExecutionPolicy Bypass -File .gemini/hooks/on_start.ps1"],
-        "SessionStart": [
-            {
-                "matcher": "startup",
-                "hooks": [
-                    {
-                        "name": "reality-check",
-                        "type": "command",
-                        "command": "powershell.exe -ExecutionPolicy Bypass -File .gemini/hooks/on_start.ps1",
-                        "description": "RPGlitch Environment Reality Check",
-                        "timeout": 30000
-                    }
-                ]
-            }
-        ]
-    },
-    "tools": {
-        "useRipgrep": true,
-        "enableHooks": true
+    "showMemoryUsage": false,
+    "theme": "Atom One"
+  },
+  "context": {
+    "loadMemoryFromIncludeDirectories": true,
+    "fileFiltering": {
+      "respectGitIgnore": false
     }
+  },
+  "security": {
+    "folderTrust": {
+      "featureEnabled": true,
+      "enabled": true
+    },
+    "auth": {
+      "selectedType": "oauth-personal"
+    }
+  },
+  "ide": {
+    "hasSeenNudge": true,
+    "enabled": true
+  },
+  "mcpServers": {
+    "chrome-devtools": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "chrome-devtools-mcp@latest"
+      ]
+    },
+    "context7": {
+      "headers": {
+        "CONTEXT7_API_KEY": "ctx7sk-47294459-6c98-4af4-8546-a3616fe3d7d9"
+      },
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "deepwiki": {
+      "url": "https://mcp.deepwiki.com/sse"
+    },
+    "github": {
+      "headers": {
+        "Authorization": "Bearer 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"
+      },
+      "url": "https://api.githubcopilot.com/mcp"
+    },
+    "mcp-sequentialthinking-tools": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "mcp-sequentialthinking-tools"
+      ]
+    },
+    "waldzell-clear-thought": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@waldzellai/clear-thought"
+      ]
+    },
+    "waldzell-stochastic-thinking": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@waldzellai/stochasticthinking"
+      ]
+    },
+    "svelte": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@sveltejs/mcp"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    }
+  },
+  "general": {
+    "enablePromptCompletion": true,
+    "preferredEditor": "antigravity"
+  },
+  "agentProtocolFile": "../AGENTS.md",
+  "hooks": {
+    "enabled": true,
+    "session_start": [
+      "powershell.exe -ExecutionPolicy Bypass -File .gemini/hooks/on_start.ps1"
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "name": "reality-check",
+            "type": "command",
+            "command": "powershell.exe -ExecutionPolicy Bypass -File .gemini/hooks/on_start.ps1",
+            "description": "RPGlitch Environment Reality Check",
+            "timeout": 30000
+          }
+        ]
+      }
+    ]
+  },
+  "tools": {
+    "useRipgrep": true,
+    "enableHooks": true
+  }
 }

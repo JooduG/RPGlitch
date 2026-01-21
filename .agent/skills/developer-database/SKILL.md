@@ -22,26 +22,36 @@ description: Triggers on supabase/**, migrations/**, **/*.sql, or where otherwis
 ## Instructions
 
 ### 1. Database Standards
+
 - **RLS**: Every table must have RLS enabled. Avoid `FOR ALL`; be granular (SELECT, INSERT, etc.).
 - **Indexing**: Columns used in RLS `USING` clauses MUST be indexed.
 - **IDs**: Use `identity generated always as identity` unless UUIDs are required.
 
+### 4. Performance Optimization (Best Practices)
+
+- **Large Queries**: Use `EXPLAIN ANALYZE` to debug slow queries.
+- **Pagination**: Use **Keyset Pagination** (referencing the last seen ID/Timestamp) instead of `OFFSET` for large data sets (>10k rows).
+- **Indexing**: Always implement Composite Indexes for common filter combinations (e.g., `campaign_id` + `created_at`).
+
 ### 2. Realtime Protocols
+
 - **Mechanism**: Use `broadcast` for high-frequency events (moves, dice); `presence` for online status.
 - **Cleanup**: Always call `removeChannel` in `onDestroy` or component teardown.
 - **Svelte Integration**: Use `$effect` and `onMount` for subscription lifecycle management.
 
 ### 3. Edge Functions (Deno)
+
 - **Runtime**: Use Deno (not Node). Use `npm:` or `jsr:` prefixes for imports.
-- **Secrets**: Access via `Deno.env.get()`.
+- **Secrets**: Access strictly via `Deno.env.get("KEY_NAME")`. Never hardcode.
+- **Timeouts**: Be aware of generic timeouts (often 60s). For long storage ops, decouple the response from the background work.
 
 ## Resources
 
 ### Realtime Decision Matrix
 
-| Event | Function | Rationale |
-| :--- | :--- | :--- |
-| **Token Move** | `broadcast` | High frequency, ephemeral. |
-| **Dice Roll** | `broadcast` | Immediate feedback; async persist. |
-| **Chat** | `broadcast` | Socket speed; background DB save. |
-| **Join/Leave** | `presence` | Efficient state diffing. |
+| Event          | Function    | Rationale                          |
+| :------------- | :---------- | :--------------------------------- |
+| **Token Move** | `broadcast` | High frequency, ephemeral.         |
+| **Dice Roll**  | `broadcast` | Immediate feedback; async persist. |
+| **Chat**       | `broadcast` | Socket speed; background DB save.  |
+| **Join/Leave** | `presence`  | Efficient state diffing.           |

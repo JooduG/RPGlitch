@@ -8,72 +8,79 @@
    Refactored for Mesmer.
    ============================================================================ */
 
+/* Universal Box-Sizing: border-box (Standard) */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
 :root {
-  // --- Z-INDEX MAP ---
-  --z-base: #{map.get(vars.$z-map, base)};
-  --z-chip: #{map.get(vars.$z-map, chip)};
-  --z-mobile-drawer: #{map.get(vars.$z-map, mobile-drawer-container)};
-  --z-overlay: #{map.get(vars.$z-map, overlay)};
-  --z-modal: #{map.get(vars.$z-map, modal)};
-  --z-drawer: #{map.get(vars.$z-map, drawer)};
-  --z-toast: #{map.get(vars.$z-map, toast)};
+    // --- Z-INDEX MAP ---
+    --z-base: #{map.get(vars.$z-map, base)};
+    --z-chip: #{map.get(vars.$z-map, chip)};
+    --z-mobile-drawer: #{map.get(vars.$z-map, mobile-drawer-container)};
+    --z-overlay: #{map.get(vars.$z-map, overlay)};
+    --z-modal: #{map.get(vars.$z-map, modal)};
+    --z-drawer: #{map.get(vars.$z-map, drawer)};
+    --z-toast: #{map.get(vars.$z-map, toast)};
 
-  // --- THEME VARIABLES ---
-  --app-color: #{vars.$app-color-light};
-  --app-muted: #{vars.$muted-light};
-  --app-border: #{vars.$border-light};
-  --app-del: #{vars.$color-danger};
-  --app-background: #{vars.$app-background};
-  --card-background: #{vars.$card-background};
-  --form-background: #{vars.$form-background};
-  --app-component-bg: #{vars.$component-bg};
+    // --- THEME VARIABLES ---
+    --app-color: #{vars.$app-color-light};
+    --app-muted: #{vars.$muted-light};
+    --app-border: #{vars.$border-light};
+    --app-del: #{vars.$color-danger};
+    --app-background: #{vars.$app-background};
+    --card-background: #{vars.$card-background};
+    --form-background: #{vars.$form-background};
+    --app-component-bg: #{vars.$component-bg};
 
-  // Primary Colors (From Tokens)
-  --app-primary: #{vars.$app-primary};
-  --app-primary-inverse: #{vars.$app-primary-inverse};
-  --app-primary-hover: #{vars.$app-primary-hover};
-  --app-primary-focus: #{vars.$app-primary-focus};
+    // Primary Colors (From Tokens)
+    --app-primary: #{vars.$app-primary};
+    --app-primary-inverse: #{vars.$app-primary-inverse};
+    --app-primary-hover: #{vars.$app-primary-hover};
+    --app-primary-focus: #{vars.$app-primary-focus};
 
-  // Secondary Colors (From Tokens)
-  --app-secondary: #{vars.$app-secondary};
-  --app-secondary-inverse: #{vars.$app-secondary-inverse};
-  --app-secondary-hover: #{vars.$app-secondary-hover};
+    // Secondary Colors (From Tokens)
+    --app-secondary: #{vars.$app-secondary};
+    --app-secondary-inverse: #{vars.$app-secondary-inverse};
+    --app-secondary-hover: #{vars.$app-secondary-hover};
 
-  // --- APP UTILITIES ---
-  --rp-text-shadow: #{vars.$rp-text-shadow};
-  --color-accent: #{vars.$app-accent};
-  --signature-text-on: #{vars.$white};
+    // --- APP UTILITIES ---
+    --rp-text-shadow: #{vars.$rp-text-shadow};
+    --color-accent: #{vars.$app-accent};
+    --signature-text-on: #{vars.$white};
 
-  // Initialize signature vars (Forwarded from tokens -> palette-generated)
-  @each $name, $data in vars.$signature-colors {
-    --signature-#{$name}: #{map.get($data, color)};
-  }
+    // Initialize signature vars (Forwarded from tokens -> palette-generated)
+    @each $name, $data in vars.$signature-colors {
+        --signature-#{$name}: #{map.get($data, color)};
+    }
 
-  // Gradient Variables
-  --bg-grad-1: #{vars.$gradient-color-1};
-  --bg-grad-2: #{vars.$gradient-color-2};
-  --bg-grad-3: #{vars.$gradient-color-3};
-  --bg-grad-4: #{vars.$gradient-color-4};
+    // Gradient Variables
+    --bg-grad-1: #{vars.$gradient-color-1};
+    --bg-grad-2: #{vars.$gradient-color-2};
+    --bg-grad-3: #{vars.$gradient-color-3};
+    --bg-grad-4: #{vars.$gradient-color-4};
 }
 
 // --- DYNAMIC SIGNATURE UTILITY ---
 .themed-signature {
-  --current-sig: var(--signature-color, #{vars.$signature-violet});
-  --current-sig-rgb: var(--signature-rgb, 139 92 246);
-  --signature-10: rgb(var(--current-sig-rgb) / 10%);
-  --signature-20: rgb(var(--current-sig-rgb) / 20%);
-  --signature-50: rgb(var(--current-sig-rgb) / 50%);
+    --current-sig: var(--signature-color, #{vars.$signature-violet});
+    --current-sig-rgb: var(--signature-rgb, 139 92 246);
+    --signature-10: rgb(var(--current-sig-rgb) / 10%);
+    --signature-20: rgb(var(--current-sig-rgb) / 20%);
+    --signature-50: rgb(var(--current-sig-rgb) / 50%);
 
-  color: var(--current-sig);
-  border-color: var(--current-sig);
+    color: var(--current-sig);
+    border-color: var(--current-sig);
 }
 
 // --- DARK THEME OVERRIDES ---
 [data-theme="dark"] {
-  --app-background: #{vars.$app-background-dark};
-  --card-background: #{vars.$card-background-dark};
-  --form-background: #{vars.$form-background-dark};
-  --app-color: #{vars.$app-color-dark};
-  --app-muted: #{vars.$muted-dark};
-  --app-border: #{vars.$border-dark};
+    --app-background: #{vars.$app-background-dark};
+    --card-background: #{vars.$card-background-dark};
+    --form-background: #{vars.$form-background-dark};
+    --app-color: #{vars.$app-color-dark};
+    --app-muted: #{vars.$muted-dark};
+    --app-border: #{vars.$border-dark};
 }

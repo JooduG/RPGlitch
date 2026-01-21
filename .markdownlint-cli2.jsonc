@@ -15,7 +15,7 @@
     "/dist",
     "libs/**",
     "llms.md",
-    "scribbles-summary.md",
-    "scribbles.md"
+    "scribbles.md",
+    "scrubbles.md"
   ]
 }

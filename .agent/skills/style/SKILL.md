@@ -53,4 +53,4 @@ This skill enforces core constraints for visual design and technical implementat
 - [Voice & Tone](../../knowledge/design/voice-tone.md)
 - [Colors](../../knowledge/design/colors.json)
 - [Global Glossary](../../knowledge/glossary.md)
-- [Design Lists Scripts](../../knowledge/reference/design-lists/scripts/)
+- [Design Lists Scripts](../../knowledge/reference/design-lists/scripts)

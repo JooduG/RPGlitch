@@ -1,238 +1,99 @@
 <script>
-  import Button from "./Button.svelte";
-  let {
-    title,
-    icon,
-    onclose,
-    variant = "standard", // 'standard' | 'entity' | 'transparent' | 'media' | 'preview'
-    children,
-  } = $props();
+    let {
+        onclose,
+        variant = "standard", // 'standard' | 'profile' | 'preview'
+        children,
+    } = $props()
 
-  function handleKeydown(e) {
-    if (e.key === "Escape") onclose();
-  }
+    function handleKeydown(e) {
+        if (e.key === "Escape") onclose()
+    }
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
 
+<!-- svelte-ignore a11y_click_events_have_key_events -->
 <div
-  class="modal-backdrop"
-  onclick={(e) => {
-    if (e.target === e.currentTarget) onclose();
-  }}
-  onkeydown={(e) => {
-    if (e.key === "Escape") onclose();
-  }}
-  role="dialog"
-  aria-modal="true"
-  tabindex="-1"
->
-  <div
-    class="modal-shell variant-{variant}"
+    class="backdrop"
     onclick={(e) => {
-      // For canvas mode, creating a "pass-through" click handler
-      // If the user clicks the layout container (empty space), close the modal
-      // Also close if checking against modal-body (which creates the spacing)
-      if (variant === "canvas") {
-        if (
-          e.target === e.currentTarget ||
-          e.target.classList.contains("modal-body")
-        ) {
-          onclose();
-        }
-      }
+        if (e.target === e.currentTarget) onclose()
     }}
-    onkeydown={(e) => {
-      if (e.key === "Escape") onclose();
-    }}
-    role="presentation"
-  >
-    {#if variant === "standard" && title}
-      <div class="modal-header">
-        <span class="title">{icon} {title}</span>
-        <Button class="close-btn" variant="ghost" onclick={onclose} label="×" />
-      </div>
-    {/if}
-
-    <div class="modal-body">
-      {@render children()}
+    role="dialog"
+    aria-modal="true"
+    tabindex="-1"
+>
+    <div class="modal variant-{variant}" role="presentation">
+        {@render children()}
     </div>
-
-    {#if variant === "entity" || variant === "preview"}
-      <Button
-        className="entity-close"
-        variant="ghost"
-        onclick={onclose}
-        label="×"
-      />
-    {/if}
-  </div>
 </div>
 
 <style lang="scss">
-  .modal-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(10px);
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    animation: fade-in 0.2s ease-out;
-    padding: 1rem;
-    pointer-events: auto; /* Re-enable clicks inside the modal */
-  }
-
-  .modal-shell {
-    display: flex;
-    flex-direction: column;
-    animation: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-
-    &.variant-standard {
-      background: #18181b;
-      border: 1px solid #27272a;
-      border-radius: 8px;
-      width: 450px;
-      max-width: 100%;
-      max-height: 85vh;
-      .modal-body {
-        padding: 1rem;
-        overflow-y: auto;
-      }
-    }
-
-    &.variant-entity {
-      background: #09090b; /* Darker background */
-      border: 1px solid #27272a;
-      border-radius: 12px;
-
-      /* Flexible Sizing per user request */
-      width: 900px;
-      max-width: 95vw;
-      height: 700px;
-      max-height: 95vh;
-
-      position: relative;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-
-      .modal-body {
-        padding: 0; /* Full bleed */
-        height: 100%;
-        overflow: hidden; /* Prevent spill */
-        border-radius: 12px;
-      }
-    }
-
-    &.variant-transparent {
-      background: transparent;
-      width: 400px;
-      max-width: 100%;
-      max-height: 90vh;
-      .modal-body {
-        padding: 0;
-        overflow-y: auto;
-      }
-    }
-
-    &.variant-canvas {
-      background: transparent;
-      border: none;
-      width: 100%;
-      height: 100%;
-      max-width: none;
-      max-height: none;
-      pointer-events: none; /* Layout container only */
-
-      .modal-body {
-        width: 100%;
-        height: 100%;
-        padding: 2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        pointer-events: auto; /* Re-enable content interaction */
-        overflow: hidden;
-      }
-    }
-
-    /* PREVIEW: Lightbox (Image only) */
-    &.variant-preview {
-      background: transparent;
-      width: auto;
-      height: auto;
-      max-width: 95vw;
-      max-height: 95vh;
-      border: none;
-      box-shadow: none;
-      position: relative;
-      pointer-events: none; /* Let clicks pass through shell to backdrop */
-
-      .modal-body {
-        padding: 0;
+    .backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(10px);
+        z-index: 9999;
         display: flex;
         justify-content: center;
         align-items: center;
-        pointer-events: auto; /* Catch clicks on image */
-      }
+        animation: fade-in 0.2s ease-out;
     }
-  }
 
-  /* We rely on global class because Button component encapsulates it */
-  :global(.entity-close) {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: rgba(0, 0, 0, 0.5);
-    color: white;
-    border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+    .modal {
+        display: flex;
+        flex-direction: column;
+        animation: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
-    /* Center the X content */
-    display: flex; /* Button already has this usually, but enforcing */
-    align-items: center;
-    justify-content: center;
+        /* Default (standard) modal styles */
+        width: 30rem;
+        max-width: 100%;
+        max-height: 85vh;
+        overflow-y: auto;
 
-    font-size: 1.2rem;
-    z-index: 100 !important; /* Ensure visibility */
+        &.variant-profile {
+            align-items: center;
+            justify-content: center;
+            border-radius: 5rem;
+            width: 55rem;
+            max-width: 95vw;
+            height: 45rem;
+            max-height: 95vh;
+            position: relative;
+        }
 
-    &:hover {
-      background: #ef4444;
+        &.variant-preview {
+            background: transparent;
+            width: auto;
+            height: auto;
+            max-width: 95vw;
+            max-height: 95vh;
+            border: none;
+            box-shadow: none;
+            position: relative;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
     }
-  }
 
-  .modal-header {
-    padding: 0.75rem 1rem;
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid #333;
-    color: #ccc;
-  }
-  :global(.close-btn) {
-    /* Extending ghost button */
-    color: #aaa;
-    font-size: 1.2rem;
-    padding: 0 0.5rem; /* Adjust padding for close icon */
-  }
-
-  @keyframes fade-in {
-    from {
-      opacity: 0;
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
     }
-    to {
-      opacity: 1;
+    @keyframes scale-in {
+        from {
+            transform: scale(0.98);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
     }
-  }
-  @keyframes scale-in {
-    from {
-      transform: scale(0.98);
-      opacity: 0;
-    }
-    to {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
 </style>

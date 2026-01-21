@@ -1,0 +1,1094 @@
+<script>
+    import DOMPurify from "dompurify"
+    import Button from "../artificer/Button.svelte"
+    import Modal from "../artificer/Modal.svelte"
+    import { CONFIG } from "../gamemaster/config.js"
+    import { app } from "../gamemaster/state.svelte.js"
+    import { TextToImage } from "../mesmer/logic/text-to-image.js"
+    import { themeStore } from "../mesmer/logic/theme.svelte.js"
+    import ProfilePicture from "../mesmer/ui/ProfilePicture.svelte"
+    import { entities } from "./database/repository.js"
+    import { Scholar } from "./index.js"
+    import { runtime } from "./runtime.svelte.js"
+
+    // --- UTILS ---
+    function formatMarkdownLite(text) {
+        if (!text) return ""
+        let html = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        html = html.replace(/\*(.*?)\*/g, "<em>$1</em>")
+        return html
+    }
+
+    let isEditing = $state(false)
+    let isSaving = $state(false)
+    // Dev Mode State
+    let isDevMode = $state(false)
+
+    function normalize() {
+        char = themeStore.normalizeEntity(
+            app.editingEntity || runtime.character
+        )
+    }
+
+    let char = $state(
+        themeStore.normalizeEntity(app.editingEntity || runtime.character)
+    )
+
+    // Logic for Visuals/Paint tools
+    let visualPrompt = $state("")
+    let visualBusy = $state(false)
+
+    // Voice Logic
+
+    let magicBusy = $state({})
+
+    async function save() {
+        isSaving = true
+        try {
+            const rawChar = JSON.parse(JSON.stringify(char))
+            const type = rawChar.type || "character"
+            await entities.upsert(type, rawChar)
+
+            if (app.editingEntity && app.editingEntity.id === rawChar.id) {
+                Object.assign(app.editingEntity, rawChar)
+            }
+            if (runtime.character.id === rawChar.id) {
+                Object.assign(runtime.character, rawChar)
+            }
+            if (runtime.aiCharacter && runtime.aiCharacter.id === rawChar.id) {
+                Object.assign(runtime.aiCharacter, rawChar)
+            }
+            if (
+                runtime.storyFractal &&
+                runtime.storyFractal.id === rawChar.id
+            ) {
+                Object.assign(runtime.storyFractal, rawChar)
+            }
+
+            isEditing = false
+        } catch (e) {
+            console.error("[RPGlitch] Failed to save character:", e)
+            alert("Failed to save character.")
+        } finally {
+            isSaving = false
+        }
+    }
+
+    async function deleteEntity() {
+        if (!confirm("Are you sure?")) return
+        try {
+            await entities.remove(char.type, char.id)
+            window.location.reload()
+        } catch (e) {
+            console.error("Delete failed:", e)
+        }
+    }
+
+    $effect(() => {
+        if (char?.id) {
+            visualPrompt = ""
+            magicBusy = {}
+            isEditing = false
+            // Reset Dev Mode when switching chars
+            isDevMode = false
+        }
+    })
+
+    // --- ACTIONS ---
+    async function handlePaint() {
+        try {
+            visualBusy = true
+            const url = await TextToImage.generate(visualPrompt, {
+                resolution: "512x768",
+                removeBackground: char.visuals.noBackground,
+            })
+            if (url) char.visuals.profilePictureUrl = url
+        } catch (e) {
+            console.error("Paint failed:", e)
+        } finally {
+            visualBusy = false
+        }
+    }
+
+    async function consultScholar(field) {
+        if (magicBusy[field]) return
+        try {
+            magicBusy[field] = true
+            const result = await Scholar.consult(field, char)
+            const keys = field.split(".")
+            if (keys.length === 1) char[keys[0]] = result
+            else if (keys.length === 2) {
+                if (!char[keys[0]]) char[keys[0]] = {}
+                char[keys[0]][keys[1]] = result
+            }
+        } catch (e) {
+            console.error(`Magic failed for ${field}:`, e)
+        } finally {
+            magicBusy[field] = false
+        }
+    }
+
+    function handleImplicitClose() {
+        if (isEditing) {
+            normalize()
+            isEditing = false
+        } else {
+            app.toggleProfile(false)
+        }
+    }
+
+    function toggleDevMode() {
+        isDevMode = !isDevMode
+    }
+
+    // Keybind for Dev Mode (Ctrl + `)
+    function handleKeydown(e) {
+        if (e.ctrlKey && e.key === "`") {
+            toggleDevMode()
+        }
+    }
+</script>
+
+<svelte:window onkeydown={handleKeydown} />
+
+{#if char && char.id}
+    <Modal variant="canvas" onclose={handleImplicitClose}>
+        <div class="dossier-layout">
+            <!-- === LEFT SIDECAR (Creative: Visuals) === -->
+            <div class="sidecar left" class:active={isEditing}>
+                {#if isEditing}
+                    <div class="sidecar-content">
+                        <div class="tool-palette">
+                            <div class="palette-header">VISUAL PRESENCE</div>
+                            <div class="color-picker-compact">
+                                {#each Object.entries(CONFIG.themes.signatures) as [name, hex]}
+                                    <button
+                                        class="swatch-dot"
+                                        class:active={char.visuals
+                                            .signatureColor === hex}
+                                        style="background: {hex}"
+                                        onclick={() =>
+                                            (char.visuals.signatureColor = hex)}
+                                        title={name}
+                                    ></button>
+                                {/each}
+                            </div>
+                            <div class="paint-input-group">
+                                <input
+                                    type="text"
+                                    bind:value={visualPrompt}
+                                    placeholder="Re-visualize entity..."
+                                    onkeydown={(e) =>
+                                        e.key === "Enter" && handlePaint()}
+                                />
+                                <button
+                                    class="paint-btn"
+                                    onclick={handlePaint}
+                                    disabled={visualBusy}
+                                    title="Generate Profile Picture"
+                                >
+                                    {visualBusy ? "..." : "🎨"}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="spacer"></div>
+                        <div class="vertical-label">CREATIVE</div>
+                    </div>
+                {/if}
+            </div>
+
+            <!-- === CENTER: MYSTIC DOSSIER === -->
+            <div
+                class="mystic-dossier"
+                style="--hero-color: {char.visuals.signatureColor}"
+                class:dev-mode={isDevMode}
+            >
+                <div class="dossier-body">
+                    <!-- ZONE 1: SOLID SIDEBAR (Portrait Only) -->
+                    <aside class="sidebar-solid">
+                        <div class="avatar-container">
+                            <ProfilePicture
+                                url={char.visuals.profilePictureUrl}
+                                color={char.visuals.signatureColor}
+                                size="xl"
+                            />
+                        </div>
+                        <!-- Signature color indicator -->
+                        <div class="signature-line"></div>
+                    </aside>
+
+                    <!-- ZONE 2: CONTENT NARRATIVE -->
+                    <main class="content-narrative">
+                        <header class="dossier-header">
+                            {#if isEditing}
+                                <input
+                                    class="name-input"
+                                    bind:value={char.name}
+                                    placeholder="Name"
+                                />
+                                <input
+                                    class="tagline-input"
+                                    bind:value={char.visuals.tagline}
+                                    placeholder="Tagline..."
+                                />
+                            {:else}
+                                <h1 class="name-display">{char.name}</h1>
+                                <p class="tagline-display">
+                                    {char.visuals.tagline || "Unknown Entity"}
+                                </p>
+                            {/if}
+                        </header>
+
+                        <div class="scroll-container">
+                            <div class="rhythm-grid">
+                                <!-- SECTION 1: CORE DEFINITION -->
+                                <div class="dossier-row">
+                                    <div class="row-label-col">
+                                        <svg
+                                            class="row-icon appearance"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                        >
+                                            <path
+                                                d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"
+                                            ></path>
+                                            <circle cx="12" cy="7" r="4"
+                                            ></circle>
+                                        </svg>
+                                        <span class="row-label">APPEARANCE</span
+                                        >
+                                        <span class="row-sub"
+                                            >Physical Form</span
+                                        >
+                                    </div>
+                                    <div class="row-content-col split">
+                                        <!-- Appearance -->
+                                        <div class="data-box physical">
+                                            <div class="box-header">
+                                                <svg
+                                                    class="header-icon"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    stroke-width="2"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    ><path d="M20 7h-9"
+                                                    ></path><path d="M14 17H5"
+                                                    ></path><circle
+                                                        cx="17"
+                                                        cy="17"
+                                                        r="3"
+                                                    ></circle><circle
+                                                        cx="7"
+                                                        cy="7"
+                                                        r="3"
+                                                    ></circle></svg
+                                                >
+                                                APPEARANCE
+                                            </div>
+                                            <div class="spark-container">
+                                                {#if isEditing}
+                                                    <textarea
+                                                        bind:value={
+                                                            char.appearance
+                                                        }
+                                                        placeholder="Describe visual form..."
+                                                    ></textarea>
+                                                {:else}
+                                                    <p class="static-content">
+                                                        {char.appearance ||
+                                                            "Minimal physical data available."}
+                                                    </p>
+                                                {/if}
+                                                <button
+                                                    class="spark-wand"
+                                                    class:active={magicBusy[
+                                                        "appearance"
+                                                    ]}
+                                                    onclick={() =>
+                                                        consultScholar(
+                                                            "appearance"
+                                                        )}
+                                                >
+                                                    ✨
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <!-- Gear -->
+                                        <div class="data-box physical">
+                                            <div class="box-header">
+                                                <svg
+                                                    class="header-icon"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    stroke-width="2"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    ><path
+                                                        d="M12 2L2 7l10 5 10-5-10-5z"
+                                                    ></path><path
+                                                        d="M2 17l10 5 10-5"
+                                                    ></path><path
+                                                        d="M2 12l10 5 10-5"
+                                                    ></path></svg
+                                                >
+                                                LOADOUT / GEAR
+                                            </div>
+                                            <div class="spark-container">
+                                                {#if isEditing}
+                                                    <textarea
+                                                        bind:value={char.gear}
+                                                        placeholder="Equipped items..."
+                                                    ></textarea>
+                                                {:else}
+                                                    <p class="static-content">
+                                                        {char.gear ||
+                                                            "No notable equipment."}
+                                                    </p>
+                                                {/if}
+                                                <button
+                                                    class="spark-wand"
+                                                    class:active={magicBusy[
+                                                        "gear"
+                                                    ]}
+                                                    onclick={() =>
+                                                        consultScholar("gear")}
+                                                >
+                                                    ✨
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- SECTION 2: COGNITION -->
+                                <div class="dossier-row">
+                                    <div class="row-label-col">
+                                        <svg
+                                            class="row-icon psychology"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                        >
+                                            <path
+                                                d="M12 14.5A5.5 5.5 0 1 0 12 3.5a5.5 5.5 0 0 0 0 11z"
+                                            ></path>
+                                            <path d="M12 14.5V21"></path>
+                                            <path d="M8 18h8"></path>
+                                        </svg>
+                                        <span class="row-label">PSYCHOLOGY</span
+                                        >
+                                        <span class="row-sub"
+                                            >Mind & Persona</span
+                                        >
+                                    </div>
+                                    <div class="row-content-col split">
+                                        <!-- Personality -->
+                                        <div class="data-box mental">
+                                            <div class="box-header">
+                                                <svg
+                                                    class="header-icon"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    stroke-width="2"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    ><path
+                                                        d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"
+                                                    ></path></svg
+                                                >
+                                                DISPOSITION
+                                            </div>
+                                            <div class="spark-container">
+                                                {#if isEditing}
+                                                    <textarea
+                                                        bind:value={
+                                                            char.personality
+                                                        }
+                                                        placeholder="Behavioral patterns..."
+                                                    ></textarea>
+                                                {:else}
+                                                    <p class="static-content">
+                                                        {char.personality ||
+                                                            "Personality undefined."}
+                                                    </p>
+                                                {/if}
+                                                <button
+                                                    class="spark-wand"
+                                                    class:active={magicBusy[
+                                                        "personality"
+                                                    ]}
+                                                    onclick={() =>
+                                                        consultScholar(
+                                                            "personality"
+                                                        )}
+                                                >
+                                                    ✨
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <!-- Goal -->
+                                        <div class="data-box mental">
+                                            <div class="box-header">
+                                                <svg
+                                                    class="header-icon"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    stroke-width="2"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    ><circle
+                                                        cx="12"
+                                                        cy="12"
+                                                        r="10"
+                                                    ></circle><circle
+                                                        cx="12"
+                                                        cy="12"
+                                                        r="6"
+                                                    ></circle><circle
+                                                        cx="12"
+                                                        cy="12"
+                                                        r="2"
+                                                    ></circle></svg
+                                                >
+                                                OBJECTIVE
+                                            </div>
+                                            <div class="spark-container">
+                                                {#if isEditing}
+                                                    <textarea
+                                                        bind:value={char.goal}
+                                                        placeholder="Primary directive..."
+                                                    ></textarea>
+                                                {:else}
+                                                    <p class="static-content">
+                                                        {char.goal ||
+                                                            "Current goal unknown."}
+                                                    </p>
+                                                {/if}
+                                                <button
+                                                    class="spark-wand"
+                                                    class:active={magicBusy[
+                                                        "goal"
+                                                    ]}
+                                                    onclick={() =>
+                                                        consultScholar("goal")}
+                                                >
+                                                    ✨
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- SECTION 3: NARRATIVE -->
+                                <div class="dossier-row">
+                                    <div class="row-label-col">
+                                        <svg
+                                            class="row-icon history"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                        >
+                                            <path
+                                                d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"
+                                            ></path>
+                                            <path
+                                                d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+                                            ></path>
+                                        </svg>
+                                        <span class="row-label">HISTORY</span>
+                                        <span class="row-sub"
+                                            >Origin & Lore</span
+                                        >
+                                    </div>
+                                    <div class="row-content-col full">
+                                        <div class="data-box lore">
+                                            <div class="box-header">
+                                                <svg
+                                                    class="header-icon"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    stroke-width="2"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    ><path
+                                                        d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8z"
+                                                    ></path><path
+                                                        d="M12 6v6l4 2"
+                                                    ></path></svg
+                                                >
+                                                CHRONICLE
+                                            </div>
+                                            <div class="spark-container">
+                                                {#if isEditing}
+                                                    <textarea
+                                                        bind:value={
+                                                            char.description
+                                                        }
+                                                        rows="8"
+                                                        placeholder="Lore narrative..."
+                                                    ></textarea>
+                                                {:else}
+                                                    <div class="static-content">
+                                                        {@html formatMarkdownLite(
+                                                            DOMPurify.sanitize(
+                                                                char.description
+                                                            )
+                                                        )}
+                                                    </div>
+                                                {/if}
+                                                <button
+                                                    class="spark-wand"
+                                                    class:active={magicBusy[
+                                                        "description"
+                                                    ]}
+                                                    onclick={() =>
+                                                        consultScholar(
+                                                            "description"
+                                                        )}
+                                                >
+                                                    ✨
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+
+                <!-- FLOATING FOOTER: Action Bar -->
+                <footer class="dossier-footer">
+                    {#if isEditing}
+                        <Button
+                            variant="primary"
+                            size="sm"
+                            onclick={save}
+                            disabled={isSaving}
+                        >
+                            {isSaving ? "SYNCING..." : "COMMIT CHANGES"}
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onclick={() => (isEditing = false)}
+                        >
+                            ABORT
+                        </Button>
+                    {:else}
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onclick={() => (isEditing = true)}
+                        >
+                            EDIT DOSSIER
+                        </Button>
+                    {/if}
+                </footer>
+            </div>
+
+            <!-- === RIGHT SIDECAR (System: Meta) === -->
+            <div class="sidecar right" class:active={isDevMode}>
+                {#if isDevMode}
+                    <div class="sidecar-content">
+                        <div class="action-stack">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onclick={deleteEntity}
+                            >
+                                PURGE ENTITY
+                            </Button>
+                        </div>
+
+                        <div class="matrix-data">
+                            <h5>RAW SIGNATURE</h5>
+                            <pre>{JSON.stringify(char, null, 2)}</pre>
+                        </div>
+                        <div class="spacer"></div>
+                        <div class="vertical-label">DEVELOPER MODE</div>
+                    </div>
+                {/if}
+            </div>
+        </div>
+    </Modal>
+{/if}
+
+<style lang="scss">
+    @use "../mesmer/scss/abstracts/variables" as *;
+
+    /* LAYOUT WRAPPER */
+    .dossier-layout {
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        gap: 16px;
+        height: 85vh;
+        max-height: 800px;
+    }
+
+    /* SIDECARS */
+    .sidecar {
+        width: 0;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+
+        &.active {
+            width: 280px;
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .sidecar-content {
+            background: rgba(10, 10, 10, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px;
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+
+            .spacer {
+                flex: 1;
+            }
+
+            .vertical-label {
+                writing-mode: vertical-rl;
+                text-orientation: mixed;
+                color: rgba(255, 255, 255, 0.3);
+                font-weight: 700;
+                letter-spacing: 0.1em;
+                font-size: 0.8rem;
+                white-space: nowrap;
+                margin-top: auto;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            /* Tool Palette within Sidecar */
+            .tool-palette {
+                width: 100%;
+
+                .palette-header {
+                    font-size: 0.7rem;
+                    font-weight: 700;
+                    color: rgba(255, 255, 255, 0.7);
+                    margin-bottom: 8px;
+                    text-transform: uppercase;
+                }
+
+                .color-picker-compact {
+                    display: flex;
+                    gap: 8px;
+                    flex-wrap: wrap;
+                    margin-bottom: 16px;
+
+                    .swatch-dot {
+                        width: 24px;
+                        height: 24px;
+                        border-radius: 50%;
+                        border: 2px solid rgba(255, 255, 255, 0.2);
+                        cursor: pointer;
+                        transition: transform 0.2s;
+                        padding: 0;
+
+                        &:hover {
+                            transform: scale(1.1);
+                        }
+                        &.active {
+                            border-color: white;
+                            transform: scale(1.15);
+                            box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+                        }
+                    }
+                }
+
+                .paint-input-group {
+                    display: flex;
+                    gap: 4px;
+                    width: 100%;
+                    input {
+                        flex: 1;
+                        background: rgba(0, 0, 0, 0.5);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        border-radius: 4px;
+                        padding: 8px;
+                        color: white;
+                        font-size: 0.8rem;
+                    }
+                    .paint-btn {
+                        background: #2563eb;
+                        color: white;
+                        border: none;
+                        border-radius: 4px;
+                        width: 36px;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        &:disabled {
+                            opacity: 0.5;
+                        }
+                    }
+                }
+            }
+
+            .action-stack {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    }
+
+    .mystic-dossier {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        width: 1000px;
+        max-width: 60vw;
+        background: #121212;
+        border-radius: 16px;
+        /* overflow: hidden; -- Disabled to allow footer to hang outside */
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        font-family: var(--font-body, sans-serif);
+        color: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        position: relative; /* Anchor for absolute footer */
+
+        &.dev-mode {
+            box-shadow: 0 0 0 2px #22c55e;
+        }
+
+        &:hover .dossier-footer {
+            opacity: 0.5;
+            pointer-events: auto;
+        }
+
+        /* V8: Unified Clipping Container */
+        .dossier-body {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            border-radius: 16px;
+            background: #121212;
+            position: relative;
+            /* === ZONE 1: SOLID SIDEBAR === */
+            .sidebar-solid {
+                background: var(--hero-color);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center; /* Vertical Center */
+                padding: 24px;
+                position: relative;
+                overflow: hidden;
+                height: 100%;
+                min-height: 0;
+
+                .avatar-container {
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    /* Allow ProfilePicture to fill */
+                }
+            }
+
+            /* === ZONE 2: CONTENT NARRATIVE === */
+            .content-narrative {
+                padding: 32px 32px 16px 32px; /* Reduced bottom padding */
+                background: #1a1a1a;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden; /* Restored to contain scroll-container */
+                height: 100%;
+                min-height: 0; /* Critical for grid/flex shrinkage */
+                position: relative;
+
+                .dossier-header {
+                    /* ... unchanged header styles ... */
+                    margin-bottom: 24px;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                    padding-bottom: 16px;
+                    text-align: left;
+                }
+
+                /* ... header sub-items ... */
+                .name-display {
+                    font-size: 3rem;
+                    font-weight: 900;
+                    line-height: 1;
+                    margin: 0 0 8px 0;
+                    letter-spacing: -0.03em;
+                }
+                .name-input {
+                    font-size: 3rem;
+                    font-weight: 900;
+                    background: transparent;
+                    border: none;
+                    border-bottom: 2px dashed rgba(255, 255, 255, 0.2);
+                    color: var(--hero-color);
+                    width: 100%;
+                    margin-bottom: 8px;
+                }
+                .tagline-display {
+                    font-size: 1.1rem;
+                    color: rgba(255, 255, 255, 0.6);
+                }
+                .tagline-input {
+                    width: 100%;
+                    background: transparent;
+                    border: none;
+                    color: rgba(255, 255, 255, 0.6);
+                    font-size: 1.1rem;
+                    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+                }
+
+                .scroll-container {
+                    flex: 1;
+                    overflow-y: auto;
+                    min-height: 0;
+                    padding-right: 8px;
+
+                    &::-webkit-scrollbar {
+                        width: 6px;
+                    }
+                    &::-webkit-scrollbar-thumb {
+                        background: rgba(255, 255, 255, 0.15);
+                        border-radius: 3px;
+                    }
+                }
+
+                .rhythm-grid {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 24px;
+                    padding: 0 1rem;
+                }
+
+                .dossier-row {
+                    display: grid;
+                    grid-template-columns: 80px 1fr;
+                    gap: 1rem;
+                    align-items: center;
+
+                    .row-label-col {
+                        text-align: right;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: flex-end;
+                        justify-content: center;
+                        position: relative;
+                        padding-right: 12px;
+
+                        .row-icon {
+                            width: 20px;
+                            height: 20px;
+                            margin-bottom: 4px;
+                            color: rgba(255, 255, 255, 0.2);
+                            transition: color 0.3s ease;
+                        }
+
+                        .row-label {
+                            font-size: 0.8rem;
+                            font-weight: 800;
+                            letter-spacing: 0.05em;
+                            color: var(--hero-color);
+                            text-transform: uppercase;
+                            line-height: 1.2;
+                            white-space: nowrap;
+                        }
+                        .row-sub {
+                            font-size: 0.6rem;
+                            color: rgba(255, 255, 255, 0.4);
+                            margin-top: 2px;
+                            white-space: normal;
+                            text-align: right;
+                            max-width: 120px;
+                        }
+
+                        &:hover .row-icon {
+                            color: var(--hero-color);
+                        }
+                    }
+
+                    .row-content-col {
+                        flex: 1;
+                        display: grid;
+                        gap: 1rem;
+                        &.split {
+                            grid-template-columns: 1fr 1fr;
+                        }
+                        &.full {
+                            grid-template-columns: 1fr;
+                        }
+
+                        .data-box {
+                            background: rgba(0, 0, 0, 0.3);
+                            border: 1px solid rgba(255, 255, 255, 0.08);
+                            border-radius: 8px;
+                            padding: 16px;
+                            position: relative;
+                            min-height: 100px;
+                            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+                            box-sizing: border-box;
+
+                            .box-header {
+                                display: flex;
+                                gap: 6px;
+                                align-items: center;
+                                font-size: 0.65rem;
+                                font-weight: 700;
+                                color: var(--hero-color);
+                                opacity: 0.8;
+                                text-transform: uppercase;
+                                margin-bottom: 8px;
+                                letter-spacing: 0.05em;
+
+                                .header-icon {
+                                    width: 12px;
+                                    height: 12px;
+                                    opacity: 0.6;
+                                }
+                            }
+
+                            &.mental {
+                                border-left: 3px solid rgba(147, 51, 234, 0.4);
+                            }
+                            &.physical {
+                                border-left: 3px solid rgba(34, 197, 94, 0.4);
+                            }
+                        }
+                    }
+                }
+
+                /* Global hover effects */
+                &:has(.data-box.physical:hover) .data-box.physical {
+                    background: linear-gradient(
+                        90deg,
+                        rgba(34, 197, 94, 0.05) 0%,
+                        rgba(0, 0, 0, 0.3) 100%
+                    ) !important;
+                }
+                &:has(.data-box.mental:hover) .data-box.mental {
+                    background: linear-gradient(
+                        90deg,
+                        rgba(147, 51, 234, 0.05) 0%,
+                        rgba(0, 0, 0, 0.3) 100%
+                    ) !important;
+                }
+
+                .spark-container {
+                    position: relative;
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+
+                    textarea {
+                        width: 100%;
+                        height: 100%;
+                        background: transparent;
+                        border: none;
+                        resize: vertical;
+                        color: rgba(255, 255, 255, 0.9);
+                        font-size: 0.9rem;
+                        line-height: 1.5;
+                        min-height: 80px;
+                        outline: none;
+                    }
+                    .static-content {
+                        font-size: 0.9rem;
+                        line-height: 1.5;
+                        color: rgba(255, 255, 255, 0.85);
+                    }
+                    .spark-wand {
+                        position: absolute;
+                        bottom: 4px;
+                        right: 4px;
+                        /* ... wand styles ... */
+                        background: rgba(255, 255, 255, 0.1);
+                        color: white;
+                        border: none;
+                        border-radius: 4px;
+                        width: 24px;
+                        height: 24px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
+                        opacity: 0.5;
+                        transition: all 0.2s;
+                        &:hover {
+                            opacity: 1;
+                            background: var(--hero-color);
+                        }
+                        &.active {
+                            animation: spin 1s infinite linear;
+                            color: #facc15;
+                        }
+                    }
+                }
+            }
+        }
+
+        .dossier-footer {
+            position: absolute;
+            bottom: -32px; /* Hang lower below the modal */
+            right: 32px;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+            width: auto;
+
+            /* Clean Glass Pill */
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 2px 12px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+
+            &:hover {
+                opacity: 1 !important;
+                pointer-events: auto;
+                transform: translateY(-2px);
+                background: #1a1a1a;
+                border-color: rgba(255, 255, 255, 0.2);
+            }
+        }
+    }
+
+    @keyframes spin {
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
