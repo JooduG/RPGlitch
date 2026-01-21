@@ -142,6 +142,32 @@ function createRuntimeStore() {
       }
     },
 
+    // 🧬 GENERIC ENTITY MANAGEMENT
+    async saveEntity(type, entity) {
+      try {
+        await entities.upsert(type, entity);
+        
+        // If this is the current character, sync state
+        if (state.character && state.character.id === entity.id) {
+          Object.assign(state.character, entity);
+        }
+      } catch (err) {
+        console.error("[Scholar] Entity Save Failed:", err);
+        throw err;
+      }
+    },
+
+    async deleteEntity(type, id) {
+      try {
+        await entities.remove(type, id);
+        // If we deleted the active character, we might need a fallback? 
+        // For now, let the UI handle the closure.
+      } catch (err) {
+        console.error("[Scholar] Entity Delete Failed:", err);
+        throw err;
+      }
+    },
+
     async updateCharacter(data) {
       // Optimistic UI Update
       Object.assign(state.character, data);

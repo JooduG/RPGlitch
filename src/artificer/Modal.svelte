@@ -54,12 +54,14 @@
         &.variant-profile {
             align-items: center;
             justify-content: center;
-            border-radius: 5rem;
-            width: 55rem;
-            max-width: 95vw;
-            height: 45rem;
-            max-height: 95vh;
+            border-radius: 0;
+            width: max-content; /* Allow content to define width (for wings) */
+            max-width: 98vw;
+            height: auto;
+            max-height: 98vh;
             position: relative;
+            background: transparent; /* Let children handle background */
+            box-shadow: none;
         }
 
         &.variant-preview {

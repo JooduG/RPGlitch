@@ -1,33 +1,35 @@
 ---
 name: tasks
-description: Triggers on .agent/tasks.md or where otherwise relevant. Governs the TDD lifecycle, commit standards, and phase checkpointing.
+description: Triggers on .agent/tasks/tracks.md or where otherwise relevant. Governs the Conductor lifecycle, commits, and phase checkpointing.
 ---
 
-# Tasks: TDD & Integrity Skill
+# Tasks: Conductor & Integrity Skill
 
 ## When to use this skill
 
-- Starting a new feature, bug fix, or refactor.
-- Moving through the Red-Green-Refactor cycle.
-- Finalizing a task or phase in `.agent/tasks.md`.
+- Starting a new feature, bug fix, or refactor (Run `/conductor-new-track`).
+- Implementing a spec-driven task (Run `/conductor-implement`).
+- Checking project status (Run `/conductor-status`).
 
-## 📋 Task Management Workflow
+## 📋 Task Management Workflow (Conductor)
 
-1.  **Initialize**: Maintain a clear, multi-step plan for the current objective directly in `.agent/tasks.md`. Use `replace` or `write_file` to keep the state updated (e.g., `[ ]` to `[~]` to `[x]`). This ensures focus and allows for progress tracking across sessions.
-2.  **TDD Lifecycle**:
-    -   **Red**: Write a failing test in `tools/tests/unit/` or `tools/tests/e2e/`.
-    -   **Green**: Implement minimum code to pass.
-    -   **Refactor**: Cleanup and check against `anti-patterns.md`.
-3.  **Checkpoint**: After each major todo item is completed, update the task state in `.agent/tasks.md` and commit.
+1. **Initialize**:
+    - Do not manually edit task lists unless trivial. Use `/conductor-new-track` to scaffold work.
+    - Active tracks live in `.agent/tasks/tracks.md`.
+    - Detailed plans live in `.agent/tasks/<track-name>/plan.md`.
 
-## Instructions
+2. **TDD Lifecycle (The Trinity)**:
+    - **Red**: Write a failing test in `tools/tests/unit/` or `tools/tests/e2e/`.
+    - **Green**: Implement minimum code to pass.
+    - **Refactor**: Cleanup and check against `.agent/rules/anti-patterns.md`.
 
-- **No Shortcuts**: Never bypass the "Red" phase. Failing tests are mandatory.
-- **Divergence**: If implementation differs from `tech-stack.md`, STOP and document the change first.
-- **Done State**: A task is only "Done" when code, tests, documentation, and implementation notes are finalized.
+3. **Checkpoint**:
+    - Update `plan.md` using `[ ]` -> `[/]` -> `[x]`.
+    - Commit after verifying "Green" state.
 
 ## Resources
 
-- **Primary Tracker**: `.agent/tasks.md`
+- **Registry**: `.agent/tasks/tracks.md`
+- **Workflows**: `.agent/workflows/conductor-*.md`
 - **Tech Rules**: `.agent/rules/tech-stack.md`
-- **Unit Tests**: Place in `tools/tests/unit/` or alongside the component.
+- **Unit Tests**: `tools/tests/`
