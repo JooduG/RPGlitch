@@ -61,6 +61,17 @@
     --bg-grad-2: #{vars.$gradient-color-2};
     --bg-grad-3: #{vars.$gradient-color-3};
     --bg-grad-4: #{vars.$gradient-color-4};
+
+    // --- SPACING ---
+    --spacing-xs: #{vars.$spacing-xs};
+    --spacing-sm: #{vars.$spacing-sm};
+    --spacing-sm-md: #{vars.$spacing-sm-md};
+    --spacing-md: #{vars.$spacing-md};
+    --spacing-md-lg: #{vars.$spacing-md-lg};
+    --spacing-lg: #{vars.$spacing-lg};
+    --spacing-xl: #{vars.$spacing-xl};
+    --spacing-2xl: #{vars.$spacing-2xl};
+    --spacing-3xl: #{vars.$spacing-3xl};
 }
 
 // --- DYNAMIC SIGNATURE UTILITY ---

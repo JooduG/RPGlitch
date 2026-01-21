@@ -1,10 +1,13 @@
 <script>
+    import Button from "../artificer/Button.svelte"
     import Modal from "../artificer/Modal.svelte"
     import { app } from "../gamemaster/state.svelte.js"
     import { themeStore } from "../mesmer/logic/theme.svelte.js"
     import ProfilePicture from "../mesmer/ui/ProfilePicture.svelte"
     import { PROFILE_SECTIONS } from "./config.js"
     import { runtime } from "./runtime.svelte.js"
+
+    let { entityId, entityType, onClose } = $props()
 
     // State
     let isEditing = $state(false)
@@ -55,7 +58,6 @@
                                 <h2>{section.label}</h2>
                                 <p>{section.sublabel}</p>
                             </div>
-
                             {#if section.layout === "split"}
                                 <div class="split">
                                     {#each section.fields as field}
@@ -90,6 +92,14 @@
                         </div>
                     {/each}
                 </div>
+                <footer>
+                    <Button
+                        variant="edit"
+                        onclick={() => (isEditing = !isEditing)}
+                    >
+                        {isEditing ? "Save" : "Edit"}
+                    </Button>
+                </footer>
             </main>
         </div>
     </Modal>
@@ -101,8 +111,12 @@
         max-width: 90vw;
         height: 40rem;
         max-height: 80vh;
-        background: #2f2f53;
-        border-radius: 1.5rem;
+        background-color: color-mix(
+            in oklab,
+            var(--signature-color) 20%,
+            var(--card-background) 60%
+        );
+        border-radius: var(--spacing-lg);
         display: grid;
         grid-template-columns: 35% 65%;
         overflow: hidden;
@@ -117,9 +131,9 @@
 
     .right {
         overflow: scroll;
-        padding: 1.5rem;
+        padding: var(--spacing-lg);
         header {
-            margin-bottom: 2rem;
+            margin-bottom: var(--spacing-xl);
             h1 {
                 color: var(--signature-color);
                 font-size: 3rem;
@@ -128,7 +142,9 @@
                 text-align: left;
             }
             p {
+                margin: 0;
                 font-size: 1rem;
+                line-height: 1.25;
             }
         }
 
@@ -136,9 +152,9 @@
             .row {
                 display: grid;
                 grid-template-columns: 80px 1fr;
-                gap: 0.75em;
-                color: white;
-                margin-bottom: 0.5rem;
+                gap: var(--spacing-sm-md);
+                color: var(--app-text-on-dark, #fff);
+                margin-bottom: var(--spacing-sm);
                 align-items: center;
 
                 .label {
@@ -152,38 +168,43 @@
                     p {
                         margin: 0;
                         font-size: 0.75rem;
-                        color: white;
+                        color: rgba(255, 255, 255, 0.7);
                     }
                 }
 
                 .split {
-                    gap: 0.75rem;
+                    gap: var(--spacing-sm-md);
                     display: grid;
                     grid-template-columns: 1fr 1fr;
                     text-align: center;
                     h2 {
-                        margin: 0 0 0.75rem 0;
+                        margin: 0 0 var(--spacing-sm-md) 0;
                         font-size: 0.9rem;
-                        color: white;
+                        color: rgba(255, 255, 255, 0.9);
                     }
                 }
 
                 .field {
                     width: 100%;
                     min-height: 8rem;
-                    padding: 0.75rem;
-                    background: rgba(0, 0, 0, 0.2);
+                    padding: var(--spacing-sm-md);
+                    background-color: color-mix(
+                        in oklab,
+                        var(--signature-color) 30%,
+                        var(--form-background) 50%
+                    );
                     border: 0;
-                    border-radius: 0.5rem;
+                    border-radius: var(--spacing-sm);
                     color: white;
                     font-family: inherit;
                     font-size: 0.8rem;
                     line-height: 1.5;
                     resize: vertical;
                     text-align: left;
+                    overflow: scroll;
 
-                    &:focus {
-                        color: rgba(255, 255, 255, 0.3);
+                    &::placeholder {
+                        color: var(--app-muted);
                     }
 
                     &[readonly] {
@@ -193,10 +214,26 @@
 
                     &:focus {
                         outline: none;
-                        border-color: rgba(255, 255, 255, 0.3);
-                        background: rgba(0, 0, 0, 0.3);
+                        border-color: var(--app-muted);
+                        background-color: color-mix(
+                            in oklab,
+                            var(--signature-color) 40%,
+                            var(--form-background) 40%
+                        );
                     }
                 }
+            }
+        }
+        footer {
+            text-align: right;
+            color: white;
+
+            :global(.btn-edit) {
+                background-color: color-mix(
+                    in oklab,
+                    var(--signature-color) 50%,
+                    var(--form-background) 30%
+                );
             }
         }
     }
