@@ -103,9 +103,12 @@ export const entities = {
             const id = entity.id || crypto.randomUUID()
             const base = (await db.entities.get(id)) || {}
 
+            // SANITIZE: ENSURE PLAIN OBJECT (Fixes DataCloneError for Svelte 5 Proxies)
+            const cleanEntity = JSON.parse(JSON.stringify(entity))
+
             const saved = {
                 ...base,
-                ...normalize({ ...base, ...entity }),
+                ...normalize({ ...base, ...cleanEntity }),
                 id,
                 type: type,
                 isCustom: 1,

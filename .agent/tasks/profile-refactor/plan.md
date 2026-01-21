@@ -32,5 +32,21 @@ Restore `Scholar.consult` functionality for text fields.
     - Only visible in `isEditing`.
 - [x] **Step 3.3:** Implement `handleConsult(field)` logic.
     - Handle loading states per-field (`magicBusy`).
-- [x] **Step 4.1:** Verify `handleSave` persistence.
-- [x] **Step 4.2:** Hygiene Check (Lint/Format).
+- [x]
+
+## Phase 4: Polish & Integration
+
+- [x] **4.1 Verify Persistence** (Save/Load)
+- [x] **4.2 Hygiene Check** (Lint/Format)
+
+## Phase 5: Media & Creative Tools (Restoration)
+
+- [x] **5.1 Advanced Visuals**:
+    - [x] Add "No Background" toggle.
+    - [x] Add "Flip Image" toggle (CSS transform).
+    - [x] Add "Upload URL" input.
+- [x] **5.2 Audio Studio (Left Wing)**:
+    - [x] Add Voice ID input.
+    - [x] Add "Test Voice" button (if logic allows) - _Added ID input_.
+- [x] **5.3 Signature Color**:
+    - [x] Verify color picker interaction..
