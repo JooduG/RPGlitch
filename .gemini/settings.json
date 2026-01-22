@@ -26,14 +26,6 @@
     "enabled": true
   },
   "mcpServers": {
-    "chrome-devtools": {
-      "command": "cmd",
-      "args": [
-        "/c",
-        "npx",
-        "chrome-devtools-mcp@latest"
-      ]
-    },
     "context7": {
       "headers": {
         "CONTEXT7_API_KEY": "ctx7sk-47294459-6c98-4af4-8546-a3616fe3d7d9"
@@ -85,11 +77,46 @@
         "@sveltejs/mcp"
       ]
     },
-    "playwright": {
+    "firecrawl-mcp": {
       "command": "npx",
       "args": [
-        "@playwright/mcp@latest"
-      ]
+        "-y",
+        "firecrawl-mcp"
+      ],
+      "env": {
+        "FIRECRAWL_API_KEY": "fc-968e355e236f460092834ec49afdd6ae"
+      }
+    },
+    "obsidian": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@cyanheads/obsidian-mcp-server"
+      ],
+      "env": {
+        "OBSIDIAN_API_KEY": "2686481c3abb711618d16208bfcc26eaf61fec60b12dd513d65289371f93258e",
+        "OBSIDIAN_VERIFY_SSL": "false"
+      }
+    },
+    "pinecone-mcp-server": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@pinecone-database/mcp"
+      ],
+      "env": {
+        "PINECONE_API_KEY": "pcsk_vQDQw_JH6oQebjGTqo4TkQqeXu5FU6oFfzDKXQSLC2h7kEccPHCUt1X66oqYdxUgH27nW"
+      }
+    },
+    "supabase-mcp-server": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--access-token",
+        "sbp_0211f76c824072d4b77a5012761ad3fd3baca328"
+      ],
+      "env": {}
     }
   },
   "general": {
