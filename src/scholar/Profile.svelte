@@ -23,6 +23,37 @@
         flip: false,
     })
     let magicBusy = $state({})
+    let activeField = $state({ key: "visual-prompt", label: "Image Prompt" })
+
+    // Derived Label for the Magic Button
+    let magicLabel = $derived.by(() => {
+        if (activeField.key === "visual-prompt") {
+            return promptText ? "Refine Prompt" : "Extract Data"
+        }
+        return `Enhance ${activeField.label}`
+    })
+
+    // Busy state for the active context
+    let isMagicBusy = $derived(
+        activeField.key === "visual-prompt"
+            ? visualBusy
+            : !!magicBusy[activeField.key]
+    )
+
+    // Unified Magic Handler
+    async function handleMagic() {
+        if (!isEditing || isMagicBusy) return
+
+        if (activeField.key === "visual-prompt") {
+            if (!promptText) {
+                handleExtract()
+            } else {
+                await handleEnhance()
+            }
+        } else {
+            await handleConsult(activeField.key)
+        }
+    }
 
     // Character data
     let char = $state(
@@ -40,6 +71,13 @@
         if (char?.visuals) {
             visualOptions.noBackground = char.visuals.noBackground || false
             visualOptions.flip = char.visuals.flip || false
+        }
+    })
+
+    // Reset focus tracking when exiting edit mode
+    $effect(() => {
+        if (!isEditing) {
+            activeField = { key: "visual-prompt", label: "Image Prompt" }
         }
     })
 
@@ -227,10 +265,21 @@
                     <div class="group">
                         <textarea
                             class="visual-prompt"
+                            class:active={isEditing &&
+                                activeField.key === "visual-prompt"}
                             bind:value={promptText}
                             placeholder="Describe appearance, or paste an image URL..."
                             disabled={!isEditing || visualBusy}
                             rows="3"
+                            tabindex={isEditing ? 0 : -1}
+                            onfocus={() => {
+                                if (isEditing) {
+                                    activeField = {
+                                        key: "visual-prompt",
+                                        label: "Image Prompt",
+                                    }
+                                }
+                            }}
                         ></textarea>
                         <input
                             type="file"
@@ -241,33 +290,16 @@
                         />
                     </div>
                     <div class="group-row">
-                        {#if !promptText}
-                            <!-- EMPTY STATE -->
-                            <Button
-                                variant="secondary"
-                                size="sm"
-                                onclick={handleExtract}
-                                disabled={!isEditing || visualBusy}
-                            >
-                                Extract
-                            </Button>
-                            <Button
-                                variant="primary"
-                                size="sm"
-                                onclick={() => fileInput.click()}
-                                disabled={!isEditing || visualBusy}
-                            >
-                                {visualBusy ? "Uploading..." : "Upload"}
-                            </Button>
-                        {:else if isUrl(promptText)}
-                            <!-- URL STATE -->
-                            <Button
-                                variant="secondary"
-                                size="sm"
-                                disabled={true}
-                            >
-                                Enhance
-                            </Button>
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            onclick={() => fileInput.click()}
+                            disabled={!isEditing || visualBusy}
+                        >
+                            {visualBusy ? "..." : "Upload"}
+                        </Button>
+
+                        {#if isUrl(promptText)}
                             <Button
                                 variant="primary"
                                 size="sm"
@@ -277,24 +309,42 @@
                                 Save URL
                             </Button>
                         {:else}
-                            <!-- TEXT STATE -->
-                            <Button
-                                variant="primary"
-                                size="sm"
-                                onclick={handleEnhance}
-                                disabled={!isEditing || visualBusy}
-                            >
-                                {visualBusy ? "Enhancing..." : "Enhance"}
-                            </Button>
                             <Button
                                 variant="primary"
                                 size="sm"
                                 onclick={handleGenerate}
-                                disabled={!isEditing || visualBusy}
+                                disabled={!isEditing ||
+                                    !promptText ||
+                                    visualBusy}
                             >
-                                {visualBusy ? "Generating..." : "Generate"}
+                                {visualBusy
+                                    ? "..."
+                                    : "Generate Profile Picture"}
                             </Button>
                         {/if}
+                    </div>
+
+                    <div class="magic-zone">
+                        <Button
+                            variant="magic"
+                            className="master-magic-btn"
+                            onclick={handleMagic}
+                            disabled={!isEditing || isMagicBusy}
+                        >
+                            <div class="magic-content">
+                                <span class="sparkle"
+                                    >{isMagicBusy ? "●" : "✨"}</span
+                                >
+                                <div class="labels">
+                                    <span class="target">{magicLabel}</span>
+                                    <span class="action"
+                                        >{isMagicBusy
+                                            ? "Channelling..."
+                                            : "Invoke Magic"}</span
+                                    >
+                                </div>
+                            </div>
+                        </Button>
                     </div>
                     <div class="group-row">
                         <label class="checkbox-label">
@@ -385,6 +435,9 @@
                                             {/if}
                                             <textarea
                                                 class="text-area"
+                                                class:active={isEditing &&
+                                                    activeField.key ===
+                                                        field.key}
                                                 placeholder={field.placeholder}
                                                 value={getValue(
                                                     char,
@@ -396,26 +449,19 @@
                                                         field.key,
                                                         e.target.value
                                                     )}
+                                                onfocus={() => {
+                                                    if (isEditing) {
+                                                        activeField = {
+                                                            key: field.key,
+                                                            label:
+                                                                field.label ||
+                                                                section.label,
+                                                        }
+                                                    }
+                                                }}
+                                                tabindex={isEditing ? 0 : -1}
                                                 readonly={!isEditing}
                                             ></textarea>
-
-                                            {#if isEditing}
-                                                <button
-                                                    class="spark-btn"
-                                                    class:active={magicBusy[
-                                                        field.key
-                                                    ]}
-                                                    onclick={() =>
-                                                        handleConsult(
-                                                            field.key
-                                                        )}
-                                                    title="Auto-generate with AI"
-                                                >
-                                                    {magicBusy[field.key]
-                                                        ? "..."
-                                                        : "✨"}
-                                                </button>
-                                            {/if}
                                         </div>
                                     {/each}
                                 </div>
@@ -549,7 +595,14 @@
             font-size: 0.9rem;
             font-family: inherit;
             resize: none;
+            outline: none;
             transition: all 0.3s ease;
+
+            &.active {
+                border-color: var(--signature-color);
+                box-shadow: 0 0 10px
+                    color-mix(in oklab, var(--signature-color) 20%, transparent);
+            }
 
             &:focus:not(:disabled) {
                 background: rgba(0, 0, 0, 0.5);
@@ -670,6 +723,104 @@
                     }
                 }
             }
+        }
+    }
+
+    :global(.master-magic-btn) {
+        width: 100%;
+        height: 4.5rem;
+        background: linear-gradient(
+            135deg,
+            color-mix(in oklab, var(--signature-color) 40%, #000) 0%,
+            color-mix(in oklab, var(--signature-color) 20%, #000) 100%
+        ) !important;
+        border: 1px solid var(--signature-color) !important;
+        border-radius: var(--spacing-md) !important;
+        box-shadow: 0 4px 20px
+            color-mix(in oklab, var(--signature-color) 25%, transparent) !important;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+
+        &:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 30px
+                color-mix(in oklab, var(--signature-color) 40%, transparent) !important;
+            filter: brightness(1.2);
+        }
+
+        &:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        &:disabled {
+            opacity: 0.3;
+            filter: grayscale(1) contrast(0.5);
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            background: rgba(0, 0, 0, 0.4) !important;
+            box-shadow: none !important;
+            cursor: not-allowed;
+
+            .sparkle {
+                animation: none;
+                opacity: 0.2;
+            }
+        }
+    }
+
+    /* Magic Zone & Master Magic Button */
+    .magic-zone {
+        margin-top: auto;
+        padding-top: var(--spacing-md);
+        width: 100%;
+
+        .magic-content {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            text-align: left;
+            width: 100%;
+
+            .sparkle {
+                font-size: 1.5rem;
+                filter: drop-shadow(0 0 5px white);
+                animation: pulse 2s infinite ease-in-out;
+            }
+
+            .labels {
+                display: flex;
+                flex-direction: column;
+
+                .action {
+                    font-size: 0.65rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.15em;
+                    font-weight: 800;
+                    color: rgba(255, 255, 255, 0.5);
+                    margin-top: -2px;
+                }
+
+                .target {
+                    font-size: 1.15rem;
+                    font-weight: 900;
+                    color: white;
+                    text-transform: capitalize;
+                    text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+            }
+        }
+    }
+
+    @keyframes pulse {
+        0%,
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.2);
+            opacity: 0.8;
         }
     }
 
@@ -893,6 +1044,15 @@
                             resize: vertical;
                             transition: all 0.2s;
 
+                            &.active:not([readonly]) {
+                                border-color: color-mix(
+                                    in oklab,
+                                    var(--signature-color) 50%,
+                                    transparent
+                                );
+                                background: rgba(255, 255, 255, 0.05);
+                            }
+
                             &:focus:not([readonly]) {
                                 background: rgba(255, 255, 255, 0.07);
                                 border-color: var(--signature-color);
@@ -905,42 +1065,13 @@
                                     );
                             }
 
+                            &:focus {
+                                outline: none;
+                            }
+
                             &[readonly] {
                                 cursor: default;
                             }
-                        }
-
-                        .spark-btn {
-                            position: absolute;
-                            top: var(--spacing-xs);
-                            right: var(--spacing-xs);
-                            background: rgba(0, 0, 0, 0.4);
-                            border: 1px solid rgba(255, 255, 255, 0.1);
-                            color: white;
-                            width: 26px;
-                            height: 26px;
-                            border-radius: 50%;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            cursor: pointer;
-                            transition: all 0.2s;
-                            font-size: 0.8rem;
-                            opacity: 0;
-
-                            &:hover {
-                                background: var(--signature-color);
-                                transform: scale(1.1);
-                            }
-
-                            &.active {
-                                opacity: 1;
-                                animation: spin 1s linear infinite;
-                            }
-                        }
-
-                        &:hover .spark-btn {
-                            opacity: 1;
                         }
                     }
                 }
