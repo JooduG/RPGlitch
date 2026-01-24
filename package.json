@@ -37,7 +37,8 @@
     "dexie": "^3.2.4",
     "dompurify": "^3.0.5",
     "dotenv": "^17.2.3",
-    "ignore": "^7.0.5"
+    "ignore": "^7.0.5",
+    "obsidian-mcp-server": "^2.0.7"
   },
   "devDependencies": {
     "@eslint/compat": "^1.4.0",

@@ -20,11 +20,12 @@ This skill enforces core constraints for visual design and technical implementat
 
 ## Workflow
 
-1.  **Token Discovery**: Check `knowledge/design-tokens.json` for approved constants.
-2.  **Architecture Application**: Follow the 7-1 SCSS pattern (Abstracts, Base, Components).
-3.  **Voice Calibration**: Review `knowledge/voice-tone.md` for copy guidelines.
-4.  **UI/UX Search**: Use `knowledge/reference/design-lists/scripts/search.py` to find specific design patterns or guidelines.
-5.  **Verification**: Test touch targets and accessibility.
+1. **Semantic Check**: Consult [DESIGN.md](../../../DESIGN.md) for the visual atmosphere and functional roles.
+2. **Token Discovery**: Ensure constants match [DESIGN.md](../../../DESIGN.md) and technical SCSS variables.
+3. **Architecture Application**: Follow the 7-1 SCSS pattern (Abstracts, Base, Components).
+4. **Voice Calibration**: Review `knowledge/voice-tone.md` for copy guidelines.
+5. **UI/UX Search**: Use `knowledge/reference/design-lists/scripts/search.py` to supplement specific pattern needs.
+6. **Verification**: Test touch targets and accessibility.
 
 ## Instructions
 

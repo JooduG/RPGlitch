@@ -24,8 +24,8 @@
 - Status: In Progress
 - Note: Hooks, startup protocol, and slash commands.
 
-## [ ] Track: Profile Refactor
+## [x] Track: Profile Refactor
 
 - Path: .agent/tasks/profile-refactor/
-- Status: Defined
-- Note: Restore AI features (Paint/Spark) to new Triptych design.
+- Status: Complete
+- Note: Winged layout and AI tools (Paint/Spark) fully restored to Svelte 5.

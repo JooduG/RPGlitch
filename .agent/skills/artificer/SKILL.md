@@ -13,10 +13,11 @@ description: Triggers on src/artificer/** or where otherwise relevant. Governs t
 
 ## Workflow
 
-1.  **Scope Assessment**: Determine if the component is atomic (Button) or composite (Panel).
-2.  **Logic Definition**: Define reactive state using Svelte 5 Runes (`$state`, `$props`).
-3.  **Styling Implementation**: Apply encapsulated SCSS following the 7-1 pattern.
-4.  **Verification**: Validate responsiveness and touch targets (min 44x44px).
+1. **Scope Assessment**: Determine if the component is atomic (Button) or composite (Panel).
+2. **Design Alignment**: Consult [DESIGN.md](../../../DESIGN.md) to ensure visual consistency (Glassmorphism, rounding).
+3. **Logic Definition**: Define reactive state using Svelte 5 Runes (`$state`, `$props`).
+4. **Styling Implementation**: Apply encapsulated SCSS using `--app-*` variables from `_variables.scss`.
+5. **Verification**: Validate responsiveness and touch targets (min 44x44px).
 
 ## Instructions
 

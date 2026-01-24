@@ -3,6 +3,7 @@
     import Modal from "../artificer/Modal.svelte"
     import { CONFIG } from "../gamemaster/config.js"
     import { app } from "../gamemaster/state.svelte.js"
+    import { Mesmer } from "../mesmer/index.js"
     import { TextToImage } from "../mesmer/logic/text-to-image.js"
     import { themeStore } from "../mesmer/logic/theme.svelte.js"
     import ProfilePicture from "../mesmer/ui/ProfilePicture.svelte"
@@ -11,6 +12,29 @@
     import { runtime } from "./runtime.svelte.js"
 
     let { entityId, entityType } = $props()
+
+    /**
+     * Svelte 5 Action: Auto-resize textarea to fit content.
+     * Prevents nested scrollbars and "scroll hijacking".
+     */
+    function autoResize(node) {
+        const update = () => {
+            node.style.height = "auto"
+            node.style.height = node.scrollHeight + "px"
+        }
+        node.addEventListener("input", update)
+        // Ensure it updates when modal opens or layout changes
+        const observer = new ResizeObserver(update)
+        observer.observe(node)
+
+        update()
+        return {
+            destroy() {
+                node.removeEventListener("input", update)
+                observer.disconnect()
+            },
+        }
+    }
 
     // State
     let isEditing = $state(false)
@@ -240,6 +264,7 @@
             class="profile-container"
             class:editing={isEditing}
             class:dev-mode={app.settings.devMode}
+            class:show-dev-wing={app.settings.devMode}
         >
             <aside class="wing-left">
                 <div class="content">
@@ -264,13 +289,14 @@
 
                     <div class="group">
                         <textarea
+                            use:autoResize
                             class="visual-prompt"
                             class:active={isEditing &&
                                 activeField.key === "visual-prompt"}
                             bind:value={promptText}
                             placeholder="Describe appearance, or paste an image URL..."
                             disabled={!isEditing || visualBusy}
-                            rows="3"
+                            rows="2"
                             tabindex={isEditing ? 0 : -1}
                             onfocus={() => {
                                 if (isEditing) {
@@ -375,16 +401,25 @@
                     </div>
 
                     <div class="dropdown">
-                        <button class="dropbtn" type="button"
-                            >Voice: {char?.voiceId || "Default"}</button
-                        >
+                        <button class="dropbtn" type="button">
+                            {Mesmer.voice.voices.find(
+                                (v) => v.uri === char.voiceId
+                            )?.name || "Default Voice"}
+                        </button>
                         <div class="dropdown-content">
-                            <input
-                                type="text"
-                                placeholder="Change voice ID..."
-                                bind:value={char.voiceId}
-                                disabled={!isEditing}
-                            />
+                            {#each Mesmer.voice.voices as voice (voice.uri)}
+                                <button
+                                    class="voice-item"
+                                    class:active={char.voiceId === voice.uri}
+                                    onclick={() => {
+                                        char.voiceId = voice.uri
+                                        Mesmer.voice.preview(voice.uri)
+                                    }}
+                                    disabled={!isEditing}
+                                >
+                                    {voice.name}
+                                </button>
+                            {/each}
                         </div>
                     </div>
                 </div>
@@ -434,6 +469,7 @@
                                                 >
                                             {/if}
                                             <textarea
+                                                use:autoResize
                                                 class="text-area"
                                                 class:active={isEditing &&
                                                     activeField.key ===
@@ -476,7 +512,7 @@
                                 onclick={handleSave}
                                 disabled={isSaving}
                             >
-                                {isSaving ? "Saving..." : "Save Changes"}
+                                {isSaving ? "Saving..." : "Save"}
                             </Button>
                         {:else}
                             <Button
@@ -502,6 +538,7 @@
                             <Button
                                 variant="danger"
                                 size="sm"
+                                disabled={!isEditing}
                                 onclick={handleDelete}>DELETE ENTITY</Button
                             >
                         </div>
@@ -520,26 +557,39 @@
 {/if}
 
 <style lang="scss">
-    /* Triptych Layout & Wings */
+    /* Winged Layout & Wings */
     .profile-container {
         display: flex;
         align-items: center;
         justify-content: center;
         gap: var(--spacing-md);
-        transition: gap 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        width: 100%;
+        max-width: 100vw;
+        padding: 0 var(--spacing-lg);
 
-        &.editing {
+        &.editing,
+        &.show-dev-wing {
             gap: var(--spacing-lg);
 
-            .wing-left,
-            .wing-right {
-                min-width: 10rem;
-                max-width: 20rem;
-                opacity: 1;
-                pointer-events: auto;
-                transform: scale(1);
-                filter: blur(0);
+            .wing-left {
+                /* Left wing only expands in editing */
             }
+
+            .wing-right {
+                /* Right wing expands in both edit and dev mode */
+            }
+        }
+
+        &.editing .wing-left,
+        &.editing .wing-right,
+        &.show-dev-wing .wing-right {
+            min-width: 15rem;
+            max-width: 24rem;
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+            filter: blur(0);
         }
     }
 
@@ -586,7 +636,7 @@
 
         .visual-prompt {
             width: 100%;
-            min-height: 8rem;
+            min-height: 4rem;
             padding: var(--spacing-sm);
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--ui-glass-border);
@@ -596,6 +646,7 @@
             font-family: inherit;
             resize: none;
             outline: none;
+            overflow: hidden; /* Controlled by autoResize */
             transition: all 0.3s ease;
 
             &.active {
@@ -700,26 +751,37 @@
                 bottom: 100%;
                 left: 0;
                 width: 100%;
-                background: var(--card-background);
+                background: rgba(20, 20, 24, 0.95);
+                backdrop-filter: blur(10px);
                 border: 1px solid var(--ui-glass-border);
                 border-radius: var(--spacing-sm);
-                padding: var(--spacing-sm);
+                padding: var(--spacing-xs);
                 margin-bottom: var(--spacing-xs);
                 z-index: 10;
                 box-shadow: var(--shadow-lg);
+                max-height: 20rem;
+                overflow-y: auto;
 
-                input {
+                .voice-item {
                     width: 100%;
-                    background: rgba(0, 0, 0, 0.3);
-                    border: 1px solid var(--ui-glass-border);
-                    color: white;
+                    background: transparent;
+                    border: none;
+                    color: var(--app-muted);
                     padding: var(--spacing-xs) var(--spacing-sm);
-                    border-radius: var(--spacing-xs);
+                    text-align: left;
                     font-size: 0.8rem;
+                    border-radius: var(--spacing-xs);
+                    cursor: pointer;
+                    transition: all 0.2s;
 
-                    &:focus {
-                        outline: none;
-                        border-color: var(--signature-color);
+                    &:hover {
+                        background: rgba(255, 255, 255, 0.05);
+                        color: white;
+                    }
+
+                    &.active {
+                        color: var(--signature-color);
+                        background: rgba(var(--signature-rgb), 0.1);
                     }
                 }
             }
@@ -923,7 +985,24 @@
         .right {
             display: flex;
             flex-direction: column;
-            overflow: scroll;
+            overflow-y: scroll;
+            overflow-x: hidden;
+
+            /* Custom Scrollbar */
+            &::-webkit-scrollbar {
+                width: 6px;
+            }
+            &::-webkit-scrollbar-track {
+                background: rgba(0, 0, 0, 0.1);
+            }
+            &::-webkit-scrollbar-thumb {
+                background: color-mix(
+                    in oklab,
+                    var(--signature-color) 30%,
+                    transparent
+                );
+                border-radius: 10px;
+            }
 
             header {
                 padding: var(--spacing-lg);
@@ -1031,8 +1110,8 @@
 
                         .text-area {
                             width: 100%;
-                            height: 100%;
-                            min-height: 8rem;
+                            height: auto;
+                            min-height: 4rem;
                             background: rgba(255, 255, 255, 0.03);
                             border: 1px solid rgba(255, 255, 255, 0.1);
                             border-radius: var(--spacing-sm);
@@ -1041,7 +1120,8 @@
                             font-family: inherit;
                             font-size: 0.85rem;
                             line-height: 1.5;
-                            resize: vertical;
+                            resize: none;
+                            overflow: hidden; /* Controlled by autoResize */
                             transition: all 0.2s;
 
                             &.active:not([readonly]) {

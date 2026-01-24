@@ -64,6 +64,12 @@ These files are the project's scratchpads—brain-dumps for the **right here, ri
 - **Path Standards**: Always use forward slashes `/` for paths.
 - **Hierarchical Loading**: Provide only the context immediately needed; point to deeper docs for detail.
 
+---
+
+## Visualization & Diagrams
+
+Whenever documenting complex flows, architectures, or state machines, utilize the [mermaid-expert](../mermaid-expert/SKILL.md) skill to generate professional, readable diagrams.
+
 ## Resources
 
 - **Core Logic Hierarchy**:

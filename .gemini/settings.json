@@ -88,13 +88,13 @@
       }
     },
     "obsidian": {
-      "command": "npx",
+      "command": "node",
       "args": [
-        "-y",
-        "@cyanheads/obsidian-mcp-server"
+        "c:/Users/johng/Documents/GitHub/default/node_modules/obsidian-mcp-server/dist/index.js"
       ],
       "env": {
         "OBSIDIAN_API_KEY": "2686481c3abb711618d16208bfcc26eaf61fec60b12dd513d65289371f93258e",
+        "OBSIDIAN_BASE_URL": "https://127.0.0.1:27124",
         "OBSIDIAN_VERIFY_SSL": "false"
       }
     },
@@ -117,6 +117,18 @@
         "sbp_0211f76c824072d4b77a5012761ad3fd3baca328"
       ],
       "env": {}
+    },
+    "stitch": {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\johng\\AppData\\Local\\npm-cache\\_npx\\829c6278c197c365\\node_modules\\@_davideast\\stitch-mcp\\dist\\cli.js",
+        "proxy"
+      ],
+      "env": {
+        "GOOGLE_CLOUD_PROJECT": "spry-analyzer-457013-a1",
+        "PATH": "C:\\Users\\johng\\AppData\\Local\\Google\\Cloud SDK\\google-cloud-sdk\\bin;C:\\Program Files\\nodejs",
+        "GOOGLE_APPLICATION_CREDENTIALS": "C:\\Users\\johng\\AppData\\Roaming\\gcloud\\application_default_credentials.json"
+      }
     }
   },
   "general": {

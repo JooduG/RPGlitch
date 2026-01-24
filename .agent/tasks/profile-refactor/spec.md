@@ -2,16 +2,16 @@
 
 ## 1. Context & Goal
 
-The Profile Modal is undergoing a major redesign ("Triptych Layout") to simplify the code structure while enhancing the UX.
+The Profile Modal is undergoing a major redesign ("Three-Zone Layout") to simplify the code structure while enhancing the UX.
 The "Readonly Experience" is largely complete. The goal of this track is to implement the "Interactive Experience" ("Everything Else"), seamlessly porting the powerful AI features from the legacy version into the new modular architecture.
 
-## 2. The "Triptych" Concept
+## 2. The "Three-Zone" Concept
 
 The new design splits the profile into tree zones:
 
-1.  **Center (Presentation):** The character card/dossier. Read-optimized.
-2.  **Left Wing (Creative):** Tools for changing the entity's appearance (Color, Image Generation). Visible only in Edit Mode.
-3.  **Right Wing (System):** Meta-controls (UUID, Delete, JSON inspect). Visible only in Edit Mode.
+1. **Center (Presentation):** The character card/dossier. Read-optimized.
+2. **Left Wing (Creative):** Tools for changing the entity's appearance (Color, Image Generation). Visible only in Edit Mode.
+3. **Right Wing (System):** Meta-controls (UUID, Delete, JSON inspect). Visible only in Edit Mode.
 
 ## 3. Requirements
 

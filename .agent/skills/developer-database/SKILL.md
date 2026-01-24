@@ -12,6 +12,10 @@ description: Triggers on supabase/**, migrations/**, **/*.sql, or where otherwis
 - Configuring Row Level Security (RLS) policies.
 - Developing Supabase Edge Functions.
 
+## Architectural Context
+
+For high-level data modeling, technology selection, and scaling theory, consult the [database-architect](../database-architect/SKILL.md) skill. This developer skill focuses on the active implementation within the RPGlitch/Supabase stack.
+
 ## Workflow
 
 1.  **Schema Design**: Define snake_case tables and granular RLS policies.
