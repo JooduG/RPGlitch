@@ -52,15 +52,17 @@
         overflow-y: auto;
 
         &.variant-profile {
-            align-items: center;
+            display: flex;
+            align-items: flex-start; /* Start from top if overflowing */
             justify-content: center;
             border-radius: 0;
-            width: max-content; /* Allow content to define width (for wings) */
-            max-width: 98vw;
-            height: auto;
-            max-height: 98vh;
+            width: max-content;
+            max-width: 100vw;
+            height: max-content;
+            min-height: 100%;
+            padding: var(--spacing-xxl) var(--spacing-lg); /* Vertical breathing room */
             position: relative;
-            background: transparent; /* Let children handle background */
+            background: transparent;
             box-shadow: none;
         }
 

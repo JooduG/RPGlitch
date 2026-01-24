@@ -298,6 +298,16 @@
                                                     busyField === field.key}
                                                 disabled={busyField ===
                                                     field.key}
+                                                onwheel={(e) => {
+                                                    const target =
+                                                        e.currentTarget
+                                                    const isScrollable =
+                                                        target.scrollHeight >
+                                                        target.clientHeight
+                                                    if (isScrollable) {
+                                                        e.stopPropagation()
+                                                    }
+                                                }}
                                             ></textarea>
                                         </div>
                                     {/each}
@@ -396,7 +406,7 @@
         transform: scale(0.9);
         filter: blur(10px);
         height: auto;
-        max-height: 38rem;
+        max-height: 48rem;
         display: flex;
         flex-direction: column;
         gap: var(--spacing-md);
@@ -530,6 +540,7 @@
         max-width: 90vw;
         height: 48rem; /* Target desktop height */
         max-height: 85vh; /* Responsive safety */
+        min-height: 20rem;
         position: relative;
         background-color: color-mix(
             in oklab,
@@ -810,6 +821,11 @@
 
                             &[readonly] {
                                 cursor: default;
+                            }
+
+                            &:disabled {
+                                cursor: wait;
+                                opacity: 0.8;
                             }
                         }
                     }

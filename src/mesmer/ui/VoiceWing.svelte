@@ -13,6 +13,12 @@
         activeSlider = null
     }
 
+    // Voice metadata
+    const selectedVoice = $derived(
+        Mesmer.voice.voices.find((v) => v.uri === char.voice.uri)
+    )
+    const isNaturalVoice = $derived(selectedVoice?.name.includes("Natural"))
+
     // Voice name normalization
     function formatVoiceName(name) {
         return name
@@ -51,10 +57,10 @@
                             showVoiceDropdown = false
                         }}
                     >
-                        <span class="region-pill">{voice.region}</span>
                         <span class="voice-name"
                             >{formatVoiceName(voice.name)}</span
                         >
+                        <span class="region-pill">{voice.region}</span>
                     </button>
                 {/each}
             </div>
@@ -84,7 +90,7 @@
             role="presentation"
         >
             <Tooltip
-                text="Rate: {char.voice.rate.toFixed(1)}x"
+                text={`Rate: ${char.voice.rate.toFixed(1)}x`}
                 visible={hoveredSlider === "rate" || activeSlider === "rate"}
             />
             <input
@@ -93,21 +99,21 @@
                 max="2.0"
                 step="0.1"
                 bind:value={char.voice.rate}
-                disabled={!isEditing ||
-                    Mesmer.voice.voices
-                        .find((v) => v.uri === char.voice.uri)
-                        ?.name.includes("Natural")}
+                disabled={!isEditing}
                 onpointerdown={() => (activeSlider = "rate")}
             />
         </div>
         <div
             class="slider-group"
+            class:locked={isNaturalVoice}
             onmouseenter={() => (hoveredSlider = "pitch")}
             onmouseleave={() => (hoveredSlider = null)}
             role="presentation"
         >
             <Tooltip
-                text="Pitch: {char.voice.pitch.toFixed(1)}"
+                text={isNaturalVoice
+                    ? "Pitch locked: Natural voices ignore manual pitch adjustments"
+                    : `Pitch: ${char.voice.pitch.toFixed(1)}`}
                 visible={hoveredSlider === "pitch" || activeSlider === "pitch"}
             />
             <input
@@ -116,10 +122,7 @@
                 max="2.0"
                 step="0.1"
                 bind:value={char.voice.pitch}
-                disabled={!isEditing ||
-                    Mesmer.voice.voices
-                        .find((v) => v.uri === char.voice.uri)
-                        ?.name.includes("Natural")}
+                disabled={!isEditing || isNaturalVoice}
                 onpointerdown={() => (activeSlider = "pitch")}
             />
         </div>
@@ -247,20 +250,24 @@
         &.active {
             color: var(--app-accent);
             .region-pill {
-                background: var(--app-accent);
-                color: black;
+                color: var(--app-accent);
+                opacity: 0.6;
             }
         }
 
         .region-pill {
-            font-size: 0.6rem;
+            font-size: 0.65rem;
             text-transform: uppercase;
-            font-weight: 800;
-            padding: 2px 6px;
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.6);
-            border-radius: 4px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.4);
             letter-spacing: 0.05em;
+            transition: color 0.2s;
+
+            &::before {
+                content: "-";
+                margin-right: 8px;
+                opacity: 0.4;
+            }
         }
 
         .voice-name {
@@ -291,6 +298,18 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            transition: all 0.3s ease;
+
+            &.locked {
+                opacity: 0.5;
+                background: rgba(255, 255, 255, 0.01);
+                border-style: dashed;
+                cursor: not-allowed;
+            }
+
+            input[type="range"]:disabled {
+                cursor: not-allowed;
+            }
 
             input[type="range"] {
                 display: block;

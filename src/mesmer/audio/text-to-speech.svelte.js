@@ -48,14 +48,12 @@ export class VoiceStore {
                 _ref: v,
             }))
             .sort((a, b) => {
-                // Prioritize Swedish then English
-                const aSv = a.lang.startsWith("sv") ? -1 : 1
-                const bSv = b.lang.startsWith("sv") ? -1 : 1
-                if (aSv !== bSv) return aSv - bSv
+                // 1st by region (alphabetical)
+                const regionSort = a.region.localeCompare(b.region)
+                if (regionSort !== 0) return regionSort
 
-                const aEn = a.lang.startsWith("en") ? -1 : 1
-                const bEn = b.lang.startsWith("en") ? -1 : 1
-                return aEn - bEn
+                // 2nd by name (alphabetical)
+                return a.name.localeCompare(b.name)
             })
 
         // Set default if none selected
