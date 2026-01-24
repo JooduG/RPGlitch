@@ -22,29 +22,29 @@
 
 Before any operation, all agents **MUST** validate their environment using the **agent-startup** skill:
 
-1.  **Read Config:** Load `.agent/config.yaml`.
-2.  **Validate Tooling:** Load `.agent/tooling.json`.
-3.  **Check Types:** Read `types.d.ts`.
-4.  **Check Startup:** Execute `.gemini/on_startup.sh`.
+1. Read Config: Load `.agent/config.yaml`.
+2. Validate Tooling: Load `.agent/tooling.json`.
+3. Check Types: Read `types.d.ts`.
+4. Check Startup: Execute `.gemini/on_startup.sh`.
 
 ### 🔍 How to Locate Files
 
 Use the **agent-sync** protocol and the **Repo Overview** in `.agent/index.md` to resolve paths:
 
-1.  **Active State:** Check `.agent/index.md` first for the repository structure.
-    - **Product Definition:** `.agent/product.md`
-    - **Tech Stack:** `.agent/rules/tech-stack.md`
-    - **Workflow:** `.agent/rules/standard-workflow.md`
-2.  **Passive Governance:** Check `.agent/rules/`.
-3.  **Specialized Capabilities:** See the **Skill Matrix** below.
+1. Active State: Check `.agent/index.md` first for the repository structure.
+    - Product Definition: `.agent/product.md`
+    - Tech Stack: `.agent/rules/tech-stack.md`
+    - Workflow: `.agent/rules/standard-workflow.md`
+2. Passive Governance: Check `.agent/rules/`.
+3. Specialized Capabilities: See the **Skill Matrix** below.
 
 ### ⚡ Dynamic Context Hooks
 
 Before starting any task, you **MUST** read the following to ground yourself:
 
-1.  `.agent/config.yaml` (Project-wide settings)
-2.  `.agent/product.md` (What are we building?)
-3.  `.agent/tasks.md` (What are we doing right now?)
+1. `.agent/config.yaml` (Project-wide settings)
+2. `.agent/product.md` (What are we building?)
+3. `.agent/tasks/tracks.md` (What are we doing right now?)
 
 ---
 
@@ -84,18 +84,18 @@ Before starting any task, you **MUST** read the following to ground yourself:
 
 > **Source of Truth:** `.agent/rules/tech-stack.md`.
 
-1.  **Runes Only:** `$state`, `$derived`, `$effect`, `$props`.
-2.  **Single File Monolith:** Output is a single HTML file (Vite 6).
-3.  **Styling:** Native SCSS (7-1 pattern). No Tailwind.
-4.  **Persistence:** Dexie.js (IndexedDB).
+1. Runes Only: `$state`, `$derived`, `$effect`, `$props`.
+2. Single File Monolith: Output is a single HTML file (Vite 6).
+3. Styling: Native SCSS (7-1 pattern). No Tailwind.
+4. Persistence: Dexie.js (IndexedDB).
 
 ---
 
 ## 5. 🚀 Execution Loop
 
-1.  **Analyze:** Is this Strategic, Tactical, or Operational?
-2.  **Resolve:** Use the **Triad Protocol** to locate context.
-3.  **Execute:** Use **Sequential Thinking** for complexity.
-4.  **Verify:** Run `npm run validate` before declaring victory.
+1. Analyze: Is this Strategic, Tactical, or Operational?
+2. Resolve: Use the **Triad Protocol** to locate context.
+3. Execute: Use **Sequential Thinking** for complexity.
+4. Verify: Run `npm run validate` before declaring victory.
 
-_"If it looks real, it is real."_
+> _If it looks real, it is real._

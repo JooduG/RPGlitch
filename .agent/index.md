@@ -28,5 +28,5 @@
 
 - [Product Definition](./product.md)
 - [Knowledge Base](./knowledge/)
-- [Tracks Registry](./tasks.md)
+- [Tracks Registry](./tasks/tracks.md)
 - [Ideas & Possibilities](./knowledge/possibilities.md)

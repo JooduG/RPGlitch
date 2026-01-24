@@ -29,25 +29,23 @@ The system operates on a strict **Unidirectional Data Flow**. We do not manually
 
 - **Role:** Structure, Form, & Tooling.
 - **Core:** `src/artificer/` (UI Kit) & `tools/` (Build System).
-- **Global State:** `src/artificer/state.svelte.js` (The App's "Consciousness").
+- **Global State**: `src/gamemaster/state.svelte.js` (The App's "Consciousness").
 - **Responsibility:**
-  - Provides the atomic building blocks (`Card`, `Button`, `Layout`).
-  - Manages the `Storymode` (Chat) and `Storyboard` (Grid) interfaces.
-  - Handles the build pipeline (Vite).
+    - Provides the atomic building blocks (`Card`, `Button`, `Layout`).
+    - Manages the `Storymode` (Chat) and `Storyboard` (Grid) interfaces.
+    - Handles the build pipeline (Vite).
 
 ### 🎭 3. Mesmer (The Senses)
 
 - **Role:** Sensory Output (Visuals, Audio, Theme).
 - **Core:** `src/mesmer/index.js` (The Facade).
 - **Reactive Stores:**
-  - `voice.svelte.js` (TTS State).
-  - `theme.svelte.js` (Color/Style State).
+    - `voice.svelte.js` (TTS State).
+    - `theme.svelte.js` (Color/Style State).
 - **Responsibility:** The "Illusionist" that paints over the Artificer's structures. Handles Text-to-Speech and Stable Diffusion requests.
 
 ### 📚 4. Scholar (The Archivist)
 
-- **Role:** Persistence & Truth.
-- **Core:** `src/scholar/library/echo.js`.
 - **Tech:** **Dexie.js**.
 - **Responsibility:** `runtime.save()` is the **ONLY** way to anchor reality to disk. If it isn't in Scholar, it didn't happen.
 
@@ -60,8 +58,8 @@ The system operates on a strict **Unidirectional Data Flow**. We do not manually
 ## 3. The "Svelte 5 Native" Law (STRICT)
 
 1. **Runes Over Everything:** Use `$state`, `$derived`, `$effect`, and `$props`.
-   - ❌ **BAN:** `writable`, `readable` (Svelte 4 Stores).
-   - ❌ **BAN:** `export let` (Legacy Props).
+    - ❌ **BAN:** `writable`, `readable` (Svelte 4 Stores).
+    - ❌ **BAN:** `export let` (Legacy Props).
 1. **Universal Reactivity:** Global state lives in `.svelte.js` modules (e.g., `voice.svelte.js`), NEVER in UI components. UI components just consume them.
 1. **No Direct DOM:** Never use `document.querySelector` or `getElementById`. Bind to state.
 1. **No Legacy Loops:** The old `engine/` loop is dead. Use `Chrono` (State Machine).
