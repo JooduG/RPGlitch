@@ -1,0 +1,474 @@
+<script>
+    import Button from "../../artificer/Button.svelte"
+    import { PALETTE } from "../../gamemaster/config.js"
+    import { LlmService } from "../../gamemaster/llm.js"
+    import { TextToImage } from "../logic/text-to-image.js"
+
+    let {
+        char = $bindable(),
+        isEditing,
+        busyField = $bindable(),
+        activeField = $bindable(),
+    } = $props()
+
+    let fileInput = $state()
+
+    // Determine current state
+    const promptValue = $derived((char.visuals.prompt || "").trim())
+    const hasPromptText = $derived(
+        promptValue.length > 0 &&
+            !promptValue.startsWith("http") &&
+            !promptValue.startsWith("data:")
+    )
+
+    // Determine the active target value (prompt or focused field)
+    const targetValue = $derived(
+        activeField?.key === "visual-prompt"
+            ? promptValue
+            : activeField
+              ? getValue(char, activeField.key)
+              : ""
+    )
+
+    // Action is "Enhance" if the target we are looking at has text (ready for AI)
+    let isEnhanceMode = $derived(isEditing && targetValue.trim().length > 0)
+
+    // Determine the type of enhancement
+    let enhancementType = $derived(
+        activeField?.key === "visual-prompt" ? "generative" : "narrative"
+    )
+
+    async function handleCreativeAction() {
+        if (busyField) return
+        const currentTargetKey = activeField.key
+        busyField = currentTargetKey
+
+        try {
+            if (isEnhanceMode) {
+                // --- ENHANCE LOGIC (AI Optimization) ---
+                if (enhancementType === "generative") {
+                    // Optimize prompt for Image Gen
+                    const result = await LlmService.optimizeImagePrompt(
+                        char.visuals.prompt
+                    )
+                    if (result) char.visuals.prompt = result
+                } else {
+                    // Optimize specific dossier field
+                    const fieldVal = getValue(char, currentTargetKey)
+                    if (fieldVal) {
+                        const result = await LlmService.enhanceStoryField(
+                            fieldVal,
+                            activeField.label
+                        )
+                        if (result) setValue(char, currentTargetKey, result)
+                    }
+                }
+
+                // Deselect field after successful enhancement
+                activeField = { key: "visual-prompt", label: "Image Prompt" }
+            } else {
+                // --- EXTRACT LOGIC (Base Formula) ---
+                char.visuals.prompt = TextToImage.composeBasePrompt(char)
+            }
+        } catch (err) {
+            console.error("Creative action failed:", err)
+        } finally {
+            busyField = null
+        }
+    }
+
+    async function handleGenerationAction() {
+        if (busyField) return
+        busyField = "visual-prompt"
+
+        if (hasPromptText) {
+            // --- GENERATE LOGIC ---
+            try {
+                const url = await TextToImage.generate(promptValue, {
+                    removeBackground: char.visuals.noBackground,
+                })
+                if (url) char.visuals.profilePictureUrl = url
+            } catch (err) {
+                console.error("Generation failed:", err)
+            } finally {
+                busyField = null
+            }
+        } else {
+            // --- UPLOAD LOGIC ---
+            fileInput.click()
+            busyField = null
+        }
+    }
+
+    // --- UTILITIES ---
+
+    async function handleUpload(e) {
+        const file = e.target.files[0]
+        if (!file) return
+        try {
+            const url = await TextToImage.upload(file)
+            if (url) {
+                char.visuals = char.visuals || {}
+                char.visuals.profilePictureUrl = url
+            }
+        } catch (err) {
+            console.error("Upload failed:", err)
+        }
+    }
+
+    function getValue(obj, path) {
+        if (!path) return ""
+        return (
+            path.split(".").reduce((acc, part) => acc && acc[part], obj) || ""
+        )
+    }
+
+    function setValue(obj, path, val) {
+        const keys = path.split(".")
+        const last = keys.pop()
+        const target = keys.reduce(
+            (acc, key) => (acc[key] = acc[key] || {}),
+            obj
+        )
+        target[last] = val
+    }
+
+    function autoResize(node) {
+        let frame
+        const update = () => {
+            if (frame) cancelAnimationFrame(frame)
+            frame = requestAnimationFrame(() => {
+                node.style.height = "auto"
+                node.style.height = node.scrollHeight + "px"
+            })
+        }
+        node.addEventListener("input", update)
+        const observer = new ResizeObserver(update)
+        observer.observe(node)
+        update()
+        return {
+            destroy() {
+                if (frame) cancelAnimationFrame(frame)
+                node.removeEventListener("input", update)
+                observer.disconnect()
+            },
+        }
+    }
+</script>
+
+<div class="visual-wing-content">
+    <!-- 1. Spectrum Grid -->
+    <div class="group">
+        <div class="spectrum-grid">
+            {#each Object.entries(PALETTE).filter(([name]) => name !== "default") as [name, hex] (name)}
+                <button
+                    class="swatch"
+                    title={name}
+                    class:active={char.visuals?.signatureColor === hex}
+                    style="background-color: {hex}"
+                    onclick={() => {
+                        char.visuals = char.visuals || {}
+                        char.visuals.signatureColor = hex
+                    }}
+                    disabled={!isEditing}
+                ></button>
+            {/each}
+        </div>
+    </div>
+
+    <!-- 2. Visual Prompting -->
+    <div class="group">
+        <div class="prompt-box">
+            <textarea
+                use:autoResize
+                class="visual-prompt"
+                bind:value={char.visuals.prompt}
+                placeholder="Describe visuals..."
+                disabled={!isEditing || busyField === "visual-prompt"}
+                onfocus={() => {
+                    if (isEditing) {
+                        activeField = {
+                            key: "visual-prompt",
+                            label: "Image Prompt",
+                        }
+                    }
+                }}
+            ></textarea>
+
+            <div class="action-row">
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    label={busyField
+                        ? "Busy..."
+                        : isEnhanceMode
+                          ? "Enhance"
+                          : "Extract"}
+                    className={isEnhanceMode
+                        ? "high-fidelity-enhance"
+                        : "base-extract"}
+                    onclick={handleCreativeAction}
+                    disabled={!isEditing || busyField}
+                    title={isEnhanceMode
+                        ? enhancementType === "generative"
+                            ? "Optimize prompt for AI"
+                            : `Optimize ${activeField?.label}`
+                        : "Extract Base Prompt"}
+                />
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    label={busyField
+                        ? "Busy..."
+                        : hasPromptText
+                          ? "Generate"
+                          : "Upload"}
+                    onclick={handleGenerationAction}
+                    disabled={!isEditing || busyField}
+                    title={hasPromptText
+                        ? "Generate image from prompt"
+                        : "Upload local image"}
+                />
+            </div>
+
+            <input
+                type="file"
+                accept="image/*"
+                style="display: none;"
+                bind:this={fileInput}
+                onchange={handleUpload}
+            />
+        </div>
+    </div>
+
+    <!-- 3. Toggles -->
+    <div class="toggle-stack">
+        <label class="toggle-control">
+            <span class="label">No Background</span>
+            <input
+                type="checkbox"
+                bind:checked={char.visuals.noBackground}
+                disabled={!isEditing}
+            />
+            <div class="switch"></div>
+        </label>
+
+        <label class="toggle-control">
+            <span class="label">Flip Visual</span>
+            <input
+                type="checkbox"
+                bind:checked={char.visuals.flip}
+                disabled={!isEditing}
+            />
+            <div class="switch"></div>
+        </label>
+    </div>
+</div>
+
+<style lang="scss">
+    .visual-wing-content {
+        padding: var(--spacing-lg);
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-lg);
+        color: white;
+        background: radial-gradient(
+            circle at top left,
+            rgba(255, 255, 255, 0.04) 0%,
+            transparent 70%
+        );
+        background-color: var(--app-background);
+        border: 1px solid var(--ui-glass-border);
+        border-radius: var(--spacing-lg);
+        backdrop-filter: blur(10px);
+        box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .spectrum-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        padding: 0;
+
+        .swatch {
+            aspect-ratio: 1;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: var(--spacing-xs);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+            &:hover:not(:disabled) {
+                transform: scale(1.15);
+                z-index: 2;
+                border-color: white;
+            }
+
+            &.active {
+                border-color: white;
+                box-shadow: 0 0 10px white;
+                transform: scale(1.1);
+            }
+
+            &:disabled {
+                cursor: default;
+                opacity: 0.8;
+            }
+        }
+    }
+
+    .prompt-box {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--ui-glass-border);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+
+        .visual-prompt {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: white;
+            padding: var(--spacing-sm);
+            font-size: 0.85rem;
+            resize: none;
+            outline: none;
+
+            &:disabled {
+                opacity: 0.5;
+            }
+        }
+
+        .action-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-top: 1px solid var(--ui-glass-border);
+
+            :global(.btn) {
+                border: none !important;
+                border-radius: 0 !important;
+                background: rgba(255, 255, 255, 0.03) !important;
+                font-size: 0.6rem !important;
+                padding: 0.4rem !important;
+                transition: all 0.3s ease !important;
+
+                &:not(:last-child) {
+                    border-right: 1px solid var(--ui-glass-border) !important;
+                }
+
+                &:hover {
+                    background: rgba(255, 255, 255, 0.08) !important;
+                }
+
+                &:global(.base-extract) {
+                    color: rgba(255, 255, 255, 0.45) !important;
+                    &:hover:not(:disabled) {
+                        color: white !important;
+                        background: rgba(255, 255, 255, 0.08) !important;
+                    }
+                }
+
+                &:global(.high-fidelity-enhance) {
+                    background: color-mix(
+                        in oklab,
+                        var(--app-accent) 15%,
+                        transparent
+                    ) !important;
+                    color: var(--app-accent) !important;
+                    box-shadow: inset 0 0 15px
+                        color-mix(in oklab, var(--app-accent) 25%, transparent);
+                    font-weight: 900;
+                    letter-spacing: 0.05em;
+                    animation: pulse-fidelity 2s infinite ease-in-out;
+
+                    &:hover {
+                        background: color-mix(
+                            in oklab,
+                            var(--app-accent) 25%,
+                            transparent
+                        ) !important;
+                        filter: brightness(1.2);
+                    }
+                }
+            }
+        }
+    }
+
+    @keyframes pulse-fidelity {
+        0%,
+        100% {
+            opacity: 1;
+            filter: brightness(1);
+        }
+        50% {
+            opacity: 0.8;
+            filter: brightness(1.3);
+        }
+    }
+
+    .toggle-stack {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+
+        .toggle-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--app-muted);
+            transition: color 0.2s ease;
+
+            &:hover {
+                color: white;
+                .switch {
+                    border-color: rgba(255, 255, 255, 0.3);
+                }
+            }
+
+            input {
+                display: none;
+            }
+
+            .switch {
+                position: relative;
+                width: 32px;
+                height: 16px;
+                background: rgba(0, 0, 0, 0.4);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 10px;
+                transition: all 0.3s ease;
+
+                &::after {
+                    content: "";
+                    position: absolute;
+                    top: 2px;
+                    left: 2px;
+                    width: 10px;
+                    height: 10px;
+                    background: white;
+                    border-radius: 50%;
+                    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+                    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+                }
+            }
+
+            input:checked + .switch {
+                background: var(--app-accent);
+                border-color: var(--app-accent);
+                &::after {
+                    left: 18px;
+                }
+            }
+        }
+    }
+</style>

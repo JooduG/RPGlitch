@@ -1,35 +1,49 @@
 <script>
     import Button from "../artificer/Button.svelte"
     import Modal from "../artificer/Modal.svelte"
-    import { CONFIG } from "../gamemaster/config.js"
     import { app } from "../gamemaster/state.svelte.js"
-    import { Mesmer } from "../mesmer/index.js"
-    import { TextToImage } from "../mesmer/logic/text-to-image.js"
     import { themeStore } from "../mesmer/logic/theme.svelte.js"
     import ProfilePicture from "../mesmer/ui/ProfilePicture.svelte"
+    import VisualWing from "../mesmer/ui/VisualWing.svelte"
+    import VoiceWing from "../mesmer/ui/VoiceWing.svelte"
     import { PROFILE_SECTIONS } from "./config.js"
-    import { Scholar } from "./index.js"
     import { runtime } from "./runtime.svelte.js"
 
     let { entityId, entityType } = $props()
 
     /**
-     * Svelte 5 Action: Auto-resize textarea to fit content.
-     * Prevents nested scrollbars and "scroll hijacking".
+     * Svelte 5 Action: Auto-resize textarea to fit content and sync heights with row siblings.
      */
-    function autoResize(node) {
+    function autoResize(node, options = {}) {
+        let frame
         const update = () => {
-            node.style.height = "auto"
-            node.style.height = node.scrollHeight + "px"
+            if (frame) cancelAnimationFrame(frame)
+            frame = requestAnimationFrame(() => {
+                node.style.height = "auto"
+                const height = node.scrollHeight
+                node.style.height = height + "px"
+
+                // Synchronization logic for rows
+                if (options.syncId) {
+                    const siblings = document.querySelectorAll(
+                        `[data-sync-id="${options.syncId}"]`
+                    )
+                    let maxHeight = 0
+                    siblings.forEach((s) => {
+                        s.style.height = "auto"
+                        maxHeight = Math.max(maxHeight, s.scrollHeight)
+                    })
+                    siblings.forEach((s) => (s.style.height = maxHeight + "px"))
+                }
+            })
         }
         node.addEventListener("input", update)
-        // Ensure it updates when modal opens or layout changes
         const observer = new ResizeObserver(update)
         observer.observe(node)
-
         update()
         return {
             destroy() {
+                if (frame) cancelAnimationFrame(frame)
                 node.removeEventListener("input", update)
                 observer.disconnect()
             },
@@ -39,50 +53,25 @@
     // State
     let isEditing = $state(false)
     let isSaving = $state(false)
-    let visualBusy = $state(false)
-    let promptText = $state("") // Unified text field
-    let fileInput = $state() // Reference to hidden input
+    let busyField = $state(null) // String key of field being AI-processed
+    let activeField = $state({ key: "visual-prompt", label: "Image Prompt" })
+
     let visualOptions = $state({
         noBackground: false,
         flip: false,
     })
-    let magicBusy = $state({})
-    let activeField = $state({ key: "visual-prompt", label: "Image Prompt" })
-
-    // Derived Label for the Magic Button
-    let magicLabel = $derived.by(() => {
-        if (activeField.key === "visual-prompt") {
-            return promptText ? "Refine Prompt" : "Extract Data"
-        }
-        return `Enhance ${activeField.label}`
-    })
-
-    // Busy state for the active context
-    let isMagicBusy = $derived(
-        activeField.key === "visual-prompt"
-            ? visualBusy
-            : !!magicBusy[activeField.key]
-    )
-
-    // Unified Magic Handler
-    async function handleMagic() {
-        if (!isEditing || isMagicBusy) return
-
-        if (activeField.key === "visual-prompt") {
-            if (!promptText) {
-                handleExtract()
-            } else {
-                await handleEnhance()
-            }
-        } else {
-            await handleConsult(activeField.key)
-        }
-    }
 
     // Character data
     let char = $state(
         themeStore.normalizeEntity(app.editingEntity || runtime.character)
     )
+
+    // Ensure prompt exists for CreativeWing
+    $effect(() => {
+        if (char.visuals && !char.visuals.prompt) {
+            char.visuals.prompt = ""
+        }
+    })
 
     // Visuals: Bind directly to character data, fallback for display
     let signatureColor = $derived(
@@ -105,13 +94,12 @@
         }
     })
 
-    // Utility: Check if text is URL
-    function isUrl(text) {
-        return text && (text.startsWith("http") || text.startsWith("data:"))
-    }
-
     function handleClose() {
-        app.toggleProfile(false)
+        if (isEditing) {
+            isEditing = false
+        } else {
+            app.toggleProfile(false)
+        }
     }
 
     async function handleSave() {
@@ -146,97 +134,7 @@
         }
     }
 
-    // --- LEFT WING LOGIC ---
-
-    // 1. Extract: Pull visual description from character data
-    function handleExtract() {
-        const physical = char.physical || char.description || ""
-        const tags = char.tags ? char.tags.join(", ") : ""
-        promptText = [physical, tags].filter(Boolean).join(". ")
-    }
-
-    // 2. Upload: Handle file selection
-    async function handleUpload(e) {
-        const file = e.target.files[0]
-        if (!file) return
-
-        try {
-            visualBusy = true
-            const url = await TextToImage.upload(file)
-            if (url) {
-                char.visuals = char.visuals || {}
-                char.visuals.profilePictureUrl = url
-                promptText = "" // Clear after successful upload
-            }
-        } catch (err) {
-            console.error("Upload failed:", err)
-        } finally {
-            visualBusy = false
-        }
-    }
-
-    // 3. Save URL: Commit the URL in the text field
-    function handleSaveUrl() {
-        if (isUrl(promptText)) {
-            char.visuals = char.visuals || {}
-            char.visuals.profilePictureUrl = promptText
-            promptText = "" // Clear after save? Or keep? User didn't specify. Clearing feels cleaner.
-        }
-    }
-
-    // 4. Enhance: Polish the prompt with AI
-    async function handleEnhance() {
-        if (!promptText || isUrl(promptText)) return
-        try {
-            visualBusy = true
-            // Mocking an "Enhance" call - In reality, this would be a specific LLM call
-            // For now, we'll pretend by consulting the Scholar for a refinement
-            // OR we can just use the existing generic consult if adapted.
-            // Let's assume we pass it to Scholar to "refine"
-            const enhanced = await Scholar.consult("visual_refinement", {
-                ...char,
-                userPrompt: promptText,
-            })
-            if (enhanced) promptText = enhanced
-        } catch (e) {
-            console.error("Enhance failed:", e)
-        } finally {
-            visualBusy = false
-        }
-    }
-
-    // 5. Generate: Create image from text
-    async function handleGenerate() {
-        if (!promptText || isUrl(promptText)) return
-        try {
-            visualBusy = true
-            const url = await TextToImage.generate(promptText, {
-                resolution: "512x768",
-                removeBackground: visualOptions.noBackground,
-            })
-            if (url) {
-                char.visuals = char.visuals || {}
-                char.visuals.profilePictureUrl = url
-            }
-        } catch (e) {
-            console.error("Generation failed:", e)
-        } finally {
-            visualBusy = false
-        }
-    }
-
-    async function handleConsult(field) {
-        if (magicBusy[field]) return
-        try {
-            magicBusy[field] = true
-            const result = await Scholar.consult(field, char)
-            setValue(char, field, result)
-        } catch (e) {
-            console.error(`Magic failed for ${field}:`, e)
-        } finally {
-            magicBusy[field] = false
-        }
-    }
+    // --- UTILITIES ---
 
     // Helper to get nested value (e.g. "eternal.mental")
     function getValue(obj, path) {
@@ -256,6 +154,22 @@
         )
         target[last] = val
     }
+
+    // Handles clicking on the dossier background to reset focus
+    function handleBackgroundClick(e) {
+        if (!isEditing) return
+
+        // If clicking something that is definitely NOT interactive dossier space
+        // and NOT an input/button, reset to prompt
+        if (!e.target.closest("textarea, input, button, .swatch")) {
+            activeField = { key: "visual-prompt", label: "Image Prompt" }
+
+            // Explicitly blur any focused element to remove browser highlight
+            if (document.activeElement instanceof HTMLElement) {
+                document.activeElement.blur()
+            }
+        }
+    }
 </script>
 
 {#if char && char.id}
@@ -265,164 +179,17 @@
             class:editing={isEditing}
             class:dev-mode={app.settings.devMode}
             class:show-dev-wing={app.settings.devMode}
+            onclick={handleBackgroundClick}
+            role="presentation"
         >
             <aside class="wing-left">
-                <div class="content">
-                    <div class="group">
-                        <div class="color-picker">
-                            {#each Object.entries(CONFIG.PALETTE) as [name, hex] (name)}
-                                <button
-                                    class="swatch-dot"
-                                    class:active={(char.visuals
-                                        ?.signatureColor || signatureColor) ===
-                                        hex}
-                                    style="background-color: {hex}"
-                                    onclick={() => {
-                                        char.visuals = char.visuals || {}
-                                        char.visuals.signatureColor = hex
-                                    }}
-                                    aria-label="Select {name}"
-                                ></button>
-                            {/each}
-                        </div>
-                    </div>
-
-                    <div class="group">
-                        <textarea
-                            use:autoResize
-                            class="visual-prompt"
-                            class:active={isEditing &&
-                                activeField.key === "visual-prompt"}
-                            bind:value={promptText}
-                            placeholder="Describe appearance, or paste an image URL..."
-                            disabled={!isEditing || visualBusy}
-                            rows="2"
-                            tabindex={isEditing ? 0 : -1}
-                            onfocus={() => {
-                                if (isEditing) {
-                                    activeField = {
-                                        key: "visual-prompt",
-                                        label: "Image Prompt",
-                                    }
-                                }
-                            }}
-                        ></textarea>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            style="display: none;"
-                            bind:this={fileInput}
-                            onchange={handleUpload}
-                        />
-                    </div>
-                    <div class="group-row">
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            onclick={() => fileInput.click()}
-                            disabled={!isEditing || visualBusy}
-                        >
-                            {visualBusy ? "..." : "Upload"}
-                        </Button>
-
-                        {#if isUrl(promptText)}
-                            <Button
-                                variant="primary"
-                                size="sm"
-                                onclick={handleSaveUrl}
-                                disabled={!isEditing || visualBusy}
-                            >
-                                Save URL
-                            </Button>
-                        {:else}
-                            <Button
-                                variant="primary"
-                                size="sm"
-                                onclick={handleGenerate}
-                                disabled={!isEditing ||
-                                    !promptText ||
-                                    visualBusy}
-                            >
-                                {visualBusy
-                                    ? "..."
-                                    : "Generate Profile Picture"}
-                            </Button>
-                        {/if}
-                    </div>
-
-                    <div class="magic-zone">
-                        <Button
-                            variant="magic"
-                            className="master-magic-btn"
-                            onclick={handleMagic}
-                            disabled={!isEditing || isMagicBusy}
-                        >
-                            <div class="magic-content">
-                                <span class="sparkle"
-                                    >{isMagicBusy ? "●" : "✨"}</span
-                                >
-                                <div class="labels">
-                                    <span class="target">{magicLabel}</span>
-                                    <span class="action"
-                                        >{isMagicBusy
-                                            ? "Channelling..."
-                                            : "Invoke Magic"}</span
-                                    >
-                                </div>
-                            </div>
-                        </Button>
-                    </div>
-                    <div class="group-row">
-                        <label class="checkbox-label">
-                            <input
-                                type="checkbox"
-                                bind:checked={visualOptions.noBackground}
-                                disabled={!isEditing}
-                                onchange={() => {
-                                    char.visuals = char.visuals || {}
-                                    char.visuals.noBackground =
-                                        visualOptions.noBackground
-                                }}
-                            />
-                            <span>No Background</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input
-                                type="checkbox"
-                                bind:checked={visualOptions.flip}
-                                disabled={!isEditing}
-                                onchange={() => {
-                                    char.visuals = char.visuals || {}
-                                    char.visuals.flip = visualOptions.flip
-                                }}
-                            />
-                            <span>Flip Image</span>
-                        </label>
-                    </div>
-
-                    <div class="dropdown">
-                        <button class="dropbtn" type="button">
-                            {Mesmer.voice.voices.find(
-                                (v) => v.uri === char.voiceId
-                            )?.name || "Default Voice"}
-                        </button>
-                        <div class="dropdown-content">
-                            {#each Mesmer.voice.voices as voice (voice.uri)}
-                                <button
-                                    class="voice-item"
-                                    class:active={char.voiceId === voice.uri}
-                                    onclick={() => {
-                                        char.voiceId = voice.uri
-                                        Mesmer.voice.preview(voice.uri)
-                                    }}
-                                    disabled={!isEditing}
-                                >
-                                    {voice.name}
-                                </button>
-                            {/each}
-                        </div>
-                    </div>
-                </div>
+                <VisualWing
+                    bind:char
+                    {isEditing}
+                    bind:busyField
+                    bind:activeField
+                />
+                <VoiceWing bind:char {isEditing} />
             </aside>
 
             <div
@@ -437,14 +204,42 @@
                 </div>
 
                 <main class="right">
-                    <header>
-                        <h1 class="char-name">
-                            {char.name || "Unnamed Entity"}
-                        </h1>
-                        {#if char.description}
-                            <p>{char.description}</p>
+                    <header class:is-editing={isEditing}>
+                        {#if isEditing}
+                            <input
+                                class="char-name-input"
+                                bind:value={char.name}
+                                placeholder="Entity Name"
+                                onfocus={() =>
+                                    (activeField = {
+                                        key: "name",
+                                        label: "Name",
+                                    })}
+                            />
+                            <textarea
+                                use:autoResize
+                                class="char-description-input"
+                                bind:value={char.description}
+                                placeholder="Entity Description"
+                                onfocus={() =>
+                                    (activeField = {
+                                        key: "description",
+                                        label: "Description",
+                                    })}
+                            ></textarea>
                         {:else}
-                            <p class="muted-info">No description provided.</p>
+                            <h1 class="char-name">
+                                {char.name || "Unnamed Entity"}
+                            </h1>
+                            <textarea
+                                use:autoResize
+                                class="char-description"
+                                class:muted-info={!char.description}
+                                readonly
+                                value={char.description ||
+                                    "No description provided."}
+                                tabindex="-1"
+                            ></textarea>
                         {/if}
                     </header>
 
@@ -469,7 +264,10 @@
                                                 >
                                             {/if}
                                             <textarea
-                                                use:autoResize
+                                                use:autoResize={{
+                                                    syncId: section.label,
+                                                }}
+                                                data-sync-id={section.label}
                                                 class="text-area"
                                                 class:active={isEditing &&
                                                     activeField.key ===
@@ -496,7 +294,10 @@
                                                     }
                                                 }}
                                                 tabindex={isEditing ? 0 : -1}
-                                                readonly={!isEditing}
+                                                readonly={!isEditing ||
+                                                    busyField === field.key}
+                                                disabled={busyField ===
+                                                    field.key}
                                             ></textarea>
                                         </div>
                                     {/each}
@@ -571,14 +372,6 @@
         &.editing,
         &.show-dev-wing {
             gap: var(--spacing-lg);
-
-            .wing-left {
-                /* Left wing only expands in editing */
-            }
-
-            .wing-right {
-                /* Right wing expands in both edit and dev mode */
-            }
         }
 
         &.editing .wing-left,
@@ -597,18 +390,32 @@
     .wing-right {
         width: 0;
         opacity: 0;
-        overflow: hidden;
+        overflow: visible; /* Allow tooltips and stack behavior */
         pointer-events: none;
         transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         transform: scale(0.9);
         filter: blur(10px);
+        height: auto;
+        max-height: 38rem;
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+
+    .wing-left {
+        background: transparent; /* Panels have their own background */
+        border: none;
+        border-radius: 0;
+    }
+
+    .wing-right {
         background: rgba(0, 0, 0, 0.4);
         border: 1px solid var(--ui-glass-border);
         border-radius: var(--spacing-lg);
-        height: 38rem;
-        display: flex;
-        flex-direction: column;
+    }
 
+    /* Right Wing (Dev Tools) */
+    .wing-right {
         .content {
             padding: var(--spacing-lg);
             width: 100%;
@@ -623,266 +430,49 @@
             grid-template-columns: 80px 1fr;
             gap: var(--spacing-sm);
             align-items: center;
-        }
-    }
 
-    /* Left Wing Specifics */
-    .wing-left {
-        .group {
-            display: flex;
-            flex-direction: column;
-            gap: var(--spacing-xs);
-        }
-
-        .visual-prompt {
-            width: 100%;
-            min-height: 4rem;
-            padding: var(--spacing-sm);
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--ui-glass-border);
-            color: white;
-            border-radius: var(--spacing-sm);
-            font-size: 0.9rem;
-            font-family: inherit;
-            resize: none;
-            outline: none;
-            overflow: hidden; /* Controlled by autoResize */
-            transition: all 0.3s ease;
-
-            &.active {
-                border-color: var(--signature-color);
-                box-shadow: 0 0 10px
-                    color-mix(in oklab, var(--signature-color) 20%, transparent);
-            }
-
-            &:focus:not(:disabled) {
-                background: rgba(0, 0, 0, 0.5);
-                border-color: var(--signature-color);
-                box-shadow: 0 0 15px
-                    color-mix(in oklab, var(--signature-color) 20%, transparent);
-                outline: none;
-            }
-
-            &:disabled {
-                opacity: 0.5;
-                cursor: not-allowed;
-            }
-        }
-
-        .color-picker {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-
-            .swatch-dot {
-                width: 24px;
-                height: 24px;
-                border-radius: 50%;
-                border: 2px solid rgba(255, 255, 255, 0.2);
-                cursor: pointer;
-                transition: all 0.2s;
-
-                &:hover:not(:disabled) {
-                    transform: scale(1.1);
-                    border-color: rgba(255, 255, 255, 0.5);
-                }
-
-                &.active {
-                    border-color: white;
-                    transform: scale(1.2);
-                    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-                }
-
-                &:disabled {
-                    cursor: not-allowed;
-                    opacity: 0.3;
-                }
-            }
-        }
-
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-            cursor: pointer;
-            font-size: 0.85rem;
-            color: var(--app-muted);
-
-            input[type="checkbox"] {
-                margin: 0;
-            }
-
-            &:hover:not(:has(input:disabled)) {
-                color: white;
-            }
-        }
-
-        /* Voice Dropdown Polish */
-        .dropdown {
-            position: relative;
-            width: 100%;
-            grid-column: span 2;
-
-            .dropbtn {
-                width: 100%;
-                background: rgba(255, 255, 255, 0.05);
-                border: 1px solid var(--ui-glass-border);
+            .label {
+                font-size: 0.7rem;
+                font-weight: 800;
                 color: var(--app-muted);
-                padding: var(--spacing-sm);
-                border-radius: var(--spacing-sm);
-                font-size: 0.85rem;
-                text-align: left;
+                text-transform: uppercase;
+            }
+
+            .uuid {
+                font-family: monospace;
+                font-size: 0.8rem;
+                color: var(--signature-color);
+                opacity: 0.8;
+            }
+        }
+
+        hr {
+            border: none;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+            margin: var(--spacing-sm) 0;
+        }
+
+        .raw-data {
+            summary {
                 cursor: pointer;
-                transition: all 0.2s;
+                font-size: 0.8rem;
+                color: var(--app-muted);
+                margin-bottom: var(--spacing-xs);
 
                 &:hover {
-                    background: rgba(255, 255, 255, 0.1);
                     color: white;
                 }
             }
 
-            &:hover .dropdown-content {
-                display: block;
-            }
-
-            .dropdown-content {
-                display: none;
-                position: absolute;
-                bottom: 100%;
-                left: 0;
-                width: 100%;
-                background: rgba(20, 20, 24, 0.95);
-                backdrop-filter: blur(10px);
-                border: 1px solid var(--ui-glass-border);
+            pre {
+                background: rgba(0, 0, 0, 0.3);
+                padding: var(--spacing-sm);
                 border-radius: var(--spacing-sm);
-                padding: var(--spacing-xs);
-                margin-bottom: var(--spacing-xs);
-                z-index: 10;
-                box-shadow: var(--shadow-lg);
-                max-height: 20rem;
-                overflow-y: auto;
-
-                .voice-item {
-                    width: 100%;
-                    background: transparent;
-                    border: none;
-                    color: var(--app-muted);
-                    padding: var(--spacing-xs) var(--spacing-sm);
-                    text-align: left;
-                    font-size: 0.8rem;
-                    border-radius: var(--spacing-xs);
-                    cursor: pointer;
-                    transition: all 0.2s;
-
-                    &:hover {
-                        background: rgba(255, 255, 255, 0.05);
-                        color: white;
-                    }
-
-                    &.active {
-                        color: var(--signature-color);
-                        background: rgba(var(--signature-rgb), 0.1);
-                    }
-                }
+                font-size: 0.75rem;
+                max-height: 18rem;
+                overflow: auto;
+                color: var(--app-muted);
             }
-        }
-    }
-
-    :global(.master-magic-btn) {
-        width: 100%;
-        height: 4.5rem;
-        background: linear-gradient(
-            135deg,
-            color-mix(in oklab, var(--signature-color) 40%, #000) 0%,
-            color-mix(in oklab, var(--signature-color) 20%, #000) 100%
-        ) !important;
-        border: 1px solid var(--signature-color) !important;
-        border-radius: var(--spacing-md) !important;
-        box-shadow: 0 4px 20px
-            color-mix(in oklab, var(--signature-color) 25%, transparent) !important;
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-
-        &:hover:not(:disabled) {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 8px 30px
-                color-mix(in oklab, var(--signature-color) 40%, transparent) !important;
-            filter: brightness(1.2);
-        }
-
-        &:active:not(:disabled) {
-            transform: scale(0.98);
-        }
-
-        &:disabled {
-            opacity: 0.3;
-            filter: grayscale(1) contrast(0.5);
-            border-color: rgba(255, 255, 255, 0.1) !important;
-            background: rgba(0, 0, 0, 0.4) !important;
-            box-shadow: none !important;
-            cursor: not-allowed;
-
-            .sparkle {
-                animation: none;
-                opacity: 0.2;
-            }
-        }
-    }
-
-    /* Magic Zone & Master Magic Button */
-    .magic-zone {
-        margin-top: auto;
-        padding-top: var(--spacing-md);
-        width: 100%;
-
-        .magic-content {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-md);
-            text-align: left;
-            width: 100%;
-
-            .sparkle {
-                font-size: 1.5rem;
-                filter: drop-shadow(0 0 5px white);
-                animation: pulse 2s infinite ease-in-out;
-            }
-
-            .labels {
-                display: flex;
-                flex-direction: column;
-
-                .action {
-                    font-size: 0.65rem;
-                    text-transform: uppercase;
-                    letter-spacing: 0.15em;
-                    font-weight: 800;
-                    color: rgba(255, 255, 255, 0.5);
-                    margin-top: -2px;
-                }
-
-                .target {
-                    font-size: 1.15rem;
-                    font-weight: 900;
-                    color: white;
-                    text-transform: capitalize;
-                    text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                }
-            }
-        }
-    }
-
-    @keyframes pulse {
-        0%,
-        100% {
-            transform: scale(1);
-            opacity: 1;
-        }
-        50% {
-            transform: scale(1.2);
-            opacity: 0.8;
         }
     }
 
@@ -938,7 +528,8 @@
     .profile-presentation {
         width: 50rem;
         max-width: 90vw;
-        height: 38rem;
+        height: 48rem; /* Target desktop height */
+        max-height: 85vh; /* Responsive safety */
         position: relative;
         background-color: color-mix(
             in oklab,
@@ -1013,19 +604,86 @@
 
             .char-name {
                 color: var(--signature-color);
+                font-family: inherit;
                 font-size: 2.8rem;
                 font-weight: 800;
                 margin: 0;
                 line-height: 1;
                 letter-spacing: -0.02em;
                 text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+                border: 1px solid transparent; /* Box model stabilization */
+                padding: 0;
             }
 
-            p {
-                margin: var(--spacing-xs) 0 0;
-                font-size: 0.95rem;
+            .char-name-input {
+                width: 100%;
+                background: transparent;
+                border: 1px dashed rgba(255, 255, 255, 0.1);
+                border-radius: var(--spacing-sm);
+                color: var(--signature-color);
+                font-family: inherit;
+                font-size: 2.8rem;
+                font-weight: 800;
+                padding: 0;
+                margin: 0;
+                line-height: 1;
+                letter-spacing: -0.02em;
+                outline: none;
+                transition: all 0.2s;
+                box-sizing: border-box;
+                display: block;
+
+                &:focus {
+                    background: rgba(255, 255, 255, 0.05);
+                    border-color: var(--signature-color);
+                    border-style: solid;
+                }
+            }
+
+            .char-description-input {
+                width: 100%;
+                background: transparent;
+                border: 1px dashed rgba(255, 255, 255, 0.05);
+                border-radius: var(--spacing-sm);
                 color: var(--app-muted);
+                font-family: inherit;
+                font-size: 0.95rem;
+                padding: 0;
+                margin: var(--spacing-xs) 0 0; /* Align with P margin */
+                resize: none;
+                outline: none;
+                transition: all 0.2s;
                 line-height: 1.4;
+                min-height: 1.4em; /* Lock height */
+                box-sizing: border-box;
+                display: block;
+                overflow: hidden;
+
+                &:focus {
+                    color: white;
+                    border-color: rgba(255, 255, 255, 0.2);
+                    border-style: solid;
+                    background: rgba(255, 255, 255, 0.01);
+                }
+            }
+
+            .char-description {
+                width: 100%;
+                background: transparent;
+                border: 1px solid transparent; /* Box model stabilization */
+                color: var(--app-muted);
+                font-family: inherit;
+                font-size: 0.95rem;
+                padding: 0;
+                margin: var(--spacing-xs) 0 0;
+                resize: none;
+                outline: none;
+                line-height: 1.4;
+                min-height: 1.4em;
+                box-sizing: border-box;
+                display: block;
+                overflow: hidden;
+                cursor: default;
 
                 &.muted-info {
                     font-style: italic;
@@ -1112,6 +770,8 @@
                             width: 100%;
                             height: auto;
                             min-height: 4rem;
+                            max-height: 24rem; /* Cap expansion */
+                            overflow-y: auto !important; /* Allow internal scroll if capped */
                             background: rgba(255, 255, 255, 0.03);
                             border: 1px solid rgba(255, 255, 255, 0.1);
                             border-radius: var(--spacing-sm);
@@ -1121,7 +781,6 @@
                             font-size: 0.85rem;
                             line-height: 1.5;
                             resize: none;
-                            overflow: hidden; /* Controlled by autoResize */
                             transition: all 0.2s;
 
                             &.active:not([readonly]) {
@@ -1184,15 +843,6 @@
                     }
                 }
             }
-        }
-    }
-
-    @keyframes spin {
-        from {
-            transform: rotate(0deg);
-        }
-        to {
-            transform: rotate(360deg);
         }
     }
 </style>

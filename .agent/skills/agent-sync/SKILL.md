@@ -13,44 +13,33 @@ description: Triggers on AGENTS.md, .agent/config.yaml, .agent/tooling.json, .ag
 
 ## The Synchronization Philosophy
 
-Agents and the codebase must exist in a **Bi-directional Mirror State**. 
+Agents and the codebase must exist in a **Bi-directional Mirror State**.
+
 - If the project's infrastructure changes, the agent's `tooling.json` must update.
 - If the folder structure changes, `.agent/index.md` (Repo Overview) must reflect it.
 - If logic changes, `types.d.ts` MUST be updated.
 
 ### 🔄 Bidirectional Sync Workflow
 
+1. **Code -> Agent/Index**: After an architectural change, update `.agent/index.md` and audit `.agent/config.yaml`.
 
+2. **Infrastructure Sync**: Execute `npm run sync` to synchronize libraries (`libs/`), ignore files, and MCP configurations via `tools/ops/sync.js`.
 
-1.  **Code -> Agent/Index**: After an architectural change, update `.agent/index.md` and audit `.agent/config.yaml`.
+3. **Agent -> Code**: If an agent rule is added, ensure the codebase or types reflect it.
 
-2.  **Infrastructure Sync**: Execute `npm run sync` to synchronize libraries (`libs/`), ignore files, and MCP configurations via `tools/ops/sync.js`.
-
-3.  **Agent -> Code**: If an agent rule is added, ensure the codebase or types reflect it.
-
-4.  **Verification**: Run `npx svelte-check` after every sync.
-
-
+4. **Verification**: Run `npx svelte-check` after every sync.
 
 ---
 
-
-
 ## Skill Lifecycle Management
 
+1. **Creation**: Create folder + `SKILL.md`. Include trigger patterns in the description.
 
+2. **Installation**: Run `gemini skills install .agent/skills/<name>/`.
 
-1.  **Creation**: Create folder + `SKILL.md`. Include trigger patterns in the description.
-
-2.  **Installation**: Run `gemini skills install .agent/skills/<name>/`.
-
-3.  **Removal**: Run `gemini skills uninstall <name>` before deleting the folder.
-
-
+3. **Removal**: Run `gemini skills uninstall <name>` before deleting the folder.
 
 ## Instructions
-
-
 
 - **Dependency Integrity**: Always verify the hash of downloaded libraries in `sync.js`.
 
@@ -58,11 +47,7 @@ Agents and the codebase must exist in a **Bi-directional Mirror State**.
 
 - **Color Sync**: Run the color sync phase of `sync.js` whenever `config.js` palette values change.
 
-
-
 ## Resources
-
-
 
 - **Central Config**: `.agent/config.yaml`
 
