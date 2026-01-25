@@ -1,5 +1,15 @@
 {
-  "compilerOptions": {},
+  "compilerOptions": {
+    "checkJs": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "esnext",
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable"
+    ]
+  },
   "exclude": [
     "**/.git/**",
     "**/archive/**",
@@ -17,7 +27,6 @@
     ".npm",
     ".vscode/",
     "/.DS_Store",
-    "/.agent/knowledge/ANEX.md",
     "/coverage",
     "/dist",
     "gha-creds-*.json",

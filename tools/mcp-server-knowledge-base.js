@@ -57,9 +57,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
 
         try {
-            // Execute consult-knowledge.js and capture output
+            // Execute Scholar CLI and capture output
             const { stdout, stderr } = await execAsync(
-                `node tools/consult-knowledge.js "${query.replace(/"/g, '\\"')}"`,
+                `node tools/scholar/cli.js search "${query.replace(/"/g, '\\"')}"`,
                 {
                     cwd: process.cwd(),
                     maxBuffer: 1024 * 1024, // 1MB buffer

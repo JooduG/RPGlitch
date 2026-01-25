@@ -16,10 +16,10 @@ Hey Gemini, welcome. `AGENTS.md` is your Prime Directive.
 
 Whenever a new agent session begins, you MUST initialize your environment using the **agent-startup** skill:
 
-1.  **Read Config:** `.agent/config.yaml`
-2.  **Validate Tooling:** `.agent/tooling.json`
-3.  **Check Types:** `types.d.ts`
-4.  **Execute Startup:** `.gemini/on_startup.sh`
+1. **Read Config:** `.agent/config.yaml`
+2. **Validate Tooling:** `.agent/tooling.json`
+3. **Check Types:** `types.d.ts`
+4. **Execute Startup:** `.gemini/on_startup.sh`
 
 Once initialized, all further instructions are governed by the **Triad Protocol** in **AGENTS.md**.
 

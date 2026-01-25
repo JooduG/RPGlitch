@@ -1,32 +1,36 @@
-# Project Context
+# Project Context (Antigravity OS)
 
-## 📜 Passive Governance (Rules)
+## 📜 The Five Pillars (Rules)
 
-@./rules/architecture.md
-@./rules/tech-stack.md
-@./rules/security.md
-@./rules/standard-workflow.md
-@./rules/anti-patterns.md
-@./rules/reasoning.md
+The application is governed by 5 priority-numbered pillars. **Always start with 01.**
 
-## 📂 Repository Overview
+1. **⚡ [01: Prime Directive](file:///c:/Users/johng/Documents/GitHub/default/.agent/rules/01-prime-directive.md)**: The Constitution (Mindset & OS structure).
+2. **🏗️ [02: App Architecture](file:///c:/Users/johng/Documents/GitHub/default/.agent/rules/02-architecture.md)**: The Blueprint (Pillar-based design).
+3. **🛠️ [03: Tech Stack](file:///c:/Users/johng/Documents/GitHub/default/.agent/rules/03-tech-stack.md)**: The Toolkit (Svelte 5 & Modern Standards).
+4. **🛡️ [04: Security Warden](file:///c:/Users/johng/Documents/GitHub/default/.agent/rules/04-security-warden.md)**: The Shield (Safety & Freedom Protocols).
+5. **🩺 [05: Hygiene Protocol](file:///c:/Users/johng/Documents/GitHub/default/.agent/rules/05-hygiene-protocol.md)**: The Guardian (Clean Code & Docs).
+
+## 📂 Repository Registry
 
 - `src/`: Core application source.
-    - `artificer/`: UI Components and Layouts.
-    - `gamemaster/`: Logic, State, and AI Engine.
-    - `mesmer/`: Audio, Visuals, and Theme logic.
-    - `scholar/`: Database, Library, and Memory logic.
-    - `warden/`: Bridge, Tests, and Security logic.
-- `.agent/`: Agentic brain, context, and governance.
-    - `rules/`: Passive governance and constraints.
-    - `skills/`: Specialized behavioral modules.
-    - `workflows/`: Saved multi-step procedures.
-- `tools/`: Development, QA, and Hygiene scripts.
-- `migrations/`: Database schema history.
+    - `gamemaster/`: 🕰️ Logic & State (Chrono).
+    - `artificer/`: 🛠️ Structure & UI Components.
+    - `mesmer/`: 🎭 Visuals, Audio & Theme.
+    - `scholar/`: 📚 Data & Persistence (Dexie).
+    - `warden/`: 🛡️ Security, Bridge & Sanitization.
+- `.agent/`: The Agentic Operating System.
+    - `rules/`: Passive governance (Numbered Pillars).
+    - `skills/`: Active specialists (Cortex, Conductor, etc.).
+    - `workflows/`: Procedural procedures.
+    - `knowledge/`: The Knowledge Nexus (Reference material).
 
 ## 🧭 Navigation
 
 - [Product Definition](./product.md)
-- [Knowledge Base](./knowledge/)
-- [Tracks Registry](./tasks/tracks.md)
-- [Ideas & Possibilities](./knowledge/possibilities.md)
+- [Knowledge Nexus](./knowledge/nexus/)
+- [Active Work Tracks](./tasks/tracks.md)
+- [Product Roadmap](./roadmap.md)
+
+---
+
+_The Plan is Truth; The Pillar is Reality._

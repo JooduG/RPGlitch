@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 
+import autoprefixer from "autoprefixer"
 import fs from "fs"
 import path from "path"
 import postcss from "postcss"
 import * as sass from "sass"
-import autoprefixer from "autoprefixer"
 import { fileURLToPath } from "url"
 
 // ESM replacement for __dirname
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 async function compileScssToString() {
-    // UPDATED PATH: ../../src/scss/index.scss
-    const scssPath = path.join(__dirname, "../../src/scss/index.scss")
+    // UPDATED PATH: ../../src/mesmer/scss/app.scss
+    const scssPath = path.join(__dirname, "../../src/mesmer/scss/app.scss")
     // UPDATED PATH: ../../libs
     const picoCssPath = path.resolve(__dirname, "../..", "libs", "pico.min.css")
 

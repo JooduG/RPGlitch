@@ -65,7 +65,7 @@ priority = 300
 
 [[rule]]
 toolName = ["write_to_file", "replace_file_content"]
-argsPattern = '"TargetFile":"[^"]*\\.agent/rules/'
+argsPattern = '"TargetFile":"[^"]*\\.agent/rules/[0-9]{2}-'
 decision = "deny"
 priority = 350
 

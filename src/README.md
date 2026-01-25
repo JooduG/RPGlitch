@@ -69,26 +69,12 @@ sequenceDiagram
 
 RPGlitch supersedes standard chatbot patterns by implementing a **Simulation Engine**. Instead of just generating text, the system calculates the "physics" of the narrative state in the background.
 
-## Source Structure
-
-```text
 src/
-├── RPGlitch-left-panel.txt   # Perchance engine imports
-├── index.html                # Main UI template (Vite Entry)
-├── gamemaster/               # 🧠 The Brain (Orchestration)
-│   ├── chrono.svelte.js      # Time & Turn Logic
-│   └── llm.js                # AI Generation Service
-├── mesmer/                   # 👁️ The Senses (Audio/Visual)
-│   └── voice.svelte.js       # Reactive Voice Store
-├── scholar/                  # 📚 The Memory (Database)
-│   ├── library/              # The "Echo" Repository
-│   └── index.js              # Database Entry
-├── warden/                   # 🛡️ The Law (Security/Parser)
-│   └── index.js              # DOMPurify & Validation
-└── scss/                     # 💅 The Skin (Design System)
-    ├── index.scss            # Main entry
-    └── ...                   # 7-1 Architecture
-```
+├── gamemaster/ # 🕰️ Pillar 1: Logic & State (Chrono)
+├── artificer/ # 🛠️ Pillar 2: Structure & UI Components
+├── mesmer/ # 🎭 Pillar 3: Visuals, Audio & Theme
+├── scholar/ # 📚 Pillar 4: Database & Persistence
+└── warden/ # 🛡️ Pillar 5: Security & Bridge
 
 ## Technology Stack
 
@@ -99,6 +85,7 @@ src/
 
 ## Related Documentation
 
-- [Deployment & Integration Guide](../.agent/knowledge/perchance-guide.md)
-- [UI/UX Guidelines](../.agent/rules/style.md)
-- [Agent Protocol](../AGENTS.md)
+- **Philosophy:** [01-prime-directive.md](../.agent/rules/01-prime-directive.md)
+- **Architecture:** [02-architecture.md](../.agent/rules/02-architecture.md)
+- **UI/UX Guidelines:** [03-tech-stack.md](../.agent/rules/03-tech-stack.md)
+- **Agent Protocol:** [AGENTS.md](../AGENTS.md)

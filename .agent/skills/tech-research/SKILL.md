@@ -1,6 +1,6 @@
 ---
 name: tech-research
-description: Orchestrates documentation retrieval via Context7, DeepWiki, GitHub, and Svelte tools.
+description: Triggers when unsure about syntax, API versions, or library capabilities. Orchestrates Context7, DeepWiki, and Svelte documentation (L3.5).
 ---
 
 # 🔎 Skill: Tech Research

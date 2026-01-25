@@ -1,7 +1,6 @@
 ---
 name: doc-surgeon
-description: The official maintenance agent for the repository. Audits file structure, refactors bloated documentation, and optimizes system prompts.
-license: MIT
+description: Triggers on `.agent/**` paths or when auditing the 'brain'. Optimized for refactoring bloated docs and system prompts.
 ---
 
 # 🩺 The Doc Surgeon
@@ -26,7 +25,7 @@ python .agent/skills/doc-surgeon/scripts/audit.py
 
 When a file (like `tasks.md` or `AGENTS.md`) gets too large (>500 lines):
 
-1. **Consult:** [Refactoring Patterns](https://www.google.com/search?q=knowledge/refactoring.md)
+1. **Consult:** [Refactoring Patterns](./knowledge/refactoring.md)
 2. **Action:** Split the file using **Progressive Disclosure**.
 3. **Verify:** Ensure the root file links to the new child files.
 
@@ -34,6 +33,10 @@ When a file (like `tasks.md` or `AGENTS.md`) gets too large (>500 lines):
 
 When asked to "improve this prompt" or "make the agent smarter":
 
-1. **Consult:** [Prompting Patterns](https://www.google.com/search?q=knowledge/prompting.md)
+1. **Consult:** [Prompting Patterns](./knowledge/prompting.md)
 2. **Action:** Apply Chain-of-Thought or Structural Formatting.
 3. **Constraint:** Always display the full, copy-pasteable prompt block.
+
+## 4. Repository Structure & Hygiene
+
+- **[Structure Hygiene](./knowledge/structure-hygiene.md)**: Strict rules for folder organization and file naming.

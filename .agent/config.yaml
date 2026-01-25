@@ -9,7 +9,7 @@ agents:
   enforcement_level: "flexible" # Options: strict, flexible, experimental
   context_root: ".agent/"
   protocol: "Triad"
-  prime_directive: "AGENTS.md"
+  prime_directive: ".agent/rules/01-prime-directive.md"
   policy: ".agent/policy.toml"
   overrides:
     summarizeToolOutput: true

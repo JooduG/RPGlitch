@@ -1,7 +1,7 @@
 # 🔷 JooduG Monorepo
 
-> **Architecture:** [Single File Monolith](.agent/rules/a architecture.md)
-> **Stack:** [Svelte 5 + Native SCSS](.agent/rules/tech-stack.md)
+> **Architecture:** [02-architecture](.agent/rules/02-architecture.md) (Pillar-based)
+> **Stack:** [03-tech-stack](.agent/rules/03-tech-stack.md) (Svelte 5 Runes)
 > **Platform:** [Perchance](https://perchance.org)
 
 ## ⚡ Quick Start
@@ -21,7 +21,7 @@ This is **RPGlitch** & **ImageGlitch**. A next-gen "Local-First" roleplay engine
 
 - **Client-Side Only:** No backend. The database (`IndexedDB`) lives in your browser.
 - **Agentic Core:** Powered by the "Prometheus" Engine (Pattern C).
-- **Zero-Trust:** Strict [Security Protocols](.agent/rules/security.md).
+- **Zero-Trust:** Strict [Security Protocols](.agent/rules/04-security-warden.md).
 
 ## 🗺️ Context Map
 

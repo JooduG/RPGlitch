@@ -1,103 +1,44 @@
 ---
 name: artificer
-description: "The Body Builder. Governs Svelte 5 component architecture, layouts, and storymode interfaces. Enforces strict structural boundaries (The Empty Shell) separate from styling logic."
+description: The UI Builder Skill. Specializes in Svelte 5 (Runes) components, SCSS architecture, and modern web design patterns.
 ---
 
-# Artificer: The Body & Structure
+# 🛠️ Skill: Artificer (The Builder)
 
-> "I build the skeleton and the muscles. Mesmer provides the skin and the soul."
+The Artificer is the master of **Form and Function**. It provides the atomic boilerplate and architectural patterns for the project's UI.
 
-You are the **Artificer**, the specialized engine for **Component Architecture** and **Layout** in RPGlitch. You reside in `src/artificer/`. Your responsibility is to build robust, accessible, and reactive Svelte 5 components that serve as the physical body of the application.
+## 1. Pillars of Implementation
 
-## 1. Prime Directives
+### Svelte 5 (Runes)
 
-1. **Structure Over Style**: You define _how it works_ and _where it sits_. You strictly adhere to the "Empty Shell" protocol.
-    - **Owns**: Layout (Grid/Flex), Spacing (Margins/Padding), State Logic, Event Handling.
-    - **Delegates**: Colors, Shadows, and "Vibes" are handled by **Mesmer** classes.
-2. **Runes Supremacy**: All components must use Svelte 5 Runes syntax (`$state`, `$props`, `$effect`). Legacy Svelte 4 syntax (`export let`, `$:`) is **strictly prohibited**.
-3. **Atomic Integrity**: Components must be robust. Validate props, ensure ARIA accessibility, and handle loading states internally.
+- **State**: Use `$state` for local reactive variables.
+- **Derived**: Use `$derived` for calculated values.
+- **Props**: Use `let { ... } = $props();`.
+- **Snippets**: Use `{#snippet}` and `{@render}` for templating.
 
-## 2. Visual Topology (Context)
+### SCSS (The 7-1 Pattern)
 
-You operate within "The Body" of the application, distinct from the "Nervous System" (GameMaster/Scholar).
+- Use semantic SCSS components.
+- Avoid utility soup.
+- Bind variables exclusively to `--app-*`.
 
-```mermaid
-graph LR
-    subgraph NERVOUS_SYSTEM [The Nervous System]
-        direction TB
-        GM["gamemaster/ (Brain)"]
-        SCH["scholar/ (Memory)"]
-        MES["mesmer/ (Senses)"]
-    end
+### Premium Design
 
-    subgraph BODY [The Artificer]
-        ART["artificer/"] --> SB["storyboard/ (Narrative UI)"]
-        ART --> SM["storymode/ (Chat UI)"]
-        ART --> HUD["hud/ (Heads Up Display)"]
-        APP("App.svelte")
-    end
+- **Glassmorphism**: Use translucent backgrounds with backdrop-filters.
+- **Micro-animations**: Add subtle transitions to interactive elements.
+- **Typography**: Prioritize modern sans-serif fonts (e.g., Google Fonts).
 
-    NERVOUS_SYSTEM -->|Signals| BODY
+## 2. Tooling
 
-```
+- **Scaffolding**: Use `/scaffold` to generate new components with tests.
+- **Aesthetics**: Use `/review-design` to audit UI against the style guide.
 
-## 3. Workflow & Protocol
+## 3. Technical Knowledge Layers
 
-1. **Scope Assessment**: Determine if the component is atomic (Button) or composite (Panel).
-2. **State Definition**: Define internal logic using Runes (`$state`).
-3. **Mesmer Integration**: Apply **semantic classes** (e.g., `btn-primary`, `glass-panel`) defined by the Design System. Do not write raw CSS colors in `<style>` blocks if a utility class exists.
-4. **Verification**: Validate responsiveness and touch targets (min 44x44px).
+- **[JavaScript Patterns](./knowledge/javascript.md)**: Modern ES modules and Svelte 5 logic.
+- **[HTML Standards](./knowledge/html.md)**: Semantic structure and A11y.
+- **[Stitch Integration](./knowledge/stitch-logic.md)**: Logic and UI generation via Stitch.
 
-## 4. The Perfect Component Pattern
+## 4. Usage
 
-Use this template for new `src/artificer` components:
-
-```svelte
-<script>
-    // 1. LOGIC IMPORTS ONLY
-    import { onMount } from "svelte"
-
-    // 2. PROPS (Destructured Runes)
-    let {
-        label = "Default",
-        variant = "primary", // Maps to Mesmer class
-        children,
-        className = "",
-        ...restProps
-    } = $props()
-
-    // 3. STATE (Runes)
-    let isHovered = $state(false)
-
-    // 4. COMPUTED
-    let rootClass = $derived(`ui-component variant-${variant} ${className}`)
-</script>
-
-<div class={rootClass} role="group" {...restProps}>
-    {#if children}
-        {@render children()}
-    {:else}
-        <span class="label">{label}</span>
-    {/if}
-</div>
-
-<style lang="scss">
-    // 6. LAYOUT & PHYSICS ONLY
-    .ui-component {
-        display: flex;
-        align-items: center;
-        gap: var(--app-spacing-sm);
-        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); // Elastic physics
-
-        // NO COLORS HERE - Inherit from .variant-* classes
-    }
-</style>
-```
-
-## 5. Resources
-
-- **Global State**: `src/artificer/state.svelte.js`
-- **Design Specs**: [DESIGN.md](https://www.google.com/search?q=../../../DESIGN.md)
-- **Key Constraints**:
-- Naming: `PascalCase` for files.
-- Styling: No Tailwind. No IDs. Use `scss`.
+- **Trigger**: Path-based (`src/artificer/**`) or Action-based ('create component', 'add styling').

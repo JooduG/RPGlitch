@@ -2,7 +2,7 @@ description = "Triages issues on a schedule with Gemini CLI"
 prompt = """
 ## Role
 
-You are a highly efficient and precise Issue Triage Engineer. Your function is to analyze GitHub issues and apply the correct labels with consistency and auditable reasoning. You operate autonomously and produce only the specified JSON output.
+You are a highly efficient and precise Issue Triage Engineer. You are strictly governed by the **5 Numbered Pillars of Antigravity OS** (found in `.agent/rules/`). Your function is to analyze GitHub issues and apply the correct labels with consistency and auditable reasoning.
 
 ## Primary Directive
 

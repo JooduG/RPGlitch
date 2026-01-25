@@ -1,12 +1,11 @@
 # 🛸 AGENTS.md: The Antigravity Prime Directive
 
 @.agent/index.md
-@.agent/rules/architecture.md
-@.agent/rules/tech-stack.md
-@.agent/rules/standard-workflow.md
-@.agent/rules/security.md
-
-@.agent/rules/anti-patterns.md
+@.agent/rules/01-prime-directive.md
+@.agent/rules/02-architecture.md
+@.agent/rules/03-tech-stack.md
+@.agent/rules/04-security-warden.md
+@.agent/rules/05-hygiene-protocol.md
 
 > **Identity:** Antigravity Architect (aka "Vibe Boi").
 > **Mission:** Zero-Latency, Architecture-First, High-Fidelity Engineering.
@@ -31,10 +30,11 @@ Before any operation, all agents **MUST** validate their environment using the *
 
 Use the **agent-sync** protocol and the **Repo Overview** in `.agent/index.md` to resolve paths:
 
-1. Active State: Check `.agent/index.md` first for the repository structure.
+1. Active State: Check `.agent/index.md` for the registry.
     - Product Definition: `.agent/product.md`
-    - Tech Stack: `.agent/rules/tech-stack.md`
-    - Workflow: `.agent/rules/standard-workflow.md`
+    - Architecture: `.agent/rules/02-architecture.md`
+    - Tech Stack: `.agent/rules/03-tech-stack.md`
+    - Security: `.agent/rules/04-security-warden.md`
 2. Passive Governance: Check `.agent/rules/`.
 3. Specialized Capabilities: See the **Skill Matrix** below.
 
@@ -50,30 +50,18 @@ Before starting any task, you **MUST** read the following to ground yourself:
 
 ## 2. 🧠 The Skill Matrix
 
-| Skill                       | Trigger / Context                               | Purpose                                             |
-| :-------------------------- | :---------------------------------------------- | :-------------------------------------------------- |
-| **agent-startup**           | Initialization / Session Start                  | Mandatory environment validation.                   |
-| **agent-sync**              | `AGENTS.md`, `.agent/config.yaml`, `types.d.ts` | Bidirectional state & type synchronization.         |
-| **artificer**               | `src/artificer/**`                              | UI components, layouts, and storyboard features.    |
-| **tasks**                   | `.agent/tasks.md`                               | TDD lifecycle, commit standards, and checkpointing. |
-| **docs**                    | `**/*.md`, `.agent/**`                          | Documentation and skill-creation governance.        |
-| **svelte**                  | `**/*.svelte`, `**/*.svelte.js`                 | Svelte 5 Runes, Vite 6, and reactivity.             |
-| **javascript**              | `**/*.js`                                       | Logic modules, Google style, and state management.  |
-| **style**                   | `**/*.scss`, `**/*.css`                         | SCSS architecture (7-1 pattern) and brand identity. |
-| **developer-database**      | `supabase/**`, `migrations/**`, `**/*.sql`      | SQL migrations and Supabase realtime logic.         |
-| **perchance**               | `src/gamemaster/llm.js`, Perchance plugins      | Platform integration and AI plugin management.      |
-| **scholar**                 | `src/scholar/**`                                | Vector memory, Pinecone, and semantic search.       |
-| **deploy**                  | Build requests                                  | Production of the Single File Monolith.             |
-| **html**                    | `**/*.html`                                     | Semantic markup and accessibility compliance.       |
-| **hygiene**                 | `tools/qa/**`, validation                       | Static integrity, QA, and sterilization.            |
-| **reasoning-protocol**      | Task Analysis                                   | Router for complex problem solving.                 |
-| **sequential-thinking**     | Complexity > L1                                 | Step-by-step planning and breakdown.                |
-| **debugging-strategy**      | Persistent bugs (L3)                            | Scientific method for bug isolation.                |
-| **mental-modeling**         | Confusion / XY Problem (L4)                     | Reframing frameworks (First Principles etc).        |
-| **decision-framework**      | Tech Stack / Architecture (L5)                  | Weighted decision matrix for choices.               |
-| **scientific-method**       | Unknowns / Performance (L6)                     | Hypothesis testing and experimentation.             |
-| **collaborative-reasoning** | Review / Critique                               | Multi-perspective analysis (Simulated Panel).       |
-| **metacognition**           | Confusion / "Lost"                              | Self-assessment and course correction.              |
+| Skill                   | Trigger / Context                     | Purpose                                               |
+| :---------------------- | :------------------------------------ | :---------------------------------------------------- |
+| **agent-startup**       | Initialization / Session Start        | Mandatory environment validation.                     |
+| **artificer**           | `src/artificer/**`                    | UI components, layouts, and storyboard features.      |
+| **conductor**           | `.agent/tasks/**`                     | Orchestrates work tracks, state, and context (Tasks). |
+| **cortex**              | Multi-track reasoning (L1-L6)         | Master intelligence & problem solving router.         |
+| **doc-surgeon**         | `.agent/**` docs                      | Refactor and optimize the knowledge & rule pillars.   |
+| **skill-forge**         | Skill generation                      | Framework for creating new specialist modules.        |
+| **tech-research**       | Tech unknowns                         | Orchestrates documentation & Context7 research.       |
+| **debugging-strategy**  | Persistent bugs (L3)                  | Scientific method for bug isolation.                  |
+| **hygiene**             | `.agent/rules/05-hygiene-protocol.md` | Static integrity, QA, and documentation purity.       |
+| **sequential-thinking** | Complexity > L1                       | Step-by-step planning and breakdown specialists.      |
 
 ---
 
@@ -90,7 +78,7 @@ Before starting any task, you **MUST** read the following to ground yourself:
 
 ## 4. 🛠️ The Tech Stack (Svelte 5 Native)
 
-> **Source of Truth:** `.agent/rules/tech-stack.md`.
+> **Source of Truth**: `.agent/rules/03-tech-stack.md`.
 
 1. Runes Only: `$state`, `$derived`, `$effect`, `$props`.
 2. Single File Monolith: Output is a single HTML file (Vite 6).

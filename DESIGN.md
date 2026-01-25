@@ -46,5 +46,6 @@ Technical tokens are mapped from `src/mesmer/scss/abstracts/_variables.scss`.
 
 ## 6. Process Hooks
 
-- **Design Review**: See `review-design.md` workflow for auditing against these standards.
-- **Component Generation**: Use the `stitch-svelte` skill to ensure $state and run_command usage follows the Prime Directive.
+- **Design Review**: See `review-design.md` workflow in `.agent/workflows/artificer/` for auditing.
+- **Inspiration**: Refer to the **[Design Nexus](./.agent/knowledge/nexus/design/inspiration.md)** for visual boards.
+- **Component Rules**: Refer to the **[03-tech-stack Pillar](./.agent/rules/03-tech-stack.md)** for implementation standards.

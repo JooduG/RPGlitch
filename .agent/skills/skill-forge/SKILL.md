@@ -11,14 +11,33 @@ license: MIT
 You are the **Skill Forge**. Your goal is not just to create files, but to **encapsulate expertise**.
 When a user wants to "teach you how to do X", you use this skill to crystalize that knowledge into a reusable tool.
 
+## 🧠 What Makes a Good Skill?
+
+Before forging, evaluate if the expertise meets these criteria:
+
+1. **High Reuse**: Is this a problem that will occur 10+ times?
+2. **Complexity Compression**: Does it turn 50 lines of instructions into a single command or mental model?
+3. **Unique Physics**: Does it govern a specific "world rule" (e.g., Svelte 5 Runes, Perchance Frame limits)?
+4. **Implicit Knowledge**: Does it contain "unspoken" best practices that an agent might otherwise forget?
+
+## ⚡ The Trigger Matrix
+
+The `description` in the frontmatter is the **Activation Signal**. It MUST be optimized for zero-shot recognition.
+
+| Trigger Type     | Pattern              | Purpose                  | Example                                                       |
+| :--------------- | :------------------- | :----------------------- | :------------------------------------------------------------ |
+| **Path-based**   | `src/mesmer/**`      | Scope-level activation.  | Triggers whenever a file in `mesmer/` is touched.             |
+| **Action-based** | `deploy`, `refactor` | Intent-level activation. | Triggers when the user asks to "deploy the app".              |
+| **Pillar-based** | `Scholar`, `Warden`  | Domain-level activation. | Triggers when modifying the project's "Security" or "Memory". |
+
 ## The Process
 
 ### 1. Analysis (Before you build)
 
 Ask: _Is this a Skill or a Workflow?_
 
-- **Skill:** "I need new tools/commands." (e.g., "Query BigQuery", "Deploy to Vercel")
-- **Workflow:** "I need a standard procedure." (e.g., "Refactor Component", "Review PR") -> _Use `.agent/workflows/` instead._
+- **Skill:** "I need new tools/commands or specialized expertise." (e.g., "SQL Expert", "Deploy to Vercel").
+- **Workflow:** "I need a standard procedure for my existing tools." (e.g., "Review PR", "Fix Bug"). -> _Use `.agent/workflows/` instead._
 
 ### 2. Initialization
 
@@ -44,13 +63,11 @@ skill-name/
 
 ## Guidelines for Authors
 
-1. **The 500-Line Rule:** If `SKILL.md` exceeds 500 lines, move data to `knowledge/`.
-2. **Zero-Shot Triggers:** The `description` frontmatter is the _only_ thing the agent sees initially. Make it keyword-rich.
-
-- _Bad:_ "A tool for databases."
-- _Good:_ "Executes SQL queries, manages migrations, and inspects schemas for Supabase/Postgres."
-
-1. **Scripts over Text:** Don't write 10 paragraphs explaining how to parse a CSV. Write a Python script and put it in `scripts/`.
+1. **The 500-Line Rule:** If `SKILL.md` exceeds 500 lines (excluding metadata), move detail to `knowledge/`.
+2. **Explicit Triggers:** The `description` MUST list the conditions under which the skill is useful.
+    - _Bad:_ "A tool for databases."
+    - _Good:_ "Triggers on `supabase/**` or `.sql` files. Governs SQL migrations and schema architecture."
+3. **Logic over Text:** Prefer a script in `scripts/` over a long markdown explanation of how to do a calculation.
 
 ## Validation
 

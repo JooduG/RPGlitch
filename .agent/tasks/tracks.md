@@ -6,11 +6,11 @@
 - Status: Defined
 - Note: Upgrade all legacy UI to Runes.
 
-## [ ] Track: Documentation Overhaul
+## [x] Track: Documentation Overhaul
 
 - Path: .agent/tasks/docs-overhaul/
-- Status: Defined
-- Note: Establish single source of truth.
+- Status: Complete
+- Note: Unified the .agent OS structure and synchronized all external documentation (AGENTS.md, DESIGN.md, README.md).
 
 ## [ ] Track: Security Audit
 
@@ -18,11 +18,11 @@
 - Status: Defined
 - Note: Verify Freedom Protocol.
 
-## [ ] Track: Automation & Modularization
+## [x] Track: Automation & Modularization
 
 - Path: .agent/tasks/automation-mod/
-- Status: In Progress
-- Note: Hooks, startup protocol, and slash commands.
+- Status: Complete
+- Note: Hooks, startup protocol, and slash commands fully implemented.
 
 ## [x] Track: Profile Refactor
 

@@ -36,4 +36,4 @@ The system voice should be immersive, drawing the user into the story. For AI-ge
 
 - [Semantic Design System (Master)](../DESIGN.md)
 - [SCSS Variables](../src/mesmer/scss/abstracts/_variables.scss)
-- [Voice & Tone Guidelines](./knowledge/design/voice-tone.md)
+- [Design Inspiration](./knowledge/nexus/design/inspiration.md)
