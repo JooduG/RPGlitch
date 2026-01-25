@@ -13,10 +13,10 @@ description: Triggers on src/gamemaster/llm.js, src/RPGlitch-left-panel.txt, or 
 
 ## Workflow
 
-1.  **List Definition**: Structure data in the Lists Panel using Perchance indentation rules.
-2.  **Logic Mapping**: Implement Inline Selection (`{}`) or Identifier Assignment (`[id = list]`).
-3.  **UI Integration**: Re-evaluate outputs via the global `update()` function.
-4.  **Plugin Import**: Use `{import:plugin-name}` for official extensions.
+1. **List Definition**: Structure data in the Lists Panel using Perchance indentation rules.
+2. **Logic Mapping**: Implement Inline Selection (`{}`) or Identifier Assignment (`[id = list]`).
+3. **UI Integration**: Re-evaluate outputs via the global `update()` function.
+4. **Plugin Import**: Use `{import:plugin-name}` for official extensions.
 
 ## Instructions
 

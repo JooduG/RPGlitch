@@ -1,11 +1,12 @@
-
 #!/usr/bin/env python3
 import os
 from pathlib import Path
 
 # Configuration
 MAX_LINES = 500
-BANNED_DIRS = [".cursor", ".windsurf", ".codex", ".agents"]
+BANNED_DIRS = [".cursor", ".windsurf", ".codex", ".agents", ".claude"]
+# 🟢 NEW: Add folders to ignore here
+IGNORED_DIRS = ["archive", "legacy", "node_modules", ".git"] 
 AGENT_ROOT = Path(".agent")
 
 def audit_file_size(file_path):
@@ -29,17 +30,20 @@ def main():
 
     # 2. Check File Sizes in .agent
     if AGENT_ROOT.exists():
-        for root, _, files in os.walk(AGENT_ROOT):
+        for root, dirs, files in os.walk(AGENT_ROOT):
+            # 🟢 NEW: Prune ignored directories in-place so os.walk skips them
+            dirs[:] = [d for d in dirs if d not in IGNORED_DIRS]
+            
             for file in files:
                 if file.endswith(".md"):
                     path = Path(root) / file
                     warning = audit_file_size(path)
                     if warning:
                         issues.append(warning)
-
+    
     # Report
     if issues:
-        print("issues found:")
+        print("Issues found:")
         for i in issues:
             print(i)
         print("\nRecommendation: Use the 'Refactor' capability on bloated files.")
@@ -48,3 +52,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
