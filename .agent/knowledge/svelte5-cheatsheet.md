@@ -208,4 +208,4 @@ $inspect(count).with(fn) // Custom logger
 
 ---
 
-_Source: Svelte 5 MCP Documentation_
+Source: Svelte 5 MCP Documentation

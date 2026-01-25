@@ -1,6 +1,6 @@
 ---
 name: perchance
-description: Triggers on src/gamemaster/llm.js, src/RPGlitch-left-panel.txt, or where otherwise relevant. Governs integration with the Perchance platform and AI plugin management.
+description: Triggers on src/. RPGlitch is deployed to the perchance platform.
 ---
 
 # Perchance: Platform & Plugin Skill
