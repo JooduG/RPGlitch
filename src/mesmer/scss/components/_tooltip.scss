@@ -1,31 +1,28 @@
-/* ============================================================================
-   COMPONENT: TOOLTIP
-   ============================================================================ */
+@use "../abstracts/placeholders" as *;
 
 .tooltip-popup {
-  position: fixed;
-  z-index: 9999;
-  background: var(--card-background);
-  color: var(--app-color);
-  border: 1px solid var(--app-border);
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  box-shadow: 0 4px 15px rgb(0 0 0 / 50%);
-  pointer-events: none;
-  opacity: 0;
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
-  transform: translateY(5px);
-  max-width: 300px;
-  text-align: center;
-  line-height: 1.4;
-  text-wrap: balance;
+    @extend %material-glass;
 
-  &.is-visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
+    position: fixed;
+    z-index: 9999;
+    color: var(--app-color);
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    box-shadow: 0 4px 15px rgb(0 0 0 / 50%);
+    pointer-events: none;
+    opacity: 0;
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+    transform: translateY(5px);
+    max-width: 300px;
+    text-align: center;
+    line-height: 1.4;
+    text-wrap: balance;
+
+    &.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

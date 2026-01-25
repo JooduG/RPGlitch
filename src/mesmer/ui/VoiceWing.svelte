@@ -130,22 +130,23 @@
 </div>
 
 <style lang="scss">
+    @use "../scss/abstracts/placeholders" as *;
+
     .voice-wing-content {
+        @extend %material-glass-heavy;
         padding: var(--spacing-lg);
         display: flex;
         flex-direction: column;
         gap: var(--spacing-lg);
         color: white;
-        background: radial-gradient(
-            circle at top left,
-            rgba(255, 255, 255, 0.04) 0%,
-            transparent 70%
-        );
-        background-color: var(--app-background);
-        border: 1px solid var(--ui-glass-border);
-        border-radius: var(--spacing-lg);
-        backdrop-filter: blur(10px);
-        box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
+        background: var(--app-background)
+            radial-gradient(
+                circle at top left,
+                rgba(255, 255, 255, 0.05) 15%,
+                transparent 70%
+            );
+        border-radius: inherit;
+        height: 100%;
     }
 
     .voice-control-row {

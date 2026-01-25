@@ -6,6 +6,7 @@
     import ProfilePicture from "../mesmer/ui/ProfilePicture.svelte"
     import VisualWing from "../mesmer/ui/VisualWing.svelte"
     import VoiceWing from "../mesmer/ui/VoiceWing.svelte"
+    import DevWing from "../warden/ui/DevWing.svelte"
     import { PROFILE_SECTIONS } from "./config.js"
     import { runtime } from "./runtime.svelte.js"
 
@@ -58,7 +59,7 @@
 
     let visualOptions = $state({
         noBackground: false,
-        flip: false,
+        flipped: false,
     })
 
     // Character data
@@ -83,7 +84,8 @@
     $effect(() => {
         if (char?.visuals) {
             visualOptions.noBackground = char.visuals.noBackground || false
-            visualOptions.flip = char.visuals.flip || false
+            visualOptions.flipped =
+                char.visuals.flipped || char.visuals.flip || false
         }
     })
 
@@ -155,14 +157,21 @@
         target[last] = val
     }
 
-    // Handles clicking on the dossier background to reset focus
+    // Handles clicking on the dossier background to reset focus/exit edit/close modal
     function handleBackgroundClick(e) {
-        if (!isEditing) return
-
         // If clicking something that is definitely NOT interactive dossier space
-        // and NOT an input/button, reset to prompt
-        if (!e.target.closest("textarea, input, button, .swatch")) {
-            activeField = { key: "visual-prompt", label: "Image Prompt" }
+        // and NOT an input/button/wing, decide whether to exit edit or close modal
+        if (
+            !e.target.closest(
+                "textarea, input, button, .swatch, .wing-left, .wing-right, .profile-presentation"
+            )
+        ) {
+            if (isEditing) {
+                isEditing = false
+                activeField = { key: "visual-prompt", label: "Image Prompt" }
+            } else {
+                handleClose()
+            }
 
             // Explicitly blur any focused element to remove browser highlight
             if (document.activeElement instanceof HTMLElement) {
@@ -196,51 +205,57 @@
                 class="profile-presentation"
                 style="--signature-color: {signatureColor}; --signature-rgb: {signatureRgb};"
             >
-                <div
-                    class="left"
-                    style:transform={visualOptions.flip ? "scaleX(-1)" : ""}
-                >
+                <div class="left">
                     <ProfilePicture entity={char} />
                 </div>
 
                 <main class="right">
                     <header class:is-editing={isEditing}>
                         {#if isEditing}
-                            <input
-                                class="char-name-input"
-                                bind:value={char.name}
-                                placeholder="Entity Name"
-                                onfocus={() =>
-                                    (activeField = {
-                                        key: "name",
-                                        label: "Name",
-                                    })}
-                            />
-                            <textarea
-                                use:autoResize
-                                class="char-description-input"
-                                bind:value={char.description}
-                                placeholder="Entity Description"
-                                onfocus={() =>
-                                    (activeField = {
-                                        key: "description",
-                                        label: "Description",
-                                    })}
-                            ></textarea>
+                            <h1
+                                class="name edit"
+                                aria-label="Edit Character Name"
+                            >
+                                <span
+                                    contenteditable="true"
+                                    bind:innerText={char.name}
+                                    onfocus={() => {
+                                        activeField = {
+                                            key: "name",
+                                            label: "Name",
+                                        }
+                                    }}
+                                    role="textbox"
+                                    tabindex="0"
+                                ></span>
+                            </h1>
                         {:else}
-                            <h1 class="char-name">
+                            <h1 class="name" aria-label="Character Name">
                                 {char.name || "Unnamed Entity"}
                             </h1>
-                            <textarea
-                                use:autoResize
-                                class="char-description"
-                                class:muted-info={!char.description}
-                                readonly
-                                value={char.description ||
-                                    "No description provided."}
-                                tabindex="-1"
-                            ></textarea>
                         {/if}
+                        <textarea
+                            use:autoResize
+                            class="description"
+                            class:edit={isEditing}
+                            class:muted-info={!isEditing && !char.description}
+                            readonly={!isEditing}
+                            tabindex={isEditing ? 0 : -1}
+                            value={isEditing
+                                ? char.description
+                                : char.description ||
+                                  "No description provided."}
+                            oninput={(e) => (char.description = e.target.value)}
+                            placeholder="Entity Description"
+                            onfocus={() => {
+                                if (isEditing) {
+                                    activeField = {
+                                        key: "description",
+                                        label: "Description",
+                                    }
+                                }
+                            }}
+                        ></textarea>
                     </header>
 
                     <div class="content">
@@ -269,14 +284,16 @@
                                                 }}
                                                 data-sync-id={section.label}
                                                 class="text-area"
-                                                class:active={isEditing &&
-                                                    activeField.key ===
-                                                        field.key}
+                                                class:edit={isEditing}
+                                                class:muted-info={!isEditing &&
+                                                    !getValue(char, field.key)}
                                                 placeholder={field.placeholder}
-                                                value={getValue(
-                                                    char,
-                                                    field.key
-                                                )}
+                                                value={isEditing
+                                                    ? getValue(char, field.key)
+                                                    : getValue(
+                                                          char,
+                                                          field.key
+                                                      ) || "Record undefined."}
                                                 oninput={(e) =>
                                                     setValue(
                                                         char,
@@ -318,16 +335,28 @@
 
                     <footer>
                         {#if isEditing}
-                            <Button
-                                variant="edit"
-                                onclick={handleSave}
-                                disabled={isSaving}
-                            >
-                                {isSaving ? "Saving..." : "Save"}
-                            </Button>
+                            <div class="footer-actions">
+                                <Button
+                                    variant="danger"
+                                    className="profile-btn"
+                                    onclick={handleDelete}
+                                    disabled={isSaving}
+                                >
+                                    Delete
+                                </Button>
+                                <Button
+                                    variant="edit"
+                                    className="profile-btn"
+                                    onclick={handleSave}
+                                    disabled={isSaving}
+                                >
+                                    {isSaving ? "Saving..." : "Save"}
+                                </Button>
+                            </div>
                         {:else}
                             <Button
                                 variant="edit"
+                                className="profile-btn"
                                 onclick={() => (isEditing = true)}
                             >
                                 Edit
@@ -340,27 +369,7 @@
             <!-- RIGHT WING (Dev Mode / System) -->
             {#if app.settings.devMode}
                 <aside class="wing-right">
-                    <div class="content">
-                        <div class="group-row">
-                            <span class="label">UUID</span>
-                            <code class="uuid">{entityId || char.id}</code>
-                        </div>
-                        <div class="group-row">
-                            <Button
-                                variant="danger"
-                                size="sm"
-                                disabled={!isEditing}
-                                onclick={handleDelete}>DELETE ENTITY</Button
-                            >
-                        </div>
-                        <hr />
-                        <div class="group-row">
-                            <details class="raw-data">
-                                <summary>Raw Data Explorer</summary>
-                                <pre>{JSON.stringify(char, null, 2)}</pre>
-                            </details>
-                        </div>
-                    </div>
+                    <DevWing bind:char {isEditing} />
                 </aside>
             {/if}
         </div></Modal
@@ -368,6 +377,9 @@
 {/if}
 
 <style lang="scss">
+    @use "../mesmer/scss/abstracts/variables" as vars;
+    @use "../mesmer/scss/abstracts/placeholders" as *;
+
     /* Winged Layout & Wings */
     .profile-container {
         display: flex;
@@ -410,128 +422,9 @@
         display: flex;
         flex-direction: column;
         gap: var(--spacing-md);
-    }
-
-    .wing-left {
-        background: transparent; /* Panels have their own background */
+        background: transparent;
         border: none;
-        border-radius: 0;
-    }
-
-    .wing-right {
-        background: rgba(0, 0, 0, 0.4);
-        border: 1px solid var(--ui-glass-border);
         border-radius: var(--spacing-lg);
-    }
-
-    /* Right Wing (Dev Tools) */
-    .wing-right {
-        .content {
-            padding: var(--spacing-lg);
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: var(--spacing-md);
-        }
-
-        .group-row {
-            display: grid;
-            grid-template-columns: 80px 1fr;
-            gap: var(--spacing-sm);
-            align-items: center;
-
-            .label {
-                font-size: 0.7rem;
-                font-weight: 800;
-                color: var(--app-muted);
-                text-transform: uppercase;
-            }
-
-            .uuid {
-                font-family: monospace;
-                font-size: 0.8rem;
-                color: var(--signature-color);
-                opacity: 0.8;
-            }
-        }
-
-        hr {
-            border: none;
-            border-top: 1px dashed rgba(255, 255, 255, 0.1);
-            margin: var(--spacing-sm) 0;
-        }
-
-        .raw-data {
-            summary {
-                cursor: pointer;
-                font-size: 0.8rem;
-                color: var(--app-muted);
-                margin-bottom: var(--spacing-xs);
-
-                &:hover {
-                    color: white;
-                }
-            }
-
-            pre {
-                background: rgba(0, 0, 0, 0.3);
-                padding: var(--spacing-sm);
-                border-radius: var(--spacing-sm);
-                font-size: 0.75rem;
-                max-height: 18rem;
-                overflow: auto;
-                color: var(--app-muted);
-            }
-        }
-    }
-
-    /* Right Wing Specifics (Dev Tools) */
-    .wing-right {
-        .group-row {
-            .label {
-                font-size: 0.7rem;
-                font-weight: 800;
-                color: var(--app-muted);
-                text-transform: uppercase;
-            }
-
-            .uuid {
-                font-family: monospace;
-                font-size: 0.8rem;
-                color: var(--signature-color);
-                opacity: 0.8;
-            }
-        }
-
-        hr {
-            border: none;
-            border-top: 1px dashed rgba(255, 255, 255, 0.1);
-            margin: var(--spacing-sm) 0;
-        }
-
-        .raw-data {
-            summary {
-                cursor: pointer;
-                font-size: 0.8rem;
-                color: var(--app-muted);
-                margin-bottom: var(--spacing-xs);
-
-                &:hover {
-                    color: white;
-                }
-            }
-
-            pre {
-                background: rgba(0, 0, 0, 0.3);
-                padding: var(--spacing-sm);
-                border-radius: var(--spacing-sm);
-                font-size: 0.75rem;
-                max-height: 18rem;
-                overflow: auto;
-                color: var(--app-muted);
-            }
-        }
     }
 
     /* Presentation Card */
@@ -572,16 +465,7 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.2);
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             transition: transform 0.4s ease;
-
-            :global(.profile-picture) {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
         }
 
         .right {
@@ -613,92 +497,85 @@
                 text-align: left;
             }
 
-            .char-name {
+            .name {
+                width: 100%;
                 color: var(--signature-color);
-                font-family: inherit;
-                font-size: 2.8rem;
-                font-weight: 800;
-                margin: 0;
-                line-height: 1;
                 letter-spacing: -0.02em;
                 text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-                border: 1px solid transparent; /* Box model stabilization */
-                padding: 0;
-            }
-
-            .char-name-input {
-                width: 100%;
-                background: transparent;
-                border: 1px dashed rgba(255, 255, 255, 0.1);
-                border-radius: var(--spacing-sm);
-                color: var(--signature-color);
-                font-family: inherit;
-                font-size: 2.8rem;
-                font-weight: 800;
-                padding: 0;
+                transition: all 0.2s;
+                cursor: default;
                 margin: 0;
-                line-height: 1;
-                letter-spacing: -0.02em;
-                outline: none;
-                transition: all 0.2s;
-                box-sizing: border-box;
-                display: block;
-
-                &:focus {
-                    background: rgba(255, 255, 255, 0.05);
-                    border-color: var(--signature-color);
-                    border-style: solid;
-                }
-            }
-
-            .char-description-input {
-                width: 100%;
-                background: transparent;
-                border: 1px dashed rgba(255, 255, 255, 0.05);
+                padding: 4px 0;
+                text-align: left;
+                border: 1px solid transparent;
+                min-height: 1.1em;
+                white-space: pre-wrap; /* Preserve spacing while editing */
+                overflow-wrap: break-word;
                 border-radius: var(--spacing-sm);
-                color: var(--app-muted);
-                font-family: inherit;
-                font-size: 0.95rem;
-                padding: 0;
-                margin: var(--spacing-xs) 0 0; /* Align with P margin */
-                resize: none;
-                outline: none;
-                transition: all 0.2s;
-                line-height: 1.4;
-                min-height: 1.4em; /* Lock height */
-                box-sizing: border-box;
-                display: block;
-                overflow: hidden;
 
-                &:focus {
-                    color: white;
-                    border-color: rgba(255, 255, 255, 0.2);
-                    border-style: solid;
-                    background: rgba(255, 255, 255, 0.01);
+                &:empty::before {
+                    content: "Unnamed Entity";
+                    opacity: 0.3;
+                    font-style: italic;
+                    font-weight: 400;
+                }
+
+                span[contenteditable="true"] {
+                    display: block;
+                    width: 100%;
+                    outline: none;
+                    min-height: 1.1em;
+
+                    &:empty::before {
+                        content: "Entity Name";
+                        opacity: 0.2;
+                    }
+                }
+
+                &.edit {
+                    @extend %textarea-clean;
+                    pointer-events: auto;
+                    caret-color: var(--signature-color);
+                    cursor: text;
+
+                    &:focus-within {
+                        background: rgba(255, 255, 255, 0.05);
+                    }
                 }
             }
 
-            .char-description {
+            .description {
+                @extend %textarea-clean;
                 width: 100%;
-                background: transparent;
-                border: 1px solid transparent; /* Box model stabilization */
                 color: var(--app-muted);
                 font-family: inherit;
                 font-size: 0.95rem;
-                padding: 0;
+                padding: 4px 0;
                 margin: var(--spacing-xs) 0 0;
-                resize: none;
-                outline: none;
                 line-height: 1.4;
                 min-height: 1.4em;
-                box-sizing: border-box;
-                display: block;
-                overflow: hidden;
                 cursor: default;
+                transition: all 0.2s;
+                border-radius: var(--spacing-sm);
+                pointer-events: none;
+                background: transparent;
+                border: 1px solid transparent;
+                resize: none;
 
                 &.muted-info {
-                    font-style: italic;
-                    opacity: 0.5;
+                    @extend %muted-ghost;
+                }
+
+                &.edit {
+                    pointer-events: auto;
+                    caret-color: white;
+                    cursor: text;
+
+                    &:focus {
+                        background: rgba(255, 255, 255, 0.05);
+                        border: 1px solid transparent;
+                        outline: none;
+                    }
                 }
             }
 
@@ -778,54 +655,40 @@
                         }
 
                         .text-area {
+                            @extend %textarea-clean;
+                            resize: none !important;
                             width: 100%;
                             height: auto;
                             min-height: 4rem;
-                            max-height: 24rem; /* Cap expansion */
-                            overflow-y: auto !important; /* Allow internal scroll if capped */
-                            background: rgba(255, 255, 255, 0.03);
-                            border: 1px solid rgba(255, 255, 255, 0.1);
+                            max-height: 24rem;
+                            overflow-y: auto !important;
+                            background: rgba(255, 255, 255, 0.05);
+                            border: 1px solid transparent;
                             border-radius: var(--spacing-sm);
                             color: white;
-                            padding: var(--spacing-sm);
+                            padding: var(--spacing-sm) var(--spacing-md);
                             font-family: inherit;
                             font-size: 0.85rem;
-                            line-height: 1.5;
-                            resize: none;
+                            line-height: 1.2;
                             transition: all 0.2s;
+                            cursor: default;
+                            pointer-events: none;
+                            text-wrap-style: pretty;
 
-                            &.active:not([readonly]) {
-                                border-color: color-mix(
-                                    in oklab,
-                                    var(--signature-color) 50%,
-                                    transparent
-                                );
-                                background: rgba(255, 255, 255, 0.05);
+                            &.edit {
+                                pointer-events: auto;
+                                caret-color: white;
+                                cursor: text;
+
+                                &:focus {
+                                    background: rgba(255, 255, 255, 0.1);
+                                    border: 1px solid transparent;
+                                    outline: none;
+                                }
                             }
 
-                            &:focus:not([readonly]) {
-                                background: rgba(255, 255, 255, 0.07);
-                                border-color: var(--signature-color);
-                                outline: none;
-                                box-shadow: 0 0 0 2px
-                                    color-mix(
-                                        in oklab,
-                                        var(--signature-color) 20%,
-                                        transparent
-                                    );
-                            }
-
-                            &:focus {
-                                outline: none;
-                            }
-
-                            &[readonly] {
-                                cursor: default;
-                            }
-
-                            &:disabled {
-                                cursor: wait;
-                                opacity: 0.8;
+                            &.muted-info {
+                                @extend %muted-ghost;
                             }
                         }
                     }
@@ -842,10 +705,47 @@
                 backdrop-filter: blur(15px);
                 z-index: 10;
 
+                :global(.profile-btn) {
+                    height: 3rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: 800;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                    padding: var(--spacing-sm) var(--spacing-xl) !important;
+                    transition: all 0.3s ease;
+                    min-width: 10rem;
+                    width: calc((100% - 100px) / 2 - var(--spacing-sm-md));
+                }
+
+                .footer-actions {
+                    display: flex;
+                    gap: var(--spacing-sm-md);
+                    justify-content: end;
+                    width: 100%;
+
+                    :global(.btn-danger) {
+                        background: transparent !important;
+                        border-color: rgba(255, 255, 255, 0.1) !important;
+                        color: var(--app-muted) !important;
+                        box-shadow: none !important;
+                        transition: all 0.3s ease;
+                        width: calc((100% - 100px) / 2 - var(--spacing-sm-md));
+
+                        &:hover {
+                            background: var(--app-del) !important;
+                            border-color: var(--app-del) !important;
+                            color: white !important;
+                            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5) !important;
+                            filter: brightness(1.2);
+                        }
+                    }
+                }
+
                 :global(.btn-edit) {
                     background: var(--signature-color) !important;
                     color: white !important;
-                    font-weight: 700 !important;
                     box-shadow: 0 4px 15px
                         color-mix(
                             in oklab,
@@ -856,6 +756,12 @@
                     &:hover {
                         filter: brightness(1.1);
                         transform: translateY(-1px);
+                        box-shadow: 0 6px 20px
+                            color-mix(
+                                in oklab,
+                                var(--signature-color) 60%,
+                                transparent
+                            ) !important;
                     }
                 }
             }

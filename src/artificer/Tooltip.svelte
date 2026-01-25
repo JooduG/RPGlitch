@@ -25,6 +25,8 @@
 {/if}
 
 <style lang="scss">
+    @use "../mesmer/scss/abstracts/placeholders" as *;
+
     .artificer-tooltip {
         position: absolute;
         z-index: 1000;
@@ -38,16 +40,12 @@
         margin-top: -12px;
 
         .content {
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            @extend %material-glass;
             color: white;
             padding: 4px 10px;
-            border-radius: 4px;
             font-size: 0.75rem;
             font-family: var(--font-ui);
             font-weight: 500;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }

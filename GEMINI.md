@@ -1,6 +1,7 @@
 # Welcome to RPGlitch
 
 <!-- Import Protocol -->
+
 @import ./AGENTS.md
 @import .agent/index.md
 @import .agent/rules/architecture.md
@@ -8,9 +9,8 @@
 @import .agent/rules/security.md
 @import .agent/rules/standard-workflow.md
 @import .agent/rules/anti-patterns.md
-@import .agent/rules/reasoning.md
 
-Hey Gemini, welcome. `AGENTS.md` is your Prime Directive. 
+Hey Gemini, welcome. `AGENTS.md` is your Prime Directive.
 
 ## 🚀 Agent Startup Protocol
 

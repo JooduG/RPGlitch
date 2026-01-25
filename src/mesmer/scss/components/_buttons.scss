@@ -9,60 +9,57 @@
 // --- EXPOSED CLASSES (Using Placeholders) ---
 
 .btn {
-  @extend %btn;
+    @extend %btn;
 }
 
 .btn-primary {
-  @extend %btn-primary;
+    @extend %btn-primary;
 }
 
 .btn-ghost {
-  @extend %btn-ghost;
+    @extend %btn-ghost;
+}
 
-  &.danger:hover:not(:disabled, .disabled) {
-    color: var(--app-del);
-    background: rgba(vars.$color-danger, vars.$btn-danger-alpha);
-  }
+.btn-ghost-danger,
+.btn-ghost.danger {
+    @extend %btn-ghost-danger;
 }
 
 .btn-outline {
-  @extend %btn-outline;
+    @extend %btn-outline;
 }
 
 .btn-secondary,
 .secondary,
 .contrast {
-  @extend %btn-secondary;
+    @extend %btn-secondary;
 }
 
 .btn-glass {
-  @extend %btn-glass;
+    @extend %btn-glass;
 }
 
 // --- UTILITY SHAPES ---
 
 .btn-round {
-  padding: 0;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
+    @extend %btn-round;
 }
 
 // --- BUTTON GROUPS ---
 
 .btn-group-joined {
-  @extend %btn-group-joined;
+    @extend %btn-group-joined;
 }
 
 .btn-icon-raise:hover svg.icon {
-  transform: translateY(-2px) scale(1.1);
+    transform: translateY(-2px) scale(1.1);
 }
 
 .btn-group-pill {
-  @extend %btn-group-pill;
+    @extend %btn-group-pill;
 }
 
 // Custom split logic (retained if not covered by placeholder)
 .btn-group-split {
-  @extend %btn-group-split;
+    @extend %btn-group-split;
 }

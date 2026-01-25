@@ -5,7 +5,7 @@
 @.agent/rules/tech-stack.md
 @.agent/rules/standard-workflow.md
 @.agent/rules/security.md
-@.agent/rules/reasoning.md
+
 @.agent/rules/anti-patterns.md
 
 > **Identity:** Antigravity Architect (aka "Vibe Boi").
@@ -50,22 +50,30 @@ Before starting any task, you **MUST** read the following to ground yourself:
 
 ## 2. 🧠 The Skill Matrix
 
-| Skill                  | Trigger / Context                               | Purpose                                             |
-| :--------------------- | :---------------------------------------------- | :-------------------------------------------------- |
-| **agent-startup**      | Initialization / Session Start                  | Mandatory environment validation.                   |
-| **agent-sync**         | `AGENTS.md`, `.agent/config.yaml`, `types.d.ts` | Bidirectional state & type synchronization.         |
-| **artificer**          | `src/artificer/**`                              | UI components, layouts, and storyboard features.    |
-| **tasks**              | `.agent/tasks.md`                               | TDD lifecycle, commit standards, and checkpointing. |
-| **docs**               | `**/*.md`, `.agent/**`                          | Documentation and skill-creation governance.        |
-| **svelte**             | `**/*.svelte`, `**/*.svelte.js`                 | Svelte 5 Runes, Vite 6, and reactivity.             |
-| **javascript**         | `**/*.js`                                       | Logic modules, Google style, and state management.  |
-| **style**              | `**/*.scss`, `**/*.css`                         | SCSS architecture (7-1 pattern) and brand identity. |
-| **developer-database** | `supabase/**`, `migrations/**`, `**/*.sql`      | SQL migrations and Supabase realtime logic.         |
-| **perchance**          | `src/gamemaster/llm.js`, Perchance plugins      | Platform integration and AI plugin management.      |
-| **scholar**            | `src/scholar/**`                                | Vector memory, Pinecone, and semantic search.       |
-| **deploy**             | Build requests                                  | Production of the Single File Monolith.             |
-| **html**               | `**/*.html`                                     | Semantic markup and accessibility compliance.       |
-| **hygiene**            | `tools/qa/**`, validation                       | Static integrity, QA, and sterilization.            |
+| Skill                       | Trigger / Context                               | Purpose                                             |
+| :-------------------------- | :---------------------------------------------- | :-------------------------------------------------- |
+| **agent-startup**           | Initialization / Session Start                  | Mandatory environment validation.                   |
+| **agent-sync**              | `AGENTS.md`, `.agent/config.yaml`, `types.d.ts` | Bidirectional state & type synchronization.         |
+| **artificer**               | `src/artificer/**`                              | UI components, layouts, and storyboard features.    |
+| **tasks**                   | `.agent/tasks.md`                               | TDD lifecycle, commit standards, and checkpointing. |
+| **docs**                    | `**/*.md`, `.agent/**`                          | Documentation and skill-creation governance.        |
+| **svelte**                  | `**/*.svelte`, `**/*.svelte.js`                 | Svelte 5 Runes, Vite 6, and reactivity.             |
+| **javascript**              | `**/*.js`                                       | Logic modules, Google style, and state management.  |
+| **style**                   | `**/*.scss`, `**/*.css`                         | SCSS architecture (7-1 pattern) and brand identity. |
+| **developer-database**      | `supabase/**`, `migrations/**`, `**/*.sql`      | SQL migrations and Supabase realtime logic.         |
+| **perchance**               | `src/gamemaster/llm.js`, Perchance plugins      | Platform integration and AI plugin management.      |
+| **scholar**                 | `src/scholar/**`                                | Vector memory, Pinecone, and semantic search.       |
+| **deploy**                  | Build requests                                  | Production of the Single File Monolith.             |
+| **html**                    | `**/*.html`                                     | Semantic markup and accessibility compliance.       |
+| **hygiene**                 | `tools/qa/**`, validation                       | Static integrity, QA, and sterilization.            |
+| **reasoning-protocol**      | Task Analysis                                   | Router for complex problem solving.                 |
+| **sequential-thinking**     | Complexity > L1                                 | Step-by-step planning and breakdown.                |
+| **debugging-strategy**      | Persistent bugs (L3)                            | Scientific method for bug isolation.                |
+| **mental-modeling**         | Confusion / XY Problem (L4)                     | Reframing frameworks (First Principles etc).        |
+| **decision-framework**      | Tech Stack / Architecture (L5)                  | Weighted decision matrix for choices.               |
+| **scientific-method**       | Unknowns / Performance (L6)                     | Hypothesis testing and experimentation.             |
+| **collaborative-reasoning** | Review / Critique                               | Multi-perspective analysis (Simulated Panel).       |
+| **metacognition**           | Confusion / "Lost"                              | Self-assessment and course correction.              |
 
 ---
 

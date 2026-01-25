@@ -41,54 +41,54 @@ $signature-zinc: #71717a;
 // Map for programmatic access (e.g., iterating over signatures in JS/Svelte)
 // Structure: "name" -> ("color" -> value) for compatibility with map.get($data, color)
 $signature-colors: (
-  "red": (
-    "color": $signature-red,
-  ),
-  "rose": (
-    "color": $signature-rose,
-  ),
-  "orange": (
-    "color": $signature-orange,
-  ),
-  "amber": (
-    "color": $signature-amber,
-  ),
-  "yellow": (
-    "color": $signature-yellow,
-  ),
-  "lime": (
-    "color": $signature-lime,
-  ),
-  "emerald": (
-    "color": $signature-emerald,
-  ),
-  "cyan": (
-    "color": $signature-cyan,
-  ),
-  "sky": (
-    "color": $signature-sky,
-  ),
-  "blue": (
-    "color": $signature-blue,
-  ),
-  "indigo": (
-    "color": $signature-indigo,
-  ),
-  "violet": (
-    "color": $signature-violet,
-  ),
-  "purple": (
-    "color": $signature-purple,
-  ),
-  "pink": (
-    "color": $signature-pink,
-  ),
-  "stone": (
-    "color": $signature-stone,
-  ),
-  "zinc": (
-    "color": $signature-zinc,
-  ),
+    "red": (
+        "color": $signature-red,
+    ),
+    "rose": (
+        "color": $signature-rose,
+    ),
+    "orange": (
+        "color": $signature-orange,
+    ),
+    "amber": (
+        "color": $signature-amber,
+    ),
+    "yellow": (
+        "color": $signature-yellow,
+    ),
+    "lime": (
+        "color": $signature-lime,
+    ),
+    "emerald": (
+        "color": $signature-emerald,
+    ),
+    "cyan": (
+        "color": $signature-cyan,
+    ),
+    "sky": (
+        "color": $signature-sky,
+    ),
+    "blue": (
+        "color": $signature-blue,
+    ),
+    "indigo": (
+        "color": $signature-indigo,
+    ),
+    "violet": (
+        "color": $signature-violet,
+    ),
+    "purple": (
+        "color": $signature-purple,
+    ),
+    "pink": (
+        "color": $signature-pink,
+    ),
+    "stone": (
+        "color": $signature-stone,
+    ),
+    "zinc": (
+        "color": $signature-zinc,
+    ),
 );
 
 // =================================================
@@ -158,15 +158,15 @@ $emoji-stack: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Co
 $font-heading: ("Ubuntu", sans-serif, $emoji-stack);
 $font-body: ("Inter", sans-serif, $emoji-stack);
 $font-monospace: (
-  "Menlo",
-  "Consolas",
-  "Roboto Mono",
-  "Ubuntu Monospace",
-  "Noto Mono",
-  "Oxygen Mono",
-  "Liberation Mono",
-  "monospace",
-  $emoji-stack
+    "Menlo",
+    "Consolas",
+    "Roboto Mono",
+    "Ubuntu Monospace",
+    "Noto Mono",
+    "Oxygen Mono",
+    "Liberation Mono",
+    "monospace",
+    $emoji-stack
 );
 
 // --- Metrics ---
@@ -174,33 +174,33 @@ $line-height-base: 1.5;
 $font-weight-base: 400;
 $font-weight-bold: 700;
 
-// --- Heading Sizes (Bottom Margin) ---
+// --- Heading Spacing (Vertical Rhythm) ---
 $h-spacing: (
-  h1: 3rem,
-  h2: 2.625rem,
-  h3: 2.25rem,
-  h4: 1.875rem,
-  h5: 1.6875rem,
-  h6: 1.5rem,
+    h1: 3rem,
+    h2: 2.625rem,
+    h3: 2.25rem,
+    h4: 1.875rem,
+    h5: 1.6875rem,
+    h6: 1.5rem,
 );
 
 // --- Responsive Breakpoints (Unified) ---
 // Used for both layout media queries and typography scaling
 $breakpoints: (
-  sm: 576px,
-  md: 768px,
-  lg: 1024px,
-  xl: 1280px,
-  2xl: 1536px,
+    sm: 576px,
+    md: 768px,
+    lg: 1024px,
+    xl: 1280px,
+    2xl: 1536px,
 );
 
 // Typography scaling per breakpoint
 $typography-scaling: (
-  sm: 106.25%,
-  md: 112.5%,
-  lg: 118.75%,
-  xl: 125%,
-  2xl: 131.25%,
+    sm: 106.25%,
+    md: 112.5%,
+    lg: 118.75%,
+    xl: 125%,
+    2xl: 131.25%,
 );
 
 // Convenience aliases for common breakpoints
@@ -209,11 +209,11 @@ $breakpoint-tablet: map.get($breakpoints, lg);
 
 // Viewport scaling alias for _typography.scss backward compatibility
 $viewport-scaling: (
-  576px: 106.25%,
-  768px: 112.5%,
-  1024px: 118.75%,
-  1280px: 125%,
-  1536px: 131.25%,
+    576px: 106.25%,
+    768px: 112.5%,
+    1024px: 118.75%,
+    1280px: 125%,
+    1536px: 131.25%,
 );
 
 // --- Text Opacity Hierarchy ---
@@ -344,12 +344,12 @@ $illusion-shimmer-highlight: rgb(255 255 255 / 6%);
 // =================================================
 
 $z-map: (
-  base: 10,
-  chip: 20,
-  ui: 50,
-  mobile-drawer-container: 90,
-  overlay: 100,
-  modal: 150,
-  drawer: 2000,
-  toast: 10000,
+    base: 10,
+    chip: 20,
+    ui: 50,
+    mobile-drawer-container: 90,
+    overlay: 100,
+    modal: 150,
+    drawer: 2000,
+    toast: 10000,
 );

@@ -10,380 +10,457 @@
 
 // Base Glass Style
 %glass-base {
-  border: 1px solid $ui-glass-border;
-  border-radius: $border-radius;
+    border: 1px solid $ui-glass-border;
+    border-radius: $border-radius;
 }
 
 // Glassmorphism Pill Container (Button Groups / Inputs)
 %glass-pill {
-  @extend %glass-base;
+    @extend %glass-base;
 
-  background: $glass-pill-bg;
-  backdrop-filter: blur($glass-pill-blur);
-  box-shadow: $shadow-lg;
-  border-radius: $glass-pill-radius;
+    background: $glass-pill-bg;
+    backdrop-filter: blur($glass-pill-blur);
+    box-shadow: $shadow-lg;
+    border-radius: $glass-pill-radius;
 }
 
 // 1. The Standard Glass (Used for Cards, UI Panels)
 %material-glass {
-  @extend %glass-base;
+    @extend %glass-base;
 
-  background: $glass-standard-bg;
-  backdrop-filter: blur($glass-standard-blur);
-  box-shadow: $shadow-md;
+    background: $glass-standard-bg;
+    backdrop-filter: blur($glass-standard-blur);
+    box-shadow: $shadow-md;
 }
 
 // 2. The Heavy Glass (Used for Modals, Drawers)
 %material-glass-heavy {
-  @extend %glass-base;
+    @extend %glass-base;
 
-  background: $glass-heavy-bg;
-  backdrop-filter: blur($glass-heavy-blur);
-  box-shadow: $shadow-xl;
-  border-radius: $glass-heavy-radius; // Override base radius
+    background: $glass-heavy-bg;
+    backdrop-filter: blur($glass-heavy-blur);
+    box-shadow: $shadow-xl;
+    border-radius: $glass-heavy-radius; // Override base radius
 }
 
 // 3. Interactive Surface (Hover states for cards)
 %material-interactive {
-  transition:
-    transform 0.3s $physics-transition-elastic,
-    box-shadow 0.3s ease,
-    border-color 0.3s ease;
+    transition:
+        transform 0.3s $physics-transition-elastic,
+        box-shadow 0.3s ease,
+        border-color 0.3s ease;
 
-  &:hover {
-    transform: translateY($physics-hover-y);
-    box-shadow: $shadow-interactive-hover;
-    border-color: $ui-glass-interactive-border;
-  }
+    &:hover {
+        transform: translateY($physics-hover-y);
+        box-shadow: $shadow-interactive-hover;
+        border-color: $ui-glass-interactive-border;
+    }
 }
 
 // --- INTERACTION PHYSICS ---
 
 %btn-physics {
-  // Hover State
-  &:hover:not(:disabled, .disabled) {
-    transform: translateY($physics-btn-hover-y);
-    filter: brightness(1.1);
-  }
+    // Hover State
+    &:hover:not(:disabled, .disabled) {
+        transform: translateY($physics-btn-hover-y);
+        filter: brightness(1.1);
+    }
 
-  // Active State
-  &:active:not(:disabled, .disabled) {
-    transform: scale(var(--scale-active, #{$physics-btn-active-scale}));
-  }
+    // Active State
+    &:active:not(:disabled, .disabled) {
+        transform: scale(var(--scale-active, #{$physics-btn-active-scale}));
+    }
 }
 
 %btn-disabled {
-  &:disabled,
-  &.disabled {
-    opacity: $opacity-disabled;
-    cursor: not-allowed;
-    filter: grayscale(1);
-    pointer-events: auto;
-    transform: none !important;
-    transition: none !important;
-    box-shadow: none;
-  }
+    &:disabled,
+    &.disabled {
+        opacity: $opacity-disabled;
+        cursor: not-allowed !important;
+        filter: grayscale(1);
+        pointer-events: none !important;
+        transform: none !important;
+        transition: none !important;
+        box-shadow: none !important;
+    }
+}
+
+// --- STATUS PATTERNS (Generic) ---
+
+%status-danger {
+    color: var(--app-del);
+    border-color: var(--app-del);
+}
+
+%status-success {
+    color: var(--app-success);
+    border-color: var(--app-success);
+}
+
+%status-warning {
+    color: var(--app-warning);
+    border-color: var(--app-warning);
 }
 
 // --- OPTICAL ILLUSION ---
 
 %illusion {
-  position: relative;
-  overflow: hidden;
-  min-height: 1rem;
-  background-color: var(--card-background, #1e293b);
+    position: relative;
+    overflow: hidden;
+    min-height: 1rem;
+    background-color: var(--card-background, #1e293b);
 
-  &::after {
-    position: absolute;
-    inset: 0;
-    transform: translateX(-100%);
-    background-image: linear-gradient(
-      90deg,
-      transparent 0,
-      $illusion-shimmer-color 20%,
-      $illusion-shimmer-highlight 60%,
-      transparent
-    );
-    animation: illusion-shimmer 5s infinite;
-    content: "";
-  }
+    &::after {
+        position: absolute;
+        inset: 0;
+        transform: translateX(-100%);
+        background-image: linear-gradient(
+            90deg,
+            transparent 0,
+            $illusion-shimmer-color 20%,
+            $illusion-shimmer-highlight 60%,
+            transparent
+        );
+        animation: illusion-shimmer 5s infinite;
+        content: "";
+    }
 }
 
 // --- CARD BASES ---
 %card-base {
-  box-shadow: $shadow-sm;
-  background: var(--card-background, #2b3848);
-  border-radius: var(--border-radius);
-  color: var(--app-color);
-  padding: 0;
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
+    box-shadow: $shadow-sm;
+    background: var(--card-background, #2b3848);
+    border-radius: var(--border-radius);
+    color: var(--app-color);
+    padding: 0;
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
 
-  &:hover,
-  &:has(:focus-visible) {
-    transform: translateY(-2px);
-    box-shadow: $shadow-card-hover;
-  }
+    &:hover,
+    &:has(:focus-visible) {
+        transform: translateY(-2px);
+        box-shadow: $shadow-card-hover;
+    }
 
-  &:has(:focus-visible) {
-    box-shadow:
-      0 0 0 2px var(--app-primary-focus),
-      $shadow-card-hover;
-  }
+    &:has(:focus-visible) {
+        box-shadow:
+            0 0 0 2px var(--app-primary-focus),
+            $shadow-card-hover;
+    }
 }
 
 // --- BUTTONS ---
 
 // Base Atom
 %btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: $spacing-sm;
-  padding: $spacing-sm $spacing-md;
-  min-height: $btn-min-height;
-  font-family: inherit;
-  font-weight: $font-weight-bold;
-  font-size: $btn-font-size;
-  line-height: 1;
-  text-decoration: none;
-  cursor: pointer;
-  pointer-events: auto;
-  border: 1px solid transparent;
-  border-radius: var(--border-radius);
-  background: transparent;
-  color: var(--app-color);
-  transition:
-    background-color var(--transition-speed, 0.2s) ease-out,
-    color var(--transition-speed, 0.2s) ease-out,
-    border-color var(--transition-speed, 0.2s) ease-out,
-    transform var(--transition-speed, 0.2s) ease-out,
-    box-shadow var(--transition-speed, 0.2s) ease-out,
-    filter var(--transition-speed, 0.2s) ease-out;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    padding: $spacing-sm $spacing-md;
+    min-height: $btn-min-height;
+    font-family: inherit;
+    font-weight: $font-weight-bold;
+    font-size: $btn-font-size;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    pointer-events: auto;
+    border: 1px solid transparent;
+    border-radius: var(--border-radius);
+    background: transparent;
+    color: var(--app-color);
+    transition:
+        background-color var(--transition-speed, 0.2s) ease-out,
+        color var(--transition-speed, 0.2s) ease-out,
+        border-color var(--transition-speed, 0.2s) ease-out,
+        transform var(--transition-speed, 0.2s) ease-out,
+        box-shadow var(--transition-speed, 0.2s) ease-out,
+        filter var(--transition-speed, 0.2s) ease-out;
 
-  @extend %btn-physics;
-  @extend %btn-disabled;
+    @extend %btn-physics;
+    @extend %btn-disabled;
 
-  // Scoped Icon Styles
-  .icon {
-    pointer-events: none;
-    transition: transform var(--transition-speed, 0.2s)
-      cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
+    // Scoped Icon Styles
+    .icon {
+        pointer-events: none;
+        transition: transform var(--transition-speed, 0.2s)
+            cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
 
-  // Focus State
-  &:focus-visible {
-    outline: none;
-    box-shadow:
-      0 0 0 2px var(--app-primary-focus),
-      0 0 0 4px rgb(var(--app-primary), 0.3);
-    border-color: var(--app-primary);
-  }
+    // Focus State
+    &:focus-visible {
+        outline: none;
+        box-shadow:
+            0 0 0 2px var(--app-primary-focus),
+            0 0 0 4px rgb(var(--app-primary), 0.3);
+        border-color: var(--app-primary);
+    }
 }
 
 // Variants
 %btn-primary {
-  @extend %btn;
+    @extend %btn;
 
-  background: var(--app-primary);
-  color: var(--app-primary-inverse);
-  box-shadow: $shadow-md;
+    background: var(--app-primary);
+    color: var(--app-primary-inverse);
+    box-shadow: $shadow-md;
 
-  &:hover:not(:disabled, .disabled) {
-    background: var(--app-primary-hover);
-    box-shadow: $shadow-sm;
-  }
+    &:hover:not(:disabled, .disabled) {
+        background: var(--app-primary-hover);
+        box-shadow: $shadow-sm;
+    }
 }
 
 %btn-ghost {
-  @extend %btn;
+    @extend %btn;
 
-  color: var(--app-muted);
-  border-color: transparent;
+    color: var(--app-muted);
+    border-color: transparent;
 
-  &:hover:not(:disabled, .disabled) {
-    background: rgba($white, $btn-ghost-hover-alpha);
-    color: var(--app-color);
-  }
+    &:hover:not(:disabled, .disabled) {
+        background: rgba($white, $btn-ghost-hover-alpha);
+        color: var(--app-color);
+    }
+
+    &.danger:hover:not(:disabled, .disabled) {
+        @extend %btn-ghost-danger;
+    }
+}
+
+%btn-ghost-danger {
+    @extend %btn;
+
+    color: var(--app-muted);
+    border-color: transparent;
+
+    &:hover:not(:disabled, .disabled) {
+        background: rgba($signature-red, $btn-danger-alpha);
+        color: var(--app-del);
+        border-color: rgba($signature-red, 0.2);
+    }
 }
 
 %btn-outline {
-  @extend %btn;
+    @extend %btn;
 
-  border-color: var(--app-border);
-  color: var(--app-muted);
+    border-color: var(--app-border);
+    color: var(--app-muted);
 
-  &:hover:not(:disabled, .disabled) {
-    border-color: var(--app-primary);
-    color: var(--app-primary);
-    background: rgba($white, $btn-outline-hover-alpha);
-  }
+    &:hover:not(:disabled, .disabled) {
+        border-color: var(--app-primary);
+        color: var(--app-primary);
+        background: rgba($white, $btn-outline-hover-alpha);
+    }
 }
 
 %btn-secondary {
-  @extend %btn;
+    @extend %btn;
 
-  background: var(--app-secondary);
-  color: var(--app-secondary-inverse);
-  border-color: var(--app-secondary);
+    background: var(--app-secondary);
+    color: var(--app-secondary-inverse);
+    border-color: var(--app-secondary);
 
-  &:hover:not(:disabled, .disabled) {
-    background: var(--app-secondary-hover);
-    border-color: var(--app-secondary-hover);
-  }
+    &:hover:not(:disabled, .disabled) {
+        background: var(--app-secondary-hover);
+        border-color: var(--app-secondary-hover);
+    }
 }
 
 %btn-glass {
-  @extend %btn;
+    @extend %btn;
 
-  background: $glass-pill-bg;
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba($white, $btn-glass-border-alpha);
-  color: $white;
-
-  &:hover:not(:disabled, .disabled) {
-    background: rgba($white, $btn-glass-hover-alpha);
-    border-color: rgba($white, $btn-glass-border-hover-alpha);
+    background: $glass-pill-bg;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba($white, $btn-glass-border-alpha);
     color: $white;
-  }
+
+    &:hover:not(:disabled, .disabled) {
+        background: rgba($white, $btn-glass-hover-alpha);
+        border-color: rgba($white, $btn-glass-border-hover-alpha);
+        color: $white;
+    }
+}
+
+// --- UTILITY SHAPES ---
+
+%btn-round {
+    padding: 0;
+    width: $btn-min-height;
+    height: $btn-min-height;
+    border-radius: 50%;
+    aspect-ratio: 1;
+}
+
+// --- TEXTAREA HELPERS ---
+
+%textarea-clean {
+    resize: none !important;
+    overflow: hidden;
+    outline: none;
+    box-sizing: border-box;
+    display: block;
+    background: transparent;
+    border: 1px solid transparent;
+    caret-color: transparent;
+
+    &:focus,
+    &:active,
+    &:focus-visible,
+    &:focus-within,
+    &[readonly]:focus,
+    &[readonly]:active {
+        outline: none !important;
+        box-shadow: none !important;
+        border-color: transparent !important;
+        background: transparent !important;
+    }
 }
 
 // Button Group Helpers
 %btn-group-joined {
-  display: inline-flex;
+    display: inline-flex;
 
-  .btn,
-  button,
-  .btn-ghost,
-  .btn-primary {
-    border-radius: 0;
-    margin: 0;
+    .btn,
+    button,
+    .btn-ghost,
+    .btn-primary {
+        border-radius: 0;
+        margin: 0;
 
-    &:first-child {
-      border-radius: var(--border-radius) 0 0 var(--border-radius);
+        &:first-child {
+            border-radius: var(--border-radius) 0 0 var(--border-radius);
+        }
+
+        &:last-child {
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+
+        &:not(:last-child) {
+            border-right: 1px solid $ui-glass-border;
+        }
     }
-
-    &:last-child {
-      border-radius: 0 var(--border-radius) var(--border-radius) 0;
-    }
-
-    &:not(:last-child) {
-      border-right: 1px solid $ui-glass-border;
-    }
-  }
 }
 
 // Pill Group
 %btn-group-pill {
-  @extend %btn-group-joined;
-  @extend %glass-pill;
+    @extend %btn-group-joined;
+    @extend %glass-pill;
 
-  overflow: hidden;
-  width: fit-content;
+    overflow: hidden;
+    width: fit-content;
 
-  .btn,
-  button {
-    flex: 0 0 auto;
-    border: none;
+    .btn,
+    button {
+        flex: 0 0 auto;
+        border: none;
 
-    &:first-child {
-      padding-left: 1.5rem;
+        &:first-child {
+            padding-left: 1.5rem;
+        }
+
+        &:last-child {
+            padding-right: 1.5rem;
+        }
+
+        &:not(:last-child) {
+            border-right: 1px solid $ui-glass-border;
+        }
     }
-
-    &:last-child {
-      padding-right: 1.5rem;
-    }
-
-    &:not(:last-child) {
-      border-right: 1px solid $ui-glass-border;
-    }
-  }
 }
 
 // Split Group
 %btn-group-split {
-  display: flex;
-  width: 100%;
-  padding: 0;
-  margin: 0;
-  gap: 0;
-
-  > .btn,
-  > button,
-  > .btn-ghost {
-    @extend %btn;
-
-    flex: 1 1 0;
+    display: flex;
+    width: 100%;
+    padding: 0;
     margin: 0;
-    border-radius: 0;
-    height: $btn-group-split-height;
-    border: none;
+    gap: 0;
 
-    &:not(:last-child) {
-      border-right: 1px solid $ui-glass-border;
-    }
+    > .btn,
+    > button,
+    > .btn-ghost {
+        @extend %btn;
 
-    &:first-child {
-      border-bottom-left-radius: $btn-group-split-radius;
-    }
+        flex: 1 1 0;
+        margin: 0;
+        border-radius: 0;
+        height: $btn-group-split-height;
+        border: none;
 
-    &:last-child {
-      border-bottom-right-radius: $btn-group-split-radius;
-    }
+        &:not(:last-child) {
+            border-right: 1px solid $ui-glass-border;
+        }
 
-    &:hover:not(
-        :disabled,
-        .disabled,
-        .btn-primary,
-        .btn-secondary,
-        .btn-glass
-      ) {
-      background: $ui-glass-hover;
+        &:first-child {
+            border-bottom-left-radius: $btn-group-split-radius;
+        }
+
+        &:last-child {
+            border-bottom-right-radius: $btn-group-split-radius;
+        }
+
+        &:hover:not(
+                :disabled,
+                .disabled,
+                .btn-primary,
+                .btn-secondary,
+                .btn-glass
+            ) {
+            background: $ui-glass-hover;
+        }
     }
-  }
 }
 
 // --- INPUTS ---
 
 // The "Deep Field" - Recessed data entry
 %input-deep {
-  appearance: none;
-  width: 100%;
+    appearance: none;
+    width: 100%;
 
-  // Depth Physics
-  background: $input-bg;
-  border: 1px solid var(--app-border);
-  border-radius: var(--border-radius);
+    // Depth Physics
+    background: $input-bg;
+    border: 1px solid var(--app-border);
+    border-radius: var(--border-radius);
 
-  // Typography
-  color: var(--app-color);
-  font-family: var(--font-body);
-  font-size: $input-font-size;
-  padding: var(--form-element-spacing-vertical)
-    var(--form-element-spacing-horizontal);
-  line-height: var(--line-height);
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    // Typography
+    color: var(--app-color);
+    font-family: var(--font-body);
+    font-size: $input-font-size;
+    padding: var(--form-element-spacing-vertical)
+        var(--form-element-spacing-horizontal);
+    line-height: var(--line-height);
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 
-  &:focus {
-    outline: none;
-    background: $input-bg-focus;
-    border-color: var(--app-primary);
-    box-shadow: 0 0 0 1px var(--app-primary);
-  }
+    &:focus {
+        outline: none;
+        background: $input-bg-focus;
+        border-color: var(--app-primary);
+        box-shadow: 0 0 0 1px var(--app-primary);
+    }
 
-  &::placeholder {
-    color: var(--app-muted);
-    opacity: 0.7;
+    &::placeholder {
+        color: var(--app-muted);
+        opacity: 0.7;
+        font-style: italic;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: rgb(255 255 255 / 5%);
+    }
+}
+
+// --- TYPOGRAPHY STATES ---
+
+// The "Ghost" State - For muted placeholders/empty data
+%muted-ghost {
     font-style: italic;
-  }
-
-  &:disabled {
     opacity: 0.5;
-    cursor: not-allowed;
-    background: rgb(255 255 255 / 5%);
-  }
 }
