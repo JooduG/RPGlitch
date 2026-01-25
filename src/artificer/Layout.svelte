@@ -25,11 +25,11 @@
     class="universal-stage"
     class:is-transparent={transparent}
     class:layout-cinematic={mode === "cinematic"}
-    style="--stage-align: {align === 'end'
-        ? 'flex-end'
-        : align === 'start'
-          ? 'flex-start'
-          : 'center'}"
+    style:--stage-align={align === "end"
+        ? "flex-end"
+        : align === "start"
+          ? "flex-start"
+          : "center"}
 >
     <!-- Track 1: Margin -->
     <div class="gutter-col start"></div>

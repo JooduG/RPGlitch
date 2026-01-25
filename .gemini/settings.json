@@ -87,17 +87,6 @@
         "FIRECRAWL_API_KEY": "fc-968e355e236f460092834ec49afdd6ae"
       }
     },
-    "obsidian": {
-      "command": "node",
-      "args": [
-        "c:/Users/johng/Documents/GitHub/default/node_modules/obsidian-mcp-server/dist/index.js"
-      ],
-      "env": {
-        "OBSIDIAN_API_KEY": "2686481c3abb711618d16208bfcc26eaf61fec60b12dd513d65289371f93258e",
-        "OBSIDIAN_BASE_URL": "https://127.0.0.1:27124",
-        "OBSIDIAN_VERIFY_SSL": "false"
-      }
-    },
     "pinecone-mcp-server": {
       "command": "npx",
       "args": [
@@ -118,6 +107,14 @@
       ],
       "env": {}
     },
+    "pencil": {
+      "command": "c:\\Users\\johng\\.antigravity\\extensions\\highagency.pencildev-0.6.12-universal\\out\\mcp-server-windows-x64.exe",
+      "args": [
+        "--ws-port",
+        "63302"
+      ],
+      "env": {}
+    },
     "stitch": {
       "command": "C:\\Program Files\\nodejs\\node.exe",
       "args": [
@@ -128,6 +125,17 @@
         "GOOGLE_CLOUD_PROJECT": "spry-analyzer-457013-a1",
         "PATH": "C:\\Users\\johng\\AppData\\Local\\Google\\Cloud SDK\\google-cloud-sdk\\bin;C:\\Program Files\\nodejs",
         "GOOGLE_APPLICATION_CREDENTIALS": "C:\\Users\\johng\\AppData\\Roaming\\gcloud\\application_default_credentials.json"
+      }
+    },
+    "obsidian": {
+      "command": "node",
+      "args": [
+        "c:/Users/johng/Documents/GitHub/default/node_modules/obsidian-mcp-server/dist/index.js"
+      ],
+      "env": {
+        "OBSIDIAN_API_KEY": "2686481c3abb711618d16208bfcc26eaf61fec60b12dd513d65289371f93258e",
+        "OBSIDIAN_BASE_URL": "https://127.0.0.1:27124",
+        "OBSIDIAN_VERIFY_SSL": "false"
       }
     }
   },

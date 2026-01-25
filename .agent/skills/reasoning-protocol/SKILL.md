@@ -13,14 +13,15 @@ description: The master complexity ladder for determining which reasoning skill 
 
 Before solving a problem, identify its **Complexity Level** to select the correct skill.
 
-| Level  | State        | Trigger Condition                                    | Recommended Skill     |
-| :----- | :----------- | :--------------------------------------------------- | :-------------------- |
-| **L1** | **Reflex**   | Simple edits, known solutions, syntax fixes.         | _None (Just Code)_    |
-| **L2** | **Logic**    | Multi-file changes, slight ambiguity, planning.      | `sequential-thinking` |
-| **L3** | **Debug**    | Persistent bugs, "why is this broken?", error loops. | `debugging-strategy`  |
-| **L4** | **Reframe**  | Stuck, need a new perspective, "optimizing".         | `mental-modeling`     |
-| **L5** | **Conflict** | Trade-offs, architectural debates, "A vs B".         | `decision-framework`  |
-| **L6** | **Science**  | Hypothesis testing, unknown unknowns.                | `scientific-method`   |
+| Level    | State        | Trigger Condition                                    | Recommended Skill     |
+| :------- | :----------- | :--------------------------------------------------- | :-------------------- |
+| **L1**   | **Reflex**   | Simple edits, known solutions, syntax fixes.         | _None (Just Code)_    |
+| **L2**   | **Logic**    | Multi-file changes, slight ambiguity, planning.      | `sequential-thinking` |
+| **L3**   | **Debug**    | Persistent bugs, "why is this broken?", error loops. | `debugging-strategy`  |
+| **L3.5** | **Research** | Unknown libraries, syntax checks, "How do I use X?". | `tech-research`       |
+| **L4**   | **Reframe**  | Stuck, need a new perspective, "optimizing".         | `mental-modeling`     |
+| **L5**   | **Conflict** | Trade-offs, architectural debates, "A vs B".         | `decision-framework`  |
+| **L6**   | **Science**  | Hypothesis testing, unknown unknowns.                | `scientific-method`   |
 
 ## 2. Usage
 

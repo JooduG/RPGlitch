@@ -21,6 +21,7 @@ You must produce a **Decision Matrix** before choosing.
 
 - What is the goal?
 - What are the hard limits (size, speed, compatibility)?
+- **Verification:** Run `tech-research` if using bleeding-edge libraries (e.g. Svelte 5) to confirm current syntax/limitations.
 
 ### Step 2: The Options
 

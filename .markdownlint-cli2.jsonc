@@ -1,19 +1,19 @@
 {
-    "ignores": [
-        "**/.git/**",
-        "**/archive/**",
-        "**/node_modules/**",
-        "*.bak",
-        "*.log",
-        "*.resolved",
-        "*.tmp",
-        ".markdownlint.json",
-        "/.DS_Store",
-        "/.agent/knowledge/ANEX.md",
-        "/.npm",
-        "/coverage",
-        "/dist",
-        "libs/**",
-        "llms.md"
-    ]
+  "ignores": [
+    "**/.git/**",
+    "**/archive/**",
+    "**/node_modules/**",
+    "*.bak",
+    "*.log",
+    "*.resolved",
+    "*.tmp",
+    ".markdownlint.json",
+    "/.DS_Store",
+    "/.agent/knowledge/ANEX.md",
+    "/.npm",
+    "/coverage",
+    "/dist",
+    "libs/**",
+    "llms.md"
+  ]
 }

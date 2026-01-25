@@ -31,10 +31,9 @@
         {#if app.selectedFractal?.profilePictureUrl}
             <div
                 id="fractal-background"
-                style="background-image: url('{app.selectedFractal
-                    .profilePictureUrl}'); opacity: {app.view === 'game'
-                    ? 0.4
-                    : 0.15};"
+                style:background-image="url('{app.selectedFractal
+                    .profilePictureUrl}')"
+                style:opacity={app.view === "game" ? 0.4 : 0.15}
             ></div>
         {/if}
 
