@@ -1,6 +1,6 @@
 # 🔷 JooduG Monorepo
 
-> **Architecture:** [Single File Monolith](.agent/rules/architecture.md)
+> **Architecture:** [Single File Monolith](.agent/rules/a architecture.md)
 > **Stack:** [Svelte 5 + Native SCSS](.agent/rules/tech-stack.md)
 > **Platform:** [Perchance](https://perchance.org)
 

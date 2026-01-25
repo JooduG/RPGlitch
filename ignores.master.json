@@ -83,8 +83,6 @@
             "/dist",
             ".markdownlint.json",
             "*.resolved",
-            "scribbles.md",
-            "scrubbles.md",
             "llms.md",
             "/.agent/knowledge/ANEX.md"
         ],
