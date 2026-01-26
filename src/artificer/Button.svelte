@@ -1,34 +1,34 @@
 <script>
-  let {
-    label,
-    variant = "primary", // primary | secondary | ghost | danger | glass
-    size = "md", // sm | md
-    className = "", // Allow local overrides (use className="..." when calling)
-    children, // For icons/complex content
-    ...restProps // Pass through onclick, disabled, etc.
-  } = $props();
+    let {
+        label = "",
+        variant = "primary", // primary | secondary | ghost | danger | glass
+        size = "md", // sm | md
+        className = "", // Allow local overrides (use className="..." when calling)
+        children = null, // For icons/complex content
+        ...restProps // Pass through onclick, disabled, etc.
+    } = $props()
 
-  let element;
+    let element
 
-  export function focus() {
-    element?.focus();
-  }
+    export function focus() {
+        element?.focus()
+    }
 </script>
 
 <button
-  bind:this={element}
-  class="btn btn-{variant} {size === 'sm' ? 'btn-sm' : ''} {className}"
-  {...restProps}
+    bind:this={element}
+    class="btn btn-{variant} {size === 'sm' ? 'btn-sm' : ''} {className}"
+    {...restProps}
 >
-  {#if children}
-    {@render children()}
-  {:else}
-    {label}
-  {/if}
+    {#if children}
+        {@render children()}
+    {:else}
+        {label}
+    {/if}
 </button>
 
 <style lang="scss">
-  /* 
+    /* 
      STRICT RULE: No local styles here. 
      All standard button styles live in src/mesmer/scss/components/_buttons.scss 
      This ensures a single source of truth for the design system.

@@ -1,4 +1,5 @@
 <script>
+    import Button from "../../artificer/Button.svelte"
     let { char = $bindable(), isEditing } = $props()
 
     function formatTimestamp(ts) {
@@ -56,17 +57,39 @@
                 char.customData.plot.resolved.filter((_, i) => i !== index)
         }
     }
+
+    function autoResize(node) {
+        let frame
+        const update = () => {
+            if (frame) cancelAnimationFrame(frame)
+            frame = requestAnimationFrame(() => {
+                node.style.height = "auto"
+                node.style.height = node.scrollHeight + "px"
+            })
+        }
+        node.addEventListener("input", update)
+        const observer = new ResizeObserver(update)
+        observer.observe(node)
+        update()
+        return {
+            destroy() {
+                if (frame) cancelAnimationFrame(frame)
+                node.removeEventListener("input", update)
+                observer.disconnect()
+            },
+        }
+    }
 </script>
 
 <div class="dev-wing-content">
     <!-- 1. Dynamics Console -->
-    <div class="section dynamics-section">
-        {#if isEditing}
-            <div class="dynamics-grid">
-                {#each dynamicsList as trait (trait.key)}
-                    <div class="dynamic-box">
-                        <span class="label">{trait.label}</span>
-                        <div class="value-container edit">
+    <div class="group dynamics-group">
+        <div class="dynamics-grid">
+            {#each dynamicsList as trait (trait.key)}
+                <div class="dynamic-box" class:is-editing={isEditing}>
+                    <span class="trait-label">{trait.label}</span>
+                    <div class="value-container">
+                        {#if isEditing}
                             <input
                                 type="number"
                                 bind:value={char.dynamics[trait.key]}
@@ -95,145 +118,147 @@
                                     ▼
                                 </button>
                             </div>
-                        </div>
-                    </div>
-                {/each}
-            </div>
-        {:else}
-            <div class="dynamics-grid">
-                {#each dynamicsList as trait (trait.key)}
-                    <div class="dynamic-box">
-                        <span class="label">{trait.label}</span>
-                        <div class="value-container readonly">
+                        {:else}
                             <span class="value"
                                 >{char.dynamics[trait.key]}%</span
                             >
-                        </div>
+                        {/if}
                     </div>
-                {/each}
-            </div>
-        {/if}
+                </div>
+            {/each}
+        </div>
     </div>
 
     <!-- 2. Plot Tracker -->
-    <div class="section plot-section">
-        {#if isEditing}
-            <div class="plot-editor">
-                <div class="add-thread">
-                    <input
-                        type="text"
-                        placeholder="New plot..."
+    <div class="group plot-group">
+        <div class="prompt-box plot-explorer">
+            {#if isEditing}
+                <div class="add-thread-row">
+                    <textarea
+                        use:autoResize
+                        placeholder="New plot thread..."
                         class="new-plot-input"
                         bind:value={newPlotThread}
-                        onkeydown={(e) => e.key === "Enter" && addPlot()}
+                        onkeydown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                                e.preventDefault()
+                                addPlot()
+                            }
+                        }}
+                    ></textarea>
+                    <Button
+                        variant="primary"
+                        size="sm"
+                        label="Add"
+                        className="add-btn"
+                        onclick={addPlot}
+                        disabled={!newPlotThread.trim()}
                     />
-                    <button class="add-btn" onclick={addPlot}>Add</button>
                 </div>
+            {/if}
 
-                {#if activePlot.length > 0 || resolvedPlot.length > 0}
-                    <div class="plot-list">
-                        {#each activePlot as point, i (point)}
-                            <div class="plot-edit-item">
-                                <span class="text">{point}</span>
-                                <div class="actions">
-                                    <button
-                                        class="resolve-btn"
-                                        onclick={() => resolvePlot(i)}
-                                        title="Resolve"
-                                    >
-                                        ✓
-                                    </button>
-                                    <button
-                                        class="remove-btn"
-                                        onclick={() => removePlot("active", i)}
-                                        title="Delete"
-                                    >
-                                        ×
-                                    </button>
-                                </div>
+            <div
+                class="plot-list"
+                class:has-items={activePlot.length > 0 ||
+                    resolvedPlot.length > 0}
+            >
+                {#each activePlot as point, i (point)}
+                    <div class="plot-item active">
+                        <span class="text">{point}</span>
+                        {#if isEditing}
+                            <div class="actions">
+                                <button
+                                    class="action-btn resolve"
+                                    onclick={() => resolvePlot(i)}
+                                    title="Resolve"
+                                >
+                                    ✓
+                                </button>
+                                <button
+                                    class="action-btn remove"
+                                    onclick={() => removePlot("active", i)}
+                                    title="Delete"
+                                >
+                                    ×
+                                </button>
                             </div>
-                        {/each}
-
-                        {#each resolvedPlot as point, i (point)}
-                            <div class="plot-edit-item resolved">
-                                <span class="text">{point}</span>
-                                <div class="actions">
-                                    <button
-                                        class="remove-btn"
-                                        onclick={() =>
-                                            removePlot("resolved", i)}
-                                        title="Delete"
-                                    >
-                                        ×
-                                    </button>
-                                </div>
-                            </div>
-                        {/each}
+                        {/if}
                     </div>
-                {:else}
-                    <div class="empty-plots">No active plots</div>
+                {/each}
+
+                {#each resolvedPlot as point, i (point)}
+                    <div class="plot-item resolved">
+                        <span class="text">{point}</span>
+                        {#if isEditing}
+                            <div class="actions">
+                                <button
+                                    class="action-btn remove"
+                                    onclick={() => removePlot("resolved", i)}
+                                    title="Delete"
+                                >
+                                    ×
+                                </button>
+                            </div>
+                        {/if}
+                    </div>
+                {/each}
+
+                {#if activePlot.length === 0 && resolvedPlot.length === 0}
+                    <div class="empty-state">No active narrative threads</div>
                 {/if}
             </div>
-        {:else if activePlot.length > 0 || resolvedPlot.length > 0}
-            <div class="plot-tracker-view">
-                {#each activePlot as point (point)}
-                    <div class="plot-view-item active">
-                        <span class="text">{point}</span>
-                    </div>
-                {/each}
-                {#each resolvedPlot as point (point)}
-                    <div class="plot-view-item resolved">
-                        <span class="text">{point}</span>
-                    </div>
-                {/each}
-            </div>
-        {:else}
-            <div class="empty-plots">No active plots</div>
-        {/if}
+        </div>
     </div>
 
-    <!-- 2. System Control (Simulation mode is already minimalist) -->
+    <!-- 3. Simulation Context -->
     {#if char.type === "fractal"}
-        <div class="section">
-            <header>
-                <span class="title">Simulation</span>
-            </header>
+        <div class="group simulation-group">
             <div class="toggle-stack">
                 <label class="toggle-control">
-                    <span class="label">Active Engine</span>
-                    <input
-                        type="checkbox"
-                        checked={char.simulation?.mode === "ACTIVE"}
-                        onchange={(e) => {
-                            if (!char.simulation) char.simulation = {}
-                            char.simulation.mode = e.target.checked
-                                ? "ACTIVE"
-                                : "PASSIVE"
-                        }}
-                        disabled={!isEditing}
-                    />
-                    <div class="switch"></div>
+                    <span class="label">Recursive Engine</span>
+                    <div class="input-wrapper">
+                        <input
+                            type="checkbox"
+                            checked={char.simulation?.mode === "ACTIVE"}
+                            onchange={(e) => {
+                                if (!char.simulation) char.simulation = {}
+                                const target = e.target
+                                if (target instanceof HTMLInputElement) {
+                                    char.simulation.mode = target.checked
+                                        ? "ACTIVE"
+                                        : "PASSIVE"
+                                }
+                            }}
+                            disabled={!isEditing}
+                        />
+                        <div class="switch"></div>
+                    </div>
                 </label>
             </div>
         </div>
     {/if}
 
-    <!-- 3. Raw Data Explorer -->
-    <div class="section raw-explorer">
-        <details>
-            <summary>Raw Data</summary>
-            <pre>{JSON.stringify(char, null, 2)}</pre>
-        </details>
-    </div>
+    <!-- 4. Metadata & Raw -->
+    <div class="group meta-group">
+        <div class="raw-explorer">
+            <details>
+                <summary>System Manifest</summary>
+                <div class="json-wrap">
+                    <pre>{JSON.stringify(char, null, 2)}</pre>
+                </div>
+            </details>
+        </div>
 
-    <!-- 4. Timestamps -->
-    <div class="section footer-meta">
-        <div class="meta-item">
-            <span class="label">Built {formatTimestamp(char.createdAt)}</span>
-        </div>
-        <div class="meta-item">
-            <span class="label">Echoed {formatTimestamp(char.updatedAt)}</span>
-        </div>
+        <footer class="footer-meta">
+            <div class="meta-item">
+                <span class="tag">Created</span>
+                <span class="val">{formatTimestamp(char.createdAt)}</span>
+            </div>
+            <div class="meta-item">
+                <span class="tag">Updated</span>
+                <span class="val">{formatTimestamp(char.updatedAt)}</span>
+            </div>
+        </footer>
     </div>
 </div>
 
@@ -247,11 +272,13 @@
         flex-direction: column;
         gap: var(--spacing-lg);
         color: white;
-        background: radial-gradient(
-            circle at top left,
-            rgba(255, 255, 255, 0.04) 0%,
-            transparent 70%
-        );
+        border-radius: inherit;
+        background: var(--app-background)
+            radial-gradient(
+                circle at top left,
+                rgba(255, 255, 255, 0.05) 10%,
+                transparent 70%
+            );
         height: 100%;
         overflow-y: auto;
 
@@ -264,345 +291,388 @@
         }
     }
 
-    .section {
+    .group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    /* 1. Dynamics */
+    .dynamics-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-sm);
+
+        .dynamic-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--ui-glass-border);
+            border-radius: var(--spacing-xs);
+            padding: var(--spacing-sm);
+            display: flex;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            transition: all 0.2s;
+            min-height: 40px;
+
+            &.is-editing:hover {
+                background: rgba(255, 255, 255, 0.06);
+                border-color: rgba(255, 255, 255, 0.2);
+            }
+
+            .trait-label {
+                font-size: 0.6rem;
+                text-transform: uppercase;
+                color: var(--app-muted);
+                font-weight: 700;
+                letter-spacing: 0.05em;
+                opacity: 0.5;
+            }
+
+            .value-container {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                width: 100%;
+
+                .value {
+                    font-family: var(--font-mono);
+                    font-size: 1rem;
+                    font-weight: 700;
+                    color: var(--app-accent);
+                    opacity: 0.8;
+                }
+
+                input {
+                    width: 100%;
+                    background: transparent;
+                    border: none;
+                    color: white;
+                    font-family: var(--font-mono);
+                    font-size: 1rem;
+                    font-weight: 700;
+                    text-align: center;
+                    padding: 0;
+                    outline: none;
+                }
+
+                .step-controls {
+                    position: absolute;
+                    right: 4px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0;
+
+                    .step-btn {
+                        background: transparent;
+                        border: none;
+                        color: var(--app-muted);
+                        font-size: 0.4rem;
+                        padding: 0 4px;
+                        cursor: pointer;
+                        opacity: 0.3;
+                        &:hover {
+                            opacity: 1;
+                            color: var(--app-accent);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /* 2. Plot Explorer */
+    .plot-explorer {
+        border: 1px transparent;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        gap: 4px;
+        flex-direction: column;
+
+        .add-thread-row {
+            display: flex;
+            border: 1px transparent;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+
+            textarea {
+                flex: 1;
+                background: transparent;
+                border: none;
+                padding: var(--spacing-sm);
+                color: white;
+                font-size: 0.85rem; /* Matched VisualWing */
+                outline: none;
+                resize: none;
+                min-height: 40px;
+                font-family: var(--font-body); /* Enforce consistent font */
+                line-height: 1.5;
+                font-weight: 500;
+                width: 70%;
+
+                &::placeholder {
+                    color: rgba(255, 255, 255, 0.3);
+                    font-size: 0.85rem;
+                    font-style: italic;
+                    font-weight: 400;
+                }
+            }
+
+            :global(.btn) {
+                width: auto;
+                border: 1px transparent;
+                border-radius: 0;
+                background: rgba(255, 255, 255, 0.03);
+                font-size: 0.6rem;
+                font-weight: 800;
+                text-transform: uppercase;
+                min-width: 70px;
+                color: var(--app-muted);
+                transition: all 0.3s ease;
+                padding: 0 1.2rem;
+
+                &:hover:not(:disabled) {
+                    background: rgba(255, 255, 255, 0.1);
+                    color: white;
+                }
+
+                &:global(.active-action) {
+                    background: color-mix(
+                        in oklab,
+                        var(--app-accent) 15%,
+                        transparent
+                    );
+                    color: var(--app-accent);
+
+                    &:hover:not(:disabled) {
+                        background: color-mix(
+                            in oklab,
+                            var(--app-accent) 25%,
+                            transparent
+                        );
+                        color: white;
+                    }
+                }
+
+                &:disabled {
+                    cursor: not-allowed;
+                }
+            }
+        }
+
+        .plot-list {
+            display: flex;
+            flex-direction: column;
+            max-height: 250px;
+            overflow-y: auto;
+            gap: 4px;
+
+            &.has-items {
+                padding: 4px 0;
+            }
+
+            .plot-item {
+                display: flex;
+                align-items: center; /* Center align items */
+                gap: var(--spacing-sm);
+                padding: 10px var(--spacing-md);
+                padding-right: 36px;
+                margin-bottom: 2px;
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px transparent;
+                border-radius: var(--border-radius);
+                transition: all 0.2s ease;
+                position: relative;
+
+                &:hover {
+                    border: 1px transparent;
+                }
+
+                .text {
+                    flex: 1;
+                    font-size: 0.8rem;
+                    color: rgba(255, 255, 255, 0.9);
+                    line-height: 1.4;
+                    font-weight: 500;
+                }
+
+                &.resolved {
+                    opacity: 0.5;
+                    background: rgba(255, 255, 255, 0.03);
+                    border-color: transparent;
+
+                    .text {
+                        text-decoration: line-through;
+                        color: var(--app-muted);
+                    }
+                }
+
+                .actions {
+                    position: absolute;
+                    right: 8px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    display: flex;
+                    flex-direction: column; /* Stack icons vertically */
+                    gap: 4px;
+
+                    .action-btn {
+                        background: transparent;
+                        border: none;
+                        color: var(--app-muted);
+                        cursor: pointer;
+                        font-size: 0.7rem;
+                        width: 20px;
+                        height: 20px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        opacity: 0.6;
+                        transition: all 0.2s;
+                        border-radius: 4px;
+
+                        &:hover {
+                            opacity: 1;
+                            background: rgba(255, 255, 255, 0.1);
+                        }
+                        &.resolve:hover {
+                            color: var(--app-success);
+                            background: transparent;
+                        }
+                        &.remove:hover {
+                            color: var(--app-del); /* Red X */
+                            background: transparent;
+                        }
+                    }
+                }
+            }
+
+            .empty-state {
+                padding: var(--spacing-lg);
+                text-align: center;
+                font-size: 0.65rem;
+                text-transform: uppercase;
+                color: var(--app-muted);
+                opacity: 0.4;
+                font-style: italic;
+            }
+        }
+    }
+
+    /* 3. Simulation */
+    .toggle-stack {
         display: flex;
         flex-direction: column;
         gap: var(--spacing-sm);
 
-        header {
+        .toggle-control {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            padding-bottom: 4px;
+            justify-content: space-between;
+            gap: 12px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 4px 0;
 
-            .title {
-                font-size: 0.65rem;
-                font-weight: 900;
-                text-transform: uppercase;
-                letter-spacing: 0.1em;
-                color: var(--app-muted);
-                opacity: 0.5;
+            .switch {
+                position: relative;
+                width: 32px;
+                height: 16px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 20px;
+                transition: all 0.3s;
+
+                &::after {
+                    content: "";
+                    position: absolute;
+                    width: 12px;
+                    height: 12px;
+                    background: white;
+                    border-radius: 50%;
+                    top: 2px;
+                    left: 2px;
+                    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+                }
+            }
+
+            input {
+                display: none;
+                &:checked + .switch {
+                    background: var(--app-accent);
+                    &::after {
+                        left: 18px;
+                    }
+                }
+            }
+
+            &:hover .switch {
+                background: rgba(255, 255, 255, 0.2);
             }
         }
     }
 
-    .dynamics-section {
-        .dynamics-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: var(--spacing-sm);
-
-            .dynamic-box {
-                background: rgba(255, 255, 255, 0.03);
-                border: 1px solid rgba(255, 255, 255, 0.05);
-                border-radius: 4px;
-                padding: var(--spacing-sm);
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 4px;
-
-                .label {
-                    font-size: 0.6rem;
-                    text-transform: uppercase;
-                    color: var(--app-muted);
-                    font-weight: 700;
-                    letter-spacing: 0.05em;
-                    opacity: 0.5;
-                }
-
-                .value-container {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: var(--spacing-sm);
-
-                    .value {
-                        font-family: var(--font-mono);
-                        font-size: 1rem;
-                        font-weight: 700;
-                        color: var(--app-accent);
-                        opacity: 0.5;
-                        transition: opacity 0.2s;
-                    }
-
-                    &:hover .value,
-                    &:focus-within .value {
-                        opacity: 1;
-                        color: white;
-                    }
-
-                    &.edit {
-                        position: relative;
-                        padding-right: 12px;
-
-                        .step-controls {
-                            position: absolute;
-                            right: 0;
-                            top: 52%;
-                            transform: translateY(-50%);
-                            display: flex;
-                            flex-direction: column;
-                            gap: 0;
-
-                            .step-btn {
-                                background: transparent;
-                                border: none;
-                                color: var(--app-muted);
-                                font-size: 0.45rem;
-                                line-height: 1.2;
-                                padding: 1px 4px;
-                                cursor: pointer;
-                                opacity: 0.2;
-                                transition: all 0.2s;
-
-                                &:hover {
-                                    opacity: 0.8;
-                                    color: var(--app-accent);
-                                }
-                            }
-                        }
-                    }
-
-                    &.readonly {
-                        padding-right: 0;
-                        .value {
-                            opacity: 0.5;
-                        }
-                    }
-
-                    input {
-                        width: 100%;
-                        background: transparent;
-                        border: none;
-                        color: var(--app-accent);
-                        font-family: var(--font-mono);
-                        font-size: 1rem;
-                        font-weight: 700;
-                        text-align: center;
-                        padding: 0;
-                        outline: none;
-                        opacity: 0.6;
-                        transition: opacity 0.2s;
-
-                        &:focus {
-                            opacity: 1;
-                            color: white;
-                        }
-
-                        /* Hide spinners */
-                        &::-webkit-outer-spin-button,
-                        &::-webkit-inner-spin-button {
-                            appearance: none;
-                            margin: 0;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    .plot-section {
-        .plot-editor {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-
-            .plot-list {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-            }
-
-            .add-thread {
-                display: flex;
-                gap: 4px;
-                width: 100%;
-                background: rgba(255, 255, 255, 0.03);
-                border: 1px solid rgba(255, 255, 255, 0.05);
-                border-radius: 4px;
-                padding: 0;
-                min-height: 42px;
-                overflow: hidden;
-
-                &:focus-within {
-                    border-color: var(--app-accent);
-                    background: rgba(var(--app-accent-rgb), 0.05);
-                }
-
-                input {
-                    flex: 1;
-                    min-width: 0;
-                    background: transparent;
-                    border: none;
-                    padding: var(--spacing-sm) var(--spacing-md);
-                    color: white;
-                    font-size: 0.75rem;
-                    outline: none;
-
-                    &::placeholder {
-                        color: rgba(255, 255, 255, 0.2);
-                        text-transform: uppercase;
-                        font-size: 0.65rem;
-                        letter-spacing: 0.05em;
-                        font-style: italic;
-                    }
-                }
-
-                .add-btn {
-                    background: rgba(255, 255, 255, 0.02);
-                    color: var(--app-muted);
-                    border: none;
-                    border-left: 1px solid rgba(255, 255, 255, 0.05);
-                    padding: 0 var(--spacing-lg);
-                    font-weight: 700;
-                    font-size: 0.65rem;
-                    text-transform: uppercase;
-                    cursor: pointer;
-                    white-space: nowrap;
-                    transition: all 0.2s;
-
-                    &:hover {
-                        color: var(--app-accent);
-                        background: rgba(var(--app-accent-rgb), 0.1);
-                    }
-                }
-            }
-        }
-
-        .plot-edit-item,
-        .plot-view-item {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
-            padding: var(--spacing-sm) var(--spacing-md);
-            display: flex;
-            align-items: flex-start;
-            gap: var(--spacing-sm);
-            min-height: 42px;
-
-            .text {
-                flex: 1;
-                font-size: 0.75rem;
-                color: rgba(255, 255, 255, 0.8);
-                line-height: 1.4;
-                padding-top: 2px;
-                text-align: left;
-            }
-
-            &.resolved {
-                opacity: 0.4;
-                .text {
-                    text-decoration: line-through;
-                }
-            }
-        }
-
-        .plot-edit-item {
-            padding-right: 32px;
-            position: relative;
-
-            .actions {
-                position: absolute;
-                right: 8px;
-                top: 50%;
-                transform: translateY(-50%);
-                display: flex;
-                flex-direction: column;
-                gap: 2px;
-            }
-
-            button {
-                background: transparent;
-                border: none;
-                cursor: pointer;
-                font-size: 0.7rem;
-                opacity: 0.2;
-                transition: all 0.2s;
-                color: white;
-                width: 20px;
-                height: 18px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-
-                &:hover {
-                    opacity: 1;
-                }
-
-                &.resolve-btn:hover {
-                    color: #00ff00;
-                    filter: drop-shadow(0 0 5px #00ff00);
-                }
-
-                &.remove-btn:hover {
-                    color: #ff0000;
-                    filter: drop-shadow(0 0 5px #ff0000);
-                }
-            }
-        }
-
-        .empty-plots {
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            color: var(--app-muted);
-            text-align: center;
-            opacity: 0.5;
-            padding: var(--spacing-sm);
-        }
-
-        .plot-tracker-view {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-    }
-
+    /* 4. Meta & Raw */
     .raw-explorer {
-        details {
-            summary {
-                font-size: 0.55rem;
-                font-weight: 800;
-                color: var(--app-muted);
-                text-transform: uppercase;
-                cursor: pointer;
-                opacity: 0.3;
-                text-align: left;
-                width: 100%;
-                &:hover {
-                    opacity: 0.8;
-                    color: white;
-                }
+        summary {
+            font-size: 0.6rem;
+            font-weight: 800;
+            color: var(--app-muted);
+            text-transform: uppercase;
+            cursor: pointer;
+            opacity: 0.4;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+            &:hover {
+                opacity: 0.8;
+                color: white;
             }
+        }
+
+        .json-wrap {
+            margin-top: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--ui-glass-border);
+            border-radius: var(--spacing-xs);
+            padding: var(--spacing-xs);
+            max-height: 150px;
+            overflow: auto;
 
             pre {
-                margin-top: 4px;
-                background: rgba(0, 0, 0, 0.2);
-                padding: var(--spacing-xs);
-                border-radius: 4px;
                 font-size: 0.55rem;
-                max-height: 8rem;
-                overflow: auto;
-                color: rgba(255, 255, 255, 0.2);
+                color: rgba(255, 255, 255, 0.3);
                 font-family: var(--font-mono);
-
-                &::-webkit-scrollbar {
-                    width: 2px;
-                }
+                margin: 0;
             }
         }
     }
 
     .footer-meta {
         margin-top: auto;
-        opacity: 0.2;
-        font-size: 0.5rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
         display: flex;
         flex-direction: column;
-        gap: 2px;
-        text-align: left;
+        gap: 4px;
+
+        .meta-item {
+            display: flex;
+            justify-content: flex-start;
+            gap: 8px;
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+
+            .tag {
+                color: var(--app-muted);
+                opacity: 0.4;
+                font-weight: 900;
+            }
+            .val {
+                color: rgba(255, 255, 255, 0.2);
+            }
+        }
     }
 </style>

@@ -31,10 +31,16 @@
                     )
                     let maxHeight = 0
                     siblings.forEach((s) => {
-                        s.style.height = "auto"
-                        maxHeight = Math.max(maxHeight, s.scrollHeight)
+                        if (s instanceof HTMLElement) {
+                            s.style.height = "auto"
+                            maxHeight = Math.max(maxHeight, s.scrollHeight)
+                        }
                     })
-                    siblings.forEach((s) => (s.style.height = maxHeight + "px"))
+                    siblings.forEach((s) => {
+                        if (s instanceof HTMLElement) {
+                            s.style.height = maxHeight + "px"
+                        }
+                    })
                 }
             })
         }
@@ -157,6 +163,26 @@
         target[last] = val
     }
 
+    // Resets active field when focus leaves interactive elements
+    function handleFocusOut(e) {
+        // We wait a tick to see where focus landed (e.g. clicking the 'Enhance' button)
+        setTimeout(() => {
+            const active = document.activeElement
+            const isInput =
+                active instanceof HTMLInputElement ||
+                active instanceof HTMLTextAreaElement ||
+                (active instanceof HTMLElement &&
+                    active.contentEditable === "true")
+            const isWing = active?.closest(".wing-left, .wing-right")
+
+            // If we are definitely not focused on an input or a wing, reset the label
+            // unless we are busy processing something (we don't want to lose context mid-ai call)
+            if (!isInput && !isWing && !busyField) {
+                activeField = { key: "visual-prompt", label: "Image Prompt" }
+            }
+        }, 50)
+    }
+
     // Handles clicking on the dossier background to reset focus/exit edit/close modal
     function handleBackgroundClick(e) {
         // If clicking something that is definitely NOT interactive dossier space
@@ -189,6 +215,7 @@
             class:dev-mode={app.settings.devMode}
             class:show-dev-wing={app.settings.devMode}
             onclick={handleBackgroundClick}
+            onfocusout={handleFocusOut}
             role="presentation"
         >
             <aside class="wing-left">

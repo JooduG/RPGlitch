@@ -163,7 +163,6 @@
             {#each Object.entries(PALETTE).filter(([name]) => name !== "default") as [name, hex] (name)}
                 <button
                     class="swatch"
-                    title={name}
                     class:active={char.visuals?.signatureColor === hex}
                     style="background-color: {hex}"
                     onclick={() => {
@@ -204,16 +203,11 @@
                         : isEnhanceMode
                           ? "Enhance"
                           : "Extract"}
-                    className={isEnhanceMode
-                        ? "high-fidelity-enhance"
-                        : "base-extract"}
+                    className={isEnhanceMode || hasPromptText
+                        ? "active-action"
+                        : ""}
                     onclick={handleCreativeAction}
                     disabled={!isEditing || busyField}
-                    title={isEnhanceMode
-                        ? enhancementType === "generative"
-                            ? "Optimize prompt for AI"
-                            : `Optimize ${activeField?.label}`
-                        : "Extract Base Prompt"}
                 />
                 <Button
                     variant="ghost"
@@ -223,11 +217,9 @@
                         : hasPromptText
                           ? "Generate"
                           : "Upload"}
+                    className={hasPromptText ? "active-action" : ""}
                     onclick={handleGenerationAction}
                     disabled={!isEditing || busyField}
-                    title={hasPromptText
-                        ? "Generate image from prompt"
-                        : "Upload local image"}
                 />
             </div>
 
@@ -295,8 +287,8 @@
         grid-template-columns: repeat(5, 1fr);
         gap: 8px;
         padding: 0;
-
         .swatch {
+            width: 100%;
             aspect-ratio: 1;
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: var(--spacing-xs);
@@ -335,6 +327,7 @@
             color: white;
             padding: var(--spacing-sm);
             font-size: 0.85rem;
+            font-family: var(--font-body); /* Enforce consistent font */
             resize: none;
             outline: none;
 
@@ -356,12 +349,14 @@
             border-top: 1px solid var(--ui-glass-border);
 
             :global(.btn) {
+                width: 100%;
                 border: none !important;
                 border-radius: 0 !important;
                 background: rgba(255, 255, 255, 0.03) !important;
                 font-size: 0.6rem !important;
                 padding: 0.4rem !important;
                 transition: all 0.3s ease !important;
+                text-transform: capitalize;
 
                 &:not(:last-child) {
                     border-right: 1px solid var(--ui-glass-border) !important;
@@ -371,49 +366,25 @@
                     background: rgba(255, 255, 255, 0.08) !important;
                 }
 
-                &:global(.base-extract) {
-                    color: rgba(255, 255, 255, 0.45) !important;
-                    &:hover:not(:disabled) {
-                        color: white !important;
-                        background: rgba(255, 255, 255, 0.08) !important;
-                    }
-                }
-
-                &:global(.high-fidelity-enhance) {
+                &:global(.active-action) {
                     background: color-mix(
                         in oklab,
                         var(--app-accent) 15%,
                         transparent
                     ) !important;
                     color: var(--app-accent) !important;
-                    box-shadow: inset 0 0 15px
-                        color-mix(in oklab, var(--app-accent) 25%, transparent);
-                    font-weight: 900;
-                    letter-spacing: 0.05em;
-                    animation: pulse-fidelity 2s infinite ease-in-out;
+                    font-weight: 700;
 
-                    &:hover {
+                    &:hover:not(:disabled) {
                         background: color-mix(
                             in oklab,
                             var(--app-accent) 25%,
                             transparent
                         ) !important;
-                        filter: brightness(1.2);
+                        color: white !important;
                     }
                 }
             }
-        }
-    }
-
-    @keyframes pulse-fidelity {
-        0%,
-        100% {
-            opacity: 1;
-            filter: brightness(1);
-        }
-        50% {
-            opacity: 0.8;
-            filter: brightness(1.3);
         }
     }
 
@@ -430,10 +401,11 @@
             cursor: pointer;
             font-size: 0.75rem;
             font-weight: 800;
-            text-transform: uppercase;
+            text-transform: capitalize;
             letter-spacing: 0.05em;
             color: var(--app-muted);
-            transition: color 0.2s ease;
+            opacity: 0.6; /* Hierarchy fix: Dim labels like DevWing */
+            transition: all 0.2s ease;
 
             &:hover {
                 color: white;

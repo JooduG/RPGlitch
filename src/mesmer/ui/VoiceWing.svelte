@@ -153,10 +153,12 @@
         display: flex;
         gap: var(--spacing-xs);
         width: 100%;
+        position: relative;
+        margin-bottom: -15px; /* Tighten gap to sliders */
 
         .dropdown {
             flex: 1;
-            position: relative;
+            /* Removed position: relative */
 
             .voice-btn {
                 width: 100%;
@@ -216,7 +218,7 @@
         position: absolute;
         bottom: 100%;
         left: 0;
-        width: 100%;
+        width: 100%; /* Spans full .voice-control-row width now */
         background: var(--app-background);
         border: 1px solid var(--ui-glass-border);
         border-radius: var(--border-radius);
@@ -226,7 +228,8 @@
         box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
 
         &.visible {
-            display: block;
+            display: flex;
+            flex-direction: column;
         }
     }
 
@@ -283,17 +286,14 @@
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: var(--spacing-md);
-        margin-top: 2px; /* Ultra-tightened from 4px */
+        margin-top: 4px; /* Ultra-tightened from 4px */
         width: 100%;
 
         .slider-group {
             display: flex;
             align-items: center;
             gap: 10px;
-            background: rgba(255, 255, 255, 0.03);
-            padding: 2px 10px;
             border-radius: var(--spacing-xs);
-            border: 1px solid rgba(255, 255, 255, 0.05);
             overflow: visible;
             position: relative;
             display: flex;
