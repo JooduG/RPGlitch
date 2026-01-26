@@ -21,6 +21,9 @@ export class AppStore {
         type: null, // 'ai' | 'user' | 'fractal'
     })
 
+    // 📖 NARRATIVE CONFIG
+    prologue = $state("") // User directions for the start
+
     // 🧬 SIMULATION STATE (The Heartbeat)
     simulation = $state({
         loading: false, // STASIS: True when Chrono is processing

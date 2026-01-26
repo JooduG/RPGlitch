@@ -37,7 +37,7 @@ While these patterns are general, they map directly to our project's architectur
 - **Interface Adapters**: Controllers, presenters, gateways
 - **Frameworks & Drivers**: UI, database, external services
 
-See implementation examples in the **[Tech Nexus](../../knowledge/nexus/tech/perchance/architecture-patterns.md)**.
+See implementation examples in the **[Tech Nexus](../../../knowledge/nexus/tech/perchance/architecture-patterns.md)**.
 
 ### 2. Hexagonal Architecture (Ports and Adapters)
 
@@ -69,7 +69,7 @@ See the **[Product Vision](../../../product.md)** for domain terminology.
 
 ## Resources
 
-- **[Architecture Nexus](../../knowledge/nexus/tech/perchance/architecture-patterns.md)**: Master patterns.
+- **[Architecture Nexus](../../../knowledge/nexus/tech/perchance/architecture-patterns.md)**: Master patterns.
 - **[02-architecture](../../../rules/02-architecture.md)**: Core pillars.
 
 ## Best Practices

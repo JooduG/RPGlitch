@@ -1,19 +1,8 @@
----
-name: tech-research
-description: Triggers when unsure about syntax, API versions, or library capabilities. Orchestrates Context7, DeepWiki, and Svelte documentation (L3.5).
----
+# 🔎 Research Protocols
 
-# 🔎 Skill: Tech Research
+Protocols for verifying technical information against ground-truth sources (External Knowledge).
 
-> **The Librarian:** A unified interface for verifying technical information against ground-truth sources.
-
-## 1. When to Use
-
-- **Trigger:** When you are unsure about syntax, API changes, or library features.
-- **Protocol Trigger:** Activated by `reasoning-protocol` (L3.5 Discovery) or `decision-framework` (Verification).
-- **Goal:** Retrieve authoritative, up-to-date documentation to prevent hallucinations.
-
-## 2. The Research Router
+## 1. The Research Router
 
 Select the correct tool based on your query type:
 
@@ -24,7 +13,7 @@ Select the correct tool based on your query type:
 | **General Libraries**     | `mcp_context7_resolve_library_id` -> `mcp_context7_query_docs`          | Best for general frameworks (React, Next.js, Prisma, Zod) where verified docs are needed.              |
 | **Code Examples**         | `mcp_github_search_code`                                                | Best for seeing _how_ a library is used in the wild (finding patterns).                                |
 
-## 3. The Protocol
+## 2. The Standard Protocol
 
 ### Step 1: Identify the Information Gap
 
@@ -41,7 +30,7 @@ Select the correct tool based on your query type:
 2. **Verify**: Does this match your internal knowledge? if NO, updated your mental model.
 3. **Report**: Summarize the findings in your implementation plan or conversation.
 
-## 4. Troubleshooting
+## 3. Troubleshooting
 
 - **Context7:** If `resolve_library_id` fails, fallback to `mcp_github_search_repositories` to find the repo, then use `DeepWiki`.
 - **Svelte:** If `get_documentation` is too large, use `list_sections` to narrow down the scope first.

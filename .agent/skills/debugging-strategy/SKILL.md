@@ -1,6 +1,6 @@
 ---
 name: debugging-strategy
-description: Triggers on `tools/tests/**` or when a 'bug', 'failure', or 'error' is detected. Enforces root-cause investigation before repair (L3).
+description: Triggers on `tools/tests/**` or when a 'bug', 'failure', 'error' is detected. Also triggers on intent to 'investigate', 'trace', or 'diagnose'. Enforces root-cause investigation before repair (L3).
 allowed-tools: Read, Write, Edit, Run
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: skill-forge
-description: The official factory for creating and validating new Agent Skills. Use this to extend the agent's capabilities while strictly adhering to Antigravity architecture.
+description: The Meta-Skill for Skill Management. Triggers when creating, editing, or auditing ANY .agent/skills/**. Enforces Antigravity architecture and validates skill compliance.
 license: MIT
 ---
 

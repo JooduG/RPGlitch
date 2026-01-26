@@ -1,11 +1,14 @@
 <script>
     import Button from "../../artificer/Button.svelte"
     import Modal from "../../artificer/Modal.svelte"
-    import Panel from "../../artificer/Panel.svelte"
+    import Toggle from "../../artificer/Toggle.svelte"
     import { app } from "../../gamemaster/state.svelte.js"
     import { db } from "../../scholar/database/db.js"
 
-    function handleAction(action) {}
+    function handleAction(action) {
+        console.log(`[ControlPanel] Action triggered: ${action}`)
+        app.log(`Control Panel: ${action}`, "system")
+    }
     async function handleReset() {
         if (confirm("This will wash away all memories. Are you sure?")) {
             await db.delete()
@@ -13,148 +16,368 @@
             window.location.reload()
         }
     }
+
+    function toggleView() {
+        app.view = app.view === "game" ? "lobby" : "game"
+    }
 </script>
 
 <Modal variant="transparent" onclose={() => app.toggleControlPanel()}>
-    <div class="header">
-        <h2>Weaving</h2>
-        <Button
-            class="close"
-            variant="ghost"
-            onclick={() => app.toggleControlPanel()}
-            aria-label="Close"
-        >
-            ×
-        </Button>
+    <div class="control-frame">
+        <!-- 1. THE DASHBOARD (Fixed Header) -->
+        <div class="frame-header">
+            <div class="header-toggles">
+                <Toggle
+                    label="Call Mode"
+                    size="sm"
+                    bind:value={app.settings.callMode}
+                    onchange={app.saveSettings}
+                />
+                <Toggle
+                    label="Notifications"
+                    size="sm"
+                    bind:value={app.settings.sound}
+                    onchange={app.saveSettings}
+                />
+            </div>
+            <div class="header-line"></div>
+        </div>
+
+        <!-- 2. THE SCREEN (Dynamic Core) -->
+        <div class="frame-body">
+            {#if app.view === "game"}
+                <!-- GAME MODE (Storymode) -->
+                <div class="mode-game">
+                    <div class="game-toggles">
+                        <Toggle
+                            label="Stream Text"
+                            size="sm"
+                            bind:value={app.settings.streamText}
+                            onchange={app.saveSettings}
+                        />
+                        <Toggle
+                            label="Auto-Scroll"
+                            size="sm"
+                            bind:value={app.settings.autoScroll}
+                            onchange={app.saveSettings}
+                        />
+                    </div>
+
+                    <div class="action-grid">
+                        <Button
+                            label="Ghostwrite"
+                            variant="primary-glow"
+                            class="action-btn"
+                            onclick={() => handleAction("Ghostwrite")}
+                        />
+                        <Button
+                            label="Photo"
+                            variant="secondary"
+                            class="action-btn"
+                            onclick={() => handleAction("RequestPhoto")}
+                        />
+                        <Button
+                            label="Vis"
+                            variant="secondary"
+                            class="action-btn"
+                            onclick={() => handleAction("RequestVis")}
+                        />
+                    </div>
+
+                    <div class="danger-zone">
+                        <Button
+                            label="End Story"
+                            variant="danger-ghost"
+                            size="sm"
+                            onclick={() => handleAction("EndStory")}
+                            class="full-width"
+                        />
+                    </div>
+                </div>
+            {:else}
+                <!-- LOBBY MODE (Storyboard) -->
+                <div class="mode-lobby">
+                    <span class="input-label">Mission Briefing</span>
+                    <textarea
+                        class="prologue-input"
+                        placeholder="Setup instructions (e.g. 'Start in a rainy alleyway...')"
+                        bind:value={app.prologue}
+                        rows="3"
+                    ></textarea>
+                </div>
+            {/if}
+        </div>
+
+        <!-- 3. THE CONSOLE (Fixed Footer) -->
+        <div class="frame-footer">
+            <div class="footer-line"></div>
+
+            <div class="library-section">
+                <Button
+                    label="Memory Archive"
+                    variant="ghost"
+                    size="md"
+                    class="full-width library-btn"
+                    onclick={() => handleAction("OpenLibrary")}
+                />
+            </div>
+
+            <div class="meta-links">
+                <Toggle
+                    label="Dev"
+                    size="sm"
+                    bind:value={app.settings.devMode}
+                    onchange={app.saveSettings}
+                />
+                <button class="text-link danger" onclick={handleReset}
+                    >Reset Data</button
+                >
+            </div>
+        </div>
+
+        <!-- DEBUG SCENE SWITCHER -->
+        <button class="debug-switcher" onclick={toggleView} title="Swap View">
+            ⇄
+        </button>
     </div>
-
-    <Panel title="Settings">
-        <div class="row">
-            <span class="label">Sound Effects</span>
-            <Button
-                label={app.settings.sound ? "On" : "Off"}
-                variant={app.settings.sound ? "primary" : "secondary"}
-                onclick={app.toggleSound}
-            />
-        </div>
-        <div class="row">
-            <span class="label">Stream Text</span>
-            <Button
-                label={app.settings.streamText ? "Flow" : "Instant"}
-                variant={app.settings.streamText ? "primary" : "secondary"}
-                onclick={app.toggleStreamText}
-            />
-        </div>
-        <div class="row">
-            <span class="label">Auto-Scroll</span>
-            <Button
-                label={app.settings.autoScroll ? "Follow" : "Stay"}
-                variant={app.settings.autoScroll ? "primary" : "secondary"}
-                onclick={app.toggleAutoScroll}
-            />
-        </div>
-        <div class="row">
-            <span class="label">Director Mode</span>
-            <Button
-                label={app.settings.debugMode ? "Visible" : "Hidden"}
-                variant={app.settings.debugMode ? "primary" : "secondary"}
-                onclick={app.toggleDebugMode}
-            />
-        </div>
-    </Panel>
-
-    {#if app.view === "game"}
-        <Panel title="Director Actions">
-            <div class="grid">
-                <Button
-                    label="Ghostwrite"
-                    variant="primary"
-                    onclick={() => handleAction("Ghostwrite")}
-                />
-                <Button
-                    label="Request Photo"
-                    variant="secondary"
-                    onclick={() => handleAction("RequestPhoto")}
-                />
-            </div>
-            <div style="margin-top: 0.5rem">
-                <Button
-                    label="End Story"
-                    variant="danger"
-                    onclick={() => handleAction("EndStory")}
-                />
-            </div>
-        </Panel>
-    {/if}
-
-    <Panel title="System">
-        <div class="row">
-            <span class="label">Developer Mode</span>
-            <Button
-                label={app.settings.devMode ? "Active" : "Hidden"}
-                variant={app.settings.devMode ? "warden" : "secondary"}
-                onclick={app.toggleDevMode}
-            />
-        </div>
-        <div style="margin-top: 0.5rem">
-            <Button
-                label="Reset World"
-                variant="danger"
-                onclick={handleReset}
-            />
-        </div>
-    </Panel>
 </Modal>
 
 <style lang="scss">
-    .header {
+    .control-frame {
+        width: 24rem;
+        background: #0f1115; /* Deep cockpit black */
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 1.25rem;
+        box-shadow:
+            0 50px 100px -20px rgba(0, 0, 0, 0.8),
+            0 0 0 1px rgba(0, 0, 0, 0.5); /* Inner rim */
+        overflow: hidden;
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 0.5rem;
-        margin-bottom: 0.5rem;
+        flex-direction: column;
+        animation: scale-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
+    }
 
-        h2 {
-            font-family: var(--font-heading);
-            font-weight: normal;
-            font-size: 1.2rem;
-            color: #e4e4e7;
-            margin: 0;
-            font-style: italic;
+    /* --- HEADER --- */
+    .frame-header {
+        padding: 1.25rem 1.5rem 0 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background: linear-gradient(
+            to bottom,
+            rgba(255, 255, 255, 0.03),
+            transparent
+        );
+
+        .header-toggles {
+            display: flex;
+            justify-content: space-between;
         }
-        /* Use :global() to style the inner button element of the component */
-        :global(.close) {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: #71717a;
-            cursor: pointer;
-            transition: color 0.2s;
-            padding: 0 0.5rem; /* Adjust padding for button component */
-            line-height: 1;
-            min-width: auto; /* Override default button width if any of standard btn styles interfere */
-            &:hover {
-                color: #fff;
-                background: transparent; /* specific override for ghost hover */
+
+        .header-line {
+            height: 1px;
+            background: linear-gradient(
+                to right,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+            );
+            width: 100%;
+        }
+    }
+
+    /* --- BODY --- */
+    .frame-body {
+        padding: 1.5rem;
+        min-height: 14rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* Center content vertically */
+        position: relative;
+
+        /* Subtle scanline/grid effect background */
+        background-color: rgba(255, 255, 255, 0.005);
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0.03) 1px,
+                transparent 1px
+            );
+        background-size: 20px 20px;
+    }
+
+    /* GAME MODE STYLES */
+    .mode-game {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+
+        .game-toggles {
+            display: flex;
+            justify-content: space-between;
+            padding-bottom: 1rem;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.5rem;
+
+            :global(.action-btn) {
+                height: 3.5rem; /* Taller, more tactile buttons */
+            }
+        }
+
+        .danger-zone {
+            padding-top: 0.5rem;
+        }
+    }
+
+    /* LOBBY MODE STYLES */
+    .mode-lobby {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+
+        .input-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 700;
+        }
+
+        .prologue-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            color: #e4e4e7;
+            padding: 1rem;
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+            transition: all 0.2s;
+            height: 8rem;
+
+            &:focus {
+                background: rgba(0, 0, 0, 0.5);
+                border-color: rgba(255, 255, 255, 0.3);
+                box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+            }
+
+            &::placeholder {
+                color: rgba(255, 255, 255, 0.2);
+                font-style: italic;
             }
         }
     }
 
-    .row {
+    /* --- FOOTER --- */
+    .frame-footer {
+        padding: 0 1.5rem 1.25rem 1.5rem;
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.75rem;
-        .label {
-            font-size: 0.9rem;
-            color: #a1a1aa;
-            font-family: var(--font-body);
+        flex-direction: column;
+        gap: 1rem;
+
+        .footer-line {
+            height: 1px;
+            background: linear-gradient(
+                to right,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+            );
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .library-section {
+            :global(.library-btn) {
+                border-color: rgba(255, 255, 255, 0.15) !important;
+                background: rgba(255, 255, 255, 0.03) !important;
+
+                &:hover {
+                    background: rgba(255, 255, 255, 0.08) !important;
+                    border-color: rgba(255, 255, 255, 0.3) !important;
+                }
+            }
+        }
+
+        .meta-links {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            .text-link {
+                background: none;
+                border: none;
+                padding: 0;
+                font-size: 0.75rem;
+                opacity: 0.4;
+                cursor: pointer;
+                transition: opacity 0.2s;
+
+                &:hover {
+                    opacity: 1;
+                    text-decoration: underline;
+                }
+
+                &.danger {
+                    color: #ef4444;
+                }
+            }
         }
     }
 
-    .grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.5rem;
+    /* UTILITIES */
+    :global(.variant-primary-glow) {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+        }
+    }
+
+    :global(.variant-danger-ghost) {
+        background: rgba(239, 68, 68, 0.05) !important;
+        border: 1px solid rgba(239, 68, 68, 0.2) !important;
+        color: #ef4444 !important;
+
+        &:hover {
+            background: rgba(239, 68, 68, 0.15) !important;
+            border-color: rgba(239, 68, 68, 0.4) !important;
+        }
+    }
+
+    .debug-switcher {
+        position: absolute;
+        bottom: 0.5rem;
+        right: 0.5rem;
+        opacity: 0;
+        width: 20px;
+        height: 20px;
+
+        &:hover {
+            opacity: 0.5;
+        }
+    }
+
+    @keyframes scale-up {
+        from {
+            transform: scale(0.95);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
     }
 </style>

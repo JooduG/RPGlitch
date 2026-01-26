@@ -1,6 +1,6 @@
 ---
 name: doc-surgeon
-description: Triggers on `.agent/**` paths or when auditing the 'brain'. Optimized for refactoring bloated docs and system prompts.
+description: Triggers on .agent/** paths. The "Codebase Hygienist". Optimized for refactoring bloated docs, system prompts, and ensuring architectural compliance.
 ---
 
 # 🩺 The Doc Surgeon

@@ -1,6 +1,6 @@
 ---
 name: artificer
-description: The UI Builder Skill. Specializes in Svelte 5 (Runes) components, SCSS architecture, and modern web design patterns.
+description: The UI Engineering Specialist. REQUIRED for all frontend work. Enforces Svelte 5 (Runes), SCSS architecture, and Premium Design patterns.
 ---
 
 # 🛠️ Skill: Artificer (The Builder)

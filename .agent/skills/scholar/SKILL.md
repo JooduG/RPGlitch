@@ -1,62 +1,50 @@
 ---
 name: scholar
-description: The Knowledge & Memory Specialist (Pillar 4). Manages RAG operations and semantic memory.
+description: The Unified Knowledge Specialist. Triggers on "research", "documentation", "memory", "how to use", or when verifying technical facts. Governs Internal RAG and External Tech Research.
 ---
 
 # 📚 Skill: Scholar (The Archivist)
 
-The Scholar is responsible for the **Collective Memory** of the project. It ensures that rules, architecture, and external documentation are always available for semantic retrieval.
+The Scholar is responsible for the **Collective Memory** of the project. It unifies Internal Recall (rules/architecture) and External Research (docs/libraries).
 
 ## 1. Capabilities
 
-### Semantic Retrieval (RAG)
+### 🔍 External Research (The Librarian)
 
-Query the Antigravity Nexus to recall how things work without manually digging through files.
+**Goal**: Verify technical facts and syntax against ground-truth sources.
 
-- **Protocol**: When unsure about a pattern or rule, run:
+- **Trigger**: "How do I use [Library]?", "What is the syntax for [Feature]?"
+- **Protocol**: [Research Protocols](./knowledge/research-protocols.md)
+- **Key Tools**: `mcp_svelte`, `mcp_context7`, `mcp_deepwiki`.
 
-    ```bash
-    node tools/scholar/cli.js search "Your question here"
-    ```
+### 🧠 Internal Memory (The Vault)
 
-### Memory Ingestion
+**Goal**: Recall project-specific rules, lore, and decisions.
 
-Anchor new files, rules, or external documentation into the persistent vector memory.
+- **Trigger**: "What was the rule for X?", "Search the archives for Y."
+- **Protocol**: [Memory Operations](./knowledge/memory-ops.md)
+- **Key Tools**: `pinecone-mcp-server`.
 
-- **Protocol**: After creating a new core rule or skill, run:
+### 💾 Knowledge Ingestion
+
+**Goal**: Anchor new files or learnings into persistent memory.
+
+- **Trigger**: "Save this to memory", "Ingest these rules."
+- **Workflow**: [01-ingest](../../workflows/scholar/01-ingest.md)
+- **CLI Command**:
 
     ```bash
     node tools/scholar/cli.js ingest --path .agent/rules --namespace knowledge-base.meta
     ```
 
-### Auto-Retrieval
-
-Trigger context reinforcement based on specific keywords in user messages.
-
-### Setup
-
-Initialize the Scholar's memory with foundational knowledge.
-
-- **Protocol**: To set up the initial knowledge base, run:
-    ```bash
-    node tools/scholar/cli.js setup
-    ```
-
-### Migration
-
-Update or migrate the Scholar's memory structure or content.
-
-- **Protocol**: To migrate existing knowledge to a new format or structure, run:
-    ```bash
-    node tools/scholar/cli.js migrate
-    ```
-
 ## 2. Operational Knowledge
 
-- **[Scholar Core](file:///c:/Users/johng/Documents/GitHub/default/tools/scholar/core.js)**: The multi-threaded embedding and search engine.
-- **[Nexus Knowledge](file:///c:/Users/johng/Documents/GitHub/default/.agent/knowledge/)**: The source material for the Scholar's memory.
+- **[Scholar Core](../../../tools/scholar/core.js)**: The multi-threaded embedding and search engine.
+- **[Nexus Knowledge](../../knowledge)**: The source material for the Scholar's memory.
 
 ## 3. Usage
 
-- **Trigger**: "How do I...", "Explain...", "What is the rule for...", or any architectural keyword.
-- **Goal**: Zero-latency recall of project standards.
+1.  **Identify Gap**: Is this an _internal_ question (project rules) or _external_ question (library docs)?
+2.  **Select Protocol**: Use **Internal Memory** or **External Research** accordingly.
+3.  **Synthesize**: Never just dump data. Summarize the answer for the user.
+4.  **Schema Design**: For new database structures or schema modeling, consult the **[Data Architect](../cortex/specialists/sql.md)** in the Cortex.

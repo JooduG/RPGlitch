@@ -39,6 +39,10 @@
     @extend %btn-glass;
 }
 
+.btn-warden {
+    @extend %btn-warden;
+}
+
 // --- UTILITY SHAPES ---
 
 .btn-round {

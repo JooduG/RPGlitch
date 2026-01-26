@@ -283,6 +283,23 @@
     }
 }
 
+%btn-warden {
+    @extend %btn;
+
+    background: rgba($signature-emerald, 0.1);
+    color: $signature-emerald;
+    border-color: rgba($signature-emerald, 0.3);
+    font-family: $font-monospace;
+    letter-spacing: 0.05em;
+
+    &:hover:not(:disabled, .disabled) {
+        background: rgba($signature-emerald, 0.2);
+        box-shadow: 0 0 10px rgba($signature-emerald, 0.2);
+        border-color: $signature-emerald;
+        text-shadow: 0 0 5px rgba($signature-emerald, 0.5);
+    }
+}
+
 // --- UTILITY SHAPES ---
 
 %btn-round {

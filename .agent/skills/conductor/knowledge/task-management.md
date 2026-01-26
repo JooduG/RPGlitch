@@ -1,35 +1,37 @@
 ---
 name: tasks
-description: Triggers on .agent/tasks/tracks.md or where otherwise relevant. Governs the Conductor lifecycle, commits, and phase checkpointing.
+description: Triggers on .agent/tasks/tracks.md. Enforces TDD, Atomic Commits, and the "Trinity" workflow philosophy.
 ---
 
-# Tasks: Conductor & Integrity Skill
+# Tasks: The Philosophy of Work
 
-## When to use this skill
+## Core Principles
 
-- Starting a new feature, bug fix, or refactor (Run `/conductor-new-track`).
-- Implementing a spec-driven task (Run `/conductor-implement`).
-- Checking project status (Run `/conductor-status`).
+### 1. The Trinity (TDD)
 
-## 📋 Task Management Workflow (Conductor)
+We do not write code until we have a failing test.
 
-1. **Initialize**:
-    - Do not manually edit task lists unless trivial. Use `/conductor-new-track` to scaffold work.
-    - Active tracks live in `.agent/tasks/tracks.md`.
-    - Detailed plans live in `.agent/tasks/<track-name>/plan.md`.
+1.  **Red**: Write a failing test in `tools/tests/`.
+2.  **Green**: Implement minimum code to pass.
+3.  **Refactor**: Cleanup and optimize.
 
-2. **TDD Lifecycle (The Trinity)**:
-    - **Red**: Write a failing test in `tools/tests/unit/` or `tools/tests/e2e/`.
-    - **Green**: Implement minimum code to pass.
-    - **Refactor**: Cleanup and check against `.agent/rules/anti-patterns.md`.
+### 2. Atomic Units
 
-3. **Checkpoint**:
-    - Update `plan.md` using `[ ]` -> `[/]` -> `[x]`.
-    - Commit after verifying "Green" state.
+- **One Task = One Commit**.
+- Never mix refactoring with feature work.
+- Never leave the build in a broken state between tasks.
 
-## Resources
+### 3. The Source of Truth
 
-- **Registry**: `.agent/tasks/tracks.md`
-- **Workflows**: `.agent/workflows/conductor-*.md`
-- **Tech Rules**: `.agent/rules/tech-stack.md`
-- **Unit Tests**: `tools/tests/`
+- **Plan**: `.agent/tasks/<track>/plan.md` is the law.
+- **Status**: `.agent/tasks/tracks.md` is the high-level map.
+- **Work**: execution flows through the **Workflows**.
+
+## Execution Workflows
+
+Do not memorize steps. Use the **Workflows** to execute:
+
+- **Start New Feature**: `/02-new-track`
+- **Implement Feature**: `/03-implement`
+- **Check Status**: `/04-status`
+- **Fix Mistakes**: `/05-revert`

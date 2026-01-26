@@ -1,6 +1,6 @@
 ---
 name: cortex
-description: The master intelligence layer. Triggers on multi-file tasks, architectural choices, or complex logic. Orchestrates reasoning modes (L1-L6).
+description: The master intelligence layer. Triggers on multi-file tasks, architectural choices, complex logic, or changes to `src/gamemaster/**`. Orchestrates reasoning modes (L1-L6).
 ---
 
 # 🧠 Skill: Cortex (The Mind)
