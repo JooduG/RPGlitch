@@ -247,10 +247,8 @@
                                     contenteditable="true"
                                     bind:innerText={char.name}
                                     onfocus={() => {
-                                        activeField = {
-                                            key: "name",
-                                            label: "Name",
-                                        }
+                                        // Sacred Field: Do not set activeField.
+                                        // Keeping enhancer focused on Visual Prompt or previous state.
                                     }}
                                     role="textbox"
                                     tabindex="0"
@@ -275,12 +273,7 @@
                             oninput={(e) => (char.description = e.target.value)}
                             placeholder="Entity Description"
                             onfocus={() => {
-                                if (isEditing) {
-                                    activeField = {
-                                        key: "description",
-                                        label: "Description",
-                                    }
-                                }
+                                // Sacred Field: Do not set activeField.
                             }}
                         ></textarea>
                     </header>
@@ -702,14 +695,32 @@
                             pointer-events: none;
                             text-wrap-style: pretty;
 
-                            &.edit {
+                            /* --- View Mode (Readonly but not busy) --- */
+                            /* Should look clean and transparent */
+                            &:read-only {
+                                opacity: 1;
+                                filter: none;
+                                cursor: default;
+                            }
+
+                            /* --- System State (Busy/Disabled) --- */
+                            /* Applies when LLM is writing or field is locked */
+                            &:disabled {
+                                opacity: 0.4 !important;
+                                filter: grayscale(100%) blur(0.5px) !important;
+                                cursor: wait !important;
+                                background: rgba(0, 0, 0, 0.3) !important;
+                                color: var(--app-muted) !important;
+                                border: 1px dashed rgba(255, 255, 255, 0.1) !important;
+                            }
+
+                            &.edit:not(:disabled) {
                                 pointer-events: auto;
                                 caret-color: white;
                                 cursor: text;
 
                                 &:focus {
                                     background: rgba(255, 255, 255, 0.1);
-                                    border: 1px solid transparent;
                                     outline: none;
                                 }
                             }

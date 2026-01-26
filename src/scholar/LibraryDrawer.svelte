@@ -91,7 +91,9 @@
                     <!-- Add New Card -->
                     <button
                         class="drawer-card drawer-card--new"
-                        onclick={() => console.log("Create new", drawerType)}
+                        onclick={() => {
+                            /* TODO: Implement Create New */
+                        }}
                     >
                         <span class="drawer-card-icon">+</span>
                         <span class="drawer-card-label">Create New</span>

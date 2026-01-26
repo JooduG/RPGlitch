@@ -38,13 +38,67 @@
         activeField?.key === "visual-prompt" ? "generative" : "narrative"
     )
 
+    // Button Logic:
+    // User Requirement: "when no field is selected the enhance button should not be enabled"
+    // Button Logic:
+    // 1. Busy -> Disabled
+    // 2. Active Field -> Enabled (Enhance Mode)
+    // 3. No Field + Text -> Disabled (Protect Prompt)
+    // 4. No Field + No Text -> Enabled (Extract Mode)
+    let isCreativeDisabled = $derived(
+        !isEditing || !!busyField || (!activeField && hasPromptText) // Disable only if we have text but no target (Protect)
+    )
+
+    // Label Logic:
+    let creativeLabel = $derived.by(() => {
+        if (busyField) return "Busy..."
+
+        // If we have an active field, we map to specific "Enhance X" labels
+        if (activeField) {
+            const key = activeField.key
+            const label = activeField.label?.toLowerCase() || ""
+
+            if (key === "visual-prompt")
+                return hasPromptText ? "Enhance" : "Extract"
+
+            // Map specific fields as requested
+            if (label.includes("past")) return "Enhance Past"
+            if (label.includes("future")) return "Enhance Future"
+
+            // Map "Present" and "Eternal" groups (checking label or key)
+            if (key.includes("present") || label.includes("present"))
+                return "Enhance Present"
+            if (key.includes("eternal") || label.includes("eternal"))
+                return "Enhance Eternal"
+
+            // Fallback for Name/Desc or others
+            return "Enhance" // General fallback
+        }
+
+        // Fallback: If no field is active, we are in Extract mode
+        return "Extract"
+    })
+
+    // Design Variants:
+    // Magic (Pink/Hot) = Enhance, Generate
+    // Tech (Blue/Cold) = Extract, Upload
+    let creativeVariant = $derived(
+        activeField && isEnhanceMode ? "magic" : "tech"
+    )
+
+    let generationVariant = $derived(hasPromptText ? "magic" : "tech")
+
     async function handleCreativeAction() {
         if (busyField) return
-        const currentTargetKey = activeField.key
-        busyField = currentTargetKey
+
+        // Fix: Determine key safely. If no activeField, we don't have a key yet.
+        const currentTargetKey = activeField?.key
+
+        // If we have a target key, we mark it busy. If pure extraction, mark prompt busy.
+        busyField = currentTargetKey || "visual-prompt"
 
         try {
-            if (isEnhanceMode) {
+            if (activeField && isEnhanceMode) {
                 // --- ENHANCE LOGIC (AI Optimization) ---
                 if (enhancementType === "generative") {
                     // Optimize prompt for Image Gen
@@ -68,6 +122,8 @@
                 activeField = { key: "visual-prompt", label: "Image Prompt" }
             } else {
                 // --- EXTRACT LOGIC (Base Formula) ---
+                // Only reachable if activeField is null (or prompt is empty but that button disables)
+                // We overwrite with composed prompt.
                 char.visuals.prompt = TextToImage.composeBasePrompt(char)
             }
         } catch (err) {
@@ -156,7 +212,20 @@
     }
 </script>
 
-<div class="visual-wing-content">
+<div
+    class="visual-wing-content"
+    onfocusout={(e) => {
+        // Fix: Reset active field if focus leaves the wing and isn't going to a valid target
+        // We capture currentTarget synchronousely because it is recycled/null inside setTimeout
+        const wingRoot = e.currentTarget
+        setTimeout(() => {
+            const currentFocus = document.activeElement
+            if (wingRoot && !wingRoot.contains(currentFocus)) {
+                activeField = null
+            }
+        }, 50)
+    }}
+>
     <!-- 1. Spectrum Grid -->
     <div class="group">
         <div class="spectrum-grid">
@@ -165,6 +234,7 @@
                     class="swatch"
                     class:active={char.visuals?.signatureColor === hex}
                     style="background-color: {hex}"
+                    aria-label="Select color {name}"
                     onclick={() => {
                         char.visuals = char.visuals || {}
                         char.visuals.signatureColor = hex
@@ -178,36 +248,57 @@
     <!-- 2. Visual Prompting -->
     <div class="group">
         <div class="prompt-box">
-            <textarea
-                use:autoResize
-                class="visual-prompt"
-                bind:value={char.visuals.prompt}
-                placeholder="Describe visuals..."
-                disabled={!isEditing || busyField === "visual-prompt"}
-                onfocus={() => {
-                    if (isEditing) {
-                        activeField = {
-                            key: "visual-prompt",
-                            label: "Image Prompt",
+            <div class="visual-prompt-container">
+                <textarea
+                    use:autoResize
+                    class="visual-prompt"
+                    bind:value={char.visuals.prompt}
+                    placeholder="Describe visuals..."
+                    disabled={!isEditing || busyField === "visual-prompt"}
+                    onfocus={() => {
+                        if (isEditing) {
+                            activeField = {
+                                key: "visual-prompt",
+                                label: "Image Prompt",
+                            }
                         }
-                    }
-                }}
-            ></textarea>
+                    }}
+                    onblur={(e) => {
+                        // Fix: Clear active field on blur to prevent "sticky" enabled state.
+                        // We use a small timeout to allow button clicks to register first.
+                        setTimeout(() => {
+                            if (activeField?.key === "visual-prompt") {
+                                // Check if we moved focus to the button (optional, but clearing is safer)
+                                // If the user clicked the button, the click handler fires before this timeout finishes usually?
+                                // Actually mousedown fires before blur. Click fires after mouseup.
+                                // If we disable the button here, click might not fire.
+                                // BUT: The button logic depends on activeField.
+                                // If we nullify activeField, button disables.
+                                // TRICKY: We need to NOT disable if the target is the button.
+
+                                const focused = document.activeElement
+                                if (!focused?.closest(".action-btn")) {
+                                    activeField = null
+                                }
+                            }
+                        }, 150)
+                    }}
+                ></textarea>
+                {#if busyField === "visual-prompt"}
+                    <div class="spinner-overlay">
+                        <div class="spinner"></div>
+                    </div>
+                {/if}
+            </div>
 
             <div class="action-row">
                 <Button
                     variant="ghost"
                     size="sm"
-                    label={busyField
-                        ? "Busy..."
-                        : isEnhanceMode
-                          ? "Enhance"
-                          : "Extract"}
-                    className={isEnhanceMode || hasPromptText
-                        ? "active-action"
-                        : ""}
+                    label={creativeLabel}
+                    className="action-btn mode-{creativeVariant}"
                     onclick={handleCreativeAction}
-                    disabled={!isEditing || busyField}
+                    disabled={isCreativeDisabled}
                 />
                 <Button
                     variant="ghost"
@@ -217,7 +308,7 @@
                         : hasPromptText
                           ? "Generate"
                           : "Upload"}
-                    className={hasPromptText ? "active-action" : ""}
+                    className="action-btn mode-{generationVariant}"
                     onclick={handleGenerationAction}
                     disabled={!isEditing || busyField}
                 />
@@ -320,26 +411,65 @@
         border-radius: var(--border-radius);
         overflow: hidden;
 
-        .visual-prompt {
+        .visual-prompt-container {
+            position: relative;
             width: 100%;
-            background: transparent;
-            border: none;
-            color: white;
-            padding: var(--spacing-sm);
-            font-size: 0.85rem;
-            font-family: var(--font-body); /* Enforce consistent font */
-            resize: none;
-            outline: none;
 
-            &:disabled {
-                opacity: 0.8;
-                cursor: wait;
+            .visual-prompt {
+                width: 100%;
+                background: transparent;
+                border: none;
+                color: white;
+                padding: var(--spacing-sm);
+                font-size: 0.85rem;
+                font-family: var(--font-body); /* Enforce consistent font */
+                resize: none;
+                outline: none;
+                display: block;
+
+                &:disabled {
+                    opacity: 0.5; /* Fix: Make it clearly disabled */
+                    color: var(--app-muted);
+                    cursor: not-allowed;
+                    background: rgba(0, 0, 0, 0.1);
+                    filter: grayscale(100%);
+                }
+
+                &::placeholder {
+                    color: rgba(255, 255, 255, 0.3);
+                    font-style: italic;
+                    font-weight: 400;
+                }
             }
 
-            &::placeholder {
-                color: rgba(255, 255, 255, 0.3);
-                font-style: italic;
-                font-weight: 400;
+            .spinner-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(0, 0, 0, 0.4);
+                backdrop-filter: blur(2px);
+                z-index: 5;
+                cursor: wait; /* Show wait cursor on overlay */
+
+                .spinner {
+                    width: 20px;
+                    height: 20px;
+                    border: 2px solid rgba(255, 255, 255, 0.1);
+                    border-top-color: var(--app-accent);
+                    border-radius: 50%;
+                    animation: spin 0.8s linear infinite;
+                }
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
             }
         }
 
@@ -366,22 +496,43 @@
                     background: rgba(255, 255, 255, 0.08) !important;
                 }
 
-                &:global(.active-action) {
-                    background: color-mix(
-                        in oklab,
-                        var(--app-accent) 15%,
-                        transparent
-                    ) !important;
-                    color: var(--app-accent) !important;
-                    font-weight: 700;
+                &:global(.action-btn) {
+                    font-weight: 600;
+                    letter-spacing: 0.02em;
 
-                    &:hover:not(:disabled) {
+                    /* --- TECH MODE (Extract/Upload) --- */
+                    /* Cool, reliable, utility. */
+                    &:global(.mode-tech):not(:disabled) {
+                        color: var(--app-secondary);
                         background: color-mix(
                             in oklab,
-                            var(--app-accent) 25%,
+                            var(--app-secondary) 5%,
                             transparent
                         ) !important;
-                        color: white !important;
+
+                        &:hover {
+                            background: color-mix(
+                                in oklab,
+                                var(--app-secondary) 10%,
+                                transparent
+                            ) !important;
+                            color: color-mix(
+                                in oklab,
+                                var(--app-secondary),
+                                white 10%
+                            ) !important;
+                        }
+                    }
+
+                    /* --- MAGIC MODE (Enhance/Generate) --- */
+                    /* Hot, creative, AI. */
+                    &:global(.mode-magic):not(:disabled) {
+                        color: var(--app-accent) !important;
+                        font-weight: 700;
+
+                        &:hover {
+                            color: white !important;
+                        }
                     }
                 }
             }

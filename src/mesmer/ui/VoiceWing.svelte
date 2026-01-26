@@ -303,13 +303,14 @@
 
             &.locked {
                 opacity: 0.5;
-                background: rgba(255, 255, 255, 0.01);
-                border-style: dashed;
                 cursor: not-allowed;
             }
 
             input[type="range"]:disabled {
                 cursor: not-allowed;
+                &::-webkit-slider-thumb {
+                    display: none;
+                }
             }
 
             input[type="range"] {
