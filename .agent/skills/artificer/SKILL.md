@@ -24,9 +24,9 @@ The Artificer is the master of **Form and Function**. It provides the atomic boi
 
 ### Premium Design
 
-- **Glassmorphism**: Use translucent backgrounds with backdrop-filters.
-- **Micro-animations**: Add subtle transitions to interactive elements.
-- **Typography**: Prioritize modern sans-serif fonts (e.g., Google Fonts).
+- **Soft Depth**: Use subtle blurs and layered elevation instead of glassmorphism or thick borders.
+- **Intentional Motion**: Add determined, macro-level transitions (e.g., Card Lifts) rather than flimsy micro-animations.
+- **Typography**: Enforce the `Ubuntu`/`Inter` stack with Title Case system labels.
 
 ## 2. Tooling
 

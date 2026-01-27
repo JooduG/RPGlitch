@@ -1,158 +1,227 @@
 <script>
-    import Button from "../../artificer/Button.svelte"
     import { app } from "../../gamemaster/state.svelte.js"
+    import Button from "../Button.svelte"
+    import Levitator from "../Levitator.svelte"
     import { storyboard } from "./storyboardActions.svelte.js"
 
-    // Direct function calls (CustomEvents blocked in Perchance sandbox)
-    const onShuffle = () => storyboard.shuffle()
-    const onBegin = () => storyboard.beginStory()
+    // Derived State
+    let readyToBegin = $derived(
+        app.selectedAi && app.selectedUser && app.selectedFractal
+    )
 </script>
 
-<div class="storyboard-pill">
-    <!-- SHUFFLE -->
-    <Button
-        class="pill-btn btn-shuffle"
-        variant="ghost"
-        onclick={onShuffle}
-        title="Shuffle Entities"
-        aria-label="Shuffle"
-    >
-        <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
-            <path
-                d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"
-            />
-        </svg>
-    </Button>
+<div class="pill-container">
+    <Levitator className="unified-capsule" lift="-4px">
+        <!-- 1: Shuffle (Left) -->
+        <Button
+            className="capsule-flank"
+            variant="ghost"
+            onclick={storyboard.shuffle}
+            aria-label="Shuffle All"
+            title="Randomize Entities"
+        >
+            <svg viewBox="0 0 24 24" class="icon-small">
+                <path
+                    fill="currentColor"
+                    d="M14.83,13.41L13.42,14.82L16.55,17.95L14.5,20H20V14.5L17.96,16.54L14.83,13.41M14.5,4L16.54,6.04L4,18.59L5.41,20L17.96,7.46L20,9.5V4M10.59,9.17L5.41,4L4,5.41L9.17,10.58L10.59,9.17Z"
+                />
+            </svg>
+        </Button>
 
-    <div class="separator"></div>
+        <div class="divider"></div>
 
-    <!-- SETTINGS (Middle) -->
-    <Button
-        class="pill-btn btn-settings {app.controlPanelOpen ? 'active' : ''}"
-        variant="ghost"
-        onclick={() => app.toggleControlPanel()}
-        title="Settings"
-        aria-label="Settings"
-    >
-        <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
-            <path
-                d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.488.488 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.58 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"
-            />
-        </svg>
-    </Button>
+        <!-- 2: Settings (Middle) -->
+        <Button
+            className="capsule-flank"
+            variant="ghost"
+            onclick={app.toggleControlPanel}
+            aria-label="Settings"
+            title="Open Control Panel"
+        >
+            <svg viewBox="0 0 24 24" class="icon-small">
+                <path
+                    fill="currentColor"
+                    d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.35 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.35 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.04 4.95,18.95L7.44,17.95C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.95L19.05,18.95C19.27,19.04 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"
+                />
+            </svg>
+        </Button>
 
-    <div class="separator"></div>
+        <div class="divider"></div>
 
-    <!-- BEGIN STORY -->
-    <Button
-        class="pill-btn btn-begin"
-        variant="ghost"
-        onclick={onBegin}
-        disabled={!app.canStart}
-        title={app.canStart
-            ? "Start Simulation"
-            : "Select an AI, User, and Reality first"}
-    >
-        Begin Story
-        <svg class="icon icon-right" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M8 5v14l11-7z" />
-        </svg>
-    </Button>
+        <!-- 3: Begin (Right) -->
+        <Button
+            className="capsule-action"
+            variant="ghost"
+            disabled={!readyToBegin}
+            onclick={storyboard.beginStory}
+        >
+            <div class="core-content">
+                {#if readyToBegin}
+                    <span class="label">Begin Story</span>
+                    <!-- Star Icon -->
+                    <svg viewBox="0 0 24 24" class="icon-star">
+                        <path
+                            fill="currentColor"
+                            d="M12,2L14.43,8.35L21.17,9.27L16.24,13.91L17.48,20.57L12,17.27L6.52,20.57L7.76,13.91L2.83,9.27L9.57,8.35L12,2Z"
+                        />
+                    </svg>
+                {:else}
+                    <span class="label">Begin Story</span>
+                {/if}
+            </div>
+
+            <div class="illumination"></div>
+        </Button>
+    </Levitator>
 </div>
 
 <style lang="scss">
-    .storyboard-pill {
+    @use "../../mesmer/scss/abstracts/variables" as *;
+
+    .pill-container {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        padding-bottom: var(--space-md);
+        pointer-events: none; /* Let clicks pass through container */
+    }
+
+    /* We use :global here because the class is passed to a child component (Levitator) */
+    :global(.unified-capsule) {
+        pointer-events: auto;
         display: flex;
         align-items: center;
         background: rgba(
-            var(--app-component-bg-rgb),
-            0.85
-        ); /* Slightly darker for better contrast */
+            10,
+            10,
+            15,
+            0.5
+        ); /* Match StoryboardCard empty state */
         backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 9999px; /* Full pill */
-        padding: 0.25rem 0.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-        pointer-events: auto;
-        /* Removed hover transform to keep pill static */
+        border-radius: 999px;
+        padding: 0;
+        height: 64px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        /* Transition is now handled by Levitator */
+        overflow: hidden;
+
+        /* Removed hover styles as Levitator handles physics now */
     }
 
-    /* Use :global to target classes passed to child Button component */
-    :global(.storyboard-pill .pill-btn) {
-        background: transparent;
+    .divider {
+        width: 1px;
+        height: 40%;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Flank Buttons (Shuffle & Settings) */
+    :global(.capsule-flank.btn) {
+        height: 100%;
+        width: 60px;
+        border-radius: 0;
         border: none;
-        color: #a1a1aa;
-        cursor: pointer;
-        padding: 0.5rem 1rem;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.4);
+        transition:
+            color 0.2s ease,
+            background 0.2s ease;
+        display: grid;
+        place-content: center;
+
+        &:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .icon-small {
+            width: 24px;
+            height: 24px;
+        }
+    }
+
+    /* Primary Action Button (Begin) */
+    :global(.capsule-action.btn) {
+        height: 100%;
+        min-width: 180px; /* Slightly wider */
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        position: relative;
+        overflow: hidden;
+
+        &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(1);
+        }
+
+        &:not(:disabled):hover {
+            .illumination {
+                opacity: 0.8;
+                transform: scale(1.1);
+            }
+
+            .label {
+                letter-spacing: 0.1em;
+            }
+        }
+    }
+
+    .core-content {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        font-family: inherit;
+        justify-content: center;
+        gap: var(--space-sm);
+        z-index: 2;
+        position: relative;
+        width: 100%;
+        padding: 0;
+    }
+
+    .label {
+        font-family: var(--font-display);
         font-size: 0.9rem;
         font-weight: 600;
-        transition: all 0.2s;
-        border-radius: 9999px; /* Rounded buttons inside pill */
+        letter-spacing: 0.05em;
+        /* text-transform: uppercase; REMOVED per user preference */
+        color: white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        transition: letter-spacing 0.3s ease;
     }
 
-    :global(.storyboard-pill .pill-btn:hover:not(:disabled)) {
-        color: #fff;
-        background: transparent; /* No background fill */
-        filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.6));
-        text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
-        transform: scale(1.08); /* Slightly more pronounced raise */
+    .icon-star {
+        width: 20px;
+        height: 20px;
+        filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.6));
+        color: var(--app-color-primary, #ffd700);
+        animation: pulse 3s infinite ease-in-out;
     }
 
-    :global(.storyboard-pill .pill-btn:active:not(:disabled)) {
-        transform: scale(0.96);
+    .illumination {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+            circle at center,
+            rgba(var(--app-color-primary-rgb), 0.3),
+            transparent 70%
+        );
+        opacity: 0;
+        transform: scale(0.8);
+        transition: all 0.4s ease;
+        z-index: 1;
+        pointer-events: none;
     }
 
-    :global(.storyboard-pill .pill-btn:disabled) {
-        opacity: 0.3;
-        cursor: not-allowed;
-    }
-
-    :global(.storyboard-pill .pill-btn.active) {
-        color: #fff;
-        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-    }
-
-    :global(.storyboard-pill .pill-btn .icon) {
-        width: 1.3rem; /* Slightly larger icons */
-        height: 1.3rem;
-        display: block;
-        transition: filter 0.2s ease;
-    }
-
-    :global(.storyboard-pill .pill-btn .icon-right) {
-        margin-left: 0.3rem;
-    }
-
-    :global(.storyboard-pill .btn-begin.btn) {
-        color: #e4e4e7;
-        padding-right: 1.2rem;
-    }
-
-    :global(.storyboard-pill .btn-begin.btn:not(:disabled)) {
-        color: #4ade80; /* Force override */
-        text-shadow: 0 0 12px rgba(74, 222, 128, 0.4);
-    }
-
-    :global(.storyboard-pill .btn-begin.btn:not(:disabled) .icon) {
-        filter: drop-shadow(0 0 8px rgba(74, 222, 128, 0.5));
-    }
-
-    :global(.storyboard-pill .btn-begin.btn:not(:disabled):hover) {
-        color: #5ff595;
-        background: transparent; /* No background fill */
-        filter: drop-shadow(0 0 15px rgba(74, 222, 128, 0.8));
-        text-shadow: 0 0 12px rgba(74, 222, 128, 0.6);
-        transform: scale(1.1); /* Stronger pop for the main action */
-    }
-
-    .separator {
-        width: 1px;
-        height: 1.6rem;
-        background: rgba(255, 255, 255, 0.08);
-        margin: 0 0.3rem;
+    @keyframes pulse {
+        0%,
+        100% {
+            opacity: 0.8;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1.1);
+        }
     }
 </style>

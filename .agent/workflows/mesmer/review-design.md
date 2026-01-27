@@ -36,4 +36,4 @@ Before delivery, verify the implementation against the **[Design Quality Gate](.
 
 ## 5. Persistence
 
-System rules are saved in `DESIGN.md` (root). Page-specific overrides live in `.agent/knowledge/design/pages/`.
+System rules are saved in `.agent/design.md`. Page-specific overrides live in `.agent/knowledge/design/pages/`.

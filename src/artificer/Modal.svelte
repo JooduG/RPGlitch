@@ -31,7 +31,7 @@
     .backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.7);
+        background: rgba(0, 0, 0, 0.4);
         backdrop-filter: blur(10px);
         z-index: 9999;
         display: flex;

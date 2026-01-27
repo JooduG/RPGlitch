@@ -69,13 +69,13 @@ _Power tools for debugging the narrative state._
 
 ## 🔧 Studio Maintenance & Polish
 
-| Item                    | Category  | Impact | Effort | Notes                                                                 |
-| :---------------------- | :-------- | :----- | :----- | :-------------------------------------------------------------------- |
-| **Tag Management UI**   | [UI]      | M      | S      | Restore `tags` editing in the new Profile Modal.                      |
-| **Theme Adaptation**    | [UI]      | S      | M      | Use `light-dark()` to support "Cyberpunk" vs "Fantasy" presets.       |
-| **Custom Code Wiring**  | [Feature] | M      | M      | Connect `#custom-js` in Settings to `ContextBuilder`.                 |
-| **Prompt Snapshots**    | [Testing] | S      | M      | Assert generated system prompts match a "Golden Master".              |
-| **Fractal Convergence** | [Feature] | S      | XL     | Allow entity migration/interaction between different Story instances. |
+| Item                    | Category  | Impact | Effort | Notes                                                                                 |
+| :---------------------- | :-------- | :----- | :----- | :------------------------------------------------------------------------------------ |
+| **Tag Management UI**   | [UI]      | M      | S      | Restore `tags` editing in the new Profile Modal.                                      |
+| **Theme Adaptation**    | [UI]      | S      | M      | Universal atmosphere system supporting dynamic "Auras" based on scene/entity context. |
+| **Custom Code Wiring**  | [Feature] | M      | M      | Connect `#custom-js` in Settings to `ContextBuilder`.                                 |
+| **Prompt Snapshots**    | [Testing] | S      | M      | Assert generated system prompts match a "Golden Master".                              |
+| **Fractal Convergence** | [Feature] | S      | XL     | Allow entity migration/interaction between different Story instances.                 |
 
 | **POV Style Injector** | [Feature] | M | S | Define narrative voice explicitly (e.g., "Noir Detective"). |
 | **Negative Constraints** | [UI] | S | S | UI indicator showing _active_ negative constraints. |

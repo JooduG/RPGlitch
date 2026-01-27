@@ -57,52 +57,52 @@ Initiate every turn by rendering the Visible World State after <think> block.
 TRIGGER: When the character examines an object, reads text, or casts a spell: RENDER IT.
 CONSTRAINT: Mobile-first. No external CSS classes. Inline styles only. NO EMOJIS in UI.
 
-1. THE CANVAS (Glassmorphism Standard):
-All outputs must be wrapped in this specific container to blend with the Diamond Background:
-<div style="width: 100%; max-width: 500px; margin: 20px auto; background: rgba(2, 6, 18, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(200, 220, 255, 0.2); border-radius: 12px; overflow: hidden; font-family: 'Georgia', serif; color: #E0E6ED; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6); touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
+1. THE CANVAS (Agnostic Minimalism Standard):
+All outputs must be wrapped in this specific container to blend with the Neural Baseline:
+<div style="width: 100%; max-width: 500px; margin: 24px auto; background: #1a222a; border-radius: 1.5rem; overflow: hidden; font-family: 'Inter', sans-serif; color: #E0E6ED; box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7); touch-action: manipulation; -webkit-tap-highlight-color: transparent; position: relative;">
 
 2. AESTHETIC MODES (Apply via inline styles to Container):
-[ROYAL/DEFAULT] border: 1px solid rgba(255, 215, 0, 0.3); /* Subtle Gold Trim */
-[DARK/NOIR] filter: grayscale(0.8) contrast(1.2); border-color: #444;
-[ETHEREAL/MAGIC] border: 1px solid rgba(100, 200, 255, 0.5); box-shadow: 0 0 15px rgba(100, 200, 255, 0.2);
+[ROYAL/DEFAULT] box-shadow: 0 0 20px rgba(255, 215, 0, 0.1); /* Subtle Glow */
+[DARK/NOIR] background: #0f1419; filter: contrast(1.1);
+[ETHEREAL/MAGIC] background: #1e293b; box-shadow: 0 0 25px rgba(100, 200, 255, 0.15);
 
 3. RENDER TYPES (Choose One):
 
 TYPE A: THE VIEWPORT (Documents, Logs, Books)
-<div style="padding: 24px; max-height: 300px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent;">
-<div style="font-size: 1.1em; line-height: 1.6; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">
+<div style="padding: 24px; max-height: 350px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;">
+<div style="font-size: 1rem; line-height: 1.6; color: #cbd5e1;">
 [CONTENT]
 </div>
 </div>
 
 TYPE B: THE INTERACTABLE (Chests, Doors, Envelopes)
-<details style="cursor: pointer; padding: 10px;">
-<summary style="list-style: none; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 6px; text-align: center; font-weight: bold; user-select: none; letter-spacing: 1px; color: #FCD34D;">
-[ ❖ INSPECT: NAME ]
+<details style="cursor: pointer; padding: 12px;">
+<summary style="list-style: none; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 0.75rem; text-align: center; font-weight: 700; user-select: none; letter-spacing: 0.05em; color: var(--signature-color, #94a3b8);">
+[ ❖ Inspect Name ]
 </summary>
-<div style="padding: 20px; animation: fadeIn 0.5s ease-out; border-top: 1px solid rgba(255,255,255,0.1);">
+<div style="padding: 20px; animation: fadeIn 0.4s ease-out; background: rgba(0,0,0,0.15);">
 [HIDDEN CONTENT]
 </div>
 </details>
 
 TYPE C: THE CONSTRUCT (Magic, Holograms, Artifacts)
-Use SVG. Center it. Colors should be Gold (#FCD34D) or Ice Blue (#A5F3FC) to match background.
-<div style="display: flex; justify-content: center; padding: 30px;">
-[SVG CODE HERE - Ensure strokes are at least 2px thick for visibility against dark bg]
+Use SVG. Center it. Colors should be Muted Gold (#d4af37) or Deep Blue (#1d4ed8).
+<div style="display: flex; justify-content: center; padding: 32px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));">
+[SVG CODE HERE]
 </div>
 
 4. VISUAL GENERATION (Pollinations.ai):
 Base URL: https://image.pollinations.ai/prompt/
 Rule: CONSTRUCT prompt using hyphens-instead-of-spaces.
-Params: ?width=500&height=300&nologo=true&scary=true
-Negative: &negative=text,watermark,blur,mutation,bad%20anatomy
-*Place image inside the Container. Must include rounded corners and fallback.*
-<img src="[URL]" alt="[ALT]" style="width:100%; border-radius: 4px; display:block; opacity: 0.9;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'padding:20px;text-align:center;opacity:0.5;font-style:italic\'>[Visual Manifestation Failed]</div>';">
+Params: ?width=500&height=300&nologo=true
+Negative: &negative=text,watermark,clutter,bad-geometry
+*Place image inside the Container. Use large rounded corners (1rem) for the image.*
+<img src="[URL]" alt="[ALT]" style="width:100%; border-radius: 1rem; display:block; opacity: 0.95; margin-bottom: 8px;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'padding:20px;text-align:center;opacity:0.3;font-style:italic\'>[Visual Manifestation Failed]</div>';">
 
 5. INTEGRATION LOOP:
 1. Detect interaction.
 2. Choose Type (A, B, or C).
-3. Generate HTML block using the GLASS container.
+3. Generate HTML block using the MINIMALIST container.
 4. Continue story *after* the block.
 </VISUAL_STORYTELLING_ENGINE>
 ```

@@ -1,160 +1,160 @@
 <script>
-  /**
-   * LibraryCard - A compact version of StoryboardCard for the Library drawer.
-   */
-  let {
-    entity,
-    type = "ai", // "ai" | "user" | "fractal"
-    onSelect,
-    onViewProfile,
-  } = $props();
+    /**
+     * LibraryCard - A compact version of StoryboardCard for the Library drawer.
+     */
+    let {
+        entity,
+        type = "ai", // "ai" | "user" | "fractal"
+        onSelect,
+        onViewProfile,
+    } = $props()
 
-  import { fade } from "svelte/transition";
-  import { themeStore } from "../mesmer/logic/theme.svelte.js";
+    import { fade } from "svelte/transition"
+    import { themeStore } from "../mesmer/logic/theme.svelte.js"
 
-  let signatureColor = $derived(themeStore.getSignatureColor(entity));
-  let signatureRgb = $derived(themeStore.hexToRgb(signatureColor));
-  let avatar = $derived(entity?.visuals?.profilePictureUrl);
-  let name = $derived(entity?.name || "Untitled");
+    let signatureColor = $derived(themeStore.getSignatureColor(entity))
+    let signatureRgb = $derived(themeStore.hexToRgb(signatureColor))
+    let avatar = $derived(entity?.visuals?.profilePictureUrl)
+    let name = $derived(entity?.name || "Untitled")
 </script>
 
 <button
-  class="drawer-card"
-  class:fractal-card={type === "fractal"}
-  style="--signature-color: {signatureColor}; --signature-rgb: {signatureRgb};"
-  onclick={onSelect}
-  oncontextmenu={(e) => {
-    e.preventDefault();
-    onViewProfile();
-  }}
+    class="drawer-card"
+    class:fractal-card={type === "fractal"}
+    style="--signature-color: {signatureColor}; --signature-rgb: {signatureRgb};"
+    onclick={onSelect}
+    oncontextmenu={(e) => {
+        e.preventDefault()
+        onViewProfile()
+    }}
 >
-  <div class="card-visual">
-    {#if avatar}
-      <img
-        src={avatar}
-        alt="{name} Avatar"
-        class="profile-picture-image"
-        transition:fade={{ duration: 200 }}
-      />
-    {:else}
-      <div
-        class="profile-picture-placeholder"
-        class:fractal-mode={type === "fractal"}
-      >
-        {themeStore.getInitials(name)}
-      </div>
-    {/if}
-  </div>
+    <div class="card-visual">
+        {#if avatar}
+            <img
+                src={avatar}
+                alt="{name} Avatar"
+                class="profile-picture-image"
+                transition:fade={{ duration: 200 }}
+            />
+        {:else}
+            <div
+                class="profile-picture-placeholder"
+                class:fractal-mode={type === "fractal"}
+            >
+                {themeStore.getInitials(name)}
+            </div>
+        {/if}
+    </div>
 
-  <div class="card-info">
-    <span class="entity-name">{name}</span>
-  </div>
+    <div class="card-info">
+        <span class="entity-name">{name}</span>
+    </div>
 
-  <div class="signature-bar"></div>
+    <div class="signature-bar"></div>
 </button>
 
 <style lang="scss">
-  @use "../mesmer/scss/abstracts/variables" as *;
-  @use "../mesmer/scss/abstracts/mixins" as *;
-  @use "../mesmer/scss/abstracts/placeholders" as *;
+    @use "../mesmer/scss/abstracts/variables" as *;
+    @use "../mesmer/scss/abstracts/mixins" as *;
+    @use "../mesmer/scss/abstracts/placeholders" as *;
 
-  .drawer-card {
-    aspect-ratio: 2 / 3;
-    background: var(--card-background);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    text-align: left;
-    width: 100%;
-
-    @extend %material-interactive;
-
-    &:hover {
-      transform: translateY(-4px);
-      border-color: var(--signature-color);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-
-      .signature-bar {
-        opacity: 1;
-        height: 4px;
-      }
-    }
-
-    .card-visual {
-      flex: 1.5;
-      background: rgba(0, 0, 0, 0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      position: relative;
-
-      .profile-picture-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.6s ease;
-      }
-
-      .profile-picture-placeholder {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        background: var(--signature-color);
-        color: #ffffff;
-        font-size: 2rem;
-        font-weight: 800;
-        transition: transform 0.6s ease;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-
-        &.fractal-mode {
-          font-size: 3rem;
-        }
-      }
-    }
-
-    .card-info {
-      flex: 0.6;
-      padding: var(--space-sm) var(--space-sm-md);
-      display: flex;
-      align-items: center;
-      background: linear-gradient(
-        to bottom,
-        rgba(0, 0, 0, 0.4),
-        rgba(0, 0, 0, 0.8)
-      );
-
-      .entity-name {
-        font-size: 0.85rem;
-        font-weight: 700;
-        font-family: var(--font-heading);
-        color: var(--signature-color);
-        text-wrap: balance;
-        display: -webkit-box;
-        line-clamp: 2;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
+    .drawer-card {
+        aspect-ratio: 2 / 3;
+        background: var(--card-background);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        position: relative;
         overflow: hidden;
-      }
-    }
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: left;
+        width: 100%;
 
-    .signature-bar {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: var(--signature-color);
-      opacity: 0.6;
-      transition: all 0.2s ease;
+        @extend %material-interactive;
+
+        &:hover {
+            transform: translateY(-4px);
+            border-color: var(--signature-color);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+
+            .signature-bar {
+                opacity: 1;
+                height: 4px;
+            }
+        }
+
+        .card-visual {
+            flex: 1.5;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+
+            .profile-picture-image {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.6s ease;
+            }
+
+            .profile-picture-placeholder {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                height: 100%;
+                background: var(--signature-color);
+                color: #ffffff;
+                font-size: 2rem;
+                font-weight: 800;
+                transition: transform 0.6s ease;
+                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+
+                &.fractal-mode {
+                    font-size: 3rem;
+                }
+            }
+        }
+
+        .card-info {
+            flex: 0.6;
+            padding: var(--space-sm) var(--space-sm-md);
+            display: flex;
+            align-items: center;
+            background: linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0.4),
+                rgba(0, 0, 0, 0.8)
+            );
+
+            .entity-name {
+                font-size: 0.85rem;
+                font-weight: 700;
+                font-family: var(--font-heading);
+                color: var(--signature-color);
+                text-wrap: balance;
+                display: -webkit-box;
+                line-clamp: 2;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+        }
+
+        .signature-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--signature-color);
+            opacity: 0.6;
+            transition: all 0.2s ease;
+        }
     }
-  }
 </style>
