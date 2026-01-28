@@ -91,7 +91,7 @@
         backdrop-filter: blur(12px);
         border: 0; /* User's border choice */
         border-radius: 999px;
-        padding: 2rem; /* User's padding */
+        padding: 1rem; /* User's padding */
         height: 3rem; /* User's height */
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         overflow: hidden;
@@ -99,7 +99,7 @@
 
     /* --- Universal Icon Glow --- */
     :global(.icon-glow:hover .icon-small) {
-        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
         color: white;
         transition: all 0.2s ease;
     }
@@ -169,7 +169,7 @@
 
     /* Flank Buttons (Shuffle/Settings) */
     :global(.capsule-flank.btn) {
-        width: 2rem; /* User's width */
+        width: 1.5rem; /* User's width */
         height: 100%;
         border-radius: 0;
         border: none;
@@ -177,7 +177,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: rgba(255, 255, 255, 0.7);
+        color: rgba(255, 255, 255, 0.5);
     }
 
     /* Primary Action Button (Begin) */
@@ -190,9 +190,11 @@
         position: relative;
         overflow: hidden;
         margin-right: 10px;
+        padding: 0.5rem;
+        opacity: 0.5;
 
         &:disabled {
-            opacity: 0.5;
+            opacity: 0.2;
             cursor: not-allowed;
         }
     }

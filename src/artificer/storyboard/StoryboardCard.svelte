@@ -20,6 +20,8 @@
 
     import { app } from "../../gamemaster/state.svelte.js"
     import { themeStore } from "../../mesmer/logic/theme.svelte.js"
+    import { tilt } from "../actions/tilt.js"
+    // Import Tilt Action
     import Illusion from "../../mesmer/ui/Illusion.svelte"
     import ProfilePicture from "../../mesmer/ui/ProfilePicture.svelte"
 
@@ -34,74 +36,104 @@
 
     let signatureColor = $derived(themeStore.getSignatureColor(entity))
     let signatureRgb = $derived(themeStore.hexToRgb(signatureColor))
+
+    // Animation Persistance State
+    let isShimmering = $state(false)
+
+    function triggerShimmer() {
+        if (!isShimmering) isShimmering = true
+    }
+
+    function resetShimmer() {
+        isShimmering = false
+    }
 </script>
 
 <div
     class="split-card {type}-card"
     class:fractal-card={type === "fractal"}
-    class:is-empty={isEmpty}
-    class:is-loading={isLoading}
-    class:is-processing={isProcessing}
+    onmouseenter={triggerShimmer}
+    onanimationend={resetShimmer}
+    role="group"
+    aria-label="{roleLabel || 'Entity'} Card"
     style="--signature-color: {signatureColor}; --signature-rgb: {signatureRgb};"
+    use:tilt={{
+        max: isEmpty || isLoading ? 0 : 25,
+        scale: isEmpty || isLoading ? 1 : 1.05,
+        speed: 400,
+        perspective: 1000,
+    }}
 >
-    {#snippet emptyState()}
-        <Button
-            className="empty-card"
-            variant="ghost"
-            onclick={onSelect}
-            aria-label="Select {roleLabel}"
-        >
-            <span class="empty-label">{roleLabel}</span>
-            <div class="empty-icon">
-                {#if type === "fractal"}
-                    <svg viewBox="0 0 24 24" class="icon">
-                        <path
-                            fill="currentColor"
-                            d="M19,12L12,22L5,12L12,2M12,2L19,12H5L12,2Z"
-                        />
-                    </svg>
-                {:else}
-                    <svg viewBox="0 0 24 24" class="icon">
-                        <path
-                            fill="currentColor"
-                            d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
-                        />
-                    </svg>
-                {/if}
-            </div>
-        </Button>
-    {/snippet}
+    <!-- Inner Surface: Handles Atmosphere (Glow, Color, Shimmer) - Protected from Tilt.js -->
+    <div
+        class="card-surface"
+        class:is-empty={isEmpty}
+        class:is-loading={isLoading}
+        class:is-processing={isProcessing}
+        class:shimmering={isShimmering}
+    >
+        {#snippet emptyState()}
+            <Button
+                className="empty-card"
+                variant="ghost"
+                onclick={onSelect}
+                aria-label="Select {roleLabel}"
+            >
+                <span class="empty-label">{roleLabel}</span>
+                <div class="empty-icon">
+                    {#if type === "fractal"}
+                        <svg viewBox="0 0 24 24" class="icon">
+                            <path
+                                fill="currentColor"
+                                d="M19,12L12,22L5,12L12,2M12,2L19,12H5L12,2Z"
+                            />
+                        </svg>
+                    {:else}
+                        <svg viewBox="0 0 24 24" class="icon">
+                            <path
+                                fill="currentColor"
+                                d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+                            />
+                        </svg>
+                    {/if}
+                </div>
+            </Button>
+        {/snippet}
 
-    {#snippet populatedState()}
-        <!-- Top Half: Visuals & Trigger for Profile -->
-        <Button
-            className="card-top"
-            variant="ghost"
-            onclick={onViewProfile}
-            aria-label="View {roleLabel} Profile"
-        >
-            <ProfilePicture {entity} />
-        </Button>
+        {#snippet populatedState()}
+            <!-- Top Half: Visuals & Trigger for Profile -->
+            <Button
+                className="card-top"
+                variant="ghost"
+                onclick={onViewProfile}
+                aria-label="View {roleLabel} Profile"
+            >
+                <ProfilePicture {entity} />
+            </Button>
 
-        <!-- Bottom Half: Info & Trigger for Selection -->
-        <Button className="card-bottom" variant="ghost" onclick={onSelect}>
-            <div class="text-half title-half">
-                <h3>{entity?.name || `Select ${roleLabel}`}</h3>
-            </div>
-            <div class="text-half desc-half">
-                <p>{entity?.description || "Click to browse choices..."}</p>
-            </div>
-        </Button>
-    {/snippet}
+            <!-- Bottom Half: Info & Trigger for Selection -->
+            <Button className="card-bottom" variant="ghost" onclick={onSelect}>
+                <div class="text-half title-half">
+                    <h3>{entity?.name || `Select ${roleLabel}`}</h3>
+                </div>
+                <div class="text-half desc-half">
+                    <p>{entity?.description || "Click to browse choices..."}</p>
+                </div>
+            </Button>
+        {/snippet}
 
-    {#if isLoading}
-        <Illusion variant="card" width="100%" height="100%" />
-    {:else if isEmpty}
-        {@render emptyState()}
-    {:else}
-        {@render populatedState()}
-    {/if}
+        {#if isLoading}
+            <Illusion variant="card" width="100%" height="100%" />
+        {:else if isEmpty}
+            {@render emptyState()}
+        {:else}
+            {@render populatedState()}
+        {/if}
+    </div>
+    <!-- End .card-surface -->
 </div>
+
+<!-- End .split-card -->
 
 <style lang="scss">
     @use "../../mesmer/scss/abstracts/variables" as *;
@@ -112,15 +144,17 @@
         @extend %card-base;
         @extend %material-interactive;
 
+        /* FIX: Strip default card styles that bleed out during tilt */
+        background: transparent !important;
+        box-shadow: none !important;
+        border-radius: 0 !important; /* Let children handle shape */
+
         display: flex;
         flex-direction: column;
-        border-radius: 24px;
-        overflow: hidden;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-        transition:
-            transform 0.3s ease,
-            box-shadow 0.3s ease,
-            border-color 0.3s ease;
+        /* Physics Only: Layout & Transform */
+        display: block; // Wrapper for tilt
+        transition: transform 0.3s ease; // Tilt handles this, but good fallback
+
         container-type: inline-size;
 
         /* Geometric Containment Variables */
@@ -138,12 +172,87 @@
         /* border: 1px solid rgba(var(--signature-rgb) / 0.2); */
 
         /* Center Card (Fractal/Landscape) */
+        /* Center Card (Fractal/Landscape) */
         &.fractal-card {
             height: var(--short-side);
             width: var(--long-side);
+            /* Transform scale handled by tilt/hover */
             transform: scale(1.02);
             z-index: 10;
+        }
 
+        /* Hover: Lift Component z-index */
+        &:hover {
+            z-index: 20;
+        }
+
+        /* INNER SURFACE: Visuals & Atmosphere */
+        .card-surface {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+
+            /* The Glass/Card Visuals */
+            border-radius: 24px;
+            overflow: hidden;
+            background: var(--card-background, #2b3848);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            transform: translateZ(
+                0
+            ); /* Force GPU layer to fix 3D clipping artifacts */
+
+            /* THE HOLY GRAIL TRANSITION: Protected from JS */
+            transition:
+                background 1.5s ease,
+                box-shadow 1.5s ease-in-out;
+
+            /* Hover State for Surface */
+            &:not(.is-empty):not(.is-loading):hover {
+                box-shadow: 0 30px 60px rgba(var(--signature-rgb) / 0.15); /* Reduced from 0.3 */
+            }
+
+            /* State: Shimmering */
+            &.shimmering {
+                :global(.card-top.btn::after),
+                :global(.empty-card.btn::before) {
+                    animation: shimmer 1.5s cubic-bezier(0.4, 0, 0.2, 1)
+                        forwards;
+                }
+            }
+
+            /* State: Empty */
+            &.is-empty {
+                background: rgba(10, 10, 15, 0.5);
+
+                &:hover {
+                    box-shadow: 0 0 30px rgba(255, 255, 255, 0.25); /* Boosted form 0.1 to 0.25 */
+
+                    /* Unified Trigger: Brighten Children on PARENT hover */
+                    :global(.empty-icon) {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                    :global(.empty-label) {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+            }
+
+            /* Pass down fractal sizing */
+            :global(.card-top) {
+                height: 60%;
+            }
+            :global(.card-bottom) {
+                height: 40%;
+            }
+        }
+
+        /* FRACTAL OVERRIDES for Inner Surface Layout */
+        &.fractal-card .card-surface {
+            flex-direction: row;
+            /* Checking old code... it just changed heights of children usually */
             :global(.card-top) {
                 height: 50%;
             }
@@ -155,18 +264,6 @@
                 -webkit-line-clamp: 1;
                 line-clamp: 1;
             }
-        }
-
-        &:hover:not(.is-empty):not(.is-loading) {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 30px 60px rgba(var(--signature-rgb) / 0.3);
-            /* Border-color purged */
-            z-index: 20;
-        }
-
-        &.is-empty {
-            /* Border purged */
-            background: rgba(10, 10, 15, 0.5);
         }
     }
 
@@ -188,32 +285,50 @@
             position: absolute;
             inset: 0;
             background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(255, 255, 255, 0.1),
-                transparent
+                105deg,
+                transparent 20%,
+                rgba(255, 255, 255, 0.02) 35%,
+                rgba(255, 255, 255, 0.08) 50%,
+                rgba(255, 255, 255, 0.02) 65%,
+                transparent 80%
             );
             transform: translateX(-100%);
-            animation: shimmer 5s infinite;
+            /* animation: shimmer 5s infinite; -- Removed per user request */
+        }
+
+        /* FIX: Neutralize inner button physics to prevent flicker during tilt */
+        &:hover {
+            transform: none !important;
+            box-shadow: none !important;
+            filter: none !important;
+            z-index: auto !important;
         }
     }
+
+    /* Trigger logic moved to inside .split-card */
 
     :global(.card-bottom.btn) {
         height: 40%;
         width: 100%;
-        background: linear-gradient(
-            to bottom,
-            rgba(0, 0, 0, 0.4),
-            rgba(0, 0, 0, 0.85)
-        );
+        background: rgba(10, 10, 15, 0.5); /* Glassmorphism base */
+        backdrop-filter: blur(12px); /* Glassmorphism blur */
         border: none;
-        /* Border-top purged */
+        border-top: 1px solid rgba(255, 255, 255, 0.05); /* Separator */
         display: flex;
         flex-direction: column;
         justify-content: center;
         gap: var(--space-xs);
         padding: var(--space-sm) var(--space-md-lg);
         border-radius: 0; /* Reset radius */
+
+        /* FIX: Neutralize inner button physics to prevent flicker during tilt */
+        &:hover {
+            transform: none !important;
+            box-shadow: none !important;
+            filter: none !important;
+            z-index: auto !important;
+            background: rgba(10, 10, 15, 0.5) !important; /* LOCK BACKGROUND */
+        }
 
         .text-half {
             width: 100%;
@@ -250,8 +365,8 @@
                 overflow-wrap: anywhere;
 
                 display: -webkit-box;
-                -webkit-line-clamp: 2;
-                line-clamp: 2;
+                -webkit-line-clamp: 3; /* FIX: Truncate description */
+                line-clamp: 3;
                 -webkit-box-orient: vertical;
                 overflow: hidden;
             }
@@ -268,17 +383,74 @@
         background: transparent;
         border: none;
 
+        /* Neutralize Button Physics */
+        transform: none !important;
+        box-shadow: none !important;
+        filter: none !important; /* Kill brightness zap */
+        transition: all 1.5s ease !important; /* Force slow transition for any residue */
+
+        /* Shimmer Base */
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px; /* Ensure shimmer respects corners */
+
+        &::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                105deg,
+                transparent 20%,
+                rgba(255, 255, 255, 0.05) 35%,
+                rgba(255, 255, 255, 0.2) 50%,
+                rgba(255, 255, 255, 0.05) 65%,
+                transparent 80%
+            );
+            transform: translateX(-100%);
+            /* Wait for hover */
+        }
+
+        /* Hover Effect for Placeholder */
+        /* Hover Effect for Placeholder */
+        &:hover {
+            background: transparent; /* Disable ghost hover background */
+            transform: none !important; /* Kill button up-movement */
+            box-shadow: none !important;
+            filter: none !important; /* Kill brightness zap */
+
+            /* trigger moved to .card-surface.is-empty parent */
+
+            /* Trigger Shimmer - Moved to .shimmering class */
+        }
+
         .empty-label {
-            font-size: 0.7rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: rgba(255, 255, 255, 0.5);
+            position: absolute; /* Detach from flow to let icon center perfectly */
+            bottom: 25%;
+            font-size: 0.8rem;
+            font-weight: 700;
+            /* text-transform: uppercase; - Removed */
+            /* letter-spacing: 2px; - Removed */
+            font-family: var(--font-heading); /* Apply display font */
+            color: rgba(255, 255, 255, 0.9);
+            opacity: 0; /* Hidden by default */
+            transition: opacity 1.5s ease;
+            pointer-events: none; /* Prevent interference */
         }
 
         .empty-icon {
-            color: rgba(255, 255, 255, 0.3);
-            width: 32px;
+            color: rgba(255, 255, 255, 0.9);
+            width: 4rem; /* Increased from 32px */
+            opacity: 0.5; /* Visible but dim */
+            transition:
+                opacity 1.5s ease,
+                filter 1.5s ease;
+
+            /* Base State for SVG - Respect parent color */
+            :global(svg),
+            svg {
+                fill: currentColor;
+                transition: fill 1.5s ease;
+            }
         }
     }
 

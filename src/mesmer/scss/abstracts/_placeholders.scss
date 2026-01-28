@@ -52,6 +52,7 @@
     &:hover {
         transform: translateY($physics-hover-y);
         box-shadow: $shadow-interactive-hover;
+
         // Border color purged
     }
 }
@@ -88,16 +89,19 @@
 
 %status-danger {
     color: var(--app-del);
+
     // Border purged
 }
 
 %status-success {
     color: var(--app-success);
+
     // Border purged
 }
 
 %status-warning {
     color: var(--app-warning);
+
     // Border purged
 }
 
@@ -193,6 +197,7 @@
         box-shadow:
             0 0 0 2px var(--app-primary-focus),
             0 0 0 4px rgb(var(--app-primary), 0.3);
+
         // Border color purged
     }
 }
@@ -215,6 +220,7 @@
     @extend %btn;
 
     color: var(--app-muted);
+
     // Border color purged (was transparent anyway)
 
     &:hover:not(:disabled, .disabled) {
@@ -231,11 +237,13 @@
     @extend %btn;
 
     color: var(--app-muted);
+
     // Border transparent purged
 
     &:hover:not(:disabled, .disabled) {
         background: rgba($signature-red, $btn-danger-alpha);
         color: var(--app-del);
+
         // Border color purged
     }
 }
@@ -259,10 +267,12 @@
 
     background: var(--app-secondary);
     color: var(--app-secondary-inverse);
+
     // Border color purged
 
     &:hover:not(:disabled, .disabled) {
         background: var(--app-secondary-hover);
+
         // Border color purged
     }
 }
@@ -272,11 +282,13 @@
 
     background: $glass-pill-bg;
     backdrop-filter: blur(8px);
+
     // Border purged
     color: $white;
 
     &:hover:not(:disabled, .disabled) {
         background: rgba($white, $btn-glass-hover-alpha);
+
         // Border color purged
         color: $white;
     }
@@ -287,6 +299,7 @@
 
     background: rgba($signature-emerald, 0.1);
     color: $signature-emerald;
+
     // Border purged
     font-family: $font-monospace;
     letter-spacing: 0.05em;
@@ -294,6 +307,7 @@
     &:hover:not(:disabled, .disabled) {
         background: rgba($signature-emerald, 0.2);
         box-shadow: 0 0 10px rgba($signature-emerald, 0.2);
+
         // Border purged
         text-shadow: 0 0 5px rgba($signature-emerald, 0.5);
     }
@@ -329,6 +343,7 @@
     &[readonly]:active {
         outline: none !important;
         box-shadow: none !important;
+
         // Border color purged
         background: transparent !important;
     }
@@ -456,6 +471,7 @@
     &:focus {
         outline: none;
         background: $input-bg-focus;
+
         // Border color purged
         box-shadow: 0 0 0 1px var(--app-primary);
     }
