@@ -10,7 +10,7 @@
 
 // Base Glass Style
 %glass-base {
-    border: 1px solid $ui-glass-border;
+    // Border Purged
     border-radius: $border-radius;
 }
 
@@ -47,13 +47,12 @@
 %material-interactive {
     transition:
         transform 0.3s $physics-transition-elastic,
-        box-shadow 0.3s ease,
-        border-color 0.3s ease;
+        box-shadow 0.3s ease; // Border transition purged
 
     &:hover {
         transform: translateY($physics-hover-y);
         box-shadow: $shadow-interactive-hover;
-        border-color: $ui-glass-interactive-border;
+        // Border color purged
     }
 }
 
@@ -89,17 +88,17 @@
 
 %status-danger {
     color: var(--app-del);
-    border-color: var(--app-del);
+    // Border purged
 }
 
 %status-success {
     color: var(--app-success);
-    border-color: var(--app-success);
+    // Border purged
 }
 
 %status-warning {
     color: var(--app-warning);
-    border-color: var(--app-warning);
+    // Border purged
 }
 
 // --- OPTICAL ILLUSION ---
@@ -167,17 +166,16 @@
     text-decoration: none;
     cursor: pointer;
     pointer-events: auto;
-    border: 1px solid transparent;
+    border: none; // Purged
     border-radius: var(--border-radius);
     background: transparent;
     color: var(--app-color);
     transition:
         background-color var(--transition-speed, 0.2s) ease-out,
         color var(--transition-speed, 0.2s) ease-out,
-        border-color var(--transition-speed, 0.2s) ease-out,
         transform var(--transition-speed, 0.2s) ease-out,
         box-shadow var(--transition-speed, 0.2s) ease-out,
-        filter var(--transition-speed, 0.2s) ease-out;
+        filter var(--transition-speed, 0.2s) ease-out; // Border transition purged
 
     @extend %btn-physics;
     @extend %btn-disabled;
@@ -195,7 +193,7 @@
         box-shadow:
             0 0 0 2px var(--app-primary-focus),
             0 0 0 4px rgb(var(--app-primary), 0.3);
-        border-color: var(--app-primary);
+        // Border color purged
     }
 }
 
@@ -217,7 +215,7 @@
     @extend %btn;
 
     color: var(--app-muted);
-    border-color: transparent;
+    // Border color purged (was transparent anyway)
 
     &:hover:not(:disabled, .disabled) {
         background: rgba($white, $btn-ghost-hover-alpha);
@@ -233,23 +231,24 @@
     @extend %btn;
 
     color: var(--app-muted);
-    border-color: transparent;
+    // Border transparent purged
 
     &:hover:not(:disabled, .disabled) {
         background: rgba($signature-red, $btn-danger-alpha);
         color: var(--app-del);
-        border-color: rgba($signature-red, 0.2);
+        // Border color purged
     }
 }
 
 %btn-outline {
     @extend %btn;
 
-    border-color: var(--app-border);
+    // Border purged - Replaced with subtle background
+    background: rgba($white, 0.03);
     color: var(--app-muted);
 
     &:hover:not(:disabled, .disabled) {
-        border-color: var(--app-primary);
+        // Border color purged
         color: var(--app-primary);
         background: rgba($white, $btn-outline-hover-alpha);
     }
@@ -260,11 +259,11 @@
 
     background: var(--app-secondary);
     color: var(--app-secondary-inverse);
-    border-color: var(--app-secondary);
+    // Border color purged
 
     &:hover:not(:disabled, .disabled) {
         background: var(--app-secondary-hover);
-        border-color: var(--app-secondary-hover);
+        // Border color purged
     }
 }
 
@@ -273,12 +272,12 @@
 
     background: $glass-pill-bg;
     backdrop-filter: blur(8px);
-    border: 1px solid rgba($white, $btn-glass-border-alpha);
+    // Border purged
     color: $white;
 
     &:hover:not(:disabled, .disabled) {
         background: rgba($white, $btn-glass-hover-alpha);
-        border-color: rgba($white, $btn-glass-border-hover-alpha);
+        // Border color purged
         color: $white;
     }
 }
@@ -288,14 +287,14 @@
 
     background: rgba($signature-emerald, 0.1);
     color: $signature-emerald;
-    border-color: rgba($signature-emerald, 0.3);
+    // Border purged
     font-family: $font-monospace;
     letter-spacing: 0.05em;
 
     &:hover:not(:disabled, .disabled) {
         background: rgba($signature-emerald, 0.2);
         box-shadow: 0 0 10px rgba($signature-emerald, 0.2);
-        border-color: $signature-emerald;
+        // Border purged
         text-shadow: 0 0 5px rgba($signature-emerald, 0.5);
     }
 }
@@ -319,7 +318,7 @@
     box-sizing: border-box;
     display: block;
     background: transparent;
-    border: 1px solid transparent;
+    border: none; // Purged
     caret-color: transparent;
 
     &:focus,
@@ -330,7 +329,7 @@
     &[readonly]:active {
         outline: none !important;
         box-shadow: none !important;
-        border-color: transparent !important;
+        // Border color purged
         background: transparent !important;
     }
 }
@@ -338,6 +337,7 @@
 // Button Group Helpers
 %btn-group-joined {
     display: inline-flex;
+    gap: 1px; // Added gap for separation since border is gone
 
     .btn,
     button,
@@ -355,7 +355,7 @@
         }
 
         &:not(:last-child) {
-            border-right: 1px solid $ui-glass-border;
+            // Border right purged
         }
     }
 }
@@ -382,7 +382,7 @@
         }
 
         &:not(:last-child) {
-            border-right: 1px solid $ui-glass-border;
+            // Border right purged
         }
     }
 }
@@ -393,7 +393,7 @@
     width: 100%;
     padding: 0;
     margin: 0;
-    gap: 0;
+    gap: 1px; // Added gap
 
     > .btn,
     > button,
@@ -407,7 +407,7 @@
         border: none;
 
         &:not(:last-child) {
-            border-right: 1px solid $ui-glass-border;
+            // Border right purged
         }
 
         &:first-child {
@@ -439,7 +439,7 @@
 
     // Depth Physics
     background: $input-bg;
-    border: 1px solid var(--app-border);
+    border: none; // Purged
     border-radius: var(--border-radius);
 
     // Typography
@@ -451,13 +451,12 @@
     line-height: var(--line-height);
     transition:
         background-color 0.2s ease,
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
+        box-shadow 0.2s ease; // Border transition purged
 
     &:focus {
         outline: none;
         background: $input-bg-focus;
-        border-color: var(--app-primary);
+        // Border color purged
         box-shadow: 0 0 0 1px var(--app-primary);
     }
 

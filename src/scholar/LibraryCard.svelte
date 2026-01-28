@@ -61,7 +61,7 @@
     .drawer-card {
         aspect-ratio: 2 / 3;
         background: var(--card-background);
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        /* Border purged */
         border-radius: 12px;
         position: relative;
         overflow: hidden;
@@ -77,7 +77,7 @@
 
         &:hover {
             transform: translateY(-4px);
-            border-color: var(--signature-color);
+            /* Border-color purged */
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 
             .signature-bar {

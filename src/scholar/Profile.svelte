@@ -605,7 +605,7 @@
                 padding: var(--spacing-md) var(--spacing-lg) var(--spacing-lg);
                 display: flex;
                 flex-direction: column;
-                gap: var(--spacing-lg);
+                gap: var(--spacing-md);
                 mask-image: linear-gradient(
                     to bottom,
                     transparent,

@@ -47,6 +47,7 @@ RPGlitch uses generous, intentional curves derived from the **Profile Dossiers**
 - **Panels & Cards**: `var(--spacing-lg)` (Standard: `1.5rem`).
 - **Interactive Controls**: `var(--spacing-sm)` (Standard: `0.5rem`).
 - **Rounding Strategy**: Large surfaces should feel cohesive and contained, not sharp.
+- **Exceptions**: "Pill" geometry (`999px`) is permitted for floating control groups or special holographic elements.
 
 ### 3.2 Elevation (Soft Depth)
 
