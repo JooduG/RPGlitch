@@ -419,12 +419,7 @@
         transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         width: 100%;
         max-width: 100vw;
-        padding: 0 var(--spacing-l);
-
-        &.editing,
-        &.show-dev-wing {
-            /* No gap change needed, handled by wing margins */
-        }
+        padding: 0;
 
         &.editing .wing-left,
         &.editing .wing-right,

@@ -4,13 +4,16 @@
      * Internalized drawer and card styling.
      */
     import { quintOut } from "svelte/easing"
-    import { fade, fly } from "svelte/transition"
+    import { fly } from "svelte/transition"
     import { app } from "../gamemaster/state.svelte.js"
     import LibraryCard from "./LibraryCard.svelte"
+
+    import Backdrop from "../artificer/Backdrop.svelte"
 
     // Derived from drawer state
     let isOpen = $derived(app.drawer.open)
     let drawerType = $derived(app.drawer.type)
+    // ... derived values ...
 
     // Get the appropriate list based on drawer type
     let entityList = $derived(() => {
@@ -47,15 +50,10 @@
 
 {#if isOpen}
     <!-- Backdrop -->
-    <div
-        class="drawer-backdrop"
-        role="button"
-        tabindex="-1"
-        aria-label="Close drawer"
-        transition:fade={{ duration: 500, easing: quintOut }}
+    <Backdrop
         onclick={handleBackdropClick}
-        onkeydown={(e) => e.key === "Enter" && handleBackdropClick()}
-    ></div>
+        zIndex="calc(var(--z-drawer) - 1)"
+    />
 
     <!-- Drawer -->
     <div
@@ -140,17 +138,6 @@
         display: flex;
         flex-direction: column;
         pointer-events: auto;
-    }
-
-    /* --- BACKDROP --- */
-    .drawer-backdrop {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, var(--opacity-l));
-        backdrop-filter: blur(var(--blur-s));
-        z-index: calc(var(--z-drawer) - 1);
-        opacity: var(--opacity-m);
-        cursor: pointer;
     }
 
     /* --- HEADER --- */
