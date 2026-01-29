@@ -47,7 +47,6 @@
             <Profile
                 entityId={app.profileTargetId}
                 entityType={app.profileTargetType}
-                onClose={() => app.closeProfile()}
             />
         {/if}
 
@@ -75,6 +74,9 @@
 {/if}
 
 <style lang="scss">
+    @use "./mesmer/scss/abstracts/variables" as *;
+    @use "./mesmer/scss/abstracts/surfaces" as *;
+
     /* Global Reset/Base is handled in index.scss */
 
     .app-container {
@@ -82,7 +84,7 @@
         height: 100%;
         overflow: hidden;
         position: relative;
-        background: #000;
+        background: $black;
 
         :global(html),
         :global(body) {
@@ -139,7 +141,7 @@
         width: 10%; /* Matches Col 1 of the 10-column grid */
         height: 100vh;
         z-index: 2000;
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        border-right: 1px solid var(--glass-border);
 
         @media (max-width: 1024px) {
             display: none; /* Hide HUD on mobile/small screens */
@@ -149,8 +151,8 @@
     .modal-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(4px);
+        background: rgb(0 0 0 / var(--opacity-l));
+        backdrop-filter: blur(var(--blur-m));
         z-index: 150;
         display: flex;
         justify-content: center;

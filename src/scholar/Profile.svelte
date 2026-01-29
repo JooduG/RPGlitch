@@ -1,4 +1,5 @@
 <script>
+    import { fitText } from "../artificer/actions/fitText.js"
     import Button from "../artificer/Button.svelte"
     import Modal from "../artificer/Modal.svelte"
     import { app } from "../gamemaster/state.svelte.js"
@@ -255,7 +256,15 @@
                                 ></span>
                             </h1>
                         {:else}
-                            <h1 class="name" aria-label="Character Name">
+                            <h1
+                                class="name"
+                                aria-label="Character Name"
+                                use:fitText={{
+                                    maxSize: 64,
+                                    minSize: 24,
+                                    lineHeight: "1.1",
+                                }}
+                            >
                                 {char.name || "Unnamed Entity"}
                             </h1>
                         {/if}
@@ -403,48 +412,54 @@
     /* Winged Layout & Wings */
     .profile-container {
         display: flex;
-        align-items: center;
+        align-items: center; /* Restore: Independent vertical centering */
         justify-content: center;
-        gap: var(--spacing-md);
+        /* Gap removed to prevent whitespace from hidden wings */
+        gap: 0;
         transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         width: 100%;
         max-width: 100vw;
-        padding: 0 var(--spacing-lg);
+        padding: 0 var(--spacing-l);
 
         &.editing,
         &.show-dev-wing {
-            gap: var(--spacing-lg);
+            /* No gap change needed, handled by wing margins */
         }
 
         &.editing .wing-left,
         &.editing .wing-right,
         &.show-dev-wing .wing-right {
+            width: auto;
             min-width: 15rem;
             max-width: 24rem;
             opacity: 1;
             pointer-events: auto;
             transform: scale(1);
             filter: blur(0);
+            /* Add spacing when visible */
+            margin: 0 var(--spacing-l);
         }
     }
 
     .wing-left,
     .wing-right {
         width: 0;
+        min-width: 0;
+        max-width: 0; /* Animate this for smooth open/close */
         opacity: 0;
-        overflow: visible; /* Allow tooltips and stack behavior */
+        overflow: hidden; /* FIX: Contain children (System Manifest) strictly */
         pointer-events: none;
         transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         transform: scale(0.9);
         filter: blur(10px);
         height: auto;
-        max-height: 48rem;
+        max-height: 48rem; /* Restore: Cap height independently */
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-md);
+        gap: var(--spacing-m);
         background: transparent;
         border: none;
-        border-radius: var(--spacing-lg);
+        border-radius: var(--spacing-l);
     }
 
     /* Presentation Card */
@@ -455,17 +470,29 @@
         max-height: 85vh; /* Responsive safety */
         min-height: 20rem;
         position: relative;
-        background-color: color-mix(
+
+        /* Dynamic Tints (Opaque) */
+        /* Body: Frozen Pole + 15% Sig */
+        --tint-base: color-mix(
             in oklab,
-            var(--signature-color) 12%,
-            var(--card-background, #1a1c1e) 88%
+            var(--signature-color) 10%,
+            var(--frozen-pole, #555d66)
         );
-        border: 1px solid var(--ui-glass-border, rgba(255, 255, 255, 0.1));
-        border-radius: var(--spacing-lg);
+
+        /* Header/Footer: Gunmetal + 5% Sig */
+        --tint-dark-surface: color-mix(
+            in oklab,
+            var(--signature-color) 10%,
+            var(--gunmetal, #363840)
+        );
+
+        background-color: var(--tint-base);
+        border: 0;
+        border-radius: var(--spacing-l);
         display: grid;
         grid-template-columns: 35% 65%;
         overflow: hidden;
-        backdrop-filter: blur(25px);
+        /* Removed backdrop-filter as requested */
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 
         &::after {
@@ -483,7 +510,7 @@
 
         .left {
             height: 100%;
-            background: rgba(0, 0, 0, 0.2);
+            background: var(--tint-dark-surface); /* Opaque match */
             overflow: hidden;
             transition: transform 0.4s ease;
         }
@@ -511,15 +538,18 @@
             }
 
             header {
-                padding: var(--spacing-lg);
-                background: rgba(0, 0, 0, 0.2);
-                backdrop-filter: blur(10px);
+                padding: var(--spacing-l);
+                background: var(--tint-dark-surface);
                 text-align: left;
+                border-bottom: 0;
             }
 
             .name {
                 width: 100%;
                 color: var(--signature-color);
+                font-size: var(
+                    --font-size-xxxxxl
+                ); /* Large base size for scaling */
                 letter-spacing: -0.02em;
                 text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
                 transition: all 0.2s;
@@ -531,7 +561,7 @@
                 min-height: 1.1em;
                 white-space: pre-wrap; /* Preserve spacing while editing */
                 overflow-wrap: break-word;
-                border-radius: var(--spacing-sm);
+                border-radius: var(--spacing-s);
 
                 &:empty::before {
                     content: "Unnamed Entity";
@@ -576,7 +606,7 @@
                 min-height: 1.4em;
                 cursor: default;
                 transition: all 0.2s;
-                border-radius: var(--spacing-sm);
+                border-radius: var(--spacing-s);
                 pointer-events: none;
                 background: transparent;
                 border: 1px solid transparent;
@@ -602,22 +632,22 @@
             .content {
                 flex: 1;
                 overflow: visible;
-                padding: var(--spacing-md) var(--spacing-lg) var(--spacing-lg);
+                padding: var(--spacing-m) var(--spacing-l) var(--spacing-l);
                 display: flex;
                 flex-direction: column;
-                gap: var(--spacing-md);
+                gap: var(--spacing-m);
                 mask-image: linear-gradient(
                     to bottom,
                     transparent,
-                    black var(--spacing-md),
-                    black calc(100% - var(--spacing-md)),
+                    black var(--spacing-m),
+                    black calc(100% - var(--spacing-m)),
                     transparent
                 );
 
                 .row {
                     display: grid;
                     grid-template-columns: 100px 1fr;
-                    gap: var(--spacing-sm-md);
+                    gap: var(--spacing-s);
 
                     .label {
                         text-align: right;
@@ -645,7 +675,7 @@
                     .split,
                     .full {
                         display: grid;
-                        gap: var(--spacing-md);
+                        gap: var(--spacing-m);
                     }
 
                     .split {
@@ -661,7 +691,7 @@
                         height: 100%;
                         display: flex;
                         flex-direction: column;
-                        gap: var(--spacing-sm-md);
+                        gap: var(--spacing-m);
 
                         .field-label {
                             font-size: 0.65rem;
@@ -684,9 +714,9 @@
                             overflow-y: auto !important;
                             background: rgba(255, 255, 255, 0.05);
                             border: 1px solid transparent;
-                            border-radius: var(--spacing-sm);
+                            border-radius: var(--spacing-s);
                             color: white;
-                            padding: var(--spacing-sm) var(--spacing-md);
+                            padding: var(--spacing-s) var(--spacing-m);
                             font-family: inherit;
                             font-size: 0.85rem;
                             line-height: 1.2;
@@ -737,10 +767,10 @@
                 margin-top: auto;
                 display: flex;
                 justify-content: flex-end;
-                padding: var(--spacing-md) var(--spacing-lg);
-                background: rgba(0, 0, 0, 0.3);
-                border-top: 1px solid rgba(255, 255, 255, 0.1);
-                backdrop-filter: blur(15px);
+                padding: var(--spacing-m) var(--spacing-l);
+                background: var(--tint-dark-surface);
+                border-top: 1px solid var(--glass-border);
+                /* Removed backdrop-filter */
                 z-index: 10;
 
                 :global(.profile-btn) {
@@ -751,15 +781,15 @@
                     font-weight: 800;
                     text-transform: uppercase;
                     letter-spacing: 0.05em;
-                    padding: var(--spacing-sm) var(--spacing-xl) !important;
+                    padding: var(--spacing-s) var(--spacing-xl) !important;
                     transition: all 0.3s ease;
                     min-width: 10rem;
-                    width: calc((100% - 100px) / 2 - var(--spacing-sm-md));
+                    width: calc((100% - 100px) / 2 - var(--spacing-s));
                 }
 
                 .footer-actions {
                     display: flex;
-                    gap: var(--spacing-sm-md);
+                    gap: var(--spacing-m);
                     justify-content: end;
                     width: 100%;
 
@@ -769,7 +799,7 @@
                         color: var(--app-muted) !important;
                         box-shadow: none !important;
                         transition: all 0.3s ease;
-                        width: calc((100% - 100px) / 2 - var(--spacing-sm-md));
+                        width: calc((100% - 100px) / 2 - var(--spacing-m));
 
                         &:hover {
                             background: var(--app-del) !important;

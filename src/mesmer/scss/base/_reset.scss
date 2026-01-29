@@ -1,5 +1,5 @@
 @use "../abstracts/mixins" as *;
-@use "../abstracts/variables" as vars;
+@use "../abstracts/variables" as *;
 @use "../abstracts/placeholders" as *;
 
 /* ============================================================================
@@ -17,14 +17,16 @@ body {
     margin: 0;
     font-family: var(--font-body);
     color: var(--app-color);
-    background-color: var(--app-background);
+    background-color: #11191f;
     background-image: radial-gradient(
         circle at 50% 0%,
-        var(--bg-grad-1),
-        var(--bg-grad-2) 50%,
-        var(--bg-grad-3) 75%,
-        var(--bg-grad-4)
+        #181c2f,
+        #23243a 50%,
+        #1a3a4a 75%,
+        #2a1a3a
     );
+    background-attachment: fixed;
+    background-repeat: no-repeat;
     background-size: cover;
 }
 
@@ -63,7 +65,7 @@ body::before {
     @extend %status-danger;
 
     background: var(--app-del);
-    color: vars.$white;
+    color: $white;
 }
 
 body:not(.mode-developer) .developer-content {
@@ -80,7 +82,7 @@ body.modal-open {
     top: -100px;
     left: 0;
     background: var(--app-primary);
-    color: vars.$white;
+    color: $white;
     padding: 8px;
     z-index: 10000;
     transition: top 0.2s;

@@ -1,72 +1,65 @@
+@use "sass:color";
 @use "variables" as *;
 @use "mixins" as *;
 
 /* ============================================================================
-   ABSTRACT: PLACEHOLDERS
-   Silent classes for extension. No direct output.
+   ABSTRACT: PLACEHOLDERS (NORDIC REFAC V2)
+   Silent classes. Uses T-Shirt Sizing & Nordic Palette.
    ============================================================================ */
 
 // --- GLASSMORPHISM ---
 
 // Base Glass Style
 %glass-base {
-    // Border Purged
     border-radius: $border-radius;
 }
 
-// Glassmorphism Pill Container (Button Groups / Inputs)
+// Glassmorphism Pill Container
 %glass-pill {
     @extend %glass-base;
-
-    background: $glass-pill-bg;
-    backdrop-filter: blur($glass-pill-blur);
-    box-shadow: $shadow-lg;
-    border-radius: $glass-pill-radius;
+    background: $glass-m; // Pill uses M (Darker)
+    backdrop-filter: blur($blur-s);
+    box-shadow: $shadow-l;
+    border-radius: 50px;
 }
 
-// 1. The Standard Glass (Used for Cards, UI Panels)
+// 1. The Standard Glass
 %material-glass {
     @extend %glass-base;
-
-    background: $glass-standard-bg;
-    backdrop-filter: blur($glass-standard-blur);
-    box-shadow: $shadow-md;
+    background: $glass-s; // Standard
+    backdrop-filter: blur($blur-m);
+    box-shadow: $shadow-m;
 }
 
-// 2. The Heavy Glass (Used for Modals, Drawers)
+// 2. The Heavy Glass
 %material-glass-heavy {
     @extend %glass-base;
-
-    background: $glass-heavy-bg;
-    backdrop-filter: blur($glass-heavy-blur);
-    box-shadow: $shadow-xl;
-    border-radius: $glass-heavy-radius; // Override base radius
+    background: $glass-l; // Heavy
+    backdrop-filter: blur($blur-l);
+    box-shadow: $shadow-l;
+    border-radius: $border-radius;
 }
 
-// 3. Interactive Surface (Hover states for cards)
+// 3. Interactive Surface
 %material-interactive {
     transition:
         transform 0.3s $physics-transition-elastic,
-        box-shadow 0.3s ease; // Border transition purged
+        box-shadow 0.3s ease;
 
     &:hover {
         transform: translateY($physics-hover-y);
-        box-shadow: $shadow-interactive-hover;
-
-        // Border color purged
+        box-shadow: $shadow-l;
     }
 }
 
 // --- INTERACTION PHYSICS ---
 
 %btn-physics {
-    // Hover State
     &:hover:not(:disabled, .disabled) {
         transform: translateY($physics-btn-hover-y);
         filter: brightness(1.1);
     }
 
-    // Active State
     &:active:not(:disabled, .disabled) {
         transform: scale(var(--scale-active, #{$physics-btn-active-scale}));
     }
@@ -85,24 +78,16 @@
     }
 }
 
-// --- STATUS PATTERNS (Generic) ---
+// --- STATUS PATTERNS ---
 
 %status-danger {
     color: var(--app-del);
-
-    // Border purged
 }
-
 %status-success {
     color: var(--app-success);
-
-    // Border purged
 }
-
 %status-warning {
     color: var(--app-warning);
-
-    // Border purged
 }
 
 // --- OPTICAL ILLUSION ---
@@ -111,7 +96,7 @@
     position: relative;
     overflow: hidden;
     min-height: 1rem;
-    background-color: var(--card-background, #1e293b);
+    background-color: var(--bg-card);
 
     &::after {
         position: absolute;
@@ -120,8 +105,8 @@
         background-image: linear-gradient(
             90deg,
             transparent 0,
-            $illusion-shimmer-color 20%,
-            $illusion-shimmer-highlight 60%,
+            $shimmer-color 20%,
+            $shimmer-highlight 60%,
             transparent
         );
         animation: illusion-shimmer 5s infinite;
@@ -131,8 +116,8 @@
 
 // --- CARD BASES ---
 %card-base {
-    box-shadow: $shadow-sm;
-    background: var(--card-background, #2b3848);
+    box-shadow: $shadow-s;
+    background: var(--bg-card);
     border-radius: var(--border-radius);
     color: var(--app-color);
     padding: 0;
@@ -143,13 +128,7 @@
     &:hover,
     &:has(:focus-visible) {
         transform: translateY(-2px);
-        box-shadow: $shadow-card-hover;
-    }
-
-    &:has(:focus-visible) {
-        box-shadow:
-            0 0 0 2px var(--app-primary-focus),
-            $shadow-card-hover;
+        box-shadow: $shadow-m;
     }
 }
 
@@ -160,339 +139,217 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: $spacing-sm;
-    padding: $spacing-sm $spacing-md;
-    min-height: $btn-min-height;
+    gap: $spacing-xs;
+    padding: $spacing-xs $spacing-m;
+    min-height: 2.25rem;
     font-family: inherit;
-    font-weight: $font-weight-bold;
-    font-size: $btn-font-size;
+    font-weight: $font-bold;
+    font-size: 0.85rem; // Keep visual tuning
     line-height: 1;
     text-decoration: none;
     cursor: pointer;
     pointer-events: auto;
-    border: none; // Purged
+    border: none;
     border-radius: var(--border-radius);
     background: transparent;
     color: var(--app-color);
-    transition:
-        background-color var(--transition-speed, 0.2s) ease-out,
-        color var(--transition-speed, 0.2s) ease-out,
-        transform var(--transition-speed, 0.2s) ease-out,
-        box-shadow var(--transition-speed, 0.2s) ease-out,
-        filter var(--transition-speed, 0.2s) ease-out; // Border transition purged
+    transition: all var(--transition-speed, 0.2s) ease-out;
 
     @extend %btn-physics;
     @extend %btn-disabled;
 
-    // Scoped Icon Styles
     .icon {
         pointer-events: none;
-        transition: transform var(--transition-speed, 0.2s)
-            cubic-bezier(0.34, 1.56, 0.64, 1);
+        transition: transform 0.2s $physics-transition-elastic;
     }
 
-    // Focus State
     &:focus-visible {
         outline: none;
-        box-shadow:
-            0 0 0 2px var(--app-primary-focus),
-            0 0 0 4px rgb(var(--app-primary), 0.3);
-
-        // Border color purged
+        box-shadow: 0 0 0 2px var(--frisk);
     }
 }
 
 // Variants
 %btn-primary {
     @extend %btn;
-
-    background: var(--app-primary);
-    color: var(--app-primary-inverse);
-    box-shadow: $shadow-md;
+    background: var(--frisk);
+    color: $black;
+    box-shadow: $shadow-m;
 
     &:hover:not(:disabled, .disabled) {
-        background: var(--app-primary-hover);
-        box-shadow: $shadow-sm;
+        background: color.adjust(
+            $frisk,
+            $lightness: 5%
+        ); // Fixes Namespace Error
+        box-shadow: $shadow-s;
     }
 }
 
 %btn-ghost {
     @extend %btn;
-
     color: var(--app-muted);
 
-    // Border color purged (was transparent anyway)
-
     &:hover:not(:disabled, .disabled) {
-        background: rgba($white, $btn-ghost-hover-alpha);
+        background: rgba($white, $opacity-xxs); // 0.05
         color: var(--app-color);
-    }
-
-    &.danger:hover:not(:disabled, .disabled) {
-        @extend %btn-ghost-danger;
-    }
-}
-
-%btn-ghost-danger {
-    @extend %btn;
-
-    color: var(--app-muted);
-
-    // Border transparent purged
-
-    &:hover:not(:disabled, .disabled) {
-        background: rgba($signature-red, $btn-danger-alpha);
-        color: var(--app-del);
-
-        // Border color purged
     }
 }
 
 %btn-outline {
     @extend %btn;
-
-    // Border purged - Replaced with subtle background
     background: rgba($white, 0.03);
     color: var(--app-muted);
 
     &:hover:not(:disabled, .disabled) {
-        // Border color purged
-        color: var(--app-primary);
-        background: rgba($white, $btn-outline-hover-alpha);
-    }
-}
-
-%btn-secondary {
-    @extend %btn;
-
-    background: var(--app-secondary);
-    color: var(--app-secondary-inverse);
-
-    // Border color purged
-
-    &:hover:not(:disabled, .disabled) {
-        background: var(--app-secondary-hover);
-
-        // Border color purged
+        color: var(--frisk);
+        background: rgba($white, $opacity-xxs);
     }
 }
 
 %btn-glass {
     @extend %btn;
-
-    background: $glass-pill-bg;
+    background: $glass-m;
     backdrop-filter: blur(8px);
-
-    // Border purged
     color: $white;
 
     &:hover:not(:disabled, .disabled) {
-        background: rgba($white, $btn-glass-hover-alpha);
-
-        // Border color purged
+        background: $glass-border; // 10% white
         color: $white;
-    }
-}
-
-%btn-warden {
-    @extend %btn;
-
-    background: rgba($signature-emerald, 0.1);
-    color: $signature-emerald;
-
-    // Border purged
-    font-family: $font-monospace;
-    letter-spacing: 0.05em;
-
-    &:hover:not(:disabled, .disabled) {
-        background: rgba($signature-emerald, 0.2);
-        box-shadow: 0 0 10px rgba($signature-emerald, 0.2);
-
-        // Border purged
-        text-shadow: 0 0 5px rgba($signature-emerald, 0.5);
-    }
-}
-
-// --- UTILITY SHAPES ---
-
-%btn-round {
-    padding: 0;
-    width: $btn-min-height;
-    height: $btn-min-height;
-    border-radius: 50%;
-    aspect-ratio: 1;
-}
-
-// --- TEXTAREA HELPERS ---
-
-%textarea-clean {
-    resize: none !important;
-    overflow: hidden;
-    outline: none;
-    box-sizing: border-box;
-    display: block;
-    background: transparent;
-    border: none; // Purged
-    caret-color: transparent;
-
-    &:focus,
-    &:active,
-    &:focus-visible,
-    &:focus-within,
-    &[readonly]:focus,
-    &[readonly]:active {
-        outline: none !important;
-        box-shadow: none !important;
-
-        // Border color purged
-        background: transparent !important;
-    }
-}
-
-// Button Group Helpers
-%btn-group-joined {
-    display: inline-flex;
-    gap: 1px; // Added gap for separation since border is gone
-
-    .btn,
-    button,
-    .btn-ghost,
-    .btn-primary {
-        border-radius: 0;
-        margin: 0;
-
-        &:first-child {
-            border-radius: var(--border-radius) 0 0 var(--border-radius);
-        }
-
-        &:last-child {
-            border-radius: 0 var(--border-radius) var(--border-radius) 0;
-        }
-
-        &:not(:last-child) {
-            // Border right purged
-        }
-    }
-}
-
-// Pill Group
-%btn-group-pill {
-    @extend %btn-group-joined;
-    @extend %glass-pill;
-
-    overflow: hidden;
-    width: fit-content;
-
-    .btn,
-    button {
-        flex: 0 0 auto;
-        border: none;
-
-        &:first-child {
-            padding-left: 1.5rem;
-        }
-
-        &:last-child {
-            padding-right: 1.5rem;
-        }
-
-        &:not(:last-child) {
-            // Border right purged
-        }
-    }
-}
-
-// Split Group
-%btn-group-split {
-    display: flex;
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    gap: 1px; // Added gap
-
-    > .btn,
-    > button,
-    > .btn-ghost {
-        @extend %btn;
-
-        flex: 1 1 0;
-        margin: 0;
-        border-radius: 0;
-        height: $btn-group-split-height;
-        border: none;
-
-        &:not(:last-child) {
-            // Border right purged
-        }
-
-        &:first-child {
-            border-bottom-left-radius: $btn-group-split-radius;
-        }
-
-        &:last-child {
-            border-bottom-right-radius: $btn-group-split-radius;
-        }
-
-        &:hover:not(
-                :disabled,
-                .disabled,
-                .btn-primary,
-                .btn-secondary,
-                .btn-glass
-            ) {
-            background: $ui-glass-hover;
-        }
     }
 }
 
 // --- INPUTS ---
 
-// The "Deep Field" - Recessed data entry
 %input-deep {
     appearance: none;
     width: 100%;
-
-    // Depth Physics
-    background: $input-bg;
-    border: none; // Purged
+    background: $bg-input;
+    border: none;
     border-radius: var(--border-radius);
-
-    // Typography
     color: var(--app-color);
     font-family: var(--font-body);
-    font-size: $input-font-size;
-    padding: var(--form-element-spacing-vertical)
-        var(--form-element-spacing-horizontal);
+    font-size: 0.95rem;
+    padding: $spacing-s $spacing-m;
     line-height: var(--line-height);
     transition:
         background-color 0.2s ease,
-        box-shadow 0.2s ease; // Border transition purged
+        box-shadow 0.2s ease;
 
     &:focus {
         outline: none;
-        background: $input-bg-focus;
-
-        // Border color purged
-        box-shadow: 0 0 0 1px var(--app-primary);
+        background: $bg-input-focus;
     }
 
     &::placeholder {
         color: var(--app-muted);
-        opacity: 0.7;
+        opacity: $opacity-l; // 0.7 -> 0.8 close enough
         font-style: italic;
     }
 
     &:disabled {
-        opacity: 0.5;
+        opacity: $opacity-m;
         cursor: not-allowed;
-        background: rgb(255 255 255 / 5%);
+        background: rgba(255, 255, 255, $opacity-xxs);
     }
 }
 
-// --- TYPOGRAPHY STATES ---
+%textarea-clean {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    resize: none;
+    font-family: inherit;
+    color: inherit;
+    padding: 0;
+    margin: 0;
 
-// The "Ghost" State - For muted placeholders/empty data
+    &:focus {
+        outline: none;
+    }
+}
+
 %muted-ghost {
-    font-style: italic;
-    opacity: 0.5;
+    opacity: $opacity-l; // 0.8
+    font-size: 0.9em;
+    font-weight: 400;
+}
+
+%btn-ghost-danger {
+    @extend %btn-ghost;
+    color: var(--app-del);
+
+    &:hover:not(:disabled, .disabled) {
+        background: rgba($color-danger, $opacity-xxs);
+        color: var(--app-del);
+    }
+}
+
+%btn-secondary {
+    @extend %btn;
+    background: rgba($white, $opacity-xs); // 10% white
+    color: var(--app-color);
+
+    &:hover:not(:disabled, .disabled) {
+        background: rgba($white, $opacity-s); // 30% white
+    }
+}
+
+%btn-warden {
+    @extend %btn;
+    background: $bg-component;
+    color: var(--app-color);
+    border: 1px solid var(--frisk);
+
+    &:hover:not(:disabled, .disabled) {
+        border-color: var(--app-color);
+        box-shadow: 0 0 15px rgba($white, $opacity-xxs);
+    }
+}
+
+%btn-round {
+    border-radius: 50%;
+    padding: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+}
+
+%btn-group-joined {
+    display: flex;
+    .btn {
+        border-radius: 0;
+        &:first-child {
+            border-radius: var(--border-radius) 0 0 var(--border-radius);
+        }
+        &:last-child {
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+        &:not(:last-child) {
+            border-right: 1px solid rgba($black, $opacity-xs);
+        }
+    }
+}
+
+%btn-group-pill {
+    @extend %glass-pill;
+    display: inline-flex;
+    padding: 4px;
+    gap: 4px;
+
+    .btn {
+        border-radius: 50px;
+        min-height: 2rem;
+    }
+}
+
+%btn-group-split {
+    display: flex;
+    align-items: stretch;
+    .btn:first-child {
+        border-radius: var(--border-radius) 0 0 var(--border-radius);
+    }
+    .btn:last-child {
+        border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        padding-left: $spacing-xs;
+        padding-right: $spacing-xs;
+    }
 }

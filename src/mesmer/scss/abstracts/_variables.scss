@@ -2,44 +2,42 @@
 @use "sass:color";
 
 /* ============================================================================
-   ABSTRACT: DESIGN TOKENS
-   Single Source of Truth. All values are derived from logical hierarchies.
-   No CSS Output. This file defines the raw materials; placeholders consume them.
+   ABSTRACT: DESIGN TOKENS (NORDIC REFAC V2)
+   Single Source of Truth. "The Nordic Collection"
+   Standard: T-Shirt Sizing (XXS - XXL) for Opacity & Spacing
    ============================================================================ */
 
 // =================================================
 //  SECTION 1: CORE BRAND PALETTE
-//  SYNC: These values MUST match src/gamemaster/config.js PALETTE & RGB_MAP
-//  config.js is the source of truth for programmatic access.
-//  Ordered by hue: Red → Orange → Yellow → Green → Cyan → Blue → Purple → Pink → Neutral
 // =================================================
 
-// Warm Colors (Red → Yellow)
+// Warm Colors
 $signature-red: #ef4444;
 $signature-rose: #f43f5e;
 $signature-orange: #f97316;
 $signature-amber: #f59e0b;
 $signature-yellow: #eab308;
 
-// Nature Colors (Green → Cyan)
+// Nature Colors
 $signature-lime: #84cc16;
 $signature-emerald: #10b981;
 $signature-cyan: #06b6d4;
 $signature-sky: #0ea5e9;
 
-// Cool Colors (Blue → Purple)
+// Cool Colors
 $signature-blue: #3b82f6;
 $signature-indigo: #6366f1;
 $signature-violet: #8b5cf6;
 $signature-purple: #a855f7;
 $signature-pink: #ec4899;
 
-// Neutral Colors
-$signature-stone: #78716c;
-$signature-zinc: #71717a;
+// THE NORDIC COLLECTION (Cold Palette)
+$frisk: #8a9399; // "Frisk"
+$frozen-pole: #555d66; // "Frozen Pole"
+$gunmetal: #363840; // "Gunmetal"
+$chalk: #222326; // "Chalk"
 
-// Map for programmatic access (e.g., iterating over signatures in JS/Svelte)
-// Structure: "name" -> ("color" -> value) for compatibility with map.get($data, color)
+// Map for programmatic access
 $signature-colors: (
     "red": (
         "color": $signature-red,
@@ -83,266 +81,190 @@ $signature-colors: (
     "pink": (
         "color": $signature-pink,
     ),
-    "stone": (
-        "color": $signature-stone,
+    "frisk": (
+        "color": $frisk,
     ),
-    "zinc": (
-        "color": $signature-zinc,
+    "frozen-pole": (
+        "color": $frozen-pole,
+    ),
+    "gunmetal": (
+        "color": $gunmetal,
+    ),
+    "chalk": (
+        "color": $chalk,
     ),
 );
 
 // =================================================
-//  SECTION 2: CORE SYSTEM COLORS
-//  Application-agnostic primitives (light, dark, muted, semantic).
+//  SECTION 2: SIGNATURE GRADIENTS
+// =================================================
+
+$gradient-standard: linear-gradient(
+    135deg,
+    $frisk,
+    $frozen-pole,
+    $gunmetal,
+    $chalk
+);
+$gradient-radial: radial-gradient($frisk, $frozen-pole, $gunmetal, $chalk);
+
+// =================================================
+//  SECTION 3: CORE SYSTEM COLORS & OPACITY
 // =================================================
 
 $white: #fff;
 $black: #000;
-$muted-light: #a0a0a0;
-$muted-dark: #94a3b8;
-$border-light: #555;
-$border-dark: #334155;
 
-// Semantic: Status Colors
+// Semantic Maps
 $color-danger: $signature-red;
 $color-success: $signature-emerald;
 $color-warning: $signature-orange;
 $color-info: $signature-blue;
+$color-accent: $signature-pink;
+$color-primary: $color-info; // Compatibility mapping
+
+// Opacity Hierarchy (T-Shirt Sizing)
+$opacity-xxs: 0.05;
+$opacity-xs: 0.1;
+$opacity-s: 0.3;
+$opacity-m: 0.5;
+$opacity-l: 0.8;
+$opacity-xl: 0.95;
+$opacity-full: 1;
+
+$opacity-disabled: $opacity-s;
+
+// Blur Scale
+$blur-s: 4px;
+$blur-m: 10px;
+$blur-l: 25px;
+$blur-xl: 40px;
+
+// Glass Presets (RGBA)
+$glass-s: rgba($white, $opacity-xxs);
+$glass-m: rgba($white, $opacity-xs);
+$glass-l: rgba($white, $opacity-s);
+
+// Typography Colors
+$app-color: $white;
+$app-muted: $frisk;
+$border-color: $frozen-pole;
+$border-dark: $gunmetal;
+
+// Semantic Backgrounds
+$app-background: #0a0c14; // Deep cosmic void
+$bg-grad-1: rgba($signature-blue, 0.15); // Deep Astral Blue
+$bg-grad-2: rgba($signature-pink, 0.12); // Cosmic Pink Glow
+$bg-grad-3: rgba($signature-violet, 0.1); // Nebulous Violet
+$bg-grad-4: #050508; // The deep end
+
+$bg-app: $chalk;
+$bg-card: $gunmetal;
+$bg-form: $frozen-pole;
+
+// Void Black: Used for opaque overlays
+$bg-component: #050505;
+
+// Input Backgrounds
+$bg-input: rgba($black, $opacity-s);
+$bg-input-focus: rgba($black, $opacity-m);
 
 // =================================================
-//  SECTION 3: APP THEME COLORS
-//  Derived from Brand Palette. Application-specific.
+//  SECTION 5: GLASSMORPHISM & EFFECTS
 // =================================================
 
-// Primary Action Color (Purple)
-$app-primary: $signature-purple;
-$app-primary-inverse: $white;
-$app-primary-hover: color.adjust($app-primary, $lightness: 5%);
-$app-primary-focus: color.adjust($app-primary, $lightness: 10%);
+// Glass Levels (Background + Blur)
+$glass-s: rgba($gunmetal, $opacity-m); // Standard
+$glass-m: rgba($black, $opacity-l); // Pill (Darker)
+$glass-l: rgba($gunmetal, $opacity-l); // Heavy
 
-// Secondary Action Color (Blue)
-$app-secondary: $signature-blue;
-$app-secondary-inverse: $white;
-$app-secondary-hover: color.adjust($app-secondary, $lightness: 5%);
-$app-secondary-focus: color.adjust($app-secondary, $lightness: 10%);
+$blur-s: 10px;
+$blur-m: 16px;
+$blur-l: 20px;
 
-// Accent Color (Pink Highlight)
-$app-accent: #ff7ad5;
+// Glass Borders
+$glass-border: rgba($white, $opacity-xs);
+$glass-hover: rgba($white, $opacity-xxs);
 
-// =================================================
-//  SECTION 4: SURFACE COLORS
-//  Backgrounds, containers, cards, forms.
-// =================================================
+// Optical Illusion (Shimmer)
+$shimmer-color: rgba($white, 0.03);
+$shimmer-highlight: rgba($white, $opacity-xxs);
 
-$app-background: #11191f;
-$app-background-dark: #0f1116;
-$card-background: #2b3848;
-$card-background-dark: #1a1d2e;
-$form-background: #3b4b5d;
-$form-background-dark: #1a1d2e;
-$component-bg: #050505; // Deep background for isolated elements
-
-// Application Gradient (The signature background)
-$gradient-color-1: #181c2f;
-$gradient-color-2: #23243a;
-$gradient-color-3: #1a3a4a;
-$gradient-color-4: #2a1a3a;
+// Shadows
+$shadow-s: 0 2px 8px rgba($black, $opacity-xs);
+$shadow-m: 0 4px 16px rgba($black, $opacity-s);
+$shadow-l: 0 10px 30px rgba($black, $opacity-m);
+$rp-text-shadow: 0 2px 4px rgba($black, $opacity-s);
 
 // =================================================
-//  SECTION 5: TYPOGRAPHY
-//  Fonts, Scaling, Weights, Line Heights.
+//  SECTION 6: TYPOGRAPHY METRICS
 // =================================================
 
-// --- Font Stacks ---
-$emoji-stack: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-$font-heading: ("Ubuntu", sans-serif, $emoji-stack);
-$font-body: ("Inter", sans-serif, $emoji-stack);
-$font-monospace: (
-    "Menlo",
-    "Consolas",
-    "Roboto Mono",
-    "Ubuntu Monospace",
-    "Noto Mono",
-    "Oxygen Mono",
-    "Liberation Mono",
-    "monospace",
-    $emoji-stack
-);
+// --- 5. TYPOGRAPHY ---
+$font-family-sans:
+    "Inter",
+    system-ui,
+    -apple-system,
+    sans-serif;
+$font-family-heading: "Ubuntu", sans-serif;
+$font-family-mono: "JetBrains Mono", monospace;
 
-// --- Metrics ---
+// Font Sizes (T-Shirt Sizing)
+$font-size-xs: 0.75rem;
+$font-size-s: 0.875rem;
+$font-size-m: 1rem;
+$font-size-l: 1.125rem;
+$font-size-xl: 1.25rem;
+$font-size-xxl: 1.5rem;
+$font-size-xxxl: 1.875rem;
+$font-size-xxxxl: 2.25rem;
+$font-size-xxxxxl: 3.5rem;
+
 $line-height-base: 1.5;
-$font-weight-base: 400;
-$font-weight-bold: 700;
+$line-height-heading: 1.2;
+$font-bold: 700;
 
-// --- Heading Spacing (Vertical Rhythm) ---
-$h-spacing: (
-    h1: 3rem,
-    h2: 2.625rem,
-    h3: 2.25rem,
-    h4: 1.875rem,
-    h5: 1.6875rem,
-    h6: 1.5rem,
-);
+// Legacy Compatibility (Restored for placeholders) (Cache-bust: 1)
+$font-height: $line-height-base;
+$font-weight: 400; // Legacy base weight
 
-// --- Responsive Breakpoints (Unified) ---
-// Used for both layout media queries and typography scaling
+// Breakpoints (T-Shirt Sizing)
 $breakpoints: (
-    sm: 576px,
-    md: 768px,
-    lg: 1024px,
+    s: 576px,
+    m: 768px,
+    l: 1024px,
     xl: 1280px,
-    2xl: 1536px,
+    xxl: 1536px,
 );
 
-// Typography scaling per breakpoint
-$typography-scaling: (
-    sm: 106.25%,
-    md: 112.5%,
-    lg: 118.75%,
-    xl: 125%,
-    2xl: 131.25%,
-);
-
-// Convenience aliases for common breakpoints
-$breakpoint-mobile: map.get($breakpoints, md);
-$breakpoint-tablet: map.get($breakpoints, lg);
-
-// Viewport scaling alias for _typography.scss backward compatibility
-$viewport-scaling: (
-    576px: 106.25%,
-    768px: 112.5%,
-    1024px: 118.75%,
-    1280px: 125%,
-    1536px: 131.25%,
-);
-
-// --- Text Opacity Hierarchy ---
-$text-primary-opacity: 1;
-$text-secondary-opacity: 0.75;
-$text-tertiary-opacity: 0.5;
-$text-muted-opacity: 0.38;
-
-// --- Typography Colors (Light/Dark Theme Variants) ---
-$app-color-light: $white;
-$app-color-dark: $muted-light;
-$app-h1-color-light: $white;
-$app-h1-color-dark: $muted-light;
-$app-h2-color-light: $white;
-$app-h2-color-dark: $muted-light;
-$app-h3-color-light: $muted-light;
-$app-h3-color-dark: $muted-dark;
+$breakpoint-mobile: map.get($breakpoints, m);
+$breakpoint-tablet: map.get($breakpoints, l);
+$breakpoint-desktop: map.get($breakpoints, xl);
 
 // =================================================
-//  SECTION 6: SPACING & LAYOUT
-//  Padding, Margins, Container sizes.
+//  SECTION 7: SPACING & LAYOUT
+//  Standard: T-Shirt Sizing
 // =================================================
 
-// --- Spacing Scale (Atomic) ---
-$spacing-xs: 0.25rem;
-$spacing-sm: 0.5rem;
-$spacing-sm-md: 0.75rem;
-$spacing-md: 1rem;
-$spacing-md-lg: 1.25rem;
-$spacing-lg: 1.5rem;
+$spacing-xxs: 0.25rem;
+$spacing-xs: 0.5rem;
+$spacing-s: 0.75rem;
+$spacing-m: 1rem; // Base
+$spacing-l: 1.5rem;
 $spacing-xl: 2rem;
-$spacing-2xl: 3rem;
-$spacing-3xl: 5rem;
+$spacing-xxl: 3rem;
 
-// --- Base Metrics ---
-$spacing-base: 1rem;
-$border-radius: 0.25rem;
-$border-width-base: 0.0625rem;
-$outline-width-base: 0.125rem;
-$app-container-pad: 1rem;
+$border-radius: $spacing-xs; // 0.5rem
+$app-container-pad: $spacing-m;
 
-// =================================================
-//  SECTION 7: EFFECTS & PHYSICS
-//  Shadows, Transitions, Animations, Hover States.
-// =================================================
-
-// --- Timing ---
+// Physics
 $transition-speed: 0.2s;
 $physics-transition-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
-
-// --- Hover Physics ---
 $physics-hover-y: -4px;
-$physics-btn-hover-y: -1px;
-$physics-btn-active-scale: 0.98;
+$physics-btn-hover-y: -2px;
+$physics-btn-active-scale: 0.95;
 
-// --- Shadows ---
-$shadow-sm: 0 2px 8px rgb(0 0 0 / 15%);
-$shadow-md: 0 4px 6px rgb(0 0 0 / 20%);
-$shadow-lg: 0 10px 30px rgb(0 0 0 / 50%);
-$shadow-xl: 0 20px 40px rgb(0 0 0 / 60%);
-$shadow-interactive-hover: 0 12px 24px rgb(0 0 0 / 40%);
-$shadow-card-hover: 0 6px 16px rgb(0 0 0 / 20%);
-$rp-text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
-
-// =================================================
-//  SECTION 8: GLASSMORPHISM SYSTEM
-//  Blurs, Backgrounds, Radii for glass effects.
-// =================================================
-
-// --- Glass UI Borders ---
-$ui-glass-border: rgb(255 255 255 / 10%);
-$ui-glass-hover: rgb(255 255 255 / 5%);
-$ui-glass-interactive-border: rgb(255 255 255 / 25%);
-
-// --- Glass Levels ---
-// Pill (Control groups, floating actions)
-$glass-pill-bg: rgb(0 0 0 / 40%);
-$glass-pill-blur: 10px;
-$glass-pill-radius: 50px;
-
-// Standard (Cards, Panels)
-$glass-standard-bg: rgb(18 20 30 / 60%);
-$glass-standard-blur: 16px;
-
-// Heavy (Modals, Drawers)
-$glass-heavy-bg: rgb(18 20 30 / 85%);
-$glass-heavy-blur: 20px;
-$glass-heavy-radius: 12px;
-
-// =================================================
-//  SECTION 9: COMPONENT-SPECIFIC TOKENS
-//  Buttons, Inputs, Loading States.
-// =================================================
-
-// --- Buttons ---
-$btn-min-height: 2.25rem;
-$btn-font-size: 0.85rem;
-$btn-group-split-height: 3.5rem;
-$btn-group-split-radius: 0.75rem;
-$btn-danger-alpha: 0.1;
-$btn-ghost-hover-alpha: 0.05;
-$btn-outline-hover-alpha: 0.02;
-$btn-glass-hover-alpha: 0.1;
-$btn-glass-border-alpha: 0.1;
-$btn-glass-border-hover-alpha: 0.3;
-
-// --- Inputs ---
-$input-font-size: 0.95rem;
-$input-bg: rgb(0 0 0 / 30%);
-$input-bg-focus: rgb(0 0 0 / 50%);
-
-// --- Form Elements ---
-$form-element-pad-v: 0.75rem;
-$form-element-pad-h: 1rem;
-$nav-link-pad-v: 0.5rem;
-$nav-link-pad-h: 0.5rem;
-
-// --- Disabled State ---
-$opacity-disabled: $text-muted-opacity;
-
-// --- Optical Illusion (Loading Shimmer) ---
-$illusion-shimmer-color: rgb(255 255 255 / 3%);
-$illusion-shimmer-highlight: rgb(255 255 255 / 6%);
-
-// =================================================
-//  SECTION 10: Z-INDEX SCALE
-//  The single source of truth for layering.
-// =================================================
-
+// Z-Index
 $z-map: (
     base: 10,
     chip: 20,

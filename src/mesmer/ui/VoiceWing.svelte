@@ -134,17 +134,17 @@
 
     .voice-wing-content {
         @extend %material-glass-heavy;
-        padding: var(--spacing-lg);
+        padding: var(--spacing-l);
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-lg);
+        gap: var(--spacing-l);
         color: white;
-        background: var(--app-background)
-            radial-gradient(
-                circle at top left,
-                rgba(255, 255, 255, 0.05) 15%,
-                transparent 70%
-            );
+        background: var(--chalk, #222326);
+        background-image: radial-gradient(
+            circle at bottom left,
+            rgba(255, 255, 255, 0.05) 10%,
+            transparent 70%
+        );
         border-radius: inherit;
         height: 100%;
     }
@@ -166,7 +166,7 @@
                 border: 1px solid var(--ui-glass-border);
                 border-radius: var(--border-radius);
                 color: white;
-                padding: var(--spacing-sm);
+                padding: var(--spacing-s);
                 display: flex;
                 justify-content: space-between;
                 cursor: pointer;
@@ -175,7 +175,7 @@
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                padding-right: var(--spacing-md);
+                padding-right: var(--spacing-,);
 
                 &:hover {
                     background: rgba(255, 255, 255, 0.1);
@@ -285,7 +285,7 @@
     .sliders {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: var(--spacing-md);
+        gap: var(--spacing-,);
         margin-top: 4px; /* Ultra-tightened from 4px */
         width: 100%;
 

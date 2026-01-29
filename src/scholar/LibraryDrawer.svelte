@@ -122,23 +122,21 @@
     /* --- DRAWER CONTAINER --- */
     .entity-drawer {
         /* Solid, fully opaque drawer - no glass effect */
-        background: var(--app-component-bg);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--bg-card);
+        border: 0;
         border-bottom: none;
-        box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
+        box-shadow: var(--shadow-l);
 
         /* --- POSITIONING --- */
         position: fixed;
         bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-
-        width: 80vw;
+        width: auto;
         max-height: 85vh;
-
+        max-width: 80vw;
+        justify-self: center;
         /* --- SHAPE & LAYERS --- */
-        border-radius: 20px 20px 0 0;
-        z-index: z(drawer);
+        border-radius: var(--spacing-l) var(--spacing-l) 0 0;
+        z-index: var(--z-drawer);
         display: flex;
         flex-direction: column;
         pointer-events: auto;
@@ -148,32 +146,28 @@
     .drawer-backdrop {
         position: fixed;
         inset: 0;
-        background: rgb(0 0 0 / 60%);
-        backdrop-filter: blur(4px);
-        z-index: calc(z(drawer) - 1);
-        opacity: 1;
+        background: rgba(0, 0, 0, var(--opacity-l));
+        backdrop-filter: blur(var(--blur-s));
+        z-index: calc(var(--z-drawer) - 1);
+        opacity: var(--opacity-m);
         cursor: pointer;
     }
 
     /* --- HEADER --- */
     .drawer-header {
-        padding: 1rem 1.5rem;
+        padding: var(--spacing-m) var(--spacing-l);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px solid rgb(255 255 255 / 10%);
-        background: rgb(12, 16, 24); /* Fully opaque, slightly darker */
-        border-radius: 20px 20px 0 0; /* Match drawer corners */
+        border-bottom: 0;
+        background: var(--bg-app); /* Fully opaque, slightly darker */
+        border-radius: var(--spacing-l) var(--spacing-l) 0 0; /* Match drawer corners */
         flex-shrink: 0;
 
         h3 {
             margin: 0;
-            font-size: 1rem;
-            font-weight: 800;
             letter-spacing: 1px;
-            text-transform: uppercase;
-            font-family: var(--font-heading);
-            color: var(--app-h3-color);
+            text-transform: capitalize;
         }
     }
 
@@ -181,48 +175,48 @@
     .drawer-content {
         flex: 1;
         overflow-y: auto;
-        padding: 1.5rem;
+        padding: var(--spacing-m);
 
         @include custom-scrollbar;
     }
 
     .drawer-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 1.25rem;
-        padding-bottom: 2rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: var(--spacing-m);
+        width: 100%;
     }
 
-    /* --- ADD NEW CARD --- */
     .drawer-card--new {
+        width: 140px;
+        flex: 0 0 auto;
         aspect-ratio: 2 / 3;
-        border: 2px dashed rgb(255 255 255 / 20%);
+        border: 0;
         background: transparent;
-        border-radius: 12px;
+        border-radius: var(--spacing-m);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         color: var(--app-muted);
-        gap: 0.5rem;
+        gap: var(--spacing-xs);
         cursor: pointer;
         transition: all 0.2s ease;
 
         &:hover {
             border-color: var(--app-primary);
             color: var(--app-primary);
-            background: rgb(255 255 255 / 3%);
+            background: rgba(255, 255, 255, var(--opacity-xs));
             transform: translateY(-4px);
         }
 
         .drawer-card-icon {
             font-size: clamp(1.2rem, 4vw, 2.2rem);
-            font-family: var(--font-heading);
             margin: 0;
         }
 
         .drawer-card-label {
-            font-size: 0.8rem;
             font-weight: 700;
         }
     }
@@ -257,9 +251,6 @@
 
         h4 {
             margin: 0;
-            font-size: 0.85rem;
-            font-weight: 800;
-            font-family: var(--font-heading);
             color: var(--signature-color);
         }
 
@@ -267,7 +258,6 @@
             margin: 0;
             font-size: 0.9rem;
             opacity: 0.7;
-            font-family: var(--font-body);
         }
     }
 

@@ -20,8 +20,9 @@
 
     import { app } from "../../gamemaster/state.svelte.js"
     import { themeStore } from "../../mesmer/logic/theme.svelte.js"
+    import { fitText } from "../actions/fitText.js"
     import { tilt } from "../actions/tilt.js"
-    // Import Tilt Action
+    // Import Actions
     import Illusion from "../../mesmer/ui/Illusion.svelte"
     import ProfilePicture from "../../mesmer/ui/ProfilePicture.svelte"
 
@@ -114,7 +115,15 @@
             <!-- Bottom Half: Info & Trigger for Selection -->
             <Button className="card-bottom" variant="ghost" onclick={onSelect}>
                 <div class="text-half title-half">
-                    <h3>{entity?.name || `Select ${roleLabel}`}</h3>
+                    <h2
+                        use:fitText={{
+                            maxSize: 42,
+                            minSize: 16,
+                            lineHeight: "1.1",
+                        }}
+                    >
+                        {entity?.name || `Select ${roleLabel}`}
+                    </h2>
                 </div>
                 <div class="text-half desc-half">
                     <p>{entity?.description || "Click to browse choices..."}</p>
@@ -136,6 +145,7 @@
 <!-- End .split-card -->
 
 <style lang="scss">
+    @use "sass:color";
     @use "../../mesmer/scss/abstracts/variables" as *;
     @use "../../mesmer/scss/abstracts/mixins" as *;
     @use "../../mesmer/scss/abstracts/placeholders" as *;
@@ -194,9 +204,9 @@
             flex-direction: column;
 
             /* The Glass/Card Visuals */
-            border-radius: 24px;
+            border-radius: var(--spacing-l);
             overflow: hidden;
-            background: var(--card-background, #2b3848);
+            background: var(--bg-card);
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
             transform: translateZ(
                 0
@@ -209,16 +219,49 @@
 
             /* Hover State for Surface */
             &:not(.is-empty):not(.is-loading):hover {
-                box-shadow: 0 30px 60px rgba(var(--signature-rgb) / 0.15); /* Reduced from 0.3 */
+                box-shadow: 0 30px 60px rgba(var(--signature-rgb) / 0.25); /* Boosted to 0.25 */
+            }
+
+            /* "Sass" Overlay: Diagonal Depth Lighting */
+            &::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.1) 0%,
+                    rgba(255, 255, 255, 0.02) 40%,
+                    rgba(0, 0, 0, 0.05) 60%,
+                    rgba(0, 0, 0, 0.3) 100%
+                );
+                pointer-events: none;
+                z-index: 5; /* Sit atop opaque children */
             }
 
             /* State: Shimmering */
             &.shimmering {
-                :global(.card-top.btn::after),
-                :global(.empty-card.btn::before) {
+                &::after {
                     animation: shimmer 1.5s cubic-bezier(0.4, 0, 0.2, 1)
                         forwards;
                 }
+            }
+
+            /* Universal Shimmer Overlay (Hidden by default) */
+            &::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(
+                    105deg,
+                    transparent 20%,
+                    rgba(255, 255, 255, 0.05) 35%,
+                    rgba(255, 255, 255, 0.2) 50%,
+                    rgba(255, 255, 255, 0.05) 65%,
+                    transparent 80%
+                );
+                transform: translateX(-100%);
+                z-index: 10;
+                pointer-events: none;
             }
 
             /* State: Empty */
@@ -254,13 +297,17 @@
             flex-direction: row;
             /* Checking old code... it just changed heights of children usually */
             :global(.card-top) {
-                height: 50%;
+                height: 100%;
+                width: 50%;
             }
             :global(.card-bottom) {
-                height: 50%;
+                height: 100%;
+                width: 50%;
+                border-top: none;
+                border-left: 1px solid rgba(255, 255, 255, 0.05);
             }
 
-            :global(.card-bottom.btn .title-half h3) {
+            :global(.card-bottom.btn .title-half h2) {
                 -webkit-line-clamp: 1;
                 line-clamp: 1;
             }
@@ -278,23 +325,9 @@
         position: relative;
         background-color: var(--signature-color);
         overflow: hidden;
-        border-radius: 0; /* Reset radius */
+        border-radius: 0;
 
-        &::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(
-                105deg,
-                transparent 20%,
-                rgba(255, 255, 255, 0.02) 35%,
-                rgba(255, 255, 255, 0.08) 50%,
-                rgba(255, 255, 255, 0.02) 65%,
-                transparent 80%
-            );
-            transform: translateX(-100%);
-            /* animation: shimmer 5s infinite; -- Removed per user request */
-        }
+        /* animation: shimmer 5s infinite; -- Removed per user request */
 
         /* FIX: Neutralize inner button physics to prevent flicker during tilt */
         &:hover {
@@ -310,16 +343,21 @@
     :global(.card-bottom.btn) {
         height: 40%;
         width: 100%;
-        background: rgba(10, 10, 15, 0.5); /* Glassmorphism base */
-        backdrop-filter: blur(12px); /* Glassmorphism blur */
+        /* Gunmetal + 5% Sig (Matches Profile Header/Footer) */
+        background: color-mix(
+            in oklab,
+            var(--signature-color) 10%,
+            var(--gunmetal, #363840)
+        );
+        backdrop-filter: none; /* Opaque per request */
         border: none;
-        border-top: 1px solid rgba(255, 255, 255, 0.05); /* Separator */
+        border-top: 0px;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        gap: var(--space-xs);
-        padding: var(--space-sm) var(--space-md-lg);
-        border-radius: 0; /* Reset radius */
+        gap: var(--spacing-xxs);
+        padding: var(--spacing-xs) var(--spacing-m);
+        border-radius: 0;
 
         /* FIX: Neutralize inner button physics to prevent flicker during tilt */
         &:hover {
@@ -327,7 +365,12 @@
             box-shadow: none !important;
             filter: none !important;
             z-index: auto !important;
-            background: rgba(10, 10, 15, 0.5) !important; /* LOCK BACKGROUND */
+            /* Maintain Gunmetal Mix on Hover */
+            background: color-mix(
+                in oklab,
+                var(--signature-color) 10%,
+                var(--gunmetal, #363840)
+            ) !important;
         }
 
         .text-half {
@@ -335,13 +378,16 @@
         }
 
         .title-half {
-            h3 {
+            h2 {
                 margin: 0;
                 color: rgb(var(--signature-rgb));
                 font-weight: 700;
-                text-align: left;
+                /* Increased Base Size for fitText scaling */
+                font-size: var(--font-size-xxxxl);
+                line-height: 1.1;
                 word-break: break-word;
                 overflow-wrap: anywhere;
+                text-align: left;
 
                 display: -webkit-box;
                 -webkit-line-clamp: 2;
@@ -358,7 +404,7 @@
                 margin: 0;
                 color: white;
                 opacity: var(--text-secondary);
-                font-size: 0.8125rem;
+                font-size: var(--font-size-m);
                 text-align: left;
                 line-height: 1.35;
                 word-break: break-word;
@@ -379,7 +425,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 1rem;
+        gap: var(--spacing-m);
         background: transparent;
         border: none;
 
@@ -394,21 +440,7 @@
         overflow: hidden;
         border-radius: 24px; /* Ensure shimmer respects corners */
 
-        &::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(
-                105deg,
-                transparent 20%,
-                rgba(255, 255, 255, 0.05) 35%,
-                rgba(255, 255, 255, 0.2) 50%,
-                rgba(255, 255, 255, 0.05) 65%,
-                transparent 80%
-            );
-            transform: translateX(-100%);
-            /* Wait for hover */
-        }
+        /* Shimmer removed - handled by parent .card-surface */
 
         /* Hover Effect for Placeholder */
         /* Hover Effect for Placeholder */

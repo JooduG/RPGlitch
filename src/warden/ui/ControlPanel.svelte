@@ -11,7 +11,6 @@
     let energyLevel = $state(45)
 
     function handleAction(action) {
-        console.log(`[ControlPanel] Action triggered: ${action}`)
         app.log(`Control Panel: ${action}`, "system")
     }
 
@@ -181,16 +180,16 @@
 </Modal>
 
 <style lang="scss">
+    @use "../../mesmer/scss/abstracts/variables" as *;
+    @use "../../mesmer/scss/abstracts/surfaces" as *;
+
     .cockpit-panel {
         width: 26rem;
-        background: rgba(15, 17, 21, 0.95);
-        backdrop-filter: blur(12px) saturate(180%);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 1.5rem;
-        box-shadow:
-            0 30px 60px rgba(0, 0, 0, 0.8),
-            inset 0 0 20px rgba(0, 0, 0, 0.5),
-            0 0 0 1px rgba(255, 255, 255, 0.05);
+        background: rgba(var(--bg-app-rgb, #222326), var(--opacity-xl));
+        backdrop-filter: blur(var(--blur-m)) saturate(180%);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--spacing-l);
+        box-shadow: var(--shadow-l);
         padding: 1.5rem;
         display: flex;
         flex-direction: column;
@@ -210,8 +209,8 @@
             height: 100px;
             background: linear-gradient(
                 to bottom,
-                rgba(13, 242, 242, 0.03),
-                transparent
+                rgba(59, 130, 246, var(--opacity-xs)),
+                /* Hardcoded primary for safety */ transparent
             );
             pointer-events: none;
         }
@@ -239,12 +238,12 @@
                 font-size: 0.6rem;
                 letter-spacing: 0.1em;
                 font-weight: 700;
-                color: rgba(255, 255, 255, 0.4);
+                color: rgba(255, 255, 255, var(--opacity-m));
             }
 
             .bar-container {
                 height: 4px;
-                background: rgba(255, 255, 255, 0.05);
+                background: rgba(255, 255, 255, var(--opacity-xs));
                 border-radius: 2px;
                 overflow: hidden;
 
@@ -271,7 +270,7 @@
         .close-btn {
             background: none;
             border: none;
-            color: rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, var(--opacity-m));
             font-size: 1.5rem;
             cursor: pointer;
             padding: 0.5rem;
@@ -290,7 +289,7 @@
             font-size: 0.7rem;
             font-weight: 800;
             letter-spacing: 0.15em;
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(255, 255, 255, var(--opacity-l));
             margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
@@ -303,8 +302,8 @@
         }
 
         .terminal-screen {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: var(--bg-input, rgba(0, 0, 0, 0.3));
+            border: 1px solid var(--glass-border);
             border-radius: 0.75rem;
             height: 10rem;
             position: relative;
@@ -321,7 +320,7 @@
                 background: linear-gradient(
                     to bottom,
                     transparent,
-                    rgba(13, 242, 242, 0.03),
+                    rgba(59, 130, 246, var(--opacity-xs)),
                     transparent
                 );
                 animation: scan 4s linear infinite;
@@ -386,8 +385,8 @@
             font-weight: 800 !important;
             letter-spacing: 0.1em;
             text-transform: uppercase;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            background: rgba(255, 255, 255, 0.02) !important;
+            border: 1px solid var(--glass-border) !important;
+            background: rgba(255, 255, 255, var(--opacity-xs)) !important;
 
             &.cyan:hover {
                 border-color: #0df2f2 !important;
@@ -405,10 +404,10 @@
         display: flex;
         flex-direction: column;
         gap: 1rem;
-        background: rgba(255, 255, 255, 0.02);
+        background: rgba(255, 255, 255, var(--opacity-xs));
         padding: 1rem;
         border-radius: 0.75rem;
-        border: 1px solid rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
 
         .stack-row {
             display: flex;

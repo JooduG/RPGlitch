@@ -1,10 +1,8 @@
-@use "sass:map";
-@use "../abstracts/variables" as vars;
+@use "../abstracts/variables" as *;
 
 /* ============================================================================
    BASE: TYPOGRAPHY
-   Modular Scaling & Hierarchy
-   Location: src/scss/base/_typography.scss
+   Modular Scaling & Hierarchy (Nordic Refac v2)
    ============================================================================ */
 
 :root {
@@ -12,60 +10,27 @@
     font-size: 100%;
 
     // --- THEME COLORS ---
-    --app-h1-color: #{vars.$app-h1-color-light};
-    --app-h2-color: #{vars.$app-h2-color-light};
-    --app-h3-color: #{vars.$app-h3-color-light};
+    --app-h1-color: #{$app-color};
+    --app-h2-color: #{$app-color};
+    --app-h3-color: #{$app-muted};
 
-    // Dark Theme Overrides for Typography
-    &[data-theme="dark"] {
-        --app-h1-color: #{vars.$app-h1-color-dark};
-        --app-h2-color: #{vars.$app-h2-color-dark};
-        --app-h3-color: #{vars.$app-h3-color-dark};
-    }
+    // --- GENERIC METRICS ---
+    --line-height: #{$line-height-base};
+    --font-weight: #{$font-bold};
+    --border-radius: #{$border-radius};
+    --transition: #{$transition-speed} ease-in-out;
+    --spacing: var(--spacing-m); // Base
 
-    // --- GENERIC METRICS (De-branded) ---
-    --line-height: #{vars.$line-height-base};
-    --font-weight: #{vars.$font-weight-base};
-    --border-radius: #{vars.$border-radius};
-    --border-width: #{vars.$border-width-base};
-    --outline-width: #{vars.$outline-width-base};
-    --transition: #{vars.$transition-speed} ease-in-out;
-    --spacing: #{vars.$spacing-base};
-
-    // --- SPACING SCALE ---
-    --space-xs: #{vars.$spacing-xs};
-    --space-sm: #{vars.$spacing-sm};
-    --space-sm-md: #{vars.$spacing-sm-md};
-    --space-md: #{vars.$spacing-md};
-    --space-md-lg: #{vars.$spacing-md-lg};
-    --space-lg: #{vars.$spacing-lg};
-    --space-xl: #{vars.$spacing-xl};
-    --space-2xl: #{vars.$spacing-2xl};
-    --space-3xl: #{vars.$spacing-3xl};
-
-    // --- TEXT HIERARCHY (Opacity-Based) ---
-    --text-primary: #{vars.$text-primary-opacity};
-    --text-secondary: #{vars.$text-secondary-opacity};
-    --text-tertiary: #{vars.$text-tertiary-opacity};
-    --text-muted: #{vars.$text-muted-opacity};
-
-    // --- COMPONENT METRICS ---
-    --form-element-spacing-vertical: #{vars.$form-element-pad-v};
-    --form-element-spacing-horizontal: #{vars.$form-element-pad-h};
-    --nav-link-spacing-vertical: #{vars.$nav-link-pad-v};
-    --nav-link-spacing-horizontal: #{vars.$nav-link-pad-h};
+    // --- TEXT HIERARCHY (Opacity T-Shirts) ---
+    --opacity-primary: #{$opacity-full};
+    --opacity-secondary: #{$opacity-l};
+    --opacity-tertiary: #{$opacity-m};
+    --opacity-muted: #{$opacity-s};
 
     // Font Families
-    --font-heading: #{vars.$font-heading};
-    --font-mono: #{vars.$font-monospace};
-    --font-body: #{vars.$font-body};
-
-    // Generate media queries from map for Adaptive Root Scaling
-    @each $width, $scale in vars.$viewport-scaling {
-        @media (min-width: $width) {
-            font-size: $scale;
-        }
-    }
+    --font-heading: #{$font-family-heading};
+    --font-mono: #{$font-family-mono};
+    --font-body: #{$font-family-sans};
 }
 
 h1,
@@ -79,45 +44,38 @@ h6 {
     margin-top: 0;
     color: inherit;
     text-wrap: balance;
-
-    --font-weight: 700;
 }
 
-// 3. Hierarchy & Vertical Rhythm (Descending Rem Scale)
+// Hierarchy & Vertical Rhythm
 h1 {
-    font-size: 3.5rem;
+    font-size: var(--font-size-xxxxl); // 3rem
     line-height: 1.125;
-    margin-top: map.get(vars.$h-spacing, h1);
+    margin-top: var(--spacing-3xl); // Approx 3rem
 }
-
 h2 {
-    font-size: 1.75rem;
+    font-size: var(--font-size-xxxl); // 1.875rem
     line-height: 1.15;
-    margin-top: map.get(vars.$h-spacing, h2);
+    margin-top: var(--spacing-2xl);
 }
-
 h3 {
-    font-size: 1.5rem;
+    font-size: var(--font-size-xxl); // 1.5rem
     line-height: 1.175;
-    margin-top: map.get(vars.$h-spacing, h3);
+    margin-top: var(--spacing-xl);
 }
-
 h4 {
-    font-size: 1.25rem;
+    font-size: var(--font-size-xl); // 1.25rem
     line-height: 1.2;
-    margin-top: map.get(vars.$h-spacing, h4);
+    margin-top: var(--spacing-l);
 }
-
 h5 {
-    font-size: 1.125rem;
+    font-size: var(--font-size-l); // 1.125rem
     line-height: 1.225;
-    margin-top: map.get(vars.$h-spacing, h5);
+    margin-top: var(--spacing-m);
 }
-
 h6 {
-    font-size: 1rem;
+    font-size: var(--font-size-m); // 1rem
     line-height: 1.25;
-    margin-top: map.get(vars.$h-spacing, h6);
+    margin-top: var(--spacing-m);
 }
 
 // Table Headers
@@ -129,25 +87,22 @@ tfoot td {
     border-width: 0.1875rem;
 }
 
-// 4. Technical Elements
+// Technical Elements
 kbd {
     font-weight: bolder;
 }
-
 pre,
 code,
 kbd,
 samp {
     font-family: var(--font-mono);
 }
-
 small {
     font-size: 0.875em;
 }
 
 a {
     text-decoration: underline;
-
     &.secondary,
     &.contrast {
         text-decoration: underline;

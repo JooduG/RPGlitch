@@ -1,14 +1,11 @@
 @use "sass:map";
-@use "../abstracts/variables" as vars;
+@use "../abstracts/variables" as *;
 @use "../abstracts/mixins" as *;
 
 /* ============================================================================
    BASE: RESET & ROOT VARIABLES
-   CSS Variables, Reset, and Global Utilities.
-   Refactored for Mesmer.
    ============================================================================ */
 
-/* Universal Box-Sizing: border-box (Standard) */
 *,
 *::before,
 *::after {
@@ -16,68 +13,91 @@
 }
 
 :root {
-    // --- Z-INDEX MAP ---
-    --z-base: #{map.get(vars.$z-map, base)};
-    --z-chip: #{map.get(vars.$z-map, chip)};
-    --z-mobile-drawer: #{map.get(vars.$z-map, mobile-drawer-container)};
-    --z-overlay: #{map.get(vars.$z-map, overlay)};
-    --z-modal: #{map.get(vars.$z-map, modal)};
-    --z-drawer: #{map.get(vars.$z-map, drawer)};
-    --z-toast: #{map.get(vars.$z-map, toast)};
+    // --- NORDIC COLLECTION (Cold Palette) ---
+    --frisk: #{$frisk};
+    --frozen-pole: #{$frozen-pole};
+    --gunmetal: #{$gunmetal};
+    --chalk: #{$chalk};
 
     // --- THEME VARIABLES ---
-    --app-color: #{vars.$app-color-light};
-    --app-muted: #{vars.$muted-light};
-    --app-border: #{vars.$border-light};
-    --app-del: #{vars.$color-danger};
-    --app-success: #{vars.$color-success};
-    --app-background: #{vars.$app-background};
-    --card-background: #{vars.$card-background};
-    --form-background: #{vars.$form-background};
-    --app-component-bg: #{vars.$component-bg};
+    --app-color: #{$app-color};
+    --app-muted: #{$app-muted};
+    --app-border: #{$border-color};
+    --app-del: #{$color-danger};
+    --app-success: #{$color-success};
 
-    // Primary Colors (From Tokens)
-    --app-primary: #{vars.$app-primary};
-    --app-primary-inverse: #{vars.$app-primary-inverse};
-    --app-primary-hover: #{vars.$app-primary-hover};
-    --app-primary-focus: #{vars.$app-primary-focus};
+    // --- BACKGROUNDS (Standardized) ---
+    --app-background: #{$app-background};
+    --bg-grad-1: #{$bg-grad-1};
+    --bg-grad-2: #{$bg-grad-2};
+    --bg-grad-3: #{$bg-grad-3};
+    --bg-grad-4: #{$bg-grad-4};
+    --bg-app: #{$bg-app};
+    --bg-card: #{$bg-card};
+    --bg-form: #{$bg-form};
+    --bg-component: #{$bg-component};
 
-    // Secondary Colors (From Tokens)
-    --app-secondary: #{vars.$app-secondary};
-    --app-secondary-inverse: #{vars.$app-secondary-inverse};
-    --app-secondary-hover: #{vars.$app-secondary-hover};
+    // --- ACCENTS & SIGNATURES ---
+    --signature-violet: #{$signature-violet};
+    --signature-pink: #{$signature-pink};
+    --signature-blue: #{$signature-blue};
+    --signature-green: #{$signature-emerald};
+    --color-accent: #{$color-accent};
 
-    // --- APP UTILITIES ---
-    --rp-text-shadow: #{vars.$rp-text-shadow};
-    --color-accent: #{vars.$app-accent};
-    --signature-text-on: #{vars.$white};
+    // --- GRADIENTS ---
+    --gradient-standard: #{$gradient-standard};
+    --gradient-radial: #{$gradient-radial};
 
-    // Initialize signature vars (Forwarded from tokens -> palette-generated)
-    @each $name, $data in vars.$signature-colors {
-        --signature-#{$name}: #{map.get($data, color)};
-    }
+    // --- TYPOGRAPHY SCALE ---
+    --font-size-xs: #{$font-size-xs};
+    --font-size-s: #{$font-size-s};
+    --font-size-m: #{$font-size-m};
+    --font-size-l: #{$font-size-l};
+    --font-size-xl: #{$font-size-xl};
+    --font-size-xxl: #{$font-size-xxl};
+    --font-size-xxxl: #{$font-size-xxxl};
+    --font-size-xxxxl: #{$font-size-xxxxl};
+    --font-size-xxxxxl: #{$font-size-xxxxxl};
 
-    // Gradient Variables
-    --bg-grad-1: #{vars.$gradient-color-1};
-    --bg-grad-2: #{vars.$gradient-color-2};
-    --bg-grad-3: #{vars.$gradient-color-3};
-    --bg-grad-4: #{vars.$gradient-color-4};
+    // --- SPACING SCALE (T-Shirt Sizing) ---
+    --spacing-xxs: #{$spacing-xxs};
+    --spacing-xs: #{$spacing-xs};
+    --spacing-s: #{$spacing-s};
+    --spacing-m: #{$spacing-m};
+    --spacing-l: #{$spacing-l};
+    --spacing-xl: #{$spacing-xl};
+    --spacing-xxl: #{$spacing-xxl};
 
-    // --- SPACING ---
-    --spacing-xs: #{vars.$spacing-xs};
-    --spacing-sm: #{vars.$spacing-sm};
-    --spacing-sm-md: #{vars.$spacing-sm-md};
-    --spacing-md: #{vars.$spacing-md};
-    --spacing-md-lg: #{vars.$spacing-md-lg};
-    --spacing-lg: #{vars.$spacing-lg};
-    --spacing-xl: #{vars.$spacing-xl};
-    --spacing-2xl: #{vars.$spacing-2xl};
-    --spacing-3xl: #{vars.$spacing-3xl};
+    // --- OPACITY (T-Shirt Sizing) ---
+    --opacity-xxs: #{$opacity-xxs};
+    --opacity-xs: #{$opacity-xs};
+    --opacity-s: #{$opacity-s};
+    --opacity-m: #{$opacity-m};
+    --opacity-l: #{$opacity-l};
+    --opacity-xl: #{$opacity-xl};
+
+    // --- SHADOWS ---
+    --shadow-s: #{$shadow-s};
+    --shadow-m: #{$shadow-m};
+    --shadow-l: #{$shadow-l};
+    --rp-text-shadow: #{$rp-text-shadow};
+
+    // --- EFFECTS ---
+    --glass-border: #{$glass-border};
+
+    // --- Z-INDEX ---
+    --z-base: #{map.get($z-map, "base")};
+    --z-chip: #{map.get($z-map, "chip")};
+    --z-ui: #{map.get($z-map, "ui")};
+    --z-overlay: #{map.get($z-map, "overlay")};
+    --z-modal: #{map.get($z-map, "modal")};
+    --z-drawer: #{map.get($z-map, "drawer")};
+    --z-toast: #{map.get($z-map, "toast")};
 }
 
 // --- DYNAMIC SIGNATURE UTILITY ---
 .themed-signature {
-    --current-sig: var(--signature-color, #{vars.$signature-violet});
+    --current-sig: var(--signature-color, #{$signature-violet});
     --current-sig-rgb: var(--signature-rgb, 139 92 246);
     --signature-10: rgb(var(--current-sig-rgb) / 10%);
     --signature-20: rgb(var(--current-sig-rgb) / 20%);
@@ -87,18 +107,7 @@
     border-color: var(--current-sig);
 }
 
-// --- DARK THEME OVERRIDES ---
-[data-theme="dark"] {
-    --app-background: #{vars.$app-background-dark};
-    --card-background: #{vars.$card-background-dark};
-    --form-background: #{vars.$form-background-dark};
-    --app-color: #{vars.$app-color-dark};
-    --app-muted: #{vars.$muted-dark};
-    --app-border: #{vars.$border-dark};
-}
-
 // --- ACCESSIBILITY ---
-
 .sr-only {
     position: absolute;
     width: 1px;

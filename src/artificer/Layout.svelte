@@ -188,11 +188,7 @@
             .stage-column--center {
                 grid-column: 4 / span 4;
                 align-items: center;
-                background: radial-gradient(
-                    circle at center,
-                    rgba(255, 255, 255, 0.03) 0%,
-                    transparent 70%
-                );
+                /* Background Removed to match Skeleton/Body */
             }
             .stage-column.right {
                 grid-column: 8 / span 2;

@@ -168,6 +168,13 @@ export class AppStore {
         }
     }
 
+    closeProfile = () => {
+        this.profileOpen = false
+    }
+
+    profileTargetId = $derived(this.editingEntity?.id || null)
+    profileTargetType = $derived(this.editingEntity?.type || null)
+
     /**
      * Alias for toggleProfile to match clearer intent
      * @param {Object} entity - The entity to edit

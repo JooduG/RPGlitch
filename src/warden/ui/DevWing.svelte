@@ -267,20 +267,21 @@
 
     .dev-wing-content {
         @extend %material-glass-heavy;
-        padding: var(--spacing-lg);
+        padding: var(--spacing-l);
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-lg);
+        gap: var(--spacing-l);
         color: white;
         border-radius: inherit;
-        background: var(--app-background)
-            radial-gradient(
-                circle at top left,
-                rgba(255, 255, 255, 0.05) 10%,
-                transparent 70%
-            );
+        background: var(--chalk, #222326);
+        background-image: radial-gradient(
+            circle at bottom left,
+            rgba(255, 255, 255, 0.05) 10%,
+            transparent 70%
+        );
         height: 100%;
         overflow-y: auto;
+        overflow-x: hidden;
 
         &::-webkit-scrollbar {
             width: 4px;
@@ -294,20 +295,20 @@
     .group {
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-sm);
+        gap: var(--spacing-s);
     }
 
     /* 1. Dynamics */
     .dynamics-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: var(--spacing-sm);
+        gap: var(--spacing-s);
 
         .dynamic-box {
             background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--ui-glass-border);
+            border: 1px solid var(--glass-border);
             border-radius: var(--spacing-xs);
-            padding: var(--spacing-sm);
+            padding: var(--spacing-s);
             display: flex;
             display: flex;
             flex-direction: column;
@@ -403,7 +404,7 @@
                 flex: 1;
                 background: transparent;
                 border: none;
-                padding: var(--spacing-sm);
+                padding: var(--spacing-s);
                 color: white;
                 font-size: 0.85rem; /* Matched VisualWing */
                 outline: none;
@@ -478,8 +479,8 @@
             .plot-item {
                 display: flex;
                 align-items: center; /* Center align items */
-                gap: var(--spacing-sm);
-                padding: 10px var(--spacing-md);
+                gap: var(--spacing-s);
+                padding: 10px var(--spacing-m);
                 padding-right: 36px;
                 margin-bottom: 2px;
                 background: rgba(255, 255, 255, 0.03);
@@ -552,7 +553,7 @@
             }
 
             .empty-state {
-                padding: var(--spacing-lg);
+                padding: var(--spacing-l);
                 text-align: center;
                 font-size: 0.65rem;
                 text-transform: uppercase;
@@ -567,7 +568,7 @@
     .toggle-stack {
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-sm);
+        gap: var(--spacing-m);
 
         .toggle-control {
             display: flex;
@@ -636,7 +637,7 @@
         .json-wrap {
             margin-top: 8px;
             background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--ui-glass-border);
+            border: 1px solid var(--glass-border);
             border-radius: var(--spacing-xs);
             padding: var(--spacing-xs);
             max-height: 150px;

@@ -10,6 +10,7 @@
     } = $props()
 
     import { fade } from "svelte/transition"
+    import { fitText } from "../artificer/actions/fitText.js"
     import { themeStore } from "../mesmer/logic/theme.svelte.js"
 
     let signatureColor = $derived(themeStore.getSignatureColor(entity))
@@ -47,22 +48,25 @@
     </div>
 
     <div class="card-info">
-        <span class="entity-name">{name}</span>
+        <h5>
+            <span class="entity-name" use:fitText>{name}</span>
+        </h5>
     </div>
 
     <div class="signature-bar"></div>
 </button>
 
 <style lang="scss">
+    @use "sass:color";
     @use "../mesmer/scss/abstracts/variables" as *;
     @use "../mesmer/scss/abstracts/mixins" as *;
     @use "../mesmer/scss/abstracts/placeholders" as *;
 
     .drawer-card {
         aspect-ratio: 2 / 3;
-        background: var(--card-background);
+        background: var(--bg-card);
         /* Border purged */
-        border-radius: 12px;
+        border-radius: var(--spacing-s);
         position: relative;
         overflow: hidden;
         cursor: pointer;
@@ -71,7 +75,9 @@
         padding: 0;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         text-align: left;
-        width: 100%;
+        width: 140px;
+        flex: 0 0 auto;
+        border: 0;
 
         @extend %material-interactive;
 
@@ -79,11 +85,6 @@
             transform: translateY(-4px);
             /* Border-color purged */
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-
-            .signature-bar {
-                opacity: 1;
-                height: 4px;
-            }
         }
 
         .card-visual {
@@ -110,32 +111,31 @@
                 height: 100%;
                 background: var(--signature-color);
                 color: #ffffff;
-                font-size: 2rem;
+                font-size: var(--font-size-xxxxxl);
                 font-weight: 800;
                 transition: transform 0.6s ease;
                 text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+                font-family: "Ubuntu";
 
                 &.fractal-mode {
-                    font-size: 3rem;
+                    font-size: var(--font-size-xxxxxl);
                 }
             }
         }
 
         .card-info {
             flex: 0.6;
-            padding: var(--space-sm) var(--space-sm-md);
+            padding: var(--spacing-xs) var(--spacing-s);
             display: flex;
             align-items: center;
-            background: linear-gradient(
-                to bottom,
-                rgba(0, 0, 0, 0.4),
-                rgba(0, 0, 0, 0.8)
-            );
+            background: var(--bg-app);
+
+            h5 {
+                margin: 0;
+                padding: 0;
+            }
 
             .entity-name {
-                font-size: 0.85rem;
-                font-weight: 700;
-                font-family: var(--font-heading);
                 color: var(--signature-color);
                 text-wrap: balance;
                 display: -webkit-box;
@@ -143,18 +143,9 @@
                 -webkit-line-clamp: 2;
                 -webkit-box-orient: vertical;
                 overflow: hidden;
+                margin: 0;
+                padding: 0;
             }
-        }
-
-        .signature-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: var(--signature-color);
-            opacity: 0.6;
-            transition: all 0.2s ease;
         }
     }
 </style>

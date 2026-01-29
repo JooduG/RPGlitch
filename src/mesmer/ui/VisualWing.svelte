@@ -353,24 +353,24 @@
 
     .visual-wing-content {
         @extend %material-glass-heavy;
-        padding: var(--spacing-lg);
+        padding: var(--spacing-l);
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-lg);
+        gap: var(--spacing-l);
         color: white;
         border-radius: inherit;
-        background: var(--app-background)
-            radial-gradient(
-                circle at bottom left,
-                rgba(255, 255, 255, 0.075) 10%,
-                transparent 70%
-            );
+        background: var(--chalk, #222326);
+        background-image: radial-gradient(
+            circle at bottom left,
+            rgba(255, 255, 255, 0.05) 10%,
+            transparent 70%
+        );
     }
 
     .group {
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-sm);
+        gap: var(--spacing-s);
     }
 
     .spectrum-grid {
@@ -420,7 +420,7 @@
                 background: transparent;
                 border: none;
                 color: white;
-                padding: var(--spacing-sm);
+                padding: var(--spacing-s);
                 font-size: 0.85rem;
                 font-family: var(--font-body); /* Enforce consistent font */
                 resize: none;
@@ -542,7 +542,7 @@
     .toggle-stack {
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-sm);
+        gap: var(--spacing-s);
 
         .toggle-control {
             display: flex;
