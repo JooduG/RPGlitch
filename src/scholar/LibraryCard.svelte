@@ -126,13 +126,15 @@
         .card-info {
             flex: 0.6;
             padding: var(--spacing-xs) var(--spacing-s);
+            padding-bottom: 1.5rem; /* Strict Anchoring */
             display: flex;
-            align-items: center;
+            align-items: flex-end; /* Align to bottom anchor */
             background: var(--bg-app);
 
             h5 {
                 margin: 0;
                 padding: 0;
+                width: 100%;
             }
 
             .entity-name {

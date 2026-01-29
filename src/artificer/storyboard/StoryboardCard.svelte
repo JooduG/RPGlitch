@@ -206,7 +206,7 @@
             /* The Glass/Card Visuals */
             border-radius: var(--spacing-l);
             overflow: hidden;
-            background: var(--bg-card);
+            background: var(--chalk);
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
             transform: translateZ(
                 0
@@ -223,19 +223,30 @@
             }
 
             /* "Sass" Overlay: Diagonal Depth Lighting */
+            /* "Sass" Overlay: Diagonal Depth Lighting */
             &::before {
                 content: "";
                 position: absolute;
                 inset: 0;
                 background: linear-gradient(
                     135deg,
-                    rgba(255, 255, 255, 0.1) 0%,
-                    rgba(255, 255, 255, 0.02) 40%,
+                    rgba(255, 255, 255, 0.05) 0%,
+                    /* Reduced opacity */ rgba(255, 255, 255, 0.01) 40%,
                     rgba(0, 0, 0, 0.05) 60%,
                     rgba(0, 0, 0, 0.3) 100%
                 );
                 pointer-events: none;
-                z-index: 5; /* Sit atop opaque children */
+                z-index: 1; /* Pushed back from 5 */
+            }
+
+            /* State: Loading - Chalk Regime */
+            &.is-loading {
+                background: var(--chalk, #222326);
+
+                /* Kill blue tints in loading state children if any */
+                :global(*) {
+                    border-color: rgba(255, 255, 255, 0.1);
+                }
             }
 
             /* State: Shimmering */
@@ -266,8 +277,6 @@
 
             /* State: Empty */
             &.is-empty {
-                background: rgba(10, 10, 15, 0.5);
-
                 &:hover {
                     box-shadow: 0 0 30px rgba(255, 255, 255, 0.25); /* Boosted form 0.1 to 0.25 */
 

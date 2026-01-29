@@ -1,5 +1,6 @@
 <script>
     import { app } from "../../gamemaster/state.svelte.js"
+    import { pulse, shimmy, spin } from "../actions/kinetic.js"
     import { tilt } from "../actions/tilt.js"
     import Button from "../Button.svelte"
     import { storyboard } from "./storyboardActions.svelte.js"
@@ -17,11 +18,12 @@
     >
         <!-- Option 1: "The Twitch" (Subtle nervous energy) -->
         <Button
-            className="capsule-flank icon-glow twitch-hover"
+            className="capsule-flank icon-glow"
             variant="ghost"
             onclick={storyboard.shuffle}
             aria-label="Shuffle All"
             title="Randomize Entities"
+            actions={[shimmy]}
         >
             <svg viewBox="0 0 24 24" class="icon-small">
                 <path
@@ -32,11 +34,12 @@
         </Button>
 
         <Button
-            className="capsule-flank icon-glow spin-hover"
+            className="capsule-flank icon-glow"
             variant="ghost"
             onclick={app.toggleControlPanel}
             aria-label="Settings"
             title="Open Control Panel"
+            actions={[spin]}
         >
             <svg viewBox="0 0 24 24" class="icon-small">
                 <path
@@ -52,6 +55,7 @@
             variant="ghost"
             disabled={!readyToBegin}
             onclick={storyboard.beginStory}
+            actions={[pulse]}
         >
             <div class="core-content">
                 {#if readyToBegin}
@@ -98,17 +102,6 @@
         filter: drop-shadow(0 0 8px rgba($white, $opacity-s));
         color: $white;
         transition: all 0.2s ease;
-    }
-
-    /* --- Animation 1: twitch (for Shuffle) --- */
-    :global(.twitch-hover:hover) {
-        animation: twitch 0.4s ease-in-out infinite;
-    }
-
-    /* --- Animation 2: Spin (for Settings) --- */
-    :global(.spin-hover:hover svg) {
-        transform: rotate(90deg);
-        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     /* --- Animation 3: "Green for Go" (for Begin) --- */

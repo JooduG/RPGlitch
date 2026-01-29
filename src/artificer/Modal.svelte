@@ -16,6 +16,8 @@
 <div
     class="backdrop"
     onclick={(e) => {
+        // Close if clicking the backdrop itself or the empty space around the modal
+        // The .backdrop is the fixed overlay.
         if (e.target === e.currentTarget) onclose()
     }}
     role="dialog"

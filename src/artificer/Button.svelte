@@ -13,12 +13,39 @@
     export function focus() {
         element?.focus()
     }
+
+    /**
+     * Helper to apply an array of actions to the button element.
+     * Actions can be: [action] or [action, params]
+     */
+    function applyActions(node, actions) {
+        const destructors = []
+
+        actions.forEach((item) => {
+            const action = Array.isArray(item) ? item[0] : item
+            const params = Array.isArray(item) ? item[1] : undefined
+
+            if (typeof action === "function") {
+                const result = action(node, params)
+                if (result && result.destroy) {
+                    destructors.push(result.destroy)
+                }
+            }
+        })
+
+        return {
+            destroy() {
+                destructors.forEach((d) => d())
+            },
+        }
+    }
 </script>
 
 <button
     bind:this={element}
     class="btn btn-{variant} {size === 'sm' ? 'btn-sm' : ''} {className}"
     {...restProps}
+    use:applyActions={restProps.actions || []}
 >
     {#if children}
         {@render children()}

@@ -166,8 +166,11 @@
 
         h3 {
             margin: 0;
-            letter-spacing: 1px;
-            text-transform: capitalize;
+            letter-spacing: 0.5px;
+            /* text-transform: uppercase; REMOVED per Chalk Regime */
+            font-weight: 800; /* Heavy weight */
+            font-size: var(--font-size-xl); /* Size upgrade */
+            font-family: var(--font-heading);
         }
     }
 
@@ -236,8 +239,8 @@
         gap: 1rem;
 
         .empty-icon {
-            width: 4rem;
-            height: 4rem;
+            width: 5.5rem; /* Upgraded from 4rem */
+            height: 5.5rem;
             opacity: 0.2;
             fill: currentcolor;
             margin-bottom: 0.5rem;
@@ -252,6 +255,8 @@
         h4 {
             margin: 0;
             color: var(--signature-color);
+            font-size: var(--font-size-xl); /* Upgraded from default */
+            font-weight: 800; /* Bold */
         }
 
         p {
