@@ -62,8 +62,11 @@
 
 ---
 
-## ✅ Track: Structural Audit of Agent Core
+---
 
-- Path: .agent/tasks/structural-audit_20260130/
+## ✅ Track: CLI Robot Mode (JSON Output)
+
+- Path: .agent/tasks/cli-robot-mode_20260130/
 - Status: Complete
-- Note: Logical separation of Knowledge, Rules, and Workflows for token efficiency.
+- Note: Structured JSON output for core pillar scripts to support agentic automation.
+

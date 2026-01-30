@@ -48,7 +48,10 @@ Always verify retrieval quality after ingestion.
     node .agent/skills/scholar/scripts/cli.js search "keyword from ingested docs"
     ```
 
-2. **Clarity Audit**: If search results are fragmented, re-structure the source markdown with more descriptive headers.
+2. **Robot Mode**: Append `--json` to `search` or `ingest` for machine-readable status.
+
+3. **Clarity Audit**: If search results are fragmented, re-structure the source markdown with more descriptive headers.
+
 
 ---
 

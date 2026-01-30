@@ -39,3 +39,5 @@ description: Comprehensive Security & Compliance Audit. Verifies the Freedom Pro
 ## 4. Synthesis
 
 - **Completion**: Announce "Warden Audit Complete. Integrity Verified."
+- **Robot Mode**: Use `--json` for structured reports.
+

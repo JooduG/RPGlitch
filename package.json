@@ -29,12 +29,15 @@
         "ingest": "node .agent/skills/scholar/scripts/explorer.js ingest",
         "scholar": "node .agent/skills/scholar/scripts/explorer.js",
         "warden": "node .agent/skills/warden/scripts/warden.js",
+        "warden:json": "node .agent/skills/warden/scripts/warden.js --json",
         "gamemaster": "node .agent/skills/gamemaster/scripts/gamemaster.js",
+        "gamemaster:json": "node .agent/skills/gamemaster/scripts/gamemaster.js status --json",
         "qa:diagnostics": "node .agent/skills/warden/scripts/warden.js rules",
         "test:unit": "vitest",
         "test:e2e": "playwright test"
     },
     "dependencies": {
+        "@pinecone-database/pinecone": "^6.1.4",
         "dexie": "^3.2.4",
         "dompurify": "^3.0.5",
         "dotenv": "^17.2.3",

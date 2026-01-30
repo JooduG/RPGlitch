@@ -18,3 +18,5 @@ description: Reports the status of active tracks and project health.
 - **Summary**: Print a markdown table of active vs. completed tracks.
 - **Health**: Report "Optimal" or list "Incompatibilities".
 - **Focus**: State the current active track and next logic gate.
+- **Robot Mode**: Use `--json` flag for machine-readable output in automated loops.
+

@@ -12,10 +12,25 @@ import { fileURLToPath } from "url"
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = path.resolve(__dirname, "../../../..")
 
+const IS_JSON = process.argv.includes("--json")
+
+/** Log to stderr if in JSON mode, otherwise stdout */
+const robotLog = (...args) => {
+    if (IS_JSON) {
+        console.error(...args)
+    } else {
+        console.log(...args)
+    }
+}
+
+const robotError = (...args) => {
+    console.error(...args)
+}
+
 const COMMANDS = {
     /** 🔄 Sync Protocol */
     sync: async (type = "all") => {
-        console.log(
+        robotLog(
             `\n🔄 GAMEMASTER: Initiating Sync Protocol [Mode: ${type.toUpperCase()}]...`
         )
         try {
@@ -24,19 +39,26 @@ const COMMANDS = {
             execSync(`node .agent/skills/gamemaster/scripts/sync.js ${flag}`, {
                 stdio: "inherit",
             })
+            if (IS_JSON) console.log(JSON.stringify({ status: "success", mode: type }))
         } catch (e) {
-            console.error("❌ Sync failed:", e.message)
+            if (IS_JSON) {
+                console.log(JSON.stringify({ error: e.message, code: 1 }))
+            } else {
+                robotError("❌ Sync failed:", e.message)
+            }
             process.exit(1)
         }
     },
 
     /** 🩺 Hygiene Protocol (Improved) */
     hygiene: async () => {
-        console.log("\n🩺 GAMEMASTER: Initiating Hygiene Scan [Scope: src]...")
+        robotLog("\n🩺 GAMEMASTER: Initiating Hygiene Scan [Scope: src]...")
         let warningCount = 0
         let errorCount = 0
+        const issues = []
 
         const scanDir = (dir) => {
+            if (!fs.existsSync(dir)) return
             const items = fs.readdirSync(dir)
             for (const item of items) {
                 const fullPath = path.join(dir, item)
@@ -51,18 +73,16 @@ const COMMANDS = {
                     lines.forEach((line, i) => {
                         if (/^\s*(\/\/|\*|\/\*)/.test(line)) return // Skip comments
 
-                        // Updated logic to check for console.log/alert but respect ignores if implemented later
-                        // For now, strict check as per Warden/Hygiene protocol
                         if (/console\.log\(/.test(line)) {
-                            console.warn(
-                                `[WARN] console.log in ${path.relative(REPO_ROOT, fullPath)}:${i + 1}`
-                            )
+                            const msg = `[WARN] console.log in ${path.relative(REPO_ROOT, fullPath)}:${i + 1}`
+                            robotLog(msg)
+                            issues.push({ type: "warning", file: path.relative(REPO_ROOT, fullPath), line: i + 1, message: "console.log found" })
                             warningCount++
                         }
                         if (/\balert\(/.test(line)) {
-                            console.error(
-                                `[ERROR] alert in ${path.relative(REPO_ROOT, fullPath)}:${i + 1}`
-                            )
+                            const msg = `[ERROR] alert in ${path.relative(REPO_ROOT, fullPath)}:${i + 1}`
+                            robotError(msg)
+                            issues.push({ type: "error", file: path.relative(REPO_ROOT, fullPath), line: i + 1, message: "alert found" })
                             errorCount++
                         }
                     })
@@ -71,18 +91,27 @@ const COMMANDS = {
         }
 
         scanDir(path.join(REPO_ROOT, "src"))
-        console.log(`\n--- Hygiene Results ---`)
-        console.log(`Warnings (Logs): ${warningCount}`)
-        console.log(`Errors (Alerts): ${errorCount}`)
+        
+        if (IS_JSON) {
+            console.log(JSON.stringify({ 
+                status: errorCount > 0 ? "error" : "success",
+                warnings: warningCount,
+                errors: errorCount,
+                issues
+            }))
+        } else {
+            robotLog(`\n--- Hygiene Results ---`)
+            robotLog(`Warnings (Logs): ${warningCount}`)
+            robotLog(`Errors (Alerts): ${errorCount}`)
+        }
 
         if (errorCount > 0) process.exit(1)
     },
 
     /** 🚀 Bootstrap / Self-Healing */
     bootstrap: async () => {
-        console.log("⚡ GAMEMASTER: Performing Deep Bootstrap...")
+        robotLog("⚡ GAMEMASTER: Performing Deep Bootstrap...")
 
-        // 1. Pillar Existence Check (Logic from on_start.ps1)
         const pillars = [
             ".agent/rules/01-prime-directive.md",
             ".agent/rules/02-architecture.md",
@@ -90,24 +119,31 @@ const COMMANDS = {
             ".agent/rules/04-security.md",
             ".agent/rules/05-hygiene.md",
         ]
-        let missing = 0
-        console.log("🔍 Verifying Pillar Integrity...")
+        let missing = []
+        robotLog("🔍 Verifying Pillar Integrity...")
         for (const pillar of pillars) {
-            if (fs.existsSync(path.join(REPO_ROOT, pillar))) {
-                // console.log(`  ✅ Found: ${pillar}`) // Quiet mode
-            } else {
-                console.error(`  ❌ MISSING PILLAR: ${pillar}`)
-                missing++
+            if (!fs.existsSync(path.join(REPO_ROOT, pillar))) {
+                robotError(`  ❌ MISSING PILLAR: ${pillar}`)
+                missing.push(pillar)
             }
         }
-        if (missing > 0) {
-            console.error("⚠️ Environment Corrupt. Halting.")
+        
+        if (missing.length > 0) {
+            if (IS_JSON) {
+                console.log(JSON.stringify({ error: "Environment Corrupt", missing_pillars: missing }))
+            } else {
+                robotError("⚠️ Environment Corrupt. Halting.")
+            }
             process.exit(1)
         }
 
-        // 2. Config & Type Check (Logic from on_startup.sh)
+        // 2. Config & Type Check
         if (!fs.existsSync(path.join(REPO_ROOT, ".agent/config.yaml"))) {
-            console.error("❌ Missing .agent/config.yaml")
+            if (IS_JSON) {
+                console.log(JSON.stringify({ error: "Missing config.yaml" }))
+            } else {
+                robotError("❌ Missing .agent/config.yaml")
+            }
             process.exit(1)
         }
 
@@ -115,48 +151,78 @@ const COMMANDS = {
         await COMMANDS.sync("all")
         await COMMANDS.hygiene()
 
-        console.log("✅ Gamemaster Environment: READY.")
+        if (IS_JSON) {
+            // Success JSON is handled by hygiene/sync if called directly, but we provide a final one if everything passed
+            console.log(JSON.stringify({ status: "ready" }))
+        } else {
+            robotLog("✅ Gamemaster Environment: READY.")
+        }
     },
 
     /** 📊 Status Report */
     status: async () => {
-        console.log("\n📊 GAMEMASTER: Generating Status Report...")
+        robotLog("\n📊 GAMEMASTER: Generating Status Report...")
         const tracksPath = path.join(REPO_ROOT, ".agent/tasks/tracks.md")
         if (!fs.existsSync(tracksPath)) {
-            console.error("❌ Missing .agent/tasks/tracks.md")
+            if (IS_JSON) {
+                console.log(JSON.stringify({ error: "Missing tracks.md" }))
+            } else {
+                robotError("❌ Missing .agent/tasks/tracks.md")
+            }
             return
         }
 
         const content = fs.readFileSync(tracksPath, "utf-8")
         const lines = content.split("\n")
 
-        console.log("\n--- Track Summary ---")
-        let activeCount = 0
-        let completedCount = 0
+        const summary = {
+            active: [],
+            completed: []
+        }
+
+        let currentTrack = null
 
         for (const line of lines) {
             if (line.startsWith("##")) {
                 const isComplete = line.includes("✅")
-                const name = line.replace(/##\s*[✅⭕]\s*Track:\s*/, "").trim()
-                if (isComplete) completedCount++
-                else activeCount++
-                console.log(`${isComplete ? "✅" : "⭕"} ${name}`)
+                const name = line.replace(/##\s*[✅⭕🔁]\s*Track:\s*/, "").trim()
+                currentTrack = { name, path: "", status: isComplete ? "completed" : "active" }
+                if (isComplete) summary.completed.push(currentTrack)
+                else summary.active.push(currentTrack)
+            } else if (line.trim().startsWith("- Path:") && currentTrack) {
+                currentTrack.path = line.replace("- Path:", "").trim()
             }
         }
 
-        console.log(`\nActive: ${activeCount} | Completed: ${completedCount}`)
-        console.log("----------------------")
+        if (IS_JSON) {
+            console.log(JSON.stringify({
+                active_count: summary.active.length,
+                completed_count: summary.completed.length,
+                tracks: [...summary.active, ...summary.completed]
+            }))
+        } else {
+            robotLog("\n--- Track Summary ---")
+            summary.active.forEach(t => robotLog(`⭕ ${t.name}`))
+            summary.completed.forEach(t => robotLog(`✅ ${t.name}`))
+            robotLog(`\nActive: ${summary.active.length} | Completed: ${summary.completed.length}`)
+            robotLog("----------------------")
+        }
     },
 }
 
 async function main() {
-    const cmd = process.argv[2] || "bootstrap"
-    const arg = process.argv[3]
+    // Filter out --json from args to get the actual command and its primary arg
+    const args = process.argv.slice(2).filter(a => a !== "--json")
+    const cmd = args[0] || "bootstrap"
+    const arg = args[1]
 
     if (!COMMANDS[cmd]) {
-        console.error(
-            "❌ Unknown command. Available: sync, hygiene, bootstrap, status"
-        )
+        const errorMsg = `Unknown command. Available: sync, hygiene, bootstrap, status`
+        if (IS_JSON) {
+            console.log(JSON.stringify({ error: errorMsg, code: 2 }))
+        } else {
+            robotError(`❌ ${errorMsg}`)
+        }
         process.exit(1)
     }
 
