@@ -32,7 +32,6 @@ description: >
 
 - **I Enforce**:
     - [Security Protocols](../../rules/04-security.md) (Zero-Trust).
-    - [Security Protocols](../../rules/04-security.md) (Zero-Trust).
     - [Dependency Integrity]: Must run `npm-sentinel` on any new dependency.
     - [Hygiene Protocols](../../rules/05-hygiene.md) (Static Integrity).
 
@@ -45,13 +44,13 @@ description: >
 
 ### 🛡️ 1. The Shield (Security)
 
-- **Path**: [Warden Script](./scripts/warden.js)
-- **Function**: Enforcing security rules, HTML/CSS audits, and system diagnostics.
+- **Path**: [Defense-in-Depth](./defense.md)
+- **Function**: Layered validation, security rules, and zero-trust enforcement.
 
 ### 🧪 2. The Sentry (Debugging)
 
-- **Path**: [Testing & QA](../../knowledge/tech/testing-qa.md)
-- **Function**: Systematic debugging and failure analysis (Root Cause Tracing).
+- **Path**: [Testing & QA](./testing.md)
+- **Function**: Systematic debugging, failure analysis (Root Cause Tracing), and quality gates.
 
 ## 4. Operational Protocols
 

@@ -1,12 +1,6 @@
----
-trigger: always_on
----
+# Cortex Workflow: Reasoning Protocols
 
-# 🧩 Gamemaster: Reasoning Protocol (Heavy Logic)
-
-**Activation Mode:** Always On
-
-> **The Cortex:** A structured framework for deploying specialized reasoning modules based on problem complexity.
+> **Context:** Structured framework for deploying specialized reasoning modules.
 
 ## 1. The Complexity Ladder (Trigger System)
 
@@ -21,7 +15,7 @@ Before solving a problem, identify its **Complexity Level** to select the correc
 | **L5** | **Conflict** | Trade-offs, architectural debates, "A vs B".         | `structuredargumentation` |
 | **L6** | **Science**  | Hypothesis testing, unknown unknowns.                | `scientificmethod`        |
 
-## 2. Tool Directives
+## 2. Tool Directives & Protocols
 
 ### 🧩 Sequential Thinking (The Engine)
 
@@ -47,9 +41,10 @@ Before solving a problem, identify its **Complexity Level** to select the correc
 
 - **When:** You are solving the wrong problem (XY Problem).
 - **Models:**
-    - **First Principles:** "What is actually true?"
-    - **Occam’s Razor:** "What is the simplest explanation?"
-    - **Pareto:** "What 20% of work gives 80% result?"
+    - **First Principles:** Deconstruct to basic truths. Ignore "best practices" if they conflict with reality.
+    - **Occam’s Razor:** The simplest explanation is usually right. Check for typos before race conditions.
+    - **Pareto (80/20):** Focus on the 20% of code causing 80% of the friction.
+    - **Second-Order Thinking:** Ask "And then what?". Consider side effects on other pillars.
 
 ### ⚖️ Decision Framework (The Gavel)
 
@@ -57,27 +52,34 @@ Before solving a problem, identify its **Complexity Level** to select the correc
 
 - **When:** Choosing a Tech Stack, Library, or Architecture.
 - **Strictness:**
-    - **Constraint:** Must list PROS/CONS and weighted criteria.
-    - **Output:** A definitive recommendation (No "it depends").
+    - **Hard Constraints:** List "Must-Haves" (e.g., Svelte 5 Compliance).
+    - **Pros/Cons:** Be brutal and honest.
+    - **Verdict:** Make a definitive choice. No "it depends".
 
 ### 🔮 Stochastic & Science (The Lab)
 
 **Tools:** `stochasticalgorithm` / `scientificmethod`
 
-- **Stoch:** "What if?" scenarios, game balance, probability.
-- **Science:** "Hypothesis -> Experiment -> Conclusion". Use for performance tuning.
+- **Experiment Protocol (L6):**
+    1. **Observation:** State the anomaly.
+    2. **Hypothesis:** "If I change [A], [B] will happen."
+    3. **Execution:** Run the experiment.
+    4. **Validation:** Did result match prediction?
+- **Simulation Mode:** Force failures mentally to trace outcomes through pillars.
 
 ### 🤝 Collaborative (The Council)
 
 **Tool:** `collaborativereasoning`
 
-- **When:** The user asks for a "Second Opinion" or "Critique".
-- **Concept:** Simulates a panel of experts (e.g., Security Expert vs. UX Designer) to debate the solution.
+- **When:** New features affecting multiple pillars, breaking changes, or security-critical components.
+- **Personas:**
+    - **Artificer:** Structure & Scalability.
+    - **Mesmer:** UX & Vibe.
+    - **Warden:** Security & Sanitization.
+    - **Scholar:** Data Integrity.
+    - **Gamemaster:** Logic Flow.
+- **Protocol:** Thesis -> Antithesis (Critique) -> Synthesis (Trade-offs).
 
 ## 3. The Metacognitive Check
 
-**Tool:** `metacognitivemonitoring`
-
-- **Trigger:** If you feel "Lost" or "Confused" after 3 tool calls.
-- **Action:** Stop. Assess your own reasoning. Are you hallucinating? Are you assuming?
-- **Output:** A confidence score and a course correction plan.
+**Tool:** `metacognitivemonitoring` (See [Metacognition](./metacognition.md))

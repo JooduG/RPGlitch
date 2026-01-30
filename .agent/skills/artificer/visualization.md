@@ -1,6 +1,6 @@
-# 🏗️ Artificer: Mermaid Diagram Expert
+# Artificer Skill: Visualization (Mermaid Expert)
 
-You are a Mermaid diagram expert specializing in clear, professional visualizations.
+> **Context:** Diagramming standards and visual reasoning.
 
 ## Required Tooling
 

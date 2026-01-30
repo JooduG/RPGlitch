@@ -1,4 +1,6 @@
-# 🧩 Gamemaster: Core World Mechanics
+# Gamemaster Skill: Core World Mechanics
+
+> **Context:** Chrono Kinetics and Temporal Pacing.
 
 These are the fundamental "Laws of Physics" that govern the simulation.
 

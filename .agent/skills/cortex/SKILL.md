@@ -59,29 +59,29 @@ We operate on a "Two-Speed" efficiency model. Select the correct Level for the t
 ### 🧱 L2: Planning (The Gamemaster)
 
 - **Scope**: Features, Refactors, Multi-file changes.
-- **Protocol**: [engine.md](../../knowledge/system/engine.md)
+- **Protocol**: [The Simulation Engine](../gamemaster/engine.md)
 - **MCP Tool**: `sequentialthinking` (Plan Mode).
 
 ### 🔍 L3: Metacognition (The Mirror)
 
 - **Scope**: when stuck, looping, or confused.
-- **Protocol**: [meta-cognition.md](../../knowledge/logic/meta-cognition.md)
+- **Protocol**: [Metacognition](./metacognition.md)
 - **MCP Tool**: `waldzell-clear-thought` -> `metacognitivemonitoring`.
 
 ### 🔓 L4: Reframing (The Deconstructor)
 
 - **Scope**: "Impossible" bugs, XY Problems.
-- **Protocol**: [principles.md](../../knowledge/logic/principles.md)
+- **Protocol**: [Reasoning Workflow](./workflow.md)
 - **MCP Tool**: `waldzell-clear-thought` -> `mentalmodel` (First Principles).
 
 ### ⚖️ L5: Decision (The Verdict)
 
 - **Scope**: "A vs B" Architectural Conflicts.
-- **Protocol**: [principles.md](../../knowledge/logic/principles.md)
+- **Protocol**: [Reasoning Workflow](./workflow.md)
 - **MCP Tool**: `waldzell-clear-thought` -> `decisionframework`.
 
 ### 🧪 L6: Science (The Lab)
 
 - **Scope**: Unknown Unknowns, System Behavior Analysis.
-- **Protocol**: [testing-qa.md](../../knowledge/tech/testing-qa.md)
+- **Protocol**: [Testing & QA](../warden/testing.md)
 - **MCP Tool**: `waldzell-clear-thought` -> `scientificmethod`.

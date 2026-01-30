@@ -1,6 +1,8 @@
-# 🧩 Gamemaster: The Simulation Engine
+# Gamemaster Skill: The Simulation Engine
 
-This document details the internal "Deep Logic" that drives the RPGlitch simulation, merging the responsibilities of the Gamemaster and Scholar pillars.
+> **Context:** The internal "Deep Logic" driving the simulation.
+
+This document details the internal logic that drives the RPGlitch simulation, merging the responsibilities of the Gamemaster and Scholar pillars.
 
 ## 1. The Heartbeat Protocol
 

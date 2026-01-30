@@ -1,4 +1,6 @@
-# 🏗️ Artificer: The Chalk Design System (Visual Tokens)
+# Mesmer Skill: The Chalk Design System
+
+> **Context:** Visual tokens, typography, and atmospheric physics.
 
 The visual language of RPGlitch is defined by "Neural Minimalism"—a high-fidelity, atmospheric interface that uses light and shadow to guide the eye.
 

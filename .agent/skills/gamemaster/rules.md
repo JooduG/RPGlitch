@@ -1,6 +1,6 @@
-# 🧠 Logic: Principles
+# Gamemaster Rules & Principles
 
-The Logic pillar (Gamemaster) governs the operational truth of the simulation.
+> **Context:** Operational truth and logic governance.
 
 ## 1. The Authority Hierarchy
 
@@ -10,7 +10,7 @@ All logic processing must respect the following three-tier priority system:
 - **L2 (CRITICAL):** **Internal Consistency.** Character personality, world physics, and established memory must be maintained.
 - **L3 (HIGH):** **Narrative Momentum.** The system should strive for cinematic pacing and sensory depth.
 
-## 2. Theoretical Focus
+## 2. Logic Integrity
 
 To maintain logical integrity, the system implements:
 

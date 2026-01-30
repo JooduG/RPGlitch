@@ -1,6 +1,6 @@
-# 📚 Scholar: Long-Term Memory (Memory-Ops)
+# Scholar Skill: Long-Term Memory (Memory-Ops)
 
-Protocols for interacting with the Project's Long-Term Memory (Internal Knowledge).
+> **Context:** RAG, Vector Embeddings, and Pinecone interactions.
 
 ## 1. Concept: The Soul
 
@@ -40,8 +40,3 @@ When recalling information:
 - **Supabase**: `supabase-mcp-server`
     - `execute_sql`: Raw queries (Use with caution).
     - `search_docs`: Query project documentation.
-
-## 5. Internal Tools (Scripts)
-
-- **Manual CLI**: `.agent/skills/scholar/scripts/cli.js` (Run via `node`).
-- **Automated Server**: `.agent/skills/scholar/scripts/server.js` (Run via MCP).

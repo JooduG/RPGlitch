@@ -32,6 +32,7 @@ description: >
 ## 3. Directives
 
 - **I Enforce**:
+    - **Logic**: [Logic Rules & Principles](./rules.md).
     - **Stability**: [Freedom Protocols](../../rules/04-security.md) (Storage Protection).
     - **Truth**: The Pillar Architecture ([`src/`](../../../src/)).
 

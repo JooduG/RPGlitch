@@ -1,4 +1,6 @@
-# 🛡️ Warden: Diagnostics & Resilience (The Divergence Protocol)
+# Warden Skill: Diagnostics & Resilience (The Divergence Protocol)
+
+> **Context:** Mental debugging and assumption checking.
 
 When a fix fails, use these questions to identify the flaw in the current mental model.
 

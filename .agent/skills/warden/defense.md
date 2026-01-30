@@ -1,4 +1,6 @@
-# 🛡️ Warden: Security: Defense-in-Depth Validation
+# Warden Skill: Defense-in-Depth Validation
+
+> **Context:** Layered security and validation protocols.
 
 ## Overview
 

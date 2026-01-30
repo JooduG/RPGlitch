@@ -33,20 +33,7 @@ export class SharedState {
 - **Fragments:** Use Snippets (`{#snippet ...}`) instead of legacy slots.
 - **Events:** Use callback props (e.g., `onclick={() => ...}`) instead of `createEventDispatcher`.
 
-## 🧪 3. Testing Strategy
-
-### Unit & Integration (Vitest)
-
-- Use `.svelte.test.js` to enable runes in test files.
-- Use `flushSync()` from `svelte` to force effect execution in sync tests.
-- Wrap tests using `$effect` in `$effect.root(() => { ... })`.
-
-### E2E Testing (Playwright)
-
-- Focus on user flows and high-level causality checks.
-- Configuration: `playwright.config.js`.
-
-## 🤖 4. Automated Hygiene (Svelte MCP)
+## 🤖 3. Automated Hygiene (Svelte MCP)
 
 Use the Svelte MCP tools via `npx` for automated validation and documentation lookup:
 
@@ -54,12 +41,12 @@ Use the Svelte MCP tools via `npx` for automated validation and documentation lo
 - **Docs:** `npx @sveltejs/mcp list-sections` and `get-documentation`.
 - **Note:** Escape `$` as `\$` when passing code strings in terminal.
 
-## 🛠️ 5. Approved Eco-System
+## 🛠️ 4. Approved Eco-System
 
 - **Runed:** For reactive utilities (e.g., `useDebounce`, `useStorage`).
 - **Paneforge:** For resizable, professional dashboard layouts.
 
-## ❌ 6. Banned Patterns
+## ❌ 5. Banned Patterns
 
 - No `writable()`/`readable()` stores.
 - No `export let`.

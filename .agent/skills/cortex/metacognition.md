@@ -1,6 +1,6 @@
-# 🧩 Gamemaster: Metacognition Layer (Audit)
+# Cortex Skill: Metacognition (Self-Audit)
 
-> **Goal**: Stop hallucination loops by checking your own reasoning process ("The Mirror").
+> **Context:** Hallucination prevention and reasoning monitoring.
 
 ## Required Tooling
 

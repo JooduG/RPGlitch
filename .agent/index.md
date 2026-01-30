@@ -24,21 +24,24 @@ _Active wisdom and technical protocols._
 
 The "Why." Narrative goals, Diegetic UI, and the core glossary.
 
-### 🏗️ [System Architecture](./knowledge/system/architecture.md)
-
-The "How." The 5 Pillars, the Reactive Cycle, and the Engine Loop.
-
-### ⚖️ [Logic & Principles](./knowledge/logic/principles.md)
-
-The "Truth." Authority hierarchy and rules of the simulation.
-
 ### ⚡ [Tech & Svelte 5](./knowledge/tech/svelte-5.md)
 
-The "Code." Runes, MCP integration, and testing strategies.
+The "Code." Runes, MCP integration, and approved ecosystem.
 
 ### 💡 [Speculative Incubator](./knowledge/incubator/)
 
 The "Future." An incubator for experimental lore and mechanics.
+
+---
+
+## 🧠 Skill Capabilities (The How)
+
+- **🕹️ Gamemaster**: [Logic Rules](./skills/gamemaster/rules.md) | [Engine](./skills/gamemaster/engine.md) | [Mechanics](./skills/gamemaster/mechanics.md)
+- **🧠 Cortex**: [Reasoning Workflows](./skills/cortex/workflow.md) | [Metacognition](./skills/cortex/metacognition.md) | [Context](./skills/cortex/context.md)
+- **🛡️ Warden**: [Testing & QA](./skills/warden/testing.md) | [Defense](./skills/warden/defense.md) | [Tracing](./skills/warden/tracing.md)
+- **🎨 Mesmer**: [Design System](./skills/mesmer/design-system.md)
+- **📚 Scholar**: [Persistence](./skills/scholar/persistence.md) | [Long-Term Memory](./skills/scholar/memory.md)
+- **🛠️ Artificer**: [Visualization](./skills/artificer/visualization.md)
 
 ---
 

@@ -1,6 +1,6 @@
-# 🛡️ Warden: Testing & QA Procedures
+# Warden Skill: Testing & QA Procedures
 
-This protocol ensures the structural integrity and logic hygiene of the RPGlitch engine.
+> **Context:** Structural integrity and logic hygiene protocols.
 
 ## 1. The Root Cause Tracing Protocol (Debugging)
 
@@ -45,7 +45,13 @@ expect(result).toBeDefined()
 - **Side Effects:** Wrap tests that trigger `$effect` in `$effect.root`.
 - **Flush Sync:** Use `flushSync()` to force state updates before making assertions.
 
-## 4. The Quality Gate
+## 4. E2E Testing (Playwright)
+
+- **Focus:** User flows and high-level causality checks.
+- **Configuration:** `playwright.config.js`.
+- **Rule:** Do not test implementation details; test user-visible outcomes.
+
+## 5. The Quality Gate
 
 Before any feature is merged/finalized:
 
