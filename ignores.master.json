@@ -40,7 +40,8 @@
             "/.DS_Store",
             "/.npm",
             "/coverage",
-            "/dist"
+            "/dist",
+            ".agent/**"
         ],
         "stylelint": [
             "*.bak",
@@ -53,7 +54,8 @@
             "/.DS_Store",
             "/.npm",
             "/coverage",
-            "/dist"
+            "/dist",
+            ".agent/**"
         ],
         "htmlhint": [
             "*.bak",
@@ -66,7 +68,8 @@
             "/.DS_Store",
             "/.npm",
             "/coverage",
-            "/dist"
+            "/dist",
+            ".agent/**"
         ],
         "markdownlint": [
             "*.bak",

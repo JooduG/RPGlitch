@@ -18,14 +18,14 @@ Before ingesting, identify the **Namespace**:
    Run the CLI tool for the target directory:
 
     ```bash
-    node tools/scholar/cli.js ingest --path [dir/file] --namespace [ns]
+    node .agent/skills/scholar/scripts/cli.js ingest --path [dir/file] --namespace [ns]
     ```
 
 2. **Default Sync (Recommended)**:
    To sync the core agent configuration:
 
     ```bash
-    node tools/scholar/cli.js ingest
+    node .agent/skills/scholar/scripts/cli.js ingest
     ```
 
 ## 3. Verification
@@ -34,11 +34,11 @@ Before ingesting, identify the **Namespace**:
    Verify the info exists by searching for a unique keyword:
 
     ```bash
-    node tools/scholar/cli.js search "keyword"
+    node .agent/skills/scholar/scripts/cli.js search "keyword"
     ```
 
 ## 📋 Best Practices
 
-- **Exclude Noise**: Ensure `.gitignore` is up to date to avoid ingesting `node_modules`.
+- **Exclude Noise**: Ensure [.gitignore](../../../../.gitignore) is up to date to avoid ingesting `node_modules`.
 - **Atomic namespaces**: Keep high-level rules in `.meta` to prioritize them in searches.
 - **Narrative Chunking**: The Scholar uses semantic chunking based on Markdown headers (`#`). Keep docs well-structured for better RAG.

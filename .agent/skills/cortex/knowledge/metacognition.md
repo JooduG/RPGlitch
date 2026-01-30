@@ -2,9 +2,15 @@
 
 > **Goal**: Stop hallucination loops by checking your own reasoning process ("The Mirror").
 
+## Required Tooling
+
+- **MCP**: `waldzell-metacognitive-monitoring`
+- **Function**: `metacognitiveMonitoring`
+
 ## The Protocol: The Self-Audit
 
 If you feel "Lost", "Confused", or have made 3+ tool calls without measurable progress: **STOP**.
+**CRITICAL**: If the user's last 3 messages address the same issue, you **MUST** initiate this protocol immediately.
 
 1. **Assess Assumptions**: "Am I assuming something that isn't true? Did I misread a file?"
 2. **Confidence Check**: Rate your confidence in the current path (0-100%).

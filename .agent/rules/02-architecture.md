@@ -18,15 +18,15 @@ The application is structured into five distinct, decoupled pillars:
 
 ### 🛠️ 2. Artificer (The Body)
 
-- **Role:** Structure, Form, and UI Kit.
+- **Role:** Structure and UI Kit.
 - **Core:** `src/artificer/`.
 - **Responsibility:** Atomic building blocks and layout systems.
 
 ### 🎭 3. Mesmer (The Senses)
 
-- **Role:** Visuals, Audio, and Theme (The Illusion).
+- **Role:** Visuals, Audio, Form, and Theme.
 - **Core:** `src/mesmer/`.
-- **Responsibility:** Theme states, TTS, and AI-generated visuals.
+- **Responsibility:** Theme states, SCSS Architecture, and AI-generated visuals.
 
 ### 📚 4. Scholar (The Archivist)
 

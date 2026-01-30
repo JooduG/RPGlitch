@@ -26,6 +26,14 @@
     "enabled": true
   },
   "mcpServers": {
+    "chrome-devtools": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "chrome-devtools-mcp@latest"
+      ]
+    },
     "context7": {
       "headers": {
         "CONTEXT7_API_KEY": "ctx7sk-47294459-6c98-4af4-8546-a3616fe3d7d9"
@@ -33,7 +41,7 @@
       "url": "https://mcp.context7.com/mcp"
     },
     "deepwiki": {
-      "url": "https://mcp.deepwiki.com/sse"
+      "url": "https://mcp.deepwiki.com/mcp"
     },
     "github": {
       "headers": {
@@ -77,6 +85,12 @@
         "@sveltejs/mcp"
       ]
     },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    },
     "firecrawl-mcp": {
       "command": "npx",
       "args": [
@@ -104,14 +118,6 @@
         "@supabase/mcp-server-supabase@latest",
         "--access-token",
         "sbp_0211f76c824072d4b77a5012761ad3fd3baca328"
-      ],
-      "env": {}
-    },
-    "pencil": {
-      "command": "c:\\Users\\johng\\.antigravity\\extensions\\highagency.pencildev-0.6.12-universal\\out\\mcp-server-windows-x64.exe",
-      "args": [
-        "--ws-port",
-        "63302"
       ],
       "env": {}
     },

@@ -6,7 +6,6 @@
 
 import { normalize, premade, STORAGE_VERSION } from "../library/library.js"
 import { db } from "./db.js"
-import { supabase } from "./supabase.js"
 
 const log = console.log
 const error = console.error
@@ -209,43 +208,8 @@ export const stories = {
  */
 export const searchLore = async (query) => {
     if (!query) return []
-
-    // 1. DEV BRANCH: Attempt Edge Function (Semantic Search)
-    if (import.meta.env.DEV) {
-        try {
-            log(`[Scholar] Invoking Edge Function: search-lore for "${query}"`)
-            const { data, error: invokeError } =
-                await supabase.functions.invoke("search-lore", {
-                    body: { query },
-                })
-
-            if (invokeError) throw invokeError
-
-            // Extract UIDs from response
-            const uids = data?.results?.map((r) => r.id) || []
-
-            if (uids.length > 0) {
-                log(
-                    `[Scholar] Edge Function found ${uids.length} potential hits.`
-                )
-
-                // Fetch full records from lorebook_entries
-                const { data: records, error: fetchError } = await supabase
-                    .from("lorebook_entries")
-                    .select("*")
-                    .in("uid", uids)
-
-                if (fetchError) throw fetchError
-
-                return records || []
-            }
-        } catch (err) {
-            warn("[Scholar] Edge Search failed, falling back to SQL:", err)
-        }
-    }
-
-    // 2. FALLBACK/PROD BRANCH: Direct SQL Text Search
-    return await searchLoreSQL(query)
+    console.warn("[Scholar] Supabase search disabled (Local-First Mode).")
+    return []
 }
 
 /**
@@ -254,22 +218,7 @@ export const searchLore = async (query) => {
  * @returns {Promise<Array>} List of lorebook entries
  */
 export const searchLoreSQL = async (query) => {
-    try {
-        log(`[Scholar] Executing SQL Text Search for "${query}"`)
-        const { data, error: sqlError } = await supabase
-            .from("lorebook_entries")
-            .select("*")
-            .textSearch("content", query, {
-                type: "websearch",
-                config: "english",
-            })
-
-        if (sqlError) throw sqlError
-        return data || []
-    } catch (err) {
-        error("[Scholar] SQL Search failed:", err)
-        return []
-    }
+    return []
 }
 
 // ============================================================================

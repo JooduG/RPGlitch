@@ -10,9 +10,9 @@
 
 ## Core Concepts
 
-- **Monolith:** The single `index.html` output artifact.
+- **Monolith:** The single [`index.html`](../../../../dist/index.html) output artifact.
 - **Runes:** Svelte 5 reactivity system (`$state`, `$derived`, `$effect`).
-- **Chrono:** The Turn-Based Time Machine (`chrono.svelte.js`).
+- **Chrono**: The Turn-Based Time Machine ([chrono.svelte.js](../../../../src/gamemaster/chrono.svelte.js)).
 - **Echo:** The Database Repository Pattern.
 - **Fractal:** A generated world/setting.
 - **Chin:** The mobile bottom drawer UI.

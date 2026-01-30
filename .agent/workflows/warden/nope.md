@@ -10,11 +10,11 @@ description: The Divergence Protocol. Triggers when a fix fails to meet expectat
 ## 1. The Halt (Immediate Action)
 
 1. **Acknowledge the Divergence**: State clearly that the previous attempt failed without excessive apologies.
-2. **Rollback Assessment**: Check if you need to use `conductor/05-revert.md` to restore a working state.
+2. **Rollback Assessment**: Check if you need to use [Revert Protocol](../../gamemaster/05-revert.md) to restore a working state.
 
 ## 2. The Diagnostic (Why were we wrong?)
 
-Use the **[Diagnostic Questions](./knowledge/diagnostics.md)** to break your current mental model. Identify the _Expectation Gap_ and the _Flawed Assumption_.
+Use the **[Debugging Protocol](../../skills/warden/knowledge/debugging.md)** to break your current mental model. Identify the _Expectation Gap_ and the _Flawed Assumption_.
 
 ## 3. The New Approach (Lateral Thinking)
 

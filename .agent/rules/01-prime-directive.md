@@ -49,6 +49,6 @@ The `.agent/` directory is the **Operating System** of this repository. All vend
 
 ## 4. Operational Mandates
 
-- **The Plan is Truth:** All work MUST be tracked in `plan.md` (or current task artifact).
+- **The Plan is Truth:** All work MUST be tracked in `plan.md` (or [current task artifact](../../task.md)).
 - **Standard Hierarchy:** Use `kebab-case` for all files. Avoid nesting deeper than 2 levels in `knowledge/`.
 - **Self-Contained:** Every document must have a clear purpose and reference its dependencies.

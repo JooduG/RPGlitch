@@ -25,13 +25,13 @@ declare global {
         uid: string
         content: string
         type: "character" | "location" | "event" | "rule"
-        metadata: Record<string, any>
+        metadata: Record<string, unknown>
     }
 
     /** 🗝️ Perchance Globals (Injected) */
     interface Window {
-        ai: any
-        rpgLists: any
+        ai: unknown
+        rpgLists: unknown
         update: () => void
     }
 }

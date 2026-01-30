@@ -6,7 +6,13 @@
         "pinecone-mcp-server",
         "mcp-sequentialthinking-tools",
         "waldzell-clear-thought",
-        "supabase-mcp-server"
+        "waldzell-stochastic-thinking",
+        "supabase-mcp-server",
+        "firecrawl-mcp",
+        "playwright",
+        "chrome-devtools",
+        "stitch",
+        "pollinations"
     ],
     "standard_tools": [
         "view_file",

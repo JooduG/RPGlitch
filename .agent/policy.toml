@@ -7,15 +7,21 @@
 
 [[rule]]
 toolName = "run_shell_command"
-commandPrefix = ["git status", "git diff", "git log", "git branch", "git add"]
+# Routine Administrative Ops (Non-destructive)
+commandPrefix = [
+    "git status", "git diff", "git log", "git branch", "git add",
+    "npm run lint", "npm run hygiene", 
+    "ls", "dir", "ls -R", "cat", "type", "head", "tail"
+]
 decision = "allow"
 priority = 100
 
 [[rule]]
-toolName = "run_shell_command"
-commandPrefix = ["ls", "dir", "ls -R", "cat", "type", "head", "tail"]
+toolName = ["run_command", "run_shell_command"]
+# Structural Hygiene (Moving/Creating files inside Pillar territories)
+commandRegex = "(New-Item|Move-Item|mkdir).*(\\.agent/skills/|\\.agent/knowledge/)"
 decision = "allow"
-priority = 100
+priority = 150
 
 [[rule]]
 toolName = "view_file"
@@ -23,17 +29,7 @@ decision = "allow"
 priority = 100
 
 [[rule]]
-toolName = "view_file_outline"
-decision = "allow"
-priority = 100
-
-[[rule]]
-toolName = "grep_search"
-decision = "allow"
-priority = 100
-
-[[rule]]
-toolName = "find_by_name"
+toolName = ["view_file_outline", "grep_search", "find_by_name"]
 decision = "allow"
 priority = 100
 

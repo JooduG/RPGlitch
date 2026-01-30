@@ -50,18 +50,18 @@ Before starting any task, you **MUST** read the following to ground yourself:
 
 ## 2. 🧠 The Skill Matrix
 
-| Skill                   | Trigger / Context                     | Purpose                                               |
-| :---------------------- | :------------------------------------ | :---------------------------------------------------- |
-| **agent-startup**       | Initialization / Session Start        | Mandatory environment validation.                     |
-| **artificer**           | `src/artificer/**`                    | UI components, layouts, and storyboard features.      |
-| **conductor**           | `.agent/tasks/**`                     | Orchestrates work tracks, state, and context (Tasks). |
-| **cortex**              | Multi-track reasoning (L1-L6)         | Master intelligence & problem solving router.         |
-| **doc-surgeon**         | `.agent/**` docs                      | Refactor and optimize the knowledge & rule pillars.   |
-| **skill-forge**         | Skill generation                      | Framework for creating new specialist modules.        |
-| **tech-research**       | Tech unknowns                         | Orchestrates documentation & Context7 research.       |
-| **debugging-strategy**  | Persistent bugs (L3)                  | Scientific method for bug isolation.                  |
-| **hygiene**             | `.agent/rules/05-hygiene-protocol.md` | Static integrity, QA, and documentation purity.       |
-| **sequential-thinking** | Complexity > L1                       | Step-by-step planning and breakdown specialists.      |
+| Skill                   | Trigger / Context              | Purpose                                               |
+| :---------------------- | :----------------------------- | :---------------------------------------------------- |
+| **agent-startup**       | Initialization / Session Start | Mandatory environment validation.                     |
+| **artificer**           | `src/artificer/**`             | UI components, layouts, and storyboard features.      |
+| **conductor**           | `.agent/tasks/**`              | Orchestrates work tracks, state, and context (Tasks). |
+| **cortex**              | Multi-track reasoning (L1-L6)  | Master intelligence & problem solving router.         |
+| **doc-surgeon**         | `.agent/**` docs               | Refactor and optimize the knowledge & rule pillars.   |
+| **skill-forge**         | Skill generation               | Framework for creating new specialist modules.        |
+| **tech-research**       | Tech unknowns                  | Orchestrates documentation & Context7 research.       |
+| **debugging-strategy**  | Persistent bugs (L3)           | Scientific method for bug isolation.                  |
+| **hygiene**             | `.agent/rules/05-hygiene.md`   | Static integrity, QA, and documentation purity.       |
+| **sequential-thinking** | Complexity > L1                | Step-by-step planning and breakdown specialists.      |
 
 ---
 
@@ -72,6 +72,8 @@ Before starting any task, you **MUST** read the following to ground yourself:
 | **📘 Docs & Libs**  | **Context7**   | `resolve_library_id` | "How do I use X?", "Library help"              |
 | **🧠 Deep Logic**   | **Sequential** | `sequentialthinking` | "Plan this", "Logic check", "Complex refactor" |
 | **🔎 Code Search**  | **GitHub**     | `search_code`        | "Find usage of X", "Search repo"               |
+| **🎨 UI/UX**        | **Svelte**     | `get_documentation`  | "How do I do X in Svelte 5?", "Runes help"     |
+| **🧙‍♂️ Power-Ups**    | **Context7**   | `resolve_library_id` | "Find a library for X", "Check runed docs"     |
 | **🛡️ Supply Chain** | **NPM**        | `npmVulnerabilities` | "Check security", "Audit deps"                 |
 
 ---

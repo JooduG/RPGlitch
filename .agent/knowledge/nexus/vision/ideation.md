@@ -2,22 +2,22 @@
 
 **Objective:** Replace the "All-at-once" text generation with real-time token streaming from the Perchance AI plugin.
 
-## 1. The Brain: `src/js/gamemaster/llm.js`
+## 1. The Brain: [`src/gamemaster/llm.js`](../../../../src/gamemaster/llm.js)
 
 Modify `LlmService.generate` to hook into the underlying `onChunk` callback.
 
 ```javascript
 // Inside LlmService.generate options construction:
 if (options.onToken) {
-  // Map our internal 'onToken' param to Perchance's 'onChunk'
-  genOptions.onChunk = (data) => {
-    // data.textChunk contains just the new characters
-    options.onToken(data.textChunk || "");
-  };
+    // Map our internal 'onToken' param to Perchance's 'onChunk'
+    genOptions.onChunk = (data) => {
+        // data.textChunk contains just the new characters
+        options.onToken(data.textChunk || "")
+    }
 }
 ```
 
-## 2. The State: `src/artificer/stores/app.svelte.js`
+## 2. The State: [`src/gamemaster/state.svelte.js`](../../../../src/gamemaster/state.svelte.js)
 
 Add a dedicated streaming buffer to the global store.
 
@@ -46,7 +46,7 @@ endStream() {
 }
 ```
 
-## 3. The UI: `src/artificer/chat/ChatLog.svelte`
+## 3. The UI: [`src/artificer/storymode/ChatLog.svelte`](../../../../src/artificer/storymode/) (Proposed)
 
 Add a "Phantom Message" that only appears while streaming is active.
 
@@ -63,23 +63,23 @@ Add a "Phantom Message" that only appears while streaming is active.
 {/if}
 ```
 
-## 4. The Trigger: `src/js/gamemaster/director.js`
+## 4. The Trigger: [`src/gamemaster/session.js`](../../../../src/gamemaster/session.js)
 
 Update the `execute` loop to manage the stream lifecycle.
 
 ```javascript
 // Inside Director.execute:
 if (app.settings.streamText) {
-  app.startStream(role, characterName);
+    app.startStream(role, characterName)
 }
 
 // Pass the callback
 const response = await LlmService.generate(payload, {
-  onToken: (chunk) => app.updateStream(chunk),
-  // ...other options
-});
+    onToken: (chunk) => app.updateStream(chunk),
+    // ...other options
+})
 
 if (app.settings.streamText) {
-  app.endStream();
+    app.endStream()
 }
 ```

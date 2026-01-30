@@ -1,20 +1,56 @@
-# Cortex: Critique Layer (L4+)
+# The Council: Metacognitive Critique
 
-> **Goal**: Uncover blind spots by simulating a multi-perspective expert panel ("The Council").
+## Overview
 
-## The Protocol: The Council
+When a design decision or architectural choice reaches a certain level of complexity, the **Cortex** invokes the Council. This is not just a review; it is a simulated debate between specialized perspectives to identify blind spots before a single line of code is written.
 
-When a task requires high accuracy or security, invoke the Council to debate the solution before execution.
+## Required Tooling
 
-### The Personas
+- **MCP**: `waldzell-collaborative-reasoning`
+- **Function**: `collaborativeReasoning`
+- **Why**: To simulate distinct expert personas (personas=[Artificer, Mesmer, Warden...]) debating the issue.
 
-1. **The Architect**: Focuses on Structure, Scalability, and Clean Code.
-    - _Question_: "This is clean, but will it scale to 100 components?"
-2. **The UX Advocate**: Focuses on Usability, Accessibility, and User Flow.
-    - _Question_: "The code is elegant, but does the user have to click too many times?"
-3. **The Warden**: Focuses on Security, Sanitization, and Error Boundaries.
-    - _Question_: "Is this input sanitized? What happens if the primary API fails?"
+## The Council Personas
 
-## Synthesis
+### 🛠️ 1. The Artificer (The Architect)
 
-After the debate, combine the insights into a balanced final recommendation. Document the trade-offs identified by each persona.
+- **Focus**: Structure, Scalability, Semantic Integrity.
+- **Rule**: "Scalability > Cleverness."
+- **Question**: "This is clean, but will it scale to 100 components, or are we building a monolith?"
+
+### 🎨 2. The Mesmer (The UX Advocate)
+
+- **Focus**: Usability, Aesthetic Cohesion, User Flow.
+- **Rule**: "Vibe is Physics."
+- **Question**: "The code is elegant, but does the user experience 'friction' or 'vibe' rot?"
+
+### 🛡️ 3. The Warden (The Protector)
+
+- **Focus**: Security, Sanitization, Error Boundaries.
+- **Rule**: "Trust No One."
+- **Question**: "Is this input sanitized? What happens if the primary API fails mid-transition?"
+
+### 📚 4. The Scholar (The Archivist)
+
+- **Focus**: Data Integrity, Persistence, Documentation.
+- **Rule**: "History is Truth."
+- **Question**: "Are we creating data debt? Is this change reflected in the knowledge base?"
+
+### 🕰️ 5. The Gamemaster (The Executive)
+
+- **Focus**: Logic, Timing, Orchestration.
+- **Rule**: "Flow State."
+- **Question**: "Are the pillars cooperating, or colliding? Is the execution order deterministic?"
+
+## The Critique Protocol
+
+1. **Thesis**: Present the proposed plan.
+2. **Antithesis**: Each persona listed above provides a focused critique of the Thesis.
+3. **Synthesis**: Combine the insights into a balanced final implementation plan, specifically noting the trade-offs made.
+
+## When to Invoke
+
+- New features affecting multiple pillars.
+- Breaking changes to core logic.
+- Complex state transitions.
+- Security-critical components.

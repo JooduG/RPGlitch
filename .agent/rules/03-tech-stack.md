@@ -15,12 +15,15 @@ Usage of Runes is **MANDATORY**.
 - **Props:** Use `let { ... } = $props();`.
 - **Logic:** Use `.svelte.js` modules for shared/global state.
 - **❌ BANNED:** `writable()`, `readable()`, `export let`, `createEventDispatcher`, `<slot />`.
+- **✅ APPROVED:**
+    - **Runed:** For reactive utilities (`useDebounce`, etc.).
+    - **Paneforge:** For resizable layouts.
 
 ## 2. Build & Runtime
 
 - **Bundler:** **Vite 6+**.
 - **Target:** **Single HTML Monolith**. All assets must be inlined into the artifact.
-- **Offline First:** No external HTTP requests for core functionality.
+- **Offline Capable:** Core UI loads offline (PWA), but AI/Media features require connection.
 - **Runtime:** Node.js 22.x (Build time).
 
 ## 3. Data & Persistence
@@ -29,12 +32,14 @@ Usage of Runes is **MANDATORY**.
 - **Protocol:** `db.version(n)` must be strictly sequential.
 - **❌ BANNED:** Direct `localStorage` access in UI components. Use the Scholar API.
 
-## 4. Styling (SCSS 7-1)
+## 4. Styling (The Chalk Regime)
 
-- **Architecture:** 7-1 Pattern (Abstracts, Base, Components, etc.).
+- **Authority:** [Mesmer](../../skills/mesmer/SKILL.md) owns the visual layer.
+- **Reference:** See [.agent/knowledge/design/](../../knowledge/design/process.md).
+- **Architecture:** 7-1 Pattern OR Co-located `<style lang="scss">`.
+- **Constraint:** All colors/fonts MUST use `var(--app-...)` tokens. NO hex codes in components.
 - **Framework:** **Pico.css** (Semantic HTML).
 - **Icons:** **Inline SVG** only. No external icon fonts.
-- **Variables:** Use `--app-*` exclusively. Ban `--pico-*`.
 
 ## 5. Coding Standards
 

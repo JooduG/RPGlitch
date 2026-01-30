@@ -162,8 +162,8 @@
         display: flex;
         flex-direction: column;
         /* Physics Only: Layout & Transform */
-        display: block; // Wrapper for tilt
-        transition: transform 0.3s ease; // Tilt handles this, but good fallback
+        display: block; /* Wrapper for tilt */
+        transition: transform 0.3s ease; /* Tilt handles this, but good fallback */
 
         container-type: inline-size;
 
@@ -177,9 +177,6 @@
         margin: auto;
         justify-self: center;
         position: relative;
-
-        /* Signature Border Sync Purged */
-        /* border: 1px solid rgba(var(--signature-rgb) / 0.2); */
 
         /* Center Card (Fractal/Landscape) */
         /* Center Card (Fractal/Landscape) */
@@ -469,8 +466,7 @@
             bottom: 25%;
             font-size: 0.8rem;
             font-weight: 700;
-            /* text-transform: uppercase; - Removed */
-            /* letter-spacing: 2px; - Removed */
+            font-weight: 700;
             font-family: var(--font-heading); /* Apply display font */
             color: rgba(255, 255, 255, 0.9);
             opacity: 0; /* Hidden by default */

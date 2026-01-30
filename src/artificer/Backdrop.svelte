@@ -3,7 +3,16 @@
      * Backdrop.svelte
      * The standard darkening layer for Modals, Drawers, and Overlays.
      */
-    let { onclick, zIndex = 100, blur = true, children = undefined } = $props() // Rely on inference or use standard JS props for now to avoid complexity in this file
+    /**
+     * @typedef {Object} Props
+     * @property {(e: MouseEvent) => void} [onclick]
+     * @property {number|string} [zIndex]
+     * @property {boolean} [blur]
+     * @property {import('svelte').Snippet} [children]
+     */
+
+    /** @type {Props} */
+    let { onclick, zIndex = 100, blur = true, children = undefined } = $props()
 
     import { fade } from "svelte/transition"
 </script>

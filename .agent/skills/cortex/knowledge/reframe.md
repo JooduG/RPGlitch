@@ -2,6 +2,11 @@
 
 > **Goal**: Break through logical blocks by applying high-order mental models.
 
+## Required Tooling
+
+- **MCP**: `waldzell-clear-thought`
+- **Function**: `mentalmodel` (First Principles, Occam's Razor)
+
 ## The Models
 
 ### 1. First Principles Thinking

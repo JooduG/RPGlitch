@@ -17,12 +17,12 @@ description: Aggressive cleanup protocol. Runs linters, formatters, and tests in
 
 After deleting files, you **MUST** run the full suite.
 
-1. **Hygiene:** Run `npm run hygiene` (Executes `tools/ops/hygiene.js`).
-   - **FAIL:** Any "Unused Export" or "Dead Import".
+1. **Hygiene:** Run `npm run hygiene` (Executes [Gamemaster Script](../../skills/gamemaster/scripts/gamemaster.js)).
+    - **FAIL:** Any "Unused Export" or "Dead Import".
 2. **Lint:** Run `npm run lint:fix`.
-   - **FAIL:** Any ESLint warning or formatting error.
+    - **FAIL:** Any ESLint warning or formatting error.
 3. **Test:** Run `npm test`.
-   - **FAIL:** Any broken unit test.
+    - **FAIL:** Any broken unit test.
 
 ## 3. The Rebuild
 

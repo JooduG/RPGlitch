@@ -10,3 +10,4 @@ libs/**
 /.npm
 /coverage
 /dist
+.agent/**

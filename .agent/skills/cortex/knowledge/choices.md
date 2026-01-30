@@ -2,6 +2,11 @@
 
 > **Goal**: Resolve "A vs B" conflicts with data-driven weighted recommendations.
 
+## Required Tooling
+
+- **MCP**: `waldzell-decision-framework`
+- **Function**: `decisionFramework`
+
 ## The Protocol: The Decision Matrix
 
 When faced with a conflict (Architecture, Library, Pattern), you must produce a matrix:

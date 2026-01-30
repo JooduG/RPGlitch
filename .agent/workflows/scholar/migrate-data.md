@@ -25,7 +25,7 @@ description: Data Migration Protocol. Governs the ingestion of lore "Atoms" from
     - **Command**:
 
         ```bash
-        node tools/scholar/cli.js ingest --path .agent/rules --namespace knowledge-base.meta
+        node .agent/skills/scholar/scripts/cli.js ingest --path .agent/rules --namespace knowledge-base.meta
         ```
 
     - **Batching**: Handled automatically by the Scholar Core in groups of 50.
@@ -34,7 +34,7 @@ description: Data Migration Protocol. Governs the ingestion of lore "Atoms" from
     - **Command**:
 
         ```bash
-        node tools/scholar/cli.js search "Verify recently ingested content"
+        node .agent/skills/scholar/scripts/cli.js search "Verify recently ingested content"
         ```
 
 ## 4. Maintenance

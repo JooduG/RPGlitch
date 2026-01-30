@@ -57,6 +57,30 @@ Depth is achieved through layering and soft environmental effects rather than hi
 - **Atmospheric Blur**: Use `backdrop-filter: blur(10px)` (Subtle) or `25px` (Heavy) to create separation from the background without the "thick glass" aesthetic.
 - **Visibility**: Avoid borders where possible. Use slight opacity shifts (`rgba(255, 255, 255, 0.05)`) to define space.
 
+### 3.3 Kinetic Actions (The Physics Engine)
+
+Micro-interactions must feel physically consistent across the system.
+
+- **Standardization**: Use the centralized `kinetic.js` actions (`shimmy`, `pulse`, `spin`) via the **Web Animations API** to ensure identical math system-wide.
+- **Prohibition**: Avoid ad-hoc CSS keyframes for standard interactions (e.g., hover twitches).
+- **Behavior**: "Shimmy" is strictly rotation-based with elastic easing; "Pulse" is scale-based.
+
+#### 3.3.1 Holographic Tilt (The Heavy Layer)
+
+Used for Hero Elements (Profile Cards, Artifacts) to simulate mass and attention.
+
+- **The Clockwork Rule**: The application is mechanical and industrial. Internal elements may "twitch" or vibrate _in place_ (like gears), but they must **NOT** float or travel across the component "magically".
+- **Physics**: Tilt simulates a physical object with weight. Elements inside are bolted down.
+- **The Artificer's Mandate**: The structure is heavy and intentional. The Mesmer provides the atmosphere (paint, glow), but the physics are strictly mechanical.
+
+### 3.4 Modal & Overlay Physics (The Split-Layer)
+
+Interactions with overlays must separate the visual from the physical to ensure reliability.
+
+- **The Split Pattern**: Architecture must separate the **Visual Layer** (Backdrop Component) from the **Interaction Layer** (Layout Wrapper).
+- **Interaction Rule**: The "Backdrop" visual is passive. The `modal-layout` wrapper must capture "empty space" clicks to trigger close events.
+- **Click-Through**: Modal content must explicitly stop propagation or verify `e.target === e.currentTarget` to prevent accidental closures on tall or sticky content.
+
 ## 4. Component Manifestations
 
 ### 4.1 The Storyboard: Focused Viewport
@@ -84,9 +108,14 @@ The profile system represents **Dossiers in the Baseline**.
 
 ### 4.2 Casing & Style
 
-- **System Labels**: **Title Case Only**. Use "Begin Story", never "BEGIN STORY". Avoid `text-transform: uppercase` unless explicitly required for a specific holographic effect.
-- **Weight**: Keep standard body weight at `400`. Headlines should be `700` (Bold).
+- **System Labels**: **Title Case Only**. Use "Begin Story", never "BEGIN STORY".
+- **Strong Sentence Case**: If drawn to use Uppercase, prefer **Strong Sentence Case** (Weight 800) instead. Uppercase is reserved for very special holographic occasions.
+- **Weight**: Keep standard body weight at `400`. Headlines should be `700` (Bold) or `800` (Extra Bold).
 - **Interactivity**: Avoid shifting border colors on hover for main containers. Use shadow depth or subtle background opacity shifts instead.
+
+### 4.3 Visual Notes (Implementation Details)
+
+- **Loading States (Illusions)**: Current iterations of the Storyboard Skeleton use a specific Matte "Chalk" (`#222326`) to serve as a deep void, avoiding the "blue drift" of standard transparent surfaces. This is an implementation preference for high-contrast voids, not a global law.
 
 ## 5. Stitch Prompting Block (Stitch-Ready)
 

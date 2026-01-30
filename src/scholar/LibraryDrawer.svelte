@@ -154,7 +154,6 @@
         h3 {
             margin: 0;
             letter-spacing: 0.5px;
-            /* text-transform: uppercase; REMOVED per Chalk Regime */
             font-weight: 800; /* Heavy weight */
             font-size: var(--font-size-xl); /* Size upgrade */
             font-family: var(--font-heading);
