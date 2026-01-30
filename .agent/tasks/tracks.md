@@ -60,8 +60,3 @@
 - Status: Complete
 - Note: Purged legacy frameworks (Pico), fixed Scholar SKILL logic, and integrated Agentic artifacts into the Repository OS.
 
-## [x] Track: Agent Refactor Harmonization
-
-- Path: .agent/tasks/agent-refactor-harmonization/
-- Status: Scoped
-- Note: Final harmonization and optimization of Rules and Knowledge.
