@@ -36,11 +36,14 @@ const COMMANDS = {
         try {
             // We leverage the existing sync logic but can optimize it later
             const flag = type === "all" ? "--all" : `--${type}`
-            execSync(`node .agent/skills/gamemaster/scripts/sync.js ${flag}`, {
+            // Pass --json down to the child process
+            const jsonFlag = IS_JSON ? " --json" : ""
+            execSync(`node .agent/skills/gamemaster/scripts/sync.js ${flag}${jsonFlag}`, {
                 stdio: "inherit",
             })
             if (IS_JSON) console.log(JSON.stringify({ status: "success", mode: type }))
         } catch (e) {
+
             if (IS_JSON) {
                 console.log(JSON.stringify({ error: e.message, code: 1 }))
             } else {

@@ -8,6 +8,16 @@ import { fileURLToPath } from "url"
 // ESM replacement for __dirname
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
+const IS_JSON = process.argv.includes("--json")
+
+const robotLog = (...args) => {
+    if (IS_JSON) {
+        console.error(...args)
+    } else {
+        console.log(...args)
+    }
+}
+
 // Try to import dotenv if available
 let dotenv
 try {
@@ -58,14 +68,14 @@ function writeJson(filePath, data) {
     const dir = path.dirname(filePath)
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + "\n", "utf8")
-    console.log(`📝 Wrote ${path.relative(REPO_ROOT, filePath)}`)
+    robotLog(`📝 Wrote ${path.relative(REPO_ROOT, filePath)}`)
 }
 
 function writeTextFile(filePath, content) {
     const dir = path.dirname(filePath)
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
     fs.writeFileSync(filePath, content, "utf8")
-    console.log(`📝 Wrote ${path.relative(REPO_ROOT, filePath)}`)
+    robotLog(`📝 Wrote ${path.relative(REPO_ROOT, filePath)}`)
 }
 
 // --- SYNC LIBS LOGIC ---
@@ -75,7 +85,7 @@ function writeTextFile(filePath, content) {
 
 // --- SYNC IGNORES LOGIC ---
 function syncIgnores() {
-    console.log("\n🔄 Syncing ignore files...")
+    robotLog("\n🔄 Syncing ignore files...")
     const masterIgnoresPath = path.join(REPO_ROOT, "ignores.master.json")
     const jsconfigPath = path.join(REPO_ROOT, "jsconfig.json")
     const settingsPath = path.join(REPO_ROOT, ".vscode", "settings.json")
@@ -132,12 +142,12 @@ function syncIgnores() {
     settings["files.exclude"] = masterIgnores.vscode?.filesExclude || {}
     writeJson(settingsPath, settings)
 
-    console.log("✅ Ignore files sync process complete.")
+    robotLog("✅ Ignore files sync process complete.")
 }
 
 // --- SYNC MCP LOGIC ---
 function syncMcp() {
-    console.log("\n🔄 Syncing MCP configurations...")
+    robotLog("\n🔄 Syncing MCP configurations...")
     const masterMcpPath = path.join(REPO_ROOT, "mcp.master.json")
     const envPath = path.join(REPO_ROOT, ".env")
     const geminiSettingsPath = path.join(REPO_ROOT, ".gemini", "settings.json")
@@ -168,7 +178,7 @@ function syncMcp() {
 
     // 2. Update .gemini/settings.json (with Gemini-specific transformations)
     if (fs.existsSync(geminiSettingsPath)) {
-        console.log(
+        robotLog(
             `  Updating ${path.relative(REPO_ROOT, geminiSettingsPath)}...`
         )
         try {
@@ -202,11 +212,11 @@ function syncMcp() {
 
                 geminiSettings.mcpServers = geminiMcpServers
                 writeJson(geminiSettingsPath, geminiSettings)
-                console.log(
+                robotLog(
                     `  ✅ Updated mcpServers in .gemini/settings.json (with adaptations)`
                 )
             } else {
-                console.log(
+                robotLog(
                     `  ⚠️ No mcpServers found in master config, skipping .gemini/settings.json update`
                 )
             }
@@ -216,21 +226,21 @@ function syncMcp() {
             )
         }
     } else {
-        console.log(
+        robotLog(
             `  Reference to .gemini/settings.json not found, skipping update.`
         )
     }
 
-    console.log("✅ MCP sync complete.")
+    robotLog("✅ MCP sync complete.")
 }
 
 // --- SYNC MCP TO CLAUDE CODE CLI ---
 function syncMcpToClaudeCode() {
-    console.log("\n🔄 Syncing MCP servers to Claude Code CLI...")
+    robotLog("\n🔄 Syncing MCP servers to Claude Code CLI...")
     const mcpJsonPath = path.join(REPO_ROOT, "mcp.json")
 
     if (!fs.existsSync(mcpJsonPath)) {
-        console.log("⚠️  mcp.json not found. Run sync:mcp first.")
+        robotLog("⚠️  mcp.json not found. Run sync:mcp first.")
         return
     }
 
@@ -238,7 +248,7 @@ function syncMcpToClaudeCode() {
     const servers = mcpConfig.mcpServers || {}
 
     if (Object.keys(servers).length === 0) {
-        console.log("⚠️  No MCP servers found in mcp.json")
+        robotLog("⚠️  No MCP servers found in mcp.json")
         return
     }
 
@@ -248,7 +258,7 @@ function syncMcpToClaudeCode() {
 
     for (const [name, config] of Object.entries(servers)) {
         try {
-            console.log(`  Adding ${name}...`)
+            robotLog(`  Adding ${name}...`)
             const jsonString = JSON.stringify(config)
             const command = `claude mcp add-json "${name}" ${JSON.stringify(
                 jsonString
@@ -256,12 +266,12 @@ function syncMcpToClaudeCode() {
             execSync(command, { stdio: "pipe" })
 
             successCount++
-            console.log(`    ✅ Added`)
+            robotLog(`    ✅ Added`)
         } catch (error) {
             const errorMsg = error.message || ""
             if (errorMsg.includes("already exists")) {
                 existsCount++
-                console.log(`    ⏭️  Already exists (skipped)`)
+                robotLog(`    ⏭️  Already exists (skipped)`)
             } else {
                 failCount++
                 console.error(`    ❌ Failed:`, errorMsg.split("\n")[0])
@@ -269,15 +279,15 @@ function syncMcpToClaudeCode() {
         }
     }
 
-    console.log(
+    robotLog(
         `\n✅ Complete: ${successCount} added, ${existsCount} already existed, ${failCount} failed`
     )
 
     if (failCount === 0) {
-        console.log("🎉 All MCP servers synced to Claude Code CLI!")
-        console.log("   Restart Claude Code to see the changes.")
+        robotLog("🎉 All MCP servers synced to Claude Code CLI!")
+        robotLog("   Restart Claude Code to see the changes.")
     } else {
-        console.log(
+        robotLog(
             "⚠️  Some servers failed. Check errors above and add manually if needed."
         )
     }
@@ -285,7 +295,7 @@ function syncMcpToClaudeCode() {
 
 // --- SYNC COLORS FROM config.js TO _variables.scss ---
 function syncColors() {
-    console.log(
+    robotLog(
         "\n🎨 Syncing signature colors from config.js to _variables.scss..."
     )
 
@@ -322,7 +332,7 @@ function syncColors() {
         paletteEntries[match[1]] = match[2]
     }
 
-    console.log(`  Found ${Object.keys(paletteEntries).length} palette colors`)
+    robotLog(`  Found ${Object.keys(paletteEntries).length} palette colors`)
 
     // Read SCSS and update signature colors
     let scssContent = fs.readFileSync(scssPath, "utf8")
@@ -343,16 +353,17 @@ function syncColors() {
 
     if (updatedCount > 0) {
         fs.writeFileSync(scssPath, scssContent, "utf8")
-        console.log(
+        robotLog(
             `✅ Updated ${updatedCount} signature colors in _variables.scss`
         )
     } else {
-        console.log("ℹ️  No colors needed updating (already in sync)")
+        robotLog("ℹ️  No colors needed updating (already in sync)")
     }
 }
 async function main() {
     /** @type {Record<string, any>} */
     const args = process.argv.slice(2).reduce((acc, arg) => {
+        if (arg === "--json") return acc // Skip json flag in parsed args
         const [key, value] = arg.split("=")
         acc[key.replace("--", "")] = value === undefined ? true : value
         return acc
@@ -366,6 +377,10 @@ async function main() {
     if (runAll || args.mcp) syncMcp()
     if (runAll || args.colors) syncColors()
     if (args.claude) syncMcpToClaudeCode()
+    
+    if (IS_JSON) {
+        console.log(JSON.stringify({ status: "success", operations: Object.keys(args) }))
+    }
 }
 
 main().catch((err) => {
