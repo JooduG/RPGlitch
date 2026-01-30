@@ -5,7 +5,7 @@ This directory serves as the **State of Work** for the Antigravity system. All t
 ## 🕹️ Operational Protocol
 
 1. **Rule of Law**: Refer to **[01-prime-directive.md](file:///c:/Users/johng/Documents/GitHub/default/.agent/rules/01-prime-directive.md)** for the efficient management model (Reflex vs Cortex).
-2. **Specialist**: Use the **[Conductor Skill](file:///c:/Users/johng/Documents/GitHub/default/.agent/skills/conductor/SKILL.md)** for track orchestration, status reporting, and context management.
+2. **Specialist**: Use the **[Gamemaster Skill](file:///c:/Users/johng/Documents/GitHub/default/.agent/skills/gamemaster/SKILL.md)** for track orchestration, status reporting, and context management.
 3. **Source of Truth**: Active work tracks must be recorded in **[tracks.md](file:///c:/Users/johng/Documents/GitHub/default/.agent/tasks/tracks.md)**.
 
 ## 📁 Directory Structure

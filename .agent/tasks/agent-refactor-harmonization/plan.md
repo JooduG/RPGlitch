@@ -22,7 +22,7 @@
 ## Phase 3: Final Integration & Verification
 
 - [x] Update `.agent/workflows/gamemaster/01-setup.md` for terminology.
-- [/] Final Verification Checklist:
-    - [ ] Run `npm run hygiene`.
-    - [ ] Verify "Red Thread" links (Rule 1 -> Rule 7).
-    - [ ] Confirm zero "Conductor" instances in active code.
+- [x] Final Verification Checklist:
+    - [x] Run `npm run hygiene`.
+    - [x] Verify "Red Thread" links (Rule 1 -> Rule 7).
+    - [x] Confirm zero "Conductor" instances in active code.
