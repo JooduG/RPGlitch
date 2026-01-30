@@ -1,17 +1,17 @@
-import { describe, test, expect, vi, beforeEach } from "vitest"
-import { GameMaster } from "../../../src/gamemaster/index.js"
-import { EVENTS } from "../../../src/gamemaster/bus.js"
+import { beforeEach, describe, expect, test, vi } from "vitest"
+import { EVENTS } from "../../../../../src/gamemaster/bus.js"
+import { GameMaster } from "../../../../../src/gamemaster/index.js"
 
 // --- MOCKS ---
 
-vi.mock("../../../src/gamemaster/session.js", () => ({
+vi.mock("../../../../../src/gamemaster/session.js", () => ({
     Session: {
         addAiMessage: vi.fn(),
         requireActive: vi.fn().mockReturnValue("story-1"),
     },
 }))
 
-vi.mock("../../../src/gamemaster/llm.js", () => {
+vi.mock("../../../../../src/gamemaster/llm.js", () => {
     return {
         LlmService: {
             generate: vi.fn(),
@@ -22,7 +22,7 @@ vi.mock("../../../src/gamemaster/llm.js", () => {
     }
 })
 
-vi.mock("../../../src/gamemaster/bus.js", () => ({
+vi.mock("../../../../../src/gamemaster/bus.js", () => ({
     events: {
         dispatchEvent: vi.fn(),
     },
@@ -33,16 +33,16 @@ vi.mock("../../../src/gamemaster/bus.js", () => ({
     state: {},
 }))
 
-vi.mock("../../../src/scholar/runtime.svelte.js", () => ({
+vi.mock("../../../../../src/scholar/runtime.svelte.js", () => ({
     runtime: {
         aiCharacter: { name: "AI" },
     },
 }))
 
 // Import mocks to inspect
-import { Session } from "../../../src/gamemaster/session.js"
-import { LlmService, ContextBroker } from "../../../src/gamemaster/llm.js"
-import { events } from "../../../src/gamemaster/bus.js"
+import { events } from "../../../../../src/gamemaster/bus.js"
+import { ContextBroker, LlmService } from "../../../../../src/gamemaster/llm.js"
+import { Session } from "../../../../../src/gamemaster/session.js"
 
 describe("GameMaster Facade", () => {
     beforeEach(() => {

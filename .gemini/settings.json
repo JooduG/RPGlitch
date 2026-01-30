@@ -26,14 +26,6 @@
     "enabled": true
   },
   "mcpServers": {
-    "chrome-devtools": {
-      "command": "cmd",
-      "args": [
-        "/c",
-        "npx",
-        "chrome-devtools-mcp@latest"
-      ]
-    },
     "context7": {
       "headers": {
         "CONTEXT7_API_KEY": "ctx7sk-47294459-6c98-4af4-8546-a3616fe3d7d9"
@@ -50,81 +42,82 @@
       "url": "https://api.githubcopilot.com/mcp"
     },
     "mcp-sequentialthinking-tools": {
-      "command": "cmd",
-      "args": [
-        "/c",
-        "npx",
-        "-y",
-        "mcp-sequentialthinking-tools"
-      ]
+      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-sequentialthinking-tools.cmd",
+      "args": []
+    },
+    "npm-sentinel": {
+      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-nekzus.cmd",
+      "args": []
+    },
+    "pollinations": {
+      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\pollinations-mcp.cmd",
+      "args": []
     },
     "waldzell-clear-thought": {
-      "command": "cmd",
-      "args": [
-        "/c",
-        "npx",
-        "-y",
-        "@waldzellai/clear-thought"
-      ]
+      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\clear-thought.cmd",
+      "args": []
     },
     "waldzell-stochastic-thinking": {
-      "command": "cmd",
-      "args": [
-        "/c",
-        "npx",
-        "-y",
-        "@waldzellai/stochasticthinking"
-      ]
+      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-stochasticthinking.cmd",
+      "args": []
+    },
+    "waldzell-scientific-method": {
+      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-scientific-method.cmd",
+      "args": []
+    },
+    "waldzell-decision-framework": {
+      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-decision-framework.cmd",
+      "args": []
+    },
+    "waldzell-structured-argumentation": {
+      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-structured-argumentation.cmd",
+      "args": []
+    },
+    "waldzell-metacognitive-monitoring": {
+      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-metacognitive-monitoring.cmd",
+      "args": []
+    },
+    "waldzell-visual-reasoning": {
+      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-visual-reasoning.cmd",
+      "args": []
+    },
+    "waldzell-collaborative-reasoning": {
+      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-collaborative-reasoning.cmd",
+      "args": []
     },
     "svelte": {
-      "command": "cmd",
-      "args": [
-        "/c",
-        "npx",
-        "-y",
-        "@sveltejs/mcp"
-      ]
+      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\svelte-mcp.cmd",
+      "args": []
     },
     "playwright": {
-      "command": "npx",
-      "args": [
-        "@playwright/mcp@latest"
-      ]
+      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\playwright-mcp.cmd",
+      "args": []
     },
     "firecrawl-mcp": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "firecrawl-mcp"
-      ],
+      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\firecrawl-mcp.cmd",
+      "args": [],
       "env": {
         "FIRECRAWL_API_KEY": "fc-968e355e236f460092834ec49afdd6ae"
       }
     },
     "pinecone-mcp-server": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@pinecone-database/mcp"
-      ],
+      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\pinecone-mcp.cmd",
+      "args": [],
       "env": {
         "PINECONE_API_KEY": "pcsk_vQDQw_JH6oQebjGTqo4TkQqeXu5FU6oFfzDKXQSLC2h7kEccPHCUt1X66oqYdxUgH27nW"
       }
     },
     "supabase-mcp-server": {
-      "command": "npx",
+      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-supabase.cmd",
       "args": [
-        "-y",
-        "@supabase/mcp-server-supabase@latest",
         "--access-token",
         "sbp_0211f76c824072d4b77a5012761ad3fd3baca328"
       ],
       "env": {}
     },
     "stitch": {
-      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\stitch-mcp.cmd",
       "args": [
-        "C:\\Users\\johng\\AppData\\Local\\npm-cache\\_npx\\829c6278c197c365\\node_modules\\@_davideast\\stitch-mcp\\dist\\cli.js",
         "proxy"
       ],
       "env": {

@@ -34,8 +34,8 @@ Usage of Runes is **MANDATORY**.
 
 ## 4. Styling (The Chalk Regime)
 
-- **Authority:** [Mesmer](../../skills/mesmer/SKILL.md) owns the visual layer.
-- **Reference:** See [.agent/knowledge/design/](../../knowledge/design/process.md).
+- **Authority:** [Mesmer](../skills/mesmer/SKILL.md) owns the visual layer.
+- **Reference:** See [.agent/knowledge/design/](../knowledge/design/process.md).
 - **Architecture:** 7-1 Pattern OR Co-located `<style lang="scss">`.
 - **Constraint:** All colors/fonts MUST use `var(--app-...)` tokens. NO hex codes in components.
 - **Framework:** **Pico.css** (Semantic HTML).

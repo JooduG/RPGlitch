@@ -41,3 +41,9 @@
 - Path: .agent/tasks/ide-hygiene/
 - Status: Complete
 - Note: Silenced semantic noise, resolved Total TypeScript extension conflict, and hardened sync/ignore protocols.
+
+## ✅ Track: Deployment Verification
+
+- Path: .agent/tasks/deployment-fix.md
+- Status: Complete
+- Note: Fixed unit test relative paths and E2E test browser mocks to restore successful `npm run deploy`.

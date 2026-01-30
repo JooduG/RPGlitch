@@ -2,8 +2,16 @@ import { expect, test } from "@playwright/test"
 
 test.describe("Control Panel Cockpit Redesign", () => {
     test.beforeEach(async ({ page }) => {
+        // Mock rpgLists to bypass the 5s bootstrap delay
+        await page.addInitScript(() => {
+            window.rpgLists = {
+                // Add minimal mock data if needed, or just empty object
+                themes: [],
+            }
+        })
+
         // Navigate to the root
-        await page.goto("http://localhost:4000")
+        await page.goto("http://localhost:8080")
     })
 
     test("should open the control panel when settings button is clicked", async ({
