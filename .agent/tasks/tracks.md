@@ -60,13 +60,14 @@
 - Status: Complete
 - Note: Purged legacy frameworks (Pico), fixed Scholar SKILL logic, and integrated Agentic artifacts into the Repository OS.
 
----
+## ✅ Track: Structural Audit of Agent Core
 
----
+- Path: .agent/tasks/structural-audit_20260130/
+- Status: Complete
+- Note: Logical separation of Knowledge, Rules, and Workflows for token efficiency.
 
 ## ✅ Track: CLI Robot Mode (JSON Output)
 
-- Path: .agent/tasks/cli-robot-mode_20260130/
+- Path: .agent/archive/cli-robot-mode_20260130/
 - Status: Complete
 - Note: Structured JSON output for core pillar scripts to support agentic automation.
-
