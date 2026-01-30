@@ -32,7 +32,7 @@ The application is structured into five distinct, decoupled pillars:
 
 - **Role:** Data Persistence.
 - **Tech:** **Dexie.js**.
-- **Rule:** `runtime.save()` is the only way to anchor reality to disk.
+- **Rule:** The **Scholar API** (e.g., `runtime.save()`) is the only way to anchor reality to disk.
 
 ### 🛡️ 5. Warden (The Protector)
 
@@ -51,3 +51,7 @@ The application is structured into five distinct, decoupled pillars:
 
 - **Bounded Contexts:** Each pillar manages its own state.
 - **Choreography:** Pillars react to state changes in others via native reactivity (`$effect`, `$derived`), avoiding a central "Manager-Mediator" bottleneck.
+
+---
+
+**Next:** Architecture is realized through standard tools. See [03: Tech Stack](./03-tech-stack.md).

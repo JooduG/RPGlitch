@@ -242,7 +242,6 @@ export default class CSSBuildPipeline {
             recommendations: [
                 "Continue migration to auto-generated utility classes to simplify hand-written CSS.",
                 "Inspect initial redundancy report for opportunities to combine rules before cleanup.",
-                "Ensure Pico.css components are minimally overridden to maintain low final specificity.",
             ],
         }
 

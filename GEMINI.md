@@ -4,11 +4,13 @@
 
 @import ./AGENTS.md
 @import .agent/index.md
-@import .agent/rules/architecture.md
-@import .agent/rules/tech-stack.md
-@import .agent/rules/security.md
-@import .agent/rules/standard-workflow.md
-@import .agent/rules/anti-patterns.md
+@import .agent/rules/01-prime-directive.md
+@import .agent/rules/02-architecture.md
+@import .agent/rules/03-tech-stack.md
+@import .agent/rules/04-security.md
+@import .agent/rules/05-hygiene.md
+@import ./.agent/rules/06-aesthetic.md
+@import .agent/rules/07-intelligence.md
 
 Hey Gemini, welcome. `AGENTS.md` is your Prime Directive.
 

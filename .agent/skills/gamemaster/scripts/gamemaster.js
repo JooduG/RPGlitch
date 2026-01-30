@@ -117,6 +117,36 @@ const COMMANDS = {
 
         console.log("✅ Gamemaster Environment: READY.")
     },
+
+    /** 📊 Status Report */
+    status: async () => {
+        console.log("\n📊 GAMEMASTER: Generating Status Report...")
+        const tracksPath = path.join(REPO_ROOT, ".agent/tasks/tracks.md")
+        if (!fs.existsSync(tracksPath)) {
+            console.error("❌ Missing .agent/tasks/tracks.md")
+            return
+        }
+
+        const content = fs.readFileSync(tracksPath, "utf-8")
+        const lines = content.split("\n")
+
+        console.log("\n--- Track Summary ---")
+        let activeCount = 0
+        let completedCount = 0
+
+        for (const line of lines) {
+            if (line.startsWith("##")) {
+                const isComplete = line.includes("✅")
+                const name = line.replace(/##\s*[✅⭕]\s*Track:\s*/, "").trim()
+                if (isComplete) completedCount++
+                else activeCount++
+                console.log(`${isComplete ? "✅" : "⭕"} ${name}`)
+            }
+        }
+
+        console.log(`\nActive: ${activeCount} | Completed: ${completedCount}`)
+        console.log("----------------------")
+    },
 }
 
 async function main() {
@@ -124,7 +154,9 @@ async function main() {
     const arg = process.argv[3]
 
     if (!COMMANDS[cmd]) {
-        console.error("❌ Unknown command. Available: sync, hygiene, bootstrap")
+        console.error(
+            "❌ Unknown command. Available: sync, hygiene, bootstrap, status"
+        )
         process.exit(1)
     }
 
@@ -132,6 +164,6 @@ async function main() {
 }
 
 main().catch((err) => {
-    console.error("❌ Conductor Error:", err.message)
+    console.error("❌ Gamemaster Error:", err.message)
     process.exit(1)
 })

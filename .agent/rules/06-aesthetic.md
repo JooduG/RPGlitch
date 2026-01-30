@@ -14,8 +14,9 @@ trigger: always_on
     - Muted: `#A1A1AA` (Zinc 400)
     - **BANNED**: Pure White `#FFFFFF` on large surfaces (Eye strain).
 - **Accents**:
+    - **`--signature-color`**: The primary narrative aura (The "Soul").
+    - **`--app-accent`**: Secondary desaturated tinting for Success/Error/Info.
     - Use "Narrative Tinting" only. No hard-coded "Brand Colors".
-    - Success/Error/Info must use desaturated, atmospheric variants, not neon.
 
 ## 2. Dimensionality (Physics)
 
@@ -34,3 +35,7 @@ trigger: always_on
 - **Speed**: `200ms` (Interactive) to `400ms` (Layout).
 - **Curve**: `cubic-bezier(0.16, 1, 0.3, 1)` (The "Snappy" curve).
 - **Micro-interactions**: Every click must have a feedback ripple or scale.
+
+---
+
+**Next:** Aesthetics are the interface for thought. See [07: Intelligence](./07-intelligence.md).

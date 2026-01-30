@@ -26,10 +26,10 @@
         "sync:ignores": "node .agent/skills/gamemaster/scripts/gamemaster.js sync ignores",
         "sync:colors": "node .agent/skills/gamemaster/scripts/gamemaster.js sync colors",
         "sync:mcp": "node .agent/skills/gamemaster/scripts/gamemaster.js sync mcp",
-        "ingest": "node .agent/skills/scholar/scripts/cli.js ingest",
-        "scholar": "node .agent/skills/scholar/scripts/cli.js",
+        "ingest": "node .agent/skills/scholar/scripts/explorer.js ingest",
+        "scholar": "node .agent/skills/scholar/scripts/explorer.js",
         "warden": "node .agent/skills/warden/scripts/warden.js",
-        "conductor": "node .agent/skills/gamemaster/scripts/gamemaster.js",
+        "gamemaster": "node .agent/skills/gamemaster/scripts/gamemaster.js",
         "qa:diagnostics": "node .agent/skills/warden/scripts/warden.js rules",
         "test:unit": "vitest",
         "test:e2e": "playwright test"

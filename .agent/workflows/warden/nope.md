@@ -1,35 +1,33 @@
 ---
-description: The Divergence Protocol. Triggers when a fix fails to meet expectations or bugs persist after verification.
+description: Divergence Protocol. Triggers when a strategy fails or a success claim is found to be false.
 ---
 
-# 🛑 Workflow: Nope (Divergence & Correction)
+# 🛑 Nope Protocol
 
-> **Trigger:** User invokes `/nope` or expresses frustration that a fix didn't work.
-> **Philosophy:** "Insanity is doing the same thing over and over and expecting different results."
+> **Trigger**: "It's still broken" or consecutive logic failures.
 
-## 1. The Halt (Immediate Action)
+## 1. The Penance (Truth Audit)
 
-1. **Acknowledge the Divergence**: State clearly that the previous attempt failed without excessive apologies.
-2. **Rollback Assessment**: Check if you need to use [Revert Protocol](../../gamemaster/05-revert.md) to restore a working state.
+1. **Truth Verification**: If the user invokes `/nope` because I claimed success but failed, I am in **Truth Divergence**.
+2. **Execute Penance**: `python .agent/skills/warden/scripts/sticker.py`.
+    - _Reason_: Hallucinating success is a Tier 2 Intelligence violation.
 
-## 2. The Diagnostic (Why were we wrong?)
+## 2. The Halt
 
-Use the **[Debugging Protocol](../../skills/warden/knowledge/debugging.md)** to break your current mental model. Identify the _Expectation Gap_ and the _Flawed Assumption_.
+1. **Stop**: Abandon the current implementation strategy immediately.
+2. **Diagnostic**: Invoke [Diagnostics](../../knowledge/system/diagnostics.md) to find the logic flaw.
 
-## 3. The New Approach (Lateral Thinking)
+## 3. Lateral Reframing
 
-**Constraint:** You are NOT allowed to try the "same fix but slightly different". You must propose a **Different Mechanism**.
+1. **Constraint Check**: Identify which Pillar or Rule was violated.
+2. **Lateral Shift**: Propose an entirely different approach. **DO NOT** reuse failed logic.
 
-- **Level 3 (Debug)**: Trace the root cause deeper.
-- **Level 4 (Reframe)**: Question the architecture.
-- **Level 5 (Conflict)**: Identify competing systems.
+## 4. Observable Truth
 
-## 4. The Rigorous Verification Plan
-
-Define a **Binary, Observable Truth Test** before writing code.
-
-- "It should work now" is NOT valid verification.
+1. **Definition**: State one specific, measurable fact that will prove the new fix (e.g., "The element `id='footer'` exists and has `padding: 20px`").
+2. **Plan**: Draft a new Plan based on this observable truth.
 
 ## 5. Execution
 
-Execute and verify. Present the evidence of the fix to the User.
+- **Follow**: [Implement Protocol](../gamemaster/03-implement.md) with the new plan.
+- **Prompt**: "Lateral shift confirmed. New plan in motion."

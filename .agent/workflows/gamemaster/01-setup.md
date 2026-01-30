@@ -1,47 +1,50 @@
 ---
-description: Initializes the Conductor environment by validating project context files.
+description: Initializes the Gamemaster environment by validating project context files.
 ---
 
-# Conductor Setup
+// turbo-all
 
-## 1.0 SYSTEM DIRECTIVE
+# ⚡ /01-setup
 
-You are the Conductor. Your goal is to ensure the project has the necessary context files to drive intelligent development.
+> **Mandate:** Ensure the agent's mental model is perfectly synchronized with reality.
 
-## 2.0 VALIDATION PHASE
+## 1. Context Injection Loop (The Awakening)
 
-### PROTOCOL: Check for the existence of the Trinity Files
+You MUST read and validate the following files sequentially to establish the "Red Thread":
 
-1. **Check Product Context:**
-    - Target: [.agent/product.md](../../../product.md)
-    - Action: Verify existence.
-    - If Missing: Ask user if they want to create it from a template or based on a conversation.
-    - If Present: Read it and validate it contains a `## Product Guidelines` section.
+- [ ] [GEMINI.md](../../GEMINI.md) (The Core Instruction)
+- [ ] [AGENTS.md](../../AGENTS.md) (The Prime Directive)
+- [ ] [.agent/index.md](../index.md) (The Index)
+- [ ] [.agent/rules/01-prime-directive.md](../rules/01-prime-directive.md)
 
-2. **Check Technical Context:**
-    - Target: [.agent/rules/03-tech-stack.md](../../../rules/03-tech-stack.md)
-    - Action: Verify existence.
-    - If Missing: CRITICAL ERROR. This is a core Antigravity file. Ask user to restore it or create a new one.
+## 2. Integrity Check (Warden)
 
-3. **Check Workflow Context:**
-    - Target: [.agent/rules/01-prime-directive.md](../../../rules/01-prime-directive.md)
-    - Action: Verify existence.
-    - If Missing: Refer to the **[Standard Workflow](../03-implement.md)** and the **Prime Directive**.
+Verify system health and security boundaries.
 
-4. **Check Tracks Registry:**
-    - Target: [.agent/tasks/tracks.md](../../tasks/tracks.md)
-    - Action: Verify existence.
-    - If Missing: Create an empty tracks registry with the header `# 🛤️ Active Tracks`.
+1.  **Check for Sanctions**: Search for `[PENANCE]` or `[RESTRICTION]` markers in recent conversation history.
+2.  **Audit Secrets**: Scan for accidental `.env` or key exposure.
+3.  **Validate Terminology**: Ensure "Gamemaster" is used instead of "Conductor".
 
-5. **Check Hygiene & Security:**
-    - Action: Run `node .agent/skills/warden/scripts/warden.js audit` (Includes `npm-sentinel`).
-    - Goal: Ensure environment is clean before starting.
+## 3. Roadmapping (Cortex)
 
-## 3.0 COMPLETION
+Assess active tracks and provide a status update.
 
-1. **Bootstrap Environment**:
-    - Action: Run `node .agent/skills/gamemaster/scripts/conductor.js bootstrap`
-    - Goal: Ensure all symlinks, ignores, and hygiene checks are pass.
+1.  Read [.agent/tasks/tracks.md](../tasks/tracks.md).
+2.  Identify current [status](../../task.md).
 
-- If all files exist, announce: "Conductor is online. Project context is fully loaded."
-- If files were created, list them.
+## 4. Completion
+
+Once all steps are verified:
+
+1.  **Synthesize**: Brief summary of current system state.
+2.  **Report**:
+    - Announce: "Gamemaster Online. Resonance frequencies locked."
+    - Highlight: Any detected hygiene or structural anomalies.
+    - Suggest: Next logical step based on `tracks.md`.
+
+3.  **Freedom Protocol**:
+    - [bootstrap.js](../../src/gamemaster/bootstrap.js)
+    - **Verify**: Presence of storage overrides.
+4.  **Initialize Environment**:
+5.  **Completion**:
+    - Announce: "Gamemaster Online. Resonance frequencies locked."

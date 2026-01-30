@@ -27,6 +27,7 @@ trigger: always_on
 ## 3. Structural Hygiene
 
 - **Hierarchy**: Use `kebab-case` for all files. No 1-file folders.
+- **Communication**: Use the "Enforced Context" pattern in all user-facing messages to maintain system transparency.
 - **Static Scans**: Execute `npm run hygiene` (scan for `console.log`, `alert`).
 - **Markdown**: Use Emojis (✅/⭕) in headers to avoid broken link linting errors.
 
@@ -41,3 +42,7 @@ trigger: always_on
 2. **Structural**: Follows Svelte 5 Runes and 7-1 SCSS.
 3. **Type-Safe**: No implicit 'any'.
 4. **Documented**: Changes recorded in `walkthrough.md`.
+
+---
+
+**Next:** Hygiene manifests in visual clarity. See [06: Aesthetic](./06-aesthetic.md).

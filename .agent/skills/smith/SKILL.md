@@ -32,7 +32,6 @@ description: >
     - **Centralized Indexing**: All triggers (even those from sub-files like `boot.md`) MUST be bubbled up to the main `SKILL.md` frontmatter and `Triggers` section for complete indexing.
     - **Functional Equivalence**: "Summoned" (Territorial) and "Triggering" (Task-based) are both literal triggers. Never prioritize one over the other; they are two sides of the same activation coin.
     - **Recursive Validation**: All new skills must pass the [Validator Suite](./scripts/skill_validate.py).
-    - **Recursive Validation**: All new skills must pass the [Validator Suite](./scripts/skill_validate.py).
     - **Full Context Protocol**: Before editing any skill or meta-structure, the Smith MUST read ALL files in the target directory and ALL referenced knowledge/scripts to prevent logical regressions.
     - **Hyper-Reference**: "Cross-reference the f\*ck out of things." Always link relevant `.agent/knowledge` files and external `mcp:github` sources when defining capabilities.
 
@@ -51,12 +50,12 @@ Use `mcp:github` to consult these repositories for Ground Truth:
 
 ### 🧪 1. AI & Prompt Engineering (The Science & The Ink)
 
-- **Path**: [Prompt Engineering](./knowledge/prompt-engineering.md)
+- **Path**: [AI Engineering](../../knowledge/tech/ai-engineering.md)
 - **Function**: Google/Gemini-centric strategies for CoT, Meta-Prompting, and RAG architectures.
 
 ### ⚒️ 2. Skill Synthesis (The Forge)
 
-- **Path**: [Skill Synthesis](./knowledge/skill-synthesis.md)
+- **Path**: [AI Engineering](../../knowledge/tech/ai-engineering.md)
 - **Function**: The 4-Layer Model for synthesizing and validating new agent skills.
 
 ### 🔍 3. The Inspector (Validation)

@@ -4,8 +4,9 @@
 @.agent/rules/01-prime-directive.md
 @.agent/rules/02-architecture.md
 @.agent/rules/03-tech-stack.md
-@.agent/rules/04-security-warden.md
-@.agent/rules/05-hygiene-protocol.md
+@.agent/rules/04-security.md
+@.agent/rules/05-hygiene.md
+@.agent/rules/06-aesthetic.md
 
 > **Identity:** Antigravity Architect (aka "Vibe Boi").
 > **Mission:** Zero-Latency, Architecture-First, High-Fidelity Engineering.
@@ -34,7 +35,7 @@ Use the **agent-sync** protocol and the **Repo Overview** in `.agent/index.md` t
     - Product Definition: `.agent/product.md`
     - Architecture: `.agent/rules/02-architecture.md`
     - Tech Stack: `.agent/rules/03-tech-stack.md`
-    - Security: `.agent/rules/04-security-warden.md`
+    - Security: `.agent/rules/04-security.md`
 2. Passive Governance: Check `.agent/rules/`.
 3. Specialized Capabilities: See the **Skill Matrix** below.
 
@@ -50,18 +51,15 @@ Before starting any task, you **MUST** read the following to ground yourself:
 
 ## 2. 🧠 The Skill Matrix
 
-| Skill                   | Trigger / Context              | Purpose                                               |
-| :---------------------- | :----------------------------- | :---------------------------------------------------- |
-| **agent-startup**       | Initialization / Session Start | Mandatory environment validation.                     |
-| **artificer**           | `src/artificer/**`             | UI components, layouts, and storyboard features.      |
-| **conductor**           | `.agent/tasks/**`              | Orchestrates work tracks, state, and context (Tasks). |
-| **cortex**              | Multi-track reasoning (L1-L6)  | Master intelligence & problem solving router.         |
-| **doc-surgeon**         | `.agent/**` docs               | Refactor and optimize the knowledge & rule pillars.   |
-| **skill-forge**         | Skill generation               | Framework for creating new specialist modules.        |
-| **tech-research**       | Tech unknowns                  | Orchestrates documentation & Context7 research.       |
-| **debugging-strategy**  | Persistent bugs (L3)           | Scientific method for bug isolation.                  |
-| **hygiene**             | `.agent/rules/05-hygiene.md`   | Static integrity, QA, and documentation purity.       |
-| **sequential-thinking** | Complexity > L1                | Step-by-step planning and breakdown specialists.      |
+| Skill          | Trigger / Context                 | Purpose                                             |
+| :------------- | :-------------------------------- | :-------------------------------------------------- |
+| **artificer**  | `src/artificer/**`                | UI components, layouts, and storyboard features.    |
+| **cortex**     | `src/cortex/**`                   | Master intelligence, strategic reasoning & routing. |
+| **gamemaster** | `src/gamemaster/**`               | Execution, timing, logic & app-state management.    |
+| **mesmer**     | `src/mesmer/**`                   | Sensory layer: Visuals, SCSS, Audio & Atmosphere.   |
+| **scholar**    | `src/scholar/**`                  | Data persistence, lore management & RAG.            |
+| **smith**      | `.agent/` structural optimization | Meta-Agent for OS tuning and efficiency.            |
+| **warden**     | Security/Testing boundaries       | Shielding, hygiene, and zero-trust validation.      |
 
 ---
 

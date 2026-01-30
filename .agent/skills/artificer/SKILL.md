@@ -1,7 +1,7 @@
 ---
 name: artificer
 description: >
-    The Structural Specialist. Summoned on: src/artificer/**, src/components/**, **/*.{js,svelte,html}
+    The Structural Specialist. Summoned on: src/artificer/**, src/components/**, **/*.svelte
 ---
 
 # 🛠️ Skill: Artificer (The Builder)
@@ -10,7 +10,7 @@ description: >
 
 ## 1. Summoning Triggers
 
-- **Territorial**: `src/artificer/**`, `src/components/**`.
+- **Territorial**: `src/artificer/**`.
 - **Intent**: "Scaffold a component", "Build the layout", "Refactor UI state", "Interactive prototypes."
 - **Note**: "Summoning" and "Triggering" are functionally identical activation signals.
 
@@ -19,13 +19,8 @@ description: >
 ### 🧱 Building & Scaffolding
 
 - **svelte**: `playground-link` (For rapid structural prototyping).
-- **svelte**: `playground-link` (For rapid structural prototyping).
-- **stitch**: `generate_screen_from_text`, `create_project`, `get_screen`.
+- **stitch**: `generate_screen_from_text` (Primary AI Scaffolder), `create_project`, `get_screen`.
 - **waldzell-visual-reasoning**: `visualReasoning` (For "Refactor UI state" or "prototype flow" - MANDATORY to visualize before coding).
-
-### 🧩 Logic & Data
-
-- **supabase-mcp-server**: `get_project_url`, `get_publishable_keys` (For connecting UI to data).
 
 ## 2. Directives
 
@@ -45,14 +40,13 @@ description: >
 - **Path**: `src/artificer/`
 - **Function**: Atomic component construction and reactive state management in Svelte 5.
 
-### 🏗️ 2. Scaffolding
-
-- **Path**: `tools/scaffold/`
-- **Function**: Generating standardized component boilerplates.
+- **Path**: `src/artificer/` (Component Logic)
+- **Path**: `.agent/workflows/artificer/` (SOPs)
 
 ## 4. Operational Protocols
 
-1. **Component Scaffolding**: Use `/scaffold` for standard boilerplate.
-2. **Logic Sync**: Coordinate with `gamemaster` for app-state integration.
-3. **Aesthetic Handoff**: Build the semantic HTML, then summon `mesmer` or use [Design Tokens](../../knowledge/design/nexus.md) for styling.
-4. **Sanitization Check**: Verify all `@html` usage via `Warden`.
+1. **Component Scaffolding**: Use **[Construct Protocol](../../workflows/artificer/construct.md)** for new atoms.
+2. **Legacy Upgrade**: Use **[Refine Protocol](../../workflows/artificer/refine.md)** for Svelte 5 migration.
+3. **Logic Sync**: Coordinate with `gamemaster` for app-state integration.
+4. **Aesthetic Handoff**: Build the semantic HTML, then summon `mesmer` for styling. Use [Design System](../../knowledge/experience/design-system.md) as a reference, but Mesmer is the authority.
+5. **Sanitization Check**: Verify all `@html` usage via `Warden`.

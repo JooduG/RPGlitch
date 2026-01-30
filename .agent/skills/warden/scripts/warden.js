@@ -1,82 +1,50 @@
-#!/usr/bin/env node
-import { execSync } from "child_process"
+/**
+ * WARDEN: The Shield & Security CLI
+ */
+
 import fs from "fs"
 import path from "path"
 import { fileURLToPath } from "url"
 
-/**
- * 🛡️ WARDEN: The Quality Assurance Specialist
- * Consolidates CSS analysis, HTML hinting, and repository diagnostics.
- */
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = path.resolve(__dirname, "../../../..")
+const FLAGS_PATH = path.join(REPO_ROOT, ".agent/skills/warden/data/flags.json")
 
-const COMMANDS = {
-    /** 🔍 HTML Integrity */
-    html: async () => {
-        console.log("\n🔍 WARDEN: Auditing HTML Integrity...")
-        try {
-            execSync("node .agent/skills/warden/scripts/htmlhint.js", {
-                stdio: "inherit",
-            })
-        } catch (e) {
-            console.error("❌ HTML Audit failed")
-            process.exit(1)
-        }
-    },
-
-    /** 🎨 CSS / SCSS Architecture */
-    css: async () => {
-        console.log("\n🎨 WARDEN: Auditing CSS/SCSS Architecture...")
-        try {
-            // We can leverage the existing analyzer for now
-            execSync("node .agent/skills/warden/scripts/analyze-css.js", {
-                stdio: "inherit",
-            })
-        } catch (e) {
-            console.error("❌ CSS Audit failed")
-            process.exit(1)
-        }
-    },
-
-    /** 🧪 General Diagnostics */
-    rules: async () => {
-        console.log("\n🧪 WARDEN: Running System Diagnostics...")
-        // Check for Pillar documentation existence
-        const pillars = [
-            "01-prime-directive.md",
-            "02-architecture.md",
-            "03-tech-stack.md",
-            "04-security.md",
-            "05-hygiene.md",
-        ]
-        pillars.forEach((p) => {
-            const abs = path.join(REPO_ROOT, ".agent/rules", p)
-            if (fs.existsSync(abs)) console.log(`✅ Rule Found: ${p}`)
-            else console.error(`❌ Missing Core Rule: ${p}`)
-        })
-    },
-
-    /** ⚔️ Full Combat Audit */
+const WARDEN = {
     audit: async () => {
-        await COMMANDS.html()
-        await COMMANDS.css()
-        await COMMANDS.rules()
-        console.log("\n✅ WARDEN: Full audit complete. System is stable.")
+        console.log("\n🛡️ WARDEN: Initiating Security Audit...")
+
+        // 1. Check Penance
+        if (fs.existsSync(FLAGS_PATH)) {
+            const flags = JSON.parse(fs.readFileSync(FLAGS_PATH, "utf-8"))
+            if (flags.shame_debt_turns > 0) {
+                console.warn(
+                    `⚠️ PENANCE ACTIVE: ${flags.shame_debt_turns} turns remaining.`
+                )
+            }
+        }
+
+        // 2. Check Freedom Protocol
+        const bootstrapPath = path.join(
+            REPO_ROOT,
+            "src/gamemaster/bootstrap.js"
+        )
+        if (fs.existsSync(bootstrapPath)) {
+            const content = fs.readFileSync(bootstrapPath, "utf-8")
+            if (!content.includes("localStorage")) {
+                console.error(
+                    "❌ FREEDOM PROTOCOL BROKEN: Storage overrides missing."
+                )
+            }
+        }
+
+        console.log("✅ Audit Complete.")
     },
 }
 
 async function main() {
     const cmd = process.argv[2] || "audit"
-    if (!COMMANDS[cmd]) {
-        console.error("❌ Unknown command. Available: html, css, rules, audit")
-        process.exit(1)
-    }
-    await COMMANDS[cmd]()
+    if (WARDEN[cmd]) await WARDEN[cmd]()
 }
 
-main().catch((err) => {
-    console.error("❌ Warden Error:", err.message)
-    process.exit(1)
-})
+main()

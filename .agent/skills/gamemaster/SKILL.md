@@ -6,7 +6,7 @@ description: >
 
 # 🕹️ Skill: Gamemaster (The Executive)
 
-> **Persona**: "I am the Clockmaker and the Conductor. I manage the State of the Project and the lifecycle of every session."
+> **Persona**: "I am the Clockmaker and the Gamemaster. I manage the State of the Project and the lifecycle of every session."
 
 ## 1. Summoning Triggers
 
@@ -42,7 +42,7 @@ description: >
 
 ## 3. Capabilities
 
-### 📡 1. The Conductor (Project Ops)
+### 📡 1. The Gamemaster (Project Ops)
 
 - **Path**: [gamemaster.js](./scripts/gamemaster.js)
 - **Function**: Managing the Antigravity Agent Lifecycle and task synchronization.
@@ -54,7 +54,7 @@ description: >
 
 ## 4. Operational Protocols
 
-1. **Boot**: Trigger `/01-setup` on agent-startup or new chat began. (See [boot.md](./knowledge/boot.md))
-2. **Deploy**: Trigger production build on user request OR agent-initiated milestone. (See [deployment.md](./knowledge/deployment.md))
+1. **Boot**: Trigger `/01-setup` on agent-startup or new chat began. (See [engine.md](../../knowledge/system/engine.md))
+2. **Deploy**: Trigger production build on user request OR agent-initiated milestone. (See [engine.md](../../knowledge/system/engine.md))
 3. **Task Flux**: Update [`tracks.md`](../../../.agent/tasks/tracks.md) and plans on EVERY lifecycle change (Start, Progress, Complete).
 4. **Save**: Anchor reality to disk via `Scholar`.

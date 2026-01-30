@@ -1,37 +1,53 @@
-# Project Context (Antigravity OS)
+# 🧭 RPGlitch: Agent Control Center
 
-## 📜 The Six Rules (Pillars)
+Welcome to the **Antigravity OS**. This is the single source of truth for project governance, technical standards, and world-building intelligence.
 
-The application is governed by 6 priority-numbered pillars. **Always start with 01.**
+## 📜 The 7 Pillars (Rules)
 
-1. **⚡ [01: Prime Directive](./rules/01-prime-directive.md)**: The Constitution (Mindset & OS structure).
-2. **🏗️ [02: App Architecture](./rules/02-architecture.md)**: The Blueprint (Pillar-based design).
-3. **🛠️ [03: Tech Stack](./rules/03-tech-stack.md)**: The Toolkit (Svelte 5 & Modern Standards).
-4. **🛡️ [04: Security Warden](./rules/04-security.md)**: The Shield (Safety & Freedom Protocols).
-5. **🩺 [05: Hygiene Protocol](./rules/05-hygiene.md)**: The Guardian (Clean Code & Docs).
-6. **🎨 [06: Aesthetic Protocols](./rules/06-aesthetic.md)**: The Chalk Regime (Visual Identity).
+_Passive constraints that govern every tool call._
 
-## 📂 Repository Registry
+1. **⚡ [01: Prime Directive](./rules/01-prime-directive.md)**: Management & Concurrency.
+2. **🏗️ [02: App Architecture](./rules/02-architecture.md)**: Pillar-based reactive design.
+3. **🛠️ [03: Tech Stack](./rules/03-tech-stack.md)**: Svelte 5, Runes, and Modern Standards.
+4. **🛡️ [04: Security Warden](./rules/04-security.md)**: Safety & Freedom Protocols.
+5. **🩺 [05: Hygiene Protocol](./rules/05-hygiene.md)**: Clean Code & Documentation.
+6. **🎨 [06: Aesthetic Protocols](./rules/06-aesthetic.md)**: The Chalk Regime.
+7. **🧠 [07: Intelligence Protocol](./rules/07-intelligence.md)**: Reasoning & Transparency mandates.
 
-- `src/`: Core application source.
-    - `gamemaster/`: 🕰️ Logic & State (Chrono).
-    - `artificer/`: 🛠️ Structure & UI Components.
-    - `mesmer/`: 🎭 Visuals, Audio & Theme.
-    - `scholar/`: 📚 Data & Persistence (Dexie).
-    - `warden/`: 🛡️ Security, Bridge & Sanitization.
-- `.agent/`: The Agentic Operating System.
-    - `rules/`: Passive governance (Numbered Pillars).
-    - `skills/`: Active specialists (Gamemaster, Artificer, Mesmer, etc.).
-    - `workflows/`: Procedural Playbooks.
-    - `knowledge/`: The Knowledge Nexus (Reference material).
+---
 
-## 🧭 Navigation
+## 📚 The Knowledge Nexus
 
-- [Product Definition](./product.md)
-- [Knowledge Nexus](./knowledge/)
-- [Skill Trigger Matrix](./SKILL_TRIGGERS.md)
-- [Design Master](./design.md)
-- [Product Roadmap](./roadmap.md)
+_Active wisdom and technical protocols._
+
+### 👁️ [Vision & Philosophy](./knowledge/vision/philosophy.md)
+
+The "Why." Narrative goals, Diegetic UI, and the core glossary.
+
+### 🏗️ [System Architecture](./knowledge/system/architecture.md)
+
+The "How." The 5 Pillars, the Reactive Cycle, and the Engine Loop.
+
+### ⚖️ [Logic & Principles](./knowledge/logic/principles.md)
+
+The "Truth." Authority hierarchy and rules of the simulation.
+
+### ⚡ [Tech & Svelte 5](./knowledge/tech/svelte-5.md)
+
+The "Code." Runes, MCP integration, and testing strategies.
+
+### 💡 [Speculative Incubator](./knowledge/incubator/)
+
+The "Future." An incubator for experimental lore and mechanics.
+
+---
+
+## 🗺️ Strategy & Status
+
+- **🎯 [Product Definition](./product.md)**: The current vision and target.
+- **🗺️ [Development Roadmap](./roadmap.md)**: Milestones and future possibilities.
+- **✅ [Task Registry](./tasks/)**: Active work tracks and history.
+- **📐 [Skill Matrix](./SKILL_TRIGGERS.md)**: Persona definitions and tool triggers.
 
 ---
 

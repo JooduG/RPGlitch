@@ -2,20 +2,19 @@
 description: Reports the status of active tracks and project health.
 ---
 
-# Conductor Status
+# 📊 04: Status Protocol
 
-## 1.0 INSPECTION
+> **Goal:** Provide a clear overview of project health and track progress.
 
-1. Read `.agent/tasks/tracks.md`.
-2. Count:
-    - Total Tracks
-    - Completed Tracks `[x]`
-    - Active Tracks `[ ]`
-3. Check Project Context:
-    - Validate [.agent/product.md](../../product.md) and [.agent/rules/tech-stack.md](../../rules/03-tech-stack.md) are still present.
+## 1. Inspection
 
-## 2.0 REPORTING
+1. **Tracks Registry**: Read [tracks.md](../../tasks/tracks.md).
+2. **Context Integrity**: Verify "Trinity Files" (Product, Tech, Prime).
+3. **Setup State**: Consult [setup_state.json](../setup_state.json) for environment health.
+4. **Dependency Health**: Check for vulnerable or deprecated packages via `npm-sentinel`.
 
-1. Print a summary table of active tracks.
-2. Highlight the "Next Up" track.
-3. Report any context integrity warnings.
+## 2. Reporting
+
+- **Summary**: Print a markdown table of active vs. completed tracks.
+- **Health**: Report "Optimal" or list "Incompatibilities".
+- **Focus**: State the current active track and next logic gate.

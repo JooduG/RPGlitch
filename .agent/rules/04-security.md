@@ -30,7 +30,6 @@ trigger: always_on
 ## 5. Secret Management
 
 - **Rule:** **NO SECRETS** in the client bundle.
-- **Rule:** **NO SECRETS** in the client bundle.
 - **Deny List**: NEVER read or display `.env`, SSH keys, or files with `_SECRET`, `_KEY`, or `_TOKEN`.
 
 ## 6. Dependency Integrity
@@ -40,3 +39,7 @@ trigger: always_on
 - **Protocol**:
     1. Before adding: Check `npm-sentinel:npmSearch` and `npm-sentinel:npmDeprecated`.
     2. After adding: Check `npm-sentinel:npmVulnerabilities`.
+
+---
+
+**Next:** Security requires a clean environment. See [05: Hygiene](./05-hygiene.md).

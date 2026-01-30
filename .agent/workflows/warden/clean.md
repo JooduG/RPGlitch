@@ -1,30 +1,29 @@
 ---
-description: Aggressive cleanup protocol. Runs linters, formatters, and tests in a fix-loop until the codebase is spotless.
+description: Aggressive cleanup protocol. Purges entropy and ensures deployment-ready resonance.
 ---
 
-# 🧹 Deep Clean Protocol
+# 🧹 Clean Protocol
 
-> **Goal:** Purge legacy code, zombie files, and enforce strict hygiene.
-> **Constraint:** Zero Tolerance. No warnings allowed.
+> **Goal:** Sterilize the codebase for deployment and build integrity.
 
 ## 1. The Purge
 
-1. **Target:** Identify the specific folders/files to delete.
-2. **Execute:** Use `rm -rf` or file system deletion tools.
-3. **Verify:** Check that the path returns 404/Missing.
+1. **Orphans**: Remove dead files and empty directories causing build noise.
+2. **Artifacts**: Clear temporary build folders (`dist`, `.cache`) if state is inconsistent.
 
-## 2. The Sterilization (Hygiene & Lint)
+## 2. Build Verification
 
-After deleting files, you **MUST** run the full suite.
+1. **Validate**:
+    - **Execute**: `node .agent/skills/gamemaster/scripts/gamemaster.js hygiene`
+    - **Verify**: Production paths are free of debugging leakage.
+2. **Lint**:
+    - **Execute**: `npm run lint:fix`
+    - **Requirement**: Zero tolerance for syntactic entropy.
+3. **Build**:
+    - **Execute**: `npm run build`
+    - **Action**: Fix any production build errors before declaring "Clean".
 
-1. **Hygiene:** Run `npm run hygiene` (Executes [Gamemaster Script](../../skills/gamemaster/scripts/gamemaster.js)).
-    - **FAIL:** Any "Unused Export" or "Dead Import".
-2. **Lint:** Run `npm run lint:fix`.
-    - **FAIL:** Any ESLint warning or formatting error.
-3. **Test:** Run `npm test`.
-    - **FAIL:** Any broken unit test.
+## 3. Deployment Ready
 
-## 3. The Rebuild
-
-1. **Sync:** Run `npm run sync` to regenerate auto-generated lists (e.g., Palette).
-2. **Confirm:** "System Clean. Hygiene Passed. 0 Warnings."
+- **Final Audit**: Run `node .agent/skills/warden/scripts/warden.js audit`.
+- **Completion**: Announce "Resonance Cleared. Deployment Gate OPEN."

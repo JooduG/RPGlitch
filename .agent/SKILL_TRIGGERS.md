@@ -4,15 +4,15 @@ This document maps all registered Pillar Skills and their unified activation sig
 
 ## 🏛️ The 7 Pillars
 
-| Skill             | Summoning Triggers (Territory & Intent)                                                                | Assigned Tools (Core Kit)                                |
-| :---------------- | :----------------------------------------------------------------------------------------------------- | :------------------------------------------------------- |
-| **🕹️ Gamemaster** | `src/gamemaster/**`, `tools/ops/**`, `package.json`, `vite.config.js`, "Task Management", "App State". | `waldzell-clear-thought`, `github`.                      |
-| **🧠 Cortex**     | `src/cortex/**`, `.agent/tasks/**`, "Complex Planning", "Metacognition", "Logic Logic Check".          | `mcp-sequentialthinking-tools`, `context7`.              |
-| **⚒️ Smith**      | `.agent/skills/smith/**`, `mcp.master.json`, `AGENTS.md`, "Skill Refinement", "Prompt Engineering".    | `stitch` (Proxy), `Python` (Validator).                  |
-| **🛠️ Artificer**  | `src/artificer/**`, `src/components/**`, `**/*.svelte`, "UI Development", "Scaffolding".               | `stitch` (Generation), `svelte` (Playground).            |
-| **🎭 Mesmer**     | `src/mesmer/**`, `**/*.{scss,css}`, "Theme", "Visuals", "Animation", "Vibe".                           | `pencil`, `pollinations`, `stitch` (References).         |
-| **📚 Scholar**    | `src/scholar/**`, `.agent/knowledge/**`, "Data Persistence", "Reference Query", "Lore".                | `firecrawl`, `supabase`, `pinecone`, `context7` (Query). |
-| **🛡️ Warden**     | `src/warden/**`, `tools/tests/**`, `.gitignore`, `ignores.master.json`, "Security", "Hygiene", "QA".   | `playwright`, `chrome-devtools`, `svelte` (Autofixer).   |
+| Skill             | Summoning Triggers (Territory & Intent)                                                  | Assigned Tools (Core Kit)                                |
+| :---------------- | :--------------------------------------------------------------------------------------- | :------------------------------------------------------- |
+| **🕹️ Gamemaster** | `src/gamemaster/**`, `package.json`, `vite.config.js`, "Task Management", "App State".   | `waldzell-clear-thought`, `github`.                      |
+| **🧠 Cortex**     | `src/cortex/**`, `.agent/tasks/**`, "Complex Planning", "Metacognition", "Logic Check".  | `mcp-sequentialthinking-tools`, `context7`.              |
+| **⚒️ Smith**      | `.agent/skills/smith/**`, `AGENTS.md`, "Skill Refinement", "Prompt Engineering".         | `stitch` (Proxy).                                        |
+| **🛠️ Artificer**  | `src/artificer/**`, `src/components/**`, `**/*.svelte`, "UI Development", "Scaffolding". | `stitch` (Generation), `svelte` (Playground).            |
+| **🎭 Mesmer**     | `src/mesmer/**`, `**/*.{scss,css}`, "Theme", "Visuals", "Animation", "Vibe".             | `pollinations`, `stitch` (References).                   |
+| **📚 Scholar**    | `src/scholar/**`, `.agent/knowledge/**`, "Data Persistence", "Reference Query", "Lore".  | `firecrawl`, `supabase`, `pinecone`, `context7` (Query). |
+| **🛡️ Warden**     | `src/warden/**`, `.agent/skills/warden/**`, `.gitignore`, "Security", "Hygiene", "QA".   | `playwright`, `chrome-devtools`, `svelte` (Autofixer).   |
 
 ## 📐 Interaction Logic
 

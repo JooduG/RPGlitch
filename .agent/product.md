@@ -1,39 +1,60 @@
-# Initial Concept
+# 🎯 RPGlitch: The Reactive Roleplay Engine
 
-This is RPGlitch. A next-gen "Local-First" roleplay engine.
+> **Vision:** A local-first, genre-agnostic engine where state drives reality, and narrative is forged through recursive intelligence.
 
-## Product Guide
+## 1. The Core Concept
 
-## Target Users
+RPGlitch is a **Local-First Reactive Monolith**. It is designed to run entirely in the user's browser (PWA), utilizing **Svelte 5 Runes** for real-time state propagation and **Dexie.js** for persistent, offline-capable memory.
 
-- Perchance.org roleplayers and creators who seek a powerful, customizable, and local-first roleplay engine.
-- Developers interested in exploring and contributing to local-first, agentic applications, and learning software development.
+### The Problem
 
-## Project Goals
+Traditional roleplay tools are often either too rigid (hard-coded mechanics) or too loose (simple chat boxes). They lack the "Physics" required for high-stakes, immersive storytelling.
 
-- Provide an immersive and seamless client-side only roleplay experience.
-- Facilitate learning and development of creative and innovative functions within the application.
-- Develop fun, creative, and innovative functions.
+### The Solution: The Triad Protocol
 
-## Key Features
+We bridge the gap between creative prose and mechanical truth through three layers:
 
-- Integrated Storyboard for visual world-building and efficient character tracking.
-- Comprehensive system for reviewing and managing all prompts used throughout the application.
+- **The Spec (Blueprint):** Deep lore and character archetypes.
+- **The State (Live):** Reactive Runes that mirror the world's physical and psychological reality.
+- **The Echo (History):** Persistent logs that provide context and weight to every decision.
+
+## 2. Key Objectives
+
+### 👁️ Diegetic Immersion
+
+The UI should never feel like a "Tool." It is a canvas that exists within the fiction. Information is presented through atmospheric cues, "Chalk Regime" aesthetics, and sensory bridges.
+
+### 🧠 Recursive Intelligence
+
+Intelligence is not an external API; it is a logic pillar. The **Gamemaster** processes the user's creative input, the **Warden** enforces the laws of physics, and the **Scholar** ensures the world never forgets.
+
+### 🛡️ Freedom & Privacy
+
+By being local-first, the user owns their story. There is no central server to censor or lose data. The **Freedom Protocol** ensures the agent remains a collaborator, not a gatekeeper.
+
+## 3. Technical Foundation
+
+Built on the **Pillar Architecture**:
+
+- **Gamemaster:** Logic & Chrono (The Brain).
+- **Artificer:** Body & Structure (The Bones).
+- **Mesmer:** Senses & Aura (The Skin).
+- **Scholar:** Memory & Persistence (The Truth).
+- **Warden:** Shield & Hygiene (The Laws).
+
+## 🗺️ Navigation
+
+- **[Vision & Philosophy](./knowledge/vision/philosophy.md)**
+- **[System Architecture](./knowledge/system/architecture.md)**
+- **[Logic Principles](./knowledge/logic/principles.md)**
+- **[Roadmap](./roadmap.md)**
 
 ## Product Guidelines
 
-### Prose Style
+These guidelines define the operational constraints for the RPGlitch ecosystem:
 
-The system voice should be immersive, drawing the user into the story. For AI-generated text, the tone and style should adapt to reflect the character the AI is portraying.
-
-### Visual Identity
-
-- A clean, minimalist interface with intuitive navigation, ensuring ease of use and reduced cognitive load.
-- Rich, atmospheric visuals that enhance and complement the roleplaying themes.
-- Customizable themes and color palettes, allowing users to personalize their experience.
-
-**Design Resources:**
-
-- [Semantic Design System (Master)](./design.md)
-- [SCSS Variables](../src/mesmer/scss/abstracts/_variables.scss)
-- [Design Inspiration](./knowledge/design/inspiration.md)
+1. **Local-First Integrity**: Data must persist in IndexedDB (`Dexie.js`) before attempting network sync.
+2. **Reactive State**: UI components must never hold imperative state. Use Runes (`$state`, `$derived`).
+3. **Aesthetic Compliance**: All visual updates must adhere to the "Chalk Regime" system tokens.
+4. **Agentic Transparency**: The agent must maintain the `plan.md` (or task artifact) as the single source of truth for work in progress.
+5. **Security First**: Input sanitization via `DOMPurify` is mandatory for all dynamic content.

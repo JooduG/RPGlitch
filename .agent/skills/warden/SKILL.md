@@ -50,7 +50,7 @@ description: >
 
 ### 🧪 2. The Sentry (Debugging)
 
-- **Path**: [Debugging Protocol](./knowledge/debugging.md)
+- **Path**: [Testing & QA](../../knowledge/tech/testing-qa.md)
 - **Function**: Systematic debugging and failure analysis (Root Cause Tracing).
 
 ## 4. Operational Protocols

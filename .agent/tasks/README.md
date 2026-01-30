@@ -1,6 +1,6 @@
-# 🛤️ Task Registry (Conductor Domain)
+# 🛤️ Task Registry (Gamemaster Domain)
 
-This directory serves as the **State of Work** for the Antigravity system. All task management is governed by the **Conductor Pillar**.
+This directory serves as the **State of Work** for the Antigravity system. All task management is governed by the **Gamemaster Pillar**.
 
 ## 🕹️ Operational Protocol
 
