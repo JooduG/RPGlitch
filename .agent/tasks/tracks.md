@@ -12,17 +12,23 @@
 - Status: Complete
 - Note: Unified the .agent OS structure and synchronized all external documentation (AGENTS.md, DESIGN.md, README.md).
 
-## ⭕ Track: Security Audit
+## ✅ Track: Security Audit
 
 - Path: .agent/tasks/security-audit/
-- Status: Defined
-- Note: Verify Freedom Protocol.
+- Status: Complete
+- Note: Verified Freedom Protocol, terminology consistency, and sanitization benchmarks.
 
 ## ✅ Track: Automation & Modularization
 
-- Path: .agent/archive/automation-mod/
+- Path: .agent/tasks/automation-modularization/
 - Status: Complete
-- Note: Hooks, startup protocol, and slash commands fully implemented.
+- Note: Established the CLI baseline and modular script architecture.
+
+## ✅ Track: Intelligence Expansion
+
+- Path: .agent/knowledge/strategy/premortem.md
+- Status: Complete
+- Note: Integrated Scribbles.md insights into the Repository OS (Premortem, Optimization, Reorg Plan) via the Scribe skill.
 
 ## ✅ Track: Profile Refactor
 

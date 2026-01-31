@@ -6,8 +6,6 @@ This protocol governs how RPGlitch interfaces with intelligence models and how a
 
 These specifications are for the **Agentic Development Environment** (Antigravity OS) and do not describe the in-game runtime logic.
 
-- **Gemini 1.5 Pro:** The Reasoning Engine (Cortex). Used for architectural planning and code refactoring.
-- **Gemini 1.5 Flash:** The Utility Engine (Reflex). Used for high-frequency documentation and small fix tasks.
 - **Context Management:** Leverage the 2M+ token window. Prefer full-context analysis over aggressive RAG chunking when possible.
 
 ## 2. Prompting Patterns (The Ink)
@@ -27,7 +25,7 @@ Anchor model outputs (JSON/Markdown) by providing 3 distinct `Input -> Output` e
 
 ### 🔍 Intelligence Safeguards
 
-These constraints are promoted to formal repository rules (See [Intelligence Protocol](../rules/07-intelligence.md)).
+These constraints are promoted to formal repository rules- See [07: Intelligence Architecture](../../rules/07-intelligence.md) for data governance.
 
 - **Rule:** "Answer ONLY from provided context. If unknown, state 'I do not know'."
 

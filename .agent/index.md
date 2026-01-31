@@ -32,6 +32,10 @@ The "Code." Runes, MCP integration, and approved ecosystem.
 
 The "Future." An incubator for experimental lore and mechanics.
 
+### ✅ [Definition of Done](./knowledge/system/definition-of-done.md)
+
+The "Done." Codified quality gates and completion standards.
+
 ---
 
 ## 🧠 Skill Capabilities (The How)
@@ -49,8 +53,8 @@ The "Future." An incubator for experimental lore and mechanics.
 
 - **🎯 [Product Definition](./product.md)**: The current vision and target.
 - **🗺️ [Development Roadmap](./roadmap.md)**: Milestones and future possibilities.
-- **✅ [Task Registry](./tasks/)**: Active work tracks and history.
-- **📐 [Skill Matrix](./SKILL_TRIGGERS.md)**: Persona definitions and tool triggers.
+- **✅ [Task Registry](./tasks/tracks.md)**: Active work tracks and history.
+- **📐 [Skill Matrix](../../AGENTS.md#2--the-skill-matrix-summoning--intent)**: Persona definitions and tool triggers.
 
 ---
 

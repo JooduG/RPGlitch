@@ -1,7 +1,7 @@
 ---
 name: cortex
 description: >
-    The Strategic Mind & Logical Hub. Evaluates "How" we think, arbitrates between conflicting pillars, and architecting the path forward through high-order reasoning and metacognitive monitoring. Summoned on: src/cortex/**, **/*gamemaster*/**, .agent/tasks/**, .agent/*.md, types.d.ts, AGENTS.md, GEMINI.md
+    The Strategic Mind & Logical Hub. Evaluates "How" we think and architecting complex paths. Use for: "Plan this refactor", "Solve this XY problem", "Arbitrate conflict", "Verify hypothesis", "Metacognitive audit", "Logic check".
 ---
 
 # 🧠 Skill: Cortex (The Mind)

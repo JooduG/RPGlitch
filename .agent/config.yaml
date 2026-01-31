@@ -28,7 +28,7 @@ context:
 
 tooling:
     required_manifest: ".agent/tooling.json"
-    startup_script: ".gemini/on_startup.sh"
+    startup_script: ".gemini/hooks/on_start.ps1"
     allowed: ["*"]
     exclude: ["rm", "format"] # Safety: exclude destructive raw shell commands
 

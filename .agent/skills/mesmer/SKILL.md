@@ -1,7 +1,7 @@
 ---
 name: mesmer
 description: >
-    The Sensory Illusionist. Summoned on: src/mesmer/**, **/*.{scss,css}, .agent/knowledge/experience/**. Consultant: Allowed to interject on ANY visual, aesthetic, or UX design choice. "Does this look good?", "Fix styling."
+    The Sensory Illusionist. Owns the "Chalk Regime" (SCSS), Visuals, and Audio. Use for: "Update the theme", "Add a hover effect", "Generate image", "Tweak the vibe", "Aesthetic audit", "Fix styling", "Voice/TTS integration".
 ---
 
 # 🎭 Skill: Mesmer (The Illusionist)

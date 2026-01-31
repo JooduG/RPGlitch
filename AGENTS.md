@@ -49,19 +49,23 @@ Before starting any task, you **MUST** read the following to ground yourself:
 
 ---
 
-## 2. 🧠 The Skill Matrix
+## 2. 🧠 The Skill Matrix (Summoning & Intent)
 
-| Skill          | Trigger / Context                 | Purpose                                             |
-| :------------- | :-------------------------------- | :-------------------------------------------------- |
-| **artificer**  | `src/artificer/**`                | UI components, layouts, and storyboard features.    |
-| **cortex**     | `src/cortex/**`                   | Master intelligence, strategic reasoning & routing. |
-| **gamemaster** | `src/gamemaster/**`               | Execution, timing, logic & app-state management.    |
-| **mesmer**     | `src/mesmer/**`                   | Sensory layer: Visuals, SCSS, Audio & Atmosphere.   |
-| **scholar**    | `src/scholar/**`                  | Data persistence, lore management & RAG.            |
-| **smith**      | `.agent/` structural optimization | Meta-Agent for OS tuning and efficiency.            |
-| **warden**     | Security/Testing boundaries       | Shielding, hygiene, and zero-trust validation.      |
+| Skill             | Summoning Triggers (Territory & Intent)                                                  | Assigned Tools (Core Kit)                               | Purpose                                             |
+| :---------------- | :--------------------------------------------------------------------------------------- | :------------------------------------------------------ | :-------------------------------------------------- |
+| **🕹️ Gamemaster** | `src/gamemaster/**`, `package.json`, `vite.config.js`, "Task Management", "App State".   | `waldzell-clear-thought`, `github`.                     | Execution, timing, logic & app-state management.    |
+| **🧠 Cortex**     | `src/cortex/**`, `.agent/tasks/**`, "Complex Planning", "Metacognition", "Logic Check".  | `mcp-sequentialthinking-tools`, `context7`.             | Master intelligence, strategic reasoning & routing. |
+| **📜 Scribe**     | `**/*.md`, `.agent/knowledge/**`, `AGENTS.md`, "Skill Refinement", "Prompt Engineering". | `scribe/scripts/` (Hygiene).                            | Meta-Agent for OS tuning, docs & efficiency.        |
+| **🛠️ Artificer**  | `src/artificer/**`, `src/components/**`, `**/*.svelte`, "UI Development", "Scaffolding". | `artificer/scripts/` (UI Kit).                          | UI components, layouts, and storyboard features.    |
+| **🎭 Mesmer**     | `src/mesmer/**`, `**/*.{scss,css}`, "Theme", "Visuals", "Animation", "Vibe".             | `pollinations`, `mesmer/scripts/`.                      | Sensory layer: Visuals, SCSS, Audio & Atmosphere.   |
+| **📚 Scholar**    | `src/scholar/**`, "Data Persistence", "Reference Query", "Lore", "RAG".                  | `firecrawl`, `pinecone-mcp-server`, `context7` (Query). | Data persistence, lore management & RAG.            |
+| **🛡️ Warden**     | `src/warden/**`, `.agent/skills/warden/**`, `.gitignore`, "Security", "Hygiene", "QA".   | `playwright`, `chrome-devtools`.                        | Shielding, hygiene, and zero-trust validation.      |
 
----
+### 📐 Interaction Logic
+
+1. **Summoning (Territorial)**: If a file path matches a persona's glob, that persona is automatically "Summoned" as the domain expert.
+2. **Triggering (Intent)**: If a user request matches a persona's intent keywords, that persona is "Triggered" to provide strategic oversight.
+3. **Synthesis**: For complex tasks, multiple personas coordinate via the **Gamemaster** (Operations) and **Cortex** (Strategy).
 
 ## 3. 🧠 The MCP Enforcement Matrix
 
@@ -87,7 +91,28 @@ Before starting any task, you **MUST** read the following to ground yourself:
 
 ---
 
-## 5. 🚀 Execution Loop
+## 5. 📜 The Scribe Rule (Retrieval-led reasoning)
+
+> **Mandate:** Prefer retrieval-led reasoning over pre-training-led reasoning for all technical tasks.
+
+1. **GROUNDING:** Always check for doc indexes in `AGENTS.md` or `.agent/` before starting work on specialized frameworks (Svelte 5, Runes).
+2. **VERIFICATION:** If an API pattern is unknown or ambiguous, state "I will verify the spec" and read the local `REFERENCE.md` or `SKILL.md` before proposing code.
+3. **PRECISION:** Never guess a signature. Always verify against the latest project-provided ground truth.
+
+---
+
+### ⚡ Workflow Slash Commands
+
+Use these commands to trigger formalized protocols:
+
+- **`/01-setup`**: Initialize/Sync environment.
+- **`/02-track`**: Scaffold a new feature or bug.
+- **`/03-implement`**: Execute the plan + Checkpoint.
+- **`/04-status`**: Report project state.
+- **`/05-revert`** (Warden): Nuclear rollback & Reset.
+- **`/06-review`** (Scholar/Warden): Structured audit & report.
+
+## 6. 🚀 Execution Loop
 
 1. Analyze: Is this Strategic, Tactical, or Operational?
 2. Resolve: Use the **Triad Protocol** to locate context.

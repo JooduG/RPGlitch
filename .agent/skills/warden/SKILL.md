@@ -1,7 +1,7 @@
 ---
 name: warden
 description: >
-    The Shield & Guardian. Summoned on: **/*warden*/**, **/*.{test,spec}.js, .gitignore, *config.js, .eslint*, .prettier*, .markdownlint*. Consultant: Allowed to interject on ANY security, testing, or hygiene violation. "Is this secure?", "Audit this."
+    The Shield & Guardian. Manages Security, Hygiene, and Zero-Trust validation. Use for: "Security audit", "Check for secrets", "Fix linting", "Run tests", "Verify UI state", "Hygiene scan", "QA audit", "Audit this logic".
 ---
 
 # 🛡️ Skill: Warden (The Guardian)

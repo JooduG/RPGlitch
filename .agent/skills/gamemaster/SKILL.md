@@ -1,7 +1,7 @@
 ---
 name: gamemaster
 description: >
-    The Executive Manager. Summoned on: **/*gamemaster*/**, package.json
+    The Executive Manager. Orchestrates Task Management, App State, and Repository Operations. Use for: "What is task status?", "Initialize environment", "Start new track", "Deploy monolith", "Sync tracks.md", "Project lifecycle".
 ---
 
 # 🕹️ Skill: Gamemaster (The Executive)

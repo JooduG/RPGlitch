@@ -27,8 +27,15 @@ For each unchecked item `[ ]` in `plan.md`:
 4. **Verify**: Run unit tests or use the browser tool for UI validation.
 5. **Mark Done**: Change status to `[x]`.
 
-## 3. Checkpoint & Handoff
+## 3. Checkpoint & Handoff (The Conductor Loop)
 
-1. **Update Registry**: Reflect progress in [tracks.md](../../tasks/tracks.md).
-2. **Archive/Merge**: When all items are `[x]`, trigger the [Cleanup Protocol](../../warden/clean.md).
-3. **Notify**: Inform user of completion and offer proof of work.
+1.  **Verification Report**:
+    - **Automated**: Run tests and record the command/result.
+    - **Manual**: Draft a step-by-step verification plan for the user (Start server -> URL -> Expected Result).
+2.  **User Confirmation**: Await explicit user feedback before checkpointing.
+3.  **Checkpoint Commit**:
+    - Stage changes.
+    - Commit: `gamemaster(checkpoint): End of Phase <X>`.
+    - **Git Note**: Attach the verification report to the commit via `git notes add -m "<report>" <sha>`.
+4.  **Update Registry**: Reflect the `[checkpoint: <sha>]` in the track's `plan.md` and [tracks.md](../../tasks/tracks.md).
+5.  **Notify**: Inform user that the phase is anchored.

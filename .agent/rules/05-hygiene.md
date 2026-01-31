@@ -24,7 +24,17 @@ trigger: always_on
 - **Functions**: `getUserById()` (Verb + Noun).
 - **Booleans**: `isActive` (Question form).
 
-## 3. Structural Hygiene
+## 3. Vibe & Tone Hardening (AI Slop Audit)
+
+- **Em-Dash Restriction**: Minimize usage of em-dashes (`—`). Replace with semicolons, commas, or recast the sentence.
+- **Narrative Purity**: Avoid "we added X" or "X is now Y". Frame updates as the current terminal state.
+- **Trope Defense**: Strictly avoid AI tropes such as:
+    - "It's not just [X], it's [Y]"
+    - "Imagine a world where..."
+    - "Tapestry", "Testament", "Delve", "Leverage" (unless technical).
+- **Enforced Context**: Messages must remain concise and technical, avoiding flowery or self-congratulatory language.
+
+## 4. Structural Hygiene
 
 - **Hierarchy**: Use `kebab-case` for all files. No 1-file folders.
 - **Communication**: Use the "Enforced Context" pattern in all user-facing messages to maintain system transparency.

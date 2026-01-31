@@ -17,11 +17,12 @@ npm run dev
 
 ## 🏗️ The System
 
-This is **RPGlitch** & **ImageGlitch**. A next-gen "Local-First" roleplay engine.
+RPGlitch is a high-fidelity roleplay engine and visual generator. The architecture prioritizes offline-first resilience and agentic automation.
 
-- **Client-Side Only:** No backend. The database (`IndexedDB`) lives in your browser.
-- **Agentic Core:** Powered by the "Prometheus" Engine (Pattern C).
-- **Zero-Trust:** Strict [Security Protocols](.agent/rules/04-security-warden.md).
+- **Local-First Persistence:** Data resides in IndexedDB via Dexie.js. No external backend required for core operations.
+- **Pillar-Based Reactivity:** State flows through decoupled domains (Gamemaster, Artificer, Mesmer, Scholar, Warden).
+- **Agentic Integration:** The Antigravity OS (`.agent/`) governs system rules and automated workflows.
+- **Zero-Trust Security:** Strict sanitization and the "Freedom Protocol" safeguard the runtime environment.
 
 ## 🗺️ Context Map
 

@@ -1,7 +1,7 @@
 ---
 name: artificer
 description: >
-    The Structural Specialist. Summoned on: src/artificer/**, src/components/**, **/*.svelte
+    The Structural Specialist. Builds Svelte 5 components and reactive UI logic. Use for: "Scaffold a component", "Build the layout", "Refactor UI state", "Interactive prototypes", "Apply Runes", "Svelte logic".
 ---
 
 # 🛠️ Skill: Artificer (The Builder)

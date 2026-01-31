@@ -13,7 +13,7 @@ Centered around the **Mesmer** and **Artificer** pillars. This is where the worl
 - [The Lexicon (Glossary)](./vision/glossary.md) — _Mesmer_
 - [Diegetic Immersion Protocol](./experience/immersion.md) — _Mesmer/Artificer_
 - [Design & Build Methodology](./experience/methodology.md) — _Artificer_
-- [The Chalk Design System](./experience/design-system.md) — _Artificer_
+- [The Chalk Design System](../skills/mesmer/design-system.md) — _Artificer/Mesmer_
 - [Svelte 5 Runes (State Engine)](./tech/svelte-5.md) — _Artificer_
 - [Mermaid Diagram Expert](./system/mermaid.md) — _Artificer_
 
@@ -24,17 +24,13 @@ Centered around the **Mesmer** and **Artificer** pillars. This is where the worl
 _Theme: The Skeleton and the Mind_
 Driven by the **Gamemaster** and **Scholar** pillars. The invisible laws, simulation engines, and memories that anchor reality.
 
-- [System Architecture (Skeleton)](./system/architecture.md) — _Artificer/Scholar_
-- [Deep Architecture (Logic Path)](./system/architecture-deep.md) — _Gamemaster_
-- [The Simulation Engine](./system/engine.md) — _Gamemaster_
-- [Reasoning Protocol (Heavy Logic)](./logic/reasoning.md) — _Gamemaster_
-- [Core World Mechanics](./system/mechanics.md) — _Gamemaster_
-- [Persistence Strategy](./system/persistence.md) — _Scholar_
-- [Technical Data Persistence](./system/data-persistence.md) — _Scholar_
-- [Long-Term Memory (Memory-Ops)](./system/long-term-memory.md) — _Scholar_
+- [System Architecture (Skeleton)](../rules/02-architecture.md) — _Artificer/Scholar_
+- [The Simulation Engine](../skills/gamemaster/engine.md) — _Gamemaster_
+- [Reasoning Protocol (Heavy Logic)](../skills/cortex/workflow.md) — _Cortex/Gamemaster_
+- [Core World Mechanics](../skills/gamemaster/mechanics.md) — _Gamemaster_
+- [Persistence Strategy](../skills/scholar/persistence.md) — _Scholar_
+- [Long-Term Memory (Memory-Ops)](../skills/scholar/memory.md) — _Scholar_
 - [AI & Prompt Engineering (Cortex)](./tech/ai-engineering.md) — _Gamemaster_
-- [Perchance (Generator Engine)](./tech/perchance.md) — _Gamemaster_
-- [Strategic Choices (Decision Matrix)](./logic/choices.md) — _Gamemaster_
 
 ---
 
@@ -43,10 +39,10 @@ Driven by the **Gamemaster** and **Scholar** pillars. The invisible laws, simula
 _Theme: The Shield_
 Managed by the **Warden** pillar. Ensuring safety, correctness, and structural integrity across all systems.
 
-- [Security: Defense-In-Depth](./guard/defense-in-depth.md) — _Warden_
-- [Diagnostics & Resilience](./system/diagnostics.md) — _Warden_
-- [Root-Cause Tracing](./guard/root-cause-tracing.md) — _Warden_
-- [Testing & QA Procedures](./tech/testing-qa.md) — _Warden_
+- [Security: Defense-In-Depth](../skills/warden/defense.md) — _Warden_
+- [Diagnostics & Resilience](../skills/warden/diagnostics.md) — _Warden_
+- [Root-Cause Tracing](../skills/warden/tracing.md) — _Warden_
+- [Testing & QA Procedures](../skills/warden/testing.md) — _Warden_
 
 ---
 
@@ -68,9 +64,9 @@ Speculative concepts, lore experiments (ANEX), and the future roadmap. These ide
 _Select your path based on your current objective:_
 
 - **As a Worldbuilder:** Revisit [Philosophy](./vision/philosophy.md) and [Immersion](./experience/immersion.md).
-- **As a Systems Architect:** Master the [Skeleton](./system/architecture.md) and [Persistence](./system/persistence.md).
-- **As a Logic Engine:** Study the [Reasoning Protocol](./logic/reasoning.md) and [Cortex](./tech/ai-engineering.md).
-- **As a Guardian:** Enforce [Defense-In-Depth](./guard/defense-in-depth.md) and [QA Procedures](./tech/testing-qa.md).
+- **As a Systems Architect:** Master [Architecture](../rules/02-architecture.md) and [Persistence](../skills/scholar/persistence.md).
+- **As a Logic Engine:** Study [Reasoning](../skills/cortex/workflow.md) and [Cortex](./tech/ai-engineering.md).
+- **As a Guardian:** Enforce [Defense](../skills/warden/defense.md) and [QA](../skills/warden/testing.md).
 
 ---
 
