@@ -1,10 +1,10 @@
+import { Warden } from "@core/physics/index.js"
+import { ContextBuilder } from "@core/prompts/context.js"
 import { beforeEach, describe, expect, test, vi } from "vitest"
-import { ContextBuilder } from "../../../../../src/scholar/index.js"
-import { Warden } from "../../../../../src/warden/index.js"
 
 // --- MOCKS ---
 // We mock the store and entities to isolate the logic from the database/browser
-vi.mock("../../../../../src/gamemaster/bus.js", () => ({
+vi.mock("@/gamemaster/bus.js", () => ({
     state: {
         story: {
             byId: {
@@ -38,7 +38,7 @@ vi.mock("../../../../../src/gamemaster/bus.js", () => ({
     },
 }))
 
-vi.mock("../../../../../src/scholar/database/repository.js", () => ({
+vi.mock("@data/database/repository.js", () => ({
     entities: {
         get: vi.fn(),
         getSnapshot: vi.fn(),
@@ -47,7 +47,7 @@ vi.mock("../../../../../src/scholar/database/repository.js", () => ({
 }))
 
 // Import the mocked entities to configure return values in tests
-import { entities } from "../../../../../src/scholar/database/repository.js"
+import { entities } from "@data/database/repository.js"
 
 describe("PROMETHEUS ENGINE V5", () => {
     // ==========================================

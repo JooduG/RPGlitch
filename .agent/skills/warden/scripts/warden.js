@@ -27,12 +27,12 @@ const robotError = (...args) => {
 const WARDEN = {
     audit: async () => {
         robotLog("\n🛡️ WARDEN: Initiating Security Audit...")
-        
+
         const report = {
             passed: true,
             violations: [],
             warnings: [],
-            flags: null
+            flags: null,
         }
 
         // 1. Check Penance
@@ -49,12 +49,13 @@ const WARDEN = {
         // 2. Check Freedom Protocol
         const bootstrapPath = path.join(
             REPO_ROOT,
-            "src/gamemaster/bootstrap.js"
+            "src/core/gamemaster/bootstrap.js"
         )
         if (fs.existsSync(bootstrapPath)) {
             const content = fs.readFileSync(bootstrapPath, "utf-8")
             if (!content.includes("localStorage")) {
-                const msg = "FREEDOM PROTOCOL BROKEN: Storage overrides missing."
+                const msg =
+                    "FREEDOM PROTOCOL BROKEN: Storage overrides missing."
                 robotError(`❌ ${msg}`)
                 report.violations.push(msg)
                 report.passed = false
@@ -75,13 +76,13 @@ const WARDEN = {
                 robotError("❌ Audit Failed.")
             }
         }
-        
+
         if (!report.passed) process.exit(1)
     },
 }
 
 async function main() {
-    const args = process.argv.slice(2).filter(a => a !== "--json")
+    const args = process.argv.slice(2).filter((a) => a !== "--json")
     const cmd = args[0] || "audit"
     if (WARDEN[cmd]) {
         await WARDEN[cmd]()

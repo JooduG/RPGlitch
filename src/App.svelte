@@ -1,13 +1,13 @@
 <script>
-    import Storyboard from "./artificer/storyboard/Storyboard.svelte"
-    import Storymode from "./artificer/storymode/Storymode.svelte"
-    import Lightbox from "./mesmer/ui/Lightbox.svelte"
-    import Profile from "./scholar/Profile.svelte"
-    import ControlPanel from "./warden/ui/ControlPanel.svelte"
-    import DebugPanel from "./warden/ui/DebugPanel.svelte"
+    import ControlPanel from "@ui/organisms/ControlPanel.svelte"
+    import DebugPanel from "@ui/organisms/DebugPanel.svelte"
+    import Lightbox from "@ui/organisms/Lightbox.svelte"
+    import Profile from "@ui/organisms/Profile.svelte"
+    import Storyboard from "@ui/organisms/storyboard/Storyboard.svelte"
+    import Storymode from "@ui/organisms/storymode/Storymode.svelte"
 
-    import { app } from "./gamemaster/state.svelte.js"
-    import { lightbox } from "./mesmer/ui/lightbox.svelte.js"
+    import { app } from "@state/app.svelte.js"
+    import { lightbox } from "@state/lightbox.svelte.js"
 
     import { onMount } from "svelte"
     import { fade } from "svelte/transition"
@@ -74,8 +74,8 @@
 {/if}
 
 <style lang="scss">
-    @use "./mesmer/scss/abstracts/variables" as *;
-    @use "./mesmer/scss/abstracts/surfaces" as *;
+    @use "@theme/abstracts/variables" as *;
+    @use "@theme/abstracts/surfaces" as *;
 
     /* Global Reset/Base is handled in index.scss */
 

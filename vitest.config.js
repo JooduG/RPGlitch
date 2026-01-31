@@ -1,4 +1,5 @@
 import { svelte } from "@sveltejs/vite-plugin-svelte"
+import path from "path"
 import { defineConfig } from "vitest/config"
 
 export default defineConfig({
@@ -42,7 +43,15 @@ export default defineConfig({
     resolve: {
         alias: {
             // Map src for cleaner imports in tests
-            "@": "/src",
+            "@": path.resolve(__dirname, "./src"),
+            "@core": path.resolve(__dirname, "./src/core"),
+            "@core/gamemaster": path.resolve(__dirname, "./src/core/session"),
+            "@data": path.resolve(__dirname, "./src/data"),
+            "@state": path.resolve(__dirname, "./src/state"),
+            "@ui": path.resolve(__dirname, "./src/ui"),
+            "@theme": path.resolve(__dirname, "./src/theme/scss"),
+            "@mesmer": path.resolve(__dirname, "./src/theme"),
+            "@scholar": path.resolve(__dirname, "./src/data"),
         },
     },
 })

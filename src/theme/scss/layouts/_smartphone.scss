@@ -1,0 +1,325 @@
+@use "../abstracts/variables" as vars;
+@use "../abstracts/mixins" as *;
+@use "../abstracts/placeholders" as *;
+
+/* ============================================================================
+   LAYOUT: SMARTPHONE MODE (MESSENGER THEME)
+   Transforms the UI into a handheld device simulation (Storymode).
+   ============================================================================ */
+
+.theme-smartphone.storymode {
+    // --- 1. GLOBAL LAYOUT OVERRIDES ---
+
+    // Collapse Grid to Single Column
+    .universal-stage {
+        grid-template-columns: 1fr;
+    }
+
+    // Hide Desktop Elements
+    .stage-column--side,
+    .sticky-header,
+    #storymode-user-portrait,
+    #storymode-ai-portrait {
+        display: none;
+    }
+
+    // Force Center Column
+    #stage-center {
+        grid-column: 1;
+    }
+
+    // --- 2. THE DEVICE FRAME ---
+
+    #main .stage-content--storymode {
+        @extend %material-glass-heavy;
+
+        max-width: 450px;
+        margin: var(--spacing-xl) auto;
+        min-height: 80vh;
+        max-height: 90vh;
+
+        // The "Bezel"
+        border: 14px solid rgb(20 20 20);
+        border-radius: 36px;
+        background-color: #000; // OLED Black
+        box-shadow:
+            0 0 0 2px rgb(50 50 50),
+            // Outer ring
+            0 20px 50px rgb(0 0 0 / 60%);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    // --- 3. PHONE HEADER ---
+
+    #phone-header {
+        display: block;
+    }
+
+    .phone-header {
+        @extend %material-glass;
+
+        background: rgb(20 20 20 / 90%);
+        border-bottom: 1px solid rgb(255 255 255 / 5%);
+        border-radius: 22px 22px 0 0;
+        padding-bottom: 0.5rem;
+        z-index: 100;
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--spacing-s) var(--spacing-l) 0.5rem;
+            font-size: 0.75rem;
+            color: var(--app-muted);
+            font-weight: 600;
+            letter-spacing: 0.05em;
+
+            .status-icons {
+                display: flex;
+                gap: 8px;
+            }
+        }
+
+        .contact-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-xs) var(--spacing-m);
+            position: relative;
+
+            .phone-avatar {
+                width: 42px;
+                height: 42px;
+                border-radius: 50%;
+                overflow: hidden;
+                border: 2px solid rgb(255 255 255 / 10%);
+                transition: border-color 0.2s ease;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+                &:hover {
+                    cursor: pointer;
+                    border-color: rgb(var(--user-signature-rgb));
+                }
+
+                &:first-child:hover {
+                    border-color: rgb(var(--ai-signature-rgb));
+                }
+
+                &:last-child:hover {
+                    border-color: rgb(var(--user-signature-rgb));
+                }
+            }
+
+            .contact-info {
+                text-align: center;
+
+                h2 {
+                    margin: 0;
+                    font-size: 1rem;
+                    font-weight: 700;
+                    color: rgb(var(--ai-signature-rgb, 255 255 255));
+                }
+
+                .contact-status {
+                    font-size: 0.75rem;
+                    color: rgb(var(--user-signature-rgb));
+                }
+            }
+        }
+    }
+
+    // --- 4. CHAT FEED OVERRIDES ---
+
+    #chat-feed {
+        background: #000;
+        padding: var(--spacing-m) var(--spacing-s);
+
+        // [ARCHITECT] Refactored to .chat-bubble
+        .chat-bubble {
+            max-width: 85%;
+            padding: 0.6rem var(--spacing-m);
+            border-radius: 18px;
+            font-size: 0.95rem;
+            box-shadow: none;
+            border: none;
+
+            // Hide Desktop elements
+            header,
+            .fractal-prefix {
+                display: none;
+            }
+
+            // Reset Default Margins
+            margin-left: 0;
+            margin-right: 0;
+
+            // USER (Right)
+            &.chat-bubble--user {
+                background: rgb(var(--user-signature-rgb));
+                color: #000;
+                border-bottom-right-radius: 4px;
+                align-self: flex-end;
+                text-align: left;
+            }
+
+            // AI (Left)
+            &.chat-bubble--character {
+                background: rgb(var(--ai-signature-rgb));
+                color: #fff;
+                border-bottom-left-radius: 4px;
+                align-self: flex-start;
+                margin-left: var(--spacing-xs);
+                margin-right: var(--spacing-xl);
+            }
+
+            // Round 3: Balanced Image Frame
+            &.story-image-container {
+                padding: 0;
+                background: transparent;
+                width: 100%;
+                max-width: none;
+                box-shadow: none;
+                align-self: center;
+
+                &.is-portrait {
+                    width: 80vw;
+                    margin-left: auto;
+                    margin-right: auto;
+                }
+
+                &.is-landscape {
+                    width: 100%;
+                    margin-left: 0;
+                    margin-right: 0;
+                }
+
+                .image-wrapper {
+                    border-radius: 12px;
+                    width: 100%;
+                    line-height: 0;
+                    display: block;
+                    margin-top: 0;
+
+                    img {
+                        display: block;
+                        width: 100%;
+                        border-radius: 12px;
+                    }
+                }
+            }
+        }
+
+        .typing-bubble {
+            background-color: rgb(var(--ai-signature-rgb));
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            margin-left: var(--spacing-xs);
+            margin-right: var(--spacing-xl);
+            align-self: flex-start;
+        }
+
+        .developer-content,
+        .thought-trace {
+            display: none;
+
+            body.mode-developer & {
+                display: block;
+                max-width: 90%;
+                margin-left: auto;
+                margin-right: auto;
+                background: rgb(15 23 42);
+                border: 1px solid rgb(255 255 255 / 20%);
+            }
+        }
+    }
+
+    // --- 5. INPUT AREA OVERRIDES ---
+
+    #story-form {
+        background: rgb(20 20 20);
+        border-top: 1px solid rgb(255 255 255 / 10%);
+        border-radius: 0 0 22px 22px;
+        box-shadow: none;
+        margin-bottom: 0;
+
+        // Flex Architecture
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: var(--spacing-s);
+        padding: var(--spacing-s) var(--spacing-m) var(--spacing-l);
+        width: 100%;
+
+        * {
+            margin: 0;
+        }
+
+        // 1. Settings Button (Ghost)
+        #btn-settings-placeholder {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgb(var(--user-signature-rgb));
+            flex-shrink: 0;
+            padding: 0;
+
+            &:hover {
+                background: transparent;
+                opacity: 1;
+                filter: brightness(1.2);
+            }
+        }
+
+        // 2. Text Area (The Pill)
+        textarea[name="message"] {
+            @extend %input-deep;
+
+            flex: 1;
+            border-radius: 24px;
+            background: rgb(40 40 40);
+            border: none;
+            padding: 12px 16px;
+            min-height: 44px;
+            height: 44px;
+            line-height: 1.4;
+
+            &:focus {
+                background: rgb(50 50 50);
+                box-shadow: 0 0 0 2px rgb(var(--user-signature-rgb));
+            }
+        }
+
+        // 3. Send Button (The Circle/Target)
+        button[type="submit"] {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: transparent;
+            color: rgb(var(--user-signature-rgb));
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+
+            svg {
+                width: 24px;
+                height: 24px;
+            }
+
+            &:hover {
+                background: rgb(255 255 255 / 5%);
+            }
+        }
+    }
+}

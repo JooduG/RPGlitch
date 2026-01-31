@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, test, vi } from "vitest"
-import { soundEffects } from "../../../../../src/mesmer/audio/sound-effects.js"
-import { Mesmer } from "../../../../../src/mesmer/index.js"
+import { soundEffects } from "../../../../../src/theme/audio/sound-effects.js"
+import { Mesmer } from "../../../../../src/theme/index.js"
 
 // Mock dependencies
-vi.mock("../../../../../src/mesmer/audio/sound-effects.js")
+vi.mock("../../../../../src/theme/audio/sound-effects.js")
 
 describe("Mesmer Engine", () => {
     beforeEach(() => {

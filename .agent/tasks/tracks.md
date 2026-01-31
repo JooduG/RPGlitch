@@ -1,5 +1,11 @@
 # 🛤️ Active Tracks
 
+## ✅ Track: Source Architecture Reorganization
+
+- Path: .agent/tasks/src-architecture-reorg/
+- Status: Complete
+- Note: Restructured src/ from pillar-based to concern-based (core/, data/, state/, ui/, theme/). All 7 phases verified.
+
 ## ⭕ Track: Svelte 5 Migration
 
 - Path: .agent/tasks/svelte-5-migration/

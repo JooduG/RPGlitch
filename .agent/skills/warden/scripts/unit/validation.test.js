@@ -1,5 +1,5 @@
+import { Security } from "@core/physics/index.js"
 import { describe, expect, test, vi } from "vitest"
-import { Security } from "../../../../../src/warden/index.js"
 
 const sanitizeHtml = Security.sanitize
 

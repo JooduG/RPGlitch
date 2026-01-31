@@ -1,48 +1,55 @@
+import { EVENTS } from "@core/session/bus.js"
+import { GameMaster } from "@core/session/index.js"
 import { beforeEach, describe, expect, test, vi } from "vitest"
-import { EVENTS } from "../../../../../src/gamemaster/bus.js"
-import { GameMaster } from "../../../../../src/gamemaster/index.js"
 
 // --- MOCKS ---
 
-vi.mock("../../../../../src/gamemaster/session.js", () => ({
+vi.mock("@core/session/session.js", () => ({
     Session: {
         addAiMessage: vi.fn(),
         requireActive: vi.fn().mockReturnValue("story-1"),
     },
 }))
 
-vi.mock("../../../../../src/gamemaster/llm.js", () => {
-    return {
-        LlmService: {
-            generate: vi.fn(),
-        },
-        ContextBroker: class {
-            static assemble = vi.fn()
-        },
-    }
-})
+vi.mock("@core/llm/service.js", () => ({
+    LlmService: {
+        generate: vi.fn(),
+    },
+}))
 
-vi.mock("../../../../../src/gamemaster/bus.js", () => ({
+vi.mock("@core/llm/broker.js", () => ({
+    ContextBroker: {
+        assemble: vi.fn(),
+    },
+}))
+
+vi.mock("@core/session/bus.js", () => ({
     events: {
         dispatchEvent: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
     },
     EVENTS: {
         GENERATION_STARTED: "gen:started",
         GENERATION_COMPLETED: "gen:completed",
+        ENTITY_UPDATED: "entity:updated",
+        STATE_CHANGED: "state:changed",
     },
     state: {},
 }))
 
-vi.mock("../../../../../src/scholar/runtime.svelte.js", () => ({
+vi.mock("@state/runtime.svelte.js", () => ({
     runtime: {
         aiCharacter: { name: "AI" },
+        _initListeners: vi.fn(),
     },
 }))
 
 // Import mocks to inspect
-import { events } from "../../../../../src/gamemaster/bus.js"
-import { ContextBroker, LlmService } from "../../../../../src/gamemaster/llm.js"
-import { Session } from "../../../../../src/gamemaster/session.js"
+import { ContextBroker } from "@core/llm/broker.js"
+import { LlmService } from "@core/llm/service.js"
+import { events } from "@core/session/bus.js"
+import { Session } from "@core/session/session.js"
 
 describe("GameMaster Facade", () => {
     beforeEach(() => {

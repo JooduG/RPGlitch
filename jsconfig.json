@@ -4,12 +4,43 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "target": "esnext",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "@core/*": [
+        "src/core/*"
+      ],
+      "@data/*": [
+        "src/data/*"
+      ],
+      "@state/*": [
+        "src/state/*"
+      ],
+      "@ui/*": [
+        "src/ui/*"
+      ],
+      "@theme/*": [
+        "src/theme/scss/*"
+      ],
+      "@mesmer/*": [
+        "src/theme/*"
+      ],
+      "@scholar/*": [
+        "src/data/*"
+      ]
+    },
     "lib": [
       "esnext",
       "dom",
       "dom.iterable"
     ]
   },
+  "include": [
+    "src/**/*",
+    "types.d.ts"
+  ],
   "exclude": [
     "**/.git/**",
     "**/archive/**",
