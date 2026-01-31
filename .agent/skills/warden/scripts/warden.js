@@ -49,7 +49,7 @@ const WARDEN = {
         // 2. Check Freedom Protocol
         const bootstrapPath = path.join(
             REPO_ROOT,
-            "src/core/gamemaster/bootstrap.js"
+            "src/core/session/bootstrap.js"
         )
         if (fs.existsSync(bootstrapPath)) {
             const content = fs.readFileSync(bootstrapPath, "utf-8")

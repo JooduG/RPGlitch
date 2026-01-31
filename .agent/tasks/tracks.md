@@ -6,11 +6,11 @@
 - Status: Complete
 - Note: Restructured src/ from pillar-based to concern-based (core/, data/, state/, ui/, theme/). All 7 phases verified.
 
-## ⭕ Track: Svelte 5 Migration
+## ✅ Track: Svelte 5 Migration
 
 - Path: .agent/tasks/svelte-5-migration/
-- Status: Defined
-- Note: Upgrade all legacy UI to Runes.
+- Status: Complete
+- Note: All UI components and state bridges successfully migrated to Svelte 5 Runes ($state, $derived, $props, $effect). No legacy stores or lifecycle patterns remain in src/.
 
 ## ✅ Track: Documentation Overhaul
 
