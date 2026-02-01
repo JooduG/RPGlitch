@@ -12,6 +12,7 @@
     "*.tmp",
     ".markdownlint.json",
     "/.DS_Store",
+    "/.agent/skills/scribe/templates/**",
     "/.npm",
     "/coverage",
     "/dist",

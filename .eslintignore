@@ -11,3 +11,4 @@ libs/**
 /coverage
 /dist
 .agent/**
+.agent/skills/scribe/templates/**
