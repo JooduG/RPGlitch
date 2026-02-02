@@ -11,26 +11,31 @@ trigger: always_on
 The application is structured into five distinct, decoupled pillars:
 
 ### 🕰️ 1. Gamemaster (The Executive)
+
 - **Role:** Logic, Timing, and Turn Orchestration.
 - **Core:** `src/gamemaster/chrono.svelte.js`.
 - **Constraint:** Logic is pure. No UI code allowed here.
 
 ### 🛠️ 2. Artificer (The Body)
+
 - **Role:** Structure and UI Kit.
 - **Core:** `src/artificer/`.
 - **Responsibility:** Atomic building blocks and layout systems.
 
 ### 🎭 3. Mesmer (The Senses)
+
 - **Role:** Visuals, Audio, Form, and Theme.
 - **Core:** `src/mesmer/`.
 - **Responsibility:** Theme states, SCSS Architecture, and AI-generated visuals.
 
 ### 📚 4. Scholar (The Archivist)
+
 - **Role:** Data Persistence.
 - **Tech:** **Dexie.js**.
 - **Rule:** The **Scholar API** (e.g., `runtime.save()`) is the only way to anchor reality to disk.
 
 ### 🛡️ 5. Warden (The Protector)
+
 - **Role:** Security and Physics.
 - **Responsibility:** Sanitize all inputs and enforce system limits before the LLM speaks.
 
