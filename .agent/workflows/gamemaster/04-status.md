@@ -20,3 +20,15 @@ description: Reports the status of active tracks and project health.
 - **Focus**: State the current active track and next logic gate.
 - **Robot Mode**: Use `--json` flag for machine-readable output in automated loops.
 
+## 3. Maintenance (The Archival Loop)
+
+> **Context**: Completed tracks clutter the active view. Move them to the archive to maintain focus.
+
+1. **Identify**: Find tracks in `tracks.md` marked as `[x]` or `✅` under "Active Tracks".
+2. **Archive**:
+    - Move valid tracks from `.agent/tasks/<slug>` to `.agent/archive/<slug>`.
+    - Update the internal `plan.md` of the archived track to status `Archived`.
+3. **Registry Update**:
+    - Move the entry in `tracks.md` from "Active Tracks" to the top of "Archive".
+    - Update the documented path to `.agent/archive/<slug>`.
+4. **Cleanup**: Remove empty task directories.

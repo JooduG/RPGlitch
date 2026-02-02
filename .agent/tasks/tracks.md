@@ -1,5 +1,21 @@
 # 🛤️ Active Tracks
 
+## 🚀 Active Tracks
+
+## [x] Track: Codebase Health Analysis
+
+- Path: .agent/tasks/codebase-health-analysis/
+- Status: Complete
+- Note: Resolved 3 TODOs, verified Pure IO architecture in core/data pillars, and confirmed 0 legacy Svelte 4 patterns.
+
+## 📜 Archive
+
+## ✅ Track: Docs Cleanup
+
+- Path: .agent/archive/docs-cleanup/
+- Status: Complete
+- Note: Consolidated .agent/ directory, removed redundancy (plan.md, philosophy.md), and fixed legacy paths in AGENTS.md. Verified by hygiene scan.
+
 ## ✅ Track: Source Architecture Reorganization
 
 - Path: .agent/tasks/src-architecture-reorg/

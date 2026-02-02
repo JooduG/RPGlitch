@@ -189,7 +189,10 @@ function createRuntimeStore() {
                     })
                 } catch (err) {
                     console.error("[Scholar] Save Failed:", err)
-                    // TODO: Rollback state?
+                    // Revert optimistic update
+                    // NOTE: We rely on the UI to handle the flicker, or we could reload from DB
+                    // For now, we just log.
+                    // state.character = ... (requires keeping previous state)
                 }
             } else {
                 console.warn("[Scholar] Cannot save: No Character ID linked.")

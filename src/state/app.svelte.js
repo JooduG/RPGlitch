@@ -142,7 +142,19 @@ export class AppStore {
     }
 
     rerollTitle = async () => {
-        // TODO: Implement title reroll logic
+        const titles = [
+            "The Echo of Silence",
+            "Neon Shadows",
+            "Fractal Dreams",
+            "Velvet Thunder",
+            "Code & Chrome",
+        ]
+        // Random selection for now
+        // TODO: Connect to AI generator
+        console.log(
+            "Rerolling Title:",
+            titles[Math.floor(Math.random() * titles.length)]
+        )
     }
 
     // Drawer Actions

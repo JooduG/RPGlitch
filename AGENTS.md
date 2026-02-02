@@ -51,15 +51,15 @@ Before starting any task, you **MUST** read the following to ground yourself:
 
 ## 2. 🧠 The Skill Matrix (Summoning & Intent)
 
-| Skill             | Summoning Triggers (Territory & Intent)                                                  | Assigned Tools (Core Kit)                               | Purpose                                             |
-| :---------------- | :--------------------------------------------------------------------------------------- | :------------------------------------------------------ | :-------------------------------------------------- |
-| **🕹️ Gamemaster** | `src/gamemaster/**`, `package.json`, `vite.config.js`, "Task Management", "App State".   | `waldzell-clear-thought`, `github`.                     | Execution, timing, logic & app-state management.    |
-| **🧠 Cortex**     | `src/cortex/**`, `.agent/tasks/**`, "Complex Planning", "Metacognition", "Logic Check".  | `mcp-sequentialthinking-tools`, `context7`.             | Master intelligence, strategic reasoning & routing. |
-| **📜 Scribe**     | `**/*.md`, `.agent/knowledge/**`, `AGENTS.md`, "Skill Refinement", "Prompt Engineering". | `scribe/scripts/` (Hygiene).                            | Meta-Agent for OS tuning, docs & efficiency.        |
-| **🛠️ Artificer**  | `src/artificer/**`, `src/components/**`, `**/*.svelte`, "UI Development", "Scaffolding". | `artificer/scripts/` (UI Kit).                          | UI components, layouts, and storyboard features.    |
-| **🎭 Mesmer**     | `src/mesmer/**`, `**/*.{scss,css}`, "Theme", "Visuals", "Animation", "Vibe".             | `pollinations`, `mesmer/scripts/`.                      | Sensory layer: Visuals, SCSS, Audio & Atmosphere.   |
-| **📚 Scholar**    | `src/scholar/**`, "Data Persistence", "Reference Query", "Lore", "RAG".                  | `firecrawl`, `pinecone-mcp-server`, `context7` (Query). | Data persistence, lore management & RAG.            |
-| **🛡️ Warden**     | `src/warden/**`, `.agent/skills/warden/**`, `.gitignore`, "Security", "Hygiene", "QA".   | `playwright`, `chrome-devtools`.                        | Shielding, hygiene, and zero-trust validation.      |
+| Skill             | Summoning Triggers (Territory & Intent)                                                       | Assigned Tools (Core Kit)                               | Purpose                                             |
+| :---------------- | :-------------------------------------------------------------------------------------------- | :------------------------------------------------------ | :-------------------------------------------------- |
+| **🕹️ Gamemaster** | `src/core/**`, `package.json`, `vite.config.js`, "Task Management", "App State".              | `waldzell-clear-thought`, `github`.                     | Execution, timing, logic & app-state management.    |
+| **🧠 Cortex**     | `src/core/logic/**`, `.agent/tasks/**`, "Complex Planning", "Metacognition".                  | `mcp-sequentialthinking-tools`, `context7`.             | Master intelligence, strategic reasoning & routing. |
+| **📜 Scribe**     | `**/*.md`, `.agent/knowledge/**`, `AGENTS.md`, "Skill Refinement", "Prompt Engineering".      | `scribe/scripts/` (Hygiene).                            | Meta-Agent for OS tuning, docs & efficiency.        |
+| **🛠️ Artificer**  | `src/ui/**`, `src/components/**`, `**/*.svelte`, "UI Development", "Scaffolding".             | `artificer/scripts/` (UI Kit).                          | UI components, layouts, and storyboard features.    |
+| **🎭 Mesmer**     | `src/theme/**`, `**/*.{scss,css}`, "Theme", "Visuals", "Animation", "Vibe".                   | `pollinations`, `mesmer/scripts/`.                      | Sensory layer: Visuals, SCSS, Audio & Atmosphere.   |
+| **📚 Scholar**    | `src/data/**`, "Data Persistence", "Reference Query", "Lore", "RAG".                          | `firecrawl`, `pinecone-mcp-server`, `context7` (Query). | Data persistence, lore management & RAG.            |
+| **🛡️ Warden**     | `src/core/security/**`, `.agent/skills/warden/**`, `.gitignore`, "Security", "Hygiene", "QA". | `playwright`, `chrome-devtools`.                        | Shielding, hygiene, and zero-trust validation.      |
 
 ### 📐 Interaction Logic
 

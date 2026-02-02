@@ -45,7 +45,7 @@ Built on the **Pillar Architecture**:
 ## 🗺️ Navigation
 
 - **[Vision & Philosophy](./knowledge/vision/philosophy.md)**
-- **[System Architecture](./knowledge/system/architecture.md)**
+- **[System Architecture](./rules/02-architecture.md)**
 - **[Logic Principles](./knowledge/logic/principles.md)**
 - **[Roadmap](./roadmap.md)**
 

@@ -6,7 +6,15 @@ trigger: always_on
 
 > **Directive:** "Genre-Agnostic Minimalism". The UI is a canvas, not a painting.
 
-## 1. The Chalk Regime (Colors)
+## 1. Neural Minimalism (The Silent Stage)
+
+Modern interfaces demand attention. RPGlitch _recedes_ from it.
+
+- **The Silent Stage:** The interface should feel like an empty theater waiting for the first word. Darkness is the default; light is a narrative event.
+- **Cognitive Recoil:** We avoid "Information Overload." If a piece of data isn't vital to the current narrative beat, it is hidden.
+- **Subtext over UI:** We prioritize describing the _feeling_ of a menu over rendering a complex table.
+
+## 2. The Chalk Regime (Colors)
 
 - **Foundation**: `#222326` (Chalk) is the primary surface. Pure Black `#000` is reserved for deep backgrounds.
 - **Text**:
@@ -18,19 +26,19 @@ trigger: always_on
     - **`--app-accent`**: Secondary desaturated tinting for Success/Error/Info.
     - Use "Narrative Tinting" only. No hard-coded "Brand Colors".
 
-## 2. Dimensionality (Physics)
+## 3. Dimensionality (Physics)
 
 - **Lighting**: "Soft Depth". Use layered shadows and slight noise textures.
 - **Borders**: **1px** maximum. Use hierarchy via layout, not lines.
 - **Glass**: Use `backdrop-filter: blur(12px)` + `rgba(255,255,255,0.03)`. Avoid "Frosted Glass" overload.
 
-## 3. Typography (Voice)
+## 4. Typography (Voice)
 
 - **System**: `Inter` (sans-serif) or `Ubuntu` (rounded sans).
 - **Headings**: **Strong Sentence Case**. Bold weights (`700`/`800`).
 - **Data**: Monospace for IDs, Hashes, and Code.
 
-## 4. Motion (Kinetic)
+## 5. Motion (Kinetic)
 
 - **Speed**: `200ms` (Interactive) to `400ms` (Layout).
 - **Curve**: `cubic-bezier(0.16, 1, 0.3, 1)` (The "Snappy" curve).
