@@ -4,8 +4,8 @@
 
 ## [ ] Track: Gamemaster Alignment
 
-- Path: .agent/tasks/gamemaster-alignment/
-- Status: Scoped
+- Path: .agent/archive/gamemaster-alignment/
+- Status: Complete
 
 ## 📜 Archive
 
@@ -13,6 +13,12 @@
 
 - Path: .agent/archive/workflow-sync/
 - Status: Complete
+
+## ✅ Track: Gamemaster Alignment
+
+- Path: .agent/archive/gamemaster-alignment/
+- Status: Complete
+- Note: Synchronized gamemaster workflows with v2.1.0 skill definitions. Integrated `scaffold_state.py` and `gamemaster.js status`.
 - Note: Synchronized all 4 pillar workflows with v2.x SKILL definitions. Created `ingest.js` and `search.js` wrappers.
 
 ## ✅ Track: Codebase Health Analysis
