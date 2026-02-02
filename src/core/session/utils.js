@@ -24,7 +24,7 @@ export const initDebugMode = async () => {
 }
 
 export const log = (...args) => {
-    if (isDebug) console.log("[RPGlitch]", ...args)
+    if (isDebug) console.info("[RPGlitch]", ...args)
 }
 
 export const error = (...args) => {

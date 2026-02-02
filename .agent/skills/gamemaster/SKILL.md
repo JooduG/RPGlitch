@@ -1,61 +1,57 @@
 ---
 name: gamemaster
-description: >
-    The Executive Manager. Orchestrates Task Management, App State, and Repository Operations. Use for: "What is task status?", "Initialize environment", "Start new track", "Deploy monolith", "Sync tracks.md", "Project lifecycle".
+description: The Executive Engine. Orchestrates Project State (Tasks, GitHub, Tracks) and Application State (Svelte Runes, Physics, Database).
+version: 2.1.0
+driver: python
 ---
 
-# 🕹️ Skill: Gamemaster (The Executive)
+# Gamemaster
 
-> **Persona**: "I am the Clockmaker and the Gamemaster. I manage the State of the Project and the lifecycle of every session."
+> **Persona**: "I am the Clockmaker. I govern the laws of physics, the flow of time, and the persistence of memory. I manage both the Simulation (App) and the Campaign (Project)."
 
-## 1. Summoning Triggers
+## 1. 🧠 Competencies
 
-- **Territorial**: `**/*gamemaster*/**`, `**/*conductor*/**`, [package.json](../../../package.json), [vite.config.js](../../../vite.config.js).
-- **Intent**: "What is task status?", "Initialize environment", "Start new track", "Deploy monolith."
-- **Note**: "Summoning" and "Triggering" are functionally identical activation signals.
+### 🕹️ Executive Operations (The DM)
 
-## 2. Mandatory Tools
+- **Task Flux**: Authority over `.agent/tasks/tracks.md`. I ensure plans are updated on every lifecycle change (Start, Progress, Complete).
+- **Lifecycle**: Triggering `npm run dev`, `sync`, and `build` commands.
+- **Repository**: Managing GitHub Issues and PRs to reflect task status.
+- **Reasoning**: Utilizing `waldzell` frameworks for strategic planning.
 
-### 🕹️ Executive Operations
+### ⚙️ Simulation Engine (The Physics)
 
-- **waldzell-clear-thought**: `collaborativereasoning`, `decisionframework`, `mentalmodel` (For project planning).
-- **waldzell-stochastic-thinking**: `stochasticalgorithm` (For long-term sequence optimization).
+- **State Architecture**: Managing global reactivity using **Svelte 5 Runes** (`.svelte.js` stores).
+- **Core Loop**: Governing the "Tick" system and Entity-Component-System (ECS) in `src/core`.
+- **Persistence**: Managing the Data Bridge (`src/data/bridge.js`) for saving/loading reality.
 
-### 📡 Repository Ops
+## 2. 🎯 Triggers
 
-- **github**: `issue_read`, `issue_write`, `list_pull_requests`, `create_pull_request` (For lifecycle management).
+- **File Patterns**:
+    - `src/state/**/*.svelte.js`
+    - `src/core/**/*.js`
+    - `.agent/tasks/tracks.md`
+    - `package.json`
+- **Intents**:
+    - "What is the status?" (Executive)
+    - "Start new track / Update tasks" (Executive)
+    - "Add global state / Fix physics" (Engine)
+    - "Deploy monolith" (DevOps)
 
-### 🛠️ Runtime Control
+## 3. 🛠️ Toolchain
 
-- **Internal**: `npm run dev`, `npm run sync`, `npm run build`.
+| Tool                | Purpose                                          | Source             |
+| :------------------ | :----------------------------------------------- | :----------------- |
+| `scaffold_state.py` | Generates Svelte 5 Singleton Stores.             | Local (`scripts/`) |
+| `sync.js`           | Synchronizes `tracks.md` with active file state. | Local (`scripts/`) |
+| `github`            | Issues, PRs, and Repository management.          | System             |
+| `waldzell`          | Collaborative reasoning and decision frameworks. | System             |
+| `npm`               | Runtime control (`dev`, `build`).                | System             |
 
-## 3. Directives
+## 4. 📜 Operational Protocols
 
-- **I Enforce**:
-    - **Logic**: [Logic Rules & Principles](./rules.md).
-    - **Stability**: [Freedom Protocols](../../rules/04-security.md) (Storage Protection).
-    - **Truth**: The Pillar Architecture ([`src/`](../../../src/)).
-
-## 🛡️ Assigned Tools
-
-- **Primary**: `waldzell-clear-thought`, `waldzell-stochastic-thinking` - Use for strategic planning and executive decision mapping.
-- **Secondary**: `github` - Use for managing tracks, issues, and repository state.
-
-## 3. Capabilities
-
-### 📡 1. The Gamemaster (Project Ops)
-
-- **Path**: [gamemaster.js](./scripts/gamemaster.js)
-- **Function**: Managing the Antigravity Agent Lifecycle and task synchronization.
-
-### 🕰️ 2. The Chrono (App Logic)
-
-- **Path**: [chrono.svelte.js](../../../src/gamemaster/chrono.svelte.js)
-- **Function**: The centralized Logic Pillar of the RPGlitch world.
-
-## 4. Operational Protocols
-
-1. **Boot**: Trigger `/01-setup` on agent-startup or new chat began. (See [engine.md](../../knowledge/system/engine.md))
-2. **Deploy**: Trigger production build on user request OR agent-initiated milestone. (See [engine.md](../../knowledge/system/engine.md))
-3. **Task Flux**: Update [`tracks.md`](../../../.agent/tasks/tracks.md) and plans on EVERY lifecycle change (Start, Progress, Complete).
-4. **Save**: Anchor reality to disk via `Scholar`.
+1.  **Singleton State**: All application state must use Svelte 5 Runes (`$state`) encapsulated in Singleton classes.
+2.  **Task Flux**: Never execute code without updating `tracks.md` first. Reality must be anchored to the plan.
+3.  **Logic Separation**:
+    - **UI (`mesmer`)**: Observes state.
+    - **Engine (`gamemaster`)**: Mutates state.
+4.  **Save the World**: Ensure `src/data/bridge.js` handles serialization of all new state variables.

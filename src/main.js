@@ -14,4 +14,4 @@ Object.assign(window, { Dexie, DOMPurify })
 // The Dexie database must be opened before any component tries to query it.
 import "./core/session/bootstrap.js"
 
-console.log("[RPGlitch] Entry point active. Handing off to Bootstrap.")
+console.info("[RPGlitch] Entry point active. Handing off to Bootstrap.")

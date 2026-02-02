@@ -1,0 +1,44 @@
+<script>
+  /**
+   * @component {{name}}
+   * @description {{description}}
+   * @jurisdiction Artificer (Logic/HTML)
+   */
+  
+  import { onMount } from 'svelte';
+
+  // 1. Props (Runes - No 'export let')
+  /**
+   * @typedef {Object} Props
+   * @property {string} [id] - Unique identifier
+   * @property {import('svelte').Snippet} [children] - Slot content
+   */
+  let { 
+    id = crypto.randomUUID(),
+    children 
+  } = $props();
+
+  // 2. State (Runes - No 'let x = 0')
+  let isReady = $state(false);
+
+  // 3. Effects
+  onMount(() => {
+    console.log('[{{name}}] Masonry Laid.');
+    isReady = true;
+  });
+</script>
+
+<section class="{{kebab_name}}" id={id} aria-busy={!isReady}>
+  {#if children}
+    {@render children()}
+  {:else}
+    <div class="{{kebab_name}}__content">
+      <h3>{{name}}</h3>
+      <p>Structure Ready. Waiting for Mesmer...</p>
+    </div>
+  {/if}
+</section>
+
+<style lang="scss">
+  /* TODO: Summon Mesmer to apply Chalk Regime */
+</style>

@@ -5,8 +5,11 @@ import path from "path"
 import { fileURLToPath } from "url"
 
 /**
- *  GAMEMASTER: The Executive Operations CLI
- *  Merges legacy sync, hygiene, and bootstrap logic into the central Executive pillar.
+ * GAMEMASTER: The Executive Operations CLI
+ * -------------------------------------------------------------------------
+ * The central nervous system of the .agent framework.
+ * Handles: Synchronization, Hygiene, Bootstrapping, Reporting, and Archival.
+ * -------------------------------------------------------------------------
  */
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -34,16 +37,21 @@ const COMMANDS = {
             `\n🔄 GAMEMASTER: Initiating Sync Protocol [Mode: ${type.toUpperCase()}]...`
         )
         try {
-            // We leverage the existing sync logic but can optimize it later
             const flag = type === "all" ? "--all" : `--${type}`
-            // Pass --json down to the child process
             const jsonFlag = IS_JSON ? " --json" : ""
-            execSync(`node .agent/skills/gamemaster/scripts/sync.js ${flag}${jsonFlag}`, {
-                stdio: "inherit",
-            })
-            if (IS_JSON) console.log(JSON.stringify({ status: "success", mode: type }))
-        } catch (e) {
 
+            // Execute the specialized sync script
+            execSync(
+                `node .agent/skills/gamemaster/scripts/sync.js ${flag}${jsonFlag}`,
+                {
+                    stdio: "inherit",
+                    cwd: REPO_ROOT,
+                }
+            )
+
+            if (IS_JSON)
+                console.log(JSON.stringify({ status: "success", mode: type }))
+        } catch (e) {
             if (IS_JSON) {
                 console.log(JSON.stringify({ error: e.message, code: 1 }))
             } else {
@@ -53,7 +61,63 @@ const COMMANDS = {
         }
     },
 
-    /** 🩺 Hygiene Protocol (Improved) */
+    /** 🧹 Archive Protocol (Merged) */
+    archive: async () => {
+        robotLog("\n🧹 GAMEMASTER: Initiating Task Archival...")
+        const tasksDir = path.join(REPO_ROOT, ".agent/tasks")
+        const archiveDir = path.join(REPO_ROOT, ".agent/archive")
+
+        if (!fs.existsSync(tasksDir)) {
+            robotError(`❌ Tasks directory not found: ${tasksDir}`)
+            return
+        }
+        if (!fs.existsSync(archiveDir)) {
+            fs.mkdirSync(archiveDir, { recursive: true })
+        }
+
+        const files = fs.readdirSync(tasksDir)
+        let movedCount = 0
+        const movedFiles = []
+
+        for (const file of files) {
+            if (
+                !file.endsWith(".md") ||
+                file === "tracks.md" ||
+                file === "README.md"
+            )
+                continue
+
+            const srcPath = path.join(tasksDir, file)
+            const content = fs.readFileSync(srcPath, "utf-8")
+
+            // Heuristic: All boxes checked OR explicit [DONE] header
+            const allTasks = (content.match(/- \[ \]/g) || []).length
+            const isDoneHeader =
+                content.includes("# [DONE]") || content.includes("Status: Done")
+
+            if (allTasks === 0 || isDoneHeader) {
+                const destPath = path.join(archiveDir, file)
+                fs.renameSync(srcPath, destPath)
+                robotLog(`   📦 Archived: ${file}`)
+                movedFiles.push(file)
+                movedCount++
+            }
+        }
+
+        if (IS_JSON) {
+            console.log(
+                JSON.stringify({
+                    status: "success",
+                    archived: movedCount,
+                    files: movedFiles,
+                })
+            )
+        } else {
+            robotLog(`✅ Archived ${movedCount} completed tasks.`)
+        }
+    },
+
+    /** 🩺 Hygiene Protocol */
     hygiene: async () => {
         robotLog("\n🩺 GAMEMASTER: Initiating Hygiene Scan [Scope: src]...")
         let warningCount = 0
@@ -76,16 +140,28 @@ const COMMANDS = {
                     lines.forEach((line, i) => {
                         if (/^\s*(\/\/|\*|\/\*)/.test(line)) return // Skip comments
 
+                        // Rule 05: No console.logs in production code
                         if (/console\.log\(/.test(line)) {
                             const msg = `[WARN] console.log in ${path.relative(REPO_ROOT, fullPath)}:${i + 1}`
                             robotLog(msg)
-                            issues.push({ type: "warning", file: path.relative(REPO_ROOT, fullPath), line: i + 1, message: "console.log found" })
+                            issues.push({
+                                type: "warning",
+                                file: path.relative(REPO_ROOT, fullPath),
+                                line: i + 1,
+                                message: "console.log found",
+                            })
                             warningCount++
                         }
+                        // Rule 05: No blocking alerts
                         if (/\balert\(/.test(line)) {
                             const msg = `[ERROR] alert in ${path.relative(REPO_ROOT, fullPath)}:${i + 1}`
                             robotError(msg)
-                            issues.push({ type: "error", file: path.relative(REPO_ROOT, fullPath), line: i + 1, message: "alert found" })
+                            issues.push({
+                                type: "error",
+                                file: path.relative(REPO_ROOT, fullPath),
+                                line: i + 1,
+                                message: "alert found",
+                            })
                             errorCount++
                         }
                     })
@@ -94,14 +170,16 @@ const COMMANDS = {
         }
 
         scanDir(path.join(REPO_ROOT, "src"))
-        
+
         if (IS_JSON) {
-            console.log(JSON.stringify({ 
-                status: errorCount > 0 ? "error" : "success",
-                warnings: warningCount,
-                errors: errorCount,
-                issues
-            }))
+            console.log(
+                JSON.stringify({
+                    status: errorCount > 0 ? "error" : "success",
+                    warnings: warningCount,
+                    errors: errorCount,
+                    issues,
+                })
+            )
         } else {
             robotLog(`\n--- Hygiene Results ---`)
             robotLog(`Warnings (Logs): ${warningCount}`)
@@ -115,6 +193,7 @@ const COMMANDS = {
     bootstrap: async () => {
         robotLog("⚡ GAMEMASTER: Performing Deep Bootstrap...")
 
+        // 1. Verify Pillars (Rules)
         const pillars = [
             ".agent/rules/01-prime-directive.md",
             ".agent/rules/02-architecture.md",
@@ -123,17 +202,22 @@ const COMMANDS = {
             ".agent/rules/05-hygiene.md",
         ]
         let missing = []
-        robotLog("🔍 Verifying Pillar Integrity...")
+
         for (const pillar of pillars) {
             if (!fs.existsSync(path.join(REPO_ROOT, pillar))) {
-                robotError(`  ❌ MISSING PILLAR: ${pillar}`)
+                robotError(`   ❌ MISSING PILLAR: ${pillar}`)
                 missing.push(pillar)
             }
         }
-        
+
         if (missing.length > 0) {
             if (IS_JSON) {
-                console.log(JSON.stringify({ error: "Environment Corrupt", missing_pillars: missing }))
+                console.log(
+                    JSON.stringify({
+                        error: "Environment Corrupt",
+                        missing_pillars: missing,
+                    })
+                )
             } else {
                 robotError("⚠️ Environment Corrupt. Halting.")
             }
@@ -142,20 +226,18 @@ const COMMANDS = {
 
         // 2. Config & Type Check
         if (!fs.existsSync(path.join(REPO_ROOT, ".agent/config.yaml"))) {
-            if (IS_JSON) {
-                console.log(JSON.stringify({ error: "Missing config.yaml" }))
-            } else {
-                robotError("❌ Missing .agent/config.yaml")
-            }
+            const msg = "❌ Missing .agent/config.yaml"
+            if (IS_JSON) console.log(JSON.stringify({ error: msg }))
+            else robotError(msg)
             process.exit(1)
         }
 
         // 3. Execution Protocols
         await COMMANDS.sync("all")
+        await COMMANDS.archive() // Added archival to bootstrap
         await COMMANDS.hygiene()
 
         if (IS_JSON) {
-            // Success JSON is handled by hygiene/sync if called directly, but we provide a final one if everything passed
             console.log(JSON.stringify({ status: "ready" }))
         } else {
             robotLog("✅ Gamemaster Environment: READY.")
@@ -166,12 +248,11 @@ const COMMANDS = {
     status: async () => {
         robotLog("\n📊 GAMEMASTER: Generating Status Report...")
         const tracksPath = path.join(REPO_ROOT, ".agent/tasks/tracks.md")
+
         if (!fs.existsSync(tracksPath)) {
-            if (IS_JSON) {
-                console.log(JSON.stringify({ error: "Missing tracks.md" }))
-            } else {
-                robotError("❌ Missing .agent/tasks/tracks.md")
-            }
+            const msg = "❌ Missing .agent/tasks/tracks.md"
+            if (IS_JSON) console.log(JSON.stringify({ error: msg }))
+            else robotError(msg)
             return
         }
 
@@ -180,7 +261,7 @@ const COMMANDS = {
 
         const summary = {
             active: [],
-            completed: []
+            completed: [],
         }
 
         let currentTrack = null
@@ -188,8 +269,15 @@ const COMMANDS = {
         for (const line of lines) {
             if (line.startsWith("##")) {
                 const isComplete = line.includes("✅")
-                const name = line.replace(/##\s*[✅⭕🔁]\s*Track:\s*/, "").trim()
-                currentTrack = { name, path: "", status: isComplete ? "completed" : "active" }
+                // FIX: Added 'u' flag to regex for unicode emoji support
+                const name = line
+                    .replace(/##\s*[✅⭕🔁]\s*Track:\s*/u, "")
+                    .trim()
+                currentTrack = {
+                    name,
+                    path: "",
+                    status: isComplete ? "completed" : "active",
+                }
                 if (isComplete) summary.completed.push(currentTrack)
                 else summary.active.push(currentTrack)
             } else if (line.trim().startsWith("- Path:") && currentTrack) {
@@ -198,16 +286,20 @@ const COMMANDS = {
         }
 
         if (IS_JSON) {
-            console.log(JSON.stringify({
-                active_count: summary.active.length,
-                completed_count: summary.completed.length,
-                tracks: [...summary.active, ...summary.completed]
-            }))
+            console.log(
+                JSON.stringify({
+                    active_count: summary.active.length,
+                    completed_count: summary.completed.length,
+                    tracks: [...summary.active, ...summary.completed],
+                })
+            )
         } else {
             robotLog("\n--- Track Summary ---")
-            summary.active.forEach(t => robotLog(`⭕ ${t.name}`))
-            summary.completed.forEach(t => robotLog(`✅ ${t.name}`))
-            robotLog(`\nActive: ${summary.active.length} | Completed: ${summary.completed.length}`)
+            summary.active.forEach((t) => robotLog(`⭕ ${t.name}`))
+            summary.completed.forEach((t) => robotLog(`✅ ${t.name}`))
+            robotLog(
+                `\nActive: ${summary.active.length} | Completed: ${summary.completed.length}`
+            )
             robotLog("----------------------")
         }
     },
@@ -215,12 +307,12 @@ const COMMANDS = {
 
 async function main() {
     // Filter out --json from args to get the actual command and its primary arg
-    const args = process.argv.slice(2).filter(a => a !== "--json")
+    const args = process.argv.slice(2).filter((a) => a !== "--json")
     const cmd = args[0] || "bootstrap"
     const arg = args[1]
 
     if (!COMMANDS[cmd]) {
-        const errorMsg = `Unknown command. Available: sync, hygiene, bootstrap, status`
+        const errorMsg = `Unknown command. Available: sync, archive, hygiene, bootstrap, status`
         if (IS_JSON) {
             console.log(JSON.stringify({ error: errorMsg, code: 2 }))
         } else {
