@@ -24,7 +24,7 @@ Before building, consult the **Knowledge Library** for established patterns or e
 Use **MCP Tools** to generate references before coding:
 
 1.  **Pollinations** (`generateImage`): Create atmospheric references or assets.
-    - _Prompt_: "UI design of a [component], dark mode, minimalistic, zinc colors, 4k"
+    - _Prompt_: "UI design of a [component], dark mode, minimalistic, zinc colors, 4k, high contrast, neural aesthetic"
 2.  **Stitch** (`list_screens`, `get_screen`): Check existing project screens for consistency.
 
 ## 3. Definition (The Palette)

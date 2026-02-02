@@ -10,8 +10,6 @@ description: Unified Ingestion Loop. Absorbing new knowledge into the library.
 
 Before ingesting, identify the target **Namespace**. Deciding the namespace is straightforward: it depends on the _source_ of the information.
 
-Before ingesting, you must identify the correct **Namespace**. This is critical because it tells the AI how to prioritize information during a search (e.g., Rules are always more important than raw Code).
-
 - **`knowledge-base.meta`**: The Constitution. Rules, Pillars, and Core Philosophy. (Highest priority).
 - **`knowledge-base.external`**: The Library. Documentation for external frameworks (Svelte, Dexie, etc.).
 - **`knowledge-base.logic`**: The Blueprints. Source code patterns and architectural logic.
@@ -20,7 +18,7 @@ Before ingesting, you must identify the correct **Namespace**. This is critical 
 
 Before ingesting new knowledge, ensure the existing library is organized.
 
-- **Command**: `node .agent/skills/scholar/scripts/organize-library.js --scope scholar`
+- **Command**: `node .agent/skills/scholar/scripts/organize_library.js --scope scholar`
 
 ## 3. Execution (CLI)
 
@@ -29,29 +27,30 @@ Before ingesting new knowledge, ensure the existing library is organized.
 1. **Path-Specific Ingestion**:
 
     ```bash
-    node .agent/skills/scholar/scripts/cli.js ingest --path [dir/file] --namespace [ns]
+    # Use Pinecone/Firecrawl MCP tools where available, or fallback to CLI
+    node .agent/skills/scholar/scripts/ingest.js --path [dir/file] --namespace [ns]
     ```
 
 2. **System Refresh** (Syncs core `.agent` config):
 
     ```bash
-    node .agent/skills/scholar/scripts/cli.js ingest
+    node .agent/skills/scholar/scripts/ingest.js --sync
     ```
 
-## 3. Verification
+## 4. Verification
 
 Always verify retrieval quality after ingestion.
 
-1. **Search Test**:
+1. **Search Test (Vector Memory)**:
 
     ```bash
-    node .agent/skills/scholar/scripts/cli.js search "keyword from ingested docs"
+    # Test recall quality
+    node .agent/skills/scholar/scripts/search.js "keyword from ingested docs"
     ```
 
 2. **Robot Mode**: Append `--json` to `search` or `ingest` for machine-readable status.
 
 3. **Clarity Audit**: If search results are fragmented, re-structure the source markdown with more descriptive headers.
-
 
 ---
 

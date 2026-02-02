@@ -29,7 +29,7 @@ description: Comprehensive Security & Compliance Audit. Verifies the Freedom Pro
 ## 3. Supply Chain Integrity
 
 1.  **Consultation**: Ask the Scholar to perform a structural audit.
-    - **Execute**: `python .agent/skills/scholar/scripts/audit.py`
+    - **Execute**: Use `npm-sentinel` for dependency checks.
 2.  **Library Structure (The Archivist's Consultant)**:
     - _Action_: Verify that `warden` wing is organized.
     - _Command_: `node .agent/skills/scholar/scripts/organize-library.js --scope warden`
@@ -40,4 +40,3 @@ description: Comprehensive Security & Compliance Audit. Verifies the Freedom Pro
 
 - **Completion**: Announce "Warden Audit Complete. Integrity Verified."
 - **Robot Mode**: Use `--json` for structured reports.
-

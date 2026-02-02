@@ -19,6 +19,7 @@ For each unchecked item `[ ]` in `plan.md`:
 
 1. **Mark Active**: Change status to `[/]`.
 2. **Execute**: Implement logic following [.agent/rules/](../rules/) and relevant [skills/](../../skills/).
+    - **State**: If creating new global state, use `node .agent/skills/gamemaster/scripts/scaffold_state.py`.
 3. **Quality Gate (Self-Audit)**:
     - **Reactivity**: Are runes (`$state`, `$derived`) used correctly?
     - **Aesthetics**: Does it match the [Chalk Regime](../../rules/06-aesthetic.md)?

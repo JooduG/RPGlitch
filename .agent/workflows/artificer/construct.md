@@ -18,7 +18,7 @@ description: The Build Protocol. Materializes new UI atoms.
 Use **Stitch** to generate the initial Svelte markup.
 
 - **Tool**: `stitch:generate_screen_from_text`
-- **Prompt**: "Create a Svelte 5 component named [Name]. Use [Chalk Regime] colors. [Description...]"
+- **Prompt**: "Create a Svelte 5 component named [Name]. Use [Chalk Regime] colors, runes ($state, $props), and no Svelte 4 legacy syntax. [Description...]"
 
 ### Option B: Manual Construction
 

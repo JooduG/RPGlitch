@@ -2,9 +2,9 @@
 description: Initializes the Gamemaster environment by validating project context files.
 ---
 
-// turbo-all
-
 # ⚡ /01-setup
+
+// turbo-all
 
 > **Mandate:** Ensure the agent's mental model is perfectly synchronized with reality.
 

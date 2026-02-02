@@ -21,7 +21,7 @@ description: The Upgrade Protocol. Vaults legacy components to Svelte 5.
 > A component must be 100% Runes or 0%. No hybrid state allowed.
 
 1. **Script**: Rewrite using the [Svelte 5 Skill](../../knowledge/tech/svelte-5.md) and **[Construct Protocol](./construct.md)** patterns.
-    - **Tip**: Use `svelte-autofixer` (MCP) to suggest fixes for complex migrations.
+    - **Tip**: Use `svelte:svelte-autofixer` to clean up complex logic or fix rune syntax errors.
 2. **Style**: Port inline styles to [Chalk Regime](../../rules/06-aesthetic.md) tokens.
 3. **Template**: Replace `<slot />` with `{@render children()}`.
 

@@ -2,13 +2,24 @@
 
 ## 🚀 Active Tracks
 
-## [x] Track: Codebase Health Analysis
+## [ ] Track: Gamemaster Alignment
 
-- Path: .agent/tasks/codebase-health-analysis/
-- Status: Complete
-- Note: Resolved 3 TODOs, verified Pure IO architecture in core/data pillars, and confirmed 0 legacy Svelte 4 patterns.
+- Path: .agent/tasks/gamemaster-alignment/
+- Status: Scoped
 
 ## 📜 Archive
+
+## ✅ Track: Workflow Sync
+
+- Path: .agent/archive/workflow-sync/
+- Status: Complete
+- Note: Synchronized all 4 pillar workflows with v2.x SKILL definitions. Created `ingest.js` and `search.js` wrappers.
+
+## ✅ Track: Codebase Health Analysis
+
+- Path: .agent/archive/codebase-health-analysis/
+- Status: Complete
+- Note: Resolved 3 TODOs, verified Pure IO architecture in core/data pillars, and confirmed 0 legacy Svelte 4 patterns.
 
 ## ✅ Track: Docs Cleanup
 

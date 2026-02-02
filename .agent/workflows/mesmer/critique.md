@@ -10,7 +10,7 @@ description: The Review Protocol. Audits UI quality against the "Chalk Regime".
 
 Verify against [06-aesthetic.md](../../rules/06-aesthetic.md):
 
-- [ ] **Backgrounds**: Are they `var(--app-surface-chalk)`? No pure black `#000` unless deep background.
+- [ ] **Backgrounds**: Are they `var(--app-surface-chalk)`? Pure black `#000` is allowed for "Neural Minimalism" deep layers.
 - [ ] **Text**: Is primary text `#F4F4F5`? No pure white `#FFFFFF` on large surfaces.
 - [ ] **Borders**: Are they 1px max?
 - [ ] **Motion**: Do interactions feel "Snappy" (`200ms`)?
