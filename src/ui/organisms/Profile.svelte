@@ -483,11 +483,10 @@
 
         background-color: var(--tint-base);
         border: 0;
-        border-radius: var(--spacing-l);
+        border-radius: 1.5rem;
         display: grid;
         grid-template-columns: 35% 65%;
         overflow: hidden;
-        /* Removed backdrop-filter as requested */
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 
         &::after {

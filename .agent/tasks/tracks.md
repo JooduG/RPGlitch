@@ -2,6 +2,12 @@
 
 ## 🚀 Active Tracks
 
+## [ ] Track: Control Panel Redesign
+
+- Path: .agent/tasks/control-panel-redesign/
+- Status: Scoped
+- Note: Aesthetic overhaul of the Settings Modal. Selected 'Kinetic Bento Grid' (Concept B) with semi-flat aesthetic.
+
 ## 📜 Archive
 
 ## ✅ Track: Hygiene Restoration

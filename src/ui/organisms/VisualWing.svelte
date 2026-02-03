@@ -381,7 +381,7 @@
         .swatch {
             width: 100%;
             aspect-ratio: 1;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            border: 0; /* Semi-flat */
             border-radius: var(--spacing-xs);
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -407,7 +407,7 @@
 
     .prompt-box {
         background: rgba(0, 0, 0, 0.2);
-        border: 1px solid var(--ui-glass-border);
+        border: 0; /* Semi-flat */
         border-radius: var(--border-radius);
         overflow: hidden;
 

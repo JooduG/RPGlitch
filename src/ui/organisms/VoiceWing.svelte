@@ -163,7 +163,7 @@
             .voice-btn {
                 width: 100%;
                 background: rgba(255, 255, 255, 0.05);
-                border: 1px solid var(--ui-glass-border);
+                border: 0; /* Semi-flat */
                 border-radius: var(--border-radius);
                 color: white;
                 padding: var(--spacing-s);
@@ -190,7 +190,7 @@
             align-items: center;
             justify-content: center;
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--ui-glass-border);
+            border: 0; /* Semi-flat */
             border-radius: var(--border-radius);
             color: white;
             cursor: pointer;
@@ -220,7 +220,7 @@
         left: 0;
         width: 100%; /* Spans full .voice-control-row width now */
         background: var(--app-background);
-        border: 1px solid var(--ui-glass-border);
+        border: 0; /* Semi-flat */
         border-radius: var(--border-radius);
         z-index: 10;
         max-height: 12rem;

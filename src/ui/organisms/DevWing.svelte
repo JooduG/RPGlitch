@@ -306,7 +306,7 @@
 
         .dynamic-box {
             background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--glass-border);
+            border: 0; /* Semi-flat */
             border-radius: var(--spacing-xs);
             padding: var(--spacing-s);
             display: flex;
@@ -636,7 +636,7 @@
         .json-wrap {
             margin-top: 8px;
             background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--glass-border);
+            border: 0; /* Semi-flat */
             border-radius: var(--spacing-xs);
             padding: var(--spacing-xs);
             max-height: 150px;
