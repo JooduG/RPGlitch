@@ -2,12 +2,13 @@
 
 ## 🚀 Active Tracks
 
-## [ ] Track: Gamemaster Alignment
-
-- Path: .agent/archive/gamemaster-alignment/
-- Status: Complete
-
 ## 📜 Archive
+
+## ✅ Track: Hygiene Restoration
+
+- Path: N/A (Low Hanging Fruit)
+- Status: Complete
+- Note: Corrected bootstrap.js path in 04-security.md and removed phantom track entry.
 
 ## ✅ Track: Workflow Sync
 

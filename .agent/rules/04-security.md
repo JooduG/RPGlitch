@@ -10,7 +10,7 @@ trigger: always_on
 
 ### 🛑 The Passive Shield (Storage Override)
 
-- **Mandate:** **DO NOT REMOVE** the protection layer in [bootstrap.js](../src/gamemaster/bootstrap.js).
+- **Mandate:** **DO NOT REMOVE** the protection layer in [bootstrap.js](../../src/core/session/bootstrap.js).
 - **Function:** Intercepts storage calls to block "penalty flags" and purges them on boot.
 
 ## 2. Zero-Trust Content Injection
