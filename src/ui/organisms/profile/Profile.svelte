@@ -6,9 +6,9 @@
     import Button from "@ui/atoms/Button.svelte"
     import ProfilePicture from "@ui/atoms/ProfilePicture.svelte"
     import Modal from "@ui/molecules/Modal.svelte"
-    import DevWing from "@ui/organisms/DevWing.svelte"
-    import VisualWing from "@ui/organisms/VisualWing.svelte"
-    import VoiceWing from "@ui/organisms/VoiceWing.svelte"
+    import DevWing from "@ui/organisms/profile/DevWing.svelte"
+    import VisualWing from "@ui/organisms/profile/VisualWing.svelte"
+    import VoiceWing from "@ui/organisms/profile/VoiceWing.svelte"
     import { fitText } from "@ui/utils/actions/fitText.js"
 
     let { entityId, entityType } = $props()
@@ -483,7 +483,7 @@
 
         background-color: var(--tint-base);
         border: 0;
-        border-radius: 1.5rem;
+        border-radius: var(--spacing-l);
         display: grid;
         grid-template-columns: 35% 65%;
         overflow: hidden;

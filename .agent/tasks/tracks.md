@@ -8,6 +8,12 @@
 - Status: Scoped
 - Note: Aesthetic overhaul of the Settings Modal. Selected 'Kinetic Bento Grid' (Concept B) with semi-flat aesthetic.
 
+## [ ] Track: 12-Column Grid Migration
+
+- Path: .agent/tasks/grid-migration-12-col/
+- Status: Scoped
+- Note: Migrating from 10 to 12 columns to support "Rule of Thirds" and "Golden Ratio" layouts.
+
 ## 📜 Archive
 
 ## ✅ Track: Hygiene Restoration

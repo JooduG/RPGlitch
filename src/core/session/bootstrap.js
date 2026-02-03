@@ -8,6 +8,7 @@ import { GameMaster } from "./index.js"
 import { initDebugMode, log, mockPlugins } from "./utils.js"
 
 // Expose GameMaster to Window (Critical for UI)
+// @ts-ignore
 if (typeof window !== "undefined") window.GameMaster = GameMaster
 
 // --- THE FREEDOM PROTOCOL (Platform Shield) ---

@@ -2,7 +2,7 @@
     import { app } from "@state/app.svelte.js"
     import { session } from "@state/session.svelte.js"
     import Button from "@ui/atoms/Button.svelte"
-    import Illusion from "@ui/molecules/Illusion.svelte"
+    import LoadingSkeleton from "@ui/molecules/LoadingSkeleton.svelte"
     import Layout from "@ui/templates/Layout.svelte"
     import InputBar from "./InputBar.svelte"
     import Message from "./Message.svelte"
@@ -67,7 +67,14 @@
                     {:else if isThinking}
                         <!-- Thinking Indicator using Message bubble for consistency -->
                         <div class="thinking-container">
-                            <Illusion variant="text" width="60%" />
+                            <div class="message-group ai thinking">
+                                <LoadingSkeleton
+                                    variant="text"
+                                    width="60%"
+                                    height="1.5rem"
+                                    class="skeleton-pulse"
+                                />
+                            </div>
                         </div>
                     {:else if feed.length === 0}
                         <div class="empty-feed-fallback">

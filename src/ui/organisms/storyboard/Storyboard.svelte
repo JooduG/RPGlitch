@@ -1,10 +1,10 @@
 <script>
-    import Illusion from "@ui/molecules/Illusion.svelte"
     import { entities } from "@data/database/repository.js"
     import { app } from "@state/app.svelte.js"
+    import LoadingSkeleton from "@ui/molecules/LoadingSkeleton.svelte"
     import LibraryDrawer from "@ui/organisms/LibraryDrawer.svelte"
-    import { onMount } from "svelte"
     import Layout from "@ui/templates/Layout.svelte"
+    import { onMount } from "svelte"
     import StoryboardCard from "./StoryboardCard.svelte"
     import StoryboardDynamicTitle from "./StoryboardDynamicTitle.svelte"
     import StoryboardPill from "./StoryboardPill.svelte"
@@ -37,11 +37,11 @@
 </script>
 
 {#if loading}
-    <!-- Global Illusion Loader -->
-    <div class="illusion-boot">
-        <Illusion variant="card" width="25vh" height="40vh" />
-        <Illusion variant="card" width="40vh" height="25vh" />
-        <Illusion variant="card" width="25vh" height="40vh" />
+    <!-- Global Skeleton Loader -->
+    <div class="skeleton-boot">
+        <LoadingSkeleton variant="card" width="25vh" height="40vh" />
+        <LoadingSkeleton variant="card" width="40vh" height="25vh" />
+        <LoadingSkeleton variant="card" width="25vh" height="40vh" />
     </div>
 {:else}
     <Layout align="end">
@@ -101,10 +101,10 @@
         text-align: center;
     }
 
-    /* Boot Loader: Matches Layout.svelte 10-col grid */
-    .illusion-boot {
+    /* Boot Loader: Matches Layout.svelte 12-col grid */
+    .skeleton-boot {
         display: grid;
-        grid-template-columns: repeat(10, 1fr);
+        grid-template-columns: repeat(12, 1fr);
         height: 100vh;
         width: 100%;
         position: fixed;
@@ -112,16 +112,16 @@
         align-items: center; /* Center items in their row */
         align-content: center; /* Center the row in the container */
 
-        & :global(.illusion:nth-child(1)) {
+        & :global(.skeleton:nth-child(1)) {
             grid-column: 2 / span 2;
             justify-self: center;
         }
-        & :global(.illusion:nth-child(2)) {
-            grid-column: 4 / span 4;
+        & :global(.skeleton:nth-child(2)) {
+            grid-column: 4 / span 6;
             justify-self: center;
         }
-        & :global(.illusion:nth-child(3)) {
-            grid-column: 8 / span 2;
+        & :global(.skeleton:nth-child(3)) {
+            grid-column: 10 / span 2;
             justify-self: center;
         }
 
@@ -132,11 +132,11 @@
             padding-bottom: 0;
             align-items: center;
 
-            & :global(.illusion:nth-child(1)),
-            & :global(.illusion:nth-child(3)) {
+            & :global(.skeleton:nth-child(1)),
+            & :global(.skeleton:nth-child(3)) {
                 display: none;
             }
-            & :global(.illusion:nth-child(2)) {
+            & :global(.skeleton:nth-child(2)) {
                 grid-column: 1 / -1;
             }
         }

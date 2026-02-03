@@ -24,7 +24,7 @@
     import { tilt } from "@ui/utils/actions/tilt.js"
     // Import Actions
     import ProfilePicture from "@ui/atoms/ProfilePicture.svelte"
-    import Illusion from "@ui/molecules/Illusion.svelte"
+    import LoadingSkeleton from "@ui/molecules/LoadingSkeleton.svelte"
 
     // Derived Values
     let isEmpty = $derived(!entity)
@@ -132,7 +132,9 @@
         {/snippet}
 
         {#if isLoading}
-            <Illusion variant="card" width="100%" height="100%" />
+            <div class="card-illusion">
+                <LoadingSkeleton variant="card" width="100%" height="100%" />
+            </div>
         {:else if isEmpty}
             {@render emptyState()}
         {:else}

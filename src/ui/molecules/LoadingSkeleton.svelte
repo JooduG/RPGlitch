@@ -22,7 +22,7 @@
     @use "@theme/abstracts/mixins" as *;
     @use "@theme/abstracts/placeholders" as *;
 
-    .illusion {
+    .skeleton {
         background: var(--chalk, #222326); /* Chalk Regime */
         border-radius: 8px;
         overflow: hidden;
@@ -57,11 +57,11 @@
                 transparent
             );
             filter: blur(60px); /* Diffusion 60px */
-            animation: illusion-shimmer 2.5s infinite; /* Slowed down slightly for fog effect? User said "Not a laser show" */
+            animation: skeleton-shimmer 2.5s infinite; /* Slowed down slightly for fog effect? User said "Not a laser show" */
         }
     }
 
-    @keyframes illusion-shimmer {
+    @keyframes skeleton-shimmer {
         100% {
             transform: translateX(100%);
         }

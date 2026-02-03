@@ -2,7 +2,7 @@
     import ControlPanel from "@ui/organisms/ControlPanel.svelte"
     import DebugPanel from "@ui/organisms/DebugPanel.svelte"
     import Lightbox from "@ui/organisms/Lightbox.svelte"
-    import Profile from "@ui/organisms/Profile.svelte"
+    import Profile from "@ui/organisms/profile/Profile.svelte"
     import Storyboard from "@ui/organisms/storyboard/Storyboard.svelte"
     import Storymode from "@ui/organisms/storymode/Storymode.svelte"
 
@@ -57,8 +57,8 @@
             </div>
         {/if}
 
-        <!-- TELEMETRY HUD -->
-        {#if app.settings.devMode}
+        <!-- TELEMETRY HUD (Only visible in Dev Mode AND when Control Panel is Open) -->
+        {#if app.settings.devMode && app.controlPanelOpen}
             <div class="telemetry-gutter">
                 <DebugPanel />
             </div>
@@ -69,6 +69,16 @@
             <Storyboard />
         {:else if app.view === "game"}
             <Storymode />
+        {/if}
+        <!-- DEV: Swap View Trigger (Only visible when Panel is open) -->
+        {#if app.settings.devMode && app.controlPanelOpen}
+            <button
+                class="swap-view-trigger"
+                onclick={() =>
+                    (app.view = app.view === "game" ? "lobby" : "game")}
+            >
+                ⇄
+            </button>
         {/if}
     </div>
 {/if}
@@ -157,5 +167,29 @@
         display: flex;
         justify-content: center;
         align-items: center;
+    }
+
+    .swap-view-trigger {
+        position: fixed;
+        bottom: 1rem;
+        right: 1rem;
+        z-index: 10001; /* Must be above Modal (9999) */
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid var(--glass-border);
+        color: var(--zinc-500);
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        transition: all 0.2s;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--zinc-100);
+        }
     }
 </style>

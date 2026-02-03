@@ -65,6 +65,8 @@ declare global {
         rpgApp: any
         /** Legacy State Alias */
         state: any
+        /** GameMaster Core */
+        GameMaster: any
     }
 }
 

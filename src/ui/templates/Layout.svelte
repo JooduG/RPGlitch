@@ -4,9 +4,9 @@
      * The Universal 10-Column Grid System for RPGlitch.
      *
      * Logic:
-     * 1. 10 Columns total (repeat(10, 1fr)).
-     * 2. Standard Mode: Margins (1,10), Left (2-3), Center (4-7), Right (8-9).
-     * 3. Cinematic Mode: Left (1-2), Center (3-8), Right (9-10) - Full Bleed.
+     * 1. 12 Columns total (repeat(12, 1fr)).
+     * 2. Standard Mode: Margins (1,12), Left (2-3), Center (4-9), Right (10-11).
+     * 3. Cinematic Mode: Left (1-2), Center (3-10), Right (11-12) - Full Bleed.
      */
 
     let {
@@ -79,11 +79,11 @@
     @use "@theme/abstracts/placeholders" as *;
 
     /* ------------------------------------------------------------
-     THE 10-COLUMN GRID SYSTEM
+     THE 12-COLUMN GRID SYSTEM (UPDATED)
      ------------------------------------------------------------ */
     .universal-stage {
         display: grid;
-        grid-template-columns: repeat(10, 1fr);
+        grid-template-columns: repeat(12, 1fr);
         grid-template-rows: 1fr;
         height: 100%;
         width: 100%;
@@ -125,15 +125,14 @@
     }
 
     /* --- HEADER & FOOTER --- */
-    /* Default: Centered 80% (Cols 2-9) */
+    /* Default: Spans central 10 columns (Cols 2-11) */
     .stage-header,
     .stage-footer {
-        grid-column: 2 / 10;
+        grid-column: 2 / 12;
         grid-row: 1;
         z-index: 100;
         pointer-events: none;
         align-self: stretch;
-        /* height: 100%; <-- Removed */
         display: flex;
         justify-content: center;
 
@@ -143,21 +142,19 @@
     }
 
     .stage-header {
-        /* Position from vertical center, not from top edge */
         position: absolute;
         top: calc(50% - 40%);
         left: 0;
         right: 0;
-        align-items: flex-end; /* Align content to bottom of header area */
+        align-items: flex-end;
     }
     .stage-footer {
-        /* Position from vertical center, not from bottom edge */
         position: absolute;
         bottom: calc(50% - 35%);
         left: 0;
         right: 0;
-        align-items: flex-start; /* Align content to top of footer area */
-        z-index: 101; /* Above header to ensure pill is clickable */
+        align-items: flex-start;
+        z-index: 101;
     }
 
     /* --- COLUMN BEHAVIOR --- */
@@ -177,34 +174,36 @@
 
     /* 
      === DESKTOP GRID LOGIC (min-width: 769px) ===
-     Isolating strictly to desktop so mobile doesn't fight specificity.
   */
     @media (min-width: 769px) {
-        /* Standard Mode (Lobby) */
+        /* Standard Mode (Lobby) 
+           Structure: Gutter(1) | Left(2) | Center(6) | Right(2) | Gutter(1)
+        */
         .universal-stage:not(.layout-cinematic) {
             .stage-column.left {
                 grid-column: 2 / span 2;
             }
             .stage-column--center {
-                grid-column: 4 / span 4;
+                grid-column: 4 / span 6; /* 50% width */
                 align-items: center;
-                /* Background Removed to match Skeleton/Body */
             }
             .stage-column.right {
-                grid-column: 8 / span 2;
+                grid-column: 10 / span 2;
             }
         }
 
-        /* Cinematic Mode (Storymode) */
+        /* Cinematic Mode (Storymode)
+           Structure: Left(2) | Center(8) | Right(2)
+        */
         .universal-stage.layout-cinematic {
             .stage-column.left {
                 grid-column: 1 / span 2;
             }
             .stage-column--center {
-                grid-column: 3 / span 6;
+                grid-column: 3 / span 8; /* 66% width */
             }
             .stage-column.right {
-                grid-column: 9 / span 2;
+                grid-column: 11 / span 2;
             }
 
             .stage-header,
@@ -215,11 +214,6 @@
             }
         }
     }
-
-    /* === MOBILE GRID LOGIC (max-width: 768px) === */
-    /* Handled in the main .universal-stage block, but defining column overrides here for clarity if needed, 
-     though currently they are defined in .universal-stage media query. 
-     Let's check the main block to ensure no conflicts. */
 
     .gutter-col {
         pointer-events: none;
