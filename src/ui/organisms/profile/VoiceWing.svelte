@@ -8,10 +8,46 @@
     let hoveredSlider = $state(null) // "rate" or "pitch"
     let activeSlider = $state(null)
 
+    // Refs & Tooltip State
+    let rateInput = $state()
+    let pitchInput = $state()
+    let rateX = $state(null)
+    let pitchX = $state(null)
+
     // Global release handler for sliders
     function handleGlobalUp() {
         activeSlider = null
     }
+
+    // Dynamic Tooltip Positioning
+    function updateTooltipX(type) {
+        const el = type === "rate" ? rateInput : pitchInput
+        const val = type === "rate" ? char.voice.rate : char.voice.pitch
+        if (!el) return
+
+        const min = parseFloat(el.min)
+        const max = parseFloat(el.max)
+        const ratio = (val - min) / (max - min)
+
+        // CSS Logic: Input Width = calc(100% - 4px). Margin 0 auto.
+        // The Tooltip is relative to .slider-group (parent).
+        // Input offsetLeft should account for the auto margin.
+        const width = el.clientWidth
+        const thumbWidth = 12
+        const trackWidth = width - thumbWidth
+        const thumbPos = ratio * trackWidth + thumbWidth / 2
+
+        const pos = el.offsetLeft + thumbPos
+
+        if (type === "rate") rateX = pos
+        else pitchX = pos
+    }
+
+    // Watch for value changes
+    $effect(() => {
+        updateTooltipX("rate")
+        updateTooltipX("pitch")
+    })
 
     // Voice metadata
     const selectedVoice = $derived(
@@ -85,28 +121,40 @@
     <div class="sliders" onpointerup={handleGlobalUp}>
         <div
             class="slider-group"
-            onmouseenter={() => (hoveredSlider = "rate")}
+            onmouseenter={() => {
+                hoveredSlider = "rate"
+                updateTooltipX("rate")
+            }}
             onmouseleave={() => (hoveredSlider = null)}
             role="presentation"
         >
             <Tooltip
                 text={`Rate: ${char.voice.rate.toFixed(1)}x`}
                 visible={hoveredSlider === "rate" || activeSlider === "rate"}
+                x={rateX}
             />
             <input
+                bind:this={rateInput}
                 type="range"
                 min="0.5"
                 max="2.0"
                 step="0.1"
                 bind:value={char.voice.rate}
                 disabled={!isEditing}
-                onpointerdown={() => (activeSlider = "rate")}
+                onpointerdown={() => {
+                    activeSlider = "rate"
+                    updateTooltipX("rate")
+                }}
+                oninput={() => updateTooltipX("rate")}
             />
         </div>
         <div
             class="slider-group"
             class:locked={isNaturalVoice}
-            onmouseenter={() => (hoveredSlider = "pitch")}
+            onmouseenter={() => {
+                hoveredSlider = "pitch"
+                updateTooltipX("pitch")
+            }}
             onmouseleave={() => (hoveredSlider = null)}
             role="presentation"
         >
@@ -115,15 +163,21 @@
                     ? "Pitch locked: Natural voices ignore manual pitch adjustments"
                     : `Pitch: ${char.voice.pitch.toFixed(1)}`}
                 visible={hoveredSlider === "pitch" || activeSlider === "pitch"}
+                x={pitchX}
             />
             <input
+                bind:this={pitchInput}
                 type="range"
                 min="0.5"
                 max="2.0"
                 step="0.1"
                 bind:value={char.voice.pitch}
                 disabled={!isEditing || isNaturalVoice}
-                onpointerdown={() => (activeSlider = "pitch")}
+                onpointerdown={() => {
+                    activeSlider = "pitch"
+                    updateTooltipX("pitch")
+                }}
+                oninput={() => updateTooltipX("pitch")}
             />
         </div>
     </div>

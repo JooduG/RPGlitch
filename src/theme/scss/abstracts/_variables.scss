@@ -23,6 +23,7 @@ $signature-lime: #84cc16;
 $signature-emerald: #10b981;
 $signature-cyan: #06b6d4;
 $signature-sky: #0ea5e9;
+$signature-teal: #14b8a6;
 
 // Cool Colors
 $signature-blue: #3b82f6;
@@ -40,72 +41,69 @@ $chalk: #222326; // "Chalk"
 // Map for programmatic access
 $signature-colors: (
     "red": (
-        "color": $signature-red,
-    ),
-    "rose": (
-        "color": $signature-rose,
+        "color": $signature-red
     ),
     "orange": (
-        "color": $signature-orange,
+        "color": $signature-orange
     ),
     "amber": (
-        "color": $signature-amber,
+        "color": $signature-amber
     ),
     "yellow": (
-        "color": $signature-yellow,
+        "color": $signature-yellow
     ),
     "lime": (
-        "color": $signature-lime,
+        "color": $signature-lime
     ),
     "emerald": (
-        "color": $signature-emerald,
+        "color": $signature-emerald
+    ),
+    "teal": (
+        "color": $signature-teal
     ),
     "cyan": (
-        "color": $signature-cyan,
+        "color": $signature-cyan
     ),
     "sky": (
-        "color": $signature-sky,
+        "color": $signature-sky
     ),
     "blue": (
-        "color": $signature-blue,
+        "color": $signature-blue
     ),
     "indigo": (
-        "color": $signature-indigo,
+        "color": $signature-indigo
     ),
     "violet": (
-        "color": $signature-violet,
+        "color": $signature-violet
     ),
     "purple": (
-        "color": $signature-purple,
+        "color": $signature-purple
     ),
     "pink": (
-        "color": $signature-pink,
+        "color": $signature-pink
+    ),
+    "rose": (
+        "color": $signature-rose
     ),
     "frisk": (
-        "color": $frisk,
+        "color": $frisk
     ),
     "frozen-pole": (
-        "color": $frozen-pole,
+        "color": $frozen-pole
     ),
     "gunmetal": (
-        "color": $gunmetal,
+        "color": $gunmetal
     ),
     "chalk": (
-        "color": $chalk,
-    ),
+        "color": $chalk
+    )
 );
 
 // =================================================
 //  SECTION 2: SIGNATURE GRADIENTS
 // =================================================
 
-$gradient-standard: linear-gradient(
-    135deg,
-    $frisk,
-    $frozen-pole,
-    $gunmetal,
-    $chalk
-);
+$gradient-standard: linear-gradient(135deg, $frisk, $frozen-pole, $gunmetal, $chalk);
 $gradient-radial: radial-gradient($frisk, $frozen-pole, $gunmetal, $chalk);
 
 // =================================================
@@ -234,7 +232,7 @@ $breakpoints: (
     m: 768px,
     l: 1024px,
     xl: 1280px,
-    xxl: 1536px,
+    xxl: 1536px
 );
 
 $breakpoint-mobile: map.get($breakpoints, m);
@@ -273,5 +271,5 @@ $z-map: (
     overlay: 100,
     modal: 150,
     drawer: 2000,
-    toast: 10000,
+    toast: 10000
 );

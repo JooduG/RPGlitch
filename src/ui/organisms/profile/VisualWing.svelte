@@ -3,6 +3,7 @@
     import { PALETTE } from "@core/session/config.js"
     import { TextToImage } from "@mesmer/visuals/text-to-image.js"
     import Button from "@ui/atoms/Button.svelte"
+    import Tooltip from "@ui/atoms/Tooltip.svelte"
 
     let {
         char = $bindable(),
@@ -12,6 +13,16 @@
     } = $props()
 
     let fileInput = $state()
+
+    // Tooltip State
+    let currTooltip = $state({
+        visible: false,
+        text: "",
+        x: 0,
+        y: 0,
+        position: "top",
+    })
+    let tooltipTimer = null
 
     // Determine current state
     const promptValue = $derived((char.visuals.prompt || "").trim())
@@ -172,6 +183,30 @@
         }
     }
 
+    function handleSwatchHover(e, name) {
+        if (tooltipTimer) clearTimeout(tooltipTimer)
+        const target = e.currentTarget
+
+        tooltipTimer = setTimeout(() => {
+            const rect = target.getBoundingClientRect()
+            // Capitalize name for display
+            const displayName = name.charAt(0).toUpperCase() + name.slice(1)
+
+            currTooltip = {
+                visible: true,
+                text: displayName,
+                x: rect.left + rect.width / 2,
+                y: rect.top + 8, // Offset to counter CSS margin-top: -12px
+                position: "top",
+            }
+        }, 500) // 500ms Delay
+    }
+
+    function handleSwatchLeave() {
+        if (tooltipTimer) clearTimeout(tooltipTimer)
+        currTooltip.visible = false
+    }
+
     function getValue(obj, path) {
         if (!path) return ""
         return (
@@ -240,10 +275,21 @@
                         char.visuals.signatureColor = hex
                     }}
                     disabled={!isEditing}
+                    onmouseenter={(e) => handleSwatchHover(e, name)}
+                    onmouseleave={handleSwatchLeave}
                 ></button>
             {/each}
         </div>
     </div>
+
+    <!-- Tooltip (Portal-ish) -->
+    <Tooltip
+        text={currTooltip.text}
+        visible={currTooltip.visible}
+        x={currTooltip.x}
+        y={currTooltip.y}
+        position="top"
+    />
 
     <!-- 2. Visual Prompting -->
     <div class="group">
@@ -349,6 +395,7 @@
             <div class="switch"></div>
         </label>
     </div>
+    <Tooltip {...currTooltip} fixed={true} />
 </div>
 
 <style lang="scss">
