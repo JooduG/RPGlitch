@@ -100,7 +100,7 @@ export const premade = {
             name: "Shadow Whisperer",
             description: "Mysterious figure communing with darkness.",
             type: "character",
-            visuals: { signatureColor: "zinc" },
+            visuals: { signatureColor: "purple" },
             voice: { uri: "Zira", rate: 0.85, pitch: 1.0 },
             dynamics: {
                 entropy: 55,
@@ -230,7 +230,7 @@ export const premade = {
             name: "Neo Arcadia",
             description: "Futuristic metropolis built on dream tech.",
             type: "fractal",
-            visuals: { signatureColor: "indigo" },
+            visuals: { signatureColor: "rose" },
             simulation: { mode: "PASSIVE" },
             dynamics: {
                 entropy: 55,
@@ -257,7 +257,7 @@ export const premade = {
             description:
                 "Neon-soaked queer utopia where heroes pose, villains cruise, and thunderstorms are just foreplay for city-wide orgies.",
             type: "fractal",
-            visuals: { signatureColor: "purple" },
+            visuals: { signatureColor: "indigo" },
             simulation: { mode: "PASSIVE" },
             dynamics: {
                 entropy: 55,

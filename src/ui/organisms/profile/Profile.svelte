@@ -260,8 +260,8 @@
                                 class="name"
                                 aria-label="Character Name"
                                 use:fitText={{
-                                    maxSize: 64,
-                                    minSize: 24,
+                                    maxSize: 80,
+                                    minSize: 16,
                                     lineHeight: "1.1",
                                 }}
                             >

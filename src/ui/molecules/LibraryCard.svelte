@@ -5,6 +5,7 @@
     let {
         entity,
         type = "ai", // "ai" | "user" | "fractal"
+        disabled = false,
         onSelect,
         onViewProfile,
     } = $props()
@@ -17,19 +18,28 @@
     let signatureRgb = $derived(themeStore.hexToRgb(signatureColor))
     let avatar = $derived(entity?.visuals?.profilePictureUrl)
     let name = $derived(entity?.name || "Untitled")
+
+    function handleSelect() {
+        if (!disabled) onSelect()
+    }
 </script>
 
 <button
     class="drawer-card"
     class:fractal-card={type === "fractal"}
+    class:is-disabled={disabled}
     style="--signature-color: {signatureColor}; --signature-rgb: {signatureRgb};"
-    onclick={onSelect}
+    onclick={handleSelect}
+    {disabled}
+    title={disabled ? "Already selected" : ""}
     oncontextmenu={(e) => {
         e.preventDefault()
         onViewProfile()
     }}
 >
+    <!-- Visual Content -->
     <div class="card-visual">
+        <!-- Visual Content implementation... -->
         {#if avatar}
             <img
                 src={avatar}
@@ -87,6 +97,18 @@
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
         }
 
+        &.is-disabled {
+            opacity: 0.5;
+            filter: grayscale(1);
+            cursor: not-allowed;
+            pointer-events: none;
+
+            &:hover {
+                transform: none;
+                box-shadow: none;
+            }
+        }
+
         .card-visual {
             flex: 1.5;
             background: rgba(0, 0, 0, 0.3);
@@ -125,10 +147,9 @@
 
         .card-info {
             flex: 0.6;
-            padding: var(--spacing-xs) var(--spacing-s);
-            padding-bottom: 1.5rem; /* Strict Anchoring */
+            padding: var(--spacing-s);
             display: flex;
-            align-items: flex-end; /* Align to bottom anchor */
+            align-items: center;
             background: var(--bg-app);
 
             h5 {

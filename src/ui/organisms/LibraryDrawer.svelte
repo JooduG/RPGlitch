@@ -23,6 +23,14 @@
         return []
     })
 
+    function isDisabled(entity) {
+        if (drawerType === "ai" && app.selectedUser?.id === entity.id)
+            return true
+        if (drawerType === "user" && app.selectedAi?.id === entity.id)
+            return true
+        return false
+    }
+
     // Get drawer title
     let title = $derived(() => {
         if (drawerType === "ai") return "Select AI Companion"
@@ -106,6 +114,7 @@
                         <LibraryCard
                             {entity}
                             type={drawerType}
+                            disabled={isDisabled(entity)}
                             onSelect={() => handleSelect(entity)}
                             onViewProfile={() => app.openProfile(entity)}
                         />

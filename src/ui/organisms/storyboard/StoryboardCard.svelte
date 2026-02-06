@@ -313,11 +313,6 @@
                 border-top: none;
                 border-left: 1px solid rgba(255, 255, 255, 0.05);
             }
-
-            :global(.card-bottom.btn .title-half h2) {
-                -webkit-line-clamp: 1;
-                line-clamp: 1;
-            }
         }
     }
 
@@ -358,12 +353,10 @@
         );
         backdrop-filter: none; /* Opaque per request */
         border: none;
-        border-top: 0px;
         display: flex;
         flex-direction: column;
         justify-content: center;
         gap: var(--spacing-xxs);
-        padding: var(--spacing-xs) var(--spacing-m);
         border-radius: 0;
 
         /* FIX: Neutralize inner button physics to prevent flicker during tilt */
@@ -392,9 +385,11 @@
                 /* Increased Base Size for fitText scaling */
                 font-size: var(--font-size-xxxxl);
                 line-height: 1.1;
-                word-break: break-word;
-                overflow-wrap: anywhere;
+                word-break: normal;
+                overflow-wrap: normal; /* CRITICAL: Prevent browser from hiding overflow via splitting */
+                white-space: normal;
                 text-align: left;
+                padding-top: var(--spacing-m);
 
                 display: -webkit-box;
                 -webkit-line-clamp: 2;
@@ -404,6 +399,8 @@
 
                 /* Fractal cards get 1 line only - Moved to .fractal-card block */
             }
+            /* User added padding-top in prev step, keeping it if present, ensuring bottom padding */
+            padding-bottom: 0.25rem;
         }
 
         .desc-half {
