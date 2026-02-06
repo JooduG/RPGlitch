@@ -591,16 +591,16 @@
             .description {
                 @extend %textarea-clean;
                 width: 100%;
-                color: var(--app-muted);
+                color: rgba(255, 255, 255, 0.9); /* Promoted from muted */
                 font-family: inherit;
-                font-size: 0.95rem;
+                font-size: 1rem; /* Promoted from 0.95rem */
                 padding: 4px 0;
                 margin: var(--spacing-xs) 0 0;
-                line-height: 1.4;
+                line-height: 1.5; /* Better readability */
                 min-height: 1.4em;
                 cursor: default;
                 transition: all 0.2s;
-                border-radius: var(--spacing-s);
+                border-radius: 0; /* User request: Square edges */
                 pointer-events: none;
                 background: transparent;
                 border: 1px solid transparent;
@@ -650,19 +650,21 @@
 
                         h2 {
                             margin: 0;
-                            font-size: 1rem;
+                            font-size: 1.2rem; /* Promoted from 1rem */
                             font-weight: 700;
                             color: var(--signature-color);
                             text-transform: uppercase;
-                            letter-spacing: 0.05em;
+                            text-shadow:
+                                0 0 15px rgba(var(--signature-rgb), 0.6),
+                                0 2px 4px rgba(0, 0, 0, 0.8);
+                            display: inline-block;
                         }
 
                         p {
                             margin: 0;
-                            font-size: 0.75rem;
+                            font-size: 0.8rem;
                             color: rgba(255, 255, 255, 0.9);
                             font-weight: 500;
-                            letter-spacing: 0.02em;
                         }
                     }
 
@@ -685,17 +687,19 @@
                         height: 100%;
                         display: flex;
                         flex-direction: column;
-                        gap: var(--spacing-m);
+                        gap: var(--spacing-xxs);
 
                         .field-label {
-                            font-size: 0.65rem;
+                            font-size: 0.85rem; /* Increased from 0.65rem */
                             font-weight: 800;
                             text-transform: uppercase;
-                            letter-spacing: 0.1em;
                             color: var(--signature-color);
-                            opacity: 0.8;
+                            opacity: 1; /* Removed opacity 0.8 */
                             margin-left: 2px;
                             text-align: center;
+                            text-shadow: 0 0 10px
+                                rgba(var(--signature-rgb), 0.5); /* Added Glow */
+                            margin-bottom: 4px; /* Breathing room */
                         }
 
                         .text-area {

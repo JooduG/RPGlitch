@@ -253,7 +253,7 @@
                     use:autoResize
                     class="visual-prompt"
                     bind:value={char.visuals.prompt}
-                    placeholder="Describe visuals..."
+                    placeholder="Enter image prompt or paste a URL..."
                     disabled={!isEditing || busyField === "visual-prompt"}
                     onfocus={() => {
                         if (isEditing) {
@@ -326,7 +326,10 @@
 
     <!-- 3. Toggles -->
     <div class="toggle-stack">
-        <label class="toggle-control">
+        <label
+            class="toggle-control"
+            title="Removes background from generated image"
+        >
             <span class="label">No Background</span>
             <input
                 type="checkbox"
@@ -337,7 +340,7 @@
         </label>
 
         <label class="toggle-control">
-            <span class="label">Flip Visual</span>
+            <span class="label">Flip Profile Picture</span>
             <input
                 type="checkbox"
                 bind:checked={char.visuals.flip}
@@ -393,9 +396,13 @@
             }
 
             &.active {
-                border-color: white;
-                box-shadow: 0 0 10px white;
-                transform: scale(1.1);
+                /* Use outline for crisp white border that sits outside/on-top */
+                outline: 2px solid white;
+                outline-offset: 2px;
+                box-shadow: 0 0 15px var(--swatch-color);
+                transform: scale(1.15);
+                border-color: transparent; /* Reset border to avoid conflict */
+                z-index: 10;
             }
 
             &:disabled {

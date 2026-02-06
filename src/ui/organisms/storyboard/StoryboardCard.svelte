@@ -462,15 +462,18 @@
         }
 
         .empty-label {
-            position: absolute; /* Detach from flow to let icon center perfectly */
+            position: absolute;
             bottom: 25%;
-            font-size: 0.8rem;
-            font-weight: 700;
-            font-family: var(--font-heading); /* Apply display font */
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-family: var(--font-heading, "Inter", sans-serif);
             color: rgba(255, 255, 255, 0.9);
-            opacity: 0; /* Hidden by default */
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            opacity: 0;
             transition: opacity 1.5s ease;
-            pointer-events: none; /* Prevent interference */
+            pointer-events: none;
         }
 
         .empty-icon {
