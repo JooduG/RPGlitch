@@ -124,7 +124,7 @@
 {/snippet}
 
 <Modal variant="transparent" onclose={() => app.toggleControlPanel()}>
-    <div class="cockpit-panel">
+    <div class="cockpit-panel" data-testid="cockpit-panel">
         {@render header()}
 
         {#if isStoryboard}

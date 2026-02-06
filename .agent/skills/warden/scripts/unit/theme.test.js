@@ -4,7 +4,10 @@
  */
 
 import { describe, expect, test } from "vitest"
-import { themeStore } from "../../../../../src/theme/visuals/theme.svelte.js"
+import {
+    PALETTE,
+    themeStore,
+} from "../../../../../src/theme/visuals/theme.svelte.js"
 
 describe("ThemeStore Color Generation", () => {
     const getSignature = (e) => themeStore.getSignatureColor(e)
@@ -13,19 +16,19 @@ describe("ThemeStore Color Generation", () => {
         test("returns hex value for entity with signatureColor", () => {
             const entity = { visuals: { signatureColor: "cyan" } }
             const result = getSignature(entity)
-            expect(result).toBe("#06b6d4") // PALETTE.cyan
+            expect(result).toBe(PALETTE.cyan)
         })
 
         test("returns hex value for entity with pink signatureColor", () => {
             const entity = { visuals: { signatureColor: "pink" } }
             const result = getSignature(entity)
-            expect(result).toBe("#ec4899") // PALETTE.pink
+            expect(result).toBe(PALETTE.pink)
         })
 
         test("returns hex value for entity with emerald signatureColor", () => {
             const entity = { visuals: { signatureColor: "emerald" } }
             const result = getSignature(entity)
-            expect(result).toBe("#10b981") // PALETTE.emerald
+            expect(result).toBe(PALETTE.emerald)
         })
     })
 

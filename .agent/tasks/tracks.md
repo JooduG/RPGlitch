@@ -14,7 +14,17 @@
 - Status: Scoped
 - Note: Migrating from 10 to 12 columns to support "Rule of Thirds" and "Golden Ratio" layouts.
 
-## 📜 Archive
+## ✅ Track: Profile Polish & Legibility
+
+- Path: N/A (Direct UI Refinement)
+- Status: Complete
+- Note: Standardized luminance boosting, implemented Markdown Lite rendering, and fixed read-only scrolling in Profile.svelte.
+
+## ✅ Track: Storyboard Pill Refinement
+
+- Path: N/A (Direct UI Refinement)
+- Status: Complete
+- Note: Refined hover states in StoryboardPill.svelte. Fixed 100% white color bug (variable injection), stabilized hit-areas (removed jittery transforms), and resolved !important lint warnings via scoped overrides. Cleaned up dead code and unused SCSS imports.
 
 ## ✅ Track: Hygiene Restoration
 

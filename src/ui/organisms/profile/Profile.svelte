@@ -10,6 +10,7 @@
     import VisualWing from "@ui/organisms/profile/VisualWing.svelte"
     import VoiceWing from "@ui/organisms/profile/VoiceWing.svelte"
     import { fitText } from "@ui/utils/actions/fitText.js"
+    import DOMPurify from "dompurify"
 
     let { entityId, entityType } = $props()
 
@@ -184,6 +185,19 @@
         }, 50)
     }
 
+    // --- MARKDOWN LITE ---
+    function renderMarkdown(text) {
+        if (!text) return ""
+        // Bold: **text** -> <strong>text</strong>
+        let html = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        // Italics: *text* -> <em>text</em> (avoiding conflicts with bold)
+        html = html.replace(/\*(.*?)\*/g, "<em>$1</em>")
+        // Newlines -> <br>
+        html = html.replace(/\n/g, "<br>")
+
+        return DOMPurify.sanitize(html)
+    }
+
     // Handles clicking on the dossier background to reset focus/exit edit/close modal
     function handleBackgroundClick(e) {
         // If clicking something that is definitely NOT interactive dossier space
@@ -268,23 +282,27 @@
                                 {char.name || "Unnamed Entity"}
                             </h1>
                         {/if}
-                        <textarea
-                            use:autoResize
-                            class="description"
-                            class:edit={isEditing}
-                            class:muted-info={!isEditing && !char.description}
-                            readonly={!isEditing}
-                            tabindex={isEditing ? 0 : -1}
-                            value={isEditing
-                                ? char.description
-                                : char.description ||
-                                  "No description provided."}
-                            oninput={(e) => (char.description = e.target.value)}
-                            placeholder="Entity Description"
-                            onfocus={() => {
-                                // Sacred Field: Do not set activeField.
-                            }}
-                        ></textarea>
+                        {#if isEditing}
+                            <textarea
+                                use:autoResize
+                                class="description"
+                                class:edit={isEditing}
+                                value={char.description}
+                                oninput={(e) =>
+                                    (char.description = e.target.value)}
+                                placeholder="Entity Description"
+                            ></textarea>
+                        {:else}
+                            <div
+                                class="description readonly"
+                                class:muted-info={!char.description}
+                            >
+                                {@html renderMarkdown(
+                                    char.description ||
+                                        "No description provided."
+                                )}
+                            </div>
+                        {/if}
                     </header>
 
                     <div class="content">
@@ -307,54 +325,53 @@
                                                     >{field.label}</span
                                                 >
                                             {/if}
-                                            <textarea
-                                                use:autoResize={{
-                                                    syncId: section.label,
-                                                }}
-                                                data-sync-id={section.label}
-                                                class="text-area"
-                                                class:edit={isEditing}
-                                                class:muted-info={!isEditing &&
-                                                    !getValue(char, field.key)}
-                                                placeholder={field.placeholder}
-                                                value={isEditing
-                                                    ? getValue(char, field.key)
-                                                    : getValue(
-                                                          char,
-                                                          field.key
-                                                      ) || "Record undefined."}
-                                                oninput={(e) =>
-                                                    setValue(
+                                            {#if isEditing}
+                                                <textarea
+                                                    use:autoResize={{
+                                                        syncId: section.label,
+                                                    }}
+                                                    data-sync-id={section.label}
+                                                    class="text-area"
+                                                    class:edit={isEditing}
+                                                    placeholder={field.placeholder}
+                                                    value={getValue(
                                                         char,
-                                                        field.key,
-                                                        e.target.value
+                                                        field.key
                                                     )}
-                                                onfocus={() => {
-                                                    if (isEditing) {
+                                                    oninput={(e) =>
+                                                        setValue(
+                                                            char,
+                                                            field.key,
+                                                            e.target.value
+                                                        )}
+                                                    onfocus={() => {
                                                         activeField = {
                                                             key: field.key,
                                                             label:
                                                                 field.label ||
                                                                 section.label,
                                                         }
-                                                    }
-                                                }}
-                                                tabindex={isEditing ? 0 : -1}
-                                                readonly={!isEditing ||
-                                                    busyField === field.key}
-                                                disabled={busyField ===
-                                                    field.key}
-                                                onwheel={(e) => {
-                                                    const target =
-                                                        e.currentTarget
-                                                    const isScrollable =
-                                                        target.scrollHeight >
-                                                        target.clientHeight
-                                                    if (isScrollable) {
-                                                        e.stopPropagation()
-                                                    }
-                                                }}
-                                            ></textarea>
+                                                    }}
+                                                    disabled={busyField ===
+                                                        field.key}
+                                                ></textarea>
+                                            {:else}
+                                                <div
+                                                    class="text-area readonly"
+                                                    class:muted-info={!getValue(
+                                                        char,
+                                                        field.key
+                                                    )}
+                                                    data-sync-id={section.label}
+                                                >
+                                                    {@html renderMarkdown(
+                                                        getValue(
+                                                            char,
+                                                            field.key
+                                                        ) || "Record undefined."
+                                                    )}
+                                                </div>
+                                            {/if}
                                         </div>
                                     {/each}
                                 </div>
@@ -621,6 +638,21 @@
                         outline: none;
                     }
                 }
+
+                &.readonly {
+                    pointer-events: auto;
+                    white-space: pre-wrap;
+
+                    :global(strong) {
+                        font-weight: 800;
+                        color: white;
+                    }
+
+                    :global(em) {
+                        font-style: italic;
+                        opacity: 0.9;
+                    }
+                }
             }
 
             .content {
@@ -650,21 +682,30 @@
 
                         h2 {
                             margin: 0;
-                            font-size: 1.2rem; /* Promoted from 1rem */
+                            font-size: 1.2rem;
                             font-weight: 700;
-                            color: var(--signature-color);
+                            /* Luminance Boosting: Mix with white for visibility on dark hulls */
+                            color: color-mix(
+                                in srgb,
+                                var(--signature-color),
+                                white 40%
+                            );
                             text-transform: uppercase;
                             text-shadow:
-                                0 0 15px rgba(var(--signature-rgb), 0.6),
-                                0 2px 4px rgba(0, 0, 0, 0.8);
+                                0 2px 4px rgba(0, 0, 0, 0.9),
+                                0 0 10px rgba(var(--signature-rgb), 0.3);
                             display: inline-block;
                         }
 
                         p {
                             margin: 0;
-                            font-size: 0.8rem;
-                            color: rgba(255, 255, 255, 0.9);
-                            font-weight: 500;
+                            font-size: 0.7rem;
+                            color: white;
+                            font-weight: 700;
+                            opacity: 0.8;
+                            text-transform: uppercase;
+                            letter-spacing: 0.1em;
+                            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
                         }
                     }
 
@@ -690,16 +731,20 @@
                         gap: var(--spacing-xxs);
 
                         .field-label {
-                            font-size: 0.85rem; /* Increased from 0.65rem */
+                            font-size: 0.8rem;
                             font-weight: 800;
                             text-transform: uppercase;
-                            color: var(--signature-color);
-                            opacity: 1; /* Removed opacity 0.8 */
+                            /* Luminance Boosting: High contrast for Physical/Mental labels */
+                            color: color-mix(
+                                in srgb,
+                                var(--signature-color),
+                                white 50%
+                            );
+                            opacity: 1;
                             margin-left: 2px;
                             text-align: center;
-                            text-shadow: 0 0 10px
-                                rgba(var(--signature-rgb), 0.5); /* Added Glow */
-                            margin-bottom: 4px; /* Breathing room */
+                            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+                            margin-bottom: 4px;
                         }
 
                         .text-area {
@@ -720,7 +765,7 @@
                             line-height: 1.2;
                             transition: all 0.2s;
                             cursor: default;
-                            pointer-events: none;
+                            pointer-events: auto; /* Enable scrolling */
                             text-wrap-style: pretty;
 
                             /* --- View Mode (Readonly but not busy) --- */
@@ -740,6 +785,7 @@
                                 background: rgba(0, 0, 0, 0.3);
                                 color: var(--app-muted);
                                 border: 1px dashed rgba(255, 255, 255, 0.1);
+                                pointer-events: none; /* Lock interaction during generation/busy */
                             }
 
                             &.edit:not(:disabled) {
@@ -755,6 +801,31 @@
 
                             &.muted-info {
                                 @extend %muted-ghost;
+                            }
+
+                            &.readonly {
+                                white-space: pre-wrap;
+                                pointer-events: auto;
+                                min-height: 4rem;
+                                max-height: 24rem; /* Parity for scrolling */
+                                overflow-y: auto; /* Parity for scrolling */
+                                display: block;
+
+                                :global(strong) {
+                                    font-weight: 800;
+                                    color: white;
+                                    text-shadow: 0 0 10px
+                                        rgba(var(--signature-rgb), 0.3);
+                                }
+
+                                :global(em) {
+                                    font-style: italic;
+                                    color: color-mix(
+                                        in srgb,
+                                        var(--signature-color),
+                                        white 80%
+                                    );
+                                }
                             }
                         }
                     }

@@ -9,7 +9,15 @@
 </script>
 
 <label class="toggle-switch" class:disabled class:sm={size === "sm"}>
-    <input type="checkbox" bind:checked={value} {disabled} {onchange} />
+    <input
+        type="checkbox"
+        bind:checked={value}
+        {disabled}
+        {onchange}
+        data-testid={label
+            ? `${label.toLowerCase().replace(/\s+/g, "-")}-toggle`
+            : undefined}
+    />
     <span class="slider"></span>
     {#if label}
         <span class="label-text">{label}</span>

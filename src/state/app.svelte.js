@@ -151,10 +151,6 @@ export class AppStore {
         ]
         // Random selection for now
         // TODO: Connect to AI generator
-        console.log(
-            "Rerolling Title:",
-            titles[Math.floor(Math.random() * titles.length)]
-        )
     }
 
     // Drawer Actions

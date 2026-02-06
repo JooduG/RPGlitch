@@ -609,7 +609,8 @@
             text-transform: capitalize;
             letter-spacing: 0.05em;
             color: var(--app-muted);
-            opacity: 0.6; /* Hierarchy fix: Dim labels like DevWing */
+            opacity: 0.9;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
             transition: all 0.2s ease;
 
             &:hover {

@@ -20,7 +20,7 @@
         <Button
             className="capsule-flank icon-glow"
             variant="ghost"
-            onclick={storyboard.shuffle}
+            onclick={() => storyboard.shuffle()}
             aria-label="Shuffle All"
             title="Randomize Entities"
             actions={[shimmy]}
@@ -39,6 +39,7 @@
             onclick={app.toggleControlPanel}
             aria-label="Settings"
             title="Open Control Panel"
+            data-testid="settings-button"
             actions={[spin]}
         >
             <svg viewBox="0 0 24 24" class="icon-small">
@@ -58,21 +59,14 @@
             actions={[pulse]}
         >
             <div class="core-content">
-                {#if readyToBegin}
-                    <span class="label">Begin Story</span>
-                {:else}
-                    <span class="label">Begin Story</span>
-                {/if}
+                <span class="label">Begin Story</span>
             </div>
-
-            <div class="illumination"></div>
         </Button>
     </div>
 </div>
 
 <style lang="scss">
     @use "@theme/abstracts/variables" as *;
-    @use "@theme/abstracts/surfaces" as *;
 
     .pill-container {
         display: flex;
@@ -97,47 +91,24 @@
         box-shadow: var(--shadow-l);
     }
 
-    /* --- Universal Icon Glow --- */
-    :global(.icon-glow:hover .icon-small) {
-        filter: drop-shadow(0 0 8px rgba($white, $opacity-s));
-        color: $white;
-        transition: all 0.2s ease;
-    }
-
-    /* --- Animation 3: "Green for Go" (for Begin) --- */
-    :global(.capsule-action.pop) {
-        transition: all 0.3s ease;
-        margin-right: 15px;
-    }
-
-    :global(.capsule-action.pop:hover) {
+    /* --- Scoped UI Overrides --- */
+    :global(.unified-capsule .btn) {
         background: transparent;
+        filter: none;
+        transition: all var(--transition-speed, 0.2s) ease-out;
     }
 
-    /* Green Hover Effect */
-    :global(.capsule-action.pop:hover .label) {
-        color: $color-success; /* Compliance Fix: System Emerald */
-        text-shadow: 0 0 12px rgba($color-success, $opacity-m);
-        letter-spacing: 0.1em;
-    }
-
-    /* Override Button Defaults to kill background hover */
-    :global(.capsule-flank:hover),
-    :global(.capsule-action:hover) {
+    :global(.unified-capsule .btn:hover:not(:disabled)) {
         background: transparent;
-    }
-
-    /* Ensure icons reset nicely */
-    .icon-small {
-        width: var(--spacing-l);
-        height: var(--spacing-x);
-        transition:
-            transform 0.3s ease,
-            filter 0.3s ease;
+        filter: none;
+        color: #fff;
+        opacity: 1;
+        transform: none; /* Prevent jitter from global translateY */
+        --label-color: #fff; /* Inject white color to children */
     }
 
     /* Flank Buttons (Shuffle/Settings) */
-    :global(.capsule-flank.btn) {
+    :global(.unified-capsule .capsule-flank.btn) {
         flex: 0 0 3.5rem;
         width: 3.5rem;
         height: 100%;
@@ -147,11 +118,16 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: rgba(255, 255, 255, var(--opacity-l)); /* Increased visibility */
+        color: rgba(255, 255, 255, var(--opacity-l));
+    }
+
+    :global(.unified-capsule .capsule-flank.btn:hover svg) {
+        fill: #fff;
+        stroke: #fff;
     }
 
     /* Primary Action Button (Begin) */
-    :global(.capsule-action.btn) {
+    :global(.unified-capsule .capsule-action.btn) {
         height: 100%;
         min-width: 130px;
         border: none;
@@ -162,11 +138,25 @@
         margin-right: 10px;
         padding: 0.5rem;
         opacity: 0.5;
+    }
 
-        &:disabled {
-            opacity: 0.2;
-            cursor: not-allowed;
-        }
+    :global(.unified-capsule .capsule-action.btn:disabled) {
+        opacity: 0.2;
+        cursor: not-allowed;
+    }
+
+    /* Extra Label Polish */
+    :global(.unified-capsule .capsule-action.btn:hover) .label {
+        text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+    }
+
+    /* Ensure icons reset nicely */
+    .icon-small {
+        width: var(--spacing-l);
+        height: var(--spacing-x);
+        transition:
+            transform 0.3s ease,
+            filter 0.3s ease;
     }
 
     .core-content {
@@ -183,27 +173,8 @@
         font-size: 0.85rem;
         letter-spacing: 0.05em;
         /* text-transform: uppercase; Removed per Compliance */
-        color: var(--app-color);
+        color: var(--label-color, var(--app-color));
         text-shadow: var(--rp-text-shadow);
         transition: all 0.3s ease;
-    }
-
-    .illumination {
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(
-            circle at center,
-            color-mix(
-                in srgb,
-                var(--app-success),
-                transparent calc(var(--opacity-l) * 100%)
-            ),
-            transparent calc(var(--opacity-l) * 100%)
-        );
-        opacity: 0;
-        transform: scale(0.8);
-        transition: all 0.4s ease;
-        z-index: 1;
-        pointer-events: none;
     }
 </style>

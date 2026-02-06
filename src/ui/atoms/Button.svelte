@@ -5,7 +5,8 @@
         size = "md", // sm | md
         className = "", // Allow local overrides (use className="..." when calling)
         children = null, // For icons/complex content
-        ...restProps // Pass through onclick, disabled, etc.
+        onclick = null,
+        ...restProps // Pass through disabled, etc.
     } = $props()
 
     let element
@@ -45,6 +46,7 @@
     bind:this={element}
     class="btn btn-{variant} {size === 'sm' ? 'btn-sm' : ''} {className}"
     {...restProps}
+    {onclick}
     use:applyActions={restProps.actions || []}
 >
     {#if children}

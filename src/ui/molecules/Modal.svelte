@@ -59,6 +59,16 @@
             }
         }}
     >
+        {#if onclose}
+            <button
+                class="close-btn"
+                onclick={onclose}
+                aria-label="Close"
+                data-testid="close-modal"
+            >
+                ×
+            </button>
+        {/if}
         {@render children()}
     </div>
 </div>
@@ -128,6 +138,28 @@
             justify-content: center;
             align-items: center;
             overflow: visible;
+        }
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: none;
+        border: none;
+        color: var(--zinc-400);
+        font-size: 1.5rem;
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        transition: color 0.2s;
+
+        &:hover {
+            color: var(--zinc-100);
         }
     }
 </style>

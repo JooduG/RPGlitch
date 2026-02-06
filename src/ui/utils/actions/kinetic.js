@@ -7,9 +7,9 @@
  */
 
 // --- Constants ---
-const SHIMMY_DEG = 2 // +/- degrees
+const SHIMMY_DEG = 45 // 12 to 3 swing
 const PULSE_SCALE = 1.05
-const SHIMMY_DURATION = 200 // ms
+const SHIMMY_DURATION = 300 // ms
 const SPIN_DURATION = 400 // ms
 const EASE_ELASTIC = "cubic-bezier(0.34, 1.56, 0.64, 1)"
 const EASE_SMOOTH = "ease-in-out"
@@ -25,22 +25,17 @@ export function shimmy(node) {
     function trigger() {
         if (animation) animation.cancel()
 
-        // Keyframes for the twitch
+        // Keyframes for the "Jazz Hands" (12 to 3)
         const keyframes = [
-            { transform: "rotate(0deg)" },
-            { transform: `rotate(${SHIMMY_DEG}deg)` },
-            { transform: `rotate(-${SHIMMY_DEG}deg)` },
-            { transform: `rotate(${SHIMMY_DEG / 2}deg)` },
-            { transform: "rotate(0deg)" },
+            { transform: "rotate(0deg)", offset: 0 },
+            { transform: `rotate(${SHIMMY_DEG}deg)`, offset: 0.5 },
+            { transform: "rotate(0deg)", offset: 1 },
         ]
 
         animation = node.animate(keyframes, {
-            duration: SHIMMY_DURATION * 2, // 400ms total
+            duration: SHIMMY_DURATION,
             easing: EASE_SMOOTH,
-            iterations: Infinity, // "Nervous energy" implies continuous or loop?
-            // The prompt said "The Twitch (Subtle nervous energy)".
-            // Usually hover effects loop. Let's verify if it should loop on hover.
-            // In the original CSS it was "animation: twitch 0.4s ease-in-out infinite;"
+            iterations: Infinity,
         })
     }
 

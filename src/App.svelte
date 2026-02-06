@@ -52,9 +52,7 @@
 
         <!-- GLOBAL: Control Panel (Settings / Admin) -->
         {#if app.controlPanelOpen}
-            <div class="modal-overlay">
-                <ControlPanel />
-            </div>
+            <ControlPanel />
         {/if}
 
         <!-- TELEMETRY HUD (Only visible in Dev Mode AND when Control Panel is Open) -->
@@ -156,17 +154,6 @@
         @media (max-width: 1024px) {
             display: none; /* Hide HUD on mobile/small screens */
         }
-    }
-
-    .modal-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgb(0 0 0 / var(--opacity-l));
-        backdrop-filter: blur(var(--blur-m));
-        z-index: 150;
-        display: flex;
-        justify-content: center;
-        align-items: center;
     }
 
     .swap-view-trigger {

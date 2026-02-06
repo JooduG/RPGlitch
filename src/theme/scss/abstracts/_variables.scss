@@ -13,22 +13,22 @@
 
 // Warm Colors
 $signature-red: #ef4444;
-$signature-rose: #f43f5e;
+$signature-rose: #fb7185;
 $signature-orange: #f97316;
-$signature-amber: #f59e0b;
-$signature-yellow: #eab308;
+$signature-amber: #fbbf24;
+$signature-yellow: #fde047;
 
 // Nature Colors
 $signature-lime: #84cc16;
+$signature-forest: #15803d;
 $signature-emerald: #10b981;
-$signature-cyan: #06b6d4;
-$signature-sky: #0ea5e9;
+$signature-cyan: #11aecc;
 $signature-teal: #14b8a6;
 
 // Cool Colors
 $signature-blue: #3b82f6;
-$signature-indigo: #6366f1;
-$signature-violet: #8b5cf6;
+$signature-indigo: #818cf8;
+$signature-violet: #c084fc;
 $signature-purple: #a855f7;
 $signature-pink: #ec4899;
 
@@ -55,6 +55,9 @@ $signature-colors: (
     "lime": (
         "color": $signature-lime
     ),
+    "forest": (
+        "color": $signature-forest
+    ),
     "emerald": (
         "color": $signature-emerald
     ),
@@ -63,9 +66,6 @@ $signature-colors: (
     ),
     "cyan": (
         "color": $signature-cyan
-    ),
-    "sky": (
-        "color": $signature-sky
     ),
     "blue": (
         "color": $signature-blue

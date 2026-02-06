@@ -328,7 +328,8 @@
                 color: var(--app-muted);
                 font-weight: 700;
                 letter-spacing: 0.05em;
-                opacity: 0.5;
+                opacity: 0.9;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
             }
 
             .value-container {
@@ -577,6 +578,7 @@
             cursor: pointer;
             font-size: 0.75rem;
             color: rgba(255, 255, 255, 0.8);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
             padding: 4px 0;
 
             .switch {
