@@ -2,6 +2,12 @@
 
 ## 🚀 Active Tracks
 
+## [x] Track: StoryMode Restoration
+
+- Path: .agent/tasks/storymode-restoration/
+- Status: Complete
+- Note: Restored cinematic layout with mobile split-header, dynamic signature color overlays.
+
 ## ✅ Track: Control Panel Redesign
 
 - Path: .agent/archive/control-panel-redesign/

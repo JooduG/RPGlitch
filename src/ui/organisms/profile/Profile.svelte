@@ -63,7 +63,7 @@
 
     $effect(() => {})
     let isSaving = $state(false)
-    let busyField = $state(null)
+    let busyFields = $state(new Set())
     let activeField = $state({ key: "visual-prompt", label: "Image Prompt" })
 
     // Character data
@@ -153,7 +153,7 @@
                 (active instanceof HTMLElement &&
                     active.contentEditable === "true")
             const isWing = active?.closest(".wing-left, .wing-right")
-            if (!isInput && !isWing && !busyField) {
+            if (!isInput && !isWing && busyFields.size === 0) {
                 activeField = { key: "visual-prompt", label: "Image Prompt" }
             }
         }, 50)
@@ -203,7 +203,7 @@
             <ProfileWings
                 bind:char
                 {isEditing}
-                bind:busyField
+                bind:busyFields
                 bind:activeField
             />
 
@@ -228,8 +228,9 @@
                         {getValue}
                         {setValue}
                         {autoResize}
-                        {busyField}
+                        {busyFields}
                         {renderMarkdown}
+                        bind:activeField
                     />
                     <ProfileFooter
                         bind:isEditing

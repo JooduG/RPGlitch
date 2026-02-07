@@ -89,7 +89,7 @@
         color: white;
         text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 
-        // Premium Mesh Gradient
+        /* Premium Mesh Gradient */
         background-color: var(--signature-color);
         background-image:
             radial-gradient(

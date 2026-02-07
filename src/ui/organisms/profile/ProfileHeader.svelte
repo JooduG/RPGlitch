@@ -123,6 +123,7 @@
         background: transparent;
         border: 1px solid transparent;
         resize: none;
+        text-align: left;
 
         &.muted-info {
             @extend %muted-ghost;

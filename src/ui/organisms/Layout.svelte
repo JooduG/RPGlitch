@@ -109,9 +109,11 @@
             grid-template-columns: 1fr;
             grid-template-rows: min-content 1fr min-content;
 
-            .stage-column--side {
+            /* Standard Mode: Hide sides */
+            &:not(.layout-cinematic) .stage-column--side {
                 display: none;
             }
+
             .stage-header,
             .stage-footer {
                 grid-column: 1 / -1;
@@ -121,6 +123,42 @@
             }
             .stage-column--center {
                 grid-column: 1 / -1;
+            }
+
+            /* Cinematic Mode: Stacked Header */
+            &.layout-cinematic {
+                grid-template-columns: 1fr 1fr;
+                /* Header, Panels (Fixed Height), Content, Footer */
+                grid-template-rows: min-content 25vh 1fr min-content;
+                
+                .stage-header {
+                    grid-row: 1;
+                }
+
+                .stage-column--side {
+                    display: flex;
+                    grid-row: 2;
+                    height: 100%; /* Fill the 25vh row */
+                    overflow: hidden;
+                }
+
+                .stage-column.left {
+                    grid-column: 1 / 2;
+                    border-right: 1px solid rgba(255,255,255,0.1);
+                }
+
+                .stage-column.right {
+                    grid-column: 2 / 3;
+                }
+
+                .stage-column--center {
+                    grid-column: 1 / -1;
+                    grid-row: 3;
+                }
+
+                .stage-footer {
+                    grid-row: 4;
+                }
             }
         }
     }

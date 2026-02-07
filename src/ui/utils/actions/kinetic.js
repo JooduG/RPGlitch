@@ -161,3 +161,54 @@ export function spin(node) {
         },
     }
 }
+
+/**
+ * Stab Action
+ * A quick horizontal thrust.
+ * Usage: use:stab
+ */
+export function stab(node) {
+    const targetSelector = "svg"
+    const DISTANCE = 5 // px
+    let animation
+
+    function getTarget() {
+        return node.querySelector(targetSelector) || node
+    }
+
+    function trigger() {
+        if (animation) animation.cancel()
+        const target = getTarget()
+
+        // Keyframes: Start -> Thrust Right -> Return
+        const keyframes = [
+            { transform: "translateX(0)", offset: 0 },
+            { transform: `translateX(${DISTANCE}px)`, offset: 0.2 }, // Fast out (20% of time)
+            { transform: "translateX(0)", offset: 1 }, // Slow return (80% of time)
+        ]
+
+        animation = target.animate(keyframes, {
+            duration: 600,
+            easing: "ease-out",
+            iterations: Infinity,
+        })
+    }
+
+    function cleanup() {
+        if (animation) {
+            animation.cancel()
+            animation = null
+        }
+    }
+
+    node.addEventListener("mouseenter", trigger)
+    node.addEventListener("mouseleave", cleanup)
+
+    return {
+        destroy() {
+            cleanup()
+            node.removeEventListener("mouseenter", trigger)
+            node.removeEventListener("mouseleave", cleanup)
+        },
+    }
+}

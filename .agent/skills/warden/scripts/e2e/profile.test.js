@@ -21,15 +21,17 @@ test.describe("Profile Component Refactor", () => {
         // Give the bootstrap logic a moment to persist data to Dexie
         await page.waitForTimeout(1000)
 
-        // Wait for at least one card-top to be visible (populated state)
-        console.log("Test: Waiting for .card-top in beforeEach...")
+        // Wait for at least one storyboard card to be visible (always renders)
+        console.log("Test: Waiting for storyboard-card in beforeEach...")
         try {
-            await expect(page.locator(".card-top").first()).toBeVisible({
+            await expect(
+                page.getByTestId("storyboard-card").first()
+            ).toBeVisible({
                 timeout: 30000,
             })
-            console.log("Test: .card-top found!")
+            console.log("Test: storyboard-card found!")
         } catch (e) {
-            console.error("Test: FAILED to find .card-top after 30s")
+            console.error("Test: FAILED to find storyboard-card after 30s")
             await page.screenshot({ path: "beforeEach_failure.png" })
             throw e
         }
@@ -91,13 +93,27 @@ test.describe("Profile Component Refactor", () => {
         if (!isChecked) {
             await devModeLabel.click({ force: true })
         }
-        await page.getByTestId("close-modal").click({ force: true })
-        await expect(page.getByTestId("cockpit-panel")).toBeHidden()
+        // Close modal via Escape key (modal has onclose handler but no close button)
+        await page.keyboard.press("Escape")
+        await expect(page.getByTestId("cockpit-panel")).toBeHidden({
+            timeout: 5000,
+        })
+
+        // Populate cards via Shuffle button (cards are empty by default)
+        console.log("Test: Clicking Shuffle All to populate cards...")
+        await page
+            .getByRole("button", { name: "Shuffle All" })
+            .click({ force: true })
+        await page.waitForTimeout(500) // Allow state to propagate
 
         // Open profile
         console.log("Test: Waiting for storyboard card...")
         const card = page.getByTestId("storyboard-card").first()
         await expect(card).toBeVisible({ timeout: 10000 })
+
+        // Wait for populated state (card-top only exists when entity is selected)
+        console.log("Test: Waiting for populated .card-top...")
+        await expect(card.locator(".card-top")).toBeVisible({ timeout: 10000 })
 
         console.log("Test: Clicking card top...")
         await card.locator(".card-top").click({ force: true })

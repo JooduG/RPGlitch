@@ -7,8 +7,9 @@
         getValue,
         setValue,
         autoResize,
-        busyField,
+        busyFields,
         renderMarkdown,
+        activeField = $bindable(),
     } = $props()
 </script>
 
@@ -38,7 +39,13 @@
                                 value={getValue(char, field.key)}
                                 oninput={(e) =>
                                     setValue(char, field.key, e.target.value)}
-                                disabled={busyField === field.key}
+                                disabled={busyFields.has(field.key)}
+                                onfocus={() => {
+                                    activeField = {
+                                        key: field.key,
+                                        label: field.label || section.label,
+                                    }
+                                }}
                             ></textarea>
                         {:else}
                             <div
@@ -163,6 +170,7 @@
                     transition: all 0.2s;
                     cursor: default;
                     pointer-events: auto;
+                    text-align: left;
                     text-wrap-style: pretty;
 
                     &:read-only {

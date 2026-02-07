@@ -79,6 +79,8 @@ export const AppBootstrap = {
             )
             if (target) {
                 console.info("[Bootstrap] Calling mount()...")
+                // Clear the static boot illusion before mounting
+                target.innerHTML = ""
                 mount(App, { target })
                 console.info("[Bootstrap] ⚒️ Artificer UI Mounted.")
             } else {

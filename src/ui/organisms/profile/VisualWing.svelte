@@ -8,9 +8,12 @@
     let {
         char = $bindable(),
         isEditing,
-        busyField = $bindable(),
+        busyFields = $bindable(),
         activeField = $bindable(),
     } = $props()
+
+    // Derived: Check if the visual-prompt specifically is busy
+    let isPromptBusy = $derived(busyFields.has("visual-prompt"))
 
     let fileInput = $state()
 
@@ -50,19 +53,25 @@
     )
 
     // Button Logic:
-    // User Requirement: "when no field is selected the enhance button should not be enabled"
-    // Button Logic:
-    // 1. Busy -> Disabled
-    // 2. Active Field -> Enabled (Enhance Mode)
-    // 3. No Field + Text -> Disabled (Protect Prompt)
-    // 4. No Field + No Text -> Enabled (Extract Mode)
+    // User Requirement: Allow multiple trait fields to be enhanced simultaneously.
+    // Buttons should only be disabled when:
+    // 1. Not editing
+    // 2. visual-prompt is busy AND (no field selected OR visual-prompt is selected)
+    // If a trait field is selected, buttons are enabled (even if prompt is busy)
     let isCreativeDisabled = $derived(
-        !isEditing || !!busyField || (!activeField && hasPromptText) // Disable only if we have text but no target (Protect)
+        !isEditing ||
+            (isPromptBusy &&
+                (!activeField || activeField.key === "visual-prompt")) ||
+            (!activeField && hasPromptText) // Protect: no target but text exists
     )
 
     // Label Logic:
     let creativeLabel = $derived.by(() => {
-        if (busyField) return "Busy..."
+        if (
+            isPromptBusy &&
+            (!activeField || activeField.key === "visual-prompt")
+        )
+            return "Busy..."
 
         // If we have an active field, we map to specific "Enhance X" labels
         if (activeField) {
@@ -100,53 +109,57 @@
     let generationVariant = $derived(hasPromptText ? "magic" : "tech")
 
     async function handleCreativeAction() {
-        if (busyField) return
+        // If the specific target is already busy, don't proceed
+        const currentTargetKey = activeField?.key || "visual-prompt"
+        if (busyFields.has(currentTargetKey)) return
 
-        // Fix: Determine key safely. If no activeField, we don't have a key yet.
-        const currentTargetKey = activeField?.key
-
-        // If we have a target key, we mark it busy. If pure extraction, mark prompt busy.
-        busyField = currentTargetKey || "visual-prompt"
+        // Mark this field as busy
+        busyFields = new Set([...busyFields, currentTargetKey])
 
         try {
-            if (activeField && isEnhanceMode) {
-                // --- ENHANCE LOGIC (AI Optimization) ---
-                if (enhancementType === "generative") {
-                    // Optimize prompt for Image Gen
-                    const result = await LlmService.optimizeImagePrompt(
-                        char.visuals.prompt
-                    )
-                    if (result) char.visuals.prompt = result
-                } else {
-                    // Optimize specific dossier field
-                    const fieldVal = getValue(char, currentTargetKey)
-                    if (fieldVal) {
-                        const result = await LlmService.enhanceStoryField(
-                            fieldVal,
-                            activeField.label
-                        )
-                        if (result) setValue(char, currentTargetKey, result)
-                    }
-                }
+            // Capture the label before we potentially nullify activeField
+            const fieldLabel = activeField?.label
 
-                // Deselect field after successful enhancement
-                activeField = { key: "visual-prompt", label: "Image Prompt" }
+            // Deselect field immediately when enhancement starts (so button label changes)
+            // But only for trait fields, not for visual-prompt
+            if (activeField && activeField.key !== "visual-prompt") {
+                activeField = null
+            }
+
+            if (currentTargetKey === "visual-prompt" && isEnhanceMode) {
+                // --- ENHANCE PROMPT (for Image Gen) ---
+                const result = await LlmService.optimizeImagePrompt(
+                    char.visuals.prompt
+                )
+                if (result) char.visuals.prompt = result
+            } else if (currentTargetKey !== "visual-prompt") {
+                // --- ENHANCE TRAIT FIELD ---
+                const fieldVal = getValue(char, currentTargetKey)
+                if (fieldVal) {
+                    const result = await LlmService.enhanceStoryField(
+                        fieldVal,
+                        fieldLabel
+                    )
+                    if (result) setValue(char, currentTargetKey, result)
+                }
             } else {
                 // --- EXTRACT LOGIC (Base Formula) ---
-                // Only reachable if activeField is null (or prompt is empty but that button disables)
-                // We overwrite with composed prompt.
+                // Only reachable if visual-prompt is selected but empty (no enhance mode)
                 char.visuals.prompt = TextToImage.composeBasePrompt(char)
             }
         } catch (err) {
             console.error("Creative action failed:", err)
         } finally {
-            busyField = null
+            // Remove this field from busy set
+            const updated = new Set(busyFields)
+            updated.delete(currentTargetKey)
+            busyFields = updated
         }
     }
 
     async function handleGenerationAction() {
-        if (busyField) return
-        busyField = "visual-prompt"
+        if (busyFields.has("visual-prompt")) return
+        busyFields = new Set([...busyFields, "visual-prompt"])
 
         if (hasPromptText) {
             // --- GENERATE LOGIC ---
@@ -158,12 +171,16 @@
             } catch (err) {
                 console.error("Generation failed:", err)
             } finally {
-                busyField = null
+                const updated = new Set(busyFields)
+                updated.delete("visual-prompt")
+                busyFields = updated
             }
         } else {
             // --- UPLOAD LOGIC ---
             fileInput.click()
-            busyField = null
+            const updated = new Set(busyFields)
+            updated.delete("visual-prompt")
+            busyFields = updated
         }
     }
 
@@ -300,7 +317,7 @@
                     class="visual-prompt"
                     bind:value={char.visuals.prompt}
                     placeholder="Enter image prompt or paste a URL..."
-                    disabled={!isEditing || busyField === "visual-prompt"}
+                    disabled={!isEditing || isPromptBusy}
                     onfocus={() => {
                         if (isEditing) {
                             activeField = {
@@ -330,7 +347,7 @@
                         }, 150)
                     }}
                 ></textarea>
-                {#if busyField === "visual-prompt"}
+                {#if isPromptBusy}
                     <div class="spinner-overlay">
                         <div class="spinner"></div>
                     </div>
@@ -349,14 +366,14 @@
                 <Button
                     variant="ghost"
                     size="sm"
-                    label={busyField
+                    label={isPromptBusy
                         ? "Busy..."
                         : hasPromptText
                           ? "Generate"
                           : "Upload"}
                     className="action-btn mode-{generationVariant}"
                     onclick={handleGenerationAction}
-                    disabled={!isEditing || busyField}
+                    disabled={!isEditing || isPromptBusy}
                 />
             </div>
 

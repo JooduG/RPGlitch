@@ -4,8 +4,10 @@
  * Assembles the raw state of the world into structured prompts for the AI.
  */
 
+import { state } from "@core/engine/bus.js"
+import { ROLES } from "@core/engine/config.js"
 import { entities } from "@data/repository.js"
-import { Sensory } from "@media/sensory.js"
+
 import { Screenplay, templateConsult, templateEcho } from "./prose.js"
 
 export class ContextBuilder {
@@ -45,7 +47,8 @@ export class ContextBuilder {
         }
 
         // Variance & Visuals Delegation
-        const visualsAuthorized = Warden.authorizeVisuals(instruction, options)
+        // [STUB] Warden.authorizeVisuals not yet implemented - default to true
+        const visualsAuthorized = options.allowVisuals ?? true
 
         const system = Screenplay.standard(
             ai,

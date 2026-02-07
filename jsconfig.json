@@ -15,7 +15,8 @@
             "@media/*": ["src/media/*"],
             "@scholar/*": ["src/data/*"]
         },
-        "lib": ["esnext", "dom", "dom.iterable"]
+        "lib": ["esnext", "dom", "dom.iterable"],
+        "allowArbitraryExtensions": true
     },
     "include": ["src/**/*", "types.d.ts"],
     "exclude": [

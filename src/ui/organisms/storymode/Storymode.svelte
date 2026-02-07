@@ -39,7 +39,7 @@
         {#snippet footer()}{/snippet}
         <!-- LEFT: AI Companion (Full Bleed) -->
         {#snippet left()}
-            <StorymodePanel entity={app.selectedAi} mode="full" />
+            <StorymodePanel entity={app.selectedAi} side="left" />
         {/snippet}
 
         <!-- CENTER: Feed & Input -->
@@ -102,7 +102,7 @@
 
         <!-- RIGHT: User Persona (Full Bleed) -->
         {#snippet right()}
-            <StorymodePanel entity={app.selectedUser} mode="full" />
+            <StorymodePanel entity={app.selectedUser} side="right" />
         {/snippet}
     </Layout>
 </div>
@@ -111,7 +111,7 @@
     .storymode-container {
         width: 100%;
         height: 100%;
-        background: #09090b; /* Deep sync with cinemtaic feel */
+        background: inherit; /* Inherit radial gradient from body */
     }
 
     .game-stage {
@@ -120,7 +120,6 @@
         display: flex;
         flex-direction: column;
         position: relative;
-        background: #000;
     }
 
     .feed-scroll {
@@ -155,11 +154,6 @@
     .input-container {
         flex-shrink: 0;
         width: 100%;
-        background: linear-gradient(
-            to top,
-            #000 80%,
-            transparent
-        ); /* Blend with chat */
         padding-bottom: 0; /* InputBar likely has its own padding */
         z-index: 10;
     }
