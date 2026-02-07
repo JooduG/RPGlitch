@@ -4,10 +4,7 @@
  */
 
 import { describe, expect, test } from "vitest"
-import {
-    PALETTE,
-    themeStore,
-} from "../../../../../src/theme/visuals/theme.svelte.js"
+import { PALETTE, themeStore } from "../../../../../src/theme/palette.svelte.js"
 
 describe("ThemeStore Color Generation", () => {
     const getSignature = (e) => themeStore.getSignatureColor(e)

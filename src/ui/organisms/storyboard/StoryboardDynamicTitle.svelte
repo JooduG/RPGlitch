@@ -1,6 +1,6 @@
 <script>
-    import { themeStore } from "@mesmer/visuals/theme.svelte.js"
     import { app } from "@state/app.svelte.js"
+    import { themeStore } from "@theme/palette.svelte.js"
 
     // ============================================
     // LOCAL STATE (Component-Owned)
@@ -158,7 +158,7 @@
     ondblclick={handleDblClick}
 >
     <span class="title-content">
-        {#each titleParts as part (part.text)}
+        {#each titleParts as part, i (i)}
             {#if part.color}
                 <span class="entity-name" style="color: {part.color}"
                     >{part.text}</span

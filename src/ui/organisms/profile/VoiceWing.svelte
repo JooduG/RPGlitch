@@ -1,5 +1,5 @@
 <script>
-    import { Mesmer } from "@mesmer/index.js"
+    import { Sensory } from "@media/sensory.js"
     import Tooltip from "@ui/atoms/Tooltip.svelte"
 
     let { char = $bindable(), isEditing } = $props()
@@ -51,7 +51,7 @@
 
     // Voice metadata
     const selectedVoice = $derived(
-        Mesmer.voice.voices.find((v) => v.uri === char.voice.uri)
+        Sensory.voice.voices.find((v) => v.uri === char.voice.uri)
     )
     const isNaturalVoice = $derived(selectedVoice?.name.includes("Natural"))
 
@@ -79,12 +79,12 @@
                 onclick={() => (showVoiceDropdown = !showVoiceDropdown)}
             >
                 {formatVoiceName(
-                    Mesmer.voice.voices.find((v) => v.uri === char.voice.uri)
+                    Sensory.voice.voices.find((v) => v.uri === char.voice.uri)
                         ?.name || "Select Voice"
                 )}
             </button>
             <div class="dropdown-content" class:visible={showVoiceDropdown}>
-                {#each Mesmer.voice.voices as voice (voice.uri)}
+                {#each Sensory.voice.voices as voice (voice.uri)}
                     <button
                         class="voice-option"
                         class:active={char.voice.uri === voice.uri}
@@ -108,7 +108,7 @@
             title="Preview Voice"
             disabled={!isEditing || !char.voice.uri}
             onclick={() =>
-                Mesmer.voice.preview(
+                Sensory.voice.preview(
                     char.voice.uri,
                     char.voice.rate,
                     char.voice.pitch
@@ -184,7 +184,7 @@
 </div>
 
 <style lang="scss">
-    @use "@theme/abstracts/placeholders" as *;
+    @use "../../../theme/abstracts/placeholders" as *;
 
     .voice-wing-content {
         @extend %material-glass-heavy;

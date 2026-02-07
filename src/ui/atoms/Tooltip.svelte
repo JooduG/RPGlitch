@@ -1,5 +1,5 @@
 <script>
-    import { portal } from "@ui/actions/portal.js"
+    import { portal } from "@ui/utils/actions/portal.js"
     import { cubicOut } from "svelte/easing"
     import { scale } from "svelte/transition"
 

@@ -1,6 +1,6 @@
 // ⚒️ ARTIFICER: UI State Manager
-import { themeStore } from "@mesmer/visuals/theme.svelte.js"
 import { openLightbox } from "@state/lightbox.svelte.js"
+import { themeStore } from "@theme/palette.svelte.js"
 
 export class AppStore {
     initialized = false

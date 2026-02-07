@@ -1,5 +1,5 @@
 <script>
-    import { Session } from "@core/session/session.js"
+    import { Session } from "@core/engine/session.js"
     import Button from "@ui/atoms/Button.svelte"
 
     let { disabled = false } = $props()

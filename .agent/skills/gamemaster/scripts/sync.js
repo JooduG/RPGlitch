@@ -170,11 +170,8 @@ function syncMcp() {
  */
 function syncColors() {
     robotLog("\n🎨 Syncing Chalk Regime Colors...")
-    const configPath = path.join(REPO_ROOT, "src/core/session/config.js")
-    const scssPath = path.join(
-        REPO_ROOT,
-        "src/theme/scss/abstracts/_variables.scss"
-    )
+    const configPath = path.join(REPO_ROOT, "src/core/engine/config.js")
+    const scssPath = path.join(REPO_ROOT, "src/theme/abstracts/_variables.scss")
 
     if (!fs.existsSync(configPath) || !fs.existsSync(scssPath)) {
         return robotLog("   ⚠️  Missing config.js or _variables.scss")

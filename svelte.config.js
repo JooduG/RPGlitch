@@ -15,7 +15,7 @@ export default {
                             return {
                                 file: path.resolve(
                                     __dirname,
-                                    "src/theme/scss",
+                                    "src/theme",
                                     url.slice(7)
                                 ),
                             }
@@ -23,7 +23,7 @@ export default {
                         return null
                     },
                 ],
-                includePaths: [path.resolve(__dirname, "src/theme/scss")],
+                includePaths: [path.resolve(__dirname, "src/theme")],
             },
         }),
         mdsvex(),

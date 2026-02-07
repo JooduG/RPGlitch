@@ -1,7 +1,7 @@
 // 📜 SCHOLAR: The Runtime State
-import { events, EVENTS } from "@core/session/bus.js"
-import { db } from "@data/database/db.js"
-import { entities } from "@data/database/repository.js"
+import { events, EVENTS } from "@core/engine/bus.js"
+import { db } from "@data/db.js"
+import { entities } from "@data/repository.js"
 
 function createRuntimeStore() {
     let state = $state({

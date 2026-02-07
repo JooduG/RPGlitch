@@ -1,13 +1,13 @@
 <script>
-    import { entities } from "@data/database/repository.js"
+    import { entities } from "@data/repository.js"
     import { app } from "@state/app.svelte.js"
     import LoadingSkeleton from "@ui/molecules/LoadingSkeleton.svelte"
-    import LibraryDrawer from "@ui/organisms/LibraryDrawer.svelte"
-    import Layout from "@ui/templates/Layout.svelte"
+    import Layout from "@ui/organisms/Layout.svelte"
+    import LibraryDrawer from "@ui/organisms/library/LibraryDrawer.svelte"
+    import StoryboardCard from "@ui/organisms/storyboard/StoryboardCard.svelte"
+    import StoryboardDynamicTitle from "@ui/organisms/storyboard/StoryboardDynamicTitle.svelte"
+    import StoryboardPill from "@ui/organisms/storyboard/StoryboardPill.svelte"
     import { onMount } from "svelte"
-    import StoryboardCard from "./StoryboardCard.svelte"
-    import StoryboardDynamicTitle from "./StoryboardDynamicTitle.svelte"
-    import StoryboardPill from "./StoryboardPill.svelte"
 
     // --- STATE ---
     let loading = $state(true)
@@ -26,10 +26,8 @@
             // Filter out AI from User list if they are mixed, or logic in repository
             app.userList = users
             app.fractalList = fractals
-
-            // Do NOT auto-select - let user choose via drawer
         } catch (e) {
-            console.error("Failed to load lobby:", e)
+            console.error("[Storyboard] Failed to load lobby:", e)
         } finally {
             loading = false
         }

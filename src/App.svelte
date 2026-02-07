@@ -1,7 +1,7 @@
 <script>
-    import ControlPanel from "@ui/organisms/ControlPanel.svelte"
-    import DebugPanel from "@ui/organisms/DebugPanel.svelte"
-    import Lightbox from "@ui/organisms/Lightbox.svelte"
+    import Lightbox from "@ui/molecules/dialogs/Lightbox.svelte"
+    import ControlPanel from "@ui/organisms/panels/ControlPanel.svelte"
+    import DebugPanel from "@ui/organisms/panels/DebugPanel.svelte"
     import Profile from "@ui/organisms/profile/Profile.svelte"
     import Storyboard from "@ui/organisms/storyboard/Storyboard.svelte"
     import Storymode from "@ui/organisms/storymode/Storymode.svelte"

@@ -1,7 +1,7 @@
 <script>
     import { app } from "@state/app.svelte.js"
     import DOMPurify from "dompurify"
-    import SceneHeader from "../hud/SceneHeader.svelte"
+    import SceneHeader from "../SceneHeader.svelte"
 
     let {
         text = "",

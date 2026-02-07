@@ -47,24 +47,30 @@ const WARDEN = {
         }
 
         // 2. Check Freedom Protocol
-        const bootstrapPath = path.join(
-            REPO_ROOT,
-            "src/core/session/bootstrap.js"
-        )
-        if (fs.existsSync(bootstrapPath)) {
-            const content = fs.readFileSync(bootstrapPath, "utf-8")
-            if (!content.includes("localStorage")) {
-                const msg =
-                    "FREEDOM PROTOCOL BROKEN: Storage overrides missing."
+        const coreFiles = [
+            "src/core/engine/bootstrap.js",
+            "src/core/engine/config.js",
+        ]
+
+        for (const relativePath of coreFiles) {
+            const filePath = path.join(REPO_ROOT, relativePath)
+            if (fs.existsSync(filePath)) {
+                const content = fs.readFileSync(filePath, "utf-8")
+                if (
+                    relativePath.includes("bootstrap.js") &&
+                    !content.includes("localStorage")
+                ) {
+                    const msg = `FREEDOM PROTOCOL BROKEN: Storage overrides missing in ${relativePath}.`
+                    robotError(`❌ ${msg}`)
+                    report.violations.push(msg)
+                    report.passed = false
+                }
+            } else {
+                const msg = `${relativePath} missing`
                 robotError(`❌ ${msg}`)
                 report.violations.push(msg)
                 report.passed = false
             }
-        } else {
-            const msg = "bootstrap.js missing"
-            robotError(`❌ ${msg}`)
-            report.violations.push(msg)
-            report.passed = false
         }
 
         if (IS_JSON) {

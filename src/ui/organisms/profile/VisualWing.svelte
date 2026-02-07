@@ -1,7 +1,7 @@
 <script>
-    import { LlmService } from "@core/llm/service.js"
-    import { PALETTE } from "@core/session/config.js"
-    import { TextToImage } from "@mesmer/visuals/text-to-image.js"
+    import { PALETTE } from "@core/engine/config.js"
+    import { LlmService } from "@core/intelligence/service.js"
+    import { TextToImage } from "@media/visuals.js"
     import Button from "@ui/atoms/Button.svelte"
     import Tooltip from "@ui/atoms/Tooltip.svelte"
 
@@ -399,7 +399,7 @@
 </div>
 
 <style lang="scss">
-    @use "@theme/abstracts/placeholders" as *;
+    @use "../../../theme/abstracts/placeholders" as *;
 
     .visual-wing-content {
         @extend %material-glass-heavy;

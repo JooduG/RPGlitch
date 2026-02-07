@@ -18,8 +18,8 @@
 
     import Button from "@ui/atoms/Button.svelte"
 
-    import { themeStore } from "@mesmer/visuals/theme.svelte.js"
     import { app } from "@state/app.svelte.js"
+    import { themeStore } from "@theme/palette.svelte.js"
     import { fitText } from "@ui/utils/actions/fitText.js"
     import { tilt } from "@ui/utils/actions/tilt.js"
     // Import Actions
@@ -58,6 +58,7 @@
     role="group"
     aria-label="{roleLabel || 'Entity'} Card"
     style="--signature-color: {signatureColor}; --signature-rgb: {signatureRgb};"
+    data-testid="storyboard-card"
     use:tilt={{
         max: isEmpty || isLoading ? 0 : 25,
         scale: isEmpty || isLoading ? 1 : 1.05,
@@ -148,9 +149,9 @@
 
 <style lang="scss">
     @use "sass:color";
-    @use "@theme/abstracts/variables" as *;
-    @use "@theme/abstracts/mixins" as *;
-    @use "@theme/abstracts/placeholders" as *;
+    @use "../../../theme/abstracts/variables" as *;
+    @use "../../../theme/abstracts/mixins" as *;
+    @use "../../../theme/abstracts/placeholders" as *;
 
     .split-card {
         @extend %card-base;

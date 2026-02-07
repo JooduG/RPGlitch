@@ -51,21 +51,21 @@ Before starting any task, you **MUST** read the following to ground yourself:
 
 ## 2. 🧠 The Skill Matrix (Summoning & Intent)
 
-| Skill             | Summoning Triggers (Territory & Intent)                                                       | Assigned Tools (Core Kit)                               | Purpose                                             |
-| :---------------- | :-------------------------------------------------------------------------------------------- | :------------------------------------------------------ | :-------------------------------------------------- |
-| **🕹️ Gamemaster** | `src/core/**`, `package.json`, `vite.config.js`, "Task Management", "App State".              | `waldzell-clear-thought`, `github`.                     | Execution, timing, logic & app-state management.    |
-| **🧠 Cortex**     | `src/core/logic/**`, `.agent/tasks/**`, "Complex Planning", "Metacognition".                  | `mcp-sequentialthinking-tools`, `context7`.             | Master intelligence, strategic reasoning & routing. |
-| **📜 Scribe**     | `**/*.md`, `.agent/knowledge/**`, `AGENTS.md`, "Skill Refinement", "Prompt Engineering".      | `scribe/scripts/` (Hygiene).                            | Meta-Agent for OS tuning, docs & efficiency.        |
-| **🛠️ Artificer**  | `src/ui/**`, `src/components/**`, `**/*.svelte`, "UI Development", "Scaffolding".             | `artificer/scripts/` (UI Kit).                          | UI components, layouts, and storyboard features.    |
-| **🎭 Mesmer**     | `src/theme/**`, `**/*.{scss,css}`, "Theme", "Visuals", "Animation", "Vibe".                   | `pollinations`, `mesmer/scripts/`.                      | Sensory layer: Visuals, SCSS, Audio & Atmosphere.   |
-| **📚 Scholar**    | `src/data/**`, "Data Persistence", "Reference Query", "Lore", "RAG".                          | `firecrawl`, `pinecone-mcp-server`, `context7` (Query). | Data persistence, lore management & RAG.            |
-| **🛡️ Warden**     | `src/core/security/**`, `.agent/skills/warden/**`, `.gitignore`, "Security", "Hygiene", "QA". | `playwright`, `chrome-devtools`.                        | Shielding, hygiene, and zero-trust validation.      |
+| Skill                | Summoning Triggers (Territory & Intent)                                                       | Assigned Tools (Core Kit)                               | Purpose                                             |
+| :------------------- | :-------------------------------------------------------------------------------------------- | :------------------------------------------------------ | :-------------------------------------------------- |
+| **🕹️ Engine**        | `src/core/**`, `package.json`, `vite.config.js`, "Task Management", "App State".              | `waldzell-clear-thought`, `github`.                     | Execution, timing, logic & app-state management.    |
+| **🧠 Intelligence**  | `src/core/logic/**`, `.agent/tasks/**`, "Complex Planning", "Metacognition".                  | `mcp-sequentialthinking-tools`, `context7`.             | Master intelligence, strategic reasoning & routing. |
+| **📜 Documentation** | `**/*.md`, `.agent/knowledge/**`, `AGENTS.md`, "Skill Refinement", "Prompt Engineering".      | `scribe/scripts/` (Hygiene).                            | Meta-Agent for OS tuning, docs & efficiency.        |
+| **🛠️ UI**            | `src/ui/**`, `src/components/**`, `**/*.svelte`, "UI Development", "Scaffolding".             | `artificer/scripts/` (UI Kit).                          | UI components, layouts, and storyboard features.    |
+| **🎭 Sensory**       | `src/theme/**`, `**/*.{scss,css}`, "Theme", "Visuals", "Animation", "Vibe".                   | `pollinations`, `mesmer/scripts/`.                      | Sensory layer: Visuals, SCSS, Audio & Atmosphere.   |
+| **📚 Data**          | `src/data/**`, "Data Persistence", "Reference Query", "Lore", "RAG".                          | `firecrawl`, `pinecone-mcp-server`, `context7` (Query). | Data persistence, lore management & RAG.            |
+| **🛡️ Security**      | `src/core/security/**`, `.agent/skills/warden/**`, `.gitignore`, "Security", "Hygiene", "QA". | `playwright`, `chrome-devtools`.                        | Shielding, hygiene, and zero-trust validation.      |
 
 ### 📐 Interaction Logic
 
-1. **Summoning (Territorial)**: If a file path matches a persona's glob, that persona is automatically "Summoned" as the domain expert.
-2. **Triggering (Intent)**: If a user request matches a persona's intent keywords, that persona is "Triggered" to provide strategic oversight.
-3. **Synthesis**: For complex tasks, multiple personas coordinate via the **Gamemaster** (Operations) and **Cortex** (Strategy).
+1. **Summoning (Territorial)**: If a file path matches a domain's glob, that domain's logic is automatically "Summoned" as the expert.
+2. **Triggering (Intent)**: If a user request matches a domain's intent keywords, that domain is "Triggered" to provide strategic oversight.
+3. **Synthesis**: For complex tasks, multiple domains coordinate via the **Engine** (Operations) and **Cortex** (Strategy).
 
 ## 3. 🧠 The MCP Enforcement Matrix
 
@@ -109,8 +109,8 @@ Use these commands to trigger formalized protocols:
 - **`/02-track`**: Scaffold a new feature or bug.
 - **`/03-implement`**: Execute the plan + Checkpoint.
 - **`/04-status`**: Report project state.
-- **`/05-revert`** (Warden): Nuclear rollback & Reset.
-- **`/06-review`** (Scholar/Warden): Structured audit & report.
+- **`/05-revert`** (Security): Nuclear rollback & Reset.
+- **`/06-review`** (Data/Security): Structured audit & report.
 
 ## 6. 🚀 Execution Loop
 

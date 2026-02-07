@@ -3,7 +3,7 @@
     import { session } from "@state/session.svelte.js"
     import Button from "@ui/atoms/Button.svelte"
     import LoadingSkeleton from "@ui/molecules/LoadingSkeleton.svelte"
-    import Layout from "@ui/templates/Layout.svelte"
+    import Layout from "@ui/organisms/Layout.svelte"
     import InputBar from "./InputBar.svelte"
     import Message from "./Message.svelte"
     import StorymodePanel from "./StorymodePanel.svelte"

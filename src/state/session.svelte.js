@@ -1,8 +1,8 @@
-import { events, EVENTS } from "@core/session/bus.js"
-import { Session } from "@core/session/session.js"
+import { events, EVENTS } from "@core/engine/bus.js"
+import { Session } from "@core/engine/session.js"
 import { app } from "@state/app.svelte.js"
-// We need the GameMaster facade for high-level operations like Prologue
-import { GameMaster } from "@core/session/index.js"
+// We need the engine facade for high-level operations like Prologue
+import { GameMaster } from "@core/engine/engine.js"
 import { runtime } from "@state/runtime.svelte.js"
 
 /**

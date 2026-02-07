@@ -10,8 +10,18 @@ import DOMPurify from "dompurify"
 // Must happen BEFORE any other code runs
 Object.assign(window, { Dexie, DOMPurify })
 
+// [DEV] Mock rpgLists for local development to bypass 5s bootstrap timeout
+if (!window.rpgLists) {
+    window.rpgLists = {
+        sounds: [],
+        voices: [],
+        themes: [],
+    }
+    console.info("[RPGlitch] Injected mock rpgLists for local dev.")
+}
+
 // --- DATABASE INITIALIZATION ---
 // The Dexie database must be opened before any component tries to query it.
-import "./core/session/bootstrap.js"
+import "./core/engine/bootstrap.js"
 
 console.info("[RPGlitch] Entry point active. Handing off to Bootstrap.")
