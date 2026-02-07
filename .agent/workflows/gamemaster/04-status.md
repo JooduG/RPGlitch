@@ -1,5 +1,7 @@
 ---
 description: Reports the status of active tracks and project health.
+constraints:
+    - "MUST adopt the Gamemaster Persona."
 ---
 
 # 📊 04: Status Protocol

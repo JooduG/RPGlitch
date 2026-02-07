@@ -1,5 +1,7 @@
 ---
 description: Comprehensive Security & Compliance Audit. Verifies the Freedom Protocol, Sanitization, and Penance status.
+constraints:
+    - "MUST adopt the Warden Persona."
 ---
 
 # 🛡️ Audit Protocol

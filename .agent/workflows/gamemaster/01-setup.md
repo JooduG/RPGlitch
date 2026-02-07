@@ -1,5 +1,7 @@
 ---
 description: Initializes the Gamemaster environment by validating project context files.
+constraints:
+    - "MUST adopt the Gamemaster Persona."
 ---
 
 # ⚡ /01-setup

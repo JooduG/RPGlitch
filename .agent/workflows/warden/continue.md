@@ -1,5 +1,7 @@
 ---
 description: Resilience Protocol. Recovers momentum by analyzing message history and exact interruption points.
+constraints:
+    - "MUST adopt the Warden Persona."
 ---
 
 # 🔄 Continue Protocol

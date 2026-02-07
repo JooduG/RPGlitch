@@ -1,5 +1,8 @@
 ---
 description: The Upgrade Protocol. Vaults legacy components to Svelte 5.
+constraints:
+    - "MUST execute Rule 07: Clarity Gate before any file generation."
+    - "MUST adopt the Artificer Persona."
 ---
 
 # ⚡ Refine Protocol

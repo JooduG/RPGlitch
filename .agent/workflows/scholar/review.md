@@ -1,5 +1,7 @@
 ---
 description: Structured Review Protocol. Audits track quality and readiness against system standards.
+constraints:
+    - "MUST adopt the Scholar Persona."
 ---
 
 # 🎓 Scholar: Apex Review Protocol (06-review)

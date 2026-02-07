@@ -1,5 +1,8 @@
 ---
 description: The Build Protocol. Materializes new UI atoms.
+constraints:
+    - "MUST execute Rule 07: Clarity Gate before any file generation."
+    - "MUST adopt the Artificer Persona."
 ---
 
 # 🏗️ Construct Protocol

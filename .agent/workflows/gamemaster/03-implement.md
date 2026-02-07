@@ -1,5 +1,8 @@
 ---
 description: Executes the implementation plan for a defined track.
+constraints:
+    - "MUST execute Rule 07: Clarity Gate before any file generation."
+    - "MUST adopt the Gamemaster Persona."
 ---
 
 # 🎮 Gamemaster: Apex Implementation Protocol

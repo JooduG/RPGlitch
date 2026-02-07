@@ -1,5 +1,7 @@
 ---
 description: Anchors the current phase of work into history and updates the plan.
+constraints:
+    - "MUST adopt the Gamemaster Persona."
 ---
 
 # 🏁 05: Checkpoint Protocol

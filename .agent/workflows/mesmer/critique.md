@@ -1,5 +1,7 @@
 ---
 description: The Review Protocol. Audits UI quality against the "Chalk Regime".
+constraints:
+    - "MUST adopt the Mesmer Persona."
 ---
 
 # 🧐 Critique Protocol

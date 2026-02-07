@@ -2,17 +2,17 @@
 
 ## 🚀 Active Tracks
 
-## [ ] Track: Control Panel Redesign
+## ✅ Track: Control Panel Redesign
 
-- Path: .agent/tasks/control-panel-redesign/
-- Status: Scoped
+- Path: .agent/archive/control-panel-redesign/
+- Status: Complete
 - Note: Aesthetic overhaul of the Settings Modal. Selected 'Kinetic Bento Grid' (Concept B) with semi-flat aesthetic.
 
-## [ ] Track: 12-Column Grid Migration
+## ✅ Track: 12-Column Grid Migration
 
-- Path: .agent/tasks/grid-migration-12-col/
-- Status: Scoped
-- Note: Migrating from 10 to 12 columns to support "Rule of Thirds" and "Golden Ratio" layouts.
+- Path: N/A (Direct UI Refinement)
+- Status: Complete
+- Note: Migrated from 10 to 12 columns to support "Rule of Thirds" and "Golden Ratio" layouts.
 
 ## ✅ Track: Profile Polish & Legibility
 

@@ -1,5 +1,7 @@
 ---
 description: The Creative Protocol. Generates design systems, palettes, and aesthetics.
+constraints:
+    - "MUST adopt the Mesmer Persona."
 ---
 
 # 🎨 Imagine Protocol

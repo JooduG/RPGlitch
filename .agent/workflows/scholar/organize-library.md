@@ -1,5 +1,7 @@
 ---
 description: Unified Library Organization. Moving data to the right place at the right time.
+constraints:
+    - "MUST adopt the Scholar Persona."
 ---
 
 # 📚 Organize Protocol

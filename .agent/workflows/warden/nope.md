@@ -1,5 +1,8 @@
 ---
 description: Divergence Protocol. Triggers when a strategy fails or a success claim is found to be false.
+constraints:
+    - "MUST execute Rule 07: Clarity Gate before any file generation."
+    - "MUST adopt the Warden Persona."
 ---
 
 # 🛑 Nope Protocol

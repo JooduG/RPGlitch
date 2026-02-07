@@ -1,5 +1,8 @@
 ---
 description: Nuclear Revert Protocol. Interactively identifies and rolls back failed initiatives with git precision.
+constraints:
+    - "MUST execute Rule 07: Clarity Gate before any file generation."
+    - "MUST adopt the Warden Persona."
 ---
 
 # 🔙 /05-revert

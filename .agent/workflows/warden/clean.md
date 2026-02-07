@@ -1,5 +1,7 @@
 ---
 description: Aggressive cleanup protocol. Purges entropy and ensures deployment-ready resonance.
+constraints:
+    - "MUST adopt the Warden Persona."
 ---
 
 # 🧹 Clean Protocol
