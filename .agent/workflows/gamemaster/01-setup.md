@@ -1,52 +1,51 @@
 ---
-description: Initializes the Gamemaster environment by validating project context files.
+description: Initializes the Gamemaster environment by validating project context, security, and state.
+skill: gamemaster
 constraints:
     - "MUST adopt the Gamemaster Persona."
+    - "MUST fail if critical context files are missing."
 ---
 
 # ⚡ /01-setup
 
-// turbo-all
-
 > **Mandate:** Ensure the agent's mental model is perfectly synchronized with reality.
 
-## 1. Context Injection Loop (The Awakening)
+## Phase 1: Inject Context (The Awakening)
 
 You MUST read and validate the following files sequentially to establish the "Red Thread":
 
-- [ ] [GEMINI.md](../../GEMINI.md) (The Core Instruction)
-- [ ] [AGENTS.md](../../AGENTS.md) (The Prime Directive)
-- [ ] [.agent/index.md](../index.md) (The Index)
-- [ ] [.agent/rules/01-prime-directive.md](../rules/01-prime-directive.md)
+1.  **Read Core Instruction**: [GEMINI.md](../../../GEMINI.md)
+2.  **Read Prime Directive**: [AGENTS.md](../../../AGENTS.md)
+3.  **Read Index**: [.agent/index.md](../../../.agent/index.md)
+4.  **Read Rules**: [.agent/rules/01-prime-directive.md](../../../.agent/rules/01-prime-directive.md)
 
-## 2. Integrity Check (Warden)
+## Phase 2: Verify Integrity (Warden)
 
 Verify system health and security boundaries.
 
-1.  **Check for Sanctions**: Search for `[PENANCE]` or `[RESTRICTION]` markers in recent conversation history.
-2.  **Audit Secrets**: Scan for accidental `.env` or key exposure.
-3.  **Validate Terminology**: Ensure "Gamemaster" is used instead of "Conductor".
+1.  **Check for Sanctions**: Search conversation history for `[PENANCE]` or `[RESTRICTION]` markers. If found, acknowledge debt.
+2.  **Audit Secrets**: Scan environment for accidental `.env` or key exposure.
+3.  **Validate Terminology**: Ensure "Gamemaster" is used instead of "Conductor" or "Manager".
 
-## 3. Roadmapping (Cortex)
+## Phase 3: Map Road (Cortex)
 
 Assess active tracks and provide a status update.
 
-1.  Read [.agent/tasks/tracks.md](../tasks/tracks.md).
-2.  Identify current [status](../../task.md).
+1.  **Read Tracks**: [.agent/tasks/tracks.md](../../../.agent/tasks/tracks.md).
+2.  **Identify Status**: Determine the current active track and overall project momentum.
 
-## 4. Completion
+## Phase 4: Initialize System (Freedom Protocol)
+
+1.  **Verify Engine**: Read [bootstrap.js](../../../src/core/engine/bootstrap.js) to ensure storage overrides are present.
+2.  **Init Queue**: Run `node .agent/skills/gamemaster/scripts/queue_manager.js init`.
+3.  **Scaffold State**: Run `python3 .agent/skills/gamemaster/scripts/scaffold_state.py`.
+
+## Phase 5: Report Status
 
 Once all steps are verified:
 
-1.  **Synthesize**: Brief summary of current system state.
-2.  **Report**:
-    - Announce: "Gamemaster Online. Resonance frequencies locked."
-    - Highlight: Any detected hygiene or structural anomalies.
-    - Suggest: Next logical step based on `tracks.md`.
-
-3.  **Freedom Protocol**:
-    - [bootstrap.js](../../src/gamemaster/bootstrap.js)
-    - **Verify**: Presence of storage overrides.
-4.  **Initialize Environment**:
-5.  **Completion**:
-    - Announce: "Gamemaster Online. Resonance frequencies locked."
+1.  **Synthesize**: Generate a brief summary of the current system state.
+2.  **Announce**:
+    > "Gamemaster Online. Resonance frequencies locked."
+3.  **Highlight**: Any detected hygiene or structural anomalies.
+4.  **Suggest**: The next logical step based on `tracks.md`.
