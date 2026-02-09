@@ -98,7 +98,7 @@
         "pollinations": {
             "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\pollinations-mcp.cmd",
             "args": [],
-            "disabled": false,
+            "disabled": true,
             "disabledTools": [
                 "generateText",
                 "listTextModels",

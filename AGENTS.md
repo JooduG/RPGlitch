@@ -57,7 +57,7 @@ Before starting any task, you **MUST** read the following to ground yourself:
 | **🧠 Intelligence**  | `src/core/logic/**`, `.agent/tasks/**`, "Complex Planning", "Metacognition".                  | `mcp-sequentialthinking-tools`, `context7`.             | Master intelligence, strategic reasoning & routing. |
 | **📜 Documentation** | `**/*.md`, `.agent/knowledge/**`, `AGENTS.md`, "Skill Refinement", "Prompt Engineering".      | `scribe/scripts/` (Hygiene).                            | Meta-Agent for OS tuning, docs & efficiency.        |
 | **🛠️ UI**            | `src/ui/**`, `src/components/**`, `**/*.svelte`, "UI Development", "Scaffolding".             | `artificer/scripts/` (UI Kit).                          | UI components, layouts, and storyboard features.    |
-| **🎭 Sensory**       | `src/theme/**`, `**/*.{scss,css}`, "Theme", "Visuals", "Animation", "Vibe".                   | `pollinations`, `mesmer/scripts/`.                      | Sensory layer: Visuals, SCSS, Audio & Atmosphere.   |
+| **🎭 Sensory**       | `src/theme/**`, `**/*.{scss,css}`, "Theme", "Visuals", "Animation", "Vibe".                   | `mesmer/scripts/`.                                      | Sensory layer: Visuals, SCSS, Audio & Atmosphere.   |
 | **📚 Data**          | `src/data/**`, "Data Persistence", "Reference Query", "Lore", "RAG".                          | `firecrawl`, `pinecone-mcp-server`, `context7` (Query). | Data persistence, lore management & RAG.            |
 | **🛡️ Security**      | `src/core/security/**`, `.agent/skills/warden/**`, `.gitignore`, "Security", "Hygiene", "QA". | `playwright`, `chrome-devtools`.                        | Shielding, hygiene, and zero-trust validation.      |
 

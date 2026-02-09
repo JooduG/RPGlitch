@@ -42,27 +42,32 @@ export default {
 }
 
 // Re-export Physics logic for the Facade
-import { parsePhysicsResponse } from "./parser.js"
-import { applyLaws, PhysicsEngine } from "./physics.js"
+import { applyLaws, PhysicsEngine, scanReflex } from "./physics.js"
 
-export const Warden = {
+export const Shield = {
     sanitize,
     escape,
 
     authorizeVisuals: (prompt, options) => true,
     applyLaws,
-    parse: parsePhysicsResponse,
 
     /**
-     * Process an action through the Warden's security & physics checks.
+     * Process an action through the Shield's security & physics checks.
      */
     process: async (input, character, fractalState) => {
         // 1. Causality Check (Physics)
         const causality = PhysicsEngine.evaluate(input, fractalState)
 
+        // 2. Reflex Scan (Thermodynamics)
+        const reflex = scanReflex(input)
+
         return {
             causality,
+            reflex, // { type: "KINETIC", deltas: { velocity: 25 } } or null
             // Add other checks here if needed (e.g. moderation)
         }
     },
 }
+
+// Deprecation: Remove after transition period
+export const Warden = Shield

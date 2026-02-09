@@ -73,12 +73,15 @@ sequenceDiagram
 
 RPGlitch supersedes standard chatbot patterns by implementing a **Simulation Engine**. Instead of just generating text, the system calculates the "physics" of the narrative state in the background.
 
+```text
 src/
-├── gamemaster/ # 🕰️ Pillar 1: Logic & State (Chrono)
-├── artificer/ # 🛠️ Pillar 2: Structure & UI Components
-├── mesmer/ # 🎭 Pillar 3: Visuals, Audio & Theme
-├── scholar/ # 📚 Pillar 4: Database & Persistence
-└── warden/ # 🛡️ Pillar 5: Security & Bridge
+├── core/   # 🕰️ Logic, Engine, Intelligence, Security
+├── data/   # 📚 Database, Repository, Persistence (Dexie)
+├── state/  # ⚡ Reactive State Bridges (Svelte 5 Runes)
+├── ui/     # 🛠️ UI Components (Atoms, Molecules, Organisms)
+├── theme/  # 🎭 SCSS Design System (7-1 Architecture)
+└── media/  # 🎨 Visuals, Audio, Sensory Layer
+```
 
 ## Technology Stack
 

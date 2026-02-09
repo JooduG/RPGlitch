@@ -1,7 +1,7 @@
 // ⏳ CHRONO: The Heartbeat of Time
 // Manages the strict turn-based progression of the simulation.
 
-import { Warden } from "@core/security/security.js"
+import { Shield } from "@core/security/security.js"
 import { app } from "@state/app.svelte.js"
 import { runtime } from "@state/runtime.svelte.js"
 import { state } from "./bus.js"
@@ -14,7 +14,7 @@ export class ChronoStore {
      * ADVANCE TURN
      * The ONLY way time moves forward.
      * 1. Locks UI (Loading)
-     * 2. Processes Physics (Warden)
+     * 2. Processes Physics (Shield)
      * 3. Generates Narrative (GameMaster)
      * 4. Echo Resonance (Scholar)
      * 5. Anchoring State (Runtime)
@@ -32,17 +32,17 @@ export class ChronoStore {
         // 1. STASIS: Lock the Universe
         app.simulation.loading = true
         app.simulation.status = "scanning reality" // Phase 1
-        app.log("Warden scanning causality and physics...", "system")
+        app.log("Shield scanning causality and physics...", "system")
 
         try {
-            // 2. OBSERVATION: Process Input & Physics (Warden)
-            // We pass the current runtime character context to the Warden
-            let wardenContext = null
+            // 2. OBSERVATION: Process Input & Physics (Shield)
+            // We pass the current runtime character context to the Shield
+            let shieldContext = null
             let finalInput = input
 
             if (input && runtime.character) {
                 // Pass Fractal State for Causality Checks
-                wardenContext = await Warden.process(
+                shieldContext = await Shield.process(
                     input,
                     runtime.character,
                     runtime.storyFractal || {}
@@ -50,17 +50,17 @@ export class ChronoStore {
 
                 // 🛑 CAUSALITY CHECK
                 if (
-                    wardenContext &&
-                    wardenContext.causality &&
-                    wardenContext.causality.result === "failure"
+                    shieldContext &&
+                    shieldContext.causality &&
+                    shieldContext.causality.result === "failure"
                 ) {
                     app.log(
-                        `Causality Violation: ${wardenContext.causality.constraint}`,
+                        `Causality Violation: ${shieldContext.causality.constraint}`,
                         "error"
                     )
                     // We override the 'Action' to be a System Constraint.
                     // This forces the AI to narrate the failure instead of the action.
-                    finalInput = `[SYSTEM]: The user attempted '${input}' but failed because: "${wardenContext.causality.constraint}". Describe this failed attempt briefly and dryly.`
+                    finalInput = `[SYSTEM]: The user attempted '${input}' but failed because: "${shieldContext.causality.constraint}". Describe this failed attempt briefly and dryly.`
 
                     // Visual Feedback (Glitch)
                     app.simulation.status = "causality violation"
@@ -72,9 +72,9 @@ export class ChronoStore {
             app.log(`LLM synthesizing turn ${app.simulation.turn + 1}...`, "ai")
 
             // The GM facade maps generateAiResponse -> GameMaster.generateAiResponse(storyId, options)
-            // We pass wardenContext in options if needed, though Warden likely already updated DB.
+            // We pass shieldContext in options if needed, including reflex deltas for thermodynamics.
             await GameMaster.generateAiResponse(storyId, {
-                wardenContext,
+                shieldContext,
                 input: finalInput,
             })
 

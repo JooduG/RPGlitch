@@ -2,32 +2,37 @@
 
 ## 🚀 Active Tracks
 
-## [x] Track: Terminology Refactor (World to Fractal)
-
-- Path: .agent/tasks/terminology-refactor/
-- Status: Completed
-- Note: Global refactor of 1,200+ strings. Shifted "World" -> "Fractal" and "Director" -> "GameMaster". All layers (UI, Logic, Intel) migrated and verified.
-
-## [ ] Track: Recursive Engine Audit
-
-- Path: .agent/tasks/investigate-recursive-engine/
-- Status: Active
-- Note: Investigating origin and purpose of `char.simulation.mode`.
+_No active tracks at this time._
 
 ## 📅 Backlog
 
-## [ ] Track: System Harmonization
+_No backlog items at this time._
 
-- Path: TBD (Discovery Required)
-- Status: Incubating
-- Note: High-level goal to "Flatten, Standardise, Simplify" the simulation architecture. Goal is to maintain high quality while reducing cognitive overhead and architectural "friction".
+## ✅ Archive
 
-## [ ] Track: StoryMode Restoration
+## ✅ Track: Recursive Engine
 
-- Path: .agent/tasks/storymode-restoration/
-- Status: Active
-- Note: Restored cinematic layout with mobile split-header, dynamic signature color overlays.
-- Note: Re-activated for final verification.
+- Path: .agent/tasks/investigate-recursive-engine/
+- Status: Discontinued
+- Note: Autonomous simulation feature deemed too complex for current architecture. Toggle removed from DevWing, parser.js deleted. See investigation in [recursive_engine_plan.md](../../../.gemini/antigravity/brain/376fdb87-47fb-4fd6-a90d-7c29f77ac590/recursive_engine_plan.md).
+
+## ✅ Track: StoryMode Restoration
+
+- Path: .agent/archive/storymode-restoration/
+- Status: Archived
+- Note: All 6 phases complete. Cinematic layout with mobile split-header, dynamic signature color overlays, white text, hover-revealed action buttons (Continue, Regenerate, Edit, Copy, Delete), and solid timestamp on hover. Ready for user testing.
+
+## ✅ Track: Terminology Refactor (World to Fractal)
+
+- Path: .agent/archive/terminology-refactor/
+- Status: Archived
+- Note: Global refactor of 1,200+ strings. Shifted "World" -> "Fractal" and "Director" -> "GameMaster". All layers (UI, Logic, Intel) migrated and verified.
+
+## ✅ Track: System Harmonization
+
+- Path: N/A (Audit/Documentation)
+- Status: Archived
+- Note: Comprehensive nomenclature audit. Zero legacy "Director" or "World" terms found. Structure is 100% persona-agnostic. Fixed outdated pillar-based documentation in src/README.md.
 
 ## ✅ Track: Control Panel Redesign
 

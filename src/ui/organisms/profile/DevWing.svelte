@@ -210,34 +210,6 @@
         </div>
     </div>
 
-    <!-- 3. Simulation Context -->
-    {#if char.type === "fractal"}
-        <div class="group simulation-group">
-            <div class="toggle-stack">
-                <label class="toggle-control">
-                    <span class="label">Recursive Engine</span>
-                    <div class="input-wrapper">
-                        <input
-                            type="checkbox"
-                            checked={char.simulation?.mode === "ACTIVE"}
-                            onchange={(e) => {
-                                if (!char.simulation) char.simulation = {}
-                                const target = e.target
-                                if (target instanceof HTMLInputElement) {
-                                    char.simulation.mode = target.checked
-                                        ? "ACTIVE"
-                                        : "PASSIVE"
-                                }
-                            }}
-                            disabled={!isEditing}
-                        />
-                        <div class="switch"></div>
-                    </div>
-                </label>
-            </div>
-        </div>
-    {/if}
-
     <!-- 4. Metadata & Raw -->
     <div class="group meta-group">
         <div class="raw-explorer">
@@ -560,60 +532,6 @@
                 color: var(--app-muted);
                 opacity: 0.4;
                 font-style: italic;
-            }
-        }
-    }
-
-    /* 3. Simulation */
-    .toggle-stack {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-m);
-
-        .toggle-control {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            cursor: pointer;
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.8);
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
-            padding: 4px 0;
-
-            .switch {
-                position: relative;
-                width: 32px;
-                height: 16px;
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 20px;
-                transition: all 0.3s;
-
-                &::after {
-                    content: "";
-                    position: absolute;
-                    width: 12px;
-                    height: 12px;
-                    background: white;
-                    border-radius: 50%;
-                    top: 2px;
-                    left: 2px;
-                    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-                }
-            }
-
-            input {
-                display: none;
-                &:checked + .switch {
-                    background: var(--app-accent);
-                    &::after {
-                        left: 18px;
-                    }
-                }
-            }
-
-            &:hover .switch {
-                background: rgba(255, 255, 255, 0.2);
             }
         }
     }
