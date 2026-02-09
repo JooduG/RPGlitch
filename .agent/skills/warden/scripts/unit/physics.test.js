@@ -124,7 +124,7 @@ describe("PROMETHEUS ENGINE V5", () => {
 
         // --- PERMEABILITY LAWS ---
         test("Law: Glass Cannon (Perm > 90)", () => {
-            // Effect: Flag Only (Director handles multipliers)
+            // Effect: Flag Only (GameMaster handles multipliers)
             const input = {
                 entropy: 50,
                 permeability: 95,

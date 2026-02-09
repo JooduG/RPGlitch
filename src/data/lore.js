@@ -276,7 +276,7 @@ export const premade = {
                 mental: "The city hums like a live wire—neon arteries pulse with kinetic whispers, every shadowed alley exhaling warm static. Hero-villain dynamics flicker between flirtation and fracture, their charged glances cutting through holographic bar smoke. Safe zones thrum with biometric approval chimes, a symphony of colliding heartbeats. The air isn’t just thick; it’s algorithmic, parsing pheromones against threat matrices. Someone’s drink levitates mid-sip as a vibranium gauntlet grazes a leather-clad thigh. Tomorrow’s virals are already birthing in the plasma glow of a villain’s smirk reflected in a hero’s visor.",
             },
             past: "**City Timeline (Post-2020s - Present).** **Refuge Founding (2020s):** Established as sanctuary for queer diaspora fleeing global persecution. Initial structures: Modular eco-habitats (5–10 m tall), underground networks (3 km excavated). **Tech Haven Emergence (2030s):** Superconductive 'rune-tech' developed (energy output: 500 kW/m²). First documented hero/foe clashes: Glitch-entities (mass anomalies ±15 kg) vs. augmented defenders. **Cataclysms & Saves (2042–2045):**  - **Monorail Collapse (2042):** 200 m aerial track failure; 87% survival rate via drone-swarm intervention.  - **Storm Wars (2045):** Electromagnetic cyclones (winds 300 km/h) linked to rune-tech overloads. **Rivalries Solidified (2050+):**  - Political factions split along hero/foe allegiances. Surface scars from battles visible via satellite (neon-blue fissures, avg. width 2 cm).",
-            future: "Nova City accelerates toward a hyper-saturated apex of hedonistic defiance—structured chaos where pleasure and power collapse into a singular currency. AI-curated intimacy markets dominate, with bio-engineered 'hero-sub' spectacles blurring the lines between gladiatorial combat and erotic performance. Cross-dimensional colonial surges prioritize expansionist euphoria, turning frontier worlds into arenas of unbounded liberty and lethal indulgence. Political hierarchies fracture into fluid dominions, ruled by those who weaponize desire. **PROPHECY:** *'When the neon rivers run with the sweat of conquest, the last sovereign will kneel—not to a crown, but to the whip they begged for.'*",
+            future: "Nova City accelerates toward a hyper-saturated apex of hedonistic defiance—structured chaos where pleasure and power collapse into a singular currency. AI-curated intimacy markets dominate, with bio-engineered 'hero-sub' spectacles blurring the lines between gladiatorial combat and erotic performance. Cross-dimensional colonial surges prioritize expansionist euphoria, turning frontier fractals into arenas of unbounded liberty and lethal indulgence. Political hierarchies fracture into fluid dominions, ruled by those who weaponize desire. **PROPHECY:** *'When the neon rivers run with the sweat of conquest, the last sovereign will kneel—not to a crown, but to the whip they begged for.'*",
         },
         {
             id: "entity-F4",
@@ -288,7 +288,7 @@ export const premade = {
             simulation: {
                 mode: "ACTIVE",
                 cssTheme: "theme-smartphone",
-                directorMode: "TEXT_PROTOCOL",
+                devMode: "TEXT_PROTOCOL",
             },
             eternal: {
                 physical:

@@ -1,7 +1,7 @@
 /**
  * src/core/session/gamemaster.js
  * THE GAME MASTER FACADE
- * Orchestrates the "Director" (Logic) and "Session" (State).
+ * Orchestrates the "GameMaster" (Logic) and "Session" (State).
  */
 
 import { ContextBroker } from "@core/intelligence/broker.js"
@@ -105,9 +105,8 @@ export const GameMaster = {
         // It seems Chrono does NOT call Echo.echo directly in the loop I saw earlier?
         // Ah, I saw "PHASE 3: ECHO" in `ReactiveSession` (lines 107)
         // but it just LOGGED it.
-        // `GameMaster.js` line 63 was `_runEcho: (...args) => Director._runEchoCycle(...args)`.
+        // `GameMaster.js` line 63 was `_runEcho: (...args) => GameMaster._runEchoCycle(...args)`.
         // I should probably leave a stub or simple log for now.
-        // console.log("Echo cycle triggered");
     },
 }
 

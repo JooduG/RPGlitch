@@ -66,8 +66,8 @@ export const storyboard = {
                 ai: app.selectedAi || { id: "dev_ai", name: "Dev AI" },
                 user: app.selectedUser || { id: "dev_user", name: "Dev User" },
                 fractal: app.selectedFractal || {
-                    id: "dev_world",
-                    name: "Dev World",
+                    id: "dev_fractal",
+                    name: "Dev Fractal",
                 },
             }
 

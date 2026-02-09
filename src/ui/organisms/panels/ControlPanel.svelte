@@ -54,11 +54,6 @@
                 "AI Companion"
             )
         }, 500)
-
-        // 3. User Message
-        setTimeout(() => {
-            session.send("I am the traveler.")
-        }, 1000)
     }
 
     /* --- STATE HELPERS --- */
@@ -144,7 +139,7 @@
         <div class="advanced-section">
             <div class="advanced-controls">
                 <Toggle
-                    label="DEVELOPER MODE"
+                    label="DevMode"
                     bind:value={app.settings.devMode}
                     onchange={app.saveSettings}
                 />

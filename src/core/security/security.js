@@ -43,7 +43,7 @@ export default {
 
 // Re-export Physics logic for the Facade
 import { parsePhysicsResponse } from "./parser.js"
-import { applyLaws } from "./physics.js"
+import { applyLaws, PhysicsEngine } from "./physics.js"
 
 export const Warden = {
     sanitize,
@@ -52,4 +52,17 @@ export const Warden = {
     authorizeVisuals: (prompt, options) => true,
     applyLaws,
     parse: parsePhysicsResponse,
+
+    /**
+     * Process an action through the Warden's security & physics checks.
+     */
+    process: async (input, character, fractalState) => {
+        // 1. Causality Check (Physics)
+        const causality = PhysicsEngine.evaluate(input, fractalState)
+
+        return {
+            causality,
+            // Add other checks here if needed (e.g. moderation)
+        }
+    },
 }

@@ -110,4 +110,26 @@ export const Session = {
             )
         }
     },
+
+    /**
+     * Delete a specific message by ID
+     */
+    deleteMessage: async (id) => {
+        const storyId = Session.requireActive()
+        await db.messages.delete(id)
+        events.dispatchEvent(
+            new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } })
+        )
+    },
+
+    /**
+     * Edit a specific message text
+     */
+    editMessage: async (id, newText) => {
+        const storyId = Session.requireActive()
+        await db.messages.update(id, { text: newText })
+        events.dispatchEvent(
+            new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } })
+        )
+    },
 }

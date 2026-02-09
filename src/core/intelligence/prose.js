@@ -21,7 +21,7 @@ ${history}
 export const Screenplay = {
     standard: (ai, user, fractal, variance = "", visuals = false) => `
 [SCENE START]
-World: ${fractal.name}
+Fractal: ${fractal.name}
 Characters: ${ai.name}, ${user.name}
 Variance: ${variance}
 Visuals: ${visuals ? "ON" : "OFF"}
@@ -29,7 +29,7 @@ Roleplay on.
 `,
     prologue: (fractal, context) => `
 [PROLOGUE]
-World: ${fractal.name}
+Fractal: ${fractal.name}
 Intro: ${context.title}
 `,
     epilogue: (fractal, { history, ai, user }) => `

@@ -18,19 +18,19 @@ const { PHYSICS: PHYSICS_CONSTANTS } = CONFIG
 
 export const PhysicsEngine = {
     /**
-     * Evaluates an action against the world state constraints.
+     * Evaluates an action against the fractal state constraints.
      * @param {string} action - The raw user input.
-     * @param {Object} worldState - The current state of the Fractal/World (props, room).
+     * @param {Object} fractalState - The current state of the Fractal (props, room).
      * @returns {Object} { result: 'success' | 'failure', narrativeConstraint: string }
      */
-    evaluate: (action, worldState = {}) => {
+    evaluate: (action, fractalState = {}) => {
         if (!action) return { result: "success", constraint: null }
 
         const text = action.trim().toLowerCase()
 
         // A. INTENT: OPEN/UNLOCK
         if (/open|unlock|enter|go throu/i.test(text)) {
-            if (worldState.isLocked === true) {
+            if (fractalState.isLocked === true) {
                 // Check for key (Simplistic for now - assumes we'd check inventory if implemented)
                 // For now, if it's locked, it's locked.
                 return {
@@ -44,7 +44,7 @@ export const PhysicsEngine = {
         // B. INTENT: TAKE/GRAB
         if (/take|grab|steal|pick up/i.test(text)) {
             // Placeholder for fixed constraints (e.g. heavy objects)
-            if (worldState.isAnchored === true) {
+            if (fractalState.isAnchored === true) {
                 return {
                     result: "failure",
                     constraint:
@@ -337,7 +337,7 @@ export const calculateBlendedParams = (ai, user, fractal) => {
 }
 
 // ============================================================================
-// 3. VARIANCE (Director's Cut)
+// 3. VARIANCE (GameMaster's Cut)
 // ============================================================================
 
 /**
@@ -354,11 +354,11 @@ const PHYSICS_DRIVERS = {
     "High Entropy":
         "Reality is fracturing. Describe visual glitches, auditory artifacts, and bleeding concepts.",
     "Low Entropy":
-        "Hyper-lucidity. Pattern recognition is absolute. The world is reduced to cold, hard data.",
+        "Hyper-lucidity. Pattern recognition is absolute. The fractal is reduced to cold, hard data.",
     "High Permeability":
         "Somatic overload. You feel everything—the air, the heat, the skin. There is no barrier between you and the sensation.",
     "Low Permeability":
-        "Emotional fortress. Trust no one. Betray nothing. Your inner world is a vault.",
+        "Emotional fortress. Trust no one. Betray nothing. Your inner psyche is a vault.",
     "High Resonance":
         "Radical empathy. The boundary between self and other dissolves. You are a mirror.",
     "Low Resonance":

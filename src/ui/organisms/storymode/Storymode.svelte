@@ -30,6 +30,34 @@
         if (role === "assistant") return "ai"
         return role
     }
+
+    // --- ACTIONS ---
+    async function handleDelete(index) {
+        const msg = feed[index]
+        if (msg && msg.id) {
+            await session.deleteMessage(msg.id)
+        }
+    }
+
+    async function handleRegenerate(index) {
+        // Regenerate the LAST message (ignoring index for now, as API only supports last)
+        await session.retry()
+    }
+
+    async function handleContinue() {
+        await session.continue()
+    }
+
+    async function handleEdit(index) {
+        const msg = feed[index]
+        if (!msg) return
+
+        // Simple prompt for now
+        const newText = prompt("Edit message:", msg.text)
+        if (newText !== null && newText !== msg.text) {
+            await session.editMessage(msg.id, newText)
+        }
+    }
 </script>
 
 <div class="storymode-container">
@@ -47,7 +75,7 @@
             <div class="game-stage">
                 <!-- Narrative Feed -->
                 <div class="feed-scroll" bind:this={scrollRef}>
-                    {#each feed as msg (msg)}
+                    {#each feed as msg, index (msg.id)}
                         <Message
                             text={msg.text}
                             sender={mapRole(msg.role)}
@@ -55,6 +83,11 @@
                                 ? new Date(msg.timestamp)
                                 : new Date()}
                             attachments={msg.attachments}
+                            isLast={index === feed.length - 1}
+                            onDelete={() => handleDelete(index)}
+                            onRegenerate={() => handleRegenerate(index)}
+                            onContinue={() => handleContinue()}
+                            onEdit={() => handleEdit(index)}
                         />
                     {/each}
 
@@ -63,6 +96,7 @@
                             text={app.streaming.content}
                             sender="ai"
                             timestamp={new Date()}
+                            isLast={true}
                         />
                     {:else if isThinking}
                         <!-- Thinking Indicator using Message bubble for consistency -->

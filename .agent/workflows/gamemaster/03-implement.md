@@ -52,7 +52,7 @@ For each unchecked task `[ ]` in the track's `plan.md`:
 2.  **Handoff**: Write a completion report to `.agent/tasks/handoffs/<task-id>_done.md`.
 3.  **Mark Done**: Update `plan.md` to `[x]`.
 
-## 3. Checkpoint & Anchor (Conductor Protocol)
+## 3. Checkpoint & Anchor (GameMaster Protocol)
 
 1.  **Verification Report**:
     - **Automated**: Capture test logs.

@@ -8,7 +8,7 @@ import { runtime } from "@state/runtime.svelte.js"
 /**
  * 🎬 REACTIVE SESSION MANAGER
  * Bridges the imperative Session/GameMaster engine with Svelte 5 Reactivity.
- * Replaces the old "director.svelte.js" store.
+ * Replaces the old "gamemaster.svelte.js" store.
  */
 export class ReactiveSession {
     loading = $state(false)
@@ -102,7 +102,12 @@ export class ReactiveSession {
                 `LLM synthesizing prose response for turn ${app.simulation.turn}...`,
                 "ai"
             )
-            await Session.send(text)
+            await Session.send(text) // Saves user message
+
+            // TRIGGER AI GENERATION
+            const storyId = Session.requireActive()
+            console.log("Triggering generation for story", storyId)
+            await GameMaster.generateAiResponse(storyId, { input: text })
 
             // PHASE 3: ECHO (Resonance)
             app.log(
@@ -139,6 +144,8 @@ export class ReactiveSession {
 
         try {
             await Session.regenerate()
+            const storyId = Session.requireActive()
+            await GameMaster.generateAiResponse(storyId)
         } catch (e) {
             this.error = e.message
         } finally {
@@ -149,10 +156,43 @@ export class ReactiveSession {
     }
 
     /**
+     * Continue the story (AI generates next part).
+     */
+    async continue() {
+        if (this.loading) return
+        this.loading = true
+        app.simulation.loading = true
+
+        try {
+            const storyId = Session.requireActive()
+            await GameMaster.generateAiResponse(storyId)
+        } catch (e) {
+            this.error = e.message
+        } finally {
+            this.loading = false
+            app.simulation.loading = false
+        }
+    }
+
+    /**
      * 🧪 DEBUG: Inject AI Message
      */
     async addAiMessage(text, characterName, role) {
         await Session.addAiMessage(text, characterName, role)
+    }
+
+    /**
+     * Delete a message by ID
+     */
+    async deleteMessage(id) {
+        await Session.deleteMessage(id)
+    }
+
+    /**
+     * Edit a message by ID
+     */
+    async editMessage(id, newText) {
+        await Session.editMessage(id, newText)
     }
 }
 

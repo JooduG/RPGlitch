@@ -21,7 +21,9 @@ export class ContextBroker {
         // 2. Fetch Modular Data from Runtime (Single Source of Truth)
         const context = {
             kernel: requirements.includes("kernel") ? this.pullKernel() : null,
-            world: requirements.includes("world") ? this.pullWorld() : null,
+            fractal: requirements.includes("fractal")
+                ? this.pullFractal()
+                : null,
             entity: requirements.includes("entity") ? this.pullEntity() : null,
             delta: action,
         }
@@ -45,12 +47,12 @@ export class ContextBroker {
     static getRequiredContext(phase) {
         switch (phase) {
             case "physics":
-                return ["kernel", "world"]
+                return ["kernel", "fractal"]
             case "visual":
-                return ["world", "entity"]
+                return ["fractal", "entity"]
             case "prose":
             default:
-                return ["kernel", "world", "entity"]
+                return ["kernel", "fractal", "entity"]
         }
     }
 
@@ -62,10 +64,10 @@ export class ContextBroker {
         }
     }
 
-    static pullWorld() {
+    static pullFractal() {
         const fractal = runtime.storyFractal || {}
         return {
-            title: fractal.name || "Unknown World",
+            title: fractal.name || "Unknown Fractal",
             lore: fractal.description || "",
             state: fractal.present || {},
         }
@@ -105,12 +107,12 @@ export class ContextBroker {
             layers.push(`[SYSTEM_KERNEL]\n${context.kernel.rules}`)
         }
 
-        if (context.world) {
+        if (context.fractal) {
             layers.push(
-                `[WORLD_LAYER]\nLOC: ${context.world.title}\nDAT: ${context.world.lore}`
+                `[FRACTAL_LAYER]\nLOC: ${context.fractal.title}\nDAT: ${context.fractal.lore}`
             )
-            if (context.world.state) {
-                layers.push(`ENV: ${JSON.stringify(context.world.state)}`)
+            if (context.fractal.state) {
+                layers.push(`ENV: ${JSON.stringify(context.fractal.state)}`)
             }
         }
 

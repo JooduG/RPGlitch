@@ -1,5 +1,6 @@
 // src/core/session/utils.js
 
+import { Security } from "@core/security/security.js"
 import { PALETTE } from "./config.js"
 
 // --- Color Re-exports ---
@@ -75,11 +76,12 @@ export const parseMarkdown = (text) => {
 
 // --- Plugins Mocking ---
 export const mockPlugins = () => {
-    window.pluginAi = async () => "Mock AI Response"
-    window.pluginTextToImage = async () => "https://via.placeholder.com/512x768"
-    window.pluginRemember = { get: () => null, set: () => {} }
-    window.pluginSuperFetch = async () => ({ text: async () => "" })
-    window.pluginUpload = {
+    window["pluginAi"] = async () => "Mock AI Response"
+    window["pluginTextToImage"] = async () =>
+        "https://via.placeholder.com/512x768"
+    window["pluginRemember"] = { get: () => null, set: () => {} }
+    window["pluginSuperFetch"] = async () => ({ text: async () => "" })
+    window["pluginUpload"] = {
         upload: async () => "https://via.placeholder.com/150",
     }
 }

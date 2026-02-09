@@ -18,8 +18,8 @@
                 return "#a855f7" // ai (purple)
             case "error":
                 return "#ef4444" // error (red)
-            case "world":
-                return "#22c55e" // world (green)
+            case "fractal":
+                return "#22c55e" // fractal (green)
             case "db":
                 return "#eab308" // fallback db (yellow)
             default:
@@ -54,7 +54,7 @@
     </div>
 
     <footer class="debug-footer">
-        MODE: {app.settings.devMode ? "DEV_BYPASS_ACTIVE" : "STANDARD"}
+        MODE: {app.settings.devMode ? "DevMode" : "STANDARD"}
     </footer>
 </div>
 

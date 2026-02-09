@@ -2,11 +2,32 @@
 
 ## 🚀 Active Tracks
 
-## [x] Track: StoryMode Restoration
+## [x] Track: Terminology Refactor (World to Fractal)
+
+- Path: .agent/tasks/terminology-refactor/
+- Status: Completed
+- Note: Global refactor of 1,200+ strings. Shifted "World" -> "Fractal" and "Director" -> "GameMaster". All layers (UI, Logic, Intel) migrated and verified.
+
+## [ ] Track: Recursive Engine Audit
+
+- Path: .agent/tasks/investigate-recursive-engine/
+- Status: Active
+- Note: Investigating origin and purpose of `char.simulation.mode`.
+
+## 📅 Backlog
+
+## [ ] Track: System Harmonization
+
+- Path: TBD (Discovery Required)
+- Status: Incubating
+- Note: High-level goal to "Flatten, Standardise, Simplify" the simulation architecture. Goal is to maintain high quality while reducing cognitive overhead and architectural "friction".
+
+## [ ] Track: StoryMode Restoration
 
 - Path: .agent/tasks/storymode-restoration/
-- Status: Complete
+- Status: Active
 - Note: Restored cinematic layout with mobile split-header, dynamic signature color overlays.
+- Note: Re-activated for final verification.
 
 ## ✅ Track: Control Panel Redesign
 

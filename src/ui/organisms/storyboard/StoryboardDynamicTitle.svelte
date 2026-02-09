@@ -36,7 +36,7 @@
     const FRACTAL_PREFIXES = [
         "Adventures in",
         "Tales from",
-        "The World of",
+        "The Fractal of",
         "Journey to",
     ]
 

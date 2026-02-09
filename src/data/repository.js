@@ -36,11 +36,7 @@ export const seedPremades = async () => {
                 log(`[Factory] Minting fresh copy of ${bp.name}`)
 
                 const type = bp.kind || bp.type || "character"
-                const flatBp = {
-                    ...bp,
-                    .../** @type {any} */ (bp.sections || {}),
-                }
-                delete flatBp.sections
+                const flatBp = { ...bp }
 
                 const normalized = normalize({ ...flatBp, type })
 
@@ -180,7 +176,7 @@ export const stories = {
                         state: story.isConcluded ? "concluded" : "active",
                         lastPlayed: story.updatedAt,
                         fractalAvatar: avatar,
-                        fractalName: fractal?.name || "Unknown World",
+                        fractalName: fractal?.name || "Unknown Fractal",
                         signatureColor: fractal?.signatureColor || "default",
                     }
                 })

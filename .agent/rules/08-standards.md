@@ -44,3 +44,14 @@ All agents, logs, and game mechanics must adhere to this locale standard to prev
 
 - **Logic Isolation**: Heavy logic (>50 lines) moves to `scripts/`.
 - **Asset Colocation**: Images used by a Skill belong in `assets/`.
+
+## 4. Domain Terminology (Ubiquitous Language)
+
+To prevent cognitive drift, the following terms are **MANDATORY**. (See [Glossary](../knowledge/vision/glossary.md) for full definitions).
+
+| Concept               | Standard Term  | ❌ Forbidden Terms              | Definition                                       |
+| :-------------------- | :------------- | :------------------------------ | :----------------------------------------------- |
+| **The Engine**        | **GameMaster** | Director, Orchestrator, Manager | The Logic/Turn Engine.                           |
+| **Debug UI**          | **DevMode**    | Debug Mode, God Mode, Cheat     | The technical HUD for state inspection/bypass.   |
+| **Narrative Control** | **GM Mode**    | **Director Mode**, Storyteller  | The in-world interface for controlling the plot. |
+| **User Interface**    | **StoryMode**  | Chat, Play Mode                 | The primary player interface.                    |

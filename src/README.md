@@ -28,41 +28,45 @@ graph TD
     end
 ```
 
-### The Runtime Data Flow (The Game Loop)
+### The Linear Heartbeat (The Turn Cycle)
 
-This explains the new WebWorker & Event Bus flow we just implemented.
+This explains the simplified execution flow managed by **Chrono**. It is a strictly linear chain of events, with a high-frequency "Streaming Loop" nested within the generation phase.
 
 ```mermaid
 sequenceDiagram
     participant User
     participant UI as 🖥️ UI
-    participant Bus as 📢 EventBus
-    participant Dir as 🎬 Director
-    participant DB as 💾 Dexie
+    participant Chrono as ⏳ Chrono
+    participant Warden as 🛡️ Warden
+    participant GM as 🎬 GameMaster
     participant AI as 🧠 LLM Service
+    participant DB as 💾 Dexie
 
-    Note over User, AI: The "Prometheus" Turn Cycle
+    User->>UI: Action Input
+    UI->>Chrono: advanceTurn(input)
 
-    User->>UI: Types Message
-    UI->>DB: Save User Message
-    UI->>Dir: send()
+    rect rgb(30, 30, 35)
+        Note over Chrono, DB: UI LOCKED (app.simulation.loading = true)
 
-    rect rgb(20, 20, 20)
-        Note right of Dir: Main Thread Execution
-        Dir->>Dir: Calculate Physics (Reflex)
-        Dir->>Dir: Build Prompt (ContextBuilder)
+        Chrono->>Warden: process(input)
+        Warden-->>Chrono: wardenContext (Physics Result)
 
-        Dir->>AI: LlmService.generate()
-        AI-->>Dir: Response Text
+        Chrono->>GM: generateAiResponse(options)
+        GM->>AI: LlmService.generate(payload)
 
-        Dir->>DB: Save AI Message
-        Dir->>DB: Update Entity States
+        loop Token Streaming
+            AI-->>UI: app.updateStream(token)
+            UI-->>User: Visual Feedback (Incremental)
+        end
+
+        AI-->>GM: Full Response String
+        GM->>DB: Save Final Message
+        Chrono->>DB: runtime.save() (Anchor State)
+
+        Note over Chrono, DB: UI UNLOCKED (app.simulation.loading = false)
     end
 
-    Dir->>Bus: Dispatch "CHAT_REFRESH"
-    Bus->>UI: Trigger Re-render
-    UI->>DB: Fetch Latest Messages
-    UI-->>User: Show Response
+    UI-->>User: Interaction Ready
 ```
 
 ### The Simulation Engine

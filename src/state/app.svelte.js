@@ -56,7 +56,6 @@ export class AppStore {
         streamText: true, // True = Real-time chunks, False = Instant
         autoScroll: true, // Follow chat
         devMode: false,
-        debugMode: false, // Diagnostic HUD
     })
 
     // 1. LOBBY READINESS (Derived Traceable Logic)
@@ -69,7 +68,7 @@ export class AppStore {
         return this.canStart
     }
 
-    // 🧪 TELEMETRY (Developer HUD)
+    // 🧪 TELEMETRY (DevMode HUD)
     logs = $state([])
     causalityReport = $state({
         entropy: 0,
@@ -223,11 +222,6 @@ export class AppStore {
 
     toggleDevMode = () => {
         this.settings.devMode = !this.settings.devMode
-        this.saveSettings()
-    }
-
-    toggleDebugMode = () => {
-        this.settings.debugMode = !this.settings.debugMode
         this.saveSettings()
     }
 

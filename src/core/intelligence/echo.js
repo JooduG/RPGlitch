@@ -4,7 +4,7 @@
  * Handles the consolidation of short-term history into long-term entity profiles.
  */
 
-import { LlmService } from "@core/llm/service.js"
+import { LlmService } from "@core/intelligence/service.js"
 import { ContextBuilder } from "./context.js"
 const log = console.log
 const error = console.error
