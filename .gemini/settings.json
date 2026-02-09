@@ -101,21 +101,6 @@
         "npmVersions"
       ]
     },
-    "pollinations": {
-      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\pollinations-mcp.cmd",
-      "args": [],
-      "disabledTools": [
-        "generateText",
-        "listTextModels",
-        "startAuth",
-        "checkAuthStatus",
-        "getDomains",
-        "updateDomains",
-        "respondAudio",
-        "sayText",
-        "listAudioVoices"
-      ]
-    },
     "waldzell-clear-thought": {
       "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\clear-thought.cmd",
       "args": [],

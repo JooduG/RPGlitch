@@ -84,7 +84,7 @@ test.describe("Profile Component Refactor", () => {
 
         // Open panel to enable dev mode
         await page.getByTestId("settings-button").click({ force: true })
-        const devModeToggle = page.getByTestId("developer-mode-toggle")
+        const devModeToggle = page.getByTestId("devmode-toggle")
         const devModeLabel = page
             .locator("label")
             .filter({ has: devModeToggle })

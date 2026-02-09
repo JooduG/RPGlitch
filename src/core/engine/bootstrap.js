@@ -46,7 +46,7 @@ const waitForConfig = async () => {
             if (window.rpgLists) {
                 resolve(true)
             } else if (attempts >= 50) {
-                console.warn("[Bootstrap] rpgLists missing after 5s.")
+                console.warn("[Gamemaster] rpgLists missing after 5s.")
                 resolve(false)
             } else {
                 setTimeout(check, 100)
@@ -58,39 +58,39 @@ const waitForConfig = async () => {
 
 export const AppBootstrap = {
     async init() {
-        console.info("[Bootstrap] 🚀 RPGlitch Starting...")
+        console.info("[Gamemaster] 🚀 RPGlitch Starting...")
         try {
-            console.info("[Bootstrap] Step 0: Pre-Flight...")
+            console.info("[Gamemaster] Step 0: Pre-Flight...")
             await waitForConfig()
 
-            console.info("[Bootstrap] Step 1: Stability Layer...")
+            console.info("[Gamemaster] Step 1: Stability Layer...")
             await initDebugMode()
             mockPlugins()
 
-            console.info("[Bootstrap] Step 2: Data Layer (Opening DB)...")
+            console.info("[Gamemaster] Step 2: Data Layer (Opening DB)...")
             await db.open()
-            console.info("[Bootstrap] Database Ready. Seeding content...")
+            console.info("[Gamemaster] Database Ready. Seeding content...")
             await seedPremades()
 
-            console.info("[Bootstrap] Step 3: UI Layer...")
+            console.info("[Gamemaster] Step 3: UI Layer...")
             const target = document.getElementById("svelte-root")
             console.info(
-                `[Bootstrap] Target #svelte-root: ${target ? "FOUND" : "MISSING"}`
+                `[Gamemaster] Target #svelte-root: ${target ? "FOUND" : "MISSING"}`
             )
             if (target) {
-                console.info("[Bootstrap] Calling mount()...")
+                console.info("[Gamemaster] Calling mount()...")
                 // Clear the static boot illusion before mounting
                 target.innerHTML = ""
                 mount(App, { target })
-                console.info("[Bootstrap] ⚒️ Artificer UI Mounted.")
+                console.info("[Gamemaster] ⚒️ Artificer UI Mounted.")
             } else {
                 console.info(
-                    "[Bootstrap] ⚠️ CANNOT MOUNT: #svelte-root not in DOM."
+                    "[Gamemaster] ⚠️ CANNOT MOUNT: #svelte-root not in DOM."
                 )
             }
-            console.info("[Bootstrap] 🏁 System Online.")
+            console.info("[Gamemaster] 🏁 System Online.")
         } catch (err) {
-            console.error("[Bootstrap] ❌ Critical Failure:", err)
+            console.error("[Gamemaster] ❌ Critical Failure:", err)
             document.body.innerHTML = `<div style="color:red; padding:2rem;"><h1>SYSTEM HALTED</h1><pre>${err.stack || err}</pre></div>`
         }
     },

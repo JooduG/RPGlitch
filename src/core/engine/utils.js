@@ -17,18 +17,18 @@ export const initDebugMode = async () => {
             isDebug = !!settings.debugMode
         }
     } catch (e) {
-        console.error("[RPGlitch] Failed to load debug mode:", e)
+        console.error("[Gamemaster] Failed to load debug mode:", e)
         isDebug = false
     }
     return isDebug
 }
 
 export const log = (...args) => {
-    if (isDebug) console.info("[RPGlitch]", ...args)
+    if (isDebug) console.info("[Gamemaster]", ...args)
 }
 
 export const error = (...args) => {
-    console.error("[RPGlitch]", ...args)
+    console.error("[Gamemaster]", ...args)
 }
 
 export const setDebug = async (on) => {

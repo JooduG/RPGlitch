@@ -17,11 +17,11 @@ if (!window.rpgLists) {
         voices: [],
         themes: [],
     }
-    console.info("[RPGlitch] Injected mock rpgLists for local dev.")
+    console.info("[Gamemaster] Injected mock rpgLists for local dev.")
 }
 
 // --- DATABASE INITIALIZATION ---
 // The Dexie database must be opened before any component tries to query it.
 import "./core/engine/bootstrap.js"
 
-console.info("[RPGlitch] Entry point active. Handing off to Bootstrap.")
+console.info("[Gamemaster] Entry point active. Handing off to Bootstrap.")

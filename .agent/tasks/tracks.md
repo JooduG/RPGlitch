@@ -12,7 +12,7 @@ _No backlog items at this time._
 
 ## ✅ Track: Recursive Engine
 
-- Path: .agent/tasks/investigate-recursive-engine/
+- Path: .agent/archive/investigate-recursive-engine/
 - Status: Discontinued
 - Note: Autonomous simulation feature deemed too complex for current architecture. Toggle removed from DevWing, parser.js deleted. See investigation in [recursive_engine_plan.md](../../../.gemini/antigravity/brain/376fdb87-47fb-4fd6-a90d-7c29f77ac590/recursive_engine_plan.md).
 
