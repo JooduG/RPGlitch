@@ -59,7 +59,9 @@ export const GameMaster = {
             try {
                 // Basic generation without full GameMaster overhead
                 const result = await LlmService.generate(payload)
-                await Session.addAiMessage(result, "Narrator")
+                const fractalName =
+                    runtime.storyFractal?.name || "Fractal Entity"
+                await Session.addAiMessage(result, fractalName, "fractal")
             } finally {
                 events.dispatchEvent(
                     new CustomEvent(EVENTS.GENERATION_COMPLETED)

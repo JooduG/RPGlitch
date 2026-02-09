@@ -1,6 +1,8 @@
 <script>
     import { db } from "@data/db.js"
     import { app } from "@state/app.svelte.js"
+    import { runtime } from "@state/runtime.svelte.js"
+    import { session } from "@state/session.svelte.js"
     import Button from "@ui/atoms/Button.svelte"
     import Toggle from "@ui/atoms/Toggle.svelte"
     import Modal from "@ui/molecules/dialogs/Modal.svelte"
@@ -15,6 +17,48 @@
             localStorage.clear()
             window.location.reload()
         }
+    }
+
+    // 🧪 MOCK DATA FOR VERIFICATION
+    function mockPrologue() {
+        // Inject Mock Runtime State so Colors Work
+        // [FIX] Use the actual selected entities if they exist, so the colors match!
+        runtime._debugInject({
+            fractal: {
+                id: "mock-fractal",
+                name: "Fractal Entity",
+                visuals: { signatureColor: "#a855f7" },
+            },
+            ai: app.selectedAi || {
+                id: "mock-ai",
+                name: "AI Companion",
+                visuals: { signatureColor: "#22c55e" },
+            },
+            user: app.selectedUser || {
+                id: "mock-user",
+                name: "Traveler",
+                visuals: { signatureColor: "#3b82f6" },
+            },
+        })
+
+        // 1. Fractal Message
+        session.addAiMessage(
+            "The reality fractures... infinite mirrors reflecting your choices.",
+            "Fractal Entity",
+            "fractal"
+        )
+        // 2. AI Message (Delayed slightly for realism in feed, but sync here is fine for mock)
+        setTimeout(() => {
+            session.addAiMessage(
+                "I sense a disturbance. Who are you?",
+                "AI Companion"
+            )
+        }, 500)
+
+        // 3. User Message
+        setTimeout(() => {
+            session.send("I am the traveler.")
+        }, 1000)
     }
 
     /* --- STATE HELPERS --- */
@@ -73,6 +117,12 @@
                 variant="secondary"
                 size="sm"
                 onclick={() => handleAction("EndStory")}
+            />
+            <Button
+                label="MOCK PROLOGUE"
+                variant="secondary"
+                size="sm"
+                onclick={mockPrologue}
             />
         </div>
     {/if}

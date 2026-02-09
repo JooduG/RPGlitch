@@ -1,5 +1,7 @@
 <script>
     import { app } from "@state/app.svelte.js"
+    import { runtime } from "@state/runtime.svelte.js"
+    import { themeStore } from "@theme/palette.svelte.js"
     import DOMPurify from "dompurify"
     import SceneHeader from "../SceneHeader.svelte"
 
@@ -12,6 +14,23 @@
 
     let isUser = $derived(sender === "user")
     let isAi = $derived(sender === "ai")
+    let isFractal = $derived(sender === "fractal")
+
+    let entity = $derived(
+        isUser
+            ? runtime.userCharacter
+            : isAi
+              ? runtime.aiCharacter
+              : isFractal
+                ? runtime.storyFractal
+                : null
+    )
+
+    let signatureColor = $derived(
+        entity ? themeStore.getSignatureColor(entity) : "#334155"
+    )
+
+    let textColor = $derived(themeStore.getContrastColor(signatureColor))
 
     // Format text to hide raw XML tags but keep content if needed.
     let rawText = $derived(
@@ -47,13 +66,31 @@
     let displayText = $derived(
         headerMatch ? cleanText.replace(headerMatch[0], "").trim() : cleanText
     )
+
+    $effect(() => {
+        console.log("Message Debug:", {
+            sender,
+            isUser,
+            isAi,
+            isFractal,
+            entityName: entity?.name,
+            signatureColor,
+        })
+    })
 </script>
 
-<div class="message-row" class:user-row={isUser} class:ai-row={isAi}>
+<div
+    class="message-row"
+    class:user-row={isUser}
+    class:ai-row={isAi}
+    class:fractal-row={isFractal}
+>
     <div
         class="message-bubble"
         class:user-bubble={isUser}
         class:ai-bubble={isAi}
+        class:fractal-bubble={isFractal}
+        style="--bubble-color: {signatureColor}; --bubble-text-color: {textColor};"
     >
         <!-- SCENE HEADER (If detected) -->
         {#if sceneData}
@@ -139,32 +176,47 @@
         &.ai-row {
             justify-content: flex-start;
         }
+
+        &.fractal-row {
+            justify-content: center;
+        }
     }
 
     .message-bubble {
+        width: max-content;
         max-width: 80%;
         padding: 1rem 1.25rem;
         border-radius: 12px;
-        background: #18181b;
-        border: 1px solid #27272a;
-        color: #e4e4e7;
+        background: var(--bubble-color, #18181b);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--bubble-text-color, #fff);
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
         position: relative;
 
         &.user-bubble {
-            background: #1e3a8a; /* Blue 900 */
-            border-color: #1d4ed8;
-            color: #fff;
-            border-bottom-right-radius: 2px;
-            box-shadow: 0 4px 12px rgba(29, 78, 216, 0.2);
+            max-width: 75%;
+            border-bottom-right-radius: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
         &.ai-bubble {
-            background: #064e3b; /* Emerald 900 */
-            border-color: #059669;
-            color: #ecfdf5;
-            border-bottom-left-radius: 2px;
-            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+            max-width: 75%;
+            border-bottom-left-radius: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        &.fractal-bubble {
+            width: 50%;
+            max-width: 80%;
+            text-align: center;
+            color: #fff; /* Always white on dark gradient */
+            background: linear-gradient(
+                135deg,
+                rgba(0, 0, 0, 0.8),
+                var(--bubble-color)
+            );
+            border: 1px solid var(--bubble-color);
+            box-shadow: 0 0 20px -5px var(--bubble-color);
         }
     }
 

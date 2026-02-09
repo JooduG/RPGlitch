@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# File: .agent/skills/scribe/scripts/scaffold.py
+# File: .agent/skills/scribe/scripts/scaffold_skill.py
 import sys
 import os
 import re

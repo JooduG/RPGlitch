@@ -1,4 +1,4 @@
-// src/core/session/bootstrap.js
+// src/core/engine/bootstrap.js
 
 import { db } from "@data/db.js"
 import { seedPremades } from "@data/repository.js"

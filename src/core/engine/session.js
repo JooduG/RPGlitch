@@ -75,11 +75,11 @@ export const Session = {
     /**
      * Add an AI message (Response)
      */
-    addAiMessage: async (text, characterName) => {
+    addAiMessage: async (text, characterName, role = "assistant") => {
         const storyId = Session.requireActive()
         await db.messages.add({
             storyId,
-            role: "assistant", // Using 'assistant' for AI role standard
+            role, // role: "assistant" | "fractal"
             type: "text",
             characterName,
             text,

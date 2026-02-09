@@ -147,6 +147,13 @@ export class ReactiveSession {
             app.simulation.status = "idle"
         }
     }
+
+    /**
+     * 🧪 DEBUG: Inject AI Message
+     */
+    async addAiMessage(text, characterName, role) {
+        await Session.addAiMessage(text, characterName, role)
+    }
 }
 
 export const session = new ReactiveSession()

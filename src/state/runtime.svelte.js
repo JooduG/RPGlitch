@@ -218,6 +218,14 @@ function createRuntimeStore() {
                 })
             })
         },
+
+        // 🧪 DEBUG: Inject Mock State
+        _debugInject(mockData) {
+            if (mockData.user) state.userCharacter = mockData.user
+            if (mockData.ai) state.aiCharacter = mockData.ai
+            if (mockData.fractal) state.storyFractal = mockData.fractal
+            state.ready = true
+        },
     }
 }
 
