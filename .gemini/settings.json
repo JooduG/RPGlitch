@@ -83,24 +83,6 @@
       "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-sequentialthinking-tools.cmd",
       "args": []
     },
-    "npm-sentinel": {
-      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-nekzus.cmd",
-      "args": [],
-      "disabledTools": [
-        "npmTypes",
-        "npmSize",
-        "npmTrends",
-        "npmCompare",
-        "npmMaintainers",
-        "npmScore",
-        "npmRepoStats",
-        "npmQuality",
-        "npmMaintenance",
-        "npmLicenseCompatibility",
-        "npmAlternatives",
-        "npmVersions"
-      ]
-    },
     "waldzell-clear-thought": {
       "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\clear-thought.cmd",
       "args": [],
@@ -137,21 +119,6 @@
     "svelte": {
       "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\svelte-mcp.cmd",
       "args": []
-    },
-    "playwright": {
-      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\playwright-mcp.cmd",
-      "args": [],
-      "disabledTools": [
-        "browser_drag",
-        "browser_network_requests",
-        "browser_install",
-        "browser_fill_form",
-        "browser_file_upload",
-        "browser_resize",
-        "browser_handle_dialog",
-        "browser_select_option",
-        "browser_run_code"
-      ]
     },
     "firecrawl-mcp": {
       "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\firecrawl-mcp.cmd",
@@ -222,6 +189,17 @@
         "GOOGLE_CLOUD_PROJECT": "spry-analyzer-457013-a1",
         "PATH": "C:\\Users\\johng\\AppData\\Local\\Google\\Cloud SDK\\google-cloud-sdk\\bin;C:\\Program Files\\nodejs",
         "GOOGLE_APPLICATION_CREDENTIALS": "C:\\Users\\johng\\AppData\\Roaming\\gcloud\\application_default_credentials.json"
+      }
+    },
+    "scholar": {
+      "command": "node",
+      "args": [
+        "c:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\skills\\scholar\\scripts\\mcp_server.js"
+      ],
+      "env": {
+        "PINECONE_API_KEY": "pcsk_vvGN2_67wnzYvzpZzBpiTWu39K2hWCp19hnS7GDeXYm6PbWothAyacBq67wmcQwspSivq",
+        "SUPABASE_URL": "https://zjoklmjvkxngbbneldht.supabase.com",
+        "SUPABASE_KEY": "sbp_0211f76c824072d4b77a5012761ad3fd3baca328"
       }
     }
   },

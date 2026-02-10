@@ -171,18 +171,22 @@ $bg-input-focus: rgba($black, $opacity-m);
 //  SECTION 5: GLASSMORPHISM & EFFECTS
 // =================================================
 
-// Glass Levels (Background + Blur)
-$glass-s: rgba($gunmetal, $opacity-m); // Standard
-$glass-m: rgba($black, $opacity-l); // Pill (Darker)
-$glass-l: rgba($gunmetal, $opacity-l); // Heavy
+// Surfaces & Depth (Semi-Flat Regime)
+$layer-surface: rgba($gunmetal, 0.98); // Almost opaque
+$layer-overlay: rgba($black, 0.95); // Deep overlay
 
-$blur-s: 10px;
-$blur-m: 16px;
+// Glass Mapping (Legacy Compat -> Flat)
+$glass-s: $layer-surface; // Standard -> Surface
+$glass-m: $layer-overlay; // Pill -> Overlay
+$glass-l: $gunmetal; // Heavy -> Solid
+
+$blur-s: 0px; // Disabled for surfaces
+$blur-m: 12px; // Overlay only
 $blur-l: 20px;
 
-// Glass Borders
-$glass-border: rgba($white, $opacity-xs);
-$glass-hover: rgba($white, $opacity-xxs);
+// Borders (Disabled)
+$glass-border: transparent; // No more white borders
+$glass-hover: rgba($white, 0.02); // Subtle interaction only
 
 // Optical Illusion (Shimmer)
 $shimmer-color: rgba($white, 0.03);

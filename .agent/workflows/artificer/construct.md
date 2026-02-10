@@ -11,8 +11,11 @@ constraints:
 
 ## 1. Specification
 
+0. **Ambiguity Check**: Rate Ambiguity (1-5). If >= 3, Ask. Else, Proceed.
 1. **Ask User**: "Name?" (e.g., `ControlPill`), "Domain?" (e.g., `artificer`, `mesmer`).
-2. **Consult Mesmer**: Run the **[Imagine Protocol](../mesmer/imagine.md)** to define the look.
+2. **Prerequisite**: Ensure a **Visual Spec** exists.
+    - If **NO Spec**: Execute the **[Imagine Protocol](../mesmer/imagine.md)** (as Mesmer) to generate it.
+    - If **YES Spec**: Proceed to Generation.
 
 ## 2. Generation
 

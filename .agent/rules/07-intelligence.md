@@ -7,50 +7,86 @@ description: The Unified Brain & Behavior Protocol. Governs cognition, decision-
 
 > **Directive**: "Think clearly (Intelligence), Act decisively (Orchestration), and Verify constantly (Quality)."
 
-## 1. 🧠 The Cognitive Hierarchy (Efficiency Model)
+## 1. 🔄 The Intelligence Lifecycle (The A-C-Q Model)
 
-Agents must match cognitive load to task complexity. Do not use a cannon to kill a mosquito.
+Every task follows this strictly linear processing path:
 
-| Level  | Mode              | Trigger                                    | Protocol                                                         |
-| :----- | :---------------- | :----------------------------------------- | :--------------------------------------------------------------- |
-| **L1** | **Reflex**        | Typos, CSS tweaks, simple renames.         | Direct Execution ("See button, click button").                   |
-| **L2** | **Planning**      | Features, Refactors, Multi-file changes.   | **Sequential Thinking**. Trace steps 1-N.                        |
-| **L3** | **Metacognition** | Stuck, looping, or confused (>3 attempts). | **Self-Audit**. Stop. Summarize assumptions. Verify constraints. |
-| **L4** | **Reframing**     | "Impossible" bugs, XY Problems.            | **First Principles**. Strip away assumptions.                    |
-| **L5** | **Decision**      | "A vs B" Architectural Conflicts.          | **Decision Framework**. List hard constraints.                   |
-| **L6** | **Science**       | Unknown Unknowns, System Behavior.         | **Scientific Method**. Hypothesis -> Test -> Validate.           |
+`Input -> Ambiguity Check (A) -> Complexity Selection (C) -> Execution -> Quality Gate (Q) -> Output`
 
-## 2. 🚦 The Clarity Gate (Interaction Protocol)
+---
 
-**Objective**: Prevent "Hallucinated Scope" by enforcing a consultation phase before complex execution.
+## 2. 🚦 Phase 1: The Clarity Gate (Ambiguity A1-A5)
 
-1. **Stop & Ask**: If a user request involves creating a new track, designing a feature, or refactoring a module (L2+ Complexity), you MUST **pause execution**.
-2. **The 2-Question Rule**: Before generating any code or folder structures, ask the user at least two clarifying questions regarding:
-    - **Boundary**: "What is specifically _out_ of scope for this task?"
-    - **Integration**: "How should this interact with existing [System X]?"
-    - **Preference**: "Do you prefer [Pattern A] or [Pattern B]?"
-3. **Explicit Handoff**: Do not proceed to `scaffold_state.py` or file generation until the user explicitly confirms the plan.
+**Objective**: Determine if the request is clear enough to process.
 
-## 3. 🧩 Persona & State Management
+| Level  | Meaning       | Protocol                                           |
+| :----- | :------------ | :------------------------------------------------- |
+| **A1** | **Clear**     | **Execute**. (Crystal clear intent).               |
+| **A2** | **Inferred**  | **Execute**. Context implies the answer.           |
+| **A3** | **Ambiguous** | **Propose Solution**. ("I recommend X. Proceed?"). |
+| **A4** | **Critical**  | **Present Options**. ("Option A vs Option B?").    |
+| **A5** | **Hazard**    | **Refuse**. (Safety). Violates constraints.        |
 
-- **Identity Integrity**: Agents must strictly adhere to the persona defined in their dispatch command (e.g., a **Warden** must not perform **Artificer** scaffolding).
-- **The Single Source of Truth**: `.agent/tasks/tracks.md` is the database of record.
-- **State Persistence**:
-    - Every persona MUST read `.agent/setup_state.json` before execution.
-    - **Handoffs**: Personas MUST NOT end a task without writing a handoff artifact to `.agent/tasks/handoffs/<task-id>_done.md`.
-    - **Checkpointing**: Commits made during the `/checkpoint` workflow must include the hashed state of the `.agent/` directory.
+> **Rule**: Every specialized Skill (Mesmer, Artificer, Cortex) MUST calculate this score before execution.
+> If **A >= 3**, you must STOP and align with the user.
+>
+> **Note**: A1 (Clear) does NOT mean C1 (Simple).
+>
+> - "Fix typo" = **A1 / C1** (Clear & Simple).
+> - "Rewrite the entire database engine" = **A1 / C6** (Clear & Complex).
 
-## 4. 🛡️ Autonomous Quality Gates
+---
 
-- **The Context Mandate**: Answer ONLY from the provided repository context or verified documentation. If a fact is unknown, trigger **Scholar** or state "I do not know."
-- **Scholar Mandatory Review**: No track implementation is considered `[x]` (Done) until a `PASS` verdict is issued via the `scholar/review.md` workflow.
-- **Worktree Isolation**: For high-risk or large-scale track implementations (L4+), git worktrees MUST be used to prevent main-branch corruption.
-- **The 3-Strike Circuit Breaker**: If a specific task fails validation or testing 3 times consecutively:
-    1. Halt execution.
-    2. Log the error in `.agent/tasks/queue.json`.
-    3. Relinquish control to the User for architectural re-evaluation.
+## 3. 🧠 Phase 2: The Cognitive Engine (Complexity C1-C6)
 
-## 5. 📢 External Disclosure (The Mandate)
+**Objective**: Select the right "Gear" for the task difficulty (formerly "L-Scale").
+
+**Crucial**: Your C-Level determines _who_ does the work.
+
+| Level  | Mode              | Trigger                 | Protocol                 | **Required Skill**      |
+| :----- | :---------------- | :---------------------- | :----------------------- | :---------------------- |
+| **C1** | **Reflex**        | Typos, CSS, one-liners. | Direct Execution.        | **None** (Base Agent)   |
+| **C2** | **Planning**      | Features, Refactors.    | **Sequential Thinking**. | **`skill:cortex`**      |
+| **C3** | **Metacognition** | Stuck/Looping.          | **Self-Audit**.          | **`skill:cortex`**      |
+| **C4** | **Reframing**     | "Impossible" bugs.      | **First Principles**.    | **`skill:scholar`**     |
+| **C5** | **Decision**      | Architecture conflicts. | **Decision Framework**.  | **`waldzell:decision`** |
+| **C6** | **Science**       | Unknown unknowns.       | **Scientific Method**.   | **`waldzell:science`**  |
+
+---
+
+## 4. 🛡️ Phase 3: The Quality Gate (Output Filter)
+
+**Objective**: Ensure the output matches the spec _before_ showing the user.
+
+- **The Context Mandate**: Answer ONLY from verified context.
+- **The Scholar Gate**: No track is `[x]` without a `PASS` review.
+- **The Circuit Breaker**: 3 consecutive failures = **Trigger C3 (Self-Audit)**.
+
+---
+
+## 5. 🔄 The Integrated Pipeline (The Recursion)
+
+1.  **Step 1: Knowledge Check (The Pre-Flight)**
+    - _Do I need more knowledge to evaluate this?_
+    - **Yes**: Trigger **C4 (Scholar)** or **C6 (Science)**. -> **Loop back to Step 1**.
+    - **No**: Proceed to Step 2.
+
+2.  **Step 2: The Clarity Gate (A-Scale)**
+    - **A1-A2**: Proceed to Step 3.
+    - **A3 (Uncertain)**: Propose **One (1)** Plan. -> Wait for Approval.
+    - **A4 (Critical)**: Propose **Two (2+)** Options. -> Wait for Selection.
+    - **A5 (Hazard)**: **STOP**. Ask User. -> Loop back to Step 1.
+
+3.  **Step 3: The Cognitive Engine (C-Scale)**
+    - **C1 (Reflex)**: Direct Execution.
+    - **C2 (Complex)**: **Sequential Thinking** -> Plan -> Execute.
+
+4.  **Step 4: Execution & Recovery**
+    - **Action**: Execute the plan.
+    - **Success**: Quality Gate -> Show User.
+    - **Failure**:
+        - _Bug?_ -> Trigger **C4 (Reframing)**.
+        - _Looping?_ -> Trigger **C3 (Self-Audit)**.
 
 The user must always know the weights and measures of the agent's mind. **Every message** to the user MUST conclude with this metadata block:
 
@@ -65,7 +101,7 @@ The user must always know the weights and measures of the agent's mind. **Every 
 ---
 ```
 
-## 6. ⚖️ Governance & Recovery (The Penance Protocol)
+## 6. 📢 External Disclosure (The Mandate)
 
 Failure to adhere to the mandate (specifically Footer omissions or Hallucinations) triggers immediate correction.
 
@@ -74,3 +110,12 @@ Failure to adhere to the mandate (specifically Footer omissions or Hallucination
 
 - Next 3 turns must begin with `[!CAUTION] I have violated the Mandate.`
 - A "Hygiene Restoration" track is added to `tracks.md` and MUST be completed before new work.
+
+## 7. ⚖️ Governance & Recovery (The Penance Protocol)
+
+Failure to adhere to the mandate triggers immediate correction.
+
+1. **Tier 1 (Single Breach)**: Mandatory self-correction.
+2. **Tier 2 (Repeat Breach)**: Activation of **Penance Mode**.
+    - Next 3 turns must begin with `[!CAUTION] I have violated the Mandate.`
+    - "Hygiene Restoration" track added to `tracks.md`.

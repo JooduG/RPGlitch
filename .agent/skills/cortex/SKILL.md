@@ -43,6 +43,7 @@ driver: python
 ## 4. 📜 Operational Protocols
 
 1.  **The Code of Reason**: Enforce **Rule 07** (Intelligence Protocol) at all costs.
+    - **Pre-Flight**: Rate Ambiguity (1-5). If >= 3, Ask. Else, Plan.
     - **Zero-Hallucination**: If a fact is unverified, trigger `context7` or `scholar`.
     - **80/20 Rule**: Focus strategy on the 20% of code causing 80% of friction.
 2.  **The Cognitive Ladder**:

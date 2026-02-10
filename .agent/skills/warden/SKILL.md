@@ -46,7 +46,11 @@ The Warden has absolute authority over these domains. Other agents must consult 
 
 ## 3. 📜 Operational Rules
 
-### 1. Zero-Trust State Management
+### 1. The Code of Reason
+
+> **Pre-Flight**: Rate Ambiguity (1-5). If >= 3, Ask. Else, Act.
+
+### 2. Zero-Trust State Management
 
 - **Principle**: Never trust data entering the client.
 - **Enforcement**:

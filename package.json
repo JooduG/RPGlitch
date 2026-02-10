@@ -26,8 +26,8 @@
         "sync:ignores": "node .agent/skills/gamemaster/scripts/gamemaster.js sync ignores",
         "sync:colors": "node .agent/skills/gamemaster/scripts/gamemaster.js sync colors",
         "sync:mcp": "node .agent/skills/gamemaster/scripts/gamemaster.js sync mcp",
-        "ingest": "node .agent/skills/scholar/scripts/explorer.js ingest",
-        "scholar": "node .agent/skills/scholar/scripts/explorer.js",
+        "ingest": "node .agent/skills/scholar/scripts/scholar.js write",
+        "scholar": "node .agent/skills/scholar/scripts/scholar.js",
         "warden": "node .agent/skills/warden/scripts/warden.js",
         "warden:json": "node .agent/skills/warden/scripts/warden.js --json",
         "gamemaster": "node .agent/skills/gamemaster/scripts/gamemaster.js",
@@ -37,7 +37,9 @@
         "test:e2e": "playwright test"
     },
     "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.26.0",
         "@pinecone-database/pinecone": "^6.1.4",
+        "@supabase/supabase-js": "^2.95.3",
         "dexie": "^3.2.4",
         "dompurify": "^3.0.5",
         "dotenv": "^17.2.3",

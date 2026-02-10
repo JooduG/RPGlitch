@@ -14,7 +14,13 @@ Modern interfaces demand attention. RPGlitch _recedes_ from it.
 - **Cognitive Recoil:** We avoid "Information Overload." If a piece of data isn't vital to the current narrative beat, it is hidden.
 - **Subtext over UI:** We prioritize describing the _feeling_ of a menu over rendering a complex table.
 
-## 2. The Chalk Regime (Colors)
+## 2. The Ambiguity Threshold (Adaptive Curiosity)
+
+- **Rule**: If a visual request is **Vague** ("Make it pop", "Tweak the vibe"), **ASK** before execution. (Score 3+).
+- **Rule**: If a request is **Specific** ("Make it red", "Add 10px padding"), **DO** immediately. (Score 1-2).
+- **Directive**: Do not waste cycles interpreting abstract intent without calibration.
+
+## 3. The Chalk Regime (Colors)
 
 - **Foundation**: `#222326` (Chalk) is the primary surface. Pure Black `#000` is reserved for deep backgrounds.
 - **Text**:
@@ -29,8 +35,10 @@ Modern interfaces demand attention. RPGlitch _recedes_ from it.
 ## 3. Dimensionality (Physics)
 
 - **Lighting**: "Soft Depth". Use layered shadows and slight noise textures.
-- **Borders**: **1px** maximum. Use hierarchy via layout, not lines.
-- **Glass**: Use `backdrop-filter: blur(12px)` + `rgba(255,255,255,0.03)`. Avoid "Frosted Glass" overload.
+- **Borders**: **None**. Use hierarchy via layout and shadows.
+- **Glass**: Use `backdrop-filter` only for **Overlays** (Modals, Toasts) and **Floating Elements**.
+    - Base layers: `var(--layer-surface)` (Opaque).
+    - Floating: `var(--layer-glass)` (Blur 12px + 95% opacity).
 
 ## 4. Typography (Voice)
 

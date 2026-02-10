@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-import { Server } from "@modelcontextprotocol/sdk/server/index.js"
+import { Server } from "@modelcontextprotocol/sdk/server"
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import {
     CallToolRequestSchema,
     ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js"
-import { searchScholar } from "./research_engine.js"
+import { searchScholar } from "./memory_engine.js"
 
 /**
  * 🔌 Scholar MCP Server
@@ -21,7 +21,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     return {
         tools: [
             {
-                name: "search_knowledge_base",
+                name: "read_knowledge_base",
                 description:
                     "Search the RPGlitch technical knowledge base (rules, architecture, patterns). Use this to verify best practices or recall implementation details.",
                 inputSchema: {
@@ -41,7 +41,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 })
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
-    if (request.params.name === "search_knowledge_base") {
+    if (request.params.name === "read_knowledge_base") {
         const { query } = request.params.arguments
         try {
             // Direct call for speed

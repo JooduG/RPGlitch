@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { ingestScholar } from "./research_engine.js"
+import { ingestScholar } from "./memory_engine.js"
 
 const IS_JSON = process.argv.includes("--json")
 

@@ -9,33 +9,34 @@
 
 // --- GLASSMORPHISM ---
 
-// Base Glass Style
+// Base Glass Style (Now Surface)
 %glass-base {
     border-radius: $border-radius;
+    background: $layer-surface; // Default
+    // No blur by default
 }
 
-// Glassmorphism Pill Container
+// Glassmorphism Pill Container (Overlay - Keeps Blur)
 %glass-pill {
     @extend %glass-base;
-    background: $glass-m; // Pill uses M (Darker)
-    backdrop-filter: blur($blur-s);
+    background: $layer-overlay; // Darker overlay
+    backdrop-filter: blur(12px); // Explicit blur for overlays
     box-shadow: $shadow-l;
     border-radius: 50px;
 }
 
-// 1. The Standard Glass
+// 1. The Standard Surface (Renamed Logic)
 %material-glass {
     @extend %glass-base;
-    background: $glass-s; // Standard
-    backdrop-filter: blur($blur-m);
+    background: $layer-surface;
     box-shadow: $shadow-m;
+    // backdrop-filter removed for performance & flatness
 }
 
-// 2. The Heavy Glass
+// 2. The Heavy Surface
 %material-glass-heavy {
     @extend %glass-base;
-    background: $glass-l; // Heavy
-    backdrop-filter: blur($blur-l);
+    background: $gunmetal; // Solid
     box-shadow: $shadow-l;
     border-radius: $border-radius;
 }

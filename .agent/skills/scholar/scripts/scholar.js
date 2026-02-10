@@ -1,14 +1,18 @@
 #!/usr/bin/env node
-import { ingestScholar, searchScholar } from "./research_engine.js"
+import {
+    ingestScholar,
+    maintainScholar,
+    searchScholar,
+} from "./memory_engine.js"
 
 /**
  * 📚 Scholar CLI
  * -------------------------------------------------------------------------
  * The central interface for Memory and Research operations.
  * Usage:
- * node .agent/skills/scholar/scripts/scholar.js search "How do I..."
- * node .agent/skills/scholar/scripts/scholar.js ingest --path src/ --namespace knowledge-base.src
- * node .agent/skills/scholar/scripts/scholar.js organize --scope all
+ * node .agent/skills/scholar/scripts/scholar.js read "How do I..."
+ * node .agent/skills/scholar/scripts/scholar.js write --path src/ --namespace knowledge-base.src
+ * node .agent/skills/scholar/scripts/scholar.js maintain --scope all
  * -------------------------------------------------------------------------
  */
 
@@ -20,9 +24,9 @@ const robotLog = (...args) => {
 }
 
 const COMMANDS = {
-    /** 🔍 Search */
-    search: async (query) => {
-        robotLog(`🔍 Scholar: Searching Memory for "${query}"...`)
+    /** 🔍 Read (Search) */
+    read: async (query) => {
+        robotLog(`🔍 Scholar: Reading Memory for "${query}"...`)
         try {
             const matches = await searchScholar({ query })
 
@@ -58,8 +62,8 @@ const COMMANDS = {
         }
     },
 
-    /** 📥 Ingest */
-    ingest: async () => {
+    /** 📥 Write (Ingest) */
+    write: async () => {
         const pathIdx = process.argv.indexOf("--path")
         const nsIdx = process.argv.indexOf("--namespace")
 
@@ -67,6 +71,9 @@ const COMMANDS = {
             pathIdx !== -1 ? [process.argv[pathIdx + 1]] : ["src/data"]
         const namespace =
             nsIdx !== -1 ? process.argv[nsIdx + 1] : "knowledge-base.src"
+        //     "knowledge-base.external", // Context7 (Libraries)
+        //     "knowledge-base.src",      // Source Code (GitHub/Local)
+        //     "knowledge-base.meta",     // Project Rules (DeepWiki/Local)
 
         robotLog(`📑 Scholar: Ingesting into ${namespace}...`)
         try {
@@ -79,40 +86,21 @@ const COMMANDS = {
         }
     },
 
-    /** 🧹 Organize (Merged from organize-library.js) */
-    organize: async () => {
+    /** 🧹 Maintain (Organize/Prune) */
+    maintain: async () => {
         const args = process.argv.slice(2)
         const scopeIndex = args.indexOf("--scope")
         const scope = scopeIndex !== -1 ? args[scopeIndex + 1] : "basics"
 
-        robotLog(`📚 Scholar: Organizing Library (Scope: ${scope})...`)
-
-        const audits = {
-            warden: () =>
-                robotLog("   - 🛡️  Auditing Warden Wing (Security)..."),
-            gamemaster: () =>
-                robotLog("   - 🕹️  Auditing Gamemaster Wing (Tasks)..."),
-            scholar: () =>
-                robotLog("   - 📚 Auditing Scholar Wing (Memory)..."),
-            mesmer: () =>
-                robotLog("   - 🎭 Auditing Mesmer Wing (Aesthetics)..."),
-            artificer: () =>
-                robotLog("   - 🛠️  Auditing Artificer Wing (Structure)..."),
-            basics: () => robotLog("   - 🧹 Standard Hygiene Check..."),
+        try {
+            await maintainScholar({ scope })
+            if (IS_JSON)
+                console.log(JSON.stringify({ status: "success", scope }))
+        } catch (e) {
+            if (IS_JSON) console.log(JSON.stringify({ error: e.message }))
+            else console.error("❌ Maintenance Failed:", e.message)
+            process.exit(1)
         }
-
-        if (scope === "all") {
-            Object.keys(audits).forEach((k) => k !== "basics" && audits[k]())
-        } else if (audits[scope]) {
-            audits[scope]()
-        } else {
-            console.warn(`⚠️ Unknown scope. Running basics.`)
-            audits.basics()
-        }
-
-        // Future: Add actual vector pruning logic here
-        if (IS_JSON) console.log(JSON.stringify({ status: "success", scope }))
-        else console.log("✅ Organization Complete.")
     },
 }
 
@@ -125,7 +113,7 @@ async function main() {
         if (IS_JSON) console.log(JSON.stringify({ error: "Unknown command" }))
         else
             console.error(
-                "❌ Unknown command. Available: search, ingest, organize"
+                "❌ Unknown command. Available: read, write, maintain"
             )
         process.exit(1)
     }

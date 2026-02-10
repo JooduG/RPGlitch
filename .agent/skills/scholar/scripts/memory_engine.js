@@ -1,4 +1,5 @@
 import { Pinecone } from "@pinecone-database/pinecone"
+import { createClient } from "@supabase/supabase-js"
 import crypto from "crypto"
 import "dotenv/config"
 import fs from "fs/promises"
@@ -16,7 +17,9 @@ const INDEX_NAME = "knowledge-library"
 const BATCH_SIZE = 50
 
 // Shared Pinecone instance
+// Shared Instances
 let pc = null
+let sb = null
 
 function getPC() {
     if (!pc) {
@@ -28,6 +31,19 @@ function getPC() {
         pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY })
     }
     return pc
+}
+
+function getSB() {
+    if (!sb) {
+        // Optional: Only init if keys exist
+        if (process.env.SUPABASE_URL && process.env.SUPABASE_KEY) {
+            sb = createClient(
+                process.env.SUPABASE_URL,
+                process.env.SUPABASE_KEY
+            )
+        }
+    }
+    return sb
 }
 
 /**
@@ -139,11 +155,27 @@ export async function ingestScholar({
         `📑 Processing ${files.length} files for namespace: ${namespace}`
     )
 
-    // 3. Chunk & Embed
+    // 3. Prune & Chunk
     const allChunks = []
+
+    // Prune-on-Write: Delete existing vectors for these files before adding new ones
+    console.log(`🧹 Pruning existing vectors for ${files.length} files...`)
+
+    // Process files sequentially to safely prune then process
     for (const file of files) {
         const content = await fs.readFile(file, "utf-8")
         const relPath = path.relative(root, file)
+
+        // A. Prune Ghosts
+        try {
+            await index.namespace(namespace).deleteMany({
+                source: { $eq: relPath },
+            })
+        } catch (err) {
+            // Ignore "not found" or "no filter support" errors silently or warn
+            // console.warn(`⚠️ Prune skipped for ${relPath}: ${err.message}`)
+        }
+
         const ext = path.extname(file)
 
         let segments = []
@@ -190,10 +222,12 @@ export async function ingestScholar({
                 texts,
                 { inputType: "passage" }
             )
+            // console.log("DEBUG EMBEDDING:", JSON.stringify(embeddings, null, 2)) // specific debug
+            const data = embeddings.data || embeddings // Handle potential wrapper
 
             const vectors = batch.map((record, idx) => ({
                 id: record.id,
-                values: embeddings[idx].values,
+                values: data[idx].values,
                 metadata: record.metadata,
             }))
 
@@ -206,4 +240,36 @@ export async function ingestScholar({
         }
     }
     console.log(`\n✨ Ingestion complete.`)
+}
+
+/**
+ * 🧹 Maintain: Audit and Prune
+ */
+export async function maintainScholar({ scope = "basics" } = {}) {
+    console.log(`📚 Scholar: Organizing Library (Scope: ${scope})...`)
+
+    const audits = {
+        warden: () =>
+            console.log("   - 🛡️  Auditing Warden Wing (Security)..."),
+        gamemaster: () =>
+            console.log("   - 🕹️  Auditing Gamemaster Wing (Tasks)..."),
+        scholar: () => console.log("   - 📚 Auditing Scholar Wing (Memory)..."),
+        mesmer: () =>
+            console.log("   - 🎭 Auditing Mesmer Wing (Aesthetics)..."),
+        artificer: () =>
+            console.log("   - 🛠️  Auditing Artificer Wing (Structure)..."),
+        basics: () => console.log("   - 🧹 Standard Hygiene Check..."),
+    }
+
+    if (scope === "all") {
+        Object.keys(audits).forEach((k) => k !== "basics" && audits[k]())
+    } else if (audits[scope]) {
+        audits[scope]()
+    } else {
+        console.warn(`⚠️ Unknown scope. Running basics.`)
+        audits.basics()
+    }
+
+    // Future: Add Supabase Archival logic here
+    return { status: "success", scope }
 }

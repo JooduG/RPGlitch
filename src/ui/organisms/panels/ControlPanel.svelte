@@ -186,16 +186,16 @@
 
     .cockpit-panel {
         width: 30rem; /* Slightly wider for the pill */
-        background: #18181b; /* Zinc-900 (Darker, opaque-ish) */
-        border: 1px solid #27272a; /* Zinc-800 */
+        background: $layer-overlay; /* Opaque overlay */
+        border: 1px solid $glass-border; /* Transparent by default */
         border-radius: var(--radius-l);
-        box-shadow: var(--shadow-2xl);
+        box-shadow: $shadow-l; /* Deep shadow */
         padding: 1.5rem;
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
         font-family: "Inter", sans-serif;
-        color: var(--zinc-100);
+        color: var(--app-color);
         overflow: hidden;
     }
 
@@ -204,10 +204,10 @@
     /* --- PROLOGUE (Input Only) --- */
     .prologue-section {
         .prologue-input-area {
-            background: #27272a; /* Zinc-800 input bg */
+            background: $bg-input; /* Opaque input */
             border-radius: var(--radius-m);
             padding: 0.75rem;
-            border: 1px solid #3f3f46; /* Zinc-700 */
+            border: none; /* No border */
 
             .prologue-input {
                 width: 100%;
