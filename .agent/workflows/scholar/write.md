@@ -30,7 +30,7 @@ Before ingesting new knowledge, ensure the existing library is organized.
 1.  **Path-Specific Ingestion**:
 
     ```bash
-    # Use Pinecone/Firecrawl MCP tools where available, or fallback to CLI
+    # Standard Ingestion
     node .agent/skills/scholar/scripts/scholar.js write --path [dir/file] --namespace [ns]
     ```
 
