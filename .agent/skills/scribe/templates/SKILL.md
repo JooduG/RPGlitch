@@ -3,7 +3,8 @@ name: [skill-slug]
 version: 1.0.0
 description: >
   [Description]
-  Trigger phrases: "phrase 1", "phrase 2"
+  Triggers:
+  - "phrase 1"
 ---
 
 # [Skill Title]
@@ -12,13 +13,12 @@ description: >
 
 ### ⚡ Capability 1
 
-Description of what this skill effectively does.
+Effective description of the action and its output.
 
 ## 2. Procedures
 
-1.  **Step 1**: Detail...
-2.  **Step 2**: Detail...
+1. **Step 1**: Detail the deterministic path.
 
 ## 3. Tools
 
-* [tool_name.js](./scripts/tool_name.js): Description.
+- [tool.js](./scripts/tool.js): Tool description.
