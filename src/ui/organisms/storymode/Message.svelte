@@ -93,30 +93,29 @@
         {#if attachments.length > 0}
             <div class="attachments">
                 {#each attachments as src (src)}
-                    <!-- svelte-ignore a11y_click_events_have_key_events -->
-                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                    <img
-                        {src}
-                        alt="Attachment"
-                        class="attachment-image clickable"
+                    <button
+                        type="button"
+                        class="attachment-btn"
                         onclick={() => app.openLightbox(src)}
-                        onerror={(e) => {
-                            // @ts-ignore - style exists on HTMLImageElement target
-                            e.target.style.display = "none"
-                            console.warn("Failed to load attachment:", src)
-                        }}
-                    />
+                        title="View Attachment"
+                    >
+                        <img
+                            {src}
+                            alt="Attachment"
+                            class="attachment-image"
+                            onerror={(e) => {
+                                // @ts-ignore - style exists on HTMLImageElement target
+                                e.target.style.display = "none"
+                                console.warn("Failed to load attachment:", src)
+                            }}
+                        />
+                    </button>
                 {/each}
             </div>
         {/if}
         <div class="message-content">
             <!-- eslint-disable-next-line svelte/no-at-html-tags -->
             {@html DOMPurify.sanitize(displayText)}
-            <!-- Use @html to render if we had HTML, but basic text is safer.
-           Actually, let's stick to {displayText} to avoid XSS unless we sanitize.
-           Wait, existing code was {text}.
-           Let's use {displayText}.
-      -->
         </div>
         <div class="message-footer">
             <!-- NEW: Actions (Left of Timestamp, same row) -->
@@ -200,7 +199,13 @@
                         class="action-btn"
                         type="button"
                         title="Copy"
-                        onclick={() => navigator.clipboard.writeText(text)}
+                        onclick={async () => {
+                            try {
+                                await navigator.clipboard.writeText(text)
+                            } catch (e) {
+                                console.error("Failed to copy text:", e)
+                            }
+                        }}
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -267,20 +272,25 @@
     .attachments {
         margin-bottom: 0.75rem;
 
+        .attachment-btn {
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0 0 0.5rem 0;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: block;
+
+            &:hover {
+                transform: scale(1.02);
+            }
+        }
+
         .attachment-image {
             max-width: 100%;
             border-radius: 8px;
             display: block;
-            margin-bottom: 0.5rem;
             border: 1px solid rgba(255, 255, 255, 0.1);
-
-            &.clickable {
-                cursor: pointer;
-                transition: transform 0.2s;
-                &:hover {
-                    transform: scale(1.02);
-                }
-            }
         }
     }
     .message-row {

@@ -1,235 +1,199 @@
 {
-  "ui": {
-    "accessibility": {
-      "screenReader": false
+    "ui": {
+        "accessibility": {
+            "screenReader": false
+        },
+        "showMemoryUsage": false,
+        "theme": "Atom One"
     },
-    "showMemoryUsage": false,
-    "theme": "Atom One"
-  },
-  "context": {
-    "loadMemoryFromIncludeDirectories": true,
-    "fileFiltering": {
-      "respectGitIgnore": false
+    "context": {
+        "loadMemoryFromIncludeDirectories": true,
+        "fileFiltering": {
+            "respectGitIgnore": false
+        }
+    },
+    "security": {
+        "folderTrust": {
+            "featureEnabled": true,
+            "enabled": true
+        },
+        "auth": {
+            "selectedType": "oauth-personal"
+        }
+    },
+    "ide": {
+        "hasSeenNudge": true,
+        "enabled": true
+    },
+    "mcpServers": {
+        "context7": {
+            "headers": {
+                "CONTEXT7_API_KEY": "ctx7sk-47294459-6c98-4af4-8546-a3616fe3d7d9"
+            },
+            "url": "https://mcp.context7.com/mcp"
+        },
+        "deepwiki": {
+            "disabledTools": ["ask_question"],
+            "url": "https://mcp.deepwiki.com/mcp"
+        },
+        "github": {
+            "headers": {
+                "Authorization": "Bearer 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"
+            },
+            "disabledTools": [
+                "add_issue_comment",
+                "assign_copilot_to_issue",
+                "create_repository",
+                "fork_repository",
+                "get_release_by_tag",
+                "get_tag",
+                "get_team_members",
+                "get_teams",
+                "list_issue_types",
+                "list_issues",
+                "list_tags",
+                "search_issues",
+                "sub_issue_write",
+                "get_label",
+                "add_comment_to_pending_review",
+                "create_branch",
+                "create_or_update_file",
+                "delete_file",
+                "get_commit",
+                "get_latest_release",
+                "get_me",
+                "list_branches",
+                "list_commits",
+                "list_releases",
+                "merge_pull_request",
+                "pull_request_read",
+                "pull_request_review_write",
+                "push_files",
+                "request_copilot_review",
+                "search_pull_requests",
+                "search_users",
+                "update_pull_request_branch",
+                "update_pull_request"
+            ],
+            "url": "https://api.githubcopilot.com/mcp"
+        },
+        "mcp-sequentialthinking-tools": {
+            "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-sequentialthinking-tools.cmd",
+            "args": []
+        },
+        "waldzell-clear-thought": {
+            "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\clear-thought.cmd",
+            "args": [],
+            "disabledTools": []
+        },
+        "waldzell-stochastic-thinking": {
+            "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-stochasticthinking.cmd",
+            "args": []
+        },
+        "waldzell-scientific-method": {
+            "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-scientific-method.cmd",
+            "args": []
+        },
+        "waldzell-decision-framework": {
+            "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-decision-framework.cmd",
+            "args": []
+        },
+        "waldzell-structured-argumentation": {
+            "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-structured-argumentation.cmd",
+            "args": []
+        },
+        "waldzell-metacognitive-monitoring": {
+            "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-metacognitive-monitoring.cmd",
+            "args": []
+        },
+        "waldzell-visual-reasoning": {
+            "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-visual-reasoning.cmd",
+            "args": []
+        },
+        "waldzell-collaborative-reasoning": {
+            "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-collaborative-reasoning.cmd",
+            "args": []
+        },
+        "svelte": {
+            "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\svelte-mcp.cmd",
+            "args": []
+        },
+        "firecrawl-mcp": {
+            "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\firecrawl-mcp.cmd",
+            "args": [],
+            "env": {
+                "FIRECRAWL_API_KEY": "fc-968e355e236f460092834ec49afdd6ae"
+            },
+            "disabledTools": [
+                "firecrawl_agent",
+                "firecrawl_agent_status",
+                "firecrawl_crawl",
+                "firecrawl_check_crawl_status"
+            ]
+        },
+        "pinecone-mcp-server": {
+            "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\pinecone-mcp.cmd",
+            "args": [],
+            "env": {
+                "PINECONE_API_KEY": "pcsk_vQDQw_JH6oQebjGTqo4TkQqeXu5FU6oFfzDKXQSLC2h7kEccPHCUt1X66oqYdxUgH27nW"
+            },
+            "disabledTools": [
+                "search-docs",
+                "list-indexes",
+                "describe-index",
+                "describe-index-stats"
+            ]
+        },
+        "supabase-mcp-server": {
+            "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-supabase.cmd",
+            "args": [
+                "--access-token",
+                "sbp_0211f76c824072d4b77a5012761ad3fd3baca328"
+            ],
+            "env": {},
+            "disabledTools": [
+                "list_organizations",
+                "get_organization",
+                "get_cost",
+                "confirm_cost",
+                "pause_project",
+                "restore_project",
+                "delete_branch",
+                "merge_branch",
+                "reset_branch",
+                "rebase_branch",
+                "list_branches",
+                "create_branch",
+                "get_project",
+                "list_projects",
+                "create_project",
+                "list_extensions",
+                "list_migrations",
+                "apply_migration",
+                "get_logs",
+                "get_advisors",
+                "generate_typescript_types",
+                "list_edge_functions",
+                "get_edge_function",
+                "deploy_edge_function"
+            ]
+        },
+        "stitch": {
+            "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\stitch-mcp.cmd",
+            "args": ["proxy"],
+            "env": {
+                "GOOGLE_CLOUD_PROJECT": "spry-analyzer-457013-a1",
+                "PATH": "C:\\Users\\johng\\AppData\\Local\\Google\\Cloud SDK\\google-cloud-sdk\\bin;C:\\Program Files\\nodejs",
+                "GOOGLE_APPLICATION_CREDENTIALS": "C:\\Users\\johng\\AppData\\Roaming\\gcloud\\application_default_credentials.json"
+            }
+        }
+    },
+    "general": {
+        "enablePromptCompletion": true,
+        "preferredEditor": "antigravity"
+    },
+    "tools": {
+        "useRipgrep": true,
+        "enableHooks": false
     }
-  },
-  "security": {
-    "folderTrust": {
-      "featureEnabled": true,
-      "enabled": true
-    },
-    "auth": {
-      "selectedType": "oauth-personal"
-    }
-  },
-  "ide": {
-    "hasSeenNudge": true,
-    "enabled": true
-  },
-  "mcpServers": {
-    "context7": {
-      "headers": {
-        "CONTEXT7_API_KEY": "ctx7sk-47294459-6c98-4af4-8546-a3616fe3d7d9"
-      },
-      "url": "https://mcp.context7.com/mcp"
-    },
-    "deepwiki": {
-      "disabledTools": [
-        "ask_question"
-      ],
-      "url": "https://mcp.deepwiki.com/mcp"
-    },
-    "github": {
-      "headers": {
-        "Authorization": "Bearer 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"
-      },
-      "disabledTools": [
-        "add_issue_comment",
-        "assign_copilot_to_issue",
-        "create_repository",
-        "fork_repository",
-        "get_release_by_tag",
-        "get_tag",
-        "get_team_members",
-        "get_teams",
-        "list_issue_types",
-        "list_issues",
-        "list_tags",
-        "search_issues",
-        "sub_issue_write",
-        "get_label",
-        "add_comment_to_pending_review",
-        "create_branch",
-        "create_or_update_file",
-        "delete_file",
-        "get_commit",
-        "get_latest_release",
-        "get_me",
-        "list_branches",
-        "list_commits",
-        "list_releases",
-        "merge_pull_request",
-        "pull_request_read",
-        "pull_request_review_write",
-        "push_files",
-        "request_copilot_review",
-        "search_pull_requests",
-        "search_users",
-        "update_pull_request_branch",
-        "update_pull_request"
-      ],
-      "url": "https://api.githubcopilot.com/mcp"
-    },
-    "mcp-sequentialthinking-tools": {
-      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-sequentialthinking-tools.cmd",
-      "args": []
-    },
-    "waldzell-clear-thought": {
-      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\clear-thought.cmd",
-      "args": [],
-      "disabledTools": []
-    },
-    "waldzell-stochastic-thinking": {
-      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-stochasticthinking.cmd",
-      "args": []
-    },
-    "waldzell-scientific-method": {
-      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-scientific-method.cmd",
-      "args": []
-    },
-    "waldzell-decision-framework": {
-      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-decision-framework.cmd",
-      "args": []
-    },
-    "waldzell-structured-argumentation": {
-      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-structured-argumentation.cmd",
-      "args": []
-    },
-    "waldzell-metacognitive-monitoring": {
-      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-metacognitive-monitoring.cmd",
-      "args": []
-    },
-    "waldzell-visual-reasoning": {
-      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-visual-reasoning.cmd",
-      "args": []
-    },
-    "waldzell-collaborative-reasoning": {
-      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-collaborative-reasoning.cmd",
-      "args": []
-    },
-    "svelte": {
-      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\svelte-mcp.cmd",
-      "args": []
-    },
-    "firecrawl-mcp": {
-      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\firecrawl-mcp.cmd",
-      "args": [],
-      "env": {
-        "FIRECRAWL_API_KEY": "fc-968e355e236f460092834ec49afdd6ae"
-      },
-      "disabledTools": [
-        "firecrawl_agent",
-        "firecrawl_agent_status",
-        "firecrawl_crawl",
-        "firecrawl_check_crawl_status"
-      ]
-    },
-    "pinecone-mcp-server": {
-      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\pinecone-mcp.cmd",
-      "args": [],
-      "env": {
-        "PINECONE_API_KEY": "pcsk_vQDQw_JH6oQebjGTqo4TkQqeXu5FU6oFfzDKXQSLC2h7kEccPHCUt1X66oqYdxUgH27nW"
-      },
-      "disabledTools": [
-        "search-docs",
-        "list-indexes",
-        "describe-index",
-        "describe-index-stats"
-      ]
-    },
-    "supabase-mcp-server": {
-      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\mcp-server-supabase.cmd",
-      "args": [
-        "--access-token",
-        "sbp_0211f76c824072d4b77a5012761ad3fd3baca328"
-      ],
-      "env": {},
-      "disabledTools": [
-        "list_organizations",
-        "get_organization",
-        "get_cost",
-        "confirm_cost",
-        "pause_project",
-        "restore_project",
-        "delete_branch",
-        "merge_branch",
-        "reset_branch",
-        "rebase_branch",
-        "list_branches",
-        "create_branch",
-        "get_project",
-        "list_projects",
-        "create_project",
-        "list_extensions",
-        "list_migrations",
-        "apply_migration",
-        "get_logs",
-        "get_advisors",
-        "generate_typescript_types",
-        "list_edge_functions",
-        "get_edge_function",
-        "deploy_edge_function"
-      ]
-    },
-    "stitch": {
-      "command": "C:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\tools\\node_modules\\.bin\\stitch-mcp.cmd",
-      "args": [
-        "proxy"
-      ],
-      "env": {
-        "GOOGLE_CLOUD_PROJECT": "spry-analyzer-457013-a1",
-        "PATH": "C:\\Users\\johng\\AppData\\Local\\Google\\Cloud SDK\\google-cloud-sdk\\bin;C:\\Program Files\\nodejs",
-        "GOOGLE_APPLICATION_CREDENTIALS": "C:\\Users\\johng\\AppData\\Roaming\\gcloud\\application_default_credentials.json"
-      }
-    },
-    "scholar": {
-      "command": "node",
-      "args": [
-        "c:\\Users\\johng\\Documents\\GitHub\\default\\.agent\\skills\\scholar\\scripts\\mcp_server.js"
-      ],
-      "env": {
-        "PINECONE_API_KEY": "pcsk_vvGN2_67wnzYvzpZzBpiTWu39K2hWCp19hnS7GDeXYm6PbWothAyacBq67wmcQwspSivq",
-        "SUPABASE_URL": "https://zjoklmjvkxngbbneldht.supabase.com",
-        "SUPABASE_KEY": "sbp_0211f76c824072d4b77a5012761ad3fd3baca328"
-      }
-    }
-  },
-  "general": {
-    "enablePromptCompletion": true,
-    "preferredEditor": "antigravity"
-  },
-  "agentProtocolFile": "../AGENTS.md",
-  "hooks": {
-    "enabled": true,
-    "session_start": [
-      "powershell.exe -ExecutionPolicy Bypass -File .gemini/hooks/on_start.ps1"
-    ],
-    "SessionStart": [
-      {
-        "matcher": "startup",
-        "hooks": [
-          {
-            "name": "reality-check",
-            "type": "command",
-            "command": "powershell.exe -ExecutionPolicy Bypass -File .gemini/hooks/on_start.ps1",
-            "description": "RPGlitch Environment Reality Check",
-            "timeout": 30000
-          }
-        ]
-      }
-    ]
-  },
-  "tools": {
-    "useRipgrep": true,
-    "enableHooks": true
-  }
 }

@@ -1,37 +1,16 @@
-project:
-    name: "RPGlitch"
-    type: "Local-First Roleplaying Engine"
-    architecture: "Triad"
-    version: "1.0.0"
-
 agents:
-    primary_role: "Antigravity Architect"
-    enforcement_level: "flexible" # Options: strict, flexible, experimental
-    context_root: ".agent/"
-    protocol: "Triad"
-    prime_directive: ".agent/rules/01-prime-directive.md"
-    policy: ".agent/policy.toml"
-    overrides:
-        summarizeToolOutput: true
-        enableToolOutputTruncation: true
-        compressionThreshold: 0.8
+    builder:
+        source: .agent/agents/01-builder.md
+        skills:
+            - .agent/skills/tech-svelte.md
+            - .agent/skills/tech-scss.md
 
-environment:
-    temp_dir: "C:/Users/johng/.gemini/tmp/"
-    os: "win32"
-    package_manager: "npm"
+    architect:
+        source: .agent/agents/02-architect.md
+        skills:
+            - .agent/skills/tech-svelte.md
 
-context:
-    fileName: "GEMINI.md"
-    discoveryMaxDirs: 3
-    includeDirectories: [".agent", "src", "libs"]
-
-tooling:
-    required_manifest: ".agent/tooling.json"
-    startup_script: ".gemini/hooks/on_start.ps1"
-    allowed: ["*"]
-    exclude: ["rm", "format"] # Safety: exclude destructive raw shell commands
-
-model:
-    maxSessionTurns: 50
-    compressionThreshold: 0.75
+    auditor:
+        source: .agent/agents/03-auditor.md
+        skills:
+            - .agent/skills/quality-assurance.md
