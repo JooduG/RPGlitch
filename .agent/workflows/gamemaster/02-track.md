@@ -40,7 +40,7 @@ Once the user approves the scope:
 
 ## Phase 4: Materialize State
 
-1.  **Scaffold**: Run `python3 .agent/skills/gamemaster/scripts/scaffold_state.py` (or create directories manually if script unavailable):
+1.  **Scaffold**: Create the track directory structure:
     - Create `.agent/tasks/<slug>/`.
     - Write `.agent/tasks/<slug>/spec.md`.
     - Write `.agent/tasks/<slug>/plan.md`.

@@ -29,6 +29,10 @@ constraints:
     - Append `[checkpoint: <git-short-hash>]` to the phase header.
 2. **Update Tracks**:
     - In `.agent/tasks/tracks.md`, update the status if the track is complete.
+3. **Sync Roadmap**:
+    - Cross-reference the completed track against [roadmap.md](../../roadmap.md).
+    - If the work satisfies a milestone item, mark it `[x]`.
+    - If all items in a milestone are complete, note the milestone as achieved.
 
 ## 4. Handoff
 

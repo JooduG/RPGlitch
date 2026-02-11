@@ -21,7 +21,7 @@ Before ingesting, identify the target **Namespace**. Deciding the namespace is s
 
 Before ingesting new knowledge, ensure the existing library is organized.
 
-- **Command**: `node .agent/skills/scholar/scripts/organize_library.js --scope scholar`
+- **Command**: `node .agent/skills/scholar/scripts/scholar.js maintain --scope scholar`
 
 ## 3. Execution (CLI)
 

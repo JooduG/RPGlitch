@@ -14,7 +14,7 @@ constraints:
 0. **Ambiguity Check**: Rate Ambiguity (1-5). If >= 3, Ask. Else, Proceed.
 1. **Ask User**: "Name?" (e.g., `ControlPill`), "Domain?" (e.g., `artificer`, `mesmer`).
 2. **Prerequisite**: Ensure a **Visual Spec** exists.
-    - If **NO Spec**: Execute the **[Imagine Protocol](../mesmer/imagine.md)** (as Mesmer) to generate it.
+    - If **NO Spec**: Invoke **[Mesmer](../mesmer/SKILL.md)** to generate it.
     - If **YES Spec**: Proceed to Generation.
 
 ## 2. Generation
@@ -74,4 +74,4 @@ Create `src/<domain>/<Name>.svelte`:
 
 1. **Lint**: Run `npm run lint:fix`.
 2. **Registry**: Ensure the component is exported from its domain `index.js`.
-3. **Critique**: Run the **[Critique Protocol](../mesmer/critique.md)**.
+3. **Critique**: Run `mesmer.js analyze` to verify compliance.

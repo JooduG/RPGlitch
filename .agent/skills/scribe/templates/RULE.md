@@ -1,31 +1,30 @@
 ---
-trigger: [always_on | on_change | manual]
-target: path/to/files/**
-priority: [high | medium | low]
+version: 1.0.0
 ---
 
-# 🛡️ Rule: [Rule Name]
+# Rule: [Rule Name]
 
-## 1. Prime Directive
+> **Directive:** "State the absolute truth this rule enforces."
 
-State the absolute truth this rule enforces.
+## 1. Core Principle
+
+What is the single, non-negotiable truth this rule exists to protect?
 
 ## 2. Constraints
 
-- 🔴 **NEVER**: Thing you must not do.
-- 🟢 **ALWAYS**: Thing you must do.
+- **NEVER**: Thing you must not do.
+- **ALWAYS**: Thing you must do.
 
 ## 3. Pattern Examples
 
-**❌ Bad**:
+**Bad**:
 
 ```code
 bad_pattern()
 ```
 
-**✅ Good**:
+**Good**:
 
 ```code
 good_pattern()
-
 ```

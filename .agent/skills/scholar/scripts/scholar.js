@@ -70,7 +70,7 @@ const COMMANDS = {
         const paths =
             pathIdx !== -1 ? [process.argv[pathIdx + 1]] : ["src/data"]
         const namespace =
-            nsIdx !== -1 ? process.argv[nsIdx + 1] : "knowledge-base.src"
+            nsIdx !== -1 ? process.argv[nsIdx + 1] : "knowledge-base.meta"
         //     "knowledge-base.external", // Context7 (Libraries)
         //     "knowledge-base.src",      // Source Code (GitHub/Local)
         //     "knowledge-base.meta",     // Project Rules (DeepWiki/Local)

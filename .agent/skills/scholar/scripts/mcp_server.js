@@ -5,17 +5,20 @@ import {
     CallToolRequestSchema,
     ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js"
-import { searchScholar } from "./memory_engine.js"
+import { ingestScholar, searchScholar } from "./memory_engine.js"
 
 /**
- * 🔌 Scholar MCP Server
+ * 🔌 Scholar MCP Server v3.0.0
  * Exposes the Knowledge Base to the AI Agent ecosystem.
+ * Tools: read, write, describe.
  */
 
 const server = new Server(
-    { name: "knowledge-base", version: "2.0.0" },
+    { name: "scholar", version: "3.0.0" },
     { capabilities: { tools: {} } }
 )
+
+// ── Tool Definitions ────────────────────────────────────────────────────
 
 server.setRequestHandler(ListToolsRequestSchema, async () => {
     return {
@@ -36,52 +39,141 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
                     required: ["query"],
                 },
             },
+            {
+                name: "write_knowledge_base",
+                description:
+                    "Ingest files into the RPGlitch knowledge base (Pinecone). Chunks files by semantic boundaries, generates embeddings, and upserts vectors. Uses Prune-on-Write to replace stale vectors automatically.",
+                inputSchema: {
+                    type: "object",
+                    properties: {
+                        paths: {
+                            type: "array",
+                            items: { type: "string" },
+                            description:
+                                "File or directory paths to ingest, relative to the repository root (e.g. ['src/data', '.agent/rules'])",
+                        },
+                        namespace: {
+                            type: "string",
+                            description:
+                                "Target namespace: 'knowledge-base.meta' (rules/config), 'knowledge-base.external' (library docs), or 'knowledge-base.src' (source code)",
+                            enum: [
+                                "knowledge-base.meta",
+                                "knowledge-base.external",
+                                "knowledge-base.src",
+                            ],
+                        },
+                    },
+                    required: ["paths", "namespace"],
+                },
+            },
+            {
+                name: "describe_knowledge_base",
+                description:
+                    "Show the current state of the knowledge base: which namespaces exist, how many vectors each contains, and index dimensions. Use this to audit what is indexed.",
+                inputSchema: {
+                    type: "object",
+                    properties: {},
+                },
+            },
         ],
     }
 })
 
+// ── Tool Handlers ───────────────────────────────────────────────────────
+
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
-    if (request.params.name === "read_knowledge_base") {
-        const { query } = request.params.arguments
-        try {
-            // Direct call for speed
-            const matches = await searchScholar({ query, topK: 3 })
+    const { name, arguments: args } = request.params
 
-            if (matches.length === 0) {
-                return {
-                    content: [
-                        {
-                            type: "text",
-                            text: "No relevant documentation found.",
-                        },
-                    ],
-                }
-            }
-
-            const text = matches
-                .map(
-                    (m) =>
-                        `[Source: ${m.metadata.source}] (Score: ${(m.score * 100).toFixed(0)}%)\n${m.metadata.content}`
-                )
-                .join("\n\n---\n\n")
-
-            return { content: [{ type: "text", text }] }
-        } catch (err) {
-            return {
-                content: [
-                    { type: "text", text: `Search failed: ${err.message}` },
-                ],
-                isError: true,
-            }
+    try {
+        switch (name) {
+            case "read_knowledge_base":
+                return await handleRead(args)
+            case "write_knowledge_base":
+                return await handleWrite(args)
+            case "describe_knowledge_base":
+                return await handleDescribe()
+            default:
+                throw new Error(`Unknown tool: ${name}`)
+        }
+    } catch (err) {
+        return {
+            content: [{ type: "text", text: `Error: ${err.message}` }],
+            isError: true,
         }
     }
-    throw new Error(`Unknown tool: ${request.params.name}`)
 })
+
+// ── Read (Search) ───────────────────────────────────────────────────────
+
+async function handleRead({ query }) {
+    const matches = await searchScholar({ query, topK: 3 })
+
+    if (matches.length === 0) {
+        return {
+            content: [
+                { type: "text", text: "No relevant documentation found." },
+            ],
+        }
+    }
+
+    const text = matches
+        .map(
+            (m) =>
+                `[Source: ${m.metadata.source}] (Score: ${(m.score * 100).toFixed(0)}%)\n${m.metadata.content}`
+        )
+        .join("\n\n---\n\n")
+
+    return { content: [{ type: "text", text }] }
+}
+
+// ── Write (Ingest) ──────────────────────────────────────────────────────
+
+async function handleWrite({ paths, namespace }) {
+    await ingestScholar({ paths, namespace })
+    return {
+        content: [
+            {
+                type: "text",
+                text: `Ingestion complete. ${paths.length} path(s) processed into namespace "${namespace}".`,
+            },
+        ],
+    }
+}
+
+// ── Describe (Index Stats) ──────────────────────────────────────────────
+
+async function handleDescribe() {
+    // Import getPC indirectly via the Pinecone client
+    const { Pinecone } = await import("@pinecone-database/pinecone")
+    const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY })
+    const index = pc.index("knowledge-library")
+    const stats = await index.describeIndexStats()
+
+    const namespaces = stats.namespaces || {}
+    const lines = [
+        `Index: knowledge-library`,
+        `Dimensions: ${stats.dimension}`,
+        `Total Vectors: ${stats.totalRecordCount}`,
+        ``,
+    ]
+
+    for (const [ns, info] of Object.entries(namespaces)) {
+        lines.push(`  ${ns}: ${info.recordCount} vectors`)
+    }
+
+    if (Object.keys(namespaces).length === 0) {
+        lines.push("  (no namespaces found)")
+    }
+
+    return { content: [{ type: "text", text: lines.join("\n") }] }
+}
+
+// ── Bootstrap ───────────────────────────────────────────────────────────
 
 async function main() {
     const transport = new StdioServerTransport()
     await server.connect(transport)
-    console.error("Scholar MCP Server running on stdio")
+    console.error("Scholar MCP Server v3.0.0 running on stdio")
 }
 
 main().catch((error) => {

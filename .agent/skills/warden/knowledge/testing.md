@@ -25,7 +25,7 @@ Flaky tests often fail due to race conditions or arbitrary `setTimeout` calls.
 
 **Core Principle:** Wait for the actual condition, not a guess at timing.
 
-```typescript
+```javascript
 // ✅ Correct: Waiting for condition
 await waitFor(() => getResult() !== undefined, "Result initialization")
 const result = getResult()
@@ -41,7 +41,7 @@ expect(result).toBeDefined()
 ## 3. Svelte 5 Testing Patterns (Vitest)
 
 - **Hydration:** Use `mount` and `unmount` from `svelte` for component tests.
-- **Runes in Tests:** Filenames must end in `.svelte.test.js` or `.svelte.spec.js`.
+- **Runes in Tests:** Filenames must end in `.svelte.test.js`.
 - **Side Effects:** Wrap tests that trigger `$effect` in `$effect.root`.
 - **Flush Sync:** Use `flushSync()` to force state updates before making assertions.
 

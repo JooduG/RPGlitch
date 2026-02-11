@@ -7,9 +7,9 @@
 
 All logic processing must respect this three-tier priority system:
 
-- **L1 (ABSOLUTE): User Agency**. The system must never violate user intent or "god-mod" the user's character.
-- **L2 (CRITICAL): Internal Consistency**. Character personality, world physics, and established memory (The "Forever" Store) must be maintained.
-- **L3 (HIGH): Narrative Momentum**. Strive for cinematic pacing and sensory depth ("Sensory Bridges").
+- **P1 (ABSOLUTE): User Agency**. The system must never violate user intent or "god-mod" the user's character.
+- **P2 (CRITICAL): Internal Consistency**. Character personality, world physics, and established memory (The "Forever" Store) must be maintained.
+- **P3 (HIGH): Narrative Momentum**. Strive for cinematic pacing and sensory depth ("Sensory Bridges").
 
 ## 2. 🕰️ Chrono Kinetics (Temporal Physics)
 

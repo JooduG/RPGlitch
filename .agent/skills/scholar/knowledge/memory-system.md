@@ -19,6 +19,6 @@ Data is not binary. It decays based on **Emotional Intensity (W)**.
 | **Significant** | 6-7        | Stable      | Promises, Conflicts.             |
 | **Minor**       | 1-5        | Decays      | Routine actions, Sensory static. |
 
-## 2. The Decay Protocol
+## 3. The Decay Protocol
 
 Memories with lower weight are subject to decay or compression over time, simulating human forgetfulness. High-weight memories remain vivid and accessible.

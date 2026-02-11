@@ -7,7 +7,7 @@ constraints:
 # 🧹 Maintain Protocol
 
 > **Goal:** Keep the knowledge base clean and fast.
-> **Philosophy:** "Prune-on-Write" keeps us clean automatically. This workflow is for **Deep Cleaning** and **Cold Storage**.
+> **Status:** The "Deep Clean" vacuum is **deferred**. Prune-on-Write handles the common case.
 
 ## 1. The Automated Cycle (Prune-on-Write)
 
@@ -17,21 +17,20 @@ _Note: This happens automatically when you run `scholar.js write`._
 2.  **Prune**: Old vectors for that file are deleted immediately.
 3.  **Result**: No ghosts.
 
-## 2. The Manual Cycle (Deep Clean)
+## 2. The Manual Cycle (Deep Clean) — _Deferred_
 
 _Trigger: When you delete many files or suspect severe hallucination._
 
 1.  **Vacuum (Pinecone)**:
 
     ```bash
-    node .agent/skills/scholar/scripts/maintain.js --scope all
+    node .agent/skills/scholar/scripts/scholar.js maintain --scope all
     ```
 
-    - _Action_: Scans all vectors. Verifies source file exists. Deletes if missing.
+    - _Action_: Currently logs a deferred status. Future implementation will scan all vectors and verify source files exist.
 
 2.  **Archive (Supabase)**:
-    - _Action_: Moves stale logs (`.agent/archive/`) to Supabase `logs` table.
-    - _Status_: **Manual / Future**. (Currently managed by `04-status.md`).
+    - _Status_: **Deferred**. Supabase archival is scaffolded but not yet active.
 
 ## 3. The Rules
 

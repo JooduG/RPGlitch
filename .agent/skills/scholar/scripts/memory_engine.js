@@ -1,5 +1,4 @@
 import { Pinecone } from "@pinecone-database/pinecone"
-import { createClient } from "@supabase/supabase-js"
 import crypto from "crypto"
 import "dotenv/config"
 import fs from "fs/promises"
@@ -17,9 +16,7 @@ const INDEX_NAME = "knowledge-library"
 const BATCH_SIZE = 50
 
 // Shared Pinecone instance
-// Shared Instances
 let pc = null
-let sb = null
 
 function getPC() {
     if (!pc) {
@@ -31,19 +28,6 @@ function getPC() {
         pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY })
     }
     return pc
-}
-
-function getSB() {
-    if (!sb) {
-        // Optional: Only init if keys exist
-        if (process.env.SUPABASE_URL && process.env.SUPABASE_KEY) {
-            sb = createClient(
-                process.env.SUPABASE_URL,
-                process.env.SUPABASE_KEY
-            )
-        }
-    }
-    return sb
 }
 
 /**
@@ -243,33 +227,12 @@ export async function ingestScholar({
 }
 
 /**
- * 🧹 Maintain: Audit and Prune
+ * 🧹 Maintain: Audit and Prune (Deferred)
+ * The "Prune-on-Write" strategy in ingestScholar() handles the common case.
+ * Full vacuum (verify all vectors have source files) is a future enhancement.
  */
 export async function maintainScholar({ scope = "basics" } = {}) {
-    console.log(`📚 Scholar: Organizing Library (Scope: ${scope})...`)
-
-    const audits = {
-        warden: () =>
-            console.log("   - 🛡️  Auditing Warden Wing (Security)..."),
-        gamemaster: () =>
-            console.log("   - 🕹️  Auditing Gamemaster Wing (Tasks)..."),
-        scholar: () => console.log("   - 📚 Auditing Scholar Wing (Memory)..."),
-        mesmer: () =>
-            console.log("   - 🎭 Auditing Mesmer Wing (Aesthetics)..."),
-        artificer: () =>
-            console.log("   - 🛠️  Auditing Artificer Wing (Structure)..."),
-        basics: () => console.log("   - 🧹 Standard Hygiene Check..."),
-    }
-
-    if (scope === "all") {
-        Object.keys(audits).forEach((k) => k !== "basics" && audits[k]())
-    } else if (audits[scope]) {
-        audits[scope]()
-    } else {
-        console.warn(`⚠️ Unknown scope. Running basics.`)
-        audits.basics()
-    }
-
-    // Future: Add Supabase Archival logic here
-    return { status: "success", scope }
+    console.log(`📚 Scholar: Maintenance deferred. Prune-on-Write is active.`)
+    console.log(`   Scope requested: ${scope}`)
+    return { status: "deferred", scope }
 }

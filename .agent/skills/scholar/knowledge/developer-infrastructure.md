@@ -11,12 +11,12 @@
 - **The Protocol (Operating System)**: `.agent/` (`config`, `rules`, `workflows`) - How the agent thinks.
 - **The Library (Distilled Knowledge)**: `.agent/knowledge/` - Structured research, patterns, and archives.
 
-## 2. 🔵 Cold Storage (Supabase)
+## 2. 🔵 Cold Storage (Supabase) — _Deferred_
 
 - **Role**: Large-scale archival of development logs and decisions.
-- **Access**: Strictly via MCP during development.
+- **Status**: Scaffolded but not yet active. No data currently flows here.
 
-## 3. 🟣 Semantic Search (Pinecone)
+## 3. 🟣 Semantic Search (Pinecone) — _Active_
 
 - **Role**: Retrieval Augmented Generation (RAG) for the Agent.
 - **Function**: Allows the agent to query past technical decisions and architecture patterns.

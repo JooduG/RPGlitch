@@ -12,10 +12,8 @@ constraints:
 ## 1. Intelligence Synchronization & Initialization
 
 1.  **Select Track**: Load the first incomplete track from [.agent/tasks/tracks.md](../../tasks/tracks.md).
-2.  **Load Continuity**: Read `.agent/setup_state.json` and any active handoffs in `.agent/tasks/handoffs/`.
-3.  **Queue Sync**:
-    - Parse the track's `plan.md` into the global task queue.
-    - **Trigger**: Run `node .agent/skills/gamemaster/scripts/queue_manager.js init` to populate `.agent/tasks/queue.json`.
+2.  **Load Continuity**: Read any active handoffs in `.agent/tasks/handoffs/`.
+3.  **Plan Sync**: Parse the track's `plan.md` to identify unchecked `[ ]` tasks.
 
 ## 2. The Specialist Execution Loop (Loki Pattern)
 
@@ -27,7 +25,7 @@ For each unchecked task `[ ]` in the track's `plan.md`:
     - **Artificer**: UI/UX, Svelte Components, Scaffolding.
     - **Warden**: Logic, Security, Performance, Reverts.
     - **Scholar**: Lore, Knowledge sync, Documentation.
-2.  **Mental Sandbox**: Run `python3 .agent/skills/gamemaster/scripts/dispatch.py <persona> "<task_description>"`.
+2.  **Adopt Persona**: Switch to the identified skill persona via its `SKILL.md` triggers.
 3.  **Isolation (Optional)**: If the task is high-risk, create a git worktree: `git worktree add .agent/worktrees/<task-id>`.
 
 ### B. Implementation Phase
@@ -35,7 +33,7 @@ For each unchecked task `[ ]` in the track's `plan.md`:
 1.  **Status Update**: Change task status to `[/]` (Active).
 2.  **Core Execution**:
     - Apply [01-prime-directive.md](../../rules/01-prime-directive.md).
-    - **State Check**: If modifying global stores, use `python3 .agent/skills/gamemaster/scripts/scaffold_state.py`.
+    - **State Check**: If modifying global stores, create new `.svelte.js` state modules using Svelte 5 Runes (`$state`, `$derived`).
     - **Tech Audit**: Ensure Svelte 5 runes (`$state`, `$derived`, `$effect`) are utilized over legacy patterns.
 
 ### C. Quality Control Gate (The Review Loop)
@@ -62,4 +60,4 @@ For each unchecked task `[ ]` in the track's `plan.md`:
     - Stage all changes.
     - Commit: `gamemaster(checkpoint): Track <Name> - Phase <X> complete`.
     - **Persistence**: Run `git notes add -m "$(cat .agent/tasks/handoffs/summary.md)" HEAD`.
-4.  **Update Registry**: Update SHA in `tracks.md` and clear the `queue.json` for the completed track.
+4.  **Update Registry**: Update SHA in `tracks.md`.

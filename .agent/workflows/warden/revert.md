@@ -20,7 +20,7 @@ constraints:
 ## 2. The Penance (Warden)
 
 1.  **Failure Audit**: Analyze WHY the revert is necessary (Sloppy logic, broken claim, or context drift).
-2.  **Sticker**: If the revert is due to a "false success claim", trigger `python .agent/skills/warden/scripts/sticker.py` to record the penance.
+2.  **Sticker**: If the revert is due to a "false success claim", trigger `node .agent/skills/warden/scripts/warden.js punish` to record the penance.
 
 ## 3. Execution Phase (Nuclear Precision)
 

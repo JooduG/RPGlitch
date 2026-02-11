@@ -38,4 +38,4 @@ _Please answer the following to unlock the Execution Phase:_
 
 ---
 
-**Next Step**: Once you reply, I will run `scaffold_state.py` and register **Track: [SLUG]**.
+**Next Step**: Once you reply, I will scaffold the track directory and register **Track: [SLUG]**.

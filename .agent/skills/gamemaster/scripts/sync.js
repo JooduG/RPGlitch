@@ -8,8 +8,8 @@
  * -------------------------------------------------------------------------
  */
 
-import { execSync } from "child_process"
 import fs from "fs"
+import os from "os"
 import path from "path"
 import { fileURLToPath } from "url"
 
@@ -114,33 +114,28 @@ function syncIgnores() {
 
 /**
  * 2. Sync MCP Servers
- * Compiles mcp.master.json -> mcp.json and updates .gemini/settings.json
+ * Source of truth: ~/.gemini/antigravity/mcp_config.json (Antigravity UI)
+ * Targets: mcp.json (repo) and .gemini/settings.json (Gemini CLI)
  */
 function syncMcp() {
     robotLog("\n🔌 Syncing MCP Config...")
-    const masterPath = path.join(REPO_ROOT, "mcp.master.json")
-    if (!fs.existsSync(masterPath))
-        return robotLog("   ⚠️  No mcp.master.json found.")
+    const masterPath = path.join(
+        os.homedir(),
+        ".gemini",
+        "antigravity",
+        "mcp_config.json"
+    )
 
-    const master = readJson(masterPath)
-
-    // Env Var Substitution
-    const envMap = { ...process.env }
-    if (fs.existsSync(path.join(REPO_ROOT, ".env")) && dotenv) {
-        Object.assign(
-            envMap,
-            dotenv.default.parse(fs.readFileSync(path.join(REPO_ROOT, ".env")))
+    if (!fs.existsSync(masterPath)) {
+        return robotLog(
+            "   ⚠️  No ~/.gemini/antigravity/mcp_config.json found."
         )
     }
 
-    const jsonStr = JSON.stringify(master).replace(
-        /\$\{([A-Za-z0-9_]+)\}/g,
-        (_, key) => envMap[key] || ""
-    )
-    const resolved = JSON.parse(jsonStr)
+    const master = readJson(masterPath)
 
     // Write standard mcp.json
-    writeJson(path.join(REPO_ROOT, "mcp.json"), resolved)
+    writeJson(path.join(REPO_ROOT, "mcp.json"), master)
 
     // Update Gemini Settings
     const geminiPath = path.join(REPO_ROOT, ".gemini/settings.json")
@@ -149,7 +144,7 @@ function syncMcp() {
         const servers = {}
 
         // Transform for Gemini format (expects 'url' not 'serverUrl')
-        for (const [name, cfg] of Object.entries(resolved.mcpServers || {})) {
+        for (const [name, cfg] of Object.entries(master.mcpServers || {})) {
             if (cfg.disabled) continue
             servers[name] = { ...cfg }
             if (servers[name].serverUrl) {
@@ -212,28 +207,6 @@ function syncColors() {
     }
 }
 
-/**
- * 4. Sync MCP to Claude Code (Optional)
- */
-function syncClaude() {
-    robotLog("\n🤖 Syncing to Claude Code CLI...")
-    const mcpPath = path.join(REPO_ROOT, "mcp.json")
-    if (!fs.existsSync(mcpPath)) return
-
-    const config = readJson(mcpPath)
-    if (!config.mcpServers) return
-
-    for (const [name, cfg] of Object.entries(config.mcpServers)) {
-        try {
-            const cmd = `claude mcp add-json "${name}" '${JSON.stringify(cfg)}'`
-            execSync(cmd, { stdio: "ignore" }) // Silence output
-            robotLog(`   ✅ Added ${name}`)
-        } catch {
-            robotLog(`   ℹ️  Skipped ${name} (or failed)`)
-        }
-    }
-}
-
 // --- 🚀 Execution ---
 
 async function main() {
@@ -244,12 +217,10 @@ async function main() {
     const runIgnores = runAll || args.includes("--ignores")
     const runMcp = runAll || args.includes("--mcp")
     const runColors = runAll || args.includes("--colors")
-    const runClaude = args.includes("--claude") // Usually manual
 
     if (runIgnores) syncIgnores()
     if (runMcp) syncMcp()
     if (runColors) syncColors()
-    if (runClaude) syncClaude()
 
     if (IS_JSON) {
         console.log(JSON.stringify({ status: "success" }))

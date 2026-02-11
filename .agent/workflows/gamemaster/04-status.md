@@ -12,8 +12,7 @@ constraints:
 
 1. **Tracks Registry**: Read [tracks.md](../../tasks/tracks.md).
 2. **Context Integrity**: Verify "Trinity Files" (Product, Tech, Prime).
-3. **Setup State**: Consult [setup_state.json](../setup_state.json) for environment health.
-4. **Dependency Health**: Check for vulnerable or deprecated packages via `npm-sentinel`.
+3. **Dependency Health**: Run `npm audit` to check for vulnerable packages.
 
 ## 2. Reporting
 

@@ -4,7 +4,7 @@ import sys
 from datetime import datetime
 
 # Updated path following consolidation
-FLAGS_PATH = 'c:/Users/johng/Documents/GitHub/default/.agent/skills/warden/data/flags.json'
+FLAGS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'flags.json')
 
 def record_violation():
     if not os.path.exists(FLAGS_PATH):

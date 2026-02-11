@@ -1,23 +1,55 @@
-# Cortex Skill: Metacognition (Self-Audit)
+# Cortex: Metacognition Protocol
 
-> **Context:** Hallucination prevention and reasoning monitoring.
+> **Context:** Hallucination prevention, reasoning monitoring, and recovery.
 
 ## Required Tooling
 
-- **MCP**: `waldzell-metacognitive-monitoring`
-- **Function**: `metacognitiveMonitoring`
+- **MCP Server**: `waldzell-metacognitive-monitoring`
+- **Operation**: `metacognitiveMonitoring`
+- **Stage**: `monitoring` or `reflection`
 
-## The Protocol: The Self-Audit
+## When to Trigger
 
-If you feel "Lost", "Confused", or have made 3+ tool calls without measurable progress: **STOP**.
-**CRITICAL**: If the user's last 3 messages address the same issue, you **MUST** initiate this protocol immediately.
+If ANY of these conditions are true, **STOP** and initiate this protocol:
+
+- You feel "Lost" or "Confused."
+- You have made 3+ tool calls without measurable progress.
+- The user's last 3 messages address the same unresolved issue.
+- Your confidence in the current approach drops below 70%.
+
+## The Self-Audit (C3 Protocol)
 
 1. **Assess Assumptions**: "Am I assuming something that isn't true? Did I misread a file?"
 2. **Confidence Check**: Rate your confidence in the current path (0-100%).
-3. **Reset**:
-    - **If Confidence < 70%**: Re-run L2 Planning.
-    - **If Confidence < 40%**: Use `notify_user` to ask for clarification.
+3. **Act on Score**:
+    - **70-100%**: Continue, but document the assumption you're relying on.
+    - **40-70%**: Re-run C2 Planning. Restate the problem from scratch.
+    - **Below 40%**: Use `notify_user` to ask for clarification. Do not guess.
+
+## The Reframe (C4 Protocol)
+
+When C3 determines the approach itself is flawed (not just uncertain), escalate to C4:
+
+1. **Strip Context**: Remove all assumptions. What does the raw error/behavior tell you?
+2. **Invert the Problem**: "What if the opposite of my assumption is true?"
+3. **First Principles**: What are the 2-3 undeniable facts? Rebuild from those.
+4. **Consult**: Use `context7` or `scholar` to verify any fact you're relying on.
 
 ## The Loop Breaker
 
-Always check the output of previous tool calls before starting the next. If the error is repeating, do not repeat the command. Change your approach.
+- Always check the output of previous tool calls before starting the next.
+- If the same error repeats 3 times, the approach is wrong. Do not repeat the command.
+- Change strategy: different tool, different file, or ask the user.
+
+## Structured Self-Audit Output
+
+When running this protocol, produce this assessment:
+
+```text
+SELF-AUDIT:
+- Current Objective: [What I'm trying to achieve]
+- Approach: [What I've been doing]
+- Confidence: [0-100%]
+- Assumption at Risk: [The belief most likely to be wrong]
+- Recovery: [C2 replan / C4 reframe / Ask user]
+```

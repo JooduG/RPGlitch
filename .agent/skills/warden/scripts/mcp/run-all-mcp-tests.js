@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * MCP stdio server smoke + handshake tester
- * - Reads build/config/mcp.master.json
+ * - Reads ~/.gemini/antigravity/mcp_config.json (Antigravity UI)
  * - Loads env vars from .env (export KEY="value" format)
  * - Starts stdio servers, performs JSON-RPC initialize, tools/list
  * - Logs per-server stdout/stderr and JSON responses under tests/mcp/logs
@@ -9,11 +9,17 @@
  */
 
 const fs = require("fs")
+const os = require("os")
 const path = require("path")
 const { spawn, spawnSync } = require("child_process")
 
 const ROOT = process.cwd()
-const CONFIG_PATH = path.join(ROOT, "build", "config", "mcp.master.json")
+const CONFIG_PATH = path.join(
+    os.homedir(),
+    ".gemini",
+    "antigravity",
+    "mcp_config.json"
+)
 const ENV_PATH = path.join(ROOT, ".env")
 const LOG_ROOT = path.join(ROOT, "memory-bank", "past", "mcp-tests")
 const SESSION_DIR = (() => {

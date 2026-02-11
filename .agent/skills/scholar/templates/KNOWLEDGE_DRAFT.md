@@ -1,14 +1,10 @@
----
-title: [Title of the Knowledge Item]
-type: Draft
-source: [URL or Source]
-tags: [tag1, tag2]
----
-
 # 📝 Draft: [Title]
 
-> **Status**: Raw / Unverified
+> **Type**: Draft
+> **Source**: [URL or Source]
+> **Tags**: [tag1, tag2]
 > **Scholar**: [Agent Name]
+> **Status**: Raw / Unverified
 
 ## 1. Context
 

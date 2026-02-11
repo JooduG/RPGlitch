@@ -1,9 +1,8 @@
 ---
-name: workflow-name
 description: Orchestration logic for [Process].
 ---
 
-# 🔄 Workflow: [Process Name]
+# Workflow: [Process Name]
 
 ## 1. Input State
 
@@ -16,6 +15,6 @@ What must be true before this workflow starts?
     - _Check_: Verify Y
 2. **Phase 2**: Description...
 
-## 3. Output State
+## 3. Output State (Definition of Done)
 
 What is the Definition of Done?

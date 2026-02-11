@@ -12,7 +12,7 @@ constraints:
 ## 1. The Penance (Truth Audit)
 
 1. **Truth Verification**: If the user invokes `/nope` because I claimed success but failed, I am in **Truth Divergence**.
-2. **Execute Penance**: `python .agent/skills/warden/scripts/sticker.py`.
+2. **Execute Penance**: `node .agent/skills/warden/scripts/warden.js punish`.
     - _Reason_: Hallucinating success is a Tier 2 Intelligence violation.
 
 ## 2. The Halt

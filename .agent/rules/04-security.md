@@ -35,10 +35,10 @@ trigger: always_on
 ## 6. Dependency Integrity
 
 - **Rule**: "Trust but Verify".
-- **Tool**: `mcp:npm-sentinel`.
+- **Tool**: `npm audit`.
 - **Protocol**:
-    1. Before adding: Check `npm-sentinel:npmSearch` and `npm-sentinel:npmDeprecated`.
-    2. After adding: Check `npm-sentinel:npmVulnerabilities`.
+    1. Before adding: Research the package for maintenance status and known issues.
+    2. After adding: Run `npm audit` to check for vulnerabilities.
 
 ---
 

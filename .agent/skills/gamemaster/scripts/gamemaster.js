@@ -117,78 +117,6 @@ const COMMANDS = {
         }
     },
 
-    /** 🩺 Hygiene Protocol */
-    hygiene: async () => {
-        robotLog("\n🩺 GAMEMASTER: Initiating Hygiene Scan [Scope: src]...")
-        let warningCount = 0
-        let errorCount = 0
-        const issues = []
-
-        const scanDir = (dir) => {
-            if (!fs.existsSync(dir)) return
-            const items = fs.readdirSync(dir)
-            for (const item of items) {
-                const fullPath = path.join(dir, item)
-                const stat = fs.statSync(fullPath)
-
-                if (stat.isDirectory()) {
-                    scanDir(fullPath)
-                } else if (/\.(js|ts|svelte)$/i.test(item)) {
-                    const content = fs.readFileSync(fullPath, "utf-8")
-                    const lines = content.split("\n")
-
-                    lines.forEach((line, i) => {
-                        if (/^\s*(\/\/|\*|\/\*)/.test(line)) return // Skip comments
-
-                        // Rule 05: No console.logs in production code
-                        if (/console\.log\(/.test(line)) {
-                            const msg = `[WARN] console.log in ${path.relative(REPO_ROOT, fullPath)}:${i + 1}`
-                            robotLog(msg)
-                            issues.push({
-                                type: "warning",
-                                file: path.relative(REPO_ROOT, fullPath),
-                                line: i + 1,
-                                message: "console.log found",
-                            })
-                            warningCount++
-                        }
-                        // Rule 05: No blocking alerts
-                        if (/\balert\(/.test(line)) {
-                            const msg = `[ERROR] alert in ${path.relative(REPO_ROOT, fullPath)}:${i + 1}`
-                            robotError(msg)
-                            issues.push({
-                                type: "error",
-                                file: path.relative(REPO_ROOT, fullPath),
-                                line: i + 1,
-                                message: "alert found",
-                            })
-                            errorCount++
-                        }
-                    })
-                }
-            }
-        }
-
-        scanDir(path.join(REPO_ROOT, "src"))
-
-        if (IS_JSON) {
-            console.log(
-                JSON.stringify({
-                    status: errorCount > 0 ? "error" : "success",
-                    warnings: warningCount,
-                    errors: errorCount,
-                    issues,
-                })
-            )
-        } else {
-            robotLog(`\n--- Hygiene Results ---`)
-            robotLog(`Warnings (Logs): ${warningCount}`)
-            robotLog(`Errors (Alerts): ${errorCount}`)
-        }
-
-        if (errorCount > 0) process.exit(1)
-    },
-
     /** 🚀 Bootstrap / Self-Healing */
     bootstrap: async () => {
         robotLog("⚡ GAMEMASTER: Performing Deep Bootstrap...")
@@ -235,7 +163,18 @@ const COMMANDS = {
         // 3. Execution Protocols
         await COMMANDS.sync("all")
         await COMMANDS.archive() // Added archival to bootstrap
-        await COMMANDS.hygiene()
+
+        // Delegate Hygiene to Warden
+        robotLog("\n🩺 calling Warden for Hygiene Scan...")
+        try {
+            execSync("node .agent/skills/warden/scripts/warden.js hygiene", {
+                stdio: "inherit",
+                cwd: REPO_ROOT,
+            })
+        } catch (e) {
+            robotError("❌ Hygiene Check Failed.")
+            process.exit(1)
+        }
 
         if (IS_JSON) {
             console.log(JSON.stringify({ status: "ready" }))

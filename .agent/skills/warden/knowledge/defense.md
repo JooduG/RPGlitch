@@ -26,8 +26,8 @@ Different layers catch different cases:
 
 **Purpose:** Reject obviously invalid input at API boundary
 
-```typescript
-function createProject(name: string, workingDirectory: string) {
+```javascript
+function createProject(name, workingDirectory) {
     if (!workingDirectory || workingDirectory.trim() === "") {
         throw new Error("workingDirectory cannot be empty")
     }
@@ -47,8 +47,8 @@ function createProject(name: string, workingDirectory: string) {
 
 **Purpose:** Ensure data makes sense for this operation
 
-```typescript
-function initializeWorkspace(projectDir: string, sessionId: string) {
+```javascript
+function initializeWorkspace(projectDir, sessionId) {
     if (!projectDir) {
         throw new Error("projectDir required for workspace initialization")
     }
@@ -60,8 +60,8 @@ function initializeWorkspace(projectDir: string, sessionId: string) {
 
 **Purpose:** Prevent dangerous operations in specific contexts
 
-```typescript
-async function gitInit(directory: string) {
+```javascript
+async function gitInit(directory) {
     // In tests, refuse git init outside temp directories
     if (process.env.NODE_ENV === "test") {
         const normalized = normalize(resolve(directory))
@@ -81,8 +81,8 @@ async function gitInit(directory: string) {
 
 **Purpose:** Capture context for forensics
 
-```typescript
-async function gitInit(directory: string) {
+```javascript
+async function gitInit(directory) {
     const stack = new Error().stack
     logger.debug("About to git init", {
         directory,
@@ -132,3 +132,12 @@ All four layers were necessary. During testing, each layer caught bugs the other
 - Debug logging identified structural misuse
 
 **Don't stop at one validation point.** Add checks at every layer.
+
+## 7. Automated Enforcement
+
+The Warden enforces these layers via the CLI:
+
+- **Layer 1 (Entry)**: Validated via `npm run lint` (Static Analysis).
+- **Layer 2 (Business)**: Validated via `vitest` (Unit Tests).
+- **Layer 3 (Environment)**: Validated via `warden.js verify` (E2E Checks).
+- **Layer 4 (Debug)**: Validated via `warden.js hygiene` (No console.log in prod).

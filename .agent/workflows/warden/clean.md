@@ -16,7 +16,7 @@ constraints:
 ## 2. Build Verification
 
 1. **Validate**:
-    - **Execute**: `node .agent/skills/gamemaster/scripts/gamemaster.js hygiene`
+    - **Execute**: `node .agent/skills/warden/scripts/warden.js hygiene`
     - **Verify**: Production paths are free of debugging leakage.
 2. **Lint**:
     - **Execute**: `npm run lint:fix`

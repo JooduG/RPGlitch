@@ -10,12 +10,12 @@ constraints:
 
 ## 1. Scope & Intelligence Synchronization
 
-1.  **Target Identification**: Identify the Track, Phase, or specific Task ID from `.agent/tasks/queue.json`.
+1.  **Target Identification**: Identify the Track or Phase from `.agent/plan.md` or the active task artifact.
 2.  **Context Retrieval**:
-    - Load `spec.md` and `plan.md` for the track.
-    - Load relevant Lore: `knowledge/incubator/mechanics-concepts.md`.
-    - Load Technical Truth: `knowledge/tech/svelte-5.md`.
-3.  **Handoff Scan**: Read the latest report in `.agent/tasks/handoffs/` to understand implementation choices.
+    - Load `plan.md` for the track.
+    - Load relevant Lore: `.agent/knowledge/incubator/mechanics-concepts.md`.
+    - Load Technical Truth: `.agent/knowledge/tech/svelte-5.md`.
+3.  **Handoff Scan**: Read the latest `walkthrough.md` artifact to understand implementation choices.
 
 ## 2. Verification Protocol (The Truth Matrix)
 
@@ -41,7 +41,7 @@ Verify the implementation against the following specialized matrices:
 
 ## 3. The Review Report
 
-Output findings in the following format to `.agent/tasks/handoffs/review_[task_id].md`:
+Output findings in the following format:
 
 ### Review Report: [Track-Slug]
 
@@ -68,4 +68,4 @@ Output findings in the following format to `.agent/tasks/handoffs/review_[task_i
 1.  **Decision**:
     - **PASS**: Implementation is sound. Signal Gamemaster to proceed to `05-checkpoint.md`.
     - **REVISE**: Return to `03-implement.md` with specific repair instructions.
-2.  **Sync**: If new technical patterns were established, update `knowledge/tech/optimization.md`.
+2.  **Sync**: If new technical patterns were established, update `.agent/knowledge/tech/optimization.md`.

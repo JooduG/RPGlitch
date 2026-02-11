@@ -25,20 +25,19 @@ Verify system health and security boundaries.
 
 1.  **Check for Sanctions**: Search conversation history for `[PENANCE]` or `[RESTRICTION]` markers. If found, acknowledge debt.
 2.  **Audit Secrets**: Scan environment for accidental `.env` or key exposure.
-3.  **Validate Terminology**: Ensure "Gamemaster" is used instead of "Conductor" or "Manager".
 
 ## Phase 3: Map Road (Cortex)
 
-Assess active tracks and provide a status update.
+Assess strategic direction and active tracks.
 
-1.  **Read Tracks**: [.agent/tasks/tracks.md](../../../.agent/tasks/tracks.md).
-2.  **Identify Status**: Determine the current active track and overall project momentum.
+1.  **Read Product**: [.agent/product.md](../../product.md) (The Why).
+2.  **Read Roadmap**: [.agent/roadmap.md](../../roadmap.md) (The Where).
+3.  **Read Tracks**: [.agent/tasks/tracks.md](../../../.agent/tasks/tracks.md) (The What).
+4.  **Identify Status**: Cross-reference active tracks against the current milestone to determine project momentum.
 
 ## Phase 4: Initialize System (Freedom Protocol)
 
 1.  **Verify Engine**: Read [bootstrap.js](../../../src/core/engine/bootstrap.js) to ensure storage overrides are present.
-2.  **Init Queue**: Run `node .agent/skills/gamemaster/scripts/queue_manager.js init`.
-3.  **Scaffold State**: Run `python3 .agent/skills/gamemaster/scripts/scaffold_state.py`.
 
 ## Phase 5: Report Status
 

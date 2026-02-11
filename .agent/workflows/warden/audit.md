@@ -31,10 +31,11 @@ constraints:
 ## 3. Supply Chain Integrity
 
 1.  **Consultation**: Ask the Scholar to perform a structural audit.
-    - **Execute**: Use `npm-sentinel` for dependency checks.
+    - **Execute**: Run `npm audit` for dependency checks.
 2.  **Library Structure (The Archivist's Consultant)**:
     - _Action_: Verify that `warden` wing is organized.
-    - _Command_: `node .agent/skills/scholar/scripts/organize-library.js --scope warden`
+    - _Action_: Verify that `warden` wing is organized.
+    - _Command_: `node .agent/skills/scholar/scripts/scholar.js maintain --scope warden`
 
 3.  **Verify**: Check for bloat or architectural violations.
 
