@@ -49,6 +49,7 @@ description: >
 - **Skills**: Use the [Skill Template](./templates/SKILL.md) to define triggers, actions, and file structures.
 - **Rules**: Use the [Rule Template](./templates/RULE.md) to define constraints (`.agent/rules/`).
 - **Workflows**: Use the [Workflow Template](./templates/WORKFLOW.md) to map Chain-of-Thought processes.
+- **Visualization**: Define diagramming standards (Mermaid.js) via [Visualization Knowledge](./knowledge/visualization.md).
 
 ### 🧠 Context Optimization (Refactor)
 

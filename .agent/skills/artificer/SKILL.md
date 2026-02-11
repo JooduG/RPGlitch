@@ -46,19 +46,44 @@ description: >
 
 - **Structure (HTML)**: Semantic architecture (`<article>`, `<nav>`, `aria-labels`).
 - **Reactivity (Runes)**: Svelte 5 state management (`$state`, `$derived`, `$props`).
-- **Prototyping**: Rapid UI scaffolding using `stitch` and `svelte`.
-- **Visualization**: Mermaid.js system mapping and flowcharts.
+- **Prototyping**: Rapid UI scaffolding using `stitch` and `svelte` (via `artificer.js`).
 
 ## 4. Procedures
 
-1.  **The Separation**:
-    - **I own**: `<script>` (Logic) and `<template>` (Structure).
-    - **Mesmer owns**: `<style lang="scss">`.
-2.  **Rune Supremacy**: Use `$props()` instead of `export let`. Use `$state` instead of `let`.
-3.  **Sanitization**: Verify all `@html` usage via **Warden**.
-4.  **Aesthetic Handoff**: Construct the raw HTML/JS, then summon **Mesmer** to apply the "Chalk Regime".
+### 4.1 The Separation (General)
 
-## 5. Anti-Patterns
+1.  **I own**: `<script>` (Logic) and `<template>` (Structure).
+2.  **Mesmer owns**: `<style lang="scss">`.
+3.  **Rune Supremacy**: Use `$props()` instead of `export let`. Use `$state` instead of `let`.
+4.  **Sanitization**: Verify all `@html` usage via **Warden**.
+5.  **Aesthetic Handoff**: Construct the raw HTML/JS, then summon **Mesmer** to apply the "Chalk Regime".
+
+### 4.2 Construct Protocol (New UI)
+
+1.  **Specification**:
+    - **Ambiguity Check**: Rate A1-A5. If A3+, **ASK**.
+    - **Visual Spec**: If missing, invoke **[Mesmer](../mesmer/SKILL.md)** first.
+2.  **Generation**:
+    - **CLI**: `node .agent/skills/artificer/scripts/artificer.js scaffold <Name> <type>`
+    - **Manual**: Create `src/ui/<type>/<Name>.svelte` using strict Runes + Scoped SCSS.
+3.  **Enforcement**:
+    - **No hardcoded hex**: Use `var(--app-...)`.
+    - **No native margins**: Use Layouts/Gaps.
+    - **Interaction**: Always include hover/active states.
+
+### 4.3 Refine Protocol (Legacy Upgrade)
+
+1.  **Deconstruction**:
+    - `export let` -> `$props()`
+    - `let` (reactive) -> `$state()`
+    - `$:` -> `$derived()`
+    - `on:click` -> `onclick`
+2.  **Transformation**:
+    - **Script**: Rewrite logic using Svelte 5 patterns.
+    - **Template**: Replace `<slot />` with `{@render children()}`.
+3.  **Validation**:
+    - **Audit**: `node .agent/skills/artificer/scripts/artificer.js audit`
+    - **Critique**: `node .agent/skills/mesmer/scripts/mesmer.js analyze`
 
 | Pattern                       | Reasoning                                        |
 | :---------------------------- | :----------------------------------------------- |
@@ -70,8 +95,6 @@ description: >
 
 ## 6. Tools
 
-| Tool       | Purpose                                                     | Source   |
-| :--------- | :---------------------------------------------------------- | :------- |
-| `stitch`   | **Primary AI Scaffolder** for generating screens from text. | External |
-| `svelte`   | Component analyzer and playground access.                   | External |
-| `waldzell` | Visual reasoning for complex state flows.                   | System   |
+| `artificer.js` | **Primary CLI** for scaffolding. | Local |
+| `svelte` | Component analyzer. | External |
+| `waldzell` | Visual reasoning for complex state flows. | System |
