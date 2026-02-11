@@ -52,26 +52,31 @@ h1 {
     line-height: 1.125;
     margin-top: var(--spacing-3xl); // Approx 3rem
 }
+
 h2 {
     font-size: var(--font-size-xxxl); // 1.875rem
     line-height: 1.15;
     margin-top: var(--spacing-2xl);
 }
+
 h3 {
     font-size: var(--font-size-xxl); // 1.5rem
     line-height: 1.175;
     margin-top: var(--spacing-xl);
 }
+
 h4 {
     font-size: var(--font-size-xl); // 1.25rem
     line-height: 1.2;
     margin-top: var(--spacing-l);
 }
+
 h5 {
     font-size: var(--font-size-l); // 1.125rem
     line-height: 1.225;
     margin-top: var(--spacing-m);
 }
+
 h6 {
     font-size: var(--font-size-m); // 1rem
     line-height: 1.25;
@@ -91,18 +96,21 @@ tfoot td {
 kbd {
     font-weight: bolder;
 }
+
 pre,
 code,
 kbd,
 samp {
     font-family: var(--font-mono);
 }
+
 small {
     font-size: 0.875em;
 }
 
 a {
     text-decoration: underline;
+
     &.secondary,
     &.contrast {
         text-decoration: underline;

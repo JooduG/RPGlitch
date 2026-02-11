@@ -129,7 +129,6 @@ $opacity-m: 0.5;
 $opacity-l: 0.8;
 $opacity-xl: 0.95;
 $opacity-full: 1;
-
 $opacity-disabled: $opacity-s;
 
 // Blur Scale
@@ -221,7 +220,6 @@ $font-size-xxl: 1.5rem;
 $font-size-xxxl: 1.875rem;
 $font-size-xxxxl: 2.25rem;
 $font-size-xxxxxl: 3.5rem;
-
 $line-height-base: 1.5;
 $line-height-heading: 1.2;
 $font-bold: 700;
@@ -238,7 +236,6 @@ $breakpoints: (
     xl: 1280px,
     xxl: 1536px
 );
-
 $breakpoint-mobile: map.get($breakpoints, m);
 $breakpoint-tablet: map.get($breakpoints, l);
 $breakpoint-desktop: map.get($breakpoints, xl);
@@ -255,7 +252,6 @@ $spacing-m: 1rem; // Base
 $spacing-l: 1.5rem;
 $spacing-xl: 2rem;
 $spacing-xxl: 3rem;
-
 $border-radius: $spacing-xs; // 0.5rem
 $app-container-pad: $spacing-m;
 

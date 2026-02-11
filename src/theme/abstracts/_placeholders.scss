@@ -19,6 +19,7 @@
 // Glassmorphism Pill Container (Overlay - Keeps Blur)
 %glass-pill {
     @extend %glass-base;
+
     background: $layer-overlay; // Darker overlay
     backdrop-filter: blur(12px); // Explicit blur for overlays
     box-shadow: $shadow-l;
@@ -28,14 +29,17 @@
 // 1. The Standard Surface (Renamed Logic)
 %material-glass {
     @extend %glass-base;
+
     background: $layer-surface;
     box-shadow: $shadow-m;
+
     // backdrop-filter removed for performance & flatness
 }
 
 // 2. The Heavy Surface
 %material-glass-heavy {
     @extend %glass-base;
+
     background: $gunmetal; // Solid
     box-shadow: $shadow-l;
     border-radius: $border-radius;
@@ -173,6 +177,7 @@
 // Variants
 %btn-primary {
     @extend %btn;
+
     background: var(--frisk);
     color: $black;
     box-shadow: $shadow-m;
@@ -185,6 +190,7 @@
 
 %btn-ghost {
     @extend %btn;
+
     color: var(--app-muted);
 
     &:hover:not(:disabled, .disabled) {
@@ -195,6 +201,7 @@
 
 %btn-outline {
     @extend %btn;
+
     background: rgba($white, 0.03);
     color: var(--app-muted);
 
@@ -206,6 +213,7 @@
 
 %btn-glass {
     @extend %btn;
+
     background: $glass-m;
     backdrop-filter: blur(8px);
     color: $white;
@@ -274,6 +282,7 @@
 
 %btn-ghost-danger {
     @extend %btn-ghost;
+
     color: var(--app-del);
 
     &:hover:not(:disabled, .disabled) {
@@ -284,6 +293,7 @@
 
 %btn-secondary {
     @extend %btn;
+
     background: rgba($white, $opacity-xs); // 10% white
     color: var(--app-color);
 
@@ -294,6 +304,7 @@
 
 %btn-warden {
     @extend %btn;
+
     background: $bg-component;
     color: var(--app-color);
     border: 1px solid var(--frisk);
@@ -313,14 +324,18 @@
 
 %btn-group-joined {
     display: flex;
+
     .btn {
         border-radius: 0;
+
         &:first-child {
             border-radius: var(--border-radius) 0 0 var(--border-radius);
         }
+
         &:last-child {
             border-radius: 0 var(--border-radius) var(--border-radius) 0;
         }
+
         &:not(:last-child) {
             border-right: 1px solid rgba($black, $opacity-xs);
         }
@@ -329,6 +344,7 @@
 
 %btn-group-pill {
     @extend %glass-pill;
+
     display: inline-flex;
     padding: 4px;
     gap: 4px;
@@ -342,9 +358,11 @@
 %btn-group-split {
     display: flex;
     align-items: stretch;
+
     .btn:first-child {
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
+
     .btn:last-child {
         border-radius: 0 var(--border-radius) var(--border-radius) 0;
         padding-left: $spacing-xs;

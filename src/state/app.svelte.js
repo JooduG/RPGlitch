@@ -141,6 +141,7 @@ export class AppStore {
     }
 
     rerollTitle = async () => {
+        /*
         const titles = [
             "The Echo of Silence",
             "Neon Shadows",
@@ -148,6 +149,7 @@ export class AppStore {
             "Velvet Thunder",
             "Code & Chrome",
         ]
+        */
         // Random selection for now
         // TODO: Connect to AI generator
     }

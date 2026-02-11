@@ -6,13 +6,11 @@
     let { entity, side = "left", title: rawTitle = "" } = $props() // side: 'left' | 'right'
 
     // Default Fallback
-    let visuals = $derived(entity?.visuals || {})
     let name = $derived(entity?.name || "Unknown")
 
     // 01-Builder: Derived Title State (Original Case)
     let title = $derived(rawTitle || name)
 
-    let description = $derived(entity?.description || "No data available.")
     let signatureColor = $derived(themeStore.getSignatureColor(entity))
 </script>
 

@@ -53,6 +53,7 @@
                                 class:muted-info={!getValue(char, field.key)}
                                 data-sync-id={section.label}
                             >
+                                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                                 {@html renderMarkdown(
                                     getValue(char, field.key) ||
                                         "Record undefined."

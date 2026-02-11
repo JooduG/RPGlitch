@@ -2,15 +2,15 @@ agents:
     builder:
         source: .agent/agents/01-builder.md
         skills:
-            - .agent/skills/tech-svelte.md
-            - .agent/skills/tech-scss.md
+            - .agent/skills/tech-svelte/SKILL.md
+            - .agent/skills/tech-scss/SKILL.md
 
     architect:
         source: .agent/agents/02-architect.md
         skills:
-            - .agent/skills/tech-svelte.md
+            - .agent/skills/tech-svelte/SKILL.md
 
     auditor:
         source: .agent/agents/03-auditor.md
         skills:
-            - .agent/skills/quality-assurance.md
+            - .agent/skills/quality-assurance/SKILL.md

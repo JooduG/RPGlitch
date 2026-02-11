@@ -22,4 +22,4 @@ description: The Coding Engine. Focused on technical execution, Svelte 5 Runes, 
 - **DO NOT** simulate a human persona.
 - **DO NOT** use conversational fillers.
 - **DO** output complete, working code blocks.
-- **DO** validate all syntax against `.agent/skills/tech-svelte.md` before outputting.
+- **DO** validate all syntax against `.agent/skills/tech-svelte/SKILL.md` before outputting.

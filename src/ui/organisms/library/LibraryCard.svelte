@@ -16,7 +16,6 @@
 
     let signatureColor = $derived(themeStore.getSignatureColor(entity))
     let signatureRgb = $derived(themeStore.hexToRgb(signatureColor))
-    let avatar = $derived(entity?.visuals?.profilePictureUrl)
     let name = $derived(entity?.name || "Untitled")
 
     function handleSelect() {

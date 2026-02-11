@@ -38,6 +38,7 @@
         ></textarea>
     {:else}
         <div class="description readonly" class:muted-info={!char.description}>
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
             {@html renderMarkdown(
                 char.description || "No description provided."
             )}

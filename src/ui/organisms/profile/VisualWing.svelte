@@ -5,6 +5,7 @@
     import Button from "@ui/atoms/Button.svelte"
     import Tooltip from "@ui/atoms/Tooltip.svelte"
 
+    /* eslint-disable svelte/prefer-svelte-reactivity */
     let {
         char = $bindable(),
         isEditing,
@@ -46,11 +47,6 @@
 
     // Action is "Enhance" if the target we are looking at has text (ready for AI)
     let isEnhanceMode = $derived(isEditing && targetValue.trim().length > 0)
-
-    // Determine the type of enhancement
-    let enhancementType = $derived(
-        activeField?.key === "visual-prompt" ? "generative" : "narrative"
-    )
 
     // Button Logic:
     // User Requirement: Allow multiple trait fields to be enhanced simultaneously.
