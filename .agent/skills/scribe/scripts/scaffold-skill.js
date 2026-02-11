@@ -1,12 +1,9 @@
-#!/usr/bin/env node
+import fs from "fs"
+import path from "path"
+import { fileURLToPath } from "url"
 
-/**
- * File: .agent/skills/scribe/scripts/scaffold-skill.js
- * Purpose: Unified Architect Tool. Enforces kebab-case and Whitelist-only folders.
- */
-
-const fs = require("fs")
-const path = require("path")
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const SKILL_ROOT = path.join(".agent", "skills")
 const TEMPLATE_PATH = path.join(__dirname, "../templates/SKILL.md")
@@ -81,7 +78,9 @@ function auditAll() {
         const { valid, issues } = verifySkill(name)
         const color = valid ? "\x1b[32m" : "\x1b[31m"
         console.log(
-            `${name.padEnd(30)} | ${color}${valid ? "PASS" : "FAIL"}\x1b[0m | ${issues.join(", ")}`
+            `${name.padEnd(30)} | ${color}${
+                valid ? "PASS" : "FAIL"
+            }\x1b[0m | ${issues.join(", ")}`
         )
         if (valid) validCount++
     })

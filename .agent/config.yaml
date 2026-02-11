@@ -4,5 +4,5 @@ skills:
     audit: .agent/skills/audit-core/SKILL.md
     quality: .agent/skills/quality-assurance/SKILL.md
     scribe: .agent/skills/scribe/SKILL.md
-    scss: .agent/skills/tech-scss/SKILL.md
-    svelte: .agent/skills/tech-svelte/SKILL.md
+    scss: .agent/skills/scss/SKILL.md
+    svelte: .agent/skills/svelte/SKILL.md

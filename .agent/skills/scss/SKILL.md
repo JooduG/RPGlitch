@@ -1,5 +1,5 @@
 ---
-name: tech-scss
+name: scss
 description: Strict guidelines for SCSS, theming, and visual implementation.
 ---
 

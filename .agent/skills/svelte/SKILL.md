@@ -1,5 +1,5 @@
 ---
-name: tech-svelte
+name: svelte
 description: Strict technical manual for Svelte 5 Runes syntax and constraints.
 ---
 

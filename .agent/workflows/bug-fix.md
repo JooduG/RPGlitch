@@ -15,7 +15,7 @@ description: Rapid response for fixing errors or hallucinations.
 
 ## Step 2: Repair (@Builder)
 
-1.  **Equip:** Load `tech-svelte`.
+1.  **Equip:** Load `svelte`.
 2.  **Fix:** Apply the smallest possible change to resolve the error.
 3.  **Constraint:** Do NOT rewrite the whole file unless necessary.
 
