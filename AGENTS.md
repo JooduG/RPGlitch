@@ -105,12 +105,15 @@ Before starting any task, you **MUST** read the following to ground yourself:
 
 Use these commands to trigger formalized protocols:
 
-- **`/01-setup`**: Initialize/Sync environment.
-- **`/02-track`**: Scaffold a new feature or bug.
-- **`/03-implement`**: Execute the plan + Checkpoint.
-- **`/04-status`**: Report project state.
-- **`/05-revert`** (Security): Nuclear rollback & Reset.
-- **`/06-review`** (Data/Security): Structured audit & report.
+- **`/01-setup`**: Initializes the Gamemaster environment by validating project context, security, and state.
+- **`/02-track`**: Scaffolds a new work track (feature/bug) with Spec, Plan, and mandatory user consultation.
+- **`/03-implement`**: Executes the implementation plan for a defined track.
+- **`/04-status`**: Reports the status of active tracks and project health.
+- **`/05-checkpoint`**: Anchors the current phase of work into history and updates the plan.
+- **`/06-review`**: The "Apex Review" Protocol. A high-level audit for completed tracks or major features.
+- **`/07-revert`**: The "Revert" Protocol. A structured approach to abandoning failed paths.
+- **`/08-clean`**: The "Clean Room" Protocol. Sterilizes the codebase, ensuring hygiene, linting, and build integrity.
+- **`/09-nope`**: The "Nope" Protocol. Triggered when the agent detects hallucination, looping, or failure. Includes Shame Management.
 
 ## 6. 🚀 Execution Loop
 

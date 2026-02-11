@@ -61,34 +61,38 @@ description: >
 
 ## 4. Procedures
 
-### Phase 1: Discovery (Research)
+### 4.1 Study Protocol (Ingestion)
 
-**Sourcing (Tiered Priority)**:
+_Formerly `write.md`_
 
-1. **Framework Docs** (Svelte/Vite) — Official source.
-2. **Repo Context** (Git) — Code (`src/`) and Config (`.agent/`) are the truth.
-3. **Skill Knowledge** (Local) — Distilled patterns in `knowledge/` folders.
-4. **Library Docs** (Context7) — External NPM packages.
-5. **Repo Wiki** (DeepWiki) — Community explanations.
-6. **General Web** (Firecrawl) — Last resort.
+1.  **Namespace ID**:
+    - `meta` (Rules), `external` (Libs), `logic` (Patterns).
+2.  **Preparation**:
+    - Run `node .agent/skills/scholar/scripts/scholar.js maintain --scope scholar`.
+3.  **Execution**:
+    - `node .agent/skills/scholar/scripts/scholar.js write --path [file] --namespace [ns]`.
+    - _Note_: Prune-on-Write handles cleanup automatically.
+4.  **Verification**:
+    - Test recall: `node .agent/skills/scholar/scripts/scholar.js read "keyword"`.
 
-**Synthesis**: Summarize into a draft (`.agent/knowledge/drafts/TOPIC.draft.md`). Hand off to Scribe for finalization.
+### 4.2 Maintain Protocol (Optimization)
 
-### Phase 2: Persistence (Runtime)
+_Formerly `maintain.md`_
 
-1. **Offline First**: The UI reads/writes to `Dexie.js` exclusively.
-2. **Memory Weighting**: Apply "Emotional Intensity" weights (1-10) to narrative atoms.
-3. **Privacy**: Zero-knowledge architecture. No data leaves the browser.
+1.  **Automated**: Prune-on-Write (Active).
+2.  **Manual Vacuum** (Deferred):
+    - Trigger: Severe hallucination or mass deletion.
+    - Command: `node .agent/skills/scholar/scripts/scholar.js maintain --scope all`.
 
-### Phase 3: Prompt Assembly (Context Building)
+### 4.3 Apex Review Protocol (Audit)
+
+- **Source**: [06-review.md](../workflows/06-review.md)
+- **Trigger**: "Review this track" or "Audit this feature".
+
+### 4.4 Prompt Assembly (Context Building)
 
 - **Owner**: Scholar assembles the context layers for AI prompts.
-- **Implementation**: `src/core/intelligence/context.js` (`ContextBuilder` class).
-- **Method**: `Screenplay.standard()` using a 4-layer model:
-    1. **Layer 1**: Kernel (Directives)
-    2. **Layer 2**: World (Environment)
-    3. **Layer 3**: Entity (Scholar Snapshot)
-    4. **Layer 4**: Query
+- **Method**: `Screenplay.standard()` using a 4-layer model (Kernel, World, Entity, Query).
 
 ## 5. Anti-Patterns
 

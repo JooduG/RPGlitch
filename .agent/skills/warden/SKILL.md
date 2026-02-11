@@ -65,39 +65,50 @@ The Warden has absolute authority over these domains. Other agents must consult 
 
 ## 4. Procedures
 
-### 1. Zero-Trust State Management
+### 4.1 The "Clean Room" Protocol (Codebase Sterilization)
 
-- **Principle**: Never trust data entering the client.
-- **Enforcement**:
-    - All API responses must be validated against a Zod/Valibot schema before assignment to `$state`.
-    - `innerHTML` or `{@html}` is strictly prohibited unless sanitized via DOMPurify.
+- **Source**: [08-clean.md](../workflows/08-clean.md)
+- **Trigger**: "Run clean workflow" or "Fix lint errors".
 
-### 2. The "Clean Room" Protocol
+### 4.2 Verify Protocol (Standard Quality Gate)
 
-- **Trigger**: Any modification to `src/core/**` or `src/ui/**`.
-- **Action**:
-    1.  **Lint**: `npm run lint` (Must pass with 0 warnings).
-    2.  **Format**: `npm run format` (Enforce style consistency).
-    3.  **Test**: Run impacted unit tests. If logic changed, update the test _before_ the code.
+_Formerly `verify.md`_
 
-### 3. Svelte 5 Reactivity Safety
+1.  **Pre-Flight**:
+    - Ensure `npm run dev` is running.
+    - Identify feature scope.
+2.  **Automated Eye**:
+    - Execute: `node .agent/skills/warden/scripts/warden.js verify`
+    - Criteria: Title exists, Root `#app` mounts, Zero Console Errors.
+3.  **Manual Holodeck** (Optional):
+    - Load app, Click primary interaction.
+    - Observe: No crashes, adheres to "Chalk Regime".
+4.  **The Seal**:
+    - **Success**: Proceed to `walkthrough.md`.
+    - **Failure**: Trigger **Nope Protocol**.
 
-- **Constraint**: `flushSync()` must be used explicitly in tests when asserting state changes driven by external stores to ensure DOM consistency.
-- **Pattern**: Avoid side-effects in `$derived` runes; Warden flags these as architectural violations.
+### 4.3 Audit Protocol (Security & Hygiene)
 
-### 4. Standard Workflows
+_Formerly `audit.md`_
 
-#### 🕵️ `audit-codebase`
+1.  **Dependency Scan**:
+    - Run `npm audit` (Report high/critical).
+2.  **Secret Sweep**:
+    - Check staged files for regex patterns (Keys, Tokens).
+    - Verify `.gitignore` against `ignores.master.json`.
+3.  **Rune Safety**:
+    - Scan for `innerHTML` (Unsanitized).
+    - Scan for side-effects in `$derived`.
 
-1.  **Hygiene**: Execute `scripts/warden.js hygiene` and `npm run lint`.
-2.  **Security**: Check `ignores.master.json` vs `.gitignore` for leaks.
-3.  **Report**: Generate `reports/audit_summary.md` listing critical/high/medium issues.
+### 4.4 Nope Protocol (Divergence & Shame)
 
-#### 🚦 `verify-feature`
+- **Source**: [09-nope.md](../workflows/09-nope.md)
+- **Trigger**: "I am looping" or "Manage shame".
 
-1.  **Scaffold**: Create `tests/e2e/storyboard.test.js` using `templates/TEST_PLAN.md`.
-2.  **Execute**: Run `playwright test --project=chromium`.
-3.  **Heal**: If test fails, analyze trace, propose fix, re-run (Max 3 retries).
+### 4.5 Revert Protocol (Nuclear Undo)
+
+- **Source**: [07-revert.md](../workflows/07-revert.md)
+- **Trigger**: "Revert this task" or "Reset to main".
 
 ## 5. Anti-Patterns
 
