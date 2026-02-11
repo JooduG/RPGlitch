@@ -10,6 +10,12 @@
 - [ ] **Phase 3:** "Re-Arming" (Install Architect & Visual Skills)
 - [ ] **Phase 4:** "Integration" (Prove the new workflow)
 
+## 🏆 Epic: The Great Typening (Future)
+
+- [ ] **Phase 1:** Migrate scripts (JS -> TS)
+- [ ] **Phase 2:** Enforce Strict Mode
+- [ ] **Phase 3:** Auto-Mocking for Tests
+
 ## 📋 Backlog (To Do)
 
 - [ ] Create `tracks.md` structure (You are here).

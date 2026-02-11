@@ -116,49 +116,45 @@ The implementation of this architecture relies on the standardized .agent folder
 
 ### **4.1 The Root Directory: .agent/**
 
-This folder is the "Brain" of the workspace. It must be located at the project root \<workspace-root\>/.agent/ to be recognized by the IDE.
+This folder is the "Brain" of the workspace. It must be located at the project root <workspace-root>/.agent/ to be recognized by the IDE.
 
 .agent/
 
-├── rules/ \# The "Constitution" \- Global negative constraints
+├── rules/ # The "Constitution" - Global negative constraints
 
-│ ├── tech-stack.md \# Svelte 5, TypeScript, Tailwind rules
+│ ├── tech-stack.md # Svelte 5, TypeScript, SCSS rules
 
-│ ├── anti-patterns.md \# Banned syntax (e.g., Svelte 4 legacy)
+│ ├── anti-patterns.md # Banned syntax (e.g., Svelte 4 legacy)
 
-│ └── security.md \# No secrets in code, sanitization rules
+│ └── security.md # No secrets in code, sanitization rules
 
-├── skills/ \# The "Hands" \- Functional Capabilities
+├── skills/ # The "Hands" - Functional Capabilities
 
-│ ├── arch-skeleton/ \# Logic generation skills (The Logic Meridian)
+│ ├── arch-skeleton/ # Logic generation (The Logic Meridian)
 
 │ │ ├── SKILL.md
 
-│ │ ├── templates/
-
 │ │ └── examples/
 
-│ ├── ui-skin/ \# Styling skills (The Presentation Meridian)
+│ ├── ui-skin/ # Styling (The Presentation Meridian - SCSS)
 
 │ │ ├── SKILL.md
 
 │ │ └── palette.json
 
-│ ├── audit-core/ \# Self-Correction skills (The Audit Meridian)
+│ ├── audit-core/ # Self-Correction (The Audit Meridian)
 
 │ │ ├── SKILL.md
 
 │ │ └── verify.py
 
-│ └── svelte-migration/ \# Specific refactoring skills
+│ └── tech-svelte/ # Technical Manuals
 
 │ └── SKILL.md
 
-└── workflows/ \# The "Processes" \- Multi-step sequences
+└── workflows/ # The "Processes" - Multi-step sequences
 
-├── pdca-cycle.md \# Plan-Do-Check-Act orchestration
-
-└── feature-flow.md \# Skeleton \-\> Skin pipeline
+├── new-feature.md # The Skeleton -> Audit -> Skin pipeline
 
 ### **4.2 The Rules Engine: .agent/rules/**
 

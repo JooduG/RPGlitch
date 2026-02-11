@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # 🟢 GLOBAL OPERATING PARAMETERS
 
 ## 🧠 Cognitive Sliders (Meridian Standard)
