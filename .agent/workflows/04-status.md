@@ -1,7 +1,11 @@
 ---
 description: Reports the status of active tracks and project health.
+skill: gamemaster
 constraints:
     - "MUST adopt the Gamemaster Persona."
+context:
+    - "Status report"
+    - "Project health"
 ---
 
 # 📊 04: Status Protocol
@@ -10,7 +14,7 @@ constraints:
 
 ## 1. Inspection
 
-1. **Tracks Registry**: Read [tracks.md](../../tasks/tracks.md).
+1. **Tracks Registry**: Read [tracks.md](../tasks/tracks.md).
 2. **Context Integrity**: Verify "Trinity Files" (Product, Tech, Prime).
 3. **Dependency Health**: Run `npm audit` to check for vulnerable packages.
 

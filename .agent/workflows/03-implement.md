@@ -1,8 +1,12 @@
 ---
 description: Executes the implementation plan for a defined track.
+skill: gamemaster
 constraints:
     - "MUST execute Rule 07: Clarity Gate before any file generation."
     - "MUST adopt the Gamemaster Persona."
+context:
+    - "Implement track"
+    - "Execute plan"
 ---
 
 # 🎮 Gamemaster: Apex Implementation Protocol
@@ -11,7 +15,7 @@ constraints:
 
 ## 1. Intelligence Synchronization & Initialization
 
-1.  **Select Track**: Load the first incomplete track from [.agent/tasks/tracks.md](../../tasks/tracks.md).
+1.  **Select Track**: Load the first incomplete track from [.agent/tasks/tracks.md](../tasks/tracks.md).
 2.  **Load Continuity**: Read any active handoffs in `.agent/tasks/handoffs/`.
 3.  **Plan Sync**: Parse the track's `plan.md` to identify unchecked `[ ]` tasks.
 
@@ -32,16 +36,16 @@ For each unchecked task `[ ]` in the track's `plan.md`:
 
 1.  **Status Update**: Change task status to `[/]` (Active).
 2.  **Core Execution**:
-    - Apply [01-prime-directive.md](../../rules/01-prime-directive.md).
+    - Apply [01-prime-directive.md](../rules/01-prime-directive.md).
     - **State Check**: If modifying global stores, create new `.svelte.js` state modules using Svelte 5 Runes (`$state`, `$derived`).
     - **Tech Audit**: Ensure Svelte 5 runes (`$state`, `$derived`, `$effect`) are utilized over legacy patterns.
 
 ### C. Quality Control Gate (The Review Loop)
 
-1.  **Scholar Verification**: Invoke `scholar/review.md`.
+1.  **Scholar Verification**: Invoke `06-review.md`.
     - Verify against `knowledge/tech/svelte-5.md` and Lorebooks.
-2.  **Warden Audit**: Invoke `warden/audit.md`.
-    - Check for unsanitized `innerHTML`, dead code, or aesthetic drift from [06-aesthetic.md](../../rules/06-aesthetic.md).
+2.  **Warden Audit**: Invoke `08-clean.md`.
+    - Check for unsanitized `innerHTML`, dead code, or aesthetic drift from [06-aesthetic.md](../rules/06-aesthetic.md).
 3.  **Circuit Breaker**: If logic fails validation 3 times, the Gamemaster MUST halt and re-evaluate the `spec.md`.
 
 ### D. Completion

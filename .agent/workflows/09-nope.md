@@ -1,6 +1,9 @@
 ---
 description: The "Nope" Protocol. Triggered when the agent detects hallucination, looping, or failure. Includes Shame Management.
-triggers:
+skill: warden
+constraints:
+    - "MUST adopt the Warden Persona."
+context:
     - "I am looping"
     - "This isn't working"
     - "Wait, that's wrong"

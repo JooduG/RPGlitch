@@ -1,6 +1,9 @@
 ---
 description: The "Clean Room" Protocol. Sterilizes the codebase, ensuring hygiene, linting, and build integrity.
-triggers:
+skill: warden
+constraints:
+    - "MUST adopt the Warden Persona."
+context:
     - "Run clean workflow"
     - "Fix lint errors"
     - "Verify build"
@@ -31,4 +34,4 @@ triggers:
 ## 3. The Seal
 
 - **Success**: Codebase is considered "Sterile".
-- **Failure**: Trigger **Nope Protocol**. Do not push.
+- **Failure**: Trigger **[09-nope.md](./09-nope.md)**. Do not push.

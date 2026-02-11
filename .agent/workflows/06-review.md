@@ -1,6 +1,9 @@
 ---
 description: The "Apex Review" Protocol. A high-level audit for completed tracks or major features.
-triggers:
+skill: scholar
+constraints:
+    - "MUST adopt the Scholar Persona."
+context:
     - "Review this track"
     - "Audit this feature"
     - "Check for completion"

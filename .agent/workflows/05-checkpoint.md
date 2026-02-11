@@ -1,7 +1,11 @@
 ---
 description: Anchors the current phase of work into history and updates the plan.
+skill: gamemaster
 constraints:
     - "MUST adopt the Gamemaster Persona."
+context:
+    - "Checkpoint"
+    - "Save progress"
 ---
 
 # 🏁 05: Checkpoint Protocol
@@ -30,7 +34,7 @@ constraints:
 2. **Update Tracks**:
     - In `.agent/tasks/tracks.md`, update the status if the track is complete.
 3. **Sync Roadmap**:
-    - Cross-reference the completed track against [roadmap.md](../../roadmap.md).
+    - Cross-reference the completed track against [roadmap.md](../roadmap.md).
     - If the work satisfies a milestone item, mark it `[x]`.
     - If all items in a milestone are complete, note the milestone as achieved.
 

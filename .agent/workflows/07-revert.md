@@ -1,6 +1,9 @@
 ---
 description: The "Revert" Protocol. A structured approach to abandoning failed paths and restoring strict state.
-triggers:
+skill: warden
+constraints:
+    - "MUST adopt the Warden Persona."
+context:
     - "Revert this task"
     - "Undo changes"
     - "Reset to main"
@@ -36,5 +39,5 @@ _Use for deep logic failures or hallucinations._
 
 ## 3. Post-Revert Hygiene
 
-1.  **Run Clean Protocol**: Execute `warden/clean.md` to ensure no artifacts remain.
+1.  **Run Clean Protocol**: Execute `08-clean.md` to ensure no artifacts remain.
 2.  **Reflect**: Update `task.md` with the failed attempt and the reason for reversion.

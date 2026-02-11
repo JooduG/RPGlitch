@@ -4,6 +4,9 @@ skill: gamemaster
 constraints:
     - "MUST adopt the Gamemaster Persona."
     - "MUST fail if critical context files are missing."
+context:
+    - "Initialize agent"
+    - "Setup environment"
 ---
 
 # ⚡ /01-setup
@@ -14,10 +17,10 @@ constraints:
 
 You MUST read and validate the following files sequentially to establish the "Red Thread":
 
-1.  **Read Core Instruction**: [GEMINI.md](../../../GEMINI.md)
-2.  **Read Prime Directive**: [AGENTS.md](../../../AGENTS.md)
-3.  **Read Index**: [.agent/index.md](../../../.agent/index.md)
-4.  **Read Rules**: [.agent/rules/01-prime-directive.md](../../../.agent/rules/01-prime-directive.md)
+1.  **Read Core Instruction**: [GEMINI.md](../../GEMINI.md)
+2.  **Read Prime Directive**: [AGENTS.md](../../AGENTS.md)
+3.  **Read Index**: [.agent/index.md](../index.md)
+4.  **Read Rules**: [.agent/rules/01-prime-directive.md](../rules/01-prime-directive.md)
 
 ## Phase 2: Verify Integrity (Warden)
 
@@ -30,14 +33,14 @@ Verify system health and security boundaries.
 
 Assess strategic direction and active tracks.
 
-1.  **Read Product**: [.agent/product.md](../../product.md) (The Why).
-2.  **Read Roadmap**: [.agent/roadmap.md](../../roadmap.md) (The Where).
-3.  **Read Tracks**: [.agent/tasks/tracks.md](../../../.agent/tasks/tracks.md) (The What).
+1.  **Read Product**: [.agent/product.md](../product.md) (The Why).
+2.  **Read Roadmap**: [.agent/roadmap.md](../roadmap.md) (The Where).
+3.  **Read Tracks**: [.agent/tasks/tracks.md](../tasks/tracks.md) (The What).
 4.  **Identify Status**: Cross-reference active tracks against the current milestone to determine project momentum.
 
 ## Phase 4: Initialize System (Freedom Protocol)
 
-1.  **Verify Engine**: Read [bootstrap.js](../../../src/core/engine/bootstrap.js) to ensure storage overrides are present.
+1.  **Verify Engine**: Read [bootstrap.js](../../src/core/engine/bootstrap.js) to ensure storage overrides are present.
 
 ## Phase 5: Report Status
 
