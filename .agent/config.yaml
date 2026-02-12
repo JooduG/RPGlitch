@@ -1,12 +1,21 @@
 skills:
-    project: skills/project/SKILL.md
-    svelte: skills/svelte/SKILL.md
-    data: skills/data/SKILL.md
-    audio: skills/audio/SKILL.md
-    motion: skills/motion/SKILL.md
-    scss: skills/scss/SKILL.md
-    quality-assurance: skills/quality-assurance/SKILL.md
-    scribe: skills/scribe/SKILL.md
+    project: c:\Users\johng\Documents\GitHub\default\.agent\skills\project\SKILL.md
+    svelte: c:\Users\johng\Documents\GitHub\default\.agent\skills\svelte\SKILL.md
+    data: c:\Users\johng\Documents\GitHub\default\.agent\skills\data\SKILL.md
+    quality-assurance: c:\Users\johng\Documents\GitHub\default\.agent\skills\quality-assurance\SKILL.md
+    scss: c:\Users\johng\Documents\GitHub\default\.agent\skills\scss\SKILL.md
+    motion: c:\Users\johng\Documents\GitHub\default\.agent\skills\motion\SKILL.md
+    audio: c:\Users\johng\Documents\GitHub\default\.agent\skills\audio\SKILL.md
+    polish: c:\Users\johng\Documents\GitHub\default\.agent\skills\polish\SKILL.md
+    reflection: c:\Users\johng\Documents\GitHub\default\.agent\skills\reflection\SKILL.md
+    scribe: c:\Users\johng\Documents\GitHub\default\.agent\skills\scribe\SKILL.md
 
 workflows:
-    refactor: workflows/refactor.md
+    new-feature: c:\Users\johng\Documents\GitHub\default\.agent\workflows\new-feature.md
+    bug-fix: c:\Users\johng\Documents\GitHub\default\.agent\workflows\bug-fix.md
+    refactor: c:\Users\johng\Documents\GitHub\default\.agent\workflows\refactor.md
+    ship: c:\Users\johng\Documents\GitHub\default\.agent\workflows\ship.md
+    pdca-cycle: c:\Users\johng\Documents\GitHub\default\.agent\workflows\pdca-cycle.md
+
+workspace:
+    project: c:\Users\johng\Documents\GitHub\default\.agent\tasks\tracks.md

@@ -44,7 +44,13 @@ description: >
 
 1. **Trigger**: "Sync Configuration" or manual execution of the sync script.
 2. **Action**: `node .agent/skills/project/scripts/sync.js`.
-3. **Standard**: Reads `ignores.master.json` and updates `.gitignore`, `.prettierignore`, and `.stylelintignore`.
+3. **Standard**: Reads `ignores.master.json` and updates `.gitignore`, `.prettierignore`, `.stylelintignore`, and `.htmlhintignore`.
+
+### 🛡️ ESLint Sync Guide
+
+1. **Constraint**: Modern `eslint.config.js` (Flat Config) does not use `.eslintignore`.
+2. **Manual Sync**: When `ignores.master.json`'s `eslint` section changes, you MUST update the `ignores: [...]` array in `eslint.config.js`.
+3. **Verification**: Run `npm run lint` after sync to ensure no unexpected files are being linted.
 
 ## 3. Tools
 

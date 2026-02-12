@@ -8,6 +8,7 @@
         "preview": "vite preview --port 8080",
         "check": "svelte-check --tsconfig ./jsconfig.json",
         "format": "prettier --write .",
+        "sync": "node .agent/skills/project/scripts/sync.js",
 
         "lint": "npm-run-all --parallel lint:*",
         "lint:js": "eslint src",
