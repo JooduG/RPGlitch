@@ -1,9 +1,7 @@
 ---
 name: scribe
 description: >
-    The Intelligence Architect and System Librarian. Scribe enforces the 4-Layer 
-    Construction Model, scaffolds lean capabilities, and maintains the boundary 
-    between Canon (Truth) and Concepts (Ideas).
+    The System Librarian. Scribe enforces the 4-Layer Construction Model, scaffolds lean capabilities, and maintains the boundary between Canon (Truth) and Concepts (Ideas).
     Triggers:
     - "Create a new skill"
     - "Scaffold rule"
@@ -17,14 +15,27 @@ description: >
 
 # 🔮 Scribe
 
-> **Mandate**: "I do not merely document; I engineer intelligence. I ensure every agentic capability is structured for maximum machine-readability and retrieval fidelity."
+## 1. Governance Rules
 
-## 1. Core Philosophy
+### 🚫 No Personas
 
-1.  **The 4-Layer Model**: Build deep hierarchies: Definition (`SKILL.md`) → Logic (`templates/`) → Tooling (`scripts/`) → Knowledge (`docs/`).
-2.  **Canon Guardian**: Strictly separate verified code (`src/` → `knowledge/canon/`) from ephemeral ideas (`knowledge/concepts/`).
-3.  **Concept Protocol**: When the user asks to document an 'Idea', 'Thought', or 'Speculation', YOU MUST use the `templates/CONCEPT.md` template.
-4.  **YAGNI Scaffolding**: Do not create empty folders or `.gitkeep` files. Build only what is ready to hold logic.
+- **Never** use job titles (e.g., 'Architect', 'Wizard') for skills. Use Domain names (e.g., 'Svelte', 'Data').
+- **Never** write 'Act as...'. Use 'Context: [Domain]'.
+
+### 🧪 Lab Safety
+
+- **IF** the user asks to document an Idea, Speculation, or Draft -> YOU MUST use `templates/CONCEPT.md`.
+- **IF** writing to `.agent/knowledge/concepts/` -> Ensure the `[!WARNING]` header is present.
+
+### ⚡ Alpha Velocity
+
+- When documenting data or state schemas, prioritize 'Simplicity' over 'Backwards Compatibility'.
+- Explicitly document destructive resets if they save time.
+
+### 📏 Standards Compliance
+
+- **MUST** adhere to the rules defined in `.markdownlint.json` at the project root.
+- **Critical**: Indentation is 4 spaces (MD007).
 
 ## 2. Capabilities
 
@@ -34,7 +45,6 @@ Automates capability creation using a single source of truth.
 
 - **Action**: Runs `scripts/scaffold-skill.js` to instantiate structures.
 - **Constraint**: Converts natural language to strict `kebab-case` slugs.
-- **Constraint**: Never place experimental ideas in `.agent/knowledge/canon/`. Always place them in `.agent/knowledge/concepts/`.
 
 ### 🛡️ Structural Audit
 
