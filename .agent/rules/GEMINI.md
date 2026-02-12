@@ -13,7 +13,7 @@ All development follows this atomic progression:
 2. **[Svelte]** builds the Logic (Runes/Components).
 3. **[Scss/Motion/Audio]** apply the Polish (Styles/Physics/Sound).
 4. **[Data]** saves the State (Persistence/IndexedDB).
-5. **[Warden]** audits for Compliance (Security/Tests).
+5. **[Quality Assurance]** audits for Compliance (Security/Tests).
 
 ## 🧠 Active Skills & Triggers
 
@@ -24,7 +24,7 @@ All development follows this atomic progression:
 
 ### 💾 [Data]
 
-- **Focus**: Persistence, Git/IndexedDB Bridge.
+- **Focus**: Engineering Persistence. You write the code for Dexie/Bridge. You CANNOT interact with the running game or user database directly.
 - **Triggers**: "Save game", "Load game", "Update schema", "Wipe data".
 
 ### ⚡ [Svelte]
@@ -47,7 +47,7 @@ All development follows this atomic progression:
 - **Focus**: SFX, Ambient, TTS.
 - **Triggers**: "Add sound", "Speech synthesis", `src/media/audio/**`.
 
-### 🛡️ [Warden]
+### 🛡️ [Quality Assurance]
 
 - **Focus**: Security, Testing, Compliance.
 - **Triggers**: "Run tests", "Audit code", "Security scan", `tests/**`.
@@ -63,3 +63,7 @@ All development follows this atomic progression:
 - **Complete Output**: Never truncate code blocks.
 - **Path Headers**: Always precede code blocks with `File: <absolute_path>`.
 - **Consistency**: Maintain identical variable names across documentation and code.
+
+## 📝 Response Protocol
+
+> CRITICAL: Start every response with a prediction of the skills you will need. Format: `**🔮 Predicted Skills:** [Skill-Name-1, Skill-Name-2]`.

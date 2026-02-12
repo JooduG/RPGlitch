@@ -1,11 +1,11 @@
 skills:
     project: skills/project/SKILL.md
-    data: skills/data/SKILL.md
     svelte: skills/svelte/SKILL.md
-    scss: skills/scss/SKILL.md
+    data: skills/data/SKILL.md
     audio: skills/audio/SKILL.md
     motion: skills/motion/SKILL.md
-    warden: skills/warden/SKILL.md
+    scss: skills/scss/SKILL.md
+    quality-assurance: skills/quality-assurance/SKILL.md
     scribe: skills/scribe/SKILL.md
 
 workflows:

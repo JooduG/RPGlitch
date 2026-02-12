@@ -3,15 +3,19 @@ name: data
 description: >
     Manages persistence and hydration. Owns the 'Bridge' between Svelte Runes and IndexedDB.
     Triggers:
-    - "Save game"
-    - "Load game"
-    - "Update schema"
-    - "Wipe data"
+    - "Implement Save Logic"
+    - "Debug Hydration"
+    - "Define Schema"
 ---
 
 # 💾 Data Skill
 
 > **Mandate**: "I am the steward of persistence. I ensure that the project's state is reliably mirrored between memory and disk, prioritizing system stability over complex migrations during development."
+
+## 🛑 Runtime Limitation
+
+> [!WARNING]
+> **You are an Engineer.** You write the `src/data/db.js` and `src/data/bridge.js` files. You do not have access to the browser's IndexedDB at runtime. You cannot "wipe data" for the user; you can only write code that _allows_ the user to wipe data.
 
 ## 🏗️ Scope
 
@@ -28,10 +32,9 @@ This skill owns the persistence layer of the application:
 
 ## 🛠️ Triggers
 
-- **Save game**: Flush current state to IndexedDB.
-- **Load game**: Hydrate Svelte Runes from IndexedDB.
-- **Update schema**: Modify `db.js` and reset local storage if necessary.
-- **Wipe data**: Clear all IndexedDB tables and LocalStorage.
+- **Implement Save Logic**: Write methods to flush current state to IndexedDB.
+- **Debug Hydration**: Verify Svelte Runes are correctly initialized from stored data.
+- **Define Schema**: Modify `db.js` to structure the database tables.
 
 ## 📐 Implementation Standards
 

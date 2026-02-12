@@ -7,6 +7,7 @@ description: >
     - "Plan feature"
     - "Update tracks"
     - "Check status"
+    - "Sync Configuration"
     - ".agent/tasks/**"
 ---
 
@@ -38,6 +39,12 @@ description: >
 
 1. **Trigger**: "Check status" or "What's next?".
 2. **Action**: Read `.agent/tasks/tracks.md` and summarize current `In Progress` and the next high-priority `Backlog` item.
+
+### 🔄 Sync Configuration
+
+1. **Trigger**: "Sync Configuration" or manual execution of the sync script.
+2. **Action**: `node .agent/skills/project/scripts/sync.js`.
+3. **Standard**: Reads `ignores.master.json` and updates `.gitignore`, `.prettierignore`, and `.stylelintignore`.
 
 ## 3. Tools
 

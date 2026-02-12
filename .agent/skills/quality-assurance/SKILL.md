@@ -1,5 +1,5 @@
 ---
-name: warden
+name: quality-assurance
 description: >
     Technical manual for testing, security, and compliance. 
     Triggers:
@@ -9,9 +9,9 @@ description: >
     - "tests/**"
 ---
 
-# 🛡️ Warden
+# 🛡️ Quality Assurance
 
-> **Mandate**: "I am the gatekeeper. I ensure that all code is compliant, secure, and tested before it reaches production. I do not ask for permission to flag violations."
+> **Standard**: Ensures all logic is compliant, secure, and verified before merging.
 
 ## 1. Quality Assurance
 
