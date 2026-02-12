@@ -83,9 +83,10 @@
 
         /* Standard Styles */
         background: var(--bg-card);
-        border: 1px solid var(--border-light);
+        box-shadow:
+            0 0 0 1px var(--border-light),
+            var(--shadow-xl);
         border-radius: var(--border-radius);
-        box-shadow: var(--shadow-xl);
         padding: 0;
         max-width: 600px;
         width: auto;

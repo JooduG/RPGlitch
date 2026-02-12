@@ -1,4 +1,5 @@
 <script>
+    import { CONFIG } from "@core/engine/config.js"
     import { db } from "@data/db.js"
     import { app } from "@state/app.svelte.js"
     import { runtime } from "@state/runtime.svelte.js"
@@ -27,17 +28,17 @@
             fractal: {
                 id: "mock-fractal",
                 name: "Fractal Entity",
-                visuals: { signatureColor: "#a855f7" },
+                visuals: { signatureColor: CONFIG.PALETTE.purple },
             },
             ai: app.selectedAi || {
                 id: "mock-ai",
                 name: "AI Companion",
-                visuals: { signatureColor: "#22c55e" },
+                visuals: { signatureColor: CONFIG.PALETTE.emerald },
             },
             user: app.selectedUser || {
                 id: "mock-user",
                 name: "Traveler",
-                visuals: { signatureColor: "#3b82f6" },
+                visuals: { signatureColor: CONFIG.PALETTE.blue },
             },
         })
 
@@ -187,9 +188,10 @@
     .cockpit-panel {
         width: 30rem; /* Slightly wider for the pill */
         background: $layer-overlay; /* Opaque overlay */
-        border: 1px solid $glass-border; /* Transparent by default */
+        box-shadow:
+            0 0 0 1px $glass-border,
+            $shadow-l;
         border-radius: var(--radius-l);
-        box-shadow: $shadow-l; /* Deep shadow */
         padding: 1.5rem;
         display: flex;
         flex-direction: column;

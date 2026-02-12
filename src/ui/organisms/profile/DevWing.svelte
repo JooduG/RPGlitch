@@ -359,7 +359,7 @@
 
     /* 2. Plot Explorer */
     .plot-explorer {
-        border: 1px transparent;
+        border: 0.0625rem solid transparent;
         border-radius: var(--border-radius);
         overflow: hidden;
         gap: 4px;
@@ -367,7 +367,7 @@
 
         .add-thread-row {
             display: flex;
-            border: 1px transparent;
+            border: 0.0625rem solid transparent;
             background: rgba(0, 0, 0, 0.2);
             border-radius: var(--border-radius);
             overflow: hidden;
@@ -397,7 +397,7 @@
 
             :global(.btn) {
                 width: auto;
-                border: 1px transparent;
+                border: 0.0625rem solid transparent;
                 border-radius: 0;
                 background: rgba(255, 255, 255, 0.03);
                 font-size: 0.6rem;
@@ -456,13 +456,13 @@
                 padding-right: 36px;
                 margin-bottom: 2px;
                 background: rgba(255, 255, 255, 0.03);
-                border: 1px transparent;
+                border: 0.0625rem solid transparent;
                 border-radius: var(--border-radius);
                 transition: all 0.2s ease;
                 position: relative;
 
                 &:hover {
-                    border: 1px transparent;
+                    border: 0.0625rem solid transparent;
                 }
 
                 .text {

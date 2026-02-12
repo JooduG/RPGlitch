@@ -526,7 +526,7 @@
                 .spinner {
                     width: 20px;
                     height: 20px;
-                    border: 2px solid rgba(255, 255, 255, 0.1);
+                    border: 0.125rem solid rgba(255, 255, 255, 0.1);
                     border-top-color: var(--app-accent);
                     border-radius: 50%;
                     animation: spin 0.8s linear infinite;
@@ -543,7 +543,7 @@
         .action-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            border-top: 1px solid var(--ui-glass-border);
+            border-top: 0.0625rem solid var(--ui-glass-border);
 
             :global(.btn) {
                 width: 100%;
@@ -556,7 +556,7 @@
                 text-transform: capitalize;
 
                 &:not(:last-child) {
-                    border-right: 1px solid var(--ui-glass-border);
+                    border-right: 0.0625rem solid var(--ui-glass-border);
                 }
 
                 &:hover {
@@ -642,7 +642,7 @@
                 width: 32px;
                 height: 16px;
                 background: rgba(0, 0, 0, 0.4);
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
                 border-radius: 10px;
                 transition: all 0.3s ease;
 

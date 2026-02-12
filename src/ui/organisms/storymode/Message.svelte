@@ -1,7 +1,7 @@
 <script>
     import { app } from "@state/app.svelte.js"
     import { runtime } from "@state/runtime.svelte.js"
-    import { themeStore } from "@theme/palette.svelte.js"
+    import { PALETTE, themeStore } from "@theme/palette.svelte.js"
     import DOMPurify from "dompurify"
     import SceneHeader from "../SceneHeader.svelte"
 
@@ -33,7 +33,7 @@
     )
 
     let signatureColor = $derived(
-        entity ? themeStore.getSignatureColor(entity) : "#334155"
+        entity ? themeStore.getSignatureColor(entity) : PALETTE.gunmetal
     )
 
     let textColor = $derived(themeStore.getContrastColor(signatureColor))
@@ -290,7 +290,7 @@
             max-width: 100%;
             border-radius: 8px;
             display: block;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
         }
     }
     .message-row {
@@ -317,8 +317,8 @@
         padding: 1rem 1.25rem;
         border-radius: 12px;
         background: var(--bubble-color, #18181b);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: #fff; /* Force white text */
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+        color: var(--app-color, #fff); /* Force white text */
         /* Removed box-shadow for flat look */
         position: relative;
         overflow: hidden; /* For actions overlay */
@@ -339,17 +339,17 @@
             width: 50%;
             max-width: 80%;
             text-align: center;
-            color: #fff;
+            color: var(--app-color, #fff);
             /* Flattened: Solid opaque color instead of glass gradient */
             background: var(--bubble-color);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
             /* Removed backdrop-filter and box-shadow */
         }
     }
 
     .think-block {
         background: rgba(0, 0, 0, 0.3);
-        border: 1px dashed rgba(255, 255, 255, 0.1);
+        border: 0.0625rem dashed rgba(255, 255, 255, 0.1);
         border-radius: 8px;
         padding: 0.75rem;
         margin-bottom: 1rem;
@@ -358,7 +358,7 @@
         .think-label {
             font-size: 0.65rem;
             font-weight: 900;
-            color: #38bdf8;
+            color: var(--signature-cyan, #38bdf8);
             letter-spacing: 0.1em;
             margin-bottom: 0.4rem;
         }
@@ -391,7 +391,7 @@
 
     .message-timestamp {
         font-size: 0.75rem;
-        color: #fff;
+        color: var(--app-color, #fff);
         font-weight: 500;
         opacity: 0.4; /* "A little bit transparent" */
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6); /* Same shadow as main text */
@@ -422,7 +422,7 @@
 
     .action-btn {
         background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
         color: rgba(255, 255, 255, 0.7);
         border-radius: 4px;
         width: 24px;
@@ -456,8 +456,8 @@
         }
 
         &:hover {
-            background: #fff; /* Solid opaque white */
-            border-color: #fff; /* White border */
+            background: var(--app-color, #fff); /* Solid opaque white */
+            box-shadow: 0 0 0 1px var(--app-color, #fff); /* White border */
             color: var(--signature-color, #000); /* Icons get signature color */
             transform: none;
 
@@ -474,8 +474,8 @@
             bottom: 100%;
             left: 50%;
             transform: translateX(-50%) translateY(-8px);
-            background: #000;
-            color: #fff;
+            background: var(--bg-component, #000);
+            color: var(--app-color, #fff);
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 0.7rem;
@@ -486,7 +486,7 @@
                 opacity 0.2s,
                 transform 0.2s;
             z-index: 100;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
         }
 
         &:hover::after {
@@ -495,12 +495,12 @@
         }
 
         &.delete:hover {
-            background: #ef4444; /* Solid Red */
-            border-color: #fff; /* White border */
-            color: #fff; /* White icon */
+            background: var(--app-del, #ef4444); /* Solid Red */
+            box-shadow: 0 0 0 1px var(--app-color, #fff); /* White border */
+            color: var(--app-color, #fff); /* White icon */
 
             svg {
-                stroke: #fff;
+                stroke: var(--app-color, #fff);
             }
         }
     }

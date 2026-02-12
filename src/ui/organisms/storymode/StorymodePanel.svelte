@@ -53,7 +53,7 @@
         height: 100%;
         position: relative;
         cursor: pointer;
-        background: #000;
+        background: var(--bg-component, #000);
 
         /* Corner Nameplate - positioned at outer top edge */
         .nameplate {
@@ -63,7 +63,7 @@
             display: inline-block;
             padding: 0.5rem 1rem;
             background: var(--app-chalk, #222326);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
             border-radius: 4px;
             width: fit-content;
             max-width: 70%;

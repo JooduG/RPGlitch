@@ -135,7 +135,7 @@
     }
 
     .warden-modal {
-        background: #1a1b26;
+        background: var(--bg-card);
         /* Border purged */
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         border-radius: 12px;
@@ -156,13 +156,13 @@
                 font-size: 1.1rem;
                 font-weight: 700;
                 font-family: var(--font-heading);
-                color: #e2e8f0;
+                color: var(--app-color);
             }
         }
 
         .content {
             padding: 1.5rem;
-            color: #94a3b8;
+            color: var(--app-muted);
             font-size: 0.95rem;
             line-height: 1.5;
         }

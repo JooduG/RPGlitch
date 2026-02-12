@@ -96,7 +96,7 @@
 
         /* Atmospheric Background - transparent to show body's gradient */
         background: transparent;
-        color: #fff;
+        color: white;
         transition: all 0.6s ease;
         pointer-events: none;
 
@@ -130,7 +130,7 @@
                 grid-template-columns: 1fr 1fr;
                 /* Header, Panels (Fixed Height), Content, Footer */
                 grid-template-rows: min-content 25vh 1fr min-content;
-                
+
                 .stage-header {
                     grid-row: 1;
                 }
@@ -144,7 +144,7 @@
 
                 .stage-column.left {
                     grid-column: 1 / 2;
-                    border-right: 1px solid rgba(255,255,255,0.1);
+                    border-right: 1px solid rgba(255, 255, 255, 0.1);
                 }
 
                 .stage-column.right {

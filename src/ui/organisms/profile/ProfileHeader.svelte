@@ -70,7 +70,7 @@
         margin: 0;
         padding: 4px 0;
         text-align: left;
-        border: 1px solid transparent;
+        box-shadow: 0 0 0 1px transparent;
         min-height: 1.1em;
         white-space: pre-wrap;
         overflow-wrap: break-word;
@@ -122,7 +122,7 @@
         border-radius: 0;
         pointer-events: none;
         background: transparent;
-        border: 1px solid transparent;
+        box-shadow: 0 0 0 1px transparent;
         resize: none;
         text-align: left;
 
@@ -137,7 +137,7 @@
 
             &:focus {
                 background: rgba(255, 255, 255, 0.05);
-                border: 1px solid transparent;
+                box-shadow: 0 0 0 1px transparent;
                 outline: none;
             }
         }

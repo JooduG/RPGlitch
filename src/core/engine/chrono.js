@@ -3,8 +3,10 @@
 
 import { Shield } from "@core/security/security.js"
 import { app } from "@state/app.svelte.js"
+import { messages } from "@state/messages.svelte.js"
 import { runtime } from "@state/runtime.svelte.js"
 import { state } from "./bus.js"
+
 import { GameMaster } from "./engine.js"
 
 export class ChronoStore {
@@ -90,8 +92,8 @@ export class ChronoStore {
             console.error("[Chrono] 💥 Time Fracture:", error)
 
             // Push error to feed so user knows what happened
-            app.simulation.feed.push({
-                nodeId: `err-${Date.now()}`,
+            messages.add({
+                id: `err-${Date.now()}`,
                 role: "system",
                 text: `Simulation Error: ${error.message || "Unknown Time Fracture"}`,
                 timestamp: Date.now(),

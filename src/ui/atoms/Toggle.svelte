@@ -67,7 +67,7 @@
         background-color: rgba(255, 255, 255, 0.1);
         border-radius: 99px;
         transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
 
         /* The Thumb */
         &::before {
@@ -77,7 +77,7 @@
             width: var(--thumb-size);
             left: 0.2rem;
             bottom: calc((var(--switch-h) - var(--thumb-size)) / 2 - 1px);
-            background-color: #a1a1aa;
+            background-color: var(--app-muted);
             border-radius: 50%;
             transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -93,14 +93,14 @@
             transform: translateX(
                 calc(var(--switch-w) - var(--thumb-size) - 0.4rem)
             );
-            background-color: #fff;
+            background-color: white;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
     }
 
     /* Label Text */
     .label-text {
-        color: #e4e4e7;
+        color: var(--app-color);
         font-weight: 500;
         letter-spacing: 0.02em;
         font-family: var(--font-body, system-ui);

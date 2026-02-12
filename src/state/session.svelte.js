@@ -3,6 +3,7 @@ import { Session } from "@core/engine/session.js"
 import { app } from "@state/app.svelte.js"
 // We need the engine facade for high-level operations like Prologue
 import { GameMaster } from "@core/engine/engine.js"
+import "@state/messages.svelte.js" // Ensure listeners are registered
 import { runtime } from "@state/runtime.svelte.js"
 
 /**
@@ -20,12 +21,7 @@ export class ReactiveSession {
 
     _initListeners() {
         // 1. Sync Feed on Database Updates
-        events.addEventListener(EVENTS.CHAT_REFRESH, async ({ detail }) => {
-            // Fetch latest messages from DB through the Engine
-            const msgs = await Session.loadMessages(detail.storyId)
-            // Update Svelte 5 State (Reactivity Trigger)
-            app.simulation.feed = msgs
-        })
+        // Handled by @state/messages.svelte.js
 
         // 2. Sync Loading State (e.g. triggered by GameMaster internals)
         events.addEventListener(EVENTS.GENERATION_STARTED, () => {

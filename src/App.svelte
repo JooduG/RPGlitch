@@ -149,7 +149,7 @@
         width: 10%; /* Matches Col 1 of the 10-column grid */
         height: 100vh;
         z-index: 2000;
-        border-right: 1px solid var(--glass-border);
+        box-shadow: 1px 0 0 0 var(--glass-border);
 
         @media (max-width: 1024px) {
             display: none; /* Hide HUD on mobile/small screens */
@@ -162,7 +162,7 @@
         right: 1rem;
         z-index: 10001; /* Must be above Modal (9999) */
         background: rgba(0, 0, 0, 0.5);
-        border: 1px solid var(--glass-border);
+        box-shadow: 0 0 0 1px var(--glass-border);
         color: var(--zinc-500);
         width: 2rem;
         height: 2rem;

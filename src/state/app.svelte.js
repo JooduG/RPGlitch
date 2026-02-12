@@ -29,7 +29,7 @@ export class AppStore {
     simulation = $state({
         loading: false, // STASIS: True when Chrono is processing
         turn: 0, // CHRONO: Current time step
-        feed: [], // NARRATIVE: The story so far
+        // feed: [], // MOVED TO @state/messages.svelte.js
         status: "idle", // idle | generating | saving
     })
 

@@ -307,11 +307,12 @@
 
     background: $bg-component;
     color: var(--app-color);
-    border: 1px solid var(--frisk);
+    box-shadow: 0 0 0 1px var(--frisk);
 
     &:hover:not(:disabled, .disabled) {
-        border-color: var(--app-color);
-        box-shadow: 0 0 15px rgba($white, $opacity-xxs);
+        box-shadow:
+            0 0 15px rgba($white, $opacity-xxs),
+            0 0 0 1px var(--app-color);
     }
 }
 

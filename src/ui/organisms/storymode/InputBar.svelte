@@ -98,7 +98,7 @@
         padding: 0.5rem;
         margin: 1.25rem;
         transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        border: 1px solid transparent; /* Border is invisible by default */
+        border: 0.0625rem solid transparent; /* Border is invisible by default */
 
         &.is-focused {
             background: rgba(39, 39, 42, 0.6);
@@ -119,7 +119,7 @@
         flex: 1;
         background: transparent;
         border: none;
-        color: #f4f4f5; /* Zinc 100 */
+        color: var(--app-color, #f4f4f5); /* Zinc 100 */
         padding: 0.75rem;
         resize: none;
         outline: none;
@@ -130,7 +130,7 @@
         overflow-y: hidden;
 
         &::placeholder {
-            color: #71717a; /* Zinc 500 */
+            color: var(--app-muted, #71717a); /* Zinc 500 */
         }
     }
 
@@ -147,7 +147,7 @@
         border-radius: 8px;
 
         &:hover:not(:disabled) {
-            color: #fff;
+            color: var(--app-color, #fff);
             filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.4));
             /* background highlight removed as requested */
         }
@@ -166,7 +166,7 @@
 
     .send-btn {
         &:not(:disabled):hover {
-            color: #fff;
+            color: var(--app-color, #fff);
             filter: drop-shadow(
                 0 0 12px var(--app-accent, rgba(255, 255, 255, 0.6))
             );

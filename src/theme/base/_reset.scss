@@ -17,8 +17,14 @@ body {
     margin: 0;
     font-family: var(--font-body);
     color: var(--app-color);
-    background-color: #11191f;
-    background-image: radial-gradient(circle at 50% 0%, #181c2f, #23243a 50%, #1a3a4a 75%, #2a1a3a);
+    background-color: var(--app-background);
+    background-image: radial-gradient(
+        circle at 50% 0%,
+        var(--bg-grad-1),
+        var(--bg-grad-2) 50%,
+        var(--bg-grad-3) 75%,
+        var(--bg-grad-4)
+    );
     background-attachment: fixed;
     background-repeat: no-repeat;
     background-size: cover;

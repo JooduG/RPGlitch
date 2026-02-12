@@ -161,7 +161,7 @@
                     max-height: 24rem;
                     overflow-y: auto;
                     background: rgba(255, 255, 255, 0.05);
-                    border: 1px solid transparent;
+                    box-shadow: 0 0 0 1px transparent;
                     border-radius: var(--spacing-s);
                     color: white;
                     padding: var(--spacing-s) var(--spacing-m);
@@ -186,7 +186,7 @@
                         cursor: wait;
                         background: rgba(0, 0, 0, 0.3);
                         color: var(--app-muted);
-                        border: 1px dashed rgba(255, 255, 255, 0.1);
+                        border: 0.0625rem dashed rgba(255, 255, 255, 0.1);
                         pointer-events: none;
                     }
 

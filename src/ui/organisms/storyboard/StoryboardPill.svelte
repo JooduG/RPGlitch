@@ -101,10 +101,13 @@
     :global(.unified-capsule .btn:hover:not(:disabled)) {
         background: transparent;
         filter: none;
-        color: #fff;
+        color: var(--app-color, #fff);
         opacity: 1;
         transform: none; /* Prevent jitter from global translateY */
-        --label-color: #fff; /* Inject white color to children */
+        --label-color: var(
+            --app-color,
+            white
+        ); /* Inject white color to children */
     }
 
     /* Flank Buttons (Shuffle/Settings) */
@@ -122,8 +125,8 @@
     }
 
     :global(.unified-capsule .capsule-flank.btn:hover svg) {
-        fill: #fff;
-        stroke: #fff;
+        fill: var(--app-color, #fff);
+        stroke: var(--app-color, #fff);
     }
 
     /* Primary Action Button (Begin) */

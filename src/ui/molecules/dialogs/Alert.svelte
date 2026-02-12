@@ -104,7 +104,7 @@
     }
 
     .warden-modal {
-        background: #1a1b26; /* Dark Navy/Black */
+        background: var(--bg-card); /* Dark Navy/Black */
         /* Border purged */
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         border-radius: 12px;
@@ -122,7 +122,7 @@
                 font-size: 1.1rem;
                 font-weight: 700;
                 font-family: var(--font-heading);
-                color: #e2e8f0;
+                color: var(--app-color);
                 display: flex;
                 align-items: center;
                 gap: 0.5rem;
@@ -135,7 +135,7 @@
                     width: 1.5rem;
                     height: 1.5rem;
                     background: rgba(59, 130, 246, 0.2);
-                    color: #60a5fa;
+                    color: var(--app-info);
                     border-radius: 50%;
                     font-size: 0.9rem;
                 }
@@ -144,7 +144,7 @@
 
         .content {
             padding: 1.5rem;
-            color: #94a3b8;
+            color: var(--app-muted);
             font-size: 0.95rem;
             line-height: 1.5;
         }

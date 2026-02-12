@@ -32,7 +32,7 @@
 
         .caption {
             margin-top: 1rem;
-            color: #e4e4e7;
+            color: var(--app-color);
             background: rgba(0, 0, 0, 0.5);
             padding: 0.5rem 1rem;
             border-radius: 4px;

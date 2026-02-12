@@ -1,5 +1,6 @@
 <script>
     import { app } from "@state/app.svelte.js"
+    import { messages } from "@state/messages.svelte.js"
     import { session } from "@state/session.svelte.js"
     import Button from "@ui/atoms/Button.svelte"
     import LoadingSkeleton from "@ui/molecules/LoadingSkeleton.svelte"
@@ -12,12 +13,12 @@
     let scrollRef = $state(null)
 
     // Derived
-    let feed = $derived(app.simulation.feed || [])
+    let feed = $derived(messages.feed || [])
     let isThinking = $derived(app.simulation.loading)
 
     // Auto-scroll logic
     $effect(() => {
-        if ((feed.length || app.streaming.active) && scrollRef) {
+        if ((messages.feed.length || app.streaming.active) && scrollRef) {
             // Small timeout to allow DOM render
             setTimeout(() => {
                 if (scrollRef) scrollRef.scrollTop = scrollRef.scrollHeight
@@ -75,7 +76,7 @@
             <div class="game-stage">
                 <!-- Narrative Feed -->
                 <div class="feed-scroll" bind:this={scrollRef}>
-                    {#each feed as msg, index (msg.id)}
+                    {#each messages.feed as msg, index (msg.id)}
                         <Message
                             text={msg.text}
                             sender={mapRole(msg.role)}
@@ -83,7 +84,7 @@
                                 ? new Date(msg.timestamp)
                                 : new Date()}
                             attachments={msg.attachments}
-                            isLast={index === feed.length - 1}
+                            isLast={index === messages.feed.length - 1}
                             onDelete={() => handleDelete(index)}
                             onRegenerate={() => handleRegenerate(index)}
                             onContinue={() => handleContinue()}
@@ -110,7 +111,7 @@
                                 />
                             </div>
                         </div>
-                    {:else if feed.length === 0}
+                    {:else if messages.feed.length === 0}
                         <div class="empty-feed-fallback">
                             <p>
                                 Establishing context stream... If the screen
@@ -173,7 +174,7 @@
             width: 6px;
         }
         &::-webkit-scrollbar-thumb {
-            background: #333;
+            background: var(--gunmetal, #333);
             border-radius: 3px;
         }
     }
@@ -199,7 +200,7 @@
         justify-content: center;
         padding: 4rem 2rem;
         text-align: center;
-        color: #666;
+        color: var(--frozen-pole, #666);
         gap: 1rem;
 
         p {
@@ -209,9 +210,9 @@
         :global(.btn-retry) {
             padding: 0.5rem 1rem;
             background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
             border-radius: 4px;
-            color: #999;
+            color: var(--frisk, #999);
 
             &:hover {
                 background: rgba(255, 255, 255, 0.15);

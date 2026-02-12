@@ -10,20 +10,20 @@
         }
     })
 
-    const getLogColor = (type) => {
+    const getLogClass = (type) => {
         switch (type) {
             case "system":
-                return "#38bdf8" // system (blue)
+                return "log-system"
             case "ai":
-                return "#a855f7" // ai (purple)
+                return "log-ai"
             case "error":
-                return "#ef4444" // error (red)
+                return "log-error"
             case "fractal":
-                return "#22c55e" // fractal (green)
+                return "log-fractal"
             case "db":
-                return "#eab308" // fallback db (yellow)
+                return "log-db"
             default:
-                return "#94a3b8" // default (slate)
+                return "log-default"
         }
     }
 </script>
@@ -39,14 +39,9 @@
 
     <div class="log-feed">
         {#each [...app.logs].reverse() as entry (entry.id)}
-            <div
-                class="log-entry"
-                style:border-left-color={getLogColor(entry.type)}
-            >
+            <div class="log-entry {getLogClass(entry.type)}">
                 <span class="timestamp">[{entry.timestamp}]</span>
-                <span class="type" style:color={getLogColor(entry.type)}
-                    >{entry.type.toUpperCase()}</span
-                >
+                <span class="type">{entry.type.toUpperCase()}</span>
                 <span class="message">{entry.message}</span>
             </div>
         {/each}
@@ -65,10 +60,10 @@
         height: 100%;
         width: 100%;
         background: rgba(10, 10, 15, 0.95);
-        color: #94a3b8;
+        color: var(--app-muted);
         font-family: var(--font-mono);
         font-size: 10px;
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 1px 0 0 0 rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(10px);
         overflow: hidden;
     }
@@ -76,11 +71,11 @@
     .debug-header {
         padding: 12px 10px;
         background: rgba(255, 255, 255, 0.05);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.1);
 
         .debug-title {
             font-weight: 800;
-            color: #fff;
+            color: white;
             margin-bottom: 5px;
             letter-spacing: 0.5px;
             font-family: var(--font-mono);
@@ -90,7 +85,7 @@
             display: flex;
             gap: 15px;
             font-weight: 600;
-            color: #38bdf8;
+            color: var(--app-accent);
         }
     }
 
@@ -110,7 +105,7 @@
         }
 
         .log-entry {
-            border-left: 2px solid;
+            border-left: 0.125rem solid;
             padding-left: 6px;
             line-height: 1.2;
             animation: fadeIn 0.2s ease-out;
@@ -124,7 +119,45 @@
                 margin-right: 5px;
             }
             .message {
-                color: #e2e8f0;
+                color: var(--app-color);
+            }
+
+            /* Log Variants */
+            &.log-system {
+                border-left-color: var(--app-accent); /* Blue */
+                .type {
+                    color: var(--app-accent);
+                }
+            }
+            &.log-ai {
+                border-left-color: var(--color-ai); /* Purple */
+                .type {
+                    color: var(--color-ai);
+                }
+            }
+            &.log-error {
+                border-left-color: var(--app-del); /* Red */
+                .type {
+                    color: var(--app-del);
+                }
+            }
+            &.log-fractal {
+                border-left-color: var(--color-fractal); /* Green */
+                .type {
+                    color: var(--color-fractal);
+                }
+            }
+            &.log-db {
+                border-left-color: var(--color-db); /* Yellow */
+                .type {
+                    color: var(--color-db);
+                }
+            }
+            &.log-default {
+                border-left-color: var(--app-muted);
+                .type {
+                    color: var(--app-muted);
+                }
             }
         }
     }
@@ -133,8 +166,7 @@
         padding: 6px 10px;
         background: rgba(0, 0, 0, 0.4);
         font-size: 9px;
-        color: #64748b;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 -1px 0 0 rgba(255, 255, 255, 0.05);
     }
 
     @keyframes fadeIn {

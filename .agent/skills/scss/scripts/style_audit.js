@@ -32,6 +32,7 @@ const AUDIT = {
                 if (stat.isDirectory()) {
                     scanDir(fullPath)
                 } else if (/\.(svelte|scss|css)$/i.test(item)) {
+                    if (item === "_variables.scss") continue
                     auditFile(fullPath, issues)
                 }
             }

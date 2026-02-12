@@ -16,7 +16,8 @@
             "@scholar/*": ["src/data/*"]
         },
         "lib": ["esnext", "dom", "dom.iterable"],
-        "allowArbitraryExtensions": true
+        "allowArbitraryExtensions": true,
+        "verbatimModuleSyntax": true
     },
     "include": ["src/**/*", "types.d.ts"],
     "exclude": [

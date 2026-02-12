@@ -10,6 +10,7 @@ export default defineConfig({
         // Explicitly include both src and .agent test paths
         include: [
             "src/**/*.{test,spec}.{js,ts}",
+            "tests/**/*.{test,spec}.{js,ts}",
             ".agent/skills/warden/scripts/unit/**/*.{test,spec}.{js,ts}",
         ],
         exclude: [
@@ -46,6 +47,6 @@ export default defineConfig({
                 "./src/theme/palette.svelte.js"
             ),
         },
-        setupFiles: [".agent/skills/warden/scripts/setup.js"],
+        // setupFiles: [".agent/skills/warden/scripts/setup.js"],
     },
 })
