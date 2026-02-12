@@ -11,6 +11,7 @@ description: >
     - "Update project canon"
     - "Visualize this logic"
     - ".agent/**"
+    - "**.md"
 ---
 
 # 🔮 Scribe
