@@ -22,8 +22,8 @@
 
         "test": "npm run test:unit && npm run test:compliance && npm run audit:security",
         "test:unit": "vitest",
-        "test:compliance": "vitest run tests/compliance",
-        "audit:security": "node scripts/security-scan.js",
+        "test:compliance": "vitest run .agent/skills/quality-assurance/tests/compliance",
+        "audit:security": "node .agent/skills/audit-core/scripts/security-scan.js",
         "test:e2e": "playwright test",
         "test:ui": "vitest --ui",
 

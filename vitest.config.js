@@ -12,6 +12,7 @@ export default defineConfig({
             "src/**/*.{test,spec}.{js,ts}",
             "tests/**/*.{test,spec}.{js,ts}",
             ".agent/skills/warden/scripts/unit/**/*.{test,spec}.{js,ts}",
+            ".agent/skills/quality-assurance/tests/compliance/**/*.{test,spec}.{js,ts}",
         ],
         exclude: [
             "**/node_modules/**",
