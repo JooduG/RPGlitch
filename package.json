@@ -9,36 +9,38 @@
         "check": "svelte-check --tsconfig ./jsconfig.json",
         "format": "prettier --write .",
         "sync": "node .agent/skills/project/scripts/sync.js",
-
         "lint": "npm-run-all --parallel lint:*",
         "lint:js": "eslint src",
         "lint:css": "node .agent/skills/scss/scripts/style_audit.js",
-
         "lint:fix": "npm-run-all --parallel lint:*:fix",
         "lint:js:fix": "eslint src --fix",
         "lint:css:fix": "stylelint \"src/**/*.scss\" --fix",
-
         "audit:svelte": "node .agent/skills/svelte/scripts/audit_legacy.js",
         "scaffold:component": "node .agent/skills/svelte/scripts/scaffold_component.js",
-
         "test": "npm run test:unit && npm run test:compliance && npm run audit:security",
         "test:unit": "vitest",
         "test:compliance": "vitest run .agent/skills/quality-assurance/tests/compliance",
         "audit:security": "node .agent/skills/audit-core/scripts/security-scan.js",
         "test:e2e": "playwright test",
         "test:ui": "vitest --ui",
-
         "verify": "npm run check && npm run lint && npx vitest run",
         "deploy": "npm run verify && npm run build"
     },
     "dependencies": {
         "@modelcontextprotocol/sdk": "^1.26.0",
         "@pinecone-database/pinecone": "^6.1.4",
+        "@playwright/mcp": "^0.0.64",
+        "@pollinations/model-context-protocol": "^1.0.15",
         "@supabase/supabase-js": "^2.95.3",
+        "@waldzellai/clear-thought-onepointfive": "^0.2.1",
+        "@waldzellai/stochasticthinking": "^0.0.1",
+        "@waldzellai/visual-reasoning": "^0.1.1",
         "dexie": "^3.2.4",
         "dompurify": "^3.0.5",
-        "dotenv": "^17.2.3",
+        "dotenv": "^17.3.1",
+        "firecrawl-mcp": "^3.7.4",
         "ignore": "^7.0.5",
+        "mcp-sequentialthinking-tools": "^0.0.4",
         "paneforge": "^1.0.2",
         "runed": "^0.37.1"
     },
