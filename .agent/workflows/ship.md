@@ -8,8 +8,8 @@ description: Deployment Protocol
 
 ## Phase 1: The Gatekeeper (@Auditor)
 
-1.  **Verify:** Run `npm run verify` in the terminal.
-    - **CRITICAL:** If this command fails, the workflow **MUST STOP IMMEDIATELY**. Do not proceed to the build phase.
+1.  **Verify:** Run `npm test` in the terminal.
+    - **CRITICAL:** If `npm test` fails (exit code 1), the workflow **MUST ABORT IMMEDIATELY**. Do not proceed to the build phase. No deployment allowed.
 
 ## Phase 2: The Build (@Builder)
 
