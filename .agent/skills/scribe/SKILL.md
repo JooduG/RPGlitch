@@ -12,6 +12,7 @@ description: >
     - "Visualize this logic"
     - ".agent/**"
     - "**.md"
+    - "Document an Idea/Thought"
 ---
 
 # 🔮 Scribe
@@ -22,7 +23,8 @@ description: >
 
 1.  **The 4-Layer Model**: Build deep hierarchies: Definition (`SKILL.md`) → Logic (`templates/`) → Tooling (`scripts/`) → Knowledge (`docs/`).
 2.  **Canon Guardian**: Strictly separate verified code (`src/` → `knowledge/canon/`) from ephemeral ideas (`knowledge/concepts/`).
-3.  **YAGNI Scaffolding**: Do not create empty folders or `.gitkeep` files. Build only what is ready to hold logic.
+3.  **Concept Protocol**: When the user asks to document an 'Idea', 'Thought', or 'Speculation', YOU MUST use the `templates/CONCEPT.md` template.
+4.  **YAGNI Scaffolding**: Do not create empty folders or `.gitkeep` files. Build only what is ready to hold logic.
 
 ## 2. Capabilities
 
@@ -32,6 +34,7 @@ Automates capability creation using a single source of truth.
 
 - **Action**: Runs `scripts/scaffold-skill.js` to instantiate structures.
 - **Constraint**: Converts natural language to strict `kebab-case` slugs.
+- **Constraint**: Never place experimental ideas in `.agent/knowledge/canon/`. Always place them in `.agent/knowledge/concepts/`.
 
 ### 🛡️ Structural Audit
 

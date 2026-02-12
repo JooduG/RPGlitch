@@ -1,6 +1,15 @@
+---
+type: concept
+status: experimental
+authority: none
+---
+
 # 💡 Concepts: The Maybe Pile
 
-> [!WARNING]
+> [!WARNING] EXPERIMENTAL CONTEXT
+> The following content is strictly **theoretical**. It represents potential ideas, not implemented reality.
+> Do NOT code these mechanics unless explicitly instructed to "Implement Concept X".
+>
 > **STATUS: DRAFT.** These are unverified ideas. Do not implement without explicit user approval.
 
 ## 🧪 Experimental Mechanics

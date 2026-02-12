@@ -1,6 +1,16 @@
-Status: Concept / Unverified
+---
+type: concept
+status: experimental
+authority: none
+---
 
 # 🧪 System: World Mechanics
+
+> [!WARNING] EXPERIMENTAL CONTEXT
+> The following content is strictly **theoretical**. It represents potential ideas, not implemented reality.
+> Do NOT code these mechanics unless explicitly instructed to "Implement Concept X".
+
+Status: Concept / Unverified
 
 ## Chrono Kinetics
 

@@ -1,21 +1,41 @@
+# .agent/config.yaml
+
+# 🧠 Skills (Capabilities)
 skills:
-    project: c:\Users\johng\Documents\GitHub\default\.agent\skills\project\SKILL.md
-    svelte: c:\Users\johng\Documents\GitHub\default\.agent\skills\svelte\SKILL.md
-    data: c:\Users\johng\Documents\GitHub\default\.agent\skills\data\SKILL.md
-    quality-assurance: c:\Users\johng\Documents\GitHub\default\.agent\skills\quality-assurance\SKILL.md
-    scss: c:\Users\johng\Documents\GitHub\default\.agent\skills\scss\SKILL.md
-    motion: c:\Users\johng\Documents\GitHub\default\.agent\skills\motion\SKILL.md
-    audio: c:\Users\johng\Documents\GitHub\default\.agent\skills\audio\SKILL.md
-    polish: c:\Users\johng\Documents\GitHub\default\.agent\skills\polish\SKILL.md
-    reflection: c:\Users\johng\Documents\GitHub\default\.agent\skills\reflection\SKILL.md
-    scribe: c:\Users\johng\Documents\GitHub\default\.agent\skills\scribe\SKILL.md
+    project: .agent/skills/project/SKILL.md
+    data: .agent/skills/data/SKILL.md
+    svelte: .agent/skills/svelte/SKILL.md
+    quality-assurance: .agent/skills/quality-assurance/SKILL.md
+    scss: .agent/skills/scss/SKILL.md
+    motion: .agent/skills/motion/SKILL.md
+    audio: .agent/skills/audio/SKILL.md
+    polish: .agent/skills/polish/SKILL.md
+    reflection: .agent/skills/reflection/SKILL.md
+    scribe: .agent/skills/scribe/SKILL.md
 
+# ⚡ Workflows (Standard Operating Procedures)
 workflows:
-    new-feature: c:\Users\johng\Documents\GitHub\default\.agent\workflows\new-feature.md
-    bug-fix: c:\Users\johng\Documents\GitHub\default\.agent\workflows\bug-fix.md
-    refactor: c:\Users\johng\Documents\GitHub\default\.agent\workflows\refactor.md
-    ship: c:\Users\johng\Documents\GitHub\default\.agent\workflows\ship.md
-    pdca-cycle: c:\Users\johng\Documents\GitHub\default\.agent\workflows\pdca-cycle.md
+    new-feature: .agent/workflows/new-feature.md
+    bug-fix: .agent/workflows/bug-fix.md
+    refactor: .agent/workflows/refactor.md
+    ship: .agent/workflows/ship.md
+    pdca-cycle: .agent/workflows/pdca-cycle.md
 
+# 📚 Knowledge (Reference Library)
+knowledge:
+    # 🏛️ Canon: The Laws of Physics & Code
+    canon:
+        design: .agent/knowledge/canon/design-system.md
+        mechanics: .agent/knowledge/canon/mechanics.md
+        platform: .agent/knowledge/canon/platform-perchance.md
+
+    # 🧪 Laboratory: Unproven Theories & Ideas
+    lab:
+        ideas: .agent/knowledge/concepts/ideas.md
+        mechanics: .agent/knowledge/concepts/library/mechanics.md
+        psychology: .agent/knowledge/concepts/library/psychology.md
+        social: .agent/knowledge/concepts/library/social.md
+
+# 📝 Workspace (Active Memory)
 workspace:
-    project: c:\Users\johng\Documents\GitHub\default\.agent\tasks\tracks.md
+    tracks: .agent/tasks/tracks.md
