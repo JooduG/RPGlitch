@@ -4,3 +4,4 @@ skills:
     scribe: .agent/skills/scribe/SKILL.md
     scss: .agent/skills/scss/SKILL.md
     svelte: .agent/skills/svelte/SKILL.md
+    simulation: .agent/skills/simulation-engine/SKILL.md

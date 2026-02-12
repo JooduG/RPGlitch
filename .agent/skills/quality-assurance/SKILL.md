@@ -23,12 +23,12 @@ description: Technical manual for testing and security protocols
 
 ## Security Protocols
 
-### OWASP Checklist
+### Security Rules Checklist
 
-1.  **Input Sanitization**: Validate and sanitize all user inputs.
-2.  **Output Encoding**: Encode data before rendering to prevent XSS.
-3.  **Authentication**: Verify authentication and authorization for all protected routes.
-4.  **Data Protection**: Encrypt sensitive data at rest and in transit.
+1.  **Rule Enforcement**: All code must comply with [`.agent/rules/security.md`](file:///c:/Users/johng/Documents/GitHub/default/.agent/rules/security.md).
+2.  **DOM Purification**: Verify that `{@html ...}` is never used without sanitization.
+3.  **Event Safety**: Ensure no event handlers use string evaluation.
+4.  **State Validation**: Confirm all external data uses Zod/Valibot schemas before usage.
 
 ### Svelte-Specific Security
 

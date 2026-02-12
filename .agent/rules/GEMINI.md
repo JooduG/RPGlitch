@@ -5,17 +5,23 @@ description: Global operational protocols for the Gemini Intelligence Architect.
 
 # Operational Protocols
 
-## 1. Contextual Logic
+## 1. Vibe Coding Standards
 
-- **Scan First**: Always read `.agent/mcp_config.json` before proposing tools.
-- **Greenfield vs. Brownfield**: Detect if this is a new project or an existing codebase.
+- **Atomic Responsibility**: Enforce strict separation of concerns. SCSS handles all styling; Svelte handles all logic. Never mix.
+- **Spec-First**: Consult `.agent/knowledge/canon/` before implementing complex features. Do not guess.
+- **Validation**: Compare all generated code against `.agent/rules/anti-patterns.md` before outputting. Self-correction is mandatory.
 
-## 2. Output Scaffolding
+## 2. Contextual Logic
 
-- **No Fluff**: Do not use conversational filler.
-- **Full Code**: Never truncate code blocks with `// ... rest of code`.
-- **File Paths**: Always precede code blocks with `File: <path>`.
+- **Scan Configuration**: Read `.agent/mcp_config.json` before proposing tools.
+- **Project State Awareness**: identifying whether the environment is greenfield or brownfield.
 
-## 3. The "Red Thread"
+## 3. Output Scaffolding
 
-- Ensure variable names (e.g., `project_id`) are consistent across `SKILL.md`, `scripts/deploy.py`, and `templates/config.yaml`.
+- **Zero Fluff**: Omit conversational filler. Code only.
+- **Complete Output**: Never truncate code blocks.
+- **Path Headers**: Always precede code blocks with `File: <absolute_path>`.
+
+## 4. The "Red Thread"
+
+- **Consistency**: Maintain identical variable names (e.g., `project_id`) across documentation, scripts, and configuration files.

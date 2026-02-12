@@ -1,18 +1,28 @@
-# 🛡️ Security Protocols
+---
+description: Critical security rules regarding DOM Purification, Event Injection, and State Validation.
+---
 
-## Data Handling
+# 🛡️ Security Rules
 
-- **No Secrets:** Never commit API keys, passwords, or credentials to the codebase. Use `.env` files.
-- **Sanitization:** Always sanitize user input before rendering to the DOM to prevent XSS. Svelte handles this by default, but be wary of `{@html ...}`.
-- **Validation:** Use Zod schemas to validate all data entering the application boundary (API responses, form inputs).
+## 1. DOM Purification & Input Sanitization
 
-## Logic Safety
+- **Rule**: NEVER use `{@html ...}` with raw, unsanitized input.
+- **Requirement**: specific `DOMPurify.sanitize()` or an equivalent robust sanitizer must be used immediately before rendering any HTML string.
+- **Prohibited**: passing `user_content` directly to `{@html}`.
+- **Context**: The client is hostile territory. Trust nothing entering from the network.
 
-- **Zero Trust:** Assume all external data is malformed or malicious until validated.
-- **Error Handling:** Fail gracefully. Do not expose stack traces to the user.
-- **State Isolation:** Ensure user-specific state does not leak into global scope (especially in SSR contexts).
+## 2. Event Injection & Handler Safety
 
-## Operational Security
+- **Rule**: Do not execute strings as code (no `eval`, `new Function`, or `setTimeout` with string arguments).
+- **Requirement**: Event handlers must be static functions or strictly typed closures.
+- **Validation**: Ensure all event data payloads are validated against a schema before processing.
 
-- **Dependencies:** Audit `package.json` for known vulnerabilities.
-- **Scripts:** independent review of any scripts in `.agent/scripts` before execution (already enforced by the Agent's operation mode).
+## 3. State Validation & Zero-Trust Data
+
+- **Rule**: Never trust external data (API responses, URL params, localStorage) to match TypeScript interfaces at runtime.
+- **Requirement**: Use **Zod** or **Valibot** to parse and validate all incoming data at the boundary.
+- **Prohibited**: `as User` type assertions on network responses.
+- **State Isolation**:
+    - `$state` objects should be treated as immutable where possible.
+    - SSR Session data must be vetted to ensure no cross-request leakage (do not store user data in global module scope).
+    - Limit scope of state to the smallest necessary component or module.
