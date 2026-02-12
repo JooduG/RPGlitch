@@ -1,12 +1,12 @@
 skills:
-    audit: skills/audit-core/SKILL.md
-    quality: skills/quality-assurance/SKILL.md
-    reflection: skills/reflection/SKILL.md
-    scribe: skills/scribe/SKILL.md
-    scss: skills/scss/SKILL.md
-    simulation: skills/simulation-engine/SKILL.md
+    project: skills/project/SKILL.md
+    data: skills/data/SKILL.md
     svelte: skills/svelte/SKILL.md
-    visual-refactor: skills/visual-refactor/SKILL.md
+    scss: skills/scss/SKILL.md
+    audio: skills/audio/SKILL.md
+    motion: skills/motion/SKILL.md
+    warden: skills/warden/SKILL.md
+    scribe: skills/scribe/SKILL.md
 
 workflows:
     refactor: workflows/refactor.md

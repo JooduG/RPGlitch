@@ -89,7 +89,7 @@
             ".markdownlint.json",
             "*.resolved",
             "llms.md",
-            "/.agent/skills/scribe/templates/**"
+            "/.agent/**/templates/**"
         ],
         "prettier": [
             "*.bak",
