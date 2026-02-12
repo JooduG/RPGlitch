@@ -11,11 +11,14 @@
 
         "lint": "npm-run-all --parallel lint:*",
         "lint:js": "eslint src",
-        "lint:css": "stylelint \"src/**/*.scss\"",
+        "lint:css": "node .agent/skills/scss/scripts/style_audit.js",
 
         "lint:fix": "npm-run-all --parallel lint:*:fix",
         "lint:js:fix": "eslint src --fix",
         "lint:css:fix": "stylelint \"src/**/*.scss\" --fix",
+
+        "audit:svelte": "node .agent/skills/svelte/scripts/audit_legacy.js",
+        "scaffold:component": "node .agent/skills/svelte/scripts/scaffold_component.js",
 
         "test": "npm run test:unit && npm run test:e2e",
         "test:unit": "vitest",

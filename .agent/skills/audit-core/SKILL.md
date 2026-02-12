@@ -5,6 +5,14 @@ description: Scans specific files for violations of the Tech Stack rules (e.g., 
 
 # 🛡️ Audit Protocol
 
+## Tools
+
+## Reference Rules
+
+- **Tech Stack:** [.agent/rules/tech-stack.md](file:///c:/Users/johng/Documents/GitHub/default/.agent/rules/tech-stack.md)
+- **Anti-Patterns:** [.agent/rules/anti-patterns.md](file:///c:/Users/johng/Documents/GitHub/default/.agent/rules/anti-patterns.md)
+- **Security:** [.agent/rules/security.md](file:///c:/Users/johng/Documents/GitHub/default/.agent/rules/security.md)
+
 ## Inspection Targets
 
 ### 1. Runes Compliance (Critical)

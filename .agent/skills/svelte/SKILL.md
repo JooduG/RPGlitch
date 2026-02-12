@@ -1,55 +1,63 @@
 ---
 name: svelte
-description: Strict technical manual for Svelte 5 Runes syntax and constraints.
+description: The authoritative manual for Svelte 5 development. Enforces Rune syntax ($state, $props), SCSS scoping, and strict separation of concerns.
 ---
 
-# Svelte 5 Technical Manual
+# ⚡ Svelte 5 Architect
 
-## Core Framework: Svelte 5 (Runes Mode)
+> "Reactivity is explicit. Logic is isolated. Styles are scoped. We build with Runes."
 
-**STRICT ENFORCEMENT:** You are operating in a Svelte 5 Runes-only environment. Svelte 4 legacy syntax is strictly prohibited.
+## 🎯 Triggers
 
-### ✅ APPROVED PATTERNS (Runes)
+- **File Patterns**: `src/**/*.svelte`, `src/**/*.svelte.ts`, `src/**/*.js`
+- **Intents**: "Scaffold a component", "Refactor to Runes", "Fix reactivity", "Audit legacy code"
 
-- **State:** Use `$state(val)` for all reactive variables.
-- **Computed:** Use `$derived(expr)` for values dependent on state.
-- **Side Effects:** Use `$effect(() => {})` for logic that runs on state change.
-- **Props:** Use `let { propName }: Props = $props()` for component inputs.
-- **Binding:** Use `$bindable()` for two-way data flow.
-- **Snippets:** Use `{#snippet name()}` for reusable UI blocks instead of slots.
-- **Events:** Use standard HTML attributes (e.g., `onclick`) or callback props. I.e. `onclick={() => propName()}`
+## 🛠️ Core Competencies
 
-### ❌ NEGATIVE CONSTRAINTS (BANNED PATTERNS)
+- **Rune Supremacy**: Strict enforcement of `$state`, `$derived`, `$effect`, and `$props`.
+- **Legacy Ban**: Active detection and rejection of Svelte 4 syntax (`export let`, `$:`, `createEventDispatcher`).
+- **SCSS Architecture**: Enforces "Church & State" — Semantic HTML in template, Logic in script, Visuals in `<style lang="scss">`.
+- **Scaffolding**: Automated component generation via Node.js tooling.
 
-**CRITICAL VIOLATIONS - DO NOT USE:**
+## 💀 Skeleton Protocol (Logic First)
 
-1.  **`export let`**:
-    - **Detection**: `export let` at the top level.
-    - **Reason**: Deprecated in favor of `$props()`.
-    - **Fix**: Convert to `let { ... } = $props()`.
+When generating new components, follow the **Skeleton First** principle:
 
-2.  **`$:` (Reactive Declarations)**:
-    - **Detection**: `$:` label.
-    - **Reason**: Deprecated in favor of `$derived()` or `$effect()`.
-    - **Fix**: Use `$derived` for values, `$effect` for side effects.
+1.  **Logic**: Define `Props`, `$state`, and `$derived` in `<script lang="ts">`.
+2.  **Structure**: Write semantic HTML (`article`, `section`) without classes.
+3.  **Verification**: Ensure no Svelte 4 syntax exists.
+4.  **Skinning**: Only _after_ logic is verified, apply styles via SCSS or Utilities.
 
-3.  **`createEventDispatcher`**:
-    - **Detection**: `import { createEventDispatcher } ...`
-    - **Reason**: Deprecated.
-    - **Fix**: Use callback props (e.g., `let { onSave } = $props(); onSave(data);`).
+## ⚡ Operational Rules
 
-4.  **`<slot>`**:
-    - **Detection**: `<slot>` tag.
-    - **Reason**: Deprecated in favor of Snippets.
-    - **Fix**: Use `{#snippet children()}` or named snippets.
+1.  **State**: Use `let x = $state(0)` instead of `let x = 0`.
+2.  **Props**: Use `let { prop } = $props()` instead of `export let prop`.
+3.  **Side Effects**: Use `$effect()` instead of `$:`.
+4.  **Events**: Use `onclick` (attributes) or callback props instead of `on:click` / `createEventDispatcher`.
+5.  **Styling**: No inline styles. No global leaks. Use `<style lang="scss">` or design tokens.
 
-5.  **`$$props` / `$$restProps`**:
-    - **Detection**: Usage of `$$props` or `$$restProps`.
-    - **Reason**: Deprecated.
-    - **Fix**: Use `let { ...rest } = $props()`.
+## 📚 Resources
 
-## Styling Standards (SCSS)
+- **Scaffold Script**: [scaffold_component.js](file:///c:/Users/johng/Documents/GitHub/default/.agent/skills/svelte/scripts/scaffold_component.js)
+- **Legacy Audit**: [audit_legacy.js](file:///c:/Users/johng/Documents/GitHub/default/.agent/skills/svelte/scripts/audit_legacy.js)
+- **Component Template**: [COMPONENT.svelte](file:///c:/Users/johng/Documents/GitHub/default/.agent/skills/svelte/templates/COMPONENT.svelte)
+- **Store Template**: [STORE.svelte.ts](file:///c:/Users/johng/Documents/GitHub/default/.agent/skills/svelte/templates/STORE.svelte.ts)
+- **Migration Guide**: [MIGRATION_GUIDE.md](file:///c:/Users/johng/Documents/GitHub/default/.agent/skills/svelte/docs/MIGRATION_GUIDE.md)
+- **Examples**:
+    - [counter.svelte](file:///c:/Users/johng/Documents/GitHub/default/.agent/skills/svelte/examples/counter.svelte) (✅ Good)
+    - [bad_counter.svelte](file:///c:/Users/johng/Documents/GitHub/default/.agent/skills/svelte/examples/bad_counter.svelte) (❌ Bad)
 
-- **Scoping**: All component styles must be scoped or use global utility classes carefully.
-- **Variables**: Use SCSS variables for colors, spacing, and fonts from the global theme.
-- **Architecture**: "Church & State" - Semantic HTML in `.svelte`, logic in `<script>`, styling in `<style lang="scss">` or separate `.scss` files. Zero inline styles.
+## 🚦 Usage
+
+To audit the codebase for legacy Svelte syntax:
+
+```bash
+npm run audit:svelte
+```
+
+To scaffold a new component:
+
+```bash
+npm run scaffold:component <ComponentName> [type]
+# Example: npm run scaffold:component MyButton atoms
+```

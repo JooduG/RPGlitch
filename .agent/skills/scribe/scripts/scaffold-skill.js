@@ -7,7 +7,14 @@ const __dirname = path.dirname(__filename)
 
 const SKILL_ROOT = path.join(".agent", "skills")
 const TEMPLATE_PATH = path.join(__dirname, "../templates/SKILL.md")
-const ALLOWED_FOLDERS = ["knowledge", "scripts", "templates", "docs", "tests"]
+const ALLOWED_FOLDERS = [
+    "knowledge",
+    "scripts",
+    "templates",
+    "docs",
+    "tests",
+    "examples",
+]
 
 const toKebabCase = (str) =>
     str
@@ -58,8 +65,14 @@ function verifySkill(name) {
 
     if (fs.existsSync(targetDir)) {
         fs.readdirSync(targetDir, { withFileTypes: true }).forEach((item) => {
-            if (item.isDirectory() && !ALLOWED_FOLDERS.includes(item.name)) {
-                issues.push(`Architecture: Illegal folder '${item.name}/'`)
+            if (item.isDirectory()) {
+                if (!ALLOWED_FOLDERS.includes(item.name)) {
+                    issues.push(`Architecture: Illegal folder '${item.name}/'`)
+                }
+            } else if (item.isFile() && item.name !== "SKILL.md") {
+                issues.push(
+                    `Architecture: Illegal file '${item.name}' (Move to scripts/ or docs/)`
+                )
             }
         })
     }

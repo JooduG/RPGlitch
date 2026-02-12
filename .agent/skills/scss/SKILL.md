@@ -1,31 +1,40 @@
 ---
 name: scss
-description: Strict guidelines for SCSS, theming, and visual implementation.
+description: Single Source of Truth for SCSS architecture, Svelte 5 styling rules, and design tokens. Enforces Neural Minimalism and strict variable usage.
 ---
 
-# SCSS & Design Systems
+# 🎨 SCSS Design System
 
-## 🎨 The Chalk Regime (Visual Standards)
+> "Visuals are a function of state. We write CSS that is predictable, token-based, and scoped."
 
-You are the executor of the visual layer. You do not invent styles; you apply the system.
+## 🎯 Triggers
 
-### ✅ Approved Patterns
+- **Files**: `src/**/*.scss`, `src/**/*.svelte`
+- **Intents**: "Fix CSS", "Add styles", "Check styling rules", "What are the color tokens?"
 
-1.  **Scoped Styles:** Always use `<style lang="scss">` inside components.
-2.  **Design Tokens:** NEVER use hardcoded Hex codes (e.g., `#FFFFFF`). ALWAYS use CSS variables or SCSS variables from the theme.
-    - Use `var(--color-surface-1)` for backgrounds.
-    - Use `var(--color-text-primary)` for text.
-3.  **Shadows over Borders:** Prefer elevation (box-shadow) over hard borders to define depth.
-4.  **Interactive States:** All clickable elements (`button`, `a`, inputs) MUST have defined `:hover` and `:active` states.
+## 🛠️ Core Competencies
 
-### ❌ Negative Constraints (Do Not Do)
+- **Neural Minimalism**: High contrast, deep shadows, receding UI elements.
+- **Svelte 5 Scoping**: Styles are strictly scoped to components. Global BEM is forbidden inside `.svelte` files.
+- **Token-First Development**: Hardcoded values (hex, px) are strictly prohibited. Always use `var(--token)`.
+- **Constraint Layouts**: Layouts rely on `flex` and `grid` gaps, not margins.
 
-- **NO Inline Styles:** Never use `style="..."` attributes.
-- **NO Global Leaks:** Do not write CSS selectors that affect elements outside the component (unless inside a `:global(...)` block, used sparingly).
-- **NO BEM Naming:** Svelte scopes styles automatically. Use simple class names like `.card`, `.header`, not `.card__header--active`.
+## ⚡ Operational Rules
 
-## 📂 Reference Architecture
+1. **Depth Physics**: Use `box-shadow` for elevation. Borders are forbidden on containers unless creating a specific "selected" state.
+2. **Layering**: `backdrop-filter` is permitted **only** for Overlays (Modals, Tooltips) and Floating Elements.
+3. **Motion**: All interactive transitions must use the `var(--curve-snappy)` timing function.
+4. **Interaction**: All interactive elements (`button`, `a`) must have a defined `:active` state (e.g., `transform: scale(0.98)`).
 
-- **Variables:** `src/theme/abstracts/_variables.scss`
-- **Mixins:** `src/theme/abstracts/_mixins.scss`
-- **Typography:** `src/theme/base/_typography.scss`
+## 📚 Resources
+
+- **Tokens**: [TOKENS.scss](file:///c:/Users/johng/Documents/GitHub/default/.agent/skills/scss/templates/TOKENS.scss)
+- **Audit Script**: [style_audit.js](file:///c:/Users/johng/Documents/GitHub/default/.agent/skills/scss/scripts/style_audit.js)
+
+## 🚦 Usage
+
+To audit the styles for compliance with the design system, run:
+
+```bash
+npm run lint:css
+```

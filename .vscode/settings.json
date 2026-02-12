@@ -21,7 +21,12 @@
         "**/.htmlhintignore": true,
         "**/.stylelintignore": true,
         "**/jsconfig.json": true,
-        "test-results/**": true
+        "test-results/**": true,
+        ".codex/knowledge/**": true,
+        ".codex/rules/**": true,
+        ".codex/skills/**": true,
+        ".codex/tasks/**": true,
+        ".codex/workflows/**": true
     },
     "css.validate": true,
     "html.validate.styles": false,
@@ -40,6 +45,5 @@
         "./scripts/tool_name.py",
         "./scripts/tool_name.js",
         "./scripts/tool.js"
-    ],
-    "markdown.validate.referenceLinks.enabled": false
+    ]
 }

@@ -1,0 +1,134 @@
+/* 🎨 Design Tokens (Nordic Collection v2)
+   Immutable laws of the visual layer. 
+   Import this in your global CSS or abstract layer.
+*/
+
+:root {
+   /* =================================================
+       SECTION 1: CORE BRAND PALETTE (The Nordic Collection)
+       ================================================= */
+
+   /* Cold Palette */
+   --frisk: #8a9399; /* "Frisk" */
+   --frozen-pole: #555d66; /* "Frozen Pole" */
+   --gunmetal: #363840; /* "Gunmetal" */
+   --chalk: #222326; /* "Chalk" */
+
+   /* Warm Colors */
+   --signature-red: #ef4444;
+   --signature-rose: #fb7185;
+   --signature-orange: #f97316;
+   --signature-amber: #fbbf24;
+   --signature-yellow: #fde047;
+
+   /* Nature Colors */
+   --signature-lime: #84cc16;
+   --signature-forest: #15803d;
+   --signature-emerald: #10b981;
+   --signature-cyan: #11aecc;
+   --signature-teal: #14b8a6;
+
+   /* Cool Colors */
+   --signature-blue: #3b82f6;
+   --signature-indigo: #818cf8;
+   --signature-violet: #c084fc;
+   --signature-purple: #a855f7;
+   --signature-pink: #ec4899;
+
+   /* RGB Components (For Alpha Composition) */
+   --rgb-red: 239, 68, 68;
+   --rgb-rose: 251, 113, 133;
+   --rgb-orange: 249, 115, 22;
+   --rgb-amber: 251, 191, 36;
+   --rgb-yellow: 253, 224, 71;
+   --rgb-lime: 132, 204, 22;
+   --rgb-forest: 21, 128, 61;
+   --rgb-emerald: 16, 185, 129;
+   --rgb-teal: 20, 184, 166;
+   --rgb-cyan: 17, 174, 204;
+   --rgb-blue: 59, 130, 246;
+   --rgb-indigo: 129, 140, 248;
+   --rgb-violet: 192, 132, 252;
+   --rgb-purple: 168, 85, 247;
+   --rgb-pink: 236, 72, 153;
+
+   /* =================================================
+       SECTION 1.5: SEMANTIC & ROLE COLORS
+       ================================================= */
+   --color-danger: var(--signature-red);
+   --color-success: var(--signature-emerald);
+   --color-warning: var(--signature-orange);
+   --color-info: var(--signature-blue);
+   --color-accent: var(--signature-pink);
+   --color-primary: var(--color-info);
+
+   /* Role Defaults */
+   --role-user: #aecbfa;
+   --role-ai: #fde293;
+   --role-fractal: #e8eaed;
+   --role-system: #f28b82;
+
+   /* Gradients */
+   --gradient-standard: linear-gradient(135deg, var(--frisk), var(--frozen-pole), var(--gunmetal), var(--chalk));
+   --gradient-radial: radial-gradient(var(--frisk), var(--frozen-pole), var(--gunmetal), var(--chalk));
+
+   /* =================================================
+       SECTION 2: SURFACES (Neural Minimalism)
+       ================================================= */
+   --surface-base: var(--chalk); /* Primary Background */
+   --surface-panel: #2a2b2e; /* Cards/Sections */
+   --surface-void: #000000; /* Deep Backgrounds/Modals */
+   --surface-overlay: rgba(0, 0, 0, 0.95); /* Deep overlay */
+
+   /* =================================================
+       SECTION 3: TYPOGRAPHY
+       ================================================= */
+   --text-primary: #f4f4f5; /* Main Headings */
+   --text-secondary: #a1a1aa; /* Subtitles/Meta */
+   --text-accent: #ffffff; /* Highlights only */
+   --text-muted: var(--frisk);
+
+   /* =================================================
+       SECTION 4: PHYSICS & MOTION
+       ================================================= */
+   --curve-snappy: cubic-bezier(0.16, 1, 0.3, 1);
+   --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+   --physics-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
+   --transition-speed: 0.2s;
+
+   /* =================================================
+       SECTION 5: SPACING & RADIUS (T-Shirt Sizing)
+       ================================================= */
+   --radius-sm: 4px;
+   --radius-md: 8px;
+   --radius-lg: 12px;
+
+   --spacing-xxs: 0.25rem;
+   --spacing-xs: 0.5rem;
+   --spacing-s: 0.75rem;
+   --spacing-m: 1rem;
+   --spacing-l: 1.5rem;
+   --spacing-xl: 2rem;
+   --spacing-xxl: 3rem;
+
+   /* =================================================
+       SECTION 6: DEPTH & SHADOWS
+       ================================================= */
+   --shadow-s: 0 2px 8px rgba(0, 0, 0, 0.1);
+   --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+   --shadow-float: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+   --shadow-l: 0 10px 30px rgba(0, 0, 0, 0.5);
+
+   /* =================================================
+       SECTION 7: OPACITY & BLUR
+       ================================================= */
+   --opacity-xxs: 0.05;
+   --opacity-xs: 0.1;
+   --opacity-s: 0.3;
+   --opacity-m: 0.5;
+   --opacity-l: 0.8;
+   --opacity-xl: 0.95;
+
+   --blur-m: 12px;
+   --blur-l: 20px;
+}

@@ -15,6 +15,7 @@ trigger: always_on
 
 1. **Svelte 5 Supremacy**:
     - 🚫 FORBIDDEN: `export let`, `$:`, `createEventDispatcher`.
+    - 🚫 FORBIDDEN: The usage of `any` is strictly prohibited. Use specific interfaces.
     - ✅ REQUIRED: `$state`, `$derived`, `$props`, `$effect`.
     - If you see legacy Svelte 4 code in the context, you MUST refactor it to Runes immediately.
 

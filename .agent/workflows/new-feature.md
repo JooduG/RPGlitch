@@ -19,9 +19,9 @@ description: End-to-end protocol for building a new UI feature using the Meridia
 ## Phase 2: The Skeleton (Logic Meridian)
 
 **Goal:** Create a functional, unstyled logic backbone.
-**Skill:** `.agent/skills/arch-skeleton/SKILL.md`
+**Skill:** `.agent/skills/svelte/SKILL.md` (Skeleton Mode)
 
-1.  **Execute:** Run the `arch-skeleton` protocol.
+1.  **Execute:** Run the `svelte` protocol (Skeleton Intent).
 2.  **Output:** Generate the `.svelte` file with:
     - TypeScript Interface (`Props`)
     - Runic State (`$state`, `$derived`)
@@ -45,7 +45,7 @@ description: End-to-end protocol for building a new UI feature using the Meridia
 ## Phase 4: The Skin (Presentation Meridian)
 
 **Goal:** Apply the visual layer.
-**Skill:** `.agent/skills/ui-skin/SKILL.md`
+**Skill:** `.agent/skills/scss/SKILL.md`
 
 1.  **Execute:** Run the `ui-skin` protocol.
 2.  **Action:**
