@@ -17,7 +17,7 @@ description: >
 
 ### 🧠 Semantic Only
 
-- **Tool:** `knowledge` -> `read_knowledge_base`
+- **Tool:** `memory` -> `read_knowledge_base`
 - **Rule:** Do NOT use this to read code files for editing. Use `research` (File Fetcher) for that. Use this only to recall _concepts_, _past decisions_, or _architectural patterns_.
 
 ### 🚫 Zero Hallucination
@@ -33,6 +33,6 @@ description: >
 
 ### 💾 Knowledge Ingestion
 
-- **Tool:** `knowledge` -> `write_knowledge_base`
+- **Tool:** `memory` -> `write_knowledge_base`
 - **Trigger:** When a major architectural decision is made or a new pattern is established.
 - **Action:** Save the relevant files or summary to `knowledge-base.meta` or `knowledge-base.src`.

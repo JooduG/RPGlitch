@@ -20,7 +20,7 @@
         "test": "npm run test:unit && npm run test:compliance && npm run audit:security",
         "test:unit": "vitest",
         "test:compliance": "vitest run .agent/skills/quality-assurance/tests/compliance",
-        "audit:security": "node .agent/skills/audit-core/scripts/security-scan.js",
+        "audit:security": "node .agent/skills/security/scripts/security-scan.js",
         "test:e2e": "playwright test",
         "test:ui": "vitest --ui",
         "verify": "npm run check && npm run lint && npx vitest run",

@@ -21,8 +21,8 @@ You are operating in a **Svelte 5 Runes-only** environment.
 
 ## 2. The "Church & State" of Styling
 
-- **State (HTML/JS):** Managed by **Artificer**.
-- **Church (CSS):** Managed by **Mesmer**.
+- **State (HTML/JS):** Managed by **Svelte/Artificer**.
+- **Church (CSS):** Managed by **Scss/Mesmer**.
 
 ### 🛑 Constraints
 
@@ -86,10 +86,10 @@ When refactoring, use the **Equivalence Oracle**:
 
 ## 5. Jurisdiction Matrix (Territorial Control)
 
-| Skill                   | Territory                   | Responsibility                            |
-| :---------------------- | :-------------------------- | :---------------------------------------- |
-| **🕹️ Engine**           | `src/core/**`               | Logic chain, App State, Timing.           |
-| **🛠️ UI (Artificer)**   | `src/ui/**`, `**/*.svelte`  | HTML Structure, Svelte Logic, Components. |
-| **🎭 Sensory (Mesmer)** | `src/theme/**`, `**/*.scss` | Visuals, CSS, Audio, Vibe.                |
-| **📚 Data**             | `src/data/**`               | Validating Schemas, Dexie Integration.    |
-| **🛡️ Security**         | `src/core/security/**`      | Input Validation, Sanitization.           |
+| Skill                 | Territory                   | Responsibility                            |
+| :-------------------- | :-------------------------- | :---------------------------------------- |
+| **🕹️ Engine**         | `src/core/**`               | Logic chain, App State, Timing.           |
+| **🛠️ UI (Svelte)**    | `src/ui/**`, `**/*.svelte`  | HTML Structure, Svelte Logic, Components. |
+| **🎭 Sensory (Scss)** | `src/theme/**`, `**/*.scss` | Visuals, CSS, Audio, Vibe.                |
+| **📚 Data**           | `src/data/**`               | Validating Schemas, Dexie Integration.    |
+| **🛡️ Security**       | `src/core/security/**`      | Input Validation, Sanitization.           |

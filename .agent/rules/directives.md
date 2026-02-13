@@ -54,17 +54,17 @@ All development follows this atomic progression:
 
 **Trigger Map:** "IF user asks for X, LOAD Skill Y."
 
-| Intent                 | Skill     | Trigger Phrase                        |
-| :--------------------- | :-------- | :------------------------------------ |
-| **New Feature / Plan** | `project` | "Plan feature", "Update tracks"       |
-| **UI Component**       | `svelte`  | "Scaffold component", "Refactor rune" |
-| **Styling / Theme**    | `scss`    | "Style this", "Make it pop"           |
-| **Data / State**       | `data`    | "Save logic", "Schema change"         |
-| **Verification**       | `warden`  | "Run tests", "Audit security"         |
-| **Docs / Rules**       | `scribe`  | "New skill", "Refactor docs"          |
-| **Audio / SFX**        | `audio`   | "Add sound", "Speech synthesis"       |
-| **Motion / Physics**   | `motion`  | "Add tilt", "Fix animation"           |
-| **DevOps / Build**     | `devops`  | "Build for prod", "Sync config"       |
+| Intent                 | Skill      | Trigger Phrase                        |
+| :--------------------- | :--------- | :------------------------------------ |
+| **New Feature / Plan** | `project`  | "Plan feature", "Update tracks"       |
+| **UI Component**       | `svelte`   | "Scaffold component", "Refactor rune" |
+| **Styling / Theme**    | `scss`     | "Style this", "Make it pop"           |
+| **Data / State**       | `data`     | "Save logic", "Schema change"         |
+| **Verification**       | `security` | "Run tests", "Audit security"         |
+| **Docs / Rules**       | `scribe`   | "New skill", "Refactor docs"          |
+| **Audio / SFX**        | `audio`    | "Add sound", "Speech synthesis"       |
+| **Motion / Physics**   | `motion`   | "Add tilt", "Fix animation"           |
+| **DevOps / Build**     | `devops`   | "Build for prod", "Sync config"       |
 
 ## 5. The Triad Protocol (Context Resolution)
 
