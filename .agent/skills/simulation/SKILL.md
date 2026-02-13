@@ -48,6 +48,21 @@ Time is scale-adaptive. The Engine shifts "Gears" based on content density.
 | **Meso**  | Minutes    | Travel, crafting, dialogue | **Real-time**. Standard flow.                                     |
 | **Macro** | Hours/Days | Resting, Time Jumps        | **Skip**. Use a "Sensory Bridge" (e.g., "The fire dies down..."). |
 
+## 3. 🧠 Memory Physics (Weighting & Decay)
+
+Data is not binary. It decays based on **Emotional Intensity (W)**.
+
+| Tier            | Weight (W) | Persistence | Examples                         |
+| :-------------- | :--------- | :---------- | :------------------------------- |
+| **Core**        | 10         | Immutable   | Identity, Trauma, Death.         |
+| **Major**       | 8-9        | Resistant   | Betrayals, Key Decisions.        |
+| **Significant** | 6-7        | Stable      | Promises, Conflicts.             |
+| **Minor**       | 1-5        | Decays      | Routine actions, Sensory static. |
+
+### The Decay Protocol
+
+Memories with lower weight are subject to decay or compression over time, simulating human forgetfulness. High-weight memories remain vivid and accessible.
+
 ### The Heartbeat Protocol (Simulation Loop)
 
 1.  **Actor (LLM)**: Generates prose based on `state.snapshot`.

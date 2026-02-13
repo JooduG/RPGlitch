@@ -11,4 +11,4 @@
 test-results/**
 .gitignore
 mcp.json
-.agent_legacy/
+**/archive/**

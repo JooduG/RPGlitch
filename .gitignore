@@ -11,5 +11,5 @@
 test-results/**
 .gitignore
 mcp.json
-.env
 **/archive/**
+.env

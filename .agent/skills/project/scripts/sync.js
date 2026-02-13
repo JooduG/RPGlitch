@@ -77,3 +77,42 @@ console.warn(
 console.warn(
     'Please manually verify the "ignores" array in eslint.config.js against the "eslint" section in ignores.master.json.\n'
 )
+
+/**
+ * Self-Healing: Bootstrap Verification
+ * Ensures the "Big 5" Rule Files exist.
+ */
+function verifyPillars() {
+    const REPO_ROOT = process.cwd()
+    const pillars = [
+        ".agent/rules/manifesto.md",
+        ".agent/rules/standards.md",
+        ".agent/rules/stack.md",
+        ".agent/rules/security.md",
+        ".agent/rules/workflow.md",
+    ]
+    let missing = []
+
+    console.log("⚡ Verifying Pillars...")
+
+    for (const pillar of pillars) {
+        if (!fs.existsSync(path.join(REPO_ROOT, pillar))) {
+            console.error(`   ❌ MISSING PILLAR: ${pillar}`)
+            missing.push(pillar)
+        }
+    }
+
+    if (missing.length > 0) {
+        console.error(
+            "⚠️ Environment Corrupt. The following Pillars are missing:"
+        )
+        missing.forEach((p) => console.error(`   - ${p}`))
+        console.error("Halting synchronization.")
+        process.exit(1)
+    }
+
+    console.log("✅ Pillars Verified.")
+}
+
+// Execute Self-Healing
+verifyPillars()

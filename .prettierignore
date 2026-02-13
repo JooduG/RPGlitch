@@ -11,7 +11,7 @@
 test-results/**
 .gitignore
 mcp.json
-.agent_legacy/
+**/archive/**
 package-lock.json
 pnpm-lock.yaml
 yarn.lock

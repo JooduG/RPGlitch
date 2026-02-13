@@ -24,6 +24,24 @@ This skill owns the persistence layer of the application:
 - `src/data/db.js`: Dexie.js database configuration and schema.
 - `src/data/bridge.js`: Serialization and hydration logic between Svelte Runes and IndexedDB.
 
+## 🗄️ Persistent Schema (Dexie.js)
+
+The following schema defines the core tables in `src/data/db.js`.
+
+### Table Definitions
+
+| Table      | Key (`++id`) | Indexes                                 | Usage                                      |
+| :--------- | :----------- | :-------------------------------------- | :----------------------------------------- |
+| `entities` | `id`         | `name, type, [type+isCustom], isChosen` | Characters, World info, Locations.         |
+| `stories`  | `++id`       | `title, aiId, userId, fractalId`        | Metadata for different playthroughs.       |
+| `messages` | `++id`       | `storyId, role, type, characterName`    | The chat history logs.                     |
+| `settings` | `id`         | `(none)`                                | Global app configuration (Key-Value pair). |
+
+### Persistence Patterns (Church & State)
+
+- **Church (UI)**: Reacts to `liveQuery` or `$state`. Never calls `db.table.put()` directly in the template.
+- **State (Logic)**: Managed by `Bridge` classes that handle serialization before saving.
+
 ## 🔴 The Alpha Rule
 
 > [!IMPORTANT]
