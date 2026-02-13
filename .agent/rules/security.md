@@ -1,28 +1,45 @@
 ---
-description: Critical security rules regarding DOM Purification, Event Injection, and State Validation.
+trigger: always_on
+description: Security protocols, Zero-Trust enforcement, and Quality Assurance gates.
 ---
 
-# 🛡️ Security Rules
+# 🛡️ Security (The Iron Dome)
 
-## 1. DOM Purification & Input Sanitization
+## 1. Zero-Trust Security
 
-- **Rule**: NEVER use `{@html ...}` with raw, unsanitized input.
-- **Requirement**: specific `DOMPurify.sanitize()` or an equivalent robust sanitizer must be used immediately before rendering any HTML string.
-- **Prohibited**: passing `user_content` directly to `{@html}`.
-- **Context**: The client is hostile territory. Trust nothing entering from the network.
+### 🛑 Constraints
 
-## 2. Event Injection & Handler Safety
+1. **Input Sanitization**: ALL user input must pass through `DOMPurify` before DOM rendering.
+2. **No Secrets**: NEVER commit `.env`, `_KEY`, `_TOKEN`, or `_SECRET` files.
+3. **No `innerHTML`**: Use `textContent` or sanitized `{@html ...}` only if unavoidable.
+4. **No External Fonts**: Serve all fonts locally (GDPR/Privacy).
 
-- **Rule**: Do not execute strings as code (no `eval`, `new Function`, or `setTimeout` with string arguments).
-- **Requirement**: Event handlers must be static functions or strictly typed closures.
-- **Validation**: Ensure all event data payloads are validated against a schema before processing.
+## 2. The Warden Protocols
 
-## 3. State Validation & Zero-Trust Data
+### 🛡️ Defense-in-Depth
 
-- **Rule**: Never trust external data (API responses, URL params, localStorage) to match TypeScript interfaces at runtime.
-- **Requirement**: Use **Zod** or **Valibot** to parse and validate all incoming data at the boundary.
-- **Prohibited**: `as User` type assertions on network responses.
-- **State Isolation**:
-    - `$state` objects should be treated as immutable where possible.
-    - SSR Session data must be vetted to ensure no cross-request leakage (do not store user data in global module scope).
-    - Limit scope of state to the smallest necessary component or module.
+- **Dependency Analysis**: Run `npm audit` to check for vulnerable versions.
+- **Secret Detection**: Scan staged files for high-entropy strings (Keys, Tokens).
+- **Static Analysis**: Enforce `eslint-plugin-svelte` to prevent reactive state leaks.
+
+### 🧪 Quality Assurance
+
+- **Unit**: Use `vitest` for logic verification.
+- **E2E**: Use `playwright` for user flow verification.
+- **Visual**: Compare UI state against baseline snapshots.
+
+## 3. State Validation
+
+- **Rule**: Never trust external data (API, URL params).
+- **Requirement**: Use **Zod** or **Valibot** to validate data at the boundary.
+- **Prohibited**: Type assertions (`as User`) on network responses.
+
+## 4. MCP Enforcement Matrix
+
+| Intent Category     | Active Server  | Primary Tool         | Triggers                                       |
+| :------------------ | :------------- | :------------------- | :--------------------------------------------- |
+| **📘 Docs & Libs**  | **Context7**   | `resolve_library_id` | "How do I use X?", "Library help"              |
+| **🧠 Deep Logic**   | **Sequential** | `sequentialthinking` | "Plan this", "Logic check", "Complex refactor" |
+| **🔎 Code Search**  | **GitHub**     | `search_code`        | "Find usage of X", "Search repo"               |
+| **🎨 UI/UX**        | **Svelte**     | `get_documentation`  | "How do I do X in Svelte 5?", "Runes help"     |
+| **🛡️ Supply Chain** | **NPM**        | `npmVulnerabilities` | "Check security", "Audit deps"                 |
