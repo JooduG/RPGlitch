@@ -1,0 +1,60 @@
+---
+description: Initializes the environment by validating context, security, and system integrity.
+---
+
+# 01-setup (The Awakening)
+
+> **Goal:** Ensure the Agent's mental model is perfectly synchronized with reality before acting.
+
+## 1. Triggers
+
+- **Start of Session**: "Initialize agent", "Wake up", "Status check".
+- **Context Loss**: "I am lost", "Reset context".
+- **Slash Command**: `/01-setup`
+
+## 2. Brain (Context Injection)
+
+The Agent MUST read and validate the following "Trinity Files" to establish the Red Thread:
+
+1.  **Product Canon**: `.agent/product.md` (The "Why" & "What").
+2.  **Technology Stack**: `.agent/rules/stack.md` (The "How").
+3.  **Prime Directives**: `.agent/rules/directives.md` (The "Law").
+
+## 3. Capabilities
+
+- **Context Validation**: Verifies that all required configuration files exist.
+- **Security Audit**: quick scan for exposed secrets or vulnerabilities.
+- **State Synchronization**: Maps active tasks from `tracks.md` to the immediate context.
+
+## 4. Procedures
+
+### Phase 1: Context Injection
+
+1.  **Read Config**: Load `.agent/config.yaml` to establish operational parameters.
+2.  **Read Trinity**: Read the three brain files defined above.
+3.  **Read Tracks**: Load `.agent/tasks/tracks.md`.
+
+### Phase 2: Integrity Check (Auditor Role)
+
+1.  **Sanction Check**: Search conversation history for `[PENANCE]` or `[RESTRICTION]`.
+2.  **Secret Scan**: briefly check environment for `.env` or key exposure.
+3.  **Environment**: Verify `bootstrap.js` (if applicable) or core engine constraints.
+
+### Phase 3: Status Report (Architect Role)
+
+1.  **Synthesize**: Generate a brief summary of the system state.
+2.  **Highlight**: Any detected anomalies (broken tracks, missing docs).
+3.  **Suggest**: The next logical step based on `tracks.md`.
+4.  **Output**: "System Online. Resonance frequencies locked."
+
+## 5. Anti-Patterns
+
+- **Skipping Validation**: Assuming context without reading files.
+- **Ignoring Sanctions**: Proceeding despite unresolved "Penance".
+- **Verbose Output**: Dumping file contents instead of summarizing status.
+
+## 6. Tools
+
+- `view_file` (Read Config/Rules)
+- `list_dir` (Verify Structure)
+- `grep_search` (Find Secrets)
