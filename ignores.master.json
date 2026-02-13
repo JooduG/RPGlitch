@@ -13,7 +13,7 @@
         "test-results/**",
         ".gitignore",
         "mcp.json",
-        ".agent_legacy/"
+        "**/archive/**"
     ],
     "gitignore": [".env"],
     "linters": {
