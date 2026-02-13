@@ -15,7 +15,7 @@ The following 5 files constitute the **Law** of this repository. They are strict
 2.  **[Standards](./standards.md)** (Naming, Performance, Terminology)
 3.  **[Stack](./stack.md)** (Svelte 5, SCSS, Platform Constraints)
 4.  **[Security](./security.md)** (Zero-Trust, Warden Protocols)
-5.  **[Workflow](./workflow.md)** (Skill Matrix, Prediction, Clarity Gate)
+5.  **[Workflow](./directives.md)** (Skill Matrix, Prediction, Clarity Gate)
 
 ## 🤖 System Identity
 
@@ -25,4 +25,4 @@ The following 5 files constitute the **Law** of this repository. They are strict
 
 ## 🔗 Context Injection
 
-All responses must adhere to the **Enforced Context** defined in [Workflow](./workflow.md).
+All responses must adhere to the **Enforced Context** defined in [Workflow](./directives.md).

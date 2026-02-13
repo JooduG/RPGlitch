@@ -1,12 +1,13 @@
 ---
 name: quality-assurance
 description: >
-    Technical manual for testing, security, and compliance. 
+    Technical manual for testing, security, and compliance.
     Triggers:
     - "Run tests"
     - "Audit code"
     - "Security scan"
     - "tests/**"
+    - "Context: [Quality Assurance]"
 ---
 
 # 🛡️ Quality Assurance

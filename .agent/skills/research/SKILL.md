@@ -9,6 +9,7 @@ description: >
     - "Search the web"
     - "Locate file"
     - "Check source code"
+    - "Context: [Research]"
 ---
 
 # 🔎 Research

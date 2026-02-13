@@ -4,7 +4,7 @@ version: 1.0.0
 description: >
     Environment Operations & Toolchain Manager. Handles the build lifecycle, domestic server,
     configuration synchronization, and dependencies.
-    Triggers: "Start dev server", "Build for production", "Sync configuration", "Fix environment".
+    Triggers: "Start dev server", "Build for production", "Sync configuration", "Fix environment", "Context: [DevOps]".
 ---
 
 # 🔧 Skill: DevOps (The Mechanic)

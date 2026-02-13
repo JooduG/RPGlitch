@@ -1,8 +1,19 @@
-# [!WARNING]
+---
+type: concept
+status: experimental
+authority: none
+Context: [Mesmer]
+---
+
+# 💡 Concepts: Immersion
+
+> [!WARNING]
+> **EXPERIMENTAL CONTEXT**
+> The following content is strictly **theoretical**. It represents speculative ideas and concepts that are NOT yet part of the project's implemented reality (Canon).
+> Do NOT implement these concepts or treat them as project truth unless specifically directed by the user or an implementation task.
 
 ## 🧪 Experimental Immersion Concepts (Speculative)
 
-> **Domain:** simulation / mesmer
 > **Red Thread:** Pushing the boundaries of sensory delivery.
 
 ## 🖼️ 1. Reactive Triptych Portraits

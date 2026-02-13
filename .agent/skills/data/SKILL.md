@@ -6,6 +6,7 @@ description: >
     - "Implement Save Logic"
     - "Debug Hydration"
     - "Define Schema"
+    - "Context: [Data]"
 ---
 
 # 💾 Data Skill

@@ -6,9 +6,10 @@ authority: none
 
 # 🧪 System: World Mechanics
 
-> [!WARNING] EXPERIMENTAL CONTEXT
-> The following content is strictly **theoretical**. It represents potential ideas, not implemented reality.
-> Do NOT code these mechanics unless explicitly instructed to "Implement Concept X".
+> [!WARNING]
+> **EXPERIMENTAL CONTEXT**
+> The following content is strictly **theoretical**. It represents speculative ideas and concepts that are NOT yet part of the project's implemented reality (Canon).
+> Do NOT implement these concepts or treat them as project truth unless specifically directed by the user or an implementation task.
 
 Status: Concept / Unverified
 

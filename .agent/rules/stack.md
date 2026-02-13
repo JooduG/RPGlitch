@@ -1,6 +1,8 @@
 ---
 trigger: always_on
 description: The Technical Stack. Svelte 5 Runes, SCSS, and Platform Constraints.
+Triggers:
+    - "Context: [Stack]"
 ---
 
 # 💻 Stack (The Physics)

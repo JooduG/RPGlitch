@@ -1,5 +1,11 @@
 ---
+name: reflection
 description: Executive Function for "Slow Thinking" mode. Enforces planning, clarity, and rigorous logic before complex tasks.
+Triggers:
+    - "Resolve Logic Conflict"
+    - "Architectural Decision"
+    - "Verify Hypothesis"
+    - "Context: [Reflection]"
 ---
 
 # Reflection Protocol (The Strategist)
@@ -44,7 +50,7 @@ Draft a **"Planning Artifact"** (e.g., `implementation_plan.md` or a structured 
 Cross-reference:
 
 - [Security Rules](../../rules/security.md)
-- [Anti-Patterns](../../rules/anti-patterns.md)
+- [Anti-Patterns](../../rules/standards.md)
 
 ### 3. Hardware Constraints
 

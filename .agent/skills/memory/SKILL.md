@@ -9,6 +9,7 @@ description: >
     - "Save this decision"
     - "Ingest [File]"
     - "Consult the archives"
+    - "Context: [Memory]"
 ---
 
 # 🧠 Knowledge

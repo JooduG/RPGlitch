@@ -1,6 +1,6 @@
 ---
 name: polish
-description: Workflow for refactoring raw Skeleton components into production-grade UI. Replaces utility classes with semantic SCSS and Design Tokens.
+description: Workflow for refactoring raw Skeleton components into production-grade UI. Replaces utility classes with semantic SCSS and Design Tokens. Context: [Polish]
 ---
 
 # ✨ Polish Protocol

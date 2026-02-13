@@ -1,9 +1,18 @@
-# [!WARNING]
+---
+trigger: manual
+description: Speculative spec for the Lorebook system.
+Context: [Memory]
+---
 
-## 🧪 Lorebook Specification (ANEX) (Speculative)
+# 🧪 Lorebook Specification (ANEX) (Speculative)
 
-> **Domain:** memory / simulation
-> **Red Thread:** Deep intelligence models for world-building and memory.
+> [!WARNING]
+> **EXPERIMENTAL CONTEXT**
+> The following content is strictly **theoretical**. It represents speculative ideas and concepts that are NOT yet part of the project's implemented reality (Canon).
+> Do NOT implement these concepts or treat them as project truth unless specifically directed by the user or an implementation task.
+
+**Domain:** memory / simulation
+**Red Thread:** Deep intelligence models for world-building and memory.
 
 ## 🌊 1. The Blacktide v5.3 Prompt
 

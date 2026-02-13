@@ -11,6 +11,7 @@ description: >
     - ".agent/**"
     - "**.md"
     - "Document an Idea/Thought"
+    - "Context: [Scribe]"
 ---
 
 # 🔮 Scribe

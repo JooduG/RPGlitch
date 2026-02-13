@@ -1,10 +1,12 @@
 <script lang="ts">
+    import { untrack } from "svelte"
     interface Props {
         initial?: number
     }
-    let { initial = 0 }: Props = $props() // Correct Props
+    const props: Props = $props()
 
-    let count = $state(initial) // Correct State
+    let count = $state(untrack(() => props.initial ?? 0)) // Isolated Initial State
+    // (Alternative: If reactive reset is needed, use an $effect)
     let double = $derived(count * 2) // Correct Derived
 
     $effect(() => {

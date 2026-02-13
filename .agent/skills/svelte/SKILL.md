@@ -10,7 +10,7 @@ description: The authoritative manual for Svelte 5 development. Enforces Rune sy
 ## 🎯 Triggers
 
 - **File Patterns**: `src/**/*.svelte`, `src/**/*.svelte.ts`, `src/**/*.js`
-- **Intents**: "Scaffold a component", "Refactor to Runes", "Fix reactivity", "Audit legacy code"
+- **Intents**: "Scaffold a component", "Refactor to Runes", "Fix reactivity", "Audit legacy code", "Context: [Svelte]"
 
 ## 🛠️ Core Competencies
 

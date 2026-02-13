@@ -10,7 +10,7 @@ description: Single Source of Truth for SCSS architecture, Svelte 5 styling rule
 ## 🎯 Triggers
 
 - **Files**: `src/**/*.scss`, `src/**/*.svelte`
-- **Intents**: "Fix CSS", "Add styles", "Check styling rules", "What are the color tokens?"
+- **Intents**: "Fix CSS", "Add styles", "Check styling rules", "What are the color tokens?", "Context: [Scss]"
 
 ## 🛠️ Core Competencies
 

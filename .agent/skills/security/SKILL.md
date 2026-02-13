@@ -14,6 +14,7 @@ description: The Shield. Enforces Zero-Trust security, strict hygiene (no consol
 - **Sanitization**: "Sanitize input", "Check XSS vulnerability".
 - **Review**: "Pre-commit check", "Review for safety".
 - **Consultation**: "Is this code secure?", "Check these dependencies".
+- **Context Priming**: "Context: [Security]"
 
 ## 2. Rules
 

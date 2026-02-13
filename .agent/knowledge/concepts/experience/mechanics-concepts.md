@@ -1,9 +1,18 @@
-# [!WARNING]
+---
+trigger: manual
+description: Experimental gameplay mechanics and physics ideas.
+Context: [Simulation]
+---
 
-## 🧪 Experimental Mechanics Concepts (Speculative)
+# 🧪 Experimental Mechanics Concepts (Speculative)
 
-> **Domain:** simulation / engine
-> **Red Thread:** Pushing boundaries of narrative resolution and branching.
+> [!WARNING]
+> **EXPERIMENTAL CONTEXT**
+> The following content is strictly **theoretical**. It represents speculative ideas and concepts that are NOT yet part of the project's implemented reality (Canon).
+> Do NOT implement these concepts or treat them as project truth unless specifically directed by the user or an implementation task.
+
+**Domain:** simulation / engine
+**Red Thread:** Pushing boundaries of narrative resolution and branching.
 
 ## 🎲 1. The Entropy Gambit (Blackjack)
 

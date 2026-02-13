@@ -7,6 +7,7 @@ description: >
     - "Fix animation"
     - "Kinetic scroll"
     - "src/ui/utils/actions/**"
+    - "Context: [Motion]"
 ---
 
 # 🌀 Motion

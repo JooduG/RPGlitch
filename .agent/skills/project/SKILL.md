@@ -2,13 +2,14 @@
 name: project
 description: >
     Manages project state, roadmaps, and task tracking. Enforces the 'Task Flux' 
-    protocol (Plan -> Track -> Code). 
+    protocol (Plan -> Track -> Code).
     Triggers:
     - "Plan feature"
     - "Update tracks"
     - "Check status"
     - "Sync Configuration"
     - ".agent/tasks/**"
+    - "Context: [Project]"
 ---
 
 # 🚀 Project

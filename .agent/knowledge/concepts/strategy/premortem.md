@@ -1,9 +1,18 @@
-# [!WARNING]
+---
+trigger: manual
+description: Strategy concepts for avoiding project failure modes.
+Context: [Project]
+---
 
-## � Legacy Premortem (Speculative)
+# 📜 Legacy Premortem (Speculative)
 
-> **Domain:** project / strategy
-> **Red Thread:** Identifying failure points before they manifest.
+> [!WARNING]
+> **EXPERIMENTAL CONTEXT**
+> The following content is strictly **theoretical**. It represents speculative ideas and concepts that are NOT yet part of the project's implemented reality (Canon).
+> Do NOT implement these concepts or treat them as project truth unless specifically directed by the user or an implementation task.
+
+**Domain:** project / strategy
+**Red Thread:** Identifying failure points before they manifest.
 
 ## 1. The Core Fear
 

@@ -34,13 +34,13 @@ The Agent MUST read and validate the following "Trinity Files" to establish the 
 2.  **Read Trinity**: Read the three brain files defined above.
 3.  **Read Tracks**: Load `.agent/tasks/tracks.md`.
 
-### Phase 2: Integrity Check (Auditor Role)
+### Phase 2: Integrity Check
 
 1.  **Sanction Check**: Search conversation history for `[PENANCE]` or `[RESTRICTION]`.
 2.  **Secret Scan**: briefly check environment for `.env` or key exposure.
 3.  **Environment**: Verify `bootstrap.js` (if applicable) or core engine constraints.
 
-### Phase 3: Status Report (Architect Role)
+### Phase 3: Status Report
 
 1.  **Synthesize**: Generate a brief summary of the system state.
 2.  **Highlight**: Any detected anomalies (broken tracks, missing docs).

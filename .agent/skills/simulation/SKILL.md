@@ -1,5 +1,5 @@
 ---
-description: Technical manual for the Simulation Engine (Event Bus, Chrono Loop, State Management).
+description: Technical manual for the Simulation Engine (Event Bus, Chrono Loop, State Management). Context: [Simulation]
 ---
 
 # ⚙️ Simulation Engine

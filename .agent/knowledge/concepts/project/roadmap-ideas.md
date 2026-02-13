@@ -1,9 +1,18 @@
-# [!WARNING]
+---
+trigger: manual
+description: Future feature roadmap and visual concept ideas.
+Context: [Project]
+---
 
-## 🧪 Feature Roadmap Concepts (Speculative)
+# 🧪 Feature Roadmap Concepts (Speculative)
 
-> **Domain:** project / strategy
-> **Red Thread:** Future vision for high-fidelity immersion.
+> [!WARNING]
+> **EXPERIMENTAL CONTEXT**
+> The following content is strictly **theoretical**. It represents speculative ideas and concepts that are NOT yet part of the project's implemented reality (Canon).
+> Do NOT implement these concepts or treat them as project truth unless specifically directed by the user or an implementation task.
+
+**Domain:** project / strategy
+**Red Thread:** Future vision for high-fidelity immersion.
 
 ## 🎭 Visual & Sensory
 

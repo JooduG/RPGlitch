@@ -7,6 +7,7 @@ description: >
     - "Fix audio"
     - "Speech synthesis"
     - "src/media/audio/**"
+    - "Context: [Audio]"
 ---
 
 # 🔊 Audio

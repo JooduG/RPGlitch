@@ -1,6 +1,8 @@
 ---
 trigger: always_on
 description: The Operational Loop. Triggers, Workflows, and Communication Protocols.
+Triggers:
+    - "Context: [Workflow]"
 ---
 
 # ⚡ Workflow (The Operational Loop)
