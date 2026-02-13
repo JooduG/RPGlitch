@@ -12,7 +12,6 @@ skills:
     polish: .agent/skills/polish/SKILL.md
     reflection: .agent/skills/reflection/SKILL.md
     scribe: .agent/skills/scribe/SKILL.md
-    # Newly Registered Skills
     devops: .agent/skills/devops/SKILL.md
     security: .agent/skills/security/SKILL.md
     research: .agent/skills/research/SKILL.md
@@ -21,26 +20,42 @@ skills:
 
 # ⚡ Workflows (Standard Operating Procedures)
 workflows:
-    new-feature: .agent/workflows/new-feature.md
-    bug-fix: .agent/workflows/bug-fix.md
-    refactor: .agent/workflows/refactor.md
-    ship: .agent/workflows/ship.md
-    pdca-cycle: .agent/workflows/pdca-cycle.md
+    01-setup: .agent/workflows/01-setup.md
+    02-feature: .agent/workflows/02-feature.md
+    03-bug-fix: .agent/workflows/03-bug-fix.md
+    04-checkpoint: .agent/workflows/04-checkpoint.md
+    05-review: .agent/workflows/05-review.md
+    06-revert: .agent/workflows/06-revert.md
+    07-hygiene: .agent/workflows/07-hygiene.md
+    08-recovery: .agent/workflows/08-recovery.md
+    09-refactor: .agent/workflows/09-refactor.md
+    10-deploy: .agent/workflows/10-deploy.md
 
 # 📚 Knowledge (Reference Library)
 knowledge:
     # 🏛️ Canon: The Laws of Physics & Code
     canon:
-        standards: .agent/rules/standards.md
-        mechanics: .agent/knowledge/canon/mechanics.md
-        platform: .agent/knowledge/canon/platform-perchance.md
+        # Rules
+        rule-directives: .agent/rules/directives.md
+        rule-manifesto: .agent/rules/manifesto.md
+        rule-standards: .agent/rules/standards.md
+        rule-stack: .agent/rules/stack.md
+        rule-security: .agent/rules/security.md
+        rule-gemini: .agent/rules/gemini.md
+        # Knowledge
+        knowledge-product: .agent/knowledge/canon/product.md
+        knowledge-mechanics: .agent/knowledge/canon/mechanics.md
+        knowledge-platform: .agent/knowledge/canon/platform-perchance.md
+        knowledge-architecture: .agent/knowledge/canon/agent-architecture.md
+        knowledge-glossary: .agent/knowledge/canon/glossary.md
+        knowledge-roadmap: .agent/knowledge/canon/roadmap.md
 
     # 🧪 Laboratory: Unproven Theories & Ideas
     lab:
-        ideas: .agent/knowledge/concepts/ideas.md
-        mechanics: .agent/knowledge/concepts/library/mechanics.md
-        psychology: .agent/knowledge/concepts/library/psychology.md
-        social: .agent/knowledge/concepts/library/social.md
+        lab-ideas: .agent/knowledge/concepts/ideas.md
+        lab-mechanics: .agent/knowledge/concepts/library/mechanics.md
+        lab-psychology: .agent/knowledge/concepts/library/psychology.md
+        lab-social: .agent/knowledge/concepts/library/social.md
 
 # 📝 Workspace (Active Memory)
 workspace:

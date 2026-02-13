@@ -13,8 +13,7 @@
         "firecrawl-mcp",
         "playwright",
         "chrome-devtools",
-        "stitch",
-        "pollinations"
+        "stitch"
     ],
     "standard_tools": [
         "view_file",
