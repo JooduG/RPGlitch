@@ -15,7 +15,7 @@
         "mcp.json",
         ".agent_legacy/"
     ],
-    "gitignore": [".env", ".gemini/", ".vscode/", ".agent/"],
+    "gitignore": [".env"],
     "linters": {
         "eslint": [],
         "stylelint": [],

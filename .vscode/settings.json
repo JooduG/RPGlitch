@@ -13,7 +13,7 @@
         "**/node_modules/**": true,
         "mcp.json": true,
         ".mcp.json": true,
-        "**/.gitignore": true,
+        "**/.gitignore": false,
         "**/.prettierignore": true,
         "**/package-lock.json": true,
         "**/pnpm-lock.yaml": true,
