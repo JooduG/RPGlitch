@@ -1,5 +1,5 @@
 ---
-name: knowledge
+name: memory
 description: >
     The Core Memory Interface. Governance of Long-Term Semantic Memory (Pinecone) 
     and architectural pattern persistence.

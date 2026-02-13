@@ -12,6 +12,12 @@ skills:
     polish: .agent/skills/polish/SKILL.md
     reflection: .agent/skills/reflection/SKILL.md
     scribe: .agent/skills/scribe/SKILL.md
+    # Newly Registered Skills
+    devops: .agent/skills/devops/SKILL.md
+    security: .agent/skills/security/SKILL.md
+    research: .agent/skills/research/SKILL.md
+    simulation-engine: .agent/skills/simulation-engine/SKILL.md
+    memory: .agent/skills/memory/SKILL.md
 
 # ⚡ Workflows (Standard Operating Procedures)
 workflows:

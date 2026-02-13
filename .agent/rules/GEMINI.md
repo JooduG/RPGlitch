@@ -23,18 +23,23 @@ When invoking a skill, state "Context: [Skill Name]" to load the relevant domain
 
 ### [Skill Matrix]
 
-| Skill             | Focus                               | Triggers                                                                                   |
-| :---------------- | :---------------------------------- | :----------------------------------------------------------------------------------------- |
-| **🚀 Project**    | State, Roadmaps, Task Tracking      | "Plan feature", "Update tracks", "Check status", "Sync Configuration", `.agent/tasks/**`   |
-| **⚡ Svelte**     | Svelte 5 logic, Runes, Components   | `src/**/*.svelte`, `src/**/*.svelte.ts`, "Refactor to Runes"                               |
-| **💾 Data**       | Persistence, Hydration, Dexie       | "Implement Save Logic", "Debug Hydration", "Define Schema", "Wipe data"                    |
-| **🛡️ QA**         | Security, Testing, Compliance       | "Run tests", "Audit code", "Security scan", `tests/**`                                     |
-| **🎨 SCSS**       | Design System, Tokens, Minimalism   | `src/**/*.scss`, "What are the color tokens?", "Fix CSS"                                   |
-| **🌀 Motion**     | Kinetics, Physics UI, Transitions   | "Add tilt effect", "Fix animation", "Kinetic scroll", `src/ui/utils/actions/**`            |
-| **🔊 Audio**      | SFX, Ambient, TTS                   | "Add sound", "Fix audio", "Speech synthesis", `src/media/audio/**`                         |
-| **✨ Polish**     | Semantic Styling, Neural Minimalism | "Make it pop", "Fix UI glitch", "Polish"                                                   |
-| **🧠 Reflection** | "Slow Thinking", Planning           | "Multi-file Refactor", "New Feature Request", "review_plan"                                |
-| **🔮 Scribe**     | Information Architecture, Canon     | "Create a new skill", "Update project canon", "Visualize this logic", `.agent/**`, `**.md` |
+| Skill             | Focus                               | Triggers                                                                                           |
+| :---------------- | :---------------------------------- | :------------------------------------------------------------------------------------------------- |
+| **🚀 Project**    | State, Roadmaps, Task Tracking      | "Plan feature", "Update tracks", "Check status", "Sync Configuration", `.agent/tasks/**`           |
+| **⚡ Svelte**     | Svelte 5 logic, Runes, Components   | `src/**/*.svelte`, `src/**/*.svelte.ts`, "Refactor to Runes"                                       |
+| **💾 Data**       | Persistence, Hydration, Dexie       | "Implement Save Logic", "Debug Hydration", "Define Schema", "Wipe data"                            |
+| **🛡️ QA**         | Security, Testing, Compliance       | "Run tests", "Audit code", "Security scan", `tests/**`                                             |
+| **🛠️ DevOps**     | Build, Sync, Environment, Toolchain | "Start dev server", "Build for production", "Sync configuration", `package.json`, `vite.config.js` |
+| **🛡️ Security**   | Zero-Trust, Hygiene, Secrets        | "Audit security", "Check for secrets", "Scan for vulnerabilities", `src/core/security/**`          |
+| **🎨 SCSS**       | Design System, Tokens, Minimalism   | `src/**/*.scss`, "What are the color tokens?", "Fix CSS"                                           |
+| **🌀 Motion**     | Kinetics, Physics UI, Transitions   | "Add tilt effect", "Fix animation", "Kinetic scroll", `src/ui/utils/actions/**`                    |
+| **🔊 Audio**      | SFX, Ambient, TTS                   | "Add sound", "Fix audio", "Speech synthesis", `src/media/audio/**`                                 |
+| **✨ Polish**     | Semantic Styling, Neural Minimalism | "Make it pop", "Fix UI glitch", "Polish"                                                           |
+| **🧠 Reflection** | "Slow Thinking", Planning           | "Multi-file Refactor", "New Feature Request", "review_plan"                                        |
+| **🔮 Scribe**     | Information Architecture, Canon     | "Create a new skill", "Update project canon", "Visualize this logic", `.agent/**`, `**.md`         |
+| **📚 Memory**     | Concepts, Decisions, Patterns       | "Recall [Topic]", "What is our pattern for X?", "Save this decision", "Ingest [File]"              |
+| **🔎 Research**   | Investigation, Documentation        | "Research [Topic]", "Find documentation for X", "Search the web"                                   |
+| **⚙️ Sim Engine** | Core Loop, Event Bus, Physics       | "Refactor core loop", "Update simulation logic", `src/core/engine/**`                              |
 
 ## 🛠️ Performance Standards
 
