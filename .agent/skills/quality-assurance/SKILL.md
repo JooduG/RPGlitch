@@ -15,11 +15,12 @@ description: >
 
 ## 1. Quality Assurance
 
-### Unit Testing (Vitest)
+### Unit Testing (Vitest Browser Mode)
 
 - **Command**: `npm run test:unit`
 - **Location**: `tests/unit/` mirroring `src/` structure.
-- **Requirement**: All utility functions and complex logic must have unit tests.
+- **Requirement**: Must use `vitest-browser-svelte` for true Rune reactivity. JSDOM is deprecated for Svelte 5.
+- **State**: Use `flushSync()` when testing external `.svelte.ts` state.
 
 ### End-to-End Testing (Playwright)
 

@@ -1,7 +1,7 @@
 ---
 name: scribe
 description: >
-    The System Librarian. Scribe enforces the 4-Layer Construction Model, scaffolds lean capabilities, and maintains the boundary between Canon (Truth) and Concepts (Ideas).
+    The System Librarian. Scribe enforces the Meridian Workflow, scaffolds lean capabilities, and maintains the boundary between Canon (Truth) and Concepts (Ideas).
     Triggers:
     - "Create a new skill"
     - "Scaffold rule"
@@ -21,6 +21,8 @@ description: >
 
 - **Never** use job titles (e.g., 'Architect', 'Wizard') for skills. Use Domain names (e.g., 'Svelte', 'Data').
 - **Never** write 'Act as...'. Use 'Context: [Domain]'.
+- **Context Priming**: Skills **MUST** define triggers using the "Context: [Domain]" pattern to load specific knowledge.
+- **Zero Fluff**: Omit conversational filler. Strict Code-Only output where possible.
 
 ### 🧪 Lab Safety
 
@@ -36,8 +38,28 @@ description: >
 
 - **MUST** adhere to the rules defined in `.markdownlint.json` at the project root.
 - **Critical**: Indentation is 4 spaces (MD007).
+- **Path Headers**: Code blocks **MUST** be preceded by `File: <absolute_path>` (or `file://` URI).
+- **Skill Matrix**: All Implementation Plans **MUST** include the `Skill Matrix` table defining responsibilities.
 
-## 2. Capabilities
+### 🔗 Research Integration
+
+- **Rule**: When creating or updating skills/rules based on external libraries or official documentation, **YOU MUST** trigger the `research` skill first to verify against the latest sources.
+- **Goal**: Ensure governance reflects reality, not assumptions or outdated training data.
+
+## 2. Cognitive Architecture
+
+### 🧠 System 2 Mandate
+
+- **Plan-First**: For any task > 3 steps, **YOU MUST** create a `task.md` or `implementation_plan.md` before executing code.
+- **Slow Down**: If a User Request is ambiguous, **ASK** clarifying questions. Do not guess.
+
+### 📉 The Lean Rule
+
+- **Size Limit**: Skill files should be **< 500 lines**.
+- **Refactoring**: If a skill exceeds this limit, **Split** it into sub-skills (e.g., `data` -> `data-persistence`, `data-sync`).
+- **Focus**: A skill must have a **Single Responsibility**.
+
+## 3. Capabilities
 
 ### 🏗️ Intelligence Scaffolding
 
@@ -59,7 +81,7 @@ Synthesizes complex logic into high-contrast Mermaid.js diagrams.
 
 - **Standards**: Follows protocols in `docs/visual-standards.md`.
 
-## 3. Procedures
+## 4. Procedures
 
 ### Creation Workflow
 
@@ -72,6 +94,6 @@ Synthesizes complex logic into high-contrast Mermaid.js diagrams.
 1. **Trigger**: Manual audit or pre-commit.
 2. **Execute**: Run `node .agent/skills/scribe/scripts/scaffold-skill.js audit`.
 
-## 4. Tools
+## 5. Tools
 
 - [scaffold-skill.js](./scripts/scaffold-skill.js): Unified Node.js architect tool.

@@ -38,6 +38,6 @@ This skill owns the persistence layer of the application:
 
 ## 📐 Implementation Standards
 
-1.  **Rune Integration**: Always ensure that data loaded from `db.js` is correctly wrapped in Svelte 5 Runes (`$state`) via the `bridge.js`.
+1.  **Rune Integration**: Bridge Dexie `liveQuery` to Runes using `fromStore(liveQuery(...))`. This is the single source of truth.
 2.  **Explicit Serialization**: Do not rely on implicit structured cloning for complex objects; use the `bridge.js` to handle transformations.
 3.  **Error Handling**: Persistence failures should be caught and logged, but should not crash the main simulation loop.

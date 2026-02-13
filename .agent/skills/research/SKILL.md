@@ -1,51 +1,50 @@
 ---
 name: research
 description: >
-    The primary interface for external and internal knowledge retrieval.
+    The Deep Search Interface. Orchestrates active investigation via Local Files, 
+    Specialized MCPs, and Web Search.
     Triggers:
-    - "Research X"
-    - "Find documentation for Y"
+    - "Research [Topic]"
+    - "Find documentation"
     - "Search the web"
-    - "Query knowledge base"
+    - "Locate file"
+    - "Check source code"
 ---
 
-# 🔎 Research Skill
+# 🔎 Research
 
-> **Tool Interface**: A strict protocol for information gathering. No persona.
+## 1. Governance Rules
 
-## 1. Triggers
+### 📉 Tiered Sourcing
 
-- **"Research [Topic]"**: General investigation.
-- **"Find documentation for [Library]"**: Specific doc lookup.
-- **"Search the web"**: External queries.
-- **"Query knowledge base"**: Internal memory/file search.
+When gathering info, follow this strict order to ensure quality:
 
-## 2. Procedures
+1.  **Tier 1 (Local):** Is it in the `src/` files? -> Use `File Fetcher`.
+2.  **Tier 2 (Specialized):** Is it a known domain? -> Use `svelte`, `context7`, `deepwiki`, or `firecrawl`.
+3.  **Tier 3 (General):** Is it unknown? -> Use `Google Search`.
 
-### 2.1 Tiered Sourcing Protocol
+### 🧩 Context Assembly
 
-When answering a question or researching a topic, always follow this order of operations:
+- **Synthesize, Don't Dump:** Do not paste raw JSON or HTML. Read the source, extract the answer, and explain it.
+- **Cite Sources:** "According to Svelte docs..." or "Found in `src/main.js`..."
 
-1.  **Official Documentation** (if available/known).
-2.  **Local Knowledge** (File Fetcher/Project Files).
-3.  **Web Search** (Google Search - fallback for missing info).
+## 2. Capabilities
 
-Always exhaust higher-tier sources before proceeding to lower-tier ones.
+### 📂 Internal Discovery (Files)
 
-### 2.2 Context Assembly Protocol
+- **Tool:** `File Fetcher`
+- **Priority:** HIGHEST. Always check local files first.
+- **Usage:** Before answering a code question, always fetch the relevant files to ensure your answer is grounded in the actual codebase.
 
-Before writing code for complex features, gather the necessary context:
+### 🧠 Specialized Intelligence (MCPs)
 
-1.  **Identify Context Layers**:
-    - **Kernel**: Core rules and logic involved.
-    - **World**: Environment settings.
-    - **Entity**: Specific component/class details.
-2.  **Gather Info**: Use tools to fill gaps in these layers.
-3.  **Synthesize**: Form a complete mental model before shifting to Execution.
+- **`svelte`**: Official documentation for Svelte/SvelteKit. Use for _syntax_ and _framework_ questions.
+- **`context7`**: Component & Library search. Use when looking for _packages_ or _design patterns_.
+- **`deepwiki`**: Deep conceptual research. Use for _philosophy_, _complex architecture_, or _history_.
+- **`firecrawl`**: Documentation scraper. Use to read a specific URL.
 
-## 3. Tools
+### 🌐 External Discovery (Web)
 
-| Tool            | Purpose                                              |
-| :-------------- | :--------------------------------------------------- |
-| `Google Search` | Retrieve external information, libraries, and docs.  |
-| `File Fetcher`  | Retrieve internal project files and local knowledge. |
+- **Tool:** `Google Search`
+- **Priority:** FALLBACK.
+- **Usage:** Use when specialized tools return nothing or for very recent events/errors.

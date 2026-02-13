@@ -8,7 +8,7 @@ import {
 import { searchScholar, ingestScholar } from "./memory_engine.js"
 
 const server = new Server(
-    { name: "scholar", version: "3.0.0" },
+    { name: "knowledge", version: "3.0.0" },
     { capabilities: { tools: {} } }
 )
 
@@ -18,7 +18,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             {
                 name: "read_knowledge_base",
                 description:
-                    "Search the RPGlitch technical knowledge base (rules, architecture, patterns).",
+                    "Query the agent's long-term semantic memory (Pinecone). Use this to recall architectural decisions, rules, or past learnings.",
                 inputSchema: {
                     type: "object",
                     properties: { query: { type: "string" } },
@@ -27,12 +27,24 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
             {
                 name: "write_knowledge_base",
-                description: "Ingest files into the knowledge base (Pinecone).",
+                description:
+                    "Ingest new information into the knowledge base. Use this when a significant decision is made or new documentation is added.",
                 inputSchema: {
                     type: "object",
                     properties: {
-                        paths: { type: "array", items: { type: "string" } },
-                        namespace: { type: "string" },
+                        paths: {
+                            type: "array",
+                            items: { type: "string" },
+                            description: "File paths to ingest (e.g. src/data)",
+                        },
+                        namespace: {
+                            type: "string",
+                            enum: [
+                                "knowledge-base.meta",
+                                "knowledge-base.src",
+                                "knowledge-base.external",
+                            ],
+                        },
                     },
                     required: ["paths", "namespace"],
                 },

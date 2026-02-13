@@ -17,6 +17,7 @@ description: >
 
 - **Primary Domain**: `src/ui/utils/actions/`
 - **Key Assets**:
+    - `Spring`/`Tween`: Use Svelte 5 classes for value-based motion (replaces `tweened`/`spring` stores).
     - `tilt.js`: Physics-based hover orientation.
     - `kinetic.js`: Inertial scrolling and momentum.
     - `portal.js`: DOM node teleportation.

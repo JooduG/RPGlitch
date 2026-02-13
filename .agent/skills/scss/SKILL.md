@@ -17,6 +17,7 @@ description: Single Source of Truth for SCSS architecture, Svelte 5 styling rule
 - **Neural Minimalism**: High contrast, deep shadows, receding UI elements.
 - **Svelte 5 Scoping**: Styles are strictly scoped to components. Global BEM is forbidden inside `.svelte` files.
 - **Token-First Development**: Hardcoded values (hex, px) are strictly prohibited. Always use `var(--token)`.
+- **Modern Sass**: `@import` is **strictly forbidden**. Use `@use` and `@forward` for all module loading.
 - **Constraint Layouts**: Layouts rely on `flex` and `grid` gaps, not margins.
 
 ## ⚡ Operational Rules
