@@ -47,7 +47,30 @@ Agents must strictly adhere to these casing standards.
 - **Weight:** Grams (`g`), Kilograms (`kg`). **NO** Lbs/Oz.
 - **Temperature:** Celsius (`°C`). **NO** Fahrenheit.
 
-## 6. Domain Terminology (The Project Lexicon)
+## 6. Definition of Done (The Gold Standard)
+
+> **Directive:** A task is not finished when the code is written; it is finished when reality matches the spec with auditable proof.
+
+### ✅ Implementation Standards
+
+- [ ] Code is implemented strictly to the `spec.md` / `task.md`.
+- [ ] Logic follows the **Five Pillars** (Pure IO where possible).
+- [ ] Svelte components use **Runes** exclusively (`$state`, `$derived`, `$props`).
+- [ ] Styling adheres to **The Chalk Regime**.
+
+### 🛡️ Integrity & Quality Gates
+
+- [ ] **Test Coverage**: Unit tests exist and pass for all new logic.
+- [ ] **Security**: All dynamic input/HTML is sanitized via Warden.
+- [ ] **Hygiene**: No `console.log`, `FIXME`, or dead comments remain.
+- [ ] **Accessibility**: Unique IDs and ARIA labels.
+
+### 📝 Auditability
+
+- [ ] Git commit messages follow `gamemaster(type): description`.
+- [ ] Changes are verified in the `walkthrough.md`.
+
+## 7. Domain Terminology (The Project Lexicon)
 
 ### 🏛️ The Five Pillars (Architecture)
 

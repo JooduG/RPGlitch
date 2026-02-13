@@ -1,6 +1,7 @@
 # 🎯 RPGlitch: The Reactive Roleplay Engine
 
 > **Vision:** A local-first, genre-agnostic engine where state drives reality, and narrative is forged through recursive intelligence.
+> **Red Thread:** Every mechanic serves the convergence of story and state.
 
 ## 1. The Core Concept
 
@@ -30,28 +31,17 @@ Intelligence is not an external API; it is a logic pillar. The **Gamemaster** pr
 
 ### 🛡️ Freedom & Privacy
 
-By being local-first, the user owns their story. There is no central server to censor or lose data. The **Freedom Protocol** ensures the agent remains a collaborator, not a gatekeeper.
+The user owns their story. There is no central server to censor or lose data. The **Freedom Protocol** ensures the agent remains a collaborator, not a gatekeeper.
 
-## 3. Technical Foundation
+## 3. The Pillar Architecture
 
-Built on the **Pillar Architecture**:
+- **🕹️ GameMaster (The Engine):** Logic & Chrono (The Brain).
+- **🛠️ Artificer (The UI):** Body & Structure (The Bones).
+- **🎭 Mesmer (The Senses):** Visuals, Audio, Atmosphere (The Skin).
+- **📚 Scholar (The Memory):** Persistence & Truth (The Truth).
+- **🛡️ Warden (The Protector):** Security & Hygiene (The Laws).
 
-- **Gamemaster:** Logic & Chrono (The Brain).
-- **Artificer:** Body & Structure (The Bones).
-- **Mesmer:** Senses & Aura (The Skin).
-- **Scholar:** Memory & Persistence (The Truth).
-- **Warden:** Shield & Hygiene (The Laws).
-
-## 🗺️ Navigation
-
-- **[Vision & Philosophy](./knowledge/vision/philosophy.md)**
-- **[System Architecture](./rules/02-architecture.md)**
-- **[Logic Principles](./knowledge/logic/principles.md)**
-- **[Roadmap](./roadmap.md)**
-
-## Product Guidelines
-
-These guidelines define the operational constraints for the RPGlitch ecosystem:
+## 4. Product Guidelines
 
 1. **Local-First Integrity**: Data must persist in IndexedDB (`Dexie.js`) before attempting network sync.
 2. **Reactive State**: UI components must never hold imperative state. Use Runes (`$state`, `$derived`).

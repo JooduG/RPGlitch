@@ -89,7 +89,7 @@ function verifyPillars() {
         ".agent/rules/standards.md",
         ".agent/rules/stack.md",
         ".agent/rules/security.md",
-        ".agent/rules/workflow.md",
+        ".agent/rules/directives.md",
     ]
     let missing = []
 

@@ -1,6 +1,7 @@
 # 🗺️ RPGlitch Roadmap: The Path to Convergence
 
-This roadmap outlines the evolution of the engine from a functional prototype to a high-fidelity, autonomous roleplaying ecosystem.
+> **Vision:** A local-first, genre-agnostic engine where state drives reality.
+> **Red Thread:** Phased evolution from foundation to autonomous emergence.
 
 ## 🏁 Milestone 1: The Foundry (v0.5) - Current Focus
 
@@ -29,8 +30,8 @@ This roadmap outlines the evolution of the engine from a functional prototype to
 **Goal:** Multi-modal presence and narrative dynamics.
 
 - [ ] **Neural Voice (TTS):** Character-specific speech generation.
-- [ ] **Material Textures:** Enhancing image prompts with visceral specificity (subsurface scattering, grime).
-- [ ] **Pollinations Proxy:** Seamless, persistent image generation for characters and scenes.
+- [ ] **Material Textures:** Enhancing image prompts with visceral specificity.
+- [ ] **Pollinations Proxy:** Seamless, persistent image generation.
 
 ---
 
@@ -40,7 +41,7 @@ This roadmap outlines the evolution of the engine from a functional prototype to
 
 - [ ] **Multiverse Branching:** Narrative node graph for exploring "What If" scenarios.
 - [ ] **Social Mesh:** Autonomous NPC relationships and ensemble dynamics.
-- [ ] **Fractal Convergence:** Moving entities and lore between different story instances.
+- [ ] **Fractal Convergence:** Moving entities and lore between story instances.
 - [ ] **Glitch Protocol:** Meta-narrative events where the engine addresses the user directly.
 
 ---
