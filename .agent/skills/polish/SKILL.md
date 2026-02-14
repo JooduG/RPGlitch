@@ -25,6 +25,8 @@ Ensure the component follows this structure:
 
 ## 📝 Output Template
 
+File: COMPONENT.svelte
+
 ```svelte
 <script>
     // 🔒 LOGIC IS PRESERVED

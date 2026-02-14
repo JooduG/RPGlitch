@@ -1,4 +1,6 @@
 ---
+name: simulation
+version: 1.0.0
 description: Technical manual for the Simulation Engine (Event Bus, Chrono Loop, State Management). Context: [Simulation]
 ---
 
@@ -14,6 +16,8 @@ We use a global Event Bus to decouple the UI (Mesmer) from the Logic (Gamemaster
 **Source**: `src/core/engine/bus.js`
 
 ### Usage
+
+File: bus.js
 
 ```javascript
 import { events, EVENTS } from "@core/engine/bus.js"
@@ -70,7 +74,7 @@ Memories with lower weight are subject to decay or compression over time, simula
 3.  **Render (Mesmer)**: The UI reflects the new state via `$effect` or `$derived` runes.
 4.  **Archive (Scholar)**: Compresses the turn into Long Term Memory keys.
 
-## 3. 💾 State Management (Svelte 5 Runes)
+## 4. 💾 State Management (Svelte 5 Runes)
 
 We use Svelte 5 Runes for all reactive state. Stores are Singletons located in `src/state/`.
 
@@ -102,7 +106,7 @@ We use Svelte 5 Runes for all reactive state. Stores are Singletons located in `
     - `runtime.save()` triggers a DB sync.
     - `app.saveSettings()` syncs to Dexie via `kv_settings`.
 
-## 4. 🏗️ Feature Implementation Guide
+## 5. 🏗️ Feature Implementation Guide
 
 When asked to "Create a Feature":
 
@@ -110,3 +114,12 @@ When asked to "Create a Feature":
 2.  **Define Actions**: Add methods to the Store class to mutate that state.
 3.  **Hook Events**: If the feature needs to react to the Engine (e.g., "On Turn End"), add a listener in `_initListeners()`.
 4.  **Bind UI**: Create a Svelte component that reads the store state and calls the actions.
+
+## 6. Anti-Patterns
+
+| Pattern                         | Mitigation                                                                           |
+| :------------------------------ | :----------------------------------------------------------------------------------- |
+| **Direct State Mutation in UI** | **Forbidden**. Use Store methods to encapsulate logic and ensure consistency.        |
+| **Hardcoded Time Constants**    | **Discouraged**. Use the Chrono Kinetics gears to ensure narrative pacing.           |
+| **Ignoring Event Descriptors**  | **Quality**. Always include required metadata when dispatching custom events.        |
+| **Over-reliance on `$effect`**  | **Performance**. Use `$derived` for state derivations to avoid redundant executions. |

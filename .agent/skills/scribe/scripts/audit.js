@@ -38,24 +38,29 @@ const auditRules = [
     {
         name: "Path Headers",
         check: (content) => {
-            // Find code blocks that don't have a path header above them
             const lines = content.split("\n")
             let pass = true
+            let insideBlock = false
             for (let i = 0; i < lines.length; i++) {
-                if (
-                    lines[i].trim().startsWith("```") &&
-                    !lines[i].includes("bash") &&
-                    !lines[i].includes("mermaid")
-                ) {
-                    // Check previous lines (up to 2) for a file path
-                    const prevLine = lines[i - 1] || ""
-                    const prevPrevLine = lines[i - 2] || ""
-                    if (
-                        !prevLine.includes("File:") &&
-                        !prevPrevLine.includes("File:")
-                    ) {
-                        pass = false
-                        break
+                const line = lines[i].trim()
+                if (line.startsWith("```")) {
+                    if (!insideBlock) {
+                        insideBlock = true
+                        const isExempt =
+                            line.includes("bash") || line.includes("mermaid")
+                        if (!isExempt) {
+                            const prevLine = lines[i - 1] || ""
+                            const prevPrevLine = lines[i - 2] || ""
+                            if (
+                                !prevLine.includes("File:") &&
+                                !prevPrevLine.includes("File:")
+                            ) {
+                                pass = false
+                                break
+                            }
+                        }
+                    } else {
+                        insideBlock = false
                     }
                 }
             }

@@ -21,7 +21,7 @@
 
 ## 📋 Backlog (To Do)
 
-- [ ] Audit all Skill `Anti-Patterns` (MD041 compliance).
+- [x] Audit all Skill `Anti-Patterns` (Structural Integrity PASS).
 - [ ] Implement `visuals` skill (Perchance Image Integration).
 - [ ] Refactor `ProsePanel` to Svelte 5 + `polish` standards.
 

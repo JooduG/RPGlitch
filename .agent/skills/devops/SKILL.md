@@ -66,7 +66,7 @@ description: >
 
 ## 5. Anti-Patterns
 
-| Pattern                       | Reasoning                                                                                |
+| Pattern                       | Mitigation                                                                               |
 | :---------------------------- | :--------------------------------------------------------------------------------------- |
 | Manually editing `.gitignore` | **Sync Logic**. It will be overwritten by `sync.js`. Edit `ignores.master.json` instead. |
 | Committing `node_modules`     | **Hygiene**. Heavy artifact; never commit.                                               |
