@@ -30,6 +30,7 @@
 
 ## ✅ Done
 
+- [x] **Hygiene Sterilization**: Resolved type errors and removed legacy configs. [checkpoint: a14e11ef]
 - [x] **Config Sync**: Enhanced `sync.js` and automated ESLint injection. [checkpoint: 5c619dda]
 
 - [x] `localStorage` → Dexie.js migration (7 files) [checkpoint: 16236583]
