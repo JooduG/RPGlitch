@@ -98,7 +98,6 @@
                     <button
                         class="drawer-card drawer-card--new"
                         onclick={() => {
-                            // TODO: Wire up to the Entity Factory / Wizard
                             app.log(
                                 "Create New Entity Wizard coming soon!",
                                 "system"

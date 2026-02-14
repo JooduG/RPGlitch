@@ -6,7 +6,6 @@
 
 import { LlmService } from "@core/intelligence/service.js"
 import { ContextBuilder } from "./context.js"
-const log = console.log
 const error = console.error
 
 export class Echo {
@@ -30,10 +29,6 @@ export class Echo {
                 targetEntity,
                 historySlice,
                 role
-            )
-
-            log(
-                `[Scholar:Echo] Recording Temporal Resonance for ${targetEntity.name}...`
             )
 
             // 2. Generate

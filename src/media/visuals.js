@@ -4,7 +4,6 @@
  * Handles prompt composition and image generation calls.
  */
 
-const log = console.log
 const error = console.error
 
 export const TextToImage = {
@@ -68,9 +67,6 @@ export const TextToImage = {
         }
 
         try {
-            log("[The_Mesmer] Generating:", prompt, options)
-            // Mocking the plugin call, assuming perchant textToImage API
-            // In a real scenario, this matches the plugin signature
             const result = await window.textToImage(prompt, options)
             return result?.url || result // Adapt to plugin return type
         } catch (e) {
@@ -91,7 +87,6 @@ export const TextToImage = {
         }
 
         try {
-            log("[The_Mesmer] Uploading file:", file.name)
             const result = await window.upload(file)
             return result?.url || result
         } catch (e) {

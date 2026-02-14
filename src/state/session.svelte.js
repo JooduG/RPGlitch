@@ -102,7 +102,6 @@ export class ReactiveSession {
 
             // TRIGGER AI GENERATION
             const storyId = Session.requireActive()
-            console.log("Triggering generation for story", storyId)
             await GameMaster.generateAiResponse(storyId, { input: text })
 
             // PHASE 3: ECHO (Resonance)

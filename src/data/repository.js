@@ -9,7 +9,6 @@ import { db } from "./db.js"
 // Data Providers
 import { normalize, premade, STORAGE_VERSION } from "@data/lore.js"
 
-const log = console.log
 const error = console.error
 
 // ============================================================================
@@ -17,7 +16,6 @@ const error = console.error
 // ============================================================================
 
 export const seedPremades = async () => {
-    log("[Scholar] Verifying starter content...")
     try {
         const existing = await db.entities.toArray()
 
@@ -33,8 +31,6 @@ export const seedPremades = async () => {
             const hasChild = existing.some((e) => e.originId === bp.id)
 
             if (!hasChild) {
-                log(`[Artificer] Minting fresh copy of ${bp.name}`)
-
                 const type = bp.kind || bp.type || "character"
                 const flatBp = { ...bp }
 
@@ -54,12 +50,9 @@ export const seedPremades = async () => {
                 })
             }
         }
-
         if (toAdd.length > 0) {
             await db.entities.bulkPut(toAdd)
-            log(`[Scholar] Minted ${toAdd.length} new starter entities.`)
         }
-        log("[Scholar] seedPremades resolving...")
     } catch (err) {
         error("Failed to seed premades:", err)
     }
