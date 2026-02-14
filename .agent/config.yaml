@@ -22,14 +22,14 @@ skills:
 workflows:
     01-setup: .agent/workflows/01-setup.md
     02-feature: .agent/workflows/02-feature.md
-    03-bug-fix: .agent/workflows/03-bug-fix.md
-    04-checkpoint: .agent/workflows/04-checkpoint.md
-    05-review: .agent/workflows/05-review.md
-    06-revert: .agent/workflows/06-revert.md
-    07-hygiene: .agent/workflows/07-hygiene.md
-    08-recovery: .agent/workflows/08-recovery.md
+    03-implement: .agent/workflows/03-implement.md
+    04-bug-fix: .agent/workflows/04-bug-fix.md
+    05-checkpoint: .agent/workflows/05-checkpoint.md
+    06-review: .agent/workflows/06-review.md
+    07-deploy: .agent/workflows/07-deploy.md
+    08-hygiene: .agent/workflows/08-hygiene.md
     09-refactor: .agent/workflows/09-refactor.md
-    10-deploy: .agent/workflows/10-deploy.md
+    10-revert: .agent/workflows/10-revert.md
 
 # 📚 Knowledge (Reference Library)
 knowledge:

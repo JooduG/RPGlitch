@@ -139,14 +139,15 @@ Use these commands to trigger formalized protocols:
 | Command            | Protocol        | Description                                              |
 | :----------------- | :-------------- | :------------------------------------------------------- |
 | **/01-setup**      | **Startup**     | Initializes the environment, validates context/security. |
-| **/02-track**      | **Track**       | Scaffolds a new work track (Plan/Task artifacts).        |
-| **/03-implement**  | **Implement**   | Executes the implementation plan for a defined track.    |
-| **/04-status**     | **Status**      | Reports the status of active tracks and project health.  |
-| **/05-checkpoint** | **Checkpoint**  | Anchors the current phase of work into history.          |
-| **/06-review**     | **Apex Review** | High-level audit for completed tracks or major features. |
-| **/07-revert**     | **Revert**      | Structured approach to abandoning failed paths.          |
-| **/08-clean**      | **Clean Room**  | Sterilizes codebase, ensures hygiene/linting/integrity.  |
-| **/09-nope**       | **Nope**        | Triggered on hallucination/failure. Shame Management.    |
+| **/02-feature**    | **Flight Plan** | Scopes and plans a new feature. Defines WHAT, not HOW.   |
+| **/03-implement**  | **Engine**      | Task execution loop. Picks next task and builds it.      |
+| **/04-bug-fix**    | **Medic**       | Rapid response for fixing errors and regressions.        |
+| **/05-checkpoint** | **Anchor**      | Anchors progress with git commit, notes, and plan sync.  |
+| **/06-review**     | **Tollgate**    | Validates work against the Definition of Done.           |
+| **/07-deploy**     | **Launch**      | Safe, tested dispatch to production.                     |
+| **/08-hygiene**    | **Clean Room**  | Sterilizes codebase, ensures hygiene/linting/integrity.  |
+| **/09-refactor**   | **Cleanup**     | Refactors code to align with Svelte 5 and Design System. |
+| **/10-revert**     | **Undo**        | Abandons failed paths, restores state, shame management. |
 
 ## 7. The Scribe Rule (Retrieval-led Reasoning)
 

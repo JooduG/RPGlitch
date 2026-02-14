@@ -4,51 +4,59 @@ description: The "Spaghetti Cleanup" Protocol. Systematically refactors componen
 
 # 09-refactor (The Cleanup)
 
-> **Goal:** Transform legacy/messy code into pristine, Meridian-compliant structures.
+> **Goal:** Transform legacy or messy code into pristine, Meridian-compliant structures.
 
 ## 1. Triggers
 
-- **Hygiene Fail**: Code rejected by `07-hygiene`.
+- **Hygiene Fail**: Code rejected by `08-hygiene`.
 - **User Request**: "Confusing code", "Refactor this".
-- **Slash Command**: `/09-refactor` (or legacy `/refactor`)
+- **Slash Command**: `/09-refactor`
 
 ## 2. Brain (Context Injection)
 
-- **Standard**: `.agent/rules/standards.md`
+- **Standards**: `.agent/rules/standards.md`
 - **Svelte 5**: `.agent/skills/svelte/SKILL.md`
+- **SCSS**: `.agent/skills/scss/SKILL.md`
 
-## 3. Capabilities
+## 3. Procedures
 
-- **Architect**: Pattern Recognition.
-- **Builder**: Transformation.
-- **Auditor**: Validation.
+### Phase 1: Test Baseline
 
-## 4. Procedures
+1. **Snapshot**: Run existing tests. Record pass/fail state.
+    - If no tests exist for the target code: write them first.
+2. **Coverage**: Note current coverage for the module.
+3. **Gate**: Tests must pass before any refactoring begins.
 
-### Phase 1: Logic Extraction (De-Spaghettification)
+### Phase 2: Logic Extraction (De-Spaghettification)
 
-1.  **Scan**: Identify `export let`, `$:`, or complex inline logic.
-2.  **Extract**: Move logic to `*.svelte.js` (Runes).
-    - `let x` -> `let x = $state()`
-    - `$:` -> `$derived()` or `$effect()`
+1. **Scan**: Identify `export let`, `$:`, complex inline logic, or `any` types.
+2. **Extract**: Move logic to `*.svelte.js` (Runes).
+    - `let x` → `let x = $state()`
+    - `$:` → `$derived()` or `$effect()`
+3. **Gate**: No behavioral changes. Only structural.
 
-### Phase 2: Visual Alignment (The Paint Job)
+### Phase 3: Visual Alignment (The Paint Job)
 
-1.  **Tokenize**: Replace hardcoded values with Design Tokens.
-    - `#000` -> `var(--color-surface)`
-2.  **Semantic**: Replace utility bombs with semantic SCSS.
+1. **Tokenize**: Replace hardcoded values with Design Tokens.
+    - `#000` → `var(--color-surface)`
+2. **Semantic**: Replace utility bombs with semantic SCSS.
+3. **Gate**: No visual regressions.
 
-### Phase 3: Validation
+### Phase 4: Validation
 
-1.  **Audit**: Ensure no regressions.
-2.  **Test**: Verified behavior matches original.
+1. **Test**: Run the same test suite from Phase 1. All must pass.
+2. **Coverage**: Coverage must not decrease.
+3. **Update Plan**: Record the refactoring in `plan.md` or `tracks.md`.
+4. **Commit**: `gamemaster(refactor): <description>`.
 
-## 5. Anti-Patterns
+## 4. Anti-Patterns
 
 - **Big Bang**: Rewriting everything at once. Keep it atomic.
 - **Silent Logic Change**: Changing behavior while refactoring.
+- **No Tests**: Refactoring without a safety net.
 
-## 6. Tools
+## 5. Tools
 
-- `read_file`
-- `replace_file_content`
+- `view_file` (Analyze code)
+- `replace_file_content` (Surgical edits)
+- `run_command` (Run tests)

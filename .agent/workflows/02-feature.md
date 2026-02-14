@@ -1,10 +1,10 @@
 ---
-description: End-to-end orchestration for building a new UI/Logic feature.
+description: Scoping and planning a new feature. Defines WHAT to build, not HOW.
 ---
 
 # 02-feature (The Flight Plan)
 
-> **Goal:** Scope, blueprint, and execute a new feature with zero ambiguity.
+> **Goal:** Scope, blueprint, and register a new feature with zero ambiguity. Implementation happens in `03-implement`.
 
 ## 1. Triggers
 
@@ -14,73 +14,46 @@ description: End-to-end orchestration for building a new UI/Logic feature.
 
 ## 2. Brain (Context Injection)
 
-- **Product**: `.agent/product.md`
+- **Product**: `.agent/knowledge/canon/product.md`
 - **Stack**: `.agent/rules/stack.md`
 - **Tracks**: `.agent/tasks/tracks.md`
 
-## 3. Capabilities
+## 3. Procedures
 
-- **Architect**: Scoping, Spec Generation, Planning.
-- **Builder**: Implementation, Skeleton Creation, Logic Wiring.
-- **Auditor**: Validation against the "Definition of Done".
+### Phase 1: The Clarity Gate
 
-## 4. Procedures
-
-### Phase 1: The Clarity Gate (Architect)
-
-1.  **Analyze Intent**: Assess Ambiguity (A1-A5).
-    - If **A3-A5** (Ambiguous/Hazard): **STOP**. Present questions using `.agent/skills/project/templates/CONSULTATION.md`.
+1. **Analyze Intent**: Assess Ambiguity (A1-A5).
+    - If **A3-A5** (Ambiguous/Hazard): **STOP**. Present questions.
     - If **A1-A2**: Proceed.
-2.  **Check Incubation**: Consult `.agent/knowledge/incubator/` or `roadmap.md` for existing specs.
+2. **Check Incubation**: Consult `.agent/knowledge/incubator/` for existing specs or concepts.
 
 ### Phase 2: Blueprinting
 
-1.  **Define Slug**: `kebab-case-feature-name`.
-2.  **Draft Spec**: Create `.agent/tasks/<slug>/spec.md` (The "What").
+1. **Define Slug**: `kebab-case-feature-name`.
+2. **Draft Spec**: Create `.agent/tasks/<slug>/spec.md` (The "What").
     - **Must** align with `product.md`.
-3.  **Draft Plan**: Create `.agent/tasks/<slug>/plan.md` (The "How").
-    - **Constraint**: Use "Skeleton-First" approach (Logic -> UI -> Style).
-4.  **Register**: Update `.agent/tasks/tracks.md`.
+    - Define acceptance criteria.
+3. **Draft Plan**: Create `.agent/tasks/<slug>/plan.md` (The "How").
+    - Break into numbered, sequential tasks.
+    - Use `[ ]` for each task item.
+    - **Constraint**: Use "Skeleton-First" approach (State → Logic → Markup → Style).
+4. **Register**: Add entry to `.agent/tasks/tracks.md` with status `In Progress`.
 
-### Phase 3: The Skeleton (Builder)
+### Phase 3: Handoff
 
-_Goal: Functional backbone. ZERO CSS._
+1. **Present**: Show the spec and plan to the user for approval.
+2. **Decision**:
+    - **Approved**: Proceed to `03-implement`.
+    - **Revise**: Update spec/plan and re-present.
 
-1.  **State**: Define Runes (`$state`, `$derived`) in `src/core/` or `src/data/`.
-2.  **Logic**: Implement core events and data handlers.
-3.  **Markup**: Generate `.svelte` files with semantic HTML only.
-    - **Constraint**: No `<style>` blocks. No classes.
+## 4. Anti-Patterns
 
-### Phase 4: The Tollgate (Auditor)
+- **Building During Planning**: Writing code before the plan is approved.
+- **Skipping Clarity**: Guessing requirements instead of asking.
+- **Mega-Features**: Plans with 20+ tasks. Break into sub-tracks.
 
-1.  **Audit**: Check the Skeleton.
-    - No `export let`?
-    - No `style="..."`?
-2.  **Decision**:
-    - **FAIL**: Refactor logic.
-    - **PASS**: Proceed to Skinning.
+## 5. Tools
 
-### Phase 5: The Skin (Builder)
-
-_Goal: Visual layer._
-
-1.  **Classes**: Add semantic class names (BEM or Utility-to-Semantic).
-2.  **Styles**: Add `<style lang="scss">`.
-3.  **Tokens**: Use `var(--token)` exclusively.
-
-### Phase 6: Verification (Auditor)
-
-1.  **Verify**: Run `npm test` or specific validation scripts.
-2.  **Close**: Mark `[x]` in `tracks.md` and `plan.md`.
-
-## 5. Anti-Patterns
-
-- **Style-First**: Building the UI before the Data Model.
-- **God-Components**: Putting all logic inside `.svelte` files.
-- **Skipping Clarity**: Guessing requirements.
-
-## 6. Tools
-
-- `feature_creator`
-- `sequentialthinking`
-- `task_boundary`
+- `sequentialthinking` (Complex scoping)
+- `write_to_file` (Create spec/plan)
+- `task_boundary` (Track progress)

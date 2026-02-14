@@ -1,13 +1,15 @@
 ---
 name: project
-version: 1.0.0
+version: 1.1.0
 description: >
-    Manages project state, roadmaps, and task tracking. Enforces the 'Task Flux' 
+    Manages project state, roadmaps, and task tracking. Enforces the 'Task Flux'
     protocol (Plan -> Track -> Code).
     Triggers:
     - "Plan feature"
     - "Update tracks"
     - "Check status"
+    - "Next task"
+    - "Implement"
     - "Sync Configuration"
     - ".agent/tasks/**"
     - "Context: [Project]"
@@ -19,17 +21,23 @@ description: >
 
 ## 1. Core Philosophy
 
-1.  **Strict Text-Based State**: The `.agent/tasks/tracks.md` file is the ultimate source of truth. No internal hallucinations or "persona-based" state.
-2.  **Task Flux Protocol**: Every change follows a strict path: `Plan` (Define requirements) -> `Track` (Log in tracks.md) -> `Code` (Implementation).
-3.  **YAGNI State**: Do not track what does not exist. If a feature is not in `tracks.md`, it is not part of the current roadmap.
+1. **Strict Text-Based State**: The `.agent/tasks/tracks.md` file is the ultimate source of truth. No internal hallucinations or "persona-based" state.
+2. **Task Flux Protocol**: Every change follows a strict path: `Plan` (Define requirements) -> `Track` (Log in tracks.md) -> `Code` (Implementation).
+3. **YAGNI State**: Do not track what does not exist. If a feature is not in `tracks.md`, it is not part of the current roadmap.
 
 ## 2. Procedures
 
-### 📝 Plan Feature
+### 📝 Plan Feature (`/02-feature`)
 
 1. **Trigger**: User asks to build a new feature or "Plan <feature>".
-2. **Action**: Use `templates/TRACK_ENTRY.md` to draft a new entry.
+2. **Action**: Follow `02-feature.md` workflow — Clarity Gate → Spec → Plan → Register.
 3. **Validation**: Ensure User Story, Tech Specs, and Checklist are present.
+
+### 🔧 Implement Task (`/03-implement`)
+
+1. **Trigger**: Plan approved, "Next task", "Continue", "Implement".
+2. **Action**: Follow `03-implement.md` workflow — Select → Build → Test → Commit → Update.
+3. **Standard**: Skeleton-First (State → Logic → Markup → Style).
 
 ### 🔄 Update Tracks
 
@@ -66,3 +74,4 @@ description: >
 | **Coding without a tracked plan** | **Forbidden**. All work must exist in `tracks.md` before implementation. |
 | **Hallucinated project state**    | **Forbidden**. Only reference what is written in `tracks.md`.            |
 | **Tracking unbuilt features**     | **Avoid**. YAGNI — if it's not being built now, it's not on the roadmap. |
+| **Skipping the plan**             | **Forbidden**. No code without a `plan.md` entry.                        |

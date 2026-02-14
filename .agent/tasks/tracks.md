@@ -23,8 +23,11 @@
 
 ## 🏗️ In Progress
 
+- [ ] `localStorage` → Dexie.js migration (4 files, deferred from compliance audit)
+
 ## ✅ Done
 
+- [x] Source Code Compliance Remediation [checkpoint: ca39ff1d]
 - [x] Validate Svelte 5 syntax enforcement (StorymodePanel test).
 - [x] Create "Experience Bar" component as a Proof of Concept.
 - [x] 🚀 Deployed: 2026-02-12 21:14
