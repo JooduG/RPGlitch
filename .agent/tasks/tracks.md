@@ -23,10 +23,11 @@
 
 ## 🏗️ In Progress
 
-- [ ] `localStorage` → Dexie.js migration (4 files, deferred from compliance audit)
+_(No active tasks)_
 
 ## ✅ Done
 
+- [x] `localStorage` → Dexie.js migration (7 files) [checkpoint: 16236583]
 - [x] Source Code Compliance Remediation [checkpoint: ca39ff1d]
 - [x] Validate Svelte 5 syntax enforcement (StorymodePanel test).
 - [x] Create "Experience Bar" component as a Proof of Concept.
