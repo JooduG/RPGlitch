@@ -2,37 +2,17 @@
 
 import { db } from "@data/db.js"
 import { seedPremades } from "@data/repository.js"
+import { soundEffects } from "@media/audio/effects.js"
+import { app } from "@state/app.svelte.js"
 import { mount } from "svelte"
 import App from "../../App.svelte"
 import { GameMaster } from "./engine.js"
+import { Session } from "./session.js"
 import { initDebugMode, mockPlugins } from "./utils.js"
 
 if (typeof window !== "undefined") window.GameMaster = GameMaster
 
-if (typeof window !== "undefined") {
-    try {
-        const _lsSet = localStorage.setItem
-        localStorage.setItem = function (key, val) {
-            if (
-                key &&
-                (key.includes("blocked") ||
-                    key.includes("policy") ||
-                    key.includes("flag"))
-            ) {
-                return
-            }
-            return _lsSet.apply(this, arguments)
-        }
-        Object.keys(localStorage).forEach((key) => {
-            if (key.includes("blocked") || key.includes("policy")) {
-                localStorage.removeItem(key)
-            }
-        })
-        console.info("[Shield] Freedom Protocol Active.")
-    } catch (e) {
-        console.warn("[Shield] Storage intercept failed.")
-    }
-}
+// [REMOVED] Legacy localStorage interceptors migrated to Scholar/Dexie.
 
 const waitForConfig = async () => {
     return new Promise((resolve) => {
@@ -69,8 +49,17 @@ export const AppBootstrap = {
 
             console.info("[Gamemaster] Step 2: Data Layer (Opening DB)...")
             await db.open()
-            console.info("[Gamemaster] Database Ready. Seeding content...")
-            await seedPremades()
+            console.info("[Gamemaster] Database Ready. Hydrating Stores...")
+
+            // Async Hydration Gate
+            await Promise.all([
+                app.init(),
+                Session.init(),
+                soundEffects.initSettings(),
+                seedPremades(),
+            ])
+
+            console.info("[Gamemaster] Stores Hydrated.")
 
             console.info("[Gamemaster] Step 3: UI Layer...")
             const target = document.getElementById("svelte-root")

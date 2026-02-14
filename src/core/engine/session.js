@@ -7,14 +7,37 @@ import { applyPatch, events, EVENTS } from "./bus.js"
  * Replaces the old src/gamemaster/engine/session.js
  */
 export const Session = {
+    activeId: null,
+
     /**
      * get the active story ID or throw.
      */
-    requireActive: () => {
-        if (typeof window === "undefined") return null
-        const id = localStorage.getItem("rpg_session_id")
-        if (!id) throw new Error("No active session found.")
-        return parseInt(id, 10)
+    requireActive: function () {
+        if (!this.activeId) throw new Error("No active session found.")
+        return this.activeId
+    },
+
+    /**
+     * Set active session ID and persist it.
+     */
+    setActive: async function (id) {
+        this.activeId = id
+        if (typeof window !== "undefined") {
+            await db.kv_settings.put({ key: "active_session_id", value: id })
+            // also log to history
+            await db.sessions.add({ sessionId: id, timestamp: Date.now() })
+        }
+    },
+
+    /**
+     * Initialize session from DB.
+     */
+    init: async function () {
+        if (typeof window === "undefined") return
+        const entry = await db.kv_settings.get("active_session_id")
+        if (entry) {
+            this.activeId = entry.value
+        }
     },
 
     /**
@@ -44,7 +67,7 @@ export const Session = {
             },
         })
 
-        localStorage.setItem("rpg_session_id", id.toString())
+        await this.setActive(id)
         return id
     },
 

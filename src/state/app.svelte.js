@@ -1,4 +1,5 @@
 // ⚒️ ARTIFICER: UI State Manager
+import { db } from "@data/db.js"
 import { openLightbox } from "@state/lightbox.svelte.js"
 import { themeStore } from "@theme/palette.svelte.js"
 
@@ -91,29 +92,35 @@ export class AppStore {
 
     // --- LIFECYCLE ---
 
-    init() {
+    async init() {
         if (typeof window === "undefined" || this.initialized) return
         this.initialized = true
 
-        // 1. Load Settings
-        const saved = localStorage.getItem("rpg_settings")
-        if (saved) {
-            try {
-                const parsed = JSON.parse(saved)
+        // 1. Load Settings from Dexie
+        try {
+            const entry = await db.kv_settings.get("rpg_settings")
+            if (entry && entry.value) {
                 // Merge to ensure new keys are preserved
-                this.settings = { ...this.settings, ...parsed }
-            } catch (e) {
-                console.error("[Warden] Settings Corrupt:", e)
+                this.settings = { ...this.settings, ...entry.value }
             }
+        } catch (e) {
+            console.error("[Warden] Settings Hytration Failed:", e)
         }
     }
 
-    saveSettings() {
+    async saveSettings() {
         if (typeof window === "undefined") return
-        localStorage.setItem("rpg_settings", JSON.stringify(this.settings))
+
+        try {
+            await db.kv_settings.put({
+                key: "rpg_settings",
+                value: $state.snapshot(this.settings),
+            })
+        } catch (e) {
+            console.error("[Warden] Settings Save Failed:", e)
+        }
 
         // 2. Broadcast to Legacy Global (Immediate Sync)
-        // This is important for parts of the app that still rely on the global config
         if (typeof window !== "undefined") {
             window.RPGLITCH_CONFIG = {
                 sound: this.settings.sound,

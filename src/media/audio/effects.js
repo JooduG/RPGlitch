@@ -1,3 +1,4 @@
+import { db } from "@data/db.js"
 const STORAGE_KEY = "rpglitch_audio_settings"
 
 class SoundEffectsService {
@@ -8,29 +9,29 @@ class SoundEffectsService {
         this.lastPlayed = 0
         this.threshold = 500 // debounce in ms
         this.notificationsEnabled = true
-        this._loadSettings()
     }
 
-    _loadSettings() {
+    async initSettings() {
         try {
-            const stored = localStorage.getItem(STORAGE_KEY)
-            if (stored) {
-                const settings = JSON.parse(stored)
-                if (typeof settings.notificationsEnabled === "boolean") {
-                    this.notificationsEnabled = settings.notificationsEnabled
-                }
+            const entry = await db.audio_prefs.get(STORAGE_KEY)
+            if (entry && entry.value) {
+                this.notificationsEnabled = !!entry.value.notificationsEnabled
             }
         } catch (e) {
             console.warn("[The_Mesmer] Failed to load settings:", e)
         }
     }
 
-    setNotifications(enabled) {
+    async setNotifications(enabled) {
         this.notificationsEnabled = !!enabled
-        localStorage.setItem(
-            STORAGE_KEY,
-            JSON.stringify({ notificationsEnabled: this.notificationsEnabled })
-        )
+        try {
+            await db.audio_prefs.put({
+                key: STORAGE_KEY,
+                value: { notificationsEnabled: this.notificationsEnabled },
+            })
+        } catch (e) {
+            console.error("[The_Mesmer] Failed to save audio settings:", e)
+        }
     }
 
     init() {

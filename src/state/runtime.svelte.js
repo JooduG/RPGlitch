@@ -70,9 +70,9 @@ function createRuntimeStore() {
             // If we don't know who we are playing, try to recover from persistence
             if (!state.storyId) {
                 try {
-                    const setting = await db.settings.get("active_story")
-                    if (setting?.value) {
-                        state.storyId = setting.value
+                    const entry = await db.kv_settings.get("active_session_id")
+                    if (entry?.value) {
+                        state.storyId = entry.value
                     } else {
                         return // truly no active story
                     }

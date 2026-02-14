@@ -15,7 +15,6 @@
     async function handleReset() {
         if (confirm("This will wash away all memories. Are you sure?")) {
             await db.delete()
-            localStorage.clear()
             window.location.reload()
         }
     }

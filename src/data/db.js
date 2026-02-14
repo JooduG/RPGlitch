@@ -5,13 +5,16 @@ const error = console.error
 const db = new Dexie("rpglitch")
 
 // 2. Define the schema (Final Version Only)
-db.version(7).stores({
+db.version(8).stores({
     entities:
         "id, name, description, profilePicture, signatureColor, createdAt, updatedAt, tags, type, [type+isCustom], isChosen",
     stories: "++id, title, aiId, userId, fractalId, createdAt, updatedAt",
     messages:
         "++id, storyId, role, type, characterName, text, seed, meta, createdAt",
     settings: "id",
+    kv_settings: "key",
+    sessions: "++id, sessionId, timestamp",
+    audio_prefs: "key",
 })
 
 // --- STABILITY HANDLERS ---
