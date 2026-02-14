@@ -75,18 +75,13 @@ Automates capability creation using a single source of truth.
 - **Action**: Runs `scripts/scaffold-skill.js` to instantiate structures.
 - **Constraint**: Converts natural language to strict `kebab-case` slugs.
 
-### 🛡️ Structural Audit
+### 🛡️ Structural Audit (The Architect)
 
-Enforces project integrity and the "Red Thread" consistency.
+Enforces project integrity, the "Red Thread" consistency, and structural standards.
 
-- **Action**: Identifies "Ghost Files" and illegal directory structures.
-- **Validation**: Fails if non-standard folders are detected in a skill directory.
-
-### 📐 Visual Synthesis
-
-Synthesizes complex logic into high-contrast Mermaid.js diagrams.
-
-- **Standards**: Follows protocols in `docs/visual-standards.md`.
+- **Action**: Runs `scripts/audit.js` to scan for compliance.
+- **Rules**: Checks for anti-pattern tables, path headers, and mandatory versioning.
+- **Validation**: Fails the build/deployment if non-compliant skills are detected.
 
 ## 4. Procedures
 
@@ -99,11 +94,12 @@ Synthesizes complex logic into high-contrast Mermaid.js diagrams.
 ### Audit Workflow
 
 1. **Trigger**: Manual audit or pre-commit.
-2. **Execute**: Run `node .agent/skills/scribe/scripts/scaffold-skill.js audit`.
+2. **Execute**: Run `node .agent/skills/scribe/scripts/audit.js`.
 
 ## 5. Tools
 
 - [scaffold-skill.js](./scripts/scaffold-skill.js): Unified Node.js architect tool.
+- [audit.js](./scripts/audit.js): Structural integrity auditor.
 
 ## 6. Anti-Patterns
 

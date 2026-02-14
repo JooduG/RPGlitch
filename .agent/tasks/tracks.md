@@ -7,8 +7,11 @@
 
 - [x] **Phase 1:** "The Lobotomy" (Clear old personas)
 - [x] **Phase 2:** "Genesis" (Install Builder & Svelte 5 Skills)
-- [ ] **Phase 3:** "Re-Arming" (Install Architect & Visual Skills)
+- [x] **Phase 3:** "Re-Arming" (Install Architect & Visual Skills)
 - [ ] **Phase 4:** "Integration" (Prove the new workflow)
+    - [ ] Execute `/02-feature` for a complex system (e.g., Battle/Social loop).
+    - [ ] Full Meridian loop validation: Plan -> Build -> Polish -> Audit.
+    - [ ] [Track Details](file:///c:/Users/johng/Documents/GitHub/default/.agent/tasks/integration-proving/plan.md)
 
 ## 🏆 Epic: The Great Typening (Future)
 
@@ -18,12 +21,13 @@
 
 ## 📋 Backlog (To Do)
 
-- [ ] Create `tracks.md` structure (You are here).
-- [ ] Verify `02-architect.md` can read and write to this file.
+- [ ] Audit all Skill `Anti-Patterns` (MD041 compliance).
+- [ ] Implement `visuals` skill (Perchance Image Integration).
+- [ ] Refactor `ProsePanel` to Svelte 5 + `polish` standards.
 
 ## 🏗️ In Progress
 
-_(No active tasks)_
+- No active tasks.
 
 ## ✅ Done
 

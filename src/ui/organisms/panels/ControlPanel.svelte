@@ -8,6 +8,12 @@
     import Toggle from "@ui/atoms/Toggle.svelte"
     import Modal from "@ui/molecules/dialogs/Modal.svelte"
 
+    /**
+     * 🕹️ ControlPanel (Artificer)
+     * Main system interface for settings and prologue configuration.
+     * Follows the [Polish Protocol] v1.0.0
+     */
+
     function handleAction(action) {
         app.log(`Control Panel: ${action}`, "system")
     }
@@ -22,7 +28,6 @@
     // 🧪 MOCK DATA FOR VERIFICATION
     function mockPrologue() {
         // Inject Mock Runtime State so Colors Work
-        // [FIX] Use the actual selected entities if they exist, so the colors match!
         runtime._debugInject({
             fractal: {
                 id: "mock-fractal",
@@ -47,7 +52,7 @@
             "Fractal Entity",
             "fractal"
         )
-        // 2. AI Message (Delayed slightly for realism in feed, but sync here is fine for mock)
+        // 2. AI Message
         setTimeout(() => {
             session.addAiMessage(
                 "I sense a disturbance. Who are you?",
@@ -59,92 +64,90 @@
     /* --- STATE HELPERS --- */
     let isStoryboard = $derived(app.view === "lobby")
     let isStoryMode = $derived(app.view === "game")
-
-    /* --- SNIPPETS --- */
 </script>
 
-{#snippet prologuePanel()}
-    <div class="prologue-section">
-        <div class="prologue-input-area">
-            <textarea
-                class="prologue-input"
-                placeholder="(Optional) e.g., 'Start in media res', 'Describe the weather first'"
-                bind:value={app.prologue}
-            ></textarea>
-        </div>
-    </div>
-{/snippet}
-
-{#snippet header()}
-    <!-- HEADER: Settings (Audio/Call) -->
-    <div class="header-toggles">
-        <Toggle
-            label="CALL MODE"
-            bind:value={app.settings.callMode}
-            onchange={app.saveSettings}
-        />
-        <Toggle
-            label="NOTIFICATIONS"
-            bind:value={app.settings.sound}
-            onchange={app.saveSettings}
-        />
-    </div>
-{/snippet}
-
-{#snippet actions()}
-    <!-- BODY: Actions (Story Mode Only) -->
-    {#if isStoryMode}
-        <div class="action-row">
-            <Button
-                label="GHOSTWRITE"
-                variant="secondary"
-                size="sm"
-                onclick={() => handleAction("Ghostwrite")}
-            />
-            <Button
-                label="PHOTO"
-                variant="secondary"
-                size="sm"
-                onclick={() => handleAction("Photo")}
-            />
-            <Button
-                label="END STORY"
-                variant="secondary"
-                size="sm"
-                onclick={() => handleAction("EndStory")}
-            />
-            <Button
-                label="MOCK PROLOGUE"
-                variant="secondary"
-                size="sm"
-                onclick={mockPrologue}
-            />
-        </div>
-    {/if}
-{/snippet}
-
-{#snippet footer()}
-    <!-- NAVIGATION & META -->
-    <div class="footer-nav">
-        <div class="story-controls">
-            <!-- Universal: Library always accessible -->
-            <button
-                class="nav-link"
-                onclick={() => handleAction("OpenLibrary")}
-            >
-                Story Library
-            </button>
-        </div>
-
-        <div class="advanced-section">
-            <div class="advanced-controls">
+<Modal variant="transparent" onclose={() => app.toggleControlPanel()}>
+    <article class="cockpit-panel" data-testid="cockpit-panel">
+        <!-- HEADER: System Toggles -->
+        <header class="panel-header">
+            <div class="status-toggles">
                 <Toggle
-                    label="DevMode"
-                    bind:value={app.settings.devMode}
+                    label="CALL MODE"
+                    bind:value={app.settings.callMode}
                     onchange={app.saveSettings}
                 />
+                <Toggle
+                    label="NOTIFICATIONS"
+                    bind:value={app.settings.sound}
+                    onchange={app.saveSettings}
+                />
+            </div>
+        </header>
+
+        <!-- BODY: Prologue (Lobby Only) -->
+        {#if isStoryboard}
+            <section class="prologue-setup">
+                <div class="input-wrapper">
+                    <textarea
+                        class="prologue-field"
+                        placeholder="(Optional) e.g., 'Start in media res', 'Describe the weather first'"
+                        bind:value={app.prologue}
+                    ></textarea>
+                </div>
+            </section>
+        {/if}
+
+        <!-- BODY: Actions (Story Mode Only) -->
+        {#if isStoryMode}
+            <nav class="action-grid">
+                <Button
+                    label="GHOSTWRITE"
+                    variant="secondary"
+                    size="sm"
+                    onclick={() => handleAction("Ghostwrite")}
+                />
+                <Button
+                    label="PHOTO"
+                    variant="secondary"
+                    size="sm"
+                    onclick={() => handleAction("Photo")}
+                />
+                <Button
+                    label="END STORY"
+                    variant="secondary"
+                    size="sm"
+                    onclick={() => handleAction("EndStory")}
+                />
+                <Button
+                    label="MOCK PROLOGUE"
+                    variant="secondary"
+                    size="sm"
+                    onclick={mockPrologue}
+                />
+            </nav>
+        {/if}
+
+        <!-- FOOTER: Navigation & Meta -->
+        <footer class="panel-footer">
+            <div class="navigation-links">
+                <button
+                    class="nav-btn"
+                    onclick={() => handleAction("OpenLibrary")}
+                >
+                    Story Library
+                </button>
+            </div>
+
+            <div class="system-meta">
+                <div class="dev-toggle">
+                    <Toggle
+                        label="DevMode"
+                        bind:value={app.settings.devMode}
+                        onchange={app.saveSettings}
+                    />
+                </div>
                 <Button variant="secondary" size="sm" onclick={handleReset}>
-                    <div class="btn-inner">
+                    <div class="reset-wrapper">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="14"
@@ -164,137 +167,99 @@
                     </div>
                 </Button>
             </div>
-        </div>
-    </div>
-{/snippet}
-
-<Modal variant="transparent" onclose={() => app.toggleControlPanel()}>
-    <div class="cockpit-panel" data-testid="cockpit-panel">
-        {@render header()}
-
-        {#if isStoryboard}
-            {@render prologuePanel()}
-        {/if}
-
-        {@render actions()}
-        {@render footer()}
-    </div>
+        </footer>
+    </article>
 </Modal>
 
 <style lang="scss">
-    @use "../../../theme/abstracts/variables" as *;
-
     .cockpit-panel {
-        width: 30rem; /* Slightly wider for the pill */
-        background: $layer-overlay; /* Opaque overlay */
-        box-shadow:
-            0 0 0 1px $glass-border,
-            $shadow-l;
-        border-radius: var(--radius-l);
-        padding: 1.5rem;
+        width: 32rem;
+        background: var(--surface-overlay);
+        backdrop-filter: blur(var(--blur-m));
+        box-shadow: var(--shadow-l);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-l);
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
-        font-family: "Inter", sans-serif;
-        color: var(--app-color);
+        gap: var(--spacing-l);
+        font-family: var(--font-family-sans);
+        color: var(--text-primary);
         overflow: hidden;
     }
 
-    /* .panel-header removed */
+    .status-toggles {
+        display: flex;
+        gap: var(--spacing-xl);
+        justify-content: flex-start;
+    }
 
-    /* --- PROLOGUE (Input Only) --- */
-    .prologue-section {
-        .prologue-input-area {
-            background: $bg-input; /* Opaque input */
-            border-radius: var(--radius-m);
-            padding: 0.75rem;
-            border: none; /* No border */
+    .prologue-setup {
+        .input-wrapper {
+            background: rgba(0, 0, 0, var(--opacity-s));
+            border-radius: var(--radius-md);
+            padding: var(--spacing-s);
 
-            .prologue-input {
+            .prologue-field {
                 width: 100%;
-                min-height: 5rem;
+                min-height: 6rem;
                 background: transparent;
                 border: none;
-                color: var(--zinc-300);
-                font-family: var(
-                    --font-sans
-                ); /* Not mono anymore per image aesthetic */
-                font-size: 0.9rem;
+                color: var(--text-secondary);
+                font-family: var(--font-family-sans);
+                font-size: var(--font-size-s);
                 resize: none;
                 outline: none;
 
                 &::placeholder {
-                    color: var(--zinc-500);
+                    color: var(--text-muted);
                     font-style: italic;
                 }
             }
         }
     }
 
-    /* --- TOGGLES (Header) --- */
-    .header-toggles {
+    .action-grid {
         display: flex;
-        gap: 2rem; /* Wide spacing per image */
-        justify-content: flex-start;
-    }
-
-    /* --- ACTION ROW (Story Mode) --- */
-    .action-row {
-        display: flex;
-        gap: 0.5rem;
+        flex-wrap: wrap;
+        gap: var(--spacing-xs);
         justify-content: center;
-        align-items: center;
-        /* Pill background removed per request */
     }
 
-    /* --- FOOTER & NAV --- */
-    .footer-nav {
+    .panel-footer {
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: var(--spacing-l);
     }
 
-    .story-controls {
+    .navigation-links {
         display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
+        justify-content: center;
 
-        .nav-link {
+        .nav-btn {
             background: none;
             border: none;
-            color: var(--zinc-100);
+            color: var(--text-secondary);
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: var(--font-size-s);
             cursor: pointer;
+            transition: color 200ms var(--curve-snappy);
+
             &:hover {
+                color: var(--text-primary);
                 text-decoration: underline;
             }
         }
-
-        /* Primary Button moved to Main Actions */
     }
 
-    /* --- ADVANCED SECTION --- */
-    .advanced-section {
+    .system-meta {
         display: flex;
-        flex-direction: column;
-        gap: 1rem;
+        justify-content: space-between;
+        align-items: center;
 
-        /* Divider removed */
-
-        .advanced-controls {
+        .reset-wrapper {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-
-            .btn-inner {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-            }
-
-            /* .reset-btn removed */
+            gap: var(--spacing-xs);
         }
     }
 </style>

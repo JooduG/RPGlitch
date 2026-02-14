@@ -3,23 +3,31 @@
     import { themeStore } from "@theme/palette.svelte.js"
     import ProfilePicture from "@ui/atoms/ProfilePicture.svelte"
 
+    /**
+     * 🎭 StorymodePanel (Artificer)
+     * High-fidelity visual representing an entity in the story feed.
+     * Follows the [Polish Protocol] v1.0.0
+     */
+
     let { entity, side = "left", title: rawTitle = "" } = $props() // side: 'left' | 'right'
 
     // Default Fallback
     let name = $derived(entity?.name || "Unknown")
 
-    // 01-Builder: Derived Title State (Original Case)
+    // Derived Title State
     let title = $derived(rawTitle || name)
 
     let signatureColor = $derived(themeStore.getSignatureColor(entity))
 </script>
 
-<!-- DYNAMIC CLASS BASED ON MODE -->
-<div class="panel-container" style="--entity-color: {signatureColor}">
+<article
+    class="panel-container"
+    class:side-left={side === "left"}
+    class:side-right={side === "right"}
+    style="--entity-color: {signatureColor}"
+>
     <div
-        class="full-bleed-visual"
-        class:side-left={side === "left"}
-        class:side-right={side === "right"}
+        class="visual-anchor"
         role="button"
         tabindex="0"
         onclick={() => app.toggleProfile(true, entity)}
@@ -29,14 +37,14 @@
         <ProfilePicture {entity} />
 
         <!-- Corner Nameplate -->
-        <div class="nameplate">
+        <header class="nameplate">
             <h3 class="nameplate-text">{title}</h3>
-        </div>
+        </header>
 
-        <!-- Bottom Gradient Overlay -->
+        <!-- Dynamic Cinematic Overlay -->
         <div class="cinematic-overlay"></div>
     </div>
-</div>
+</article>
 
 <style lang="scss">
     .panel-container {
@@ -47,45 +55,33 @@
         overflow: hidden;
     }
 
-    /* === FULL MODE STYLES === */
-    .full-bleed-visual {
+    .visual-anchor {
         width: 100%;
         height: 100%;
         position: relative;
         cursor: pointer;
-        background: var(--bg-component, #000);
+        background: var(--surface-void);
 
-        /* Corner Nameplate - positioned at outer top edge */
+        /* Corner Nameplate: Neural Minimalism */
         .nameplate {
             position: absolute;
-            top: 1rem;
-            z-index: 10;
+            top: var(--spacing-m);
+            z-index: var(--z-index-ui, 10);
             display: inline-block;
-            padding: 0.5rem 1rem;
-            background: var(--app-chalk, #222326);
-            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
+            padding: var(--spacing-xs) var(--spacing-m);
+            background: var(--surface-panel);
+            box-shadow: var(--shadow-card);
+            border-radius: var(--radius-sm);
             width: fit-content;
             max-width: 70%;
             isolation: isolate;
         }
 
-        /* Side positioning */
-        &.side-left .nameplate {
-            left: 0.75rem;
-            right: auto;
-        }
-
-        &.side-right .nameplate {
-            right: 0.75rem;
-            left: auto;
-            text-align: right;
-        }
-
         .nameplate-text {
-            font-family: var(--font-heading);
+            font-family: var(--font-family-sans);
             color: var(--entity-color);
-            font-size: 0.85rem;
+            font-size: var(--font-size-s);
+            font-weight: 600;
             letter-spacing: 0.5px;
             margin: 0;
             text-wrap: balance;
@@ -105,10 +101,23 @@
             );
             mix-blend-mode: hard-light;
             opacity: 0.6;
+            transition: opacity 200ms var(--curve-snappy);
         }
 
         &:hover .cinematic-overlay {
             opacity: 0.8;
         }
+    }
+
+    /* Side positioning logic */
+    .side-left .nameplate {
+        left: var(--spacing-s);
+        right: auto;
+    }
+
+    .side-right .nameplate {
+        right: var(--spacing-s);
+        left: auto;
+        text-align: right;
     }
 </style>

@@ -100,7 +100,7 @@ We use Svelte 5 Runes for all reactive state. Stores are Singletons located in `
 
 3.  **Persistence**:
     - `runtime.save()` triggers a DB sync.
-    - `app.saveSettings()` syncs to `localStorage`.
+    - `app.saveSettings()` syncs to Dexie via `kv_settings`.
 
 ## 4. 🏗️ Feature Implementation Guide
 
