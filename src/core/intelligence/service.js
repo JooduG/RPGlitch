@@ -8,7 +8,6 @@ import { ERROR_MESSAGES } from "@core/engine/config.js"
 import { app } from "@state/app.svelte.js"
 
 const utilsError = console.error
-const log = console.log
 
 export const LlmService = {
     /**
@@ -96,7 +95,10 @@ export const LlmService = {
             app.endStream()
 
             if (options.silent) {
-                log("[LlmService] Silent Generation Error (Suppressed):", err)
+                console.warn(
+                    "[LlmService] Silent Generation Error (Suppressed):",
+                    err
+                )
                 throw err
             }
 

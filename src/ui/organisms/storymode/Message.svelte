@@ -50,16 +50,7 @@
     let thinkBlock = $derived(parsed.think)
     let sceneData = $derived(parsed.sceneData)
 
-    $effect(() => {
-        console.log("Message Debug:", {
-            sender,
-            isUser,
-            isAi,
-            isFractal,
-            entityName: entity?.name,
-            signatureColor,
-        })
-    })
+
 </script>
 
 <div

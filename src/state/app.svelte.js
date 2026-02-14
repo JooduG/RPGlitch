@@ -151,7 +151,6 @@ export class AppStore {
         ]
         */
         // Random selection for now
-        // TODO: Connect to AI generator
     }
 
     // Drawer Actions

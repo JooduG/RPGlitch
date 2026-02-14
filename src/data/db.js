@@ -1,6 +1,5 @@
 import Dexie from "dexie"
 
-const log = console.log
 const error = console.error
 
 const db = new Dexie("rpglitch")
@@ -23,14 +22,12 @@ db.on("blocked", () => {
 })
 
 db.on("versionchange", () => {
-    log("[Scholar] Database version change detected. Refreshing...")
     db.close()
     if (typeof window !== "undefined") window.location.reload()
 })
 
 // 3. Populate default data
 db.on("populate", async (trans) => {
-    log("[Scholar] Populating new database with default settings...")
     try {
         const settings = trans.table("settings")
         await settings.put({
@@ -45,7 +42,6 @@ db.on("populate", async (trans) => {
             storyPrologueInstructions: "",
             storyboardSelection: { fractal: null, user: null },
         })
-        log("[Scholar] Default settings created successfully.")
     } catch (err) {
         error("[Scholar] Failed to populate default settings:", err)
         throw err
@@ -58,7 +54,6 @@ db.on("populate", async (trans) => {
 export const init = async () => {
     try {
         await db.open()
-        log("[Scholar] Database opened successfully.")
         return db
     } catch (err) {
         error(
