@@ -27,13 +27,14 @@
 
 ## 🏗️ In Progress
 
-- No active tasks.
+- [/] **Config Sync**: Enhance `sync.js` for ESLint and Pillar verification.
+    - [Spec](file:///c:/Users/johng/Documents/GitHub/default/.agent/tasks/config-sync/spec.md) | [Plan](file:///c:/Users/johng/Documents/GitHub/default/.agent/tasks/config-sync/plan.md)
 
 ## ✅ Done
 
 - [x] `localStorage` → Dexie.js migration (7 files) [checkpoint: 16236583]
 - [x] Source Code Compliance Remediation [checkpoint: ca39ff1d]
-- [x] Unified Visuals Service & Duplication Audit [checkpoint: [pending]]
+- [x] Unified Visuals Service & Duplication Audit [checkpoint: 224358ee]
 - [x] Validate Svelte 5 syntax enforcement (StorymodePanel test).
 - [x] Create "Experience Bar" component as a Proof of Concept.
 - [x] 🚀 Deployed: 2026-02-12 21:14

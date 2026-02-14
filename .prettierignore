@@ -12,6 +12,10 @@ test-results/**
 .gitignore
 mcp.json
 **/archive/**
+/.env
+node_modules
+dist
+.gemini
 package-lock.json
 pnpm-lock.yaml
 yarn.lock

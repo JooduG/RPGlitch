@@ -45,7 +45,43 @@ generateIgnore(".htmlhintignore", master.linters?.htmlhint || [])
 // 5. .markdownlintignore
 generateIgnore(".markdownlintignore", master.linters?.markdownlint || [])
 
-// 6. .vscode/settings.json
+// 6. eslint.config.js (Injection)
+const eslintConfigPath = path.resolve(process.cwd(), "eslint.config.js")
+if (fs.existsSync(eslintConfigPath)) {
+    try {
+        let content = fs.readFileSync(eslintConfigPath, "utf-8")
+        const startMarker = "// @agent:ignore-start"
+        const endMarker = "// @agent:ignore-end"
+
+        const startIndex = content.indexOf(startMarker)
+        const endIndex = content.indexOf(endMarker)
+
+        if (startIndex !== -1 && endIndex !== -1) {
+            const eslintIgnores = [...common, ...(master.linters?.eslint || [])]
+            const formattedIgnores = eslintIgnores
+                .map((line) => `            "${line}",`)
+                .join("\n")
+
+            const newContent =
+                content.slice(0, startIndex + startMarker.length) +
+                "\n        ignores: [\n" +
+                formattedIgnores +
+                "\n        ],\n        " +
+                content.slice(endIndex)
+
+            fs.writeFileSync(eslintConfigPath, newContent)
+            console.log("✅ Synced eslint.config.js")
+        } else {
+            console.warn(
+                "⚠️  Markers not found in eslint.config.js - skipping injection."
+            )
+        }
+    } catch (error) {
+        console.error("❌ Failed to sync eslint.config.js:", error.message)
+    }
+}
+
+// 7. .vscode/settings.json
 const vscodeSettingsPath = path.resolve(process.cwd(), ".vscode/settings.json")
 if (fs.existsSync(vscodeSettingsPath) && master.vscode) {
     try {
@@ -70,17 +106,9 @@ if (fs.existsSync(vscodeSettingsPath) && master.vscode) {
     }
 }
 
-// ESLint Warning
-console.warn(
-    "\n⚠️  NOTICE: eslint.config.js (Flat Config) cannot be automatically synced."
-)
-console.warn(
-    'Please manually verify the "ignores" array in eslint.config.js against the "eslint" section in ignores.master.json.\n'
-)
-
 /**
  * Self-Healing: Bootstrap Verification
- * Ensures the "Big 5" Rule Files exist.
+ * Ensures the "Big 5" Rule Files and Project Pillars exist.
  */
 function verifyPillars() {
     const REPO_ROOT = process.cwd()
@@ -90,6 +118,8 @@ function verifyPillars() {
         ".agent/rules/stack.md",
         ".agent/rules/security.md",
         ".agent/rules/directives.md",
+        "package.json",
+        "vite.config.js",
     ]
     let missing = []
 

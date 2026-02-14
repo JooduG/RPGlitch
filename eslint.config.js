@@ -11,14 +11,28 @@ const gitignorePath = fileURLToPath(new URL("./.gitignore", import.meta.url))
 /** @type {import('eslint').Linter.Config[]} */ export default [
     includeIgnoreFile(gitignorePath),
     {
+        // @agent:ignore-start
         ignores: [
-            ".agent/**",
-            "dist/**",
-            "coverage/**",
-            "*.tmp",
-            "*.log",
+            "**/*.template",
+            "**/templates/**",
+            "**/*.scss.template",
             "*.bak",
+            "*.log",
+            "*.tmp",
+            "**/.git/**",
+            "**/node_modules/**",
+            "/.DS_Store",
+            "/dist",
+            "test-results/**",
+            ".gitignore",
+            "mcp.json",
+            "**/archive/**",
+            "/.env",
+            "node_modules",
+            "dist",
+            ".gemini",
         ],
+        // @agent:ignore-end
     },
     js.configs.recommended,
     ...svelte.configs.recommended,

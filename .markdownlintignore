@@ -12,3 +12,7 @@ test-results/**
 .gitignore
 mcp.json
 **/archive/**
+/.env
+node_modules
+dist
+.gemini

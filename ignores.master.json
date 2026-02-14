@@ -13,7 +13,11 @@
         "test-results/**",
         ".gitignore",
         "mcp.json",
-        "**/archive/**"
+        "**/archive/**",
+        "/.env",
+        "node_modules",
+        "dist",
+        ".gemini"
     ],
     "gitignore": [".env"],
     "linters": {
