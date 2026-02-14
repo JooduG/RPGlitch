@@ -23,7 +23,6 @@
 
 - [x] Audit all Skill `Anti-Patterns` (Structural Integrity PASS).
 - [x] Implement `visuals` skill (Perchance Image Integration).
-- [ ] Refactor `ProsePanel` to Svelte 5 + `polish` standards.
 
 ## 🏗️ In Progress
 

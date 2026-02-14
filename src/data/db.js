@@ -2,7 +2,22 @@ import Dexie from "dexie"
 
 const error = console.error
 
-const db = new Dexie("rpglitch")
+/**
+ * @typedef {import('dexie').Table} Table
+ */
+
+/**
+ * @type {import('dexie').Dexie & {
+ *  entities: Table;
+ *  stories: Table;
+ *  messages: Table;
+ *  settings: Table;
+ *  kv_settings: Table;
+ *  sessions: Table;
+ *  audio_prefs: Table;
+ * }}
+ */
+const db = /** @type {any} */ (new Dexie("rpglitch"))
 
 // 2. Define the schema (Final Version Only)
 db.version(8).stores({

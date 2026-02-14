@@ -1,9 +1,6 @@
 <script>
-    import { CONFIG } from "@core/engine/config.js"
     import { db } from "@data/db.js"
     import { app } from "@state/app.svelte.js"
-    import { runtime } from "@state/runtime.svelte.js"
-    import { session } from "@state/session.svelte.js"
     import Button from "@ui/atoms/Button.svelte"
     import Toggle from "@ui/atoms/Toggle.svelte"
     import Modal from "@ui/molecules/dialogs/Modal.svelte"
@@ -23,42 +20,6 @@
             await db.delete()
             window.location.reload()
         }
-    }
-
-    // 🧪 MOCK DATA FOR VERIFICATION
-    function mockPrologue() {
-        // Inject Mock Runtime State so Colors Work
-        runtime._debugInject({
-            fractal: {
-                id: "mock-fractal",
-                name: "Fractal Entity",
-                visuals: { signatureColor: CONFIG.PALETTE.purple },
-            },
-            ai: app.selectedAi || {
-                id: "mock-ai",
-                name: "AI Companion",
-                visuals: { signatureColor: CONFIG.PALETTE.emerald },
-            },
-            user: app.selectedUser || {
-                id: "mock-user",
-                name: "Traveler",
-                visuals: { signatureColor: CONFIG.PALETTE.blue },
-            },
-        })
-
-        // 1. Fractal Message
-        session.addAiMessage(
-            "The reality fractures... infinite mirrors reflecting your choices.",
-            "Fractal Entity",
-            "fractal"
-        )
-        // 2. AI Message
-        setTimeout(() => {
-            session.addAiMessage(
-                "I sense a disturbance. Who are you?",
-                "AI Companion"
-            )
-        }, 500)
     }
 
     /* --- STATE HELPERS --- */

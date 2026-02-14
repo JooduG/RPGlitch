@@ -43,7 +43,12 @@ export const Session = {
     /**
      * Create a new story from lobby selection
      */
-    createFromSelection: async ({ aiId, userId, fractalId, storyTitle }) => {
+    createFromSelection: async function ({
+        aiId,
+        userId,
+        fractalId,
+        storyTitle,
+    }) {
         const storyData = {
             title: storyTitle,
             aiId,
