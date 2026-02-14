@@ -118,12 +118,6 @@
                     size="sm"
                     onclick={() => handleAction("EndStory")}
                 />
-                <Button
-                    label="MOCK PROLOGUE"
-                    variant="secondary"
-                    size="sm"
-                    onclick={mockPrologue}
-                />
             </nav>
         {/if}
 

@@ -2,10 +2,10 @@ import { events, EVENTS, state } from "@core/engine/bus.js"
 import { CONFIG, ROLES } from "@core/engine/config.js"
 import { ContextBuilder } from "@core/intelligence/context.js"
 import { LlmService } from "@core/intelligence/service.js"
+import { VisualsService } from "@core/intelligence/visuals.js"
 import { entities } from "@data/repository.js"
 import { soundEffects } from "./audio/effects.js"
 import { textToSpeech } from "./audio/speech.svelte.js"
-import { TextToImage } from "./visuals.js"
 
 const error = console.error
 const { PHYSICS } = CONFIG
@@ -98,13 +98,10 @@ export const Sensory = {
                 .replace(/<image_prompt[^>]*>|<\/image_prompt>/gi, "")
                 .trim()
 
-            const resolution = TextToImage.getResolutionForMode(
-                options.aspect || vTarget
-            )
-
-            const imageUrl = await TextToImage.generate(cleanRefinedPrompt, {
-                resolution,
+            const imageUrl = await VisualsService.generate(cleanRefinedPrompt, {
+                mode: options.aspect || vTarget,
                 guidanceScale: options.guidanceScale,
+                rpgStyle: false, // Sensory already refined it
             })
 
             return {
@@ -142,8 +139,9 @@ export const Sensory = {
                 system,
                 messages: [],
             })
-            const imageUrl = await TextToImage.generate(refinedPrompt, {
-                resolution: "512x768",
+            const imageUrl = await VisualsService.generate(refinedPrompt, {
+                mode: "character",
+                rpgStyle: false,
             })
 
             return imageUrl

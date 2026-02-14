@@ -1,7 +1,7 @@
 <script>
     import { PALETTE } from "@core/engine/config.js"
     import { LlmService } from "@core/intelligence/service.js"
-    import { TextToImage } from "@media/visuals.js"
+    import { VisualsService } from "@core/intelligence/visuals.js"
     import Button from "@ui/atoms/Button.svelte"
     import Tooltip from "@ui/atoms/Tooltip.svelte"
 
@@ -141,7 +141,7 @@
             } else {
                 // --- EXTRACT LOGIC (Base Formula) ---
                 // Only reachable if visual-prompt is selected but empty (no enhance mode)
-                char.visuals.prompt = TextToImage.composeBasePrompt(char)
+                char.visuals.prompt = VisualsService.composeBasePrompt(char)
             }
         } catch (err) {
             console.error("Creative action failed:", err)
@@ -160,8 +160,8 @@
         if (hasPromptText) {
             // --- GENERATE LOGIC ---
             try {
-                const url = await TextToImage.generate(promptValue, {
-                    removeBackground: char.visuals.noBackground,
+                const url = await VisualsService.generate(promptValue, {
+                    noBackground: char.visuals.noBackground,
                 })
                 if (url) char.visuals.profilePictureUrl = url
             } catch (err) {
@@ -186,7 +186,7 @@
         const file = e.target.files[0]
         if (!file) return
         try {
-            const url = await TextToImage.upload(file)
+            const url = await VisualsService.upload(file)
             if (url) {
                 char.visuals = char.visuals || {}
                 char.visuals.profilePictureUrl = url

@@ -20,6 +20,14 @@ declare global {
             prompt: string,
             options?: Record<string, unknown>
         ) => Promise<any>
+        /** Alias for textToImage */
+        t2i: (options: {
+            prompt: string
+            negativePrompt?: string
+            seed?: number
+            width?: number
+            height?: number
+        }) => Promise<string>
         /** Perchance file upload */
         upload: (
             data: unknown,

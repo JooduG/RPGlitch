@@ -22,7 +22,7 @@
 ## 📋 Backlog (To Do)
 
 - [x] Audit all Skill `Anti-Patterns` (Structural Integrity PASS).
-- [ ] Implement `visuals` skill (Perchance Image Integration).
+- [x] Implement `visuals` skill (Perchance Image Integration).
 - [ ] Refactor `ProsePanel` to Svelte 5 + `polish` standards.
 
 ## 🏗️ In Progress
@@ -33,6 +33,7 @@
 
 - [x] `localStorage` → Dexie.js migration (7 files) [checkpoint: 16236583]
 - [x] Source Code Compliance Remediation [checkpoint: ca39ff1d]
+- [x] Unified Visuals Service & Duplication Audit [checkpoint: [pending]]
 - [x] Validate Svelte 5 syntax enforcement (StorymodePanel test).
 - [x] Create "Experience Bar" component as a Proof of Concept.
 - [x] 🚀 Deployed: 2026-02-12 21:14
