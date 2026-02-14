@@ -1,5 +1,6 @@
 ---
 name: quality-assurance
+version: 1.0.0
 description: >
     Technical manual for testing, security, and compliance.
     Triggers:
@@ -54,3 +55,12 @@ If **CRITICAL ERRORS** are found during an audit:
 1. List violations with line numbers.
 2. Immediately refactor to the compliant pattern.
 3. Build fails until resolved.
+
+## 5. Anti-Patterns
+
+| Pattern                                   | Mitigation                                                                      |
+| :---------------------------------------- | :------------------------------------------------------------------------------ |
+| **JSDOM for Svelte 5 tests**              | **Deprecated**. Use `vitest-browser-svelte` for true Rune reactivity.           |
+| **Skipping `flushSync()` in state tests** | **Forbidden**. External `.svelte.ts` state requires `flushSync()` to propagate. |
+| **Marking `[x]` without PASS**            | **Forbidden**. Scholar Gate: no task is done without verified test output.      |
+| **Inline styles in test fixtures**        | **Avoid**. Test fixtures must follow the same SCSS/token rules as production.   |

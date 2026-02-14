@@ -1,5 +1,6 @@
 ---
 name: reflection
+version: 1.0.0
 description: Executive Function for "Slow Thinking" mode. Enforces planning, clarity, and rigorous logic before complex tasks.
 Triggers:
     - "Resolve Logic Conflict"
@@ -81,3 +82,12 @@ After execution, verify:
 - Did I follow the Law Check?
 - Did I respect Hardware Constraints?
 - Did the solution meet the Strategic Intent?
+
+## Anti-Patterns
+
+| Pattern                                     | Mitigation                                                              |
+| :------------------------------------------ | :---------------------------------------------------------------------- |
+| **Skipping Clarity Gate for complex tasks** | **Forbidden**. All C2+ tasks require ambiguity assessment first.        |
+| **Guessing at A3+ ambiguity**               | **Forbidden**. Propose or present options; never assume intent.         |
+| **Executing without a plan artifact**       | **Forbidden** for >3 step tasks. Create `implementation_plan.md` first. |
+| **Ignoring Hardware Constraints**           | **Avoid**. Always factor in Ryzen 5 / 16GB RAM limitations.             |

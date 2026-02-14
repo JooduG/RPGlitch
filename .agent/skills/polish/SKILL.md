@@ -1,5 +1,6 @@
 ---
 name: polish
+version: 1.0.0
 description: Workflow for refactoring raw Skeleton components into production-grade UI. Replaces utility classes with semantic SCSS and Design Tokens. Context: [Polish]
 ---
 
@@ -75,3 +76,12 @@ Ensure the component follows this structure:
     }
 </style>
 ```
+
+## Anti-Patterns
+
+| Pattern                                   | Mitigation                                                                 |
+| :---------------------------------------- | :------------------------------------------------------------------------- |
+| **Modifying `<script>` during polish**    | **Forbidden**. Script logic is immutable during the polish phase.          |
+| **Utility classes (Tailwind, Bootstrap)** | **Forbidden**. Replace with semantic class names and SCSS tokens.          |
+| **Hardcoded hex values**                  | **Forbidden**. Use `var(--token)` exclusively.                             |
+| **Borders on containers**                 | **Avoid**. Use `box-shadow` for depth; borders only for "selected" states. |

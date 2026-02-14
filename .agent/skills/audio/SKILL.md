@@ -1,5 +1,6 @@
 ---
 name: audio
+version: 1.0.0
 description: >
     Manages the auditory experience. SFX, Ambient, and TTS (Text-to-Speech).
     Triggers:
@@ -39,3 +40,11 @@ description: >
 
 - **"Sound not playing"**: Check if the sound ID exists in `effects.js` and if user interaction has unlocked the AudioContext.
 - **"TTS distortion"**: Verify rate/pitch bounds (0.5 to 2.0) in `VoiceWing.svelte`.
+
+## 5. Anti-Patterns
+
+| Pattern                      | Mitigation                                                                                        |
+| :--------------------------- | :------------------------------------------------------------------------------------------------ |
+| **Autoplay without gesture** | **Forbidden**. Browsers block autoplay; always require user interaction to unlock `AudioContext`. |
+| **Orphaned AudioContext**    | **Forbidden**. Always `.close()` or `.suspend()` on component destroy via `$effect` cleanup.      |
+| **Hardcoded volume/rate**    | **Avoid**. Use `$state`-driven values or design tokens for consistency.                           |

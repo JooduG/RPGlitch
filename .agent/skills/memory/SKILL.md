@@ -1,5 +1,6 @@
 ---
 name: memory
+version: 1.0.0
 description: >
     The Core Memory Interface. Governance of Long-Term Semantic Memory (Pinecone) 
     and architectural pattern persistence.
@@ -37,3 +38,11 @@ description: >
 - **Tool:** `memory` -> `write_knowledge_base`
 - **Trigger:** When a major architectural decision is made or a new pattern is established.
 - **Action:** Save the relevant files or summary to `knowledge-base.meta` or `knowledge-base.src`.
+
+## 3. Anti-Patterns
+
+| Pattern                       | Mitigation                                                                                       |
+| :---------------------------- | :----------------------------------------------------------------------------------------------- |
+| **Using memory to read code** | **Forbidden**. Use `research` skill for file reading. Memory is for concepts and decisions only. |
+| **Inventing memories**        | **Forbidden**. If no match is found, state so and fall back to `research`.                       |
+| **Ingesting raw code files**  | **Avoid**. Summarize decisions and patterns before ingesting.                                    |

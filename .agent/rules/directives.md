@@ -42,6 +42,12 @@ All development follows this atomic progression:
 
 ## 3. The Clarity Gate (A-C-Q)
 
+Every task follows this linear processing path:
+
+`Input -> Ambiguity Check (A) -> Complexity Selection (C) -> Execution -> Quality Gate (Q) -> Output`
+
+### Phase 1: Ambiguity (A1-A5)
+
 **BEFORE** executing any task, assess Ambiguity (A-Score):
 
 | Score  | Meaning   | Action              |
@@ -51,6 +57,45 @@ All development follows this atomic progression:
 | **A3** | Ambiguous | **Propose & Wait**  |
 | **A4** | Critical  | **Present Options** |
 | **A5** | Hazard    | **REFUSE**          |
+
+> **Note**: A1 (Clear) ≠ C1 (Simple). "Fix typo" = A1/C1. "Rewrite the database engine" = A1/C6.
+
+### Phase 2: The Cognitive Engine (C1-C6)
+
+Select the right "Gear" for task difficulty. Your C-Level determines _which tools_ to engage.
+
+| Level  | Mode              | Trigger                 | Protocol                 | Required Tool             |
+| :----- | :---------------- | :---------------------- | :----------------------- | :------------------------ |
+| **C1** | **Reflex**        | Typos, CSS, one-liners. | Direct Execution.        | None (Base Agent)         |
+| **C2** | **Planning**      | Features, Refactors.    | **Sequential Thinking**. | `sequentialthinking`      |
+| **C3** | **Metacognition** | Stuck/Looping.          | **Self-Audit**.          | `metacognitiveMonitoring` |
+| **C4** | **Reframing**     | "Impossible" bugs.      | **First Principles**.    | `research` skill          |
+| **C5** | **Decision**      | Architecture conflicts. | **Decision Framework**.  | `decisionFramework`       |
+| **C6** | **Science**       | Unknown unknowns.       | **Scientific Method**.   | `scientificMethod`        |
+
+### Phase 3: The Quality Gate (Output Filter)
+
+- **Context Mandate**: Answer ONLY from verified context.
+- **Scholar Gate**: No track is `[x]` without a `PASS` review.
+- **Circuit Breaker**: 3 consecutive failures = Trigger C3 (Self-Audit).
+
+### The Integrated Pipeline (Recursion)
+
+1. **Knowledge Check** — _Do I need more knowledge?_
+    - **Yes**: Trigger C4/C6. Loop back.
+    - **No**: Proceed.
+2. **Clarity Gate** — Apply A-Scale.
+    - A1-A2: Proceed. A3: Propose 1 plan. A4: Propose 2+ options. A5: STOP.
+3. **Cognitive Engine** — Apply C-Scale.
+    - C1: Direct. C2+: Sequential Thinking → Plan → Execute.
+4. **Execution & Recovery**
+    - Success: Quality Gate → Output.
+    - Bug? → Trigger C4. Looping? → Trigger C3.
+
+### The Penance Protocol (Enforcement)
+
+1. **Tier 1 (Single Breach)**: Mandatory self-correction in the next response.
+2. **Tier 2 (Repeat Breach)**: Penance Mode — next 3 turns begin with `[!CAUTION] I have violated the Mandate.`
 
 ## 4. Skill Discovery (The Matrix)
 
@@ -84,7 +129,7 @@ Before any operation, all agents **MUST** validate their environment:
 Before starting any task, you **MUST** read the following to ground yourself:
 
 1. `.agent/config.yaml` (Project-wide settings)
-2. `.agent/product.md` (What are we building?)
+2. `.agent/knowledge/canon/product.md` (What are we building?)
 3. `.agent/tasks/tracks.md` (What are we doing right now?)
 
 ## 6. Protocol Triggers (Slash Commands)

@@ -1,5 +1,6 @@
 ---
 name: motion
+version: 1.0.0
 description: >
     Manages kinetic interactions, physics-based UI, and complex transitions.
     Triggers:
@@ -45,3 +46,11 @@ description: >
 
 - **"Animation stuttering"**: Ensure heavy computations are offloaded from the main thread or use `requestAnimationFrame`.
 - **"Portal breaking context"**: Verify event bubbling through portals in Svelte.
+
+## 5. Anti-Patterns
+
+| Pattern                                                | Mitigation                                                        |
+| :----------------------------------------------------- | :---------------------------------------------------------------- |
+| **`linear` or `ease-in-out` curves**                   | **Forbidden**. Use `var(--curve-snappy)` for all UI transitions.  |
+| **Inline animation logic in components**               | **Avoid**. Encapsulate in Svelte Actions (`use:action`).          |
+| **Synchronous heavy computations in animation frames** | **Forbidden**. Offload to `requestAnimationFrame` or Web Workers. |

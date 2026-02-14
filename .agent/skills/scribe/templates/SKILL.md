@@ -22,3 +22,9 @@ Effective description of the action and its output.
 ## 3. Tools
 
 - [tool.js](./scripts/tool.js): Tool description.
+
+## 4. Anti-Patterns
+
+| Pattern | Mitigation |
+| :------ | :--------- |
+| **[Bad Practice]** | **Forbidden/Avoid**. [Why and what to do instead]. |

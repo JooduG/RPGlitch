@@ -1,5 +1,6 @@
 ---
 name: project
+version: 1.0.0
 description: >
     Manages project state, roadmaps, and task tracking. Enforces the 'Task Flux' 
     protocol (Plan -> Track -> Code).
@@ -57,3 +58,11 @@ description: >
 
 - [.agent/tasks/tracks.md](../../tasks/tracks.md): The project's state registry.
 - [templates/TRACK_ENTRY.md](./templates/TRACK_ENTRY.md): Standard for new work definitions.
+
+## 4. Anti-Patterns
+
+| Pattern                           | Mitigation                                                               |
+| :-------------------------------- | :----------------------------------------------------------------------- |
+| **Coding without a tracked plan** | **Forbidden**. All work must exist in `tracks.md` before implementation. |
+| **Hallucinated project state**    | **Forbidden**. Only reference what is written in `tracks.md`.            |
+| **Tracking unbuilt features**     | **Avoid**. YAGNI — if it's not being built now, it's not on the roadmap. |

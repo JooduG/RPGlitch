@@ -1,5 +1,6 @@
 ---
 name: research
+version: 1.0.0
 description: >
     The Deep Search Interface. Orchestrates active investigation via Local Files, 
     Specialized MCPs, and Web Search.
@@ -37,15 +38,28 @@ When gathering info, follow this strict order to ensure quality:
 - **Priority:** HIGHEST. Always check local files first.
 - **Usage:** Before answering a code question, always fetch the relevant files to ensure your answer is grounded in the actual codebase.
 
-### 🧠 Specialized Intelligence (MCPs)
+### 🧠 The Research Router (MCP Dispatch)
 
-- **`svelte`**: Official documentation for Svelte/SvelteKit. Use for _syntax_ and _framework_ questions.
-- **`context7`**: Component & Library search. Use when looking for _packages_ or _design patterns_.
-- **`deepwiki`**: Deep conceptual research. Use for _philosophy_, _complex architecture_, or _history_.
-- **`firecrawl`**: Documentation scraper. Use to read a specific URL.
+When the task requires external knowledge, route to the correct MCP tool chain:
+
+| Query Type                | Tool Chain                                                             | Rationale                                                |
+| :------------------------ | :--------------------------------------------------------------------- | :------------------------------------------------------- |
+| **Svelte 5 / SvelteKit**  | `mcp_svelte_list-sections` → `mcp_svelte_get-documentation`            | **Primary Authority.** Ensures Svelte 5 Rune compliance. |
+| **GitHub Repo Specifics** | `mcp_deepwiki_read_wiki_structure` → `mcp_deepwiki_read_wiki_contents` | Best for Wikis and READMEs of specific repositories.     |
+| **General Libraries**     | `mcp_context7_resolve-library-id` → `mcp_context7_query-docs`          | Professional docs for libraries (Dexie, Prisma, Zod).    |
+| **Web Pages / URLs**      | `mcp_firecrawl-mcp_firecrawl_scrape`                                   | Read specific URLs or documentation pages.               |
+| **General Search**        | `mcp_firecrawl-mcp_firecrawl_search`                                   | Broad web search as last resort.                         |
 
 ### 🌐 External Discovery (Web)
 
 - **Tool:** `Google Search`
 - **Priority:** FALLBACK.
 - **Usage:** Use when specialized tools return nothing or for very recent events/errors.
+
+## 3. Anti-Patterns
+
+| Pattern                            | Mitigation                                                               |
+| :--------------------------------- | :----------------------------------------------------------------------- |
+| **Web search before local lookup** | **Forbidden**. Always follow Tiered Sourcing: Local → Specialized → Web. |
+| **Dumping raw JSON/HTML**          | **Forbidden**. Synthesize and cite; never paste unprocessed tool output. |
+| **Guessing API signatures**        | **Forbidden**. Verify against live docs via the Research Router.         |

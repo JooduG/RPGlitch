@@ -1,5 +1,6 @@
 ---
 name: scribe
+version: 1.0.0
 description: >
     The System Librarian. Scribe enforces the Meridian Workflow, scaffolds lean capabilities, and maintains the boundary between Canon (Truth) and Concepts (Ideas).
     Triggers:
@@ -41,6 +42,11 @@ description: >
 - **Critical**: Indentation is 4 spaces (MD007).
 - **Path Headers**: Code blocks **MUST** be preceded by `File: <absolute_path>` (or `file://` URI).
 - **Skill Matrix**: All Implementation Plans **MUST** include the `Skill Matrix` table defining responsibilities.
+
+### 🧱 Structural Mandate
+
+- **Anti-Patterns**: Every skill **MUST** include an `Anti-Patterns` section with a `| Pattern | Mitigation |` table. See `templates/SKILL.md` for the scaffold.
+- **Version Field**: Every skill frontmatter **MUST** include `version: X.Y.Z`. Increment on substantive changes.
 
 ### 🔗 Research Integration
 
@@ -98,3 +104,12 @@ Synthesizes complex logic into high-contrast Mermaid.js diagrams.
 ## 5. Tools
 
 - [scaffold-skill.js](./scripts/scaffold-skill.js): Unified Node.js architect tool.
+
+## 6. Anti-Patterns
+
+| Pattern                                         | Mitigation                                                                                  |
+| :---------------------------------------------- | :------------------------------------------------------------------------------------------ |
+| **Persona-based naming**                        | **Forbidden**. Use domain names ("Svelte", "Data"), not job titles ("Architect", "Wizard"). |
+| **Exceeding 500 lines per skill**               | **Forbidden**. Split into sub-skills with single responsibility.                            |
+| **Experimental content in canon**               | **Forbidden**. Use `templates/CONCEPT.md` with `[!WARNING]` header.                         |
+| **Skipping Research before writing governance** | **Forbidden**. Always verify against live docs via `research` skill.                        |

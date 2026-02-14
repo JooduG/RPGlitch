@@ -1,5 +1,6 @@
 ---
 name: scss
+version: 1.0.0
 description: Single Source of Truth for SCSS architecture, Svelte 5 styling rules, and design tokens. Enforces Neural Minimalism and strict variable usage.
 ---
 
@@ -39,3 +40,13 @@ To audit the styles for compliance with the design system, run:
 ```bash
 npm run lint:css
 ```
+
+## Anti-Patterns
+
+| Pattern                           | Mitigation                                                 |
+| :-------------------------------- | :--------------------------------------------------------- |
+| **`@import`**                     | **Forbidden**. Use `@use` and `@forward` exclusively.      |
+| **Hardcoded hex/px**              | **Forbidden**. Use `var(--token)` for all values.          |
+| **Global BEM in `.svelte` files** | **Forbidden**. Styles must be component-scoped.            |
+| **Margins for spacing**           | **Avoid**. Use `flex`/`grid` `gap` for constraint layouts. |
+| **Borders for elevation**         | **Forbidden**. Use `box-shadow` for depth hierarchy.       |

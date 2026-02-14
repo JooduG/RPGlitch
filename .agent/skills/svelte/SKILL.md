@@ -1,5 +1,6 @@
 ---
 name: svelte
+version: 1.0.0
 description: The authoritative manual for Svelte 5 development. Enforces Rune syntax ($state, $props), SCSS scoping, and strict separation of concerns.
 ---
 
@@ -64,3 +65,14 @@ To scaffold a new component:
 npm run scaffold:component <ComponentName> [type]
 # Example: npm run scaffold:component MyButton atoms
 ```
+
+## Anti-Patterns
+
+| Pattern                                       | Mitigation                                                  |
+| :-------------------------------------------- | :---------------------------------------------------------- |
+| **`export let`**                              | **Forbidden**. Use `let { prop } = $props()`.               |
+| **`$:` reactive statements**                  | **Forbidden**. Use `$derived()` or `$effect()`.             |
+| **`createEventDispatcher`**                   | **Forbidden**. Use callback props (`onclick`).              |
+| **`<slot />`**                                | **Forbidden**. Use `{#snippet}` and `{@render children()}`. |
+| **`on:click` directive**                      | **Forbidden**. Use `onclick` attribute (Svelte 5).          |
+| **Logic in `<style>` / Styles in `<script>`** | **Forbidden**. Church & State separation.                   |

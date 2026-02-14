@@ -1,5 +1,6 @@
 ---
 name: security
+version: 1.0.0
 description: The Shield. Enforces Zero-Trust security, strict hygiene (no console.log), and rune safety.
 ---
 

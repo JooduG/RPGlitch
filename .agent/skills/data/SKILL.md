@@ -1,5 +1,6 @@
 ---
 name: data
+version: 1.0.0
 description: >
     Manages persistence and hydration. Owns the 'Bridge' between Svelte Runes and IndexedDB.
     Triggers:
@@ -60,3 +61,12 @@ The following schema defines the core tables in `src/data/db.js`.
 1.  **Rune Integration**: Bridge Dexie `liveQuery` to Runes using `fromStore(liveQuery(...))`. This is the single source of truth.
 2.  **Explicit Serialization**: Do not rely on implicit structured cloning for complex objects; use the `bridge.js` to handle transformations.
 3.  **Error Handling**: Persistence failures should be caught and logged, but should not crash the main simulation loop.
+
+## Anti-Patterns
+
+| Pattern                               | Mitigation                                                                |
+| :------------------------------------ | :------------------------------------------------------------------------ |
+| **Direct `db.put()` in template**     | **Forbidden**. All persistence goes through `bridge.js` methods.          |
+| **`localStorage` / `sessionStorage`** | **Forbidden**. Perchance intercepts these; use Dexie.js (IndexedDB).      |
+| **Complex migrations in Alpha**       | **Avoid**. Wipe/reset the DB instead of writing migration scripts.        |
+| **Implicit cloning**                  | **Avoid**. Use explicit serialization in `bridge.js` for complex objects. |
