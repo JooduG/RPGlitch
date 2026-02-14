@@ -27,10 +27,11 @@
 
 ## 🏗️ In Progress
 
-- [/] **Config Sync**: Enhance `sync.js` for ESLint and Pillar verification.
-    - [Spec](file:///c:/Users/johng/Documents/GitHub/default/.agent/tasks/config-sync/spec.md) | [Plan](file:///c:/Users/johng/Documents/GitHub/default/.agent/tasks/config-sync/plan.md)
+- No active tasks.
 
 ## ✅ Done
+
+- [x] **Config Sync**: Enhanced `sync.js` and automated ESLint injection. [checkpoint: 5c619dda]
 
 - [x] `localStorage` → Dexie.js migration (7 files) [checkpoint: 16236583]
 - [x] Source Code Compliance Remediation [checkpoint: ca39ff1d]
