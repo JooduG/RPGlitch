@@ -21,6 +21,8 @@
 
 ## 📋 Backlog (To Do)
 
+- [x] **Knowledge Reconstruction**: Restructuring documentation for clarity and "Red Thread" alignment. [.agent/tasks/knowledge-reconstruction/plan.md]
+- [x] **Concept Reconstruction**: Deconstructing and rebuilding speculative materials into the Meridian standard. [.agent/tasks/concept-reconstruction/plan.md]
 - [x] Audit all Skill `Anti-Patterns` (Structural Integrity PASS).
 - [x] Implement `visuals` skill (Perchance Image Integration).
 

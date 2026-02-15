@@ -14,7 +14,7 @@ description: The "Tollgate" Audit. Validates work against the Definition of Done
 
 ## 2. Brain (Context Injection)
 
-- **Definition of Done**: `.agent/rules/standards.md`
+- **Definition of Done**: `.agent/rules/05-standards.md`
 - **Spec**: `.agent/tasks/<slug>/spec.md`
 - **Tests**: `tests/**`
 
@@ -29,7 +29,7 @@ description: The "Tollgate" Audit. Validates work against the Definition of Done
 
 #### A. Product Matrix (The Soul)
 
-- [ ] **Alignment**: Does this match `product.md` and `spec.md`?
+- [ ] **Alignment**: Does this match `01-vision.md` and `spec.md`?
 - [ ] **Agency**: Did we respect User constraints?
 - [ ] **Aesthetic**: Does it comply with Design System tokens?
 

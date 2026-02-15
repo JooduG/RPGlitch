@@ -33,29 +33,29 @@ workflows:
 
 # 📚 Knowledge (Reference Library)
 knowledge:
-    # 🏛️ Canon: The Laws of Physics & Code
-    canon:
+    # 🗺️ Atlas: The Verified Geography (Laws, Architecture, Vision)
+    atlas:
         # Rules
-        rule-directives: .agent/rules/directives.md
-        rule-manifesto: .agent/rules/manifesto.md
-        rule-standards: .agent/rules/standards.md
-        rule-stack: .agent/rules/stack.md
-        rule-security: .agent/rules/security.md
-        rule-gemini: .agent/rules/gemini.md
+        rule-governance: .agent/rules/01-governance.md
+        rule-workflow: .agent/rules/02-workflow.md
+        rule-physics: .agent/rules/03-physics.md
+        rule-security: .agent/rules/04-security.md
+        rule-standards: .agent/rules/05-standards.md
         # Knowledge
-        knowledge-product: .agent/knowledge/canon/product.md
-        knowledge-mechanics: .agent/knowledge/canon/mechanics.md
-        knowledge-platform: .agent/knowledge/canon/platform-perchance.md
-        knowledge-architecture: .agent/knowledge/canon/agent-architecture.md
-        knowledge-glossary: .agent/knowledge/canon/glossary.md
-        knowledge-roadmap: .agent/knowledge/canon/roadmap.md
+        atlas-vision: .agent/knowledge/atlas/01-vision.md
+        atlas-roadmap: .agent/knowledge/atlas/02-roadmap.md
+        atlas-architecture: .agent/knowledge/atlas/03-architecture.md
+        atlas-mechanics: .agent/knowledge/atlas/04-mechanics.md
+        atlas-environment: .agent/knowledge/atlas/05-environment.md
+        atlas-lexicon: .agent/knowledge/atlas/06-lexicon.md
 
-    # 🧪 Laboratory: Unproven Theories & Ideas
+    # 🔬 Lab: Experimental Theories & Speculative Ideas
     lab:
-        lab-ideas: .agent/knowledge/concepts/ideas.md
-        lab-mechanics: .agent/knowledge/concepts/library/mechanics.md
-        lab-psychology: .agent/knowledge/concepts/library/psychology.md
-        lab-social: .agent/knowledge/concepts/library/social.md
+        lab-ideation: .agent/knowledge/lab/01-ideation.md
+        lab-interaction: .agent/knowledge/lab/02-interaction.md
+        lab-mechanics: .agent/knowledge/lab/03-mechanics.md
+        lab-logic: .agent/knowledge/lab/04-logic.md
+        lab-strategy: .agent/knowledge/lab/05-strategy.md
 
 # 📝 Workspace (Active Memory)
 workspace:

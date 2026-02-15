@@ -16,9 +16,9 @@ description: Initializes the environment by validating context, security, and sy
 
 The Agent MUST read and validate the following "Trinity Files" to establish the Red Thread:
 
-1. **Product Canon**: `.agent/knowledge/canon/product.md` (The "Why" & "What").
-2. **Technology Stack**: `.agent/rules/stack.md` (The "How").
-3. **Prime Directives**: `.agent/rules/directives.md` (The "Law").
+1. **Product Vision**: `.agent/knowledge/atlas/01-vision.md` (The "Why" & "What").
+2. **Technology Stack**: `.agent/rules/03-physics.md` (The "How").
+3. **Prime Directives**: `.agent/rules/02-workflow.md` (The "Law").
 
 ## 3. Procedures
 
@@ -32,7 +32,7 @@ The Agent MUST read and validate the following "Trinity Files" to establish the 
 
 1. **Sanction Check**: Search conversation history for `[PENANCE]` or `[RESTRICTION]`.
 2. **Secret Scan**: Briefly check environment for `.env` or key exposure.
-3. **Environment**: Verify core engine constraints from `stack.md`.
+3. **Environment**: Verify core engine constraints from `03-physics.md`.
 
 ### Phase 3: Status Report
 

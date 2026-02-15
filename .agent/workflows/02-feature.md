@@ -14,8 +14,8 @@ description: Scoping and planning a new feature. Defines WHAT to build, not HOW.
 
 ## 2. Brain (Context Injection)
 
-- **Product**: `.agent/knowledge/canon/product.md`
-- **Stack**: `.agent/rules/stack.md`
+- **Vision**: `.agent/knowledge/atlas/01-vision.md`
+- **Physics**: `.agent/rules/03-physics.md`
 - **Tracks**: `.agent/tasks/tracks.md`
 
 ## 3. Procedures
@@ -25,13 +25,13 @@ description: Scoping and planning a new feature. Defines WHAT to build, not HOW.
 1. **Analyze Intent**: Assess Ambiguity (A1-A5).
     - If **A3-A5** (Ambiguous/Hazard): **STOP**. Present questions.
     - If **A1-A2**: Proceed.
-2. **Check Incubation**: Consult `.agent/knowledge/incubator/` for existing specs or concepts.
+2. **Check the Lab**: Consult `.agent/knowledge/lab/` for existing specs or concepts.
 
 ### Phase 2: Blueprinting
 
 1. **Define Slug**: `kebab-case-feature-name`.
 2. **Draft Spec**: Create `.agent/tasks/<slug>/spec.md` (The "What").
-    - **Must** align with `product.md`.
+    - **Must** align with `01-vision.md`.
     - Define acceptance criteria.
 3. **Draft Plan**: Create `.agent/tasks/<slug>/plan.md` (The "How").
     - Break into numbered, sequential tasks.
