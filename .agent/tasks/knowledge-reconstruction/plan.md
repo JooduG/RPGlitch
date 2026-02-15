@@ -21,3 +21,5 @@
     - [x] Update `config.yaml` with new paths.
     - [x] Delete legacy `.md` files in `rules/` and `canon/`.
     - [x] Final term audit (Grep for legacy terms).
+
+[checkpoint: f3960fc5]

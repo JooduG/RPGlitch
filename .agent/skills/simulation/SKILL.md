@@ -11,7 +11,7 @@ description: Technical manual for the Simulation Engine (Event Bus, Chrono Loop,
 
 ## 1. ⚡ The Synapse (Event Bus)
 
-We use a global Event Bus to decouple the UI (Mesmer) from the Logic (Gamemaster).
+We use a global Event Bus to decouple the **🛠️ UI** from the **🕹️ Engine**.
 
 **Source**: `src/core/engine/bus.js`
 
@@ -71,8 +71,8 @@ Memories with lower weight are subject to decay or compression over time, simula
 
 1.  **Actor (LLM)**: Generates prose based on `state.snapshot`.
 2.  **Simulator (Gamemaster)**: Calculates consequences _after_ generation (e.g., "Fall damage" -> `visuals.update()`).
-3.  **Render (Mesmer)**: The UI reflects the new state via `$effect` or `$derived` runes.
-4.  **Archive (Scholar)**: Compresses the turn into Long Term Memory keys.
+3.  **Render (UI)**: The UI reflects the new state via `$effect` or `$derived` runes.
+4.  **Archive (Data)**: Compresses the turn into Long Term Memory keys.
 
 ## 4. 💾 State Management (Svelte 5 Runes)
 

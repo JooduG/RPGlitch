@@ -20,3 +20,5 @@
     - [x] Term audit (Zero legacy "Pillar" terms).
     - [x] Flow audit (Red Thread continuity).
     - [x] Formal `/06-review` PASS.
+
+[checkpoint: f3960fc5]
