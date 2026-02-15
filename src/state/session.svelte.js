@@ -1,15 +1,14 @@
 import { events, EVENTS } from "@core/engine/bus.js"
+import { Engine } from "@core/engine/engine.js"
 import { Session } from "@core/engine/session.js"
 import { app } from "@state/app.svelte.js"
-// We need the engine facade for high-level operations like Prologue
-import { GameMaster } from "@core/engine/engine.js"
-import "@state/messages.svelte.js" // Ensure listeners are registered
+import "@state/messages.svelte.js"
 import { runtime } from "@state/runtime.svelte.js"
 
 /**
- * 🎬 REACTIVE SESSION MANAGER
- * Bridges the imperative Session/GameMaster engine with Svelte 5 Reactivity.
- * Replaces the old "gamemaster.svelte.js" store.
+ * src/state/session.svelte.js
+ * 🕹️ ENGINE / 📚 DATA: Session Management
+ * Coordinates active narrative flows and persistence.
  */
 export class ReactiveSession {
     loading = $state(false)
@@ -23,7 +22,7 @@ export class ReactiveSession {
         // 1. Sync Feed on Database Updates
         // Handled by @state/messages.svelte.js
 
-        // 2. Sync Loading State (e.g. triggered by GameMaster internals)
+        // 2. Sync Loading State (e.g. triggered by Engine internals)
         events.addEventListener(EVENTS.GENERATION_STARTED, () => {
             app.simulation.loading = true
         })
@@ -57,8 +56,8 @@ export class ReactiveSession {
             app.setView("game")
 
             // 4. Trigger Prologue Generation
-            // This will run the GameMaster, hit the API, and stream content to the feed
-            await GameMaster.generatePrologue(storyId)
+            // This will run the Engine, hit the API, and stream content to the feed
+            await Engine.generatePrologue(storyId)
         } catch (e) {
             console.error("[ReactiveSession] Start Failed:", e)
             this.error = e.message
@@ -89,7 +88,7 @@ export class ReactiveSession {
 
         try {
             // PHASE 1: WARDEN (Observation)
-            app.log("Warden checking physics and causality...", "system")
+            app.log("Security checking physics and causality...", "system")
             // Simulate physics update for HUD visibility if needed, or rely on Engine events
             app.simulation.turn += 1
 
@@ -102,7 +101,7 @@ export class ReactiveSession {
 
             // TRIGGER AI GENERATION
             const storyId = Session.requireActive()
-            await GameMaster.generateAiResponse(storyId, { input: text })
+            await Engine.generateAiResponse(storyId, { input: text })
 
             // PHASE 3: ECHO (Resonance)
             app.log(
@@ -110,14 +109,14 @@ export class ReactiveSession {
                 "db"
             )
 
-            // Update HUD causality (Example: reading from Warden state if available)
+            // Update HUD causality (Example: reading from Security state if available)
             app.causalityReport = {
                 entropy: Math.floor(Math.random() * 100), // Placeholder for real physics
                 velocity: Math.floor(Math.random() * 100),
                 reflex: "Active",
             }
 
-            // PHASE 4: PERSIST (Scholar)
+            // PHASE 4: PERSIST (Data)
             await runtime.save(app.simulation.turn)
         } catch (e) {
             app.log(`Simulation Error: ${e.message}`, "error")
@@ -140,7 +139,7 @@ export class ReactiveSession {
         try {
             await Session.regenerate()
             const storyId = Session.requireActive()
-            await GameMaster.generateAiResponse(storyId)
+            await Engine.generateAiResponse(storyId)
         } catch (e) {
             this.error = e.message
         } finally {
@@ -160,7 +159,7 @@ export class ReactiveSession {
 
         try {
             const storyId = Session.requireActive()
-            await GameMaster.generateAiResponse(storyId)
+            await Engine.generateAiResponse(storyId)
         } catch (e) {
             this.error = e.message
         } finally {

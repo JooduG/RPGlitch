@@ -113,11 +113,11 @@ function createRuntimeStore() {
 
                 state.ready = true
             } catch (err) {
-                console.warn("[Scholar] Sync Failed:", err)
+                console.warn("[Data] Sync Failed:", err)
             }
         },
 
-        // 🔬 VIBE INJECTION (Called by GameMaster)
+        // 🔬 VIBE INJECTION (Called by Engine)
         updateVibe(entityId, newColor, newSeed) {
             const targets = [
                 state.character,
@@ -146,7 +146,7 @@ function createRuntimeStore() {
                     lastPlayed: Date.now(),
                 })
             } catch (err) {
-                console.error("[Scholar] Story Save Failed:", err)
+                console.error("[Data] Story Save Failed:", err)
             }
         },
 
@@ -160,7 +160,7 @@ function createRuntimeStore() {
                     Object.assign(state.character, entity)
                 }
             } catch (err) {
-                console.error("[Scholar] Entity Save Failed:", err)
+                console.error("[Data] Entity Save Failed:", err)
                 throw err
             }
         },
@@ -171,7 +171,7 @@ function createRuntimeStore() {
                 // If we deleted the active character, we might need a fallback?
                 // For now, let the UI handle the closure.
             } catch (err) {
-                console.error("[Scholar] Entity Delete Failed:", err)
+                console.error("[Data] Entity Delete Failed:", err)
                 throw err
             }
         },
@@ -188,18 +188,18 @@ function createRuntimeStore() {
                         updatedAt: Date.now(),
                     })
                 } catch (err) {
-                    console.error("[Scholar] Save Failed:", err)
+                    console.error("[Data] Save Failed:", err)
                     // Revert optimistic update
                     // NOTE: We rely on the UI to handle the flicker, or we could reload from DB
                     // For now, we just log.
                     // state.character = ... (requires keeping previous state)
                 }
             } else {
-                console.warn("[Scholar] Cannot save: No Character ID linked.")
+                console.warn("[Data] Cannot save: No Character ID linked.")
             }
         },
 
-        // 👂 INTERNAL: Sync with external updates (Warden, Echo)
+        // 👂 INTERNAL: Sync with external updates (Security, Echo)
         _initListeners() {
             events.addEventListener(EVENTS.ENTITY_UPDATED, (e) => {
                 const { id, ...updates } = e.detail

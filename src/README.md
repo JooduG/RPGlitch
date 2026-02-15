@@ -37,8 +37,8 @@ sequenceDiagram
     participant User
     participant UI as 🖥️ UI
     participant Chrono as ⏳ Chrono
-    participant Warden as 🛡️ Warden
-    participant GM as 🎬 GameMaster
+    participant Security as 🛡️ Security
+    participant Engine as 🎬 Engine
     participant AI as 🧠 LLM Service
     participant DB as 💾 Dexie
 
@@ -48,11 +48,11 @@ sequenceDiagram
     rect rgb(30, 30, 35)
         Note over Chrono, DB: UI LOCKED (app.simulation.loading = true)
 
-        Chrono->>Warden: process(input)
-        Warden-->>Chrono: wardenContext (Physics Result)
+        Chrono->>Security: process(input)
+        Security-->>Chrono: securityContext (Physics Result)
 
-        Chrono->>GM: generateAiResponse(options)
-        GM->>AI: LlmService.generate(payload)
+        Chrono->>Engine: generateAiResponse(options)
+        Engine->>AI: LlmService.generate(payload)
 
         loop Token Streaming
             AI-->>UI: app.updateStream(token)

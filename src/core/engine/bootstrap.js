@@ -6,11 +6,11 @@ import { soundEffects } from "@media/audio/effects.js"
 import { app } from "@state/app.svelte.js"
 import { mount } from "svelte"
 import App from "../../App.svelte"
-import { GameMaster } from "./engine.js"
+import { Engine } from "./engine.js"
 import { Session } from "./session.js"
 import { initDebugMode, mockPlugins } from "./utils.js"
 
-if (typeof window !== "undefined") window.GameMaster = GameMaster
+if (typeof window !== "undefined") window.Engine = Engine
 
 // [REMOVED] Legacy localStorage interceptors migrated to Scholar/Dexie.
 
@@ -26,7 +26,7 @@ const waitForConfig = async () => {
             if (window.rpgLists) {
                 resolve(true)
             } else if (attempts >= 50) {
-                console.warn("[Gamemaster] rpgLists missing after 5s.")
+                console.warn("[Engine] rpgLists missing after 5s.")
                 resolve(false)
             } else {
                 setTimeout(check, 100)
@@ -38,18 +38,18 @@ const waitForConfig = async () => {
 
 export const AppBootstrap = {
     async init() {
-        console.info("[Gamemaster] 🚀 RPGlitch Starting...")
+        console.info("[Engine] 🚀 RPGlitch Starting...")
         try {
-            console.info("[Gamemaster] Step 0: Pre-Flight...")
+            console.info("[Engine] Step 0: Pre-Flight...")
             await waitForConfig()
 
-            console.info("[Gamemaster] Step 1: Stability Layer...")
+            console.info("[Engine] Step 1: Stability Layer...")
             await initDebugMode()
             mockPlugins()
 
-            console.info("[Gamemaster] Step 2: Data Layer (Opening DB)...")
+            console.info("[Engine] Step 2: Data Layer (Opening DB)...")
             await db.open()
-            console.info("[Gamemaster] Database Ready. Hydrating Stores...")
+            console.info("[Engine] Database Ready. Hydrating Stores...")
 
             // Async Hydration Gate
             await Promise.all([
@@ -59,27 +59,27 @@ export const AppBootstrap = {
                 seedPremades(),
             ])
 
-            console.info("[Gamemaster] Stores Hydrated.")
+            console.info("[Engine] Stores Hydrated.")
 
-            console.info("[Gamemaster] Step 3: UI Layer...")
+            console.info("[Engine] Step 3: UI Layer...")
             const target = document.getElementById("svelte-root")
             console.info(
-                `[Gamemaster] Target #svelte-root: ${target ? "FOUND" : "MISSING"}`
+                `[Engine] Target #svelte-root: ${target ? "FOUND" : "MISSING"}`
             )
             if (target) {
-                console.info("[Gamemaster] Calling mount()...")
+                console.info("[Engine] Calling mount()...")
                 // Clear the static boot illusion before mounting
                 target.innerHTML = ""
                 mount(App, { target })
-                console.info("[Gamemaster] ⚒️ Artificer UI Mounted.")
+                console.info("[Engine] ⚒️ UI Mounted.")
             } else {
                 console.info(
-                    "[Gamemaster] ⚠️ CANNOT MOUNT: #svelte-root not in DOM."
+                    "[Engine] ⚠️ CANNOT MOUNT: #svelte-root not in DOM."
                 )
             }
-            console.info("[Gamemaster] 🏁 System Online.")
+            console.info("[Engine] 🏁 System Online.")
         } catch (err) {
-            console.error("[Gamemaster] ❌ Critical Failure:", err)
+            console.error("[Engine] ❌ Critical Failure:", err)
             document.body.innerHTML = `<div style="color:red; padding:2rem;"><h1>SYSTEM HALTED</h1><pre>${err.stack || err}</pre></div>`
         }
     },

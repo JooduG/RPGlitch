@@ -31,15 +31,16 @@ Intelligence is not an external API; it is a logic pillar. The **Gamemaster** pr
 
 ### 🛡️ Freedom & Privacy
 
+The simulation runs on a **Skill-Based Architecture**, where logic is decoupled from UI and sensory output.
 The user owns their story. There is no central server to censor or lose data. The **Freedom Protocol** ensures the agent remains a collaborator, not a gatekeeper.
 
 ## 3. The Pillar Architecture
 
-- **🕹️ GameMaster (The Engine):** Logic & Chrono (The Brain).
-- **🛠️ Artificer (The UI):** Body & Structure (The Bones).
-- **🎭 Mesmer (The Senses):** Visuals, Audio, Atmosphere (The Skin).
-- **📚 Scholar (The Memory):** Persistence & Truth (The Truth).
-- **🛡️ Warden (The Protector):** Security & Hygiene (The Laws).
+- **🕹️ Engine**: The narrative director; manages chronological state.
+- **🛠️ UI**: The interactive surface; renders states via Svelte 5.
+- **🎭 Polish**: The sensory layer; atmosphere, sound, and visual fidelity.
+- **📚 Data**: The persistence engine; uses Dexie.js for memory storage.
+- **🛡️ Security**: The audit layer; ensures input integrity and rule compliance.
 
 ## 4. Product Guidelines
 

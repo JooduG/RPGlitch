@@ -4,7 +4,7 @@
     import ProfilePicture from "@ui/atoms/ProfilePicture.svelte"
 
     /**
-     * 🎭 StorymodePanel (Artificer)
+     * 🎭 StorymodePanel (Polish/UI)
      * High-fidelity visual representing an entity in the story feed.
      * Follows the [Polish Protocol] v1.0.0
      */

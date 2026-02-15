@@ -1,6 +1,6 @@
 /**
  * src/data/config.js
- * Configuration for the Scholar module, including Profile field definitions.
+ * Configuration for the Data module, including Profile field definitions.
  */
 
 export const PROFILE_SECTIONS = [

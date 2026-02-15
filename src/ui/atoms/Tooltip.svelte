@@ -20,7 +20,7 @@
 
 {#if visible && text}
     <div
-        class="artificer-tooltip {position}"
+        class="ui-tooltip {position}"
         class:fixed
         class:manual-pos={x !== null}
         use:portalAction
@@ -37,7 +37,7 @@
 <style lang="scss">
     @use "@theme/abstracts/placeholders" as *;
 
-    .artificer-tooltip {
+    .ui-tooltip {
         position: absolute;
         z-index: 99999;
         pointer-events: none;

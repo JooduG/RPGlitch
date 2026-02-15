@@ -1,25 +1,46 @@
 /**
- * src/core/session/gamemaster.js
- * THE GAME MASTER FACADE
- * Orchestrates the "GameMaster" (Logic) and "Session" (State).
+ * THE ENGINE FACADE
+ * Orchestrates the "Engine" (Logic) and "Session" (State).
  */
 
 import { ContextBroker } from "@core/intelligence/broker.js"
 import { LlmService } from "@core/intelligence/service.js"
 import { runtime } from "@state/runtime.svelte.js"
 import { events, EVENTS, state as store } from "./bus.js"
+import { Chrono } from "./chrono.js"
 import { Session } from "./session.js"
 
-// Backward Compatibility Facade
-export const GameMaster = {
-    // Session Methods
+/**
+ * The Engine provides a unified interface for the high-level simulation logic.
+ * It serves as the primary controller for the Perchance narrative flow.
+ */
+export const Engine = {
+    // --- SESSION ---
     requireActive: () => Session.requireActive(),
+    getActive: () => Session.getActive(),
     createFromSelection: (data) => Session.createFromSelection(data),
     loadMessages: (storyId) => Session.loadMessages(storyId),
     send: (text) => Session.send(text),
     regenerate: () => Session.regenerate(),
 
-    // GameMaster Methods Replacement
+    // --- CHRONO ---
+    tick: (delta) => Chrono.tick(delta),
+    getDuration: () => Chrono.getElapsed(),
+
+    // --- PHYSICS ---
+    getPhysics: () => runtime.physics,
+
+    // --- UTILS ---
+    log: (msg) => console.log(`[Engine] ${msg}`),
+
+    /**
+     * @deprecated Use Engine directly. Legacy bridge for old scripts.
+     */
+    legacyProxy: () => {
+        return Engine
+    },
+
+    // Engine Methods Replacement
     generateAiResponse: async (storyId, options = {}) => {
         // 1. SIGNAL START
         events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED))
@@ -57,7 +78,7 @@ export const GameMaster = {
         if (payload) {
             events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED))
             try {
-                // Basic generation without full GameMaster overhead
+                // Basic generation without full Engine overhead
                 const result = await LlmService.generate(payload)
                 const fractalName =
                     runtime.storyFractal?.name || "Fractal Entity"
@@ -98,14 +119,14 @@ export const GameMaster = {
         // const { Scholar } = await import("../scholar/index.js");
         // Needs target entity... logic usually depends on context.
         // This facade might be deprecated or needed by Chrono.
-        // Chrono calls runtime.save() -> Echo logic is internal to Scholar or triggered by Chrono?
+        // Chrono calls runtime.save() -> Echo logic is internal to Data or triggered by Chrono?
         // Chrono loop said: app.log("Echo recording..."), runtime.save()
         // Wait, runtime.save calls DB.
         // Where is Echo.echo called?
         // It seems Chrono does NOT call Echo.echo directly in the loop I saw earlier?
         // Ah, I saw "PHASE 3: ECHO" in `ReactiveSession` (lines 107)
         // but it just LOGGED it.
-        // `GameMaster.js` line 63 was `_runEcho: (...args) => GameMaster._runEchoCycle(...args)`.
+        // `Engine.js` line 63 was `_runEcho: (...args) => Engine._runEchoCycle(...args)`.
         // I should probably leave a stub or simple log for now.
     },
 }

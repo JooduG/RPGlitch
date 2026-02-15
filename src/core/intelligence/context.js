@@ -1,7 +1,7 @@
 /**
- * src/js/scholar/context.js
- * THE CONTEXT BUILDER (Tactical Prompt Engineering)
- * Assembles the raw state of the fractal into structured prompts for the AI.
+ * src/core/intelligence/context.js
+ * 📚 DATA: Context Architecture
+ * Assembles simulation state into structured prompts.
  */
 
 import { state } from "@core/engine/bus.js"
@@ -48,7 +48,7 @@ export class ContextBuilder {
         }
 
         // Variance & Visuals Delegation
-        // [STUB] Warden.authorizeVisuals not yet implemented - default to true
+        // [STUB] Security.authorizeVisuals not yet implemented - default to true
         const visualsAuthorized = options.allowVisuals ?? true
 
         const system = Screenplay.standard(
@@ -116,17 +116,17 @@ export class ContextBuilder {
         return { system, messages: [] }
     }
 
-    async buildWardenPrompt(
+    async buildSecurityPrompt(
         targetEntity,
         others,
         historyMessages,
         activeThreads
     ) {
-        // WARDEN PROMPT COMPOSITION (Inlined from deprecated Warden.compose)
+        // SECURITY PROMPT COMPOSITION (Inlined from deprecated Security.compose)
         const system = `
-[SYSTEM: PROMETHEUS_WARDEN]
-You are THE WARDEN.
-Your goal is to analyze the narrative and enforce the Laws of Physics.
+[SYSTEM: PROMETHEUS_SECURITY]
+You are the SECURITY layer.
+Your goal is to analyze the narrative and ensure simulation integrity.
 
 ENTITIES:
 Target: ${targetEntity.name} (${targetEntity.role || targetEntity.type})
@@ -153,10 +153,10 @@ Analyze the last message and output JSON:
     }
 
     // =========================================================================
-    // 2. VISUALIZATION (Mesmer)
+    // 2. VISUALIZATION (Polish)
     // =========================================================================
 
-    async buildMesmerVisual(targetType) {
+    async buildPolishVisual(targetType) {
         const [ai, user, fractal] = await Promise.all([
             entities.get("character", this.story.aiId),
             entities.get("character", this.story.userId),
@@ -187,14 +187,14 @@ Analyze the last message and output JSON:
         }
     }
 
-    buildMesmerExtract(description) {
+    buildPolishExtract(description) {
         const system = Sensory.templateVisual("ai", description, {
             mode: "extract",
         })
         return { system, messages: [] }
     }
 
-    async buildMesmerEnhance(prompt, entity) {
+    async buildPolishEnhance(prompt, entity) {
         const targetType = entity.type === "fractal" ? "scene" : "ai"
         const context = {
             mode: "enhance",
@@ -207,25 +207,25 @@ Analyze the last message and output JSON:
 
     /**
      * [FIX] Maestro Enhance (Profile Editor Magic Wand)
-     * Wraps Mesmer logic to support the UI's specific call signature.
+     * Wraps Polish logic to support the UI's specific call signature.
      */
 
     async buildMaestroEnhance(prompt, entity, signatureColor) {
-        // Reuse Mesmer's enhance logic
-        return this.buildMesmerEnhance(prompt, entity)
+        // Reuse Polish's enhance logic
+        return this.buildPolishEnhance(prompt, entity)
     }
 
     // =========================================================================
-    // 3. KNOWLEDGE & MEMORY (Scholar)
+    // 3. KNOWLEDGE & MEMORY (Data)
     // =========================================================================
 
-    buildScholarPrompt(field, content, context) {
+    buildDataPrompt(field, content, context) {
         // Replaces buildScholarPrompt
         const system = templateConsult(field, content, context)
         return { system, messages: [] }
     }
 
-    async buildScholarEchoPrompt(targetEntity, historyMessages, role) {
+    async buildDataEchoPrompt(targetEntity, historyMessages, role) {
         const historyText = historyMessages
             .map((m) => {
                 const label =

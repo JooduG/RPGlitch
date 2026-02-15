@@ -6,7 +6,7 @@
     import Modal from "@ui/molecules/dialogs/Modal.svelte"
 
     /**
-     * 🕹️ ControlPanel (Artificer)
+     * 🕹️ ControlPanel (UI)
      * Main system interface for settings and prologue configuration.
      * Follows the [Polish Protocol] v1.0.0
      */

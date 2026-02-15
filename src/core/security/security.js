@@ -1,8 +1,10 @@
 import DOMPurify from "dompurify"
+import { applyLaws, PhysicsEngine, scanReflex } from "./physics.js"
 
 /**
- * WARDEN: SECURITY & PHYSICS
- * The protector of the simulation.
+ * src/core/security/security.js
+ * 🛡️ SECURITY: The Shield
+ * Zero-Trust enforcement and data sanitization.
  */
 
 // 1. Sanitize HTML (Zero-Trust)
@@ -21,33 +23,17 @@ export const escape = (str) => {
 }
 
 // Stub for now, can be expanded
-
 export const checkRefusal = (text) => false
 export const clean = (text) => (text ? text.trim() : "")
 
-// Facade
+// Consolidated Security Facade
 export const Security = {
     sanitize,
     escape,
     checkRefusal,
     clean,
-}
 
-// Re-export Physics if needed, assuming physics engine is elsewhere or we use this file as aggregator
-// For now, index.js usually aggregates.
-// Old index.js imported from ./logic/security.js. Now we implement directly here or export from here.
-
-export default {
-    Security,
-}
-
-// Re-export Physics logic for the Facade
-import { applyLaws, PhysicsEngine, scanReflex } from "./physics.js"
-
-export const Shield = {
-    sanitize,
-    escape,
-
+    // Physics & Authorization
     authorizeVisuals: (prompt, options) => true,
     applyLaws,
 
@@ -64,10 +50,14 @@ export const Shield = {
         return {
             causality,
             reflex, // { type: "KINETIC", deltas: { velocity: 25 } } or null
-            // Add other checks here if needed (e.g. moderation)
         }
     },
 }
 
-// Deprecation: Remove after transition period
-export const Warden = Shield
+// Backward Compatibility Alias
+export const Shield = Security
+export const Warden = Security
+
+export default {
+    Security,
+}

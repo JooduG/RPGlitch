@@ -9,7 +9,7 @@ class PerchanceBridge {
         this._mockMode = typeof window === "undefined" || !window.oc
         if (this._mockMode) {
             console.warn(
-                "[Warden:Bridge] Native 'oc' object not found. Running in Mock Mode."
+                "[Security:Bridge] Native 'oc' object not found. Running in Mock Mode."
             )
         }
     }
@@ -37,7 +37,7 @@ class PerchanceBridge {
         return {
             name: "Unknown",
             description: "",
-            .../** @type {any} */ ((window.oc.character) || {}),
+            .../** @type {any} */ (window.oc.character || {}),
         }
     }
 
@@ -50,7 +50,7 @@ class PerchanceBridge {
         if (this._mockMode) {
             // In mock mode, we just verify the arguments are valid but do nothing.
             if (typeof event !== "string" || typeof callback !== "function") {
-                console.error("[Warden:Bridge] Invalid arguments for .on()")
+                console.error("[Security:Bridge] Invalid arguments for .on()")
             }
             return
         }
@@ -58,7 +58,7 @@ class PerchanceBridge {
             window.oc.thread.on(event, callback)
         } catch (err) {
             console.error(
-                `[Warden:Bridge] Failed to attach listener for '${event}':`,
+                `[Security:Bridge] Failed to attach listener for '${event}':`,
                 err
             )
         }

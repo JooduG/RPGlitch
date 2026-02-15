@@ -88,7 +88,7 @@ export class VoiceStore {
             this.voices.find((v) => v.uri === this.selectedVoice) ||
             this.voices[0]
         if (!voice) {
-            console.warn("[The_Mesmer] No voice available.")
+            console.warn("[Polish] No voice available.")
             return
         }
 
@@ -105,7 +105,7 @@ export class VoiceStore {
         }
 
         this._utterance.onerror = (e) => {
-            console.warn("[The_Mesmer] Synthesis error", e)
+            console.warn("[Polish] Synthesis error", e)
             this.isSpeaking = false
             this._utterance = null
         }

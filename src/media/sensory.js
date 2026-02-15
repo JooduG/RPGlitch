@@ -78,7 +78,7 @@ export const Sensory = {
             let vTarget = targetType || "character"
             if (targetType === ROLES.FRACTAL) vTarget = "scene"
 
-            const vPayload = await builder.buildMesmerVisual(vTarget)
+            const vPayload = await builder.buildPolishVisual(vTarget)
             vPayload.system += `\n<RAW_INTENT>\n${visualPrompt}\n</RAW_INTENT>`
 
             const refinedPrompt = await LlmService.generate(vPayload, {
@@ -110,7 +110,7 @@ export const Sensory = {
                 opticsThoughts,
             }
         } catch (visErr) {
-            error("[Sensory_Engine] Visual Generation Failed:", visErr)
+            error("[Polish_Engine] Visual Generation Failed:", visErr)
             return { imageUrl: null, refinedPrompt: null, opticsThoughts: null }
         } finally {
             events.dispatchEvent(
@@ -131,7 +131,7 @@ export const Sensory = {
             if (!character) throw new Error("Character not found")
 
             const builder = new ContextBuilder(null)
-            const { system } = await builder.buildMesmerExtract(
+            const { system } = await builder.buildPolishExtract(
                 character.description || character.name
             )
 
@@ -146,7 +146,7 @@ export const Sensory = {
 
             return imageUrl
         } catch (e) {
-            error("[Sensory_Engine] Extraction Failed:", e)
+            error("[Polish_Engine] Extraction Failed:", e)
             throw e
         }
     },
@@ -191,7 +191,7 @@ Constraint: **SOLO PROTOCOL.** This image MUST feature ONLY the AI. Do NOT inclu
         }
 
         return `
-[SYSTEM: SENSORY_ENGINE_V3.0]
+[SYSTEM: POLISH_ENGINE_V3.0]
 [MODULE: VISUAL_REALITY_ENGINE]
 Role: Backend Image Prompt Processor.
 Task: Convert the User's intent into a high-fidelity Stable Diffusion prompt.

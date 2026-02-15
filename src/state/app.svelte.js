@@ -1,4 +1,5 @@
-// ⚒️ ARTIFICER: UI State Manager
+// 🛠️ UI: Interface State Manager
+// Manages modals, view states, and visual feedback.
 import { db } from "@data/db.js"
 import { openLightbox } from "@state/lightbox.svelte.js"
 import { themeStore } from "@theme/palette.svelte.js"
@@ -104,7 +105,7 @@ export class AppStore {
                 this.settings = { ...this.settings, ...entry.value }
             }
         } catch (e) {
-            console.error("[Warden] Settings Hytration Failed:", e)
+            console.error("[Security] Settings Hydration Failed:", e)
         }
     }
 
@@ -117,7 +118,7 @@ export class AppStore {
                 value: $state.snapshot(this.settings),
             })
         } catch (e) {
-            console.error("[Warden] Settings Save Failed:", e)
+            console.error("[Security] Settings Save Failed:", e)
         }
 
         // 2. Broadcast to Legacy Global (Immediate Sync)
@@ -233,7 +234,7 @@ export class AppStore {
         this.saveSettings()
     }
 
-    // Streaming Mutators (Called by GameMaster/LLM)
+    // Streaming Mutators (Called by Engine/LLM)
     startStream = (id) => {
         this.streaming.active = true
         this.streaming.content = ""
@@ -250,7 +251,7 @@ export class AppStore {
     }
 
     /**
-     * Lightbox Controls (Proxied to Mesmer)
+     * Lightbox Controls (Proxied to Polish)
      */
     openLightbox = (src, caption = "") => {
         openLightbox(src, caption)

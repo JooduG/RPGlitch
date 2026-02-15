@@ -1,7 +1,7 @@
 /**
- * src/js/scholar/library/echo.js
- * THE ECHO (Temporal Resonance)
- * Handles the consolidation of short-term history into long-term entity profiles.
+ * src/core/intelligence/echo.js
+ * 📚 DATA: Temporal Resonance
+ * Consolidates short-term history into long-term entity profiles.
  */
 
 import { LlmService } from "@core/intelligence/service.js"
@@ -25,7 +25,7 @@ export class Echo {
 
             // 1. Build Prompt
             const builder = new ContextBuilder(null)
-            const payload = await builder.buildScholarEchoPrompt(
+            const payload = await builder.buildDataEchoPrompt(
                 targetEntity,
                 historySlice,
                 role
@@ -55,16 +55,13 @@ export class Echo {
 
                 data = JSON.parse(jsonText)
             } catch (parseErr) {
-                console.warn(
-                    "[Scholar:Echo] Resonance Parsing Failed",
-                    parseErr
-                )
+                console.warn("[Data:Echo] Resonance Parsing Failed", parseErr)
                 return null
             }
 
             return data
         } catch (e) {
-            error("[Scholar:Echo] Critical Resonance Failure", e)
+            error("[Data:Echo] Critical Resonance Failure", e)
             return null
         }
     }

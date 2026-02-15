@@ -202,7 +202,7 @@ export const stories = {
  */
 export const searchLore = async (query) => {
     if (!query) return []
-    console.warn("[Scholar] Supabase search disabled (Local-First Mode).")
+    console.warn("[Data] Supabase search disabled (Local-First Mode).")
     return []
 }
 

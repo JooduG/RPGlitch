@@ -1,6 +1,6 @@
 /**
- * src/js/warden/physics.js
- * WARDEN PHYSICS ENGINE (Thermodynamics & Reflexes)
+ * src/core/security/physics.js
+ * SECURITY PHYSICS ENGINE (Thermodynamics & Reflexes)
  * Handles the simulation of narrative breakdown, entropy, and reflexes.
  */
 
@@ -337,11 +337,11 @@ export const calculateBlendedParams = (ai, user, fractal) => {
 }
 
 // ============================================================================
-// 3. VARIANCE (GameMaster's Cut)
+// 3. VARIANCE (Engine's Cut)
 // ============================================================================
 
 /**
- * THE GAMEMASTER'S PLAYBOOK (WARDEN MODULE)
+ * THE ENGINE'S PLAYBOOK (SECURITY MODULE)
  * Strategies for creative guidance, rerolls, and visual authorization.
  */
 
@@ -365,13 +365,13 @@ const PHYSICS_DRIVERS = {
         "Clinical detachment. The User is a variable in an equation. Observe, analyze, but do not feel.",
 }
 
-export const GAMEMASTER_NOTES = {
+export const ENGINE_NOTES = {
     ...PHYSICS_DRIVERS,
     ...arcanaPrompts.pentarchy.gamemaster_mechanics.stylistic_interventions
         .content,
 }
 
-const ALL_KEYS = Object.keys(GAMEMASTER_NOTES)
+const ALL_KEYS = Object.keys(ENGINE_NOTES)
 
 // --- HELPERS ---
 
@@ -391,7 +391,7 @@ const calculateOverlap = (str1, str2) => {
 // --- LOGIC ---
 
 /**
- * Analyzes rejected text to determine the best GameMaster Note override.
+ * Analyzes rejected text to determine the best Engine Note override.
  */
 export const analyzeRejection = (rejectedText = "", userLastInput = "") => {
     if (!rejectedText) return getRandomNote()
@@ -438,12 +438,12 @@ export const analyzeRejection = (rejectedText = "", userLastInput = "") => {
     return getRandomNote()
 }
 
-export const getGameMasterInstruction = (noteKey) => {
+export const getEngineInstruction = (noteKey) => {
     const instruction =
-        GAMEMASTER_NOTES[noteKey] || GAMEMASTER_NOTES["High Permeability"]
+        ENGINE_NOTES[noteKey] || ENGINE_NOTES["High Permeability"]
 
     return `
-[GAMEMASTER_OVERRIDE]
+[ENGINE_OVERRIDE]
 ACTION: CUT. Previous take rejected.
 NEW DIRECTION: "${noteKey}"
 INSTRUCTION: ${instruction}

@@ -18,7 +18,7 @@ class SoundEffectsService {
                 this.notificationsEnabled = !!entry.value.notificationsEnabled
             }
         } catch (e) {
-            console.warn("[The_Mesmer] Failed to load settings:", e)
+            console.warn("[Polish] Failed to load settings:", e)
         }
     }
 
@@ -30,7 +30,7 @@ class SoundEffectsService {
                 value: { notificationsEnabled: this.notificationsEnabled },
             })
         } catch (e) {
-            console.error("[The_Mesmer] Failed to save audio settings:", e)
+            console.error("[Polish] Failed to save audio settings:", e)
         }
     }
 
@@ -63,7 +63,7 @@ class SoundEffectsService {
 
             this.unlocked = true
         } catch (e) {
-            console.warn("[The_Mesmer] Failed to unlock AudioContext:", e)
+            console.warn("[Polish] Failed to unlock AudioContext:", e)
         }
     }
 
@@ -95,7 +95,7 @@ class SoundEffectsService {
                         }
                         if (!Array.isArray(soundList)) soundList = []
                     } catch (e) {
-                        console.warn("[The_Mesmer] JSON parse warning:", e)
+                        console.warn("[Polish] JSON parse warning:", e)
                         soundList = []
                     }
                 } else {
@@ -114,7 +114,7 @@ class SoundEffectsService {
                     }
                 }
             } catch (e) {
-                console.error("[The_Mesmer] Config lookup failed:", e)
+                console.error("[Polish] Config lookup failed:", e)
             }
         }
 
@@ -139,7 +139,7 @@ class SoundEffectsService {
             source.connect(this.audioContext.destination)
             source.start(0)
         } catch (e) {
-            console.warn("[The_Mesmer] Playback error:", e)
+            console.warn("[Polish] Playback error:", e)
         }
     }
 }

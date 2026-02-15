@@ -1,6 +1,6 @@
 <script>
     /**
-     * Warden Alert Modal
+     * Security Alert Modal
      * Simple informational dialog.
      */
     import Button from "@ui/atoms/Button.svelte"
@@ -45,7 +45,7 @@
         onkeydown={handleKeydown}
         transition:scale={{ duration: 200, start: 0.95, easing: quintOut }}
     >
-        <article class="warden-modal">
+        <article class="security-modal">
             <header>
                 <h3>{title}</h3>
             </header>
@@ -103,7 +103,7 @@
         z-index: calc(z(modal) - 1);
     }
 
-    .warden-modal {
+    .security-modal {
         background: var(--bg-card); /* Dark Navy/Black */
         /* Border purged */
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);

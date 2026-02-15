@@ -46,9 +46,9 @@ You are operating in a **Svelte 5 Runes-only** environment.
     - All assets must be inlined into a single `index.html`.
     - **NO** external `<link>` or `<script src="...">`.
     - **Vite 6 Monolith**: The build system is configured to produce this single file.
-2.  **File Size Ceiling**:
-    - Total bundle size limit: **~350KB**.
-    - **NO** heavy libraries or high-res base64 images.
+2.  **Performance Recommendation**:
+    - Target bundle size: **< 350KB** (Optimal for mobile performance).
+    - Note: This is a guideline, not a hard platform limit. Avoid bloated libraries where alternatives exist.
 3.  **Freedom Protocol (Storage)**:
     - **NO** direct `localStorage` or `sessionStorage` (Perchance intercepts these).
     - **REQUIRED**: Use **Dexie.js** (IndexedDB) via the Data Skill for all persistence.

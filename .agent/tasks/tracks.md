@@ -24,13 +24,9 @@
 - [x] Audit all Skill `Anti-Patterns` (Structural Integrity PASS).
 - [x] Implement `visuals` skill (Perchance Image Integration).
 
-## 🏗️ In Progress
-
-- No active tasks.
-
-## ✅ Done
-
+- [x] **Pillar Migration**: Refactored legacy "personas" to "Skill Matrix" architecture. [migrate-pillars-to-skills](file:///c:/Users/johng/Documents/GitHub/default/.agent/tasks/migrate-pillars-to-skills/plan.md) [checkpoint: 4aafce37]
 - [x] **Hygiene Sterilization**: Resolved type errors and removed legacy configs. [checkpoint: a14e11ef]
+- [x] **Deployment Ready**: Restored high-density lore and finalized build (354.80 KB). [checkpoint: final-release]
 - [x] **Config Sync**: Enhanced `sync.js` and automated ESLint injection. [checkpoint: 5c619dda]
 
 - [x] `localStorage` → Dexie.js migration (7 files) [checkpoint: 16236583]

@@ -72,13 +72,13 @@ Agents must strictly adhere to these casing standards.
 
 ## 7. Domain Terminology (The Project Lexicon)
 
-### 🏛️ The Five Pillars (Architecture)
+### 🏛️ The Skill Matrix (Formerly Five Pillars)
 
-1.  **GameMaster (The Engine)**: Logic execution, time progression (`src/core/engine/`).
-2.  **Artificer (The UI)**: Svelte components, layout (`src/ui/`).
-3.  **Mesmer (The Senses)**: CSS, Audio, Motion, Media (`src/theme/`, `src/media/`).
-4.  **Scholar (The Memory)**: Dexie.js persistence, State management (`src/data/`).
-5.  **Warden (The Shield)**: Security, Validation, Testing (`src/core/security/`).
+1.  **Engine (🕹️)**: Logic execution, time progression (`src/core/engine/`). Formerly GameMaster.
+2.  **UI (🛠️)**: Svelte components, layout (`src/ui/`). Formerly Artificer.
+3.  **Polish (🎭)**: CSS, Audio, Motion, Media (`src/theme/`, `src/media/`). Formerly Mesmer.
+4.  **Data (📚)**: Dexie.js persistence, State management (`src/data/`). Formerly Scholar.
+5.  **Security (🛡️)**: Security, Validation, Testing (`src/core/security/`). Formerly Warden.
 
 ### 🧩 Core Concepts
 

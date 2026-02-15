@@ -17,18 +17,18 @@ export const initDebugMode = async () => {
             isDebug = !!settings.debugMode
         }
     } catch (e) {
-        console.error("[Gamemaster] Failed to load debug mode:", e)
+        console.error("[Engine] Failed to load debug mode:", e)
         isDebug = false
     }
     return isDebug
 }
 
 export const log = (...args) => {
-    if (isDebug) console.info("[Gamemaster]", ...args)
+    if (isDebug) console.info("[Engine]", ...args)
 }
 
 export const error = (...args) => {
-    console.error("[Gamemaster]", ...args)
+    console.error("[Engine]", ...args)
 }
 
 export const setDebug = async (on) => {

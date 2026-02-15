@@ -1,6 +1,6 @@
 <script>
     /**
-     * Warden Confirm Modal
+     * Security Confirm Modal
      * A promise-based confirmation dialog.
      */
 
@@ -54,7 +54,7 @@
         onkeydown={handleKeydown}
         transition:scale={{ duration: 200, start: 0.95, easing: quintOut }}
     >
-        <article class="warden-modal">
+        <article class="security-modal">
             <header>
                 <h3>{title}</h3>
                 <Button
@@ -134,7 +134,7 @@
         z-index: calc(z(modal) - 1);
     }
 
-    .warden-modal {
+    .security-modal {
         background: var(--bg-card);
         /* Border purged */
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
@@ -177,7 +177,7 @@
     }
 
     /* Button styling delegated to Button component */
-    :global(.warden-modal .icon-only.btn) {
+    :global(.security-modal .icon-only.btn) {
         padding: 0.25rem;
         display: flex;
         align-items: center;

@@ -7,7 +7,7 @@ import { messages } from "@state/messages.svelte.js"
 import { runtime } from "@state/runtime.svelte.js"
 import { state } from "./bus.js"
 
-import { GameMaster } from "./engine.js"
+import { Engine } from "./engine.js"
 
 export class ChronoStore {
     // No local state needed, acts as a controller for app.simulation
@@ -16,9 +16,9 @@ export class ChronoStore {
      * ADVANCE TURN
      * The ONLY way time moves forward.
      * 1. Locks UI (Loading)
-     * 2. Processes Physics (Shield)
-     * 3. Generates Narrative (GameMaster)
-     * 4. Echo Resonance (Scholar)
+     * 2. Processes Physics (Security)
+     * 3. Generates Narrative (Engine)
+     * 4. Echo Resonance (Data)
      * 5. Anchoring State (Runtime)
      * 6. Unlocks UI
      */
@@ -69,13 +69,13 @@ export class ChronoStore {
                 }
             }
 
-            // 3. SYNTHESIS: Generate Narrative (GameMaster)
+            // 3. SYNTHESIS: Generate Narrative (Engine)
             app.simulation.status = "forecasting" // Phase 2
             app.log(`LLM synthesizing turn ${app.simulation.turn + 1}...`, "ai")
 
-            // The GM facade maps generateAiResponse -> GameMaster.generateAiResponse(storyId, options)
+            // The GM facade maps generateAiResponse -> Engine.generateAiResponse(storyId, options)
             // We pass shieldContext in options if needed, including reflex deltas for thermodynamics.
-            await GameMaster.generateAiResponse(storyId, {
+            await Engine.generateAiResponse(storyId, {
                 shieldContext,
                 input: finalInput,
             })
@@ -106,8 +106,8 @@ export class ChronoStore {
     }
 }
 
-export const chrono = new ChronoStore()
+export const Chrono = new ChronoStore()
 
 if (typeof window !== "undefined") {
-    window.chrono = chrono
+    window.chrono = Chrono
 }

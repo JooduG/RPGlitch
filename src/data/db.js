@@ -35,7 +35,7 @@ db.version(8).stores({
 // --- STABILITY HANDLERS ---
 db.on("blocked", () => {
     console.warn(
-        "[Scholar] Database is blocked by another tab/version. Please close other instances."
+        "[Data] Database is blocked by another tab/version. Please close other instances."
     )
 })
 
@@ -61,7 +61,7 @@ db.on("populate", async (trans) => {
             storyboardSelection: { fractal: null, user: null },
         })
     } catch (err) {
-        error("[Scholar] Failed to populate default settings:", err)
+        error("[Data] Failed to populate default settings:", err)
         throw err
     }
 })
@@ -75,7 +75,7 @@ export const init = async () => {
         return db
     } catch (err) {
         error(
-            "[Scholar] Failed to open database. You may need to manually delete it from browser DevTools.",
+            "[Data] Failed to open database. You may need to manually delete it from browser DevTools.",
             err.stack || err
         )
         throw err

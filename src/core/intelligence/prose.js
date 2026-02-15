@@ -4,7 +4,7 @@
  */
 
 export const templateConsult = (field, content, context) => `
-[SYSTEM: SCHOLAR]
+[SYSTEM: DATA]
 Thinking about ${field}:
 Current: ${content}
 Context: ${JSON.stringify(context)}

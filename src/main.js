@@ -3,7 +3,6 @@
  * Handles core library exposure and database initialization.
  */
 import "@theme/app.scss"
-import Dexie from "dexie"
 import DOMPurify from "dompurify"
 
 // 🚑 EMERGENCY POLYFILL: Expose to window for legacy code/perchance integration
@@ -17,11 +16,11 @@ if (!window.rpgLists) {
         voices: [],
         themes: [],
     }
-    console.info("[Gamemaster] Injected mock rpgLists for local dev.")
+    console.info("[Engine] Injected mock rpgLists for local dev.")
 }
 
-// --- DATABASE INITIALIZATION ---
-// The Dexie database must be opened before any component tries to query it.
-import "./core/engine/bootstrap.js"
-
-console.info("[Gamemaster] Entry point active. Handing off to Bootstrap.")
+// 🚀 BOOTSTRAP
+import { AppBootstrap } from "./core/engine/bootstrap.js"
+AppBootstrap.init().then(() => {
+    console.info("[Engine] Entry point active. Handing off to Bootstrap.")
+})
