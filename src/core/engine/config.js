@@ -126,7 +126,6 @@ export const CONFIG = {
         pink: "#ec4899",
         rose: "#fb7185",
         default: "#a855f7",
-        gunmetal: "#363840",
     },
 
     DEFAULT_COLORS: {

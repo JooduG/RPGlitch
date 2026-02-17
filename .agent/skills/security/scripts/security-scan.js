@@ -6,7 +6,7 @@ import path from "path"
 const ROOT_DIR = process.cwd()
 const SRC_DIR = path.join(ROOT_DIR, "src")
 const TOOLS_DIR = path.join(ROOT_DIR, ".agent/tools")
-const HIGH_ENTROPY_THRESHOLD = 4.5
+// const HIGH_ENTROPY_THRESHOLD = 4.5 // Unused
 const SECRET_PATTERNS = [
     /api[-_]?key/i,
     /access[-_]?token/i,

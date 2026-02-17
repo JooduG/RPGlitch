@@ -28,11 +28,11 @@
         transition:fade={{ duration: 800 }}
     >
         <!-- FRACTAL BACKGROUND -->
-        {#if app.selectedFractal?.profilePictureUrl}
+        {#if app.selectedFractal?.visuals?.profilePicture}
             <div
                 id="fractal-background"
-                style:background-image="url('{app.selectedFractal
-                    .profilePictureUrl}')"
+                style:background-image="url('{app.selectedFractal.visuals
+                    .profilePicture}')"
                 style:opacity={app.view === "game" ? 0.4 : 0.15}
             ></div>
         {/if}

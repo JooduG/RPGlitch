@@ -65,7 +65,7 @@ export const VisualsService = {
      * @returns {Promise<string>} The generated image URL.
      */
     async generate(target, options = {}) {
-        if (!window.t2i) {
+        if (!window.pluginTextToImage) {
             console.warn("[Visuals] Perchance t2i plugin not available.")
             return null
         }
@@ -99,13 +99,21 @@ export const VisualsService = {
 
             const res = this.getResolution(options.mode)
 
-            const result = await window.t2i({
+            const result = await window.pluginTextToImage({
                 prompt: finalPrompt,
                 negativePrompt,
                 seed: options.seed || Math.floor(Math.random() * 1000000),
                 width: options.width || res.width,
                 height: options.height || res.height,
             })
+
+            if (result && result.dataUrl) {
+                // Perchance plugin returns an object with dataUrl
+                if (entityId && !options.noCache) {
+                    await this.cacheImage(entityId, result.dataUrl)
+                }
+                return result.dataUrl
+            }
 
             if (result && entityId && !options.noCache) {
                 await this.cacheImage(entityId, result)
@@ -122,13 +130,13 @@ export const VisualsService = {
      * Uploads a file to the server.
      */
     async upload(file) {
-        if (!window.upload) {
+        if (!window.pluginUpload) {
             console.error("[Visuals] upload plugin not found.")
             return null
         }
 
         try {
-            const result = await window.upload(file)
+            const result = await window.pluginUpload(file)
             return result?.url || result
         } catch (e) {
             console.error("[Visuals] Upload failed:", e)
@@ -142,14 +150,17 @@ export const VisualsService = {
     async cacheImage(entityId, imageData) {
         try {
             await db.entities.update(entityId, {
-                profilePicture: imageData,
+                "visuals.profilePicture": imageData,
                 updatedAt: Date.now(),
             })
 
             // Notify simulation of the update
             events.dispatchEvent(
                 new CustomEvent(EVENTS.ENTITY_UPDATED, {
-                    detail: { id: entityId, profilePicture: imageData },
+                    detail: {
+                        id: entityId,
+                        visuals: { profilePicture: imageData },
+                    },
                 })
             )
         } catch (err) {

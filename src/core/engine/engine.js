@@ -7,7 +7,6 @@ import { ContextBroker } from "@core/intelligence/broker.js"
 import { LlmService } from "@core/intelligence/service.js"
 import { runtime } from "@state/runtime.svelte.js"
 import { events, EVENTS, state as store } from "./bus.js"
-import { Chrono } from "./chrono.js"
 import { Session } from "./session.js"
 
 /**
@@ -24,8 +23,9 @@ export const Engine = {
     regenerate: () => Session.regenerate(),
 
     // --- CHRONO ---
-    tick: (delta) => Chrono.tick(delta),
-    getDuration: () => Chrono.getElapsed(),
+    // --- CHRONO ---
+    // tick: (delta) => Chrono.tick(delta), // Removed: Unused/Not Implemented
+    // getDuration: () => Chrono.getElapsed(), // Removed: Unused/Not Implemented
 
     // --- PHYSICS ---
     getPhysics: () => runtime.physics,

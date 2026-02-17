@@ -163,15 +163,29 @@
 
         <div id="profile-screen" hidden></div>
 
+        <!-- PERCHANCE PLUGINS -->
+        <script src="https://perchance.org/ai-text-plugin"></script>
+        <script src="https://perchance.org/text-to-image-plugin"></script>
+        <script src="https://perchance.org/super-fetch-plugin"></script>
+        <script src="https://perchance.org/remember-plugin"></script>
+        <script src="https://perchance.org/upload-plugin"></script>
+
         <script>
+            // Initialize Plugin Aliases
             if (typeof ai !== "undefined") {
                 window.ai = ai
                 window.pluginAi = ai
             }
+
+            // Text-to-Image (Handle both t2i and textToImage names)
             if (typeof textToImage !== "undefined") {
                 window.textToImage = textToImage
                 window.pluginTextToImage = textToImage
+            } else if (typeof t2i !== "undefined") {
+                window.textToImage = t2i
+                window.pluginTextToImage = t2i
             }
+
             if (typeof superFetch !== "undefined") {
                 window.superFetch = superFetch
                 window.pluginSuperFetch = superFetch

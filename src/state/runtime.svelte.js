@@ -213,6 +213,11 @@ function createRuntimeStore() {
 
                 targets.forEach((t) => {
                     if (t && t.id === id) {
+                        // Handle visuals deep merge specifically
+                        if (updates.visuals) {
+                            t.visuals = { ...t.visuals, ...updates.visuals }
+                            delete updates.visuals // Remove from generic assign to avoid overwrite
+                        }
                         Object.assign(t, updates)
                     }
                 })

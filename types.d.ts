@@ -20,7 +20,14 @@ declare global {
             prompt: string,
             options?: Record<string, unknown>
         ) => Promise<any>
-        /** Alias for textToImage */
+        /** Alias for textToImage matching the plugin export */
+        pluginTextToImage: (options: {
+            prompt: string
+            negativePrompt?: string
+            seed?: number
+            width?: number
+            height?: number
+        }) => Promise<any>
         t2i: (options: {
             prompt: string
             negativePrompt?: string
@@ -30,6 +37,11 @@ declare global {
         }) => Promise<string>
         /** Perchance file upload */
         upload: (
+            data: unknown,
+            options?: Record<string, unknown>
+        ) => Promise<any>
+        /** Alias for upload matching the plugin export */
+        pluginUpload: (
             data: unknown,
             options?: Record<string, unknown>
         ) => Promise<any>
@@ -75,6 +87,8 @@ declare global {
         state: any
         /** GameMaster Core */
         GameMaster: any
+        /** Engine Core */
+        Engine: any
     }
 }
 

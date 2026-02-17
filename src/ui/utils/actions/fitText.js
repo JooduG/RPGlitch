@@ -14,7 +14,9 @@ export function fitText(node, options = {}) {
     let lineHeight = options.lineHeight || "1.2"
 
     const resizeObserver = new ResizeObserver(() => {
-        adjustFontSize(node, maxSize, minSize, lineHeight)
+        requestAnimationFrame(() => {
+            adjustFontSize(node, maxSize, minSize, lineHeight)
+        })
     })
     resizeObserver.observe(node)
 

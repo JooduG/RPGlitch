@@ -159,6 +159,7 @@ export const stories = {
                 allStories.map(async (story) => {
                     const fractal = await db.entities.get(story.fractalId)
                     const avatar =
+                        fractal?.visuals?.profilePicture ||
                         fractal?.visuals?.profilePictureUrl ||
                         fractal?.profilePictureUrl ||
                         ""

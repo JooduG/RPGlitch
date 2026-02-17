@@ -159,13 +159,30 @@
 
         if (hasPromptText) {
             // --- GENERATE LOGIC ---
+            console.log(
+                "[VisualWing] Triggering Generate. Prompt:",
+                promptValue
+            )
             try {
+                if (!window.pluginTextToImage) {
+                    console.error(
+                        "[VisualWing] CRITICAL: window.pluginTextToImage is MISSING!",
+                        window
+                    )
+                    alert(
+                        "Error: Text-to-Image plugin not loaded. Please refresh or contact support."
+                    )
+                    return
+                }
+
                 const url = await VisualsService.generate(promptValue, {
                     noBackground: char.visuals.noBackground,
                 })
-                if (url) char.visuals.profilePictureUrl = url
+                console.log("[VisualWing] Generation Result:", url)
+                if (url) char.visuals.profilePicture = url
             } catch (err) {
                 console.error("Generation failed:", err)
+                alert("Generation failed: " + err.message)
             } finally {
                 const updated = new Set(busyFields)
                 updated.delete("visual-prompt")
@@ -189,7 +206,7 @@
             const url = await VisualsService.upload(file)
             if (url) {
                 char.visuals = char.visuals || {}
-                char.visuals.profilePictureUrl = url
+                char.visuals.profilePicture = url
             }
         } catch (err) {
             console.error("Upload failed:", err)
@@ -296,13 +313,6 @@
     </div>
 
     <!-- Tooltip (Portal-ish) -->
-    <Tooltip
-        text={currTooltip.text}
-        visible={currTooltip.visible}
-        x={currTooltip.x}
-        y={currTooltip.y}
-        position="top"
-    />
 
     <!-- 2. Visual Prompting -->
     <div class="group">
