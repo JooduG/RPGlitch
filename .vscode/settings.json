@@ -43,5 +43,5 @@
         "./scripts/tool_name.js",
         "./scripts/tool.js"
     ],
-    "markdown.validate.referenceLinks.enabled": false
+    "markdown.validate.referenceLinks.enabled": "warning"
 }

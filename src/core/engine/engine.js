@@ -31,7 +31,7 @@ export const Engine = {
     getPhysics: () => runtime.physics,
 
     // --- UTILS ---
-    log: (msg) => console.log(`[Engine] ${msg}`),
+    log: () => {},
 
     /**
      * @deprecated Use Engine directly. Legacy bridge for old scripts.

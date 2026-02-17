@@ -39,3 +39,4 @@
 - [x] Create "Experience Bar" component as a Proof of Concept.
 - [x] 🚀 Deployed: 2026-02-12 21:14
 - [x] 🚀 Deployed: 2026-02-11 10:15
+- [x] 🚀 Deployed: 2026-02-17 17:35
