@@ -35,12 +35,12 @@
                 <Toggle
                     label="CALL MODE"
                     bind:value={app.settings.callMode}
-                    onchange={app.saveSettings}
+                    onchange={() => app.saveSettings()}
                 />
                 <Toggle
                     label="NOTIFICATIONS"
                     bind:value={app.settings.sound}
-                    onchange={app.saveSettings}
+                    onchange={() => app.saveSettings()}
                 />
             </div>
         </header>
@@ -98,7 +98,7 @@
                     <Toggle
                         label="DevMode"
                         bind:value={app.settings.devMode}
-                        onchange={app.saveSettings}
+                        onchange={() => app.saveSettings()}
                     />
                 </div>
                 <Button variant="secondary" size="sm" onclick={handleReset}>

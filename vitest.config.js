@@ -10,9 +10,8 @@ export default defineConfig({
         // Explicitly include both src and .agent test paths
         include: [
             "src/**/*.{test,spec}.{js,ts}",
-            "tests/**/*.{test,spec}.{js,ts}",
             ".agent/skills/warden/scripts/unit/**/*.{test,spec}.{js,ts}",
-            ".agent/skills/quality-assurance/tests/compliance/**/*.{test,spec}.{js,ts}",
+            ".agent/skills/quality-assurance/scripts/**/*.{test,spec}.{js,ts}",
         ],
         exclude: [
             "**/node_modules/**",

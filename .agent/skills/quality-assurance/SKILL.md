@@ -7,7 +7,7 @@ description: >
     - "Run tests"
     - "Audit code"
     - "Security scan"
-    - "tests/**"
+    - "scripts/**"
     - "Context: [Quality Assurance]"
 ---
 
@@ -20,7 +20,7 @@ description: >
 ### Unit Testing (Vitest Browser Mode)
 
 - **Command**: `npm run test:unit`
-- **Location**: `tests/unit/` mirroring `src/` structure.
+- **Location**: `scripts/` (Flattened).
 - **Requirement**: Must use `vitest-browser-svelte` for true Rune reactivity. JSDOM is deprecated for Svelte 5.
 - **State**: Use `flushSync()` when testing external `.svelte.ts` state.
 

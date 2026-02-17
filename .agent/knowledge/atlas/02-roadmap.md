@@ -15,14 +15,14 @@ description: Milestones, Strategic Objectives, and Progress Tracking.
 - [x] **Core Runes Foundation:** Migration to Svelte 5 `$state` and `$derived`.
 - [x] **The Data Pillar:** IndexedDB (Dexie) integration for character/story persistence.
 - [x] **Diegetic UI Base:** Implementation of the "Chalk Regime" and Profile Modal.
-- [ ] **Chrono Kinetics:** Finalizing the turn-based logic loop in `src/core/engine`.
-- [ ] **Security Protocol:** Automated sanitization and security audits.
+- [x] **Chrono Kinetics:** Implemented `NarrativeDirector` and `[CHRONO_LAYER]` logic in `src/core/engine`.
+- [x] **Security Protocol:** Stabilized `saveSettings` and implemented JS-driven lexical filtering.
 
 ## 🌪️ Milestone 2: Convergence (v1.0)
 
 **Goal:** Deep integration of intelligence and visual immersion.
 
-- [ ] **Context Layering:** Intelligent prompt assembly based on location, mood, and status.
+- [/] **Context Layering:** Intelligent prompt assembly system implemented in `broker.js` (Nexus Layering).
 - [ ] **Sensory Bridges:** Automated atmospheric transitions during time-skips.
 - [ ] **Fail-Forward Engine:** Formalizing the "Entropy" logic to drive narrative stakes.
 
@@ -42,3 +42,5 @@ description: Milestones, Strategic Objectives, and Progress Tracking.
 - [ ] **Social Mesh:** Autonomous NPC relationships and ensemble dynamics.
 - [ ] **Fractal Convergence:** Moving entities and lore between story instances.
 - [ ] **Glitch Protocol:** Meta-narrative events where the engine addresses the user directly.
+
+[/]: # "In-Progress Reference"

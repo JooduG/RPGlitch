@@ -13,11 +13,9 @@
     - [ ] Full Meridian loop validation: Plan -> Build -> Polish -> Audit.
     - [ ] [Track Details](file:///c:/Users/johng/Documents/GitHub/default/.agent/tasks/integration-proving/plan.md)
 
-## 🏆 Epic: The Great Typening (Future)
+## 📋 Active Tracks (In Progress)
 
-- [ ] **Phase 1:** Migrate scripts (JS -> TS)
-- [ ] **Phase 2:** Enforce Strict Mode
-- [ ] **Phase 3:** Auto-Mocking for Tests
+- [/] **Narrative Stability Nexus**: Stabilizing prompt logic and fixing settings persistence. `.agent/tasks/narrative-stability-nexus/plan.md`
 
 ## 📋 Backlog (To Do)
 

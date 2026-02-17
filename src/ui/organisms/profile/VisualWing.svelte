@@ -412,7 +412,7 @@
             <span class="label">Flip Profile Picture</span>
             <input
                 type="checkbox"
-                bind:checked={char.visuals.flip}
+                bind:checked={char.visuals.flipped}
                 disabled={!isEditing}
             />
             <div class="switch"></div>

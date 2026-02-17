@@ -29,7 +29,7 @@
     let signatureColor = $derived(themeStore.getSignatureColor(entity))
     let initials = $derived(themeStore.getInitials(name))
     let isNoBg = $derived(entity?.visuals?.noBackground)
-    let isFlipped = $derived(entity?.visuals?.flipped || entity?.visuals?.flip)
+    let isFlipped = $derived(entity?.visuals?.flipped)
 </script>
 
 <div class="profile-picture" style="--signature-color: {signatureColor}">

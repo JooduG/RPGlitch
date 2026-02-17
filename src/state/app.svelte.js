@@ -34,6 +34,10 @@ export class AppStore {
         // feed: [], // MOVED TO @state/messages.svelte.js
         status: "idle", // idle | generating | saving
         generatingRole: "ai", // [R5] Tracks who is currently thinking (ai | fractal | user)
+        chrono: {
+            activeObjective: null,
+            currentConflict: null,
+        },
     })
 
     // 🔮 FATE SYSTEM (Fortune)
@@ -112,6 +116,14 @@ export class AppStore {
 
     saveSettings = async () => {
         if (typeof window === "undefined") return
+
+        // [STABILITY] Defense against lost context or uninitialized state
+        if (!this || !this.settings) {
+            console.error(
+                "[Security] saveSettings: App context or settings lost."
+            )
+            return
+        }
 
         try {
             await db.kv_settings.put({

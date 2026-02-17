@@ -4,11 +4,16 @@
  */
 
 import { ContextBroker } from "@core/intelligence/broker.js"
+import { Echo } from "@core/intelligence/echo.js"
 import { LlmService } from "@core/intelligence/service.js"
+import { db } from "@data/db.js"
+import { entities } from "@data/repository.js"
 import { app } from "@state/app.svelte.js" // [R5]
 import { runtime } from "@state/runtime.svelte.js"
 import { events, EVENTS, state as store } from "./bus.js"
 import { Session } from "./session.js"
+
+const Resonance = new Echo()
 
 /**
  * The Engine provides a unified interface for the high-level simulation logic.
@@ -38,6 +43,75 @@ export const Engine = {
     log: () => {},
 
     /**
+     * NARRATIVE DIRECTOR
+     * Manages the "Story Beats" and Plot Thread synchronization.
+     */
+    NarrativeDirector: {
+        update: () => {
+            const char = runtime.character
+            if (!char || !char.customData?.plot?.active) return
+
+            // 1. Sync Objective from Critical Plot Thread
+            const critical = char.customData.plot.active.filter(
+                (t) => t.critical
+            )
+            if (critical.length > 0) {
+                app.simulation.chrono.activeObjective = critical
+                    .map((t) => t.description)
+                    .join("; ")
+            } else {
+                app.simulation.chrono.activeObjective = null
+            }
+        },
+
+        /**
+         * L2 CONSOLIDATION (Tiered Memory)
+         * Evicts old messages and compresses them into lore "Resonance".
+         */
+        consolidate: async () => {
+            const storyId = Session.requireActive()
+            const messages = await Session.loadMessages(storyId)
+            const unconsolidated = messages.filter((m) => !m.meta?.consolidated)
+
+            // Trigger every 10 unconsolidated messages
+            if (unconsolidated.length >= 12) {
+                const slice = unconsolidated.slice(0, 10)
+                app.log(
+                    `Memory Nexus: Consolidating ${slice.length} turns into lore...`,
+                    "system"
+                )
+
+                const ai = runtime.aiCharacter
+                if (ai) {
+                    const resonance = await Resonance.memorize(
+                        ai,
+                        slice,
+                        "character"
+                    )
+                    if (resonance?.summary) {
+                        // Append to Lore
+                        ai.timeline = ai.timeline || { past: "", future: "" }
+                        ai.timeline.past = `${ai.timeline.past || ""}\n[RESONANCE]: ${resonance.summary}`
+                        await entities.save("character", ai)
+                    }
+                }
+
+                // Mark as consolidated in DB
+                for (const msg of slice) {
+                    msg.meta = { ...msg.meta, consolidated: true }
+                    await db.messages.update(msg.id, { meta: msg.meta })
+                }
+
+                events.dispatchEvent(
+                    new CustomEvent(EVENTS.CHAT_REFRESH, {
+                        detail: { storyId },
+                    })
+                )
+            }
+        },
+    },
+
+    /**
      * @deprecated Use Engine directly. Legacy bridge for old scripts.
      */
     legacyProxy: () => {
@@ -53,6 +127,9 @@ export const Engine = {
         events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED))
 
         try {
+            // [NEXUS] Update Narrative Chronology before assembly
+            Engine.NarrativeDirector.update()
+
             // 2. ASSEMBLE (Modular Context)
             const payload = await ContextBroker.assemble(
                 options.input || "",
@@ -66,6 +143,9 @@ export const Engine = {
             // Assume AI character name is in runtime or use default
             const aiName = runtime.aiCharacter?.name || "AI"
             await Session.addAiMessage(response, aiName)
+
+            // [NEXUS] Check for L2 Consolidation
+            await Engine.NarrativeDirector.consolidate()
         } catch (e) {
             console.error("Generation Failed", e)
             throw e
