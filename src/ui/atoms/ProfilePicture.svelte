@@ -19,7 +19,12 @@
     let { entity } = $props()
 
     // Extract what we need from the entity
-    let pictureUrl = $derived(entity?.visuals?.profilePicture)
+    let pictureUrl = $derived(
+        entity?.visuals?.profilePicture ||
+            entity?.visuals?.profilePictureUrl ||
+            entity?.profilePicture ||
+            entity?.profilePictureUrl
+    )
     let name = $derived(entity?.name || "Entity")
     let signatureColor = $derived(themeStore.getSignatureColor(entity))
     let initials = $derived(themeStore.getInitials(name))

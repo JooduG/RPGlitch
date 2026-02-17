@@ -4,10 +4,13 @@
  * Contains the immutable definitions of premade entities and the normalization logic (Schema).
  */
 
+import { PALETTE } from "@core/engine/config.js"
 import { Security } from "@core/security/security.js"
 const sanitizeHtml = Security.sanitize
-const getRandomSignatureKey = () =>
-    ["cyan", "magenta", "lime", "yellow"][Math.floor(Math.random() * 4)]
+const getRandomSignatureKey = () => {
+    const keys = Object.keys(PALETTE).filter((k) => k !== "default")
+    return keys[Math.floor(Math.random() * keys.length)]
+}
 
 export const STORAGE_VERSION = 3
 
@@ -347,7 +350,10 @@ export const normalize = (base = {}) => {
         .filter(Boolean)
 
     const existingAvatar =
-        (visuals && visuals.profilePictureUrl) || base.profilePictureUrl || ""
+        (visuals && (visuals.profilePicture || visuals.profilePictureUrl)) ||
+        base.profilePicture ||
+        base.profilePictureUrl ||
+        ""
 
     return {
         // ========================================
@@ -355,7 +361,7 @@ export const normalize = (base = {}) => {
         // ========================================
         name: sanitizeHtml(name).trim(),
         description: sanitizeHtml(description).trim(),
-        profilePictureUrl: sanitizeHtml(existingAvatar).trim(),
+        profilePicture: sanitizeHtml(existingAvatar).trim(),
         icon,
         type: type,
         tags: safeTags,
@@ -394,7 +400,7 @@ export const normalize = (base = {}) => {
         // ========================================
         visuals: {
             flipped: visuals?.flipped || false,
-            profilePictureUrl: existingAvatar,
+            profilePicture: existingAvatar,
             signatureColor: (() => {
                 const color = sanitizeHtml(
                     String(visuals?.signatureColor || "")

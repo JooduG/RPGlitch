@@ -150,7 +150,7 @@ export const CONFIG = {
 }
 
 // Re-export specific groups for easier destructuring if needed
-export const { ROLES, ENTITIES, PALETTE, MESSAGES } = CONFIG
+export const { ROLES, ENTITIES, PALETTE, MESSAGES, DEFAULT_COLORS } = CONFIG
 export const ERROR_MESSAGES = MESSAGES
 
 export const IMG_RESOLUTION = CONFIG.VISUALS.RESOLUTION

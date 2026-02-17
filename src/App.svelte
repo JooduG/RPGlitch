@@ -25,6 +25,7 @@
         class:view-lobby={app.view === "lobby"}
         class:view-game={app.view === "game"}
         class:has-tension={app.tension > 0}
+        class:has-fractal-bg={!!app.selectedFractal?.visuals?.profilePicture}
         transition:fade={{ duration: 800 }}
     >
         <!-- FRACTAL BACKGROUND -->
@@ -33,7 +34,7 @@
                 id="fractal-background"
                 style:background-image="url('{app.selectedFractal.visuals
                     .profilePicture}')"
-                style:opacity={app.view === "game" ? 0.4 : 0.15}
+                style:opacity={app.view === "game" ? 0.4 : 0.25}
             ></div>
         {/if}
 

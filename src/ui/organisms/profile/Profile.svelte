@@ -1,4 +1,5 @@
 <script>
+    import { entities } from "@data/repository.js"
     import { app } from "@state/app.svelte.js"
     import { runtime } from "@state/runtime.svelte.js"
     import { themeStore } from "@theme/palette.svelte.js"
@@ -104,6 +105,35 @@
         isSaving = true
         try {
             await runtime.saveEntity(entityType || "character", char)
+
+            // [FIX] SYNC STORYBOARD STATE
+            // If we are in Lobby, we must refresh the lists and selection
+            if (app.view === "lobby") {
+                const eid = char.id
+                // 1. Refresh Lists
+                const [ais, users, fractals] = await Promise.all([
+                    entities.list("character"),
+                    entities.list("character"),
+                    entities.list("fractal"),
+                ])
+                app.aiList = ais
+                app.userList = users
+                app.fractalList = fractals
+
+                // 2. Refresh Selection if matches
+                if (app.selectedAi?.id === eid) {
+                    const fresh = ais.find((e) => e.id === eid)
+                    if (fresh) app.selectedAi = fresh
+                }
+                if (app.selectedUser?.id === eid) {
+                    const fresh = users.find((e) => e.id === eid)
+                    if (fresh) app.selectedUser = fresh
+                }
+                if (app.selectedFractal?.id === eid) {
+                    const fresh = fractals.find((e) => e.id === eid)
+                    if (fresh) app.selectedFractal = fresh
+                }
+            }
         } catch (err) {
             console.error("Failed to save profile:", err)
             isEditing = true
@@ -283,11 +313,7 @@
         backdrop-filter: blur(20px);
 
         .left {
-            background: linear-gradient(
-                to bottom,
-                rgba(var(--signature-rgb), 0.15),
-                rgba(0, 0, 0, 0.4)
-            );
+            background: transparent;
             border-right: 0;
             display: flex;
             flex-direction: column;

@@ -1,40 +1,91 @@
 <script>
     import { app } from "@state/app.svelte.js"
     import { runtime } from "@state/runtime.svelte.js"
-    import { PALETTE, themeStore } from "@theme/palette.svelte.js"
+    import { DEFAULT_COLORS, themeStore } from "@theme/palette.svelte.js"
     import DOMPurify from "dompurify"
     import SceneHeader from "../SceneHeader.svelte"
 
     let {
         text = "",
-        sender = "system", // 'ai', 'user', 'system'
+        sender = "system", // 'ai', 'user', 'fractal', 'system'
+        characterName = "",
         timestamp = new Date(),
         attachments = [],
-        // New Props for Actions
         onDelete = () => {},
         onRegenerate = () => {},
         onContinue = () => {},
         onEdit = () => {},
         isLast = false,
+        isThinking = false, // [R3] Renders as dot-dot-dot pill
     } = $props()
 
     let isUser = $derived(sender === "user")
     let isAi = $derived(sender === "ai")
     let isFractal = $derived(sender === "fractal")
 
-    let entity = $derived(
-        isUser
-            ? runtime.userCharacter
-            : isAi
-              ? runtime.aiCharacter
-              : isFractal
-                ? runtime.storyFractal
-                : null
-    )
+    let entity = $derived.by(() => {
+        // [R5] Resolution Order:
+        // 1. Exact Name Match in Runtime (Active)
+        // 2. Exact Name Match in App Lists (History)
+        // 3. Fallback to Active Runtime Role (if name matches or is generic)
 
-    let signatureColor = $derived(
-        entity ? themeStore.getSignatureColor(entity) : PALETTE.gunmetal
-    )
+        if (!characterName) {
+            // No name? Use active runtime by role
+            if (isUser) return runtime.userCharacter
+            if (isAi) return runtime.aiCharacter
+            if (isFractal) return runtime.storyFractal
+            return null
+        }
+
+        // 1. Is it the ACTIVE character? (Fastest & most correct for edits)
+        if (isUser && runtime.userCharacter?.name === characterName)
+            return runtime.userCharacter
+        if (isAi && runtime.aiCharacter?.name === characterName)
+            return runtime.aiCharacter
+        if (isFractal && runtime.storyFractal?.name === characterName)
+            return runtime.storyFractal
+
+        // 2. Is it in the LOBBY/CACHE lists? (For history)
+        if (isUser) return app.userList.find((e) => e.name === characterName)
+        if (isAi) return app.aiList.find((e) => e.name === characterName)
+        if (isFractal)
+            return app.fractalList.find((e) => e.name === characterName)
+
+        // 3. Fallback: If we can't find it, assume it refers to the active one (Legacy)
+        if (isUser) return runtime.userCharacter
+        if (isAi) return runtime.aiCharacter
+        return null
+    })
+
+    let signatureColor = $derived.by(() => {
+        // 1. Try Entity
+        if (entity) {
+            const color = themeStore.getSignatureColor(entity)
+            return color
+        }
+
+        // 2. Try Character Name (Deterministic Fallback)
+        if (characterName) {
+            const color = themeStore.getDeterministicColor(characterName)
+            return color
+        }
+
+        // 3. Fallback to App State (Lobby/Storyboard Mode)
+        // When in lobby, runtime.* is null, so we must check app.selected*
+        if (isUser && app.selectedUser?.visuals?.signatureColor)
+            return themeStore.getSignatureColor(app.selectedUser)
+        if (isAi && app.selectedAi?.visuals?.signatureColor)
+            return themeStore.getSignatureColor(app.selectedAi)
+        if (isFractal && app.selectedFractal?.visuals?.signatureColor)
+            return themeStore.getSignatureColor(app.selectedFractal)
+
+        // 4. Robust Fallback by Role
+        if (isUser) return DEFAULT_COLORS.USER
+        if (isFractal) return DEFAULT_COLORS.FRACTAL
+        if (isAi) return DEFAULT_COLORS.AI
+
+        return DEFAULT_COLORS.SYSTEM
+    })
 
     let textColor = $derived(themeStore.getContrastColor(signatureColor))
 
@@ -49,8 +100,6 @@
     let displayText = $derived(parsed.displayText)
     let thinkBlock = $derived(parsed.think)
     let sceneData = $derived(parsed.sceneData)
-
-
 </script>
 
 <div
@@ -58,205 +107,221 @@
     class:user-row={isUser}
     class:ai-row={isAi}
     class:fractal-row={isFractal}
+    class:thinking-row={isThinking}
 >
-    <div
-        class="message-bubble"
-        class:user-bubble={isUser}
-        class:ai-bubble={isAi}
-        class:fractal-bubble={isFractal}
-        style="--bubble-color: {signatureColor}; --signature-color: {signatureColor}; --bubble-text-color: {textColor};"
-    >
-        <!-- SCENE HEADER (If detected) -->
-        {#if sceneData}
-            <div class="scene-header-wrapper">
-                <SceneHeader {...sceneData} />
-            </div>
-        {/if}
-
-        <!-- DEV MODE: THINK BLOCK -->
-        {#if app.settings.devMode && thinkBlock}
-            <div class="think-block">
-                <div class="think-label">🎬 DevMode</div>
-                <div class="think-content">{thinkBlock}</div>
-            </div>
-        {/if}
-
-        {#if attachments.length > 0}
-            <div class="attachments">
-                {#each attachments as src (src)}
-                    <button
-                        type="button"
-                        class="attachment-btn"
-                        onclick={() => app.openLightbox(src)}
-                        title="View Attachment"
-                    >
-                        <img
-                            {src}
-                            alt="Attachment"
-                            class="attachment-image"
-                            onerror={(e) => {
-                                // @ts-ignore - style exists on HTMLImageElement target
-                                e.target.style.display = "none"
-                                console.warn("Failed to load attachment:", src)
-                            }}
-                        />
-                    </button>
-                {/each}
-            </div>
-        {/if}
-        <div class="message-content">
-            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-            {@html DOMPurify.sanitize(displayText)}
+    {#if isThinking}
+        <!-- [R3] Thinking Pill: Pure signature color, white dots -->
+        <div class="thinking-pill" style="background: {signatureColor};">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
         </div>
-        <div class="message-footer">
-            <!-- NEW: Actions (Left of Timestamp, same row) -->
-            {#if isAi}
-                <div class="message-actions">
-                    <!-- AI-Specific Actions (Shown only on last message) -->
-                    {#if isLast}
-                        <button
-                            class="action-btn"
-                            type="button"
-                            title="Continue"
-                            onclick={(e) => onContinue(e)}
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="14"
-                                height="14"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            >
-                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                            </svg>
-                        </button>
-                        <button
-                            class="action-btn"
-                            type="button"
-                            title="Reroll"
-                            onclick={(e) => onRegenerate(e)}
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="14"
-                                height="14"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            >
-                                <polyline points="23 4 23 10 17 10"></polyline>
-                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"
-                                ></path>
-                            </svg>
-                        </button>
-                    {/if}
-
-                    <!-- Edit (Available on all AI messages) -->
-                    <button
-                        class="action-btn"
-                        type="button"
-                        title="Edit"
-                        onclick={(e) => onEdit(e)}
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        >
-                            <path
-                                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
-                            ></path>
-                            <path
-                                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
-                            ></path>
-                        </svg>
-                    </button>
-
-                    <!-- Copy -->
-                    <button
-                        class="action-btn"
-                        type="button"
-                        title="Copy"
-                        onclick={async () => {
-                            try {
-                                await navigator.clipboard.writeText(text)
-                            } catch (e) {
-                                console.error("Failed to copy text:", e)
-                            }
-                        }}
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        >
-                            <rect
-                                x="9"
-                                y="9"
-                                width="13"
-                                height="13"
-                                rx="2"
-                                ry="2"
-                            ></rect>
-                            <path
-                                d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
-                            ></path>
-                        </svg>
-                    </button>
-                    <!-- Delete -->
-                    <button
-                        class="action-btn delete"
-                        type="button"
-                        title="Delete"
-                        onclick={(e) => onDelete(e)}
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        >
-                            <polyline points="3 6 5 6 21 6"></polyline>
-                            <path
-                                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                            ></path>
-                        </svg>
-                    </button>
+    {:else}
+        <div
+            class="message-bubble"
+            class:user-bubble={isUser}
+            class:ai-bubble={isAi}
+            class:fractal-bubble={isFractal}
+            style="--bubble-color: {signatureColor}; --signature-color: {signatureColor}; --bubble-text-color: {textColor};"
+        >
+            <!-- SCENE HEADER (If detected) -->
+            {#if sceneData}
+                <div class="scene-header-wrapper">
+                    <SceneHeader {...sceneData} />
                 </div>
             {/if}
 
-            <div class="message-timestamp">
-                {timestamp.toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                })}
+            <!-- DEV MODE: THINK BLOCK -->
+            {#if app.settings.devMode && thinkBlock}
+                <div class="think-block">
+                    <div class="think-label">🎬 DevMode</div>
+                    <div class="think-content">{thinkBlock}</div>
+                </div>
+            {/if}
+
+            {#if attachments.length > 0}
+                <div class="attachments">
+                    {#each attachments as src (src)}
+                        <button
+                            type="button"
+                            class="attachment-btn"
+                            onclick={() => app.openLightbox(src)}
+                            title="View Attachment"
+                        >
+                            <img
+                                {src}
+                                alt="Attachment"
+                                class="attachment-image"
+                                onerror={(e) => {
+                                    // @ts-ignore - style exists on HTMLImageElement target
+                                    e.target.style.display = "none"
+                                    console.warn(
+                                        "Failed to load attachment:",
+                                        src
+                                    )
+                                }}
+                            />
+                        </button>
+                    {/each}
+                </div>
+            {/if}
+            <div class="message-content">
+                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                {@html DOMPurify.sanitize(displayText)}
+            </div>
+            <div class="message-footer">
+                <!-- NEW: Actions (Left of Timestamp, same row) -->
+                {#if isAi}
+                    <div class="message-actions">
+                        <!-- AI-Specific Actions (Shown only on last message) -->
+                        {#if isLast}
+                            <button
+                                class="action-btn"
+                                type="button"
+                                title="Continue"
+                                onclick={(e) => onContinue(e)}
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <polygon points="5 3 19 12 5 21 5 3"
+                                    ></polygon>
+                                </svg>
+                            </button>
+                            <button
+                                class="action-btn"
+                                type="button"
+                                title="Reroll"
+                                onclick={(e) => onRegenerate(e)}
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <polyline points="23 4 23 10 17 10"
+                                    ></polyline>
+                                    <path
+                                        d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"
+                                    ></path>
+                                </svg>
+                            </button>
+                        {/if}
+
+                        <!-- Edit (Available on all AI messages) -->
+                        <button
+                            class="action-btn"
+                            type="button"
+                            title="Edit"
+                            onclick={(e) => onEdit(e)}
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path
+                                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                                ></path>
+                                <path
+                                    d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                                ></path>
+                            </svg>
+                        </button>
+
+                        <!-- Copy -->
+                        <button
+                            class="action-btn"
+                            type="button"
+                            title="Copy"
+                            onclick={async () => {
+                                try {
+                                    await navigator.clipboard.writeText(text)
+                                } catch (e) {
+                                    console.error("Failed to copy text:", e)
+                                }
+                            }}
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <rect
+                                    x="9"
+                                    y="9"
+                                    width="13"
+                                    height="13"
+                                    rx="2"
+                                    ry="2"
+                                ></rect>
+                                <path
+                                    d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                                ></path>
+                            </svg>
+                        </button>
+                        <!-- Delete -->
+                        <button
+                            class="action-btn delete"
+                            type="button"
+                            title="Delete"
+                            onclick={(e) => onDelete(e)}
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path
+                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                                ></path>
+                            </svg>
+                        </button>
+                    </div>
+                {/if}
+
+                <div class="message-timestamp">
+                    {timestamp.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    })}
+                </div>
             </div>
         </div>
-    </div>
+    {/if}
 </div>
 
 <style lang="scss">
@@ -290,7 +355,7 @@
         padding: 0.75rem 1.5rem; /* More horizontal padding */
 
         &.user-row {
-            justify-content: flex-end;
+            justify-content: flex-end; /* [R3] Reverted: User bubbles on right */
         }
 
         &.ai-row {
@@ -302,28 +367,64 @@
         }
     }
 
+    /* [R3] Thinking Pill */
+    .thinking-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 12px 24px;
+        border-radius: 9999px;
+        height: 40px;
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: dot-bounce 1.4s infinite ease-in-out both;
+
+            &:nth-child(1) {
+                animation-delay: -0.32s;
+            }
+            &:nth-child(2) {
+                animation-delay: -0.16s;
+            }
+        }
+    }
+
+    @keyframes dot-bounce {
+        0%,
+        80%,
+        100% {
+            transform: scale(0);
+        }
+        40% {
+            transform: scale(1);
+        }
+    }
+
     .message-bubble {
         width: max-content;
         max-width: 80%;
         padding: 1rem 1.25rem;
         border-radius: 12px;
-        background: var(--bubble-color, #18181b);
+        background: var(--bubble-color); /* [R3] Pure signature color */
         box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
-        color: var(--app-color, #fff); /* Force white text */
-        /* Removed box-shadow for flat look */
+        color: var(--app-color, #fff);
         position: relative;
-        overflow: hidden; /* For actions overlay */
+        overflow: hidden;
 
         &.user-bubble {
             max-width: 75%;
-            border-bottom-right-radius: 0;
-            /* Removed shadow */
+            border-bottom-right-radius: 0; /* [R3] Tail on right */
+            text-align: left; /* [R3] Force left text */
         }
 
         &.ai-bubble {
             max-width: 75%;
             border-bottom-left-radius: 0;
-            /* Removed shadow */
+            text-align: left; /* [R3] Force left text */
         }
 
         &.fractal-bubble {
@@ -331,10 +432,8 @@
             max-width: 80%;
             text-align: center;
             color: var(--app-color, #fff);
-            /* Flattened: Solid opaque color instead of glass gradient */
-            background: var(--bubble-color);
+            background: var(--bubble-color); /* [R3] Pure signature color */
             box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
-            /* Removed backdrop-filter and box-shadow */
         }
     }
 

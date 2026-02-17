@@ -221,22 +221,7 @@
                 box-shadow: 0 30px 60px rgba(var(--signature-rgb) / 0.25); /* Boosted to 0.25 */
             }
 
-            /* "Sass" Overlay: Diagonal Depth Lighting */
-            /* "Sass" Overlay: Diagonal Depth Lighting */
-            &::before {
-                content: "";
-                position: absolute;
-                inset: 0;
-                background: linear-gradient(
-                    135deg,
-                    rgba(255, 255, 255, 0.05) 0%,
-                    /* Reduced opacity */ rgba(255, 255, 255, 0.01) 40%,
-                    rgba(0, 0, 0, 0.05) 60%,
-                    rgba(0, 0, 0, 0.3) 100%
-                );
-                pointer-events: none;
-                z-index: 1; /* Pushed back from 5 */
-            }
+            /* Diagonal Depth Lighting: Removed per user request (R3) */
 
             /* State: Loading - Chalk Regime */
             &.is-loading {

@@ -5,6 +5,7 @@
 
 import { ContextBroker } from "@core/intelligence/broker.js"
 import { LlmService } from "@core/intelligence/service.js"
+import { app } from "@state/app.svelte.js" // [R5]
 import { runtime } from "@state/runtime.svelte.js"
 import { events, EVENTS, state as store } from "./bus.js"
 import { Session } from "./session.js"
@@ -19,7 +20,10 @@ export const Engine = {
     getActive: () => Session.getActive(),
     createFromSelection: (data) => Session.createFromSelection(data),
     loadMessages: (storyId) => Session.loadMessages(storyId),
-    send: (text) => Session.send(text),
+    send: async (text) => {
+        await Session.send(text)
+        await Engine.generateAiResponse(Session.requireActive())
+    },
     regenerate: () => Session.regenerate(),
 
     // --- CHRONO ---
@@ -42,6 +46,9 @@ export const Engine = {
 
     // Engine Methods Replacement
     generateAiResponse: async (storyId, options = {}) => {
+        // [R5] Set Thinking Role
+        app.simulation.generatingRole = options.role || "ai"
+
         // 1. SIGNAL START
         events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED))
 
@@ -76,6 +83,7 @@ export const Engine = {
         const payload = await builder.buildPrologue()
 
         if (payload) {
+            app.simulation.generatingRole = "fractal" // [R5]
             events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED))
             try {
                 // Basic generation without full Engine overhead
@@ -83,6 +91,9 @@ export const Engine = {
                 const fractalName =
                     runtime.storyFractal?.name || "Fractal Entity"
                 await Session.addAiMessage(result, fractalName, "fractal")
+
+                // [FIX] Immediately trigger AI Character follow-up
+                await Engine.generateAiResponse(storyId)
             } finally {
                 events.dispatchEvent(
                     new CustomEvent(EVENTS.GENERATION_COMPLETED)
@@ -97,6 +108,7 @@ export const Engine = {
         const builder = new ContextBuilder(storyId)
         const payload = await builder.buildEpilogue()
         if (payload) {
+            app.simulation.generatingRole = "ai" // [R5]
             events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED))
             try {
                 const result = await LlmService.generate(payload)

@@ -69,7 +69,7 @@
             z-index: var(--z-index-ui, 10);
             display: inline-block;
             padding: var(--spacing-xs) var(--spacing-m);
-            background: var(--surface-panel);
+            background: var(--gunmetal, #363840);
             box-shadow: var(--shadow-card);
             border-radius: var(--radius-sm);
             width: fit-content;
@@ -88,20 +88,7 @@
         }
 
         .cinematic-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 50%;
-            pointer-events: none;
-            background: linear-gradient(
-                to top,
-                var(--entity-color) 0%,
-                rgba(0, 0, 0, 0) 100%
-            );
-            mix-blend-mode: hard-light;
-            opacity: 0.6;
-            transition: opacity 200ms var(--curve-snappy);
+            display: none;
         }
 
         &:hover .cinematic-overlay {

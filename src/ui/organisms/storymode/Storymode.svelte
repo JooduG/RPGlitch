@@ -1,14 +1,20 @@
 <script>
+    import { entities } from "@data/repository.js"
     import { app } from "@state/app.svelte.js"
     import { messages } from "@state/messages.svelte.js"
     import { session } from "@state/session.svelte.js"
     import Button from "@ui/atoms/Button.svelte"
-    import LoadingSkeleton from "@ui/molecules/LoadingSkeleton.svelte"
+    import { onMount } from "svelte"
+    // TypingIndicator is now integrated into Message.svelte via isThinking prop
     import Layout from "@ui/organisms/Layout.svelte"
     import InputBar from "./InputBar.svelte"
     import Message from "./Message.svelte"
     import StorymodePanel from "./StorymodePanel.svelte"
-
+    // [FEEDBACK] Fractal Background Logic
+    import { runtime } from "@state/runtime.svelte.js"
+    let fractalBg = $derived(
+        runtime?.storyFractal?.visuals?.profilePicture || ""
+    )
     // --- STATE ---
     let scrollRef = $state(null)
 
@@ -59,9 +65,43 @@
             await session.editMessage(msg.id, newText)
         }
     }
+
+    // --- ON MOUNT: Hydrate Entity Lists for Color Lookups ---
+    onMount(async () => {
+        // If we landed directly in Game (reload), the lists might be empty.
+        // We need them to resolve signature colors for historical messages.
+        if (app.aiList.length === 0) {
+            try {
+                const [ais, users, fractals] = await Promise.all([
+                    entities.list("character"),
+                    entities.list("character"),
+                    entities.list("fractal"),
+                ])
+                app.aiList = ais
+                app.userList = users
+                app.fractalList = fractals
+            } catch (e) {
+                console.error("[Storymode] Failed to hydrate colors:", e)
+            }
+        }
+
+        // [R5] Ensure Runtime is Synced (Vital for Message.svelte fallbacks)
+        if (!runtime.isReady) {
+            // Runtime can auto-recover story ID from DB
+            await runtime.sync()
+        }
+    })
 </script>
 
 <div class="storymode-container">
+    <!-- [FEEDBACK] Fractal Wallpaper Layer -->
+    {#if fractalBg}
+        <div
+            class="fractal-wallpaper"
+            style="background-image: url('{fractalBg}')"
+        ></div>
+    {/if}
+
     <!-- CINEMATIC LAYOUT: 2-6-2 -->
     <Layout mode="cinematic">
         {#snippet header()}{/snippet}
@@ -80,6 +120,10 @@
                         <Message
                             text={msg.text}
                             sender={mapRole(msg.role)}
+                            characterName={msg.characterName ||
+                                (mapRole(msg.role) === "ai"
+                                    ? app.selectedAi?.name
+                                    : "")}
                             timestamp={msg.timestamp
                                 ? new Date(msg.timestamp)
                                 : new Date()}
@@ -100,17 +144,13 @@
                             isLast={true}
                         />
                     {:else if isThinking}
-                        <!-- Thinking Indicator using Message bubble for consistency -->
-                        <div class="thinking-container">
-                            <div class="message-group ai thinking">
-                                <LoadingSkeleton
-                                    variant="text"
-                                    width="60%"
-                                    height="1.5rem"
-                                    class="skeleton-pulse"
-                                />
-                            </div>
-                        </div>
+                        <!-- [R5] Dynamic Thinking Indicator -->
+                        <Message
+                            sender={app.simulation.generatingRole}
+                            isThinking={true}
+                        />
+                        <!-- Future: <Message sender="user" isThinking={true} /> -->
+                        <!-- Future: <Message sender="fractal" isThinking={true} /> -->
                     {:else if messages.feed.length === 0}
                         <div class="empty-feed-fallback">
                             <p>
@@ -147,6 +187,19 @@
         width: 100%;
         height: 100%;
         background: inherit; /* Inherit radial gradient from body */
+        position: relative;
+    }
+
+    .fractal-wallpaper {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+        opacity: 0.15; /* Subtle overlay */
+        z-index: 0; /* Base level */
+        pointer-events: none;
+        mix-blend-mode: overlay;
+        filter: grayscale(100%) contrast(120%); /* Stylized */
     }
 
     .game-stage {
@@ -177,12 +230,6 @@
             background: var(--gunmetal, #333);
             border-radius: 3px;
         }
-    }
-
-    .thinking-container {
-        padding: 1rem 1.5rem;
-        opacity: 0.7;
-        animation: pulse 1.5s infinite ease-in-out;
     }
 
     /* Input Container sits at the bottom */

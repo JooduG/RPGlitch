@@ -50,11 +50,7 @@
     @use "@theme/abstracts/placeholders" as *;
 
     header {
-        background: color-mix(
-            in srgb,
-            rgba(0, 0, 0, 0.4),
-            var(--signature-color) 12%
-        );
+        background: var(--gunmetal);
         border-bottom: 0;
         padding: var(--spacing-l);
     }

@@ -1,4 +1,4 @@
-import { PALETTE } from "@core/engine/config.js"
+import { DEFAULT_COLORS, PALETTE } from "@core/engine/config.js"
 
 /**
  * THEME STORE (REACTIVE)
@@ -185,4 +185,4 @@ class ThemeStore {
 }
 
 export const themeStore = new ThemeStore()
-export { PALETTE }
+export { DEFAULT_COLORS, PALETTE }

@@ -33,6 +33,7 @@ export class AppStore {
         turn: 0, // CHRONO: Current time step
         // feed: [], // MOVED TO @state/messages.svelte.js
         status: "idle", // idle | generating | saving
+        generatingRole: "ai", // [R5] Tracks who is currently thinking (ai | fractal | user)
     })
 
     // 🔮 FATE SYSTEM (Fortune)
@@ -109,7 +110,7 @@ export class AppStore {
         }
     }
 
-    async saveSettings() {
+    saveSettings = async () => {
         if (typeof window === "undefined") return
 
         try {

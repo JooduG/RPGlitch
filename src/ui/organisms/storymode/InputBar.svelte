@@ -1,5 +1,5 @@
 <script>
-    import { Session } from "@core/engine/session.js"
+    import { Engine } from "@core/engine/engine.js"
     import { app } from "@state/app.svelte.js"
     import { spin, stab } from "@ui/utils/actions/kinetic.js"
 
@@ -22,7 +22,7 @@
         adjustHeight() // Reset height
 
         try {
-            await Session.send(text)
+            await Engine.send(text)
         } catch (e) {
             console.error("Failed to send message:", e)
         }
@@ -40,6 +40,7 @@
     }
 </script>
 
+```
 <div
     class="input-bar-unit"
     class:is-focused={isFocused}
