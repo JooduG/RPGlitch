@@ -23,7 +23,9 @@ export class ContextBroker {
             fractal: requirements.includes("fractal")
                 ? this.pullFractal()
                 : null,
-            entity: requirements.includes("entity") ? this.pullEntity() : null,
+            entity: requirements.includes("entity")
+                ? this.pullEntity(type)
+                : null,
             delta: action,
         }
 
@@ -131,7 +133,7 @@ export class ContextBroker {
         }
     }
 
-    static pullEntity() {
+    static pullEntity(mode = "prose") {
         const ai = runtime.aiCharacter || {}
         const user = runtime.userCharacter || {}
         const objective = app.simulation.chrono?.activeObjective || ""
@@ -147,6 +149,8 @@ export class ContextBroker {
         ]
             .filter(Boolean)
             .map((f) => this.PunchyTransformer(f))
+            .map((f) => this.DiegeticFilter(f, mode)) // [NEXUS] Diegetic Tag Filtering
+            .filter((f) => f.length > 0)
 
         const filteredAi = this.LexicalFilter(aiFragments, objective)
 
@@ -158,6 +162,8 @@ export class ContextBroker {
         ]
             .filter(Boolean)
             .map((f) => this.PunchyTransformer(f))
+            .map((f) => this.DiegeticFilter(f, mode)) // [NEXUS] Diegetic Tag Filtering
+            .filter((f) => f.length > 0)
 
         return {
             ai: {
@@ -207,7 +213,33 @@ export class ContextBroker {
             .replace(/\s+/g, " ")
             .trim()
         if (clean.length > limit) clean = clean.substring(0, limit) + "..."
+        if (clean.length > limit) clean = clean.substring(0, limit) + "..."
         return clean
+    }
+
+    /**
+     * [JS] Diegetic Filter
+     * Filters content based on [TACTILE] vs [VISUAL] tags.
+     * mode = 'prose' -> Keep [TACTILE], remove [VISUAL]
+     * mode = 'visual' -> Keep [VISUAL], remove [TACTILE]
+     */
+    static DiegeticFilter(text, mode = "prose") {
+        if (!text) return ""
+
+        // Regex for tags: \[TAG\] content... or \[TAG\]
+        // Simple approach: Remove lines or sentences containing the unwanted tag?
+        // Or remove the specific marked blocks?
+        // Implementation: We assume tags are inline markers like "[VISUAL] Glowing eyes."
+
+        if (mode === "prose") {
+            // Remove [VISUAL] segments
+            return text.replace(/\[VISUAL\].*?(\.|$)/g, "").trim()
+        } else if (mode === "visual") {
+            // Remove [TACTILE] segments
+            return text.replace(/\[TACTILE\].*?(\.|$)/g, "").trim()
+        }
+
+        return text
     }
 
     // --- INJECTION ENGINE ---

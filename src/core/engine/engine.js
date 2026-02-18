@@ -127,6 +127,9 @@ export const Engine = {
         events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED))
 
         try {
+            // 1B. [CHRONO] Increment Step
+            app.simulation.turn++
+
             // [NEXUS] Update Narrative Chronology before assembly
             Engine.NarrativeDirector.update()
 

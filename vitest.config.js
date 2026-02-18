@@ -7,22 +7,9 @@ export default defineConfig({
     test: {
         environment: "jsdom",
         globals: true,
-        // Explicitly include both src and .agent test paths
-        include: [
-            "src/**/*.{test,spec}.{js,ts}",
-            ".agent/skills/warden/scripts/unit/**/*.{test,spec}.{js,ts}",
-            ".agent/skills/quality-assurance/scripts/**/*.{test,spec}.{js,ts}",
-        ],
-        exclude: [
-            "**/node_modules/**",
-            "**/.git/**",
-            // Broken legacy tests requiring refactor
-            ".agent/skills/warden/scripts/unit/gamemaster.test.js",
-            ".agent/skills/warden/scripts/unit/physics.test.js",
-            ".agent/skills/warden/scripts/unit/scholar.test.js",
-            ".agent/skills/warden/scripts/unit/validation.test.js",
-            ".agent/skills/warden/scripts/unit/mesmer.test.js",
-        ],
+        // Explicitly include src test paths
+        include: ["src/**/*.{test,spec}.{js,ts}"],
+        exclude: ["**/node_modules/**", "**/.git/**"],
         alias: {
             "@": path.resolve(__dirname, "./src"),
             "@core": path.resolve(__dirname, "./src/core"),
@@ -32,20 +19,6 @@ export default defineConfig({
             "@theme": path.resolve(__dirname, "./src/theme"),
             "@media": path.resolve(__dirname, "./src/media"),
             "@scholar": path.resolve(__dirname, "./src/data"),
-            // Legacy paths for unit tests
-            "@core/session": path.resolve(__dirname, "./src/core/engine"),
-            "@core/llm": path.resolve(__dirname, "./src/core/intelligence"),
-            "@core/prompts": path.resolve(__dirname, "./src/core/intelligence"),
-            "@core/physics": path.resolve(__dirname, "./src/core/security"),
-            "../bridge.js": path.resolve(__dirname, "./src/data/bridge.js"),
-            "../../../../../src/theme/audio/sound-effects.js": path.resolve(
-                __dirname,
-                "./src/media/audio/effects.js"
-            ),
-            "../../../../../src/theme/index.js": path.resolve(
-                __dirname,
-                "./src/theme/palette.svelte.js"
-            ),
         },
         // setupFiles: [".agent/skills/warden/scripts/setup.js"],
     },

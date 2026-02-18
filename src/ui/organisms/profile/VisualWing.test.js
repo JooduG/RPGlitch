@@ -7,7 +7,7 @@ const LlmService = {
 }
 
 const TextToImage = {
-    composeBasePrompt: vi.fn(() => "Composed Prompt"),
+    composeBasePrompt: vi.fn((_char) => "Composed Prompt"),
     generate: vi.fn(),
     upload: vi.fn(),
 }

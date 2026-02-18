@@ -20,7 +20,7 @@ description: >
 ### Unit Testing (Vitest Browser Mode)
 
 - **Command**: `npm run test:unit`
-- **Location**: `scripts/` (Flattened).
+- **Location**: `src/` (Co-located with code).
 - **Requirement**: Must use `vitest-browser-svelte` for true Rune reactivity. JSDOM is deprecated for Svelte 5.
 - **State**: Use `flushSync()` when testing external `.svelte.ts` state.
 
