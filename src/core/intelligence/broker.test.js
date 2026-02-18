@@ -61,9 +61,9 @@ describe("ContextBroker", () => {
     it("should assemble prose context with Chrono layer", async () => {
         const payload = await ContextBroker.assemble("Look around", "prose")
 
-        expect(payload.system).toContain("[CHRONO_LAYER]")
-        expect(payload.system).toContain("STEP: 5")
-        expect(payload.system).toContain("OBJECTIVE: Find the key")
+        expect(payload.system).toContain("<SIMULATION_STATE>")
+        expect(payload.system).toContain("[STEP]: 5")
+        expect(payload.system).toContain("[OBJECTIVE]: Find the key")
     })
 
     it("should filter [VISUAL] tags for prose generation (keep TACTILE)", async () => {
@@ -72,7 +72,8 @@ describe("ContextBroker", () => {
         // Spec says: "Narrative (Keep Tactile) or Image Gen (Keep Visual)"
 
         const payload = await ContextBroker.assemble("Touch the core", "prose")
-        const entityLayer = payload.system.split("[ENTITY_LAYER]")[1]
+        // Entity layer is now <ENTITY_LAYER>
+        const entityLayer = payload.system.split("<ENTITY_LAYER>")[1]
 
         // Should NOT contain [VISUAL] tag content if we filter strict,
         // or should just ensure TACTILE is present.

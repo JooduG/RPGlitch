@@ -5,60 +5,10 @@
  */
 
 import { ERROR_MESSAGES } from "@core/engine/config.js"
+import { FIELD_REGISTRY } from "@core/narrative/schema.js"
 import { app } from "@state/app.svelte.js"
 
 const utilsError = console.error
-
-const ENHANCEMENT_ROUTER = {
-    "visuals.prompt": {
-        role: "VISUAL_DIRECTOR",
-        injections: ["styles", "lighting", "tech", "composition", "mood"],
-        directive:
-            "Maintain the exact structure and order of the user's base prompt at the front of the string to preserve primacy bias. Append 1-2 matching tags from the injected AVAILABLE_TAGS to the end of the string based on the implicit vibe. Resolve any tag conflicts. Output ONLY the finalized comma-separated prompt string.",
-    },
-    "chat.user_input": {
-        role: "GHOSTWRITER",
-        injections: [],
-        directive:
-            "Rewrite the user's raw input into a highly stylized, diegetic roleplay action suitable for a cyberpunk/sci-fi simulation. Preserve the exact intent and dialogue, but elevate the prose to be punchy and visceral.",
-    },
-    "eternal.physical": {
-        role: "NARRATIVE_ARCHITECT",
-        injections: [],
-        directive:
-            "Focus exclusively on immutable visual anatomy, cybernetics, scars, and baseline aesthetics. Use highly descriptive, concrete nouns suitable for eventual image generation translation. Do not describe personality.",
-    },
-    "present.physical": {
-        role: "NARRATIVE_ARCHITECT",
-        injections: [],
-        directive:
-            "Focus on immediate clothing, active battle damage, current posture, temporary gear, and environmental wear-and-tear (e.g., wet hair, torn jacket).",
-    },
-    "eternal.mental": {
-        role: "PSYCH_PROFILER",
-        injections: [],
-        directive:
-            "Focus on deep-seated psychological traits, core motivations, traumas, and overarching personality archetypes. Use behavioral descriptors. Do NOT use visual metaphors.",
-    },
-    "present.mental": {
-        role: "PSYCH_PROFILER",
-        injections: [],
-        directive:
-            "Focus on the character's immediate emotional state, current stress levels, and short-term desires based on the active objective. Are they panicked, hyper-focused, or exhausted?",
-    },
-    past: {
-        role: "LOREMASTER",
-        injections: [],
-        directive:
-            "Expand this backstory fragment into a dense, encyclopedic lore entry. Focus on worldbuilding, past corporate affiliations, historical events, and origins. Write in a sterile, archival tone.",
-    },
-    future: {
-        role: "FATE_WEAVER",
-        injections: [],
-        directive:
-            "Enhance this goal or ambition. Describe it as a looming, high-stakes trajectory. What is the ultimate endgame this character is driving toward?",
-    },
-}
 
 export const LlmService = {
     /**
@@ -67,47 +17,25 @@ export const LlmService = {
      */
     // The Universal Enhancement Engine
     async enhance(text, fieldKey) {
-        const route = ENHANCEMENT_ROUTER[fieldKey] || {
-            role: "EDITOR",
-            injections: [],
-            directive: "Preserve the core meaning but elevate the prose.",
+        // 1. resolve configuration from Schema
+        const fieldConfig = FIELD_REGISTRY[fieldKey] || {
+            llm: {
+                role: "EDITOR",
+                instruction: "Preserve the core meaning but elevate the prose.",
+                priority: "LOW",
+            },
         }
 
-        let contextBlock = ""
+        const { role, instruction } = fieldConfig.llm
 
-        // Dynamically pull ONLY the lists the Router asked for
-        if (
-            route.injections &&
-            route.injections.length > 0 &&
-            typeof window !== "undefined" &&
-            window.rpgLists
-        ) {
-            try {
-                const injectedData = {}
-                route.injections.forEach((listName) => {
-                    if (window.rpgLists[listName]) {
-                        // Parse the specific array injected by Perchance
-                        injectedData[listName] = JSON.parse(
-                            window.rpgLists[listName][0]
-                        )
-                    }
-                })
-
-                // Format it cleanly for the LLM
-                contextBlock = `\n<AVAILABLE_TAGS>\n${JSON.stringify(injectedData)}\n</AVAILABLE_TAGS>`
-            } catch (e) {
-                console.warn("Failed to mount specific Perchance lists.", e)
-            }
-        }
-
+        // 2. Construct System Prompt
         const systemPrompt = `
-[SYSTEM: ${route.role}]
+[SYSTEM: ${role}]
 Your objective is to enhance a specific UI text field.
 
 <CRITICAL_DIRECTIVE>
-${route.directive}
+${instruction}
 </CRITICAL_DIRECTIVE>
-${contextBlock}
 
 <RULES>
 Output ONLY the final enhanced text. No conversational filler, no quotes.

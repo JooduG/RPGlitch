@@ -1,65 +1,33 @@
 /**
- * src/data/config.js
- * Configuration for the Data module, including Profile field definitions.
+ * @file src/data/config.js
+ * @description Configuration for the Data module.
+ * Profile structure is now derived dynamically from the Narrative Schema.
  */
 
-export const PROFILE_SECTIONS = [
-    {
-        id: "eternal",
-        label: "Eternal",
-        sublabel: "Permanent traits",
-        layout: "split",
-        fields: [
-            {
-                label: "Non-Physical",
-                key: "eternal.mental",
-                placeholder: "Core identity, archetype, essence...",
-            },
-            {
-                label: "Physical",
-                key: "eternal.physical",
-                placeholder: "Eternal appearance, species, form...",
-            },
-        ],
-    },
-    {
-        id: "present",
-        label: "Present",
-        sublabel: "Current state",
-        layout: "split",
-        fields: [
-            {
-                key: "present.mental",
-                placeholder: "Current mood, goals, immediate thoughts...",
-            },
-            {
-                key: "present.physical",
-                placeholder: "Current outfit, equipment, physical status...",
-            },
-        ],
-    },
-    {
-        id: "past",
-        label: "Past",
-        sublabel: "History",
-        layout: "full",
-        fields: [
-            {
-                key: "past",
-                placeholder: "Backstory, origin, key memories...",
-            },
-        ],
-    },
-    {
-        id: "future",
-        label: "Future",
-        sublabel: "Destiny",
-        layout: "full",
-        fields: [
-            {
-                key: "future",
-                placeholder: "Ambitions, prophecies, vector...",
-            },
-        ],
-    },
-]
+import { ENTITY_SCHEMA } from "@core/narrative/schema.js"
+
+// UI Layout configuration (Visuals only, not logic)
+const LAYOUT_CONFIG = {
+    eternal: "split",
+    present: "split",
+    past: "full",
+    future: "full",
+}
+
+/**
+ * Generates the Profile Sections for the UI.
+ * Merges Schema definitions (Logic) with Layout config (UI).
+ */
+export const PROFILE_SECTIONS = Object.entries(ENTITY_SCHEMA).map(
+    ([key, section]) => ({
+        id: key,
+        label: section.label,
+        sublabel: section.description,
+        layout: LAYOUT_CONFIG[key] || "full",
+        fields: Object.values(section.fields).map((f) => ({
+            key: f.id,
+            label: f.label,
+            placeholder: f.placeholder,
+        })),
+    })
+)

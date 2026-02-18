@@ -3,6 +3,7 @@ import { CONFIG, ROLES } from "@core/engine/config.js"
 import { ContextBuilder } from "@core/intelligence/context.js"
 import { LlmService } from "@core/intelligence/service.js"
 import { VisualsService } from "@core/intelligence/visuals.js"
+import { FIELD_REGISTRY } from "@core/narrative/schema.js"
 import { entities } from "@data/repository.js"
 import { soundEffects } from "./audio/effects.js"
 import { textToSpeech } from "./audio/speech.svelte.js"
@@ -18,6 +19,13 @@ export const VISUAL_CORTEX = `
 - The description should be visual, detailed, and artistic.
 - Do NOT include the <image_prompt> block inside the <think> block.
 `
+
+const getVisualPriorities = () => {
+    return Object.values(FIELD_REGISTRY)
+        .filter((f) => f.visual && f.visual.tag_weight > 0)
+        .map((f) => `- ${f.label} (Weight: ${f.visual.tag_weight})`)
+        .join("\n")
+}
 
 export const SENSORY_CONSTANTS = {
     FADE_DURATION: 300,
@@ -221,6 +229,8 @@ Input Context (Intent): "${rawIntent || "See raw input"}"
 [PROTOCOL: OPTICS_BRAIN]
 1. **CHAIN_OF_THOUGHT:** You MUST start with a <think> block to plan the composition (Lighting, Angle, Physics, Details) before writing the prompt.
 2. **SOLO_SHOT:** You are authorized to generate **EXACTLY ONE** <image_prompt> tag. Do NOT generate multiple images. Pick the single most impactful moment.
+3. **PRIORITIES:**
+${getVisualPriorities()}
 
 [PROTOCOL: GENDER_STRICTNESS]
 - **HAMMER DOWN THE GENDER.**

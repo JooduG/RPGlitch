@@ -1,4 +1,5 @@
 import { state } from "@core/engine/bus.js"
+import { Engine } from "@core/narrative/engine.js"
 import { app } from "@state/app.svelte.js"
 import { runtime } from "@state/runtime.svelte.js"
 
@@ -14,7 +15,7 @@ export class ContextBroker {
         const requirements = this.getRequiredContext(type)
 
         // 2. Fetch Modular Data from Runtime (Single Source of Truth)
-        const context = {
+        const stateData = {
             kernel: requirements.includes("kernel") ? this.pullKernel() : null,
             chrono: requirements.includes("chrono") ? this.pullChrono() : null,
             snapshot: requirements.includes("snapshot")
@@ -26,18 +27,25 @@ export class ContextBroker {
             entity: requirements.includes("entity")
                 ? this.pullEntity(type)
                 : null,
-            delta: action,
         }
 
-        // 3. Construct System Prompt
-        const system = this.injectLayers(context)
+        // 3. Delegate to Narrative Engine
+        // TODO: Get active Tone ID from State/Config
+        const toneKey = "DEFAULT"
+
+        const result = await Engine.compose({
+            input: action,
+            toneKey: toneKey,
+            state: stateData,
+        })
 
         // 4. Format Messages (Tiered L1 history)
         const messages = this.pullHistory()
 
         return {
-            system,
+            system: result.system,
             messages,
+            meta: result.meta,
             params: {
                 temperature: type === "physics" ? 0.3 : 0.8,
             },
