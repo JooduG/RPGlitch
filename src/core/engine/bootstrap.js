@@ -6,6 +6,7 @@ import { soundEffects } from "@media/audio/effects.js"
 import { app } from "@state/app.svelte.js"
 import { mount } from "svelte"
 import App from "../../App.svelte"
+import { events, EVENTS } from "./bus.js"
 import { Engine } from "./engine.js"
 import { Session } from "./session.js"
 import { initDebugMode, mockPlugins } from "./utils.js"
@@ -78,6 +79,17 @@ export const AppBootstrap = {
                 )
             }
             console.info("[Engine] 🏁 System Online.")
+
+            // [NEXUS] Background Memory Consolidation Listener
+            events.addEventListener(EVENTS.MEMORY_PRESSURE_CHECK, () => {
+                // Run in background (no await)
+                Engine.NarrativeDirector.consolidate().catch((err) => {
+                    console.warn(
+                        "[Engine] Background consolidation error (stealthed):",
+                        err
+                    )
+                })
+            })
         } catch (err) {
             console.error("[Engine] ❌ Critical Failure:", err)
             document.body.innerHTML = `<div style="color:red; padding:2rem;"><h1>SYSTEM HALTED</h1><pre>${err.stack || err}</pre></div>`

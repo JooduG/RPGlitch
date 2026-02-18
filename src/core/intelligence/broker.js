@@ -213,7 +213,6 @@ export class ContextBroker {
             .replace(/\s+/g, " ")
             .trim()
         if (clean.length > limit) clean = clean.substring(0, limit) + "..."
-        if (clean.length > limit) clean = clean.substring(0, limit) + "..."
         return clean
     }
 

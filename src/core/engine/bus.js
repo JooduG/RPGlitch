@@ -22,6 +22,7 @@ export const EVENTS = {
     GENERATION_COMPLETED: "generation:completed",
     CHAT_REFRESH: "chat:refresh",
     ENTITY_UPDATED: "entity:updated",
+    MEMORY_PRESSURE_CHECK: "memory:pressure_check",
 }
 
 export const state = {

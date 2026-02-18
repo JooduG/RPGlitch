@@ -70,44 +70,58 @@ export const Engine = {
          * Evicts old messages and compresses them into lore "Resonance".
          */
         consolidate: async () => {
-            const storyId = Session.requireActive()
-            const messages = await Session.loadMessages(storyId)
-            const unconsolidated = messages.filter((m) => !m.meta?.consolidated)
+            if (Engine.NarrativeDirector._isConsolidating) return
+            Engine.NarrativeDirector._isConsolidating = true
 
-            // Trigger every 10 unconsolidated messages
-            if (unconsolidated.length >= 12) {
-                const slice = unconsolidated.slice(0, 10)
-                app.log(
-                    `Memory Nexus: Consolidating ${slice.length} turns into lore...`,
-                    "system"
+            try {
+                const storyId = Session.requireActive()
+                const messages = await Session.loadMessages(storyId)
+                const unconsolidated = messages.filter(
+                    (m) => !m.meta?.consolidated
                 )
 
-                const ai = runtime.aiCharacter
-                if (ai) {
-                    const resonance = await Resonance.memorize(
-                        ai,
-                        slice,
-                        "character"
+                // Trigger every 10 unconsolidated messages
+                if (unconsolidated.length >= 12) {
+                    const slice = unconsolidated.slice(0, 10)
+                    app.log(
+                        `Memory Nexus: Consolidating ${slice.length} turns into lore...`,
+                        "system"
                     )
-                    if (resonance?.summary) {
-                        // Append to Lore
-                        ai.timeline = ai.timeline || { past: "", future: "" }
-                        ai.timeline.past = `${ai.timeline.past || ""}\n[RESONANCE]: ${resonance.summary}`
-                        await entities.save("character", ai)
+
+                    const ai = runtime.aiCharacter
+                    if (ai) {
+                        const resonance = await Resonance.memorize(
+                            ai,
+                            slice,
+                            "character"
+                        )
+                        if (resonance?.summary) {
+                            // Append to Lore
+                            ai.timeline = ai.timeline || {
+                                past: "",
+                                future: "",
+                            }
+                            ai.timeline.past = `${ai.timeline.past || ""}\n[RESONANCE]: ${resonance.summary}`
+                            await entities.save("character", ai)
+                        }
                     }
-                }
 
-                // Mark as consolidated in DB
-                for (const msg of slice) {
-                    msg.meta = { ...msg.meta, consolidated: true }
-                    await db.messages.update(msg.id, { meta: msg.meta })
-                }
+                    // Mark as consolidated in DB
+                    for (const msg of slice) {
+                        msg.meta = { ...msg.meta, consolidated: true }
+                        await db.messages.update(msg.id, { meta: msg.meta })
+                    }
 
-                events.dispatchEvent(
-                    new CustomEvent(EVENTS.CHAT_REFRESH, {
-                        detail: { storyId },
-                    })
-                )
+                    events.dispatchEvent(
+                        new CustomEvent(EVENTS.CHAT_REFRESH, {
+                            detail: { storyId },
+                        })
+                    )
+                }
+            } catch (err) {
+                console.error("[Memory Nexus] Consolidation failed:", err)
+            } finally {
+                Engine.NarrativeDirector._isConsolidating = false
             }
         },
     },
@@ -148,8 +162,8 @@ export const Engine = {
             const aiName = runtime.aiCharacter?.name || "AI"
             await Session.addAiMessage(response, aiName)
 
-            // [NEXUS] Check for L2 Consolidation
-            await Engine.NarrativeDirector.consolidate()
+            // [NEXUS] Check for L2 Consolidation (Background)
+            events.dispatchEvent(new CustomEvent(EVENTS.MEMORY_PRESSURE_CHECK))
         } catch (e) {
             console.error("Generation Failed", e)
             throw e
