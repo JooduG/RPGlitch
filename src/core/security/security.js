@@ -1,5 +1,4 @@
 import DOMPurify from "dompurify"
-import { applyLaws, PhysicsEngine, scanReflex } from "./physics.js"
 
 /**
  * src/core/security/security.js
@@ -25,8 +24,6 @@ export const escape = (str) => {
 // Stub for now, can be expanded
 export const checkRefusal = (text) => false
 export const clean = (text) => (text ? text.trim() : "")
-
-// Consolidated Security Facade
 export const Security = {
     sanitize,
     escape,
@@ -35,21 +32,18 @@ export const Security = {
 
     // Physics & Authorization
     authorizeVisuals: (prompt, options) => true,
-    applyLaws,
+
+    // [DEPRECATED] Physics now handled by src/core/narrative/engine.js
+    applyLaws: (input) => input,
 
     /**
-     * Process an action through the Shield's security & physics checks.
+     * [DEPRECATED] Process an action through the Shield's security & physics checks.
+     * Logic moved to NarrativeEngine.
      */
     process: async (input, character, fractalState) => {
-        // 1. Causality Check (Physics)
-        const causality = PhysicsEngine.evaluate(input, fractalState)
-
-        // 2. Reflex Scan (Thermodynamics)
-        const reflex = scanReflex(input)
-
         return {
-            causality,
-            reflex, // { type: "KINETIC", deltas: { velocity: 25 } } or null
+            causality: "Authorized",
+            reflex: null,
         }
     },
 }

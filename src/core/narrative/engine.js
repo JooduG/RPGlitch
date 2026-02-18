@@ -4,7 +4,7 @@
  * Orchestrates the interaction between Physics, Tone, and the Prompt Factory.
  */
 
-import { PromptFactory } from "./prompt.js"
+import { PromptFactory } from "@core/narrative/prompt.js"
 import { TONE_REGISTRY, resolvePhysics } from "./tones.js"
 
 export class NarrativeEngine {

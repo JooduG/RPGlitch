@@ -9,7 +9,42 @@ import { ROLES } from "@core/engine/config.js"
 import { entities } from "@data/repository.js"
 import { Sensory } from "@media/sensory.js"
 
-import { Screenplay, templateConsult, templateEcho } from "./prose.js"
+// Local Prose Templates (Inlined from legacy prose.js)
+const templateConsult = (field, content, context) => `
+[SYSTEM: DATA]
+Thinking about ${field}:
+Current: ${content}
+Context: ${JSON.stringify(context)}
+Provide a better description.
+`
+
+const templateEcho = (entity, history, role = "character") => `
+[SYSTEM: ECHO]
+Role: ${role}
+Summarize history for ${entity.name}:
+${history}
+`
+const Screenplay = {
+    standard: (ai, user, fractal, variance = "", visuals = false) => `
+[SCENE START]
+Fractal: ${fractal.name}
+Characters: ${ai.name}, ${user.name}
+Variance: ${variance}
+Visuals: ${visuals ? "ON" : "OFF"}
+Roleplay on.
+`,
+    prologue: (fractal, context) => `
+[PROLOGUE]
+Fractal: ${fractal.name}
+Intro: ${context.title}
+`,
+    epilogue: (fractal, { history, ai, user }) => `
+[EPILOGUE]
+History: ${history}
+Characters: ${ai?.name}, ${user?.name}
+Wrap it up.
+`,
+}
 
 export class ContextBuilder {
     constructor(storyId) {
