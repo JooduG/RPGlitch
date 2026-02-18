@@ -5,16 +5,17 @@
  */
 
 import { events, EVENTS } from "@core/engine/bus.js"
+import { CONFIG } from "@core/engine/config.js"
 import { db } from "@data/db.js"
 import { ContextBroker } from "./broker.js"
 import { LlmService } from "./service.js"
+
+const { PALETTE } = CONFIG
 
 const RPG_LIGHTING =
     "volumetric lighting, cinematic, high-contrast, anamorphic flare"
 const RPG_STYLE =
     "cybernetic realism, hyper-detailed, obsidian surfaces, neon glitch"
-const DEFAULT_FLUFF =
-    "high quality, hyper-realistic, volumetric lighting, raytracing, cinematic, 8k resolution, detailed texture"
 
 export const VisualsService = {
     /**
@@ -23,20 +24,47 @@ export const VisualsService = {
      * @returns {string}
      */
     composeBasePrompt(entity) {
-        if (!entity) return ""
+        const present = entity.present?.physical || ""
+        const eternal = entity.eternal?.physical || ""
+        // We strictly use semantic names (e.g. "neon crimson"), NOT hex codes.
+        // If colorName is missing, we check signatureColor.
+        // If signatureColor is a hex code, we try to find its semantic name from the PALETTE.
+        let semanticColor = entity.visuals?.colorName || ""
 
-        const eternalPhys = entity.eternal?.physical || ""
-        const presentPhys = entity.present?.physical || ""
-        const sigColor = entity.visuals?.signatureColor || ""
+        if (!semanticColor && entity.visuals?.signatureColor) {
+            const sigColor = entity.visuals.signatureColor
+            const isHex = /^#[0-9A-F]{6}$/i.test(sigColor)
 
-        const parts = [
-            eternalPhys,
-            presentPhys,
-            sigColor ? `accented with ${sigColor} highlights` : "",
-            DEFAULT_FLUFF,
-        ].filter((p) => p && p.trim().length > 0)
+            if (isHex) {
+                // Try to find the key in PALETTE that matches this hex
+                const match = Object.entries(PALETTE).find(
+                    ([, hex]) => hex.toLowerCase() === sigColor.toLowerCase()
+                )
+                if (match) {
+                    semanticColor = match[0] // e.g., "purple"
+                }
+            } else {
+                // It's already semantic (e.g. "crimson")
+                semanticColor = sigColor
+            }
+        }
 
-        return parts.join(", ").trim()
+        // Strict Primacy Hierarchy
+        const fragments = []
+
+        if (present) fragments.push(present)
+        if (eternal) fragments.push(eternal)
+        if (semanticColor)
+            fragments.push(
+                `accented with ${semanticColor} lighting and details`
+            )
+
+        // Baseline fluff if the user bypasses the LLM enhancer
+        fragments.push(
+            "high quality, hyper-realistic, volumetric lighting, 8k resolution"
+        )
+
+        return fragments.join(", ")
     },
 
     /**

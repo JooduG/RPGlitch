@@ -179,7 +179,6 @@
         position: relative;
 
         /* Center Card (Fractal/Landscape) */
-        /* Center Card (Fractal/Landscape) */
         &.fractal-card {
             height: var(--short-side);
             width: var(--long-side);
@@ -309,7 +308,7 @@
         align-items: center;
         justify-content: center;
         position: relative;
-        background-color: var(--signature-color);
+        background-color: transparent;
         overflow: hidden;
         border-radius: 0;
 

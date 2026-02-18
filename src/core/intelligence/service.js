@@ -13,13 +13,60 @@ export const LlmService = {
     /**
      * Optimizes a text prompt specifically for Stable Diffusion style generation.
      */
-    async optimizeImagePrompt(input) {
-        const system =
-            "You are a prompt engineering specialist for high-fidelity text-to-image models. Synthesize the user's concepts into a dense, evocative, and technically precise prompt string. Focus on lighting (volumetric, cinematic), texture (4k, detailed), and artistic style. Output ONLY the resulting prompt string, no conversational fluff."
-        return this.generate(
-            { system, messages: [{ role: "user", content: input }] },
-            { silent: true }
-        )
+    async optimizeImagePrompt(basePrompt) {
+        let availableTags = "No external tags loaded."
+
+        // 1. Pull the Perchance lists from the global bridge
+        if (typeof window !== "undefined" && window.rpgLists) {
+            try {
+                // Ensure lists exist before parsing
+                const lists = window.rpgLists
+                if (
+                    lists.styles &&
+                    lists.lighting &&
+                    lists.tech &&
+                    lists.composition &&
+                    lists.mood
+                ) {
+                    availableTags = JSON.stringify({
+                        styles: JSON.parse(lists.styles[0] || "[]"),
+                        lighting: JSON.parse(lists.lighting[0] || "[]"),
+                        tech: JSON.parse(lists.tech[0] || "[]"),
+                        composition: JSON.parse(lists.composition[0] || "[]"),
+                        mood: JSON.parse(lists.mood[0] || "[]"),
+                    })
+                }
+            } catch (e) {
+                console.warn("[LlmService] Failed to parse Perchance lists:", e)
+            }
+        }
+
+        // 2. The System Payload
+        const systemPrompt = `
+[SYSTEM: VISUAL_DIRECTOR_V3.0]
+You are a precision Image State Editor optimizing a prompt for a diffusion model.
+
+<CORE_DIRECTIVE>
+1. Analyze the User's Base Prompt.
+2. Select 1-2 matching tags from EACH category in the provided AVAILABLE_TAGS JSON based on the implicit vibe.
+3. Resolve conflicts: If the base prompt implies "anime", DO NOT select "photorealism". Choose holistic, cohesive modifiers.
+4. Maintain STRICT Primacy Hierarchy: You must keep the user's base physical description at the very front of the prompt. Append your selected tags to the end.
+
+<AVAILABLE_TAGS>
+${availableTags}
+
+<OUTPUT_FORMAT>
+Return ONLY the finalized, comma-separated prompt string. Do not alter the subject's core physical description, only append your selected, matching technical and atmospheric tags. No quotes. No conversational text.
+        `.trim()
+
+        const payload = {
+            system: systemPrompt, // Mapping to existing generic 'system' param
+            messages: [
+                { role: "user", content: `Base Prompt: "${basePrompt}"` },
+            ],
+        }
+
+        return this.generate(payload, { silent: true })
     },
 
     /**

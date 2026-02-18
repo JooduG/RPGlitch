@@ -11,21 +11,21 @@ describe("ThemeStore Color Generation", () => {
 
     describe("Modern entities with signatureColor", () => {
         test("returns hex value for entity with signatureColor", () => {
-            const entity = { visuals: { signatureColor: "cyan" } }
+            const entity = { visuals: { signatureColor: "Electric Cyan" } }
             const result = getSignature(entity)
-            expect(result).toBe(PALETTE.cyan)
+            expect(result).toBe(PALETTE["Electric Cyan"])
         })
 
         test("returns hex value for entity with pink signatureColor", () => {
-            const entity = { visuals: { signatureColor: "pink" } }
+            const entity = { visuals: { signatureColor: "Hot Pink" } }
             const result = getSignature(entity)
-            expect(result).toBe(PALETTE.pink)
+            expect(result).toBe(PALETTE["Hot Pink"])
         })
 
         test("returns hex value for entity with emerald signatureColor", () => {
-            const entity = { visuals: { signatureColor: "emerald" } }
+            const entity = { visuals: { signatureColor: "Emerald Green" } }
             const result = getSignature(entity)
-            expect(result).toBe(PALETTE.emerald)
+            expect(result).toBe(PALETTE["Emerald Green"])
         })
     })
 

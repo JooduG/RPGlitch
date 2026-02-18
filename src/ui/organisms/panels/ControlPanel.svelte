@@ -1,6 +1,7 @@
 <script>
     import { db } from "@data/db.js"
     import { app } from "@state/app.svelte.js"
+    import { runtime } from "@state/runtime.svelte.js"
     import Button from "@ui/atoms/Button.svelte"
     import Toggle from "@ui/atoms/Toggle.svelte"
     import Modal from "@ui/molecules/dialogs/Modal.svelte"
@@ -55,6 +56,27 @@
                         bind:value={app.prologue}
                     ></textarea>
                 </div>
+            </section>
+        {/if}
+
+        <!-- DEBUG: Narrative State Visualization -->
+        {#if app.settings.devMode}
+            <section class="debug-narrative">
+                <h4>NARRATIVE STATE</h4>
+                <div class="vanguard-row">
+                    <strong>VANGUARD:</strong>
+                    {runtime.vanguard}
+                </div>
+                {#if runtime.echoes.length > 0}
+                    <div class="echoes-row">
+                        <strong>ECHOES:</strong>
+                        <ul>
+                            {#each runtime.echoes as echo (echo.id)}
+                                <li>{echo.text}</li>
+                            {/each}
+                        </ul>
+                    </div>
+                {/if}
             </section>
         {/if}
 
@@ -169,6 +191,39 @@
                     color: var(--text-muted);
                     font-style: italic;
                 }
+            }
+        }
+    }
+
+    /* DEBUG STYLES */
+    .debug-narrative {
+        padding: var(--spacing-m);
+        background: var(--bg-input);
+        border-radius: var(--radius-sm);
+
+        h4 {
+            margin: 0 0 var(--spacing-xs) 0;
+            font-size: var(--font-size-xs);
+            color: var(--app-muted);
+            font-weight: 600;
+        }
+
+        .vanguard-row {
+            font-size: var(--font-size-s);
+            margin-bottom: var(--spacing-xs);
+
+            strong {
+                color: var(--color-success);
+            }
+        }
+
+        .echoes-row {
+            font-size: var(--font-size-s);
+            opacity: 0.7;
+
+            ul {
+                margin: 0;
+                padding-left: var(--spacing-m);
             }
         }
     }

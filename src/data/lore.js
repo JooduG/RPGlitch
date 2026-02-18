@@ -25,7 +25,7 @@ export const premade = {
             name: "Light Blade",
             description: "Cybernetic warrior forging light into weapons.",
             type: "character",
-            visuals: { signatureColor: "yellow" },
+            visuals: { signatureColor: "Lemon Yellow" },
             voice: { uri: "", rate: 1.0, pitch: 1.0 },
             dynamics: {
                 entropy: 45,
@@ -51,7 +51,7 @@ export const premade = {
             name: "Mystic Bard",
             description: "Traveling musician who weaves spells with song.",
             type: "character",
-            visuals: { signatureColor: "orange" },
+            visuals: { signatureColor: "Sunset Orange" },
             voice: { uri: "Zira", rate: 1.0, pitch: 1.0 },
             dynamics: {
                 entropy: 55,
@@ -77,7 +77,7 @@ export const premade = {
             name: "Clockwork Rogue",
             description: "Stealthy thief powered by ticking gears.",
             type: "character",
-            visuals: { signatureColor: "lime" },
+            visuals: { signatureColor: "Lime Green" },
             voice: { uri: "", rate: 1.1, pitch: 1.0 },
             dynamics: {
                 entropy: 40,
@@ -103,7 +103,7 @@ export const premade = {
             name: "Shadow Whisperer",
             description: "Mysterious figure communing with darkness.",
             type: "character",
-            visuals: { signatureColor: "purple" },
+            visuals: { signatureColor: "Royal Purple" },
             voice: { uri: "Zira", rate: 0.85, pitch: 1.0 },
             dynamics: {
                 entropy: 55,
@@ -130,7 +130,7 @@ export const premade = {
             description:
                 "Cheesy pink himbo superhero with glowing runes, monster muscles, and a thirst for viral saves.",
             type: "character",
-            visuals: { signatureColor: "pink" },
+            visuals: { signatureColor: "Hot Pink" },
             voice: {
                 uri: "Microsoft Brian Online (Natural) - English (United States)",
                 rate: 1.05,
@@ -170,7 +170,7 @@ export const premade = {
             description:
                 "Bratty cyan twink hacker who talks big but melts into a hypno-sissy the second a real dom flexes.",
             type: "character",
-            visuals: { signatureColor: "cyan" },
+            visuals: { signatureColor: "Electric Cyan" },
             voice: {
                 uri: "Microsoft Mitchell Online (Natural)  - English (New Zealand)",
                 rate: 1.35,
@@ -209,7 +209,7 @@ export const premade = {
             name: "Eldoria",
             description: "Floating isles bound by ancient magic.",
             type: "fractal",
-            visuals: { signatureColor: "emerald" },
+            visuals: { signatureColor: "Emerald Green" },
             simulation: { mode: "PASSIVE" },
             dynamics: {
                 entropy: 45,
@@ -235,7 +235,7 @@ export const premade = {
             name: "Neo Arcadia",
             description: "Futuristic metropolis built on dream tech.",
             type: "fractal",
-            visuals: { signatureColor: "rose" },
+            visuals: { signatureColor: "Coral Rose" },
             simulation: { mode: "PASSIVE" },
             dynamics: {
                 entropy: 55,
@@ -262,7 +262,7 @@ export const premade = {
             description:
                 "Neon-soaked queer utopia where heroes pose, villains cruise, and thunderstorms are just foreplay for city-wide orgies.",
             type: "fractal",
-            visuals: { signatureColor: "indigo" },
+            visuals: { signatureColor: "Deep Indigo" },
             simulation: { mode: "PASSIVE" },
             dynamics: {
                 entropy: 55,
@@ -288,7 +288,7 @@ export const premade = {
             name: "Messenger",
             description: "A standard mobile messaging interface.",
             type: "fractal",
-            visuals: { signatureColor: "cyan" },
+            visuals: { signatureColor: "Electric Cyan" },
             icon: "messenger",
             simulation: {
                 mode: "ACTIVE",

@@ -95,7 +95,7 @@ export class ContextBroker {
         }
         return {
             turn: app.simulation.turn,
-            objective: chrono.activeObjective || "Continue the journey.",
+            objective: runtime.vanguard || "Continue the journey.",
             conflict: chrono.currentConflict || "The outcome is uncertain.",
         }
     }
@@ -136,7 +136,7 @@ export class ContextBroker {
     static pullEntity(mode = "prose") {
         const ai = runtime.aiCharacter || {}
         const user = runtime.userCharacter || {}
-        const objective = app.simulation.chrono?.activeObjective || ""
+        const objective = runtime.vanguard || ""
 
         // Process AI Fragments with Lexical Filtering
         const aiFragments = [
@@ -253,8 +253,13 @@ export class ContextBroker {
 
         // 2. CHRONO (Temporal Anchor)
         if (context.chrono) {
+            const background =
+                runtime.echoes.length > 0
+                    ? `\nBG_THREADS: ${runtime.echoes.map((e) => e.text).join(" | ")}`
+                    : ""
+
             layers.push(
-                `[CHRONO_LAYER]\nSTEP: ${context.chrono.turn}\nOBJECTIVE: ${context.chrono.objective}\nTENSION: ${context.chrono.conflict}`
+                `[CHRONO_LAYER]\nSTEP: ${context.chrono.turn}\nOBJECTIVE: ${context.chrono.objective}\nTENSION: ${context.chrono.conflict}${background}`
             )
         }
 

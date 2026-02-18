@@ -21,24 +21,24 @@ buildApp() =>
 // --- LIVE BRIDGE: EXPORT LISTS TO JS ---
 clientSideConfig
   <script>
-    console.log("[LeftPanel] STARTING INJECTION...");
+    // [LeftPanel] STARTING INJECTION...
     window.rpgLists = \{
-      styles: [JSON.stringify(rpgStyles.selectAll.map(i => i.text || i))],
-      lighting: [JSON.stringify(rpgLighting.selectAll.map(i => i.text || i))],
-      tech: [JSON.stringify(rpgTech.selectAll.map(i => i.text || i))],
-      composition: [JSON.stringify(rpgComposition.selectAll.map(i => i.text || i))],
-      mood: [JSON.stringify(rpgMood.selectAll.map(i => i.text || i))],
-      quality: [JSON.stringify(rpgQuality.selectAll.map(i => i.text || i))],
-      sounds: [JSON.stringify(rpgSounds.selectAll.map(i => i.text || i))],
-      artifacts: [JSON.stringify(rpgArtifacts.selectAll.map(i => i.text || i))],
-      glitches: [JSON.stringify(rpgGlitches.selectAll.map(i => i.text || i))],
+      styles: [JSON.stringify(styles.selectAll.map(i => i.text || i))],
+      lighting: [JSON.stringify(lighting.selectAll.map(i => i.text || i))],
+      tech: [JSON.stringify(tech.selectAll.map(i => i.text || i))],
+      composition: [JSON.stringify(composition.selectAll.map(i => i.text || i))],
+      mood: [JSON.stringify(mood.selectAll.map(i => i.text || i))],
+      quality: [JSON.stringify(quality.selectAll.map(i => i.text || i))],
+      sounds: [JSON.stringify(sounds.selectAll.map(i => i.text || i))],
+      artifacts: [JSON.stringify(artifacts.selectAll.map(i => i.text || i))],
+      glitches: [JSON.stringify(glitches.selectAll.map(i => i.text || i))],
       settings: {
         voiceEnabled: true
       }
     \};
   </script>
 
-rpgQuality
+quality
   captured on 35mm film, authentic film grain, color graded
   high-fidelity photography, sharp focus, studio portraiture
   cinematic lighting, depth of field, soft box lighting
@@ -46,7 +46,7 @@ rpgQuality
   professional cinematography, anamorphic lens flares
   intricate texture detail, subsurface scattering
 
-rpgStyles
+styles
   3d render, unreal engine 5 render
   anime, studio ghibli, makoto shinkai
   comic book art, graphic novel style
@@ -60,7 +60,7 @@ rpgStyles
   watercolor, washed ink
   cinematic, movie still
 
-rpgLighting
+lighting
   backlit, rim lighting, halo effect
   bioluminescent, magical glow, etherial light
   candlelit, firelight, warm ambient
@@ -73,7 +73,7 @@ rpgLighting
   cinematic lighting, dramatic moody lighting
   volumetric lighting, god rays, foggy atmosphere
 
-rpgTech
+tech
   35mm film grain, analog aesthetic
   4K resolution, 8K resolution
   captured by professional camera, Canon EOS R5
@@ -84,7 +84,7 @@ rpgTech
   telephoto lens, compressed perspective
   wide angle, panoramic view
 
-rpgComposition
+composition
   asymmetry, rule of thirds, dynamic diagonal
   bird's eye view, high angle
   centered, symmetry, wes anderson style
@@ -97,7 +97,7 @@ rpgComposition
   low angle, heroic perspective
   negative space, minimalist composition
 
-rpgMood
+mood
   ancient, timeless, weathered
   chaotic, battle-worn, intense
   dramatic, tense, suspenseful
@@ -113,20 +113,20 @@ rpgMood
   romantic, affectionate, soft
   spooky, haunted, ominous
 
-rpgArtifacts
+artifacts
   motion blur, harsh cinematic shadows, lens flare, rim light
   low light film grain, cctv security angle, volumetric bounce
   unflattering candid angle, blurry background, 35mm lens clarity
   reflection in glass, dusty lens, slightly overexposed rim
   handheld camera shake, soft 85mm bokeh, neon ambient glow
 
-rpgGlitches
+glitches
   bioluminescent body paint, subdermal LED implants, latex texture, tactical gear
   glitch art distortion, analog video noise, digital chromatic aberration, holographic sheen
   cybernetic enhancements, carbon fiber plating, wet skin texture, high-contrast neon
   distorted reality, fractured glass effects, infrared color palette, ethereal glow
 
-rpgSounds
+sounds
   notification = https://user.uploads.dev/file/50dc061d6ed6439719d283d042e9c172.wav
 
 // --- EXPORTS TO JS ---

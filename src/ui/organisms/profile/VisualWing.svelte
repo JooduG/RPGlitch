@@ -2,6 +2,7 @@
     import { PALETTE } from "@core/engine/config.js"
     import { LlmService } from "@core/intelligence/service.js"
     import { VisualsService } from "@core/intelligence/visuals.js"
+    import { app } from "@state/app.svelte.js"
     import Button from "@ui/atoms/Button.svelte"
     import Tooltip from "@ui/atoms/Tooltip.svelte"
 
@@ -159,30 +160,28 @@
 
         if (hasPromptText) {
             // --- GENERATE LOGIC ---
-            console.log(
-                "[VisualWing] Triggering Generate. Prompt:",
-                promptValue
+            // --- GENERATE LOGIC ---
+            app.log(
+                `[VisualWing] Triggering Generate. Prompt: ${promptValue}`,
+                "system"
             )
             try {
                 if (!window.pluginTextToImage) {
-                    console.error(
-                        "[VisualWing] CRITICAL: window.pluginTextToImage is MISSING!",
-                        window
-                    )
-                    alert(
-                        "Error: Text-to-Image plugin not loaded. Please refresh or contact support."
-                    )
+                    const msg =
+                        "[VisualWing] CRITICAL: window.pluginTextToImage is MISSING!"
+                    console.error(msg, window)
+                    app.log(msg, "error")
                     return
                 }
 
                 const url = await VisualsService.generate(promptValue, {
                     noBackground: char.visuals.noBackground,
                 })
-                console.log("[VisualWing] Generation Result:", url)
+                app.log(`[VisualWing] Generation Result: ${url}`, "system")
                 if (url) char.visuals.profilePicture = url
             } catch (err) {
                 console.error("Generation failed:", err)
-                alert("Generation failed: " + err.message)
+                app.log(`Generation failed: ${err.message}`, "error")
             } finally {
                 const updated = new Set(busyFields)
                 updated.delete("visual-prompt")

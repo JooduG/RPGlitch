@@ -49,20 +49,9 @@ export const Engine = {
      */
     NarrativeDirector: {
         update: () => {
-            const char = runtime.character
-            if (!char || !char.customData?.plot?.active) return
-
-            // 1. Sync Objective from Critical Plot Thread
-            const critical = char.customData.plot.active.filter(
-                (t) => t.critical
-            )
-            if (critical.length > 0) {
-                app.simulation.chrono.activeObjective = critical
-                    .map((t) => t.description)
-                    .join("; ")
-            } else {
-                app.simulation.chrono.activeObjective = null
-            }
+            // [R5] Narrative State is now reactive in runtime.narrative
+            // No manual sync required.
+            // Future logic for thread promotion/lifecycle goes here.
         },
 
         /**

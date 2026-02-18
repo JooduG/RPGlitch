@@ -6,7 +6,6 @@ vi.mock("@state/app.svelte.js", () => ({
     app: {
         simulation: {
             chrono: {
-                activeObjective: "Find the key",
                 currentConflict: "Guards are alert",
             },
             turn: 5,
@@ -34,6 +33,9 @@ vi.mock("@state/runtime.svelte.js", () => ({
             name: "The City",
             description: "A neon metropolis.",
         },
+        // Narrative State Mocks
+        vanguard: "Find the key",
+        echoes: [],
     },
 }))
 

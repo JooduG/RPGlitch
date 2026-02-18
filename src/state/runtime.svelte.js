@@ -31,13 +31,6 @@ function createRuntimeStore() {
                 signatureColor: "#84cc16", // Default Lime
                 noBackground: false,
             },
-
-            customData: {
-                plot: {
-                    active: [],
-                    resolved: [],
-                },
-            },
         },
         userCharacter: null, // Specific reference
         aiCharacter: null,
@@ -46,7 +39,14 @@ function createRuntimeStore() {
         storyId: null,
     })
 
+    // [R5] Unified Narrative State
+    // Merges activeObjective and narrativeThreads into a prioritized list
+    let narrative = $state({
+        threads: [], // { id, text }
+    })
+
     return {
+        // ... (Existing Getters)
         get character() {
             return state.character
         },
@@ -61,6 +61,34 @@ function createRuntimeStore() {
         },
         get isReady() {
             return state.ready
+        },
+
+        // 📜 NARRATIVE API
+        get narrative() {
+            return narrative
+        },
+
+        // Helpers for ease of use
+        get vanguard() {
+            return narrative.threads[0]?.text || "Continue the journey."
+        },
+        get echoes() {
+            return narrative.threads.slice(1)
+        },
+
+        addThread(text, isVanguard = false) {
+            const newThread = { id: crypto.randomUUID(), text }
+            if (isVanguard) {
+                narrative.threads.unshift(newThread)
+            } else {
+                narrative.threads.push(newThread)
+            }
+        },
+
+        completeVanguard() {
+            if (narrative.threads.length > 0) {
+                narrative.threads.shift()
+            }
         },
 
         // 🟢 SYNC: Read from DB

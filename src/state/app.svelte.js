@@ -33,8 +33,9 @@ export class AppStore {
         loading: false, // STASIS: True when Chrono is processing
         turn: 0, // CHRONO: Current time step
         chrono: {
-            activeObjective: null,
-            currentConflict: null,
+            chrono: {
+                currentConflict: null,
+            },
         },
     })
 
