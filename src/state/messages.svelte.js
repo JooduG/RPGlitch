@@ -1,5 +1,5 @@
 import { events, EVENTS } from "@core/engine/bus.js"
-import { Session } from "@core/engine/session.js"
+import { Session } from "@core/engine/session-driver.js"
 
 // 📜 SCRIBE: Message State Manager
 export class MessageStore {

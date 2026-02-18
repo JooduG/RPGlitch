@@ -27,7 +27,7 @@ describe("VisualsService", () => {
 
             const prompt = VisualsService.composeBasePrompt(entity)
             const expectedStart =
-                "wearing a trench coat, tall cyborg with glowing eyes, accented with neon blue lighting and details"
+                "wearing a trench coat, tall cyborg with glowing eyes, integrate neon blue into the image, potentially as background color"
 
             expect(prompt).toContain(expectedStart)
             expect(prompt).toContain(
@@ -43,7 +43,7 @@ describe("VisualsService", () => {
 
             const prompt = VisualsService.composeBasePrompt(entity)
             expect(prompt).toContain(
-                "accented with Royal Purple lighting and details"
+                "integrate Royal Purple into the image, potentially as background color"
             )
         })
 
@@ -55,7 +55,7 @@ describe("VisualsService", () => {
 
             const prompt = VisualsService.composeBasePrompt(entity)
             expect(prompt).not.toContain("#123456")
-            expect(prompt).not.toContain("accented with")
+            expect(prompt).not.toContain("integrate")
         })
 
         it("should use signatureColor if it is NOT a hex code and colorName is missing", () => {
@@ -66,7 +66,7 @@ describe("VisualsService", () => {
 
             const prompt = VisualsService.composeBasePrompt(entity)
             expect(prompt).toContain(
-                "accented with crimson lighting and details"
+                "integrate crimson into the image, potentially as background color"
             )
         })
 

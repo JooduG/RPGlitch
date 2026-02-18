@@ -8,7 +8,7 @@ import { mount } from "svelte"
 import App from "../../App.svelte"
 import { events, EVENTS } from "./bus.js"
 import { Engine } from "./engine.js"
-import { Session } from "./session.js"
+import { Session } from "./session-driver.js"
 import { initDebugMode, mockPlugins } from "./utils.js"
 
 if (typeof window !== "undefined") window.Engine = Engine

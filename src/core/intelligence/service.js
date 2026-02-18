@@ -11,7 +11,7 @@ const utilsError = console.error
 
 const ENHANCEMENT_ROUTER = {
     "visuals.prompt": {
-        role: "VISUAL_DIRECTOR_V3.0",
+        role: "VISUAL_DIRECTOR",
         injections: ["styles", "lighting", "tech", "composition", "mood"],
         directive:
             "Maintain the exact structure and order of the user's base prompt at the front of the string to preserve primacy bias. Append 1-2 matching tags from the injected AVAILABLE_TAGS to the end of the string based on the implicit vibe. Resolve any tag conflicts. Output ONLY the finalized comma-separated prompt string.",
@@ -35,13 +35,13 @@ const ENHANCEMENT_ROUTER = {
             "Focus on immediate clothing, active battle damage, current posture, temporary gear, and environmental wear-and-tear (e.g., wet hair, torn jacket).",
     },
     "eternal.mental": {
-        role: "PSYCH-PROFILER",
+        role: "PSYCH_PROFILER",
         injections: [],
         directive:
             "Focus on deep-seated psychological traits, core motivations, traumas, and overarching personality archetypes. Use behavioral descriptors. Do NOT use visual metaphors.",
     },
     "present.mental": {
-        role: "PSYCH-PROFILER",
+        role: "PSYCH_PROFILER",
         injections: [],
         directive:
             "Focus on the character's immediate emotional state, current stress levels, and short-term desires based on the active objective. Are they panicked, hyper-focused, or exhausted?",

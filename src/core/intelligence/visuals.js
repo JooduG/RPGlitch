@@ -1,7 +1,7 @@
 /**
  * src/core/intelligence/visuals.js
  * 🎨 VISUALS SERVICE
- * Orchestrates prompt synthesis and Perchance t2i integration.
+ * Orchestrates prompt synthesis and Perchance text to image integration.
  * [VISUALS ENGINE] PRIMARY GENERATION LOGIC
  */
 
@@ -15,8 +15,7 @@ const { PALETTE } = CONFIG
 
 const RPG_LIGHTING =
     "volumetric lighting, cinematic, high-contrast, anamorphic flare"
-const RPG_STYLE =
-    "cybernetic realism, hyper-detailed, obsidian surfaces, neon glitch"
+const RPG_STYLE = "natural realism, hyper-detailed, imperfect textures"
 
 export const VisualsService = {
     /**
@@ -57,7 +56,7 @@ export const VisualsService = {
         if (eternal) fragments.push(eternal)
         if (semanticColor)
             fragments.push(
-                `accented with ${semanticColor} lighting and details`
+                `integrate ${semanticColor} into the image, potentially as background color`
             )
 
         // Baseline fluff if the user bypasses the LLM enhancer
@@ -83,7 +82,7 @@ export const VisualsService = {
             case "ai":
                 return { width: 512, height: 768 }
             default:
-                return { width: 512, height: 512 }
+                return { width: 768, height: 768 }
         }
     },
 
@@ -95,7 +94,9 @@ export const VisualsService = {
      */
     async generate(target, options = {}) {
         if (!window.pluginTextToImage) {
-            console.warn("[Visuals] Perchance t2i plugin not available.")
+            console.warn(
+                "[VISUAL_ENGINE] Perchance text to image plugin not available."
+            )
             return null
         }
 
@@ -126,7 +127,7 @@ export const VisualsService = {
             }
 
             const negativePrompt =
-                "text, watermark, blurry, low quality, deformed, cartoon, anime"
+                "text, watermark, blurry, low quality, deformed, cartoon, anime, missing limbs, extra limbs, mutated limbs, deformed limbs, fused limbs, missing eyes, extra eyes, fused eyes, missing ears, extra ears, fused ears, missing nose, extra nose, fused nose, missing mouth, extra mouth, fused mouth, missing teeth, extra teeth, fused teeth, missing fingers, extra fingers, fused fingers, missing toes, extra toes, fused toes, missing hands, extra hands, fused hands, missing feet, extra feet, fused feet, missing legs, extra legs, fused legs, missing arms, extra arms, fused arms"
 
             const res = this.getResolution(options.mode)
 
@@ -152,7 +153,7 @@ export const VisualsService = {
 
             return result
         } catch (err) {
-            console.error("[Visuals] Generation Failed:", err)
+            console.error("[VISUAL_ENGINE] Generation Failed:", err)
             throw err
         }
     },
@@ -162,7 +163,7 @@ export const VisualsService = {
      */
     async upload(file) {
         if (!window.pluginUpload) {
-            console.error("[Visuals] upload plugin not found.")
+            console.error("[VISUAL_ENGINE] upload plugin not found.")
             return null
         }
 
@@ -170,7 +171,7 @@ export const VisualsService = {
             const result = await window.pluginUpload(file)
             return result?.url || result
         } catch (e) {
-            console.error("[Visuals] Upload failed:", e)
+            console.error("[VISUAL_ENGINE] Upload failed:", e)
             return null
         }
     },
@@ -195,7 +196,7 @@ export const VisualsService = {
                 })
             )
         } catch (err) {
-            console.error("[Visuals] Caching Failed:", err)
+            console.error("[VISUAL_ENGINE] Caching Failed:", err)
         }
     },
 }

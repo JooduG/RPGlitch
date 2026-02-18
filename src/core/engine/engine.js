@@ -12,7 +12,7 @@ import { app } from "@state/app.svelte.js" // [R5]
 import { runtime } from "@state/runtime.svelte.js"
 import { engineState } from "@state/status.svelte.js" // [R5] Unified State
 import { events, EVENTS, state as store } from "./bus.js"
-import { Session } from "./session.js"
+import { Session } from "./session-driver.js"
 
 const Resonance = new Echo()
 
@@ -32,7 +32,6 @@ export const Engine = {
     },
     regenerate: () => Session.regenerate(),
 
-    // --- CHRONO ---
     // --- CHRONO ---
     // tick: (delta) => Chrono.tick(delta), // Removed: Unused/Not Implemented
     // getDuration: () => Chrono.getElapsed(), // Removed: Unused/Not Implemented
