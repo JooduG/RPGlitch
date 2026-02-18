@@ -2,6 +2,7 @@
  * src/core/intelligence/visuals.js
  * 🎨 VISUALS SERVICE
  * Orchestrates prompt synthesis and Perchance t2i integration.
+ * [VISUALS ENGINE] PRIMARY GENERATION LOGIC
  */
 
 import { events, EVENTS } from "@core/engine/bus.js"

@@ -51,6 +51,7 @@ export const Sensory = {
     /**
      * Visualizer Pipeline
      * Generates a scene or character image based on a raw intent.
+     * // [VISUALS CONSUMER] Uses VisualsService for generation
      */
     visualize: async (storyId, visualPrompt, targetType, options = {}) => {
         const story = state.story.byId[storyId]
@@ -123,7 +124,8 @@ export const Sensory = {
 
     /**
      * Extraction Pipeline
-     * Scrapes a description to generate a portrait.
+     * Scrape a description to generate a portrait.
+     * // [VISUALS CONSUMER] Uses VisualsService for generation
      */
     extract: async (characterId) => {
         try {

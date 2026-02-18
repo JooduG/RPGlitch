@@ -12,6 +12,7 @@ const utilsError = console.error
 export const LlmService = {
     /**
      * Optimizes a text prompt specifically for Stable Diffusion style generation.
+     * // [VISUALS HELPER] Prepares prompts for VisualsService
      */
     async optimizeImagePrompt(basePrompt) {
         let availableTags = "No external tags loaded."

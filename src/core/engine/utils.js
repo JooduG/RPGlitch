@@ -79,6 +79,7 @@ export const mockPlugins = () => {
     if (!window["pluginAi"]) window["pluginAi"] = async () => "Mock AI Response"
     if (!window["pluginTextToImage"])
         window["pluginTextToImage"] = async () =>
+            // [VISUALS MOCK] Mocks the generation plugin
             "https://via.placeholder.com/512x768"
     if (!window["pluginRemember"])
         window["pluginRemember"] = { get: () => null, set: () => {} }
