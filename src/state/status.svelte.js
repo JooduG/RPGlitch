@@ -1,20 +1,26 @@
 // 👑 ENGINE: The Silent Observer
 // Tracks the heartbeat of the engine without revealing it.
 
-export const status = $state({
-    isBusy: false,
+export const engineState = $state({
+    phase: "idle", // "idle" | "generating" | "locked"
+    role: null, // "ai" | "system" | "fractal" | null
 
     // Actions
-    setBusy(val) {
-        this.isBusy = val
+    startGeneration(role = "ai") {
+        this.phase = "generating"
+        this.role = role
     },
 
-    // Event Listener Bridge
-    init() {
-        if (typeof window === "undefined") return
+    complete() {
+        this.phase = "idle"
+        this.role = null
+    },
 
-        // Listen for Engine Events
-        document.addEventListener("rpg:typing-start", () => this.setBusy(true))
-        document.addEventListener("rpg:typing-stop", () => this.setBusy(false))
+    lock() {
+        this.phase = "locked"
+    },
+
+    unlock() {
+        this.phase = "idle"
     },
 })

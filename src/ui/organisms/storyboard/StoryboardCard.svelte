@@ -19,6 +19,8 @@
     import Button from "@ui/atoms/Button.svelte"
 
     import { app } from "@state/app.svelte.js"
+    import { engineState } from "@state/status.svelte.js"
+    // [R5] Unified State
     import { themeStore } from "@theme/palette.svelte.js"
     import { fitText } from "@ui/utils/actions/fitText.js"
     import { tilt } from "@ui/utils/actions/tilt.js"
@@ -29,11 +31,7 @@
     // Derived Values
     let isEmpty = $derived(!entity)
     let isLoading = $derived(app.simulation.loading)
-    let isProcessing = $derived(
-        ["scanning reality", "synthesizing", "saving"].includes(
-            app.simulation.status
-        )
-    )
+    let isProcessing = $derived(engineState.phase !== "idle")
 
     let signatureColor = $derived(themeStore.getSignatureColor(entity))
     let signatureRgb = $derived(themeStore.hexToRgb(signatureColor))

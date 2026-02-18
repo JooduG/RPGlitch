@@ -2,6 +2,7 @@
 // Manages modals, view states, and visual feedback.
 import { db } from "@data/db.js"
 import { openLightbox } from "@state/lightbox.svelte.js"
+import { engineState } from "@state/status.svelte.js" // [R5] Unified Engine State
 import { themeStore } from "@theme/palette.svelte.js"
 
 export class AppStore {
@@ -31,9 +32,6 @@ export class AppStore {
     simulation = $state({
         loading: false, // STASIS: True when Chrono is processing
         turn: 0, // CHRONO: Current time step
-        // feed: [], // MOVED TO @state/messages.svelte.js
-        status: "idle", // idle | generating | saving
-        generatingRole: "ai", // [R5] Tracks who is currently thinking (ai | fractal | user)
         chrono: {
             activeObjective: null,
             currentConflict: null,
@@ -49,9 +47,7 @@ export class AppStore {
 
     // 🌩️ UI TENSION (Reactive Intensity)
     tension = $derived(
-        ["scanning reality", "synthesizing", "saving"].includes(
-            this.simulation.status
-        )
+        engineState.phase === "generating" || engineState.phase === "locked"
             ? 1
             : 0
     )

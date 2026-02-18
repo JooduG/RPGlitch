@@ -1,9 +1,13 @@
 <script>
     import { Engine } from "@core/engine/engine.js"
     import { app } from "@state/app.svelte.js"
+    import { engineState } from "@state/status.svelte.js"
+    // [R5] Unified State
     import { spin, stab } from "@ui/utils/actions/kinetic.js"
 
     let { disabled = false } = $props()
+    // [R5] Auto-disable when engine is busy
+    let isLocked = $derived(disabled || engineState.phase !== "idle")
     let value = $state("")
     let isFocused = $state(false)
     let textarea
@@ -16,7 +20,7 @@
 
     async function handleSend() {
         const text = value.trim()
-        if (!text || disabled) return
+        if (!text || isLocked) return
 
         value = "" // Clear immediately for UX
         adjustHeight() // Reset height
@@ -40,11 +44,10 @@
     }
 </script>
 
-```
 <div
     class="input-bar-unit"
     class:is-focused={isFocused}
-    class:is-disabled={disabled}
+    class:is-disabled={isLocked}
 >
     <!-- SETTINGS COG -->
     <button
@@ -71,14 +74,14 @@
         onblur={() => (isFocused = false)}
         placeholder="Type a message..."
         rows="1"
-        {disabled}
+        disabled={isLocked}
     ></textarea>
 
     <!-- SEND ACTION -->
     <button
         class="icon-btn send-btn"
         onclick={handleSend}
-        disabled={!value.trim() || disabled}
+        disabled={!value.trim() || isLocked}
         title="Send Message"
         type="button"
         use:stab

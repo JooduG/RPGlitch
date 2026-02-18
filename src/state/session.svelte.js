@@ -4,6 +4,7 @@ import { Session } from "@core/engine/session.js"
 import { app } from "@state/app.svelte.js"
 import "@state/messages.svelte.js"
 import { runtime } from "@state/runtime.svelte.js"
+import { engineState } from "@state/status.svelte.js" // [R5] Unified State
 
 /**
  * src/state/session.svelte.js
@@ -145,7 +146,7 @@ export class ReactiveSession {
         } finally {
             this.loading = false
             app.simulation.loading = false
-            app.simulation.status = "idle"
+            engineState.complete()
         }
     }
 

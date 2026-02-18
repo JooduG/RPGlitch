@@ -10,6 +10,7 @@ import { db } from "@data/db.js"
 import { entities } from "@data/repository.js"
 import { app } from "@state/app.svelte.js" // [R5]
 import { runtime } from "@state/runtime.svelte.js"
+import { engineState } from "@state/status.svelte.js" // [R5] Unified State
 import { events, EVENTS, state as store } from "./bus.js"
 import { Session } from "./session.js"
 
@@ -120,10 +121,10 @@ export const Engine = {
 
     // Engine Methods Replacement
     generateAiResponse: async (storyId, options = {}) => {
-        // [R5] Set Thinking Role
-        app.simulation.generatingRole = options.role || "ai"
+        // [R5] Set Thinking Role & Start
+        engineState.startGeneration(options.role || "ai")
 
-        // 1. SIGNAL START
+        // 1. SIGNAL START (Legacy Bridge for external listeners if any remain)
         events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED))
 
         try {
@@ -154,6 +155,7 @@ export const Engine = {
             throw e
         } finally {
             // 5. NOTIFY COMPLETE
+            engineState.complete()
             events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED))
         }
     },
@@ -166,7 +168,7 @@ export const Engine = {
         const payload = await builder.buildPrologue()
 
         if (payload) {
-            app.simulation.generatingRole = "fractal" // [R5]
+            engineState.startGeneration("fractal")
             events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED))
             try {
                 // Basic generation without full Engine overhead
@@ -178,6 +180,7 @@ export const Engine = {
                 // [FIX] Immediately trigger AI Character follow-up
                 await Engine.generateAiResponse(storyId)
             } finally {
+                engineState.complete()
                 events.dispatchEvent(
                     new CustomEvent(EVENTS.GENERATION_COMPLETED)
                 )
@@ -190,13 +193,15 @@ export const Engine = {
         const { ContextBuilder } = await import("@core/intelligence/context.js")
         const builder = new ContextBuilder(storyId)
         const payload = await builder.buildEpilogue()
+
         if (payload) {
-            app.simulation.generatingRole = "ai" // [R5]
+            engineState.startGeneration("ai")
             events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED))
             try {
                 const result = await LlmService.generate(payload)
                 await Session.addAiMessage(result, "Narrator")
             } finally {
+                engineState.complete()
                 events.dispatchEvent(
                     new CustomEvent(EVENTS.GENERATION_COMPLETED)
                 )

@@ -1,6 +1,7 @@
 <script>
     import { entities } from "@data/repository.js"
     import { app } from "@state/app.svelte.js"
+    import { engineState } from "@state/status.svelte.js" // [R5] Unified State
     import { messages } from "@state/messages.svelte.js"
     import { session } from "@state/session.svelte.js"
     import Button from "@ui/atoms/Button.svelte"
@@ -20,7 +21,7 @@
 
     // Derived
     let feed = $derived(messages.feed || [])
-    let isThinking = $derived(app.simulation.loading)
+    let isThinking = $derived(engineState.phase === "generating")
 
     // Auto-scroll logic
     $effect(() => {
@@ -146,7 +147,7 @@
                     {:else if isThinking}
                         <!-- [R5] Dynamic Thinking Indicator -->
                         <Message
-                            sender={app.simulation.generatingRole}
+                            sender={engineState.role}
                             isThinking={true}
                         />
                         <!-- Future: <Message sender="user" isThinking={true} /> -->

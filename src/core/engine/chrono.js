@@ -5,6 +5,7 @@ import { Shield } from "@core/security/security.js"
 import { app } from "@state/app.svelte.js"
 import { messages } from "@state/messages.svelte.js"
 import { runtime } from "@state/runtime.svelte.js"
+import { engineState } from "@state/status.svelte.js" // [R5] Unified State
 import { state } from "./bus.js"
 
 import { Engine } from "./engine.js"
@@ -33,7 +34,7 @@ export class ChronoStore {
 
         // 1. STASIS: Lock the Universe
         app.simulation.loading = true
-        app.simulation.status = "scanning reality" // Phase 1
+        engineState.lock() // Phase 1: System Lock
         app.log("Shield scanning causality and physics...", "system")
 
         try {
@@ -65,12 +66,12 @@ export class ChronoStore {
                     finalInput = `[SYSTEM]: The user attempted '${input}' but failed because: "${shieldContext.causality.constraint}". Describe this failed attempt briefly and dryly.`
 
                     // Visual Feedback (Glitch)
-                    app.simulation.status = "causality violation"
+                    // app.simulation.status = "causality violation" // [R5] Removed detailed status
                 }
             }
 
             // 3. SYNTHESIS: Generate Narrative (Engine)
-            app.simulation.status = "forecasting" // Phase 2
+            // engineState.startGeneration('ai') will be called by Engine.generateAiResponse
             app.log(`LLM synthesizing turn ${app.simulation.turn + 1}...`, "ai")
 
             // The GM facade maps generateAiResponse -> Engine.generateAiResponse(storyId, options)
@@ -81,7 +82,7 @@ export class ChronoStore {
             })
 
             // 4. ECHO: Commit to Resonance (Echo/Scholar)
-            app.simulation.status = "echoing" // Phase 3
+            engineState.lock() // Phase 3: Database Lock (Post-Generation)
             app.log("Echo recording temporal resonance...", "db")
             app.simulation.turn += 1
 
@@ -101,7 +102,7 @@ export class ChronoStore {
         } finally {
             // 5. RESURRECTION: Unlock the Universe
             app.simulation.loading = false
-            app.simulation.status = "idle"
+            engineState.unlock()
         }
     }
 }
