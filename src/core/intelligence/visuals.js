@@ -111,8 +111,10 @@ export const VisualsService = {
                 entityId = target
                 const context = await ContextBroker.assemble(entityId, "visual")
                 const baseDescription = context.system || ""
-                finalPrompt =
-                    await LlmService.optimizeImagePrompt(baseDescription)
+                finalPrompt = await LlmService.enhance(
+                    baseDescription,
+                    "visuals.prompt"
+                )
             } else {
                 // Target is likely an object or raw prompt
                 finalPrompt = target.toString()

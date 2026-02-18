@@ -2,8 +2,7 @@ import { describe, expect, test, vi } from "vitest"
 
 // Mock Services
 const LlmService = {
-    optimizeImagePrompt: vi.fn(),
-    enhanceStoryField: vi.fn(),
+    enhance: vi.fn(),
 }
 
 const TextToImage = {
@@ -26,7 +25,7 @@ async function handleCreativeAction(ctx) {
     try {
         if (activeField && isEnhanceMode) {
             if (enhancementType === "generative") {
-                await LlmService.optimizeImagePrompt(char.visuals.prompt)
+                await LlmService.enhance(char.visuals.prompt, "visuals.prompt")
             } else {
                 // ...
             }

@@ -115,7 +115,6 @@
 
         try {
             // Capture the label before we potentially nullify activeField
-            const fieldLabel = activeField?.label
 
             // Deselect field immediately when enhancement starts (so button label changes)
             // But only for trait fields, not for visual-prompt
@@ -125,17 +124,18 @@
 
             if (currentTargetKey === "visual-prompt" && isEnhanceMode) {
                 // --- ENHANCE PROMPT (for Image Gen) ---
-                const result = await LlmService.optimizeImagePrompt(
-                    char.visuals.prompt
+                const result = await LlmService.enhance(
+                    char.visuals.prompt,
+                    "visuals.prompt"
                 )
                 if (result) char.visuals.prompt = result
             } else if (currentTargetKey !== "visual-prompt") {
                 // --- ENHANCE TRAIT FIELD ---
                 const fieldVal = getValue(char, currentTargetKey)
                 if (fieldVal) {
-                    const result = await LlmService.enhanceStoryField(
+                    const result = await LlmService.enhance(
                         fieldVal,
-                        fieldLabel
+                        currentTargetKey
                     )
                     if (result) setValue(char, currentTargetKey, result)
                 }
