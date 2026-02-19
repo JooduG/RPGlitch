@@ -1,28 +1,50 @@
-# Plan: Integration Proving (Meridian Loop)
+# Plan: Integration Proving (ProsePanel)
 
-## Phase 1: Scoping (02-feature)
+## [Goal Description]
 
-1. [ ] Audit `ProsePanel.svelte` for current complexity.
-2. [ ] Detail the refactor requirements (Runes, Polish, Persistence).
+Extract the narrative feed logic from `Storymode.svelte` into a dedicated `ProsePanel.svelte` component. This reinforces the "Single Responsibility Principle" and ensures the feed handles its own scrolling, rendering, and interaction logic using pure Svelte 5 Runes.
 
-## Phase 2: Execution (03-implement)
+## User Review Required
 
-1. [ ] Refactor logic to use `$state` and `$derived` for message streaming.
-2. [ ] Remove any direct DOM manipulation or legacy event listeners.
-3. [ ] Integrate `db.messages` correctly for scroll-back persistence.
+> [!NOTE]
+> Moving `src/ui/organisms/feed/ProsePanel.svelte` creates a new directory structure `feed/`.
 
-## Phase 3: Sensory Polish (Polish Protocol)
+## Proposed Changes
 
-1. [ ] Apply `motion` actions for smooth feed updates.
-2. [ ] Apply `scss` tokens for high-contrast typography.
+### UI / Feed
 
-## Phase 4: Security & Quality (06-review)
+#### [NEW] [ProsePanel.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/organisms/feed/ProsePanel.svelte)
 
-1. [ ] Run `npm run lint`.
-2. [ ] Verify `DOMPurify` is correctly sanitizing AI prose.
-3. [ ] Run compliance tests.
+- **Logic**:
+    - Consumes `messages.feed` from `@state/messages.svelte.js`.
+    - Handles auto-scrolling with `$effect`.
+    - Manages message actions (Delete, Edit, Regenerate, Continue) via `session` state.
+- **Props**:
+    - None (connects to global stores `messages`, `app`, `engineState`) OR `feed` prop for purity.
+    - _Decision_: Connect to global stores for now to match current `Storymode` pattern, unless "Pure IO" mandate requires props. The spec says "Logic follows Pure IO where possible".
+    - _Plan_: Try to use props `messages={messages.feed}` if possible, but global state is acceptable for container components.
 
-## Phase 5: Anchor (05-checkpoint)
+#### [MODIFY] [Storymode.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/organisms/storymode/Storymode.svelte)
 
-1. [ ] Commit with formal metadata.
-2. [ ] Update project tracks to "Done".
+- Remove `feed` derived state.
+- Remove `scrollRef` and scroll effects.
+- Remove `handleDelete`, `handleRegenerate`, `handleContinue`, `handleEdit`.
+- Replace feed loop with `<ProsePanel />`.
+
+#### [NEW] [index.scss](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/organisms/feed/index.scss)
+
+- Scoped styles for the feed container and scrollbars.
+
+## Verification Plan
+
+### Automated Tests
+
+- `npm run lint`: Ensure no Svelte 4 syntax leaks.
+- `npm run check`: Validate types.
+
+### Manual Verification
+
+1. **Load Storymode**: Verify historical messages appear.
+2. **Streaming**: Generate a new message and verify smooth scrolling.
+3. **Actions**: Click "Regenerate" and "Delete" to verify state updates.
+4. **Responsiveness**: Resize window to ensure scrollbar behaves correctly.

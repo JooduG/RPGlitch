@@ -37,7 +37,7 @@ description: The Quality Gate. Audits work and commits to the permanent record.
 1.  **Update Plan**: Mark items `[x] [checkpoint: <sha>]`.
 2.  **Update Tracks**: Update global status in `tracks.md`.
 3.  **Archive**: If track is 100% done:
-    - Move folder to `.agent/tasks/archive/<slug>`.
+    - Move folder to `.agent/archive/<slug>`.
     - Mark `[x]` in `tracks.md`.
 
 ## 4. Anti-Patterns
