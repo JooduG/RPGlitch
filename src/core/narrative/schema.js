@@ -12,12 +12,10 @@ export const ENTITY_SCHEMA = {
             physical: {
                 id: "eternal.physical",
                 label: "Physical Appearance",
-                placeholder:
-                    "Height, build, distinguishing marks, cybernetics...",
+                placeholder: "Height, build, distinguishing marks, cybernetics...",
                 llm: {
                     role: "BIOLOGICAL_ARCHITECT",
-                    instruction:
-                        "Define permanent physiological traits. Ignore clothing.",
+                    instruction: "Define permanent physiological traits. Ignore clothing.",
                     priority: "HIGH",
                 },
                 visual: {
@@ -28,12 +26,10 @@ export const ENTITY_SCHEMA = {
             mental: {
                 id: "eternal.mental",
                 label: "Psychological Core",
-                placeholder:
-                    "Archetype, core fears, deepest desires, neuroses...",
+                placeholder: "Archetype, core fears, deepest desires, neuroses...",
                 llm: {
                     role: "PSYCHE_PROFILER",
-                    instruction:
-                        "Define the cognitive baseline and emotional axioms.",
+                    instruction: "Define the cognitive baseline and emotional axioms.",
                     priority: "CRITICAL",
                 },
                 visual: {
@@ -53,8 +49,7 @@ export const ENTITY_SCHEMA = {
                 placeholder: "Clothing, armor, accessories, style...",
                 llm: {
                     role: "COSTUME_DESIGNER",
-                    instruction:
-                        "Define current worn items and aesthetic style.",
+                    instruction: "Define current worn items and aesthetic style.",
                     priority: "MEDIUM",
                 },
                 visual: {
@@ -82,8 +77,7 @@ export const ENTITY_SCHEMA = {
                 placeholder: "Injuries, fatigue, intoxication, hunger...",
                 llm: {
                     role: "MEDICAL_OFFICER",
-                    instruction:
-                        "Define current biological deviations from baseline.",
+                    instruction: "Define current biological deviations from baseline.",
                     priority: "HIGH",
                 },
                 visual: {
@@ -103,8 +97,7 @@ export const ENTITY_SCHEMA = {
                 placeholder: "Origin, key events, relationships, trauma...",
                 llm: {
                     role: "HISTORIAN",
-                    instruction:
-                        "Summarize key timeline events that inform current behavior.",
+                    instruction: "Summarize key timeline events that inform current behavior.",
                     priority: "LOW",
                 },
                 visual: {
@@ -139,15 +132,12 @@ export const ENTITY_SCHEMA = {
 /**
  * Helper to get a flat list of all fields for iteration.
  */
-export const FIELD_REGISTRY = Object.values(ENTITY_SCHEMA).reduce(
-    (acc, section) => {
-        Object.values(section.fields).forEach((field) => {
-            acc[field.id] = field
-        })
-        return acc
-    },
-    {}
-)
+export const FIELD_REGISTRY = Object.values(ENTITY_SCHEMA).reduce((acc, section) => {
+    Object.values(section.fields).forEach((field) => {
+        acc[field.id] = field
+    })
+    return acc
+}, {})
 
 /**
  * Helper to get UI Configuration for the Profile Editor.
