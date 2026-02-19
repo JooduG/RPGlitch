@@ -23,7 +23,9 @@ When gathering info, follow this strict order to ensure quality:
 
 1.  **Tier 1 (Local):** Is it in the `src/` files? -> Use `File Fetcher`.
 2.  **Tier 2 (Specialized):** Is it a known domain? -> Use `svelte`, `context7`, `deepwiki`, or `firecrawl`.
-3.  **Tier 3 (General):** Is it unknown? -> Use `Google Search`.
+3.  **Tier 3 (Scientific):** Is it a complex bug? -> Use `waldzell-scientific-method`.
+4.  **Tier 4 (Collaborative):** Need expert perspectives? -> Use `waldzell-collaborative-reasoning`.
+5.  **Tier 5 (General):** Is it unknown? -> Use `Google Search`.
 
 ### 🧩 Context Assembly
 
@@ -47,6 +49,8 @@ When the task requires external knowledge, route to the correct MCP tool chain:
 | **Svelte 5 / SvelteKit**  | `mcp_svelte_list-sections` → `mcp_svelte_get-documentation`            | **Primary Authority.** Ensures Svelte 5 Rune compliance. |
 | **GitHub Repo Specifics** | `mcp_deepwiki_read_wiki_structure` → `mcp_deepwiki_read_wiki_contents` | Best for Wikis and READMEs of specific repositories.     |
 | **General Libraries**     | `mcp_context7_resolve-library-id` → `mcp_context7_query-docs`          | Professional docs for libraries (Dexie, Prisma, Zod).    |
+| **Scientific Inquiry**    | `waldzell-scientific-method`                                           | Deep debugging, hypothesis testing, and causal analysis. |
+| **Expert Simulation**     | `waldzell-collaborative-reasoning`                                     | Multi-persona architectural reviews and debates.         |
 | **Web Pages / URLs**      | `mcp_firecrawl-mcp_firecrawl_scrape`                                   | Read specific URLs or documentation pages.               |
 | **General Search**        | `mcp_firecrawl-mcp_firecrawl_search`                                   | Broad web search as last resort.                         |
 

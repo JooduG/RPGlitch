@@ -31,6 +31,8 @@ description: >
 
 1. **Trigger**: User asks to build a new feature or "Plan <feature>".
 2. **Action**: Follow `02-feature.md` workflow — Clarity Gate → Spec → Plan → Register.
+    - **Estimation**: Use `waldzell-stochastic-thinking` for effort/risk analysis if scope > 3 files.
+    - **Architectural Forks**: Use `waldzell-decision-framework` if multiple valid approaches exist.
 3. **Validation**: Ensure User Story, Tech Specs, and Checklist are present.
 
 ### 🔧 Implement Task (`/03-implement`)

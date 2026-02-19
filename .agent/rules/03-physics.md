@@ -40,10 +40,13 @@ The project operates in a **Svelte 5 Runes-only** environment.
 
 ## 4. Jurisdiction Matrix
 
-| Skill           | Territory              | Responsibility          |
-| :-------------- | :--------------------- | :---------------------- |
-| **🕹️ Engine**   | `src/core/**`          | Logic chain & Timing.   |
-| **🛠️ UI**       | `src/ui/**`            | Structure & Reactivity. |
-| **🎭 Polish**   | `src/theme/**`         | Aesthetics & Audio.     |
-| **📚 Data**     | `src/data/**`          | Persistence & Schemas.  |
-| **🛡️ Security** | `src/core/security/**` | Integrity & Audits.     |
+| Skill            | Territory              | Responsibility          |
+| :--------------- | :--------------------- | :---------------------- |
+| **🕹️ Engine**    | `src/core/**`          | Logic chain & Timing.   |
+| **🛠️ UI**        | `src/ui/**`            | Structure & Reactivity. |
+| **🎭 Polish**    | `src/theme/**`         | Aesthetics & Audio.     |
+| **📚 Data**      | `src/data/**`          | Persistence & Schemas.  |
+| **🛡️ Security**  | `src/core/security/**` | Integrity & Audits.     |
+| **🧠 Cognitive** | `.agent/skills/**`     | Waldzell Reasoning.     |
+| **🕸️ Stitch**    | `src/ui/screens/**`    | Generative UI.          |
+| **🧪 QA**        | `tests/**`             | Playwright/Vitest.      |

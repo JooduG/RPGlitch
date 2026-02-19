@@ -33,6 +33,12 @@ Enforces the "Neural Minimalism" style:
 - **Style Keywords**: "cybernetic realism, hyper-detailed, high contrast, obsidian surfaces, neon glitch, anamorphic flare".
 - **Color Palette**: Strictly follows `var(--app-token)` mappings. Default is Lime/Slate.
 
+### 🧠 Visual Reasoning (Waldzell)
+
+- **Tool**: `waldzell-visual-reasoning`
+- **Usage**: Use for generating architectural diagrams, flowcharts, and system maps.
+- **Output**: Mermaid or Graphviz syntax.
+
 ## 2. Procedures
 
 ### 🎬 Asset Generation Workflow

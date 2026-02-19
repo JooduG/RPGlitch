@@ -28,14 +28,14 @@ This skill MUST trigger for:
 
 Before planning, assess the request's ambiguity.
 
-1. **Assess**: "Is the request clear?" (Score 1-5).
-2. **Act**:
-    - **A1-A2 (Clear)**: Proceed to Phase 2.
-    - **A3 (Ambiguous)**: **Propose Solution**. ("I recommend X. Proceed?").
-    - **A4 (Vague)**: **Present Options**. ("Option A vs B?").
-    - **A5 (Opaque)**: **Refuse/Clarify**. ("I need more context on Y.").
-
-> **Rule**: Stop here if A > 2 and wait for user input.
+31. **Assess**: "Is the request clear?" (Score 1-5).
+32. **Act**:
+33.     - **A1-A2 (Clear)**: Proceed to Phase 2.
+34.     - **A3 (Ambiguous)**: **Propose Solution**. Trigger `metacognitiveMonitoring` (Stage: planning).
+35.     - **A4 (Vague)**: **Present Options**. Trigger `metacognitiveMonitoring` (Stage: knowledge-assessment).
+36.     - **A5 (Opaque)**: **Refuse/Clarify**. ("I need more context on Y.").
+37.
+38. > **Rule**: Stop here if A > 2 and wait for user input (or self-correction via Waldzell).
 
 ## Phase 2: The Planning Phase
 
@@ -64,16 +64,17 @@ List at least **2 potential risks** (e.g., State sync, Edge cases, Performance b
 
 ## Phase 3: Cognitive Execution
 
-For the actual execution logic, you MUST use the following tools based on complexity:
-
-- **Sequential Thinking (MANDATORY for C2+ Tasks)**:
-    - Use for any logic requiring > 3 steps.
-    - Track your thought process step-by-step.
-    - Update the plan if dynamic complexity increases.
-
-- **First Principles**:
-    - Use for architectural decisions or when "best practices" conflict.
-    - Strip away assumptions; reason from the ground up.
+67. For the actual execution logic, you MUST use the following tools based on complexity:
+68.
+69. - **Sequential Thinking (Legacy)**:
+70.     - Use for straightforward logic (< 3 steps).
+71.
+72. - **Waldzell Reasoning (MANDATORY for C2+ Tasks)**:
+73.     - **`clear_thought`**: Primary engine for complex reasoning chains.
+74.         - Use `operation: "sequential_thinking"` for standard problem solving.
+75.         - Use `operation: "debugging_approach"` for defect analysis.
+76.     - **`structuredArgumentation`**: Use for "A vs B" architectural debates.
+77.     - **`visualReasoning`**: Use to graph complex relationships or state machines.
 
 ## Self-Correction (Sanity Audit)
 
