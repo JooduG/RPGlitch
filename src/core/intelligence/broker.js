@@ -30,7 +30,7 @@ export class ContextBroker {
         }
 
         // 3. Delegate to Narrative Engine
-        // TODO: Get active Tone ID from State/Config
+        // Active Tone ID from State/Config (Defaulting to "DEFAULT" for now)
         const toneKey = "DEFAULT"
 
         const result = await Engine.compose({

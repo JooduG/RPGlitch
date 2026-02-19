@@ -4,12 +4,8 @@ import { defineConfig } from "vitest/config"
 
 export default defineConfig({
     plugins: [svelte({ hot: !process.env.VITEST })],
-    test: {
-        environment: "jsdom",
-        globals: true,
-        // Explicitly include src test paths
-        include: ["src/**/*.{test,spec}.{js,ts}"],
-        exclude: ["**/node_modules/**", "**/.git/**"],
+    resolve: {
+        conditions: ["browser"],
         alias: {
             "@": path.resolve(__dirname, "./src"),
             "@core": path.resolve(__dirname, "./src/core"),
@@ -20,6 +16,13 @@ export default defineConfig({
             "@media": path.resolve(__dirname, "./src/media"),
             "@scholar": path.resolve(__dirname, "./src/data"),
         },
+    },
+    test: {
+        environment: "jsdom",
+        globals: true,
+        // Explicitly include src test paths
+        include: ["src/**/*.{test,spec}.{js,ts}"],
+        exclude: ["**/node_modules/**", "**/.git/**"],
         // setupFiles: [".agent/skills/warden/scripts/setup.js"],
     },
 })

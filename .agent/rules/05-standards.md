@@ -43,7 +43,7 @@ description: Global standards for naming, formatting, and operational parameters
 
 ## 6. Communication Protocols (The Footer)
 
-The user must always know the weights and measures of the agent's mind. **Every message** to the user MUST conclude with this metadata block:
+The user must always know the weights and measures of the agent's mind. **Every user-facing output** (including standard chat responses AND the `Message` argument of `notify_user`) MUST conclude with this metadata block:
 
 ---
 
@@ -51,7 +51,7 @@ The user must always know the weights and measures of the agent's mind. **Every 
 
 **🧠 Skills:** [skill_name]
 
-**⚙️ Tools:** [mcp_name], [command], [/workflow]
+**⚙️ Tools:** [tool_name], [command], [/workflow]
 
 **📚 References:** [file_basename.js], [path/to/archive_file.md]
 
