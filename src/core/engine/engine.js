@@ -50,7 +50,13 @@ export const Engine = {
         update: () => {
             // [R5] Narrative State is now reactive in runtime.narrative
             // No manual sync required.
-            // Future logic for thread promotion/lifecycle goes here.
+
+            // AUTO-SEED: Ensure Vanguard is never empty
+            if (runtime.narrative.threads.length === 0) {
+                runtime.addThread("Continue the journey.", true)
+                // Optionally log this system action to debug telemetry
+                app.log("NarrativeDirector: Auto-seeded Vanguard", "system")
+            }
         },
 
         /**

@@ -80,11 +80,10 @@ Inject these elements where appropriate: ${tone.motifs.join(", ")}.
         if (state.chrono) {
             blocks.push(
                 `
-<SIMULATION_STATE>
-[STEP]: ${state.chrono.turn || 0}
-[OBJECTIVE]: ${state.chrono.objective || "Unknown"}
-[CONFLICT]: ${state.chrono.conflict || "None"}
-</SIMULATION_STATE>`.trim()
+[CHRONO_LAYER]
+STEP: ${state.chrono.turn || 0}
+OBJECTIVE: ${state.chrono.objective || "Unknown"}
+CONFLICT: ${state.chrono.conflict || "None"}`.trim()
             )
         }
 
@@ -92,11 +91,10 @@ Inject these elements where appropriate: ${tone.motifs.join(", ")}.
         if (state.fractal) {
             blocks.push(
                 `
-<FRACTAL_LAYER>
-[LOC]: ${state.fractal.title}
-[DAT]: ${state.fractal.lore}
-[ENV]: ${JSON.stringify(state.fractal.state || {})}
-</FRACTAL_LAYER>`.trim()
+[FRACTAL_LAYER]
+LOC: ${state.fractal.title}
+DAT: ${state.fractal.lore}
+ENV: ${JSON.stringify(state.fractal.state || {})}`.trim()
             )
         }
 
@@ -105,13 +103,12 @@ Inject these elements where appropriate: ${tone.motifs.join(", ")}.
             const { ai, user } = state.entity
             blocks.push(
                 `
-<ENTITY_LAYER>
-[ACTOR]: ${ai.name} (${ai.role})
+[ENTITY_LAYER]
+ACTOR: ${ai.name} (${ai.role})
 ${ai.fragments.join("\n")}
 
-[INTERACTOR]: ${user.name}
-${user.fragments.join("\n")}
-</ENTITY_LAYER>`.trim()
+INTERACTOR: ${user.name}
+${user.fragments.join("\n")}`.trim()
             )
         }
 
