@@ -17,7 +17,7 @@ describe("ProsePanel Integration (Isolated)", () => {
         vi.clearAllMocks()
         // Reset Real State
         messages.feed = []
-        app.streaming = { active: false, content: "" }
+        app.streaming = { active: false, content: "", nodeId: null }
         app.selectedAi = { name: "TestAI" }
         engineState.phase = "idle"
         engineState.role = null
@@ -49,7 +49,7 @@ describe("ProsePanel Integration (Isolated)", () => {
     })
 
     it("renders streaming content", async () => {
-        app.streaming = { active: true, content: "Streaming..." }
+        app.streaming = { active: true, content: "Streaming...", nodeId: null }
         render(ProsePanel)
         expect(screen.getByText("Streaming...")).toBeDefined()
     })
