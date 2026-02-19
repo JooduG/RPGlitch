@@ -5,13 +5,6 @@
 
 ## 🚀 Active Tracks
 
-### 🏗️ Track: Integration Proving
-
-- **Path:** [.agent/tasks/integration-proving/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/integration-proving/)
-- **Status:** Complete
-- **Checkpoint:** `ver-pp-01`
-- **Note:** Successfully refactored `ProsePanel.svelte` with Svelte 5 Runes and verified integration via unit tests (mocked environment).
-
 ---
 
 ## 📋 Protocols & Checklists
@@ -25,6 +18,14 @@
 ---
 
 ## ✅ Archive
+
+### ✅ Track: Integration Proving
+
+- **Path:** [.agent/archive/integration-proving/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/archive/integration-proving/)
+- **Status:** Complete
+- **Checkpoint:** `ver-pp-01`
+- **Note:** Successfully refactored `ProsePanel.svelte` with Svelte 5 Runes and verified integration via unit tests (mocked environment).
+- **Deployed:** 2026-02-19 (~362kB Bundle)
 
 ### ✅ Track: LocalStorage -> Dexie.js Migration
 
