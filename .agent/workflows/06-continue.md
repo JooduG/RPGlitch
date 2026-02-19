@@ -25,7 +25,7 @@ description: Resume interrupted work. Pick up exactly where left off.
 1.  **Chat History**: Read the recent message history to identify the interruption point and immediate intent.
 2.  **Read Tracks**: Confirm the active `[/]` task.
 3.  **Locate Plan**: Read the `plan.md` associated with the active task.
-4.  **Read Task Artifact**: Read the `.gemini/.../task.md` (Session Task) if available, or the project `task.md`.
+4.  **Read Task Artifact**: Read the `.gemini/antigravity/brain/<id>/task.md` (Session Task) if available, or the project `task.md`.
 
 ### Phase 2: Momentum Restoration
 

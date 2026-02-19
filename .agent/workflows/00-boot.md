@@ -17,6 +17,7 @@ description: Fresh Session Initialization. Syncs context, validates integrity, a
 - **Vision**: `.agent/knowledge/atlas/01-vision.md`
 - **Tracks**: `.agent/tasks/tracks.md`
 - **Rules**: `.agent/rules/02-workflow.md`
+- **Stack**: `.agent/rules/03-physics.md`
 
 ## 3. Procedures
 
@@ -24,7 +25,7 @@ description: Fresh Session Initialization. Syncs context, validates integrity, a
 
 1.  **Load Config**: Establish operational parameters.
 2.  **Read Tracks**: Identify the active `[/]` task in `tracks.md`.
-3.  **Read Rules**: Refresh memory on `03-physics.md` constraint.
+3.  **Read Rules**: Refresh memory on `03-physics.md` and `01-governance.md` constraints.
 
 ### Phase 2: Integrity Check
 

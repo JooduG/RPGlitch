@@ -30,7 +30,7 @@ description: Diagnosis and repair. Fixes bugs and ensures code hygiene.
 ### Phase 2: Surgery (Bug Fix)
 
 1.  **Reproduce**: Write a failing test (Red).
-2.  **Diagnose**: Trace root cause. Use `sequentialthinking` if deep.
+2.  **Diagnose**: Trace root cause. Use `waldzell-clear-thought` / `metacognitiveMonitoring` for complex tracing.
 3.  **Patch**: Minimal intervention. Fix the bug, don't rewrite the system.
 4.  **Verify**: Run test (Green).
 

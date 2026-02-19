@@ -16,8 +16,8 @@ description: The Core Execution Loop. Builds features or refactors code.
 ## 2. Brain (Context Injection)
 
 - **Plan**: `.agent/tasks/<slug>/plan.md`
-- **Stack**: `.agent/rules/stack.md` (Svelte 5 / Runes)
-- **Standards**: `.agent/rules/standards.md`
+- **Stack**: `.agent/rules/03-physics.md` (Svelte 5 / Runes)
+- **Standards**: `.agent/rules/05-standards.md`
 
 ## 3. Procedures
 
@@ -30,7 +30,7 @@ description: The Core Execution Loop. Builds features or refactors code.
 ### Phase 2: Fabrication (TDD Loop)
 
 1.  **Red Phase**: Create/Update test file. Write failing test. **Verify failure** via `npm test`.
-2.  **Green Phase**: Implement minimum code in `src/` to pass tests.
+2.  **Green Phase**: Implement minimum code in `src/` to pass tests. Use `waldzell-clear-thought` / `metacognitiveMonitoring` for complex logic.
 3.  **Refactor Phase**: Clean up implementation. Logic = Pure Functions. Styles = Tokens.
 4.  **Verify**: Rerun tests to ensure success.
 
@@ -52,7 +52,7 @@ description: The Core Execution Loop. Builds features or refactors code.
 1.  **Scope**: `git diff --name-only <last_checkpoint> HEAD`.
 2.  **Test Coverage**: Verify tests exist for ALL changed code files.
 3.  **Verify**: Ensure full suite PASS.
-4.  **Finalize**: Update `tracks.md` with new `checkpoint: <sha>`.
+4.  **Finalize**: Update `tracks.md` with new `checkpoint: <sha>`. Use the "Track Block" format.
 
 ## 5. Anti-Patterns
 
@@ -65,4 +65,6 @@ description: The Core Execution Loop. Builds features or refactors code.
 - `view_file` (Context)
 - `write_to_file` / `replace_file_content` (Edits)
 - `run_command` (Test/Git)
+- `waldzell-clear-thought` (Deep Logic)
+- `waldzell-metacognitive-monitoring` (Self-Audit)
 - `task_boundary` (State)

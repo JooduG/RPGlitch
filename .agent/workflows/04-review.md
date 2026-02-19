@@ -35,7 +35,7 @@ description: The Quality Gate. Audits work and commits to the permanent record.
 ### Phase 3: The Registry (Update)
 
 1.  **Update Plan**: Mark items `[x] [checkpoint: <sha>]`.
-2.  **Update Tracks**: Update global status in `tracks.md`.
+2.  **Update Tracks**: Update global status in `tracks.md`. **Mandatory**: Use the "Track Block" format.
 3.  **Archive**: If track is 100% done:
     - Move folder to `.agent/archive/<slug>`.
     - Mark `[x]` in `tracks.md`.
@@ -50,3 +50,4 @@ description: The Quality Gate. Audits work and commits to the permanent record.
 
 - `run_command` (git)
 - `write_to_file` (update markdown)
+- `waldzell-metacognitive-monitoring` (Audit)

@@ -25,7 +25,7 @@ description: Scoping and planning a new feature. Defines WHAT to build, not HOW.
 1.  **Analyze Intent**: Is the request clear?
     - **Ambiguous**: STOP. Ask clarifying questions.
     - **Clear**: Proceed.
-2.  **Check Lab**: Look for existing specs in `.agent/knowledge/lab/`.
+2.  **Check Lab**: Look for existing specs in `.agent/knowledge/lab/`. Use `waldzell-decision-framework` for complex roadmap tradeoffs.
 
 ### Phase 2: The Blueprint
 
@@ -39,7 +39,7 @@ description: Scoping and planning a new feature. Defines WHAT to build, not HOW.
 
 ### Phase 3: Registration
 
-1.  **Update Tracks**: Add to `.agent/tasks/tracks.md`.
+1.  **Update Tracks**: Add to `.agent/tasks/tracks.md`. **Mandatory**: Use the high-fidelity "Track Block" format (Path, Status, Checkpoint, Note).
 2.  **Review**: Present Spec & Plan to user.
 3.  **Approval**: Wait for "Proceed" or "Green Light".
 
@@ -52,4 +52,6 @@ description: Scoping and planning a new feature. Defines WHAT to build, not HOW.
 ## 5. Tools
 
 - `write_to_file` (Create artifacts)
-- `sequentialthinking` (Complex scoping)
+- `waldzell-decision-framework` (Complexity/Tradeoffs)
+- `waldzell-stochastic-thinking` (Estimation)
+- `sequentialthinking` (Internal Branching)
