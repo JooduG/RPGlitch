@@ -30,6 +30,7 @@ workflows:
     08-hygiene: .agent/workflows/08-hygiene.md
     09-refactor: .agent/workflows/09-refactor.md
     10-revert: .agent/workflows/10-revert.md
+    11-continue: .agent/workflows/11-continue.md
 
 # 📚 Knowledge (Reference Library)
 knowledge:
