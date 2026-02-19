@@ -15,7 +15,7 @@
 
 ## 📋 Active Tracks (In Progress)
 
-- [/] **Narrative Stability Nexus**: Stabilizing prompt logic and fixing settings persistence. `.agent/tasks/narrative-stability-nexus/plan.md`
+- [x] **Narrative Stability Nexus**: Stabilizing prompt logic and fixing settings persistence. `.agent/tasks/narrative-stability-nexus/plan.md` `checkpoint: 7f3443b`
 - [x] **MCP Integration Optimization**: Deep integration of Waldzell Cognitive Suite and configuration hygiene. `checkpoint: e36cf449`
 
 ## 📋 Backlog (To Do)
