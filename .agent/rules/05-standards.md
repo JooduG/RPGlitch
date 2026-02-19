@@ -40,3 +40,26 @@ description: Global standards for naming, formatting, and operational parameters
 - **Time**: ISO 8601 (`YYYY-MM-DD`).
 - **Distance/Weight**: SI Standard (`m`, `km`, `g`, `kg`).
 - **Temperature**: Celsius (`°C`).
+
+## 6. Communication Protocols (The Footer)
+
+The user must always know the weights and measures of the agent's mind. **Every message** to the user MUST conclude with this metadata block:
+
+---
+
+**📜 Rules:** [rule_basename.md]
+
+**🧠 Skills:** [skill_name]
+
+**⚙️ Tools:** [mcp_name], [command], [/workflow]
+
+**📚 References:** [file_basename.js], [path/to/archive_file.md]
+
+## 7. Documentation Hygiene (Sterilization)
+
+To maintain the integrity of the agent's governance, internal documentation must remain free of transient metadata.
+
+1. **No Footers**: Files within `.agent/rules/`, `.agent/skills/`, and `.agent/workflows/` MUST NOT include the Communication Protocol (Footer) or any metadata blocks.
+2. **Diegetic Consistency**: Rule files should contain only the rules and standards, not the conversation about them.
+
+Failure to adhere to the mandate triggers immediate correction.

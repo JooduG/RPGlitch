@@ -14,23 +14,21 @@ skills:
     scribe: .agent/skills/scribe/SKILL.md
     devops: .agent/skills/devops/SKILL.md
     security: .agent/skills/security/SKILL.md
+    visuals: .agent/skills/visuals/SKILL.md
     research: .agent/skills/research/SKILL.md
     simulation: .agent/skills/simulation/SKILL.md
     memory: .agent/skills/memory/SKILL.md
 
 # ⚡ Workflows (Standard Operating Procedures)
 workflows:
-    01-setup: .agent/workflows/01-setup.md
-    02-feature: .agent/workflows/02-feature.md
-    03-implement: .agent/workflows/03-implement.md
-    04-bug-fix: .agent/workflows/04-bug-fix.md
-    05-checkpoint: .agent/workflows/05-checkpoint.md
-    06-review: .agent/workflows/06-review.md
-    07-deploy: .agent/workflows/07-deploy.md
-    08-hygiene: .agent/workflows/08-hygiene.md
-    09-refactor: .agent/workflows/09-refactor.md
-    10-revert: .agent/workflows/10-revert.md
-    11-continue: .agent/workflows/11-continue.md
+    00-boot: .agent/workflows/00-boot.md
+    01-plan: .agent/workflows/01-plan.md
+    02-execute: .agent/workflows/02-execute.md
+    03-clean: .agent/workflows/03-clean.md
+    04-review: .agent/workflows/04-review.md
+    05-deploy: .agent/workflows/05-deploy.md
+    06-continue: .agent/workflows/06-continue.md
+    99-reset: .agent/workflows/99-reset.md
 
 # 📚 Knowledge (Reference Library)
 knowledge:

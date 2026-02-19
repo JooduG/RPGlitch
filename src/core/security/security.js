@@ -42,7 +42,7 @@ export const Security = {
      */
     process: async (input, character, fractalState) => {
         return {
-            causality: "Authorized",
+            causality: { result: "success" },
             reflex: null,
         }
     },

@@ -27,9 +27,9 @@ description: The Shield. Zero-Trust security, strict hygiene, and rune safety.
 
 ## 3. Enforcement Matrix
 
-| Intent Category | Primary Tool         | Triggers                          |
-| :-------------- | :------------------- | :-------------------------------- |
-| **📙 Docs**     | `context7`           | "How do I use X?"                 |
-| **🧠 Logic**    | `sequentialthinking` | "Complex refactor", "Logic check" |
-| **🔎 Search**   | `grep_search`        | "Find usage", "Search repo"       |
-| **🛡️ Audit**    | `security-scan.js`   | "Security scan", "Check hygiene"  |
+| Intent Category | Primary Tool                                                                                                                                    | Triggers                          |
+| :-------------- | :---------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------- |
+| **📙 Docs**     | [context7](https://github.com/mcp-server/context7)                                                                                              | "How do I use X?"                 |
+| **🧠 Logic**    | `sequentialthinking`                                                                                                                            | "Complex refactor", "Logic check" |
+| **🔎 Search**   | `grep_search`                                                                                                                                   | "Find usage", "Search repo"       |
+| **🛡️ Audit**    | [.agent/skills/security/scripts/security-scan.js](file:///c:/Users/johng/source/repos/RPGlitch/.agent/skills/security/scripts/security-scan.js) | "Security scan", "Check hygiene"  |

@@ -27,41 +27,42 @@ description: The Core Execution Loop. Builds features or refactors code.
 2.  **Mark**: Update to `[/]`.
 3.  **Context**: Read relevant files for _this specific task_.
 
-### Phase 2: Fabrication (The Loop)
+### Phase 2: Fabrication (TDD Loop)
 
-#### **Mode A: New Feature (Implement)**
+1.  **Red Phase**: Create/Update test file. Write failing test. **Verify failure** via `npm test`.
+2.  **Green Phase**: Implement minimum code in `src/` to pass tests.
+3.  **Refactor Phase**: Clean up implementation. Logic = Pure Functions. Styles = Tokens.
+4.  **Verify**: Rerun tests to ensure success.
 
-1.  **State**: Define Runes (`$state`, `$derived`) in `src/core` or `src/state`.
-2.  **Logic**: Implement handlers. Logic = Pure Functions where possible.
-3.  **UI**: Create `.svelte` components. Semantic HTML first.
-4.  **Style**: Apply SCSS tokens. No hardcoded values.
+### Phase 3: Verification (Quality Gate)
 
-#### **Mode B: Refactor (Improve)**
-
-1.  **Baseline**: Ensure tests pass.
-2.  **Extract**: Spaghettti -> Runes.
-3.  **Verify**: Ensure no regression.
-
-### Phase 3: Verification
-
-1.  **Test**: Run `npm test` or specific unit test.
-2.  **Manual**: Open browser (if UI) or run script.
-3.  **Hygiene**: Remove `console.log`.
+1.  **Audit**: Check for `console.log`, `TODO`s, or hardcoded hex.
+2.  **Manual**: Follow the task's specific verification steps (Browser/CLI).
+3.  **Sanity**: Ensure bundle size and performance constraints are met.
 
 ### Phase 4: Record
 
 1.  **Commit**: `gamemaster(feat|refactor): <description>`.
-2.  **Update**: Mark task `[x]` in `plan.md`.
-3.  **Loop**: Return to Phase 1.
+2.  **Git Notes**: Optional: Attach a summary of changes using `git notes add -m "<summary>" <hash>` for auditability.
+3.  **Update**: Mark task `[x]` in `plan.md`.
+4.  **Checkpoint**: If this completes a **Phase**, execute the Checkpointing Protocol.
 
-## 4. Anti-Patterns
+## 4. Checkpointing Protocol
 
-- **God Components**: Logic mixed with UI.
-- **Style-First**: Painting before the walls are built.
-- **Blind Coding**: Writing code without reading the file first.
+1.  **Scope**: `git diff --name-only <last_checkpoint> HEAD`.
+2.  **Test Coverage**: Verify tests exist for ALL changed code files.
+3.  **Verify**: Ensure full suite PASS.
+4.  **Finalize**: Update `tracks.md` with new `checkpoint: <sha>`.
 
-## 5. Tools
+## 5. Anti-Patterns
+
+- **Painting the Void**: Writing UI before the state is defined.
+- **Blind Commits**: Committing without running tests.
+- **Note-less Checkpoints**: Missing context on WHY a phase is finished.
+
+## 6. Tools
 
 - `view_file` (Context)
 - `write_to_file` / `replace_file_content` (Edits)
 - `run_command` (Test/Git)
+- `task_boundary` (State)

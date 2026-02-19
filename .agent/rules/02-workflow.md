@@ -68,12 +68,13 @@ Before starting any task, read:
 
 > **Location:** `.agent/workflows/*.md`
 
-| Command       | Name              | Implementation              |
-| :------------ | :---------------- | :-------------------------- |
-| `/00-start`   | **The Ignition**  | Sync Context & Resume work. |
-| `/01-plan`    | **The Blueprint** | Scope & Plan features.      |
-| `/02-execute` | **The Forge**     | Implement & Refactor.       |
-| `/03-clean`   | **The Clinic**    | Fix Bugs & Hygiene.         |
-| `/04-review`  | **The Vault**     | Audit & Checkpoint.         |
-| `/05-deploy`  | **The Launch**    | Deploy to Production.       |
-| `/99-reset`   | **The Rewind**    | Emergency Revert.           |
+| Command        | Name              | Implementation                |
+| :------------- | :---------------- | :---------------------------- |
+| `/00-boot`     | **The Ignition**  | Sync Context & Initial Check. |
+| `/01-plan`     | **The Blueprint** | Scope & Plan features.        |
+| `/02-execute`  | **The Forge**     | Implement & Refactor.         |
+| `/03-clean`    | **The Clinic**    | Fix Bugs & Hygiene.           |
+| `/04-review`   | **The Vault**     | Audit & Checkpoint.           |
+| `/05-deploy`   | **The Launch**    | Deploy to Production.         |
+| `/06-continue` | **The Relay**     | Resume interrupted work.      |
+| `/99-reset`    | **The Rewind**    | Emergency Revert.             |

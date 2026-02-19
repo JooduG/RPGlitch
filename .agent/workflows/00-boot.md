@@ -1,17 +1,15 @@
 ---
-description: Universal entry point. Initializes context, validates integrity, and resumes momentum.
+description: Fresh Session Initialization. Syncs context, validates integrity, and prepares for work.
 ---
 
-# 00-start (The Ignition)
+# 00-boot (The Ignition)
 
-> **Goal:** Synchronize the Agent's mental model with reality and resume the Red Thread.
+> **Goal:** Synchronize the Agent's mental model with reality at the start of a new session.
 
 ## 1. Triggers
 
 - **Session Start**: "Hello", "Wake up", "Status check".
-- **Resume**: "Continue", "Next", "Resume <task>".
-- **Context Loss**: "Where were we?", "I am lost".
-- **Slash Command**: `/00-start`
+- **Slash Command**: `/00-boot`
 
 ## 2. Brain (Context Injection)
 
@@ -41,14 +39,12 @@ description: Universal entry point. Initializes context, validates integrity, an
 - **Scenario A (Clean Start)**: No active task.
     - **Action**: Suggest next item from `tracks.md` or await user input.
 - **Scenario B (In Progress)**: Active task `[/]`.
-    - **Action**: Locate `plan.md`.
-    - **Resume**: "Resuming [Task Name]... Executing next step."
+    - **Action**: State "Active Task Detected: [Task Name]" and ask if user wants to `/11-continue`.
 
 ## 4. Anti-Patterns
 
 - **Hallucinating Context**: Guessing the state instead of reading `tracks.md`.
 - **Ignoring Sanctions**: Acting while restricted.
-- **Asking "What now?"**: When a plan already exists.
 
 ## 5. Tools
 
