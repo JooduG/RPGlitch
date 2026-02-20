@@ -7,150 +7,68 @@
 export const ENTITY_SCHEMA = {
     eternal: {
         label: "Eternal",
-        description: "Permanent traits that define the entity's core.",
+        description: "Permanent Traits & Features",
         fields: {
             physical: {
-                id: "eternal.physical",
-                label: "Physical Appearance",
-                placeholder: "Height, build, distinguishing marks, cybernetics...",
-                llm: {
-                    role: "BIOLOGICAL_ARCHITECT",
-                    instruction: "Define permanent physiological traits. Ignore clothing.",
-                    priority: "HIGH",
-                },
-                visual: {
-                    tag_weight: 1.5,
-                    category: "subject",
-                },
+                label: "Physical",
+                placeholder: "Define permanent physiological traits like height, build and cybernetics. Ignore clothing.",
+                enhancer: "PHENOTYPE_EXTRAPOLATOR",
             },
             mental: {
-                id: "eternal.mental",
-                label: "Psychological Core",
-                placeholder: "Archetype, core fears, deepest desires, neuroses...",
-                llm: {
-                    role: "PSYCHE_PROFILER",
-                    instruction: "Define the cognitive baseline and emotional axioms.",
-                    priority: "CRITICAL",
-                },
-                visual: {
-                    tag_weight: 0,
-                    category: "abstract",
-                },
+                label: "Mental",
+                placeholder: "Define the cognitive baseline, including personality, archetypes, core fears and emotional axioms.",
+                enhancer: "PSYCHE_UPSCALER",
             },
         },
     },
     present: {
         label: "Present",
-        description: "Current state, attire, and equipment.",
+        description: "Temporary State & Conditions",
         fields: {
-            outfit: {
-                id: "present.outfit",
-                label: "Current Attire",
-                placeholder: "Clothing, armor, accessories, style...",
-                llm: {
-                    role: "COSTUME_DESIGNER",
-                    instruction: "Define current worn items and aesthetic style.",
-                    priority: "MEDIUM",
-                },
-                visual: {
-                    tag_weight: 1.2,
-                    category: "attire",
-                },
+            physical: {
+                label: "Physical",
+                placeholder: "Define current physical state, including injuries, fatigue and intoxication.",
+                enhancer: "STATE_RENDERER",
             },
-            inventory: {
-                id: "present.inventory",
-                label: "Active Inventory",
-                placeholder: "Weapons, tools, held items...",
-                llm: {
-                    role: "QUARTERMASTER",
-                    instruction: "Define universally available tools/weapons.",
-                    priority: "MEDIUM",
-                },
-                visual: {
-                    tag_weight: 1.0,
-                    category: "props",
-                },
-            },
-            status: {
-                id: "present.status",
-                label: "Physiological Status",
-                placeholder: "Injuries, fatigue, intoxication, hunger...",
-                llm: {
-                    role: "MEDICAL_OFFICER",
-                    instruction: "Define current biological deviations from baseline.",
-                    priority: "HIGH",
-                },
-                visual: {
-                    tag_weight: 0.8,
-                    category: "details",
-                },
+            mental: {
+                label: "Mental",
+                placeholder: "Define current mental state, including mood, emotional state, focus, cognitive load and immediate goals.",
+                enhancer: "BEHAVIORAL_AMPLIFIER",
             },
         },
     },
     past: {
         label: "Past",
-        description: "History and formative events.",
-        fields: {
-            history: {
-                id: "past.history",
-                label: "Backstory",
-                placeholder: "Origin, key events, relationships, trauma...",
-                llm: {
-                    role: "HISTORIAN",
-                    instruction: "Summarize key timeline events that inform current behavior.",
-                    priority: "LOW",
-                },
-                visual: {
-                    tag_weight: 0,
-                    category: "context",
-                },
-            },
-        },
+        description: "Origin & Backstory",
+        placeholder: "Summarize key backstory events, origins and trauma that inform current behavior.",
+        enhancer: "CAUSALITY_WEAVER",
     },
     future: {
         label: "Future",
-        description: "Goals and drives.",
-        fields: {
-            goals: {
-                id: "future.goals",
-                label: "Objectives",
-                placeholder: "Immediate needs, long-term ambitions...",
-                llm: {
-                    role: "STRATEGIST",
-                    instruction: "Define the vector of user agency and desire.",
-                    priority: "MEDIUM",
-                },
-                visual: {
-                    tag_weight: 0,
-                    category: "context",
-                },
-            },
-        },
+        description: "Plans & Prophecies",
+        placeholder: "Define long-term objectives, immediate needs and long-term ambitions.",
+        enhancer: "TRAJECTORY_SIMULATOR",
     },
 }
 
 /**
  * Helper to get a flat list of all fields for iteration.
+ * Handles mixed hierarchy:
+ * - Nested: section.fields.key -> id = "section.key"
+ * - Flat: section -> id = "section"
  */
-export const FIELD_REGISTRY = Object.values(ENTITY_SCHEMA).reduce((acc, section) => {
-    Object.values(section.fields).forEach((field) => {
-        acc[field.id] = field
-    })
+export const FIELD_REGISTRY = Object.entries(ENTITY_SCHEMA).reduce((acc, [sectionKey, section]) => {
+    if (section.fields) {
+        // Nested Structure
+        Object.entries(section.fields).forEach(([fieldKey, field]) => {
+            const fullId = `${sectionKey}.${fieldKey}`
+            acc[fullId] = { ...field, id: fullId }
+        })
+    } else {
+        // Flat Structure (The section IS the field)
+        acc[sectionKey] = { ...section, id: sectionKey }
+    }
     return acc
 }, {})
 
-/**
- * Helper to get UI Configuration for the Profile Editor.
- */
-export const getProfileSections = () => {
-    return Object.entries(ENTITY_SCHEMA).map(([key, section]) => ({
-        id: key,
-        label: section.label,
-        sublabel: section.description,
-        fields: Object.values(section.fields).map((f) => ({
-            key: f.id,
-            label: f.label,
-            placeholder: f.placeholder,
-        })),
-    }))
-}
+// Legacy helper removed as it is now handled by src/data/config.js logic

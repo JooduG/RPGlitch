@@ -3,7 +3,7 @@ import { CONFIG, ROLES } from "@core/engine/config.js"
 import { ContextBuilder } from "@core/intelligence/context.js"
 import { LlmService } from "@core/intelligence/service.js"
 import { VisualsService } from "@core/intelligence/visuals.js"
-import { FIELD_REGISTRY } from "@core/narrative/schema.js"
+
 import { entities } from "@data/repository.js"
 import { soundEffects } from "./audio/effects.js"
 import { textToSpeech } from "./audio/speech.svelte.js"
@@ -16,16 +16,9 @@ export const VISUAL_CORTEX = `
 [VISUAL_CORTEX]
 - You have access to a visual generation engine.
 - To generate an image, output a separate line: <image_prompt>Description of the image</image_prompt>.
-- The description should be visual, detailed, and artistic.
+- The description should be visual, detailed and artistic.
 - Do NOT include the <image_prompt> block inside the <think> block.
 `
-
-const getVisualPriorities = () => {
-    return Object.values(FIELD_REGISTRY)
-        .filter((f) => f.visual && f.visual.tag_weight > 0)
-        .map((f) => `- ${f.label} (Weight: ${f.visual.tag_weight})`)
-        .join("\n")
-}
 
 export const SENSORY_CONSTANTS = {
     FADE_DURATION: 300,
@@ -36,8 +29,9 @@ export const SENSORY_CONSTANTS = {
  * THE SENSORY ENGINE
  * Master of Light (Visuals), Sound (Audio/Voice), and Mood (Palette).
  */
+
 export const Sensory = {
-    // --- AUDIO (ILLUSION: SOUND) ---
+    // --- AUDIO ---
 
     /**
      * The Native Voice Store (Svelte 5 Reactive)
@@ -54,7 +48,7 @@ export const Sensory = {
         return soundEffects.play(soundId)
     },
 
-    // --- VISUALS (ILLUSION: LIGHT) ---
+    // --- VISUALS ---
 
     /**
      * Visualizer Pipeline
@@ -96,9 +90,7 @@ export const Sensory = {
             })
 
             // [FEATURE] Extract Optics Thoughts for UI
-            const thinkMatch = refinedPrompt.match(
-                /<think>([\s\S]*?)<\/think>/i
-            )
+            const thinkMatch = refinedPrompt.match(/<think>([\s\S]*?)<\/think>/i)
             const opticsThoughts = thinkMatch ? thinkMatch[1].trim() : null
 
             // [HARDEN] Strip any leaked Narrative tags from the Refined Prompt
@@ -141,9 +133,7 @@ export const Sensory = {
             if (!character) throw new Error("Character not found")
 
             const builder = new ContextBuilder(null)
-            const { system } = await builder.buildPolishExtract(
-                character.description || character.name
-            )
+            const { system } = await builder.buildPolishExtract(character.description || character.name)
 
             const refinedPrompt = await LlmService.generate({
                 system,
@@ -229,8 +219,6 @@ Input Context (Intent): "${rawIntent || "See raw input"}"
 [PROTOCOL: OPTICS_BRAIN]
 1. **CHAIN_OF_THOUGHT:** You MUST start with a <think> block to plan the composition (Lighting, Angle, Physics, Details) before writing the prompt.
 2. **SOLO_SHOT:** You are authorized to generate **EXACTLY ONE** <image_prompt> tag. Do NOT generate multiple images. Pick the single most impactful moment.
-3. **PRIORITIES:**
-${getVisualPriorities()}
 
 [PROTOCOL: GENDER_STRICTNESS]
 - **HAMMER DOWN THE GENDER.**

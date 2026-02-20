@@ -17,17 +17,36 @@ const LAYOUT_CONFIG = {
 /**
  * Generates the Profile Sections for the UI.
  * Merges Schema definitions (Logic) with Layout config (UI).
+ * Handles Mixed Hierarchy (Nested Fields vs Flat Sections).
  */
-export const PROFILE_SECTIONS = Object.entries(ENTITY_SCHEMA).map(
-    ([key, section]) => ({
-        id: key,
+export const PROFILE_SECTIONS = Object.entries(ENTITY_SCHEMA).map(([sectionKey, section]) => {
+    // base section config
+    const uiSection = {
+        id: sectionKey,
         label: section.label,
-        sublabel: section.description,
-        layout: LAYOUT_CONFIG[key] || "full",
-        fields: Object.values(section.fields).map((f) => ({
-            key: f.id,
-            label: f.label,
-            placeholder: f.placeholder,
-        })),
-    })
-)
+        sublabel: section.description, // For flat sections, this might be redundant with placeholder?
+        layout: LAYOUT_CONFIG[sectionKey] || "full",
+        fields: [],
+    }
+
+    if (section.fields) {
+        // Nested Structure (e.g. Eternal -> Physical/Mental)
+        uiSection.fields = Object.entries(section.fields).map(([fieldKey, field]) => ({
+            key: `${sectionKey}.${fieldKey}`, // ID generation
+            label: field.label,
+            placeholder: field.placeholder,
+        }))
+    } else {
+        // Flat Structure (e.g. Past)
+        // The section itself is the field.
+        uiSection.fields = [
+            {
+                key: sectionKey, // ID is just the section key
+                label: null, // No sub-label needed if it's the whole section
+                placeholder: section.placeholder,
+            },
+        ]
+    }
+
+    return uiSection
+})

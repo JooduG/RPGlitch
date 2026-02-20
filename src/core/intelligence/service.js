@@ -19,14 +19,12 @@ export const LlmService = {
     async enhance(text, fieldKey) {
         // 1. resolve configuration from Schema
         const fieldConfig = FIELD_REGISTRY[fieldKey] || {
-            llm: {
-                role: "EDITOR",
-                instruction: "Preserve the core meaning but elevate the prose.",
-                priority: "LOW",
-            },
+            enhancer: "EDITOR",
+            placeholder: "Preserve the core meaning but elevate the prose.",
         }
 
-        const { role, instruction } = fieldConfig.llm
+        const role = fieldConfig.enhancer || "EDITOR"
+        const instruction = fieldConfig.placeholder
 
         // 2. Construct System Prompt
         const systemPrompt = `
@@ -76,12 +74,9 @@ Output ONLY the final enhanced text. No conversational filler, no quotes.
         try {
             // 3. Prepare Plugin Options
             const genOptions = {
-                temperature:
-                    options.temperature ?? payload.params?.temperature ?? 0.8,
+                temperature: options.temperature ?? payload.params?.temperature ?? 0.8,
                 top_p: options.top_p ?? payload.params?.top_p,
-                repetition_penalty:
-                    options.repetition_penalty ??
-                    payload.params?.repetition_penalty,
+                repetition_penalty: options.repetition_penalty ?? payload.params?.repetition_penalty,
                 max_tokens: options.maxTokens ?? payload.params?.maxTokens,
                 model: options.model ?? payload.params?.model,
                 stop_sequences: payload.stopSequences || [],
@@ -112,19 +107,13 @@ Output ONLY the final enhanced text. No conversational filler, no quotes.
             app.endStream()
 
             if (options.silent) {
-                console.warn(
-                    "[LlmService] Silent Generation Error (Suppressed):",
-                    err
-                )
+                console.warn("[LlmService] Silent Generation Error (Suppressed):", err)
                 throw err
             }
 
             const errString = String(err)
 
-            if (
-                errString.includes("stream keep alive") ||
-                errString.includes("timeout")
-            ) {
+            if (errString.includes("stream keep alive") || errString.includes("timeout")) {
                 utilsError("[LlmService] Network Error:", err)
                 throw new Error(`${ERROR_MESSAGES.CONNECTION_LOST}`)
             }
@@ -139,9 +128,7 @@ Output ONLY the final enhanced text. No conversational filler, no quotes.
     _formatHistory: (messages) =>
         messages
             .map((m) => {
-                let label =
-                    m.characterName ||
-                    (m.role === "user" ? "User" : "Character")
+                let label = m.characterName || (m.role === "user" ? "User" : "Character")
                 const text = m.content || m.text || ""
                 return `${label}: ${text}`
             })
