@@ -20,22 +20,10 @@
 </script>
 
 {#if mounted}
-    <div
-        class="app-container"
-        class:view-lobby={app.view === "lobby"}
-        class:view-game={app.view === "game"}
-        class:has-tension={app.tension > 0}
-        class:has-fractal-bg={!!app.selectedFractal?.visuals?.profilePicture}
-        transition:fade={{ duration: 800 }}
-    >
+    <div class="app-container" class:view-lobby={app.view === "lobby"} class:view-game={app.view === "game"} class:has-tension={app.tension > 0} class:has-fractal-bg={!!app.selectedFractal?.visuals?.profilePicture} transition:fade={{ duration: 800 }}>
         <!-- FRACTAL BACKGROUND -->
         {#if app.selectedFractal?.visuals?.profilePicture}
-            <div
-                id="fractal-background"
-                style:background-image="url('{app.selectedFractal.visuals
-                    .profilePicture}')"
-                style:opacity={app.view === "game" ? 0.4 : 0.75}
-            ></div>
+            <div id="fractal-background" style:background-image="url('{app.selectedFractal.visuals.profilePicture}')" style:opacity={app.view === "game" ? 0.4 : 0.75}></div>
         {/if}
 
         <!-- GLOBAL: Lightbox Overlay -->
@@ -45,10 +33,7 @@
 
         <!-- GLOBAL: Profile Modal -->
         {#if app.profileOpen}
-            <Profile
-                entityId={app.profileTargetId}
-                entityType={app.profileTargetType}
-            />
+            <Profile entityId={app.profileTargetId} entityType={app.profileTargetType} />
         {/if}
 
         <!-- GLOBAL: Control Panel (Settings / Admin) -->
@@ -56,11 +41,9 @@
             <ControlPanel />
         {/if}
 
-        <!-- TELEMETRY HUD (Only visible in Dev Mode AND when Control Panel is Open) -->
-        {#if app.settings.devMode && app.controlPanelOpen}
-            <div class="telemetry-gutter">
-                <DebugPanel />
-            </div>
+        <!-- TELEMETRY HUD (Slide-out Dev Inspector) -->
+        {#if app.settings.devMode}
+            <DebugPanel />
         {/if}
 
         <!-- MAIN VIEW SWITCHER -->
@@ -71,13 +54,7 @@
         {/if}
         <!-- DEV: Swap View Trigger (Only visible when Panel is open) -->
         {#if app.settings.devMode && app.controlPanelOpen}
-            <button
-                class="swap-view-trigger"
-                onclick={() =>
-                    (app.view = app.view === "game" ? "lobby" : "game")}
-            >
-                ⇄
-            </button>
+            <button class="swap-view-trigger" onclick={() => (app.view = app.view === "game" ? "lobby" : "game")}> ⇄ </button>
         {/if}
     </div>
 {/if}
@@ -90,7 +67,7 @@
 
     .app-container {
         width: 100%;
-        height: 100%;
+        height: 100vh;
         overflow: hidden;
         position: relative;
         background: $black;
@@ -120,7 +97,7 @@
         background-size: cover;
         background-position: center;
         pointer-events: none;
-        z-index: 0;
+        z-index: -1;
         transition:
             opacity 2s ease-in-out,
             filter 2s ease-in-out;
@@ -140,20 +117,6 @@
         }
         75% {
             transform: translate(-1px, -1px) scale(1.001);
-        }
-    }
-
-    .telemetry-gutter {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 10%; /* Matches Col 1 of the 10-column grid */
-        height: 100vh;
-        z-index: 2000;
-        box-shadow: 1px 0 0 0 var(--glass-border);
-
-        @media (max-width: 1024px) {
-            display: none; /* Hide HUD on mobile/small screens */
         }
     }
 

@@ -1,7 +1,8 @@
 /**
  * @file src/core/narrative/schema.js
- * @description Single Source of Truth for Entity Structure.
- * Maps UI Fields -> LLM Directives -> Visual Constraints.
+ * @description Master Entity Schema. Placeholders act as in-character directives,
+ * priming both the human user and the LLM for First-Person POV generation while
+ * strictly isolating visual renders from cognitive architecture.
  */
 
 export const ENTITY_SCHEMA = {
@@ -11,13 +12,14 @@ export const ENTITY_SCHEMA = {
         fields: {
             physical: {
                 label: "Physical",
-                placeholder: "Define permanent physiological traits like height, build and cybernetics. Ignore clothing.",
-                enhancer: "PHENOTYPE_EXTRAPOLATOR",
+                placeholder: "I will define my purely visual, permanent traits here. I will detail my visual age (e.g., weathered skin, silver hair), biological phenotype, build, and permanent marks like cybernetics or scars. I will strictly exclude clothing, mental maturity, or abstract traits.",
+                enhancer: "BIOMETRIC_RENDER_ENGINE",
             },
             mental: {
                 label: "Mental",
-                placeholder: "Define the cognitive baseline, including personality, archetypes, core fears and emotional axioms.",
-                enhancer: "PSYCHE_UPSCALER",
+                placeholder:
+                    "I will define my permanent cognitive baseline here. I will detail my psychological maturity, core archetype, gender identity, sexuality, speaking style, and verbal tics. If I have subconscious fears or hidden friction I am unaware of, I will wrap them in <SUBCONSCIOUS> tags.",
+                enhancer: "CORE_COGNITIVE_ARCHITECT",
             },
         },
     },
@@ -27,26 +29,27 @@ export const ENTITY_SCHEMA = {
         fields: {
             physical: {
                 label: "Physical",
-                placeholder: "Define current physical state, including injuries, fatigue and intoxication.",
-                enhancer: "STATE_RENDERER",
+                placeholder: "I will define my immediate, transitory visual state here. I will detail my current outfit, hairstyle, held inventory, and active somatic tells like sweating, bleeding, or intoxication.",
+                enhancer: "SOMATIC_STATE_TRACKER",
             },
             mental: {
                 label: "Mental",
-                placeholder: "Define current mental state, including mood, emotional state, focus, cognitive load and immediate goals.",
-                enhancer: "BEHAVIORAL_AMPLIFIER",
+                placeholder: "I will define my fluid cognitive load here. I will detail my current mood, my immediate tactical objectives for the scene, and my active domain beliefs regarding trust or suspicion.",
+                enhancer: "TACTICAL_BEHAVIOR_ANALYZER",
             },
         },
     },
     past: {
         label: "Past",
         description: "Origin & Backstory",
-        placeholder: "Summarize key backstory events, origins and trauma that inform current behavior.",
-        enhancer: "CAUSALITY_WEAVER",
+        placeholder:
+            "I will detail my historical anchors here. I will include my origin story, episodic memory, and established relationships. If I have repressed trauma or forgotten memories, I will define them strictly inside a <SUBCONSCIOUS> XML block so the system knows, but my conscious mind does not.",
+        enhancer: "EPISODIC_MEMORY_COMPILER",
     },
     future: {
         label: "Future",
         description: "Plans & Prophecies",
-        placeholder: "Define long-term objectives, immediate needs and long-term ambitions.",
+        placeholder: "I will define my self-interest protocol here. I will detail my overarching macro-goals, lateral agendas, and ultimate narrative destiny.",
         enhancer: "TRAJECTORY_SIMULATOR",
     },
 }

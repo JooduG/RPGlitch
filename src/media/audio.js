@@ -1,4 +1,12 @@
+/**
+ * src/media/audio.js
+ * 🎵 AUDIO SERVICE
+ * Handles sound effects and text-to-speech.
+ */
+
 import { db } from "@data/db.js"
+import { textToSpeech } from "./speech.svelte.js"
+
 const STORAGE_KEY = "rpglitch_audio_settings"
 
 class SoundEffectsService {
@@ -52,9 +60,7 @@ class SoundEffectsService {
 
         try {
             if (!this.audioContext) {
-                this.audioContext = new (
-                    window.AudioContext || window.webkitAudioContext
-                )()
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)()
             }
 
             if (this.audioContext.state === "suspended") {
@@ -87,10 +93,7 @@ class SoundEffectsService {
                 let soundList = window.rpgLists.sounds
                 if (Array.isArray(soundList) && soundList.length > 0) {
                     try {
-                        if (
-                            typeof soundList[0] === "string" &&
-                            soundList[0].trim().startsWith("[")
-                        ) {
+                        if (typeof soundList[0] === "string" && soundList[0].trim().startsWith("[")) {
                             soundList = JSON.parse(soundList[0])
                         }
                         if (!Array.isArray(soundList)) soundList = []
@@ -103,9 +106,7 @@ class SoundEffectsService {
                 }
 
                 if (Array.isArray(soundList)) {
-                    const soundEntry = soundList.find(
-                        (s) => typeof s === "string" && s.startsWith(key)
-                    )
+                    const soundEntry = soundList.find((s) => typeof s === "string" && s.startsWith(key))
                     if (soundEntry) {
                         const parts = soundEntry.split("=")
                         if (parts.length > 1) {
@@ -119,8 +120,7 @@ class SoundEffectsService {
         }
 
         if (!url && key === "notification") {
-            url =
-                "https://user.uploads.dev/file/50dc061d6ed6439719d283d042e9c172.wav"
+            url = "https://user.uploads.dev/file/50dc061d6ed6439719d283d042e9c172.wav"
         }
 
         if (!url) return
@@ -144,4 +144,24 @@ class SoundEffectsService {
     }
 }
 
-export const soundEffects = new SoundEffectsService()
+const soundEffects = new SoundEffectsService()
+
+export const Audio = {
+    /**
+     * The Native Voice Store (Svelte 5 Reactive)
+     * Usage: Audio.voice.speak("Hello")
+     * usage: $derived(Audio.voice.isSpeaking)
+     */
+    voice: textToSpeech,
+
+    /**
+     * Play a sound effect or notification.
+     * @param {string} soundId - "notification", "click", "error", etc.
+     */
+    play: (soundId) => {
+        return soundEffects.play(soundId)
+    },
+
+    // Expose for initialization
+    _effects: soundEffects,
+}

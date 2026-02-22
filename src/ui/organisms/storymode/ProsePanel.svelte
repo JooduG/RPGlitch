@@ -1,8 +1,8 @@
 <script>
     import { app } from "@state/app.svelte.js"
-    import { engineState } from "@state/status.svelte.js"
     import { messages } from "@state/messages.svelte.js"
     import { session } from "@state/session.svelte.js"
+    import { engineState } from "@state/status.svelte.js"
     import Button from "@ui/atoms/Button.svelte"
     import Message from "./Message.svelte"
 
@@ -72,30 +72,13 @@
     {/each}
 
     {#if app.streaming?.active}
-        <Message
-            text={app.streaming.content}
-            sender="ai"
-            timestamp={new Date()}
-            isLast={true}
-        />
+        <Message text={app.streaming.content} sender="ai" timestamp={new Date()} isLast={true} />
     {:else if isThinking}
-        <Message
-            sender={engineState.role}
-            isThinking={true}
-        />
+        <Message sender={engineState.role} isThinking={true} />
     {:else if messages.feed.length === 0}
         <div class="empty-feed-fallback">
-            <p>
-                Establishing context stream... If the screen
-                remains black, please check your network or AI
-                plugin settings.
-            </p>
-            <Button
-                className="btn-retry"
-                variant="ghost"
-                onclick={() => session.retry()}
-                label="Retry Connection"
-            />
+            <p>Establishing context stream... If the screen remains black, please check your network or AI plugin settings.</p>
+            <Button className="btn-retry" variant="ghost" onclick={() => session.retry()} label="Retry Connection" />
         </div>
     {/if}
 </div>
@@ -103,6 +86,7 @@
 <style lang="scss">
     .prose-panel {
         flex: 1;
+        min-height: 200px;
         overflow-y: auto;
         overflow-x: hidden;
         padding: 1rem 0;

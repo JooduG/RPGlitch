@@ -1,8 +1,8 @@
-/**
+/************************************************************************************
  * src/core/llm/service.js
  * Service to abstract the Perchance AI plugin (`window.ai`).
  * Handles formatting, error management, and plugin communication.
- */
+ ************************************************************************************/
 
 import { ERROR_MESSAGES } from "@core/engine/config.js"
 import { FIELD_REGISTRY } from "@core/narrative/schema.js"
@@ -11,47 +11,85 @@ import { app } from "@state/app.svelte.js"
 const utilsError = console.error
 
 export const LlmService = {
-    /**
-     * Optimizes a text prompt specifically for Stable Diffusion style generation.
-     * // [VISUALS HELPER] Prepares prompts for VisualsService
-     */
-    // The Universal Enhancement Engine
+    /************************************************************************************
+     * ✨ ENHANCEMENT
+     * ----------------------------------------------------------------------------------
+     * The High-Fidelity Prose Enhancer.
+     * Transforms draft text into visceral, first-person narrative
+     * based on field-specific directives from the Entity Schema.
+     ************************************************************************************/
+
+    // Enhancement Engine
     async enhance(text, fieldKey) {
         // 1. resolve configuration from Schema
         const fieldConfig = FIELD_REGISTRY[fieldKey] || {
             enhancer: "EDITOR",
-            placeholder: "Preserve the core meaning but elevate the prose.",
+            placeholder: "I will preserve the core meaning while elevating the prose.",
         }
 
-        const role = fieldConfig.enhancer || "EDITOR"
+        const rawRole = fieldConfig.enhancer || "EDITOR"
+        const role = rawRole
+            .toLowerCase()
+            .split("_")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ")
+
         const instruction = fieldConfig.placeholder
 
-        // 2. Construct System Prompt
+        // 2. Enhancement Prompt Assembly
         const systemPrompt = `
-[SYSTEM: ${role}]
-Your objective is to enhance a specific UI text field.
+[SYSTEM: ${rawRole}]
+I am the ${role}. I enhance draft text into raw, visceral reality.
 
-<CRITICAL_DIRECTIVE>
+<FIELD_DIRECTIVES>
 ${instruction}
-</CRITICAL_DIRECTIVE>
+</FIELD_DIRECTIVES>
 
-<RULES>
-Output ONLY the final enhanced text. No conversational filler, no quotes.
-</RULES>`.trim()
+<POSITIVE_GOVERNANCE>
+- I use exclusively affirmative, present-tense language.
+- I focus on what IS. I ignore what is not.
+- I never mention technical jargon, web design terminology (HTML, CSS, UI), or metadata.
+</POSITIVE_GOVERNANCE>
+
+<CONSTRAINTS>
+- I output ONLY the final enhanced text.
+- I include NO conversational filler or meta-commentary.
+- I write in the FIRST PERSON perspective.
+- I ALWAYS begin my response with the word "I".
+- I use NO markdown, quotation marks, or HTML tags.
+</CONSTRAINTS>
+
+<DRAFT_TO_ENHANCE>
+${text}
+</DRAFT_TO_ENHANCE>`.trim()
 
         const payload = {
             system: systemPrompt,
-            messages: [{ role: "user", content: text }],
+            messages: [],
         }
 
-        // Ensure this calls the actual underlying generation method used by LlmService
-        return await this.generate(payload, { silent: true })
+        // Ensure this calls the actual underlying generation method
+        let result = await this.generate(payload, { silent: true })
+
+        if (typeof result === "string") {
+            result = result
+                .replace(/^["']|["']$/g, "")
+                .replace(/^(here is|sure|certainly|i can help|enhanced text:|the enhanced text).*?:/i, "")
+                .replace(/^```.*?[\r\n]/gm, "")
+                .replace(/```$/g, "")
+                .trim()
+        }
+
+        return result
     },
 
-    /**
-     * Generates text using the AI plugin.
-     * Now supports DIRECT STREAMING to app state.
-     */
+    /************************************************************************************
+     * 👁️‍🗨️ CORE GENERATION
+     * ----------------------------------------------------------------------------------
+     * The primary abstraction for `window.ai`. Handles streaming state,
+     * network resilience, and raw token orchestration.
+     ************************************************************************************/
+
     generate: async (payload, options = {}) => {
         if (!window.ai) {
             const msg = "Perchance AI plugin not available."
@@ -63,13 +101,7 @@ Output ONLY the final enhanced text. No conversational filler, no quotes.
         const chatHistory = LlmService._formatHistory(payload.messages || [])
 
         // 2. Construct Final Instruction
-        const instruction = [
-            payload.system,
-            chatHistory ? `\n[CONVERSATION HISTORY]\n${chatHistory}` : "",
-            payload.startWith ? `\n${payload.startWith}` : "",
-        ]
-            .filter(Boolean)
-            .join("\n")
+        const instruction = [payload.system, chatHistory ? `\n[CONVERSATION HISTORY]\n${chatHistory}` : "", payload.startWith ? `\n${payload.startWith}` : ""].filter(Boolean).join("\n")
 
         try {
             // 3. Prepare Plugin Options
@@ -86,10 +118,12 @@ Output ONLY the final enhanced text. No conversational filler, no quotes.
 
             // 4. STREAMING HANDLER
             const onToken = (chunk) => {
-                if (!app.streaming.active) {
-                    app.startStream(payload.nodeId || "temp")
+                if (!options.silent) {
+                    if (!app.streaming.active) {
+                        app.startStream(payload.nodeId || "temp")
+                    }
+                    app.updateStream(chunk)
                 }
-                app.updateStream(chunk)
 
                 if (options.onToken) options.onToken(chunk)
             }
@@ -100,11 +134,11 @@ Output ONLY the final enhanced text. No conversational filler, no quotes.
                 onToken,
             })
 
-            app.endStream()
+            if (!options.silent) app.endStream()
 
             return result
         } catch (err) {
-            app.endStream()
+            if (!options.silent) app.endStream()
 
             if (options.silent) {
                 console.warn("[LlmService] Silent Generation Error (Suppressed):", err)
@@ -122,9 +156,6 @@ Output ONLY the final enhanced text. No conversational filler, no quotes.
         }
     },
 
-    /**
-     * Formats the message history for the LLM.
-     */
     _formatHistory: (messages) =>
         messages
             .map((m) => {

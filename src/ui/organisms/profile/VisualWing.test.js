@@ -30,7 +30,7 @@ async function handleCreativeAction(ctx) {
                 // ...
             }
         } else {
-            // Extract Logic
+            // Fetch Logic
             char.visuals.prompt = TextToImage.composeBasePrompt(char)
         }
         return { ...ctx, busyField, result: "success" }
@@ -40,7 +40,7 @@ async function handleCreativeAction(ctx) {
 }
 
 describe("VisualWing Stability (Hotfix)", () => {
-    test("handleCreativeAction SAFE when activeField is NULL (Extract Mode)", async () => {
+    test("handleCreativeAction SAFE when activeField is NULL (Fetch Mode)", async () => {
         const context = {
             busyField: null,
             activeField: null, // The crash condition

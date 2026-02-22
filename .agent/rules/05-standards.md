@@ -63,3 +63,19 @@ To maintain the integrity of the agent's governance, internal documentation must
 2. **Diegetic Consistency**: Rule files should contain only the rules and standards, not the conversation about them.
 
 Failure to adhere to the mandate triggers immediate correction.
+
+## 8. Code Architecture & Hygiene
+
+### High-Visibility Section Banners
+
+In complex logic files (services, engines), major functional areas must be separated by standard 80-character high-visibility banners. This improves "human-scannability" and prevents cognitive overload when navigating unified state/service layers.
+
+**Format**:
+
+```javascript
+/************************************************************************************
+ * 🧩 [SECTION: CATEGORY NAME]
+ * ----------------------------------------------------------------------------------
+ * Brief description of the section's responsibility.
+ ************************************************************************************/
+```

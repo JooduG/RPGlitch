@@ -7,7 +7,7 @@
 import { state } from "@core/engine/bus.js"
 import { ROLES } from "@core/engine/config.js"
 import { entities } from "@data/repository.js"
-import { Sensory } from "@media/sensory.js"
+import { ImageGeneration } from "@media/image-generation.js"
 
 // Local Prose Templates (Inlined from legacy prose.js)
 const templateConsult = (field, content, context) => `
@@ -59,11 +59,7 @@ export class ContextBuilder {
     async build(instruction, options = {}) {
         if (!this.story) throw new Error("No active story for ContextBuilder")
 
-        const [ai, user, fractal] = await Promise.all([
-            entities.get("character", this.story.aiId),
-            entities.get("character", this.story.userId),
-            entities.get(ROLES.FRACTAL, this.story.fractalId),
-        ])
+        const [ai, user, fractal] = await Promise.all([entities.get("character", this.story.aiId), entities.get("character", this.story.userId), entities.get(ROLES.FRACTAL, this.story.fractalId)])
 
         const messages = state.messages.byStoryId[this.storyId] || []
 
@@ -71,8 +67,7 @@ export class ContextBuilder {
         const llmMessages = messages.map((m) => ({
             role: m.role === ROLES.USER ? "user" : "model",
             content: m.text,
-            characterName:
-                m.characterName || (m.role === ROLES.AI ? ai.name : user.name),
+            characterName: m.characterName || (m.role === ROLES.AI ? ai.name : user.name),
         }))
 
         if (instruction) {
@@ -86,13 +81,7 @@ export class ContextBuilder {
         // [STUB] Security.authorizeVisuals not yet implemented - default to true
         const visualsAuthorized = options.allowVisuals ?? true
 
-        const system = Screenplay.standard(
-            ai,
-            user,
-            fractal,
-            options.varianceInstruction,
-            visualsAuthorized
-        )
+        const system = Screenplay.standard(ai, user, fractal, options.varianceInstruction, visualsAuthorized)
 
         const userName = user?.name || "User"
 
@@ -106,11 +95,7 @@ export class ContextBuilder {
     async buildPrologue() {
         if (!this.story) throw new Error("No active story")
 
-        const [ai, user, fractal] = await Promise.all([
-            entities.get("character", this.story.aiId),
-            entities.get("character", this.story.userId),
-            entities.get(ROLES.FRACTAL, this.story.fractalId),
-        ])
+        const [ai, user, fractal] = await Promise.all([entities.get("character", this.story.aiId), entities.get("character", this.story.userId), entities.get(ROLES.FRACTAL, this.story.fractalId)])
 
         if (!fractal) return null
 
@@ -141,8 +126,7 @@ export class ContextBuilder {
         const history = rawMessages
             .slice(-30)
             .map((m) => {
-                const name =
-                    m.characterName || (m.role === ROLES.USER ? "User" : "AI")
+                const name = m.characterName || (m.role === ROLES.USER ? "User" : "AI")
                 return `[${name}]: ${m.text}`
             })
             .join("\n")
@@ -151,12 +135,7 @@ export class ContextBuilder {
         return { system, messages: [] }
     }
 
-    async buildSecurityPrompt(
-        targetEntity,
-        others,
-        historyMessages,
-        activeThreads
-    ) {
+    async buildSecurityPrompt(targetEntity, others, historyMessages, activeThreads) {
         // SECURITY PROMPT COMPOSITION (Inlined from deprecated Security.compose)
         const system = `
 [SYSTEM: PROMETHEUS_SECURITY]
@@ -192,28 +171,19 @@ Analyze the last message and output JSON:
     // =========================================================================
 
     async buildPolishVisual(targetType) {
-        const [ai, user, fractal] = await Promise.all([
-            entities.get("character", this.story.aiId),
-            entities.get("character", this.story.userId),
-            entities.get(ROLES.FRACTAL, this.story.fractalId),
-        ])
+        const [ai, user, fractal] = await Promise.all([entities.get("character", this.story.aiId), entities.get("character", this.story.userId), entities.get(ROLES.FRACTAL, this.story.fractalId)])
 
         const rawMessages = state.messages.byStoryId[this.storyId] || []
         const history = rawMessages
             .slice(-5)
             .map((m) => {
-                const name =
-                    m.characterName || (m.role === ROLES.USER ? "User" : "AI")
+                const name = m.characterName || (m.role === ROLES.USER ? "User" : "AI")
                 return `[${name}]: ${m.text}`
             })
             .join("\n")
 
         const context = { ai, user, fractal, history }
-        const mesmerInstructions = Sensory.templateVisual(
-            targetType,
-            null,
-            context
-        )
+        const mesmerInstructions = ImageGeneration.templateVisual(targetType, null, context)
 
         return {
             system: mesmerInstructions,
@@ -222,9 +192,9 @@ Analyze the last message and output JSON:
         }
     }
 
-    buildPolishExtract(description) {
-        const system = Sensory.templateVisual("ai", description, {
-            mode: "extract",
+    buildPolishFetch(description) {
+        const system = ImageGeneration.templateVisual("ai", description, {
+            mode: "fetch",
         })
         return { system, messages: [] }
     }
@@ -236,7 +206,7 @@ Analyze the last message and output JSON:
             ai: entity.type !== "fractal" ? entity : null,
             fractal: entity.type === "fractal" ? entity : null,
         }
-        const system = Sensory.templateVisual(targetType, prompt, context)
+        const system = ImageGeneration.templateVisual(targetType, prompt, context)
         return { system, messages: [] }
     }
 
@@ -263,9 +233,7 @@ Analyze the last message and output JSON:
     async buildDataEchoPrompt(targetEntity, historyMessages, role) {
         const historyText = historyMessages
             .map((m) => {
-                const label =
-                    m.characterName ||
-                    (m.role === "user" ? "User" : "Character")
+                const label = m.characterName || (m.role === "user" ? "User" : "Character")
                 const text = m.content || m.text || ""
                 return `[${label}]: ${text}`
             })

@@ -9,9 +9,7 @@
     import ProsePanel from "./ProsePanel.svelte"
     import StorymodePanel from "./StorymodePanel.svelte"
 
-    let fractalBg = $derived(
-        runtime?.storyFractal?.visuals?.profilePicture || ""
-    )
+    let fractalBg = $derived(runtime?.storyFractal?.visuals?.profilePicture || "")
 
     // Derived
     let isThinking = $derived(engineState.phase === "generating")
@@ -20,11 +18,7 @@
     onMount(async () => {
         if (app.aiList.length === 0) {
             try {
-                const [ais, users, fractals] = await Promise.all([
-                    entities.list("character"),
-                    entities.list("character"),
-                    entities.list("fractal"),
-                ])
+                const [ais, users, fractals] = await Promise.all([entities.list("character"), entities.list("character"), entities.list("fractal")])
                 app.aiList = ais
                 app.userList = users
                 app.fractalList = fractals
@@ -41,16 +35,10 @@
 
 <div class="storymode-container">
     {#if fractalBg}
-        <div
-            class="fractal-wallpaper"
-            style="background-image: url('{fractalBg}')"
-        ></div>
+        <div class="fractal-wallpaper" style="background-image: url('{fractalBg}')"></div>
     {/if}
 
     <Layout mode="cinematic">
-        {#snippet header()}{/snippet}
-        {#snippet footer()}{/snippet}
-
         {#snippet left()}
             <StorymodePanel entity={app.selectedAi} side="left" />
         {/snippet}

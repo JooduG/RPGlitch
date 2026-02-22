@@ -15,10 +15,7 @@ export const sanitize = (dirty) => {
 // 2. Escape Logic
 export const escape = (str) => {
     if (!str) return ""
-    return str
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 }
 
 // Stub for now, can be expanded
@@ -32,20 +29,6 @@ export const Security = {
 
     // Physics & Authorization
     authorizeVisuals: (prompt, options) => true,
-
-    // [DEPRECATED] Physics now handled by src/core/narrative/engine.js
-    applyLaws: (input) => input,
-
-    /**
-     * [DEPRECATED] Process an action through the Shield's security & physics checks.
-     * Logic moved to NarrativeEngine.
-     */
-    process: async (input, character, fractalState) => {
-        return {
-            causality: { result: "success" },
-            reflex: null,
-        }
-    },
 }
 
 // Backward Compatibility Alias

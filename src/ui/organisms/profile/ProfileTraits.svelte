@@ -1,16 +1,7 @@
 <script>
-    import { PROFILE_SECTIONS } from "@data/config.js"
+    import { PROFILE_SECTIONS } from "./config.js"
 
-    let {
-        char = $bindable(),
-        isEditing,
-        getValue,
-        setValue,
-        autoResize,
-        busyFields,
-        renderMarkdown,
-        activeField = $bindable(),
-    } = $props()
+    let { char = $bindable(), isEditing, getValue, setValue, autoResize, busyFields, renderMarkdown, activeField = $bindable() } = $props()
 </script>
 
 <div class="content" data-testid="profile-traits">
@@ -37,8 +28,7 @@
                                 class:edit={isEditing}
                                 placeholder={field.placeholder}
                                 value={getValue(char, field.key)}
-                                oninput={(e) =>
-                                    setValue(char, field.key, e.target.value)}
+                                oninput={(e) => setValue(char, field.key, e.target.value)}
                                 disabled={busyFields.has(field.key)}
                                 onfocus={() => {
                                     activeField = {
@@ -48,16 +38,9 @@
                                 }}
                             ></textarea>
                         {:else}
-                            <div
-                                class="text-area readonly"
-                                class:muted-info={!getValue(char, field.key)}
-                                data-sync-id={section.label}
-                            >
+                            <div class="text-area readonly" class:muted-info={!getValue(char, field.key)} data-sync-id={section.label}>
                                 <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                                {@html renderMarkdown(
-                                    getValue(char, field.key) ||
-                                        "Record undefined."
-                                )}
+                                {@html renderMarkdown(getValue(char, field.key) || "Record undefined.")}
                             </div>
                         {/if}
                     </div>
@@ -77,13 +60,7 @@
         display: flex;
         flex-direction: column;
         gap: var(--spacing-m);
-        mask-image: linear-gradient(
-            to bottom,
-            transparent,
-            black var(--spacing-m),
-            black calc(100% - var(--spacing-m)),
-            transparent
-        );
+        mask-image: linear-gradient(to bottom, transparent, black var(--spacing-m), black calc(100% - var(--spacing-m)), transparent);
 
         .row {
             display: grid;
@@ -217,17 +194,12 @@
                             font-weight: 900;
                             color: white;
                             letter-spacing: 0.02em;
-                            text-shadow: 0 0 15px
-                                rgba(var(--signature-rgb), 0.5);
+                            text-shadow: 0 0 15px rgba(var(--signature-rgb), 0.5);
                         }
 
                         :global(em) {
                             font-style: italic;
-                            color: color-mix(
-                                in srgb,
-                                var(--signature-color),
-                                white 80%
-                            );
+                            color: color-mix(in srgb, var(--signature-color), white 80%);
                         }
                     }
                 }

@@ -10,27 +10,18 @@
      */
 
     let {
-        header,
-        footer,
-        left,
-        center,
-        right,
+        header = undefined,
+        footer = undefined,
+        left = undefined,
+        center = undefined,
+        right = undefined,
         transparent = false,
         mode = "standard", // 'standard' | 'cinematic'
         align = "center", // 'center' | 'end' | 'start'
     } = $props()
 </script>
 
-<div
-    class="universal-stage"
-    class:is-transparent={transparent}
-    class:layout-cinematic={mode === "cinematic"}
-    style:--stage-align={align === "end"
-        ? "flex-end"
-        : align === "start"
-          ? "flex-start"
-          : "center"}
->
+<div class="universal-stage" class:is-transparent={transparent} class:layout-cinematic={mode === "cinematic"} style:--stage-align={align === "end" ? "flex-end" : align === "start" ? "flex-start" : "center"}>
     <!-- Track 1: Margin -->
     <div class="gutter-col start"></div>
 
@@ -91,7 +82,7 @@
         overflow: hidden;
         position: fixed;
         inset: 0;
-        z-index: 0;
+        z-index: var(--z-ui);
         transform: translateZ(0);
 
         /* Atmospheric Background - transparent to show body's gradient */
@@ -154,6 +145,8 @@
                 .stage-column--center {
                     grid-column: 1 / -1;
                     grid-row: 3;
+                    min-height: 0;
+                    overflow: auto;
                 }
 
                 .stage-footer {

@@ -7,7 +7,7 @@
 import { db } from "./db.js"
 
 // Data Providers
-import { normalize, premade, STORAGE_VERSION } from "@data/lore.js"
+import { normalize, premade, STORAGE_VERSION } from "@data/premade-content.js"
 
 const error = console.error
 
@@ -66,9 +66,7 @@ export const entities = {
     async list(type) {
         try {
             const items = await db.entities.where("type").equals(type).toArray()
-            return items.sort((a, b) =>
-                (a.name || "").localeCompare(b.name || "")
-            )
+            return items.sort((a, b) => (a.name || "").localeCompare(b.name || ""))
         } catch (err) {
             error(`Error listing ${type}:`, err)
             return []
@@ -114,8 +112,7 @@ export const entities = {
 
             if (!options?.silent) {
                 // FIX: Correct Import Path (Removed 'js/')
-                const { events, EVENTS } =
-                    await import("@core/engine/engine.js")
+                const { events, EVENTS } = await import("@core/engine/engine.js")
                 events.dispatchEvent(
                     new CustomEvent(EVENTS.DB_UPDATED, {
                         detail: { id, type, store: "entities" },
@@ -150,19 +147,12 @@ export const entities = {
 export const stories = {
     async list() {
         try {
-            const allStories = await db.stories
-                .orderBy("updatedAt")
-                .reverse()
-                .toArray()
+            const allStories = await db.stories.orderBy("updatedAt").reverse().toArray()
 
             return await Promise.all(
                 allStories.map(async (story) => {
                     const fractal = await db.entities.get(story.fractalId)
-                    const avatar =
-                        fractal?.visuals?.profilePicture ||
-                        fractal?.visuals?.profilePictureUrl ||
-                        fractal?.profilePictureUrl ||
-                        ""
+                    const avatar = fractal?.visuals?.profilePicture || fractal?.visuals?.profilePictureUrl || fractal?.profilePictureUrl || ""
 
                     return {
                         id: story.id,

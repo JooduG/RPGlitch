@@ -138,14 +138,7 @@ export const CONFIG = {
     // --- MESSAGES ---
     MESSAGES: {
         CONNECTION_LOST: "Connection lost with AI server.",
-        REFUSAL_TRIGGERS: [
-            "i cannot",
-            "i can't",
-            "cannot generate",
-            "policy",
-            "guidelines",
-            "sorry, but",
-        ],
+        REFUSAL_TRIGGERS: ["i cannot", "i can't", "cannot generate", "policy", "guidelines", "sorry, but"],
     },
 }
 
@@ -156,7 +149,7 @@ export const ERROR_MESSAGES = MESSAGES
 export const IMG_RESOLUTION = CONFIG.VISUALS.RESOLUTION
 
 export const PROFILE_PICTURE_PLACEHOLDERS = {
-    // [VISUALS PLACEHOLDER] Should eventually use VisualsService
+    // [VISUALS PLACEHOLDER] Should eventually use ImageGeneration
     default:
         "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJjdXJyZW50Q29xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIi8+PHBhdGggZD0iTTEyIDhhNCA0IDAgMSAwIDAtOCA0IDQgMCAwIDAgMCA4eiIvPjxwYXRoIGQ9Ik02IDIxdi0yYTYgNiAwIDAgMSAxMiAweiIvPjwvc3ZnPg==",
 }

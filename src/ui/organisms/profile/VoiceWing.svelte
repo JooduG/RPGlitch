@@ -1,5 +1,5 @@
 <script>
-    import { Sensory } from "@media/sensory.js"
+    import { Audio } from "@media/audio.js"
     import Tooltip from "@ui/atoms/Tooltip.svelte"
 
     let { char = $bindable(), isEditing } = $props()
@@ -50,9 +50,7 @@
     })
 
     // Voice metadata
-    const selectedVoice = $derived(
-        Sensory.voice.voices.find((v) => v.uri === char.voice.uri)
-    )
+    const selectedVoice = $derived(Audio.voice.voices.find((v) => v.uri === char.voice.uri))
     const isNaturalVoice = $derived(selectedVoice?.name.includes("Natural"))
 
     // Voice name normalization
@@ -65,26 +63,14 @@
     }
 </script>
 
-<div
-    class="voice-wing-content"
-    onmouseleave={() => (showVoiceDropdown = false)}
-    role="presentation"
->
+<div class="voice-wing-content" onmouseleave={() => (showVoiceDropdown = false)} role="presentation">
     <div class="voice-control-row">
         <div class="dropdown">
-            <button
-                class="voice-btn"
-                type="button"
-                disabled={!isEditing}
-                onclick={() => (showVoiceDropdown = !showVoiceDropdown)}
-            >
-                {formatVoiceName(
-                    Sensory.voice.voices.find((v) => v.uri === char.voice.uri)
-                        ?.name || "Select Voice"
-                )}
+            <button class="voice-btn" type="button" disabled={!isEditing} onclick={() => (showVoiceDropdown = !showVoiceDropdown)}>
+                {formatVoiceName(Audio.voice.voices.find((v) => v.uri === char.voice.uri)?.name || "Select Voice")}
             </button>
             <div class="dropdown-content" class:visible={showVoiceDropdown}>
-                {#each Sensory.voice.voices as voice (voice.uri)}
+                {#each Audio.voice.voices as voice (voice.uri)}
                     <button
                         class="voice-option"
                         class:active={char.voice.uri === voice.uri}
@@ -93,29 +79,14 @@
                             showVoiceDropdown = false
                         }}
                     >
-                        <span class="voice-name"
-                            >{formatVoiceName(voice.name)}</span
-                        >
+                        <span class="voice-name">{formatVoiceName(voice.name)}</span>
                         <span class="region-pill">{voice.region}</span>
                     </button>
                 {/each}
             </div>
         </div>
 
-        <button
-            class="preview-btn"
-            type="button"
-            title="Preview Voice"
-            disabled={!isEditing || !char.voice.uri}
-            onclick={() =>
-                Sensory.voice.preview(
-                    char.voice.uri,
-                    char.voice.rate,
-                    char.voice.pitch
-                )}
-        >
-            🔊
-        </button>
+        <button class="preview-btn" type="button" title="Preview Voice" disabled={!isEditing || !char.voice.uri} onclick={() => Audio.voice.preview(char.voice.uri, char.voice.rate, char.voice.pitch)}> 🔊 </button>
     </div>
 
     <div class="sliders" onpointerup={handleGlobalUp}>
@@ -128,11 +99,7 @@
             onmouseleave={() => (hoveredSlider = null)}
             role="presentation"
         >
-            <Tooltip
-                text={`Rate: ${char.voice.rate.toFixed(1)}x`}
-                visible={hoveredSlider === "rate" || activeSlider === "rate"}
-                x={rateX}
-            />
+            <Tooltip text={`Rate: ${char.voice.rate.toFixed(1)}x`} visible={hoveredSlider === "rate" || activeSlider === "rate"} x={rateX} />
             <input
                 bind:this={rateInput}
                 type="range"
@@ -158,13 +125,7 @@
             onmouseleave={() => (hoveredSlider = null)}
             role="presentation"
         >
-            <Tooltip
-                text={isNaturalVoice
-                    ? "Pitch locked: Natural voices ignore manual pitch adjustments"
-                    : `Pitch: ${char.voice.pitch.toFixed(1)}`}
-                visible={hoveredSlider === "pitch" || activeSlider === "pitch"}
-                x={pitchX}
-            />
+            <Tooltip text={isNaturalVoice ? "Pitch locked: Natural voices ignore manual pitch adjustments" : `Pitch: ${char.voice.pitch.toFixed(1)}`} visible={hoveredSlider === "pitch" || activeSlider === "pitch"} x={pitchX} />
             <input
                 bind:this={pitchInput}
                 type="range"
@@ -194,11 +155,7 @@
         gap: var(--spacing-l);
         color: white;
         background: var(--chalk, #222326);
-        background-image: radial-gradient(
-            circle at bottom left,
-            rgba(255, 255, 255, 0.05) 10%,
-            transparent 70%
-        );
+        background-image: radial-gradient(circle at bottom left, rgba(255, 255, 255, 0.05) 10%, transparent 70%);
         border-radius: inherit;
         height: 100%;
     }

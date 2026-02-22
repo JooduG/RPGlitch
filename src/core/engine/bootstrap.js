@@ -2,7 +2,7 @@
 
 import { db } from "@data/db.js"
 import { seedPremades } from "@data/repository.js"
-import { soundEffects } from "@media/audio/effects.js"
+import { Audio } from "@media/audio.js"
 import { app } from "@state/app.svelte.js"
 import { mount } from "svelte"
 import App from "../../App.svelte"
@@ -53,20 +53,13 @@ export const AppBootstrap = {
             console.info("[Engine] Database Ready. Hydrating Stores...")
 
             // Async Hydration Gate
-            await Promise.all([
-                app.init(),
-                Session.init(),
-                soundEffects.initSettings(),
-                seedPremades(),
-            ])
+            await Promise.all([app.init(), Session.init(), Audio._effects.initSettings(), seedPremades()])
 
             console.info("[Engine] Stores Hydrated.")
 
             console.info("[Engine] Step 3: UI Layer...")
             const target = document.getElementById("svelte-root")
-            console.info(
-                `[Engine] Target #svelte-root: ${target ? "FOUND" : "MISSING"}`
-            )
+            console.info(`[Engine] Target #svelte-root: ${target ? "FOUND" : "MISSING"}`)
             if (target) {
                 console.info("[Engine] Calling mount()...")
                 // Clear the static boot illusion before mounting
@@ -74,9 +67,7 @@ export const AppBootstrap = {
                 mount(App, { target })
                 console.info("[Engine] ⚒️ UI Mounted.")
             } else {
-                console.info(
-                    "[Engine] ⚠️ CANNOT MOUNT: #svelte-root not in DOM."
-                )
+                console.info("[Engine] ⚠️ CANNOT MOUNT: #svelte-root not in DOM.")
             }
             console.info("[Engine] 🏁 System Online.")
 
@@ -84,10 +75,7 @@ export const AppBootstrap = {
             events.addEventListener(EVENTS.MEMORY_PRESSURE_CHECK, () => {
                 // Run in background (no await)
                 Engine.NarrativeDirector.consolidate().catch((err) => {
-                    console.warn(
-                        "[Engine] Background consolidation error (stealthed):",
-                        err
-                    )
+                    console.warn("[Engine] Background consolidation error (stealthed):", err)
                 })
             })
         } catch (err) {

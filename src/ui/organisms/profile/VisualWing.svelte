@@ -1,18 +1,13 @@
 <script>
     import { PALETTE } from "@core/engine/config.js"
     import { LlmService } from "@core/intelligence/service.js"
-    import { VisualsService } from "@core/intelligence/visuals.js"
+    import { ImageGeneration } from "@media/image-generation.js"
     import { app } from "@state/app.svelte.js"
     import Button from "@ui/atoms/Button.svelte"
     import Tooltip from "@ui/atoms/Tooltip.svelte"
 
     /* eslint-disable svelte/prefer-svelte-reactivity */
-    let {
-        char = $bindable(),
-        isEditing,
-        busyFields = $bindable(),
-        activeField = $bindable(),
-    } = $props()
+    let { char = $bindable(), isEditing, busyFields = $bindable(), activeField = $bindable() } = $props()
 
     // Derived: Check if the visual-prompt specifically is busy
     let isPromptBusy = $derived(busyFields.has("visual-prompt"))
@@ -31,20 +26,10 @@
 
     // Determine current state
     const promptValue = $derived((char.visuals.prompt || "").trim())
-    const hasPromptText = $derived(
-        promptValue.length > 0 &&
-            !promptValue.startsWith("http") &&
-            !promptValue.startsWith("data:")
-    )
+    const hasPromptText = $derived(promptValue.length > 0 && !promptValue.startsWith("http") && !promptValue.startsWith("data:"))
 
     // Determine the active target value (prompt or focused field)
-    const targetValue = $derived(
-        activeField?.key === "visual-prompt"
-            ? promptValue
-            : activeField
-              ? getValue(char, activeField.key)
-              : ""
-    )
+    const targetValue = $derived(activeField?.key === "visual-prompt" ? promptValue : activeField ? getValue(char, activeField.key) : "")
 
     // Action is "Enhance" if the target we are looking at has text (ready for AI)
     let isEnhanceMode = $derived(isEditing && targetValue.trim().length > 0)
@@ -56,52 +41,40 @@
     // 2. visual-prompt is busy AND (no field selected OR visual-prompt is selected)
     // If a trait field is selected, buttons are enabled (even if prompt is busy)
     let isCreativeDisabled = $derived(
-        !isEditing ||
-            (isPromptBusy &&
-                (!activeField || activeField.key === "visual-prompt")) ||
-            (!activeField && hasPromptText) // Protect: no target but text exists
+        !isEditing || (isPromptBusy && (!activeField || activeField.key === "visual-prompt")) || (!activeField && hasPromptText) // Protect: no target but text exists
     )
 
     // Label Logic:
     let creativeLabel = $derived.by(() => {
-        if (
-            isPromptBusy &&
-            (!activeField || activeField.key === "visual-prompt")
-        )
-            return "Busy..."
+        if (isPromptBusy && (!activeField || activeField.key === "visual-prompt")) return "Busy..."
 
         // If we have an active field, we map to specific "Enhance X" labels
         if (activeField) {
             const key = activeField.key
             const label = activeField.label?.toLowerCase() || ""
 
-            if (key === "visual-prompt")
-                return hasPromptText ? "Enhance" : "Extract"
+            if (key === "visual-prompt") return hasPromptText ? "Enhance" : "Fetch"
 
             // Map specific fields as requested
             if (label.includes("past")) return "Enhance Past"
             if (label.includes("future")) return "Enhance Future"
 
             // Map "Present" and "Eternal" groups (checking label or key)
-            if (key.includes("present") || label.includes("present"))
-                return "Enhance Present"
-            if (key.includes("eternal") || label.includes("eternal"))
-                return "Enhance Eternal"
+            if (key.includes("present") || label.includes("present")) return "Enhance Present"
+            if (key.includes("eternal") || label.includes("eternal")) return "Enhance Eternal"
 
             // Fallback for Name/Desc or others
             return "Enhance" // General fallback
         }
 
-        // Fallback: If no field is active, we are in Extract mode
-        return "Extract"
+        // Fallback: If no field is active, we are in Fetch mode
+        return "Fetch"
     })
 
     // Design Variants:
     // Magic (Pink/Hot) = Enhance, Generate
-    // Tech (Blue/Cold) = Extract, Upload
-    let creativeVariant = $derived(
-        activeField && isEnhanceMode ? "magic" : "tech"
-    )
+    // Tech (Blue/Cold) = Fetch, Upload
+    let creativeVariant = $derived(activeField && isEnhanceMode ? "magic" : "tech")
 
     let generationVariant = $derived(hasPromptText ? "magic" : "tech")
 
@@ -124,25 +97,19 @@
 
             if (currentTargetKey === "visual-prompt" && isEnhanceMode) {
                 // --- ENHANCE PROMPT (for Image Gen) ---
-                const result = await LlmService.enhance(
-                    char.visuals.prompt,
-                    "visuals.prompt"
-                )
+                const result = await LlmService.enhance(char.visuals.prompt, "visuals.prompt")
                 if (result) char.visuals.prompt = result
             } else if (currentTargetKey !== "visual-prompt") {
                 // --- ENHANCE TRAIT FIELD ---
                 const fieldVal = getValue(char, currentTargetKey)
                 if (fieldVal) {
-                    const result = await LlmService.enhance(
-                        fieldVal,
-                        currentTargetKey
-                    )
+                    const result = await LlmService.enhance(fieldVal, currentTargetKey)
                     if (result) setValue(char, currentTargetKey, result)
                 }
             } else {
-                // --- EXTRACT LOGIC (Base Formula) ---
+                // --- FETCH LOGIC (Base Formula) ---
                 // Only reachable if visual-prompt is selected but empty (no enhance mode)
-                char.visuals.prompt = VisualsService.composeBasePrompt(char)
+                char.visuals.prompt = ImageGeneration.composeBasePrompt(char)
             }
         } catch (err) {
             console.error("Creative action failed:", err)
@@ -161,20 +128,16 @@
         if (hasPromptText) {
             // --- GENERATE LOGIC ---
             // --- GENERATE LOGIC ---
-            app.log(
-                `[VisualWing] Triggering Generate. Prompt: ${promptValue}`,
-                "system"
-            )
+            app.log(`[VisualWing] Triggering Generate. Prompt: ${promptValue}`, "system")
             try {
                 if (!window.pluginTextToImage) {
-                    const msg =
-                        "[VisualWing] CRITICAL: window.pluginTextToImage is MISSING!"
+                    const msg = "[VisualWing] CRITICAL: window.pluginTextToImage is MISSING!"
                     console.error(msg, window)
                     app.log(msg, "error")
                     return
                 }
 
-                const url = await VisualsService.generate(promptValue, {
+                const url = await ImageGeneration.generate(promptValue, {
                     noBackground: char.visuals.noBackground,
                 })
                 app.log(`[VisualWing] Generation Result: ${url}`, "system")
@@ -202,7 +165,7 @@
         const file = e.target.files[0]
         if (!file) return
         try {
-            const url = await VisualsService.upload(file)
+            const url = await ImageGeneration.upload(file)
             if (url) {
                 char.visuals = char.visuals || {}
                 char.visuals.profilePicture = url
@@ -238,18 +201,13 @@
 
     function getValue(obj, path) {
         if (!path) return ""
-        return (
-            path.split(".").reduce((acc, part) => acc && acc[part], obj) || ""
-        )
+        return path.split(".").reduce((acc, part) => acc && acc[part], obj) || ""
     }
 
     function setValue(obj, path, val) {
         const keys = path.split(".")
         const last = keys.pop()
-        const target = keys.reduce(
-            (acc, key) => (acc[key] = acc[key] || {}),
-            obj
-        )
+        const target = keys.reduce((acc, key) => (acc[key] = acc[key] || {}), obj)
         target[last] = val
     }
 
@@ -284,7 +242,8 @@
         const wingRoot = e.currentTarget
         setTimeout(() => {
             const currentFocus = document.activeElement
-            if (wingRoot && !wingRoot.contains(currentFocus)) {
+            // Protection: Don't clear if focus is in a valid input or we have busy fields
+            if (wingRoot && !wingRoot.contains(currentFocus) && busyFields.size === 0 && !currentFocus?.closest(".text-area")) {
                 activeField = null
             }
         }, 50)
@@ -336,16 +295,9 @@
                         // We use a small timeout to allow button clicks to register first.
                         setTimeout(() => {
                             if (activeField?.key === "visual-prompt") {
-                                // Check if we moved focus to the button (optional, but clearing is safer)
-                                // If the user clicked the button, the click handler fires before this timeout finishes usually?
-                                // Actually mousedown fires before blur. Click fires after mouseup.
-                                // If we disable the button here, click might not fire.
-                                // BUT: The button logic depends on activeField.
-                                // If we nullify activeField, button disables.
-                                // TRICKY: We need to NOT disable if the target is the button.
-
                                 const focused = document.activeElement
-                                if (!focused?.closest(".action-btn")) {
+                                // Protection: Don't disable if we are busy or moving to a valid action/input
+                                if (!focused?.closest(".action-btn") && !focused?.closest(".text-area") && busyFields.size === 0) {
                                     activeField = null
                                 }
                             }
@@ -360,60 +312,25 @@
             </div>
 
             <div class="action-row">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    label={creativeLabel}
-                    className="action-btn mode-{creativeVariant}"
-                    onclick={handleCreativeAction}
-                    disabled={isCreativeDisabled}
-                />
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    label={isPromptBusy
-                        ? "Busy..."
-                        : hasPromptText
-                          ? "Generate"
-                          : "Upload"}
-                    className="action-btn mode-{generationVariant}"
-                    onclick={handleGenerationAction}
-                    disabled={!isEditing || isPromptBusy}
-                />
+                <Button variant="ghost" size="sm" label={creativeLabel} className="action-btn mode-{creativeVariant}" onclick={handleCreativeAction} disabled={isCreativeDisabled} />
+                <Button variant="ghost" size="sm" label={isPromptBusy ? "Busy..." : hasPromptText ? "Generate" : "Upload"} className="action-btn mode-{generationVariant}" onclick={handleGenerationAction} disabled={!isEditing || isPromptBusy} />
             </div>
 
-            <input
-                type="file"
-                accept="image/*"
-                style="display: none;"
-                bind:this={fileInput}
-                onchange={handleUpload}
-            />
+            <input type="file" accept="image/*" style="display: none;" bind:this={fileInput} onchange={handleUpload} />
         </div>
     </div>
 
     <!-- 3. Toggles -->
     <div class="toggle-stack">
-        <label
-            class="toggle-control"
-            title="Removes background from generated image"
-        >
+        <label class="toggle-control" title="Removes background from generated image">
             <span class="label">No Background</span>
-            <input
-                type="checkbox"
-                bind:checked={char.visuals.noBackground}
-                disabled={!isEditing}
-            />
+            <input type="checkbox" bind:checked={char.visuals.noBackground} disabled={!isEditing} />
             <div class="switch"></div>
         </label>
 
         <label class="toggle-control">
             <span class="label">Flip Profile Picture</span>
-            <input
-                type="checkbox"
-                bind:checked={char.visuals.flipped}
-                disabled={!isEditing}
-            />
+            <input type="checkbox" bind:checked={char.visuals.flipped} disabled={!isEditing} />
             <div class="switch"></div>
         </label>
     </div>
@@ -432,11 +349,7 @@
         color: white;
         border-radius: inherit;
         background: var(--chalk, #222326);
-        background-image: radial-gradient(
-            circle at bottom left,
-            rgba(255, 255, 255, 0.05) 10%,
-            transparent 70%
-        );
+        background-image: radial-gradient(circle at bottom left, rgba(255, 255, 255, 0.05) 10%, transparent 70%);
     }
 
     .group {
@@ -576,27 +489,15 @@
                     font-weight: 600;
                     letter-spacing: 0.02em;
 
-                    /* --- TECH MODE (Extract/Upload) --- */
+                    /* --- TECH MODE (Fetch/Upload) --- */
                     /* Cool, reliable, utility. */
                     &:global(.mode-tech):not(:disabled) {
                         color: var(--app-secondary);
-                        background: color-mix(
-                            in oklab,
-                            var(--app-secondary) 5%,
-                            transparent
-                        );
+                        background: color-mix(in oklab, var(--app-secondary) 5%, transparent);
 
                         &:hover {
-                            background: color-mix(
-                                in oklab,
-                                var(--app-secondary) 10%,
-                                transparent
-                            );
-                            color: color-mix(
-                                in oklab,
-                                var(--app-secondary),
-                                white 10%
-                            );
+                            background: color-mix(in oklab, var(--app-secondary) 10%, transparent);
+                            color: color-mix(in oklab, var(--app-secondary), white 10%);
                         }
                     }
 
