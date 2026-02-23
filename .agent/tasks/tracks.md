@@ -9,8 +9,8 @@
 
 - **Path:** [.agent/tasks/prompt-intelligence-reconstruction/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/prompt-intelligence-reconstruction/)
 - **Status:** Active
-- **Checkpoint:** `recon-pi-01`
-- **Note:** Systemic refactor of the intelligence pipeline (Blueprint -> Orchestrator) following the Audit Report's recommended path.
+- **Checkpoint:** `ed9d0265`
+- **Note:** Systemic refactor of the intelligence pipeline (Blueprint -> Orchestrator). Structural flattening complete. Alignment in progress.
 
 ## 📋 Protocols & Checklists
 

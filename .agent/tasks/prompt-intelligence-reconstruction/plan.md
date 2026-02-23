@@ -2,9 +2,9 @@
 
 ## Phase 1: Blueprint Alignment
 
-- [ ] Audit `ENTITY_SCHEMA` in `schema.js`.
-- [ ] Ensure clear separation between `eternal`, `past`, and `temporal` fields.
-- [ ] Verify `FIELD_REGISTRY` consistency.
+- [x] Audit `ENTITY_SCHEMA` in `schema.js`. [checkpoint: `ed9d0265`]
+- [x] Ensure clear separation between `eternal`, `past`, and `temporal` fields. [checkpoint: `ed9d0265`]
+- [x] Verify `FIELD_REGISTRY` consistency. [checkpoint: `ed9d0265`]
 
 ## Phase 2: Kernel Optimization
 
