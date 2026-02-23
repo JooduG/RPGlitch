@@ -8,9 +8,9 @@
 
 ## Phase 2: Kernel Optimization
 
-- [ ] Refactor `context.js` prompts for brevity.
-- [ ] Implement strict `Literalism Protocol` enforcement in system prompts.
-- [ ] Modularize `Screenplay` Kernels.
+- [x] Refactor `context.js` prompts for brevity. [checkpoint: `recon-pi-02`]
+- [x] Implement strict `Literalism Protocol` enforcement in system prompts. [checkpoint: `recon-pi-02`]
+- [x] Modularize `Screenplay` Kernels. [checkpoint: `recon-pi-02`]
 
 ## Phase 3: Assembly Refactor
 
