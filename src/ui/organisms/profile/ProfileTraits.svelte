@@ -26,7 +26,7 @@
                                 data-sync-id={section.label}
                                 class="text-area"
                                 class:edit={isEditing}
-                                placeholder={field.placeholder}
+                                placeholder={field.description}
                                 value={getValue(char, field.key)}
                                 oninput={(e) => setValue(char, field.key, e.target.value)}
                                 disabled={busyFields.has(field.key)}

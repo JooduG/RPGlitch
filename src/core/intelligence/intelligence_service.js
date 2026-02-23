@@ -1,11 +1,11 @@
 /************************************************************************************
- * src/core/llm/service.js
+ * src/core/intelligence/intelligence_service.js
  * Service to abstract the Perchance AI plugin (`window.ai`).
  * Handles formatting, error management, and plugin communication.
  ************************************************************************************/
 
 import { ERROR_MESSAGES } from "@core/engine/config.js"
-import { FIELD_REGISTRY } from "@core/narrative/schema.js"
+import { RULES, SYSTEM_PROMPTS } from "@core/intelligence/intelligence_logic.js"
 import { app } from "@state/app.svelte.js"
 
 const utilsError = console.error
@@ -16,59 +16,18 @@ export const LlmService = {
      * ----------------------------------------------------------------------------------
      * The High-Fidelity Prose Enhancer.
      * Transforms draft text into visceral, first-person narrative
-     * based on field-specific directives from the Entity Schema.
+     * based on field-specific directives from the Entity Definition.
      ************************************************************************************/
 
     // Enhancement Engine
     async enhance(text, fieldKey) {
-        // 1. resolve configuration from Schema
-        const fieldConfig = FIELD_REGISTRY[fieldKey] || {
-            enhancer: "EDITOR",
-            placeholder: "I will preserve the core meaning while elevating the prose.",
-        }
-
-        const rawRole = fieldConfig.enhancer || "EDITOR"
-        const role = rawRole
-            .toLowerCase()
-            .split("_")
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(" ")
-
-        const instruction = fieldConfig.placeholder
-
-        // 2. Enhancement Prompt Assembly
-        const systemPrompt = `
-[SYSTEM: ${rawRole}]
-I am the ${role}. I enhance draft text into raw, visceral reality.
-
-<FIELD_DIRECTIVES>
-${instruction}
-</FIELD_DIRECTIVES>
-
-<POSITIVE_GOVERNANCE>
-- I use exclusively affirmative, present-tense language.
-- I focus on what IS. I ignore what is not.
-- I never mention technical jargon, web design terminology (HTML, CSS, UI), or metadata.
-</POSITIVE_GOVERNANCE>
-
-<CONSTRAINTS>
-- I output ONLY the final enhanced text.
-- I include NO conversational filler or meta-commentary.
-- I write in the FIRST PERSON perspective.
-- I ALWAYS begin my response with the word "I".
-- I use NO markdown, quotation marks, or HTML tags.
-</CONSTRAINTS>
-
-<DRAFT_TO_ENHANCE>
-${text}
-</DRAFT_TO_ENHANCE>`.trim()
-
+        // 1. Resolve prompt payload using the intelligence layer
         const payload = {
-            system: systemPrompt,
+            system: SYSTEM_PROMPTS.enhancement({ role: fieldKey, content: text, context: "" }),
             messages: [],
         }
 
-        // Ensure this calls the actual underlying generation method
+        // 2. Execute generation
         let result = await this.generate(payload, { silent: true })
 
         if (typeof result === "string") {
@@ -97,14 +56,20 @@ ${text}
             throw new Error(msg)
         }
 
-        // 1. Format History (Legacy Adapter)
+        // 1. Pre-flight: Enforce Grounding Rule at the service gate
+        let system = payload.system || ""
+        if (!system.includes("[RULE: GROUNDING]")) {
+            system = `${RULES.GROUNDING}\n\n${system}`.trim()
+        }
+
+        // 2. Format History (Legacy Adapter)
         const chatHistory = LlmService._formatHistory(payload.messages || [])
 
-        // 2. Construct Final Instruction
-        const instruction = [payload.system, chatHistory ? `\n[CONVERSATION HISTORY]\n${chatHistory}` : "", payload.startWith ? `\n${payload.startWith}` : ""].filter(Boolean).join("\n")
+        // 3. Construct Final Instruction
+        const instruction = [system, chatHistory ? `\n\n[CONVERSATION HISTORY]\n${chatHistory}` : "", payload.startWith ? `\n\n[START RESPONSE WITH]\n${payload.startWith}` : ""].filter(Boolean).join("\n\n")
 
         try {
-            // 3. Prepare Plugin Options
+            // 4. Prepare Plugin Options
             const genOptions = {
                 temperature: options.temperature ?? payload.params?.temperature ?? 0.8,
                 top_p: options.top_p ?? payload.params?.top_p,
@@ -116,7 +81,7 @@ ${text}
                 silent: options.silent,
             }
 
-            // 4. STREAMING HANDLER
+            // 5. STREAMING HANDLER
             const onToken = (chunk) => {
                 if (!options.silent) {
                     if (!app.streaming.active) {
@@ -128,13 +93,23 @@ ${text}
                 if (options.onToken) options.onToken(chunk)
             }
 
-            // 5. Call Plugin
-            const result = await window.ai(instruction, {
+            // 6. Call Plugin
+            let result = await window.ai(instruction, {
                 ...genOptions,
                 onToken,
             })
 
             if (!options.silent) app.endStream()
+
+            // 7. Standardized Post-Process (Response Sanitization)
+            if (typeof result === "string" && !options.raw) {
+                result = result
+                    .replace(/^["']|["']$/g, "") // Strip outer quotes
+                    .replace(/^(here is|sure|certainly|i can help|enhanced text:|the enhanced text).*?:/i, "") // Strip conversational filler
+                    .replace(/^```.*?[\r\n]/gm, "") // Strip code fences
+                    .replace(/```$/g, "")
+                    .trim()
+            }
 
             return result
         } catch (err) {
@@ -146,7 +121,6 @@ ${text}
             }
 
             const errString = String(err)
-
             if (errString.includes("stream keep alive") || errString.includes("timeout")) {
                 utilsError("[LlmService] Network Error:", err)
                 throw new Error(`${ERROR_MESSAGES.CONNECTION_LOST}`)

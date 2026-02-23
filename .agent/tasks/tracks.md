@@ -5,7 +5,12 @@
 
 ## 🚀 Active Tracks
 
----
+### Track: Prompt Intelligence Reconstruction
+
+- **Path:** [.agent/tasks/prompt-intelligence-reconstruction/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/prompt-intelligence-reconstruction/)
+- **Status:** Active
+- **Checkpoint:** `recon-pi-01`
+- **Note:** Systemic refactor of the intelligence pipeline (Blueprint -> Orchestrator) following the Audit Report's recommended path.
 
 ## 📋 Protocols & Checklists
 
@@ -18,6 +23,13 @@
 ---
 
 ## ✅ Archive
+
+### ✅ Track: Engine Audit (Interior Guide)
+
+- **Path:** [engine_audit_report.md](file:///c:/Users/johng/source/repos/RPGlitch/engine_audit_report.md)
+- **Status:** Complete
+- **Checkpoint:** `aud-eng-01`
+- **Note:** Completed deep audit of core engine, intelligence assembly, and memory hierarchy. Findings transitioned to Reconstruction track.
 
 ### ✅ Track: Integration Proving
 

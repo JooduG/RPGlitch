@@ -1,6 +1,6 @@
 // src/core/session/utils.js
 
-import { Security } from "@core/security/security.js"
+import { Security } from "@core/security.js"
 import { PALETTE } from "./config.js"
 
 // --- Color Re-exports ---
@@ -81,14 +81,9 @@ export const mockPlugins = () => {
         window["pluginTextToImage"] = async () =>
             // [VISUALS MOCK] Mocks the generation plugin
             "https://via.placeholder.com/512x768"
-    if (!window["pluginRemember"])
-        window["pluginRemember"] = { get: () => null, set: () => {} }
-    if (!window["pluginSuperFetch"])
-        window["pluginSuperFetch"] = async () => ({ text: async () => "" })
-    if (!window["pluginUpload"])
-        window["pluginUpload"] = async (data) =>
-            "https://via.placeholder.com/150"
+    if (!window["pluginRemember"]) window["pluginRemember"] = { get: () => null, set: () => {} }
+    if (!window["pluginSuperFetch"]) window["pluginSuperFetch"] = async () => ({ text: async () => "" })
+    if (!window["pluginUpload"]) window["pluginUpload"] = async (data) => "https://via.placeholder.com/150"
 }
 
-export const clamp = (n, min = 0, max = 100) =>
-    Math.min(max, Math.max(min, Number(n) || 0))
+export const clamp = (n, min = 0, max = 100) => Math.min(max, Math.max(min, Number(n) || 0))

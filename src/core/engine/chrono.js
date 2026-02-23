@@ -1,7 +1,7 @@
 // ⏳ CHRONO: The Heartbeat of Time
 // Manages the strict turn-based progression of the simulation.
 
-import { Shield } from "@core/security/security.js"
+import { Shield } from "@core/security.js"
 import { app } from "@state/app.svelte.js"
 import { messages } from "@state/messages.svelte.js"
 import { runtime } from "@state/runtime.svelte.js"
@@ -45,22 +45,11 @@ export class ChronoStore {
 
             if (input && runtime.character) {
                 // Pass Fractal State for Causality Checks
-                shieldContext = await Shield.process(
-                    input,
-                    runtime.character,
-                    runtime.storyFractal || {}
-                )
+                shieldContext = await Shield.process(input, runtime.character, runtime.storyFractal || {})
 
                 // 🛑 CAUSALITY CHECK
-                if (
-                    shieldContext &&
-                    shieldContext.causality &&
-                    shieldContext.causality.result === "failure"
-                ) {
-                    app.log(
-                        `Causality Violation: ${shieldContext.causality.constraint}`,
-                        "error"
-                    )
+                if (shieldContext && shieldContext.causality && shieldContext.causality.result === "failure") {
+                    app.log(`Causality Violation: ${shieldContext.causality.constraint}`, "error")
                     // We override the 'Action' to be a System Constraint.
                     // This forces the AI to narrate the failure instead of the action.
                     finalInput = `[SYSTEM]: The user attempted '${input}' but failed because: "${shieldContext.causality.constraint}". Describe this failed attempt briefly and dryly.`

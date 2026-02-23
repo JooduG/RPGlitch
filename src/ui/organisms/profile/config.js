@@ -1,12 +1,14 @@
 /**
- * @file src/data/config.js
- * @description Configuration for the Data module.
- * Profile structure is now derived dynamically from the Narrative Schema.
+ * @file src/ui/organisms/profile/config.js
+ * @description Configuration for the Profile UI.
+ * This file houses the UI Metadata (labels, sublabels, descriptions) and layout rules.
  */
 
-import { ENTITY_SCHEMA } from "@core/narrative/schema.js"
+import { ENTITY_DEFINITION } from "@core/intelligence/intelligence_registry.js"
 
-// UI Layout configuration (Visuals only, not logic)
+export { ENTITY_DEFINITION }
+
+// UI Layout configuration (visuals only, not logic)
 const LAYOUT_CONFIG = {
     eternal: "split",
     present: "split",
@@ -15,38 +17,30 @@ const LAYOUT_CONFIG = {
 }
 
 /**
- * Generates the Profile Sections for the UI.
- * Merges Schema definitions (Logic) with Layout config (UI).
- * Handles Mixed Hierarchy (Nested Fields vs Flat Sections).
+ * Maps the ENTITY_DEFINITION into UI section objects for ProfileTraits.svelte.
  */
-export const PROFILE_SECTIONS = Object.entries(ENTITY_SCHEMA).map(([sectionKey, section]) => {
-    // base section config
-    const uiSection = {
+export const PROFILE_SECTIONS = Object.entries(ENTITY_DEFINITION).map(([sectionKey, section]) => {
+    const fields = section.fields
+        ? Object.entries(section.fields).map(([fieldKey, field]) => {
+              return {
+                  key: `${sectionKey}.${fieldKey}`,
+                  label: field.label,
+                  description: field.description || "",
+              }
+          })
+        : [
+              {
+                  key: sectionKey,
+                  label: null,
+                  description: section.description || "",
+              },
+          ]
+
+    return {
         id: sectionKey,
         label: section.label,
-        sublabel: section.description, // For flat sections, this might be redundant with placeholder?
-        layout: LAYOUT_CONFIG[sectionKey] || "full",
-        fields: [],
+        sublabel: section.sublabel || null,
+        layout: section.layout || LAYOUT_CONFIG[sectionKey] || "full",
+        fields,
     }
-
-    if (section.fields) {
-        // Nested Structure (e.g. Eternal -> Physical/Mental)
-        uiSection.fields = Object.entries(section.fields).map(([fieldKey, field]) => ({
-            key: `${sectionKey}.${fieldKey}`, // ID generation
-            label: field.label,
-            placeholder: field.placeholder,
-        }))
-    } else {
-        // Flat Structure (e.g. Past)
-        // The section itself is the field.
-        uiSection.fields = [
-            {
-                key: sectionKey, // ID is just the section key
-                label: null, // No sub-label needed if it's the whole section
-                placeholder: section.placeholder,
-            },
-        ]
-    }
-
-    return uiSection
 })

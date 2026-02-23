@@ -1,7 +1,8 @@
 import { state } from "@core/engine/bus.js"
-import { Engine } from "@core/narrative/engine.js"
+import { Engine } from "@core/narrative/narrative_engine.js"
 import { app } from "@state/app.svelte.js"
 import { runtime } from "@state/runtime.svelte.js"
+import { ENTITY_CATALOG } from "./intelligence_registry.js"
 
 export class ContextBroker {
     /**
@@ -18,15 +19,9 @@ export class ContextBroker {
         const stateData = {
             kernel: requirements.includes("kernel") ? this.pullKernel() : null,
             chrono: requirements.includes("chrono") ? this.pullChrono() : null,
-            snapshot: requirements.includes("snapshot")
-                ? this.assembleSnapshot()
-                : null,
-            fractal: requirements.includes("fractal")
-                ? this.pullFractal()
-                : null,
-            entity: requirements.includes("entity")
-                ? this.pullEntity(type)
-                : null,
+            snapshot: requirements.includes("snapshot") ? this.assembleSnapshot() : null,
+            fractal: requirements.includes("fractal") ? this.pullFractal() : null,
+            entity: requirements.includes("entity") ? this.pullEntity(type) : null,
         }
 
         // 3. Delegate to Narrative Engine
@@ -37,6 +32,7 @@ export class ContextBroker {
             input: action,
             toneKey: toneKey,
             state: stateData,
+            type: type,
         })
 
         // 4. Format Messages (Tiered L1 history)
@@ -123,8 +119,7 @@ export class ContextBroker {
         const beats = messages
             .slice(-3)
             .map((m) => {
-                const label =
-                    m.characterName || (m.role === "user" ? "User" : "AI")
+                const label = m.characterName || (m.role === "user" ? "User" : "AI")
                 return `[${label}]: ${this.PunchyTransformer(m.text || "", 120)}`
             })
             .join("\n")
@@ -136,7 +131,6 @@ export class ContextBroker {
         const fractal = runtime.storyFractal || {}
         return {
             title: fractal.name || "Unknown Fractal",
-            lore: fractal.description || "",
             state: fractal.present || {},
         }
     }
@@ -146,38 +140,67 @@ export class ContextBroker {
         const user = runtime.userCharacter || {}
         const objective = runtime.vanguard || ""
 
-        // Process AI Fragments with Lexical Filtering
-        const aiFragments = [
-            ai.timeline?.past,
-            ai.past,
-            ai.present?.physical,
-            ai.present?.mental,
-            ai.eternal?.physical,
-            ai.eternal?.mental,
-        ]
-            .filter(Boolean)
-            .map((f) => this.PunchyTransformer(f))
-            .map((f) => this.DiegeticFilter(f, mode)) // [NEXUS] Diegetic Tag Filtering
-            .filter((f) => f.length > 0)
+        /**
+         * Recursive/Dot-notation value fetcher for entities.
+         * @param {Object} obj
+         * @param {string} path
+         */
+        const get_entity_value = (obj, path) => {
+            if (!path) return ""
+            return path.split(".").reduce((acc, part) => acc && acc[part], obj) || ""
+        }
 
-        const filteredAi = this.LexicalFilter(aiFragments, objective)
+        // Process Fragments dynamically using ENTITY_CATALOG
+        const processFragments = (entity) => {
+            const fragments = []
 
-        // Process User Fragments
-        const userFragments = [
-            user.description,
-            user.present?.physical,
-            user.present?.mental,
-        ]
-            .filter(Boolean)
-            .map((f) => this.PunchyTransformer(f))
-            .map((f) => this.DiegeticFilter(f, mode)) // [NEXUS] Diegetic Tag Filtering
-            .filter((f) => f.length > 0)
+            // Iterate through Unified Catalog for all defined fields
+            Object.entries(ENTITY_CATALOG).forEach(([id, field]) => {
+                const content = get_entity_value(entity, id)
+
+                if (content && typeof content === "string") {
+                    fragments.push({
+                        text: content,
+                        category: field.label,
+                        parent: field.parent,
+                    })
+                }
+            })
+
+            // Fallback for Manual Fragments (Legacy/Mocks)
+            if (entity.fragments && Array.isArray(entity.fragments)) {
+                entity.fragments.forEach((f) => {
+                    fragments.push({
+                        text: typeof f === "string" ? f : f.text,
+                        category: f.category || "General",
+                        parent: f.parent || "legacy",
+                    })
+                })
+            }
+
+            return fragments
+                .map((f) => ({
+                    ...f,
+                    text: this.PunchyTransformer(f.text),
+                }))
+                .map((f) => ({
+                    ...f,
+                    text: this.DiegeticFilter(f.text, mode),
+                }))
+                .filter((f) => f.text && f.text.length > 0)
+        }
+
+        const aiFragments = processFragments(ai)
+        // Sort AI fragments by relevance to objective
+        const sortedAi = this.LexicalFilter(aiFragments, objective)
+
+        const userFragments = processFragments(user)
 
         return {
             ai: {
                 name: ai.name || "AI",
                 role: ai.role || "Assistant",
-                fragments: filteredAi,
+                fragments: sortedAi,
             },
             user: {
                 name: user.name || "User",
@@ -191,6 +214,7 @@ export class ContextBroker {
     /**
      * [JS] Lexical Filter
      * Prioritizes fragments that match current objective keywords.
+     * Supports both strings and objects with .text property.
      */
     static LexicalFilter(fragments, objective) {
         if (!objective) return fragments
@@ -200,9 +224,11 @@ export class ContextBroker {
             .split(/\W+/)
             .filter((w) => w.length > 3)
 
-        return fragments.sort((a, b) => {
-            const aMatch = keywords.some((k) => a.toLowerCase().includes(k))
-            const bMatch = keywords.some((k) => b.toLowerCase().includes(k))
+        return [...fragments].sort((a, b) => {
+            const aRaw = typeof a === "string" ? a : a.text
+            const bRaw = typeof b === "string" ? b : b.text
+            const aMatch = keywords.some((k) => aRaw.toLowerCase().includes(k))
+            const bMatch = keywords.some((k) => bRaw.toLowerCase().includes(k))
             if (aMatch && !bMatch) return -1
             if (!aMatch && bMatch) return 1
             return 0

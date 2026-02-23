@@ -1,5 +1,5 @@
-import { Security } from "@core/security/security.js"
 import { describe, expect, test, vi } from "vitest"
+import { Security } from "./security.js"
 
 const sanitizeHtml = Security.sanitize
 
@@ -9,9 +9,7 @@ vi.mock("dompurify", () => ({
         sanitize: vi.fn((input) => {
             if (typeof input !== "string") return String(input || "")
             // Simple mock logic for stripping script tags and onerror in unit tests
-            return input
-                .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "")
-                .replace(/onerror\s*=\s*["']?([^"']+)["']?/gim, "")
+            return input.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "").replace(/onerror\s*=\s*["']?([^"']+)["']?/gim, "")
         }),
     },
 }))

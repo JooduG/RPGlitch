@@ -43,12 +43,7 @@ export const Session = {
     /**
      * Create a new story from lobby selection
      */
-    createFromSelection: async function ({
-        aiId,
-        userId,
-        fractalId,
-        storyTitle,
-    }) {
+    createFromSelection: async function ({ aiId, userId, fractalId, storyTitle }) {
         const storyData = {
             title: storyTitle,
             aiId,
@@ -64,7 +59,7 @@ export const Session = {
         storyData.id = id
 
         // [CRITICAL] Synchronize Global State immediately
-        // ContextBuilder relies on state.story.byId[id] existing synchronously
+        // PromptBuilder relies on state.story.byId[id] existing synchronously
         applyPatch({
             story: {
                 byId: { [id]: storyData },
@@ -95,9 +90,7 @@ export const Session = {
             text,
             createdAt: Date.now(),
         })
-        events.dispatchEvent(
-            new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } })
-        )
+        events.dispatchEvent(new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }))
     },
 
     /**
@@ -113,9 +106,7 @@ export const Session = {
             text,
             createdAt: Date.now(),
         })
-        events.dispatchEvent(
-            new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } })
-        )
+        events.dispatchEvent(new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }))
     },
 
     /**
@@ -123,19 +114,11 @@ export const Session = {
      */
     regenerate: async () => {
         const storyId = Session.requireActive()
-        const lastMsg = await db.messages
-            .where("storyId")
-            .equals(storyId)
-            .last()
+        const lastMsg = await db.messages.where("storyId").equals(storyId).last()
 
-        if (
-            lastMsg &&
-            (lastMsg.role === "assistant" || lastMsg.role === "ai")
-        ) {
+        if (lastMsg && (lastMsg.role === "assistant" || lastMsg.role === "ai")) {
             await db.messages.delete(lastMsg.id)
-            events.dispatchEvent(
-                new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } })
-            )
+            events.dispatchEvent(new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }))
         }
     },
 
@@ -145,9 +128,7 @@ export const Session = {
     deleteMessage: async (id) => {
         const storyId = Session.requireActive()
         await db.messages.delete(id)
-        events.dispatchEvent(
-            new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } })
-        )
+        events.dispatchEvent(new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }))
     },
 
     /**
@@ -156,8 +137,6 @@ export const Session = {
     editMessage: async (id, newText) => {
         const storyId = Session.requireActive()
         await db.messages.update(id, { text: newText })
-        events.dispatchEvent(
-            new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } })
-        )
+        events.dispatchEvent(new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }))
     },
 }

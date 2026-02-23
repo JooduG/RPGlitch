@@ -27,13 +27,14 @@ description: Global standards for naming, formatting, and operational parameters
 
 ## 4. File System Nomenclature
 
-| Type                 | Case         | Example             |
-| :------------------- | :----------- | :------------------ |
-| **Directories**      | `kebab-case` | `game-engine/`      |
-| **Svelte Component** | `PascalCase` | `StoryPanel.svelte` |
-| **Scripts**          | `snake_case` | `verify_state.js`   |
-| **Assets**           | `kebab-case` | `hero-banner.png`   |
-| **Knowledge**        | `kebab-case` | `01-vision.md`      |
+| Type                   | Case         | Example             |
+| :--------------------- | :----------- | :------------------ |
+| **Directories**        | `kebab-case` | `game-engine/`      |
+| **Svelte Component**   | `PascalCase` | `StoryPanel.svelte` |
+| **Script (Blueprint)** | `PascalCase` | `ContextBroker.js`  |
+| **Script (Process)**   | `snake_case` | `verify_state.js`   |
+| **Assets**             | `kebab-case` | `hero-banner.png`   |
+| **Knowledge**          | `kebab-case` | `01-vision.md`      |
 
 ## 5. Localization & Units
 
@@ -79,3 +80,39 @@ In complex logic files (services, engines), major functional areas must be separ
  * Brief description of the section's responsibility.
  ************************************************************************************/
 ```
+
+## 9. The Literalism Protocol (Anti-Hallucination)
+
+1. **Absolute Grounding**: All technical explanations or documentation MUST map to actual file paths and line numbers.
+2. **LABEL Hypotheticals**: Any "example" code, hypothetical scenarios, or made-up state MUST be labelled as such.
+3. **Verification Obligation**: Before claiming a system behavior, the agent must verify the logic using `view_file` or `view_code_item`.
+4. **Transparency**: If a behavior exists but is undocumented or ambiguous (A3+), the agent MUST report the ambiguity rather than inferring a "likely" implementation.
+
+## 10. Nomenclature & The Boy Scout Rule
+
+### The Two-Realm Standard (Logic vs. Blueprint)
+
+To ensure visual clarity and technical safety, the project enforces a divide:
+
+1.  **Blueprint Realm (PascalCase)**: For things that _define_ structure.
+    - Components (`ProfileTraits.svelte`), Classes (`ContextBroker`), Factories, and Types.
+2.  **Process Realm (snake_case)**: For things that _do_ work or _hold_ state.
+    - Functions (`build_prompt`), Variables (`current_char`), Data Keys (`non_physical`, `signature_color`), and Persistence.
+3.  **Structural Realm (SCREAMING_SNAKE)**: For immutable global config (`ENTITY_DEFINITION`).
+
+### The Boy Scout Rule (Incremental Migration)
+
+> "Leave the code cleaner than you found it."
+
+1.  **Passive Cleanup**: Whenever editing a file, identify adjacent `camelCase` identifiers in the **Process Realm** and convert them to `snake_case`.
+2.  **Stability Priority**: Do not perform massive, system-wide renames of `camelCase` (Reflex level) unless requested. Focus on the file's current scope.
+3.  **Consistency**: In Svelte components, maintain `snake_case` for local `$state` variables to distinguish them from `PascalCase` components and `SCREAMING_SNAKE` constants.
+
+### 🧬 Data Key Standards
+
+1.  **Snake Case Mandate**: All data keys within the **Process Realm** (JSON, IndexedDB, Entity State) MUST use `snake_case`.
+2.  **Hyphen Prohibition**: Hyphenated keys (e.g., `non-physical`) are strictly forbidden as they require bracket notation in JavaScript and break standard property access.
+3.  **Descriptor vs. Key**:
+    - **Data Key**: `non_physical` (snake_case)
+    - **UI Descriptor**: "Non-Physical" (PascalCase/Natural)
+    - **Taxonomy**: `Essence = Physical + Non-Physical`. Note: While the taxonomy uses "Essence", the internal schema key remains `fields` for structural stability.

@@ -1,43 +1,34 @@
 /**
- * @file src/core/narrative/engine.test.js
+ * @file src/core/narrative/narrative_engine.test.js
  * @description Unit tests for the Narrative Engine (RPGlitch Engine v2).
  * Verifies Physics triggers, Tone resolution, and Prompt assembly.
  */
 
+import { SYSTEM_PROMPTS } from "@core/intelligence/intelligence_logic.js"
 import { describe, expect, it } from "vitest"
-import { NarrativeEngine } from "./engine.js"
-import { PromptFactory } from "./prompt.js"
-import { TONE_REGISTRY, resolvePhysics } from "./tones.js"
+import { TONE_REGISTRY } from "./narrative_atoms.js"
+import { NarrativeEngine } from "./narrative_engine.js"
+import { resolvePhysics } from "./narrative_logic.js"
 
 describe("Narrative Engine v2", () => {
     describe("Physics & Tones", () => {
         it("should resolve Default Tone correctly", () => {
             const state = resolvePhysics("regular input", "DEFAULT")
             expect(state.dna.velocity).toBe(50)
-            expect(state.instructions).toContain(
-                TONE_REGISTRY.DEFAULT.instruction
-            )
+            expect(state.instructions).toContain(TONE_REGISTRY.DEFAULT.instruction)
         })
 
         it("should trigger KINETIC reflex on high-velocity input", () => {
             const state = resolvePhysics("I run towards the exit", "DEFAULT")
             expect(state.dna.velocity).toBe(90) // Reflex override
-            expect(
-                state.instructions.some((i) =>
-                    i.includes("[REFLEX:REFLEX_KINETIC]")
-                )
-            ).toBe(true)
+            expect(state.instructions.some((i) => i.includes("[REFLEX:REFLEX_KINETIC]"))).toBe(true)
         })
 
         it("should trigger VIOLENCE reflex on combat input", () => {
             const state = resolvePhysics("I punch him in the face", "DEFAULT")
             expect(state.dna.velocity).toBe(80)
             expect(state.dna.entropy).toBe(60)
-            expect(
-                state.instructions.some((i) =>
-                    i.includes("[REFLEX:REFLEX_VIOLENCE]")
-                )
-            ).toBe(true)
+            expect(state.instructions.some((i) => i.includes("[REFLEX:REFLEX_VIOLENCE]"))).toBe(true)
         })
 
         it("should respect Tone overrides", () => {
@@ -48,39 +39,37 @@ describe("Narrative Engine v2", () => {
     })
 
     describe("Prompt Factory", () => {
-        const factory = new PromptFactory()
         const mockContext = {
             tone: {
                 dna: { velocity: 50, entropy: 20 },
                 instructions: ["Be cool."],
                 motifs: ["rain"],
+                style: "Atmospheric",
             },
-            state: { location: "Bar", time: "Midnight" },
+            state: {
+                chrono: { turn: 5, objective: "Find the key", conflict: "High" },
+                fractal: { title: "Bar", state: { time: "Midnight" } },
+            },
             input: "Hello",
         }
 
         it("should assemble a complete XML prompt", () => {
-            const prompt = factory.assemble(mockContext)
-            expect(prompt).toContain("<GLITCH_ENGINE v2.0>")
-            expect(prompt).toContain('<COGNITIVE_CORE Priority="IMMUTABLE">')
-            expect(prompt).toContain("<PHYSICS_ENGINE>")
+            const prompt = SYSTEM_PROMPTS.simulation(mockContext)
+            expect(prompt).toContain("<GLITCH_ENGINE v3.0>")
+            expect(prompt).toContain("<SYSTEM_LAYER>")
+            expect(prompt).toContain("<COGNITIVE_CORE>")
         })
 
-        it("should include Cognitive Core with DNA stats", () => {
-            const prompt = factory.assemble(mockContext)
-            expect(prompt).toContain("Velocity=50")
-            expect(prompt).toContain("Entropy=20")
+        it("should include Cognitive Core with Mode", () => {
+            const prompt = SYSTEM_PROMPTS.simulation(mockContext)
+            expect(prompt).toContain("Mode: Atmospheric")
         })
 
-        it("should include Physics Rules", () => {
-            const prompt = factory.assemble(mockContext)
-            expect(prompt).toContain("<RULE>Be cool.</RULE>")
-            expect(prompt).toContain("rain")
-        })
-
-        it("should include Epistemic Walls", () => {
-            const prompt = factory.assemble(mockContext)
-            expect(prompt).toContain("The User is a Black Box")
+        it("should include World and Location Layers", () => {
+            const prompt = SYSTEM_PROMPTS.simulation(mockContext)
+            expect(prompt).toContain('<WORLD_LAYER turn="5">')
+            expect(prompt).toContain("<OBJECTIVE>Find the key</OBJECTIVE>")
+            expect(prompt).toContain('<LOCATION_LAYER id="Bar">')
         })
     })
 
@@ -91,7 +80,11 @@ describe("Narrative Engine v2", () => {
             const context = {
                 input: "I shoot the guard",
                 toneKey: "CYBERPUNK",
-                state: { location: "Alley" },
+                type: "prose",
+                state: {
+                    chrono: { turn: 1, objective: "Escape", conflict: "None" },
+                    fractal: { title: "Alley", state: {} },
+                },
             }
 
             const result = await engine.compose(context)
@@ -101,8 +94,8 @@ describe("Narrative Engine v2", () => {
             expect(result.meta.reflexes.length).toBeGreaterThan(0) // Should trigger Violence reflex
 
             // Verify prompt content
-            expect(result.system).toContain('Input: "I shoot the guard"')
-            expect(result.system).toContain("chrome") // Cyberpunk motif
+            expect(result.system).toContain("<INPUT_COMMAND>")
+            expect(result.system).toContain("I shoot the guard")
         })
     })
 })

@@ -11,9 +11,10 @@ function createRuntimeStore() {
             description: "No data stream connected.",
 
             // 🧠 Deep State
-            eternal: { mental: "", physical: "" }, // Renamed from 'forever'
-            present: { mental: "", physical: "" },
-            timeline: { past: "", future: "" },
+            eternal: { non_physical: "", physical: "" }, // Renamed from 'forever'
+            present: { non_physical: "", physical: "" },
+            past: "",
+            future: "",
 
             // 🧪 Dynamics (Dev)
             dynamics: {
@@ -115,11 +116,7 @@ function createRuntimeStore() {
                 if (!story) return
 
                 // 2. Fetch Entities
-                const [userData, aiData, fractalData] = await Promise.all([
-                    entities.get("character", story.userId),
-                    entities.get("character", story.aiId || "unknown_ai"),
-                    entities.get("fractal", story.fractalId),
-                ])
+                const [userData, aiData, fractalData] = await Promise.all([entities.get("character", story.userId), entities.get("character", story.aiId || "unknown_ai"), entities.get("fractal", story.fractalId)])
 
                 if (userData) {
                     state.character = {
@@ -147,17 +144,11 @@ function createRuntimeStore() {
 
         // 🔬 VIBE INJECTION (Called by Engine)
         updateVibe(entityId, newColor, newSeed) {
-            const targets = [
-                state.character,
-                state.userCharacter,
-                state.aiCharacter,
-                state.storyFractal,
-            ]
+            const targets = [state.character, state.userCharacter, state.aiCharacter, state.storyFractal]
             targets.forEach((t) => {
                 if (t && t.id === entityId) {
                     if (newColor) t.visuals.signatureColor = newColor
-                    if (newSeed !== undefined)
-                        t.visuals.profilePictureSeed = newSeed
+                    if (newSeed !== undefined) t.visuals.profilePictureSeed = newSeed
                 }
             })
         },
@@ -232,12 +223,7 @@ function createRuntimeStore() {
             events.addEventListener(EVENTS.ENTITY_UPDATED, (e) => {
                 const { id, ...updates } = e.detail
 
-                const targets = [
-                    state.character,
-                    state.userCharacter,
-                    state.aiCharacter,
-                    state.storyFractal,
-                ]
+                const targets = [state.character, state.userCharacter, state.aiCharacter, state.storyFractal]
 
                 targets.forEach((t) => {
                     if (t && t.id === id) {

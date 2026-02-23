@@ -1,6 +1,6 @@
 <script>
     import { PALETTE } from "@core/engine/config.js"
-    import { LlmService } from "@core/intelligence/service.js"
+    import { LlmService } from "@core/intelligence/intelligence_service.js"
     import { ImageGeneration } from "@media/image-generation.js"
     import { app } from "@state/app.svelte.js"
     import Button from "@ui/atoms/Button.svelte"

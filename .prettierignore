@@ -7,14 +7,15 @@
 **/.git/**
 **/node_modules/**
 /.DS_Store
-/dist
+dist/index.html
+!dist/RPGlitch-left-panel.txt
+!src/RPGlitch-left-panel.txt
 test-results/**
 .gitignore
 mcp.json
 **/archive/**
 /.env
 node_modules
-dist
 .gemini
 package-lock.json
 pnpm-lock.yaml

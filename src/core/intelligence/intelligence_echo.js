@@ -1,11 +1,11 @@
 /**
- * src/core/intelligence/echo.js
+ * src/core/intelligence/intelligence_echo.js
  * 📚 DATA: Temporal Resonance
  * Consolidates short-term history into long-term entity profiles.
  */
 
-import { LlmService } from "@core/intelligence/service.js"
-import { ContextBuilder } from "./context.js"
+import { LlmService } from "@core/intelligence/intelligence_service.js"
+import { PromptBuilder } from "./intelligence_logic.js"
 const error = console.error
 
 export class Echo {
@@ -24,12 +24,8 @@ export class Echo {
             if (!targetEntity) return null
 
             // 1. Build Prompt
-            const builder = new ContextBuilder(null)
-            const payload = await builder.buildDataEchoPrompt(
-                targetEntity,
-                historySlice,
-                role
-            )
+            const builder = new PromptBuilder(null)
+            const payload = await builder.buildMemoryPrompt(targetEntity, historySlice, role)
 
             // 2. Generate
             const response = await LlmService.generate(payload, { json: true })
@@ -38,10 +34,7 @@ export class Echo {
             let data
             try {
                 let jsonText = ""
-                const resObj =
-                    response && typeof response === "object"
-                        ? /** @type {any} */ (response)
-                        : null
+                const resObj = response && typeof response === "object" ? /** @type {any} */ (response) : null
                 if (resObj) {
                     jsonText = resObj.generatedText || resObj.text || ""
                 } else {

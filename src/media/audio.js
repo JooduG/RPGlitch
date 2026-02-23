@@ -5,7 +5,7 @@
  */
 
 import { db } from "@data/db.js"
-import { textToSpeech } from "./speech.svelte.js"
+import { textToSpeech } from "./speech_engine.js"
 
 const STORAGE_KEY = "rpglitch_audio_settings"
 

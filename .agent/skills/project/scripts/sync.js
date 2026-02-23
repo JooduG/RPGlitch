@@ -58,23 +58,14 @@ if (fs.existsSync(eslintConfigPath)) {
 
         if (startIndex !== -1 && endIndex !== -1) {
             const eslintIgnores = [...common, ...(master.linters?.eslint || [])]
-            const formattedIgnores = eslintIgnores
-                .map((line) => `            "${line}",`)
-                .join("\n")
+            const formattedIgnores = eslintIgnores.map((line) => `            "${line}",`).join("\n")
 
-            const newContent =
-                content.slice(0, startIndex + startMarker.length) +
-                "\n        ignores: [\n" +
-                formattedIgnores +
-                "\n        ],\n        " +
-                content.slice(endIndex)
+            const newContent = content.slice(0, startIndex + startMarker.length) + "\n        ignores: [\n" + formattedIgnores + "\n        ],\n        " + content.slice(endIndex)
 
             fs.writeFileSync(eslintConfigPath, newContent)
             console.log("✅ Synced eslint.config.js")
         } else {
-            console.warn(
-                "⚠️  Markers not found in eslint.config.js - skipping injection."
-            )
+            console.warn("⚠️  Markers not found in eslint.config.js - skipping injection.")
         }
     } catch (error) {
         console.error("❌ Failed to sync eslint.config.js:", error.message)
@@ -85,19 +76,13 @@ if (fs.existsSync(eslintConfigPath)) {
 const vscodeSettingsPath = path.resolve(process.cwd(), ".vscode/settings.json")
 if (fs.existsSync(vscodeSettingsPath) && master.vscode) {
     try {
-        const settings = JSON.parse(
-            fs.readFileSync(vscodeSettingsPath, "utf-8")
-        )
+        const settings = JSON.parse(fs.readFileSync(vscodeSettingsPath, "utf-8"))
         settings["files.exclude"] = {
             ...settings["files.exclude"],
             ...master.vscode["files.exclude"],
         }
-        if (
-            master.vscode["markdown.validate.referenceLinks.enabled"] !==
-            undefined
-        ) {
-            settings["markdown.validate.referenceLinks.enabled"] =
-                master.vscode["markdown.validate.referenceLinks.enabled"]
+        if (master.vscode["markdown.validate.referenceLinks.enabled"] !== undefined) {
+            settings["markdown.validate.referenceLinks.enabled"] = master.vscode["markdown.validate.referenceLinks.enabled"]
         }
         fs.writeFileSync(vscodeSettingsPath, JSON.stringify(settings, null, 4))
         console.log("✅ Synced .vscode/settings.json")
@@ -112,15 +97,7 @@ if (fs.existsSync(vscodeSettingsPath) && master.vscode) {
  */
 function verifyPillars() {
     const REPO_ROOT = process.cwd()
-    const pillars = [
-        ".agent/rules/manifesto.md",
-        ".agent/rules/standards.md",
-        ".agent/rules/stack.md",
-        ".agent/rules/security.md",
-        ".agent/rules/directives.md",
-        "package.json",
-        "vite.config.js",
-    ]
+    const pillars = [".agent/rules/01-governance.md", ".agent/rules/02-workflow.md", ".agent/rules/03-physics.md", ".agent/rules/04-security.md", ".agent/rules/05-standards.md", "package.json", "vite.config.js"]
     let missing = []
 
     console.log("⚡ Verifying Pillars...")
@@ -133,9 +110,7 @@ function verifyPillars() {
     }
 
     if (missing.length > 0) {
-        console.error(
-            "⚠️ Environment Corrupt. The following Pillars are missing:"
-        )
+        console.error("⚠️ Environment Corrupt. The following Pillars are missing:")
         missing.forEach((p) => console.error(`   - ${p}`))
         console.error("Halting synchronization.")
         process.exit(1)

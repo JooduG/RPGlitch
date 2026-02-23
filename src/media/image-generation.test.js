@@ -1,4 +1,4 @@
-import { LlmService } from "@core/intelligence/service.js"
+import { LlmService } from "@core/intelligence/intelligence_service.js"
 import { describe, expect, it, vi } from "vitest"
 import { ImageGeneration } from "./image-generation.js"
 
@@ -10,10 +10,10 @@ vi.mock("@core/engine/bus.js", () => ({
 vi.mock("@data/db.js", () => ({
     db: {},
 }))
-vi.mock("@core/intelligence/broker.js", () => ({
+vi.mock("@core/intelligence/intelligence_broker.js", () => ({
     ContextBroker: {},
 }))
-vi.mock("@core/intelligence/service.js", () => ({
+vi.mock("@core/intelligence/intelligence_service.js", () => ({
     LlmService: {
         generate: vi.fn(),
     },

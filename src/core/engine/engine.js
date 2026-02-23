@@ -3,9 +3,9 @@
  * Orchestrates the "Engine" (Logic) and "Session" (State).
  */
 
-import { ContextBroker } from "@core/intelligence/broker.js"
-import { Echo } from "@core/intelligence/echo.js"
-import { LlmService } from "@core/intelligence/service.js"
+import { ContextBroker } from "@core/intelligence/intelligence_broker.js"
+import { Echo } from "@core/intelligence/intelligence_echo.js"
+import { LlmService } from "@core/intelligence/intelligence_service.js"
 import { db } from "@data/db.js"
 import { entities } from "@data/repository.js"
 import { app } from "@state/app.svelte.js" // [R5]
@@ -70,32 +70,19 @@ export const Engine = {
             try {
                 const storyId = Session.requireActive()
                 const messages = await Session.loadMessages(storyId)
-                const unconsolidated = messages.filter(
-                    (m) => !m.meta?.consolidated
-                )
+                const unconsolidated = messages.filter((m) => !m.meta?.consolidated)
 
                 // Trigger every 10 unconsolidated messages
                 if (unconsolidated.length >= 12) {
                     const slice = unconsolidated.slice(0, 10)
-                    app.log(
-                        `Memory Nexus: Consolidating ${slice.length} turns into lore...`,
-                        "system"
-                    )
+                    app.log(`Memory Nexus: Consolidating ${slice.length} turns into lore...`, "system")
 
                     const ai = runtime.aiCharacter
                     if (ai) {
-                        const resonance = await Resonance.memorize(
-                            ai,
-                            slice,
-                            "character"
-                        )
+                        const resonance = await Resonance.memorize(ai, slice, "character")
                         if (resonance?.summary) {
                             // Append to Lore
-                            ai.timeline = ai.timeline || {
-                                past: "",
-                                future: "",
-                            }
-                            ai.timeline.past = `${ai.timeline.past || ""}\n[RESONANCE]: ${resonance.summary}`
+                            ai.past = `${ai.past || ""}\n[RESONANCE]: ${resonance.summary}`
                             await entities.save("character", ai)
                         }
                     }
@@ -143,10 +130,7 @@ export const Engine = {
             Engine.NarrativeDirector.update()
 
             // 2. ASSEMBLE (Modular Context)
-            const payload = await ContextBroker.assemble(
-                options.input || "",
-                "prose"
-            )
+            const payload = await ContextBroker.assemble(options.input || "", "prose")
 
             // 3. GENERATE (LLM Service)
             const response = await LlmService.generate(payload)
@@ -171,8 +155,8 @@ export const Engine = {
     generatePrologue: async (storyId) => {
         // Basic Prologue Logic
         // We can use the same pipeline or specialized one
-        const { ContextBuilder } = await import("@core/intelligence/context.js")
-        const builder = new ContextBuilder(storyId)
+        const { PromptBuilder } = await import("@core/intelligence/intelligence_logic.js")
+        const builder = new PromptBuilder(storyId)
         const payload = await builder.buildPrologue()
 
         if (payload) {
@@ -181,25 +165,22 @@ export const Engine = {
             try {
                 // Basic generation without full Engine overhead
                 const result = await LlmService.generate(payload)
-                const fractalName =
-                    runtime.storyFractal?.name || "Fractal Entity"
+                const fractalName = runtime.storyFractal?.name || "Fractal Entity"
                 await Session.addAiMessage(result, fractalName, "fractal")
 
                 // [FIX] Immediately trigger AI Character follow-up
                 await Engine.generateAiResponse(storyId)
             } finally {
                 engineState.complete()
-                events.dispatchEvent(
-                    new CustomEvent(EVENTS.GENERATION_COMPLETED)
-                )
+                events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED))
             }
         }
     },
 
     triggerEpilogue: async () => {
         const storyId = Session.requireActive()
-        const { ContextBuilder } = await import("@core/intelligence/context.js")
-        const builder = new ContextBuilder(storyId)
+        const { PromptBuilder } = await import("@core/intelligence/intelligence_logic.js")
+        const builder = new PromptBuilder(storyId)
         const payload = await builder.buildEpilogue()
 
         if (payload) {
@@ -210,9 +191,7 @@ export const Engine = {
                 await Session.addAiMessage(result, "Narrator")
             } finally {
                 engineState.complete()
-                events.dispatchEvent(
-                    new CustomEvent(EVENTS.GENERATION_COMPLETED)
-                )
+                events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED))
             }
         }
     },

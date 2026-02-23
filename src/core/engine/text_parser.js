@@ -1,5 +1,5 @@
 /**
- * @file textParser.js
+ * @file text_parser.js
  * @description Logic for parsing raw LLM output into structured UI data.
  * Handles: Think blocks, Image prompts, and Scene Headers.
  */
@@ -24,9 +24,7 @@ export function parseThinkBlock(text) {
  */
 export function cleanImagePrompts(text) {
     if (!text) return ""
-    return text
-        .replace(/<image_prompt[\s\S]*?<\/image_prompt>/gi, "")
-        .replace(/<image_prompt[^>]*\/>/gi, "")
+    return text.replace(/<image_prompt[\s\S]*?<\/image_prompt>/gi, "").replace(/<image_prompt[^>]*\/>/gi, "")
 }
 
 /**
@@ -38,9 +36,7 @@ export function parseSceneHeader(text) {
     if (!text) return { content: "", header: null }
 
     // Pattern: 『 [Location] · [Time] · [Weather] 』
-    const match = text.match(
-        /^『\s*\[(.*?)]\s*·\s*\[(.*?)]\s*·\s*\[(.*?)]\s*』/
-    )
+    const match = text.match(/^『\s*\[(.*?)]\s*·\s*\[(.*?)]\s*·\s*\[(.*?)]\s*』/)
 
     if (match) {
         return {
