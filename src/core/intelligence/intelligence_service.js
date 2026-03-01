@@ -1,76 +1,119 @@
-/************************************************************************************
- * src/core/intelligence/intelligence_service.js
- * Service to abstract the Perchance AI plugin (`window.ai`).
- * Handles formatting, error management, and plugin communication.
- ************************************************************************************/
+/**
+ * @file src/core/intelligence/intelligence_service.js
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * 🔌 LLM SERVICE  —  The Transport Layer
+ * ─────────────────────────────────────────────────────────────────────────────
+ *
+ * PURPOSE
+ * LlmService is the single point of contact with the Perchance AI plugin
+ * (window.ai). All callers — the engine, the enhancement UI, Echo — route here.
+ *
+ * RESPONSIBILITIES
+ * - Streaming : Connects token output to app.startStream / updateStream / endStream.
+ * - Sanitization: Strips quotes, code fences, and conversational filler.
+ * - Resilience : Classifies network errors and re-throws typed messages.
+ *
+ * WHAT IT IS NOT
+ * LlmService has no opinion on prompt content. It injects no rules and knows
+ * nothing about the narrative. It only sends and receives.
+ */
 
 import { ERROR_MESSAGES } from "@core/engine/config.js"
-import { RULES, SYSTEM_PROMPTS } from "@core/intelligence/intelligence_logic.js"
+import { SYSTEM_PROMPTS } from "@core/intelligence/narrative_logic.js"
 import { app } from "@state/app.svelte.js"
 
-const utilsError = console.error
+/************************************************************************************
+ * 🧩 [SECTION: SANITIZATION]
+ * ----------------------------------------------------------------------------------
+ * Shared text-cleaning applied post-LLM to ensure clean, diegetic output.
+ * Strips artifacts that Perchance AI frequently adds: code fences, filler
+ * phrases, and outer quotation marks.
+ ************************************************************************************/
+
+/**
+ * Strips code fences, outer quotes, and common conversational filler from LLM output.
+ * @param {string} text
+ * @returns {string}
+ */
+function sanitize(text) {
+    return text
+        .replace(/^["']|["']$/g, "")
+        .replace(/^(here is|sure|certainly|i can help|enhanced text:|the enhanced text).*?:/i, "")
+        .replace(/^```.*?[\r\n]/gm, "")
+        .replace(/```$/g, "")
+        .trim()
+}
+
+/************************************************************************************
+ * 🧩 [SECTION: LLM SERVICE]
+ * ----------------------------------------------------------------------------------
+ * The primary abstraction for window.ai. All prompt execution flows through here.
+ ************************************************************************************/
 
 export const LlmService = {
-    /************************************************************************************
-     * ✨ ENHANCEMENT
-     * ----------------------------------------------------------------------------------
-     * The High-Fidelity Prose Enhancer.
-     * Transforms draft text into visceral, first-person narrative
-     * based on field-specific directives from the Entity Definition.
-     ************************************************************************************/
-
-    // Enhancement Engine
+    /**
+     * HIGH-FIDELITY PROSE ENHANCER
+     * Transforms draft text into visceral, first-person narrative based on
+     * field-specific directives from the Entity Definition.
+     *
+     * @param {string} text     - The draft text to enhance.
+     * @param {string} fieldKey - Dot-notation field key (e.g. "eternal.non_physical").
+     * @returns {Promise<string>}
+     */
     async enhance(text, fieldKey) {
-        // 1. Resolve prompt payload using the intelligence layer
         const payload = {
             system: SYSTEM_PROMPTS.enhancement({ role: fieldKey, content: text, context: "" }),
             messages: [],
         }
 
-        // 2. Execute generation
-        let result = await this.generate(payload, { silent: true })
-
-        if (typeof result === "string") {
-            result = result
-                .replace(/^["']|["']$/g, "")
-                .replace(/^(here is|sure|certainly|i can help|enhanced text:|the enhanced text).*?:/i, "")
-                .replace(/^```.*?[\r\n]/gm, "")
-                .replace(/```$/g, "")
-                .trim()
-        }
-
-        return result
+        // Use raw: true so generate() returns unprocessed output —
+        // enhance() owns its own sanitization pass so it isn't double-stripped.
+        const result = await this.generate(payload, { silent: true, raw: true })
+        return typeof result === "string" ? sanitize(result) : result
     },
 
-    /************************************************************************************
-     * 👁️‍🗨️ CORE GENERATION
-     * ----------------------------------------------------------------------------------
-     * The primary abstraction for `window.ai`. Handles streaming state,
+    /**
+     * CORE GENERATION
+     * The primary abstraction for window.ai. Handles streaming state,
      * network resilience, and raw token orchestration.
-     ************************************************************************************/
-
+     *
+     * @param {Object}  payload                       - The prompt payload.
+     * @param {string}  payload.system                - The system prompt string.
+     * @param {Array}   [payload.messages]            - Conversation history.
+     * @param {string}  [payload.startWith]           - Text to prepend to the model response.
+     * @param {string}  [payload.nodeId]              - UI node ID for the stream.
+     * @param {Object}  [payload.params]              - Generation parameters.
+     * @param {Array}   [payload.stopSequences]       - Stop sequences.
+     * @param {Object}  [options]                     - Runtime overrides.
+     * @param {boolean} [options.silent]              - Suppress streaming UI and console errors.
+     * @param {boolean} [options.raw]                 - Skip post-processing sanitization.
+     * @param {number}  [options.temperature]         - Override temperature.
+     * @param {number}  [options.top_p]               - Override top_p.
+     * @param {number}  [options.repetition_penalty]  - Override repetition penalty.
+     * @param {number}  [options.maxTokens]           - Override max tokens.
+     * @param {string}  [options.model]               - Override model.
+     * @param {Function}[options.onToken]             - Per-token streaming callback.
+     * @param {boolean} [options.json]               - Request structured JSON output.
+     * @param {AbortSignal} [options.signal]          - Abort signal for cancellation.
+     * @returns {Promise<string>}
+     */
     generate: async (payload, options = {}) => {
         if (!window.ai) {
             const msg = "Perchance AI plugin not available."
-            if (!options.silent) utilsError(msg)
+            if (!options.silent) console.error(msg)
             throw new Error(msg)
         }
 
-        // 1. Pre-flight: Enforce Grounding Rule at the service gate
-        let system = payload.system || ""
-        if (!system.includes("[RULE: GROUNDING]")) {
-            system = `${RULES.GROUNDING}\n\n${system}`.trim()
-        }
+        // 1. Format conversation history into a flat readable string
+        const chat_history = LlmService._format_history(payload.messages || [])
 
-        // 2. Format History (Legacy Adapter)
-        const chatHistory = LlmService._formatHistory(payload.messages || [])
-
-        // 3. Construct Final Instruction
-        const instruction = [system, chatHistory ? `\n\n[CONVERSATION HISTORY]\n${chatHistory}` : "", payload.startWith ? `\n\n[START RESPONSE WITH]\n${payload.startWith}` : ""].filter(Boolean).join("\n\n")
+        // 2. Assemble the final instruction block
+        const instruction = [payload.system || "", chat_history ? `\n\n[CONVERSATION HISTORY]\n${chat_history}` : "", payload.startWith ? `\n\n[START RESPONSE WITH]\n${payload.startWith}` : ""].filter(Boolean).join("\n\n")
 
         try {
-            // 4. Prepare Plugin Options
-            const genOptions = {
+            // 3. Prepare generation parameters
+            const gen_options = {
                 temperature: options.temperature ?? payload.params?.temperature ?? 0.8,
                 top_p: options.top_p ?? payload.params?.top_p,
                 repetition_penalty: options.repetition_penalty ?? payload.params?.repetition_penalty,
@@ -81,34 +124,23 @@ export const LlmService = {
                 silent: options.silent,
             }
 
-            // 5. STREAMING HANDLER
-            const onToken = (chunk) => {
+            // 4. Wire streaming to the app layer
+            const on_token = (chunk) => {
                 if (!options.silent) {
-                    if (!app.streaming.active) {
-                        app.startStream(payload.nodeId || "temp")
-                    }
+                    if (!app.streaming.active) app.startStream(payload.nodeId || "temp")
                     app.updateStream(chunk)
                 }
-
                 if (options.onToken) options.onToken(chunk)
             }
 
-            // 6. Call Plugin
-            let result = await window.ai(instruction, {
-                ...genOptions,
-                onToken,
-            })
+            // 5. Execute
+            let result = await window.ai(instruction, { ...gen_options, onToken: on_token })
 
             if (!options.silent) app.endStream()
 
-            // 7. Standardized Post-Process (Response Sanitization)
+            // 6. Sanitize unless caller opted out with raw: true
             if (typeof result === "string" && !options.raw) {
-                result = result
-                    .replace(/^["']|["']$/g, "") // Strip outer quotes
-                    .replace(/^(here is|sure|certainly|i can help|enhanced text:|the enhanced text).*?:/i, "") // Strip conversational filler
-                    .replace(/^```.*?[\r\n]/gm, "") // Strip code fences
-                    .replace(/```$/g, "")
-                    .trim()
+                result = sanitize(result)
             }
 
             return result
@@ -116,13 +148,13 @@ export const LlmService = {
             if (!options.silent) app.endStream()
 
             if (options.silent) {
-                console.warn("[LlmService] Silent Generation Error (Suppressed):", err)
+                console.warn("[LlmService] Silent generation error (suppressed):", err)
                 throw err
             }
 
-            const errString = String(err)
-            if (errString.includes("stream keep alive") || errString.includes("timeout")) {
-                utilsError("[LlmService] Network Error:", err)
+            const err_string = String(err)
+            if (err_string.includes("stream keep alive") || err_string.includes("timeout")) {
+                console.error("[LlmService] Network error:", err)
                 throw new Error(`${ERROR_MESSAGES.CONNECTION_LOST}`)
             }
 
@@ -130,10 +162,15 @@ export const LlmService = {
         }
     },
 
-    _formatHistory: (messages) =>
+    /**
+     * Formats message history into a plain readable string for the instruction block.
+     * @param {Array<{role: string, content?: string, text?: string, characterName?: string}>} messages
+     * @returns {string}
+     */
+    _format_history: (messages) =>
         messages
             .map((m) => {
-                let label = m.characterName || (m.role === "user" ? "User" : "Character")
+                const label = m.characterName || (m.role === "user" ? "User" : "Character")
                 const text = m.content || m.text || ""
                 return `${label}: ${text}`
             })

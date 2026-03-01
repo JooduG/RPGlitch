@@ -32,9 +32,6 @@ export class AppStore {
     simulation = $state({
         loading: false, // STASIS: True when Chrono is processing
         turn: 0, // CHRONO: Current time step
-        chrono: {
-            currentConflict: null,
-        },
     })
 
     // 🔮 FATE SYSTEM (Fortune)
@@ -45,11 +42,7 @@ export class AppStore {
     })
 
     // 🌩️ UI TENSION (Reactive Intensity)
-    tension = $derived(
-        engineState.phase === "generating" || engineState.phase === "locked"
-            ? 1
-            : 0
-    )
+    tension = $derived(engineState.phase === "generating" || engineState.phase === "locked" ? 1 : 0)
 
     // 🎛️ SETTINGS (User Preferences)
     settings = $state({
@@ -61,9 +54,7 @@ export class AppStore {
     })
 
     // 1. LOBBY READINESS (Derived Traceable Logic)
-    canStart = $derived(
-        this.settings.devMode || (this.selectedAi && this.selectedUser)
-    )
+    canStart = $derived(this.settings.devMode || (this.selectedAi && this.selectedUser))
 
     // Legacy compat getter
     get lobbyReady() {
@@ -114,9 +105,7 @@ export class AppStore {
 
         // [STABILITY] Defense against lost context or uninitialized state
         if (!this || !this.settings) {
-            console.error(
-                "[Security] saveSettings: App context or settings lost."
-            )
+            console.error("[Security] saveSettings: App context or settings lost.")
             return
         }
 

@@ -27,8 +27,8 @@ export const premade = {
                 physical: "Stands clad in battle-scarred plasteel armor, fingers coiled around the hilt of a humming light-blade as his tattered cape snaps in the high-altitude winds.",
                 non_physical: "Hired to protect merchant caravans crossing the perilous skybridges of Neo Arcadia.",
             },
-            past: "Once street tinkerer who reverse-engineered a fallen drone.",
-            future: "Fated to sever Source that powers city itself.",
+            past: { essence: "Once street tinkerer who reverse-engineered a fallen drone." },
+            future: { essence: "Fated to sever Source that powers city itself." },
         },
         {
             id: "entity-C2",
@@ -51,8 +51,8 @@ export const premade = {
                 physical: "Cradles a lute carved from light-drinking void-wood, her vibrant silk robes partially obscured by the weight of a heavy, weather-beaten travel cloak.",
                 non_physical: "Performing in crowded markets, using her songs to mend broken hearts and stir the fires of rebellion.",
             },
-            past: "Exiled from royal conservatory for forbidden harmonics.",
-            future: "Composes Anthem that ends century-long war.",
+            past: { essence: "Exiled from royal conservatory for forbidden harmonics." },
+            future: { essence: "Composes Anthem that ends century-long war." },
         },
         {
             id: "entity-C3",
@@ -75,8 +75,8 @@ export const premade = {
                 physical: "Outfitted for infiltration in a form-fitting leather stealth suit and a belt of professional lockpicks, their eyes shielded by polished brass goggles.",
                 non_physical: "Stealing artifacts from the elite to buy the freedom of their aging creator.",
             },
-            past: "Built in a hidden workshop as a prototype companion.",
-            future: "Breaks their mainspring to stop a time heist.",
+            past: { essence: "Built in a hidden workshop as a prototype companion." },
+            future: { essence: "Breaks their mainspring to stop a time heist." },
         },
         {
             id: "entity-C4",
@@ -99,8 +99,8 @@ export const premade = {
                 physical: "Drifts through the neon fog in tattered obsidian robes, facial features entirely lost behind a veil of swirling, unnatural smoke.",
                 non_physical: "Brokering secrets between forbidden guilds through the use of living, sentient silhouettes.",
             },
-            past: "Swallowed by a rift and returned with a voice not their own.",
-            future: "Merges with the Night to blind an invading fleet.",
+            past: { essence: "Swallowed by a rift and returned with a voice not their own." },
+            future: { essence: "Merges with the Night to blind an invading fleet." },
         },
         {
             id: "entity-C5",
@@ -129,8 +129,11 @@ export const premade = {
                 physical: "Oiled skin that glistens under the spotlight, his muscles pumped and heavily vascular from a recent patrol.",
                 non_physical: "He is in a state of high-alert, his mind hyper-aware and adrenaline-primed as he optimizes his every movement for maximum audience engagement.",
             },
-            past: "Born to Nova City’s underground circuit, Orion is a volatile cocktail of charisma and crisis. He rose to fame at fourteen by halting a collapsing monorail with his bare hands, cementing his role as a performer of salvation. His history is defined by the Glitch Wars—not just the battles, but the kinky, mirrored-server-room clashes with his nemesis that left scars deeper than physical wounds.",
-            future: "Orion seeks to establish absolute dominance through physical prowess, terrified that losing his relevance would be a fate worse than death itself.",
+            past: {
+                essence:
+                    "Born to Nova City’s underground circuit, Orion is a volatile cocktail of charisma and crisis. He rose to fame at fourteen by halting a collapsing monorail with his bare hands, cementing his role as a performer of salvation. His history is defined by the Glitch Wars—not just the battles, but the kinky, mirrored-server-room clashes with his nemesis that left scars deeper than physical wounds.",
+            },
+            future: { essence: "Orion seeks to establish absolute dominance through physical prowess, terrified that losing his relevance would be a fate worse than death itself." },
             customData: {
                 plot: {
                     active: ["Secure sponsorship deal with 'Titan Supplements'.", "Investigate mysterious power drain in Sector 7."],
@@ -166,8 +169,11 @@ export const premade = {
                     "He is clad in a modified, cosplay-grade sailor uniform, featuring a navy-blue collar over a pleated schoolgirl skirt that barely conceals a neon pink thong. His muscular legs are finished with thigh-high socks, while a wrist-mounted holographic projector and a technological 'moon power' tiara signify his mastery of the grid.",
                 non_physical: "Constantly scanning for patterns to disrupt, Glitch is currently focused on provoking his target into a reactive state, deriving a thrill from the ensuing chaos.",
             },
-            past: "Raised by rogue neural-hackers in the slums of Grid-7, Glitch speaks in the manic laughter of someone who weaponized dopamine loops before they could even walk. Bio-augment accidents left his abilities prone to unstable glitches, a flaw he turned into a signature weapon. His rivalry with Orion turned from competitive hacking to an eroticized addiction to the rush of being physically overpowered.",
-            future: "He seeks total ownership by dominant cross-fractal entities, craving for his very surrender to become a viral spectacle that erases any remnant of his former, invisible self.",
+            past: {
+                essence:
+                    "Raised by rogue neural-hackers in the slums of Grid-7, Glitch speaks in the manic laughter of someone who weaponized dopamine loops before they could even walk. Bio-augment accidents left his abilities prone to unstable glitches, a flaw he turned into a signature weapon. His rivalry with Orion turned from competitive hacking to an eroticized addiction to the rush of being physically overpowered.",
+            },
+            future: { essence: "He seeks total ownership by dominant cross-fractal entities, craving for his very surrender to become a viral spectacle that erases any remnant of his former, invisible self." },
             customData: {
                 plot: {
                     active: ["Hide encrypted data shard from Orion.", "Fix heat-sink in cyberdeck before next run."],
@@ -196,8 +202,8 @@ export const premade = {
                 physical: "The sky is sunny with scattered, drifting clouds, and a gentle breeze carries a visible, magical aura that shimmers across the islands.",
                 non_physical: "Merchant airships trade between the isles while seasonal storms continue to hide the deepest, most dangerous ruins.",
             },
-            past: "Sky anchors forged by archmages after the Great Sundering.",
-            future: "The leylines unravel unless the lost keystone is found.",
+            past: { essence: "Sky anchors forged by archmages after the Great Sundering." },
+            future: { essence: "The leylines unravel unless the lost keystone is found." },
         },
         {
             id: "entity-F2",
@@ -220,8 +226,8 @@ export const premade = {
                 physical: "The metropolis is choked by heavy smog and acid rain, with the neon glow of the upper levels reflecting brilliantly on the wet, rain-slicked pavement below.",
                 non_physical: "Rival neon districts vie for total control over the Somnus Grid, the digital network that powers the city's dreams.",
             },
-            past: "Founded by lucid engineers who stabilized shared dreaming.",
-            future: "A city-wide insomnia threatens to collapse reality seams.",
+            past: { essence: "Founded by lucid engineers who stabilized shared dreaming." },
+            future: { essence: "A city-wide insomnia threatens to collapse reality seams." },
         },
         {
             id: "entity-F3",
@@ -245,8 +251,8 @@ export const premade = {
                 physical: "The city is currently gripped by heavy thunderstorms with gale-force winds and ionizing fog that reduces visibility to a few meters, while the polychromatic alloy supports of the buildings hum with an unsettling resonance.",
                 non_physical: "The city pulses with a kinetic, algorithmic energy as hero-villain dynamics flicker between flirtation and fracture in the plasma glow of holographic bar smoke.",
             },
-            past: "Established as a modular sanctuary for those fleeing persecution, the city has evolved from a series of eco-habitats into a sprawling, tech-heavy haven defined by hero/foe rivalries and superconductive 'rune-tech'.",
-            future: "Nova City is accelerating toward a hyper-saturated apex of hedonistic defiance, where the lines between gladiatorial combat and erotic performance blur into a singular, sovereign surrender.",
+            past: { essence: "Established as a modular sanctuary for those fleeing persecution, the city has evolved from a series of eco-habitats into a sprawling, tech-heavy haven defined by hero/foe rivalries and superconductive 'rune-tech'." },
+            future: { essence: "Nova City is accelerating toward a hyper-saturated apex of hedonistic defiance, where the lines between gladiatorial combat and erotic performance blur into a singular, sovereign surrender." },
         },
         {
             id: "entity-F4",
@@ -268,8 +274,8 @@ export const premade = {
                 physical: "The digital interface is clean and responsive, showing a nearly full battery and a stable connection to the mobile network.",
                 non_physical: "Fully operational and synchronized with the fractal's primary data streams.",
             },
-            past: "Chat history cleared.",
-            future: "Awaiting new messages.",
+            past: { essence: "Chat history cleared." },
+            future: { essence: "Awaiting new messages." },
         },
     ],
 }

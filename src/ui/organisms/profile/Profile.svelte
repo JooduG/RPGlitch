@@ -1,5 +1,5 @@
 <script>
-    import { entities } from "@data/repository.js"
+    import { entities } from "@/data/repository.js"
     import { app } from "@state/app.svelte.js"
     import { runtime } from "@state/runtime.svelte.js"
     import { themeStore } from "@theme/palette.svelte.js"
@@ -8,8 +8,8 @@
     import DOMPurify from "dompurify"
     // Modular Components
     import ProfileFooter from "./ProfileFooter.svelte"
+    import ProfileFragments from "./ProfileFragments.svelte"
     import ProfileHeader from "./ProfileHeader.svelte"
-    import ProfileTraits from "./ProfileTraits.svelte"
     import ProfileWings from "./ProfileWings.svelte"
 
     let { entityId, entityType } = $props()
@@ -28,9 +28,7 @@
 
                 // Synchronization logic for rows
                 if (options.syncId) {
-                    const siblings = document.querySelectorAll(
-                        `[data-sync-id="${options.syncId}"]`
-                    )
+                    const siblings = document.querySelectorAll(`[data-sync-id="${options.syncId}"]`)
                     let maxHeight = 0
                     siblings.forEach((s) => {
                         if (s instanceof HTMLElement) {
@@ -68,9 +66,7 @@
     let activeField = $state({ key: "visual-prompt", label: "Image Prompt" })
 
     // Character data
-    let char = $state(
-        themeStore.normalizeEntity(app.editingEntity || runtime.character)
-    )
+    let char = $state(themeStore.normalizeEntity(app.editingEntity || runtime.character))
 
     // Ensure prompt exists for CreativeWing
     $effect(() => {
@@ -80,9 +76,7 @@
     })
 
     // Visuals: Bind directly to character data
-    let signatureColor = $derived(
-        char.visuals?.signatureColor || themeStore.getSignatureColor(char)
-    )
+    let signatureColor = $derived(char.visuals?.signatureColor || themeStore.getSignatureColor(char))
     let signatureRgb = $derived(themeStore.hexToRgb(signatureColor))
 
     // Reset focus tracking when exiting edit mode
@@ -111,11 +105,7 @@
             if (app.view === "lobby") {
                 const eid = char.id
                 // 1. Refresh Lists
-                const [ais, users, fractals] = await Promise.all([
-                    entities.list("character"),
-                    entities.list("character"),
-                    entities.list("fractal"),
-                ])
+                const [ais, users, fractals] = await Promise.all([entities.list("character"), entities.list("character"), entities.list("fractal")])
                 app.aiList = ais
                 app.userList = users
                 app.fractalList = fractals
@@ -146,10 +136,7 @@
         if (!confirm("Are you sure you want to delete this entity?")) return
 
         try {
-            await runtime.deleteEntity(
-                entityType || "character",
-                entityId || char.id
-            )
+            await runtime.deleteEntity(entityType || "character", entityId || char.id)
             handleClose()
         } catch (err) {
             console.error("Failed to delete entity:", err)
@@ -159,29 +146,20 @@
     // --- UTILITIES ---
     function getValue(obj, path) {
         if (!path) return ""
-        return (
-            path.split(".").reduce((acc, part) => acc && acc[part], obj) || ""
-        )
+        return path.split(".").reduce((acc, part) => acc && acc[part], obj) || ""
     }
 
     function setValue(obj, path, val) {
         const keys = path.split(".")
         const last = keys.pop()
-        const target = keys.reduce(
-            (acc, key) => (acc[key] = acc[key] || {}),
-            obj
-        )
+        const target = keys.reduce((acc, key) => (acc[key] = acc[key] || {}), obj)
         target[last] = val
     }
 
     function handleFocusOut(e) {
         setTimeout(() => {
             const active = document.activeElement
-            const isInput =
-                active instanceof HTMLInputElement ||
-                active instanceof HTMLTextAreaElement ||
-                (active instanceof HTMLElement &&
-                    active.contentEditable === "true")
+            const isInput = active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement || (active instanceof HTMLElement && active.contentEditable === "true")
             const isWing = active?.closest(".wing-left, .wing-right")
             if (!isInput && !isWing && busyFields.size === 0) {
                 activeField = { key: "visual-prompt", label: "Image Prompt" }
@@ -199,11 +177,7 @@
     }
 
     function handleBackgroundClick(e) {
-        if (
-            !e.target.closest(
-                "textarea, input, button, .swatch, .wing-left, .wing-right, .profile-presentation"
-            )
-        ) {
+        if (!e.target.closest("textarea, input, button, .swatch, .wing-left, .wing-right, .profile-presentation")) {
             if (isEditing) {
                 isEditing = false
                 activeField = { key: "visual-prompt", label: "Image Prompt" }
@@ -219,55 +193,18 @@
 
 {#if char && char.id}
     <Modal variant="profile" onclose={handleClose}>
-        <div
-            class="profile-container"
-            class:editing={isEditing}
-            class:dev-mode={app.settings.devMode}
-            class:show-dev-wing={app.settings.devMode}
-            onclick={handleBackgroundClick}
-            onfocusout={handleFocusOut}
-            role="presentation"
-            data-testid="profile-container"
-            data-is-editing={isEditing}
-        >
-            <ProfileWings
-                bind:char
-                {isEditing}
-                bind:busyFields
-                bind:activeField
-            />
+        <div class="profile-container" class:editing={isEditing} class:dev-mode={app.settings.devMode} class:show-dev-wing={app.settings.devMode} onclick={handleBackgroundClick} onfocusout={handleFocusOut} role="presentation" data-testid="profile-container" data-is-editing={isEditing}>
+            <ProfileWings bind:char {isEditing} bind:busyFields bind:activeField />
 
-            <div
-                class="profile-presentation"
-                style="--signature-color: {signatureColor}; --signature-rgb: {signatureRgb};"
-            >
+            <div class="profile-presentation" style="--signature-color: {signatureColor}; --signature-rgb: {signatureRgb};">
                 <div class="left">
                     <ProfilePicture entity={char} />
                 </div>
 
                 <main class="right">
-                    <ProfileHeader
-                        bind:char
-                        {isEditing}
-                        {renderMarkdown}
-                        {autoResize}
-                    />
-                    <ProfileTraits
-                        bind:char
-                        {isEditing}
-                        {getValue}
-                        {setValue}
-                        {autoResize}
-                        {busyFields}
-                        {renderMarkdown}
-                        bind:activeField
-                    />
-                    <ProfileFooter
-                        bind:isEditing
-                        {isSaving}
-                        {handleSave}
-                        {handleDelete}
-                    />
+                    <ProfileHeader bind:char {isEditing} {renderMarkdown} {autoResize} />
+                    <ProfileFragments bind:char {isEditing} {getValue} {setValue} {autoResize} {busyFields} {renderMarkdown} bind:activeField />
+                    <ProfileFooter bind:isEditing {isSaving} {handleSave} {handleDelete} />
                 </main>
             </div>
         </div>
@@ -295,11 +232,7 @@
         order: 2;
         width: 56rem;
         height: 100%;
-        background: color-mix(
-            in srgb,
-            var(--glass-l),
-            var(--signature-color) 12%
-        );
+        background: color-mix(in srgb, var(--glass-l), var(--signature-color) 12%);
         border-radius: var(--spacing-l);
         box-shadow:
             0 30px 60px rgba(0, 0, 0, 0.8),

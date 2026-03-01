@@ -2,33 +2,33 @@
 
 ## Phase 1: Blueprint Alignment
 
-- [x] Audit `ENTITY_SCHEMA` in `schema.js`. [checkpoint: `ed9d0265`]
-- [x] Ensure clear separation between `eternal`, `past`, and `temporal` fields. [checkpoint: `ed9d0265`]
-- [x] Verify `FIELD_REGISTRY` consistency. [checkpoint: `ed9d0265`]
+- [x] Audit `ENTITY_DEFINITION` in `intelligence_registry.js`. [checkpoint: `recon-pi-01`]
+- [x] Ensure clear separation between `eternal`, `present`, `past`, and `future` fields. [checkpoint: `recon-pi-01`]
+- [x] Verify `FIELD_REGISTRY` consistency in `intelligence_registry.js`. [checkpoint: `recon-pi-01`]
 
 ## Phase 2: Kernel Optimization
 
-- [x] Refactor `context.js` prompts for brevity. [checkpoint: `recon-pi-02`]
+- [x] Refactor `intelligence_logic.js` prompts for brevity. [checkpoint: `recon-pi-02`]
 - [x] Implement strict `Literalism Protocol` enforcement in system prompts. [checkpoint: `recon-pi-02`]
-- [x] Modularize `Screenplay` Kernels. [checkpoint: `recon-pi-02`]
+- [x] Modularize `Screenplay` Kernels in `intelligence_logic.js`. [checkpoint: `recon-pi-02`]
 
 ## Phase 3: Assembly Refactor
 
-- [ ] Review `ContextBroker` payload assembly in `broker.js`.
+- [ ] Review `PromptBuilder` payload assembly in `intelligence_broker.js`.
 - [ ] Optimize `LexicalFilter` for better context sorting.
 - [ ] Validate `DiegeticFilter` effectiveness.
 
 ## Phase 4: Gateway Hardening
 
-- [ ] Audit `LlmService` (service.js) for unified enhancement routing.
+- [ ] Audit `LlmService` (`intelligence_service.js`) for unified enhancement routing.
 - [ ] Ensure robust error handling and token management.
 
 ## Phase 5: Pipeline Integration
 
-- [ ] Verify `VisualsService` (image-generation.js) polish logic.
-- [ ] Ensure `EchoService` (echo.js) summarization accuracy.
+- [ ] Verify `ImageGeneration` (`image_engine.js`) polish logic.
+- [ ] Ensure `EchoService` (`intelligence_echo.js`) summarization accuracy.
 
 ## Phase 6: Orchestration Validation
 
-- [ ] Verify `Engine` (engine.js) consolidation loop.
+- [ ] Verify `Engine` (`engine.js`) and `narrative_engine.js` consolidation loop.
 - [ ] Perform end-to-end integration tests.

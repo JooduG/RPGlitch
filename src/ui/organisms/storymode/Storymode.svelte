@@ -1,5 +1,5 @@
 <script>
-    import { entities } from "@data/repository.js"
+    import { entities } from "@/data/repository.js"
     import { app } from "@state/app.svelte.js"
     import { runtime } from "@state/runtime.svelte.js"
     import { engineState } from "@state/status.svelte.js"

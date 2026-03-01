@@ -53,8 +53,8 @@ export const AestheticRouter = {
      */
     select(characterData = {}) {
         const physical = (characterData.physical || "").toLowerCase()
-        const traits = (characterData.traits || []).map((t) => t.toLowerCase())
-        const haystack = `${physical} ${traits.join(" ")}`
+        const fragments = (characterData.fragments || []).map((f) => f.toLowerCase())
+        const haystack = `${physical} ${fragments.join(" ")}`
 
         const lists = {
             styles: getRpgList("styles"),
@@ -126,7 +126,7 @@ Constraint: **STRICTLY NO CHARACTERS.** This image MUST NOT contain any humans, 
                 ctxBlock = `
 [CONTEXT: USER (AVATAR)]
 Identity: ${user?.name || "User"}
-Base Form (Forever): ${user?.forever?.physical || "Unknown"}
+Base Form (Eternal): ${user?.eternal?.physical || "Unknown"}
 Dynamic State (Present): ${user?.present?.physical || "Standard outfit"}
 Constraint: **SOLO PROTOCOL.** This image MUST feature ONLY the User. Do NOT include backgrounds characters or the AI character.
 `
@@ -138,7 +138,7 @@ Constraint: **SOLO PROTOCOL.** This image MUST feature ONLY the User. Do NOT inc
                 ctxBlock = `
 [CONTEXT: AI_ENTITY (CHARACTER)]
 Identity: ${ai?.name || "AI"}
-Base Form (Forever): ${ai?.forever?.physical || "Unknown"}
+Base Form (Eternal): ${ai?.eternal?.physical || "Unknown"}
 Dynamic State (Present): ${ai?.present?.physical || "Standard outfit"}
 Constraint: **SOLO PROTOCOL.** This image MUST feature ONLY the AI. Do NOT include backgrounds characters or the User.
 `
@@ -163,7 +163,7 @@ ${ctxBlock}
 [INSTRUCTIONS: ${mode.toUpperCase()}]
 ${
     mode === "fetch"
-        ? "Objective: Scrape the provided Description/Profile to generate a brand new photorealistic portrait prompt. Focus on physical traits, lighting, and cinematic composition."
+        ? "Objective: Scrape the provided Description/Profile to generate a brand new photorealistic portrait prompt. Focus on physical fragments, lighting, and cinematic composition."
         : mode === "enhance"
           ? "Objective: Refine the User's raw prompt into a high-fidelity visual description. Upgrade lighting, texture, and technical descriptors while preserving original intent."
           : "Objective: Standard operation. Convert the User's intent into a single impactful image prompt."

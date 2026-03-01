@@ -1,4 +1,4 @@
-import { events, EVENTS } from "@core/engine/bus.js"
+import { events, EVENTS } from "@core/engine/bus.svelte.js"
 import { Session } from "@core/engine/session-driver.js"
 
 // 📜 SCRIBE: Message State Manager

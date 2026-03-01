@@ -1,6 +1,7 @@
 import { LlmService } from "@core/intelligence/intelligence_service.js"
 import { describe, expect, it, vi } from "vitest"
-import { ImageGeneration } from "./image-generation.js"
+import { ImageGeneration } from "./image_engine.js"
+import { PromptEngine } from "./image_prompts.js"
 
 // Mock dependencies
 vi.mock("@core/engine/bus.js", () => ({
@@ -90,7 +91,7 @@ describe("ImageGeneration", () => {
 
             const characterData = {
                 physical: "A cyberpunk gritty cyborg with a neon glow",
-                traits: ["Cybernetic"],
+                fragments: ["Cybernetic"],
             }
 
             // Mock LlmService.generate to see the system prompt
@@ -98,7 +99,7 @@ describe("ImageGeneration", () => {
                 return payload.system
             })
 
-            const result = await ImageGeneration.optimizeImagePrompt("A character", characterData)
+            const result = await PromptEngine.optimize("A character", characterData)
 
             // Should contain matches
             expect(result).toContain("Cyberpunk")
@@ -125,7 +126,7 @@ describe("ImageGeneration", () => {
                 return payload.system
             })
 
-            const result = await ImageGeneration.optimizeImagePrompt("A flower", characterData)
+            const result = await PromptEngine.optimize("A flower", characterData)
 
             expect(result).toContain("professional photography")
             expect(result).not.toContain("Cyberpunk")

@@ -1,11 +1,23 @@
 ---
 trigger: always_on
-description: The Technical Stack. Svelte 5 Runes, SCSS Church & State, and Platform Constraints.
+description: The Technical Stack. Modern JS, Svelte 5 Runes, and Platform Constraints.
 ---
 
 # 💻 Physics (The Stack)
 
-## 1. Svelte 5 Supremacy
+## 1. Modern JavaScript Supported
+
+The project operates in an environment where modern JavaScript is supported via the `esbuild` bundler. Standard JS features are officially ALLOWED.
+
+| Syntax             | Status         | Mandate                          |
+| :----------------- | :------------- | :------------------------------- |
+| `let` / `const`    | ✅ **ALLOWED** | Standard block-scoping.          |
+| `() => {}` (Arrow) | ✅ **ALLOWED** | Modern function syntax.          |
+| `` `str ${val}` `` | ✅ **ALLOWED** | Template literals are fine.      |
+| `async` / `await`  | ✅ **ALLOWED** | Preferred for asynchronous code. |
+| `fetch`            | ✅ **ALLOWED** | Standard network requests.       |
+
+## 2. Svelte 5 Supremacy
 
 The project operates in a **Svelte 5 Runes-only** environment.
 
@@ -27,7 +39,7 @@ The project operates in a **Svelte 5 Runes-only** environment.
 1. **No Inline Styles**: `style="..."` is prohibited.
 2. **No Global CSS**: Use component-scoped SCSS or designated theme tokens.
 3. **No Tailwind**: Prohibited unless explicitly requested for a specific feature.
-4. **No Hardcoded Hex**: Use `var(--app-token)` variables.
+4. **Hardcoded Hex**: Permitted ONLY in `src/theme/abstracts/_variables.scss`. Use `var(--app-token)` or SCSS variables everywhere else. Do not force code splits just to satisfy the hex token rule.
 
 ## 3. Platform Constraints (Perchance/Web)
 

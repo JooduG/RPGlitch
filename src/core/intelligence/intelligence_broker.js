@@ -1,64 +1,246 @@
-import { state } from "@core/engine/bus.js"
-import { Engine } from "@core/narrative/narrative_engine.js"
-import { app } from "@state/app.svelte.js"
+/**
+ * @file src/core/intelligence/intelligence_broker.js
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * 🔌 CONTEXT BROKER  —  The State Adapter & Document Assembler
+ * ─────────────────────────────────────────────────────────────────────────────
+ *
+ * PURPOSE
+ * ContextBroker is the "Secretary" of the Intelligence Kernel. It knows
+ * exactly where every piece of game state lives and how to pull it, clean it,
+ * and package it into a structured payload for the LLM.
+ *
+ * ARCHITECTURE
+ * ┌────────────────────────────────────────────────────────────────────────┐
+ * │  assemble()          : Primary entry point. Orchestrates the full pull. │
+ * │  State Adapters      : pull_entities, pull_history, assemble_snapshot.  │
+ * │  Logic Filters       : lexical_filter, clean_text (pure transformers).  │
+ * └────────────────────────────────────────────────────────────────────────┘
+ *
+ * DATA FLOW
+ *   Svelte State (runtime, bus)
+ *     └─→ ContextBroker (Assembly)
+ *         └─→ Engine.compose() (Dynamics + Prompt Composition)
+ *             └─→ narrative_logic (System Prompt Templates)
+ *                 └─→ narrative_atoms (XML Generation)
+ */
+
+import { state } from "@core/engine/bus.svelte.js"
 import { runtime } from "@state/runtime.svelte.js"
-import { ENTITY_CATALOG } from "./intelligence_registry.js"
+import { Engine } from "./dynamics_engine.js"
+import { ENTITY_CATALOG } from "./entity_fragments.js"
 
-export class ContextBroker {
-    /**
-     * Assembles a context payload for the LLM based on the current phase.
-     * @param {string} action - The user's input or triggered action.
-     * @param {string} type - 'prose' | 'physics' | 'visual'
-     * @returns {Promise<Object>} The payload { system, messages, ... }
-     */
-    static async assemble(action, type = "prose") {
-        // 1. Identify Requirements
-        const requirements = this.getRequiredContext(type)
+/************************************************************************************
+ * 🧩 [SECTION: PRIVATE HELPERS]
+ * ----------------------------------------------------------------------------------
+ * Module-level helpers used by the adapters. Not exported — internal use only.
+ ************************************************************************************/
 
-        // 2. Fetch Modular Data from Runtime (Single Source of Truth)
-        const stateData = {
-            kernel: requirements.includes("kernel") ? this.pullKernel() : null,
-            chrono: requirements.includes("chrono") ? this.pullChrono() : null,
-            snapshot: requirements.includes("snapshot") ? this.assembleSnapshot() : null,
-            fractal: requirements.includes("fractal") ? this.pullFractal() : null,
-            entity: requirements.includes("entity") ? this.pullEntity(type) : null,
+/**
+ * Resolves a dot-notation path against a nested object (e.g. "eternal.physical").
+ * Returns "" if the path doesn't resolve or if an intermediate node is missing.
+ *
+ * [BRIDGE] Resilience: if an intermediate node is a plain string (legacy fractal
+ * data), the string is returned as-is rather than failing silently.
+ *
+ * @param {Object} obj  - The root data object.
+ * @param {string} path - Dot-delimited field key.
+ * @returns {string}
+ */
+function get_path_value(obj, path) {
+    const parts = path.split(".")
+    let current = obj
+    for (const part of parts) {
+        if (current && typeof current === "object") {
+            current = current[part]
+        } else if (typeof current === "string" && parts.indexOf(part) < parts.length - 1) {
+            return current // [BRIDGE] Legacy string field — return as-is
+        } else {
+            return ""
+        }
+    }
+    return current || ""
+}
+
+/**
+ * Returns true if a field or fragment represents physical appearance data.
+ * Physical fields are excluded from simulation prompts; they are reserved for Image mode.
+ *
+ * @param {{ fieldId?: string, label?: string, enhancer?: string, is_physical?: boolean, type?: string, section?: string }} field
+ * @returns {boolean}
+ */
+function is_physical_field(field) {
+    return (
+        field.fieldId?.endsWith(".physical") ||
+        field.label === "Physical" ||
+        field.is_physical === true ||
+        field.type?.includes("Physical") ||
+        field.section?.includes("Physical") ||
+        field.type?.includes("Visual") ||
+        field.section?.includes("Visual") ||
+        field.enhancer?.includes("BIOMETRIC") ||
+        field.enhancer?.includes("VISUAL")
+    )
+}
+
+/**
+ * Converts a raw entity object into an array of enriched Fragment records.
+ * Draws from two sources:
+ *   1. ENTITY_CATALOG fields (schema-defined, resolved via dot-notation paths)
+ *   2. entity.fragments  (ad-hoc / manual overrides)
+ *
+ * @param {Object} entity - Character or entity data object.
+ * @param {string} mode   - 'simulation' | 'image'. Controls physical field filtering.
+ * @returns {Array<{text: string, type: string, enhancer: string, layer?: string, section?: string}>}
+ */
+function to_fragments(entity, mode) {
+    if (!entity) return []
+    const list = []
+
+    // 1. Catalog-driven fields
+    Object.entries(ENTITY_CATALOG).forEach(([fieldId, metadata]) => {
+        if (mode === "simulation" && is_physical_field({ fieldId, ...metadata })) return
+
+        let val = get_path_value(entity, fieldId)
+
+        // [BRIDGE] Fallback for legacy fractals that store appearance in a root 'description' string
+        if (!val && fieldId === "present.physical" && entity.description) {
+            val = entity.description
         }
 
-        // 3. Delegate to Narrative Engine
-        // Active Tone ID from State/Config (Defaulting to "DEFAULT" for now)
-        const toneKey = "DEFAULT"
+        if (val && typeof val === "string") {
+            list.push({
+                text: val,
+                type: metadata.label,
+                enhancer: metadata.enhancer,
+                // [R8] Do not leak field directives into simulation prompts
+                directive: mode === "simulation" ? undefined : metadata.directive,
+                layer: metadata.layer_key,
+                section: metadata.section_label,
+            })
+        }
+    })
 
+    // 2. Ad-hoc / manual fragments
+    if (Array.isArray(entity.fragments)) {
+        entity.fragments.forEach((f) => {
+            if (mode === "simulation" && is_physical_field(f)) return
+            list.push({
+                text: typeof f === "string" ? f : f.text,
+                type: f.type || "General",
+                enhancer: f.enhancer || "NONE",
+                section: f.section || "General",
+            })
+        })
+    }
+
+    // 3. Clean and filter empty entries
+    return list.map((f) => ({ ...f, text: ContextBroker.clean_text(f.text) })).filter((f) => f.text?.length > 0)
+}
+
+/**
+ * Internal resolver: returns the context layers required for the given phase.
+ * @param {string} phase
+ * @returns {string[]}
+ */
+function _required_context(phase) {
+    switch (phase) {
+        case "logic":
+            return [] // Logic prompts need no entity context
+        case "image":
+            return ["entity"]
+        default:
+            return ["snapshot", "entity"] // simulation
+    }
+}
+
+/************************************************************************************
+ * 🧩 [SECTION: CONTEXT BROKER]
+ * ----------------------------------------------------------------------------------
+ * The primary API for assembling LLM payloads from live application state.
+ * All methods are pure functions over Svelte state — no instance required.
+ ************************************************************************************/
+
+export const ContextBroker = {
+    /**
+     * ORCHESTRATOR
+     * Assembles a complete LLM payload for the given action and narrative phase.
+     *
+     * @param {string} action              - The user's input or triggered action string.
+     * @param {string} [type="simulation"] - 'simulation' | 'logic' | 'image'
+     * @returns {Promise<Object>} The full payload for LlmService.generate().
+     */
+    async assemble(action, type = "simulation") {
+        // 1. Determine which context layers this phase requires
+        const needs = _required_context(type)
+
+        // 2. Pull each required layer from live application state
+        const state_data = {
+            snapshot: needs.includes("snapshot") ? ContextBroker.assemble_snapshot() : null,
+            entity: needs.includes("entity") ? ContextBroker.pull_entities(type) : null,
+        }
+
+        // 3. Delegate prompt composition to the Dynamics Engine
         const result = await Engine.compose({
             input: action,
-            toneKey: toneKey,
-            state: stateData,
-            type: type,
+            state: state_data,
+            type,
         })
 
-        // 4. Format Messages (Tiered L1 history)
-        const messages = this.pullHistory()
-
+        // 4. Attach L1 short-term history for dialogue continuity
+        const messages = ContextBroker.pull_history()
         return {
             system: result.system,
             messages,
             meta: result.meta,
             params: {
-                temperature: type === "physics" ? 0.3 : 0.8,
+                temperature: type === "logic" ? 0.3 : 0.8,
             },
         }
-    }
+    },
 
     /**
-     * [L1 HISTORY]
-     * Pulls the most recent unconsolidated messages for dialogue flow.
+     * ENTITY ADAPTER
+     * Pulls the AI, User, and Fractal entities and processes their fields into
+     * enriched Fragment records. All three are mapped to a uniform structure:
+     * { role, name, fragments }.
+     *
+     * @param {string} [mode="simulation"] - 'simulation' | 'image'
+     * @returns {{ list: Array, turn: number, objective: string }}
      */
-    static pullHistory() {
-        const activeId = state.story?.activeId
-        if (!activeId) return []
+    pull_entities(mode = "simulation") {
+        const turn = runtime.turn || 1
+        const objective = runtime.activeObjective || "EXPLORE"
 
-        const messages = state.messages?.byStoryId[activeId] || []
-        // Only show last 10 unconsolidated messages to keep the context slim
-        return messages
+        const sources = [
+            { role: "AI", data: runtime.activeAI, name: runtime.activeAI?.name || "AI" },
+            { role: "USER", data: runtime.activeUser, name: runtime.activeUser?.name || "User" },
+            { role: "FRACTAL", data: runtime.activeFractal, name: runtime.activeFractal?.name || "Environment" },
+        ]
+
+        const list = sources
+            .filter((s) => s.data)
+            .map((s) => {
+                const fragments = to_fragments(s.data, mode)
+                // AI fragments are priority-sorted by the active objective
+                const final_fragments = s.role === "AI" ? ContextBroker.lexical_filter(fragments, objective) : fragments
+                return { role: s.role, name: s.name, fragments: final_fragments }
+            })
+
+        return { list, turn, objective }
+    },
+
+    /**
+     * L1 HISTORY ADAPTER
+     * Pulls the 10 most recent unconsolidated messages for dialogue continuity.
+     *
+     * @returns {Array<{role: string, content: string, characterName?: string}>}
+     */
+    pull_history() {
+        const active_id = state.story?.activeId
+        if (!active_id) return []
+
+        return (state.messages?.byStoryId[active_id] || [])
             .filter((m) => !m.meta?.consolidated)
             .slice(-10)
             .map((m) => ({
@@ -66,157 +248,42 @@ export class ContextBroker {
                 content: m.text,
                 characterName: m.characterName,
             }))
-    }
+    },
 
     /**
-     * Determines what data fragments are needed for a specific phase.
+     * NARRATIVE SNAPSHOT ADAPTER
+     * Concatenates the last 3 messages into a dense beat-map string.
+     * Gives the LLM short-term scene awareness without consuming history slots.
+     *
+     * @returns {string|null}
      */
-    static getRequiredContext(phase) {
-        switch (phase) {
-            case "physics":
-                return ["kernel", "fractal"]
-            case "visual":
-                return ["fractal", "entity"]
-            case "prose":
-            default:
-                return ["kernel", "chrono", "snapshot", "fractal", "entity"]
-        }
-    }
+    assemble_snapshot() {
+        const active_id = state.story?.activeId
+        if (!active_id) return null
 
-    // --- LAYER FETCHERS ---
+        const messages = (state.messages?.byStoryId[active_id] || []).slice(-3)
+        if (!messages.length) return null
 
-    static pullKernel() {
-        return {
-            rules: "Release Control. The simulation is live. Output prose directly.",
-        }
-    }
-
-    static pullChrono() {
-        /** @type {any} */
-        const chrono = app.simulation.chrono || {
-            activeObjective: null,
-            currentConflict: null,
-        }
-        return {
-            turn: app.simulation.turn,
-            objective: runtime.vanguard || "Continue the journey.",
-            conflict: chrono.currentConflict || "The outcome is uncertain.",
-        }
-    }
-
-    /**
-     * [L1 CACHE] Narrative Snapshot
-     * Captures the last 2-3 significant action beats.
-     */
-    static assembleSnapshot() {
-        const activeId = state.story?.activeId
-        if (!activeId) return null
-
-        const messages = state.messages?.byStoryId[activeId] || []
-        if (messages.length === 0) return null
-
-        // Capture last 3 messages as raw beats for continuity
-        const beats = messages
-            .slice(-3)
+        return messages
             .map((m) => {
-                const label = m.characterName || (m.role === "user" ? "User" : "AI")
-                return `[${label}]: ${this.PunchyTransformer(m.text || "", 120)}`
+                const owner = m.characterName || (m.role === "user" ? "User" : "AI")
+                return `[${owner}]: ${ContextBroker.clean_text(m.text, 120)}`
             })
             .join("\n")
+    },
 
-        return beats
-    }
-
-    static pullFractal() {
-        const fractal = runtime.storyFractal || {}
-        return {
-            title: fractal.name || "Unknown Fractal",
-            state: fractal.present || {},
-        }
-    }
-
-    static pullEntity(mode = "prose") {
-        const ai = runtime.aiCharacter || {}
-        const user = runtime.userCharacter || {}
-        const objective = runtime.vanguard || ""
-
-        /**
-         * Recursive/Dot-notation value fetcher for entities.
-         * @param {Object} obj
-         * @param {string} path
-         */
-        const get_entity_value = (obj, path) => {
-            if (!path) return ""
-            return path.split(".").reduce((acc, part) => acc && acc[part], obj) || ""
-        }
-
-        // Process Fragments dynamically using ENTITY_CATALOG
-        const processFragments = (entity) => {
-            const fragments = []
-
-            // Iterate through Unified Catalog for all defined fields
-            Object.entries(ENTITY_CATALOG).forEach(([id, field]) => {
-                const content = get_entity_value(entity, id)
-
-                if (content && typeof content === "string") {
-                    fragments.push({
-                        text: content,
-                        category: field.label,
-                        parent: field.parent,
-                    })
-                }
-            })
-
-            // Fallback for Manual Fragments (Legacy/Mocks)
-            if (entity.fragments && Array.isArray(entity.fragments)) {
-                entity.fragments.forEach((f) => {
-                    fragments.push({
-                        text: typeof f === "string" ? f : f.text,
-                        category: f.category || "General",
-                        parent: f.parent || "legacy",
-                    })
-                })
-            }
-
-            return fragments
-                .map((f) => ({
-                    ...f,
-                    text: this.PunchyTransformer(f.text),
-                }))
-                .map((f) => ({
-                    ...f,
-                    text: this.DiegeticFilter(f.text, mode),
-                }))
-                .filter((f) => f.text && f.text.length > 0)
-        }
-
-        const aiFragments = processFragments(ai)
-        // Sort AI fragments by relevance to objective
-        const sortedAi = this.LexicalFilter(aiFragments, objective)
-
-        const userFragments = processFragments(user)
-
-        return {
-            ai: {
-                name: ai.name || "AI",
-                role: ai.role || "Assistant",
-                fragments: sortedAi,
-            },
-            user: {
-                name: user.name || "User",
-                fragments: userFragments,
-            },
-        }
-    }
-
-    // --- JS UTILS (Non-AI) ---
+    // ─── Logic Filters (also exported for direct test access) ─────────────────
 
     /**
-     * [JS] Lexical Filter
-     * Prioritizes fragments that match current objective keywords.
-     * Supports both strings and objects with .text property.
+     * Sorts fragments by relevance to the current objective.
+     * Fragments whose text contains objective keywords float to the top.
+     * Handles both plain strings and enriched fragment objects.
+     *
+     * @param {Array<string|Object>} fragments
+     * @param {string} objective
+     * @returns {Array}
      */
-    static LexicalFilter(fragments, objective) {
+    lexical_filter(fragments, objective) {
         if (!objective) return fragments
 
         const keywords = objective
@@ -224,54 +291,29 @@ export class ContextBroker {
             .split(/\W+/)
             .filter((w) => w.length > 3)
 
+        const get_text = (f) => (typeof f === "string" ? f : f.text || "").toLowerCase()
+
         return [...fragments].sort((a, b) => {
-            const aRaw = typeof a === "string" ? a : a.text
-            const bRaw = typeof b === "string" ? b : b.text
-            const aMatch = keywords.some((k) => aRaw.toLowerCase().includes(k))
-            const bMatch = keywords.some((k) => bRaw.toLowerCase().includes(k))
-            if (aMatch && !bMatch) return -1
-            if (!aMatch && bMatch) return 1
-            return 0
+            const a_hit = keywords.some((k) => get_text(a).includes(k))
+            const b_hit = keywords.some((k) => get_text(b).includes(k))
+            return (b_hit ? 1 : 0) - (a_hit ? 1 : 0)
         })
-    }
+    },
 
     /**
-     * [JS] Punchy Transformer
-     * Cleans and condenses verbose text into dense prompts.
+     * Sanitizes raw text into dense, prompt-safe content.
+     * Strips markdown symbols, collapses whitespace, and truncates to `limit` chars.
+     *
+     * @param {string} text
+     * @param {number} [limit=500]
+     * @returns {string}
      */
-    static PunchyTransformer(text, limit = 500) {
+    clean_text(text, limit = 500) {
         if (!text) return ""
-        // Strip markdown, extra whitespace, and truncate
-        let clean = text
-            .replace(/[*_#>`-]/g, "")
-            .replace(/\s+/g, " ")
+        const clean = text
+            .replace(/[*_#>`-]/g, "") // Strip markdown
+            .replace(/\s+/g, " ") // Collapse whitespace
             .trim()
-        if (clean.length > limit) clean = clean.substring(0, limit) + "..."
-        return clean
-    }
-
-    /**
-     * [JS] Diegetic Filter
-     * Filters content based on [TACTILE] vs [VISUAL] tags.
-     * mode = 'prose' -> Keep [TACTILE], remove [VISUAL]
-     * mode = 'visual' -> Keep [VISUAL], remove [TACTILE]
-     */
-    static DiegeticFilter(text, mode = "prose") {
-        if (!text) return ""
-
-        // Regex for tags: \[TAG\] content... or \[TAG\]
-        // Simple approach: Remove lines or sentences containing the unwanted tag?
-        // Or remove the specific marked blocks?
-        // Implementation: We assume tags are inline markers like "[VISUAL] Glowing eyes."
-
-        if (mode === "prose") {
-            // Remove [VISUAL] segments
-            return text.replace(/\[VISUAL\].*?(\.|$)/g, "").trim()
-        } else if (mode === "visual") {
-            // Remove [TACTILE] segments
-            return text.replace(/\[TACTILE\].*?(\.|$)/g, "").trim()
-        }
-
-        return text
-    }
+        return clean.length > limit ? clean.substring(0, limit) + "..." : clean
+    },
 }

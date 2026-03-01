@@ -4,14 +4,13 @@
  */
 
 import { ContextBroker } from "@core/intelligence/intelligence_broker.js"
-import { Echo } from "@core/intelligence/intelligence_echo.js"
 import { LlmService } from "@core/intelligence/intelligence_service.js"
 import { db } from "@data/db.js"
 import { entities } from "@data/repository.js"
 import { app } from "@state/app.svelte.js" // [R5]
 import { runtime } from "@state/runtime.svelte.js"
 import { engineState } from "@state/status.svelte.js" // [R5] Unified State
-import { events, EVENTS, state as store } from "./bus.js"
+import { events, EVENTS, state as store } from "./bus.svelte.js"
 import { Session } from "./session-driver.js"
 
 const Resonance = new Echo()
@@ -51,11 +50,11 @@ export const Engine = {
             // [R5] Narrative State is now reactive in runtime.narrative
             // No manual sync required.
 
-            // AUTO-SEED: Ensure Vanguard is never empty
-            if (runtime.narrative.threads.length === 0) {
+            // AUTO-SEED: Ensure activeObjective is never empty
+            if (runtime.narrative.objectives.length === 0) {
                 runtime.addThread("Continue the journey.", true)
                 // Optionally log this system action to debug telemetry
-                app.log("NarrativeDirector: Auto-seeded Vanguard", "system")
+                app.log("NarrativeDirector: Auto-seeded activeObjective", "system")
             }
         },
 
@@ -77,7 +76,7 @@ export const Engine = {
                     const slice = unconsolidated.slice(0, 10)
                     app.log(`Memory Nexus: Consolidating ${slice.length} turns into lore...`, "system")
 
-                    const ai = runtime.aiCharacter
+                    const ai = runtime.activeAI
                     if (ai) {
                         const resonance = await Resonance.memorize(ai, slice, "character")
                         if (resonance?.summary) {
@@ -130,14 +129,14 @@ export const Engine = {
             Engine.NarrativeDirector.update()
 
             // 2. ASSEMBLE (Modular Context)
-            const payload = await ContextBroker.assemble(options.input || "", "prose")
+            const payload = await ContextBroker.assemble(options.input || "", "simulation")
 
             // 3. GENERATE (LLM Service)
             const response = await LlmService.generate(payload)
 
             // 4. PERSIST (Session)
             // Assume AI character name is in runtime or use default
-            const aiName = runtime.aiCharacter?.name || "AI"
+            const aiName = runtime.activeAI?.name || "AI"
             await Session.addAiMessage(response, aiName)
 
             // [NEXUS] Check for L2 Consolidation (Background)
@@ -155,9 +154,9 @@ export const Engine = {
     generatePrologue: async (storyId) => {
         // Basic Prologue Logic
         // We can use the same pipeline or specialized one
-        const { PromptBuilder } = await import("@core/intelligence/intelligence_logic.js")
+        const { PromptBuilder } = await import("@core/intelligence/narrative_logic.js")
         const builder = new PromptBuilder(storyId)
-        const payload = await builder.buildPrologue()
+        const payload = await builder.build_prologue()
 
         if (payload) {
             engineState.startGeneration("fractal")
@@ -165,7 +164,7 @@ export const Engine = {
             try {
                 // Basic generation without full Engine overhead
                 const result = await LlmService.generate(payload)
-                const fractalName = runtime.storyFractal?.name || "Fractal Entity"
+                const fractalName = runtime.activeFractal?.name || "Fractal Entity"
                 await Session.addAiMessage(result, fractalName, "fractal")
 
                 // [FIX] Immediately trigger AI Character follow-up
@@ -179,9 +178,9 @@ export const Engine = {
 
     triggerEpilogue: async () => {
         const storyId = Session.requireActive()
-        const { PromptBuilder } = await import("@core/intelligence/intelligence_logic.js")
+        const { PromptBuilder } = await import("@core/intelligence/narrative_logic.js")
         const builder = new PromptBuilder(storyId)
-        const payload = await builder.buildEpilogue()
+        const payload = await builder.build_epilogue()
 
         if (payload) {
             engineState.startGeneration("ai")
@@ -204,17 +203,7 @@ export const Engine = {
     _runEcho: async () => {
         // Calls Scholar.echo
         // const { Scholar } = await import("../scholar/index.js");
-        // Needs target entity... logic usually depends on context.
-        // This facade might be deprecated or needed by Chrono.
-        // Chrono calls runtime.save() -> Echo logic is internal to Data or triggered by Chrono?
-        // Chrono loop said: app.log("Echo recording..."), runtime.save()
-        // Wait, runtime.save calls DB.
-        // Where is Echo.echo called?
-        // It seems Chrono does NOT call Echo.echo directly in the loop I saw earlier?
-        // Ah, I saw "PHASE 3: ECHO" in `ReactiveSession` (lines 107)
-        // but it just LOGGED it.
-        // `Engine.js` line 63 was `_runEcho: (...args) => Engine._runEchoCycle(...args)`.
-        // I should probably leave a stub or simple log for now.
+        // TODO: Wire Echo.memorize() when memory consolidation checkpoints are defined.
     },
 }
 

@@ -4,28 +4,21 @@
  * This file houses the UI Metadata (labels, sublabels, descriptions) and layout rules.
  */
 
-import { ENTITY_DEFINITION } from "@core/intelligence/intelligence_registry.js"
+import { ENTITY_FRAGMENTS } from "@/core/intelligence/entity_fragments.js"
 
-export { ENTITY_DEFINITION }
-
-// UI Layout configuration (visuals only, not logic)
-const LAYOUT_CONFIG = {
-    eternal: "split",
-    present: "split",
-    past: "full",
-    future: "full",
-}
+export { ENTITY_FRAGMENTS }
 
 /**
- * Maps the ENTITY_DEFINITION into UI section objects for ProfileTraits.svelte.
+ * Maps the ENTITY_FRAGMENTS into UI section objects for ProfileFragments.svelte.
  */
-export const PROFILE_SECTIONS = Object.entries(ENTITY_DEFINITION).map(([sectionKey, section]) => {
+export const PROFILE_SECTIONS = Object.entries(ENTITY_FRAGMENTS).map(([sectionKey, section]) => {
     const fields = section.fields
         ? Object.entries(section.fields).map(([fieldKey, field]) => {
               return {
                   key: `${sectionKey}.${fieldKey}`,
                   label: field.label,
                   description: field.description || "",
+                  enhancer: field.enhancer,
               }
           })
         : [
@@ -40,7 +33,7 @@ export const PROFILE_SECTIONS = Object.entries(ENTITY_DEFINITION).map(([sectionK
         id: sectionKey,
         label: section.label,
         sublabel: section.sublabel || null,
-        layout: section.layout || LAYOUT_CONFIG[sectionKey] || "full",
+        columns: section.columns || 1,
         fields,
     }
 })

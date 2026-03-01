@@ -5,11 +5,11 @@ description: The Shield. Zero-Trust security, strict hygiene, and rune safety.
 
 # 🛡️ Security (The Shield)
 
-## 1. Zero-Trust Policy
+## 1. Pragmatic Security Policy
 
-1. **Input Sanitization**: All user input must pass through `DOMPurify` before rendering.
+1. **Input Sanitization**: We construct HTML deterministically. `DOMPurify` is only required when injecting completely untrusted, raw external user inputs.
 2. **Secret Detection**: Never commit `.env`, `_KEY`, `_TOKEN`, or high-entropy entropy strings.
-3. **No `innerHTML`**: Use `textContent` or sanitized `{@html ...}` only if strictly necessary.
+3. **`innerHTML` & `{@html ...}`**: Safe to use for internal UI building. No need to wrap safe strings in `DOMPurify` for deterministically generated internal UI.
 
 ## 2. The Warden Protocols
 

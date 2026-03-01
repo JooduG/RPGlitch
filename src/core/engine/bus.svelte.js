@@ -1,5 +1,5 @@
-// src/core/engine/bus.js
-// 🕹️ ENGINE: The Synapse
+// src/core/engine/bus.svelte.js
+// 🕹️ ENGINE: The Synapse (Reactive v5)
 
 /**
  * THE SYNAPSE
@@ -25,7 +25,8 @@ export const EVENTS = {
     MEMORY_PRESSURE_CHECK: "memory:pressure_check",
 }
 
-export const state = {
+// 🧬 REACTIVE STATE (Svelte 5 Runes)
+export let state = $state({
     storyTitle: "My Story",
     selectedAI: null,
     selectedFractal: null,
@@ -45,27 +46,27 @@ export const state = {
         storyPrologueInstructions: "",
     },
     ui: { fsm: "idle" },
-}
+})
 
+/**
+ * Updates the state using a deep merge approach.
+ * Since 'state' is reactive ($state), we mutate the properties directly.
+ * @param {Object} patch - The delta to apply.
+ */
 export const applyPatch = (patch) => {
     const merge = (target, source) => {
         for (const key in source) {
-            if (
-                source[key] &&
-                typeof source[key] === "object" &&
-                !Array.isArray(source[key])
-            ) {
-                if (!target[key]) Object.assign(target, { [key]: {} })
+            if (source[key] && typeof source[key] === "object" && !Array.isArray(source[key])) {
+                if (!target[key]) target[key] = {}
                 merge(target[key], source[key])
             } else {
-                Object.assign(target, { [key]: source[key] })
+                target[key] = source[key]
             }
         }
-        return target
     }
 
     merge(state, patch)
-    events.dispatchEvent(
-        new CustomEvent(EVENTS.STATE_CHANGED, { detail: { patch } })
-    )
+
+    // Maintain legacy event support for non-reactive listeners
+    events.dispatchEvent(new CustomEvent(EVENTS.STATE_CHANGED, { detail: { patch } }))
 }

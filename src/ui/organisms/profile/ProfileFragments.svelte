@@ -4,7 +4,7 @@
     let { char = $bindable(), isEditing, getValue, setValue, autoResize, busyFields, renderMarkdown, activeField = $bindable() } = $props()
 </script>
 
-<div class="content" data-testid="profile-traits">
+<div class="content" data-testid="profile-fragments">
     {#each PROFILE_SECTIONS as section (section.label)}
         <div class="row">
             <div class="label">
@@ -12,7 +12,7 @@
                 <p>{section.sublabel}</p>
             </div>
 
-            <div class={section.layout === "split" ? "split" : "full"}>
+            <div class={section.columns === 2 ? "split" : "full"}>
                 {#each section.fields as field (field.key)}
                     <div class="field-group">
                         {#if field.label}

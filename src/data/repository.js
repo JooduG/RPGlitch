@@ -8,7 +8,7 @@ import { db } from "./db.js"
 
 // Data Providers
 import { normalize, STORAGE_VERSION } from "@data/content_normaliser.js"
-import { premade } from "@data/premade_entities.js"
+import { premade } from "@/data/entity_premades.js"
 
 const error = console.error
 

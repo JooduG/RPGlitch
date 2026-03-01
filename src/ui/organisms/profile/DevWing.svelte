@@ -27,34 +27,22 @@
     function addPlot() {
         if (!newPlotThread.trim()) return
         if (!char.customData) char.customData = {}
-        if (!char.customData.plot)
-            char.customData.plot = { active: [], resolved: [] }
-        char.customData.plot.active = [
-            ...char.customData.plot.active,
-            newPlotThread.trim(),
-        ]
+        if (!char.customData.plot) char.customData.plot = { active: [], resolved: [] }
+        char.customData.plot.active = [...char.customData.plot.active, newPlotThread.trim()]
         newPlotThread = ""
     }
 
     function resolvePlot(index) {
         const item = char.customData.plot.active[index]
-        char.customData.plot.active = char.customData.plot.active.filter(
-            (_, i) => i !== index
-        )
-        char.customData.plot.resolved = [
-            ...(char.customData.plot.resolved || []),
-            item,
-        ]
+        char.customData.plot.active = char.customData.plot.active.filter((_, i) => i !== index)
+        char.customData.plot.resolved = [...(char.customData.plot.resolved || []), item]
     }
 
     function removePlot(listType, index) {
         if (listType === "active") {
-            char.customData.plot.active = char.customData.plot.active.filter(
-                (_, i) => i !== index
-            )
+            char.customData.plot.active = char.customData.plot.active.filter((_, i) => i !== index)
         } else {
-            char.customData.plot.resolved =
-                char.customData.plot.resolved.filter((_, i) => i !== index)
+            char.customData.plot.resolved = char.customData.plot.resolved.filter((_, i) => i !== index)
         }
     }
 
@@ -85,43 +73,18 @@
     <!-- 1. Dynamics Console -->
     <div class="group dynamics-group">
         <div class="dynamics-grid">
-            {#each dynamicsList as trait (trait.key)}
+            {#each dynamicsList as dynamic (dynamic.key)}
                 <div class="dynamic-box" class:is-editing={isEditing}>
-                    <span class="trait-label">{trait.label}</span>
+                    <span class="dynamic-label">{dynamic.label}</span>
                     <div class="value-container">
                         {#if isEditing}
-                            <input
-                                type="number"
-                                bind:value={char.dynamics[trait.key]}
-                                min="0"
-                                max="100"
-                            />
+                            <input type="number" bind:value={char.dynamics[dynamic.key]} min="0" max="100" />
                             <div class="step-controls">
-                                <button
-                                    class="step-btn"
-                                    onclick={() =>
-                                        (char.dynamics[trait.key] = Math.min(
-                                            100,
-                                            char.dynamics[trait.key] + 1
-                                        ))}
-                                >
-                                    ▲
-                                </button>
-                                <button
-                                    class="step-btn"
-                                    onclick={() =>
-                                        (char.dynamics[trait.key] = Math.max(
-                                            0,
-                                            char.dynamics[trait.key] - 1
-                                        ))}
-                                >
-                                    ▼
-                                </button>
+                                <button onclick={() => (char.dynamics[dynamic.key] = Math.min(100, char.dynamics[dynamic.key] + 1))}>+</button>
+                                <button onclick={() => (char.dynamics[dynamic.key] = Math.max(0, char.dynamics[dynamic.key] - 1))}>-</button>
                             </div>
                         {:else}
-                            <span class="value"
-                                >{char.dynamics[trait.key]}%</span
-                            >
+                            <span class="value-display" style="--val: {char.dynamics[dynamic.key]}%">{char.dynamics[dynamic.key]}%</span>
                         {/if}
                     </div>
                 </div>
@@ -146,41 +109,18 @@
                             }
                         }}
                     ></textarea>
-                    <Button
-                        variant="primary"
-                        size="sm"
-                        label="Add"
-                        className="add-btn"
-                        onclick={addPlot}
-                        disabled={!newPlotThread.trim()}
-                    />
+                    <Button variant="primary" size="sm" label="Add" className="add-btn" onclick={addPlot} disabled={!newPlotThread.trim()} />
                 </div>
             {/if}
 
-            <div
-                class="plot-list"
-                class:has-items={activePlot.length > 0 ||
-                    resolvedPlot.length > 0}
-            >
+            <div class="plot-list" class:has-items={activePlot.length > 0 || resolvedPlot.length > 0}>
                 {#each activePlot as point, i (point)}
                     <div class="plot-item active">
                         <span class="text">{point}</span>
                         {#if isEditing}
                             <div class="actions">
-                                <button
-                                    class="action-btn resolve"
-                                    onclick={() => resolvePlot(i)}
-                                    title="Resolve"
-                                >
-                                    ✓
-                                </button>
-                                <button
-                                    class="action-btn remove"
-                                    onclick={() => removePlot("active", i)}
-                                    title="Delete"
-                                >
-                                    ×
-                                </button>
+                                <button class="action-btn resolve" onclick={() => resolvePlot(i)} title="Resolve"> ✓ </button>
+                                <button class="action-btn remove" onclick={() => removePlot("active", i)} title="Delete"> × </button>
                             </div>
                         {/if}
                     </div>
@@ -191,13 +131,7 @@
                         <span class="text">{point}</span>
                         {#if isEditing}
                             <div class="actions">
-                                <button
-                                    class="action-btn remove"
-                                    onclick={() => removePlot("resolved", i)}
-                                    title="Delete"
-                                >
-                                    ×
-                                </button>
+                                <button class="action-btn remove" onclick={() => removePlot("resolved", i)} title="Delete"> × </button>
                             </div>
                         {/if}
                     </div>
@@ -246,11 +180,7 @@
         color: white;
         border-radius: inherit;
         background: var(--chalk, #222326);
-        background-image: radial-gradient(
-            circle at bottom left,
-            rgba(255, 255, 255, 0.05) 10%,
-            transparent 70%
-        );
+        background-image: radial-gradient(circle at bottom left, rgba(255, 255, 255, 0.05) 10%, transparent 70%);
         height: 100%;
         overflow-y: auto;
         overflow-x: hidden;
@@ -294,14 +224,14 @@
                 border-color: rgba(255, 255, 255, 0.2);
             }
 
-            .trait-label {
-                font-size: 0.6rem;
+            .dynamic-label {
+                font-family: var(--font-header);
+                font-size: 0.7rem;
                 text-transform: uppercase;
-                color: var(--app-muted);
-                font-weight: 700;
-                letter-spacing: 0.05em;
-                opacity: 0.9;
-                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+                letter-spacing: 0.1em;
+                color: var(--text-dim);
+                margin-bottom: 0.25rem;
+                display: block;
             }
 
             .value-container {
@@ -310,14 +240,6 @@
                 justify-content: center;
                 position: relative;
                 width: 100%;
-
-                .value {
-                    font-family: var(--font-mono);
-                    font-size: 1rem;
-                    font-weight: 700;
-                    color: var(--app-accent);
-                    opacity: 0.8;
-                }
 
                 input {
                     width: 100%;
@@ -339,7 +261,7 @@
                     flex-direction: column;
                     gap: 0;
 
-                    .step-btn {
+                    button {
                         background: transparent;
                         border: none;
                         color: var(--app-muted);
@@ -414,19 +336,11 @@
                 }
 
                 &:global(.active-action) {
-                    background: color-mix(
-                        in oklab,
-                        var(--app-accent) 15%,
-                        transparent
-                    );
+                    background: color-mix(in oklab, var(--app-accent) 15%, transparent);
                     color: var(--app-accent);
 
                     &:hover:not(:disabled) {
-                        background: color-mix(
-                            in oklab,
-                            var(--app-accent) 25%,
-                            transparent
-                        );
+                        background: color-mix(in oklab, var(--app-accent) 25%, transparent);
                         color: white;
                     }
                 }

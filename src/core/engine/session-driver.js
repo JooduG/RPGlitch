@@ -1,5 +1,5 @@
 import { db } from "@data/db.js"
-import { applyPatch, events, EVENTS } from "./bus.js"
+import { applyPatch, events, EVENTS } from "./bus.svelte.js"
 
 /**
  * SESSION MANAGER

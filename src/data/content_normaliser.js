@@ -31,8 +31,8 @@ export const normalize = (base = {}) => {
         type = "",
         eternal = {},
         present = {},
-        past = "",
-        future = "",
+        past = null,
+        future = null,
         tags = [],
         visuals = null,
         simulation = null,
@@ -65,14 +65,18 @@ export const normalize = (base = {}) => {
         // ========================================
         eternal: {
             physical: sanitizeHtml(eternal.physical || base.appearance || "").trim(),
-            non_physical: sanitizeHtml(eternal.mental || base.identity || "").trim(),
+            non_physical: sanitizeHtml(eternal.non_physical || eternal.mental || base.identity || "").trim(),
         },
         present: {
             physical: sanitizeHtml(present.physical || base.outfit || "").trim(),
-            non_physical: sanitizeHtml(present.mental || base.status || "").trim(),
+            non_physical: sanitizeHtml(present.non_physical || present.mental || base.status || "").trim(),
         },
-        past: sanitizeHtml(past).trim(),
-        future: sanitizeHtml(future).trim(),
+        past: {
+            essence: sanitizeHtml(typeof past === "string" ? past : past?.essence || "").trim(),
+        },
+        future: {
+            essence: sanitizeHtml(typeof future === "string" ? future : future?.essence || "").trim(),
+        },
 
         // ========================================
         // DYNAMICS (Physics Sliders)

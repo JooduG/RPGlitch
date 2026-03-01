@@ -1,4 +1,4 @@
-import { events, EVENTS } from "@core/engine/bus.js"
+import { events, EVENTS } from "@core/engine/bus.svelte.js"
 import { Engine } from "@core/engine/engine.js"
 import { Session } from "@core/engine/session-driver.js"
 import { app } from "@state/app.svelte.js"
@@ -94,10 +94,7 @@ export class ReactiveSession {
             app.simulation.turn += 1
 
             // PHASE 2: GM (Synthesis)
-            app.log(
-                `LLM synthesizing prose response for turn ${app.simulation.turn}...`,
-                "ai"
-            )
+            app.log(`LLM synthesizing prose response for turn ${app.simulation.turn}...`, "ai")
             await Session.send(text) // Saves user message
 
             // TRIGGER AI GENERATION
@@ -105,10 +102,7 @@ export class ReactiveSession {
             await Engine.generateAiResponse(storyId, { input: text })
 
             // PHASE 3: ECHO (Resonance)
-            app.log(
-                "Echo recording temporal resonance and syncing database...",
-                "db"
-            )
+            app.log("Echo recording temporal resonance and syncing database...", "db")
 
             // Update HUD causality (Example: reading from Security state if available)
             app.causalityReport = {

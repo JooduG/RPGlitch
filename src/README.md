@@ -71,7 +71,7 @@ sequenceDiagram
 
 ### The Simulation Engine
 
-RPGlitch supersedes standard chatbot patterns by implementing a **Simulation Engine**. Instead of just generating text, the system calculates the "physics" of the narrative state in the background.
+RPGlitch supersedes standard chatbot patterns by implementing a **Simulation Engine**. Instead of just generating text, the system calculates the "logic" of the narrative state in the background.
 
 ```text
 src/

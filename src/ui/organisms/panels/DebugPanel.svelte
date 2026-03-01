@@ -10,7 +10,7 @@
                 entropySeed: "0xDEADBEEF",
             },
             schema: {
-                eternal: [{ id: "node_01", type: "core_trait" }],
+                eternal: [{ id: "node_01", type: "core_fragment" }],
                 past: ["event_alpha", "event_beta"],
                 present: { status: "critical", integrity: "85%" },
                 future: ["pending_collapse"],

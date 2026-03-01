@@ -1,5 +1,5 @@
 // 📜 SCHOLAR: The Runtime State
-import { events, EVENTS } from "@core/engine/bus.js"
+import { events, EVENTS } from "@core/engine/bus.svelte.js"
 import { db } from "@data/db.js"
 import { entities } from "@data/repository.js"
 
@@ -10,11 +10,11 @@ function createRuntimeStore() {
             name: "Unlinked",
             description: "No data stream connected.",
 
-            // 🧠 Deep State
-            eternal: { non_physical: "", physical: "" }, // Renamed from 'forever'
+            // 🧠 Deep State (Fragments: Eternal, Present, Past, Future)
+            eternal: { non_physical: "", physical: "" },
             present: { non_physical: "", physical: "" },
-            past: "",
-            future: "",
+            past: { essence: "" },
+            future: { essence: "" },
 
             // 🧪 Dynamics (Dev)
             dynamics: {
@@ -33,17 +33,25 @@ function createRuntimeStore() {
                 noBackground: false,
             },
         },
-        userCharacter: null, // Specific reference
-        aiCharacter: null,
-        storyFractal: null,
+        activeUser: null,
+        activeAI: null,
+        activeFractal: {
+            name: "Environment",
+            description: "",
+            // 🧠 Unified Temporal structure
+            eternal: { non_physical: "", physical: "" },
+            present: { non_physical: "", physical: "" },
+            past: { essence: "" },
+            future: { essence: "" },
+        },
         ready: false,
         storyId: null,
     })
 
     // [R5] Unified Narrative State
-    // Merges activeObjective and narrativeThreads into a prioritized list
+    // Merges activeObjective and narrativeObjectives into a prioritized list
     let narrative = $state({
-        threads: [], // { id, text }
+        objectives: [], // [RENAMED: threads -> objectives] { id, text }
     })
 
     return {
@@ -51,14 +59,14 @@ function createRuntimeStore() {
         get character() {
             return state.character
         },
-        get userCharacter() {
-            return state.userCharacter
+        get activeUser() {
+            return state.activeUser
         },
-        get aiCharacter() {
-            return state.aiCharacter
+        get activeAI() {
+            return state.activeAI
         },
-        get storyFractal() {
-            return state.storyFractal
+        get activeFractal() {
+            return state.activeFractal
         },
         get isReady() {
             return state.ready
@@ -70,25 +78,26 @@ function createRuntimeStore() {
         },
 
         // Helpers for ease of use
-        get vanguard() {
-            return narrative.threads[0]?.text || "Continue the journey."
+        get activeObjective() {
+            // [RENAMED: vanguard -> activeObjective]
+            return narrative.objectives[0]?.text || "Continue the journey."
         },
         get echoes() {
-            return narrative.threads.slice(1)
+            return narrative.objectives.slice(1)
         },
 
         addThread(text, isVanguard = false) {
             const newThread = { id: crypto.randomUUID(), text }
             if (isVanguard) {
-                narrative.threads.unshift(newThread)
+                narrative.objectives.unshift(newThread)
             } else {
-                narrative.threads.push(newThread)
+                narrative.objectives.push(newThread)
             }
         },
 
         completeVanguard() {
-            if (narrative.threads.length > 0) {
-                narrative.threads.shift()
+            if (narrative.objectives.length > 0) {
+                narrative.objectives.shift()
             }
         },
 
@@ -125,15 +134,15 @@ function createRuntimeStore() {
                         id: userData.id,
                     }
                     // Also set specific User slot
-                    state.userCharacter = state.character
+                    state.activeUser = state.character
                 }
 
                 if (aiData) {
-                    state.aiCharacter = aiData
+                    state.activeAI = aiData
                 }
 
                 if (fractalData) {
-                    state.storyFractal = fractalData
+                    state.activeFractal = fractalData
                 }
 
                 state.ready = true
@@ -144,7 +153,7 @@ function createRuntimeStore() {
 
         // 🔬 VIBE INJECTION (Called by Engine)
         updateVibe(entityId, newColor, newSeed) {
-            const targets = [state.character, state.userCharacter, state.aiCharacter, state.storyFractal]
+            const targets = [state.character, state.activeUser, state.activeAI, state.activeFractal]
             targets.forEach((t) => {
                 if (t && t.id === entityId) {
                     if (newColor) t.visuals.signatureColor = newColor
@@ -223,7 +232,7 @@ function createRuntimeStore() {
             events.addEventListener(EVENTS.ENTITY_UPDATED, (e) => {
                 const { id, ...updates } = e.detail
 
-                const targets = [state.character, state.userCharacter, state.aiCharacter, state.storyFractal]
+                const targets = [state.character, state.activeUser, state.activeAI, state.activeFractal]
 
                 targets.forEach((t) => {
                     if (t && t.id === id) {
@@ -240,9 +249,9 @@ function createRuntimeStore() {
 
         // 🧪 DEBUG: Inject Mock State
         _debugInject(mockData) {
-            if (mockData.user) state.userCharacter = mockData.user
-            if (mockData.ai) state.aiCharacter = mockData.ai
-            if (mockData.fractal) state.storyFractal = mockData.fractal
+            if (mockData.user) state.activeUser = mockData.user
+            if (mockData.ai) state.activeAI = mockData.ai
+            if (mockData.fractal) state.activeFractal = mockData.fractal
             state.ready = true
         },
     }

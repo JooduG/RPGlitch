@@ -4,13 +4,13 @@
  * Orchestrates physical image generation, API bridging, and pipeline facades.
  */
 
-import { events, EVENTS, state } from "@core/engine/bus.js"
 import { CONFIG, ROLES } from "@core/engine/config.js"
 import { ContextBroker } from "@core/intelligence/intelligence_broker.js"
-import { PromptBuilder } from "@core/intelligence/intelligence_logic.js"
 import { LlmService } from "@core/intelligence/intelligence_service.js"
+import { PromptBuilder } from "@core/intelligence/narrative_logic.js"
 import { db } from "@data/db.js"
 import { entities } from "@data/repository.js"
+import { events, EVENTS, state } from "../core/engine/bus.svelte.js"
 import { AestheticRouter, NEGATIVE_PROMPT, PROMPT_TEMPLATES, PromptEngine } from "./image_prompts.js"
 
 const { PHYSICS } = CONFIG
@@ -121,10 +121,10 @@ export const ImageGeneration = {
                 finalPrompt = target
             } else if (typeof target === "string") {
                 entityId = target
-                const context = await ContextBroker.assemble(entityId, "visual")
+                const context = await ContextBroker.assemble(entityId, "image")
                 const characterData = {
                     physical: context.physical || "",
-                    traits: context.traits || [],
+                    fragments: context.fragments || [],
                 }
                 finalPrompt = await PromptEngine.optimize(context.system || "", characterData)
             } else {
@@ -184,7 +184,7 @@ export const ImageGeneration = {
 
             const characterData = {
                 physical: vTarget === "scene" ? vPayload.fractal?.present?.physical : vTarget === "user" ? vPayload.user?.present?.physical : vPayload.ai?.present?.physical,
-                traits: [],
+                fragments: [],
             }
             const selections = AestheticRouter.select(characterData)
 
@@ -236,7 +236,7 @@ export const ImageGeneration = {
 
             const characterData = {
                 physical: character.description || character.name,
-                traits: character.traits || [],
+                fragments: character.fragments || [],
             }
             const selections = AestheticRouter.select(characterData)
 

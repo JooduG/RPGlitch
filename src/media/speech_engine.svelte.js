@@ -59,9 +59,7 @@ export class VoiceStore {
         // Set default if none selected
         if (!this.selectedVoice && this.voices.length > 0) {
             // Try to find a good default (e.g. Google US English, or just first)
-            const preferred =
-                this.voices.find((v) => v.name.includes("Google US English")) ||
-                this.voices[0]
+            const preferred = this.voices.find((v) => v.name.includes("Google US English")) || this.voices[0]
             this.selectedVoice = preferred.uri
         }
     }
@@ -84,9 +82,7 @@ export class VoiceStore {
         // Cancel current
         this.stop()
 
-        const voice =
-            this.voices.find((v) => v.uri === this.selectedVoice) ||
-            this.voices[0]
+        const voice = this.voices.find((v) => v.uri === this.selectedVoice) || this.voices[0]
         if (!voice) {
             console.warn("[Polish] No voice available.")
             return
@@ -121,9 +117,7 @@ export class VoiceStore {
         if (!voice) return
 
         this.isSpeaking = true
-        const utterance = new SpeechSynthesisUtterance(
-            "Previewing voice system."
-        )
+        const utterance = new SpeechSynthesisUtterance("Previewing voice system.")
         utterance.voice = voice._ref
         utterance.rate = rate
         utterance.pitch = pitch

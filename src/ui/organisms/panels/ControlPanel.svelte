@@ -33,16 +33,8 @@
         <!-- HEADER: System Toggles -->
         <header class="panel-header">
             <div class="status-toggles">
-                <Toggle
-                    label="CALL MODE"
-                    bind:value={app.settings.callMode}
-                    onchange={() => app.saveSettings()}
-                />
-                <Toggle
-                    label="NOTIFICATIONS"
-                    bind:value={app.settings.sound}
-                    onchange={() => app.saveSettings()}
-                />
+                <Toggle label="CALL MODE" bind:value={app.settings.callMode} onchange={() => app.saveSettings()} />
+                <Toggle label="NOTIFICATIONS" bind:value={app.settings.sound} onchange={() => app.saveSettings()} />
             </div>
         </header>
 
@@ -50,11 +42,7 @@
         {#if isStoryboard}
             <section class="prologue-setup">
                 <div class="input-wrapper">
-                    <textarea
-                        class="prologue-field"
-                        placeholder="(Optional) e.g., 'Start in media res', 'Describe the weather first'"
-                        bind:value={app.prologue}
-                    ></textarea>
+                    <textarea class="prologue-field" placeholder="(Optional) e.g., 'Start in media res', 'Describe the weather first'" bind:value={app.prologue}></textarea>
                 </div>
             </section>
         {/if}
@@ -63,9 +51,9 @@
         {#if app.settings.devMode}
             <section class="debug-narrative">
                 <h4>NARRATIVE STATE</h4>
-                <div class="vanguard-row">
-                    <strong>VANGUARD:</strong>
-                    {runtime.vanguard}
+                <div class="objective-row">
+                    <strong>OBJECTIVE:</strong>
+                    {runtime.activeObjective}
                 </div>
                 {#if runtime.echoes.length > 0}
                     <div class="echoes-row">
@@ -83,59 +71,25 @@
         <!-- BODY: Actions (Story Mode Only) -->
         {#if isStoryMode}
             <nav class="action-grid">
-                <Button
-                    label="GHOSTWRITE"
-                    variant="secondary"
-                    size="sm"
-                    onclick={() => handleAction("Ghostwrite")}
-                />
-                <Button
-                    label="PHOTO"
-                    variant="secondary"
-                    size="sm"
-                    onclick={() => handleAction("Photo")}
-                />
-                <Button
-                    label="END STORY"
-                    variant="secondary"
-                    size="sm"
-                    onclick={() => handleAction("EndStory")}
-                />
+                <Button label="GHOSTWRITE" variant="secondary" size="sm" onclick={() => handleAction("Ghostwrite")} />
+                <Button label="PHOTO" variant="secondary" size="sm" onclick={() => handleAction("Photo")} />
+                <Button label="END STORY" variant="secondary" size="sm" onclick={() => handleAction("EndStory")} />
             </nav>
         {/if}
 
         <!-- FOOTER: Navigation & Meta -->
         <footer class="panel-footer">
             <div class="navigation-links">
-                <button
-                    class="nav-btn"
-                    onclick={() => handleAction("OpenLibrary")}
-                >
-                    Story Library
-                </button>
+                <button class="nav-btn" onclick={() => handleAction("OpenLibrary")}> Story Library </button>
             </div>
 
             <div class="system-meta">
                 <div class="dev-toggle">
-                    <Toggle
-                        label="DevMode"
-                        bind:value={app.settings.devMode}
-                        onchange={() => app.saveSettings()}
-                    />
+                    <Toggle label="DevMode" bind:value={app.settings.devMode} onchange={() => app.saveSettings()} />
                 </div>
                 <Button variant="secondary" size="sm" onclick={handleReset}>
                     <div class="reset-wrapper">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M3 6h18" />
                             <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />
                             <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
@@ -208,7 +162,7 @@
             font-weight: 600;
         }
 
-        .vanguard-row {
+        .objective-row {
             font-size: var(--font-size-s);
             margin-bottom: var(--spacing-xs);
 

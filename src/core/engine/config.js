@@ -24,36 +24,40 @@ export const CONFIG = {
 
     // --- PHYSICS HEARTBEAT ---
     PHYSICS: {
-        HEARTBEAT_RATE: 5,
-        ECHO_RATE: 10,
+        // DYNAMICS LAW THRESHOLDS (Post-Gravity Calibration)
+        LAW_HIGH: 80,
+        SIGNAL_HIGH: 70,
+        SIGNAL_LOW: 30,
+        LAW_LOW: 20,
 
-        // LAW THRESHOLDS
-        LAW_HIGH: 90,
-        LAW_LOW: 10,
+        // DYNAMICS LAW EFFECTS (Values derived from Tests)
+        ADRENALINE_PERMEABILITY: -10,
+        ADRENALINE_RESONANCE: -5,
+        DEEP_BREATH_RESONANCE: 10,
+        DEEP_BREATH_ENTROPY: -5,
+        FOG_RESONANCE: -5,
+        FOG_VELOCITY: 10,
+        CRYSTAL_PERMEABILITY: -10,
+        CRYSTAL_VELOCITY: -5,
+        OBSESSION_ENTROPY: -10,
+        OBSESSION_PERMEABILITY: -5,
+        APATHY_VELOCITY: -10,
+        APATHY_ENTROPY: 5,
 
-        // LAW EFFECTS (Values derived from Tests)
-        ADRENALINE_PERM: -10,
-        ADRENALINE_RES: -5,
-        DEEP_BREATH_RES: 10,
-        DEEP_BREATH_ENT: -5,
-        FOG_RES: -5,
-        FOG_VEL: 10,
-        CRYSTAL_PERM: -10,
-        CRYSTAL_VEL: -5,
-        OBSESSION_ENT: -10,
-        OBSESSION_PERM: -5,
-        APATHY_VEL: -10,
-        APATHY_ENT: 5,
+        // FLAG MODIFIERS (Multipliers)
+        MODIFIER_GLASS_CANNON_ENTROPY: 2.0,
+        MODIFIER_IRON_BUNKER_RESONANCE: 0.5,
+        MODIFIER_ECHO_CHAMBER_ENTROPY: 0,
 
         // SPECIAL THRESHOLDS
-        ECHO_THRESHOLD_RES: 80,
-        ECHO_THRESHOLD_ENT: 20,
-        VENUS_THRESHOLD_VEL: 20,
-        VENUS_THRESHOLD_PERM: 80,
+        ECHO_THRESHOLD_RESONANCE: 80,
+        ECHO_THRESHOLD_ENTROPY: 20,
+        VENUS_THRESHOLD_VELOCITY: 20,
+        VENUS_THRESHOLD_PERMEABILITY: 80,
 
-        // GRAVITY
-        GRAVITY_STRENGTH: 0.25,
-        GRAVITY_BASELINE: 50,
+        // DYNAMICS_GRAVITY
+        DYNAMICS_GRAVITY_STRENGTH: 0.25,
+        DYNAMICS_GRAVITY_BASELINE: 50,
 
         // REFLEX DELTAS
         REFLEX_VIOLENCE_VELOCITY: 20,
@@ -68,36 +72,6 @@ export const CONFIG = {
 
         // LLM VISUAL
         VISUAL_TEMP_DEFAULT: 0.45,
-    },
-
-    // --- LIMITS ---
-    LIMITS: {
-        NAME_LEN: 50,
-        DESC_LEN: 500,
-        TAGS_LEN: 5,
-        HISTORY_WINDOW: 30, // For Context
-    },
-
-    // --- THRESHOLDS (Symmetric Model) ---
-    THRESHOLDS: {
-        LAW_HIGH: 90,
-        SIGNAL_HIGH: 70,
-        SIGNAL_LOW: 30,
-        LAW_LOW: 10,
-        ECHO_RES: 80,
-        ECHO_ENT: 20,
-        VENUS_VEL: 20,
-        VENUS_PERM: 80,
-    },
-
-    // --- LLM GENERATION PARAMS ---
-    LLM: {
-        TEMP_BASE: 0.7,
-        TEMP_ENTROPY_WEIGHT_AI: 0.8,
-        TEMP_ENTROPY_WEIGHT_FRACTAL: 0.2,
-        VISUAL_TEMP_DEFAULT: 0.45,
-        PENALTY_BASE: 1.05,
-        TOP_P_BASE: 0.85,
     },
 
     // --- VISUAL DYNAMICS ---

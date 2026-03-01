@@ -1,7 +1,7 @@
 <script>
     import { PALETTE } from "@core/engine/config.js"
     import { LlmService } from "@core/intelligence/intelligence_service.js"
-    import { ImageGeneration } from "@media/image-generation.js"
+    import { ImageGeneration } from "@media/image_engine.js"
     import { app } from "@state/app.svelte.js"
     import Button from "@ui/atoms/Button.svelte"
     import Tooltip from "@ui/atoms/Tooltip.svelte"
@@ -35,11 +35,11 @@
     let isEnhanceMode = $derived(isEditing && targetValue.trim().length > 0)
 
     // Button Logic:
-    // User Requirement: Allow multiple trait fields to be enhanced simultaneously.
+    // User Requirement: Allow multiple Fragment fields to be enhanced simultaneously.
     // Buttons should only be disabled when:
     // 1. Not editing
     // 2. visual-prompt is busy AND (no field selected OR visual-prompt is selected)
-    // If a trait field is selected, buttons are enabled (even if prompt is busy)
+    // If a Fragment field is selected, buttons are enabled (even if prompt is busy)
     let isCreativeDisabled = $derived(
         !isEditing || (isPromptBusy && (!activeField || activeField.key === "visual-prompt")) || (!activeField && hasPromptText) // Protect: no target but text exists
     )
@@ -90,7 +90,7 @@
             // Capture the label before we potentially nullify activeField
 
             // Deselect field immediately when enhancement starts (so button label changes)
-            // But only for trait fields, not for visual-prompt
+            // But only for fragment fields, not for visual-prompt
             if (activeField && activeField.key !== "visual-prompt") {
                 activeField = null
             }
@@ -100,7 +100,7 @@
                 const result = await LlmService.enhance(char.visuals.prompt, "visuals.prompt")
                 if (result) char.visuals.prompt = result
             } else if (currentTargetKey !== "visual-prompt") {
-                // --- ENHANCE TRAIT FIELD ---
+                // --- ENHANCE FRAGMENT FIELD ---
                 const fieldVal = getValue(char, currentTargetKey)
                 if (fieldVal) {
                     const result = await LlmService.enhance(fieldVal, currentTargetKey)

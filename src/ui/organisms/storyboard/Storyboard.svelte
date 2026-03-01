@@ -1,5 +1,5 @@
 <script>
-    import { entities } from "@data/repository.js"
+    import { entities } from "@/data/repository.js"
     import { app } from "@state/app.svelte.js"
     import LoadingSkeleton from "@ui/molecules/LoadingSkeleton.svelte"
     import Layout from "@ui/organisms/Layout.svelte"
@@ -51,36 +51,17 @@
 
         <!-- LEFT: AI -->
         {#snippet left()}
-            <StoryboardCard
-                type="ai"
-                entity={app.selectedAi}
-                roleLabel="AI Character"
-                onSelect={() => app.openDrawer("ai")}
-                onViewProfile={() => app.toggleProfile(true, app.selectedAi)}
-            />
+            <StoryboardCard type="ai" entity={app.selectedAi} roleLabel="AI Character" onSelect={() => app.openDrawer("ai")} onViewProfile={() => app.toggleProfile(true, app.selectedAi)} />
         {/snippet}
 
         <!-- CENTER: Fractal -->
         {#snippet center()}
-            <StoryboardCard
-                type="fractal"
-                entity={app.selectedFractal}
-                roleLabel="Fractal"
-                onSelect={() => app.openDrawer("fractal")}
-                onViewProfile={() =>
-                    app.toggleProfile(true, app.selectedFractal)}
-            />
+            <StoryboardCard type="fractal" entity={app.selectedFractal} roleLabel="Fractal" onSelect={() => app.openDrawer("fractal")} onViewProfile={() => app.toggleProfile(true, app.selectedFractal)} />
         {/snippet}
 
         <!-- RIGHT: User -->
         {#snippet right()}
-            <StoryboardCard
-                type="user"
-                entity={app.selectedUser}
-                roleLabel="Your Persona"
-                onSelect={() => app.openDrawer("user")}
-                onViewProfile={() => app.toggleProfile(true, app.selectedUser)}
-            />
+            <StoryboardCard type="user" entity={app.selectedUser} roleLabel="Your Persona" onSelect={() => app.openDrawer("user")} onViewProfile={() => app.toggleProfile(true, app.selectedUser)} />
         {/snippet}
 
         {#snippet footer()}

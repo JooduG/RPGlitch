@@ -31,16 +31,16 @@
 
         if (!characterName) {
             // No name? Use active runtime by role
-            if (isUser) return runtime.userCharacter
-            if (isAi) return runtime.aiCharacter
-            if (isFractal) return runtime.storyFractal
+            if (isUser) return runtime.activeUser
+            if (isAi) return runtime.activeAI
+            if (isFractal) return runtime.activeFractal
             return null
         }
 
         // 1. Is it the ACTIVE character? (Fastest & most correct for edits)
-        if (isUser && runtime.userCharacter?.name === characterName) return runtime.userCharacter
-        if (isAi && runtime.aiCharacter?.name === characterName) return runtime.aiCharacter
-        if (isFractal && runtime.storyFractal?.name === characterName) return runtime.storyFractal
+        if (isUser && runtime.activeUser?.name === characterName) return runtime.activeUser
+        if (isAi && runtime.activeAI?.name === characterName) return runtime.activeAI
+        if (isFractal && runtime.activeFractal?.name === characterName) return runtime.activeFractal
 
         // 2. Is it in the LOBBY/CACHE lists? (For history)
         if (isUser) return app.userList.find((e) => e.name === characterName)
@@ -48,8 +48,8 @@
         if (isFractal) return app.fractalList.find((e) => e.name === characterName)
 
         // 3. Fallback: If we can't find it, assume it refers to the active one (Legacy)
-        if (isUser) return runtime.userCharacter
-        if (isAi) return runtime.aiCharacter
+        if (isUser) return runtime.activeUser
+        if (isAi) return runtime.activeAI
         return null
     })
 

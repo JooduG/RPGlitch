@@ -45,7 +45,7 @@ export class ChronoStore {
 
             if (input && runtime.character) {
                 // Pass Fractal State for Causality Checks
-                shieldContext = await Shield.process(input, runtime.character, runtime.storyFractal || {})
+                shieldContext = await Shield.process(input, runtime.character, runtime.activeFractal || {})
 
                 // 🛑 CAUSALITY CHECK
                 if (shieldContext && shieldContext.causality && shieldContext.causality.result === "failure") {
