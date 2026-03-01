@@ -20,7 +20,7 @@
  */
 
 import { ERROR_MESSAGES } from "@core/engine/config.js"
-import { SYSTEM_PROMPTS } from "@core/intelligence/narrative_logic.js"
+import { SYSTEM_PROMPTS } from "@core/intelligence/prompt_builder.js"
 import { app } from "@state/app.svelte.js"
 
 /************************************************************************************

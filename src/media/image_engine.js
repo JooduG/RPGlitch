@@ -7,10 +7,11 @@
 import { CONFIG, ROLES } from "@core/engine/config.js"
 import { ContextBroker } from "@core/intelligence/intelligence_broker.js"
 import { LlmService } from "@core/intelligence/intelligence_service.js"
-import { PromptBuilder } from "@core/intelligence/narrative_logic.js"
+import { PromptBuilder } from "@core/intelligence/prompt_builder.js"
 import { db } from "@data/db.js"
 import { entities } from "@data/repository.js"
-import { events, EVENTS, state } from "../core/engine/bus.svelte.js"
+import { runtime } from "@state/runtime.svelte.js"
+import { engineState as engine } from "@state/status.svelte.js"
 import { AestheticRouter, NEGATIVE_PROMPT, PROMPT_TEMPLATES, PromptEngine } from "./image_prompts.js"
 
 const { PHYSICS } = CONFIG
@@ -50,14 +51,9 @@ export const GeneratorEngine = {
                 updatedAt: Date.now(),
             })
 
-            events.dispatchEvent(
-                new CustomEvent(EVENTS.ENTITY_UPDATED, {
-                    detail: {
-                        id: entityId,
-                        visuals: { profilePicture: imageData },
-                    },
-                })
-            )
+            await runtime.updateEntity("character", entityId, {
+                visuals: { profilePicture: imageData },
+            })
         } catch (err) {
             console.error("[IMAGE_ENGINE] Caching Failed:", err)
         }
@@ -155,7 +151,7 @@ export const ImageGeneration = {
      * Context-aware visualization pipeline for Storymode.
      */
     visualize: async (storyId, visualPrompt, targetType, options = {}) => {
-        const story = state.story.byId[storyId]
+        const story = runtime.story.byId[storyId]
         if (!story) throw new Error(`Story ${storyId} not found`)
 
         let targetRole = ROLES.AI
@@ -169,18 +165,14 @@ export const ImageGeneration = {
             targetId = story.userId
         }
 
-        events.dispatchEvent(
-            new CustomEvent(EVENTS.TYPING_STARTED, {
-                detail: { role: targetRole, characterId: targetId },
-            })
-        )
+        engine.startTyping(targetRole, targetId)
 
         try {
-            const builder = new PromptBuilder(storyId)
+            const builder = new PromptBuilder()
             let vTarget = targetType || "character"
             if (targetType === ROLES.FRACTAL) vTarget = "scene"
 
-            const vPayload = await builder.buildImagePrompt(vTarget)
+            const vPayload = builder.build_image_prompt()
 
             const characterData = {
                 physical: vTarget === "scene" ? vPayload.fractal?.present?.physical : vTarget === "user" ? vPayload.user?.present?.physical : vPayload.ai?.present?.physical,
@@ -191,10 +183,13 @@ export const ImageGeneration = {
             vPayload.system = PROMPT_TEMPLATES.builder(vTarget, visualPrompt, vPayload, selections)
             vPayload.system += `\n<RAW_INTENT>\n${visualPrompt}\n</RAW_INTENT>`
 
-            const refinedPrompt = await LlmService.generate(vPayload, {
-                maxTokens: 300,
-                temperature: PHYSICS_CONSTANTS.VISUAL_TEMP_DEFAULT,
-            })
+            const refinedPrompt = await LlmService.generate(
+                { system: vPayload.system },
+                {
+                    maxTokens: 300,
+                    temperature: PHYSICS_CONSTANTS.VISUAL_TEMP_DEFAULT,
+                }
+            )
 
             const thinkMatch = refinedPrompt.match(/<think>([\s\S]*?)<\/think>/i)
             const opticsThoughts = thinkMatch ? thinkMatch[1].trim() : null
@@ -218,11 +213,7 @@ export const ImageGeneration = {
             console.error("[IMAGE_ENGINE] Visualizer Failed:", visErr)
             return { imageUrl: null, refinedPrompt: null, opticsThoughts: null }
         } finally {
-            events.dispatchEvent(
-                new CustomEvent(EVENTS.TYPING_STOPPED, {
-                    detail: { role: targetRole, characterId: targetId },
-                })
-            )
+            engine.stopTyping()
         }
     },
 

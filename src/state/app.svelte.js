@@ -2,6 +2,7 @@
 // Manages modals, view states, and visual feedback.
 import { db } from "@data/db.js"
 import { openLightbox } from "@state/lightbox.svelte.js"
+import { runtime } from "@state/runtime.svelte.js"
 import { engineState } from "@state/status.svelte.js" // [R5] Unified Engine State
 import { themeStore } from "@theme/palette.svelte.js"
 
@@ -31,7 +32,6 @@ export class AppStore {
     // 🧬 SIMULATION STATE (The Heartbeat)
     simulation = $state({
         loading: false, // STASIS: True when Chrono is processing
-        turn: 0, // CHRONO: Current time step
     })
 
     // 🔮 FATE SYSTEM (Fortune)
@@ -52,6 +52,12 @@ export class AppStore {
         autoScroll: true, // Follow chat
         devMode: false,
     })
+    get turn() {
+        return runtime.turn
+    }
+    set turn(val) {
+        runtime.turn = val
+    }
 
     // 1. LOBBY READINESS (Derived Traceable Logic)
     canStart = $derived(this.settings.devMode || (this.selectedAi && this.selectedUser))

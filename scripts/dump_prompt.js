@@ -8,7 +8,7 @@
  */
 
 import { ContextBroker } from "../src/core/intelligence/intelligence_broker.js"
-import { PromptBuilder, SYSTEM_PROMPTS } from "../src/core/intelligence/intelligence_logic.js"
+import { PromptBuilder, SYSTEM_PROMPTS } from "../src/core/intelligence/prompt_builder.js"
 import { runtime } from "../src/state/runtime.svelte.js"
 
 import { describe, it } from "vitest"
@@ -44,7 +44,7 @@ describe("v5.0 Prompt Audit (LIVE SOURCE)", () => {
         })
 
         // 2. Use the Broker to pull entities (this tests the Universal Entity enhancement)
-        const entity_state = await ContextBroker.pullEntities("simulation")
+        const entity_state = ContextBroker.pull_entities("simulation")
 
         // Manual override for turn since we can't easily set it on runtime singleton without a setter
         entity_state.turn = 7
@@ -63,8 +63,8 @@ describe("v5.0 Prompt Audit (LIVE SOURCE)", () => {
         })
 
         // 3. Test buildImagePrompt (Visual Mode)
-        const builder = new PromptBuilder(null)
-        const imagePayload = await builder.buildImagePrompt("scene")
+        const builder = new PromptBuilder()
+        const imagePayload = builder.build_image_prompt("scene")
 
         const SEPARATOR = "=".repeat(72)
         const output = `

@@ -24,7 +24,7 @@
  */
 
 import { LlmService } from "@core/intelligence/intelligence_service.js"
-import { PromptBuilder } from "./narrative_logic.js"
+import { PromptBuilder } from "./prompt_builder.js"
 
 /**
  * Condenses a slice of recent history into a structured Resonance record.
@@ -44,7 +44,7 @@ export async function memorize(target_entity, history_slice, role = "character")
         // 1. Build the memory condensation prompt.
         //    Pass null as storyId — Echo operates on entity data directly,
         //    not on a live story session.
-        const builder = new PromptBuilder(null)
+        const builder = new PromptBuilder()
         const payload = builder.build_memory_prompt(target_entity, history_slice, role)
 
         // 2. Generate a raw Resonance response from the LLM.

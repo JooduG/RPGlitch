@@ -6,7 +6,6 @@ import { app } from "@state/app.svelte.js"
 import { messages } from "@state/messages.svelte.js"
 import { runtime } from "@state/runtime.svelte.js"
 import { engineState } from "@state/status.svelte.js" // [R5] Unified State
-import { state } from "./bus.js"
 
 import { Engine } from "./engine.js"
 
@@ -26,7 +25,7 @@ export class ChronoStore {
     async advanceTurn(input = null) {
         if (app.simulation.loading) return // Prevent double-clicks
 
-        const storyId = state.story?.activeId
+        const storyId = runtime.storyId
         if (!storyId) {
             console.error("[Chrono] No active story found.")
             return
@@ -61,7 +60,7 @@ export class ChronoStore {
 
             // 3. SYNTHESIS: Generate Narrative (Engine)
             // engineState.startGeneration('ai') will be called by Engine.generateAiResponse
-            app.log(`LLM synthesizing turn ${app.simulation.turn + 1}...`, "ai")
+            app.log(`LLM synthesizing turn ${app.turn + 1}...`, "ai")
 
             // The GM facade maps generateAiResponse -> Engine.generateAiResponse(storyId, options)
             // We pass shieldContext in options if needed, including reflex deltas for thermodynamics.
@@ -73,10 +72,9 @@ export class ChronoStore {
             // 4. ECHO: Commit to Resonance (Echo/Scholar)
             engineState.lock() // Phase 3: Database Lock (Post-Generation)
             app.log("Echo recording temporal resonance...", "db")
-            app.simulation.turn += 1
 
             // 5. ANCHOR: Persist the timeline
-            await runtime.save(app.simulation.turn)
+            await runtime.save(runtime.turn)
         } catch (error) {
             app.log(`Time Fracture: ${error.message}`, "error")
             console.error("[Chrono] 💥 Time Fracture:", error)

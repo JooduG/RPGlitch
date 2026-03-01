@@ -5,6 +5,13 @@
 
 ## 🚀 Active Tracks
 
+### Track: Event Bus Purge
+
+- Path: [.agent/tasks/event-bus-purge/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/event-bus-purge/)
+- Status: Planning
+- Checkpoint: `arch-bus-01`
+- Note: Purging `bus.svelte.js` in favor of direct Svelte 5 Rune reactivity. High-fidelity refactor of state and engine layers.
+
 ### Track: Prompt Intelligence Reconstruction
 
 - Path: [.agent/tasks/prompt-intelligence-reconstruction/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/prompt-intelligence-reconstruction/)

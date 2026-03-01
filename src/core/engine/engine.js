@@ -1,19 +1,12 @@
-/**
- * THE ENGINE FACADE
- * Orchestrates the "Engine" (Logic) and "Session" (State).
- */
-
 import { ContextBroker } from "@core/intelligence/intelligence_broker.js"
+import { memorize } from "@core/intelligence/intelligence_echo.js"
 import { LlmService } from "@core/intelligence/intelligence_service.js"
 import { db } from "@data/db.js"
 import { entities } from "@data/repository.js"
 import { app } from "@state/app.svelte.js" // [R5]
 import { runtime } from "@state/runtime.svelte.js"
 import { engineState } from "@state/status.svelte.js" // [R5] Unified State
-import { events, EVENTS, state as store } from "./bus.svelte.js"
 import { Session } from "./session-driver.js"
-
-const Resonance = new Echo()
 
 /**
  * The Engine provides a unified interface for the high-level simulation logic.
@@ -78,7 +71,7 @@ export const Engine = {
 
                     const ai = runtime.activeAI
                     if (ai) {
-                        const resonance = await Resonance.memorize(ai, slice, "character")
+                        const resonance = await memorize(ai, slice, "character")
                         if (resonance?.summary) {
                             // Append to Lore
                             ai.past = `${ai.past || ""}\n[RESONANCE]: ${resonance.summary}`
@@ -92,11 +85,7 @@ export const Engine = {
                         await db.messages.update(msg.id, { meta: msg.meta })
                     }
 
-                    events.dispatchEvent(
-                        new CustomEvent(EVENTS.CHAT_REFRESH, {
-                            detail: { storyId },
-                        })
-                    )
+                    messages.refresh()
                 }
             } catch (err) {
                 console.error("[Memory Nexus] Consolidation failed:", err)
@@ -118,12 +107,9 @@ export const Engine = {
         // [R5] Set Thinking Role & Start
         engineState.startGeneration(options.role || "ai")
 
-        // 1. SIGNAL START (Legacy Bridge for external listeners if any remain)
-        events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED))
-
         try {
             // 1B. [CHRONO] Increment Step
-            app.simulation.turn++
+            runtime.turn++
 
             // [NEXUS] Update Narrative Chronology before assembly
             Engine.NarrativeDirector.update()
@@ -140,27 +126,25 @@ export const Engine = {
             await Session.addAiMessage(response, aiName)
 
             // [NEXUS] Check for L2 Consolidation (Background)
-            events.dispatchEvent(new CustomEvent(EVENTS.MEMORY_PRESSURE_CHECK))
+            Engine.NarrativeDirector.consolidate()
         } catch (e) {
             console.error("Generation Failed", e)
             throw e
         } finally {
             // 5. NOTIFY COMPLETE
             engineState.complete()
-            events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED))
         }
     },
 
     generatePrologue: async (storyId) => {
         // Basic Prologue Logic
         // We can use the same pipeline or specialized one
-        const { PromptBuilder } = await import("@core/intelligence/narrative_logic.js")
-        const builder = new PromptBuilder(storyId)
+        const { PromptBuilder } = await import("@core/intelligence/prompt_builder.js")
+        const builder = new PromptBuilder()
         const payload = await builder.build_prologue()
 
         if (payload) {
             engineState.startGeneration("fractal")
-            events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED))
             try {
                 // Basic generation without full Engine overhead
                 const result = await LlmService.generate(payload)
@@ -171,26 +155,23 @@ export const Engine = {
                 await Engine.generateAiResponse(storyId)
             } finally {
                 engineState.complete()
-                events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED))
             }
         }
     },
 
     triggerEpilogue: async () => {
-        const storyId = Session.requireActive()
-        const { PromptBuilder } = await import("@core/intelligence/narrative_logic.js")
-        const builder = new PromptBuilder(storyId)
+        Session.requireActive()
+        const { PromptBuilder } = await import("@core/intelligence/prompt_builder.js")
+        const builder = new PromptBuilder()
         const payload = await builder.build_epilogue()
 
         if (payload) {
             engineState.startGeneration("ai")
-            events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED))
             try {
                 const result = await LlmService.generate(payload)
                 await Session.addAiMessage(result, "Narrator")
             } finally {
                 engineState.complete()
-                events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED))
             }
         }
     },
@@ -208,4 +189,4 @@ export const Engine = {
 }
 
 // New API Exports
-export { events, EVENTS, Session, store }
+export { Session }

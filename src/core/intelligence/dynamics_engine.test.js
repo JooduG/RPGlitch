@@ -4,7 +4,7 @@
  * Verifies Physics triggers, Tone resolution, and Prompt assembly.
  */
 
-import { SYSTEM_PROMPTS } from "@core/intelligence/narrative_logic.js"
+import { SYSTEM_PROMPTS } from "@core/intelligence/prompt_builder.js"
 import { describe, expect, it } from "vitest"
 import { Engine, resolve_dynamics } from "./dynamics_engine.js"
 

@@ -7,8 +7,8 @@
 import { db } from "./db.js"
 
 // Data Providers
-import { normalize, STORAGE_VERSION } from "@data/content_normaliser.js"
 import { premade } from "@/data/entity_premades.js"
+import { normalize, STORAGE_VERSION } from "@data/content_normaliser.js"
 
 const error = console.error
 
@@ -110,16 +110,6 @@ export const entities = {
             }
 
             await db.entities.put(saved)
-
-            if (!options?.silent) {
-                // FIX: Correct Import Path (Removed 'js/')
-                const { events, EVENTS } = await import("@core/engine/engine.js")
-                events.dispatchEvent(
-                    new CustomEvent(EVENTS.DB_UPDATED, {
-                        detail: { id, type, store: "entities" },
-                    })
-                )
-            }
 
             return saved
         } catch (err) {

@@ -1,29 +1,19 @@
-import { events, EVENTS } from "@core/engine/bus.svelte.js"
 import { Session } from "@core/engine/session-driver.js"
+import { runtime } from "@state/runtime.svelte.js"
 
 // 📜 SCRIBE: Message State Manager
 export class MessageStore {
     feed = $state([])
 
-    constructor() {
-        this._initListeners()
-    }
+    constructor() {}
 
-    _initListeners() {
-        // 1. Full Refresh (DB Sync)
-        events.addEventListener(EVENTS.CHAT_REFRESH, async ({ detail }) => {
-            if (detail?.storyId) {
-                const msgs = await Session.loadMessages(detail.storyId)
-                this.feed = msgs
-            }
-        })
-
-        // 2. Real-time Append (Stream/Single Message)
-        events.addEventListener(EVENTS.MESSAGE_RECEIVED, ({ detail }) => {
-            if (detail?.message) {
-                this.add(detail.message)
-            }
-        })
+    /**
+     * Synchronize with persistence.
+     */
+    async refresh() {
+        if (!runtime.storyId) return
+        const msgs = await Session.loadMessages(runtime.storyId)
+        this.feed = msgs
     }
 
     /**

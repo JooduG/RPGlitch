@@ -21,14 +21,14 @@
  *   Svelte State (runtime, bus)
  *     └─→ ContextBroker (Assembly)
  *         └─→ Engine.compose() (Dynamics + Prompt Composition)
- *             └─→ narrative_logic (System Prompt Templates)
- *                 └─→ narrative_atoms (XML Generation)
+ *             └─→ prompt_builder   (System Prompt Templates)
+ *                 └─→ (Inlined)       (XML Generation)
  */
 
-import { state } from "@core/engine/bus.svelte.js"
 import { runtime } from "@state/runtime.svelte.js"
 import { Engine } from "./dynamics_engine.js"
 import { ENTITY_CATALOG } from "./entity_fragments.js"
+const state = runtime
 
 /************************************************************************************
  * 🧩 [SECTION: PRIVATE HELPERS]

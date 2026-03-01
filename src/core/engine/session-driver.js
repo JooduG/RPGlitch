@@ -1,5 +1,6 @@
 import { db } from "@data/db.js"
-import { applyPatch, events, EVENTS } from "./bus.svelte.js"
+import { messages } from "@state/messages.svelte.js"
+import { runtime } from "@state/runtime.svelte.js"
 
 /**
  * SESSION MANAGER
@@ -22,6 +23,7 @@ export const Session = {
      */
     setActive: async function (id) {
         this.activeId = id
+        runtime.storyId = id
         if (typeof window !== "undefined") {
             await db.kv_settings.put({ key: "active_session_id", value: id })
             // also log to history
@@ -37,6 +39,7 @@ export const Session = {
         const entry = await db.kv_settings.get("active_session_id")
         if (entry) {
             this.activeId = entry.value
+            runtime.storyId = entry.value
         }
     },
 
@@ -59,13 +62,9 @@ export const Session = {
         storyData.id = id
 
         // [CRITICAL] Synchronize Global State immediately
-        // PromptBuilder relies on state.story.byId[id] existing synchronously
-        applyPatch({
-            story: {
-                byId: { [id]: storyData },
-                activeId: id,
-            },
-        })
+        // Replace legacy applyPatch with direct mutation
+        runtime.story.byId[id] = storyData
+        runtime.story.activeId = id
 
         await this.setActive(id)
         return id
@@ -90,7 +89,7 @@ export const Session = {
             text,
             createdAt: Date.now(),
         })
-        events.dispatchEvent(new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }))
+        messages.refresh()
     },
 
     /**
@@ -106,7 +105,7 @@ export const Session = {
             text,
             createdAt: Date.now(),
         })
-        events.dispatchEvent(new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }))
+        messages.refresh()
     },
 
     /**
@@ -118,7 +117,7 @@ export const Session = {
 
         if (lastMsg && (lastMsg.role === "assistant" || lastMsg.role === "ai")) {
             await db.messages.delete(lastMsg.id)
-            events.dispatchEvent(new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }))
+            messages.refresh()
         }
     },
 
@@ -126,17 +125,17 @@ export const Session = {
      * Delete a specific message by ID
      */
     deleteMessage: async (id) => {
-        const storyId = Session.requireActive()
+        Session.requireActive()
         await db.messages.delete(id)
-        events.dispatchEvent(new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }))
+        messages.refresh()
     },
 
     /**
      * Edit a specific message text
      */
     editMessage: async (id, newText) => {
-        const storyId = Session.requireActive()
+        Session.requireActive()
         await db.messages.update(id, { text: newText })
-        events.dispatchEvent(new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }))
+        messages.refresh()
     },
 }

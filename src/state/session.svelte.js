@@ -1,4 +1,3 @@
-import { events, EVENTS } from "@core/engine/bus.svelte.js"
 import { Engine } from "@core/engine/engine.js"
 import { Session } from "@core/engine/session-driver.js"
 import { app } from "@state/app.svelte.js"
@@ -15,23 +14,7 @@ export class ReactiveSession {
     loading = $state(false)
     error = $state(null)
 
-    constructor() {
-        this._initListeners()
-    }
-
-    _initListeners() {
-        // 1. Sync Feed on Database Updates
-        // Handled by @state/messages.svelte.js
-
-        // 2. Sync Loading State (e.g. triggered by Engine internals)
-        events.addEventListener(EVENTS.GENERATION_STARTED, () => {
-            app.simulation.loading = true
-        })
-
-        events.addEventListener(EVENTS.GENERATION_COMPLETED, () => {
-            app.simulation.loading = false
-        })
-    }
+    constructor() {}
 
     /**
      * Start a new story from the Lobby.
@@ -91,10 +74,9 @@ export class ReactiveSession {
             // PHASE 1: WARDEN (Observation)
             app.log("Security checking physics and causality...", "system")
             // Simulate physics update for HUD visibility if needed, or rely on Engine events
-            app.simulation.turn += 1
 
             // PHASE 2: GM (Synthesis)
-            app.log(`LLM synthesizing prose response for turn ${app.simulation.turn}...`, "ai")
+            app.log(`LLM synthesizing prose response for turn ${app.turn}...`, "ai")
             await Session.send(text) // Saves user message
 
             // TRIGGER AI GENERATION
@@ -112,7 +94,7 @@ export class ReactiveSession {
             }
 
             // PHASE 4: PERSIST (Data)
-            await runtime.save(app.simulation.turn)
+            await runtime.save(runtime.turn)
         } catch (e) {
             app.log(`Simulation Error: ${e.message}`, "error")
             console.error("[ReactiveSession] AdvanceTurn Failed:", e)

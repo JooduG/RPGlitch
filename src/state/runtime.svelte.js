@@ -1,5 +1,3 @@
-// 📜 SCHOLAR: The Runtime State
-import { events, EVENTS } from "@core/engine/bus.svelte.js"
 import { db } from "@data/db.js"
 import { entities } from "@data/repository.js"
 
@@ -46,6 +44,10 @@ function createRuntimeStore() {
         },
         ready: false,
         storyId: null,
+
+        story: { byId: {}, activeId: null },
+        messages: { byStoryId: {} },
+        turn: 0,
     })
 
     // [R5] Unified Narrative State
@@ -68,8 +70,33 @@ function createRuntimeStore() {
         get activeFractal() {
             return state.activeFractal
         },
+        get story() {
+            return state.story
+        },
+        get messages() {
+            return state.messages
+        },
+        get storyId() {
+            return state.storyId
+        },
+        set storyId(id) {
+            state.storyId = id
+            state.story.activeId = id
+        },
         get isReady() {
             return state.ready
+        },
+        get turn() {
+            return state.turn
+        },
+        set turn(val) {
+            state.turn = val
+        },
+        get activeStory() {
+            return state.storyId ? state.story.byId[state.storyId] : null
+        },
+        get storyFractal() {
+            return state.activeFractal
         },
 
         // 📜 NARRATIVE API
@@ -193,6 +220,28 @@ function createRuntimeStore() {
             }
         },
 
+        async updateEntity(type, id, data) {
+            try {
+                // 1. Update DB
+                if (type === "story") {
+                    await db.stories.update(id, data)
+                    // 2. Sync local state if it's the active story
+                    if (state.storyId === id) {
+                        Object.assign(state.story.byId[id] || {}, data)
+                    }
+                } else {
+                    await entities.update(type, id, data)
+                    // Handle character/AI/fractal sync if needed
+                    const targets = [state.character, state.activeUser, state.activeAI, state.activeFractal]
+                    targets.forEach((t) => {
+                        if (t && t.id === id) Object.assign(t, data)
+                    })
+                }
+            } catch (err) {
+                console.error(`[Data] Update Entity (${type}) Failed:`, err)
+            }
+        },
+
         async deleteEntity(type, id) {
             try {
                 await entities.remove(type, id)
@@ -227,26 +276,6 @@ function createRuntimeStore() {
             }
         },
 
-        // 👂 INTERNAL: Sync with external updates (Security, Echo)
-        _initListeners() {
-            events.addEventListener(EVENTS.ENTITY_UPDATED, (e) => {
-                const { id, ...updates } = e.detail
-
-                const targets = [state.character, state.activeUser, state.activeAI, state.activeFractal]
-
-                targets.forEach((t) => {
-                    if (t && t.id === id) {
-                        // Handle visuals deep merge specifically
-                        if (updates.visuals) {
-                            t.visuals = { ...t.visuals, ...updates.visuals }
-                            delete updates.visuals // Remove from generic assign to avoid overwrite
-                        }
-                        Object.assign(t, updates)
-                    }
-                })
-            })
-        },
-
         // 🧪 DEBUG: Inject Mock State
         _debugInject(mockData) {
             if (mockData.user) state.activeUser = mockData.user
@@ -258,4 +287,3 @@ function createRuntimeStore() {
 }
 
 export const runtime = createRuntimeStore()
-runtime._initListeners()

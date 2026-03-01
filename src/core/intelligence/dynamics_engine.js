@@ -24,7 +24,7 @@
  */
 
 import { CONFIG } from "@core/engine/config.js"
-import { SYSTEM_PROMPTS } from "@core/intelligence/narrative_logic.js"
+import { SYSTEM_PROMPTS } from "@core/intelligence/prompt_builder.js"
 
 /************************************************************************************
  * 🧩 [SECTION: 1. REGISTRY]
