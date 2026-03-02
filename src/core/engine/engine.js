@@ -114,8 +114,22 @@ export const Engine = {
             // [NEXUS] Update Narrative Chronology before assembly
             Engine.NarrativeDirector.update()
 
-            // 2. ASSEMBLE (Modular Context)
-            const payload = await ContextBroker.assemble(options.input || "", "simulation")
+            // [DECOUPLED DATA FLOW] Fetch and format history directly from the DB source
+            const rawMessages = await Session.loadMessages(storyId)
+            const recentMessages = rawMessages
+                .filter((m) => !m.meta?.consolidated)
+                .slice(-10)
+                .map((m) => ({
+                    role: m.role === "user" ? "user" : "model",
+                    content: m.text || m.content || "",
+                    characterName: m.characterName,
+                }))
+
+            // 2. ASSEMBLE (Modular Context) Pass the array explicitly to the Broker
+            const payload = await ContextBroker.assemble(options.input || "", "simulation", recentMessages)
+
+            // [TELEMETRY] Log cleanly into the DebugPanel, avoiding browser console spam
+            app.log("Context Assembled. Payload routed to LLM.", "system")
 
             // 3. GENERATE (LLM Service)
             const response = await LlmService.generate(payload)
@@ -152,7 +166,7 @@ export const Engine = {
 
                 // [NEXUS] Action 2: The Hook - Immediate Director Follow-up
                 // This prevents the AI from starving and hallucinating user dialogue.
-                const directorCommand = "[DIRECTOR: The stage is set and the pieces are on the board, matches the prologue. Proceed with the simulation immediately.]"
+                const directorCommand = "[DIRECTOR: The stage is set and the pieces are on the board, as detailed in the history above. Proceed with the simulation immediately.]"
                 await Engine.generateAiResponse(storyId, { input: directorCommand })
             } finally {
                 engineState.complete()

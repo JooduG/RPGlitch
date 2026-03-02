@@ -18,12 +18,14 @@
     <FRAGMENT type="Past">Born in a silicon lab.</FRAGMENT>
     <FRAGMENT type="Future">Wants to be free.</FRAGMENT>
 </ENTITY>
+
 <ENTITY role="USER" name="Freelancer">
     <FRAGMENT type="Eternal">Determined.</FRAGMENT>
     <FRAGMENT type="Present">Fearful.</FRAGMENT>
     <FRAGMENT type="Past">Lost everything in the Glitch.</FRAGMENT>
     <FRAGMENT type="Future">Seeking revenge.</FRAGMENT>
 </ENTITY>
+
 <ENTITY role="FRACTAL" name="Hollow Market">
     <FRAGMENT type="Eternal">A place of secrets.</FRAGMENT>
     <FRAGMENT type="Present">Tense atmosphere.</FRAGMENT>

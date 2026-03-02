@@ -13,22 +13,21 @@
  * ARCHITECTURE
  * ┌────────────────────────────────────────────────────────────────────────┐
  * │  assemble()          : Primary entry point. Orchestrates the full pull. │
- * │  State Adapters      : pull_entities, pull_history, assemble_snapshot.  │
+ * │  State Adapters      : pull_entities, assemble_snapshot.                │
  * │  Logic Filters       : lexical_filter, clean_text (pure transformers).  │
  * └────────────────────────────────────────────────────────────────────────┘
  *
  * DATA FLOW
- *   Svelte State (runtime, bus)
- *     └─→ ContextBroker (Assembly)
- *         └─→ Engine.compose() (Dynamics + Prompt Composition)
- *             └─→ prompt_builder   (System Prompt Templates)
- *                 └─→ (Inlined)       (XML Generation)
+ * Engine (Courier) + Svelte State (Entities)
+ * └─→ ContextBroker (Assembly)
+ * └─→ Engine.compose() (Dynamics + Prompt Composition)
+ * └─→ prompt_builder   (System Prompt Templates)
+ * └─→ (Inlined)       (XML Generation)
  */
 
 import { runtime } from "@state/runtime.svelte.js"
 import { Engine } from "./dynamics_engine.js"
 import { ENTITY_CATALOG } from "./entity_fragments.js"
-const state = runtime
 
 /************************************************************************************
  * 🧩 [SECTION: PRIVATE HELPERS]
@@ -86,8 +85,8 @@ function is_physical_field(field) {
 /**
  * Converts a raw entity object into an array of enriched Fragment records.
  * Draws from two sources:
- *   1. ENTITY_CATALOG fields (schema-defined, resolved via dot-notation paths)
- *   2. entity.fragments  (ad-hoc / manual overrides)
+ * 1. ENTITY_CATALOG fields (schema-defined, resolved via dot-notation paths)
+ * 2. entity.fragments  (ad-hoc / manual overrides)
  *
  * @param {Object} entity - Character or entity data object.
  * @param {string} mode   - 'simulation' | 'image'. Controls physical field filtering.
@@ -158,27 +157,28 @@ function _required_context(phase) {
  * 🧩 [SECTION: CONTEXT BROKER]
  * ----------------------------------------------------------------------------------
  * The primary API for assembling LLM payloads from live application state.
- * All methods are pure functions over Svelte state — no instance required.
  ************************************************************************************/
 
 export const ContextBroker = {
     /**
      * ORCHESTRATOR
      * Assembles a complete LLM payload for the given action and narrative phase.
+     * Accepts history explicitly to maintain decoupling from the UI state.
      *
      * @param {string} action              - The user's input or triggered action string.
      * @param {string} [type="simulation"] - 'simulation' | 'logic' | 'image'
+     * @param {Array}  [history=[]]        - Array of formatted recent messages from the Engine.
      * @returns {Promise<Object>} The full payload for LlmService.generate().
      */
-    async assemble(action, type = "simulation") {
+    async assemble(action, type = "simulation", history = []) {
         // 1. Determine which context layers this phase requires
         const needs = _required_context(type)
 
-        // 2. Pull each required layer from live application state
+        // 2. Pull each required layer
         const state_data = {
-            snapshot: needs.includes("snapshot") ? ContextBroker.assemble_snapshot() : null,
+            snapshot: needs.includes("snapshot") ? ContextBroker.assemble_snapshot(history) : null,
             entity: needs.includes("entity") ? ContextBroker.pull_entities(type) : null,
-            recentMessages: needs.includes("snapshot") ? ContextBroker.pull_history() : [],
+            recentMessages: needs.includes("snapshot") ? history : [],
         }
 
         // 3. Delegate prompt composition to the Dynamics Engine
@@ -231,43 +231,21 @@ export const ContextBroker = {
     },
 
     /**
-     * L1 HISTORY ADAPTER
-     * Pulls the 10 most recent unconsolidated messages for dialogue continuity.
-     *
-     * @returns {Array<{role: string, content: string, characterName?: string}>}
-     */
-    pull_history() {
-        const active_id = state.story?.activeId
-        if (!active_id) return []
-
-        return (state.messages?.byStoryId[active_id] || [])
-            .filter((m) => !m.meta?.consolidated)
-            .slice(-10)
-            .map((m) => ({
-                role: m.role === "user" ? "user" : "model",
-                content: m.text,
-                characterName: m.characterName,
-            }))
-    },
-
-    /**
      * NARRATIVE SNAPSHOT ADAPTER
-     * Concatenates the last 3 messages into a dense beat-map string.
+     * Concatenates the last 3 messages from the passed history into a dense beat-map string.
      * Gives the LLM short-term scene awareness without consuming history slots.
      *
+     * @param {Array} history - The array of recent messages.
      * @returns {string|null}
      */
-    assemble_snapshot() {
-        const active_id = state.story?.activeId
-        if (!active_id) return null
+    assemble_snapshot(history = []) {
+        if (!history || !history.length) return null
 
-        const messages = (state.messages?.byStoryId[active_id] || []).slice(-3)
-        if (!messages.length) return null
-
-        return messages
+        return history
+            .slice(-3)
             .map((m) => {
                 const owner = m.characterName || (m.role === "user" ? "User" : "AI")
-                return `[${owner}]: ${ContextBroker.clean_text(m.text, 120)}`
+                return `[${owner}]: ${ContextBroker.clean_text(m.content, 120)}`
             })
             .join("\n")
     },

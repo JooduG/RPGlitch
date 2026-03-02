@@ -17,10 +17,10 @@
  * └────────────────────────────────────────────────────────────────────────┘
  *
  * DATA FLOW
- *   application_state → PromptBuilder
- *                       └─→ SYSTEM_PROMPTS (Compose)
- *                           └─→ Helper Renderers (XML structure)
- *                               └─→ Final System Prompt → LlmService
+ * application_state → PromptBuilder
+ * └─→ SYSTEM_PROMPTS (Compose)
+ * └─→ Helper Renderers (XML structure)
+ * └─→ Final System Prompt → LlmService
  */
 
 import { runtime } from "@state/runtime.svelte.js"
@@ -82,11 +82,7 @@ Render reasoning in <think> blocks before output.
 // — Private Renderers —
 
 /**
- * Renders the simulation grounding block: current turn, active objective, and kinetic behavior.
- * Ensure XML blocks are flush-left for optimal tokenization.
- *
- * @param {object} state
- * @returns {string}
+ * Returns the inner content for the NARRATIVE_CORE block.
  */
 function render_narrative_core(state) {
     const turn = state?.entity?.turn ?? state?.turn ?? 1
@@ -97,44 +93,31 @@ function render_narrative_core(state) {
             .map((s) => s.text)
             .join(" ") || "Standard operational parameters."
 
-    return `
-<NARRATIVE_CORE>
-<TURN>${turn}</TURN>
-<OBJECTIVE>${objective}</OBJECTIVE>
-<BEHAVIOR>${behavior}</BEHAVIOR>
-</NARRATIVE_CORE>`.trim()
+    return `<TURN>${turn}</TURN>\n<OBJECTIVE>${objective}</OBJECTIVE>\n<BEHAVIOR>${behavior}</BEHAVIOR>`
 }
 
 /**
- * Renders all active entities as `<ENTITY>` blocks.
- *
- * @param {object} state
- * @returns {string}
+ * Extracts the dynamic fragments for a specific role.
  */
-function render_entity(state) {
-    const entity = state?.entity
-    if (!entity || !Array.isArray(entity.list)) return ""
-
-    const blocks = entity.list.map((e) => {
-        const frags = (e.fragments || []).map((f) => `    <FRAGMENT type="${f.section || "General"}">${f.text}</FRAGMENT>`).join("\n") || `    <FRAGMENT type="Identity">No data on file.</FRAGMENT>`
-
-        return `
-<ENTITY role="${e.role}" name="${e.name || "Unknown"}">
-${frags}
-</ENTITY>`.trim()
-    })
-
-    return `
-<ENTITIES>
-${blocks.join("\n")}
-</ENTITIES>`.trim()
+function get_fragments_for_role(state, roleTarget) {
+    const entity = state?.entity?.list?.find((e) => e.role === roleTarget)
+    if (!entity || !entity.fragments || entity.fragments.length === 0) {
+        return `    <FRAGMENT type="Identity">No data on file.</FRAGMENT>`
+    }
+    return entity.fragments.map((f) => `    <FRAGMENT type="${f.section || "General"}">${f.text}</FRAGMENT>`).join("\n")
 }
 
 /**
- * Renders the recent chat history into a <HISTORY> block.
- *
- * @param {Array|string} history - Array of messages or beat-map string.
- * @returns {string}
+ * Grabs the entity's name for the XML attribute.
+ */
+function get_name_for_role(state, roleTarget, fallback) {
+    const entity = state?.entity?.list?.find((e) => e.role === roleTarget)
+    return entity?.name || fallback
+}
+
+/**
+ * Renders the recent chat history into a <HISTORY> or <HISTORY_SNAPSHOT> block.
+ * (Tags remain in the renderer to handle dynamic switching).
  */
 function render_history(history) {
     if (!history) return ""
@@ -192,25 +175,35 @@ export const SYSTEM_PROMPTS = {
             turn: state?.turn,
             objective: state?.objective,
             active_signals,
-            // [NEXUS] Prioritize recentMessages over snapshot string
-            history: state?.recentMessages || (typeof state?.snapshot === "string" ? state.snapshot : []),
+            // [FIX] Explicit length check to properly trigger snapshot fallback
+            history: state?.recentMessages?.length > 0 ? state.recentMessages : typeof state?.snapshot === "string" ? state.snapshot : [],
         }
 
         const dynamics = render_narrative_core(prompt_context)
-        const entity = render_entity(prompt_context)
         const history = render_history(prompt_context.history)
 
         // Dynamic Rule Composition
-        const rules = []
-        rules.push(RULES.CORE_PROTOCOLS)
-        rules.push(RULES.COGNITION)
-        rules.push(RULES.GOVERNANCE)
+        const rules = [RULES.CORE_PROTOCOLS, RULES.COGNITION, RULES.GOVERNANCE]
 
         return `
 <SYSTEM_PROMPT>
+<NARRATIVE_CORE>
 ${dynamics}
+</NARRATIVE_CORE>
 
-${entity}
+<ENTITIES>
+<ENTITY role="AI" name="${get_name_for_role(prompt_context, "AI", "Unknown")}">
+${get_fragments_for_role(prompt_context, "AI")}
+</ENTITY>
+
+<ENTITY role="USER" name="${get_name_for_role(prompt_context, "USER", "Unknown")}">
+${get_fragments_for_role(prompt_context, "USER")}
+</ENTITY>
+
+<ENTITY role="FRACTAL" name="${get_name_for_role(prompt_context, "FRACTAL", "Environment")}">
+${get_fragments_for_role(prompt_context, "FRACTAL")}
+</ENTITY>
+</ENTITIES>
 
 <PROTOCOL>
 ${rules.join("\n\n")}
@@ -219,7 +212,7 @@ ${rules.join("\n\n")}
 ${history}
 
 <INPUT_COMMAND>
-${input?.trim() || "Awaiting signal..."}
+${input?.trim() || "[DIRECTOR: The User remains silent. React accordingly.]"}
 </INPUT_COMMAND>
 </SYSTEM_PROMPT>`.trim()
     },
