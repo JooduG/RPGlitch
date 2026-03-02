@@ -63,7 +63,7 @@ export const LlmService = {
      */
     async enhance(text, fieldKey) {
         const payload = {
-            system: SYSTEM_PROMPTS.enhancement({ role: fieldKey, content: text, context: "" }),
+            system: SYSTEM_PROMPTS.enhancement({ field_id: fieldKey, content: text }),
             messages: [],
         }
 

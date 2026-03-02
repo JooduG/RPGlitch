@@ -206,7 +206,7 @@ export const ContextBroker = {
      * { role, name, fragments }.
      *
      * @param {string} [mode="simulation"] - 'simulation' | 'image'
-     * @returns {{ list: Array, turn: number, objective: string }}
+     * @returns {{ list: Array, turn: number, objective: string, objectives: Array }}
      */
     pull_entities(mode = "simulation") {
         const turn = runtime.turn || 1
@@ -227,7 +227,7 @@ export const ContextBroker = {
                 return { role: s.role, name: s.name, fragments: final_fragments }
             })
 
-        return { list, turn, objective }
+        return { list, turn, objective, objectives: runtime.narrative?.objectives ?? [] }
     },
 
     /**

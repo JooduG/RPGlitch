@@ -87,13 +87,13 @@ describe("SYSTEM_PROMPTS.simulation XML Integrity", () => {
         expect(prompt).not.toContain("<HISTORY>\n<HISTORY>")
     })
 
-    it("contains ROLE identity anchor for AI_CHARACTER", () => {
+    it("contains named SYSTEM role attribute for AI_CHARACTER", () => {
         const prompt = SYSTEM_PROMPTS.simulation({
             active_signals: {},
             state,
             input: "",
         })
-        expect(prompt).toContain("ROLE: You are the AI_CHARACTER.")
+        expect(prompt).toContain('role="AI_CHARACTER"')
     })
 
     it("omits <INPUT_COMMAND> block when input is empty", () => {
@@ -118,10 +118,10 @@ describe("PromptBuilder.build_prologue()", () => {
         expect(result.role).toBe("FRACTAL")
     })
 
-    it("contains ROLE identity anchor for FRACTAL", () => {
+    it("contains named SYSTEM role attribute for FRACTAL", () => {
         const builder = new PromptBuilder()
         const result = builder.build_prologue({})
-        expect(result.system).toContain("ROLE: You are the FRACTAL.")
+        expect(result.system).toContain('role="FRACTAL"')
     })
 
     it("uses TASK_INSTRUCTION tag (not legacy INSTRUCTION)", () => {
