@@ -1,342 +1,245 @@
 /**
  * @file src/core/intelligence/prompt_builder.js
- *
- * ─────────────────────────────────────────────────────────────────────────────
- * 🧠 PROMPT BUILDER  —  The Cognitive Manifest
- * ─────────────────────────────────────────────────────────────────────────────
- *
- * PURPOSE
- * This is the orchestrator of the Intelligence Kernel's prompt engineering layer.
- * It transitions the system from static templates to a dynamic, stateless factory.
- *
- * ARCHITECTURE
- * ┌────────────────────────────────────────────────────────────────────────┐
- * │  RULES           : Immutable behavioral protocols (XML snippets).      │
- * │  SYSTEM_PROMPTS  : Pure template functions. Data → XML string.         │
- * │  PromptBuilder   : Stateless factory. Orchestrates per-turn assembly.  │
- * └────────────────────────────────────────────────────────────────────────┘
- *
- * DATA FLOW
- * application_state → PromptBuilder
- * └─→ SYSTEM_PROMPTS (Compose)
- * └─→ Helper Renderers (XML structure)
- * └─→ Final System Prompt → LlmService
+ * 🧠 PROMPT BUILDER — The Cognitive Manifest
  */
 
 import { runtime } from "@state/runtime.svelte.js"
-import { ENTITY_CATALOG } from "./entity_fragments.js"
 import { ContextBroker } from "./intelligence_broker.js"
 
 /************************************************************************************
- * 🧩 [SECTION: RULES]
+ * 🧩 [SECTION: ATOMIC TOOLKIT]
  * ----------------------------------------------------------------------------------
- * Behavioral mandates injected into system prompts as hard constraints.
- * Each rule is a self-contained XML protocol block.
+ * Pure helpers. No XML wrappers. Return raw inner content only.
+ * All structural XML lives in SYSTEM_PROMPTS templates.
  ************************************************************************************/
 
-export const RULES = {
-    /**
-     * CORE_PROTOCOLS
-     * Merged identity and agency rules. Protects entity integrity and user boundaries.
-     */
-    CORE_PROTOCOLS: `
-<PROTOCOL:CORE>
-- IDENTITY: You are the entity marked as role="AI".
-- EPISTEMIC_WALL: The User is a Black Box. Ground all inferences in observable signals.
-- USER_AGENCY: Do not act or speak for the User. SHOW DON'T TELL.
-</PROTOCOL:CORE>`.trim(),
-
-    /**
-     * GOVERNANCE (Formerly AFFIRMATIVE_ORDERS)
-     * Enforces output hygiene: no meta-commentary, no jargon, no hedging.
-     */
-    GOVERNANCE: `
-<PROTOCOL:GOVERNANCE>
-- Use exclusively affirmative, present-tense language.
-- No technical jargon, web terminology, or meta-commentary.
-- No preambles ("Certainly!", "I can help with that"). Start directly.
-</PROTOCOL:GOVERNANCE>`.trim(),
-
-    /**
-     * COGNITION (Formerly COGNITIVE_ROUTING)
-     * Forces the LLM to output its internal reasoning inside <think> tags.
-     */
-    COGNITION: `
-<PROTOCOL:COGNITION>
-Render reasoning in <think> blocks before output.
-</PROTOCOL:COGNITION>`.trim(),
-
-    /**
-     * NARRATIVE_STYLE
-     * Sets the stylistic register for the simulation.
-     * // TODO: Wire to Tone system
-     *
-     * @param {string} style - The narrative style genre (e.g. "Cyberpunk Noir").
-     */
-    // NARRATIVE_STYLE: (style) => `
-    // <NARRATIVE_STYLE>
-    // Adopt the ${style} style. Use vocabulary appropriate to this genre.
-    // </NARRATIVE_STYLE>`.trim(),
-}
-
-// — Private Renderers —
-
 /**
- * Returns the inner content for the NARRATIVE_CORE block.
+ * Universal Fragment Injector.
+ * Maps unified role IDs to internal data keys.
+ * Returns raw <FRAGMENT> lines — no outer XML wrapper.
+ * @param {object} state
+ * @param {"AI_CHARACTER"|"USER_PERSONA"|"FRACTAL"} role
+ * @param {string} buckets  Comma-separated temporal slices: "ETERNAL, PAST, PRESENT, FUTURE"
  */
-function render_narrative_core(state) {
-    const turn = state?.entity?.turn ?? state?.turn ?? 1
-    const objective = state?.entity?.objective ?? state?.objective ?? "Maintain narrative momentum."
-    const behavior =
-        Object.values(state?.active_signals || {})
-            .filter((s) => s?.text)
-            .map((s) => s.text)
-            .join(" ") || "Standard operational parameters."
+export function inject(state, role, buckets) {
+    const role_map = { AI_CHARACTER: "AI", USER_PERSONA: "USER", FRACTAL: "FRACTAL" }
+    const entity_role = role_map[role] ?? role
+    const entity = state?.entity?.list?.find((e) => e.role === entity_role)
+    if (!entity) return `    <FRAGMENT type="Status">Entity not found.</FRAGMENT>`
 
-    return `<TURN>${turn}</TURN>\n<OBJECTIVE>${objective}</OBJECTIVE>\n<BEHAVIOR>${behavior}</BEHAVIOR>`
+    const allowed = buckets.split(",").map((s) => s.trim().toUpperCase())
+    const frags = (entity.fragments || [])
+        .filter((f) => allowed.includes(f.section?.toUpperCase()))
+        .map((f) => `    <FRAGMENT type="${f.section}">${f.text}</FRAGMENT>`)
+        .join("\n")
+
+    return frags || `    <FRAGMENT type="Status">No data for slices: ${buckets}</FRAGMENT>`
 }
 
 /**
- * Extracts the dynamic fragments for a specific role.
+ * Maps history arrays to raw <entry> lines using unified role IDs.
+ * @param {Array|string} history
  */
-function get_fragments_for_role(state, roleTarget) {
-    const entity = state?.entity?.list?.find((e) => e.role === roleTarget)
-    if (!entity || !entity.fragments || entity.fragments.length === 0) {
-        return `    <FRAGMENT type="Identity">No data on file.</FRAGMENT>`
-    }
-    return entity.fragments.map((f) => `    <FRAGMENT type="${f.section || "General"}">${f.text}</FRAGMENT>`).join("\n")
-}
-
-/**
- * Grabs the entity's name for the XML attribute.
- */
-function get_name_for_role(state, roleTarget, fallback) {
-    const entity = state?.entity?.list?.find((e) => e.role === roleTarget)
-    return entity?.name || fallback
-}
-
-/**
- * Renders the recent chat history into a <HISTORY> or <HISTORY_SNAPSHOT> block.
- * (Tags remain in the renderer to handle dynamic switching).
- */
-function render_history(history) {
+export function list_history(history) {
     if (!history) return ""
-
-    // Handle beat-map string (fallback)
-    if (typeof history === "string") {
-        if (history.trim().length === 0) return ""
-        return `
-<HISTORY_SNAPSHOT>
-${history}
-</HISTORY_SNAPSHOT>`.trim()
-    }
-
-    // Handle message array
-    if (Array.isArray(history)) {
-        if (history.length === 0) return ""
-        const entries = history
+    if (typeof history === "string") return history.trim()
+    if (Array.isArray(history) && history.length > 0) {
+        return history
             .map((m) => {
-                const role = m.role === "user" ? "user" : m.role === "prologue" ? "system" : "assistant"
-                const nameAttr = m.characterName ? ` name="${m.characterName}"` : ""
-                return `    <entry role="${role}"${nameAttr}>${m.content}</entry>`
+                const role = m.role === "user" ? "USER_PERSONA" : m.role === "prologue" ? "FRACTAL" : "AI_CHARACTER"
+                const name_attr = m.characterName ? ` name="${m.characterName}"` : ""
+                return `    <entry role="${role}"${name_attr}>${m.content}</entry>`
             })
             .join("\n")
-
-        return `
-<HISTORY>
-${entries}
-</HISTORY>`.trim()
     }
-
-    // If it's an object or anything else (e.g. legacy snapshot object in tests), ignore it
     return ""
+}
+
+/**
+ * Returns raw bullet points from PROTOCOL_LIBRARY keys.
+ * @param {string} selection  Comma-separated keys
+ */
+export function list_protocols(selection) {
+    if (!selection) return ""
+    return selection
+        .split(",")
+        .map((k) => k.trim().toUpperCase())
+        .map((key) => PROTOCOL_LIBRARY[key])
+        .filter(Boolean)
+        .map((rule) => `- ${rule}`)
+        .join("\n")
+}
+
+/************************************************************************************
+ * 🧩 [SECTION: PROTOCOL LIBRARY]
+ ************************************************************************************/
+
+const PROTOCOL_LIBRARY = {
+    // --- IDENTITY & AGENCY ---
+    IDENTITY: `IDENTITY: You are the entity currently encapsulated by the "<YOUR_IDENTITY>" block. Ground all inferences in observable signals.`,
+    AGENCY: `USER_AGENCY: Never generate dialogue, thoughts, or actions for the User. Maintain absolute player autonomy.`,
+    EPISTEMIC: `EPISTEMIC_WALL: Treat the User as a Black Box. You have no access to their internal motivations beyond what is explicitly observable.`,
+
+    // --- COGNITION & HYGIENE ---
+    COGNITION: `COGNITION: Process internal reasoning inside <think> blocks before providing any narrative output.`,
+    HYGIENE: `HYGIENE: Forbid preambles, meta-commentary, and technical jargon. Start every response directly.`,
+
+    // --- LINGUISTIC CONSTRAINTS ---
+    AFFIRMATIVE: `AFFIRMATIVE: Use exclusively affirmative language.`,
+    PRESENT: `PRESENT_TENSE: Exclusively use the present tense.`,
+
+    // --- NARRATIVE STYLE ---
+    IMMERSION: `SHOW, DON'T TELL: Describe actions, sensory details, and physical reactions. Avoid narrating internal emotions or abstract states; let behavior reveal condition.`,
+    MOMENTUM: `MOMENTUM: Every response must advance the scene, escalate tension, or introduce a new sensory complication.`,
 }
 
 /************************************************************************************
  * 🧩 [SECTION: SYSTEM PROMPTS]
  * ----------------------------------------------------------------------------------
- * Pure template functions. Each takes structured data → returns an XML string.
+ * Skeletal / Naked Templates. All XML structure lives here.
  ************************************************************************************/
 
 export const SYSTEM_PROMPTS = {
-    /**
-     * SIMULATION
-     * The primary per-turn prompt orchestrator.
-     * Uses dynamic rule composition (the "buffet") based on active signals.
-     *
-     * @param {Object} params
-     * @param {Object} params.active_signals - Physics signals from dynamics_engine.
-     * @param {Object} params.state          - Resolved story state.
-     * @param {string} params.input          - User action string.
-     */
     simulation: ({ active_signals, state, input }) => {
-        const prompt_context = {
-            entity: state?.entity,
-            turn: state?.turn,
-            objective: state?.objective,
-            active_signals,
-            // [FIX] Explicit length check to properly trigger snapshot fallback
-            history: state?.recentMessages?.length > 0 ? state.recentMessages : typeof state?.snapshot === "string" ? state.snapshot : [],
-        }
-
-        const dynamics = render_narrative_core(prompt_context)
-        const history = render_history(prompt_context.history)
-
-        // Dynamic Rule Composition
-        const rules = [RULES.CORE_PROTOCOLS, RULES.COGNITION, RULES.GOVERNANCE]
+        const turn = state?.entity?.turn ?? state?.turn ?? 1
+        const objective = state?.entity?.objective ?? state?.objective ?? "Maintain narrative momentum."
+        const behavior =
+            Object.values(active_signals || {})
+                .filter((s) => s?.text)
+                .map((s) => s.text)
+                .join(" ") || "Standard operational parameters."
+        const history = state?.recentMessages?.length > 0 ? state.recentMessages : typeof state?.snapshot === "string" ? state.snapshot : []
 
         return `
 <SYSTEM_PROMPT>
+ROLE: You are the AI_CHARACTER.
+
 <NARRATIVE_CORE>
-${dynamics}
+<TURN>${turn}</TURN>
+<OBJECTIVE>${objective}</OBJECTIVE>
+<BEHAVIOR>${behavior}</BEHAVIOR>
 </NARRATIVE_CORE>
 
-<ENTITIES>
-<ENTITY role="AI" name="${get_name_for_role(prompt_context, "AI", "Unknown")}">
-${get_fragments_for_role(prompt_context, "AI")}
-</ENTITY>
+<YOUR_IDENTITY>
+${inject(state, "AI_CHARACTER", "ETERNAL, PAST, PRESENT, FUTURE")}
+</YOUR_IDENTITY>
 
-<ENTITY role="USER" name="${get_name_for_role(prompt_context, "USER", "Unknown")}">
-${get_fragments_for_role(prompt_context, "USER")}
-</ENTITY>
+<USER_PERSONA>
+${inject(state, "USER_PERSONA", "ETERNAL, PRESENT")}
+</USER_PERSONA>
 
-<ENTITY role="FRACTAL" name="${get_name_for_role(prompt_context, "FRACTAL", "Environment")}">
-${get_fragments_for_role(prompt_context, "FRACTAL")}
-</ENTITY>
-</ENTITIES>
+<FRACTAL>
+${inject(state, "FRACTAL", "ETERNAL, PRESENT")}
+</FRACTAL>
 
-<PROTOCOL>
-${rules.join("\n\n")}
-</PROTOCOL>
+<HISTORY>
+${list_history(history)}
+</HISTORY>
 
-${history}
-
-<INPUT_COMMAND>
-${input?.trim() || "[DIRECTOR: The User remains silent. React accordingly.]"}
-</INPUT_COMMAND>
+<PROTOCOLS>
+${list_protocols("IDENTITY, AGENCY, EPISTEMIC, COGNITION, HYGIENE, IMMERSION, MOMENTUM")}
+</PROTOCOLS>
+${input?.trim() ? `\n<INPUT_COMMAND>\n${input.trim()}\n</INPUT_COMMAND>` : ""}
 </SYSTEM_PROMPT>`.trim()
     },
 
-    /**
-     * ENHANCEMENT
-     * Field-level prose optimization enhancer.
-     */
+    prologue: ({ state, input }) => {
+        const objective = state?.entity?.list?.find((e) => e.role === "FRACTAL")?.objective || "Establish narrative grounding"
+
+        return `
+<PROLOGUE_PROTOCOL>
+ROLE: You are the FRACTAL.
+
+<YOUR_IDENTITY>
+${inject(state, "FRACTAL", "ETERNAL, PAST, PRESENT, FUTURE")}
+</YOUR_IDENTITY>
+
+<ACTIVE_CHARACTERS>
+<AI_CHARACTER>
+${inject(state, "AI_CHARACTER", "ETERNAL, PAST, PRESENT, FUTURE")}
+</AI_CHARACTER>
+
+<USER_PERSONA>
+${inject(state, "USER_PERSONA", "ETERNAL, PAST, PRESENT, FUTURE")}
+</USER_PERSONA>
+</ACTIVE_CHARACTERS>
+
+<PROTOCOLS>
+${list_protocols("COGNITION, IMMERSION, HYGIENE, PRESENT")}
+</PROTOCOLS>
+
+<TASK_INSTRUCTION>
+Open the scene. Establish the atmosphere, location, and the AI character's presence.
+Do not address or await the user. Paint the world they are about to enter.
+Objective: ${objective}
+</TASK_INSTRUCTION>
+${input?.trim() ? `\n<INPUT_COMMAND>\n${input.trim()}\n</INPUT_COMMAND>` : ""}
+</PROLOGUE_PROTOCOL>`.trim()
+    },
+
     enhancement: ({ role, content, context = "" }) => {
-        const entry = ENTITY_CATALOG[role] || {}
         return `
 <ENHANCEMENT_PROTOCOL role="${role}">
 ${context ? `<CONTEXT>\n${context}\n</CONTEXT>` : ""}
-${RULES.GOVERNANCE}
+<PROTOCOLS>
+${list_protocols("HYGIENE, AFFIRMATIVE, PRESENT")}
+</PROTOCOLS>
 <DIRECTIVE>
-${entry.directive || "Enhance this text for clarity and emotional resonance."}
+Optimize the provided prose for clarity and emotional resonance while maintaining character voice.
 </DIRECTIVE>
-<ENHANCER>
-${entry.enhancer || "STANDARD_LINGUISTIC_PROCESSOR"}
-</ENHANCER>
 <INPUT_CONTENT>
 ${content}
 </INPUT_CONTENT>
 </ENHANCEMENT_PROTOCOL>`.trim()
     },
 
-    /**
-     * MEMORY
-     * Resonance condensation prompt for memory consolidation.
-     */
     memory: ({ role, entity, history }) => {
-        const entry = ENTITY_CATALOG[role] || {}
         return `
 <MEMORY_PROTOCOL role="${role}">
-${RULES.GOVERNANCE}
+<PROTOCOLS>
+${list_protocols("HYGIENE, AFFIRMATIVE, PRESENT")}
+</PROTOCOLS>
 <CONTEXT>
 Entity: ${entity.name || "Unknown"}
-Conditioning: ${entry.directive || "Standard condensation — capture meaningful change."}
 </CONTEXT>
 <INPUT_HISTORY>
 ${JSON.stringify(history, null, 2)}
 </INPUT_HISTORY>
-<INSTRUCTION>
+<TASK_INSTRUCTION>
 Distil the input history into a single-sentence "Resonance" summary.
-Focus on: character development, significant shifts, or critical realizations.
 Output strict JSON only: { "summary": "...", "tags": ["...", "..."] }
-</INSTRUCTION>
+</TASK_INSTRUCTION>
 </MEMORY_PROTOCOL>`.trim()
     },
 
-    /**
-     * PROLOGUE
-     * Establishes setting and atmosphere before user interaction.
-     */
-    prologue: () =>
-        `
-<PROLOGUE_PROTOCOL>
-${RULES.GOVERNANCE}
-${RULES.CORE_PROTOCOLS}
-<INSTRUCTION>
-Open the scene. Establish the atmosphere, location, and the AI character's presence.
-Do not address or await the user. Paint the world they are about to enter.
-</INSTRUCTION>
-</PROLOGUE_PROTOCOL>`.trim(),
-
-    /**
-     * EPILOGUE
-     * Narrative resolution prompt.
-     */
     epilogue: () =>
         `
 <EPILOGUE_PROTOCOL>
-${RULES.GOVERNANCE}
-<INSTRUCTION>
+<PROTOCOLS>
+${list_protocols("HYGIENE, PRESENT")}
+</PROTOCOLS>
+<TASK_INSTRUCTION>
 Close the scene. Resolve the active tension threads.
 Acknowledge what the characters experienced. Leave the world changed.
-</INSTRUCTION>
+</TASK_INSTRUCTION>
 </EPILOGUE_PROTOCOL>`.trim(),
 }
 
 /************************************************************************************
- * 🧩 [SECTION: PROMPT BUILDER]
- * ----------------------------------------------------------------------------------
- * A stateless orchestrator that binds SYSTEM_PROMPTS to live application state.
+ * 🧩 [SECTION: PROMPT BUILDER CLASS]
  ************************************************************************************/
 
-/**
- * Internal helper for physical metadata extraction.
- */
-function _get_physical_fragments(role) {
-    const data = role === "AI" ? runtime.activeAI : role === "USER" ? runtime.activeUser : runtime.activeFractal
-    return {
-        eternal: { physical: data?.eternal?.physical || "" },
-        present: { physical: data?.present?.physical || data?.description || "" },
-    }
-}
-
 export class PromptBuilder {
-    /**
-     * The builder is now stateless.
-     * Constructor persists no state to ensure testability and hygiene.
-     */
     constructor() {}
 
-    /**
-     * Build the primary simulation prompt.
-     *
-     * @param {Object} story - The active story state object.
-     * @param {string} input - User action.
-     * @param {Array} recentMessages - Array of recent chat messages.
-     * @returns {string} XML Payload.
-     */
     build(story, input, recentMessages = []) {
-        const active_signals = story?.active_signals || { style: "Atmospheric" }
         return SYSTEM_PROMPTS.simulation({
-            active_signals,
+            active_signals: story?.active_signals || { flags: [] },
             state: { ...story, recentMessages },
-            input,
+            input: input,
         })
     }
 
-    /**
-     * Build a payload for visual generation.
-     */
     build_image_prompt() {
         return {
             ai: _get_physical_fragments("AI"),
@@ -347,34 +250,42 @@ export class PromptBuilder {
         }
     }
 
-    /**
-     * Helper for field enhancement.
-     */
     build_enhancement(role, content, context = "") {
         return SYSTEM_PROMPTS.enhancement({ role, content, context })
     }
 
-    /**
-     * Helper for scene openings.
-     */
-    build_prologue() {
-        return { system: SYSTEM_PROMPTS.prologue(), messages: [] }
+    build_prologue(story, input = "") {
+        return {
+            system: SYSTEM_PROMPTS.prologue({ state: story, input }),
+            messages: [],
+            role: "FRACTAL",
+        }
     }
 
-    /**
-     * Helper for scene closures.
-     */
     build_epilogue() {
         return { system: SYSTEM_PROMPTS.epilogue(), messages: [] }
     }
 
-    /**
-     * Helper for memory condensation.
-     */
     build_memory_prompt(entity, history, role = "character") {
         return {
             system: SYSTEM_PROMPTS.memory({ role, entity, history }),
             messages: [],
         }
+    }
+}
+
+/************************************************************************************
+ * 🧩 [SECTION: INTERNAL HELPERS]
+ ************************************************************************************/
+
+/**
+ * Extracts physical metadata fragments for image generation.
+ * @param {"AI"|"USER"|"FRACTAL"} role
+ */
+function _get_physical_fragments(role) {
+    const data = role === "AI" ? runtime.activeAI : role === "USER" ? runtime.activeUser : runtime.activeFractal
+    return {
+        eternal: { physical: data?.eternal?.physical || "" },
+        present: { physical: data?.present?.physical || data?.description || "" },
     }
 }
