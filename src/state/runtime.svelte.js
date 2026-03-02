@@ -11,8 +11,8 @@ function createRuntimeStore() {
             // 🧠 Deep State (Fragments: Eternal, Present, Past, Future)
             eternal: { non_physical: "", physical: "" },
             present: { non_physical: "", physical: "" },
-            past: { essence: "" },
-            future: { essence: "" },
+            past: { essence: [] },
+            future: { essence: [] },
 
             // 🧪 Dynamics (Dev)
             dynamics: {
@@ -39,8 +39,8 @@ function createRuntimeStore() {
             // 🧠 Unified Temporal structure
             eternal: { non_physical: "", physical: "" },
             present: { non_physical: "", physical: "" },
-            past: { essence: "" },
-            future: { essence: "" },
+            past: { essence: [] },
+            future: { essence: [] },
         },
         ready: false,
         storyId: null,
@@ -234,7 +234,15 @@ function createRuntimeStore() {
                     // Handle character/AI/fractal sync if needed
                     const targets = [state.character, state.activeUser, state.activeAI, state.activeFractal]
                     targets.forEach((t) => {
-                        if (t && t.id === id) Object.assign(t, data)
+                        if (t && t.id === id) {
+                            // Migration: Ensure essence is an array if updating past/future
+                            if (data.essence !== undefined && (id.includes("past") || id.includes("future"))) {
+                                const sanitized = Array.isArray(data.essence) ? data.essence : []
+                                Object.assign(t, { ...data, essence: sanitized })
+                            } else {
+                                Object.assign(t, data)
+                            }
+                        }
                     })
                 }
             } catch (err) {

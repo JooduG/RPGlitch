@@ -67,6 +67,10 @@ export const Session = {
         runtime.story.activeId = id
 
         await this.setActive(id)
+
+        // [R5] Synchronize Global State immediately
+        await runtime.sync(id)
+
         return id
     },
 

@@ -88,6 +88,7 @@ export const ENTITY_FRAGMENTS = {
                 label: "Essence",
                 directive: "I will detail my historical anchors here. I will include my origin story, formative events, and established relationships. If I have repressed trauma or forgotten memories I will note them clearly.",
                 enhancer: "EPISODIC_MEMORY_COMPILER",
+                type: "array", // Metadata for the structured format
             },
         },
     },
@@ -98,8 +99,9 @@ export const ENTITY_FRAGMENTS = {
         fields: {
             essence: {
                 label: "Essence",
-                directive: "I will define my self-interest protocol here. I will detail my overarching macro-goals, lateral agendas, and ultimate narrative destiny.",
+                directive: "I will define my self-interest protocol here. I will detail my overarching macro-goals, lateral agendas, and ultimate narrative destiny. Use [CONSEQUENCE: ...] for stakes.",
                 enhancer: "TRAJECTORY_SIMULATOR",
+                type: "array", // Metadata for the structured format
             },
         },
     },

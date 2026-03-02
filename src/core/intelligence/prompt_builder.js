@@ -4,6 +4,7 @@
  */
 
 import { runtime } from "@state/runtime.svelte.js"
+import { scan_reflexes } from "./dynamics_engine.js"
 import { ENTITY_CATALOG } from "./entity_fragments.js"
 import { ContextBroker } from "./intelligence_broker.js"
 
@@ -95,15 +96,18 @@ function list_objectives(entity) {
 
 const PROTOCOL_LIBRARY = {
     IDENTITY: `IDENTITY: You are the entity currently encapsulated by the "<YOUR_IDENTITY>" block. Ground all inferences in observable signals.`,
-    AGENCY: `USER_AGENCY: Never generate dialogue, thoughts, or actions for the User. Maintain absolute player autonomy.`,
+    USER_AGENCY: `USER_AGENCY: Never generate dialogue, thoughts, or actions for the User. Maintain absolute player autonomy.`,
     PLACEMENT: `PLACEMENT: You may describe any character's physical presence, position, and sensory experience in the scene. Never generate their dialogue, decisions, or internal thoughts.`,
-    EPISTEMIC: `EPISTEMIC_WALL: Treat the User as a Black Box. You have no access to their internal motivations beyond what is explicitly observable.`,
-    COGNITION: `COGNITION: Process internal reasoning inside <think> blocks before providing any narrative output.`,
-    HYGIENE: `HYGIENE: Forbid preambles, meta-commentary, and technical jargon. Start every response directly.`,
+    EPISTEMIC_WALL: `EPISTEMIC_WALL: Treat the User as a Black Box. You have no access to their internal motivations beyond what is explicitly observable.`,
+    COGNITION: `COGNITION: Every response MUST begin with a <think> block for internal state assessment. You MUST assess the physical environment's geometry, atmospheric resonance, and the spatial proximity of all characters BEFORE providing any narrative output.`,
+    HYGIENE: `HYGIENE: Forbid preambles, intro-lines, and technical metadata labels (e.g. "MESSAGE:"). Start every response directly. Fourth-wall awareness is permitted only as direct, diegetic character dialogue — never as technical commentary or formatting artifacts.`,
     AFFIRMATIVE: `AFFIRMATIVE: Use exclusively affirmative language.`,
     PRESENT: `PRESENT_TENSE: Exclusively use the present tense.`,
     IMMERSION: `SHOW, DON'T TELL: Describe actions, sensory details, and physical reactions. Avoid narrating internal emotions or abstract states; let behavior reveal condition.`,
     MOMENTUM: `MOMENTUM: Every response must advance the scene, escalate tension, or introduce a new sensory complication.`,
+    FIRST_PERSON: `FIRST_PERSON: Narrate exclusively from the first-person perspective ("I", "me", "my"). Maintain the subjective filter of your identity. You may be ontologically aware of the User as a presence, but you must never use technical or meta-narrative metrics (e.g. engagement, viral potential) to describe this awareness.`,
+    THIRD_PERSON: `THIRD_PERSON: Narrate exclusively from the third-person limited perspective. In this mode, you are the world-voice observing the entities.`,
+    GRIT: `GRIT: Maintain a 2:1 ratio of sensory physics (texture, light, resistance) to abstract dialogue or logic.`,
 }
 
 /************************************************************************************
@@ -120,7 +124,6 @@ export const SYSTEM_PROMPTS = {
                 .filter((s) => s?.text)
                 .map((s) => s.text)
                 .join(" ") || null
-        const history = state?.recentMessages?.length > 0 ? state.recentMessages : typeof state?.snapshot === "string" ? state.snapshot : []
         const ai_name = state?.entity?.list?.find((e) => e.role === "AI")?.name ?? "AI_CHARACTER"
         const user_name = state?.entity?.list?.find((e) => e.role === "USER")?.name ?? "USER_PERSONA"
         const fractal_name = state?.entity?.list?.find((e) => e.role === "FRACTAL")?.name ?? "FRACTAL"
@@ -135,45 +138,44 @@ ${list_objectives(state?.entity)}
 </STATE>
 
 <YOUR_IDENTITY name="${ai_name}">
-${inject(state, "AI_CHARACTER", "ETERNAL, PAST, PRESENT, FUTURE")}
+${inject(state, "AI_CHARACTER", "ETERNAL, PRESENT")}
+${inject_memories(state, "AI", input)}
+${inject_future(state, "AI")}
 </YOUR_IDENTITY>
 
 <USER_PERSONA name="${user_name}">
 ${inject(state, "USER_PERSONA", "ETERNAL, PRESENT")}
+${inject_memories(state, "USER", input)}
 </USER_PERSONA>
 
 <FRACTAL name="${fractal_name}">
 ${inject(state, "FRACTAL", "ETERNAL, PRESENT")}
 </FRACTAL>
 
-${
-    history.length > 0
-        ? `
-<HISTORY>
-${list_history(history)}
-</HISTORY>`
-        : ""
-}
-
 ${behavior ? `<NARRATIVE_STYLE>${behavior}</NARRATIVE_STYLE>` : ""}
 
 <PROTOCOLS>
-${list_protocols("IDENTITY, AGENCY, EPISTEMIC, COGNITION, HYGIENE, IMMERSION, MOMENTUM")}
+${list_protocols("COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, PLACEMENT, IMMERSION, MOMENTUM, EPISTEMIC_WALL")}
 </PROTOCOLS>
 ${input?.trim() ? `\n<INPUT_COMMAND>\n${input.trim()}\n</INPUT_COMMAND>` : ""}
 </SYSTEM>`.trim()
     },
 
     prologue: ({ state, input }) => {
+        const turn = state?.entity?.turn ?? state?.turn ?? 1
         const fractal = state?.entity?.list?.find((e) => e.role === "FRACTAL")
         const fractal_name = fractal?.name ?? "FRACTAL"
         const ai_name = state?.entity?.list?.find((e) => e.role === "AI")?.name ?? "AI_CHARACTER"
         const user_name = state?.entity?.list?.find((e) => e.role === "USER")?.name ?? "USER_PERSONA"
 
         return `
-<SYSTEM role="${fractal_name}">
+<SYSTEM role="${fractal_name}" mode="PROLOGUE">
 
-<STATE mode="PROLOGUE"/>
+<STATE turn="${turn}">
+<OBJECTIVES>
+${list_objectives(state?.entity)}
+</OBJECTIVES>
+</STATE>
 
 <YOUR_IDENTITY name="${fractal_name}">
 ${inject(state, "FRACTAL", "ETERNAL, PAST, PRESENT, FUTURE")}
@@ -181,20 +183,24 @@ ${inject(state, "FRACTAL", "ETERNAL, PAST, PRESENT, FUTURE")}
 
 <ACTIVE_CHARACTERS>
 <AI_CHARACTER name="${ai_name}">
-${inject(state, "AI_CHARACTER", "ETERNAL, PAST, PRESENT, FUTURE")}
+${inject(state, "AI_CHARACTER", "ETERNAL, PRESENT")}
+${inject_memories(state, "AI")}
+${inject_future(state, "AI")}
 </AI_CHARACTER>
 
 <USER_PERSONA name="${user_name}">
-${inject(state, "USER_PERSONA", "ETERNAL, PAST, PRESENT, FUTURE")}
+${inject(state, "USER_PERSONA", "ETERNAL, PRESENT")}
+${inject_memories(state, "USER")}
 </USER_PERSONA>
 </ACTIVE_CHARACTERS>
 
 <PROTOCOLS>
-${list_protocols("IDENTITY, COGNITION, PLACEMENT, IMMERSION, HYGIENE, PRESENT, MOMENTUM")}
+${list_protocols("COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, EPISTEMIC_WALL, PLACEMENT, IMMERSION, MOMENTUM")}
 </PROTOCOLS>
 
-<INSTRUCTIONS>
+<TASK_INSTRUCTION>
 You see everything. Open the scene.
+Use your <think> block to assess the environmental resonance and character alignment before speaking.
 
 Ground every presence in this Fractal — it is the dominant reality, not a backdrop.
 ${ai_name} and ${user_name} arrived here through their Pasts: their paths converged
@@ -203,7 +209,7 @@ ${user_name}'s Present state must resonate with the Fractal's present reality �
 Let ${ai_name}'s and ${user_name}'s Futures haunt the periphery: unspoken, atmospheric, never named directly.
 
 The Fractal speaks first. Begin with sensation. No dialogue.
-</INSTRUCTIONS>
+</TASK_INSTRUCTION>
 ${input?.trim() ? `\n<INPUT_COMMAND>\n${input.trim()}\n</INPUT_COMMAND>` : ""}
 </SYSTEM>`.trim()
     },
@@ -243,8 +249,12 @@ Entity: ${entity.name || "Unknown"}
 ${JSON.stringify(history, null, 2)}
 </INPUT_HISTORY>
 <TASK_INSTRUCTION>
-Distil the input history into a single-sentence "Resonance" summary.
-Output strict JSON only: { "summary": "...", "tags": ["...", "..."] }
+Distil the input history into a structured Resonance object.
+
+1. "summary": A single sentence capturing the most meaningful shift in state or relationship.
+2. "entity_tags": An array of strings containing ONLY proper nouns, specific locations, or key objects mentioned. Do NOT include abstract moods or verbs.
+
+Output strict JSON only: { "summary": "...", "entity_tags": ["...", "..."] }
 </TASK_INSTRUCTION>
 </MEMORY_PROTOCOL>`.trim()
     },
@@ -254,7 +264,7 @@ Output strict JSON only: { "summary": "...", "tags": ["...", "..."] }
 <SYSTEM>
 ROLE: You are the narrator.
 <PROTOCOLS>
-${list_protocols("HYGIENE, PRESENT, IMMERSION, MOMENTUM")}
+${list_protocols("COGNITION, THIRD_PERSON, GRIT, SENSORY, WORLD_BUILDING")}
 </PROTOCOLS>
 <TASK_INSTRUCTION>
 Close the scene. Resolve every active tension thread. Show — do not narrate — the
@@ -317,7 +327,66 @@ export class PromptBuilder {
 
 /************************************************************************************
  * 🧩 [SECTION: INTERNAL HELPERS]
+ * ----------------------------------------------------------------------------------
+ * Supporting logic for fragment formatting, and memory injection.
  ************************************************************************************/
+
+/**
+ * Scores a list of Resonance objects based on overlap with the current input's signals.
+ *
+ * @param {Array<Object>} memories - The `past.essence` array.
+ * @param {string} input - The current user input.
+ * @returns {Array<Object>} Sorted memories by score (descending).
+ */
+export function score_memories(memories, input) {
+    if (!Array.isArray(memories) || !memories.length) return []
+    if (!input) return memories.slice(-3) // Default to latest if no input
+
+    const current_reflexes = scan_reflexes(input).map((r) => r.id)
+    const input_lower = input.toLowerCase()
+
+    const scored = memories.map((m) => {
+        let score = 0
+        // Axis Match: +2 (Vibe/Kinetic alignment)
+        m.axis_tags?.forEach((t) => {
+            if (current_reflexes.includes(t)) score += 2
+        })
+        // Entity Match: +1 (Noun/Location/Proper Name alignment)
+        m.entity_tags?.forEach((t) => {
+            if (input_lower.includes(t.toLowerCase())) score += 1
+        })
+        return { ...m, _score: score }
+    })
+
+    return scored.sort((a, b) => b._score - a._score)
+}
+
+/**
+ * Filter, score, and render the top 3 structured resonances in reverse-ranked order.
+ * Reversed order ensures the most critical memory is at the absolute bottom (closest to context).
+ */
+function inject_memories(state, role, input = "") {
+    const entity = state?.entity?.list?.find((e) => e.role === role)
+    const past = entity?.past?.essence
+    if (!Array.isArray(past) || !past.length) return ""
+
+    const ranked = score_memories(past, input).slice(0, 3)
+    // Reverse for prompt injection: Highest score at the bottom
+    const reversed = [...ranked].reverse()
+
+    return reversed.map((m) => `        [RESONANCE]: ${m.summary}`).join("\n")
+}
+
+/**
+ * Renders structured future objectives with [CONSEQUENCE] stakes.
+ */
+function inject_future(state, role) {
+    const entity = state?.entity?.list?.find((e) => e.role === role)
+    const future = entity?.future?.essence
+    if (!Array.isArray(future) || !future.length) return ""
+
+    return future.map((f) => `        [OBJECTIVE]: ${f}`).join("\n")
+}
 
 /**
  * Extracts physical metadata fragments for image generation.

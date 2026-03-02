@@ -33,6 +33,7 @@ vi.mock("@state/runtime.svelte.js", () => ({
         // Narrative State Mocks
         activeObjective: "Find the key",
         echoes: [],
+        narrative: { objectives: [{ id: "1", text: "Find the key" }] },
     },
 }))
 
@@ -58,9 +59,9 @@ describe("ContextBroker", () => {
     it("should assemble simulation context with Dynamics layer", async () => {
         const payload = await ContextBroker.assemble("Look around", "simulation")
 
-        expect(payload.system).toContain("<NARRATIVE_CORE>")
-        expect(payload.system).toContain("<TURN>5</TURN>")
-        expect(payload.system).toContain("<OBJECTIVE>Find the key</OBJECTIVE>")
+        expect(payload.system).toContain('<STATE turn="5">')
+        expect(payload.system).toContain('priority="PRIMARY"')
+        expect(payload.system).toContain("Find the key")
     })
 
     it("should exclude enhancer and directive metadata in simulation mode", async () => {

@@ -24,6 +24,7 @@
  */
 
 import { LlmService } from "@core/intelligence/intelligence_service.js"
+import { scan_reflexes } from "./dynamics_engine.js"
 import { PromptBuilder } from "./prompt_builder.js"
 
 /**
@@ -35,27 +36,30 @@ import { PromptBuilder } from "./prompt_builder.js"
  * @param {Object}   target_entity - The entity whose memory is being updated.
  * @param {Array}    history_slice - The raw message objects to condense.
  * @param {string}   [role]        - Context role: "character" | "user" | "fractal".
- * @returns {Promise<{summary: string, tags: string[]}|null>}
+ * @returns {Promise<{summary: string, entity_tags: string[], axis_tags: string[], timestamp: number}|null>}
  */
 export async function memorize(target_entity, history_slice, role = "character") {
     if (!target_entity) return null
 
     try {
         // 1. Build the memory condensation prompt.
-        //    Pass null as storyId — Echo operates on entity data directly,
-        //    not on a live story session.
         const builder = new PromptBuilder()
         const payload = builder.build_memory_prompt(target_entity, history_slice, role)
 
         // 2. Generate a raw Resonance response from the LLM.
-        //    raw: true — we parse JSON ourselves, don't want sanitize() to mangle it.
-        /** @type {any} */
+        //    Expects: { summary: string, entity_tags: string[] }
         const response = await LlmService.generate(payload, { json: true, silent: true, raw: true })
 
-        // 3. Extract text — LLM may return a string or an object with generatedText.
-        const raw_text = String(response?.generatedText ?? response?.text ?? response ?? "").trim()
+        // 3. Extract text and parse JSON
+        let raw_text = ""
+        if (typeof response === "string") {
+            raw_text = response.trim()
+        } else if (response && typeof response === "object") {
+            // Use cast-style access to avoid TS 'never' inference on object check
+            const r = /** @type {any} */ (response)
+            raw_text = String(r.generatedText ?? r.text ?? "").trim()
+        }
 
-        // 4. Strip any markdown code fences (```json … ```) then isolate the JSON object.
         const stripped = raw_text.replace(/```json\n?|```/g, "").trim()
         const object_match = stripped.match(/\{[\s\S]*\}/)
 
@@ -64,7 +68,20 @@ export async function memorize(target_entity, history_slice, role = "character")
             return null
         }
 
-        return JSON.parse(object_match[0])
+        const resonance = JSON.parse(object_match[0])
+
+        // 4. Hybrid Tagging Logic (AXIS TAGS)
+        //    Run automated Scan Reflexes on the summary to avoid hallucination.
+        const triggered_reflexes = scan_reflexes(resonance.summary)
+        const axis_tags = triggered_reflexes.map((r) => r.id)
+
+        // 5. Build Final Resonance Object
+        return {
+            summary: resonance.summary,
+            entity_tags: resonance.entity_tags || resonance.tags || [],
+            axis_tags: axis_tags,
+            timestamp: Date.now(),
+        }
     } catch (err) {
         console.error("[Echo] Resonance condensation failed.", err)
         return null

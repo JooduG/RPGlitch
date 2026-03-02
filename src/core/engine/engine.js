@@ -153,7 +153,10 @@ export const Engine = {
     generatePrologue: async (storyId) => {
         const { PromptBuilder } = await import("@core/intelligence/prompt_builder.js")
         const builder = new PromptBuilder()
-        const payload = await builder.build_prologue()
+
+        // [FIX] Pull current entity context before building the prologue payload
+        const entityContext = ContextBroker.pull_entities("simulation")
+        const payload = await builder.build_prologue({ entity: entityContext })
 
         if (payload) {
             engineState.startGeneration("fractal")

@@ -213,19 +213,42 @@ export const ContextBroker = {
         const objective = runtime.activeObjective || "EXPLORE"
 
         const sources = [
-            { role: "AI", data: runtime.activeAI, name: runtime.activeAI?.name || "AI" },
-            { role: "USER", data: runtime.activeUser, name: runtime.activeUser?.name || "User" },
-            { role: "FRACTAL", data: runtime.activeFractal, name: runtime.activeFractal?.name || "Environment" },
+            {
+                role: "AI",
+                data: runtime.activeAI,
+                name: runtime.activeAI?.name || "AI_CHARACTER",
+            },
+            {
+                role: "USER",
+                data: runtime.activeUser,
+                name: runtime.activeUser?.name || "USER_PERSONA",
+            },
+            {
+                role: "FRACTAL",
+                data: runtime.activeFractal,
+                name: runtime.activeFractal?.name || "FRACTAL",
+            },
         ]
 
-        const list = sources
-            .filter((s) => s.data)
-            .map((s) => {
-                const fragments = to_fragments(s.data, mode)
-                // AI fragments are priority-sorted by the active objective
-                const final_fragments = s.role === "AI" ? ContextBroker.lexical_filter(fragments, objective) : fragments
-                return { role: s.role, name: s.name, fragments: final_fragments }
-            })
+        const list = sources.map((s) => {
+            // [BRIDGE] If data is missing (e.g. prologue before hydration), return a skeleton entity
+            const data = s.data || { name: s.name, role: s.role, fragments: [] }
+            const fragments = to_fragments(data, mode)
+
+            // [BRIDGE] If no fragments were resolved, inject a "Seed" fragment to prevent prompt collapse
+            if (fragments.length === 0) {
+                fragments.push({
+                    text: `A nascent ${s.role.toLowerCase()} entity within the Fractal. Current state: Initializing.`,
+                    type: "Status",
+                    enhancer: "SYSTEM_BOOTSTRAP",
+                    section: "Present",
+                })
+            }
+
+            // AI fragments are priority-sorted by the active objective
+            const final_fragments = s.role === "AI" ? ContextBroker.lexical_filter(fragments, objective) : fragments
+            return { role: s.role, name: s.name, fragments: final_fragments }
+        })
 
         return { list, turn, objective, objectives: runtime.narrative?.objectives ?? [] }
     },

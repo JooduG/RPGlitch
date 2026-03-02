@@ -107,13 +107,10 @@ describe("Dynamics Engine v2 (Rename)", () => {
 
         it("should assemble a complete XML prompt with Dynamics Layer", () => {
             const prompt = SYSTEM_PROMPTS.simulation(mock_context)
-            expect(prompt).toContain("<SYSTEM_PROMPT>")
-            expect(prompt).toContain("<NARRATIVE_CORE>")
-            expect(prompt).toContain("<TURN>5</TURN>")
-            expect(prompt).toContain("<OBJECTIVE>Find the key</OBJECTIVE>")
-            expect(prompt).toContain("<ENTITIES>")
+            expect(prompt).toContain('<SYSTEM role="Viper">')
+            expect(prompt).toContain('<STATE turn="5">')
             expect(prompt).not.toContain('<COGNITIVE_CORE status="ACTIVE">')
-            expect(prompt).toContain("<PROTOCOL>")
+            expect(prompt).toContain("<PROTOCOLS>")
         })
 
         // NARRATIVE_STYLE is currently commented out pending Tone system design.
@@ -151,7 +148,7 @@ describe("Dynamics Engine v2 (Rename)", () => {
             // Verify prompt content
             expect(result.system).toContain("<INPUT_COMMAND>")
             expect(result.system).toContain("I shoot the guard")
-            expect(result.system).toContain("<NARRATIVE_CORE>")
+            expect(result.system).toContain("<STATE")
         })
     })
 })

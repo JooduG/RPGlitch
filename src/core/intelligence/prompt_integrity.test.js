@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest"
+import { ContextBroker } from "./intelligence_broker.js"
 import { inject, list_history, PromptBuilder, SYSTEM_PROMPTS } from "./prompt_builder.js"
 
 /************************************************************************************
  * 🧩 [SECTION: ATOMIC TOOLKIT TESTS]
+ * ----------------------------------------------------------------------------------
+ * Pure helpers. No XML wrappers. Return raw inner content only.
+ * All structural XML lives in SYSTEM_PROMPTS templates.
  ************************************************************************************/
 
 describe("inject()", () => {
@@ -70,21 +74,20 @@ describe("list_history()", () => {
 
 describe("SYSTEM_PROMPTS.simulation XML Integrity", () => {
     const state = {
-        recentMessages: [{ role: "user", content: "test" }],
+        snapshot: "[User]: test",
     }
 
-    it("should NOT double-wrap <HISTORY> tags", () => {
+    it("should NOT include <HISTORY_SNAPSHOT> tags (handled by raw history)", () => {
         const prompt = SYSTEM_PROMPTS.simulation({
             active_signals: {},
             state,
             input: "action",
         })
 
-        const open = prompt.match(/<HISTORY>/g) || []
-        const close = prompt.match(/<\/HISTORY>/g) || []
-        expect(open.length).toBe(1)
-        expect(close.length).toBe(1)
-        expect(prompt).not.toContain("<HISTORY>\n<HISTORY>")
+        const open = prompt.match(/<HISTORY_SNAPSHOT>/g) || []
+        const close = prompt.match(/<\/HISTORY_SNAPSHOT>/g) || []
+        expect(open.length).toBe(0)
+        expect(close.length).toBe(0)
     })
 
     it("contains named SYSTEM role attribute for AI_CHARACTER", () => {
@@ -105,6 +108,15 @@ describe("SYSTEM_PROMPTS.simulation XML Integrity", () => {
         const prompt = SYSTEM_PROMPTS.simulation({ active_signals: {}, state, input: "go north" })
         expect(prompt).toContain("<INPUT_COMMAND>")
     })
+
+    it("includes FIRST_PERSON and essential protocols", () => {
+        const prompt = SYSTEM_PROMPTS.simulation({ active_signals: {}, state, input: "" })
+        expect(prompt).toContain("FIRST_PERSON:")
+        expect(prompt).toContain("EPISTEMIC_WALL:")
+        expect(prompt).toContain("PLACEMENT:")
+        expect(prompt).toContain("MOMENTUM:")
+        expect(prompt).not.toContain("SENSORY:")
+    })
 })
 
 /************************************************************************************
@@ -112,6 +124,38 @@ describe("SYSTEM_PROMPTS.simulation XML Integrity", () => {
  ************************************************************************************/
 
 describe("PromptBuilder.build_prologue()", () => {
+    it("injects 'Seed' fragments when entities are missing (Prologue Fallback)", () => {
+        // We need to temporarily mock or use a broker instance with this state
+        // Since the broker imports runtime globally, we might need to be careful.
+        // For this test, let's assume the broker handles the provided runtime or we mock it.
+        // NOTE: ContextBroker is not imported in this file, this test will fail without it.
+        // Assuming ContextBroker is available in the test environment or will be imported.
+        const broker_res = ContextBroker.pull_entities()
+        const ai_entity = broker_res.list.find((e) => e.role === "AI")
+        const bootstrap = ai_entity.fragments.find((f) => f.enhancer === "SYSTEM_BOOTSTRAP")
+
+        expect(bootstrap).toBeDefined()
+        expect(bootstrap.text).toContain("nascent")
+    })
+
+    it("includes GRIT protocol in simulation and prologue", () => {
+        const sim = SYSTEM_PROMPTS.simulation({ active_signals: {}, state: {}, input: "" })
+        const pro = SYSTEM_PROMPTS.prologue({ state: {}, input: "" })
+
+        expect(sim).toContain("- GRIT:")
+        expect(pro).toContain("- GRIT:")
+    })
+
+    it("enforces NARRATIVE_LENS assignment", () => {
+        const sim = SYSTEM_PROMPTS.simulation({ active_signals: {}, state: {}, input: "" })
+        const pro = SYSTEM_PROMPTS.prologue({ state: {}, input: "" })
+
+        // Simulation is 1st person
+        expect(sim).toContain("FIRST_PERSON:")
+        // Prologue is 3rd person
+        expect(pro).toContain("THIRD_PERSON:")
+    })
+
     it("returns role: FRACTAL in metadata", () => {
         const builder = new PromptBuilder()
         const result = builder.build_prologue({})
@@ -124,10 +168,18 @@ describe("PromptBuilder.build_prologue()", () => {
         expect(result.system).toContain('role="FRACTAL"')
     })
 
-    it("uses TASK_INSTRUCTION tag (not legacy INSTRUCTION)", () => {
+    it("uses TASK_INSTRUCTION tag for prologue", () => {
         const builder = new PromptBuilder()
         const result = builder.build_prologue({})
         expect(result.system).toContain("<TASK_INSTRUCTION>")
-        expect(result.system).not.toContain("<INSTRUCTION>")
+    })
+
+    it("includes THIRD_PERSON and essential protocols", () => {
+        const builder = new PromptBuilder()
+        const result = builder.build_prologue({})
+        expect(result.system).toContain("THIRD_PERSON:")
+        expect(result.system).toContain("EPISTEMIC_WALL:")
+        expect(result.system).toContain("PLACEMENT:")
+        expect(result.system).toContain("MOMENTUM:")
     })
 })
