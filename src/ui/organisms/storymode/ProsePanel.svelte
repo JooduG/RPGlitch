@@ -24,7 +24,8 @@
 
     // Helper to map DB role to UI sender
     function mapRole(role) {
-        if (role === "assistant") return "ai"
+        if (role === "assistant" || role === "ai") return "ai"
+        if (role === "prologue") return "fractal"
         return role
     }
 

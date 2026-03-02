@@ -16,15 +16,10 @@
 
     onMount(async () => {
         try {
-            const [ais, users, fractals] = await Promise.all([
-                entities.list("character"),
-                entities.list("character"), // Ideally filter for 'user' type if distinct
-                entities.list("fractal"),
-            ])
+            const [characters, fractals] = await Promise.all([entities.list("character"), entities.list("fractal")])
 
-            app.aiList = ais
-            // Filter out AI from User list if they are mixed, or logic in repository
-            app.userList = users
+            app.aiList = characters
+            app.userList = characters
             app.fractalList = fractals
         } catch (e) {
             console.error("[Storyboard] Failed to load lobby:", e)

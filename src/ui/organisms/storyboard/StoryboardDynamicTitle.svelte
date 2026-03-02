@@ -12,33 +12,11 @@
     // ============================================
     // TITLE PREFIXES (Content, not state)
     // ============================================
-    const STANDARD_PREFIXES = [
-        "The Story of",
-        "The Adventures of",
-        "The Tale of",
-        "The Legend of",
-        "The Saga of",
-        "Chronicles of",
-        "The Journey of",
-    ]
+    const STANDARD_PREFIXES = ["The Story of", "The Adventures of", "The Tale of", "The Legend of", "The Saga of", "Chronicles of", "The Journey of"]
 
-    const SMARTPHONE_PREFIXES = [
-        "Chat Log:",
-        "Session:",
-        "Messenger.exe:",
-        "New Thread:",
-        "Encrypted Feed:",
-        "Connection:",
-        "Archive:",
-        "RELAY //",
-    ]
+    const SMARTPHONE_PREFIXES = ["Chat Log:", "Session:", "Messenger.exe:", "New Thread:", "Encrypted Feed:", "Connection:", "Archive:", "RELAY //"]
 
-    const FRACTAL_PREFIXES = [
-        "Adventures in",
-        "Tales from",
-        "The Fractal of",
-        "Journey to",
-    ]
+    const FRACTAL_PREFIXES = ["Adventures in", "Tales from", "The Fractal of", "Journey to"]
 
     // ============================================
     // DERIVED TITLE PARTS
@@ -91,7 +69,10 @@
             const prefix = pick(STANDARD_PREFIXES)
             const parts = [{ text: `${prefix} ` }]
 
-            if (ai && user) {
+            // [FIX] Gracious handling of duplicate role selection
+            if (ai && user && ai.id === user.id) {
+                parts.push({ text: ai.name, color: getColor(ai) })
+            } else if (ai && user) {
                 parts.push({ text: ai.name, color: getColor(ai) })
                 parts.push({ text: " & " })
                 parts.push({ text: user.name, color: getColor(user) })
@@ -108,7 +89,9 @@
             const prefix = pick(STANDARD_PREFIXES)
             const parts = [{ text: `${prefix} ` }]
 
-            if (ai && user) {
+            if (ai && user && ai.id === user.id) {
+                parts.push({ text: ai.name, color: getColor(ai) })
+            } else if (ai && user) {
                 parts.push({ text: ai.name, color: getColor(ai) })
                 parts.push({ text: " & " })
                 parts.push({ text: user.name, color: getColor(user) })
@@ -120,10 +103,7 @@
             return parts
         } else if (hasFractal) {
             const prefix = pick(FRACTAL_PREFIXES)
-            return [
-                { text: `${prefix} ` },
-                { text: fractal.name, color: getColor(fractal) },
-            ]
+            return [{ text: `${prefix} ` }, { text: fractal.name, color: getColor(fractal) }]
         }
 
         return [{ text: "Your story begins here..." }]
@@ -151,18 +131,11 @@
     }
 </script>
 
-<h1
-    contenteditable="true"
-    title="Double-click to re-roll title"
-    oninput={handleInput}
-    ondblclick={handleDblClick}
->
+<h1 contenteditable="true" title="Double-click to re-roll title" oninput={handleInput} ondblclick={handleDblClick}>
     <span class="title-content">
         {#each titleParts as part, i (i)}
             {#if part.color}
-                <span class="entity-name" style="color: {part.color}"
-                    >{part.text}</span
-                >
+                <span class="entity-name" style="color: {part.color}">{part.text}</span>
             {:else}
                 {part.text}
             {/if}

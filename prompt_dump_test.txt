@@ -50,6 +50,8 @@ Render reasoning in <think> blocks before output.
 </PROTOCOL:GOVERNANCE>
 </PROTOCOL>
 
+
+
 <INPUT_COMMAND>
 I watch the merchant stall from the shadows.
 </INPUT_COMMAND>

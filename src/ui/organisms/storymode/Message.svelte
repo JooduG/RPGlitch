@@ -318,6 +318,10 @@
             color: var(--app-color, #fff);
             background: var(--bubble-color); /* [R3] Pure signature color */
             box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+
+            .message-content {
+                text-align: center;
+            }
         }
     }
 

@@ -137,8 +137,6 @@ export const Engine = {
     },
 
     generatePrologue: async (storyId) => {
-        // Basic Prologue Logic
-        // We can use the same pipeline or specialized one
         const { PromptBuilder } = await import("@core/intelligence/prompt_builder.js")
         const builder = new PromptBuilder()
         const payload = await builder.build_prologue()
@@ -146,13 +144,16 @@ export const Engine = {
         if (payload) {
             engineState.startGeneration("fractal")
             try {
-                // Basic generation without full Engine overhead
                 const result = await LlmService.generate(payload)
                 const fractalName = runtime.activeFractal?.name || "Fractal Entity"
-                await Session.addAiMessage(result, fractalName, "fractal")
 
-                // [FIX] Immediately trigger AI Character follow-up
-                await Engine.generateAiResponse(storyId)
+                // [NEXUS] Action 1: Save Prologue to DB
+                await Session.addAiMessage(result, fractalName, "prologue")
+
+                // [NEXUS] Action 2: The Hook - Immediate Director Follow-up
+                // This prevents the AI from starving and hallucinating user dialogue.
+                const directorCommand = "[DIRECTOR: The stage is set and the pieces are on the board, matches the prologue. Proceed with the simulation immediately.]"
+                await Engine.generateAiResponse(storyId, { input: directorCommand })
             } finally {
                 engineState.complete()
             }

@@ -130,6 +130,45 @@ ${blocks.join("\n")}
 </ENTITIES>`.trim()
 }
 
+/**
+ * Renders the recent chat history into a <HISTORY> block.
+ *
+ * @param {Array|string} history - Array of messages or beat-map string.
+ * @returns {string}
+ */
+function render_history(history) {
+    if (!history) return ""
+
+    // Handle beat-map string (fallback)
+    if (typeof history === "string") {
+        if (history.trim().length === 0) return ""
+        return `
+<HISTORY_SNAPSHOT>
+${history}
+</HISTORY_SNAPSHOT>`.trim()
+    }
+
+    // Handle message array
+    if (Array.isArray(history)) {
+        if (history.length === 0) return ""
+        const entries = history
+            .map((m) => {
+                const role = m.role === "user" ? "user" : m.role === "prologue" ? "system" : "assistant"
+                const nameAttr = m.characterName ? ` name="${m.characterName}"` : ""
+                return `    <entry role="${role}"${nameAttr}>${m.content}</entry>`
+            })
+            .join("\n")
+
+        return `
+<HISTORY>
+${entries}
+</HISTORY>`.trim()
+    }
+
+    // If it's an object or anything else (e.g. legacy snapshot object in tests), ignore it
+    return ""
+}
+
 /************************************************************************************
  * 🧩 [SECTION: SYSTEM PROMPTS]
  * ----------------------------------------------------------------------------------
@@ -153,21 +192,19 @@ export const SYSTEM_PROMPTS = {
             turn: state?.turn,
             objective: state?.objective,
             active_signals,
-            // TODO: Wire up history for memory condensation in Phase 2
-            history: state?.snapshot,
+            // [NEXUS] Prioritize recentMessages over snapshot string
+            history: state?.recentMessages || (typeof state?.snapshot === "string" ? state.snapshot : []),
         }
 
         const dynamics = render_narrative_core(prompt_context)
         const entity = render_entity(prompt_context)
+        const history = render_history(prompt_context.history)
 
         // Dynamic Rule Composition
         const rules = []
         rules.push(RULES.CORE_PROTOCOLS)
         rules.push(RULES.COGNITION)
         rules.push(RULES.GOVERNANCE)
-
-        // TODO: Initialise optional rules here (e.g. Tone)
-        // if (active_signals.tone) rules.push(RULES.NARRATIVE_STYLE(active_signals.tone))
 
         return `
 <SYSTEM_PROMPT>
@@ -178,6 +215,8 @@ ${entity}
 <PROTOCOL>
 ${rules.join("\n\n")}
 </PROTOCOL>
+
+${history}
 
 <INPUT_COMMAND>
 ${input?.trim() || "Awaiting signal..."}
@@ -290,13 +329,14 @@ export class PromptBuilder {
      *
      * @param {Object} story - The active story state object.
      * @param {string} input - User action.
+     * @param {Array} recentMessages - Array of recent chat messages.
      * @returns {string} XML Payload.
      */
-    build(story, input) {
+    build(story, input, recentMessages = []) {
         const active_signals = story?.active_signals || { style: "Atmospheric" }
         return SYSTEM_PROMPTS.simulation({
             active_signals,
-            state: story,
+            state: { ...story, recentMessages },
             input,
         })
     }

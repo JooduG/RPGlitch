@@ -12,9 +12,11 @@
 
 html,
 body {
-    height: 100%;
-    width: 100%;
+    height: 100vh;
+    width: 100vw;
     margin: 0;
+    padding: 0;
+    overflow: hidden; // Force no-scroll at root
     font-family: var(--font-body);
     color: var(--app-color);
     background-color: var(--app-background);
@@ -25,9 +27,10 @@ body {
         var(--bg-grad-3) 75%,
         var(--bg-grad-4)
     );
-    background-attachment: fixed;
     background-repeat: no-repeat;
     background-size: cover;
+    position: fixed; // Prevent bounce/scroll on mobile
+    inset: 0;
 
     &:has(.has-fractal-bg) {
         background-image: none;
@@ -42,6 +45,7 @@ body::before {
     opacity: 0.03;
     pointer-events: none;
     z-index: 2;
+    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAApb2uWAAAABlBMVEUAAAD///+l2Z/dAAAAAnRSTlP/AOW3MEoAAAA9SURBVDjLY2BkYGRkYmRmZmdmYWVlZWVlZmZlZmVmZmVmZmZlZmVmZmVmZmZlZmVmZmVmZmZlZmVmZmVmZgcDAAiUADIAAAAA");
 }
 
 #fractal-background {
@@ -52,10 +56,12 @@ body::before {
     background-position: center;
     background-repeat: no-repeat;
     opacity: 0;
-    filter: blur(8px) brightness(0.3);
-    transform: scale(1.1);
+    filter: blur(12px) brightness(0.25); // Deep blur
+    transform: scale(1.15); // Oversize to hide blur edges
     pointer-events: none;
-    transition: opacity 2s ease-in-out;
+    transition:
+        opacity 2s ease-in-out,
+        filter 2s ease-in-out;
 }
 
 .muted,

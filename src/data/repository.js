@@ -17,6 +17,9 @@ const error = console.error
 // ============================================================================
 
 export const seedPremades = async () => {
+    if (typeof globalThis !== "undefined" && globalThis._seeding) return
+    if (typeof globalThis !== "undefined") globalThis._seeding = true
+
     try {
         const existing = await db.entities.toArray()
 
@@ -29,21 +32,20 @@ export const seedPremades = async () => {
         const toAdd = []
 
         for (const bp of blueprints) {
-            const hasChild = existing.some((e) => e.originId === bp.id)
+            // Check if it already exists by stable ID or originId
+            const hasChild = existing.some((e) => e.id === bp.id || e.originId === bp.id)
 
             if (!hasChild) {
                 const type = bp.kind || bp.type || "character"
-                const flatBp = { ...bp }
-
-                const normalized = normalize({ ...flatBp, type })
+                const normalized = normalize({ ...bp, type })
 
                 toAdd.push({
                     ...normalized,
-                    id: crypto.randomUUID(),
+                    id: bp.id, // Use stable ID from blueprint
                     originId: bp.id,
                     type: type,
-                    isPremade: 0,
-                    isCustom: 1,
+                    isPremade: 1, // Corrected: Premades should have isPremade: 1
+                    isCustom: 0, // Corrected: Premades are NOT custom
                     isSnapshot: 0,
                     version: STORAGE_VERSION,
                     createdAt: Date.now(),
@@ -52,10 +54,12 @@ export const seedPremades = async () => {
             }
         }
         if (toAdd.length > 0) {
-            await db.entities.bulkPut(toAdd)
+            await db.entities.bulkPut(toAdd) // Use bulkPut for idempotency
         }
     } catch (err) {
         error("Failed to seed premades:", err)
+    } finally {
+        if (typeof globalThis !== "undefined") globalThis._seeding = false
     }
 }
 

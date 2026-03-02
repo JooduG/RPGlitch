@@ -178,6 +178,7 @@ export const ContextBroker = {
         const state_data = {
             snapshot: needs.includes("snapshot") ? ContextBroker.assemble_snapshot() : null,
             entity: needs.includes("entity") ? ContextBroker.pull_entities(type) : null,
+            recentMessages: needs.includes("snapshot") ? ContextBroker.pull_history() : [],
         }
 
         // 3. Delegate prompt composition to the Dynamics Engine
@@ -187,11 +188,10 @@ export const ContextBroker = {
             type,
         })
 
-        // 4. Attach L1 short-term history for dialogue continuity
-        const messages = ContextBroker.pull_history()
+        // 4. Return formatted payload
         return {
             system: result.system,
-            messages,
+            messages: state_data.recentMessages,
             meta: result.meta,
             params: {
                 temperature: type === "logic" ? 0.3 : 0.8,
