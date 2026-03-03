@@ -19,13 +19,6 @@
 - Checkpoint: `recon-pi-02`
 - Note: Systemic refactor of the intelligence pipeline (Blueprint -> Orchestrator). Phase 2 (Kernel Optimization) complete.
 
-### Track: Vector Architecture Refactor
-
-- Path: [.agent/tasks/vector-architecture-refactor/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/vector-architecture-refactor/)
-- Status: Active
-- Checkpoint: `vec-arch-01`
-- Note: Nuke-and-Pave refactor of temporal memory. Terminology Unification (simulation_log) and snake_case standardization complete.
-
 ## 📋 Protocols & Checklists
 
 ### 🧪 Perchance Testing Checklist
@@ -92,6 +85,12 @@
 - **Status:** Complete
 - **Checkpoint:** `f3960fc5`
 - **Note:** Deconstructed and rebuilt speculative materials into the Meridian Lab standard. Purged legacy canon folders.
+
+### ✅ Track: Vector Architecture Refactor
+
+- **Status:** Complete
+- **Checkpoint:** `vec-arch-01`
+- **Note:** Nuke-and-Pave refactor of temporal memory. Terminology Unification (simulation_log) and snake_case standardization complete.
 
 ### ✅ Track: Event Bus Purge
 
