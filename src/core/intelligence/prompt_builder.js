@@ -4,9 +4,9 @@
  */
 
 import { runtime } from "@state/runtime.svelte.js"
-import { scan_reflexes } from "./dynamics_engine.js"
 import { ENTITY_CATALOG } from "./entity_fragments.js"
 import { ContextBroker } from "./intelligence_broker.js"
+import { VectorEngine } from "./vector_engine.js"
 
 /************************************************************************************
  * 🧩 [SECTION: ATOMIC TOOLKIT]
@@ -313,50 +313,14 @@ export class PromptBuilder {
  ************************************************************************************/
 
 /**
- * Scores a list of temporal records (Resonances or Vectors) based on overlap
- * with the current input's signals and tags.
- *
- * @param {Array<Object>} records - The `past` or `future` array.
- * @param {string} input - The current user input.
- * @returns {Array<Object>} Sorted records by score (descending).
- */
-export function score_temporal_data(records, input) {
-    if (!Array.isArray(records) || !records.length) return []
-    if (!input) return records.slice(-3) // Default to latest if no input
-
-    const current_reflexes = scan_reflexes(input).map((r) => r.id)
-    const input_lower = input.toLowerCase()
-
-    const scored = records.map((r) => {
-        let score = 0
-        // Axis Match: +2 (Vibe/Kinetic alignment)
-        r.axis_tags?.forEach((t) => {
-            if (current_reflexes.includes(t)) score += 2
-        })
-        // Entity Match: +1 (Noun/Location/Proper Name alignment)
-        r.entity_tags?.forEach((t) => {
-            if (input_lower.includes(t.toLowerCase())) score += 1
-        })
-        return { ...r, _score: score }
-    })
-
-    return scored.sort((a, b) => b._score - a._score)
-}
-
-/**
- * Filter, score, and render the top 3 structured resonances in reverse-ranked order.
- * Reversed order ensures the most critical memory is at the absolute bottom (closest to context).
+ * Filter, score, and render the top 3 structured resonances.
  */
 function inject_past(state, role, input = "") {
     const entity = state?.entity?.list?.find((e) => e.role === role)
     const past = entity?.past?.vectors
     if (!Array.isArray(past) || !past.length) return ""
 
-    const ranked = score_temporal_data(past, input).slice(0, 3)
-    // Reverse for prompt injection: Highest score at the bottom
-    const reversed = [...ranked].reverse()
-
-    return reversed.map((m) => `        [RESONANCE]: ${m.summary}`).join("\n")
+    return VectorEngine.format_past(past, input)
 }
 
 /**
@@ -367,16 +331,7 @@ function inject_future(state, role, input = "") {
     const vectors = entity?.future?.vectors
     if (!Array.isArray(vectors) || !vectors.length) return ""
 
-    const ranked = score_temporal_data(vectors, input || state.input || "").slice(0, 3)
-    // Reverse for prompt injection
-    const reversed = [...ranked].reverse()
-
-    return reversed
-        .map((v) => {
-            const label = v.axis_tags?.length ? "STAKE" : "OBJECTIVE"
-            return `        [${label}]: ${v.text}`
-        })
-        .join("\n")
+    return VectorEngine.format_future(vectors, input || state.input || "")
 }
 
 /**

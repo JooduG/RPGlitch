@@ -26,6 +26,13 @@
 - Checkpoint: `recon-pi-02`
 - Note: Systemic refactor of the intelligence pipeline (Blueprint -> Orchestrator). Phase 2 (Kernel Optimization) complete.
 
+### Track: Vector Architecture Refactor
+
+- Path: [.agent/tasks/vector-architecture-refactor/](file:///c:/Users/johng/.agent/tasks/vector-architecture-refactor/)
+- Status: Planning
+- Checkpoint: `vec-arch-01`
+- Note: Nuke-and-Pave refactor of temporal memory. Centralizing logic in `vector_engine.js` and enforcing strict schema.
+
 ## 📋 Protocols & Checklists
 
 ### 🧪 Perchance Testing Checklist

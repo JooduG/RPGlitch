@@ -74,9 +74,9 @@ export const Engine = {
                     if (ai) {
                         const resonance = await memorize(ai, slice, "character")
                         if (resonance) {
-                            if (!ai.past) ai.past = []
-                            if (!Array.isArray(ai.past)) ai.past = []
-                            ai.past.push(resonance)
+                            if (!ai.past) ai.past = { vectors: [] }
+                            if (!Array.isArray(ai.past.vectors)) ai.past.vectors = []
+                            ai.past.vectors.push(resonance)
                             await entities.save("character", ai)
                         }
                     }

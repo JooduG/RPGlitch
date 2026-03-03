@@ -1,3 +1,4 @@
+import { VectorEngine } from "@core/intelligence/vector_engine.js"
 import { db } from "@data/db.js"
 import { entities } from "@data/repository.js"
 
@@ -11,7 +12,7 @@ function createRuntimeStore() {
             // 🧠 Deep State (Fragments: Eternal, Present, Past, Future)
             eternal: { non_physical: "", physical: "" },
             present: { non_physical: "", physical: "" },
-            past: [],
+            past: { vectors: [] },
             future: { vectors: [] },
 
             // 🧪 Dynamics (Dev)
@@ -39,7 +40,7 @@ function createRuntimeStore() {
             // 🧠 Unified Temporal structure
             eternal: { non_physical: "", physical: "" },
             present: { non_physical: "", physical: "" },
-            past: [],
+            past: { vectors: [] },
             future: { vectors: [] },
         },
         ready: false,
@@ -95,38 +96,34 @@ function createRuntimeStore() {
         // 📜 UNIVERSAL VECTOR API (Trajectories for AI, USER, and FRACTAL)
         activeVector(role = "AI") {
             const entity = this._get_entity_by_role(role)
-            return entity?.future?.[0]?.text || (role === "FRACTAL" ? "Continue the journey." : "")
+            return entity?.future?.vectors?.[0]?.text || (role === "FRACTAL" ? "Continue the journey." : "")
         },
 
         activeEchoes(role = "AI") {
             const entity = this._get_entity_by_role(role)
-            return entity?.future?.slice(1) || []
+            return entity?.future?.vectors?.slice(1) || []
         },
 
         addVector(text, role = "AI", isVanguard = false) {
             const entity = this._get_entity_by_role(role)
             if (!entity) return
 
-            if (!entity.future) entity.future = []
-            if (!Array.isArray(entity.future)) entity.future = []
+            if (!entity.future) entity.future = { vectors: [] }
+            if (!Array.isArray(entity.future.vectors)) entity.future.vectors = []
 
-            const newVector = {
-                id: crypto.randomUUID(),
-                text,
-                timestamp: Date.now(),
-            }
+            const newVector = VectorEngine.create_vector(text)
 
             if (isVanguard) {
-                entity.future.unshift(newVector)
+                entity.future.vectors.unshift(newVector)
             } else {
-                entity.future.push(newVector)
+                entity.future.vectors.push(newVector)
             }
         },
 
         completeVector(role = "AI") {
             const entity = this._get_entity_by_role(role)
-            if (entity?.future?.length > 0) {
-                entity.future.shift()
+            if (entity?.future?.vectors?.length > 0) {
+                entity.future.vectors.shift()
             }
         },
 
@@ -167,7 +164,7 @@ function createRuntimeStore() {
                 if (userData) {
                     state.character = {
                         ...state.character,
-                        ...this._normalize_entity_temporal(userData),
+                        ...userData,
                         id: userData.id,
                     }
                     // Also set specific User slot
@@ -175,11 +172,11 @@ function createRuntimeStore() {
                 }
 
                 if (aiData) {
-                    state.activeAI = this._normalize_entity_temporal(aiData)
+                    state.activeAI = aiData
                 }
 
                 if (fractalData) {
-                    state.activeFractal = this._normalize_entity_temporal(fractalData)
+                    state.activeFractal = fractalData
                 }
 
                 state.ready = true
@@ -245,9 +242,7 @@ function createRuntimeStore() {
                     const targets = [state.character, state.activeUser, state.activeAI, state.activeFractal]
                     targets.forEach((t) => {
                         if (t && t.id === id) {
-                            // Unified Temporal Migration & Healing
-                            const normalized = this._normalize_entity_temporal(data)
-                            Object.assign(t, normalized)
+                            Object.assign(t, data)
                         }
                     })
                 }
@@ -296,36 +291,6 @@ function createRuntimeStore() {
             if (mockData.ai) state.activeAI = mockData.ai
             if (mockData.fractal) state.activeFractal = mockData.fractal
             state.ready = true
-        },
-
-        // 🧬 NORMALIZATION: Ensure temporal data is always structured as arrays of strings
-        _normalize_entity_temporal(entity) {
-            if (!entity) return null
-            const updated = { ...entity }
-
-            // Handle Past
-            if (entity.past?.vectors !== undefined || entity.past?.memories !== undefined || entity.past?.essence !== undefined) {
-                const raw = Array.isArray(entity.past) ? entity.past : entity.past?.vectors || entity.past?.memories || entity.past?.essence
-                let vectors = Array.isArray(raw) ? raw : typeof raw === "string" && raw.trim() ? [raw.trim()] : []
-                // Self-Healing: Merge character-split strings
-                if (vectors.length > 5 && vectors.every((v) => typeof v === "string" && v.length === 1)) {
-                    vectors = [vectors.join("")]
-                }
-                updated.past = { vectors }
-            }
-
-            // Handle Future
-            if (entity.future?.vectors !== undefined || entity.future?.essence !== undefined) {
-                const raw = Array.isArray(entity.future) ? entity.future : entity.future?.vectors || entity.future?.essence
-                let vectors = Array.isArray(raw) ? raw : typeof raw === "string" && raw.trim() ? [raw.trim()] : []
-                // Self-Healing: Merge character-split strings
-                if (vectors.length > 5 && vectors.every((v) => typeof v === "string" && v.length === 1)) {
-                    vectors = [vectors.join("")]
-                }
-                updated.future = { vectors }
-            }
-
-            return updated
         },
     }
 }

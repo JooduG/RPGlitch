@@ -27,8 +27,8 @@ export const premade = {
                 physical: "Stands clad in battle-scarred plasteel armor, fingers coiled around the hilt of a humming light-blade as his tattered cape snaps in the high-altitude winds.",
                 non_physical: "Hired to protect merchant caravans crossing the perilous skybridges of Neo Arcadia.",
             },
-            past: [],
-            future: [],
+            past: { vectors: [] },
+            future: { vectors: [] },
         },
         {
             id: "entity-C2",
@@ -51,8 +51,8 @@ export const premade = {
                 physical: "Cradles a lute carved from light-drinking void-wood, her vibrant silk robes partially obscured by the weight of a heavy, weather-beaten travel cloak.",
                 non_physical: "Performing in crowded markets, using her songs to mend broken hearts and stir the fires of rebellion.",
             },
-            past: [],
-            future: [],
+            past: { vectors: [] },
+            future: { vectors: [] },
         },
         {
             id: "entity-C3",
@@ -75,8 +75,8 @@ export const premade = {
                 physical: "Outfitted for infiltration in a form-fitting leather stealth suit and a belt of professional lockpicks, their eyes shielded by polished brass goggles.",
                 non_physical: "Stealing artifacts from the elite to buy the freedom of their aging creator.",
             },
-            past: [],
-            future: [],
+            past: { vectors: [] },
+            future: { vectors: [] },
         },
         {
             id: "entity-C4",
@@ -99,8 +99,8 @@ export const premade = {
                 physical: "Drifts through the neon fog in tattered obsidian robes, facial features entirely lost behind a veil of swirling, unnatural smoke.",
                 non_physical: "Brokering secrets between forbidden guilds through the use of living, sentient silhouettes.",
             },
-            past: [],
-            future: [],
+            past: { vectors: [] },
+            future: { vectors: [] },
         },
         {
             id: "entity-C5",
@@ -129,11 +129,38 @@ export const premade = {
                 physical: "Oiled skin that glistens under the spotlight, his muscles pumped and heavily vascular from a recent patrol.",
                 non_physical: "He is in a state of high-alert, his mind hyper-aware and adrenaline-primed as he optimizes his every movement for maximum audience engagement.",
             },
-            past: [{ id: "orion-p1", text: "Defeated the Neon Golem in a legendary showdown.", timestamp: 1772475000000 }],
-            future: [
-                { id: "orion-f1", text: "Secure sponsorship deal with 'Titan Supplements'.", timestamp: 1772475000000 },
-                { id: "orion-f2", text: "Investigate mysterious power drain in Sector 7.", timestamp: 1772475000000 },
-            ],
+            past: {
+                vectors: [
+                    {
+                        id: "orion-p1",
+                        text: "Defeated the Neon Golem in a legendary showdown.",
+                        summary: "Defeated the Neon Golem in a legendary showdown.",
+                        axis_tags: [],
+                        entity_tags: [],
+                        timestamp: 1772475000000,
+                    },
+                ],
+            },
+            future: {
+                vectors: [
+                    {
+                        id: "orion-f1",
+                        text: "Secure sponsorship deal with 'Titan Supplements'.",
+                        summary: "Secure sponsorship deal with 'Titan Supplements'.",
+                        axis_tags: [],
+                        entity_tags: [],
+                        timestamp: 1772475000000,
+                    },
+                    {
+                        id: "orion-f2",
+                        text: "Investigate mysterious power drain in Sector 7.",
+                        summary: "Investigate mysterious power drain in Sector 7.",
+                        axis_tags: [],
+                        entity_tags: [],
+                        timestamp: 1772475000000,
+                    },
+                ],
+            },
         },
         {
             id: "entity-C6",
@@ -163,11 +190,38 @@ export const premade = {
                     "He is clad in a modified, cosplay-grade sailor uniform, featuring a navy-blue collar over a pleated schoolgirl skirt that barely conceals a neon pink thong. His muscular legs are finished with thigh-high socks, while a wrist-mounted holographic projector and a technological 'moon power' tiara signify his mastery of the grid.",
                 non_physical: "Constantly scanning for patterns to disrupt, Glitch is currently focused on provoking his target into a reactive state, deriving a thrill from the ensuing chaos.",
             },
-            past: [{ id: "glitch-p1", text: "Hacked Orion's social media for the ultimate prank.", timestamp: 1772475000000 }],
-            future: [
-                { id: "glitch-f1", text: "Hide encrypted data shard from Orion.", timestamp: 1772475000000 },
-                { id: "glitch-f2", text: "Fix heat-sink in cyberdeck before next run.", timestamp: 1772475000000 },
-            ],
+            past: {
+                vectors: [
+                    {
+                        id: "glitch-p1",
+                        text: "Hacked Orion's social media for the ultimate prank.",
+                        summary: "Hacked Orion's social media for the ultimate prank.",
+                        axis_tags: [],
+                        entity_tags: [],
+                        timestamp: 1772475000000,
+                    },
+                ],
+            },
+            future: {
+                vectors: [
+                    {
+                        id: "glitch-f1",
+                        text: "Hide encrypted data shard from Orion.",
+                        summary: "Hide encrypted data shard from Orion.",
+                        axis_tags: [],
+                        entity_tags: [],
+                        timestamp: 1772475000000,
+                    },
+                    {
+                        id: "glitch-f2",
+                        text: "Fix heat-sink in cyberdeck before next run.",
+                        summary: "Fix heat-sink in cyberdeck before next run.",
+                        axis_tags: [],
+                        entity_tags: [],
+                        timestamp: 1772475000000,
+                    },
+                ],
+            },
         },
         {
             id: "entity-F1",
@@ -190,8 +244,8 @@ export const premade = {
                 physical: "The sky is sunny with scattered, drifting clouds, and a gentle breeze carries a visible, magical aura that shimmers across the islands.",
                 non_physical: "Merchant airships trade between the isles while seasonal storms continue to hide the deepest, most dangerous ruins.",
             },
-            past: [],
-            future: [],
+            past: { vectors: [] },
+            future: { vectors: [] },
         },
         {
             id: "entity-F2",
@@ -214,8 +268,8 @@ export const premade = {
                 physical: "The metropolis is choked by heavy smog and acid rain, with the neon glow of the upper levels reflecting brilliantly on the wet, rain-slicked pavement below.",
                 non_physical: "Rival neon districts vie for total control over the Somnus Grid, the digital network that powers the city's dreams.",
             },
-            past: [],
-            future: [],
+            past: { vectors: [] },
+            future: { vectors: [] },
         },
         {
             id: "entity-F3",
@@ -239,8 +293,8 @@ export const premade = {
                 physical: "The city is currently gripped by heavy thunderstorms with gale-force winds and ionizing fog that reduces visibility to a few meters, while the polychromatic alloy supports of the buildings hum with an unsettling resonance.",
                 non_physical: "The city pulses with a kinetic, algorithmic energy as hero-villain dynamics flicker between flirtation and fracture in the plasma glow of holographic bar smoke.",
             },
-            past: [],
-            future: [],
+            past: { vectors: [] },
+            future: { vectors: [] },
         },
         {
             id: "entity-F4",
@@ -262,8 +316,8 @@ export const premade = {
                 physical: "The digital interface is clean and responsive, showing a nearly full battery and a stable connection to the mobile network.",
                 non_physical: "Fully operational and synchronized with the entity's primary data streams.",
             },
-            past: [],
-            future: [],
+            past: { vectors: [] },
+            future: { vectors: [] },
         },
     ],
 }
