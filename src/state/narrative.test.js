@@ -16,12 +16,12 @@ describe("Narrative Vector System", () => {
 
     it("should add a vector to the background (echoes)", () => {
         runtime.addVector("Find the key.", "FRACTAL")
-        expect(runtime.activeFractal.future.vectors).toHaveLength(1)
+        expect(runtime.active_fractal.future.vectors).toHaveLength(1)
         expect(runtime.activeVector("FRACTAL")).toBe("Find the key.")
         expect(runtime.activeEchoes("FRACTAL")).toEqual([])
 
         runtime.addVector("Explore the cave.", "FRACTAL")
-        expect(runtime.activeFractal.future.vectors).toHaveLength(2)
+        expect(runtime.active_fractal.future.vectors).toHaveLength(2)
         // "Find the key" is still index 0 because we pushed
         expect(runtime.activeVector("FRACTAL")).toBe("Find the key.")
         expect(runtime.activeEchoes("FRACTAL")[0].text).toBe("Explore the cave.")
@@ -44,11 +44,11 @@ describe("Narrative Vector System", () => {
         runtime.completeVector("FRACTAL")
 
         expect(runtime.activeVector("FRACTAL")).toBe("Task B")
-        expect(runtime.activeFractal.future.vectors).toHaveLength(1)
+        expect(runtime.active_fractal.future.vectors).toHaveLength(1)
     })
 
     it("should handle completeVector on empty vectors safely", () => {
         runtime.completeVector("FRACTAL")
-        expect(runtime.activeFractal.future.vectors).toEqual([])
+        expect(runtime.active_fractal.future.vectors).toEqual([])
     })
 })

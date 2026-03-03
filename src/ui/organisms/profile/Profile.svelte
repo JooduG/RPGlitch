@@ -76,8 +76,8 @@
     })
 
     // Visuals: Bind directly to character data
-    let signatureColor = $derived(char.visuals?.signatureColor || themeStore.getSignatureColor(char))
-    let signatureRgb = $derived(themeStore.hexToRgb(signatureColor))
+    let signature_color = $derived(char.visuals?.signature_color || themeStore.getSignatureColor(char))
+    let signatureRgb = $derived(themeStore.hexToRgb(signature_color))
 
     // Reset focus tracking when exiting edit mode
     $effect(() => {
@@ -208,10 +208,10 @@
 
 {#if char && char.id}
     <Modal variant="profile" onclose={handleClose}>
-        <div class="profile-container" class:editing={isEditing} class:dev-mode={app.settings.devMode} class:show-dev-wing={app.settings.devMode} onclick={handleBackgroundClick} onfocusout={handleFocusOut} role="presentation" data-testid="profile-container" data-is-editing={isEditing}>
+        <div class="profile-container" class:editing={isEditing} class:dev-mode={app.settings.dev_mode} class:show-dev-wing={app.settings.dev_mode} onclick={handleBackgroundClick} onfocusout={handleFocusOut} role="presentation" data-testid="profile-container" data-is-editing={isEditing}>
             <ProfileWings bind:char {isEditing} bind:busyFields bind:activeField />
 
-            <div class="profile-presentation" style="--signature-color: {signatureColor}; --signature-rgb: {signatureRgb};">
+            <div class="profile-presentation" style="--signature-color: {signature_color}; --signature-rgb: {signatureRgb};">
                 <div class="left">
                     <ProfilePicture entity={char} />
                 </div>

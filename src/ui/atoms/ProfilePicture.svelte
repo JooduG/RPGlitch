@@ -19,12 +19,7 @@
     let { entity } = $props()
 
     // Extract what we need from the entity
-    let pictureUrl = $derived(
-        entity?.visuals?.profilePicture ||
-            entity?.visuals?.profilePictureUrl ||
-            entity?.profilePicture ||
-            entity?.profilePictureUrl
-    )
+    let pictureUrl = $derived(entity?.visuals?.profile_picture || entity?.visuals?.profile_picture_url || entity?.profile_picture || entity?.profile_picture_url)
     let name = $derived(entity?.name || "Entity")
     let signatureColor = $derived(themeStore.getSignatureColor(entity))
     let initials = $derived(themeStore.getInitials(name))
@@ -36,13 +31,7 @@
     {#if pictureUrl}
         <!-- Real image exists - show it -->
         <div class="image-container">
-            <img
-                src={pictureUrl}
-                alt="{name} Profile"
-                class="picture"
-                class:no-bg={isNoBg}
-                class:flipped={isFlipped}
-            />
+            <img src={pictureUrl} alt="{name} Profile" class="picture" class:no-bg={isNoBg} class:flipped={isFlipped} />
             <div class="glitch-overlay"></div>
         </div>
     {:else}
@@ -104,11 +93,7 @@
         mix-blend-mode: overlay;
         opacity: 0.15;
 
-        background: linear-gradient(
-            transparent 50%,
-            rgba(0, 0, 0, 0.1) 50%,
-            rgba(0, 0, 0, 0.1)
-        );
+        background: linear-gradient(transparent 50%, rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.1));
         background-size: 100% 4px;
 
         &::after {
@@ -118,12 +103,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(
-                90deg,
-                rgba(255, 0, 0, 0.05),
-                rgba(0, 255, 0, 0.05),
-                rgba(0, 0, 255, 0.05)
-            );
+            background: linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.05), rgba(0, 0, 255, 0.05));
             background-size: 300% 100%;
             animation: chromatic-drift 10s infinite linear;
         }
@@ -151,17 +131,7 @@
         color: white;
         text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
         background-color: var(--signature-color);
-        background-image:
-            radial-gradient(
-                at 0% 0%,
-                color-mix(in srgb, var(--signature-color), white 20%) 0,
-                transparent 50%
-            ),
-            radial-gradient(
-                at 100% 100%,
-                color-mix(in srgb, var(--signature-color), black 30%) 0,
-                transparent 50%
-            );
+        background-image: radial-gradient(at 0% 0%, color-mix(in srgb, var(--signature-color), white 20%) 0, transparent 50%), radial-gradient(at 100% 100%, color-mix(in srgb, var(--signature-color), black 30%) 0, transparent 50%);
         background-blend-mode: overlay;
     }
 </style>

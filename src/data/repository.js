@@ -44,12 +44,14 @@ export const seedPremades = async () => {
                     id: bp.id, // Use stable ID from blueprint
                     originId: bp.id,
                     type: type,
-                    isPremade: 1, // Corrected: Premades should have isPremade: 1
-                    isCustom: 0, // Corrected: Premades are NOT custom
+                    profile_picture: (bp.visuals && bp.visuals["profile_picture"]) || bp["profile_picture"] || null,
+                    signature_color: (bp.visuals && bp.visuals["signature_color"]) || bp["signature_color"] || "#84cc16",
+                    isPremade: 1,
+                    isCustom: 0,
                     isSnapshot: 0,
                     version: STORAGE_VERSION,
-                    createdAt: Date.now(),
-                    updatedAt: Date.now(),
+                    created_at: Date.now(),
+                    updated_at: Date.now(),
                 })
             }
         }
@@ -110,7 +112,7 @@ export const entities = {
                 isCustom: 1,
                 isPremade: 0,
                 version: STORAGE_VERSION,
-                updatedAt: Date.now(),
+                updated_at: Date.now(),
             }
 
             await db.entities.put(saved)
@@ -142,21 +144,21 @@ export const entities = {
 export const stories = {
     async list() {
         try {
-            const allStories = await db.stories.orderBy("updatedAt").reverse().toArray()
+            const allStories = await db.stories.orderBy("updated_at").reverse().toArray()
 
             return await Promise.all(
                 allStories.map(async (story) => {
-                    const fractal = await db.entities.get(story.fractalId)
-                    const avatar = fractal?.visuals?.profilePicture || fractal?.visuals?.profilePictureUrl || fractal?.profilePictureUrl || ""
+                    const fractal = await db.entities.get(story.fractal_id)
+                    const avatar = fractal?.visuals?.profile_picture || fractal?.profile_picture || ""
 
                     return {
                         id: story.id,
-                        title: story.storyTitle || "Untitled Story",
+                        title: story.title || "Untitled Story",
                         state: story.isConcluded ? "concluded" : "active",
-                        lastPlayed: story.updatedAt,
-                        fractalAvatar: avatar,
-                        fractalName: fractal?.name || "Unknown Fractal",
-                        signatureColor: fractal?.signatureColor || "default",
+                        lastPlayed: story.updated_at,
+                        fractal_avatar: avatar,
+                        fractal_name: fractal?.name || "Unknown Fractal",
+                        signature_color: fractal?.signature_color || "default",
                     }
                 })
             )
@@ -170,7 +172,7 @@ export const stories = {
     update: (id, changes) => db.stories.update(id, changes),
 
     async delete(id) {
-        await db.messages.where("storyId").equals(id).delete()
+        await db.simulation_log.where("story_id").equals(id).delete()
         return db.stories.delete(id)
     },
 }
@@ -217,8 +219,8 @@ export const copyEntity = async (type, id) => {
             isPremade: 0,
             isCustom: 1,
             name: `${item.name || "Untitled"} (Copy)`,
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
+            created_at: Date.now(),
+            updated_at: Date.now(),
         }
 
         return newEntity

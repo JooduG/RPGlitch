@@ -10,7 +10,7 @@ const error = console.error
  * @type {import('dexie').Dexie & {
  *  entities: Table;
  *  stories: Table;
- *  messages: Table;
+ *  simulation_log: Table;
  *  settings: Table;
  *  kv_settings: Table;
  *  sessions: Table;
@@ -20,13 +20,13 @@ const error = console.error
 const db = /** @type {any} */ (new Dexie("rpglitch"))
 
 // 2. Define the schema (Final Version Only)
-db.version(9).stores({
-    entities: "id, name, description, profilePicture, signatureColor, createdAt, updatedAt, tags, type, [type+isCustom], isChosen",
-    stories: "++id, title, aiId, userId, fractalId, createdAt, updatedAt",
-    messages: "++id, storyId, role, type, characterName, text, seed, meta, createdAt",
+db.version(10).stores({
+    entities: "id, name, description, profile_picture, signature_color, created_at, updated_at, tags, type, [type+isCustom], isChosen",
+    stories: "++id, title, ai_id, user_id, fractal_id, created_at, updated_at",
+    simulation_log: "++id, story_id, role, type, character_name, text, seed, meta, created_at",
     settings: "id",
     kv_settings: "key",
-    sessions: "++id, sessionId, timestamp",
+    sessions: "++id, session_id, timestamp",
     audio_prefs: "key",
 })
 
@@ -48,13 +48,13 @@ db.on("populate", async (trans) => {
             id: "app-settings",
             temperature: 0.7,
             top_p: 1.0,
-            maxTokens: 512,
+            max_tokens: 512,
             stop: [],
             model: "default",
-            debugMode: false,
-            developerMode: false,
-            storyPrologueInstructions: "",
-            storyboardSelection: { fractal: null, user: null },
+            debug_mode: false,
+            developer_mode: false,
+            story_prologue_instructions: "",
+            storyboard_selection: { fractal: null, user: null },
         })
     } catch (err) {
         error("[Data] Failed to populate default settings:", err)

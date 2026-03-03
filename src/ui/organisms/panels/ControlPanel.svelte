@@ -1,7 +1,6 @@
 <script>
     import { db } from "@data/db.js"
     import { app } from "@state/app.svelte.js"
-    import { runtime } from "@state/runtime.svelte.js"
     import Button from "@ui/atoms/Button.svelte"
     import Toggle from "@ui/atoms/Toggle.svelte"
     import Modal from "@ui/molecules/dialogs/Modal.svelte"
@@ -33,7 +32,7 @@
         <!-- HEADER: System Toggles -->
         <header class="panel-header">
             <div class="status-toggles">
-                <Toggle label="CALL MODE" bind:value={app.settings.callMode} onchange={() => app.saveSettings()} />
+                <Toggle label="CALL MODE" bind:value={app.settings.call_mode} onchange={() => app.saveSettings()} />
                 <Toggle label="NOTIFICATIONS" bind:value={app.settings.sound} onchange={() => app.saveSettings()} />
             </div>
         </header>
@@ -43,32 +42,6 @@
             <section class="prologue-setup">
                 <div class="input-wrapper">
                     <textarea class="prologue-field" placeholder="(Optional) e.g., 'Start in media res', 'Describe the weather first'" bind:value={app.prologue}></textarea>
-                </div>
-            </section>
-        {/if}
-
-        <!-- DEBUG: Narrative State Visualization -->
-        {#if app.settings.devMode}
-            <section class="debug-narrative">
-                <h4>NARRATIVE STATE</h4>
-                <div class="objective-row">
-                    <strong>VECTORS (AI):</strong>
-                    {runtime.activeVector("AI")}
-                </div>
-                {#if runtime.activeEchoes("AI").length > 0}
-                    <div class="echoes-row">
-                        <strong>ECHOES:</strong>
-                        <ul>
-                            {#each runtime.activeEchoes("AI") as echo (echo.id)}
-                                <li>{echo.text}</li>
-                            {/each}
-                        </ul>
-                    </div>
-                {/if}
-
-                <div class="objective-row">
-                    <strong>FRACTAL OBJECTIVE:</strong>
-                    {runtime.activeVector("FRACTAL")}
                 </div>
             </section>
         {/if}
@@ -90,7 +63,7 @@
 
             <div class="system-meta">
                 <div class="dev-toggle">
-                    <Toggle label="DevMode" bind:value={app.settings.devMode} onchange={() => app.saveSettings()} />
+                    <Toggle label="DevMode" bind:value={app.settings.dev_mode} onchange={() => app.saveSettings()} />
                 </div>
                 <Button variant="secondary" size="sm" onclick={handleReset}>
                     <div class="reset-wrapper">
@@ -150,39 +123,6 @@
                     color: var(--text-muted);
                     font-style: italic;
                 }
-            }
-        }
-    }
-
-    /* DEBUG STYLES */
-    .debug-narrative {
-        padding: var(--spacing-m);
-        background: var(--bg-input);
-        border-radius: var(--radius-sm);
-
-        h4 {
-            margin: 0 0 var(--spacing-xs) 0;
-            font-size: var(--font-size-xs);
-            color: var(--app-muted);
-            font-weight: 600;
-        }
-
-        .objective-row {
-            font-size: var(--font-size-s);
-            margin-bottom: var(--spacing-xs);
-
-            strong {
-                color: var(--color-success);
-            }
-        }
-
-        .echoes-row {
-            font-size: var(--font-size-s);
-            opacity: 0.7;
-
-            ul {
-                margin: 0;
-                padding-left: var(--spacing-m);
             }
         }
     }

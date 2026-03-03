@@ -1,7 +1,7 @@
 <script>
     import { app } from "@state/app.svelte.js"
-    import { messages } from "@state/messages.svelte.js"
     import { session } from "@state/session.svelte.js"
+    import { simulation_log } from "@state/simulation_log.svelte.js"
     import { engineState } from "@state/status.svelte.js"
     import Button from "@ui/atoms/Button.svelte"
     import Message from "./Message.svelte"
@@ -14,7 +14,7 @@
 
     // Auto-scroll logic
     $effect(() => {
-        if ((messages.feed.length || app.streaming.active) && scrollRef) {
+        if ((simulation_log.feed.length || app.streaming.active) && scrollRef) {
             // Small timeout to allow DOM render
             setTimeout(() => {
                 if (scrollRef) scrollRef.scrollTop = scrollRef.scrollHeight
@@ -31,9 +31,9 @@
 
     // --- ACTIONS ---
     async function handleDelete(index) {
-        const msg = messages.feed[index]
-        if (msg && msg.id) {
-            await session.deleteMessage(msg.id)
+        const entry = simulation_log.feed[index]
+        if (entry && entry.id) {
+            await session.delete_entry(entry.id)
         }
     }
 
@@ -46,25 +46,25 @@
     }
 
     async function handleEdit(index) {
-        const msg = messages.feed[index]
-        if (!msg) return
+        const entry = simulation_log.feed[index]
+        if (!entry) return
 
-        const newText = prompt("Edit message:", msg.text)
-        if (newText !== null && newText !== msg.text) {
-            await session.editMessage(msg.id, newText)
+        const newText = prompt("Edit log entry:", entry.text)
+        if (newText !== null && newText !== entry.text) {
+            await session.edit_entry(entry.id, newText)
         }
     }
 </script>
 
 <div class="prose-panel" bind:this={scrollRef}>
-    {#each messages.feed as msg, index (msg.id)}
+    {#each simulation_log.feed as entry, index (entry.id)}
         <Message
-            text={msg.text}
-            sender={mapRole(msg.role)}
-            characterName={msg.characterName || (mapRole(msg.role) === "ai" ? app.selectedAi?.name : "")}
-            timestamp={msg.timestamp ? new Date(msg.timestamp) : new Date()}
-            attachments={msg.attachments}
-            isLast={index === messages.feed.length - 1}
+            text={entry.text}
+            sender={mapRole(entry.role)}
+            character_name={entry.character_name || (mapRole(entry.role) === "ai" ? app.selectedAi?.name : "")}
+            timestamp={entry.created_at ? new Date(entry.created_at) : new Date()}
+            attachments={entry.attachments}
+            isLast={index === simulation_log.feed.length - 1}
             onDelete={() => handleDelete(index)}
             onRegenerate={() => handleRegenerate()}
             onContinue={() => handleContinue()}
@@ -76,7 +76,7 @@
         <Message text={app.streaming.content} sender="ai" timestamp={new Date()} isLast={true} />
     {:else if isThinking}
         <Message sender={engineState.role} isThinking={true} />
-    {:else if messages.feed.length === 0}
+    {:else if simulation_log.feed.length === 0}
         <div class="empty-feed-fallback">
             <p>Establishing context stream... If the screen remains black, please check your network or AI plugin settings.</p>
             <Button className="btn-retry" variant="ghost" onclick={() => session.retry()} label="Retry Connection" />

@@ -13,7 +13,7 @@
     <FRAGMENT type="Eternal">Analytical mind.</FRAGMENT>
     <FRAGMENT type="Present">Searching data.</FRAGMENT>
 
-        [OBJECTIVE]: Wants to be free.
+        [FUTURE_VECTOR]: Wants to be free.
 </YOUR_IDENTITY>
 
 <USER_PERSONA name="Freelancer">
@@ -26,7 +26,7 @@
     <FRAGMENT type="Present">Tense atmosphere.</FRAGMENT>
 </FRACTAL>
 <HISTORY>
-    <entry role="FRACTAL">Locate the merchant in the Hollow Market.</entry>
+    <entry role="USER_PERSONA" name="Freelancer">undefined</entry>
 </HISTORY>
 
 

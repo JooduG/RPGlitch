@@ -4,8 +4,8 @@
      * @property {string} name
      * @property {string} description
      * @property {Object} [visuals]
-     * @property {string} [visuals.signatureColor]
-     * @property {string} [visuals.avatar]
+     * @property {string} [visuals.signature_color]
+     * @property {string} [visuals.profile_picture]
      */
 
     let {

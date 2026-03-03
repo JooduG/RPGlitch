@@ -41,7 +41,7 @@ describe("v5.0 Prompt Audit (LIVE SOURCE)", () => {
         })
 
         // 1. Setup Mock State in Runtime (AFTER inject to ensure vectors exist)
-        runtime.addThread("Locate the merchant in the Hollow Market.", true)
+        runtime.log_turn("Locate the merchant in the Hollow Market.", true)
 
         // 2. Use the Broker to pull entities (this tests the Universal Entity enhancement)
         const entity_state = ContextBroker.pull_entities("simulation")
@@ -59,7 +59,7 @@ describe("v5.0 Prompt Audit (LIVE SOURCE)", () => {
             tone,
             state: {
                 entity: entity_state,
-                recentMessages: runtime.messages.byStoryId[runtime.storyId || "debug"] || [],
+                recentMessages: runtime.simulation_log.by_story_id[runtime.story_id || "debug"] || [],
             },
             input: "I watch the merchant stall from the shadows.",
             visualsAuthorized: true,

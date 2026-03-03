@@ -26,15 +26,15 @@ function createRuntimeStore() {
             // 🎭 Visuals & Voice
             voice: { rate: 1.0, pitch: 1.0 },
             visuals: {
-                profilePicture: null, // URL
-                profilePictureSeed: 0, // Used for transition keys
-                signatureColor: "#84cc16", // Default Lime
-                noBackground: false,
+                profile_picture: null, // URL
+                profile_picture_seed: 0, // Used for transition keys
+                signature_color: "#84cc16", // Default Lime
+                no_background: false,
             },
         },
-        activeUser: null,
-        activeAI: null,
-        activeFractal: {
+        active_user: null,
+        active_ai: null,
+        active_fractal: {
             name: "Environment",
             description: "",
             // 🧠 Unified Temporal structure
@@ -44,10 +44,10 @@ function createRuntimeStore() {
             future: { vectors: [] },
         },
         ready: false,
-        storyId: null,
+        story_id: null,
 
-        story: { byId: {}, activeId: null },
-        messages: { byStoryId: {} },
+        story: { by_id: {}, active_id: null },
+        simulation_log: { by_story_id: {} },
         turn: 0,
     })
 
@@ -58,27 +58,27 @@ function createRuntimeStore() {
         get character() {
             return state.character
         },
-        get activeUser() {
-            return state.activeUser
+        get active_user() {
+            return state.active_user
         },
-        get activeAI() {
-            return state.activeAI
+        get active_ai() {
+            return state.active_ai
         },
-        get activeFractal() {
-            return state.activeFractal
+        get active_fractal() {
+            return state.active_fractal
         },
         get story() {
             return state.story
         },
-        get messages() {
-            return state.messages
+        get simulation_log() {
+            return state.simulation_log
         },
-        get storyId() {
-            return state.storyId
+        get story_id() {
+            return state.story_id
         },
-        set storyId(id) {
-            state.storyId = id
-            state.story.activeId = id
+        set story_id(id) {
+            state.story_id = id
+            state.story.active_id = id
         },
         get isReady() {
             return state.ready
@@ -89,8 +89,8 @@ function createRuntimeStore() {
         set turn(val) {
             state.turn = val
         },
-        get activeStory() {
-            return state.storyId ? state.story.byId[state.storyId] : null
+        get active_story() {
+            return state.story_id ? state.story.by_id[state.story_id] : null
         },
 
         // 📜 UNIVERSAL VECTOR API (Trajectories for AI, USER, and FRACTAL)
@@ -120,6 +120,23 @@ function createRuntimeStore() {
             }
         },
 
+        /**
+         * 📝 NARRATIVE LOG: Adds a message to the active story thread.
+         * Used primarily for UI updates and prompt history assembly.
+         */
+        log_turn(content, is_user = false) {
+            const story_id = state.story_id || "debug"
+            if (!state.simulation_log.by_story_id[story_id]) {
+                state.simulation_log.by_story_id[story_id] = []
+            }
+            state.simulation_log.by_story_id[story_id].push({
+                role: is_user ? "user" : "assistant",
+                text: content,
+                character_name: is_user ? state.active_user?.name || "User" : state.active_ai?.name || "AI",
+                created_at: Date.now(),
+            })
+        },
+
         completeVector(role = "AI") {
             const entity = this._get_entity_by_role(role)
             if (entity?.future?.vectors?.length > 0) {
@@ -129,22 +146,22 @@ function createRuntimeStore() {
 
         // Helper to resolve entity by role string
         _get_entity_by_role(role) {
-            if (role === "AI") return state.activeAI
-            if (role === "USER") return state.activeUser
-            if (role === "FRACTAL") return state.activeFractal
+            if (role === "AI") return state.active_ai
+            if (role === "USER") return state.active_user
+            if (role === "FRACTAL") return state.active_fractal
             return null // Triad-only for now
         },
 
         // 🟢 SYNC: Read from DB
-        async sync(activeStoryId = null) {
-            if (activeStoryId) state.storyId = activeStoryId
+        async sync(active_story_id = null) {
+            if (active_story_id) state.story_id = active_story_id
 
             // If we don't know who we are playing, try to recover from persistence
-            if (!state.storyId) {
+            if (!state.story_id) {
                 try {
                     const entry = await db.kv_settings.get("active_session_id")
                     if (entry?.value) {
-                        state.storyId = entry.value
+                        state.story_id = entry.value
                     } else {
                         return // truly no active story
                     }
@@ -155,11 +172,11 @@ function createRuntimeStore() {
 
             try {
                 // 1. Fetch Story to get Character IDs
-                const story = await db.stories.get(state.storyId)
+                const story = await db.stories.get(state.story_id)
                 if (!story) return
 
                 // 2. Fetch Entities
-                const [userData, aiData, fractalData] = await Promise.all([entities.get("character", story.userId), entities.get("character", story.aiId || "unknown_ai"), entities.get("fractal", story.fractalId)])
+                const [userData, aiData, fractalData] = await Promise.all([entities.get("character", story.user_id), entities.get("character", story.ai_id || "unknown_ai"), entities.get("fractal", story.fractal_id)])
 
                 if (userData) {
                     state.character = {
@@ -168,15 +185,15 @@ function createRuntimeStore() {
                         id: userData.id,
                     }
                     // Also set specific User slot
-                    state.activeUser = state.character
+                    state.active_user = state.character
                 }
 
                 if (aiData) {
-                    state.activeAI = aiData
+                    state.active_ai = aiData
                 }
 
                 if (fractalData) {
-                    state.activeFractal = fractalData
+                    state.active_fractal = fractalData
                 }
 
                 state.ready = true
@@ -187,25 +204,25 @@ function createRuntimeStore() {
 
         // 🔬 VIBE INJECTION (Called by Engine)
         updateVibe(entityId, newColor, newSeed) {
-            const targets = [state.character, state.activeUser, state.activeAI, state.activeFractal]
+            const targets = [state.character, state.active_user, state.active_ai, state.active_fractal]
             targets.forEach((t) => {
                 if (t && t.id === entityId) {
-                    if (newColor) t.visuals.signatureColor = newColor
-                    if (newSeed !== undefined) t.visuals.profilePictureSeed = newSeed
+                    if (newColor) t.visuals.signature_color = newColor
+                    if (newSeed !== undefined) t.visuals.profile_picture_seed = newSeed
                 }
             })
         },
 
         // 🔴 UPDATE: Write to DB
         async save(turn = null) {
-            if (!state.storyId) return
+            if (!state.story_id) return
             try {
                 // [FIX] Turn is passed directly to avoid circular dependency with App Store
                 const targetTurn = turn ?? 0
 
-                await db.stories.update(state.storyId, {
+                await db.stories.update(state.story_id, {
                     turn: targetTurn,
-                    lastPlayed: Date.now(),
+                    last_played: Date.now(),
                 })
             } catch (err) {
                 console.error("[Data] Story Save Failed:", err)
@@ -233,13 +250,13 @@ function createRuntimeStore() {
                 if (type === "story") {
                     await db.stories.update(id, data)
                     // 2. Sync local state if it's the active story
-                    if (state.storyId === id) {
-                        Object.assign(state.story.byId[id] || {}, data)
+                    if (state.story_id === id) {
+                        Object.assign(state.story.by_id[id] || {}, data)
                     }
                 } else {
                     await entities.update(type, id, data)
                     // Handle character/AI/fractal sync if needed
-                    const targets = [state.character, state.activeUser, state.activeAI, state.activeFractal]
+                    const targets = [state.character, state.active_user, state.active_ai, state.active_fractal]
                     targets.forEach((t) => {
                         if (t && t.id === id) {
                             Object.assign(t, data)
@@ -271,7 +288,7 @@ function createRuntimeStore() {
                     // Send to IndexedDB
                     await db.entities.update(state.character.id, {
                         ...data,
-                        updatedAt: Date.now(),
+                        updated_at: Date.now(),
                     })
                 } catch (err) {
                     console.error("[Data] Save Failed:", err)
@@ -287,9 +304,9 @@ function createRuntimeStore() {
 
         // 🧪 DEBUG: Inject Mock State
         _debugInject(mockData) {
-            if (mockData.user) state.activeUser = mockData.user
-            if (mockData.ai) state.activeAI = mockData.ai
-            if (mockData.fractal) state.activeFractal = mockData.fractal
+            if (mockData.user) state.active_user = mockData.user
+            if (mockData.ai) state.active_ai = mockData.ai
+            if (mockData.fractal) state.active_fractal = mockData.fractal
             state.ready = true
         },
     }

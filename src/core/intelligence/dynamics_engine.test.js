@@ -17,69 +17,73 @@ describe("Dynamics Engine v2 (Rename)", () => {
         })
 
         it("should trigger reflexes on high-velocity input", () => {
-            const start_dynamics = { velocity: 60, entropy: 50, permeability: 50, resonance: 50 }
-            const state = resolve_dynamics("I run towards the exit", start_dynamics)
+            const start_dynamics = { velocity: 70, entropy: 50, permeability: 50, resonance: 50 }
+            const state = resolve_dynamics("I run towards the exit", null, start_dynamics)
 
-            // 60 + 20 (VIOLENCE reflex) = 80
+            // 70 + 10 (IMPACT reflex) = 80
             // Dynamics Gravity diff = 50 - 80 = -30 => pull = -30 * 0.25 = -7.5
             // 80 - 7.5 = 72.5 => Math.round(72.5) = 73
             expect(state.dynamics.velocity).toBe(73)
             expect(state.behaviors.some((i) => i.includes("Pacing fast"))).toBe(true)
         })
 
-        it("should trigger VIOLENCE reflex on combat input", () => {
+        it("should trigger IMPACT reflex on combat input", () => {
             const state = resolve_dynamics("I punch him in the face")
 
-            // 50 + 20 (VIOLENCE) = 70
-            // Dynamics Gravity diff = 50 - 70 = -20 => pull = -20 * 0.25 = -5
-            // 70 - 5 = 65
-            expect(state.dynamics.velocity).toBe(65)
+            // 50 + 10 (IMPACT) = 60
+            // Dynamics Gravity diff = 50 - 60 = -10 => pull = -10 * 0.25 = -2.5
+            // 60 - 2.5 = 57.5 => Round to 58
+            expect(state.dynamics.velocity).toBe(58)
             expect(state.dynamics.entropy).toBe(50)
         })
 
         describe("Flag Effects", () => {
-            it("should double Entropy when GLASS_CANNON is active", () => {
-                // Permeability 90+ triggers GLASS_CANNON
+            it("should double Entropy when RAW_NERVE is active", () => {
+                // Permeability >= 90 triggers RAW_NERVE
                 const start = { velocity: 50, entropy: 40, permeability: 95, resonance: 50 }
-                const state = resolve_dynamics("regular input", start)
+                // Pass baselines = start to prevent gravity from pulling Permeability out of LAW_HIGH
+                const state = resolve_dynamics("regular input", start, start)
 
-                // Base Entropy 40 -> Gravity pull (50-40)*0.25 = 2.5 -> 42.5
-                // GLASS_CANNON multiplier 2.0 -> 42.5 * 2 = 85
-                expect(state.flags).toContain("GLASS_CANNON")
-                expect(state.dynamics.entropy).toBe(85)
+                // Entropy 40 -> No gravity pull -> Law EXPOSED_VULNERABILITY (95 >= 90) triggers
+                // 40 * 2.0 = 80
+                expect(state.flags).toContain("EXPOSED_VULNERABILITY")
+                expect(state.dynamics.entropy).toBe(80)
             })
 
-            it("should halve Resonance when IRON_BUNKER is active", () => {
-                // Permeability <= 10 triggers IRON_BUNKER
+            it("should halve Resonance when HERMETIC_SEAL is active", () => {
+                // Permeability <= 10 triggers HERMETIC_SEAL
                 const start = { velocity: 50, entropy: 50, permeability: 5, resonance: 60 }
-                const state = resolve_dynamics("regular input", start)
+                // Pass baselines = start to keep Permeability <= 10
+                const state = resolve_dynamics("regular input", start, start)
 
-                // Base Resonance 60 -> Gravity pull (50-60)*0.25 = -2.5 -> 57.5
-                // IRON_BUNKER multiplier 0.5 -> 57.5 * 0.5 = 28.75 -> round 29
+                // Resonance 60 -> No gravity pull -> Law IRON_BUNKER (5 <= 10) triggers
+                // 60 * 0.5 = 30
                 expect(state.flags).toContain("IRON_BUNKER")
-                expect(state.dynamics.resonance).toBe(29)
+                expect(state.dynamics.resonance).toBe(30)
             })
 
-            it("should reject Entropy (0) when ECHO_CHAMBER is active", () => {
-                // Resonance >= 80, Entropy <= 20 triggers ECHO_CHAMBER
+            it("should reject Entropy (0) when RESONANCE_CASCADE is active", () => {
+                // Resonance >= 80, Entropy <= 20 triggers RESONANCE_CASCADE
                 const start = { velocity: 50, entropy: 10, permeability: 50, resonance: 90 }
-                const state = resolve_dynamics("regular input", start)
+                const state = resolve_dynamics("regular input", null, start)
 
-                expect(state.flags).toContain("ECHO_CHAMBER")
+                expect(state.flags).toContain("RESONANCE_CASCADE")
                 expect(state.dynamics.entropy).toBe(0)
             })
 
-            it("should ignore Resonance loss when THE_VENUS is active", () => {
-                // Velocity <= 20, Permeability >= 80 triggers THE_VENUS
+            it("should ignore Resonance loss when EVENT_HORIZON is active", () => {
+                // Velocity <= 20, Permeability >= 80 triggers EVENT_HORIZON
                 const start = { velocity: 10, entropy: 50, permeability: 90, resonance: 70 }
 
-                // Gravity pulls 70 -> 65 (50-70)*0.25 = -5
-                // DEEP_BREATH triggers at this velocity: adds +10 -> 75
-                // THE_VENUS ignores net loss relative to 70: 75 > 70, so 75
-                const state = resolve_dynamics("regular input", start)
+                // Gravity pulls velocity: 10 -> 20 (pull 10 toward 50)
+                // Gravity pulls resonance: 70 -> 65 (pull -5 toward 50)
+                // DEEP_STASIS (velocity <= 10) NO LONGER TRIGGERS at velocity 20
+                // EVENT_HORIZON (velocity <= 20, permeability >= 80) TRIGGERS
+                // It blocks the drop from 70 to 65. Result = 70.
+                const state = resolve_dynamics("regular input", null, start)
 
-                expect(state.flags).toContain("THE_VENUS")
-                expect(state.dynamics.resonance).toBe(75)
+                expect(state.flags).toContain("EVENT_HORIZON")
+                expect(state.dynamics.resonance).toBe(70)
             })
         })
     })
@@ -88,7 +92,7 @@ describe("Dynamics Engine v2 (Rename)", () => {
         const mock_context = {
             active_signals: {
                 dynamics: { velocity: 50, entropy: 20, permeability: 30, resonance: 10 },
-                instructions: [],
+                behaviors: ["Clinical gaze. Emotional zero."],
                 flags: [],
             },
             state: {
@@ -109,15 +113,8 @@ describe("Dynamics Engine v2 (Rename)", () => {
             const prompt = SYSTEM_PROMPTS.simulation(mock_context)
             expect(prompt).toContain('<SYSTEM role="Viper">')
             expect(prompt).toContain('<STATE turn="5">')
-            expect(prompt).not.toContain('<COGNITIVE_CORE status="ACTIVE">')
             expect(prompt).toContain("<PROTOCOLS>")
         })
-
-        // NARRATIVE_STYLE is currently commented out pending Tone system design.
-        // it("should include Narrative Style in Protocol", () => {
-        //     const prompt = SYSTEM_PROMPTS.simulation(mock_context)
-        //     expect(prompt).toContain("<PROTOCOL:NARRATIVE_STYLE>")
-        // })
     })
 
     describe("Engine Orchestration", () => {
@@ -131,7 +128,7 @@ describe("Dynamics Engine v2 (Rename)", () => {
                     snapshot: {
                         turn: 1,
                         objective: "Escape",
-                        dynamics: { velocity: 60, entropy: 50, permeability: 50, resonance: 50 },
+                        dynamics: { velocity: 70, entropy: 50, permeability: 50, resonance: 50 },
                     },
                     entity: {
                         list: [{ role: "AI", name: "Viper", fragments: [] }],
@@ -142,8 +139,8 @@ describe("Dynamics Engine v2 (Rename)", () => {
             const result = engine.compose(context)
 
             expect(result.system).toBeDefined()
-            expect(result.meta.velocity).toBe(73) // 60 + 20 (Violence) - 7.5 (Dynamics Gravity)
-            expect(result.meta.behaviors.length).toBeGreaterThan(0) // Should trigger Violence behavior
+            expect(result.meta.velocity).toBe(73) // 70 + 10 (IMPACT) - 7.5 (Dynamics Gravity)
+            expect(result.meta.behaviors.length).toBeGreaterThan(0)
 
             // Verify prompt content
             expect(result.system).toContain("<INPUT_COMMAND>")

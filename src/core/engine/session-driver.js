@@ -1,6 +1,6 @@
 import { db } from "@data/db.js"
-import { messages } from "@state/messages.svelte.js"
 import { runtime } from "@state/runtime.svelte.js"
+import { simulation_log } from "@state/simulation_log.svelte.js"
 
 /**
  * SESSION MANAGER
@@ -23,11 +23,11 @@ export const Session = {
      */
     setActive: async function (id) {
         this.activeId = id
-        runtime.storyId = id
+        runtime.story_id = id
         if (typeof window !== "undefined") {
             await db.kv_settings.put({ key: "active_session_id", value: id })
             // also log to history
-            await db.sessions.add({ sessionId: id, timestamp: Date.now() })
+            await db.sessions.add({ session_id: id, timestamp: Date.now() })
         }
     },
 
@@ -39,7 +39,7 @@ export const Session = {
         const entry = await db.kv_settings.get("active_session_id")
         if (entry) {
             this.activeId = entry.value
-            runtime.storyId = entry.value
+            runtime.story_id = entry.value
         }
     },
 
@@ -49,11 +49,11 @@ export const Session = {
     createFromSelection: async function ({ aiId, userId, fractalId, storyTitle }) {
         const storyData = {
             title: storyTitle,
-            aiId,
-            userId,
-            fractalId,
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
+            ai_id: aiId,
+            user_id: userId,
+            fractal_id: fractalId,
+            created_at: Date.now(),
+            updated_at: Date.now(),
         }
 
         const id = await db.stories.add(storyData)
@@ -63,8 +63,8 @@ export const Session = {
 
         // [CRITICAL] Synchronize Global State immediately
         // Replace legacy applyPatch with direct mutation
-        runtime.story.byId[id] = storyData
-        runtime.story.activeId = id
+        runtime.story.by_id[id] = storyData
+        runtime.story.active_id = id
 
         await this.setActive(id)
 
@@ -75,71 +75,71 @@ export const Session = {
     },
 
     /**
-     * Load messages for a story
+     * Load log entries for a story
      */
-    loadMessages: async (storyId) => {
-        return await db.messages.where("storyId").equals(storyId).toArray()
+    load_log: async (story_id) => {
+        return await db.simulation_log.where("story_id").equals(story_id).toArray()
     },
 
     /**
-     * Send a user message (Action)
+     * Send a user log entry (Action)
      */
     send: async (text) => {
-        const storyId = Session.requireActive()
-        await db.messages.add({
-            storyId,
+        const story_id = Session.requireActive()
+        await db.simulation_log.add({
+            story_id,
             role: "user",
             type: "text",
             text,
-            createdAt: Date.now(),
+            created_at: Date.now(),
         })
-        messages.refresh()
+        simulation_log.refresh()
     },
 
     /**
-     * Add an AI message (Response)
+     * Add a simulation log entry (Response)
      */
-    addAiMessage: async (text, characterName, role = "assistant") => {
-        const storyId = Session.requireActive()
-        await db.messages.add({
-            storyId,
+    log_turn: async (text, character_name, role = "assistant") => {
+        const story_id = Session.requireActive()
+        await db.simulation_log.add({
+            story_id,
             role, // role: "assistant" | "fractal"
             type: "text",
-            characterName,
+            character_name,
             text,
-            createdAt: Date.now(),
+            created_at: Date.now(),
         })
-        messages.refresh()
+        simulation_log.refresh()
     },
 
     /**
-     * Regenerate: Delete last AI message
+     * Regenerate: Delete last simulation turn
      */
     regenerate: async () => {
-        const storyId = Session.requireActive()
-        const lastMsg = await db.messages.where("storyId").equals(storyId).last()
+        const story_id = Session.requireActive()
+        const last_entry = await db.simulation_log.where("story_id").equals(story_id).last()
 
-        if (lastMsg && (lastMsg.role === "assistant" || lastMsg.role === "ai")) {
-            await db.messages.delete(lastMsg.id)
-            messages.refresh()
+        if (last_entry && (last_entry.role === "assistant" || last_entry.role === "ai")) {
+            await db.simulation_log.delete(last_entry.id)
+            simulation_log.refresh()
         }
     },
 
     /**
-     * Delete a specific message by ID
+     * Delete a specific log entry by ID
      */
-    deleteMessage: async (id) => {
+    delete_entry: async (id) => {
         Session.requireActive()
-        await db.messages.delete(id)
-        messages.refresh()
+        await db.simulation_log.delete(id)
+        simulation_log.refresh()
     },
 
     /**
-     * Edit a specific message text
+     * Edit a specific log entry text
      */
-    editMessage: async (id, newText) => {
+    edit_entry: async (id, new_text) => {
         Session.requireActive()
-        await db.messages.update(id, { text: newText })
-        messages.refresh()
+        await db.simulation_log.update(id, { text: new_text })
+        simulation_log.refresh()
     },
 }

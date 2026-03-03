@@ -44,7 +44,7 @@ export const Engine = {
             // No manual sync required.
 
             // AUTO-SEED: Ensure activeVector is never empty
-            const fractal = runtime.activeFractal
+            const fractal = runtime.active_fractal
             if (fractal && (!Array.isArray(fractal.future) || fractal.future.length === 0)) {
                 runtime.addVector("Continue the journey.", "FRACTAL", true)
                 // Optionally log this system action to debug telemetry
@@ -124,7 +124,7 @@ export const Engine = {
                 .map((m) => ({
                     role: m.role === "user" ? "user" : "model",
                     content: m.text || m.content || "",
-                    characterName: m.characterName,
+                    character_name: m.character_name,
                 }))
 
             // 2. ASSEMBLE (Modular Context) Pass the array explicitly to the Broker
@@ -164,10 +164,10 @@ export const Engine = {
             engineState.startGeneration("fractal")
             try {
                 const result = await LlmService.generate(payload)
-                const fractalName = runtime.activeFractal?.name || "Fractal Entity"
+                const fractal_name = runtime.active_fractal?.name || "Fractal Entity"
 
                 // [NEXUS] Action 1: Save Prologue to DB
-                await Session.addAiMessage(result, fractalName, "prologue")
+                await Session.addAiMessage(result, fractal_name, "prologue")
 
                 // [NEXUS] Action 2: The Hook - Immediate Director Follow-up
                 // This prevents the AI from starving and hallucinating user dialogue.
@@ -204,7 +204,6 @@ export const Engine = {
     _runEcho: async () => {
         // Calls Scholar.echo
         // const { Scholar } = await import("../scholar/index.js");
-        // TODO: Wire Echo.memorize() when memory consolidation checkpoints are defined.
     },
 }
 

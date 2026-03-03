@@ -141,7 +141,7 @@
                     noBackground: char.visuals.noBackground,
                 })
                 app.log(`[VisualWing] Generation Result: ${url}`, "system")
-                if (url) char.visuals.profilePicture = url
+                if (url) char.visuals.profile_picture = url
             } catch (err) {
                 console.error("Generation failed:", err)
                 app.log(`Generation failed: ${err.message}`, "error")
@@ -168,7 +168,7 @@
             const url = await ImageGeneration.upload(file)
             if (url) {
                 char.visuals = char.visuals || {}
-                char.visuals.profilePicture = url
+                char.visuals.profile_picture = url
             }
         } catch (err) {
             console.error("Upload failed:", err)
@@ -255,12 +255,12 @@
             {#each Object.entries(PALETTE).filter(([name]) => name !== "default") as [name, hex] (name)}
                 <button
                     class="swatch"
-                    class:active={char.visuals?.signatureColor === hex}
+                    class:active={char.visuals?.signature_color === hex}
                     style="background-color: {hex}"
                     aria-label="Select color {name}"
                     onclick={() => {
                         char.visuals = char.visuals || {}
-                        char.visuals.signatureColor = hex
+                        char.visuals.signature_color = hex
                     }}
                     disabled={!isEditing}
                     onmouseenter={(e) => handleSwatchHover(e, name)}

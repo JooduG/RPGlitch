@@ -18,28 +18,6 @@
         { key: "permeability", label: "Permeability", desc: "Open vs Defense" },
         { key: "resonance", label: "Resonance", desc: "Narrative Weight" },
     ]
-
-    function autoResize(node) {
-        let frame
-        const update = () => {
-            if (frame) cancelAnimationFrame(frame)
-            frame = requestAnimationFrame(() => {
-                node.style.height = "auto"
-                node.style.height = node.scrollHeight + "px"
-            })
-        }
-        node.addEventListener("input", update)
-        const observer = new ResizeObserver(update)
-        observer.observe(node)
-        update()
-        return {
-            destroy() {
-                if (frame) cancelAnimationFrame(frame)
-                node.removeEventListener("input", update)
-                observer.disconnect()
-            },
-        }
-    }
 </script>
 
 <div class="dev-wing-content">
@@ -79,11 +57,11 @@
         <footer class="footer-meta">
             <div class="meta-item">
                 <span class="tag">Created</span>
-                <span class="val">{formatTimestamp(char.createdAt)}</span>
+                <span class="val">{formatTimestamp(char.created_at)}</span>
             </div>
             <div class="meta-item">
                 <span class="tag">Updated</span>
-                <span class="val">{formatTimestamp(char.updatedAt)}</span>
+                <span class="val">{formatTimestamp(char.updated_at)}</span>
             </div>
         </footer>
     </div>

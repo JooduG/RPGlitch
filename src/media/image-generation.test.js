@@ -36,20 +36,20 @@ describe("ImageGeneration", () => {
             expect(prompt).toContain("high quality, hyper-realistic, volumetric lighting, 8k resolution")
         })
 
-        it("should convert known hex codes in signatureColor to semantic names", () => {
+        it("should convert known hex codes in signature_color to semantic names", () => {
             const entity = {
                 present: { physical: "robot" },
-                visuals: { signatureColor: "#a855f7" }, // Royal Purple in config
+                visuals: { signature_color: "#a855f7" }, // Royal Purple in config
             }
 
             const prompt = ImageGeneration.composeBasePrompt(entity)
             expect(prompt).toContain("integrate Royal Purple into the image, potentially as background color")
         })
 
-        it("should ignore unknown hex codes in signatureColor", () => {
+        it("should ignore unknown hex codes in signature_color", () => {
             const entity = {
                 present: { physical: "robot" },
-                visuals: { signatureColor: "#123456" }, // Unknown hex
+                visuals: { signature_color: "#123456" }, // Unknown hex
             }
 
             const prompt = ImageGeneration.composeBasePrompt(entity)
@@ -57,10 +57,10 @@ describe("ImageGeneration", () => {
             expect(prompt).not.toContain("integrate")
         })
 
-        it("should use signatureColor if it is NOT a hex code and colorName is missing", () => {
+        it("should use signature_color if it is NOT a hex code and colorName is missing", () => {
             const entity = {
                 present: { physical: "robot" },
-                visuals: { signatureColor: "crimson" },
+                visuals: { signature_color: "crimson" },
             }
 
             const prompt = ImageGeneration.composeBasePrompt(entity)

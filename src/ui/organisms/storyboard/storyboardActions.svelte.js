@@ -49,7 +49,7 @@ export const storyboard = {
      */
     async beginStory() {
         // 🛡️ LOBBY BYPASS LOGIC
-        if (app.settings.devMode) {
+        if (app.settings.dev_mode) {
             app.log("Lobby Bypass Triggered (DEV_MODE)", "system")
 
             const selection = {

@@ -14,8 +14,8 @@ import { runtime } from "@state/runtime.svelte.js"
 import { engineState as engine } from "@state/status.svelte.js"
 import { AestheticRouter, NEGATIVE_PROMPT, PROMPT_TEMPLATES, PromptEngine } from "./image_prompts.js"
 
-const { PHYSICS } = CONFIG
-const PHYSICS_CONSTANTS = PHYSICS
+const { DYNAMICS } = CONFIG
+const DYNAMICS_CONSTANTS = DYNAMICS
 
 /************************************************************************************
  * 🧩 [SECTION: GENERATOR ENGINE (API BRIDGE)]
@@ -47,12 +47,12 @@ export const GeneratorEngine = {
     async cacheImage(entityId, imageData) {
         try {
             await db.entities.update(entityId, {
-                "visuals.profilePicture": imageData,
+                "visuals.profile_picture": imageData,
                 updatedAt: Date.now(),
             })
 
             await runtime.updateEntity("character", entityId, {
-                visuals: { profilePicture: imageData },
+                visuals: { profile_picture: imageData },
             })
         } catch (err) {
             console.error("[IMAGE_ENGINE] Caching Failed:", err)
@@ -186,8 +186,8 @@ export const ImageGeneration = {
             const refinedPrompt = await LlmService.generate(
                 { system: vPayload.system },
                 {
-                    maxTokens: 300,
-                    temperature: PHYSICS_CONSTANTS.VISUAL_TEMP_DEFAULT,
+                    max_tokens: 300,
+                    temperature: DYNAMICS_CONSTANTS.VISUAL_TEMP_DEFAULT,
                 }
             )
 

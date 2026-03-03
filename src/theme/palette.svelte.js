@@ -29,14 +29,14 @@ class ThemeStore {
 
         // 1. VISUALS
         if (!e.visuals) e.visuals = {}
-        const baseColor = e.visuals.signatureColor || ""
+        const baseColor = e.visuals.signature_color || ""
         // If it's a PALETTE key, convert to hex
         if (baseColor && PALETTE[baseColor]) {
-            e.visuals.signatureColor = PALETTE[baseColor]
+            e.visuals.signature_color = PALETTE[baseColor]
         }
         // If still empty or invalid, keep it empty (will fall through to deterministic)
-        if (!e.visuals.signatureColor) {
-            e.visuals.signatureColor = ""
+        if (!e.visuals.signature_color) {
+            e.visuals.signature_color = ""
         }
 
         // [FIX] Ensure voice object exists to prevent "rate" TypeError in Profile.svelte
@@ -84,7 +84,7 @@ class ThemeStore {
      */
     getSignatureColor(entity) {
         if (entity) {
-            const color = entity.visuals?.signatureColor
+            const color = entity.visuals?.signature_color
 
             if (color) {
                 // If it's a known palette key, return the hex

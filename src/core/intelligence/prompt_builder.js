@@ -49,7 +49,7 @@ export function list_history(history) {
         return history
             .map((m) => {
                 const role = m.role === "user" ? "USER_PERSONA" : m.role === "prologue" ? "FRACTAL" : "AI_CHARACTER"
-                const name_attr = m.characterName ? ` name="${m.characterName}"` : ""
+                const name_attr = m.character_name ? ` name="${m.character_name}"` : ""
                 return `    <entry role="${role}"${name_attr}>${m.content}</entry>`
             })
             .join("\n")
@@ -230,7 +230,7 @@ Entity: ${entity.name || "Unknown"}
 ${JSON.stringify(history, null, 2)}
 </INPUT_HISTORY>
 <TASK_INSTRUCTION>
-Distil the input history into a structured Resonance object.
+Distil the input history into a structured Vector object.
 
 1. "summary": A single sentence capturing the most meaningful shift in state or relationship.
 2. "entity_tags": An array of strings containing ONLY proper nouns, specific locations, or key objects mentioned. Do NOT include abstract moods or verbs.
@@ -339,7 +339,7 @@ function inject_future(state, role, input = "") {
  * @param {"AI"|"USER"|"FRACTAL"} role
  */
 function _get_physical_fragments(role) {
-    const data = role === "AI" ? runtime.activeAI : role === "USER" ? runtime.activeUser : runtime.activeFractal
+    const data = role === "AI" ? runtime.active_ai : role === "USER" ? runtime.active_user : runtime.active_fractal
     return {
         eternal: { physical: data?.eternal?.physical || "" },
         present: { physical: data?.present?.physical || data?.description || "" },

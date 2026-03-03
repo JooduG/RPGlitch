@@ -1,6 +1,6 @@
 import { app } from "@state/app.svelte.js"
-import { messages } from "@state/messages.svelte.js"
 import { session } from "@state/session.svelte.js"
+import { simulation_log } from "@state/simulation_log.svelte.js"
 import { engineState } from "@state/status.svelte.js"
 import { cleanup, fireEvent, render, screen } from "@testing-library/svelte"
 import { beforeEach, describe, expect, it, vi } from "vitest"
@@ -16,7 +16,7 @@ describe("ProsePanel Integration (Isolated)", () => {
         cleanup()
         vi.clearAllMocks()
         // Reset Real State
-        messages.feed = []
+        simulation_log.feed = []
         app.streaming = { active: false, content: "", nodeId: null }
         app.selectedAi = { name: "TestAI" }
         engineState.phase = "idle"
@@ -31,7 +31,7 @@ describe("ProsePanel Integration (Isolated)", () => {
     })
 
     it("renders messages using MockMessage", async () => {
-        messages.add({
+        simulation_log.add({
             id: "1",
             text: "Hello Mock",
             role: "user",
@@ -55,8 +55,8 @@ describe("ProsePanel Integration (Isolated)", () => {
     })
 
     it("handles message deletion", async () => {
-        const deleteSpy = vi.spyOn(session, "deleteMessage").mockResolvedValue()
-        messages.add({ id: "msg-123", text: "To Delete", role: "user" })
+        const deleteSpy = vi.spyOn(session, "delete_entry").mockResolvedValue()
+        simulation_log.add({ id: "msg-123", text: "To Delete", role: "user" })
 
         render(ProsePanel)
         const deleteBtn = screen.getByTestId("mock-delete")
@@ -66,16 +66,16 @@ describe("ProsePanel Integration (Isolated)", () => {
     })
 
     it("handles message editing", async () => {
-        const editSpy = vi.spyOn(session, "editMessage").mockResolvedValue()
+        const editSpy = vi.spyOn(session, "edit_entry").mockResolvedValue()
         vi.spyOn(window, "prompt").mockReturnValue("New Text")
 
-        messages.add({ id: "msg-456", text: "To Edit", role: "user" })
+        simulation_log.add({ id: "msg-456", text: "To Edit", role: "user" })
 
         render(ProsePanel)
         const editBtn = screen.getByTestId("mock-edit")
         await fireEvent.click(editBtn)
 
-        expect(window.prompt).toHaveBeenCalledWith("Edit message:", "To Edit")
+        expect(window.prompt).toHaveBeenCalledWith("Edit log entry:", "To Edit")
         expect(editSpy).toHaveBeenCalledWith("msg-456", "New Text")
     })
 })

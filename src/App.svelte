@@ -20,10 +20,10 @@
 </script>
 
 {#if mounted}
-    <div class="app-container" class:view-lobby={app.view === "lobby"} class:view-game={app.view === "game"} class:has-tension={app.tension > 0} class:has-fractal-bg={!!app.selectedFractal?.visuals?.profilePicture} transition:fade={{ duration: 800 }}>
+    <div class="app-container" class:view-lobby={app.view === "lobby"} class:view-game={app.view === "game"} class:has-tension={app.tension > 0} class:has-fractal-bg={!!app.selectedFractal?.visuals?.profile_picture} transition:fade={{ duration: 800 }}>
         <!-- FRACTAL BACKGROUND -->
-        {#if app.selectedFractal?.visuals?.profilePicture}
-            <div id="fractal-background" style:background-image="url('{app.selectedFractal.visuals.profilePicture}')" style:opacity={app.view === "game" ? 0.4 : 0.75}></div>
+        {#if app.selectedFractal?.visuals?.profile_picture}
+            <div id="fractal-background" style:background-image="url('{app.selectedFractal.visuals.profile_picture}')" style:opacity={app.view === "game" ? 0.4 : 0.75}></div>
         {/if}
 
         <!-- GLOBAL: Lightbox Overlay -->
@@ -42,7 +42,7 @@
         {/if}
 
         <!-- TELEMETRY HUD (Slide-out Dev Inspector) -->
-        {#if app.settings.devMode}
+        {#if app.settings.dev_mode}
             <DebugPanel />
         {/if}
 
@@ -53,7 +53,7 @@
             <Storymode />
         {/if}
         <!-- DEV: Swap View Trigger (Only visible when Panel is open) -->
-        {#if app.settings.devMode && app.controlPanelOpen}
+        {#if app.settings.dev_mode && app.controlPanelOpen}
             <button class="swap-view-trigger" onclick={() => (app.view = app.view === "game" ? "lobby" : "game")}> ⇄ </button>
         {/if}
     </div>

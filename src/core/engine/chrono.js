@@ -3,8 +3,8 @@
 
 import { Shield } from "@core/security.js"
 import { app } from "@state/app.svelte.js"
-import { messages } from "@state/messages.svelte.js"
 import { runtime } from "@state/runtime.svelte.js"
+import { simulation_log } from "@state/simulation_log.svelte.js"
 import { engineState } from "@state/status.svelte.js" // [R5] Unified State
 
 import { Engine } from "./engine.js"
@@ -44,7 +44,7 @@ export class ChronoStore {
 
             if (input && runtime.character) {
                 // Pass Fractal State for Causality Checks
-                shieldContext = await Shield.process(input, runtime.character, runtime.activeFractal || {})
+                shieldContext = await Shield.process(input, runtime.character, runtime.active_fractal || {})
 
                 // 🛑 CAUSALITY CHECK
                 if (shieldContext && shieldContext.causality && shieldContext.causality.result === "failure") {
@@ -80,7 +80,7 @@ export class ChronoStore {
             console.error("[Chrono] 💥 Time Fracture:", error)
 
             // Push error to feed so user knows what happened
-            messages.add({
+            simulation_log.add({
                 id: `err-${Date.now()}`,
                 role: "system",
                 text: `Simulation Error: ${error.message || "Unknown Time Fracture"}`,

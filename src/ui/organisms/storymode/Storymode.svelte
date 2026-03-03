@@ -9,7 +9,7 @@
     import ProsePanel from "./ProsePanel.svelte"
     import StorymodePanel from "./StorymodePanel.svelte"
 
-    let fractalBg = $derived(runtime?.storyFractal?.visuals?.profilePicture || "")
+    let fractalBg = $derived(runtime?.storyFractal?.visuals?.profile_picture || "")
 
     // Derived
     let isThinking = $derived(engineState.phase === "generating")

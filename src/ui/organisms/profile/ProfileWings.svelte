@@ -4,12 +4,7 @@
     import VisualWing from "@ui/organisms/profile/VisualWing.svelte"
     import VoiceWing from "@ui/organisms/profile/VoiceWing.svelte"
 
-    let {
-        char = $bindable(),
-        isEditing,
-        busyFields = $bindable(),
-        activeField = $bindable(),
-    } = $props()
+    let { char = $bindable(), isEditing, busyFields = $bindable(), activeField = $bindable() } = $props()
 
     $effect(() => {})
 </script>
@@ -19,12 +14,8 @@
     <VoiceWing bind:char {isEditing} />
 </aside>
 
-{#if app.settings.devMode}
-    <aside
-        class="wing-right"
-        class:is-visible={isEditing || app.settings.devMode}
-        data-testid="dev-wing"
-    >
+{#if app.settings.dev_mode}
+    <aside class="wing-right" class:is-visible={isEditing || app.settings.dev_mode} data-testid="dev-wing">
         <DevWing bind:char {isEditing} />
     </aside>
 {/if}

@@ -47,10 +47,10 @@ export class AppStore {
     // 🎛️ SETTINGS (User Preferences)
     settings = $state({
         sound: true, // Notification Sounds
-        callMode: false, // UI Layout Mode
-        streamText: true, // True = Real-time chunks, False = Instant
-        autoScroll: true, // Follow chat
-        devMode: false,
+        call_mode: false, // UI Layout Mode
+        stream_text: true, // True = Real-time chunks, False = Instant
+        auto_scroll: true, // Follow chat
+        dev_mode: false,
     })
     get turn() {
         return runtime.turn
@@ -60,7 +60,7 @@ export class AppStore {
     }
 
     // 1. LOBBY READINESS (Derived Traceable Logic)
-    canStart = $derived(this.settings.devMode || (this.selectedAi && this.selectedUser))
+    canStart = $derived(this.settings.dev_mode || (this.selectedAi && this.selectedUser))
 
     // Legacy compat getter
     get lobbyReady() {
@@ -128,9 +128,9 @@ export class AppStore {
         if (typeof window !== "undefined") {
             window.RPGLITCH_CONFIG = {
                 sound: this.settings.sound,
-                autoScroll: this.settings.autoScroll,
-                textSpeed: this.settings.streamText ? 30 : 0,
-                devMode: this.settings.devMode,
+                auto_scroll: this.settings.auto_scroll,
+                text_speed: this.settings.stream_text ? 30 : 0,
+                dev_mode: this.settings.dev_mode,
             }
         }
     }
@@ -218,22 +218,22 @@ export class AppStore {
     }
 
     toggleCallMode = () => {
-        this.settings.callMode = !this.settings.callMode
+        this.settings.call_mode = !this.settings.call_mode
         this.saveSettings()
     }
 
     toggleStreamText = () => {
-        this.settings.streamText = !this.settings.streamText
+        this.settings.stream_text = !this.settings.stream_text
         this.saveSettings()
     }
 
     toggleAutoScroll = () => {
-        this.settings.autoScroll = !this.settings.autoScroll
+        this.settings.auto_scroll = !this.settings.auto_scroll
         this.saveSettings()
     }
 
     toggleDevMode = () => {
-        this.settings.devMode = !this.settings.devMode
+        this.settings.dev_mode = !this.settings.dev_mode
         this.saveSettings()
     }
 

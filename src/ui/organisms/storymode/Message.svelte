@@ -8,7 +8,7 @@
     let {
         text = "",
         sender = "system", // 'ai', 'user', 'fractal', 'system'
-        characterName = "",
+        character_name = "",
         timestamp = new Date(),
         attachments = [],
         onDelete = () => {},
@@ -29,31 +29,31 @@
         // 2. Exact Name Match in App Lists (History)
         // 3. Fallback to Active Runtime Role (if name matches or is generic)
 
-        if (!characterName) {
+        if (!character_name) {
             // No name? Use active runtime by role
-            if (isUser) return runtime.activeUser
-            if (isAi) return runtime.activeAI
-            if (isFractal) return runtime.activeFractal
+            if (isUser) return runtime.active_user
+            if (isAi) return runtime.active_ai
+            if (isFractal) return runtime.active_fractal
             return null
         }
 
         // 1. Is it the ACTIVE character? (Fastest & most correct for edits)
-        if (isUser && runtime.activeUser?.name === characterName) return runtime.activeUser
-        if (isAi && runtime.activeAI?.name === characterName) return runtime.activeAI
-        if (isFractal && runtime.activeFractal?.name === characterName) return runtime.activeFractal
+        if (isUser && runtime.active_user?.name === character_name) return runtime.active_user
+        if (isAi && runtime.active_ai?.name === character_name) return runtime.active_ai
+        if (isFractal && runtime.active_fractal?.name === character_name) return runtime.active_fractal
 
         // 2. Is it in the LOBBY/CACHE lists? (For history)
-        if (isUser) return app.userList.find((e) => e.name === characterName)
-        if (isAi) return app.aiList.find((e) => e.name === characterName)
-        if (isFractal) return app.fractalList.find((e) => e.name === characterName)
+        if (isUser) return app.userList.find((e) => e.name === character_name)
+        if (isAi) return app.aiList.find((e) => e.name === character_name)
+        if (isFractal) return app.fractalList.find((e) => e.name === character_name)
 
         // 3. Fallback: If we can't find it, assume it refers to the active one (Legacy)
-        if (isUser) return runtime.activeUser
-        if (isAi) return runtime.activeAI
+        if (isUser) return runtime.active_user
+        if (isAi) return runtime.active_ai
         return null
     })
 
-    let signatureColor = $derived.by(() => {
+    let signature_color = $derived.by(() => {
         // 1. Try Entity
         if (entity) {
             const color = themeStore.getSignatureColor(entity)
@@ -61,16 +61,16 @@
         }
 
         // 2. Try Character Name (Deterministic Fallback)
-        if (characterName) {
-            const color = themeStore.getDeterministicColor(characterName)
+        if (character_name) {
+            const color = themeStore.getDeterministicColor(character_name)
             return color
         }
 
         // 3. Fallback to App State (Lobby/Storyboard Mode)
         // When in lobby, runtime.* is null, so we must check app.selected*
-        if (isUser && app.selectedUser?.visuals?.signatureColor) return themeStore.getSignatureColor(app.selectedUser)
-        if (isAi && app.selectedAi?.visuals?.signatureColor) return themeStore.getSignatureColor(app.selectedAi)
-        if (isFractal && app.selectedFractal?.visuals?.signatureColor) return themeStore.getSignatureColor(app.selectedFractal)
+        if (isUser && app.selectedUser?.visuals?.signature_color) return themeStore.getSignatureColor(app.selectedUser)
+        if (isAi && app.selectedAi?.visuals?.signature_color) return themeStore.getSignatureColor(app.selectedAi)
+        if (isFractal && app.selectedFractal?.visuals?.signature_color) return themeStore.getSignatureColor(app.selectedFractal)
 
         // 4. Robust Fallback by Role
         if (isUser) return DEFAULT_COLORS.USER
@@ -80,7 +80,7 @@
         return DEFAULT_COLORS.SYSTEM
     })
 
-    let textColor = $derived(themeStore.getContrastColor(signatureColor))
+    let text_color = $derived(themeStore.getContrastColor(signature_color))
 
     import { parseMessage } from "@core/engine/text_parser.js"
 
@@ -98,13 +98,13 @@
 <div class="message-row" class:user-row={isUser} class:ai-row={isAi} class:fractal-row={isFractal} class:thinking-row={isThinking}>
     {#if isThinking}
         <!-- [R3] Thinking Pill: Pure signature color, white dots -->
-        <div class="thinking-pill" style="background: {signatureColor};">
+        <div class="thinking-pill" style="background: {signature_color};">
             <span class="dot"></span>
             <span class="dot"></span>
             <span class="dot"></span>
         </div>
     {:else}
-        <div class="message-bubble" class:user-bubble={isUser} class:ai-bubble={isAi} class:fractal-bubble={isFractal} style="--bubble-color: {signatureColor}; --signature-color: {signatureColor}; --bubble-text-color: {textColor};">
+        <div class="message-bubble" class:user-bubble={isUser} class:ai-bubble={isAi} class:fractal-bubble={isFractal} style="--bubble-color: {signature_color}; --signature-color: {signature_color}; --bubble-text-color: {text_color};">
             <!-- SCENE HEADER (If detected) -->
             {#if sceneData}
                 <div class="scene-header-wrapper">
@@ -113,7 +113,7 @@
             {/if}
 
             <!-- DEV MODE: THINK BLOCK -->
-            {#if app.settings.devMode && thinkBlock}
+            {#if app.settings.dev_mode && thinkBlock}
                 <div class="think-block">
                     <div class="think-label">🎬 DevMode</div>
                     <div class="think-content">{thinkBlock}</div>

@@ -21,7 +21,7 @@ The RPGlitch cognitive engine relies on a strictly layered architecture that mov
 ### Tier 3: The Gateway (Execution)
 
 - **LLM Service (`intelligence_service.js`)**: The network bridge routing the assembled payload to the AI provider.
-- **Simulation Engine (`engine.js`)**: The primary game loop orchestrator managing chronological turns, state updates, and triggering memory consolidation.
+- **Dynamics Engine (`dynamics_engine.js`)**: The primary game loop orchestrator managing chronological turns, state updates, and triggering memory consolidation.
 
 ---
 
@@ -34,10 +34,10 @@ Entity data is injected into the prompt as a layered psychological stack, giving
 2. **Present (The Immediate State)**
     - **Conditions & Status:** Fluid physical wounds, active HUDs, and immediate emotional volatility.
 3. **Future Vectors (The Drivers)**
-    - **Objectives & Dooms:** Actionable tasks paired with atmospheric stakes. Stored as structured vectors. If a vector carries emotional physics tags, it is injected as a `[STAKE]`. Otherwise, it injects as an `[OBJECTIVE]`.
-    - _Example:_ `Infiltrate the facility. [CONSEQUENCE: Failure means the virus is released.]`
-4. **Past Resonance (The Historical Anchor)**
-    - **Distilled Lore:** The structured, condensed memories of past narrative beats.
+    - **Objectives & Dooms:** Actionable tasks paired with atmospheric stakes. Stored as structured vectors. If a vector carries emotional physics tags, it is injected as a `[FUTURE_VECTOR]`.
+    - _Example:_ `Infiltrate the facility. [FUTURE_VECTOR: Failure means the virus is released.]`
+4. **Past Vectors (The Historical Anchor)**
+    - **Distilled Lore:** The structured, condensed memories of past narrative beats. Stored as `[PAST_VECTOR]`.
 5. **Chrono History (The Active Window)**
     - **Sliding Dialogue:** The last 10 unconsolidated conversational turns providing immediate scene momentum.
 
@@ -53,8 +53,8 @@ Every 12 turns, the **Narrative Director** automatically intervenes to prevent c
 
 1. It slices the oldest 10 messages from the active Chrono history.
 2. The **Echo Service** condenses these messages into a single-sentence `summary` and extracts proper nouns (`entity_tags`).
-3. The engine automatically derives kinetic `axis_tags` (e.g., `VIOLENCE`, `STASIS`) by running the summary through the Physics Engine.
-4. The messages are marked as `consolidated`, hidden from the sliding window, and the new **Resonance Vector** is saved to the Entity's Past.
+3. The engine automatically derives kinetic `axis_tags` (e.g., `IMPACT`, `STASIS`) by running the summary through the Dynamics Engine.
+4. The messages are marked as `consolidated`, hidden from the sliding window, and the new **Past Vector** is saved to the Entity's memory.
 
 ### B. Weighted Retrieval & Injection
 
@@ -86,16 +86,16 @@ Maintains the boundary between narrative prose and engine metadata.
 
 ## 🎭 5. Narrative Physics & Protocols
 
-### A. Physics Reflexes
+### A. Dynamics Reflexes
 
 RPGlitch listens to the user's input and dynamically adjusts the AI's writing style based on detected kinetic intent.
 
-| Reflex ID         | Keyword Triggers    | Instruction Injected                            |
-| :---------------- | :------------------ | :---------------------------------------------- |
-| `REFLEX_KINETIC`  | run, sprint, dash   | "Short sentences. Action over introspection."   |
-| `REFLEX_VIOLENCE` | attack, shoot, hurt | "Visceral impact. Describe pain/damage."        |
-| `REFLEX_EROS`     | touch, caress, soft | "Sensory focus. Dilate time. Somatic feedback." |
-| `REFLEX_STASIS`   | wait, quiet, sleep  | "Focus on ambient environment. Slow momentum."  |
+| Reflex ID    | Keyword Triggers   | Instruction Injected                            |
+| :----------- | :----------------- | :---------------------------------------------- |
+| `ADRENALINE` | run, sprint, dash  | "Short sentences. Action over introspection."   |
+| `STATIC`     | scream, weird, rot | "Reality destabilizing. Describe glitching."    |
+| `NERVE`      | kiss, hold, soft   | "Sensory focus. Dilate time. Somatic feedback." |
+| `STASIS`     | wait, quiet, sleep | "Focus on ambient environment. Slow momentum."  |
 
 ### B. The Literalism Protocol (Global Rules)
 
@@ -118,8 +118,8 @@ The system prompt is dynamically assembled into a highly structured XML manifest
 
   <YOUR_IDENTITY name="Viper">
     <FRAGMENT type="Eternal">...</FRAGMENT>
-    [RESONANCE]: Escaped the facility using the User's override codes.
-    [STAKE]: Evade the corporate bounty hunters. [CONSEQUENCE: Death]
+    [PAST_VECTOR]: Escaped the facility using the User's override codes.
+    [FUTURE_VECTOR]: Evade the corporate bounty hunters. [CONSEQUENCE: Death]
   </YOUR_IDENTITY>
 
   <USER_PERSONA name="John">
@@ -141,7 +141,6 @@ The system prompt is dynamically assembled into a highly structured XML manifest
     - IMMERSION: Show, don't tell.
   </PROTOCOLS>
 </SYSTEM>
-
 ```
 
 ---

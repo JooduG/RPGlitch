@@ -40,7 +40,7 @@
         const ai = app.selectedAi
         const user = app.selectedUser
         const fractal = app.selectedFractal
-        const isSmartphone = app.settings.callMode
+        const isSmartphone = app.settings.call_mode
 
         // Smartphone mode - simpler format
         if (isSmartphone) {

@@ -13,7 +13,7 @@ vi.mock("@state/app.svelte.js", () => ({
 vi.mock("@state/runtime.svelte.js", () => ({
     runtime: {
         turn: 5,
-        activeAI: {
+        active_ai: {
             name: "AI",
             role: "Assistant",
             fragments: [
@@ -22,11 +22,11 @@ vi.mock("@state/runtime.svelte.js", () => ({
                 { section: "Visual", text: "Holographic shimmering form.", enhancer: "PHYSICAL" },
             ],
         },
-        activeUser: {
+        active_user: {
             name: "User",
             fragments: [{ section: "Eternal", text: "The protagonist.", enhancer: "USER" }],
         },
-        activeFractal: {
+        active_fractal: {
             name: "The City",
             description: "A neon metropolis.",
             future: {
@@ -41,12 +41,12 @@ vi.mock("@state/runtime.svelte.js", () => ({
 
 vi.mock("@core/engine/bus.js", () => ({
     state: {
-        story: { activeId: "test-story" },
-        messages: {
-            byStoryId: {
+        story: { active_id: "test-story" },
+        simulation_log: {
+            by_story_id: {
                 "test-story": [
                     { role: "user", text: "Hello" },
-                    { role: "ai", text: "Hi", characterName: "AI" },
+                    { role: "ai", text: "Hi", character_name: "AI" },
                 ],
             },
         },

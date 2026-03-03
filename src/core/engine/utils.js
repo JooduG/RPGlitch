@@ -13,8 +13,8 @@ export const initDebugMode = async () => {
     try {
         const { db } = await import("@data/db.js")
         const settings = await db.settings.get("app-settings")
-        if (settings && typeof settings.debugMode !== "undefined") {
-            isDebug = !!settings.debugMode
+        if (settings && typeof settings.debug_mode !== "undefined") {
+            isDebug = !!settings.debug_mode
         }
     } catch (e) {
         console.error("[Engine] Failed to load debug mode:", e)
@@ -37,7 +37,7 @@ export const setDebug = async (on) => {
         const { db } = await import("@data/db.js")
         let settings = await db.settings.get("app-settings")
         if (!settings) settings = { id: "app-settings" }
-        settings.debugMode = isDebug
+        settings.debug_mode = isDebug
         await db.settings.put(settings)
     } catch (e) {
         error("Failed to save debug mode to settings:", e)

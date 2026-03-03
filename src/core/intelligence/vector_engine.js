@@ -120,7 +120,7 @@ export function score_vectors(vectors, input) {
 export function format_past(vectors, input) {
     const ranked = score_vectors(vectors, input).slice(0, 3)
     const reversed = [...ranked].reverse()
-    return reversed.map((v) => `        [RESONANCE]: ${v.summary}`).join("\n")
+    return reversed.map((v) => `        [PAST_VECTOR]: ${v.summary}`).join("\n")
 }
 
 /**
@@ -136,8 +136,7 @@ export function format_future(vectors, input) {
     const reversed = [...ranked].reverse()
     return reversed
         .map((v) => {
-            const label = v.axis_tags?.length > 0 ? "STAKE" : "OBJECTIVE"
-            return `        [${label}]: ${v.text}`
+            return `        [FUTURE_VECTOR]: ${v.text}`
         })
         .join("\n")
 }

@@ -9,21 +9,21 @@ import { describe, expect, test } from "vitest"
 describe("ThemeStore Color Generation", () => {
     const getSignature = (e) => themeStore.getSignatureColor(e)
 
-    describe("Modern entities with signatureColor", () => {
-        test("returns hex value for entity with signatureColor", () => {
-            const entity = { visuals: { signatureColor: "Electric Cyan" } }
+    describe("Modern entities with signature_color", () => {
+        test("returns hex value for entity with signature_color", () => {
+            const entity = { visuals: { signature_color: "Electric Cyan" } }
             const result = getSignature(entity)
             expect(result).toBe(PALETTE["Electric Cyan"])
         })
 
-        test("returns hex value for entity with pink signatureColor", () => {
-            const entity = { visuals: { signatureColor: "Hot Pink" } }
+        test("returns hex value for entity with pink signature_color", () => {
+            const entity = { visuals: { signature_color: "Hot Pink" } }
             const result = getSignature(entity)
             expect(result).toBe(PALETTE["Hot Pink"])
         })
 
-        test("returns hex value for entity with emerald signatureColor", () => {
-            const entity = { visuals: { signatureColor: "Emerald Green" } }
+        test("returns hex value for entity with emerald signature_color", () => {
+            const entity = { visuals: { signature_color: "Emerald Green" } }
             const result = getSignature(entity)
             expect(result).toBe(PALETTE["Emerald Green"])
         })
@@ -91,8 +91,8 @@ describe("ThemeStore Color Generation", () => {
             expect(result).toMatch(/^hsl\(\d+, 40%, 60%\)$/)
         })
 
-        test("handles entity with empty signatureColor string", () => {
-            const entity = { visuals: { signatureColor: "" } }
+        test("handles entity with empty signature_color string", () => {
+            const entity = { visuals: { signature_color: "" } }
             const result = getSignature(entity)
             // Empty string is falsy, should fall through
             expect(result).toMatch(/^hsl\(\d+, 40%, 60%\)$/)

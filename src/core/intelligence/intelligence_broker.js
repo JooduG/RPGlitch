@@ -215,18 +215,18 @@ export const ContextBroker = {
         const sources = [
             {
                 role: "AI",
-                data: runtime.activeAI,
-                name: runtime.activeAI?.name || "AI_CHARACTER",
+                data: runtime.active_ai,
+                name: runtime.active_ai?.name || "AI_CHARACTER",
             },
             {
                 role: "USER",
-                data: runtime.activeUser,
-                name: runtime.activeUser?.name || "USER_PERSONA",
+                data: runtime.active_user,
+                name: runtime.active_user?.name || "USER_PERSONA",
             },
             {
                 role: "FRACTAL",
-                data: runtime.activeFractal,
-                name: runtime.activeFractal?.name || "FRACTAL",
+                data: runtime.active_fractal,
+                name: runtime.active_fractal?.name || "FRACTAL",
             },
         ]
 
@@ -267,7 +267,7 @@ export const ContextBroker = {
         return history
             .slice(-3)
             .map((m) => {
-                const owner = m.characterName || (m.role === "user" ? "User" : "AI")
+                const owner = m.character_name || (m.role === "user" ? "User" : "AI")
                 return `[${owner}]: ${ContextBroker.clean_text(m.content, 120)}`
             })
             .join("\n")

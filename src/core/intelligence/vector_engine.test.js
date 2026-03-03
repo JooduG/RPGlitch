@@ -51,15 +51,15 @@ describe("VectorEngine", () => {
             { text: "Eat dinner.", axis_tags: [], entity_tags: [] },
         ]
 
-        it("formats past vectors as RESONANCE", () => {
+        it("formats past vectors as PAST_VECTOR", () => {
             const result = VectorEngine.format_past(past, "")
-            expect(result).toContain("[RESONANCE]: Met a traveler.")
+            expect(result).toContain("[PAST_VECTOR]: Met a traveler.")
         })
 
-        it("formats future vectors as STAKE or OBJECTIVE", () => {
+        it("formats future vectors as FUTURE_VECTOR", () => {
             const result = VectorEngine.format_future(future, "")
-            expect(result).toContain("[STAKE]: Find the key.")
-            expect(result).toContain("[OBJECTIVE]: Eat dinner.")
+            expect(result).toContain("[FUTURE_VECTOR]: Find the key.")
+            expect(result).toContain("[FUTURE_VECTOR]: Eat dinner.")
         })
     })
 })

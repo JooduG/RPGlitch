@@ -91,7 +91,7 @@ export const LlmService = {
      * @param {number}  [options.temperature]         - Override temperature.
      * @param {number}  [options.top_p]               - Override top_p.
      * @param {number}  [options.repetition_penalty]  - Override repetition penalty.
-     * @param {number}  [options.maxTokens]           - Override max tokens.
+     * @param {number}  [options.max_tokens]           - Override max tokens.
      * @param {string}  [options.model]               - Override model.
      * @param {Function}[options.onToken]             - Per-token streaming callback.
      * @param {boolean} [options.json]               - Request structured JSON output.
@@ -117,7 +117,7 @@ export const LlmService = {
                 temperature: options.temperature ?? payload.params?.temperature ?? 0.8,
                 top_p: options.top_p ?? payload.params?.top_p,
                 repetition_penalty: options.repetition_penalty ?? payload.params?.repetition_penalty,
-                max_tokens: options.maxTokens ?? payload.params?.maxTokens,
+                max_tokens: options.max_tokens ?? payload.params?.max_tokens,
                 model: options.model ?? payload.params?.model,
                 stop_sequences: payload.stopSequences || [],
                 signal: options.signal,
@@ -164,13 +164,13 @@ export const LlmService = {
 
     /**
      * Formats message history into a plain readable string for the instruction block.
-     * @param {Array<{role: string, content?: string, text?: string, characterName?: string}>} messages
+     * @param {Array<{role: string, content?: string, text?: string, character_name?: string}>} messages
      * @returns {string}
      */
     _format_history: (messages) =>
         messages
             .map((m) => {
-                const label = m.characterName || (m.role === "user" ? "User" : "Character")
+                const label = m.character_name || (m.role === "user" ? "User" : "Character")
                 const text = m.content || m.text || ""
                 return `${label}: ${text}`
             })

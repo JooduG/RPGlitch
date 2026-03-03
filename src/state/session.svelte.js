@@ -1,8 +1,8 @@
 import { Engine } from "@core/engine/engine.js"
 import { Session } from "@core/engine/session-driver.js"
 import { app } from "@state/app.svelte.js"
-import "@state/messages.svelte.js"
 import { runtime } from "@state/runtime.svelte.js"
+import "@state/simulation_log.svelte.js"
 import { engineState } from "@state/status.svelte.js" // [R5] Unified State
 
 /**
@@ -148,22 +148,22 @@ export class ReactiveSession {
     /**
      * 🧪 DEBUG: Inject AI Message
      */
-    async addAiMessage(text, characterName, role) {
-        await Session.addAiMessage(text, characterName, role)
+    async log_turn(text, character_name, role) {
+        await Session.log_turn(text, character_name, role)
     }
 
     /**
-     * Delete a message by ID
+     * Delete a log entry by ID
      */
-    async deleteMessage(id) {
-        await Session.deleteMessage(id)
+    async delete_entry(id) {
+        await Session.delete_entry(id)
     }
 
     /**
-     * Edit a message by ID
+     * Edit a log entry by ID
      */
-    async editMessage(id, newText) {
-        await Session.editMessage(id, newText)
+    async edit_entry(id, new_text) {
+        await Session.edit_entry(id, new_text)
     }
 }
 

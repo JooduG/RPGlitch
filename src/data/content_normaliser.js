@@ -28,7 +28,7 @@ export const normalize = (base = {}) => {
 
     const safeTags = (Array.isArray(tags) ? tags : String(tags || "").split(",")).map((s) => sanitizeHtml(String(s).trim())).filter(Boolean)
 
-    const existingAvatar = (visuals && (visuals.profilePicture || visuals.profilePictureUrl)) || base.profilePicture || base.profilePictureUrl || ""
+    const existingAvatar = (visuals && (visuals.profile_picture || visuals.profile_picture_url || visuals.profilePicture || visuals.profilePictureUrl)) || base.profilePicture || base.profilePictureUrl || base.profile_picture || ""
 
     return {
         // ========================================
@@ -36,7 +36,7 @@ export const normalize = (base = {}) => {
         // ========================================
         name: sanitizeHtml(name).trim(),
         description: sanitizeHtml(description).trim(),
-        profilePicture: sanitizeHtml(existingAvatar).trim(),
+        profile_picture: sanitizeHtml(existingAvatar).trim(),
         icon,
         type: type,
         tags: safeTags,
@@ -99,9 +99,9 @@ export const normalize = (base = {}) => {
         // ========================================
         visuals: {
             flipped: visuals?.flipped || false,
-            profilePicture: existingAvatar,
-            signatureColor: (() => {
-                const color = sanitizeHtml(String(visuals?.signatureColor || "")).trim()
+            profile_picture: existingAvatar,
+            signature_color: (() => {
+                const color = sanitizeHtml(String(visuals?.signature_color || visuals?.signatureColor || "")).trim()
                 return color || getRandomSignatureKey()
             })(),
         },
@@ -142,6 +142,6 @@ export const formatPremade = (entity, type) => {
         isCustom: 0,
         version: STORAGE_VERSION,
         ...normalize(flattenedEntity),
-        updatedAt: 0,
+        updated_at: 0,
     }
 }
