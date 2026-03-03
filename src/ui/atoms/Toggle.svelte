@@ -4,10 +4,9 @@
      *  label?: string,
      *  size?: "md"|"sm",
      *  disabled?: boolean,
-     *  isHorizontal?: boolean,
      *  onchange?: (e: Event & { currentTarget: HTMLInputElement }) => void
      * }} */
-    let { value = $bindable(false), label, size = "md", disabled = false, isHorizontal = true, onchange = (e) => {} } = $props()
+    let { value = $bindable(), label, size = "md", disabled = false, onchange = (e) => {} } = $props()
 </script>
 
 <label class="toggle-switch" class:disabled class:sm={size === "sm"}>
