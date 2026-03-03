@@ -93,7 +93,6 @@
         font-family: var(--font-family-sans);
         color: var(--text-primary);
         overflow: hidden;
-        box-shadow: var(--shadow-m);
     }
 
     .status-toggles {

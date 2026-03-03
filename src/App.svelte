@@ -66,6 +66,8 @@
     /* Global Reset/Base is handled in index.scss */
 
     .app-container {
+        @include grain();
+
         width: 100%;
         height: 100vh;
         overflow: hidden;

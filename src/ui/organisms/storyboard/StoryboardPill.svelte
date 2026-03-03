@@ -61,7 +61,6 @@
         align-items: center;
         border-radius: var(--border-radius-full);
         padding: var(--spacing-xxs) var(--spacing-m);
-        box-shadow: var(--shadow-l);
     }
 
     /* --- Scoped UI Overrides --- */
@@ -147,6 +146,6 @@
         letter-spacing: 0.05em;
         color: var(--label-color, var(--app-color));
         text-shadow: var(--rp-text-shadow);
-        transition: all 0.3s ease;
+        transition: all var(--transition-speed) var(--curve-snappy);
     }
 </style>

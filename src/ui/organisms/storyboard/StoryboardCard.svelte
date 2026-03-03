@@ -393,7 +393,7 @@
         transform: none;
         box-shadow: none;
         filter: none; /* Kill brightness zap */
-        transition: all 1.5s ease; /* Force slow transition for any residue */
+        transition: all var(--transition-speed-slow) var(--curve-snappy);
 
         /* Shimmer Base */
         position: relative;
@@ -443,7 +443,7 @@
                 width: 100%;
                 height: 100%;
                 fill: currentColor;
-                transition: fill 1s ease;
+                transition: fill var(--transition-speed-slow) var(--curve-snappy);
             }
         }
     }

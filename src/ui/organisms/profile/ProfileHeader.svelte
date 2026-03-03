@@ -36,7 +36,7 @@
     @use "@theme/abstracts/placeholders" as *;
 
     header {
-        background: transparent; // Background handled by Profile.svelte container
+        background: transparent; /* Background handled by Profile.svelte container */
         padding: var(--spacing-l);
         display: flex;
         flex-direction: column;
@@ -51,11 +51,11 @@
         letter-spacing: -0.02em;
         text-shadow: var(--shadow-text);
         margin: 0;
-        padding: var(--spacing-xs); // Fixed padding
+        padding: var(--spacing-xs); /* Fixed padding */
         text-align: left;
         border-radius: var(--border-radius-m);
         transition: background 0.2s;
-        border: none; // Removed transparent border
+        border: none; /* Removed transparent border */
         box-shadow: inset 0 0 0 1px transparent;
         min-height: 1.2em;
         line-height: var(--line-height-heading);
@@ -84,7 +84,7 @@
         }
 
         &::before {
-            // Shared placeholder logic
+            /* Shared placeholder logic */
             opacity: 0.3;
             font-style: italic;
             font-weight: 400;

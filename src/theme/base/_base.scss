@@ -123,6 +123,7 @@
     --transition-speed: #{$transition-speed};
     --transition-speed-slow: #{$transition-speed-slow};
     --physics-transition-elastic: #{$physics-transition-elastic};
+    --curve-snappy: #{$physics-transition-elastic};
     --physics-hover-y: #{$physics-hover-y};
     --physics-btn-hover-y: #{$physics-btn-hover-y};
     --physics-btn-active-scale: #{$physics-btn-active-scale};
