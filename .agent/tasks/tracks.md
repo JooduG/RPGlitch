@@ -58,8 +58,8 @@
 ### ✅ Track: UI Regressions & Stability
 
 - **Status:** Complete
-- **Checkpoint:** `0ae9f26d`
-- **Note:** Restored profile editor variables for Svelte 5 stability, overhauled storyboard skeleton empty states, removed ghost `isHorizontal` bindings, and successfully passed `svelte-check` and production deployment.
+- **Checkpoint:** `f2b2609`
+- **Note:** Implemented 2% Grain Overlay, fixed duplicate box-shadows (Storyboard/ControlPanel), standardized `--curve-snappy` transitions, and resolved SCSS comment warnings. All UI regressions resolved and passed production build.
 
 ## ✅ Archive
 
