@@ -34,7 +34,7 @@ $signature-pink: #ec4899;
 
 // THE NORDIC COLLECTION (Cold Palette)
 $frisk: #8a9399; // "Frisk"
-$frozen-pole: #555d66; // "Frozen Pole"
+$frozen: #555d66; // "Frozen"
 $gunmetal: #363840; // "Gunmetal"
 $chalk: #222326; // "Chalk"
 
@@ -88,8 +88,8 @@ $signature-colors: (
     "frisk": (
         "color": $frisk
     ),
-    "frozen-pole": (
-        "color": $frozen-pole
+    "frozen": (
+        "color": $frozen
     ),
     "gunmetal": (
         "color": $gunmetal
@@ -103,8 +103,8 @@ $signature-colors: (
 //  SECTION 2: SIGNATURE GRADIENTS
 // =================================================
 
-$gradient-standard: linear-gradient(135deg, $frisk, $frozen-pole, $gunmetal, $chalk);
-$gradient-radial: radial-gradient($frisk, $frozen-pole, $gunmetal, $chalk);
+$gradient-standard: linear-gradient(135deg, $frisk, $frozen, $gunmetal, $chalk);
+$gradient-radial: radial-gradient($frisk, $frozen, $gunmetal, $chalk);
 
 // =================================================
 //  SECTION 3: CORE SYSTEM COLORS & OPACITY
@@ -135,10 +135,10 @@ $opacity-full: 1;
 $opacity-disabled: $opacity-s;
 
 // Blur Scale
-$blur-s: 4px;
-$blur-m: 10px;
-$blur-l: 25px;
-$blur-xl: 40px;
+$blur-s: 0.25rem;
+$blur-m: 0.5rem;
+$blur-l: 1.5rem;
+$blur-xl: 2.5rem;
 
 // Glass Presets (RGBA)
 $glass-s: rgba($white, $opacity-xxs);
@@ -148,7 +148,7 @@ $glass-l: rgba($white, $opacity-s);
 // Typography Colors
 $app-color: $white;
 $app-muted: $frisk;
-$border-color: $frozen-pole;
+$border-color: $frozen;
 $border-dark: $gunmetal;
 
 // Semantic Backgrounds
@@ -160,7 +160,7 @@ $bg-grad-4: #050508; // The deep end
 
 $bg-app: $chalk;
 $bg-card: $gunmetal;
-$bg-form: $frozen-pole;
+$bg-form: $frozen;
 
 // Void Black: Used for opaque overlays
 $bg-component: #050505;
@@ -182,9 +182,9 @@ $glass-s: $layer-surface; // Standard -> Surface
 $glass-m: $layer-overlay; // Pill -> Overlay
 $glass-l: $gunmetal; // Heavy -> Solid
 
-$blur-s: 0px; // Disabled for surfaces
-$blur-m: 12px; // Overlay only
-$blur-l: 20px;
+$blur-s: 0rem;
+$blur-m: 0.75rem;
+$blur-l: 1.25rem;
 
 // Borders (Disabled)
 $glass-border: transparent; // No more white borders
@@ -195,10 +195,10 @@ $shimmer-color: rgba($white, 0.03);
 $shimmer-highlight: rgba($white, $opacity-xxs);
 
 // Shadows
-$shadow-s: 0 2px 8px rgba($black, $opacity-xs);
-$shadow-m: 0 4px 16px rgba($black, $opacity-s);
-$shadow-l: 0 10px 30px rgba($black, $opacity-m);
-$rp-text-shadow: 0 2px 4px rgba($black, $opacity-s);
+$shadow-s: 0 0.25rem 0.5rem rgba($black, $opacity-xs);
+$shadow-m: 0 0.25rem 1rem rgba($black, $opacity-s);
+$shadow-l: 0 0.5rem 2rem rgba($black, $opacity-m);
+$rp-text-shadow: 0 0.1rem 0.25rem rgba($black, $opacity-s);
 
 // =================================================
 //  SECTION 6: TYPOGRAPHY METRICS
@@ -261,8 +261,8 @@ $app-container-pad: $spacing-m;
 // Physics
 $transition-speed: 0.2s;
 $physics-transition-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
-$physics-hover-y: -4px;
-$physics-btn-hover-y: -2px;
+$physics-hover-y: -0.25rem;
+$physics-btn-hover-y: -0.1rem;
 $physics-btn-active-scale: 0.95;
 
 // Z-Index

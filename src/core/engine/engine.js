@@ -36,18 +36,19 @@ export const Engine = {
 
     /**
      * NARRATIVE DIRECTOR
-     * Manages the "Story Beats" and Plot Thread synchronization.
+     * Manages the "Story Beats" and Vector synchronization.
      */
     NarrativeDirector: {
         update: () => {
             // [R5] Narrative State is now reactive in runtime.narrative
             // No manual sync required.
 
-            // AUTO-SEED: Ensure activeObjective is never empty
-            if (runtime.narrative.objectives.length === 0) {
-                runtime.addThread("Continue the journey.", true)
+            // AUTO-SEED: Ensure activeVector is never empty
+            const fractal = runtime.activeFractal
+            if (fractal && (!Array.isArray(fractal.future) || fractal.future.length === 0)) {
+                runtime.addVector("Continue the journey.", "FRACTAL", true)
                 // Optionally log this system action to debug telemetry
-                app.log("NarrativeDirector: Auto-seeded activeObjective", "system")
+                app.log("NarrativeDirector: Auto-seeded activeVector", "system")
             }
         },
 
@@ -72,9 +73,10 @@ export const Engine = {
                     const ai = runtime.activeAI
                     if (ai) {
                         const resonance = await memorize(ai, slice, "character")
-                        if (resonance?.summary) {
-                            // Append to Lore
-                            ai.past = `${ai.past || ""}\n[RESONANCE]: ${resonance.summary}`
+                        if (resonance) {
+                            if (!ai.past) ai.past = []
+                            if (!Array.isArray(ai.past)) ai.past = []
+                            ai.past.push(resonance)
                             await entities.save("character", ai)
                         }
                     }

@@ -65,35 +65,18 @@
     }}
 >
     <!-- Inner Surface: Handles Atmosphere (Glow, Color, Shimmer) - Protected from Tilt.js -->
-    <div
-        class="card-surface"
-        class:is-empty={isEmpty}
-        class:is-loading={isLoading}
-        class:is-processing={isProcessing}
-        class:shimmering={isShimmering}
-    >
+    <div class="card-surface" class:is-empty={isEmpty} class:is-loading={isLoading} class:is-processing={isProcessing} class:shimmering={isShimmering}>
         {#snippet emptyState()}
-            <Button
-                className="empty-card"
-                variant="ghost"
-                onclick={onSelect}
-                aria-label="Select {roleLabel}"
-            >
+            <Button className="empty-card" variant="ghost" onclick={onSelect} aria-label="Select {roleLabel}">
                 <span class="empty-label">{roleLabel}</span>
                 <div class="empty-icon">
                     {#if type === "fractal"}
                         <svg viewBox="0 0 24 24" class="icon">
-                            <path
-                                fill="currentColor"
-                                d="M19,12L12,22L5,12L12,2M12,2L19,12H5L12,2Z"
-                            />
+                            <path fill="currentColor" d="M19,12L12,22L5,12L12,2M12,2L19,12H5L12,2Z" />
                         </svg>
                     {:else}
                         <svg viewBox="0 0 24 24" class="icon">
-                            <path
-                                fill="currentColor"
-                                d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
-                            />
+                            <path fill="currentColor" d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" />
                         </svg>
                     {/if}
                 </div>
@@ -102,12 +85,7 @@
 
         {#snippet populatedState()}
             <!-- Top Half: Visuals & Trigger for Profile -->
-            <Button
-                className="card-top"
-                variant="ghost"
-                onclick={onViewProfile}
-                aria-label="View {roleLabel} Profile"
-            >
+            <Button className="card-top" variant="ghost" onclick={onViewProfile} aria-label="View {roleLabel} Profile">
                 <ProfilePicture {entity} />
             </Button>
 
@@ -204,9 +182,7 @@
             overflow: hidden;
             background: var(--chalk);
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-            transform: translateZ(
-                0
-            ); /* Force GPU layer to fix 3D clipping artifacts */
+            transform: translateZ(0); /* Force GPU layer to fix 3D clipping artifacts */
 
             /* THE HOLY GRAIL TRANSITION: Protected from JS */
             transition:
@@ -233,8 +209,7 @@
             /* State: Shimmering */
             &.shimmering {
                 &::after {
-                    animation: shimmer 1.5s cubic-bezier(0.4, 0, 0.2, 1)
-                        forwards;
+                    animation: shimmer 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
                 }
             }
 
@@ -243,14 +218,7 @@
                 content: "";
                 position: absolute;
                 inset: 0;
-                background: linear-gradient(
-                    105deg,
-                    transparent 20%,
-                    rgba(255, 255, 255, 0.05) 35%,
-                    rgba(255, 255, 255, 0.2) 50%,
-                    rgba(255, 255, 255, 0.05) 65%,
-                    transparent 80%
-                );
+                background: linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.05) 35%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.05) 65%, transparent 80%);
                 transform: translateX(-100%);
                 z-index: 10;
                 pointer-events: none;
@@ -329,11 +297,7 @@
         height: 40%;
         width: 100%;
         /* Gunmetal + 5% Sig (Matches Profile Header/Footer) */
-        background: color-mix(
-            in oklab,
-            var(--signature-color) 10%,
-            var(--gunmetal, #363840)
-        );
+        background: color-mix(in oklab, var(--signature-color) 10%, var(--gunmetal, #363840));
         backdrop-filter: none; /* Opaque per request */
         border: none;
         display: flex;
@@ -349,11 +313,7 @@
             filter: none;
             z-index: auto;
             /* Maintain Gunmetal Mix on Hover */
-            background: color-mix(
-                in oklab,
-                var(--signature-color) 10%,
-                var(--gunmetal, #363840)
-            );
+            background: color-mix(in oklab, var(--signature-color) 10%, var(--gunmetal, #363840));
         }
 
         .text-half {

@@ -15,9 +15,7 @@ class ThemeStore {
         const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i
         hex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b)
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-        return result
-            ? `${parseInt(result[1], 16)} ${parseInt(result[2], 16)} ${parseInt(result[3], 16)}`
-            : "182 69 205"
+        return result ? `${parseInt(result[1], 16)} ${parseInt(result[2], 16)} ${parseInt(result[3], 16)}` : "182 69 205"
     }
 
     /**
@@ -64,11 +62,8 @@ class ThemeStore {
             }
         }
 
-        // [FIX] Ensure customData.plot exists for the tracker
+        // [FIX] Ensure customData exists
         if (!e.customData) e.customData = {}
-        if (!e.customData.plot) {
-            e.customData.plot = { active: [], resolved: [] }
-        }
 
         return e
     }
@@ -79,8 +74,7 @@ class ThemeStore {
     getDeterministicColor(seed) {
         const finalSeed = seed || "default"
         let hash = 0
-        for (let i = 0; i < finalSeed.length; i++)
-            hash = finalSeed.charCodeAt(i) + ((hash << 5) - hash)
+        for (let i = 0; i < finalSeed.length; i++) hash = finalSeed.charCodeAt(i) + ((hash << 5) - hash)
         const hue = Math.abs(hash) % 360
         return `hsl(${hue}, 40%, 60%)`
     }
@@ -100,9 +94,7 @@ class ThemeStore {
         }
 
         // Fallback to deterministic color based on entity properties
-        const seed = [entity?.name || "", ...(entity?.tags || [])]
-            .filter(Boolean)
-            .join(",")
+        const seed = [entity?.name || "", ...(entity?.tags || [])].filter(Boolean).join(",")
         return this.getDeterministicColor(seed || entity?.id || "")
     }
 
@@ -154,20 +146,7 @@ class ThemeStore {
     getInitials(name) {
         if (!name) return "?"
 
-        const stopWords = new Set([
-            "the",
-            "a",
-            "an",
-            "of",
-            "in",
-            "and",
-            "or",
-            "for",
-            "to",
-            "at",
-            "by",
-            "with",
-        ])
+        const stopWords = new Set(["the", "a", "an", "of", "in", "and", "or", "for", "to", "at", "by", "with"])
 
         const words = name.trim().split(/\s+/)
 

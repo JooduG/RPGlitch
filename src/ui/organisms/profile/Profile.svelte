@@ -153,7 +153,21 @@
         const keys = path.split(".")
         const last = keys.pop()
         const target = keys.reduce((acc, key) => (acc[key] = acc[key] || {}), obj)
-        target[last] = val
+
+        // Handle Array Fields (Unified Vector Architecture)
+        if (path === "past" || path === "future") {
+            if (Array.isArray(val)) {
+                target[last] = val
+            } else {
+                const arr = val
+                    .split("\n")
+                    .map((v) => v.trim())
+                    .filter((v) => v.length > 0)
+                target[last] = arr
+            }
+        } else {
+            target[last] = val
+        }
     }
 
     function handleFocusOut(e) {
@@ -169,7 +183,8 @@
 
     function renderMarkdown(text) {
         if (!text) return ""
-        let html = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        let source = Array.isArray(text) ? text.join("\n\n") : text
+        let html = source.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
         html = html.replace(/\*(.*?)\*/g, "<em>$1</em>")
         html = html.replace(/\n\s*\n/g, "<br><br>")
         html = html.replace(/\n/g, " ")

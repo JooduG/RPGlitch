@@ -5,6 +5,13 @@
 
 ## 🚀 Active Tracks
 
+### Track: SCSS Token Standardization
+
+- Path: [.agent/tasks/scss-token-standardization/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/scss-token-standardization/)
+- Status: Planning
+- Checkpoint: `scss-std-01`
+- Note: Codebase-wide hygienic sweep replacing all hardcoded SCSS values (colors, opacities, spacing) with reusable variables.
+
 ### Track: Event Bus Purge
 
 - Path: [.agent/tasks/event-bus-purge/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/event-bus-purge/)

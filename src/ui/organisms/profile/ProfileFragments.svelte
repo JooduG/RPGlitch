@@ -1,5 +1,6 @@
 <script>
     import { PROFILE_SECTIONS } from "./config.js"
+    import VectorPanel from "./VectorPanel.svelte"
 
     let { char = $bindable(), isEditing, getValue, setValue, autoResize, busyFields, renderMarkdown, activeField = $bindable() } = $props()
 </script>
@@ -12,13 +13,15 @@
                 <p>{section.sublabel}</p>
             </div>
 
-            <div class={section.columns === 2 ? "split" : "full"}>
+            <div class={section.fields.length === 2 ? "split" : "full"}>
                 {#each section.fields as field (field.key)}
                     <div class="field-group">
-                        {#if field.label}
+                        {#if field.label && section.id === "eternal"}
                             <span class="field-label">{field.label}</span>
                         {/if}
-                        {#if isEditing}
+                        {#if field.type === "array"}
+                            <VectorPanel {char} path={field.key} {isEditing} {getValue} {setValue} unitLabel={field.unitLabel} signatureColor="var(--signature-color)" />
+                        {:else if isEditing}
                             <textarea
                                 use:autoResize={{
                                     syncId: section.label,
@@ -66,12 +69,12 @@
             display: grid;
             grid-template-columns: 100px 1fr;
             gap: var(--spacing-s);
+            min-width: 0;
 
             .label {
                 text-align: right;
                 align-self: center;
-                padding-top: var(--spacing-xs);
-
+                padding: var(--spacing-xs) 0 var(--spacing-xs) 0;
                 h2 {
                     margin: 0;
                     font-size: 1.2rem;
@@ -100,6 +103,7 @@
             .full {
                 display: grid;
                 gap: var(--spacing-m);
+                min-width: 0;
             }
 
             .split {
@@ -116,6 +120,8 @@
                 display: flex;
                 flex-direction: column;
                 gap: var(--spacing-xxs);
+                min-width: 0;
+                justify-content: center;
 
                 .field-label {
                     font-size: 0.8rem;
@@ -140,6 +146,7 @@
                     background: rgba(255, 255, 255, 0.05);
                     box-shadow: 0 0 0 1px transparent;
                     border-radius: var(--spacing-s);
+                    border: 0.0625rem solid transparent;
                     color: white;
                     padding: var(--spacing-s) var(--spacing-m);
                     font-family: inherit;

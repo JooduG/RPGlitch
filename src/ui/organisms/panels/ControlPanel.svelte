@@ -52,19 +52,24 @@
             <section class="debug-narrative">
                 <h4>NARRATIVE STATE</h4>
                 <div class="objective-row">
-                    <strong>OBJECTIVE:</strong>
-                    {runtime.activeObjective}
+                    <strong>VECTORS (AI):</strong>
+                    {runtime.activeVector("AI")}
                 </div>
-                {#if runtime.echoes.length > 0}
+                {#if runtime.activeEchoes("AI").length > 0}
                     <div class="echoes-row">
                         <strong>ECHOES:</strong>
                         <ul>
-                            {#each runtime.echoes as echo (echo.id)}
+                            {#each runtime.activeEchoes("AI") as echo (echo.id)}
                                 <li>{echo.text}</li>
                             {/each}
                         </ul>
                     </div>
                 {/if}
+
+                <div class="objective-row">
+                    <strong>FRACTAL OBJECTIVE:</strong>
+                    {runtime.activeVector("FRACTAL")}
+                </div>
             </section>
         {/if}
 

@@ -55,9 +55,9 @@
 
             if (key === "visual-prompt") return hasPromptText ? "Enhance" : "Fetch"
 
-            // Map specific fields as requested
-            if (label.includes("past")) return "Enhance Past"
-            if (label.includes("future")) return "Enhance Future"
+            // Map specific fields (Unified Vector Architecture)
+            if (key.startsWith("past")) return "Enhance Memories"
+            if (key.startsWith("future")) return "Enhance Vectors"
 
             // Map "Present" and "Eternal" groups (checking label or key)
             if (key.includes("present") || label.includes("present")) return "Enhance Present"

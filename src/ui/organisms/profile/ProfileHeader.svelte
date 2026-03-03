@@ -7,12 +7,7 @@
 <header class:is-editing={isEditing} data-testid="profile-header">
     {#if isEditing}
         <h1 class="name edit" aria-label="Edit Character Name">
-            <span
-                contenteditable="true"
-                bind:innerText={char.name}
-                role="textbox"
-                tabindex="0"
-            ></span>
+            <span contenteditable="true" bind:innerText={char.name} role="textbox" tabindex="0"></span>
         </h1>
     {:else}
         <h1
@@ -28,20 +23,11 @@
         </h1>
     {/if}
     {#if isEditing}
-        <textarea
-            use:autoResize
-            class="description"
-            class:edit={isEditing}
-            value={char.description}
-            oninput={(e) => (char.description = e.target.value)}
-            placeholder="Entity Description"
-        ></textarea>
+        <textarea use:autoResize class="description" class:edit={isEditing} value={char.description} oninput={(e) => (char.description = e.target.value)} placeholder="Entity Description"></textarea>
     {:else}
         <div class="description readonly" class:muted-info={!char.description}>
             <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-            {@html renderMarkdown(
-                char.description || "No description provided."
-            )}
+            {@html renderMarkdown(char.description || "No description provided.")}
         </div>
     {/if}
 </header>
@@ -50,11 +36,7 @@
     @use "@theme/abstracts/placeholders" as *;
 
     header {
-        background: color-mix(
-            in srgb,
-            rgba(0, 0, 0, 0.4),
-            var(--signature-color) 12%
-        );
+        background: color-mix(in srgb, rgba(0, 0, 0, 0.4), var(--signature-color) 12%);
         border-bottom: 0;
         padding: var(--spacing-l);
     }
@@ -68,7 +50,7 @@
         transition: all 0.2s;
         cursor: default;
         margin: 0;
-        padding: 4px 0;
+        padding: var(--spacing-xs) var(--spacing-s);
         text-align: left;
         box-shadow: 0 0 0 1px transparent;
         min-height: 1.1em;
@@ -119,7 +101,9 @@
         min-height: 1.4em;
         cursor: default;
         transition: all 0.2s;
-        border-radius: 0;
+        border-radius: var(--spacing-s);
+        padding: var(--spacing-xs) var(--spacing-s);
+        border: 0.0625rem solid transparent;
         pointer-events: none;
         background: transparent;
         box-shadow: 0 0 0 1px transparent;

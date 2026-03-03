@@ -40,70 +40,58 @@
  *
  * ESSENCE TAXONOMY
  *   Eternal / Present → each has `physical` + `non_physical` fields
- *   Past / Future     → each has a single unified `essence` field
+ *   Past / Future     → each has a single unified field (`vectors`)
  *
  * Note: `physical` fields are excluded from simulation mode prompts by the broker.
  */
 export const ENTITY_FRAGMENTS = {
     eternal: {
         label: "Eternal",
-        sublabel: "Permanent Fragments & Features", // UI only
-        columns: 2, // UI only
+        sublabel: "Permanent Traits & Features", // UI only
         fields: {
-            physical: {
-                label: "Physical",
-                directive: "I will define my purely visual, permanent fragments here. I will detail my visual age, biological phenotype, build, and permanent marks like cybernetics or scars. I will strictly exclude clothing or abstract fragments.",
-                enhancer: "BIOMETRIC_RENDER_ENGINE",
-            },
             non_physical: {
                 label: "Non-Physical",
                 directive: "I will define my permanent cognitive baseline here. I will detail my psychological maturity, core archetype, gender identity, speaking style, and verbal tics.",
                 enhancer: "CORE_COGNITIVE_ARCHITECT",
             },
+            physical: {
+                label: "Physical",
+                directive: "I will define my purely visual, permanent fragments here. I will detail my visual age, biological phenotype, build, and permanent marks like cybernetics or scars. I will strictly exclude clothing or abstract fragments.",
+                enhancer: "BIOMETRIC_RENDER_ENGINE",
+            },
         },
     },
     present: {
         label: "Present",
-        sublabel: "Temporary State & Conditions", // UI only
-        columns: 2, // UI only
+        sublabel: "Current State & Conditions", // UI only
         fields: {
-            physical: {
-                label: "Physical",
-                directive: "I will define my current physical state, damage, and immediate exhaustion here. I will detail visible wounds, active HUD overlays, and current posture.",
-                enhancer: "SOMATIC_STATE_TRACKER",
-            },
             non_physical: {
                 label: "Non-Physical",
                 directive: "I will define my immediate psychological state here. I will detail my current focus, emotional volatility, and active memory pressure.",
                 enhancer: "TACTICAL_BEHAVIOR_ANALYZER",
             },
-        },
-    },
-    past: {
-        label: "Past",
-        sublabel: "Origin & Backstory", // UI only
-        columns: 1, // UI only
-        fields: {
-            essence: {
-                label: "Essence",
-                directive: "I will detail my historical anchors here. I will include my origin story, formative events, and established relationships. If I have repressed trauma or forgotten memories I will note them clearly.",
-                enhancer: "EPISODIC_MEMORY_COMPILER",
-                type: "array", // Metadata for the structured format
+            physical: {
+                label: "Physical",
+                directive: "I will define my current physical state, damage, and immediate exhaustion here. I will detail visible wounds, active HUD overlays, and current posture.",
+                enhancer: "SOMATIC_STATE_TRACKER",
             },
         },
     },
     future: {
         label: "Future",
         sublabel: "Plans & Prophecies", // UI only
-        columns: 1, // UI only
-        fields: {
-            essence: {
-                label: "Essence",
-                directive: "I will define my self-interest protocol here. I will detail my overarching macro-goals, lateral agendas, and ultimate narrative destiny. Use [CONSEQUENCE: ...] for stakes.",
-                enhancer: "TRAJECTORY_SIMULATOR",
-                type: "array", // Metadata for the structured format
-            },
-        },
+        unit_label: "Vector",
+        directive: "I will define my self-interest protocol here. I will detail my overarching macro-goals, lateral agendas, and ultimate narrative destiny. Use [CONSEQUENCE: ...] for stakes.",
+        enhancer: "TRAJECTORY_SIMULATOR",
+        type: "array", // Metadata for the structured format
+    },
+    past: {
+        label: "Past",
+        sublabel: "Memories & History", // UI only
+        unit_label: "Memory",
+        directive: "I will detail my historical anchors here. I will include my origin story, formative events, and established relationships. If I have repressed trauma or forgotten memories I will note them clearly.",
+        enhancer: "EPISODIC_MEMORY_COMPILER",
+        type: "array", // Metadata for the structured format
     },
 }
 
@@ -127,15 +115,25 @@ function build_entity_catalog() {
     const catalog = {}
 
     Object.entries(ENTITY_FRAGMENTS).forEach(([section_key, section]) => {
-        Object.entries(section.fields).forEach(([field_key, field]) => {
-            const id = `${section_key}.${field_key}`
-            catalog[id] = {
-                ...field,
-                id,
+        if (section.fields) {
+            Object.entries(section.fields).forEach(([field_key, field]) => {
+                const id = `${section_key}.${field_key}`
+                catalog[id] = {
+                    ...field,
+                    id,
+                    section_label: section.label,
+                    layer_key: section_key.toUpperCase(),
+                }
+            })
+        } else {
+            catalog[section_key] = {
+                ...section,
+                id: section_key,
                 section_label: section.label,
+                unit_label: section.unit_label,
                 layer_key: section_key.toUpperCase(),
             }
-        })
+        }
     })
 
     return catalog

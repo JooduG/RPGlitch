@@ -13,8 +13,7 @@ export const storyboard = {
     shuffle() {
         // 1. Shuffle AI
         if (app.aiList.length) {
-            app.selectedAi =
-                app.aiList[Math.floor(Math.random() * app.aiList.length)]
+            app.selectedAi = app.aiList[Math.floor(Math.random() * app.aiList.length)]
         }
 
         // 2. Shuffle User (Constraint: Must not be the same as AI)
@@ -23,18 +22,13 @@ export const storyboard = {
 
             // If we selected an AI, exclude it from the User pool to prevent duplicates
             if (app.selectedAi) {
-                availableUsers = app.userList.filter(
-                    (u) => u.id !== app.selectedAi.id
-                )
+                availableUsers = app.userList.filter((u) => u.id !== app.selectedAi.id)
             }
 
             // Fallback: If only 1 char exists, we might have no choice but to dup (or leave empty)
             // But if we have options, we pick from the filtered list
             if (availableUsers.length > 0) {
-                app.selectedUser =
-                    availableUsers[
-                        Math.floor(Math.random() * availableUsers.length)
-                    ]
+                app.selectedUser = availableUsers[Math.floor(Math.random() * availableUsers.length)]
             } else if (app.userList.length > 0) {
                 // Determine fallback behavior. Users hate duplicates.
                 // If only 1 char exists total, user likely accepts the dup or creates more.
@@ -44,11 +38,7 @@ export const storyboard = {
         }
 
         // 3. Shuffle Fractal
-        if (app.fractalList.length)
-            app.selectedFractal =
-                app.fractalList[
-                    Math.floor(Math.random() * app.fractalList.length)
-                ]
+        if (app.fractalList.length) app.selectedFractal = app.fractalList[Math.floor(Math.random() * app.fractalList.length)]
 
         // Ensure title updates on shuffle
         app.rerollTitle()

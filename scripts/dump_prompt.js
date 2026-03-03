@@ -15,33 +15,33 @@ import { describe, it } from "vitest"
 
 describe("v5.0 Prompt Audit (LIVE SOURCE)", () => {
     it("renders a full simulation prompt for manual audit", async () => {
-        // 1. Setup Mock State in Runtime
-        runtime.addThread("Locate the merchant in the Hollow Market.", true)
-
         runtime._debugInject({
             ai: {
                 name: "The Broker",
                 eternal: { physical: "Metallic eyes.", non_physical: "Analytical mind." },
                 present: { physical: "Flickering.", non_physical: "Searching data." },
-                past: { essence: "Born in a silicon lab." },
-                future: { essence: "Wants to be free." },
+                past: { memories: [] },
+                future: { vectors: [{ text: "Wants to be free.", timestamp: Date.now() }] },
             },
             user: {
                 name: "Freelancer",
                 eternal: { physical: "Scars on arm.", non_physical: "Determined." },
                 present: { physical: "Heavy breathing.", non_physical: "Fearful." },
-                past: { essence: "Lost everything in the Glitch." },
-                future: { essence: "Seeking revenge." },
+                past: { essence: [] },
+                future: { vectors: [{ text: "Seeking revenge.", timestamp: Date.now() }] },
             },
             fractal: {
                 name: "Hollow Market",
                 description: "Rain slicked streets.",
                 eternal: { physical: "Shattered crystals.", non_physical: "A place of secrets." },
                 present: { physical: "Smog and neon.", non_physical: "Tense atmosphere." },
-                past: { essence: "Once a vibrant hub." },
-                future: { essence: "Destined for collapse." },
+                past: { essence: [] },
+                future: { vectors: [{ text: "Destined for collapse.", timestamp: Date.now() }] },
             },
         })
+
+        // 1. Setup Mock State in Runtime (AFTER inject to ensure vectors exist)
+        runtime.addThread("Locate the merchant in the Hollow Market.", true)
 
         // 2. Use the Broker to pull entities (this tests the Universal Entity enhancement)
         const entity_state = ContextBroker.pull_entities("simulation")
@@ -57,7 +57,10 @@ describe("v5.0 Prompt Audit (LIVE SOURCE)", () => {
 
         const full_prompt = SYSTEM_PROMPTS.simulation({
             tone,
-            state: { entity: entity_state },
+            state: {
+                entity: entity_state,
+                recentMessages: runtime.messages.byStoryId[runtime.storyId || "debug"] || [],
+            },
             input: "I watch the merchant stall from the shadows.",
             visualsAuthorized: true,
         })

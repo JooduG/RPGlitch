@@ -10,7 +10,7 @@ export const CONFIG = {
     // --- ENTITY TYPES ---
     ENTITIES: {
         AI: "ai_character",
-        USER: "user_character",
+        USER: "user_persona",
         FRACTAL: "fractal",
     },
 

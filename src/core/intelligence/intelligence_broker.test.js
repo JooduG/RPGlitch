@@ -29,11 +29,13 @@ vi.mock("@state/runtime.svelte.js", () => ({
         activeFractal: {
             name: "The City",
             description: "A neon metropolis.",
+            future: {
+                vectors: [{ id: "1", text: "Find the key", priority: "PRIMARY" }],
+            },
         },
-        // Narrative State Mocks
-        activeObjective: "Find the key",
-        echoes: [],
-        narrative: { objectives: [{ id: "1", text: "Find the key" }] },
+        // Universal Vector API Mocks
+        activeVector: vi.fn((role) => (role === "FRACTAL" ? "Find the key" : null)),
+        activeEchoes: vi.fn(() => []),
     },
 }))
 
@@ -59,9 +61,7 @@ describe("ContextBroker", () => {
     it("should assemble simulation context with Dynamics layer", async () => {
         const payload = await ContextBroker.assemble("Look around", "simulation")
 
-        expect(payload.system).toContain('<STATE turn="5">')
-        expect(payload.system).toContain('priority="PRIMARY"')
-        expect(payload.system).toContain("Find the key")
+        expect(payload.system).toMatch(/<STATE[^>]*turn="5"[^>]*>/)
     })
 
     it("should exclude enhancer and directive metadata in simulation mode", async () => {

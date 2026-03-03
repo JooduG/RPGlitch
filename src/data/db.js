@@ -20,12 +20,10 @@ const error = console.error
 const db = /** @type {any} */ (new Dexie("rpglitch"))
 
 // 2. Define the schema (Final Version Only)
-db.version(8).stores({
-    entities:
-        "id, name, description, profilePicture, signatureColor, createdAt, updatedAt, tags, type, [type+isCustom], isChosen",
+db.version(9).stores({
+    entities: "id, name, description, profilePicture, signatureColor, createdAt, updatedAt, tags, type, [type+isCustom], isChosen",
     stories: "++id, title, aiId, userId, fractalId, createdAt, updatedAt",
-    messages:
-        "++id, storyId, role, type, characterName, text, seed, meta, createdAt",
+    messages: "++id, storyId, role, type, characterName, text, seed, meta, createdAt",
     settings: "id",
     kv_settings: "key",
     sessions: "++id, sessionId, timestamp",
@@ -34,9 +32,7 @@ db.version(8).stores({
 
 // --- STABILITY HANDLERS ---
 db.on("blocked", () => {
-    console.warn(
-        "[Data] Database is blocked by another tab/version. Please close other instances."
-    )
+    console.warn("[Data] Database is blocked by another tab/version. Please close other instances.")
 })
 
 db.on("versionchange", () => {
@@ -74,10 +70,7 @@ export const init = async () => {
         await db.open()
         return db
     } catch (err) {
-        error(
-            "[Data] Failed to open database. You may need to manually delete it from browser DevTools.",
-            err.stack || err
-        )
+        error("[Data] Failed to open database. You may need to manually delete it from browser DevTools.", err.stack || err)
         throw err
     }
 }

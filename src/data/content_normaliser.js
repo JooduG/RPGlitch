@@ -24,26 +24,7 @@ export const STORAGE_VERSION = 3
  * Enforces the structural integrity of entities within the simulation.
  */
 export const normalize = (base = {}) => {
-    const {
-        name = "",
-        description = "",
-        icon = null,
-        type = "",
-        eternal = {},
-        present = {},
-        past = null,
-        future = null,
-        tags = [],
-        visuals = null,
-        simulation = null,
-        dynamics = null,
-        voiceId = null,
-        _backupState = null,
-        _lastUpdateMsgId = null,
-        customData = { plot: { active: [], resolved: [] } },
-    } = base
-
-    const finalCustomData = customData?.plot?.active ? customData : { plot: { active: [], resolved: [] } }
+    const { name = "", description = "", icon = null, type = "", eternal = {}, present = {}, past = null, future = null, tags = [], visuals = null, simulation = null, dynamics = null, voiceId = null, _backupState = null, _lastUpdateMsgId = null, customData = {} } = base
 
     const safeTags = (Array.isArray(tags) ? tags : String(tags || "").split(",")).map((s) => sanitizeHtml(String(s).trim())).filter(Boolean)
 
@@ -71,12 +52,36 @@ export const normalize = (base = {}) => {
             physical: sanitizeHtml(present.physical || base.outfit || "").trim(),
             non_physical: sanitizeHtml(present.non_physical || present.mental || base.status || "").trim(),
         },
-        past: {
-            essence: sanitizeHtml(typeof past === "string" ? past : past?.essence || "").trim(),
-        },
-        future: {
-            essence: sanitizeHtml(typeof future === "string" ? future : future?.essence || "").trim(),
-        },
+        past: (() => {
+            const raw = Array.isArray(past) ? past : past?.vectors || past?.memories || past?.essence || (typeof past === "string" ? past : "")
+            const arr = Array.isArray(raw) ? raw : String(raw || "").split("\n")
+            return arr
+                .map((item) => {
+                    if (typeof item === "object" && item !== null) {
+                        return {
+                            ...item,
+                            text: sanitizeHtml(item.text || item.summary || "").trim(),
+                        }
+                    }
+                    return sanitizeHtml(String(item).trim())
+                })
+                .filter(Boolean)
+        })(),
+        future: (() => {
+            const raw = Array.isArray(future) ? future : future?.vectors || future?.essence || (typeof future === "string" ? future : "")
+            const arr = Array.isArray(raw) ? raw : String(raw || "").split("\n")
+            return arr
+                .map((item) => {
+                    if (typeof item === "object" && item !== null) {
+                        return {
+                            ...item,
+                            text: sanitizeHtml(item.text || item.summary || "").trim(),
+                        }
+                    }
+                    return sanitizeHtml(String(item).trim())
+                })
+                .filter(Boolean)
+        })(),
 
         // ========================================
         // DYNAMICS (Physics Sliders)
@@ -111,9 +116,9 @@ export const normalize = (base = {}) => {
         },
 
         // ========================================
-        // PLOT TRACKER & INTERNAL STATE
+        // CUSTOM DATA & INTERNAL STATE
         // ========================================
-        customData: finalCustomData,
+        customData: customData || {},
         simulation,
         _backupState,
         _lastUpdateMsgId,

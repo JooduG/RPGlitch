@@ -11,8 +11,8 @@ function createRuntimeStore() {
             // 🧠 Deep State (Fragments: Eternal, Present, Past, Future)
             eternal: { non_physical: "", physical: "" },
             present: { non_physical: "", physical: "" },
-            past: { essence: [] },
-            future: { essence: [] },
+            past: [],
+            future: { vectors: [] },
 
             // 🧪 Dynamics (Dev)
             dynamics: {
@@ -39,8 +39,8 @@ function createRuntimeStore() {
             // 🧠 Unified Temporal structure
             eternal: { non_physical: "", physical: "" },
             present: { non_physical: "", physical: "" },
-            past: { essence: [] },
-            future: { essence: [] },
+            past: [],
+            future: { vectors: [] },
         },
         ready: false,
         storyId: null,
@@ -50,11 +50,7 @@ function createRuntimeStore() {
         turn: 0,
     })
 
-    // [R5] Unified Narrative State
-    // Merges activeObjective and narrativeObjectives into a prioritized list
-    let narrative = $state({
-        objectives: [], // [RENAMED: threads -> objectives] { id, text }
-    })
+    // [R5] Narrative State is now integrated into Fractal Vectors
 
     return {
         // ... (Existing Getters)
@@ -95,37 +91,51 @@ function createRuntimeStore() {
         get activeStory() {
             return state.storyId ? state.story.byId[state.storyId] : null
         },
-        get storyFractal() {
-            return state.activeFractal
+
+        // 📜 UNIVERSAL VECTOR API (Trajectories for AI, USER, and FRACTAL)
+        activeVector(role = "AI") {
+            const entity = this._get_entity_by_role(role)
+            return entity?.future?.[0]?.text || (role === "FRACTAL" ? "Continue the journey." : "")
         },
 
-        // 📜 NARRATIVE API
-        get narrative() {
-            return narrative
+        activeEchoes(role = "AI") {
+            const entity = this._get_entity_by_role(role)
+            return entity?.future?.slice(1) || []
         },
 
-        // Helpers for ease of use
-        get activeObjective() {
-            // [RENAMED: vanguard -> activeObjective]
-            return narrative.objectives[0]?.text || "Continue the journey."
-        },
-        get echoes() {
-            return narrative.objectives.slice(1)
-        },
+        addVector(text, role = "AI", isVanguard = false) {
+            const entity = this._get_entity_by_role(role)
+            if (!entity) return
 
-        addThread(text, isVanguard = false) {
-            const newThread = { id: crypto.randomUUID(), text }
+            if (!entity.future) entity.future = []
+            if (!Array.isArray(entity.future)) entity.future = []
+
+            const newVector = {
+                id: crypto.randomUUID(),
+                text,
+                timestamp: Date.now(),
+            }
+
             if (isVanguard) {
-                narrative.objectives.unshift(newThread)
+                entity.future.unshift(newVector)
             } else {
-                narrative.objectives.push(newThread)
+                entity.future.push(newVector)
             }
         },
 
-        completeVanguard() {
-            if (narrative.objectives.length > 0) {
-                narrative.objectives.shift()
+        completeVector(role = "AI") {
+            const entity = this._get_entity_by_role(role)
+            if (entity?.future?.length > 0) {
+                entity.future.shift()
             }
+        },
+
+        // Helper to resolve entity by role string
+        _get_entity_by_role(role) {
+            if (role === "AI") return state.activeAI
+            if (role === "USER") return state.activeUser
+            if (role === "FRACTAL") return state.activeFractal
+            return null // Triad-only for now
         },
 
         // 🟢 SYNC: Read from DB
@@ -157,7 +167,7 @@ function createRuntimeStore() {
                 if (userData) {
                     state.character = {
                         ...state.character,
-                        ...userData,
+                        ...this._normalize_entity_temporal(userData),
                         id: userData.id,
                     }
                     // Also set specific User slot
@@ -165,11 +175,11 @@ function createRuntimeStore() {
                 }
 
                 if (aiData) {
-                    state.activeAI = aiData
+                    state.activeAI = this._normalize_entity_temporal(aiData)
                 }
 
                 if (fractalData) {
-                    state.activeFractal = fractalData
+                    state.activeFractal = this._normalize_entity_temporal(fractalData)
                 }
 
                 state.ready = true
@@ -235,13 +245,9 @@ function createRuntimeStore() {
                     const targets = [state.character, state.activeUser, state.activeAI, state.activeFractal]
                     targets.forEach((t) => {
                         if (t && t.id === id) {
-                            // Migration: Ensure essence is an array if updating past/future
-                            if (data.essence !== undefined && (id.includes("past") || id.includes("future"))) {
-                                const sanitized = Array.isArray(data.essence) ? data.essence : []
-                                Object.assign(t, { ...data, essence: sanitized })
-                            } else {
-                                Object.assign(t, data)
-                            }
+                            // Unified Temporal Migration & Healing
+                            const normalized = this._normalize_entity_temporal(data)
+                            Object.assign(t, normalized)
                         }
                     })
                 }
@@ -290,6 +296,36 @@ function createRuntimeStore() {
             if (mockData.ai) state.activeAI = mockData.ai
             if (mockData.fractal) state.activeFractal = mockData.fractal
             state.ready = true
+        },
+
+        // 🧬 NORMALIZATION: Ensure temporal data is always structured as arrays of strings
+        _normalize_entity_temporal(entity) {
+            if (!entity) return null
+            const updated = { ...entity }
+
+            // Handle Past
+            if (entity.past?.vectors !== undefined || entity.past?.memories !== undefined || entity.past?.essence !== undefined) {
+                const raw = Array.isArray(entity.past) ? entity.past : entity.past?.vectors || entity.past?.memories || entity.past?.essence
+                let vectors = Array.isArray(raw) ? raw : typeof raw === "string" && raw.trim() ? [raw.trim()] : []
+                // Self-Healing: Merge character-split strings
+                if (vectors.length > 5 && vectors.every((v) => typeof v === "string" && v.length === 1)) {
+                    vectors = [vectors.join("")]
+                }
+                updated.past = { vectors }
+            }
+
+            // Handle Future
+            if (entity.future?.vectors !== undefined || entity.future?.essence !== undefined) {
+                const raw = Array.isArray(entity.future) ? entity.future : entity.future?.vectors || entity.future?.essence
+                let vectors = Array.isArray(raw) ? raw : typeof raw === "string" && raw.trim() ? [raw.trim()] : []
+                // Self-Healing: Merge character-split strings
+                if (vectors.length > 5 && vectors.every((v) => typeof v === "string" && v.length === 1)) {
+                    vectors = [vectors.join("")]
+                }
+                updated.future = { vectors }
+            }
+
+            return updated
         },
     }
 }

@@ -24,10 +24,8 @@
     })
 
     function isDisabled(entity) {
-        if (drawerType === "ai" && app.selectedUser?.id === entity.id)
-            return true
-        if (drawerType === "user" && app.selectedAi?.id === entity.id)
-            return true
+        if (drawerType === "ai" && app.selectedUser?.id === entity.id) return true
+        if (drawerType === "user" && app.selectedAi?.id === entity.id) return true
         return false
     }
 
@@ -58,18 +56,10 @@
 
 {#if isOpen}
     <!-- Backdrop -->
-    <Backdrop
-        onclick={handleBackdropClick}
-        zIndex="calc(var(--z-drawer) - 1)"
-    />
+    <Backdrop onclick={handleBackdropClick} zIndex="calc(var(--z-drawer) - 1)" />
 
     <!-- Drawer -->
-    <div
-        class="entity-drawer"
-        role="dialog"
-        aria-labelledby="drawer-title"
-        transition:fly={{ y: "100%", duration: 500, easing: quintOut }}
-    >
+    <div class="entity-drawer" role="dialog" aria-labelledby="drawer-title" transition:fly={{ y: "100%", duration: 500, easing: quintOut }}>
         <div class="drawer-handle"></div>
 
         <header class="drawer-header">
@@ -80,15 +70,10 @@
             {#if entityList().length === 0}
                 <div class="drawer-empty">
                     <svg class="empty-icon" viewBox="0 0 24 24">
-                        <path
-                            fill="currentColor"
-                            d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"
-                        />
+                        <path fill="currentColor" d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z" />
                     </svg>
                     <h4>
-                        No {drawerType === "fractal"
-                            ? "Realities"
-                            : "Characters"} Found
+                        No {drawerType === "fractal" ? "Realities" : "Characters"} Found
                     </h4>
                     <p>Create one to get started.</p>
                 </div>
@@ -98,10 +83,7 @@
                     <button
                         class="drawer-card drawer-card--new"
                         onclick={() => {
-                            app.log(
-                                "Create New Entity Wizard coming soon!",
-                                "system"
-                            )
+                            app.log("Create New Entity Wizard coming soon!", "system")
                         }}
                     >
                         <span class="drawer-card-icon">+</span>
@@ -110,13 +92,7 @@
 
                     <!-- Entity Cards -->
                     {#each entityList() as entity (entity.id)}
-                        <LibraryCard
-                            {entity}
-                            type={drawerType}
-                            disabled={isDisabled(entity)}
-                            onSelect={() => handleSelect(entity)}
-                            onViewProfile={() => app.openProfile(entity)}
-                        />
+                        <LibraryCard {entity} type={drawerType} disabled={isDisabled(entity)} onSelect={() => handleSelect(entity)} onViewProfile={() => app.openProfile(entity)} />
                     {/each}
                 </div>
             {/if}

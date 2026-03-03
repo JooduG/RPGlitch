@@ -1,55 +1,54 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { runtime } from "./runtime.svelte.js"
 
-describe("Narrative State", () => {
+describe("Narrative Vector System", () => {
     beforeEach(() => {
         // Reset state before each test
-        if (runtime.narrative && runtime.narrative.objectives) {
-            runtime.narrative.objectives.length = 0 // Clear array
-        }
+        runtime._debugInject({
+            fractal: { id: "test-fractal", active: true, future: [] },
+        })
     })
 
-    it("should initialize with empty objectives", () => {
-        expect(runtime.narrative.objectives).toEqual([])
-        expect(runtime.activeObjective).toBe("Continue the journey.") // Default
-        expect(runtime.echoes).toEqual([])
+    it("should initialize with empty vectors", () => {
+        expect(runtime.activeVector("FRACTAL")).toBe("Continue the journey.") // Default for FRACTAL
+        expect(runtime.activeEchoes("FRACTAL")).toEqual([])
     })
 
-    it("should add an objective to the background (echoes)", () => {
-        runtime.addThread("Find the key.")
-        expect(runtime.narrative.objectives).toHaveLength(1)
-        expect(runtime.activeObjective).toBe("Find the key.")
-        expect(runtime.echoes).toEqual([])
+    it("should add a vector to the background (echoes)", () => {
+        runtime.addVector("Find the key.", "FRACTAL")
+        expect(runtime.activeFractal.future).toHaveLength(1)
+        expect(runtime.activeVector("FRACTAL")).toBe("Find the key.")
+        expect(runtime.activeEchoes("FRACTAL")).toEqual([])
 
-        runtime.addThread("Explore the cave.")
-        expect(runtime.narrative.objectives).toHaveLength(2)
-        // "Find the key" is still index 0 (active objective) because we pushed
-        expect(runtime.activeObjective).toBe("Find the key.")
-        expect(runtime.echoes[0].text).toBe("Explore the cave.")
+        runtime.addVector("Explore the cave.", "FRACTAL")
+        expect(runtime.activeFractal.future).toHaveLength(2)
+        // "Find the key" is still index 0 because we pushed
+        expect(runtime.activeVector("FRACTAL")).toBe("Find the key.")
+        expect(runtime.activeEchoes("FRACTAL")[0].text).toBe("Explore the cave.")
     })
 
-    it("should add an objective to the front (urgent)", () => {
-        runtime.addThread("Background Task")
-        runtime.addThread("Urgent Task", true) // isVanguard = true
+    it("should add a vector to the front (isVanguard)", () => {
+        runtime.addVector("Background Task", "FRACTAL")
+        runtime.addVector("Urgent Task", "FRACTAL", true) // isVanguard = true
 
-        expect(runtime.activeObjective).toBe("Urgent Task")
-        expect(runtime.echoes[0].text).toBe("Background Task")
+        expect(runtime.activeVector("FRACTAL")).toBe("Urgent Task")
+        expect(runtime.activeEchoes("FRACTAL")[0].text).toBe("Background Task")
     })
 
-    it("should complete the active objective and promote the next one", () => {
-        runtime.addThread("Task A") // Index 0
-        runtime.addThread("Task B") // Index 1
+    it("should complete the active vector and promote the next one", () => {
+        runtime.addVector("Task A", "FRACTAL")
+        runtime.addVector("Task B", "FRACTAL")
 
-        expect(runtime.activeObjective).toBe("Task A")
+        expect(runtime.activeVector("FRACTAL")).toBe("Task A")
 
-        runtime.completeVanguard()
+        runtime.completeVector("FRACTAL")
 
-        expect(runtime.activeObjective).toBe("Task B")
-        expect(runtime.narrative.objectives).toHaveLength(1)
+        expect(runtime.activeVector("FRACTAL")).toBe("Task B")
+        expect(runtime.activeFractal.future).toHaveLength(1)
     })
 
-    it("should handle completeVanguard on empty objectives safely", () => {
-        runtime.completeVanguard()
-        expect(runtime.narrative.objectives).toEqual([])
+    it("should handle completeVector on empty vectors safely", () => {
+        runtime.completeVector("FRACTAL")
+        expect(runtime.activeFractal.future).toEqual([])
     })
 })

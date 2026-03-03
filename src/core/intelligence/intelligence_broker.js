@@ -206,11 +206,11 @@ export const ContextBroker = {
      * { role, name, fragments }.
      *
      * @param {string} [mode="simulation"] - 'simulation' | 'image'
-     * @returns {{ list: Array, turn: number, objective: string, objectives: Array }}
+     * @returns {{ list: Array, turn: number }}
      */
     pull_entities(mode = "simulation") {
         const turn = runtime.turn || 1
-        const objective = runtime.activeObjective || "EXPLORE"
+        const active_vector = runtime.activeVector("FRACTAL") || "EXPLORE"
 
         const sources = [
             {
@@ -246,11 +246,11 @@ export const ContextBroker = {
             }
 
             // AI fragments are priority-sorted by the active objective
-            const final_fragments = s.role === "AI" ? ContextBroker.lexical_filter(fragments, objective) : fragments
-            return { role: s.role, name: s.name, fragments: final_fragments }
+            const final_fragments = s.role === "AI" ? ContextBroker.lexical_filter(fragments, active_vector) : fragments
+            return { role: s.role, name: s.name, fragments: final_fragments, past: data.past, future: data.future }
         })
 
-        return { list, turn, objective, objectives: runtime.narrative?.objectives ?? [] }
+        return { list, turn }
     },
 
     /**

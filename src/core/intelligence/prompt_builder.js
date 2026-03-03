@@ -73,24 +73,6 @@ export function list_protocols(selection) {
 }
 
 /************************************************************************************
- * 🧩 [SECTION: OBJECTIVE RENDERER]
- ************************************************************************************/
-
-/**
- * Renders an ordered objectives list as XML <OBJECTIVE> tags.
- * The first entry (PRIMARY) represents the active goal; the rest are queued.
- * Returns empty string when the objectives array is empty.
- *
- * @param {{ objectives?: Array<{text: string}> }} entity
- * @returns {string}
- */
-function list_objectives(entity) {
-    const objectives = entity?.objectives ?? []
-    if (!objectives.length) return ""
-    return objectives.map((o, i) => `<OBJECTIVE priority="${i === 0 ? "PRIMARY" : "SECONDARY"}">${o.text}</OBJECTIVE>`).join("\n")
-}
-
-/************************************************************************************
  * 🧩 [SECTION: PROTOCOL LIBRARY]
  ************************************************************************************/
 
@@ -132,30 +114,29 @@ export const SYSTEM_PROMPTS = {
 <SYSTEM role="${ai_name}">
 
 <STATE turn="${turn}">
-<OBJECTIVES>
-${list_objectives(state?.entity)}
-</OBJECTIVES>
 </STATE>
 
 <YOUR_IDENTITY name="${ai_name}">
 ${inject(state, "AI_CHARACTER", "ETERNAL, PRESENT")}
-${inject_memories(state, "AI", input)}
-${inject_future(state, "AI")}
+${inject_past(state, "AI", input)}
+${inject_future(state, "AI", input)}
 </YOUR_IDENTITY>
 
 <USER_PERSONA name="${user_name}">
 ${inject(state, "USER_PERSONA", "ETERNAL, PRESENT")}
-${inject_memories(state, "USER", input)}
 </USER_PERSONA>
 
 <FRACTAL name="${fractal_name}">
 ${inject(state, "FRACTAL", "ETERNAL, PRESENT")}
 </FRACTAL>
+<HISTORY>
+${list_history(state.recentMessages)}
+</HISTORY>
 
 ${behavior ? `<NARRATIVE_STYLE>${behavior}</NARRATIVE_STYLE>` : ""}
 
 <PROTOCOLS>
-${list_protocols("COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, PLACEMENT, IMMERSION, MOMENTUM, EPISTEMIC_WALL")}
+${list_protocols("COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL")}
 </PROTOCOLS>
 ${input?.trim() ? `\n<INPUT_COMMAND>\n${input.trim()}\n</INPUT_COMMAND>` : ""}
 </SYSTEM>`.trim()
@@ -172,25 +153,25 @@ ${input?.trim() ? `\n<INPUT_COMMAND>\n${input.trim()}\n</INPUT_COMMAND>` : ""}
 <SYSTEM role="${fractal_name}" mode="PROLOGUE">
 
 <STATE turn="${turn}">
-<OBJECTIVES>
-${list_objectives(state?.entity)}
-</OBJECTIVES>
 </STATE>
 
 <YOUR_IDENTITY name="${fractal_name}">
-${inject(state, "FRACTAL", "ETERNAL, PAST, PRESENT, FUTURE")}
+${inject(state, "FRACTAL", "ETERNAL, PRESENT")}
+${inject_past(state, "FRACTAL")}
+${inject_future(state, "FRACTAL")}
 </YOUR_IDENTITY>
 
 <ACTIVE_CHARACTERS>
 <AI_CHARACTER name="${ai_name}">
 ${inject(state, "AI_CHARACTER", "ETERNAL, PRESENT")}
-${inject_memories(state, "AI")}
+${inject_past(state, "AI")}
 ${inject_future(state, "AI")}
 </AI_CHARACTER>
 
 <USER_PERSONA name="${user_name}">
 ${inject(state, "USER_PERSONA", "ETERNAL, PRESENT")}
-${inject_memories(state, "USER")}
+${inject_past(state, "USER")}
+${inject_future(state, "USER")}
 </USER_PERSONA>
 </ACTIVE_CHARACTERS>
 
@@ -332,30 +313,31 @@ export class PromptBuilder {
  ************************************************************************************/
 
 /**
- * Scores a list of Resonance objects based on overlap with the current input's signals.
+ * Scores a list of temporal records (Resonances or Vectors) based on overlap
+ * with the current input's signals and tags.
  *
- * @param {Array<Object>} memories - The `past.essence` array.
+ * @param {Array<Object>} records - The `past` or `future` array.
  * @param {string} input - The current user input.
- * @returns {Array<Object>} Sorted memories by score (descending).
+ * @returns {Array<Object>} Sorted records by score (descending).
  */
-export function score_memories(memories, input) {
-    if (!Array.isArray(memories) || !memories.length) return []
-    if (!input) return memories.slice(-3) // Default to latest if no input
+export function score_temporal_data(records, input) {
+    if (!Array.isArray(records) || !records.length) return []
+    if (!input) return records.slice(-3) // Default to latest if no input
 
     const current_reflexes = scan_reflexes(input).map((r) => r.id)
     const input_lower = input.toLowerCase()
 
-    const scored = memories.map((m) => {
+    const scored = records.map((r) => {
         let score = 0
         // Axis Match: +2 (Vibe/Kinetic alignment)
-        m.axis_tags?.forEach((t) => {
+        r.axis_tags?.forEach((t) => {
             if (current_reflexes.includes(t)) score += 2
         })
         // Entity Match: +1 (Noun/Location/Proper Name alignment)
-        m.entity_tags?.forEach((t) => {
+        r.entity_tags?.forEach((t) => {
             if (input_lower.includes(t.toLowerCase())) score += 1
         })
-        return { ...m, _score: score }
+        return { ...r, _score: score }
     })
 
     return scored.sort((a, b) => b._score - a._score)
@@ -365,12 +347,12 @@ export function score_memories(memories, input) {
  * Filter, score, and render the top 3 structured resonances in reverse-ranked order.
  * Reversed order ensures the most critical memory is at the absolute bottom (closest to context).
  */
-function inject_memories(state, role, input = "") {
+function inject_past(state, role, input = "") {
     const entity = state?.entity?.list?.find((e) => e.role === role)
-    const past = entity?.past?.essence
+    const past = entity?.past?.vectors
     if (!Array.isArray(past) || !past.length) return ""
 
-    const ranked = score_memories(past, input).slice(0, 3)
+    const ranked = score_temporal_data(past, input).slice(0, 3)
     // Reverse for prompt injection: Highest score at the bottom
     const reversed = [...ranked].reverse()
 
@@ -378,14 +360,23 @@ function inject_memories(state, role, input = "") {
 }
 
 /**
- * Renders structured future objectives with [CONSEQUENCE] stakes.
+ * Renders structured future VECTORS with [STAKE] or [OBJECTIVE] labels.
  */
-function inject_future(state, role) {
+function inject_future(state, role, input = "") {
     const entity = state?.entity?.list?.find((e) => e.role === role)
-    const future = entity?.future?.essence
-    if (!Array.isArray(future) || !future.length) return ""
+    const vectors = entity?.future?.vectors
+    if (!Array.isArray(vectors) || !vectors.length) return ""
 
-    return future.map((f) => `        [OBJECTIVE]: ${f}`).join("\n")
+    const ranked = score_temporal_data(vectors, input || state.input || "").slice(0, 3)
+    // Reverse for prompt injection
+    const reversed = [...ranked].reverse()
+
+    return reversed
+        .map((v) => {
+            const label = v.axis_tags?.length ? "STAKE" : "OBJECTIVE"
+            return `        [${label}]: ${v.text}`
+        })
+        .join("\n")
 }
 
 /**
