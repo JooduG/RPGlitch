@@ -29,19 +29,6 @@
     "html.validate.styles": false,
     "typescript.tsdk": "node_modules\\typescript\\lib",
     "markdown.validate.enabled": true,
-    "markdown.validate.ignoredLinks": [
-        "always_on | on_change | manual",
-        "high | medium | low",
-        "Rule Name",
-        "Skill Name",
-        "Role Name",
-        "Core Function",
-        "High Level Goal",
-        "Process",
-        "Process Name",
-        "./scripts/tool_name.py",
-        "./scripts/tool_name.js",
-        "./scripts/tool.js"
-    ],
+    "markdown.validate.ignoredLinks": ["always_on | on_change | manual", "high | medium | low", "Rule Name", "Skill Name", "Role Name", "Core Function", "High Level Goal", "Process", "Process Name", "./scripts/tool_name.py", "./scripts/tool_name.js", "./scripts/tool.js", "0"],
     "markdown.validate.referenceLinks.enabled": false
 }

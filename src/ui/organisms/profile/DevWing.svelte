@@ -114,6 +114,7 @@
             gap: 0;
             transition: all var(--transition-speed);
             min-height: var(--spacing-xxl);
+            overflow: hidden;
 
             &.is-editing:hover {
                 background: var(--surface-overlay);

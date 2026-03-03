@@ -4,7 +4,9 @@
 skills:
     project: .agent/skills/project/SKILL.md
     data: .agent/skills/data/SKILL.md
-    svelte: .agent/skills/svelte/SKILL.md
+    svelte_architecture: .agent/skills/svelte_architecture/SKILL.md
+    svelte_best_practice: .agent/skills/svelte_best_practice/SKILL.md
+    svelte_code_writer: .agent/skills/svelte_code_writer/SKILL.md
     quality-assurance: .agent/skills/quality-assurance/SKILL.md
     scss: .agent/skills/scss/SKILL.md
     motion: .agent/skills/motion/SKILL.md

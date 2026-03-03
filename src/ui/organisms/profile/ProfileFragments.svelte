@@ -59,22 +59,20 @@
     .content {
         flex: 1;
         overflow: visible;
-        padding: var(--spacing-m) var(--spacing-l) var(--spacing-l);
         display: flex;
         flex-direction: column;
         gap: var(--spacing-m);
-        mask-image: linear-gradient(to bottom, transparent, black var(--spacing-m), black calc(100% - var(--spacing-m)), transparent);
 
         .row {
             display: grid;
-            grid-template-columns: var(--spacing-xxl) 1fr;
+            grid-template-columns: var(--spacing-xxxl) 1fr;
             gap: var(--spacing-s);
             min-width: 0;
 
             .label {
                 text-align: right;
                 align-self: center;
-                padding: var(--spacing-xs) 0;
+                padding: 0;
 
                 h2 {
                     margin: 0;
@@ -129,7 +127,7 @@
                     font-weight: 800;
                     text-transform: uppercase;
                     color: var(--signature-color);
-                    opacity: 1;
+                    opacity: var(--opacity-full);
                     margin-left: var(--spacing-xxs);
                     text-align: center;
                     text-shadow: var(--shadow-text);
@@ -140,9 +138,8 @@
                     @extend %textarea-clean;
                     resize: none;
                     width: 100%;
-                    height: auto;
-                    min-height: 5rem;
-                    max-height: 12rem;
+                    height: 100%;
+                    min-height: var(--spacing-xxxl);
                     overflow-y: auto;
                     background: var(--surface-sunken);
                     box-shadow: inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xxs));

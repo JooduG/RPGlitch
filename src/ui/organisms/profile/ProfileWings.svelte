@@ -7,7 +7,7 @@
     let { char = $bindable(), is_editing, busy_fields = $bindable(), active_field = $bindable() } = $props()
 </script>
 
-<aside class="wing-left" class:is-visible={!!char} data-testid="visual-wing">
+<aside class="wing-left" class:is-visible={!!char && is_editing} data-testid="visual-wing">
     <VisualWing bind:char {is_editing} bind:busy_fields bind:active_field />
     <VoiceWing bind:char {is_editing} />
 </aside>

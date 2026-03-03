@@ -5,6 +5,27 @@
 
 ## 🚀 Active Tracks
 
+### Track: Off-Screen Entropy Protocol
+
+- Path: [.agent/tasks/off-screen-entropy/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/off-screen-entropy/)
+- Status: Planning
+- Checkpoint: `off-ent-01`
+- Note: Implementing background NPC momentum and potential scene intrusion to cure protagonist syndrome.
+
+### Track: Emotional Half-Life Protocol
+
+- Path: [.agent/tasks/emotional-half-life/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/emotional-half-life/)
+- Status: Planning
+- Checkpoint: `emot-half-01`
+- Note: Replacing rigid 3-turn memory decay with semantic persistence (W=1-10) to retain narrative weight in context.
+
+### Track: Bayesian Gravity Implementation
+
+- Path: [.agent/tasks/bayesian-gravity/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/bayesian-gravity/)
+- Status: Planning
+- Checkpoint: `bayes-grav-01`
+- Note: Upgrading NPC logic to calculate statistical probability of user deception via Bayesian inference using the Permeability axis as a prior.
+
 ### Track: SCSS Token Standardization
 
 - Path: [.agent/tasks/scss-token-standardization/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/scss-token-standardization/)
@@ -18,6 +39,13 @@
 - Status: Active
 - Checkpoint: `recon-pi-02`
 - Note: Systemic refactor of the intelligence pipeline (Blueprint -> Orchestrator). Phase 2 (Kernel Optimization) complete.
+
+### Track: Sino-Logic Optimization
+
+- Path: [.agent/tasks/sino-logic-optimization/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/sino-logic-optimization/)
+- Status: Planning
+- Checkpoint: `sino-opt-01`
+- Note: Implementing zh-CN cognitive protocol to slash token footprint and sharpen internal reasoning density.
 
 ## 📋 Protocols & Checklists
 

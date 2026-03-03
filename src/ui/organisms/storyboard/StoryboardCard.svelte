@@ -224,15 +224,33 @@
                 pointer-events: none;
             }
 
-            /* State: Empty */
+            /* State: Empty (Skeleton Layout) */
             &.is-empty {
+                background: var(--surface-sunken);
+                box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+
+                /* Continuous pulsing shimmer for skeleton effect */
+                &::after {
+                    content: "";
+                    position: absolute;
+                    inset: 0;
+                    transform: translateX(-100%);
+                    background-image: linear-gradient(90deg, transparent 0, rgb(var(--pure-white-rgb) / var(--opacity-xxs)) 20%, rgb(var(--pure-white-rgb) / var(--opacity-s)) 60%, transparent);
+                    filter: blur(var(--blur-l));
+                    animation: skeleton-shimmer 2.5s infinite;
+                    z-index: var(--z-overlay);
+                    pointer-events: none;
+                }
+
                 &:hover {
-                    box-shadow: var(--shadow-glow);
+                    box-shadow:
+                        inset 0 2px 10px rgba(0, 0, 0, 0.5),
+                        var(--shadow-glow);
 
                     /* Unified Trigger: Brighten Children on PARENT hover */
                     :global(.empty-icon) {
                         opacity: 1;
-                        transform: translateY(0);
+                        filter: drop-shadow(0 0 8px rgb(var(--signature-rgb) / 0.8));
                     }
                     :global(.empty-label) {
                         opacity: 1;
@@ -393,7 +411,7 @@
         .empty-label {
             position: absolute;
             bottom: 25%;
-            font-size: var(--font-size-l);
+            font-size: var(--font-size-s);
             font-weight: 800;
             letter-spacing: 0.1em;
             text-transform: uppercase;
@@ -401,13 +419,19 @@
             color: var(--app-color);
             text-shadow: var(--rp-text-shadow);
             opacity: 0;
-            transition: opacity 1s ease;
+            transition:
+                opacity 1s ease,
+                transform 1s ease;
             pointer-events: none;
         }
 
         .empty-icon {
             color: rgb(var(--pure-white-rgb) / var(--opacity-xl));
             width: var(--spacing-xxxl);
+            height: var(--spacing-xxxl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             opacity: var(--opacity-m);
             transition:
                 opacity 1s ease,
@@ -416,6 +440,8 @@
             /* Base State for SVG - Respect parent color */
             :global(svg),
             svg {
+                width: 100%;
+                height: 100%;
                 fill: currentColor;
                 transition: fill 1s ease;
             }

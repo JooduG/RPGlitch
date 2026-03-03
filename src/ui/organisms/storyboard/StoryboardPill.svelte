@@ -59,10 +59,8 @@
 
         display: flex;
         align-items: center;
-        gap: var(--spacing-m);
         border-radius: var(--border-radius-full);
         padding: var(--spacing-xxs) var(--spacing-m);
-        min-height: var(--spacing-xxxl);
         box-shadow: var(--shadow-l);
     }
 

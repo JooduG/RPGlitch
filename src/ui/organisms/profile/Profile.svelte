@@ -279,6 +279,7 @@
             overflow-y: auto;
             max-height: 85vh;
             background: var(--tint-dark-surface);
+            padding: var(--spacing-m);
 
             /* Scrollbar styling */
             &::-webkit-scrollbar {

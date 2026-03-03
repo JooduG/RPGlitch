@@ -71,9 +71,9 @@
     }
 
     .card-inner {
-        background: var(--glass-s);
+        background: var(--surface-sunken);
         box-shadow: var(--shadow-s);
-        border-radius: var(--border-radius-s);
+        border-radius: var(--border-radius-m);
         padding: var(--spacing-s) var(--spacing-m);
         position: relative;
         overflow: hidden;

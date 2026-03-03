@@ -32,15 +32,15 @@
     footer {
         margin-top: auto;
         display: grid;
-        grid-template-columns: var(--spacing-xxl) 1fr;
+        grid-template-columns: var(--spacing-xxxl) 1fr;
         gap: var(--spacing-s);
-        padding: var(--spacing-m) var(--spacing-l);
         background: color-mix(in srgb, var(--glass-m), var(--signature-color) var(--opacity-xs));
         border-top: 0;
         z-index: 10;
+        padding-top: var(--spacing-m);
 
         :global(.profile-btn.btn) {
-            height: var(--spacing-xxxl);
+            height: auto;
             display: flex;
             align-items: center;
             justify-content: center;
