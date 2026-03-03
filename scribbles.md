@@ -1,173 +1,158 @@
-# 🧠 RPGlitch Intelligence Pipeline (v5.0) — Master Architectural Blueprint
+# 🧠 RPGlitch Cognitive Architecture & Prompt Engineering (v5.0)
 
-> **Status**: [ACTIVE] · **Branch**: `main` · **Last Audit**: 2026-02-27
-> **Purpose**: This document IS JUST IDEAS, IT IS NOT CANON.
-
----
-
-## 🏛️ 1. Core Philosophy: The Dynamic Stack
-
-RPGlitch does not use static, monolithic prompts. Instead, it treats the prompt as a **dynamic stack** that reassembles itself every time the user acts. The system is designed to defeat "Goldfish Memory," maintain strict character boundaries, and seamlessly weave sensory world-building into standard dialogue without leaking metadata.
-
-**Key Technical Resolutions (v5.0 Standard):**
-
-- **Entity Tags:** All characters are defined via `<AI_CHARACTER>` and `<USER_CHARACTER>` (replacing legacy `<ENTITY>` tags).
-- **Rule Formatting:** Standardized to object-path notation (e.g., `RULE.USER_AGENCY`).
-- **Narrative Styling:** Handled via the `<NARRATIVE_STYLE>` XML block.
+> **Status**: UNDER DEVELOPMENT, NOT CANON!
 
 ---
 
-## 🏗️ 2. The Meridian Progression (System Architecture)
+## 🏗️ 1. The Intelligence Pipeline
 
-Data flows from static blueprints to active execution through four distinct tiers.
+The RPGlitch cognitive engine relies on a strictly layered architecture that moves data from static blueprints into a dynamic, filtered prompt context before routing it to the LLM.
 
-### Tier 1: The Blueprint (Data Contracts)
+### Tier 1: The Blueprint (Data Schema)
 
-_The raw DNA of the characters, world, and formatting rules._
+- **Entity Fragments (`entity_fragments.js`)**: The fundamental DNA of characters and environments. Defines all data schemas and AI formatting directives (e.g., `CORE_COGNITIVE_ARCHITECT`).
+- **Temporal Vectors (`vector_engine.js`)**: The standardized structure for all dynamic memories and goals (`{ id, text, summary, axis_tags, entity_tags, timestamp }`).
 
-- **`schema.js` / `intelligence_registry.js`**: Defines the fundamental schemas (`ENTITY_SCHEMA`) and metadata fields.
-- **`intelligence_atoms.js`**: Houses the foundational rendering functions that convert JSON state data into structured XML tags.
+### Tier 2: The Assembly Line (Context Broker)
 
-### Tier 2: The Molecule (Cognitive Logic & Prompt Templates)
+- **Context Broker (`intelligence_broker.js`)**: Assembles the raw data into cohesive chunks. It applies physical sorting (Lexical Filter) and modality purification (Diegetic Filter).
+- **Prompt Builder (`prompt_builder.js`)**: Maps the assembled context into explicit XML system prompts based on specific operational modes (Simulation, Enhancement, Visual).
 
-_The system templates and assembly logic._
+### Tier 3: The Gateway (Execution)
 
-- **`intelligence_logic.js` (ContextBuilder)**: Contains the `SYSTEM_PROMPTS` manifest and core screenplay kernels.
-- **`PromptBuilder`**: Enforces system protocols (`RULE.GROUNDING`, `RULE.USER_AGENCY`).
-- **`intelligence_echo.js`**: The summarization service that converts episodic chat history into long-term "Resonance."
-
-### Tier 3: The Orchestrator (Active Assembly)
-
-_The engine that fetches, filters, and routes data during runtime._
-
-- **`engine.js`**: The central orchestrator. Its `NarrativeDirector` controls memory consolidation checkpoints.
-- **`intelligence_broker.js` (ContextBroker)**: Prepares the payload. It fetches fragments, runs them through the Lexical/Diegetic filters, and assembles the exact context needed for the current turn.
-- **`intelligence_service.js` (LlmService)**: The gateway that routes the final payload to the LLM, managing temperature and token limits.
-
-### Tier 4: The Projection (Specialized Generators)
-
-_Alternative generation pipelines outside of standard prose._
-
-- **`image_engine.js`**: Translates narrative state and aesthetic routing into visual generation prompts.
-- **Security & Physics Builders**: Low-temperature logic checkers used for rule-resolution and narrative integrity analysis.
+- **LLM Service (`intelligence_service.js`)**: The network bridge routing the assembled payload to the AI provider.
+- **Simulation Engine (`engine.js`)**: The primary game loop orchestrator managing chronological turns, state updates, and triggering memory consolidation.
 
 ---
 
-## 🧠 3. Cognitive Memory & Context Injection
+## 📖 2. The Entity Memory Hierarchy
 
-To maintain character consistency and deep lore without blowing out the token window, RPGlitch uses a multi-layered, keyword-driven memory hierarchy.
+Entity data is injected into the prompt as a layered psychological stack, giving the AI immediate scene awareness alongside deep historical grounding.
 
-### A. The Memory Hierarchy
-
-The character's "mind" is built from three distinct anchors:
-
-1. **Eternal Past (The Anchor):** Immutable traits, core identity, psychological archetype, and physical phenotype. (Rarely changes).
-2. **Static Past (The Backstory):** Origin stories and foundational history.
-3. **Temporal Past (The Resonance):** Stored in `timeline.past`. This is dynamic memory. Every 12 turns, `engine.js` slices the oldest 10 messages, sends them to `intelligence_echo.js` for summarization, and appends the result here to prevent context bloat.
-
-### B. Narrative Threads (Future/Present Intent)
-
-- **Vanguard:** The primary, active objective driving the character's immediate actions.
-- **Echoes:** Secondary, background narrative threads providing atmospheric depth.
-
-### C. The Filtering Mechanisms
-
-The `ContextBroker` uses two primary filters before injecting memory into the prompt:
-
-1. **Lexical Filter (Keyword Sorting):** Scans the user's input and the active _Vanguard_ for keywords (e.g., "Dragon"). It then physically sorts memory fragments containing those keywords to the **top** of the context window, ensuring the AI prioritizes high-relevance lore.
-2. **Diegetic Filter (Metadata Purification):** Ensures the AI's internal reasoning doesn't leak into the story. It strips `[VISUAL]` tags during prose generation, and strips narrative/tactile tags during image generation.
-
-### D. Injection Depth Strategy
-
-Instead of front-loading all global instructions at the top of the prompt, RPGlitch utilizes an **Injection Depth** system. Global vibes, formatting rules, and critical immediate memory are injected exactly **3 or 4 messages back** from the end of the chat history. This bypasses the LLM "Lost in the Middle" syndrome, ensuring instructions heavily influence the immediate response without breaking conversational flow.
+1. **Eternal (The Persistent Anchor)**
+    - **Physical/Non-Physical Traits:** Immutable baseline data (e.g., phenotype, psychological archetype, vocal tics).
+2. **Present (The Immediate State)**
+    - **Conditions & Status:** Fluid physical wounds, active HUDs, and immediate emotional volatility.
+3. **Future Vectors (The Drivers)**
+    - **Objectives & Dooms:** Actionable tasks paired with atmospheric stakes. Stored as structured vectors. If a vector carries emotional physics tags, it is injected as a `[STAKE]`. Otherwise, it injects as an `[OBJECTIVE]`.
+    - _Example:_ `Infiltrate the facility. [CONSEQUENCE: Failure means the virus is released.]`
+4. **Past Resonance (The Historical Anchor)**
+    - **Distilled Lore:** The structured, condensed memories of past narrative beats.
+5. **Chrono History (The Active Window)**
+    - **Sliding Dialogue:** The last 10 unconsolidated conversational turns providing immediate scene momentum.
 
 ---
 
-## 🎭 4. Narrative Physics & Governing Protocols
+## 📡 3. RAG Retrieval & Memory Echoes
 
-### A. Core Directives (`intelligence_logic.js`)
+RPGlitch solves the "Goldfish Memory" and "Token Bloat" problems of standard LLM roleplay via an active semantic/kinetic retrieval system.
 
-| Protocol                   | Function                                                                                              |
-| :------------------------- | :---------------------------------------------------------------------------------------------------- |
-| `RULE.USER_AGENCY`         | Absolute ban on mind-reading or generating dialogue/actions for the User.                             |
-| `RULE.POSITIVE_GOVERNANCE` | Enforces present-tense execution, affirmative commands, and bans preambles.                           |
-| `RULE.GROUNDING`           | The Literalism Protocol. Bans hallucinated examples; grounds the AI strictly in the provided reality. |
+### A. The Consolidation Loop (Echo)
 
-### B. Physics Reflexes
+Every 12 turns, the **Narrative Director** automatically intervenes to prevent context overflow:
 
-The engine dynamically alters the AI's writing style by detecting kinetic keywords in the active scene.
+1. It slices the oldest 10 messages from the active Chrono history.
+2. The **Echo Service** condenses these messages into a single-sentence `summary` and extracts proper nouns (`entity_tags`).
+3. The engine automatically derives kinetic `axis_tags` (e.g., `VIOLENCE`, `STASIS`) by running the summary through the Physics Engine.
+4. The messages are marked as `consolidated`, hidden from the sliding window, and the new **Resonance Vector** is saved to the Entity's Past.
 
-| ID                 | Trigger Keywords     | Adjustments      | Injection Instruction                           |
-| :----------------- | :------------------- | :--------------- | :---------------------------------------------- |
-| `REFLEX_KINETIC`   | run, sprint, dash    | Vel: 90          | "Short sentences. Action over introspection."   |
-| `REFLEX_VIOLENCE`  | attack, shoot, kill  | Vel: 80, Ent: 60 | "Visceral impact. Describe pain/damage."        |
-| `REFLEX_EROS`      | touch, caress        | Vel: 30, Ent: 40 | "Sensory focus. Dilate time. Somatic feedback." |
-| `REFLEX_COGNITIVE` | think, plan, analyze | Vel: 20          | "Expand internal logic. Trace causal chain."    |
+### B. Weighted Retrieval & Injection
 
-### C. Tone Registry (Lenses)
+To inject only relevant lore during a turn, the **Vector Engine** scores all available Past and Future vectors against the user's latest input:
 
-| Lens Key    | Tone Adjustments | Style Directive                             |
-| :---------- | :--------------- | :------------------------------------------ |
-| `DEFAULT`   | Vel: 50, Ent: 20 | Standard roleplay. Balanced and reactive.   |
-| `NOIR`      | Vel: 40, Ent: 30 | High contrast. Cynical inner monologue.     |
-| `ELDRIITCH` | Vel: 30, Ent: 80 | Describe the unnameable. Sanity is fragile. |
-| `CYBERPUNK` | Vel: 85, Ent: 50 | High tech, low life. Slang is prevalent.    |
+- **Vibe Match (+2 Points):** The input triggers physics `axis_tags` that match the vector (e.g., a memory of combat retrieved during a firefight).
+- **Noun Match (+1 Point):** The input contains `entity_tags` (names/locations) present in the vector.
+
+**Reverse Injection Pattern:** To combat the LLM "Lost in the Middle" phenomenon, the top 3 scored memories are injected into the prompt in _reverse order_. The highest-scoring, most critical memory is placed at the absolute bottom of the identity block—closest to the active conversation.
 
 ---
 
-## 📝 5. The Output: Master Prompt Matrix
+## 🔍 4. Context Filtering (Purification)
 
-When all tiers complete their execution, the final XML payload passed to the LLM follows this strict schema:
+Before fragments reach the prompt, they pass through specialized broker filters to maintain narrative sanity.
+
+### The Lexical Filter (Relevance Sorting)
+
+Extracts keywords from the **Vanguard** (the character's immediate top-priority objective) and compares them against all memory fragments. Fragments containing matches are physically sorted to the top of their respective prompt sections, heavily weighting the AI's attention toward active plot threads.
+
+### The Diegetic Filter (The Fourth Wall)
+
+Maintains the boundary between narrative prose and engine metadata.
+
+- **Prose Mode:** Strips out purely visual formatting metadata (`[VISUAL]`), ensuring the AI doesn't leak developer notes or aesthetic routing tags into character dialogue.
+- **Visual Mode:** Strips out abstract narrative concepts, isolating strictly physical and sensory descriptions to feed the image generation engine.
+
+---
+
+## 🎭 5. Narrative Physics & Protocols
+
+### A. Physics Reflexes
+
+RPGlitch listens to the user's input and dynamically adjusts the AI's writing style based on detected kinetic intent.
+
+| Reflex ID         | Keyword Triggers    | Instruction Injected                            |
+| :---------------- | :------------------ | :---------------------------------------------- |
+| `REFLEX_KINETIC`  | run, sprint, dash   | "Short sentences. Action over introspection."   |
+| `REFLEX_VIOLENCE` | attack, shoot, hurt | "Visceral impact. Describe pain/damage."        |
+| `REFLEX_EROS`     | touch, caress, soft | "Sensory focus. Dilate time. Somatic feedback." |
+| `REFLEX_STASIS`   | wait, quiet, sleep  | "Focus on ambient environment. Slow momentum."  |
+
+### B. The Literalism Protocol (Global Rules)
+
+The baseline behavioral constraints enforced on every standard simulation prompt:
+
+- **USER_AGENCY:** "Never generate dialogue, thoughts, or actions for the User."
+- **EPISTEMIC_WALL:** "Treat the User as a Black Box. You have no access to their internal motivations."
+- **HYGIENE:** "Forbid preambles, intro-lines, and technical metadata. Start every response directly."
+- **IMMERSION:** "Show, don't tell. Describe sensory physics over abstract emotion."
+
+---
+
+## 📝 6. System Prompt Topology (XML Format)
+
+The system prompt is dynamically assembled into a highly structured XML manifest to ensure the LLM perfectly parses character boundaries.
 
 ```xml
-<SYSTEM_PROMPT>
-  <ENTITY_LAYER>
-    <AI_CHARACTER name="{name}">
-        <FRAGMENT type="Eternal" enhancer="CORE_COGNITIVE_ARCHITECT">{content}</FRAGMENT>
-    </AI_CHARACTER>
-    <USER_CHARACTER name="{name}">
-        <FRAGMENT type="Identity" enhancer="CORE_COGNITIVE_ARCHITECT">{content}</FRAGMENT>
-    </USER_CHARACTER>
-  </ENTITY_LAYER>
+<SYSTEM role="Viper">
+  <STATE turn="42"></STATE>
 
-  <SYSTEM_LAYER>
-    <COGNITIVE_CORE>
-        Render reasoning in <think> blocks before output.
-        <NARRATIVE_STYLE>{tone.style} + {active_reflexes}</NARRATIVE_STYLE>
-    </COGNITIVE_CORE>
-  </SYSTEM_LAYER>
+  <YOUR_IDENTITY name="Viper">
+    <FRAGMENT type="Eternal">...</FRAGMENT>
+    [RESONANCE]: Escaped the facility using the User's override codes.
+    [STAKE]: Evade the corporate bounty hunters. [CONSEQUENCE: Death]
+  </YOUR_IDENTITY>
+
+  <USER_PERSONA name="John">
+    <FRAGMENT type="Eternal">...</FRAGMENT>
+  </USER_PERSONA>
+
+  <FRACTAL name="The Rust Wastes">
+    <FRAGMENT type="Present">Corrosive winds and scrap heaps.</FRAGMENT>
+  </FRACTAL>
 
   <HISTORY>
-    </HISTORY>
+    <entry role="USER_PERSONA" name="John">We need to move, now.</entry>
+  </HISTORY>
+
+  <NARRATIVE_STYLE>Short sentences. Action over introspection.</NARRATIVE_STYLE>
 
   <PROTOCOLS>
-    {RULE.USER_AGENCY}
-    {RULE.GROUNDING}
+    - USER_AGENCY: Never generate dialogue for the User.
+    - IMMERSION: Show, don't tell.
   </PROTOCOLS>
-
-  <INPUT_COMMAND>
-    {input}
-  </INPUT_COMMAND>
-</SYSTEM_PROMPT>
+</SYSTEM>
 
 ```
 
 ---
 
-## 🚀 6. Execution Roadmap & Infrastructure Upgrades
+## 🚀 7. Active Roadmap: Broker Reactivity Upgrade (Phase 2)
 
-### Action Items & Pending Fixes
+**Goal:** Shift `intelligence_broker.js` from an On-Demand (Pull) Model to a Svelte 5 Reactive (Push/Cache) Model.
 
-- [ ] **Loop Resolution:** Fix `render_system` to ensure `tone.instructions` (calculated reflexes) are properly injected into the prompt loop.
-- [ ] **Protocol Integration:** Ensure `RULE.GROUNDING` is actively appended to the simulation template.
-- [ ] **Data Cleansing:** Fix legacy typo propagation in the codebase (e.g., `ELDRIITCH` -> `ELDRITCH`).
-- [ ] **Atom Alignment:** Update `render_entity` in `intelligence_atoms.js` to perfectly match the new multi-tiered fragment hierarchy.
+**Proposed Changes:**
 
-### Phase 2 Upgrade: The Reactive Context Broker (Svelte 5)
-
-The next major architectural leap shifts the `intelligence_broker.js` from an **On-Demand (Pull) Model** to a **Reactive (Push/Cache) Model** using Svelte 5 runest.
-
-1. **Reactive Singleton:** Transition `ContextBroker` to an instantiated `BrokerStore`.
-2. **`$derived` Caching:** Instead of recalculating the context window upon every user message, the broker will use `$derived` state to maintain live, pre-calculated string representations of the `kernelLayer`, `entityLayer`, and `historyLayer`.
-3. **Execution:** The assembly phase becomes virtually instant, trading a small amount of memory overhead for zero-latency prompt generation.
-4. **Constraint:** Tier 1 modules (`intelligence_atoms.js`, `intelligence_logic.js`) **must** remain pure Vanilla JS. The reactive Broker must pass pure POJOs down to the logic layer to ensure the prompt generation itself remains completely framework-agnostic.
+1. **Singleton Migration:** Convert `ContextBroker` to a stateful class instance.
+2. **`$derived` Caching:** Pre-compute standard layers (`kernelLayer`, `entityLayer`, `historyLayer`) automatically in the background using `$derived` runes when `runtime` state changes.
+3. **Zero-Latency Assembly:** `assemble()` will no longer run heavy data mapping or filtering at generation time; it will instantly read the cached string representations.
+4. **Constraint:** The Broker must continue emitting pure POJOs to `prompt_builder.js` to ensure the core prompt string formatting remains entirely decoupled from the Svelte framework.
