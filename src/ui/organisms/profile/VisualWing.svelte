@@ -285,8 +285,8 @@
 
     <!-- 3. Toggles -->
     <div class="toggle-stack">
-        <Toggle label="No Background" bind:value={char.visuals.noBackground} disabled={!is_editing} isHorizontal={true} />
-        <Toggle label="Flip Profile Picture" bind:value={char.visuals.flipped} disabled={!is_editing} isHorizontal={true} />
+        <Toggle label="No Background" bind:value={char.visuals.noBackground} disabled={!is_editing} />
+        <Toggle label="Flip Profile Picture" bind:value={char.visuals.flipped} disabled={!is_editing} />
     </div>
     <Tooltip {...curr_tooltip} fixed={true} />
 </div>
