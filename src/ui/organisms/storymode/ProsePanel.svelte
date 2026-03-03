@@ -7,75 +7,75 @@
     import Message from "./Message.svelte"
 
     // --- STATE ---
-    let scrollRef = $state(null)
+    let scroll_ref = $state(null)
 
     // Derived
-    let isThinking = $derived(engineState.phase === "generating")
+    let is_thinking = $derived(engineState.phase === "generating")
 
     // Auto-scroll logic
     $effect(() => {
-        if ((simulation_log.feed.length || app.streaming.active) && scrollRef) {
+        if ((simulation_log.feed.length || app.streaming.active) && scroll_ref) {
             // Small timeout to allow DOM render
             setTimeout(() => {
-                if (scrollRef) scrollRef.scrollTop = scrollRef.scrollHeight
+                if (scroll_ref) scroll_ref.scrollTop = scroll_ref.scrollHeight
             }, 0)
         }
     })
 
     // Helper to map DB role to UI sender
-    function mapRole(role) {
+    function map_role(role) {
         if (role === "assistant" || role === "ai") return "ai"
         if (role === "prologue") return "fractal"
         return role
     }
 
     // --- ACTIONS ---
-    async function handleDelete(index) {
+    async function handle_delete(index) {
         const entry = simulation_log.feed[index]
         if (entry && entry.id) {
             await session.delete_entry(entry.id)
         }
     }
 
-    async function handleRegenerate() {
+    async function handle_regenerate() {
         await session.retry()
     }
 
-    async function handleContinue() {
+    async function handle_continue() {
         await session.continue()
     }
 
-    async function handleEdit(index) {
+    async function handle_edit(index) {
         const entry = simulation_log.feed[index]
         if (!entry) return
 
-        const newText = prompt("Edit log entry:", entry.text)
-        if (newText !== null && newText !== entry.text) {
-            await session.edit_entry(entry.id, newText)
+        const new_text = prompt("Edit log entry:", entry.text)
+        if (new_text !== null && new_text !== entry.text) {
+            await session.edit_entry(entry.id, new_text)
         }
     }
 </script>
 
-<div class="prose-panel" bind:this={scrollRef}>
+<div class="prose-panel" bind:this={scroll_ref}>
     {#each simulation_log.feed as entry, index (entry.id)}
         <Message
             text={entry.text}
-            sender={mapRole(entry.role)}
-            character_name={entry.character_name || (mapRole(entry.role) === "ai" ? app.selectedAi?.name : "")}
+            sender={map_role(entry.role)}
+            character_name={entry.character_name || (map_role(entry.role) === "ai" ? app.selectedAi?.name : "")}
             timestamp={entry.created_at ? new Date(entry.created_at) : new Date()}
             attachments={entry.attachments}
-            isLast={index === simulation_log.feed.length - 1}
-            onDelete={() => handleDelete(index)}
-            onRegenerate={() => handleRegenerate()}
-            onContinue={() => handleContinue()}
-            onEdit={() => handleEdit(index)}
+            is_last={index === simulation_log.feed.length - 1}
+            on_delete={() => handle_delete(index)}
+            on_regenerate={() => handle_regenerate()}
+            on_continue={() => handle_continue()}
+            on_edit={() => handle_edit(index)}
         />
     {/each}
 
     {#if app.streaming?.active}
-        <Message text={app.streaming.content} sender="ai" timestamp={new Date()} isLast={true} />
-    {:else if isThinking}
-        <Message sender={engineState.role} isThinking={true} />
+        <Message text={app.streaming.content} sender="ai" timestamp={new Date()} is_last={true} />
+    {:else if is_thinking}
+        <Message sender={engineState.role} is_thinking={true} />
     {:else if simulation_log.feed.length === 0}
         <div class="empty-feed-fallback">
             <p>Establishing context stream... If the screen remains black, please check your network or AI plugin settings.</p>
@@ -85,23 +85,25 @@
 </div>
 
 <style lang="scss">
+    @use "@theme/abstracts/variables" as *;
+
     .prose-panel {
         flex: 1;
-        min-height: 200px;
+        min-height: 12.5rem;
         overflow-y: auto;
         overflow-x: hidden;
-        padding: 1rem 0;
+        padding: var(--spacing-m) 0;
         display: flex;
         flex-direction: column;
         gap: 0;
         scroll-behavior: smooth;
 
         &::-webkit-scrollbar {
-            width: 6px;
+            width: var(--spacing-xxs);
         }
         &::-webkit-scrollbar-thumb {
-            background: var(--gunmetal, #333);
-            border-radius: 3px;
+            background: var(--surface-sunken);
+            border-radius: var(--border-radius-full);
         }
     }
 
@@ -110,25 +112,25 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 4rem 2rem;
+        padding: var(--spacing-xxl) var(--spacing-l);
         text-align: center;
-        color: var(--frozen-pole, #666);
-        gap: 1rem;
+        color: var(--app-muted);
+        gap: var(--spacing-m);
 
         p {
-            max-width: 400px;
+            max-width: 25rem;
         }
 
         :global(.btn-retry) {
-            padding: 0.5rem 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-            color: var(--frisk, #999);
+            padding: var(--spacing-xs) var(--spacing-m);
+            background: var(--glass-s);
+            box-shadow: var(--shadow-s);
+            border-radius: var(--border-radius);
+            color: var(--app-muted);
 
             &:hover {
-                background: rgba(255, 255, 255, 0.15);
-                color: white;
+                background: var(--glass-m);
+                color: var(--app-color);
             }
         }
     }

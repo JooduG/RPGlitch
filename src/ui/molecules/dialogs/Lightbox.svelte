@@ -24,19 +24,19 @@
         img {
             max-width: 90vw;
             max-height: 85vh;
-            border-radius: 4px;
-            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            border-radius: var(--border-radius-s);
+            box-shadow: var(--shadow-xxl);
             pointer-events: auto;
             object-fit: contain;
         }
 
         .caption {
-            margin-top: 1rem;
+            margin-top: var(--spacing-m);
             color: var(--app-color);
-            background: rgba(0, 0, 0, 0.5);
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            font-size: 0.9rem;
+            background: rgba(var(--pure-black-rgb), var(--opacity-m));
+            padding: var(--spacing-s) var(--spacing-m);
+            border-radius: var(--border-radius-s);
+            font-size: var(--font-size-m);
         }
     }
 </style>

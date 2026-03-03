@@ -1,6 +1,6 @@
 # 🏗️ Design & Build Methodology
 
-> **Skill:** simulation / artificer
+> **Skill:** simulation
 > **Red Thread:** The playbook for building and refining the sensory layer.
 
 ## 🏃 1. The Design-Baton Loop

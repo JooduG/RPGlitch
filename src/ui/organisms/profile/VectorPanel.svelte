@@ -2,11 +2,11 @@
     import Button from "@ui/atoms/Button.svelte"
     import VectorCard from "./VectorCard.svelte"
 
-    let { char, path, isEditing, setValue, getValue, signatureColor, unitLabel = "Vector" } = $props()
+    let { char, path, is_editing, set_value, get_value, signature_color, unit_label = "Vector" } = $props()
 
-    let rawItems = $derived(getValue(char, path) || [])
+    let raw_items = $derived(get_value(char, path) || [])
     let items = $derived.by(() => {
-        const val = rawItems
+        const val = raw_items
         if (!Array.isArray(val)) {
             return typeof val === "string" && val.trim() ? [val.trim()] : []
         }
@@ -17,43 +17,43 @@
         return val
     })
 
-    function updateItem(index, newText) {
+    function update_item(index, new_text) {
         const current = Array.isArray(items) ? [...items] : []
         if (typeof current[index] === "object") {
-            current[index] = { ...current[index], text: newText }
+            current[index] = { ...current[index], text: new_text }
         } else {
-            current[index] = newText
+            current[index] = new_text
         }
-        setValue(char, path, current)
+        set_value(char, path, current)
     }
 
-    function removeItem(index) {
+    function remove_item(index) {
         const current = [...items]
         current.splice(index, 1)
-        setValue(char, path, current)
+        set_value(char, path, current)
     }
 
-    function addItem() {
+    function add_item() {
         const current = [...items]
         current.unshift("")
-        setValue(char, path, current)
+        set_value(char, path, current)
     }
 </script>
 
-<div class="vector-panel" style="--accent-color: {signatureColor}">
+<div class="vector-panel" style="--accent-color: {signature_color}">
     <div class="vector-list">
-        {#if isEditing}
-            <Button variant="ghost" onclick={addItem} style="width: 100%; font-size: 0.85rem; border: 0.0625rem dashed rgba(255,255,255,0.2);">
-                + Add {unitLabel}
+        {#if is_editing}
+            <Button variant="ghost" className="btn-add-unit" onclick={add_item}>
+                + Add {unit_label}
             </Button>
         {/if}
 
         {#each items as item, i (i)}
-            <VectorCard vector={item} {isEditing} {signatureColor} {unitLabel} onUpdate={(val) => updateItem(i, val)} onDelete={() => removeItem(i)} />
+            <VectorCard vector={item} {is_editing} {signature_color} {unit_label} on_update={(val) => update_item(i, val)} on_delete={() => remove_item(i)} />
         {/each}
 
-        {#if items.length === 0 && !isEditing}
-            <div class="empty-state">No {unitLabel.toLowerCase()} recorded for this timeline.</div>
+        {#if items.length === 0 && !is_editing}
+            <div class="empty-state">No {unit_label.toLowerCase()} recorded for this timeline.</div>
         {/if}
     </div>
 </div>
@@ -74,9 +74,23 @@
     .empty-state {
         padding: var(--spacing-m);
         text-align: center;
-        color: var(--text-dim);
+        color: var(--app-muted);
         font-size: var(--font-size-xs);
         font-style: italic;
-        opacity: 0.6;
+        opacity: var(--opacity-m);
+    }
+
+    :global(.btn-add-unit) {
+        width: 100%;
+        font-size: var(--font-size-s);
+        border: var(--spacing-px) dashed rgba(var(--pure-white-rgb), var(--opacity-s));
+        border-radius: var(--border-radius);
+        transition: all var(--transition-speed) var(--physics-transition-elastic);
+
+        &:hover {
+            background: rgba(var(--pure-white-rgb), var(--opacity-xxs));
+            border-color: rgba(var(--pure-white-rgb), var(--opacity-m));
+            transform: translateY(var(--physics-btn-hover-y));
+        }
     }
 </style>

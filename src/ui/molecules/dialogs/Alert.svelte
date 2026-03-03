@@ -7,13 +7,7 @@
     import { quintOut } from "svelte/easing"
     import { fade, scale } from "svelte/transition"
 
-    let {
-        title = "System Alert",
-        message = "Notice",
-        buttonLabel = "OK",
-        onClose = () => {},
-        open = $bindable(false),
-    } = $props()
+    let { title = "System Alert", message = "Notice", buttonLabel = "OK", onClose = () => {}, open = $bindable(false) } = $props()
 
     let dialog = $state()
     let okBtn = $state()
@@ -39,12 +33,7 @@
 </script>
 
 {#if open}
-    <dialog
-        bind:this={dialog}
-        onclose={handleClose}
-        onkeydown={handleKeydown}
-        transition:scale={{ duration: 200, start: 0.95, easing: quintOut }}
-    >
+    <dialog bind:this={dialog} onclose={handleClose} onkeydown={handleKeydown} transition:scale={{ duration: 200, start: 0.95, easing: quintOut }}>
         <article class="security-modal">
             <header>
                 <h3>{title}</h3>
@@ -55,23 +44,13 @@
             </div>
 
             <footer>
-                <Button
-                    variant="primary"
-                    onclick={handleClose}
-                    bind:this={okBtn}
-                    label={buttonLabel}
-                />
+                <Button variant="primary" onclick={handleClose} bind:this={okBtn} label={buttonLabel} />
             </footer>
         </article>
     </dialog>
 
     <!-- Backdrop -->
-    <div
-        class="backdrop"
-        transition:fade={{ duration: 150 }}
-        onclick={handleClose}
-        role="presentation"
-    ></div>
+    <div class="backdrop" transition:fade={{ duration: 150 }} onclick={handleClose} role="presentation"></div>
 {/if}
 
 <style lang="scss">
@@ -98,62 +77,60 @@
     .backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(4px);
+        background: rgba(var(--pure-black-rgb), var(--opacity-xl));
+        backdrop-filter: blur(var(--blur-s));
         z-index: calc(z(modal) - 1);
     }
 
     .security-modal {
-        background: var(--bg-card); /* Dark Navy/Black */
-        /* Border purged */
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        border-radius: 12px;
+        background: var(--bg-card);
+        box-shadow: var(--shadow-xxl);
+        border-radius: var(--border-radius-l);
         overflow: hidden;
         display: flex;
         flex-direction: column;
 
         header {
-            padding: 1rem 1.5rem;
-            /* Border-bottom purged */
-            background: rgba(255, 255, 255, 0.02);
+            padding: var(--spacing-m) var(--spacing-xl);
+            background: rgba(var(--pure-white-rgb), var(--opacity-xs));
 
             h3 {
                 margin: 0;
-                font-size: 1.1rem;
+                font-size: var(--font-size-l);
                 font-weight: 700;
                 font-family: var(--font-heading);
                 color: var(--app-color);
                 display: flex;
                 align-items: center;
-                gap: 0.5rem;
+                gap: var(--spacing-s);
 
                 &::before {
                     content: "ℹ";
                     display: inline-flex;
                     align-items: center;
                     justify-content: center;
-                    width: 1.5rem;
-                    height: 1.5rem;
-                    background: rgba(59, 130, 246, 0.2);
+                    width: var(--spacing-xl);
+                    height: var(--spacing-xl);
+                    background: rgba(var(--brand-accent-rgb, 59, 130, 246), var(--opacity-s));
                     color: var(--app-info);
-                    border-radius: 50%;
-                    font-size: 0.9rem;
+                    border-radius: var(--border-radius-full);
+                    font-size: var(--font-size-s);
                 }
             }
         }
 
         .content {
-            padding: 1.5rem;
+            padding: var(--spacing-xl);
             color: var(--app-muted);
-            font-size: 0.95rem;
-            line-height: 1.5;
+            font-size: var(--font-size-m);
+            line-height: var(--line-height-relaxed);
         }
 
         footer {
-            padding: 1rem 1.5rem;
+            padding: var(--spacing-m) var(--spacing-xl);
             display: flex;
             justify-content: flex-end;
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(var(--pure-black-rgb), var(--opacity-s));
         }
     }
 

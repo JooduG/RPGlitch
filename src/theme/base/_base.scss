@@ -86,11 +86,20 @@
     --rp-text-shadow: #{$rp-text-shadow};
 
     // --- EFFECTS ---
+    --glass-xs: #{$glass-xs};
     --glass-s: #{$glass-s};
     --glass-m: #{$glass-m};
     --glass-l: #{$glass-l};
+    --surface-sunken: #{$surface-sunken};
+    --surface-overlay: #{$surface-overlay};
     --glass-border: #{$glass-border};
-    --border-radius: #{$border-radius};
+    --border-radius-xs: #{$border-radius-xs};
+    --border-radius-s: #{$border-radius-s};
+    --border-radius-m: #{$border-radius-m};
+    --border-radius-l: #{$border-radius-l};
+    --border-radius-xl: #{$border-radius-xl};
+    --border-radius-full: #{$border-radius-full};
+    --border-radius: var(--border-radius-m);
 
     // --- Z-INDEX ---
     --z-base: #{map.get($z-map, "base")};
@@ -100,6 +109,26 @@
     --z-modal: #{map.get($z-map, "modal")};
     --z-drawer: #{map.get($z-map, "drawer")};
     --z-toast: #{map.get($z-map, "toast")};
+
+    // --- UTILITIES ---
+    --pure-white-rgb: #{$pure-white-rgb};
+    --pure-black-rgb: #{$pure-black-rgb};
+    --opacity-xxl: 0.98;
+    --opacity-xxxl: #{$opacity-xxxl};
+    --opacity-black-heavy: #{$opacity-black-heavy};
+
+    // --- PHYSICS & MOTION ---
+    --transition-speed: #{$transition-speed};
+    --transition-speed-slow: #{$transition-speed-slow};
+    --physics-transition-elastic: #{$physics-transition-elastic};
+    --physics-hover-y: #{$physics-hover-y};
+    --physics-btn-hover-y: #{$physics-btn-hover-y};
+    --physics-btn-active-scale: #{$physics-btn-active-scale};
+    --physics-hover-y-compact: -1px;
+
+    // --- TYPOGRAPHY EXTRA ---
+    --line-height-base: #{$line-height-base};
+    --line-height-heading: #{$line-height-heading};
 }
 
 // --- DYNAMIC SIGNATURE UTILITY ---

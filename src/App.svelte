@@ -33,7 +33,7 @@
 
         <!-- GLOBAL: Profile Modal -->
         {#if app.profileOpen}
-            <Profile entityId={app.profileTargetId} entityType={app.profileTargetType} />
+            <Profile entity_id={app.profileTargetId} entity_type={app.profileTargetType} />
         {/if}
 
         <!-- GLOBAL: Control Panel (Settings / Admin) -->

@@ -1,6 +1,6 @@
 # 👁️ Diegetic Immersion Protocol
 
-> **Skill:** simulation / mesmer
+> **Skill:** simulation
 > **Red Thread:** UI elements exist WITHIN the fiction, treated as physical objects.
 
 ## 📟 1. Diegetic UI Types

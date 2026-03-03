@@ -1,23 +1,17 @@
 <script>
-    let {
-        value = $bindable(false),
-        label,
-        size = "md",
-        disabled = false,
-        onchange,
-    } = $props()
+    /** @type {{
+     *  value?: boolean,
+     *  label?: string,
+     *  size?: "md"|"sm",
+     *  disabled?: boolean,
+     *  isHorizontal?: boolean,
+     *  onchange?: (e: Event & { currentTarget: HTMLInputElement }) => void
+     * }} */
+    let { value = $bindable(false), label, size = "md", disabled = false, isHorizontal = true, onchange = (e) => {} } = $props()
 </script>
 
 <label class="toggle-switch" class:disabled class:sm={size === "sm"}>
-    <input
-        type="checkbox"
-        bind:checked={value}
-        {disabled}
-        {onchange}
-        data-testid={label
-            ? `${label.toLowerCase().replace(/\s+/g, "-")}-toggle`
-            : undefined}
-    />
+    <input type="checkbox" bind:checked={value} {disabled} {onchange} data-testid={label ? `${label.toLowerCase().replace(/\s+/g, "-")}-toggle` : undefined} />
     <span class="slider"></span>
     {#if label}
         <span class="label-text">{label}</span>
@@ -25,29 +19,32 @@
 </label>
 
 <style lang="scss">
+    @use "@theme/abstracts/placeholders" as *;
+
     .toggle-switch {
         display: inline-flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: var(--spacing-m);
         cursor: pointer;
         user-select: none;
         position: relative;
+        padding: var(--spacing-xxs) 0;
+        transition: opacity var(--transition-speed);
 
         &.disabled {
-            opacity: 0.5;
+            opacity: var(--opacity-m);
             cursor: not-allowed;
         }
 
         /* --- SIZES --- */
-        --switch-w: 2.75rem;
-        --switch-h: 1.5rem;
-        --thumb-size: 1.1rem;
+        --switch-w: 2.8rem;
+        --switch-h: 1.25rem;
+        --thumb-size: 1rem;
 
         &.sm {
-            --switch-w: 2.25rem;
-            --switch-h: 1.25rem;
-            --thumb-size: 0.9rem;
-            font-size: 0.85rem;
+            --switch-w: 2.22rem;
+            --switch-h: 1rem;
+            --thumb-size: 0.8rem;
         }
     }
 
@@ -64,10 +61,11 @@
         position: relative;
         width: var(--switch-w);
         height: var(--switch-h);
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 99px;
-        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+        background-color: var(--surface-sunken);
+        box-shadow: inset 0 1px 2px rgba(var(--pure-black-rgb), 0.2);
+        border-radius: var(--border-radius-full);
+        transition: all 0.2s var(--curve-snappy);
+        flex-shrink: 0;
 
         /* The Thumb */
         &::before {
@@ -75,40 +73,50 @@
             position: absolute;
             height: var(--thumb-size);
             width: var(--thumb-size);
-            left: 0.2rem;
-            bottom: calc((var(--switch-h) - var(--thumb-size)) / 2 - 1px);
-            background-color: var(--app-muted);
-            border-radius: 50%;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            left: calc((var(--switch-h) - var(--thumb-size)) / 2);
+            top: calc((var(--switch-h) - var(--thumb-size)) / 2);
+            background-color: var(--frisk);
+            border-radius: var(--border-radius-full);
+            transition: all 0.2s var(--curve-snappy);
+            box-shadow: var(--shadow-s);
         }
+    }
+
+    /* Hover State */
+    .toggle-switch:hover:not(.disabled) .slider {
+        border-color: rgba(var(--pure-white-rgb), var(--opacity-s));
     }
 
     /* Checked State */
     input:checked + .slider {
-        background-color: rgba(255, 255, 255, 0.15);
-        border-color: rgba(255, 255, 255, 0.3);
+        background-color: var(--gunmetal);
+        box-shadow: 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-l));
 
         &::before {
-            transform: translateX(
-                calc(var(--switch-w) - var(--thumb-size) - 0.4rem)
-            );
+            transform: translateX(calc(var(--switch-w) - var(--thumb-size) - (var(--switch-h) - var(--thumb-size))));
             background-color: white;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 var(--spacing-s) rgba(255, 255, 255, 0.4);
         }
     }
 
     /* Label Text */
     .label-text {
         color: var(--app-color);
-        font-weight: 500;
-        letter-spacing: 0.02em;
-        font-family: var(--font-body, system-ui);
+        font-weight: 700;
+        font-size: var(--font-size-xs);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-family: var(--font-family-sans);
+        transition: color var(--transition-speed);
+    }
+
+    .toggle-switch:hover .label-text {
+        color: white;
     }
 
     /* Focus State */
     input:focus-visible + .slider {
-        outline: 2px solid white;
+        outline: 2px solid var(--app-accent);
         outline-offset: 2px;
     }
 </style>

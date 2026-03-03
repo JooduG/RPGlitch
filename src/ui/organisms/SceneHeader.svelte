@@ -1,11 +1,7 @@
 <script>
     import { fade } from "svelte/transition"
 
-    let {
-        location = "Unknown",
-        time = "Timeless",
-        weather = "Stasis",
-    } = $props()
+    let { location = "Unknown", time = "Timeless", weather = "Stasis" } = $props()
 
     // Derived: Determine icon/mood based on weather string
     let weatherIcon = $derived.by(() => {
@@ -45,82 +41,82 @@
 </div>
 
 <style lang="scss">
+    @use "@theme/abstracts/variables" as *;
+
     .scene-header {
         display: flex;
         justify-content: center;
         width: 100%;
-        margin: 2rem 0 1rem 0;
-        padding: 0 1rem;
+        margin: var(--spacing-xl) 0 var(--spacing-m) 0;
+        padding: 0 var(--spacing-m);
         pointer-events: none;
     }
 
     .glass-plate {
         display: flex;
         align-items: center;
-        gap: 1.5rem;
-        padding: 0.75rem 2rem;
+        gap: var(--spacing-l);
+        padding: var(--spacing-s) var(--spacing-xl);
 
-        background: rgba(15, 15, 20, 0.4);
-        backdrop-filter: blur(8px);
-        box-shadow:
-            0 0 0 1px rgba(255, 255, 255, 0.05),
-            0 4px 20px rgba(0, 0, 0, 0.2);
-        border-radius: 4px;
+        background: var(--glass-m);
+        backdrop-filter: blur(var(--blur-m));
+        box-shadow: var(--shadow-m);
+        border-radius: var(--border-radius-xs);
 
-        min-width: 300px;
-        max-width: 600px;
+        min-width: 18.75rem;
+        max-width: 37.5rem;
     }
 
     .separator {
-        width: 1px;
-        height: 24px;
-        background: rgba(255, 255, 255, 0.1);
+        width: var(--spacing-px);
+        height: var(--spacing-l);
+        background: var(--ui-glass-border);
     }
 
     .info-group {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-        gap: 0.1rem;
+        gap: var(--spacing-px);
 
         .label {
-            font-size: 0.6rem;
-            letter-spacing: 0.15em;
-            color: rgba(255, 255, 255, 0.4);
+            font-size: var(--font-size-xs);
+            letter-spacing: var(--letter-spacing-l);
+            color: var(--app-muted);
             text-transform: uppercase;
         }
 
         .value {
-            font-family: "Ubuntu", sans-serif;
-            font-size: 0.9rem;
+            font-family: var(--font-family-heading);
+            font-size: var(--font-size-s);
             font-weight: 500;
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--app-color);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: var(--letter-spacing-m);
 
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: var(--spacing-xs);
         }
     }
 
     .weather-icon {
-        opacity: 0.8;
-        font-size: 0.8rem;
+        opacity: var(--opacity-xxxl);
+        font-size: var(--font-size-s);
     }
 
     @media (max-width: 576px) {
         .glass-plate {
             flex-direction: column;
             align-items: flex-start;
-            gap: 0.75rem;
-            padding: 1rem;
+            gap: var(--spacing-s);
+            padding: var(--spacing-m);
             width: 100%;
         }
 
         .separator {
             width: 100%;
-            height: 1px;
+            height: var(--spacing-px);
         }
 
         .info-group {

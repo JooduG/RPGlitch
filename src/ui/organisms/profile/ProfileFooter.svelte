@@ -1,34 +1,15 @@
 <script>
     import Button from "@ui/atoms/Button.svelte"
 
-    let {
-        isEditing = $bindable(),
-        isSaving,
-        handleSave,
-        handleDelete,
-    } = $props()
+    let { is_editing = $bindable(), is_saving, handle_save, handle_delete } = $props()
 </script>
 
 <footer data-testid="profile-footer">
-    {#if isEditing}
+    {#if is_editing}
         <div class="footer-actions">
-            <Button
-                variant="danger"
-                className="profile-btn"
-                onclick={handleDelete}
-                disabled={isSaving}
-                data-testid="delete-btn"
-            >
-                Delete
-            </Button>
-            <Button
-                variant="edit"
-                className="profile-btn"
-                onclick={handleSave}
-                disabled={isSaving}
-                data-testid="save-btn"
-            >
-                {isSaving ? "Saving..." : "Save"}
+            <Button variant="danger" className="profile-btn" onclick={handle_delete} disabled={is_saving} data-testid="delete-btn">Delete</Button>
+            <Button variant="edit" className="profile-btn" onclick={handle_save} disabled={is_saving} data-testid="save-btn">
+                {is_saving ? "Saving..." : "Save"}
             </Button>
         </div>
     {:else}
@@ -36,7 +17,7 @@
             variant="edit"
             className="profile-btn"
             onclick={() => {
-                isEditing = true
+                is_editing = true
             }}
             data-testid="edit-btn"
         >
@@ -51,19 +32,15 @@
     footer {
         margin-top: auto;
         display: grid;
-        grid-template-columns: 100px 1fr;
+        grid-template-columns: var(--spacing-xxl) 1fr;
         gap: var(--spacing-s);
         padding: var(--spacing-m) var(--spacing-l);
-        background: color-mix(
-            in srgb,
-            rgba(0, 0, 0, 0.4),
-            var(--signature-color) 12%
-        );
+        background: color-mix(in srgb, var(--glass-m), var(--signature-color) var(--opacity-xs));
         border-top: 0;
         z-index: 10;
 
         :global(.profile-btn.btn) {
-            height: 3rem;
+            height: var(--spacing-xxxl);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -71,7 +48,7 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
             padding: var(--spacing-s) var(--spacing-xl);
-            transition: all 0.3s ease;
+            transition: all var(--transition-speed) var(--physics-transition-elastic);
             width: 50%;
         }
 
@@ -88,7 +65,7 @@
 
             :global(.btn-danger) {
                 background: transparent;
-                border-color: rgba(255, 255, 255, 0.1);
+                border-color: var(--glass-border);
                 color: var(--app-muted);
                 box-shadow: none;
                 transition: all 0.3s ease;
@@ -97,7 +74,7 @@
                     background: var(--app-del);
                     border-color: var(--app-del);
                     color: white;
-                    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+                    box-shadow: 0 0 var(--spacing-xl) rgb(var(--color-danger-rgb) / var(--opacity-m));
                     filter: brightness(1.2);
                 }
             }
@@ -112,14 +89,12 @@
 
             background: var(--signature-color);
             color: white;
-            box-shadow: 0 4px 15px
-                color-mix(in oklab, var(--signature-color) 40%, transparent);
+            box-shadow: var(--shadow-s);
 
             &:hover {
                 filter: brightness(1.1);
-                transform: translateY(-1px);
-                box-shadow: 0 6px 20px
-                    color-mix(in oklab, var(--signature-color) 60%, transparent);
+                transform: translateY(var(--physics-hover-y-compact));
+                box-shadow: var(--shadow-m);
             }
         }
 
@@ -127,16 +102,14 @@
         .footer-actions :global(.btn-edit) {
             background: var(--signature-color);
             color: white;
-            box-shadow: 0 4px 15px
-                color-mix(in oklab, var(--signature-color) 40%, transparent);
+            box-shadow: var(--shadow-s);
             /* Ensure it fills flex container */
             width: 100%;
 
             &:hover {
                 filter: brightness(1.1);
-                transform: translateY(-1px);
-                box-shadow: 0 6px 20px
-                    color-mix(in oklab, var(--signature-color) 60%, transparent);
+                transform: translateY(var(--physics-hover-y-compact));
+                box-shadow: var(--shadow-m);
             }
         }
     }

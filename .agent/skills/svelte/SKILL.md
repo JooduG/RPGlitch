@@ -1,7 +1,7 @@
 ---
 name: svelte
 version: 1.0.0
-description: The authoritative manual for Svelte 5 development. Enforces Rune syntax ($state, $props), SCSS scoping, and strict separation of concerns.
+description: Project architect enforcing SCSS scoping, scaffolding scripts, and strict separation of concerns. (Syntax and best practices are governed by svelte-core-bestpractices).
 ---
 
 # ⚡ Svelte 5 Architect
@@ -15,8 +15,6 @@ description: The authoritative manual for Svelte 5 development. Enforces Rune sy
 
 ## 🛠️ Core Competencies
 
-- **Rune Supremacy**: Strict enforcement of `$state`, `$derived`, `$effect`, `$props`, and `$bindable`.
-- **Legacy Ban**: Active detection and rejection of Svelte 4 syntax (`export let`, `$:`, `createEventDispatcher`).
 - **SCSS Architecture**: Enforces "Church & State" — Semantic HTML in template, Logic in script, Visuals in `<style lang="scss">`.
 - **Scaffolding**: Automated component generation via Node.js tooling.
 
@@ -28,17 +26,6 @@ When generating new components, follow the **Skeleton First** principle:
 2.  **Structure**: Write semantic HTML (`article`, `section`) and use `{#snippet}` instead of `<slot>`.
 3.  **Verification**: Ensure no Svelte 4 syntax exists.
 4.  **Skinning**: Only _after_ logic is verified, apply styles via SCSS or Utilities.
-
-## ⚡ Operational Rules
-
-1.  **State**: Use `let x = $state(0)` instead of `let x = 0`.
-2.  **Props**: Use `let { prop } = $props()` instead of `export let prop`.
-3.  **Computations**: Use `$derived()` for computed values (replaces `$: x = y * 2`).
-4.  **Side Effects**: Use `$effect()` for DOM/API interaction (replaces `$: if (x) ...`).
-5.  **Bindings**: Use `$bindable()` for two-way data flow.
-6.  **Events**: Use `onclick` (attributes) or callback props instead of `on:click` / `createEventDispatcher`.
-7.  **Snippets**: Use `{#snippet}` and `{@render}` instead of `<slot>`.
-8.  **Styling**: No inline styles. No global leaks. Use `<style lang="scss">` or design tokens.
 
 ## 📚 Resources
 
@@ -57,6 +44,7 @@ To audit the codebase for legacy Svelte syntax:
 
 ```bash
 npm run audit:svelte
+
 ```
 
 To scaffold a new component:
@@ -64,15 +52,5 @@ To scaffold a new component:
 ```bash
 npm run scaffold:component <ComponentName> [type]
 # Example: npm run scaffold:component MyButton atoms
+
 ```
-
-## Anti-Patterns
-
-| Pattern                                       | Mitigation                                                  |
-| :-------------------------------------------- | :---------------------------------------------------------- |
-| **`export let`**                              | **Forbidden**. Use `let { prop } = $props()`.               |
-| **`$:` reactive statements**                  | **Forbidden**. Use `$derived()` or `$effect()`.             |
-| **`createEventDispatcher`**                   | **Forbidden**. Use callback props (`onclick`).              |
-| **`<slot />`**                                | **Forbidden**. Use `{#snippet}` and `{@render children()}`. |
-| **`on:click` directive**                      | **Forbidden**. Use `onclick` attribute (Svelte 5).          |
-| **Logic in `<style>` / Styles in `<script>`** | **Forbidden**. Church & State separation.                   |

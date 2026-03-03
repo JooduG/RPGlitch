@@ -4,131 +4,104 @@
     import { ImageGeneration } from "@media/image_engine.js"
     import { app } from "@state/app.svelte.js"
     import Button from "@ui/atoms/Button.svelte"
+    import Toggle from "@ui/atoms/Toggle.svelte"
     import Tooltip from "@ui/atoms/Tooltip.svelte"
 
     /* eslint-disable svelte/prefer-svelte-reactivity */
-    let { char = $bindable(), isEditing, busyFields = $bindable(), activeField = $bindable() } = $props()
+    let { char = $bindable(), is_editing, busy_fields = $bindable(), active_field = $bindable() } = $props()
 
     // Derived: Check if the visual-prompt specifically is busy
-    let isPromptBusy = $derived(busyFields.has("visual-prompt"))
+    let is_prompt_busy = $derived(busy_fields.has("visual-prompt"))
 
-    let fileInput = $state()
+    let file_input = $state()
 
     // Tooltip State
-    let currTooltip = $state({
+    let curr_tooltip = $state({
         visible: false,
         text: "",
         x: 0,
         y: 0,
         position: "top",
     })
-    let tooltipTimer = null
+    let tooltip_timer = null
 
     // Determine current state
-    const promptValue = $derived((char.visuals.prompt || "").trim())
-    const hasPromptText = $derived(promptValue.length > 0 && !promptValue.startsWith("http") && !promptValue.startsWith("data:"))
+    const prompt_value = $derived((char.visuals.prompt || "").trim())
+    const has_prompt_text = $derived(prompt_value.length > 0 && !prompt_value.startsWith("http") && !prompt_value.startsWith("data:"))
 
     // Determine the active target value (prompt or focused field)
-    const targetValue = $derived(activeField?.key === "visual-prompt" ? promptValue : activeField ? getValue(char, activeField.key) : "")
+    const target_value = $derived(active_field?.key === "visual-prompt" ? prompt_value : active_field ? get_value(char, active_field.key) : "")
 
     // Action is "Enhance" if the target we are looking at has text (ready for AI)
-    let isEnhanceMode = $derived(isEditing && targetValue.trim().length > 0)
+    let is_enhance_mode = $derived(is_editing && target_value.trim().length > 0)
 
     // Button Logic:
-    // User Requirement: Allow multiple Fragment fields to be enhanced simultaneously.
-    // Buttons should only be disabled when:
-    // 1. Not editing
-    // 2. visual-prompt is busy AND (no field selected OR visual-prompt is selected)
-    // If a Fragment field is selected, buttons are enabled (even if prompt is busy)
-    let isCreativeDisabled = $derived(
-        !isEditing || (isPromptBusy && (!activeField || activeField.key === "visual-prompt")) || (!activeField && hasPromptText) // Protect: no target but text exists
-    )
+    let is_creative_disabled = $derived(!is_editing || (is_prompt_busy && (!active_field || active_field.key === "visual-prompt")) || (!active_field && has_prompt_text))
 
     // Label Logic:
-    let creativeLabel = $derived.by(() => {
-        if (isPromptBusy && (!activeField || activeField.key === "visual-prompt")) return "Busy..."
+    let creative_label = $derived.by(() => {
+        if (is_prompt_busy && (!active_field || active_field.key === "visual-prompt")) return "Busy..."
 
-        // If we have an active field, we map to specific "Enhance X" labels
-        if (activeField) {
-            const key = activeField.key
-            const label = activeField.label?.toLowerCase() || ""
+        if (active_field) {
+            const key = active_field.key
+            const label = active_field.label?.toLowerCase() || ""
 
-            if (key === "visual-prompt") return hasPromptText ? "Enhance" : "Fetch"
+            if (key === "visual-prompt") return has_prompt_text ? "Enhance" : "Fetch"
 
-            // Map specific fields (Unified Vector Architecture)
             if (key.startsWith("past")) return "Enhance Memories"
             if (key.startsWith("future")) return "Enhance Vectors"
 
-            // Map "Present" and "Eternal" groups (checking label or key)
             if (key.includes("present") || label.includes("present")) return "Enhance Present"
             if (key.includes("eternal") || label.includes("eternal")) return "Enhance Eternal"
 
-            // Fallback for Name/Desc or others
-            return "Enhance" // General fallback
+            return "Enhance"
         }
 
-        // Fallback: If no field is active, we are in Fetch mode
         return "Fetch"
     })
 
-    // Design Variants:
-    // Magic (Pink/Hot) = Enhance, Generate
-    // Tech (Blue/Cold) = Fetch, Upload
-    let creativeVariant = $derived(activeField && isEnhanceMode ? "magic" : "tech")
+    // Design Variants
+    let creative_variant = $derived(active_field && is_enhance_mode ? "magic" : "tech")
+    let generation_variant = $derived(has_prompt_text ? "magic" : "tech")
 
-    let generationVariant = $derived(hasPromptText ? "magic" : "tech")
+    async function handle_creative_action() {
+        const current_target_key = active_field?.key || "visual-prompt"
+        if (busy_fields.has(current_target_key)) return
 
-    async function handleCreativeAction() {
-        // If the specific target is already busy, don't proceed
-        const currentTargetKey = activeField?.key || "visual-prompt"
-        if (busyFields.has(currentTargetKey)) return
-
-        // Mark this field as busy
-        busyFields = new Set([...busyFields, currentTargetKey])
+        busy_fields = new Set([...busy_fields, current_target_key])
 
         try {
-            // Capture the label before we potentially nullify activeField
-
-            // Deselect field immediately when enhancement starts (so button label changes)
-            // But only for fragment fields, not for visual-prompt
-            if (activeField && activeField.key !== "visual-prompt") {
-                activeField = null
+            if (active_field && active_field.key !== "visual-prompt") {
+                active_field = null
             }
 
-            if (currentTargetKey === "visual-prompt" && isEnhanceMode) {
-                // --- ENHANCE PROMPT (for Image Gen) ---
+            if (current_target_key === "visual-prompt" && is_enhance_mode) {
                 const result = await LlmService.enhance(char.visuals.prompt, "visuals.prompt")
                 if (result) char.visuals.prompt = result
-            } else if (currentTargetKey !== "visual-prompt") {
-                // --- ENHANCE FRAGMENT FIELD ---
-                const fieldVal = getValue(char, currentTargetKey)
-                if (fieldVal) {
-                    const result = await LlmService.enhance(fieldVal, currentTargetKey)
-                    if (result) setValue(char, currentTargetKey, result)
+            } else if (current_target_key !== "visual-prompt") {
+                const field_val = get_value(char, current_target_key)
+                if (field_val) {
+                    const result = await LlmService.enhance(field_val, current_target_key)
+                    if (result) set_value(char, current_target_key, result)
                 }
             } else {
-                // --- FETCH LOGIC (Base Formula) ---
-                // Only reachable if visual-prompt is selected but empty (no enhance mode)
                 char.visuals.prompt = ImageGeneration.composeBasePrompt(char)
             }
         } catch (err) {
             console.error("Creative action failed:", err)
         } finally {
-            // Remove this field from busy set
-            const updated = new Set(busyFields)
-            updated.delete(currentTargetKey)
-            busyFields = updated
+            const updated = new Set(busy_fields)
+            updated.delete(current_target_key)
+            busy_fields = updated
         }
     }
 
-    async function handleGenerationAction() {
-        if (busyFields.has("visual-prompt")) return
-        busyFields = new Set([...busyFields, "visual-prompt"])
+    async function handle_generation_action() {
+        if (busy_fields.has("visual-prompt")) return
+        busy_fields = new Set([...busy_fields, "visual-prompt"])
 
-        if (hasPromptText) {
-            // --- GENERATE LOGIC ---
-            // --- GENERATE LOGIC ---
-            app.log(`[VisualWing] Triggering Generate. Prompt: ${promptValue}`, "system")
+        if (has_prompt_text) {
+            app.log(`[VisualWing] Triggering Generate. Prompt: ${prompt_value}`, "system")
             try {
                 if (!window.pluginTextToImage) {
                     const msg = "[VisualWing] CRITICAL: window.pluginTextToImage is MISSING!"
@@ -137,7 +110,7 @@
                     return
                 }
 
-                const url = await ImageGeneration.generate(promptValue, {
+                const url = await ImageGeneration.generate(prompt_value, {
                     noBackground: char.visuals.noBackground,
                 })
                 app.log(`[VisualWing] Generation Result: ${url}`, "system")
@@ -146,22 +119,21 @@
                 console.error("Generation failed:", err)
                 app.log(`Generation failed: ${err.message}`, "error")
             } finally {
-                const updated = new Set(busyFields)
+                const updated = new Set(busy_fields)
                 updated.delete("visual-prompt")
-                busyFields = updated
+                busy_fields = updated
             }
         } else {
-            // --- UPLOAD LOGIC ---
-            fileInput.click()
-            const updated = new Set(busyFields)
+            file_input.click()
+            const updated = new Set(busy_fields)
             updated.delete("visual-prompt")
-            busyFields = updated
+            busy_fields = updated
         }
     }
 
     // --- UTILITIES ---
 
-    async function handleUpload(e) {
+    async function handle_upload(e) {
         const file = e.target.files[0]
         if (!file) return
         try {
@@ -175,43 +147,42 @@
         }
     }
 
-    function handleSwatchHover(e, name) {
-        if (tooltipTimer) clearTimeout(tooltipTimer)
+    function handle_swatch_hover(e, name) {
+        if (tooltip_timer) clearTimeout(tooltip_timer)
         const target = e.currentTarget
 
-        tooltipTimer = setTimeout(() => {
+        tooltip_timer = setTimeout(() => {
             const rect = target.getBoundingClientRect()
-            // Capitalize name for display
-            const displayName = name.charAt(0).toUpperCase() + name.slice(1)
+            const display_name = name.charAt(0).toUpperCase() + name.slice(1)
 
-            currTooltip = {
+            curr_tooltip = {
                 visible: true,
-                text: displayName,
+                text: display_name,
                 x: rect.left + rect.width / 2,
-                y: rect.top + 8, // Offset to counter CSS margin-top: -12px
+                y: rect.top + 8,
                 position: "top",
             }
-        }, 500) // 500ms Delay
+        }, 500)
     }
 
-    function handleSwatchLeave() {
-        if (tooltipTimer) clearTimeout(tooltipTimer)
-        currTooltip.visible = false
+    function handle_swatch_leave() {
+        if (tooltip_timer) clearTimeout(tooltip_timer)
+        curr_tooltip.visible = false
     }
 
-    function getValue(obj, path) {
+    function get_value(obj, path) {
         if (!path) return ""
         return path.split(".").reduce((acc, part) => acc && acc[part], obj) || ""
     }
 
-    function setValue(obj, path, val) {
+    function set_value(obj, path, val) {
         const keys = path.split(".")
         const last = keys.pop()
         const target = keys.reduce((acc, key) => (acc[key] = acc[key] || {}), obj)
         target[last] = val
     }
 
-    function autoResize(node) {
+    function auto_resize(node) {
         let frame
         const update = () => {
             if (frame) cancelAnimationFrame(frame)
@@ -237,14 +208,11 @@
 <div
     class="visual-wing-content"
     onfocusout={(e) => {
-        // Fix: Reset active field if focus leaves the wing and isn't going to a valid target
-        // We capture currentTarget synchronousely because it is recycled/null inside setTimeout
-        const wingRoot = e.currentTarget
+        const wing_root = e.currentTarget
         setTimeout(() => {
-            const currentFocus = document.activeElement
-            // Protection: Don't clear if focus is in a valid input or we have busy fields
-            if (wingRoot && !wingRoot.contains(currentFocus) && busyFields.size === 0 && !currentFocus?.closest(".text-area")) {
-                activeField = null
+            const current_focus = document.activeElement
+            if (wing_root && !wing_root.contains(current_focus) && busy_fields.size === 0 && !current_focus?.closest(".text-area")) {
+                active_field = null
             }
         }, 50)
     }}
@@ -262,49 +230,44 @@
                         char.visuals = char.visuals || {}
                         char.visuals.signature_color = hex
                     }}
-                    disabled={!isEditing}
-                    onmouseenter={(e) => handleSwatchHover(e, name)}
-                    onmouseleave={handleSwatchLeave}
+                    disabled={!is_editing}
+                    onmouseenter={(e) => handle_swatch_hover(e, name)}
+                    onmouseleave={handle_swatch_leave}
                 ></button>
             {/each}
         </div>
     </div>
-
-    <!-- Tooltip (Portal-ish) -->
 
     <!-- 2. Visual Prompting -->
     <div class="group">
         <div class="prompt-box">
             <div class="visual-prompt-container">
                 <textarea
-                    use:autoResize
+                    use:auto_resize
                     class="visual-prompt"
                     bind:value={char.visuals.prompt}
                     placeholder="Enter image prompt or paste a URL..."
-                    disabled={!isEditing || isPromptBusy}
+                    disabled={!is_editing || is_prompt_busy}
                     onfocus={() => {
-                        if (isEditing) {
-                            activeField = {
+                        if (is_editing) {
+                            active_field = {
                                 key: "visual-prompt",
                                 label: "Image Prompt",
                             }
                         }
                     }}
-                    onblur={(e) => {
-                        // Fix: Clear active field on blur to prevent "sticky" enabled state.
-                        // We use a small timeout to allow button clicks to register first.
+                    onblur={() => {
                         setTimeout(() => {
-                            if (activeField?.key === "visual-prompt") {
+                            if (active_field?.key === "visual-prompt") {
                                 const focused = document.activeElement
-                                // Protection: Don't disable if we are busy or moving to a valid action/input
-                                if (!focused?.closest(".action-btn") && !focused?.closest(".text-area") && busyFields.size === 0) {
-                                    activeField = null
+                                if (!focused?.closest(".action-btn") && !focused?.closest(".text-area") && busy_fields.size === 0) {
+                                    active_field = null
                                 }
                             }
                         }, 150)
                     }}
                 ></textarea>
-                {#if isPromptBusy}
+                {#if is_prompt_busy}
                     <div class="spinner-overlay">
                         <div class="spinner"></div>
                     </div>
@@ -312,44 +275,35 @@
             </div>
 
             <div class="action-row">
-                <Button variant="ghost" size="sm" label={creativeLabel} className="action-btn mode-{creativeVariant}" onclick={handleCreativeAction} disabled={isCreativeDisabled} />
-                <Button variant="ghost" size="sm" label={isPromptBusy ? "Busy..." : hasPromptText ? "Generate" : "Upload"} className="action-btn mode-{generationVariant}" onclick={handleGenerationAction} disabled={!isEditing || isPromptBusy} />
+                <Button variant="ghost" size="sm" label={creative_label} className="action-btn mode-{creative_variant}" onclick={handle_creative_action} disabled={is_creative_disabled} />
+                <Button variant="ghost" size="sm" label={is_prompt_busy ? "Busy..." : has_prompt_text ? "Generate" : "Upload"} className="action-btn mode-{generation_variant}" onclick={handle_generation_action} disabled={!is_editing || is_prompt_busy} />
             </div>
 
-            <input type="file" accept="image/*" style="display: none;" bind:this={fileInput} onchange={handleUpload} />
+            <input type="file" accept="image/*" style="display: none;" bind:this={file_input} onchange={handle_upload} />
         </div>
     </div>
 
     <!-- 3. Toggles -->
     <div class="toggle-stack">
-        <label class="toggle-control" title="Removes background from generated image">
-            <span class="label">No Background</span>
-            <input type="checkbox" bind:checked={char.visuals.noBackground} disabled={!isEditing} />
-            <div class="switch"></div>
-        </label>
-
-        <label class="toggle-control">
-            <span class="label">Flip Profile Picture</span>
-            <input type="checkbox" bind:checked={char.visuals.flipped} disabled={!isEditing} />
-            <div class="switch"></div>
-        </label>
+        <Toggle label="No Background" bind:value={char.visuals.noBackground} disabled={!is_editing} isHorizontal={true} />
+        <Toggle label="Flip Profile Picture" bind:value={char.visuals.flipped} disabled={!is_editing} isHorizontal={true} />
     </div>
-    <Tooltip {...currTooltip} fixed={true} />
+    <Tooltip {...curr_tooltip} fixed={true} />
 </div>
 
 <style lang="scss">
     @use "../../../theme/abstracts/placeholders" as *;
 
     .visual-wing-content {
-        @extend %material-glass-heavy;
-        padding: var(--spacing-l);
+        background: var(--gunmetal);
+        box-shadow: var(--shadow-m);
+        border-radius: var(--border-radius-l);
+        padding: var(--spacing-m);
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-l);
-        color: white;
-        border-radius: inherit;
-        background: var(--chalk, #222326);
-        background-image: radial-gradient(circle at bottom left, rgba(255, 255, 255, 0.05) 10%, transparent 70%);
+        gap: var(--spacing-m);
+        height: 100%;
+        overflow-y: auto;
     }
 
     .group {
@@ -361,43 +315,45 @@
     .spectrum-grid {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
-        gap: 8px;
+        gap: var(--spacing-xs);
         padding: 0;
+
         .swatch {
             width: 100%;
             aspect-ratio: 1;
-            border: 0; /* Semi-flat */
+            border: 0;
             border-radius: var(--spacing-xs);
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all var(--transition-speed) var(--physics-transition-elastic);
+            box-shadow: var(--shadow-s);
 
             &:hover:not(:disabled) {
-                transform: scale(1.15);
+                transform: scale(1.1);
                 z-index: 2;
-                border-color: white;
+                box-shadow: var(--shadow-m);
             }
 
             &.active {
-                /* Use outline for crisp white border that sits outside/on-top */
-                outline: 2px solid white;
-                outline-offset: 2px;
-                box-shadow: 0 0 15px var(--swatch-color);
-                transform: scale(1.15);
-                border-color: transparent; /* Reset border to avoid conflict */
+                outline: var(--spacing-xxs) solid var(--pure-white);
+                outline-offset: var(--spacing-xxs);
+                box-shadow: var(--shadow-glow);
+                transform: scale(1.1);
                 z-index: 10;
             }
 
             &:disabled {
                 cursor: default;
-                opacity: 0.8;
+                opacity: var(--opacity-l);
             }
         }
     }
 
     .prompt-box {
-        background: rgba(0, 0, 0, 0.2);
-        border: 0; /* Semi-flat */
-        border-radius: var(--border-radius);
+        background: var(--surface-sunken);
+        box-shadow:
+            inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xxs)),
+            inset 0 0.125rem 0.25rem rgba(var(--pure-black-rgb), var(--opacity-m));
+        border-radius: var(--border-radius-m);
         overflow: hidden;
 
         .visual-prompt-container {
@@ -410,22 +366,21 @@
                 border: none;
                 color: white;
                 padding: var(--spacing-s);
-                font-size: 0.85rem;
-                font-family: var(--font-body); /* Enforce consistent font */
+                font-size: var(--font-size-s);
+                font-family: var(--font-body);
                 resize: none;
                 outline: none;
                 display: block;
 
                 &:disabled {
-                    opacity: 0.5; /* Fix: Make it clearly disabled */
+                    opacity: var(--opacity-m);
                     color: var(--app-muted);
                     cursor: not-allowed;
-                    background: rgba(0, 0, 0, 0.1);
-                    filter: grayscale(100%);
+                    background: rgba(var(--pure-black-rgb), var(--opacity-xs));
                 }
 
                 &::placeholder {
-                    color: rgba(255, 255, 255, 0.3);
+                    color: rgba(var(--pure-white-rgb), var(--opacity-s));
                     font-style: italic;
                     font-weight: 400;
                 }
@@ -440,17 +395,16 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                background: rgba(0, 0, 0, 0.4);
-                backdrop-filter: blur(2px);
+                background: rgba(var(--pure-black-rgb), 0.8);
                 z-index: 5;
-                cursor: wait; /* Show wait cursor on overlay */
+                cursor: wait;
 
                 .spinner {
-                    width: 20px;
-                    height: 20px;
-                    border: 0.125rem solid rgba(255, 255, 255, 0.1);
+                    width: var(--spacing-l);
+                    height: var(--spacing-l);
+                    border: var(--spacing-xxs) solid rgba(var(--pure-white-rgb), var(--opacity-s));
                     border-top-color: var(--app-accent);
-                    border-radius: 50%;
+                    border-radius: var(--border-radius-full);
                     animation: spin 0.8s linear infinite;
                 }
             }
@@ -465,49 +419,45 @@
         .action-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            border-top: 0.0625rem solid var(--ui-glass-border);
+            box-shadow: inset 0 1px 0 rgba(var(--pure-white-rgb), var(--opacity-xxs));
 
             :global(.btn) {
                 width: 100%;
                 border: none;
                 border-radius: 0;
-                background: rgba(255, 255, 255, 0.03);
-                font-size: 0.6rem;
-                padding: 0.4rem;
-                transition: all 0.3s ease;
+                background: rgba(var(--pure-white-rgb), 0.05);
+                font-size: var(--font-size-xs);
+                padding: var(--spacing-xs);
+                transition: all var(--transition-speed);
                 text-transform: capitalize;
 
                 &:not(:last-child) {
-                    border-right: 0.0625rem solid var(--ui-glass-border);
+                    box-shadow: 1px 0 0 rgba(var(--pure-white-rgb), var(--opacity-xxs));
                 }
 
                 &:hover {
-                    background: rgba(255, 255, 255, 0.08);
+                    background: rgba(var(--pure-white-rgb), 0.1);
                 }
 
                 &:global(.action-btn) {
                     font-weight: 600;
                     letter-spacing: 0.02em;
 
-                    /* --- TECH MODE (Fetch/Upload) --- */
-                    /* Cool, reliable, utility. */
                     &:global(.mode-tech):not(:disabled) {
                         color: var(--app-secondary);
-                        background: color-mix(in oklab, var(--app-secondary) 5%, transparent);
 
                         &:hover {
-                            background: color-mix(in oklab, var(--app-secondary) 10%, transparent);
-                            color: color-mix(in oklab, var(--app-secondary), white 10%);
+                            background: rgba(var(--app-secondary-rgb), 0.1);
+                            color: white;
                         }
                     }
 
-                    /* --- MAGIC MODE (Enhance/Generate) --- */
-                    /* Hot, creative, AI. */
                     &:global(.mode-magic):not(:disabled) {
                         color: var(--app-accent);
                         font-weight: 700;
 
                         &:hover {
+                            background: rgba(var(--app-accent-rgb), 0.1);
                             color: white;
                         }
                     }
@@ -520,63 +470,5 @@
         display: flex;
         flex-direction: column;
         gap: var(--spacing-s);
-
-        .toggle-control {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            cursor: pointer;
-            font-size: 0.75rem;
-            font-weight: 800;
-            text-transform: capitalize;
-            letter-spacing: 0.05em;
-            color: var(--app-muted);
-            opacity: 0.9;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
-            transition: all 0.2s ease;
-
-            &:hover {
-                color: white;
-                .switch {
-                    border-color: rgba(255, 255, 255, 0.3);
-                }
-            }
-
-            input {
-                display: none;
-            }
-
-            .switch {
-                position: relative;
-                width: 32px;
-                height: 16px;
-                background: rgba(0, 0, 0, 0.4);
-                box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
-                border-radius: 10px;
-                transition: all 0.3s ease;
-
-                &::after {
-                    content: "";
-                    position: absolute;
-                    top: 2px;
-                    left: 2px;
-                    width: 10px;
-                    height: 10px;
-                    background: white;
-                    border-radius: 50%;
-                    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-                    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-                }
-            }
-
-            input:checked + .switch {
-                background: var(--app-accent);
-                border-color: var(--app-accent);
-                &::after {
-                    left: 18px;
-                }
-            }
-        }
     }
 </style>

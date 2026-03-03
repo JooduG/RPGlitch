@@ -12,12 +12,12 @@
     import ProfileHeader from "./ProfileHeader.svelte"
     import ProfileWings from "./ProfileWings.svelte"
 
-    let { entityId, entityType } = $props()
+    let { entity_id, entity_type } = $props()
 
     /**
      * Svelte 5 Action: Auto-resize textarea to fit content and sync heights with row siblings.
      */
-    function autoResize(node, options = {}) {
+    function auto_resize(node, options = {}) {
         let frame
         const update = () => {
             if (frame) cancelAnimationFrame(frame)
@@ -58,12 +58,14 @@
     }
 
     // State
-    let isEditing = $state(false)
+    let is_editing = $state(false)
 
     $effect(() => {})
-    let isSaving = $state(false)
-    let busyFields = $state(new Set())
-    let activeField = $state({ key: "visual-prompt", label: "Image Prompt" })
+    let is_saving = $state(false)
+
+    let busy_fields = $state(new Set())
+
+    let active_field = $state({ key: "visual-prompt", label: "Image Prompt" })
 
     // Character data
     let char = $state(themeStore.normalizeEntity(app.editingEntity || runtime.character))
@@ -77,28 +79,28 @@
 
     // Visuals: Bind directly to character data
     let signature_color = $derived(char.visuals?.signature_color || themeStore.getSignatureColor(char))
-    let signatureRgb = $derived(themeStore.hexToRgb(signature_color))
+    let signature_rgb = $derived(themeStore.hexToRgb(signature_color))
 
     // Reset focus tracking when exiting edit mode
     $effect(() => {
-        if (!isEditing) {
-            activeField = { key: "visual-prompt", label: "Image Prompt" }
+        if (!is_editing) {
+            active_field = { key: "visual-prompt", label: "Image Prompt" }
         }
     })
 
-    function handleClose() {
-        if (isEditing) {
-            isEditing = false
+    function handle_close() {
+        if (is_editing) {
+            is_editing = false
         } else {
             app.toggleProfile(false)
         }
     }
 
-    async function handleSave() {
-        isEditing = false
-        isSaving = true
+    async function handle_save() {
+        is_editing = false
+        is_saving = true
         try {
-            await runtime.saveEntity(entityType || "character", char)
+            await runtime.saveEntity(entity_type || "character", char)
 
             // [FIX] SYNC STORYBOARD STATE
             // If we are in Lobby, we must refresh the lists and selection
@@ -126,30 +128,30 @@
             }
         } catch (err) {
             console.error("Failed to save profile:", err)
-            isEditing = true
+            is_editing = true
         } finally {
-            isSaving = false
+            is_saving = false
         }
     }
 
-    async function handleDelete() {
+    async function handle_delete() {
         if (!confirm("Are you sure you want to delete this entity?")) return
 
         try {
-            await runtime.deleteEntity(entityType || "character", entityId || char.id)
-            handleClose()
+            await runtime.deleteEntity(entity_type || "character", entity_id || char.id)
+            handle_close()
         } catch (err) {
             console.error("Failed to delete entity:", err)
         }
     }
 
     // --- UTILITIES ---
-    function getValue(obj, path) {
+    function get_value(obj, path) {
         if (!path) return ""
         return path.split(".").reduce((acc, part) => acc && acc[part], obj) || ""
     }
 
-    function setValue(obj, path, val) {
+    function set_value(obj, path, val) {
         const keys = path.split(".")
         const last = keys.pop()
         const target = keys.reduce((acc, key) => (acc[key] = acc[key] || {}), obj)
@@ -170,18 +172,18 @@
         }
     }
 
-    function handleFocusOut(e) {
+    function handle_focus_out(e) {
         setTimeout(() => {
             const active = document.activeElement
             const isInput = active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement || (active instanceof HTMLElement && active.contentEditable === "true")
             const isWing = active?.closest(".wing-left, .wing-right")
-            if (!isInput && !isWing && busyFields.size === 0) {
-                activeField = { key: "visual-prompt", label: "Image Prompt" }
+            if (!isInput && !isWing && busy_fields.size === 0) {
+                active_field = { key: "visual-prompt", label: "Image Prompt" }
             }
         }, 50)
     }
 
-    function renderMarkdown(text) {
+    function render_markdown(text) {
         if (!text) return ""
         let source = Array.isArray(text) ? text.join("\n\n") : text
         let html = source.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
@@ -191,13 +193,13 @@
         return DOMPurify.sanitize(html)
     }
 
-    function handleBackgroundClick(e) {
+    function handle_background_click(e) {
         if (!e.target.closest("textarea, input, button, .swatch, .wing-left, .wing-right, .profile-presentation")) {
-            if (isEditing) {
-                isEditing = false
-                activeField = { key: "visual-prompt", label: "Image Prompt" }
+            if (is_editing) {
+                is_editing = false
+                active_field = { key: "visual-prompt", label: "Image Prompt" }
             } else {
-                handleClose()
+                handle_close()
             }
             if (document.activeElement instanceof HTMLElement) {
                 document.activeElement.blur()
@@ -207,19 +209,19 @@
 </script>
 
 {#if char && char.id}
-    <Modal variant="profile" onclose={handleClose}>
-        <div class="profile-container" class:editing={isEditing} class:dev-mode={app.settings.dev_mode} class:show-dev-wing={app.settings.dev_mode} onclick={handleBackgroundClick} onfocusout={handleFocusOut} role="presentation" data-testid="profile-container" data-is-editing={isEditing}>
-            <ProfileWings bind:char {isEditing} bind:busyFields bind:activeField />
+    <Modal variant="profile" onclose={handle_close}>
+        <div class="profile-container" class:editing={is_editing} class:dev-mode={app.settings.dev_mode} class:show-dev-wing={app.settings.dev_mode} onclick={handle_background_click} onfocusout={handle_focus_out} role="presentation" data-testid="profile-container" data-is-editing={is_editing}>
+            <ProfileWings bind:char {is_editing} bind:busy_fields bind:active_field />
 
-            <div class="profile-presentation" style="--signature-color: {signature_color}; --signature-rgb: {signatureRgb};">
+            <div class="profile-presentation" style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};">
                 <div class="left">
                     <ProfilePicture entity={char} />
                 </div>
 
                 <main class="right">
-                    <ProfileHeader bind:char {isEditing} {renderMarkdown} {autoResize} />
-                    <ProfileFragments bind:char {isEditing} {getValue} {setValue} {autoResize} {busyFields} {renderMarkdown} bind:activeField />
-                    <ProfileFooter bind:isEditing {isSaving} {handleSave} {handleDelete} />
+                    <ProfileHeader bind:char {is_editing} {render_markdown} {auto_resize} />
+                    <ProfileFragments bind:char {is_editing} {get_value} {set_value} {auto_resize} {busy_fields} {render_markdown} bind:active_field />
+                    <ProfileFooter bind:is_editing {is_saving} {handle_save} {handle_delete} />
                 </main>
             </div>
         </div>
@@ -247,18 +249,19 @@
         order: 2;
         width: 56rem;
         height: 100%;
-        background: color-mix(in srgb, var(--glass-l), var(--signature-color) 12%);
-        border-radius: var(--spacing-l);
+        background: var(--gunmetal); /* Solid background */
+        border-radius: var(--border-radius-l);
         box-shadow:
-            0 30px 60px rgba(0, 0, 0, 0.8),
-            0 0 40px rgba(var(--signature-rgb), 0.15);
+            var(--shadow-xl),
+            0 0 var(--spacing-xxl) rgb(var(--signature-rgb) / var(--opacity-s));
+
         display: grid;
         grid-template-columns: 35% 1fr;
         position: relative;
         overflow: hidden;
         z-index: 10;
         transform-style: preserve-3d;
-        backdrop-filter: blur(20px);
+        /* backdrop-filter removed */
 
         .left {
             background: transparent;
@@ -279,14 +282,14 @@
 
             /* Scrollbar styling */
             &::-webkit-scrollbar {
-                width: 4px;
+                width: var(--spacing-xxs);
             }
             &::-webkit-scrollbar-track {
                 background: transparent;
             }
             &::-webkit-scrollbar-thumb {
-                background: rgba(var(--signature-rgb), 0.3);
-                border-radius: 2px;
+                background: rgb(var(--signature-rgb) / var(--opacity-s));
+                border-radius: var(--border-radius-full);
             }
         }
     }

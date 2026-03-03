@@ -112,6 +112,8 @@ $gradient-radial: radial-gradient($frisk, $frozen, $gunmetal, $chalk);
 
 $white: #fff;
 $black: #000;
+$pure-white-rgb: 255 255 255;
+$pure-black-rgb: 0 0 0;
 
 // Semantic Maps
 $color-danger: $signature-red;
@@ -131,8 +133,10 @@ $opacity-s: 0.3;
 $opacity-m: 0.5;
 $opacity-l: 0.8;
 $opacity-xl: 0.95;
+$opacity-xxxl: 0.99;
 $opacity-full: 1;
 $opacity-disabled: $opacity-s;
+$opacity-black-heavy: 0.8;
 
 // Blur Scale
 $blur-s: 0.25rem;
@@ -174,10 +178,13 @@ $bg-input-focus: rgba($black, $opacity-m);
 // =================================================
 
 // Surfaces & Depth (Semi-Flat Regime)
-$layer-surface: rgba($gunmetal, 0.98); // Almost opaque
-$layer-overlay: rgba($black, 0.95); // Deep overlay
+$layer-surface: rgba($gunmetal, 0.95);
+$layer-overlay: rgba($black, 0.9);
+$surface-sunken: rgba($black, 0.6);
+$surface-overlay: rgba($black, 0.5);
 
 // Glass Mapping (Legacy Compat -> Flat)
+$glass-xs: rgba($white, 0.08);
 $glass-s: $layer-surface; // Standard -> Surface
 $glass-m: $layer-overlay; // Pill -> Overlay
 $glass-l: $gunmetal; // Heavy -> Solid
@@ -255,11 +262,20 @@ $spacing-m: 1rem; // Base
 $spacing-l: 1.5rem;
 $spacing-xl: 2rem;
 $spacing-xxl: 3rem;
-$border-radius: $spacing-xs; // 0.5rem
+
+// Border Radii
+$border-radius-xs: 0.125rem;
+$border-radius-s: 0.25rem;
+$border-radius-m: 0.5rem; // Base
+$border-radius-l: 0.75rem;
+$border-radius-xl: 1rem;
+$border-radius-full: 9999px;
+$border-radius: $border-radius-m;
 $app-container-pad: $spacing-m;
 
 // Physics
 $transition-speed: 0.2s;
+$transition-speed-slow: 0.4s;
 $physics-transition-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
 $physics-hover-y: -0.25rem;
 $physics-btn-hover-y: -0.1rem;

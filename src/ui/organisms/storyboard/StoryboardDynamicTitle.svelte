@@ -5,56 +5,53 @@
     // ============================================
     // LOCAL STATE (Component-Owned)
     // ============================================
-    let customTitle = $state("")
-    let isCustom = $state(false)
-    let rerollCount = $state(0)
+    let custom_title = $state("")
+    let is_custom = $state(false)
+    let reroll_count = $state(0)
 
     // ============================================
     // TITLE PREFIXES (Content, not state)
     // ============================================
     const STANDARD_PREFIXES = ["The Story of", "The Adventures of", "The Tale of", "The Legend of", "The Saga of", "Chronicles of", "The Journey of"]
-
     const SMARTPHONE_PREFIXES = ["Chat Log:", "Session:", "Messenger.exe:", "New Thread:", "Encrypted Feed:", "Connection:", "Archive:", "RELAY //"]
-
     const FRACTAL_PREFIXES = ["Adventures in", "Tales from", "The Fractal of", "Journey to"]
 
     // ============================================
     // DERIVED TITLE PARTS
     // ============================================
-    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)]
-    const getColor = (entity) => themeStore.getSignatureColor(entity)
+    const pick_random = (arr) => arr[Math.floor(Math.random() * arr.length)]
+    const get_color = (entity) => themeStore.getSignatureColor(entity)
 
     /**
      * Generates structured title parts with entity colors for rich rendering
-     * @returns {Array<{text: string, color?: string}>}
      */
-    let titleParts = $derived.by(() => {
+    let title_parts = $derived.by(() => {
         // If custom title is set, return plain text
-        if (isCustom && customTitle) {
-            return [{ text: customTitle }]
+        if (is_custom && custom_title) {
+            return [{ text: custom_title }]
         }
 
-        // Reference rerollCount to trigger recalculation
-        void rerollCount
+        // Reference reroll_count to trigger recalculation
+        void reroll_count
 
         const ai = app.selectedAi
         const user = app.selectedUser
         const fractal = app.selectedFractal
-        const isSmartphone = app.settings.call_mode
+        const is_smartphone = app.settings.call_mode
 
         // Smartphone mode - simpler format
-        if (isSmartphone) {
-            const prefix = pick(SMARTPHONE_PREFIXES)
+        if (is_smartphone) {
+            const prefix = pick_random(SMARTPHONE_PREFIXES)
             const parts = [{ text: `${prefix} ` }]
 
             if (ai && user) {
-                parts.push({ text: ai.name, color: getColor(ai) })
+                parts.push({ text: ai.name, color: get_color(ai) })
                 parts.push({ text: " & " })
-                parts.push({ text: user.name, color: getColor(user) })
+                parts.push({ text: user.name, color: get_color(user) })
             } else if (ai) {
-                parts.push({ text: ai.name, color: getColor(ai) })
+                parts.push({ text: ai.name, color: get_color(ai) })
             } else if (user) {
-                parts.push({ text: user.name, color: getColor(user) })
+                parts.push({ text: user.name, color: get_color(user) })
             } else {
                 parts.push({ text: "Guest User" })
             }
@@ -62,48 +59,47 @@
         }
 
         // Standard mode - full format
-        const hasEntities = ai || user
-        const hasFractal = !!fractal
+        const has_entities = ai || user
+        const has_fractal = !!fractal
 
-        if (hasEntities && hasFractal) {
-            const prefix = pick(STANDARD_PREFIXES)
+        if (has_entities && has_fractal) {
+            const prefix = pick_random(STANDARD_PREFIXES)
             const parts = [{ text: `${prefix} ` }]
 
-            // [FIX] Gracious handling of duplicate role selection
             if (ai && user && ai.id === user.id) {
-                parts.push({ text: ai.name, color: getColor(ai) })
+                parts.push({ text: ai.name, color: get_color(ai) })
             } else if (ai && user) {
-                parts.push({ text: ai.name, color: getColor(ai) })
+                parts.push({ text: ai.name, color: get_color(ai) })
                 parts.push({ text: " & " })
-                parts.push({ text: user.name, color: getColor(user) })
+                parts.push({ text: user.name, color: get_color(user) })
             } else if (ai) {
-                parts.push({ text: ai.name, color: getColor(ai) })
+                parts.push({ text: ai.name, color: get_color(ai) })
             } else {
-                parts.push({ text: user.name, color: getColor(user) })
+                parts.push({ text: user.name, color: get_color(user) })
             }
 
             parts.push({ text: " in " })
-            parts.push({ text: fractal.name, color: getColor(fractal) })
+            parts.push({ text: fractal.name, color: get_color(fractal) })
             return parts
-        } else if (hasEntities) {
-            const prefix = pick(STANDARD_PREFIXES)
+        } else if (has_entities) {
+            const prefix = pick_random(STANDARD_PREFIXES)
             const parts = [{ text: `${prefix} ` }]
 
             if (ai && user && ai.id === user.id) {
-                parts.push({ text: ai.name, color: getColor(ai) })
+                parts.push({ text: ai.name, color: get_color(ai) })
             } else if (ai && user) {
-                parts.push({ text: ai.name, color: getColor(ai) })
+                parts.push({ text: ai.name, color: get_color(ai) })
                 parts.push({ text: " & " })
-                parts.push({ text: user.name, color: getColor(user) })
+                parts.push({ text: user.name, color: get_color(user) })
             } else if (ai) {
-                parts.push({ text: ai.name, color: getColor(ai) })
+                parts.push({ text: ai.name, color: get_color(ai) })
             } else {
-                parts.push({ text: user.name, color: getColor(user) })
+                parts.push({ text: user.name, color: get_color(user) })
             }
             return parts
-        } else if (hasFractal) {
-            const prefix = pick(FRACTAL_PREFIXES)
-            return [{ text: `${prefix} ` }, { text: fractal.name, color: getColor(fractal) }]
+        } else if (has_fractal) {
+            const prefix = pick_random(FRACTAL_PREFIXES)
+            return [{ text: `${prefix} ` }, { text: fractal.name, color: get_color(fractal) }]
         }
 
         return [{ text: "Your story begins here..." }]
@@ -113,27 +109,21 @@
     // EVENT HANDLERS
     // ============================================
 
-    /**
-     * Handles manual input to lock the title
-     */
-    function handleInput(e) {
-        customTitle = e.currentTarget.textContent
-        isCustom = true
+    function handle_input(e) {
+        custom_title = e.currentTarget.textContent
+        is_custom = true
     }
 
-    /**
-     * Handles double-click to re-roll prefixes
-     */
-    function handleDblClick() {
-        isCustom = false
-        customTitle = ""
-        rerollCount++
+    function handle_dbl_click() {
+        is_custom = false
+        custom_title = ""
+        reroll_count++
     }
 </script>
 
-<h1 contenteditable="true" title="Double-click to re-roll title" oninput={handleInput} ondblclick={handleDblClick}>
+<h1 contenteditable="true" title="Double-click to re-roll title" oninput={handle_input} ondblclick={handle_dbl_click}>
     <span class="title-content">
-        {#each titleParts as part, i (i)}
+        {#each title_parts as part, i (i)}
             {#if part.color}
                 <span class="entity-name" style="color: {part.color}">{part.text}</span>
             {:else}
@@ -148,26 +138,24 @@
     @import url("https://fonts.googleapis.com/css2?family=Satisfy&display=swap");
 
     h1 {
-        font-size: clamp(1.8rem, 5vw, 3rem);
-        line-height: 1.2;
-        min-height: calc(1.2em * 2);
+        font-size: clamp(var(--font-size-xxxl), 5vw, var(--font-size-xxxxxl));
+        line-height: var(--line-height-heading);
+        min-height: calc(var(--line-height-heading) * 2em);
         margin: 0;
         font-family: "Satisfy", cursive;
         letter-spacing: 0.02em;
         cursor: text;
-        transition:
-            color 0.2s ease,
-            text-shadow 0.3s ease;
-        border-radius: 8px;
-        padding: 0.25rem 0.75rem;
+        transition: all var(--transition-speed) var(--physics-transition-elastic);
+        border-radius: var(--border-radius-l);
+        padding: var(--spacing-xxs) var(--spacing-s);
         text-wrap: balance;
         max-width: 80vw;
         margin-inline: auto;
 
         /* Soft ethereal glow */
         text-shadow:
-            0 2px 10px rgba(255, 255, 255, 0.15),
-            0 0 30px rgba(255, 255, 255, 0.08);
+            0 var(--spacing-xxs) var(--spacing-m) rgba(var(--pure-white-rgb), var(--opacity-xs)),
+            0 0 var(--spacing-xl) rgba(var(--pure-white-rgb), var(--opacity-xxs));
 
         display: grid;
         place-content: center;
@@ -175,13 +163,13 @@
         text-align: center;
 
         &:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(var(--pure-white-rgb), var(--opacity-xxs));
         }
 
         &:focus-within {
             outline: none;
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 0 0 2px var(--primary-color);
+            background: rgba(var(--pure-white-rgb), var(--opacity-xs));
+            box-shadow: 0 0 0 var(--spacing-xxs) var(--signature-color, var(--color-accent));
         }
 
         .title-content {
@@ -191,7 +179,7 @@
 
         .entity-name {
             font-weight: inherit;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 var(--spacing-px) var(--spacing-xxs) rgba(var(--pure-black-rgb), var(--opacity-s));
             white-space: nowrap;
         }
     }

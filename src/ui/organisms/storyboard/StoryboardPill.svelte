@@ -6,42 +6,19 @@
     import { storyboard } from "./storyboardActions.svelte.js"
 
     // Derived State
-    let readyToBegin = $derived(
-        app.selectedAi && app.selectedUser && app.selectedFractal
-    )
+    let ready_to_begin = $derived(app.selectedAi && app.selectedUser && app.selectedFractal)
 </script>
 
 <div class="pill-container">
-    <div
-        class="unified-capsule"
-        use:tilt={{ max: 15, scale: 1.05, speed: 400 }}
-    >
+    <div class="unified-capsule" use:tilt={{ max: 15, scale: 1.05, speed: 400 }}>
         <!-- Option 1: "The Twitch" (Subtle nervous energy) -->
-        <Button
-            className="capsule-flank icon-glow"
-            variant="ghost"
-            onclick={() => storyboard.shuffle()}
-            aria-label="Shuffle All"
-            title="Randomize Entities"
-            actions={[shimmy]}
-        >
+        <Button className="capsule-flank icon-glow" variant="ghost" onclick={() => storyboard.shuffle()} aria-label="Shuffle All" title="Randomize Entities" actions={[shimmy]}>
             <svg viewBox="0 0 24 24" class="icon-small">
-                <path
-                    fill="currentColor"
-                    d="M14.83,13.41L13.42,14.82L16.55,17.95L14.5,20H20V14.5L17.96,16.54L14.83,13.41M14.5,4L16.54,6.04L4,18.59L5.41,20L17.96,7.46L20,9.5V4M10.59,9.17L5.41,4L4,5.41L9.17,10.58L10.59,9.17Z"
-                />
+                <path fill="currentColor" d="M14.83,13.41L13.42,14.82L16.55,17.95L14.5,20H20V14.5L17.96,16.54L14.83,13.41M14.5,4L16.54,6.04L4,18.59L5.41,20L17.96,7.46L20,9.5V4M10.59,9.17L5.41,4L4,5.41L9.17,10.58L10.59,9.17Z" />
             </svg>
         </Button>
 
-        <Button
-            className="capsule-flank icon-glow"
-            variant="ghost"
-            onclick={app.toggleControlPanel}
-            aria-label="Settings"
-            title="Open Control Panel"
-            data-testid="settings-button"
-            actions={[spin]}
-        >
+        <Button className="capsule-flank icon-glow" variant="ghost" onclick={app.toggleControlPanel} aria-label="Settings" title="Open Control Panel" data-testid="settings-button" actions={[spin]}>
             <svg viewBox="0 0 24 24" class="icon-small">
                 <path
                     fill="currentColor"
@@ -51,13 +28,7 @@
         </Button>
 
         <!-- Option 3: "The Pop" (Scale + Brightness) -->
-        <Button
-            className="capsule-action pop"
-            variant="ghost"
-            disabled={!readyToBegin}
-            onclick={storyboard.beginStory}
-            actions={[pulse]}
-        >
+        <Button className="capsule-action pop" variant="ghost" disabled={!ready_to_begin} onclick={storyboard.beginStory} actions={[pulse]}>
             <div class="core-content">
                 <span class="label">Begin Story</span>
             </div>
@@ -74,20 +45,24 @@
         width: 100%;
         padding-bottom: var(--spacing-m);
         position: relative;
-        z-index: 100;
+        z-index: var(--z-overlay);
         pointer-events: auto;
     }
 
     .unified-capsule {
-        background: var(--gunmetal, #363840);
-        backdrop-filter: none; /* Opaque pill */
+        background: var(--surface-sunken);
+        backdrop-filter: blur(var(--blur-s));
+        box-shadow:
+            var(--shadow-l),
+            inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xs));
+        border: none;
 
         display: flex;
         align-items: center;
         gap: var(--spacing-m);
-        border-radius: 999px;
+        border-radius: var(--border-radius-full);
         padding: var(--spacing-xxs) var(--spacing-m);
-        min-height: 3.5rem;
+        min-height: var(--spacing-xxxl);
         box-shadow: var(--shadow-l);
     }
 
@@ -95,25 +70,22 @@
     :global(.unified-capsule .btn) {
         background: transparent;
         filter: none;
-        transition: all var(--transition-speed, 0.2s) ease-out;
+        transition: all var(--transition-speed);
     }
 
     :global(.unified-capsule .btn:hover:not(:disabled)) {
         background: transparent;
         filter: none;
-        color: var(--app-color, #fff);
-        opacity: 1;
+        color: var(--app-color);
+        opacity: var(--opacity-full);
         transform: none; /* Prevent jitter from global translateY */
-        --label-color: var(
-            --app-color,
-            white
-        ); /* Inject white color to children */
+        --label-color: var(--app-color); /* Inject white color to children */
     }
 
     /* Flank Buttons (Shuffle/Settings) */
     :global(.unified-capsule .capsule-flank.btn) {
-        flex: 0 0 3.5rem;
-        width: 3.5rem;
+        flex: 0 0 var(--spacing-xxxl);
+        width: var(--spacing-xxxl);
         height: 100%;
         border-radius: 0;
         border: none;
@@ -121,42 +93,42 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: rgba(255, 255, 255, var(--opacity-l));
+        color: rgb(var(--pure-white-rgb) / var(--opacity-l));
     }
 
     :global(.unified-capsule .capsule-flank.btn:hover svg) {
-        fill: var(--app-color, #fff);
-        stroke: var(--app-color, #fff);
+        fill: var(--app-color);
+        stroke: var(--app-color);
     }
 
     /* Primary Action Button (Begin) */
     :global(.unified-capsule .capsule-action.btn) {
         height: 100%;
-        min-width: 130px;
+        min-width: 8.125rem; /* ~130px */
         border: none;
         border-radius: 0;
         background: transparent;
         position: relative;
         overflow: hidden;
-        margin-right: 10px;
-        padding: 0.5rem;
-        opacity: 0.5;
+        margin-right: var(--spacing-s);
+        padding: var(--spacing-xs);
+        opacity: var(--opacity-m);
     }
 
     :global(.unified-capsule .capsule-action.btn:disabled) {
-        opacity: 0.2;
+        opacity: var(--opacity-s);
         cursor: not-allowed;
     }
 
     /* Extra Label Polish */
     :global(.unified-capsule .capsule-action.btn:hover) .label {
-        text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+        text-shadow: 0 0 var(--spacing-m) rgb(var(--pure-white-rgb) / var(--opacity-m));
     }
 
     /* Ensure icons reset nicely */
     .icon-small {
         width: var(--spacing-l);
-        height: var(--spacing-x);
+        height: var(--spacing-l);
         transition:
             transform 0.3s ease,
             filter 0.3s ease;
@@ -167,15 +139,14 @@
         z-index: 2;
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: var(--spacing-xs);
     }
 
     .label {
         font-family: var(--font-display);
         font-weight: 600;
-        font-size: 0.85rem;
+        font-size: var(--font-size-s);
         letter-spacing: 0.05em;
-        /* text-transform: uppercase; Removed per Compliance */
         color: var(--label-color, var(--app-color));
         text-shadow: var(--rp-text-shadow);
         transition: all 0.3s ease;

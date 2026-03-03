@@ -110,7 +110,7 @@
                 grid-column: 1 / -1;
                 position: relative;
                 height: auto;
-                padding: 1rem;
+                padding: var(--spacing-m);
             }
             .stage-column--center {
                 grid-column: 1 / -1;
@@ -135,7 +135,7 @@
 
                 .stage-column.left {
                     grid-column: 1 / 2;
-                    border-right: 1px solid rgba(255, 255, 255, 0.1);
+                    border-right: 1px solid var(--glass-border);
                 }
 
                 .stage-column.right {
@@ -241,8 +241,8 @@
             .stage-header,
             .stage-footer {
                 grid-column: 1 / -1;
-                padding-left: 2rem;
-                padding-right: 2rem;
+                padding-left: var(--spacing-l);
+                padding-right: var(--spacing-l);
             }
         }
     }

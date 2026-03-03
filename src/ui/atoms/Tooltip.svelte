@@ -19,14 +19,7 @@
 </script>
 
 {#if visible && text}
-    <div
-        class="ui-tooltip {position}"
-        class:fixed
-        class:manual-pos={x !== null}
-        use:portalAction
-        style="--tx: {x ?? 0}px; --ty: {y ?? 0}px;"
-        transition:scale={{ duration: 150, start: 0.95, easing: cubicOut }}
-    >
+    <div class="ui-tooltip {position}" class:fixed class:manual-pos={x !== null} use:portalAction style="--tx: {x ?? 0}px; --ty: {y ?? 0}px;" transition:scale={{ duration: 150, start: 0.95, easing: cubicOut }}>
         <div class="content">
             {text}
         </div>
@@ -39,7 +32,7 @@
 
     .ui-tooltip {
         position: absolute;
-        z-index: 99999;
+        z-index: var(--z-index-tooltip);
         pointer-events: none;
         white-space: nowrap;
 
@@ -47,14 +40,11 @@
         top: 0;
         left: 50%;
         transform: translate(-50%, -100%);
-        margin-top: -12px;
+        margin-top: calc(var(--spacing-s) * -1);
 
         /* Manual Positioning Mode (Absolute) */
         &.manual-pos {
             left: var(--tx, 0);
-            /* Reset centering transform if needed, but keeping X-center on the calculated point is usually desired for knobs. */
-            /* If we want to center ON the point (tx), we need translate(-50%, ...) */
-            /* The default transform has -50% X. This works if tx is the center of the knob. */
         }
 
         /* Mode: Fixed Viewport Positioning */
@@ -62,47 +52,43 @@
             position: fixed;
             top: var(--ty, 0);
             left: var(--tx, 0);
-            /* Reset absolute defaults */
             transform: translate(-50%, -100%);
-            margin-top: -12px;
+            margin-top: calc(var(--spacing-s) * -1);
         }
 
         .content {
-            /* @extend %material-glass; - Too transparent */
-            background: rgba(20, 20, 23, 0.95);
-            backdrop-filter: blur(4px);
-            box-shadow:
-                0 0 0 1px rgba(255, 255, 255, 0.1),
-                0 4px 12px rgba(0, 0, 0, 0.5);
-            color: white;
-            padding: 4px 10px;
-            font-size: 0.75rem;
+            background: var(--bg-tooltip);
+            backdrop-filter: blur(var(--blur-s));
+            box-shadow: var(--glass-border), var(--shadow-l);
+            color: var(--app-color);
+            padding: var(--spacing-xxs) var(--spacing-s);
+            font-size: var(--font-size-xs);
             font-family: var(--font-ui);
             font-weight: 500;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: var(--letter-spacing-l);
         }
 
         .arrow {
             position: absolute;
-            bottom: -4px;
+            bottom: calc(var(--spacing-xxs) * -1);
             left: 50%;
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 5px solid transparent;
-            border-right: 5px solid transparent;
-            border-top: 5px solid rgba(0, 0, 0, 0.85);
+            border-left: var(--spacing-xxs) solid transparent;
+            border-right: var(--spacing-xxs) solid transparent;
+            border-top: var(--spacing-xxs) solid var(--bg-tooltip);
         }
 
         &.bottom {
             transform: translate(-50%, 0);
-            margin-top: 8px;
+            margin-top: var(--spacing-s);
             .arrow {
                 bottom: auto;
-                top: -4px;
+                top: calc(var(--spacing-xxs) * -1);
                 border-top: none;
-                border-bottom: 5px solid rgba(0, 0, 0, 0.85);
+                border-bottom: var(--spacing-xxs) solid var(--bg-tooltip);
             }
         }
     }

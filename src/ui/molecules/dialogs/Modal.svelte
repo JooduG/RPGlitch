@@ -50,11 +50,7 @@
             }
         }}
         onkeydown={(e) => {
-            if (
-                variant === "profile" &&
-                e.target === e.currentTarget &&
-                (e.key === "Enter" || e.key === " ")
-            ) {
+            if (variant === "profile" && e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) {
                 onclose()
             }
         }}
@@ -88,7 +84,7 @@
             var(--shadow-xl);
         border-radius: var(--border-radius);
         padding: 0;
-        max-width: 600px;
+        max-width: 37.5rem; /* ~600px */
         width: auto;
         position: relative;
         max-height: 85vh;
@@ -134,14 +130,14 @@
 
     .close-btn {
         position: absolute;
-        top: 0.5rem;
-        right: 0.5rem;
+        top: var(--spacing-xs);
+        right: var(--spacing-xs);
         background: none;
         border: none;
         color: var(--zinc-400);
-        font-size: 1.5rem;
-        width: 2rem;
-        height: 2rem;
+        font-size: var(--font-size-xxl);
+        width: var(--spacing-xl);
+        height: var(--spacing-xl);
         display: flex;
         align-items: center;
         justify-content: center;

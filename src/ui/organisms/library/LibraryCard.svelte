@@ -67,18 +67,18 @@
         display: flex;
         flex-direction: column;
         padding: 0;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all var(--transition-speed) var(--physics-transition-elastic);
         text-align: left;
-        width: 140px;
+        width: 8.75rem;
         flex: 0 0 auto;
         border: 0;
 
         @extend %material-interactive;
 
         &:hover {
-            transform: translateY(-4px);
+            transform: translateY(var(--physics-hover-y));
             /* Border-color purged */
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            box-shadow: var(--shadow-m);
         }
 
         &.is-disabled {
@@ -95,7 +95,7 @@
 
         .card-visual {
             flex: 1.5;
-            background: rgba(0, 0, 0, 0.3);
+            background: var(--glass-m);
             display: flex;
             align-items: center;
             justify-content: center;

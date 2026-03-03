@@ -91,10 +91,10 @@
         height: 100%;
         pointer-events: none;
         mix-blend-mode: overlay;
-        opacity: 0.15;
+        opacity: var(--opacity-s);
 
-        background: linear-gradient(transparent 50%, rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.1));
-        background-size: 100% 4px;
+        background: linear-gradient(transparent 50%, rgba(var(--pure-black-rgb), var(--opacity-xs)) 50%, rgba(var(--pure-black-rgb), var(--opacity-xs)));
+        background-size: 100% var(--spacing-xxs);
 
         &::after {
             content: "";
@@ -103,7 +103,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.05), rgba(0, 0, 255, 0.05));
+            background: linear-gradient(90deg, rgba(255, 0, 0, var(--opacity-xs)), rgba(0, 255, 0, var(--opacity-xs)), rgba(0, 0, 255, var(--opacity-xs)));
             background-size: 300% 100%;
             animation: chromatic-drift 10s infinite linear;
         }
@@ -129,9 +129,9 @@
         font-size: clamp(1rem, 15vw, 10rem);
         font-weight: 700;
         color: white;
-        text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        text-shadow: var(--shadow-l);
         background-color: var(--signature-color);
-        background-image: radial-gradient(at 0% 0%, color-mix(in srgb, var(--signature-color), white 20%) 0, transparent 50%), radial-gradient(at 100% 100%, color-mix(in srgb, var(--signature-color), black 30%) 0, transparent 50%);
+        background-image: radial-gradient(at 0% 0%, color-mix(in srgb, var(--signature-color), white var(--opacity-m-val)) 0, transparent 50%), radial-gradient(at 100% 100%, color-mix(in srgb, var(--signature-color), black var(--opacity-l-val)) 0, transparent 50%);
         background-blend-mode: overlay;
     }
 </style>

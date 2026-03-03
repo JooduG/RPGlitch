@@ -1,11 +1,11 @@
 <script>
     import { fitText } from "@ui/utils/actions/fitText.js"
 
-    let { char = $bindable(), isEditing, renderMarkdown, autoResize } = $props()
+    let { char = $bindable(), is_editing, render_markdown, auto_resize } = $props()
 </script>
 
-<header class:is-editing={isEditing} data-testid="profile-header">
-    {#if isEditing}
+<header class:is-editing={is_editing} data-testid="profile-header">
+    {#if is_editing}
         <h1 class="name edit" aria-label="Edit Character Name">
             <span contenteditable="true" bind:innerText={char.name} role="textbox" tabindex="0"></span>
         </h1>
@@ -16,18 +16,18 @@
             use:fitText={{
                 maxSize: 80,
                 minSize: 16,
-                lineHeight: "1.1",
+                lineHeight: "var(--line-height-heading)",
             }}
         >
             {char.name || "Unnamed Entity"}
         </h1>
     {/if}
-    {#if isEditing}
-        <textarea use:autoResize class="description" class:edit={isEditing} value={char.description} oninput={(e) => (char.description = e.target.value)} placeholder="Entity Description"></textarea>
+    {#if is_editing}
+        <textarea use:auto_resize class="description" class:edit={is_editing} value={char.description} oninput={(e) => (char.description = e.target.value)} placeholder="Entity Description"></textarea>
     {:else}
         <div class="description readonly" class:muted-info={!char.description}>
             <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-            {@html renderMarkdown(char.description || "No description provided.")}
+            {@html render_markdown(char.description || "No description provided.")}
         </div>
     {/if}
 </header>
@@ -36,77 +36,75 @@
     @use "@theme/abstracts/placeholders" as *;
 
     header {
-        background: color-mix(in srgb, rgba(0, 0, 0, 0.4), var(--signature-color) 12%);
-        border-bottom: 0;
+        background: transparent; // Background handled by Profile.svelte container
         padding: var(--spacing-l);
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
     }
 
     .name {
         width: 100%;
         color: var(--signature-color);
         font-size: var(--font-size-xxxxl);
+        font-weight: 700;
         letter-spacing: -0.02em;
-        text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        transition: all 0.2s;
-        cursor: default;
+        text-shadow: var(--shadow-text);
         margin: 0;
-        padding: var(--spacing-xs) var(--spacing-s);
+        padding: var(--spacing-xs); // Fixed padding
         text-align: left;
-        box-shadow: 0 0 0 1px transparent;
-        min-height: 1.1em;
-        white-space: pre-wrap;
-        overflow-wrap: break-word;
-        border-radius: var(--spacing-s);
+        border-radius: var(--border-radius-m);
+        transition: background 0.2s;
+        border: none; // Removed transparent border
+        box-shadow: inset 0 0 0 1px transparent;
+        min-height: 1.2em;
+        line-height: var(--line-height-heading);
+        outline: none;
+        background: transparent;
 
-        &:empty::before {
-            content: "Unnamed Entity";
+        &.edit {
+            cursor: text;
+            pointer-events: auto;
+            caret-color: var(--signature-color);
+
+            &:hover,
+            &:focus-within {
+                background: rgba(var(--pure-white-rgb), var(--opacity-xxs));
+                box-shadow: inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xs));
+            }
+
+            span {
+                outline: none;
+            }
+        }
+
+        &:not(.edit) {
+            cursor: default;
+            pointer-events: none;
+        }
+
+        &::before {
+            // Shared placeholder logic
             opacity: 0.3;
             font-style: italic;
             font-weight: 400;
-        }
-
-        span[contenteditable="true"] {
-            display: block;
-            width: 100%;
-            outline: none;
-            min-height: 1.1em;
-
-            &:empty::before {
-                content: "Entity Name";
-                opacity: 0.2;
-            }
-        }
-
-        &.edit {
-            @extend %textarea-clean;
-            pointer-events: auto;
-            caret-color: var(--signature-color);
-            cursor: text;
-
-            &:focus-within {
-                background: rgba(255, 255, 255, 0.05);
-            }
         }
     }
 
     .description {
         @extend %textarea-clean;
         width: 100%;
-        color: rgba(255, 255, 255, 0.9);
+        color: var(--app-color);
         font-family: inherit;
-        font-size: 1rem;
-        padding: 4px 0;
-        margin: var(--spacing-xs) 0 0;
+        font-size: var(--font-size-m);
         line-height: 1.5;
         min-height: 1.4em;
-        cursor: default;
         transition: all 0.2s;
-        border-radius: var(--spacing-s);
-        padding: var(--spacing-xs) var(--spacing-s);
-        border: 0.0625rem solid transparent;
-        pointer-events: none;
+        border-radius: var(--border-radius-m);
+        padding: var(--spacing-s);
+        border: none;
+        box-shadow: inset 0 0 0 1px transparent;
         background: transparent;
-        box-shadow: 0 0 0 1px transparent;
         resize: none;
         text-align: left;
 
@@ -119,9 +117,10 @@
             caret-color: white;
             cursor: text;
 
+            &:hover,
             &:focus {
-                background: rgba(255, 255, 255, 0.05);
-                box-shadow: 0 0 0 1px transparent;
+                background: rgba(var(--pure-white-rgb), var(--opacity-xxs));
+                box-shadow: inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xs));
                 outline: none;
             }
         }
@@ -129,6 +128,7 @@
         &.readonly {
             pointer-events: auto;
             white-space: pre-wrap;
+            cursor: default;
 
             :global(strong) {
                 font-weight: 800;

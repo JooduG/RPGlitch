@@ -9,31 +9,19 @@
      * Follows the [Polish Protocol] v1.0.0
      */
 
-    let { entity, side = "left", title: rawTitle = "" } = $props() // side: 'left' | 'right'
+    let { entity, side = "left", title: raw_title = "" } = $props() // side: 'left' | 'right'
 
     // Default Fallback
     let name = $derived(entity?.name || "Unknown")
 
     // Derived Title State
-    let title = $derived(rawTitle || name)
+    let title = $derived(raw_title || name)
 
-    let signatureColor = $derived(themeStore.getSignatureColor(entity))
+    let signature_color = $derived(themeStore.getSignatureColor(entity))
 </script>
 
-<article
-    class="panel-container"
-    class:side-left={side === "left"}
-    class:side-right={side === "right"}
-    style="--entity-color: {signatureColor}"
->
-    <div
-        class="visual-anchor"
-        role="button"
-        tabindex="0"
-        onclick={() => app.toggleProfile(true, entity)}
-        onkeydown={(e) => e.key === "Enter" && app.toggleProfile(true, entity)}
-        aria-label="View Profile: {name}"
-    >
+<article class="panel-container" class:side-left={side === "left"} class:side-right={side === "right"} style="--entity-color: {signature_color}">
+    <div class="visual-anchor" role="button" tabindex="0" onclick={() => app.toggleProfile(true, entity)} onkeydown={(e) => e.key === "Enter" && app.toggleProfile(true, entity)} aria-label="View Profile: {name}">
         <ProfilePicture {entity} />
 
         <!-- Corner Nameplate -->
@@ -47,6 +35,8 @@
 </article>
 
 <style lang="scss">
+    @use "@theme/abstracts/variables" as *;
+
     .panel-container {
         width: 100%;
         height: 100%;
@@ -66,12 +56,13 @@
         .nameplate {
             position: absolute;
             top: var(--spacing-m);
-            z-index: var(--z-index-ui, 10);
+            z-index: var(--z-overlay);
             display: inline-block;
             padding: var(--spacing-xs) var(--spacing-m);
-            background: var(--gunmetal, #363840);
-            box-shadow: var(--shadow-card);
-            border-radius: var(--radius-sm);
+            background: var(--bg-component);
+            backdrop-filter: blur(var(--blur-s));
+            box-shadow: var(--shadow-l);
+            border-radius: var(--border-radius-s);
             width: fit-content;
             max-width: 70%;
             isolation: isolate;
@@ -82,7 +73,7 @@
             color: var(--entity-color);
             font-size: var(--font-size-s);
             font-weight: 600;
-            letter-spacing: 0.5px;
+            letter-spacing: var(--spacing-xxs);
             margin: 0;
             text-wrap: balance;
         }
@@ -92,7 +83,7 @@
         }
 
         &:hover .cinematic-overlay {
-            opacity: 0.8;
+            opacity: var(--opacity-xl);
         }
     }
 

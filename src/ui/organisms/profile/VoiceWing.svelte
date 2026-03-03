@@ -2,26 +2,26 @@
     import { Audio } from "@media/audio.js"
     import Tooltip from "@ui/atoms/Tooltip.svelte"
 
-    let { char = $bindable(), isEditing } = $props()
+    let { char = $bindable(), is_editing } = $props()
 
-    let showVoiceDropdown = $state(false)
-    let hoveredSlider = $state(null) // "rate" or "pitch"
-    let activeSlider = $state(null)
+    let show_voice_dropdown = $state(false)
+    let hovered_slider = $state(null) // "rate" or "pitch"
+    let active_slider = $state(null)
 
     // Refs & Tooltip State
-    let rateInput = $state()
-    let pitchInput = $state()
-    let rateX = $state(null)
-    let pitchX = $state(null)
+    let rate_input = $state()
+    let pitch_input = $state()
+    let rate_x = $state(null)
+    let pitch_x = $state(null)
 
     // Global release handler for sliders
-    function handleGlobalUp() {
-        activeSlider = null
+    function handle_global_up() {
+        active_slider = null
     }
 
     // Dynamic Tooltip Positioning
-    function updateTooltipX(type) {
-        const el = type === "rate" ? rateInput : pitchInput
+    function update_tooltip_x(type) {
+        const el = type === "rate" ? rate_input : pitch_input
         const val = type === "rate" ? char.voice.rate : char.voice.pitch
         if (!el) return
 
@@ -39,22 +39,22 @@
 
         const pos = el.offsetLeft + thumbPos
 
-        if (type === "rate") rateX = pos
-        else pitchX = pos
+        if (type === "rate") rate_x = pos
+        else pitch_x = pos
     }
 
     // Watch for value changes
     $effect(() => {
-        updateTooltipX("rate")
-        updateTooltipX("pitch")
+        update_tooltip_x("rate")
+        update_tooltip_x("pitch")
     })
 
     // Voice metadata
-    const selectedVoice = $derived(Audio.voice.voices.find((v) => v.uri === char.voice.uri))
-    const isNaturalVoice = $derived(selectedVoice?.name.includes("Natural"))
+    const selected_voice = $derived(Audio.voice.voices.find((v) => v.uri === char.voice.uri))
+    const is_natural_voice = $derived(selected_voice?.name.includes("Natural"))
 
     // Voice name normalization
-    function formatVoiceName(name) {
+    function format_voice_name(name) {
         return name
             .replace(/Microsoft\s+/gi, "")
             .replace(/\s+Online\s+\(Natural\)/gi, "")
@@ -63,82 +63,82 @@
     }
 </script>
 
-<div class="voice-wing-content" onmouseleave={() => (showVoiceDropdown = false)} role="presentation">
+<div class="voice-wing-content" onmouseleave={() => (show_voice_dropdown = false)} role="presentation">
     <div class="voice-control-row">
         <div class="dropdown">
-            <button class="voice-btn" type="button" disabled={!isEditing} onclick={() => (showVoiceDropdown = !showVoiceDropdown)}>
-                {formatVoiceName(Audio.voice.voices.find((v) => v.uri === char.voice.uri)?.name || "Select Voice")}
+            <button class="voice-btn" type="button" disabled={!is_editing} onclick={() => (show_voice_dropdown = !show_voice_dropdown)}>
+                {format_voice_name(Audio.voice.voices.find((v) => v.uri === char.voice.uri)?.name || "Select Voice")}
             </button>
-            <div class="dropdown-content" class:visible={showVoiceDropdown}>
+            <div class="dropdown-content" class:visible={show_voice_dropdown}>
                 {#each Audio.voice.voices as voice (voice.uri)}
                     <button
                         class="voice-option"
                         class:active={char.voice.uri === voice.uri}
                         onclick={() => {
                             char.voice.uri = voice.uri
-                            showVoiceDropdown = false
+                            show_voice_dropdown = false
                         }}
                     >
-                        <span class="voice-name">{formatVoiceName(voice.name)}</span>
+                        <span class="voice-name">{format_voice_name(voice.name)}</span>
                         <span class="region-pill">{voice.region}</span>
                     </button>
                 {/each}
             </div>
         </div>
 
-        <button class="preview-btn" type="button" title="Preview Voice" disabled={!isEditing || !char.voice.uri} onclick={() => Audio.voice.preview(char.voice.uri, char.voice.rate, char.voice.pitch)}> 🔊 </button>
+        <button class="preview-btn" type="button" title="Preview Voice" disabled={!is_editing || !char.voice.uri} onclick={() => Audio.voice.preview(char.voice.uri, char.voice.rate, char.voice.pitch)}> 🔊 </button>
     </div>
 
-    <div class="sliders" onpointerup={handleGlobalUp}>
+    <div class="sliders" onpointerup={handle_global_up}>
         <div
             class="slider-group"
             onmouseenter={() => {
-                hoveredSlider = "rate"
-                updateTooltipX("rate")
+                hovered_slider = "rate"
+                update_tooltip_x("rate")
             }}
-            onmouseleave={() => (hoveredSlider = null)}
+            onmouseleave={() => (hovered_slider = null)}
             role="presentation"
         >
-            <Tooltip text={`Rate: ${char.voice.rate.toFixed(1)}x`} visible={hoveredSlider === "rate" || activeSlider === "rate"} x={rateX} />
+            <Tooltip text={`Rate: ${char.voice.rate.toFixed(1)}x`} visible={hovered_slider === "rate" || active_slider === "rate"} x={rate_x} />
             <input
-                bind:this={rateInput}
+                bind:this={rate_input}
                 type="range"
                 min="0.5"
                 max="2.0"
                 step="0.1"
                 bind:value={char.voice.rate}
-                disabled={!isEditing}
+                disabled={!is_editing}
                 onpointerdown={() => {
-                    activeSlider = "rate"
-                    updateTooltipX("rate")
+                    active_slider = "rate"
+                    update_tooltip_x("rate")
                 }}
-                oninput={() => updateTooltipX("rate")}
+                oninput={() => update_tooltip_x("rate")}
             />
         </div>
         <div
             class="slider-group"
-            class:locked={isNaturalVoice}
+            class:locked={is_natural_voice}
             onmouseenter={() => {
-                hoveredSlider = "pitch"
-                updateTooltipX("pitch")
+                hovered_slider = "pitch"
+                update_tooltip_x("pitch")
             }}
-            onmouseleave={() => (hoveredSlider = null)}
+            onmouseleave={() => (hovered_slider = null)}
             role="presentation"
         >
-            <Tooltip text={isNaturalVoice ? "Pitch locked: Natural voices ignore manual pitch adjustments" : `Pitch: ${char.voice.pitch.toFixed(1)}`} visible={hoveredSlider === "pitch" || activeSlider === "pitch"} x={pitchX} />
+            <Tooltip text={is_natural_voice ? "Pitch locked: Natural voices ignore manual pitch adjustments" : `Pitch: ${char.voice.pitch.toFixed(1)}`} visible={hovered_slider === "pitch" || active_slider === "pitch"} x={pitch_x} />
             <input
-                bind:this={pitchInput}
+                bind:this={pitch_input}
                 type="range"
                 min="0.5"
                 max="2.0"
                 step="0.1"
                 bind:value={char.voice.pitch}
-                disabled={!isEditing || isNaturalVoice}
+                disabled={!is_editing || is_natural_voice}
                 onpointerdown={() => {
-                    activeSlider = "pitch"
-                    updateTooltipX("pitch")
+                    active_slider = "pitch"
+                    update_tooltip_x("pitch")
                 }}
-                oninput={() => updateTooltipX("pitch")}
+                oninput={() => update_tooltip_x("pitch")}
             />
         </div>
     </div>
@@ -148,16 +148,15 @@
     @use "../../../theme/abstracts/placeholders" as *;
 
     .voice-wing-content {
-        @extend %material-glass-heavy;
-        padding: var(--spacing-l);
+        background: var(--gunmetal);
+        box-shadow: var(--shadow-m);
+        border-radius: var(--border-radius-l);
+        padding: var(--spacing-m);
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-l);
-        color: white;
-        background: var(--chalk, #222326);
-        background-image: radial-gradient(circle at bottom left, rgba(255, 255, 255, 0.05) 10%, transparent 70%);
-        border-radius: inherit;
+        gap: var(--spacing-m);
         height: 100%;
+        overflow-y: auto;
     }
 
     .voice-control-row {
@@ -165,52 +164,60 @@
         gap: var(--spacing-xs);
         width: 100%;
         position: relative;
-        margin-bottom: -15px; /* Tighten gap to sliders */
+        margin-bottom: calc(-1 * var(--spacing-m)); /* Tighten gap to sliders */
 
         .dropdown {
             flex: 1;
-            /* Removed position: relative */
 
             .voice-btn {
                 width: 100%;
-                background: rgba(255, 255, 255, 0.05);
-                border: 0; /* Semi-flat */
+                background: var(--surface-sunken);
+                box-shadow: inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xxs));
+                border: none;
                 border-radius: var(--border-radius);
-                color: white;
+                color: var(--app-color);
                 padding: var(--spacing-s);
                 display: flex;
                 justify-content: space-between;
                 cursor: pointer;
-                font-size: 0.85rem;
+                font-size: var(--font-size-s);
                 text-align: left;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                padding-right: var(--spacing-,);
+                padding-right: var(--spacing-s);
+                transition: all 0.2s;
 
-                &:hover {
-                    background: rgba(255, 255, 255, 0.1);
+                &:hover:not(:disabled) {
+                    background: var(--surface-overlay);
+                    box-shadow: inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xs));
+                }
+
+                &:disabled {
+                    opacity: 0.5;
+                    cursor: default;
                 }
             }
         }
 
         .preview-btn {
             aspect-ratio: 1;
-            width: 40px;
+            width: var(--spacing-xl);
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255, 255, 255, 0.05);
-            border: 0; /* Semi-flat */
+            background: var(--surface-sunken);
+            box-shadow: inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xxs));
+            border: none;
             border-radius: var(--border-radius);
-            color: white;
+            color: var(--app-color);
             cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.2s ease;
+            font-size: var(--font-size-m);
+            transition: all var(--transition-speed) ease;
 
             &:hover:not(:disabled) {
-                background: rgba(255, 255, 255, 0.1);
-                border-color: rgba(255, 255, 255, 0.3);
+                background: var(--surface-overlay);
+                box-shadow: inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xs));
             }
 
             &:active:not(:disabled) {
@@ -218,7 +225,7 @@
             }
 
             &:disabled {
-                opacity: 0.3;
+                opacity: var(--opacity-s);
                 cursor: default;
             }
         }
@@ -229,14 +236,13 @@
         position: absolute;
         bottom: 100%;
         left: 0;
-        width: 100%; /* Spans full .voice-control-row width now */
-        background: var(--app-background);
-        border: 0; /* Semi-flat */
+        width: 100%;
+        background: var(--gunmetal);
+        box-shadow:
+            0 0 2rem rgba(var(--pure-black-rgb), 0.8),
+            inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xs));
+        border: none;
         border-radius: var(--border-radius);
-        z-index: 10;
-        max-height: 12rem;
-        overflow-y: auto;
-        box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
 
         &.visible {
             display: flex;
@@ -249,39 +255,41 @@
         padding: 8px 12px;
         background: transparent;
         border: none;
-        color: white;
+        color: var(--app-color);
         text-align: left;
-        font-size: 0.8rem;
+        font-size: var(--font-size-s);
         cursor: pointer;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: var(--spacing-s);
         transition: all 0.2s ease;
 
         &:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(var(--pure-white-rgb), 0.05);
         }
 
         &.active {
             color: var(--app-accent);
+            background: rgba(var(--app-accent-rgb), 0.05);
+
             .region-pill {
                 color: var(--app-accent);
-                opacity: 0.6;
+                opacity: 0.8;
             }
         }
 
         .region-pill {
-            font-size: 0.65rem;
+            font-size: var(--font-size-xs);
             text-transform: uppercase;
             font-weight: 700;
-            color: rgba(255, 255, 255, 0.4);
-            letter-spacing: 0.05em;
-            transition: color 0.2s;
+            color: var(--app-muted);
+            letter-spacing: var(--letter-spacing-m);
+            transition: color var(--transition-speed);
 
             &::before {
                 content: "-";
                 margin-right: 8px;
-                opacity: 0.4;
+                opacity: var(--opacity-m);
             }
         }
 
@@ -296,8 +304,8 @@
     .sliders {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: var(--spacing-,);
-        margin-top: 4px; /* Ultra-tightened from 4px */
+        gap: var(--spacing-xs);
+        margin-top: var(--spacing-xxs);
         width: 100%;
 
         .slider-group {
@@ -305,14 +313,14 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            gap: 10px;
+            gap: var(--spacing-s);
             border-radius: var(--spacing-xs);
             overflow: visible;
             position: relative;
-            transition: all 0.3s ease;
+            transition: all var(--transition-speed) ease;
 
             &.locked {
-                opacity: 0.5;
+                opacity: var(--opacity-m);
                 cursor: not-allowed;
             }
 
@@ -325,9 +333,9 @@
 
             input[type="range"] {
                 display: block;
-                width: calc(100% - 4px);
+                width: calc(100% - var(--spacing-xxs));
                 margin: 0 auto;
-                height: 12px;
+                height: var(--spacing-s);
                 background: transparent;
                 appearance: none;
                 outline: none;
@@ -337,21 +345,21 @@
 
                 &::-webkit-slider-runnable-track {
                     width: 100%;
-                    height: 2px;
-                    background: rgba(255, 255, 255, 0.2);
-                    border-radius: 1px;
+                    height: var(--spacing-px);
+                    background: rgba(var(--pure-white-rgb), 0.1);
+                    border-radius: var(--border-radius-xs);
                     border: none;
                 }
 
                 &::-webkit-slider-thumb {
                     appearance: none;
-                    width: 12px;
-                    height: 12px;
-                    background: white;
-                    border-radius: 50%;
+                    width: var(--spacing-s);
+                    height: var(--spacing-s);
+                    background: var(--app-color);
+                    border-radius: var(--border-radius-full);
                     cursor: pointer;
-                    box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
-                    margin-top: -5px;
+                    box-shadow: 0 0 var(--spacing-xs) rgba(var(--pure-white-rgb), 0.2);
+                    margin-top: -6px;
                     border: none;
                 }
             }

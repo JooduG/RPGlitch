@@ -2,7 +2,7 @@
     import { PROFILE_SECTIONS } from "./config.js"
     import VectorPanel from "./VectorPanel.svelte"
 
-    let { char = $bindable(), isEditing, getValue, setValue, autoResize, busyFields, renderMarkdown, activeField = $bindable() } = $props()
+    let { char = $bindable(), is_editing, get_value, set_value, auto_resize, busy_fields, render_markdown, active_field = $bindable() } = $props()
 </script>
 
 <div class="content" data-testid="profile-fragments">
@@ -20,30 +20,30 @@
                             <span class="field-label">{field.label}</span>
                         {/if}
                         {#if field.type === "array"}
-                            <VectorPanel {char} path={field.key} {isEditing} {getValue} {setValue} unitLabel={field.unitLabel} signatureColor="var(--signature-color)" />
-                        {:else if isEditing}
+                            <VectorPanel {char} path={field.key} {is_editing} {get_value} {set_value} unit_label={field.unitLabel} signature_color="var(--signature-color)" />
+                        {:else if is_editing}
                             <textarea
-                                use:autoResize={{
+                                use:auto_resize={{
                                     syncId: section.label,
                                 }}
                                 data-sync-id={section.label}
                                 class="text-area"
-                                class:edit={isEditing}
+                                class:edit={is_editing}
                                 placeholder={field.description}
-                                value={getValue(char, field.key)}
-                                oninput={(e) => setValue(char, field.key, e.target.value)}
-                                disabled={busyFields.has(field.key)}
+                                value={get_value(char, field.key)}
+                                oninput={(e) => set_value(char, field.key, e.target.value)}
+                                disabled={busy_fields.has(field.key)}
                                 onfocus={() => {
-                                    activeField = {
+                                    active_field = {
                                         key: field.key,
                                         label: field.label || section.label,
                                     }
                                 }}
                             ></textarea>
                         {:else}
-                            <div class="text-area readonly" class:muted-info={!getValue(char, field.key)} data-sync-id={section.label}>
+                            <div class="text-area readonly" class:muted-info={!get_value(char, field.key)} data-sync-id={section.label}>
                                 <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                                {@html renderMarkdown(getValue(char, field.key) || "Record undefined.")}
+                                {@html render_markdown(get_value(char, field.key) || "Record undefined.")}
                             </div>
                         {/if}
                     </div>
@@ -67,35 +67,36 @@
 
         .row {
             display: grid;
-            grid-template-columns: 100px 1fr;
+            grid-template-columns: var(--spacing-xxl) 1fr;
             gap: var(--spacing-s);
             min-width: 0;
 
             .label {
                 text-align: right;
                 align-self: center;
-                padding: var(--spacing-xs) 0 var(--spacing-xs) 0;
+                padding: var(--spacing-xs) 0;
+
                 h2 {
                     margin: 0;
-                    font-size: 1.2rem;
+                    font-size: var(--font-size-l);
                     font-weight: 700;
                     color: var(--signature-color);
                     text-transform: uppercase;
                     text-shadow:
-                        0 2px 4px rgba(0, 0, 0, 0.9),
-                        0 0 10px rgba(var(--signature-rgb), 0.3);
+                        var(--shadow-text),
+                        0 0 var(--spacing-s) rgb(var(--signature-rgb) / var(--opacity-m));
                     display: inline-block;
                 }
 
                 p {
                     margin: 0;
-                    font-size: 0.7rem;
-                    color: white;
+                    font-size: var(--font-size-xs);
+                    color: var(--app-color);
                     font-weight: 700;
-                    opacity: 0.8;
+                    opacity: var(--opacity-l);
                     text-transform: uppercase;
                     letter-spacing: 0.1em;
-                    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+                    text-shadow: var(--shadow-text);
                 }
             }
 
@@ -124,15 +125,15 @@
                 justify-content: center;
 
                 .field-label {
-                    font-size: 0.8rem;
+                    font-size: var(--font-size-xs);
                     font-weight: 800;
                     text-transform: uppercase;
                     color: var(--signature-color);
                     opacity: 1;
-                    margin-left: 2px;
+                    margin-left: var(--spacing-xxs);
                     text-align: center;
-                    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
-                    margin-bottom: 4px;
+                    text-shadow: var(--shadow-text);
+                    margin-bottom: var(--spacing-xxs);
                 }
 
                 .text-area {
@@ -140,49 +141,38 @@
                     resize: none;
                     width: 100%;
                     height: auto;
-                    min-height: 4rem;
-                    max-height: 24rem;
+                    min-height: 5rem;
+                    max-height: 12rem;
                     overflow-y: auto;
-                    background: rgba(255, 255, 255, 0.05);
-                    box-shadow: 0 0 0 1px transparent;
-                    border-radius: var(--spacing-s);
-                    border: 0.0625rem solid transparent;
+                    background: var(--surface-sunken);
+                    box-shadow: inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xxs));
+                    border: none;
+                    border-radius: var(--border-radius-m);
                     color: white;
-                    padding: var(--spacing-s) var(--spacing-m);
+                    padding: var(--spacing-m);
                     font-family: inherit;
-                    font-size: 0.85rem;
-                    line-height: 1.2;
+                    font-size: var(--font-size-s);
+                    line-height: 1.5;
                     transition: all 0.2s;
-                    cursor: default;
+                    cursor: text;
                     pointer-events: auto;
-                    text-align: left;
-                    text-wrap-style: pretty;
+                    outline: none;
 
-                    &:read-only {
-                        opacity: 1;
-                        filter: none;
-                        cursor: default;
+                    &.edit {
+                        pointer-events: auto;
+                        cursor: text;
+
+                        &:hover,
+                        &:focus {
+                            background: var(--surface-overlay);
+                            box-shadow: inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xs));
+                        }
                     }
 
                     &:disabled {
-                        opacity: 0.4;
-                        filter: grayscale(100%) blur(0.5px);
+                        opacity: 0.5;
                         cursor: wait;
-                        background: rgba(0, 0, 0, 0.3);
-                        color: var(--app-muted);
-                        border: 0.0625rem dashed rgba(255, 255, 255, 0.1);
                         pointer-events: none;
-                    }
-
-                    &.edit:not(:disabled) {
-                        pointer-events: auto;
-                        caret-color: white;
-                        cursor: text;
-
-                        &:focus {
-                            background: rgba(255, 255, 255, 0.1);
-                            outline: none;
-                        }
                     }
 
                     &.muted-info {
@@ -190,23 +180,21 @@
                     }
 
                     &.readonly {
-                        white-space: normal;
+                        white-space: pre-wrap;
                         pointer-events: auto;
-                        min-height: 4rem;
-                        max-height: 24rem;
-                        overflow-y: auto;
-                        flex: 1;
+                        cursor: default;
+                        background: var(--surface-sunken);
+                        box-shadow: inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xxs));
+                        border: none;
 
                         :global(strong) {
-                            font-weight: 900;
+                            font-weight: 800;
                             color: white;
-                            letter-spacing: 0.02em;
-                            text-shadow: 0 0 15px rgba(var(--signature-rgb), 0.5);
                         }
 
                         :global(em) {
                             font-style: italic;
-                            color: color-mix(in srgb, var(--signature-color), white 80%);
+                            opacity: 0.9;
                         }
                     }
                 }

@@ -17,26 +17,26 @@
     .panel {
         background: var(--app-component-bg); /* Zinc 950 essentially */
         box-shadow:
-            0 0 0 1px var(--ui-glass-border),
-            0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            0 0 0 var(--spacing-px) var(--ui-glass-border),
+            var(--shadow-l);
         overflow: hidden;
         display: flex;
         flex-direction: column;
         height: 100%;
 
         .panel-header {
-            background: rgba(255, 255, 255, 0.02);
-            padding: 0.75rem 1rem;
-            box-shadow: 0 1px 0 0 var(--ui-glass-border);
+            background: rgba(var(--pure-white-rgb), var(--opacity-xs));
+            padding: var(--spacing-s) var(--spacing-m);
+            box-shadow: 0 var(--spacing-px) 0 0 var(--ui-glass-border);
             border-bottom: none;
             display: flex;
             justify-content: space-between;
             align-items: center;
 
             .title-text {
-                font-size: 0.875rem; /* 14px */
+                font-size: var(--font-size-s); /* 14px */
                 text-transform: uppercase;
-                letter-spacing: 0.05em;
+                letter-spacing: var(--letter-spacing-m);
                 font-weight: 600;
                 color: var(--app-muted); /* Zinc 400 */
                 font-family: var(--font-heading);
@@ -44,11 +44,11 @@
         }
 
         .panel-body {
-            padding: 1rem;
+            padding: var(--spacing-m);
             flex: 1;
             overflow-y: auto;
             color: var(--app-color); /* Zinc 300 */
-            font-size: 0.95rem;
+            font-size: var(--font-size-base);
         }
     }
 </style>

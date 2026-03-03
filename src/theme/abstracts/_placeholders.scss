@@ -21,9 +21,9 @@
     @extend %glass-base;
 
     background: $layer-overlay; // Darker overlay
-    backdrop-filter: blur(12px); // Explicit blur for overlays
+    backdrop-filter: blur(var(--blur-m));
     box-shadow: $shadow-l;
-    border-radius: 50px;
+    border-radius: var(--border-radius-full);
 }
 
 // 1. The Standard Surface (Renamed Logic)
@@ -146,10 +146,10 @@
     justify-content: center;
     gap: $spacing-xs;
     padding: $spacing-xs $spacing-m;
-    min-height: 2.25rem;
+    min-height: var(--spacing-xxl); // ~40px - Standardized from 2.25rem
     font-family: inherit;
     font-weight: $font-bold;
-    font-size: 0.85rem; // Keep visual tuning
+    font-size: var(--font-size-s); // Standardized from 0.85rem
     line-height: 1;
     text-decoration: none;
     cursor: pointer;
@@ -317,10 +317,10 @@
 }
 
 %btn-round {
-    border-radius: 50%;
+    border-radius: var(--border-radius-full);
     padding: 0;
-    width: 2.25rem;
-    height: 2.25rem;
+    width: var(--spacing-xxl);
+    height: var(--spacing-xxl);
 }
 
 %btn-group-joined {
@@ -338,7 +338,7 @@
         }
 
         &:not(:last-child) {
-            border-right: 1px solid rgba($black, $opacity-xs);
+            border-right: var(--spacing-px) solid rgba($black, $opacity-xs);
         }
     }
 }
@@ -347,12 +347,12 @@
     @extend %glass-pill;
 
     display: inline-flex;
-    padding: 4px;
-    gap: 4px;
+    padding: var(--spacing-xxs);
+    gap: var(--spacing-xxs);
 
     .btn {
-        border-radius: 50px;
-        min-height: 2rem;
+        border-radius: var(--border-radius-full);
+        min-height: var(--spacing-xl); // ~32px
     }
 }
 

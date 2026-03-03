@@ -12,7 +12,7 @@
     let fractalBg = $derived(runtime?.storyFractal?.visuals?.profile_picture || "")
 
     // Derived
-    let isThinking = $derived(engineState.phase === "generating")
+    let is_thinking = $derived(engineState.phase === "generating")
 
     // --- ON MOUNT: Hydrate Entity Lists for Color Lookups ---
     onMount(async () => {
@@ -48,7 +48,7 @@
                 <ProsePanel />
 
                 <div class="input-container">
-                    <InputBar disabled={isThinking} />
+                    <InputBar disabled={is_thinking} />
                 </div>
             </div>
         {/snippet}
@@ -72,7 +72,7 @@
         inset: 0;
         background-size: cover;
         background-position: center;
-        opacity: 0.15;
+        opacity: var(--opacity-xs);
         z-index: 0;
         pointer-events: none;
         mix-blend-mode: overlay;

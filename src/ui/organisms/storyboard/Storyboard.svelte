@@ -12,8 +12,6 @@
     // --- STATE ---
     let loading = $state(true)
 
-    // Derived Title for Display
-
     onMount(async () => {
         try {
             const [characters, fractals] = await Promise.all([entities.list("character"), entities.list("fractal")])
@@ -32,9 +30,9 @@
 {#if loading}
     <!-- Global Skeleton Loader -->
     <div class="skeleton-boot">
-        <LoadingSkeleton variant="card" width="25vh" height="40vh" />
-        <LoadingSkeleton variant="card" width="40vh" height="25vh" />
-        <LoadingSkeleton variant="card" width="25vh" height="40vh" />
+        <LoadingSkeleton variant="card" width="var(--card-width, 25vh)" height="var(--card-height, 40vh)" />
+        <LoadingSkeleton variant="card" width="var(--card-height, 40vh)" height="var(--card-width, 25vh)" />
+        <LoadingSkeleton variant="card" width="var(--card-width, 25vh)" height="var(--card-height, 40vh)" />
     </div>
 {:else}
     <Layout align="end">
@@ -71,6 +69,8 @@
 {/if}
 
 <style lang="scss">
+    @use "@theme/abstracts/variables" as *;
+
     .header-container {
         text-align: center;
     }
@@ -83,8 +83,8 @@
         width: 100%;
         position: fixed;
         inset: 0;
-        align-items: center; /* Center items in their row */
-        align-content: center; /* Center the row in the container */
+        align-items: center;
+        align-content: center;
 
         & :global(.skeleton:nth-child(1)) {
             grid-column: 2 / span 2;
@@ -100,9 +100,8 @@
         }
 
         /* Mobile Stack */
-        @media (max-width: 768px) {
+        @media (max-width: $breakpoint-mobile) {
             grid-template-columns: 1fr;
-            /* Remove the shelf padding on mobile so it centers or fits better vertically */
             padding-bottom: 0;
             align-items: center;
 
@@ -118,7 +117,7 @@
 
     .controls-layer {
         margin-top: auto;
-        pointer-events: auto; /* Ensure clickable */
+        pointer-events: auto;
         display: flex;
         justify-content: center;
     }

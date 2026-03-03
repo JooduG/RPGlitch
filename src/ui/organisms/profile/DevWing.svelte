@@ -1,7 +1,7 @@
 <script>
-    let { char = $bindable(), isEditing } = $props()
+    let { char = $bindable(), is_editing } = $props()
 
-    function formatTimestamp(ts) {
+    function format_timestamp(ts) {
         if (!ts) return "---"
         return new Date(ts).toLocaleString("sv-SE", {
             year: "numeric",
@@ -12,7 +12,7 @@
         })
     }
 
-    const dynamicsList = [
+    const DYNAMICS_LIST = [
         { key: "entropy", label: "Entropy", desc: "Chaos vs Order" },
         { key: "velocity", label: "Velocity", desc: "Action Pacing" },
         { key: "permeability", label: "Permeability", desc: "Open vs Defense" },
@@ -24,11 +24,11 @@
     <!-- 1. Dynamics Console -->
     <div class="group dynamics-group">
         <div class="dynamics-grid">
-            {#each dynamicsList as dynamic (dynamic.key)}
-                <div class="dynamic-box" class:is-editing={isEditing}>
+            {#each DYNAMICS_LIST as dynamic (dynamic.key)}
+                <div class="dynamic-box" class:is-editing={is_editing}>
                     <span class="dynamic-label">{dynamic.label}</span>
                     <div class="value-container">
-                        {#if isEditing}
+                        {#if is_editing}
                             <input type="number" bind:value={char.dynamics[dynamic.key]} min="0" max="100" />
                             <div class="step-controls">
                                 <button onclick={() => (char.dynamics[dynamic.key] = Math.min(100, char.dynamics[dynamic.key] + 1))}>+</button>
@@ -57,11 +57,11 @@
         <footer class="footer-meta">
             <div class="meta-item">
                 <span class="tag">Created</span>
-                <span class="val">{formatTimestamp(char.created_at)}</span>
+                <span class="val">{format_timestamp(char.created_at)}</span>
             </div>
             <div class="meta-item">
                 <span class="tag">Updated</span>
-                <span class="val">{formatTimestamp(char.updated_at)}</span>
+                <span class="val">{format_timestamp(char.updated_at)}</span>
             </div>
         </footer>
     </div>
@@ -71,25 +71,22 @@
     @use "@theme/abstracts/placeholders" as *;
 
     .dev-wing-content {
-        @extend %material-glass-heavy;
-        padding: var(--spacing-l);
+        background: var(--gunmetal);
+        box-shadow: var(--shadow-m);
+        border-radius: var(--border-radius-l);
+        padding: var(--spacing-m);
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-l);
-        color: white;
-        border-radius: inherit;
-        background: var(--chalk, #222326);
-        background-image: radial-gradient(circle at bottom left, rgba(255, 255, 255, 0.05) 10%, transparent 70%);
+        gap: var(--spacing-m);
         height: 100%;
         overflow-y: auto;
-        overflow-x: hidden;
 
         &::-webkit-scrollbar {
-            width: 4px;
+            width: var(--spacing-xxs);
         }
         &::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
+            background: rgba(var(--pure-white-rgb), var(--opacity-m));
+            border-radius: var(--border-radius-full);
         }
     }
 
@@ -106,8 +103,8 @@
         gap: var(--spacing-s);
 
         .dynamic-box {
-            background: rgba(255, 255, 255, 0.03);
-            border: 0; /* Semi-flat */
+            background: var(--surface-sunken);
+            box-shadow: inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xxs));
             border-radius: var(--spacing-xs);
             padding: var(--spacing-s);
             display: flex;
@@ -115,21 +112,22 @@
             align-items: center;
             justify-content: center;
             gap: 0;
-            transition: all 0.2s;
-            min-height: 40px;
+            transition: all var(--transition-speed);
+            min-height: var(--spacing-xxl);
 
             &.is-editing:hover {
-                background: rgba(255, 255, 255, 0.06);
-                border-color: rgba(255, 255, 255, 0.2);
+                background: var(--surface-overlay);
+                box-shadow: inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xs));
             }
 
             .dynamic-label {
                 font-family: var(--font-header);
-                font-size: 0.7rem;
+                font-size: var(--font-size-xs);
                 text-transform: uppercase;
-                letter-spacing: 0.1em;
-                color: var(--text-dim);
-                margin-bottom: 0.25rem;
+                letter-spacing: var(--letter-spacing-l);
+                color: var(--app-muted);
+                opacity: 0.8;
+                margin-bottom: var(--spacing-xxs);
                 display: block;
             }
 
@@ -146,7 +144,7 @@
                     border: none;
                     color: white;
                     font-family: var(--font-mono);
-                    font-size: 1rem;
+                    font-size: var(--font-size-m);
                     font-weight: 700;
                     text-align: center;
                     padding: 0;
@@ -155,7 +153,7 @@
 
                 .step-controls {
                     position: absolute;
-                    right: 4px;
+                    right: var(--spacing-xxs);
                     display: flex;
                     flex-direction: column;
                     gap: 0;
@@ -164,12 +162,14 @@
                         background: transparent;
                         border: none;
                         color: var(--app-muted);
-                        font-size: 0.4rem;
-                        padding: 0 4px;
+                        font-size: var(--font-size-xxs);
+                        padding: 0 var(--spacing-xxs);
                         cursor: pointer;
-                        opacity: 0.3;
+                        opacity: var(--opacity-s);
+                        transition: all var(--transition-speed);
+
                         &:hover {
-                            opacity: 1;
+                            opacity: var(--opacity-full);
                             color: var(--app-accent);
                         }
                     }
@@ -181,32 +181,35 @@
     /* 4. Meta & Raw */
     .raw-explorer {
         summary {
-            font-size: 0.6rem;
+            font-size: var(--font-size-xs);
             font-weight: 800;
             color: var(--app-muted);
             text-transform: uppercase;
             cursor: pointer;
-            opacity: 0.4;
-            letter-spacing: 0.05em;
-            transition: all 0.2s;
+            opacity: 0.7;
+            letter-spacing: var(--letter-spacing-m);
+            transition: all var(--transition-speed);
+
             &:hover {
-                opacity: 0.8;
+                opacity: 1;
                 color: white;
             }
         }
 
         .json-wrap {
-            margin-top: 8px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 0; /* Semi-flat */
+            margin-top: var(--spacing-xs);
+            background: rgba(var(--pure-black-rgb), 0.4);
+            box-shadow:
+                inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xxs)),
+                inset 0 0.125rem 0.25rem rgba(var(--pure-black-rgb), 0.5);
             border-radius: var(--spacing-xs);
             padding: var(--spacing-xs);
-            max-height: 150px;
+            max-height: 10rem;
             overflow: auto;
 
             pre {
-                font-size: 0.55rem;
-                color: rgba(255, 255, 255, 0.3);
+                font-size: var(--font-size-xs);
+                color: rgba(var(--pure-white-rgb), 0.8);
                 font-family: var(--font-mono);
                 margin: 0;
             }
@@ -217,23 +220,24 @@
         margin-top: auto;
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: var(--spacing-xxs);
 
         .meta-item {
             display: flex;
             justify-content: flex-start;
-            gap: 8px;
-            font-size: 0.55rem;
+            gap: var(--spacing-xs);
+            font-size: var(--font-size-xs);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: var(--letter-spacing-s);
 
             .tag {
                 color: var(--app-muted);
-                opacity: 0.4;
+                opacity: 0.7;
                 font-weight: 900;
             }
+
             .val {
-                color: rgba(255, 255, 255, 0.2);
+                color: rgba(var(--pure-white-rgb), 0.9);
             }
         }
     }

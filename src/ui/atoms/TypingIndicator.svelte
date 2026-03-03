@@ -13,20 +13,20 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 4px; /* Tight gap for pill look */
-        padding: 12px 20px; /* Pill padding */
-        background: var(--surface-panel); /* Or a specific bubble color */
-        border-radius: 9999px; /* Pill shape */
+        gap: var(--spacing-xxs);
+        padding: var(--spacing-s) var(--spacing-xl);
+        background: var(--surface-panel);
+        border-radius: var(--border-radius-full);
         box-shadow: var(--shadow-sm);
-        height: 40px; /* Fixed height for consistency */
+        height: var(--spacing-xxl);
         width: fit-content;
     }
 
     .dot {
-        width: 8px;
-        height: 8px;
+        width: var(--spacing-xs);
+        height: var(--spacing-xs);
         background-color: var(--dot-color, currentColor);
-        border-radius: 50%;
+        border-radius: var(--border-radius-full);
         animation: bounce 1.4s infinite ease-in-out both;
 
         &:nth-child(1) {

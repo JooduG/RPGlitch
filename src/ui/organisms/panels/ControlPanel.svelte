@@ -83,34 +83,46 @@
 <style lang="scss">
     .cockpit-panel {
         width: 32rem;
-        background: var(--surface-overlay);
-        backdrop-filter: blur(var(--blur-m));
+        background: var(--gunmetal);
         box-shadow: var(--shadow-l);
-        border-radius: var(--radius-lg);
-        padding: var(--spacing-l);
+        border-radius: var(--border-radius-l);
+        padding: var(--spacing-xl);
         display: flex;
         flex-direction: column;
         gap: var(--spacing-l);
         font-family: var(--font-family-sans);
         color: var(--text-primary);
         overflow: hidden;
+        box-shadow: var(--shadow-m);
     }
 
     .status-toggles {
         display: flex;
-        gap: var(--spacing-xl);
-        justify-content: flex-start;
+        flex-direction: column;
+        gap: var(--spacing-m);
+        justify-content: center;
+        align-items: center;
+        margin-bottom: var(--spacing-l);
+        padding: var(--spacing-m) 0;
+        box-shadow: 0 1px 0 rgba(var(--pure-white-rgb), var(--opacity-xxs));
     }
 
     .prologue-setup {
         .input-wrapper {
-            background: rgba(0, 0, 0, var(--opacity-s));
-            border-radius: var(--radius-md);
-            padding: var(--spacing-s);
+            background: var(--surface-sunken);
+            border-radius: var(--border-radius-m);
+            padding: var(--spacing-m);
+            box-shadow: inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xxs));
+            transition: all var(--transition-speed) var(--curve-snappy);
+
+            &:focus-within {
+                background: var(--surface-overlay);
+                box-shadow: 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xs));
+            }
 
             .prologue-field {
                 width: 100%;
-                min-height: 6rem;
+                min-height: 8rem;
                 background: transparent;
                 border: none;
                 color: var(--text-secondary);
@@ -118,10 +130,12 @@
                 font-size: var(--font-size-s);
                 resize: none;
                 outline: none;
+                line-height: var(--line-height-m);
 
                 &::placeholder {
                     color: var(--text-muted);
                     font-style: italic;
+                    opacity: 0.5;
                 }
             }
         }
@@ -130,14 +144,18 @@
     .action-grid {
         display: flex;
         flex-wrap: wrap;
-        gap: var(--spacing-xs);
+        gap: var(--spacing-s);
         justify-content: center;
+        padding: var(--spacing-m) 0;
     }
 
     .panel-footer {
         display: flex;
         flex-direction: column;
         gap: var(--spacing-l);
+        margin-top: auto;
+        padding-top: var(--spacing-m);
+        border-top: 1px solid rgba(var(--pure-white-rgb), var(--opacity-xxs));
     }
 
     .navigation-links {
@@ -149,13 +167,17 @@
             border: none;
             color: var(--text-secondary);
             font-weight: 600;
-            font-size: var(--font-size-s);
+            font-size: var(--font-size-xs);
+            text-transform: uppercase;
+            letter-spacing: var(--letter-spacing-m);
             cursor: pointer;
-            transition: color 200ms var(--curve-snappy);
+            transition: all var(--transition-speed) var(--curve-snappy);
+            opacity: 0.7;
 
             &:hover {
                 color: var(--text-primary);
-                text-decoration: underline;
+                opacity: 1;
+                transform: translateY(-1px);
             }
         }
     }
@@ -164,6 +186,15 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        gap: var(--spacing-m);
+
+        .dev-toggle {
+            opacity: 0.8;
+            transition: opacity var(--transition-speed);
+            &:hover {
+                opacity: 1;
+            }
+        }
 
         .reset-wrapper {
             display: flex;
