@@ -4,10 +4,6 @@ import { ImageGeneration } from "./image_engine.js"
 import { PromptEngine } from "./image_prompts.js"
 
 // Mock dependencies
-vi.mock("@core/engine/bus.js", () => ({
-    events: { dispatchEvent: vi.fn() },
-    EVENTS: {},
-}))
 vi.mock("@data/db.js", () => ({
     db: {},
 }))

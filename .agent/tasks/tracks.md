@@ -12,13 +12,6 @@
 - Checkpoint: `scss-std-01`
 - Note: Codebase-wide hygienic sweep replacing all hardcoded SCSS values (colors, opacities, spacing) with reusable variables.
 
-### Track: Event Bus Purge
-
-- Path: [.agent/tasks/event-bus-purge/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/event-bus-purge/)
-- Status: Planning
-- Checkpoint: `arch-bus-01`
-- Note: Purging `bus.svelte.js` in favor of direct Svelte 5 Rune reactivity. High-fidelity refactor of state and engine layers.
-
 ### Track: Prompt Intelligence Reconstruction
 
 - Path: [.agent/tasks/prompt-intelligence-reconstruction/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/prompt-intelligence-reconstruction/)
@@ -28,10 +21,10 @@
 
 ### Track: Vector Architecture Refactor
 
-- Path: [.agent/tasks/vector-architecture-refactor/](file:///c:/Users/johng/.agent/tasks/vector-architecture-refactor/)
-- Status: Planning
+- Path: [.agent/tasks/vector-architecture-refactor/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/vector-architecture-refactor/)
+- Status: Active
 - Checkpoint: `vec-arch-01`
-- Note: Nuke-and-Pave refactor of temporal memory. Centralizing logic in `vector_engine.js` and enforcing strict schema.
+- Note: Nuke-and-Pave refactor of temporal memory. Terminology Unification (simulation_log) and snake_case standardization complete.
 
 ## 📋 Protocols & Checklists
 
@@ -99,3 +92,10 @@
 - **Status:** Complete
 - **Checkpoint:** `f3960fc5`
 - **Note:** Deconstructed and rebuilt speculative materials into the Meridian Lab standard. Purged legacy canon folders.
+
+### ✅ Track: Event Bus Purge
+
+- **Path:** [.agent/tasks/event-bus-purge/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/event-bus-purge/)
+- **Status:** Complete
+- **Checkpoint:** `arch-bus-02`
+- **Note:** Purged legacy `bus.js` architecture. Fixed production regressions in `engine.js` and removed stale test mocks. Transitioned to Svelte 5 Rune reactivity.

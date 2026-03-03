@@ -39,20 +39,6 @@ vi.mock("@state/runtime.svelte.js", () => ({
     },
 }))
 
-vi.mock("@core/engine/bus.js", () => ({
-    state: {
-        story: { active_id: "test-story" },
-        simulation_log: {
-            by_story_id: {
-                "test-story": [
-                    { role: "user", text: "Hello" },
-                    { role: "ai", text: "Hi", character_name: "AI" },
-                ],
-            },
-        },
-    },
-}))
-
 describe("ContextBroker", () => {
     beforeEach(() => {
         vi.clearAllMocks()

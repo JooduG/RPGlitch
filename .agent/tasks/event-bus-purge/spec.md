@@ -21,8 +21,8 @@ Eliminate the legacy `bus.svelte.js` layer to fully embrace Svelte 5's direct re
 
 ## Acceptance Criteria
 
-- [ ] `src/core/engine/bus.svelte.js` is deleted.
-- [ ] No imports of `@core/engine/bus.svelte.js` remain in the codebase.
-- [ ] Application boots and hydrates successfully from `Dexie.js` without the bus.
-- [ ] Real-time updates (Generation, Message Append, Entity Updates) work seamlessly.
-- [ ] All unit and integration tests for state and engine pass.
+- [x] `src/core/engine/bus.svelte.js` is deleted.
+- [x] No imports of `@core/engine/bus.svelte.js` remain in the codebase.
+- [x] Application boots and hydrates successfully from `Dexie.js` without the bus.
+- [x] Real-time updates (Generation, Message Append, Entity Updates) work seamlessly.
+- [x] All unit and integration tests for state and engine pass.

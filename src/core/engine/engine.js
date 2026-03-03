@@ -15,9 +15,9 @@ import { Session } from "./session-driver.js"
 export const Engine = {
     // --- SESSION ---
     requireActive: () => Session.requireActive(),
-    getActive: () => Session.getActive(),
+    getActive: () => Session.activeId,
     createFromSelection: (data) => Session.createFromSelection(data),
-    loadMessages: (storyId) => Session.loadMessages(storyId),
+    loadMessages: (storyId) => Session.load_log(storyId),
     send: async (text) => {
         await Session.send(text)
         await Engine.generateAiResponse(Session.requireActive())
@@ -139,7 +139,7 @@ export const Engine = {
             // 4. PERSIST (Session)
             // Assume AI character name is in runtime or use default
             const aiName = runtime.activeAI?.name || "AI"
-            await Session.addAiMessage(response, aiName)
+            await Session.log_turn(response, aiName)
 
             // [NEXUS] Check for L2 Consolidation (Background)
             Engine.NarrativeDirector.consolidate()
@@ -167,7 +167,7 @@ export const Engine = {
                 const fractal_name = runtime.active_fractal?.name || "Fractal Entity"
 
                 // [NEXUS] Action 1: Save Prologue to DB
-                await Session.addAiMessage(result, fractal_name, "prologue")
+                await Session.log_turn(result, fractal_name, "fractal")
 
                 // [NEXUS] Action 2: The Hook - Immediate Director Follow-up
                 // This prevents the AI from starving and hallucinating user dialogue.
@@ -189,7 +189,7 @@ export const Engine = {
             engineState.startGeneration("ai")
             try {
                 const result = await LlmService.generate(payload)
-                await Session.addAiMessage(result, "Narrator")
+                await Session.log_turn(result, "Narrator")
             } finally {
                 engineState.complete()
             }
