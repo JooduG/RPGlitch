@@ -5,13 +5,6 @@
 
 ## 🚀 Active Tracks
 
-### Track: Off-Screen Dynamics Protocol
-
-- Path: [.agent/tasks/off-screen-dynamics/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/off-screen-dynamics/)
-- Status: Active
-- Checkpoint: `off-ent-01`
-- Note: Implementing background NPC momentum and potential scene intrusion to cure protagonist syndrome.
-
 ### Track: Emotional Half-Life Protocol
 
 - Path: [.agent/tasks/emotional-half-life/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/emotional-half-life/)
@@ -61,6 +54,13 @@
 - **Note:** Systemic rename of character dynamics: entropy -> chaos, velocity -> intensity, permeability -> openness, resonance -> affinity. Updated state, engine logic, template tags, and UI labels. Resolved build regression in `ContextBroker.js`. pass final `npm run deploy`.
 
 ## ✅ Archive
+
+### ✅ Track: Off-Screen Dynamics Protocol
+
+- **Path:** [.agent/archive/off-screen-dynamics/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/archive/off-screen-dynamics/)
+- **Status:** Complete
+- **Checkpoint:** `6929c76f`
+- **Note:** Implementing background NPC momentum and potential scene intrusion to cure protagonist syndrome.
 
 ### ✅ Track: Prompt Intelligence Reconstruction
 
