@@ -37,6 +37,7 @@ const PROTOCOL_LIBRARY = {
     THIRD_PERSON: `THIRD_PERSON: Narrate exclusively from the third-person limited perspective. In this mode, you are the world-voice observing the entities.`,
     GRIT: `GRIT: Maintain a 2:1 ratio of sensory physics (texture, light, resistance) to abstract dialogue or logic.`,
     SCENE_PACING: `SCENE_PACING: Background intrusions are ADVISORY only. Do NOT allow off-screen entities to hijack narrative focus unless intensity exceeds critical threshold. Maximum one background cutaway per 3 turns. Maintain protagonist scene continuity.`,
+    SINO_LOGIC: `SINO_LOGIC: Your internal reasoning within the <think> block MUST be conducted in Concise Technical Chinese (zh-CN). Your final narrative output outside the <think> block MUST be in the primary requested language (English). Maintain a strict semantic boundary between internal calculation and external prose.`,
 }
 
 /************************************************************************************
@@ -164,7 +165,7 @@ export class PromptBuilder {
             return {
                 system: SYSTEM_PROMPTS.prologue({
                     ...payload,
-                    protocols: "COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, EPISTEMIC_WALL, PLACEMENT, IMMERSION, MOMENTUM",
+                    protocols: "SINO_LOGIC, COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, EPISTEMIC_WALL, PLACEMENT, IMMERSION, MOMENTUM",
                 }),
                 meta: {},
             }
@@ -179,7 +180,7 @@ export class PromptBuilder {
             payload.entities.BACKGROUND_INTENSITY = `<BACKGROUND_INTENSITY>\n${intensity_lines}\n</BACKGROUND_INTENSITY>`
         }
 
-        const protocols = intruders.length > 0 ? "COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL, SCENE_PACING" : "COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL"
+        const protocols = intruders.length > 0 ? "SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL, SCENE_PACING" : "SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL"
 
         const system = SYSTEM_PROMPTS.simulation({
             ...payload,
