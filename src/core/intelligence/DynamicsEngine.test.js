@@ -117,20 +117,24 @@ describe("Dynamics Engine v2 (Refactored)", () => {
     })
 
     describe("Off-Screen Dynamics: calculate_offscreen_dynamics", () => {
-        it("should return empty array when no background entities provided", () => {
-            const result = DynamicsEngine.calculate_offscreen_dynamics("I run fast", [])
-            expect(result).toEqual([])
+        it("should return empty arrays when no background entities provided", () => {
+            const { intruders, updates } = DynamicsEngine.calculate_offscreen_dynamics("I run fast", [])
+            expect(intruders).toEqual([])
+            expect(updates).toEqual([])
         })
 
-        it("should return empty array for null input", () => {
-            const result = DynamicsEngine.calculate_offscreen_dynamics("some text", null)
-            expect(result).toEqual([])
+        it("should return empty arrays for null input", () => {
+            const { intruders, updates } = DynamicsEngine.calculate_offscreen_dynamics("some text", null)
+            expect(intruders).toEqual([])
+            expect(updates).toEqual([])
         })
 
-        it("should not flag entities below LAW_HIGH intensity", () => {
+        it("should not flag entities below LAW_HIGH intensity but still return updates", () => {
             const bg = [{ name: "Guard", id: "g1", dynamics: { intensity: 50, chaos: 50, openness: 50, affinity: 50 } }]
-            const result = DynamicsEngine.calculate_offscreen_dynamics("regular input", bg)
-            expect(result).toEqual([])
+            const { intruders, updates } = DynamicsEngine.calculate_offscreen_dynamics("regular input", bg)
+            expect(intruders).toEqual([])
+            expect(updates.length).toBe(1)
+            expect(updates[0].id).toBe("g1")
         })
 
         it("should flag entities at LAW_HIGH intensity threshold", () => {
@@ -138,24 +142,26 @@ describe("Dynamics Engine v2 (Refactored)", () => {
             // Gravity: 50-105 = -55, pull = -13.75 => 105-13.75 = 91.25 => 91
             // ADRENALINE_OVERDRIVE (>=90) triggers. Intensity stays 91 >= 90.
             const bg = [{ name: "Assassin", id: "a1", dynamics: { intensity: 95, chaos: 50, openness: 50, affinity: 50 } }]
-            const result = DynamicsEngine.calculate_offscreen_dynamics("I run towards the exit", bg)
-            expect(result.length).toBe(1)
-            expect(result[0].name).toBe("Assassin")
-            expect(result[0].intensity).toBeGreaterThanOrEqual(90)
-            expect(result[0].flags).toContain("ADRENALINE_OVERDRIVE")
+            const { intruders, updates } = DynamicsEngine.calculate_offscreen_dynamics("I run towards the exit", bg)
+            expect(intruders.length).toBe(1)
+            expect(intruders[0].name).toBe("Assassin")
+            expect(intruders[0].intensity).toBeGreaterThanOrEqual(90)
+            expect(intruders[0].flags).toContain("ADRENALINE_OVERDRIVE")
+            expect(updates.length).toBe(1)
         })
 
-        it("should filter among mixed entities, flagging only high-intensity ones", () => {
+        it("should filter among mixed entities, flagging only high-intensity ones while updating all", () => {
             const bg = [
                 { name: "Bystander", id: "b1", dynamics: { intensity: 30, chaos: 50, openness: 50, affinity: 50 } },
                 { name: "Pursuer", id: "p1", dynamics: { intensity: 95, chaos: 50, openness: 50, affinity: 50 } },
                 { name: "Shopkeeper", id: "s1" },
             ]
-            const result = DynamicsEngine.calculate_offscreen_dynamics("shooting and running", bg)
-            const names = result.map((r) => r.name)
+            const { intruders, updates } = DynamicsEngine.calculate_offscreen_dynamics("shooting and running", bg)
+            const names = intruders.map((r) => r.name)
             expect(names).toContain("Pursuer")
             expect(names).not.toContain("Bystander")
             expect(names).not.toContain("Shopkeeper")
+            expect(updates.length).toBe(3)
         })
     })
 })

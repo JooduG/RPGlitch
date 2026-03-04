@@ -1,4 +1,4 @@
-# Off-Screen Entropy Protocol (Implementation Plan)
+# Off-Screen Dynamics Protocol (Implementation Plan)
 
 ## Phase 1: State (The Entities)
 
@@ -9,9 +9,9 @@
 ## Phase 2: Logic (The Physics Engine)
 
 1. **`src/core/intelligence/dynamics_engine.js`**:
-    - **Task**: Implement `calculate_offscreen_entropy(input, background_entities)`.
+    - **Task**: Implement `calculate_offscreen_dynamics(input, background_entities)`.
     - **Details**: Loop through the `background_entities` array. For each entity, resolve a mini-dynamics tick based on the user's `input` and the entity's current `dynamics`.
-    - Track tracking of `velocity` axes. If `velocity >= LAW_HIGH` (e.g., 85), push the entity to a `flagged_intruders` list.
+    - Track tracking of `intensity` axes. If `intensity >= LAW_HIGH` (e.g., 85), push the entity to a `flagged_intruders` list.
     - **Task**: Update `compose(context)` to accept background entities, execute the audit, and append the `flagged_intruders` to the returned `meta` object and `SYSTEM_PROMPTS` context.
     - _Estimated Time: 45 minutes._
 
@@ -23,16 +23,16 @@
 ## Phase 3: UI/Prompt Engineering (The FRACTAL)
 
 1. **`src/core/intelligence/prompt_builder.js`**:
-    - **Task**: Implement `<BACKGROUND_VELOCITY>` injection.
+    - **Task**: Implement `<BACKGROUND_INTENSITY>` injection.
     - **Details**: If `flagged_intruders` exists and is not empty, generate an XML block listing the entities.
     - **Task**: Implement `SCENE_PACING` failsafe.
-    - **Details**: Add instructions to the `<FRACTAL>` persona to explicitly evaluate the active scene's velocity. If the scene is slow ("BREATHER" reflexes, high permeability/resonance), instruct the FRACTAL to suppress the intrusion to maintain the mood.
+    - **Details**: Add instructions to the `<FRACTAL>` persona to explicitly evaluate the active scene's intensity. If the scene is slow ("BREATHER" reflexes, high openness/affinity), instruct the FRACTAL to suppress the intrusion to maintain the mood.
     - _Estimated Time: 45 minutes._
 
 ## Phase 4: Verification (Tests)
 
 1. **`src/core/intelligence/dynamics_engine.test.js`**:
-    - **Task**: Write unit tests for the background entropy math to ensure off-screen velocity is correctly calculated and does not bleed into the active AI's state.
+    - **Task**: Write unit tests for the background dynamics math to ensure off-screen intensity is correctly calculated and does not bleed into the active AI's state.
     - _Estimated Time: 45 minutes._
 
 ## 5. Deployment

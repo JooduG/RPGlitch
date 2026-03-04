@@ -148,6 +148,14 @@ export const Engine = {
             const aiName = runtime.activeAI?.name || "AI"
             await Session.log_turn(response, aiName, "ai", { dynamics: meta.dynamics, flags: meta.flags, behaviors: meta.behaviors })
 
+            // [NEXUS] Action: Persist Background Momentum
+            if (meta.background_updates && meta.background_updates.length > 0) {
+                for (const update of meta.background_updates) {
+                    await entities.upsert("character", update)
+                }
+                app.log(`Dynamics Engine: Persisted momentum for ${meta.background_updates.length} background entities.`, "system")
+            }
+
             // [NEXUS] Check for L2 Consolidation (Background)
             Engine.NarrativeDirector.consolidate()
         } catch (e) {

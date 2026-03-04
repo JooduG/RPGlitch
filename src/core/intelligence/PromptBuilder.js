@@ -170,7 +170,7 @@ export class PromptBuilder {
         }
 
         // Default: Simulation
-        const intruders = DynamicsEngine.calculate_offscreen_dynamics(payload.input, payload.background_entities || [])
+        const { intruders, updates } = DynamicsEngine.calculate_offscreen_dynamics(payload.input, payload.background_entities || [])
 
         // Inject BACKGROUND_INTENSITY block into entities for the template
         if (intruders.length > 0) {
@@ -192,6 +192,7 @@ export class PromptBuilder {
                 dynamics: snapshot.dynamics,
                 flags: snapshot.flags,
                 behaviors: snapshot.behaviors,
+                background_updates: updates,
             },
         }
     }

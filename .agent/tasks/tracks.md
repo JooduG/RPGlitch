@@ -5,9 +5,9 @@
 
 ## 🚀 Active Tracks
 
-### Track: Off-Screen Entropy Protocol
+### Track: Off-Screen Dynamics Protocol
 
-- Path: [.agent/tasks/off-screen-entropy/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/off-screen-entropy/)
+- Path: [.agent/tasks/off-screen-dynamics/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/off-screen-dynamics/)
 - Status: Active
 - Checkpoint: `off-ent-01`
 - Note: Implementing background NPC momentum and potential scene intrusion to cure protagonist syndrome.
@@ -24,7 +24,7 @@
 - Path: [.agent/tasks/bayesian-gravity/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/bayesian-gravity/)
 - Status: Planning
 - Checkpoint: `bayes-grav-01`
-- Note: Upgrading NPC logic to calculate statistical probability of user deception via Bayesian inference using the Permeability axis as a prior.
+- Note: Upgrading NPC logic to calculate statistical probability of user deception via Bayesian inference using the Openness axis as a prior.
 
 ### Track: SCSS Token Standardization
 
@@ -53,6 +53,12 @@
 - **Status:** Complete
 - **Checkpoint:** `f2b2609`
 - **Note:** Implemented 2% Grain Overlay, fixed duplicate box-shadows (Storyboard/ControlPanel), standardized `--curve-snappy` transitions, and resolved SCSS comment warnings. All UI regressions resolved and passed production build.
+
+### ✅ Track: Dynamics Nomenclature Refactor
+
+- **Status:** Complete
+- **Checkpoint:** `491e55b8`
+- **Note:** Systemic rename of character dynamics: entropy -> chaos, velocity -> intensity, permeability -> openness, resonance -> affinity. Updated state, engine logic, template tags, and UI labels. Resolved build regression in `ContextBroker.js`. pass final `npm run deploy`.
 
 ## ✅ Archive
 

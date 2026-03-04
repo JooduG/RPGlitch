@@ -264,14 +264,15 @@ export class DynamicsEngine {
      *
      * @param {string} input - The current user input (drives reflex scanning).
      * @param {Array<{name: string, id: string, dynamics?: object}>} background_entities
-     * @returns {Array<{name: string, id: string, intensity: number, flags: string[]}>}
+     * @returns {{ intruders: Array<{name: string, id: string, intensity: number, flags: string[]}>, updates: Array<object> }}
      */
     static calculate_offscreen_dynamics(input, background_entities) {
-        if (!Array.isArray(background_entities) || background_entities.length === 0) return []
+        if (!Array.isArray(background_entities) || background_entities.length === 0) return { intruders: [], updates: [] }
 
         const d_phys = CONFIG.DYNAMICS
         const baseline_val = d_phys.DYNAMICS_GRAVITY_BASELINE
         const flagged_intruders = []
+        const updates = []
 
         for (const entity of background_entities) {
             const baselines = {
@@ -286,6 +287,12 @@ export class DynamicsEngine {
             // Run a lightweight physics tick (same math as active entity)
             const tick = DynamicsEngine.resolve_dynamics(input, baselines, prev_dynamics)
 
+            // Track the update for persistence
+            updates.push({
+                id: entity.id,
+                dynamics: tick.dynamics,
+            })
+
             if (tick.dynamics.intensity >= d_phys.LAW_HIGH) {
                 flagged_intruders.push({
                     name: entity.name || "Unknown",
@@ -296,6 +303,6 @@ export class DynamicsEngine {
             }
         }
 
-        return flagged_intruders
+        return { intruders: flagged_intruders, updates }
     }
 }
