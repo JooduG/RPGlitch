@@ -30,7 +30,7 @@
  * └────────────────────────────────────────────────────────────────────────┘
  */
 
-import { scan_reflexes } from "./dynamics_engine.js"
+import { DynamicsEngine } from "./DynamicsEngine.js"
 
 /************************************************************************************
  * 🧩 [SECTION: THE FORGE — Vector Creation]
@@ -50,7 +50,7 @@ import { scan_reflexes } from "./dynamics_engine.js"
  */
 export function create_vector(text, summary = null) {
     const final_summary = summary || text
-    const reflexes = scan_reflexes(final_summary)
+    const reflexes = DynamicsEngine.scan_reflexes(final_summary)
 
     return {
         id: crypto.randomUUID(),
@@ -84,7 +84,7 @@ export function score_vectors(vectors, input) {
     if (!Array.isArray(vectors) || !vectors.length) return []
     if (!input) return vectors.slice(-3) // No input? Just give the 3 newest memories
 
-    const current_reflexes = scan_reflexes(input).map((r) => r.id)
+    const current_reflexes = DynamicsEngine.scan_reflexes(input).map((r) => r.id)
     const input_lower = input.toLowerCase()
 
     const scored = vectors.map((v) => {

@@ -24,8 +24,8 @@
  */
 
 import { LlmService } from "@core/intelligence/intelligence_service.js"
-import { scan_reflexes } from "./dynamics_engine.js"
-import { PromptBuilder } from "./prompt_builder.js"
+import { DynamicsEngine } from "./DynamicsEngine.js"
+import { PromptBuilder } from "./PromptBuilder.js"
 
 /**
  * Condenses a slice of recent history into a structured Resonance record.
@@ -43,8 +43,7 @@ export async function memorize(target_entity, history_slice, role = "character")
 
     try {
         // 1. Build the memory condensation prompt.
-        const builder = new PromptBuilder()
-        const payload = builder.build_memory_prompt(target_entity, history_slice, role)
+        const payload = PromptBuilder.build_memory_prompt(role, target_entity, history_slice)
 
         // 2. Generate a raw Resonance response from the LLM.
         //    Expects: { summary: string, entity_tags: string[] }
@@ -72,7 +71,7 @@ export async function memorize(target_entity, history_slice, role = "character")
 
         // 4. Hybrid Tagging Logic (AXIS TAGS)
         //    Run automated Scan Reflexes on the summary to avoid hallucination.
-        const triggered_reflexes = scan_reflexes(resonance.summary)
+        const triggered_reflexes = DynamicsEngine.scan_reflexes(resonance.summary)
         const axis_tags = triggered_reflexes.map((r) => r.id)
 
         // 5. Build Final Resonance Object

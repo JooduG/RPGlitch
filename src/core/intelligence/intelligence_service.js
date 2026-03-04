@@ -20,7 +20,7 @@
  */
 
 import { ERROR_MESSAGES } from "@core/engine/config.js"
-import { SYSTEM_PROMPTS } from "@core/intelligence/prompt_builder.js"
+import { SYSTEM_PROMPTS } from "@core/intelligence/PromptBuilder.js"
 import { app } from "@state/app.svelte.js"
 
 /************************************************************************************
@@ -63,7 +63,7 @@ export const LlmService = {
      */
     async enhance(text, fieldKey) {
         const payload = {
-            system: SYSTEM_PROMPTS.enhancement({ field_id: fieldKey, content: text }),
+            system: SYSTEM_PROMPTS.enhancement({ label: fieldKey, directive: "Expand and enrich the fragment.", enhancer: "GENERAL", content: text }),
             messages: [],
         }
 

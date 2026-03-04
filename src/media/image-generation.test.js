@@ -7,7 +7,7 @@ import { PromptEngine } from "./image_prompts.js"
 vi.mock("@data/db.js", () => ({
     db: {},
 }))
-vi.mock("@core/intelligence/intelligence_broker.js", () => ({
+vi.mock("@core/intelligence/ContextBroker.js", () => ({
     ContextBroker: {},
 }))
 vi.mock("@core/intelligence/intelligence_service.js", () => ({

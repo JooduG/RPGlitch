@@ -33,13 +33,6 @@
 - Checkpoint: `scss-std-01`
 - Note: Codebase-wide hygienic sweep replacing all hardcoded SCSS values (colors, opacities, spacing) with reusable variables.
 
-### Track: Prompt Intelligence Reconstruction
-
-- Path: [.agent/tasks/prompt-intelligence-reconstruction/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/prompt-intelligence-reconstruction/)
-- Status: Active
-- Checkpoint: `recon-pi-02`
-- Note: Systemic refactor of the intelligence pipeline (Blueprint -> Orchestrator). Phase 2 (Kernel Optimization) complete.
-
 ### Track: Sino-Logic Optimization
 
 - Path: [.agent/tasks/sino-logic-optimization/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/sino-logic-optimization/)
@@ -62,6 +55,13 @@
 - **Note:** Implemented 2% Grain Overlay, fixed duplicate box-shadows (Storyboard/ControlPanel), standardized `--curve-snappy` transitions, and resolved SCSS comment warnings. All UI regressions resolved and passed production build.
 
 ## ✅ Archive
+
+### ✅ Track: Prompt Intelligence Reconstruction
+
+- **Path:** [.agent/archive/prompt-intelligence-reconstruction/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/archive/prompt-intelligence-reconstruction/)
+- **Status:** Complete
+- **Checkpoint:** `recon-pi-03`
+- **Note:** Systemic refactor of the intelligence pipeline (Blueprint -> Orchestrator). Unification of IntelligencePayload and final resolution of Typescript types.
 
 ### ✅ Track: Engine Audit (Interior Guide)
 

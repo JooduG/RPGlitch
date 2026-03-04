@@ -15,7 +15,7 @@
  * │                      Consumed by: UI components, broker (via CATALOG).  │
  * │                                                                         │
  * │  ENTITY_CATALOG    — Flat dot-keyed map derived from ENTITY_FRAGMENTS.  │
- * │                      Consumed by: intelligence_broker.js for iteration. │
+ * │                      Consumed by: ContextBroker.js for iteration.       │
  * └─────────────────────────────────────────────────────────────────────────┘
  *
  * FIELD SCHEMA

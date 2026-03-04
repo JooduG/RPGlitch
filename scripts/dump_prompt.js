@@ -7,8 +7,9 @@
  * Run with: npx vitest run scripts/dump_prompt.js
  */
 
-import { ContextBroker } from "../src/core/intelligence/intelligence_broker.js"
-import { PromptBuilder, SYSTEM_PROMPTS } from "../src/core/intelligence/prompt_builder.js"
+import { ContextBroker } from "../src/core/intelligence/ContextBroker.js"
+import { DynamicsEngine } from "../src/core/intelligence/DynamicsEngine.js"
+import { PromptBuilder } from "../src/core/intelligence/PromptBuilder.js"
 import { runtime } from "../src/state/runtime.svelte.js"
 
 import { describe, it } from "vitest"
@@ -17,10 +18,10 @@ describe("v5.0 Prompt Audit (LIVE SOURCE)", () => {
     it("renders a full simulation prompt for manual audit", async () => {
         runtime._debugInject({
             ai: {
-                name: "The Broker",
+                name: "Viper",
                 eternal: { physical: "Metallic eyes.", non_physical: "Analytical mind." },
                 present: { physical: "Flickering.", non_physical: "Searching data." },
-                past: { memories: [] },
+                past: { vectors: [] },
                 future: { vectors: [{ text: "Wants to be free.", timestamp: Date.now() }] },
             },
             user: {
@@ -40,34 +41,19 @@ describe("v5.0 Prompt Audit (LIVE SOURCE)", () => {
             },
         })
 
-        // 1. Setup Mock State in Runtime (AFTER inject to ensure vectors exist)
+        // 1. Setup Mock State in Runtime
         runtime.log_turn("Locate the merchant in the Hollow Market.", true)
+        const input = "I watch the merchant stall from the shadows."
 
-        // 2. Use the Broker to pull entities (this tests the Universal Entity enhancement)
-        const entity_state = ContextBroker.pull_entities("simulation")
+        // 2. Phase 1: Hydration
+        const history = [] // Mock history for now
+        const payload = ContextBroker.hydrate(input, "simulation", history)
 
-        // Manual override for turn since we can't easily set it on runtime singleton without a setter
-        entity_state.turn = 7
+        // 3. Phase 2: Simulation
+        const snapshot = DynamicsEngine.simulate(payload)
 
-        const tone = {
-            label: "Cyberpunk/Atmospheric",
-            style: "Gritty Noir",
-            instructions: ["The air is thick with neon and rain.", "Every shadow hides a secret."],
-        }
-
-        const full_prompt = SYSTEM_PROMPTS.simulation({
-            tone,
-            state: {
-                entity: entity_state,
-                recentMessages: runtime.simulation_log.by_story_id[runtime.story_id || "debug"] || [],
-            },
-            input: "I watch the merchant stall from the shadows.",
-            visualsAuthorized: true,
-        })
-
-        // 3. Test buildImagePrompt (Visual Mode)
-        const builder = new PromptBuilder()
-        const imagePayload = builder.build_image_prompt("scene")
+        // 4. Phase 3: Synthesis
+        const { system } = PromptBuilder.synthesize(payload, snapshot)
 
         const SEPARATOR = "=".repeat(72)
         const output = `
@@ -75,12 +61,21 @@ ${SEPARATOR}
   v5.0 PROMPT RENDER - SOURCE AUDIT
 ${SEPARATOR}
 
-[SIMULATION PROMPT (SIMULATION MODE)]
-${full_prompt}
+[PHASE 1: HYDRATED PAYLOAD]
+Type: ${payload.type}
+Entities: ${Object.keys(payload.entities).join(", ")}
 
 ${SEPARATOR}
-[IMAGE PAYLOAD (IMAGE MODE)]
-${JSON.stringify(imagePayload, null, 2)}
+
+[PHASE 2: SIMULATION SNAPSHOT]
+Behaviors: ${snapshot.behaviors.join(", ") || "None"}
+Flags: ${snapshot.flags.join(", ") || "None"}
+Dynamics: ${JSON.stringify(snapshot.dynamics)}
+
+${SEPARATOR}
+
+[PHASE 3: SYNTHESIZED XML PROMPT]
+${system}
 
 ${SEPARATOR}
 `

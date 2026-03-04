@@ -1,4 +1,6 @@
-import { ContextBroker } from "@core/intelligence/intelligence_broker.js"
+import { ContextBroker } from "@core/intelligence/ContextBroker.js"
+import { DynamicsEngine } from "@core/intelligence/DynamicsEngine.js"
+import { PromptBuilder } from "@core/intelligence/PromptBuilder.js"
 import { memorize } from "@core/intelligence/intelligence_echo.js"
 import { LlmService } from "@core/intelligence/intelligence_service.js"
 import { db } from "@data/db.js"
@@ -127,19 +129,24 @@ export const Engine = {
                     character_name: m.character_name,
                 }))
 
-            // 2. ASSEMBLE (Modular Context) Pass the array explicitly to the Broker
-            const payload = await ContextBroker.assemble(options.input || "", "simulation", recentMessages)
+            // 2. ASSEMBLE (Modular Pipeline: Hydration -> Simulation -> Synthesis)
+            const payload = ContextBroker.hydrate(options.input || "", "simulation", recentMessages)
+            const snapshot = DynamicsEngine.simulate(payload)
+            const { system, meta } = PromptBuilder.synthesize(payload, snapshot)
+
+            // Update runtime physics with the new simulation state
+            runtime.physics = snapshot.dynamics
 
             // [TELEMETRY] Log cleanly into the DebugPanel, avoiding browser console spam
-            app.log("Context Assembled. Payload routed to LLM.", "system")
+            app.log("Context Assembled. Dynamics Resolved. Payload routed to LLM.", "system")
 
             // 3. GENERATE (LLM Service)
-            const response = await LlmService.generate(payload)
+            const response = await LlmService.generate({ system, messages: [], ...options }, { ...options })
 
             // 4. PERSIST (Session)
-            // Assume AI character name is in runtime or use default
+            // Save metadata from the simulation snapshot
             const aiName = runtime.activeAI?.name || "AI"
-            await Session.log_turn(response, aiName)
+            await Session.log_turn(response, aiName, "ai", { dynamics: meta.dynamics, flags: meta.flags, behaviors: meta.behaviors })
 
             // [NEXUS] Check for L2 Consolidation (Background)
             Engine.NarrativeDirector.consolidate()
@@ -153,17 +160,14 @@ export const Engine = {
     },
 
     generatePrologue: async (storyId) => {
-        const { PromptBuilder } = await import("@core/intelligence/prompt_builder.js")
-        const builder = new PromptBuilder()
-
         // [FIX] Pull current entity context before building the prologue payload
-        const entityContext = ContextBroker.pull_entities("simulation")
-        const payload = await builder.build_prologue({ entity: entityContext })
+        const payload = ContextBroker.hydrate("", "prologue")
+        const { system } = PromptBuilder.synthesize(payload, {})
 
-        if (payload) {
+        if (system) {
             engineState.startGeneration("fractal")
             try {
-                const result = await LlmService.generate(payload)
+                const result = await LlmService.generate({ system })
                 const fractal_name = runtime.active_fractal?.name || "Fractal Entity"
 
                 // [NEXUS] Action 1: Save Prologue to DB
@@ -181,14 +185,12 @@ export const Engine = {
 
     triggerEpilogue: async () => {
         Session.requireActive()
-        const { PromptBuilder } = await import("@core/intelligence/prompt_builder.js")
-        const builder = new PromptBuilder()
-        const payload = await builder.build_epilogue()
+        const { system } = PromptBuilder.build_epilogue()
 
-        if (payload) {
+        if (system) {
             engineState.startGeneration("ai")
             try {
-                const result = await LlmService.generate(payload)
+                const result = await LlmService.generate({ system })
                 await Session.log_turn(result, "Narrator")
             } finally {
                 engineState.complete()

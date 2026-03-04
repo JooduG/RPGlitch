@@ -5,9 +5,8 @@
  */
 
 import { CONFIG, ROLES } from "@core/engine/config.js"
-import { ContextBroker } from "@core/intelligence/intelligence_broker.js"
+import { ContextBroker } from "@core/intelligence/ContextBroker.js"
 import { LlmService } from "@core/intelligence/intelligence_service.js"
-import { PromptBuilder } from "@core/intelligence/prompt_builder.js"
 import { db } from "@data/db.js"
 import { entities } from "@data/repository.js"
 import { runtime } from "@state/runtime.svelte.js"
@@ -117,12 +116,14 @@ export const ImageGeneration = {
                 finalPrompt = target
             } else if (typeof target === "string") {
                 entityId = target
-                const context = await ContextBroker.assemble(entityId, "image")
+                const character = (await entities.get("character", entityId)) || (await entities.get("user", entityId)) || (await entities.get("fractal", entityId)) || { name: "", description: "", fragments: [] }
                 const characterData = {
-                    physical: context.physical || "",
-                    fragments: context.fragments || [],
+                    physical: character.description || character.name,
+                    fragments: character.fragments || [],
                 }
-                finalPrompt = await PromptEngine.optimize(context.system || "", characterData)
+                const system =
+                    `[SYSTEM: PROMPT_ENGINEER]\nI translate a character description into dense, visual-only tokens for Stable Diffusion.\n\n<CONSTRAINTS>\n- Output ONLY a comma-separated list of visual descriptors.\n- No first-person language. No abstract concepts or backstory.\n- Focus on: subject, clothing, physical features, lighting, camera angle, aesthetic style.\n</CONSTRAINTS>\n\n<DRAFT_DESCRIPTION>\n${characterData.physical}\n</DRAFT_DESCRIPTION>`.trim()
+                finalPrompt = await PromptEngine.optimize(system, characterData)
             } else {
                 finalPrompt = target.toString()
             }
@@ -168,14 +169,18 @@ export const ImageGeneration = {
         engine.startTyping(targetRole, targetId)
 
         try {
-            const builder = new PromptBuilder()
             let vTarget = targetType || "character"
             if (targetType === ROLES.FRACTAL) vTarget = "scene"
 
-            const vPayload = builder.build_image_prompt()
+            const hydrated = ContextBroker.hydrate("", "image")
+            const vPayload = {
+                fractal: { present: { physical: hydrated.entities.FRACTAL.description || "" } },
+                user: { present: { physical: hydrated.entities.USER.description || "" } },
+                ai: { present: { physical: hydrated.entities.AI.description || "" } },
+            }
 
             const characterData = {
-                physical: vTarget === "scene" ? vPayload.fractal?.present?.physical : vTarget === "user" ? vPayload.user?.present?.physical : vPayload.ai?.present?.physical,
+                physical: vTarget === "scene" ? hydrated.entities.FRACTAL.description : vTarget === "user" ? hydrated.entities.USER.description : hydrated.entities.AI.description,
                 fragments: [],
             }
             const selections = AestheticRouter.select(characterData)

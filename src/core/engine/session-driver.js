@@ -99,7 +99,7 @@ export const Session = {
     /**
      * Add a simulation log entry (Response)
      */
-    log_turn: async (text, character_name, role = "assistant") => {
+    log_turn: async (text, character_name, role = "assistant", meta = {}) => {
         const story_id = Session.requireActive()
         await db.simulation_log.add({
             story_id,
@@ -107,6 +107,7 @@ export const Session = {
             type: "text",
             character_name,
             text,
+            meta,
             created_at: Date.now(),
         })
         simulation_log.refresh()

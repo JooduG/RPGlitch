@@ -1,8 +1,10 @@
 import { describe, expect, it, vi } from "vitest"
 import { VectorEngine } from "./vector_engine.js"
 
-vi.mock("./dynamics_engine.js", () => ({
-    scan_reflexes: vi.fn(() => [{ id: "VIBE_CHECK" }]),
+vi.mock("./DynamicsEngine.js", () => ({
+    DynamicsEngine: {
+        scan_reflexes: vi.fn(() => [{ id: "VIBE_CHECK" }]),
+    },
 }))
 
 describe("VectorEngine", () => {
@@ -37,8 +39,8 @@ describe("VectorEngine", () => {
 
         it("scores +1 for entity overlap", async () => {
             // Need to ensure the mock doesn't give vector 2 +2 points here
-            const { scan_reflexes } = await import("./dynamics_engine.js")
-            vi.mocked(scan_reflexes).mockReturnValueOnce([])
+            const { DynamicsEngine } = await import("./DynamicsEngine.js")
+            vi.mocked(DynamicsEngine.scan_reflexes).mockReturnValueOnce([])
             const ranked = VectorEngine.score_vectors(vectors, "Iron Man")
             expect(ranked[0].id).toBe(1)
         })
