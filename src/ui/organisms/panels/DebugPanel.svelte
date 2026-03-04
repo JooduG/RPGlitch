@@ -7,7 +7,7 @@
                 time: "23:04",
                 location: "Neon District",
                 weather: "Acid Rain",
-                entropySeed: "0xDEADBEEF",
+                chaos_seed: "0xDEADBEEF",
             },
             schema: {
                 eternal: [{ id: "node_01", type: "core_fragment" }],

@@ -14,10 +14,10 @@ export const premade = {
             visuals: { signature_color: "Lemon Yellow" },
             voice: { uri: "", rate: 1.0, pitch: 1.0 },
             dynamics: {
-                entropy: 45,
-                permeability: 40,
-                velocity: 60,
-                resonance: 55,
+                chaos: 45,
+                openness: 40,
+                intensity: 60,
+                affinity: 55,
             },
             eternal: {
                 physical: "A synthesis of flesh and machine, with luminous cyan circuitry pulsing beneath polished, metallic skin that highlights a lean, athletic build.",
@@ -38,10 +38,10 @@ export const premade = {
             visuals: { signature_color: "Sunset Orange" },
             voice: { uri: "Zira", rate: 1.0, pitch: 1.0 },
             dynamics: {
-                entropy: 55,
-                permeability: 60,
-                velocity: 50,
-                resonance: 60,
+                chaos: 55,
+                openness: 60,
+                intensity: 50,
+                affinity: 60,
             },
             eternal: {
                 physical: "Possesses the ethereal grace of her elven heritage, marked by elegantly swept ears and eyes that glimmer with an inner light within a slender, agile frame.",
@@ -62,10 +62,10 @@ export const premade = {
             visuals: { signature_color: "Lime Green" },
             voice: { uri: "", rate: 1.1, pitch: 1.0 },
             dynamics: {
-                entropy: 40,
-                permeability: 40,
-                velocity: 55,
-                resonance: 45,
+                chaos: 40,
+                openness: 40,
+                intensity: 55,
+                affinity: 45,
             },
             eternal: {
                 physical: "A masterpiece of mechanical engineering, featuring intricate brass detailing and intricate clockwork joints that click with precision, their hooded face a mask of shifting shadows.",
@@ -86,10 +86,10 @@ export const premade = {
             visuals: { signature_color: "Royal Purple" },
             voice: { uri: "Zira", rate: 0.85, pitch: 1.0 },
             dynamics: {
-                entropy: 55,
-                permeability: 60,
-                velocity: 40,
-                resonance: 55,
+                chaos: 55,
+                openness: 60,
+                intensity: 40,
+                affinity: 55,
             },
             eternal: {
                 physical: "Wreathed in a thick, undulating aura of shifting shadows that leak from eyes as dark and hollow as the abyss, set against skin as pale as moonlight.",
@@ -114,10 +114,10 @@ export const premade = {
                 pitch: 1.0,
             },
             dynamics: {
-                entropy: 50,
-                permeability: 55,
-                velocity: 60,
-                resonance: 60,
+                chaos: 50,
+                openness: 55,
+                intensity: 60,
+                affinity: 60,
             },
             eternal: {
                 physical:
@@ -174,10 +174,10 @@ export const premade = {
                 pitch: 1.0,
             },
             dynamics: {
-                entropy: 55,
-                permeability: 60,
-                velocity: 60,
-                resonance: 55,
+                chaos: 55,
+                openness: 60,
+                intensity: 60,
+                affinity: 55,
             },
             eternal: {
                 physical:
@@ -231,10 +231,10 @@ export const premade = {
             visuals: { signature_color: "Emerald Green" },
             simulation: { mode: "PASSIVE" },
             dynamics: {
-                entropy: 45,
-                permeability: 55,
-                velocity: 50,
-                resonance: 55,
+                chaos: 45,
+                openness: 55,
+                intensity: 50,
+                affinity: 55,
             },
             eternal: {
                 physical: "A breathtaking archipelago of islands suspended high above the clouds, where ancient, vine-choked ruins cling to cliffsides and endless waterfalls spill from rocky edges into the misty void below, all carpeted in lush, bioluminescent vegetation.",
@@ -255,10 +255,10 @@ export const premade = {
             visuals: { signature_color: "Coral Rose" },
             simulation: { mode: "PASSIVE" },
             dynamics: {
-                entropy: 55,
-                permeability: 50,
-                velocity: 60,
-                resonance: 50,
+                chaos: 55,
+                openness: 50,
+                intensity: 60,
+                affinity: 50,
             },
             eternal: {
                 physical: "A vertical labyrinth of chrome and light, where impossibly tall skyscrapers pierce the smog-choked stratosphere, their heights illuminated by holographic billboards and the constant pulse of flying cars through neon-drenched canyons.",
@@ -279,10 +279,10 @@ export const premade = {
             visuals: { signature_color: "Deep Indigo" },
             simulation: { mode: "PASSIVE" },
             dynamics: {
-                entropy: 55,
-                permeability: 60,
-                velocity: 60,
-                resonance: 60,
+                chaos: 55,
+                openness: 60,
+                intensity: 60,
+                affinity: 60,
             },
             eternal: {
                 physical:

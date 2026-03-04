@@ -47,7 +47,7 @@ describe("PromptBuilder (Refactored)", () => {
         const mock_snapshot = {
             behaviors: ["Pacing"],
             flags: ["ADRENALINE"],
-            dynamics: { velocity: 80 },
+            dynamics: { intensity: 80 },
         }
 
         it("synthesize() should return system prompt and meta", () => {
@@ -55,7 +55,7 @@ describe("PromptBuilder (Refactored)", () => {
             expect(result.system).toContain('<SYSTEM role="Viper">')
             expect(result.system).toContain('<STATE turn="1">')
             expect(result.system).toContain("<INPUT_COMMAND>\ntest action\n</INPUT_COMMAND>")
-            expect(result.meta.dynamics.velocity).toBe(80)
+            expect(result.meta.dynamics.intensity).toBe(80)
         })
 
         it("should include protocols in the generated prompt", () => {

@@ -47,7 +47,7 @@ describe("v5.0 Prompt Audit (LIVE SOURCE)", () => {
 
         // 2. Phase 1: Hydration
         const history = [] // Mock history for now
-        const payload = ContextBroker.hydrate(input, "simulation", history)
+        const payload = await ContextBroker.hydrate(input, "simulation", history)
 
         // 3. Phase 2: Simulation
         const snapshot = DynamicsEngine.simulate(payload)

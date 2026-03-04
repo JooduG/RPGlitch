@@ -8,7 +8,7 @@
 ### Track: Off-Screen Entropy Protocol
 
 - Path: [.agent/tasks/off-screen-entropy/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/off-screen-entropy/)
-- Status: Planning
+- Status: Active
 - Checkpoint: `off-ent-01`
 - Note: Implementing background NPC momentum and potential scene intrusion to cure protagonist syndrome.
 

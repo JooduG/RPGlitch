@@ -17,10 +17,10 @@ function createRuntimeStore() {
 
             // 🧪 Dynamics (Dev)
             dynamics: {
-                entropy: 50,
-                velocity: 50,
-                permeability: 50,
-                resonance: 50,
+                chaos: 50,
+                intensity: 50,
+                openness: 50,
+                affinity: 50,
             },
 
             // 🎭 Visuals & Voice

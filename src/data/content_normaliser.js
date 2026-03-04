@@ -87,10 +87,10 @@ export const normalize = (base = {}) => {
         // DYNAMICS (Physics Sliders)
         // ========================================
         dynamics: {
-            entropy: 10,
-            velocity: 10,
-            permeability: 50,
-            resonance: 50,
+            chaos: 10,
+            intensity: 10,
+            openness: 50,
+            affinity: 50,
             ...(dynamics || {}),
         },
 

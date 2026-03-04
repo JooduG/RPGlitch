@@ -11,86 +11,86 @@ describe("Dynamics Engine v2 (Refactored)", () => {
     describe("Mechanics: resolve_dynamics", () => {
         it("should resolve Default Dynamics correctly", () => {
             const state = DynamicsEngine.resolve_dynamics("regular input", {
-                velocity: 50,
-                entropy: 50,
-                permeability: 50,
-                resonance: 50,
+                intensity: 50,
+                chaos: 50,
+                openness: 50,
+                affinity: 50,
             })
-            expect(state.dynamics.velocity).toBe(50)
+            expect(state.dynamics.intensity).toBe(50)
             expect(state.behaviors.length).toBe(0)
         })
 
-        it("should trigger reflexes on high-velocity input", () => {
-            const baselines = { velocity: 50, entropy: 50, permeability: 50, resonance: 50 }
-            const start_dynamics = { velocity: 70, entropy: 50, permeability: 50, resonance: 50 }
+        it("should trigger reflexes on high-intensity input", () => {
+            const baselines = { intensity: 50, chaos: 50, openness: 50, affinity: 50 }
+            const start_dynamics = { intensity: 70, chaos: 50, openness: 50, affinity: 50 }
             const state = DynamicsEngine.resolve_dynamics("I run towards the exit", baselines, start_dynamics)
 
             // 70 + 10 (IMPACT reflex) = 80
             // Dynamics Gravity diff = 50 - 80 = -30 => pull = -30 * 0.25 = -7.5
             // 80 - 7.5 = 72.5 => Math.round(72.5) = 73
-            expect(state.dynamics.velocity).toBe(73)
+            expect(state.dynamics.intensity).toBe(73)
             expect(state.behaviors.some((i) => i.includes("Pacing fast"))).toBe(true)
         })
 
         it("should trigger IMPACT reflex on combat input", () => {
-            const baselines = { velocity: 50, entropy: 50, permeability: 50, resonance: 50 }
+            const baselines = { intensity: 50, chaos: 50, openness: 50, affinity: 50 }
             const state = DynamicsEngine.resolve_dynamics("I punch him in the face", baselines)
 
             // 50 + 10 (IMPACT) = 60
             // Dynamics Gravity diff = 50 - 60 = -10 => pull = -10 * 0.25 = -2.5
             // 60 - 2.5 = 57.5 => Round to 58
-            expect(state.dynamics.velocity).toBe(58)
-            expect(state.dynamics.entropy).toBe(50)
+            expect(state.dynamics.intensity).toBe(58)
+            expect(state.dynamics.chaos).toBe(50)
         })
 
         describe("Flag Effects", () => {
-            it("should effect Entropy when EXPOSED_VULNERABILITY is active", () => {
-                // Permeability >= 90 triggers EXPOSED_VULNERABILITY
-                const start = { velocity: 50, entropy: 40, permeability: 95, resonance: 50 }
-                // Pass baselines = start to prevent gravity from pulling Permeability out of LAW_HIGH
+            it("should effect Chaos when EXPOSED_VULNERABILITY is active", () => {
+                // Openness >= 90 triggers EXPOSED_VULNERABILITY
+                const start = { intensity: 50, chaos: 40, openness: 95, affinity: 50 }
+                // Pass baselines = start to prevent gravity from pulling Openness out of LAW_HIGH
                 const state = DynamicsEngine.resolve_dynamics("regular input", start, start)
 
-                // Entropy 40 -> No gravity pull -> Law EXPOSED_VULNERABILITY (95 >= 90) triggers
+                // Chaos 40 -> No gravity pull -> Law EXPOSED_VULNERABILITY (95 >= 90) triggers
                 // 40 * 2.0 = 80
                 expect(state.flags).toContain("EXPOSED_VULNERABILITY")
-                expect(state.dynamics.entropy).toBe(80)
+                expect(state.dynamics.chaos).toBe(80)
             })
 
-            it("should effect Resonance when IRON_BUNKER is active", () => {
-                // Permeability <= 10 triggers IRON_BUNKER
-                const start = { velocity: 50, entropy: 50, permeability: 5, resonance: 60 }
-                // Pass baselines = start to keep Permeability <= 10
+            it("should effect Affinity when IRON_GUARDED is active", () => {
+                // Openness <= 10 triggers IRON_GUARDED
+                const start = { intensity: 50, chaos: 50, openness: 5, affinity: 60 }
+                // Pass baselines = start to keep Openness <= 10
                 const state = DynamicsEngine.resolve_dynamics("regular input", start, start)
 
-                // Resonance 60 -> No gravity pull -> Law IRON_BUNKER (5 <= 10) triggers
+                // Affinity 60 -> No gravity pull -> Law IRON_GUARDED (5 <= 10) triggers
                 // 60 * 0.5 = 30
-                expect(state.flags).toContain("IRON_BUNKER")
-                expect(state.dynamics.resonance).toBe(30)
+                expect(state.flags).toContain("IRON_GUARDED")
+                expect(state.dynamics.affinity).toBe(30)
             })
 
-            it("should reject Entropy (0) when RESONANCE_CASCADE is active", () => {
-                // Resonance >= 80, Entropy <= 20 triggers RESONANCE_CASCADE
-                const baselines = { velocity: 50, entropy: 50, permeability: 50, resonance: 50 }
-                const start = { velocity: 50, entropy: 10, permeability: 50, resonance: 90 }
+            it("should reject Chaos (0) when AFFINITY_CASCADE is active", () => {
+                // Affinity >= 80, Chaos <= 20 triggers AFFINITY_CASCADE
+                const baselines = { intensity: 50, chaos: 50, openness: 50, affinity: 50 }
+                const start = { intensity: 50, chaos: 10, openness: 50, affinity: 90 }
                 const state = DynamicsEngine.resolve_dynamics("regular input", baselines, start)
 
-                expect(state.flags).toContain("RESONANCE_CASCADE")
-                expect(state.dynamics.entropy).toBe(0)
+                expect(state.flags).toContain("AFFINITY_CASCADE")
+                expect(state.dynamics.chaos).toBe(0)
             })
 
-            it("should ignore Resonance loss when EVENT_HORIZON is active", () => {
-                // Velocity <= 20, Permeability >= 80 triggers EVENT_HORIZON
-                const baselines = { velocity: 50, entropy: 50, permeability: 50, resonance: 50 }
-                const start = { velocity: 10, entropy: 50, permeability: 90, resonance: 70 }
+            it("should ignore Affinity loss when EVENT_HORIZON is active", () => {
+                // Intensity <= 20, Openness >= 80 triggers EVENT_HORIZON
+                const baselines = { intensity: 50, chaos: 50, openness: 50, affinity: 50 }
+                const start = { intensity: 10, chaos: 50, openness: 90, affinity: 70 }
 
-                // Gravity pulls velocity: 10 -> 20 (pull 10 toward 50)
-                // Gravity pulls resonance: 70 -> 65 (pull -5 toward 50)
-                // EVENT_HORIZON (velocity <= 20, permeability >= 80) TRIGGERS
+                // Gravity pulls intensity: 10 -> 20 (pull 10 toward 50)
+                // Gravity pulls affinity: 70 -> 65 (pull -5 toward 50)
+                // EVENT_HORIZON (intensity <= 20, openness >= 80) TRIGGERS
                 // It blocks the drop from 70 to 65. Result = 70.
                 const state = DynamicsEngine.resolve_dynamics("regular input", baselines, start)
 
                 expect(state.flags).toContain("EVENT_HORIZON")
-                expect(state.dynamics.resonance).toBe(70)
+                expect(state.dynamics.affinity).toBe(70)
             })
         })
     })
@@ -101,18 +101,61 @@ describe("Dynamics Engine v2 (Refactored)", () => {
                 input: "I run fast",
                 entities: {
                     AI: {
-                        dynamics: { velocity: 50, entropy: 50, permeability: 50, resonance: 50 },
+                        dynamics: { intensity: 50, chaos: 50, openness: 50, affinity: 50 },
                     },
                 },
                 history: {
-                    dynamics: { velocity: 70, entropy: 50, permeability: 50, resonance: 50 },
+                    dynamics: { intensity: 70, chaos: 50, openness: 50, affinity: 50 },
                 },
             }
 
             const snapshot = DynamicsEngine.simulate(payload)
 
-            expect(snapshot.dynamics.velocity).toBe(73)
+            expect(snapshot.dynamics.intensity).toBe(73)
             expect(snapshot.behaviors.length).toBeGreaterThan(0)
+        })
+    })
+
+    describe("Off-Screen Dynamics: calculate_offscreen_dynamics", () => {
+        it("should return empty array when no background entities provided", () => {
+            const result = DynamicsEngine.calculate_offscreen_dynamics("I run fast", [])
+            expect(result).toEqual([])
+        })
+
+        it("should return empty array for null input", () => {
+            const result = DynamicsEngine.calculate_offscreen_dynamics("some text", null)
+            expect(result).toEqual([])
+        })
+
+        it("should not flag entities below LAW_HIGH intensity", () => {
+            const bg = [{ name: "Guard", id: "g1", dynamics: { intensity: 50, chaos: 50, openness: 50, affinity: 50 } }]
+            const result = DynamicsEngine.calculate_offscreen_dynamics("regular input", bg)
+            expect(result).toEqual([])
+        })
+
+        it("should flag entities at LAW_HIGH intensity threshold", () => {
+            // Start at intensity=95, "I run towards the exit" => +10 (IMPACT) = 105
+            // Gravity: 50-105 = -55, pull = -13.75 => 105-13.75 = 91.25 => 91
+            // ADRENALINE_OVERDRIVE (>=90) triggers. Intensity stays 91 >= 90.
+            const bg = [{ name: "Assassin", id: "a1", dynamics: { intensity: 95, chaos: 50, openness: 50, affinity: 50 } }]
+            const result = DynamicsEngine.calculate_offscreen_dynamics("I run towards the exit", bg)
+            expect(result.length).toBe(1)
+            expect(result[0].name).toBe("Assassin")
+            expect(result[0].intensity).toBeGreaterThanOrEqual(90)
+            expect(result[0].flags).toContain("ADRENALINE_OVERDRIVE")
+        })
+
+        it("should filter among mixed entities, flagging only high-intensity ones", () => {
+            const bg = [
+                { name: "Bystander", id: "b1", dynamics: { intensity: 30, chaos: 50, openness: 50, affinity: 50 } },
+                { name: "Pursuer", id: "p1", dynamics: { intensity: 95, chaos: 50, openness: 50, affinity: 50 } },
+                { name: "Shopkeeper", id: "s1" },
+            ]
+            const result = DynamicsEngine.calculate_offscreen_dynamics("shooting and running", bg)
+            const names = result.map((r) => r.name)
+            expect(names).toContain("Pursuer")
+            expect(names).not.toContain("Bystander")
+            expect(names).not.toContain("Shopkeeper")
         })
     })
 })

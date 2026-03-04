@@ -130,7 +130,7 @@ export const Engine = {
                 }))
 
             // 2. ASSEMBLE (Modular Pipeline: Hydration -> Simulation -> Synthesis)
-            const payload = ContextBroker.hydrate(options.input || "", "simulation", recentMessages)
+            const payload = await ContextBroker.hydrate(options.input || "", "simulation", recentMessages)
             const snapshot = DynamicsEngine.simulate(payload)
             const { system, meta } = PromptBuilder.synthesize(payload, snapshot)
 
@@ -161,7 +161,7 @@ export const Engine = {
 
     generatePrologue: async (storyId) => {
         // [FIX] Pull current entity context before building the prologue payload
-        const payload = ContextBroker.hydrate("", "prologue")
+        const payload = await ContextBroker.hydrate("", "prologue")
         const { system } = PromptBuilder.synthesize(payload, {})
 
         if (system) {

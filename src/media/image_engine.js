@@ -172,7 +172,7 @@ export const ImageGeneration = {
             let vTarget = targetType || "character"
             if (targetType === ROLES.FRACTAL) vTarget = "scene"
 
-            const hydrated = ContextBroker.hydrate("", "image")
+            const hydrated = await ContextBroker.hydrate("", "image")
             const vPayload = {
                 fractal: { present: { physical: hydrated.entities.FRACTAL.description || "" } },
                 user: { present: { physical: hydrated.entities.USER.description || "" } },

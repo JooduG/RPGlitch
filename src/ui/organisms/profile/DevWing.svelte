@@ -13,10 +13,10 @@
     }
 
     const DYNAMICS_LIST = [
-        { key: "entropy", label: "Entropy", desc: "Chaos vs Order" },
-        { key: "velocity", label: "Velocity", desc: "Action Pacing" },
-        { key: "permeability", label: "Permeability", desc: "Open vs Defense" },
-        { key: "resonance", label: "Resonance", desc: "Narrative Weight" },
+        { key: "chaos", label: "Chaos", desc: "Randomness vs Control" },
+        { key: "intensity", label: "Intensity", desc: "Internal Energy" },
+        { key: "openness", label: "Openness", desc: "Receptivity vs Guarded" },
+        { key: "affinity", label: "Affinity", desc: "Inter-Entity Bond" },
     ]
 </script>
 

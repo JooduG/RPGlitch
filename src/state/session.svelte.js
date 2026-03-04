@@ -83,13 +83,13 @@ export class ReactiveSession {
             const storyId = Session.requireActive()
             await Engine.generateAiResponse(storyId, { input: text })
 
-            // PHASE 3: ECHO (Resonance)
-            app.log("Echo recording temporal resonance and syncing database...", "db")
+            // PHASE 3: ECHO (Affinity)
+            app.log("Echo recording temporal affinity and syncing database...", "db")
 
             // Update HUD causality (Example: reading from Security state if available)
             app.causalityReport = {
-                entropy: Math.floor(Math.random() * 100), // Placeholder for real physics
-                velocity: Math.floor(Math.random() * 100),
+                chaos: Math.floor(Math.random() * 100), // Placeholder for real physics
+                intensity: Math.floor(Math.random() * 100),
                 reflex: "Active",
             }
 

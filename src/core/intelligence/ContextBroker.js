@@ -18,6 +18,7 @@
  * └────────────────────────────────────────────────────────────────────────┘
  */
 
+import { entities as entity_repo } from "@data/repository.js"
 import { runtime } from "@state/runtime.svelte.js"
 import { ENTITY_CATALOG } from "./entity_fragments.js"
 
@@ -117,7 +118,7 @@ export class ContextBroker {
      * @param {string} [type="simulation"] - 'simulation' | 'logic' | 'image'
      * @param {Array} history - Recent message history.
      */
-    static hydrate(input, type = "simulation", history = []) {
+    static async hydrate(input, type = "simulation", history = []) {
         const turn = runtime.turn || 1
         const active_vector = runtime.activeVector("FRACTAL") || "EXPLORE"
 
@@ -156,18 +157,51 @@ export class ContextBroker {
             }
         })
 
-        // 2. Build Unified Payload
+        // 2. Fetch background entities for off-screen dynamics
+        const active_ids = [entities.AI?.id, entities.USER?.id].filter(Boolean)
+        const background_entities = await ContextBroker.fetch_background_entities(active_ids)
+
+        // 3. Build Unified Payload
         return {
             input,
             type,
             turn,
             entities,
+            background_entities,
             history: ContextBroker.assemble_snapshot(history),
             rawMessages: history,
             meta: {
                 active_vector,
                 timestamp: new Date().toISOString(),
             },
+        }
+    }
+
+    /************************************************************************************
+     * 🧩 [SECTION: BACKGROUND ENTITY FETCHING]
+     * ----------------------------------------------------------------------------------
+     * Retrieves T3 background characters for off-screen dynamics auditing.
+     ************************************************************************************/
+
+    /**
+     * Fetches all characters from the repository, excluding active scene participants.
+     * Returns lean objects with only the fields needed for the dynamics tick.
+     *
+     * @param {string[]} active_ids - IDs of the active AI and User entities.
+     * @returns {Promise<Array<{name: string, id: string, dynamics: object}>>}
+     */
+    static async fetch_background_entities(active_ids = []) {
+        try {
+            const all_characters = await entity_repo.list("character")
+            return all_characters
+                .filter((c) => !active_ids.includes(c.id))
+                .map((c) => ({
+                    name: c.name || "Unknown",
+                    id: c.id,
+                    dynamics: c.dynamics || null,
+                }))
+        } catch {
+            return []
         }
     }
 

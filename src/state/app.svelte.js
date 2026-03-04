@@ -70,8 +70,8 @@ export class AppStore {
     // 🧪 TELEMETRY (DevMode HUD)
     logs = $state([])
     causalityReport = $state({
-        entropy: 0,
-        velocity: 0,
+        chaos: 0,
+        intensity: 0,
         reflex: "Stable",
     })
 

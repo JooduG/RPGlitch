@@ -12,7 +12,7 @@ Entities: AI, USER, FRACTAL
 [PHASE 2: SIMULATION SNAPSHOT]
 Behaviors: None
 Flags: None
-Dynamics: {"velocity":50,"entropy":58,"permeability":50,"resonance":43}
+Dynamics: {"intensity":50,"chaos":58,"openness":50,"affinity":43}
 
 ========================================================================
 
@@ -42,6 +42,8 @@ Dynamics: {"velocity":50,"entropy":58,"permeability":50,"resonance":43}
 <HISTORY>
 
 </HISTORY>
+
+
 
 
 

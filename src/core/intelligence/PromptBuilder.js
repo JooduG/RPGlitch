@@ -7,6 +7,7 @@
  * The final stage of the Intelligence Assembly pipeline.
  */
 
+import { DynamicsEngine } from "./DynamicsEngine.js"
 import { VectorEngine } from "./vector_engine.js"
 
 /**
@@ -34,6 +35,7 @@ const PROTOCOL_LIBRARY = {
     FIRST_PERSON: `FIRST_PERSON: Narrate exclusively from the first-person perspective ("I", "me", "my"). Maintain the subjective filter of your identity. You may be ontologically aware of the User as a presence, but you must never use technical or meta-narrative metrics (e.g. engagement, viral potential) to describe this awareness.`,
     THIRD_PERSON: `THIRD_PERSON: Narrate exclusively from the third-person limited perspective. In this mode, you are the world-voice observing the entities.`,
     GRIT: `GRIT: Maintain a 2:1 ratio of sensory physics (texture, light, resistance) to abstract dialogue or logic.`,
+    SCENE_PACING: `SCENE_PACING: Background intrusions are ADVISORY only. Do NOT allow off-screen entities to hijack narrative focus unless intensity exceeds critical threshold. Maximum one background cutaway per 3 turns. Maintain protagonist scene continuity.`,
 }
 
 /************************************************************************************
@@ -73,6 +75,8 @@ ${PromptBuilder.render_history(history)}
 </HISTORY>
 
 ${behaviors.length > 0 ? `<NARRATIVE_STYLE>\n${behaviors.join(" ")}\n</NARRATIVE_STYLE>` : ""}
+
+${entities.BACKGROUND_INTENSITY || ""}
 
 <PROTOCOLS>
 ${PromptBuilder.render_protocols(protocols)}
@@ -166,10 +170,20 @@ export class PromptBuilder {
         }
 
         // Default: Simulation
+        const intruders = DynamicsEngine.calculate_offscreen_dynamics(payload.input, payload.background_entities || [])
+
+        // Inject BACKGROUND_INTENSITY block into entities for the template
+        if (intruders.length > 0) {
+            const intensity_lines = intruders.map((i) => `    <ENTITY name="${i.name}" intensity="${i.intensity}">${i.flags.join(", ")}</ENTITY>`).join("\n")
+            payload.entities.BACKGROUND_INTENSITY = `<BACKGROUND_INTENSITY>\n${intensity_lines}\n</BACKGROUND_INTENSITY>`
+        }
+
+        const protocols = intruders.length > 0 ? "COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL, SCENE_PACING" : "COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL"
+
         const system = SYSTEM_PROMPTS.simulation({
             ...payload,
             ...snapshot,
-            protocols: "COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL",
+            protocols,
         })
 
         return {
