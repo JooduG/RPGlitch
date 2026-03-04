@@ -4,10 +4,8 @@
  * Handles aesthetic routing, semantic matching, and prompt composition.
  */
 
-import { CONFIG } from "@core/engine/config.js"
+import { PALETTE } from "@core/engine/palette.js"
 import { LlmService } from "@core/intelligence/intelligence_service.js"
-
-const { PALETTE } = CONFIG
 
 /************************************************************************************
  * 🧩 [SECTION: CONSTANTS & GLOBALS]

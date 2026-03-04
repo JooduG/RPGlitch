@@ -1,8 +1,11 @@
 import { describe, expect, test, vi } from "vitest"
 
-// Mock Services
 const LlmService = {
     enhance: vi.fn(),
+}
+
+const PromptBuilder = {
+    build_enhancement: vi.fn((key, content) => ({ mockPayload: true, key, content })),
 }
 
 const TextToImage = {
@@ -25,7 +28,8 @@ async function handleCreativeAction(ctx) {
     try {
         if (activeField && isEnhanceMode) {
             if (enhancementType === "generative") {
-                await LlmService.enhance(char.visuals.prompt, "visuals.prompt")
+                const payload = PromptBuilder.build_enhancement("visuals.prompt", char.visuals.prompt)
+                await LlmService.enhance(payload)
             } else {
                 // ...
             }

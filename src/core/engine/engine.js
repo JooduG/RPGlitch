@@ -1,14 +1,11 @@
 import { ContextBroker } from "@core/intelligence/ContextBroker.js"
 import { DynamicsEngine } from "@core/intelligence/DynamicsEngine.js"
 import { PromptBuilder } from "@core/intelligence/PromptBuilder.js"
-import { memorize } from "@core/intelligence/intelligence_echo.js"
 import { LlmService } from "@core/intelligence/intelligence_service.js"
-import { db } from "@data/db.js"
-import { entities } from "@data/repository.js"
 import { app } from "@state/app.svelte.js" // [R5]
 import { runtime } from "@state/runtime.svelte.js"
-import { simulation_log } from "@state/simulation_log.svelte.js"
 import { engineState } from "@state/status.svelte.js" // [R5] Unified State
+import { NarrativeDirector } from "./NarrativeDirector.js"
 import { Session } from "./session-driver.js"
 
 /**
@@ -27,86 +24,6 @@ export const Engine = {
     },
     regenerate: () => Session.regenerate(),
 
-    // --- CHRONO ---
-    // tick: (delta) => Chrono.tick(delta), // Removed: Unused/Not Implemented
-    // getDuration: () => Chrono.getElapsed(), // Removed: Unused/Not Implemented
-
-    // --- PHYSICS ---
-    getPhysics: () => runtime.physics,
-
-    // --- UTILS ---
-    log: () => {},
-
-    /**
-     * NARRATIVE DIRECTOR
-     * Manages the "Story Beats" and Vector synchronization.
-     */
-    NarrativeDirector: {
-        update: () => {
-            // [R5] Narrative State is now reactive in runtime.narrative
-            // No manual sync required.
-
-            // AUTO-SEED: Ensure activeVector is never empty
-            const fractal = runtime.active_fractal
-            if (fractal && (!Array.isArray(fractal.future) || fractal.future.length === 0)) {
-                runtime.addVector("Continue the journey.", "FRACTAL", true)
-                // Optionally log this system action to debug telemetry
-                app.log("NarrativeDirector: Auto-seeded activeVector", "system")
-            }
-        },
-
-        /**
-         * L2 CONSOLIDATION (Tiered Memory)
-         * Evicts old messages and compresses them into lore "Resonance".
-         */
-        consolidate: async () => {
-            if (Engine.NarrativeDirector._isConsolidating) return
-            Engine.NarrativeDirector._isConsolidating = true
-
-            try {
-                const storyId = Session.requireActive()
-                const messages = await Session.load_log(storyId)
-                const unconsolidated = messages.filter((m) => !m.meta?.consolidated)
-
-                // Trigger every 10 unconsolidated messages
-                if (unconsolidated.length >= 12) {
-                    const slice = unconsolidated.slice(0, 10)
-                    app.log(`Memory Nexus: Consolidating ${slice.length} turns into lore...`, "system")
-
-                    const ai = runtime.activeAI
-                    if (ai) {
-                        const resonance = await memorize(ai, slice, "character")
-                        if (resonance) {
-                            if (!ai.past) ai.past = { vectors: [] }
-                            if (!Array.isArray(ai.past.vectors)) ai.past.vectors = []
-                            ai.past.vectors.push(resonance)
-                            await entities.save("character", ai)
-                        }
-                    }
-
-                    // Mark as consolidated in DB
-                    for (const msg of slice) {
-                        msg.meta = { ...msg.meta, consolidated: true }
-                        await db.messages.update(msg.id, { meta: msg.meta })
-                    }
-
-                    simulation_log.refresh()
-                }
-            } catch (err) {
-                console.error("[Memory Nexus] Consolidation failed:", err)
-            } finally {
-                Engine.NarrativeDirector._isConsolidating = false
-            }
-        },
-    },
-
-    /**
-     * @deprecated Use Engine directly. Legacy bridge for old scripts.
-     */
-    legacyProxy: () => {
-        return Engine
-    },
-
     // Engine Methods Replacement
     generateAiResponse: async (storyId, options = {}) => {
         // [R5] Set Thinking Role & Start
@@ -117,7 +34,7 @@ export const Engine = {
             runtime.turn++
 
             // [NEXUS] Update Narrative Chronology before assembly
-            Engine.NarrativeDirector.update()
+            NarrativeDirector.update()
 
             // [DECOUPLED DATA FLOW] Fetch and format history directly from the DB source
             const rawMessages = await Session.load_log(storyId)
@@ -132,6 +49,10 @@ export const Engine = {
             // 2. ASSEMBLE (Modular Pipeline: Hydration -> Simulation -> Synthesis)
             const payload = await ContextBroker.hydrate(options.input || "", "simulation", simulation_log)
             const snapshot = DynamicsEngine.simulate(payload)
+
+            // [PHYSICS] Calculate offscreen dynamics from hydrated background entities
+            const offscreen = DynamicsEngine.calculate_offscreen_dynamics(options.input || "", payload.background_entities || [])
+            snapshot.offscreen = offscreen
             const { system, meta } = PromptBuilder.synthesize(payload, snapshot)
 
             // Update runtime physics with the new simulation state
@@ -149,15 +70,10 @@ export const Engine = {
             await Session.log_turn(response, aiName, "ai", { dynamics: meta.dynamics, flags: meta.flags, behaviors: meta.behaviors })
 
             // [NEXUS] Action: Persist Background Momentum
-            if (meta.background_updates && meta.background_updates.length > 0) {
-                for (const update of meta.background_updates) {
-                    await entities.upsert("character", update)
-                }
-                app.log(`Dynamics Engine: Persisted momentum for ${meta.background_updates.length} background entities.`, "system")
-            }
+            await NarrativeDirector.persist_background(meta.background_updates)
 
             // [NEXUS] Check for L2 Consolidation (Background)
-            Engine.NarrativeDirector.consolidate()
+            NarrativeDirector.consolidate()
         } catch (e) {
             console.error("Generation Failed", e)
             throw e
@@ -204,16 +120,6 @@ export const Engine = {
                 engineState.complete()
             }
         }
-    },
-
-    // Stubs for visual - if needed, implement similar to text
-    requestVisual: () => console.warn("Visuals not fully re-implemented yet."),
-    generateVisualFromDraft: () => {},
-
-    // Private helpers
-    _runEcho: async () => {
-        // Calls Scholar.echo
-        // const { Scholar } = await import("../scholar/index.js");
     },
 }
 

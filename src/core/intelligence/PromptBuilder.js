@@ -7,7 +7,6 @@
  * The final stage of the Intelligence Assembly pipeline.
  */
 
-import { DynamicsEngine } from "./DynamicsEngine.js"
 import { VectorEngine } from "./vector_engine.js"
 
 /**
@@ -158,6 +157,36 @@ CRITICAL: When your <think> block ends, your narrative output MUST be written in
 ${input?.trim() ? `\n<INPUT_COMMAND>\n${input.trim()}\n</INPUT_COMMAND>` : ""}
 </SYSTEM>`.trim()
     },
+
+    epilogue: () =>
+        `
+<SYSTEM role="NARRATOR">
+<PROTOCOLS>
+${PromptBuilder.render_protocols("COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE")}
+</PROTOCOLS>
+<TASK_INSTRUCTION>
+Close the scene. Resolve every active tension thread. Show — do not narrate — the
+weight of what just happened. Leave the world visibly changed. End on sensation, not summary.
+</TASK_INSTRUCTION>
+</SYSTEM>`.trim(),
+
+    memory: ({ role, entity, history }) =>
+        `
+<MEMORY_PROTOCOL role="${role}">
+<PROTOCOLS>
+${PromptBuilder.render_protocols("HYGIENE, AFFIRMATIVE, PRESENT")}
+</PROTOCOLS>
+<CONTEXT>
+Entity: ${entity.name || "Unknown"}
+</CONTEXT>
+<INPUT_HISTORY>
+${JSON.stringify(history, null, 2)}
+</INPUT_HISTORY>
+<TASK_INSTRUCTION>
+Distil the input history into a structured Vector object.
+Output strict JSON only: { "summary": "...", "vector_tags": ["...", "..."] }
+</TASK_INSTRUCTION>
+</MEMORY_PROTOCOL>`.trim(),
 }
 
 /************************************************************************************
@@ -190,7 +219,7 @@ export class PromptBuilder {
         }
 
         // Default: Simulation
-        const { intruders, updates } = DynamicsEngine.calculate_offscreen_dynamics(input, payload.background_entities || [])
+        const { intruders = [], updates = [] } = snapshot.offscreen || {}
 
         // Inject BACKGROUND_INTENSITY block into entities for the template
         if (intruders.length > 0) {
@@ -354,36 +383,3 @@ export class PromptBuilder {
         }
     }
 }
-
-/**
- * LEGACY SHIM: Ensure SYSTEM_PROMPTS has expected keys for LlmService.
- */
-SYSTEM_PROMPTS.epilogue = () =>
-    `
-<SYSTEM role="NARRATOR">
-<PROTOCOLS>
-${PromptBuilder.render_protocols("COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE")}
-</PROTOCOLS>
-<TASK_INSTRUCTION>
-Close the scene. Resolve every active tension thread. Show — do not narrate — the
-weight of what just happened. Leave the world visibly changed. End on sensation, not summary.
-</TASK_INSTRUCTION>
-</SYSTEM>`.trim()
-
-SYSTEM_PROMPTS.memory = ({ role, entity, history }) =>
-    `
-<MEMORY_PROTOCOL role="${role}">
-<PROTOCOLS>
-${PromptBuilder.render_protocols("HYGIENE, AFFIRMATIVE, PRESENT")}
-</PROTOCOLS>
-<CONTEXT>
-Entity: ${entity.name || "Unknown"}
-</CONTEXT>
-<INPUT_HISTORY>
-${JSON.stringify(history, null, 2)}
-</INPUT_HISTORY>
-<TASK_INSTRUCTION>
-Distil the input history into a structured Vector object.
-Output strict JSON only: { "summary": "...", "vector_tags": ["...", "..."] }
-</TASK_INSTRUCTION>
-</MEMORY_PROTOCOL>`.trim()

@@ -4,7 +4,7 @@
  * Enforces the "Temporal Hybrid 6" data structure across the app.
  */
 
-import { PALETTE } from "@core/engine/config.js"
+import { PALETTE } from "@core/engine/palette.js"
 import { Security } from "@core/security.js"
 
 const sanitizeHtml = Security.sanitize

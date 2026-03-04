@@ -20,7 +20,6 @@
  */
 
 import { ERROR_MESSAGES } from "@core/engine/config.js"
-import { SYSTEM_PROMPTS } from "@core/intelligence/PromptBuilder.js"
 import { app } from "@state/app.svelte.js"
 
 /************************************************************************************
@@ -57,16 +56,10 @@ export const LlmService = {
      * Transforms draft text into visceral, first-person narrative based on
      * field-specific directives from the Entity Definition.
      *
-     * @param {string} text     - The draft text to enhance.
-     * @param {string} fieldKey - Dot-notation field key (e.g. "eternal.non_physical").
+     * @param {Object} payload - The generated enhancement prompt payload.
      * @returns {Promise<string>}
      */
-    async enhance(text, fieldKey) {
-        const payload = {
-            system: SYSTEM_PROMPTS.enhancement({ label: fieldKey, directive: "Expand and enrich the fragment.", enhancer: "GENERAL", content: text }),
-            messages: [],
-        }
-
+    async enhance(payload) {
         // Use raw: true so generate() returns unprocessed output —
         // enhance() owns its own sanitization pass so it isn't double-stripped.
         const result = await this.generate(payload, { silent: true, raw: true })

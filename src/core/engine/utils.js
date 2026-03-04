@@ -1,7 +1,7 @@
 // src/core/session/utils.js
 
 import { Security } from "@core/security.js"
-import { PALETTE } from "./config.js"
+import { PALETTE } from "./palette.js"
 
 // --- Color Re-exports ---
 export const getSignatureColor = (key) => PALETTE[key] || PALETTE.default

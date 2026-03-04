@@ -1,6 +1,7 @@
 <script>
-    import { PALETTE } from "@core/engine/config.js"
+    import { PALETTE } from "@core/engine/palette.js"
     import { LlmService } from "@core/intelligence/intelligence_service.js"
+    import { PromptBuilder } from "@core/intelligence/PromptBuilder.js"
     import { ImageGeneration } from "@media/image_engine.js"
     import { app } from "@state/app.svelte.js"
     import Button from "@ui/atoms/Button.svelte"
@@ -76,12 +77,14 @@
             }
 
             if (current_target_key === "visual-prompt" && is_enhance_mode) {
-                const result = await LlmService.enhance(char.visuals.prompt, "visuals.prompt")
+                const payload = PromptBuilder.build_enhancement("visuals.prompt", char.visuals.prompt)
+                const result = await LlmService.enhance(payload)
                 if (result) char.visuals.prompt = result
             } else if (current_target_key !== "visual-prompt") {
                 const field_val = get_value(char, current_target_key)
                 if (field_val) {
-                    const result = await LlmService.enhance(field_val, current_target_key)
+                    const payload = PromptBuilder.build_enhancement(current_target_key, field_val)
+                    const result = await LlmService.enhance(payload)
                     if (result) set_value(char, current_target_key, result)
                 }
             } else {

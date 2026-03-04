@@ -1,4 +1,4 @@
-import { DEFAULT_COLORS, PALETTE } from "@core/engine/config.js"
+import { DEFAULT_COLORS, PALETTE } from "@core/engine/palette.js"
 
 /**
  * THEME STORE (REACTIVE)
