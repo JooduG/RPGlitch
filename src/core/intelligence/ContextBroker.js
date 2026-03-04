@@ -70,7 +70,7 @@ function to_fragments(entity, mode = "simulation") {
 
     // 1. Schema-defined Catalog
     Object.entries(ENTITY_CATALOG).forEach(([fieldId, metadata]) => {
-        if (mode === "simulation" && is_physical_field({ fieldId, ...metadata })) return
+        if (mode === "image" && !is_physical_field({ fieldId, ...metadata })) return
 
         let val = get_path_value(entity, fieldId)
         if (!val && fieldId === "present.physical" && entity.description) {
@@ -91,17 +91,32 @@ function to_fragments(entity, mode = "simulation") {
     // 2. Ad-hoc fragments
     if (Array.isArray(entity.fragments)) {
         entity.fragments.forEach((f) => {
-            if (mode === "simulation" && is_physical_field(f)) return
+            if (mode === "image" && !is_physical_field(f)) return
+            const section = f.section || "General"
             list.push({
                 text: ContextBroker.clean_text(typeof f === "string" ? f : f.text),
                 type: f.type || "General",
                 enhancer: f.enhancer || "NONE",
-                section: f.section || "General",
+                section,
+                layer: f.layer || section.toUpperCase(),
             })
         })
     }
 
     return list.filter((f) => f.text.length > 0)
+}
+
+/**
+ * Groups a flat fragment array by layer key into a { LAYER: [...] } map.
+ */
+function group_by_layer(fragments) {
+    const layers = {}
+    fragments.forEach((f) => {
+        const key = f.layer || "GENERAL"
+        if (!layers[key]) layers[key] = []
+        layers[key].push(f)
+    })
+    return layers
 }
 
 /************************************************************************************
@@ -116,9 +131,9 @@ export class ContextBroker {
      *
      * @param {string} input - The current user input.
      * @param {string} [type="simulation"] - 'simulation' | 'logic' | 'image'
-     * @param {Array} history - Recent message history.
+     * @param {Array} simulation_log - Recent message log.
      */
-    static async hydrate(input, type = "simulation", history = []) {
+    static async hydrate(input, type = "simulation", simulation_log = []) {
         const turn = runtime.turn || 1
         const active_vector = runtime.activeVector("FRACTAL") || "EXPLORE"
 
@@ -151,9 +166,11 @@ export class ContextBroker {
                 id: raw.id,
                 name: raw.name || role,
                 fragments: filtered,
+                layers: group_by_layer(filtered),
                 past: raw.past,
                 future: raw.future,
                 dynamics: raw.dynamics, // Pass through for physics calculation
+                associated_ids: raw.associated_ids || [],
             }
         })
 
@@ -168,8 +185,8 @@ export class ContextBroker {
             turn,
             entities,
             background_entities,
-            history: ContextBroker.assemble_snapshot(history),
-            rawMessages: history,
+            simulation_log: ContextBroker.assemble_snapshot(simulation_log),
+            rawMessages: simulation_log,
             meta: {
                 active_vector,
                 timestamp: new Date().toISOString(),
@@ -192,13 +209,13 @@ export class ContextBroker {
      */
     static async fetch_background_entities(active_ids = []) {
         try {
-            const all_characters = await entity_repo.list("character")
-            return all_characters
-                .filter((c) => !active_ids.includes(c.id))
-                .map((c) => ({
-                    name: c.name || "Unknown",
-                    id: c.id,
-                    dynamics: c.dynamics || null,
+            const all = await entity_repo.list()
+            return all
+                .filter((e) => !active_ids.includes(e.id))
+                .map((e) => ({
+                    name: e.name || "Unknown",
+                    id: e.id,
+                    dynamics: e.dynamics || {},
                 }))
         } catch {
             return []
@@ -211,10 +228,11 @@ export class ContextBroker {
     static assemble_snapshot(history = []) {
         if (!history.length) return null
         return history
-            .slice(-3)
             .map((m) => {
                 const owner = m.character_name || (m.role === "user" ? "User" : "AI")
-                return `[${owner}]: ${ContextBroker.clean_text(m.content, 120)}`
+                const raw = m.content || ""
+                const stripped = raw.replace(/<think>[\s\S]*?<\/think>/gi, "").trim()
+                return `[${owner}]: ${ContextBroker.clean_text(stripped, 500)}`
             })
             .join("\n")
     }

@@ -7,6 +7,7 @@ import { db } from "@data/db.js"
 import { entities } from "@data/repository.js"
 import { app } from "@state/app.svelte.js" // [R5]
 import { runtime } from "@state/runtime.svelte.js"
+import { simulation_log } from "@state/simulation_log.svelte.js"
 import { engineState } from "@state/status.svelte.js" // [R5] Unified State
 import { Session } from "./session-driver.js"
 
@@ -64,7 +65,7 @@ export const Engine = {
 
             try {
                 const storyId = Session.requireActive()
-                const messages = await Session.loadMessages(storyId)
+                const messages = await Session.load_log(storyId)
                 const unconsolidated = messages.filter((m) => !m.meta?.consolidated)
 
                 // Trigger every 10 unconsolidated messages
@@ -89,7 +90,7 @@ export const Engine = {
                         await db.messages.update(msg.id, { meta: msg.meta })
                     }
 
-                    messages.refresh()
+                    simulation_log.refresh()
                 }
             } catch (err) {
                 console.error("[Memory Nexus] Consolidation failed:", err)
@@ -119,10 +120,9 @@ export const Engine = {
             Engine.NarrativeDirector.update()
 
             // [DECOUPLED DATA FLOW] Fetch and format history directly from the DB source
-            const rawMessages = await Session.loadMessages(storyId)
-            const recentMessages = rawMessages
+            const rawMessages = await Session.load_log(storyId)
+            const simulation_log = rawMessages
                 .filter((m) => !m.meta?.consolidated)
-                .slice(-10)
                 .map((m) => ({
                     role: m.role === "user" ? "user" : "model",
                     content: m.text || m.content || "",
@@ -130,7 +130,7 @@ export const Engine = {
                 }))
 
             // 2. ASSEMBLE (Modular Pipeline: Hydration -> Simulation -> Synthesis)
-            const payload = await ContextBroker.hydrate(options.input || "", "simulation", recentMessages)
+            const payload = await ContextBroker.hydrate(options.input || "", "simulation", simulation_log)
             const snapshot = DynamicsEngine.simulate(payload)
             const { system, meta } = PromptBuilder.synthesize(payload, snapshot)
 

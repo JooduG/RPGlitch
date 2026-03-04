@@ -12,14 +12,14 @@
  * matters most in the current context.
  *
  * DATA SCHEMA
- * Every vector follows a strict strict schema:
+ * Every vector follows a strict schema:
  * {
  *   id: uuid,
+ *   timestamp: number,
  *   text: string (raw content),
- *   summary: string (shortened resonance),
- *   axis_tags: string[] (derived from DynamicsEngine),
- *   entity_tags: string[] (manual/system tags),
- *   timestamp: number
+ *   emotional_weight: number (W=1-10, set at write time by SemanticEvaluator),
+ *   dynamics_tags: string[] (derived from DynamicsEngine),
+ *   vector_tags: string[] (manual/system tags),
  * }
  *
  * ARCHITECTURE
@@ -41,24 +41,19 @@ import { DynamicsEngine } from "./DynamicsEngine.js"
 /**
  * Creates a strict, metadata-rich vector object.
  *
- * [BRIDGE] Summary Fallback: If no summary is provided (e.g. for future vectors),
- * the raw text is used as the basis for axis scanning.
- *
  * @param {string} text - Raw content (past) or intent (future).
- * @param {string|null} [summary=null] - Compressed version of the text.
  * @returns {Object} A strict Vector object.
  */
-export function create_vector(text, summary = null) {
-    const final_summary = summary || text
-    const reflexes = DynamicsEngine.scan_reflexes(final_summary)
+export function create_vector(text) {
+    const reflexes = DynamicsEngine.scan_reflexes(text)
 
     return {
         id: crypto.randomUUID(),
-        text,
-        summary: final_summary,
-        axis_tags: reflexes.map((r) => r.id),
-        entity_tags: [],
         timestamp: Date.now(),
+        text,
+        emotional_weight: DynamicsEngine.evaluate_weight(reflexes),
+        dynamics_tags: reflexes.map((r) => r.id),
+        vector_tags: [],
     }
 }
 
@@ -90,13 +85,16 @@ export function score_vectors(vectors, input) {
     const scored = vectors.map((v) => {
         let score = 0
         // 🛡️ Axis Match: If the memory shares a "vibe" (Reflex id) with the input.
-        v.axis_tags?.forEach((t) => {
+        v.dynamics_tags?.forEach((t) => {
             if (current_reflexes.includes(t)) score += 2
         })
         // 🏷️ Entity Match: If the memory explicitly mentions a relevant subject.
-        v.entity_tags?.forEach((t) => {
+        v.vector_tags?.forEach((t) => {
             if (input_lower.includes(t.toLowerCase())) score += 1
         })
+        // ⚖️ Emotional Weight: Flat addend from MNOTION tier (W=3 baseline, W=10 max).
+        score += v.emotional_weight ?? 3
+
         return { ...v, _score: score }
     })
 
@@ -110,35 +108,75 @@ export function score_vectors(vectors, input) {
  ************************************************************************************/
 
 /**
- * Renders the most relevant 3 past memories (Past Vectors).
+ * Renders the most relevant past memories (Past Vectors).
  * Reverses order so the "best" match is closest to the AI's current context.
  *
  * @param {Array} vectors
  * @param {string} input
- * @returns {string} Formatted [RESONANCE] block.
+ * @param {number} [limit=3]
+ * @param {number} [offset=0]
+ * @returns {string} Formatted [PAST_VECTOR] block.
  */
-export function format_past(vectors, input) {
-    const ranked = score_vectors(vectors, input).slice(0, 3)
+export function format_past(vectors, input, limit = 3, offset = 0) {
+    const ranked = score_vectors(vectors, input).slice(offset, offset + limit)
     const reversed = [...ranked].reverse()
-    return reversed.map((v) => `        [PAST_VECTOR]: ${v.summary}`).join("\n")
+    return reversed
+        .map((v) => {
+            const w = v.emotional_weight ?? 3
+            const label = w >= 10 ? "CORE_MEMORY" : w >= 8 ? "MAJOR_MEMORY" : w >= 6 ? "MEMORY" : "ECHO"
+            return `        [${label}]: ${v.text}`
+        })
+        .join("\n")
 }
 
 /**
- * Renders the most relevant 3 future vectors.
+ * Renders the most relevant future vectors.
  * Labels them [STAKE] if they have Axis tags, or [OBJECTIVE] if they are generic.
  *
  * @param {Array} vectors
  * @param {string} input
+ * @param {number} [limit=3]
+ * @param {number} [offset=0]
  * @returns {string} Formatted future block.
  */
-export function format_future(vectors, input) {
-    const ranked = score_vectors(vectors, input).slice(0, 3)
+export function format_future(vectors, input, limit = 3, offset = 0) {
+    const ranked = score_vectors(vectors, input).slice(offset, offset + limit)
     const reversed = [...ranked].reverse()
     return reversed
         .map((v) => {
-            return `        [FUTURE_VECTOR]: ${v.text}`
+            const w = v.emotional_weight ?? 3
+            const label = w >= 10 ? "CORE_MEMORY" : w >= 8 ? "MAJOR_MEMORY" : w >= 6 ? "MEMORY" : "ECHO"
+            return `        [FUTURE_${label}]: ${v.text}`
         })
         .join("\n")
+}
+
+/**
+ * Moves a future vector to the past log, optionally with a resolution tag.
+ *
+ * @param {Object} entity
+ * @param {string} vector_id
+ * @param {string} [resolution=null]
+ */
+export function resolve_vector(entity, vector_id, resolution = null) {
+    if (!entity.future?.vectors) return
+
+    const index = entity.future.vectors.findIndex((v) => v.id === vector_id)
+    if (index === -1) return
+
+    const [vector] = entity.future.vectors.splice(index, 1)
+
+    // Add resolution tag if provided
+    if (resolution) {
+        if (!vector.vector_tags) vector.vector_tags = []
+        vector.vector_tags.push(`RESOLUTION:${resolution.toUpperCase()}`)
+    }
+    vector.timestamp = Date.now()
+
+    if (!entity.past) entity.past = { vectors: [] }
+    if (!entity.past.vectors) entity.past.vectors = []
+
+    entity.past.vectors.push(vector)
 }
 
 /**
@@ -149,4 +187,5 @@ export const VectorEngine = {
     score_vectors,
     format_past,
     format_future,
+    resolve_vector,
 }

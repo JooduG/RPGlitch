@@ -37,7 +37,7 @@ const PROTOCOL_LIBRARY = {
     THIRD_PERSON: `THIRD_PERSON: Narrate exclusively from the third-person limited perspective. In this mode, you are the world-voice observing the entities.`,
     GRIT: `GRIT: Maintain a 2:1 ratio of sensory physics (texture, light, resistance) to abstract dialogue or logic.`,
     SCENE_PACING: `SCENE_PACING: Background intrusions are ADVISORY only. Do NOT allow off-screen entities to hijack narrative focus unless intensity exceeds critical threshold. Maximum one background cutaway per 3 turns. Maintain protagonist scene continuity.`,
-    SINO_LOGIC: `SINO_LOGIC: Your internal reasoning within the <think> block MUST be conducted in Concise Technical Chinese (zh-CN). Your final narrative output outside the <think> block MUST be in the primary requested language (English). Maintain a strict semantic boundary between internal calculation and external prose.`,
+    SINO_LOGIC: `SINO_LOGIC: CRITICAL LANGUAGE REQUIREMENT. Your internal reasoning within the <think> block MUST be conducted in Concise Technical Chinese (zh-CN). However, the moment you close the </think> tag, you MUST switch completely back to ENGLISH for the actual narrative response. Do NOT output Chinese outside of the <think> block.`,
 }
 
 /************************************************************************************
@@ -47,34 +47,38 @@ const PROTOCOL_LIBRARY = {
  ************************************************************************************/
 
 export const SYSTEM_PROMPTS = {
-    simulation: ({ turn, entities, history, behaviors, protocols, input }) => {
+    simulation: ({ turn, entities, simulation_log, behaviors, protocols, input, render_atom }) => {
         const ai = entities.AI
         const user = entities.USER
         const fractal = entities.FRACTAL
 
         return `
-<SYSTEM role="${ai.name}">
-
-<STATE turn="${turn}">
-</STATE>
+<SYSTEM role="${ai.name}" turn="${turn}" objective="${render_atom.future(ai, 1)}">
 
 <YOUR_IDENTITY name="${ai.name}">
-${PromptBuilder.render_fragments(ai.fragments)}
-${VectorEngine.format_past(ai.past?.vectors || [], input)}
-${VectorEngine.format_future(ai.future?.vectors || [], input)}
+<ETERNAL>${render_atom.eternal.non_physical(ai)}</ETERNAL>
+<PRESENT>${render_atom.present.non_physical(ai)}</PRESENT>
+<PAST>${render_atom.past(ai, 5)}</PAST>
+<FUTURE>${render_atom.future(ai, 5, 1)}</FUTURE>
 </YOUR_IDENTITY>
 
 <USER_PERSONA name="${user.name}">
-${PromptBuilder.render_fragments(user.fragments)}
+<ETERNAL>${render_atom.eternal.non_physical(user)}</ETERNAL>
+<PRESENT>${render_atom.present.non_physical(user)}</PRESENT>
+<PAST memory="${render_atom.past(user, 1)}"/>
+<FUTURE vector="${render_atom.future(user, 1)}"/>
 </USER_PERSONA>
 
 <FRACTAL name="${fractal.name}">
-${PromptBuilder.render_fragments(fractal.fragments)}
+<ETERNAL>${render_atom.eternal.non_physical(fractal)}</ETERNAL>
+<PRESENT>${render_atom.present.non_physical(fractal)}</PRESENT>
+<PAST memory="${render_atom.past(fractal, 1)}"/>
+<FUTURE vector="${render_atom.future(fractal, 1)}"/>
 </FRACTAL>
 
-<HISTORY>
-${PromptBuilder.render_history(history)}
-</HISTORY>
+<SIMULATION_LOG>
+${PromptBuilder.render_history(simulation_log, 10)}
+</SIMULATION_LOG>
 
 ${behaviors.length > 0 ? `<NARRATIVE_STYLE>\n${behaviors.join(" ")}\n</NARRATIVE_STYLE>` : ""}
 
@@ -102,7 +106,7 @@ ${content}
 </INPUT_CONTENT>
 </SYSTEM>`.trim(),
 
-    prologue: ({ turn, entities, protocols, input }) => {
+    prologue: ({ turn, entities, protocols, input, render_atom }) => {
         const ai = entities.AI
         const user = entities.USER
         const fractal = entities.FRACTAL
@@ -114,16 +118,25 @@ ${content}
 </STATE>
 
 <YOUR_IDENTITY name="${fractal.name}">
-${PromptBuilder.render_fragments(fractal.fragments)}
+${render_atom.eternal.non_physical(fractal)}
+${render_atom.eternal.physical(fractal)}
+${render_atom.present.non_physical(fractal)}
+${render_atom.present.physical(fractal)}
 </YOUR_IDENTITY>
 
 <ACTIVE_CHARACTERS>
 <AI_CHARACTER name="${ai.name}">
-${PromptBuilder.render_fragments(ai.fragments)}
+${render_atom.eternal.non_physical(ai)}
+${render_atom.eternal.physical(ai)}
+${render_atom.present.non_physical(ai)}
+${render_atom.present.physical(ai)}
 </AI_CHARACTER>
 
 <USER_PERSONA name="${user.name}">
-${PromptBuilder.render_fragments(user.fragments)}
+${render_atom.eternal.non_physical(user)}
+${render_atom.eternal.physical(user)}
+${render_atom.present.non_physical(user)}
+${render_atom.present.physical(user)}
 </USER_PERSONA>
 </ACTIVE_CHARACTERS>
 
@@ -138,6 +151,8 @@ Use your <think> block to assess the environmental resonance and character align
 Ground every presence in this Fractal — it is the dominant reality, not a backdrop.
 ${ai.name} and ${user.name} arrived here through their Pasts.
 The Fractal speaks first. Begin with sensation. No dialogue.
+
+CRITICAL: When your <think> block ends, your narrative output MUST be written in English.
 </TASK_INSTRUCTION>
 
 ${input?.trim() ? `\n<INPUT_COMMAND>\n${input.trim()}\n</INPUT_COMMAND>` : ""}
@@ -159,20 +174,23 @@ export class PromptBuilder {
      * @returns {{ system: string, meta: object }}
      */
     static synthesize(payload, snapshot) {
-        const { type } = payload
+        const { type, entities, input, rawMessages } = payload
+        const render_atom = PromptBuilder.create_render_atom(entities, input, rawMessages)
 
         if (type === "prologue") {
+            const system = SYSTEM_PROMPTS.prologue({
+                ...payload,
+                render_atom,
+                protocols: "SINO_LOGIC, COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, EPISTEMIC_WALL, PLACEMENT, IMMERSION, MOMENTUM",
+            })
             return {
-                system: SYSTEM_PROMPTS.prologue({
-                    ...payload,
-                    protocols: "SINO_LOGIC, COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, EPISTEMIC_WALL, PLACEMENT, IMMERSION, MOMENTUM",
-                }),
+                system: PromptBuilder.clean(system),
                 meta: {},
             }
         }
 
         // Default: Simulation
-        const { intruders, updates } = DynamicsEngine.calculate_offscreen_dynamics(payload.input, payload.background_entities || [])
+        const { intruders, updates } = DynamicsEngine.calculate_offscreen_dynamics(input, payload.background_entities || [])
 
         // Inject BACKGROUND_INTENSITY block into entities for the template
         if (intruders.length > 0) {
@@ -186,15 +204,57 @@ export class PromptBuilder {
             ...payload,
             ...snapshot,
             protocols,
+            render_atom,
         })
 
         return {
-            system,
+            system: PromptBuilder.clean(system),
             meta: {
                 dynamics: snapshot.dynamics,
                 flags: snapshot.flags,
                 behaviors: snapshot.behaviors,
                 background_updates: updates,
+            },
+        }
+    }
+
+    /**
+     * FABRICATION: create_render_atom
+     * Creates a functional proxy for atomic fragment rendering.
+     * Use exactly as: ${render_atom.eternal.physical(AI)}
+     *
+     * @param {Object} entities - Map of hydrated entities.
+     * @param {string} input - Current user input for vector ranking.
+     * @returns {Object} Nested functional API.
+     */
+    static create_render_atom(entities, input, raw_messages = []) {
+        const resolve = (e) => (typeof e === "string" ? entities[e] || entities.AI : e)
+
+        const recent_history = raw_messages
+            .slice(-3)
+            .map((m) => m.content)
+            .join(" ")
+        const scoring_context = `${input || ""} ${recent_history}`.trim()
+
+        return {
+            eternal: {
+                physical: (e) => PromptBuilder.render_layer(resolve(e), "ETERNAL", "Physical"),
+                non_physical: (e) => PromptBuilder.render_layer(resolve(e), "ETERNAL", "Non-Physical"),
+            },
+            present: {
+                physical: (e) => PromptBuilder.render_layer(resolve(e), "PRESENT", "Physical"),
+                non_physical: (e) => PromptBuilder.render_layer(resolve(e), "PRESENT", "Non-Physical"),
+            },
+            past: (e, limit = 3, offset = 0) => {
+                const ent = resolve(e)
+                return VectorEngine.format_past(ent.past?.vectors || [], scoring_context, limit, offset)
+            },
+            future: (e, limit = 3, offset = 0) => {
+                const ent = resolve(e)
+                return VectorEngine.format_future(ent.future?.vectors || [], scoring_context, limit, offset)
+            },
+            simulation_log: (limit = 10, offset = 0) => {
+                return PromptBuilder.render_history(raw_messages, limit, offset)
             },
         }
     }
@@ -208,12 +268,35 @@ export class PromptBuilder {
     }
 
     /**
-     * Renders history entries into XML.
+     * Renders fragments from a specific layer and type.
+     * @param {Object} entity - Entity with .layers property
+     * @param {string} layer - Layer key, e.g. "ETERNAL", "PRESENT"
+     * @param {string} [type] - Optional fragment type filter, e.g. "Non-Physical", "Physical"
+     * @returns {string} XML fragment string
      */
-    static render_history(history) {
-        if (!history || typeof history === "string") return history || ""
-        if (Array.isArray(history)) {
-            return history
+    static render_layer(entity, layer, type) {
+        if (!entity?.layers?.[layer]) return ""
+        let frags = entity.layers[layer]
+        if (type) frags = frags.filter((f) => f.type === type)
+        if (!frags.length) return ""
+        return frags.map((f) => `<FRAGMENT type="${f.type}">${f.text}</FRAGMENT>`).join("\n")
+    }
+
+    /**
+     * Renders simulation log entries.
+     * @param {string|Array} simulation_log - Log entries or pre-rendered string
+     * @param {number} [count=10] - Max number of entries to include
+     * @param {number} [offset=0] - Number of entries to skip from the end
+     */
+    static render_history(simulation_log, count = 10, offset = 0) {
+        if (!simulation_log || typeof simulation_log === "string") return simulation_log || ""
+        if (Array.isArray(simulation_log)) {
+            // Calculate slice boundaries
+            const start = Math.max(0, simulation_log.length - (count + offset))
+            const end = Math.max(0, simulation_log.length - offset)
+
+            return simulation_log
+                .slice(start, end)
                 .map((m) => {
                     const role = m.role === "user" ? "USER_PERSONA" : m.role === "prologue" ? "FRACTAL" : "AI_CHARACTER"
                     const name_attr = m.character_name ? ` name="${m.character_name}"` : ""
@@ -236,6 +319,18 @@ export class PromptBuilder {
             .filter(Boolean)
             .map((rule) => `- ${rule}`)
             .join("\n")
+    }
+
+    /**
+     * Normalizes whitespace, collapsing multiple newlines.
+     * @param {string} str
+     * @returns {string}
+     */
+    static clean(str) {
+        if (typeof str !== "string") return ""
+        return str
+            .replace(/\n[\s\n]*\n/g, "\n") // Collapse any sequence of newlines/whitespace between newlines into one newline
+            .trim()
     }
 
     /**
@@ -289,6 +384,6 @@ ${JSON.stringify(history, null, 2)}
 </INPUT_HISTORY>
 <TASK_INSTRUCTION>
 Distil the input history into a structured Vector object.
-Output strict JSON only: { "summary": "...", "entity_tags": ["...", "..."] }
+Output strict JSON only: { "summary": "...", "vector_tags": ["...", "..."] }
 </TASK_INSTRUCTION>
 </MEMORY_PROTOCOL>`.trim()

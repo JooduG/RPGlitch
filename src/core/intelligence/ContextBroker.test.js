@@ -53,13 +53,31 @@ describe("ContextBroker (Refactored)", () => {
         expect(payload.entities.USER.name).toBe("User")
     })
 
-    it("should exclude physical and visual fields in simulation mode", async () => {
+    it("should include physical and visual fields in simulation mode", async () => {
         const payload = await ContextBroker.hydrate("Who am I?", "simulation")
 
-        // Physical and Visual fragments should be filtered out by to_fragments
+        // Physical and Visual fragments should now be INCLUDED in simulation mode
         const ai_fragments = payload.entities.AI.fragments
         const has_physical = ai_fragments.some((f) => f.section === "Physical" || f.section === "Visual")
-        expect(has_physical).toBe(false)
+        expect(has_physical).toBe(true)
+    })
+
+    it("should group fragments by layer key", async () => {
+        const payload = await ContextBroker.hydrate("Check layers", "simulation")
+        const ai = payload.entities.AI
+
+        // layers object must exist alongside flat fragments
+        expect(ai.layers).toBeDefined()
+        expect(typeof ai.layers).toBe("object")
+
+        // The mock has Eternal and Physical/Visual fragments, so at least one layer should exist
+        const layer_keys = Object.keys(ai.layers)
+        expect(layer_keys.length).toBeGreaterThan(0)
+
+        // Each layer value should be an array of fragments
+        layer_keys.forEach((key) => {
+            expect(Array.isArray(ai.layers[key])).toBe(true)
+        })
     })
 
     it("should prioritize fragments based on objective in lexical_filter", () => {

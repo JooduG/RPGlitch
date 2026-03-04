@@ -36,7 +36,7 @@ import { PromptBuilder } from "./PromptBuilder.js"
  * @param {Object}   target_entity - The entity whose memory is being updated.
  * @param {Array}    history_slice - The raw message objects to condense.
  * @param {string}   [role]        - Context role: "character" | "user" | "fractal".
- * @returns {Promise<{summary: string, entity_tags: string[], axis_tags: string[], timestamp: number}|null>}
+ * @returns {Promise<{summary: string, vector_tags: string[], dynamics_tags: string[], timestamp: number}|null>}
  */
 export async function memorize(target_entity, history_slice, role = "character") {
     if (!target_entity) return null
@@ -46,7 +46,7 @@ export async function memorize(target_entity, history_slice, role = "character")
         const payload = PromptBuilder.build_memory_prompt(role, target_entity, history_slice)
 
         // 2. Generate a raw Resonance response from the LLM.
-        //    Expects: { summary: string, entity_tags: string[] }
+        //    Expects: { summary: string, vector_tags: string[] }
         const response = await LlmService.generate(payload, { json: true, silent: true, raw: true })
 
         // 3. Extract text and parse JSON
@@ -72,13 +72,13 @@ export async function memorize(target_entity, history_slice, role = "character")
         // 4. Hybrid Tagging Logic (AXIS TAGS)
         //    Run automated Scan Reflexes on the summary to avoid hallucination.
         const triggered_reflexes = DynamicsEngine.scan_reflexes(resonance.summary)
-        const axis_tags = triggered_reflexes.map((r) => r.id)
+        const dynamics_tags = triggered_reflexes.map((r) => r.id)
 
-        // 5. Build Final Resonance Object
+        // 3. Package Return
         return {
             summary: resonance.summary,
-            entity_tags: resonance.entity_tags || resonance.tags || [],
-            axis_tags: axis_tags,
+            vector_tags: resonance.vector_tags || resonance.tags || [],
+            dynamics_tags: dynamics_tags,
             timestamp: Date.now(),
         }
     } catch (err) {

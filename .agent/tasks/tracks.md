@@ -5,26 +5,12 @@
 
 ## 🚀 Active Tracks
 
-### Track: Emotional Half-Life Protocol
-
-- Path: [.agent/tasks/emotional-half-life/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/emotional-half-life/)
-- Status: Planning
-- Checkpoint: `emot-half-01`
-- Note: Replacing rigid 3-turn memory decay with semantic persistence (W=1-10) to retain narrative weight in context.
-
 ### Track: SCSS Token Standardization
 
 - Path: [.agent/tasks/scss-token-standardization/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/scss-token-standardization/)
 - Status: Planning
 - Checkpoint: `scss-std-01`
 - Note: Codebase-wide hygienic sweep replacing all hardcoded SCSS values (colors, opacities, spacing) with reusable variables.
-
-### Track: Sino-Logic Optimization
-
-- Path: [.agent/tasks/sino-logic-optimization/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/sino-logic-optimization/)
-- Status: Planning
-- Checkpoint: `sino-opt-01`
-- Note: Implementing zh-CN cognitive protocol to slash token footprint and sharpen internal reasoning density.
 
 ## 📋 Protocols & Checklists
 
@@ -47,6 +33,20 @@
 - **Note:** Systemic rename of character dynamics: entropy -> chaos, velocity -> intensity, permeability -> openness, resonance -> affinity. Updated state, engine logic, template tags, and UI labels. Resolved build regression in `ContextBroker.js`. pass final `npm run deploy`.
 
 ## ✅ Archive
+
+### ✅ Track: Emotional Half-Life Protocol
+
+- **Path:** [.agent/archive/emotional-half-life/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/archive/emotional-half-life/)
+- **Status:** Complete
+- **Checkpoint:** `emot-half-01`
+- **Note:** Implemented weighted vector scoring via MNOTION W-tiers. Centralized logic in DynamicsEngine, flattened vector schema, added new MNOTION reflexes.
+
+### ✅ Track: Sino-Logic Optimization
+
+- **Path:** [.agent/archive/sino-logic-optimization/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/archive/sino-logic-optimization/)
+- **Status:** Complete
+- **Checkpoint:** `1e27a640`
+- **Note:** Configured prompt synthesis pipeline to force internal `<think>` reasoning into concise technical `zh-CN`, retaining English payload semantics, driving a rigorous cut to token consumption and raising dense logical coherence without external drift.
 
 ### ✅ Track: Naivety Index
 

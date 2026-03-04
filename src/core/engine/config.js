@@ -79,6 +79,28 @@ export const CONFIG = {
         REFLEX_EMPATHY_AFFINITY: 10,
         REFLEX_EXAMINATION_AFFINITY: -10,
 
+        REFLEX_BETRAYAL_CHAOS: 15,
+        REFLEX_BETRAYAL_OPENNESS: -15,
+
+        REFLEX_REVELATION_CHAOS: 10,
+        REFLEX_REVELATION_OPENNESS: 10,
+
+        // MNOTION Narrative Weight Map (W=1-10)
+        // Maps reflex IDs → Emotional Weight tier.
+        // Composite rule: GLITCH + IMPACT → W=10 (handled in DynamicsEngine.evaluate_weight)
+        REFLEX_WEIGHT_MAP: {
+            BETRAYAL: 9, // Betrayal, deception — Major
+            REVELATION: 9, // Confession, sacrifice — Major
+            GLITCH: 8, // Nightmare, existential dread — Major
+            EXPOSURE: 7, // Intimacy, vulnerability — Significant
+            IMPACT: 7, // Violence, conflict — Significant
+            EMPATHY: 6, // Connection, vows — Significant
+            DEFENSE: 4, // Guarding, resistance — Minor
+            EXAMINATION: 3, // Clinical, analytical — Baseline
+            BREATHER: 3, // Calm, rest — Baseline
+            CALCULATION: 3, // Logic — Baseline
+        },
+
         // LLM VISUAL
         VISUAL_TEMP_DEFAULT: 0.45,
     },

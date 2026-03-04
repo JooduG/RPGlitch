@@ -60,7 +60,7 @@ const DYNAMICS_REFLEXES = [
     },
     {
         id: "EMPATHY",
-        trigger: /underst(ood|and)(ing)?|connect(ed|ing)?|sync(hroniz)?(ed|ing)?|resonance|empathy|harmony|together|shared|mind|soul|link(ed|ing)?|bond(ed|ing)?|mirror(ed|ing)?|echo(ed|ing)?|melody|music|rhythm|vibe|frequency|pulse/i,
+        trigger: /underst(ood|and)(ing)?|connect(ed|ing)?|sync(hroniz)?(ed|ing)?|resonance|empathy|harmony|together|shared|mind|soul|link(ed|ing)?|bond(ed|ing)?|mirror(ed|ing)?|echo(ed|ing)?|melody|music|rhythm|vibe|frequency|pulse|vow(ed|ing)?|promise(d|ing)?|swear|swore|pact/i,
         effect: { affinity: CONFIG.DYNAMICS.REFLEX_EMPATHY_AFFINITY },
     },
     {
@@ -68,24 +68,48 @@ const DYNAMICS_REFLEXES = [
         trigger: /data|clinical|observ(e|ed|ing)?|watch(ed|ing)?|analy[sz](e|ed|ing)?|study(ing)?|scan(ned|ning)?|test(ed|ing)?|monitor(ed|ing)?|variable/i,
         effect: { affinity: CONFIG.DYNAMICS.REFLEX_EXAMINATION_AFFINITY },
     },
+    {
+        id: "BETRAYAL",
+        trigger: /betray(ed|al|ing)?|deceiv(ed|ing)?|lied?|backstab(bed|bing)?|doublecross(ed|ing)?|traitor/i,
+        effect: {
+            chaos: CONFIG.DYNAMICS.REFLEX_BETRAYAL_CHAOS,
+            openness: CONFIG.DYNAMICS.REFLEX_BETRAYAL_OPENNESS,
+        },
+    },
+    {
+        id: "REVELATION",
+        trigger: /confess(ed|ion|ing)?|reveal(ed|ing)?|disclos(ed|ing)?|secret.*out|discover(ed|ing)?|sacrific(e|ed|ing)?/i,
+        effect: {
+            chaos: CONFIG.DYNAMICS.REFLEX_REVELATION_CHAOS,
+            openness: CONFIG.DYNAMICS.REFLEX_REVELATION_OPENNESS,
+        },
+    },
 ]
 
 const SIGNAL_PROMPTS = {
     intensity: {
         high: { id: "ADRENALINE", text: "Pacing fast. Short sentences. High-stakes urgency." },
+        /* Faster Voice Rate? */
         low: { id: "SLOW_MOTION", text: "Pacing slow. Heavy fatigue. Deliberate, languid actions." },
+        /* Slower Voice Rate? */
     },
     chaos: {
         high: { id: "CORRUPTION", text: "Reality destabilizing. Describe glitching, sensory corruption, broken physics." },
+        /* Higher Temperature? */
         low: { id: "LOGIC", text: "High lucidity. Precise observations. Sharply defined surroundings." },
+        /* Lower Temperature? */
     },
     openness: {
         high: { id: "VULNERABILITY", text: "Sensory raw. Focus on visceral heat, touch, somatic feedback." },
+        /* Naivity? */
         low: { id: "GUARDED", text: "Emotional distance. Mental barriers active. Cynical or defensive tone." },
+        /* Naivety? */
     },
     affinity: {
         high: { id: "OBSESSION", text: "Perspective blur. Deep psychic connection. Shared emotional frequency." },
+        /* Vector Weight 1.5x? */
         low: { id: "APATHY", text: "Clinical gaze. Emotional zero. People viewed as data-points or variables." },
+        /* Vector Weight 0.5x? */
     },
 }
 
@@ -275,7 +299,7 @@ export class DynamicsEngine {
      */
     static _resolve_naivety(input, openness) {
         if (!input) return null
-
+        // TODO: Move triggers to reflex
         const NAIVETY_TRIGGERS = /promise|swear|trust me|i (swear|promise)|i'm not lying|believe me|honest(ly)?|i tell you/i
         if (!NAIVETY_TRIGGERS.test(input)) return null
 
@@ -287,6 +311,7 @@ export class DynamicsEngine {
         const prior_distrust = 1.0 - prior_trust
 
         // Likelihoods from config
+        // TODO: Move to Laws?
         const p_e_given_trust = d_phys.NAIVETY_P_E_GIVEN_TRUST
         const p_e_given_distrust = d_phys.NAIVETY_P_E_GIVEN_DISTRUST
 
@@ -354,5 +379,31 @@ export class DynamicsEngine {
         }
 
         return { intruders: flagged_intruders, updates }
+    }
+
+    /************************************************************************************
+     * 🏷️ [SECTION: SEMANTIC WEIGHT — Narrative Significance]
+     * ----------------------------------------------------------------------------------
+     * Maps scan_reflexes() output to an Emotional Weight (W=1-10) per MNOTION.
+     * Composite rule: GLITCH + IMPACT = W=10 (death/trauma scene).
+     * Fallback: W=3 (minor baseline).
+     ************************************************************************************/
+
+    /**
+     * Evaluates the narrative Emotional Weight of a vector from its reflex IDs.
+     *
+     * @param {Array<{id: string}>} reflexes - Output of DynamicsEngine.scan_reflexes().
+     * @returns {number} Emotional Weight 1-10.
+     */
+    static evaluate_weight(reflexes) {
+        if (!Array.isArray(reflexes) || reflexes.length === 0) return 3
+
+        const ids = reflexes.map((r) => r.id)
+
+        // Composite: physical violence + existential dread = Core trauma
+        if (ids.includes("GLITCH") && ids.includes("IMPACT")) return 10
+
+        const weights = ids.map((id) => CONFIG.DYNAMICS.REFLEX_WEIGHT_MAP[id] ?? 3)
+        return Math.max(3, ...weights)
     }
 }
