@@ -164,4 +164,32 @@ describe("Dynamics Engine v2 (Refactored)", () => {
             expect(updates.length).toBe(3)
         })
     })
+    describe("Naivety Index: _resolve_naivety", () => {
+        it("should return null if no NAIVETY_TRIGGERS match", () => {
+            const result = DynamicsEngine._resolve_naivety("I am going to the store", 50)
+            expect(result).toBeNull()
+        })
+
+        it("should return high suspicion for low openness and a trigger match", () => {
+            // Low openness (10) = cold skeptic.
+            const suspicion = DynamicsEngine._resolve_naivety("trust me on this", 10)
+            expect(suspicion).toBeGreaterThan(0.6) // NAIVETY_THRESHOLD is 0.6
+        })
+
+        it("should return low suspicion for high openness and a trigger match", () => {
+            // High openness (90) = naive/credulous.
+            const suspicion = DynamicsEngine._resolve_naivety("i promise to help", 90)
+            expect(suspicion).toBeLessThan(0.6)
+            expect(suspicion).toBeGreaterThan(0) // Still calculates a probability
+        })
+
+        it("should inject [NAIVETY] behavior via resolve_dynamics when suspicion breaches threshold", () => {
+            const baselines = { intensity: 50, chaos: 50, openness: 10, affinity: 50 }
+            const state = DynamicsEngine.resolve_dynamics("i swear i'm not lying", baselines)
+
+            // openness 10 + trigger => high suspicion => injects threshold behavior
+            const hasNaivetyBehavior = state.behaviors.some((b) => b.includes("[NAIVETY] Trust breach detected"))
+            expect(hasNaivetyBehavior).toBe(true)
+        })
+    })
 })

@@ -155,6 +155,16 @@ export class DynamicsEngine {
         DynamicsEngine._apply_laws(state, d_phys, prev_dynamics)
         DynamicsEngine._map_signals(state, d_phys)
 
+        // Naivety Cognition Check
+        const suspicion = DynamicsEngine._resolve_naivety(input, state.dynamics.openness)
+        if (suspicion !== null) {
+            if (suspicion > d_phys.NAIVETY_THRESHOLD) {
+                state.behaviors.push("[NAIVETY] Trust breach detected. High scepticism warranted.")
+            } else if (suspicion > 0.5) {
+                state.behaviors.push("[NAIVETY] Claim plausibility is uncertain. Proceed with caution.")
+            }
+        }
+
         return state
     }
 
@@ -249,6 +259,46 @@ export class DynamicsEngine {
                 state.signals[signal.id] = true
             }
         })
+    }
+
+    /************************************************************************************
+     * 🧩 [SECTION: NAIVETY COGNITION]
+     * ----------------------------------------------------------------------------------
+     * Probabilistic belief-state calculator for detecting user deception.
+     ************************************************************************************/
+
+    /**
+     * Calculates a Bayesian suspicion score if the user attempts persuasion.
+     * @param {string} input - The raw user input.
+     * @param {number} openness - The NPC's current openness axis (0-100).
+     * @returns {number|null} The posterior suspicion float (0.0-1.0), or null if no triggers hit.
+     */
+    static _resolve_naivety(input, openness) {
+        if (!input) return null
+
+        const NAIVETY_TRIGGERS = /promise|swear|trust me|i (swear|promise)|i'm not lying|believe me|honest(ly)?|i tell you/i
+        if (!NAIVETY_TRIGGERS.test(input)) return null
+
+        const d_phys = CONFIG.DYNAMICS
+
+        // Prior: Openness is naivety. Map 0-100 to 0.01-0.99 to avoid div by zero locks.
+        // High openness = High trust prior (P[Trust] is high).
+        const prior_trust = Math.max(0.01, Math.min(0.99, openness / 100))
+        const prior_distrust = 1.0 - prior_trust
+
+        // Likelihoods from config
+        const p_e_given_trust = d_phys.NAIVETY_P_E_GIVEN_TRUST
+        const p_e_given_distrust = d_phys.NAIVETY_P_E_GIVEN_DISTRUST
+
+        // Marginal Probability of Evidence: P(E) = P(E|T)*P(T) + P(E|~T)*P(~T)
+        const p_e = p_e_given_trust * prior_trust + p_e_given_distrust * prior_distrust
+        if (p_e === 0) return 0.5 // Math failsafe
+
+        // Posterior: P(Trust | Evidence)
+        const posterior_trust = (p_e_given_trust * prior_trust) / p_e
+
+        // Suspicion is 1.0 - Trust
+        return 1.0 - posterior_trust
     }
 
     /************************************************************************************

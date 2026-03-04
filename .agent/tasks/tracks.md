@@ -12,13 +12,6 @@
 - Checkpoint: `emot-half-01`
 - Note: Replacing rigid 3-turn memory decay with semantic persistence (W=1-10) to retain narrative weight in context.
 
-### Track: Bayesian Gravity Implementation
-
-- Path: [.agent/tasks/bayesian-gravity/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/bayesian-gravity/)
-- Status: Planning
-- Checkpoint: `bayes-grav-01`
-- Note: Upgrading NPC logic to calculate statistical probability of user deception via Bayesian inference using the Openness axis as a prior.
-
 ### Track: SCSS Token Standardization
 
 - Path: [.agent/tasks/scss-token-standardization/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/scss-token-standardization/)
@@ -54,6 +47,13 @@
 - **Note:** Systemic rename of character dynamics: entropy -> chaos, velocity -> intensity, permeability -> openness, resonance -> affinity. Updated state, engine logic, template tags, and UI labels. Resolved build regression in `ContextBroker.js`. pass final `npm run deploy`.
 
 ## ✅ Archive
+
+### ✅ Track: Naivety Index
+
+- **Path:** [.agent/archive/naivety-index/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/archive/naivety-index/)
+- **Status:** Complete
+- **Checkpoint:** `naivety-idx-01`
+- **Note:** Upgraded NPC social intelligence to calculate trust scores using the Openness axis as a credulity prior. Low-openness NPCs are cold skeptics; high-openness NPCs are naive and easily swayed.
 
 ### ✅ Track: Off-Screen Dynamics Protocol
 

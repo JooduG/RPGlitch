@@ -32,6 +32,7 @@ const PROTOCOL_LIBRARY = {
     PRESENT: `PRESENT_TENSE: Exclusively use the present tense.`,
     IMMERSION: `SHOW, DON'T TELL: Describe actions, sensory details, and physical reactions. Avoid narrating internal emotions or abstract states; let behavior reveal condition.`,
     MOMENTUM: `MOMENTUM: Every response must advance the scene, escalate tension, or introduce a new sensory complication.`,
+    NAIVETY_COGNITION: `NAIVETY_COGNITION: A trust-probability signal has been calculated from user input. Express scepticism or credulity diegetically — through body language, pauses, or internal dialogue in your <think> block. Never state a number or reference a calculation.`,
     FIRST_PERSON: `FIRST_PERSON: Narrate exclusively from the first-person perspective ("I", "me", "my"). Maintain the subjective filter of your identity. You may be ontologically aware of the User as a presence, but you must never use technical or meta-narrative metrics (e.g. engagement, viral potential) to describe this awareness.`,
     THIRD_PERSON: `THIRD_PERSON: Narrate exclusively from the third-person limited perspective. In this mode, you are the world-voice observing the entities.`,
     GRIT: `GRIT: Maintain a 2:1 ratio of sensory physics (texture, light, resistance) to abstract dialogue or logic.`,
