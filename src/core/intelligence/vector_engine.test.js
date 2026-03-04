@@ -57,7 +57,7 @@ describe("VectorEngine", () => {
 
         it("W is added as flat addend — high-W vector outscores equal-axis low-W vector", async () => {
             const { DynamicsEngine } = await import("./DynamicsEngine.js")
-            vi.mocked(DynamicsEngine.scan_reflexes).mockReturnValue([{ id: "IMPACT" }])
+            vi.mocked(DynamicsEngine.scan_reflexes).mockReturnValue([{ id: "IMPACT", trigger: /a/, effect: { intensity: 10 } }])
             const vectors = [
                 { id: "low", dynamics_tags: ["IMPACT"], vector_tags: [], text: "A", emotional_weight: 3 },
                 { id: "high", dynamics_tags: ["IMPACT"], vector_tags: [], text: "B", emotional_weight: 9 },
