@@ -299,7 +299,6 @@ export class DynamicsEngine {
      */
     static _resolve_naivety(input, openness) {
         if (!input) return null
-        // TODO: Move triggers to reflex
         const NAIVETY_TRIGGERS = /promise|swear|trust me|i (swear|promise)|i'm not lying|believe me|honest(ly)?|i tell you/i
         if (!NAIVETY_TRIGGERS.test(input)) return null
 
@@ -311,7 +310,6 @@ export class DynamicsEngine {
         const prior_distrust = 1.0 - prior_trust
 
         // Likelihoods from config
-        // TODO: Move to Laws?
         const p_e_given_trust = d_phys.NAIVETY_P_E_GIVEN_TRUST
         const p_e_given_distrust = d_phys.NAIVETY_P_E_GIVEN_DISTRUST
 

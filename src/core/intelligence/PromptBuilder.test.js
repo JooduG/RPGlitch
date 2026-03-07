@@ -26,9 +26,21 @@ describe("PromptBuilder (Refactored)", () => {
         const mock_payload = {
             turn: 1,
             entities: {
-                AI: { name: "Viper", fragments: [{ type: "Core", text: "Cold." }] },
-                USER: { name: "Player", fragments: [] },
-                FRACTAL: { name: "City", fragments: [] },
+                AI: {
+                    name: "Viper",
+                    properties: { eternal: { non_physical: "Eternal AI" }, present: { non_physical: "Present AI" } },
+                    fragments: [{ type: "Core", text: "Cold." }],
+                },
+                USER: {
+                    name: "Player",
+                    properties: { eternal: { physical: "Eternal User" }, present: { physical: "Present User" } },
+                    fragments: [],
+                },
+                FRACTAL: {
+                    name: "City",
+                    properties: { eternal: { non_physical: "Eternal City" }, present: { non_physical: "Present City" } },
+                    fragments: [],
+                },
             },
             history: { messages: "", dynamics: {} },
             input: "test action",

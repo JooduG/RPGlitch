@@ -11,7 +11,7 @@
         "sync": "node .agent/skills/project/scripts/sync.js",
         "lint": "npm-run-all --parallel lint:*",
         "lint:js": "eslint src",
-        "lint:css": "node .agent/skills/scss/scripts/style_audit.js",
+        "lint:css": "node .agent/skills/styling/scripts/style_audit.js",
         "lint:fix": "npm-run-all --parallel lint:*:fix",
         "lint:js:fix": "eslint src --fix",
         "lint:css:fix": "stylelint \"src/**/*.scss\" --fix",

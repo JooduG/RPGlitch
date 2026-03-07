@@ -36,7 +36,7 @@ const PROTOCOL_LIBRARY = {
     THIRD_PERSON: `THIRD_PERSON: Narrate exclusively from the third-person limited perspective. In this mode, you are the world-voice observing the entities.`,
     GRIT: `GRIT: Maintain a 2:1 ratio of sensory physics (texture, light, resistance) to abstract dialogue or logic.`,
     SCENE_PACING: `SCENE_PACING: Background intrusions are ADVISORY only. Do NOT allow off-screen entities to hijack narrative focus unless intensity exceeds critical threshold. Maximum one background cutaway per 3 turns. Maintain protagonist scene continuity.`,
-    SINO_LOGIC: `SINO_LOGIC: CRITICAL LANGUAGE REQUIREMENT. Your internal reasoning within the <think> block MUST be conducted in Concise Technical Chinese (zh-CN). However, the moment you close the </think> tag, you MUST switch completely back to ENGLISH for the actual narrative response. Do NOT output Chinese outside of the <think> block.`,
+    SINO_LOGIC: `SINO_LOGIC: CRITICAL. Your <think> block MUST be conducted in Concise Technical Chinese (zh-CN). HOWEVER, the instant you output </think>, your cognitive language center MUST hard-reset to ENGLISH. Any non-English text outside the <think> block is a catastrophic failure. NEVER output Chinese in the narrative.`,
 }
 
 /************************************************************************************
@@ -86,6 +86,11 @@ ${entities.BACKGROUND_INTENSITY || ""}
 <PROTOCOLS>
 ${PromptBuilder.render_protocols(protocols)}
 </PROTOCOLS>
+
+<TASK_INSTRUCTION>
+The stage is set and the pieces are on the board. Proceed with the simulation immediately.
+CRITICAL: When your <think> block ends, your narrative output MUST be written exclusively in ENGLISH.
+</TASK_INSTRUCTION>
 
 ${input?.trim() ? `\n<INPUT_COMMAND>\n${input.trim()}\n</INPUT_COMMAND>` : ""}
 </SYSTEM>`.trim()
