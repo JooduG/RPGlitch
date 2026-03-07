@@ -17,24 +17,24 @@ Dynamics: {"intensity":50,"chaos":58,"openness":50,"affinity":43}
 ========================================================================
 
 [PHASE 3: SYNTHESIZED XML PROMPT]
-<SYSTEM role="Viper" turn="1" objective="        [FUTURE_ECHO]: Wants to be free.">
+<SYSTEM role="Viper" turn="1" objective="[FUTURE_ECHO]: Wants to be free.">
 <YOUR_IDENTITY name="Viper">
-<ETERNAL><FRAGMENT type="Non-Physical">Analytical mind.</FRAGMENT></ETERNAL>
-<PRESENT><FRAGMENT type="Non-Physical">Searching data.</FRAGMENT></PRESENT>
+<ETERNAL>Analytical mind.</ETERNAL>
+<PRESENT>Searching data.</PRESENT>
 <PAST></PAST>
 <FUTURE></FUTURE>
 </YOUR_IDENTITY>
 <USER_PERSONA name="Freelancer">
-<ETERNAL><FRAGMENT type="Non-Physical">Determined.</FRAGMENT></ETERNAL>
-<PRESENT><FRAGMENT type="Non-Physical">Fearful.</FRAGMENT></PRESENT>
+<ETERNAL>Scars on arm.</ETERNAL>
+<PRESENT>Heavy breathing.</PRESENT>
 <PAST memory=""/>
-<FUTURE vector="        [FUTURE_ECHO]: Seeking revenge."/>
+<FUTURE vector="[FUTURE_ECHO]: Seeking revenge."/>
 </USER_PERSONA>
 <FRACTAL name="Hollow Market">
-<ETERNAL><FRAGMENT type="Non-Physical">A place of secrets.</FRAGMENT></ETERNAL>
-<PRESENT><FRAGMENT type="Non-Physical">Tense atmosphere.</FRAGMENT></PRESENT>
+<ETERNAL>A place of secrets.</ETERNAL>
+<PRESENT>Tense atmosphere.</PRESENT>
 <PAST memory=""/>
-<FUTURE vector="        [FUTURE_ECHO]: Destined for collapse."/>
+<FUTURE vector="[FUTURE_ECHO]: Destined for collapse."/>
 </FRACTAL>
 <SIMULATION_LOG>
 </SIMULATION_LOG>

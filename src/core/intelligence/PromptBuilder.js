@@ -52,27 +52,27 @@ export const SYSTEM_PROMPTS = {
         const fractal = entities.FRACTAL
 
         return `
-<SYSTEM role="${ai.name}" turn="${turn}" objective="${render_atom.future(ai, 1)}">
+<SYSTEM role="${ai.name}" turn="${turn}" objective="${render_atom.future(ai, 1).trim()}">
 
 <YOUR_IDENTITY name="${ai.name}">
-<ETERNAL>${render_atom.eternal.non_physical(ai)}</ETERNAL>
-<PRESENT>${render_atom.present.non_physical(ai)}</PRESENT>
+<ETERNAL>${ai.properties.eternal.non_physical}</ETERNAL>
+<PRESENT>${ai.properties.present.non_physical}</PRESENT>
 <PAST>${render_atom.past(ai, 5)}</PAST>
 <FUTURE>${render_atom.future(ai, 5, 1)}</FUTURE>
 </YOUR_IDENTITY>
 
 <USER_PERSONA name="${user.name}">
-<ETERNAL>${render_atom.eternal.non_physical(user)}</ETERNAL>
-<PRESENT>${render_atom.present.non_physical(user)}</PRESENT>
-<PAST memory="${render_atom.past(user, 1)}"/>
-<FUTURE vector="${render_atom.future(user, 1)}"/>
+<ETERNAL>${user.properties.eternal.physical}</ETERNAL>
+<PRESENT>${user.properties.present.physical}</PRESENT>
+<PAST memory="${render_atom.past(user, 1).trim()}"/>
+<FUTURE vector="${render_atom.future(user, 1).trim()}"/>
 </USER_PERSONA>
 
 <FRACTAL name="${fractal.name}">
-<ETERNAL>${render_atom.eternal.non_physical(fractal)}</ETERNAL>
-<PRESENT>${render_atom.present.non_physical(fractal)}</PRESENT>
-<PAST memory="${render_atom.past(fractal, 1)}"/>
-<FUTURE vector="${render_atom.future(fractal, 1)}"/>
+<ETERNAL>${fractal.properties.eternal.non_physical}</ETERNAL>
+<PRESENT>${fractal.properties.present.non_physical}</PRESENT>
+<PAST memory="${render_atom.past(fractal, 1).trim()}"/>
+<FUTURE vector="${render_atom.future(fractal, 1).trim()}"/>
 </FRACTAL>
 
 <SIMULATION_LOG>
@@ -114,28 +114,23 @@ ${content}
 <SYSTEM role="${fractal.name}" mode="PROLOGUE">
 
 <STATE turn="${turn}">
+${entities.BACKGROUND_INTENSITY || ""}
 </STATE>
 
 <YOUR_IDENTITY name="${fractal.name}">
-${render_atom.eternal.non_physical(fractal)}
-${render_atom.eternal.physical(fractal)}
-${render_atom.present.non_physical(fractal)}
-${render_atom.present.physical(fractal)}
+<ETERNAL>${fractal.properties.eternal.non_physical}</ETERNAL>
+<PRESENT>${fractal.properties.present.non_physical}</PRESENT>
 </YOUR_IDENTITY>
 
 <ACTIVE_CHARACTERS>
 <AI_CHARACTER name="${ai.name}">
-${render_atom.eternal.non_physical(ai)}
-${render_atom.eternal.physical(ai)}
-${render_atom.present.non_physical(ai)}
-${render_atom.present.physical(ai)}
+<ETERNAL>${ai.properties.eternal.non_physical}</ETERNAL>
+<PRESENT>${ai.properties.present.non_physical}</PRESENT>
 </AI_CHARACTER>
 
 <USER_PERSONA name="${user.name}">
-${render_atom.eternal.non_physical(user)}
-${render_atom.eternal.physical(user)}
-${render_atom.present.non_physical(user)}
-${render_atom.present.physical(user)}
+<ETERNAL>${user.properties.eternal.physical}</ETERNAL>
+<PRESENT>${user.properties.present.physical}</PRESENT>
 </USER_PERSONA>
 </ACTIVE_CHARACTERS>
 
@@ -266,14 +261,6 @@ export class PromptBuilder {
         const scoring_context = `${input || ""} ${recent_history}`.trim()
 
         return {
-            eternal: {
-                physical: (e) => PromptBuilder.render_layer(resolve(e), "ETERNAL", "Physical"),
-                non_physical: (e) => PromptBuilder.render_layer(resolve(e), "ETERNAL", "Non-Physical"),
-            },
-            present: {
-                physical: (e) => PromptBuilder.render_layer(resolve(e), "PRESENT", "Physical"),
-                non_physical: (e) => PromptBuilder.render_layer(resolve(e), "PRESENT", "Non-Physical"),
-            },
             past: (e, limit = 3, offset = 0) => {
                 const ent = resolve(e)
                 return VectorEngine.format_past(ent.past?.vectors || [], scoring_context, limit, offset)
@@ -286,29 +273,6 @@ export class PromptBuilder {
                 return PromptBuilder.render_history(raw_messages, limit, offset)
             },
         }
-    }
-
-    /**
-     * Renders an array of fragments into XML.
-     */
-    static render_fragments(fragments) {
-        if (!Array.isArray(fragments)) return ""
-        return fragments.map((f) => `    <FRAGMENT type="${f.type}">${f.text}</FRAGMENT>`).join("\n")
-    }
-
-    /**
-     * Renders fragments from a specific layer and type.
-     * @param {Object} entity - Entity with .layers property
-     * @param {string} layer - Layer key, e.g. "ETERNAL", "PRESENT"
-     * @param {string} [type] - Optional fragment type filter, e.g. "Non-Physical", "Physical"
-     * @returns {string} XML fragment string
-     */
-    static render_layer(entity, layer, type) {
-        if (!entity?.layers?.[layer]) return ""
-        let frags = entity.layers[layer]
-        if (type) frags = frags.filter((f) => f.type === type)
-        if (!frags.length) return ""
-        return frags.map((f) => `<FRAGMENT type="${f.type}">${f.text}</FRAGMENT>`).join("\n")
     }
 
     /**

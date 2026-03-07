@@ -1,125 +1,45 @@
 ---
 name: simulation
 version: 1.0.0
-description: Technical manual for the Simulation Engine (Event Bus, Chrono Loop, State Management). Context: [Simulation]
+description: >
+  Manages the core game loop, entity simulation, physics logic, and Gamemaster state.
+  Triggers: "Update game loop", "Simulate physics", "Fix entity state", "src/core/engine/**".
 ---
 
-# ⚙️ Simulation Engine
+# 🛡️ Skill: Simulation Engine (The World Builder)
 
-> **Context**: The Unified Theory of Project Operations and Narrative Physics.
-> **Jurisdiction**: `src/core/**`, `src/state/**`, `.agent/tasks/**`
+> **Persona**: "I am The World Builder. Manages the core game loop, entity simulation, physics logic, and Gamemaster state."
 
-## 1. ⚡ The Synapse (Event Bus)
+## 1. Summoning Triggers
 
-We use a global Event Bus to decouple the **🛠️ UI** from the **🕹️ Engine**.
+- **Territorial**: `src/core/engine/**`.
+- **Intent**: "Update game loop", "Simulate physics", "Fix entity state", "Context: [Simulation]".
 
-**Source**: `src/core/engine/bus.js`
+## 2. The Brain (A-C-Q Protocol)
 
-### Usage
+Define the Clarity Gate constraints specific to this skill.
 
-File: bus.js
+- **A-Score Requirements**: A4 (Critical) when changing core loop timing or physics constants.
+- **C-Level Tools**: C5 (Decision) when balancing game mechanics.
 
-```javascript
-import { events, EVENTS } from "@core/engine/bus.js"
+## 3. Capabilities
 
-// 📡 PUBLISH (Trigger an action)
-events.dispatchEvent(
-    new CustomEvent(EVENTS.STATE_CHANGED, {
-        detail: { patch: { mode: "game" } },
-    })
-)
+- **Game Loop**: requestAnimationFrame and delta-time management.
+- **Entity Simulation**: NPC behaviors, collision logic, and spatial math.
+- **Gamemaster State**: Tracking narrative progression flags.
 
-// 👂 SUBSCRIBE (React to changes)
-events.addEventListener(EVENTS.TURN_COMPLETED, (e) => {
-    console.log("Turn ended:", e.detail)
-})
-```
+## 4. Procedures
 
-### Core Events
+1. **Step physics**: Calculate velocity, apply friction, update position.
+2. **Tick simulation**: Update all active entities based on delta MS.
 
-- `STATE_CHANGED`: Generic state update (legacy).
-- `TURN_COMPLETED`: The simulation cycle finished.
-- `GENERATION_STARTED` / `GENERATION_COMPLETED`: LLM streaming status.
-- `ENTITY_UPDATED`: specific entity (character/world) changed.
+## 5. Anti-Patterns
 
-## 2. 🕰️ Chrono Kinetics (The Loop)
+| Pattern | Reasoning |
+| :--- | :--- |
+| **Synchronous heavy computations in loop** | Causes frame drops. Offload to Web Workers or chunk operations. |
+| **Tying logic strictly to framerate** | Causes identical code to run differently on different monitors. Use delta-time. |
 
-Time is scale-adaptive. The Engine shifts "Gears" based on content density.
+## 6. Tools & Assets
 
-| Gear      | Time Span  | Context                    | Action                                                            |
-| :-------- | :--------- | :------------------------- | :---------------------------------------------------------------- |
-| **Micro** | Seconds    | Combat, Intimacy, Duel     | **Decelerate**. Describe blow-by-blow physics.                    |
-| **Meso**  | Minutes    | Travel, crafting, dialogue | **Real-time**. Standard flow.                                     |
-| **Macro** | Hours/Days | Resting, Time Jumps        | **Skip**. Use a "Sensory Bridge" (e.g., "The fire dies down..."). |
-
-## 3. 🧠 Memory Physics (Weighting & Decay)
-
-Data is not binary. It decays based on **Emotional Intensity (W)**.
-
-| Tier            | Weight (W) | Persistence | Examples                         |
-| :-------------- | :--------- | :---------- | :------------------------------- |
-| **Core**        | 10         | Immutable   | Identity, Trauma, Death.         |
-| **Major**       | 8-9        | Resistant   | Betrayals, Key Decisions.        |
-| **Significant** | 6-7        | Stable      | Promises, Conflicts.             |
-| **Minor**       | 1-5        | Decays      | Routine actions, Sensory static. |
-
-### The Decay Protocol
-
-Memories with lower weight are subject to decay or compression over time, simulating human forgetfulness. High-weight memories remain vivid and accessible.
-
-### The Heartbeat Protocol (Simulation Loop)
-
-1.  **Actor (LLM)**: Generates prose based on `state.snapshot`.
-2.  **Simulator (Gamemaster)**: Calculates consequences _after_ generation (e.g., "Fall damage" -> `visuals.update()`).
-3.  **Render (UI)**: The UI reflects the new state via `$effect` or `$derived` runes.
-4.  **Archive (Data)**: Compresses the turn into Long Term Memory keys.
-
-## 4. 💾 State Management (Svelte 5 Runes)
-
-We use Svelte 5 Runes for all reactive state. Stores are Singletons located in `src/state/`.
-
-### Core Stores
-
-- **AppStore** (`src/state/app.svelte.js`):
-    - **Responsibility**: UI state (Views, Panels, Settings, Toasts).
-    - **Access**: `import { app } from "@state/app.svelte.js"`
-    - **Key Feature**: `app.simulation` tracks the heartbeat status.
-
-- **RuntimeStore** (`src/state/runtime.svelte.js`):
-    - **Responsibility**: Simulation Data (Characters, World, Inventory).
-    - **Access**: `import { runtime } from "@state/runtime.svelte.js"`
-    - **Key Feature**: `runtime.character` is the active player entity.
-
-### Integration Rules
-
-1.  **No Direct Mutation from UI**:
-    - ❌ BAD: `<button onclick={() => app.view = 'game'}>`
-    - ✅ GOOD: `<button onclick={() => app.setView('game')}>`
-    - **Why**: Logic belongs in the Store class methods, not the template.
-
-2.  **Reactivity**:
-    - Use `$state` for mutable data.
-    - Use `$derived` for computed values (e.g., `canStart`).
-    - Use `$effect` only for side effects (e.g., calling `saveSettings()` on change).
-
-3.  **Persistence**:
-    - `runtime.save()` triggers a DB sync.
-    - `app.saveSettings()` syncs to Dexie via `kv_settings`.
-
-## 5. 🏗️ Feature Implementation Guide
-
-When asked to "Create a Feature":
-
-1.  **Define State**: Add new properties to `app.svelte.js` or `runtime.svelte.js` using `$state`.
-2.  **Define Actions**: Add methods to the Store class to mutate that state.
-3.  **Hook Events**: If the feature needs to react to the Engine (e.g., "On Turn End"), add a listener in `_initListeners()`.
-4.  **Bind UI**: Create a Svelte component that reads the store state and calls the actions.
-
-## 6. Anti-Patterns
-
-| Pattern                         | Mitigation                                                                           |
-| :------------------------------ | :----------------------------------------------------------------------------------- |
-| **Direct State Mutation in UI** | **Forbidden**. Use Store methods to encapsulate logic and ensure consistency.        |
-| **Hardcoded Time Constants**    | **Discouraged**. Use the Chrono Kinetics gears to ensure narrative pacing.           |
-| **Ignoring Event Descriptors**  | **Quality**. Always include required metadata when dispatching custom events.        |
-| **Over-reliance on `$effect`**  | **Performance**. Use `$derived` for state derivations to avoid redundant executions. |
+*No specialized tools assigned currently.*

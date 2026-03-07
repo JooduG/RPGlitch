@@ -162,11 +162,26 @@ export class ContextBroker {
                 })
             }
 
+            // Build a clean properties object for the prompt builder
+            const properties = {
+                eternal: { physical: "", non_physical: "" },
+                present: { physical: "", non_physical: "" },
+            }
+
+            filtered.forEach((f) => {
+                const layer = f.layer?.toLowerCase()
+                const field = f.type === "Physical" ? "physical" : "non_physical"
+                if (properties[layer] && properties[layer][field] === "") {
+                    properties[layer][field] = f.text
+                }
+            })
+
             entities[role] = {
                 id: raw.id,
                 name: raw.name || role,
                 fragments: filtered,
                 layers: group_by_layer(filtered),
+                properties,
                 past: raw.past,
                 future: raw.future,
                 dynamics: raw.dynamics, // Pass through for physics calculation
@@ -209,7 +224,7 @@ export class ContextBroker {
      */
     static async fetch_background_entities(active_ids = []) {
         try {
-            const all = await entity_repo.list()
+            const all = await entity_repo.list("character")
             return all
                 .filter((e) => !active_ids.includes(e.id))
                 .map((e) => ({

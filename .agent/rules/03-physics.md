@@ -46,9 +46,8 @@ The project operates in a **Svelte 5 Runes-only** environment.
 ### ⚡ The Monolith Mandate
 
 1. **Single-File Build**: All assets must inline into a single `index.html`.
-2. **Performance**: Target bundle size < 350KB for optimal reactivity.
-3. **Storage**: Use `Dexie.js` (IndexedDB). No direct `localStorage`.
-4. **DOM Limits**: Keep all structure within `#main-app-container`.
+2. **Storage**: Use `Dexie.js` (IndexedDB). No direct `localStorage`.
+3. **DOM Limits**: Keep all structure within `#main-app-container`.
 
 ## 4. Jurisdiction Matrix
 

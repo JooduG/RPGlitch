@@ -2,72 +2,46 @@
 name: devops
 version: 1.0.0
 description: >
-    Environment Operations & Toolchain Manager. Handles the build lifecycle, domestic server,
-    configuration synchronization, and dependencies.
-    Triggers: "Start dev server", "Build for production", "Sync configuration", "Fix environment", "Context: [DevOps]".
+  Build scripts, configuration synchronization, environment checks, and workspace hygiene.
+  Triggers: "Start dev server", "Build for production", "Sync configuration", "Fix environment".
 ---
 
-# 🔧 Skill: DevOps (The Mechanic)
+# 🛡️ Skill: DevOps & Toolchain (The Mechanic)
 
-> **Tool Interface**: "I am the Engine Room. I keep the gears oiled, the fires hot, and the structure sound. I do not design the machine; I ensure it runs."
+> **Persona**: "I am The Mechanic. Build scripts, configuration synchronization, environment checks, and workspace hygiene."
 
-## 1. Triggers
+## 1. Summoning Triggers
 
-- **Commands**:
-    - "Start dev server" (`npm run dev`)
-    - "Build for production" (`npm run build`)
-    - "Sync configuration" (`npm run sync`)
-    - "Fix environment" (Clean install)
-- **Files**:
-    - `package.json`
-    - `vite.config.js`
-    - `.agent/skills/project/scripts/sync.js`
-    - `ignores.master.json`
+- **Territorial**: `package.json`, `vite.config.js`, `.agent/skills/project/scripts/sync.js`, `ignores.master.json`.
+- **Intent**: "Start dev server", "Build for production", "Sync configuration", "Fix environment".
 
-## 2. Capabilities
+## 2. The Brain (A-C-Q Protocol)
 
-### 🛠️ Toolchain Management
+Define the Clarity Gate constraints specific to this skill.
 
-- **Development Server**: Managing the local Vite instance.
-- **Production Build**: Compiling the application for deployment.
-- **Configuration Sync**: Ensuring `.gitignore`, `.prettierignore`, etc., match `ignores.master.json`.
-- **Dependency Hygiene**: Managing `node_modules` and `package-lock.json`.
+- **A-Score Requirements**: A1 (Clear). Terminal commands are absolute.
+- **C-Level Tools**: C1 (Reflex). Direct execution.
 
-## 3. Procedures
+## 3. Capabilities
 
-### 🔄 Sync Routine (`sync.js`)
+- **Config Sync**: Syncing ignores.master.json to .gitignore, .prettierignore.
+- **Builds**: Running vite build and validating output.
+- **Dependency Hygiene**: Running npm ci, nuking node_modules to fix ghost bugs.
 
-1.  **Read**: Load `ignores.master.json`.
-2.  **Generate**: Overwrite `.gitignore`, `.prettierignore`, `.stylelintignore`.
-3.  **Verify**: Ensure no untracked files are contaminating the workspace.
-4.  **Execute**: Run `npm run sync`.
+## 4. Procedures
 
-### 🏗️ Build Protocol
-
-1.  **Check**: Ensure no type errors (`npm run check`) before building.
-2.  **Compile**: Run `vite build`.
-3.  **Validate**: Resolve strict mode errors if the build fails.
-
-### 🧹 Cleaning Protocol
-
-1.  **Symptom**: "Weird errors", "Ghost modules", "Cache accumulation".
-2.  **Action**:
-    - Delete `node_modules`
-    - Delete `.svelte-kit` (if applicable)
-    - Run `npm ci` (preferred over `install` for consistency)
-
-## 4. Tools
-
-| Tool      | Purpose                           | Command                                      |
-| :-------- | :-------------------------------- | :------------------------------------------- |
-| `npm`     | Dependency and script management. | `npm install`, `npm run ...`                 |
-| `vite`    | Build tool and dev server.        | `vite`, `vite build`                         |
-| `sync.js` | Configuration synchronization.    | `node .agent/skills/project/scripts/sync.js` |
+1. **Sync**: node .agent/skills/project/scripts/sync.js
+2. **Clean Environment**: rm -rf node_modules && npm ci
 
 ## 5. Anti-Patterns
 
-| Pattern                       | Mitigation                                                                               |
-| :---------------------------- | :--------------------------------------------------------------------------------------- |
-| Manually editing `.gitignore` | **Sync Logic**. It will be overwritten by `sync.js`. Edit `ignores.master.json` instead. |
-| Committing `node_modules`     | **Hygiene**. Heavy artifact; never commit.                                               |
-| Ignoring build errors         | **Quality**. Production builds must be clean.                                            |
+| Pattern | Reasoning |
+| :--- | :--- |
+| **Manually editing .gitignore** | Forbidden. Sync Logic will overwrite it via sync.js. Edit ignores.master.json instead. |
+| **Ignoring build errors** | Forbidden. Production builds must be clean. |
+
+## 6. Tools & Assets
+
+| Tool | Purpose | Source |
+| :--- | :--- | :--- |
+| `run_command` | Execute build and sync scripts. | Terminal |

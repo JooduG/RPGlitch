@@ -1,4 +1,5 @@
 <script>
+    import { ENTITY_FRAGMENTS } from "@/core/intelligence/entity_fragments.js"
     import { fitText } from "@ui/utils/actions/fitText.js"
 
     let { char = $bindable(), is_editing, render_markdown, auto_resize } = $props()
@@ -7,7 +8,7 @@
 <header class:is-editing={is_editing} data-testid="profile-header">
     {#if is_editing}
         <h1 class="name edit" aria-label="Edit Character Name">
-            <span contenteditable="true" bind:innerText={char.name} role="textbox" tabindex="0"></span>
+            <span contenteditable="true" bind:innerText={char.name} role="textbox" tabindex="0" data-placeholder={ENTITY_FRAGMENTS.name}></span>
         </h1>
     {:else}
         <h1
@@ -19,15 +20,15 @@
                 lineHeight: "var(--line-height-heading)",
             }}
         >
-            {char.name || "Unnamed Entity"}
+            {char.name || ENTITY_FRAGMENTS.name}
         </h1>
     {/if}
     {#if is_editing}
-        <textarea use:auto_resize class="description" class:edit={is_editing} value={char.description} oninput={(e) => (char.description = e.target.value)} placeholder="Entity Description"></textarea>
+        <textarea use:auto_resize class="description" class:edit={is_editing} value={char.description || ""} oninput={(e) => (char.description = e.target.value)} placeholder={ENTITY_FRAGMENTS.description}></textarea>
     {:else}
         <div class="description readonly" class:muted-info={!char.description}>
             <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-            {@html render_markdown(char.description || "No description provided.")}
+            {@html render_markdown(char.description || ENTITY_FRAGMENTS.description)}
         </div>
     {/if}
 </header>
@@ -75,19 +76,19 @@
 
             span {
                 outline: none;
+
+                &:empty::before {
+                    content: attr(data-placeholder);
+                    opacity: 0.3;
+                    font-style: italic;
+                    font-weight: 400;
+                }
             }
         }
 
         &:not(.edit) {
             cursor: default;
             pointer-events: none;
-        }
-
-        &::before {
-            /* Shared placeholder logic */
-            opacity: 0.3;
-            font-style: italic;
-            font-weight: 400;
         }
     }
 

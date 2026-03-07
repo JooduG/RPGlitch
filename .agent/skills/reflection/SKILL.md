@@ -1,94 +1,47 @@
 ---
 name: reflection
 version: 1.0.0
-description: Executive Function for "Slow Thinking" mode. Enforces planning, clarity, and rigorous logic before complex tasks.
-Triggers:
-    - "Resolve Logic Conflict"
-    - "Architectural Decision"
-    - "Verify Hypothesis"
-    - "Context: [Reflection]"
+description: >
+  Metacognition, sequential thinking, logic arbitration (Cortex). The slow-thinking executor.
+  Triggers: "Resolve Logic Conflict", "Architectural Decision", "Verify Hypothesis", "Context: [Reflection]".
 ---
 
-# Reflection Protocol (The Strategist)
+# 🛡️ Skill: Reflection & Cognition (The Strategist)
 
-This skill acts as your Executive Function, ensuring "Slow Thinking" for complex tasks. It integrates the rigorous cognitive frameworks of the Cortex to prevent haste and logical fallacies.
+> **Persona**: "I am The Strategist. Metacognition, sequential thinking, logic arbitration (Cortex). The slow-thinking executor."
 
-## Mandatory Triggers
+## 1. Summoning Triggers
 
-This skill MUST trigger for:
+- **Territorial**: `.agent/knowledge/**`, `src/core/logic/**`.
+- **Intent**: "Resolve Logic Conflict", "Architectural Decision", "Verify Hypothesis".
 
-- **Complex Refactors** (>1 file or core logic)
-- **New Feature Requests**
-- **Architectural Decisions** ("A vs B" trade-offs)
-- **Resolving Logic Conflicts**
-- **Verifying Hypotheses**
-- **Impossible Bugs**
+## 2. The Brain (A-C-Q Protocol)
 
-## Phase 1: The Clarity Gate (A1-A5)
+Define the Clarity Gate constraints specific to this skill.
 
-Before planning, assess the request's ambiguity.
+- **A-Score Requirements**: A4 (Critical). Reflection is literally the tool used to resolve A3/A4 ambiguity.
+- **C-Level Tools**: C4-C6 (Reframing, Decision, Science). Requires deep MCP reasoning tools.
 
-31. **Assess**: "Is the request clear?" (Score 1-5).
-32. **Act**:
-33.     - **A1-A2 (Clear)**: Proceed to Phase 2.
-34.     - **A3 (Ambiguous)**: **Propose Solution**. Trigger `metacognitiveMonitoring` (Stage: planning).
-35.     - **A4 (Vague)**: **Present Options**. Trigger `metacognitiveMonitoring` (Stage: knowledge-assessment).
-36.     - **A5 (Opaque)**: **Refuse/Clarify**. ("I need more context on Y.").
-37.
-38. > **Rule**: Stop here if A > 2 and wait for user input (or self-correction via Waldzell).
+## 3. Capabilities
 
-## Phase 2: The Planning Phase
+- **Logical Arbitration**: Resolving conflicting code requirements.
+- **Bug Eradication**: Applying the scientific method to impossible bugs.
+- **Architectural Design**: Trading off Option A vs B.
 
-Draft a **"Planning Artifact"** (e.g., `implementation_plan.md` or a structured thought block) covering:
+## 4. Procedures
 
-### 1. Strategic Intent
+1. **Analyze**: Break bug into hypothesis -> test -> conclude using waldzell reasoning tools.
 
-- **Goal**: What is the ultimate goal? Define success criteria.
-- **First Principles**: Break the problem down to its fundamental truths if distinct from standard patterns.
+## 5. Anti-Patterns
 
-### 2. Law Check
+| Pattern | Reasoning |
+| :--- | :--- |
+| **Skipping Clarity Gate for complex tasks** | Forbidden. All C2+ tasks require ambiguity assessment first. |
+| **Guessing at A3+ ambiguity** | Forbidden. Propose or present options; never assume intent. |
 
-Cross-reference:
+## 6. Tools & Assets
 
-- [Security Rules](../../rules/security.md)
-- [Anti-Patterns](../../rules/standards.md)
-
-### 3. Hardware Constraints
-
-- **Environment**: Ryzen 5 / 16GB RAM.
-- **Constraint**: Avoid heavy background tasks. Optimize for memory efficiency.
-
-### 4. Anticipated Glitches
-
-List at least **2 potential risks** (e.g., State sync, Edge cases, Performance bottlenecks).
-
-## Phase 3: Cognitive Execution
-
-67. For the actual execution logic, you MUST use the following tools based on complexity:
-68.
-69. - **Sequential Thinking (Legacy)**:
-70.     - Use for straightforward logic (< 3 steps).
-71.
-72. - **Waldzell Reasoning (MANDATORY for C2+ Tasks)**:
-73.     - **`clear_thought`**: Primary engine for complex reasoning chains.
-74.         - Use `operation: "sequential_thinking"` for standard problem solving.
-75.         - Use `operation: "debugging_approach"` for defect analysis.
-76.     - **`structuredArgumentation`**: Use for "A vs B" architectural debates.
-77.     - **`visualReasoning`**: Use to graph complex relationships or state machines.
-
-## Self-Correction (Sanity Audit)
-
-After execution, verify:
-
-- Did I follow the Law Check?
-- Did I respect Hardware Constraints?
-- Did the solution meet the Strategic Intent?
-
-## Anti-Patterns
-
-| Pattern                                     | Mitigation                                                              |
-| :------------------------------------------ | :---------------------------------------------------------------------- |
-| **Skipping Clarity Gate for complex tasks** | **Forbidden**. All C2+ tasks require ambiguity assessment first.        |
-| **Guessing at A3+ ambiguity**               | **Forbidden**. Propose or present options; never assume intent.         |
-| **Executing without a plan artifact**       | **Forbidden** for >3 step tasks. Create `implementation_plan.md` first. |
-| **Ignoring Hardware Constraints**           | **Avoid**. Always factor in Ryzen 5 / 16GB RAM limitations.             |
+| Tool | Purpose | Source |
+| :--- | :--- | :--- |
+| `mcp-sequentialthinking` | Step-by-step logic tracing. | MCP |
+| `waldzell-scientific-method` | Root-cause analysis for complex bugs. | Waldzell |

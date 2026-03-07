@@ -45,6 +45,8 @@
  * Note: `physical` fields are excluded from simulation mode prompts by the broker.
  */
 export const ENTITY_FRAGMENTS = {
+    name: "Name",
+    description: "Description & Notes - This field is only for you and will NEVER be included in any simulation.",
     eternal: {
         label: "Eternal",
         sublabel: "Permanent Traits & Features", // UI only
@@ -115,6 +117,8 @@ function build_entity_catalog() {
     const catalog = {}
 
     Object.entries(ENTITY_FRAGMENTS).forEach(([section_key, section]) => {
+        if (typeof section === "string" || section === null) return
+
         if (section.fields) {
             Object.entries(section.fields).forEach(([field_key, field]) => {
                 const id = `${section_key}.${field_key}`

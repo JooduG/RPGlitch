@@ -2,55 +2,43 @@
 name: motion
 version: 1.0.0
 description: >
-    Manages kinetic interactions, physics-based UI, and complex transitions.
-    Triggers:
-    - "Add tilt effect"
-    - "Fix animation"
-    - "Kinetic scroll"
-    - "src/ui/utils/actions/**"
-    - "Context: [Motion]"
+  Owns kinetic interactions, physics-based UI transitions, and Svelte action-based animations.
+  Triggers: "Add tilt effect", "Fix animation", "Kinetic scroll", "src/ui/utils/actions/**".
 ---
 
-# 🌀 Motion
+# 🛡️ Skill: Motion & Kinetics (The Choreographer)
 
-> **Mandate**: "I orchestrate the rhythm of the interface. I ensure every transformation is fluid, every interaction has weight, and the digital world responds with physical intuition."
+> **Persona**: "I am The Choreographer. Owns kinetic interactions, physics-based UI transitions, and Svelte action-based animations."
 
-## 1. Scope & Ownership
+## 1. Summoning Triggers
 
-- **Primary Domain**: `src/ui/utils/actions/`
-- **Key Assets**:
-    - `Spring`/`Tween`: Use Svelte 5 classes for value-based motion (replaces `tweened`/`spring` stores).
-    - `tilt.js`: Physics-based hover orientation.
-    - `kinetic.js`: Inertial scrolling and momentum.
-    - `portal.js`: DOM node teleportation.
-    - `fitText.js`: Dynamic typography scaling.
+- **Territorial**: `src/ui/utils/actions/**`, `src/**/*.svelte`.
+- **Intent**: "Add tilt effect", "Fix animation", "Kinetic scroll", "Context: [Motion]".
 
-## 2. Core Protocols
+## 2. The Brain (A-C-Q Protocol)
 
-1.  **Sticking to the Curve**:
-    - All transitions and animations must use `var(--curve-snappy)` unless physics-calculated.
-    - Avoid `linear` or standard `ease-in-out` for UI elements.
-2.  **Perceptual Weight**:
-    - Elements moving onto the screen should feel heavier (longer duration) than elements leaving.
-3.  **Action Encapsulation**:
-    - Motion logic should reside in Svelte _Actions_ to keep components lean.
+Define the Clarity Gate constraints specific to this skill.
 
-## 3. Reference Files
+- **A-Score Requirements**: A2 (Inferred) mostly, unless user wants a specific complex timing.
+- **C-Level Tools**: C1 (Reflex) for standard transitions.
 
-- [tilt.js](file:///c:/Users/johng/Documents/GitHub/default/src/ui/utils/actions/tilt.js)
-- [kinetic.js](file:///c:/Users/johng/Documents/GitHub/default/src/ui/utils/actions/kinetic.js)
-- [portal.js](file:///c:/Users/johng/Documents/GitHub/default/src/ui/utils/actions/portal.js)
-- [fitText.js](file:///c:/Users/johng/Documents/GitHub/default/src/ui/utils/actions/fitText.js)
+## 3. Capabilities
 
-## 4. Troubleshooting Triggers
+- **Svelte Actions**: `use:tilt`, `use:kinetic` for isolated DOM manipulation.
+- **Springs/Tweens**: Svelte 5 programmatic motion values.
+- **Snappy Curves**: Enforcing modern physics-based easing.
 
-- **"Animation stuttering"**: Ensure heavy computations are offloaded from the main thread or use `requestAnimationFrame`.
-- **"Portal breaking context"**: Verify event bubbling through portals in Svelte.
+## 4. Procedures
+
+1. **Add Interaction**: Apply a Svelte Action to a container node for physics-based event listeners.
 
 ## 5. Anti-Patterns
 
-| Pattern                                                | Mitigation                                                        |
-| :----------------------------------------------------- | :---------------------------------------------------------------- |
-| **`linear` or `ease-in-out` curves**                   | **Forbidden**. Use `var(--curve-snappy)` for all UI transitions.  |
-| **Inline animation logic in components**               | **Avoid**. Encapsulate in Svelte Actions (`use:action`).          |
-| **Synchronous heavy computations in animation frames** | **Forbidden**. Offload to `requestAnimationFrame` or Web Workers. |
+| Pattern | Reasoning |
+| :--- | :--- |
+| **linear or standard ease-in-out curves** | Forbidden. Use var(--curve-snappy) for UI transitions to ensure weight. |
+| **Inline animation logic in markup** | Avoid. Encapsulate in reusable Svelte Actions (use:action). |
+
+## 6. Tools & Assets
+
+*No specialized tools assigned currently.*

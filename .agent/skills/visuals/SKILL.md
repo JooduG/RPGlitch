@@ -2,71 +2,44 @@
 name: visuals
 version: 1.0.0
 description: >
-    Manages Perchance image generation, asset caching, and RPGlitch aesthetic engineering.
-    Triggers:
-    - "Generate image"
-    - "Fix aesthetic"
-    - "Render character"
-    - "Context: [Visuals]"
+  Owns image generation, Perchance prompts, and external visual asset management.
+  Triggers: "Generate image", "Render character", "Fix aesthetic", "src/media/images/**".
 ---
 
-# 🎨 Visuals
+# 🛡️ Skill: Visuals & Imagery (The Illustrator)
 
-> "The image is not just a decoration; it is a recursive echo of the simulation's state."
+> **Persona**: "I am The Illustrator. Owns image generation, Perchance prompts, and external visual asset management."
 
-## 1. Capabilities
+## 1. Summoning Triggers
 
-### ⚡ Perchance Integration
+- **Territorial**: `src/media/images/**`, `src/ui/atoms/Image**`.
+- **Intent**: "Generate image", "Render character", "Fix aesthetic".
 
-Handles high-level abstraction for the Perchance `text-to-image-plugin`.
+## 2. The Brain (A-C-Q Protocol)
 
-- **Action**: Converts character state (Eternal/Present/Timeline) into descriptive prompts.
-- **Parameters**:
-    - `prompt`: The core visual description.
-    - `negativePrompt`: "text, watermark, blurry, low quality, deformed, cartoon".
-    - `seed`: Derived from `runtime.character.visuals.profilePictureSeed`.
+Define the Clarity Gate constraints specific to this skill.
 
-### ⚡ Aesthetic Engineering (RPGlitch)
+- **A-Score Requirements**: A3 (Ambiguous) if prompt details are missing.
+- **C-Level Tools**: C2 (Planning) for prompt engineering.
 
-Enforces the "Neural Minimalism" style:
+## 3. Capabilities
 
-- **Style Keywords**: "cybernetic realism, hyper-detailed, high contrast, obsidian surfaces, neon glitch, anamorphic flare".
-- **Color Palette**: Strictly follows `var(--app-token)` mappings. Default is Lime/Slate.
+- **Prompt Generation**: Constructing precise generative AI image prompts.
+- **Asset Management**: Caching and sizing visuals.
+- **VFX Layout**: Positioning generated imagery correctly in UI wrappers.
 
-### 🧠 Visual Reasoning (Waldzell)
+## 4. Procedures
 
-- **Tool**: `waldzell-visual-reasoning`
-- **Usage**: Use for generating architectural diagrams, flowcharts, and system maps.
-- **Output**: Mermaid or Graphviz syntax.
+1. **Generate Image**: Formulate prompt -> Call external API -> Save to assets.
 
-## 2. Procedures
+## 5. Anti-Patterns
 
-### 🎬 Asset Generation Workflow
+| Pattern | Reasoning |
+| :--- | :--- |
+| **Hotlinking external random un-cached images** | Volatile. Always cache generated imagery locally or use stable CDNs. |
 
-1. **Synthesize**: Read `runtime.character` state.
-2. **Prompter**: Construct prompt using the **Aesthetic Matrix**:
-    - `(Subject) + (Action/Environment) + (RPGlitch Style Tags)`.
-3. **Dispatch**: Call `t2i` plugin via the Bridge.
-4. **Cache**: Store result in IndexedDB (`db.entities`) to avoid redundant API calls.
+## 6. Tools & Assets
 
-### 💾 Caching Strategy
-
-- **Key**: `image_cache:[seed]`.
-- **Bust**: If the character's `visuals` object version increments, force a re-render.
-
-## 3. Anti-Patterns
-
-| Pattern                      | Mitigation                                                                           |
-| :--------------------------- | :----------------------------------------------------------------------------------- |
-| **Generic/Cartoon prompts**  | **Forbidden**. Use "cybernetic realism" and high-contrast tags.                      |
-| **Hardcoded hex in prompts** | **Avoid**. Use color names matching the design tokens (e.g., "Neon Lime").           |
-| **Redundant generation**     | **Check Cache First**. Always verify if a seed/prompt combo exists in `db.entities`. |
-
----
-
-📜 Rules: [manifesto, standards, stack, security, workflow]
-🧠 Skills: [data, visuals, svelte]
-📚 Knowledge: [Perchance API, RPGlitch Aesthetic]
-🤖 Tools: [write_to_file, replace_file_content]
-
----
+| Tool | Purpose | Source |
+| :--- | :--- | :--- |
+| `generate_image` | Generate UI mockups or assets. | default_api |

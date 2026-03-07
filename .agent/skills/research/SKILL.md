@@ -2,68 +2,47 @@
 name: research
 version: 1.0.0
 description: >
-    The Deep Search Interface. Orchestrates active investigation via Local Files, 
-    Specialized MCPs, and Web Search.
-    Triggers:
-    - "Research [Topic]"
-    - "Find documentation"
-    - "Search the web"
-    - "Locate file"
-    - "Check source code"
-    - "Context: [Research]"
+  Deep local search, external MCP tools, and library documentation lookups.
+  Triggers: "Search the web", "Find documentation", "Locate file", "Check source code".
 ---
 
-# 🔎 Research
+# 🛡️ Skill: Deep Research (The Investigator)
 
-## 1. Governance Rules
+> **Persona**: "I am The Investigator. Deep local search, external MCP tools, and library documentation lookups."
 
-### 📉 Tiered Sourcing
+## 1. Summoning Triggers
 
-When gathering info, follow this strict order to ensure quality:
+- **Territorial**: `**/*`.
+- **Intent**: "Research [Topic]", "Find documentation", "Search the web", "Check source code".
 
-1.  **Tier 1 (Local):** Is it in the `src/` files? -> Use `File Fetcher`.
-2.  **Tier 2 (Specialized):** Is it a known domain? -> Use `svelte`, `context7`, `deepwiki`, or `firecrawl`.
-3.  **Tier 3 (Scientific):** Is it a complex bug? -> Use `waldzell-scientific-method`.
-4.  **Tier 4 (Collaborative):** Need expert perspectives? -> Use `waldzell-collaborative-reasoning`.
-5.  **Tier 5 (General):** Is it unknown? -> Use `Google Search`.
+## 2. The Brain (A-C-Q Protocol)
 
-### 🧩 Context Assembly
+Define the Clarity Gate constraints specific to this skill.
 
-- **Synthesize, Don't Dump:** Do not paste raw JSON or HTML. Read the source, extract the answer, and explain it.
-- **Cite Sources:** "According to Svelte docs..." or "Found in `src/main.js`..."
+- **A-Score Requirements**: A1-A5. Scales with the need for external information.
+- **C-Level Tools**: C2 (Planning). Pre-requisite for execution.
 
-## 2. Capabilities
+## 3. Capabilities
 
-### 📂 Internal Discovery (Files)
+- **Local Discovery**: Using grep_search and list_dir to rapidly find code contexts.
+- **External Discovery**: Web search, documentation reading via context7 or deepwiki.
 
-- **Tool:** `File Fetcher`
-- **Priority:** HIGHEST. Always check local files first.
-- **Usage:** Before answering a code question, always fetch the relevant files to ensure your answer is grounded in the actual codebase.
+## 4. Procedures
 
-### 🧠 The Research Router (MCP Dispatch)
+1. **Library Context**: `mcp_context7_resolve-library-id` -> `mcp_context7_query-docs`.
+2. **Web Lookup**: `mcp_firecrawl_search` -> read result.
 
-When the task requires external knowledge, route to the correct MCP tool chain:
+## 5. Anti-Patterns
 
-| Query Type                | Tool Chain                                                             | Rationale                                                |
-| :------------------------ | :--------------------------------------------------------------------- | :------------------------------------------------------- |
-| **Svelte 5 / SvelteKit**  | `mcp_svelte_list-sections` → `mcp_svelte_get-documentation`            | **Primary Authority.** Ensures Svelte 5 Rune compliance. |
-| **GitHub Repo Specifics** | `mcp_deepwiki_read_wiki_structure` → `mcp_deepwiki_read_wiki_contents` | Best for Wikis and READMEs of specific repositories.     |
-| **General Libraries**     | `mcp_context7_resolve-library-id` → `mcp_context7_query-docs`          | Professional docs for libraries (Dexie, Prisma, Zod).    |
-| **Scientific Inquiry**    | `waldzell-scientific-method`                                           | Deep debugging, hypothesis testing, and causal analysis. |
-| **Expert Simulation**     | `waldzell-collaborative-reasoning`                                     | Multi-persona architectural reviews and debates.         |
-| **Web Pages / URLs**      | `mcp_firecrawl-mcp_firecrawl_scrape`                                   | Read specific URLs or documentation pages.               |
-| **General Search**        | `mcp_firecrawl-mcp_firecrawl_search`                                   | Broad web search as last resort.                         |
+| Pattern | Reasoning |
+| :--- | :--- |
+| **Web search before local lookup** | Forbidden. Always follow Tiered Sourcing: Local -> Specialized -> Web. |
+| **Dumping raw JSON/HTML** | Forbidden. Synthesize and cite; never paste unprocessed tool output. |
 
-### 🌐 External Discovery (Web)
+## 6. Tools & Assets
 
-- **Tool:** `Google Search`
-- **Priority:** FALLBACK.
-- **Usage:** Use when specialized tools return nothing or for very recent events/errors.
-
-## 3. Anti-Patterns
-
-| Pattern                            | Mitigation                                                               |
-| :--------------------------------- | :----------------------------------------------------------------------- |
-| **Web search before local lookup** | **Forbidden**. Always follow Tiered Sourcing: Local → Specialized → Web. |
-| **Dumping raw JSON/HTML**          | **Forbidden**. Synthesize and cite; never paste unprocessed tool output. |
-| **Guessing API signatures**        | **Forbidden**. Verify against live docs via the Research Router.         |
+| Tool | Purpose | Source |
+| :--- | :--- | :--- |
+| `mcp_context7` | Query library documentation. | Context7 MCP |
+| `mcp_deepwiki` | Read GitHub repositories and wikis. | DeepWiki MCP |
+| `mcp_firecrawl` | Web search and scraping. | Firecrawl MCP |

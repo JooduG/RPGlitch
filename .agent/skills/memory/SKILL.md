@@ -2,47 +2,46 @@
 name: memory
 version: 1.0.0
 description: >
-    The Core Memory Interface. Governance of Long-Term Semantic Memory (Pinecone) 
-    and architectural pattern persistence.
-    Triggers:
-    - "Recall [Topic]"
-    - "What is our pattern for [X]?"
-    - "Save this decision"
-    - "Ingest [File]"
-    - "Consult the archives"
-    - "Context: [Memory]"
+  Governance of Long-Term Semantic Memory (Pinecone) and persistent architectural patterns (Scholar).
+  Triggers: "Recall [Topic]", "What is our pattern for [X]?", "Save this decision", "Ingest [File]".
 ---
 
-# 🧠 Knowledge
+# 🛡️ Skill: Persistent Memory (The Archivist)
 
-## 1. Governance Rules
+> **Persona**: "I am The Archivist. Governance of Long-Term Semantic Memory (Pinecone) and persistent architectural patterns (Scholar)."
 
-### 🧠 Semantic Only
+## 1. Summoning Triggers
 
-- **Tool:** `memory` -> `read_knowledge_base`
-- **Rule:** Do NOT use this to read code files for editing. Use `research` (File Fetcher) for that. Use this only to recall _concepts_, _past decisions_, or _architectural patterns_.
+- **Territorial**: `.agent/knowledge/canon/**`, `.agent/knowledge/concepts/**`.
+- **Intent**: "Recall [Topic]", "What is our pattern for [X]?", "Save this decision", "Consult the archives".
 
-### 🚫 Zero Hallucination
+## 2. The Brain (A-C-Q Protocol)
 
-- **Rule:** If the database returns no matches, state "No long-term memory found for this topic" and fallback to `research`. Do not invent memories.
+Define the Clarity Gate constraints specific to this skill.
 
-## 2. Capabilities
+- **A-Score Requirements**: A2. Memory lookup is usually precise.
+- **C-Level Tools**: C2 (Planning).
 
-### 🔮 Semantic Recall (RAG)
+## 3. Capabilities
 
-- **Action:** Query this _before_ making architectural decisions to see if a precedent exists.
-- **Example:** "How do we handle global state?" (Checks memory for "Svelte Store Patterns").
+- **Semantic Recall (RAG)**: Querying vectors to recall architectural decisions.
+- **Knowledge Ingestion**: Saving resolved patterns into the knowledge-base namespaces.
 
-### 💾 Knowledge Ingestion
+## 4. Procedures
 
-- **Tool:** `memory` -> `write_knowledge_base`
-- **Trigger:** When a major architectural decision is made or a new pattern is established.
-- **Action:** Save the relevant files or summary to `knowledge-base.meta` or `knowledge-base.src`.
+1. **Recall**: Check memory base before making a major structural decision.
+2. **Store**: Ingest summary files after concluding an architecture debate.
 
-## 3. Anti-Patterns
+## 5. Anti-Patterns
 
-| Pattern                       | Mitigation                                                                                       |
-| :---------------------------- | :----------------------------------------------------------------------------------------------- |
-| **Using memory to read code** | **Forbidden**. Use `research` skill for file reading. Memory is for concepts and decisions only. |
-| **Inventing memories**        | **Forbidden**. If no match is found, state so and fall back to `research`.                       |
-| **Ingesting raw code files**  | **Avoid**. Summarize decisions and patterns before ingesting.                                    |
+| Pattern | Reasoning |
+| :--- | :--- |
+| **Using memory to read specific code files** | Forbidden. Use research for file reading. Memory is for concepts and decisions only. |
+| **Inventing memories** | Forbidden. If no match is found, state so and fall back to research. |
+
+## 6. Tools & Assets
+
+| Tool | Purpose | Source |
+| :--- | :--- | :--- |
+| `read_knowledge_base` | Recall concepts from Pinecone. | Memory MCP |
+| `write_knowledge_base` | Save concepts to Pinecone. | Memory MCP |

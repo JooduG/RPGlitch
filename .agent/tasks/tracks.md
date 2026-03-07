@@ -5,13 +5,6 @@
 
 ## 🚀 Active Tracks
 
-### Track: Intelligence Reconstruction v2
-
-- Path: [.agent/tasks/intelligence-reconstruction-v2/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/intelligence-reconstruction-v2/)
-- Status: Planning
-- Checkpoint: `intel-recon-v2-01`
-- Note: First-principles deconstruction of 10 core intelligence & engine files. Fixing circular LlmService↔PromptBuilder coupling, extracting NarrativeDirector, splitting config palette, and enforcing Three Lanes pipeline (Hydrate → Simulate → Synthesize).
-
 ### Track: SCSS Token Standardization
 
 - Path: [.agent/tasks/scss-token-standardization/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/scss-token-standardization/)
@@ -40,6 +33,13 @@
 - **Note:** Systemic rename of character dynamics: entropy -> chaos, velocity -> intensity, permeability -> openness, resonance -> affinity. Updated state, engine logic, template tags, and UI labels. Resolved build regression in `ContextBroker.js`. pass final `npm run deploy`.
 
 ## ✅ Archive
+
+### ✅ Track: Intelligence Reconstruction v2
+
+- Path: [.agent/archive/intelligence-reconstruction-v2/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/archive/intelligence-reconstruction-v2/)
+- Status: Complete
+- Checkpoint: `71f726fd`
+- Note: First-principles deconstruction of 10 core intelligence & engine files. Fixing circular LlmService↔PromptBuilder coupling, extracting NarrativeDirector, splitting config palette, and enforcing Three Lanes pipeline (Hydrate → Simulate → Synthesize).
 
 ### ✅ Track: Emotional Half-Life Protocol
 

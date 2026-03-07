@@ -3,16 +3,6 @@ import { PromptBuilder } from "./PromptBuilder.js"
 
 describe("PromptBuilder (Refactored)", () => {
     describe("Static Helpers", () => {
-        it("render_fragments() should return raw <FRAGMENT> lines", () => {
-            const fragments = [
-                { type: "ETERNAL", text: "I am ancient." },
-                { type: "PRESENT", text: "I stand here now." },
-            ]
-            const result = PromptBuilder.render_fragments(fragments)
-            expect(result).toContain('<FRAGMENT type="ETERNAL">I am ancient.</FRAGMENT>')
-            expect(result).toContain('<FRAGMENT type="PRESENT">I stand here now.</FRAGMENT>')
-        })
-
         it("render_history() should map roles correctly", () => {
             const history = [
                 { role: "user", content: "Hello" },

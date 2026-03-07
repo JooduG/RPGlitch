@@ -6,13 +6,13 @@ describe("PromptBuilder Visual & Contextual Verification", () => {
         const entities = {
             AI: {
                 name: "AI",
-                layers: {
-                    ETERNAL: [{ type: "Physical", text: "Metallic skin." }],
-                    PRESENT: [{ type: "Non-Physical", text: "Ready to help." }],
+                properties: {
+                    eternal: { physical: "Metallic skin.", non_physical: "" },
+                    present: { physical: "", non_physical: "Ready to help." },
                 },
             },
-            USER: { name: "User", layers: { ETERNAL: [], PRESENT: [] } },
-            FRACTAL: { name: "Fractal", layers: { ETERNAL: [], PRESENT: [] } },
+            USER: { name: "User", properties: { eternal: { physical: "", non_physical: "" }, present: { physical: "", non_physical: "" } } },
+            FRACTAL: { name: "Fractal", properties: { eternal: { physical: "", non_physical: "" }, present: { physical: "", non_physical: "" } } },
             simulation_log: "Pre-rendered log lines.",
         }
 
