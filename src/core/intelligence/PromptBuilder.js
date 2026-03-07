@@ -62,8 +62,8 @@ export const SYSTEM_PROMPTS = {
 </YOUR_IDENTITY>
 
 <USER_PERSONA name="${user.name}">
-<ETERNAL>${user.properties.eternal.physical}</ETERNAL>
-<PRESENT>${user.properties.present.physical}</PRESENT>
+<ETERNAL>${user.properties.eternal.non_physical}</ETERNAL>
+<PRESENT>${user.properties.present.non_physical}</PRESENT>
 <PAST memory="${render_atom.past(user, 1).trim()}"/>
 <FUTURE vector="${render_atom.future(user, 1).trim()}"/>
 </USER_PERSONA>
@@ -79,9 +79,13 @@ export const SYSTEM_PROMPTS = {
 ${PromptBuilder.render_history(simulation_log, 10)}
 </SIMULATION_LOG>
 
-${behaviors.length > 0 ? `<NARRATIVE_STYLE>\n${behaviors.join(" ")}\n</NARRATIVE_STYLE>` : ""}
+<NARRATIVE_STYLE>
+${behaviors.length > 0 ? behaviors.join("\n") : "Use default style vectors."}
+</NARRATIVE_STYLE>
 
-${entities.BACKGROUND_INTENSITY || ""}
+<BACKGROUND_INTENSITY>
+${entities.BACKGROUND_INTENSITY || "No entities detected."}
+</BACKGROUND_INTENSITY>
 
 <PROTOCOLS>
 ${PromptBuilder.render_protocols(protocols)}
@@ -224,7 +228,7 @@ export class PromptBuilder {
         // Inject BACKGROUND_INTENSITY block into entities for the template
         if (intruders.length > 0) {
             const intensity_lines = intruders.map((i) => `    <ENTITY name="${i.name}" intensity="${i.intensity}">${i.flags.join(", ")}</ENTITY>`).join("\n")
-            payload.entities.BACKGROUND_INTENSITY = `<BACKGROUND_INTENSITY>\n${intensity_lines}\n</BACKGROUND_INTENSITY>`
+            payload.entities.BACKGROUND_INTENSITY = `\n${intensity_lines}\n`
         }
 
         const protocols = intruders.length > 0 ? "SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL, SCENE_PACING" : "SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL"
