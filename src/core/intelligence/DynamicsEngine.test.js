@@ -192,4 +192,50 @@ describe("Dynamics Engine v2 (Refactored)", () => {
             expect(hasNaivetyBehavior).toBe(true)
         })
     })
+
+    describe("Trigger Matching & Semantic Grouping", () => {
+        it("resolves 'kissing' to root 'affection'", () => {
+            const reflexes = DynamicsEngine.scan_reflexes("She was kissing him.")
+            const reflex = reflexes.find((r) => r.trigger_word === "affection")
+            expect(reflex).toBeDefined()
+            expect(reflex.id).toBe("EXPOSURE")
+        })
+
+        it("resolves 'fought' to root 'violence'", () => {
+            const reflexes = DynamicsEngine.scan_reflexes("They fought bravely.")
+            const reflex = reflexes.find((r) => r.trigger_word === "violence")
+            expect(reflex).toBeDefined()
+            expect(reflex.id).toBe("IMPACT")
+        })
+
+        it("resolves 'screamed' to root 'horror'", () => {
+            const reflexes = DynamicsEngine.scan_reflexes("She screamed in terror.")
+            const reflex = reflexes.find((r) => r.trigger_word === "horror")
+            expect(reflex).toBeDefined()
+            expect(reflex.id).toBe("GLITCH")
+        })
+
+        it("resolves 'ran' to root 'athletics'", () => {
+            const reflexes = DynamicsEngine.scan_reflexes("He ran away.")
+            const reflexes_found = reflexes.filter((r) => r.trigger_word === "athletics")
+            expect(reflexes_found.length).toBe(1)
+            expect(reflexes_found[0].id).toBe("GLITCH")
+        })
+
+        it("resolves 'barrier' to root 'armor'", () => {
+            const reflexes = DynamicsEngine.scan_reflexes("A shimmering barrier appeared.")
+            const reflex = reflexes.find((r) => r.trigger_word === "armor")
+            expect(reflex).toBeDefined()
+            expect(reflex.id).toBe("DEFENSE")
+        })
+
+        it("resolves 'hidden' to root 'hide' in BOTH DEFENSE and GLITCH", () => {
+            const reflexes = DynamicsEngine.scan_reflexes("She kept her feelings hidden.")
+            const hide_reflexes = reflexes.filter((r) => r.trigger_word === "hide")
+            expect(hide_reflexes.length).toBe(2)
+            const ids = hide_reflexes.map((r) => r.id)
+            expect(ids).toContain("DEFENSE")
+            expect(ids).toContain("GLITCH")
+        })
+    })
 })

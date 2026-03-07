@@ -9,7 +9,7 @@
  * @param {string} text
  * @returns {{ content: string, think: string|null }}
  */
-export function parseThinkBlock(text) {
+export function parse_think_block(text) {
     if (!text) return { content: "", think: null }
     const match = text.match(/<think>([\s\S]*?)<\/think>/i)
     const think = match ? match[1].trim() : null
@@ -22,7 +22,7 @@ export function parseThinkBlock(text) {
  * @param {string} text
  * @returns {string}
  */
-export function cleanImagePrompts(text) {
+export function clean_image_prompts(text) {
     if (!text) return ""
     return text.replace(/<image_prompt[\s\S]*?<\/image_prompt>/gi, "").replace(/<image_prompt[^>]*\/>/gi, "")
 }
@@ -32,7 +32,7 @@ export function cleanImagePrompts(text) {
  * @param {string} text
  * @returns {{ content: string, header: { location: string, time: string, weather: string }|null }}
  */
-export function parseSceneHeader(text) {
+export function parse_scene_header(text) {
     if (!text) return { content: "", header: null }
 
     // Pattern: 『 [Location] · [Time] · [Weather] 』
@@ -57,16 +57,16 @@ export function parseSceneHeader(text) {
  * @param {string} rawText
  * @returns {{ displayText: string, think: string|null, sceneData: object|null }}
  */
-export function parseMessage(rawText) {
+export function parse_message(rawText) {
     // 1. Remove Image Prompts (Artifacts)
-    let text = cleanImagePrompts(rawText || "")
+    let text = clean_image_prompts(rawText || "")
 
     // 2. Extract Think Block
-    const thinkResult = parseThinkBlock(text)
+    const thinkResult = parse_think_block(text)
     text = thinkResult.content
 
     // 3. Extract Scene Header
-    const headerResult = parseSceneHeader(text)
+    const headerResult = parse_scene_header(text)
 
     return {
         displayText: headerResult.content,

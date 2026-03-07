@@ -17,7 +17,7 @@
  *   id: uuid,
  *   timestamp: number,
  *   text: string (raw content),
- *   emotional_weight: number (W=1-10, set at write time by SemanticEvaluator),
+ *   emotional_weight: number (Weights=1-10, set at write time),
  *   dynamics_tags: string[] (derived from DynamicsEngine),
  *   vector_tags: string[] (manual/system tags),
  * }
@@ -30,6 +30,7 @@
  * └────────────────────────────────────────────────────────────────────────┘
  */
 
+import { CONFIG } from "../engine/config.js"
 import { DynamicsEngine } from "./DynamicsEngine.js"
 
 /************************************************************************************
@@ -52,7 +53,7 @@ export function create_vector(text) {
         timestamp: Date.now(),
         text,
         emotional_weight: DynamicsEngine.evaluate_weight(reflexes),
-        dynamics_tags: reflexes.map((r) => r.id),
+        dynamics_tags: reflexes.map((r) => ({ id: r.id, word: r.trigger_word })),
         vector_tags: [],
     }
 }
@@ -79,26 +80,47 @@ export function score_vectors(vectors, input) {
     if (!Array.isArray(vectors) || !vectors.length) return []
     if (!input) return vectors.slice(-3) // No input? Just give the 3 newest memories
 
-    const current_reflexes = DynamicsEngine.scan_reflexes(input).map((r) => r.id)
+    const active_reflexes = DynamicsEngine.scan_reflexes(input)
+    const active_ids = active_reflexes.map((r) => r.id)
+    const active_words = active_reflexes.map((r) => r.trigger_word?.toLowerCase())
     const input_lower = input.toLowerCase()
 
     const scored = vectors.map((v) => {
-        let score = 0
-        // 🛡️ Axis Match: If the memory shares a "vibe" (Reflex id) with the input.
-        v.dynamics_tags?.forEach((t) => {
-            if (current_reflexes.includes(t)) score += 2
-        })
-        // 🏷️ Entity Match: If the memory explicitly mentions a relevant subject.
-        v.vector_tags?.forEach((t) => {
-            if (input_lower.includes(t.toLowerCase())) score += 1
-        })
-        // ⚖️ Emotional Weight: Flat addend from MNOTION tier (W=3 baseline, W=10 max).
-        score += v.emotional_weight ?? 3
+        // ⚖️ Relevance Score: Start with the inherent Emotional Weight.
+        let relevance = v.emotional_weight ?? CONFIG.DYNAMICS.WEIGHT_BASELINE
 
-        return { ...v, _score: score }
+        // 🛡️ Dynamics & Trigger Match:
+        // +1 for matching the "vibe" (ID), +2 for matching the exactly triggered word.
+        v.dynamics_tags?.forEach((tag) => {
+            const tag_id = typeof tag === "string" ? tag : tag.id
+            const tag_word = typeof tag === "string" ? null : tag.word?.toLowerCase()
+
+            if (active_ids.includes(tag_id)) {
+                relevance += CONFIG.DYNAMICS.RELEVANCE_DYNAMICS_BONUS
+            }
+            if (tag_word && active_words.includes(tag_word)) {
+                relevance += CONFIG.DYNAMICS.RELEVANCE_TRIGGER_BONUS
+            }
+        })
+
+        // 🏷️ Vector Match: If the memory explicitly mentions a relevant subject. (+3)
+        v.vector_tags?.forEach((t) => {
+            if (input_lower.includes(t.toLowerCase())) {
+                relevance += CONFIG.DYNAMICS.RELEVANCE_VECTOR_BONUS
+            }
+        })
+
+        return { ...v, _relevance: relevance }
     })
 
-    return scored.sort((a, b) => b._score - a._score)
+    return scored.sort((a, b) => {
+        // 1. Primary: Relevance
+        const diff = b._relevance - a._relevance
+        if (diff !== 0) return diff
+
+        // 2. Secondary: Recency (tie-breaker)
+        return b.timestamp - a.timestamp
+    })
 }
 
 /************************************************************************************
@@ -122,8 +144,8 @@ export function format_past(vectors, input, limit = 3, offset = 0) {
     const reversed = [...ranked].reverse()
     return reversed
         .map((v) => {
-            const w = v.emotional_weight ?? 3
-            const label = w >= 10 ? "CORE_MEMORY" : w >= 8 ? "MAJOR_MEMORY" : w >= 6 ? "MEMORY" : "ECHO"
+            const weight = v.emotional_weight ?? CONFIG.DYNAMICS.WEIGHT_BASELINE
+            const label = weight >= CONFIG.DYNAMICS.WEIGHT_CORE_THRESHOLD ? "CORE_VECTOR" : weight >= CONFIG.DYNAMICS.WEIGHT_MAJOR_THRESHOLD ? "MAJOR_VECTOR" : weight >= CONFIG.DYNAMICS.WEIGHT_SIGNIFICANT_THRESHOLD ? "VECTOR" : "VECTOR_ECHO"
             return `        [${label}]: ${v.text}`
         })
         .join("\n")
@@ -131,7 +153,7 @@ export function format_past(vectors, input, limit = 3, offset = 0) {
 
 /**
  * Renders the most relevant future vectors.
- * Labels them [STAKE] if they have Axis tags, or [OBJECTIVE] if they are generic.
+ * Labels them based on emotional weight (PIVOTAL, MAJOR, VECTOR, IMPULSE).
  *
  * @param {Array} vectors
  * @param {string} input
@@ -144,9 +166,13 @@ export function format_future(vectors, input, limit = 3, offset = 0) {
     const reversed = [...ranked].reverse()
     return reversed
         .map((v) => {
-            const w = v.emotional_weight ?? 3
-            const label = w >= 10 ? "CORE_MEMORY" : w >= 8 ? "MAJOR_MEMORY" : w >= 6 ? "MEMORY" : "ECHO"
-            return `        [FUTURE_${label}]: ${v.text}`
+            const weight = v.emotional_weight ?? CONFIG.DYNAMICS.WEIGHT_BASELINE
+            let label
+            if (weight >= CONFIG.DYNAMICS.WEIGHT_CORE_THRESHOLD) label = "PIVOTAL_VECTOR"
+            else if (weight >= CONFIG.DYNAMICS.WEIGHT_MAJOR_THRESHOLD) label = "MAJOR_VECTOR"
+            else if (weight >= CONFIG.DYNAMICS.WEIGHT_SIGNIFICANT_THRESHOLD) label = "VECTOR"
+            else label = "VECTOR_IMPULSE"
+            return `        [${label}]: ${v.text}`
         })
         .join("\n")
 }
@@ -159,12 +185,12 @@ export function format_future(vectors, input, limit = 3, offset = 0) {
  * @param {string} [resolution=null]
  */
 export function resolve_vector(entity, vector_id, resolution = null) {
-    if (!entity.future?.vectors) return
+    if (!Array.isArray(entity.future)) return
 
-    const index = entity.future.vectors.findIndex((v) => v.id === vector_id)
+    const index = entity.future.findIndex((v) => v.id === vector_id)
     if (index === -1) return
 
-    const [vector] = entity.future.vectors.splice(index, 1)
+    const [vector] = entity.future.splice(index, 1)
 
     // Add resolution tag if provided
     if (resolution) {
@@ -173,10 +199,8 @@ export function resolve_vector(entity, vector_id, resolution = null) {
     }
     vector.timestamp = Date.now()
 
-    if (!entity.past) entity.past = { vectors: [] }
-    if (!entity.past.vectors) entity.past.vectors = []
-
-    entity.past.vectors.push(vector)
+    if (!Array.isArray(entity.past)) entity.past = []
+    entity.past.push(vector)
 }
 
 /**

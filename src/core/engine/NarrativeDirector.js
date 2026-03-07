@@ -1,15 +1,15 @@
-import { memorize } from "@core/intelligence/intelligence_echo.js"
+import { consolidate_vector } from "@core/intelligence/intelligence_echo.js"
 import { db } from "@data/db.js"
 import { entities } from "@data/repository.js"
 import { app } from "@state/app.svelte.js"
 import { runtime } from "@state/runtime.svelte.js"
 import { simulation_log } from "@state/simulation_log.svelte.js"
-import { Session } from "./session-driver.js"
+import { Session } from "./SessionDriver.js"
 
 /**
  * src/core/engine/NarrativeDirector.js
  * 🎬 NARRATIVE DIRECTOR
- * Manages Story Beats, Vector synchronization, and L2 Memory Consolidation.
+ * Manages Story Beats, Vector synchronization, and L2 Vector Consolidation.
  * Extracted from engine.js to enforce SRP.
  */
 
@@ -39,8 +39,8 @@ export const NarrativeDirector = {
     },
 
     /**
-     * L2 CONSOLIDATION (Tiered Memory)
-     * Evicts old messages and compresses them into lore "Resonance".
+     * L2 CONSOLIDATION (Tiered Vectors)
+     * Evicts old messages and compresses them into lore "Vectors".
      */
     consolidate: async () => {
         if (NarrativeDirector._isConsolidating) return
@@ -58,11 +58,10 @@ export const NarrativeDirector = {
 
                 const ai = runtime.activeAI
                 if (ai) {
-                    const resonance = await memorize(ai, slice, "character")
+                    const resonance = await consolidate_vector(ai, slice, "character")
                     if (resonance) {
-                        if (!ai.past) ai.past = { vectors: [] }
-                        if (!Array.isArray(ai.past.vectors)) ai.past.vectors = []
-                        ai.past.vectors.push(resonance)
+                        if (!Array.isArray(ai.past)) ai.past = []
+                        ai.past.push(resonance)
                         await entities.save("character", ai)
                     }
                 }

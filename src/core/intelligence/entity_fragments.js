@@ -46,7 +46,7 @@
  */
 export const ENTITY_FRAGMENTS = {
     name: "Name",
-    description: "Description & Notes - This field is only for you and will NEVER be included in any simulation.",
+    description: "Description & Notes - This field is only for you and will NEVER be included in any simulation.", // UI only
     eternal: {
         label: "Eternal",
         sublabel: "Permanent Traits & Features", // UI only
@@ -85,7 +85,13 @@ export const ENTITY_FRAGMENTS = {
         unit_label: "Vector",
         directive: "I will define my self-interest protocol here. I will detail my overarching macro-goals, lateral agendas, and ultimate narrative destiny. Use [CONSEQUENCE: ...] for stakes.",
         enhancer: "TRAJECTORY_SIMULATOR",
-        type: "array", // Metadata for the structured format
+        type: "array",
+        fields: {
+            text: "Clear statement of the vector.",
+            dynamics_tags: "Automatically extracted thematic triggers (e.g. IMPACT).",
+            vector_tags: "Semantic keywords for clustering and retrieval.",
+            emotional_weight: "Narrative importance score (1-10) driving relevance.",
+        },
     },
     past: {
         label: "Past",
@@ -93,7 +99,13 @@ export const ENTITY_FRAGMENTS = {
         unit_label: "Memory",
         directive: "I will detail my historical anchors here. I will include my origin story, formative events, and established relationships. If I have repressed trauma or forgotten memories I will note them clearly.",
         enhancer: "EPISODIC_MEMORY_COMPILER",
-        type: "array", // Metadata for the structured format
+        type: "array",
+        fields: {
+            text: "Clear statement of the memory.",
+            dynamics_tags: "Automatically extracted thematic triggers (e.g. IMPACT).",
+            vector_tags: "Semantic keywords for clustering and retrieval.",
+            emotional_weight: "Narrative importance score (1-10) driving relevance.",
+        },
     },
 }
 
@@ -119,17 +131,24 @@ function build_entity_catalog() {
     Object.entries(ENTITY_FRAGMENTS).forEach(([section_key, section]) => {
         if (typeof section === "string" || section === null) return
 
+        // 1. Add sub-fields if they exist
         if (section.fields) {
             Object.entries(section.fields).forEach(([field_key, field]) => {
                 const id = `${section_key}.${field_key}`
+                const metadata = typeof field === "string" ? { description: field } : field
+
                 catalog[id] = {
-                    ...field,
+                    ...metadata,
                     id,
                     section_label: section.label,
                     layer_key: section_key.toUpperCase(),
                 }
             })
-        } else {
+        }
+
+        // 2. Add the section itself if it's not purely a container for fields
+        // or if it has special metadata (like array types).
+        if (!section.fields || section.type === "array") {
             catalog[section_key] = {
                 ...section,
                 id: section_key,

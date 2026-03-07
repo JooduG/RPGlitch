@@ -17,7 +17,7 @@ Dynamics: {"intensity":50,"chaos":58,"openness":50,"affinity":43}
 ========================================================================
 
 [PHASE 3: SYNTHESIZED XML PROMPT]
-<SYSTEM role="Viper" turn="1" objective="[FUTURE_ECHO]: Wants to be free.">
+<SYSTEM role="Viper" turn="1" objective="">
 <YOUR_IDENTITY name="Viper">
 <ETERNAL>Analytical mind.</ETERNAL>
 <PRESENT>Searching data.</PRESENT>
@@ -28,13 +28,13 @@ Dynamics: {"intensity":50,"chaos":58,"openness":50,"affinity":43}
 <ETERNAL>Determined.</ETERNAL>
 <PRESENT>Fearful.</PRESENT>
 <PAST memory=""/>
-<FUTURE vector="[FUTURE_ECHO]: Seeking revenge."/>
+<FUTURE vector=""/>
 </USER_PERSONA>
 <FRACTAL name="Hollow Market">
 <ETERNAL>A place of secrets.</ETERNAL>
 <PRESENT>Tense atmosphere.</PRESENT>
 <PAST memory=""/>
-<FUTURE vector="[FUTURE_ECHO]: Destined for collapse."/>
+<FUTURE vector=""/>
 </FRACTAL>
 <SIMULATION_LOG>
 </SIMULATION_LOG>

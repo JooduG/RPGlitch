@@ -1,10 +1,11 @@
 import { describe, expect, it, vi } from "vitest"
+import { CONFIG } from "../engine/config.js"
 import { VectorEngine } from "./vector_engine.js"
 
 vi.mock("./DynamicsEngine.js", () => ({
     DynamicsEngine: {
         scan_reflexes: vi.fn(() => [{ id: "VIBE_CHECK" }]),
-        evaluate_weight: vi.fn(() => 3),
+        evaluate_weight: vi.fn(() => CONFIG.DYNAMICS.WEIGHT_BASELINE),
     },
 }))
 
@@ -16,7 +17,7 @@ describe("VectorEngine", () => {
             expect(vector.text).toBe("He felt a strange vibe.")
             expect(vector).not.toHaveProperty("score")
             expect(vector).not.toHaveProperty("summary")
-            expect(vector.dynamics_tags).toContain("VIBE_CHECK")
+            expect(vector.dynamics_tags[0].id).toBe("VIBE_CHECK")
             expect(Array.isArray(vector.vector_tags)).toBe(true)
             expect(typeof vector.timestamp).toBe("number")
         })
@@ -28,84 +29,154 @@ describe("VectorEngine", () => {
             expect(vector.emotional_weight).toBe(9)
         })
 
-        it("defaults to W=3 for plain input", () => {
+        it("defaults to Weight Baseline for plain input", () => {
             const vector = VectorEngine.create_vector("They talked for a while.")
-            expect(vector.emotional_weight).toBe(3)
+            expect(vector.emotional_weight).toBe(CONFIG.DYNAMICS.WEIGHT_BASELINE)
         })
     })
 
     describe("score_vectors", () => {
-        it("scores +2 for axis overlap", async () => {
+        it("calculates relevance: base weight + bonuses (+1 ID, +2 Word, +3 Tag)", async () => {
+            const { DynamicsEngine } = await import("./DynamicsEngine.js")
+            // Mock scan_reflexes to return a match with trigger word
+            vi.mocked(DynamicsEngine.scan_reflexes).mockReturnValue([{ id: "EXPOSURE", trigger_word: "kiss" }])
+
             const vectors = [
-                { id: 1, dynamics_tags: ["STAY_METAL"], vector_tags: [], text: "A", emotional_weight: 3 },
-                { id: 2, dynamics_tags: ["VIBE_CHECK"], vector_tags: [], text: "B", emotional_weight: 3 },
+                {
+                    id: 1,
+                    dynamics_tags: [{ id: "EXPOSURE", word: "kiss" }],
+                    vector_tags: ["Iron"],
+                    text: "A",
+                    emotional_weight: 5,
+                    timestamp: 100,
+                },
             ]
-            const ranked = VectorEngine.score_vectors(vectors, "vibe check")
-            expect(ranked[0].id).toBe(2)
+
+            // Input "Iron kiss" will match:
+            // - Dynamics ID: EXPOSURE (+1)
+            // - Trigger Word: kiss (+2)
+            // - Vector Tag: Iron (+3)
+            // - Base Weight: 5
+            // Total: 11
+            const ranked = VectorEngine.score_vectors(vectors, "Iron kiss")
+            const expected = 5 + CONFIG.DYNAMICS.RELEVANCE_DYNAMICS_BONUS + CONFIG.DYNAMICS.RELEVANCE_TRIGGER_BONUS + CONFIG.DYNAMICS.RELEVANCE_VECTOR_BONUS
+            expect(ranked[0]._relevance).toBe(expected)
         })
 
-        it("scores +1 for entity overlap", async () => {
+        it("grants +1 for Vibe (ID) match but skip +2 if trigger word differs", async () => {
             const { DynamicsEngine } = await import("./DynamicsEngine.js")
-            vi.mocked(DynamicsEngine.scan_reflexes).mockReturnValueOnce([])
+            // Input "hug" matches EXPOSURE id, but trigger word is "hug"
+            vi.mocked(DynamicsEngine.scan_reflexes).mockReturnValue([{ id: "EXPOSURE", trigger_word: "hug" }])
+
             const vectors = [
-                { id: 1, dynamics_tags: [], vector_tags: ["Iron"], text: "A", emotional_weight: 3 },
-                { id: 2, dynamics_tags: [], vector_tags: ["Ghost"], text: "B", emotional_weight: 3 },
+                {
+                    id: 1,
+                    dynamics_tags: [{ id: "EXPOSURE", word: "kiss" }], // Memory was triggered by "kiss"
+                    vector_tags: [],
+                    text: "A",
+                    emotional_weight: 5,
+                    timestamp: 100,
+                },
             ]
-            const ranked = VectorEngine.score_vectors(vectors, "Iron Man")
-            expect(ranked[0].id).toBe(1)
+
+            const ranked = VectorEngine.score_vectors(vectors, "hug")
+            // EXPECTED: 5 (base) + 1 (Vibe bonus) + 0 (Trigger bonus) = 6
+            expect(ranked[0]._relevance).toBe(6)
         })
 
-        it("W is added as flat addend — high-W vector outscores equal-axis low-W vector", async () => {
-            const { DynamicsEngine } = await import("./DynamicsEngine.js")
-            vi.mocked(DynamicsEngine.scan_reflexes).mockReturnValue([{ id: "IMPACT", trigger: /a/, effect: { intensity: 10 } }])
+        it("uses timestamp as a tie-breaker for identical relevance", () => {
             const vectors = [
-                { id: "low", dynamics_tags: ["IMPACT"], vector_tags: [], text: "A", emotional_weight: 3 },
-                { id: "high", dynamics_tags: ["IMPACT"], vector_tags: [], text: "B", emotional_weight: 9 },
+                { id: "old", emotional_weight: 5, timestamp: 1000, vector_tags: [], dynamics_tags: [] },
+                { id: "new", emotional_weight: 5, timestamp: 2000, vector_tags: [], dynamics_tags: [] },
             ]
-            const ranked = VectorEngine.score_vectors(vectors, "he fought")
-            // Both get +2 axis match. high also gets +9 vs +3. high wins.
+
+            const ranked = VectorEngine.score_vectors(vectors, "nothing")
+            expect(ranked[0].id).toBe("new")
+        })
+
+        it("high emotional weight outscores low weight even with less matches", async () => {
+            const { DynamicsEngine } = await import("./DynamicsEngine.js")
+            vi.mocked(DynamicsEngine.scan_reflexes).mockReturnValue([])
+
+            const vectors = [
+                { id: "low", dynamics_tags: [], vector_tags: ["Iron"], text: "A", emotional_weight: 3, timestamp: 100 },
+                { id: "high", dynamics_tags: [], vector_tags: [], text: "B", emotional_weight: 10, timestamp: 100 },
+            ]
+
+            // low: 3 + 3 (Vector Bonus) = 6
+            // high: 10 + 0 = 10
+            const ranked = VectorEngine.score_vectors(vectors, "Iron")
             expect(ranked[0].id).toBe("high")
+            expect(ranked[0]._relevance).toBe(10)
         })
     })
 
     describe("formatting", () => {
-        it("labels W=10 vectors as CORE_MEMORY", () => {
-            const past = [{ text: "She died.", dynamics_tags: [], vector_tags: [], emotional_weight: 10 }]
+        it("labels Core Threshold vectors as CORE_VECTOR", () => {
+            const past = [
+                {
+                    text: "She died.",
+                    dynamics_tags: [],
+                    vector_tags: [],
+                    emotional_weight: CONFIG.DYNAMICS.WEIGHT_CORE_THRESHOLD,
+                },
+            ]
             const result = VectorEngine.format_past(past, "")
-            expect(result).toContain("[CORE_MEMORY]: She died.")
+            expect(result).toContain("[CORE_VECTOR]: She died.")
         })
 
-        it("labels W=9 vectors as MAJOR_MEMORY", () => {
-            const past = [{ text: "He betrayed me.", dynamics_tags: [], vector_tags: [], emotional_weight: 9 }]
+        it("labels Major Threshold vectors as MAJOR_VECTOR", () => {
+            const past = [
+                {
+                    text: "He betrayed me.",
+                    dynamics_tags: [],
+                    vector_tags: [],
+                    emotional_weight: CONFIG.DYNAMICS.WEIGHT_MAJOR_THRESHOLD,
+                },
+            ]
             const result = VectorEngine.format_past(past, "")
-            expect(result).toContain("[MAJOR_MEMORY]: He betrayed me.")
+            expect(result).toContain("[MAJOR_VECTOR]: He betrayed me.")
         })
 
-        it("labels W<6 vectors as ECHO", () => {
-            const past = [{ text: "Met a traveler.", dynamics_tags: [], vector_tags: [], emotional_weight: 3 }]
+        it("labels vectors below Significant Threshold as VECTOR_ECHO", () => {
+            const past = [
+                {
+                    text: "Met a traveler.",
+                    dynamics_tags: [],
+                    vector_tags: [],
+                    emotional_weight: CONFIG.DYNAMICS.WEIGHT_SIGNIFICANT_THRESHOLD - 1,
+                },
+            ]
             const result = VectorEngine.format_past(past, "")
-            expect(result).toContain("[ECHO]: Met a traveler.")
+            expect(result).toContain("[VECTOR_ECHO]: Met a traveler.")
         })
 
-        it("labels W=6 future vector as FUTURE_MEMORY", () => {
-            const future = [{ text: "Find the key.", dynamics_tags: [], vector_tags: [], emotional_weight: 6 }]
+        it("labels Significant Threshold future vector as VECTOR", () => {
+            const future = [
+                {
+                    text: "Find the key.",
+                    dynamics_tags: [],
+                    vector_tags: [],
+                    emotional_weight: CONFIG.DYNAMICS.WEIGHT_SIGNIFICANT_THRESHOLD,
+                },
+            ]
             const result = VectorEngine.format_future(future, "")
-            expect(result).toContain("[FUTURE_MEMORY]: Find the key.")
+            expect(result).toContain("[VECTOR]: Find the key.")
         })
     })
 
     describe("resolve_vector", () => {
         it("moves a future vector to past with a resolution tag", () => {
             const entity = {
-                future: { vectors: [{ id: "v1", text: "Goal", vector_tags: [] }] },
-                past: { vectors: [] },
+                future: [{ id: "v1", text: "Goal", vector_tags: [] }],
+                past: [],
             }
             VectorEngine.resolve_vector(entity, "v1", "SUCCESS")
 
-            expect(entity.future.vectors).toHaveLength(0)
-            expect(entity.past.vectors).toHaveLength(1)
-            expect(entity.past.vectors[0].text).toBe("Goal")
-            expect(entity.past.vectors[0].vector_tags).toContain("RESOLUTION:SUCCESS")
+            expect(entity.future).toHaveLength(0)
+            expect(entity.past).toHaveLength(1)
+            expect(entity.past[0].text).toBe("Goal")
+            expect(entity.past[0].vector_tags).toContain("RESOLUTION:SUCCESS")
         })
     })
 })

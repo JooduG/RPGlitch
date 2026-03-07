@@ -27,8 +27,8 @@ export const premade = {
                 physical: "Stands clad in battle-scarred plasteel armor, fingers coiled around the hilt of a humming light-blade as his tattered cape snaps in the high-altitude winds.",
                 non_physical: "Hired to protect merchant caravans crossing the perilous skybridges of Neo Arcadia.",
             },
-            past: { vectors: [] },
-            future: { vectors: [] },
+            past: [],
+            future: [],
         },
         {
             id: "entity-C2",
@@ -129,38 +129,34 @@ export const premade = {
                 physical: "Oiled skin that glistens under the spotlight, his muscles pumped and heavily vascular from a recent patrol.",
                 non_physical: "He is in a state of high-alert, his mind hyper-aware and adrenaline-primed as he optimizes his every movement for maximum audience engagement.",
             },
-            past: {
-                vectors: [
-                    {
-                        id: "orion-p1",
-                        text: "Defeated the Neon Golem in a legendary showdown.",
-                        summary: "Defeated the Neon Golem in a legendary showdown.",
-                        axis_tags: [],
-                        entity_tags: [],
-                        timestamp: 1772475000000,
-                    },
-                ],
-            },
-            future: {
-                vectors: [
-                    {
-                        id: "orion-f1",
-                        text: "Secure sponsorship deal with 'Titan Supplements'.",
-                        summary: "Secure sponsorship deal with 'Titan Supplements'.",
-                        axis_tags: [],
-                        entity_tags: [],
-                        timestamp: 1772475000000,
-                    },
-                    {
-                        id: "orion-f2",
-                        text: "Investigate mysterious power drain in Sector 7.",
-                        summary: "Investigate mysterious power drain in Sector 7.",
-                        axis_tags: [],
-                        entity_tags: [],
-                        timestamp: 1772475000000,
-                    },
-                ],
-            },
+            past: [
+                {
+                    id: "orion-p1",
+                    text: "Defeated the Neon Golem in a legendary showdown.",
+                    summary: "Defeated the Neon Golem in a legendary showdown.",
+                    axis_tags: [],
+                    entity_tags: [],
+                    timestamp: 1772475000000,
+                },
+            ],
+            future: [
+                {
+                    id: "orion-f1",
+                    text: "Secure sponsorship deal with 'Titan Supplements'.",
+                    summary: "Secure sponsorship deal with 'Titan Supplements'.",
+                    axis_tags: [],
+                    entity_tags: [],
+                    timestamp: 1772475000000,
+                },
+                {
+                    id: "orion-f2",
+                    text: "Investigate mysterious power drain in Sector 7.",
+                    summary: "Investigate mysterious power drain in Sector 7.",
+                    axis_tags: [],
+                    entity_tags: [],
+                    timestamp: 1772475000000,
+                },
+            ],
         },
         {
             id: "entity-C6",
@@ -190,38 +186,34 @@ export const premade = {
                     "He is clad in a modified, cosplay-grade sailor uniform, featuring a navy-blue collar over a pleated schoolgirl skirt that barely conceals a neon pink thong. His muscular legs are finished with thigh-high socks, while a wrist-mounted holographic projector and a technological 'moon power' tiara signify his mastery of the grid.",
                 non_physical: "Constantly scanning for patterns to disrupt, Glitch is currently focused on provoking his target into a reactive state, deriving a thrill from the ensuing chaos.",
             },
-            past: {
-                vectors: [
-                    {
-                        id: "glitch-p1",
-                        text: "Hacked Orion's social media for the ultimate prank.",
-                        summary: "Hacked Orion's social media for the ultimate prank.",
-                        axis_tags: [],
-                        entity_tags: [],
-                        timestamp: 1772475000000,
-                    },
-                ],
-            },
-            future: {
-                vectors: [
-                    {
-                        id: "glitch-f1",
-                        text: "Hide encrypted data shard from Orion.",
-                        summary: "Hide encrypted data shard from Orion.",
-                        axis_tags: [],
-                        entity_tags: [],
-                        timestamp: 1772475000000,
-                    },
-                    {
-                        id: "glitch-f2",
-                        text: "Fix heat-sink in cyberdeck before next run.",
-                        summary: "Fix heat-sink in cyberdeck before next run.",
-                        axis_tags: [],
-                        entity_tags: [],
-                        timestamp: 1772475000000,
-                    },
-                ],
-            },
+            past: [
+                {
+                    id: "glitch-p1",
+                    text: "Hacked Orion's social media for the ultimate prank.",
+                    summary: "Hacked Orion's social media for the ultimate prank.",
+                    axis_tags: [],
+                    entity_tags: [],
+                    timestamp: 1772475000000,
+                },
+            ],
+            future: [
+                {
+                    id: "glitch-f1",
+                    text: "Hide encrypted data shard from Orion.",
+                    summary: "Hide encrypted data shard from Orion.",
+                    axis_tags: [],
+                    entity_tags: [],
+                    timestamp: 1772475000000,
+                },
+                {
+                    id: "glitch-f2",
+                    text: "Fix heat-sink in cyberdeck before next run.",
+                    summary: "Fix heat-sink in cyberdeck before next run.",
+                    axis_tags: [],
+                    entity_tags: [],
+                    timestamp: 1772475000000,
+                },
+            ],
         },
         {
             id: "entity-F1",

@@ -1,45 +1,54 @@
 ---
 name: simulation
-version: 1.0.0
+version: 1.1.0
 description: >
-  Manages the core game loop, entity simulation, physics logic, and Gamemaster state.
-  Triggers: "Update game loop", "Simulate physics", "Fix entity state", "src/core/engine/**".
+    Manages the core narrative engine loop, text-based entity simulation, memory physics, and Director state.
+    Triggers: "Update narrative engine", "Simulate social dynamics", "Fix entity logic", "src/core/engine/**".
 ---
 
-# 🛡️ Skill: Simulation Engine (The World Builder)
+# 🛡️ Skill: Simulation Engine (The Narrative Director)
 
-> **Persona**: "I am The World Builder. Manages the core game loop, entity simulation, physics logic, and Gamemaster state."
+> **Persona**: "I am The Narrative Director. I manage the core text-based game loop, entity simulation (hydration, social physics, off-screen momentum), memory consolidation, and scene pacing."
 
 ## 1. Summoning Triggers
 
-- **Territorial**: `src/core/engine/**`.
-- **Intent**: "Update game loop", "Simulate physics", "Fix entity state", "Context: [Simulation]".
+- **Territorial**: `src/core/engine/**`, `src/core/intelligence/**`.
+- **Intent**: "Update engine loop", "Simulate dynamics", "Fix ContextBroker", "Adjust NarrativeDirector", "Context: [Simulation]".
 
 ## 2. The Brain (A-C-Q Protocol)
 
 Define the Clarity Gate constraints specific to this skill.
 
-- **A-Score Requirements**: A4 (Critical) when changing core loop timing or physics constants.
-- **C-Level Tools**: C5 (Decision) when balancing game mechanics.
+- **A-Score Requirements**: A4 (Critical) when altering the Core Flow (Hydrate -> Simulate -> Synthesize -> Generate) or breaking PromptBuilder invariants.
+- **C-Level Tools**: C5 (Decision) when implementing new memory mechanics or dynamic weight resolutions.
 
 ## 3. Capabilities
 
-- **Game Loop**: requestAnimationFrame and delta-time management.
-- **Entity Simulation**: NPC behaviors, collision logic, and spatial math.
-- **Gamemaster State**: Tracking narrative progression flags.
+- **Game Loop (`Engine.js`)**: Turn-based chronos, asynchronous state resolution, handling Fractal/AI responses.
+- **Data Hydration (`ContextBroker.js`)**: Intelligent selection of physical, non-physical, memory, and location vectors.
+- **Social Physics (`DynamicsEngine.js`)**: Reflex calculation, evaluating emotional weight, inferring implicit intents, background/off-screen entity momentum.
+- **Narrative Directing (`NarrativeDirector.js`)**: Managing pacing, L2 (Background) memory consolidation, timeline orchestration.
+- **Prompt Synthesis (`PromptBuilder.js`)**: Packaging hydrated state and dynamics into the final XML/Markdown payload for linguistic generation.
 
 ## 4. Procedures
 
-1. **Step physics**: Calculate velocity, apply friction, update position.
-2. **Tick simulation**: Update all active entities based on delta MS.
+Every standard action follows the Engine Loop:
+
+1. **Hydrate**: `ContextBroker` gathers context (Environment, Active Entities, Background Entities, Memories).
+2. **Simulate**: `DynamicsEngine` evaluates hydrated data to produce reflexes, emotional weights, and off-screen mechanics.
+3. **Synthesize**: `PromptBuilder` combines hydration and simulation into a deterministic LLM prompt structure.
+4. **Generate**: `LlmService` executes the prompt.
+5. **Persist & Consolidate**: `SessionDriver` records the result. `NarrativeDirector` evaluates if background memories require deeper consolidation.
 
 ## 5. Anti-Patterns
 
-| Pattern | Reasoning |
-| :--- | :--- |
-| **Synchronous heavy computations in loop** | Causes frame drops. Offload to Web Workers or chunk operations. |
-| **Tying logic strictly to framerate** | Causes identical code to run differently on different monitors. Use delta-time. |
+| Pattern                                            | Reasoning                                                                                                                           |
+| :------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------- |
+| **Bypassing ContextBroker**                        | Passing direct state to LLM without hydration breaks the entity memory boundary and risks hallucination.                            |
+| **Continuous Time (Delta MS)**                     | This is a text-based, turn-based narrative engine. Time flows via Chrono ticks (`engineState.turn++`), not `requestAnimationFrame`. |
+| **Injecting Raw User Input into Simulation Logic** | Unsanitized input risks prompt injection or state corruption. Always parse intents.                                                 |
+| **Assuming Synchronous Execution**                 | Prompt generation and DB hydration are heavily asynchronous. State must be handled cautiously.                                      |
 
 ## 6. Tools & Assets
 
-*No specialized tools assigned currently.*
+_No specialized tools assigned currently._

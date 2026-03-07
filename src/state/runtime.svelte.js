@@ -12,8 +12,8 @@ function createRuntimeStore() {
             // 🧠 Deep State (Fragments: Eternal, Present, Past, Future)
             eternal: { non_physical: "", physical: "" },
             present: { non_physical: "", physical: "" },
-            past: { vectors: [] },
-            future: { vectors: [] },
+            past: [],
+            future: [],
 
             // 🧪 Dynamics (Dev)
             dynamics: {
@@ -40,8 +40,8 @@ function createRuntimeStore() {
             // 🧠 Unified Temporal structure
             eternal: { non_physical: "", physical: "" },
             present: { non_physical: "", physical: "" },
-            past: { vectors: [] },
-            future: { vectors: [] },
+            past: [],
+            future: [],
         },
         ready: false,
         story_id: null,
@@ -96,27 +96,26 @@ function createRuntimeStore() {
         // 📜 UNIVERSAL VECTOR API (Trajectories for AI, USER, and FRACTAL)
         activeVector(role = "AI") {
             const entity = this._get_entity_by_role(role)
-            return entity?.future?.vectors?.[0]?.text || (role === "FRACTAL" ? "Continue the journey." : "")
+            return entity?.future?.[0]?.text || (role === "FRACTAL" ? "Continue the journey." : "")
         },
 
         activeEchoes(role = "AI") {
             const entity = this._get_entity_by_role(role)
-            return entity?.future?.vectors?.slice(1) || []
+            return entity?.future?.slice(1) || []
         },
 
         addVector(text, role = "AI", isVanguard = false) {
             const entity = this._get_entity_by_role(role)
             if (!entity) return
 
-            if (!entity.future) entity.future = { vectors: [] }
-            if (!Array.isArray(entity.future.vectors)) entity.future.vectors = []
+            if (!Array.isArray(entity.future)) entity.future = []
 
             const newVector = VectorEngine.create_vector(text)
 
             if (isVanguard) {
-                entity.future.vectors.unshift(newVector)
+                entity.future.unshift(newVector)
             } else {
-                entity.future.vectors.push(newVector)
+                entity.future.push(newVector)
             }
         },
 
@@ -139,8 +138,8 @@ function createRuntimeStore() {
 
         completeVector(role = "AI") {
             const entity = this._get_entity_by_role(role)
-            if (entity?.future?.vectors?.length > 0) {
-                entity.future.vectors.shift()
+            if (Array.isArray(entity?.future) && entity.future.length > 0) {
+                entity.future.shift()
             }
         },
 

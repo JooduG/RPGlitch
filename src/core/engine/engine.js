@@ -6,7 +6,7 @@ import { app } from "@state/app.svelte.js" // [R5]
 import { runtime } from "@state/runtime.svelte.js"
 import { engineState } from "@state/status.svelte.js" // [R5] Unified State
 import { NarrativeDirector } from "./NarrativeDirector.js"
-import { Session } from "./session-driver.js"
+import { Session } from "./SessionDriver.js"
 
 /**
  * The Engine provides a unified interface for the high-level simulation logic.

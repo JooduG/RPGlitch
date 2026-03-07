@@ -53,7 +53,7 @@ export const normalize = (base = {}) => {
             non_physical: sanitizeHtml(present.non_physical || present.mental || base.status || "").trim(),
         },
         past: (() => {
-            const raw = Array.isArray(past) ? past : past?.vectors || past?.memories || past?.essence || (typeof past === "string" ? past : "")
+            const raw = Array.isArray(past) ? past : typeof past === "string" ? past : ""
             const arr = Array.isArray(raw) ? raw : String(raw || "").split("\n")
             return arr
                 .map((item) => {
@@ -68,7 +68,7 @@ export const normalize = (base = {}) => {
                 .filter(Boolean)
         })(),
         future: (() => {
-            const raw = Array.isArray(future) ? future : future?.vectors || future?.essence || (typeof future === "string" ? future : "")
+            const raw = Array.isArray(future) ? future : typeof future === "string" ? future : ""
             const arr = Array.isArray(raw) ? raw : String(raw || "").split("\n")
             return arr
                 .map((item) => {

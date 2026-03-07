@@ -1,4 +1,4 @@
-import { Session } from "@core/engine/session-driver.js"
+import { Session } from "@core/engine/SessionDriver.js"
 import { runtime } from "@state/runtime.svelte.js"
 
 // 📜 SCRIBE: Simulation Log State Manager

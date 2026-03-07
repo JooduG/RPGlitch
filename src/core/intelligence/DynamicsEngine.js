@@ -26,33 +26,57 @@ import { CONFIG } from "@core/engine/config.js"
 const DYNAMICS_REFLEXES = [
     {
         id: "IMPACT",
-        trigger:
-            /kill(ed|ing)?|shoot|shot|stabb?(ed|ing)?|punch(ed|ing)?|hit|fought|fight(ing)?|attack(ed|ing)?|gunn?(ed|ing)?|weapon|blood|hurt|destroy(ed|ing)?|br(eak|oke)n?|smash(ed|ing)?|burn(t|ed|ing)?|explosion|die(d|ing)?|fast|speed|impact|crash(ed|ing)?|loud|bang|boom|slam(med|ming)?|athletics?|run(ning)?|jump(ed|ing)?/i,
+        triggers: [
+            { root: "kill", pattern: /kill(ed|ing)?|die(d|ing)?/i },
+            { root: "violence", pattern: /shoot|shot|stabb?(ed|ing)?|punch(ed|ing)?|hit|fought|fight(ing)?|attack(ed|ing)?|gunn?(ed|ing)?|weapon|blood|hurt|destroy(ed|ing)?|br(eak|oke)n?|smash(ed|ing)?/i },
+            { root: "impact", pattern: /burn(t|ed|ing)?|explosion|fast|speed|impact|crash(ed|ing)?|loud|bang|boom|slam(med|ming)?/i },
+            { root: "athletics", pattern: /athletics?|run(ning)?|jump(ed|ing)?/i },
+        ],
         effect: { intensity: CONFIG.DYNAMICS.REFLEX_IMPACT_INTENSITY },
     },
     {
         id: "BREATHER",
-        trigger: /br(eathe|eath)(d|ing)?|wait(ed|ing)?|pause(d|ing)?|stop(ped|ping)?|still|silence|quiet|calm(ed|ing)?|rest(ed|ing)?|sleep|slow(ed|ing)?/i,
+        triggers: [
+            { root: "wait", pattern: /wait(ed|ing)?|pause(d|ing)?|stop(ped|ping)?|still/i },
+            { root: "silence", pattern: /silence|quiet|calm(ed|ing)?|rest(ed|ing)?/i },
+            { root: "sleep", pattern: /sleep|slow(ed|ing)?|br(eathe|eath)(d|ing)?/i },
+        ],
         effect: { intensity: CONFIG.DYNAMICS.REFLEX_BREATHER_INTENSITY },
     },
     {
         id: "GLITCH",
-        trigger: /scream(ed|ing)?|r(un|an)(ning)?|hid(e|den|ing)?|fear(ed|ing)?|scar(ed|ing)?|dark|shadow|weird|glitch(ed|ing)?|wrong|monster|ghost|dead|rot(ted|ting)?|decay(ed|ing)?|cold|shiver(ed|ing)?|nightmare|static|noise|distortion|fracture(d|ing)?|chaos|erratic|flicker(ed|ing)?/i,
+        triggers: [
+            { root: "horror", pattern: /scream(ed|ing)?|fear(ed|ing)?|scar(ed|ing)?|dark|shadow|weird|wrong|monster|ghost|dead|rot(ted|ting)?|decay(ed|ing)?|nightmare/i },
+            { root: "glitch", pattern: /shiver(ed|ing)?|static|noise|distortion|fracture(d|ing)?|chaos|erratic|flicker(ed|ing)?|glitch(ed|ing)?|cold/i },
+            { root: "athletics", pattern: /r(un|an)(ning)?/i },
+            { root: "hide", pattern: /hid(e|den|ing)?/i },
+        ],
         effect: { chaos: CONFIG.DYNAMICS.REFLEX_GLITCH_CHAOS },
     },
     {
         id: "CALCULATION",
-        trigger: /logic(al)?|math(ematics)?|calculat(e|ed|ing)?|precise|clean(ed|ing)?|pure|order(ed|ing)?|structur(e|ed|ing)?|fact|prove(n|d)?|proof/i,
+        triggers: [
+            { root: "logic", pattern: /logic(al)?|math(ematics)?|calculat(e|ed|ing)?|precise|fact|prove(n|d)?|proof/i },
+            { root: "structure", pattern: /clean(ed|ing)?|pure|order(ed|ing)?|structur(e|ed|ing)?/i },
+        ],
         effect: { chaos: CONFIG.DYNAMICS.REFLEX_CALCULATION_CHAOS },
     },
     {
         id: "DEFENSE",
-        trigger: /armor(ed)?|shield(ed|ing)?|wall|mask(ed|ing)?|guard(ed|ing)?|protect(ed|ing)?|block(ed|ing)?|shell|barrier|hide|hid(den)?/i,
+        triggers: [
+            { root: "armor", pattern: /armor(ed)?|shield(ed|ing)?|wall|mask(ed|ing)?|guard(ed|ing)?|protect(ed|ing)?|block(ed|ing)?|shell|barrier/i },
+            { root: "hide", pattern: /hid(e|den|ing)?/i },
+        ],
         effect: { openness: CONFIG.DYNAMICS.REFLEX_DEFENSE_OPENNESS },
     },
     {
         id: "EXPOSURE",
-        trigger: /kiss(ed|ing)?|lov(e|ed|ing)?|h(e|o)ld(ing)?|hugg?(ed|ing)?|touch(ed|ing)?|gentle|soft|warm|caress(ed|ing)?|cheek|hand|finger|whisper(ed|ing)?|close|safe|trust(ed|ing)?|heart|blush(ed|ing)?|honesty?|truth|tear|cry(ing)?|sad|lonely|ache|naked|bare|skin/i,
+        triggers: [
+            { root: "affection", pattern: /kiss(ed|ing|es)?|lov(e|ed|ing|es)?|h(e|o)ld(ing|s)?|hugg?(ed|ing)?|touch(ed|ing)?|caress(ed|ing)?|blush(ed|ing)?|cheek|skin|naked|bare/i },
+            { root: "warmth", pattern: /gentle|soft|warm|safe|trust(ed|ing)?/i },
+            { root: "sorrow", pattern: /tear|cry(ing)?|sad|lonely|ache/i },
+            { root: "vulnerability", pattern: /hand|finger|whisper(ed|ing)?|close|heart|honesty?|truth/i },
+        ],
         effect: {
             openness: CONFIG.DYNAMICS.REFLEX_EXPOSURE_OPENNESS,
             affinity: CONFIG.DYNAMICS.REFLEX_EXPOSURE_AFFINITY,
@@ -60,17 +84,22 @@ const DYNAMICS_REFLEXES = [
     },
     {
         id: "EMPATHY",
-        trigger: /underst(ood|and)(ing)?|connect(ed|ing)?|sync(hroniz)?(ed|ing)?|resonance|empathy|harmony|together|shared|mind|soul|link(ed|ing)?|bond(ed|ing)?|mirror(ed|ing)?|echo(ed|ing)?|melody|music|rhythm|vibe|frequency|pulse|vow(ed|ing)?|promise(d|ing)?|swear|swore|pact/i,
+        triggers: [
+            { root: "connect", pattern: /underst(ood|and)(ing)?|connect(ed|ing)?|sync(hroniz)?(ed|ing)?|resonance|harmony|empathy|together|shared|mirror(ed|ing)?|echo(ed|ing)?|link(ed|ing)?|bond(ed|ing)?/i },
+            { root: "mind", pattern: /mind|soul/i },
+            { root: "music", pattern: /melody|music|rhythm|vibe|frequency|pulse/i },
+            { root: "vow", pattern: /vow(ed|ing)?|promise(d|ing)?|swear|swore|pact/i },
+        ],
         effect: { affinity: CONFIG.DYNAMICS.REFLEX_EMPATHY_AFFINITY },
     },
     {
         id: "EXAMINATION",
-        trigger: /data|clinical|observ(e|ed|ing)?|watch(ed|ing)?|analy[sz](e|ed|ing)?|study(ing)?|scan(ned|ning)?|test(ed|ing)?|monitor(ed|ing)?|variable/i,
+        triggers: [{ root: "data", pattern: /data|observ(e|ed|ing)?|watch(ed|ing)?|analy[sz](e|ed|ing)?|study(ing)?|scan(ned|ning)?|test(ed|ing)?|monitor(ed|ing)?|variable|clinical/i }],
         effect: { affinity: CONFIG.DYNAMICS.REFLEX_EXAMINATION_AFFINITY },
     },
     {
         id: "BETRAYAL",
-        trigger: /betray(ed|al|ing)?|deceiv(ed|ing)?|lied?|backstab(bed|bing)?|doublecross(ed|ing)?|traitor/i,
+        triggers: [{ root: "betrayal", pattern: /betray(ed|al|ing)?|deceiv(ed|ing)?|lied?|backstab(bed|bing)?|doublecross(ed|ing)?|traitor/i }],
         effect: {
             chaos: CONFIG.DYNAMICS.REFLEX_BETRAYAL_CHAOS,
             openness: CONFIG.DYNAMICS.REFLEX_BETRAYAL_OPENNESS,
@@ -78,7 +107,7 @@ const DYNAMICS_REFLEXES = [
     },
     {
         id: "REVELATION",
-        trigger: /confess(ed|ion|ing)?|reveal(ed|ing)?|disclos(ed|ing)?|secret.*out|discover(ed|ing)?|sacrific(e|ed|ing)?/i,
+        triggers: [{ root: "reveal", pattern: /confess(ed|ion|ing)?|reveal(ed|ing)?|disclos(ed|ing)?|secret.*out|discover(ed|ing)?|sacrific(e|ed|ing)?/i }],
         effect: {
             chaos: CONFIG.DYNAMICS.REFLEX_REVELATION_CHAOS,
             openness: CONFIG.DYNAMICS.REFLEX_REVELATION_OPENNESS,
@@ -151,7 +180,21 @@ export class DynamicsEngine {
      */
     static scan_reflexes(text) {
         if (!text) return []
-        return DYNAMICS_REFLEXES.filter((r) => r.trigger.test(text))
+        const triggered = []
+
+        for (const reflex of DYNAMICS_REFLEXES) {
+            for (const t of reflex.triggers) {
+                const match = text.match(t.pattern)
+                if (match) {
+                    triggered.push({
+                        id: reflex.id,
+                        effect: reflex.effect,
+                        trigger_word: t.root, // The normalized root word
+                    })
+                }
+            }
+        }
+        return triggered
     }
 
     /**
@@ -169,10 +212,15 @@ export class DynamicsEngine {
 
         // Apply Reflexes
         const triggered = DynamicsEngine.scan_reflexes(input)
+        const applied_ids = new Set()
+
         triggered.forEach((reflex) => {
+            if (applied_ids.has(reflex.id)) return
+
             Object.keys(reflex.effect).forEach((axis) => {
                 state.dynamics[axis] += reflex.effect[axis]
             })
+            applied_ids.add(reflex.id)
         })
 
         DynamicsEngine._apply_gravity(state.dynamics, d_phys, baselines)
@@ -394,14 +442,14 @@ export class DynamicsEngine {
      * @returns {number} Emotional Weight 1-10.
      */
     static evaluate_weight(reflexes) {
-        if (!Array.isArray(reflexes) || reflexes.length === 0) return 3
+        if (!Array.isArray(reflexes) || reflexes.length === 0) return CONFIG.DYNAMICS.WEIGHT_BASELINE
 
         const ids = reflexes.map((r) => r.id)
 
         // Composite: physical violence + existential dread = Core trauma
-        if (ids.includes("GLITCH") && ids.includes("IMPACT")) return 10
+        if (ids.includes("GLITCH") && ids.includes("IMPACT")) return CONFIG.DYNAMICS.WEIGHT_CORE_THRESHOLD
 
-        const weights = ids.map((id) => CONFIG.DYNAMICS.REFLEX_WEIGHT_MAP[id] ?? 3)
-        return Math.max(3, ...weights)
+        const weights = ids.map((id) => CONFIG.DYNAMICS.REFLEX_WEIGHT_MAP[id] ?? CONFIG.DYNAMICS.WEIGHT_BASELINE)
+        return Math.max(CONFIG.DYNAMICS.WEIGHT_BASELINE, ...weights)
     }
 }

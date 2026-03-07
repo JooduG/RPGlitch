@@ -101,6 +101,17 @@ export const CONFIG = {
             CALCULATION: 3, // Logic — Baseline
         },
 
+        // RELEVANCE SCORING
+        RELEVANCE_DYNAMICS_BONUS: 1,
+        RELEVANCE_TRIGGER_BONUS: 2,
+        RELEVANCE_VECTOR_BONUS: 3,
+
+        // EMOTIONAL WEIGHT BOUNDARIES
+        WEIGHT_CORE_THRESHOLD: 10,
+        WEIGHT_MAJOR_THRESHOLD: 8,
+        WEIGHT_SIGNIFICANT_THRESHOLD: 6,
+        WEIGHT_BASELINE: 3,
+
         // LLM VISUAL
         VISUAL_TEMP_DEFAULT: 0.45,
     },

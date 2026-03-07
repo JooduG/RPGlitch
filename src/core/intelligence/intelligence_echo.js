@@ -28,17 +28,17 @@ import { DynamicsEngine } from "./DynamicsEngine.js"
 import { PromptBuilder } from "./PromptBuilder.js"
 
 /**
- * Condenses a slice of recent history into a structured Resonance record.
+ * Condenses a slice of recent history into a structured Resonance record (Vector).
  *
- * Called at memory consolidation checkpoints (e.g. every N turns) to keep
+ * Called at vector consolidation checkpoints (e.g. every N turns) to keep
  * the entity's long-term profile up to date without bloating the context window.
  *
- * @param {Object}   target_entity - The entity whose memory is being updated.
+ * @param {Object}   target_entity - The entity whose vector is being updated.
  * @param {Array}    history_slice - The raw message objects to condense.
  * @param {string}   [role]        - Context role: "character" | "user" | "fractal".
  * @returns {Promise<{summary: string, vector_tags: string[], dynamics_tags: string[], timestamp: number}|null>}
  */
-export async function memorize(target_entity, history_slice, role = "character") {
+export async function consolidate_vector(target_entity, history_slice, role = "character") {
     if (!target_entity) return null
 
     try {

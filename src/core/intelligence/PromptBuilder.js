@@ -265,22 +265,22 @@ export class PromptBuilder {
      * @returns {Object} Nested functional API.
      */
     static create_render_atom(entities, input, raw_messages = []) {
-        const resolve = (e) => (typeof e === "string" ? entities[e] || entities.AI : e)
+        const resolve = (entity_reference) => (typeof entity_reference === "string" ? entities[entity_reference] || entities.AI : entity_reference)
 
         const recent_history = raw_messages
             .slice(-3)
-            .map((m) => m.content)
+            .map((message) => message.content)
             .join(" ")
         const scoring_context = `${input || ""} ${recent_history}`.trim()
 
         return {
-            past: (e, limit = 3, offset = 0) => {
-                const ent = resolve(e)
-                return VectorEngine.format_past(ent.past?.vectors || [], scoring_context, limit, offset)
+            past: (entity_reference, limit = 3, offset = 0) => {
+                const entity = resolve(entity_reference)
+                return VectorEngine.format_past(entity.past || [], scoring_context, limit, offset)
             },
-            future: (e, limit = 3, offset = 0) => {
-                const ent = resolve(e)
-                return VectorEngine.format_future(ent.future?.vectors || [], scoring_context, limit, offset)
+            future: (entity_reference, limit = 3, offset = 0) => {
+                const entity = resolve(entity_reference)
+                return VectorEngine.format_future(entity.future || [], scoring_context, limit, offset)
             },
             simulation_log: (limit = 10, offset = 0) => {
                 return PromptBuilder.render_history(raw_messages, limit, offset)
