@@ -46,33 +46,36 @@ const PROTOCOL_LIBRARY = {
  ************************************************************************************/
 
 export const SYSTEM_PROMPTS = {
-    simulation: ({ turn, entities, simulation_log, behaviors, protocols, input, render_atom }) => {
+    simulation: ({ turn, entities, simulation_log, behaviors, offscreen, input, render_atom }) => {
         const ai = entities.AI
         const user = entities.USER
         const fractal = entities.FRACTAL
+
+        const { intruders = [] } = offscreen || {}
+        const protocols = intruders.length > 0 ? "SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL, SCENE_PACING" : "SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL"
 
         return `
 <SYSTEM role="${ai.name}" turn="${turn}" objective="${render_atom.future(ai, 1).trim()}">
 
 <YOUR_IDENTITY name="${ai.name}">
-<ETERNAL>${ai.properties.eternal.non_physical}</ETERNAL>
 <PRESENT>${ai.properties.present.non_physical}</PRESENT>
-<PAST>${render_atom.past(ai, 5)}</PAST>
-<FUTURE>${render_atom.future(ai, 5, 1)}</FUTURE>
+<ETERNAL>${ai.properties.eternal.non_physical}</ETERNAL>
+<FUTURE_VECTORS>${render_atom.future(ai, 5, 1)}</FUTURE_VECTORS>
+<PAST_MEMORIES>${render_atom.past(ai, 5)}</PAST_MEMORIES>
 </YOUR_IDENTITY>
 
 <USER_PERSONA name="${user.name}">
-<ETERNAL>${user.properties.eternal.non_physical}</ETERNAL>
 <PRESENT>${user.properties.present.non_physical}</PRESENT>
-<PAST memory="${render_atom.past(user, 1).trim()}"/>
+<ETERNAL>${user.properties.eternal.non_physical}</ETERNAL>
 <FUTURE vector="${render_atom.future(user, 1).trim()}"/>
+<PAST memory="${render_atom.past(user, 1).trim()}"/>
 </USER_PERSONA>
 
 <FRACTAL name="${fractal.name}">
-<ETERNAL>${fractal.properties.eternal.non_physical}</ETERNAL>
 <PRESENT>${fractal.properties.present.non_physical}</PRESENT>
-<PAST memory="${render_atom.past(fractal, 1).trim()}"/>
+<ETERNAL>${fractal.properties.eternal.non_physical}</ETERNAL>
 <FUTURE vector="${render_atom.future(fractal, 1).trim()}"/>
+<PAST memory="${render_atom.past(fractal, 1).trim()}"/>
 </FRACTAL>
 
 <SIMULATION_LOG>
@@ -105,43 +108,50 @@ ${input?.trim() || "No direct command given. Follow simulation physics."}
     enhancement: ({ label, directive, enhancer, content }) =>
         `
 <SYSTEM role="${enhancer}" enhancing="${label}">
-<PROTOCOLS>
-${PromptBuilder.render_protocols("HYGIENE, AFFIRMATIVE, IMMERSION")}
-</PROTOCOLS>
 <INSTRUCTIONS>
 ${directive}
 </INSTRUCTIONS>
+<PROTOCOLS>
+${PromptBuilder.render_protocols("HYGIENE, AFFIRMATIVE, IMMERSION")}
+</PROTOCOLS>
 <INPUT_CONTENT>
 ${content}
 </INPUT_CONTENT>
 </SYSTEM>`.trim(),
 
-    prologue: ({ turn, entities, protocols, input, render_atom }) => {
+    prologue: ({ turn, entities, input, render_atom }) => {
         const ai = entities.AI
         const user = entities.USER
         const fractal = entities.FRACTAL
+        const protocols = "SINO_LOGIC, COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, EPISTEMIC_WALL, PLACEMENT, IMMERSION, MOMENTUM"
 
         return `
-<SYSTEM role="${fractal.name}" mode="PROLOGUE">
+<SYSTEM role="${fractal.name}" turn="${turn}" mode="PROLOGUE">
 
-<STATE turn="${turn}">
+<STATE>
 ${entities.BACKGROUND_INTENSITY || ""}
 </STATE>
 
 <YOUR_IDENTITY name="${fractal.name}">
 <ETERNAL>${fractal.properties.eternal.non_physical}</ETERNAL>
 <PRESENT>${fractal.properties.present.non_physical}</PRESENT>
+<FUTURE_VECTORS>${render_atom.future(fractal, 5)}</FUTURE_VECTORS>
+<PAST_MEMORIES>${render_atom.past(fractal, 5)}</PAST_MEMORIES>
 </YOUR_IDENTITY>
 
 <ACTIVE_CHARACTERS>
 <AI_CHARACTER name="${ai.name}">
 <ETERNAL>${ai.properties.eternal.non_physical}</ETERNAL>
 <PRESENT>${ai.properties.present.non_physical}</PRESENT>
+<FUTURE_VECTORS>${render_atom.future(ai, 5)}</FUTURE_VECTORS>
+<PAST_MEMORIES>${render_atom.past(ai, 5)}</PAST_MEMORIES>
 </AI_CHARACTER>
 
 <USER_PERSONA name="${user.name}">
-<ETERNAL>${user.properties.eternal.physical}</ETERNAL>
-<PRESENT>${user.properties.present.physical}</PRESENT>
+<ETERNAL>${user.properties.eternal.non_physical}</ETERNAL>
+<PRESENT>${user.properties.present.non_physical}</PRESENT>
+<FUTURE_VECTORS>${render_atom.future(user, 5)}</FUTURE_VECTORS>
+<PAST_MEMORIES>${render_atom.past(user, 5)}</PAST_MEMORIES>
 </USER_PERSONA>
 </ACTIVE_CHARACTERS>
 
@@ -151,10 +161,8 @@ ${PromptBuilder.render_protocols(protocols)}
 
 <TASK_INSTRUCTION>
 You see everything. Open the scene.
-Use your <think> block to assess the environmental resonance and character alignment before speaking.
 
-Ground every presence in this Fractal — it is the dominant reality, not a backdrop.
-${ai.name} and ${user.name} arrived here through their Pasts.
+Use your <think> block to assess the environmental resonance and character alignment before speaking. Ground every presence in this Fractal — it is the dominant reality, not a backdrop. ${ai.name} and ${user.name} arrived here through their Pasts.
 The Fractal speaks first. Begin with sensation. No dialogue.
 
 CRITICAL: When your <think> block ends, your narrative output MUST be written in English.
@@ -218,7 +226,6 @@ export class PromptBuilder {
             const system = SYSTEM_PROMPTS.prologue({
                 ...payload,
                 render_atom,
-                protocols: "SINO_LOGIC, COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, EPISTEMIC_WALL, PLACEMENT, IMMERSION, MOMENTUM",
             })
             return {
                 system: PromptBuilder.clean(system),
@@ -235,12 +242,9 @@ export class PromptBuilder {
             payload.entities.BACKGROUND_INTENSITY = `\n${intensity_lines}\n`
         }
 
-        const protocols = intruders.length > 0 ? "SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL, SCENE_PACING" : "SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL"
-
         const system = SYSTEM_PROMPTS.simulation({
             ...payload,
             ...snapshot,
-            protocols,
             render_atom,
         })
 
