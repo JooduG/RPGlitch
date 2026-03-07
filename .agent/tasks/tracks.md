@@ -34,6 +34,12 @@
 
 ## ✅ Archive
 
+### ✅ Track: Terminology & Convention Alignment
+
+- **Status:** Complete
+- **Checkpoint:** `c7cdacfb`
+- **Note:** Aligned engine nomenclature. Reverted AI-facing terminology from 'Vector' to 'Memory'. Standardized `text_parser.js` to Process Realm (`snake_case`) and `SessionDriver` to Blueprint Realm (`PascalCase`). Expanded `entity_ref` to `entity_reference`. Refined `simulation` SKILL.md.
+
 ### ✅ Track: Intelligence Reconstruction v2
 
 - Path: [.agent/archive/intelligence-reconstruction-v2/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/archive/intelligence-reconstruction-v2/)

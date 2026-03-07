@@ -82,11 +82,11 @@
 
     let text_color = $derived(themeStore.getContrastColor(signature_color))
 
-    import { parseMessage } from "@core/engine/text_parser.js"
+    import { parse_message } from "@core/engine/text_parser.js"
 
     // --- PARSING (Refactored to Core) ---
     // Text parsing is now handled by the Engine layer, ensuring UI remains "dumb".
-    let parsed = $derived(parseMessage(text))
+    let parsed = $derived(parse_message(text))
 
     let display_text = $derived(parsed.displayText)
     let think_block = $derived(parsed.think)
