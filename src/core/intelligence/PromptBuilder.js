@@ -52,7 +52,7 @@ export const SYSTEM_PROMPTS = {
         const fractal = entities.FRACTAL
 
         const { intruders = [] } = offscreen || {}
-        const protocols = intruders.length > 0 ? "SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL, SCENE_PACING" : "SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL"
+        const intruders_present = intruders.length > 0
 
         return `
 <SYSTEM role="${ai.name}" turn="${turn}" objective="${render_atom.future(ai, 1).trim()}">
@@ -67,15 +67,15 @@ export const SYSTEM_PROMPTS = {
 <USER_PERSONA name="${user.name}">
 <PRESENT>${user.properties.present.non_physical}</PRESENT>
 <ETERNAL>${user.properties.eternal.non_physical}</ETERNAL>
-<FUTURE vector="${render_atom.future(user, 1).trim()}"/>
-<PAST memory="${render_atom.past(user, 1).trim()}"/>
+<FUTURE vector="${render_atom.future(user, 1).trim()}" />
+<PAST memory="${render_atom.past(user, 1).trim()}" />
 </USER_PERSONA>
 
 <FRACTAL name="${fractal.name}">
 <PRESENT>${fractal.properties.present.non_physical}</PRESENT>
 <ETERNAL>${fractal.properties.eternal.non_physical}</ETERNAL>
-<FUTURE vector="${render_atom.future(fractal, 1).trim()}"/>
-<PAST memory="${render_atom.past(fractal, 1).trim()}"/>
+<FUTURE vector="${render_atom.future(fractal, 1).trim()}" />
+<PAST memory="${render_atom.past(fractal, 1).trim()}" />
 </FRACTAL>
 
 <SIMULATION_LOG>
@@ -91,7 +91,7 @@ ${entities.BACKGROUND_INTENSITY || "No entities detected."}
 </BACKGROUND_INTENSITY>
 
 <PROTOCOLS>
-${PromptBuilder.render_protocols(protocols)}
+${PromptBuilder.render_protocols(intruders_present ? "SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL, SCENE_PACING" : "SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL")}
 </PROTOCOLS>
 
 <TASK_INSTRUCTION>
@@ -123,7 +123,6 @@ ${content}
         const ai = entities.AI
         const user = entities.USER
         const fractal = entities.FRACTAL
-        const protocols = "SINO_LOGIC, COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, EPISTEMIC_WALL, PLACEMENT, IMMERSION, MOMENTUM"
 
         return `
 <SYSTEM role="${fractal.name}" turn="${turn}" mode="PROLOGUE">
@@ -156,7 +155,7 @@ ${entities.BACKGROUND_INTENSITY || ""}
 </ACTIVE_CHARACTERS>
 
 <PROTOCOLS>
-${PromptBuilder.render_protocols(protocols)}
+${PromptBuilder.render_protocols("SINO_LOGIC, COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, EPISTEMIC_WALL, PLACEMENT, IMMERSION, MOMENTUM")}
 </PROTOCOLS>
 
 <TASK_INSTRUCTION>
