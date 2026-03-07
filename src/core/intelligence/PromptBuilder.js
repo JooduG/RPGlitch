@@ -96,7 +96,9 @@ The stage is set and the pieces are on the board. Proceed with the simulation im
 CRITICAL: When your <think> block ends, your narrative output MUST be written exclusively in ENGLISH.
 </TASK_INSTRUCTION>
 
-${input?.trim() ? `\n<INPUT_COMMAND>\n${input.trim()}\n</INPUT_COMMAND>` : ""}
+<INPUT_COMMAND>
+${input?.trim() || "No direct command given. Follow simulation physics."}
+</INPUT_COMMAND>
 </SYSTEM>`.trim()
     },
 
@@ -158,7 +160,9 @@ The Fractal speaks first. Begin with sensation. No dialogue.
 CRITICAL: When your <think> block ends, your narrative output MUST be written in English.
 </TASK_INSTRUCTION>
 
-${input?.trim() ? `\n<INPUT_COMMAND>\n${input.trim()}\n</INPUT_COMMAND>` : ""}
+<INPUT_COMMAND>
+${input?.trim() || "No direct command given. Follow simulation physics."}
+</INPUT_COMMAND>
 </SYSTEM>`.trim()
     },
 
