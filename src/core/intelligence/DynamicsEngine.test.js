@@ -25,18 +25,18 @@ describe("Dynamics Engine v2 (Refactored)", () => {
             const start_dynamics = { intensity: 70, chaos: 50, openness: 50, affinity: 50 }
             const state = DynamicsEngine.resolve_dynamics("I run towards the exit", baselines, start_dynamics)
 
-            // 70 + 10 (IMPACT reflex) = 80
+            // 70 + 10 (KINETICS reflex) = 80
             // Dynamics Gravity diff = 50 - 80 = -30 => pull = -30 * 0.25 = -7.5
             // 80 - 7.5 = 72.5 => Math.round(72.5) = 73
             expect(state.dynamics.intensity).toBe(73)
             expect(state.behaviors.some((i) => i.includes("Pacing fast"))).toBe(true)
         })
 
-        it("should trigger IMPACT reflex on combat input", () => {
+        it("should trigger KINETICS reflex on combat input", () => {
             const baselines = { intensity: 50, chaos: 50, openness: 50, affinity: 50 }
             const state = DynamicsEngine.resolve_dynamics("I punch him in the face", baselines)
 
-            // 50 + 10 (IMPACT) = 60
+            // 50 + 10 (KINETICS) = 60
             // Dynamics Gravity diff = 50 - 60 = -10 => pull = -10 * 0.25 = -2.5
             // 60 - 2.5 = 57.5 => Round to 58
             expect(state.dynamics.intensity).toBe(58)
@@ -150,44 +150,44 @@ describe("Dynamics Engine v2 (Refactored)", () => {
             const reflexes = DynamicsEngine.scan_reflexes("She was kissing him.")
             const reflex = reflexes.find((r) => r.trigger_word === "affection")
             expect(reflex).toBeDefined()
-            expect(reflex.id).toBe("EXPOSURE")
+            expect(reflex.id).toBe("VULNERABILITY")
         })
 
         it("resolves 'fought' to root 'violence'", () => {
             const reflexes = DynamicsEngine.scan_reflexes("They fought bravely.")
             const reflex = reflexes.find((r) => r.trigger_word === "violence")
             expect(reflex).toBeDefined()
-            expect(reflex.id).toBe("IMPACT")
+            expect(reflex.id).toBe("KINETICS")
         })
 
         it("resolves 'screamed' to root 'horror'", () => {
             const reflexes = DynamicsEngine.scan_reflexes("She screamed in terror.")
             const reflex = reflexes.find((r) => r.trigger_word === "horror")
             expect(reflex).toBeDefined()
-            expect(reflex.id).toBe("GLITCH")
+            expect(reflex.id).toBe("ANOMALY")
         })
 
         it("resolves 'ran' to root 'athletics'", () => {
             const reflexes = DynamicsEngine.scan_reflexes("He ran away.")
             const reflexes_found = reflexes.filter((r) => r.trigger_word === "athletics")
             expect(reflexes_found.length).toBe(1)
-            expect(reflexes_found[0].id).toBe("GLITCH")
+            expect(reflexes_found[0].id).toBe("KINETICS")
         })
 
         it("resolves 'barrier' to root 'armor'", () => {
             const reflexes = DynamicsEngine.scan_reflexes("A shimmering barrier appeared.")
             const reflex = reflexes.find((r) => r.trigger_word === "armor")
             expect(reflex).toBeDefined()
-            expect(reflex.id).toBe("DEFENSE")
+            expect(reflex.id).toBe("FORTIFICATION")
         })
 
-        it("resolves 'hidden' to root 'hide' in BOTH DEFENSE and GLITCH", () => {
+        it("resolves 'hidden' to root 'hide' in BOTH FORTIFICATION and ANOMALY", () => {
             const reflexes = DynamicsEngine.scan_reflexes("She kept her feelings hidden.")
             const hide_reflexes = reflexes.filter((r) => r.trigger_word === "hide")
             expect(hide_reflexes.length).toBe(2)
             const ids = hide_reflexes.map((r) => r.id)
-            expect(ids).toContain("DEFENSE")
-            expect(ids).toContain("GLITCH")
+            expect(ids).toContain("FORTIFICATION")
+            expect(ids).toContain("ANOMALY")
         })
     })
 })

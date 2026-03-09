@@ -32,6 +32,12 @@
 - **Checkpoint:** `491e55b8`
 - **Note:** Systemic rename of character dynamics: entropy -> chaos, velocity -> intensity, permeability -> openness, resonance -> affinity. Updated state, engine logic, template tags, and UI labels. Resolved build regression in `ContextBroker.js`. pass final `npm run deploy`.
 
+### ✅ Track: Messenger Removal & Dynamics Stabilization
+
+- **Status:** Complete
+- **Checkpoint:** `checkpoint-mess-dyn`
+- **Note:** Purged Messenger fractal (entity-F4) and smartphone/TEXT_PROTOCOL logic. Refactored entity data to `visuals` schema. Realigned DynamicsEngine reflex mapping and hardened semantic triggers. All tests (87/87) pass.
+
 ## ✅ Archive
 
 ### ✅ Track: Terminology & Convention Alignment

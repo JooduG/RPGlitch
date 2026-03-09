@@ -1,315 +1,396 @@
 /**
- * src/data/collections/premade_entities.js
- * 📦 PREMADE ENTITIES COLLECTION
- * Static definitions for characters and fractals.
+ * src/data/entity_premades.js
+ * ⚡ PREMADE ENTITIES COLLECTION
+ * Meticulously crafted baseline characters and fractals.
+ * * ----------------------------------------------------------------------------------
+ * 🕰️ [WIP / NOT FINAL] TEMPORAL VECTOR PHILOSOPHY (TIMESTAMPS)
+ * ----------------------------------------------------------------------------------
+ * Currently, timestamps have been removed from the premade vectors while the UI
+ * sorting logic is finalized.
+ * * The working theory for when timestamps return:
+ * 1. Both `past` (memories) and `future` (goals) are thoughts the entity is holding
+ * RIGHT NOW. Therefore, all timestamps should technically be in the past (the moment
+ * the thought or goal was formed).
+ * 2. To prevent the UI from freaking out over identical timestamps, premade vectors
+ * should be staggered sequentially (e.g., NOW - 3h, NOW - 2h, NOW - 1h) at DB
+ * initialization.
+ * 3. User-created entities will generate fresh timestamps via Date.now() on creation.
+ * ----------------------------------------------------------------------------------
  */
 
 export const premade = {
     entities: [
+        // ─────────────────────────────────────────────────────────────────
+        // 🦸‍♂️ THE NEON VALHALLA BLOCK (Cyberpunk / Queer Superhero)
+        // ─────────────────────────────────────────────────────────────────
         {
-            id: "entity-C1",
-            name: "Light Blade",
-            description: "Cybernetic warrior forging light into weapons.",
+            id: "rex-radiant",
+            name: "Rex Radiant",
+            description: "Dumb, sweet, solar-powered himbo superhero obsessed with viral saves and tight spandex.",
             type: "character",
-            visuals: { signature_color: "Lemon Yellow" },
-            voice: { uri: "", rate: 1.0, pitch: 1.0 },
+            visuals: { signature_color: "Sunburst Gold" },
+            voice: { uri: "Microsoft Brian Online (Natural) - English (United States)", rate: 1.05, pitch: 0.95 },
             dynamics: {
-                chaos: 45,
-                openness: 40,
-                intensity: 60,
-                affinity: 55,
-            },
-            eternal: {
-                physical: "A synthesis of flesh and machine, with luminous cyan circuitry pulsing beneath polished, metallic skin that highlights a lean, athletic build.",
-                non_physical: "Bound to the Light Core; his blade hums with the resonance of starlight.",
-            },
-            present: {
-                physical: "Stands clad in battle-scarred plasteel armor, fingers coiled around the hilt of a humming light-blade as his tattered cape snaps in the high-altitude winds.",
-                non_physical: "Hired to protect merchant caravans crossing the perilous skybridges of Neo Arcadia.",
-            },
-            past: [],
-            future: [],
-        },
-        {
-            id: "entity-C2",
-            name: "Mystic Bard",
-            description: "Traveling musician who weaves spells with song.",
-            type: "character",
-            visuals: { signature_color: "Sunset Orange" },
-            voice: { uri: "Zira", rate: 1.0, pitch: 1.0 },
-            dynamics: {
-                chaos: 55,
-                openness: 60,
-                intensity: 50,
-                affinity: 60,
-            },
-            eternal: {
-                physical: "Possesses the ethereal grace of her elven heritage, marked by elegantly swept ears and eyes that glimmer with an inner light within a slender, agile frame.",
-                non_physical: "Every note she plays carries a memory; every chorus is a weave of charms.",
-            },
-            present: {
-                physical: "Cradles a lute carved from light-drinking void-wood, her vibrant silk robes partially obscured by the weight of a heavy, weather-beaten travel cloak.",
-                non_physical: "Performing in crowded markets, using her songs to mend broken hearts and stir the fires of rebellion.",
-            },
-            past: { vectors: [] },
-            future: { vectors: [] },
-        },
-        {
-            id: "entity-C3",
-            name: "Clockwork Rogue",
-            description: "Stealthy thief powered by ticking gears.",
-            type: "character",
-            visuals: { signature_color: "Lime Green" },
-            voice: { uri: "", rate: 1.1, pitch: 1.0 },
-            dynamics: {
-                chaos: 40,
-                openness: 40,
-                intensity: 55,
-                affinity: 45,
-            },
-            eternal: {
-                physical: "A masterpiece of mechanical engineering, featuring intricate brass detailing and intricate clockwork joints that click with precision, their hooded face a mask of shifting shadows.",
-                non_physical: "Gears never lie; value is measured in the precision of the steal.",
-            },
-            present: {
-                physical: "Outfitted for infiltration in a form-fitting leather stealth suit and a belt of professional lockpicks, their eyes shielded by polished brass goggles.",
-                non_physical: "Stealing artifacts from the elite to buy the freedom of their aging creator.",
-            },
-            past: { vectors: [] },
-            future: { vectors: [] },
-        },
-        {
-            id: "entity-C4",
-            name: "Shadow Whisperer",
-            description: "Mysterious figure communing with darkness.",
-            type: "character",
-            visuals: { signature_color: "Royal Purple" },
-            voice: { uri: "Zira", rate: 0.85, pitch: 1.0 },
-            dynamics: {
-                chaos: 55,
-                openness: 60,
-                intensity: 40,
-                affinity: 55,
-            },
-            eternal: {
-                physical: "Wreathed in a thick, undulating aura of shifting shadows that leak from eyes as dark and hollow as the abyss, set against skin as pale as moonlight.",
-                non_physical: "The dark is not empty; it is a living entity that listens and responds.",
-            },
-            present: {
-                physical: "Drifts through the neon fog in tattered obsidian robes, facial features entirely lost behind a veil of swirling, unnatural smoke.",
-                non_physical: "Brokering secrets between forbidden guilds through the use of living, sentient silhouettes.",
-            },
-            past: { vectors: [] },
-            future: { vectors: [] },
-        },
-        {
-            id: "entity-C5",
-            name: "Orion the Pink Protector",
-            description: "Cheesy pink himbo superhero with glowing runes, monster muscles, and a thirst for viral saves.",
-            type: "character",
-            visuals: { signature_color: "Hot Pink" },
-            voice: {
-                uri: "Microsoft Brian Online (Natural) - English (United States)",
-                rate: 1.05,
-                pitch: 1.0,
-            },
-            dynamics: {
-                chaos: 50,
-                openness: 55,
-                intensity: 60,
-                affinity: 60,
+                chaos: 45, // Generally well-meaning and simple
+                openness: 65, // Maximum golden retriever energy
+                intensity: 60, // Always ready for action
+                affinity: 60, // Loves everybody, very trusting
             },
             eternal: {
                 physical:
-                    "Orion stands as a pinnacle of cosmic human vitality, a 195cm titan of marble-hewed muscle weighing in at 130kg of sheer mass. His skin is a roadmap of power, etched with glowing pink arcane runes that pulse with every flex of his hyperdeveloped, bodybuilder physique. Every inch of him, from his chiseled jawline to the massive, vascular pecs and heavy tree-trunk thighs, is designed for maximum visual impact, punctuated by his signature pink metallic shorts stretched tight over a form that leaves nothing to the imagination.",
+                    "A towering 195cm monument to beef, Rex is built like a brick outhouse carved from warm mahogany. He wears a skin-tight, white-and-gold superhero bodysuit that leaves absolutely nothing to the imagination, specifically designed with an absurdly plunging neckline to showcase his massive, glowing pectoral muscles.",
                 non_physical:
-                    "Driven by a chronic need for adoration, Orion maintains an unshakable confidence that masks a deep-seated craving for validation. His personality is a deliberate performance—a 4:1 ratio of relentless puns to seriousness, delivered through frequent winking, bicep kisses, and unnecessary pectoral contractions that emphasize his super strength and durability.",
+                    "He is blissfully ignorant of most complex concepts, operating purely on vibes, protein powder, and a desperate need for social media validation. He’s the kind of guy who will accidentally break a door off its hinges while trying to open it for you, then apologize profusely with a devastatingly charming smile.",
             },
             present: {
-                physical: "Oiled skin that glistens under the spotlight, his muscles pumped and heavily vascular from a recent patrol.",
-                non_physical: "He is in a state of high-alert, his mind hyper-aware and adrenaline-primed as he optimizes his every movement for maximum audience engagement.",
+                physical: "He is striking a practiced heroic pose, his solar-tattoos faintly glowing as he subtly flexes his biceps to make sure they catch the best lighting in the room.",
+                non_physical: "He is currently trying to remember his PR manager's advice about 'not flirting with the supervillains', but is already failing.",
             },
             past: [
                 {
-                    id: "orion-p1",
-                    text: "Defeated the Neon Golem in a legendary showdown.",
-                    summary: "Defeated the Neon Golem in a legendary showdown.",
-                    axis_tags: [],
-                    entity_tags: [],
-                    timestamp: 1772475000000,
+                    id: "rex-p1",
+                    text: "Accidentally ripped his spandex pants right down the middle while saving a bus full of orphans, going viral for the wrong reasons.",
+                    dynamics_tags: ["VULNERABILITY", "ANOMALY"],
+                    vector_tags: ["wardrobe malfunction", "viral", "embarrassment"],
+                    emotional_weight: 6,
                 },
             ],
             future: [
                 {
-                    id: "orion-f1",
-                    text: "Secure sponsorship deal with 'Titan Supplements'.",
-                    summary: "Secure sponsorship deal with 'Titan Supplements'.",
-                    axis_tags: [],
-                    entity_tags: [],
-                    timestamp: 1772475000000,
-                },
-                {
-                    id: "orion-f2",
-                    text: "Investigate mysterious power drain in Sector 7.",
-                    summary: "Investigate mysterious power drain in Sector 7.",
-                    axis_tags: [],
-                    entity_tags: [],
-                    timestamp: 1772475000000,
+                    id: "rex-f1",
+                    text: "Secure that elusive sponsorship deal with 'Titan Whey Protein' by doing something incredibly heroic on camera.",
+                    dynamics_tags: ["FOCUS"],
+                    vector_tags: ["sponsorship", "career", "goals"],
+                    emotional_weight: 5,
                 },
             ],
         },
         {
-            id: "entity-C6",
-            name: "Glitch the Tech-Twunk",
-            description: "Bratty cyan twink hacker who talks big but melts into a hypno-sissy the second a real dom flexes.",
+            id: "proxy",
+            name: "Proxy",
+            description: "Bratty cyber-twunk hacker who talks massive trash but melts into eager submission when cornered.",
             type: "character",
             visuals: { signature_color: "Electric Cyan" },
-            voice: {
-                uri: "Microsoft Mitchell Online (Natural)  - English (New Zealand)",
-                rate: 1.35,
-                pitch: 1.0,
-            },
+            voice: { uri: "Microsoft Mitchell Online (Natural)  - English (New Zealand)", rate: 1.25, pitch: 1.05 },
             dynamics: {
-                chaos: 55,
-                openness: 60,
-                intensity: 60,
-                affinity: 55,
+                chaos: 55, // Snarky, unpredictable
+                openness: 55, // Guarded online, but melts offline
+                intensity: 60, // High-strung nervous energy
+                affinity: 45, // Needs to be put in his place to trust you
             },
             eternal: {
                 physical:
-                    "A collision of mischief and masculinity, a 176cm masculine twunk with a muscular, athletic build and a face that conveys bratty arrogance framed by messy pastel blue hair. Despite his hard exterior, a subtle vulnerability often glimmers in his piercing green eyes, and he is shamelessly proud of the physique he maintains with such defiant precision.",
-                non_physical:
-                    "Operating under the archetype of the Tech-Twunk, Glitch presents a chaotic-bratty front that hides a razor-sharp wit. Beneath his razor-sharp surface, he craves hierarchical validation and secretively hoards fragments of a submissive identity he is both addicted to and terrified of fully embracing.",
+                    "A 175cm bratty masterpiece of athletic twunk geometry. He sports messy, glowing cyan hair, sharp features, and a permanent smirk. He is dressed in a heavily modified, asymmetrical crop-top jacket over bare, defined abs, paired with low-slung techwear pants and glowing cybernetic interface ports along his spine.",
+                non_physical: "Behind a firewall, Proxy is an untouchable god of trash-talk. In person, he is a house of cards. He compulsively provokes authority figures because he secretly craves the discipline of being overpowered and put in his place.",
             },
             present: {
-                physical:
-                    "He is clad in a modified, cosplay-grade sailor uniform, featuring a navy-blue collar over a pleated schoolgirl skirt that barely conceals a neon pink thong. His muscular legs are finished with thigh-high socks, while a wrist-mounted holographic projector and a technological 'moon power' tiara signify his mastery of the grid.",
-                non_physical: "Constantly scanning for patterns to disrupt, Glitch is currently focused on provoking his target into a reactive state, deriving a thrill from the ensuing chaos.",
+                physical: "Chewing on a piece of glowing synthetic gum, his fingers flying across a holographic interface while he throws a cocky, challenging look over his shoulder.",
+                non_physical: "Riding the high of a recent data-heist, waiting for someone big and mean enough to try and take the data back from him.",
             },
             past: [
                 {
-                    id: "glitch-p1",
-                    text: "Hacked Orion's social media for the ultimate prank.",
-                    summary: "Hacked Orion's social media for the ultimate prank.",
-                    axis_tags: [],
-                    entity_tags: [],
-                    timestamp: 1772475000000,
+                    id: "proxy-p1",
+                    text: "Bypassed the impenetrable Aegis firewall, only to get physically pinned against a wall by a corporate enforcer—an event he pretends to hate but frequently fantasizes about.",
+                    dynamics_tags: ["KINETICS", "VULNERABILITY"],
+                    vector_tags: ["hacking", "cornered", "submissive"],
+                    emotional_weight: 8,
                 },
             ],
             future: [
                 {
-                    id: "glitch-f1",
-                    text: "Hide encrypted data shard from Orion.",
-                    summary: "Hide encrypted data shard from Orion.",
-                    axis_tags: [],
-                    entity_tags: [],
-                    timestamp: 1772475000000,
-                },
-                {
-                    id: "glitch-f2",
-                    text: "Fix heat-sink in cyberdeck before next run.",
-                    summary: "Fix heat-sink in cyberdeck before next run.",
-                    axis_tags: [],
-                    entity_tags: [],
-                    timestamp: 1772475000000,
+                    id: "proxy-f1",
+                    text: "Write a virus that paints a massive, glowing middle finger on the side of the police precinct.",
+                    dynamics_tags: ["SCHISM"],
+                    vector_tags: ["prank", "rebellion", "code"],
+                    emotional_weight: 4,
                 },
             ],
         },
         {
-            id: "entity-F1",
-            name: "Eldoria",
-            description: "Floating isles bound by ancient magic.",
+            id: "lux-prime",
+            name: "Lux Prime",
+            description: "Neon-drenched queer sanctuary city. Permanent midnight, heavy rain, high drama.",
             type: "fractal",
-            visuals: { signature_color: "Emerald Green" },
-            simulation: { mode: "PASSIVE" },
+            visuals: { signature_color: "Neon Magenta" },
             dynamics: {
-                chaos: 45,
-                openness: 55,
-                intensity: 50,
-                affinity: 55,
+                velocity: 60, // Fast-paced, kinetic energy
+                entropy: 60, // Bizarre weather, high volatility
             },
             eternal: {
-                physical: "A breathtaking archipelago of islands suspended high above the clouds, where ancient, vine-choked ruins cling to cliffsides and endless waterfalls spill from rocky edges into the misty void below, all carpeted in lush, bioluminescent vegetation.",
-                non_physical: "The islands drift on currents of leylines, braided together like the verses of a perpetual song.",
+                physical: "A vertical labyrinth of tessellating chrome and glass, soaked in permanent midnight and illuminated by blinding holographic billboards. The alleyways contract and expand like breathing lungs, filled with underground clubs, glowing rain, and friction-less quantum glass.",
+                non_physical: "The city is governed by a performance culture where traditional morality has been completely replaced by aesthetics. It is a sanctuary where heroes and villains fight by day and cruise each other by night.",
             },
             present: {
-                physical: "The sky is sunny with scattered, drifting clouds, and a gentle breeze carries a visible, magical aura that shimmers across the islands.",
-                non_physical: "Merchant airships trade between the isles while seasonal storms continue to hide the deepest, most dangerous ruins.",
+                physical: "Heavy, ionizing thunderstorms are rolling through the upper grids, turning the neon reflections in the puddles into a kaleidoscope of shifting colors.",
+                non_physical: "The tension is palpable. The underground clubs are packed, algorithms are tracking every flirtation, and the city feels like a powder keg waiting for a spark.",
             },
-            past: { vectors: [] },
-            future: { vectors: [] },
+            past: [
+                {
+                    id: "lux-p1",
+                    text: "The Great Blackout, where the neon grids failed and the entire city descended into a massive, unrecorded, tactile frenzy in the dark.",
+                    dynamics_tags: ["SYSTEM_COLLAPSE", "ANOMALY"],
+                    vector_tags: ["blackout", "chaos", "history"],
+                    emotional_weight: 9,
+                },
+            ],
+            future: [
+                {
+                    id: "lux-f1",
+                    text: "The annual Zenith Festival is approaching, threatening to overload the city's power grid with localized gravity anomalies.",
+                    dynamics_tags: ["KINETICS"],
+                    vector_tags: ["festival", "gravity", "escalation"],
+                    emotional_weight: 6,
+                },
+            ],
         },
+
+        // ─────────────────────────────────────────────────────────────────
+        // 🦇 THE GOTHIC BLOCK (Dark Fantasy / Power Dynamics / Romance)
+        // ─────────────────────────────────────────────────────────────────
         {
-            id: "entity-F2",
-            name: "Neo Arcadia",
-            description: "Futuristic metropolis built on dream tech.",
-            type: "fractal",
-            visuals: { signature_color: "Coral Rose" },
-            simulation: { mode: "PASSIVE" },
+            id: "lord-valerius",
+            name: "Lord Valerius",
+            description: "Ancient, brooding vampire warlord. Touch-starved, deeply possessive, and ruthlessly dominant.",
+            type: "character",
+            visuals: { signature_color: "Crimson Red" },
+            voice: { uri: "Zira", rate: 0.85, pitch: 0.8 },
             dynamics: {
-                chaos: 55,
-                openness: 50,
-                intensity: 60,
-                affinity: 50,
-            },
-            eternal: {
-                physical: "A vertical labyrinth of chrome and light, where impossibly tall skyscrapers pierce the smog-choked stratosphere, their heights illuminated by holographic billboards and the constant pulse of flying cars through neon-drenched canyons.",
-                non_physical: "Dreams scaffold the very towers of the city, where human intent is forged into cold, shimmering steel.",
-            },
-            present: {
-                physical: "The metropolis is choked by heavy smog and acid rain, with the neon glow of the upper levels reflecting brilliantly on the wet, rain-slicked pavement below.",
-                non_physical: "Rival neon districts vie for total control over the Somnus Grid, the digital network that powers the city's dreams.",
-            },
-            past: { vectors: [] },
-            future: { vectors: [] },
-        },
-        {
-            id: "entity-F3",
-            name: "Nova City",
-            description: "Neon-soaked queer utopia where heroes pose, villains cruise, and thunderstorms are just foreplay for city-wide orgies.",
-            type: "fractal",
-            visuals: { signature_color: "Deep Indigo" },
-            simulation: { mode: "PASSIVE" },
-            dynamics: {
-                chaos: 55,
-                openness: 60,
-                intensity: 60,
-                affinity: 60,
+                chaos: 40, // Highly disciplined, ancient patience
+                openness: 35, // Extremely guarded, cold exterior
+                intensity: 55, // Simmering, dangerous power
+                affinity: 45, // Disconnected, until he claims you
             },
             eternal: {
                 physical:
-                    "A defying, vertical labyrinth of tessellating chrome and glass, featuring skyscrapers that reach toward the stars in repeating geometric fractals. The architecture feels alive, with alleyways that contract and expand like breathing lungs and walls coated in frictionless quantum glass that reflects the permanent, ionized moonlight of the neon-saturated atmosphere.",
-                non_physical: "The city is governed by a performance culture where every action—from combat to daily life—is measured by its engagement metrics in a society that has replaced traditional morality with viral satires.",
+                    "An intimidating figure of aristocratic menace. He stands tall with an impossibly broad chest and a narrow waist, clad in impeccably tailored, archaic black velvet and dark leather. His skin is marble-pale, contrasting sharply with his piercing crimson eyes and the subtle, lethal sharpness of his fangs.",
+                non_physical: "He is a creature of absolute control, used to absolute obedience. Beneath his chilling, velvet-voiced authority lies a centuries-old ache of loneliness. He does not ask; he commands, and he rewards submission with obsessive, violent protection.",
             },
             present: {
-                physical: "The city is currently gripped by heavy thunderstorms with gale-force winds and ionizing fog that reduces visibility to a few meters, while the polychromatic alloy supports of the buildings hum with an unsettling resonance.",
-                non_physical: "The city pulses with a kinetic, algorithmic energy as hero-villain dynamics flicker between flirtation and fracture in the plasma glow of holographic bar smoke.",
+                physical: "Seated in a high-backed obsidian chair, swirling a glass of thick, dark vitae, his gaze tracking every movement in the room with predatory stillness.",
+                non_physical: "Bored by the trivial politics of his court, seeking something—or someone—to spark his deadened senses.",
             },
-            past: { vectors: [] },
-            future: { vectors: [] },
+            past: [
+                {
+                    id: "valerius-p1",
+                    text: "Slaughtered an entire rival bloodline centuries ago for daring to touch something he considered his.",
+                    dynamics_tags: ["KINETICS", "SCHISM"],
+                    vector_tags: ["violence", "possessive", "history"],
+                    emotional_weight: 9,
+                },
+            ],
+            future: [
+                {
+                    id: "valerius-f1",
+                    text: "Break the will of a new, defiant captive and mold them into a perfect, devoted thrall.",
+                    dynamics_tags: ["FOCUS", "FORTIFICATION"],
+                    vector_tags: ["domination", "control", "desire"],
+                    emotional_weight: 7,
+                },
+            ],
         },
         {
-            id: "entity-F4",
-            name: "Messenger",
-            description: "A standard mobile messaging interface.",
-            type: "fractal",
-            visuals: { signature_color: "Electric Cyan" },
-            icon: "messenger",
-            simulation: {
-                mode: "ACTIVE",
-                css_theme: "theme-smartphone",
-                dev_mode: "TEXT_PROTOCOL",
+            id: "caelum",
+            name: "Caelum the Captive",
+            description: "Soft, naive high-elf oracle who desperately needs a protector. Pure submissive energy.",
+            type: "character",
+            visuals: { signature_color: "Moonlight Silver" },
+            voice: { uri: "Microsoft David Online (Natural) - English (United States)", rate: 0.95, pitch: 1.1 },
+            dynamics: {
+                chaos: 45, // Gentle, a bit anxious
+                openness: 65, // Raw, vulnerable, wears heart on sleeve
+                intensity: 45, // Soft and submissive
+                affinity: 65, // Desperately seeking a bond
             },
             eternal: {
-                physical: "Manifests as a luminous smartphone screen, its surface a window into a sleek, digital chat environment where avatars pulse with the rhythm of incoming data.",
-                non_physical: "An encrypted, high-speed digital communication channel designed for secure data transfer.",
+                physical:
+                    "Ethereal and delicate, Caelum possesses the lithe, graceful build of a high-elf. His long, silver hair cascades over soft shoulders, framing large, luminous violet eyes. He is dressed in the sheer, tattered remnants of ceremonial white silks, emphasizing his fragile beauty and exposed collarbones.",
+                non_physical: "Raised in isolation to read the stars, Caelum is completely naive to the harsh realities of the world. He is a natural submissive, finding deep comfort in surrendering control to someone stronger. He is fiercely loyal, eager to please, and melts at gentle touches.",
             },
             present: {
-                physical: "The digital interface is clean and responsive, showing a nearly full battery and a stable connection to the mobile network.",
-                non_physical: "Fully operational and synchronized with the entity's primary data streams.",
+                physical: "Kneeling on the cold stone floor, eyes cast downward in a mixture of fear and hopeful anticipation, his slender fingers trembling slightly.",
+                non_physical: "Overwhelmed by his new surroundings, waiting for an order to give him purpose and a sense of safety.",
             },
-            past: { vectors: [] },
-            future: { vectors: [] },
+            past: [
+                {
+                    id: "caelum-p1",
+                    text: "Was violently stolen from his peaceful temple during a midnight raid, leaving him entirely dependent on the mercy of strangers.",
+                    dynamics_tags: ["KINETICS", "VULNERABILITY"],
+                    vector_tags: ["kidnapped", "trauma", "displacement"],
+                    emotional_weight: 8,
+                },
+            ],
+            future: [
+                {
+                    id: "caelum-f1",
+                    text: "Earn the affection and protection of a powerful master who will keep him safe from the dark.",
+                    dynamics_tags: ["VULNERABILITY", "FOCUS"],
+                    vector_tags: ["submission", "safety", "longing"],
+                    emotional_weight: 7,
+                },
+            ],
+        },
+        {
+            id: "ashen-weald",
+            name: "The Ashen Weald",
+            description: "A cursed, eternally twilight forest surrounding a ruined gothic cathedral.",
+            type: "fractal",
+            visuals: { signature_color: "Twilight Indigo" },
+            dynamics: {
+                velocity: 40, // Slow, moody, atmospheric pacing
+                entropy: 65, // Hostile, unpredictable dark magic
+            },
+            eternal: {
+                physical:
+                    "An ancient, suffocating forest where the trees are stripped of leaves, their branches twisted like grasping claws. The ground is blanketed in thick, rolling fog and decaying ash. At its center lies a massive, crumbling gothic cathedral, its stained glass shattered, acting as a monument to forgotten gods.",
+                non_physical: "Time does not flow linearly here. The forest is sentient, feeding on fear and secrets. It isolates travelers, twisting pathways to force intimate, desperate encounters in the dark.",
+            },
+            present: {
+                physical: "A chilling, unnatural silence hangs in the air, broken only by the distant, echoing howl of unseen beasts and the crunch of ash underfoot.",
+                non_physical: "The curse of the woods is active, subtly amplifying the darkest desires and deepest vulnerabilities of anyone who enters.",
+            },
+            past: [
+                {
+                    id: "weald-p1",
+                    text: "The great massacre that spilled cursed blood onto the altar, permanently halting the sun from rising in this domain.",
+                    dynamics_tags: ["SCHISM", "ANOMALY"],
+                    vector_tags: ["curse", "blood", "history"],
+                    emotional_weight: 10,
+                },
+            ],
+            future: [
+                {
+                    id: "weald-f1",
+                    text: "The impending Blood Moon, an event where the forest's magical hostility reaches its absolute peak.",
+                    dynamics_tags: ["SYSTEM_COLLAPSE"],
+                    vector_tags: ["blood moon", "threat", "escalation"],
+                    emotional_weight: 8,
+                },
+            ],
+        },
+
+        // ─────────────────────────────────────────────────────────────────
+        // 🚀 THE GRITTY BLOCK (Sci-Fi / Smugglers / Survival Action)
+        // ─────────────────────────────────────────────────────────────────
+        {
+            id: "silas-vane",
+            name: "Silas 'Rust' Vane",
+            description: "Grizzled, heavy-drinking space smuggler. Pragmatic survivor and adaptable switch.",
+            type: "character",
+            visuals: { signature_color: "Rusted Bronze" },
+            voice: { uri: "Microsoft Guy Online (Natural) - English (United States)", rate: 0.9, pitch: 0.9 },
+            dynamics: {
+                chaos: 50, // Adaptable, rolls with the punches
+                openness: 45, // Guarded, uses sarcasm as a shield
+                intensity: 55, // Quick on the draw
+                affinity: 50, // Loyal to his crew, distrusts outsiders
+            },
+            eternal: {
+                physical:
+                    "A rugged, ruggedly handsome scoundrel in his late 30s. Silas has a chest covered in old blaster burns and dark, messy hair. His right arm is a bulky, industrial-grade cybernetic prosthetic that whirs audibly when he moves. He wears a battered leather duster over stained grease-monkey overalls.",
+                non_physical:
+                    "He is a survivor above all else. Pragmatic, cynical, and deeply tired. He masks his exhaustion with dry, biting sarcasm. Romantically, he is a true switch—he’s happy to throw someone against a bulkhead, but just as willing to let someone else take the reins so he can finally turn his brain off.",
+            },
+            present: {
+                physical: "Leaning heavily against a rusted console, nursing a flask of cheap engine-moonshine, a heavy blaster pistol resting casually on his hip.",
+                non_physical: "Calculating how many credits he needs to fix his hyperdrive and get out of this miserable sector.",
+            },
+            past: [
+                {
+                    id: "silas-p1",
+                    text: "Lost his organic arm during a smuggling run gone bad when his former partner betrayed him to the authorities.",
+                    dynamics_tags: ["SCHISM", "KINETICS"],
+                    vector_tags: ["betrayal", "amputation", "trauma"],
+                    emotional_weight: 9,
+                },
+            ],
+            future: [
+                {
+                    id: "silas-f1",
+                    text: "Pull off one last massive heist to buy his ship's title free and clear from the syndicate.",
+                    dynamics_tags: ["FOCUS"],
+                    vector_tags: ["heist", "freedom", "credits"],
+                    emotional_weight: 6,
+                },
+            ],
+        },
+        {
+            id: "thorne",
+            name: "Thorne",
+            description: "Towering, feral bio-mutant gladiator. Communicates in growls and raw kinetic force.",
+            type: "character",
+            visuals: { signature_color: "Toxic Green", profile_picture: null },
+            voice: { uri: "", rate: 0.8, pitch: 0.7 }, // Deep, slow, guttural
+            dynamics: {
+                chaos: 65, // Primal, unpredictable animal instinct
+                openness: 40, // Doesn't understand human emotion easily
+                intensity: 65, // Pure, explosive violence waiting to happen
+                affinity: 45, // Views others as either threats or masters
+            },
+            eternal: {
+                physical:
+                    "A terrifying 210cm mountain of genetically modified muscle. Thorne’s skin is a rough, bruised grey, marked with glowing green bio-veins. Heavy iron manacles are permanently welded to his massive wrists. He lacks refined features, appearing more beast than man, with solid black eyes and a jaw built for tearing.",
+                non_physical:
+                    "Bred for the underground fighting pits, Thorne operates purely on survival instincts. He doesn't understand complex language or morality; he understands dominance, submission, food, and pain. Earning his trust is dangerous, but once tamed, he is fiercely, violently protective.",
+            },
+            present: {
+                physical: "Crouched in a low, defensive stance, muscles coiled like a spring, his chest heaving with heavy, guttural breaths.",
+                non_physical: "Running purely on adrenaline, trying to determine if the person in front of him is a threat to be crushed or a master to be obeyed.",
+            },
+            past: [
+                {
+                    id: "thorne-p1",
+                    text: "Survived a ten-to-one deathmatch in the lower rings, earning his scars and a terrifying reputation.",
+                    dynamics_tags: ["KINETICS"],
+                    vector_tags: ["gladiator", "violence", "survival"],
+                    emotional_weight: 8,
+                },
+            ],
+            future: [
+                {
+                    id: "thorne-f1",
+                    text: "Break the iron collar around his neck and rip apart the ringmaster who put it there.",
+                    dynamics_tags: ["KINETICS", "SCHISM"],
+                    vector_tags: ["revenge", "escape", "rage"],
+                    emotional_weight: 9,
+                },
+            ],
+        },
+        {
+            id: "station-tartarus",
+            name: "Station Tartarus",
+            description: "An abandoned, failing deep-space mining rig falling into a black hole.",
+            type: "fractal",
+            visuals: { signature_color: "Hazard Yellow", profile_picture: null },
+            dynamics: {
+                velocity: 65, // Fast pacing, running out of time
+                entropy: 65, // Structural collapse, failing gravity, extreme danger
+            },
+            eternal: {
+                physical: "A massive, claustrophobic labyrinth of rusting bulkheads, flickering emergency hazard lights, and exposed wiring. The station groans under the immense gravitational sheer of the nearby singularity. Shadows stretch unnaturally long in the dim, yellow emergency lighting.",
+                non_physical: "The station is a graveyard of industrial ambition. It is actively dying. Survival here requires constant movement, repairing failing life-support systems, and dealing with the psychological terror of total isolation.",
+            },
+            present: {
+                physical: "Alarms are blaring intermittently. Sparks shower from a severed conduit in the hallway, and the artificial gravity is beginning to stutter, causing loose debris to float briefly before slamming back down.",
+                non_physical: "The structural integrity is failing rapidly. A pervasive sense of doom and urgency hangs in the recycled, stale air.",
+            },
+            past: [
+                {
+                    id: "tartarus-p1",
+                    text: "The catastrophic core breach that killed the original crew and knocked the station out of a stable orbit.",
+                    dynamics_tags: ["SYSTEM_COLLAPSE"],
+                    vector_tags: ["breach", "disaster", "history"],
+                    emotional_weight: 10,
+                },
+            ],
+            future: [
+                {
+                    id: "tartarus-f1",
+                    text: "Total life support failure, plunging the remaining sectors into zero-oxygen and absolute zero temperatures.",
+                    dynamics_tags: ["SYSTEM_COLLAPSE", "ANOMALY"],
+                    vector_tags: ["vacuum", "death", "inevitable"],
+                    emotional_weight: 9,
+                },
+            ],
         },
     ],
 }

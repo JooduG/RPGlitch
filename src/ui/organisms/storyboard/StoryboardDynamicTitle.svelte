@@ -13,7 +13,6 @@
     // TITLE PREFIXES (Content, not state)
     // ============================================
     const STANDARD_PREFIXES = ["The Story of", "The Adventures of", "The Tale of", "The Legend of", "The Saga of", "Chronicles of", "The Journey of"]
-    const SMARTPHONE_PREFIXES = ["Chat Log:", "Session:", "Messenger.exe:", "New Thread:", "Encrypted Feed:", "Connection:", "Archive:", "RELAY //"]
     const FRACTAL_PREFIXES = ["Adventures in", "Tales from", "The Fractal of", "Journey to"]
 
     // ============================================
@@ -37,26 +36,6 @@
         const ai = app.selectedAi
         const user = app.selectedUser
         const fractal = app.selectedFractal
-        const is_smartphone = app.settings.call_mode
-
-        // Smartphone mode - simpler format
-        if (is_smartphone) {
-            const prefix = pick_random(SMARTPHONE_PREFIXES)
-            const parts = [{ text: `${prefix} ` }]
-
-            if (ai && user) {
-                parts.push({ text: ai.name, color: get_color(ai) })
-                parts.push({ text: " & " })
-                parts.push({ text: user.name, color: get_color(user) })
-            } else if (ai) {
-                parts.push({ text: ai.name, color: get_color(ai) })
-            } else if (user) {
-                parts.push({ text: user.name, color: get_color(user) })
-            } else {
-                parts.push({ text: "Guest User" })
-            }
-            return parts
-        }
 
         // Standard mode - full format
         const has_entities = ai || user
