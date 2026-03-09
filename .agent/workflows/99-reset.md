@@ -1,5 +1,6 @@
 ---
 description: Emergency Stop. Abandon failed path and restore state.
+disable-model-invocation: true
 ---
 
 # 99-reset (The Rewind)

@@ -1,5 +1,6 @@
 ---
 description: Resume interrupted work. Pick up exactly where left off.
+disable-model-invocation: true
 ---
 
 # 06-continue (The Resume)

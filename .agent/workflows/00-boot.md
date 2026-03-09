@@ -1,5 +1,6 @@
 ---
 description: Fresh Session Initialization. Syncs context, validates integrity, and prepares for work.
+disable-model-invocation: true
 ---
 
 # 00-boot (The Ignition)

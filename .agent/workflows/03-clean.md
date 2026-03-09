@@ -29,10 +29,13 @@ description: Diagnosis and repair. Fixes bugs and ensures code hygiene.
 
 ### Phase 2: Surgery (Bug Fix)
 
+> **THE IRON LAW:** NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST. Symptom fixes are failure.
+
 1.  **Reproduce**: Write a failing test (Red).
-2.  **Diagnose**: Trace root cause. Use `waldzell-clear-thought` / `metacognitiveMonitoring` for complex tracing.
-3.  **Patch**: Minimal intervention. Fix the bug, don't rewrite the system.
-4.  **Verify**: Run test (Green).
+2.  **Diagnose**: Trace root cause. Read the error stack completely. Use `waldzell-clear-thought` / `metacognitiveMonitoring` for complex tracing.
+3.  **Patch**: Minimal intervention. Address the root cause directly with ONE isolated change at a time.
+4.  **Verify**: Run test (Green). **Evidence Gate:** You must read the fresh terminal output before claiming success.
+5.  **Circuit Breaker (The 3-Strike Rule)**: If 3 consecutive fix attempts fail, **STOP**. You must formally question the system architecture and consult on fundamental design flaws. Do not attempt a 4th blind fix.
 
 ### Phase 3: Sterilization (Hygiene)
 
@@ -42,14 +45,16 @@ description: Diagnosis and repair. Fixes bugs and ensures code hygiene.
 
 ### Phase 4: Discharge
 
-1.  **Verify**: Run full suite to ensure no side effects.
+1.  **Verify**: Run full suite (`npm test`) to ensure no side effects. **Mandatory:** Read the full output. Do not predict success with phrases like "this should pass now."
 2.  **Commit**: `gamemaster(fix|chore): <description>`.
 
 ## 4. Anti-Patterns
 
-- **Shotgun Surgery**: Randomly changing code hoping it works.
+- **Shotgun Surgery**: Randomly changing code hoping it works. (Guess-and-check thrashing).
 - **Distracted Doctor**: Refactoring a module while fixing a typo.
 - **Dirty Hands**: Leaving `console.log` in production.
+- **Phantom Fixes**: Claiming an issue is resolved without executing the proving command.
+- **Stubborn Surgeon**: Proceeding to fix attempt #4 without stepping back to review the architecture.
 
 ## 5. Tools
 

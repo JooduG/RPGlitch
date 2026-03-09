@@ -1,5 +1,6 @@
 ---
 description: The Quality Gate. Audits work and commits to the permanent record.
+disable-model-invocation: true
 ---
 
 # 04-review (The Vault)
@@ -16,38 +17,50 @@ description: The Quality Gate. Audits work and commits to the permanent record.
 
 - **Tracks**: `.agent/tasks/tracks.md`
 - **Plan**: `.agent/tasks/<slug>/plan.md`
+- **Spec**: `.agent/tasks/<slug>/spec.md`
 - **Diff**: `git status` / `git diff`
 
 ## 3. Procedures
 
-### Phase 1: The Audit (Review)
+### Phase 1: The Audit (Two-Stage Gate)
 
-1.  **Hygiene Check**: Run `/03-clean` (Phase 3).
-2.  **Test Check**: Are generic tests passing?
-3.  **Manual Check**: Did we verify the UI?
+> **EVIDENCE MANDATE:** No completion claims without fresh verification evidence. Read the terminal output before proceeding.
+
+1.  **Stage 1: Spec Compliance Review**:
+    - Read `spec.md`.
+    - Does the code fulfill ALL requirements?
+    - **Crucial:** Are there _extra_ features that were not requested? (If yes, revert them. Spec compliance is exact).
+2.  **Stage 2: Code Quality Review**:
+    - Ensure strict Svelte 5 Rune usage.
+    - Check for magic numbers, optimal architecture, and naming conventions.
+3.  **Test Verification**: Run the generic test suite. **Mandatory:** Read the full output. Proceed only with evidence of 0 failures.
+4.  **Hygiene Check**: Run `/03-clean` (Phase 3).
+5.  **Manual Verification Plan**: Do not just ask "did we verify the UI?". You MUST draft a step-by-step manual verification script for the user (e.g., "1. Run `npm run dev`, 2. Go to `/profile`, 3. Confirm X is visible"). Present this to the user and **WAIT** for their explicit approval.
 
 ### Phase 2: The Commit (Checkpoint)
 
 1.  **Stage**: `git add .`
 2.  **Commit**: `gamemaster(checkpoint): <Track> - <Summary>`.
-3.  **Note**: `git notes add -m "<detailed_summary>"`.
+3.  **High-Fidelity Git Notes**: Construct an **Auditable Verification Report** containing the automated test command used, the manual verification steps provided, and the user's explicit confirmation. Attach it to the commit via `git notes add -m "<report_content>" <commit_hash>`.
 
-### Phase 3: The Registry (Update)
+### Phase 3: The Registry (Update & Sync)
 
 1.  **Update Plan**: Mark items `[x] [checkpoint: <sha>]`.
 2.  **Update Tracks**: Update global status in `tracks.md`. **Mandatory**: Use the "Track Block" format.
-3.  **Archive**: If track is 100% done:
-    - Move folder to `.agent/archive/<slug>`.
-    - Mark `[x]` in `tracks.md`.
+3.  **Global Documentation Synchronization**: If the track is 100% complete, cross-reference the finished `spec.md` against `.agent/knowledge/atlas/03-architecture.md` and `01-vision.md`. If core systems or paradigms changed, propose a diff to the user to keep the Atlas synchronized. Wait for approval before editing.
+4.  **Interactive Track Cleanup**: If the track is 100% complete, do NOT automatically archive the folder. Prompt the user: "Track is complete. Do you want to **Review**, **Archive**, **Delete**, or **Skip**?". Execute the action based on their explicit selection.
 
 ## 4. Anti-Patterns
 
 - **Ghost Commits**: Committing without updating the Plan.
 - **Broken Saves**: Committing code that doesn't compile.
 - **Vague Messages**: "WIP". Use descriptive summaries.
+- **Hallucinated Success**: Claiming "tests pass" without explicitly running the test command and reading the output.
+- **Scope Creep**: Approving code that adds "bonus" features not strictly defined in the spec.
+- **Auto-Archiving**: Sweeping completed tracks into the archive folder without asking the user how they want to handle cleanup.
 
 ## 5. Tools
 
-- `run_command` (git)
+- `run_command` (git, tests)
 - `write_to_file` (update markdown)
 - `waldzell-metacognitive-monitoring` (Audit)

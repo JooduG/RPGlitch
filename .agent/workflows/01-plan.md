@@ -20,10 +20,10 @@ description: Scoping and planning a new feature. Defines WHAT to build, not HOW.
 
 ## 3. Procedures
 
-### Phase 1: The Clarity Gate
+### Phase 1: The Clarity Gate (Plausible Options Protocol)
 
 1.  **Analyze Intent**: Is the request clear?
-    - **Ambiguous**: STOP. Ask clarifying questions.
+    - **Ambiguous**: STOP. **Do not ask open-ended questions.** Instead, classify the missing information as either "Additive" (features/scope) or "Exclusive Choice" (core logic/design). Formulate 2-3 plausible technical options with brief pros/cons, and ask the user to select their preferred route.
     - **Clear**: Proceed.
 2.  **Check Lab**: Look for existing specs in `.agent/knowledge/lab/`. Use `waldzell-decision-framework` for complex roadmap tradeoffs.
 
@@ -48,6 +48,7 @@ description: Scoping and planning a new feature. Defines WHAT to build, not HOW.
 - **YOLO Coding**: Skipping the plan.
 - **Mega-Tasks**: "Build the whole app" as one task.
 - **Silent Assumptions**: Guessing requirements.
+- **The Interrogator**: Asking lazy, open-ended questions ("How should this work?") instead of presenting engineered options ("Should we use LocalStorage or IndexedDB?").
 
 ## 5. Tools
 
