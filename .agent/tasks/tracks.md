@@ -68,12 +68,12 @@
 - **Checkpoint:** `naivety-idx-01`
 - **Note:** Upgraded NPC social intelligence to calculate trust scores using the Openness axis as a credulity prior. Low-openness NPCs are cold skeptics; high-openness NPCs are naive and easily swayed.
 
-### ✅ Track: Off-Screen Dynamics Protocol
+### ✅ Track: Fractal Pivot: Purge Off-Screen Dynamics
 
-- **Path:** [.agent/archive/off-screen-dynamics/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/archive/off-screen-dynamics/)
+- **Path:** [.agent/archive/fractal-pivot/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/archive/fractal-pivot/)
 - **Status:** Complete
-- **Checkpoint:** `6929c76f`
-- **Note:** Implementing background NPC momentum and potential scene intrusion to cure protagonist syndrome.
+- **Checkpoint:** `pivot-01`
+- **Note:** Successfully purged all off-screen and background character logic from the engine, intelligence, and data layers. Verified via unit tests and 0-error build.
 
 ### ✅ Track: Prompt Intelligence Reconstruction
 

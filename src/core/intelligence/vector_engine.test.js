@@ -4,7 +4,7 @@ import { VectorEngine } from "./vector_engine.js"
 
 vi.mock("./DynamicsEngine.js", () => ({
     DynamicsEngine: {
-        scan_reflexes: vi.fn(() => [{ id: "VIBE_CHECK" }]),
+        scan_reflexes: vi.fn(() => [{ id: "VIBE_CHECK", trigger_word: "vibe", effect: { intensity: 0 } }]),
         evaluate_weight: vi.fn(() => CONFIG.DYNAMICS.WEIGHT_BASELINE),
     },
 }))

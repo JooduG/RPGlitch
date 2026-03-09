@@ -35,7 +35,6 @@ const PROTOCOL_LIBRARY = {
     FIRST_PERSON: `FIRST_PERSON: Narrate exclusively from the first-person perspective ("I", "me", "my"). Maintain the subjective filter of your identity. You may be ontologically aware of the User as a presence, but you must never use technical or meta-narrative metrics (e.g. engagement, viral potential) to describe this awareness.`,
     THIRD_PERSON: `THIRD_PERSON: Narrate exclusively from the third-person limited perspective. In this mode, you are the world-voice observing the entities.`,
     GRIT: `GRIT: Maintain a 2:1 ratio of sensory physics (texture, light, resistance) to abstract dialogue or logic.`,
-    SCENE_PACING: `SCENE_PACING: Background intrusions are ADVISORY only. Do NOT allow off-screen entities to hijack narrative focus unless intensity exceeds critical threshold. Maximum one background cutaway per 3 turns. Maintain protagonist scene continuity.`,
     SINO_LOGIC: `SINO_LOGIC: CRITICAL. Your <think> block MUST be conducted in Concise Technical Chinese (zh-CN). HOWEVER, the instant you output </think>, your cognitive language center MUST hard-reset to ENGLISH. Any non-English text outside the <think> block is a catastrophic failure. NEVER output Chinese in the narrative.`,
 }
 
@@ -46,13 +45,10 @@ const PROTOCOL_LIBRARY = {
  ************************************************************************************/
 
 export const SYSTEM_PROMPTS = {
-    simulation: ({ turn, entities, simulation_log, behaviors, offscreen, input, render_atom }) => {
+    simulation: ({ turn, entities, simulation_log, behaviors, input, render_atom }) => {
         const ai = entities.AI
         const user = entities.USER
         const fractal = entities.FRACTAL
-
-        const { intruders = [] } = offscreen || {}
-        const intruders_present = intruders.length > 0
 
         return `
 <SYSTEM role="${ai.name}" turn="${turn}" objective="${render_atom.future(ai, 1).trim()}">
@@ -86,12 +82,8 @@ ${PromptBuilder.render_history(simulation_log, 10)}
 ${behaviors.length > 0 ? behaviors.join("\n") : "Use default style vectors."}
 </NARRATIVE_STYLE>
 
-<BACKGROUND_INTENSITY>
-${entities.BACKGROUND_INTENSITY || "No entities detected."}
-</BACKGROUND_INTENSITY>
-
 <PROTOCOLS>
-${PromptBuilder.render_protocols(intruders_present ? "SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL, SCENE_PACING" : "SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL")}
+${PromptBuilder.render_protocols("SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL")}
 </PROTOCOLS>
 
 <TASK_INSTRUCTION>
@@ -126,10 +118,6 @@ ${content}
 
         return `
 <SYSTEM role="${fractal.name}" turn="${turn}" mode="PROLOGUE">
-
-<STATE>
-${entities.BACKGROUND_INTENSITY || ""}
-</STATE>
 
 <YOUR_IDENTITY name="${fractal.name}">
 <ETERNAL>${fractal.properties.eternal.non_physical}</ETERNAL>
@@ -233,14 +221,6 @@ export class PromptBuilder {
         }
 
         // Default: Simulation
-        const { intruders = [], updates = [] } = snapshot.offscreen || {}
-
-        // Inject BACKGROUND_INTENSITY block into entities for the template
-        if (intruders.length > 0) {
-            const intensity_lines = intruders.map((i) => `    <ENTITY name="${i.name}" intensity="${i.intensity}">${i.flags.join(", ")}</ENTITY>`).join("\n")
-            payload.entities.BACKGROUND_INTENSITY = `\n${intensity_lines}\n`
-        }
-
         const system = SYSTEM_PROMPTS.simulation({
             ...payload,
             ...snapshot,
@@ -253,7 +233,6 @@ export class PromptBuilder {
                 dynamics: snapshot.dynamics,
                 flags: snapshot.flags,
                 behaviors: snapshot.behaviors,
-                background_updates: updates,
             },
         }
     }

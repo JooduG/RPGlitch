@@ -373,61 +373,6 @@ export class DynamicsEngine {
     }
 
     /************************************************************************************
-     * 🧩 [SECTION: OFF-SCREEN ENTROPY]
-     * ----------------------------------------------------------------------------------
-     * Audits background T3 entities for autonomous momentum. Flags intruders whose
-     * intensity breaches LAW_HIGH after a lightweight physics tick.
-     ************************************************************************************/
-
-    /**
-     * Calculates off-screen dynamics for background entities.
-     * Runs a mini-dynamics tick per entity without polluting the active scene.
-     *
-     * @param {string} input - The current user input (drives reflex scanning).
-     * @param {Array<{name: string, id: string, dynamics?: object}>} background_entities
-     * @returns {{ intruders: Array<{name: string, id: string, intensity: number, flags: string[]}>, updates: Array<object> }}
-     */
-    static calculate_offscreen_dynamics(input, background_entities) {
-        if (!Array.isArray(background_entities) || background_entities.length === 0) return { intruders: [], updates: [] }
-
-        const d_phys = CONFIG.DYNAMICS
-        const baseline_val = d_phys.DYNAMICS_GRAVITY_BASELINE
-        const flagged_intruders = []
-        const updates = []
-
-        for (const entity of background_entities) {
-            const baselines = {
-                intensity: baseline_val,
-                chaos: baseline_val,
-                openness: baseline_val,
-                affinity: baseline_val,
-            }
-
-            const prev_dynamics = entity.dynamics || { ...baselines }
-
-            // Run a lightweight physics tick (same math as active entity)
-            const tick = DynamicsEngine.resolve_dynamics(input, baselines, prev_dynamics)
-
-            // Track the update for persistence
-            updates.push({
-                id: entity.id,
-                dynamics: tick.dynamics,
-            })
-
-            if (tick.dynamics.intensity >= d_phys.LAW_HIGH) {
-                flagged_intruders.push({
-                    name: entity.name || "Unknown",
-                    id: entity.id,
-                    intensity: tick.dynamics.intensity,
-                    flags: tick.flags,
-                })
-            }
-        }
-
-        return { intruders: flagged_intruders, updates }
-    }
-
-    /************************************************************************************
      * 🏷️ [SECTION: SEMANTIC WEIGHT — Narrative Significance]
      * ----------------------------------------------------------------------------------
      * Maps scan_reflexes() output to an Emotional Weight (W=1-10) per MNOTION.

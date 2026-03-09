@@ -18,7 +18,6 @@
  * └────────────────────────────────────────────────────────────────────────┘
  */
 
-import { entities as entity_repo } from "@data/repository.js"
 import { runtime } from "@state/runtime.svelte.js"
 import { ENTITY_CATALOG } from "./entity_fragments.js"
 
@@ -189,51 +188,18 @@ export class ContextBroker {
             }
         })
 
-        // 2. Fetch background entities for off-screen dynamics
-        const active_ids = [entities.AI?.id, entities.USER?.id].filter(Boolean)
-        const background_entities = await ContextBroker.fetch_background_entities(active_ids)
-
-        // 3. Build Unified Payload
+        // 2. Build Unified Payload
         return {
             input,
             type,
             turn,
             entities,
-            background_entities,
             simulation_log: ContextBroker.assemble_snapshot(simulation_log),
             rawMessages: simulation_log,
             meta: {
                 active_vector,
                 timestamp: new Date().toISOString(),
             },
-        }
-    }
-
-    /************************************************************************************
-     * 🧩 [SECTION: BACKGROUND ENTITY FETCHING]
-     * ----------------------------------------------------------------------------------
-     * Retrieves T3 background characters for off-screen dynamics auditing.
-     ************************************************************************************/
-
-    /**
-     * Fetches all characters from the repository, excluding active scene participants.
-     * Returns lean objects with only the fields needed for the dynamics tick.
-     *
-     * @param {string[]} active_ids - IDs of the active AI and User entities.
-     * @returns {Promise<Array<{name: string, id: string, dynamics: object}>>}
-     */
-    static async fetch_background_entities(active_ids = []) {
-        try {
-            const all = await entity_repo.list("character")
-            return all
-                .filter((e) => !active_ids.includes(e.id))
-                .map((e) => ({
-                    name: e.name || "Unknown",
-                    id: e.id,
-                    dynamics: e.dynamics || {},
-                }))
-        } catch {
-            return []
         }
     }
 

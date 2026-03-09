@@ -80,18 +80,4 @@ export const NarrativeDirector = {
             NarrativeDirector._isConsolidating = false
         }
     },
-
-    /**
-     * PERSIST BACKGROUND
-     * Saves off-screen dynamics momentum updates to the entity store.
-     * @param {Array} updates - Array of entity objects with updated dynamics.
-     */
-    persist_background: async (updates) => {
-        if (!updates || updates.length === 0) return
-
-        for (const update of updates) {
-            await entities.upsert("character", update)
-        }
-        app.log(`Dynamics Engine: Persisted momentum for ${updates.length} background entities.`, "system")
-    },
 }

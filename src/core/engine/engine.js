@@ -50,9 +50,6 @@ export const Engine = {
             const payload = await ContextBroker.hydrate(options.input || "", "simulation", simulation_log)
             const snapshot = DynamicsEngine.simulate(payload)
 
-            // [PHYSICS] Calculate offscreen dynamics from hydrated background entities
-            const offscreen = DynamicsEngine.calculate_offscreen_dynamics(options.input || "", payload.background_entities || [])
-            snapshot.offscreen = offscreen
             const { system, meta } = PromptBuilder.synthesize(payload, snapshot)
 
             // Update runtime physics with the new simulation state
@@ -68,9 +65,6 @@ export const Engine = {
             // Save metadata from the simulation snapshot
             const aiName = runtime.activeAI?.name || "AI"
             await Session.log_turn(response, aiName, "ai", { dynamics: meta.dynamics, flags: meta.flags, behaviors: meta.behaviors })
-
-            // [NEXUS] Action: Persist Background Momentum
-            await NarrativeDirector.persist_background(meta.background_updates)
 
             // [NEXUS] Check for L2 Consolidation (Background)
             NarrativeDirector.consolidate()
