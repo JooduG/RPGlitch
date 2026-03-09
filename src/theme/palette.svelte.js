@@ -1,71 +1,34 @@
-import { DEFAULT_COLORS, PALETTE } from "@core/engine/palette.js"
-
 /**
- * THEME STORE (REACTIVE)
+ * src/theme/palette.svelte.js
+ * 🎨 THEME STORE (REACTIVE)
  * Centralized management for Signature Colors using Svelte 5 Runes.
+ * Flattened for the Twin-Cylinder architecture.
  */
+
+import { DEFAULT_COLORS, PALETTE } from "@core/engine/palette.js"
+import { normalize } from "@data/content_normaliser.js"
+
 class ThemeStore {
     /**
      * Helper to convert Hex to RGB triplet
      * @param {string} hex - "#RRGGBB"
-     * @returns {string} - "R G B"
+     * @returns {string} - "R, G, B" (Updated to use comma separation for CSS variables)
      */
     hexToRgb(hex) {
-        if (!hex) return "182 69 205" // Default purple
+        if (!hex) return "168, 85, 247" // Default purple (Vibrant Violet)
         const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i
         hex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b)
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-        return result ? `${parseInt(result[1], 16)} ${parseInt(result[2], 16)} ${parseInt(result[3], 16)}` : "182 69 205"
+        return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : "168, 85, 247"
     }
 
     /**
-     * Normalizes an entity to ensure it has valid visual and behavioral properties.
-     * @param {Object} entity
-     * @returns {Object}
+     * Delegates to the central normalizer to ensure strict data structure.
+     * ZERO backwards compatibility; ignores nested 'visuals' object.
      */
     normalizeEntity(entity) {
         if (!entity) return null
-        const e = { ...entity }
-
-        // 1. VISUALS
-        if (!e.visuals) e.visuals = {}
-        const baseColor = e.visuals.signature_color || ""
-        // If it's a PALETTE key, convert to hex
-        if (baseColor && PALETTE[baseColor]) {
-            e.visuals.signature_color = PALETTE[baseColor]
-        }
-        // If still empty or invalid, keep it empty (will fall through to deterministic)
-        if (!e.visuals.signature_color) {
-            e.visuals.signature_color = ""
-        }
-
-        // [FIX] Ensure voice object exists to prevent "rate" TypeError in Profile.svelte
-        if (!e.voice) {
-            e.voice = {
-                uri: "",
-                rate: 1.0,
-                pitch: 1.0,
-            }
-        } else {
-            // Ensure defaults if partial voice object exists
-            if (e.voice.rate === undefined) e.voice.rate = 1.0
-            if (e.voice.pitch === undefined) e.voice.pitch = 1.0
-        }
-
-        // [FIX] Ensure dynamics object exists for the radar chart/sliders
-        if (!e.dynamics) {
-            e.dynamics = {
-                chaos: 50,
-                order: 51,
-                entropy: 50,
-                velocity: 50,
-            }
-        }
-
-        // [FIX] Ensure customData exists
-        if (!e.customData) e.customData = {}
-
-        return e
+        return normalize(entity)
     }
 
     /**
@@ -74,43 +37,48 @@ class ThemeStore {
     getDeterministicColor(seed) {
         const finalSeed = seed || "default"
         let hash = 0
-        for (let i = 0; i < finalSeed.length; i++) hash = finalSeed.charCodeAt(i) + ((hash << 5) - hash)
+        for (let i = 0; i < finalSeed.length; i++) {
+            hash = finalSeed.charCodeAt(i) + ((hash << 5) - hash)
+        }
         const hue = Math.abs(hash) % 360
         return `hsl(${hue}, 40%, 60%)`
     }
 
     /**
      * Resolves the actual color value (Hex or HSL) for an entity.
+     * Looks at the flattened signature_color property.
      */
     getSignatureColor(entity) {
         if (entity) {
-            const color = entity.visuals?.signature_color
+            const color = entity.signature_color
 
             if (color) {
-                // If it's a known palette key, return the hex
+                // If it's a named palette key (e.g., "Hot Pink"), return the hex value
                 if (PALETTE[color]) return PALETTE[color]
-                return color // Return raw hex
+                return color // Otherwise return the raw hex string
             }
         }
 
-        // Fallback to deterministic color based on entity properties
+        // Fallback to deterministic color based on name/tags
         const seed = [entity?.name || "", ...(entity?.tags || [])].filter(Boolean).join(",")
         return this.getDeterministicColor(seed || entity?.id || "")
     }
 
     /**
-     * Calculates the best contrast color (black or white) for a given hex background.
+     * Calculates the best contrast color (black or white) for a background.
      */
     getContrastColor(hex) {
-        if (!hex || typeof hex !== "string") return "#000"
+        if (!hex || typeof hex !== "string" || hex.startsWith("hsl")) return "#fff"
+
         let color = hex.replace("#", "")
         if (color.length === 3) {
             color = color
                 .split("")
-                .map((char) => char + char)
+                .map((c) => c + c)
                 .join("")
         }
-        if (color.length !== 6 || !/^[0-9a-f]{6}$/i.test(color)) return "#000"
+
+        if (color.length !== 6 || !/^[0-9a-f]{6}$/i.test(color)) return "#fff"
 
         const r = parseInt(color.substr(0, 2), 16)
         const g = parseInt(color.substr(2, 2), 16)
@@ -119,42 +87,29 @@ class ThemeStore {
         return yiq >= 128 ? "#000" : "#fff"
     }
 
+    /**
+     * Simple darkening utility for borders or hover states.
+     */
     darkenColor(hex, amount = 20) {
-        if (!hex || hex.startsWith("var")) return hex
-        // Simple darken logic
+        if (!hex || hex.startsWith("var") || hex.startsWith("hsl")) return hex
         let color = hex.replace("#", "")
         const num = parseInt(color, 16)
         let r = (num >> 16) - amount
         let g = ((num >> 8) & 0x00ff) - amount
         let b = (num & 0x0000ff) - amount
-        r = r < 0 ? 0 : r
-        g = g < 0 ? 0 : g
-        b = b < 0 ? 0 : b
-        return "#" + (g | (r << 8) | (b << 16)).toString(16).padStart(6, "0")
-    }
-
-    mixHex(color1) {
-        // Basic hex mixing
-        return color1 // Placeholder to satisfy imports
+        return "#" + (((r < 0 ? 0 : r) << 16) | ((g < 0 ? 0 : g) << 8) | (b < 0 ? 0 : b)).toString(16).padStart(6, "0")
     }
 
     /**
-     * Generates a smart initial string from an entity name.
-     * Filters out common stopwords unless they are the only word.
-     * Max 3 characters.
+     * Generates initials for avatar fallbacks.
      */
     getInitials(name) {
         if (!name) return "?"
-
         const stopWords = new Set(["the", "a", "an", "of", "in", "and", "or", "for", "to", "at", "by", "with"])
-
         const words = name.trim().split(/\s+/)
-
-        // Filter stopwords, but keep them if it results in an empty list (e.g. name is "The")
         let filteredWords = words.filter((w) => !stopWords.has(w.toLowerCase()))
         if (filteredWords.length === 0) filteredWords = words
 
-        // Take up to 3 initials
         return filteredWords
             .slice(0, 3)
             .map((w) => w.charAt(0))

@@ -2,19 +2,10 @@
  * src/data/entity_premades.js
  * ⚡ PREMADE ENTITIES COLLECTION
  * Meticulously crafted baseline characters and fractals.
- * * ----------------------------------------------------------------------------------
+ * ----------------------------------------------------------------------------------
  * 🕰️ [WIP / NOT FINAL] TEMPORAL VECTOR PHILOSOPHY (TIMESTAMPS)
  * ----------------------------------------------------------------------------------
- * Currently, timestamps have been removed from the premade vectors while the UI
- * sorting logic is finalized.
- * * The working theory for when timestamps return:
- * 1. Both `past` (memories) and `future` (goals) are thoughts the entity is holding
- * RIGHT NOW. Therefore, all timestamps should technically be in the past (the moment
- * the thought or goal was formed).
- * 2. To prevent the UI from freaking out over identical timestamps, premade vectors
- * should be staggered sequentially (e.g., NOW - 3h, NOW - 2h, NOW - 1h) at DB
- * initialization.
- * 3. User-created entities will generate fresh timestamps via Date.now() on creation.
+ * Timestamps are removed for initialization; repo handles fresh dating on seed.
  * ----------------------------------------------------------------------------------
  */
 
@@ -28,13 +19,14 @@ export const premade = {
             name: "Rex Radiant",
             description: "Dumb, sweet, solar-powered himbo superhero obsessed with viral saves and tight spandex.",
             type: "character",
-            visuals: { signature_color: "Pumpkin Amber" },
+            signature_color: "Sunburst Gold",
+            profile_picture: "",
             voice: { uri: "Microsoft Brian Online (Natural) - English (United States)", rate: 1.05, pitch: 0.95 },
             dynamics: {
-                chaos: 45, // Generally well-meaning and simple
-                openness: 65, // Maximum golden retriever energy
-                intensity: 60, // Always ready for action
-                affinity: 60, // Loves everybody, very trusting
+                chaos: 45,
+                openness: 65,
+                intensity: 60,
+                affinity: 60,
             },
             eternal: {
                 physical:
@@ -70,13 +62,14 @@ export const premade = {
             name: "Proxy",
             description: "Bratty cyber-twunk hacker who talks massive trash but melts into eager submission when cornered.",
             type: "character",
-            visuals: { signature_color: "Electric Cyan" },
+            signature_color: "Electric Cyan",
+            profile_picture: "",
             voice: { uri: "Microsoft Mitchell Online (Natural)  - English (New Zealand)", rate: 1.25, pitch: 1.05 },
             dynamics: {
-                chaos: 55, // Snarky, unpredictable
-                openness: 55, // Guarded online, but melts offline
-                intensity: 60, // High-strung nervous energy
-                affinity: 45, // Needs to be put in his place to trust you
+                chaos: 55,
+                openness: 55,
+                intensity: 60,
+                affinity: 45,
             },
             eternal: {
                 physical:
@@ -111,10 +104,11 @@ export const premade = {
             name: "Lux Prime",
             description: "Neon-drenched queer sanctuary city. Permanent midnight, heavy rain, high drama.",
             type: "fractal",
-            visuals: { signature_color: "Hot Pink" },
+            signature_color: "Hot Pink",
+            profile_picture: "",
             dynamics: {
-                velocity: 60, // Fast-paced, kinetic energy
-                entropy: 60, // Bizarre weather, high volatility
+                velocity: 60,
+                entropy: 60,
             },
             eternal: {
                 physical: "A vertical labyrinth of tessellating chrome and glass, soaked in permanent midnight and illuminated by blinding holographic billboards. The alleyways contract and expand like breathing lungs, filled with underground clubs, glowing rain, and friction-less quantum glass.",
@@ -152,13 +146,14 @@ export const premade = {
             name: "Lord Valerius",
             description: "Ancient, brooding vampire warlord. Touch-starved, deeply possessive, and ruthlessly dominant.",
             type: "character",
-            visuals: { signature_color: "Crimson Red" },
+            signature_color: "Crimson Red",
+            profile_picture: "",
             voice: { uri: "Zira", rate: 0.85, pitch: 0.8 },
             dynamics: {
-                chaos: 40, // Highly disciplined, ancient patience
-                openness: 35, // Extremely guarded, cold exterior
-                intensity: 55, // Simmering, dangerous power
-                affinity: 45, // Disconnected, until he claims you
+                chaos: 40,
+                openness: 35,
+                intensity: 55,
+                affinity: 45,
             },
             eternal: {
                 physical:
@@ -193,13 +188,14 @@ export const premade = {
             name: "Caelum the Captive",
             description: "Soft, naive high-elf oracle who desperately needs a protector. Pure submissive energy.",
             type: "character",
-            visuals: { signature_color: "Twilight Violet" },
+            signature_color: "Twilight Violet",
+            profile_picture: "",
             voice: { uri: "Microsoft David Online (Natural) - English (United States)", rate: 0.95, pitch: 1.1 },
             dynamics: {
-                chaos: 45, // Gentle, a bit anxious
-                openness: 65, // Raw, vulnerable, wears heart on sleeve
-                intensity: 45, // Soft and submissive
-                affinity: 65, // Desperately seeking a bond
+                chaos: 45,
+                openness: 65,
+                intensity: 45,
+                affinity: 65,
             },
             eternal: {
                 physical:
@@ -234,10 +230,11 @@ export const premade = {
             name: "The Ashen Weald",
             description: "A cursed, eternally twilight forest surrounding a ruined gothic cathedral.",
             type: "fractal",
-            visuals: { signature_color: "Deep Indigo" },
+            signature_color: "Deep Indigo",
+            profile_picture: "",
             dynamics: {
-                velocity: 40, // Slow, moody, atmospheric pacing
-                entropy: 65, // Hostile, unpredictable dark magic
+                velocity: 40,
+                entropy: 65,
             },
             eternal: {
                 physical:
@@ -276,13 +273,14 @@ export const premade = {
             name: "Silas 'Rust' Vane",
             description: "Grizzled, heavy-drinking space smuggler. Pragmatic survivor and adaptable switch.",
             type: "character",
-            visuals: { signature_color: "Sunset Orange" },
+            signature_color: "Sunset Orange",
+            profile_picture: "",
             voice: { uri: "Microsoft Guy Online (Natural) - English (United States)", rate: 0.9, pitch: 0.9 },
             dynamics: {
-                chaos: 50, // Adaptable, rolls with the punches
-                openness: 45, // Guarded, uses sarcasm as a shield
-                intensity: 55, // Quick on the draw
-                affinity: 50, // Loyal to his crew, distrusts outsiders
+                chaos: 50,
+                openness: 45,
+                intensity: 55,
+                affinity: 50,
             },
             eternal: {
                 physical:
@@ -318,13 +316,14 @@ export const premade = {
             name: "Thorne",
             description: "Towering, feral bio-mutant gladiator. Communicates in growls and raw kinetic force.",
             type: "character",
-            visuals: { signature_color: "Lime Green", profile_picture: null },
-            voice: { uri: "", rate: 0.8, pitch: 0.7 }, // Deep, slow, guttural
+            signature_color: "Lime Green",
+            profile_picture: "",
+            voice: { uri: "", rate: 0.8, pitch: 0.7 },
             dynamics: {
-                chaos: 65, // Primal, unpredictable animal instinct
-                openness: 40, // Doesn't understand human emotion easily
-                intensity: 65, // Pure, explosive violence waiting to happen
-                affinity: 45, // Views others as either threats or masters
+                chaos: 65,
+                openness: 40,
+                intensity: 65,
+                affinity: 45,
             },
             eternal: {
                 physical:
@@ -360,10 +359,11 @@ export const premade = {
             name: "Station Tartarus",
             description: "An abandoned, failing deep-space mining rig falling into a black hole.",
             type: "fractal",
-            visuals: { signature_color: "Lemon Yellow", profile_picture: null },
+            signature_color: "Lemon Yellow",
+            profile_picture: "",
             dynamics: {
-                velocity: 65, // Fast pacing, running out of time
-                entropy: 65, // Structural collapse, failing gravity, extreme danger
+                velocity: 65,
+                entropy: 65,
             },
             eternal: {
                 physical: "A massive, claustrophobic labyrinth of rusting bulkheads, flickering emergency hazard lights, and exposed wiring. The station groans under the immense gravitational sheer of the nearby singularity. Shadows stretch unnaturally long in the dim, yellow emergency lighting.",

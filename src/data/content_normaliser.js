@@ -1,13 +1,52 @@
 /**
  * src/data/content_normaliser.js
  * 🧪 CONTENT NORMALISATION LOGIC
- * Enforces the "Temporal Hybrid 6" data structure across the app.
+ * Enforces the strict "Twin-Cylinder" data structure across the app.
+ * ZERO BACKWARDS COMPATIBILITY.
  */
 
 import { PALETTE } from "@core/engine/palette.js"
 import { Security } from "@core/security.js"
 
 const sanitizeHtml = Security.sanitize
+
+export const STORAGE_VERSION = 3
+
+/**
+ * 🐣 ENTITY TEMPLATES
+ * Defines the initial structure for new entities born in the Library.
+ * Fields are empty strings so that UI 'placeholder' attributes can work correctly.
+ */
+export const ENTITY_TEMPLATES = {
+    character: {
+        name: "New Character",
+        type: "character",
+        description: "",
+        dynamics: {
+            chaos: 50,
+            intensity: 50,
+            openness: 50,
+            affinity: 50,
+        },
+        eternal: { physical: "", non_physical: "" },
+        present: { physical: "", non_physical: "" },
+        past: [],
+        future: [],
+    },
+    fractal: {
+        name: "New Fractal",
+        type: "fractal",
+        description: "",
+        dynamics: {
+            velocity: 50,
+            entropy: 50,
+        },
+        eternal: { physical: "", non_physical: "" },
+        present: { physical: "", non_physical: "" },
+        past: [],
+        future: [],
+    },
+}
 
 /**
  * Utility to safely access the palette for a random signature key.
@@ -17,131 +56,82 @@ export const getRandomSignatureKey = () => {
     return keys[Math.floor(Math.random() * keys.length)]
 }
 
-export const STORAGE_VERSION = 3
-
 /**
  * Main Normalizer
- * Enforces the structural integrity of entities within the simulation.
+ * Enforces structural integrity and sanitization.
  */
 export const normalize = (base = {}) => {
-    const { name = "", description = "", icon = null, type = "", eternal = {}, present = {}, past = null, future = null, tags = [], visuals = null, simulation = null, dynamics = null, voiceId = null, _backupState = null, _lastUpdateMsgId = null, customData = {} } = base
-
-    const safeTags = (Array.isArray(tags) ? tags : String(tags || "").split(",")).map((s) => sanitizeHtml(String(s).trim())).filter(Boolean)
-
-    const existingAvatar = (visuals && (visuals.profile_picture || visuals.profile_picture_url || visuals.profilePicture || visuals.profilePictureUrl)) || base.profilePicture || base.profilePictureUrl || base.profile_picture || ""
+    const { name = "", description = "", type = "character", eternal = {}, present = {}, past = [], future = [], tags = [], signature_color = "", profile_picture = "", dynamics = null, voice = {}, customData = {}, _backupState = null, _lastUpdateMsgId = null } = base
 
     return {
-        // ========================================
-        // CORE METADATA
-        // ========================================
+        // --- CORE METADATA ---
         name: sanitizeHtml(name).trim(),
         description: sanitizeHtml(description).trim(),
-        profile_picture: sanitizeHtml(existingAvatar).trim(),
-        icon,
         type: type,
-        tags: safeTags,
+        signature_color: sanitizeHtml(String(signature_color)).trim() || getRandomSignatureKey(),
+        profile_picture: sanitizeHtml(String(profile_picture)).trim(),
+        tags: (Array.isArray(tags) ? tags : []).map((s) => sanitizeHtml(String(s).trim())).filter(Boolean),
 
-        // ========================================
-        // TEMPORAL HYBRID (6-Field System)
-        // ========================================
+        // --- TEMPORAL HYBRID 6 (PURGED: appearance, identity, outfit, status) ---
         eternal: {
-            physical: sanitizeHtml(eternal.physical || base.appearance || "").trim(),
-            non_physical: sanitizeHtml(eternal.non_physical || eternal.mental || base.identity || "").trim(),
+            physical: sanitizeHtml(eternal?.physical || "").trim(),
+            non_physical: sanitizeHtml(eternal?.non_physical || "").trim(),
         },
         present: {
-            physical: sanitizeHtml(present.physical || base.outfit || "").trim(),
-            non_physical: sanitizeHtml(present.non_physical || present.mental || base.status || "").trim(),
+            physical: sanitizeHtml(present?.physical || "").trim(),
+            non_physical: sanitizeHtml(present?.non_physical || "").trim(),
         },
-        past: (() => {
-            const raw = Array.isArray(past) ? past : typeof past === "string" ? past : ""
-            const arr = Array.isArray(raw) ? raw : String(raw || "").split("\n")
-            return arr
-                .map((item) => {
-                    if (typeof item === "object" && item !== null) {
-                        return {
-                            ...item,
-                            text: sanitizeHtml(item.text || item.summary || "").trim(),
-                        }
-                    }
-                    return sanitizeHtml(String(item).trim())
-                })
-                .filter(Boolean)
-        })(),
-        future: (() => {
-            const raw = Array.isArray(future) ? future : typeof future === "string" ? future : ""
-            const arr = Array.isArray(raw) ? raw : String(raw || "").split("\n")
-            return arr
-                .map((item) => {
-                    if (typeof item === "object" && item !== null) {
-                        return {
-                            ...item,
-                            text: sanitizeHtml(item.text || item.summary || "").trim(),
-                        }
-                    }
-                    return sanitizeHtml(String(item).trim())
-                })
-                .filter(Boolean)
+        past: Array.isArray(past) ? past : [],
+        future: Array.isArray(future) ? future : [],
+
+        // --- DYNAMICS (Physics Sliders) ---
+        dynamics: (() => {
+            if (dynamics && Object.keys(dynamics).length > 0) return { ...dynamics }
+            // Seed from type-template on birth
+            return ENTITY_TEMPLATES[type]?.dynamics ? { ...ENTITY_TEMPLATES[type].dynamics } : {}
         })(),
 
-        // ========================================
-        // DYNAMICS (Physics Sliders)
-        // ========================================
-        dynamics: {
-            chaos: 10,
-            intensity: 10,
-            openness: 50,
-            affinity: 50,
-            ...(dynamics || {}),
-        },
-
-        // ========================================
-        // VISUALS (Appearance & Theming)
-        // ========================================
-        visuals: {
-            flipped: visuals?.flipped || false,
-            profile_picture: existingAvatar,
-            signature_color: (() => {
-                const color = sanitizeHtml(String(visuals?.signature_color || visuals?.signatureColor || "")).trim()
-                return color || getRandomSignatureKey()
-            })(),
-        },
-
-        // ========================================
-        // VOICE (TTS Configuration)
-        // ========================================
+        // --- VOICE ---
         voice: {
-            uri: voiceId || "",
-            rate: base.voiceRate !== undefined ? parseFloat(base.voiceRate) : 1.0,
-            pitch: base.voicePitch !== undefined ? parseFloat(base.voicePitch) : 1.0,
+            uri: voice?.uri || "",
+            rate: voice?.rate || 1.0,
+            pitch: voice?.pitch || 1.0,
         },
 
-        // ========================================
-        // CUSTOM DATA & INTERNAL STATE
-        // ========================================
+        // --- INTERNAL ---
         customData: customData || {},
-        simulation,
         _backupState,
         _lastUpdateMsgId,
     }
 }
 
 /**
+ * 🏭 THE FACTORY
+ * Creates a brand new, fully normalized entity with a RANDOM signature color.
+ */
+export const createNew = (type = "character", overrides = {}) => {
+    const template = ENTITY_TEMPLATES[type] || ENTITY_TEMPLATES.character
+    const newEntity = {
+        ...template,
+        ...overrides,
+        signature_color: getRandomSignatureKey(), // Random color on birth
+        created_at: Date.now(),
+        updated_at: Date.now(),
+        id: crypto.randomUUID(),
+    }
+    return normalize(newEntity)
+}
+
+/**
  * Formats a premade entity for storage injection.
  */
 export const formatPremade = (entity, type) => {
-    const flattenedEntity = {
-        ...entity,
-        ...(entity.sections || {}),
-    }
-    delete flattenedEntity.sections
-
     return {
-        ...flattenedEntity,
+        ...entity,
         type: type,
         isPremade: 1,
-        isCustom: 0,
         version: STORAGE_VERSION,
-        ...normalize(flattenedEntity),
+        ...normalize(entity),
         updated_at: 0,
     }
 }

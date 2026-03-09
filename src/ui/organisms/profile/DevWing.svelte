@@ -1,6 +1,14 @@
 <script>
+    /**
+     * @file DevWing.svelte
+     * 🛠️ DYNAMIC DEVELOPER CONSOLE
+     * Dynamically renders and binds to all entity dynamics (Somatic or Environmental).
+     */
     let { char = $bindable(), is_editing } = $props()
 
+    /**
+     * Formats timestamps to a standard Swedish/ISO-adjacent format.
+     */
     function format_timestamp(ts) {
         if (!ts) return "---"
         return new Date(ts).toLocaleString("sv-SE", {
@@ -12,30 +20,73 @@
         })
     }
 
-    const DYNAMICS_LIST = [
-        { key: "chaos", label: "Chaos", desc: "Randomness vs Control" },
-        { key: "intensity", label: "Intensity", desc: "Internal Energy" },
-        { key: "openness", label: "Openness", desc: "Receptivity vs Guarded" },
-        { key: "affinity", label: "Affinity", desc: "Inter-Entity Bond" },
-    ]
+    /**
+     * Dictionary for human-readable labels and descriptions.
+     * Maps the internal keys from DynamicsEngine to user-facing text.
+     */
+    const DYNAMICS_META = {
+        // Character (Somatic) axes
+        chaos: { label: "Chaos", desc: "Randomness vs Control" },
+        intensity: { label: "Intensity", desc: "Internal Energy / Adrenaline" },
+        openness: { label: "Openness", desc: "Receptivity vs Guardedness" },
+        affinity: { label: "Affinity", desc: "Inter-Entity Bond / Empathy" },
+        // Fractal (Environmental) axes
+        velocity: { label: "Velocity", desc: "Environmental Pacing / Speed" },
+        entropy: { label: "Entropy", desc: "Structural Reality / Weirdness" },
+    }
+
+    /**
+     * Dynamically computes which dynamics are available on the current character.
+     * Scans both standard 'dynamics' and runtime 'fractal_dynamics'.
+     */
+    let active_dynamics = $derived.by(() => {
+        const list = []
+
+        // 1. Scan Primary Dynamics (Standard DB Character or Fractal object)
+        if (char?.dynamics) {
+            for (const key of Object.keys(char.dynamics)) {
+                list.push({
+                    source: "dynamics",
+                    key: key,
+                    label: DYNAMICS_META[key]?.label || key.charAt(0).toUpperCase() + key.slice(1),
+                    desc: DYNAMICS_META[key]?.desc || "Custom Metric",
+                })
+            }
+        }
+
+        // 2. Scan Runtime Fractal Dynamics (If the simulation state has them split)
+        if (char?.fractal_dynamics) {
+            for (const key of Object.keys(char.fractal_dynamics)) {
+                list.push({
+                    source: "fractal_dynamics",
+                    key: key,
+                    label: DYNAMICS_META[key]?.label || key.charAt(0).toUpperCase() + key.slice(1),
+                    desc: DYNAMICS_META[key]?.desc || "Environmental Metric",
+                })
+            }
+        }
+
+        return list
+    })
 </script>
 
 <div class="dev-wing-content">
-    <!-- 1. Dynamics Console -->
     <div class="group dynamics-group">
         <div class="dynamics-grid">
-            {#each DYNAMICS_LIST as dynamic (dynamic.key)}
+            {#each active_dynamics as dynamic (dynamic.source + "-" + dynamic.key)}
                 <div class="dynamic-box" class:is-editing={is_editing}>
-                    <span class="dynamic-label">{dynamic.label}</span>
+                    <span class="dynamic-label" title={dynamic.desc}>{dynamic.label}</span>
                     <div class="value-container">
                         {#if is_editing}
-                            <input type="number" bind:value={char.dynamics[dynamic.key]} min="0" max="100" />
+                            <input type="number" bind:value={char[dynamic.source][dynamic.key]} min="0" max="100" />
                             <div class="step-controls">
-                                <button onclick={() => (char.dynamics[dynamic.key] = Math.min(100, char.dynamics[dynamic.key] + 1))}>+</button>
-                                <button onclick={() => (char.dynamics[dynamic.key] = Math.max(0, char.dynamics[dynamic.key] - 1))}>-</button>
+                                <button onclick={() => (char[dynamic.source][dynamic.key] = Math.min(100, char[dynamic.source][dynamic.key] + 1))}>+</button>
+                                <button onclick={() => (char[dynamic.source][dynamic.key] = Math.max(0, char[dynamic.source][dynamic.key] - 1))}>-</button>
                             </div>
                         {:else}
-                            <span class="value-display" style="--val: {char.dynamics[dynamic.key]}%">{char.dynamics[dynamic.key]}%</span>
+                            <span class="value-display" style="--val: {char[dynamic.source][dynamic.key]}%">
+                                {char[dynamic.source][dynamic.key]}%
+                            </span>
                         {/if}
                     </div>
                 </div>
@@ -43,7 +94,6 @@
         </div>
     </div>
 
-    <!-- 4. Metadata & Raw -->
     <div class="group meta-group">
         <div class="raw-explorer">
             <details>
@@ -96,7 +146,7 @@
         gap: var(--spacing-s);
     }
 
-    /* 1. Dynamics */
+    /* 1. Dynamics Display */
     .dynamics-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -130,6 +180,7 @@
                 opacity: 0.8;
                 margin-bottom: var(--spacing-xxs);
                 display: block;
+                cursor: help;
             }
 
             .value-container {
@@ -179,7 +230,7 @@
         }
     }
 
-    /* 4. Meta & Raw */
+    /* 4. Meta & Raw Explorer */
     .raw-explorer {
         summary {
             font-size: var(--font-size-xs);

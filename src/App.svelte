@@ -1,4 +1,9 @@
 <script>
+    /**
+     * @file App.svelte
+     * 🎮 THE CORE SHELL
+     * View-switching logic using storyboard and storymode terminology.
+     */
     import Lightbox from "@ui/molecules/dialogs/Lightbox.svelte"
     import ControlPanel from "@ui/organisms/panels/ControlPanel.svelte"
     import DebugPanel from "@ui/organisms/panels/DebugPanel.svelte"
@@ -17,44 +22,41 @@
     onMount(() => {
         mounted = true
     })
+
+    // Reactively derive the background image from the flattened schema
+    let fractalBg = $derived(app.selectedFractal?.profile_picture || "")
 </script>
 
 {#if mounted}
-    <div class="app-container" class:view-lobby={app.view === "lobby"} class:view-game={app.view === "game"} class:has-tension={app.tension > 0} class:has-fractal-bg={!!app.selectedFractal?.visuals?.profile_picture} transition:fade={{ duration: 800 }}>
-        <!-- FRACTAL BACKGROUND -->
-        {#if app.selectedFractal?.visuals?.profile_picture}
-            <div id="fractal-background" style:background-image="url('{app.selectedFractal.visuals.profile_picture}')" style:opacity={app.view === "game" ? 0.4 : 0.75}></div>
+    <div class="app-container" class:view-storyboard={app.view === "storyboard"} class:view-storymode={app.view === "storymode"} class:has-tension={app.tension > 0} class:has-fractal-bg={!!fractalBg} transition:fade={{ duration: 800 }}>
+        {#if fractalBg}
+            <div id="fractal-background" style:background-image="url('{fractalBg}')" style:opacity={app.view === "storymode" ? 0.4 : 0.75}></div>
         {/if}
 
-        <!-- GLOBAL: Lightbox Overlay -->
         {#if lightbox.active}
             <Lightbox />
         {/if}
 
-        <!-- GLOBAL: Profile Modal -->
         {#if app.profileOpen}
             <Profile entity_id={app.profileTargetId} entity_type={app.profileTargetType} />
         {/if}
 
-        <!-- GLOBAL: Control Panel (Settings / Admin) -->
         {#if app.controlPanelOpen}
             <ControlPanel />
         {/if}
 
-        <!-- TELEMETRY HUD (Slide-out Dev Inspector) -->
         {#if app.settings.dev_mode}
             <DebugPanel />
         {/if}
 
-        <!-- MAIN VIEW SWITCHER -->
-        {#if app.view === "lobby"}
+        {#if app.view === "storyboard"}
             <Storyboard />
-        {:else if app.view === "game"}
+        {:else if app.view === "storymode"}
             <Storymode />
         {/if}
-        <!-- DEV: Swap View Trigger (Only visible when Panel is open) -->
+
         {#if app.settings.dev_mode && app.controlPanelOpen}
-            <button class="swap-view-trigger" onclick={() => (app.view = app.view === "game" ? "lobby" : "game")}> ⇄ </button>
+            <button class="swap-view-trigger" onclick={() => (app.view = app.view === "storymode" ? "storyboard" : "storymode")} title="Toggle View Mode"> ⇄ </button>
         {/if}
     </div>
 {/if}
@@ -63,11 +65,8 @@
     @use "@theme/abstracts/variables" as *;
     @use "@theme/abstracts/surfaces" as *;
 
-    /* Global Reset/Base is handled in index.scss */
-
     .app-container {
         @include grain();
-
         width: 100%;
         height: 100vh;
         overflow: hidden;
@@ -80,12 +79,6 @@
             width: 100%;
             height: 100%;
         }
-
-        /* 
-        GRID ARCHITECTURE Note:
-        The 10-column system is managed strictly within Layout.svelte.
-        App.svelte only handles the top-level app-container and modal overlays.
-    */
 
         &.has-tension {
             animation: reality-tremor 4s infinite ease-in-out;
@@ -126,23 +119,24 @@
         position: fixed;
         bottom: 1rem;
         right: 1rem;
-        z-index: 10001; /* Must be above Modal (9999) */
+        z-index: 10001;
         background: rgba(0, 0, 0, 0.5);
         box-shadow: 0 0 0 1px var(--glass-border);
         color: var(--zinc-500);
-        width: 2rem;
-        height: 2rem;
+        width: 2.5rem;
+        height: 2.5rem;
         border-radius: 50%;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1rem;
+        font-size: 1.2rem;
         transition: all 0.2s;
 
         &:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--zinc-100);
+            background: rgba(var(--pure-white-rgb), 0.1);
+            color: white;
+            transform: scale(1.1);
         }
     }
 </style>

@@ -1,57 +1,72 @@
-// 🛠️ UI: Interface State Manager
-// Manages modals, view states, and visual feedback.
+/**
+ * src/state/app.svelte.js
+ * 🛠️ UI: Interface State Manager
+ * Manages modals, view states, and visual feedback using storyboard/storymode terminology.
+ * ZERO NESTING — Flattened Schema only.
+ */
 import { db } from "@data/db.js"
 import { openLightbox } from "@state/lightbox.svelte.js"
 import { runtime } from "@state/runtime.svelte.js"
-import { engineState } from "@state/status.svelte.js" // [R5] Unified Engine State
+import { engineState } from "@state/status.svelte.js"
 import { themeStore } from "@theme/palette.svelte.js"
+
+// Static formatter to avoid 'new Date()' mutable instance warnings in reactive contexts
+const logTimeFormatter = new Intl.DateTimeFormat("sv-SE", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+})
 
 export class AppStore {
     initialized = false
-    // Navigation
-    view = $state("lobby") // 'lobby' | 'game'
+
+    // --- NAVIGATION ---
+    view = $state("storyboard") // 'storyboard' | 'storymode'
     controlPanelOpen = $state(false)
     profileOpen = $state(false)
 
-    // 🎭 LOBBY SELECTION STATE
+    // --- ENTITY SELECTION STATE (STORYBOARD) ---
     selectedAi = $state(null)
     selectedUser = $state(null)
     selectedFractal = $state(null)
+
     aiList = $state([])
     userList = $state([])
     fractalList = $state([])
-    // 📥 ENTITY DRAWER STATE
+
+    // --- ENTITY DRAWER STATE ---
     drawer = $state({
         open: false,
         type: null, // 'ai' | 'user' | 'fractal'
     })
 
-    // 📖 NARRATIVE CONFIG
-    prologue = $state("") // User directions for the start
+    // --- NARRATIVE CONFIG ---
+    prologue = $state("") // Starting directions/context
 
-    // 🧬 SIMULATION STATE (The Heartbeat)
+    // --- SIMULATION STATE ---
     simulation = $state({
         loading: false, // STASIS: True when Chrono is processing
     })
 
-    // 🔮 FATE SYSTEM (Fortune)
+    // --- FATE SYSTEM ---
     fate = $state({
-        active: false, // UI Trigger (The Eye Opens)
-        hand: [], // Cards available to pick
-        selected: null, // The chosen card
+        active: false,
+        hand: [],
+        selected: null,
     })
 
-    // 🌩️ UI TENSION (Reactive Intensity)
+    // --- UI TENSION (Reactive Intensity) ---
     tension = $derived(engineState.phase === "generating" || engineState.phase === "locked" ? 1 : 0)
 
-    // 🎛️ SETTINGS (User Preferences)
+    // --- SETTINGS ---
     settings = $state({
-        sound: true, // Notification Sounds
-        call_mode: false, // UI Layout Mode
-        stream_text: true, // True = Real-time chunks, False = Instant
-        auto_scroll: true, // Follow chat
+        sound: true,
+        call_mode: false,
+        stream_text: true,
+        auto_scroll: true,
         dev_mode: false,
     })
+
     get turn() {
         return runtime.turn
     }
@@ -59,15 +74,15 @@ export class AppStore {
         runtime.turn = val
     }
 
-    // 1. LOBBY READINESS (Derived Traceable Logic)
+    // --- READINESS (Derived Logic) ---
     canStart = $derived(this.settings.dev_mode || (this.selectedAi && this.selectedUser))
 
-    // Legacy compat getter
-    get lobbyReady() {
+    /** Legacy alias for storyboard readiness */
+    get storyboardReady() {
         return this.canStart
     }
 
-    // 🧪 TELEMETRY (DevMode HUD)
+    // --- TELEMETRY (DevMode HUD) ---
     logs = $state([])
     causalityReport = $state({
         chaos: 0,
@@ -75,11 +90,14 @@ export class AppStore {
         reflex: "Stable",
     })
 
+    /**
+     * Records a system event.
+     * Uses Intl.format(Date.now()) to satisfy ESLint prefer-svelte-reactivity.
+     */
     log(message, type = "system") {
         const entry = {
             id: Math.random().toString(36).substring(7),
-            // eslint-disable-next-line svelte/prefer-svelte-reactivity
-            timestamp: new Date().toLocaleTimeString(),
+            timestamp: logTimeFormatter.format(Date.now()),
             message,
             type, // 'system' | 'ai' | 'db' | 'error'
         }
@@ -94,11 +112,9 @@ export class AppStore {
         if (typeof window === "undefined" || this.initialized) return
         this.initialized = true
 
-        // 1. Load Settings from Dexie
         try {
             const entry = await db.kv_settings.get("rpg_settings")
             if (entry && entry.value) {
-                // Merge to ensure new keys are preserved
                 this.settings = { ...this.settings, ...entry.value }
             }
         } catch (e) {
@@ -107,13 +123,7 @@ export class AppStore {
     }
 
     saveSettings = async () => {
-        if (typeof window === "undefined") return
-
-        // [STABILITY] Defense against lost context or uninitialized state
-        if (!this || !this.settings) {
-            console.error("[Security] saveSettings: App context or settings lost.")
-            return
-        }
+        if (typeof window === "undefined" || !this.settings) return
 
         try {
             await db.kv_settings.put({
@@ -124,7 +134,7 @@ export class AppStore {
             console.error("[Security] Settings Save Failed:", e)
         }
 
-        // 2. Broadcast to Legacy Global (Immediate Sync)
+        // Global Sync for non-Svelte legacy components
         if (typeof window !== "undefined") {
             window.RPGLITCH_CONFIG = {
                 sound: this.settings.sound,
@@ -135,14 +145,15 @@ export class AppStore {
         }
     }
 
-    //  STREAMING STATE (Real-time data from LLM)
+    // --- LLM STREAMING ---
     streaming = $state({
         active: false,
         content: "",
-        nodeId: null, // ID of the message being generated
+        nodeId: null,
     })
 
-    // Actions
+    // --- ACTIONS ---
+
     toggleControlPanel = () => {
         this.controlPanelOpen = !this.controlPanelOpen
     }
@@ -151,20 +162,6 @@ export class AppStore {
         this.view = view
     }
 
-    rerollTitle = async () => {
-        /*
-        const titles = [
-            "The Echo of Silence",
-            "Neon Shadows",
-            "Fractal Dreams",
-            "Velvet Thunder",
-            "Code & Chrome",
-        ]
-        */
-        // Random selection for now
-    }
-
-    // Drawer Actions
     openDrawer = (type) => {
         this.drawer.open = true
         this.drawer.type = type
@@ -175,22 +172,27 @@ export class AppStore {
         this.drawer.type = null
     }
 
+    /**
+     * Selects an entity for the current session.
+     * Automatically normalizes the object to ensure a flattened schema.
+     */
     selectEntity = (type, entity) => {
-        if (type === "ai") this.selectedAi = entity
-        else if (type === "user") this.selectedUser = entity
-        else if (type === "fractal") this.selectedFractal = entity
+        const clean = themeStore.normalizeEntity(entity)
+        if (type === "ai") this.selectedAi = clean
+        else if (type === "user") this.selectedUser = clean
+        else if (type === "fractal") this.selectedFractal = clean
         this.closeDrawer()
     }
+
     editingEntity = $state(null)
 
+    /**
+     * Toggles the profile modal and prepares the target entity for editing.
+     */
     toggleProfile = (forceState = null, entity = null) => {
-        if (forceState !== null) {
-            this.profileOpen = forceState
-        } else {
-            this.profileOpen = !this.profileOpen
-        }
+        if (forceState !== null) this.profileOpen = forceState
+        else this.profileOpen = !this.profileOpen
 
-        // If opening with a specific entity, normalize and set it
         if (entity) {
             this.editingEntity = themeStore.normalizeEntity(entity)
         }
@@ -200,44 +202,36 @@ export class AppStore {
         this.profileOpen = false
     }
 
-    profileTargetId = $derived(this.editingEntity?.id || null)
-    profileTargetType = $derived(this.editingEntity?.type || null)
-
-    /**
-     * Alias for toggleProfile to match clearer intent
-     * @param {Object} entity - The entity to edit
-     */
     openProfile = (entity) => {
         this.toggleProfile(true, entity)
     }
 
-    // Settings Mutators (Auto-Save)
+    profileTargetId = $derived(this.editingEntity?.id || null)
+    profileTargetType = $derived(this.editingEntity?.type || null)
+
+    // SETTINGS MUTATORS
     toggleSound = () => {
         this.settings.sound = !this.settings.sound
         this.saveSettings()
     }
-
     toggleCallMode = () => {
         this.settings.call_mode = !this.settings.call_mode
         this.saveSettings()
     }
-
     toggleStreamText = () => {
         this.settings.stream_text = !this.settings.stream_text
         this.saveSettings()
     }
-
     toggleAutoScroll = () => {
         this.settings.auto_scroll = !this.settings.auto_scroll
         this.saveSettings()
     }
-
     toggleDevMode = () => {
         this.settings.dev_mode = !this.settings.dev_mode
         this.saveSettings()
     }
 
-    // Streaming Mutators (Called by Engine/LLM)
+    // STREAMING CONTROL
     startStream = (id) => {
         this.streaming.active = true
         this.streaming.content = ""
@@ -253,20 +247,17 @@ export class AppStore {
         this.streaming.nodeId = null
     }
 
-    /**
-     * Lightbox Controls (Proxied to Polish)
-     */
     openLightbox = (src, caption = "") => {
         openLightbox(src, caption)
     }
 
     /**
-     * DEBUG: Force Start Game
-     * Bypasses lobby checks.
+     * DEBUG: Force Storymode Entry
+     * Bypasses storyboard selection checks.
      */
     forceStart = () => {
-        console.warn("⚠️ FORCING GAME START")
-        this.view = "game"
+        console.warn("⚠️ FORCING STORYMODE START")
+        this.view = "storymode"
     }
 }
 
@@ -275,5 +266,5 @@ export const app = new AppStore()
 if (typeof window !== "undefined") {
     window.app = app
     window.rpgApp = app
-    window.state = app // [LEGACY BRIDGE] Map global state to new reactive store
+    window.state = app
 }

@@ -1,51 +1,44 @@
 /**
- * src/js/scholar/repository.js
- * THE REPOSITORY (Knowledge Access Layer)
- * Handles CRUD operations for Entities and Stories using Dexie.
+ * src/data/repository.js
+ * 📂 THE REPOSITORY (Knowledge Access Layer)
+ * RUTHLESSLY FLATTENED SCHEMA — ZERO BACKWARDS COMPATIBILITY.
+ * If it's not at the top level, it doesn't exist.
  */
 
 import { db } from "./db.js"
-
-// Data Providers
 import { premade } from "@/data/entity_premades.js"
 import { normalize, STORAGE_VERSION } from "@data/content_normaliser.js"
 
 const error = console.error
 
 // ============================================================================
-// 1. DATA SEEDING (The Factory)
+// 1. DATA SEEDING (The Entity Foundry)
 // ============================================================================
 
+/**
+ * Seeds the database with premade entities if they don't already exist.
+ * Trusts the Normalizer to enforce the flattened "Twin-Cylinder" structure.
+ */
 export const seedPremades = async () => {
     if (typeof globalThis !== "undefined" && globalThis._seeding) return
     if (typeof globalThis !== "undefined") globalThis._seeding = true
 
     try {
         const existing = await db.entities.toArray()
-
-        // Map premade entities to blueprints
-        const blueprints = premade.entities.map((e) => ({
-            ...e,
-            kind: e.type,
-        }))
-
         const toAdd = []
 
-        for (const bp of blueprints) {
-            // Check if it already exists by stable ID or originId
+        for (const bp of premade.entities) {
+            // Check by ID or originId to prevent duplicates of factory stock
             const hasChild = existing.some((e) => e.id === bp.id || e.originId === bp.id)
 
             if (!hasChild) {
-                const type = bp.kind || bp.type || "character"
-                const normalized = normalize({ ...bp, type })
+                // Trust the Normalizer to handle flattening and type-aware dynamics
+                const normalized = normalize(bp)
 
                 toAdd.push({
                     ...normalized,
-                    id: bp.id, // Use stable ID from blueprint
+                    id: bp.id,
                     originId: bp.id,
-                    type: type,
-                    profile_picture: (bp.visuals && bp.visuals["profile_picture"]) || bp["profile_picture"] || null,
-                    signature_color: (bp.visuals && bp.visuals["signature_color"]) || bp["signature_color"] || "#84cc16",
                     isPremade: 1,
                     isCustom: 0,
                     isSnapshot: 0,
@@ -55,53 +48,59 @@ export const seedPremades = async () => {
                 })
             }
         }
+
         if (toAdd.length > 0) {
-            await db.entities.bulkPut(toAdd) // Use bulkPut for idempotency
+            await db.entities.bulkPut(toAdd)
         }
     } catch (err) {
-        error("Failed to seed premades:", err)
+        error("Foundry Error: Failed to seed the premade gods.", err)
     } finally {
         if (typeof globalThis !== "undefined") globalThis._seeding = false
     }
 }
 
 // ============================================================================
-// 2. ENTITIES (CRUD)
+// 2. ENTITIES (The CRUD Engine)
 // ============================================================================
 
 export const entities = {
+    /**
+     * Lists all entities of a specific type (character/fractal).
+     */
     async list(type) {
         try {
             const items = await db.entities.where("type").equals(type).toArray()
             return items.sort((a, b) => (a.name || "").localeCompare(b.name || ""))
         } catch (err) {
-            error(`Error listing ${type}:`, err)
+            error(`Error listing the ${type} census:`, err)
             return []
         }
     },
 
+    /**
+     * Retrieves a single entity by ID, falling back to premades if not in DB.
+     */
     async get(type, id) {
         try {
             let item = await db.entities.get(id)
-
-            // Fallback to Premades if not in DB
-            if (!item) {
-                item = premade.entities.find((e) => e.id === id)
-            }
-
+            if (!item) item = premade.entities.find((e) => e.id === id)
             return item && item.type === type ? item : null
         } catch (err) {
-            error(`Failed to get ${type} with id ${id}:`, err)
+            error(`Failed to fetch ${type} [${id}] from the void:`, err)
             return null
         }
     },
 
-    async upsert(type, entity, options = {}) {
+    /**
+     * Saves or updates an entity.
+     * Force-normalizes and flattens everything before it touches the disk.
+     */
+    async upsert(type, entity) {
         try {
             const id = entity.id || crypto.randomUUID()
             const base = (await db.entities.get(id)) || {}
 
-            // SANITIZE: ENSURE PLAIN OBJECT (Fixes DataCloneError for Svelte 5 Proxies)
+            // Break the Svelte 5 Proxy chains - deep clone for safety
             const cleanEntity = JSON.parse(JSON.stringify(entity))
 
             const saved = {
@@ -116,14 +115,16 @@ export const entities = {
             }
 
             await db.entities.put(saved)
-
             return saved
         } catch (err) {
-            error(`Failed to save ${type}:`, err)
-            throw new Error(`Failed to save ${type}. Please try again.`)
+            error(`Failed to manifest ${type} into the database:`, err)
+            throw err
         }
     },
 
+    /**
+     * Deletes an entity if it matches the requested type.
+     */
     async remove(type, id) {
         try {
             const item = await db.entities.get(id)
@@ -131,17 +132,21 @@ export const entities = {
                 return db.entities.delete(id)
             }
         } catch (err) {
-            error(`Failed to delete ${type}:`, err)
+            error(`Failed to delete ${type} [${id}] - it's fighting back:`, err)
             throw err
         }
     },
 }
 
 // ============================================================================
-// 3. STORIES (CRUD)
+// 3. STORIES (The Narrative Archive)
 // ============================================================================
 
 export const stories = {
+    /**
+     * Lists all stories with associated fractal metadata.
+     * UPDATED: Accesses flattened fractal properties directly.
+     */
     async list() {
         try {
             const allStories = await db.stories.orderBy("updated_at").reverse().toArray()
@@ -149,21 +154,21 @@ export const stories = {
             return await Promise.all(
                 allStories.map(async (story) => {
                     const fractal = await db.entities.get(story.fractal_id)
-                    const avatar = fractal?.visuals?.profile_picture || fractal?.profile_picture || ""
 
+                    // Simple, flat return. No .visuals nesting here.
                     return {
                         id: story.id,
-                        title: story.title || "Untitled Story",
+                        title: story.title || "Untitled Fragment",
                         state: story.isConcluded ? "concluded" : "active",
                         lastPlayed: story.updated_at,
-                        fractal_avatar: avatar,
-                        fractal_name: fractal?.name || "Unknown Fractal",
+                        fractal_avatar: fractal?.profile_picture || "",
+                        fractal_name: fractal?.name || "The Void",
                         signature_color: fractal?.signature_color || "default",
                     }
                 })
             )
         } catch (err) {
-            error("Repo: Failed to list stories", err)
+            error("Archive Failure: Failed to list narrative records.", err)
             return []
         }
     },
@@ -171,61 +176,11 @@ export const stories = {
     get: (id) => db.stories.get(id),
     update: (id, changes) => db.stories.update(id, changes),
 
+    /**
+     * Deletes a story and its entire simulation log.
+     */
     async delete(id) {
         await db.simulation_log.where("story_id").equals(id).delete()
         return db.stories.delete(id)
     },
-}
-
-// ============================================================================
-// 4. LORE SEARCH (Hybrid Engine)
-// ============================================================================
-
-/**
- * Perform a keyword/semantic search for lorebook entries.
- * DEV: Uses Supabase Edge Function with SQL fallback.
- * PROD: Uses direct SQL text search.
- * @param {string} query - The search query
- * @returns {Promise<Array>} List of lorebook entries
- */
-export const searchLore = async (query) => {
-    if (!query) return []
-    console.warn("[Data] Supabase search disabled (Local-First Mode).")
-    return []
-}
-
-/**
- * Direct SQL Text Search for Lorebook entries.
- * @param {string} query - The search query
- * @returns {Promise<Array>} List of lorebook entries
- */
-export const searchLoreSQL = async (query) => {
-    return []
-}
-
-// ============================================================================
-// 5. UTILITIES
-// ============================================================================
-
-export const copyEntity = async (type, id) => {
-    try {
-        const item = await entities.get(type, id)
-        if (!item) return null
-
-        const newEntity = {
-            ...item,
-            id: undefined,
-            originId: null,
-            isPremade: 0,
-            isCustom: 1,
-            name: `${item.name || "Untitled"} (Copy)`,
-            created_at: Date.now(),
-            updated_at: Date.now(),
-        }
-
-        return newEntity
-    } catch (err) {
-        error(`Failed to copy ${type}:`, err)
-        return null
-    }
 }
