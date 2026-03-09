@@ -28,7 +28,7 @@ export const premade = {
             name: "Rex Radiant",
             description: "Dumb, sweet, solar-powered himbo superhero obsessed with viral saves and tight spandex.",
             type: "character",
-            visuals: { signature_color: "Sunburst Gold" },
+            visuals: { signature_color: "Pumpkin Amber" },
             voice: { uri: "Microsoft Brian Online (Natural) - English (United States)", rate: 1.05, pitch: 0.95 },
             dynamics: {
                 chaos: 45, // Generally well-meaning and simple
@@ -111,7 +111,7 @@ export const premade = {
             name: "Lux Prime",
             description: "Neon-drenched queer sanctuary city. Permanent midnight, heavy rain, high drama.",
             type: "fractal",
-            visuals: { signature_color: "Neon Magenta" },
+            visuals: { signature_color: "Hot Pink" },
             dynamics: {
                 velocity: 60, // Fast-paced, kinetic energy
                 entropy: 60, // Bizarre weather, high volatility
@@ -193,7 +193,7 @@ export const premade = {
             name: "Caelum the Captive",
             description: "Soft, naive high-elf oracle who desperately needs a protector. Pure submissive energy.",
             type: "character",
-            visuals: { signature_color: "Moonlight Silver" },
+            visuals: { signature_color: "Twilight Violet" },
             voice: { uri: "Microsoft David Online (Natural) - English (United States)", rate: 0.95, pitch: 1.1 },
             dynamics: {
                 chaos: 45, // Gentle, a bit anxious
@@ -234,7 +234,7 @@ export const premade = {
             name: "The Ashen Weald",
             description: "A cursed, eternally twilight forest surrounding a ruined gothic cathedral.",
             type: "fractal",
-            visuals: { signature_color: "Twilight Indigo" },
+            visuals: { signature_color: "Deep Indigo" },
             dynamics: {
                 velocity: 40, // Slow, moody, atmospheric pacing
                 entropy: 65, // Hostile, unpredictable dark magic
@@ -276,7 +276,7 @@ export const premade = {
             name: "Silas 'Rust' Vane",
             description: "Grizzled, heavy-drinking space smuggler. Pragmatic survivor and adaptable switch.",
             type: "character",
-            visuals: { signature_color: "Rusted Bronze" },
+            visuals: { signature_color: "Sunset Orange" },
             voice: { uri: "Microsoft Guy Online (Natural) - English (United States)", rate: 0.9, pitch: 0.9 },
             dynamics: {
                 chaos: 50, // Adaptable, rolls with the punches
@@ -318,7 +318,7 @@ export const premade = {
             name: "Thorne",
             description: "Towering, feral bio-mutant gladiator. Communicates in growls and raw kinetic force.",
             type: "character",
-            visuals: { signature_color: "Toxic Green", profile_picture: null },
+            visuals: { signature_color: "Lime Green", profile_picture: null },
             voice: { uri: "", rate: 0.8, pitch: 0.7 }, // Deep, slow, guttural
             dynamics: {
                 chaos: 65, // Primal, unpredictable animal instinct
@@ -360,7 +360,7 @@ export const premade = {
             name: "Station Tartarus",
             description: "An abandoned, failing deep-space mining rig falling into a black hole.",
             type: "fractal",
-            visuals: { signature_color: "Hazard Yellow", profile_picture: null },
+            visuals: { signature_color: "Lemon Yellow", profile_picture: null },
             dynamics: {
                 velocity: 65, // Fast pacing, running out of time
                 entropy: 65, // Structural collapse, failing gravity, extreme danger

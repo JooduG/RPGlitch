@@ -38,10 +38,8 @@
 
     header {
         background: transparent; /* Background handled by Profile.svelte container */
-        padding: var(--spacing-l);
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-xs);
     }
 
     .name {

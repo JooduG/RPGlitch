@@ -23,63 +23,6 @@ import { CONFIG } from "@core/engine/config.js"
  */
 
 /************************************************************************************
- * ⚙️ [SECTION: LOCAL ENGINE MATH]
- * ----------------------------------------------------------------------------------
- * Quarantined math that used to clutter config.js. These numbers dictate exactly
- * how hard gravity pulls, and how severely stats break when they cross thresholds.
- ************************************************************************************/
-const ENGINE_MATH = {
-    // Universal Physics
-    GRAVITY_STRENGTH: 0.25,
-
-    // Character Law Effects (How stats shift when a breaking point is reached)
-    ADRENALINE_OVERDRIVE_OPENNESS: -10,
-    ADRENALINE_OVERDRIVE_AFFINITY: -5,
-    STOP_AFFINITY: 10,
-    STOP_CHAOS: -5,
-    REALITY_CORRUPTION_AFFINITY: -5,
-    REALITY_CORRUPTION_INTENSITY: 10,
-    PERFECT_LOGIC_OPENNESS: -10,
-    PERFECT_LOGIC_INTENSITY: -5,
-    MANIC_OBSESSION_CHAOS: -10,
-    MANIC_OBSESSION_OPENNESS: -5,
-    TOTAL_APATHY_INTENSITY: -10,
-    TOTAL_APATHY_CHAOS: 5,
-
-    // Modifiers (Multipliers for extreme emotional states)
-    MODIFIER_EXPOSED_VULNERABILITY_CHAOS: 2.0,
-    MODIFIER_IRON_GUARDED_AFFINITY: 0.5,
-    MODIFIER_AFFINITY_CASCADE_CHAOS: 0,
-
-    // Composite Thresholds (Edge-case psychological breaks)
-    AFFINITY_CASCADE_THRESHOLD_AFFINITY: 80,
-    AFFINITY_CASCADE_THRESHOLD_CHAOS: 20,
-    EVENT_HORIZON_THRESHOLD_INTENSITY: 20,
-    EVENT_HORIZON_THRESHOLD_OPENNESS: 80,
-
-    // Naivety Cognition (Bayesian Math for lie detection)
-    NAIVETY_THRESHOLD: 0.6,
-    NAIVETY_P_E_GIVEN_TRUST: 0.8,
-    NAIVETY_P_E_GIVEN_DISTRUST: 0.3,
-
-    // Semantic Weights (How "heavy" an event is, W=1-10)
-    WEIGHT_BASELINE: 3,
-    WEIGHT_CORE_THRESHOLD: 10,
-    REFLEX_WEIGHT_MAP: {
-        SCHISM: 9, // Major Betrayal
-        EPIPHANY: 9, // Major Revelation
-        ANOMALY: 8, // Existential dread
-        SYSTEM_COLLAPSE: 8, // Structural catastrophe
-        VULNERABILITY: 7, // Deep intimacy
-        KINETICS: 7, // Physical violence/speed
-        ANCHOR: 5, // Recovery, baseline shift
-        FORTIFICATION: 4, // Defensive actions
-        FOCUS: 3, // Clinical observation
-        STASIS: 3, // Rest, stillness
-    },
-}
-
-/************************************************************************************
  * 🧩 [SECTION: THE REGISTRY]
  * ----------------------------------------------------------------------------------
  * The semantic dictionary. This splits inputs into Character (Mind) and Fractal (World).
@@ -323,7 +266,6 @@ export class DynamicsEngine {
             flags: [],
             signals: {},
             behaviors: [],
-            intruders: [], // The Surprise Guest Radar for the active Fractal
         }
 
         // 1. Scan and Apply Reflexes to both dimensions
@@ -352,7 +294,6 @@ export class DynamicsEngine {
 
         // 2. Execute Universal Physics (Gravity)
         // Gravity slowly pulls extreme emotional/environmental states back to their natural baseline over time.
-        // E.g., This pulls the Fractal's Velocity back down to 50 if the player stands still for 3 turns.
         DynamicsEngine._apply_gravity(state.dynamics, ai_baselines)
         DynamicsEngine._apply_gravity(state.fractal_dynamics, fractal_baselines)
 
@@ -362,7 +303,7 @@ export class DynamicsEngine {
         DynamicsEngine._apply_fractal_laws(state, d_phys.LAW_HIGH)
 
         // 4. Map Output Signals
-        // Translates the raw numbers (e.g., intensity: 95) into English prose directions for the LLM.
+        // Translates the raw numbers into English prose directions for the LLM.
         DynamicsEngine._map_signals(state.dynamics, state, d_phys.SIGNAL_HIGH, d_phys.SIGNAL_LOW)
         DynamicsEngine._map_signals(state.fractal_dynamics, state, d_phys.SIGNAL_HIGH, d_phys.SIGNAL_LOW)
 
@@ -370,7 +311,7 @@ export class DynamicsEngine {
         // Does the user sound like a used car salesman? If so, make the AI suspicious.
         const suspicion = DynamicsEngine._resolve_naivety(input, state.dynamics.openness)
         if (suspicion !== null) {
-            if (suspicion > ENGINE_MATH.NAIVETY_THRESHOLD) {
+            if (suspicion > 0.6) {
                 state.behaviors.push("[NAIVETY] Trust breach detected. High scepticism warranted.")
             } else if (suspicion > 0.5) {
                 state.behaviors.push("[NAIVETY] Claim plausibility is uncertain. Proceed with caution.")
@@ -388,14 +329,13 @@ export class DynamicsEngine {
 
     /**
      * The rubber band. Calculates the distance from the current state to the entity's
-     * natural baseline, and pulls it slightly toward center using GRAVITY_STRENGTH.
+     * natural baseline, and pulls it slightly toward center.
      */
     static _apply_gravity(dynamics, baselines) {
-        const grav = ENGINE_MATH.GRAVITY_STRENGTH
         Object.keys(dynamics).forEach((axis) => {
             const diff = baselines[axis] - dynamics[axis]
             if (diff !== 0) {
-                let pull = diff * grav
+                let pull = diff * 0.25 // Gravity strength
                 // Failsafe: if the pull is tiny, just snap it by 1 so we don't get stuck at 50.1
                 if (Math.abs(pull) < 1) pull = Math.sign(diff) * 1
                 dynamics[axis] += pull
@@ -409,56 +349,55 @@ export class DynamicsEngine {
      */
     static _apply_character_laws(state, prev_dynamics, LAW_HIGH, LAW_LOW) {
         const { intensity, chaos, affinity, openness } = state.dynamics
-        const math = ENGINE_MATH
 
         // Intensity Laws
         if (intensity >= LAW_HIGH) {
             state.flags.push("ADRENALINE_OVERDRIVE")
-            state.dynamics.openness += math.ADRENALINE_OVERDRIVE_OPENNESS
-            state.dynamics.affinity += math.ADRENALINE_OVERDRIVE_AFFINITY
+            state.dynamics.openness += -10
+            state.dynamics.affinity += -5
         } else if (intensity <= LAW_LOW) {
             state.flags.push("STOP")
-            state.dynamics.affinity += math.STOP_AFFINITY
-            state.dynamics.chaos += math.STOP_CHAOS
+            state.dynamics.affinity += 10
+            state.dynamics.chaos += -5
         }
 
         // Chaos Laws
         if (chaos >= LAW_HIGH) {
             state.flags.push("REALITY_CORRUPTION")
-            state.dynamics.affinity += math.REALITY_CORRUPTION_AFFINITY
-            state.dynamics.intensity += math.REALITY_CORRUPTION_INTENSITY
+            state.dynamics.affinity += -5
+            state.dynamics.intensity += 10
         } else if (chaos <= LAW_LOW) {
             state.flags.push("PERFECT_LOGIC")
-            state.dynamics.openness += math.PERFECT_LOGIC_OPENNESS
-            state.dynamics.intensity += math.PERFECT_LOGIC_INTENSITY
+            state.dynamics.openness += -10
+            state.dynamics.intensity += -5
         }
 
         // Openness Laws
         if (openness >= LAW_HIGH) {
             state.flags.push("EXPOSED_VULNERABILITY")
-            state.dynamics.chaos *= math.MODIFIER_EXPOSED_VULNERABILITY_CHAOS
+            state.dynamics.chaos *= 2.0
         } else if (openness <= LAW_LOW) {
             state.flags.push("IRON_GUARDED")
-            state.dynamics.affinity *= math.MODIFIER_IRON_GUARDED_AFFINITY
+            state.dynamics.affinity *= 0.5
         }
 
         // Affinity Laws
         if (affinity >= LAW_HIGH) {
             state.flags.push("MANIC_OBSESSION")
-            state.dynamics.chaos += math.MANIC_OBSESSION_CHAOS
-            state.dynamics.openness += math.MANIC_OBSESSION_OPENNESS
+            state.dynamics.chaos += -10
+            state.dynamics.openness += -5
         } else if (affinity <= LAW_LOW) {
             state.flags.push("TOTAL_APATHY")
-            state.dynamics.intensity += math.TOTAL_APATHY_INTENSITY
-            state.dynamics.chaos += math.TOTAL_APATHY_CHAOS
+            state.dynamics.intensity += -10
+            state.dynamics.chaos += 5
         }
 
         // Composite Edge Cases
-        if (affinity >= math.AFFINITY_CASCADE_THRESHOLD_AFFINITY && chaos <= math.AFFINITY_CASCADE_THRESHOLD_CHAOS) {
+        if (affinity >= 80 && chaos <= 20) {
             state.flags.push("AFFINITY_CASCADE")
-            state.dynamics.chaos = math.MODIFIER_AFFINITY_CASCADE_CHAOS
+            state.dynamics.chaos = 0
         }
-        if (intensity <= math.EVENT_HORIZON_THRESHOLD_INTENSITY && openness >= math.EVENT_HORIZON_THRESHOLD_OPENNESS) {
+        if (intensity <= 20 && openness >= 80) {
             state.flags.push("EVENT_HORIZON")
             if (prev_dynamics) {
                 state.dynamics.affinity = Math.max(state.dynamics.affinity, prev_dynamics.affinity)
@@ -467,33 +406,14 @@ export class DynamicsEngine {
     }
 
     /**
-     * Environmental breaking points. This acts as our autonomous Director.
-     * If Velocity (pacing) gets too fast, the Director throws a narrative grenade into the scene.
+     * Environmental breaking points.
      */
     static _apply_fractal_laws(state, LAW_HIGH) {
-        const { velocity, entropy } = state.fractal_dynamics
+        const { velocity } = state.fractal_dynamics
 
-        // The Director's Catalyst Ignition
+        // Prevent velocity from getting permanently stuck at max
         if (velocity >= LAW_HIGH) {
-            state.flags.push("CATALYST_IGNITION")
-
-            // We use Entropy (the world's weirdness/hostility) to decide WHAT kind of grenade to throw.
-            if (entropy >= 50) {
-                state.intruders.push({
-                    name: "Hostile Complication",
-                    intensity: velocity,
-                    flags: ["disruptive", "threat", "environmental hazard"],
-                })
-            } else {
-                state.intruders.push({
-                    name: "Benign Anomaly",
-                    intensity: velocity,
-                    flags: ["unexpected opportunity", "serendipitous", "sudden arrival"],
-                })
-            }
-
-            // CRITICAL: After spawning a catalyst, we bleed off the velocity by 20 points.
-            // If we don't do this, velocity stays > 90 and the engine spawns infinite golems every turn.
+            state.flags.push("MAX_VELOCITY")
             state.fractal_dynamics.velocity -= 20
         }
     }
@@ -531,8 +451,6 @@ export class DynamicsEngine {
 
     /**
      * Calculates a Bayesian suspicion score if the user attempts persuasion.
-     * Basically: "If the user says 'trust me', and the character's openness is low,
-     * the character should assume they are lying."
      * @param {string} input - The raw user input.
      * @param {number} openness - The NPC's current openness axis (0-100).
      * @returns {number|null} The posterior suspicion float (0.0-1.0).
@@ -546,8 +464,8 @@ export class DynamicsEngine {
         const prior_trust = Math.max(0.01, Math.min(0.99, openness / 100))
         const prior_distrust = 1.0 - prior_trust
 
-        const p_e_given_trust = ENGINE_MATH.NAIVETY_P_E_GIVEN_TRUST
-        const p_e_given_distrust = ENGINE_MATH.NAIVETY_P_E_GIVEN_DISTRUST
+        const p_e_given_trust = 0.8
+        const p_e_given_distrust = 0.3
 
         // Marginal Probability of Evidence: P(E) = P(E|T)*P(T) + P(E|~T)*P(~T)
         const p_e = p_e_given_trust * prior_trust + p_e_given_distrust * prior_distrust
@@ -570,15 +488,28 @@ export class DynamicsEngine {
      * or forget it immediately.
      */
     static evaluate_weight(reflexes) {
-        if (!Array.isArray(reflexes) || reflexes.length === 0) return ENGINE_MATH.WEIGHT_BASELINE
+        if (!Array.isArray(reflexes) || reflexes.length === 0) return 3 // Baseline Weight
 
         const ids = reflexes.map((r) => r.id)
 
         // Composite combo attack: Existential dread + physical shock = Core memory (Level 10)
-        if (ids.includes("ANOMALY") && ids.includes("KINETICS")) return ENGINE_MATH.WEIGHT_CORE_THRESHOLD
+        if (ids.includes("ANOMALY") && ids.includes("KINETICS")) return 10 // Core Weight
+
+        const WEIGHT_MAP = {
+            SCHISM: 9, // Major Betrayal
+            EPIPHANY: 9, // Major Revelation
+            ANOMALY: 8, // Existential dread
+            SYSTEM_COLLAPSE: 8, // Structural catastrophe
+            VULNERABILITY: 7, // Deep intimacy
+            KINETICS: 7, // Physical violence/speed
+            ANCHOR: 5, // Recovery, baseline shift
+            FORTIFICATION: 4, // Defensive actions
+            FOCUS: 3, // Clinical observation
+            STASIS: 3, // Rest, stillness
+        }
 
         // Otherwise, grab the heaviest weight out of the triggered reflexes
-        const weights = ids.map((id) => ENGINE_MATH.REFLEX_WEIGHT_MAP[id] ?? ENGINE_MATH.WEIGHT_BASELINE)
-        return Math.max(ENGINE_MATH.WEIGHT_BASELINE, ...weights)
+        const weights = ids.map((id) => WEIGHT_MAP[id] ?? 3)
+        return Math.max(3, ...weights)
     }
 }

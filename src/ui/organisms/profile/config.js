@@ -16,27 +16,28 @@ export const PROFILE_SECTIONS = Object.entries(ENTITY_FRAGMENTS)
     .map(([sectionKey, sectionObj]) => {
         /** @type {any} */
         const section = sectionObj
-        const fields = section.fields
-            ? Object.entries(section.fields).map(([fieldKey, field]) => {
-                  return {
-                      key: `${sectionKey}.${fieldKey}`,
-                      label: field.label,
-                      description: field.description || "",
-                      enhancer: field.enhancer,
-                      type: field.type,
-                      unitLabel: field.unit_label || section.unit_label || "Vector",
-                  }
-              })
-            : [
-                  {
-                      key: sectionKey,
-                      label: section.label,
-                      description: section.description || "",
-                      enhancer: section.enhancer,
-                      type: section.type,
-                      unitLabel: section.unit_label || "Vector",
-                  },
-              ]
+        const fields =
+            section.fields && section.type !== "array"
+                ? Object.entries(section.fields).map(([fieldKey, field]) => {
+                      return {
+                          key: `${sectionKey}.${fieldKey}`,
+                          label: field.label,
+                          description: field.description || "",
+                          enhancer: field.enhancer,
+                          type: field.type,
+                          unitLabel: field.unit_label || section.unit_label || "Vector",
+                      }
+                  })
+                : [
+                      {
+                          key: sectionKey,
+                          label: section.label,
+                          description: section.description || "",
+                          enhancer: section.enhancer,
+                          type: section.type,
+                          unitLabel: section.unit_label || "Vector",
+                      },
+                  ]
 
         return {
             id: sectionKey,
