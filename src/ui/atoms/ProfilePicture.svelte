@@ -1,41 +1,33 @@
 <script>
     /**
-     * ProfilePicture - Agnostic profile image renderer
-     * Handles: real images, placeholders, AI art, phone pics - whatever
-     * Profile.svelte doesn't need to know the details.
-     *
-     * @typedef {Object} Entity
-     * @property {string} name
-     * @property {Object} [visuals]
-     * @property {string} [visuals.profilePictureUrl]
-     * @property {string} [visuals.signatureColor]
-     * @property {boolean} [visuals.noBackground]
-     * @property {boolean} [visuals.flipped]
+     * @file ProfilePicture.svelte
+     * 🖼️ AGNOSTIC PROFILE IMAGE RENDERER
+     * Handles real images, placeholders, and glitch overlays.
+     * RUTHLESSLY FLATTENED — Zero backward compatibility.
      */
-
     import { themeStore } from "@theme/palette.svelte.js"
     import { fitText } from "@ui/utils/actions/fitText.js"
 
     let { entity } = $props()
 
-    // Extract what we need from the entity
-    let pictureUrl = $derived(entity?.visuals?.profile_picture || entity?.visuals?.profile_picture_url || entity?.profile_picture || entity?.profile_picture_url)
+    // 1. Core Flattened Properties
     let name = $derived(entity?.name || "Entity")
+    let pictureUrl = $derived(entity?.profile_picture)
     let signatureColor = $derived(themeStore.getSignatureColor(entity))
     let initials = $derived(themeStore.getInitials(name))
-    let isNoBg = $derived(entity?.visuals?.noBackground)
-    let isFlipped = $derived(entity?.visuals?.flipped)
+
+    // 2. Minor Modifiers (Fallback safely if visuals object is missing)
+    let isNoBg = $derived(entity?.visuals?.noBackground ?? false)
+    let isFlipped = $derived(entity?.visuals?.flipped ?? false)
 </script>
 
 <div class="profile-picture" style="--signature-color: {signatureColor}">
     {#if pictureUrl}
-        <!-- Real image exists - show it -->
         <div class="image-container">
             <img src={pictureUrl} alt="{name} Profile" class="picture" class:no-bg={isNoBg} class:flipped={isFlipped} />
             <div class="glitch-overlay"></div>
         </div>
     {:else}
-        <!-- No image - show initials placeholder -->
         <div
             class="placeholder"
             use:fitText={{
@@ -59,6 +51,7 @@
         justify-content: center;
         overflow: hidden;
         border-radius: 0;
+        background: var(--surface-void);
     }
 
     .image-container {
@@ -73,9 +66,11 @@
         height: 100%;
         object-fit: cover;
         display: block;
+        transition: transform var(--transition-speed-slow) var(--physics-transition-elastic);
 
         &.no-bg {
             object-fit: contain;
+            filter: drop-shadow(0 0.5rem 1rem rgba(0, 0, 0, 0.5));
         }
 
         &.flipped {
@@ -85,24 +80,17 @@
 
     .glitch-overlay {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        inset: 0;
         pointer-events: none;
         mix-blend-mode: overlay;
         opacity: var(--opacity-s);
-
-        background: linear-gradient(transparent 50%, rgba(var(--pure-black-rgb), var(--opacity-xs)) 50%, rgba(var(--pure-black-rgb), var(--opacity-xs)));
+        background: linear-gradient(transparent 50%, rgba(var(--pure-black-rgb), var(--opacity-xs)) 50%);
         background-size: 100% var(--spacing-xxs);
 
         &::after {
             content: "";
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             background: linear-gradient(90deg, rgba(255, 0, 0, var(--opacity-xs)), rgba(0, 255, 0, var(--opacity-xs)), rgba(0, 0, 255, var(--opacity-xs)));
             background-size: 300% 100%;
             animation: chromatic-drift 10s infinite linear;
@@ -120,18 +108,18 @@
 
     .placeholder {
         position: relative;
+        display: flex;
         align-items: center;
         justify-content: center;
         width: 100%;
         height: 100%;
-        display: flex;
-        font-family: var(--font-heading);
-        font-size: clamp(1rem, 15vw, 10rem);
+        font-family: var(--font-header);
         font-weight: 700;
         color: white;
         text-shadow: var(--shadow-l);
         background-color: var(--signature-color);
         background-image: radial-gradient(at 0% 0%, color-mix(in srgb, var(--signature-color), white var(--opacity-m-val)) 0, transparent 50%), radial-gradient(at 100% 100%, color-mix(in srgb, var(--signature-color), black var(--opacity-l-val)) 0, transparent 50%);
         background-blend-mode: overlay;
+        text-transform: uppercase;
     }
 </style>

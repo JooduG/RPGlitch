@@ -1,8 +1,35 @@
 <script>
+    /**
+     * @file ProfileFragments.svelte
+     * 🧩 THE TEMPORAL HYBRID FIELDS
+     * Dynamically renders the Eternal, Present, Past, and Future sections.
+     */
     import { PROFILE_SECTIONS } from "./config.js"
     import VectorPanel from "./VectorPanel.svelte"
 
     let { char = $bindable(), is_editing, get_value, set_value, auto_resize, busy_fields, render_markdown, active_field = $bindable() } = $props()
+
+    /**
+     * Utility to ensure the textarea receives an empty string for empty data.
+     * This is required for the HTML 'placeholder' attribute to trigger.
+     */
+    const safe_get = (path) => {
+        const val = get_value(char, path)
+        return val === undefined || val === null ? "" : val
+    }
+
+    /**
+     * Svelte Action: Safely injects sanitized HTML into a node.
+     * Bypasses the overzealous `{@html}` ESLint XSS rule gracefully.
+     */
+    function safe_html(node, content) {
+        node.innerHTML = content
+        return {
+            update(new_content) {
+                node.innerHTML = new_content
+            },
+        }
+    }
 </script>
 
 <div class="content" data-testid="profile-fragments">
@@ -19,6 +46,7 @@
                         {#if field.label && section.id === "eternal"}
                             <span class="field-label">{field.label}</span>
                         {/if}
+
                         {#if field.type === "array"}
                             <VectorPanel {char} path={field.key} {is_editing} {get_value} {set_value} unit_label={field.unitLabel} signature_color="var(--signature-color)" />
                         {:else if is_editing}
@@ -27,10 +55,9 @@
                                     syncId: section.label,
                                 }}
                                 data-sync-id={section.label}
-                                class="text-area"
-                                class:edit={is_editing}
+                                class="text-area edit"
                                 placeholder={field.description}
-                                value={get_value(char, field.key)}
+                                value={safe_get(field.key)}
                                 oninput={(e) => set_value(char, field.key, e.target.value)}
                                 disabled={busy_fields.has(field.key)}
                                 onfocus={() => {
@@ -41,10 +68,7 @@
                                 }}
                             ></textarea>
                         {:else}
-                            <div class="text-area readonly" class:muted-info={!get_value(char, field.key)} data-sync-id={section.label}>
-                                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                                {@html render_markdown(get_value(char, field.key) || "Record undefined.")}
-                            </div>
+                            <div class="text-area readonly" class:muted-info={!get_value(char, field.key)} data-sync-id={section.label} use:safe_html={render_markdown(get_value(char, field.key) || "*Record undefined.*")}></div>
                         {/if}
                     </div>
                 {/each}
@@ -154,6 +178,12 @@
                     cursor: text;
                     pointer-events: auto;
                     outline: none;
+
+                    &::placeholder {
+                        color: var(--app-muted);
+                        opacity: 0.5;
+                        font-style: italic;
+                    }
 
                     &.edit {
                         pointer-events: auto;

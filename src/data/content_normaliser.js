@@ -61,9 +61,32 @@ export const getRandomSignatureKey = () => {
  * Enforces structural integrity and sanitization.
  */
 export const normalize = (base = {}) => {
-    const { name = "", description = "", type = "character", eternal = {}, present = {}, past = [], future = [], tags = [], signature_color = "", profile_picture = "", dynamics = null, voice = {}, customData = {}, _backupState = null, _lastUpdateMsgId = null } = base
+    // [FIX] Destructure id, timestamps, and database flags so they aren't lost
+    const {
+        id,
+        created_at,
+        updated_at,
+        originId,
+        isPremade,
+        isCustom,
+        name = "",
+        description = "",
+        type = "character",
+        eternal = {},
+        present = {},
+        past = [],
+        future = [],
+        tags = [],
+        signature_color = "",
+        profile_picture = "",
+        dynamics = null,
+        voice = {},
+        customData = {},
+        _backupState = null,
+        _lastUpdateMsgId = null,
+    } = base
 
-    return {
+    const result = {
         // --- CORE METADATA ---
         name: sanitizeHtml(name).trim(),
         description: sanitizeHtml(description).trim(),
@@ -74,12 +97,12 @@ export const normalize = (base = {}) => {
 
         // --- TEMPORAL HYBRID 6 (PURGED: appearance, identity, outfit, status) ---
         eternal: {
-            physical: sanitizeHtml(eternal?.physical || "").trim(),
-            non_physical: sanitizeHtml(eternal?.non_physical || "").trim(),
+            physical: sanitizeHtml(eternal?.physical ?? "").trim(), // Use ?? "" instead of || ""
+            non_physical: sanitizeHtml(eternal?.non_physical ?? "").trim(),
         },
         present: {
-            physical: sanitizeHtml(present?.physical || "").trim(),
-            non_physical: sanitizeHtml(present?.non_physical || "").trim(),
+            physical: sanitizeHtml(present?.physical ?? "").trim(),
+            non_physical: sanitizeHtml(present?.non_physical ?? "").trim(),
         },
         past: Array.isArray(past) ? past : [],
         future: Array.isArray(future) ? future : [],
@@ -103,6 +126,17 @@ export const normalize = (base = {}) => {
         _backupState,
         _lastUpdateMsgId,
     }
+
+    // [CRITICAL FIX] Preserve database identity and timestamps!
+    // Without this, Profile.svelte's `{#if char && char.id}` will fail and remain hidden.
+    if (id) result.id = id
+    if (created_at) result.created_at = created_at
+    if (updated_at) result.updated_at = updated_at
+    if (originId) result.originId = originId
+    if (isPremade !== undefined) result.isPremade = isPremade
+    if (isCustom !== undefined) result.isCustom = isCustom
+
+    return result
 }
 
 /**

@@ -11,19 +11,19 @@ describe("ThemeStore Color Generation", () => {
 
     describe("Modern entities with signature_color", () => {
         test("returns hex value for entity with signature_color", () => {
-            const entity = { visuals: { signature_color: "Electric Cyan" } }
+            const entity = { signature_color: "Electric Cyan" }
             const result = getSignature(entity)
             expect(result).toBe(PALETTE["Electric Cyan"])
         })
 
         test("returns hex value for entity with pink signature_color", () => {
-            const entity = { visuals: { signature_color: "Hot Pink" } }
+            const entity = { signature_color: "Hot Pink" }
             const result = getSignature(entity)
             expect(result).toBe(PALETTE["Hot Pink"])
         })
 
         test("returns hex value for entity with emerald signature_color", () => {
-            const entity = { visuals: { signature_color: "Emerald Green" } }
+            const entity = { signature_color: "Emerald Green" }
             const result = getSignature(entity)
             expect(result).toBe(PALETTE["Emerald Green"])
         })
@@ -92,7 +92,7 @@ describe("ThemeStore Color Generation", () => {
         })
 
         test("handles entity with empty signature_color string", () => {
-            const entity = { visuals: { signature_color: "" } }
+            const entity = { signature_color: "" }
             const result = getSignature(entity)
             // Empty string is falsy, should fall through
             expect(result).toMatch(/^hsl\(\d+, 40%, 60%\)$/)

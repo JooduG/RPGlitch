@@ -1,4 +1,10 @@
 <script>
+    /**
+     * @file ProfileWings.svelte
+     * 🦅 THE EDITING PANELS
+     * Slide-out sidebars for deeper entity configuration.
+     * Passes the flattened `char` object to its children.
+     */
     import { app } from "@state/app.svelte.js"
     import DevWing from "@ui/organisms/profile/DevWing.svelte"
     import VisualWing from "@ui/organisms/profile/VisualWing.svelte"

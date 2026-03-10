@@ -1,9 +1,16 @@
 <script>
+    /**
+     * @file Message.svelte
+     * 💬 THE CHAT BUBBLE
+     * Renders parsed messages, DevMode think blocks, and handles inline actions.
+     * Flattened Schema Compliant.
+     */
     import { app } from "@state/app.svelte.js"
     import { runtime } from "@state/runtime.svelte.js"
     import { DEFAULT_COLORS, themeStore } from "@theme/palette.svelte.js"
     import DOMPurify from "dompurify"
     import SceneHeader from "../SceneHeader.svelte"
+    import { parse_message } from "@core/engine/text_parser.js"
 
     let {
         text = "",
@@ -16,7 +23,7 @@
         on_continue = () => {},
         on_edit = () => {},
         is_last = false,
-        is_thinking = false /* [R3] Renders as dot-dot-dot pill */,
+        is_thinking = false,
     } = $props()
 
     let is_user = $derived(sender === "user")
@@ -25,29 +32,24 @@
 
     let entity = $derived.by(() => {
         // [R5] Resolution Order:
-        // 1. Exact Name Match in Runtime (Active)
-        // 2. Exact Name Match in App Lists (History)
-        // 3. Fallback to Active Runtime Role (if name matches or is generic)
-
         if (!character_name) {
-            // No name? Use active runtime by role
             if (is_user) return runtime.active_user
             if (is_ai) return runtime.active_ai
             if (is_fractal) return runtime.active_fractal
             return null
         }
 
-        // 1. Is it the ACTIVE character? (Fastest & most correct for edits)
+        // 1. Active Character (Fastest & most correct for edits)
         if (is_user && runtime.active_user?.name === character_name) return runtime.active_user
         if (is_ai && runtime.active_ai?.name === character_name) return runtime.active_ai
         if (is_fractal && runtime.active_fractal?.name === character_name) return runtime.active_fractal
 
-        // 2. Is it in the LOBBY/CACHE lists? (For history)
+        // 2. Cache Lists (For history)
         if (is_user) return app.userList.find((e) => e.name === character_name)
         if (is_ai) return app.aiList.find((e) => e.name === character_name)
         if (is_fractal) return app.fractalList.find((e) => e.name === character_name)
 
-        // 3. Fallback: If we can't find it, assume it refers to the active one (Legacy)
+        // 3. Fallback
         if (is_user) return runtime.active_user
         if (is_ai) return runtime.active_ai
         return null
@@ -55,22 +57,15 @@
 
     let signature_color = $derived.by(() => {
         // 1. Try Entity
-        if (entity) {
-            const color = themeStore.getSignatureColor(entity)
-            return color
-        }
+        if (entity) return themeStore.getSignatureColor(entity)
 
         // 2. Try Character Name (Deterministic Fallback)
-        if (character_name) {
-            const color = themeStore.getDeterministicColor(character_name)
-            return color
-        }
+        if (character_name) return themeStore.getDeterministicColor(character_name)
 
-        // 3. Fallback to App State (Lobby/Storyboard Mode)
-        // When in lobby, runtime.* is null, so we must check app.selected*
-        if (is_user && app.selectedUser?.visuals?.signature_color) return themeStore.getSignatureColor(app.selectedUser)
-        if (is_ai && app.selectedAi?.visuals?.signature_color) return themeStore.getSignatureColor(app.selectedAi)
-        if (is_fractal && app.selectedFractal?.visuals?.signature_color) return themeStore.getSignatureColor(app.selectedFractal)
+        // 3. Fallback to App State [FLATTENED]
+        if (is_user && app.selectedUser?.signature_color) return themeStore.getSignatureColor(app.selectedUser)
+        if (is_ai && app.selectedAi?.signature_color) return themeStore.getSignatureColor(app.selectedAi)
+        if (is_fractal && app.selectedFractal?.signature_color) return themeStore.getSignatureColor(app.selectedFractal)
 
         // 4. Robust Fallback by Role
         if (is_user) return DEFAULT_COLORS.USER
@@ -82,20 +77,26 @@
 
     let text_color = $derived(themeStore.getContrastColor(signature_color))
 
-    import { parse_message } from "@core/engine/text_parser.js"
-
-    // --- PARSING (Refactored to Core) ---
-    // Text parsing is now handled by the Engine layer, ensuring UI remains "dumb".
     let parsed = $derived(parse_message(text))
-
     let display_text = $derived(parsed.displayText)
     let think_block = $derived(parsed.think)
     let scene_data = $derived(parsed.sceneData)
+
+    /**
+     * Svelte Action: Safely injects sanitized HTML into a node.
+     */
+    function safe_html(node, content) {
+        node.innerHTML = content
+        return {
+            update(new_content) {
+                node.innerHTML = new_content
+            },
+        }
+    }
 </script>
 
 <div class="message-row" class:user-row={is_user} class:ai-row={is_ai} class:fractal-row={is_fractal} class:thinking-row={is_thinking}>
     {#if is_thinking}
-        <!-- [R3] Thinking Pill: Pure signature color, white dots -->
         <div class="thinking-pill" style="background: var(--signature-color);">
             <span class="dot"></span>
             <span class="dot"></span>
@@ -103,14 +104,12 @@
         </div>
     {:else}
         <div class="message-bubble" class:user-bubble={is_user} class:ai-bubble={is_ai} class:fractal-bubble={is_fractal} style="--bubble-color: {signature_color}; --signature-color: {signature_color}; --bubble-text-color: {text_color};">
-            <!-- SCENE HEADER (If detected) -->
             {#if scene_data}
                 <div class="scene-header-wrapper">
                     <SceneHeader {...scene_data} />
                 </div>
             {/if}
 
-            <!-- DEV MODE: THINK BLOCK -->
             {#if app.settings.dev_mode && think_block}
                 <div class="think-block">
                     <div class="think-label">🎬 DevMode</div>
@@ -127,8 +126,9 @@
                                 alt="Attachment"
                                 class="attachment-image"
                                 onerror={(e) => {
-                                    // @ts-ignore - style exists on HTMLImageElement target
-                                    e.target.style.display = "none"
+                                    if (e.target instanceof HTMLImageElement) {
+                                        e.target.style.display = "none"
+                                    }
                                     console.warn("Failed to load attachment:", src)
                                 }}
                             />
@@ -136,15 +136,12 @@
                     {/each}
                 </div>
             {/if}
-            <div class="message-content">
-                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                {@html DOMPurify.sanitize(display_text)}
-            </div>
+
+            <div class="message-content" use:safe_html={DOMPurify.sanitize(display_text)}></div>
+
             <div class="message-footer">
-                <!-- NEW: Actions (Left of Timestamp, same row) -->
                 {#if is_ai}
                     <div class="message-actions">
-                        <!-- AI-Specific Actions (Shown only on last message) -->
                         {#if is_last}
                             <button class="action-btn" type="button" title="Continue" onclick={(e) => on_continue(e)}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -159,7 +156,6 @@
                             </button>
                         {/if}
 
-                        <!-- Edit (Available on all AI messages) -->
                         <button class="action-btn" type="button" title="Edit" onclick={(e) => on_edit(e)}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -167,7 +163,6 @@
                             </svg>
                         </button>
 
-                        <!-- Copy -->
                         <button
                             class="action-btn"
                             type="button"
@@ -185,7 +180,6 @@
                                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                             </svg>
                         </button>
-                        <!-- Delete -->
                         <button class="action-btn delete" type="button" title="Delete" onclick={(e) => on_delete(e)}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="3 6 5 6 21 6"></polyline>
@@ -233,6 +227,7 @@
             box-shadow: var(--shadow-s);
         }
     }
+
     .message-row {
         display: flex;
         width: 100%;
@@ -251,7 +246,6 @@
         }
     }
 
-    /* Thinking Pill */
     .thinking-pill {
         display: inline-flex;
         align-items: center;
@@ -387,7 +381,6 @@
         .message-timestamp {
             opacity: 1;
         }
-
         .message-actions {
             opacity: 1;
             pointer-events: auto;

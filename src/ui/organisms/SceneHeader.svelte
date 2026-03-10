@@ -1,4 +1,10 @@
 <script>
+    /**
+     * @file SceneHeader.svelte
+     * 📍 THE SCENE BANNER
+     * Displays environmental context during Storymode.
+     * Structurally sound, styled to perfectly match new standards.
+     */
     import { fade } from "svelte/transition"
 
     let { location = "Unknown", time = "Timeless", weather = "Stasis" } = $props()
@@ -70,7 +76,7 @@
     .separator {
         width: var(--spacing-px);
         height: var(--spacing-l);
-        background: var(--ui-glass-border);
+        background: var(--glass-border);
     }
 
     .info-group {
@@ -87,7 +93,7 @@
         }
 
         .value {
-            font-family: var(--font-family-heading);
+            font-family: var(--font-header);
             font-size: var(--font-size-s);
             font-weight: 500;
             color: var(--app-color);
@@ -101,7 +107,7 @@
     }
 
     .weather-icon {
-        opacity: var(--opacity-xxxl);
+        opacity: var(--opacity-xl);
         font-size: var(--font-size-s);
     }
 

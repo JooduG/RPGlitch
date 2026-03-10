@@ -102,19 +102,31 @@ class ThemeStore {
 
     /**
      * Generates initials for avatar fallbacks.
+     * Safely strips all punctuation and symbols before extracting letters.
      */
     getInitials(name) {
         if (!name) return "?"
+
+        // 1. Strip everything that is not a letter or a space (removes ', ", -, etc.)
+        const cleanName = name.replace(/[^a-zA-Z\s]/g, "")
+
         const stopWords = new Set(["the", "a", "an", "of", "in", "and", "or", "for", "to", "at", "by", "with"])
-        const words = name.trim().split(/\s+/)
+
+        // 2. Split into words
+        const words = cleanName.trim().split(/\s+/)
+
+        // 3. Filter stopwords (unless the name *is* just a stopword)
         let filteredWords = words.filter((w) => !stopWords.has(w.toLowerCase()))
         if (filteredWords.length === 0) filteredWords = words
 
-        return filteredWords
-            .slice(0, 3)
-            .map((w) => w.charAt(0))
-            .join("")
-            .toUpperCase()
+        // 4. Extract first letter of up to 3 words
+        return (
+            filteredWords
+                .slice(0, 3)
+                .map((w) => w.charAt(0))
+                .join("")
+                .toUpperCase() || "?"
+        ) // Fallback if name was entirely symbols
     }
 }
 

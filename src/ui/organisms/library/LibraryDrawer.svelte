@@ -4,14 +4,14 @@
      * 📚 THE ENTITY BIRTHPLACE
      * Slide-up sheet for selecting or creating entities (AI, User, or Fractal).
      */
-    import { app } from "@state/app.svelte.js"
     import { createNew } from "@data/content_normaliser.js"
     import { entities as repository } from "@data/repository.js"
+    import { app } from "@state/app.svelte.js"
     import { quintOut } from "svelte/easing"
     import { fly } from "svelte/transition"
 
-    import LibraryCard from "./LibraryCard.svelte"
     import Backdrop from "@ui/molecules/dialogs/Backdrop.svelte"
+    import LibraryCard from "./LibraryCard.svelte"
 
     // --- STATE & DERIVATIONS ---
     let isOpen = $derived(app.drawer.open)
@@ -199,7 +199,7 @@
     /* --- NEW ENTITY CARD --- */
     .drawer-card--new {
         background: var(--surface-sunken);
-        border: 2px dashed rgba(var(--pure-white-rgb), 0.1);
+        box-shadow: inset 0 0 0 1px rgba(var(--pure-white-rgb), 0.05);
         border-radius: var(--border-radius-l);
         aspect-ratio: 2 / 3;
         display: flex;

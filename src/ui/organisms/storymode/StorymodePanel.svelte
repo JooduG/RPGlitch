@@ -1,22 +1,19 @@
 <script>
+    /**
+     * @file StorymodePanel.svelte
+     * 🎭 THE ENTITY SHOWCASE
+     * High-fidelity visual representing an entity in the story feed.
+     * Flattened Schema Compliant.
+     */
     import { app } from "@state/app.svelte.js"
     import { themeStore } from "@theme/palette.svelte.js"
     import ProfilePicture from "@ui/atoms/ProfilePicture.svelte"
 
-    /**
-     * 🎭 StorymodePanel (Polish/UI)
-     * High-fidelity visual representing an entity in the story feed.
-     * Follows the [Polish Protocol] v1.0.0
-     */
+    let { entity, side = "left", title: raw_title = "" } = $props()
 
-    let { entity, side = "left", title: raw_title = "" } = $props() // side: 'left' | 'right'
-
-    // Default Fallback
+    // Default Fallbacks
     let name = $derived(entity?.name || "Unknown")
-
-    // Derived Title State
     let title = $derived(raw_title || name)
-
     let signature_color = $derived(themeStore.getSignatureColor(entity))
 </script>
 
@@ -24,12 +21,10 @@
     <div class="visual-anchor" role="button" tabindex="0" onclick={() => app.toggleProfile(true, entity)} onkeydown={(e) => e.key === "Enter" && app.toggleProfile(true, entity)} aria-label="View Profile: {name}">
         <ProfilePicture {entity} />
 
-        <!-- Corner Nameplate -->
         <header class="nameplate">
             <h3 class="nameplate-text">{title}</h3>
         </header>
 
-        <!-- Dynamic Cinematic Overlay -->
         <div class="cinematic-overlay"></div>
     </div>
 </article>

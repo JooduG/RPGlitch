@@ -19,7 +19,7 @@ export const premade = {
             name: "Rex Radiant",
             description: "Dumb, sweet, solar-powered himbo superhero obsessed with viral saves and tight spandex.",
             type: "character",
-            signature_color: "Sunburst Gold",
+            signature_color: "Lemon Yellow",
             profile_picture: "",
             voice: { uri: "Microsoft Brian Online (Natural) - English (United States)", rate: 1.05, pitch: 0.95 },
             dynamics: {
@@ -230,7 +230,7 @@ export const premade = {
             name: "The Ashen Weald",
             description: "A cursed, eternally twilight forest surrounding a ruined gothic cathedral.",
             type: "fractal",
-            signature_color: "Deep Indigo",
+            signature_color: "Forest Green",
             profile_picture: "",
             dynamics: {
                 velocity: 40,
@@ -359,7 +359,7 @@ export const premade = {
             name: "Station Tartarus",
             description: "An abandoned, failing deep-space mining rig falling into a black hole.",
             type: "fractal",
-            signature_color: "Lemon Yellow",
+            signature_color: "Ocean Blue",
             profile_picture: "",
             dynamics: {
                 velocity: 65,

@@ -1,4 +1,10 @@
 <script>
+    /**
+     * @file VisualWing.svelte
+     * 🎨 THE AESTHETIC ENGINE
+     * Manages signature colors, generation prompts, and modifiers.
+     * Updated to target the flattened signature_color and profile_picture.
+     */
     import { PALETTE } from "@core/engine/palette.js"
     import { LlmService } from "@core/intelligence/intelligence_service.js"
     import { PromptBuilder } from "@core/intelligence/PromptBuilder.js"
@@ -10,6 +16,12 @@
 
     /* eslint-disable svelte/prefer-svelte-reactivity */
     let { char = $bindable(), is_editing, busy_fields = $bindable(), active_field = $bindable() } = $props()
+
+    // [CRITICAL FIX] Synchronously ensure the modifiers object exists so Svelte bindings don't crash
+    if (!char.visuals) {
+        char.visuals = { prompt: "", noBackground: false, flipped: false }
+    }
+    if (char.visuals.prompt === undefined) char.visuals.prompt = ""
 
     // Derived: Check if the visual-prompt specifically is busy
     let is_prompt_busy = $derived(busy_fields.has("visual-prompt"))
@@ -117,7 +129,9 @@
                     noBackground: char.visuals.noBackground,
                 })
                 app.log(`[VisualWing] Generation Result: ${url}`, "system")
-                if (url) char.visuals.profile_picture = url
+
+                // [FIX] Target flattened profile_picture
+                if (url) char.profile_picture = url
             } catch (err) {
                 console.error("Generation failed:", err)
                 app.log(`Generation failed: ${err.message}`, "error")
@@ -141,10 +155,8 @@
         if (!file) return
         try {
             const url = await ImageGeneration.upload(file)
-            if (url) {
-                char.visuals = char.visuals || {}
-                char.visuals.profile_picture = url
-            }
+            // [FIX] Target flattened profile_picture
+            if (url) char.profile_picture = url
         } catch (err) {
             console.error("Upload failed:", err)
         }
@@ -220,18 +232,17 @@
         }, 50)
     }}
 >
-    <!-- 1. Spectrum Grid -->
     <div class="group">
         <div class="spectrum-grid">
             {#each Object.entries(PALETTE).filter(([name]) => name !== "default") as [name, hex] (name)}
                 <button
                     class="swatch"
-                    class:active={char.visuals?.signature_color === hex}
+                    class:active={char.signature_color === hex}
                     style="background-color: {hex}"
                     aria-label="Select color {name}"
                     onclick={() => {
-                        char.visuals = char.visuals || {}
-                        char.visuals.signature_color = hex
+                        // [FIX] Target flattened signature_color
+                        char.signature_color = hex
                     }}
                     disabled={!is_editing}
                     onmouseenter={(e) => handle_swatch_hover(e, name)}
@@ -241,7 +252,6 @@
         </div>
     </div>
 
-    <!-- 2. Visual Prompting -->
     <div class="group">
         <div class="prompt-box">
             <div class="visual-prompt-container">
@@ -286,7 +296,6 @@
         </div>
     </div>
 
-    <!-- 3. Toggles -->
     <div class="toggle-stack">
         <Toggle label="No Background" bind:value={char.visuals.noBackground} disabled={!is_editing} />
         <Toggle label="Flip Profile Picture" bind:value={char.visuals.flipped} disabled={!is_editing} />

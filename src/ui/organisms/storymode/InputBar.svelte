@@ -1,11 +1,17 @@
 <script>
+    /**
+     * @file InputBar.svelte
+     * ⌨️ THE COMMAND CONSOLE
+     * The main interface for user input during Storymode.
+     * Flattened Schema Compliant.
+     */
     import { Engine } from "@core/engine/engine.js"
     import { app } from "@state/app.svelte.js"
     import { engineState } from "@state/status.svelte.js"
-    // [R5] Unified State
     import { spin, stab } from "@ui/utils/actions/kinetic.js"
 
     let { disabled = false } = $props()
+
     // [R5] Auto-disable when engine is busy
     let is_locked = $derived(disabled || engineState.phase !== "idle")
     let value = $state("")
@@ -45,7 +51,6 @@
 </script>
 
 <div class="input-bar-unit" class:is-focused={is_focused} class:is-disabled={is_locked}>
-    <!-- SETTINGS COG -->
     <button class="icon-btn settings-btn" onclick={() => app.toggleControlPanel()} title="Settings" type="button" use:spin>
         <svg class="icon" viewBox="0 0 24 24">
             <path
@@ -56,7 +61,6 @@
 
     <textarea bind:this={textarea} class="input-area" bind:value onkeydown={handle_keydown} oninput={handle_input} onfocus={() => (is_focused = true)} onblur={() => (is_focused = false)} placeholder="Type a message..." rows="1" disabled={is_locked}></textarea>
 
-    <!-- SEND ACTION -->
     <button class="icon-btn send-btn" onclick={handle_send} disabled={!value.trim() || is_locked} title="Send Message" type="button" use:stab>
         <svg class="icon" viewBox="0 0 24 24">
             <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
@@ -81,7 +85,7 @@
         &.is-focused {
             background: var(--glass-l);
             box-shadow:
-                inset 0 0 0 var(--spacing-px) var(--signature-color, var(--ui-glass-border)),
+                inset 0 0 0 var(--spacing-px) var(--signature-color, var(--glass-border)),
                 var(--shadow-m),
                 0 0 0 var(--spacing-xxs) var(--glass-hover);
             transform: translateY(-2px);

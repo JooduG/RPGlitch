@@ -1,11 +1,19 @@
 <script>
+    /**
+     * @file Profile.svelte
+     * 🗃️ THE ENTITY EDITOR
+     * Handles viewing and editing of flattened entities.
+     * ZERO NESTING — Purged all legacy `visuals` objects.
+     */
     import { entities } from "@/data/repository.js"
     import { app } from "@state/app.svelte.js"
     import { runtime } from "@state/runtime.svelte.js"
     import { themeStore } from "@theme/palette.svelte.js"
+
     import ProfilePicture from "@ui/atoms/ProfilePicture.svelte"
     import Modal from "@ui/molecules/dialogs/Modal.svelte"
     import DOMPurify from "dompurify"
+
     // Modular Components
     import ProfileFooter from "./ProfileFooter.svelte"
     import ProfileFragments from "./ProfileFragments.svelte"
@@ -15,7 +23,7 @@
     let { entity_id, entity_type } = $props()
 
     /**
-     * Svelte 5 Action: Auto-resize textarea to fit content and sync heights with row siblings.
+     * Svelte 5 Action: Auto-resize textarea to fit content
      */
     function auto_resize(node, options = {}) {
         let frame
@@ -26,7 +34,6 @@
                 const height = node.scrollHeight
                 node.style.height = height + "px"
 
-                // Synchronization logic for rows
                 if (options.syncId) {
                     const siblings = document.querySelectorAll(`[data-sync-id="${options.syncId}"]`)
                     let maxHeight = 0
@@ -57,31 +64,19 @@
         }
     }
 
-    // State
+    // --- STATE ---
     let is_editing = $state(false)
-
-    $effect(() => {})
     let is_saving = $state(false)
-
     let busy_fields = $state(new Set())
-
     let active_field = $state({ key: "visual-prompt", label: "Image Prompt" })
 
-    // Character data
+    // Normalizer guarantees flattened schema
     let char = $state(themeStore.normalizeEntity(app.editingEntity || runtime.character))
 
-    // Ensure prompt exists for CreativeWing
-    $effect(() => {
-        if (char.visuals && !char.visuals.prompt) {
-            char.visuals.prompt = ""
-        }
-    })
-
-    // Visuals: Bind directly to character data
-    let signature_color = $derived(char.visuals?.signature_color || themeStore.getSignatureColor(char))
+    // Theme values derived directly from the flattened entity
+    let signature_color = $derived(themeStore.getSignatureColor(char))
     let signature_rgb = $derived(themeStore.hexToRgb(signature_color))
 
-    // Reset focus tracking when exiting edit mode
     $effect(() => {
         if (!is_editing) {
             active_field = { key: "visual-prompt", label: "Image Prompt" }
@@ -103,28 +98,19 @@
             await runtime.saveEntity(entity_type || "character", char)
 
             // [FIX] SYNC STORYBOARD STATE
-            // If we are in Lobby, we must refresh the lists and selection
-            if (app.view === "lobby") {
+            if (app.view === "storyboard") {
                 const eid = char.id
-                // 1. Refresh Lists
-                const [ais, users, fractals] = await Promise.all([entities.list("character"), entities.list("character"), entities.list("fractal")])
-                app.aiList = ais
-                app.userList = users
+
+                // Refresh Lists
+                const [characters, fractals] = await Promise.all([entities.list("character"), entities.list("fractal")])
+                app.aiList = characters
+                app.userList = characters
                 app.fractalList = fractals
 
-                // 2. Refresh Selection if matches
-                if (app.selectedAi?.id === eid) {
-                    const fresh = ais.find((e) => e.id === eid)
-                    if (fresh) app.selectedAi = fresh
-                }
-                if (app.selectedUser?.id === eid) {
-                    const fresh = users.find((e) => e.id === eid)
-                    if (fresh) app.selectedUser = fresh
-                }
-                if (app.selectedFractal?.id === eid) {
-                    const fresh = fractals.find((e) => e.id === eid)
-                    if (fresh) app.selectedFractal = fresh
-                }
+                // Refresh Selection
+                if (app.selectedAi?.id === eid) app.selectedAi = characters.find((e) => e.id === eid)
+                if (app.selectedUser?.id === eid) app.selectedUser = characters.find((e) => e.id === eid)
+                if (app.selectedFractal?.id === eid) app.selectedFractal = fractals.find((e) => e.id === eid)
             }
         } catch (err) {
             console.error("Failed to save profile:", err)
@@ -156,23 +142,21 @@
         const last = keys.pop()
         const target = keys.reduce((acc, key) => (acc[key] = acc[key] || {}), obj)
 
-        // Handle Array Fields (Unified Vector Architecture)
         if (path === "past" || path === "future") {
             if (Array.isArray(val)) {
                 target[last] = val
             } else {
-                const arr = val
+                target[last] = val
                     .split("\n")
                     .map((v) => v.trim())
                     .filter((v) => v.length > 0)
-                target[last] = arr
             }
         } else {
             target[last] = val
         }
     }
 
-    function handle_focus_out(e) {
+    function handle_focus_out() {
         setTimeout(() => {
             const active = document.activeElement
             const isInput = active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement || (active instanceof HTMLElement && active.contentEditable === "true")
@@ -239,7 +223,6 @@
         width: 100%;
         max-width: 90vw;
         perspective: 2000px;
-        /* FIX: overflow visible to fix clipping */
         overflow: visible;
         padding: var(--spacing-xxl) 0;
         transform-style: preserve-3d;
@@ -249,19 +232,17 @@
         order: 2;
         width: 56rem;
         height: 100%;
-        background: var(--gunmetal); /* Solid background */
+        background: var(--gunmetal);
         border-radius: var(--border-radius-l);
         box-shadow:
             var(--shadow-xl),
             0 0 var(--spacing-xxl) rgb(var(--signature-rgb) / var(--opacity-s));
-
         display: grid;
         grid-template-columns: 35% 1fr;
         position: relative;
         overflow: hidden;
         z-index: 10;
         transform-style: preserve-3d;
-        /* backdrop-filter removed */
 
         .left {
             background: transparent;
@@ -281,7 +262,6 @@
             background: var(--tint-dark-surface);
             padding: var(--spacing-m);
 
-            /* Scrollbar styling */
             &::-webkit-scrollbar {
                 width: var(--spacing-xxs);
             }

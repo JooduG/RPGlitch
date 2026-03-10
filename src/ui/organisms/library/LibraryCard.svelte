@@ -1,6 +1,9 @@
 <script>
     /**
-     * LibraryCard - A compact version of StoryboardCard for the Library drawer.
+     * @file LibraryCard.svelte
+     * 🃏 THE ARCHIVE TAROT
+     * A compact version of StoryboardCard for the Library drawer.
+     * Flattened Schema Compliant.
      */
     let {
         entity,
@@ -19,7 +22,7 @@
     let name = $derived(entity?.name || "Untitled")
 
     function handleSelect() {
-        if (!disabled) onSelect()
+        if (!disabled && onSelect) onSelect()
     }
 </script>
 
@@ -30,13 +33,12 @@
     style="--signature-color: {signatureColor}; --signature-rgb: {signatureRgb};"
     onclick={handleSelect}
     {disabled}
-    title={disabled ? "Already selected" : ""}
+    title={disabled ? "Already selected" : `Select ${name}`}
     oncontextmenu={(e) => {
         e.preventDefault()
-        onViewProfile()
+        if (onViewProfile) onViewProfile()
     }}
 >
-    <!-- Visual Content -->
     <div class="card-visual">
         <ProfilePicture {entity} />
     </div>

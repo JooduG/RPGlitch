@@ -1,4 +1,10 @@
 <script>
+    /**
+     * @file Storymode.svelte
+     * 🎭 THE MAIN STAGE
+     * Container for the active game session, chat log, and side panels.
+     * Flattened Schema Compliant.
+     */
     import { entities } from "@/data/repository.js"
     import { app } from "@state/app.svelte.js"
     import { runtime } from "@state/runtime.svelte.js"
@@ -9,7 +15,8 @@
     import ProsePanel from "./ProsePanel.svelte"
     import StorymodePanel from "./StorymodePanel.svelte"
 
-    let fractalBg = $derived(runtime?.storyFractal?.visuals?.profile_picture || "")
+    // [FIX] Target flattened profile_picture
+    let fractalBg = $derived(runtime?.storyFractal?.profile_picture || "")
 
     // Derived
     let is_thinking = $derived(engineState.phase === "generating")
