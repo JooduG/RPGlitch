@@ -37,7 +37,7 @@ export class ReactiveSession {
             })
 
             // 3. Switch View (Immediate Feedback)
-            app.setView("game")
+            app.set_view("game")
 
             // 4. Trigger Prologue Generation
             // This will run the Engine, hit the API, and stream content to the feed
@@ -87,7 +87,7 @@ export class ReactiveSession {
             app.log("Echo recording temporal affinity and syncing database...", "db")
 
             // Update HUD causality (Example: reading from Security state if available)
-            app.causalityReport = {
+            app.causality_report = {
                 chaos: Math.floor(Math.random() * 100), // Placeholder for real physics
                 intensity: Math.floor(Math.random() * 100),
                 reflex: "Active",

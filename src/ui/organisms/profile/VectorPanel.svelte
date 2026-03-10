@@ -58,7 +58,7 @@
     </div>
 </div>
 
-<style lang="scss">
+<style>
     .vector-panel {
         width: 100%;
         display: flex;
@@ -83,14 +83,14 @@
     :global(.btn-add-unit) {
         width: 100%;
         font-size: var(--font-size-s);
-        border: var(--spacing-px) dashed rgba(var(--pure-white-rgb), var(--opacity-s));
+        border: var(--spacing-px) dashed rgb(var(--pure-white-rgb) / var(--opacity-s));
         border-radius: var(--border-radius);
         transition: all var(--transition-speed) var(--physics-transition-elastic);
+    }
 
-        &:hover {
-            background: rgba(var(--pure-white-rgb), var(--opacity-xxs));
-            border-color: rgba(var(--pure-white-rgb), var(--opacity-m));
-            transform: translateY(var(--physics-btn-hover-y));
-        }
+    :global(.btn-add-unit):hover {
+        background: rgb(var(--pure-white-rgb) / var(--opacity-xxs));
+        border-color: rgb(var(--pure-white-rgb) / var(--opacity-m));
+        transform: translateY(var(--physics-btn-hover-y));
     }
 </style>

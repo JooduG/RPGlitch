@@ -30,11 +30,11 @@ export const NarrativeDirector = {
         // [R5] Narrative State is now reactive in runtime.narrative
         // No manual sync required.
 
-        // AUTO-SEED: Ensure activeVector is never empty
+        // AUTO-SEED: Ensure active_vector is never empty
         const fractal = runtime.active_fractal
         if (fractal && (!Array.isArray(fractal.future) || fractal.future.length === 0)) {
-            runtime.addVector("Continue the journey.", "FRACTAL", true)
-            app.log("NarrativeDirector: Auto-seeded activeVector", "system")
+            runtime.add_vector("Continue the journey.", "FRACTAL", true)
+            app.log("NarrativeDirector: Auto-seeded active_vector", "system")
         }
     },
 
@@ -56,7 +56,7 @@ export const NarrativeDirector = {
                 const slice = unconsolidated.slice(0, 10)
                 app.log(`Memory Nexus: Consolidating ${slice.length} turns into lore...`, "system")
 
-                const ai = runtime.activeAI
+                const ai = runtime.active_ai
                 if (ai) {
                     const resonance = await consolidate_vector(ai, slice, "character")
                     if (resonance) {

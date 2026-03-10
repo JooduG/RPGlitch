@@ -24,24 +24,24 @@
     })
 
     // Reactively derive the background image from the flattened schema
-    let fractalBg = $derived(app.selectedFractal?.profile_picture || "")
+    let fractal_bg = $derived(app.selected_fractal?.profile_picture || "")
 </script>
 
 {#if mounted}
-    <div class="app-container" class:view-storyboard={app.view === "storyboard"} class:view-storymode={app.view === "storymode"} class:has-tension={app.tension > 0} class:has-fractal-bg={!!fractalBg} transition:fade={{ duration: 800 }}>
-        {#if fractalBg}
-            <div id="fractal-background" style:background-image="url('{fractalBg}')" style:opacity={app.view === "storymode" ? 0.4 : 0.75}></div>
+    <div class="app-container" class:view-storyboard={app.view === "storyboard"} class:view-storymode={app.view === "storymode"} class:has-tension={app.tension > 0} class:has-fractal-bg={!!fractal_bg} transition:fade={{ duration: 800 }}>
+        {#if fractal_bg}
+            <div id="fractal-background" style:background-image="url('{fractal_bg}')" style:opacity={app.view === "storymode" ? 0.4 : 0.75}></div>
         {/if}
 
         {#if lightbox.active}
             <Lightbox />
         {/if}
 
-        {#if app.profileOpen}
-            <Profile entity_id={app.profileTargetId} entity_type={app.profileTargetType} />
+        {#if app.profile_open}
+            <Profile entity_id={app.profile_target_id} entity_type={app.profile_target_type} />
         {/if}
 
-        {#if app.controlPanelOpen}
+        {#if app.control_panel_open}
             <ControlPanel />
         {/if}
 
@@ -55,35 +55,42 @@
             <Storymode />
         {/if}
 
-        {#if app.settings.dev_mode && app.controlPanelOpen}
+        {#if app.settings.dev_mode && app.control_panel_open}
             <button class="swap-view-trigger" onclick={() => (app.view = app.view === "storymode" ? "storyboard" : "storymode")} title="Toggle View Mode"> ⇄ </button>
         {/if}
     </div>
 {/if}
 
-<style lang="scss">
-    @use "@theme/abstracts/variables" as *;
-    @use "@theme/abstracts/surfaces" as *;
-
+<style>
     .app-container {
-        @include grain();
+        /* Grain overlay */
+        position: relative;
         width: 100%;
         height: 100vh;
         overflow: hidden;
-        position: relative;
-        background: $black;
+        background: transparent;
+    }
 
-        :global(html),
-        :global(body) {
-            overflow: hidden;
-            width: 100%;
-            height: 100%;
-        }
+    .app-container::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        opacity: 0.02;
+        pointer-events: none;
+        z-index: 10;
+    }
 
-        &.has-tension {
-            animation: reality-tremor 4s infinite ease-in-out;
-            filter: saturate(1.2) contrast(1.1);
-        }
+    :global(html),
+    :global(body) {
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+    }
+
+    .app-container.has-tension {
+        animation: reality-tremor 4s infinite ease-in-out;
+        filter: saturate(1.2) contrast(1.1);
     }
 
     #fractal-background {
@@ -132,11 +139,11 @@
         justify-content: center;
         font-size: 1.2rem;
         transition: all 0.2s;
+    }
 
-        &:hover {
-            background: rgba(var(--pure-white-rgb), 0.1);
-            color: white;
-            transform: scale(1.1);
-        }
+    .swap-view-trigger:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        transform: scale(1.1);
     }
 </style>

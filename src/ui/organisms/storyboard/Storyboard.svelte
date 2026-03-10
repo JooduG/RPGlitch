@@ -16,9 +16,9 @@
         try {
             const [characters, fractals] = await Promise.all([entities.list("character"), entities.list("fractal")])
 
-            app.aiList = characters
-            app.userList = characters
-            app.fractalList = fractals
+            app.ai_list = characters
+            app.user_list = characters
+            app.fractal_list = fractals
         } catch (e) {
             console.error("[Storyboard] Failed to load lobby:", e)
         } finally {
@@ -44,17 +44,17 @@
 
         <!-- LEFT: AI -->
         {#snippet left()}
-            <StoryboardCard type="ai" entity={app.selectedAi} roleLabel="AI Character" onSelect={() => app.openDrawer("ai")} onViewProfile={() => app.toggleProfile(true, app.selectedAi)} />
+            <StoryboardCard type="ai" entity={app.selected_ai} roleLabel="AI Character" onSelect={() => app.open_drawer("ai")} onViewProfile={() => app.toggle_profile(true, app.selected_ai)} />
         {/snippet}
 
         <!-- CENTER: Fractal -->
         {#snippet center()}
-            <StoryboardCard type="fractal" entity={app.selectedFractal} roleLabel="Fractal" onSelect={() => app.openDrawer("fractal")} onViewProfile={() => app.toggleProfile(true, app.selectedFractal)} />
+            <StoryboardCard type="fractal" entity={app.selected_fractal} roleLabel="Fractal" onSelect={() => app.open_drawer("fractal")} onViewProfile={() => app.toggle_profile(true, app.selected_fractal)} />
         {/snippet}
 
         <!-- RIGHT: User -->
         {#snippet right()}
-            <StoryboardCard type="user" entity={app.selectedUser} roleLabel="Your Persona" onSelect={() => app.openDrawer("user")} onViewProfile={() => app.toggleProfile(true, app.selectedUser)} />
+            <StoryboardCard type="user" entity={app.selected_user} roleLabel="Your Persona" onSelect={() => app.open_drawer("user")} onViewProfile={() => app.toggle_profile(true, app.selected_user)} />
         {/snippet}
 
         {#snippet footer()}
@@ -68,9 +68,7 @@
     <LibraryDrawer />
 {/if}
 
-<style lang="scss">
-    @use "@theme/abstracts/variables" as *;
-
+<style>
     .header-container {
         text-align: center;
     }
@@ -85,33 +83,38 @@
         inset: 0;
         align-items: center;
         align-content: center;
+    }
 
-        & :global(.skeleton:nth-child(1)) {
-            grid-column: 2 / span 2;
-            justify-self: center;
-        }
-        & :global(.skeleton:nth-child(2)) {
-            grid-column: 4 / span 6;
-            justify-self: center;
-        }
-        & :global(.skeleton:nth-child(3)) {
-            grid-column: 10 / span 2;
-            justify-self: center;
-        }
+    .skeleton-boot :global(.skeleton:nth-child(1)) {
+        grid-column: 2 / span 2;
+        justify-self: center;
+    }
 
-        /* Mobile Stack */
-        @media (max-width: $breakpoint-mobile) {
+    .skeleton-boot :global(.skeleton:nth-child(2)) {
+        grid-column: 4 / span 6;
+        justify-self: center;
+    }
+
+    .skeleton-boot :global(.skeleton:nth-child(3)) {
+        grid-column: 10 / span 2;
+        justify-self: center;
+    }
+
+    /* Mobile Stack */
+    @media (max-width: 768px) {
+        .skeleton-boot {
             grid-template-columns: 1fr;
             padding-bottom: 0;
             align-items: center;
+        }
 
-            & :global(.skeleton:nth-child(1)),
-            & :global(.skeleton:nth-child(3)) {
-                display: none;
-            }
-            & :global(.skeleton:nth-child(2)) {
-                grid-column: 1 / -1;
-            }
+        .skeleton-boot :global(.skeleton:nth-child(1)),
+        .skeleton-boot :global(.skeleton:nth-child(3)) {
+            display: none;
+        }
+
+        .skeleton-boot :global(.skeleton:nth-child(2)) {
+            grid-column: 1 / -1;
         }
     }
 

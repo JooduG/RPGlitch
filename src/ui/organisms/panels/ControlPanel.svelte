@@ -27,13 +27,13 @@
     let isStoryMode = $derived(app.view === "game")
 </script>
 
-<Modal variant="transparent" onclose={() => app.toggleControlPanel()}>
+<Modal variant="transparent" onclose={() => app.toggle_control_panel()}>
     <article class="cockpit-panel" data-testid="cockpit-panel">
         <!-- HEADER: System Toggles -->
         <header class="panel-header">
             <div class="status-toggles">
-                <Toggle label="CALL MODE" bind:value={app.settings.call_mode} onchange={() => app.saveSettings()} />
-                <Toggle label="NOTIFICATIONS" bind:value={app.settings.sound} onchange={() => app.saveSettings()} />
+                <Toggle label="CALL MODE" bind:value={app.settings.call_mode} onchange={() => app.save_settings()} />
+                <Toggle label="NOTIFICATIONS" bind:value={app.settings.sound} onchange={() => app.save_settings()} />
             </div>
         </header>
 
@@ -63,7 +63,7 @@
 
             <div class="system-meta">
                 <div class="dev-toggle">
-                    <Toggle label="DevMode" bind:value={app.settings.dev_mode} onchange={() => app.saveSettings()} />
+                    <Toggle label="DevMode" bind:value={app.settings.dev_mode} onchange={() => app.save_settings()} />
                 </div>
                 <Button variant="secondary" size="sm" onclick={handleReset}>
                     <div class="reset-wrapper">
@@ -80,7 +80,7 @@
     </article>
 </Modal>
 
-<style lang="scss">
+<style>
     .cockpit-panel {
         width: 32rem;
         background: var(--gunmetal);
@@ -103,41 +103,39 @@
         align-items: center;
         margin-bottom: var(--spacing-l);
         padding: var(--spacing-m) 0;
-        box-shadow: 0 1px 0 rgba(var(--pure-white-rgb), var(--opacity-xxs));
+        box-shadow: 0 1px 0 rgb(var(--pure-white-rgb) / var(--opacity-xxs));
     }
 
-    .prologue-setup {
-        .input-wrapper {
-            background: var(--surface-sunken);
-            border-radius: var(--border-radius-m);
-            padding: var(--spacing-m);
-            box-shadow: inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xxs));
-            transition: all var(--transition-speed) var(--curve-snappy);
+    .prologue-setup .input-wrapper {
+        background: var(--surface-sunken);
+        border-radius: var(--border-radius-m);
+        padding: var(--spacing-m);
+        box-shadow: inset 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xxs));
+        transition: all var(--transition-speed) var(--curve-snappy);
+    }
 
-            &:focus-within {
-                background: var(--surface-overlay);
-                box-shadow: 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xs));
-            }
+    .prologue-setup .input-wrapper:focus-within {
+        background: var(--surface-overlay);
+        box-shadow: 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xs));
+    }
 
-            .prologue-field {
-                width: 100%;
-                min-height: 8rem;
-                background: transparent;
-                border: none;
-                color: var(--text-secondary);
-                font-family: var(--font-family-sans);
-                font-size: var(--font-size-s);
-                resize: none;
-                outline: none;
-                line-height: var(--line-height-m);
+    .prologue-setup .input-wrapper .prologue-field {
+        width: 100%;
+        min-height: 8rem;
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        font-family: var(--font-family-sans);
+        font-size: var(--font-size-s);
+        resize: none;
+        outline: none;
+        line-height: var(--line-height-m);
+    }
 
-                &::placeholder {
-                    color: var(--text-muted);
-                    font-style: italic;
-                    opacity: 0.5;
-                }
-            }
-        }
+    .prologue-setup .input-wrapper .prologue-field::placeholder {
+        color: var(--text-muted);
+        font-style: italic;
+        opacity: 0.5;
     }
 
     .action-grid {
@@ -154,31 +152,31 @@
         gap: var(--spacing-l);
         margin-top: auto;
         padding-top: var(--spacing-m);
-        border-top: 1px solid rgba(var(--pure-white-rgb), var(--opacity-xxs));
+        border-top: 1px solid rgb(var(--pure-white-rgb) / var(--opacity-xxs));
     }
 
     .navigation-links {
         display: flex;
         justify-content: center;
+    }
 
-        .nav-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-weight: 600;
-            font-size: var(--font-size-xs);
-            text-transform: uppercase;
-            letter-spacing: var(--letter-spacing-m);
-            cursor: pointer;
-            transition: all var(--transition-speed) var(--curve-snappy);
-            opacity: 0.7;
+    .navigation-links .nav-btn {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-weight: 600;
+        font-size: var(--font-size-xs);
+        text-transform: uppercase;
+        letter-spacing: var(--letter-spacing-m);
+        cursor: pointer;
+        transition: all var(--transition-speed) var(--curve-snappy);
+        opacity: 0.7;
+    }
 
-            &:hover {
-                color: var(--text-primary);
-                opacity: 1;
-                transform: translateY(-1px);
-            }
-        }
+    .navigation-links .nav-btn:hover {
+        color: var(--text-primary);
+        opacity: 1;
+        transform: translateY(-1px);
     }
 
     .system-meta {
@@ -186,19 +184,20 @@
         justify-content: space-between;
         align-items: center;
         gap: var(--spacing-m);
+    }
 
-        .dev-toggle {
-            opacity: 0.8;
-            transition: opacity var(--transition-speed);
-            &:hover {
-                opacity: 1;
-            }
-        }
+    .system-meta .dev-toggle {
+        opacity: 0.8;
+        transition: opacity var(--transition-speed);
+    }
 
-        .reset-wrapper {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-xs);
-        }
+    .system-meta .dev-toggle:hover {
+        opacity: 1;
+    }
+
+    .system-meta .reset-wrapper {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
     }
 </style>

@@ -1,0 +1,245 @@
+/* ============================================================================
+   ABSTRACT: DESIGN TOKENS (NORDIC REFAC V2)
+   Single Source of Truth. "The Nordic Collection"
+   Standard: T-Shirt Sizing (XXS - XXL) for Opacity & Spacing
+   ============================================================================ */
+
+:root {
+    /* =================================================
+     SECTION 1: CORE BRAND PALETTE
+     ================================================= */
+
+    /* Warm Colors */
+    --signature-red: #ef4444;
+    --signature-rose: #fb7185;
+    --signature-orange: #f97316;
+    --signature-amber: #fbbf24;
+    --signature-yellow: #fde047;
+
+    /* Nature Colors */
+    --signature-lime: #84cc16;
+    --signature-forest: #15803d;
+    --signature-emerald: #10b981;
+    --signature-cyan: #11aecc;
+    --signature-teal: #14b8a6;
+
+    /* Cool Colors */
+    --signature-blue: #3b82f6;
+    --signature-indigo: #818cf8;
+    --signature-violet: #c084fc;
+    --signature-purple: #a855f7;
+    --signature-pink: #ec4899;
+
+    /* THE NORDIC COLLECTION (Cold Palette) */
+    --frisk: #8a9399;
+    --frozen: #555d66;
+    --gunmetal: #363840;
+    --chalk: #222326;
+
+    /* Flattened Signature Colors Map */
+    --signature-color-red: var(--signature-red);
+    --signature-color-orange: var(--signature-orange);
+    --signature-color-amber: var(--signature-amber);
+    --signature-color-yellow: var(--signature-yellow);
+    --signature-color-lime: var(--signature-lime);
+    --signature-color-forest: var(--signature-forest);
+    --signature-color-emerald: var(--signature-emerald);
+    --signature-color-teal: var(--signature-teal);
+    --signature-color-cyan: var(--signature-cyan);
+    --signature-color-blue: var(--signature-blue);
+    --signature-color-indigo: var(--signature-indigo);
+    --signature-color-violet: var(--signature-violet);
+    --signature-color-purple: var(--signature-purple);
+    --signature-color-pink: var(--signature-pink);
+    --signature-color-rose: var(--signature-rose);
+    --signature-color-frisk: var(--frisk);
+    --signature-color-frozen: var(--frozen);
+    --signature-color-gunmetal: var(--gunmetal);
+    --signature-color-chalk: var(--chalk);
+
+    /* =================================================
+     SECTION 2: SIGNATURE GRADIENTS
+     ================================================= */
+    --gradient-standard: linear-gradient(135deg, var(--frisk), var(--frozen), var(--gunmetal), var(--chalk));
+    --gradient-radial: radial-gradient(var(--frisk), var(--frozen), var(--gunmetal), var(--chalk));
+
+    /* =================================================
+     SECTION 3: CORE SYSTEM COLORS & OPACITY
+     ================================================= */
+    --white: #fff;
+    --black: #000;
+    --pure-white-rgb: 255 255 255;
+    --pure-black-rgb: 0 0 0;
+
+    /* Semantic Maps */
+    --color-danger: var(--signature-red);
+    --color-success: var(--signature-emerald);
+    --color-warning: var(--signature-orange);
+    --color-info: var(--signature-blue);
+    --color-accent: var(--signature-pink);
+    --color-primary: var(--color-info);
+    --color-ai: var(--signature-purple);
+    --color-fractal: var(--signature-emerald);
+    --color-db: var(--signature-amber);
+
+    /* RGB Helpers (for alpha adjustments) */
+    --color-danger-rgb: 239 68 68;
+    --color-success-rgb: 16 185 129;
+    --color-warning-rgb: 249 115 22;
+    --color-info-rgb: 59 130 246;
+
+    /* Opacity Hierarchy */
+    --opacity-xxs: 0.05;
+    --opacity-xs: 0.1;
+    --opacity-s: 0.3;
+    --opacity-m: 0.5;
+    --opacity-l: 0.8;
+    --opacity-xl: 0.95;
+    --opacity-xxxl: 0.99;
+    --opacity-full: 1;
+    --opacity-disabled: var(--opacity-s);
+    --opacity-black-heavy: 0.8;
+
+    /* Blur Scale (Initial) */
+    --blur-s: 0.25rem;
+    --blur-m: 0.5rem;
+    --blur-l: 1.5rem;
+    --blur-xl: 2.5rem;
+
+    /* Glass Presets (Native RGBA translation) */
+    --glass-s: rgba(var(--pure-white-rgb) / var(--opacity-xxs));
+    --glass-m: rgba(var(--pure-white-rgb) / var(--opacity-xs));
+    --glass-l: rgba(var(--pure-white-rgb) / var(--opacity-s));
+
+    /* Typography Colors */
+    --app-color: var(--white);
+    --app-muted: var(--frisk);
+    --border-color: var(--frozen);
+    --border-dark: var(--gunmetal);
+
+    /* Semantic Backgrounds */
+    --app-background: #0a0c14;
+    --bg-grad-1: color-mix(in srgb, var(--signature-blue) 15%, transparent);
+    --bg-grad-2: color-mix(in srgb, var(--signature-pink) 12%, transparent);
+    --bg-grad-3: color-mix(in srgb, var(--signature-violet) 10%, transparent);
+    --bg-grad-4: #050508;
+
+    --bg-app: var(--chalk);
+    --bg-card: var(--gunmetal);
+    --bg-form: var(--frozen);
+    --bg-component: #050505;
+
+    /* Input Backgrounds */
+    --bg-input: rgba(var(--pure-black-rgb) / var(--opacity-s));
+    --bg-input-focus: rgba(var(--pure-black-rgb) / var(--opacity-m));
+
+    /* =================================================
+     SECTION 5: GLASSMORPHISM & EFFECTS
+     ================================================= */
+
+    /* Surfaces & Depth */
+    --layer-surface: color-mix(in srgb, var(--gunmetal) 95%, transparent);
+    --layer-overlay: rgba(var(--pure-black-rgb) / 0.9);
+    --surface-sunken: rgba(var(--pure-black-rgb) / 0.6);
+    --surface-overlay: rgba(var(--pure-black-rgb) / 0.5);
+
+    /* Glass Mapping (Cascading overrides to match legacy SASS behavior) */
+    --glass-xs: rgba(var(--pure-white-rgb) / 0.08);
+    --glass-s: var(--layer-surface);
+    --glass-m: var(--layer-overlay);
+    --glass-l: var(--gunmetal);
+
+    /* Blur Scale (Cascading overrides) */
+    --blur-s: 0rem;
+    --blur-m: 0.75rem;
+    --blur-l: 1.25rem;
+
+    /* Borders & Interaction */
+    --glass-border: transparent;
+    --glass-hover: rgba(var(--pure-white-rgb) / 0.02);
+
+    /* Optical Illusion */
+    --shimmer-color: rgba(var(--pure-white-rgb) / 0.03);
+    --shimmer-highlight: rgba(var(--pure-white-rgb) / var(--opacity-xxs));
+
+    /* Shadows */
+    --shadow-s: 0 0.25rem 0.5rem rgba(var(--pure-black-rgb) / var(--opacity-xs));
+    --shadow-m: 0 0.25rem 1rem rgba(var(--pure-black-rgb) / var(--opacity-s));
+    --shadow-l: 0 0.5rem 2rem rgba(var(--pure-black-rgb) / var(--opacity-m));
+    --rp-text-shadow: 0 0.1rem 0.25rem rgba(var(--pure-black-rgb) / var(--opacity-s));
+
+    /* =================================================
+     SECTION 6: TYPOGRAPHY METRICS
+     ================================================= */
+    --font-family-sans: "Inter", system-ui, -apple-system, sans-serif;
+    --font-family-heading: "Ubuntu", sans-serif;
+    --font-family-mono: "JetBrains Mono", monospace;
+
+    --font-size-xxs: 0.5rem;
+    --font-size-xs: 0.75rem;
+    --font-size-s: 0.875rem;
+    --font-size-m: 1rem;
+    --font-size-l: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-xxl: 1.5rem;
+    --font-size-xxxl: 1.875rem;
+    --font-size-xxxxl: 2.25rem;
+    --font-size-xxxxxl: 3.5rem;
+
+    --line-height-base: 1.5;
+    --line-height-heading: 1.2;
+    --font-bold: 700;
+    --font-height: var(--line-height-base);
+    --font-weight: 400;
+
+    /* Flattened Breakpoints Map */
+    --breakpoints-s: 576px;
+    --breakpoints-m: 768px;
+    --breakpoints-l: 1024px;
+    --breakpoints-xl: 1280px;
+    --breakpoints-xxl: 1536px;
+
+    --breakpoint-mobile: var(--breakpoints-m);
+    --breakpoint-tablet: var(--breakpoints-l);
+    --breakpoint-desktop: var(--breakpoints-xl);
+
+    /* =================================================
+     SECTION 7: SPACING & LAYOUT
+     ================================================= */
+    --spacing-xxs: 0.25rem;
+    --spacing-xs: 0.5rem;
+    --spacing-s: 0.75rem;
+    --spacing-m: 1rem;
+    --spacing-l: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-xxl: 3rem;
+    --spacing-xxxl: 6rem;
+    --spacing-px: 1px;
+
+    --border-radius-xs: 0.125rem;
+    --border-radius-s: 0.25rem;
+    --border-radius-m: 0.5rem;
+    --border-radius-l: 0.75rem;
+    --border-radius-xl: 1rem;
+    --border-radius-full: 9999px;
+    --border-radius: var(--border-radius-m);
+    --app-container-pad: var(--spacing-m);
+
+    /* Physics */
+    --transition-speed: 0.2s;
+    --transition-speed-slow: 0.4s;
+    --physics-transition-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --physics-hover-y: -0.25rem;
+    --physics-btn-hover-y: -0.1rem;
+    --physics-btn-active-scale: 0.95;
+
+    /* Flattened Z-Index Map */
+    --z-base: 10;
+    --z-chip: 20;
+    --z-ui: 50;
+    --z-mobile-drawer-container: 90;
+    --z-overlay: 100;
+    --z-modal: 150;
+    --z-drawer: 2000;
+    --z-toast: 10000;
+}

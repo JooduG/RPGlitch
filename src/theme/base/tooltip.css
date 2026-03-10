@@ -1,0 +1,71 @@
+/* ============================================================================
+   BASE: TOOLTIP
+   Simple declarative tooltips using data-attributes.
+   ============================================================================ */
+
+[data-tooltip] {
+    position: relative;
+    cursor: help;
+}
+
+[data-tooltip]::before,
+[data-tooltip]::after {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out;
+    z-index: var(--z-toast);
+}
+
+[data-tooltip]::before {
+    content: "";
+    bottom: calc(100% + 5px);
+    border: 0.3rem solid transparent;
+    border-top-color: var(--chalk);
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    bottom: calc(100% + 15px);
+    background: var(--chalk);
+    color: var(--white);
+    padding: var(--spacing-xs) var(--spacing-s);
+    border-radius: var(--border-radius-s);
+    font-size: var(--font-size-xs);
+    white-space: nowrap;
+    box-shadow: var(--shadow-s);
+}
+
+[data-tooltip]:hover::before,
+[data-tooltip]:hover::after {
+    opacity: 1;
+}
+
+.tooltip-popup {
+    border-radius: var(--border-radius);
+    background: var(--layer-surface);
+    box-shadow: var(--shadow-m);
+    position: fixed;
+    z-index: 9999;
+    color: var(--app-color);
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    pointer-events: auto;
+    opacity: 0;
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+    transform: translateY(5px);
+    max-width: 300px;
+    text-align: center;
+    line-height: 1.4;
+    text-wrap: balance;
+}
+
+.tooltip-popup.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}

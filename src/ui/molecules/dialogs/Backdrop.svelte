@@ -19,33 +19,25 @@
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div
-    class="backdrop"
-    style:z-index={zIndex}
-    class:blur
-    {onclick}
-    transition:fade={{ duration: 300 }}
->
+<div class="backdrop" style:z-index={zIndex} class:blur {onclick} transition:fade={{ duration: 300 }}>
     {#if children}
         {@render children()}
     {/if}
 </div>
 
-<style lang="scss">
-    @use "@theme/abstracts/variables" as *;
-
+<style>
     .backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, var(--opacity-l)); /* Standard dark overlay */
+        background: rgb(var(--pure-black-rgb) / var(--opacity-l)); /* Standard dark overlay */
         display: flex;
         justify-content: center;
         align-items: center;
         cursor: pointer;
+    }
 
-        /* Blur is optional (performance) */
-        &.blur {
-            backdrop-filter: blur(var(--blur-s));
-        }
+    /* Blur is optional (performance) */
+    .backdrop.blur {
+        backdrop-filter: blur(var(--blur-s));
     }
 </style>

@@ -65,11 +65,7 @@
     <div class="gutter-col end"></div>
 </div>
 
-<style lang="scss">
-    @use "../../theme/abstracts/variables" as *;
-    @use "../../theme/abstracts/mixins" as *;
-    @use "../../theme/abstracts/placeholders" as *;
-
+<style>
     /* ------------------------------------------------------------
      THE 12-COLUMN GRID SYSTEM (UPDATED)
      ------------------------------------------------------------ */
@@ -90,69 +86,72 @@
         color: white;
         transition: all 0.6s ease;
         pointer-events: none;
+    }
 
-        &.is-transparent {
-            background: transparent;
-        }
+    .universal-stage.is-transparent {
+        background: transparent;
+    }
 
-        /* Mobile Stack */
-        @media (max-width: 768px) {
+    /* Mobile Stack */
+    @media (max-width: 768px) {
+        .universal-stage {
             grid-template-columns: 1fr;
             grid-template-rows: min-content 1fr min-content;
+        }
 
-            /* Standard Mode: Hide sides */
-            &:not(.layout-cinematic) .stage-column--side {
-                display: none;
-            }
+        /* Standard Mode: Hide sides */
+        .universal-stage:not(.layout-cinematic) .stage-column--side {
+            display: none;
+        }
 
-            .stage-header,
-            .stage-footer {
-                grid-column: 1 / -1;
-                position: relative;
-                height: auto;
-                padding: var(--spacing-m);
-            }
-            .stage-column--center {
-                grid-column: 1 / -1;
-            }
+        .universal-stage .stage-header,
+        .universal-stage .stage-footer {
+            grid-column: 1 / -1;
+            position: relative;
+            height: auto;
+            padding: var(--spacing-m);
+        }
 
-            /* Cinematic Mode: Stacked Header */
-            &.layout-cinematic {
-                grid-template-columns: 1fr 1fr;
-                /* Header, Panels (Fixed Height), Content, Footer */
-                grid-template-rows: min-content 25vh 1fr min-content;
+        .universal-stage .stage-column--center {
+            grid-column: 1 / -1;
+        }
 
-                .stage-header {
-                    grid-row: 1;
-                }
+        /* Cinematic Mode: Stacked Header */
+        .universal-stage.layout-cinematic {
+            grid-template-columns: 1fr 1fr;
+            /* Header, Panels (Fixed Height), Content, Footer */
+            grid-template-rows: min-content 25vh 1fr min-content;
+        }
 
-                .stage-column--side {
-                    display: flex;
-                    grid-row: 2;
-                    height: 100%; /* Fill the 25vh row */
-                    overflow: hidden;
-                }
+        .universal-stage.layout-cinematic .stage-header {
+            grid-row: 1;
+        }
 
-                .stage-column.left {
-                    grid-column: 1 / 2;
-                    border-right: 1px solid var(--glass-border);
-                }
+        .universal-stage.layout-cinematic .stage-column--side {
+            display: flex;
+            grid-row: 2;
+            height: 100%; /* Fill the 25vh row */
+            overflow: hidden;
+        }
 
-                .stage-column.right {
-                    grid-column: 2 / 3;
-                }
+        .universal-stage.layout-cinematic .stage-column.left {
+            grid-column: 1 / 2;
+            border-right: 1px solid var(--glass-border);
+        }
 
-                .stage-column--center {
-                    grid-column: 1 / -1;
-                    grid-row: 3;
-                    min-height: 0;
-                    overflow: auto;
-                }
+        .universal-stage.layout-cinematic .stage-column.right {
+            grid-column: 2 / 3;
+        }
 
-                .stage-footer {
-                    grid-row: 4;
-                }
-            }
+        .universal-stage.layout-cinematic .stage-column--center {
+            grid-column: 1 / -1;
+            grid-row: 3;
+            min-height: 0;
+            overflow: auto;
+        }
+
+        .universal-stage.layout-cinematic .stage-footer {
+            grid-row: 4;
         }
     }
 
@@ -167,10 +166,11 @@
         align-self: stretch;
         display: flex;
         justify-content: center;
+    }
 
-        & :global(> *) {
-            pointer-events: auto;
-        }
+    .stage-header :global(> *),
+    .stage-footer :global(> *) {
+        pointer-events: auto;
     }
 
     .stage-header {
@@ -180,6 +180,7 @@
         right: 0;
         align-items: flex-end;
     }
+
     .stage-footer {
         position: absolute;
         bottom: calc(50% - 35%);
@@ -206,44 +207,44 @@
 
     /* 
      === DESKTOP GRID LOGIC (min-width: 769px) ===
-  */
+    */
     @media (min-width: 769px) {
         /* Standard Mode (Lobby) 
            Structure: Gutter(1) | Left(2) | Center(6) | Right(2) | Gutter(1)
         */
-        .universal-stage:not(.layout-cinematic) {
-            .stage-column.left {
-                grid-column: 2 / span 2;
-            }
-            .stage-column--center {
-                grid-column: 4 / span 6; /* 50% width */
-                align-items: center;
-            }
-            .stage-column.right {
-                grid-column: 10 / span 2;
-            }
+        .universal-stage:not(.layout-cinematic) .stage-column.left {
+            grid-column: 2 / span 2;
+        }
+
+        .universal-stage:not(.layout-cinematic) .stage-column--center {
+            grid-column: 4 / span 6; /* 50% width */
+            align-items: center;
+        }
+
+        .universal-stage:not(.layout-cinematic) .stage-column.right {
+            grid-column: 10 / span 2;
         }
 
         /* Cinematic Mode (Storymode)
            Structure: Left(2) | Center(8) | Right(2)
         */
-        .universal-stage.layout-cinematic {
-            .stage-column.left {
-                grid-column: 1 / span 2;
-            }
-            .stage-column--center {
-                grid-column: 3 / span 8; /* 66% width */
-            }
-            .stage-column.right {
-                grid-column: 11 / span 2;
-            }
+        .universal-stage.layout-cinematic .stage-column.left {
+            grid-column: 1 / span 2;
+        }
 
-            .stage-header,
-            .stage-footer {
-                grid-column: 1 / -1;
-                padding-left: var(--spacing-l);
-                padding-right: var(--spacing-l);
-            }
+        .universal-stage.layout-cinematic .stage-column--center {
+            grid-column: 3 / span 8; /* 66% width */
+        }
+
+        .universal-stage.layout-cinematic .stage-column.right {
+            grid-column: 11 / span 2;
+        }
+
+        .universal-stage.layout-cinematic .stage-header,
+        .universal-stage.layout-cinematic .stage-footer {
+            grid-column: 1 / -1;
+            padding-left: var(--spacing-l);
+            padding-right: var(--spacing-l);
         }
     }
 

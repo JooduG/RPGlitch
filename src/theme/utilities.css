@@ -1,0 +1,97 @@
+/* ============================================================================
+   THEME: UTILITIES (Native CSS V1)
+   Global utility classes for physics, glassmorphism, and common patterns.
+   ============================================================================ */
+
+/* --- INTERACTION PHYSICS --- */
+
+/* Standard Interactive Surface (Former %material-interactive) */
+.material-interactive {
+    transition:
+        transform var(--transition-speed, 0.3s) var(--physics-transition-elastic),
+        box-shadow var(--transition-speed, 0.3s) ease;
+}
+
+.material-interactive:hover {
+    transform: translateY(var(--physics-hover-y));
+    box-shadow: var(--shadow-l);
+}
+
+/* Button Physics (Former %btn-physics) */
+.btn-physics:hover:not(:disabled, .disabled) {
+    transform: translateY(var(--physics-btn-hover-y));
+    filter: brightness(1.1);
+}
+
+.btn-physics:active:not(:disabled, .disabled) {
+    transform: scale(var(--physics-btn-active-scale));
+}
+
+/* --- GLASSMORPHISM --- */
+
+/* Base Glass Style */
+.glass-base {
+    border-radius: var(--border-radius);
+    background: var(--surface-overlay);
+}
+
+/* Glass Pill (Former %glass-pill) */
+.glass-pill {
+    border-radius: var(--border-radius-full);
+    background: var(--surface-overlay);
+    backdrop-filter: blur(var(--blur-m));
+    box-shadow: var(--shadow-l);
+}
+
+/* --- STATUS COLORS --- */
+
+.status-danger {
+    color: var(--app-del);
+}
+
+.status-success {
+    color: var(--app-success);
+}
+
+.status-warning {
+    color: var(--app-warning);
+}
+
+/* --- LAYOUT UTILITIES --- */
+
+/* OS-Agnostic Invisible Scrollbar (Former custom-scrollbar) */
+.no-scrollbar {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none; /* Chrome/Safari */
+}
+
+/* --- ACCESSIBILITY --- */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* --- THEMED SIGNATURE --- */
+.themed-signature {
+    --current-sig: var(--signature-color, var(--signature-violet));
+    --current-sig-rgb: var(--signature-rgb, 139 92 246);
+    --signature-10: rgb(var(--current-sig-rgb) / 10%);
+    --signature-20: rgb(var(--current-sig-rgb) / 20%);
+    --signature-50: rgb(var(--current-sig-rgb) / 50%);
+
+    color: var(--current-sig);
+    border-color: var(--current-sig);
+}

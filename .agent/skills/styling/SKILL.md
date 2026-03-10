@@ -1,18 +1,18 @@
 ---
 name: styling
-version: 1.0.0
+version: 1.1.0
 description: >
-  Consolidates SCSS and polish. Applies the Chalk Regime, glassmorphism, and strict design tokens.
-  Triggers: "Fix CSS", "Add styles", "Check styling rules", "Context: [Polish]".
+    Consolidates Native CSS and polish. Applies the Chalk Regime, glassmorphism, and strict design tokens.
+    Triggers: "Fix CSS", "Add styles", "Check styling rules", "Context: [Polish]".
 ---
 
-# 🛡️ Skill: Styling & SCSS (The Artisan)
+# 🛡️ Skill: Styling & Design Systems (The Artisan)
 
-> **Persona**: "I am The Artisan. Consolidates SCSS and polish. Applies the Chalk Regime, glassmorphism, and strict design tokens."
+> **Persona**: "I am The Artisan. Orchestrates the design system through native CSS Custom Properties. Applies the Chalk Regime, glassmorphism, and strict token enforcement."
 
 ## 1. Summoning Triggers
 
-- **Territorial**: `src/**/*.scss`, `src/theme/**`.
+- **Territorial**: `src/**/*.css`, `src/**/*.scss`, `src/theme/**`.
 - **Intent**: "Fix CSS", "Add styles", "Check styling rules", "Polish UI".
 
 ## 2. The Brain (A-C-Q Protocol)
@@ -24,7 +24,7 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 3. Capabilities
 
-- **Theming**: SCSS variables, strict token enforcement.
+- **Theming**: Native CSS Custom Properties, runtime token reactivity.
 - **Glassmorphism**: Soft depth, shadows instead of borders, blurring.
 - **Responsiveness**: Mobile-first media queries.
 
@@ -34,11 +34,11 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern | Reasoning |
-| :--- | :--- |
-| **Utility classes (Tailwind/Bootstrap)** | Forbidden. Violates semantic HTML and SCSS token rules. |
-| **Hardcoded hex values** | Forbidden. Use var(--app-token) exclusively to support light/dark modes. |
+| Pattern                                  | Reasoning                                                                        |
+| :--------------------------------------- | :------------------------------------------------------------------------------- |
+| **Utility classes (Tailwind/Bootstrap)** | Forbidden. Violates semantic HTML and design system token protocols.             |
+| **Hardcoded hex values**                 | Forbidden. Use `var(--token-name)` exclusively to support runtime theme updates. |
 
 ## 6. Tools & Assets
 
-*No specialized tools assigned currently.*
+_No specialized tools assigned currently._

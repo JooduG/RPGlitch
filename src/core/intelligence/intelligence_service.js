@@ -10,7 +10,7 @@
  * (window.ai). All callers — the engine, the enhancement UI, Echo — route here.
  *
  * RESPONSIBILITIES
- * - Streaming : Connects token output to app.startStream / updateStream / endStream.
+ * - Streaming : Connects token output to app.start_stream / update_stream / end_stream.
  * - Sanitization: Strips quotes, code fences, and conversational filler.
  * - Resilience : Classifies network errors and re-throws typed messages.
  *
@@ -75,7 +75,7 @@ export const LlmService = {
      * @param {string}  payload.system                - The system prompt string.
      * @param {Array}   [payload.messages]            - Conversation history.
      * @param {string}  [payload.startWith]           - Text to prepend to the model response.
-     * @param {string}  [payload.nodeId]              - UI node ID for the stream.
+     * @param {string}  [payload.node_id]             - UI node ID for the stream.
      * @param {Object}  [payload.params]              - Generation parameters.
      * @param {Array}   [payload.stopSequences]       - Stop sequences.
      * @param {Object}  [options]                     - Runtime overrides.
@@ -120,8 +120,8 @@ export const LlmService = {
             // 4. Wire streaming to the app layer
             const on_token = (chunk) => {
                 if (!options.silent) {
-                    if (!app.streaming.active) app.startStream(payload.nodeId || "temp")
-                    app.updateStream(chunk)
+                    if (!app.streaming.active) app.start_stream(payload.node_id || "temp")
+                    app.update_stream(chunk)
                 }
                 if (options.onToken) options.onToken(chunk)
             }
@@ -129,7 +129,7 @@ export const LlmService = {
             // 5. Execute
             let result = await window.ai(instruction, { ...gen_options, onToken: on_token })
 
-            if (!options.silent) app.endStream()
+            if (!options.silent) app.end_stream()
 
             // 6. Sanitize unless caller opted out with raw: true
             if (typeof result === "string" && !options.raw) {
@@ -138,7 +138,7 @@ export const LlmService = {
 
             return result
         } catch (err) {
-            if (!options.silent) app.endStream()
+            if (!options.silent) app.end_stream()
 
             if (options.silent) {
                 console.warn("[LlmService] Silent generation error (suppressed):", err)

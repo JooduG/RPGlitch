@@ -23,18 +23,18 @@
 
     // --- ON MOUNT: Hydrate Entity Lists for Color Lookups ---
     onMount(async () => {
-        if (app.aiList.length === 0) {
+        if (app.ai_list.length === 0) {
             try {
                 const [ais, users, fractals] = await Promise.all([entities.list("character"), entities.list("character"), entities.list("fractal")])
-                app.aiList = ais
-                app.userList = users
-                app.fractalList = fractals
+                app.ai_list = ais
+                app.user_list = users
+                app.fractal_list = fractals
             } catch (e) {
                 console.error("[Storymode] Failed to hydrate colors:", e)
             }
         }
 
-        if (!runtime.isReady) {
+        if (!runtime.is_ready) {
             await runtime.sync()
         }
     })
@@ -47,7 +47,7 @@
 
     <Layout mode="cinematic">
         {#snippet left()}
-            <StorymodePanel entity={app.selectedAi} side="left" />
+            <StorymodePanel entity={app.selected_ai} side="left" />
         {/snippet}
 
         {#snippet center()}
@@ -61,12 +61,12 @@
         {/snippet}
 
         {#snippet right()}
-            <StorymodePanel entity={app.selectedUser} side="right" />
+            <StorymodePanel entity={app.selected_user} side="right" />
         {/snippet}
     </Layout>
 </div>
 
-<style lang="scss">
+<style>
     .storymode-container {
         width: 100%;
         height: 100%;

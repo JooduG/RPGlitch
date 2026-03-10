@@ -53,11 +53,7 @@
     <div class="backdrop" transition:fade={{ duration: 150 }} onclick={handleClose} role="presentation"></div>
 {/if}
 
-<style lang="scss">
-    @use "@theme/abstracts/variables" as *;
-    @use "@theme/abstracts/mixins" as *;
-    @use "@theme/abstracts/placeholders" as *;
-
+<style>
     dialog {
         background: transparent;
         border: none;
@@ -66,20 +62,20 @@
         max-width: 90vw;
         width: 350px;
         color: inherit;
-        z-index: z(modal);
+        z-index: var(--z-modal);
         overflow: visible;
+    }
 
-        &::backdrop {
-            background: transparent;
-        }
+    dialog::backdrop {
+        background: transparent;
     }
 
     .backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(var(--pure-black-rgb), var(--opacity-xl));
+        background: rgb(var(--pure-black-rgb) / var(--opacity-xl));
         backdrop-filter: blur(var(--blur-s));
-        z-index: calc(z(modal) - 1);
+        z-index: calc(var(--z-modal) - 1);
     }
 
     .security-modal {
@@ -89,49 +85,49 @@
         overflow: hidden;
         display: flex;
         flex-direction: column;
+    }
 
-        header {
-            padding: var(--spacing-m) var(--spacing-xl);
-            background: rgba(var(--pure-white-rgb), var(--opacity-xs));
+    .security-modal header {
+        padding: var(--spacing-m) var(--spacing-xl);
+        background: rgb(var(--pure-white-rgb) / var(--opacity-xs));
+    }
 
-            h3 {
-                margin: 0;
-                font-size: var(--font-size-l);
-                font-weight: 700;
-                font-family: var(--font-heading);
-                color: var(--app-color);
-                display: flex;
-                align-items: center;
-                gap: var(--spacing-s);
+    .security-modal h3 {
+        margin: 0;
+        font-size: var(--font-size-l);
+        font-weight: 700;
+        font-family: var(--font-heading);
+        color: var(--app-color);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-s);
+    }
 
-                &::before {
-                    content: "ℹ";
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: var(--spacing-xl);
-                    height: var(--spacing-xl);
-                    background: rgba(var(--brand-accent-rgb, 59, 130, 246), var(--opacity-s));
-                    color: var(--app-info);
-                    border-radius: var(--border-radius-full);
-                    font-size: var(--font-size-s);
-                }
-            }
-        }
+    .security-modal h3::before {
+        content: "ℹ";
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: var(--spacing-xl);
+        height: var(--spacing-xl);
+        background: rgb(var(--brand-accent-rgb, 59 130 246) / var(--opacity-s));
+        color: var(--app-info);
+        border-radius: var(--border-radius-full);
+        font-size: var(--font-size-s);
+    }
 
-        .content {
-            padding: var(--spacing-xl);
-            color: var(--app-muted);
-            font-size: var(--font-size-m);
-            line-height: var(--line-height-relaxed);
-        }
+    .security-modal .content {
+        padding: var(--spacing-xl);
+        color: var(--app-muted);
+        font-size: var(--font-size-m);
+        line-height: var(--line-height-relaxed);
+    }
 
-        footer {
-            padding: var(--spacing-m) var(--spacing-xl);
-            display: flex;
-            justify-content: flex-end;
-            background: rgba(var(--pure-black-rgb), var(--opacity-s));
-        }
+    .security-modal footer {
+        padding: var(--spacing-m) var(--spacing-xl);
+        display: flex;
+        justify-content: flex-end;
+        background: rgb(var(--pure-black-rgb) / var(--opacity-s));
     }
 
     /* button styles removed - utilizing Button component */

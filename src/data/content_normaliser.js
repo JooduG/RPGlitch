@@ -8,7 +8,7 @@
 import { PALETTE } from "@core/engine/palette.js"
 import { Security } from "@core/security.js"
 
-const sanitizeHtml = Security.sanitize
+const sanitize_html = Security.sanitize
 
 export const STORAGE_VERSION = 3
 
@@ -51,7 +51,7 @@ export const ENTITY_TEMPLATES = {
 /**
  * Utility to safely access the palette for a random signature key.
  */
-export const getRandomSignatureKey = () => {
+export const get_random_signature_key = () => {
     const keys = Object.keys(PALETTE).filter((k) => k !== "default")
     return keys[Math.floor(Math.random() * keys.length)]
 }
@@ -66,9 +66,9 @@ export const normalize = (base = {}) => {
         id,
         created_at,
         updated_at,
-        originId,
-        isPremade,
-        isCustom,
+        origin_id,
+        is_premade,
+        is_custom,
         name = "",
         description = "",
         type = "character",
@@ -81,28 +81,28 @@ export const normalize = (base = {}) => {
         profile_picture = "",
         dynamics = null,
         voice = {},
-        customData = {},
-        _backupState = null,
-        _lastUpdateMsgId = null,
+        custom_data = {},
+        _backup_state = null,
+        _last_update_msg_id = null,
     } = base
 
     const result = {
         // --- CORE METADATA ---
-        name: sanitizeHtml(name).trim(),
-        description: sanitizeHtml(description).trim(),
+        name: sanitize_html(name).trim(),
+        description: sanitize_html(description).trim(),
         type: type,
-        signature_color: sanitizeHtml(String(signature_color)).trim() || getRandomSignatureKey(),
-        profile_picture: sanitizeHtml(String(profile_picture)).trim(),
-        tags: (Array.isArray(tags) ? tags : []).map((s) => sanitizeHtml(String(s).trim())).filter(Boolean),
+        signature_color: sanitize_html(String(signature_color)).trim() || get_random_signature_key(),
+        profile_picture: sanitize_html(String(profile_picture)).trim(),
+        tags: (Array.isArray(tags) ? tags : []).map((s) => sanitize_html(String(s).trim())).filter(Boolean),
 
         // --- TEMPORAL HYBRID 6 (PURGED: appearance, identity, outfit, status) ---
         eternal: {
-            physical: sanitizeHtml(eternal?.physical ?? "").trim(), // Use ?? "" instead of || ""
-            non_physical: sanitizeHtml(eternal?.non_physical ?? "").trim(),
+            physical: sanitize_html(eternal?.physical ?? "").trim(), // Use ?? "" instead of || ""
+            non_physical: sanitize_html(eternal?.non_physical ?? "").trim(),
         },
         present: {
-            physical: sanitizeHtml(present?.physical ?? "").trim(),
-            non_physical: sanitizeHtml(present?.non_physical ?? "").trim(),
+            physical: sanitize_html(present?.physical ?? "").trim(),
+            non_physical: sanitize_html(present?.non_physical ?? "").trim(),
         },
         past: Array.isArray(past) ? past : [],
         future: Array.isArray(future) ? future : [],
@@ -122,9 +122,9 @@ export const normalize = (base = {}) => {
         },
 
         // --- INTERNAL ---
-        customData: customData || {},
-        _backupState,
-        _lastUpdateMsgId,
+        custom_data: custom_data || {},
+        _backup_state,
+        _last_update_msg_id,
     }
 
     // [CRITICAL FIX] Preserve database identity and timestamps!
@@ -132,9 +132,9 @@ export const normalize = (base = {}) => {
     if (id) result.id = id
     if (created_at) result.created_at = created_at
     if (updated_at) result.updated_at = updated_at
-    if (originId) result.originId = originId
-    if (isPremade !== undefined) result.isPremade = isPremade
-    if (isCustom !== undefined) result.isCustom = isCustom
+    if (origin_id) result.origin_id = origin_id
+    if (is_premade !== undefined) result.is_premade = is_premade
+    if (is_custom !== undefined) result.is_custom = is_custom
 
     return result
 }
@@ -143,27 +143,27 @@ export const normalize = (base = {}) => {
  * 🏭 THE FACTORY
  * Creates a brand new, fully normalized entity with a RANDOM signature color.
  */
-export const createNew = (type = "character", overrides = {}) => {
+export const create_new = (type = "character", overrides = {}) => {
     const template = ENTITY_TEMPLATES[type] || ENTITY_TEMPLATES.character
-    const newEntity = {
+    const new_entity = {
         ...template,
         ...overrides,
-        signature_color: getRandomSignatureKey(), // Random color on birth
+        signature_color: get_random_signature_key(), // Random color on birth
         created_at: Date.now(),
         updated_at: Date.now(),
         id: crypto.randomUUID(),
     }
-    return normalize(newEntity)
+    return normalize(new_entity)
 }
 
 /**
  * Formats a premade entity for storage injection.
  */
-export const formatPremade = (entity, type) => {
+export const format_premade = (entity, type) => {
     return {
         ...entity,
         type: type,
-        isPremade: 1,
+        is_premade: 1,
         version: STORAGE_VERSION,
         ...normalize(entity),
         updated_at: 0,

@@ -22,7 +22,7 @@
     <DevWing bind:char {is_editing} />
 </aside>
 
-<style lang="scss">
+<style>
     .wing-left,
     .wing-right {
         width: 0;
@@ -44,30 +44,31 @@
         border-radius: var(--spacing-l);
         transform-style: preserve-3d;
         z-index: var(--z-overlay);
+    }
 
-        &.is-visible {
-            width: 16rem;
-            min-width: 16rem;
-            max-width: 20rem;
-            opacity: 1;
-            pointer-events: auto;
-            filter: blur(0);
-        }
+    .wing-left.is-visible,
+    .wing-right.is-visible {
+        width: 16rem;
+        min-width: 16rem;
+        max-width: 20rem;
+        opacity: 1;
+        pointer-events: auto;
+        filter: blur(0);
     }
 
     .wing-left {
         order: 1;
+    }
 
-        &.is-visible {
-            transform: scale(1) translateX(calc(var(--spacing-s) * -1));
-        }
+    .wing-left.is-visible {
+        transform: scale(1) translateX(calc(var(--spacing-s) * -1));
     }
 
     .wing-right {
         order: 3;
+    }
 
-        &.is-visible {
-            transform: scale(1) translateX(var(--spacing-s));
-        }
+    .wing-right.is-visible {
+        transform: scale(1) translateX(var(--spacing-s));
     }
 </style>

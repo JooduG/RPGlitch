@@ -36,8 +36,8 @@
     let is_processing = $derived(engineState.phase !== "idle")
 
     // Theme Store now natively handles top-level signature_color
-    let signature_color = $derived(themeStore.getSignatureColor(entity))
-    let signature_rgb = $derived(themeStore.hexToRgb(signature_color))
+    let signature_color = $derived(themeStore.get_signature_color(entity))
+    let signature_rgb = $derived(themeStore.hex_to_rgb(signature_color))
 
     // --- ANIMATION STATE ---
     let is_shimmering = $state(false)
@@ -52,7 +52,7 @@
 </script>
 
 <div
-    class="split-card {type}-card"
+    class="split-card {type}-card material-interactive"
     class:fractal-card={type === "fractal"}
     onmouseenter={trigger_shimmer}
     onanimationend={reset_shimmer}
@@ -120,16 +120,8 @@
     </div>
 </div>
 
-<style lang="scss">
-    @use "sass:color";
-    @use "@theme/abstracts/variables" as *;
-    @use "@theme/abstracts/mixins" as *;
-    @use "@theme/abstracts/placeholders" as *;
-
+<style>
     .split-card {
-        @extend %card-base;
-        @extend %material-interactive;
-
         background: transparent;
         box-shadow: none;
         border-radius: 0;

@@ -14,29 +14,29 @@
     </Modal>
 {/if}
 
-<style lang="scss">
+<style>
     .preview-stage {
         position: relative;
         display: flex;
         flex-direction: column;
         align-items: center;
+    }
 
-        img {
-            max-width: 90vw;
-            max-height: 85vh;
-            border-radius: var(--border-radius-s);
-            box-shadow: var(--shadow-xxl);
-            pointer-events: auto;
-            object-fit: contain;
-        }
+    .preview-stage img {
+        max-width: 90vw;
+        max-height: 85vh;
+        border-radius: var(--border-radius-s);
+        box-shadow: var(--shadow-xxl);
+        pointer-events: auto;
+        object-fit: contain;
+    }
 
-        .caption {
-            margin-top: var(--spacing-m);
-            color: var(--app-color);
-            background: rgba(var(--pure-black-rgb), var(--opacity-m));
-            padding: var(--spacing-s) var(--spacing-m);
-            border-radius: var(--border-radius-s);
-            font-size: var(--font-size-m);
-        }
+    .preview-stage .caption {
+        margin-top: var(--spacing-m);
+        color: var(--app-color);
+        background: rgb(var(--pure-black-rgb) / var(--opacity-m));
+        padding: var(--spacing-s) var(--spacing-m);
+        border-radius: var(--border-radius-s);
+        font-size: var(--font-size-m);
     }
 </style>

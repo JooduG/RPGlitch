@@ -5,10 +5,16 @@
  * ZERO NESTING — Flattened Schema only.
  */
 import { db } from "@data/db.js"
-import { openLightbox } from "@state/lightbox.svelte.js"
+import { closeLightbox, openLightbox } from "@state/lightbox.svelte.js"
 import { runtime } from "@state/runtime.svelte.js"
 import { engineState } from "@state/status.svelte.js"
 import { themeStore } from "@theme/palette.svelte.js"
+
+/************************************************************************************
+ * 🧩 [SECTION: STATE DEFINITIONS]
+ * ----------------------------------------------------------------------------------
+ * Core reactive state for the application.
+ ************************************************************************************/
 
 // Static formatter to avoid 'new Date()' mutable instance warnings in reactive contexts
 const logTimeFormatter = new Intl.DateTimeFormat("sv-SE", {
@@ -22,22 +28,23 @@ export class AppStore {
 
     // --- NAVIGATION ---
     view = $state("storyboard") // 'storyboard' | 'storymode'
-    controlPanelOpen = $state(false)
-    profileOpen = $state(false)
+    control_panel_open = $state(false)
+    profile_open = $state(false)
 
     // --- ENTITY SELECTION STATE (STORYBOARD) ---
-    selectedAi = $state(null)
-    selectedUser = $state(null)
-    selectedFractal = $state(null)
+    selected_ai = $state(null)
+    selected_user = $state(null)
+    selected_fractal = $state(null)
 
-    aiList = $state([])
-    userList = $state([])
-    fractalList = $state([])
+    ai_list = $state([])
+    user_list = $state([])
+    fractal_list = $state([])
 
     // --- ENTITY DRAWER STATE ---
     drawer = $state({
         open: false,
         type: null, // 'ai' | 'user' | 'fractal'
+        reroll_count: 0,
     })
 
     // --- NARRATIVE CONFIG ---
@@ -75,16 +82,16 @@ export class AppStore {
     }
 
     // --- READINESS (Derived Logic) ---
-    canStart = $derived(this.settings.dev_mode || (this.selectedAi && this.selectedUser))
+    is_ready = $derived(this.settings.dev_mode || (this.selected_ai && this.selected_user))
 
     /** Legacy alias for storyboard readiness */
-    get storyboardReady() {
-        return this.canStart
+    get storyboard_ready() {
+        return this.is_ready
     }
 
     // --- TELEMETRY (DevMode HUD) ---
     logs = $state([])
-    causalityReport = $state({
+    causality_report = $state({
         chaos: 0,
         intensity: 0,
         reflex: "Stable",
@@ -106,7 +113,11 @@ export class AppStore {
         console.debug(`[Telemetry:${type.toUpperCase()}] ${message}`)
     }
 
-    // --- LIFECYCLE ---
+    /************************************************************************************
+     * 🧩 [SECTION: LIFECYCLE & PERSISTENCE]
+     * ----------------------------------------------------------------------------------
+     * Initialization and persistent storage logic.
+     ************************************************************************************/
 
     async init() {
         if (typeof window === "undefined" || this.initialized) return
@@ -122,7 +133,7 @@ export class AppStore {
         }
     }
 
-    saveSettings = async () => {
+    save_settings = async () => {
         if (typeof window === "undefined" || !this.settings) return
 
         try {
@@ -149,113 +160,124 @@ export class AppStore {
     streaming = $state({
         active: false,
         content: "",
-        nodeId: null,
+        node_id: null,
     })
 
-    // --- ACTIONS ---
+    /************************************************************************************
+     * 🧩 [SECTION: UI ACTIONS]
+     * ----------------------------------------------------------------------------------
+     * Methods for modifying UI state and triggering events.
+     ************************************************************************************/
 
-    toggleControlPanel = () => {
-        this.controlPanelOpen = !this.controlPanelOpen
+    toggle_control_panel = () => {
+        this.control_panel_open = !this.control_panel_open
     }
 
-    setView = (view) => {
+    set_view = (view) => {
         this.view = view
     }
 
-    openDrawer = (type) => {
-        this.drawer.open = true
+    open_drawer = (type) => {
         this.drawer.type = type
+        this.drawer.open = true
     }
 
-    closeDrawer = () => {
+    close_drawer = () => {
         this.drawer.open = false
-        this.drawer.type = null
+    }
+
+    close_lightbox = () => {
+        closeLightbox()
     }
 
     /**
      * Selects an entity for the current session.
      * Automatically normalizes the object to ensure a flattened schema.
      */
-    selectEntity = (type, entity) => {
-        const clean = themeStore.normalizeEntity(entity)
-        if (type === "ai") this.selectedAi = clean
-        else if (type === "user") this.selectedUser = clean
-        else if (type === "fractal") this.selectedFractal = clean
-        this.closeDrawer()
+    select_entity = (type, entity) => {
+        const clean = themeStore.normalize_entity(entity)
+        if (type === "ai") this.selected_ai = clean
+        else if (type === "user") this.selected_user = clean
+        else if (type === "fractal") this.selected_fractal = clean
+        this.drawer.open = false
     }
 
-    editingEntity = $state(null)
+    editing_entity = $state(null)
 
     /**
      * Toggles the profile modal and prepares the target entity for editing.
      */
-    toggleProfile = (forceState = null, entity = null) => {
-        if (forceState !== null) this.profileOpen = forceState
-        else this.profileOpen = !this.profileOpen
+    toggle_profile = (force_state = null, entity = null) => {
+        if (force_state !== null) this.profile_open = force_state
+        else this.profile_open = !this.profile_open
 
         if (entity) {
-            this.editingEntity = themeStore.normalizeEntity(entity)
+            this.editing_entity = themeStore.normalize_entity(entity)
         }
     }
 
-    closeProfile = () => {
-        this.profileOpen = false
+    close_profile = () => {
+        this.profile_open = false
     }
 
-    openProfile = (entity) => {
-        this.toggleProfile(true, entity)
+    open_profile = (entity) => {
+        this.toggle_profile(true, entity)
     }
 
-    profileTargetId = $derived(this.editingEntity?.id || null)
-    profileTargetType = $derived(this.editingEntity?.type || null)
+    profile_target_id = $derived(this.editing_entity?.id || null)
+    profile_target_type = $derived(this.editing_entity?.type || null)
 
     // SETTINGS MUTATORS
-    toggleSound = () => {
+    toggle_sound = () => {
         this.settings.sound = !this.settings.sound
-        this.saveSettings()
+        this.save_settings()
     }
-    toggleCallMode = () => {
+    toggle_call_mode = () => {
         this.settings.call_mode = !this.settings.call_mode
-        this.saveSettings()
+        this.save_settings()
     }
-    toggleStreamText = () => {
+    toggle_stream_text = () => {
         this.settings.stream_text = !this.settings.stream_text
-        this.saveSettings()
+        this.save_settings()
     }
-    toggleAutoScroll = () => {
+    toggle_auto_scroll = () => {
         this.settings.auto_scroll = !this.settings.auto_scroll
-        this.saveSettings()
+        this.save_settings()
     }
-    toggleDevMode = () => {
+    toggle_dev_mode = () => {
         this.settings.dev_mode = !this.settings.dev_mode
-        this.saveSettings()
+        this.save_settings()
     }
 
     // STREAMING CONTROL
-    startStream = (id) => {
+    start_stream = (id) => {
         this.streaming.active = true
         this.streaming.content = ""
-        this.streaming.nodeId = id
+        this.streaming.node_id = id
     }
 
-    updateStream = (chunk) => {
+    update_stream = (chunk) => {
         this.streaming.content += chunk
     }
 
-    endStream = () => {
+    end_stream = () => {
         this.streaming.active = false
-        this.streaming.nodeId = null
+        this.streaming.node_id = null
     }
 
-    openLightbox = (src, caption = "") => {
+    open_lightbox = (src, caption = "") => {
         openLightbox(src, caption)
+    }
+
+    reroll_title = () => {
+        this.drawer.reroll_count++
     }
 
     /**
      * DEBUG: Force Storymode Entry
      * Bypasses storyboard selection checks.
      */
-    forceStart = () => {
+    force_start = () => {
         console.warn("⚠️ FORCING STORYMODE START")
         this.view = "storymode"
     }

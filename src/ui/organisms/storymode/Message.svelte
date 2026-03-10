@@ -5,12 +5,12 @@
      * Renders parsed messages, DevMode think blocks, and handles inline actions.
      * Flattened Schema Compliant.
      */
+    import { parse_message } from "@core/engine/text_parser.js"
     import { app } from "@state/app.svelte.js"
     import { runtime } from "@state/runtime.svelte.js"
     import { DEFAULT_COLORS, themeStore } from "@theme/palette.svelte.js"
     import DOMPurify from "dompurify"
     import SceneHeader from "../SceneHeader.svelte"
-    import { parse_message } from "@core/engine/text_parser.js"
 
     let {
         text = "",
@@ -45,9 +45,9 @@
         if (is_fractal && runtime.active_fractal?.name === character_name) return runtime.active_fractal
 
         // 2. Cache Lists (For history)
-        if (is_user) return app.userList.find((e) => e.name === character_name)
-        if (is_ai) return app.aiList.find((e) => e.name === character_name)
-        if (is_fractal) return app.fractalList.find((e) => e.name === character_name)
+        if (is_user) return app.user_list.find((e) => e.name === character_name)
+        if (is_ai) return app.ai_list.find((e) => e.name === character_name)
+        if (is_fractal) return app.fractal_list.find((e) => e.name === character_name)
 
         // 3. Fallback
         if (is_user) return runtime.active_user
@@ -57,15 +57,15 @@
 
     let signature_color = $derived.by(() => {
         // 1. Try Entity
-        if (entity) return themeStore.getSignatureColor(entity)
+        if (entity) return themeStore.get_signature_color(entity)
 
         // 2. Try Character Name (Deterministic Fallback)
-        if (character_name) return themeStore.getDeterministicColor(character_name)
+        if (character_name) return themeStore.get_deterministic_color(character_name)
 
         // 3. Fallback to App State [FLATTENED]
-        if (is_user && app.selectedUser?.signature_color) return themeStore.getSignatureColor(app.selectedUser)
-        if (is_ai && app.selectedAi?.signature_color) return themeStore.getSignatureColor(app.selectedAi)
-        if (is_fractal && app.selectedFractal?.signature_color) return themeStore.getSignatureColor(app.selectedFractal)
+        if (is_user && app.selected_user?.signature_color) return themeStore.get_signature_color(app.selected_user)
+        if (is_ai && app.selected_ai?.signature_color) return themeStore.get_signature_color(app.selected_ai)
+        if (is_fractal && app.selected_fractal?.signature_color) return themeStore.get_signature_color(app.selected_fractal)
 
         // 4. Robust Fallback by Role
         if (is_user) return DEFAULT_COLORS.USER
@@ -75,7 +75,7 @@
         return DEFAULT_COLORS.SYSTEM
     })
 
-    let text_color = $derived(themeStore.getContrastColor(signature_color))
+    let text_color = $derived(themeStore.get_contrast_color(signature_color))
 
     let parsed = $derived(parse_message(text))
     let display_text = $derived(parsed.displayText)
@@ -120,7 +120,7 @@
             {#if attachments.length > 0}
                 <div class="attachments">
                     {#each attachments as src (src)}
-                        <button type="button" class="attachment-btn" onclick={() => app.openLightbox(src)} title="View Attachment">
+                        <button type="button" class="attachment-btn" onclick={() => app.open_lightbox(src)} title="View Attachment">
                             <img
                                 {src}
                                 alt="Attachment"
@@ -200,50 +200,48 @@
     {/if}
 </div>
 
-<style lang="scss">
-    @use "@theme/abstracts/variables" as *;
-
+<style>
     .attachments {
         margin-bottom: var(--spacing-s);
+    }
 
-        .attachment-btn {
-            background: none;
-            border: none;
-            padding: 0;
-            margin: 0 0 var(--spacing-xs) 0;
-            cursor: pointer;
-            transition: transform var(--transition-speed);
-            display: block;
+    .attachments .attachment-btn {
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0 0 var(--spacing-xs) 0;
+        cursor: pointer;
+        transition: transform var(--transition-speed);
+        display: block;
+    }
 
-            &:hover {
-                transform: scale(1.02);
-            }
-        }
+    .attachments .attachment-btn:hover {
+        transform: scale(1.02);
+    }
 
-        .attachment-image {
-            max-width: 100%;
-            border-radius: var(--border-radius);
-            display: block;
-            box-shadow: var(--shadow-s);
-        }
+    .attachments .attachment-image {
+        max-width: 100%;
+        border-radius: var(--border-radius);
+        display: block;
+        box-shadow: var(--shadow-s);
     }
 
     .message-row {
         display: flex;
         width: 100%;
         padding: var(--spacing-s) var(--spacing-m);
+    }
 
-        &.user-row {
-            justify-content: flex-end;
-        }
+    .message-row.user-row {
+        justify-content: flex-end;
+    }
 
-        &.ai-row {
-            justify-content: flex-start;
-        }
+    .message-row.ai-row {
+        justify-content: flex-start;
+    }
 
-        &.fractal-row {
-            justify-content: center;
-        }
+    .message-row.fractal-row {
+        justify-content: center;
     }
 
     .thinking-pill {
@@ -254,21 +252,22 @@
         padding: var(--spacing-xs) var(--spacing-m);
         border-radius: var(--border-radius-full);
         height: var(--spacing-xl);
+    }
 
-        .dot {
-            width: var(--spacing-xs);
-            height: var(--spacing-xs);
-            background: white;
-            border-radius: var(--border-radius-full);
-            animation: dot-bounce 1.4s infinite ease-in-out both;
+    .thinking-pill .dot {
+        width: var(--spacing-xs);
+        height: var(--spacing-xs);
+        background: white;
+        border-radius: var(--border-radius-full);
+        animation: dot-bounce 1.4s infinite ease-in-out both;
+    }
 
-            &:nth-child(1) {
-                animation-delay: -0.32s;
-            }
-            &:nth-child(2) {
-                animation-delay: -0.16s;
-            }
-        }
+    .thinking-pill .dot:nth-child(1) {
+        animation-delay: -0.32s;
+    }
+
+    .thinking-pill .dot:nth-child(2) {
+        animation-delay: -0.16s;
     }
 
     @keyframes dot-bounce {
@@ -292,31 +291,31 @@
         color: var(--app-color);
         position: relative;
         overflow: hidden;
+    }
 
-        &.user-bubble {
-            max-width: 75%;
-            border-bottom-right-radius: 0;
-            text-align: left;
-        }
+    .message-bubble.user-bubble {
+        max-width: 75%;
+        border-bottom-right-radius: 0;
+        text-align: left;
+    }
 
-        &.ai-bubble {
-            max-width: 75%;
-            border-bottom-left-radius: 0;
-            text-align: left;
-        }
+    .message-bubble.ai-bubble {
+        max-width: 75%;
+        border-bottom-left-radius: 0;
+        text-align: left;
+    }
 
-        &.fractal-bubble {
-            width: 50%;
-            max-width: 80%;
-            text-align: center;
-            color: var(--app-color);
-            background: var(--bubble-color);
-            box-shadow: var(--shadow-s);
+    .message-bubble.fractal-bubble {
+        width: 50%;
+        max-width: 80%;
+        text-align: center;
+        color: var(--app-color);
+        background: var(--bubble-color);
+        box-shadow: var(--shadow-s);
+    }
 
-            .message-content {
-                text-align: center;
-            }
-        }
+    .message-bubble.fractal-bubble .message-content {
+        text-align: center;
     }
 
     .think-block {
@@ -326,21 +325,21 @@
         padding: var(--spacing-s);
         margin-bottom: var(--spacing-m);
         font-size: var(--font-size-s);
+    }
 
-        .think-label {
-            font-size: var(--font-size-xs);
-            font-weight: 900;
-            color: var(--signature-cyan);
-            letter-spacing: 0.1em;
-            margin-bottom: var(--spacing-xxs);
-        }
+    .think-block .think-label {
+        font-size: var(--font-size-xs);
+        font-weight: 900;
+        color: var(--signature-cyan);
+        letter-spacing: 0.1em;
+        margin-bottom: var(--spacing-xxs);
+    }
 
-        .think-content {
-            color: var(--app-muted);
-            font-family: var(--font-mono);
-            font-style: italic;
-            white-space: pre-wrap;
-        }
+    .think-block .think-content {
+        color: var(--app-muted);
+        font-family: var(--font-mono);
+        font-style: italic;
+        white-space: pre-wrap;
     }
 
     .message-content {
@@ -377,14 +376,13 @@
         transition: opacity var(--transition-speed);
     }
 
-    .message-bubble:hover {
-        .message-timestamp {
-            opacity: 1;
-        }
-        .message-actions {
-            opacity: 1;
-            pointer-events: auto;
-        }
+    .message-bubble:hover .message-timestamp {
+        opacity: 1;
+    }
+
+    .message-bubble:hover .message-actions {
+        opacity: 1;
+        pointer-events: auto;
     }
 
     .action-btn {
@@ -400,67 +398,69 @@
         cursor: pointer;
         transition: all var(--transition-speed);
         position: relative;
+        border: none;
+        padding: 0;
+    }
 
-        &,
-        svg,
-        path,
-        rect,
-        polygon,
-        polyline {
-            text-shadow: none;
-            filter: none;
-            box-shadow: none;
-            shape-rendering: geometricPrecision;
-        }
+    .action-btn,
+    .action-btn svg,
+    .action-btn path,
+    .action-btn rect,
+    .action-btn polygon,
+    .action-btn polyline {
+        text-shadow: none;
+        filter: none;
+        box-shadow: none;
+        shape-rendering: geometricPrecision;
+    }
 
-        svg {
-            stroke-width: 1.5;
-            pointer-events: none;
-        }
+    .action-btn svg {
+        stroke-width: 1.5;
+        pointer-events: none;
+    }
 
-        &:hover {
-            background: var(--app-color);
-            box-shadow: 0 0 0 var(--spacing-px) var(--app-color);
-            color: var(--signature-color);
+    .action-btn:hover {
+        background: var(--app-color);
+        box-shadow: 0 0 0 var(--spacing-px) var(--app-color);
+        color: var(--signature-color);
+    }
 
-            svg {
-                stroke-width: 2;
-                stroke: currentColor;
-            }
-        }
+    .action-btn:hover svg {
+        stroke-width: 2;
+        stroke: currentColor;
+    }
 
-        &::after {
-            content: attr(title);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%) translateY(calc(var(--spacing-xs) * -2));
-            background: var(--bg-component);
-            color: var(--app-color);
-            padding: var(--spacing-xxs) var(--spacing-xs);
-            border-radius: var(--border-radius-s);
-            font-size: var(--font-size-xs);
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.2s;
-            z-index: 100;
-            box-shadow: var(--glass-border);
-        }
+    .action-btn::after {
+        content: attr(title);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(calc(var(--spacing-xs) * -2));
+        background: var(--bg-component);
+        color: var(--app-color);
+        padding: var(--spacing-xxs) var(--spacing-xs);
+        border-radius: var(--border-radius-s);
+        font-size: var(--font-size-xs);
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.2s;
+        z-index: 100;
+        box-shadow: var(--glass-border);
+    }
 
-        &:hover::after {
-            opacity: 1;
-            transform: translateX(-50%) translateY(calc(var(--spacing-xs) * -1));
-        }
+    .action-btn:hover::after {
+        opacity: 1;
+        transform: translateX(-50%) translateY(calc(var(--spacing-xs) * -1));
+    }
 
-        &.delete:hover {
-            background: var(--color-danger);
-            box-shadow: 0 0 0 var(--spacing-px) var(--app-color);
-            color: var(--app-color);
+    .action-btn.delete:hover {
+        background: var(--app-del); /* [R5] Standardized variable from tokens.css */
+        box-shadow: 0 0 0 var(--spacing-px) var(--app-color);
+        color: var(--app-color);
+    }
 
-            svg {
-                stroke: var(--app-color);
-            }
-        }
+    .action-btn.delete:hover svg {
+        stroke: var(--app-color);
     }
 </style>

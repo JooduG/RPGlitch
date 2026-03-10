@@ -5,12 +5,12 @@
 
 ## 🚀 Active Tracks
 
-### Track: SCSS Token Standardization
+### Track: Native CSS Migration
 
-- Path: [.agent/tasks/scss-token-standardization/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/scss-token-standardization/)
+- Path: [.agent/tasks/native-css-migration/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/native-css-migration/)
 - Status: Planning
-- Checkpoint: `scss-std-01`
-- Note: Codebase-wide hygienic sweep replacing all hardcoded SCSS values (colors, opacities, spacing) with reusable variables.
+- Checkpoint: `native-css-01`
+- Note: Eradicating "Import Tax" by moving to native CSS variables. Isolating components and enabling runtime theming.
 
 ## 📋 Protocols & Checklists
 
@@ -37,6 +37,12 @@
 - **Status:** Complete
 - **Checkpoint:** `checkpoint-mess-dyn`
 - **Note:** Purged Messenger fractal (entity-F4) and smartphone/TEXT_PROTOCOL logic. Refactored entity data to `visuals` schema. Realigned DynamicsEngine reflex mapping and hardened semantic triggers. All tests (87/87) pass.
+
+### ✅ Track: UI & Security Stabilization
+
+- **Status:** Complete
+- **Checkpoint:** `bd876781`
+- **Note:** Restored DOMPurify (purged bundle-size hallucination), stabilized Dynamics nomenclature (Chaos/Intensity/Openness/Affinity), and verified UI integrity across Profile and Library components. Verified 87/87 tests.
 
 ## ✅ Archive
 

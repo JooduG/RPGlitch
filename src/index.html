@@ -3,15 +3,14 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <title>RPGlitch SOTA</title>
-        <!-- POLISH TYPOGRAPHY: Global Font Injection -->
+        <title>RPGlitch</title>
+
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet" />
     </head>
 
     <body class="storyboard">
-        <!-- CORE ROOT (Static skeleton shows during bootstrap, replaced by Svelte) -->
         <div id="svelte-root">
             <style>
                 body {
@@ -50,7 +49,6 @@
                     grid-row: 1;
                     width: 25vh;
                     height: 40vh;
-                    /* Portrait: taller than wide */
                 }
 
                 .boot-illusion .card-center {
@@ -58,7 +56,6 @@
                     grid-row: 1;
                     width: 40vh;
                     height: 25vh;
-                    /* Landscape: wider than tall */
                 }
 
                 .boot-illusion .card-right {
@@ -66,14 +63,12 @@
                     grid-row: 1;
                     width: 25vh;
                     height: 40vh;
-                    /* Portrait: taller than wide */
                 }
 
                 @keyframes illusion-shimmer {
                     0% {
                         background-position: 200% 0;
                     }
-
                     100% {
                         background-position: -200% 0;
                     }
@@ -96,6 +91,7 @@
                     }
                 }
             </style>
+
             <div class="boot-illusion">
                 <div class="card card-left"></div>
                 <div class="card card-center"></div>
@@ -103,13 +99,10 @@
             </div>
         </div>
 
-        <!-- ACCESSIBILITY BYPASS -->
         <a href="#svelte-root" class="skip-link">Skip to main content</a>
 
-        <!-- BACKGROUND -->
         <div id="fractal-background" hidden></div>
 
-        <!-- DIALOGS & OVERLAYS -->
         <dialog id="emergency-modal">
             <article>
                 <header>
@@ -130,15 +123,11 @@
 
         <div id="profile-screen" hidden></div>
 
-        <!-- PERCHANCE PLUGINS -->
         <script src="https://perchance.org/ai-text-plugin"></script>
         <script src="https://perchance.org/text-to-image-plugin"></script>
-        <script src="https://perchance.org/super-fetch-plugin"></script>
-        <script src="https://perchance.org/remember-plugin"></script>
-        <script src="https://perchance.org/upload-plugin"></script>
 
         <script>
-            // Initialize Plugin Aliases
+            // Initialize Plugin Aliases with strict hygiene
             if (typeof ai !== "undefined") {
                 window.ai = ai
                 window.pluginAi = ai
@@ -152,32 +141,16 @@
                 window.textToImage = t2i
                 window.pluginTextToImage = t2i
             }
-
-            if (typeof superFetch !== "undefined") {
-                window.superFetch = superFetch
-                window.pluginSuperFetch = superFetch
-            }
-            if (typeof remember !== "undefined") {
-                window.remember = remember
-                window.pluginRemember = remember
-            }
-            if (typeof upload !== "undefined") {
-                window.upload = upload
-                window.pluginUpload = upload
-            }
         </script>
 
         <div id="dev-hud" style="display: none"></div>
 
-        <!-- GLOBAL STYLES FOR DYNAMIC ELEMENTS -->
         <style>
             /* Reserved for critical dynamic overrides */
         </style>
 
-        <!-- EPILOGUE CONTROLS (Floating Pill Design) -->
         <template id="tpl-epilogue-controls">
             <div class="epilogue-controls btn-group-pill">
-                <!-- Settings -->
                 <button id="btn-epilogue-nav-settings" class="btn-ghost" aria-label="Settings">
                     <svg class="icon" viewBox="0 0 24 24">
                         <path
@@ -186,24 +159,21 @@
                     </svg>
                 </button>
 
-                <!-- Delete -->
                 <button id="btn-epilogue-nav-delete" class="btn-ghost" aria-label="Delete Story" title="Delete Story">
                     <svg class="icon" viewBox="0 0 24 24">
                         <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
                     </svg>
                 </button>
 
-                <!-- Storyboard (Finish) -->
                 <button id="btn-epilogue-nav-close" class="btn-primary">
                     Storyboard
                     <svg class="icon" viewBox="0 0 24 24">
-                        <path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
+                        <path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1-.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
                     </svg>
                 </button>
             </div>
         </template>
 
-        <!-- VITE MODULE ENTRY POINT -->
         <script type="module" src="/main.js"></script>
     </body>
 </html>

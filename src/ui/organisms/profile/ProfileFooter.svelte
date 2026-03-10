@@ -26,9 +26,7 @@
     {/if}
 </footer>
 
-<style lang="scss">
-    @use "../../../theme/abstracts/placeholders" as *;
-
+<style>
     footer {
         margin-top: auto;
         display: grid;
@@ -36,81 +34,80 @@
         gap: var(--spacing-s);
         background: color-mix(in srgb, var(--glass-m), var(--signature-color) var(--opacity-xs));
         border-top: 0;
-        z-index: 10;
+        z-index: 2;
         padding-top: var(--spacing-m);
+    }
 
-        :global(.profile-btn.btn) {
-            height: auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            padding: var(--spacing-s) var(--spacing-xl);
-            transition: all var(--transition-speed) var(--physics-transition-elastic);
-            width: 50%;
-        }
+    footer :global(.profile-btn.btn) {
+        height: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: var(--spacing-s) var(--spacing-xl);
+        transition: all var(--transition-speed) var(--physics-transition-elastic);
+        width: 50%;
+    }
 
-        .footer-actions {
-            grid-column: 2;
-            display: flex;
-            gap: var(--spacing-m);
-            width: 100%;
+    footer .footer-actions {
+        grid-column: 2;
+        display: flex;
+        gap: var(--spacing-m);
+        width: 100%;
+    }
 
-            :global(.btn) {
-                flex: 1;
-                width: 100%;
-            }
+    footer .footer-actions :global(.btn) {
+        flex: 1;
+        width: 100%;
+    }
 
-            :global(.btn-danger) {
-                background: transparent;
-                border-color: var(--glass-border);
-                color: var(--app-muted);
-                box-shadow: none;
-                transition: all 0.3s ease;
+    footer .footer-actions :global(.btn-danger) {
+        background: transparent;
+        border-color: var(--glass-border);
+        color: var(--app-muted);
+        box-shadow: none;
+        transition: all 0.3s ease;
+    }
 
-                &:hover {
-                    background: var(--app-del);
-                    border-color: var(--app-del);
-                    color: white;
-                    box-shadow: 0 0 var(--spacing-xl) rgb(var(--color-danger-rgb) / var(--opacity-m));
-                    filter: brightness(1.2);
-                }
-            }
-        }
+    footer .footer-actions :global(.btn-danger):hover {
+        background: var(--app-del);
+        border-color: var(--app-del);
+        color: white;
+        box-shadow: 0 0 var(--spacing-xl) rgb(var(--color-danger-rgb) / var(--opacity-m));
+        filter: brightness(1.2);
+    }
 
-        /* Readonly "Edit" Button - Target direct child of footer */
-        > :global(.btn-edit) {
-            grid-column: 2;
-            /* Calculate 50% width minus half the gap, to match one of the two buttons */
-            width: calc(50% - (var(--spacing-m) / 2));
-            justify-self: end;
+    /* Readonly "Edit" Button - Target direct child of footer */
+    footer > :global(.btn-edit) {
+        grid-column: 2;
+        /* Calculate 50% width minus half the gap, to match one of the two buttons */
+        width: calc(50% - (var(--spacing-m) / 2));
+        justify-self: end;
+        background: var(--signature-color);
+        color: white;
+        box-shadow: var(--shadow-s);
+    }
 
-            background: var(--signature-color);
-            color: white;
-            box-shadow: var(--shadow-s);
+    footer > :global(.btn-edit):hover {
+        filter: brightness(1.1);
+        transform: translateY(var(--physics-hover-y-compact));
+        box-shadow: var(--shadow-m);
+    }
 
-            &:hover {
-                filter: brightness(1.1);
-                transform: translateY(var(--physics-hover-y-compact));
-                box-shadow: var(--shadow-m);
-            }
-        }
+    /* Edit Button inside .footer-actions (Save) needs to just inherit flex */
+    footer .footer-actions :global(.btn-edit) {
+        background: var(--signature-color);
+        color: white;
+        box-shadow: var(--shadow-s);
+        /* Ensure it fills flex container */
+        width: 100%;
+    }
 
-        /* Edit Button inside .footer-actions (Save) needs to just inherit flex */
-        .footer-actions :global(.btn-edit) {
-            background: var(--signature-color);
-            color: white;
-            box-shadow: var(--shadow-s);
-            /* Ensure it fills flex container */
-            width: 100%;
-
-            &:hover {
-                filter: brightness(1.1);
-                transform: translateY(var(--physics-hover-y-compact));
-                box-shadow: var(--shadow-m);
-            }
-        }
+    footer .footer-actions :global(.btn-edit):hover {
+        filter: brightness(1.1);
+        transform: translateY(var(--physics-hover-y-compact));
+        box-shadow: var(--shadow-m);
     }
 </style>

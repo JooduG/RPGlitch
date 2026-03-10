@@ -32,9 +32,6 @@ describe("PromptBuilder Visual & Contextual Verification", () => {
 
         const result = PromptBuilder.synthesize(payload, snapshot)
 
-        console.log("--- SYNTHESIZED SYSTEM PROMPT (VISUAL CHECK) ---\n")
-        console.log(result.system)
-
         // 1. Check newline collapse
         expect(result.system).not.toContain("\n\n")
     })

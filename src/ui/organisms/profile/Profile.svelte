@@ -13,7 +13,6 @@
     import ProfilePicture from "@ui/atoms/ProfilePicture.svelte"
     import Modal from "@ui/molecules/dialogs/Modal.svelte"
     import DOMPurify from "dompurify"
-
     // Modular Components
     import ProfileFooter from "./ProfileFooter.svelte"
     import ProfileFragments from "./ProfileFragments.svelte"
@@ -71,11 +70,11 @@
     let active_field = $state({ key: "visual-prompt", label: "Image Prompt" })
 
     // Normalizer guarantees flattened schema
-    let char = $state(themeStore.normalizeEntity(app.editingEntity || runtime.character))
+    let char = $state(themeStore.normalize_entity(app.editing_entity || runtime.character))
 
     // Theme values derived directly from the flattened entity
-    let signature_color = $derived(themeStore.getSignatureColor(char))
-    let signature_rgb = $derived(themeStore.hexToRgb(signature_color))
+    let signature_color = $derived(themeStore.get_signature_color(char))
+    let signature_rgb = $derived(themeStore.hex_to_rgb(signature_color))
 
     $effect(() => {
         if (!is_editing) {
@@ -87,7 +86,7 @@
         if (is_editing) {
             is_editing = false
         } else {
-            app.toggleProfile(false)
+            app.toggle_profile(false)
         }
     }
 
@@ -103,14 +102,14 @@
 
                 // Refresh Lists
                 const [characters, fractals] = await Promise.all([entities.list("character"), entities.list("fractal")])
-                app.aiList = characters
-                app.userList = characters
-                app.fractalList = fractals
+                app.ai_list = characters
+                app.user_list = characters
+                app.fractal_list = fractals
 
                 // Refresh Selection
-                if (app.selectedAi?.id === eid) app.selectedAi = characters.find((e) => e.id === eid)
-                if (app.selectedUser?.id === eid) app.selectedUser = characters.find((e) => e.id === eid)
-                if (app.selectedFractal?.id === eid) app.selectedFractal = fractals.find((e) => e.id === eid)
+                if (app.selected_ai?.id === eid) app.selected_ai = characters.find((e) => e.id === eid)
+                if (app.selected_user?.id === eid) app.selected_user = characters.find((e) => e.id === eid)
+                if (app.selected_fractal?.id === eid) app.selected_fractal = fractals.find((e) => e.id === eid)
             }
         } catch (err) {
             console.error("Failed to save profile:", err)
@@ -212,9 +211,7 @@
     </Modal>
 {/if}
 
-<style lang="scss">
-    @use "../../../theme/abstracts/placeholders" as *;
-
+<style>
     .profile-container {
         display: flex;
         align-items: center;
@@ -241,37 +238,39 @@
         grid-template-columns: 35% 1fr;
         position: relative;
         overflow: hidden;
-        z-index: 10;
+        z-index: var(--z-modal);
         transform-style: preserve-3d;
+    }
 
-        .left {
-            background: transparent;
-            border-right: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            padding: 0;
-            gap: 0;
-        }
+    .profile-presentation .left {
+        background: transparent;
+        border-right: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 0;
+        gap: 0;
+    }
 
-        main {
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            max-height: 85vh;
-            background: var(--tint-dark-surface);
-            padding: var(--spacing-m);
+    .profile-presentation main {
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        max-height: 85vh;
+        background: var(--tint-dark-surface);
+        padding: var(--spacing-m);
+    }
 
-            &::-webkit-scrollbar {
-                width: var(--spacing-xxs);
-            }
-            &::-webkit-scrollbar-track {
-                background: transparent;
-            }
-            &::-webkit-scrollbar-thumb {
-                background: rgb(var(--signature-rgb) / var(--opacity-s));
-                border-radius: var(--border-radius-full);
-            }
-        }
+    .profile-presentation main::-webkit-scrollbar {
+        width: var(--spacing-xxs);
+    }
+
+    .profile-presentation main::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .profile-presentation main::-webkit-scrollbar-thumb {
+        background: rgb(var(--signature-rgb) / var(--opacity-s));
+        border-radius: var(--border-radius-full);
     }
 </style>

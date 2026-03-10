@@ -4,7 +4,7 @@
      * 📚 THE ENTITY BIRTHPLACE
      * Slide-up sheet for selecting or creating entities (AI, User, or Fractal).
      */
-    import { createNew } from "@data/content_normaliser.js"
+    import { create_new } from "@data/content_normaliser.js"
     import { entities as repository } from "@data/repository.js"
     import { app } from "@state/app.svelte.js"
     import { quintOut } from "svelte/easing"
@@ -14,16 +14,16 @@
     import LibraryCard from "./LibraryCard.svelte"
 
     // --- STATE & DERIVATIONS ---
-    let isOpen = $derived(app.drawer.open)
+    let is_open = $derived(app.drawer.open)
     let drawerType = $derived(app.drawer.type) // 'ai' | 'user' | 'fractal'
 
     /**
      * Dynamically maps the UI drawer type to the appropriate data list.
      */
-    let entityList = $derived(() => {
-        if (drawerType === "ai") return app.aiList
-        if (drawerType === "user") return app.userList
-        if (drawerType === "fractal") return app.fractalList
+    let entity_list = $derived(() => {
+        if (drawerType === "ai") return app.ai_list
+        if (drawerType === "user") return app.user_list
+        if (drawerType === "fractal") return app.fractal_list
         return []
     })
 
@@ -31,8 +31,8 @@
      * Prevents the same entity from being used for both User and AI roles.
      */
     function isDisabled(entity) {
-        if (drawerType === "ai" && app.selectedUser?.id === entity.id) return true
-        if (drawerType === "user" && app.selectedAi?.id === entity.id) return true
+        if (drawerType === "ai" && app.selected_user?.id === entity.id) return true
+        if (drawerType === "user" && app.selected_ai?.id === entity.id) return true
         return false
     }
 
@@ -59,7 +59,7 @@
         const type = drawerType === "fractal" ? "fractal" : "character"
 
         // 2. Construct via Factory (Random color, Empty fields, Semantic Structure)
-        const blueprint = createNew(type, {
+        const blueprint = create_new(type, {
             name: `New ${drawerType.toUpperCase()}`,
         })
 
@@ -72,40 +72,36 @@
 
             // 5. Select and Open for Editing
             // This closes the drawer and slides the Profile wing into view.
-            app.selectEntity(drawerType, saved)
-            app.openProfile(saved)
+            app.select_entity(drawerType, saved)
+            app.open_profile(saved)
         } catch (err) {
             app.log(`Creation failed: ${err.message}`, "error")
         }
     }
 
-    function handleSelect(entity) {
-        app.selectEntity(drawerType, entity)
-    }
-
-    function handleBackdropClick() {
-        app.closeDrawer()
+    function handle_select(entity) {
+        app.select_entity(drawerType, entity)
     }
 
     function handleKeydown(e) {
-        if (e.key === "Escape" && isOpen) {
-            app.closeDrawer()
+        if (e.key === "Escape" && is_open) {
+            app.close_drawer()
         }
     }
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
 
-{#if isOpen}
-    <Backdrop onclick={handleBackdropClick} zIndex="calc(var(--z-drawer) - 1)" />
+{#if is_open}
+    <Backdrop onclick={() => app.close_drawer()} zIndex="calc(var(--z-drawer) - 1)" />
 
     <div class="entity-drawer" role="dialog" aria-labelledby="drawer-title" transition:fly={{ y: "100%", duration: 500, easing: quintOut }}>
         <header class="drawer-header">
             <h3 id="drawer-title">{title()}</h3>
-            <button class="close-btn" onclick={() => app.closeDrawer()} aria-label="Close drawer">×</button>
+            <button class="close-btn" onclick={() => app.close_drawer()} aria-label="Close drawer">×</button>
         </header>
 
-        <div class="drawer-content">
+        <div class="drawer-content no-scrollbar">
             <div class="drawer-grid">
                 <button class="drawer-card drawer-card--new" onclick={handleCreateNew} title="Initialize a new entity from template">
                     <div class="new-icon-wrap">
@@ -114,12 +110,12 @@
                     <span class="drawer-card-label">Create New</span>
                 </button>
 
-                {#each entityList() as entity (entity.id)}
-                    <LibraryCard {entity} type={drawerType} disabled={isDisabled(entity)} onSelect={() => handleSelect(entity)} onViewProfile={() => app.openProfile(entity)} />
+                {#each entity_list() as entity (entity.id)}
+                    <LibraryCard {entity} type={drawerType} disabled={isDisabled(entity)} onSelect={() => handle_select(entity)} onViewProfile={() => app.open_profile(entity)} />
                 {/each}
             </div>
 
-            {#if entityList().length === 0}
+            {#if entity_list().length === 0}
                 <div class="drawer-empty">
                     <svg class="empty-icon" viewBox="0 0 24 24">
                         <path fill="currentColor" d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z" />
@@ -132,11 +128,7 @@
     </div>
 {/if}
 
-<style lang="scss">
-    @use "@theme/abstracts/variables" as *;
-    @use "@theme/abstracts/mixins" as *;
-    @use "@theme/abstracts/placeholders" as *;
-
+<style>
     .entity-drawer {
         background: var(--bg-card);
         box-shadow: var(--shadow-l);
@@ -153,40 +145,41 @@
         flex-direction: column;
         overflow: hidden;
     }
+
     .drawer-header {
         padding: var(--spacing-m) var(--spacing-l);
         display: flex;
         justify-content: space-between;
         align-items: center;
         background: var(--bg-app);
+    }
 
-        h3 {
-            margin: 0;
-            letter-spacing: 0.5px;
-            font-weight: 800;
-            font-size: var(--font-size-xl);
-            font-family: var(--font-header);
-            text-transform: uppercase;
-        }
+    .drawer-header h3 {
+        margin: 0;
+        letter-spacing: 0.5px;
+        font-weight: 800;
+        font-size: var(--font-size-xl);
+        font-family: var(--font-header);
+        text-transform: uppercase;
+    }
 
-        .close-btn {
-            background: transparent;
-            border: none;
-            color: var(--app-muted);
-            font-size: 2rem;
-            cursor: pointer;
-            line-height: 1;
-            &:hover {
-                color: white;
-            }
-        }
+    .drawer-header .close-btn {
+        background: transparent;
+        border: none;
+        color: var(--app-muted);
+        font-size: 2rem;
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    .drawer-header .close-btn:hover {
+        color: white;
     }
 
     .drawer-content {
         flex: 1;
         overflow-y: auto;
         padding: var(--spacing-l);
-        @include custom-scrollbar;
     }
 
     .drawer-grid {
@@ -210,42 +203,43 @@
         cursor: pointer;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         color: var(--app-muted);
+        border: none;
+        padding: 0;
+    }
 
-        .new-icon-wrap {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(var(--pure-white-rgb), 0.05);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: inherit;
-        }
+    .drawer-card--new .new-icon-wrap {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: rgba(var(--pure-white-rgb), 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: inherit;
+    }
 
-        .drawer-card-icon {
-            font-size: 2rem;
-            line-height: 1;
-        }
+    .drawer-card--new .drawer-card-icon {
+        font-size: 2rem;
+        line-height: 1;
+    }
 
-        .drawer-card-label {
-            font-weight: 800;
-            font-family: var(--font-header);
-            text-transform: uppercase;
-            font-size: var(--font-size-xs);
-            letter-spacing: 1px;
-        }
+    .drawer-card--new .drawer-card-label {
+        font-weight: 800;
+        font-family: var(--font-header);
+        text-transform: uppercase;
+        font-size: var(--font-size-xs);
+        letter-spacing: 1px;
+    }
 
-        &:hover {
-            border-color: var(--app-accent);
-            color: white;
-            background: rgba(var(--pure-white-rgb), 0.05);
-            transform: translateY(-5px);
+    .drawer-card--new:hover {
+        color: white;
+        background: rgba(var(--pure-white-rgb), 0.05);
+        transform: translateY(-5px);
+    }
 
-            .new-icon-wrap {
-                background: var(--app-accent);
-                box-shadow: 0 0 15px var(--app-accent);
-            }
-        }
+    .drawer-card--new:hover .new-icon-wrap {
+        background: var(--app-accent);
+        box-shadow: 0 0 15px var(--app-accent);
     }
 
     /* --- EMPTY STATE --- */
@@ -257,26 +251,27 @@
         padding: 4rem 2rem;
         text-align: center;
         color: var(--app-muted);
-
-        .empty-icon {
-            width: 80px;
-            height: 80px;
-            opacity: 0.1;
-            margin-bottom: var(--spacing-m);
-        }
-
-        h4 {
-            margin: 0;
-            font-size: 1.5rem;
-            font-weight: 800;
-        }
-        p {
-            opacity: 0.6;
-            margin-top: 0.5rem;
-        }
     }
 
-    @include mobile {
+    .drawer-empty .empty-icon {
+        width: 80px;
+        height: 80px;
+        opacity: 0.1;
+        margin-bottom: var(--spacing-m);
+    }
+
+    .drawer-empty h4 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 800;
+    }
+
+    .drawer-empty p {
+        opacity: 0.6;
+        margin-top: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
         .entity-drawer {
             max-width: 100vw;
             border-radius: 20px 20px 0 0;

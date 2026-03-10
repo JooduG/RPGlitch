@@ -50,24 +50,19 @@
     </div>
 </div>
 
-<style lang="scss">
-    @use "@theme/abstracts/variables" as *;
-    @use "@theme/abstracts/placeholders" as *;
-
+<style>
     .vector-card {
         position: relative;
         width: 100%;
         transition: transform var(--transition-speed) var(--physics-transition-elastic);
+    }
 
-        &:hover {
-            transform: translateX(var(--spacing-xxs));
-        }
+    .vector-card:hover {
+        transform: translateX(var(--spacing-xxs));
+    }
 
-        &.editing {
-            &:hover {
-                transform: none;
-            }
-        }
+    .vector-card.editing:hover {
+        transform: none;
     }
 
     .card-inner {
@@ -80,16 +75,14 @@
         transition: all var(--transition-speed) ease;
     }
 
-    .display-area {
-        .content {
-            font-family: inherit;
-            font-size: var(--font-size-s);
-            color: var(--app-color);
-            line-height: var(--line-height-base);
-            opacity: var(--opacity-full);
-            word-break: break-word;
-            overflow-wrap: break-word;
-        }
+    .display-area .content {
+        font-family: inherit;
+        font-size: var(--font-size-s);
+        color: var(--app-color);
+        line-height: var(--line-height-base);
+        opacity: var(--opacity-full);
+        word-break: break-word;
+        overflow-wrap: break-word;
     }
 
     .edit-area {
@@ -97,32 +90,32 @@
         flex-direction: row;
         gap: var(--spacing-s);
         align-items: stretch;
+    }
 
-        textarea {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: var(--app-color);
-            font-family: inherit;
-            font-size: var(--font-size-s);
-            line-height: var(--line-height-base);
-            resize: vertical;
-            min-height: var(--spacing-xl);
-            width: 100%;
-            outline: none;
-            padding: 0;
+    .edit-area textarea {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: var(--app-color);
+        font-family: inherit;
+        font-size: var(--font-size-s);
+        line-height: var(--line-height-base);
+        resize: vertical;
+        min-height: var(--spacing-xl);
+        width: 100%;
+        outline: none;
+        padding: 0;
+    }
 
-            &::placeholder {
-                color: var(--text-dim);
-                opacity: 0.5;
-            }
-        }
+    .edit-area textarea::placeholder {
+        color: var(--text-dim);
+        opacity: 0.5;
+    }
 
-        .actions {
-            display: flex;
-            align-items: flex-start;
-            margin-top: 0;
-        }
+    .edit-area .actions {
+        display: flex;
+        align-items: flex-start;
+        margin-top: 0;
     }
 
     :global(.vector-delete-btn.btn) {
@@ -137,20 +130,20 @@
         align-items: center !important;
         justify-content: center !important;
         transition: all var(--transition-speed) var(--physics-transition-elastic) !important;
+    }
 
-        &:hover {
-            background: var(--app-del) !important;
-            box-shadow: var(--shadow-m) !important;
-            color: var(--app-color) !important;
-            filter: brightness(1.2) !important;
-            transform: translateY(var(--physics-hover-y-compact)) !important;
-        }
+    :global(.vector-delete-btn.btn):hover {
+        background: var(--app-del) !important;
+        box-shadow: var(--shadow-m) !important;
+        color: var(--app-color) !important;
+        filter: brightness(1.2) !important;
+        transform: translateY(var(--physics-hover-y-compact)) !important;
+    }
 
-        .icon {
-            font-size: var(--font-size-xxl);
-            line-height: 1;
-            font-weight: 800;
-            margin-bottom: 2px;
-        }
+    :global(.vector-delete-btn.btn) .icon {
+        font-size: var(--font-size-xxl);
+        line-height: 1;
+        font-weight: 800;
+        margin-bottom: 2px;
     }
 </style>

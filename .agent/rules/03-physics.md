@@ -32,14 +32,15 @@ The project operates in a **Svelte 5 Runes-only** environment.
 ## 2. Church & State (Styling)
 
 - **State (HTML/JS):** Managed by Svelte.
-- **Church (CSS):** Managed by SCSS.
+- **Church (CSS):** Managed by Native CSS Custom Properties and Scoped Styles.
 
 ### 🛑 Constraints
 
 1. **No Inline Styles**: `style="..."` is prohibited.
-2. **No Global CSS**: Use component-scoped SCSS or designated theme tokens.
+2. **No Global CSS**: Use component-scoped styles or designated theme tokens.
 3. **No Tailwind**: Prohibited unless explicitly requested for a specific feature.
-4. **Hardcoded Hex**: Permitted ONLY in `src/theme/abstracts/_variables.scss`. Use `var(--app-token)` or SCSS variables everywhere else. Do not force code splits just to satisfy the hex token rule.
+4. **Hardcoded Hex**: Permitted ONLY in `src/theme/tokens.css`. Use `var(--token-name)` everywhere else.
+5. **No SCSS Mixins/Variables in Components**: Svelte components MUST NOT import SCSS variables or mixins. They must rely on global CSS variables defined in `:root`.
 
 ## 3. Platform Constraints (Perchance/Web)
 

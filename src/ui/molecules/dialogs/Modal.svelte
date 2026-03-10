@@ -59,9 +59,7 @@
     </div>
 </div>
 
-<style lang="scss">
-    @use "@theme/abstracts/variables" as *;
-
+<style>
     .modal-layout {
         position: fixed;
         inset: 0;
@@ -89,43 +87,43 @@
         position: relative;
         max-height: 85vh;
         overflow: hidden;
+    }
 
-        &.variant-profile {
-            align-self: center; /* Ensure top alignment for scrolling */
-            margin: auto;
+    .modal.variant-profile {
+        align-self: center; /* Ensure top alignment for scrolling */
+        margin: auto;
 
-            /* Reset Standard constraints */
-            max-height: none;
-            width: max-content;
-            max-width: 100vw;
-            height: auto;
-            min-height: auto; /* Remove 100% min-height to fix click blocking, or verify behavior */
+        /* Reset Standard constraints */
+        max-height: none;
+        width: max-content;
+        max-width: 100vw;
+        height: auto;
+        min-height: auto; /* Remove 100% min-height to fix click blocking, or verify behavior */
 
-            /* If the Profile Card *needs* to be tall, it will define its own height. */
-            /* If we need the modal container to be the scroll surface, .modal-layout does that. */
+        /* If the Profile Card *needs* to be tall, it will define its own height. */
+        /* If we need the modal container to be the scroll surface, .modal-layout does that. */
 
-            border: none;
-            background: transparent;
-            box-shadow: none;
-            overflow: visible;
-            padding: 0;
-        }
+        border: none;
+        background: transparent;
+        box-shadow: none;
+        overflow: visible;
+        padding: 0;
+    }
 
-        &.variant-preview {
-            background: transparent;
-            width: auto;
-            height: auto;
-            max-width: 95vw;
-            max-height: 95vh;
-            border: none;
-            box-shadow: none;
-            position: relative;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: visible;
-        }
+    .modal.variant-preview {
+        background: transparent;
+        width: auto;
+        height: auto;
+        max-width: 95vw;
+        max-height: 95vh;
+        border: none;
+        box-shadow: none;
+        position: relative;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: visible;
     }
 
     .close-btn {
@@ -144,9 +142,9 @@
         cursor: pointer;
         z-index: 10;
         transition: color 0.2s;
+    }
 
-        &:hover {
-            color: var(--zinc-100);
-        }
+    .close-btn:hover {
+        color: var(--zinc-100);
     }
 </style>

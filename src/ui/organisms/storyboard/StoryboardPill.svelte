@@ -6,7 +6,7 @@
     import { storyboard } from "./storyboardActions.svelte.js"
 
     // Derived State
-    let ready_to_begin = $derived(app.selectedAi && app.selectedUser && app.selectedFractal)
+    let ready_to_begin = $derived(app.selected_ai && app.selected_user && app.selected_fractal)
 </script>
 
 <div class="pill-container">
@@ -18,7 +18,7 @@
             </svg>
         </Button>
 
-        <Button className="capsule-flank icon-glow" variant="ghost" onclick={app.toggleControlPanel} aria-label="Settings" title="Open Control Panel" data-testid="settings-button" actions={[spin]}>
+        <Button className="capsule-flank icon-glow" variant="ghost" onclick={app.toggle_control_panel} aria-label="Settings" title="Open Control Panel" data-testid="settings-button" actions={[spin]}>
             <svg viewBox="0 0 24 24" class="icon-small">
                 <path
                     fill="currentColor"
@@ -28,7 +28,7 @@
         </Button>
 
         <!-- Option 3: "The Pop" (Scale + Brightness) -->
-        <Button className="capsule-action pop" variant="ghost" disabled={!ready_to_begin} onclick={storyboard.beginStory} actions={[pulse]}>
+        <Button className="capsule-action pop" variant="ghost" disabled={!ready_to_begin} onclick={storyboard.begin} actions={[pulse]}>
             <div class="core-content">
                 <span class="label">Begin Story</span>
             </div>
@@ -36,9 +36,7 @@
     </div>
 </div>
 
-<style lang="scss">
-    @use "@theme/abstracts/variables" as *;
-
+<style>
     .pill-container {
         display: flex;
         justify-content: center;
@@ -118,7 +116,7 @@
     }
 
     /* Extra Label Polish */
-    :global(.unified-capsule .capsule-action.btn:hover) .label {
+    :global(.unified-capsule .capsule-action.btn:hover .label) {
         text-shadow: 0 0 var(--spacing-m) rgb(var(--pure-white-rgb) / var(--opacity-m));
     }
 

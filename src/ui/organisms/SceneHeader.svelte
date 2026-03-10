@@ -46,9 +46,7 @@
     </div>
 </div>
 
-<style lang="scss">
-    @use "@theme/abstracts/variables" as *;
-
+<style>
     .scene-header {
         display: flex;
         justify-content: center;
@@ -84,26 +82,26 @@
         flex-direction: column;
         align-items: flex-start;
         gap: var(--spacing-px);
+    }
 
-        .label {
-            font-size: var(--font-size-xs);
-            letter-spacing: var(--letter-spacing-l);
-            color: var(--app-muted);
-            text-transform: uppercase;
-        }
+    .info-group .label {
+        font-size: var(--font-size-xs);
+        letter-spacing: var(--letter-spacing-l);
+        color: var(--app-muted);
+        text-transform: uppercase;
+    }
 
-        .value {
-            font-family: var(--font-header);
-            font-size: var(--font-size-s);
-            font-weight: 500;
-            color: var(--app-color);
-            text-transform: uppercase;
-            letter-spacing: var(--letter-spacing-m);
+    .info-group .value {
+        font-family: var(--font-header);
+        font-size: var(--font-size-s);
+        font-weight: 500;
+        color: var(--app-color);
+        text-transform: uppercase;
+        letter-spacing: var(--letter-spacing-m);
 
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-xs);
-        }
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
     }
 
     .weather-icon {
@@ -130,10 +128,10 @@
             flex-direction: row;
             justify-content: space-between;
             align-items: center;
+        }
 
-            .value {
-                text-align: right;
-            }
+        .info-group .value {
+            text-align: right;
         }
     }
 </style>

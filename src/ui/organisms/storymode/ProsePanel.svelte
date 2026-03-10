@@ -61,7 +61,7 @@
         <Message
             text={entry.text}
             sender={map_role(entry.role)}
-            character_name={entry.character_name || (map_role(entry.role) === "ai" ? app.selectedAi?.name : "")}
+            character_name={entry.character_name || (map_role(entry.role) === "ai" ? app.selected_ai?.name : "")}
             timestamp={entry.created_at ? new Date(entry.created_at) : new Date()}
             attachments={entry.attachments}
             is_last={index === simulation_log.feed.length - 1}
@@ -84,9 +84,7 @@
     {/if}
 </div>
 
-<style lang="scss">
-    @use "@theme/abstracts/variables" as *;
-
+<style>
     .prose-panel {
         flex: 1;
         min-height: 12.5rem;
@@ -97,14 +95,15 @@
         flex-direction: column;
         gap: 0;
         scroll-behavior: smooth;
+    }
 
-        &::-webkit-scrollbar {
-            width: var(--spacing-xxs);
-        }
-        &::-webkit-scrollbar-thumb {
-            background: var(--surface-sunken);
-            border-radius: var(--border-radius-full);
-        }
+    .prose-panel::-webkit-scrollbar {
+        width: var(--spacing-xxs);
+    }
+
+    .prose-panel::-webkit-scrollbar-thumb {
+        background: var(--surface-sunken);
+        border-radius: var(--border-radius-full);
     }
 
     .empty-feed-fallback {
@@ -116,22 +115,22 @@
         text-align: center;
         color: var(--app-muted);
         gap: var(--spacing-m);
+    }
 
-        p {
-            max-width: 25rem;
-        }
+    .empty-feed-fallback p {
+        max-width: 25rem;
+    }
 
-        :global(.btn-retry) {
-            padding: var(--spacing-xs) var(--spacing-m);
-            background: var(--glass-s);
-            box-shadow: var(--shadow-s);
-            border-radius: var(--border-radius);
-            color: var(--app-muted);
+    .empty-feed-fallback :global(.btn-retry) {
+        padding: var(--spacing-xs) var(--spacing-m);
+        background: var(--glass-s);
+        box-shadow: var(--shadow-s);
+        border-radius: var(--border-radius);
+        color: var(--app-muted);
+    }
 
-            &:hover {
-                background: var(--glass-m);
-                color: var(--app-color);
-            }
-        }
+    .empty-feed-fallback :global(.btn-retry):hover {
+        background: var(--glass-m);
+        color: var(--app-color);
     }
 </style>

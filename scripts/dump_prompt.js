@@ -16,7 +16,7 @@ import { describe, it } from "vitest"
 
 describe("v5.0 Prompt Audit (LIVE SOURCE)", () => {
     it("renders a full simulation prompt for manual audit", async () => {
-        runtime._debugInject({
+        runtime._debug_inject({
             ai: {
                 name: "Viper",
                 eternal: { physical: "Metallic eyes.", non_physical: "Analytical mind." },

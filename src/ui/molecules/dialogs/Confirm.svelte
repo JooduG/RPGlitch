@@ -66,11 +66,7 @@
     <div class="backdrop" transition:fade={{ duration: 150 }} onclick={handleCancel} role="presentation"></div>
 {/if}
 
-<style lang="scss">
-    @use "@theme/abstracts/variables" as *;
-    @use "@theme/abstracts/mixins" as *;
-    @use "@theme/abstracts/placeholders" as *;
-
+<style>
     dialog {
         background: transparent;
         border: none;
@@ -79,20 +75,20 @@
         max-width: 90vw;
         width: 400px;
         color: inherit;
-        z-index: z(modal);
+        z-index: var(--z-modal);
         overflow: visible;
+    }
 
-        &::backdrop {
-            background: transparent; /* Handled by our custom backdrop div */
-        }
+    dialog::backdrop {
+        background: transparent; /* Handled by our custom backdrop div */
     }
 
     .backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(var(--pure-black-rgb), var(--opacity-xl));
+        background: rgb(var(--pure-black-rgb) / var(--opacity-xl));
         backdrop-filter: blur(var(--blur-s));
-        z-index: calc(z(modal) - 1);
+        z-index: calc(var(--z-modal) - 1);
     }
 
     .security-modal {
@@ -102,37 +98,37 @@
         overflow: hidden;
         display: flex;
         flex-direction: column;
+    }
 
-        header {
-            padding: var(--spacing-m) var(--spacing-xl);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(var(--pure-white-rgb), var(--opacity-xs));
+    .security-modal header {
+        padding: var(--spacing-m) var(--spacing-xl);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgb(var(--pure-white-rgb) / var(--opacity-xs));
+    }
 
-            h3 {
-                margin: 0;
-                font-size: var(--font-size-l);
-                font-weight: 700;
-                font-family: var(--font-heading);
-                color: var(--app-color);
-            }
-        }
+    .security-modal h3 {
+        margin: 0;
+        font-size: var(--font-size-l);
+        font-weight: 700;
+        font-family: var(--font-heading);
+        color: var(--app-color);
+    }
 
-        .content {
-            padding: var(--spacing-xl);
-            color: var(--app-muted);
-            font-size: var(--font-size-m);
-            line-height: var(--line-height-relaxed);
-        }
+    .security-modal .content {
+        padding: var(--spacing-xl);
+        color: var(--app-muted);
+        font-size: var(--font-size-m);
+        line-height: var(--line-height-relaxed);
+    }
 
-        footer {
-            padding: var(--spacing-m) var(--spacing-xl);
-            display: flex;
-            justify-content: flex-end;
-            gap: var(--spacing-s);
-            background: rgba(var(--pure-black-rgb), var(--opacity-s));
-        }
+    .security-modal footer {
+        padding: var(--spacing-m) var(--spacing-xl);
+        display: flex;
+        justify-content: flex-end;
+        gap: var(--spacing-s);
+        background: rgb(var(--pure-black-rgb) / var(--opacity-s));
     }
 
     /* Button styling delegated to Button component */
@@ -142,10 +138,10 @@
         align-items: center;
         justify-content: center;
         width: auto;
+    }
 
-        .icon {
-            width: var(--spacing-l);
-            height: var(--spacing-l);
-        }
+    :global(.security-modal .icon-only .icon) {
+        width: var(--spacing-l);
+        height: var(--spacing-l);
     }
 </style>

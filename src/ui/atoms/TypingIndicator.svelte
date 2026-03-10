@@ -8,7 +8,7 @@
     <div class="dot"></div>
 </div>
 
-<style lang="scss">
+<style>
     .typing-indicator {
         display: inline-flex;
         align-items: center;
@@ -28,13 +28,14 @@
         background-color: var(--dot-color, currentColor);
         border-radius: var(--border-radius-full);
         animation: bounce 1.4s infinite ease-in-out both;
+    }
 
-        &:nth-child(1) {
-            animation-delay: -0.32s;
-        }
-        &:nth-child(2) {
-            animation-delay: -0.16s;
-        }
+    .dot:nth-child(1) {
+        animation-delay: -0.32s;
+    }
+
+    .dot:nth-child(2) {
+        animation-delay: -0.16s;
     }
 
     @keyframes bounce {

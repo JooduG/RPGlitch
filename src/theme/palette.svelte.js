@@ -14,10 +14,10 @@ class ThemeStore {
      * @param {string} hex - "#RRGGBB"
      * @returns {string} - "R, G, B" (Updated to use comma separation for CSS variables)
      */
-    hexToRgb(hex) {
+    hex_to_rgb(hex) {
         if (!hex) return "168, 85, 247" // Default purple (Vibrant Violet)
-        const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i
-        hex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b)
+        const shorthand_regex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i
+        hex = hex.replace(shorthand_regex, (m, r, g, b) => r + r + g + g + b + b)
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
         return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : "168, 85, 247"
     }
@@ -26,7 +26,7 @@ class ThemeStore {
      * Delegates to the central normalizer to ensure strict data structure.
      * ZERO backwards compatibility; ignores nested 'visuals' object.
      */
-    normalizeEntity(entity) {
+    normalize_entity(entity) {
         if (!entity) return null
         return normalize(entity)
     }
@@ -34,11 +34,11 @@ class ThemeStore {
     /**
      * Gets a deterministic color from a seed if no explicit color is set.
      */
-    getDeterministicColor(seed) {
-        const finalSeed = seed || "default"
+    get_deterministic_color(seed) {
+        const final_seed = seed || "default"
         let hash = 0
-        for (let i = 0; i < finalSeed.length; i++) {
-            hash = finalSeed.charCodeAt(i) + ((hash << 5) - hash)
+        for (let i = 0; i < final_seed.length; i++) {
+            hash = final_seed.charCodeAt(i) + ((hash << 5) - hash)
         }
         const hue = Math.abs(hash) % 360
         return `hsl(${hue}, 40%, 60%)`
@@ -48,7 +48,7 @@ class ThemeStore {
      * Resolves the actual color value (Hex or HSL) for an entity.
      * Looks at the flattened signature_color property.
      */
-    getSignatureColor(entity) {
+    get_signature_color(entity) {
         if (entity) {
             const color = entity.signature_color
 
@@ -61,13 +61,13 @@ class ThemeStore {
 
         // Fallback to deterministic color based on name/tags
         const seed = [entity?.name || "", ...(entity?.tags || [])].filter(Boolean).join(",")
-        return this.getDeterministicColor(seed || entity?.id || "")
+        return this.get_deterministic_color(seed || entity?.id || "")
     }
 
     /**
      * Calculates the best contrast color (black or white) for a background.
      */
-    getContrastColor(hex) {
+    get_contrast_color(hex) {
         if (!hex || typeof hex !== "string" || hex.startsWith("hsl")) return "#fff"
 
         let color = hex.replace("#", "")
@@ -90,7 +90,7 @@ class ThemeStore {
     /**
      * Simple darkening utility for borders or hover states.
      */
-    darkenColor(hex, amount = 20) {
+    darken_color(hex, amount = 20) {
         if (!hex || hex.startsWith("var") || hex.startsWith("hsl")) return hex
         let color = hex.replace("#", "")
         const num = parseInt(color, 16)
@@ -104,24 +104,24 @@ class ThemeStore {
      * Generates initials for avatar fallbacks.
      * Safely strips all punctuation and symbols before extracting letters.
      */
-    getInitials(name) {
+    get_initials(name) {
         if (!name) return "?"
 
         // 1. Strip everything that is not a letter or a space (removes ', ", -, etc.)
-        const cleanName = name.replace(/[^a-zA-Z\s]/g, "")
+        const clean_name = name.replace(/[^a-zA-Z\s]/g, "")
 
-        const stopWords = new Set(["the", "a", "an", "of", "in", "and", "or", "for", "to", "at", "by", "with"])
+        const stop_words = new Set(["the", "a", "an", "of", "in", "and", "or", "for", "to", "at", "by", "with"])
 
         // 2. Split into words
-        const words = cleanName.trim().split(/\s+/)
+        const words = clean_name.trim().split(/\s+/)
 
         // 3. Filter stopwords (unless the name *is* just a stopword)
-        let filteredWords = words.filter((w) => !stopWords.has(w.toLowerCase()))
-        if (filteredWords.length === 0) filteredWords = words
+        let filtered_words = words.filter((w) => !stop_words.has(w.toLowerCase()))
+        if (filtered_words.length === 0) filtered_words = words
 
         // 4. Extract first letter of up to 3 words
         return (
-            filteredWords
+            filtered_words
                 .slice(0, 3)
                 .map((w) => w.charAt(0))
                 .join("")

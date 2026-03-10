@@ -303,9 +303,7 @@
     <Tooltip {...curr_tooltip} fixed={true} />
 </div>
 
-<style lang="scss">
-    @use "../../../theme/abstracts/placeholders" as *;
-
+<style>
     .visual-wing-content {
         background: var(--gunmetal);
         box-shadow: var(--shadow-m);
@@ -329,153 +327,153 @@
         grid-template-columns: repeat(5, 1fr);
         gap: var(--spacing-xs);
         padding: 0;
+    }
 
-        .swatch {
-            width: 100%;
-            aspect-ratio: 1;
-            border: 0;
-            border-radius: var(--spacing-xs);
-            cursor: pointer;
-            transition: all var(--transition-speed) var(--physics-transition-elastic);
-            box-shadow: var(--shadow-s);
+    .swatch {
+        width: 100%;
+        aspect-ratio: 1;
+        border: 0;
+        border-radius: var(--spacing-xs);
+        cursor: pointer;
+        transition: all var(--transition-speed) var(--physics-transition-elastic);
+        box-shadow: var(--shadow-s);
+    }
 
-            &:hover:not(:disabled) {
-                transform: scale(1.1);
-                z-index: 2;
-                box-shadow: var(--shadow-m);
-            }
+    .swatch:hover:not(:disabled) {
+        transform: scale(1.1);
+        z-index: 2;
+        box-shadow: var(--shadow-m);
+    }
 
-            &.active {
-                outline: var(--spacing-xxs) solid var(--pure-white);
-                outline-offset: var(--spacing-xxs);
-                box-shadow: var(--shadow-glow);
-                transform: scale(1.1);
-                z-index: 10;
-            }
+    .swatch.active {
+        outline: var(--spacing-xxs) solid var(--pure-white);
+        outline-offset: var(--spacing-xxs);
+        box-shadow: var(--shadow-glow);
+        transform: scale(1.1);
+        z-index: 10;
+    }
 
-            &:disabled {
-                cursor: default;
-                opacity: var(--opacity-l);
-            }
-        }
+    .swatch:disabled {
+        cursor: default;
+        opacity: var(--opacity-l);
     }
 
     .prompt-box {
         background: var(--surface-sunken);
         box-shadow:
-            inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xxs)),
-            inset 0 0.125rem 0.25rem rgba(var(--pure-black-rgb), var(--opacity-m));
+            inset 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xxs)),
+            inset 0 0.125rem 0.25rem rgb(var(--pure-black-rgb) / var(--opacity-m));
         border-radius: var(--border-radius-m);
         overflow: hidden;
+    }
 
-        .visual-prompt-container {
-            position: relative;
-            width: 100%;
+    .visual-prompt-container {
+        position: relative;
+        width: 100%;
+    }
 
-            .visual-prompt {
-                width: 100%;
-                background: transparent;
-                border: none;
-                color: white;
-                padding: var(--spacing-s);
-                font-size: var(--font-size-s);
-                font-family: var(--font-body);
-                resize: none;
-                outline: none;
-                display: block;
+    .visual-prompt {
+        width: 100%;
+        background: transparent;
+        border: none;
+        color: white;
+        padding: var(--spacing-s);
+        font-size: var(--font-size-s);
+        font-family: var(--font-body);
+        resize: none;
+        outline: none;
+        display: block;
+    }
 
-                &:disabled {
-                    opacity: var(--opacity-m);
-                    color: var(--app-muted);
-                    cursor: not-allowed;
-                    background: rgba(var(--pure-black-rgb), var(--opacity-xs));
-                }
+    .visual-prompt:disabled {
+        opacity: var(--opacity-m);
+        color: var(--app-muted);
+        cursor: not-allowed;
+        background: rgb(var(--pure-black-rgb) / var(--opacity-xs));
+    }
 
-                &::placeholder {
-                    color: rgba(var(--pure-white-rgb), var(--opacity-s));
-                    font-style: italic;
-                    font-weight: 400;
-                }
-            }
+    .visual-prompt::placeholder {
+        color: rgb(var(--pure-white-rgb) / var(--opacity-s));
+        font-style: italic;
+        font-weight: 400;
+    }
 
-            .spinner-overlay {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background: rgba(var(--pure-black-rgb), 0.8);
-                z-index: 5;
-                cursor: wait;
+    .spinner-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgb(var(--pure-black-rgb) / 0.8);
+        z-index: 5;
+        cursor: wait;
+    }
 
-                .spinner {
-                    width: var(--spacing-l);
-                    height: var(--spacing-l);
-                    border: var(--spacing-xxs) solid rgba(var(--pure-white-rgb), var(--opacity-s));
-                    border-top-color: var(--app-accent);
-                    border-radius: var(--border-radius-full);
-                    animation: spin 0.8s linear infinite;
-                }
-            }
+    .spinner {
+        width: var(--spacing-l);
+        height: var(--spacing-l);
+        border: var(--spacing-xxs) solid rgb(var(--pure-white-rgb) / var(--opacity-s));
+        border-top-color: var(--app-accent);
+        border-radius: var(--border-radius-full);
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
         }
+    }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+    .action-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        box-shadow: inset 0 1px 0 rgb(var(--pure-white-rgb) / var(--opacity-xxs));
+    }
 
-        .action-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            box-shadow: inset 0 1px 0 rgba(var(--pure-white-rgb), var(--opacity-xxs));
+    .action-row :global(.btn) {
+        width: 100%;
+        border: none;
+        border-radius: 0;
+        background: rgb(var(--pure-white-rgb) / 0.05);
+        font-size: var(--font-size-xs);
+        padding: var(--spacing-xs);
+        transition: all var(--transition-speed);
+        text-transform: capitalize;
+    }
 
-            :global(.btn) {
-                width: 100%;
-                border: none;
-                border-radius: 0;
-                background: rgba(var(--pure-white-rgb), 0.05);
-                font-size: var(--font-size-xs);
-                padding: var(--spacing-xs);
-                transition: all var(--transition-speed);
-                text-transform: capitalize;
+    .action-row :global(.btn:not(:last-child)) {
+        box-shadow: 1px 0 0 rgb(var(--pure-white-rgb) / var(--opacity-xxs));
+    }
 
-                &:not(:last-child) {
-                    box-shadow: 1px 0 0 rgba(var(--pure-white-rgb), var(--opacity-xxs));
-                }
+    .action-row :global(.btn:hover) {
+        background: rgb(var(--pure-white-rgb) / 0.1);
+    }
 
-                &:hover {
-                    background: rgba(var(--pure-white-rgb), 0.1);
-                }
+    .action-row :global(.btn.action-btn) {
+        font-weight: 600;
+        letter-spacing: 0.02em;
+    }
 
-                &:global(.action-btn) {
-                    font-weight: 600;
-                    letter-spacing: 0.02em;
+    .action-row :global(.btn.action-btn.mode-tech):not(:disabled) {
+        color: var(--app-secondary);
+    }
 
-                    &:global(.mode-tech):not(:disabled) {
-                        color: var(--app-secondary);
+    .action-row :global(.btn.action-btn.mode-tech):not(:disabled):hover {
+        background: rgb(var(--app-secondary-rgb) / 0.1);
+        color: white;
+    }
 
-                        &:hover {
-                            background: rgba(var(--app-secondary-rgb), 0.1);
-                            color: white;
-                        }
-                    }
+    .action-row :global(.btn.action-btn.mode-magic):not(:disabled) {
+        color: var(--app-accent);
+        font-weight: 700;
+    }
 
-                    &:global(.mode-magic):not(:disabled) {
-                        color: var(--app-accent);
-                        font-weight: 700;
-
-                        &:hover {
-                            background: rgba(var(--app-accent-rgb), 0.1);
-                            color: white;
-                        }
-                    }
-                }
-            }
-        }
+    .action-row :global(.btn.action-btn.mode-magic):not(:disabled):hover {
+        background: rgb(var(--app-accent-rgb) / 0.1);
+        color: white;
     }
 
     .toggle-stack {

@@ -10,52 +10,48 @@ export const storyboard = {
     /**
      * Shuffle all selected entities randomly.
      */
-    shuffle() {
-        // 1. Shuffle AI
-        if (app.aiList.length) {
-            app.selectedAi = app.aiList[Math.floor(Math.random() * app.aiList.length)]
+    randomize() {
+        if (!app.ai_list.length) return
+
+        // 1. Random AI
+        app.selected_ai = app.ai_list[Math.floor(Math.random() * app.ai_list.length)]
+
+        // 2. Random User (Cannot be same as AI)
+        let available_users = app.user_list
+        if (app.selected_ai) {
+            available_users = app.user_list.filter((u) => u.id !== app.selected_ai.id)
         }
 
-        // 2. Shuffle User (Constraint: Must not be the same as AI)
-        if (app.userList.length) {
-            let availableUsers = app.userList
-
-            // If we selected an AI, exclude it from the User pool to prevent duplicates
-            if (app.selectedAi) {
-                availableUsers = app.userList.filter((u) => u.id !== app.selectedAi.id)
-            }
-
-            // Fallback: If only 1 char exists, we might have no choice but to dup (or leave empty)
-            // But if we have options, we pick from the filtered list
-            if (availableUsers.length > 0) {
-                app.selectedUser = availableUsers[Math.floor(Math.random() * availableUsers.length)]
-            } else if (app.userList.length > 0) {
-                // Determine fallback behavior. Users hate duplicates.
-                // If only 1 char exists total, user likely accepts the dup or creates more.
-                // For now, allow dup ONLY if strictly necessary (list len 1)
-                app.selectedUser = app.userList[0]
-            }
+        if (available_users.length) {
+            app.selected_user = available_users[Math.floor(Math.random() * available_users.length)]
+        } else {
+            // If no other users, pick the AI itself (fallback) or first user
+            app.selected_user = app.user_list[0]
         }
 
-        // 3. Shuffle Fractal
-        if (app.fractalList.length) app.selectedFractal = app.fractalList[Math.floor(Math.random() * app.fractalList.length)]
+        // 3. Random Fractal
+        if (app.fractal_list.length) {
+            app.selected_fractal = app.fractal_list[Math.floor(Math.random() * app.fractal_list.length)]
+        }
 
-        // Ensure title updates on shuffle
-        app.rerollTitle()
+        // Ensure title updates on randomize
+        if (typeof app.reroll_title === "function") {
+            app.reroll_title()
+        }
     },
 
     /**
      * Begin the story with current selections.
      */
-    async beginStory() {
+    async begin() {
         // 🛡️ LOBBY BYPASS LOGIC
         if (app.settings.dev_mode) {
             app.log("Lobby Bypass Triggered (DEV_MODE)", "system")
 
             const selection = {
-                ai: app.selectedAi || { id: "dev_ai", name: "Dev AI" },
-                user: app.selectedUser || { id: "dev_user", name: "Dev User" },
-                fractal: app.selectedFractal || {
+                ai: app.selected_ai || { id: "dev_ai", name: "Dev AI" },
+                user: app.selected_user || { id: "dev_user", name: "Dev User" },
+                fractal: app.selected_fractal || {
                     id: "dev_fractal",
                     name: "Dev Fractal",
                 },
@@ -65,12 +61,12 @@ export const storyboard = {
             return
         }
 
-        if (!app.selectedAi || !app.selectedUser || !app.selectedFractal) return
+        if (!app.selected_ai || !app.selected_user || !app.selected_fractal) return
 
         await session.start({
-            ai: app.selectedAi,
-            user: app.selectedUser,
-            fractal: app.selectedFractal,
+            ai: app.selected_ai,
+            user: app.selected_user,
+            fractal: app.selected_fractal,
         })
     },
 }

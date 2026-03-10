@@ -134,7 +134,7 @@ export class ContextBroker {
      */
     static async hydrate(input, type = "simulation", simulation_log = []) {
         const turn = runtime.turn || 1
-        const active_vector = runtime.activeVector("FRACTAL") || "EXPLORE"
+        const active_vector = runtime.active_vector("FRACTAL") || "EXPLORE"
 
         // 1. Resolve Entities mapping (Role -> Data)
         const entries = [

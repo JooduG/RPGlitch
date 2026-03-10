@@ -42,13 +42,7 @@
     }
 </script>
 
-<button
-    bind:this={element}
-    class="btn btn-{variant} {size === 'sm' ? 'btn-sm' : ''} {className}"
-    {...restProps}
-    {onclick}
-    use:applyActions={restProps.actions || []}
->
+<button bind:this={element} class="btn btn-{variant} {size === 'sm' ? 'btn-sm' : ''} {className}" {...restProps} {onclick} use:applyActions={restProps.actions || []}>
     {#if children}
         {@render children()}
     {:else}
@@ -56,10 +50,10 @@
     {/if}
 </button>
 
-<style lang="scss">
+<style>
     /* 
      STRICT RULE: No local styles here. 
-     All standard button styles live in src/mesmer/scss/components/_buttons.scss 
+     All standard button styles live in src/theme/components.css
      This ensures a single source of truth for the design system.
   */
 </style>

@@ -80,7 +80,7 @@ function createRuntimeStore() {
             state.story_id = id
             state.story.active_id = id
         },
-        get isReady() {
+        get is_ready() {
             return state.ready
         },
         get turn() {
@@ -94,28 +94,28 @@ function createRuntimeStore() {
         },
 
         // 📜 UNIVERSAL VECTOR API (Trajectories for AI, USER, and FRACTAL)
-        activeVector(role = "AI") {
+        active_vector(role = "AI") {
             const entity = this._get_entity_by_role(role)
             return entity?.future?.[0]?.text || (role === "FRACTAL" ? "Continue the journey." : "")
         },
 
-        activeEchoes(role = "AI") {
+        active_echoes(role = "AI") {
             const entity = this._get_entity_by_role(role)
             return entity?.future?.slice(1) || []
         },
 
-        addVector(text, role = "AI", isVanguard = false) {
+        add_vector(text, role = "AI", is_vanguard = false) {
             const entity = this._get_entity_by_role(role)
             if (!entity) return
 
             if (!Array.isArray(entity.future)) entity.future = []
 
-            const newVector = VectorEngine.create_vector(text)
+            const new_vector = VectorEngine.create_vector(text)
 
-            if (isVanguard) {
-                entity.future.unshift(newVector)
+            if (is_vanguard) {
+                entity.future.unshift(new_vector)
             } else {
-                entity.future.push(newVector)
+                entity.future.push(new_vector)
             }
         },
 
@@ -136,7 +136,7 @@ function createRuntimeStore() {
             })
         },
 
-        completeVector(role = "AI") {
+        complete_vector(role = "AI") {
             const entity = this._get_entity_by_role(role)
             if (Array.isArray(entity?.future) && entity.future.length > 0) {
                 entity.future.shift()
@@ -175,24 +175,24 @@ function createRuntimeStore() {
                 if (!story) return
 
                 // 2. Fetch Entities
-                const [userData, aiData, fractalData] = await Promise.all([entities.get("character", story.user_id), entities.get("character", story.ai_id || "unknown_ai"), entities.get("fractal", story.fractal_id)])
+                const [user_data, ai_data, fractal_data] = await Promise.all([entities.get("character", story.user_id), entities.get("character", story.ai_id || "unknown_ai"), entities.get("fractal", story.fractal_id)])
 
-                if (userData) {
+                if (user_data) {
                     state.character = {
                         ...state.character,
-                        ...userData,
-                        id: userData.id,
+                        ...user_data,
+                        id: user_data.id,
                     }
                     // Also set specific User slot
                     state.active_user = state.character
                 }
 
-                if (aiData) {
-                    state.active_ai = aiData
+                if (ai_data) {
+                    state.active_ai = ai_data
                 }
 
-                if (fractalData) {
-                    state.active_fractal = fractalData
+                if (fractal_data) {
+                    state.active_fractal = fractal_data
                 }
 
                 state.ready = true
@@ -202,12 +202,12 @@ function createRuntimeStore() {
         },
 
         // 🔬 VIBE INJECTION (Called by Engine)
-        updateVibe(entityId, newColor, newSeed) {
+        update_vibe(entity_id, new_color, new_seed) {
             const targets = [state.character, state.active_user, state.active_ai, state.active_fractal]
             targets.forEach((t) => {
-                if (t && t.id === entityId) {
-                    if (newColor) t.visuals.signature_color = newColor
-                    if (newSeed !== undefined) t.visuals.profile_picture_seed = newSeed
+                if (t && t.id === entity_id) {
+                    if (new_color) t.visuals.signature_color = new_color
+                    if (new_seed !== undefined) t.visuals.profile_picture_seed = new_seed
                 }
             })
         },
@@ -229,7 +229,7 @@ function createRuntimeStore() {
         },
 
         // 🧬 GENERIC ENTITY MANAGEMENT
-        async saveEntity(type, entity) {
+        async save_entity(type, entity) {
             try {
                 await entities.upsert(type, entity)
 
@@ -243,7 +243,7 @@ function createRuntimeStore() {
             }
         },
 
-        async updateEntity(type, id, data) {
+        async update_entity(type, id, data) {
             try {
                 // 1. Update DB
                 if (type === "story") {
@@ -267,7 +267,7 @@ function createRuntimeStore() {
             }
         },
 
-        async deleteEntity(type, id) {
+        async delete_entity(type, id) {
             try {
                 await entities.remove(type, id)
                 // If we deleted the active character, we might need a fallback?
@@ -278,7 +278,7 @@ function createRuntimeStore() {
             }
         },
 
-        async updateCharacter(data) {
+        async update_character(data) {
             // Optimistic UI Update
             Object.assign(state.character, data)
 
@@ -295,6 +295,7 @@ function createRuntimeStore() {
                     // NOTE: We rely on the UI to handle the flicker, or we could reload from DB
                     // For now, we just log.
                     // state.character = ... (requires keeping previous state)
+                    // state.character = ... (requires keeping previous state)
                 }
             } else {
                 console.warn("[Data] Cannot save: No Character ID linked.")
@@ -302,10 +303,10 @@ function createRuntimeStore() {
         },
 
         // 🧪 DEBUG: Inject Mock State
-        _debugInject(mockData) {
-            if (mockData.user) state.active_user = mockData.user
-            if (mockData.ai) state.active_ai = mockData.ai
-            if (mockData.fractal) state.active_fractal = mockData.fractal
+        _debug_inject(mock_data) {
+            if (mock_data.user) state.active_user = mock_data.user
+            if (mock_data.ai) state.active_ai = mock_data.ai
+            if (mock_data.fractal) state.active_fractal = mock_data.fractal
             state.ready = true
         },
     }

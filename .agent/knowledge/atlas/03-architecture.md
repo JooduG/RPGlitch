@@ -20,13 +20,13 @@ The project operates within a **Triad** architecture. Context is unified under t
 
 The system is divided into five core functional areas:
 
-| Skill           | Territory            | Responsibility                                    |
-| :-------------- | :------------------- | :------------------------------------------------ |
-| **🕹️ Engine**   | `src/core/**`        | Narrative progression, time, and logic execution. |
-| **🛠️ UI**       | `src/ui/**`          | Reactive UI structure and component logic.        |
-| **🎭 Polish**   | `src/theme/**`       | Visual excellence, SCSS, and sensory fidelity.    |
-| **📚 Data**     | `src/data/**`        | Persistence (Dexie.js) and schema management.     |
-| **🛡️ Security** | `src/core/security/` | Zero-Trust enforcement and sanitization.          |
+| Skill           | Territory            | Responsibility                                       |
+| :-------------- | :------------------- | :--------------------------------------------------- |
+| **🕹️ Engine**   | `src/core/**`        | Narrative progression, time, and logic execution.    |
+| **🛠️ UI**       | `src/ui/**`          | Reactive UI structure and component logic.           |
+| **🎭 Polish**   | `src/theme/**`       | Visual excellence, Native CSS, and sensory fidelity. |
+| **📚 Data**     | `src/data/**`        | Persistence (Dexie.js) and schema management.        |
+| **🛡️ Security** | `src/core/security/` | Zero-Trust enforcement and sanitization.             |
 
 ## 3. 📜 Retrieval-Led Reasoning
 

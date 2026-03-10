@@ -17,8 +17,8 @@
     import ProfilePicture from "@ui/atoms/ProfilePicture.svelte"
     import { fitText } from "@ui/utils/actions/fitText.js"
 
-    let signatureColor = $derived(themeStore.getSignatureColor(entity))
-    let signatureRgb = $derived(themeStore.hexToRgb(signatureColor))
+    let signature_color = $derived(themeStore.get_signature_color(entity))
+    let signature_rgb = $derived(themeStore.hex_to_rgb(signature_color))
     let name = $derived(entity?.name || "Untitled")
 
     function handleSelect() {
@@ -27,10 +27,10 @@
 </script>
 
 <button
-    class="drawer-card"
+    class="drawer-card material-interactive"
     class:fractal-card={type === "fractal"}
     class:is-disabled={disabled}
-    style="--signature-color: {signatureColor}; --signature-rgb: {signatureRgb};"
+    style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
     onclick={handleSelect}
     {disabled}
     title={disabled ? "Already selected" : `Select ${name}`}
@@ -52,12 +52,7 @@
     <div class="signature-bar"></div>
 </button>
 
-<style lang="scss">
-    @use "sass:color";
-    @use "@theme/abstracts/variables" as *;
-    @use "@theme/abstracts/mixins" as *;
-    @use "@theme/abstracts/placeholders" as *;
-
+<style>
     .drawer-card {
         aspect-ratio: 2 / 3;
         background: var(--bg-card);
@@ -74,61 +69,60 @@
         width: 8.75rem;
         flex: 0 0 auto;
         border: 0;
+    }
 
-        @extend %material-interactive;
+    .drawer-card:hover {
+        transform: translateY(var(--physics-hover-y));
+        /* Border-color purged */
+        box-shadow: var(--shadow-m);
+    }
 
-        &:hover {
-            transform: translateY(var(--physics-hover-y));
-            /* Border-color purged */
-            box-shadow: var(--shadow-m);
-        }
+    .drawer-card.is-disabled {
+        opacity: 0.5;
+        filter: grayscale(1);
+        cursor: not-allowed;
+        pointer-events: none;
+    }
 
-        &.is-disabled {
-            opacity: 0.5;
-            filter: grayscale(1);
-            cursor: not-allowed;
-            pointer-events: none;
+    .drawer-card.is-disabled:hover {
+        transform: none;
+        box-shadow: none;
+    }
 
-            &:hover {
-                transform: none;
-                box-shadow: none;
-            }
-        }
+    .drawer-card .card-visual {
+        flex: 1.5;
+        background: var(--layer-surface);
+        box-shadow: 0 0 0 1px inset rgba(var(--pure-white-rgb) / 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+    }
 
-        .card-visual {
-            flex: 1.5;
-            background: var(--glass-m);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            position: relative;
-        }
+    .drawer-card .card-info {
+        flex: 0.6;
+        padding: var(--spacing-s);
+        display: flex;
+        align-items: center;
+        background: var(--bg-app);
+    }
 
-        .card-info {
-            flex: 0.6;
-            padding: var(--spacing-s);
-            display: flex;
-            align-items: center;
-            background: var(--bg-app);
+    .drawer-card .card-info h5 {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+    }
 
-            h5 {
-                margin: 0;
-                padding: 0;
-                width: 100%;
-            }
-
-            .entity-name {
-                color: var(--signature-color);
-                text-wrap: balance;
-                display: -webkit-box;
-                line-clamp: 2;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-                margin: 0;
-                padding: 0;
-            }
-        }
+    .drawer-card .card-info .entity-name {
+        color: var(--signature-color);
+        text-wrap: balance;
+        display: -webkit-box;
+        line-clamp: 2;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
     }
 </style>

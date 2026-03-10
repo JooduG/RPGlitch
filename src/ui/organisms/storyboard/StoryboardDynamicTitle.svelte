@@ -7,7 +7,6 @@
     // ============================================
     let custom_title = $state("")
     let is_custom = $state(false)
-    let reroll_count = $state(0)
 
     // ============================================
     // TITLE PREFIXES (Content, not state)
@@ -19,7 +18,7 @@
     // DERIVED TITLE PARTS
     // ============================================
     const pick_random = (arr) => arr[Math.floor(Math.random() * arr.length)]
-    const get_color = (entity) => themeStore.getSignatureColor(entity)
+    const get_color = (entity) => themeStore.get_signature_color(entity)
 
     /**
      * Generates structured title parts with entity colors for rich rendering
@@ -31,11 +30,11 @@
         }
 
         // Reference reroll_count to trigger recalculation
-        void reroll_count
+        void app.drawer.reroll_count
 
-        const ai = app.selectedAi
-        const user = app.selectedUser
-        const fractal = app.selectedFractal
+        const ai = app.selected_ai
+        const user = app.selected_user
+        const fractal = app.selected_fractal
 
         // Standard mode - full format
         const has_entities = ai || user
@@ -96,7 +95,7 @@
     function handle_dbl_click() {
         is_custom = false
         custom_title = ""
-        reroll_count++
+        app.reroll_title()
     }
 </script>
 
@@ -112,7 +111,7 @@
     </span>
 </h1>
 
-<style lang="scss">
+<style>
     /* Import Satisfy font for the special story title */
     @import url("https://fonts.googleapis.com/css2?family=Satisfy&display=swap");
 
@@ -140,26 +139,26 @@
         place-content: center;
         min-width: 300px;
         text-align: center;
+    }
 
-        &:hover {
-            background: rgba(var(--pure-white-rgb), var(--opacity-xxs));
-        }
+    h1:hover {
+        background: rgba(var(--pure-white-rgb), var(--opacity-xxs));
+    }
 
-        &:focus-within {
-            outline: none;
-            background: rgba(var(--pure-white-rgb), var(--opacity-xs));
-            box-shadow: 0 0 0 var(--spacing-xxs) var(--signature-color, var(--color-accent));
-        }
+    h1:focus-within {
+        outline: none;
+        background: rgba(var(--pure-white-rgb), var(--opacity-xs));
+        box-shadow: 0 0 0 var(--spacing-xxs) var(--signature-color, var(--color-accent));
+    }
 
-        .title-content {
-            display: inline;
-            text-wrap: balance;
-        }
+    h1 .title-content {
+        display: inline;
+        text-wrap: balance;
+    }
 
-        .entity-name {
-            font-weight: inherit;
-            text-shadow: 0 var(--spacing-px) var(--spacing-xxs) rgba(var(--pure-black-rgb), var(--opacity-s));
-            white-space: nowrap;
-        }
+    h1 .entity-name {
+        font-weight: inherit;
+        text-shadow: 0 var(--spacing-px) var(--spacing-xxs) rgba(var(--pure-black-rgb), var(--opacity-s));
+        white-space: nowrap;
     }
 </style>

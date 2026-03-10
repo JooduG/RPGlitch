@@ -50,9 +50,7 @@
     {/if}
 </header>
 
-<style lang="scss">
-    @use "@theme/abstracts/placeholders" as *;
-
+<style>
     header {
         background: transparent;
         display: flex;
@@ -77,38 +75,46 @@
         line-height: var(--line-height-heading);
         outline: none;
         background: transparent;
+    }
 
-        &.edit {
-            cursor: text;
-            pointer-events: auto;
-            caret-color: var(--signature-color);
+    .name.edit {
+        cursor: text;
+        pointer-events: auto;
+        caret-color: var(--signature-color);
+    }
 
-            &:hover,
-            &:focus-within {
-                background: rgba(var(--pure-white-rgb), var(--opacity-xxs));
-                box-shadow: inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xs));
-            }
+    .name.edit:hover,
+    .name.edit:focus-within {
+        background: rgb(var(--pure-white-rgb) / var(--opacity-xxs));
+        box-shadow: inset 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xs));
+    }
 
-            span {
-                outline: none;
+    .name.edit span {
+        outline: none;
+    }
 
-                &:empty::before {
-                    content: attr(data-placeholder);
-                    opacity: 0.3;
-                    font-style: italic;
-                    font-weight: 400;
-                }
-            }
-        }
+    .name.edit span:empty::before {
+        content: attr(data-placeholder);
+        opacity: 0.3;
+        font-style: italic;
+        font-weight: 400;
+    }
 
-        &:not(.edit) {
-            cursor: default;
-            pointer-events: none;
-        }
+    .name:not(.edit) {
+        cursor: default;
+        pointer-events: none;
     }
 
     .description {
-        @extend %textarea-clean;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        resize: none;
+        font-family: inherit;
+        color: inherit;
+        padding: 0;
+        margin: 0;
+
         width: 100%;
         color: var(--app-color);
         font-family: inherit;
@@ -123,38 +129,44 @@
         background: transparent;
         resize: none;
         text-align: left;
+    }
 
-        &.muted-info {
-            @extend %muted-ghost;
-        }
+    .description:focus {
+        outline: none;
+    }
 
-        &.edit {
-            pointer-events: auto;
-            caret-color: white;
-            cursor: text;
+    .description.muted-info {
+        opacity: var(--opacity-l);
+        font-size: 0.9em;
+        font-weight: 400;
+    }
 
-            &:hover,
-            &:focus {
-                background: rgba(var(--pure-white-rgb), var(--opacity-xxs));
-                box-shadow: inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xs));
-                outline: none;
-            }
-        }
+    .description.edit {
+        pointer-events: auto;
+        caret-color: white;
+        cursor: text;
+    }
 
-        &.readonly {
-            pointer-events: auto;
-            white-space: pre-wrap;
-            cursor: default;
+    .description.edit:hover,
+    .description.edit:focus {
+        background: rgb(var(--pure-white-rgb) / var(--opacity-xxs));
+        box-shadow: inset 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xs));
+        outline: none;
+    }
 
-            :global(strong) {
-                font-weight: 800;
-                color: white;
-            }
+    .description.readonly {
+        pointer-events: auto;
+        white-space: pre-wrap;
+        cursor: default;
+    }
 
-            :global(em) {
-                font-style: italic;
-                opacity: 0.9;
-            }
-        }
+    .description.readonly :global(strong) {
+        font-weight: 800;
+        color: white;
+    }
+
+    .description.readonly :global(em) {
+        font-style: italic;
+        opacity: 0.9;
     }
 </style>

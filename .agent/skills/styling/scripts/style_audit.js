@@ -32,7 +32,7 @@ const AUDIT = {
                 if (stat.isDirectory()) {
                     scanDir(fullPath)
                 } else if (/\.(svelte|scss|css)$/i.test(item)) {
-                    if (item === "_variables.scss") continue
+                    if (item === "tokens.css" || item === "_bridge.scss") continue
                     auditFile(fullPath, issues)
                 }
             }
@@ -47,11 +47,7 @@ const AUDIT = {
 
                 // Rule 1: No Hex Codes (Use Tokens)
                 // Ignored if inside url() or commented out
-                if (
-                    /#([0-9A-Fa-f]{3}){1,2}\b/.test(cleanLine) &&
-                    !cleanLine.includes("url(") &&
-                    !cleanLine.startsWith("//")
-                ) {
+                if (/#([0-9A-Fa-f]{3}){1,2}\b/.test(cleanLine) && !cleanLine.includes("url(") && !cleanLine.startsWith("//")) {
                     // Fallback: If they use var(--...) formatting but accidentally left a hex, flag it.
                     if (cleanLine.includes("var(")) return
                     issuesList.push({
@@ -77,12 +73,8 @@ const AUDIT = {
         if (issues.length === 0) {
             console.log(`${GREEN}✅ Design System protocols verified.${RESET}`)
         } else {
-            console.log(
-                `${RED}❌ Found ${issues.length} style violations:${RESET}`
-            )
-            issues.forEach((issue) =>
-                console.log(`  ${issue.file}:${issue.line} -> ${issue.msg}`)
-            )
+            console.log(`${RED}❌ Found ${issues.length} style violations:${RESET}`)
+            issues.forEach((issue) => console.log(`  ${issue.file}:${issue.line} -> ${issue.msg}`))
             process.exit(1)
         }
     },

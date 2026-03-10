@@ -13,15 +13,15 @@
     // 1. Core Flattened Properties
     let name = $derived(entity?.name || "Entity")
     let pictureUrl = $derived(entity?.profile_picture)
-    let signatureColor = $derived(themeStore.getSignatureColor(entity))
-    let initials = $derived(themeStore.getInitials(name))
+    let signature_color = $derived(themeStore.get_signature_color(entity))
+    let initials = $derived(themeStore.get_initials(name))
 
     // 2. Minor Modifiers (Fallback safely if visuals object is missing)
     let isNoBg = $derived(entity?.visuals?.noBackground ?? false)
     let isFlipped = $derived(entity?.visuals?.flipped ?? false)
 </script>
 
-<div class="profile-picture" style="--signature-color: {signatureColor}">
+<div class="profile-picture" style="--signature-color: {signature_color}">
     {#if pictureUrl}
         <div class="image-container">
             <img src={pictureUrl} alt="{name} Profile" class="picture" class:no-bg={isNoBg} class:flipped={isFlipped} />
@@ -42,7 +42,7 @@
     {/if}
 </div>
 
-<style lang="scss">
+<style>
     .profile-picture {
         width: 100%;
         height: 100%;
@@ -67,15 +67,15 @@
         object-fit: cover;
         display: block;
         transition: transform var(--transition-speed-slow) var(--physics-transition-elastic);
+    }
 
-        &.no-bg {
-            object-fit: contain;
-            filter: drop-shadow(0 0.5rem 1rem rgba(0, 0, 0, 0.5));
-        }
+    .picture.no-bg {
+        object-fit: contain;
+        filter: drop-shadow(0 0.5rem 1rem rgb(0 0 0 / 0.5));
+    }
 
-        &.flipped {
-            transform: scaleX(-1);
-        }
+    .picture.flipped {
+        transform: scaleX(-1);
     }
 
     .glitch-overlay {
@@ -84,17 +84,17 @@
         pointer-events: none;
         mix-blend-mode: overlay;
         opacity: var(--opacity-s);
-        background: linear-gradient(transparent 50%, rgba(var(--pure-black-rgb), var(--opacity-xs)) 50%);
+        background: linear-gradient(transparent 50%, rgb(var(--pure-black-rgb) / var(--opacity-xs)) 50%);
         background-size: 100% var(--spacing-xxs);
+    }
 
-        &::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(90deg, rgba(255, 0, 0, var(--opacity-xs)), rgba(0, 255, 0, var(--opacity-xs)), rgba(0, 0, 255, var(--opacity-xs)));
-            background-size: 300% 100%;
-            animation: chromatic-drift 10s infinite linear;
-        }
+    .glitch-overlay::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, rgb(255 0 0 / var(--opacity-xs)), rgb(0 255 0 / var(--opacity-xs)), rgb(0 0 255 / var(--opacity-xs)));
+        background-size: 300% 100%;
+        animation: chromatic-drift 10s infinite linear;
     }
 
     @keyframes chromatic-drift {
