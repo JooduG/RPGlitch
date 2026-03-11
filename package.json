@@ -26,6 +26,7 @@
         "deploy": "npm run verify && npm run build"
     },
     "dependencies": {
+        "@google/jules": "^0.1.42",
         "@modelcontextprotocol/sdk": "^1.26.0",
         "@pinecone-database/pinecone": "^6.1.4",
         "@playwright/mcp": "^0.0.64",
