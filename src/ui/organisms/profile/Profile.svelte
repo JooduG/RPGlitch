@@ -96,20 +96,25 @@
         try {
             await runtime.saveEntity(entity_type || "character", char)
 
-            // [FIX] SYNC STORYBOARD STATE
-            if (app.view === "storyboard") {
-                const eid = char.id
+            const eid = char.id
+            const type = entity_type || "character"
 
-                // Refresh Lists
-                const [characters, fractals] = await Promise.all([entities.list("character"), entities.list("fractal")])
+            if (type === "character") {
+                const characters = await entities.list("character")
                 app.ai_list = characters
                 app.user_list = characters
+
+                // Refresh Selection
+                const updatedEntity = characters.find((e) => e.id === eid)
+                if (app.selected_ai?.id === eid) app.selected_ai = updatedEntity
+                if (app.selected_user?.id === eid) app.selected_user = updatedEntity
+            } else if (type === "fractal") {
+                const fractals = await entities.list("fractal")
                 app.fractal_list = fractals
 
                 // Refresh Selection
-                if (app.selected_ai?.id === eid) app.selected_ai = characters.find((e) => e.id === eid)
-                if (app.selected_user?.id === eid) app.selected_user = characters.find((e) => e.id === eid)
-                if (app.selected_fractal?.id === eid) app.selected_fractal = fractals.find((e) => e.id === eid)
+                const updatedEntity = fractals.find((e) => e.id === eid)
+                if (app.selected_fractal?.id === eid) app.selected_fractal = updatedEntity
             }
         } catch (err) {
             console.error("Failed to save profile:", err)
