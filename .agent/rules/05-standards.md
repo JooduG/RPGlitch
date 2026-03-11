@@ -24,6 +24,7 @@ description: Global standards for naming, formatting, and operational parameters
 2. **Soft Depth**: Layered shadows only.
 3. **Texture**: 2% grain overlay for all backgrounds.
 4. **Motion**: All interactions must use the `Snappy Curve`.
+5. **Execution**: All Native CSS Tokens and styles are strictly governed by `.agent/skills/styling/docs/DESIGN.md`.
 
 ## 4. File System Nomenclature
 

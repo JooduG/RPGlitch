@@ -1,0 +1,58 @@
+name: The Night Shift (Daily Maintenance)
+
+on:
+    schedule:
+        - cron: "0 4 * * *" # Wakes up at 4:00 AM every day
+    workflow_dispatch: # Gives you a "Run Workflow" button to trigger it manually
+
+jobs:
+    janitorial-duties:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write # Grants the bot permission to push changes back to your repo
+
+        steps:
+            - name: 📥 Checkout Repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0 # Required so the memory script can compare git diffs
+
+            - name: ⚙️ Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "npm"
+
+            - name: 📦 Install Dependencies
+              run: npm install
+
+            - name: 🧹 The Bouncer (Format & Audit)
+              run: |
+                  # Runs your standard Svelte formatters and local style audits
+                  # We use || true so a severe linting error doesn't crash the entire night shift
+                  npm run check || true
+                  node .agent/skills/styling/scripts/style_audit.js || true
+
+            - name: 🧠 The RAG-Sweeper (Pinecone Memory Sync)
+              env:
+                  PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+              run: |
+                  # Executes your memory MCP script to silently upsert yesterday's code changes
+                  node .agent/tools/memory/index.js upsert
+
+            - name: 📝 The Secretary (Backlog Extraction)
+              run: |
+                  # Creates a fresh backlog file for your next vibe-coding session
+                  echo "# 📌 Active AI Backlog (Auto-Generated)" > .agent/tasks/backlog.md
+                  echo "*Last Swept: $(date)*" >> .agent/tasks/backlog.md
+                  echo "" >> .agent/tasks/backlog.md
+
+                  # Scans the src folder for the exact #TODO-AI string and dumps them into the file
+                  grep -rnw "src/" -e "#TODO-AI" >> .agent/tasks/backlog.md || echo "No pending AI tasks found." >> .agent/tasks/backlog.md
+
+            - name: 💾 Commit & Pass the Baton
+              uses: stefanzweifel/git-auto-commit-action@v5
+              with:
+                  commit_message: "chore(night-shift): auto-format, memory sync, and backlog update"
+                  commit_author: "Antigravity Janitor <actions@github.com>"
+                  file_pattern: "src/**/*.svelte src/**/*.js src/**/*.css .agent/tasks/backlog.md"
