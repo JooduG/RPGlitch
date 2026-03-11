@@ -146,6 +146,7 @@
             if (url) char.profile_picture = url
         } catch (err) {
             console.error("Upload failed:", err)
+            app.log(`Upload failed: ${err.message}`, "error")
         }
     }
 
