@@ -119,7 +119,6 @@
                 })
                 app.log(`[VisualWing] Generation Result: ${url}`, "system")
 
-                // [FIX] Target flattened profile_picture
                 if (url) char.profile_picture = url
             } catch (err) {
                 console.error("Generation failed:", err)
@@ -144,10 +143,10 @@
         if (!file) return
         try {
             const url = await ImageGeneration.upload(file)
-            // [FIX] Target flattened profile_picture
             if (url) char.profile_picture = url
         } catch (err) {
             console.error("Upload failed:", err)
+            app.log(`Upload failed: ${err.message}`, "error")
         }
     }
 
@@ -207,7 +206,6 @@
                     style="background-color: {hex}"
                     aria-label="Select color {name}"
                     onclick={() => {
-                        // [FIX] Target flattened signature_color
                         char.signature_color = hex
                     }}
                     disabled={!is_editing}
