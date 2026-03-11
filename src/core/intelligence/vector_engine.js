@@ -81,8 +81,16 @@ export function score_vectors(vectors, input) {
     if (!input) return vectors.slice(-3) // No input? Just give the 3 newest memories
 
     const active_reflexes = DynamicsEngine.scan_reflexes(input)
-    const active_ids = active_reflexes.map((r) => r.id)
-    const active_words = active_reflexes.map((r) => r.trigger_word?.toLowerCase())
+    const active_ids = new Set()
+    const active_words = new Set()
+
+    for (const r of active_reflexes) {
+        active_ids.add(r.id)
+        if (r.trigger_word) {
+            active_words.add(r.trigger_word.toLowerCase())
+        }
+    }
+
     const input_lower = input.toLowerCase()
 
     const scored = vectors.map((v) => {
@@ -95,10 +103,10 @@ export function score_vectors(vectors, input) {
             const tag_id = typeof tag === "string" ? tag : tag.id
             const tag_word = typeof tag === "string" ? null : tag.word?.toLowerCase()
 
-            if (active_ids.includes(tag_id)) {
+            if (active_ids.has(tag_id)) {
                 relevance += CONFIG.DYNAMICS.RELEVANCE_DYNAMICS_BONUS
             }
-            if (tag_word && active_words.includes(tag_word)) {
+            if (tag_word && active_words.has(tag_word)) {
                 relevance += CONFIG.DYNAMICS.RELEVANCE_TRIGGER_BONUS
             }
         })
