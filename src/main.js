@@ -2,8 +2,6 @@
  * RPGlitch Main Entry Point (Vite)
  * Handles core library exposure and database initialization.
  */
-import "@theme/tokens.css"
-import "@theme/utilities.css"
 import "@theme/app.css"
 import Dexie from "dexie"
 import DOMPurify from "dompurify"
