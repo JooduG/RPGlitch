@@ -46,7 +46,12 @@ export const setDebug = async (on) => {
 }
 
 // --- Generic Utilities ---
-export const generateUUID = () => crypto.randomUUID()
+export const generateUUID = () => {
+    if (!globalThis.crypto?.randomUUID) {
+        throw new Error("crypto.randomUUID is not available in this environment. Ensure you are in a secure context (HTTPS).")
+    }
+    return globalThis.crypto.randomUUID()
+}
 
 export const debounce = (fn, wait = 250) => {
     let t

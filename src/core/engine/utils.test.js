@@ -14,5 +14,22 @@ describe("utils", () => {
             const uuid2 = generateUUID()
             expect(uuid1).not.toBe(uuid2)
         })
+
+        it("should throw an error if crypto.randomUUID is not available", () => {
+            const originalCrypto = globalThis.crypto
+            // Mock an environment where crypto.randomUUID is missing
+            Object.defineProperty(globalThis, "crypto", {
+                value: { ...originalCrypto, randomUUID: undefined },
+                configurable: true,
+            })
+
+            expect(() => generateUUID()).toThrow(/crypto.randomUUID is not available/)
+
+            // Restore the original crypto object
+            Object.defineProperty(globalThis, "crypto", {
+                value: originalCrypto,
+                configurable: true,
+            })
+        })
     })
 })
