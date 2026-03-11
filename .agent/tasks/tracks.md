@@ -5,13 +5,6 @@
 
 ## 🚀 Active Tracks
 
-### Track: Native CSS Migration
-
-- Path: [.agent/tasks/native-css-migration/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/native-css-migration/)
-- Status: Planning
-- Checkpoint: `native-css-01`
-- Note: Eradicating "Import Tax" by moving to native CSS variables. Isolating components and enabling runtime theming.
-
 ## 📋 Protocols & Checklists
 
 ### 🧪 Perchance Testing Checklist
@@ -45,6 +38,13 @@
 - **Note:** Restored DOMPurify (purged bundle-size hallucination), stabilized Dynamics nomenclature (Chaos/Intensity/Openness/Affinity), and verified UI integrity across Profile and Library components. Verified 87/87 tests.
 
 ## ✅ Archive
+
+### ✅ Track: Native CSS Migration
+
+- **Path:** [.agent/tasks/native-css-migration/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/tasks/native-css-migration/)
+- **Status:** Complete
+- **Checkpoint:** `e644bbbb`
+- **Note:** Eradicating "Import Tax" by moving to native CSS variables. Unified background gradient logic and standardized the execution environment.
 
 ### ✅ Track: Terminology & Convention Alignment
 

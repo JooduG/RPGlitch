@@ -25,6 +25,6 @@
 
 ## Phase 5: Verification & Cleanup
 
-- [ ] **Step 5.1**: Run `npm run lint:css` to identify dangling SCSS dependencies.
-- [ ] **Step 5.2**: Manual UI regression test across mobile and desktop views.
-- [ ] **Step 5.3**: Remove legacy `_variables.scss` and `_bridge.scss` once all components are migrated.
+- [x] **Step 5.1**: Run `npm run lint:css` to identify dangling SCSS dependencies. [checkpoint: e644bbbb37b9040de82d060174e58391a3baf571]
+- [x] **Step 5.2**: Manual UI regression test across mobile and desktop views. [checkpoint: e644bbbb37b9040de82d060174e58391a3baf571]
+- [x] **Step 5.3**: Remove legacy `_variables.scss` and `_bridge.scss` once all components are migrated. [checkpoint: e644bbbb37b9040de82d060174e58391a3baf571]
