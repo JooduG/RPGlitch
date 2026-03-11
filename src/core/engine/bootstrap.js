@@ -33,13 +33,20 @@ export const AppBootstrap = {
             console.info("[Engine] 🏁 System Online.")
         } catch (err) {
             console.error("[Engine] ❌ Critical Failure:", err)
+
+            // Clear the body and show a critical failure message
             document.body.innerHTML = `
                 <div style="color:#ef4444; padding:2rem; font-family:monospace; background:#000; height:100vh;">
                     <h1 style="border-bottom:1px solid #ef4444; padding-bottom:1rem;">SYSTEM HALTED</h1>
                     <p>A critical failure occurred during initialization.</p>
-                    <pre style="background:#111; padding:1rem; overflow:auto;">${err.stack || err}</pre>
+                    <pre id="error-stack" style="background:#111; padding:1rem; overflow:auto;"></pre>
                 </div>
             `
+            // Safely inject the error stack using textContent to prevent XSS
+            const errorStackElement = document.getElementById("error-stack")
+            if (errorStackElement) {
+                errorStackElement.textContent = err.stack || String(err)
+            }
         }
     },
 }
