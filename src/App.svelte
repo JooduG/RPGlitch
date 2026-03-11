@@ -30,7 +30,7 @@
 {#if mounted}
     <div class="app-container" class:view-storyboard={app.view === "storyboard"} class:view-storymode={app.view === "storymode"} class:has-tension={app.tension > 0} class:has-fractal-bg={!!fractal_bg} transition:fade={{ duration: 800 }}>
         {#if fractal_bg}
-            <div id="fractal-background" style:background-image="url('{fractal_bg}')" style:opacity={app.view === "storymode" ? 0.4 : 0.75}></div>
+            <div class="fractal-background" style:background-image="url('{fractal_bg}')" style:opacity={app.view === "storymode" ? 0.4 : 0.75}></div>
         {/if}
 
         {#if lightbox.active}
@@ -93,7 +93,7 @@
         filter: saturate(1.2) contrast(1.1);
     }
 
-    #fractal-background {
+    .fractal-background {
         position: fixed;
         inset: 0;
         background-size: cover;

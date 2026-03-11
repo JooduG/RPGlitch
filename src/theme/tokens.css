@@ -100,16 +100,17 @@
     --opacity-disabled: var(--opacity-s);
     --opacity-black-heavy: 0.8;
 
-    /* Blur Scale (Initial) */
-    --blur-s: 0.25rem;
-    --blur-m: 0.5rem;
-    --blur-l: 1.5rem;
+    /* Blur Scale */
+    --blur-s: 0rem;
+    --blur-m: 0.75rem;
+    --blur-l: 1.25rem;
     --blur-xl: 2.5rem;
 
-    /* Glass Presets (Native RGBA translation) */
-    --glass-s: rgba(var(--pure-white-rgb) / var(--opacity-xxs));
-    --glass-m: rgba(var(--pure-white-rgb) / var(--opacity-xs));
-    --glass-l: rgba(var(--pure-white-rgb) / var(--opacity-s));
+    /* Glass Presets */
+    --glass-xs: rgba(var(--pure-white-rgb) / 0.08);
+    --glass-s: var(--layer-surface);
+    --glass-m: var(--layer-overlay);
+    --glass-l: var(--gunmetal);
 
     /* Typography Colors */
     --app-color: var(--white);
@@ -143,16 +144,7 @@
     --surface-sunken: rgba(var(--pure-black-rgb) / 0.6);
     --surface-overlay: rgba(var(--pure-black-rgb) / 0.5);
 
-    /* Glass Mapping (Cascading overrides to match legacy SASS behavior) */
-    --glass-xs: rgba(var(--pure-white-rgb) / 0.08);
-    --glass-s: var(--layer-surface);
-    --glass-m: var(--layer-overlay);
-    --glass-l: var(--gunmetal);
 
-    /* Blur Scale (Cascading overrides) */
-    --blur-s: 0rem;
-    --blur-m: 0.75rem;
-    --blur-l: 1.25rem;
 
     /* Borders & Interaction */
     --glass-border: transparent;
