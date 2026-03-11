@@ -53,7 +53,7 @@
         z-index: var(--z-overlay);
         display: inline-block;
         padding: var(--spacing-xs) var(--spacing-m);
-        background: var(--bg-component);
+        background: var(--surface-sunken);
         backdrop-filter: blur(var(--blur-s));
         box-shadow: var(--shadow-l);
         border-radius: var(--border-radius-s);
@@ -63,7 +63,7 @@
     }
 
     .visual-anchor .nameplate-text {
-        font-family: var(--font-family-sans);
+        font-family: var(--font-sans);
         color: var(--entity-color);
         font-size: var(--font-size-s);
         font-weight: 600;

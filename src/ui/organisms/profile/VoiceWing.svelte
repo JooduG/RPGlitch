@@ -86,7 +86,7 @@
         box-shadow: inset 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xxs));
         border: none;
         border-radius: var(--border-radius);
-        color: var(--app-color);
+        color: var(--font-color);
         padding: var(--spacing-s);
         display: flex;
         justify-content: space-between;
@@ -120,7 +120,7 @@
         box-shadow: inset 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xxs));
         border: none;
         border-radius: var(--border-radius);
-        color: var(--app-color);
+        color: var(--font-color);
         cursor: pointer;
         font-size: var(--font-size-m);
         transition: all var(--transition-speed) ease;
@@ -164,7 +164,7 @@
         padding: 8px 12px;
         background: transparent;
         border: none;
-        color: var(--app-color);
+        color: var(--font-color);
         text-align: left;
         font-size: var(--font-size-s);
         cursor: pointer;
@@ -192,7 +192,7 @@
         font-size: var(--font-size-xs);
         text-transform: uppercase;
         font-weight: 700;
-        color: var(--app-muted);
+        color: var(--font-muted);
         letter-spacing: var(--letter-spacing-m);
         transition: color var(--transition-speed);
     }
@@ -268,7 +268,7 @@
         appearance: none;
         width: var(--spacing-s);
         height: var(--spacing-s);
-        background: var(--app-color);
+        background: var(--font-color);
         border-radius: var(--border-radius-full);
         cursor: pointer;
         box-shadow: 0 0 var(--spacing-xs) rgb(var(--pure-white-rgb) / 0.2);

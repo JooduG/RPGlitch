@@ -38,35 +38,6 @@
     --gunmetal: #363840;
     --chalk: #222326;
 
-    /* Flattened Signature Colors Map */
-    --signature-color-red: var(--signature-red);
-    --signature-color-orange: var(--signature-orange);
-    --signature-color-amber: var(--signature-amber);
-    --signature-color-yellow: var(--signature-yellow);
-    --signature-color-lime: var(--signature-lime);
-    --signature-color-forest: var(--signature-forest);
-    --signature-color-emerald: var(--signature-emerald);
-    --signature-color-teal: var(--signature-teal);
-    --signature-color-cyan: var(--signature-cyan);
-    --signature-color-blue: var(--signature-blue);
-    --signature-color-indigo: var(--signature-indigo);
-    --signature-color-violet: var(--signature-violet);
-    --signature-color-purple: var(--signature-purple);
-    --signature-color-pink: var(--signature-pink);
-    --signature-color-rose: var(--signature-rose);
-    --signature-color-frisk: var(--frisk);
-    --signature-color-frozen: var(--frozen);
-    --signature-color-gunmetal: var(--gunmetal);
-    --signature-color-chalk: var(--chalk);
-
-    /************************************************************************************
-     * 🧩 [SECTION: SIGNATURE GRADIENTS]
-     * ----------------------------------------------------------------------------------
-     * Immersive background and overlay gradients
-     ************************************************************************************/
-    --gradient-standard: linear-gradient(135deg, var(--frisk), var(--frozen), var(--gunmetal), var(--chalk));
-    --gradient-radial: radial-gradient(var(--frisk), var(--frozen), var(--gunmetal), var(--chalk));
-
     /************************************************************************************
      * 🧩 [SECTION: CORE SYSTEM COLORS & OPACITY]
      * ----------------------------------------------------------------------------------
@@ -77,34 +48,15 @@
     --pure-white-rgb: 255 255 255;
     --pure-black-rgb: 0 0 0;
 
-    /* Semantic Maps */
-    --color-danger: var(--signature-red);
-    --color-success: var(--signature-emerald);
-    --color-warning: var(--signature-orange);
-    --color-info: var(--signature-blue);
-    --color-accent: var(--signature-pink);
-    --color-primary: var(--color-info);
-    --color-ai: var(--signature-purple);
-    --color-fractal: var(--signature-emerald);
-    --color-db: var(--signature-amber);
-
-    /* RGB Helpers (for alpha adjustments) */
-    --color-danger-rgb: 239 68 68;
-    --color-success-rgb: 16 185 129;
-    --color-warning-rgb: 249 115 22;
-    --color-info-rgb: 59 130 246;
-
-    /* Opacity Hierarchy */
     --opacity-xxs: 0.05;
     --opacity-xs: 0.1;
     --opacity-s: 0.3;
     --opacity-m: 0.5;
     --opacity-l: 0.8;
     --opacity-xl: 0.95;
-    --opacity-xxxl: 0.99;
+
     --opacity-full: 1;
     --opacity-disabled: var(--opacity-s);
-    --opacity-black-heavy: 0.8;
 
     /* Blur Scale */
     --blur-s: 0rem;
@@ -112,33 +64,10 @@
     --blur-l: 1.25rem;
     --blur-xl: 2.5rem;
 
-    /* Glass Presets */
-    --glass-xs: rgba(var(--pure-white-rgb) / 0.08);
-    --glass-s: var(--layer-surface);
-    --glass-m: var(--layer-overlay);
-    --glass-l: var(--gunmetal);
-
-    /* Typography Colors */
-    --app-color: var(--white);
-    --app-muted: var(--frisk);
-    --border-color: var(--frozen);
-    --border-dark: var(--gunmetal);
-
-    /* Semantic Backgrounds */
-    --app-background: #0a0c14;
-    --bg-grad-1: color-mix(in srgb, var(--signature-blue) 15%, transparent);
-    --bg-grad-2: color-mix(in srgb, var(--signature-pink) 12%, transparent);
-    --bg-grad-3: color-mix(in srgb, var(--signature-violet) 10%, transparent);
-    --bg-grad-4: #050508;
-
-    --bg-app: var(--chalk);
-    --bg-card: var(--gunmetal);
-    --bg-form: var(--frozen);
-    --bg-component: #050505;
-
-    /* Input Backgrounds */
-    --bg-input: rgba(var(--pure-black-rgb) / var(--opacity-s));
-    --bg-input-focus: rgba(var(--pure-black-rgb) / var(--opacity-m));
+    /* Background & Structural */
+    --bg-grad-1: var(--frozen);
+    --bg-grad-2: var(--gunmetal);
+    --bg-grad-3: var(--chalk);
 
     /************************************************************************************
      * 🧩 [SECTION: GLASSMORPHISM & EFFECTS]
@@ -147,33 +76,26 @@
      ************************************************************************************/
 
     /* Surfaces & Depth */
-    --layer-surface: color-mix(in srgb, var(--gunmetal) 95%, transparent);
-    --layer-overlay: rgba(var(--pure-black-rgb) / 0.9);
     --surface-sunken: rgba(var(--pure-black-rgb) / 0.6);
     --surface-overlay: rgba(var(--pure-black-rgb) / 0.5);
-
-    /* Borders & Interaction */
-    --glass-border: transparent;
-    --glass-hover: rgba(var(--pure-white-rgb) / 0.02);
-
-    /* Optical Illusion */
-    --shimmer-color: rgba(var(--pure-white-rgb) / 0.03);
-    --shimmer-highlight: rgba(var(--pure-white-rgb) / var(--opacity-xxs));
 
     /* Shadows */
     --shadow-s: 0 0.25rem 0.5rem rgba(var(--pure-black-rgb) / var(--opacity-xs));
     --shadow-m: 0 0.25rem 1rem rgba(var(--pure-black-rgb) / var(--opacity-s));
     --shadow-l: 0 0.5rem 2rem rgba(var(--pure-black-rgb) / var(--opacity-m));
-    --rp-text-shadow: 0 0.1rem 0.25rem rgba(var(--pure-black-rgb) / var(--opacity-s));
+    --shadow-font: 0 var(--spacing-px) var(--spacing-xxs) rgba(var(--pure-black-rgb) / var(--opacity-s));
 
     /************************************************************************************
      * 🧩 [SECTION: TYPOGRAPHY METRICS]
      * ----------------------------------------------------------------------------------
-     * Font families, scales, and line heights
+     * Font families, scales, colors and line heights
      ************************************************************************************/
-    --font-family-sans: "Inter", system-ui, -apple-system, sans-serif;
-    --font-family-heading: "Ubuntu", sans-serif;
-    --font-family-mono: "JetBrains Mono", monospace;
+    --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+    --font-heading: "Ubuntu", sans-serif;
+    --font-mono: "JetBrains Mono", monospace;
+
+    --font-color: var(--white);
+    --font-muted: var(--frisk);
 
     --font-size-xxs: 0.5rem;
     --font-size-xs: 0.75rem;
@@ -191,17 +113,6 @@
     --font-bold: 700;
     --font-height: var(--line-height-base);
     --font-weight: 400;
-
-    /* Flattened Breakpoints Map */
-    --breakpoints-s: 576px;
-    --breakpoints-m: 768px;
-    --breakpoints-l: 1024px;
-    --breakpoints-xl: 1280px;
-    --breakpoints-xxl: 1536px;
-
-    --breakpoint-mobile: var(--breakpoints-m);
-    --breakpoint-tablet: var(--breakpoints-l);
-    --breakpoint-desktop: var(--breakpoints-xl);
 
     /************************************************************************************
      * 🧩 [SECTION: SPACING & LAYOUT]
@@ -225,7 +136,17 @@
     --border-radius-xl: 1rem;
     --border-radius-full: 9999px;
     --border-radius: var(--border-radius-m);
-    --app-container-pad: var(--spacing-m);
+
+    /* Flattened Breakpoints Map */
+    --breakpoints-s: 576px;
+    --breakpoints-m: 768px;
+    --breakpoints-l: 1024px;
+    --breakpoints-xl: 1280px;
+    --breakpoints-xxl: 1536px;
+
+    --breakpoint-mobile: var(--breakpoints-m);
+    --breakpoint-tablet: var(--breakpoints-l);
+    --breakpoint-desktop: var(--breakpoints-xl);
 
     /* Physics */
     --transition-speed: 0.2s;

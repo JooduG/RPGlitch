@@ -113,7 +113,7 @@
         justify-content: center;
         padding: var(--spacing-xxl) var(--spacing-l);
         text-align: center;
-        color: var(--app-muted);
+        color: var(--font-muted);
         gap: var(--spacing-m);
     }
 
@@ -123,14 +123,14 @@
 
     .empty-feed-fallback :global(.btn-retry) {
         padding: var(--spacing-xs) var(--spacing-m);
-        background: var(--glass-s);
+        background: var(--surface-overlay);
         box-shadow: var(--shadow-s);
         border-radius: var(--border-radius);
-        color: var(--app-muted);
+        color: var(--font-muted);
     }
 
     .empty-feed-fallback :global(.btn-retry):hover {
-        background: var(--glass-m);
-        color: var(--app-color);
+        background: var(--surface-sunken);
+        color: var(--font-color);
     }
 </style>

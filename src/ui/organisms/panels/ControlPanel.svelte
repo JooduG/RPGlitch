@@ -90,7 +90,7 @@
         display: flex;
         flex-direction: column;
         gap: var(--spacing-l);
-        font-family: var(--font-family-sans);
+        font-family: var(--font-sans);
         color: var(--text-primary);
         overflow: hidden;
     }
@@ -125,7 +125,7 @@
         background: transparent;
         border: none;
         color: var(--text-secondary);
-        font-family: var(--font-family-sans);
+        font-family: var(--font-sans);
         font-size: var(--font-size-s);
         resize: none;
         outline: none;

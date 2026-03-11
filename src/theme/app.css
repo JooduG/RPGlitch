@@ -4,30 +4,22 @@
    ============================================================================ */
 
 /************************************************************************************
- * 🧩 [SECTION: TOKENS]
+ * 🧩 [SECTION: THE FOUNDATION]
  * ----------------------------------------------------------------------------------
- * Core variables and palette definition.
+ * Core variables and palette definition. No pure CSS allowed here.
  ************************************************************************************/
 @import "./tokens.css";
 
 /************************************************************************************
- * 🧩 [SECTION: BASE & TYPOGRAPHY]
+ * 🧩 [SECTION: THE CLEAN SLATE]
  * ----------------------------------------------------------------------------------
- * Foundation layers and structural resets.
+ * Foundational browser normalization and dimension clamping.
  ************************************************************************************/
 @import "./reset.css";
-@import "./typography.css";
 
 /************************************************************************************
- * 🧩 [SECTION: UTILITIES]
+ * 🧩 [SECTION: THE ATMOSPHERE & GLOBALS]
  * ----------------------------------------------------------------------------------
- * Independent structural utility classes.
+ * Application-level typography scaling, gradients, base elements, tooltips, and utilities.
  ************************************************************************************/
-@import "./utilities.css";
-
-/************************************************************************************
- * 🧩 [SECTION: COMPONENTS]
- * ----------------------------------------------------------------------------------
- * Pure CSS structural and behavior components.
- ************************************************************************************/
-@import "./tooltip.css";
+@import "./global.css";

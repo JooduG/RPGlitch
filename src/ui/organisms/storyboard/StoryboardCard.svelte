@@ -173,7 +173,7 @@
             &.is-loading {
                 background: var(--surface-sunken);
                 :global(*) {
-                    border-color: var(--glass-border);
+                    border-color: rgba(var(--pure-white-rgb) / var(--opacity-xxs));
                 }
             }
 
@@ -240,7 +240,7 @@
                 height: 100%;
                 width: 50%;
                 border-top: none;
-                box-shadow: inset var(--spacing-px) 0 0 var(--glass-border);
+                box-shadow: inset var(--spacing-px) 0 0 rgba(var(--pure-white-rgb) / var(--opacity-xs));
             }
         }
     }
@@ -311,7 +311,7 @@
 
         .desc-half p {
             margin: 0;
-            color: var(--app-color);
+            color: var(--font-color);
             opacity: var(--opacity-l);
             font-size: var(--font-size-m);
             text-align: left;
@@ -357,9 +357,9 @@
             font-weight: 800;
             letter-spacing: 0.1em;
             text-transform: uppercase;
-            font-family: var(--font-family-heading);
-            color: var(--app-color);
-            text-shadow: var(--rp-text-shadow);
+            font-family: var(--font-heading);
+            color: var(--font-color);
+            text-shadow: var(--shadow-font);
             opacity: 0;
             transition:
                 opacity 1s ease,

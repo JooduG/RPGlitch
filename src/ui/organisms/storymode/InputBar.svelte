@@ -71,22 +71,23 @@
 <style>
     .input-bar-unit {
         display: flex;
-        align-items: flex-end;
-        background: var(--glass-m);
-        backdrop-filter: blur(var(--blur-m));
-        border-radius: var(--border-radius-l);
-        padding: var(--spacing-xs);
+        align-items: center;
+        width: 100%;
+        max-width: var(--max-width-text);
+        background: color-mix(in srgb, var(--signature-color, var(--gunmetal)) 15%, var(--pure-black));
+        border-radius: var(--border-radius-xl);
+        padding: 0 var(--spacing-s);
         margin: var(--spacing-l);
-        transition: all var(--transition-speed);
-        box-shadow: var(--glass-border-none);
+        box-shadow: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
     }
 
     .input-bar-unit.is-focused {
-        background: var(--glass-l);
+        background: color-mix(in srgb, var(--signature-color, var(--gunmetal)) 25%, var(--pure-black));
         box-shadow:
-            inset 0 0 0 var(--spacing-px) var(--signature-color, var(--glass-border)),
-            var(--shadow-m),
-            0 0 0 var(--spacing-xxs) var(--glass-hover);
+            inset 0 0 0 var(--spacing-px) var(--signature-color, transparent),
+            0 0 0 var(--spacing-xxs) color-mix(in srgb, var(--signature-color, transparent) 10%, transparent);
         transform: translateY(-2px);
     }
 
@@ -99,7 +100,7 @@
         flex: 1;
         background: transparent;
         border: none;
-        color: var(--app-color);
+        color: var(--font-color);
         padding: var(--spacing-s);
         resize: none;
         outline: none;
@@ -111,13 +112,13 @@
     }
 
     .input-area::placeholder {
-        color: var(--app-muted);
+        color: var(--font-muted);
     }
 
     .icon-btn {
         background: transparent;
         border: none;
-        color: var(--app-muted);
+        color: var(--font-muted);
         cursor: pointer;
         padding: var(--spacing-s);
         display: flex;
@@ -128,8 +129,8 @@
     }
 
     .icon-btn:hover:not(:disabled) {
-        color: var(--app-color);
-        filter: drop-shadow(0 0 var(--spacing-m) var(--glass-m));
+        color: var(--font-color);
+        filter: drop-shadow(0 0 var(--spacing-m) color-mix(in srgb, var(--signature-color, var(--gunmetal)) 30%, transparent));
     }
 
     .icon-btn:disabled {
@@ -144,7 +145,7 @@
     }
 
     .send-btn:not(:disabled):hover {
-        color: var(--app-color);
-        filter: drop-shadow(0 0 var(--spacing-m) var(--signature-color, var(--glass-l)));
+        color: var(--font-color);
+        filter: drop-shadow(0 0 var(--spacing-m) color-mix(in srgb, var(--signature-color, var(--gunmetal)) 50%, transparent));
     }
 </style>

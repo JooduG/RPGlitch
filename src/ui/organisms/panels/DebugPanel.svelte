@@ -91,8 +91,8 @@
     .dev-hud-wrapper {
         /* HUD Tokens (Scoped to Debug) */
         --hud-bg: rgb(var(--pure-black-rgb) / 0.85);
-        --hud-text: var(--app-color);
-        --hud-muted: var(--app-muted);
+        --hud-text: var(--font-color);
+        --hud-muted: var(--font-muted);
         --hud-accent: var(--app-accent);
         --hud-mono-font: var(--font-mono);
 

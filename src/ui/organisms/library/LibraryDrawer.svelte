@@ -166,7 +166,7 @@
     .drawer-header .close-btn {
         background: transparent;
         border: none;
-        color: var(--app-muted);
+        color: var(--font-muted);
         font-size: 2rem;
         cursor: pointer;
         line-height: 1;
@@ -202,7 +202,7 @@
         gap: var(--spacing-m);
         cursor: pointer;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        color: var(--app-muted);
+        color: var(--font-muted);
         border: none;
         padding: 0;
     }
@@ -250,7 +250,7 @@
         justify-content: center;
         padding: 4rem 2rem;
         text-align: center;
-        color: var(--app-muted);
+        color: var(--font-muted);
     }
 
     .drawer-empty .empty-icon {

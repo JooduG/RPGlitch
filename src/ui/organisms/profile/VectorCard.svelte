@@ -78,7 +78,7 @@
     .display-area .content {
         font-family: inherit;
         font-size: var(--font-size-s);
-        color: var(--app-color);
+        color: var(--font-color);
         line-height: var(--line-height-base);
         opacity: var(--opacity-full);
         word-break: break-word;
@@ -96,7 +96,7 @@
         flex: 1;
         background: transparent;
         border: none;
-        color: var(--app-color);
+        color: var(--font-color);
         font-family: inherit;
         font-size: var(--font-size-s);
         line-height: var(--line-height-base);
@@ -120,7 +120,7 @@
 
     :global(.vector-delete-btn.btn) {
         background: transparent !important;
-        color: var(--app-muted) !important;
+        color: var(--font-muted) !important;
         box-shadow: inset 0 0 0 var(--spacing-px) var(--signature-color, var(--ui-glass-border)) !important;
         width: var(--spacing-xl) !important;
         height: var(--spacing-xl) !important;
@@ -135,7 +135,7 @@
     :global(.vector-delete-btn.btn):hover {
         background: var(--app-del) !important;
         box-shadow: var(--shadow-m) !important;
-        color: var(--app-color) !important;
+        color: var(--font-color) !important;
         filter: brightness(1.2) !important;
         transform: translateY(var(--physics-hover-y-compact)) !important;
     }

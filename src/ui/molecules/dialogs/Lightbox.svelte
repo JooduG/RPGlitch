@@ -33,7 +33,7 @@
 
     .preview-stage .caption {
         margin-top: var(--spacing-m);
-        color: var(--app-color);
+        color: var(--font-color);
         background: rgb(var(--pure-black-rgb) / var(--opacity-m));
         padding: var(--spacing-s) var(--spacing-m);
         border-radius: var(--border-radius-s);

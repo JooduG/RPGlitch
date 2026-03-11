@@ -68,7 +68,7 @@
         border: none;
         border-radius: var(--border-radius);
         background: transparent;
-        color: var(--app-color);
+        color: var(--font-color);
         transition: all var(--transition-speed, 0.2s) ease-out;
     }
 
@@ -119,16 +119,16 @@
     }
 
     .btn-ghost {
-        color: var(--app-muted);
+        color: var(--font-muted);
     }
     .btn-ghost:hover:not(:disabled, .disabled) {
         background: rgb(255 255 255 / var(--opacity-xxs));
-        color: var(--app-color);
+        color: var(--font-color);
     }
 
     .btn-outline {
         background: rgb(255 255 255 / 0.03);
-        color: var(--app-muted);
+        color: var(--font-muted);
     }
     .btn-outline:hover:not(:disabled, .disabled) {
         color: var(--frisk);
@@ -146,21 +146,21 @@
 
     .btn-secondary {
         background: rgb(255 255 255 / var(--opacity-xs));
-        color: var(--app-color);
+        color: var(--font-color);
     }
     .btn-secondary:hover:not(:disabled, .disabled) {
         background: rgb(255 255 255 / var(--opacity-s));
     }
 
     .btn-security {
-        background: var(--bg-component);
-        color: var(--app-color);
+        background: var(--surface-sunken);
+        color: var(--font-color);
         box-shadow: 0 0 0 1px var(--frisk);
     }
     .btn-security:hover:not(:disabled, .disabled) {
         box-shadow:
             0 0 15px rgb(255 255 255 / var(--opacity-xxs)),
-            0 0 0 1px var(--app-color);
+            0 0 0 1px var(--font-color);
     }
 
     /* Shapes */

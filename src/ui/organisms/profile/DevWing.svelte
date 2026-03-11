@@ -177,7 +177,7 @@
         font-size: var(--font-size-xs);
         text-transform: uppercase;
         letter-spacing: var(--letter-spacing-l);
-        color: var(--app-muted);
+        color: var(--font-muted);
         opacity: 0.8;
         margin-bottom: var(--spacing-xxs);
         display: block;
@@ -216,7 +216,7 @@
     .step-controls button {
         background: transparent;
         border: none;
-        color: var(--app-muted);
+        color: var(--font-muted);
         font-size: var(--font-size-xxs);
         padding: 0 var(--spacing-xxs);
         cursor: pointer;
@@ -233,7 +233,7 @@
     .raw-explorer summary {
         font-size: var(--font-size-xs);
         font-weight: 800;
-        color: var(--app-muted);
+        color: var(--font-muted);
         text-transform: uppercase;
         cursor: pointer;
         opacity: 0.7;
@@ -282,7 +282,7 @@
     }
 
     .meta-item .tag {
-        color: var(--app-muted);
+        color: var(--font-muted);
         opacity: 0.7;
         font-weight: 900;
     }

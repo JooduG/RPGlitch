@@ -288,7 +288,7 @@
         border-radius: var(--border-radius-l);
         background: var(--bubble-color);
         box-shadow: var(--shadow-s);
-        color: var(--app-color);
+        color: var(--font-color);
         position: relative;
         overflow: hidden;
     }
@@ -309,7 +309,7 @@
         width: 50%;
         max-width: 80%;
         text-align: center;
-        color: var(--app-color);
+        color: var(--font-color);
         background: var(--bubble-color);
         box-shadow: var(--shadow-s);
     }
@@ -319,8 +319,7 @@
     }
 
     .think-block {
-        background: var(--glass-m);
-        box-shadow: var(--glass-border) inset;
+        background: var(--surface-overlay);
         border-radius: var(--border-radius);
         padding: var(--spacing-s);
         margin-bottom: var(--spacing-m);
@@ -336,7 +335,7 @@
     }
 
     .think-block .think-content {
-        color: var(--app-muted);
+        color: var(--font-muted);
         font-family: var(--font-mono);
         font-style: italic;
         white-space: pre-wrap;
@@ -346,7 +345,7 @@
         white-space: pre-wrap;
         line-height: var(--line-height-relaxed);
         font-size: var(--font-size-m);
-        font-family: var(--font-family-sans);
+        font-family: var(--font-sans);
         text-shadow: var(--shadow-s);
     }
 
@@ -361,7 +360,7 @@
 
     .message-timestamp {
         font-size: var(--font-size-xs);
-        color: var(--app-color);
+        color: var(--font-color);
         font-weight: 500;
         opacity: var(--opacity-s);
         text-shadow: var(--shadow-s);
@@ -386,9 +385,8 @@
     }
 
     .action-btn {
-        background: var(--glass-m);
-        box-shadow: var(--glass-border);
-        color: var(--app-muted);
+        background: var(--surface-overlay);
+        color: var(--font-muted);
         border-radius: var(--border-radius);
         width: var(--spacing-xl);
         height: var(--spacing-xl);
@@ -420,8 +418,8 @@
     }
 
     .action-btn:hover {
-        background: var(--app-color);
-        box-shadow: 0 0 0 var(--spacing-px) var(--app-color);
+        background: var(--font-color);
+        box-shadow: 0 0 0 var(--spacing-px) var(--font-color);
         color: var(--signature-color);
     }
 
@@ -437,7 +435,7 @@
         left: 50%;
         transform: translateX(-50%) translateY(calc(var(--spacing-xs) * -2));
         background: var(--bg-component);
-        color: var(--app-color);
+        color: var(--font-color);
         padding: var(--spacing-xxs) var(--spacing-xs);
         border-radius: var(--border-radius-s);
         font-size: var(--font-size-xs);
@@ -456,11 +454,11 @@
 
     .action-btn.delete:hover {
         background: var(--app-del); /* [R5] Standardized variable from tokens.css */
-        box-shadow: 0 0 0 var(--spacing-px) var(--app-color);
-        color: var(--app-color);
+        box-shadow: 0 0 0 var(--spacing-px) var(--font-color);
+        color: var(--font-color);
     }
 
     .action-btn.delete:hover svg {
-        stroke: var(--app-color);
+        stroke: var(--font-color);
     }
 </style>

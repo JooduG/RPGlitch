@@ -351,7 +351,7 @@
 
     .visual-prompt:disabled {
         opacity: var(--opacity-m);
-        color: var(--app-muted);
+        color: var(--font-muted);
         cursor: not-allowed;
         background: rgb(var(--pure-black-rgb) / var(--opacity-xs));
     }

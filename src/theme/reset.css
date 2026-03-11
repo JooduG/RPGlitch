@@ -1,104 +1,57 @@
-*::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-}
+/* ============================================================================
+   STRICT BROWSER RESET
+   Wiping the slate clean. No thematic styles or colors allowed here.
+   ============================================================================ */
 
 /************************************************************************************
- * 🧩 [SECTION: SCROLLBARS]
+ * 🧩 [SECTION: THE SLATE (HTML/BODY)]
  * ----------------------------------------------------------------------------------
- * Global invisibility.
+ * Hard clamp on dimensions and scroll-bounce.
  ************************************************************************************/
-
 html,
 body {
+    font-size: 100%; /* Typography baseline for rem units */
+    box-sizing: border-box;
     height: 100vh;
     width: 100vw;
     margin: 0;
     padding: 0;
     overflow: hidden; /* Force no-scroll at root */
-    font-family: var(--font-family-sans);
-    color: var(--app-color);
-    background-color: var(--app-background);
-    background-image: radial-gradient(circle at 50% 0%, var(--bg-grad-1), var(--bg-grad-2) 50%, var(--bg-grad-3) 75%, var(--bg-grad-4));
-    background-repeat: no-repeat;
-    background-size: cover;
-    position: fixed; /* Prevent bounce/scroll on mobile */
+    font-family: var(--font-sans);
+    color: var(--font-color);
+    background-color: var(--pure-black);
+    position: fixed; /* Prevent bounce/scroll on mobile iOS */
     inset: 0;
 }
 
-body:has(.has-fractal-bg) {
-    background-image: none;
+*, *::before, *::after {
+    box-sizing: inherit;
 }
 
 /************************************************************************************
- * 🧩 [SECTION: ROOT DOM]
+ * 🧩 [SECTION: SCROLLBAR INVISIBILITY]
  * ----------------------------------------------------------------------------------
- * Sizing, gradients, and scroll locking.
+ * Hide scrollbars globally by default. Can be restored per-element if needed.
  ************************************************************************************/
-
-/* Noise Filter Overlay */
-body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    opacity: 0.03;
-    pointer-events: none;
-    z-index: 2;
-    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAApb2uWAAAABlBMVEUAAAD///+l2Z/dAAAAAnRSTlP/AOW3MEoAAAA9SURBVDjLY2BkYGRkYmRmZmdmYWVlZWVlZmZlZmVmZmVmZmZlZmVmZmVmZmZlZmVmZmVmZmZlZmVmZmVmZgcDAAiUADIAAAAA");
+*::-webkit-scrollbar {
+    width: 0;
+    height: 0;
 }
 
-.fractal-background {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: 0;
-    filter: blur(12px) brightness(0.25); /* Deep blur */
-    transform: scale(1.15); /* Oversize to hide blur edges */
-    pointer-events: none;
-    transition:
-        opacity 2s ease-in-out,
-        filter 2s ease-in-out;
+* {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
 /************************************************************************************
- * 🧩 [SECTION: FRACTAL BACKGROUND]
+ * 🧩 [SECTION: MODES & STATE OVERRIDES]
  * ----------------------------------------------------------------------------------
- * Dynamic cinematic backgrounds.
+ * Hard visibility overrides for Developer mode.
  ************************************************************************************/
-
-.danger {
-    color: var(--app-del);
-}
-
 body:not(.mode-developer) .developer-content {
     display: none;
 }
 
 body.modal-open {
     overflow: hidden;
-}
-
-/************************************************************************************
- * 🧩 [SECTION: MODES & ACCESSIBILITY]
- * ----------------------------------------------------------------------------------
- * State overrides and screen reader functionality.
- ************************************************************************************/
-
-/* ACCESSIBILITY BYPASS LINK */
-.skip-link {
-    position: absolute;
-    top: -100px;
-    left: 0;
-    background: var(--color-primary);
-    color: var(--white);
-    padding: 8px;
-    z-index: 10000;
-    transition: top 0.2s;
-}
-
-.skip-link:focus {
-    top: 0;
 }

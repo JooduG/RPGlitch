@@ -116,7 +116,7 @@
         margin: 0;
 
         width: 100%;
-        color: var(--app-color);
+        color: var(--font-color);
         font-family: inherit;
         font-size: var(--font-size-m);
         line-height: 1.5;

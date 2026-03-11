@@ -98,12 +98,12 @@
 
     /* Label Text */
     .label-text {
-        color: var(--app-color);
+        color: var(--font-color);
         font-weight: 700;
         font-size: var(--font-size-xs);
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        font-family: var(--font-family-sans);
+        font-family: var(--font-sans);
         transition: color var(--transition-speed);
     }
 

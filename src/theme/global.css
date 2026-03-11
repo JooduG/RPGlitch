@@ -1,0 +1,235 @@
+/* ============================================================================
+   GLOBAL ATMOSPHERE & COMPONENTS
+   Application-level typography scaling, gradients, utilities, and native styles.
+   ============================================================================ */
+
+/************************************************************************************
+ * 🧩 [SECTION: BODY & BACKGROUND]
+ * ----------------------------------------------------------------------------------
+ * The root atmospheric vignette gradient.
+ ************************************************************************************/
+body {
+    background-image: radial-gradient(circle at 50% 0%, var(--bg-grad-1), var(--bg-grad-2) 50%, var(--bg-grad-3) 75%, var(--pure-black));
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+body:has(.has-fractal-bg) {
+    background-image: none;
+}
+
+/* Noise Filter Overlay */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 2;
+    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAApb2uWAAAABlBMVEUAAAD///+l2Z/dAAAAAnRSTlP/AOW3MEoAAAA9SURBVDjLY2BkYGRkYmRmZmdmYWVlZWVlZmZlZmVmZmVmZmZlZmVmZmVmZmZlZmVmZmVmZmZlZmVmZmVmZgcDAAiUADIAAAAA");
+}
+
+/************************************************************************************
+ * 🧩 [SECTION: TYPOGRAPHY HIERARCHY]
+ * ----------------------------------------------------------------------------------
+ * Modular scales for semantic headings.
+ ************************************************************************************/
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    margin-top: 0;
+    color: inherit;
+    text-wrap: balance;
+}
+
+h1 {
+    font-size: var(--font-size-xxxxl);
+    line-height: 1.125;
+    margin-top: var(--spacing-xxxl);
+}
+
+h2 {
+    font-size: var(--font-size-xxxl);
+    line-height: 1.15;
+    margin-top: var(--spacing-xxl);
+}
+
+h3 {
+    font-size: var(--font-size-xxl);
+    line-height: 1.175;
+    margin-top: var(--spacing-xl);
+}
+
+h4 {
+    font-size: var(--font-size-xl);
+    line-height: 1.2;
+    margin-top: var(--spacing-l);
+}
+
+h5 {
+    font-size: var(--font-size-l);
+    line-height: 1.225;
+    margin-top: var(--spacing-m);
+}
+
+h6 {
+    font-size: var(--font-size-m);
+    line-height: 1.25;
+    margin-top: var(--spacing-m);
+}
+
+/************************************************************************************
+ * 🧩 [SECTION: HTML ELEMENTS]
+ * ----------------------------------------------------------------------------------
+ * Semantic HTML tag normalization.
+ ************************************************************************************/
+a {
+    text-decoration: underline;
+}
+
+pre,
+code,
+kbd,
+samp {
+    font-family: var(--font-mono);
+}
+
+kbd {
+    font-weight: bolder;
+}
+
+small {
+    font-size: 0.875em;
+}
+
+/* Text Wrapping */
+p,
+li,
+figcaption {
+    text-wrap: pretty;
+}
+
+/* Tables */
+thead th,
+tfoot th,
+thead td,
+tfoot td {
+    font-weight: 600;
+    border-width: 0.1875rem;
+}
+
+/************************************************************************************
+ * 🧩 [SECTION: UTILITIES]
+ * ----------------------------------------------------------------------------------
+ * Global utility classes for physics and common patterns.
+ ************************************************************************************/
+.material-interactive {
+    transition:
+        transform var(--transition-speed, 0.3s) var(--physics-transition-elastic),
+        box-shadow var(--transition-speed, 0.3s) ease;
+}
+
+.material-interactive:hover {
+    transform: translateY(var(--physics-hover-y));
+    box-shadow: var(--shadow-l);
+}
+
+.no-scrollbar {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none; /* Chrome/Safari */
+}
+
+/************************************************************************************
+ * 🧩 [SECTION: GLOBAL COMPONENTS]
+ * ----------------------------------------------------------------------------------
+ * Pure-CSS structural elements that do not belong to normal elements.
+ ************************************************************************************/
+
+/* Accessibility bypass link for screen readers */
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 0;
+    background: var(--signature-blue);
+    color: var(--white);
+    padding: var(--spacing-xs);
+    z-index: 10000;
+    transition: top var(--transition-speed);
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* Cinematic animated hero background layer */
+.fractal-background {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    filter: blur(var(--blur-m)) brightness(0.25);
+    transform: scale(1.15); /* Overscale to hide blurred edges */
+    pointer-events: none;
+    transition:
+        opacity 2s ease-in-out,
+        filter 2s ease-in-out;
+}
+
+/************************************************************************************
+ * 🧩 [SECTION: TOOLTIP COMPONENT]
+ * ----------------------------------------------------------------------------------
+ * Simple declarative tooltips using data-attributes.
+ ************************************************************************************/
+[data-tooltip] {
+    position: relative;
+    cursor: help;
+}
+
+[data-tooltip]::before,
+[data-tooltip]::after {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-speed) ease-in-out;
+    z-index: var(--z-toast);
+}
+
+[data-tooltip]::before {
+    content: "";
+    bottom: calc(100% + 5px);
+    border: 0.3rem solid transparent;
+    border-top-color: var(--chalk);
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    bottom: calc(100% + 15px);
+    background: var(--chalk);
+    color: var(--white);
+    padding: var(--spacing-xs) var(--spacing-s);
+    border-radius: var(--border-radius-s);
+    font-size: var(--font-size-xs);
+    white-space: nowrap;
+    box-shadow: var(--shadow-s);
+}
+
+[data-tooltip]:hover::before,
+[data-tooltip]:hover::after {
+    opacity: 1;
+}

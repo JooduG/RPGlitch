@@ -62,8 +62,7 @@
         gap: var(--spacing-l);
         padding: var(--spacing-s) var(--spacing-xl);
 
-        background: var(--glass-m);
-        backdrop-filter: blur(var(--blur-m));
+        background: var(--surface-overlay);
         box-shadow: var(--shadow-m);
         border-radius: var(--border-radius-xs);
 
@@ -74,7 +73,7 @@
     .separator {
         width: var(--spacing-px);
         height: var(--spacing-l);
-        background: var(--glass-border);
+        box-shadow: 0 0 var(--spacing-m) rgba(var(--pure-white-rgb) / var(--opacity-xxs));
     }
 
     .info-group {
@@ -87,7 +86,7 @@
     .info-group .label {
         font-size: var(--font-size-xs);
         letter-spacing: var(--letter-spacing-l);
-        color: var(--app-muted);
+        color: var(--font-muted);
         text-transform: uppercase;
     }
 
@@ -95,7 +94,7 @@
         font-family: var(--font-header);
         font-size: var(--font-size-s);
         font-weight: 500;
-        color: var(--app-color);
+        color: var(--font-color);
         text-transform: uppercase;
         letter-spacing: var(--letter-spacing-m);
 

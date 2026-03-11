@@ -97,7 +97,7 @@
         font-size: var(--font-size-l);
         font-weight: 700;
         font-family: var(--font-heading);
-        color: var(--app-color);
+        color: var(--font-color);
         display: flex;
         align-items: center;
         gap: var(--spacing-s);
@@ -118,7 +118,7 @@
 
     .security-modal .content {
         padding: var(--spacing-xl);
-        color: var(--app-muted);
+        color: var(--font-muted);
         font-size: var(--font-size-m);
         line-height: var(--line-height-relaxed);
     }

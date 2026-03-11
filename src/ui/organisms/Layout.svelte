@@ -82,7 +82,7 @@
         transform: translateZ(0);
 
         /* Atmospheric Background - transparent to show body's gradient */
-        background: transparent;
+        background: radial-gradient(circle at bottom, var(--gunmetal), var(--pure-black) 70%);
         color: white;
         transition: all 0.6s ease;
         pointer-events: none;
@@ -136,7 +136,8 @@
 
         .universal-stage.layout-cinematic .stage-column.left {
             grid-column: 1 / 2;
-            border-right: 1px solid var(--glass-border);
+            background: radial-gradient(circle at top center, var(--gunmetal), var(--pure-black));
+            border-right: 1px solid rgba(var(--pure-white-rgb) / var(--opacity-xxs));
         }
 
         .universal-stage.layout-cinematic .stage-column.right {

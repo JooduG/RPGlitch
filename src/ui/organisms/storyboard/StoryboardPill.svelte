@@ -71,10 +71,10 @@
     :global(.unified-capsule .btn:hover:not(:disabled)) {
         background: transparent;
         filter: none;
-        color: var(--app-color);
+        color: var(--font-color);
         opacity: var(--opacity-full);
         transform: none; /* Prevent jitter from global translateY */
-        --label-color: var(--app-color); /* Inject white color to children */
+        --label-color: var(--font-color); /* Inject white color to children */
     }
 
     /* Flank Buttons (Shuffle/Settings) */
@@ -92,8 +92,8 @@
     }
 
     :global(.unified-capsule .capsule-flank.btn:hover svg) {
-        fill: var(--app-color);
-        stroke: var(--app-color);
+        fill: var(--font-color);
+        stroke: var(--font-color);
     }
 
     /* Primary Action Button (Begin) */
@@ -142,8 +142,8 @@
         font-weight: 600;
         font-size: var(--font-size-s);
         letter-spacing: 0.05em;
-        color: var(--label-color, var(--app-color));
-        text-shadow: var(--rp-text-shadow);
+        color: var(--label-color, var(--font-color));
+        text-shadow: var(--shadow-font);
         transition: all var(--transition-speed) var(--curve-snappy);
     }
 </style>

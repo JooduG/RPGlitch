@@ -114,7 +114,7 @@
     .content .row .label p {
         margin: 0;
         font-size: var(--font-size-xs);
-        color: var(--app-color);
+        color: var(--font-color);
         font-weight: 700;
         opacity: var(--opacity-l);
         text-transform: uppercase;
@@ -190,7 +190,7 @@
     }
 
     .content .row .field-group .text-area::placeholder {
-        color: var(--app-muted);
+        color: var(--font-muted);
         opacity: 0.5;
         font-style: italic;
     }

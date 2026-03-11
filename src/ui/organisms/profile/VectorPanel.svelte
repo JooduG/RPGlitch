@@ -74,7 +74,7 @@
     .empty-state {
         padding: var(--spacing-m);
         text-align: center;
-        color: var(--app-muted);
+        color: var(--font-muted);
         font-size: var(--font-size-xs);
         font-style: italic;
         opacity: var(--opacity-m);

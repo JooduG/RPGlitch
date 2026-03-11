@@ -148,7 +148,7 @@
     h1:focus-within {
         outline: none;
         background: rgba(var(--pure-white-rgb), var(--opacity-xs));
-        box-shadow: 0 0 0 var(--spacing-xxs) var(--signature-color, var(--color-accent));
+        box-shadow: 0 0 0 var(--spacing-xxs) var(--signature-color, var(--signature-pink));
     }
 
     h1 .title-content {
@@ -158,7 +158,7 @@
 
     h1 .entity-name {
         font-weight: inherit;
-        text-shadow: 0 var(--spacing-px) var(--spacing-xxs) rgba(var(--pure-black-rgb), var(--opacity-s));
+        text-shadow: var(--shadow-font);
         white-space: nowrap;
     }
 </style>

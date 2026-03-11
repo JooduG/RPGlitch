@@ -40,7 +40,7 @@
         text-transform: uppercase;
         letter-spacing: var(--letter-spacing-m);
         font-weight: 600;
-        color: var(--app-muted); /* Zinc 400 */
+        color: var(--font-muted); /* Zinc 400 */
         font-family: var(--font-heading);
     }
 
@@ -48,7 +48,7 @@
         padding: var(--spacing-m);
         flex: 1;
         overflow-y: auto;
-        color: var(--app-color); /* Zinc 300 */
+        color: var(--font-color); /* Zinc 300 */
         font-size: var(--font-size-base);
     }
 </style>

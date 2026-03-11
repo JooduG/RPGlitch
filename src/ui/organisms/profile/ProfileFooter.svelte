@@ -32,7 +32,7 @@
         display: grid;
         grid-template-columns: var(--spacing-xxxl) 1fr;
         gap: var(--spacing-s);
-        background: color-mix(in srgb, var(--glass-m), var(--signature-color) var(--opacity-xs));
+        background: color-mix(in srgb, var(--surface-overlay), var(--signature-color) var(--opacity-xs));
         border-top: 0;
         z-index: 2;
         padding-top: var(--spacing-m);
@@ -65,8 +65,8 @@
 
     footer .footer-actions :global(.btn-danger) {
         background: transparent;
-        border-color: var(--glass-border);
-        color: var(--app-muted);
+        border-color: rgba(var(--pure-white-rgb) / var(--opacity-xxs));
+        color: var(--font-muted);
         box-shadow: none;
         transition: all 0.3s ease;
     }
