@@ -222,8 +222,9 @@ export const PromptEngine = {
         const eternal = entity.eternal?.physical || ""
         let semanticColor = entity.visuals?.colorName || ""
 
-        if (!semanticColor && entity.visuals?.signature_color) {
-            const sigColor = entity.visuals.signature_color
+        if (!semanticColor && (entity.signature_color || entity.visuals?.signature_color)) {
+          const rawSigColor = entity.signature_color || entity.visuals?.signature_color
+          const sigColor = typeof rawSigColor === 'string' ? rawSigColor.replace(/[^\w# ]/g, "").substring(0, 50) : rawSigColor
             const isHex = /^#[0-9A-F]{6}$/i.test(sigColor)
 
             if (isHex) {

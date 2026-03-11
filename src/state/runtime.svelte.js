@@ -25,10 +25,10 @@ function createRuntimeStore() {
 
             // 🎭 Visuals & Voice
             voice: { rate: 1.0, pitch: 1.0 },
+            profile_picture: null, // URL
+            signature_color: "#84cc16", // Default Lime
             visuals: {
-                profile_picture: null, // URL
                 profile_picture_seed: 0, // Used for transition keys
-                signature_color: "#84cc16", // Default Lime
                 no_background: false,
             },
         },
@@ -206,7 +206,7 @@ function createRuntimeStore() {
             const targets = [state.character, state.active_user, state.active_ai, state.active_fractal]
             targets.forEach((t) => {
                 if (t && t.id === entity_id) {
-                    if (new_color) t.visuals.signature_color = new_color
+                    if (new_color) t.signature_color = new_color
                     if (new_seed !== undefined) t.visuals.profile_picture_seed = new_seed
                 }
             })

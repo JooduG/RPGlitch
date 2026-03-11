@@ -46,12 +46,12 @@ export const GeneratorEngine = {
     async cacheImage(entityId, imageData) {
         try {
             await db.entities.update(entityId, {
-                "visuals.profile_picture": imageData,
+                profile_picture: imageData,
                 updatedAt: Date.now(),
             })
 
             await runtime.updateEntity("character", entityId, {
-                visuals: { profile_picture: imageData },
+                profile_picture: imageData,
             })
         } catch (err) {
             console.error("[IMAGE_ENGINE] Caching Failed:", err)
