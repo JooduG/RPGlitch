@@ -35,7 +35,7 @@ describe("ImageGeneration", () => {
         it("should convert known hex codes in signature_color to semantic names", () => {
             const entity = {
                 present: { physical: "robot" },
-                visuals: { signature_color: "#a855f7" }, // Royal Purple in config
+                signature_color: "#a855f7", // Royal Purple in config
             }
 
             const prompt = ImageGeneration.composeBasePrompt(entity)
@@ -45,7 +45,7 @@ describe("ImageGeneration", () => {
         it("should ignore unknown hex codes in signature_color", () => {
             const entity = {
                 present: { physical: "robot" },
-                visuals: { signature_color: "#123456" }, // Unknown hex
+                signature_color: "#123456", // Unknown hex
             }
 
             const prompt = ImageGeneration.composeBasePrompt(entity)
@@ -56,7 +56,7 @@ describe("ImageGeneration", () => {
         it("should use signature_color if it is NOT a hex code and colorName is missing", () => {
             const entity = {
                 present: { physical: "robot" },
-                visuals: { signature_color: "crimson" },
+                signature_color: "crimson",
             }
 
             const prompt = ImageGeneration.composeBasePrompt(entity)
