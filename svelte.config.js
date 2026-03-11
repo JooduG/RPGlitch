@@ -13,11 +13,7 @@ export default {
                     (url) => {
                         if (url.startsWith("@theme/")) {
                             return {
-                                file: path.resolve(
-                                    __dirname,
-                                    "src/theme",
-                                    url.slice(7)
-                                ),
+                                file: path.resolve(__dirname, "src/theme", url.slice(7)),
                             }
                         }
                         return null

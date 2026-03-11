@@ -5,9 +5,11 @@
    ============================================================================ */
 
 :root {
-    /* =================================================
-     SECTION 1: CORE BRAND PALETTE
-     ================================================= */
+    /************************************************************************************
+     * 🧩 [SECTION: CORE BRAND PALETTE]
+     * ----------------------------------------------------------------------------------
+     * The Nordic Collection & Signature Variables
+     ************************************************************************************/
 
     /* Warm Colors */
     --signature-red: #ef4444;
@@ -57,15 +59,19 @@
     --signature-color-gunmetal: var(--gunmetal);
     --signature-color-chalk: var(--chalk);
 
-    /* =================================================
-     SECTION 2: SIGNATURE GRADIENTS
-     ================================================= */
+    /************************************************************************************
+     * 🧩 [SECTION: SIGNATURE GRADIENTS]
+     * ----------------------------------------------------------------------------------
+     * Immersive background and overlay gradients
+     ************************************************************************************/
     --gradient-standard: linear-gradient(135deg, var(--frisk), var(--frozen), var(--gunmetal), var(--chalk));
     --gradient-radial: radial-gradient(var(--frisk), var(--frozen), var(--gunmetal), var(--chalk));
 
-    /* =================================================
-     SECTION 3: CORE SYSTEM COLORS & OPACITY
-     ================================================= */
+    /************************************************************************************
+     * 🧩 [SECTION: CORE SYSTEM COLORS & OPACITY]
+     * ----------------------------------------------------------------------------------
+     * Primitives, semantic mapping, and alpha scaling
+     ************************************************************************************/
     --white: #fff;
     --black: #000;
     --pure-white-rgb: 255 255 255;
@@ -134,17 +140,17 @@
     --bg-input: rgba(var(--pure-black-rgb) / var(--opacity-s));
     --bg-input-focus: rgba(var(--pure-black-rgb) / var(--opacity-m));
 
-    /* =================================================
-     SECTION 5: GLASSMORPHISM & EFFECTS
-     ================================================= */
+    /************************************************************************************
+     * 🧩 [SECTION: GLASSMORPHISM & EFFECTS]
+     * ----------------------------------------------------------------------------------
+     * Surfaces, depth, blurs, and shadows
+     ************************************************************************************/
 
     /* Surfaces & Depth */
     --layer-surface: color-mix(in srgb, var(--gunmetal) 95%, transparent);
     --layer-overlay: rgba(var(--pure-black-rgb) / 0.9);
     --surface-sunken: rgba(var(--pure-black-rgb) / 0.6);
     --surface-overlay: rgba(var(--pure-black-rgb) / 0.5);
-
-
 
     /* Borders & Interaction */
     --glass-border: transparent;
@@ -160,9 +166,11 @@
     --shadow-l: 0 0.5rem 2rem rgba(var(--pure-black-rgb) / var(--opacity-m));
     --rp-text-shadow: 0 0.1rem 0.25rem rgba(var(--pure-black-rgb) / var(--opacity-s));
 
-    /* =================================================
-     SECTION 6: TYPOGRAPHY METRICS
-     ================================================= */
+    /************************************************************************************
+     * 🧩 [SECTION: TYPOGRAPHY METRICS]
+     * ----------------------------------------------------------------------------------
+     * Font families, scales, and line heights
+     ************************************************************************************/
     --font-family-sans: "Inter", system-ui, -apple-system, sans-serif;
     --font-family-heading: "Ubuntu", sans-serif;
     --font-family-mono: "JetBrains Mono", monospace;
@@ -195,9 +203,11 @@
     --breakpoint-tablet: var(--breakpoints-l);
     --breakpoint-desktop: var(--breakpoints-xl);
 
-    /* =================================================
-     SECTION 7: SPACING & LAYOUT
-     ================================================= */
+    /************************************************************************************
+     * 🧩 [SECTION: SPACING & LAYOUT]
+     * ----------------------------------------------------------------------------------
+     * Paddings, radii, breakpoints, grids, and z-indexes
+     ************************************************************************************/
     --spacing-xxs: 0.25rem;
     --spacing-xs: 0.5rem;
     --spacing-s: 0.75rem;

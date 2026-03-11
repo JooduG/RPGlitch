@@ -15,14 +15,6 @@
         "chrome-devtools",
         "stitch"
     ],
-    "standard_tools": [
-        "view_file",
-        "replace_file_content",
-        "run_command",
-        "write_to_file",
-        "grep_search",
-        "find_by_name",
-        "ls"
-    ],
+    "standard_tools": ["view_file", "replace_file_content", "run_command", "write_to_file", "grep_search", "find_by_name", "ls"],
     "validation_command": "node .agent/skills/project/scripts/sync.js"
 }

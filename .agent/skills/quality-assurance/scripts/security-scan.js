@@ -7,14 +7,7 @@ const ROOT_DIR = process.cwd()
 const SRC_DIR = path.join(ROOT_DIR, "src")
 const TOOLS_DIR = path.join(ROOT_DIR, ".agent/tools")
 // const HIGH_ENTROPY_THRESHOLD = 4.5 // Unused
-const SECRET_PATTERNS = [
-    /api[-_]?key/i,
-    /access[-_]?token/i,
-    /secret/i,
-    /password/i,
-    /credential/i,
-    /bearer/i,
-]
+const SECRET_PATTERNS = [/api[-_]?key/i, /access[-_]?token/i, /secret/i, /password/i, /credential/i, /bearer/i]
 
 console.log("🛡️  Warden Security Scan Initiated...")
 
@@ -64,9 +57,7 @@ function auditDependencies() {
             })
             console.log(`     ✅ Secure`)
         } catch (e) {
-            console.warn(
-                `     ⚠️  Vulnerabilities found in ${relPath} (Warning only)`
-            )
+            console.warn(`     ⚠️  Vulnerabilities found in ${relPath} (Warning only)`)
             // errorCount++ // Downgraded to warning for non-critical dependency issues
         }
     })
@@ -95,17 +86,10 @@ function checkHygiene() {
 
                 lines.forEach((line, index) => {
                     const trimmed = line.trim()
-                    if (trimmed.startsWith("//") || trimmed.startsWith("/*"))
-                        return
+                    if (trimmed.startsWith("//") || trimmed.startsWith("/*")) return
 
-                    if (
-                        trimmed.includes("console.log(") ||
-                        trimmed.includes("alert(") ||
-                        trimmed.includes("debugger")
-                    ) {
-                        console.error(
-                            `     ❌ ${path.relative(ROOT_DIR, fullPath)}:${index + 1} - Debug statement found`
-                        )
+                    if (trimmed.includes("console.log(") || trimmed.includes("alert(") || trimmed.includes("debugger")) {
+                        console.error(`     ❌ ${path.relative(ROOT_DIR, fullPath)}:${index + 1} - Debug statement found`)
                         errorCount++
                     }
                 })
@@ -155,16 +139,9 @@ function checkSecrets() {
                         // Very basic heuristic, improved by Shannon entropy if we had it
                         // For now, just warn on specific keywords if they look assignment-like
                         // e.g. "const API_KEY = '...'"
-                        const match = content.match(
-                            new RegExp(
-                                `(const|let|var)\\s+\\w*${pattern.source}\\w*\\s*=\\s*['"\`].+['"\`]`,
-                                "i"
-                            )
-                        )
+                        const match = content.match(new RegExp(`(const|let|var)\\s+\\w*${pattern.source}\\w*\\s*=\\s*['"\`].+['"\`]`, "i"))
                         if (match) {
-                            console.error(
-                                `     ⚠️  Suspicious variable name in ${path.relative(ROOT_DIR, fullPath)}: ${match[0].substring(0, 30)}...`
-                            )
+                            console.error(`     ⚠️  Suspicious variable name in ${path.relative(ROOT_DIR, fullPath)}: ${match[0].substring(0, 30)}...`)
                             // Warnings don't fail the build, but worth noting
                         }
                     }

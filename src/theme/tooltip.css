@@ -1,7 +1,13 @@
 /* ============================================================================
-   BASE: TOOLTIP
+   COMPONENT: TOOLTIP
    Simple declarative tooltips using data-attributes.
    ============================================================================ */
+
+/************************************************************************************
+ * 🧩 [SECTION: TOOLTIP LOGIC]
+ * ----------------------------------------------------------------------------------
+ * Core declarative definitions.
+ ************************************************************************************/
 
 [data-tooltip] {
     position: relative;
@@ -41,31 +47,4 @@
 [data-tooltip]:hover::before,
 [data-tooltip]:hover::after {
     opacity: 1;
-}
-
-.tooltip-popup {
-    border-radius: var(--border-radius);
-    background: var(--layer-surface);
-    box-shadow: var(--shadow-m);
-    position: fixed;
-    z-index: 9999;
-    color: var(--app-color);
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
-    font-weight: 500;
-    pointer-events: auto;
-    opacity: 0;
-    transition:
-        opacity 0.2s ease,
-        transform 0.2s ease;
-    transform: translateY(5px);
-    max-width: 300px;
-    text-align: center;
-    line-height: 1.4;
-    text-wrap: balance;
-}
-
-.tooltip-popup.is-visible {
-    opacity: 1;
-    transform: translateY(0);
 }

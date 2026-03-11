@@ -2,21 +2,5 @@
     "config": {
         "extends": ".markdownlint.json"
     },
-    "ignores": [
-        "**/.git/**",
-        "**/archive/**",
-        "**/node_modules/**",
-        "*.bak",
-        "*.log",
-        "*.resolved",
-        "*.tmp",
-        ".markdownlint.json",
-        "/.DS_Store",
-        "/.agent/skills/scribe/templates/**",
-        "/.npm",
-        "/coverage",
-        "/dist",
-        "libs/**",
-        "llms.md"
-    ]
+    "ignores": ["**/.git/**", "**/archive/**", "**/node_modules/**", "*.bak", "*.log", "*.resolved", "*.tmp", ".markdownlint.json", "/.DS_Store", "/.agent/skills/scribe/templates/**", "/.npm", "/coverage", "/dist", "libs/**", "llms.md"]
 }

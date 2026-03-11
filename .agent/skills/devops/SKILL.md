@@ -2,8 +2,8 @@
 name: devops
 version: 1.0.0
 description: >
-  Build scripts, configuration synchronization, environment checks, and workspace hygiene.
-  Triggers: "Start dev server", "Build for production", "Sync configuration", "Fix environment".
+    Build scripts, configuration synchronization, environment checks, and workspace hygiene.
+    Triggers: "Start dev server", "Build for production", "Sync configuration", "Fix environment".
 ---
 
 # 🛡️ Skill: DevOps & Toolchain (The Mechanic)
@@ -35,13 +35,13 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern | Reasoning |
-| :--- | :--- |
+| Pattern                         | Reasoning                                                                              |
+| :------------------------------ | :------------------------------------------------------------------------------------- |
 | **Manually editing .gitignore** | Forbidden. Sync Logic will overwrite it via sync.js. Edit ignores.master.json instead. |
-| **Ignoring build errors** | Forbidden. Production builds must be clean. |
+| **Ignoring build errors**       | Forbidden. Production builds must be clean.                                            |
 
 ## 6. Tools & Assets
 
-| Tool | Purpose | Source |
-| :--- | :--- | :--- |
+| Tool          | Purpose                         | Source   |
+| :------------ | :------------------------------ | :------- |
 | `run_command` | Execute build and sync scripts. | Terminal |

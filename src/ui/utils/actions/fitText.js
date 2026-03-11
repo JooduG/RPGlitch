@@ -47,11 +47,7 @@ function adjustFontSize(node, maxSize, minSize, lineHeight) {
     // While scrolling (overflowing) and size is above min
     // We check scrollHeight > clientHeight (vertical overflow)
     // Or scrollWidth > clientWidth (horizontal overflow, if no-wrap)
-    while (
-        (node.scrollHeight > node.clientHeight + TOLERANCE ||
-            node.scrollWidth > node.clientWidth + TOLERANCE) &&
-        size > minSize
-    ) {
+    while ((node.scrollHeight > node.clientHeight + TOLERANCE || node.scrollWidth > node.clientWidth + TOLERANCE) && size > minSize) {
         size--
         node.style.fontSize = `${size}px`
     }

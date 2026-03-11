@@ -2,8 +2,8 @@
 name: quality-assurance
 version: 1.0.0
 description: >
-  Testing, security audits, Playwright/Vitest execution, and naming-analyzer enforcement.
-  Triggers: "Run tests", "Audit code", "Security scan", "Audit codebase".
+    Testing, security audits, Playwright/Vitest execution, and naming-analyzer enforcement.
+    Triggers: "Run tests", "Audit code", "Security scan", "Audit codebase".
 ---
 
 # 🛡️ Skill: Quality Assurance (The Warden)
@@ -35,13 +35,13 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern | Reasoning |
-| :--- | :--- |
-| **Marking [x] without PASS status** | Forbidden. Scholar Gate: no task is done without verified test output. |
+| Pattern                                 | Reasoning                                                                        |
+| :-------------------------------------- | :------------------------------------------------------------------------------- |
+| **Marking [x] without PASS status**     | Forbidden. Scholar Gate: no task is done without verified test output.           |
 | **Skipping flushSync() in state tests** | Forbidden. External .svelte.ts state requires flushSync() to propagate in tests. |
 
 ## 6. Tools & Assets
 
-| Tool | Purpose | Source |
-| :--- | :--- | :--- |
+| Tool          | Purpose                              | Source   |
+| :------------ | :----------------------------------- | :------- |
 | `run_command` | npm run test:unit, npm run test:e2e. | Terminal |

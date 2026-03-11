@@ -70,10 +70,7 @@ export function pulse(node) {
     function trigger() {
         if (animation) animation.cancel()
 
-        const keyframes = [
-            { transform: "scale(1)" },
-            { transform: `scale(${PULSE_SCALE})` },
-        ]
+        const keyframes = [{ transform: "scale(1)" }, { transform: `scale(${PULSE_SCALE})` }]
 
         // Fill: forwards to keep it scaled while hovering
         animation = node.animate(keyframes, {
@@ -129,26 +126,20 @@ export function spin(node) {
         // CSS was: transform: rotate(90deg); transition...
 
         // We use WAAPI to rotate to 90deg
-        target.animate(
-            [{ transform: "rotate(0deg)" }, { transform: "rotate(90deg)" }],
-            {
-                duration: SPIN_DURATION,
-                easing: EASE_ELASTIC,
-                fill: "forwards",
-            }
-        )
+        target.animate([{ transform: "rotate(0deg)" }, { transform: "rotate(90deg)" }], {
+            duration: SPIN_DURATION,
+            easing: EASE_ELASTIC,
+            fill: "forwards",
+        })
     }
 
     function reset() {
         const target = getTarget()
-        target.animate(
-            [{ transform: "rotate(90deg)" }, { transform: "rotate(0deg)" }],
-            {
-                duration: SPIN_DURATION,
-                easing: "ease-out",
-                fill: "forwards",
-            }
-        )
+        target.animate([{ transform: "rotate(90deg)" }, { transform: "rotate(0deg)" }], {
+            duration: SPIN_DURATION,
+            easing: "ease-out",
+            fill: "forwards",
+        })
     }
 
     node.addEventListener("mouseenter", trigger)

@@ -31,8 +31,8 @@ const AUDIT = {
 
                 if (stat.isDirectory()) {
                     scanDir(fullPath)
-                } else if (/\.(svelte|scss|css)$/i.test(item)) {
-                    if (item === "tokens.css" || item === "_bridge.scss") continue
+                } else if (/\.(svelte|css)$/i.test(item)) {
+                    if (item === "tokens.css") continue
                     auditFile(fullPath, issues)
                 }
             }

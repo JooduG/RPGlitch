@@ -54,9 +54,7 @@ function checkFile(filePath) {
     lines.forEach((line, i) => {
         BANNED.forEach((rule) => {
             if (rule.regex.test(line)) {
-                console.log(
-                    `${RED}[VIOLATION] ${path.relative(ROOT_DIR, filePath)}:${i + 1}${RESET}`
-                )
+                console.log(`${RED}[VIOLATION] ${path.relative(ROOT_DIR, filePath)}:${i + 1}${RESET}`)
                 console.log(`  ${rule.msg}`)
                 console.log(`  Code: ${line.trim()}\n`)
             }

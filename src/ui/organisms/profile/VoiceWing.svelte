@@ -1,53 +1,9 @@
 <script>
     import { Audio } from "@media/audio.js"
-    import Tooltip from "@ui/atoms/Tooltip.svelte"
 
     let { char = $bindable(), is_editing } = $props()
 
     let show_voice_dropdown = $state(false)
-    let hovered_slider = $state(null) // "rate" or "pitch"
-    let active_slider = $state(null)
-
-    // Refs & Tooltip State
-    let rate_input = $state()
-    let pitch_input = $state()
-    let rate_x = $state(null)
-    let pitch_x = $state(null)
-
-    // Global release handler for sliders
-    function handle_global_up() {
-        active_slider = null
-    }
-
-    // Dynamic Tooltip Positioning
-    function update_tooltip_x(type) {
-        const el = type === "rate" ? rate_input : pitch_input
-        const val = type === "rate" ? char.voice.rate : char.voice.pitch
-        if (!el) return
-
-        const min = parseFloat(el.min)
-        const max = parseFloat(el.max)
-        const ratio = (val - min) / (max - min)
-
-        // CSS Logic: Input Width = calc(100% - 4px). Margin 0 auto.
-        // The Tooltip is relative to .slider-group (parent).
-        // Input offsetLeft should account for the auto margin.
-        const width = el.clientWidth
-        const thumbWidth = 12
-        const trackWidth = width - thumbWidth
-        const thumbPos = ratio * trackWidth + thumbWidth / 2
-
-        const pos = el.offsetLeft + thumbPos
-
-        if (type === "rate") rate_x = pos
-        else pitch_x = pos
-    }
-
-    // Watch for value changes
-    $effect(() => {
-        update_tooltip_x("rate")
-        update_tooltip_x("pitch")
-    })
 
     // Voice metadata
     const selected_voice = $derived(Audio.voice.voices.find((v) => v.uri === char.voice.uri))
@@ -89,57 +45,12 @@
         <button class="preview-btn" type="button" title="Preview Voice" disabled={!is_editing || !char.voice.uri} onclick={() => Audio.voice.preview(char.voice.uri, char.voice.rate, char.voice.pitch)}> 🔊 </button>
     </div>
 
-    <div class="sliders" onpointerup={handle_global_up}>
-        <div
-            class="slider-group"
-            onmouseenter={() => {
-                hovered_slider = "rate"
-                update_tooltip_x("rate")
-            }}
-            onmouseleave={() => (hovered_slider = null)}
-            role="presentation"
-        >
-            <Tooltip text={`Rate: ${char.voice.rate.toFixed(1)}x`} visible={hovered_slider === "rate" || active_slider === "rate"} x={rate_x} />
-            <input
-                bind:this={rate_input}
-                type="range"
-                min="0.5"
-                max="2.0"
-                step="0.1"
-                bind:value={char.voice.rate}
-                disabled={!is_editing}
-                onpointerdown={() => {
-                    active_slider = "rate"
-                    update_tooltip_x("rate")
-                }}
-                oninput={() => update_tooltip_x("rate")}
-            />
+    <div class="sliders">
+        <div class="slider-group" data-tooltip={`Rate: ${char.voice.rate.toFixed(1)}x`}>
+            <input type="range" min="0.5" max="2.0" step="0.1" bind:value={char.voice.rate} disabled={!is_editing} />
         </div>
-        <div
-            class="slider-group"
-            class:locked={is_natural_voice}
-            onmouseenter={() => {
-                hovered_slider = "pitch"
-                update_tooltip_x("pitch")
-            }}
-            onmouseleave={() => (hovered_slider = null)}
-            role="presentation"
-        >
-            <Tooltip text={is_natural_voice ? "Pitch locked: Natural voices ignore manual pitch adjustments" : `Pitch: ${char.voice.pitch.toFixed(1)}`} visible={hovered_slider === "pitch" || active_slider === "pitch"} x={pitch_x} />
-            <input
-                bind:this={pitch_input}
-                type="range"
-                min="0.5"
-                max="2.0"
-                step="0.1"
-                bind:value={char.voice.pitch}
-                disabled={!is_editing || is_natural_voice}
-                onpointerdown={() => {
-                    active_slider = "pitch"
-                    update_tooltip_x("pitch")
-                }}
-                oninput={() => update_tooltip_x("pitch")}
-            />
+        <div class="slider-group" class:locked={is_natural_voice} data-tooltip={is_natural_voice ? "Locked (Natural Voice)" : `Pitch: ${char.voice.pitch.toFixed(1)}`}>
+            <input type="range" min="0.5" max="2.0" step="0.1" bind:value={char.voice.pitch} disabled={!is_editing || is_natural_voice} />
         </div>
     </div>
 </div>

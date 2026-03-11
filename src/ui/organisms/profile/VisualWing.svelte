@@ -12,7 +12,6 @@
     import { app } from "@state/app.svelte.js"
     import Button from "@ui/atoms/Button.svelte"
     import Toggle from "@ui/atoms/Toggle.svelte"
-    import Tooltip from "@ui/atoms/Tooltip.svelte"
 
     /* eslint-disable svelte/prefer-svelte-reactivity */
     let { char = $bindable(), is_editing, busy_fields = $bindable(), active_field = $bindable() } = $props()
@@ -27,16 +26,6 @@
     let is_prompt_busy = $derived(busy_fields.has("visual-prompt"))
 
     let file_input = $state()
-
-    // Tooltip State
-    let curr_tooltip = $state({
-        visible: false,
-        text: "",
-        x: 0,
-        y: 0,
-        position: "top",
-    })
-    let tooltip_timer = null
 
     // Determine current state
     const prompt_value = $derived((char.visuals.prompt || "").trim())
@@ -162,29 +151,6 @@
         }
     }
 
-    function handle_swatch_hover(e, name) {
-        if (tooltip_timer) clearTimeout(tooltip_timer)
-        const target = e.currentTarget
-
-        tooltip_timer = setTimeout(() => {
-            const rect = target.getBoundingClientRect()
-            const display_name = name.charAt(0).toUpperCase() + name.slice(1)
-
-            curr_tooltip = {
-                visible: true,
-                text: display_name,
-                x: rect.left + rect.width / 2,
-                y: rect.top + 8,
-                position: "top",
-            }
-        }, 500)
-    }
-
-    function handle_swatch_leave() {
-        if (tooltip_timer) clearTimeout(tooltip_timer)
-        curr_tooltip.visible = false
-    }
-
     function get_value(obj, path) {
         if (!path) return ""
         return path.split(".").reduce((acc, part) => acc && acc[part], obj) || ""
@@ -245,8 +211,7 @@
                         char.signature_color = hex
                     }}
                     disabled={!is_editing}
-                    onmouseenter={(e) => handle_swatch_hover(e, name)}
-                    onmouseleave={handle_swatch_leave}
+                    data-tooltip={name.charAt(0).toUpperCase() + name.slice(1)}
                 ></button>
             {/each}
         </div>
@@ -300,7 +265,6 @@
         <Toggle label="No Background" bind:value={char.visuals.noBackground} disabled={!is_editing} />
         <Toggle label="Flip Profile Picture" bind:value={char.visuals.flipped} disabled={!is_editing} />
     </div>
-    <Tooltip {...curr_tooltip} fixed={true} />
 </div>
 
 <style>

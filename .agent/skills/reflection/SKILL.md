@@ -2,8 +2,8 @@
 name: reflection
 version: 1.0.0
 description: >
-  Metacognition, sequential thinking, logic arbitration (Cortex). The slow-thinking executor.
-  Triggers: "Resolve Logic Conflict", "Architectural Decision", "Verify Hypothesis", "Context: [Reflection]".
+    Metacognition, sequential thinking, logic arbitration (Cortex). The slow-thinking executor.
+    Triggers: "Resolve Logic Conflict", "Architectural Decision", "Verify Hypothesis", "Context: [Reflection]".
 ---
 
 # 🛡️ Skill: Reflection & Cognition (The Strategist)
@@ -34,14 +34,14 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern | Reasoning |
-| :--- | :--- |
+| Pattern                                     | Reasoning                                                    |
+| :------------------------------------------ | :----------------------------------------------------------- |
 | **Skipping Clarity Gate for complex tasks** | Forbidden. All C2+ tasks require ambiguity assessment first. |
-| **Guessing at A3+ ambiguity** | Forbidden. Propose or present options; never assume intent. |
+| **Guessing at A3+ ambiguity**               | Forbidden. Propose or present options; never assume intent.  |
 
 ## 6. Tools & Assets
 
-| Tool | Purpose | Source |
-| :--- | :--- | :--- |
-| `mcp-sequentialthinking` | Step-by-step logic tracing. | MCP |
+| Tool                         | Purpose                               | Source   |
+| :--------------------------- | :------------------------------------ | :------- |
+| `mcp-sequentialthinking`     | Step-by-step logic tracing.           | MCP      |
 | `waldzell-scientific-method` | Root-cause analysis for complex bugs. | Waldzell |

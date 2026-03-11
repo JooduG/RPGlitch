@@ -2,8 +2,8 @@
 name: data
 version: 1.0.0
 description: >
-  Manages IndexedDB persistence, hydration, and schema validation. The bridge between state and disk.
-  Triggers: "Implement Save Logic", "Debug Hydration", "Define Schema", "src/data/**".
+    Manages IndexedDB persistence, hydration, and schema validation. The bridge between state and disk.
+    Triggers: "Implement Save Logic", "Debug Hydration", "Define Schema", "src/data/**".
 ---
 
 # 🛡️ Skill: Data & Persistence (The Steward)
@@ -35,11 +35,11 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern | Reasoning |
-| :--- | :--- |
-| **Direct db.put() in template** | Forbidden. All persistence goes through bridge.js methods to maintain Church & State. |
-| **localStorage / sessionStorage** | Forbidden. Perchance framework intercept issues; use Dexie.js exclusively. |
+| Pattern                           | Reasoning                                                                             |
+| :-------------------------------- | :------------------------------------------------------------------------------------ |
+| **Direct db.put() in template**   | Forbidden. All persistence goes through bridge.js methods to maintain Church & State. |
+| **localStorage / sessionStorage** | Forbidden. Perchance framework intercept issues; use Dexie.js exclusively.            |
 
 ## 6. Tools & Assets
 
-*No specialized tools assigned currently.*
+_No specialized tools assigned currently._

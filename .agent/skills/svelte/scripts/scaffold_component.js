@@ -39,9 +39,7 @@ const scaffold = (name, type = "atoms") => {
 
     // Read Template
     const templatePath = path.join(TEMPLATE_DIR, "COMPONENT.svelte")
-    let content = fs.existsSync(templatePath)
-        ? fs.readFileSync(templatePath, "utf-8")
-        : `<script>let { children } = $props();</script><h1>${componentName}</h1>`
+    let content = fs.existsSync(templatePath) ? fs.readFileSync(templatePath, "utf-8") : `<script>let { children } = $props();</script><h1>${componentName}</h1>`
 
     // Hydrate Template
     content = content.replace(/PropName/g, componentName)

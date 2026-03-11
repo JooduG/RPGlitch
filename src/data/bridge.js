@@ -8,9 +8,7 @@ class PerchanceBridge {
     constructor() {
         this._mockMode = typeof window === "undefined" || !window.oc
         if (this._mockMode) {
-            console.warn(
-                "[Security:Bridge] Native 'oc' object not found. Running in Mock Mode."
-            )
+            console.warn("[Security:Bridge] Native 'oc' object not found. Running in Mock Mode.")
         }
     }
 
@@ -30,8 +28,7 @@ class PerchanceBridge {
         if (this._mockMode) {
             return {
                 name: "Mock User",
-                description:
-                    "A phantom entity manifested for testing purposes.",
+                description: "A phantom entity manifested for testing purposes.",
             }
         }
         return {
@@ -57,10 +54,7 @@ class PerchanceBridge {
         try {
             window.oc.thread.on(event, callback)
         } catch (err) {
-            console.error(
-                `[Security:Bridge] Failed to attach listener for '${event}':`,
-                err
-            )
+            console.error(`[Security:Bridge] Failed to attach listener for '${event}':`, err)
         }
     }
 

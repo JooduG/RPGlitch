@@ -45,8 +45,9 @@ Define the Clarity Gate constraints specific to this skill.
 
 | Pattern                                             | Reasoning                                                                                                            |
 | :-------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------- |
-| **Using `<style lang="scss">`**                     | Violates the Church & State protocol. Components must be completely isolated and rely only on global CSS variables.  |
-| **Hardcoding visual values (e.g., `#333`, `14px`)** | Bypasses the design system. All styling must use the standardized `var(--token)` dictionary.                         |
+| **Using `<style lang="scss">` or importing SCSS**   | Violates Church & State. Components MUST NOT import SCSS variables; use global CSS variables defined in `:root`.     |
+| **Inline Styles (`style="..."`)**                   | Prohibited by the modern CSS rules constraint.                                                                       |
+| **Hardcoding visual values (e.g., `#333`, `14px`)** | Bypasses the design system. Hardcoded hex is permitted ONLY in `src/theme/tokens.css`.                               |
 | **Writing custom a11y/keyboard logic**              | Reinvents the wheel and risks accessibility failures. Must use Bits UI headless components for interactive elements. |
 | **Using JSDOM for Svelte 5 tests**                  | Deprecated. Use vitest-browser-svelte for true Rune reactivity.                                                      |
 | **Legacy syntax (export let)**                      | Violates modern Svelte 5 Runes constraints.                                                                          |

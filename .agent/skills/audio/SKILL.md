@@ -2,8 +2,8 @@
 name: audio
 version: 1.0.0
 description: >
-  Owns sound effects (SFX), ambient tracks, and Text-to-Speech (TTS) logic.
-  Triggers: "Add sound", "Fix audio", "Speech synthesis", "src/media/audio/**".
+    Owns sound effects (SFX), ambient tracks, and Text-to-Speech (TTS) logic.
+    Triggers: "Add sound", "Fix audio", "Speech synthesis", "src/media/audio/**".
 ---
 
 # 🛡️ Skill: Audio & Acoustics (The Acoustic Engineer)
@@ -35,11 +35,11 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern | Reasoning |
-| :--- | :--- |
+| Pattern                      | Reasoning                                                                                   |
+| :--------------------------- | :------------------------------------------------------------------------------------------ |
 | **Autoplay without gesture** | Forbidden. Browsers block autoplay; always require user interaction to unlock AudioContext. |
-| **Orphaned AudioContext** | Forbidden. Always `.close()` or `.suspend()` on component destroy via `$effect` cleanup. |
+| **Orphaned AudioContext**    | Forbidden. Always `.close()` or `.suspend()` on component destroy via `$effect` cleanup.    |
 
 ## 6. Tools & Assets
 
-*No specialized tools assigned currently.*
+_No specialized tools assigned currently._

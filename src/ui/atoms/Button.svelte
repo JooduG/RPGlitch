@@ -51,9 +51,142 @@
 </button>
 
 <style>
-    /* 
-     STRICT RULE: No local styles here. 
-     All standard button styles live in src/theme/components.css
-     This ensures a single source of truth for the design system.
-  */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-xs);
+        padding: var(--spacing-xs) var(--spacing-m);
+        min-height: var(--spacing-xxl);
+        font-family: inherit;
+        font-weight: var(--font-bold);
+        font-size: var(--font-size-s);
+        line-height: 1;
+        text-decoration: none;
+        cursor: pointer;
+        pointer-events: auto;
+        border: none;
+        border-radius: var(--border-radius);
+        background: transparent;
+        color: var(--app-color);
+        transition: all var(--transition-speed, 0.2s) ease-out;
+    }
+
+    .btn.btn-sm {
+        min-height: var(--spacing-xl);
+        padding: var(--spacing-xxs) var(--spacing-s);
+        font-size: var(--font-size-xs);
+    }
+
+    .btn:hover:not(:disabled, .disabled) {
+        transform: translateY(var(--physics-btn-hover-y));
+        filter: brightness(1.1);
+    }
+
+    .btn:active:not(:disabled, .disabled) {
+        transform: scale(var(--physics-btn-active-scale));
+    }
+
+    .btn:disabled,
+    .btn.disabled {
+        opacity: var(--opacity-disabled);
+        cursor: not-allowed;
+        filter: grayscale(1);
+        pointer-events: none;
+        transform: none;
+        transition: none;
+        box-shadow: none;
+    }
+
+    .btn :global(.icon) {
+        pointer-events: none;
+        transition: transform 0.2s var(--physics-transition-elastic);
+    }
+
+    .btn:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px var(--frisk);
+    }
+
+    /* Variants */
+    .btn-primary {
+        background: var(--frisk);
+        color: var(--black);
+        box-shadow: var(--shadow-m);
+    }
+    .btn-primary:hover:not(:disabled, .disabled) {
+        background: color-mix(in srgb, var(--frisk), white 5%);
+    }
+
+    .btn-ghost {
+        color: var(--app-muted);
+    }
+    .btn-ghost:hover:not(:disabled, .disabled) {
+        background: rgb(255 255 255 / var(--opacity-xxs));
+        color: var(--app-color);
+    }
+
+    .btn-outline {
+        background: rgb(255 255 255 / 0.03);
+        color: var(--app-muted);
+    }
+    .btn-outline:hover:not(:disabled, .disabled) {
+        color: var(--frisk);
+        background: rgb(255 255 255 / var(--opacity-xxs));
+    }
+
+    .btn-glass {
+        background: var(--glass-m);
+        backdrop-filter: blur(8px);
+        color: var(--white);
+    }
+    .btn-glass:hover:not(:disabled, .disabled) {
+        background: rgb(255 255 255 / 0.1);
+    }
+
+    .btn-secondary {
+        background: rgb(255 255 255 / var(--opacity-xs));
+        color: var(--app-color);
+    }
+    .btn-secondary:hover:not(:disabled, .disabled) {
+        background: rgb(255 255 255 / var(--opacity-s));
+    }
+
+    .btn-security {
+        background: var(--bg-component);
+        color: var(--app-color);
+        box-shadow: 0 0 0 1px var(--frisk);
+    }
+    .btn-security:hover:not(:disabled, .disabled) {
+        box-shadow:
+            0 0 15px rgb(255 255 255 / var(--opacity-xxs)),
+            0 0 0 1px var(--app-color);
+    }
+
+    /* Shapes */
+    .btn-round {
+        border-radius: var(--border-radius-full);
+        padding: 0;
+        width: var(--spacing-xxl);
+        height: var(--spacing-xxl);
+    }
+
+    /* Button Groups Support (using :global to catch parent containers) */
+    :global(.btn-group-joined) .btn {
+        border-radius: 0;
+    }
+    :global(.btn-group-joined) .btn:first-child {
+        border-radius: var(--border-radius) 0 0 var(--border-radius);
+    }
+    :global(.btn-group-joined) .btn:last-child {
+        border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    }
+    :global(.btn-group-joined) .btn:not(:last-child) {
+        border-right: 1px solid rgb(0 0 0 / var(--opacity-xs));
+    }
+
+    :global(.btn-group-pill) .btn {
+        border-radius: var(--border-radius-full);
+        min-height: var(--spacing-xl);
+    }
 </style>

@@ -2,8 +2,8 @@
 name: visuals
 version: 1.0.0
 description: >
-  Owns image generation, Perchance prompts, and external visual asset management.
-  Triggers: "Generate image", "Render character", "Fix aesthetic", "src/media/images/**".
+    Owns image generation, Perchance prompts, and external visual asset management.
+    Triggers: "Generate image", "Render character", "Fix aesthetic", "src/media/images/**".
 ---
 
 # 🛡️ Skill: Visuals & Imagery (The Illustrator)
@@ -34,12 +34,12 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern | Reasoning |
-| :--- | :--- |
+| Pattern                                         | Reasoning                                                            |
+| :---------------------------------------------- | :------------------------------------------------------------------- |
 | **Hotlinking external random un-cached images** | Volatile. Always cache generated imagery locally or use stable CDNs. |
 
 ## 6. Tools & Assets
 
-| Tool | Purpose | Source |
-| :--- | :--- | :--- |
+| Tool             | Purpose                        | Source      |
+| :--------------- | :----------------------------- | :---------- |
 | `generate_image` | Generate UI mockups or assets. | default_api |

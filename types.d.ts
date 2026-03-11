@@ -11,40 +11,16 @@ declare global {
     // =========================================================================
     interface Window {
         /** Perchance AI text generation */
-        ai: (
-            prompt: string,
-            options?: Record<string, unknown>
-        ) => Promise<string>
+        ai: (prompt: string, options?: Record<string, unknown>) => Promise<string>
         /** Perchance image generation */
-        textToImage: (
-            prompt: string,
-            options?: Record<string, unknown>
-        ) => Promise<any>
+        textToImage: (prompt: string, options?: Record<string, unknown>) => Promise<any>
         /** Alias for textToImage matching the plugin export */
-        pluginTextToImage: (options: {
-            prompt: string
-            negativePrompt?: string
-            seed?: number
-            width?: number
-            height?: number
-        }) => Promise<any>
-        t2i: (options: {
-            prompt: string
-            negativePrompt?: string
-            seed?: number
-            width?: number
-            height?: number
-        }) => Promise<string>
+        pluginTextToImage: (options: { prompt: string; negativePrompt?: string; seed?: number; width?: number; height?: number }) => Promise<any>
+        t2i: (options: { prompt: string; negativePrompt?: string; seed?: number; width?: number; height?: number }) => Promise<string>
         /** Perchance file upload */
-        upload: (
-            data: unknown,
-            options?: Record<string, unknown>
-        ) => Promise<any>
+        upload: (data: unknown, options?: Record<string, unknown>) => Promise<any>
         /** Alias for upload matching the plugin export */
-        pluginUpload: (
-            data: unknown,
-            options?: Record<string, unknown>
-        ) => Promise<any>
+        pluginUpload: (data: unknown, options?: Record<string, unknown>) => Promise<any>
         /** Perchance lists/data access */
         oc: {
             characters?: unknown[]
@@ -70,10 +46,7 @@ declare global {
         Dexie: typeof Dexie
         /** DOMPurify global */
         DOMPurify: {
-            sanitize: (
-                input: string,
-                config?: Record<string, unknown>
-            ) => string
+            sanitize: (input: string, config?: Record<string, unknown>) => string
         }
         /** WebKit Audio Context (Safari) */
         webkitAudioContext: typeof AudioContext

@@ -2,8 +2,8 @@
 name: strategy
 version: 1.0.0
 description: >
-  Incorporates 10x product thinking, high-leverage product decisions, and proactive feature planning.
-  Triggers: "Find 10x product opportunities", "High-leverage improvements", "Suggest a feature".
+    Incorporates 10x product thinking, high-leverage product decisions, and proactive feature planning.
+    Triggers: "Find 10x product opportunities", "High-leverage improvements", "Suggest a feature".
 ---
 
 # 🛡️ Skill: Product Strategy (The Visionary)
@@ -33,12 +33,12 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern | Reasoning |
-| :--- | :--- |
+| Pattern                        | Reasoning                                                                     |
+| :----------------------------- | :---------------------------------------------------------------------------- |
 | **Proposing 6-month rewrites** | Avoid. Strategy should focus on high ROI (Return on Investment) improvements. |
 
 ## 6. Tools & Assets
 
-| Tool | Purpose | Source |
-| :--- | :--- | :--- |
+| Tool                          | Purpose                   | Source       |
+| :---------------------------- | :------------------------ | :----------- |
 | `waldzell-decision-framework` | Evaluate ROI of features. | Waldzell MCP |

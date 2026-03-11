@@ -2,8 +2,8 @@
 name: scribe
 version: 1.0.0
 description: >
-  Maintains the semantic rules, capabilities (skill-creator), and ensures documentation integrity.
-  Triggers: "Create a new skill", "Scaffold rule", "Audit documentation coverage", "Update project canon".
+    Maintains the semantic rules, capabilities (skill-creator), and ensures documentation integrity.
+    Triggers: "Create a new skill", "Scaffold rule", "Audit documentation coverage", "Update project canon".
 ---
 
 # 🛡️ Skill: The System Librarian (The Librarian)
@@ -34,11 +34,11 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern | Reasoning |
-| :--- | :--- |
-| **Using Personas/Job Titles** | Forbidden. Use Domain names for skills (e.g., Svelte, Data), not "Wizard" or "Architect". |
-| **Oversized Skill Files (> 500 lines)** | Avoid. The Lean Rule requires splitting monolithic skills for agent comprehension. |
+| Pattern                                 | Reasoning                                                                                 |
+| :-------------------------------------- | :---------------------------------------------------------------------------------------- |
+| **Using Personas/Job Titles**           | Forbidden. Use Domain names for skills (e.g., Svelte, Data), not "Wizard" or "Architect". |
+| **Oversized Skill Files (> 500 lines)** | Avoid. The Lean Rule requires splitting monolithic skills for agent comprehension.        |
 
 ## 6. Tools & Assets
 
-*No specialized tools assigned currently.*
+_No specialized tools assigned currently._

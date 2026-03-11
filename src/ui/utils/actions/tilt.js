@@ -71,8 +71,7 @@ export function tilt(node, options = {}) {
             // Restore ONLY transform transition for the snap-back
             node.style.transitionProperty = "transform"
             node.style.transitionDuration = `${settings.speed}ms`
-            node.style.transitionTimingFunction =
-                "cubic-bezier(.03,.98,.52,.99)"
+            node.style.transitionTimingFunction = "cubic-bezier(.03,.98,.52,.99)"
 
             node.style.transform = `perspective(${settings.perspective}px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`
         }

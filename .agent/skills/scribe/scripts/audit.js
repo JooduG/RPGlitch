@@ -22,8 +22,7 @@ const auditRules = [
             const hasDesc = /description:\s+\S+/.test(content)
             return hasName && hasVersion && hasDesc
         },
-        message:
-            "Missing 'name', 'version' (X.Y.Z), or 'description' in frontmatter.",
+        message: "Missing 'name', 'version' (X.Y.Z), or 'description' in frontmatter.",
     },
     {
         name: "Anti-Patterns Table",
@@ -32,8 +31,7 @@ const auditRules = [
             const hasTable = /\|\s+Pattern\s+\|\s+Mitigation\s+\|/.test(content)
             return hasHeading && hasTable
         },
-        message:
-            "Missing '## Anti-Patterns' heading (allow numbers like ## 3. Anti-Patterns) or the required table | Pattern | Mitigation |.",
+        message: "Missing '## Anti-Patterns' heading (allow numbers like ## 3. Anti-Patterns) or the required table | Pattern | Mitigation |.",
     },
     {
         name: "Path Headers",
@@ -46,15 +44,11 @@ const auditRules = [
                 if (line.startsWith("```")) {
                     if (!insideBlock) {
                         insideBlock = true
-                        const isExempt =
-                            line.includes("bash") || line.includes("mermaid")
+                        const isExempt = line.includes("bash") || line.includes("mermaid")
                         if (!isExempt) {
                             const prevLine = lines[i - 1] || ""
                             const prevPrevLine = lines[i - 2] || ""
-                            if (
-                                !prevLine.includes("File:") &&
-                                !prevPrevLine.includes("File:")
-                            ) {
+                            if (!prevLine.includes("File:") && !prevPrevLine.includes("File:")) {
                                 pass = false
                                 break
                             }
@@ -66,15 +60,13 @@ const auditRules = [
             }
             return pass
         },
-        message:
-            "Code blocks (except bash/mermaid) MUST be preceded by 'File: <path>'.",
+        message: "Code blocks (except bash/mermaid) MUST be preceded by 'File: <path>'.",
     },
 ]
 
 function auditSkill(slug) {
     const skillPath = path.join(SKILL_ROOT, slug, "SKILL.md")
-    if (!fs.existsSync(skillPath))
-        return { valid: false, issues: ["Missing SKILL.md"] }
+    if (!fs.existsSync(skillPath)) return { valid: false, issues: ["Missing SKILL.md"] }
 
     const content = fs.readFileSync(skillPath, "utf8")
     const issues = []
@@ -114,9 +106,7 @@ function run() {
         }
     })
 
-    console.log(
-        `\nAudit Complete: ${skills.length - failCount}/${skills.length} skills compliant.`
-    )
+    console.log(`\nAudit Complete: ${skills.length - failCount}/${skills.length} skills compliant.`)
     if (failCount > 0) process.exit(1)
 }
 

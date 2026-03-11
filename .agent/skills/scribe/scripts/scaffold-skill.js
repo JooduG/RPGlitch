@@ -7,35 +7,21 @@ const __dirname = path.dirname(__filename)
 
 const SKILL_ROOT = path.join(".agent", "skills")
 const TEMPLATE_PATH = path.join(__dirname, "../templates/SKILL.md")
-const ALLOWED_FOLDERS = [
-    "knowledge",
-    "scripts",
-    "templates",
-    "docs",
-    "tests",
-    "examples",
-]
+const ALLOWED_FOLDERS = ["knowledge", "scripts", "templates", "docs", "tests", "examples"]
 
 const toKebabCase = (str) =>
     str
-        .match(
-            /[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g
-        )
+        .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)
         .map((x) => x.toLowerCase())
         .join("-")
-const titleCase = (str) =>
-    str.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
+const titleCase = (str) => str.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
 
 function createSkill(name, description = "New agentic skill.") {
     const slug = toKebabCase(name)
     const targetDir = path.join(SKILL_ROOT, slug)
 
-    if (fs.existsSync(targetDir))
-        return console.error(`❌ FAIL: Skill '${slug}' already exists.`)
-    if (!fs.existsSync(TEMPLATE_PATH))
-        return console.error(
-            `❌ CRITICAL: Template missing at ${TEMPLATE_PATH}`
-        )
+    if (fs.existsSync(targetDir)) return console.error(`❌ FAIL: Skill '${slug}' already exists.`)
+    if (!fs.existsSync(TEMPLATE_PATH)) return console.error(`❌ CRITICAL: Template missing at ${TEMPLATE_PATH}`)
 
     let content = fs
         .readFileSync(TEMPLATE_PATH, "utf8")
@@ -54,13 +40,11 @@ function verifySkill(name) {
     const skillFile = path.join(targetDir, "SKILL.md")
     const issues = []
 
-    if (name !== toKebabCase(name))
-        issues.push(`Naming: '${name}' should be '${toKebabCase(name)}'`)
+    if (name !== toKebabCase(name)) issues.push(`Naming: '${name}' should be '${toKebabCase(name)}'`)
     if (!fs.existsSync(skillFile)) issues.push("Missing SKILL.md")
     else {
         const content = fs.readFileSync(skillFile, "utf8")
-        if (!content.includes("description:"))
-            issues.push("Metadata: Missing 'description'")
+        if (!content.includes("description:")) issues.push("Metadata: Missing 'description'")
     }
 
     if (fs.existsSync(targetDir)) {
@@ -70,9 +54,7 @@ function verifySkill(name) {
                     issues.push(`Architecture: Illegal folder '${item.name}/'`)
                 }
             } else if (item.isFile() && item.name !== "SKILL.md") {
-                issues.push(
-                    `Architecture: Illegal file '${item.name}' (Move to scripts/ or docs/)`
-                )
+                issues.push(`Architecture: Illegal file '${item.name}' (Move to scripts/ or docs/)`)
             }
         })
     }
@@ -90,11 +72,7 @@ function auditAll() {
     skills.forEach((name) => {
         const { valid, issues } = verifySkill(name)
         const color = valid ? "\x1b[32m" : "\x1b[31m"
-        console.log(
-            `${name.padEnd(30)} | ${color}${
-                valid ? "PASS" : "FAIL"
-            }\x1b[0m | ${issues.join(", ")}`
-        )
+        console.log(`${name.padEnd(30)} | ${color}${valid ? "PASS" : "FAIL"}\x1b[0m | ${issues.join(", ")}`)
         if (valid) validCount++
     })
 
@@ -105,7 +83,4 @@ function auditAll() {
 const [, , command, ...args] = process.argv
 if (command === "create") createSkill(args[0], args[1])
 else if (command === "audit") auditAll()
-else
-    console.log(
-        "Usage: node scaffold-skill.js [create|audit] [name] [description]"
-    )
+else console.log("Usage: node scaffold-skill.js [create|audit] [name] [description]")

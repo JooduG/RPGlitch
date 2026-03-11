@@ -2,8 +2,8 @@
 name: research
 version: 1.0.0
 description: >
-  Deep local search, external MCP tools, and library documentation lookups.
-  Triggers: "Search the web", "Find documentation", "Locate file", "Check source code".
+    Deep local search, external MCP tools, and library documentation lookups.
+    Triggers: "Search the web", "Find documentation", "Locate file", "Check source code".
 ---
 
 # 🛡️ Skill: Deep Research (The Investigator)
@@ -34,15 +34,15 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern | Reasoning |
-| :--- | :--- |
+| Pattern                            | Reasoning                                                              |
+| :--------------------------------- | :--------------------------------------------------------------------- |
 | **Web search before local lookup** | Forbidden. Always follow Tiered Sourcing: Local -> Specialized -> Web. |
-| **Dumping raw JSON/HTML** | Forbidden. Synthesize and cite; never paste unprocessed tool output. |
+| **Dumping raw JSON/HTML**          | Forbidden. Synthesize and cite; never paste unprocessed tool output.   |
 
 ## 6. Tools & Assets
 
-| Tool | Purpose | Source |
-| :--- | :--- | :--- |
-| `mcp_context7` | Query library documentation. | Context7 MCP |
-| `mcp_deepwiki` | Read GitHub repositories and wikis. | DeepWiki MCP |
-| `mcp_firecrawl` | Web search and scraping. | Firecrawl MCP |
+| Tool            | Purpose                             | Source        |
+| :-------------- | :---------------------------------- | :------------ |
+| `mcp_context7`  | Query library documentation.        | Context7 MCP  |
+| `mcp_deepwiki`  | Read GitHub repositories and wikis. | DeepWiki MCP  |
+| `mcp_firecrawl` | Web search and scraping.            | Firecrawl MCP |

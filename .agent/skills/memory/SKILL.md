@@ -2,8 +2,8 @@
 name: memory
 version: 1.0.0
 description: >
-  Governance of Long-Term Semantic Memory (Pinecone) and persistent architectural patterns (Scholar).
-  Triggers: "Recall [Topic]", "What is our pattern for [X]?", "Save this decision", "Ingest [File]".
+    Governance of Long-Term Semantic Memory (Pinecone) and persistent architectural patterns (Scholar).
+    Triggers: "Recall [Topic]", "What is our pattern for [X]?", "Save this decision", "Ingest [File]".
 ---
 
 # 🛡️ Skill: Persistent Memory (The Archivist)
@@ -34,14 +34,14 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern | Reasoning |
-| :--- | :--- |
+| Pattern                                      | Reasoning                                                                            |
+| :------------------------------------------- | :----------------------------------------------------------------------------------- |
 | **Using memory to read specific code files** | Forbidden. Use research for file reading. Memory is for concepts and decisions only. |
-| **Inventing memories** | Forbidden. If no match is found, state so and fall back to research. |
+| **Inventing memories**                       | Forbidden. If no match is found, state so and fall back to research.                 |
 
 ## 6. Tools & Assets
 
-| Tool | Purpose | Source |
-| :--- | :--- | :--- |
-| `read_knowledge_base` | Recall concepts from Pinecone. | Memory MCP |
-| `write_knowledge_base` | Save concepts to Pinecone. | Memory MCP |
+| Tool                   | Purpose                        | Source     |
+| :--------------------- | :----------------------------- | :--------- |
+| `read_knowledge_base`  | Recall concepts from Pinecone. | Memory MCP |
+| `write_knowledge_base` | Save concepts to Pinecone.     | Memory MCP |

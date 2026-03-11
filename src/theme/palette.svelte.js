@@ -9,6 +9,12 @@ import { DEFAULT_COLORS, PALETTE } from "@core/engine/palette.js"
 import { normalize } from "@data/content_normaliser.js"
 
 class ThemeStore {
+    /************************************************************************************
+     * 🧩 [SECTION: CORE PARSERS & HELPERS]
+     * ----------------------------------------------------------------------------------
+     * Raw string and hex manipulation utilities.
+     ************************************************************************************/
+
     /**
      * Helper to convert Hex to RGB triplet
      * @param {string} hex - "#RRGGBB"
@@ -21,6 +27,12 @@ class ThemeStore {
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
         return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : "168, 85, 247"
     }
+
+    /************************************************************************************
+     * 🧩 [SECTION: ENTITY RESOLUTION]
+     * ----------------------------------------------------------------------------------
+     * Determining base aesthetic states from entity data.
+     ************************************************************************************/
 
     /**
      * Delegates to the central normalizer to ensure strict data structure.
@@ -64,6 +76,12 @@ class ThemeStore {
         return this.get_deterministic_color(seed || entity?.id || "")
     }
 
+    /************************************************************************************
+     * 🧩 [SECTION: CONTRAST & MATH]
+     * ----------------------------------------------------------------------------------
+     * Luminosity calculations and dynamic color adjustments.
+     ************************************************************************************/
+
     /**
      * Calculates the best contrast color (black or white) for a background.
      */
@@ -99,6 +117,12 @@ class ThemeStore {
         let b = (num & 0x0000ff) - amount
         return "#" + (((r < 0 ? 0 : r) << 16) | ((g < 0 ? 0 : g) << 8) | (b < 0 ? 0 : b)).toString(16).padStart(6, "0")
     }
+
+    /************************************************************************************
+     * 🧩 [SECTION: UI FALLBACKS]
+     * ----------------------------------------------------------------------------------
+     * Generating aesthetic fallbacks for missing assets.
+     ************************************************************************************/
 
     /**
      * Generates initials for avatar fallbacks.

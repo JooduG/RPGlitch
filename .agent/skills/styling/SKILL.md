@@ -12,7 +12,7 @@ description: >
 
 ## 1. Summoning Triggers
 
-- **Territorial**: `src/**/*.css`, `src/**/*.scss`, `src/theme/**`.
+- **Territorial**: `src/**/*.css`, `src/theme/**`.
 - **Intent**: "Fix CSS", "Add styles", "Check styling rules", "Polish UI".
 
 ## 2. The Brain (A-C-Q Protocol)
@@ -34,10 +34,13 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern                                  | Reasoning                                                                        |
-| :--------------------------------------- | :------------------------------------------------------------------------------- |
-| **Utility classes (Tailwind/Bootstrap)** | Forbidden. Violates semantic HTML and design system token protocols.             |
-| **Hardcoded hex values**                 | Forbidden. Use `var(--token-name)` exclusively to support runtime theme updates. |
+| Pattern                                  | Reasoning                                                                           |
+| :--------------------------------------- | :---------------------------------------------------------------------------------- |
+| **Inline Styles (`style="..."`)**        | Forbidden. Violates Church & State separation; keeps structural markup clean.       |
+| **Global CSS in Components**             | Forbidden. Use component-scoped styles or designated theme tokens.                  |
+| **Utility classes (Tailwind/Bootstrap)** | Forbidden. Violates semantic HTML and design system token protocols.                |
+| **Hardcoded hex values**                 | Forbidden except in `src/theme/tokens.css`. Use `var(--token-name)`.                |
+| **SCSS Mixins/Variables in Components**  | Forbidden. Components MUST NOT import SCSS. Rely on global CSS variables (`:root`). |
 
 ## 6. Tools & Assets
 

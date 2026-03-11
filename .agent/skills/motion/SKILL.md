@@ -2,8 +2,8 @@
 name: motion
 version: 1.0.0
 description: >
-  Owns kinetic interactions, physics-based UI transitions, and Svelte action-based animations.
-  Triggers: "Add tilt effect", "Fix animation", "Kinetic scroll", "src/ui/utils/actions/**".
+    Owns kinetic interactions, physics-based UI transitions, and Svelte action-based animations.
+    Triggers: "Add tilt effect", "Fix animation", "Kinetic scroll", "src/ui/utils/actions/**".
 ---
 
 # 🛡️ Skill: Motion & Kinetics (The Choreographer)
@@ -34,11 +34,11 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern | Reasoning |
-| :--- | :--- |
+| Pattern                                   | Reasoning                                                               |
+| :---------------------------------------- | :---------------------------------------------------------------------- |
 | **linear or standard ease-in-out curves** | Forbidden. Use var(--curve-snappy) for UI transitions to ensure weight. |
-| **Inline animation logic in markup** | Avoid. Encapsulate in reusable Svelte Actions (use:action). |
+| **Inline animation logic in markup**      | Avoid. Encapsulate in reusable Svelte Actions (use:action).             |
 
 ## 6. Tools & Assets
 
-*No specialized tools assigned currently.*
+_No specialized tools assigned currently._
