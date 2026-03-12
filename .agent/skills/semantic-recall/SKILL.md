@@ -1,8 +1,9 @@
 ---
-description: Actively query the vector database to eliminate AI amnesia and reduce token bloat.
+name: semantic-recall
+description: Queries the vector database for historical context and architectural intent. Trigger this skill whenever modifying complex core engine files (ContextBroker, NarrativeDirector, etc.) to prevent hallucinating undocumented mechanics.
 ---
 
-# 11-semantic-recall (The Archivist)
+# Semantic Recall Toolkit
 
 > **Goal:** Actively query the vector database to eliminate AI amnesia and reduce token bloat before planning, and archive new knowledge after execution.
 

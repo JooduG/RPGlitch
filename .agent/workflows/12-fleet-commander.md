@@ -1,17 +1,18 @@
 ---
-description: Deconstruct a monolithic task into isolated shards and dispatch parallel execution.
+description: Multi-Agent Orchestration.
 ---
 
-# Workflow: Fleet Commander (Chaos Mode)
+# WORKFLOW: Fleet Commander (Multi-Agent Orchestration)
 
-**Trigger:** The Director explicitly commands you to "Execute Fleet Plan [X]" or feeds you a massive multi-component refactoring spec.
-**Objective:** Deconstruct a monolithic task into isolated shards and dispatch parallel execution.
+## Context
 
-## Execution Steps:
+Trigger this workflow when executing massive, multi-file refactors (e.g., global Svelte 5 migrations).
+This sequence enforces a strict, prompt-driven pipeline without relying on external Node.js scripts.
 
-1. **Analyze the Payload:** Read the provided `plan.md` or `spec.md`.
-2. **Chop the Block:** Divide the master plan into discrete, non-overlapping tasks (e.g., Task A edits `DebugPanel.svelte`, Task B edits `ControlPanel.svelte`).
-3. **Generate Shards:** Write these individual tasks into temporary files in `.agent/tasks/active-fleet/`.
-4. **Dispatch (Via MCP):** Use the system execution MCP tool to spawn parallel agent sessions for each shard.
-    - _Directive to Sub-Agents:_ "You are a Fleet Worker. You must follow `10-vibe-intake.md`, execute your specific shard, and immediately close your session."
-5. **The Merge Watch:** Monitor the completion of the sub-agents. If git conflicts arise in `src/`, use the conflict-resolution prompt format to squash and resolve them locally before reporting back to the Director.
+## The 5-Phase Pipeline
+
+1. **Analyze:** Scan the target directory for Perchance/Svelte 5 compliance.
+2. **Plan:** Output a rigid, file-by-file refactoring strategy.
+3. **Validate:** Verify no hallucinated imports or Svelte 4 artifacts exist in the plan.
+4. **Dispatch:** Execute the code generation sequentially.
+5. **Merge:** Integrate the diffs and update `STATE.md`.

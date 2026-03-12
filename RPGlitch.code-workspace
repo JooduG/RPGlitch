@@ -1,0 +1,14 @@
+{
+    "folders": [
+        {
+            "path": ".",
+        },
+    ],
+    "settings": {
+        "launch": {
+            "configurations": [],
+            "compounds": [],
+        },
+        "typescript.tsdk": "node_modules\\typescript\\lib",
+    },
+}
