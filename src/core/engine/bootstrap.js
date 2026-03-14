@@ -34,18 +34,17 @@ export const AppBootstrap = {
         } catch (err) {
             console.error("[Engine] ❌ Critical Failure:", err)
 
-            // Clear the body and show a critical failure message
             document.body.innerHTML = `
-                <div style="color:#ef4444; padding:2rem; font-family:monospace; background:#000; height:100vh;">
-                    <h1 style="border-bottom:1px solid #ef4444; padding-bottom:1rem;">SYSTEM HALTED</h1>
-                    <p>A critical failure occurred during initialization.</p>
-                    <pre id="error-stack" style="background:#111; padding:1rem; overflow:auto;"></pre>
+                <div style="background:var(--bg-base); color:var(--app-danger); padding:var(--spacing-xl); font-family:var(--font-mono); height:100vh; overflow:auto;">
+                    <h1 style="border-bottom: 2px solid var(--app-danger); padding-bottom: var(--spacing-s); margin-bottom: var(--spacing-m);">SYSTEM HALTED</h1>
+                    <p style="color:var(--white); opacity:0.8;">The engine failed to ignite. Check the console or stack trace below:</p>
+                    <pre id="error-stack" style="background:var(--surface-sunken); padding:var(--spacing-m); border-radius:var(--border-radius-m); color:var(--app-info); white-space: pre-wrap; word-break: break-all;"></pre>
                 </div>
             `
-            // Safely inject the error stack using textContent to prevent XSS
-            const errorStackElement = document.getElementById("error-stack")
-            if (errorStackElement) {
-                errorStackElement.textContent = err.stack || String(err)
+            // Use textContent for safety
+            const error_stack = document.getElementById("error-stack")
+            if (error_stack) {
+                error_stack.textContent = err.stack || String(err)
             }
         }
     },

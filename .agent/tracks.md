@@ -2,7 +2,9 @@
 
 ## Active Tracks
 
-- [/] ui-refactor
+- [x] ui-refactor
+- [/] intelligence-kernel
+- [x] deploy-perchance
 
 ## Pending Tracks
 

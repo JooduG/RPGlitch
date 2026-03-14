@@ -23,7 +23,7 @@
  *   - tags    : Categorical labels for search/retrieval (e.g. "trauma", "alliance").
  */
 
-import { LlmService } from "@core/intelligence/intelligence_service.js"
+import { LlmService } from "@core/intelligence/LlmService.js"
 import { DynamicsEngine } from "./DynamicsEngine.js"
 import { PromptBuilder } from "./PromptBuilder.js"
 

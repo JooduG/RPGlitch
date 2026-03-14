@@ -1,4 +1,4 @@
-import { VectorEngine } from "@core/intelligence/vector_engine.js"
+import { VectorEngine } from "@core/intelligence/VectorEngine.js"
 import { db } from "@data/db.js"
 import { entities } from "@data/repository.js"
 
@@ -26,7 +26,7 @@ function createRuntimeStore() {
             // 🎭 Visuals & Voice
             voice: { rate: 1.0, pitch: 1.0 },
             profile_picture: null, // URL
-            signature_color: "#84cc16", // Default Lime
+            signature_color: "var(--color-user)", // Semantic User Token
             visuals: {
                 profile_picture_seed: 0, // Used for transition keys
                 no_background: false,

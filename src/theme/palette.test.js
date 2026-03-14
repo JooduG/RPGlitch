@@ -3,7 +3,7 @@
  * Ported from legacy entities.test.js
  */
 
-import { PALETTE, themeStore } from "@theme/palette.svelte.js"
+import { themeStore } from "@theme/palette.svelte.js"
 import { describe, expect, test } from "vitest"
 
 describe("ThemeStore Color Generation", () => {
@@ -13,19 +13,19 @@ describe("ThemeStore Color Generation", () => {
         test("returns hex value for entity with signature_color", () => {
             const entity = { signature_color: "Electric Cyan" }
             const result = get_signature(entity)
-            expect(result).toBe(PALETTE["Electric Cyan"])
+            expect(result).toBe("var(--signature-cyan)")
         })
 
         test("returns hex value for entity with pink signature_color", () => {
             const entity = { signature_color: "Hot Pink" }
             const result = get_signature(entity)
-            expect(result).toBe(PALETTE["Hot Pink"])
+            expect(result).toBe("var(--signature-pink)")
         })
 
         test("returns hex value for entity with emerald signature_color", () => {
             const entity = { signature_color: "Emerald Green" }
             const result = get_signature(entity)
-            expect(result).toBe(PALETTE["Emerald Green"])
+            expect(result).toBe("var(--signature-emerald)")
         })
     })
 

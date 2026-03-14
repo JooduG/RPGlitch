@@ -52,7 +52,7 @@
         backdrop-filter: blur(var(--blur-s));
         box-shadow:
             var(--shadow-l),
-            inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xs));
+            inset 0 0 0 1px var(--ui-glass-border);
         border: none;
 
         display: flex;
@@ -88,7 +88,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: rgb(var(--pure-white-rgb) / var(--opacity-l));
+        color: var(--font-muted);
     }
 
     :global(.unified-capsule .capsule-flank.btn:hover svg) {
@@ -117,7 +117,7 @@
 
     /* Extra Label Polish */
     :global(.unified-capsule .capsule-action.btn:hover .label) {
-        text-shadow: 0 0 var(--spacing-m) rgb(var(--pure-white-rgb) / var(--opacity-m));
+        text-shadow: 0 0 var(--spacing-m) var(--white);
     }
 
     /* Ensure icons reset nicely */
@@ -144,6 +144,6 @@
         letter-spacing: 0.05em;
         color: var(--label-color, var(--font-color));
         text-shadow: var(--shadow-font);
-        transition: all var(--transition-speed) var(--curve-snappy);
+        transition: all var(--transition-speed) var(--physics-transition-elastic);
     }
 </style>

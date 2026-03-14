@@ -119,7 +119,8 @@
 
 <style>
     .dev-wing-content {
-        background: var(--gunmetal);
+        background: var(--glass-m);
+        backdrop-filter: blur(var(--blur-m));
         box-shadow: var(--shadow-m);
         border-radius: var(--border-radius-l);
         padding: var(--spacing-m);
@@ -135,7 +136,7 @@
     }
 
     .dev-wing-content::-webkit-scrollbar-thumb {
-        background: rgb(var(--pure-white-rgb) / var(--opacity-m));
+        background: var(--glass-l);
         border-radius: var(--border-radius-full);
     }
 
@@ -154,7 +155,7 @@
 
     .dynamic-box {
         background: var(--surface-sunken);
-        box-shadow: inset 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xxs));
+        box-shadow: inset 0 0 0 1px var(--border-light);
         border-radius: var(--spacing-xs);
         padding: var(--spacing-s);
         display: flex;
@@ -169,7 +170,7 @@
 
     .dynamic-box.is-editing:hover {
         background: var(--surface-overlay);
-        box-shadow: inset 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xs));
+        box-shadow: inset 0 0 0 1px var(--ui-glass-border);
     }
 
     .dynamic-label {
@@ -196,7 +197,7 @@
         width: 100%;
         background: transparent;
         border: none;
-        color: white;
+        color: var(--white);
         font-family: var(--font-mono);
         font-size: var(--font-size-m);
         font-weight: 700;
@@ -243,15 +244,15 @@
 
     .raw-explorer summary:hover {
         opacity: 1;
-        color: white;
+        color: var(--white);
     }
 
     .json-wrap {
         margin-top: var(--spacing-xs);
-        background: rgb(var(--pure-black-rgb) / 0.4);
+        background: rgba(var(--pure-black-rgb) / 0.4);
         box-shadow:
-            inset 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xxs)),
-            inset 0 0.125rem 0.25rem rgb(var(--pure-black-rgb) / 0.5);
+            inset 0 0 0 1px var(--border-light),
+            inset 0 0.125rem 0.25rem rgba(var(--pure-black-rgb) / 0.5);
         border-radius: var(--spacing-xs);
         padding: var(--spacing-xs);
         max-height: 10rem;
@@ -260,7 +261,7 @@
 
     .json-wrap pre {
         font-size: var(--font-size-xs);
-        color: rgb(var(--pure-white-rgb) / 0.8);
+        color: var(--glass-l);
         font-family: var(--font-mono);
         margin: 0;
     }
@@ -288,6 +289,7 @@
     }
 
     .meta-item .val {
-        color: rgb(var(--pure-white-rgb) / 0.9);
+        color: var(--font-color);
+        opacity: var(--opacity-l);
     }
 </style>

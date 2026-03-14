@@ -18,3 +18,8 @@ mcp.json
 node_modules
 .gemini
 .env
+.playwright-auth
+.playwright-mcp
+
+.gemini/
+gha-creds-*.json

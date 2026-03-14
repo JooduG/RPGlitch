@@ -61,7 +61,7 @@
         background-color: var(--surface-sunken);
         box-shadow: inset 0 1px 2px rgb(var(--pure-black-rgb) / 0.2);
         border-radius: var(--border-radius-full);
-        transition: all 0.2s var(--curve-snappy);
+        transition: all 0.2s var(--physics-transition-elastic);
         flex-shrink: 0;
     }
 
@@ -75,7 +75,7 @@
         top: calc((var(--switch-h) - var(--thumb-size)) / 2);
         background-color: var(--frisk);
         border-radius: var(--border-radius-full);
-        transition: all 0.2s var(--curve-snappy);
+        transition: all 0.2s var(--physics-transition-elastic);
         box-shadow: var(--shadow-s);
     }
 
@@ -92,8 +92,8 @@
 
     .toggle-switch input:checked + .slider::before {
         transform: translateX(calc(var(--switch-w) - var(--thumb-size) - (var(--switch-h) - var(--thumb-size))));
-        background-color: white;
-        box-shadow: 0 0 var(--spacing-s) rgb(255 255 255 / 0.4);
+        background-color: var(--white);
+        box-shadow: 0 0 var(--spacing-s) rgb(var(--pure-white-rgb) / 0.4);
     }
 
     /* Label Text */
@@ -108,7 +108,7 @@
     }
 
     .toggle-switch:hover .label-text {
-        color: white;
+        color: var(--white);
     }
 
     /* Focus State */

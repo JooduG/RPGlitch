@@ -92,7 +92,7 @@
     .drawer-card .card-visual {
         flex: 1.5;
         background: var(--layer-surface);
-        box-shadow: 0 0 0 1px inset rgba(var(--pure-white-rgb) / 0.05);
+        box-shadow: 0 0 0 1px inset rgb(var(--pure-white-rgb) / 0.05);
         display: flex;
         align-items: center;
         justify-content: center;

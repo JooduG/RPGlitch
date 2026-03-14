@@ -9,7 +9,7 @@
  * The root atmospheric vignette gradient.
  ************************************************************************************/
 body {
-    background-image: radial-gradient(circle at 50% 0%, var(--bg-grad-1), var(--bg-grad-2) 50%, var(--bg-grad-3) 75%, var(--pure-black));
+    background-image: radial-gradient(circle at 50% 0%, var(--bg-grad-1), var(--bg-grad-2) 50%, var(--bg-grad-3) 75%, var(--black));
     background-repeat: no-repeat;
     background-size: cover;
 }
@@ -161,7 +161,7 @@ tfoot td {
     position: absolute;
     top: -100px;
     left: 0;
-    background: var(--signature-blue);
+    background: var(--color-frozen);
     color: var(--white);
     padding: var(--spacing-xs);
     z-index: 10000;
@@ -220,13 +220,14 @@ tfoot td {
 [data-tooltip]::after {
     content: attr(data-tooltip);
     bottom: calc(100% + 15px);
-    background: var(--chalk);
+    background: var(--surface-void);
+    backdrop-filter: blur(var(--blur-s));
     color: var(--white);
     padding: var(--spacing-xs) var(--spacing-s);
     border-radius: var(--border-radius-s);
     font-size: var(--font-size-xs);
     white-space: nowrap;
-    box-shadow: var(--shadow-s);
+    box-shadow: var(--shadow-s), inset 0 0 0 1px var(--ui-glass-border);
 }
 
 [data-tooltip]:hover::before,

@@ -132,8 +132,8 @@
 
         /* Soft ethereal glow */
         text-shadow:
-            0 var(--spacing-xxs) var(--spacing-m) rgba(var(--pure-white-rgb), var(--opacity-xs)),
-            0 0 var(--spacing-xl) rgba(var(--pure-white-rgb), var(--opacity-xxs));
+            0 var(--spacing-xxs) var(--spacing-m) var(--ui-glass-border),
+            0 0 var(--spacing-xl) var(--border-light);
 
         display: grid;
         place-content: center;
@@ -142,12 +142,12 @@
     }
 
     h1:hover {
-        background: rgba(var(--pure-white-rgb), var(--opacity-xxs));
+        background: var(--glass-s);
     }
 
     h1:focus-within {
         outline: none;
-        background: rgba(var(--pure-white-rgb), var(--opacity-xs));
+        background: var(--glass-m);
         box-shadow: 0 0 0 var(--spacing-xxs) var(--signature-color, var(--signature-pink));
     }
 

@@ -15,8 +15,8 @@ description: The Core Execution Loop. Builds features or refactors code.
 
 ## 2. Brain (Context Injection)
 
-- **Plan**: `.agent/tasks/<slug>/plan.md`
-- **Stack**: `.agent/rules/03-physics.md` (Svelte 5 / Runes)
+- **Plan**: `.agent/tasks/<slug>.md` (Flat track file — Spec + Plan combined)
+- **Stack**: `.agent/knowledge/atlas/07-physics.md` (Svelte 5 / Runes)
 - **Standards**: `.agent/rules/05-standards.md`
 
 ## 3. Procedures
@@ -57,7 +57,7 @@ description: The Core Execution Loop. Builds features or refactors code.
 4.  **Manual Verification Plan**: Draft a step-by-step human-readable testing script for the completed phase (e.g., "1. Run `npm run dev`, 2. Navigate to `/profile`, 3. Confirm X"). Present this to the user and **WAIT** for explicit approval. Do not proceed until the user verifies.
 5.  **Checkpoint Commit**: Stage changes and create the checkpoint commit: `gamemaster(checkpoint): <Phase Summary>`.
 6.  **High-Fidelity Git Notes**: Construct an **Auditable Verification Report** containing the automated test command used, the manual verification steps provided, and the user's explicit confirmation. Attach it to the checkpoint commit via `git notes add -m "<report_content>" HEAD`.
-7.  **Finalize**: Update `tracks.md` with new `checkpoint: <sha>`. Use the "Track Block" format.
+7.  **Finalize**: Update `.agent/tracks.md` with new `checkpoint: <sha>`. Use the "Track Block" format.
 
 ## 5. Anti-Patterns
 

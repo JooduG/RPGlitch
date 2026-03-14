@@ -5,7 +5,7 @@
  */
 
 import { PALETTE } from "@core/engine/palette.js"
-import { LlmService } from "@core/intelligence/intelligence_service.js"
+import { LlmService } from "@core/intelligence/LlmService.js"
 
 /************************************************************************************
  * 🧩 [SECTION: CONSTANTS & GLOBALS]

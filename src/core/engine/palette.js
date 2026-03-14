@@ -30,6 +30,29 @@ export const PALETTE = {
     default: "#a855f7",
 }
 
+/**
+ * 🔗 [MAPPING: CSS VARIABLES]
+ * Maps hex codes from the palette back to their respective design tokens.
+ * This ensures UI components strictly use var(--signature-*) instead of raw hex values.
+ */
+export const PALETTE_VARS = {
+    "#ef4444": "var(--signature-red)",
+    "#f97316": "var(--signature-orange)",
+    "#fbbf24": "var(--signature-amber)",
+    "#fde047": "var(--signature-yellow)",
+    "#84cc16": "var(--signature-lime)",
+    "#15803d": "var(--signature-forest)",
+    "#10b981": "var(--signature-emerald)",
+    "#14b8a6": "var(--signature-teal)",
+    "#11aecc": "var(--signature-cyan)",
+    "#3b82f6": "var(--signature-blue)",
+    "#818cf8": "var(--signature-indigo)",
+    "#c084fc": "var(--signature-violet)",
+    "#a855f7": "var(--signature-purple)",
+    "#ec4899": "var(--signature-pink)",
+    "#fb7185": "var(--signature-rose)",
+}
+
 /************************************************************************************
  * 🧩 [SECTION: ROLE COLORS]
  * ----------------------------------------------------------------------------------
@@ -37,10 +60,10 @@ export const PALETTE = {
  ************************************************************************************/
 
 export const DEFAULT_COLORS = {
-    USER: "#aecbfa",
-    AI: "#fde293",
-    FRACTAL: "#e8eaed",
-    SYSTEM: "#f28b82",
+    USER: "var(--color-user)",
+    AI: "var(--color-ai)",
+    FRACTAL: "var(--color-fractal)",
+    SYSTEM: "var(--color-system)",
 }
 
 /************************************************************************************

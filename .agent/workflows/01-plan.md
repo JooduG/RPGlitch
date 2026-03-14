@@ -15,8 +15,8 @@ description: Scoping and planning a new feature. Defines WHAT to build, not HOW.
 ## 2. Brain (Context Injection)
 
 - **Vision**: `.agent/knowledge/atlas/01-vision.md`
-- **Physics**: `.agent/rules/03-physics.md` (Constraints)
-- **Tracks**: `.agent/tasks/tracks.md` (Project State)
+- **Physics**: `.agent/knowledge/atlas/07-physics.md` (Constraints)
+- **Tracks**: `.agent/tracks.md` (Project State)
 
 ## 3. Procedures
 
@@ -30,16 +30,16 @@ description: Scoping and planning a new feature. Defines WHAT to build, not HOW.
 ### Phase 2: The Blueprint
 
 1.  **Slug**: Define `kebab-case-name`.
-2.  **Draft Spec**: `.agent/tasks/<slug>/spec.md`.
+2.  **Draft Spec**: Embed spec block at top of `.agent/tasks/<slug>.md`.
     - **Must** align with Product Vision.
     - **Must** define "Success" (Acceptance Criteria).
-3.  **Draft Plan**: `.agent/tasks/<slug>/plan.md`.
+3.  **Draft Plan**: Append plan checklist to `.agent/tasks/<slug>.md` (single flat file — Spec + Plan combined).
     - **Skeleton-First**: State → Logic → UI → Style.
     - **Atomic**: Break tasks into `< 1hr` chunks.
 
 ### Phase 3: Registration
 
-1.  **Update Tracks**: Add to `.agent/tasks/tracks.md`. **Mandatory**: Use the high-fidelity "Track Block" format (Path, Status, Checkpoint, Note).
+1.  **Update Tracks**: Add to `.agent/tracks.md`. **Mandatory**: Use the high-fidelity "Track Block" format (Path, Status, Checkpoint, Note).
 2.  **Review**: Present Spec & Plan to user.
 3.  **Approval**: Wait for "Proceed" or "Green Light".
 

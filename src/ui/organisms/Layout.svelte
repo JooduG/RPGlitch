@@ -82,8 +82,8 @@
         transform: translateZ(0);
 
         /* Atmospheric Background - transparent to show body's gradient */
-        background: radial-gradient(circle at bottom, var(--gunmetal), var(--pure-black) 70%);
-        color: white;
+        background: radial-gradient(circle at bottom, var(--gunmetal), var(--black) 70%);
+        color: var(--white);
         transition: all 0.6s ease;
         pointer-events: none;
     }
@@ -136,8 +136,8 @@
 
         .universal-stage.layout-cinematic .stage-column.left {
             grid-column: 1 / 2;
-            background: radial-gradient(circle at top center, var(--gunmetal), var(--pure-black));
-            border-right: 1px solid rgba(var(--pure-white-rgb) / var(--opacity-xxs));
+            background: radial-gradient(circle at top center, var(--gunmetal), var(--black));
+            border-right: 1px solid var(--border-light);
         }
 
         .universal-stage.layout-cinematic .stage-column.right {

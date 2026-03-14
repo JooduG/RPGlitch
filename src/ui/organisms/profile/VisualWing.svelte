@@ -5,8 +5,8 @@
      * Manages signature colors, generation prompts, and modifiers.
      * Updated to target the flattened signature_color and profile_picture.
      */
-    import { PALETTE } from "@core/engine/palette.js"
-    import { LlmService } from "@core/intelligence/intelligence_service.js"
+    import { PALETTE, PALETTE_VARS } from "@core/engine/palette.js"
+    import { LlmService } from "@core/intelligence/LlmService.js"
     import { PromptBuilder } from "@core/intelligence/PromptBuilder.js"
     import { ImageGeneration } from "@media/image_engine.js"
     import { app } from "@state/app.svelte.js"
@@ -203,7 +203,7 @@
                 <button
                     class="swatch"
                     class:active={char.signature_color === hex}
-                    style="background-color: {hex}"
+                    style="background-color: {PALETTE_VARS[hex] || hex}"
                     aria-label="Select color {name}"
                     onclick={() => {
                         char.signature_color = hex
@@ -267,7 +267,8 @@
 
 <style>
     .visual-wing-content {
-        background: var(--gunmetal);
+        background: var(--glass-m);
+        backdrop-filter: blur(var(--blur-m));
         box-shadow: var(--shadow-m);
         border-radius: var(--border-radius-l);
         padding: var(--spacing-m);
@@ -308,7 +309,7 @@
     }
 
     .swatch.active {
-        outline: var(--spacing-xxs) solid var(--pure-white);
+        outline: var(--spacing-xxs) solid var(--white);
         outline-offset: var(--spacing-xxs);
         box-shadow: var(--shadow-glow);
         transform: scale(1.1);
@@ -323,8 +324,8 @@
     .prompt-box {
         background: var(--surface-sunken);
         box-shadow:
-            inset 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xxs)),
-            inset 0 0.125rem 0.25rem rgb(var(--pure-black-rgb) / var(--opacity-m));
+            inset 0 0 0 1px var(--border-light),
+            inset 0 0.125rem 0.25rem var(--surface-overlay);
         border-radius: var(--border-radius-m);
         overflow: hidden;
     }
@@ -338,7 +339,7 @@
         width: 100%;
         background: transparent;
         border: none;
-        color: white;
+        color: var(--white);
         padding: var(--spacing-s);
         font-size: var(--font-size-s);
         font-family: var(--font-body);
@@ -351,11 +352,11 @@
         opacity: var(--opacity-m);
         color: var(--font-muted);
         cursor: not-allowed;
-        background: rgb(var(--pure-black-rgb) / var(--opacity-xs));
+        background: var(--tint-dark-surface);
     }
 
     .visual-prompt::placeholder {
-        color: rgb(var(--pure-white-rgb) / var(--opacity-s));
+        color: var(--glass-l);
         font-style: italic;
         font-weight: 400;
     }
@@ -369,7 +370,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgb(var(--pure-black-rgb) / 0.8);
+        background: var(--surface-void);
         z-index: 5;
         cursor: wait;
     }
@@ -377,7 +378,7 @@
     .spinner {
         width: var(--spacing-l);
         height: var(--spacing-l);
-        border: var(--spacing-xxs) solid rgb(var(--pure-white-rgb) / var(--opacity-s));
+        border: var(--spacing-xxs) solid var(--border-light);
         border-top-color: var(--app-accent);
         border-radius: var(--border-radius-full);
         animation: spin 0.8s linear infinite;
@@ -392,14 +393,14 @@
     .action-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        box-shadow: inset 0 1px 0 rgb(var(--pure-white-rgb) / var(--opacity-xxs));
+        box-shadow: inset 0 1px 0 var(--border-light);
     }
 
     .action-row :global(.btn) {
         width: 100%;
         border: none;
         border-radius: 0;
-        background: rgb(var(--pure-white-rgb) / 0.05);
+        background: var(--glass-s);
         font-size: var(--font-size-xs);
         padding: var(--spacing-xs);
         transition: all var(--transition-speed);
@@ -407,11 +408,11 @@
     }
 
     .action-row :global(.btn:not(:last-child)) {
-        box-shadow: 1px 0 0 rgb(var(--pure-white-rgb) / var(--opacity-xxs));
+        box-shadow: 1px 0 0 var(--border-light);
     }
 
     .action-row :global(.btn:hover) {
-        background: rgb(var(--pure-white-rgb) / 0.1);
+        background: var(--glass-m);
     }
 
     .action-row :global(.btn.action-btn) {
@@ -425,7 +426,7 @@
 
     .action-row :global(.btn.action-btn.mode-tech):not(:disabled):hover {
         background: rgb(var(--app-secondary-rgb) / 0.1);
-        color: white;
+        color: var(--white);
     }
 
     .action-row :global(.btn.action-btn.mode-magic):not(:disabled) {
@@ -435,7 +436,7 @@
 
     .action-row :global(.btn.action-btn.mode-magic):not(:disabled):hover {
         background: rgb(var(--app-accent-rgb) / 0.1);
-        color: white;
+        color: var(--white);
     }
 
     .toggle-stack {

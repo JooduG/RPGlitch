@@ -57,7 +57,8 @@
 
 <style>
     .voice-wing-content {
-        background: var(--gunmetal);
+        background: var(--glass-m);
+        backdrop-filter: blur(var(--blur-m));
         box-shadow: var(--shadow-m);
         border-radius: var(--border-radius-l);
         padding: var(--spacing-m);
@@ -83,7 +84,7 @@
     .voice-btn {
         width: 100%;
         background: var(--surface-sunken);
-        box-shadow: inset 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xxs));
+        box-shadow: inset 0 0 0 1px var(--border-light);
         border: none;
         border-radius: var(--border-radius);
         color: var(--font-color);
@@ -102,7 +103,7 @@
 
     .voice-btn:hover:not(:disabled) {
         background: var(--surface-overlay);
-        box-shadow: inset 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xs));
+        box-shadow: inset 0 0 0 1px var(--ui-glass-border);
     }
 
     .voice-btn:disabled {
@@ -117,7 +118,7 @@
         align-items: center;
         justify-content: center;
         background: var(--surface-sunken);
-        box-shadow: inset 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xxs));
+        box-shadow: inset 0 0 0 1px var(--border-light);
         border: none;
         border-radius: var(--border-radius);
         color: var(--font-color);
@@ -128,7 +129,7 @@
 
     .preview-btn:hover:not(:disabled) {
         background: var(--surface-overlay);
-        box-shadow: inset 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xs));
+        box-shadow: inset 0 0 0 1px var(--ui-glass-border);
     }
 
     .preview-btn:active:not(:disabled) {
@@ -148,8 +149,8 @@
         width: 100%;
         background: var(--gunmetal);
         box-shadow:
-            0 0 2rem rgb(var(--pure-black-rgb) / 0.8),
-            inset 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xs));
+            0 0 2rem var(--black),
+            inset 0 0 0 1px var(--ui-glass-border);
         border: none;
         border-radius: var(--border-radius);
     }
@@ -161,7 +162,7 @@
 
     .voice-option {
         width: 100%;
-        padding: 8px 12px;
+        padding: var(--spacing-xs) var(--spacing-s);
         background: transparent;
         border: none;
         color: var(--font-color);
@@ -175,7 +176,7 @@
     }
 
     .voice-option:hover {
-        background: rgb(var(--pure-white-rgb) / 0.05);
+        background: var(--glass-s);
     }
 
     .voice-option.active {
@@ -199,7 +200,7 @@
 
     .voice-option .region-pill::before {
         content: "-";
-        margin-right: 8px;
+        margin-right: var(--spacing-xs);
         opacity: var(--opacity-m);
     }
 
@@ -259,7 +260,7 @@
     .slider-group input[type="range"]::-webkit-slider-runnable-track {
         width: 100%;
         height: var(--spacing-px);
-        background: rgb(var(--pure-white-rgb) / 0.1);
+        background: var(--border-light);
         border-radius: var(--border-radius-xs);
         border: none;
     }
@@ -271,8 +272,8 @@
         background: var(--font-color);
         border-radius: var(--border-radius-full);
         cursor: pointer;
-        box-shadow: 0 0 var(--spacing-xs) rgb(var(--pure-white-rgb) / 0.2);
-        margin-top: -6px;
+        box-shadow: 0 0 var(--spacing-xs) var(--border-light);
+        margin-top: calc(-1 * var(--spacing-xs));
         border: none;
     }
 </style>

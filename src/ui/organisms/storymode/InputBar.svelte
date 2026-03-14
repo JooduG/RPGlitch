@@ -74,17 +74,17 @@
         align-items: center;
         width: 100%;
         max-width: var(--max-width-text);
-        background: color-mix(in srgb, var(--signature-color, var(--gunmetal)) 15%, var(--pure-black));
+        background: color-mix(in srgb, var(--signature-color, var(--gunmetal)) 15%, var(--black));
         border-radius: var(--border-radius-xl);
         padding: 0 var(--spacing-s);
         margin: var(--spacing-l);
         box-shadow: none;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all var(--transition-speed-slow) var(--physics-transition-elastic);
         position: relative;
     }
 
     .input-bar-unit.is-focused {
-        background: color-mix(in srgb, var(--signature-color, var(--gunmetal)) 25%, var(--pure-black));
+        background: color-mix(in srgb, var(--signature-color, var(--gunmetal)) 25%, var(--black));
         box-shadow:
             inset 0 0 0 var(--spacing-px) var(--signature-color, transparent),
             0 0 0 var(--spacing-xxs) color-mix(in srgb, var(--signature-color, transparent) 10%, transparent);

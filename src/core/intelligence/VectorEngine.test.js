@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 import { CONFIG } from "../engine/config.js"
-import { VectorEngine } from "./vector_engine.js"
+import { VectorEngine } from "./VectorEngine.js"
 
 vi.mock("./DynamicsEngine.js", () => ({
     DynamicsEngine: {

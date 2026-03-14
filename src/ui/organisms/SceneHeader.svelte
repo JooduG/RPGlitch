@@ -73,7 +73,7 @@
     .separator {
         width: var(--spacing-px);
         height: var(--spacing-l);
-        box-shadow: 0 0 var(--spacing-m) rgba(var(--pure-white-rgb) / var(--opacity-xxs));
+        box-shadow: 0 0 var(--spacing-m) var(--border-light);
     }
 
     .info-group {

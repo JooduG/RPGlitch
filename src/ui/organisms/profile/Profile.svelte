@@ -197,7 +197,7 @@
 </script>
 
 {#if char && char.id}
-    <Modal variant="profile" onclose={handle_close}>
+    <Modal variant="profile" on_close={handle_close}>
         <div class="profile-container" class:editing={is_editing} class:dev-mode={app.settings.dev_mode} class:show-dev-wing={app.settings.dev_mode} onclick={handle_background_click} onfocusout={handle_focus_out} role="presentation" data-testid="profile-container" data-is-editing={is_editing}>
             <ProfileWings bind:char {is_editing} bind:busy_fields bind:active_field />
 

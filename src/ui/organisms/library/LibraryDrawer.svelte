@@ -93,7 +93,7 @@
 <svelte:window onkeydown={handleKeydown} />
 
 {#if is_open}
-    <Backdrop onclick={() => app.close_drawer()} zIndex="calc(var(--z-drawer) - 1)" />
+    <Backdrop onclick={() => app.close_drawer()} z_index="calc(var(--z-drawer) - 1)" />
 
     <div class="entity-drawer" role="dialog" aria-labelledby="drawer-title" transition:fly={{ y: "100%", duration: 500, easing: quintOut }}>
         <header class="drawer-header">
@@ -173,7 +173,7 @@
     }
 
     .drawer-header .close-btn:hover {
-        color: white;
+        color: var(--white);
     }
 
     .drawer-content {
@@ -192,7 +192,7 @@
     /* --- NEW ENTITY CARD --- */
     .drawer-card--new {
         background: var(--surface-sunken);
-        box-shadow: inset 0 0 0 1px rgba(var(--pure-white-rgb), 0.05);
+        box-shadow: inset 0 0 0 1px rgb(var(--pure-white-rgb) / 0.05);
         border-radius: var(--border-radius-l);
         aspect-ratio: 2 / 3;
         display: flex;
@@ -211,7 +211,7 @@
         width: 50px;
         height: 50px;
         border-radius: 50%;
-        background: rgba(var(--pure-white-rgb), 0.05);
+        background: rgb(var(--pure-white-rgb) / 0.05);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -232,8 +232,8 @@
     }
 
     .drawer-card--new:hover {
-        color: white;
-        background: rgba(var(--pure-white-rgb), 0.05);
+        color: var(--white);
+        background: rgb(var(--pure-white-rgb) / 0.05);
         transform: translateY(-5px);
     }
 

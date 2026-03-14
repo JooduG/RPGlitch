@@ -257,7 +257,7 @@
     .thinking-pill .dot {
         width: var(--spacing-xs);
         height: var(--spacing-xs);
-        background: white;
+        background: var(--white);
         border-radius: var(--border-radius-full);
         animation: dot-bounce 1.4s infinite ease-in-out both;
     }

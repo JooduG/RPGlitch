@@ -36,7 +36,7 @@ knowledge:
         # Rules
         rule-governance: .agent/rules/01-governance.md
         rule-workflow: .agent/rules/02-workflow.md
-        rule-physics: .agent/rules/03-physics.md
+        atlas-physics: .agent/knowledge/atlas/07-physics.md
         rule-security: .agent/rules/04-security.md
         rule-standards: .agent/rules/05-standards.md
         # Knowledge
@@ -57,4 +57,4 @@ knowledge:
 
 # 📝 Workspace (Active Memory)
 workspace:
-    tracks: .agent/tasks/tracks.md
+    tracks: .agent/tracks.md

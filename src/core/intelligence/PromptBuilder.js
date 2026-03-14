@@ -7,7 +7,7 @@
  * The final stage of the Intelligence Assembly pipeline.
  */
 
-import { VectorEngine } from "./vector_engine.js"
+import { VectorEngine } from "./VectorEngine.js"
 
 /**
  * @typedef {Object} IntelligencePayload
@@ -74,26 +74,19 @@ export const SYSTEM_PROMPTS = {
 <PAST memory="${render_atom.past(fractal, 1).trim()}" />
 </FRACTAL>
 
-<SIMULATION_LOG>
-${PromptBuilder.render_history(simulation_log, 10)}
-</SIMULATION_LOG>
+<SIMULATION_LOG>${PromptBuilder.render_history(simulation_log, 10)}</SIMULATION_LOG>
 
-<NARRATIVE_STYLE>
-${behaviors.length > 0 ? behaviors.join("\n") : "Use default style vectors."}
-</NARRATIVE_STYLE>
+<NARRATIVE_STYLE>${behaviors.length > 0 ? behaviors.join("\n") : "Use default style vectors."}</NARRATIVE_STYLE>
 
-<PROTOCOLS>
-${PromptBuilder.render_protocols("SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL")}
-</PROTOCOLS>
+<PROTOCOLS>${PromptBuilder.render_protocols("SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL")}</PROTOCOLS>
 
 <TASK_INSTRUCTION>
 The stage is set and the pieces are on the board. Proceed with the simulation immediately.
 CRITICAL: When your <think> block ends, your narrative output MUST be written exclusively in ENGLISH.
 </TASK_INSTRUCTION>
 
-<INPUT_COMMAND>
-${input?.trim() || "No direct command given. Follow simulation physics."}
-</INPUT_COMMAND>
+<INPUT_COMMAND>${input?.trim() || "No direct command given. Follow simulation physics."}</INPUT_COMMAND>
+
 </SYSTEM>`.trim()
     },
 
@@ -127,24 +120,22 @@ ${content}
 </YOUR_IDENTITY>
 
 <ACTIVE_CHARACTERS>
-<AI_CHARACTER name="${ai.name}">
-<ETERNAL>${ai.properties.eternal.non_physical}</ETERNAL>
-<PRESENT>${ai.properties.present.non_physical}</PRESENT>
-<FUTURE_VECTORS>${render_atom.future(ai, 5)}</FUTURE_VECTORS>
-<PAST_MEMORIES>${render_atom.past(ai, 5)}</PAST_MEMORIES>
-</AI_CHARACTER>
+    <AI_CHARACTER name="${ai.name}">
+    <ETERNAL>${ai.properties.eternal.non_physical}</ETERNAL>
+    <PRESENT>${ai.properties.present.non_physical}</PRESENT>
+    <FUTURE_VECTORS>${render_atom.future(ai, 5)}</FUTURE_VECTORS>
+    <PAST_MEMORIES>${render_atom.past(ai, 5)}</PAST_MEMORIES>
+    </AI_CHARACTER>
 
-<USER_PERSONA name="${user.name}">
-<ETERNAL>${user.properties.eternal.non_physical}</ETERNAL>
-<PRESENT>${user.properties.present.non_physical}</PRESENT>
-<FUTURE_VECTORS>${render_atom.future(user, 5)}</FUTURE_VECTORS>
-<PAST_MEMORIES>${render_atom.past(user, 5)}</PAST_MEMORIES>
-</USER_PERSONA>
+    <USER_PERSONA name="${user.name}">
+    <ETERNAL>${user.properties.eternal.non_physical}</ETERNAL>
+    <PRESENT>${user.properties.present.non_physical}</PRESENT>
+    <FUTURE_VECTORS>${render_atom.future(user, 5)}</FUTURE_VECTORS>
+    <PAST_MEMORIES>${render_atom.past(user, 5)}</PAST_MEMORIES>
+    </USER_PERSONA>
 </ACTIVE_CHARACTERS>
 
-<PROTOCOLS>
-${PromptBuilder.render_protocols("SINO_LOGIC, COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, EPISTEMIC_WALL, PLACEMENT, IMMERSION, MOMENTUM")}
-</PROTOCOLS>
+<PROTOCOLS>${PromptBuilder.render_protocols("SINO_LOGIC, COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, EPISTEMIC_WALL, PLACEMENT, IMMERSION, MOMENTUM")}</PROTOCOLS>
 
 <TASK_INSTRUCTION>
 You see everything. Open the scene.
@@ -155,9 +146,7 @@ The Fractal speaks first. Begin with sensation. No dialogue.
 CRITICAL: When your <think> block ends, your narrative output MUST be written in English.
 </TASK_INSTRUCTION>
 
-<INPUT_COMMAND>
-${input?.trim() || "No direct command given. Follow simulation physics."}
-</INPUT_COMMAND>
+<INPUT_COMMAND>${input?.trim() || "No direct command given. Follow simulation physics."}</INPUT_COMMAND>
 </SYSTEM>`.trim()
     },
 

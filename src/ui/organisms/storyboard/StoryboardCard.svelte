@@ -13,10 +13,10 @@
 
     let {
         entity,
-        roleLabel: role_label = "",
+        role_label = "",
         type = "user", // "ai" | "fractal" | "user"
-        onSelect: on_select = () => {},
-        onViewProfile: on_view_profile = () => {},
+        on_select = () => {},
+        on_view_profile = () => {},
     } = $props()
 
     import Button from "@ui/atoms/Button.svelte"
@@ -155,11 +155,11 @@
             flex-direction: column;
             border-radius: var(--border-radius-l);
             overflow: hidden;
-            background: var(--layer-surface);
+            background: var(--glass-m);
             backdrop-filter: blur(var(--blur-m));
             box-shadow:
                 var(--shadow-xl),
-                inset 0 0 0 1px rgba(var(--pure-white-rgb), var(--opacity-xs));
+                inset 0 0 0 1px var(--ui-glass-border);
             border: none;
             transform: translateZ(0);
             transition:
@@ -167,25 +167,25 @@
                 box-shadow 1s ease-in-out;
 
             &:not(.is-empty):not(.is-loading):hover {
-                box-shadow: 0 var(--spacing-xxl) var(--spacing-xxxl) rgb(var(--signature-rgb) / var(--opacity-s));
+                box-shadow: 0 var(--spacing-xxl) var(--spacing-xxxl) color-mix(in srgb, var(--signature-color), transparent 70%);
             }
 
             &.is-loading {
                 background: var(--surface-sunken);
                 :global(*) {
-                    border-color: rgba(var(--pure-white-rgb) / var(--opacity-xxs));
+                    border-color: var(--border-light);
                 }
             }
 
             &.shimmering::after {
-                animation: shimmer 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+                animation: shimmer 1.5s var(--physics-transition-elastic) forwards;
             }
 
             &::after {
                 content: "";
                 position: absolute;
                 inset: 0;
-                background: linear-gradient(105deg, transparent 20%, rgb(255 255 255 / var(--opacity-xxs)) 35%, rgb(255 255 255 / var(--opacity-xs)) 50%, rgb(255 255 255 / var(--opacity-xxs)) 65%, transparent 80%);
+                background: linear-gradient(105deg, transparent 20%, var(--border-light) 35%, var(--ui-glass-border) 50%, var(--border-light) 65%, transparent 80%);
                 transform: translateX(-100%);
                 z-index: var(--z-overlay);
                 pointer-events: none;
@@ -193,14 +193,14 @@
 
             &.is-empty {
                 background: var(--surface-sunken);
-                box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+                box-shadow: inset 0 2px 10px var(--surface-overlay);
 
                 &::after {
                     content: "";
                     position: absolute;
                     inset: 0;
                     transform: translateX(-100%);
-                    background-image: linear-gradient(90deg, transparent 0, rgb(var(--pure-white-rgb) / var(--opacity-xxs)) 20%, rgb(var(--pure-white-rgb) / var(--opacity-s)) 60%, transparent);
+                    background-image: linear-gradient(90deg, transparent 0, var(--border-light) 20%, var(--glass-l) 60%, transparent);
                     filter: blur(var(--blur-l));
                     animation: skeleton-shimmer 2.5s infinite;
                     z-index: var(--z-overlay);
@@ -209,7 +209,7 @@
 
                 &:hover {
                     box-shadow:
-                        inset 0 2px 10px rgba(0, 0, 0, 0.5),
+                        var(--surface-overlay),
                         var(--shadow-glow);
                     :global(.empty-icon) {
                         opacity: 1;
@@ -240,7 +240,7 @@
                 height: 100%;
                 width: 50%;
                 border-top: none;
-                box-shadow: inset var(--spacing-px) 0 0 rgba(var(--pure-white-rgb) / var(--opacity-xs));
+                box-shadow: inset var(--spacing-px) 0 0 var(--ui-glass-border);
             }
         }
     }
@@ -338,7 +338,7 @@
         transform: none;
         box-shadow: none;
         filter: none;
-        transition: all var(--transition-speed-slow) var(--curve-snappy);
+        transition: all var(--transition-speed-slow) var(--physics-transition-elastic);
         position: relative;
         overflow: hidden;
         border-radius: var(--border-radius-l);
@@ -359,7 +359,7 @@
             text-transform: uppercase;
             font-family: var(--font-heading);
             color: var(--font-color);
-            text-shadow: var(--shadow-font);
+            text-shadow: var(--shadow-text);
             opacity: 0;
             transition:
                 opacity 1s ease,
@@ -368,13 +368,13 @@
         }
 
         .empty-icon {
-            color: rgb(var(--pure-white-rgb) / var(--opacity-xl));
+            color: var(--white);
             width: var(--spacing-xxxl);
             height: var(--spacing-xxxl);
             display: flex;
             align-items: center;
             justify-content: center;
-            opacity: var(--opacity-m);
+            opacity: var(--opacity-l);
             transition:
                 opacity 1s ease,
                 filter 1s ease;
@@ -384,7 +384,7 @@
                 width: 100%;
                 height: 100%;
                 fill: currentColor;
-                transition: fill var(--transition-speed-slow) var(--curve-snappy);
+                transition: fill var(--transition-speed-slow) var(--physics-transition-elastic);
             }
         }
     }

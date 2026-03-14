@@ -14,4 +14,6 @@
 
 - **COMPLETED:** Agent capabilities directory purge. `.agent/skills/` has been sanitized. Bloated `automate-github-issues` and `local-action-verification` removed. Svelte/Perchance rules moved to `.agent/rules/`.
 - **COMPLETED:** Refactored `tool-design` skill to eliminate Python/Backend bias. Rewritten to focus on Host MCP invocation, Perchance `window.exposed` bridges, and Svelte 5 integrations.
-- **PENDING:** Implementation of the Autonomous Baton-Passing Loop (`next-prompt.md`) to enable continuous swarm execution.
+- **COMPLETED:** Automated Perchance deployment via Playwright. `npm run deploy:perchance` handles pre-flight, cookie consent, login detection, and injection into CodeMirror 6 editors. Live site verified.
+- **COMPLETED:** UI Refactor track (`tasks/ui-refactor.md`) — Migrated legacy event listeners, standardized modal backgrounds, and verified Perchance compatibility.
+- **PENDING:** Intelligence Kernel track (`tasks/intelligence-kernel.md`) — Refining ContextBroker, PromptBuilder, and VectorEngine for core simulation loop.

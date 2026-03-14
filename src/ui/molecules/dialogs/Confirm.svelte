@@ -8,43 +8,51 @@
     import { quintOut } from "svelte/easing"
     import { fade, scale } from "svelte/transition"
 
-    let { title = "Confirm Action", message = "Are you sure?", confirmLabel = "Confirm", cancelLabel = "Cancel", onConfirm = () => {}, onCancel = () => {}, open = $bindable(false) } = $props()
+    let { 
+        title = "Confirm Action", 
+        message = "Are you sure?", 
+        confirm_label = "Confirm", 
+        cancel_label = "Cancel", 
+        on_confirm = () => {}, 
+        on_cancel = () => {}, 
+        open = $bindable(false) 
+    } = $props()
 
     let dialog = $state()
-    let confirmBtn = $state()
+    let confirm_btn = $state()
 
     $effect(() => {
         if (open && dialog) {
             dialog.showModal()
-            confirmBtn?.focus()
+            confirm_btn?.focus()
         } else if (!open && dialog) {
             dialog.close()
         }
     })
 
-    function handleConfirm() {
-        onConfirm()
+    function handle_confirm() {
+        on_confirm()
         open = false
     }
 
-    function handleCancel() {
-        onCancel()
+    function handle_cancel() {
+        on_cancel()
         open = false
     }
 
-    function handleKeydown(e) {
+    function handle_keydown(e) {
         if (e.key === "Escape") {
-            handleCancel()
+            handle_cancel()
         }
     }
 </script>
 
 {#if open}
-    <dialog bind:this={dialog} onclose={handleCancel} onkeydown={handleKeydown} transition:scale={{ duration: 200, start: 0.95, easing: quintOut }}>
+    <dialog bind:this={dialog} onclose={handle_cancel} onkeydown={handle_keydown} transition:scale={{ duration: 200, start: 0.95, easing: quintOut }}>
         <article class="security-modal">
             <header>
                 <h3>{title}</h3>
-                <Button variant="ghost" class="icon-only" onclick={handleCancel} aria-label="Close">
+                <Button variant="ghost" className="icon-only" onclick={handle_cancel} aria-label="Close">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon">
                         <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
                     </svg>
@@ -56,14 +64,14 @@
             </div>
 
             <footer>
-                <Button variant="ghost" onclick={handleCancel} label={cancelLabel} />
-                <Button variant="danger" onclick={handleConfirm} bind:this={confirmBtn} label={confirmLabel} />
+                <Button variant="ghost" onclick={handle_cancel} label={cancel_label} />
+                <Button variant="danger" onclick={handle_confirm} bind:this={confirm_btn} label={confirm_label} />
             </footer>
         </article>
     </dialog>
 
     <!-- Backdrop -->
-    <div class="backdrop" transition:fade={{ duration: 150 }} onclick={handleCancel} role="presentation"></div>
+    <div class="backdrop" transition:fade={{ duration: 150 }} onclick={handle_cancel} role="presentation"></div>
 {/if}
 
 <style>
@@ -86,14 +94,17 @@
     .backdrop {
         position: fixed;
         inset: 0;
-        background: rgb(var(--pure-black-rgb) / var(--opacity-xl));
+        background: var(--surface-void);
         backdrop-filter: blur(var(--blur-s));
         z-index: calc(var(--z-modal) - 1);
     }
 
     .security-modal {
-        background: var(--bg-card);
-        box-shadow: var(--shadow-xxl);
+        background: var(--glass-m);
+        backdrop-filter: blur(var(--blur-m));
+        box-shadow: 
+            inset 0 0 0 1px var(--ui-glass-border),
+            var(--shadow-xxl);
         border-radius: var(--border-radius-l);
         overflow: hidden;
         display: flex;
@@ -105,7 +116,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: rgb(var(--pure-white-rgb) / var(--opacity-xs));
+        background: var(--glass-m);
     }
 
     .security-modal h3 {
@@ -128,7 +139,7 @@
         display: flex;
         justify-content: flex-end;
         gap: var(--spacing-s);
-        background: rgb(var(--pure-black-rgb) / var(--opacity-s));
+        background: var(--surface-sunken);
     }
 
     /* Button styling delegated to Button component */

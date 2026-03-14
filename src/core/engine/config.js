@@ -33,7 +33,7 @@ export const CONFIG = {
         SIGNAL_LOW: 30,
         LAW_LOW: 10,
 
-        // RELEVANCE SCORING (Used exclusively by vector_engine.js for memory RAG)
+        // RELEVANCE SCORING (Used exclusively by VectorEngine.js for memory RAG)
         RELEVANCE_DYNAMICS_BONUS: 1,
         RELEVANCE_TRIGGER_BONUS: 2,
         RELEVANCE_VECTOR_BONUS: 3,

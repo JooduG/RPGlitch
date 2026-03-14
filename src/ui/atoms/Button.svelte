@@ -115,24 +115,24 @@
         box-shadow: var(--shadow-m);
     }
     .btn-primary:hover:not(:disabled, .disabled) {
-        background: color-mix(in srgb, var(--frisk), white 5%);
+        background: color-mix(in srgb, var(--frisk), var(--white) 5%);
     }
 
     .btn-ghost {
         color: var(--font-muted);
     }
     .btn-ghost:hover:not(:disabled, .disabled) {
-        background: rgb(255 255 255 / var(--opacity-xxs));
+        background: var(--glass-s);
         color: var(--font-color);
     }
 
     .btn-outline {
-        background: rgb(255 255 255 / 0.03);
+        background: var(--border-light);
         color: var(--font-muted);
     }
     .btn-outline:hover:not(:disabled, .disabled) {
         color: var(--frisk);
-        background: rgb(255 255 255 / var(--opacity-xxs));
+        background: var(--glass-s);
     }
 
     .btn-glass {
@@ -141,15 +141,15 @@
         color: var(--white);
     }
     .btn-glass:hover:not(:disabled, .disabled) {
-        background: rgb(255 255 255 / 0.1);
+        background: var(--glass-l);
     }
 
     .btn-secondary {
-        background: rgb(255 255 255 / var(--opacity-xs));
+        background: var(--glass-m);
         color: var(--font-color);
     }
     .btn-secondary:hover:not(:disabled, .disabled) {
-        background: rgb(255 255 255 / var(--opacity-s));
+        background: var(--glass-l);
     }
 
     .btn-security {
@@ -159,7 +159,7 @@
     }
     .btn-security:hover:not(:disabled, .disabled) {
         box-shadow:
-            0 0 15px rgb(255 255 255 / var(--opacity-xxs)),
+            0 0 15px var(--glass-s),
             0 0 0 1px var(--font-color);
     }
 
@@ -182,7 +182,7 @@
         border-radius: 0 var(--border-radius) var(--border-radius) 0;
     }
     :global(.btn-group-joined) .btn:not(:last-child) {
-        border-right: 1px solid rgb(0 0 0 / var(--opacity-xs));
+        border-right: 1px solid var(--tint-dark-surface);
     }
 
     :global(.btn-group-pill) .btn {

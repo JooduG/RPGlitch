@@ -11,32 +11,52 @@
      * The Nordic Collection & Signature Variables
      ************************************************************************************/
 
-    /* Warm Colors */
+    /* Nordic Collection (Brand Colors) */
+    --chalk: #e1e5f2;
+    --gunmetal: #1b262c;
+    --frozen: #0f4c75;
+    --frisk: #3282b8;
+
+    /* Semantic Aliases */
+    --color-chalk: var(--chalk);
+    --color-gunmetal: var(--gunmetal);
+    --color-frozen: var(--frozen);
+    --color-frisk: var(--frisk);
+
+    --app-accent: var(--frozen);
+    --app-secondary: var(--frisk);
+
+    /* Signature Palette (Identity) */
     --signature-red: #ef4444;
     --signature-rose: #fb7185;
     --signature-orange: #f97316;
     --signature-amber: #fbbf24;
     --signature-yellow: #fde047;
-
-    /* Nature Colors */
     --signature-lime: #84cc16;
     --signature-forest: #15803d;
     --signature-emerald: #10b981;
-    --signature-cyan: #11aecc;
     --signature-teal: #14b8a6;
-
-    /* Cool Colors */
+    --signature-cyan: #11aecc;
     --signature-blue: #3b82f6;
     --signature-indigo: #818cf8;
     --signature-violet: #c084fc;
     --signature-purple: #a855f7;
     --signature-pink: #ec4899;
 
-    /* THE NORDIC COLLECTION (Cold Palette) */
-    --frisk: #8a9399;
-    --frozen: #555d66;
-    --gunmetal: #363840;
-    --chalk: #222326;
+    /* Role Colors (Semantic Identity) */
+    --color-user: #aecbfa;
+    --color-ai: #fde293;
+    --color-fractal: #e8eaed;
+    --color-system: #f28b82;
+
+    /* Base Shades & System Colors */
+    --brand-accent: #3b82f6;
+    --brand-accent-rgb: 59 130 246;
+    --app-info: #60a5fa;
+    --app-success: #22c55e;
+    --app-warning: #f59e0b;
+    --app-danger: #ef4444;
+    --app-del: var(--app-danger);
 
     /************************************************************************************
      * 🧩 [SECTION: CORE SYSTEM COLORS & OPACITY]
@@ -54,20 +74,31 @@
     --opacity-m: 0.5;
     --opacity-l: 0.8;
     --opacity-xl: 0.95;
+    --opacity-xxl: 0.85;
 
     --opacity-full: 1;
     --opacity-disabled: var(--opacity-s);
 
     /* Blur Scale */
-    --blur-s: 0rem;
+    --blur-s: 0.25rem;
     --blur-m: 0.75rem;
     --blur-l: 1.25rem;
     --blur-xl: 2.5rem;
 
     /* Background & Structural */
-    --bg-grad-1: var(--frozen);
-    --bg-grad-2: var(--gunmetal);
-    --bg-grad-3: var(--chalk);
+    --bg-base: #11191f;
+    --bg-grad-1: #181c2f;
+    --bg-grad-2: #23243a;
+    --bg-grad-3: #1a3a4a;
+    --bg-grad-4: #2a1a3a;
+
+    --bg-card: var(--gunmetal);
+    --bg-component: var(--chalk);
+    --app-component-bg: var(--chalk);
+
+    /* Illusion / Placeholder Colors */
+    --illusion-bg: #1e1e2e;
+    --illusion-shimmer: #2a2a3e;
 
     /************************************************************************************
      * 🧩 [SECTION: GLASSMORPHISM & EFFECTS]
@@ -76,14 +107,27 @@
      ************************************************************************************/
 
     /* Surfaces & Depth */
+    --border-light: rgba(var(--pure-white-rgb) / var(--opacity-xxs));
+
+    /* Glass Scale */
+    --glass-s: rgba(var(--pure-white-rgb) / 0.05);
+    --glass-m: rgba(var(--pure-white-rgb) / 0.1);
+    --glass-l: rgba(var(--pure-white-rgb) / 0.2);
+
     --surface-sunken: rgba(var(--pure-black-rgb) / 0.6);
     --surface-overlay: rgba(var(--pure-black-rgb) / 0.5);
+    --surface-void: rgba(var(--pure-black-rgb) / 0.85);
+    --tint-dark-surface: rgba(var(--pure-black-rgb) / 0.15);
 
-    /* Shadows */
+    --ui-glass-border: rgba(var(--pure-white-rgb) / var(--opacity-xs));
     --shadow-s: 0 0.25rem 0.5rem rgba(var(--pure-black-rgb) / var(--opacity-xs));
     --shadow-m: 0 0.25rem 1rem rgba(var(--pure-black-rgb) / var(--opacity-s));
     --shadow-l: 0 0.5rem 2rem rgba(var(--pure-black-rgb) / var(--opacity-m));
+    --shadow-xl: 0 1rem 3rem rgba(var(--pure-black-rgb) / var(--opacity-l));
+    --shadow-xxl: 0 2rem 5rem rgba(var(--pure-black-rgb) / var(--opacity-full));
+    --shadow-glow: 0 0 1.5rem rgb(var(--brand-accent-rgb) / var(--opacity-m));
     --shadow-font: 0 var(--spacing-px) var(--spacing-xxs) rgba(var(--pure-black-rgb) / var(--opacity-s));
+    --shadow-text: var(--shadow-font);
 
     /************************************************************************************
      * 🧩 [SECTION: TYPOGRAPHY METRICS]

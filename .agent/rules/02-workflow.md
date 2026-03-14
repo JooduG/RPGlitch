@@ -52,8 +52,8 @@ Context is unified under the `.agent/` root:
 Before starting any task, read:
 
 1. `.agent/config.yaml`
-2. `.agent/knowledge/canon/01-vision.md`
-3. `.agent/tasks/tracks.md`
+2. `.agent/knowledge/atlas/01-vision.md`
+3. `.agent/tracks.md`
 
 ## 4. Definition of Done
 

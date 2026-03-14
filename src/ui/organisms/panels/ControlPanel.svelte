@@ -27,7 +27,7 @@
     let isStoryMode = $derived(app.view === "game")
 </script>
 
-<Modal variant="transparent" onclose={() => app.toggle_control_panel()}>
+<Modal variant="transparent" on_close={() => app.toggle_control_panel()}>
     <article class="cockpit-panel" data-testid="cockpit-panel">
         <!-- HEADER: System Toggles -->
         <header class="panel-header">
@@ -103,20 +103,20 @@
         align-items: center;
         margin-bottom: var(--spacing-l);
         padding: var(--spacing-m) 0;
-        box-shadow: 0 1px 0 rgb(var(--pure-white-rgb) / var(--opacity-xxs));
+        box-shadow: 0 1px 0 var(--ui-glass-border);
     }
 
     .prologue-setup .input-wrapper {
         background: var(--surface-sunken);
         border-radius: var(--border-radius-m);
         padding: var(--spacing-m);
-        box-shadow: inset 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xxs));
-        transition: all var(--transition-speed) var(--curve-snappy);
+        box-shadow: inset 0 0 0 1px var(--ui-glass-border);
+        transition: all var(--transition-speed) var(--physics-transition-elastic);
     }
 
     .prologue-setup .input-wrapper:focus-within {
         background: var(--surface-overlay);
-        box-shadow: 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xs));
+        box-shadow: 0 0 0 1px var(--ui-glass-border);
     }
 
     .prologue-setup .input-wrapper .prologue-field {
@@ -152,7 +152,7 @@
         gap: var(--spacing-l);
         margin-top: auto;
         padding-top: var(--spacing-m);
-        border-top: 1px solid rgb(var(--pure-white-rgb) / var(--opacity-xxs));
+        border-top: 1px solid var(--ui-glass-border);
     }
 
     .navigation-links {
@@ -169,7 +169,7 @@
         text-transform: uppercase;
         letter-spacing: var(--letter-spacing-m);
         cursor: pointer;
-        transition: all var(--transition-speed) var(--curve-snappy);
+        transition: all var(--transition-speed) var(--physics-transition-elastic);
         opacity: 0.7;
     }
 

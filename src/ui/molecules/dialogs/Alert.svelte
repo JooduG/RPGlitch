@@ -7,33 +7,39 @@
     import { quintOut } from "svelte/easing"
     import { fade, scale } from "svelte/transition"
 
-    let { title = "System Alert", message = "Notice", buttonLabel = "OK", onClose = () => {}, open = $bindable(false) } = $props()
+    let { 
+        title = "System Alert", 
+        message = "Notice", 
+        button_label = "OK", 
+        on_close = () => {}, 
+        open = $bindable(false) 
+    } = $props()
 
     let dialog = $state()
-    let okBtn = $state()
+    let ok_btn = $state()
 
     $effect(() => {
         if (open && dialog) {
             dialog.showModal()
             // Manual focus management to clear a11y warning
-            okBtn?.focus()
+            ok_btn?.focus()
         } else if (!open && dialog) {
             dialog.close()
         }
     })
 
-    function handleClose() {
-        onClose()
+    function handle_close() {
+        on_close()
         open = false
     }
 
-    function handleKeydown(e) {
-        if (e.key === "Escape") handleClose()
+    function handle_keydown(e) {
+        if (e.key === "Escape") handle_close()
     }
 </script>
 
 {#if open}
-    <dialog bind:this={dialog} onclose={handleClose} onkeydown={handleKeydown} transition:scale={{ duration: 200, start: 0.95, easing: quintOut }}>
+    <dialog bind:this={dialog} onclose={handle_close} onkeydown={handle_keydown} transition:scale={{ duration: 200, start: 0.95, easing: quintOut }}>
         <article class="security-modal">
             <header>
                 <h3>{title}</h3>
@@ -44,13 +50,13 @@
             </div>
 
             <footer>
-                <Button variant="primary" onclick={handleClose} bind:this={okBtn} label={buttonLabel} />
+                <Button variant="primary" onclick={handle_close} bind:this={ok_btn} label={button_label} />
             </footer>
         </article>
     </dialog>
 
     <!-- Backdrop -->
-    <div class="backdrop" transition:fade={{ duration: 150 }} onclick={handleClose} role="presentation"></div>
+    <div class="backdrop" transition:fade={{ duration: 150 }} onclick={handle_close} role="presentation"></div>
 {/if}
 
 <style>
@@ -73,14 +79,17 @@
     .backdrop {
         position: fixed;
         inset: 0;
-        background: rgb(var(--pure-black-rgb) / var(--opacity-xl));
+        background: var(--surface-void);
         backdrop-filter: blur(var(--blur-s));
         z-index: calc(var(--z-modal) - 1);
     }
 
     .security-modal {
-        background: var(--bg-card);
-        box-shadow: var(--shadow-xxl);
+        background: var(--glass-m);
+        backdrop-filter: blur(var(--blur-m));
+        box-shadow: 
+            inset 0 0 0 1px var(--ui-glass-border),
+            var(--shadow-xxl);
         border-radius: var(--border-radius-l);
         overflow: hidden;
         display: flex;
@@ -89,7 +98,7 @@
 
     .security-modal header {
         padding: var(--spacing-m) var(--spacing-xl);
-        background: rgb(var(--pure-white-rgb) / var(--opacity-xs));
+        background: var(--glass-m);
     }
 
     .security-modal h3 {
@@ -110,7 +119,7 @@
         justify-content: center;
         width: var(--spacing-xl);
         height: var(--spacing-xl);
-        background: rgb(var(--brand-accent-rgb, 59 130 246) / var(--opacity-s));
+        background: rgb(var(--brand-accent-rgb) / var(--opacity-s));
         color: var(--app-info);
         border-radius: var(--border-radius-full);
         font-size: var(--font-size-s);
@@ -127,7 +136,7 @@
         padding: var(--spacing-m) var(--spacing-xl);
         display: flex;
         justify-content: flex-end;
-        background: rgb(var(--pure-black-rgb) / var(--opacity-s));
+        background: var(--surface-sunken);
     }
 
     /* button styles removed - utilizing Button component */

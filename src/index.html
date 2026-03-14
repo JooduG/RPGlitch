@@ -15,8 +15,8 @@
             <style>
                 body {
                     margin: 0;
-                    background-color: #11191f;
-                    background-image: radial-gradient(circle at 50% 0%, #181c2f, #23243a 50%, #1a3a4a 75%, #2a1a3a);
+                    background-color: var(--bg-base);
+                    background-image: radial-gradient(circle at 50% 0%, var(--bg-grad-1), var(--bg-grad-2) 50%, var(--bg-grad-3) 75%, var(--bg-grad-4));
                     background-size: cover;
                     background-attachment: fixed;
                     background-repeat: no-repeat;
@@ -35,7 +35,7 @@
                 }
 
                 .boot-illusion .card {
-                    background: linear-gradient(90deg, #1e1e2e 25%, #2a2a3e 50%, #1e1e2e 75%);
+                    background: linear-gradient(90deg, var(--illusion-bg) 25%, var(--illusion-shimmer) 50%, var(--illusion-bg) 75%);
                     background-size: 200% 100%;
                     animation: illusion-shimmer 5s infinite;
                     border-radius: 24px;

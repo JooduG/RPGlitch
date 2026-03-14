@@ -1,4 +1,4 @@
-import { LlmService } from "@core/intelligence/intelligence_service.js"
+import { LlmService } from "@core/intelligence/LlmService.js"
 import { describe, expect, it, vi } from "vitest"
 import { ImageGeneration } from "./image_engine.js"
 import { PromptEngine } from "./image_prompts.js"

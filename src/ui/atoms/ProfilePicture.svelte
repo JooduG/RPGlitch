@@ -71,7 +71,7 @@
 
     .picture.no-bg {
         object-fit: contain;
-        filter: drop-shadow(0 0.5rem 1rem rgb(0 0 0 / 0.5));
+        filter: drop-shadow(0 0.5rem 1rem rgb(var(--pure-black-rgb) / 0.5));
     }
 
     .picture.flipped {
@@ -115,10 +115,10 @@
         height: 100%;
         font-family: var(--font-header);
         font-weight: 700;
-        color: white;
+        color: var(--white);
         text-shadow: var(--shadow-l);
         background-color: var(--signature-color);
-        background-image: radial-gradient(at 0% 0%, color-mix(in srgb, var(--signature-color), white var(--opacity-m-val)) 0, transparent 50%), radial-gradient(at 100% 100%, color-mix(in srgb, var(--signature-color), black var(--opacity-l-val)) 0, transparent 50%);
+        background-image: radial-gradient(at 0% 0%, color-mix(in srgb, var(--signature-color), var(--white) var(--opacity-m-val)) 0, transparent 50%), radial-gradient(at 100% 100%, color-mix(in srgb, var(--signature-color), var(--black) var(--opacity-l-val)) 0, transparent 50%);
         background-blend-mode: overlay;
         text-transform: uppercase;
     }

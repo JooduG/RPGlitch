@@ -17,7 +17,7 @@ description: Fresh Session Initialization. Syncs context, validates integrity, a
 - **The Master Baton [CRITICAL]**: `STATE.md` (The absolute source of immediate truth and architectural history).
 - **The Execution Baton [CRITICAL]**: `next-prompt.md` (The immediate active payload in the continuous loop).
 - **Config**: `.agent/config.yaml`
-- **Tracks**: `.agent/tasks/tracks.md`
+- **Tracks**: `.agent/tracks.md`
 - **Rules**: `.agent/rules/07-svelte-supremacy.md` and `.agent/rules/06-styling-regime.md`
 - **Physics**: `.agent/knowledge/atlas/07-physics.md`
 
@@ -35,7 +35,7 @@ description: Fresh Session Initialization. Syncs context, validates integrity, a
 1. **Sanction Scan**: Check for `[PENANCE]` or `[RESTRICTION]` tags in history.
 2. **Secret Scan**: Ensure no `.env` exposure.
 3. **State Verification**:
-    - Cross-reference `STATE.md` with `next-prompt.md` and `tracks.md`.
+    - Cross-reference `STATE.md` with `next-prompt.md` and `.agent/tracks.md`.
     - If they align, system is **Resonant**.
     - If there is a mismatch (e.g., `next-prompt.md` is asking for a feature that `STATE.md` says is already completed), halt and trigger a **Status Report** to the Director.
 

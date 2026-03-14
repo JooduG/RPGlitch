@@ -1,5 +1,5 @@
 /**
- * @file src/core/intelligence/vector_engine.js
+ * @file src/core/intelligence/VectorEngine.js
  *
  * ─────────────────────────────────────────────────────────────────────────────
  * 🧠 VECTOR ENGINE  —  The Temporal Memory Controller

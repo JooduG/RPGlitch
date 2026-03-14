@@ -90,7 +90,7 @@
 <style>
     .dev-hud-wrapper {
         /* HUD Tokens (Scoped to Debug) */
-        --hud-bg: rgb(var(--pure-black-rgb) / 0.85);
+        --hud-bg: var(--surface-void);
         --hud-text: var(--font-color);
         --hud-muted: var(--font-muted);
         --hud-accent: var(--app-accent);
@@ -137,12 +137,12 @@
         letter-spacing: var(--letter-spacing-m);
         cursor: pointer;
         backdrop-filter: blur(var(--blur-m));
-        transition: all var(--transition-speed) var(--curve-snappy); /* Snappy Curve */
+        transition: all var(--transition-speed) var(--physics-transition-elastic); /* Snappy Curve */
     }
 
     .dev-button:hover {
         color: var(--hud-text);
-        background: rgb(var(--pure-white-rgb) / var(--opacity-s));
+        background: var(--glass-m);
         transform: scale(1.02);
         box-shadow: var(--shadow-m);
     }
@@ -158,7 +158,7 @@
         box-shadow: var(--shadow-l); /* Soft Depth */
         backdrop-filter: blur(var(--blur-l));
         transform: translateX(-100%);
-        transition: transform var(--transition-speed-slow) var(--curve-snappy); /* Snappy Curve */
+        transition: transform var(--transition-speed-slow) var(--physics-transition-elastic); /* Snappy Curve */
         display: flex;
         flex-direction: column;
         pointer-events: auto;
@@ -182,8 +182,8 @@
         justify-content: space-between;
         align-items: center;
         padding: var(--spacing-m) var(--spacing-l);
-        background: rgb(var(--pure-white-rgb) / var(--opacity-xs));
-        box-shadow: 0 var(--spacing-px) 0 0 rgb(var(--pure-white-rgb) / var(--opacity-s)); /* Very subtle separator */
+        background: var(--glass-s);
+        box-shadow: 0 var(--spacing-px) 0 0 var(--ui-glass-border); /* Very subtle separator */
     }
 
     .drawer-header .hud-title {
@@ -209,7 +209,7 @@
 
     .drawer-tabs {
         display: flex;
-        box-shadow: 0 var(--spacing-px) 0 0 rgb(var(--pure-white-rgb) / var(--opacity-s));
+        box-shadow: 0 var(--spacing-px) 0 0 var(--ui-glass-border);
     }
 
     .drawer-tabs button {
@@ -236,7 +236,7 @@
         width: 0;
         height: 2px;
         background: var(--hud-accent);
-        transition: width var(--transition-speed) var(--curve-snappy);
+        transition: width var(--transition-speed) var(--physics-transition-elastic);
     }
 
     .drawer-tabs button:hover {
@@ -266,18 +266,18 @@
         background: transparent;
     }
     .drawer-content::-webkit-scrollbar-thumb {
-        background: rgb(var(--pure-white-rgb) / var(--opacity-m));
+        background: var(--glass-s);
         border-radius: 3px;
     }
     .drawer-content::-webkit-scrollbar-thumb:hover {
-        background: rgb(var(--pure-white-rgb) / var(--opacity-xl));
+        background: var(--glass-m);
     }
 
     .panel-section {
         display: flex;
         flex-direction: column;
         gap: var(--spacing-m);
-        animation: scanline 0.3s var(--curve-snappy) forwards;
+        animation: scanline 0.3s var(--physics-transition-elastic) forwards;
     }
 
     @keyframes scanline {
@@ -300,7 +300,7 @@
     }
 
     .data-dump {
-        background: rgb(var(--pure-black-rgb) / var(--opacity-xxl));
+        background: var(--surface-sunken);
         border: none;
         border-radius: var(--border-radius-sm);
         box-shadow: inset 0 var(--spacing-xxs) var(--spacing-l) rgb(var(--pure-black-rgb) / var(--opacity-l)); /* Soft Inner Depth */
@@ -323,8 +323,8 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: rgb(var(--pure-white-rgb) / var(--opacity-xs));
-        border-radius: 6px;
+        background: var(--glass-s);
+        border-radius: var(--border-radius-m);
         padding: var(--spacing-s) var(--spacing-m);
     }
 

@@ -23,7 +23,8 @@
         "test:e2e": "playwright test",
         "test:ui": "vitest --ui",
         "verify": "npm run check && npm run lint && npx vitest run",
-        "deploy": "npm run verify && npm run build"
+        "deploy": "npm run verify && npm run build && npm run deploy:perchance",
+        "deploy:perchance": "node .agent/skills/devops/scripts/deploy_perchance.js"
     },
     "dependencies": {
         "@google/jules": "^0.1.42",

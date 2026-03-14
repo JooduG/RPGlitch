@@ -44,17 +44,17 @@
 
         <!-- LEFT: AI -->
         {#snippet left()}
-            <StoryboardCard type="ai" entity={app.selected_ai} roleLabel="AI Character" onSelect={() => app.open_drawer("ai")} onViewProfile={() => app.toggle_profile(true, app.selected_ai)} />
+            <StoryboardCard type="ai" entity={app.selected_ai} role_label="AI Character" on_select={() => app.open_drawer("ai")} on_view_profile={() => app.toggle_profile(true, app.selected_ai)} />
         {/snippet}
 
         <!-- CENTER: Fractal -->
         {#snippet center()}
-            <StoryboardCard type="fractal" entity={app.selected_fractal} roleLabel="Fractal" onSelect={() => app.open_drawer("fractal")} onViewProfile={() => app.toggle_profile(true, app.selected_fractal)} />
+            <StoryboardCard type="fractal" entity={app.selected_fractal} role_label="Fractal" on_select={() => app.open_drawer("fractal")} on_view_profile={() => app.toggle_profile(true, app.selected_fractal)} />
         {/snippet}
 
         <!-- RIGHT: User -->
         {#snippet right()}
-            <StoryboardCard type="user" entity={app.selected_user} roleLabel="Your Persona" onSelect={() => app.open_drawer("user")} onViewProfile={() => app.toggle_profile(true, app.selected_user)} />
+            <StoryboardCard type="user" entity={app.selected_user} role_label="Your Persona" on_select={() => app.open_drawer("user")} on_view_profile={() => app.toggle_profile(true, app.selected_user)} />
         {/snippet}
 
         {#snippet footer()}

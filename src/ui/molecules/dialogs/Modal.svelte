@@ -1,7 +1,8 @@
 <script>
     let {
-        onclose,
+        on_close,
         variant = "standard", // 'standard' | 'profile' | 'preview'
+        z_index = 9999,
         children,
     } = $props()
 
@@ -9,27 +10,28 @@
     import { fly } from "svelte/transition"
     import Backdrop from "./Backdrop.svelte"
 
-    function handleKeydown(e) {
-        if (e.key === "Escape") onclose()
+    function handle_keydown(e) {
+        if (e.key === "Escape") on_close()
     }
 </script>
 
-<svelte:window onkeydown={handleKeydown} />
+<svelte:window onkeydown={handle_keydown} />
 
 <!-- Visual Layer -->
-<Backdrop onclick={onclose} zIndex={9998} />
+<Backdrop onclick={on_close} z_index={z_index - 1} />
 
 <!-- Interaction & Layout Layer -->
 <div
     class="modal-layout"
+    style="z-index: {z_index};"
     role="button"
     tabindex="-1"
     onclick={(e) => {
-        if (e.target === e.currentTarget) onclose()
+        if (e.target === e.currentTarget) on_close()
     }}
     onkeydown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
-            if (e.target === e.currentTarget) onclose()
+            if (e.target === e.currentTarget) on_close()
         }
     }}
 >
@@ -46,12 +48,12 @@
         transition:fly={{ y: 20, duration: 400, easing: quintOut }}
         onclick={(e) => {
             if (variant === "profile" && e.target === e.currentTarget) {
-                onclose()
+                on_close()
             }
         }}
         onkeydown={(e) => {
             if (variant === "profile" && e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) {
-                onclose()
+                on_close()
             }
         }}
     >
@@ -76,11 +78,12 @@
         flex-direction: column;
 
         /* Standard Styles */
-        background: var(--bg-card);
+        background: var(--glass-m);
+        backdrop-filter: blur(var(--blur-m));
         box-shadow:
-            0 0 0 1px var(--border-light),
+            inset 0 0 0 1px var(--ui-glass-border),
             var(--shadow-xl);
-        border-radius: var(--border-radius);
+        border-radius: var(--border-radius-l);
         padding: 0;
         max-width: 37.5rem; /* ~600px */
         width: auto;

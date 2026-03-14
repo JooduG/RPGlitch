@@ -6,7 +6,7 @@
 
 import { CONFIG, ROLES } from "@core/engine/config.js"
 import { ContextBroker } from "@core/intelligence/ContextBroker.js"
-import { LlmService } from "@core/intelligence/intelligence_service.js"
+import { LlmService } from "@core/intelligence/LlmService.js"
 import { db } from "@data/db.js"
 import { entities } from "@data/repository.js"
 import { runtime } from "@state/runtime.svelte.js"

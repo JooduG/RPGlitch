@@ -26,7 +26,7 @@
     }
 
     .panel-header {
-        background: rgb(var(--pure-white-rgb) / var(--opacity-xs));
+        background: var(--glass-s);
         padding: var(--spacing-s) var(--spacing-m);
         box-shadow: 0 var(--spacing-px) 0 0 var(--ui-glass-border);
         border-bottom: none;

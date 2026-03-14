@@ -1,5 +1,5 @@
 /**
- * @file src/core/intelligence/intelligence_service.js
+ * @file src/core/intelligence/LlmService.js
  *
  * ─────────────────────────────────────────────────────────────────────────────
  * 🔌 LLM SERVICE  —  The Transport Layer

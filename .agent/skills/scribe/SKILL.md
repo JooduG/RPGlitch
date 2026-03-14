@@ -1,9 +1,7 @@
 ---
 name: scribe
 version: 1.0.0
-description: >
-    Maintains the semantic rules, capabilities (skill-creator), and ensures documentation integrity.
-    Triggers: "Create a new skill", "Scaffold rule", "Audit documentation coverage", "Update project canon".
+description: "Maintains the semantic rules, capabilities (skill-creator), and ensures documentation integrity. Triggers: Create a new skill, Scaffold rule, Audit documentation coverage, Update project canon."
 ---
 
 # 🛡️ Skill: The System Librarian (The Librarian)

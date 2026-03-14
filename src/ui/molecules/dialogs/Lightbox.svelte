@@ -4,7 +4,7 @@
 </script>
 
 {#if lightbox.active}
-    <Modal variant="preview" onclose={closeLightbox}>
+    <Modal variant="preview" on_close={closeLightbox}>
         <div class="preview-stage">
             <img src={lightbox.src} alt={lightbox.caption || "Preview"} />
             {#if lightbox.caption}

@@ -15,9 +15,9 @@ disable-model-invocation: true
 
 ## 2. Brain (Context Injection)
 
-- **Tracks**: `.agent/tasks/tracks.md`
-- **Plan**: `.agent/tasks/<slug>/plan.md`
-- **Spec**: `.agent/tasks/<slug>/spec.md`
+- **Tracks**: `.agent/tracks.md`
+- **Plan**: `.agent/tasks/<slug>.md` (Flat — Spec + Plan combined)
+- **Spec**: Embedded in `.agent/tasks/<slug>.md`
 - **Diff**: `git status` / `git diff`
 
 ## 3. Procedures
@@ -46,7 +46,7 @@ disable-model-invocation: true
 ### Phase 3: The Registry (Update & Sync)
 
 1.  **Update Plan**: Mark items `[x] [checkpoint: <sha>]`.
-2.  **Update Tracks**: Update global status in `tracks.md`. **Mandatory**: Use the "Track Block" format.
+2.  **Update Tracks**: Update global status in `.agent/tracks.md`. **Mandatory**: Use the "Track Block" format.
 3.  **Global Documentation Synchronization**: If the track is 100% complete, cross-reference the finished `spec.md` against `.agent/knowledge/atlas/03-architecture.md` and `01-vision.md`. If core systems or paradigms changed, propose a diff to the user to keep the Atlas synchronized. Wait for approval before editing.
 4.  **Interactive Track Cleanup**: If the track is 100% complete, do NOT automatically archive the folder. Prompt the user: "Track is complete. Do you want to **Review**, **Archive**, **Delete**, or **Skip**?". Execute the action based on their explicit selection.
 

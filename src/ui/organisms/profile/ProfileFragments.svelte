@@ -160,27 +160,19 @@
     }
 
     .content .row .field-group .text-area {
-        background: transparent;
-        border: none;
-        box-shadow: none;
-        resize: none;
-        font-family: inherit;
-        color: inherit;
-        padding: 0;
-        margin: 0;
-        outline: none;
-
-        resize: none;
         width: 100%;
         height: 100%;
         min-height: var(--spacing-xxxl);
         overflow-y: auto;
         background: var(--surface-sunken);
-        box-shadow: inset 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xxs));
+        box-shadow: inset 0 0 0 1px var(--border-light);
         border: none;
         border-radius: var(--border-radius-m);
-        color: white;
+        color: var(--white);
         padding: var(--spacing-m);
+        margin: 0;
+        outline: none;
+        resize: none;
         font-family: inherit;
         font-size: var(--font-size-s);
         line-height: 1.5;
@@ -203,7 +195,7 @@
     .content .row .field-group .text-area.edit:hover,
     .content .row .field-group .text-area.edit:focus {
         background: var(--surface-overlay);
-        box-shadow: inset 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xs));
+        box-shadow: inset 0 0 0 1px var(--ui-glass-border);
     }
 
     .content .row .field-group .text-area:disabled {
@@ -223,13 +215,13 @@
         pointer-events: auto;
         cursor: default;
         background: var(--surface-sunken);
-        box-shadow: inset 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xxs));
+        box-shadow: inset 0 0 0 1px var(--border-light);
         border: none;
     }
 
     .content .row .field-group .text-area.readonly :global(strong) {
         font-weight: 800;
-        color: white;
+        color: var(--white);
     }
 
     .content .row .field-group .text-area.readonly :global(em) {

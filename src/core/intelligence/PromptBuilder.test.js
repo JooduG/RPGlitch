@@ -56,7 +56,7 @@ describe("PromptBuilder (Refactored)", () => {
             const result = PromptBuilder.synthesize(mock_payload, mock_snapshot)
             expect(result.system).toContain('<SYSTEM role="Viper"')
             expect(result.system).toContain('turn="1"')
-            expect(result.system).toContain("<INPUT_COMMAND>\ntest action\n</INPUT_COMMAND>")
+            expect(result.system).toContain("<INPUT_COMMAND>test action</INPUT_COMMAND>")
             expect(result.meta.dynamics.intensity).toBe(80)
         })
 

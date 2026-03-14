@@ -124,26 +124,26 @@
 
     .swap-view-trigger {
         position: fixed;
-        bottom: 1rem;
-        right: 1rem;
+        bottom: var(--spacing-m);
+        right: var(--spacing-m);
         z-index: 10001;
-        background: rgba(0, 0, 0, 0.5);
+        background: var(--surface-overlay);
         box-shadow: 0 0 0 1px var(--glass-border);
-        color: var(--zinc-500);
+        color: var(--frisk);
         width: 2.5rem;
         height: 2.5rem;
-        border-radius: 50%;
+        border-radius: var(--border-radius-full);
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 1.2rem;
-        transition: all 0.2s;
+        transition: all var(--transition-speed);
     }
 
     .swap-view-trigger:hover {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
+        background: var(--glass-s);
+        color: var(--white);
         transform: scale(1.1);
     }
 </style>

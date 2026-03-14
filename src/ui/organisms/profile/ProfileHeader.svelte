@@ -85,8 +85,8 @@
 
     .name.edit:hover,
     .name.edit:focus-within {
-        background: rgb(var(--pure-white-rgb) / var(--opacity-xxs));
-        box-shadow: inset 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xs));
+        background: var(--glass-s);
+        box-shadow: inset 0 0 0 1px var(--ui-glass-border);
     }
 
     .name.edit span {
@@ -106,15 +106,6 @@
     }
 
     .description {
-        background: transparent;
-        border: none;
-        box-shadow: none;
-        resize: none;
-        font-family: inherit;
-        color: inherit;
-        padding: 0;
-        margin: 0;
-
         width: 100%;
         color: var(--font-color);
         font-family: inherit;
@@ -124,6 +115,7 @@
         transition: all 0.2s;
         border-radius: var(--border-radius-m);
         padding: var(--spacing-s);
+        margin: 0;
         border: none;
         box-shadow: inset 0 0 0 1px transparent;
         background: transparent;
@@ -143,14 +135,14 @@
 
     .description.edit {
         pointer-events: auto;
-        caret-color: white;
+        caret-color: var(--white);
         cursor: text;
     }
 
     .description.edit:hover,
     .description.edit:focus {
-        background: rgb(var(--pure-white-rgb) / var(--opacity-xxs));
-        box-shadow: inset 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-xs));
+        background: var(--glass-s);
+        box-shadow: inset 0 0 0 1px var(--ui-glass-border);
         outline: none;
     }
 
@@ -162,7 +154,7 @@
 
     .description.readonly :global(strong) {
         font-weight: 800;
-        color: white;
+        color: var(--white);
     }
 
     .description.readonly :global(em) {

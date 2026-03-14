@@ -5,7 +5,7 @@
  * Flattened for the Twin-Cylinder architecture.
  */
 
-import { DEFAULT_COLORS, PALETTE } from "@core/engine/palette.js"
+import { DEFAULT_COLORS, PALETTE, PALETTE_VARS } from "@core/engine/palette.js"
 import { normalize } from "@data/content_normaliser.js"
 
 class ThemeStore {
@@ -56,8 +56,14 @@ class ThemeStore {
         return `hsl(${hue}, 40%, 60%)`
     }
 
+    resolve_token(color) {
+        if (!color) return null
+        if (color.startsWith("var(")) return color
+        return PALETTE_VARS[color] || null
+    }
+
     /**
-     * Resolves the actual color value (Hex or HSL) for an entity.
+     * Resolves the actual color value (Hex, HSL, or Token) for an entity.
      * Looks at the flattened signature_color property.
      */
     get_signature_color(entity) {
@@ -65,9 +71,17 @@ class ThemeStore {
             const color = entity.signature_color
 
             if (color) {
-                // If it's a named palette key (e.g., "Hot Pink"), return the hex value
-                if (PALETTE[color]) return PALETTE[color]
-                return color // Otherwise return the raw hex string
+                // 1. Check if it's already a token or a mapped hex
+                const token = this.resolve_token(color)
+                if (token) return token
+
+                // 2. Check if it's a named palette key (e.g., "Hot Pink")
+                if (PALETTE[color]) {
+                    const hex = PALETTE[color]
+                    return this.resolve_token(hex) || hex
+                }
+
+                return color // Fallback to raw hex string
             }
         }
 
@@ -86,7 +100,7 @@ class ThemeStore {
      * Calculates the best contrast color (black or white) for a background.
      */
     get_contrast_color(hex) {
-        if (!hex || typeof hex !== "string" || hex.startsWith("hsl")) return "#fff"
+        if (!hex || typeof hex !== "string" || hex.startsWith("hsl")) return "var(--white)"
 
         let color = hex.replace("#", "")
         if (color.length === 3) {
@@ -96,13 +110,13 @@ class ThemeStore {
                 .join("")
         }
 
-        if (color.length !== 6 || !/^[0-9a-f]{6}$/i.test(color)) return "#fff"
+        if (color.length !== 6 || !/^[0-9a-f]{6}$/i.test(color)) return "var(--white)"
 
         const r = parseInt(color.substr(0, 2), 16)
         const g = parseInt(color.substr(2, 2), 16)
         const b = parseInt(color.substr(4, 2), 16)
         const yiq = (r * 299 + g * 587 + b * 114) / 1000
-        return yiq >= 128 ? "#000" : "#fff"
+        return yiq >= 128 ? "var(--black)" : "var(--white)"
     }
 
     /**
