@@ -1,4 +1,5 @@
 # .agent/policy.toml - High-Trust Configuration for RPGlitch
+
 [capabilities]
 research = "allow"
 logic = "allow"
@@ -6,7 +7,6 @@ execution = "allow"
 communication = "allow"
 
 [tools]
-# Core filesystem and search tools (including aliases from tooling.json)
 read_file = "allow"
 view_file = "allow"
 write_file = "allow"
@@ -21,17 +21,18 @@ list_directory = "allow"
 ls = "allow"
 
 # Communication and external search tools
+
 web_fetch = "allow"
 google_web_search = "allow"
 ask_user = "allow"
 save_memory = "allow"
 
 # High-impact execution tools
+
 run_shell_command = "allow"
 run_command = "allow"
 
 [tools.mcp]
-# Allow all configured MCP servers found in mcp_config.json
 "firecrawl-mcp" = "allow"
 "svelte" = "allow"
 "pinecone-mcp-server" = "allow"
@@ -73,4 +74,9 @@ vite = "allow"
 [files]
 ".env*" = "confirm"
 ".git/**" = "deny"
-".agent/policy.toml" = "confirm"
+".agent/policy.toml" = "allow"
+".agent/**" = "allow"
+"STATE.md" = "allow"
+"ignores.master.json" = "allow"
+"package.json" = "allow"
+"C:/Users/johng/.gemini/**" = "allow"

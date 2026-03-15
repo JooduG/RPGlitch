@@ -85,7 +85,9 @@ The project targets **Perchance** as its primary deployment platform, requiring 
 
 ## 📝 Ongoing Tasks (Tracks)
 
-Refer to `.agent/tasks/` for active development tracks:
+   Active development and architectural task tracking is dynamically managed via the Antigravity Mission Board.
 
-- `intelligence-kernel.md`: ContextBroker and PromptBuilder refinement.
-- `ui-refactor.md`: Migration of legacy components to Svelte 5.
+   Please refer to:
+
+- **`.agent/tasks/tracks.md`** (The Mission Board / Active State)
+- **`.agent/tasks/`** (Individual implementation plans)

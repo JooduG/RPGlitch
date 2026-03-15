@@ -39,6 +39,7 @@ knowledge:
         atlas-physics: .agent/knowledge/atlas/07-physics.md
         rule-security: .agent/rules/04-security.md
         rule-standards: .agent/rules/05-standards.md
+
         # Knowledge
         atlas-vision: .agent/knowledge/atlas/01-vision.md
         atlas-roadmap: .agent/knowledge/atlas/02-roadmap.md
@@ -46,6 +47,10 @@ knowledge:
         atlas-mechanics: .agent/knowledge/atlas/04-mechanics.md
         atlas-environment: .agent/knowledge/atlas/05-environment.md
         atlas-lexicon: .agent/knowledge/atlas/06-lexicon.md
+
+    # Archive: Previous Implementations of Everything (Given we remembered to archive it)
+    archive:
+        dir: .agent/archive/
 
     # 🔬 Lab: Experimental Theories & Speculative Ideas
     lab:
@@ -57,4 +62,4 @@ knowledge:
 
 # 📝 Workspace (Active Memory)
 workspace:
-    tracks: .agent/tracks.md
+    tracks: .agent/tasks/tracks.md

@@ -5,7 +5,20 @@ description: The Technical Stack. Modern JS, Svelte 5 Runes, and Platform Constr
 
 # 💻 Physics (The Stack)
 
-## 1. Modern JavaScript Supported
+## 1. Core Technology Stack
+
+- **Language:** JavaScript (ESNext)
+- **Frontend:** Svelte 5 (Runes-only: `$state`, `$derived`, `$effect`)
+- **Build Tool:** Vite (with `vite-plugin-singlefile` for Perchance)
+- **Persistence:** Dexie.js (IndexedDB) and Svelte 5 reactive stores
+- **Styling:** Vanilla CSS with "Chalk Regime" design tokens (`src/theme/tokens.css`)
+- **Preprocessors:** Svelte-preprocess, SCSS, PostCSS
+- **Testing:** Vitest (Unit/Integration) and Playwright (E2E)
+- **Linting:** ESLint, Stylelint, HTMLHint
+- **Automation:** Project-specific "agent skills" in `.agent/`
+- **Platform:** Perchance (Self-contained single `index.html` bundle)
+
+## 2. Modern JavaScript Supported
 
 The project operates in an environment where modern JavaScript is supported via the `esbuild` bundler. Standard JS features are officially ALLOWED.
 

@@ -33,19 +33,22 @@ function generateIgnore(filename, specific) {
 // 1. .gitignore
 generateIgnore(".gitignore", master.gitignore || [])
 
-// 2. .prettierignore
+// 2. .geminiignore
+generateIgnore(".geminiignore", master.geminiignore || [])
+
+// 3. .prettierignore
 generateIgnore(".prettierignore", master.linters?.prettier || [])
 
-// 3. .stylelintignore
+// 4. .stylelintignore
 generateIgnore(".stylelintignore", master.linters?.stylelint || [])
 
-// 4. .htmlhintignore
+// 5. .htmlhintignore
 generateIgnore(".htmlhintignore", master.linters?.htmlhint || [])
 
-// 5. .markdownlintignore
+// 6. .markdownlintignore
 generateIgnore(".markdownlintignore", master.linters?.markdownlint || [])
 
-// 6. eslint.config.js (Injection)
+// 7. eslint.config.js (Injection)
 const eslintConfigPath = path.resolve(process.cwd(), "eslint.config.js")
 if (fs.existsSync(eslintConfigPath)) {
     try {
@@ -72,15 +75,15 @@ if (fs.existsSync(eslintConfigPath)) {
     }
 }
 
-// 7. .vscode/settings.json
+// 8. .vscode/settings.json
 const vscodeSettingsPath = path.resolve(process.cwd(), ".vscode/settings.json")
 if (fs.existsSync(vscodeSettingsPath) && master.vscode) {
     try {
         const settings = JSON.parse(fs.readFileSync(vscodeSettingsPath, "utf-8"))
-        settings["files.exclude"] = {
-            ...settings["files.exclude"],
-            ...master.vscode["files.exclude"],
-        }
+
+        // Exact sync to allow removals from master
+        settings["files.exclude"] = master.vscode["files.exclude"] || {}
+
         if (master.vscode["markdown.validate.referenceLinks.enabled"] !== undefined) {
             settings["markdown.validate.referenceLinks.enabled"] = master.vscode["markdown.validate.referenceLinks.enabled"]
         }

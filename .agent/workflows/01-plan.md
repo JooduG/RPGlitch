@@ -16,7 +16,7 @@ description: Scoping and planning a new feature. Defines WHAT to build, not HOW.
 
 - **Vision**: `.agent/knowledge/atlas/01-vision.md`
 - **Physics**: `.agent/knowledge/atlas/07-physics.md` (Constraints)
-- **Tracks**: `.agent/tracks.md` (Project State)
+- **Tracks**: `.agent/tasks/tracks.md` (Project State)
 
 ## 3. Procedures
 
@@ -39,7 +39,7 @@ description: Scoping and planning a new feature. Defines WHAT to build, not HOW.
 
 ### Phase 3: Registration
 
-1.  **Update Tracks**: Add to `.agent/tracks.md`. **Mandatory**: Use the high-fidelity "Track Block" format (Path, Status, Checkpoint, Note).
+1.  **Update Tracks**: Add to `.agent/tasks/tracks.md`. **Mandatory**: Use the high-fidelity "Track Block" format (Path, Status, Checkpoint, Note).
 2.  **Review**: Present Spec & Plan to user.
 3.  **Approval**: Wait for "Proceed" or "Green Light".
 

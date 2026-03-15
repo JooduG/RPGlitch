@@ -16,7 +16,7 @@ description: Maintain swarm momentum. Pick up the baton, finish the active execu
 
 - **The Master Baton**: `STATE.md`
 - **The Execution Baton**: `next-prompt.md`
-- **The Mission Board**: `.agent/tracks.md`
+- **The Mission Board**: `.agent/tasks/tracks.md`
 - **The Flat Track**: `.agent/tasks/<slug>.md` (Single flat file — Spec + Plan combined)
 
 ## 3. Procedures
@@ -24,7 +24,7 @@ description: Maintain swarm momentum. Pick up the baton, finish the active execu
 ### Phase 1: Context Re-Acquisition
 
 1. **Read STATE.md & next-prompt.md**: Sync reality and acquire the immediate payload.
-2. **Read Mission Board**: Check `.agent/tracks.md` for the active `[/]` track (flat file at repo root of `.agent/`).
+2. **Read Mission Board**: Check `.agent/tasks/tracks.md` for the active `[/]` track (flat file at repo root of `.agent/`).
 3. **Read Flat Track**: Parse `.agent/tasks/<slug>.md` to understand the spec and current checklist state.
 
 ### Phase 2: Momentum Restoration & Execution
@@ -37,7 +37,7 @@ description: Maintain swarm momentum. Pick up the baton, finish the active execu
 
 _Triggered when the final step in the Flat Track is completed._
 
-1. **Vaporize**: Delete the completed `.agent/tasks/<slug>.md` file. Mark it `[x]` in `.agent/tracks.md`.
+1. **Vaporize**: Delete the completed `.agent/tasks/<slug>.md` file. Mark it `[x]` in `.agent/tasks/tracks.md`.
 2. **Update STATE.md**: Log the completed feature under "Active WIP & Known Quirks".
 3. **Forge next-prompt.md**: Write the exact, actionable instruction for the _next_ agent based on the backlog.
 4. **Clock Out**: State: "Handoff complete. Track vaporized. Next payload loaded."

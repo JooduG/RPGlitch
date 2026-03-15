@@ -1,7 +1,8 @@
 {
   "ui": {
     "accessibility": {},
-    "theme": "Atom One"
+    "theme": "Atom One",
+    "showLineNumbers": false
   },
   "context": {
     "fileFiltering": {
@@ -126,17 +127,21 @@
       "args": []
     }
   },
-  "policyPaths": [".agent/policy.toml"],
-  "adminPolicyPaths": [".agent/policy.toml"],
   "general": {
     "enablePromptCompletion": true,
     "preferredEditor": "antigravity",
-    "plan": {
-       "directory": ".agent/tasks/" 
-      }
+    "plan": {}
   },
   "tools": {
-    "allowed": ["write_file", "read_file"],
-    "enableHooks": false
+    "allowed": [
+      "write_file",
+      "read_file",
+      "list_directory",
+      "run_shell_command",
+      "replace",
+      "glob",
+      "grep_search"
+    ],
+    "enableHooks": true
   }
 }
