@@ -4,7 +4,9 @@
     "theme": "Atom One"
   },
   "context": {
-    "fileFiltering": {}
+    "fileFiltering": {
+      "respectGitIgnore": false
+    }
   },
   "security": {
     "folderTrust": {
@@ -18,10 +20,6 @@
     "hasSeenNudge": true
   },
   "mcpServers": {
-
-
-
-    
     "memory": {
       "command": "node",
       "args": [
@@ -127,15 +125,18 @@
       "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\node_modules\\.bin\\chrome-devtools-mcp.cmd",
       "args": []
     }
-  
-
-    
   },
+  "policyPaths": [".agent/policy.toml"],
+  "adminPolicyPaths": [".agent/policy.toml"],
   "general": {
     "enablePromptCompletion": true,
-    "preferredEditor": "antigravity"
+    "preferredEditor": "antigravity",
+    "plan": {
+       "directory": ".agent/tasks/" 
+      }
   },
   "tools": {
+    "allowed": ["write_file", "read_file"],
     "enableHooks": false
   }
 }

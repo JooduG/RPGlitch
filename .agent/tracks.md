@@ -1,11 +1,12 @@
-# MISSION BOARD
+# 🛤️ Mission Board
 
 ## Active Tracks
 
-- [x] ui-refactor
-- [/] intelligence-kernel
-- [x] deploy-perchance
+- [/] **intelligence-kernel**: Refining ContextBroker and PromptBuilder.
+- [x] **ui-refactor**: Standardized modal backgrounds and Svelte 5 migration.
+- [x] **deploy-perchance**: Playwright automation and pre-flight verification.
 
 ## Pending Tracks
 
-- [ ] narrative-bridge
+- [ ] **narrative-bridge**: Bridging Intelligence Kernel with Narrative Director.
+- [ ] **intelligence-kernel-refinement**: Optimization and svelte-check resolution.

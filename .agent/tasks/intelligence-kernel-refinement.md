@@ -4,15 +4,16 @@ The Intelligence Kernel is functional but requires nomenclature alignment (Two-R
 
 ## Track: Nomenclature & Hygiene
 
-- [ ] Rename `intelligence_service.js` to `LlmService.js`.
-- [ ] Rename `vector_engine.js` to `VectorEngine.js`.
-- [ ] Update all internal imports in `@core/intelligence/**`.
+- [x] Rename `IntelligenceService.js` to `IntelligenceKernel.js`.
+- [x] Ensure `LlmService.js` is correctly isolated.
+- [x] Rename `vector_engine.js` to `VectorEngine.js`.
+- [x] Update all internal imports in `@core/intelligence/**`.
 - [ ] Audit `LlmService.generate` JSDoc to accurately reflect payload expectations.
-- [ ] Refactor `IntelligenceService.executeTurn` to pass parameters in a way that satisfies `svelte-check`.
+- [x] Refactor `IntelligenceKernel.executeTurn` to pass parameters in a way that satisfies `svelte-check`.
 
 ## Track: Verification & Stability
 
-- [ ] Update `IntelligenceService.test.js` to import from `LlmService.js`.
+- [x] Update `IntelligenceKernel.test.js` to import and test the kernel.
 - [ ] Ensure `vi.mocked` is used consistently across all intelligence tests.
 - [ ] Run `npm run verify` to confirm 0 errors.
 

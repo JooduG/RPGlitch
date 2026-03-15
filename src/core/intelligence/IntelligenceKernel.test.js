@@ -1,72 +1,82 @@
-import { describe, it, expect, vi } from "vitest"
-import { ContextBroker } from "./ContextBroker.js"
-import { PromptBuilder } from "./PromptBuilder.js"
+import { describe, it, expect, vi, beforeEach } from "vitest"
+import { IntelligenceKernel } from "./IntelligenceKernel.js"
+import { Session } from "@core/engine/SessionDriver.js"
+import { LlmService } from "./LlmService.js"
+import { runtime } from "@state/runtime.svelte.js"
 
-// Mock runtime state
-vi.mock("@state/runtime.svelte.js", () => ({
-    runtime: {
-        turn: 42,
-        active_vector: vi.fn(() => "Investigation"),
-        active_ai: { 
-            name: "Glitch", 
-            fragments: [
-                { text: "A digital ghost.", type: "Philosophy", section: "Eternal", layer: "ETERNAL" },
-                { text: "The deep web.", type: "History", section: "Eternal", layer: "ETERNAL" }
-            ] 
-        },
-        active_user: { 
-            name: "Operator", 
-            fragments: [
-                { text: "A curious observer.", type: "Philosophy", section: "Eternal", layer: "ETERNAL" }
-            ] 
-        },
-        active_fractal: { 
-            name: "The Void", 
-            fragments: [
-                { text: "An endless expanse.", type: "Nature", section: "Eternal", layer: "ETERNAL" }
-            ] 
-        }
+// Mock dependencies
+vi.mock("@core/engine/SessionDriver.js", () => ({
+    Session: {
+        load_log: vi.fn(),
+        log_turn: vi.fn(),
+        requireActive: vi.fn(() => "story-123"),
     }
 }))
 
+vi.mock("./LlmService.js", () => ({
+    LlmService: {
+        generate: vi.fn(),
+    }
+}))
 
-describe("Intelligence Kernel Integration", () => {
-    it("should hydrate context and synthesize a valid system prompt", async () => {
-        // 1. Hydrate via ContextBroker (Input, Type, Log)
-        const payload = await ContextBroker.hydrate(
-            "What is it?",
-            "simulation",
-            [
-                { role: "character", content: "I see something in the shadows." },
-                { role: "user", content: "What is it?" }
-            ]
-        )
+vi.mock("@state/runtime.svelte.js", () => ({
+    runtime: {
+        turn: 0,
+        active_vector: vi.fn(() => "Exploration"),
+        active_ai: { name: "Ghost" },
+        active_user: { name: "Player" },
+        active_fractal: { name: "Void" },
+        physics: {}
+    }
+}))
 
-        expect(payload.entities.AI.name).toBe("Glitch")
-        expect(payload.turn).toBe(42)
+vi.mock("@state/app.svelte.js", () => ({
+    app: {
+        log: vi.fn(),
+    }
+}))
 
-        // 2. Synthesize via PromptBuilder
-        const snapshot = {
-            log: [
-                { role: "character", content: "I see something in the shadows." },
-                { role: "user", content: "What is it?" }
-            ],
-            behaviors: ["Direct and cold narrative style."],
-            dynamics: {},
-            flags: {}
-        }
+describe("IntelligenceKernel Orchestration", () => {
+    beforeEach(() => {
+        vi.resetAllMocks()
+        runtime.turn = 0
+    })
 
-        const prompt = PromptBuilder.synthesize(payload, snapshot)
 
-        // 4. Verify prompt structure
-        expect(prompt.system).toContain("<SYSTEM")
-        expect(prompt.system).toContain("<YOUR_IDENTITY")
-        expect(prompt.system).toContain("Glitch")
-        expect(prompt.system).toContain("A digital ghost.")
-        expect(prompt.system).toContain("<SIMULATION_LOG>")
-        expect(prompt.system).toContain("I see something in the shadows.")
-        expect(prompt.system).toContain("<NARRATIVE_STYLE>")
-        expect(prompt.system).toContain("Direct and cold")
+    it("should execute a full narrative turn", async () => {
+        vi.mocked(Session.load_log).mockResolvedValue([
+            { role: "user", text: "Hello" }
+        ])
+        vi.mocked(LlmService.generate).mockResolvedValue("Identified.")
+
+        const result = await IntelligenceKernel.executeTurn("story-123", { input: "Hi" })
+
+        expect(runtime.turn).toBe(1)
+        expect(Session.load_log).toHaveBeenCalledWith("story-123")
+        expect(LlmService.generate).toHaveBeenCalled()
+        expect(Session.log_turn).toHaveBeenCalledWith("Identified.", "Ghost", "ai", expect.any(Object))
+        expect(result.response).toBe("Identified.")
+    })
+
+    it("should execute a prologue", async () => {
+        vi.mocked(LlmService.generate).mockResolvedValueOnce("Once upon a time...") // Prologue
+        vi.mocked(LlmService.generate).mockResolvedValueOnce("The adventure begins.") // Follow-up turn
+        vi.mocked(Session.load_log).mockResolvedValue([])
+
+        await IntelligenceKernel.executePrologue("story-123")
+
+        expect(Session.log_turn).toHaveBeenCalledWith("Once upon a time...", "Void", "fractal")
+        expect(runtime.turn).toBe(1) // from executeTurn call inside executePrologue
+    })
+
+    it("should execute an epilogue", async () => {
+        vi.mocked(LlmService.generate).mockResolvedValue("And so it ends.")
+        
+        const result = await IntelligenceKernel.executeEpilogue("story-123")
+
+        expect(LlmService.generate).toHaveBeenCalled()
+        expect(Session.log_turn).toHaveBeenCalledWith("And so it ends.", "Narrator", "ai")
+        expect(result).toBe("And so it ends.")
     })
 })
 

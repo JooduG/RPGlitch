@@ -1,4 +1,4 @@
-import { IntelligenceService } from "@core/intelligence/IntelligenceService.js"
+import { IntelligenceKernel } from "@core/intelligence/IntelligenceKernel.js"
 import { app } from "@state/app.svelte.js"
 import { engineState } from "@state/status.svelte.js"
 import { Session } from "./SessionDriver.js"
@@ -24,7 +24,7 @@ export const Engine = {
         engineState.startGeneration(options.role || "ai")
 
         try {
-            await IntelligenceService.executeTurn(storyId, options)
+            await IntelligenceKernel.executeTurn(storyId, options)
             app.log("Generation complete.", "system")
         } catch (e) {
             console.error("Engine: Generation Failed", e)
@@ -38,7 +38,7 @@ export const Engine = {
     generatePrologue: async (storyId) => {
         engineState.startGeneration("fractal")
         try {
-            await IntelligenceService.executePrologue(storyId)
+            await IntelligenceKernel.executePrologue(storyId)
             app.log("Prologue generated and opening turn executed.", "system")
         } catch (e) {
             console.error("Engine: Prologue Failed", e)
@@ -52,7 +52,7 @@ export const Engine = {
     triggerEpilogue: async () => {
         engineState.startGeneration("ai")
         try {
-            await IntelligenceService.executeEpilogue(Session.requireActive())
+            await IntelligenceKernel.executeEpilogue(Session.requireActive())
         } catch (e) {
             console.error("Engine: Epilogue Failed", e)
             app.log("Error: Epilogue Failed.", "error")

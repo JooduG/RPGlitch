@@ -1,8 +1,8 @@
 /**
- * @file src/core/intelligence/IntelligenceService.js
+ * @file src/core/intelligence/IntelligenceKernel.js
  *
  * ─────────────────────────────────────────────────────────────────────────────
- * 🧠 INTELLIGENCE SERVICE  —  The Brain's Orchestrator
+ * 🧠 INTELLIGENCE KERNEL  —  The Brain's Orchestrator
  * ─────────────────────────────────────────────────────────────────────────────
  *
  * PURPOSE
@@ -23,7 +23,7 @@ import { runtime } from "@state/runtime.svelte.js"
 import { app } from "@state/app.svelte.js"
 import { Session } from "@core/engine/SessionDriver.js"
 
-export const IntelligenceService = {
+export const IntelligenceKernel = {
     /**
      * EXECUTE TURN
      * The primary simulation loop for a narrative turn.

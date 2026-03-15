@@ -10,5 +10,5 @@ Refine and integrate the core intelligence components (`ContextBroker`, `PromptB
 - [x] Document `VectorEngine.js` scoring and formatting logic.
 - [x] Create integration test/harness for `ContextBroker` -> `PromptBuilder` flow.
 - [x] Refine `SYSTEM_PROMPTS` in `PromptBuilder.js` for "Simulation" mode.
-- [x] Implement `IntelligenceService.js` to bridge the kernel with the Narrative Director.
+- [x] Implement `IntelligenceKernel.js` to bridge the kernel with the Narrative Director.
 - [x] Verify Svelte 5 Rune compliance in all kernel modules. (Verified: Logic is pure IO or uses runtime $state)
