@@ -86,10 +86,10 @@
      * Svelte Action: Safely injects sanitized HTML into a node.
      */
     function safe_html(node, content) {
-        node.innerHTML = content
+        node.innerHTML = DOMPurify.sanitize(content)
         return {
             update(new_content) {
-                node.innerHTML = new_content
+                node.innerHTML = DOMPurify.sanitize(new_content)
             },
         }
     }

@@ -6,6 +6,7 @@
      */
     import { PROFILE_SECTIONS } from "./config.js"
     import VectorPanel from "./VectorPanel.svelte"
+    import DOMPurify from "dompurify"
 
     let { char = $bindable(), is_editing, get_value, set_value, auto_resize, busy_fields, render_markdown, active_field = $bindable() } = $props()
 
@@ -23,10 +24,10 @@
      * Bypasses the overzealous `{@html}` ESLint XSS rule gracefully.
      */
     function safe_html(node, content) {
-        node.innerHTML = content
+        node.innerHTML = DOMPurify.sanitize(content)
         return {
             update(new_content) {
-                node.innerHTML = new_content
+                node.innerHTML = DOMPurify.sanitize(new_content)
             },
         }
     }
