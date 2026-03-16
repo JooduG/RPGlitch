@@ -33,6 +33,7 @@ const gitignorePath = fileURLToPath(new URL("./.gitignore", import.meta.url))
             "dist/index.html",
             "mcp.json",
             "node_modules",
+            "**/scribbles/**",
             "test-results/**",
         ],
         // @agent:ignore-end

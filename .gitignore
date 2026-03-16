@@ -18,5 +18,6 @@
 dist/index.html
 mcp.json
 node_modules
+**/scribbles/**
 test-results/**
 !RPGlitch-left-panel.txt

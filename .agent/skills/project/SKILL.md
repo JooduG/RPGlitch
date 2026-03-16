@@ -1,8 +1,9 @@
+---
 name: project
 version: 1.2.0
 description: >
     Global task tracking, roadmap state, and enforcing the Task Flux protocol (Plan -> Track -> Code).
-    Triggers: "Plan feature", "Update tracks", "Check status", "Next task", "Implement".
+    Triggers: "Plan feature", "Update tracks", "Check status", "Next task", "Implement"
 ---
 
 # 🛡️ Skill: Project Flux (The Executive)
@@ -38,7 +39,7 @@ Define the Clarity Gate constraints specific to this skill.
 | Pattern                              | Reasoning                                                            |
 | :----------------------------------- | :------------------------------------------------------------------- |
 | **Coding without a tracked plan**    | Forbidden. All work must exist in .agent/tasks/tracks.md before implementation. |
-| **Bypassing STATE.md**               | Avoid. `STATE.md` is the source of truth for active WIP.            |
+| **Bypassing STATE.md**               | Avoid. `STATE.md` is the source of truth for active WIP. |
 | **Tracking unbuilt features deeply** | Avoid. YAGNI — if it's not being built now, it's not on the roadmap. |
 
 ## 6. Tools & Assets

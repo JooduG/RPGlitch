@@ -92,7 +92,7 @@ src/
 
 ## Related Documentation
 
-- **Philosophy:** [01-prime-directive.md](../.agent/rules/01-prime-directive.md)
-- **Architecture:** [02-architecture.md](../.agent/rules/02-architecture.md)
-- **UI/UX Guidelines:** [03-tech-stack.md](../.agent/rules/03-tech-stack.md)
-- **Agent Protocol:** [AGENTS.md](../AGENTS.md)
+- [Prime Directive](/.agent/rules/01-governance.md)
+- [Architecture](/.agent/knowledge/atlas/03-architecture.md)
+- [Tech Stack](/.agent/knowledge/atlas/01-vision.md)
+- [Agent Rules](/GEMINI.md)

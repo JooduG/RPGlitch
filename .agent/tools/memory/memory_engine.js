@@ -2,7 +2,6 @@ import { Pinecone } from "@pinecone-database/pinecone"
 import crypto from "crypto"
 import "dotenv/config"
 import fs from "fs/promises"
-import ignore from "ignore"
 import path from "path"
 
 const INDEX_NAME = "knowledge-library"
