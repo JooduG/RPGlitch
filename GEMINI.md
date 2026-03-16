@@ -84,5 +84,5 @@ The project targets **Perchance** as its primary deployment platform, requiring 
 
    Please refer to:
 
-- **`.agent/tasks/tracks.md`** (The Mission Board / Active State)
-- **`.agent/tasks/`** (Individual implementation plans)
+- **`.agent/state/global.md`** (The Mission Board / Active State)
+- **`.agent/state/`** (Individual implementation plans)

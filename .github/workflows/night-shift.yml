@@ -2,31 +2,51 @@ name: The Night Shift (v4.0)
 
 on:
   schedule:
-    - cron: "0 4 * * *" # 4:00 AM Daily
-  workflow_dispatch:
+    - cron: "0 4 * * *" # Wakes up at 4:00 AM every day
+  workflow_dispatch: # Allows manual trigger from the GitHub Actions tab
 
 jobs:
-  janitorial:
+  janitorial-duties:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # Required for git-auto-commit-action
+    
     steps:
-      - name: í³¥ Checkout
+      - name: ğŸ“¥ Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Required for memory script or git diffs
 
-      - name: âš™ï¸ Setup Node
+      - name: âš™ï¸ Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "npm"
 
-      - name: í·¹ Execute Local Janitor
-        # This script was created in Step 4.2 and lives in your repo.
-        run: node .agent/scripts/janitor.js
+      - name: ğŸ“¦ Install Dependencies
+        run: npm install
 
-      - name: í²¾ Commit & Sync
+      - name: ğŸ§¹ The Bouncer (Format & Audit)
+        run: |
+          # Runs standard Svelte checks and custom style audits
+          npm run check || true
+          node .agent/skills/styling/scripts/style_audit.js || true
+
+      - name: ğŸ§  The RAG-Sweeper (Pinecone Memory Sync)
+        env:
+          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+        run: |
+          # Syncs current codebase state to Pinecone memory
+          node .agent/tools/memory/index.js upsert || echo "Memory sync skipped/failed."
+
+      - name: ğŸ“‹ The Secretary (Janitor & Backlog)
+        run: |
+          # Extracts #TODO-AI tags and updates the session backlog
+          node .agent/scripts/janitor.js
+
+      - name: ğŸ’¾ Commit & Pass the Baton
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore(night-shift): sync backlog and state hub"
-          file_pattern: ".agent/state/backlog.md"
+          commit_message: "chore(night-shift): sync backlog, memory, and audit reports"
+          commit_author: "Antigravity Janitor <actions@github.com>"
+          file_pattern: "src/**/*.svelte src/**/*.js src/**/*.css .agent/state/backlog.md"
