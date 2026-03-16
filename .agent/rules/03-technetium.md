@@ -22,13 +22,13 @@ The interface is high-contrast, immersive, and diegetic (Nordic noir + glassmorp
 
 ## 3. File System & Nomenclature
 
-| Type | Case | Example |
-| :--- | :--- | :--- |
-| **Directories** | `kebab-case` | `game-engine/` |
-| **Svelte Component** | `PascalCase` | `StoryPanel.svelte` |
-| **Structure/Class** | `PascalCase` | `ContextBroker.js` |
-| **Process/State** | `snake_case` | `build_prompt`, `current_char` |
-| **Global Config** | `SCREAMING_SNAKE` | `ENTITY_DEFINITION` |
+| Scope | Type | Case | Example |
+| :--- | :--- | :--- | :--- |
+| File System | **Directories** | `kebab-case` | `game-engine/` |
+| File System | **Svelte Component** | `PascalCase` | `StoryPanel.svelte` |
+| File System | **Structure/Class** | `PascalCase` | `ContextBroker.js` |
+| Identifier | **Process/State** | `snake_case` | `build_prompt`, `current_char` |
+| Identifier | **Global Config** | `SCREAMING_SNAKE` | `ENTITY_DEFINITION` |
 
 ## 4. The Literalism Protocol
 
