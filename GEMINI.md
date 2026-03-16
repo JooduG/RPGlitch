@@ -22,7 +22,7 @@ The project targets **Perchance** as its primary deployment platform, requiring 
 - **Build Tool:** Vite (with `vite-plugin-singlefile` for Perchance).
 - **Persistence:** Dexie.js (IndexedDB).
 - **Styling:** Vanilla CSS with **Chalk Regime** design tokens.
-- **Intelligence:** Logic-driven prompts with Sino-Logic internal processing.
+- **Intelligence:** Logic-driven prompts with high-fidelity context hydration.
 - **Testing:** Vitest (Unit) and Playwright (E2E).
 
 ---
@@ -60,12 +60,7 @@ The project targets **Perchance** as its primary deployment platform, requiring 
 - **Self-Contained:** The build must result in a single `index.html`.
 - **Runtime:** No Node.js modules are available at runtime. All logic must be browser-compatible.
 
-### 4. 🧠 Sino-Logic (Intelligence)
-
-- **Convention:** For complex reasoning or "Intelligence Kernel" tasks, the agent may use **Concise Technical Chinese (zh-CN)** within `<think>` blocks.
-- **Output:** All narrative, UI text, and final responses **must** be in English.
-
-### 5. 🧱 Skill-Based Architecture
+### 4. 🧱 Skill-Based Architecture
 
 - Logic is organized into modular "skills" within `.agent/skills/`.
 - Cross-cutting concerns (Audio, Data, Svelte, Security) should be handled by their respective skill logic.

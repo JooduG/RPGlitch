@@ -4,7 +4,7 @@ description: Maintain swarm momentum. Pick up the baton, finish the active execu
 
 # WORKFLOW: 06-continue (The Autonomous Loop & Handoff)
 
-> **Goal:** Maintain swarm momentum. Pick up the baton, finish the active execution, update STATE.md, and forge the next directive in next-prompt.md before clocking out.
+> **Goal:** Maintain swarm momentum. Pick up the baton, finish the active execution, update tracks.md, and forge the next directive in next-prompt.md before clocking out.
 
 ## 1. Triggers
 
@@ -14,18 +14,18 @@ description: Maintain swarm momentum. Pick up the baton, finish the active execu
 
 ## 2. Brain (Context Injection)
 
-- **The Master Baton**: `STATE.md`
+- **The Master Baton**: `.agent/tasks/tracks.md`
 - **The Execution Baton**: `next-prompt.md`
 - **The Mission Board**: `.agent/tasks/tracks.md`
-- **The Flat Track**: `.agent/tasks/<slug>.md` (Single flat file — Spec + Plan combined)
+- **The Flat Track**: `.agent/tasks/<slug>/<slug>.md` (Single flat file — Spec + Plan combined)
 
 ## 3. Procedures
 
 ### Phase 1: Context Re-Acquisition
 
-1. **Read STATE.md & next-prompt.md**: Sync reality and acquire the immediate payload.
-2. **Read Mission Board**: Check `.agent/tasks/tracks.md` for the active `[/]` track (flat file at repo root of `.agent/`).
-3. **Read Flat Track**: Parse `.agent/tasks/<slug>.md` to understand the spec and current checklist state.
+1. **Read tracks.md & next-prompt.md**: Sync reality and acquire the immediate payload.
+2. **Read Mission Board**: Check `.agent/tasks/tracks.md` for the active `[/]` track.
+3. **Read Flat Track**: Parse the relevant `.agent/tasks/<slug>/<slug>.md` to understand the spec and current checklist state.
 
 ### Phase 2: Momentum Restoration & Execution
 
@@ -37,7 +37,7 @@ description: Maintain swarm momentum. Pick up the baton, finish the active execu
 
 _Triggered when the final step in the Flat Track is completed._
 
-1. **Vaporize**: Delete the completed `.agent/tasks/<slug>.md` file. Mark it `[x]` in `.agent/tasks/tracks.md`.
-2. **Update STATE.md**: Log the completed feature under "Active WIP & Known Quirks".
+1. **Vaporize**: Archive the completed track. Mark it `[x]` in `.agent/tasks/tracks.md`.
+2. **Update tracks.md**: Log any new system rules or architectural decisions learned during the track.
 3. **Forge next-prompt.md**: Write the exact, actionable instruction for the _next_ agent based on the backlog.
-4. **Clock Out**: State: "Handoff complete. Track vaporized. Next payload loaded."
+4. **Clock Out**: State: "Handoff complete. Track archived. Next payload loaded."
