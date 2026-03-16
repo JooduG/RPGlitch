@@ -6,6 +6,7 @@
      */
     import { PROFILE_SECTIONS } from "./config.js"
     import VectorPanel from "./VectorPanel.svelte"
+    import { safe_html } from "@ui/utils/actions/safeHtml.js"
 
     let { char = $bindable(), is_editing, get_value, set_value, auto_resize, busy_fields, render_markdown, active_field = $bindable() } = $props()
 
@@ -16,19 +17,6 @@
     const safe_get = (path) => {
         const val = get_value(char, path)
         return val === undefined || val === null ? "" : val
-    }
-
-    /**
-     * Svelte Action: Safely injects sanitized HTML into a node.
-     * Bypasses the overzealous `{@html}` ESLint XSS rule gracefully.
-     */
-    function safe_html(node, content) {
-        node.innerHTML = content
-        return {
-            update(new_content) {
-                node.innerHTML = new_content
-            },
-        }
     }
 </script>
 
