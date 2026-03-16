@@ -14,13 +14,10 @@ A highly tactile Svelte 5 button component using Chalk design tokens.
 ```svelte
 <script lang="ts">
   let { label = "Click Me", onclick } = $props();
-  let isHovered = $state(false);
 </script>
 
 <button 
   {onclick}
-  onmouseenter={() => isHovered = true}
-  onmouseleave={() => isHovered = false}
   class="kinetic-btn"
 >
   {label}
