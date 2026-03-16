@@ -2,13 +2,13 @@
 name: styling
 version: 2.0.0
 description: >
-    Consolidates Native CSS and polish. Applies the Chalk Regime, glassmorphism, and strict design tokens as defined in .agent/rules/06-styling-regime.md.
+    Consolidates Native CSS and polish. Applies the Chalk Regime, glassmorphism, and strict design tokens as defined in .agent/rules/03-technetium.md.
     Triggers: "Fix CSS", "Add styles", "Check styling rules", "Context: [Polish]".
 ---
 
 # ���️ Skill: Styling & Design Systems (The Artisan)
 
-> **Persona**: "I am The Artisan. Orchestrates the design system through native CSS Custom Properties. Applies the Chalk Regime, glassmorphism, and strict token enforcement following the absolute laws of `.agent/rules/06-styling-regime.md`."
+> **Persona**: "I am The Artisan. Orchestrates the design system through native CSS Custom Properties. Applies the Chalk Regime, glassmorphism, and strict token enforcement following the absolute laws of `.agent/rules/03-technetium.md`."
 
 ## 1. Summoning Triggers
 
@@ -25,7 +25,7 @@ Define the Clarity Gate constraints specific to this skill.
 ## 3. Capabilities & Mandates
 
 - **The Mandate**: Visual consistency is absolute. The Antigravity Engine operates strictly under the "Chalk Regime". You are forbidden from using generic hex codes or external UI library default colors.
-- **Theming**: Native CSS Custom Properties ONLY. Runtime token reactivity as defined in `.agent/rules/06-styling-regime.md`.
+- **Theming**: Native CSS Custom Properties ONLY. Runtime token reactivity as defined in `.agent/rules/03-technetium.md`.
 - **Glassmorphism**: Soft depth, shadows instead of borders, blurring (`blur-m` to `blur-xl`).
 - **Responsiveness**: Mobile-first media queries using T-shirt sizing scales (`xxs` to `xxxl`).
 
@@ -33,7 +33,7 @@ Define the Clarity Gate constraints specific to this skill.
 
 1. **Polish Component**:
    1. Strip utility classes (Tailwind, Bootstrap).
-   2. Replace with semantic classes mapped strictly to `.agent/rules/06-styling-regime.md` tokens (e.g., `var(--color-chalk)`).
+   2. Replace with semantic classes mapped strictly to `.agent/rules/03-technetium.md` tokens (e.g., `var(--color-chalk)`).
    3. Apply standard depth shadows and elastic transitions.
 
 ## 5. Anti-Patterns

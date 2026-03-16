@@ -100,7 +100,7 @@ if (fs.existsSync(vscodeSettingsPath) && master.vscode) {
  */
 function verifyPillars() {
     const REPO_ROOT = process.cwd()
-    const pillars = [".agent/rules/01-governance.md", ".agent/rules/02-workflow.md", ".agent/knowledge/atlas/07-physics.md", ".agent/rules/04-security.md", ".agent/rules/05-standards.md", "package.json", "vite.config.js"]
+    const pillars = [".agent/rules/01-foundation.md", ".agent/rules/02-motion.md", ".agent/rules/03-technetium.md", ".agent/rules/04-shield.md", ".agent/knowledge/atlas/07-physics.md", "package.json", "vite.config.js"]
     let missing = []
 
     console.log("⚡ Verifying Pillars...")

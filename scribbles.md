@@ -16,7 +16,7 @@
 *Action: Eliminate the `DESIGN.md` fragmentation.*
 
 * **Audit:** Read `.stitch/DESIGN.md` and `.agent/skills/styling/docs/DESIGN.md`.
-* **Extract:** Move all immutable styling constants (The Chalk Regime) into `.agent/rules/06-styling-regime.md`.
+* **Extract:** Move all immutable styling constants (The Chalk Regime) into `.agent/rules/03-technetium.md`.
 * **Merge:** Combine the remaining active UI tracking info into the new `.agent/state/design.md`.
 * **Frag:** Delete the old `.stitch/` folder and `styling/docs/DESIGN.md` file.
 
@@ -34,7 +34,7 @@
 *Action: Strip hardcoded intelligence from external tools.*
 
 * **Conductor CLI:** Rewrite all `.toml` files in `conductor/commands/conductor/` to be simple read-pointers mapping strictly to their respective `.agent/workflows/*.md` files.
-* **Stitch CLI:** Rewrite `Stitch/commands/stitch.toml` to mandate adherence to `.agent/rules/06-styling-regime.md` and `07-svelte-supremacy.md`.
+* **Stitch CLI:** Rewrite `Stitch/commands/stitch.toml` to mandate adherence to `.agent/rules/03-technetium.md`.
 * **GitHub Actions:** Strip prompt text from `.github/workflows/*.yml` and update them to trigger `gemini conductor review`.
 
 ## Step 5: The Stitch Subjugation

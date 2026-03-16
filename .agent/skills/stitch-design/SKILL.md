@@ -78,4 +78,4 @@ After a successful generation or edit:
 
 - `.stitch/DESIGN.md` — The bridge between Stitch and RPGlitch tokens.
 - `src/theme/tokens.css` — The underlying CSS variables.
-- `.agent/rules/06-styling-regime.md` — The laws of the Chalk Regime.
+- `.agent/rules/03-technetium.md` — The laws of the Chalk Regime.

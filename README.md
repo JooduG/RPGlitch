@@ -1,7 +1,7 @@
 # 🔷 JooduG Monorepo
 
-> **Physics:** [03-physics](.agent/rules/03-physics.md) (Pillar-based)
-> **Standards:** [05-standards](.agent/rules/05-standards.md)
+> **Physics:** [07-physics](.agent/knowledge/atlas/07-physics.md) (Knowledge Item)
+> **Standards:** [03-technetium](.agent/rules/03-technetium.md) (Technical Pillar)
 > **Platform:** [Perchance](https://perchance.org)
 
 ## ⚡ Quick Start

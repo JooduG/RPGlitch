@@ -92,7 +92,7 @@ src/
 
 ## Related Documentation
 
-- [Prime Directive](/.agent/rules/01-governance.md)
+- [Prime Directive](/.agent/rules/01-foundation.md)
 - [Architecture](/.agent/knowledge/atlas/03-architecture.md)
 - [Tech Stack](/.agent/knowledge/atlas/01-vision.md)
 - [Agent Rules](/GEMINI.md)
