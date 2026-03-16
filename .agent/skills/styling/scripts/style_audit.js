@@ -25,7 +25,8 @@ const AUDIT = {
 
             for (const item of items) {
                 const fullPath = path.join(dir, item)
-                if (item === "node_modules" || item.startsWith(".")) continue
+                const BLACKLIST = ["node_modules", ".git", ".svelte-kit", "dist", "build", ".vercel"]
+                if (BLACKLIST.includes(item) || item.startsWith(".")) continue
 
                 const stat = fs.statSync(fullPath)
 

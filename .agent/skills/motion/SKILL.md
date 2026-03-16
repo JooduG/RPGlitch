@@ -34,7 +34,7 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern                                   | Reasoning                                                               |
+| Pattern                                   | Mitigation                                                              |
 | :---------------------------------------- | :---------------------------------------------------------------------- |
 | **linear or standard ease-in-out curves** | Forbidden. Use var(--curve-snappy) for UI transitions to ensure weight. |
 | **Inline animation logic in markup**      | Avoid. Encapsulate in reusable Svelte Actions (use:action).             |

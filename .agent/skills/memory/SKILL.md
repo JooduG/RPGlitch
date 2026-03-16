@@ -34,7 +34,7 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern                                      | Reasoning                                                                            |
+| Pattern                                      | Mitigation                                                                           |
 | :------------------------------------------- | :----------------------------------------------------------------------------------- |
 | **Using memory to read specific code files** | Forbidden. Use research for file reading. Memory is for concepts and decisions only. |
 | **Inventing memories**                       | Forbidden. If no match is found, state so and fall back to research.                 |

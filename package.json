@@ -19,7 +19,7 @@
         "scaffold:component": "node .agent/skills/svelte/scripts/scaffold_component.js",
         "test": "npm run test:unit && npm run audit:security",
         "test:unit": "vitest",
-        "audit:security": "node .agent/skills/security/scripts/security-scan.js",
+        "audit:security": "node .agent/skills/quality-assurance/scripts/security-scan.js",
         "test:e2e": "playwright test",
         "test:ui": "vitest --ui",
         "verify": "npm run check && npm run lint && npx vitest run",

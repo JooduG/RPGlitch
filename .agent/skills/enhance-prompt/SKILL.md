@@ -1,5 +1,6 @@
 ---
 name: enhance-prompt
+version: 1.0.0
 description: Transforms vague UI ideas into polished, Stitch-optimized prompts aligned with the RPGlitch Chalk Regime and Svelte 5 architecture.
 allowed-tools:
   - "Read"
@@ -63,6 +64,8 @@ For technical areas, specify:
 
 Structure the output in this strict order:
 
+File: prompt-structure.md
+
 ```markdown
 [Diegetic description of the component's role in the simulation]
 
@@ -82,9 +85,12 @@ Structure the output in this strict order:
 ## 💡 Example: Vague HUD Request → RPGlitch Optimized
 
 **User input:**
+
 > "Make a HUD for the game that shows character stats and a map."
 
 **Enhanced output:**
+
+File: enhanced-output-example.md
 
 ```markdown
 A diegetic Status HUD for the Narrative Director, providing real-time synchronization of character stability and spatial orientation.
@@ -109,3 +115,11 @@ A diegetic Status HUD for the Narrative Director, providing real-time synchroniz
 - **Target**: Svelte 5 Organism
 - **Interactions**: Use standard elastic physics for all UI transitions. No hard borders.
 ```
+
+## 🛡️ Anti-Patterns
+
+| Pattern | Mitigation |
+| :--- | :--- |
+| **Hex Code Leaks** | Forbidden. Use natural language descriptors from `DESIGN.md`. |
+| **Logic Gaps** | Ensure "Sino-Logic Support" is explicitly requested in technical areas. |
+| **Static Layouts** | Always specify "reactive" or "dynamic" Svelte 5 patterns. |

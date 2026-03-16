@@ -35,7 +35,7 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern                         | Reasoning                                                                              |
+| Pattern                         | Mitigation                                                                             |
 | :------------------------------ | :------------------------------------------------------------------------------------- |
 | **Manually editing .gitignore** | Forbidden. Sync Logic will overwrite it via sync.js. Edit ignores.master.json instead. |
 | **Ignoring build errors**       | Forbidden. Production builds must be clean.                                            |

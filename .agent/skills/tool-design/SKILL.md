@@ -1,5 +1,6 @@
 ---
 name: tool-design
+version: 1.0.0
 description: This skill should be used when designing client-side Perchance tools, Svelte 5 bridges, or formulating requests to host MCP servers. Covers architectural reduction, tool consolidation, and proper descriptions.
 ---
 
@@ -36,6 +37,8 @@ Tool descriptions are prompt engineering. They must answer:
 
 When instructing the swarm to use host MCP (Model Context Protocol) tools, **always use fully qualified tool names**.
 
+File: qualified-naming.js
+
 ```javascript
 // Correct: Fully qualified names
 "Use the GitHub:create_issue tool to create issues."
@@ -50,6 +53,8 @@ When instructing the swarm to use host MCP (Model Context Protocol) tools, **alw
 When designing tools that bridge the Perchance Engine to the UI, strictly use standard JavaScript JSDoc patterns and Svelte 5 Runes.
 
 ### Example: Well-Designed Perchance Bridge Tool
+
+File: bridge-example.js
 
 ```javascript
 /**
@@ -70,6 +75,8 @@ window.exposed.dispatchNarrativeEvent = function (eventId, context = "exploratio
 
 ### Example: Poor Tool Design (Anti-Pattern)
 
+File: anti-pattern-example.js
+
 ```javascript
 // BAD: Vague name, no parameters documented, missing return types, zero context.
 function updateUI(x) {
@@ -81,6 +88,8 @@ function updateUI(x) {
 
 Error messages must be actionable for the agent. Include what went wrong, and how to recover.
 
+File: error-design.js
+
 ```javascript
 {
     error: "INVALID_EVENT_ID",
@@ -89,6 +98,15 @@ Error messages must be actionable for the agent. Include what went wrong, and ho
     resolution: "Provide an event ID matching the required pattern."
 }
 ```
+
+## 🛡️ Anti-Patterns
+
+| Pattern | Mitigation |
+| :--- | :--- |
+| **Tool Proliferation** | Forbidden. Consolidate narrow tools into comprehensive functional workflows. |
+| **Black Box Errors** | Forbidden. Errors must be actionable and include resolution steps. |
+| **Legacy Stores** | Forbidden. Transition all bridge tools to Svelte 5 Runes (`$state`). |
+| **Unqualified Names** | Avoid using unqualified MCP tool names; always specify the server prefix. |
 
 ## Checklist for Tool Design
 

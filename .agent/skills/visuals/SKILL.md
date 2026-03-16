@@ -34,7 +34,7 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern                                         | Reasoning                                                            |
+| Pattern                                         | Mitigation                                                           |
 | :---------------------------------------------- | :------------------------------------------------------------------- |
 | **Hotlinking external random un-cached images** | Volatile. Always cache generated imagery locally or use stable CDNs. |
 

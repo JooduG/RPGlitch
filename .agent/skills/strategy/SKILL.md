@@ -33,7 +33,7 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern                        | Reasoning                                                                     |
+| Pattern                        | Mitigation                                                                    |
 | :----------------------------- | :---------------------------------------------------------------------------- |
 | **Proposing 6-month rewrites** | Avoid. Strategy should focus on high ROI (Return on Investment) improvements. |
 

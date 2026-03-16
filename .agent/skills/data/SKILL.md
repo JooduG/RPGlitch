@@ -35,7 +35,7 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern                           | Reasoning                                                                             |
+| Pattern                           | Mitigation                                                                            |
 | :-------------------------------- | :------------------------------------------------------------------------------------ |
 | **Direct db.put() in template**   | Forbidden. All persistence goes through bridge.js methods to maintain Church & State. |
 | **localStorage / sessionStorage** | Forbidden. Perchance framework intercept issues; use Dexie.js exclusively.            |

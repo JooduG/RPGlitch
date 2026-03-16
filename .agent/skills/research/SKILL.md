@@ -34,7 +34,7 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern                            | Reasoning                                                              |
+| Pattern                            | Mitigation                                                             |
 | :--------------------------------- | :--------------------------------------------------------------------- |
 | **Web search before local lookup** | Forbidden. Always follow Tiered Sourcing: Local -> Specialized -> Web. |
 | **Dumping raw JSON/HTML**          | Forbidden. Synthesize and cite; never paste unprocessed tool output.   |

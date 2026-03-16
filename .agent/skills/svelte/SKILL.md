@@ -43,7 +43,7 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern                                             | Reasoning                                                                                                            |
+| Pattern                                             | Mitigation                                                                                                           |
 | :-------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------- |
 | **Using `<style lang="scss">` or importing SCSS**   | Violates Church & State. Components MUST NOT import SCSS variables; use global CSS variables defined in `:root`.     |
 | **Inline Styles (`style="..."`)**                   | Prohibited by the modern CSS rules constraint.                                                                       |

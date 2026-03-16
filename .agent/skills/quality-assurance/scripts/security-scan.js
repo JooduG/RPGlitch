@@ -8,6 +8,7 @@ const SRC_DIR = path.join(ROOT_DIR, "src")
 const TOOLS_DIR = path.join(ROOT_DIR, ".agent/tools")
 // const HIGH_ENTROPY_THRESHOLD = 4.5 // Unused
 const SECRET_PATTERNS = [/api[-_]?key/i, /access[-_]?token/i, /secret/i, /password/i, /credential/i, /bearer/i]
+const BLACKLIST = ["node_modules", ".git", ".svelte-kit", "dist", "build", ".vercel"]
 
 console.log("🛡️  Warden Security Scan Initiated...")
 
@@ -31,6 +32,7 @@ function auditDependencies() {
             const fullPath = path.join(dir, item)
             const stat = fs.statSync(fullPath)
             if (stat.isDirectory()) {
+                if (BLACKLIST.includes(item)) continue
                 findPackageJson(fullPath)
             } else if (item === "package.json") {
                 packageFiles.push(fullPath)
@@ -79,8 +81,10 @@ function checkHygiene() {
             const stat = fs.statSync(fullPath)
 
             if (stat.isDirectory()) {
+                if (BLACKLIST.includes(item)) continue
                 scanDir(fullPath)
             } else if (stat.isFile() && /\.(js|ts|svelte)$/.test(item)) {
+                if (item.endsWith(".test.js") || item.endsWith(".spec.js") || item.endsWith(".test.ts") || item.endsWith(".spec.ts")) continue
                 const content = fs.readFileSync(fullPath, "utf8")
                 const lines = content.split("\n")
 
@@ -126,6 +130,7 @@ function checkSecrets() {
             const stat = fs.statSync(fullPath)
 
             if (stat.isDirectory()) {
+                if (BLACKLIST.includes(item)) continue
                 scanDir(fullPath)
             } else if (stat.isFile() && /\.(js|ts|svelte|json)$/.test(item)) {
                 // Skip if large file or binary-like

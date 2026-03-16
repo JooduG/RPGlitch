@@ -1,5 +1,6 @@
 ---
 name: stitch-design
+version: 1.0.0
 description: Unified entry point for RPGlitch design work. Handles diegetic prompt enhancement, design system synthesis, and Svelte-aware component generation via Stitch MCP.
 allowed-tools:
   - "StitchMCP"
@@ -64,6 +65,14 @@ After a successful generation or edit:
 1.  Download the HTML code to `.stitch/designs/{name}.html`.
 2.  Download the Screenshot to `.stitch/designs/{name}.png`.
 3.  **Baton Hand-off**: If using the `stitch-loop` skill, update the baton to trigger the Svelte transformation.
+
+## 🛡️ Anti-Patterns
+
+| Pattern | Mitigation |
+| :--- | :--- |
+| **Bypassing Enhancement** | Forbidden. Never send raw user intent to Stitch without diegetic augmentation. |
+| **Web Default Borders** | Forbidden. Ensure "no pixel borders" is explicitly stated or enforced via shadows. |
+| **Missing DESIGN.md** | Always maintain a synced `DESIGN.md` to ground the generator in the current palette. |
 
 ## 📚 References
 
