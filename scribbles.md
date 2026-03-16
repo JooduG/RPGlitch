@@ -1,35 +1,46 @@
-# Workflows
+# 📝 Scribbles
 
-## Agent Workflows (Local)
+## Step 1: The Memory Migration (Establishing `.agent/state/`)
 
-1. 00-boot: Wakes me up and reads the Mission Board so I know what's happening.
-2. 01-plan: Makes a detailed "To-Do" list before I start writing any code.
-3. 02-execute: The mode where I actually write the code and test it to make sure it works.
-4. 03-clean: Fixes bugs, cleans up messy code, and polishes the visual "vibes."
-5. 04-review: A final double-check of everything I've done before I "save" the progress.
-6. 05-deploy: Builds the app into one big file and puts it on the Perchance website.
-7. 06-continue: Picks up the baton if I get lost or need to keep moving on a task.
-8. 10-vibe-intake: Turns your creative ideas into technical instructions I can follow.
-9. 12-fleet-commander: Manages big "remodeling" projects that change lots of files at once.
-10. 99-reset: The "Rewind" button to undo mistakes and go back to the last safe spot.
+*Action: Create the new central memory hub and purge root-level clutter.*
 
-## GitHub Workflows (Cloud)
+* **Create:** `.agent/state/` directory.
+* **Frag:** Delete `STATE.md` from the repository root.
+* **Migrate:** Move `.agent/tasks/tracks.md` to `.agent/state/tracks.md`.
+* **Migrate:** Move `.agent/tasks/backlog.md` to `.agent/state/backlog.md`.
+* **Migrate:** Move `.stitch/next-stitch-prompt.md` to `.agent/state/next-prompt.md`.
+* **Create:** Initialize `.agent/state/global.md` as the new master tracking baton.
 
-1. daily-maintenance: Cleans up the repo and updates my memory every night at 4 AM.
-2. gemini-dispatch: Acts like a post office to send your GitHub comments to the right bot.
-3. gemini-invoke: Runs specific tasks when you call me by name on GitHub.
-4. gemini-plan-execute: Starts building a feature once you give the "thumbs up" on a plan.
-5. gemini-review: Checks your new code for mistakes before it gets merged.
-6. gemini-scheduled-triage: Scans for new issues every hour so they don't get ignored.
-7. gemini-triage: Quickly categorizes new bugs or feature requests on GitHub.
-8. jules-bug-fixer: A special robot that tries to fix bugs automatically as soon as they're found.
-9. jules-security-scan: A daily security guard that scans for hackers and leaked secrets.
+## Step 2: The Design Resolution
 
-## Conductor Commands (The "Official" Tools)
+*Action: Eliminate the `DESIGN.md` fragmentation.*
 
-1. **`/conductor:setup`**: The one-time setup that creates the project's rulebooks for vision, tech, and style.
-2. **`/conductor:newTrack`**: Starts a new mission (feature or bug fix) and builds the blueprint (Spec + Plan).
-3. **`/conductor:implement`**: Puts me into "Work Mode" to follow the plan and check off tasks as I finish them.
-4. **`/conductor:status`**: Gives you a quick report on how much of the project is done and what I'm doing right now.
-5. **`/conductor:review`**: A final inspection to make sure the code is perfect and follows all our rules.
-6. **`/conductor:revert`**: My "Smart Undo" that can roll back a specific task or a whole feature if we change our minds.
+* **Audit:** Read `.stitch/DESIGN.md` and `.agent/skills/styling/docs/DESIGN.md`.
+* **Extract:** Move all immutable styling constants (The Chalk Regime) into `.agent/rules/06-styling-regime.md`.
+* **Merge:** Combine the remaining active UI tracking info into the new `.agent/state/design.md`.
+* **Frag:** Delete the old `.stitch/` folder and `styling/docs/DESIGN.md` file.
+
+## Step 3: Internal Rewiring
+
+*Action: Fix broken references caused by the migrations.*
+
+* **Refactor `project` Skill:** Update `.agent/skills/project/SKILL.md`, `sync.js`, and its templates to point to `.agent/state/` instead of `.agent/tasks/`.
+* **Promote `vibe-intake`:** Move `10-vibe-intake.md` from workflows to `.agent/skills/vibe-intake/SKILL.md`.
+* **Demote `stitch-loop`:** Move `.agent/skills/stitch-loop/` into `.agent/workflows/08-stitch-loop.md`.
+* **Absorb `scribe`:** Merge `.agent/skills/scribe/` documentation protocols into `.agent/workflows/06-continue.md`.
+
+## Step 4: The Lobotomy (Dumb Triggers)
+
+*Action: Strip hardcoded intelligence from external tools.*
+
+* **Conductor CLI:** Rewrite all `.toml` files in `conductor/commands/conductor/` to be simple read-pointers mapping strictly to their respective `.agent/workflows/*.md` files.
+* **Stitch CLI:** Rewrite `Stitch/commands/stitch.toml` to mandate adherence to `.agent/rules/06-styling-regime.md` and `07-svelte-supremacy.md`.
+* **GitHub Actions:** Strip prompt text from `.github/workflows/*.yml` and update them to trigger `gemini conductor review`.
+
+## Step 5: The Stitch Subjugation
+
+*Action: Integrate UI/UX generation with Graceful Degradation.*
+
+* **Inject Logic:** Add the "UI/UX Offload Check" (Ask user Y/N before using Stitch) into `.agent/workflows/01-plan.md` and `02-execute.md`.
+* **Vendor Skills:** Copy selected UI/UX skills from the `stitch-skills` repo into `.agent/skills/stitch/` and manually format them for Svelte 5.
+* **Wire MCP:** Add `stitch.googleapis.com` to `.agent/mcp_config.json`.
