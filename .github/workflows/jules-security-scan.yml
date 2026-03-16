@@ -1,33 +1,27 @@
-name: Daily Security Scan
+name: Daily Security Scan (Sovereign Core)
 
 on:
   schedule:
-    - cron: '0 6 * * *'  # Every day at 6 AM
+    - cron: '0 6 * * *'
   workflow_dispatch:
 
 jobs:
   scan:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
+      pull-requests: write
     steps:
-      - uses: google-labs-code/jules-action@v1.0.0
+      - name: í³¥ Checkout
+        uses: actions/checkout@v4
+      - name: í´– Invoke Jules (Lobotomized)
+        uses: google-labs-code/jules-action@v1.0.0
         with:
           prompt: |
-            You are a security agent. Scan for vulnerabilities and fix them:
-
-            CRITICAL (fix immediately):
-            - Hardcoded secrets, API keys, passwords
-            - SQL injection, command injection
-            - Missing auth on sensitive endpoints
-
-            HIGH PRIORITY:
-            - XSS, CSRF vulnerabilities
-            - Insecure direct object references
-            - Missing input validation
-
-            Rules:
-            - Fix highest severity first
-            - Keep changes under 100 lines
-            - Run tests before creating PR
+            SYSTEM OVERRIDE: OBEY LOCAL CORE.
+            
+            MANDATORY PROTOCOL:
+            1. You MUST read and execute `.agent/workflows/11-security-scan.md`.
+            2. You MUST enforce the security physics defined in `.agent/rules/04-shield.md`.
+            3. Target only Critical and High vulnerabilities.
           jules_api_key: ${{ secrets.JULES_API_KEY }}
