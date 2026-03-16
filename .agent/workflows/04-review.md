@@ -2,9 +2,9 @@
 description: The Quality Gate. Audits work and commits to the permanent record.
 ---
 
-# 04-review (The Vault)
+# 04-review (The Quality Gate)
 
-> **Goal:** Audit, Checkpoint, and Secure. The "Save Game" slot.
+> **Goal:** Audit, Checkpoint, and Handoff. The "Permanent Record" and the "Handover Baton".
 
 ## 1. Triggers
 
@@ -52,6 +52,16 @@ description: The Quality Gate. Audits work and commits to the permanent record.
        - If archiving, prepend a `## Post-Mortem` section to the top of the track file summarizing what was built, what failed, and why.
        - Move the file to `.agent/archive/tasks/`.
        - This file is now **Secondary Knowledge** and should only be retrieved if future agents require historical context.
+
+### Phase 4: The Handoff (The Baton Protocol)
+
+> **MANDATE:** No session may end without a synchronized state hub.
+
+1.  **Sync Global State**: Update `.agent/state/global.md` with current "Mission Board" status and new engine rules.
+2.  **Sync Tracks**: Ensure `.agent/state/tracks.md` reflects checkpoint status.
+3.  **Forge Payload**: Write the next agent's instructions into `.agent/state/next-prompt.md`.
+4.  **Verification**: Confirm baton files are valid and readable.
+5.  **Final Signal**: End session with clear summary and next steps.
 
 ## 4. Anti-Patterns
 

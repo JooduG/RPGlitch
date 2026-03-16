@@ -65,6 +65,14 @@ The project targets **Perchance** as its primary deployment platform, requiring 
 - Logic is organized into modular "skills" within `.agent/skills/`.
 - Cross-cutting concerns (Audio, Data, Svelte, Security) should be handled by their respective skill logic.
 
+### 5. 🎭 Narrative Constraints (ANEX_BLACKTIDE)
+
+- **Authority Hierarchy**: Enforce ANEX_BLACKTIDE logic (L1_ABSOLUTE > L2_CRITICAL).
+- **Diegetic Integrity**:
+    - Forbid narrator-voice or speaking for the user.
+    - Start responses directly; no preambles or technical meta-labels.
+    - Express statistical signals (trust, sanity) diegetically through body language or internal logic, never as numbers.
+
 ---
 
 ## 📂 Directory Map
