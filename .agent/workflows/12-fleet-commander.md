@@ -1,3 +1,6 @@
+---
+description: Multi-Repo Synchronization and autonomous fleet command.
+---
 # Workflow: 12-fleet-commander (Multi-Repo Synchronization)
 
 > **Context:** Extracted from the Jules SDK 'Fleet' logic. Manages propagating core changes across multiple repositories safely.
