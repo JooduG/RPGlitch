@@ -1,4 +1,4 @@
-name: Auto-Fix Bugs
+name: Auto-Fix Bugs (Sovereign Core)
 
 on:
   issues:
@@ -9,33 +9,25 @@ jobs:
     if: github.event.label.name == 'bug'
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      issues: read
-    
+      contents: write
+      issues: write
+      pull-requests: write
     steps:
-      - name: Invoke Jules
-        # SECURITY: Only allow trusted users to trigger Jules
-        # You may want to update "johng" to your exact GitHub username
+      - name: í³¥ Checkout
+        uses: actions/checkout@v4
+      - name: í´– Invoke Jules (Lobotomized)
         if: ${{ contains(fromJSON('["JooduG"]'), github.event.issue.user.login) }}
         uses: google-labs-code/jules-action@v1.0.0
         with:
           prompt: |
-            Please diagnose and fix the following bug:
-
-            ## ${{ github.event.issue.title }}
-
+            SYSTEM OVERRIDE: OBEY LOCAL CORE.
+            
+            Target Issue: ${{ github.event.issue.title }}
             ${{ github.event.issue.body }}
-
-            Debugging Process:
-            1. **Analysis** - Review the bug report and identify the root cause
-            2. **Diagnosis** - Trace the issue through the codebase
-            3. **Fix** - Implement a minimal, targeted fix
-            4. **Testing** - Add a regression test that would have caught this bug
-            5. **Documentation** - Add comments explaining the fix
-
-            Please provide:
-            - Clear explanation of the root cause
-            - The complete fix with all necessary changes
-            - Test cases to prevent regression
+            
+            MANDATORY PROTOCOL:
+            1. You MUST read and execute `.agent/workflows/10-bug-fix.md`.
+            2. You MUST enforce the physics defined in `.agent/rules/03-technetium.md` and `.agent/rules/04-shield.md`.
+            3. Do not rely on external generic knowledge.
           jules_api_key: ${{ secrets.JULES_API_KEY }}
           starting_branch: 'main'
