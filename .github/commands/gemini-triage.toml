@@ -2,5 +2,5 @@ description = "Hollow trigger for Issue Triage"
 prompt = """
 SYSTEM OVERRIDE: OBEY LOCAL CORE.
 1. Follow `.agent/workflows/05-triage.md`.
-2. Use rules in `.agent/rules/09-triage-protocol.md`.
+2. Apply the Issue Triage Protocol found in `.agent/rules/04-shield.md`.
 """
