@@ -26,6 +26,7 @@ description: The Core Execution Loop. Builds features or refactors code.
 1.  **Pick**: Select next `[ ]` item from `plan.md`.
 2.  **Mark**: Update to `[/]`.
 3.  **Context**: Read relevant files for _this specific task_.
+4.  **UI/UX Verification**: If the task involves UI components, verify against `design.md` and ensure Stitch iterations are reconciled before starting code fabrication.
 
 ### Phase 2: Fabrication (TDD Loop)
 
