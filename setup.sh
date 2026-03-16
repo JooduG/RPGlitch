@@ -21,7 +21,11 @@ npm run verify
 echo "📸 Validating 'Run and Snapshot' environment..."
 # Check if the dev server can start.
 # This is a non-blocking check.
-(npm run dev &) && sleep 5 && kill $!
+npm run dev &
+DEV_PID=$!
+sleep 5
+kill "${DEV_PID}"
+wait "${DEV_PID}" 2>/dev/null # Wait for process to clean up and suppress job control messages
 
 echo "✅ Environment primed. Jules is jacked in."
 echo "Law of the Land: Svelte 5 Runes Only. Refer to AGENTS.md."
