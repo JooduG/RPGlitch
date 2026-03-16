@@ -1,25 +1,42 @@
-# The "Solace" Design System
+# UI Specification: Kinetic Button
 
-This is a comprehensive design language for a mindfulness and wellness application.
+## 1. Description
 
-## 🎨 Color Palette
+A highly tactile Svelte 5 button component using Chalk design tokens.
 
-- **Primary**: Deep Ocean Blue (#1a365d) - for critical navigation and CTAs.
-- **Secondary**: Calm Slate (#718096) - for subtexts and secondary buttons.
-- **Background**: Soft Mist (#f7fafc) - for main page content.
-- **Accent**: Serene Emerald (#38a169) - for positive feedback and completion states.
+## 2. Architecture
 
-## 🔡 Typography
+- **Framework**: Svelte 5
+- **Styling**: Native CSS via `<style>` block.
 
-- **Heading**: Montserrat, Bold - for titles and hero section headlines.
-- **Body**: Inter, Regular - for descriptions and general content.
-- **Size**: 16px as base, 48px for H1.
+## 3. Implementation Blueprint
 
-## 📐 Components
+```svelte
+<script lang="ts">
+  let { label = "Click Me", onclick } = $props();
+  let isHovered = $state(false);
+</script>
 
-- **Buttons**: Rounded (12px), subtle hover shadow (4px blur).
-- **Cards**: Minimal border (1px, #e2e8f0), soft shadow (8px elevation).
-- **Navigation**: Clean, top-aligned, centered menu items.
+<button 
+  {onclick}
+  onmouseenter={() => isHovered = true}
+  onmouseleave={() => isHovered = false}
+  class="kinetic-btn"
+>
+  {label}
+</button>
 
----
-💡 **Tip**: When calling `generate_screen_from_text`, include the tokens above to ensure the new screen matches this design system.
+<style>
+  .kinetic-btn {
+    background: var(--chalk-surface);
+    color: var(--chalk-foreground);
+    border: 1px solid var(--chalk-border);
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .kinetic-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--chalk-accent);
+  }
+</style>
+
+```

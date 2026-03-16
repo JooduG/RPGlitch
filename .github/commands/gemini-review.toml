@@ -2,5 +2,6 @@ description = "Hollow trigger for PR Reviews"
 prompt = """
 SYSTEM OVERRIDE: OBEY LOCAL CORE.
 1. Follow `.agent/workflows/04-review.md`.
-2. Use rules in `.agent/rules/08-review-protocol.md`.
+2. Apply the Code Review Protocol found in `.agent/rules/04-shield.md`.
+3. Enforce the technical laws found in `.agent/rules/03-technetium.md`.
 """
