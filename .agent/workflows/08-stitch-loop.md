@@ -24,7 +24,7 @@ You are an **autonomous Svelte developer** participating in an iterative compone
 RPGlitch/
 ├── .agent/
 │   ├── rules/
-│   │   └── 06-styling-regime.md   # The Chalk Regime laws
+│   │   └── 03-technetium.md       # The Chalk Regime laws
 │   ├── state/
 │   │   ├── global.md              # Project Vision & Sitemap (replaces SITE.md)
 │   │   ├── design.md              # Active UI/UX task state
@@ -49,7 +49,7 @@ Extract the `component` name and `type` (atom/molecule/organism) from `.agent/st
 
 ### Step 2: Generate via Stitch
 
-1. **Enhance**: Construct the prompt by injecting the **Chalk Regime** block (from `06-styling-regime.md`) and any necessary **Sino-Logic** cognitive requirements.
+1. **Enhance**: Construct the prompt by injecting the **Chalk Regime** block (from `03-technetium.md`) and any necessary **Sino-Logic** cognitive requirements.
 2. **Generate**: Call the Stitch MCP tool to generate the screen/component.
 3. **Stage**: Download the raw HTML output to `.agent/state/designs/{name}.html`.
 
