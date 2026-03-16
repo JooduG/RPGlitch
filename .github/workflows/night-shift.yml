@@ -42,7 +42,7 @@ jobs:
       - name: 📋 The Secretary (Janitor & Backlog)
         run: |
           # Extracts #TODO-AI tags and updates the session backlog
-          node .agent/scripts/janitor.js
+          node .agent/skills/quality-assurance/scripts/janitor.js
 
       - name: 💾 Commit & Pass the Baton
         uses: stefanzweifel/git-auto-commit-action@v5
