@@ -1,0 +1,32 @@
+name: The Night Shift (v4.0)
+
+on:
+  schedule:
+    - cron: "0 4 * * *" # 4:00 AM Daily
+  workflow_dispatch:
+
+jobs:
+  janitorial:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Ì≥• Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ‚öôÔ∏è Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Ì∑π Execute Local Janitor
+        # This script was created in Step 4.2 and lives in your repo.
+        run: node .agent/scripts/janitor.js
+
+      - name: Ì≤æ Commit & Sync
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(night-shift): sync backlog and state hub"
+          file_pattern: ".agent/state/backlog.md"

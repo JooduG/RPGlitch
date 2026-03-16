@@ -73,7 +73,7 @@ export const LlmService = {
      *
      * @param {Object}  payload                       - The prompt payload.
      * @param {string}  payload.system                - The system prompt string.
-     * @param {Array}   [payload.messages]            - Conversation history.
+     * @param {Array<{role: string, content?: string, text?: string, character_name?: string}>} [payload.messages] - Conversation history.
      * @param {string}  [payload.startWith]           - Text to prepend to the model response.
      * @param {string}  [payload.node_id]             - UI node ID for the stream.
      * @param {Object}  [payload.params]              - Generation parameters.
@@ -87,7 +87,7 @@ export const LlmService = {
      * @param {number}  [options.max_tokens]           - Override max tokens.
      * @param {string}  [options.model]               - Override model.
      * @param {Function}[options.onToken]             - Per-token streaming callback.
-     * @param {boolean} [options.json]               - Request structured JSON output.
+     * @param {boolean} [options.json]                - Request structured JSON output.
      * @param {AbortSignal} [options.signal]          - Abort signal for cancellation.
      * @returns {Promise<string>}
      */
