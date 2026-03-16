@@ -1,9 +1,5 @@
 import fs from "fs"
 import path from "path"
-import { fileURLToPath } from "url"
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
 const ROOT = process.cwd()
 const SKILL_ROOT = path.join(ROOT, ".agent", "skills")

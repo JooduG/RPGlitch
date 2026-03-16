@@ -1,5 +1,6 @@
 ---
 name: semantic-recall
+version: 1.0.0
 description: Queries the vector database for historical context and architectural intent. Trigger this skill whenever modifying complex core engine files (ContextBroker, NarrativeDirector, etc.) to prevent hallucinating undocumented mechanics.
 ---
 
@@ -44,9 +45,11 @@ _This phase triggers at the end of a session, right before clocking out._
 
 ## 4. Anti-Patterns
 
-- **Blind Execution**: Guessing how a complex system works without checking the vector database first.
-- **Token Bloat**: Asking the Director to upload massive architecture files instead of actively searching the MCP for the specific paragraphs you need.
-- **Selfish Coding**: Finishing a session without upserting a summary of your work into Pinecone, dooming future agents to amnesia.
+| Pattern | Mitigation |
+| :--- | :--- |
+| **Blind Execution** | Forbidden. Use the vector database to verify complex system mechanics before editing. |
+| **Token Bloat** | Avoid uploading massive architecture files; search for specific context instead. |
+| **Selfish Coding** | Mandatory upsert of session summaries into Pinecone to prevent future amnesia. |
 
 ## 5. Tools
 

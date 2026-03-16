@@ -35,7 +35,7 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern                      | Reasoning                                                                                   |
+| Pattern                      | Mitigation                                                                                  |
 | :--------------------------- | :------------------------------------------------------------------------------------------ |
 | **Autoplay without gesture** | Forbidden. Browsers block autoplay; always require user interaction to unlock AudioContext. |
 | **Orphaned AudioContext**    | Forbidden. Always `.close()` or `.suspend()` on component destroy via `$effect` cleanup.    |

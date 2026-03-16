@@ -40,7 +40,8 @@ function scan(dir) {
     files.forEach((file) => {
         const fullPath = path.join(dir, file)
         if (fs.statSync(fullPath).isDirectory()) {
-            if (file !== "node_modules") scan(fullPath)
+            const BLACKLIST = ["node_modules", ".git", ".svelte-kit", "dist", "build", ".vercel"]
+            if (!BLACKLIST.includes(file)) scan(fullPath)
         } else if (file.endsWith(".svelte")) {
             checkFile(fullPath)
         }

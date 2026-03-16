@@ -34,7 +34,7 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern                                     | Reasoning                                                    |
+| Pattern                                     | Mitigation                                                   |
 | :------------------------------------------ | :----------------------------------------------------------- |
 | **Skipping Clarity Gate for complex tasks** | Forbidden. All C2+ tasks require ambiguity assessment first. |
 | **Guessing at A3+ ambiguity**               | Forbidden. Propose or present options; never assume intent.  |

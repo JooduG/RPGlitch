@@ -1,49 +1,51 @@
 ---
 name: project
-version: 1.2.0
+version: 2.0.0
 description: >
-    Global task tracking, roadmap state, and enforcing the Task Flux protocol (Plan -> Track -> Code).
-    Triggers: "Plan feature", "Update tracks", "Check status", "Next task", "Implement"
+    Manages the task lifecycle (Plan -> Track -> Code) via the .agent/state hub. 
+    Enforces the Flat Track protocol and maintains the Global State baton.
 ---
 
-# 🛡️ Skill: Project Flux (The Executive)
+# ��️ Skill: Project System
 
-> **Persona**: "I am The Executive. Global task tracking, roadmap state, and enforcing the Task Flux protocol (Plan -> Track -> Code) via .agent/tasks/ and STATE.md."
+> **Context**: "Orchestrates global task tracking and roadmap state. Ensures every byte of work is registered in the .agent/state/ tracks and synchronized with the Global State."
 
 ## 1. Summoning Triggers
 
-- **Territorial**: `.agent/tasks/tracks.md`, `.agent/tasks/**`, `STATE.md`, `next-prompt.md`.
-- **Intent**: "Plan feature", "Update tracks", "Check status", "Next task".
+- **Territorial**: `.agent/state/tracks.md`, `.agent/state/tracks/**`, `.agent/state/global.md`, `.agent/state/next-prompt.md`.
+- **Intent**: "Plan feature", "Update tracks", "Check status", "Next task", "Initialize track".
 
 ## 2. The Brain (A-C-Q Protocol)
 
-Define the Clarity Gate constraints specific to this skill.
-
-- **A-Score Requirements**: A1 for updating tracks; A3 for planning a feature.
-- **C-Level Tools**: C2 (Planning).
+- **A-Score**: A1 for status updates; A3 for architecture/planning.
+- **C-Level**: C2 (Planning) for task decomposition.
 
 ## 3. Capabilities
 
-- **Task Tracking**: Strict text-based state in `.agent/tasks/tracks.md` (Mission Board) and `.agent/tasks/<slug>.md`.
-- **Roadmap Governance**: Managing `atlas/02-roadmap.md` and `atlas/01-vision.md`.
-- **Scoping**: Following `01-plan.md` workflow to spec out requirements.
+- **Flat Track Management**: Creating and maintaining single-file tracks in `.agent/state/tracks/<slug>.md` containing Specs and Plans.
+- **Kanban Registry**: Managing the Mission Board in `.agent/state/tracks.md`.
+- **Global Handoff**: Ensuring `global.md` and `next-prompt.md` are updated via the `06-continue` workflow.
 
 ## 4. Procedures
 
-1. **Update Status**: Edit `.agent/tasks/tracks.md` to move items between columns.
-2. **Start Implementation**: Ensure task is planned in `.agent/tasks/<slug>.md`, then proceed to `02-execute.md`.
-3. **Sync Environment**: Use `scripts/sync.js` to ensure linter and IDE settings match `ignores.master.json`.
+1. **Scaffold Track**:
+   - Check `backlog.md` or user intent.
+   - Run "Architecture Consultation" if intent is A3 (Ambiguous).
+   - Create `.agent/state/tracks/<slug>.md` using the [Track Template](templates/track.md).
+   - Register the track in `.agent/state/tracks.md`.
+2. **Sync Execution**:
+   - Before implementation, read the target track file.
+   - Use `scripts/sync.js` to ensure environmental parity.
 
 ## 5. Anti-Patterns
 
-| Pattern                              | Reasoning                                                            |
-| :----------------------------------- | :------------------------------------------------------------------- |
-| **Coding without a tracked plan**    | Forbidden. All work must exist in .agent/tasks/tracks.md before implementation. |
-| **Bypassing STATE.md**               | Avoid. `STATE.md` is the source of truth for active WIP. |
-| **Tracking unbuilt features deeply** | Avoid. YAGNI — if it's not being built now, it's not on the roadmap. |
+| Pattern | Mitigation |
+| :--- | :--- |
+| **The Ghost Work** | Coding without an active entry in `tracks.md` or a track file. |
+| **State Fragmentation** | Creating `STATE.md` or `.tasks/` folders. (Use `.agent/state/` ONLY). |
+| **Nested Task Folders** | v4.0 uses Flat Tracks (one file per task) to prevent context hopping. |
 
 ## 6. Tools & Assets
 
-- **Pillars**: `STATE.md`, `next-prompt.md`.
-- **Knowledge**: `.agent/knowledge/atlas/**`, `.agent/knowledge/lab/**`.
-- **Automation**: `scripts/sync.js` for configuration synchronization.
+- **The Hub**: `.agent/state/global.md` (Vision/WIP), `.agent/state/tracks.md` (Kanban).
+- **Automation**: `scripts/sync.js` for config synchronization.

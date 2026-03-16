@@ -42,7 +42,7 @@ Every standard action follows the Engine Loop:
 
 ## 5. Anti-Patterns
 
-| Pattern                                            | Reasoning                                                                                                                           |
+| Pattern                                            | Mitigation                                                                                                                          |
 | :------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------- |
 | **Bypassing ContextBroker**                        | Passing direct state to LLM without hydration breaks the entity memory boundary and risks hallucination.                            |
 | **Continuous Time (Delta MS)**                     | This is a text-based, turn-based narrative engine. Time flows via Chrono ticks (`engineState.turn++`), not `requestAnimationFrame`. |

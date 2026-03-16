@@ -1,5 +1,6 @@
 ---
 name: design-md
+version: 1.0.0
 description: Analyze Stitch projects and synthesize a semantic design system into DESIGN.md files
 allowed-tools:
     - "stitch*:*"
@@ -101,6 +102,8 @@ Explain how the UI handles layers. Describe the presence and quality of shadows 
 
 ## Output Format (DESIGN.md Structure)
 
+File: DESIGN.md.template
+
 ```markdown
 # Design System: [Project Title]
 
@@ -135,22 +138,28 @@ To use this skill for the Furniture Collection project:
 
 1. **Retrieve project information:**
 
-    ```md
+File: usage-example-1.md
+
+```md
     Use the Stitch MCP Server to get the Furniture Collection project
-    ```
+```
 
 2. **Get the Home page screen details:**
 
-    ```md
+File: usage-example-2.md
+
+```md
     Retrieve the Home page screen's code, image, and screen object information
-    ```
+```
 
 3. **Reference best practices:**
 
-    ```md
+File: usage-example-3.md
+
+```md
     Review the Stitch Effective Prompting Guide at:
     https://stitch.withgoogle.com/docs/learn/prompting/
-    ```
+```
 
 4. **Analyze and synthesize:**
     - Extract all relevant design tokens from the screen
@@ -179,10 +188,11 @@ To use this skill for the Furniture Collection project:
 4. **Consider hierarchy:** Document how visual weight and importance are communicated
 5. **Reference the guide:** Use language and patterns from the Stitch Effective Prompting Guide
 
-## Common Pitfalls to Avoid
+## 7. Anti-Patterns
 
-- ❌ Using technical jargon without translation (e.g., "rounded-xl" instead of "generously rounded corners")
-- ❌ Omitting color codes or using only descriptive names
-- ❌ Forgetting to explain functional roles of design elements
-- ❌ Being too vague in atmosphere descriptions
-- ❌ Ignoring subtle design details like shadows or spacing patterns
+| Pattern | Mitigation |
+| :--- | :--- |
+| **Technical Jargon** | Avoid using "rounded-xl"; use "generously rounded corners" instead. |
+| **Missing Color Codes** | Must include exact hex codes in parentheses. |
+| **Generic Descriptions** | Avoid "blue"; use "Ocean-deep Cerulean (#0077B6)". |
+| **Overshooting Depth** | Don't assume shadows; describe them only if observed in the source. |

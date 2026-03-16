@@ -35,7 +35,7 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 5. Anti-Patterns
 
-| Pattern                                 | Reasoning                                                                        |
+| Pattern                                 | Mitigation                                                                       |
 | :-------------------------------------- | :------------------------------------------------------------------------------- |
 | **Marking [x] without PASS status**     | Forbidden. Scholar Gate: no task is done without verified test output.           |
 | **Skipping flushSync() in state tests** | Forbidden. External .svelte.ts state requires flushSync() to propagate in tests. |
