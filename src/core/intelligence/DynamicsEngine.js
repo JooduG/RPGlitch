@@ -30,6 +30,7 @@ import { CONFIG } from "@core/engine/config.js"
 
 export const DYNAMICS_REFLEXES = [
     // ─────────────────────────────────────────────────────────────────
+    // #TODO-AI: Externalize semantic dictionary for runtime configuration.
     // 🧠 TIER I: SOMATIC (Character Only)
     // These triggers only affect human geometry. The Fractal remains entirely deaf
     // to these inputs. You can cry in a room without the room reacting.
@@ -308,7 +309,7 @@ export class DynamicsEngine {
         DynamicsEngine._map_signals(state.fractal_dynamics, state, d_phys.SIGNAL_HIGH, d_phys.SIGNAL_LOW)
 
         // 5. Naivety Cognition Check (Character Only)
-        // Does the user sound like a used car salesman? If so, make the AI suspicious.
+        // #TODO-AI: Personality-weighted Bayesian priors for character-specific skepticism.
         const suspicion = DynamicsEngine._resolve_naivety(input, state.dynamics.openness)
         if (suspicion !== null) {
             if (suspicion > 0.6) {
@@ -342,6 +343,8 @@ export class DynamicsEngine {
             }
         })
     }
+
+    // #TODO-AI: Implement character personality weighting (e.g. Stoic vs Volatile).
 
     /**
      * Psychological breaking points. If a character's mind is pushed to the extreme,

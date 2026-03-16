@@ -36,6 +36,7 @@ export const IntelligenceKernel = {
     async executeTurn(story_id, options = {}) {
         const { input = "", role = "ai", ...llm_options } = options
 
+        // #TODO-AI: Improve error handling and retry logic for LLM service failures.
         // 1. CHRONO: Turn management
         runtime.turn++
 
@@ -99,6 +100,7 @@ export const IntelligenceKernel = {
         await Session.log_turn(result, fractal_name, "fractal")
 
         // 2. The Hook: Trigger immediate AI follow-up to open the scene
+        // #TODO-AI: Externalize director command templates.
         const director_command = "[DIRECTOR: The stage is set and the pieces are on the board. Proceed with the simulation immediately.]"
         return await this.executeTurn(story_id, { input: director_command })
     },
