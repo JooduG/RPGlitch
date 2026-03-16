@@ -1,3 +1,12 @@
+---
+name: 08-stitch-loop
+description: Autonomous loop for building RPGlitch Svelte components using Stitch design iterations.
+allowed-tools:
+  - "stitch*:*"
+  - "Read"
+  - "Write"
+  - "Bash"
+---
 # Workflow: 08-stitch-loop (The Feedback Cycle)
 
 > **Context:** Reverse-engineered from the Stitch SDK `component-validator.ts`.
