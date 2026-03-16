@@ -9,8 +9,8 @@
     import { app } from "@state/app.svelte.js"
     import { runtime } from "@state/runtime.svelte.js"
     import { DEFAULT_COLORS, themeStore } from "@theme/palette.svelte.js"
-    import DOMPurify from "dompurify"
     import SceneHeader from "../SceneHeader.svelte"
+    import { safe_html } from "@ui/utils/actions/safeHtml.js"
 
     let {
         text = "",
@@ -81,18 +81,6 @@
     let display_text = $derived(parsed.displayText)
     let think_block = $derived(parsed.think)
     let scene_data = $derived(parsed.sceneData)
-
-    /**
-     * Svelte Action: Safely injects sanitized HTML into a node.
-     */
-    function safe_html(node, content) {
-        node.innerHTML = DOMPurify.sanitize(content)
-        return {
-            update(new_content) {
-                node.innerHTML = DOMPurify.sanitize(new_content)
-            },
-        }
-    }
 </script>
 
 <div class="message-row" class:user-row={is_user} class:ai-row={is_ai} class:fractal-row={is_fractal} class:thinking-row={is_thinking}>
@@ -137,7 +125,7 @@
                 </div>
             {/if}
 
-            <div class="message-content" use:safe_html={DOMPurify.sanitize(display_text)}></div>
+            <div class="message-content" use:safe_html={display_text}></div>
 
             <div class="message-footer">
                 {#if is_ai}

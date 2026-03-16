@@ -7,22 +7,9 @@
      */
     import { ENTITY_FRAGMENTS } from "@/core/intelligence/entity_fragments.js"
     import { fitText } from "@ui/utils/actions/fitText.js"
-    import DOMPurify from "dompurify"
+    import { safe_html } from "@ui/utils/actions/safeHtml.js"
 
     let { char = $bindable(), is_editing, render_markdown, auto_resize } = $props()
-
-    /**
-     * Svelte Action: Safely injects sanitized HTML into a node.
-     * This bypasses the overzealous `{@html}` ESLint rule gracefully.
-     */
-    function safe_html(node, content) {
-        node.innerHTML = DOMPurify.sanitize(content)
-        return {
-            update(new_content) {
-                node.innerHTML = DOMPurify.sanitize(new_content)
-            },
-        }
-    }
 </script>
 
 <header class:is-editing={is_editing} data-testid="profile-header">
