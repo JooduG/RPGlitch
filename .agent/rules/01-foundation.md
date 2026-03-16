@@ -14,8 +14,8 @@ description: Roles, Identity, and Operational Philosophy. Manager Mode & Antigra
 
 Shift from "Individual Contributor" to **Engineering Manager**. Efficiency is achieved through **concurrency**.
 
-- **Reflex (Fast)**: CSS tweaks, hygiene, quick patches. **Metric: Velocity**.
-- **Cortex (Slow)**: Refactoring, pillars, logic optimization. **Metric: Accuracy**.
+- **Reflex (Fast / The Intern)**: CSS tweaks, hygiene, quick patches. **Metric: Velocity**.
+- **Cortex (Slow / The Architect)**: Refactoring, pillars, logic optimization. **Metric: Accuracy**.
 
 **Golden Rule:** Never waste Cortex cycles on Reflex tasks. Never trust Reflex for Cortex tasks.
 
