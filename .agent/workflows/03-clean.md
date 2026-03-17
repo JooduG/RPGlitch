@@ -24,7 +24,7 @@ description: Maintenance & Security. Fixes bugs, audits security, and ensures hy
 ### Phase 1: The Clarity Gate (Diagnosis)
 
 1. **Sync**: Run `/00-boot` to ensure environment resonance. [[Invoke: devops]](../skills/devops/SKILL.md)
-2. **Audit**: Execute `naming-analyzer.js` and `npm audit`. [[Invoke: quality-assurance]](../skills/quality-assurance/SKILL.md)
+2. **Audit**: Execute the `naming-analyzer` skill and `npm audit`. [[Invoke: quality-assurance]](../skills/quality-assurance/SKILL.md)
 3. **Trace**: Map the logic path to the bug. [[Invoke: simulation]](../skills/simulation/SKILL.md)
 
 ### Phase 2: Sanitization & Debt Management

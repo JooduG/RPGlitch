@@ -4,7 +4,7 @@
 
 ## Active WIP
 
-- [x] Refactor Architecture to v4.0 (The Sovereign Core)
+- [/] Narrative Console Organism (`src/ui/organisms/NarrativeConsole.svelte`)
 
 ## Known Quirks / Technical Debt
 

@@ -47,9 +47,8 @@ We do not leave messes. The Janitor script automatically scans the `src/` direct
 
 ### B. The Warden Scan (Hygiene & Vulnerability Audit)
 
+- **Naming Audit**: Use the `naming-analyzer` skill to ensure codebase nomenclature remains consistent and descriptive.
 - **Dependency Scan**: `npm audit --audit-level=high` is a prerequisite for any checkpoint. It runs recursively across the root and `.agent/tools/`.
-- **Hygiene Audit**: The codebase is strictly scanned for leftover `console.log()`, `alert()`, or `debugger` statements. Production tracks must be sterile.
-- **Static Analysis**: ESLint MUST enforce Svelte 5 rune safety.
 
 ---
 

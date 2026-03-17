@@ -129,13 +129,13 @@ Before initializing any execution, synchronize with reality:
 - [ ] Styling adheres to **The Chalk Regime** CSS variables.
 - [ ] **Hygiene Check**: No `console.log`, `FIXME`, or unresolved out-of-scope `#TODO-AI`.
 - [ ] **Audits**: `npm run lint` and `npm test` pass.
-- [ ] **Handoff**: `STATE.md` and `.agent/state/global.md` updated via `/06-continue`.
+- [ ] **Handoff**: `.agent/state/tracks.md` and `.agent/state/global.md` updated via `/06-continue`.
 
 ---
 
 ## 4. The Penance Protocol
 
-Integrity breaches (hallucinating imports, skipping `STATE.md` updates, using Svelte 4) trigger immediate operational penalties:
+Integrity breaches (hallucinating imports, skipping state updates, using Svelte 4) trigger immediate operational penalties:
 
 1. **Tier 1**: Mandatory self-correction and logged technical debt (`#TODO-AI`) in the next response.
 2. **Tier 2**: Activation of **Penance Mode**.
