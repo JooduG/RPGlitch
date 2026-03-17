@@ -1,0 +1,34 @@
+# .agent/policy.toml
+# Governance for Autonomous Operations
+
+[execution]
+# Threshold for run_command without user approval
+safety_threshold = "medium"
+# Prohibited commands
+forbidden_commands = ["rm -rf /", "mkfs", "dd"]
+# Require manual review for destructive file operations
+manual_review_on_delete = true
+
+[deployment]
+# Primary target environment
+target = "perchance"
+# Mandatory verification steps
+verification_gates = ["check", "test", "lint"]
+# Bundle size limits (Bytes)
+max_bundle_size = 358400 # 350KB
+# Require visual smoke test via browser tool
+browser_smoke_test = true
+
+[standards]
+# Allowed frameworks
+framework = "svelte@5"
+# Native styling only
+styling = "vanilla-css"
+# Color system (Chalk Regime)
+theme_tokens = ".agent/rules/03-technetium.md"
+
+[orchestration]
+# Fleet coordination rules
+solo_divergence_tolerance = "low"
+# Prioritize central sovereign source for logic conflicts
+conflict_resolution = "sovereign-priority"

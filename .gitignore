@@ -20,4 +20,5 @@ mcp.json
 node_modules
 **/scribbles/**
 test-results/**
+.playwright-auth/**
 !RPGlitch-left-panel.txt

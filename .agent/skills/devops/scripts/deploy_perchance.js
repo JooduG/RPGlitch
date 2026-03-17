@@ -163,34 +163,61 @@ async function deploy({ left_content, right_content }) {
 
         // PHASE 2: Dismiss cookie consent
         log('🍪', 'Checking for cookie consent...');
-        await page.waitForTimeout(3000); // Let consent banners render
+        await page.waitForTimeout(5000); // Increase wait for complex CMPs to render
 
-        for (let attempt = 0; attempt < 3; attempt++) {
+        for (let attempt = 0; attempt < 5; attempt++) {
             try {
                 const dismissed = await page.evaluate(() => {
-                    // Target only actual buttons with short, action-oriented text
-                    const keywords = ['accept', 'agree', 'consent', 'got it', 'i understand'];
-                    const buttons = document.querySelectorAll('button, [role="button"]');
+                    // Target buttons with direct keywords
+                    const keywords = ['agree', 'accept', 'consent', 'got it', 'i understand', 'allow all', 'accept all'];
+                    const buttons = Array.from(document.querySelectorAll('button, [role="button"], a.btn'));
+                    
+                    // Priority 1: Specific IAB/Quantcast selectors often seen on Perchance
+                    const specBtn = document.querySelector('.qc-cmp2-summary-buttons button[mode="primary"], .qc-cmp2-buttons-desktop button:last-child');
+                    if (specBtn && specBtn.offsetParent !== null) {
+                        specBtn.click();
+                        return "quantcast-primary";
+                    }
+
+                    // Priority 2: Exact keyword matching (Stricter)
+                    const exactKeywords = ['agree', 'accept', 'allow all', 'accept all'];
                     for (const btn of buttons) {
                         const text = (btn.textContent || '').toLowerCase().trim();
                         const visible = btn.offsetParent !== null && btn.offsetHeight > 0;
-                        // Only click short-text buttons (not the entire CMP container)
-                        if (visible && text.length < 30 && keywords.some(kw => text.includes(kw))) {
+                        if (visible && exactKeywords.includes(text)) {
+                            btn.click();
+                            return text;
+                        }
+                    }
+
+                    // Priority 3: Fuzzy matching
+                    const fuzzyKeywords = ['consent', 'got it', 'i understand'];
+                    for (const btn of buttons) {
+                        const text = (btn.textContent || '').toLowerCase().trim();
+                        const visible = btn.offsetParent !== null && btn.offsetHeight > 0;
+                        if (visible && text.length < 30 && fuzzyKeywords.some(kw => text.includes(kw))) {
                             btn.click();
                             return text;
                         }
                     }
                     return null;
                 });
+
                 if (dismissed) {
                     log('✅', `Consent dismissed: "${dismissed}"`);
-                    await page.waitForTimeout(1500);
+                    // Wait for the modal/overlay to actually be removed from DOM
+                    await page.waitForFunction(() => {
+                        const overlay = document.querySelector('.qc-cmp2-container, #qc-cmp2-container, [class*="cmp-modal"]');
+                        return !overlay || window.getComputedStyle(overlay).display === 'none';
+                    }, { timeout: 10000 }).catch(() => log('⚠️', 'Overlay still present but proceeding...'));
+                    
+                    await page.waitForTimeout(2000);
                 } else {
-                    // Also try inside iframes (some CMPs use iframes)
+                    // Also try inside iframes (for legacy/third-party CMPs)
                     for (const frame of page.frames()) {
                         try {
                             const iframe_result = await frame.evaluate(() => {
-                                const keywords = ['accept', 'agree', 'consent'];
+                                const keywords = ['accept', 'agree', 'consent', 'allow all'];
                                 const buttons = document.querySelectorAll('button, [role="button"]');
                                 for (const btn of buttons) {
                                     const text = (btn.textContent || '').toLowerCase().trim();
@@ -204,14 +231,17 @@ async function deploy({ left_content, right_content }) {
                             });
                             if (iframe_result) {
                                 log('✅', `Consent dismissed (iframe): "${iframe_result}"`);
-                                await page.waitForTimeout(1500);
+                                await page.waitForTimeout(2000);
                                 break;
                             }
                         } catch { /* cross-origin iframe */ }
                     }
                     break; // No consent found, move on
                 }
-            } catch { break; }
+            } catch (e) { 
+                log('🔄', `Consent attempt ${attempt + 1} failed: ${e.message}`);
+                await page.waitForTimeout(1000);
+            }
         }
 
         // PHASE 3: Check login state
@@ -419,25 +449,56 @@ async function attempt_login(page) {
     }
 
     // Open the login modal via Perchance API if not already present
-    const modal_present = await page.$('input[placeholder="email"]');
-    if (!modal_present) {
-        log('🔑', 'Opening login modal...');
-        await page.evaluate(() => {
-            if (typeof window.app !== 'undefined') {
-                window.app.openLoginModal();
+    // CRITICAL: First clear any lingering overlays that might block the login button
+    await page.evaluate(() => {
+        const overlay = document.querySelector('.qc-cmp2-container, #qc-cmp2-container, [class*="cmp-modal"]');
+        if (overlay) {
+            console.log("Removing blocking overlay...");
+            overlay.remove();
+        }
+    });
+
+    let modal_present = false;
+    for (let attempt = 0; attempt < 3; attempt++) {
+        modal_present = await page.evaluate(() => {
+            const emailField = document.querySelector('input[placeholder="email"], input[type="email"]');
+            const modalVisible = emailField && emailField.offsetParent !== null;
+            if (!modalVisible) {
+                if (typeof window.app !== 'undefined') {
+                    window.app.openLoginModal();
+                }
             }
+            return modalVisible;
         });
-        await page.waitForTimeout(2000);
-    } else {
-        log('📋', 'Login modal already active.');
+
+        if (modal_present) break;
+        log('🔑', `Login modal attempt ${attempt + 1}...`);
+        await page.waitForTimeout(3000);
+    }
+
+    if (!modal_present) {
+        log('⚠️', 'Login modal not appearing via app.openLoginModal(). Trying direct selector wait...');
     }
 
     // Wait for the email input to be visible and then find both
     log('⏳', 'Waiting for login fields...');
     try {
-        await page.waitForSelector('input[placeholder="email"]', { timeout: 10000 });
+        await page.waitForSelector('input[placeholder="email"], input[type="email"]', { 
+            state: 'visible',
+            timeout: 10000 
+        });
     } catch (e) {
-        log('⚠️', 'Login fields not found via placeholder. Trying fallbacks...');
+        log('⚠️', 'Fields not visible. Forcing modal display style...');
+        await page.evaluate(() => {
+            const loginModal = document.querySelector('#loginModalCtn');
+            if (loginModal) {
+                loginModal.style.display = 'block';
+                loginModal.style.visibility = 'visible';
+                loginModal.style.opacity = '1';
+                loginModal.style.zIndex = '100000';
+            }
+        });
+        await page.waitForTimeout(1000);
     }
 
     const email_input = await page.$('input[placeholder="email"], input[type="email"]');

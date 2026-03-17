@@ -4,7 +4,7 @@
 
 ## Active WIP
 
-- [ ] Refactor Architecture to v4.0 (The Sovereign Core)
+- [x] Refactor Architecture to v4.0 (The Sovereign Core)
 
 ## Known Quirks / Technical Debt
 

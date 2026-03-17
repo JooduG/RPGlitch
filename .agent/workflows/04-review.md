@@ -15,19 +15,29 @@ description: Quality Gate & Triage. Audits work and organizes the next cycle.
 
 ## 2. Brain (Context Injection)
 
-- **Vision**: [.agent/knowledge/atlas/01-vision.md](../knowledge/atlas/01-vision.md).
-- **Validation**: [.agent/rules/05-validation.md](../rules/05-validation.md).
+- **Rules**: [.agent/rules/01-foundation.md](../rules/01-foundation.md).
+- **Rules**: [.agent/rules/04-shield.md](../rules/04-shield.md).
+- **State**: [.agent/state/tracks.md](../state/tracks.md) (Mission Board).
 
 ## 3. Procedures
-1. **Audit**: Verify implementation against the original Blueprint and Success Criteria. [Invoke: `quality-assurance`]
 
-2. **Archival**: If complete, move the track shards to [.agent/archive/](../archive/). [Invoke: `project`]
+### Phase 1: The Clarity Gate (Audit)
 
-3. **Triage**: Sort incoming issues and seed the next `/01-plan` cycle.
+1. **Analysis**: Verify implementation against the original Blueprint and Success Criteria. [[Invoke: quality-assurance]](../skills/quality-assurance/SKILL.md)
+2. **Standard Check**: Ensure code adheres to **Svelte 5 Runes** and **Chalk Regime** tokens. [[Invoke: svelte]](../skills/svelte/SKILL.md)
 
-4. **Checkpoint**: Update [.agent/state/tracks.md](../state/tracks.md) with the latest stable SHA.
+### Phase 2: Maintenance
+
+1. **Archival**: If complete, move the track shards to [.agent/archive/](../archive/). [[Invoke: project]](../skills/project/SKILL.md)
+2. **Triage**: Sort incoming issues and seed the next `/01-plan` cycle. [[Invoke: scribe]](../skills/scribe/SKILL.md)
+
+### Phase 3: The Quality Gate (Checkpoint)
+
+1. **Finalize**: Update [.agent/state/tracks.md](../state/tracks.md) with the latest stable SHA and verified status. [[Invoke: project]](../skills/project/SKILL.md)
+2. **Report**: Walkthrough of changes and proof of verification. [[Invoke: scribe]](../skills/scribe/SKILL.md)
 
 ## 4. Anti-Patterns
 
-- **Silent Done**: Marking tasks complete without an audit report.
-- **Fragmented Board**: Leaving stale/abandoned tracks on the board.
+- **Silent Done**: Marking tasks complete without providing an audit report or terminal evidence.
+- **Fragmented Board**: Leaving stale or abandoned tracks on the mission board.
+- **Logic Leak**: Committing untested edge cases to the Vault.

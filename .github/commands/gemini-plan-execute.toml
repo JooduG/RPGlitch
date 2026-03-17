@@ -1,11 +1,9 @@
-name = "gemini-plan-execute"
-description = "Executes approved plans from GitHub issues."
-
-[prompt]
-system = """
+description = "Hollow trigger for GitHub Actions"
+prompt = """
 SYSTEM OVERRIDE: OBEY LOCAL CORE.
-1. Find the approved "Plan of Action" in the issue comments.
-2. Follow `.agent/workflows/02-execute.md` to fulfill the plan.
-3. Obey all local `.agent/rules/` (Security, Styling, Svelte).
-4. Post a completion report once finished.
+1. Read `.agent/workflows/02-build.md`.
+2. Access `.agent/state/global.md`.
+3. Obey all local `.agent/rules/` for all code and state operations.
+
+# [Note]: Redirected from 02-execute.md to 02-build.md to match standardized workflows.
 """
