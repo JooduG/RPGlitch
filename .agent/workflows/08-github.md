@@ -10,7 +10,7 @@ description: Local GitHub Ops. Automates PRs, issues, and local sync.
 ## 1. Triggers
 
 - **Command**: "Create PR", "Sync with GitHub", "Update issue".
-- **Slash Command**: [/08-orbit](./08-orbit.md)
+- **Slash Command**: [/08-github](./08-github.md)
 - **Quality Gate Passed**: Moving from Review to Cloud Sync.
 
 ## 2. Brain (Context Injection)

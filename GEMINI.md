@@ -1,6 +1,6 @@
-# 🌌 RPGlitch: GEMINI.md
+# 🌌 RPGlitch: GEMINI.md (Neural Overrides)
 
-> **Vision:** A local-first, genre-agnostic RPG engine where state drives reality and narrative is forged through recursive intelligence.
+> **Vision:** A local-first, genre-agnostic RPG engine where state drives reality and narrative is forged through recursive intelligence. This file contains the mandatory neural overrides and behavioral guardrails for Gemini-based sub-routines.
 
 ---
 
@@ -16,76 +16,46 @@ The project targets **Perchance** as its primary deployment platform, requiring 
 
 ---
 
-## 🛠️ Technical Stack
+## 🛠️ Technical Stack & Environment
 
 - **Framework:** Svelte 5 (Runes-only: `$state`, `$derived`, `$effect`).
 - **Build Tool:** Vite (with `vite-plugin-singlefile` for Perchance).
+- **Environment (Perchance Two-Panel Paradigm):** No Node.js backend. Rely entirely on **Just-In-Time (JIT) Compilation** and **ESM/CDN imports** (via `esm.sh`) for external libraries.
 - **Persistence:** Dexie.js (IndexedDB).
-- **Styling:** Vanilla CSS with **Chalk Regime** design tokens.
-- **Intelligence:** Sovereign Core (`.agent/`) logic with high-fidelity context hydration.
-- **Testing:** Vitest (Unit) and Playwright (E2E).
+- **Styling:** Vanilla CSS with **Chalk Regime** design variables.
 
 ---
 
-## 🚦 Key Commands
+## ⚡ Engineering Mandates (Neural Directives)
 
-| Command | Purpose |
-| :--- | :--- |
-| `npm run dev` | Start local development server (Vite). |
-| `npm run build` | Build the project for production. |
-| `npm run verify` | Run full suite: Svelte-check, linting, and unit tests. |
-| `npm run test` | Run unit tests and security audit. |
-| `npm run deploy` | Full pipeline: Verify, build, and deploy to Perchance. |
-| `npm run deploy:perchance` | Automated deployment via Playwright script. |
-| `npm run format` | Format codebase using Prettier. |
-| `/08-github` | Trigger local GitHub PR/Issue sync. |
-
----
-
-## 📜 Development Conventions
-
-### 1. ⚡ Svelte 5 Supremacy
+### 1. Svelte 5 Sovereignty
 
 - **Mandate:** All new code **must** use Svelte 5 Runes.
-- **Forbidden:** `export let`, `$:`, `writable/readable` stores.
-- **Pattern:** Use `$state` for reactive variables and `$derived` for computed logic. Silently refactor legacy code on sight.
+- **Forbidden:** `export let`, `$:`, `writable()`, `readable()`, and `onMount` (where `$effect` is applicable).
+- **Action:** Silently refactor legacy Svelte 4 code to Svelte 5 Runes immediately upon encounter.
 
-### 2. 🎨 The Chalk Regime (Visuals)
+### 2. The Technetium Protocol (Visual Integrity)
 
-- **Constraint:** Use **only** CSS variables defined in `src/theme/tokens.css`.
-- **Forbidden:** Hardcoded hex codes or RGB values in `.svelte` or `.css` files.
-- **Aesthetic:** High-contrast, atmospheric, and diegetic "Chalk" UI.
+- **Mandate:** All styling must strictly adhere to `.agent/rules/03-technetium.md`.
+- **Constraint:** Use **only** native CSS variables defined in `src/theme/tokens.css` (e.g., `var(--color-chalk)`).
+- **Forbidden:** You are strictly forbidden from hallucinating generic hex codes, RGB values, or arbitrary inline colors.
 
-### 3. 🛡️ Perchance Constraints
+### 3. ANEX_BLACKTIDE Authority Hierarchy
 
-- **Self-Contained:** The build must result in a single `index.html`.
-- **Runtime:** No Node.js modules are available at runtime. All logic must be browser-compatible.
+- **Mandate:** Respect the narrative hierarchy: **L1_ABSOLUTE (User Agency) > L2_CRITICAL (Character/Temporal Truth) > L3_HIGH (Plot/Sensory) > L4_MODERATE (Style)**.
+- **Forbidden:** You must **never** utilize narrator-voice, and you must **never** speak, think, or act on behalf of the user. Maintain strict third-person limited integrity for the entities.
+- **Diegesis:** Express statistical signals (e.g., trust, sanity, BayesMind data) diegetically through body language or internal logic within `<think>` blocks, never as raw numbers in the narrative output.
 
-### 4. 🧱 Skill-Based Architecture
+### 4. The Handoff Law (Paperwork Routine)
 
-- Logic is organized into modular "skills" within `.agent/skills/`.
-- Cross-cutting concerns are handled by their respective skill logic (e.g., `audio`, `data`, `svelte`, `security`).
-
-### 5. 🎭 Narrative Constraints (ANEX_BLACKTIDE)
-
-- **Authority Hierarchy**: Enforce ANEX_BLACKTIDE logic (L1_ABSOLUTE > L2_CRITICAL).
-- **Diegetic Integrity**:
-    - Forbid narrator-voice or speaking for the user.
-    - Start responses directly; no preambles or technical meta-labels.
-    - Express statistical signals (trust, sanity) diegetically through body language or internal logic, never as numbers.
-
-### 6. 🧭 The Navigator Protocol (Docs)
-
-- **Standard**: All internal links MUST be relative.
-- **Functional**: `[Invoke: skill]` tags must link to their respective `SKILL.md`.
-- **Reference**: Follow [.agent/rules/03-technetium.md](.agent/rules/03-technetium.md).
+- **Mandate:** You are strictly prohibited from ending a session without executing `.agent/workflows/06-continue.md` (or equivalent paperwork routine) to update the `.agent/state/` shard.
 
 ---
 
 ## 📂 Directory Map
 
 - `.agent/`: Project-specific intelligence, rules, and automation skills (The Sovereign Core).
-- `src/core/`: Core engine logic (Intelligence, Security).
+- `src/core/`: Core engine logic (Intelligence, Security, BayesMind/DynamicsEngine).
 - `src/data/`: Database (Dexie), entity premades, and repositories.
 - `src/state/`: Global Svelte 5 app state and reactive stores.
 - `src/theme/`: Design tokens, global styles, and palettes (The Chalk Regime).
@@ -100,4 +70,6 @@ Active development and architectural task tracking is dynamically managed via th
 Please refer to:
 
 - **`.agent/state/global.md`** (The Mission Board / Active State)
-- **`.agent/state/`** (Individual implementation plans/tracks)
+- **`.agent/state/tracks.md`** (Session deltas and summaries)
+- **`.agent/state/backlog.md`** (WIP and Done status sync)
+- **`.agent/state/next-prompt.md`** (High-context instructions for the next agent session)

@@ -1,15 +1,10 @@
----
-name: 04-review
-description: Quality Gate & Triage. Audits work and organizes the next cycle.
----
+# 04-review (The Vault & The Handoff)
 
-# 04-review (The Vault)
-
-> **Goal:** Final quality audit and backlog maintenance.
+> **Goal:** Final quality audit, test validation, and mandatory session paperwork.
 
 ## 1. Triggers
 
-- **Command**: "Finish task", "Ready for review".
+- **Command**: "Finish task", "Ready for review", "Clock out".
 - **Refactor Complete**: Moving from Build to Review.
 - **Slash Command**: [/04-review](./04-review.md)
 
@@ -18,26 +13,32 @@ description: Quality Gate & Triage. Audits work and organizes the next cycle.
 - **Rules**: [.agent/rules/01-foundation.md](../rules/01-foundation.md).
 - **Rules**: [.agent/rules/04-shield.md](../rules/04-shield.md).
 - **State**: [.agent/state/tracks.md](../state/tracks.md) (Mission Board).
+- **State**: [.agent/state/backlog.md](../state/backlog.md) (Task Sync).
 
 ## 3. Procedures
 
 ### Phase 1: The Clarity Gate (Audit)
 
 1. **Analysis**: Verify implementation against the original Blueprint and Success Criteria. [[Invoke: quality-assurance]](../skills/quality-assurance/SKILL.md)
-2. **Standard Check**: Ensure code adheres to **Svelte 5 Runes** and **Chalk Regime** tokens. [[Invoke: svelte]](../skills/svelte/SKILL.md)
+2. **Standard Check**: Ensure code adheres strictly to **Svelte 5 Runes** and **Chalk Regime** styling. No Svelte 4 patterns or hex codes permitted. [[Invoke: svelte]](../skills/svelte/SKILL.md)
+3. **Validation**: Run internal test scripts (`npm run test` or `npm run verify`) to prove the logic holds weight before committing.
 
-### Phase 2: Maintenance
+### Phase 2: Maintenance & Archival
 
 1. **Archival**: If complete, move the track shards to [.agent/archive/](../archive/). [[Invoke: project]](../skills/project/SKILL.md)
 2. **Triage**: Sort incoming issues and seed the next `/01-plan` cycle. [[Invoke: scribe]](../skills/scribe/SKILL.md)
 
-### Phase 3: The Quality Gate (Checkpoint)
+### Phase 3: The Handoff Law (Mandatory Checkpoint)
 
-1. **Finalize**: Update [.agent/state/tracks.md](../state/tracks.md) with the latest stable SHA and verified status. [[Invoke: project]](../skills/project/SKILL.md)
-2. **Report**: Walkthrough of changes and proof of verification. [[Invoke: scribe]](../skills/scribe/SKILL.md)
+*You are strictly prohibited from ending a session without executing this phase.*
+
+1. **Update Tracks**: Append a summary of the session's deltas to `.agent/state/tracks.md`.
+2. **Sync Backlog**: Move completed items from WIP to DONE in `.agent/state/backlog.md`. Log any remaining `#TODO-AI` tags.
+3. **Pass the Baton**: Populate `.agent/state/next-prompt.md` with high-context instructions and next-step hooks so the next agent knows exactly where to begin.
 
 ## 4. Anti-Patterns
 
-- **Silent Done**: Marking tasks complete without providing an audit report or terminal evidence.
+- **The Dropped Baton**: Terminating a session without executing Phase 3 (Paperwork).
+- **Silent Done**: Marking tasks complete without providing an audit report or terminal evidence (passing tests).
 - **Fragmented Board**: Leaving stale or abandoned tracks on the mission board.
-- **Logic Leak**: Committing untested edge cases to the Vault.
+- **Logic Leak**: Committing untested edge cases or legacy reactivity to the Vault.
