@@ -36,7 +36,6 @@ export const IntelligenceKernel = {
     async executeTurn(story_id, options = {}) {
         const { input = "", role = "ai", ...llm_options } = options
 
-        // #TODO-AI: Improve error handling and retry logic for LLM service failures.
         // 1. CHRONO: Turn management
         runtime.turn++
 
@@ -63,11 +62,13 @@ export const IntelligenceKernel = {
 
         app.log("Intelligence Kernel: Context hydrated. Physics resolved. Routing to LLM...", "system")
 
-        // 6. GENERATION: Call the model
-        const response = await LlmService.generate({ 
-            system, 
-            messages: simulation_log 
-        }, llm_options)
+        // 6. GENERATION: Call the model with retry logic
+        const response = await this._execute_with_retry(async () => {
+            return await LlmService.generate({ 
+                system, 
+                messages: simulation_log 
+            }, llm_options)
+        })
 
         // 7. PERSISTENCE: Save the result
         const character_name = role === "ai" ? (runtime.active_ai?.name || "AI") : (runtime.active_fractal?.name || "Fractal")
@@ -75,7 +76,7 @@ export const IntelligenceKernel = {
         await Session.log_turn(response, character_name, role, { 
             dynamics: meta.dynamics, 
             flags: meta.flags, 
-            behaviors: meta.behaviors 
+            signal_prompts: meta.signal_prompts 
         })
 
         return { response, meta }
@@ -87,22 +88,24 @@ export const IntelligenceKernel = {
      */
     async executePrologue(story_id) {
         const payload = await ContextBroker.hydrate("", "prologue")
-        const { system } = PromptBuilder.synthesize(payload, {})
+        const result = PromptBuilder.synthesize(payload, {})
 
-        if (!system) return null
+        if (!result.system) return null
 
         app.log("Intelligence Kernel: Generating prologue...", "system")
 
-        const result = await LlmService.generate({ system })
+        const response = await this._execute_with_retry(async () => {
+            return await LlmService.generate({ system: result.system })
+        })
+
         const fractal_name = runtime.active_fractal?.name || "Fractal Entity"
 
         // 1. Save Prologue
-        await Session.log_turn(result, fractal_name, "fractal")
+        await Session.log_turn(response, fractal_name, "fractal")
 
-        // 2. The Hook: Trigger immediate AI follow-up to open the scene
-        // #TODO-AI: Externalize director command templates.
-        const director_command = "[DIRECTOR: The stage is set and the pieces are on the board. Proceed with the simulation immediately.]"
-        return await this.executeTurn(story_id, { input: director_command })
+        // 2. The Hook: Trigger immediate AI follow-up to open the scene.
+        // The instruction to proceed is already in the PromptBuilder prologue template.
+        return await this.executeTurn(story_id)
     },
 
     /**
@@ -114,10 +117,29 @@ export const IntelligenceKernel = {
         if (!system) return null
 
         app.log("Intelligence Kernel: Generating epilogue...", "system")
-        const response = await LlmService.generate({ system })
+        const response = await this._execute_with_retry(async () => {
+            return await LlmService.generate({ system })
+        })
 
         await Session.log_turn(response, "Narrator", "ai")
         return response
     },
+
+    /**
+     * INTERNAL: Execute with exponential backoff retry.
+     */
+    async _execute_with_retry(fn, retries = 3, delay = 1000) {
+        try {
+            return await fn()
+        } catch (err) {
+            if (retries <= 0) throw err
+            
+            app.log(`Intelligence Kernel: Connection issue. Retrying in ${delay}ms... (${retries} attempts left)`, "warn")
+            await new Promise(resolve => setTimeout(resolve, delay))
+            
+            return await this._execute_with_retry(fn, retries - 1, delay * 2)
+        }
+    }
 }
+
 

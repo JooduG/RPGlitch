@@ -28,18 +28,27 @@ describe("PromptBuilder (Refactored)", () => {
             entities: {
                 AI: {
                     name: "Viper",
-                    properties: { eternal: { non_physical: "Eternal AI" }, present: { non_physical: "Present AI" } },
-                    fragments: [{ type: "Core", text: "Cold." }],
+                    fragments: { 
+                        eternal: { physical: "Viper Frame", non_physical: "Eternal AI" }, 
+                        present: { physical: "Viper Glow", non_physical: "Present AI" } 
+                    },
+                    _data_points: [{ type: "Core", text: "Cold." }],
                 },
                 USER: {
                     name: "Player",
-                    properties: { eternal: { physical: "Eternal User" }, present: { physical: "Present User" } },
-                    fragments: [],
+                    fragments: { 
+                        eternal: { physical: "Eternal User", non_physical: "" }, 
+                        present: { physical: "Present User", non_physical: "" } 
+                    },
+                    _data_points: [],
                 },
                 FRACTAL: {
                     name: "City",
-                    properties: { eternal: { non_physical: "Eternal City" }, present: { non_physical: "Present City" } },
-                    fragments: [],
+                    fragments: { 
+                        eternal: { physical: "", non_physical: "Eternal City" }, 
+                        present: { physical: "", non_physical: "Present City" } 
+                    },
+                    _data_points: [],
                 },
             },
             history: { messages: "", dynamics: {} },
@@ -47,7 +56,7 @@ describe("PromptBuilder (Refactored)", () => {
         }
 
         const mock_snapshot = {
-            behaviors: ["Pacing"],
+            signal_prompts: ["Pacing"],
             flags: ["ADRENALINE"],
             dynamics: { intensity: 80 },
         }
@@ -57,6 +66,14 @@ describe("PromptBuilder (Refactored)", () => {
             expect(result.system).toContain('<SYSTEM role="Viper"')
             expect(result.system).toContain('turn="1"')
             expect(result.system).toContain("<INPUT_COMMAND>test action</INPUT_COMMAND>")
+            
+            // Verify Mental-Only XML Tags
+            expect(result.system).toContain("<ETERNAL>Eternal AI</ETERNAL>")
+            expect(result.system).toContain("<PRESENT>Present AI</PRESENT>")
+            
+            // Verify Physical fields are EXCLUDED (user choice)
+            expect(result.system).not.toContain("Viper Glow")
+            
             expect(result.meta.dynamics.intensity).toBe(80)
         })
 

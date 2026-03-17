@@ -9,17 +9,11 @@
  * ContextBroker is the "Secretary" of the Intelligence Kernel. It handles
  * the Hydration phase: pulling raw state from the runtime and repository,
  * cleaning it, and packaging it into a unified IntelligencePayload.
- *
- * ARCHITECTURE
- * ┌────────────────────────────────────────────────────────────────────────┐
- * │  hydrate()           : Primary entry point. Returns IntelligencePayload.│
- * │  Entity Mapping      : Resolves entities by role into a mapped object.  │
- * │  Lexical Filtering   : Sorts fragments by relevance to active objective.│
- * └────────────────────────────────────────────────────────────────────────┘
  */
 
 import { runtime } from "@state/runtime.svelte.js"
 import { ENTITY_CATALOG } from "./entity_fragments.js"
+import { clean_text } from "../engine/text_parser.js"
 
 /************************************************************************************
  * 🧩 [SECTION: PRIVATE HELPERS]
@@ -44,33 +38,13 @@ function get_path_value(obj, path) {
 }
 
 /**
- * Validates if a field belongs to physical appearance.
+ * Converts entity data into raw statistical data points.
  */
-function is_physical_field(field) {
-    return (
-        field.fieldId?.endsWith(".physical") ||
-        field.label === "Physical" ||
-        field.is_physical === true ||
-        field.type?.includes("Physical") ||
-        field.section?.includes("Physical") ||
-        field.type?.includes("Visual") ||
-        field.section?.includes("Visual") ||
-        field.enhancer?.includes("BIOMETRIC") ||
-        field.enhancer?.includes("VISUAL")
-    )
-}
-
-/**
- * Converts entity data into structured fragments.
- */
-function to_fragments(entity, mode = "simulation") {
+function to_data_points(entity) {
     if (!entity) return []
     const list = []
 
-    // 1. Schema-defined Catalog
     Object.entries(ENTITY_CATALOG).forEach(([fieldId, metadata]) => {
-        if (mode === "image" && !is_physical_field({ fieldId, ...metadata })) return
-
         let val = get_path_value(entity, fieldId)
         if (!val && fieldId === "present.physical" && entity.description) {
             val = entity.description // Legacy fallback
@@ -78,7 +52,7 @@ function to_fragments(entity, mode = "simulation") {
 
         if (val && typeof val === "string") {
             list.push({
-                text: ContextBroker.clean_text(val),
+                text: clean_text(val),
                 type: metadata.label,
                 enhancer: metadata.enhancer,
                 section: metadata.section_label || "Present",
@@ -87,35 +61,7 @@ function to_fragments(entity, mode = "simulation") {
         }
     })
 
-    // 2. Ad-hoc fragments
-    if (Array.isArray(entity.fragments)) {
-        entity.fragments.forEach((f) => {
-            if (mode === "image" && !is_physical_field(f)) return
-            const section = f.section || "General"
-            list.push({
-                text: ContextBroker.clean_text(typeof f === "string" ? f : f.text),
-                type: f.type || "General",
-                enhancer: f.enhancer || "NONE",
-                section,
-                layer: f.layer || section.toUpperCase(),
-            })
-        })
-    }
-
     return list.filter((f) => f.text.length > 0)
-}
-
-/**
- * Groups a flat fragment array by layer key into a { LAYER: [...] } map.
- */
-function group_by_layer(fragments) {
-    const layers = {}
-    fragments.forEach((f) => {
-        const key = f.layer || "GENERAL"
-        if (!layers[key]) layers[key] = []
-        layers[key].push(f)
-    })
-    return layers
 }
 
 /************************************************************************************
@@ -144,49 +90,52 @@ export class ContextBroker {
         ]
 
         const entities = {}
-        entries.forEach(({ role, data }) => {
-            const raw = data || { name: role, role, fragments: [] }
-            const fragments = to_fragments(raw, type)
 
-            // Lexical filtering for AI relevance
-            const filtered = role === "AI" ? ContextBroker.lexical_filter(fragments, active_vector) : fragments
+        // Parallel hydration of entities
+        await Promise.all(
+            entries.map(async ({ role, data }) => {
+                const raw = data || { name: role, role, fragments: [] }
+                const data_points = to_data_points(raw)
 
-            // Safety boot-strap
-            if (filtered.length === 0) {
-                filtered.push({
-                    text: `A nascent ${role.toLowerCase()} entity. State: Initializing.`,
-                    type: "Status",
-                    enhancer: "SYSTEM",
-                    section: "Present",
+                // Lexical filtering for AI relevance
+                const filtered = role === "AI" ? ContextBroker.lexical_filter(data_points, active_vector) : data_points
+
+                // Safety boot-strap
+                if (filtered.length === 0) {
+                    filtered.push({
+                        text: `A nascent ${role.toLowerCase()} entity. State: Initializing.`,
+                        type: "Status",
+                        enhancer: "SYSTEM",
+                        section: "Present",
+                    })
+                }
+
+                // Build the structured Fragment view (Sovereign Schema)
+                const fragments = {
+                    eternal: { physical: "", non_physical: "" },
+                    present: { physical: "", non_physical: "" },
+                }
+
+                filtered.forEach((f) => {
+                    const layer = f.layer?.toLowerCase()
+                    const field = f.type === "Physical" ? "physical" : "non_physical"
+                    if (fragments[layer] && fragments[layer][field] === "") {
+                        fragments[layer][field] = f.text
+                    }
                 })
-            }
 
-            // Build a clean properties object for the prompt builder
-            const properties = {
-                eternal: { physical: "", non_physical: "" },
-                present: { physical: "", non_physical: "" },
-            }
-
-            filtered.forEach((f) => {
-                const layer = f.layer?.toLowerCase()
-                const field = f.type === "Physical" ? "physical" : "non_physical"
-                if (properties[layer] && properties[layer][field] === "") {
-                    properties[layer][field] = f.text
+                entities[role] = {
+                    id: raw.id,
+                    name: raw.name || role,
+                    _data_points: filtered,
+                    fragments,
+                    past: raw.past,
+                    future: raw.future,
+                    dynamics: raw.dynamics, // Pass through for physics calculation
+                    associated_ids: raw.associated_ids || [],
                 }
             })
-
-            entities[role] = {
-                id: raw.id,
-                name: raw.name || role,
-                fragments: filtered,
-                layers: group_by_layer(filtered),
-                properties,
-                past: raw.past,
-                future: raw.future,
-                dynamics: raw.dynamics, // Pass through for physics calculation
-                associated_ids: raw.associated_ids || [],
-            }
-        })
+        )
 
         // 2. Build Unified Payload
         return {
@@ -213,38 +162,27 @@ export class ContextBroker {
                 const owner = m.character_name || (m.role === "user" ? "User" : "AI")
                 const raw = m.content || ""
                 const stripped = raw.replace(/<think>[\s\S]*?<\/think>/gi, "").trim()
-                return `[${owner}]: ${ContextBroker.clean_text(stripped, 500)}`
+                return `[${owner}]: ${clean_text(stripped, 500)}`
             })
             .join("\n")
     }
 
     /**
-     * Relevance-based sorting for fragments.
+     * Relevance-based sorting for raw data points.
      */
-    static lexical_filter(fragments, objective) {
-        if (!objective) return fragments
+    static lexical_filter(data_points, objective) {
+        if (!objective) return data_points
         const keywords = objective
             .toLowerCase()
             .split(/\W+/)
             .filter((w) => w.length > 3)
         const get_text = (f) => (f.text || "").toLowerCase()
 
-        return [...fragments].sort((a, b) => {
+        return [...data_points].sort((a, b) => {
             const a_hit = keywords.some((k) => get_text(a).includes(k))
             const b_hit = keywords.some((k) => get_text(b).includes(k))
             return (b_hit ? 1 : 0) - (a_hit ? 1 : 0)
         })
     }
 
-    /**
-     * Text sanitization for prompt safety.
-     */
-    static clean_text(text, limit = 500) {
-        if (!text) return ""
-        const clean = text
-            .replace(/[*_#>`-]/g, "")
-            .replace(/\s+/g, " ")
-            .trim()
-        return clean.length > limit ? clean.substring(0, limit) + "..." : clean
-    }
 }

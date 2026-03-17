@@ -74,3 +74,18 @@ export function parse_message(rawText) {
         sceneData: headerResult.header,
     }
 }
+/**
+ * Text sanitization for prompt safety.
+ * Removes markdown-like characters and collapses whitespace.
+ * @param {string} text
+ * @param {number} [limit=500]
+ * @returns {string}
+ */
+export function clean_text(text, limit = 500) {
+    if (!text) return ""
+    const clean = text
+        .replace(/[*_#>`-]/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+    return clean.length > limit ? clean.substring(0, limit) + "..." : clean
+}

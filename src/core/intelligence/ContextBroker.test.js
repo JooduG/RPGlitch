@@ -16,20 +16,23 @@ vi.mock("@state/runtime.svelte.js", () => ({
         active_ai: {
             name: "AI",
             role: "Assistant",
-            fragments: [
-                { section: "Eternal", text: "A mysterious helper.", enhancer: "CORE" },
-                { section: "Physical", text: "Solid metal core.", enhancer: "PHYSICAL" },
-                { section: "Visual", text: "Holographic shimmering form.", enhancer: "PHYSICAL" },
-            ],
+            eternal: { 
+                non_physical: "A mysterious helper.", 
+                physical: "Solid metal core." 
+            },
+            present: {
+                non_physical: "Active and processing.",
+                physical: "Holographic shimmering form."
+            }
         },
         active_user: {
             name: "User",
-            fragments: [{ section: "Eternal", text: "The protagonist.", enhancer: "USER" }],
+            eternal: { non_physical: "The protagonist." },
         },
         active_fractal: {
             name: "The City",
-            description: "A neon metropolis.",
-            future: [{ id: "1", text: "Find the key", priority: "PRIMARY" }],
+            eternal: { non_physical: "A neon metropolis." },
+            future: [{ id: "1", text: "Find the key" }],
         },
         // Universal Vector API Mocks
         active_vector: vi.fn((role) => (role === "FRACTAL" ? "Find the key" : "EXPLORE")),
@@ -54,34 +57,20 @@ describe("ContextBroker (Refactored)", () => {
     it("should include physical and visual fields in simulation mode", async () => {
         const payload = await ContextBroker.hydrate("Who am I?", "simulation")
 
-        // Physical and Visual fragments should now be INCLUDED in simulation mode
-        const ai_fragments = payload.entities.AI.fragments
-        const has_physical = ai_fragments.some((f) => f.section === "Physical" || f.section === "Visual")
+        // _data_points should now contain Physical points
+        const ai_data_points = payload.entities.AI._data_points
+        const has_physical = ai_data_points.some((f) => f.type === "Physical")
         expect(has_physical).toBe(true)
+
+        // Fragments should have the nested structure
+        expect(payload.entities.AI.fragments.eternal).toBeDefined()
+        expect(payload.entities.AI.fragments.present).toBeDefined()
     })
 
-    it("should group fragments by layer key", async () => {
-        const payload = await ContextBroker.hydrate("Check layers", "simulation")
-        const ai = payload.entities.AI
-
-        // layers object must exist alongside flat fragments
-        expect(ai.layers).toBeDefined()
-        expect(typeof ai.layers).toBe("object")
-
-        // The mock has Eternal and Physical/Visual fragments, so at least one layer should exist
-        const layer_keys = Object.keys(ai.layers)
-        expect(layer_keys.length).toBeGreaterThan(0)
-
-        // Each layer value should be an array of fragments
-        layer_keys.forEach((key) => {
-            expect(Array.isArray(ai.layers[key])).toBe(true)
-        })
-    })
-
-    it("should prioritize fragments based on objective in lexical_filter", () => {
-        const fragments = [{ text: "I like apples" }, { text: "I need to find the door now" }]
+    it("should prioritize data points based on objective in lexical_filter", () => {
+        const data_points = [{ text: "I like apples" }, { text: "I need to find the door now" }]
         const objective = "Find the door"
-        const filtered = ContextBroker.lexical_filter(fragments, objective)
+        const filtered = ContextBroker.lexical_filter(data_points, objective)
 
         expect(filtered[0].text).toContain("find the door")
     })

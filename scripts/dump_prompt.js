@@ -68,7 +68,7 @@ Entities: ${Object.keys(payload.entities).join(", ")}
 ${SEPARATOR}
 
 [PHASE 2: SIMULATION SNAPSHOT]
-Behaviors: ${snapshot.behaviors.join(", ") || "None"}
+Signal Prompts: ${snapshot.signal_prompts.join(", ") || "None"}
 Flags: ${snapshot.flags.join(", ") || "None"}
 Dynamics: ${JSON.stringify(snapshot.dynamics)}
 

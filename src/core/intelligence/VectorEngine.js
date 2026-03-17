@@ -34,6 +34,87 @@ import { CONFIG } from "../engine/config.js"
 import { DynamicsEngine } from "./DynamicsEngine.js"
 
 /************************************************************************************
+ * 🧩 [SECTION: VECTOR SOVEREIGNTY]
+ * ----------------------------------------------------------------------------------
+ * Canonical metadata and taxonomy for all Temporal Vectors.
+ ************************************************************************************/
+
+/**
+ * THE VECTOR TEMPLATE
+ * Defining the strict shape of a Vector object (The Blueprint).
+ */
+export const VECTOR_TEMPLATE = {
+    id: "uuid",
+    label: "",
+    timestamp: "number (ms)",
+    text: "string (raw content)",
+    emotional_weight: "number (1-10)",
+    dynamics_tags: "Array<{id, word}> (Physical/psychological triggers)",
+    vector_tags: "string[] (Semantic/narrative keywords)",
+}
+
+/**
+ * Standardized Semantic Tags for Vectors.
+ * Used for LexicalFilter prioritization and Dynamics reasoning.
+ */
+// /**
+//  * Standardized Semantic Tags for Vectors.
+//  * Used for LexicalFilter prioritization and Dynamics reasoning.
+//  */
+// export const VECTOR_TAGS = {
+//     // 🧠 SOMATIC (Character-Locked)
+//     TRAUMA: "Deep psychological wounding that creates avoidance or triggers.",
+//     SECRET: "Hidden knowledge that drives paranoia or power dynamics.",
+//     BOND: "Established emotional connection with another entity.",
+//     ORIGIN: "Fundamental background data defining identity.",
+//     AGENDA: "Specific, active self-interest protocol.",
+//     VICTORY: "Historical success driving confidence or arrogance.",
+//     DEFEAT: "Historical failure driving caution or insecurity.",
+// 
+//     // 🌎 ENVIRONMENTAL (Fractal-Locked)
+//     CATASTROPHE: "World-altering event defining the landscape's entropy.",
+//     SYSTEM: "Institutional or mechanical logic governing the fractal.",
+//     LEGACY: "Old-world data that weights the present-day physics.",
+//     ESCORT: "Thematic focus on protection and movement.",
+//     INFILTRATION: "Thematic focus on stealth and boundary crossing.",
+// }
+// 
+// /**
+//  * Narrative Archetypes.
+//  * Pre-structured vector templates for rapid character/fractal seeding.
+//  */
+// export const VECTOR_ARCHETYPES = {
+//     THE_REVENGE_TRAJECTORY: {
+//         future: {
+//             text: "Locate and eliminate the entity responsible for my historical defeat.",
+//             dynamics_tags: ["FOCUS", "SCHISM"],
+//             vector_tags: ["agenda", "violence"],
+//             emotional_weight: 9,
+//         },
+//         past: {
+//             text: "Was left for dead after a catastrophic betrayal during a high-stakes heist.",
+//             dynamics_tags: ["VULNERABILITY", "KINETICS"],
+//             vector_tags: ["trauma", "betrayal"],
+//             emotional_weight: 10,
+//         },
+//     },
+//     THE_SANCTUARY_SHIELD: {
+//         future: {
+//             text: "Fortify the current domain against the encroaching systemic collapse.",
+//             dynamics_tags: ["FORTIFICATION", "STABILITY"],
+//             vector_tags: ["system", "safety"],
+//             emotional_weight: 7,
+//         },
+//         past: {
+//             text: "Witnessed the total collapse of a former refuge due to lack of preparation.",
+//             dynamics_tags: ["SYSTEM_COLLAPSE", "ANOMALY"],
+//             vector_tags: ["catastrophe", "history"],
+//             emotional_weight: 8,
+//         },
+//     },
+// }
+
+/************************************************************************************
  * 🧩 [SECTION: THE FORGE — Vector Creation]
  * ----------------------------------------------------------------------------------
  * Logic for synthesizing raw data into structured memory vectors.
@@ -51,6 +132,7 @@ export function create_vector(text) {
     return {
         id: crypto.randomUUID(),
         timestamp: Date.now(),
+        label:
         text,
         emotional_weight: DynamicsEngine.evaluate_weight(reflexes),
         dynamics_tags: reflexes.map((r) => ({ id: r.id, word: r.trigger_word })),
@@ -145,16 +227,24 @@ export function score_vectors(vectors, input) {
  * @param {string} input
  * @param {number} [limit=3]
  * @param {number} [offset=0]
- * @returns {string} Formatted [PAST_VECTOR] block.
+ * @param {Object} [options={ vector_text: true, vector_label: true }]
+ * @returns {string} Formatted past block.
  */
-export function format_past(vectors, input, limit = 3, offset = 0) {
+export function format_past(vectors, input, limit = 3, offset = 0, options = { vector_text: true, vector_label: true }) {
+    const show_text = options.vector_text ?? true
+    const show_label = options.vector_label ?? true
+
     const ranked = score_vectors(vectors, input).slice(offset, offset + limit)
     const reversed = [...ranked].reverse()
     return reversed
         .map((v) => {
             const weight = v.emotional_weight ?? CONFIG.DYNAMICS.WEIGHT_BASELINE
             const label = weight >= CONFIG.DYNAMICS.WEIGHT_CORE_THRESHOLD ? "CORE_VECTOR" : weight >= CONFIG.DYNAMICS.WEIGHT_MAJOR_THRESHOLD ? "MAJOR_VECTOR" : weight >= CONFIG.DYNAMICS.WEIGHT_SIGNIFICANT_THRESHOLD ? "VECTOR" : "VECTOR_ECHO"
-            return `        [${label}]: ${v.text}`
+
+            if (show_label && show_text) return `[${label}]: ${v.text}`
+            if (show_label) return label
+            if (show_text) return v.text
+            return ""
         })
         .join("\n")
 }
@@ -167,9 +257,13 @@ export function format_past(vectors, input, limit = 3, offset = 0) {
  * @param {string} input
  * @param {number} [limit=3]
  * @param {number} [offset=0]
+ * @param {Object} [options={ vector_text: true, vector_label: true }]
  * @returns {string} Formatted future block.
  */
-export function format_future(vectors, input, limit = 3, offset = 0) {
+export function format_future(vectors, input, limit = 3, offset = 0, options = { vector_text: true, vector_label: true }) {
+    const show_text = options.vector_text ?? true
+    const show_label = options.vector_label ?? true
+
     const ranked = score_vectors(vectors, input).slice(offset, offset + limit)
     const reversed = [...ranked].reverse()
     return reversed
@@ -180,7 +274,11 @@ export function format_future(vectors, input, limit = 3, offset = 0) {
             else if (weight >= CONFIG.DYNAMICS.WEIGHT_MAJOR_THRESHOLD) label = "MAJOR_VECTOR"
             else if (weight >= CONFIG.DYNAMICS.WEIGHT_SIGNIFICANT_THRESHOLD) label = "VECTOR"
             else label = "VECTOR_IMPULSE"
-            return `        [${label}]: ${v.text}`
+
+            if (show_label && show_text) return `[${label}]: ${v.text}`
+            if (show_label) return label
+            if (show_text) return v.text
+            return ""
         })
         .join("\n")
 }

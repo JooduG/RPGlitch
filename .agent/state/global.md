@@ -4,7 +4,11 @@
 
 ## Active WIP
 
-- [/] Narrative Console Organism (`src/ui/organisms/NarrativeConsole.svelte`)
+- [/] Dynamics Engine Refinement (Semantic Dictionary & Personality Weighting)
+
+## Completed Tasks
+
+- [x] Intelligence Kernel Refinement (Optimization and svelte-check resolution)
 
 ## Known Quirks / Technical Debt
 

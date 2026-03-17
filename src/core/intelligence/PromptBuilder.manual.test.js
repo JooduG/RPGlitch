@@ -25,7 +25,7 @@ describe("PromptBuilder Visual & Contextual Verification", () => {
 
         const snapshot = {
             turn: 5,
-            behaviors: ["Focus on sensory details."],
+            signal_prompts: ["Focus on sensory details."],
             protocols: "HYGIENE",
             simulation_log: "Snapshot log",
         }

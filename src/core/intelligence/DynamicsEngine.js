@@ -186,6 +186,11 @@ const SIGNAL_PROMPTS = {
         high: { id: "HIGH_ENTROPY", text: "Structural reality degrading. Hostile environment, bizarre weather, or failing physics." },
         low: { id: "LOW_ENTROPY", text: "Structural harmony. Safe, predictable physics and serendipitous elements." },
     },
+    // --- SOCIAL/EPISTEMIC ---
+    naivety: {
+        breach: { id: "NAIVETY_BREACH", text: "[NAIVETY] Trust breach detected. High scepticism warranted." },
+        uncertain: { id: "NAIVETY_UNCERTAIN", text: "[NAIVETY] Claim plausibility is uncertain. Proceed with caution." },
+    },
 }
 
 export class DynamicsEngine {
@@ -266,7 +271,7 @@ export class DynamicsEngine {
             fractal_dynamics: prev_fractal ? { ...prev_fractal } : { ...fractal_baselines },
             flags: [],
             signals: {},
-            behaviors: [],
+            signal_prompts: [],
         }
 
         // 1. Scan and Apply Reflexes to both dimensions
@@ -313,9 +318,9 @@ export class DynamicsEngine {
         const suspicion = DynamicsEngine._resolve_naivety(input, state.dynamics.openness)
         if (suspicion !== null) {
             if (suspicion > 0.6) {
-                state.behaviors.push("[NAIVETY] Trust breach detected. High scepticism warranted.")
+                state.signal_prompts.push(SIGNAL_PROMPTS.naivety.breach.text)
             } else if (suspicion > 0.5) {
-                state.behaviors.push("[NAIVETY] Claim plausibility is uncertain. Proceed with caution.")
+                state.signal_prompts.push(SIGNAL_PROMPTS.naivety.uncertain.text)
             }
         }
 
@@ -424,7 +429,7 @@ export class DynamicsEngine {
     /**
      * Translates the math into text.
      * Takes a stat like `intensity: 85`, sees that it crossed the SIGNAL_HIGH threshold (70),
-     * and shoves the corresponding prose instruction into the behaviors array for the LLM prompt.
+     * and shoves the corresponding prose instruction into the signal_prompts array for the LLM prompt.
      */
     static _map_signals(source_dynamics, state, SIGNAL_HIGH, SIGNAL_LOW) {
         Object.keys(source_dynamics).forEach((axis) => {
@@ -435,11 +440,11 @@ export class DynamicsEngine {
             if (SIGNAL_PROMPTS[axis]) {
                 if (val > SIGNAL_HIGH) {
                     const signal = SIGNAL_PROMPTS[axis].high
-                    state.behaviors.push(signal.text)
+                    state.signal_prompts.push(signal.text)
                     state.signals[signal.id] = true
                 } else if (val < SIGNAL_LOW) {
                     const signal = SIGNAL_PROMPTS[axis].low
-                    state.behaviors.push(signal.text)
+                    state.signal_prompts.push(signal.text)
                     state.signals[signal.id] = true
                 }
             }

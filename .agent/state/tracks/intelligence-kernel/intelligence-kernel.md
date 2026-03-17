@@ -4,6 +4,15 @@
 
 Refine and integrate the core intelligence components (`ContextBroker`, `PromptBuilder`, `VectorEngine`) into a cohesive simulation loop. Ensure high-fidelity context hydration and precise prompt synthesis.
 
+### Director Templates (Internal Metadata in PromptBuilder.js)
+
+```javascript
+{
+    PROLOGUE_HOOK: "[DIRECTOR: The stage is set and the pieces are on the board. Proceed with the simulation immediately.]",
+    EPILOGUE_SUMMARY: "Provide a final summary of the narrative arc and the fate of the entities involved.",
+}
+```
+
 ## Active Plan
 
 - [x] Analyze `entity_fragments.js` and the `ENTITY_CATALOG` structure.

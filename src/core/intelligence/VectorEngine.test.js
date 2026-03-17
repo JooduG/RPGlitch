@@ -163,6 +163,24 @@ describe("VectorEngine", () => {
             const result = VectorEngine.format_future(future, "")
             expect(result).toContain("[VECTOR]: Find the key.")
         })
+
+        it("supports vector_text option to return raw text only", () => {
+            const past = [{ text: "Strict content.", emotional_weight: 10 }]
+            const result = VectorEngine.format_past(past, "", 1, 0, { vector_text: true, vector_label: false })
+            expect(result).toBe("Strict content.")
+        })
+
+        it("supports vector_label option to return label only", () => {
+            const past = [{ text: "Strict content.", emotional_weight: CONFIG.DYNAMICS.WEIGHT_CORE_THRESHOLD }]
+            const result = VectorEngine.format_past(past, "", 1, 0, { vector_text: false, vector_label: true })
+            expect(result).toBe("CORE_VECTOR")
+        })
+
+        it("defaults to full [LABEL]: text format if no options provided", () => {
+            const past = [{ text: "Merged content.", emotional_weight: CONFIG.DYNAMICS.WEIGHT_SIGNIFICANT_THRESHOLD }]
+            const result = VectorEngine.format_past(past, "", 1, 0)
+            expect(result).toBe("[VECTOR]: Merged content.")
+        })
     })
 
     describe("resolve_vector", () => {

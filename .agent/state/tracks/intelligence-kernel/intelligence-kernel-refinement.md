@@ -17,6 +17,13 @@ The Intelligence Kernel is functional but requires nomenclature alignment (Two-R
 - [x] Ensure `vi.mocked` is used consistently across all intelligence tests.
 - [x] Run `npm run verify` to confirm 0 errors.
 
+## Track: Performance & Resiliency
+
+- [x] Optimize `ContextBroker.hydrate` with pre-filtered catalog caching.
+- [x] Parallelize entity hydration in `ContextBroker` using `Promise.all`.
+- [x] Implement exponential backoff retry logic in `IntelligenceKernel` for LLM resilience.
+- [x] Externalize director command templates to `src/core/intelligence/director_templates.js`.
+
 ## Track: The Goal
 
 - [ ] Successful `npm run deploy` (verification + build + perchance).

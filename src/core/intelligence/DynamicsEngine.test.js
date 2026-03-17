@@ -17,7 +17,7 @@ describe("Dynamics Engine v2 (Refactored)", () => {
                 affinity: 50,
             })
             expect(state.dynamics.intensity).toBe(50)
-            expect(state.behaviors.length).toBe(0)
+            expect(state.signal_prompts.length).toBe(0)
         })
 
         it("should trigger reflexes on high-intensity input", () => {
@@ -29,7 +29,7 @@ describe("Dynamics Engine v2 (Refactored)", () => {
             // Dynamics Gravity diff = 50 - 80 = -30 => pull = -30 * 0.25 = -7.5
             // 80 - 7.5 = 72.5 => Math.round(72.5) = 73
             expect(state.dynamics.intensity).toBe(73)
-            expect(state.behaviors.some((i) => i.includes("Pacing fast"))).toBe(true)
+            expect(state.signal_prompts.some((i) => i.includes("Pacing fast"))).toBe(true)
         })
 
         it("should trigger KINETICS reflex on combat input", () => {
@@ -112,7 +112,7 @@ describe("Dynamics Engine v2 (Refactored)", () => {
             const snapshot = DynamicsEngine.simulate(payload)
 
             expect(snapshot.dynamics.intensity).toBe(73)
-            expect(snapshot.behaviors.length).toBeGreaterThan(0)
+            expect(snapshot.signal_prompts.length).toBeGreaterThan(0)
         })
     })
 
@@ -140,7 +140,7 @@ describe("Dynamics Engine v2 (Refactored)", () => {
             const state = DynamicsEngine.resolve_dynamics("i swear i'm not lying", baselines)
 
             // openness 10 + trigger => high suspicion => injects threshold behavior
-            const hasNaivetyBehavior = state.behaviors.some((b) => b.includes("[NAIVETY] Trust breach detected"))
+            const hasNaivetyBehavior = state.signal_prompts.some((b) => b.includes("[NAIVETY] Trust breach detected"))
             expect(hasNaivetyBehavior).toBe(true)
         })
     })
