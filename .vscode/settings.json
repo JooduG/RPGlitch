@@ -20,7 +20,8 @@
         "**/Thumbs.db": true,
         "**/yarn.lock": true,
         "mcp.json": true,
-        "test-results/**": true
+        "test-results/**": true,
+        ".playwright-auth/**": true
     },
     "css.validate": true,
     "html.validate.styles": false,
