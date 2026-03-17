@@ -3,6 +3,7 @@
 ## Active Tracks
 
 - [x] **housekeeping**: Workflow rewiring and architectural alignment. [task_merge_workflows.md](file:///c:/Users/johng/source/repos/RPGlitch/.agent/state/task_merge_workflows.md)
+- [PR] **stability-refactor**: Hardened deployment and security audit.
 - [/] **intelligence-kernel**: Refining ContextBroker and PromptBuilder.
 
     - [/] **narrative-console**: Diegetic console for Narrative Director. [narrative-console.md](file:///c:/Users/johng/source/repos/RPGlitch/.agent/state/tracks/intelligence-kernel/narrative-console.md)
