@@ -39,17 +39,26 @@ This document defines the RPGlitch technical stack and engineering mandates for 
 - **No Hallucinated Colors**: Use ONLY CSS variables from `src/theme/tokens.css`.
 - **High-Fidelity**: Prioritize Nord-themed, high-contrast, atmospheric UI.
 
+### 4. The Navigator Protocol
+
+- **Mandate**: All internal documentation MUST follow the [.agent/rules/05-navigator.md](./.agent/rules/05-navigator.md) standards.
+- **Interactivity**: Every state reference and skill invocation MUST be clickable.
+
 ---
 
 ## 🚦 Operational Commands
 
 | Command | Purpose |
 | :--- | :--- |
-| `npm run dev` | Start Vite dev server. |
-| `npm run build` | Generate production `index.html`. |
-| `npm run verify` | Full quality audit (Check + Lint + Test). |
-| `npm run test` | Execute unit tests. |
-| `npm run deploy` | Full build and automated deployment. |
+| [/00-boot](./.agent/workflows/00-boot.md) | Fresh initialization. |
+| [/01-plan](./.agent/workflows/01-plan.md) | Unified Scoping & Design. |
+| [/02-build](./.agent/workflows/02-build.md) | Implementation Loop. |
+| [/03-clean](./.agent/workflows/03-clean.md) | Maintenance & Bugs. |
+| [/04-review](./.agent/workflows/04-review.md) | Quality Gate & Triage. |
+| [/05-deploy](./.agent/workflows/05-deploy.md) | Solo Deployment. |
+| [/06-continue](./.agent/workflows/06-continue.md) | Resume without Boot. |
+| [/07-fleet](./.agent/workflows/07-fleet.md) | Fleet Orchestration. |
+| [/99-rewind](./.agent/workflows/99-rewind.md) | Emergency Reset. |
 
 ---
 
@@ -58,7 +67,7 @@ This document defines the RPGlitch technical stack and engineering mandates for 
 Agents are **prohibited** from terminating a session without:
 
 1. Updating `.agent/state/global.md`.
-2. Syncing checkpoint deltas in `tracks.md`.
-3. Loading the next agent's payload into `next-prompt.md`.
+2. Syncing checkpoint deltas in `.agent/state/tracks.md`.
+3. Loading the next agent's payload into `.agent/state/next-prompt.md`.
 
 *Payload processed. Standard established.*

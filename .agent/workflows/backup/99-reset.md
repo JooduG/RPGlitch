@@ -1,4 +1,5 @@
 ---
+name: 99-reset
 description: Emergency Stop. Abandon failed path and restore state.
 disable-model-invocation: true
 ---
@@ -33,14 +34,10 @@ disable-model-invocation: true
 1.  **Update Plan**:
     - `[x] ~~Failed Strategy~~`.
     - `[ ] New Strategy (Revised)`.
-2.  **Learn**: Document _why_ it failed in `task.md`.
+2.  **Learn**: Document _why_ it failed in `.agent/state/tracks.md`.
 
 ## 3. Anti-Patterns
 
 - **Sunk Cost**: "I've passed 1 hour, I must finish".
 - **Partial Undo**: Leaving broken modules.
 - **Silent Fail**: Not telling the user you reset.
-
-## 4. Tools
-
-- `run_command` (git behavior)

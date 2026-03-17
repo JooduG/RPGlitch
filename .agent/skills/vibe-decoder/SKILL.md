@@ -1,5 +1,5 @@
 ---
-name: user-interpreter
+name: vibe-decoder
 version: 2.2.0
 description: >
     Interprets vague user intent and conceptual "vibes" into strict Antigravity Engine execution templates. 

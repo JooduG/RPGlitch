@@ -73,6 +73,12 @@ The project targets **Perchance** as its primary deployment platform, requiring 
     - Start responses directly; no preambles or technical meta-labels.
     - Express statistical signals (trust, sanity) diegetically through body language or internal logic, never as numbers.
 
+### 6. 🧭 The Navigator Protocol (Docs)
+
+- **Standard**: All internal links MUST be relative.
+- **Functional**: `[Invoke: skill]` tags must link to their respective `SKILL.md`.
+- **Reference**: Follow [.agent/rules/05-navigator.md](./.agent/rules/05-navigator.md).
+
 ---
 
 ## 📂 Directory Map

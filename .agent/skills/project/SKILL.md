@@ -6,7 +6,7 @@ description: >
     Enforces the Flat Track protocol and maintains the Global State baton.
 ---
 
-# ��️ Skill: Project System
+# Skill: Project System
 
 > **Context**: "Orchestrates global task tracking and roadmap state. Ensures every byte of work is registered in the .agent/state/ tracks and synchronized with the Global State."
 

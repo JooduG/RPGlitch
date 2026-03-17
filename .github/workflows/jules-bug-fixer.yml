@@ -13,9 +13,9 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-      - name: í³¥ Checkout
+      - name: Checkout
         uses: actions/checkout@v4
-      - name: í´– Invoke Jules (Lobotomized)
+      - name: Invoke Jules (Lobotomized)
         if: ${{ contains(fromJSON('["JooduG"]'), github.event.issue.user.login) }}
         uses: google-labs-code/jules-action@v1.0.0
         with:

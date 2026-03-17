@@ -1,5 +1,5 @@
 ---
-name: stitch-design
+name: stitch
 version: 3.0.0 (Sovereign Core Edition)
 description: Drafts strict Svelte 5 / Chalk Regime UI specifications for the Stitch MCP.
 ---

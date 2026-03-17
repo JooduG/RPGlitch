@@ -1,5 +1,5 @@
 ---
-name: visuals
+name: image-gen
 version: 1.0.0
 description: >
     Owns image generation, Perchance prompts, and external visual asset management.

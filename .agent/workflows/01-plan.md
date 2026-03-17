@@ -1,60 +1,45 @@
 ---
-description: Scoping and planning a new feature. Defines WHAT to build, not HOW.
+name: 01-plan
+description: Integrated Scoping & Design. Defines the blueprint.
 ---
 
 # 01-plan (The Blueprint)
 
-> **Goal:** Eliminate ambiguity. Define the "What" and the "How" before writing a single line of code.
+> **Goal:** Build the logical and visual skeleton of a feature.
 
 ## 1. Triggers
 
-- **User Request**: "Build X", "New Feature".
-- **Roadmap**: Next item in `tracks.md`.
-- **Slash Command**: `/01-plan`
+- **Request**: Initial user prompt.
+- **Backtrack**: Re-planning after failed execution.
+- **Slash Command**: [/01-plan](./01-plan.md)
 
 ## 2. Brain (Context Injection)
 
-- **Vision**: `.agent/knowledge/atlas/01-vision.md`
-- **Physics**: `.agent/knowledge/atlas/07-physics.md` (Constraints)
-- **Tracks**: `.agent/tasks/tracks.md` (Project State)
+- **Atlas**: [.agent/knowledge/atlas/07-physics.md](../knowledge/atlas/07-physics.md).
+- **Stitch**: Triggered for UI-centric tasks via `stitch`.
 
 ## 3. Procedures
 
 ### Phase 1: The Clarity Gate (Plausible Options Protocol)
 
-1.  **Analyze Intent**: Is the request clear?
-    - **Ambiguous**: STOP. **Do not ask open-ended questions.** Instead, classify the missing information as either "Additive" (features/scope) or "Exclusive Choice" (core logic/design). Formulate 2-3 plausible technical options with brief pros/cons, and ask the user to select their preferred route.
+1. **Analyze Intent**: Is the request clear? [Invoke: `vibe-decoder`]
+    - **Ambiguous (A3+)**: STOP. Do not ask open-ended questions. Formulate 2-3 **Technical Options** with brief pros/cons (Logic vs Performance vs UX). Ask the user to select.
     - **Clear**: Proceed.
-2.  **Check Lab**: Look for existing specs in `.agent/knowledge/lab/`. Use `waldzell-decision-framework` for complex roadmap tradeoffs.
-3.  **UI/UX Gate**: If the task involves new screens or complex UI components, trigger the `stitch-design` skill to generate placeholders/specs BEFORE drafting the blueprint.
+2. **Context Trigger**: If the task involves UI (`.svelte` files, styling, layout):
+    - **Action**: Call `stitch` to synthesize a design spec. [Invoke: `stitch`] / [Invoke: `style-extraction`]
+3. **Draft Plan**: Create/Update a file in [.agent/state/tracks/](../state/tracks/).
+    - Include **Success Criteria** and **Atomic Checklist**.
 
-### Phase 2: The Blueprint
+### Phase 2: Interaction
 
-1.  **Slug**: Define `kebab-case-name`.
-2.  **Draft Spec**: Embed spec block at top of `.agent/tasks/<slug>.md`.
-    - **Must** align with Product Vision.
-    - **Must** define "Success" (Acceptance Criteria).
-3.  **Draft Plan**: Append plan checklist to `.agent/tasks/<slug>.md` (single flat file — Spec + Plan combined).
-    - **Skeleton-First**: State → Logic → UI → Style.
-    - **Atomic**: Break tasks into `< 1hr` chunks.
+1. **Present**: Share the plan (and UI specs if applicable) with the user.
+2. **Select**: If options exist, present clear technical choices.
 
 ### Phase 3: Registration
 
-1.  **Update Tracks**: Add to `.agent/tasks/tracks.md`. **Mandatory**: Use the high-fidelity "Track Block" format (Path, Status, Checkpoint, Note).
-2.  **Context**: Read relevant files for _this specific task_.
-3.  **UI/UX Verification**: If the task involves UI components, verify against `design.md` and ensure Stitch iterations are reconciled before starting code fabrication.
-4.  **Approval**: Wait for "Proceed" or "Green Light".
+1. **State Update**: Add the track to [.agent/state/tracks.md](../state/tracks.md) as `[ ]`. Wait for user approval to move to `[/]`. [Invoke: `project`]
 
 ## 4. Anti-Patterns
 
-- **YOLO Coding**: Skipping the plan.
-- **Mega-Tasks**: "Build the whole app" as one task.
-- **Silent Assumptions**: Guessing requirements.
-- **The Interrogator**: Asking lazy, open-ended questions ("How should this work?") instead of presenting engineered options ("Should we use LocalStorage or IndexedDB?").
-
-## 5. Tools
-
-- `write_to_file` (Create artifacts)
-- `waldzell-decision-framework` (Complexity/Tradeoffs)
-- `waldzell-stochastic-thinking` (Estimation)
-- `sequentialthinking` (Internal Branching)
+- **Hidden UI**: Forgetting to plan the design for a UI feature.
+- **Vagueness**: Creating tasks that take longer than 1 hour.

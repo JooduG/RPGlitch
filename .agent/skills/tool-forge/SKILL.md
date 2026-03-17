@@ -1,5 +1,5 @@
 ---
-name: tool-design
+name: tool-forge
 version: 1.0.0
 description: This skill should be used when designing client-side Perchance tools, Svelte 5 bridges, or formulating requests to host MCP servers. Covers architectural reduction, tool consolidation, and proper descriptions.
 ---

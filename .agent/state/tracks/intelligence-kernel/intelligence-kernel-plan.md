@@ -1,1 +1,13 @@
-# Implementation Plan: Intelligence Kernel (Phase 1)`n`n## Phase 1: Context & State Foundation`n- [ ] Task: Scaffold ContextBroker.js`n    - [ ] Write Unit Tests.`n    - [ ] Implement aggregation logic.`n- [ ] Task: Define Simulation Loop`n    - [ ] Write Integration Tests.`n    - [ ] Implement loop controller.`n- [ ] Task: Svelte 5 Integration`n    - [ ] Refactor stores to Runes.`n    - [ ] Implement auto-save effect.
+# Implementation Plan: Intelligence Kernel (Phase 1)
+
+## Phase 1: Context & State Foundation
+
+- [ ] Task: Scaffold ContextBroker.js
+    - [ ] Write Unit Tests.
+    - [ ] Implement aggregation logic.
+- [ ] Task: Define Simulation Loop
+    - [ ] Write Integration Tests.
+    - [ ] Implement loop controller.
+- [ ] Task: Svelte 5 Integration
+    - [ ] Refactor stores to Runes.
+    - [ ] Implement auto-save effect.
