@@ -72,7 +72,7 @@ The project targets **Perchance** as its primary deployment platform, requiring 
 - **Diegetic Integrity**:
     - Forbid narrator-voice or speaking for the user.
     - Start responses directly; no preambles or technical meta-labels.
-    - Express statistical signals (trust, sanity) diegetically attraverso body language or internal logic, never as numbers.
+    - Express statistical signals (trust, sanity) diegetically through body language or internal logic, never as numbers.
 
 ### 6. 🧭 The Navigator Protocol (Docs)
 
