@@ -53,16 +53,9 @@ export const VECTOR_TEMPLATE = {
     vector_tags: "string[] (Semantic/narrative keywords)",
 }
 
-/**
- * Standardized Semantic Tags for Vectors.
- * Used for LexicalFilter prioritization and Dynamics reasoning.
- */
-// /**
-//  * Standardized Semantic Tags for Vectors.
-//  * Used for LexicalFilter prioritization and Dynamics reasoning.
-//  */
+// [COMMENTED OUT FOR NOW: VECTOR_TAGS & VECTOR_ARCHETYPES]
+// Standardized Semantic Tags for Vectors.
 // export const VECTOR_TAGS = {
-//     // 🧠 SOMATIC (Character-Locked)
 //     TRAUMA: "Deep psychological wounding that creates avoidance or triggers.",
 //     SECRET: "Hidden knowledge that drives paranoia or power dynamics.",
 //     BOND: "Established emotional connection with another entity.",
@@ -70,8 +63,6 @@ export const VECTOR_TEMPLATE = {
 //     AGENDA: "Specific, active self-interest protocol.",
 //     VICTORY: "Historical success driving confidence or arrogance.",
 //     DEFEAT: "Historical failure driving caution or insecurity.",
-// 
-//     // 🌎 ENVIRONMENTAL (Fractal-Locked)
 //     CATASTROPHE: "World-altering event defining the landscape's entropy.",
 //     SYSTEM: "Institutional or mechanical logic governing the fractal.",
 //     LEGACY: "Old-world data that weights the present-day physics.",
@@ -79,10 +70,6 @@ export const VECTOR_TEMPLATE = {
 //     INFILTRATION: "Thematic focus on stealth and boundary crossing.",
 // }
 // 
-// /**
-//  * Narrative Archetypes.
-//  * Pre-structured vector templates for rapid character/fractal seeding.
-//  */
 // export const VECTOR_ARCHETYPES = {
 //     THE_REVENGE_TRAJECTORY: {
 //         future: {
@@ -132,7 +119,7 @@ export function create_vector(text) {
     return {
         id: crypto.randomUUID(),
         timestamp: Date.now(),
-        label:
+        label: "",
         text,
         emotional_weight: DynamicsEngine.evaluate_weight(reflexes),
         dynamics_tags: reflexes.map((r) => ({ id: r.id, word: r.trigger_word })),

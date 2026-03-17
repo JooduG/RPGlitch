@@ -22,5 +22,8 @@
         "chrome-devtools-mcp": "^0.15.1",
         "firecrawl-mcp": "*",
         "mcp-sequentialthinking-tools": "*"
+    },
+    "overrides": {
+        "@modelcontextprotocol/sdk": "^1.26.0"
     }
 }

@@ -42,7 +42,7 @@
         "dexie": "^3.2.4",
         "dompurify": "^3.0.5",
         "dotenv": "^17.3.1",
-        "firecrawl-mcp": "^3.6.0",
+        "firecrawl-mcp": "^3.11.0",
         "ignore": "^7.0.5",
         "mcp-sequentialthinking-tools": "^0.0.4",
         "paneforge": "^1.0.2",
@@ -85,5 +85,8 @@
         "vite-plugin-singlefile": "^2.0.4",
         "vitest": "^4.0.15",
         "vitest-browser-svelte": "^2.0.1"
+    },
+    "overrides": {
+        "@modelcontextprotocol/sdk": "^1.26.0"
     }
 }
