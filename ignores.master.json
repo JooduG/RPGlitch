@@ -21,9 +21,10 @@
         "mcp.json",
         "node_modules",
         "**/scribbles/**",
-        "test-results/**"
+        "test-results/**",
+        ".playwright-auth/**"
     ],
-    "geminiignore": ["!**/.env", "!**/.gemini/**", "!**/.geminiignore", "!**/.git/**", "!**/mcp.json", "!**/index/**", "!**/RPGlitch-left-panel.txt", "!**/templates/**", "!**/test-results/**", "!**/scribbles/**"],
+    "geminiignore": ["!**/.env", "!**/.gemini/**", "!**/.geminiignore", "!**/.git/**", "!**/mcp.json", "!**/index/**", "!**/RPGlitch-left-panel.txt", "!**/templates/**", "!**/test-results/**", "!**/scribbles/**", "!**/.playwright-auth/**"],
     "gitignore": ["!RPGlitch-left-panel.txt"],
     "linters": {
         "eslint": [],
@@ -50,7 +51,8 @@
             "**/Thumbs.db": true,
             "**/yarn.lock": true,
             "mcp.json": true,
-            "test-results/**": true
+            "test-results/**": true,
+            ".playwright-auth/**": true
         },
         "markdown.validate.referenceLinks.enabled": false
     }

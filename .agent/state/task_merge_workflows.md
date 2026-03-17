@@ -6,14 +6,14 @@ Update all workflows in `.agent/workflows/` to ensure they are synchronized with
 
 ### Acceptance Criteria
 
-- [ ] All workflows have consistent YAML frontmatter (`name`, `description`).
-- [ ] Path references are corrected:
+- [x] All workflows have consistent YAML frontmatter (`name`, `description`).
+- [x] Path references are corrected:
     - `.agent/tasks/` -> `.agent/state/tracks/`
     - `tasks.md` -> `tracks.md`
-- [ ] Rule references are corrected to point to `01-04` pillars.
-- [ ] Obsolete rule references (05-09) are remapped to active counterparts.
-- [ ] Tool references match currently available MCP tools (Reflect: `sequentialthinking`, `waldzell-clear-thought`).
-- [ ] "Diegetic" nicknames applied (e.g., 00-Ignition, 01-Blueprint, etc.).
+- [x] Rule references are corrected to point to `01-04` pillars.
+- [x] Obsolete rule references (05-09) are remapped to active counterparts.
+- [x] Tool references match currently available MCP tools (Reflect: `sequentialthinking`, `waldzell-clear-thought`).
+- [x] "Diegetic" nicknames applied (e.g., 00-Ignition, 01-Blueprint, etc.).
 
 ---
 

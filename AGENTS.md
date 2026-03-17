@@ -7,15 +7,10 @@ This document defines the RPGlitch technical stack and engineering mandates for 
 ## 🏗️ The Tech Stack
 
 - **Framework**: Svelte 5 (Strict **Runes Only**).
-
 - **Build Tool**: Vite + `vite-plugin-singlefile`.
-
 - **Primary Deployment Target**: **Perchance** (Single-file Reactive Monolith).
-
 - **State Management**: Reactive Svelte 5 Runes (`$state`, `$derived`, `$effect`).
-
 - **Persistence**: Dexie.js (IndexedDB).
-
 - **Styling**: Vanilla CSS (The **Chalk Regime** tokens).
 
 ---
@@ -41,7 +36,7 @@ This document defines the RPGlitch technical stack and engineering mandates for 
 
 ### 4. The Navigator Protocol
 
-- **Mandate**: All internal documentation MUST follow the [.agent/rules/05-navigator.md](./.agent/rules/05-navigator.md) standards.
+- **Mandate**: All internal documentation MUST follow the [.agent/rules/03-technetium.md](.agent/rules/03-technetium.md) standards.
 - **Interactivity**: Every state reference and skill invocation MUST be clickable.
 
 ---
@@ -58,6 +53,7 @@ This document defines the RPGlitch technical stack and engineering mandates for 
 | [/05-deploy](./.agent/workflows/05-deploy.md) | Solo Deployment. |
 | [/06-continue](./.agent/workflows/06-continue.md) | Resume without Boot. |
 | [/07-fleet](./.agent/workflows/07-fleet.md) | Fleet Orchestration. |
+| [/08-github](./.agent/workflows/08-github.md) | Local GitHub Ops. |
 | [/99-rewind](./.agent/workflows/99-rewind.md) | Emergency Reset. |
 
 ---

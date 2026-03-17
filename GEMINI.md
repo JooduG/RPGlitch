@@ -8,9 +8,9 @@
 
 RPGlitch is a **Local-First Reactive Monolith** designed for immersive storytelling. It bridges creative prose and mechanical truth through a triad of layers:
 
-- **The Spec (Blueprint):** Deep lore and character archetypes.
-- **The State (Live):** Reactive Svelte 5 Runes mirroring reality.
-- **The Echo (History):** Persistent logs in IndexedDB (via Dexie.js).
+- **The Spec (Blueprint):** Deep lore, taxonomies, and character archetypes.
+- **The State (Live):** Reactive Svelte 5 Runes mirroring physical and psychological reality.
+- **The Echo (History):** Persistent logs in IndexedDB (via Dexie.js) that give context and weight to every decision.
 
 The project targets **Perchance** as its primary deployment platform, requiring a self-contained single `index.html` bundle.
 
@@ -22,7 +22,7 @@ The project targets **Perchance** as its primary deployment platform, requiring 
 - **Build Tool:** Vite (with `vite-plugin-singlefile` for Perchance).
 - **Persistence:** Dexie.js (IndexedDB).
 - **Styling:** Vanilla CSS with **Chalk Regime** design tokens.
-- **Intelligence:** Logic-driven prompts with high-fidelity context hydration.
+- **Intelligence:** Sovereign Core (`.agent/`) logic with high-fidelity context hydration.
 - **Testing:** Vitest (Unit) and Playwright (E2E).
 
 ---
@@ -38,6 +38,7 @@ The project targets **Perchance** as its primary deployment platform, requiring 
 | `npm run deploy` | Full pipeline: Verify, build, and deploy to Perchance. |
 | `npm run deploy:perchance` | Automated deployment via Playwright script. |
 | `npm run format` | Format codebase using Prettier. |
+| `/08-github` | Trigger local GitHub PR/Issue sync. |
 
 ---
 
@@ -63,7 +64,7 @@ The project targets **Perchance** as its primary deployment platform, requiring 
 ### 4. 🧱 Skill-Based Architecture
 
 - Logic is organized into modular "skills" within `.agent/skills/`.
-- Cross-cutting concerns (Audio, Data, Svelte, Security) should be handled by their respective skill logic.
+- Cross-cutting concerns are handled by their respective skill logic (e.g., `audio`, `data`, `svelte`, `security`).
 
 ### 5. 🎭 Narrative Constraints (ANEX_BLACKTIDE)
 
@@ -77,26 +78,26 @@ The project targets **Perchance** as its primary deployment platform, requiring 
 
 - **Standard**: All internal links MUST be relative.
 - **Functional**: `[Invoke: skill]` tags must link to their respective `SKILL.md`.
-- **Reference**: Follow [.agent/rules/05-navigator.md](./.agent/rules/05-navigator.md).
+- **Reference**: Follow [.agent/rules/03-technetium.md](.agent/rules/03-technetium.md).
 
 ---
 
 ## 📂 Directory Map
 
-- `.agent/`: Project-specific intelligence, rules, and automation skills.
+- `.agent/`: Project-specific intelligence, rules, and automation skills (The Sovereign Core).
 - `src/core/`: Core engine logic (Intelligence, Security).
 - `src/data/`: Database (Dexie), entity premades, and repositories.
 - `src/state/`: Global Svelte 5 app state and reactive stores.
-- `src/theme/`: Design tokens, global styles, and palettes.
+- `src/theme/`: Design tokens, global styles, and palettes (The Chalk Regime).
 - `src/ui/`: Atomic design components (Atoms, Molecules, Organisms).
 
 ---
 
 ## 📝 Ongoing Tasks (Tracks)
 
-   Active development and architectural task tracking is dynamically managed via the Antigravity Mission Board.
+Active development and architectural task tracking is dynamically managed via the Antigravity Mission Board.
 
-   Please refer to:
+Please refer to:
 
 - **`.agent/state/global.md`** (The Mission Board / Active State)
-- **`.agent/state/`** (Individual implementation plans)
+- **`.agent/state/`** (Individual implementation plans/tracks)

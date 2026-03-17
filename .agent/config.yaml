@@ -22,25 +22,26 @@ skills:
 workflows:
     00-boot: .agent/workflows/00-boot.md
     01-plan: .agent/workflows/01-plan.md
-    02-execute: .agent/workflows/02-execute.md
+    02-build: .agent/workflows/02-build.md
     03-clean: .agent/workflows/03-clean.md
     04-review: .agent/workflows/04-review.md
     05-deploy: .agent/workflows/05-deploy.md
     06-continue: .agent/workflows/06-continue.md
-    99-reset: .agent/workflows/99-reset.md
+    07-fleet: .agent/workflows/07-fleet.md
+    99-rewind: .agent/workflows/99-rewind.md
 
 # 📚 Knowledge (Reference Library)
 knowledge:
     # 🗺️ Atlas: The Verified Geography (Laws, Architecture, Vision)
     atlas:
         # Rules
-        rule-governance: .agent/rules/01-governance.md
-        rule-workflow: .agent/rules/02-workflow.md
-        atlas-physics: .agent/knowledge/atlas/07-physics.md
-        rule-security: .agent/rules/04-security.md
-        rule-standards: .agent/rules/05-standards.md
-
+        rule-foundation: .agent/rules/01-foundation.md
+        rule-motion: .agent/rules/02-motion.md
+        rule-technetium: .agent/rules/03-technetium.md
+        rule-shield: .agent/rules/04-shield.md
+        
         # Knowledge
+        atlas-physics: .agent/knowledge/atlas/07-physics.md
         atlas-vision: .agent/knowledge/atlas/01-vision.md
         atlas-roadmap: .agent/knowledge/atlas/02-roadmap.md
         atlas-architecture: .agent/knowledge/atlas/03-architecture.md
@@ -48,7 +49,7 @@ knowledge:
         atlas-environment: .agent/knowledge/atlas/05-environment.md
         atlas-lexicon: .agent/knowledge/atlas/06-lexicon.md
 
-    # Archive: Previous Implementations of Everything (Given we remembered to archive it)
+    # Archive: Previous Implementations
     archive:
         dir: .agent/archive/
 
@@ -62,4 +63,5 @@ knowledge:
 
 # 📝 Workspace (Active Memory)
 workspace:
-    tracks: .agent/tasks/tracks.md
+    tracks: .agent/state/tracks.md
+    global: .agent/state/global.md
