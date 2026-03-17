@@ -49,4 +49,4 @@ jobs:
         with:
           commit_message: "chore(night-shift): sync backlog, memory, and audit reports"
           commit_author: "Antigravity Janitor <actions@github.com>"
-          file_pattern: "src/**/*.svelte src/**/*.js src/**/*.css .agent/state/backlog.md"
+          file_pattern: "src/**/*.svelte src/**/*.js src/**/*.css .agent/state/backlog.md .agent/state/tracks.md"

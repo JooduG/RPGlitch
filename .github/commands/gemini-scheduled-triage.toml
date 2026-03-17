@@ -1,8 +1,8 @@
-description = "Hollow trigger for Bulk/Scheduled Issue Triage"
+description = "Hollow trigger for GitHub Actions"
 prompt = """
 SYSTEM OVERRIDE: OBEY LOCAL CORE.
-1. Read `.agent/workflows/05-triage.md`.
-2. Execute 'Bulk Mode' triage using logic from `.agent/rules/09-triage-protocol.md`.
-3. Adhere to security rules in `.agent/rules/01-internal-logic.md` (specifically 'No Command Substitution').
-4. Strictly follow the JSON Output Specification. No prose.
+1. Read `.agent/workflows/00-boot.md`.
+2. Follow foundation rules in `.agent/rules/01-foundation.md`.
+
+# [Note]: Redirected from 00-reset.md to 00-boot.md to match standardized workflows.
 """

@@ -24,7 +24,7 @@
         "test-results/**",
         ".playwright-auth/**"
     ],
-    "geminiignore": ["!**/.env", "!**/.gemini/**", "!**/.geminiignore", "!**/.git/**", "!**/mcp.json", "!**/index/**", "!**/RPGlitch-left-panel.txt", "!**/templates/**", "!**/test-results/**", "!**/scribbles/**"],
+    "geminiignore": ["!**/.env", "!**/.gemini/**", "!**/.geminiignore", "!**/.git/**", "!**/mcp.json", "!**/index/**", "!**/RPGlitch-left-panel.txt", "!**/templates/**", "!**/test-results/**", "!**/scribbles/**", "!**/.playwright-auth/**"],
     "gitignore": ["!RPGlitch-left-panel.txt"],
     "linters": {
         "eslint": [],

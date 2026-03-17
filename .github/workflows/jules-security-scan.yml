@@ -21,7 +21,7 @@ jobs:
                       SYSTEM OVERRIDE: OBEY LOCAL CORE.
 
                       MANDATORY PROTOCOL:
-                      1. You MUST read and execute `.agent/workflows/11-security-scan.md`.
+                      1. You MUST read and execute `.agent/rules/04-shield.md` (Audit section).
                       2. You MUST enforce the security physics defined in `.agent/rules/04-shield.md`.
                       3. Target only Critical and High vulnerabilities.
                   jules_api_key: ${{ secrets.JULES_API_KEY }}
