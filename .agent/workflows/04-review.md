@@ -28,13 +28,13 @@
 1. **Archival**: If complete, move the track shards to [.agent/archive/](../archive/). [[Invoke: project]](../skills/project/SKILL.md)
 2. **Triage**: Sort incoming issues and seed the next `/01-plan` cycle. [[Invoke: scribe]](../skills/scribe/SKILL.md)
 
-### Phase 3: The Handoff Law (Mandatory Checkpoint)
+### Phase 3: The Handoff Law (Anti-Amnesia Protocol)
 
-*You are strictly prohibited from ending a session without executing this phase.*
+*You are strictly forbidden from clocking out without updating the state matrix. Never drop the baton.*
 
-1. **Update Tracks**: Append a summary of the session's deltas to `.agent/state/tracks.md`.
-2. **Sync Backlog**: Move completed items from WIP to DONE in `.agent/state/backlog.md`. Log any remaining `#TODO-AI` tags.
-3. **Pass the Baton**: Populate `.agent/state/next-prompt.md` with high-context instructions and next-step hooks so the next agent knows exactly where to begin.
+1. **Update Tracks (Global)**: Overwrite `.agent/state/global.md` with a bulleted payload of completed tasks for this session. Append a summary of the session's deltas to `.agent/state/tracks.md`.
+2. **Sync Backlog**: Move completed items from WIP to DONE in `.agent/state/backlog.md`. Crucially, update this file with any **newly generated `#TODO-AI:` tags** discovered during the session.
+3. **Pass the Baton**: Stage the next logical task or prompt in `.agent/state/next-prompt.md` with high-context instructions so the next agent knows exactly where to begin.
 
 ## 4. Anti-Patterns
 

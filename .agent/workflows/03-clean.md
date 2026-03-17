@@ -27,10 +27,11 @@ description: Maintenance & Security. Fixes bugs, audits security, and ensures hy
 2. **Audit**: Execute `naming-analyzer.js` and `npm audit`. [[Invoke: quality-assurance]](../skills/quality-assurance/SKILL.md)
 3. **Trace**: Map the logic path to the bug. [[Invoke: simulation]](../skills/simulation/SKILL.md)
 
-### Phase 2: Sanitization
+### Phase 2: Sanitization & Debt Management
 
 1. **Purge**: Delete unused assets and legacy artifacts. [[Invoke: scribe]](../skills/scribe/SKILL.md)
 2. **Standard**: Apply fixes using **Runes** and **Chalk Tokens** exclusively. [[Invoke: svelte]](../skills/svelte/SKILL.md)
+3. **Technical Debt Handling**: Wrap all out-of-scope messy code, non-critical bugs, or unresolved edge cases in professional `#TODO-AI:` tags. Do not spiral into dependency hell trying to fix everything at once.
 
 ### Phase 3: The Quality Gate (Validation)
 
@@ -40,5 +41,5 @@ description: Maintenance & Security. Fixes bugs, audits security, and ensures hy
 ## 4. Anti-Patterns
 
 - **The Patch**: Fixing symptoms instead of root systems.
-- **Dangling Debt**: Committing fixes without cleaning up surrounding technical debt.
+- **Dangling Debt**: Committing fixes without cleaning up surrounding technical debt or logging it properly with `#TODO-AI:`.
 - **Silent Security**: Ignoring `npm audit` warnings.

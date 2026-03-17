@@ -22,15 +22,17 @@ description: Implementation Loop. Logic, State, and Style fabrication.
 
 ## 3. Procedures
 
-### Phase 1: The Clarity Gate (Fabrication)
+### Phase 1: The Clarity Gate (Fabrication & Isolation)
 
 1. **Generation**: If using Stitch, generate the component. [[Invoke: stitch]](../skills/stitch/SKILL.md)
-2. **Validation**: Ensure all logic uses **Svelte 5 Runes** exclusively. No legacy `export let` or `$:`. [[Invoke: svelte]](../skills/svelte/SKILL.md)
-3. **Drafting**: Write minimal code to fulfill the task requirements.
+2. **Validation (Svelte 5 Supremacy)**: Ensure all logic uses **Svelte 5 Runes** explicitly (`$state`, `$derived`, `$effect`, snippets). 
+    - **Legacy Refactor**: If Svelte 3/4 code (`stores`, `export let`) is encountered, silently refactor it to Runes without asking. [[Invoke: svelte]](../skills/svelte/SKILL.md)
+3. **Perchance Isolation**: NO HALLUCINATED IMPORTS. Ensure all code relies entirely on JIT/ESM imports (via `esm.sh` or similar) compatible with a sandboxed HTML runtime. Do not assume `node_modules` exist locally for the runtime.
+4. **Drafting**: Write minimal code to fulfill the task requirements. Prefer extracting monolithic blocks into modular Svelte 5 Snippets where applicable.
 
 ### Phase 2: Refinement (The Chalk Regime)
 
-1. **Styling**: Apply **Chalk Regime** tokens. No hardcoded hex or Tailwind. [[Invoke: styling]](../skills/styling/SKILL.md)
+1. **Styling**: Apply **Chalk Regime** tokens. Use native CSS variables (e.g., `var(--color-chalk)`). No hardcoded generic hex codes or Tailwind. [[Invoke: styling]](../skills/styling/SKILL.md)
 2. **Motion**: Add kinetic transitions and Snappy Curve animations. [[Invoke: motion]](../skills/motion/SKILL.md)
 
 ### Phase 3: The Quality Gate (Proving)
@@ -43,4 +45,5 @@ description: Implementation Loop. Logic, State, and Style fabrication.
 
 - **Blind Coding**: Committing without testing or verifying output.
 - **Legacy Reactivity**: Sneaking in Svelte 3/4 patterns.
+- **Hallucinated Dependencies**: Importing packages that cannot run in a serverless/Perchance environment.
 - **Style Drift**: Using CSS values not defined in `tokens.css`.
