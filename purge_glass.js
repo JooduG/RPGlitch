@@ -16,7 +16,7 @@ function walk(dir) {
     return results;
 }
 
-const files = walk('C:/Users/johng/source/repos/RPGlitch/src');
+const files = walk(path.join(process.cwd(), 'src'));
 let modifiedCount = 0;
 
 for (const file of files) {
