@@ -5,6 +5,7 @@
  * ZERO NESTING — Flattened Schema only.
  */
 import { db } from "@data/db.js"
+import { generateUUID } from "@core/engine/utils.js"
 import { closeLightbox, openLightbox } from "@state/lightbox.svelte.js"
 import { runtime } from "@state/runtime.svelte.js"
 import { engineState } from "@state/status.svelte.js"
@@ -103,7 +104,7 @@ export class AppStore {
      */
     log(message, type = "system") {
         const entry = {
-            id: Math.random().toString(36).substring(7),
+            id: generateUUID(),
             timestamp: logTimeFormatter.format(Date.now()),
             message,
             type, // 'system' | 'ai' | 'db' | 'error'
