@@ -43,6 +43,5 @@
 
     /* Blur is optional (performance) */
     .backdrop.blur {
-        backdrop-filter: blur(var(--blur-s));
     }
 </style>

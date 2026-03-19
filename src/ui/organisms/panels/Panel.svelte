@@ -17,7 +17,7 @@
     .panel {
         background: var(--app-component-bg); /* Zinc 950 essentially */
         box-shadow:
-            0 0 0 var(--spacing-px) var(--ui-glass-border),
+            0 0 0 var(--spacing-px) var(--border-light),
             var(--shadow-l);
         overflow: hidden;
         display: flex;
@@ -26,9 +26,9 @@
     }
 
     .panel-header {
-        background: var(--glass-s);
+        background: var(--surface-sunken);
         padding: var(--spacing-s) var(--spacing-m);
-        box-shadow: 0 var(--spacing-px) 0 0 var(--ui-glass-border);
+        box-shadow: 0 var(--spacing-px) 0 0 var(--border-light);
         border-bottom: none;
         display: flex;
         justify-content: space-between;

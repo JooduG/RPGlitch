@@ -103,20 +103,20 @@
         align-items: center;
         margin-bottom: var(--spacing-l);
         padding: var(--spacing-m) 0;
-        box-shadow: 0 1px 0 var(--ui-glass-border);
+        box-shadow: 0 1px 0 var(--border-light);
     }
 
     .prologue-setup .input-wrapper {
         background: var(--surface-sunken);
         border-radius: var(--border-radius-m);
         padding: var(--spacing-m);
-        box-shadow: inset 0 0 0 1px var(--ui-glass-border);
+        box-shadow: inset 0 0 0 1px var(--border-light);
         transition: all var(--transition-speed) var(--physics-transition-elastic);
     }
 
     .prologue-setup .input-wrapper:focus-within {
-        background: var(--surface-overlay);
-        box-shadow: 0 0 0 1px var(--ui-glass-border);
+        background: var(--surface-elevated);
+        box-shadow: 0 0 0 1px var(--border-light);
     }
 
     .prologue-setup .input-wrapper .prologue-field {
@@ -152,7 +152,7 @@
         gap: var(--spacing-l);
         margin-top: auto;
         padding-top: var(--spacing-m);
-        border-top: 1px solid var(--ui-glass-border);
+        border-top: 1px solid var(--border-light);
     }
 
     .navigation-links {

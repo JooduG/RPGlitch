@@ -78,10 +78,9 @@
         flex-direction: column;
 
         /* Standard Styles */
-        background: var(--glass-m);
-        backdrop-filter: blur(var(--blur-m));
+        background: var(--surface-raised);
         box-shadow:
-            inset 0 0 0 1px var(--ui-glass-border),
+            inset 0 0 0 1px var(--border-light),
             var(--shadow-xl);
         border-radius: var(--border-radius-l);
         padding: 0;

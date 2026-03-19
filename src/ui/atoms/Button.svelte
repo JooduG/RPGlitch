@@ -122,7 +122,7 @@
         color: var(--font-muted);
     }
     .btn-ghost:hover:not(:disabled, .disabled) {
-        background: var(--glass-s);
+        background: var(--surface-sunken);
         color: var(--font-color);
     }
 
@@ -132,24 +132,23 @@
     }
     .btn-outline:hover:not(:disabled, .disabled) {
         color: var(--frisk);
-        background: var(--glass-s);
+        background: var(--surface-sunken);
     }
 
     .btn-glass {
-        background: var(--glass-m);
-        backdrop-filter: blur(8px);
+        background: var(--surface-raised);
         color: var(--white);
     }
     .btn-glass:hover:not(:disabled, .disabled) {
-        background: var(--glass-l);
+        background: var(--surface-elevated);
     }
 
     .btn-secondary {
-        background: var(--glass-m);
+        background: var(--surface-raised);
         color: var(--font-color);
     }
     .btn-secondary:hover:not(:disabled, .disabled) {
-        background: var(--glass-l);
+        background: var(--surface-elevated);
     }
 
     .btn-security {
@@ -159,7 +158,7 @@
     }
     .btn-security:hover:not(:disabled, .disabled) {
         box-shadow:
-            0 0 15px var(--glass-s),
+            0 0 15px var(--surface-sunken),
             0 0 0 1px var(--font-color);
     }
 

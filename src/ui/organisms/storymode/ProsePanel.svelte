@@ -123,7 +123,7 @@
 
     .empty-feed-fallback :global(.btn-retry) {
         padding: var(--spacing-xs) var(--spacing-m);
-        background: var(--surface-overlay);
+        background: var(--surface-elevated);
         box-shadow: var(--shadow-s);
         border-radius: var(--border-radius);
         color: var(--font-muted);

@@ -49,10 +49,9 @@
 
     .unified-capsule {
         background: var(--surface-sunken);
-        backdrop-filter: blur(var(--blur-s));
         box-shadow:
             var(--shadow-l),
-            inset 0 0 0 1px var(--ui-glass-border);
+            inset 0 0 0 1px var(--border-light);
         border: none;
 
         display: flex;

@@ -62,7 +62,7 @@
         gap: var(--spacing-l);
         padding: var(--spacing-s) var(--spacing-xl);
 
-        background: var(--surface-overlay);
+        background: var(--surface-elevated);
         box-shadow: var(--shadow-m);
         border-radius: var(--border-radius-xs);
 

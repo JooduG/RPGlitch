@@ -1,3 +1,7 @@
+---
+description: Reviews and stuff. 
+---
+
 # 04-review (The Vault & The Handoff)
 
 > **Goal:** Final quality audit, test validation, and mandatory session paperwork.

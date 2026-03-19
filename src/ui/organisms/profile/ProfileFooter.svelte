@@ -32,7 +32,7 @@
         display: grid;
         grid-template-columns: var(--spacing-xxxl) 1fr;
         gap: var(--spacing-s);
-        background: color-mix(in srgb, var(--surface-overlay), var(--signature-color) var(--opacity-xs));
+        background: color-mix(in srgb, var(--surface-elevated), var(--signature-color) var(--opacity-xs));
         border-top: 0;
         z-index: 2;
         padding-top: var(--spacing-m);

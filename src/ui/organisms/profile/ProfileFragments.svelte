@@ -182,8 +182,8 @@
 
     .content .row .field-group .text-area.edit:hover,
     .content .row .field-group .text-area.edit:focus {
-        background: var(--surface-overlay);
-        box-shadow: inset 0 0 0 1px var(--ui-glass-border);
+        background: var(--surface-elevated);
+        box-shadow: inset 0 0 0 1px var(--border-light);
     }
 
     .content .row .field-group .text-area:disabled {

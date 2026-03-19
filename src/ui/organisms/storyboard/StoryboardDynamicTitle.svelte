@@ -132,7 +132,7 @@
 
         /* Soft ethereal glow */
         text-shadow:
-            0 var(--spacing-xxs) var(--spacing-m) var(--ui-glass-border),
+            0 var(--spacing-xxs) var(--spacing-m) var(--border-light),
             0 0 var(--spacing-xl) var(--border-light);
 
         display: grid;
@@ -142,12 +142,12 @@
     }
 
     h1:hover {
-        background: var(--glass-s);
+        background: var(--surface-sunken);
     }
 
     h1:focus-within {
         outline: none;
-        background: var(--glass-m);
+        background: var(--surface-raised);
         box-shadow: 0 0 0 var(--spacing-xxs) var(--signature-color, var(--signature-pink));
     }
 

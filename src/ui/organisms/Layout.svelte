@@ -82,7 +82,7 @@
         transform: translateZ(0);
 
         /* Atmospheric Background - transparent to show body's gradient */
-        background: radial-gradient(circle at bottom, var(--gunmetal), var(--black) 70%);
+        /* background: radial-gradient(circle at bottom, var(--gunmetal), var(--black) 70%); */
         color: var(--white);
         transition: all 0.6s ease;
         pointer-events: none;

@@ -267,8 +267,7 @@
 
 <style>
     .visual-wing-content {
-        background: var(--glass-m);
-        backdrop-filter: blur(var(--blur-m));
+        background: var(--surface-raised);
         box-shadow: var(--shadow-m);
         border-radius: var(--border-radius-l);
         padding: var(--spacing-m);
@@ -325,7 +324,7 @@
         background: var(--surface-sunken);
         box-shadow:
             inset 0 0 0 1px var(--border-light),
-            inset 0 0.125rem 0.25rem var(--surface-overlay);
+            inset 0 0.125rem 0.25rem var(--surface-elevated);
         border-radius: var(--border-radius-m);
         overflow: hidden;
     }
@@ -356,7 +355,7 @@
     }
 
     .visual-prompt::placeholder {
-        color: var(--glass-l);
+        color: var(--surface-elevated);
         font-style: italic;
         font-weight: 400;
     }
@@ -400,7 +399,7 @@
         width: 100%;
         border: none;
         border-radius: 0;
-        background: var(--glass-s);
+        background: var(--surface-sunken);
         font-size: var(--font-size-xs);
         padding: var(--spacing-xs);
         transition: all var(--transition-speed);
@@ -412,7 +411,7 @@
     }
 
     .action-row :global(.btn:hover) {
-        background: var(--glass-m);
+        background: var(--surface-raised);
     }
 
     .action-row :global(.btn.action-btn) {
