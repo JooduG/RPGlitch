@@ -82,7 +82,7 @@
     /* Solid Surfaces & Elevations (Derived purely from Nordic variables) */
     --surface-base: #11191f;
     --surface-sunken: var(--gunmetal);
-    --surface-raised: color-mix(in srgb, var(--gunmetal), var(--chalk) 6%);
+    --surface-raised: color-mix(in srgb, var(--gunmetal), var(--chalk) 6%); /* [x] **ux-review**: Semantically refactored all surface elevations to use strict Nordic color-mixing (base, sunken, raised, elevated, floating). Purged all glassmorphism. (Branch: `refactor/ux-purge-and-semantic-surfaces`) */
     --surface-elevated: color-mix(in srgb, var(--gunmetal), var(--chalk) 12%);
     --surface-floating: color-mix(in srgb, var(--gunmetal), var(--chalk) 20%);
 
