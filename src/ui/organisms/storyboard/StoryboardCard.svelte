@@ -155,11 +155,10 @@
             flex-direction: column;
             border-radius: var(--border-radius-l);
             overflow: hidden;
-            background: var(--glass-m);
-            backdrop-filter: blur(var(--blur-m));
+            background: var(--surface-raised);
             box-shadow:
                 var(--shadow-xl),
-                inset 0 0 0 1px var(--ui-glass-border);
+                inset 0 0 0 1px var(--border-light);
             border: none;
             transform: translateZ(0);
             transition:
@@ -185,7 +184,7 @@
                 content: "";
                 position: absolute;
                 inset: 0;
-                background: linear-gradient(105deg, transparent 20%, var(--border-light) 35%, var(--ui-glass-border) 50%, var(--border-light) 65%, transparent 80%);
+                background: linear-gradient(105deg, transparent 20%, var(--border-light) 35%, var(--border-light) 50%, var(--border-light) 65%, transparent 80%);
                 transform: translateX(-100%);
                 z-index: var(--z-overlay);
                 pointer-events: none;
@@ -193,14 +192,14 @@
 
             &.is-empty {
                 background: var(--surface-sunken);
-                box-shadow: inset 0 2px 10px var(--surface-overlay);
+                box-shadow: inset 0 2px 10px var(--surface-elevated);
 
                 &::after {
                     content: "";
                     position: absolute;
                     inset: 0;
                     transform: translateX(-100%);
-                    background-image: linear-gradient(90deg, transparent 0, var(--border-light) 20%, var(--glass-l) 60%, transparent);
+                    background-image: linear-gradient(90deg, transparent 0, var(--border-light) 20%, var(--surface-elevated) 60%, transparent);
                     filter: blur(var(--blur-l));
                     animation: skeleton-shimmer 2.5s infinite;
                     z-index: var(--z-overlay);
@@ -209,7 +208,7 @@
 
                 &:hover {
                     box-shadow:
-                        var(--surface-overlay),
+                        var(--surface-elevated),
                         var(--shadow-glow);
                     :global(.empty-icon) {
                         opacity: 1;
@@ -240,7 +239,7 @@
                 height: 100%;
                 width: 50%;
                 border-top: none;
-                box-shadow: inset var(--spacing-px) 0 0 var(--ui-glass-border);
+                box-shadow: inset var(--spacing-px) 0 0 var(--border-light);
             }
         }
     }
@@ -268,7 +267,6 @@
     :global(.card-bottom.btn) {
         width: 100%;
         background: color-mix(in oklab, var(--signature-color) 10%, var(--surface-sunken));
-        backdrop-filter: none;
         border: none;
         display: flex;
         flex-direction: column;

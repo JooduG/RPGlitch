@@ -107,8 +107,7 @@
 
 <style>
     .dev-wing-content {
-        background: var(--glass-m);
-        backdrop-filter: blur(var(--blur-m));
+        background: var(--surface-raised);
         box-shadow: var(--shadow-m);
         border-radius: var(--border-radius-l);
         padding: var(--spacing-m);
@@ -124,7 +123,7 @@
     }
 
     .dev-wing-content::-webkit-scrollbar-thumb {
-        background: var(--glass-l);
+        background: var(--surface-elevated);
         border-radius: var(--border-radius-full);
     }
 
@@ -157,8 +156,8 @@
     }
 
     .dynamic-box.is-editing:hover {
-        background: var(--surface-overlay);
-        box-shadow: inset 0 0 0 1px var(--ui-glass-border);
+        background: var(--surface-elevated);
+        box-shadow: inset 0 0 0 1px var(--border-light);
     }
 
     .dynamic-label {
@@ -249,7 +248,7 @@
 
     .json-wrap pre {
         font-size: var(--font-size-xs);
-        color: var(--glass-l);
+        color: var(--surface-elevated);
         font-family: var(--font-mono);
         margin: 0;
     }

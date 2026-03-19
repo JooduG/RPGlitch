@@ -307,7 +307,7 @@
     }
 
     .think-block {
-        background: var(--surface-overlay);
+        background: var(--surface-elevated);
         border-radius: var(--border-radius);
         padding: var(--spacing-s);
         margin-bottom: var(--spacing-m);
@@ -373,7 +373,7 @@
     }
 
     .action-btn {
-        background: var(--surface-overlay);
+        background: var(--surface-elevated);
         color: var(--font-muted);
         border-radius: var(--border-radius);
         width: var(--spacing-xl);

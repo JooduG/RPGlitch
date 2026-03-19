@@ -136,13 +136,12 @@
         text-transform: uppercase;
         letter-spacing: var(--letter-spacing-m);
         cursor: pointer;
-        backdrop-filter: blur(var(--blur-m));
         transition: all var(--transition-speed) var(--physics-transition-elastic); /* Snappy Curve */
     }
 
     .dev-button:hover {
         color: var(--hud-text);
-        background: var(--glass-m);
+        background: var(--surface-raised);
         transform: scale(1.02);
         box-shadow: var(--shadow-m);
     }
@@ -156,7 +155,6 @@
         background: var(--hud-bg);
         border: none; /* No Borders */
         box-shadow: var(--shadow-l); /* Soft Depth */
-        backdrop-filter: blur(var(--blur-l));
         transform: translateX(-100%);
         transition: transform var(--transition-speed-slow) var(--physics-transition-elastic); /* Snappy Curve */
         display: flex;
@@ -182,8 +180,8 @@
         justify-content: space-between;
         align-items: center;
         padding: var(--spacing-m) var(--spacing-l);
-        background: var(--glass-s);
-        box-shadow: 0 var(--spacing-px) 0 0 var(--ui-glass-border); /* Very subtle separator */
+        background: var(--surface-sunken);
+        box-shadow: 0 var(--spacing-px) 0 0 var(--border-light); /* Very subtle separator */
     }
 
     .drawer-header .hud-title {
@@ -209,7 +207,7 @@
 
     .drawer-tabs {
         display: flex;
-        box-shadow: 0 var(--spacing-px) 0 0 var(--ui-glass-border);
+        box-shadow: 0 var(--spacing-px) 0 0 var(--border-light);
     }
 
     .drawer-tabs button {
@@ -266,11 +264,11 @@
         background: transparent;
     }
     .drawer-content::-webkit-scrollbar-thumb {
-        background: var(--glass-s);
+        background: var(--surface-sunken);
         border-radius: 3px;
     }
     .drawer-content::-webkit-scrollbar-thumb:hover {
-        background: var(--glass-m);
+        background: var(--surface-raised);
     }
 
     .panel-section {
@@ -323,7 +321,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: var(--glass-s);
+        background: var(--surface-sunken);
         border-radius: var(--border-radius-m);
         padding: var(--spacing-s) var(--spacing-m);
     }

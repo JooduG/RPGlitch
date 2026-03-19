@@ -127,7 +127,7 @@
         bottom: var(--spacing-m);
         right: var(--spacing-m);
         z-index: 10001;
-        background: var(--surface-overlay);
+        background: var(--surface-elevated);
         box-shadow: 0 0 0 1px var(--glass-border);
         color: var(--frisk);
         width: 2.5rem;
@@ -142,7 +142,7 @@
     }
 
     .swap-view-trigger:hover {
-        background: var(--glass-s);
+        background: var(--surface-sunken);
         color: var(--white);
         transform: scale(1.1);
     }

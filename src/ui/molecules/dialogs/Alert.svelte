@@ -80,15 +80,13 @@
         position: fixed;
         inset: 0;
         background: var(--surface-void);
-        backdrop-filter: blur(var(--blur-s));
         z-index: calc(var(--z-modal) - 1);
     }
 
     .security-modal {
-        background: var(--glass-m);
-        backdrop-filter: blur(var(--blur-m));
+        background: var(--surface-raised);
         box-shadow: 
-            inset 0 0 0 1px var(--ui-glass-border),
+            inset 0 0 0 1px var(--border-light),
             var(--shadow-xxl);
         border-radius: var(--border-radius-l);
         overflow: hidden;
@@ -98,7 +96,7 @@
 
     .security-modal header {
         padding: var(--spacing-m) var(--spacing-xl);
-        background: var(--glass-m);
+        background: var(--surface-raised);
     }
 
     .security-modal h3 {

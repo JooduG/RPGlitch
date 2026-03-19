@@ -1,13 +1,8 @@
-# Next Prompt: Unified Dynamics & Nomenclature Sync Complete
+# ⏭️ The Baton (Next Prompt)
 
-## Status Check
-- **Nomenclature**: Strictly `ai` and `fractal` across Engine, State, and UI.
-- **Physics**: Signal prompting restored; gravity math fixed and verified via tests.
-- **Tests**: `DynamicsEngine.test.js` (15/15 PASS).
+> **Context**: The UX has been completely visually flattened and mathematically aligned with the Nordic palette via semantic surface layers (`--surface-base`, `--surface-sunken`, etc). All glassmorphism was purged. The UI is clean, strict, and purely Chalk Regime compliant. The `ux-review` track is complete.
 
-## Active Baton
-- Move to the **narrative-bridge** track.
-- Goal: Connect the `signal_prompts` and flags from `DynamicsEngine` to the `NarrativeDirector` (to be implemented or refactored) to trigger automatic scene complications based on physics thresholds.
-
-## Checkpoint
-The 'Unified Dynamics Architecture' is now structurally complete and linguistically consistent.
+## Recommended Next Steps:
+1. Initialize via `/06-continue` to read this state.
+2. Proceed with investigating **`narrative-bridge`** (Connecting the unified Dynamics output to the Narrative Director for automatic scene complication).
+3. Check `backlog.md` for any other pending structural enhancements.

@@ -54,7 +54,6 @@
         display: inline-block;
         padding: var(--spacing-xs) var(--spacing-m);
         background: var(--surface-sunken);
-        backdrop-filter: blur(var(--blur-s));
         box-shadow: var(--shadow-l);
         border-radius: var(--border-radius-s);
         width: fit-content;

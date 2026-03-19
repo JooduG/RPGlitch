@@ -83,13 +83,13 @@
     :global(.btn-add-unit) {
         width: 100%;
         font-size: var(--font-size-s);
-        border: var(--spacing-px) dashed var(--ui-glass-border);
+        border: var(--spacing-px) dashed var(--border-light);
         border-radius: var(--border-radius);
         transition: all var(--transition-speed) var(--physics-transition-elastic);
     }
 
     :global(.btn-add-unit):hover {
-        background: var(--glass-s);
+        background: var(--surface-sunken);
         border-color: rgb(var(--pure-white-rgb) / var(--opacity-m));
         transform: translateY(var(--physics-btn-hover-y));
     }

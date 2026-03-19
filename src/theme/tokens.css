@@ -79,11 +79,12 @@
     --opacity-full: 1;
     --opacity-disabled: var(--opacity-s);
 
-    /* Blur Scale */
-    --blur-s: 0.25rem;
-    --blur-m: 0.75rem;
-    --blur-l: 1.25rem;
-    --blur-xl: 2.5rem;
+    /* Solid Surfaces & Elevations (Derived purely from Nordic variables) */
+    --surface-base: #11191f;
+    --surface-sunken: var(--gunmetal);
+    --surface-raised: color-mix(in srgb, var(--gunmetal), var(--chalk) 6%);
+    --surface-elevated: color-mix(in srgb, var(--gunmetal), var(--chalk) 12%);
+    --surface-floating: color-mix(in srgb, var(--gunmetal), var(--chalk) 20%);
 
     /* Background & Structural */
     --bg-base: #11191f;
@@ -109,17 +110,9 @@
     /* Surfaces & Depth */
     --border-light: rgba(var(--pure-white-rgb) / var(--opacity-xxs));
 
-    /* Glass Scale */
-    --glass-s: rgba(var(--pure-white-rgb) / 0.05);
-    --glass-m: rgba(var(--pure-white-rgb) / 0.1);
-    --glass-l: rgba(var(--pure-white-rgb) / 0.2);
-
-    --surface-sunken: rgba(var(--pure-black-rgb) / 0.6);
-    --surface-overlay: rgba(var(--pure-black-rgb) / 0.5);
-    --surface-void: rgba(var(--pure-black-rgb) / 0.85);
+    --surface-void: rgba(var(--pure-black-rgb) / 0.85); /* Pure black-out dimmer for modals */
     --tint-dark-surface: rgba(var(--pure-black-rgb) / 0.15);
 
-    --ui-glass-border: rgba(var(--pure-white-rgb) / var(--opacity-xs));
     --shadow-s: 0 0.25rem 0.5rem rgba(var(--pure-black-rgb) / var(--opacity-xs));
     --shadow-m: 0 0.25rem 1rem rgba(var(--pure-black-rgb) / var(--opacity-s));
     --shadow-l: 0 0.5rem 2rem rgba(var(--pure-black-rgb) / var(--opacity-m));

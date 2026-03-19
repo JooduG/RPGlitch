@@ -221,13 +221,12 @@ tfoot td {
     content: attr(data-tooltip);
     bottom: calc(100% + 15px);
     background: var(--surface-void);
-    backdrop-filter: blur(var(--blur-s));
     color: var(--white);
     padding: var(--spacing-xs) var(--spacing-s);
     border-radius: var(--border-radius-s);
     font-size: var(--font-size-xs);
     white-space: nowrap;
-    box-shadow: var(--shadow-s), inset 0 0 0 1px var(--ui-glass-border);
+    box-shadow: var(--shadow-s), inset 0 0 0 1px var(--border-light);
 }
 
 [data-tooltip]:hover::before,

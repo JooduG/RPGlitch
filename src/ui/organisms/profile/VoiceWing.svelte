@@ -57,8 +57,7 @@
 
 <style>
     .voice-wing-content {
-        background: var(--glass-m);
-        backdrop-filter: blur(var(--blur-m));
+        background: var(--surface-raised);
         box-shadow: var(--shadow-m);
         border-radius: var(--border-radius-l);
         padding: var(--spacing-m);
@@ -102,8 +101,8 @@
     }
 
     .voice-btn:hover:not(:disabled) {
-        background: var(--surface-overlay);
-        box-shadow: inset 0 0 0 1px var(--ui-glass-border);
+        background: var(--surface-elevated);
+        box-shadow: inset 0 0 0 1px var(--border-light);
     }
 
     .voice-btn:disabled {
@@ -128,8 +127,8 @@
     }
 
     .preview-btn:hover:not(:disabled) {
-        background: var(--surface-overlay);
-        box-shadow: inset 0 0 0 1px var(--ui-glass-border);
+        background: var(--surface-elevated);
+        box-shadow: inset 0 0 0 1px var(--border-light);
     }
 
     .preview-btn:active:not(:disabled) {
@@ -150,7 +149,7 @@
         background: var(--gunmetal);
         box-shadow:
             0 0 2rem var(--black),
-            inset 0 0 0 1px var(--ui-glass-border);
+            inset 0 0 0 1px var(--border-light);
         border: none;
         border-radius: var(--border-radius);
     }
@@ -176,7 +175,7 @@
     }
 
     .voice-option:hover {
-        background: var(--glass-s);
+        background: var(--surface-sunken);
     }
 
     .voice-option.active {
