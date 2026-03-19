@@ -86,13 +86,6 @@ export class ReactiveSession {
             // PHASE 3: ECHO (Affinity)
             app.log("Echo recording temporal affinity and syncing database...", "db")
 
-            // Update HUD causality (Example: reading from Security state if available)
-            app.causality_report = {
-                chaos: Math.floor(Math.random() * 100), // Placeholder for real physics
-                intensity: Math.floor(Math.random() * 100),
-                reflex: "Active",
-            }
-
             // PHASE 4: PERSIST (Data)
             await runtime.save(runtime.turn)
         } catch (e) {

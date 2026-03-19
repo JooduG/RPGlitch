@@ -58,7 +58,8 @@ describe("PromptBuilder (Refactored)", () => {
         const mock_snapshot = {
             signal_prompts: ["Pacing"],
             flags: ["ADRENALINE"],
-            dynamics: { intensity: 80 },
+            ai: { dynamics: { intensity: 80 } },
+            fractal: { dynamics: { entropy: 10 } }
         }
 
         it("synthesize() should return system prompt and meta", () => {
@@ -74,7 +75,7 @@ describe("PromptBuilder (Refactored)", () => {
             // Verify Physical fields are EXCLUDED (user choice)
             expect(result.system).not.toContain("Viper Glow")
             
-            expect(result.meta.dynamics.intensity).toBe(80)
+            expect(result.meta.ai.intensity).toBe(80)
         })
 
         it("should include protocols in the generated prompt", () => {

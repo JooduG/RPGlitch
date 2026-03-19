@@ -6,13 +6,13 @@ describe("PromptBuilder Visual & Contextual Verification", () => {
         const entities = {
             AI: {
                 name: "AI",
-                properties: {
+                fragments: {
                     eternal: { physical: "Metallic skin.", non_physical: "" },
                     present: { physical: "", non_physical: "Ready to help." },
                 },
             },
-            USER: { name: "User", properties: { eternal: { physical: "", non_physical: "" }, present: { physical: "", non_physical: "" } } },
-            FRACTAL: { name: "Fractal", properties: { eternal: { physical: "", non_physical: "" }, present: { physical: "", non_physical: "" } } },
+            USER: { name: "User", fragments: { eternal: { physical: "", non_physical: "" }, present: { physical: "", non_physical: "" } } },
+            FRACTAL: { name: "Fractal", fragments: { eternal: { physical: "", non_physical: "" }, present: { physical: "", non_physical: "" } } },
             simulation_log: "Pre-rendered log lines.",
         }
 
@@ -28,6 +28,8 @@ describe("PromptBuilder Visual & Contextual Verification", () => {
             signal_prompts: ["Focus on sensory details."],
             protocols: "HYGIENE",
             simulation_log: "Snapshot log",
+            ai: { dynamics: {} },
+            fractal: { dynamics: {} },
         }
 
         const result = PromptBuilder.synthesize(payload, snapshot)

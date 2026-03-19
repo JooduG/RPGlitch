@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { ContextBroker } from "./ContextBroker.js"
+import { clean_text } from "../engine/text_parser.js"
 
 // Mock dependencies
 vi.mock("@state/app.svelte.js", () => ({
@@ -77,7 +78,7 @@ describe("ContextBroker (Refactored)", () => {
 
     it("should punchy transform text with clean_text", () => {
         const input = "   Too   much    whitespace   "
-        const output = ContextBroker.clean_text(input)
+        const output = clean_text(input)
         expect(output).toBe("Too much whitespace")
     })
 })

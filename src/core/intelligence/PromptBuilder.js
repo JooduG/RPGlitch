@@ -271,7 +271,8 @@ export class PromptBuilder {
         return {
             system: PromptBuilder.clean(system),
             meta: {
-                dynamics: snapshot.dynamics,
+                ai: snapshot.ai.dynamics,
+                fractal: snapshot.fractal.dynamics,
                 flags: snapshot.flags,
                 signal_prompts: snapshot.signal_prompts,
             },

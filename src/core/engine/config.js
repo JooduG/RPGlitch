@@ -32,17 +32,18 @@ export const CONFIG = {
         DYNAMICS_GRAVITY_BASELINE: 50,
         SIGNAL_LOW: 30,
         LAW_LOW: 10,
+        THRESHOLD_BUFFER: 10, // Buffer for composite edge cases (e.g. 80/20)
+
+        // PHYSICS & COGNITION
+        GRAVITY_PULL: 0.25, // Percentage pull toward baseline per turn
+        NAIVETY_THRESHOLD: 0.6, // Bayesian threshold for suspicion injection
 
         // RELEVANCE SCORING (Used exclusively by VectorEngine.js for memory RAG)
         RELEVANCE_DYNAMICS_BONUS: 1,
         RELEVANCE_TRIGGER_BONUS: 2,
         RELEVANCE_VECTOR_BONUS: 3,
 
-        // SEMANTIC WEIGHTS (1-10)
-        WEIGHT_BASELINE: 3,
-        WEIGHT_SIGNIFICANT_THRESHOLD: 7,
-        WEIGHT_MAJOR_THRESHOLD: 8,
-        WEIGHT_CORE_THRESHOLD: 10,
+
 
         // LLM VISUAL
         VISUAL_TEMP_DEFAULT: 0.45,

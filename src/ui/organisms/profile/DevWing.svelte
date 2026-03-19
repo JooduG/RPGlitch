@@ -42,26 +42,14 @@
     let active_dynamics = $derived.by(() => {
         const list = []
 
-        // 1. Scan Primary Dynamics (Standard DB Character or Fractal object)
+        // 1. Scan Unified Dynamics (Character, Fractal, or custom Entity)
         if (char?.dynamics) {
             for (const key of Object.keys(char.dynamics)) {
                 list.push({
                     source: "dynamics",
                     key: key,
                     label: DYNAMICS_META[key]?.label || key.charAt(0).toUpperCase() + key.slice(1),
-                    desc: DYNAMICS_META[key]?.desc || "Custom Metric",
-                })
-            }
-        }
-
-        // 2. Scan Runtime Fractal Dynamics (If the simulation state has them split)
-        if (char?.fractal_dynamics) {
-            for (const key of Object.keys(char.fractal_dynamics)) {
-                list.push({
-                    source: "fractal_dynamics",
-                    key: key,
-                    label: DYNAMICS_META[key]?.label || key.charAt(0).toUpperCase() + key.slice(1),
-                    desc: DYNAMICS_META[key]?.desc || "Environmental Metric",
+                    desc: DYNAMICS_META[key]?.desc || "Metric",
                 })
             }
         }

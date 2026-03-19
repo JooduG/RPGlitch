@@ -91,11 +91,6 @@ export class AppStore {
 
     // --- TELEMETRY (DevMode HUD) ---
     logs = $state([])
-    causality_report = $state({
-        chaos: 0,
-        intensity: 0,
-        reflex: "Stable",
-    })
 
     /**
      * Records a system event.

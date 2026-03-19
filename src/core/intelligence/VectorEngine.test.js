@@ -4,8 +4,7 @@ import { VectorEngine } from "./VectorEngine.js"
 
 vi.mock("./DynamicsEngine.js", () => ({
     DynamicsEngine: {
-        scan_reflexes: vi.fn(() => [{ id: "VIBE_CHECK", trigger_word: "vibe", effect: { character: { intensity: 0 }, fractal: { velocity: 0 } } }]),
-        evaluate_weight: vi.fn(() => CONFIG.DYNAMICS.WEIGHT_BASELINE),
+        scan_reflexes: vi.fn(() => [{ id: "VIBE_CHECK", trigger_word: "vibe", effect: { ai: { intensity: 0 }, fractal: { velocity: 0 } } }]),
     },
 }))
 
@@ -22,16 +21,9 @@ describe("VectorEngine", () => {
             expect(typeof vector.timestamp).toBe("number")
         })
 
-        it("populates emotional_weight from DynamicsEngine.evaluate_weight", async () => {
-            const { DynamicsEngine } = await import("./DynamicsEngine.js")
-            vi.mocked(DynamicsEngine.evaluate_weight).mockReturnValueOnce(9)
-            const vector = VectorEngine.create_vector("He betrayed her completely.")
-            expect(vector.emotional_weight).toBe(9)
-        })
-
         it("defaults to Weight Baseline for plain input", () => {
             const vector = VectorEngine.create_vector("They talked for a while.")
-            expect(vector.emotional_weight).toBe(CONFIG.DYNAMICS.WEIGHT_BASELINE)
+            expect(vector.emotional_weight).toBe(5)
         })
     })
 
@@ -39,7 +31,7 @@ describe("VectorEngine", () => {
         it("calculates relevance: base weight + bonuses (+1 ID, +2 Word, +3 Tag)", async () => {
             const { DynamicsEngine } = await import("./DynamicsEngine.js")
             // Mock scan_reflexes to return a match with trigger word
-            vi.mocked(DynamicsEngine.scan_reflexes).mockReturnValue([{ id: "EXPOSURE", trigger_word: "kiss", effect: { character: { intensity: 5 }, fractal: { velocity: 0 } } }])
+            vi.mocked(DynamicsEngine.scan_reflexes).mockReturnValue([{ id: "EXPOSURE", trigger_word: "kiss", effect: { ai: { intensity: 5 }, fractal: { velocity: 0 } } }])
 
             const vectors = [
                 {
@@ -66,7 +58,7 @@ describe("VectorEngine", () => {
         it("grants +1 for Vibe (ID) match but skip +2 if trigger word differs", async () => {
             const { DynamicsEngine } = await import("./DynamicsEngine.js")
             // Input "hug" matches EXPOSURE id, but trigger word is "hug"
-            vi.mocked(DynamicsEngine.scan_reflexes).mockReturnValue([{ id: "EXPOSURE", trigger_word: "hug", effect: { character: { intensity: 5 }, fractal: { velocity: 0 } } }])
+            vi.mocked(DynamicsEngine.scan_reflexes).mockReturnValue([{ id: "EXPOSURE", trigger_word: "hug", effect: { ai: { intensity: 5 }, fractal: { velocity: 0 } } }])
 
             const vectors = [
                 {
@@ -118,7 +110,7 @@ describe("VectorEngine", () => {
                     text: "She died.",
                     dynamics_tags: [],
                     vector_tags: [],
-                    emotional_weight: CONFIG.DYNAMICS.WEIGHT_CORE_THRESHOLD,
+                    emotional_weight: 10,
                 },
             ]
             const result = VectorEngine.format_past(past, "")
@@ -131,7 +123,7 @@ describe("VectorEngine", () => {
                     text: "He betrayed me.",
                     dynamics_tags: [],
                     vector_tags: [],
-                    emotional_weight: CONFIG.DYNAMICS.WEIGHT_MAJOR_THRESHOLD,
+                    emotional_weight: 8,
                 },
             ]
             const result = VectorEngine.format_past(past, "")
@@ -144,7 +136,7 @@ describe("VectorEngine", () => {
                     text: "Met a traveler.",
                     dynamics_tags: [],
                     vector_tags: [],
-                    emotional_weight: CONFIG.DYNAMICS.WEIGHT_SIGNIFICANT_THRESHOLD - 1,
+                    emotional_weight: 6,
                 },
             ]
             const result = VectorEngine.format_past(past, "")
@@ -157,7 +149,7 @@ describe("VectorEngine", () => {
                     text: "Find the key.",
                     dynamics_tags: [],
                     vector_tags: [],
-                    emotional_weight: CONFIG.DYNAMICS.WEIGHT_SIGNIFICANT_THRESHOLD,
+                    emotional_weight: 7,
                 },
             ]
             const result = VectorEngine.format_future(future, "")
@@ -171,13 +163,13 @@ describe("VectorEngine", () => {
         })
 
         it("supports vector_label option to return label only", () => {
-            const past = [{ text: "Strict content.", emotional_weight: CONFIG.DYNAMICS.WEIGHT_CORE_THRESHOLD }]
+            const past = [{ text: "Strict content.", emotional_weight: 10 }]
             const result = VectorEngine.format_past(past, "", 1, 0, { vector_text: false, vector_label: true })
             expect(result).toBe("CORE_VECTOR")
         })
 
         it("defaults to full [LABEL]: text format if no options provided", () => {
-            const past = [{ text: "Merged content.", emotional_weight: CONFIG.DYNAMICS.WEIGHT_SIGNIFICANT_THRESHOLD }]
+            const past = [{ text: "Merged content.", emotional_weight: 7 }]
             const result = VectorEngine.format_past(past, "", 1, 0)
             expect(result).toBe("[VECTOR]: Merged content.")
         })

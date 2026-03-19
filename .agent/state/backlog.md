@@ -1,6 +1,6 @@
 # 📋 Active AI Backlog
-*Last Swept: 2026-03-19T05:22:33.348Z*
+*Last Swept: 2026-03-19T07:05:52+01:00*
 
-- [ ] **src/core/intelligence/DynamicsEngine.js:33**: Externalize semantic dictionary for runtime configuration.
-- [ ] **src/core/intelligence/DynamicsEngine.js:317**: Personality-weighted Bayesian priors for character-specific skepticism.
-- [ ] **src/core/intelligence/DynamicsEngine.js:352**: Implement character personality weighting (e.g. Stoic vs Volatile).
+- [ ] **narrative-bridge**: Connect the unified Dynamics output to the Narrative Director for automatic scene complication.
+- [ ] **composite-laws**: Review and rebalance the mathematical physics for composite edge cases (e.g., AFFINITY_CASCADE, EVENT_HORIZON).
+- [x] **ai-fractal-sync**: Unified 'ai' vs 'fractal' nomenclature and restored physics signaling.

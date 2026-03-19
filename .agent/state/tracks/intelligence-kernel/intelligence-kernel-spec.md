@@ -12,6 +12,6 @@ Establish the foundational asynchronous loop and context hydration engine.
 
 ## Functional Requirements
 
-- [ ] Implement ContextBroker.js.
-- [ ] Create turn-based Simulation Loop.
-- [ ] Integrate Dexie.js persistence.
+- [x] Implement ContextBroker.js.
+- [x] Create turn-based Simulation Loop.
+- [x] Integrate Dexie.js persistence.

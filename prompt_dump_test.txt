@@ -12,7 +12,7 @@ Entities: AI, USER, FRACTAL
 [PHASE 2: SIMULATION SNAPSHOT]
 Signal Prompts: None
 Flags: None
-Dynamics: {"intensity":50,"chaos":58,"openness":50,"affinity":50}
+Dynamics: undefined
 
 ========================================================================
 

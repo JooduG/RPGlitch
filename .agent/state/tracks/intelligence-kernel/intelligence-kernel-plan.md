@@ -2,12 +2,12 @@
 
 ## Phase 1: Context & State Foundation
 
-- [ ] Task: Scaffold ContextBroker.js
-    - [ ] Write Unit Tests.
-    - [ ] Implement aggregation logic.
-- [ ] Task: Define Simulation Loop
-    - [ ] Write Integration Tests.
-    - [ ] Implement loop controller.
-- [ ] Task: Svelte 5 Integration
-    - [ ] Refactor stores to Runes.
-    - [ ] Implement auto-save effect.
+- [x] Task: Scaffold ContextBroker.js
+    - [x] Write Unit Tests.
+    - [x] Implement aggregation logic.
+- [x] Task: Define Simulation Loop
+    - [x] Write Integration Tests.
+    - [x] Implement loop controller.
+- [x] Task: Svelte 5 Integration
+    - [x] Refactor stores to Runes.
+    - [x] Implement auto-save effect.

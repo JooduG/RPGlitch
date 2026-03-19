@@ -1,21 +1,13 @@
-# Handoff: Dynamics Engine Refinement & Vector Consolidation
+# Next Prompt: Unified Dynamics & Nomenclature Sync Complete
 
-The **Vector Engine Consolidation** is complete. All narrative taxonomy and archetypes have been merged into `VectorEngine.js` and currently **commented out** as requested to maintain structural focus.
+## Status Check
+- **Nomenclature**: Strictly `ai` and `fractal` across Engine, State, and UI.
+- **Physics**: Signal prompting restored; gravity math fixed and verified via tests.
+- **Tests**: `DynamicsEngine.test.js` (15/15 PASS).
 
-## Recent Changes
-- **`VECTOR_TEMPLATE`**: Updated with a new `label` field for structural tracking.
-- **Factory**: `create_vector()` now initializes with an empty `label`.
-- **Git Hygiene**: Staged, committed, and pushed all consolidated changes; resolved `backlog.md` merge conflicts.
+## Active Baton
+- Move to the **narrative-bridge** track.
+- Goal: Connect the `signal_prompts` and flags from `DynamicsEngine` to the `NarrativeDirector` (to be implemented or refactored) to trigger automatic scene complications based on physics thresholds.
 
-## Next Step
-Resuming the **Dynamics Engine** track.
-- **Objective**: Implement personality-weighted Bayesian priors in `DynamicsEngine.js`.
-- **Context**: Focus on `Personality-weighted Bayesian priors for character-specific skepticism` (Backlog #312).
-- **Architecture**: The `ContextBroker` already passes `raw.dynamics` into the `IntelligencePayload` for physics calculation. Use this.
-
-## Files
-- `src/core/intelligence/VectorEngine.js` (Reference)
-- `src/core/intelligence/DynamicsEngine.js` (Target)
-- `src/core/intelligence/IntelligenceKernel.js` (Context)
-
-Relay active.
+## Checkpoint
+The 'Unified Dynamics Architecture' is now structurally complete and linguistically consistent.

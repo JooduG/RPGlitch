@@ -121,7 +121,7 @@ export function create_vector(text) {
         timestamp: Date.now(),
         label: "",
         text,
-        emotional_weight: DynamicsEngine.evaluate_weight(reflexes),
+        emotional_weight: 5,
         dynamics_tags: reflexes.map((r) => ({ id: r.id, word: r.trigger_word })),
         vector_tags: [],
     }
@@ -164,7 +164,7 @@ export function score_vectors(vectors, input) {
 
     const scored = vectors.map((v) => {
         // ⚖️ Relevance Score: Start with the inherent Emotional Weight.
-        let relevance = v.emotional_weight ?? CONFIG.DYNAMICS.WEIGHT_BASELINE
+        let relevance = v.emotional_weight ?? 5
 
         // 🛡️ Dynamics & Trigger Match:
         // +1 for matching the "vibe" (ID), +2 for matching the exactly triggered word.
@@ -225,8 +225,8 @@ export function format_past(vectors, input, limit = 3, offset = 0, options = { v
     const reversed = [...ranked].reverse()
     return reversed
         .map((v) => {
-            const weight = v.emotional_weight ?? CONFIG.DYNAMICS.WEIGHT_BASELINE
-            const label = weight >= CONFIG.DYNAMICS.WEIGHT_CORE_THRESHOLD ? "CORE_VECTOR" : weight >= CONFIG.DYNAMICS.WEIGHT_MAJOR_THRESHOLD ? "MAJOR_VECTOR" : weight >= CONFIG.DYNAMICS.WEIGHT_SIGNIFICANT_THRESHOLD ? "VECTOR" : "VECTOR_ECHO"
+            const weight = v.emotional_weight ?? 5
+            const label = weight >= 10 ? "CORE_VECTOR" : weight >= 8 ? "MAJOR_VECTOR" : weight >= 7 ? "VECTOR" : "VECTOR_ECHO"
 
             if (show_label && show_text) return `[${label}]: ${v.text}`
             if (show_label) return label
@@ -255,11 +255,11 @@ export function format_future(vectors, input, limit = 3, offset = 0, options = {
     const reversed = [...ranked].reverse()
     return reversed
         .map((v) => {
-            const weight = v.emotional_weight ?? CONFIG.DYNAMICS.WEIGHT_BASELINE
+            const weight = v.emotional_weight ?? 5
             let label
-            if (weight >= CONFIG.DYNAMICS.WEIGHT_CORE_THRESHOLD) label = "PIVOTAL_VECTOR"
-            else if (weight >= CONFIG.DYNAMICS.WEIGHT_MAJOR_THRESHOLD) label = "MAJOR_VECTOR"
-            else if (weight >= CONFIG.DYNAMICS.WEIGHT_SIGNIFICANT_THRESHOLD) label = "VECTOR"
+            if (weight >= 10) label = "PIVOTAL_VECTOR"
+            else if (weight >= 8) label = "MAJOR_VECTOR"
+            else if (weight >= 7) label = "VECTOR"
             else label = "VECTOR_IMPULSE"
 
             if (show_label && show_text) return `[${label}]: ${v.text}`

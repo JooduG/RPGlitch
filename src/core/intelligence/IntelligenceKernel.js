@@ -58,7 +58,8 @@ export const IntelligenceKernel = {
         const { system, meta } = PromptBuilder.synthesize(payload, snapshot)
 
         // 5. UPDATE: Synchronize runtime physics
-        runtime.physics = snapshot.dynamics
+        runtime.ai = snapshot.ai.dynamics
+        runtime.fractal = snapshot.fractal.dynamics
 
         app.log("Intelligence Kernel: Context hydrated. Physics resolved. Routing to LLM...", "system")
 
@@ -74,7 +75,8 @@ export const IntelligenceKernel = {
         const character_name = role === "ai" ? (runtime.active_ai?.name || "AI") : (runtime.active_fractal?.name || "Fractal")
         
         await Session.log_turn(response, character_name, role, { 
-            dynamics: meta.dynamics, 
+            dynamics: meta.ai, 
+            fractal_dynamics: meta.fractal,
             flags: meta.flags, 
             signal_prompts: meta.signal_prompts 
         })
@@ -141,5 +143,3 @@ export const IntelligenceKernel = {
         }
     }
 }
-
-
