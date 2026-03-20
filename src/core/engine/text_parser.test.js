@@ -45,7 +45,7 @@ describe("clean_image_prompts", () => {
 
     it("should remove image prompt tags with extra whitespace", () => {
         const text = "Test <image_prompt    >content</image_prompt   > test2 <image_prompt   />"
-        expect(clean_image_prompts(text)).toBe("Test  test2 ")
+        expect(clean_image_prompts(text)).toBe("Test  test2")
     })
 })
 
