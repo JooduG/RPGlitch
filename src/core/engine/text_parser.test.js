@@ -154,3 +154,75 @@ describe("parse_scene_header", () => {
         })
     })
 })
+
+describe("parse_scene_header additional edge cases", () => {
+    it("should handle completely empty header structure without brackets", () => {
+        const text = "『 』\nContent"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "『 』\nContent",
+            header: null,
+        })
+    })
+
+    it("should handle headers where inner contents contain the separator character", () => {
+        const text = "『 [City · Center] · [12:00] · [Clear] 』\nContent"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "Content",
+            header: {
+                location: "City · Center",
+                time: "12:00",
+                weather: "Clear",
+            },
+        })
+    })
+
+    it("should handle headers where inner contents contain brackets", () => {
+        const text = "『 [Area [51]] · [Time [Unknown]] · [Weather [Redacted]] 』\nContent"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "Content",
+            header: {
+                location: "Area [51]",
+                time: "Time [Unknown]",
+                weather: "Weather [Redacted]",
+            },
+        })
+    })
+
+    it("should handle different types of whitespace (newlines, tabs) within the header", () => {
+        const text = "『\t[\nLocation\n]\t·\t[\tTime\t]\n·\t[\nWeather\n]\t』\nContent"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "Content",
+            header: {
+                location: "Location",
+                time: "Time",
+                weather: "Weather",
+            },
+        })
+    })
+
+    it("should handle header at the end of the text if it is the only content", () => {
+        const text = "『 [Location] · [Time] · [Weather] 』"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "",
+            header: {
+                location: "Location",
+                time: "Time",
+                weather: "Weather",
+            },
+        })
+    })
+
+    it("should return null header if it is not at the very beginning of string", () => {
+        const text = "Hello\n『 [Location] · [Time] · [Weather] 』"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "Hello\n『 [Location] · [Time] · [Weather] 』",
+            header: null,
+        })
+    })
+})
