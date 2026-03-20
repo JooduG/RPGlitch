@@ -27,9 +27,15 @@ export const seedPremades = async () => {
         const existing = await db.entities.toArray()
         const toAdd = []
 
+        const existingIds = new Set()
+        for (const e of existing) {
+            if (e.id != null) existingIds.add(e.id)
+            if (e.originId != null) existingIds.add(e.originId)
+        }
+
         for (const bp of premade.entities) {
             // Check by ID or originId to prevent duplicates of factory stock
-            const hasChild = existing.some((e) => e.id === bp.id || e.originId === bp.id)
+            const hasChild = existingIds.has(bp.id)
 
             if (!hasChild) {
                 // Trust the Normalizer to handle flattening and type-aware dynamics
