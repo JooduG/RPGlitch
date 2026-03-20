@@ -62,7 +62,7 @@ describe("LlmService - generate network errors", () => {
     })
 
     it("should throw Perchance AI plugin not available if window.ai is missing", async () => {
-        delete global.window.ai
+        vi.stubGlobal('ai', undefined)
         await expect(LlmService.generate(payload)).rejects.toThrow("Perchance AI plugin not available.")
     })
 
