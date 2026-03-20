@@ -1,6 +1,8 @@
 <script>
     import Button from "@ui/atoms/Button.svelte"
 
+    import { parse_markdown } from "@ui/utils/markdown.js"
+
     let { vector, is_editing, on_update, on_delete, signature_color, unit_label = "Vector" } = $props()
 
     // Create a stable local state for editing
@@ -15,38 +17,6 @@
     function handle_input(e) {
         local_text = e.target.value
         on_update(local_text)
-    }
-
-    function parse_markdown(text) {
-        if (!text) return []
-
-        let paragraphs = text.split(/\n\s*\n/)
-
-        return paragraphs.map((p) => {
-            let normalized = p.replace(/\n/g, " ")
-            let tokens = []
-            const regex = /\*\*\*([\s\S]*?)\*\*\*|\*\*([\s\S]*?)\*\*|\*([\s\S]*?)\*/g
-            let lastIndex = 0
-            let match
-
-            while ((match = regex.exec(normalized)) !== null) {
-                if (match.index > lastIndex) {
-                    tokens.push({ type: "text", content: normalized.substring(lastIndex, match.index) })
-                }
-                if (match[1] !== undefined) {
-                    tokens.push({ type: "strong-em", content: match[1] })
-                } else if (match[2] !== undefined) {
-                    tokens.push({ type: "strong", content: match[2] })
-                } else if (match[3] !== undefined) {
-                    tokens.push({ type: "em", content: match[3] })
-                }
-                lastIndex = match.index + match[0].length
-            }
-            if (lastIndex < normalized.length) {
-                tokens.push({ type: "text", content: normalized.substring(lastIndex) })
-            }
-            return tokens
-        })
     }
 </script>
 
