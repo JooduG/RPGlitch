@@ -2,14 +2,25 @@ import { describe, expect, test, vi } from "vitest"
 import { Security } from "./security.js"
 
 const sanitizeHtml = Security.sanitize
+const sanitizeToFragment = Security.sanitizeToFragment
 
 // Mock DOMPurify for sanitizeHtml tests
 vi.mock("dompurify", () => ({
     default: {
-        sanitize: vi.fn((input) => {
-            if (typeof input !== "string") return String(input || "")
+        sanitize: vi.fn((input, options) => {
+            let str = typeof input !== "string" ? String(input || "") : input
             // Simple mock logic for stripping script tags and onerror in unit tests
-            return input.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "").replace(/onerror\s*=\s*["']?([^"']+)["']?/gim, "")
+            str = str.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "").replace(/onerror\s*=\s*["']?([^"']+)["']?/gim, "")
+
+            if (options && options.RETURN_DOM_FRAGMENT) {
+                // Mock a document fragment with some simple properties for tests
+                return {
+                    nodeType: 11, // DocumentFragment
+                    textContent: str,
+                    __isMockFragment: true,
+                }
+            }
+            return str
         }),
     },
 }))
@@ -43,6 +54,22 @@ describe("validation.js", () => {
 
         test("handles empty string", () => {
             expect(sanitizeHtml("")).toBe("")
+        })
+    })
+
+    describe("sanitizeToFragment()", () => {
+        test("returns a DocumentFragment-like object", () => {
+            const input = "<p>Hello</p>"
+            const output = sanitizeToFragment(input)
+            expect(output.nodeType).toBe(11) // DocumentFragment nodeType
+            expect(output.__isMockFragment).toBe(true)
+        })
+
+        test("removes script tags in fragment text content", () => {
+            const input = '<p>Hello</p><script>alert("XSS")</script>'
+            const output = sanitizeToFragment(input)
+            expect(output.textContent).not.toContain("<script>")
+            expect(output.textContent).toContain("<p>Hello</p>")
         })
     })
 })
