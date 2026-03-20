@@ -68,8 +68,8 @@ describe("Database db.js", () => {
             await init();
         } catch(e) {}
 
-        await promise;
-        process.removeListener('unhandledRejection', handler);
+        await promise; // Assert: Should resolve to undefined if no error is unhandled
+        expect(handler).toBeUndefined();
 
         const hasPopulateError = consoleErrorSpy.mock.calls.some(call =>
             call[0] === "[Data] Failed to populate default settings:"
