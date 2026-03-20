@@ -136,7 +136,7 @@ describe("parse_scene_header", () => {
         })
     })
 
-    it("should return null header for malformed brackets", () => {
+    it("should return null header for a missing opening bracket", () => {
         const text = "『 [Location] · Time] · [Weather] 』\nContent"
         const result = parse_scene_header(text)
         expect(result).toEqual({
