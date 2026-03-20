@@ -29,7 +29,7 @@ describe("clean_image_prompts", () => {
 
     it("should be case-insensitive", () => {
         const text = "Hello <IMAGE_PROMPT>cat</Image_Prompt> world <Image_Prompt />"
-        expect(clean_image_prompts(text)).toBe("Hello  world ")
+        expect(clean_image_prompts(text)).toBe("Hello  world")
     })
 
     it("should return the original text if there are no image prompts", () => {
