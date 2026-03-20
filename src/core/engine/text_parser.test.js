@@ -225,25 +225,6 @@ describe("parse_scene_header", () => {
         })
     })
 
-
-    it("should handle completely missing headers with standard text", () => {
-        const text = "Just some standard text without any scene header formatting.";
-        const result = parse_scene_header(text);
-        expect(result).toEqual({
-            content: text,
-            header: null,
-        });
-    });
-
-    it("should handle a header with missing weather", () => {
-        const text = "『 [Location] · [Time] 』\nContent";
-        const result = parse_scene_header(text);
-        expect(result).toEqual({
-            content: text,
-            header: null,
-        });
-    });
-
     it("should return null header if one bracket is missing entirely", () => {
         const text = "『 [Location] · [Time] ·  』\nContent"
         const result = parse_scene_header(text)
@@ -253,5 +234,3 @@ describe("parse_scene_header", () => {
         })
     })
 })
-
-

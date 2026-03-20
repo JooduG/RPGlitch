@@ -157,29 +157,22 @@ export const stories = {
         try {
             const allStories = await db.stories.orderBy("updated_at").reverse().toArray()
 
-            // Extract all unique fractal IDs
-            const fractalIds = [...new Set(allStories.map((s) => s.fractal_id).filter(Boolean))]
+            return await Promise.all(
+                allStories.map(async (story) => {
+                    const fractal = await db.entities.get(story.fractal_id)
 
-            // Fetch all related fractals in a single query
-            const fractals = await db.entities.where("id").anyOf(fractalIds).toArray()
-
-            // Create a lookup map for O(1) access
-            const fractalMap = new Map(fractals.map((f) => [f.id, f]))
-
-            return allStories.map((story) => {
-                const fractal = fractalMap.get(story.fractal_id)
-
-                // Simple, flat return. No .visuals nesting here.
-                return {
-                    id: story.id,
-                    title: story.title || "Untitled Fragment",
-                    state: story.isConcluded ? "concluded" : "active",
-                    lastPlayed: story.updated_at,
-                    fractal_avatar: fractal?.profile_picture || "",
-                    fractal_name: fractal?.name || "The Void",
-                    signature_color: fractal?.signature_color || "default",
-                }
-            })
+                    // Simple, flat return. No .visuals nesting here.
+                    return {
+                        id: story.id,
+                        title: story.title || "Untitled Fragment",
+                        state: story.isConcluded ? "concluded" : "active",
+                        lastPlayed: story.updated_at,
+                        fractal_avatar: fractal?.profile_picture || "",
+                        fractal_name: fractal?.name || "The Void",
+                        signature_color: fractal?.signature_color || "default",
+                    }
+                })
+            )
         } catch (err) {
             error("Archive Failure: Failed to list narrative records.", err)
             return []
