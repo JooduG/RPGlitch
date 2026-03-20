@@ -49,9 +49,9 @@ describe("parse_scene_header", () => {
         expect(result).toEqual({
             content: "Content",
             header: {
-                location: " Location ",
-                time: " Time ",
-                weather: " Weather ",
+                location: "Location",
+                time: "Time",
+                weather: "Weather",
             },
         })
     })
