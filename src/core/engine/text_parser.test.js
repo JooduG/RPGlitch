@@ -3,51 +3,25 @@ import { parse_scene_header, clean_image_prompts } from "./text_parser.js"
 
 
 describe("clean_image_prompts", () => {
-    it("should remove standard <image_prompt> tags and their content", () => {
-        const text = "Hello <image_prompt>a cat</image_prompt> world"
-        expect(clean_image_prompts(text)).toBe("Hello  world")
-    })
+    const testCases = [
+        { description: "null input", input: null, expected: "" },
+        { description: "undefined input", input: undefined, expected: "" },
+        { description: "an empty string", input: "", expected: "" },
+        { description: "text with no prompts", input: "Just some normal text with no prompts.", expected: "Just some normal text with no prompts." },
+        { description: "a standard <image_prompt> block", input: "Hello <image_prompt>a cat</image_prompt> world", expected: "Hello  world" },
+        { description: "a self-closing <image_prompt /> tag", input: "Hello <image_prompt /> world", expected: "Hello  world" },
+        { description: "a self-closing tag with attributes", input: 'Hello <image_prompt src="cat.png" alt="A cat" /> world', expected: "Hello  world" },
+        { description: "multiple image prompts", input: "Start <image_prompt>one</image_prompt> middle <image_prompt /> end", expected: "Start  middle  end" },
+        { description: "newlines inside the image prompt tag", input: "Line 1\n<image_prompt>\na cute\ncat\n</image_prompt>\nLine 2", expected: "Line 1\n\nLine 2" },
+        { description: "case-insensitive tags", input: "Hello <IMAGE_PROMPT>cat</Image_Prompt> world <Image_Prompt />", expected: "Hello  world" },
+        { description: "tags with extra whitespace", input: "Test <image_prompt    >content</image_prompt   > test2 <image_prompt   />", expected: "Test  test2" },
+        { description: "a non-self-closing tag with attributes", input: 'Hello <image_prompt src="cat.png" alt="A cat">cute cat</image_prompt> world', expected: "Hello  world" },
+        { description: "nested image prompts", input: "Start <image_prompt>Outer <image_prompt>Inner</image_prompt> Outer-End</image_prompt> End", expected: "Start  End" },
+    ];
 
-    it("should remove self-closing <image_prompt /> tags", () => {
-        const text = "Hello <image_prompt /> world"
-        expect(clean_image_prompts(text)).toBe("Hello  world")
-    })
-
-    it("should remove self-closing tags with attributes", () => {
-        const text = 'Hello <image_prompt src="cat.png" alt="A cat" /> world'
-        expect(clean_image_prompts(text)).toBe("Hello  world")
-    })
-
-    it("should remove multiple image prompts", () => {
-        const text = "Start <image_prompt>one</image_prompt> middle <image_prompt /> end"
-        expect(clean_image_prompts(text)).toBe("Start  middle  end")
-    })
-
-    it("should handle newlines inside the image prompt tag", () => {
-        const text = "Line 1\n<image_prompt>\na cute\ncat\n</image_prompt>\nLine 2"
-        expect(clean_image_prompts(text)).toBe("Line 1\n\nLine 2")
-    })
-
-    it("should be case-insensitive", () => {
-        const text = "Hello <IMAGE_PROMPT>cat</Image_Prompt> world <Image_Prompt />"
-        expect(clean_image_prompts(text)).toBe("Hello  world")
-    })
-
-    it("should return the original text if there are no image prompts", () => {
-        const text = "Just some normal text with no prompts."
-        expect(clean_image_prompts(text)).toBe("Just some normal text with no prompts.")
-    })
-
-    it("should handle empty strings, null, and undefined gracefully", () => {
-        expect(clean_image_prompts("")).toBe("")
-        expect(clean_image_prompts(null)).toBe("")
-        expect(clean_image_prompts(undefined)).toBe("")
-    })
-
-    it("should remove image prompt tags with extra whitespace", () => {
-        const text = "Test <image_prompt    >content</image_prompt   > test2 <image_prompt   />"
-        expect(clean_image_prompts(text)).toBe("Test  test2")
-    })
+    it.each(testCases)("should handle $description", ({ input, expected }) => {
+        expect(clean_image_prompts(input)).toBe(expected);
+    });
 })
 
 describe("parse_scene_header", () => {
@@ -281,41 +255,3 @@ describe("parse_scene_header", () => {
 })
 
 
-describe("clean_image_prompts", () => {
-    it("should return empty string for null, undefined, or empty input", () => {
-        expect(clean_image_prompts(null)).toBe("")
-        expect(clean_image_prompts(undefined)).toBe("")
-        expect(clean_image_prompts("")).toBe("")
-    })
-
-    it("should return the original text if there are no image prompts", () => {
-        const text = "This is a normal text."
-        expect(clean_image_prompts(text)).toBe(text)
-    })
-
-    it("should remove normal <image_prompt> blocks", () => {
-        const text = "Before <image_prompt>Some image prompt</image_prompt> After"
-        expect(clean_image_prompts(text)).toBe("Before  After")
-    })
-
-    it("should remove self-closing <image_prompt/> tags", () => {
-        const text = "Before <image_prompt url='img.png' /> After"
-        expect(clean_image_prompts(text)).toBe("Before  After")
-    })
-
-    it("should remove multiline <image_prompt> blocks", () => {
-        const text = "Before <image_prompt>\nLine 1\nLine 2\n</image_prompt> After"
-        expect(clean_image_prompts(text)).toBe("Before  After")
-    })
-
-    it("should remove multiple image prompts in a single string", () => {
-        const text = "1 <image_prompt>first</image_prompt> 2 <image_prompt/> 3"
-        expect(clean_image_prompts(text)).toBe("1  2  3")
-    })
-
-    it("should be case-insensitive when removing tags", () => {
-        const text = "Before <ImAgE_PrOmPt>Some prompt</IMAGE_PROMPT> After <Image_Prompt /> End"
-        expect(clean_image_prompts(text)).toBe("Before  After  End")
-
-    })
-})

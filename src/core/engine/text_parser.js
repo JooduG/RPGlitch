@@ -24,7 +24,14 @@ export function parse_think_block(text) {
  */
 export function clean_image_prompts(text) {
     if (!text) return ""
-    return text.replace(/<image_prompt[^>]*>[\s\S]*?<\/image_prompt\s*>|<image_prompt[^>]*\/>/gi, "").trim()
+    let previous = ""
+    let current = text
+    const regex = /<image_prompt[^>]*>(?:(?!<image_prompt)[\s\S])*?<\/image_prompt\s*>|<image_prompt[^>]*\/>/gi
+    while (previous !== current) {
+        previous = current
+        current = current.replace(regex, "")
+    }
+    return current.trim()
 }
 
 /**

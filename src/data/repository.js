@@ -28,10 +28,9 @@ export const seedPremades = async () => {
         const toAdd = []
 
         const existingIds = new Set()
-        for (let i = 0; i < existing.length; i++) {
-            const e = existing[i]
-            if (e.id != null) existingIds.add(e.id)
-            if (e.originId != null) existingIds.add(e.originId)
+        for (const { id, originId } of existing) {
+            if (id != null) existingIds.add(id)
+            if (originId != null) existingIds.add(originId)
         }
 
         for (const bp of premade.entities) {
