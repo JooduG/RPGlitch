@@ -248,4 +248,17 @@ describe("clean_image_prompts", () => {
         const text = "Start <IMAGE_PROMPT>A dark forest</image_Prompt> <iMaGe_PrOmPt /> End"
         expect(clean_image_prompts(text)).toBe("Start   End")
     })
+
+    it("should remove <image_prompt> blocks with attributes", () => {
+        const text = "Start <image_prompt src='test.png'>A dark forest</image_prompt> End"
+        expect(clean_image_prompts(text)).toBe("Start  End")
+    })
+
+    it("should handle nested <image_prompt> blocks by removing the outermost block", () => {
+        const text = "Before <image_prompt>outer<image_prompt>inner</image_prompt></image_prompt> After"
+        // This test will currently fail, revealing a bug in the parsing logic.
+        // The current output is "Before </image_prompt> After".
+        // The expected behavior is to remove the entire nested structure.
+        expect(clean_image_prompts(text)).toBe("Before  After")
+    })
 })
