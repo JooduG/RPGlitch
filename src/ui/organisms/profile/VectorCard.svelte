@@ -1,6 +1,5 @@
 <script>
     import Button from "@ui/atoms/Button.svelte"
-    import DOMPurify from "dompurify"
 
     let { vector, is_editing, on_update, on_delete, signature_color, unit_label = "Vector" } = $props()
 
@@ -18,13 +17,36 @@
         on_update(local_text)
     }
 
-    function render_markdown(text) {
-        if (!text) return ""
-        let html = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-        html = html.replace(/\*(.*?)\*/g, "<em>$1</em>")
-        html = html.replace(/\n\s*\n/g, "<br><br>")
-        html = html.replace(/\n/g, " ")
-        return DOMPurify.sanitize(html)
+    function parse_markdown(text) {
+        if (!text) return []
+
+        let paragraphs = text.split(/\n\s*\n/)
+
+        return paragraphs.map((p) => {
+            let normalized = p.replace(/\n/g, " ")
+            let tokens = []
+            const regex = /\*\*\*([\s\S]*?)\*\*\*|\*\*([\s\S]*?)\*\*|\*([\s\S]*?)\*/g
+            let lastIndex = 0
+            let match
+
+            while ((match = regex.exec(normalized)) !== null) {
+                if (match.index > lastIndex) {
+                    tokens.push({ type: "text", content: normalized.substring(lastIndex, match.index) })
+                }
+                if (match[1] !== undefined) {
+                    tokens.push({ type: "strong-em", content: match[1] })
+                } else if (match[2] !== undefined) {
+                    tokens.push({ type: "strong", content: match[2] })
+                } else if (match[3] !== undefined) {
+                    tokens.push({ type: "em", content: match[3] })
+                }
+                lastIndex = match.index + match[0].length
+            }
+            if (lastIndex < normalized.length) {
+                tokens.push({ type: "text", content: normalized.substring(lastIndex) })
+            }
+            return tokens
+        })
     }
 </script>
 
@@ -42,8 +64,21 @@
         {:else}
             <div class="display-area">
                 <div class="content">
-                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                    {@html render_markdown(local_text)}
+                    {#each parse_markdown(local_text) as paragraph, i (i)}
+                        <p class="markdown-paragraph">
+                            {#each paragraph as token, j (j)}
+                                {#if token.type === "strong"}
+                                    <strong>{token.content}</strong>
+                                {:else if token.type === "strong-em"}
+                                    <strong><em>{token.content}</em></strong>
+                                {:else if token.type === "em"}
+                                    <em>{token.content}</em>
+                                {:else}
+                                    {token.content}
+                                {/if}
+                            {/each}
+                        </p>
+                    {/each}
                 </div>
             </div>
         {/if}
@@ -145,5 +180,12 @@
         line-height: 1;
         font-weight: 800;
         margin-bottom: 2px;
+    }
+    .display-area .content .markdown-paragraph {
+        margin: 0;
+    }
+
+    .display-area .content .markdown-paragraph + .markdown-paragraph {
+        margin-top: var(--spacing-m);
     }
 </style>
