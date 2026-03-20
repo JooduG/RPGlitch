@@ -159,11 +159,11 @@ export const stories = {
             // Fetch all related fractals in a single query
             const fractals = await db.entities.where("id").anyOf(fractalIds).toArray()
 
-            // Create a lookup dictionary for O(1) access
-            const fractalMap = Object.fromEntries(fractals.map((f) => [f.id, f]))
+            // Create a lookup map for O(1) access
+            const fractalMap = new Map(fractals.map((f) => [f.id, f]))
 
             return allStories.map((story) => {
-                const fractal = fractalMap[story.fractal_id]
+                const fractal = fractalMap.get(story.fractal_id)
 
                 // Simple, flat return. No .visuals nesting here.
                 return {
