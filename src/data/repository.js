@@ -27,7 +27,11 @@ export const seedPremades = async () => {
         const existing = await db.entities.toArray()
         const toAdd = []
 
-        const existingIds = new Set(existing.flatMap((e) => [e.id, e.originId]).filter((id) => id != null))
+        const existingIds = existing.reduce((acc, { id, originId }) => {
+            if (id != null) acc.add(id);
+            if (originId != null) acc.add(originId);
+            return acc;
+        }, new Set());
 
         for (const bp of premade.entities) {
             // Check by ID or originId to prevent duplicates of factory stock

@@ -31,10 +31,11 @@ class PerchanceBridge {
                 description: "A phantom entity manifested for testing purposes.",
             }
         }
+        const ocChar = window.oc.character;
         return {
             name: "Unknown",
             description: "",
-            .../** @type {any} */ (window.oc.character || {}),
+            .../** @type {any} */ (typeof ocChar === 'object' && ocChar !== null ? ocChar : {}),
         }
     }
 
@@ -52,6 +53,9 @@ class PerchanceBridge {
             return
         }
         try {
+            if (!window.oc.thread) {
+                throw new TypeError("window.oc.thread is undefined");
+            }
             window.oc.thread.on(event, callback)
         } catch (err) {
             console.error(`[Security:Bridge] Failed to attach listener for '${event}':`, err)
@@ -64,7 +68,7 @@ class PerchanceBridge {
      */
     get customData() {
         if (this._mockMode) return {}
-        return window.oc.thread.customData || {}
+        return window.oc?.thread?.customData || {}
     }
 }
 
