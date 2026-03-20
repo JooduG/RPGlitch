@@ -153,4 +153,61 @@ describe("parse_scene_header", () => {
             header: null,
         })
     })
+
+    it("should handle multiline content in the rest of the text", () => {
+        const text = "『 [Location] · [Time] · [Weather] 』\nLine 1\nLine 2\nLine 3"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "Line 1\nLine 2\nLine 3",
+            header: {
+                location: "Location",
+                time: "Time",
+                weather: "Weather",
+            },
+        })
+    })
+
+    it("should handle brackets containing only spaces", () => {
+        const text = "『 [   ] · [   ] · [   ] 』\nContent"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "Content",
+            header: {
+                location: "",
+                time: "",
+                weather: "",
+            },
+        })
+    })
+
+    it("should parse correctly with absolutely no extra spaces around tokens", () => {
+        const text = "『[Location]·[Time]·[Weather]』Content"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "Content",
+            header: {
+                location: "Location",
+                time: "Time",
+                weather: "Weather",
+            },
+        })
+    })
+
+    it("should return null header if text is just spaces", () => {
+        const text = "    "
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "    ",
+            header: null,
+        })
+    })
+
+    it("should return null header if one bracket is missing entirely", () => {
+        const text = "『 [Location] · [Time] ·  』\nContent"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "『 [Location] · [Time] ·  』\nContent",
+            header: null,
+        })
+    })
 })
