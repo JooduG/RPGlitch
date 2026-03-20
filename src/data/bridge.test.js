@@ -33,9 +33,7 @@ describe("PerchanceBridge", () => {
         })
 
         it("should log a warning on instantiation", () => {
-            expect(console.warn).toHaveBeenCalledWith(
-                "[Security:Bridge] Native 'oc' object not found. Running in Mock Mode."
-            )
+            expect(console.warn).toHaveBeenCalledWith("[Security:Bridge] Native 'oc' object not found. Running in Mock Mode.")
         })
 
         it("should not be ready", () => {
@@ -79,9 +77,9 @@ describe("PerchanceBridge", () => {
                 thread: {
                     on: vi.fn(),
                     customData: {
-                        foo: "bar"
-                    }
-                }
+                        foo: "bar",
+                    },
+                },
             }
             window.oc = mockOc
 
@@ -114,13 +112,12 @@ describe("PerchanceBridge", () => {
             })
         })
 
-
         it("should handle non-object character data gracefully", () => {
-            window.oc.character = 'invalid-data';
+            window.oc.character = "invalid-data"
             expect(bridge.character).toEqual({
-                name: 'Unknown',
-                description: '',
-            });
+                name: "Unknown",
+                description: "",
+            })
         })
 
         it("should delegate .on() to window.oc.thread.on", () => {
@@ -136,10 +133,7 @@ describe("PerchanceBridge", () => {
             })
 
             bridge.on("testEvent", () => {})
-            expect(console.error).toHaveBeenCalledWith(
-                "[Security:Bridge] Failed to attach listener for 'testEvent':",
-                error
-            )
+            expect(console.error).toHaveBeenCalledWith("[Security:Bridge] Failed to attach listener for 'testEvent':", error)
         })
 
         it("should return customData from window.oc.thread", () => {
@@ -152,19 +146,15 @@ describe("PerchanceBridge", () => {
         })
 
         it("should handle a missing 'thread' object gracefully for customData", () => {
-            window.oc.thread = undefined;
+            window.oc.thread = undefined
             // This currently throws, but should ideally return {}
-            expect(bridge.customData).toEqual({});
-        });
+            expect(bridge.customData).toEqual({})
+        })
 
         it("should handle a missing 'thread' object gracefully for .on()", () => {
-            window.oc.thread = undefined;
-            bridge.on('testEvent', () => {});
-            expect(console.error).toHaveBeenCalledWith(
-                `[Security:Bridge] Failed to attach listener for 'testEvent':`,
-                expect.any(TypeError)
-            );
-        });
-
+            window.oc.thread = undefined
+            bridge.on("testEvent", () => {})
+            expect(console.error).toHaveBeenCalledWith(`[Security:Bridge] Failed to attach listener for 'testEvent':`, expect.any(TypeError))
+        })
     })
 })

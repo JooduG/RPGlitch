@@ -298,9 +298,13 @@ export class DynamicsEngine {
 
         // 5. BAYESIAN SKEPTICISM (AI Only):
         // If the user tries to persuade or lie (NAIVETY trigger), we calculate how
-        // suspicious the AI should be based on its current Openness (Trust).
+        // suspicious the AI should be based on its current Openness (Trust) and its Personality Baseline.
         if (state.ai && state.ai.dynamics && state.ai.dynamics.openness !== undefined) {
-            const suspicion = DynamicsEngine._resolve_naivety(triggered, state.ai.dynamics.openness)
+            const ai_baselines = DynamicsEngine._get_baselines(state.ai)
+            const baseline_openness = ai_baselines.openness ?? d_phys.DYNAMICS_GRAVITY_BASELINE
+
+            const suspicion = DynamicsEngine._resolve_naivety(triggered, state.ai.dynamics.openness, baseline_openness)
+
             if (suspicion !== null) {
                 if (suspicion > d_phys.NAIVETY_THRESHOLD) {
                     state.signal_prompts.push(SIGNAL_PROMPTS.naivety.breach.text)
@@ -420,14 +424,17 @@ export class DynamicsEngine {
      * -------------------------------------------------------------------------
      * Calculates the "Suspicion Index".
      * Formula: Posterior distrust = 1 - (likelihood * prior / evidence_prob).
-     * High openness = High prior trust. Low openness = Low prior trust.
+     * Prior trust is a personality-weighted blend of current openness and baseline openness.
      */
-    static _resolve_naivety(reflexes, openness) {
+    static _resolve_naivety(reflexes, current_openness, baseline_openness = 50) {
         if (!Array.isArray(reflexes)) return null
         if (!reflexes.some((r) => r.id === "NAIVETY")) return null
 
-        // 1. Convert 0-100 openness into a 0.0-1.0 probability of "Prior Trust".
-        const prior_trust = Math.max(0.01, Math.min(0.99, openness / 100))
+        // 1. Personality-weighted Prior: Blend current state with core baseline trait.
+        const weighted_openness = (current_openness + baseline_openness) / 2
+
+        // Convert 0-100 openness into a 0.0-1.0 probability of "Prior Trust".
+        const prior_trust = Math.max(0.01, Math.min(0.99, weighted_openness / 100))
         const prior_distrust = 1.0 - prior_trust
 
         // 2. Assign Likelihoods: How likely is a "Persuasion" to be true if we trust vs distrust?
