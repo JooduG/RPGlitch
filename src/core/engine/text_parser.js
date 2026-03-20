@@ -24,7 +24,21 @@ export function parse_think_block(text) {
  */
 export function clean_image_prompts(text) {
     if (!text) return ""
-    return text.replace(/<image_prompt[\s\S]*?<\/image_prompt>/gi, "").replace(/<image_prompt[^>]*\/>/gi, "")
+    let result = text.replace(/<image_prompt[^>]*\/>/gi, "")
+
+    // Iteratively remove the innermost <image_prompt>...</image_prompt> pairs
+    let previous = ""
+    // Use a regex that matches <image_prompt...> followed by anything that DOES NOT contain <image_prompt
+    // and ends with </image_prompt>
+    // Since javascript regex doesn't support easy "does not contain substring", we can use a simpler loop:
+    while (previous !== result) {
+        previous = result
+        // matches opening tag, followed by characters not containing '<image_prompt', followed by closing tag
+        // Actually, we can just replace any occurrence of <image_prompt>...</image_prompt> where the inside has no <image_prompt>
+        // We can do this with: /<image_prompt[^>]*>(?:(?!<image_prompt)[\s\S])*?<\/image_prompt>/gi
+        result = result.replace(/<image_prompt[^>]*>(?:(?!<image_prompt)[\s\S])*?<\/image_prompt>/gi, "")
+    }
+    return result
 }
 
 /**
