@@ -1,5 +1,5 @@
 ---
-description: Reviews and stuff. 
+description: Reviews and stuff.
 ---
 
 # 04-review (The Vault & The Handoff)
@@ -34,7 +34,7 @@ description: Reviews and stuff.
 
 ### Phase 3: The Handoff Law (Anti-Amnesia Protocol)
 
-*You are strictly forbidden from clocking out without updating the state matrix. Never drop the baton.*
+_You are strictly forbidden from clocking out without updating the state matrix. Never drop the baton._
 
 1. **Update Tracks (Global)**: Overwrite `.agent/state/global.md` with a bulleted payload of completed tasks for this session. Append a summary of the session's deltas to `.agent/state/tracks.md`.
 2. **Sync Backlog**: Move completed items from WIP to DONE in `.agent/state/backlog.md`. Crucially, update this file with any **newly generated `#TODO-AI:` tags** discovered during the session.

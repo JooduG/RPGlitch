@@ -7,13 +7,7 @@
     import { quintOut } from "svelte/easing"
     import { fade, scale } from "svelte/transition"
 
-    let { 
-        title = "System Alert", 
-        message = "Notice", 
-        button_label = "OK", 
-        on_close = () => {}, 
-        open = $bindable(false) 
-    } = $props()
+    let { title = "System Alert", message = "Notice", button_label = "OK", on_close = () => {}, open = $bindable(false) } = $props()
 
     let dialog = $state()
     let ok_btn = $state()
@@ -85,7 +79,7 @@
 
     .security-modal {
         background: var(--surface-raised);
-        box-shadow: 
+        box-shadow:
             inset 0 0 0 1px var(--border-light),
             var(--shadow-xxl);
         border-radius: var(--border-radius-l);

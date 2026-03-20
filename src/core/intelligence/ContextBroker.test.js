@@ -17,14 +17,14 @@ vi.mock("@state/runtime.svelte.js", () => ({
         active_ai: {
             name: "AI",
             role: "Assistant",
-            eternal: { 
-                non_physical: "A mysterious helper.", 
-                physical: "Solid metal core." 
+            eternal: {
+                non_physical: "A mysterious helper.",
+                physical: "Solid metal core.",
             },
             present: {
                 non_physical: "Active and processing.",
-                physical: "Holographic shimmering form."
-            }
+                physical: "Holographic shimmering form.",
+            },
         },
         active_user: {
             name: "User",

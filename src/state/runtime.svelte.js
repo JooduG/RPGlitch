@@ -45,39 +45,71 @@ function createRuntimeStore() {
             const _turn = state.turn
             const _ai = ai_physics
             const _fractal = fractal_physics
-            
+
             if (state.ready && state.story_id) {
-                db.stories.update(state.story_id, {
-                    turn: _turn,
-                    last_played: Date.now(),
-                    ai_dynamics: $state.snapshot(_ai),
-                    fractal_dynamics: $state.snapshot(_fractal)
-                }).catch(err => console.error("[Data] Auto-save failed:", err))
+                db.stories
+                    .update(state.story_id, {
+                        turn: _turn,
+                        last_played: Date.now(),
+                        ai_dynamics: $state.snapshot(_ai),
+                        fractal_dynamics: $state.snapshot(_fractal),
+                    })
+                    .catch((err) => console.error("[Data] Auto-save failed:", err))
             }
         })
     })
 
     return {
         // --- GETTERS ---
-        get character() { return state.character },
-        get active_user() { return state.active_user },
-        get active_ai() { return state.active_ai },
-        get active_fractal() { return state.active_fractal },
-        get ai() { return ai_physics },
-        set ai(val) { ai_physics = val },
-        get fractal() { return fractal_physics },
-        set fractal(val) { fractal_physics = val },
-        get story() { return state.story },
-        get simulation_log() { return state.simulation_log },
-        get story_id() { return state.story_id },
+        get character() {
+            return state.character
+        },
+        get active_user() {
+            return state.active_user
+        },
+        get active_ai() {
+            return state.active_ai
+        },
+        get active_fractal() {
+            return state.active_fractal
+        },
+        get ai() {
+            return ai_physics
+        },
+        set ai(val) {
+            ai_physics = val
+        },
+        get fractal() {
+            return fractal_physics
+        },
+        set fractal(val) {
+            fractal_physics = val
+        },
+        get story() {
+            return state.story
+        },
+        get simulation_log() {
+            return state.simulation_log
+        },
+        get story_id() {
+            return state.story_id
+        },
         set story_id(id) {
             state.story_id = id
             state.story.active_id = id
         },
-        get is_ready() { return state.ready },
-        get turn() { return state.turn },
-        set turn(val) { state.turn = val },
-        get active_story() { return state.story_id ? state.story.by_id[state.story_id] : null },
+        get is_ready() {
+            return state.ready
+        },
+        get turn() {
+            return state.turn
+        },
+        set turn(val) {
+            state.turn = val
+        },
+        get active_story() {
+            return state.story_id ? state.story.by_id[state.story_id] : null
+        },
 
         // --- VECTOR API ---
         active_vector(role = "AI") {
@@ -134,18 +166,16 @@ function createRuntimeStore() {
                     const entry = await db.kv_settings.get("active_session_id")
                     if (entry?.value) state.story_id = entry.value
                     else return
-                } catch { return }
+                } catch {
+                    return
+                }
             }
 
             try {
                 const story = await db.stories.get(state.story_id)
                 if (!story) return
 
-                const [user_data, ai_data, fractal_data] = await Promise.all([
-                    entities.get("character", story.user_id),
-                    entities.get("character", story.ai_id || "unknown_ai"),
-                    entities.get("fractal", story.fractal_id)
-                ])
+                const [user_data, ai_data, fractal_data] = await Promise.all([entities.get("character", story.user_id), entities.get("character", story.ai_id || "unknown_ai"), entities.get("fractal", story.fractal_id)])
 
                 if (user_data) {
                     state.character = { ...state.character, ...user_data, id: user_data.id }
@@ -186,7 +216,7 @@ function createRuntimeStore() {
                     turn: targetTurn,
                     last_played: Date.now(),
                     ai_dynamics: $state.snapshot(ai_physics),
-                    fractal_dynamics: $state.snapshot(fractal_physics)
+                    fractal_dynamics: $state.snapshot(fractal_physics),
                 })
             } catch (err) {
                 console.error("[Data] Story Save Failed:", err)

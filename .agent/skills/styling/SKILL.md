@@ -32,20 +32,20 @@ Define the Clarity Gate constraints specific to this skill.
 ## 4. Procedures
 
 1. **Polish Component**:
-   1. Strip utility classes (Tailwind, Bootstrap).
-   2. Replace with semantic classes mapped strictly to `.agent/rules/03-technetium.md` tokens (e.g., `var(--color-chalk)`).
-   3. Apply standard depth shadows and elastic transitions.
+    1. Strip utility classes (Tailwind, Bootstrap).
+    2. Replace with semantic classes mapped strictly to `.agent/rules/03-technetium.md` tokens (e.g., `var(--color-chalk)`).
+    3. Apply standard depth shadows and elastic transitions.
 
 ## 5. Anti-Patterns
 
-| Pattern | Mitigation |
-| :--- | :--- |
-| **Inline Styles (`style="..."`)** | Forbidden. Violates Church & State separation; keeps structural markup clean. |
-| **Global CSS in Components** | Forbidden. Use component-scoped styles or designated theme tokens. |
-| **Utility classes (Tailwind/Bootstrap)** | Forbidden. Violates semantic HTML and design system token protocols. |
-| **Hardcoded hex values** | Forbidden except in `src/theme/tokens.css`. Use `var(--token-name)`. Never write raw hex, `rgb()`, or `hsl()`. |
-| **SCSS Mixins/Variables in Components** | Forbidden. Components MUST NOT import SCSS. Rely on global CSS variables (`:root`). |
-| **Perchance Incompatibility** | Forbidden. Ensure all CSS variables are accessible within the Perchance HTML panel environment. |
+| Pattern                                  | Mitigation                                                                                                     |
+| :--------------------------------------- | :------------------------------------------------------------------------------------------------------------- |
+| **Inline Styles (`style="..."`)**        | Forbidden. Violates Church & State separation; keeps structural markup clean.                                  |
+| **Global CSS in Components**             | Forbidden. Use component-scoped styles or designated theme tokens.                                             |
+| **Utility classes (Tailwind/Bootstrap)** | Forbidden. Violates semantic HTML and design system token protocols.                                           |
+| **Hardcoded hex values**                 | Forbidden except in `src/theme/tokens.css`. Use `var(--token-name)`. Never write raw hex, `rgb()`, or `hsl()`. |
+| **SCSS Mixins/Variables in Components**  | Forbidden. Components MUST NOT import SCSS. Rely on global CSS variables (`:root`).                            |
+| **Perchance Incompatibility**            | Forbidden. Ensure all CSS variables are accessible within the Perchance HTML panel environment.                |
 
 ## 6. Tools & Assets
 

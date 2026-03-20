@@ -49,7 +49,7 @@ Build the internal interpretation using this schema:
 
 ## 5. Anti-Patterns
 
-| Pattern | Mitigation |
-| :--- | :--- |
-| **Guessing** | Proceeding to code based on an uninterpreted vibe. |
+| Pattern        | Mitigation                                           |
+| :------------- | :--------------------------------------------------- |
+| **Guessing**   | Proceeding to code based on an uninterpreted vibe.   |
 | **Root Bloat** | Creating new root state files during interpretation. |

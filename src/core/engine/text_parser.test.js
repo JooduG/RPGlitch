@@ -64,4 +64,44 @@ describe("parse_scene_header", () => {
             header: null,
         })
     })
+
+    it("should parse a header with empty brackets", () => {
+        const text = "『 [] · [] · [] 』\nContent"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "Content",
+            header: {
+                location: "",
+                time: "",
+                weather: "",
+            },
+        })
+    })
+
+    it("should return null header if sections are missing", () => {
+        const text = "『 [Location] · [Time] 』\nContent"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "『 [Location] · [Time] 』\nContent",
+            header: null,
+        })
+    })
+
+    it("should return null header if brackets are malformed", () => {
+        const text = "『 [Location · [Time] · [Weather] 』\nContent"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "『 [Location · [Time] · [Weather] 』\nContent",
+            header: null,
+        })
+    })
+
+    it("should return null header if the header is not at the start of the text", () => {
+        const text = "Some text before 『 [Location] · [Time] · [Weather] 』\nContent"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "Some text before 『 [Location] · [Time] · [Weather] 』\nContent",
+            header: null,
+        })
+    })
 })

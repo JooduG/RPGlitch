@@ -42,9 +42,9 @@ export function parse_scene_header(text) {
         return {
             content: text.replace(match[0], "").trim(),
             header: {
-                location: match[1],
-                time: match[2],
-                weather: match[3],
+                location: match[1].trim(),
+                time: match[2].trim(),
+                weather: match[3].trim(),
             },
         }
     }

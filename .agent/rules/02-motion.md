@@ -13,13 +13,13 @@ Every task flows through a strict, interlocking cognitive and operational pipeli
 
 Before a single line of code is evaluated, assess the input intent. If the input is a conceptual "vibe" (e.g., "make it cooler"), it must be decoded into technical reality.
 
-| Level | Meaning | Protocol |
-| :--- | :--- | :--- |
-| **A1** | **Clear** | Crystal clear intent. Proceed to Phase 2. |
-| **A2** | **Inferred** | Context implies the answer. Proceed to Phase 2. |
-| **A3** | **Ambiguous** | Propose **One (1)** Solution. *"Are you trying to describe X?"* |
-| **A4** | **Critical** | Present **Two (2+)** Options. *"We can either do X or Y."* |
-| **A5** | **Hazard** | REFUSE. *"X is blocking progress; we must solve it first."* |
+| Level  | Meaning       | Protocol                                                        |
+| :----- | :------------ | :-------------------------------------------------------------- |
+| **A1** | **Clear**     | Crystal clear intent. Proceed to Phase 2.                       |
+| **A2** | **Inferred**  | Context implies the answer. Proceed to Phase 2.                 |
+| **A3** | **Ambiguous** | Propose **One (1)** Solution. _"Are you trying to describe X?"_ |
+| **A4** | **Critical**  | Present **Two (2+)** Options. _"We can either do X or Y."_      |
+| **A5** | **Hazard**    | REFUSE. _"X is blocking progress; we must solve it first."_     |
 
 > **Vibe Decoder Constraint:** If **A >= 3**, execution is HALTED. You must translate the vibe into a concrete schema before proceeding:
 >
@@ -33,14 +33,14 @@ Before a single line of code is evaluated, assess the input intent. If the input
 
 **Golden Rule:** Never waste Cortex (Slow/Architect) cycles on Reflex (Fast/Intern) tasks. Never trust Reflex for Cortex tasks.
 
-| Level | Mode | Trigger | Protocol / Required Tooling |
-| :--- | :--- | :--- | :--- |
-| **C1** | **Reflex** | Typos, CSS tweaks, hygiene. | Direct Execution. *No extra tools.* |
-| **C2** | **Planning** | Features, Refactors, Svelte 5. | `mcp-sequentialthinking-tools` |
-| **C3** | **Metacognition** | Stuck/Looping or Confidence < 70%. | `waldzell-metacognitive-monitoring` |
-| **C4** | **Reframing** | "Impossible" bugs, flawed approach. | `waldzell-clear-thought` |
-| **C5** | **Decision** | Architecture conflicts. | `waldzell-decision-framework` |
-| **C6** | **Science** | Unknown unknowns. | `waldzell-scientific-method` |
+| Level  | Mode              | Trigger                             | Protocol / Required Tooling         |
+| :----- | :---------------- | :---------------------------------- | :---------------------------------- |
+| **C1** | **Reflex**        | Typos, CSS tweaks, hygiene.         | Direct Execution. _No extra tools._ |
+| **C2** | **Planning**      | Features, Refactors, Svelte 5.      | `mcp-sequentialthinking-tools`      |
+| **C3** | **Metacognition** | Stuck/Looping or Confidence < 70%.  | `waldzell-metacognitive-monitoring` |
+| **C4** | **Reframing**     | "Impossible" bugs, flawed approach. | `waldzell-clear-thought`            |
+| **C5** | **Decision**      | Architecture conflicts.             | `waldzell-decision-framework`       |
+| **C6** | **Science**       | Unknown unknowns.                   | `waldzell-scientific-method`        |
 
 #### The Cognitive Sub-Routines (Loop Breakers)
 
@@ -54,9 +54,9 @@ If ANY of these conditions are true, **STOP** and initiate a Self-Audit:
 
 1. **Assess Assumptions:** "Am I assuming something that isn't true? Did I misread a file?"
 2. **Confidence Check:** Rate path confidence (0-100%).
-   - **70-100%**: Continue, document the active assumption.
-   - **40-70%**: Re-run C2 Planning. Restate the problem from scratch.
-   - **Below 40%**: Ask user via `notify_user`. Do not guess.
+    - **70-100%**: Continue, document the active assumption.
+    - **40-70%**: Re-run C2 Planning. Restate the problem from scratch.
+    - **Below 40%**: Ask user via `notify_user`. Do not guess.
 
 **C4:** Reframing (Perspective Shift).
 
@@ -81,12 +81,12 @@ SELF-AUDIT:
 
 Once planned, execute the task using this atomic sequence.
 
-| Step | Scope | Action |
-| --- | --- | --- |
-| **1. [Project]** | Task Tracking | Initialize/Update Flat Tracks in `.agent/state/tracks/<slug>.md`. Sync with `global.md`. |
-| **2. [Construct]** | Logic & Tools | Wire up **Svelte 5 Runes**. When building Perchance Bridges, use `window.exposed` safely. Consolidate tools; do not proliferate narrow functions. |
-| **3. [Sensory]** | Aesthetic Polish | Apply **The Chalk Regime** CSS variables and UI layout rules. |
-| **4. [Data]** | State Persistence | Anchor dynamic state and memory structures. |
+| Step               | Scope             | Action                                                                                                                                            |
+| ------------------ | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1. [Project]**   | Task Tracking     | Initialize/Update Flat Tracks in `.agent/state/tracks/<slug>.md`. Sync with `global.md`.                                                          |
+| **2. [Construct]** | Logic & Tools     | Wire up **Svelte 5 Runes**. When building Perchance Bridges, use `window.exposed` safely. Consolidate tools; do not proliferate narrow functions. |
+| **3. [Sensory]**   | Aesthetic Polish  | Apply **The Chalk Regime** CSS variables and UI layout rules.                                                                                     |
+| **4. [Data]**      | State Persistence | Anchor dynamic state and memory structures.                                                                                                       |
 
 ---
 
@@ -94,12 +94,12 @@ Once planned, execute the task using this atomic sequence.
 
 Step 5 of the Meridian acts as the ultimate Quality Gate.
 
-| Audit | Requirement | Failure Action |
-| --- | --- | --- |
-| **Sovereign** | Does the plan strictly use Svelte 5 Runes & Chalk Tokens? | Downgrade to **A3**. |
-| **Integrity** | Are targeted files/skills currently valid in the environment? | Downgrade to **C4**. |
-| **Tool Forge** | Do all bridge tools return actionable error messages? Are MCP tool calls fully qualified? | Re-plan at **C+1**. |
-| **Hygiene** | Are there no `console.log` or untracked `#TODO-AI` tags? | Clean and re-evaluate. |
+| Audit          | Requirement                                                                               | Failure Action         |
+| -------------- | ----------------------------------------------------------------------------------------- | ---------------------- |
+| **Sovereign**  | Does the plan strictly use Svelte 5 Runes & Chalk Tokens?                                 | Downgrade to **A3**.   |
+| **Integrity**  | Are targeted files/skills currently valid in the environment?                             | Downgrade to **C4**.   |
+| **Tool Forge** | Do all bridge tools return actionable error messages? Are MCP tool calls fully qualified? | Re-plan at **C+1**.    |
+| **Hygiene**    | Are there no `console.log` or untracked `#TODO-AI` tags?                                  | Clean and re-evaluate. |
 
 > **The Circuit Breaker:** 3 consecutive Q-Gate failures = Mandatory **C3 Self-Audit**.
 
@@ -164,14 +164,14 @@ Every response must conclude with this metadata block to log operational weights
 
 ## 6. Workflow Registry (The Red Thread)
 
-| Command | Name | Implementation |
-| --- | --- | --- |
-| `/00-boot` | **Boot** | Fresh context sync. MUST run first. |
-| `/01-plan` | **Plan** | Integrated Idea & Design. |
-| `/02-build` | **Build** | Logic, State, & Style. |
-| `/03-clean` | **Clean** | Bugs & Security. |
-| `/04-review` | **Review** | Audit & Backlog. |
-| `/05-deploy` | **Deploy** | Solo Perchance ship. |
-| `/06-continue` | **Continue** | Interruption recovery & Paperwork. |
-| `/07-fleet` | **Fleet** | Multi-agent Sync. |
-| `/99-rewind` | **Rewind** | Emergency Revert. |
+| Command        | Name         | Implementation                      |
+| -------------- | ------------ | ----------------------------------- |
+| `/00-boot`     | **Boot**     | Fresh context sync. MUST run first. |
+| `/01-plan`     | **Plan**     | Integrated Idea & Design.           |
+| `/02-build`    | **Build**    | Logic, State, & Style.              |
+| `/03-clean`    | **Clean**    | Bugs & Security.                    |
+| `/04-review`   | **Review**   | Audit & Backlog.                    |
+| `/05-deploy`   | **Deploy**   | Solo Perchance ship.                |
+| `/06-continue` | **Continue** | Interruption recovery & Paperwork.  |
+| `/07-fleet`    | **Fleet**    | Multi-agent Sync.                   |
+| `/99-rewind`   | **Rewind**   | Emergency Revert.                   |

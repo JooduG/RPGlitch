@@ -101,12 +101,12 @@ File: error-design.js
 
 ## 🛡️ Anti-Patterns
 
-| Pattern | Mitigation |
-| :--- | :--- |
+| Pattern                | Mitigation                                                                   |
+| :--------------------- | :--------------------------------------------------------------------------- |
 | **Tool Proliferation** | Forbidden. Consolidate narrow tools into comprehensive functional workflows. |
-| **Black Box Errors** | Forbidden. Errors must be actionable and include resolution steps. |
-| **Legacy Stores** | Forbidden. Transition all bridge tools to Svelte 5 Runes (`$state`). |
-| **Unqualified Names** | Avoid using unqualified MCP tool names; always specify the server prefix. |
+| **Black Box Errors**   | Forbidden. Errors must be actionable and include resolution steps.           |
+| **Legacy Stores**      | Forbidden. Transition all bridge tools to Svelte 5 Runes (`$state`).         |
+| **Unqualified Names**  | Avoid using unqualified MCP tool names; always specify the server prefix.    |
 
 ## Checklist for Tool Design
 

@@ -69,7 +69,7 @@ export const VECTOR_TEMPLATE = {
 //     ESCORT: "Thematic focus on protection and movement.",
 //     INFILTRATION: "Thematic focus on stealth and boundary crossing.",
 // }
-// 
+//
 // export const VECTOR_ARCHETYPES = {
 //     THE_REVENGE_TRAJECTORY: {
 //         future: {

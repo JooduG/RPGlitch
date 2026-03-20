@@ -61,9 +61,7 @@ export const Engine = {
             engineState.complete()
         }
     },
-
 }
 
 // New API Exports
 export { Session }
-
