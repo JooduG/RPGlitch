@@ -15,7 +15,7 @@ Security is deterministic. We do not guess; we validate.
 
 1. **Input Sanitization**: Construct HTML deterministically. `DOMPurify` is strictly for untrusted, external inputs.
 2. **Secret Detection**: Never commit `.env`, `_KEY`, `_TOKEN`, or high-entropy strings. `.env` MUST be explicitly registered in `.gitignore`.
-3. **Template Rendering**: `innerHTML` & `{@html ...}` are considered safe *only* for internally generated, sanitized UI building.
+3. **Template Rendering**: `innerHTML` & `{@html ...}` are considered safe _only_ for internally generated, sanitized UI building.
 4. **Boundary Validation**: All data crossing boundaries (URLs, API payloads) MUST be validated using `Zod` or `Valibot`.
 
 ### 1.1 Defense-in-Depth Validation
@@ -56,10 +56,10 @@ We do not leave messes. The Janitor script automatically scans the `src/` direct
 
 The **Scholar Gate** dictates that no task track gets a `[x]` without verified test output.
 
-| Testing Layer | Framework | Requirement |
-| :--- | :--- | :--- |
-| **Unit Tests** | `Vitest` | Logic verification required for all state changes. |
-| **E2E Tests** | `Playwright` | Full-flow visual/functional verification for critical paths. |
+| Testing Layer  | Framework    | Requirement                                                  |
+| :------------- | :----------- | :----------------------------------------------------------- |
+| **Unit Tests** | `Vitest`     | Logic verification required for all state changes.           |
+| **E2E Tests**  | `Playwright` | Full-flow visual/functional verification for critical paths. |
 
 > **⚠️ Svelte 5 Testing Mandate**: When testing external `.svelte.ts` state (Runes), you MUST use `flushSync()` to ensure reactivity propagates synchronously within the test environment. Skipping this is a forbidden anti-pattern.
 
@@ -73,7 +73,7 @@ Performance is not an afterthought; it is a feature. Architecture bridges logic 
 
 When refactoring for performance (e.g., migrating legacy logic to Svelte 5 `$derived`), use the **Equivalence Oracle** test:
 
-1. *Can the system distinguish between the "New Fast Way" and the "Old Slow Way" at the result layer?*
+1. _Can the system distinguish between the "New Fast Way" and the "Old Slow Way" at the result layer?_
 2. If the result is an **Isomorphic Transformation** (functionally identical but structurally superior), the change is safe and approved for deployment.
 
 ---
@@ -97,12 +97,12 @@ Code and communication must be chemically pure. We adhere to the **Boy Scout Rul
 - `kind/enhancement`: New functionality or architectural upgrade.
 - `priority/p1`: Security breach, data loss, or system outage.
 
-| Level | Meaning | Action |
-| :--- | :--- | :--- |
-| **Critical** | Production failure / Security breach. | **MUST fix immediately.** |
-| **High** | Significant bugs / Performance degradation. | **Should fix before merge.** |
-| **Medium** | Technical debt / Unresolved `#TODO-AI`. | **Log in `backlog.md`.** |
-| **Low** | Minor stylistic issues. | **Sweep during Janitor run.** |
+| Level        | Meaning                                     | Action                        |
+| :----------- | :------------------------------------------ | :---------------------------- |
+| **Critical** | Production failure / Security breach.       | **MUST fix immediately.**     |
+| **High**     | Significant bugs / Performance degradation. | **Should fix before merge.**  |
+| **Medium**   | Technical debt / Unresolved `#TODO-AI`.     | **Log in `backlog.md`.**      |
+| **Low**      | Minor stylistic issues.                     | **Sweep during Janitor run.** |
 
 ---
 
@@ -110,7 +110,7 @@ Code and communication must be chemically pure. We adhere to the **Boy Scout Rul
 
 If you find yourself stuck in a logic loop, or if a test fails 3 times consecutively, you are forbidden from guessing. You must trigger the Nope Protocol.
 
-1. **The Halt**: Cease current execution. State clearly: *"I am looping. Initiating Nope Protocol."*
+1. **The Halt**: Cease current execution. State clearly: _"I am looping. Initiating Nope Protocol."_
 2. **Root Cause Tracing**: Do not patch the symptom. Trace backward through the call chain until you find the exact origin of the invalid data.
 3. **Lateral Reframing**: Ask yourself: What assumption did I make about this environment or state that is fundamentally false?
 4. **Consultation**: Propose an alternative architecture or ask the user for structural clarification.

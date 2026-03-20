@@ -53,7 +53,7 @@ export const IntelligenceKernel = {
 
         // 3. SIMULATION: Resolve physics and behaviors
         const snapshot = DynamicsEngine.simulate(payload)
-        
+
         // 4. SYNTHESIS: Build the final prompt
         const { system, meta } = PromptBuilder.synthesize(payload, snapshot)
 
@@ -65,20 +65,23 @@ export const IntelligenceKernel = {
 
         // 6. GENERATION: Call the model with retry logic
         const response = await this._execute_with_retry(async () => {
-            return await LlmService.generate({ 
-                system, 
-                messages: simulation_log 
-            }, llm_options)
+            return await LlmService.generate(
+                {
+                    system,
+                    messages: simulation_log,
+                },
+                llm_options
+            )
         })
 
         // 7. PERSISTENCE: Save the result
-        const character_name = role === "ai" ? (runtime.active_ai?.name || "AI") : (runtime.active_fractal?.name || "Fractal")
-        
-        await Session.log_turn(response, character_name, role, { 
-            dynamics: meta.ai, 
+        const character_name = role === "ai" ? runtime.active_ai?.name || "AI" : runtime.active_fractal?.name || "Fractal"
+
+        await Session.log_turn(response, character_name, role, {
+            dynamics: meta.ai,
             fractal_dynamics: meta.fractal,
-            flags: meta.flags, 
-            signal_prompts: meta.signal_prompts 
+            flags: meta.flags,
+            signal_prompts: meta.signal_prompts,
         })
 
         return { response, meta }
@@ -135,11 +138,11 @@ export const IntelligenceKernel = {
             return await fn()
         } catch (err) {
             if (retries <= 0) throw err
-            
+
             app.log(`Intelligence Kernel: Connection issue. Retrying in ${delay}ms... (${retries} attempts left)`, "warn")
-            await new Promise(resolve => setTimeout(resolve, delay))
-            
+            await new Promise((resolve) => setTimeout(resolve, delay))
+
             return await this._execute_with_retry(fn, retries - 1, delay * 2)
         }
-    }
+    },
 }

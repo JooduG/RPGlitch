@@ -48,18 +48,18 @@ This document defines the RPGlitch technical stack and engineering mandates for 
 
 ## 🚦 Operational Commands
 
-| Command | Purpose |
-| :--- | :--- |
-| [/00-boot](./.agent/workflows/00-boot.md) | Fresh initialization & Context Sync. |
-| [/01-plan](./.agent/workflows/01-plan.md) | Unified Scoping & Design. |
-| [/02-build](./.agent/workflows/02-build.md) | Implementation Loop. |
-| [/03-clean](./.agent/workflows/03-clean.md) | Maintenance & Bugs. |
-| [/04-review](./.agent/workflows/04-review.md) | Quality Gate & Triage. |
-| [/05-deploy](./.agent/workflows/05-deploy.md) | Solo Deployment. |
-| [/06-continue](./.agent/workflows/06-continue.md) | Resume without Boot (The Handoff). |
-| [/07-fleet](./.agent/workflows/07-fleet.md) | Fleet Orchestration. |
-| [/08-github](./.agent/workflows/08-github.md) | Local GitHub Ops. |
-| [/99-rewind](./.agent/workflows/99-rewind.md) | Emergency Reset. |
+| Command                                           | Purpose                              |
+| :------------------------------------------------ | :----------------------------------- |
+| [/00-boot](./.agent/workflows/00-boot.md)         | Fresh initialization & Context Sync. |
+| [/01-plan](./.agent/workflows/01-plan.md)         | Unified Scoping & Design.            |
+| [/02-build](./.agent/workflows/02-build.md)       | Implementation Loop.                 |
+| [/03-clean](./.agent/workflows/03-clean.md)       | Maintenance & Bugs.                  |
+| [/04-review](./.agent/workflows/04-review.md)     | Quality Gate & Triage.               |
+| [/05-deploy](./.agent/workflows/05-deploy.md)     | Solo Deployment.                     |
+| [/06-continue](./.agent/workflows/06-continue.md) | Resume without Boot (The Handoff).   |
+| [/07-fleet](./.agent/workflows/07-fleet.md)       | Fleet Orchestration.                 |
+| [/08-github](./.agent/workflows/08-github.md)     | Local GitHub Ops.                    |
+| [/99-rewind](./.agent/workflows/99-rewind.md)     | Emergency Reset.                     |
 
 ---
 
@@ -71,4 +71,4 @@ Agents are **strictly prohibited** from terminating a session or clocking out wi
 2. **Update Backlog**: Move completed items from WIP to DONE in `.agent/state/backlog.md`.
 3. **Pass the Baton**: Load high-context instructions for the next agent into `.agent/state/next-prompt.md`.
 
-*Payload processed. Standard established.*
+_Payload processed. Standard established._

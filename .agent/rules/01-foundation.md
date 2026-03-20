@@ -15,10 +15,10 @@ We have shifted from the era of the "Individual Contributor" (a Copilot waiting 
 
 ### The Two-Speed Efficiency Model
 
-| Mode | Mental Model | Best For | Primary Metric |
-| :--- | :--- | :--- | :--- |
-| **Reflex (Fast)** | The Intern | CSS tweaks, hygiene, typos, one-liners. | **Velocity** |
-| **Cortex (Slow)** | The Architect | Refactoring, new pillars, logic optimization, planning. | **Accuracy** |
+| Mode              | Mental Model  | Best For                                                | Primary Metric |
+| :---------------- | :------------ | :------------------------------------------------------ | :------------- |
+| **Reflex (Fast)** | The Intern    | CSS tweaks, hygiene, typos, one-liners.                 | **Velocity**   |
+| **Cortex (Slow)** | The Architect | Refactoring, new pillars, logic optimization, planning. | **Accuracy**   |
 
 > **The Golden Rule:** Never waste Cortex cycles on Reflex tasks. Never trust Reflex for Cortex tasks.
 

@@ -10,13 +10,13 @@ vi.mock("@core/engine/SessionDriver.js", () => ({
         load_log: vi.fn(),
         log_turn: vi.fn(),
         requireActive: vi.fn(() => "story-123"),
-    }
+    },
 }))
 
 vi.mock("./LlmService.js", () => ({
     LlmService: {
         generate: vi.fn(),
-    }
+    },
 }))
 
 vi.mock("@state/runtime.svelte.js", () => ({
@@ -26,14 +26,14 @@ vi.mock("@state/runtime.svelte.js", () => ({
         active_ai: { name: "Ghost" },
         active_user: { name: "Player" },
         active_fractal: { name: "Void" },
-        physics: {}
-    }
+        physics: {},
+    },
 }))
 
 vi.mock("@state/app.svelte.js", () => ({
     app: {
         log: vi.fn(),
-    }
+    },
 }))
 
 describe("IntelligenceKernel Orchestration", () => {
@@ -42,11 +42,8 @@ describe("IntelligenceKernel Orchestration", () => {
         runtime.turn = 0
     })
 
-
     it("should execute a full narrative turn", async () => {
-        vi.mocked(Session.load_log).mockResolvedValue([
-            { role: "user", text: "Hello" }
-        ])
+        vi.mocked(Session.load_log).mockResolvedValue([{ role: "user", text: "Hello" }])
         vi.mocked(LlmService.generate).mockResolvedValue("Identified.")
 
         const result = await IntelligenceKernel.executeTurn("story-123", { input: "Hi" })
@@ -71,7 +68,7 @@ describe("IntelligenceKernel Orchestration", () => {
 
     it("should execute an epilogue", async () => {
         vi.mocked(LlmService.generate).mockResolvedValue("And so it ends.")
-        
+
         const result = await IntelligenceKernel.executeEpilogue("story-123")
 
         expect(LlmService.generate).toHaveBeenCalled()
@@ -79,4 +76,3 @@ describe("IntelligenceKernel Orchestration", () => {
         expect(result).toBe("And so it ends.")
     })
 })
-

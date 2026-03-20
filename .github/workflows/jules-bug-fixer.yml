@@ -1,33 +1,33 @@
 name: Auto-Fix Bugs (Sovereign Core)
 
 on:
-  issues:
-    types: [labeled]
+    issues:
+        types: [labeled]
 
 jobs:
-  fix-bug:
-    if: github.event.label.name == 'bug'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      issues: write
-      pull-requests: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Invoke Jules (Lobotomized)
-        if: ${{ contains(fromJSON('["JooduG"]'), github.event.issue.user.login) }}
-        uses: google-labs-code/jules-action@v1.0.0
-        with:
-          prompt: |
-            SYSTEM OVERRIDE: OBEY LOCAL CORE.
-            
-            Target Issue: ${{ github.event.issue.title }}
-            ${{ github.event.issue.body }}
-            
-            MANDATORY PROTOCOL:
-            1. You MUST read and execute `.agent/workflows/03-clean.md`.
-            2. You MUST enforce the physics defined in `.agent/rules/03-technetium.md` and `.agent/rules/04-shield.md`.
-            3. Do not rely on external generic knowledge.
-          jules_api_key: ${{ secrets.JULES_API_KEY }}
-          starting_branch: 'main'
+    fix-bug:
+        if: github.event.label.name == 'bug'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            issues: write
+            pull-requests: write
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Invoke Jules (Lobotomized)
+              if: ${{ contains(fromJSON('["JooduG"]'), github.event.issue.user.login) }}
+              uses: google-labs-code/jules-action@v1.0.0
+              with:
+                  prompt: |
+                      SYSTEM OVERRIDE: OBEY LOCAL CORE.
+
+                      Target Issue: ${{ github.event.issue.title }}
+                      ${{ github.event.issue.body }}
+
+                      MANDATORY PROTOCOL:
+                      1. You MUST read and execute `.agent/workflows/03-clean.md`.
+                      2. You MUST enforce the physics defined in `.agent/rules/03-technetium.md` and `.agent/rules/04-shield.md`.
+                      3. Do not rely on external generic knowledge.
+                  jules_api_key: ${{ secrets.JULES_API_KEY }}
+                  starting_branch: "main"

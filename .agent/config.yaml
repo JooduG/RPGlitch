@@ -43,7 +43,7 @@ knowledge:
         rule-motion: .agent/rules/02-motion.md
         rule-technetium: .agent/rules/03-technetium.md
         rule-shield: .agent/rules/04-shield.md
-        
+
         # Knowledge
         atlas-physics: .agent/knowledge/atlas/07-physics.md
         atlas-vision: .agent/knowledge/atlas/01-vision.md

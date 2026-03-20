@@ -226,7 +226,9 @@ tfoot td {
     border-radius: var(--border-radius-s);
     font-size: var(--font-size-xs);
     white-space: nowrap;
-    box-shadow: var(--shadow-s), inset 0 0 0 1px var(--border-light);
+    box-shadow:
+        var(--shadow-s),
+        inset 0 0 0 1px var(--border-light);
 }
 
 [data-tooltip]:hover::before,

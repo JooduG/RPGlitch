@@ -13,13 +13,13 @@ description: Application Architecture, Svelte 5 Supremacy, The Chalk Regime, and
 
 RPGlitch is a **Local-First Reactive Monolith** (PWA). It is structured into five strictly decoupled pillars.
 
-| Pillar | Role | Constraint / Tech |
-| :--- | :--- | :--- |
-| **1. Core Engine** | Logic & Turn Orchestration | **Pure IO**. No DOM manipulation. No CSS classes. |
-| **2. UI & Structure** | HTML/Layouts (Artificer) | Svelte 5 (`src/ui/`). |
-| **3. Sensory** | Visuals, Audio, Theme (Mesmer) | Native CSS / SCSS (`src/media/`). |
-| **4. Data** | Persistence & History (Scholar) | **Dexie.js** (IndexedDB). `db.version(n)` must be strictly sequential. |
-| **5. Security** | Validation & Physics (Warden) | Zod/DOMPurify sanitization boundary. |
+| Pillar                | Role                            | Constraint / Tech                                                      |
+| :-------------------- | :------------------------------ | :--------------------------------------------------------------------- |
+| **1. Core Engine**    | Logic & Turn Orchestration      | **Pure IO**. No DOM manipulation. No CSS classes.                      |
+| **2. UI & Structure** | HTML/Layouts (Artificer)        | Svelte 5 (`src/ui/`).                                                  |
+| **3. Sensory**        | Visuals, Audio, Theme (Mesmer)  | Native CSS / SCSS (`src/media/`).                                      |
+| **4. Data**           | Persistence & History (Scholar) | **Dexie.js** (IndexedDB). `db.version(n)` must be strictly sequential. |
+| **5. Security**       | Validation & Physics (Warden)   | Zod/DOMPurify sanitization boundary.                                   |
 
 ### The Reactive Cycle
 
@@ -39,11 +39,11 @@ Modern JavaScript (ESNext, `async/await`, arrow functions) is expected, but Svel
 
 ### The Rune Mandate
 
-| Concept | Status | Architectural Mandate |
-| :--- | :--- | :--- |
-| **State** | ✅ **REQUIRED** | Use `$state()`, `$derived()`, and `$effect()`. |
-| **Props** | ✅ **REQUIRED** | Use `let { ... } = $props();`. |
-| **Snippets** | ✅ **REQUIRED** | Use `{@render ...}` for component slots. |
+| Concept           | Status           | Architectural Mandate                                                 |
+| :---------------- | :--------------- | :-------------------------------------------------------------------- |
+| **State**         | ✅ **REQUIRED**  | Use `$state()`, `$derived()`, and `$effect()`.                        |
+| **Props**         | ✅ **REQUIRED**  | Use `let { ... } = $props();`.                                        |
+| **Snippets**      | ✅ **REQUIRED**  | Use `{@render ...}` for component slots.                              |
 | **Legacy Svelte** | 🚫 **FORBIDDEN** | `export let`, `$:`, `<slot />`, and `createEventDispatcher` are dead. |
 
 > **Refactoring Directive**: If you encounter legacy Svelte 3/4 code (stores, `export let`) during an operation, silently upgrade it to Svelte 5 Runes.
@@ -70,7 +70,7 @@ Our deployment target (Perchance) imposes extreme constraints. We build for a se
 
 ## 4. The Chalk Regime (Visual & UX Laws)
 
-**Directive:** *Neural Minimalism*. The interface is a "Silent Stage"—an empty theater waiting for a narrative event.
+**Directive:** _Neural Minimalism_. The interface is a "Silent Stage"—an empty theater waiting for a narrative event.
 
 ### The Styling Mandate
 
@@ -97,14 +97,14 @@ Favor "meaningful interactions" over explicit UI controls. (e.g., Clicking an em
 
 Code must be predictably organized. Heavy logic (>50 lines) moves to `scripts/`. Assets move to `assets/`.
 
-| Scope | Type | Case | Example |
-| :--- | :--- | :--- | :--- |
-| File System | **Directories** | `kebab-case` | `game-engine/` |
-| File System | **Svelte Component** | `PascalCase` | `StoryPanel.svelte` |
-| File System | **Structure/Class** | `PascalCase` | `ContextBroker.js` |
-| Identifier | **Process/State/Variables** | `camelCase` / `snake_case` | `buildPrompt`, `current_char` |
-| Identifier | **Booleans** | `Question Form` | `isActive`, `hasToken` |
-| Identifier | **Global Config** | `SCREAMING_SNAKE` | `ENTITY_DEFINITION` |
+| Scope       | Type                        | Case                       | Example                       |
+| :---------- | :-------------------------- | :------------------------- | :---------------------------- |
+| File System | **Directories**             | `kebab-case`               | `game-engine/`                |
+| File System | **Svelte Component**        | `PascalCase`               | `StoryPanel.svelte`           |
+| File System | **Structure/Class**         | `PascalCase`               | `ContextBroker.js`            |
+| Identifier  | **Process/State/Variables** | `camelCase` / `snake_case` | `buildPrompt`, `current_char` |
+| Identifier  | **Booleans**                | `Question Form`            | `isActive`, `hasToken`        |
+| Identifier  | **Global Config**           | `SCREAMING_SNAKE`          | `ENTITY_DEFINITION`           |
 
 > **Architectural High-Visibility**: In complex logic files, major functional areas MUST be separated by 80-character banners (e.g., `/* 🧩 [SECTION: NAME] --- */`).
 
@@ -116,17 +116,17 @@ To prevent cognitive drift and conversion errors, these definitions are absolute
 
 ### The Lexicon
 
-| Concept | Standard Term | ❌ Forbidden Terms |
-| :--- | :--- | :--- |
-| **The Logic Engine** | **GameMaster** | Director, Orchestrator, Manager |
-| **Debug UI** | **DevMode** | Debug Mode, God Mode, Cheat |
-| **Narrative Control** | **GM Mode** | Director Mode, Storyteller |
-| **User Interface** | **StoryMode** | Chat, Play Mode |
+| Concept               | Standard Term  | ❌ Forbidden Terms              |
+| :-------------------- | :------------- | :------------------------------ |
+| **The Logic Engine**  | **GameMaster** | Director, Orchestrator, Manager |
+| **Debug UI**          | **DevMode**    | Debug Mode, God Mode, Cheat     |
+| **Narrative Control** | **GM Mode**    | Director Mode, Storyteller      |
+| **User Interface**    | **StoryMode**  | Chat, Play Mode                 |
 
 ### Localization (Swedish/SI Standard)
 
-- **Date & Time**: **ISO 8601** (`YYYY-MM-DD`) and **24-Hour Clock** (`14:30`). *No MM/DD/YYYY or AM/PM.*
-- **Measurements**: Metric/SI only. Meters (`m`), Grams (`g`), Celsius (`°C`), Liters (`l`). *Never imperial (miles, pounds, Fahrenheit).*
+- **Date & Time**: **ISO 8601** (`YYYY-MM-DD`) and **24-Hour Clock** (`14:30`). _No MM/DD/YYYY or AM/PM._
+- **Measurements**: Metric/SI only. Meters (`m`), Grams (`g`), Celsius (`°C`), Liters (`l`). _Never imperial (miles, pounds, Fahrenheit)._
 
 ---
 

@@ -5,12 +5,12 @@ import { sanitize } from "@core/security.js"
  */
 export function safe_html(node, content) {
     const update_content = (new_content) => {
-        node.innerHTML = sanitize(new_content ?? "");
-    };
+        node.innerHTML = sanitize(new_content ?? "")
+    }
 
-    update_content(content);
+    update_content(content)
 
     return {
         update: update_content,
-    };
+    }
 }

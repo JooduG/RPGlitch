@@ -28,25 +28,25 @@ describe("PromptBuilder (Refactored)", () => {
             entities: {
                 AI: {
                     name: "Viper",
-                    fragments: { 
-                        eternal: { physical: "Viper Frame", non_physical: "Eternal AI" }, 
-                        present: { physical: "Viper Glow", non_physical: "Present AI" } 
+                    fragments: {
+                        eternal: { physical: "Viper Frame", non_physical: "Eternal AI" },
+                        present: { physical: "Viper Glow", non_physical: "Present AI" },
                     },
                     _data_points: [{ type: "Core", text: "Cold." }],
                 },
                 USER: {
                     name: "Player",
-                    fragments: { 
-                        eternal: { physical: "Eternal User", non_physical: "" }, 
-                        present: { physical: "Present User", non_physical: "" } 
+                    fragments: {
+                        eternal: { physical: "Eternal User", non_physical: "" },
+                        present: { physical: "Present User", non_physical: "" },
                     },
                     _data_points: [],
                 },
                 FRACTAL: {
                     name: "City",
-                    fragments: { 
-                        eternal: { physical: "", non_physical: "Eternal City" }, 
-                        present: { physical: "", non_physical: "Present City" } 
+                    fragments: {
+                        eternal: { physical: "", non_physical: "Eternal City" },
+                        present: { physical: "", non_physical: "Present City" },
                     },
                     _data_points: [],
                 },
@@ -59,7 +59,7 @@ describe("PromptBuilder (Refactored)", () => {
             signal_prompts: ["Pacing"],
             flags: ["ADRENALINE"],
             ai: { dynamics: { intensity: 80 } },
-            fractal: { dynamics: { entropy: 10 } }
+            fractal: { dynamics: { entropy: 10 } },
         }
 
         it("synthesize() should return system prompt and meta", () => {
@@ -67,14 +67,14 @@ describe("PromptBuilder (Refactored)", () => {
             expect(result.system).toContain('<SYSTEM role="Viper"')
             expect(result.system).toContain('turn="1"')
             expect(result.system).toContain("<INPUT_COMMAND>test action</INPUT_COMMAND>")
-            
+
             // Verify Mental-Only XML Tags
             expect(result.system).toContain("<ETERNAL>Eternal AI</ETERNAL>")
             expect(result.system).toContain("<PRESENT>Present AI</PRESENT>")
-            
+
             // Verify Physical fields are EXCLUDED (user choice)
             expect(result.system).not.toContain("Viper Glow")
-            
+
             expect(result.meta.ai.intensity).toBe(80)
         })
 

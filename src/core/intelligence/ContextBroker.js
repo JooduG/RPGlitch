@@ -184,5 +184,4 @@ export class ContextBroker {
             return (b_hit ? 1 : 0) - (a_hit ? 1 : 0)
         })
     }
-
 }

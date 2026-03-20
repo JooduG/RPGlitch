@@ -8,15 +8,7 @@
     import { quintOut } from "svelte/easing"
     import { fade, scale } from "svelte/transition"
 
-    let { 
-        title = "Confirm Action", 
-        message = "Are you sure?", 
-        confirm_label = "Confirm", 
-        cancel_label = "Cancel", 
-        on_confirm = () => {}, 
-        on_cancel = () => {}, 
-        open = $bindable(false) 
-    } = $props()
+    let { title = "Confirm Action", message = "Are you sure?", confirm_label = "Confirm", cancel_label = "Cancel", on_confirm = () => {}, on_cancel = () => {}, open = $bindable(false) } = $props()
 
     let dialog = $state()
     let confirm_btn = $state()
@@ -100,7 +92,7 @@
 
     .security-modal {
         background: var(--surface-raised);
-        box-shadow: 
+        box-shadow:
             inset 0 0 0 1px var(--border-light),
             var(--shadow-xxl);
         border-radius: var(--border-radius-l);

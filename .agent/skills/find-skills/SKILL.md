@@ -153,8 +153,8 @@ npx skills init my-xyz-skill
 
 ## 🛡️ Anti-Patterns
 
-| Pattern | Mitigation |
-| :--- | :--- |
-| **Silent Installs** | Forbidden. Always ask the user before calling `npx skills add`. |
+| Pattern                | Mitigation                                                            |
+| :--------------------- | :-------------------------------------------------------------------- |
+| **Silent Installs**    | Forbidden. Always ask the user before calling `npx skills add`.       |
 | **Low Quality Skills** | Avoid recommending skills with low install counts or unknown authors. |
-| **Global Pollution** | Prefer project-level installation unless the user specifies global. |
+| **Global Pollution**   | Prefer project-level installation unless the user specifies global.   |

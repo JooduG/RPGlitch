@@ -43,8 +43,6 @@ export const CONFIG = {
         RELEVANCE_TRIGGER_BONUS: 2,
         RELEVANCE_VECTOR_BONUS: 3,
 
-
-
         // LLM VISUAL
         VISUAL_TEMP_DEFAULT: 0.45,
     },

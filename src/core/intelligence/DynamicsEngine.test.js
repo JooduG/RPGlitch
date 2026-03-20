@@ -35,7 +35,7 @@ describe("Dynamics Engine v2 (Refactored)", () => {
             state.ai.dynamics.intensity = 70
             const prevState = createBaseState()
             prevState.ai.dynamics.intensity = 70
-            
+
             const triggered = DynamicsEngine.scan_reflexes("I run towards the exit")
             DynamicsEngine.resolve_dynamics(state, prevState, triggered)
 
@@ -64,15 +64,13 @@ describe("Dynamics Engine v2 (Refactored)", () => {
                 state.ai.dynamics.openness = 95
                 // Pass baselines = 95 to keep Openness high
                 const baselines = { openness: 95 }
-                
+
                 DynamicsEngine._process_entity_dynamics(state.ai.dynamics, baselines, [], state, null)
 
                 expect(state.flags).toContain("OPENNESS_HIGH_THRESHOLD")
                 // Openness 95 * 2.0 = 190 -> Clipped to 100
                 expect(state.ai.dynamics.chaos).toBe(100)
             })
-
-
         })
     })
 
