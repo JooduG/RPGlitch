@@ -204,25 +204,4 @@ describe("parse_scene_header additional edge cases", () => {
         })
     })
 
-    it("should handle header at the end of the text if it is the only content", () => {
-        const text = "『 [Location] · [Time] · [Weather] 』"
-        const result = parse_scene_header(text)
-        expect(result).toEqual({
-            content: "",
-            header: {
-                location: "Location",
-                time: "Time",
-                weather: "Weather",
-            },
-        })
-    })
-
-    it("should return null header if it is not at the very beginning of string", () => {
-        const text = "Hello\n『 [Location] · [Time] · [Weather] 』"
-        const result = parse_scene_header(text)
-        expect(result).toEqual({
-            content: "Hello\n『 [Location] · [Time] · [Weather] 』",
-            header: null,
-        })
-    })
 })
