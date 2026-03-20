@@ -43,7 +43,7 @@ export function parse_scene_header(text) {
     if (!text) return { content: "", header: null }
 
     // Pattern: 『 [Location] · [Time] · [Weather] 』
-    const match = text.match(/^『\s*\[\s*(.*?)\s*]\s*·\s*\[\s*(.*?)\s*]\s*·\s*\[\s*(.*?)\s*]\s*』/)
+    const match = text.match(/^『\s*\[\s*([\s\S]*?)\s*]\s*·\s*\[\s*([\s\S]*?)\s*]\s*·\s*\[\s*([\s\S]*?)\s*]\s*』/)
 
     if (match) {
         return {
