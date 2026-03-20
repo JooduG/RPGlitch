@@ -9,7 +9,6 @@
 
 - [x] **ui-refactor**: Standardized modal backgrounds and Svelte 5 migration.
 - [x] **deploy-perchance**: Playwright automation and pre-flight verification.
-- [/] **stitch-evolution**: Analyzing and evolving existing UI components via Stitch MCP.
 
 ## Pending Tracks
 
