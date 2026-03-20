@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest"
 import { parse_scene_header, clean_image_prompts } from "./text_parser.js"
 
-
 describe("clean_image_prompts", () => {
     const testCases = [
         { description: "null input", input: null, expected: "" },
@@ -17,11 +16,11 @@ describe("clean_image_prompts", () => {
         { description: "tags with extra whitespace", input: "Test <image_prompt    >content</image_prompt   > test2 <image_prompt   />", expected: "Test  test2" },
         { description: "a non-self-closing tag with attributes", input: 'Hello <image_prompt src="cat.png" alt="A cat">cute cat</image_prompt> world', expected: "Hello  world" },
         { description: "nested image prompts", input: "Start <image_prompt>Outer <image_prompt>Inner</image_prompt> Outer-End</image_prompt> End", expected: "Start  End" },
-    ];
+    ]
 
     it.each(testCases)("should handle $description", ({ input, expected }) => {
-        expect(clean_image_prompts(input)).toBe(expected);
-    });
+        expect(clean_image_prompts(input)).toBe(expected)
+    })
 })
 
 describe("parse_scene_header", () => {
@@ -283,5 +282,4 @@ describe("parse_scene_header additional edge cases", () => {
             },
         })
     })
-
 })

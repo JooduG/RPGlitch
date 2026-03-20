@@ -100,18 +100,22 @@ describe("Dynamics Engine v2 (Refactored)", () => {
 
     describe("Naivety Index: _resolve_naivety", () => {
         it("should return null if no NAIVETY_TRIGGERS match", () => {
-            const result = DynamicsEngine._resolve_naivety([], 50)
+            const result = DynamicsEngine._resolve_naivety([], 50, 50)
             expect(result).toBeNull()
         })
 
         it("should return high suspicion for low openness and a trigger match", () => {
-            const suspicion = DynamicsEngine._resolve_naivety([{ id: "NAIVETY" }], 5)
+            // High suspicion requires low current openness AND low baseline openness
+            const suspicion = DynamicsEngine._resolve_naivety([{ id: "NAIVETY" }], 5, 10)
             expect(suspicion).toBeGreaterThan(0.6)
         })
 
         it("should inject [NAIVETY] behavior via resolve_dynamics", () => {
             const state = {
-                ai: { dynamics: { intensity: 50, chaos: 50, openness: 5, affinity: 50 } },
+                ai: {
+                    dynamics: { intensity: 50, chaos: 50, openness: 5, affinity: 50 },
+                    personality: { baselines: { openness: 10 } },
+                },
                 fractal: { dynamics: { velocity: 50, entropy: 50 } },
                 flags: [],
                 signals: {},
