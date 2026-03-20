@@ -40,7 +40,7 @@ export function sanitize(text) {
         .replace(/^["']|["']$/g, "")
         .replace(/^(here is|sure|certainly|i can help|enhanced text:|the enhanced text).*?:/i, "")
         .replace(/^\s*```.*?[\r\n]/gm, "")
-        .replace(/```\s*$/g, "")
+        .replace(/```\s*$/gm, "")
         .trim()
 }
 
