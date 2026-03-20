@@ -259,3 +259,54 @@ describe("parse_scene_header", () => {
         })
     })
 })
+
+describe("clean_image_prompts", () => {
+    it("should return empty string for null, undefined, or empty input", () => {
+        expect(clean_image_prompts(null)).toBe("")
+        expect(clean_image_prompts(undefined)).toBe("")
+        expect(clean_image_prompts("")).toBe("")
+    })
+
+    it("should remove <image_prompt>...</image_prompt> blocks", () => {
+        const text = "Start <image_prompt>A dark forest</image_prompt> End"
+        expect(clean_image_prompts(text)).toBe("Start  End")
+    })
+
+    it("should remove self-closing <image_prompt /> tags", () => {
+        const text = "Start <image_prompt src='test' /> End"
+        expect(clean_image_prompts(text)).toBe("Start  End")
+    })
+
+    it("should handle multiline image prompts", () => {
+        const text = "Start <image_prompt>\nA dark forest\nwith trees\n</image_prompt> End"
+        expect(clean_image_prompts(text)).toBe("Start  End")
+    })
+
+    it("should remove multiple image prompts in the same text", () => {
+        const text = "<image_prompt>First</image_prompt> Middle <image_prompt>Second</image_prompt>"
+        expect(clean_image_prompts(text)).toBe(" Middle ")
+    })
+
+    it("should leave other content untouched", () => {
+        const text = "This is a normal string without image prompts."
+        expect(clean_image_prompts(text)).toBe(text)
+    })
+
+    it("should handle case-insensitivity", () => {
+        const text = "Start <IMAGE_PROMPT>A dark forest</image_Prompt> <iMaGe_PrOmPt /> End"
+        expect(clean_image_prompts(text)).toBe("Start   End")
+    })
+
+    it("should remove <image_prompt> blocks with attributes", () => {
+        const text = "Start <image_prompt src='test.png'>A dark forest</image_prompt> End"
+        expect(clean_image_prompts(text)).toBe("Start  End")
+    })
+
+    it("should handle nested <image_prompt> blocks by removing the outermost block", () => {
+        const text = "Before <image_prompt>outer<image_prompt>inner</image_prompt></image_prompt> After"
+        // This test will currently fail, revealing a bug in the parsing logic.
+        // The current output is "Before </image_prompt> After".
+        // The expected behavior is to remove the entire nested structure.
+        expect(clean_image_prompts(text)).toBe("Before  After")
+    })
+})
