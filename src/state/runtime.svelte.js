@@ -207,7 +207,7 @@ function createRuntimeStore() {
         },
 
         update_vibe: (entity_id, new_color, new_seed) => {
-            const targets = [entityState.character, entityState.active_user, entityState.active_ai, entityState.active_fractal]
+            const targets = [...new Set([entityState.character, entityState.active_user, entityState.active_ai, entityState.active_fractal])]
             targets.forEach((t) => {
                 if (t && t.id === entity_id) {
                     if (new_color) t.signature_color = new_color
