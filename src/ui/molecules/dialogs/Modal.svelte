@@ -100,8 +100,7 @@
         width: max-content;
         max-width: 100vw;
         height: auto;
-        min-height: auto; /* Remove 100% min-height to fix click blocking */
-
+        min-height: auto; /* Prevents the modal from stretching to full height, which would block clicks on elements behind it. */
         /* If the Profile Card *needs* to be tall, it will define its own height. */
         /* If we need the modal container to be the scroll surface, .modal-layout does that. */
 
