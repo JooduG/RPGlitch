@@ -104,4 +104,53 @@ describe("parse_scene_header", () => {
             header: null,
         })
     })
+
+    it("should return null header if there are leading spaces before the header", () => {
+        const text = "   『 [Location] · [Time] · [Weather] 』\nContent"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "   『 [Location] · [Time] · [Weather] 』\nContent",
+            header: null,
+        })
+    })
+
+    it("should handle unicode and special characters inside brackets", () => {
+        const text = "『 [東京 🗼] · [23:00 / 夜] · [嵐 (Storm)] 』\nJapanese Content"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "Japanese Content",
+            header: {
+                location: "東京 🗼",
+                time: "23:00 / 夜",
+                weather: "嵐 (Storm)",
+            },
+        })
+    })
+
+    it("should return null header if separator is missing or wrong", () => {
+        const text = "『 [Location] - [Time] - [Weather] 』\nContent"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "『 [Location] - [Time] - [Weather] 』\nContent",
+            header: null,
+        })
+    })
+
+    it("should return null header for malformed brackets", () => {
+        const text = "『 [Location] · Time] · [Weather] 』\nContent"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "『 [Location] · Time] · [Weather] 』\nContent",
+            header: null,
+        })
+    })
+
+    it("should return null header if missing closing corner bracket", () => {
+        const text = "『 [Location] · [Time] · [Weather] \nContent"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "『 [Location] · [Time] · [Weather] \nContent",
+            header: null,
+        })
+    })
 })
