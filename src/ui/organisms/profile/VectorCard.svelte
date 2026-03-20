@@ -1,6 +1,7 @@
 <script>
     import Button from "@ui/atoms/Button.svelte"
-    import DOMPurify from "dompurify"
+
+    import { parse_markdown } from "@ui/utils/markdown.js"
 
     let { vector, is_editing, on_update, on_delete, signature_color, unit_label = "Vector" } = $props()
 
@@ -16,15 +17,6 @@
     function handle_input(e) {
         local_text = e.target.value
         on_update(local_text)
-    }
-
-    function render_markdown(text) {
-        if (!text) return ""
-        let html = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-        html = html.replace(/\*(.*?)\*/g, "<em>$1</em>")
-        html = html.replace(/\n\s*\n/g, "<br><br>")
-        html = html.replace(/\n/g, " ")
-        return DOMPurify.sanitize(html)
     }
 </script>
 
@@ -42,8 +34,21 @@
         {:else}
             <div class="display-area">
                 <div class="content">
-                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                    {@html render_markdown(local_text)}
+                    {#each parse_markdown(local_text) as paragraph, i (i)}
+                        <p class="markdown-paragraph">
+                            {#each paragraph as token, j (j)}
+                                {#if token.type === "strong"}
+                                    <strong>{token.content}</strong>
+                                {:else if token.type === "strong-em"}
+                                    <strong><em>{token.content}</em></strong>
+                                {:else if token.type === "em"}
+                                    <em>{token.content}</em>
+                                {:else}
+                                    {token.content}
+                                {/if}
+                            {/each}
+                        </p>
+                    {/each}
                 </div>
             </div>
         {/if}
@@ -145,5 +150,12 @@
         line-height: 1;
         font-weight: 800;
         margin-bottom: 2px;
+    }
+    .display-area .content .markdown-paragraph {
+        margin: 0;
+    }
+
+    .display-area .content .markdown-paragraph + .markdown-paragraph {
+        margin-top: var(--spacing-m);
     }
 </style>

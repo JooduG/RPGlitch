@@ -1,9 +1,5 @@
-# ⏭️ The Baton (Next Prompt)
+# 🦇 Next Agent Directive
 
-> **Context**: The UX has been completely visually flattened and mathematically aligned with the Nordic palette via semantic surface layers (`--surface-base`, `--surface-sunken`, etc). All glassmorphism was purged. The UI is clean, strict, and purely Chalk Regime compliant. The `ux-review` track is complete.
+**Context:** The PR feedback for `clean_image_prompts`, `repository.js` loops, and `Modal.svelte` CSS click blocking was successfully applied and tested. The central design system has also officially pivoted from "The Nordic Collection" to the "High-Contrast Glitch RPG" aesthetic via `design.md`.
 
-## Recommended Next Steps:
-
-1. Initialize via `/06-continue` to read this state.
-2. Proceed with investigating **`narrative-bridge`** (Connecting the unified Dynamics output to the Narrative Director for automatic scene complication).
-3. Check `backlog.md` for any other pending structural enhancements.
+**Immediate Goal:** Evaluate the current UI implementations and systematically apply the new "High-Contrast Glitch" rules cross-system (removing standard borders/border-radius, utilizing bright neon contrast colors, scan-line overlays, etc).

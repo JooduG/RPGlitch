@@ -12,6 +12,12 @@ export const sanitize = (dirty) => {
     return DOMPurify.sanitize(dirty, { RETURN_DOM_FRAGMENT: false }) // String output
 }
 
+// 1.5. Sanitize HTML to DOM Fragment (Zero-Trust, No innerHTML)
+export const sanitizeToFragment = (dirty) => {
+    if (typeof window === "undefined") return dirty
+    return DOMPurify.sanitize(dirty, { RETURN_DOM_FRAGMENT: true }) // DocumentFragment output
+}
+
 // 2. Escape Logic
 export const escape = (str) => {
     if (!str) return ""
@@ -23,6 +29,7 @@ export const checkRefusal = (text) => false
 export const clean = (text) => (text ? text.trim() : "")
 export const Security = {
     sanitize,
+    sanitizeToFragment,
     escape,
     checkRefusal,
     clean,
