@@ -1,5 +1,28 @@
 import { describe, it, expect } from "vitest"
-import { parse_scene_header } from "./text_parser.js"
+import { parse_scene_header, clean_image_prompts } from "./text_parser.js"
+
+
+describe("clean_image_prompts", () => {
+    const testCases = [
+        { description: "null input", input: null, expected: "" },
+        { description: "undefined input", input: undefined, expected: "" },
+        { description: "an empty string", input: "", expected: "" },
+        { description: "text with no prompts", input: "Just some normal text with no prompts.", expected: "Just some normal text with no prompts." },
+        { description: "a standard <image_prompt> block", input: "Hello <image_prompt>a cat</image_prompt> world", expected: "Hello  world" },
+        { description: "a self-closing <image_prompt /> tag", input: "Hello <image_prompt /> world", expected: "Hello  world" },
+        { description: "a self-closing tag with attributes", input: 'Hello <image_prompt src="cat.png" alt="A cat" /> world', expected: "Hello  world" },
+        { description: "multiple image prompts", input: "Start <image_prompt>one</image_prompt> middle <image_prompt /> end", expected: "Start  middle  end" },
+        { description: "newlines inside the image prompt tag", input: "Line 1\n<image_prompt>\na cute\ncat\n</image_prompt>\nLine 2", expected: "Line 1\n\nLine 2" },
+        { description: "case-insensitive tags", input: "Hello <IMAGE_PROMPT>cat</Image_Prompt> world <Image_Prompt />", expected: "Hello  world" },
+        { description: "tags with extra whitespace", input: "Test <image_prompt    >content</image_prompt   > test2 <image_prompt   />", expected: "Test  test2" },
+        { description: "a non-self-closing tag with attributes", input: 'Hello <image_prompt src="cat.png" alt="A cat">cute cat</image_prompt> world', expected: "Hello  world" },
+        { description: "nested image prompts", input: "Start <image_prompt>Outer <image_prompt>Inner</image_prompt> Outer-End</image_prompt> End", expected: "Start  End" },
+    ];
+
+    it.each(testCases)("should handle $description", ({ input, expected }) => {
+        expect(clean_image_prompts(input)).toBe(expected);
+    });
+})
 
 describe("parse_scene_header", () => {
     it("should parse a standard scene header", () => {
