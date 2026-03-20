@@ -17,6 +17,8 @@ import { render, fireEvent, cleanup } from "@testing-library/svelte"
 import { test, expect, vi, describe, afterEach } from "vitest"
 import Modal from "./Modal.svelte"
 
+import ModalTestWrapper from "./ModalTestWrapper.svelte"
+
 describe("Modal.svelte", () => {
     afterEach(() => {
         cleanup()
@@ -58,5 +60,19 @@ describe("Modal.svelte", () => {
 
         // Ensure on_close was called
         expect(on_close).toHaveBeenCalledTimes(1)
+    })
+
+    test("variant-profile modal does not close when clicking on its content", async () => {
+        const on_close = vi.fn()
+
+        const { getByTestId } = render(ModalTestWrapper, {
+            on_close,
+            variant: "profile"
+        })
+
+        const content = getByTestId("modal-content")
+        await fireEvent.click(content)
+
+        expect(on_close).not.toHaveBeenCalled()
     })
 })
