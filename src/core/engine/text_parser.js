@@ -24,7 +24,7 @@ export function parse_think_block(text) {
  */
 export function clean_image_prompts(text) {
     if (!text) return ""
-    return text.replace(/<image_prompt[^>]*>[\s\S]*?<\/image_prompt\s*>/gi, "").replace(/<image_prompt[^>]*\/>/gi, "")
+    return text.replace(/<image_prompt[^>]*>[\s\S]*?<\/image_prompt\s*>|<image_prompt[^>]*\/>/gi, "").trim()
 }
 
 /**
