@@ -207,9 +207,7 @@
                 }
 
                 &:hover {
-                    box-shadow:
-                        var(--surface-elevated),
-                        var(--shadow-glow);
+                    box-shadow: var(--surface-elevated), var(--shadow-glow);
                     :global(.empty-icon) {
                         opacity: 1;
                         filter: drop-shadow(0 0 8px rgb(var(--signature-rgb) / 0.8));

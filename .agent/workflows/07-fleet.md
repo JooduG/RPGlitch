@@ -33,7 +33,7 @@ description: Orchestration & Sync. Coordinates the multi-agent fleet and swarm s
 
 1. **External Action**: Trigger the `fleet-dispatch` GitHub Action. [[Invoke: devops]](../skills/devops/SKILL.md)
 2. **External Tracking**: Create tracking PRs in child repositories with the `fleet-dispatch` label. [[Invoke: scribe]](../skills/scribe/SKILL.md)
-3. **Internal Action (Swarm)**: Dispatch the required sub-agents with strict, isolated objectives. 
+3. **Internal Action (Swarm)**: Dispatch the required sub-agents with strict, isolated objectives.
 
 ### Phase 3: The Quality Gate (Merge & Resolution)
 

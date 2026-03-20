@@ -7,7 +7,7 @@
  *
  * CONCEPTUAL OVERVIEW:
  * This is the "Engine Room" of RPGlitch. It treats narrative as a system of
- * fluid dynamics, where certain words act as "kinetic impulses" that shift 
+ * fluid dynamics, where certain words act as "kinetic impulses" that shift
  * the emotional and physical state of the simulation.
  *
  * THE TWIN-CYLINDER PARADIGM:
@@ -150,9 +150,7 @@ export const DYNAMICS_REFLEXES = [
     },
     {
         id: "NAIVETY",
-        triggers: [
-            { root: "persuasion", pattern: /promise|swear|trust me|i (swear|promise)|i'm not lying|believe me|honest(ly)?|i tell you/i },
-        ],
+        triggers: [{ root: "persuasion", pattern: /promise|swear|trust me|i (swear|promise)|i'm not lying|believe me|honest(ly)?|i tell you/i }],
         effect: {
             // No direct effect. This trigger activates the Bayesian Suspicion check.
         },
@@ -161,8 +159,8 @@ export const DYNAMICS_REFLEXES = [
 
 /**
  * 📢 SIGNAL PROMPTS
- * These are the text snippets injected into the LLM's system prompt 
- * when a specific dynamic axis hits a threshold. This transforms naked 
+ * These are the text snippets injected into the LLM's system prompt
+ * when a specific dynamic axis hits a threshold. This transforms naked
  * numbers back into narrative "flavors".
  */
 export const SIGNAL_PROMPTS = {
@@ -203,7 +201,7 @@ export class DynamicsEngine {
     /**
      * SIMULATE TURN
      * -------------------------------------------------------------------------
-     * The primary entry point. It takes a context payload and runs a single 
+     * The primary entry point. It takes a context payload and runs a single
      * frame of the narrative physics simulation.
      *
      * @param {IntelligencePayload} payload - The hydrated state from ContextBroker.
@@ -290,16 +288,16 @@ export class DynamicsEngine {
 
         // 2 & 3 & 4. UNIVERSAL PHYSICS & SIGNALS
         // Identifies any valid entity in the state payload that has a 'dynamics' object (ai, fractal, user, nemesis, etc.)
-        const dynamic_keys = Object.keys(state).filter(k => state[k] && typeof state[k] === 'object' && state[k].dynamics)
-        
-        dynamic_keys.forEach(key => {
+        const dynamic_keys = Object.keys(state).filter((k) => state[k] && typeof state[k] === "object" && state[k].dynamics)
+
+        dynamic_keys.forEach((key) => {
             const baselines = DynamicsEngine._get_baselines(state[key])
             DynamicsEngine._process_entity_dynamics(state[key].dynamics, baselines, triggered, state, prevState?.[key]?.dynamics)
             DynamicsEngine._map_signals(state[key].dynamics, state, d_phys.SIGNAL_HIGH, d_phys.SIGNAL_LOW)
         })
 
         // 5. BAYESIAN SKEPTICISM (AI Only):
-        // If the user tries to persuade or lie (NAIVETY trigger), we calculate how 
+        // If the user tries to persuade or lie (NAIVETY trigger), we calculate how
         // suspicious the AI should be based on its current Openness (Trust).
         if (state.ai && state.ai.dynamics && state.ai.dynamics.openness !== undefined) {
             const suspicion = DynamicsEngine._resolve_naivety(triggered, state.ai.dynamics.openness)
@@ -332,14 +330,14 @@ export class DynamicsEngine {
     /**
      * PROCESS ENTITY DYNAMICS
      * -------------------------------------------------------------------------
-     * Runs Gravity (restoring force) and Law (threshold triggers) for a set of 
+     * Runs Gravity (restoring force) and Law (threshold triggers) for a set of
      * specific dynamic axes.
      */
     static _process_entity_dynamics(d, baselines, triggered, state, prev_dynamics) {
         const { LAW_HIGH, LAW_LOW, GRAVITY_PULL, DYNAMICS_GRAVITY_BASELINE } = CONFIG.DYNAMICS
 
         // --- 🪐 TIER A: GRAVITY (Restoring Force) ---
-        // Every turn, stats lose a bit of their charge and wander back toward their 
+        // Every turn, stats lose a bit of their charge and wander back toward their
         // natural baseline (the character's personality default).
         Object.keys(d).forEach((axis) => {
             const target = baselines[axis] ?? DYNAMICS_GRAVITY_BASELINE
@@ -347,14 +345,14 @@ export class DynamicsEngine {
         })
 
         // --- ⚖️ TIER B: THE LAWS (Extreme Behaviors) ---
-        // If a stat boils over or freezes, it causes "Cascades"—side effects 
+        // If a stat boils over or freezes, it causes "Cascades"—side effects
         // that force other stats to shift in response to the trauma.
         Object.keys(d).forEach((axis) => {
             const val = d[axis]
 
             if (val >= LAW_HIGH) {
                 state.flags.push(`${axis.toUpperCase()}_HIGH_THRESHOLD`)
-                
+
                 // Logic Cascades
                 if (axis === "intensity") {
                     d.openness = (d.openness || 0) - 10 // Adrenaline closes the mind.
@@ -370,7 +368,7 @@ export class DynamicsEngine {
                 }
             } else if (val <= LAW_LOW) {
                 state.flags.push(`${axis.toUpperCase()}_LOW_THRESHOLD`)
-                
+
                 if (axis === "intensity") {
                     d.affinity = (d.affinity || 0) + 10 // Calm breeds bond.
                     d.chaos = (d.chaos || 0) - 5
@@ -386,7 +384,7 @@ export class DynamicsEngine {
             }
         })
 
-    // --- 🛡️ THE CLIPPER (Mandatory 0-100 Clamping) ---
+        // --- 🛡️ THE CLIPPER (Mandatory 0-100 Clamping) ---
         // Final sanity check. Round and clamp between 0 and 100 before shipping.
         Object.keys(d).forEach((axis) => {
             d[axis] = Math.max(0, Math.min(100, Math.round(d[axis])))
@@ -396,7 +394,7 @@ export class DynamicsEngine {
     /**
      * MAP SIGNALS
      * -------------------------------------------------------------------------
-     * Consults the SIGNAL_PROMPTS dictionary and pushes the appropriate 
+     * Consults the SIGNAL_PROMPTS dictionary and pushes the appropriate
      * descriptive text into the output if axes are at their extremes.
      */
     static _map_signals(source_dynamics, state, SIGNAL_HIGH, SIGNAL_LOW) {
@@ -420,7 +418,7 @@ export class DynamicsEngine {
     /**
      * RESOLVE NAIVETY (Bayesian Cognition)
      * -------------------------------------------------------------------------
-     * Calculates the "Suspicion Index". 
+     * Calculates the "Suspicion Index".
      * Formula: Posterior distrust = 1 - (likelihood * prior / evidence_prob).
      * High openness = High prior trust. Low openness = Low prior trust.
      */
@@ -442,9 +440,8 @@ export class DynamicsEngine {
 
         // 4. Calculate Posterior probability of Trust given the evidence (the user's persuasion).
         const posterior_trust = (p_e_given_trust * prior_trust) / p_e
-        
+
         // Return Suspicion (The Inverse of Trust)
         return 1.0 - posterior_trust
     }
-
 }

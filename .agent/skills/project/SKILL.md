@@ -29,19 +29,19 @@ description: >
 ## 4. Procedures
 
 1. **Scaffold Track**:
-   - Check `backlog.md` or user intent.
-   - Run "Architecture Consultation" if intent is A3 (Ambiguous).
-   - Create `.agent/state/tracks/<slug>.md` using the [Track Template](templates/track.md).
-   - Register the track in `.agent/state/tracks.md`.
+    - Check `backlog.md` or user intent.
+    - Run "Architecture Consultation" if intent is A3 (Ambiguous).
+    - Create `.agent/state/tracks/<slug>.md` using the [Track Template](templates/track.md).
+    - Register the track in `.agent/state/tracks.md`.
 2. **Sync Execution**:
-   - Before implementation, read the target track file.
-   - Use `scripts/sync.js` to ensure environmental parity.
+    - Before implementation, read the target track file.
+    - Use `scripts/sync.js` to ensure environmental parity.
 
 ## 5. Anti-Patterns
 
-| Pattern | Mitigation |
-| :--- | :--- |
-| **The Ghost Work** | Coding without an active entry in `tracks.md` or a track file. |
+| Pattern                 | Mitigation                                                            |
+| :---------------------- | :-------------------------------------------------------------------- |
+| **The Ghost Work**      | Coding without an active entry in `tracks.md` or a track file.        |
 | **State Fragmentation** | Creating `STATE.md` or `.tasks/` folders. (Use `.agent/state/` ONLY). |
 | **Nested Task Folders** | v4.0 uses Flat Tracks (one file per task) to prevent context hopping. |
 

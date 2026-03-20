@@ -3,10 +3,10 @@ name: style-extraction
 version: 2.0.0 (Sovereign Core Edition)
 description: Reverse-engineers Stitch projects into semantic design systems mapped to the Chalk Regime.
 allowed-tools:
-  - "stitch*:*"
-  - "Read"
-  - "Write"
-  - "web_fetch"
+    - "stitch*:*"
+    - "Read"
+    - "Write"
+    - "web_fetch"
 ---
 
 # ���️ Skill: Design System Synthesizer
