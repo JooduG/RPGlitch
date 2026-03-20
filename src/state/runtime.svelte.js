@@ -252,7 +252,7 @@ function createRuntimeStore() {
                     }
                 } else {
                     await entities.update(type, id, data)
-                    const targets = [entityState.character, entityState.active_user, entityState.active_ai, entityState.active_fractal]
+                    const targets = [...new Set([entityState.character, entityState.active_user, entityState.active_ai, entityState.active_fractal])]
                     targets.forEach((t) => {
                         if (t && t.id === id) Object.assign(t, data)
                     })
