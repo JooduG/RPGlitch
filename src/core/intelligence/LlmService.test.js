@@ -3,6 +3,19 @@ import { sanitize, LlmService } from "./LlmService.js"
 import { app } from "@state/app.svelte.js"
 import { ERROR_MESSAGES } from "@core/engine/config.js"
 
+
+// Mock app state
+vi.mock("@state/app.svelte.js", () => {
+    return {
+        app: {
+            start_stream: vi.fn(),
+            update_stream: vi.fn(),
+            end_stream: vi.fn(),
+            streaming: { active: false }
+        }
+    }
+})
+
 describe("LlmService - sanitize", () => {
     it("should remove outer quotes", () => {
         expect(sanitize('"Hello World"')).toBe("Hello World")
