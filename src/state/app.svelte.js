@@ -99,7 +99,7 @@ export class AppStore {
      */
     log(message, type = "system") {
         const entry = {
-            id: generateUUID(),
+            id: crypto.randomUUID(),
             timestamp: logTimeFormatter.format(Date.now()),
             message,
             type, // 'system' | 'ai' | 'db' | 'error'
