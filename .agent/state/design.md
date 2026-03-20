@@ -1,116 +1,64 @@
-# Design System Specification: High-Contrast Glitch RPG
+# Design System: The Nordic Collection (RPGlitch)
 
 ## 1. Overview & Creative North Star
+**Creative North Star: "The Silent Nordic Stage"**
 
-### Creative North Star: "The Fractured Terminal"
+This design system is inspired by the "Nordic Refac V2" collection. It is a local-first, premium RPG interface that values clarity, depth, and atmospheric calm over industrial chaos. The goal is to create a "Silent Stage"—a beautiful, minimalist theater for the user's narrative to unfold.
 
-This design system rejects the "clean" and "friendly" tropes of modern SaaS in favor of a visceral, high-fidelity digital decay. It is built to feel like a high-end military terminal that is being actively bypassed or corrupted. We achieve this through **Intentional Asymmetry**, where modular blocks don't always align perfectly, and **Tactile Digitalism**, using scan-lines and pixel-grid overlays to give the screen a physical, CRT-like depth.
-
-The system moves beyond standard cyberpunk by avoiding "neon-on-black" cliches; instead, it utilizes high-contrast tonal shifts and chromatic aberration to create a sense of vibrating energy. It is brutal, precise, and unapologetically digital.
+We prioritize **softened geometry**, **harmonious tonal shifts**, and **meaningful depth**. We avoid aggressive "glitch" aesthetics in favor of subtle, high-end digital refinements that make the interface feel alive and reactive without being oppressive.
 
 ---
 
 ## 2. Colors & Surface Architecture
 
-The palette is rooted in a deep charcoal void, punctuated by aggressive, "glowing" accents.
+The palette is derived strictly from the **Chalk Regime** tokens, focusing on a deep "Gunmetal" and "Frozen" baseline with "Chalk" data points.
 
-### The Color Logic
+### The Nordic Hierarchy
+- **Primary Accent (`--color-frozen` / `--color-frisk`):** Used for navigation cues and significant narrative triggers.
+- **Surface (`--color-gunmetal`):** The foundation. Use `surface-base` and `surface-sunken` for the main canvas.
+- **The Chalk Point (`--color-chalk`):** Used for primary text and high-contrast icons to ensure absolute legibility.
 
-- **Background (`#131314`)**: The absolute void. All UI begins here.
-- **Primary (`#ffffff`)**: Used for high-priority information and "blinding" clarity.
-- **Secondary (`#ffabf3`) / Tertiary (`#a8f928`)**: Our "Glitch" accents. Magenta (`secondary`) represents system warnings or high-energy actions; Lime (`tertiary`) represents data streams and organic system health.
-
-### The "No-Line" & "Anti-Border" Rule
-
-Traditional 1px solid borders are strictly prohibited. Sectioning must be achieved through:
-
-1.  **Background Shifts**: Use `surface-container-low` vs. `surface-container-high` to create modularity.
-2.  **Pixelated Fills**: Instead of a line, use a 2px-wide tiled "dot" pattern or a dithered gradient to separate sections.
-3.  **Optical Gaps**: Use the Spacing Scale (specifically `8` or `10`) to create "dead zones" between modules, allowing the `background` color to act as the divider.
-
-### Surface Hierarchy & Layering
-
-Treat the UI as a stack of hardware modules.
-
-- **Base Level**: `surface` (`#131314`).
-- **Nesting**: Place `surface-container-lowest` elements within a `surface-container-high` block to create a "recessed" screen effect.
-- **Glassmorphism**: For floating HUD elements, use `surface-variant` at 60% opacity with a `20px` backdrop-blur. This mimics the look of a physical glass display overlaying a terminal.
+### Surface Architecture
+We create depth through **Shadows over Borders**. 
+- **Soft Shadows:** Use `shadow-m` for standard cards and `shadow-l` for floating overlays.
+- **Recessed Surfaces:** Use `surface-sunken` for content areas that should feel "embedded" into the interface.
+- **Glassmorphism:** Use `blur-m` to `blur-xl` on secondary panels to maintain a sense of layered spatiality.
 
 ---
 
-## 3. Typography: The Dual-Protocol Scale
+## 3. Typography: The Dual-Identity Scale
 
-We use a "Dual-Protocol" approach: `Space Grotesk` handles all tactical and high-level data, but its implementation varies by role to simulate different terminal outputs.
+We use **Ubuntu** for personality and **Inter** for precision.
 
-- **Display & Headlines (The "Broadcast" Layer)**:
-    - Use `display-lg` (3.5rem) and `headline-lg` (2rem).
-    - **Treatment**: All-caps, tracked out by `0.1em`. These should feel like system-wide alerts. Use `secondary` or `tertiary` colors for maximum impact.
-- **Titles & Labels (The "Interface" Layer)**:
-    - Use `title-md` (1.125rem).
-    - **Treatment**: Bold, high-contrast (`on_surface`).
-- **Body & Monospace (The "Data" Layer)**:
-    - While the system uses `Space Grotesk`, for "Data" components, apply `font-feature-settings: "tnum", "onum", "lnum", "pnum"` to simulate a monospaced, technical feel.
-    - **Body-sm**: Used for flavor text and terminal logs.
+- **Ubuntu (Headers):** Used for display titles and entity names. It provides a rounded, technical yet friendly feel.
+- **Inter (Metadata & Body):** Used for the bulk of the technical ledger. High legibility is the priority.
+- **Monospace (Coordinates/IDs):** Use **JetBrains Mono** only for raw data strings or terminal logs.
 
 ---
 
-## 4. Elevation, Depth & Distortion
+## 4. Components & Ergonomics
 
-In this design system, "Elevation" is not about soft shadows—it is about **Signal Strength**.
+### Trigger Modules (Buttons)
+- **Visuals:** **Rounded & Tactile**. Use `border-radius-m` (0.5rem / 8px) for all primary buttons. This aligns with the "Nordic" ergonomics.
+- **States:** 
+  - **Hover**: Subtle vertical shift (`physics-btn-hover-y`) and a glow increase. 
+  - **Active**: Slight scale compression (`physics-btn-active-scale`) to provide mechanical feedback.
+- **Transitions:** Use the `Snappy Curve` (`cubic-bezier(0.34, 1.56, 0.64, 1)`) for all state changes.
 
-- **Tonal Layering**: Depth is achieved by "stacking." A `surface-container-highest` card doesn't just sit on the background; it "vibrates" against it.
-- **Chromatic Aberration (The Hover State)**: Floating elements or interactive cards do not use drop shadows. Instead, on hover, apply a subtle `text-shadow` or `box-shadow` offset:
-    - `2px 0px #00fbfb` (Cyan) and `-2px 0px #ffabf3` (Magenta).
-- **The "Ghost Border"**: If a container requires definition, use `outline-variant` (`#3a4a49`) at 15% opacity, but only on two sides (e.g., Left and Bottom) to create an asymmetric "bracket" look.
-- **Scan-line Overlay**: Apply a global `::after` pseudo-element to the body with a repeating linear gradient of 2px transparent and 1px `on_background` at 3% opacity.
-
----
-
-## 5. Components
-
-### Buttons: "The Trigger Modules"
-
-- **Primary**: Solid `primary_container` (`#00fbfb`) background, `on_primary` text. No rounded corners (`0px`).
-- **States**: On hover, the button should "glitch" (shift 2px left/right rapidly) and swap colors to `secondary_container` (`#fe00fe`).
-- **Tertiary**: Transparent background, `primary` text, with a `px` width left-border only.
-
-### Inputs & Text Areas
-
-- **Styling**: `surface-container-lowest` background.
-- **Active State**: The bottom border "activates" by turning into a 2px `primary_fixed` line that extends from the center outward. Use a blinking underscore cursor `_` instead of a standard bar.
-
-### Cards & Lists: "The Modular Blocks"
-
-- **Forbid Dividers**: Use `spacing.10` (2.25rem) to separate list items.
-- **Structure**: Each card should feel like a standalone piece of hardware. Use `surface-container-high` for the card body and a "header strip" of `surface-container-highest` to house the title.
-
-### Specialized Component: "The Distortion Loader"
-
-- A progress bar using the `tertiary_container` (`#a8f928`). The bar shouldn't fill smoothly; it should jump in "chunks" of 5-10%, mimicking a stuttering data transfer.
+### Entity Cards
+- **Geometry**: Consistent `border-radius-m`. 
+- **Separation**: Use `surface-raised` background to stand out from the `surface-base`. Use padding scale `spacing-m` (1rem) for internal consistency.
 
 ---
 
-## 6. Do's and Don'ts
+## 5. Do’s and Don’ts
 
-### Do
+### Do:
+- **Prioritize Legibility:** High contrast (Chalk on Gunmetal) is the foundation of the user experience.
+- **Use Soft Depth:** Lean on box-shadows and blurs rather than hard stroke lines.
+- **Embrace the Silence:** Keep UI elements minimal. Only show what is needed for the current narrative moment.
 
-- **Embrace Asymmetry**: Align a header to the left, but place its supporting data on a slightly offset grid to the right.
-- **Use "Data-Density"**: Pack labels (`label-sm`) near values to simulate a complex RPG HUD.
-- **High Contrast**: Ensure text is either stark white (`primary`) or high-vibrancy neon against the dark background.
-
-### Don't
-
-- **No Rounded Corners**: Every `border-radius` token is set to `0px`. Roundness kills the terminal aesthetic.
-- **No Soft Shadows**: Avoid standard Gaussian blurs. If you need "glow," use a sharp, multi-layered `drop-shadow` with 0 blur.
-- **No Centered Layouts**: Standard centered "marketing" layouts feel too safe. Stick to "Left-Heavy" or "Exploded" modular layouts.
-- **No 1px Dividers**: Never use a grey line to separate content. Use a change in surface color or a significant vertical gap.
-
----
-
-## 7. Spacing & Grid
-
-The grid is a **Block System**.
-
-- Use the `Spacing Scale` strictly.
-- Content should be grouped in `16` (3.5rem) or `24` (5.5rem) blocks.
-- Small UI elements (like chips or labels) use `2` (0.4rem) padding to maintain a "tight," technical feel.
+### Don’t:
+- **No Square Buttons:** 0px radius is strictly forbidden. We favor the "Nordic" smoothness.
+- **No Aggressive Glitch:** While subtle "data flicker" animations are acceptable for transitions, the persistent UI should remain static and reliable.
+- **No Hallucinated Colors:** Never use a color that is not a CSS variable in `tokens.css`.
