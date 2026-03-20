@@ -48,8 +48,8 @@ describe("LlmService - generate network errors", () => {
 
     beforeEach(() => {
         vi.clearAllMocks()
-        // Reset window.ai mock
-        global.window = { ai: vi.fn() }
+        // Use stubGlobal to avoid replacing the whole window object
+        vi.stubGlobal('ai', vi.fn())
 
         // Mock console.error to avoid test output noise
         vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -58,6 +58,7 @@ describe("LlmService - generate network errors", () => {
 
     afterEach(() => {
         vi.restoreAllMocks()
+        vi.unstubAllGlobals() // Clean up the global stub
     })
 
     it("should throw Perchance AI plugin not available if window.ai is missing", async () => {
