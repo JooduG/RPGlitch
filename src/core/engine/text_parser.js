@@ -35,8 +35,8 @@ export function clean_image_prompts(text) {
         previous = result
         // matches opening tag, followed by characters not containing '<image_prompt', followed by closing tag
         // Actually, we can just replace any occurrence of <image_prompt>...</image_prompt> where the inside has no <image_prompt>
-        // We can do this with: /<image_prompt[^>]*>(?:(?!<image_prompt)[\s\S])*?<\/image_prompt>/gi
-        result = result.replace(/<image_prompt[^>]*>(?:(?!<image_prompt)[\s\S])*?<\/image_prompt>/gi, "")
+        // We can do this with: /<image_prompt[^>]*>(?:(?!<image_prompt)[\s\S])*?<\/image_prompt\s*>/gi
+        result = result.replace(/<image_prompt[^>]*>(?:(?!<image_prompt)[\s\S])*?<\/image_prompt\s*>/gi, "")
     }
     return result
 }

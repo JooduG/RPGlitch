@@ -12,8 +12,8 @@ describe("clean_image_prompts", () => {
         { description: "a self-closing tag with attributes", input: 'Hello <image_prompt src="cat.png" alt="A cat" /> world', expected: "Hello  world" },
         { description: "multiple image prompts", input: "Start <image_prompt>one</image_prompt> middle <image_prompt /> end", expected: "Start  middle  end" },
         { description: "newlines inside the image prompt tag", input: "Line 1\n<image_prompt>\na cute\ncat\n</image_prompt>\nLine 2", expected: "Line 1\n\nLine 2" },
-        { description: "case-insensitive tags", input: "Hello <IMAGE_PROMPT>cat</Image_Prompt> world <Image_Prompt />", expected: "Hello  world" },
-        { description: "tags with extra whitespace", input: "Test <image_prompt    >content</image_prompt   > test2 <image_prompt   />", expected: "Test  test2" },
+        { description: "case-insensitive tags", input: "Hello <IMAGE_PROMPT>cat</Image_Prompt> world <Image_Prompt />", expected: "Hello  world " },
+        { description: "tags with extra whitespace", input: "Test <image_prompt    >content</image_prompt   > test2 <image_prompt   />", expected: "Test  test2 " },
         { description: "a non-self-closing tag with attributes", input: 'Hello <image_prompt src="cat.png" alt="A cat">cute cat</image_prompt> world', expected: "Hello  world" },
         { description: "nested image prompts", input: "Start <image_prompt>Outer <image_prompt>Inner</image_prompt> Outer-End</image_prompt> End", expected: "Start  End" },
     ]
@@ -230,6 +230,28 @@ describe("parse_scene_header", () => {
         expect(result).toEqual({
             content: "『 [Location] · [Time] ·  』\nContent",
             header: null,
+        })
+    })
+
+    it("should handle completely empty text input without breaking", () => {
+        const text = ""
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "",
+            header: null,
+        })
+    })
+
+    it("should handle empty or whitespace-only values within header brackets", () => {
+        const text = "『 [ ] · [  ] · [] 』\nContent"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "Content",
+            header: {
+                location: "",
+                time: "",
+                weather: "",
+            },
         })
     })
 })
