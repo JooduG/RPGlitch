@@ -31,11 +31,11 @@ class PerchanceBridge {
                 description: "A phantom entity manifested for testing purposes.",
             }
         }
-        const ocChar = window.oc.character;
+        const ocChar = window.oc.character
         return {
             name: "Unknown",
             description: "",
-            .../** @type {any} */ (typeof ocChar === 'object' && ocChar !== null ? ocChar : {}),
+            .../** @type {any} */ (typeof ocChar === "object" && ocChar !== null ? ocChar : {}),
         }
     }
 
@@ -54,7 +54,7 @@ class PerchanceBridge {
         }
         try {
             if (!window.oc.thread) {
-                throw new TypeError("window.oc.thread is undefined");
+                throw new TypeError("window.oc.thread is undefined")
             }
             window.oc.thread.on(event, callback)
         } catch (err) {

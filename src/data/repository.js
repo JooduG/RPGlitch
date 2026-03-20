@@ -28,10 +28,10 @@ export const seedPremades = async () => {
         const toAdd = []
 
         const existingIds = existing.reduce((acc, { id, originId }) => {
-            if (id != null) acc.add(id);
-            if (originId != null) acc.add(originId);
-            return acc;
-        }, new Set());
+            if (id != null) acc.add(id)
+            if (originId != null) acc.add(originId)
+            return acc
+        }, new Set())
 
         for (const bp of premade.entities) {
             // Check by ID or originId to prevent duplicates of factory stock
