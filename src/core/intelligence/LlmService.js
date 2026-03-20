@@ -35,12 +35,12 @@ import { app } from "@state/app.svelte.js"
  * @param {string} text
  * @returns {string}
  */
-function sanitize(text) {
+export function sanitize(text) {
     return text
         .replace(/^["']|["']$/g, "")
         .replace(/^(here is|sure|certainly|i can help|enhanced text:|the enhanced text).*?:/i, "")
-        .replace(/^```.*?[\r\n]/gm, "")
-        .replace(/```$/g, "")
+        .replace(/^\s*```.*?[\r\n]/gm, "")
+        .replace(/```\s*$/g, "")
         .trim()
 }
 
