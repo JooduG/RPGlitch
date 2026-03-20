@@ -114,6 +114,15 @@ describe("PerchanceBridge", () => {
             })
         })
 
+
+        it("should handle non-object character data gracefully", () => {
+            window.oc.character = 'invalid-data';
+            expect(bridge.character).toEqual({
+                name: 'Unknown',
+                description: '',
+            });
+        })
+
         it("should delegate .on() to window.oc.thread.on", () => {
             const callback = vi.fn()
             bridge.on("testEvent", callback)
@@ -141,5 +150,21 @@ describe("PerchanceBridge", () => {
             window.oc.thread.customData = null
             expect(bridge.customData).toEqual({})
         })
+
+        it("should handle a missing 'thread' object gracefully for customData", () => {
+            window.oc.thread = undefined;
+            // This currently throws, but should ideally return {}
+            expect(bridge.customData).toEqual({});
+        });
+
+        it("should handle a missing 'thread' object gracefully for .on()", () => {
+            window.oc.thread = undefined;
+            bridge.on('testEvent', () => {});
+            expect(console.error).toHaveBeenCalledWith(
+                `[Security:Bridge] Failed to attach listener for 'testEvent':`,
+                expect.any(TypeError)
+            );
+        });
+
     })
 })
