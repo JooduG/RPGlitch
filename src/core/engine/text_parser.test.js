@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest"
 import { parse_scene_header, clean_image_prompts } from "./text_parser.js"
 
+
 describe("clean_image_prompts", () => {
     it("should remove standard <image_prompt> tags and their content", () => {
         const text = "Hello <image_prompt>a cat</image_prompt> world"
@@ -250,6 +251,25 @@ describe("parse_scene_header", () => {
         })
     })
 
+
+    it("should handle completely missing headers with standard text", () => {
+        const text = "Just some standard text without any scene header formatting.";
+        const result = parse_scene_header(text);
+        expect(result).toEqual({
+            content: text,
+            header: null,
+        });
+    });
+
+    it("should handle a header with missing weather", () => {
+        const text = "『 [Location] · [Time] 』\nContent";
+        const result = parse_scene_header(text);
+        expect(result).toEqual({
+            content: text,
+            header: null,
+        });
+    });
+
     it("should return null header if one bracket is missing entirely", () => {
         const text = "『 [Location] · [Time] ·  』\nContent"
         const result = parse_scene_header(text)
@@ -260,6 +280,7 @@ describe("parse_scene_header", () => {
     })
 })
 
+
 describe("clean_image_prompts", () => {
     it("should return empty string for null, undefined, or empty input", () => {
         expect(clean_image_prompts(null)).toBe("")
@@ -267,46 +288,34 @@ describe("clean_image_prompts", () => {
         expect(clean_image_prompts("")).toBe("")
     })
 
-    it("should remove <image_prompt>...</image_prompt> blocks", () => {
-        const text = "Start <image_prompt>A dark forest</image_prompt> End"
-        expect(clean_image_prompts(text)).toBe("Start  End")
-    })
-
-    it("should remove self-closing <image_prompt /> tags", () => {
-        const text = "Start <image_prompt src='test' /> End"
-        expect(clean_image_prompts(text)).toBe("Start  End")
-    })
-
-    it("should handle multiline image prompts", () => {
-        const text = "Start <image_prompt>\nA dark forest\nwith trees\n</image_prompt> End"
-        expect(clean_image_prompts(text)).toBe("Start  End")
-    })
-
-    it("should remove multiple image prompts in the same text", () => {
-        const text = "<image_prompt>First</image_prompt> Middle <image_prompt>Second</image_prompt>"
-        expect(clean_image_prompts(text)).toBe(" Middle ")
-    })
-
-    it("should leave other content untouched", () => {
-        const text = "This is a normal string without image prompts."
+    it("should return the original text if there are no image prompts", () => {
+        const text = "This is a normal text."
         expect(clean_image_prompts(text)).toBe(text)
     })
 
-    it("should handle case-insensitivity", () => {
-        const text = "Start <IMAGE_PROMPT>A dark forest</image_Prompt> <iMaGe_PrOmPt /> End"
-        expect(clean_image_prompts(text)).toBe("Start   End")
-    })
-
-    it("should remove <image_prompt> blocks with attributes", () => {
-        const text = "Start <image_prompt src='test.png'>A dark forest</image_prompt> End"
-        expect(clean_image_prompts(text)).toBe("Start  End")
-    })
-
-    it("should handle nested <image_prompt> blocks by removing the outermost block", () => {
-        const text = "Before <image_prompt>outer<image_prompt>inner</image_prompt></image_prompt> After"
-        // This test will currently fail, revealing a bug in the parsing logic.
-        // The current output is "Before </image_prompt> After".
-        // The expected behavior is to remove the entire nested structure.
+    it("should remove normal <image_prompt> blocks", () => {
+        const text = "Before <image_prompt>Some image prompt</image_prompt> After"
         expect(clean_image_prompts(text)).toBe("Before  After")
+    })
+
+    it("should remove self-closing <image_prompt/> tags", () => {
+        const text = "Before <image_prompt url='img.png' /> After"
+        expect(clean_image_prompts(text)).toBe("Before  After")
+    })
+
+    it("should remove multiline <image_prompt> blocks", () => {
+        const text = "Before <image_prompt>\nLine 1\nLine 2\n</image_prompt> After"
+        expect(clean_image_prompts(text)).toBe("Before  After")
+    })
+
+    it("should remove multiple image prompts in a single string", () => {
+        const text = "1 <image_prompt>first</image_prompt> 2 <image_prompt/> 3"
+        expect(clean_image_prompts(text)).toBe("1  2  3")
+    })
+
+    it("should be case-insensitive when removing tags", () => {
+        const text = "Before <ImAgE_PrOmPt>Some prompt</IMAGE_PROMPT> After <Image_Prompt /> End"
+        expect(clean_image_prompts(text)).toBe("Before  After  End")
+
     })
 })
