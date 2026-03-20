@@ -285,3 +285,40 @@ describe("parse_scene_header additional edge cases", () => {
     })
 
 })
+
+describe("parse_scene_header additional basic edge cases", () => {
+    it("should extract correctly when content after header has multiple newlines", () => {
+        const text = "『 [Location] · [Time] · [Weather] 』\n\n\nContent paragraph 1\n\nContent paragraph 2"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "Content paragraph 1\n\nContent paragraph 2",
+            header: {
+                location: "Location",
+                time: "Time",
+                weather: "Weather",
+            },
+        })
+    })
+
+    it("should handle headers with unusual characters", () => {
+        const text = "『 [City_123!] · [Time*] · [Weather#] 』\nContent"
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "Content",
+            header: {
+                location: "City_123!",
+                time: "Time*",
+                weather: "Weather#",
+            },
+        })
+    })
+
+    it("should handle completely empty text input without breaking", () => {
+        const text = ""
+        const result = parse_scene_header(text)
+        expect(result).toEqual({
+            content: "",
+            header: null,
+        })
+    })
+})
