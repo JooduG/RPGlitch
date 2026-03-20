@@ -25,7 +25,7 @@
         return paragraphs.map((p) => {
             let normalized = p.replace(/\n/g, " ")
             let tokens = []
-            const regex = /\*\*([\s\S]*?)\*\*|\*([\s\S]*?)\*/g
+            const regex = /\*\*\*([\s\S]*?)\*\*\*|\*\*([\s\S]*?)\*\*|\*([\s\S]*?)\*/g
             let lastIndex = 0
             let match
 
@@ -34,9 +34,11 @@
                     tokens.push({ type: "text", content: normalized.substring(lastIndex, match.index) })
                 }
                 if (match[1] !== undefined) {
-                    tokens.push({ type: "strong", content: match[1] })
+                    tokens.push({ type: "strong-em", content: match[1] })
                 } else if (match[2] !== undefined) {
-                    tokens.push({ type: "em", content: match[2] })
+                    tokens.push({ type: "strong", content: match[2] })
+                } else if (match[3] !== undefined) {
+                    tokens.push({ type: "em", content: match[3] })
                 }
                 lastIndex = match.index + match[0].length
             }
@@ -67,6 +69,8 @@
                             {#each paragraph as token, j (j)}
                                 {#if token.type === "strong"}
                                     <strong>{token.content}</strong>
+                                {:else if token.type === "strong-em"}
+                                    <strong><em>{token.content}</em></strong>
                                 {:else if token.type === "em"}
                                     <em>{token.content}</em>
                                 {:else}
@@ -178,10 +182,10 @@
         margin-bottom: 2px;
     }
     .display-area .content .markdown-paragraph {
-        margin: 0 0 var(--spacing-m) 0;
+        margin: 0;
     }
 
-    .display-area .content .markdown-paragraph:last-child {
-        margin-bottom: 0;
+    .display-area .content .markdown-paragraph + .markdown-paragraph {
+        margin-top: var(--spacing-m);
     }
 </style>
