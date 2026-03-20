@@ -1,6 +1,54 @@
 import { describe, it, expect } from "vitest"
 import { parse_scene_header, clean_image_prompts } from "./text_parser.js"
 
+describe("clean_image_prompts", () => {
+    it("should remove standard <image_prompt> tags and their content", () => {
+        const text = "Hello <image_prompt>a cat</image_prompt> world"
+        expect(clean_image_prompts(text)).toBe("Hello  world")
+    })
+
+    it("should remove self-closing <image_prompt /> tags", () => {
+        const text = "Hello <image_prompt /> world"
+        expect(clean_image_prompts(text)).toBe("Hello  world")
+    })
+
+    it("should remove self-closing tags with attributes", () => {
+        const text = 'Hello <image_prompt src="cat.png" alt="A cat" /> world'
+        expect(clean_image_prompts(text)).toBe("Hello  world")
+    })
+
+    it("should remove multiple image prompts", () => {
+        const text = "Start <image_prompt>one</image_prompt> middle <image_prompt /> end"
+        expect(clean_image_prompts(text)).toBe("Start  middle  end")
+    })
+
+    it("should handle newlines inside the image prompt tag", () => {
+        const text = "Line 1\n<image_prompt>\na cute\ncat\n</image_prompt>\nLine 2"
+        expect(clean_image_prompts(text)).toBe("Line 1\n\nLine 2")
+    })
+
+    it("should be case-insensitive", () => {
+        const text = "Hello <IMAGE_PROMPT>cat</Image_Prompt> world <Image_Prompt />"
+        expect(clean_image_prompts(text)).toBe("Hello  world")
+    })
+
+    it("should return the original text if there are no image prompts", () => {
+        const text = "Just some normal text with no prompts."
+        expect(clean_image_prompts(text)).toBe("Just some normal text with no prompts.")
+    })
+
+    it("should handle empty strings, null, and undefined gracefully", () => {
+        expect(clean_image_prompts("")).toBe("")
+        expect(clean_image_prompts(null)).toBe("")
+        expect(clean_image_prompts(undefined)).toBe("")
+    })
+
+    it("should remove image prompt tags with extra whitespace", () => {
+        const text = "Test <image_prompt    >content</image_prompt   > test2 <image_prompt   />"
+        expect(clean_image_prompts(text)).toBe("Test  test2")
+    })
+})
+
 describe("parse_scene_header", () => {
     it("should parse a standard scene header", () => {
         const text = "『 [Dark Forest] · [Midnight] · [Raining] 』\nThe rest of the content."
