@@ -102,11 +102,11 @@ describe("LlmService - generate", () => {
         await LlmService.generate(payload, { onToken: onTokenSpy, silent: false, raw: true })
 
         expect(app.start_stream).toHaveBeenCalledWith("test-node")
-        expect(app.update_stream).toHaveBeenCalledWith("Chunk1")
-        expect(app.update_stream).toHaveBeenCalledWith("Chunk2")
+        expect(app.update_stream).toHaveBeenNthCalledWith(1, "Chunk1")
+        expect(app.update_stream).toHaveBeenNthCalledWith(2, "Chunk2")
         expect(app.end_stream).toHaveBeenCalled()
         expect(onTokenSpy).toHaveBeenCalledTimes(2)
-        expect(onTokenSpy).toHaveBeenCalledWith("Chunk2")
+        expect(onTokenSpy).toHaveBeenLastCalledWith("Chunk2")
     })
 
     it("should handle options.silent and not update app streaming state", async () => {
