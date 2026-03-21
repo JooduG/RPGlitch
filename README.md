@@ -1,6 +1,5 @@
 # 🔷 JooduG Monorepo
 
-> **Physics:** [07-physics](.agent/knowledge/atlas/07-physics.md) (Knowledge Item)
 > **Standards:** [03-technetium](.agent/rules/03-technetium.md) (Technical Pillar)
 > **Platform:** [Perchance](https://perchance.org)
 

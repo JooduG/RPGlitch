@@ -135,5 +135,5 @@ To prevent cognitive drift and conversion errors, these definitions are absolute
 Documentation is a functional, interactive interface, not a static tomb.
 
 1. **Relative Resolution**: Internal references MUST use relative paths (e.g., `[Tracks](../state/tracks.md)`). Absolute `file:///` URIs and hardcoded drive letters (`C:`) are prohibited to ensure drive neutrality.
-2. **Functional Metadata**: Workflow steps containing `[Invoke: skill]` MUST be formatted as clickable links to their `SKILL.md` (e.g., `[[Invoke: styling]](../skills/styling/SKILL.md)`).
+2. **Functional Metadata**: Workflow steps containing `[Invoke: skill]` MUST be formatted as clickable links to their `SKILL.md` (e.g., `[[Invoke: css]](../skills/css/SKILL.md)`).
 3. **Absolute Grounding (Literalism)**: Technical explanations MUST map to actual file paths and line numbers. Report ambiguity (A3+) rather than inferring "likely" behavior.

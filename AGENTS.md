@@ -42,7 +42,7 @@ This document defines the RPGlitch technical stack and engineering mandates for 
 ### 5. Governance & Narrative Architecture
 
 - **ANEX_BLACKTIDE Protocol**: Respect the narrative hierarchy (L1_ABSOLUTE > L2_CRITICAL). Never narrate for the user or break third-person integrity.
-- **Mandate**: All autonomous operations MUST adhere to the protocol defined in [.agent/policy.toml](./.agent/policy.toml).
+- **Mandate**: All autonomous operations MUST adhere to the protocol defined in [.agent/policies/tools.toml](./.agent/policies/tools.toml).
 
 ---
 

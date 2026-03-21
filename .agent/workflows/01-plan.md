@@ -27,7 +27,7 @@ description: Integrated Scoping & Design. Defines the blueprint.
 1. **Analyze Intent**: Is the request clear? [[Invoke: vibe-decoder]](../skills/vibe-decoder/SKILL.md)
     - **Ambiguous (A3+)**: STOP. Do not ask open-ended questions. Formulate 2-3 **Technical Options** (Logic vs Performance vs UX). Ask user to select.
     - **Clear**: Proceed.
-2. **Semantic Recall**: If targeting complex core engine files (e.g., `ContextBroker`), query the vector database for historical context. Stop guessing; start searching. [[Invoke: memory]](../skills/memory/SKILL.md)
+2. **Semantic Recall**: If targeting complex core engine files (e.g., `ContextBroker`), query the vector database for historical context. Stop guessing; start searching. [[Invoke: data]](../skills/data/SKILL.md)
 3. **Context Trigger**: If the task involves UI (`.svelte` files, styling, layout):
     - **Action**: Call `stitch` to synthesize a design spec. [[Invoke: stitch]](../skills/stitch/SKILL.md) / [[Invoke: style-extraction]](../skills/style-extraction/SKILL.md)
 

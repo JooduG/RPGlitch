@@ -32,7 +32,7 @@ description: Implementation Loop. Logic, State, and Style fabrication.
 
 ### Phase 2: Refinement (The Chalk Regime)
 
-1. **Styling**: Apply **Chalk Regime** tokens. Use native CSS variables (e.g., `var(--color-chalk)`). No hardcoded generic hex codes or Tailwind. [[Invoke: styling]](../skills/styling/SKILL.md)
+1. **Styling**: Apply **Chalk Regime** tokens. Use native CSS variables (e.g., `var(--color-chalk)`). No hardcoded generic hex codes or Tailwind. [[Invoke: css]](../skills/css/SKILL.md)
 2. **Motion**: Add kinetic transitions and Snappy Curve animations. [[Invoke: motion]](../skills/motion/SKILL.md)
 
 ### Phase 3: The Quality Gate (Proving)

@@ -1,6 +1,5 @@
 ---
-name: styling
-version: 2.0.0
+name: css
 description: >
     Consolidates Native CSS and polish. Applies the Chalk Regime, glassmorphism, and strict design tokens as defined in .agent/rules/03-technetium.md.
     Triggers: "Fix CSS", "Add styles", "Check styling rules", "Context: [Polish]".

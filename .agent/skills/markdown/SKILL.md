@@ -1,5 +1,5 @@
 ---
-name: scribe
+name: markdown
 version: 2.0.0
 description: "Maintains semantic rules, skill scaffolding, and documentation integrity across the Sovereign Core hub."
 ---
@@ -10,7 +10,7 @@ description: "Maintains semantic rules, skill scaffolding, and documentation int
 
 ## 1. Summoning Triggers
 
-- **Territorial**: `.agent/skills/**`, `.agent/rules/**`, `.agent/workflows/**`, `.agent/state/**`.
+- **Territorial**: `*.md`.
 - **Intent**: "Create a new skill", "Audit documentation", "Update project canon".
 
 ## 2. Capabilities
@@ -29,3 +29,9 @@ description: "Maintains semantic rules, skill scaffolding, and documentation int
 | :------------------- | :----------------------------------------------------------------------------------------------------------------------------------------- |
 | **Directory Drift**  | Never create state files in the root (Exception: The visual physics spec `DESIGN.md`); always route execution tracking to `.agent/state/`. |
 | **Monolithic Bloat** | Monolithic skills must be split once they exceed 500 lines.                                                                                |
+
+## 5. Tools & Assets
+
+| Tool              | Purpose                                                               | Source     |
+| :---------------- | :-------------------------------------------------------------------- | :--------- |
+| `visualReasoning` | Diagrammatic thinking, developing system diagrams, and concept maps.  | waldzell   |

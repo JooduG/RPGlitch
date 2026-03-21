@@ -20,8 +20,8 @@ Focus on reducing complexity without changing semantics:
 ## 3. High-Opportunity Areas
 
 1. **🕹️ GameMaster**: Optimizing the `chrono.svelte.js` loop.
-2. **🎭 Mesmer**: Offloading visuals to hardware-accelerated CSS transforms.
-3. **📚 Scholar**: Batching Dexie.js operations to reduce IndexedDB lock contention.
+2. **🎭 Visual**: Offloading visuals to hardware-accelerated CSS transforms.
+3. **📚 Memory**: Batching Dexie.js operations to reduce IndexedDB lock contention.
 
 ## 4. Performance Benchmarks
 

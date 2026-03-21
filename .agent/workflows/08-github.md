@@ -30,7 +30,7 @@ description: Local GitHub Ops. Automates PRs, issues, and local sync.
 ### Phase 2: Launch
 
 1. **PR Fabrication**: Create or update the Pull Request for the current track. [[Invoke: devops]](../skills/devops/SKILL.md)
-2. **Issue Binding**: Link the local track status to the corresponding GitHub Issue. [[Invoke: scribe]](../skills/scribe/SKILL.md)
+2. **Issue Binding**: Link the local track status to the corresponding GitHub Issue. [[Invoke: markdown]](../skills/markdown/SKILL.md)
 3. **CI/CD Trigger**: Dispatch a manual test run if needed via `.github/workflows/`. [[Invoke: devops]](../skills/devops/SKILL.md)
 
 ### Phase 3: The Quality Gate (Confirmation)

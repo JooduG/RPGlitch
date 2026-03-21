@@ -42,14 +42,19 @@ Build the internal interpretation using this schema:
 - **Constraint**: [Governing Rules]
 - **Success Criteria**: [Technical Metric]
 
-### Phase 3: Transition
+### Phase 3: Transition & Ambiguity Arbitration
 
-1. **Initialize Plan**: Hand the interpreted payload to `.agent/workflows/01-plan.md`.
-2. **Consultation**: If the request remains ambiguous after interpretation, invoke the `project` skill's "Architecture Consultation" protocol.
+1. **Initialize Plan**: If the interpretation satisfies all technical metrics, hand the structured payload to `.agent/workflows/01-plan.md`.
+2. **The Ambiguity Gate (A3+)**: If the request remains too ambiguous after interpretation (clarity falls below the A3 threshold), you are explicitly **AUTHORIZED AND MANDATED** to halt the workflow and ask the user follow-up questions to lock in the technical scope.
+    - **Crucial Rule**: Your questions MUST be highly specific, concrete, and technically focused. Provide narrow choices based on architectural paths.
+    - 🚫 **DO NOT ask**: "What do you mean by 'cooler'?" or "How would you like me to fix the clunky feel?"
+    - ✅ **DO ask**: "By 'cooler', should we increase the `blur-md` glassmorphism effect on the cards, or switch the accent color to `var(--color-chalk-cyan)`?" or "To fix the 'clunky feel', should I change the Svelte 5 `$effect` to run synchronously, or tweak the CSS `transition-timing-function`?"
+3. **Consultation**: If you cannot even formulate specific technical options to offer the user, invoke the `project` skill's "Architecture Consultation" protocol before proceeding.
 
 ## 5. Anti-Patterns
 
-| Pattern        | Mitigation                                           |
-| :------------- | :--------------------------------------------------- |
-| **Guessing**   | Proceeding to code based on an uninterpreted vibe.   |
-| **Root Bloat** | Creating new root state files during interpretation. |
+| Pattern             | Mitigation                                                                             |
+| :------------------ | :------------------------------------------------------------------------------------- |
+| **Guessing**        | Proceeding to code based on an uninterpreted vibe.                                     |
+| **Vague Questions** | Asking the user open-ended conceptual questions instead of specific technical choices. |
+| **Root Bloat**      | Creating new root state files during interpretation.                                   |

@@ -1,6 +1,5 @@
 ---
-name: simulation
-version: 1.1.0
+name: simulation-strategy
 description: >
     Manages the core narrative engine loop, text-based entity simulation, memory physics, and Director state.
     Triggers: "Update narrative engine", "Simulate social dynamics", "Fix entity logic", "src/core/engine/**".

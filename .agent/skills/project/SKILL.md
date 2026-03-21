@@ -1,6 +1,5 @@
 ---
 name: project
-version: 2.0.0
 description: >
     Manages the task lifecycle (Plan -> Track -> Code) via the .agent/state hub. 
     Enforces the Flat Track protocol and maintains the Global State baton.
@@ -12,7 +11,7 @@ description: >
 
 ## 1. Summoning Triggers
 
-- **Territorial**: `.agent/state/tracks.md`, `.agent/state/tracks/**`, `.agent/state/global.md`, `.agent/state/next-prompt.md`.
+- **Territorial**: `.agent/state/**`.
 - **Intent**: "Plan feature", "Update tracks", "Check status", "Next task", "Initialize track".
 
 ## 2. The Brain (A-C-Q Protocol)

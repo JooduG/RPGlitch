@@ -33,7 +33,7 @@ disable-model-invocation: true
 
 ### Phase 3: The Quality Gate (Pivoting)
 
-1. **Report**: Explain to the user _what_ broke and formulate a pivot strategy. [[Invoke: scribe]](../skills/scribe/SKILL.md)
+1. **Report**: Explain to the user _what_ broke and formulate a pivot strategy. [[Invoke: markdown]](../skills/markdown/SKILL.md)
 2. **Approval**: Wait for user sign-off before re-entering `/01-plan`.
 
 ## 4. Anti-Patterns

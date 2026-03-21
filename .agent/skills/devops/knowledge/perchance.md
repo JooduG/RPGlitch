@@ -24,5 +24,5 @@ RPGlitch bypasses the default `oc` object for core logic. We use **Pattern C**: 
 ## 🔌 4. Essential Plugins
 
 - **ai-text-plugin**: Primary LLM engine.
-- **text-to-image**: Pollinations.ai bridge for visual generation.
-- **Scholar Interface**: Bypasses legacy `save-plugin` for robust IndexedDB persistence.
+- **text-to-image**: Visual generation.
+- **Memory Interface**: Bypasses legacy `save-plugin` for robust IndexedDB persistence.

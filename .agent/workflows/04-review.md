@@ -30,7 +30,7 @@ description: Reviews and stuff.
 ### Phase 2: Maintenance & Archival
 
 1. **Archival**: If complete, move the track shards to [.agent/archive/](../archive/). [[Invoke: project]](../skills/project/SKILL.md)
-2. **Triage**: Sort incoming issues and seed the next `/01-plan` cycle. [[Invoke: scribe]](../skills/scribe/SKILL.md)
+2. **Triage**: Sort incoming issues and seed the next `/01-plan` cycle. [[Invoke: markdown]](../skills/markdown/SKILL.md)
 
 ### Phase 3: The Handoff Law (Anti-Amnesia Protocol)
 
