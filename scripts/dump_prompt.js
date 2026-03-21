@@ -71,7 +71,7 @@ ${SEPARATOR}
 [PHASE 2: SIMULATION SNAPSHOT]
 Signal Prompts: ${snapshot.signal_prompts.join(", ") || "None"}
 Flags: ${snapshot.flags.join(", ") || "None"}
-Dynamics: ${JSON.stringify(snapshot.dynamics)}
+Dynamics: ${JSON.stringify({ ai: snapshot.ai?.dynamics, fractal: snapshot.fractal?.dynamics })}
 ${SEPARATOR}
 [PHASE 3: SYNTHESIZED XML PROMPT]
 ${system}
