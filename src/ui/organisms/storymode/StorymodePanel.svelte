@@ -8,9 +8,7 @@
     import { app } from "@state/app.svelte.js"
     import { themeStore } from "@theme/palette.svelte.js"
     import ProfilePicture from "@ui/atoms/ProfilePicture.svelte"
-
     let { entity, side = "left", title: raw_title = "" } = $props()
-
     // Default Fallbacks
     let name = $derived(entity?.name || "Unknown")
     let title = $derived(raw_title || name)
@@ -20,11 +18,9 @@
 <article class="panel-container" class:side-left={side === "left"} class:side-right={side === "right"} style="--entity-color: {signature_color}">
     <div class="visual-anchor" role="button" tabindex="0" onclick={() => app.toggle_profile(true, entity)} onkeydown={(e) => e.key === "Enter" && app.toggle_profile(true, entity)} aria-label="View Profile: {name}">
         <ProfilePicture {entity} />
-
         <header class="nameplate">
             <h3 class="nameplate-text">{title}</h3>
         </header>
-
         <div class="cinematic-overlay"></div>
     </div>
 </article>
@@ -37,7 +33,6 @@
         position: relative;
         overflow: hidden;
     }
-
     .visual-anchor {
         width: 100%;
         height: 100%;
@@ -45,7 +40,6 @@
         cursor: pointer;
         background: var(--surface-void);
     }
-
     /* Corner Nameplate: Neural Minimalism */
     .visual-anchor .nameplate {
         position: absolute;
@@ -60,7 +54,6 @@
         max-width: 70%;
         isolation: isolate;
     }
-
     .visual-anchor .nameplate-text {
         font-family: var(--font-sans);
         color: var(--entity-color);
@@ -70,21 +63,17 @@
         margin: 0;
         text-wrap: balance;
     }
-
     .visual-anchor .cinematic-overlay {
         display: none;
     }
-
     .visual-anchor:hover .cinematic-overlay {
         opacity: var(--opacity-xl);
     }
-
     /* Side positioning logic */
     .side-left .nameplate {
         left: var(--spacing-s);
         right: auto;
     }
-
     .side-right .nameplate {
         right: var(--spacing-s);
         left: auto;

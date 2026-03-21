@@ -27,24 +27,20 @@
         position: relative;
         padding: var(--spacing-xxs) 0;
         transition: opacity var(--transition-speed);
-
         /* --- SIZES --- */
         --switch-w: 2.8rem;
         --switch-h: 1.25rem;
         --thumb-size: 1rem;
     }
-
     .toggle-switch.disabled {
         opacity: var(--opacity-m);
         cursor: not-allowed;
     }
-
     .toggle-switch.sm {
         --switch-w: 2.22rem;
         --switch-h: 1rem;
         --thumb-size: 0.8rem;
     }
-
     /* Hidden Input */
     .toggle-switch input {
         opacity: 0;
@@ -52,7 +48,6 @@
         height: 0;
         position: absolute;
     }
-
     /* The Track */
     .slider {
         position: relative;
@@ -64,7 +59,6 @@
         transition: all 0.2s var(--physics-transition-elastic);
         flex-shrink: 0;
     }
-
     /* The Thumb */
     .slider::before {
         content: "";
@@ -78,24 +72,20 @@
         transition: all 0.2s var(--physics-transition-elastic);
         box-shadow: var(--shadow-s);
     }
-
     /* Hover State */
     .toggle-switch:hover:not(.disabled) .slider {
         border-color: rgb(var(--pure-white-rgb) / var(--opacity-s));
     }
-
     /* Checked State */
     .toggle-switch input:checked + .slider {
         background-color: var(--gunmetal);
         box-shadow: 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-l));
     }
-
     .toggle-switch input:checked + .slider::before {
         transform: translateX(calc(var(--switch-w) - var(--thumb-size) - (var(--switch-h) - var(--thumb-size))));
         background-color: var(--white);
         box-shadow: 0 0 var(--spacing-s) rgb(var(--pure-white-rgb) / 0.4);
     }
-
     /* Label Text */
     .label-text {
         color: var(--font-color);
@@ -106,11 +96,9 @@
         font-family: var(--font-sans);
         transition: color var(--transition-speed);
     }
-
     .toggle-switch:hover .label-text {
         color: var(--white);
     }
-
     /* Focus State */
     .toggle-switch input:focus-visible + .slider {
         outline: 2px solid var(--app-accent);

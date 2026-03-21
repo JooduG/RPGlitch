@@ -1,6 +1,5 @@
 <script>
     import Button from "@ui/atoms/Button.svelte"
-
     let { is_editing = $bindable(), is_saving, handle_save, handle_delete } = $props()
 </script>
 
@@ -37,7 +36,6 @@
         z-index: 2;
         padding-top: var(--spacing-m);
     }
-
     footer :global(.profile-btn.btn) {
         height: auto;
         display: flex;
@@ -50,19 +48,16 @@
         transition: all var(--transition-speed) var(--physics-transition-elastic);
         width: 50%;
     }
-
     footer .footer-actions {
         grid-column: 2;
         display: flex;
         gap: var(--spacing-m);
         width: 100%;
     }
-
     footer .footer-actions :global(.btn) {
         flex: 1;
         width: 100%;
     }
-
     footer .footer-actions :global(.btn-danger) {
         background: transparent;
         border-color: var(--border-light);
@@ -70,7 +65,6 @@
         box-shadow: none;
         transition: all 0.3s ease;
     }
-
     footer .footer-actions :global(.btn-danger):hover {
         background: var(--app-del);
         border-color: var(--app-del);
@@ -78,7 +72,6 @@
         box-shadow: 0 0 var(--spacing-xl) rgb(var(--color-danger-rgb) / var(--opacity-m));
         filter: brightness(1.2);
     }
-
     /* Readonly "Edit" Button - Target direct child of footer */
     footer > :global(.btn-edit) {
         grid-column: 2;
@@ -89,13 +82,11 @@
         color: var(--white);
         box-shadow: var(--shadow-s);
     }
-
     footer > :global(.btn-edit):hover {
         filter: brightness(1.1);
         transform: translateY(var(--physics-hover-y-compact));
         box-shadow: var(--shadow-m);
     }
-
     /* Edit Button inside .footer-actions (Save) needs to just inherit flex */
     footer .footer-actions :global(.btn-edit) {
         background: var(--signature-color);
@@ -104,7 +95,6 @@
         /* Ensure it fills flex container */
         width: 100%;
     }
-
     footer .footer-actions :global(.btn-edit):hover {
         filter: brightness(1.1);
         transform: translateY(var(--physics-hover-y-compact));

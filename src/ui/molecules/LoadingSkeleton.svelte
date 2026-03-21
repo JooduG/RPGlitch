@@ -20,21 +20,17 @@
         position: relative;
         min-height: var(--spacing-m);
     }
-
     .skeleton.card {
         border-radius: var(--border-radius-xl);
     }
-
     .skeleton.profilePicture {
         border-radius: var(--border-radius-full);
     }
-
     .skeleton.text {
         height: 1em;
         margin-bottom: var(--spacing-xs);
         border-radius: var(--border-radius-s);
     }
-
     /* The Shimmer Effect - Nordic Fog */
     .skeleton::after {
         content: "";
@@ -45,7 +41,6 @@
         filter: blur(var(--blur-xl));
         animation: skeleton-shimmer 2.5s infinite;
     }
-
     @keyframes skeleton-shimmer {
         100% {
             transform: translateX(100%);

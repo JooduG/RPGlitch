@@ -1,14 +1,10 @@
 <script>
     import { Audio } from "@media/audio.js"
-
     let { char = $bindable(), is_editing } = $props()
-
     let show_voice_dropdown = $state(false)
-
     // Voice metadata
     const selected_voice = $derived(Audio.voice.voices.find((v) => v.uri === char.voice.uri))
     const is_natural_voice = $derived(selected_voice?.name.includes("Natural"))
-
     // Voice name normalization
     function format_voice_name(name) {
         return name
@@ -41,10 +37,8 @@
                 {/each}
             </div>
         </div>
-
         <button class="preview-btn" type="button" title="Preview Voice" disabled={!is_editing || !char.voice.uri} onclick={() => Audio.voice.preview(char.voice.uri, char.voice.rate, char.voice.pitch)}> 🔊 </button>
     </div>
-
     <div class="sliders">
         <div class="slider-group" data-tooltip={`Rate: ${char.voice.rate.toFixed(1)}x`}>
             <input type="range" min="0.5" max="2.0" step="0.1" bind:value={char.voice.rate} disabled={!is_editing} />
@@ -67,7 +61,6 @@
         height: 100%;
         overflow-y: auto;
     }
-
     .voice-control-row {
         display: flex;
         gap: var(--spacing-xs);
@@ -75,11 +68,9 @@
         position: relative;
         margin-bottom: calc(-1 * var(--spacing-m)); /* Tighten gap to sliders */
     }
-
     .dropdown {
         flex: 1;
     }
-
     .voice-btn {
         width: 100%;
         background: var(--surface-sunken);
@@ -99,17 +90,14 @@
         padding-right: var(--spacing-s);
         transition: all 0.2s;
     }
-
     .voice-btn:hover:not(:disabled) {
         background: var(--surface-elevated);
         box-shadow: inset 0 0 0 1px var(--border-light);
     }
-
     .voice-btn:disabled {
         opacity: 0.5;
         cursor: default;
     }
-
     .preview-btn {
         aspect-ratio: 1;
         width: var(--spacing-xl);
@@ -125,21 +113,17 @@
         font-size: var(--font-size-m);
         transition: all var(--transition-speed) ease;
     }
-
     .preview-btn:hover:not(:disabled) {
         background: var(--surface-elevated);
         box-shadow: inset 0 0 0 1px var(--border-light);
     }
-
     .preview-btn:active:not(:disabled) {
         transform: scale(0.95);
     }
-
     .preview-btn:disabled {
         opacity: var(--opacity-s);
         cursor: default;
     }
-
     .dropdown-content {
         display: none;
         position: absolute;
@@ -153,12 +137,10 @@
         border: none;
         border-radius: var(--border-radius);
     }
-
     .dropdown-content.visible {
         display: flex;
         flex-direction: column;
     }
-
     .voice-option {
         width: 100%;
         padding: var(--spacing-xs) var(--spacing-s);
@@ -173,21 +155,17 @@
         gap: var(--spacing-s);
         transition: all 0.2s ease;
     }
-
     .voice-option:hover {
         background: var(--surface-sunken);
     }
-
     .voice-option.active {
         color: var(--app-accent);
         background: rgb(var(--app-accent-rgb) / 0.05);
     }
-
     .voice-option.active .region-pill {
         color: var(--app-accent);
         opacity: 0.8;
     }
-
     .voice-option .region-pill {
         font-size: var(--font-size-xs);
         text-transform: uppercase;
@@ -196,20 +174,17 @@
         letter-spacing: var(--letter-spacing-m);
         transition: color var(--transition-speed);
     }
-
     .voice-option .region-pill::before {
         content: "-";
         margin-right: var(--spacing-xs);
         opacity: var(--opacity-m);
     }
-
     .voice-option .voice-name {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         flex: 1;
     }
-
     .sliders {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -217,7 +192,6 @@
         margin-top: var(--spacing-xxs);
         width: 100%;
     }
-
     .slider-group {
         display: flex;
         flex-direction: column;
@@ -229,20 +203,16 @@
         position: relative;
         transition: all var(--transition-speed) ease;
     }
-
     .slider-group.locked {
         opacity: var(--opacity-m);
         cursor: not-allowed;
     }
-
     .slider-group input[type="range"]:disabled {
         cursor: not-allowed;
     }
-
     .slider-group input[type="range"]:disabled::-webkit-slider-thumb {
         display: none;
     }
-
     .slider-group input[type="range"] {
         display: block;
         width: calc(100% - var(--spacing-xxs));
@@ -255,7 +225,6 @@
         padding: 0;
         overflow: visible;
     }
-
     .slider-group input[type="range"]::-webkit-slider-runnable-track {
         width: 100%;
         height: var(--spacing-px);
@@ -263,7 +232,6 @@
         border-radius: var(--border-radius-xs);
         border: none;
     }
-
     .slider-group input[type="range"]::-webkit-slider-thumb {
         appearance: none;
         width: var(--spacing-s);

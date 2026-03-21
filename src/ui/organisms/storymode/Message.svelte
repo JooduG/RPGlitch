@@ -11,7 +11,6 @@
     import { DEFAULT_COLORS, themeStore } from "@theme/palette.svelte.js"
     import SceneHeader from "../SceneHeader.svelte"
     import { safe_html } from "@ui/utils/actions/safeHtml.js"
-
     let {
         text = "",
         sender = "system", // 'ai', 'user', 'fractal', 'system'
@@ -25,11 +24,9 @@
         is_last = false,
         is_thinking = false,
     } = $props()
-
     let is_user = $derived(sender === "user")
     let is_ai = $derived(sender === "ai")
     let is_fractal = $derived(sender === "fractal")
-
     let entity = $derived.by(() => {
         // [R5] Resolution Order:
         if (!character_name) {
@@ -38,45 +35,35 @@
             if (is_fractal) return runtime.active_fractal
             return null
         }
-
         // 1. Active Character (Fastest & most correct for edits)
         if (is_user && runtime.active_user?.name === character_name) return runtime.active_user
         if (is_ai && runtime.active_ai?.name === character_name) return runtime.active_ai
         if (is_fractal && runtime.active_fractal?.name === character_name) return runtime.active_fractal
-
         // 2. Cache Lists (For history)
         if (is_user) return app.user_list.find((e) => e.name === character_name)
         if (is_ai) return app.ai_list.find((e) => e.name === character_name)
         if (is_fractal) return app.fractal_list.find((e) => e.name === character_name)
-
         // 3. Fallback
         if (is_user) return runtime.active_user
         if (is_ai) return runtime.active_ai
         return null
     })
-
     let signature_color = $derived.by(() => {
         // 1. Try Entity
         if (entity) return themeStore.get_signature_color(entity)
-
         // 2. Try Character Name (Deterministic Fallback)
         if (character_name) return themeStore.get_deterministic_color(character_name)
-
         // 3. Fallback to App State [FLATTENED]
         if (is_user && app.selected_user?.signature_color) return themeStore.get_signature_color(app.selected_user)
         if (is_ai && app.selected_ai?.signature_color) return themeStore.get_signature_color(app.selected_ai)
         if (is_fractal && app.selected_fractal?.signature_color) return themeStore.get_signature_color(app.selected_fractal)
-
         // 4. Robust Fallback by Role
         if (is_user) return DEFAULT_COLORS.USER
         if (is_fractal) return DEFAULT_COLORS.FRACTAL
         if (is_ai) return DEFAULT_COLORS.AI
-
         return DEFAULT_COLORS.SYSTEM
     })
-
     let text_color = $derived(themeStore.get_contrast_color(signature_color))
-
     let parsed = $derived(parse_message(text))
     let display_text = $derived(parsed.displayText)
     let think_block = $derived(parsed.think)
@@ -97,14 +84,12 @@
                     <SceneHeader {...scene_data} />
                 </div>
             {/if}
-
             {#if app.settings.dev_mode && think_block}
                 <div class="think-block">
                     <div class="think-label">🎬 DevMode</div>
                     <div class="think-content">{think_block}</div>
                 </div>
             {/if}
-
             {#if attachments.length > 0}
                 <div class="attachments">
                     {#each attachments as src (src)}
@@ -124,9 +109,7 @@
                     {/each}
                 </div>
             {/if}
-
             <div class="message-content" use:safe_html={display_text}></div>
-
             <div class="message-footer">
                 {#if is_ai}
                     <div class="message-actions">
@@ -143,14 +126,12 @@
                                 </svg>
                             </button>
                         {/if}
-
                         <button class="action-btn" type="button" title="Edit" onclick={(e) => on_edit(e)}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                             </svg>
                         </button>
-
                         <button
                             class="action-btn"
                             type="button"
@@ -176,7 +157,6 @@
                         </button>
                     </div>
                 {/if}
-
                 <div class="message-timestamp">
                     {timestamp.toLocaleTimeString([], {
                         hour: "2-digit",
@@ -192,7 +172,6 @@
     .attachments {
         margin-bottom: var(--spacing-s);
     }
-
     .attachments .attachment-btn {
         background: none;
         border: none;
@@ -202,36 +181,29 @@
         transition: transform var(--transition-speed);
         display: block;
     }
-
     .attachments .attachment-btn:hover {
         transform: scale(1.02);
     }
-
     .attachments .attachment-image {
         max-width: 100%;
         border-radius: var(--border-radius);
         display: block;
         box-shadow: var(--shadow-s);
     }
-
     .message-row {
         display: flex;
         width: 100%;
         padding: var(--spacing-s) var(--spacing-m);
     }
-
     .message-row.user-row {
         justify-content: flex-end;
     }
-
     .message-row.ai-row {
         justify-content: flex-start;
     }
-
     .message-row.fractal-row {
         justify-content: center;
     }
-
     .thinking-pill {
         display: inline-flex;
         align-items: center;
@@ -241,7 +213,6 @@
         border-radius: var(--border-radius-full);
         height: var(--spacing-xl);
     }
-
     .thinking-pill .dot {
         width: var(--spacing-xs);
         height: var(--spacing-xs);
@@ -249,15 +220,12 @@
         border-radius: var(--border-radius-full);
         animation: dot-bounce 1.4s infinite ease-in-out both;
     }
-
     .thinking-pill .dot:nth-child(1) {
         animation-delay: -0.32s;
     }
-
     .thinking-pill .dot:nth-child(2) {
         animation-delay: -0.16s;
     }
-
     @keyframes dot-bounce {
         0%,
         80%,
@@ -268,7 +236,6 @@
             transform: scale(1);
         }
     }
-
     .message-bubble {
         width: max-content;
         max-width: 80%;
@@ -280,19 +247,16 @@
         position: relative;
         overflow: hidden;
     }
-
     .message-bubble.user-bubble {
         max-width: 75%;
         border-bottom-right-radius: 0;
         text-align: left;
     }
-
     .message-bubble.ai-bubble {
         max-width: 75%;
         border-bottom-left-radius: 0;
         text-align: left;
     }
-
     .message-bubble.fractal-bubble {
         width: 50%;
         max-width: 80%;
@@ -301,11 +265,9 @@
         background: var(--bubble-color);
         box-shadow: var(--shadow-s);
     }
-
     .message-bubble.fractal-bubble .message-content {
         text-align: center;
     }
-
     .think-block {
         background: var(--surface-elevated);
         border-radius: var(--border-radius);
@@ -313,7 +275,6 @@
         margin-bottom: var(--spacing-m);
         font-size: var(--font-size-s);
     }
-
     .think-block .think-label {
         font-size: var(--font-size-xs);
         font-weight: 900;
@@ -321,14 +282,12 @@
         letter-spacing: 0.1em;
         margin-bottom: var(--spacing-xxs);
     }
-
     .think-block .think-content {
         color: var(--font-muted);
         font-family: var(--font-mono);
         font-style: italic;
         white-space: pre-wrap;
     }
-
     .message-content {
         white-space: pre-wrap;
         line-height: var(--line-height-relaxed);
@@ -336,7 +295,6 @@
         font-family: var(--font-sans);
         text-shadow: var(--shadow-s);
     }
-
     .message-footer {
         display: flex;
         align-items: center;
@@ -345,7 +303,6 @@
         margin-top: var(--spacing-xs);
         min-height: var(--spacing-xl);
     }
-
     .message-timestamp {
         font-size: var(--font-size-xs);
         color: var(--font-color);
@@ -354,7 +311,6 @@
         text-shadow: var(--shadow-s);
         transition: opacity var(--transition-speed);
     }
-
     .message-actions {
         display: flex;
         gap: var(--spacing-xxs);
@@ -362,16 +318,13 @@
         pointer-events: none;
         transition: opacity var(--transition-speed);
     }
-
     .message-bubble:hover .message-timestamp {
         opacity: 1;
     }
-
     .message-bubble:hover .message-actions {
         opacity: 1;
         pointer-events: auto;
     }
-
     .action-btn {
         background: var(--surface-elevated);
         color: var(--font-muted);
@@ -387,7 +340,6 @@
         border: none;
         padding: 0;
     }
-
     .action-btn,
     .action-btn svg,
     .action-btn path,
@@ -399,23 +351,19 @@
         box-shadow: none;
         shape-rendering: geometricPrecision;
     }
-
     .action-btn svg {
         stroke-width: 1.5;
         pointer-events: none;
     }
-
     .action-btn:hover {
         background: var(--font-color);
         box-shadow: 0 0 0 var(--spacing-px) var(--font-color);
         color: var(--signature-color);
     }
-
     .action-btn:hover svg {
         stroke-width: 2;
         stroke: currentColor;
     }
-
     .action-btn::after {
         content: attr(title);
         position: absolute;
@@ -434,18 +382,15 @@
         z-index: 100;
         box-shadow: var(--glass-border);
     }
-
     .action-btn:hover::after {
         opacity: 1;
         transform: translateX(-50%) translateY(calc(var(--spacing-xs) * -1));
     }
-
     .action-btn.delete:hover {
         background: var(--app-del); /* [R5] Standardized variable from tokens.css */
         box-shadow: 0 0 0 var(--spacing-px) var(--font-color);
         color: var(--font-color);
     }
-
     .action-btn.delete:hover svg {
         stroke: var(--font-color);
     }

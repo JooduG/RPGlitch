@@ -13,6 +13,7 @@
 
 ## Pending Tracks
 
+- [ ] [task_remove_trust.md](./tracks/task_remove_trust.md) | Remove Trust/Naivity Mechanics | 2026-03-20
 - [ ] **narrative-bridge**: Bridging Intelligence Kernel with Narrative Director.
 - [x] **ux-review**: Semantically refactored all surface elevations to use strict Nordic color-mixing (base, sunken, raised, elevated, floating). Purged all glassmorphism.
 - [x] **intelligence-kernel-refinement**: (COMPLETED) Optimization and svelte-check resolution.

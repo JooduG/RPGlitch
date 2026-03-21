@@ -8,7 +8,6 @@
     import { ENTITY_FRAGMENTS } from "@/core/intelligence/entity_fragments.js"
     import { fitText } from "@ui/utils/actions/fitText.js"
     import { safe_html } from "@ui/utils/actions/safeHtml.js"
-
     let { char = $bindable(), is_editing, render_markdown, auto_resize } = $props()
 </script>
 
@@ -30,7 +29,6 @@
             {char.name || ENTITY_FRAGMENTS.name}
         </h1>
     {/if}
-
     {#if is_editing}
         <textarea use:auto_resize class="description edit" value={char.description || ""} oninput={(e) => (char.description = e.target.value)} placeholder={ENTITY_FRAGMENTS.description}></textarea>
     {:else}
@@ -44,7 +42,6 @@
         display: flex;
         flex-direction: column;
     }
-
     .name {
         width: 100%;
         color: var(--signature-color);
@@ -64,35 +61,29 @@
         outline: none;
         background: transparent;
     }
-
     .name.edit {
         cursor: text;
         pointer-events: auto;
         caret-color: var(--signature-color);
     }
-
     .name.edit:hover,
     .name.edit:focus-within {
         background: var(--surface-sunken);
         box-shadow: inset 0 0 0 1px var(--border-light);
     }
-
     .name.edit span {
         outline: none;
     }
-
     .name.edit span:empty::before {
         content: attr(data-placeholder);
         opacity: 0.3;
         font-style: italic;
         font-weight: 400;
     }
-
     .name:not(.edit) {
         cursor: default;
         pointer-events: none;
     }
-
     .description {
         width: 100%;
         color: var(--font-color);
@@ -110,41 +101,34 @@
         resize: none;
         text-align: left;
     }
-
     .description:focus {
         outline: none;
     }
-
     .description.muted-info {
         opacity: var(--opacity-l);
         font-size: 0.9em;
         font-weight: 400;
     }
-
     .description.edit {
         pointer-events: auto;
         caret-color: var(--white);
         cursor: text;
     }
-
     .description.edit:hover,
     .description.edit:focus {
         background: var(--surface-sunken);
         box-shadow: inset 0 0 0 1px var(--border-light);
         outline: none;
     }
-
     .description.readonly {
         pointer-events: auto;
         white-space: pre-wrap;
         cursor: default;
     }
-
     .description.readonly :global(strong) {
         font-weight: 800;
         color: var(--white);
     }
-
     .description.readonly :global(em) {
         font-style: italic;
         opacity: 0.9;

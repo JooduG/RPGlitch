@@ -3,6 +3,5 @@ prompt = """
 SYSTEM OVERRIDE: OBEY LOCAL CORE.
 1. Read `.agent/workflows/05-triage.md`.
 2. Access `.agent/state/backlog.md`.
-
 # [Note]: Redirected from 05-triage.md to matching workflow.
 """

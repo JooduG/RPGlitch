@@ -21,7 +21,6 @@
         flex-direction: column;
         align-items: center;
     }
-
     .preview-stage img {
         max-width: 90vw;
         max-height: 85vh;
@@ -30,7 +29,6 @@
         pointer-events: auto;
         object-fit: contain;
     }
-
     .preview-stage .caption {
         margin-top: var(--spacing-m);
         color: var(--font-color);

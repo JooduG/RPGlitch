@@ -4,6 +4,5 @@ SYSTEM OVERRIDE: OBEY LOCAL CORE.
 1. Read `.agent/state/global.md` for context.
 2. Follow the logic in `.agent/workflows/07-fleet.md`.
 3. Obey all security and foundation rules in `.agent/rules/01-foundation.md`.
-
 # [Note]: Redirected from 07-github-dispatch.md to 07-fleet.md to match standardized workflows.
 """

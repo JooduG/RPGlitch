@@ -1,454 +1,389 @@
 /**
  * @file src/core/intelligence/DynamicsEngine.js
- *
- * ─────────────────────────────────────────────────────────────────────────────
- * ⚡ DYNAMICS ENGINE — The Physics of Narrative
- * ─────────────────────────────────────────────────────────────────────────────
- *
- * CONCEPTUAL OVERVIEW:
- * This is the "Engine Room" of RPGlitch. It treats narrative as a system of
- * fluid dynamics, where certain words act as "kinetic impulses" that shift
- * the emotional and physical state of the simulation.
- *
- * THE TWIN-CYLINDER PARADIGM:
- * The simulation is split into two distinct layers to prevent "Concept Bleed":
- *
- * 1. 🧠 AI (SOMATIC): The Internal Engine.
- *    Tracks the internal psychology of the entity (Intensity, Chaos, Openness, Affinity).
- *    How fast is their heart beating? How much do they trust the user?
- *
- * 2. 🌎 FRACTAL (ENVIRONMENTAL): The External Engine.
- *    Tracks the physical state of the scene (Velocity, Entropy).
- *    Is the world crumbling? Is the clock ticking?
- *
- * FLOW:
- * Input -> Reflex Scan -> Bayesian Analysis -> Gravity Offset -> Law Enforcement -> Clamping -> Snapshot.
+ * @description The RPGlitch Dynamics Engine (v2).
+ * Consolidates all impulses, reactions, and signals into a unified DYNAMICS registry.
  */
-
-import { CONFIG } from "@core/engine/config.js"
-
 /**
- * @typedef {Object} IntelligencePayload
- * @typedef {Object} SimulationSnapshot
+ * 📢 THE DYNAMICS REGISTRY
+ * -----------------------------------------------------------------------------
+ * A unified table for all Reactive impulses, Passive state signals, and Physics Laws.
+ * Rules    :
+ * - trigger: "turn" -> Applies if filter passes (Passive Law/Signal).
+ * - trigger: Array  -> Only applies if input matches AND filter passes (Scan Reaction).
+ * - Effect : Numerical changes (ai/fractal) and Narrative (text).
  */
-
-/************************************************************************************
- * 🧩 [SECTION: THE REGISTRY - Semantic Reflexes]
- * ----------------------------------------------------------------------------------
- * This is the mapping of "Story Concepts" to "Physics Impulses".
- * Each 'reflex' defined here is a dictionary entry that tells the engine:
- * "When the user says X, shift the world state by Y."
- ************************************************************************************/
-
-export const DYNAMICS_REFLEXES = [
-    // 🧠 TIER I: SOMATIC (AI Dynamics)
-    // These triggers affect the internal state of the AI entity.
-    {
-        id: "FOCUS",
-        triggers: [
-            { root: "logic", pattern: /logic(al)?|math(ematics)?|calculat(e|ed|ing)?|precise|fact|prove(n|d)?|proof/i },
-            { root: "analysis", pattern: /data|observ(e|ed|ing)?|analy[sz](e|ed|ing)?|study(ing)?|test(ed|ing)?|clinical|structur(e|ed|ing)?/i },
-        ],
-        effect: {
-            ai: { chaos: -10, affinity: -10 }, // Logic reduces chaos but also reduces emotional affinity.
-        },
+export const DYNAMICS = [
+  // 🧬 AI SOMATICS (Passive Signals)
+  {
+    id: "ADRENALINE",
+    trigger: "turn",
+    filter: { above: { intensity: 70 } },
+    effect: { text: "Pacing fast. Short sentences. High-stakes urgency." },
+  },
+  {
+    id: "SLOW_MOTION",
+    trigger: "turn",
+    filter: { below: { intensity: 30 } },
+    effect: {
+      text: "Pacing slow. Heavy fatigue. Deliberate, languid actions.",
     },
-    {
-        id: "VULNERABILITY",
-        triggers: [
-            { root: "affection", pattern: /kiss(ed|ing|es)?|lov(e|ed|ing|es)?|hugg?(ed|ing)?|touch(ed|ing)?|trust(ed|ing)?|vow(ed|ing)?/i },
-            { root: "emotion", pattern: /tear|cry(ing)?|whisper(ed|ing)?|sync(hroniz)?(ed|ing)?|resonance|empathy|bond(ed|ing)?/i },
-        ],
-        effect: {
-            ai: { openness: 10, affinity: 10 },
-        },
+  },
+  {
+    id: "HACK",
+    trigger: "turn",
+    filter: { above: { chaos: 70 } },
+    effect: {
+      text: "Reality glitching. Fragmented memory. Non-linear time perception.",
     },
-    {
-        id: "FORTIFICATION",
-        triggers: [
-            { root: "armor", pattern: /armor(ed)?|shield(ed|ing)?|wall|barrier/i },
-            { root: "defense", pattern: /mask(ed|ing)?|guard(ed|ing)?|protect(ed|ing)?|block(ed|ing)?/i },
-            { root: "hide", pattern: /hid(e|den|ing)?/i },
-        ],
-        effect: {
-            ai: { openness: -10 }, // Guarding behavior closes the mind.
-        },
+  },
+  {
+    id: "RECOVERY",
+    trigger: "turn",
+    filter: { below: { chaos: 30 } },
+    effect: { text: "High clarity. Sharp recall. Stable environment." },
+  },
+  {
+    id: "VULNERABILITY",
+    trigger: "turn",
+    filter: { above: { openness: 70 } },
+    effect: { text: "Emotional exposure. Seeking comfort. Honest admissions." },
+  },
+  {
+    id: "IRON_CURTAIN",
+    trigger: "turn",
+    filter: { below: { openness: 30 } },
+    effect: { text: "Cold deflection. Calculated silence. Guarded secrets." },
+  },
+  {
+    id: "SYNCHRONY",
+    trigger: "turn",
+    filter: { above: { affinity: 70 } },
+    effect: { text: "Mirroring user movement. Intense focus. Deep rapport." },
+  },
+  {
+    id: "DISSONANCE",
+    trigger: "turn",
+    filter: { below: { affinity: 30 } },
+    effect: {
+      text: "Repulsion. Hostile distance. Passive-aggressive friction.",
     },
-
-    // 🌎 TIER II: ENVIRONMENTAL (Fractal Dynamics)
-    // These triggers govern the physical world and the "pacing" of the environment.
-    {
-        id: "SYSTEM_COLLAPSE",
-        triggers: [
-            { root: "breach", pattern: /alarm|breach(ed|ing)?|lockdown|siren/i },
-            { root: "destruction", pattern: /shatter(ed|ing)?|collaps(e|ed|ing)?|burn(t|ed|ing)?|structural/i },
-        ],
-        effect: {
-            fractal: { velocity: 15, entropy: 10 }, // Destruction speeds up the scene and increases noise.
-        },
+  },
+  // 🌍 ENVIRONMENTAL FRACTAL (Passive Signals)
+  {
+    id: "HIGH_VELOCITY",
+    trigger: "turn",
+    filter: { above: { velocity: 70 } },
+    effect: { text: "Environmental pacing accelerated. Time compressing." },
+  },
+  {
+    id: "LOW_VELOCITY",
+    trigger: "turn",
+    filter: { below: { velocity: 30 } },
+    effect: { text: "Environmental stasis. Time stretching." },
+  },
+  {
+    id: "HIGH_ENTROPY",
+    trigger: "turn",
+    filter: { above: { entropy: 70 } },
+    effect: { text: "Structural reality degrading. Hostile environment." },
+  },
+  {
+    id: "LOW_ENTROPY",
+    trigger: "turn",
+    filter: { below: { entropy: 30 } },
+    effect: { text: "Structural harmony. Safe, predictable physics." },
+  },
+  // ⚖️ PHYSICS LAWS (Ongoing Numerical Effects Each Turn)
+  {
+    id: "INTENSITY_AUTO_LOCK",
+    trigger: "turn",
+    filter: { above: { intensity: 90 } },
+    effect: { ai: { openness: -10 } },
+  },
+  {
+    id: "CHAOS_AUTO_HEAT",
+    trigger: "turn",
+    filter: { above: { chaos: 90 } },
+    effect: { ai: { intensity: 10 } },
+  },
+  {
+    id: "OPENNESS_AUTO_GLITCH",
+    trigger: "turn",
+    filter: { above: { openness: 90 } },
+    effect: { ai: { chaos: 15 } },
+  },
+  {
+    id: "AFFINITY_AUTO_OPEN",
+    trigger: "turn",
+    filter: { above: { affinity: 90 } },
+    effect: { ai: { openness: 5 } },
+  },
+  // ⚡ IMPULSES (Active Triggers)
+  {
+    id: "SHARD",
+    trigger: [
+      {
+        scan: "logic",
+        pattern: /logic|math|calculat|precise|fact|prove|proof/i,
+      },
+      {
+        scan: "analysis",
+        pattern: /analy(ze|sis)|code|script|program|system|process/i,
+      },
+    ],
+    effect: { ai: { chaos: -10, openness: 5 }, fractal: { entropy: -5 } },
+  },
+  {
+    id: "VULNERABILITY",
+    trigger: [
+      { scan: "affection", pattern: /love|kiss|hug|hold|protect|care|soft/i },
+      { scan: "sadness", pattern: /cry|weep|mourn|loss|hurt|pain|lonely/i },
+    ],
+    effect: { ai: { openness: 15, affinity: 10 } },
+  },
+  {
+    id: "SYSTEM_COLLAPSE",
+    trigger: [
+      {
+        scan: "glitch",
+        pattern: /glitch|error|crash|fail|null|void|missing|broken/i,
+      },
+    ],
+    effect: { ai: { chaos: 20 }, fractal: { entropy: 25 } },
+  },
+  {
+    id: "ANCHOR",
+    trigger: [
+      {
+        scan: "physicality",
+        pattern: /stone|iron|ground|heavy|floor|wall|weight/i,
+      },
+    ],
+    effect: { fractal: { velocity: -15, entropy: -10 } },
+  },
+  {
+    id: "VIOLENCE",
+    trigger: [
+      {
+        scan: "combat",
+        pattern:
+          /hit|kick|punch|shoot|strike|kill|attack|stab|slash|blood|gore|wound|fight|fought/i,
+      },
+      { scan: "aggression", pattern: /threat|angry|rage|furious|hate/i },
+    ],
+    effect: { ai: { intensity: 15, openness: -10 }, fractal: { entropy: 15 } },
+  },
+  {
+    id: "KINETICS",
+    trigger: [
+      {
+        scan: "impact",
+        pattern: /destroy|smash|explosion|impact|crash|break|broken/i,
+      },
+      {
+        scan: "athletics",
+        pattern: /fast|speed|run|ran|sprint|dash|leap|jump/i,
+      },
+    ],
+    effect: { ai: { intensity: 10 }, fractal: { velocity: 10 } },
+  },
+  {
+    id: "STASIS",
+    trigger: [
+      { scan: "pause", pattern: /wait|pause|stop|still/i },
+      { scan: "calm", pattern: /silence|quiet|calm|rest|sleep|slow/i },
+    ],
+    effect: { ai: { intensity: -10 }, fractal: { velocity: -10 } },
+  },
+  {
+    id: "ANOMALY",
+    trigger: [
+      {
+        scan: "horror",
+        pattern: /scream|panic|horror|dread|fear|spooky|creepy/i,
+      },
+      { scan: "hide", pattern: /hide|hidden|secret|conceal|shadow/i },
+    ],
+    effect: { ai: { chaos: 15, openness: 10 }, fractal: { entropy: 15 } },
+  },
+  {
+    id: "FORTIFICATION",
+    trigger: [
+      { scan: "armor", pattern: /armor|shield|barrier|wall|protect|defend/i },
+      { scan: "hide", pattern: /hide|hidden|secret|conceal|shadow/i },
+    ],
+    effect: {
+      ai: { openness: -10, affinity: 5 },
+      fractal: { entropy: -5, velocity: -10 },
     },
-    {
-        id: "ANCHOR",
-        triggers: [{ root: "stability", pattern: /dawn|clear(ed|ing)?|reboot(ed|ing)?|stabl[ey]|repair(ed|ing)?|restor(e|ed|ing)?/i }],
-        effect: {
-            fractal: { entropy: -15 }, // Stabilizing elements reduce environmental noise.
-        },
+  },
+  // REACTIONS (Conditional Active Triggers)
+  {
+    id: "SUSPICIOUS",
+    trigger: [
+      {
+        scan: "deception",
+        pattern: /lie|lying|liar|fake|deceive|deception|trick|mask|disguise/i,
+      },
+      { scan: "trust", pattern: /trust|believe|honest|truth|promise/i },
+    ],
+    filter: { below: { openness: 30 } },
+    effect: {
+      ai: { affinity: -10, intensity: 10 },
+      text: "You don't believe them.",
     },
-
-    // ⚡ TIER III: RESONANCE (Hybrid Triggers)
-    // These triggers are "Heavy Kinetics"—they shock both the character and the world.
-    {
-        id: "KINETICS",
-        triggers: [
-            { root: "violence", pattern: /kill(ed|ing)?|die(d|ing)?|shoot|shot|stabb?(ed|ing)?|punch(ed|ing)?|fight|fought|attack(ed|ing)?|blood/i },
-            { root: "impact", pattern: /destroy(ed|ing)?|smash(ed|ing)?|explosion|impact|crash(ed|ing)?/i },
-            { root: "athletics", pattern: /fast|speed|run(ning)?|ran|sprint(ing)?/i },
-        ],
-        effect: {
-            ai: { intensity: 10 },
-            fractal: { velocity: 10 },
-        },
-    },
-    {
-        id: "STASIS",
-        triggers: [
-            { root: "pause", pattern: /wait(ed|ing)?|pause(d|ing)?|stop(ped|ping)?|still/i },
-            { root: "calm", pattern: /silence|quiet|calm(ed|ing)?|rest(ed|ing)?|sleep|slow(ed|ing)?/i },
-        ],
-        effect: {
-            ai: { intensity: -10 },
-            fractal: { velocity: -10 },
-        },
-    },
-    {
-        id: "ANOMALY",
-        triggers: [
-            { root: "horror", pattern: /scream(ed|ing)?|fear(ed|ing)?|dark|shadow|weird|wrong|monster|ghost|dead|rot(ted|ting)?|nightmare/i },
-            { root: "glitch", pattern: /static|noise|distortion|fracture(d|ing)?|erratic|flicker(ed|ing)?|glitch(ed|ing)?/i },
-            { root: "hide", pattern: /hid(e|den|ing)?/i },
-        ],
-        effect: {
-            ai: { chaos: 10 },
-            fractal: { entropy: 10 },
-        },
-    },
-    {
-        id: "SCHISM",
-        triggers: [{ root: "betrayal", pattern: /betray(ed|al|ing)?|deceiv(ed|ing)?|lied?|backstab(bed|bing)?|doublecross(ed|ing)?|traitor/i }],
-        effect: {
-            ai: { chaos: 15, openness: -15 },
-            fractal: { entropy: 15 },
-        },
-    },
-    {
-        id: "EPIPHANY",
-        triggers: [{ root: "revelation", pattern: /confess(ed|ion|ing)?|reveal(ed|ing)?|disclos(ed|ing)?|secret|discover(ed|ing)?|sacrific(e|ed|ing)?/i }],
-        effect: {
-            ai: { openness: 10, intensity: 10 },
-            fractal: { velocity: 10 },
-        },
-    },
-    {
-        id: "NAIVETY",
-        triggers: [{ root: "persuasion", pattern: /promise|swear|trust me|i (swear|promise)|i'm not lying|believe me|honest(ly)?|i tell you/i }],
-        effect: {
-            // No direct effect. This trigger activates the Bayesian Suspicion check.
-        },
-    },
-]
-
-/**
- * 📢 SIGNAL PROMPTS
- * These are the text snippets injected into the LLM's system prompt
- * when a specific dynamic axis hits a threshold. This transforms naked
- * numbers back into narrative "flavors".
- */
-export const SIGNAL_PROMPTS = {
-    // --- AI (SOMATIC) ---
-    intensity: {
-        high: { id: "ADRENALINE", text: "Pacing fast. Short sentences. High-stakes urgency." },
-        low: { id: "SLOW_MOTION", text: "Pacing slow. Heavy fatigue. Deliberate, languid actions." },
-    },
-    chaos: {
-        high: { id: "HACK", text: "Reality glitching. Fragmented memory. Non-linear time perception." },
-        low: { id: "RECOVERY", text: "High clarity. Sharp recall. Stable environment." },
-    },
-    openness: {
-        high: { id: "VULNERABILITY", text: "Emotional exposure. Seeking comfort. Honest admissions." },
-        low: { id: "IRON_CURTAIN", text: "Cold deflection. Calculated silence. Guarded secrets." },
-    },
-    affinity: {
-        high: { id: "SYNCHRONY", text: "Mirroring user movement. Intense focus. Deep rapport." },
-        low: { id: "DISSONANCE", text: "Repulsion. Hostile distance. Passive-aggressive friction." },
-    },
-    // --- FRACTAL (ENVIRONMENTAL) ---
-    velocity: {
-        high: { id: "HIGH_VELOCITY", text: "Environmental pacing accelerated. Time compressing. Imminent threat or rapid escalation." },
-        low: { id: "LOW_VELOCITY", text: "Environmental stasis. Time stretching. Stillness and heavy atmosphere." },
-    },
-    entropy: {
-        high: { id: "HIGH_ENTROPY", text: "Structural reality degrading. Hostile environment, bizarre weather, or failing physics." },
-        low: { id: "LOW_ENTROPY", text: "Structural harmony. Safe, predictable physics and serendipitous elements." },
-    },
-    // --- SOCIAL/EPISTEMIC ---
-    naivety: {
-        breach: { id: "NAIVETY_BREACH", text: "[NAIVETY] Trust breach detected. High scepticism warranted." },
-        uncertain: { id: "NAIVETY_UNCERTAIN", text: "[NAIVETY] Claim plausibility is uncertain. Proceed with caution." },
-    },
-}
-
+  },
+];
 export class DynamicsEngine {
-    /**
-     * SIMULATE TURN
-     * -------------------------------------------------------------------------
-     * The primary entry point. It takes a context payload and runs a single
-     * frame of the narrative physics simulation.
-     *
-     * @param {IntelligencePayload} payload - The hydrated state from ContextBroker.
-     * @returns {SimulationSnapshot} - The new world state after the turn.
-     */
-    static simulate(payload) {
-        const { input, entities, history } = payload
-
-        // 1. SCAN: Look for "kinetic words" in the user's input.
-        const triggered = DynamicsEngine.scan_reflexes(input)
-
-        // 2. STATE HYDRATION: Clone the current entities (AI & Fractal) to avoid mutating the core state too early.
-        const state = {
-            ai: JSON.parse(JSON.stringify(entities.AI || {})),
-            fractal: JSON.parse(JSON.stringify(entities.FRACTAL || {})),
-            flags: [],
-            signals: {},
-            signal_prompts: [],
+  static simulate(payload) {
+    const { input, entities, history } = payload;
+    const matches = DynamicsEngine.dynamics_scan(input);
+    const nextState = {
+      ai: { ...entities.AI },
+      fractal: entities.FRACTAL
+        ? { ...entities.FRACTAL }
+        : { dynamics: { velocity: 50, entropy: 50 } },
+      flags: entities.AI?.flags || [],
+      signals: {},
+      signal_prompts: [],
+    };
+    DynamicsEngine.simulation_dynamics(nextState, history, matches);
+    return nextState;
+  }
+  /**
+   * DYNAMICS SCAN (The Unified Scanner)
+   * Finds every rule in the registry that matches the input text.
+   * @param {string} text
+   * @returns {Array<{ id: string, scan: string, config?: object }>}
+   */
+  static dynamics_scan(text) {
+    if (!text) return [];
+    const matches = [];
+    for (const data of DYNAMICS) {
+      if (!Array.isArray(data.trigger)) continue;
+      for (const t of data.trigger) {
+        if (text.match(t.pattern)) {
+          matches.push({ id: data.id, config: data, scan: t.scan });
         }
-
-        // 3. MOMENTUM CAPTURE: Remember where we were in the previous turn to calculate changes.
-        const prevState = {
-            ai: { dynamics: history?.dynamics || {} },
-            fractal: { dynamics: history?.fractal_dynamics || {} },
+      }
+    }
+    return matches;
+  }
+  /**
+   * SIMULATION DYNAMICS (The Umbrella Orchestrator)
+   * Processes numerical pass, baseline gravity, and narrative pass.
+   */
+  static simulation_dynamics(state, prevState, matches) {
+    // 1. NUMERICAL PASS: Active Impulses and Passive Laws
+    DynamicsEngine.dynamics_numerical(state, matches);
+    // 2. PHYSICS PASS: Baseline settlement and Threshold laws (Flags only)
+    const ents = Object.keys(state).filter((k) => state[k]?.dynamics);
+    ents.forEach((key) => {
+      DynamicsEngine._process_entity_dynamics(
+        state[key].dynamics,
+        DynamicsEngine._get_baselines(state[key]),
+        matches,
+        state,
+      );
+    });
+    // 3. NARRATIVE PASS: Environmental prompts
+    DynamicsEngine.dynamics_narrative(state, matches);
+  }
+  /**
+   * DYNAMICS NUMERICAL (Numerical Stage)
+   * Applies numerical shifts from matching triggers OR matching filters (for Laws).
+   */
+  static dynamics_numerical(state, matches) {
+    const processed = new Set();
+    DYNAMICS.forEach((data) => {
+      if (processed.has(data.id)) return;
+      const match = matches.find((m) => m.id === data.id);
+      const active_state = {
+        ...state.ai?.dynamics,
+        ...state.fractal?.dynamics,
+      };
+      const passes_filter = DynamicsEngine._evaluate_filter(
+        active_state,
+        data.filter,
+      );
+      const is_turn_event = data.trigger === "turn";
+      // Logic: Passive Turn Law OR Active Scan Impulse
+      const should_apply = is_turn_event
+        ? passes_filter
+        : match && passes_filter;
+      if (should_apply) {
+        const config = match?.config || data;
+        const eff = config.effect;
+        if (eff) {
+          Object.keys(eff).forEach((entKey) => {
+            const entState = state[entKey];
+            if (entState?.dynamics) {
+              Object.keys(eff[entKey]).forEach((axis) => {
+                if (entState.dynamics[axis] !== undefined)
+                  entState.dynamics[axis] += eff[entKey][axis];
+              });
+            }
+          });
         }
-
-        // 4. RESOLUTION: Run the physics engine.
-        return DynamicsEngine.resolve_dynamics(state, prevState, triggered)
-    }
-
-    /**
-     * SCAN REFLEXES
-     * -------------------------------------------------------------------------
-     * Iterates through the DYNAMICS_REFLEXES registry and matches the input text
-     * against defined Regex patterns. Returns a list of "Impulses" to apply.
-     */
-    static scan_reflexes(text) {
-        if (!text) return []
-        const triggered = []
-
-        for (const reflex of DYNAMICS_REFLEXES) {
-            for (const t of reflex.triggers) {
-                const match = text.match(t.pattern)
-                if (match) {
-                    triggered.push({
-                        id: reflex.id,
-                        effect: reflex.effect,
-                        trigger_word: t.root,
-                    })
-                }
-            }
-        }
-        return triggered
-    }
-
-    /**
-     * RESOLVE DYNAMICS
-     * -------------------------------------------------------------------------
-     * The heart of the calculation. This orchestrates the flow of data through
-     * the various physics tiers.
-     */
-    static resolve_dynamics(state, prevState, triggered) {
-        const d_phys = CONFIG.DYNAMICS
-
-        // 1. IMPULSE TIER: Apply the raw +/- shifts from the triggered reflexes.
-        const applied_ids = new Set()
-        triggered.forEach((reflex) => {
-            if (applied_ids.has(reflex.id)) return // Prevent double-triggering the same reflex ID in one turn.
-
-            // Dynamically route based on the effect targets defined in the reflex (e.g., 'ai', 'fractal', or eventually 'user')
-            Object.keys(reflex.effect).forEach((targetKey) => {
-                const targetState = state[targetKey]
-                if (targetState && targetState.dynamics) {
-                    Object.keys(reflex.effect[targetKey]).forEach((axis) => {
-                        if (targetState.dynamics[axis] !== undefined) {
-                            targetState.dynamics[axis] += reflex.effect[targetKey][axis]
-                        }
-                    })
-                }
-            })
-
-            applied_ids.add(reflex.id)
-        })
-
-        // 2 & 3 & 4. UNIVERSAL PHYSICS & SIGNALS
-        // Identifies any valid entity in the state payload that has a 'dynamics' object (ai, fractal, user, nemesis, etc.)
-        const dynamic_keys = Object.keys(state).filter((k) => state[k] && typeof state[k] === "object" && state[k].dynamics)
-
-        dynamic_keys.forEach((key) => {
-            const baselines = DynamicsEngine._get_baselines(state[key])
-            DynamicsEngine._process_entity_dynamics(state[key].dynamics, baselines, triggered, state, prevState?.[key]?.dynamics)
-            DynamicsEngine._map_signals(state[key].dynamics, state, d_phys.SIGNAL_HIGH, d_phys.SIGNAL_LOW)
-        })
-
-        // 5. BAYESIAN SKEPTICISM (AI Only):
-        // If the user tries to persuade or lie (NAIVETY trigger), we calculate how
-        // suspicious the AI should be based on its current Openness (Trust) and its Personality Baseline.
-        if (state.ai && state.ai.dynamics && state.ai.dynamics.openness !== undefined) {
-            const ai_baselines = DynamicsEngine._get_baselines(state.ai)
-            const baseline_openness = ai_baselines.openness ?? d_phys.DYNAMICS_GRAVITY_BASELINE
-
-            const suspicion = DynamicsEngine._resolve_naivety(triggered, state.ai.dynamics.openness, baseline_openness)
-
-            if (suspicion !== null) {
-                if (suspicion > d_phys.NAIVETY_THRESHOLD) {
-                    state.signal_prompts.push(SIGNAL_PROMPTS.naivety.breach.text)
-                } else if (suspicion > 0.5) {
-                    state.signal_prompts.push(SIGNAL_PROMPTS.naivety.uncertain.text)
-                }
-            }
-        }
-
-        return state
-    }
-
-    /**
-     * _get_baselines
-     * Pulls the personality set-points from the entity. If missing, pulls to 50.
-     */
-    static _get_baselines(entity) {
-        return entity?.personality?.baselines || {}
-    }
-
-    /************************************************************************************
-     * 🧩 [SECTION: PHYSICS HELPERS]
-     * ----------------------------------------------------------------------------------
-     * These internal methods handle the low-level math of the simulation.
-     ************************************************************************************/
-
-    /**
-     * PROCESS ENTITY DYNAMICS
-     * -------------------------------------------------------------------------
-     * Runs Gravity (restoring force) and Law (threshold triggers) for a set of
-     * specific dynamic axes.
-     */
-    static _process_entity_dynamics(d, baselines, triggered, state, prev_dynamics) {
-        const { LAW_HIGH, LAW_LOW, GRAVITY_PULL, DYNAMICS_GRAVITY_BASELINE } = CONFIG.DYNAMICS
-
-        // --- 🪐 TIER A: GRAVITY (Restoring Force) ---
-        // Every turn, stats lose a bit of their charge and wander back toward their
-        // natural baseline (the character's personality default).
-        Object.keys(d).forEach((axis) => {
-            const target = baselines[axis] ?? DYNAMICS_GRAVITY_BASELINE
-            d[axis] += (target - d[axis]) * GRAVITY_PULL
-        })
-
-        // --- ⚖️ TIER B: THE LAWS (Extreme Behaviors) ---
-        // If a stat boils over or freezes, it causes "Cascades"—side effects
-        // that force other stats to shift in response to the trauma.
-        Object.keys(d).forEach((axis) => {
-            const val = d[axis]
-
-            if (val >= LAW_HIGH) {
-                state.flags.push(`${axis.toUpperCase()}_HIGH_THRESHOLD`)
-
-                // Logic Cascades
-                if (axis === "intensity") {
-                    d.openness = (d.openness || 0) - 10 // Adrenaline closes the mind.
-                    d.affinity = (d.affinity || 0) - 5
-                } else if (axis === "chaos") {
-                    d.affinity = (d.affinity || 0) - 5
-                    d.intensity = (d.intensity || 0) + 10 // Chaos breeds panic.
-                } else if (axis === "openness") {
-                    d.chaos = (d.chaos || 0) * 2.0 // Pure openness is vulnerable to glitches.
-                } else if (axis === "affinity") {
-                    d.chaos = (d.chaos || 0) - 10 // Love creates order.
-                    d.openness = (d.openness || 0) - 5
-                }
-            } else if (val <= LAW_LOW) {
-                state.flags.push(`${axis.toUpperCase()}_LOW_THRESHOLD`)
-
-                if (axis === "intensity") {
-                    d.affinity = (d.affinity || 0) + 10 // Calm breeds bond.
-                    d.chaos = (d.chaos || 0) - 5
-                } else if (axis === "chaos") {
-                    d.openness = (d.openness || 0) - 10 // Rigid order is guarded.
-                    d.intensity = (d.intensity || 0) - 5
-                } else if (axis === "openness") {
-                    d.affinity = (d.affinity || 0) * 0.5 // Emotional isolation halves bonds.
-                } else if (axis === "affinity") {
-                    d.intensity = (d.intensity || 0) - 10 // Isolation is cold.
-                    d.chaos = (d.chaos || 0) + 5
-                }
-            }
-        })
-
-        // --- 🛡️ THE CLIPPER (Mandatory 0-100 Clamping) ---
-        // Final sanity check. Round and clamp between 0 and 100 before shipping.
-        Object.keys(d).forEach((axis) => {
-            d[axis] = Math.max(0, Math.min(100, Math.round(d[axis])))
-        })
-    }
-
-    /**
-     * MAP SIGNALS
-     * -------------------------------------------------------------------------
-     * Consults the SIGNAL_PROMPTS dictionary and pushes the appropriate
-     * descriptive text into the output if axes are at their extremes.
-     */
-    static _map_signals(source_dynamics, state, SIGNAL_HIGH, SIGNAL_LOW) {
-        Object.keys(source_dynamics).forEach((axis) => {
-            const val = source_dynamics[axis]
-
-            if (SIGNAL_PROMPTS[axis]) {
-                if (val > SIGNAL_HIGH) {
-                    const signal = SIGNAL_PROMPTS[axis].high
-                    state.signal_prompts.push(signal.text)
-                    state.signals[signal.id] = true
-                } else if (val < SIGNAL_LOW) {
-                    const signal = SIGNAL_PROMPTS[axis].low
-                    state.signal_prompts.push(signal.text)
-                    state.signals[signal.id] = true
-                }
-            }
-        })
-    }
-
-    /**
-     * RESOLVE NAIVETY (Bayesian Cognition)
-     * -------------------------------------------------------------------------
-     * Calculates the "Suspicion Index".
-     * Formula: Posterior distrust = 1 - (likelihood * prior / evidence_prob).
-     * Prior trust is a personality-weighted blend of current openness and baseline openness.
-     */
-    static _resolve_naivety(reflexes, current_openness, baseline_openness = 50) {
-        if (!Array.isArray(reflexes)) return null
-        if (!reflexes.some((r) => r.id === "NAIVETY")) return null
-
-        // 1. Personality-weighted Prior: Blend current state with core baseline trait.
-        const weighted_openness = (current_openness + baseline_openness) / 2
-
-        // Convert 0-100 openness into a 0.0-1.0 probability of "Prior Trust".
-        const prior_trust = Math.max(0.01, Math.min(0.99, weighted_openness / 100))
-        const prior_distrust = 1.0 - prior_trust
-
-        // 2. Assign Likelihoods: How likely is a "Persuasion" to be true if we trust vs distrust?
-        const p_e_given_trust = 0.8
-        const p_e_given_distrust = 0.3
-
-        // 3. Evidence Probability (Marginal Likelihood)
-        const p_e = p_e_given_trust * prior_trust + p_e_given_distrust * prior_distrust
-        if (p_e === 0) return 0.5
-
-        // 4. Calculate Posterior probability of Trust given the evidence (the user's persuasion).
-        const posterior_trust = (p_e_given_trust * prior_trust) / p_e
-
-        // Return Suspicion (The Inverse of Trust)
-        return 1.0 - posterior_trust
-    }
+        processed.add(data.id);
+      }
+    });
+  }
+  /**
+   * DYNAMICS NARRATIVE (Narrative Stage)
+   * Pushes prompts to the final output based on the settled state.
+   */
+  static dynamics_narrative(state, matches) {
+    DYNAMICS.forEach((data) => {
+      const is_triggered = matches.some((m) => m.id === data.id);
+      const active_state = {
+        ...state.ai?.dynamics,
+        ...state.fractal?.dynamics,
+      };
+      const passes_filter = DynamicsEngine._evaluate_filter(
+        active_state,
+        data.filter,
+      );
+      const is_turn_event = data.trigger === "turn";
+      const should_echo = is_turn_event
+        ? passes_filter
+        : is_triggered && passes_filter;
+      if (should_echo && data.effect?.text) {
+        state.signal_prompts.push(data.effect.text);
+        state.signals[data.id] = true;
+      }
+    });
+  }
+  static _evaluate_filter(d, filter) {
+    if (!filter) return true;
+    const above_ok = Object.entries(filter.above || {}).every(
+      ([axis, limit]) => d[axis] > limit,
+    );
+    const below_ok = Object.entries(filter.below || {}).every(
+      ([axis, limit]) => d[axis] < limit,
+    );
+    return above_ok && below_ok;
+  }
+  static _get_baselines(entity) {
+    // dynamics_baseline: permanent per-entity gravitational center.
+    // Set by the user outside a simulation; gravity pulls live dynamics back toward it each round.
+    // Falls back to 50 (universal mid-point) if not defined.
+    return entity?.dynamics_baseline || {};
+  }
+  /**
+   * PHYSICS ENGINE (Gravity & Settlement)
+   * Pulls dynamics back toward baselines and clamps results.
+   * Generates persistent state flags for AI response conditioning.
+   */
+  static _process_entity_dynamics(d, baselines, matches, state) {
+    // 1. Gravity Pull
+    Object.keys(d).forEach((axis) => {
+      const target = baselines[axis] ?? 50;
+      d[axis] += (target - d[axis]) * 0.25;
+    });
+    // 2. Settlement
+    Object.keys(d).forEach(
+      (axis) => (d[axis] = Math.max(0, Math.min(100, Math.round(d[axis])))),
+    );
+  }
 }

@@ -7,15 +7,12 @@
      */
     import { themeStore } from "@theme/palette.svelte.js"
     import { fitText } from "@ui/utils/actions/fitText.js"
-
     let { entity } = $props()
-
     // 1. Core Flattened Properties
     let name = $derived(entity?.name || "Entity")
     let pictureUrl = $derived(entity?.profile_picture)
     let signature_color = $derived(themeStore.get_signature_color(entity))
     let initials = $derived(themeStore.get_initials(name))
-
     // 2. Minor Modifiers (Fallback safely if visuals object is missing)
     let isNoBg = $derived(entity?.visuals?.noBackground ?? false)
     let isFlipped = $derived(entity?.visuals?.flipped ?? false)
@@ -53,14 +50,12 @@
         border-radius: 0;
         background: var(--surface-void);
     }
-
     .image-container {
         position: relative;
         width: 100%;
         height: 100%;
         overflow: hidden;
     }
-
     .picture {
         width: 100%;
         height: 100%;
@@ -68,16 +63,13 @@
         display: block;
         transition: transform var(--transition-speed-slow) var(--physics-transition-elastic);
     }
-
     .picture.no-bg {
         object-fit: contain;
         filter: drop-shadow(0 0.5rem 1rem rgb(var(--pure-black-rgb) / 0.5));
     }
-
     .picture.flipped {
         transform: scaleX(-1);
     }
-
     .glitch-overlay {
         position: absolute;
         inset: 0;
@@ -87,7 +79,6 @@
         background: linear-gradient(transparent 50%, rgb(var(--pure-black-rgb) / var(--opacity-xs)) 50%);
         background-size: 100% var(--spacing-xxs);
     }
-
     .glitch-overlay::after {
         content: "";
         position: absolute;
@@ -96,7 +87,6 @@
         background-size: 300% 100%;
         animation: chromatic-drift 10s infinite linear;
     }
-
     @keyframes chromatic-drift {
         0% {
             background-position: 0% 0%;
@@ -105,7 +95,6 @@
             background-position: 300% 0%;
         }
     }
-
     .placeholder {
         position: relative;
         display: flex;

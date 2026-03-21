@@ -15,7 +15,7 @@ RPGlitch is a **Local-First Reactive Monolith** (PWA). It is structured into fiv
 
 | Pillar                | Role                            | Constraint / Tech                                                      |
 | :-------------------- | :------------------------------ | :--------------------------------------------------------------------- |
-| **1. Core Engine**    | Logic & Turn Orchestration      | **Pure IO**. No DOM manipulation. No CSS classes.                      |
+| **1. Core Engine**    | Logic & Round Orchestration     | **Pure IO**. No DOM manipulation. No CSS classes.                      |
 | **2. UI & Structure** | HTML/Layouts (Artificer)        | Svelte 5 (`src/ui/`).                                                  |
 | **3. Sensory**        | Visuals, Audio, Theme (Mesmer)  | Native CSS / SCSS (`src/media/`).                                      |
 | **4. Data**           | Persistence & History (Scholar) | **Dexie.js** (IndexedDB). `db.version(n)` must be strictly sequential. |
@@ -99,7 +99,7 @@ Code must be predictably organized. Heavy logic (>50 lines) moves to `scripts/`.
 
 | Scope       | Type                        | Case                       | Example                       |
 | :---------- | :-------------------------- | :------------------------- | :---------------------------- |
-| File System | **Directories**             | `kebab-case`               | `game-engine/`                |
+| File System | **Directories**             | `kebab-case`               | `simulation-engine/`          |
 | File System | **Svelte Component**        | `PascalCase`               | `StoryPanel.svelte`           |
 | File System | **Structure/Class**         | `PascalCase`               | `ContextBroker.js`            |
 | Identifier  | **Process/State/Variables** | `camelCase` / `snake_case` | `buildPrompt`, `current_char` |
@@ -116,12 +116,12 @@ To prevent cognitive drift and conversion errors, these definitions are absolute
 
 ### The Lexicon
 
-| Concept               | Standard Term  | ❌ Forbidden Terms              |
-| :-------------------- | :------------- | :------------------------------ |
-| **The Logic Engine**  | **GameMaster** | Director, Orchestrator, Manager |
-| **Debug UI**          | **DevMode**    | Debug Mode, God Mode, Cheat     |
-| **Narrative Control** | **GM Mode**    | Director Mode, Storyteller      |
-| **User Interface**    | **StoryMode**  | Chat, Play Mode                 |
+| Concept               | Standard Term         | Forbidden Terms                    |
+| :-------------------- | :-------------------- | :--------------------------------- |
+| **The Logic Engine**  | **SimulationMaster**  | Director, Orchestrator, GameMaster |
+| **Debug UI**          | **DevMode**           | Debug Mode, God Mode, Cheat        |
+| **Narrative Control** | **GM Mode**           | Director Mode, Storyteller         |
+| **User Interface**    | **StoryMode**         | Chat, Play Mode                    |
 
 ### Localization (Swedish/SI Standard)
 

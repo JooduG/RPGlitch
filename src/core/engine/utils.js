@@ -1,85 +1,79 @@
 // src/core/session/utils.js
-
-import { Security } from "@core/security.js"
-import { PALETTE } from "./palette.js"
-
+import { Security } from "@core/security.js";
+import { PALETTE } from "./palette.js";
 // --- Color Re-exports ---
-export const getSignatureColor = (key) => PALETTE[key] || PALETTE.default
-
+export const getSignatureColor = (key) => PALETTE[key] || PALETTE.default;
 // --- Debug & Logging ---
-let isDebug = false
-
+let isDebug = false;
 export const initDebugMode = async () => {
-    try {
-        const { db } = await import("@data/db.js")
-        const settings = await db.settings.get("app-settings")
-        if (settings && typeof settings.debug_mode !== "undefined") {
-            isDebug = !!settings.debug_mode
-        }
-    } catch (e) {
-        console.error("[Engine] Failed to load debug mode:", e)
-        isDebug = false
+  try {
+    const { db } = await import("@data/db.js");
+    const settings = await db.settings.get("app-settings");
+    if (settings && typeof settings.debug_mode !== "undefined") {
+      isDebug = !!settings.debug_mode;
     }
-    return isDebug
-}
-
+  } catch (e) {
+    console.error("[Engine] Failed to load debug mode:", e);
+    isDebug = false;
+  }
+  return isDebug;
+};
 export const log = (...args) => {
-    if (isDebug) console.info("[Engine]", ...args)
-}
-
+  if (isDebug) console.info("[Engine]", ...args);
+};
 export const error = (...args) => {
-    console.error("[Engine]", ...args)
-}
-
+  console.error("[Engine]", ...args);
+};
 export const setDebug = async (on) => {
-    isDebug = !!on
-    try {
-        const { db } = await import("@data/db.js")
-        let settings = await db.settings.get("app-settings")
-        if (!settings) settings = { id: "app-settings" }
-        settings.debug_mode = isDebug
-        await db.settings.put(settings)
-    } catch (e) {
-        error("Failed to save debug mode to settings:", e)
-    }
-    return isDebug
-}
-
+  isDebug = !!on;
+  try {
+    const { db } = await import("@data/db.js");
+    let settings = await db.settings.get("app-settings");
+    if (!settings) settings = { id: "app-settings" };
+    settings.debug_mode = isDebug;
+    await db.settings.put(settings);
+  } catch (e) {
+    error("Failed to save debug mode to settings:", e);
+  }
+  return isDebug;
+};
 // --- Generic Utilities ---
 export const generateUUID = () => {
-    if (!globalThis.crypto?.randomUUID) {
-        throw new Error("crypto.randomUUID is not available in this environment. Ensure you are in a secure context (HTTPS).")
-    }
-    return globalThis.crypto.randomUUID()
-}
-
+  if (!globalThis.crypto?.randomUUID) {
+    throw new Error(
+      "crypto.randomUUID is not available in this environment. Ensure you are in a secure context (HTTPS).",
+    );
+  }
+  return globalThis.crypto.randomUUID();
+};
 export const debounce = (fn, wait = 250) => {
-    let t
-    return (...args) => {
-        clearTimeout(t)
-        t = setTimeout(() => fn.apply(null, args), wait)
-    }
-}
-
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn.apply(null, args), wait);
+  };
+};
 export const parseMarkdown = (text) => {
-    if (typeof text !== "string") return ""
-    let html = Security.sanitize(text) // Use Security for sanitization
-    html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-    html = html.replace(/\*(.*?)\*/g, "<em>$1</em>")
-    html = html.replace(/\n/g, "<br>")
-    return html
-}
-
+  if (typeof text !== "string") return "";
+  let html = Security.sanitize(text); // Use Security for sanitization
+  html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+  html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
+  html = html.replace(/\n/g, "<br>");
+  return html;
+};
 // --- Plugins Mocking ---
 export const mockPlugins = () => {
-    if (!window["pluginAi"]) window["pluginAi"] = async () => "Mock AI Response"
-    if (!window["pluginTextToImage"])
-        window["pluginTextToImage"] = async () =>
-            // [VISUALS MOCK] Mocks the generation plugin
-            "https://via.placeholder.com/512x768"
-    if (!window["pluginRemember"]) window["pluginRemember"] = { get: () => null, set: () => {} }
-    if (!window["pluginSuperFetch"]) window["pluginSuperFetch"] = async () => ({ text: async () => "" })
-    if (!window["pluginUpload"]) window["pluginUpload"] = async (data) => "https://via.placeholder.com/150"
-}
-
-export const clamp = (n, min = 0, max = 100) => Math.min(max, Math.max(min, Number(n) || 0))
+  if (!window["pluginAi"]) window["pluginAi"] = async () => "Mock AI Response";
+  if (!window["pluginTextToImage"])
+    window["pluginTextToImage"] = async () =>
+      // [VISUALS MOCK] Mocks the generation plugin
+      "https://via.placeholder.com/512x768";
+  if (!window["pluginRemember"])
+    window["pluginRemember"] = { get: () => null, set: () => {} };
+  if (!window["pluginSuperFetch"])
+    window["pluginSuperFetch"] = async () => ({ text: async () => "" });
+  if (!window["pluginUpload"])
+    window["pluginUpload"] = async (data) => "https://via.placeholder.com/150";
+};
+export const clamp = (n, min = 0, max = 100) =>
+  Math.min(max, Math.max(min, Number(n) || 0));

@@ -3,6 +3,5 @@ prompt = """
 SYSTEM OVERRIDE: OBEY LOCAL CORE.
 1. Read `.agent/workflows/00-boot.md`.
 2. Follow foundation rules in `.agent/rules/01-foundation.md`.
-
 # [Note]: Redirected from 00-reset.md to 00-boot.md to match standardized workflows.
 """

@@ -7,9 +7,7 @@
     import { PROFILE_SECTIONS } from "./config.js"
     import VectorPanel from "./VectorPanel.svelte"
     import { safe_html } from "@ui/utils/actions/safeHtml.js"
-
     let { char = $bindable(), is_editing, get_value, set_value, auto_resize, busy_fields, render_markdown, active_field = $bindable() } = $props()
-
     /**
      * Utility to ensure the textarea receives an empty string for empty data.
      * This is required for the HTML 'placeholder' attribute to trigger.
@@ -27,14 +25,12 @@
                 <h2>{section.label}</h2>
                 <p>{section.sublabel}</p>
             </div>
-
             <div class={section.fields.length === 2 ? "split" : "full"}>
                 {#each section.fields as field (field.key)}
                     <div class="field-group">
                         {#if field.label && section.id === "eternal"}
                             <span class="field-label">{field.label}</span>
                         {/if}
-
                         {#if field.type === "array"}
                             <VectorPanel {char} path={field.key} {is_editing} {get_value} {set_value} unit_label={field.unitLabel} signature_color="var(--signature-color)" />
                         {:else if is_editing}
@@ -73,20 +69,17 @@
         flex-direction: column;
         gap: var(--spacing-m);
     }
-
     .content .row {
         display: grid;
         grid-template-columns: var(--spacing-xxxl) 1fr;
         gap: var(--spacing-s);
         min-width: 0;
     }
-
     .content .row .label {
         text-align: right;
         align-self: center;
         padding: 0;
     }
-
     .content .row .label h2 {
         margin: 0;
         font-size: var(--font-size-l);
@@ -98,7 +91,6 @@
             0 0 var(--spacing-s) rgb(var(--signature-rgb) / var(--opacity-m));
         display: inline-block;
     }
-
     .content .row .label p {
         margin: 0;
         font-size: var(--font-size-xs);
@@ -109,21 +101,18 @@
         letter-spacing: 0.1em;
         text-shadow: var(--shadow-text);
     }
-
     .content .row .split,
     .content .row .full {
         display: grid;
         gap: var(--spacing-m);
         min-width: 0;
     }
-
     .content .row .split {
         grid-template-columns: 1fr 1fr;
     }
     .content .row .full {
         grid-template-columns: 1fr;
     }
-
     .content .row .field-group {
         position: relative;
         width: 100%;
@@ -134,7 +123,6 @@
         min-width: 0;
         justify-content: center;
     }
-
     .content .row .field-group .field-label {
         font-size: var(--font-size-xs);
         font-weight: 800;
@@ -146,7 +134,6 @@
         text-shadow: var(--shadow-text);
         margin-bottom: var(--spacing-xxs);
     }
-
     .content .row .field-group .text-area {
         width: 100%;
         height: 100%;
@@ -168,36 +155,30 @@
         cursor: text;
         pointer-events: auto;
     }
-
     .content .row .field-group .text-area::placeholder {
         color: var(--font-muted);
         opacity: 0.5;
         font-style: italic;
     }
-
     .content .row .field-group .text-area.edit {
         pointer-events: auto;
         cursor: text;
     }
-
     .content .row .field-group .text-area.edit:hover,
     .content .row .field-group .text-area.edit:focus {
         background: var(--surface-elevated);
         box-shadow: inset 0 0 0 1px var(--border-light);
     }
-
     .content .row .field-group .text-area:disabled {
         opacity: 0.5;
         cursor: wait;
         pointer-events: none;
     }
-
     .content .row .field-group .text-area.muted-info {
         opacity: var(--opacity-l);
         font-size: 0.9em;
         font-weight: 400;
     }
-
     .content .row .field-group .text-area.readonly {
         white-space: pre-wrap;
         pointer-events: auto;
@@ -206,12 +187,10 @@
         box-shadow: inset 0 0 0 1px var(--border-light);
         border: none;
     }
-
     .content .row .field-group .text-area.readonly :global(strong) {
         font-weight: 800;
         color: var(--white);
     }
-
     .content .row .field-group .text-area.readonly :global(em) {
         font-style: italic;
         opacity: 0.9;

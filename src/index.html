@@ -1,179 +1,200 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <title>RPGlitch</title>
-
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet" />
-    </head>
-
-    <body class="storyboard">
-        <div id="svelte-root">
-            <style>
-                body {
-                    margin: 0;
-                    background-color: var(--bg-base);
-                    background-image: radial-gradient(circle at 50% 0%, var(--bg-grad-1), var(--bg-grad-2) 50%, var(--bg-grad-3) 75%, var(--bg-grad-4));
-                    background-size: cover;
-                    background-attachment: fixed;
-                    background-repeat: no-repeat;
-                    height: 100vh;
-                }
-
-                .boot-illusion {
-                    display: grid;
-                    grid-template-columns: repeat(12, 1fr);
-                    align-items: center;
-                    align-content: center;
-                    height: 100vh;
-                    width: 100%;
-                    position: fixed;
-                    inset: 0;
-                }
-
-                .boot-illusion .card {
-                    background: linear-gradient(90deg, var(--illusion-bg) 25%, var(--illusion-shimmer) 50%, var(--illusion-bg) 75%);
-                    background-size: 200% 100%;
-                    animation: illusion-shimmer 5s infinite;
-                    border-radius: 24px;
-                    justify-self: center;
-                    align-self: center;
-                }
-
-                /* Side cards: Portrait - grid cols 2-3 and 10-11 */
-                .boot-illusion .card-left {
-                    grid-column: 2 / span 2;
-                    grid-row: 1;
-                    width: 25vh;
-                    height: 40vh;
-                }
-
-                .boot-illusion .card-center {
-                    grid-column: 4 / span 6;
-                    grid-row: 1;
-                    width: 40vh;
-                    height: 25vh;
-                }
-
-                .boot-illusion .card-right {
-                    grid-column: 10 / span 2;
-                    grid-row: 1;
-                    width: 25vh;
-                    height: 40vh;
-                }
-
-                @keyframes illusion-shimmer {
-                    0% {
-                        background-position: 200% 0;
-                    }
-                    100% {
-                        background-position: -200% 0;
-                    }
-                }
-
-                @media (max-width: 768px) {
-                    .boot-illusion {
-                        grid-template-columns: 1fr;
-                        padding-bottom: 0;
-                        align-items: center;
-                    }
-
-                    .boot-illusion .card-left,
-                    .boot-illusion .card-right {
-                        display: none;
-                    }
-
-                    .boot-illusion .card-center {
-                        grid-column: 1 / -1;
-                    }
-                }
-            </style>
-
-            <div class="boot-illusion">
-                <div class="card card-left"></div>
-                <div class="card card-center"></div>
-                <div class="card card-right"></div>
-            </div>
-        </div>
-
-        <a href="#svelte-root" class="skip-link">Skip to main content</a>
-
-        <div id="fractal-background" hidden></div>
-
-        <dialog id="emergency-modal">
-            <article>
-                <header>
-                    <button type="button" class="close" aria-label="Close" onclick="this.closest('dialog').close()">
-                        <svg class="icon" viewBox="0 0 24 24">
-                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-                        </svg>
-                    </button>
-                    Error
-                </header>
-                <p>An error occurred during loading.</p>
-                <footer>
-                    <button id="emergency-export" class="secondary" data-action="export-all">Save All Data</button>
-                    <button id="emergency-delete" class="contrast" data-action="delete-all">Delete All Data</button>
-                </footer>
-            </article>
-        </dialog>
-
-        <div id="profile-screen" hidden></div>
-
-        <script src="https://perchance.org/ai-text-plugin"></script>
-        <script src="https://perchance.org/text-to-image-plugin"></script>
-
-        <script>
-            // Initialize Plugin Aliases with strict hygiene
-            if (typeof ai !== "undefined") {
-                window.ai = ai
-                window.pluginAi = ai
-            }
-
-            // Text-to-Image (Handle both t2i and textToImage names)
-            if (typeof textToImage !== "undefined") {
-                window.textToImage = textToImage
-                window.pluginTextToImage = textToImage
-            } else if (typeof t2i !== "undefined") {
-                window.textToImage = t2i
-                window.pluginTextToImage = t2i
-            }
-        </script>
-
-        <div id="dev-hud" style="display: none"></div>
-
-        <style>
-            /* Reserved for critical dynamic overrides */
-        </style>
-
-        <template id="tpl-epilogue-controls">
-            <div class="epilogue-controls btn-group-pill">
-                <button id="btn-epilogue-nav-settings" class="btn-ghost" aria-label="Settings">
-                    <svg class="icon" viewBox="0 0 24 24">
-                        <path
-                            d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6 3.6-1.62 3.6-3.6 3.6z"
-                        />
-                    </svg>
-                </button>
-
-                <button id="btn-epilogue-nav-delete" class="btn-ghost" aria-label="Delete Story" title="Delete Story">
-                    <svg class="icon" viewBox="0 0 24 24">
-                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-                    </svg>
-                </button>
-
-                <button id="btn-epilogue-nav-close" class="btn-primary">
-                    Storyboard
-                    <svg class="icon" viewBox="0 0 24 24">
-                        <path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1-.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
-                    </svg>
-                </button>
-            </div>
-        </template>
-
-        <script type="module" src="/main.js"></script>
-    </body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>RPGlitch</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Ubuntu:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="storyboard">
+    <div id="svelte-root">
+      <style>
+        body {
+          margin: 0;
+          background-color: var(--bg-base);
+          background-image: radial-gradient(
+            circle at 50% 0%,
+            var(--bg-grad-1),
+            var(--bg-grad-2) 50%,
+            var(--bg-grad-3) 75%,
+            var(--bg-grad-4)
+          );
+          background-size: cover;
+          background-attachment: fixed;
+          background-repeat: no-repeat;
+          height: 100vh;
+        }
+        .boot-illusion {
+          display: grid;
+          grid-template-columns: repeat(12, 1fr);
+          align-items: center;
+          align-content: center;
+          height: 100vh;
+          width: 100%;
+          position: fixed;
+          inset: 0;
+        }
+        .boot-illusion .card {
+          background: linear-gradient(
+            90deg,
+            var(--illusion-bg) 25%,
+            var(--illusion-shimmer) 50%,
+            var(--illusion-bg) 75%
+          );
+          background-size: 200% 100%;
+          animation: illusion-shimmer 5s infinite;
+          border-radius: 24px;
+          justify-self: center;
+          align-self: center;
+        }
+        /* Side cards: Portrait - grid cols 2-3 and 10-11 */
+        .boot-illusion .card-left {
+          grid-column: 2 / span 2;
+          grid-row: 1;
+          width: 25vh;
+          height: 40vh;
+        }
+        .boot-illusion .card-center {
+          grid-column: 4 / span 6;
+          grid-row: 1;
+          width: 40vh;
+          height: 25vh;
+        }
+        .boot-illusion .card-right {
+          grid-column: 10 / span 2;
+          grid-row: 1;
+          width: 25vh;
+          height: 40vh;
+        }
+        @keyframes illusion-shimmer {
+          0% {
+            background-position: 200% 0;
+          }
+          100% {
+            background-position: -200% 0;
+          }
+        }
+        @media (max-width: 768px) {
+          .boot-illusion {
+            grid-template-columns: 1fr;
+            padding-bottom: 0;
+            align-items: center;
+          }
+          .boot-illusion .card-left,
+          .boot-illusion .card-right {
+            display: none;
+          }
+          .boot-illusion .card-center {
+            grid-column: 1 / -1;
+          }
+        }
+      </style>
+      <div class="boot-illusion">
+        <div class="card card-left"></div>
+        <div class="card card-center"></div>
+        <div class="card card-right"></div>
+      </div>
+    </div>
+    <a href="#svelte-root" class="skip-link">Skip to main content</a>
+    <div id="fractal-background" hidden></div>
+    <dialog id="emergency-modal">
+      <article>
+        <header>
+          <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            onclick="this.closest('dialog').close()"
+          >
+            <svg class="icon" viewBox="0 0 24 24">
+              <path
+                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+              />
+            </svg>
+          </button>
+          Error
+        </header>
+        <p>An error occurred during loading.</p>
+        <footer>
+          <button
+            id="emergency-export"
+            class="secondary"
+            data-action="export-all"
+          >
+            Save All Data
+          </button>
+          <button
+            id="emergency-delete"
+            class="contrast"
+            data-action="delete-all"
+          >
+            Delete All Data
+          </button>
+        </footer>
+      </article>
+    </dialog>
+    <div id="profile-screen" hidden></div>
+    <script src="https://perchance.org/ai-text-plugin"></script>
+    <script src="https://perchance.org/text-to-image-plugin"></script>
+    <script>
+      // Initialize Plugin Aliases with strict hygiene
+      if (typeof ai !== "undefined") {
+        window.ai = ai;
+        window.pluginAi = ai;
+      }
+      // Text-to-Image (Handle both t2i and textToImage names)
+      if (typeof textToImage !== "undefined") {
+        window.textToImage = textToImage;
+        window.pluginTextToImage = textToImage;
+      } else if (typeof t2i !== "undefined") {
+        window.textToImage = t2i;
+        window.pluginTextToImage = t2i;
+      }
+    </script>
+    <div id="dev-hud" style="display: none"></div>
+    <style>
+      /* Reserved for critical dynamic overrides */
+    </style>
+    <template id="tpl-epilogue-controls">
+      <div class="epilogue-controls btn-group-pill">
+        <button
+          id="btn-epilogue-nav-settings"
+          class="btn-ghost"
+          aria-label="Settings"
+        >
+          <svg class="icon" viewBox="0 0 24 24">
+            <path
+              d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6 3.6-1.62 3.6-3.6 3.6z"
+            />
+          </svg>
+        </button>
+        <button
+          id="btn-epilogue-nav-delete"
+          class="btn-ghost"
+          aria-label="Delete Story"
+          title="Delete Story"
+        >
+          <svg class="icon" viewBox="0 0 24 24">
+            <path
+              d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+            />
+          </svg>
+        </button>
+        <button id="btn-epilogue-nav-close" class="btn-primary">
+          Storyboard
+          <svg class="icon" viewBox="0 0 24 24">
+            <path
+              d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1-.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
+            />
+          </svg>
+        </button>
+      </div>
+    </template>
+    <script type="module" src="/main.js"></script>
+  </body>
 </html>

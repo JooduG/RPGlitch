@@ -21,7 +21,6 @@
         height: var(--spacing-xxl);
         width: fit-content;
     }
-
     .dot {
         width: var(--spacing-xs);
         height: var(--spacing-xs);
@@ -29,15 +28,12 @@
         border-radius: var(--border-radius-full);
         animation: bounce 1.4s infinite ease-in-out both;
     }
-
     .dot:nth-child(1) {
         animation-delay: -0.32s;
     }
-
     .dot:nth-child(2) {
         animation-delay: -0.16s;
     }
-
     @keyframes bounce {
         0%,
         80%,

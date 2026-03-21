@@ -9,7 +9,6 @@
     import DevWing from "@ui/organisms/profile/DevWing.svelte"
     import VisualWing from "@ui/organisms/profile/VisualWing.svelte"
     import VoiceWing from "@ui/organisms/profile/VoiceWing.svelte"
-
     let { char = $bindable(), is_editing, busy_fields = $bindable(), active_field = $bindable() } = $props()
 </script>
 
@@ -17,7 +16,6 @@
     <VisualWing bind:char {is_editing} bind:busy_fields bind:active_field />
     <VoiceWing bind:char {is_editing} />
 </aside>
-
 <aside class="wing-right" class:is-visible={app.settings.dev_mode} data-testid="dev-wing">
     <DevWing bind:char {is_editing} />
 </aside>
@@ -45,7 +43,6 @@
         transform-style: preserve-3d;
         z-index: var(--z-overlay);
     }
-
     .wing-left.is-visible,
     .wing-right.is-visible {
         width: 16rem;
@@ -55,19 +52,15 @@
         pointer-events: auto;
         filter: blur(0);
     }
-
     .wing-left {
         order: 1;
     }
-
     .wing-left.is-visible {
         transform: scale(1) translateX(calc(var(--spacing-s) * -1));
     }
-
     .wing-right {
         order: 3;
     }
-
     .wing-right.is-visible {
         transform: scale(1) translateX(var(--spacing-s));
     }

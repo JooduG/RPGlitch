@@ -5,7 +5,6 @@
      * Dynamically renders and binds to all entity dynamics (Somatic or Environmental).
      */
     let { char = $bindable(), is_editing } = $props()
-
     /**
      * Formats timestamps to a standard Swedish/ISO-adjacent format.
      */
@@ -19,7 +18,6 @@
             minute: "2-digit",
         })
     }
-
     /**
      * Dictionary for human-readable labels and descriptions.
      * Maps the internal keys from DynamicsEngine to user-facing text.
@@ -34,14 +32,12 @@
         velocity: { label: "Velocity", desc: "Environmental Pacing / Speed" },
         entropy: { label: "Entropy", desc: "Structural Reality / Weirdness" },
     }
-
     /**
      * Dynamically computes which dynamics are available on the current character.
      * Scans both standard 'dynamics' and runtime 'fractal_dynamics'.
      */
     let active_dynamics = $derived.by(() => {
         const list = []
-
         // 1. Scan Unified Dynamics (Character, Fractal, or custom Entity)
         if (char?.dynamics) {
             for (const key of Object.keys(char.dynamics)) {
@@ -53,7 +49,6 @@
                 })
             }
         }
-
         return list
     })
 </script>
@@ -81,7 +76,6 @@
             {/each}
         </div>
     </div>
-
     <div class="group meta-group">
         <div class="raw-explorer">
             <details>
@@ -91,7 +85,6 @@
                 </div>
             </details>
         </div>
-
         <footer class="footer-meta">
             <div class="meta-item">
                 <span class="tag">Created</span>
@@ -117,29 +110,24 @@
         height: 100%;
         overflow-y: auto;
     }
-
     .dev-wing-content::-webkit-scrollbar {
         width: var(--spacing-xxs);
     }
-
     .dev-wing-content::-webkit-scrollbar-thumb {
         background: var(--surface-elevated);
         border-radius: var(--border-radius-full);
     }
-
     .group {
         display: flex;
         flex-direction: column;
         gap: var(--spacing-s);
     }
-
     /* 1. Dynamics Display */
     .dynamics-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: var(--spacing-s);
     }
-
     .dynamic-box {
         background: var(--surface-sunken);
         box-shadow: inset 0 0 0 1px var(--border-light);
@@ -154,12 +142,10 @@
         min-height: var(--spacing-xxl);
         overflow: hidden;
     }
-
     .dynamic-box.is-editing:hover {
         background: var(--surface-elevated);
         box-shadow: inset 0 0 0 1px var(--border-light);
     }
-
     .dynamic-label {
         font-family: var(--font-header);
         font-size: var(--font-size-xs);
@@ -171,7 +157,6 @@
         display: block;
         cursor: help;
     }
-
     .value-container {
         display: flex;
         align-items: center;
@@ -179,7 +164,6 @@
         position: relative;
         width: 100%;
     }
-
     .value-container input {
         width: 100%;
         background: transparent;
@@ -192,7 +176,6 @@
         padding: 0;
         outline: none;
     }
-
     .step-controls {
         position: absolute;
         right: var(--spacing-xxs);
@@ -200,7 +183,6 @@
         flex-direction: column;
         gap: 0;
     }
-
     .step-controls button {
         background: transparent;
         border: none;
@@ -211,12 +193,10 @@
         opacity: var(--opacity-s);
         transition: all var(--transition-speed);
     }
-
     .step-controls button:hover {
         opacity: var(--opacity-full);
         color: var(--app-accent);
     }
-
     /* 4. Meta & Raw Explorer */
     .raw-explorer summary {
         font-size: var(--font-size-xs);
@@ -228,12 +208,10 @@
         letter-spacing: var(--letter-spacing-m);
         transition: all var(--transition-speed);
     }
-
     .raw-explorer summary:hover {
         opacity: 1;
         color: var(--white);
     }
-
     .json-wrap {
         margin-top: var(--spacing-xs);
         background: rgba(var(--pure-black-rgb) / 0.4);
@@ -245,21 +223,18 @@
         max-height: 10rem;
         overflow: auto;
     }
-
     .json-wrap pre {
         font-size: var(--font-size-xs);
         color: var(--surface-elevated);
         font-family: var(--font-mono);
         margin: 0;
     }
-
     .footer-meta {
         margin-top: auto;
         display: flex;
         flex-direction: column;
         gap: var(--spacing-xxs);
     }
-
     .meta-item {
         display: flex;
         justify-content: flex-start;
@@ -268,13 +243,11 @@
         text-transform: uppercase;
         letter-spacing: var(--letter-spacing-s);
     }
-
     .meta-item .tag {
         color: var(--font-muted);
         opacity: 0.7;
         font-weight: 900;
     }
-
     .meta-item .val {
         color: var(--font-color);
         opacity: var(--opacity-l);

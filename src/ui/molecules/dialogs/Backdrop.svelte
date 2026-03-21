@@ -10,10 +10,8 @@
      * @property {boolean} [blur]
      * @property {import('svelte').Snippet} [children]
      */
-
     /** @type {Props} */
     let { onclick, z_index = 100, blur = true, children = undefined } = $props()
-
     import { fade } from "svelte/transition"
 </script>
 
@@ -35,7 +33,6 @@
         align-items: center;
         cursor: pointer;
     }
-
     /* Blur is optional (performance) */
     .backdrop.blur {
     }

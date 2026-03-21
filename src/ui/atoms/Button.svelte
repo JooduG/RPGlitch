@@ -8,24 +8,19 @@
         onclick = null,
         ...restProps // Pass through disabled, etc.
     } = $props()
-
     let element
-
     export function focus() {
         element?.focus()
     }
-
     /**
      * Helper to apply an array of actions to the button element.
      * Actions can be: [action] or [action, params]
      */
     function applyActions(node, actions) {
         const destructors = []
-
         actions.forEach((item) => {
             const action = Array.isArray(item) ? item[0] : item
             const params = Array.isArray(item) ? item[1] : undefined
-
             if (typeof action === "function") {
                 const result = action(node, params)
                 if (result && result.destroy) {
@@ -33,7 +28,6 @@
                 }
             }
         })
-
         return {
             destroy() {
                 destructors.forEach((d) => d())
@@ -71,22 +65,18 @@
         color: var(--font-color);
         transition: all var(--transition-speed, 0.2s) ease-out;
     }
-
     .btn.btn-sm {
         min-height: var(--spacing-xl);
         padding: var(--spacing-xxs) var(--spacing-s);
         font-size: var(--font-size-xs);
     }
-
     .btn:hover:not(:disabled, .disabled) {
         transform: translateY(var(--physics-btn-hover-y));
         filter: brightness(1.1);
     }
-
     .btn:active:not(:disabled, .disabled) {
         transform: scale(var(--physics-btn-active-scale));
     }
-
     .btn:disabled,
     .btn.disabled {
         opacity: var(--opacity-disabled);
@@ -97,17 +87,14 @@
         transition: none;
         box-shadow: none;
     }
-
     .btn :global(.icon) {
         pointer-events: none;
         transition: transform 0.2s var(--physics-transition-elastic);
     }
-
     .btn:focus-visible {
         outline: none;
         box-shadow: 0 0 0 2px var(--frisk);
     }
-
     /* Variants */
     .btn-primary {
         background: var(--frisk);
@@ -117,7 +104,6 @@
     .btn-primary:hover:not(:disabled, .disabled) {
         background: color-mix(in srgb, var(--frisk), var(--white) 5%);
     }
-
     .btn-ghost {
         color: var(--font-muted);
     }
@@ -125,7 +111,6 @@
         background: var(--surface-sunken);
         color: var(--font-color);
     }
-
     .btn-outline {
         background: var(--border-light);
         color: var(--font-muted);
@@ -134,7 +119,6 @@
         color: var(--frisk);
         background: var(--surface-sunken);
     }
-
     .btn-glass {
         background: var(--surface-raised);
         color: var(--white);
@@ -142,7 +126,6 @@
     .btn-glass:hover:not(:disabled, .disabled) {
         background: var(--surface-elevated);
     }
-
     .btn-secondary {
         background: var(--surface-raised);
         color: var(--font-color);
@@ -150,7 +133,6 @@
     .btn-secondary:hover:not(:disabled, .disabled) {
         background: var(--surface-elevated);
     }
-
     .btn-security {
         background: var(--surface-sunken);
         color: var(--font-color);
@@ -161,7 +143,6 @@
             0 0 15px var(--surface-sunken),
             0 0 0 1px var(--font-color);
     }
-
     /* Shapes */
     .btn-round {
         border-radius: var(--border-radius-full);
@@ -169,7 +150,6 @@
         width: var(--spacing-xxl);
         height: var(--spacing-xxl);
     }
-
     /* Button Groups Support (using :global to catch parent containers) */
     :global(.btn-group-joined) .btn {
         border-radius: 0;
@@ -183,7 +163,6 @@
     :global(.btn-group-joined) .btn:not(:last-child) {
         border-right: 1px solid var(--tint-dark-surface);
     }
-
     :global(.btn-group-pill) .btn {
         border-radius: var(--border-radius-full);
         min-height: var(--spacing-xl);
