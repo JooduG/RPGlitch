@@ -1,28 +1,24 @@
 name: Fleet Dispatch (v1.0)
-
 on:
-    workflow_dispatch:
-        inputs:
-            scope:
-                description: "Dispatch scope (all | core | ui)"
-                required: true
-                default: "all"
-            reason:
-                description: "Reason for dispatch"
-                required: true
-
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: "Dispatch scope (all | core | ui)"
+        required: true
+        default: "all"
+      reason:
+        description: "Reason for dispatch"
+        required: true
 jobs:
-    dispatch:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout Sovereignty
-              uses: actions/checkout@v4
-
-            - name: Log Dispatch Event
-              run: |
-                  echo "Dispatching Fleet Update"
-                  echo "Scope: ${{ github.event.inputs.scope }}"
-                  echo "Reason: ${{ github.event.inputs.reason }}"
-
-            # Placeholder for future multi-repo dispatch logic
-            # See .agent/workflows/07-fleet.md for manual procedure
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Sovereignty
+        uses: actions/checkout@v4
+      - name: Log Dispatch Event
+        run: |
+          echo "Dispatching Fleet Update"
+          echo "Scope: ${{ github.event.inputs.scope }}"
+          echo "Reason: ${{ github.event.inputs.reason }}"
+      # Placeholder for future multi-repo dispatch logic
+      # See .agent/workflows/07-fleet.md for manual procedure

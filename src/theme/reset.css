@@ -10,24 +10,24 @@
  ************************************************************************************/
 html,
 body {
-    font-size: 100%; /* Typography baseline for rem units */
-    box-sizing: border-box;
-    height: 100vh;
-    width: 100vw;
-    margin: 0;
-    padding: 0;
-    overflow: hidden; /* Force no-scroll at root */
-    font-family: var(--font-sans);
-    color: var(--font-color);
-    background-color: var(--pure-black);
-    position: fixed; /* Prevent bounce/scroll on mobile iOS */
-    inset: 0;
+  font-size: 100%; /* Typography baseline for rem units */
+  box-sizing: border-box;
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Force no-scroll at root */
+  font-family: var(--font-sans);
+  color: var(--font-color);
+  background-color: var(--pure-black);
+  position: fixed; /* Prevent bounce/scroll on mobile iOS */
+  inset: 0;
 }
 
 *,
 *::before,
 *::after {
-    box-sizing: inherit;
+  box-sizing: inherit;
 }
 
 /************************************************************************************
@@ -36,13 +36,13 @@ body {
  * Hide scrollbars globally by default. Can be restored per-element if needed.
  ************************************************************************************/
 *::-webkit-scrollbar {
-    width: 0;
-    height: 0;
+  width: 0;
+  height: 0;
 }
 
 * {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 /************************************************************************************
@@ -51,9 +51,9 @@ body {
  * Hard visibility overrides for Developer mode.
  ************************************************************************************/
 body:not(.mode-developer) .developer-content {
-    display: none;
+  display: none;
 }
 
 body.modal-open {
-    overflow: hidden;
+  overflow: hidden;
 }

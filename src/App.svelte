@@ -10,19 +10,14 @@
     import Profile from "@ui/organisms/profile/Profile.svelte"
     import Storyboard from "@ui/organisms/storyboard/Storyboard.svelte"
     import Storymode from "@ui/organisms/storymode/Storymode.svelte"
-
     import { app } from "@state/app.svelte.js"
     import { lightbox } from "@state/lightbox.svelte.js"
-
     import { onMount } from "svelte"
     import { fade } from "svelte/transition"
-
     let mounted = $state(false)
-
     onMount(() => {
         mounted = true
     })
-
     // Reactively derive the background image from the flattened schema
     let fractal_bg = $derived(app.selected_fractal?.profile_picture || "")
 </script>
@@ -32,29 +27,23 @@
         {#if fractal_bg}
             <div class="fractal-background" style:background-image="url('{fractal_bg}')" style:opacity={app.view === "storymode" ? 0.4 : 0.75}></div>
         {/if}
-
         {#if lightbox.active}
             <Lightbox />
         {/if}
-
         {#if app.profile_open}
             <Profile entity_id={app.profile_target_id} entity_type={app.profile_target_type} />
         {/if}
-
         {#if app.control_panel_open}
             <ControlPanel />
         {/if}
-
         {#if app.settings.dev_mode}
             <DebugPanel />
         {/if}
-
         {#if app.view === "storyboard"}
             <Storyboard />
         {:else if app.view === "storymode"}
             <Storymode />
         {/if}
-
         {#if app.settings.dev_mode && app.control_panel_open}
             <button class="swap-view-trigger" onclick={() => (app.view = app.view === "storymode" ? "storyboard" : "storymode")} title="Toggle View Mode"> ⇄ </button>
         {/if}
@@ -70,7 +59,6 @@
         overflow: hidden;
         background: transparent;
     }
-
     .app-container::before {
         content: "";
         position: absolute;
@@ -80,19 +68,16 @@
         pointer-events: none;
         z-index: 10;
     }
-
     :global(html),
     :global(body) {
         overflow: hidden;
         width: 100%;
         height: 100%;
     }
-
     .app-container.has-tension {
         animation: reality-tremor 4s infinite ease-in-out;
         filter: saturate(1.2) contrast(1.1);
     }
-
     .fractal-background {
         position: fixed;
         inset: 0;
@@ -105,7 +90,6 @@
             filter 2s ease-in-out;
         filter: blur(8px) brightness(0.3);
     }
-
     @keyframes reality-tremor {
         0%,
         100% {
@@ -121,7 +105,6 @@
             transform: translate(-1px, -1px) scale(1.001);
         }
     }
-
     .swap-view-trigger {
         position: fixed;
         bottom: var(--spacing-m);
@@ -140,7 +123,6 @@
         font-size: 1.2rem;
         transition: all var(--transition-speed);
     }
-
     .swap-view-trigger:hover {
         background: var(--surface-sunken);
         color: var(--white);

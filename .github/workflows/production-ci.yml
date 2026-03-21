@@ -1,55 +1,43 @@
 name: Production CI
-
 on:
-    push:
-        branches: [main]
-    pull_request:
-        branches: [main]
-
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 jobs:
-    verify:
-        name: Verification (Lint & Test)
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
-
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "20"
-                  cache: "npm"
-
-            - name: Install Dependencies
-              run: npm install
-
-            - name: Svelte Check
-              run: npm run check
-
-            - name: Standard Lint
-              run: npm run lint
-
-            - name: Unit Tests
-              run: npx vitest run
-
-    build:
-        name: Build & Artifact
-        needs: verify
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
-
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "20"
-
-            - name: Install Dependencies
-              run: npm install
-
-            - name: Production Build
-              run: npm run build
-
-            - name: Check Artifact
-              run: ls -lh dist/index.html
+  verify:
+    name: Verification (Lint & Test)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Install Dependencies
+        run: npm install
+      - name: Svelte Check
+        run: npm run check
+      - name: Standard Lint
+        run: npm run lint
+      - name: Unit Tests
+        run: npx vitest run
+  build:
+    name: Build & Artifact
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install Dependencies
+        run: npm install
+      - name: Production Build
+        run: npm run build
+      - name: Check Artifact
+        run: ls -lh dist/index.html

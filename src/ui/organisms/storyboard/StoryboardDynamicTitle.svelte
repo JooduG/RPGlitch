@@ -1,25 +1,21 @@
 <script>
     import { app } from "@state/app.svelte.js"
     import { themeStore } from "@theme/palette.svelte.js"
-
     // ============================================
     // LOCAL STATE (Component-Owned)
     // ============================================
     let custom_title = $state("")
     let is_custom = $state(false)
-
     // ============================================
     // TITLE PREFIXES (Content, not state)
     // ============================================
     const STANDARD_PREFIXES = ["The Story of", "The Adventures of", "The Tale of", "The Legend of", "The Saga of", "Chronicles of", "The Journey of"]
     const FRACTAL_PREFIXES = ["Adventures in", "Tales from", "The Fractal of", "Journey to"]
-
     // ============================================
     // DERIVED TITLE PARTS
     // ============================================
     const pick_random = (arr) => arr[Math.floor(Math.random() * arr.length)]
     const get_color = (entity) => themeStore.get_signature_color(entity)
-
     /**
      * Generates structured title parts with entity colors for rich rendering
      */
@@ -28,22 +24,17 @@
         if (is_custom && custom_title) {
             return [{ text: custom_title }]
         }
-
         // Reference reroll_count to trigger recalculation
         void app.drawer.reroll_count
-
         const ai = app.selected_ai
         const user = app.selected_user
         const fractal = app.selected_fractal
-
         // Standard mode - full format
         const has_entities = ai || user
         const has_fractal = !!fractal
-
         if (has_entities && has_fractal) {
             const prefix = pick_random(STANDARD_PREFIXES)
             const parts = [{ text: `${prefix} ` }]
-
             if (ai && user && ai.id === user.id) {
                 parts.push({ text: ai.name, color: get_color(ai) })
             } else if (ai && user) {
@@ -55,14 +46,12 @@
             } else {
                 parts.push({ text: user.name, color: get_color(user) })
             }
-
             parts.push({ text: " in " })
             parts.push({ text: fractal.name, color: get_color(fractal) })
             return parts
         } else if (has_entities) {
             const prefix = pick_random(STANDARD_PREFIXES)
             const parts = [{ text: `${prefix} ` }]
-
             if (ai && user && ai.id === user.id) {
                 parts.push({ text: ai.name, color: get_color(ai) })
             } else if (ai && user) {
@@ -79,19 +68,15 @@
             const prefix = pick_random(FRACTAL_PREFIXES)
             return [{ text: `${prefix} ` }, { text: fractal.name, color: get_color(fractal) }]
         }
-
         return [{ text: "Your story begins here..." }]
     })
-
     // ============================================
     // EVENT HANDLERS
     // ============================================
-
     function handle_input(e) {
         custom_title = e.currentTarget.textContent
         is_custom = true
     }
-
     function handle_dbl_click() {
         is_custom = false
         custom_title = ""
@@ -114,7 +99,6 @@
 <style>
     /* Import Satisfy font for the special story title */
     @import url("https://fonts.googleapis.com/css2?family=Satisfy&display=swap");
-
     h1 {
         font-size: clamp(var(--font-size-xxxl), 5vw, var(--font-size-xxxxxl));
         line-height: var(--line-height-heading);
@@ -129,33 +113,27 @@
         text-wrap: balance;
         max-width: 80vw;
         margin-inline: auto;
-
         /* Soft ethereal glow */
         text-shadow:
             0 var(--spacing-xxs) var(--spacing-m) var(--border-light),
             0 0 var(--spacing-xl) var(--border-light);
-
         display: grid;
         place-content: center;
         min-width: 300px;
         text-align: center;
     }
-
     h1:hover {
         background: var(--surface-sunken);
     }
-
     h1:focus-within {
         outline: none;
         background: var(--surface-raised);
         box-shadow: 0 0 0 var(--spacing-xxs) var(--signature-color, var(--signature-pink));
     }
-
     h1 .title-content {
         display: inline;
         text-wrap: balance;
     }
-
     h1 .entity-name {
         font-weight: inherit;
         text-shadow: var(--shadow-font);

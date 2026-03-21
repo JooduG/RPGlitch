@@ -4,6 +4,5 @@ SYSTEM OVERRIDE: OBEY LOCAL CORE.
 1. Read `.agent/workflows/02-build.md`.
 2. Access `.agent/state/global.md`.
 3. Obey all local `.agent/rules/` for all code and state operations.
-
 # [Note]: Redirected from 02-execute.md to 02-build.md to match standardized workflows.
 """

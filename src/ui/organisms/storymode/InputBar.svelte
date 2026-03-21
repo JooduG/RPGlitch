@@ -9,42 +9,34 @@
     import { app } from "@state/app.svelte.js"
     import { engineState } from "@state/status.svelte.js"
     import { spin, stab } from "@ui/utils/actions/kinetic.js"
-
     let { disabled = false } = $props()
-
     // [R5] Auto-disable when engine is busy
     let is_locked = $derived(disabled || engineState.phase !== "idle")
     let value = $state("")
     let is_focused = $state(false)
     let textarea
-
     function adjust_height() {
         if (!textarea) return
         textarea.style.height = "auto"
         textarea.style.height = textarea.scrollHeight + "px"
     }
-
     async function handle_send() {
         const text = value.trim()
         if (!text || is_locked) return
-
         value = "" // Clear immediately for UX
         adjust_height() // Reset height
-
         try {
             await Engine.send(text)
         } catch (e) {
             console.error("Failed to send message:", e)
         }
     }
-
     function handle_keydown(e) {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault()
             handle_send()
         }
     }
-
     function handle_input() {
         adjust_height()
     }
@@ -58,9 +50,7 @@
             />
         </svg>
     </button>
-
     <textarea bind:this={textarea} class="input-area" bind:value onkeydown={handle_keydown} oninput={handle_input} onfocus={() => (is_focused = true)} onblur={() => (is_focused = false)} placeholder="Type a message..." rows="1" disabled={is_locked}></textarea>
-
     <button class="icon-btn send-btn" onclick={handle_send} disabled={!value.trim() || is_locked} title="Send Message" type="button" use:stab>
         <svg class="icon" viewBox="0 0 24 24">
             <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
@@ -82,7 +72,6 @@
         transition: all var(--transition-speed-slow) var(--physics-transition-elastic);
         position: relative;
     }
-
     .input-bar-unit.is-focused {
         background: color-mix(in srgb, var(--signature-color, var(--gunmetal)) 25%, var(--black));
         box-shadow:
@@ -90,12 +79,10 @@
             0 0 0 var(--spacing-xxs) color-mix(in srgb, var(--signature-color, transparent) 10%, transparent);
         transform: translateY(-2px);
     }
-
     .input-bar-unit.is-disabled {
         opacity: var(--opacity-m);
         pointer-events: none;
     }
-
     .input-area {
         flex: 1;
         background: transparent;
@@ -110,11 +97,9 @@
         max-height: 12.5rem; /* Standardized ~200px */
         overflow-y: hidden;
     }
-
     .input-area::placeholder {
         color: var(--font-muted);
     }
-
     .icon-btn {
         background: transparent;
         border: none;
@@ -127,23 +112,19 @@
         transition: all var(--transition-speed);
         border-radius: var(--border-radius);
     }
-
     .icon-btn:hover:not(:disabled) {
         color: var(--font-color);
         filter: drop-shadow(0 0 var(--spacing-m) color-mix(in srgb, var(--signature-color, var(--gunmetal)) 30%, transparent));
     }
-
     .icon-btn:disabled {
         opacity: var(--opacity-xxs);
         cursor: not-allowed;
     }
-
     .icon-btn .icon {
         width: 1.25rem;
         height: 1.25rem;
         fill: currentColor;
     }
-
     .send-btn:not(:disabled):hover {
         color: var(--font-color);
         filter: drop-shadow(0 0 var(--spacing-m) color-mix(in srgb, var(--signature-color, var(--gunmetal)) 50%, transparent));

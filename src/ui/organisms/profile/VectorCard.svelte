@@ -1,19 +1,14 @@
 <script>
     import Button from "@ui/atoms/Button.svelte"
-
     import { parse_markdown } from "@ui/utils/markdown.js"
-
     let { vector, is_editing, on_update, on_delete, signature_color, unit_label = "Vector" } = $props()
-
     // Create a stable local state for editing
     let local_text = $state("")
-
     // Sync from props only when not in active edit mode or on mount
     $effect(() => {
         const text = vector?.text || vector?.summary || (typeof vector === "string" ? vector : "")
         local_text = text
     })
-
     function handle_input(e) {
         local_text = e.target.value
         on_update(local_text)
@@ -61,15 +56,12 @@
         width: 100%;
         transition: transform var(--transition-speed) var(--physics-transition-elastic);
     }
-
     .vector-card:hover {
         transform: translateX(var(--spacing-xxs));
     }
-
     .vector-card.editing:hover {
         transform: none;
     }
-
     .card-inner {
         background: var(--surface-sunken);
         box-shadow: var(--shadow-s);
@@ -79,7 +71,6 @@
         overflow: hidden;
         transition: all var(--transition-speed) ease;
     }
-
     .display-area .content {
         font-family: inherit;
         font-size: var(--font-size-s);
@@ -89,14 +80,12 @@
         word-break: break-word;
         overflow-wrap: break-word;
     }
-
     .edit-area {
         display: flex;
         flex-direction: row;
         gap: var(--spacing-s);
         align-items: stretch;
     }
-
     .edit-area textarea {
         flex: 1;
         background: transparent;
@@ -111,18 +100,15 @@
         outline: none;
         padding: 0;
     }
-
     .edit-area textarea::placeholder {
         color: var(--text-dim);
         opacity: 0.5;
     }
-
     .edit-area .actions {
         display: flex;
         align-items: flex-start;
         margin-top: 0;
     }
-
     :global(.vector-delete-btn.btn) {
         background: transparent !important;
         color: var(--font-muted) !important;
@@ -136,7 +122,6 @@
         justify-content: center !important;
         transition: all var(--transition-speed) var(--physics-transition-elastic) !important;
     }
-
     :global(.vector-delete-btn.btn):hover {
         background: var(--app-del) !important;
         box-shadow: var(--shadow-m) !important;
@@ -144,7 +129,6 @@
         filter: brightness(1.2) !important;
         transform: translateY(var(--physics-hover-y-compact)) !important;
     }
-
     :global(.vector-delete-btn.btn) .icon {
         font-size: var(--font-size-xxl);
         line-height: 1;
@@ -154,7 +138,6 @@
     .display-area .content .markdown-paragraph {
         margin: 0;
     }
-
     .display-area .content .markdown-paragraph + .markdown-paragraph {
         margin-top: var(--spacing-m);
     }

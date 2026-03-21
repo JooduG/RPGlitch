@@ -42,6 +42,8 @@
 
 ## Completed Tasks
 
+- [ ] [task_remove_trust](../tracks/task_remove_trust.md) | Purge Bayesian Suspicion logic.
+- [ ] [narrative-bridge](../tracks/narrative-bridge.md) | Connect Dynamics to Narrative Director
 - [x] Intelligence Kernel Phase 1 & 2 (Dynamics Engine structural alignment, refactor, and deployment)
 - [x] Intelligence Kernel Refinement (Optimization and svelte-check resolution)
 - [x] Semantic UI Refactor & Glassmorphism Purge (Strict Chalk Regime alignment)

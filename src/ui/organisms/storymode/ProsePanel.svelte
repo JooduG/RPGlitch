@@ -5,13 +5,10 @@
     import { engineState } from "@state/status.svelte.js"
     import Button from "@ui/atoms/Button.svelte"
     import Message from "./Message.svelte"
-
     // --- STATE ---
     let scroll_ref = $state(null)
-
     // Derived
     let is_thinking = $derived(engineState.phase === "generating")
-
     // Auto-scroll logic
     $effect(() => {
         if ((simulation_log.feed.length || app.streaming.active) && scroll_ref) {
@@ -21,14 +18,12 @@
             }, 0)
         }
     })
-
     // Helper to map DB role to UI sender
     function map_role(role) {
         if (role === "assistant" || role === "ai") return "ai"
         if (role === "prologue") return "fractal"
         return role
     }
-
     // --- ACTIONS ---
     async function handle_delete(index) {
         const entry = simulation_log.feed[index]
@@ -36,19 +31,15 @@
             await session.delete_entry(entry.id)
         }
     }
-
     async function handle_regenerate() {
         await session.retry()
     }
-
     async function handle_continue() {
         await session.continue()
     }
-
     async function handle_edit(index) {
         const entry = simulation_log.feed[index]
         if (!entry) return
-
         const new_text = prompt("Edit log entry:", entry.text)
         if (new_text !== null && new_text !== entry.text) {
             await session.edit_entry(entry.id, new_text)
@@ -71,7 +62,6 @@
             on_edit={() => handle_edit(index)}
         />
     {/each}
-
     {#if app.streaming?.active}
         <Message text={app.streaming.content} sender="ai" timestamp={new Date()} is_last={true} />
     {:else if is_thinking}
@@ -96,16 +86,13 @@
         gap: 0;
         scroll-behavior: smooth;
     }
-
     .prose-panel::-webkit-scrollbar {
         width: var(--spacing-xxs);
     }
-
     .prose-panel::-webkit-scrollbar-thumb {
         background: var(--surface-sunken);
         border-radius: var(--border-radius-full);
     }
-
     .empty-feed-fallback {
         display: flex;
         flex-direction: column;
@@ -116,11 +103,9 @@
         color: var(--font-muted);
         gap: var(--spacing-m);
     }
-
     .empty-feed-fallback p {
         max-width: 25rem;
     }
-
     .empty-feed-fallback :global(.btn-retry) {
         padding: var(--spacing-xs) var(--spacing-m);
         background: var(--surface-elevated);
@@ -128,7 +113,6 @@
         border-radius: var(--border-radius);
         color: var(--font-muted);
     }
-
     .empty-feed-fallback :global(.btn-retry):hover {
         background: var(--surface-sunken);
         color: var(--font-color);

@@ -29,30 +29,26 @@
  * │  format_past/fut() : The Pipe. Turns ranked data into Prompt strings.  │
  * └────────────────────────────────────────────────────────────────────────┘
  */
-
-import { CONFIG } from "../engine/config.js"
-import { DynamicsEngine } from "./DynamicsEngine.js"
-
+import { CONFIG } from "../engine/config.js";
+import { DynamicsEngine } from "./DynamicsEngine.js";
 /************************************************************************************
  * 🧩 [SECTION: VECTOR SOVEREIGNTY]
  * ----------------------------------------------------------------------------------
  * Canonical metadata and taxonomy for all Temporal Vectors.
  ************************************************************************************/
-
 /**
  * THE VECTOR TEMPLATE
  * Defining the strict shape of a Vector object (The Blueprint).
  */
 export const VECTOR_TEMPLATE = {
-    id: "uuid",
-    label: "",
-    timestamp: "number (ms)",
-    text: "string (raw content)",
-    emotional_weight: "number (1-10)",
-    dynamics_tags: "Array<{id, word}> (Physical/psychological triggers)",
-    vector_tags: "string[] (Semantic/narrative keywords)",
-}
-
+  id: "uuid",
+  label: "",
+  timestamp: "number (ms)",
+  text: "string (raw content)",
+  emotional_weight: "number (1-10)",
+  dynamics_tags: "Array<{id, word}> (Physical/psychological triggers)",
+  vector_tags: "string[] (Semantic/narrative keywords)",
+};
 // [COMMENTED OUT FOR NOW: VECTOR_TAGS & VECTOR_ARCHETYPES]
 // Standardized Semantic Tags for Vectors.
 // export const VECTOR_TAGS = {
@@ -100,13 +96,11 @@ export const VECTOR_TEMPLATE = {
 //         },
 //     },
 // }
-
 /************************************************************************************
  * 🧩 [SECTION: THE FORGE — Vector Creation]
  * ----------------------------------------------------------------------------------
  * Logic for synthesizing raw data into structured memory vectors.
  ************************************************************************************/
-
 /**
  * Creates a strict, metadata-rich vector object.
  *
@@ -114,25 +108,22 @@ export const VECTOR_TEMPLATE = {
  * @returns {Object} A strict Vector object.
  */
 export function create_vector(text) {
-    const reflexes = DynamicsEngine.scan_reflexes(text)
-
-    return {
-        id: crypto.randomUUID(),
-        timestamp: Date.now(),
-        label: "",
-        text,
-        emotional_weight: 5,
-        dynamics_tags: reflexes.map((r) => ({ id: r.id, word: r.trigger_word })),
-        vector_tags: [],
-    }
+  const reflexes = DynamicsEngine.dynamics_scan(text);
+  return {
+    id: crypto.randomUUID(),
+    timestamp: Date.now(),
+    label: "",
+    text,
+    emotional_weight: 5,
+    dynamics_tags: reflexes.map((r) => ({ id: r.id, word: r.scan })),
+    vector_tags: [],
+  };
 }
-
 /************************************************************************************
  * 🧩 [SECTION: THE BRAIN — RAG Retrieval & Scoring]
  * ----------------------------------------------------------------------------------
  * Ranks a list of vectors based on their relevance to the current input.
  ************************************************************************************/
-
 /**
  * RAG Scoring: Prioritizes thematic alignment over keyword matching.
  *
@@ -146,66 +137,54 @@ export function create_vector(text) {
  * @returns {Array} Sorted list of vectors (best match first).
  */
 export function score_vectors(vectors, input) {
-    if (!Array.isArray(vectors) || !vectors.length) return []
-    if (!input) return vectors.slice(-3) // No input? Just give the 3 newest memories
-
-    const active_reflexes = DynamicsEngine.scan_reflexes(input)
-    const active_ids = new Set()
-    const active_words = new Set()
-
-    for (const r of active_reflexes) {
-        active_ids.add(r.id)
-        if (r.trigger_word) {
-            active_words.add(r.trigger_word.toLowerCase())
-        }
+  if (!Array.isArray(vectors) || !vectors.length) return [];
+  if (!input) return vectors.slice(-3); // No input? Just give the 3 newest memories
+  const active_reflexes = DynamicsEngine.dynamics_scan(input);
+  const active_ids = new Set();
+  const active_words = new Set();
+  for (const r of active_reflexes) {
+    active_ids.add(r.id);
+    if (r.scan) {
+      active_words.add(r.scan.toLowerCase());
     }
-
-    const input_lower = input.toLowerCase()
-
-    const scored = vectors.map((v) => {
-        // ⚖️ Relevance Score: Start with the inherent Emotional Weight.
-        let relevance = v.emotional_weight ?? 5
-
-        // 🛡️ Dynamics & Trigger Match:
-        // +1 for matching the "vibe" (ID), +2 for matching the exactly triggered word.
-        v.dynamics_tags?.forEach((tag) => {
-            const tag_id = typeof tag === "string" ? tag : tag.id
-            const tag_word = typeof tag === "string" ? null : tag.word?.toLowerCase()
-
-            if (active_ids.has(tag_id)) {
-                relevance += CONFIG.DYNAMICS.RELEVANCE_DYNAMICS_BONUS
-            }
-            if (tag_word && active_words.has(tag_word)) {
-                relevance += CONFIG.DYNAMICS.RELEVANCE_TRIGGER_BONUS
-            }
-        })
-
-        // 🏷️ Vector Match: If the memory explicitly mentions a relevant subject. (+3)
-        v.vector_tags?.forEach((t) => {
-            if (input_lower.includes(t.toLowerCase())) {
-                relevance += CONFIG.DYNAMICS.RELEVANCE_VECTOR_BONUS
-            }
-        })
-
-        return { ...v, _relevance: relevance }
-    })
-
-    return scored.sort((a, b) => {
-        // 1. Primary: Relevance
-        const diff = b._relevance - a._relevance
-        if (diff !== 0) return diff
-
-        // 2. Secondary: Recency (tie-breaker)
-        return b.timestamp - a.timestamp
-    })
+  }
+  const input_lower = input.toLowerCase();
+  const scored = vectors.map((v) => {
+    // ⚖️ Relevance Score: Start with the inherent Emotional Weight.
+    let relevance = v.emotional_weight ?? 5;
+    // 🛡️ Dynamics & Trigger Match:
+    // +1 for matching the "vibe" (ID), +2 for matching the exactly triggered word.
+    v.dynamics_tags?.forEach((tag) => {
+      const tag_id = typeof tag === "string" ? tag : tag.id;
+      const tag_word = typeof tag === "string" ? null : tag.word?.toLowerCase();
+      if (active_ids.has(tag_id)) {
+        relevance += CONFIG.DYNAMICS.RELEVANCE_DYNAMICS_BONUS;
+      }
+      if (tag_word && active_words.has(tag_word)) {
+        relevance += CONFIG.DYNAMICS.RELEVANCE_TRIGGER_BONUS;
+      }
+    });
+    // 🏷️ Vector Match: If the memory explicitly mentions a relevant subject. (+3)
+    v.vector_tags?.forEach((t) => {
+      if (input_lower.includes(t.toLowerCase())) {
+        relevance += CONFIG.DYNAMICS.RELEVANCE_VECTOR_BONUS;
+      }
+    });
+    return { ...v, _relevance: relevance };
+  });
+  return scored.sort((a, b) => {
+    // 1. Primary: Relevance
+    const diff = b._relevance - a._relevance;
+    if (diff !== 0) return diff;
+    // 2. Secondary: Recency (tie-breaker)
+    return b.timestamp - a.timestamp;
+  });
 }
-
 /************************************************************************************
  * 🧩 [SECTION: THE PIPE — Prompt Formatting]
  * ----------------------------------------------------------------------------------
  * Transforms data objects into formatted text blocks for AI delivery.
  ************************************************************************************/
-
 /**
  * Renders the most relevant past memories (Past Vectors).
  * Reverses order so the "best" match is closest to the AI's current context.
@@ -217,25 +196,35 @@ export function score_vectors(vectors, input) {
  * @param {Object} [options={ vector_text: true, vector_label: true }]
  * @returns {string} Formatted past block.
  */
-export function format_past(vectors, input, limit = 3, offset = 0, options = { vector_text: true, vector_label: true }) {
-    const show_text = options.vector_text ?? true
-    const show_label = options.vector_label ?? true
-
-    const ranked = score_vectors(vectors, input).slice(offset, offset + limit)
-    const reversed = [...ranked].reverse()
-    return reversed
-        .map((v) => {
-            const weight = v.emotional_weight ?? 5
-            const label = weight >= 10 ? "CORE_VECTOR" : weight >= 8 ? "MAJOR_VECTOR" : weight >= 7 ? "VECTOR" : "VECTOR_ECHO"
-
-            if (show_label && show_text) return `[${label}]: ${v.text}`
-            if (show_label) return label
-            if (show_text) return v.text
-            return ""
-        })
-        .join("\n")
+export function format_past(
+  vectors,
+  input,
+  limit = 3,
+  offset = 0,
+  options = { vector_text: true, vector_label: true },
+) {
+  const show_text = options.vector_text ?? true;
+  const show_label = options.vector_label ?? true;
+  const ranked = score_vectors(vectors, input).slice(offset, offset + limit);
+  const reversed = [...ranked].reverse();
+  return reversed
+    .map((v) => {
+      const weight = v.emotional_weight ?? 5;
+      const label =
+        weight >= 10
+          ? "CORE_VECTOR"
+          : weight >= 8
+            ? "MAJOR_VECTOR"
+            : weight >= 7
+              ? "VECTOR"
+              : "VECTOR_ECHO";
+      if (show_label && show_text) return `[${label}]: ${v.text}`;
+      if (show_label) return label;
+      if (show_text) return v.text;
+      return "";
+    })
+    .join("\n");
 }
-
 /**
  * Renders the most relevant future vectors.
  * Labels them based on emotional weight (PIVOTAL, MAJOR, VECTOR, IMPULSE).
@@ -247,29 +236,32 @@ export function format_past(vectors, input, limit = 3, offset = 0, options = { v
  * @param {Object} [options={ vector_text: true, vector_label: true }]
  * @returns {string} Formatted future block.
  */
-export function format_future(vectors, input, limit = 3, offset = 0, options = { vector_text: true, vector_label: true }) {
-    const show_text = options.vector_text ?? true
-    const show_label = options.vector_label ?? true
-
-    const ranked = score_vectors(vectors, input).slice(offset, offset + limit)
-    const reversed = [...ranked].reverse()
-    return reversed
-        .map((v) => {
-            const weight = v.emotional_weight ?? 5
-            let label
-            if (weight >= 10) label = "PIVOTAL_VECTOR"
-            else if (weight >= 8) label = "MAJOR_VECTOR"
-            else if (weight >= 7) label = "VECTOR"
-            else label = "VECTOR_IMPULSE"
-
-            if (show_label && show_text) return `[${label}]: ${v.text}`
-            if (show_label) return label
-            if (show_text) return v.text
-            return ""
-        })
-        .join("\n")
+export function format_future(
+  vectors,
+  input,
+  limit = 3,
+  offset = 0,
+  options = { vector_text: true, vector_label: true },
+) {
+  const show_text = options.vector_text ?? true;
+  const show_label = options.vector_label ?? true;
+  const ranked = score_vectors(vectors, input).slice(offset, offset + limit);
+  const reversed = [...ranked].reverse();
+  return reversed
+    .map((v) => {
+      const weight = v.emotional_weight ?? 5;
+      let label;
+      if (weight >= 10) label = "PIVOTAL_VECTOR";
+      else if (weight >= 8) label = "MAJOR_VECTOR";
+      else if (weight >= 7) label = "VECTOR";
+      else label = "VECTOR_IMPULSE";
+      if (show_label && show_text) return `[${label}]: ${v.text}`;
+      if (show_label) return label;
+      if (show_text) return v.text;
+      return "";
+    })
+    .join("\n");
 }
-
 /**
  * Moves a future vector to the past log, optionally with a resolution tag.
  *
@@ -278,31 +270,26 @@ export function format_future(vectors, input, limit = 3, offset = 0, options = {
  * @param {string} [resolution=null]
  */
 export function resolve_vector(entity, vector_id, resolution = null) {
-    if (!Array.isArray(entity.future)) return
-
-    const index = entity.future.findIndex((v) => v.id === vector_id)
-    if (index === -1) return
-
-    const [vector] = entity.future.splice(index, 1)
-
-    // Add resolution tag if provided
-    if (resolution) {
-        if (!vector.vector_tags) vector.vector_tags = []
-        vector.vector_tags.push(`RESOLUTION:${resolution.toUpperCase()}`)
-    }
-    vector.timestamp = Date.now()
-
-    if (!Array.isArray(entity.past)) entity.past = []
-    entity.past.push(vector)
+  if (!Array.isArray(entity.future)) return;
+  const index = entity.future.findIndex((v) => v.id === vector_id);
+  if (index === -1) return;
+  const [vector] = entity.future.splice(index, 1);
+  // Add resolution tag if provided
+  if (resolution) {
+    if (!vector.vector_tags) vector.vector_tags = [];
+    vector.vector_tags.push(`RESOLUTION:${resolution.toUpperCase()}`);
+  }
+  vector.timestamp = Date.now();
+  if (!Array.isArray(entity.past)) entity.past = [];
+  entity.past.push(vector);
 }
-
 /**
  * Unified API Export
  */
 export const VectorEngine = {
-    create_vector,
-    score_vectors,
-    format_past,
-    format_future,
-    resolve_vector,
-}
+  create_vector,
+  score_vectors,
+  format_past,
+  format_future,
+  resolve_vector,
+};

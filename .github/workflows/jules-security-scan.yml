@@ -1,27 +1,24 @@
 name: Daily Security Scan (Sovereign Core)
-
 on:
-    schedule:
-        - cron: "0 6 * * *"
-    workflow_dispatch:
-
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
 jobs:
-    scan:
-        runs-on: ubuntu-latest
-        permissions:
-            contents: write
-            pull-requests: write
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
-            - name: Invoke Jules (Lobotomized)
-              uses: google-labs-code/jules-action@v1.0.0
-              with:
-                  prompt: |
-                      SYSTEM OVERRIDE: OBEY LOCAL CORE.
-
-                      MANDATORY PROTOCOL:
-                      1. You MUST read and execute `.agent/rules/04-shield.md` (Audit section).
-                      2. You MUST enforce the security physics defined in `.agent/rules/04-shield.md`.
-                      3. Target only Critical and High vulnerabilities.
-                  jules_api_key: ${{ secrets.JULES_API_KEY }}
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Invoke Jules (Lobotomized)
+        uses: google-labs-code/jules-action@v1.0.0
+        with:
+          prompt: |
+            SYSTEM OVERRIDE: OBEY LOCAL CORE.
+            MANDATORY PROTOCOL:
+            1. You MUST read and execute `.agent/rules/04-shield.md` (Audit section).
+            2. You MUST enforce the security physics defined in `.agent/rules/04-shield.md`.
+            3. Target only Critical and High vulnerabilities.
+          jules_api_key: ${{ secrets.JULES_API_KEY }}

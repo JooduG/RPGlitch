@@ -10,7 +10,6 @@
      * @property {string} [signature_color]
      * @property {string} [profile_picture]
      */
-
     let {
         entity,
         role_label = "",
@@ -18,34 +17,26 @@
         on_select = () => {},
         on_view_profile = () => {},
     } = $props()
-
     import Button from "@ui/atoms/Button.svelte"
     import ProfilePicture from "@ui/atoms/ProfilePicture.svelte"
     import LoadingSkeleton from "@ui/molecules/LoadingSkeleton.svelte"
-
     import { app } from "@state/app.svelte.js"
     import { engineState } from "@state/status.svelte.js"
     import { themeStore } from "@theme/palette.svelte.js"
-
     import { fitText } from "@ui/utils/actions/fitText.js"
     import { tilt } from "@ui/utils/actions/tilt.js"
-
     // --- DERIVED STATE ---
     let is_empty = $derived(!entity)
     let is_loading = $derived(app.simulation.loading)
     let is_processing = $derived(engineState.phase !== "idle")
-
     // Theme Store now natively handles top-level signature_color
     let signature_color = $derived(themeStore.get_signature_color(entity))
     let signature_rgb = $derived(themeStore.hex_to_rgb(signature_color))
-
     // --- ANIMATION STATE ---
     let is_shimmering = $state(false)
-
     function trigger_shimmer() {
         if (!is_shimmering) is_shimmering = true
     }
-
     function reset_shimmer() {
         is_shimmering = false
     }
@@ -84,12 +75,10 @@
                 </div>
             </Button>
         {/snippet}
-
         {#snippet populatedState()}
             <Button className="card-top" variant="ghost" onclick={on_view_profile} aria-label="View {role_label} Profile">
                 <ProfilePicture {entity} />
             </Button>
-
             <Button className="card-bottom" variant="ghost" onclick={on_select}>
                 <div class="text-half title-half">
                     <h2
@@ -107,7 +96,6 @@
                 </div>
             </Button>
         {/snippet}
-
         {#if is_loading}
             <div class="card-illusion">
                 <LoadingSkeleton variant="card" width="100%" height="100%" />
@@ -127,27 +115,22 @@
         border-radius: 0;
         transition: transform var(--transition-speed) var(--physics-transition-elastic);
         container-type: inline-size;
-
         --card-height: 40vh;
         --card-width: 25vh;
-
         height: var(--card-height);
         width: var(--card-width);
         margin: auto;
         justify-self: center;
         position: relative;
-
         &.fractal-card {
             height: var(--card-width);
             width: var(--card-height);
             transform: scale(1.02);
             z-index: var(--z-chip);
         }
-
         &:hover {
             z-index: var(--z-chip);
         }
-
         .card-surface {
             height: 100%;
             width: 100%;
@@ -164,22 +147,18 @@
             transition:
                 background 1s ease,
                 box-shadow 1s ease-in-out;
-
             &:not(.is-empty):not(.is-loading):hover {
                 box-shadow: 0 var(--spacing-xxl) var(--spacing-xxxl) color-mix(in srgb, var(--signature-color), transparent 70%);
             }
-
             &.is-loading {
                 background: var(--surface-sunken);
                 :global(*) {
                     border-color: var(--border-light);
                 }
             }
-
             &.shimmering::after {
                 animation: shimmer 1.5s var(--physics-transition-elastic) forwards;
             }
-
             &::after {
                 content: "";
                 position: absolute;
@@ -189,11 +168,9 @@
                 z-index: var(--z-overlay);
                 pointer-events: none;
             }
-
             &.is-empty {
                 background: var(--surface-sunken);
                 box-shadow: inset 0 2px 10px var(--surface-elevated);
-
                 &::after {
                     content: "";
                     position: absolute;
@@ -205,7 +182,6 @@
                     z-index: var(--z-overlay);
                     pointer-events: none;
                 }
-
                 &:hover {
                     box-shadow: var(--surface-elevated), var(--shadow-glow);
                     :global(.empty-icon) {
@@ -218,7 +194,6 @@
                     }
                 }
             }
-
             :global(.card-top) {
                 height: 60%;
             }
@@ -226,7 +201,6 @@
                 height: 40%;
             }
         }
-
         &.fractal-card .card-surface {
             flex-direction: row;
             :global(.card-top) {
@@ -241,7 +215,6 @@
             }
         }
     }
-
     :global(.card-top.btn) {
         width: 100%;
         border: none;
@@ -253,7 +226,6 @@
         background-color: transparent;
         overflow: hidden;
         border-radius: 0;
-
         &:hover {
             transform: none;
             box-shadow: none;
@@ -261,7 +233,6 @@
             z-index: auto;
         }
     }
-
     :global(.card-bottom.btn) {
         width: 100%;
         background: color-mix(in oklab, var(--signature-color) 10%, var(--surface-sunken));
@@ -271,7 +242,6 @@
         justify-content: center;
         gap: var(--spacing-xxs);
         border-radius: 0;
-
         &:hover {
             transform: none;
             box-shadow: none;
@@ -279,11 +249,9 @@
             z-index: auto;
             background: color-mix(in oklab, var(--signature-color) 10%, var(--surface-sunken));
         }
-
         .text-half {
             width: 100%;
         }
-
         .title-half {
             h2 {
                 margin: 0;
@@ -304,7 +272,6 @@
             }
             padding-bottom: var(--spacing-xs);
         }
-
         .desc-half p {
             margin: 0;
             color: var(--font-color);
@@ -321,7 +288,6 @@
             overflow: hidden;
         }
     }
-
     :global(.empty-card.btn) {
         flex: 1;
         display: flex;
@@ -338,14 +304,12 @@
         position: relative;
         overflow: hidden;
         border-radius: var(--border-radius-l);
-
         &:hover {
             background: transparent;
             transform: none;
             box-shadow: none;
             filter: none;
         }
-
         .empty-label {
             position: absolute;
             bottom: 25%;
@@ -362,7 +326,6 @@
                 transform 1s ease;
             pointer-events: none;
         }
-
         .empty-icon {
             color: var(--white);
             width: var(--spacing-xxxl);
@@ -374,7 +337,6 @@
             transition:
                 opacity 1s ease,
                 filter 1s ease;
-
             :global(svg),
             svg {
                 width: 100%;
@@ -384,7 +346,6 @@
             }
         }
     }
-
     @keyframes shimmer {
         0% {
             transform: translateX(-100%);

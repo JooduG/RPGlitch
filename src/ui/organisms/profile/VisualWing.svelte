@@ -12,71 +12,51 @@
     import { app } from "@state/app.svelte.js"
     import Button from "@ui/atoms/Button.svelte"
     import Toggle from "@ui/atoms/Toggle.svelte"
-
     /* eslint-disable svelte/prefer-svelte-reactivity */
     let { char = $bindable(), is_editing, busy_fields = $bindable(), active_field = $bindable() } = $props()
-
     // [CRITICAL FIX] Synchronously ensure the modifiers object exists so Svelte bindings don't crash
     if (!char.visuals) {
         char.visuals = { prompt: "", noBackground: false, flipped: false }
     }
     if (char.visuals.prompt === undefined) char.visuals.prompt = ""
-
     // Derived: Check if the visual-prompt specifically is busy
     let is_prompt_busy = $derived(busy_fields.has("visual-prompt"))
-
     let file_input = $state()
-
     // Determine current state
     const prompt_value = $derived((char.visuals.prompt || "").trim())
     const has_prompt_text = $derived(prompt_value.length > 0 && !prompt_value.startsWith("http") && !prompt_value.startsWith("data:"))
-
     // Determine the active target value (prompt or focused field)
     const target_value = $derived(active_field?.key === "visual-prompt" ? prompt_value : active_field ? get_value(char, active_field.key) : "")
-
     // Action is "Enhance" if the target we are looking at has text (ready for AI)
     let is_enhance_mode = $derived(is_editing && target_value.trim().length > 0)
-
     // Button Logic:
     let is_creative_disabled = $derived(!is_editing || (is_prompt_busy && (!active_field || active_field.key === "visual-prompt")) || (!active_field && has_prompt_text))
-
     // Label Logic:
     let creative_label = $derived.by(() => {
         if (is_prompt_busy && (!active_field || active_field.key === "visual-prompt")) return "Busy..."
-
         if (active_field) {
             const key = active_field.key
             const label = active_field.label?.toLowerCase() || ""
-
             if (key === "visual-prompt") return has_prompt_text ? "Enhance" : "Fetch"
-
             if (key.startsWith("past")) return "Enhance Memories"
             if (key.startsWith("future")) return "Enhance Vectors"
-
             if (key.includes("present") || label.includes("present")) return "Enhance Present"
             if (key.includes("eternal") || label.includes("eternal")) return "Enhance Eternal"
-
             return "Enhance"
         }
-
         return "Fetch"
     })
-
     // Design Variants
     let creative_variant = $derived(active_field && is_enhance_mode ? "magic" : "tech")
     let generation_variant = $derived(has_prompt_text ? "magic" : "tech")
-
     async function handle_creative_action() {
         const current_target_key = active_field?.key || "visual-prompt"
         if (busy_fields.has(current_target_key)) return
-
         busy_fields = new Set([...busy_fields, current_target_key])
-
         try {
             if (active_field && active_field.key !== "visual-prompt") {
                 active_field = null
             }
-
             if (current_target_key === "visual-prompt" && is_enhance_mode) {
                 const payload = PromptBuilder.build_enhancement("visuals.prompt", char.visuals.prompt)
                 const result = await LlmService.enhance(payload)
@@ -99,11 +79,9 @@
             busy_fields = updated
         }
     }
-
     async function handle_generation_action() {
         if (busy_fields.has("visual-prompt")) return
         busy_fields = new Set([...busy_fields, "visual-prompt"])
-
         if (has_prompt_text) {
             app.log(`[VisualWing] Triggering Generate. Prompt: ${prompt_value}`, "system")
             try {
@@ -113,12 +91,10 @@
                     app.log(msg, "error")
                     return
                 }
-
                 const url = await ImageGeneration.generate(prompt_value, {
                     noBackground: char.visuals.noBackground,
                 })
                 app.log(`[VisualWing] Generation Result: ${url}`, "system")
-
                 if (url) char.profile_picture = url
             } catch (err) {
                 console.error("Generation failed:", err)
@@ -135,9 +111,7 @@
             busy_fields = updated
         }
     }
-
     // --- UTILITIES ---
-
     async function handle_upload(e) {
         const file = e.target.files[0]
         if (!file) return
@@ -149,19 +123,16 @@
             app.log(`Upload failed: ${err.message}`, "error")
         }
     }
-
     function get_value(obj, path) {
         if (!path) return ""
         return path.split(".").reduce((acc, part) => acc && acc[part], obj) || ""
     }
-
     function set_value(obj, path, val) {
         const keys = path.split(".")
         const last = keys.pop()
         const target = keys.reduce((acc, key) => (acc[key] = acc[key] || {}), obj)
         target[last] = val
     }
-
     function auto_resize(node) {
         let frame
         const update = () => {
@@ -214,7 +185,6 @@
             {/each}
         </div>
     </div>
-
     <div class="group">
         <div class="prompt-box">
             <div class="visual-prompt-container">
@@ -249,16 +219,13 @@
                     </div>
                 {/if}
             </div>
-
             <div class="action-row">
                 <Button variant="ghost" size="sm" label={creative_label} className="action-btn mode-{creative_variant}" onclick={handle_creative_action} disabled={is_creative_disabled} />
                 <Button variant="ghost" size="sm" label={is_prompt_busy ? "Busy..." : has_prompt_text ? "Generate" : "Upload"} className="action-btn mode-{generation_variant}" onclick={handle_generation_action} disabled={!is_editing || is_prompt_busy} />
             </div>
-
             <input type="file" accept="image/*" style="display: none;" bind:this={file_input} onchange={handle_upload} />
         </div>
     </div>
-
     <div class="toggle-stack">
         <Toggle label="No Background" bind:value={char.visuals.noBackground} disabled={!is_editing} />
         <Toggle label="Flip Profile Picture" bind:value={char.visuals.flipped} disabled={!is_editing} />
@@ -277,20 +244,17 @@
         height: 100%;
         overflow-y: auto;
     }
-
     .group {
         display: flex;
         flex-direction: column;
         gap: var(--spacing-s);
     }
-
     .spectrum-grid {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
         gap: var(--spacing-xs);
         padding: 0;
     }
-
     .swatch {
         width: 100%;
         aspect-ratio: 1;
@@ -300,13 +264,11 @@
         transition: all var(--transition-speed) var(--physics-transition-elastic);
         box-shadow: var(--shadow-s);
     }
-
     .swatch:hover:not(:disabled) {
         transform: scale(1.1);
         z-index: 2;
         box-shadow: var(--shadow-m);
     }
-
     .swatch.active {
         outline: var(--spacing-xxs) solid var(--white);
         outline-offset: var(--spacing-xxs);
@@ -314,12 +276,10 @@
         transform: scale(1.1);
         z-index: 10;
     }
-
     .swatch:disabled {
         cursor: default;
         opacity: var(--opacity-l);
     }
-
     .prompt-box {
         background: var(--surface-sunken);
         box-shadow:
@@ -328,12 +288,10 @@
         border-radius: var(--border-radius-m);
         overflow: hidden;
     }
-
     .visual-prompt-container {
         position: relative;
         width: 100%;
     }
-
     .visual-prompt {
         width: 100%;
         background: transparent;
@@ -346,20 +304,17 @@
         outline: none;
         display: block;
     }
-
     .visual-prompt:disabled {
         opacity: var(--opacity-m);
         color: var(--font-muted);
         cursor: not-allowed;
         background: var(--tint-dark-surface);
     }
-
     .visual-prompt::placeholder {
         color: var(--surface-elevated);
         font-style: italic;
         font-weight: 400;
     }
-
     .spinner-overlay {
         position: absolute;
         top: 0;
@@ -373,7 +328,6 @@
         z-index: 5;
         cursor: wait;
     }
-
     .spinner {
         width: var(--spacing-l);
         height: var(--spacing-l);
@@ -382,19 +336,16 @@
         border-radius: var(--border-radius-full);
         animation: spin 0.8s linear infinite;
     }
-
     @keyframes spin {
         to {
             transform: rotate(360deg);
         }
     }
-
     .action-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
         box-shadow: inset 0 1px 0 var(--border-light);
     }
-
     .action-row :global(.btn) {
         width: 100%;
         border: none;
@@ -405,39 +356,31 @@
         transition: all var(--transition-speed);
         text-transform: capitalize;
     }
-
     .action-row :global(.btn:not(:last-child)) {
         box-shadow: 1px 0 0 var(--border-light);
     }
-
     .action-row :global(.btn:hover) {
         background: var(--surface-raised);
     }
-
     .action-row :global(.btn.action-btn) {
         font-weight: 600;
         letter-spacing: 0.02em;
     }
-
     .action-row :global(.btn.action-btn.mode-tech):not(:disabled) {
         color: var(--app-secondary);
     }
-
     .action-row :global(.btn.action-btn.mode-tech):not(:disabled):hover {
         background: rgb(var(--app-secondary-rgb) / 0.1);
         color: var(--white);
     }
-
     .action-row :global(.btn.action-btn.mode-magic):not(:disabled) {
         color: var(--app-accent);
         font-weight: 700;
     }
-
     .action-row :global(.btn.action-btn.mode-magic):not(:disabled):hover {
         background: rgb(var(--app-accent-rgb) / 0.1);
         color: var(--white);
     }
-
     .toggle-stack {
         display: flex;
         flex-direction: column;

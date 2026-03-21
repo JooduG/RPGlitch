@@ -19,9 +19,7 @@ graph TD
         VEND[Vendored Libs] -->|Inject| BUILD
         WORKER[Worker Logic] -->|Blob Stringify| BUILD
     end
-
     BUILD -->|Output| HTML[Single HTML File]
-
     subgraph "Perchance Runtime (Browser)"
         HTML -->|Loads| IFRAME[Perchance Iframe]
         IFRAME -->|Hydrates| APP[Running App]
@@ -41,31 +39,23 @@ sequenceDiagram
     participant Engine as 🎬 Engine
     participant AI as 🧠 LLM Service
     participant DB as 💾 Dexie
-
     User->>UI: Action Input
     UI->>Chrono: advanceTurn(input)
-
     rect rgb(30, 30, 35)
         Note over Chrono, DB: UI LOCKED (app.simulation.loading = true)
-
         Chrono->>Security: process(input)
         Security-->>Chrono: securityContext (Physics Result)
-
         Chrono->>Engine: generateAiResponse(options)
         Engine->>AI: LlmService.generate(payload)
-
         loop Token Streaming
             AI-->>UI: app.updateStream(token)
             UI-->>User: Visual Feedback (Incremental)
         end
-
         AI-->>GM: Full Response String
         GM->>DB: Save Final Message
         Chrono->>DB: runtime.save() (Anchor State)
-
         Note over Chrono, DB: UI UNLOCKED (app.simulation.loading = false)
     end
-
     UI-->>User: Interaction Ready
 ```
 

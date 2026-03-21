@@ -8,7 +8,6 @@
      * 2. Standard Mode: Margins (1,12), Left (2-3), Center (4-9), Right (10-11).
      * 3. Cinematic Mode: Left (1-2), Center (3-10), Right (11-12) - Full Bleed.
      */
-
     let {
         header = undefined,
         footer = undefined,
@@ -24,14 +23,12 @@
 <div class="universal-stage" class:is-transparent={transparent} class:layout-cinematic={mode === "cinematic"} style:--stage-align={align === "end" ? "flex-end" : align === "start" ? "flex-start" : "center"}>
     <!-- Track 1: Margin -->
     <div class="gutter-col start"></div>
-
     {#if header}
         <!-- Header: Spans Center 3 Columns, Top Aligned -->
         <header class="stage-header">
             {@render header()}
         </header>
     {/if}
-
     <!-- Track 2: Left Column (2fr) -->
     <aside class="stage-column stage-column--side left">
         {#if left}
@@ -39,28 +36,24 @@
             {@render left()}
         {/if}
     </aside>
-
     <!-- Track 3: Center Column (4fr / 6fr) -->
     <main class="stage-column stage-column--center">
         {#if center}
             {@render center()}
         {/if}
     </main>
-
     <!-- Track 4: Right Column (2fr) -->
     <aside class="stage-column stage-column--side right">
         {#if right}
             {@render right()}
         {/if}
     </aside>
-
     {#if footer}
         <!-- Footer: Spans Center 3 Columns, Bottom Aligned -->
         <footer class="stage-footer">
             {@render footer()}
         </footer>
     {/if}
-
     <!-- Track 5: Margin -->
     <div class="gutter-col end"></div>
 </div>
@@ -80,30 +73,25 @@
         inset: 0;
         z-index: var(--z-ui);
         transform: translateZ(0);
-
         /* Atmospheric Background - transparent to show body's gradient */
         /* background: radial-gradient(circle at bottom, var(--gunmetal), var(--black) 70%); */
         color: var(--white);
         transition: all 0.6s ease;
         pointer-events: none;
     }
-
     .universal-stage.is-transparent {
         background: transparent;
     }
-
     /* Mobile Stack */
     @media (max-width: 768px) {
         .universal-stage {
             grid-template-columns: 1fr;
             grid-template-rows: min-content 1fr min-content;
         }
-
         /* Standard Mode: Hide sides */
         .universal-stage:not(.layout-cinematic) .stage-column--side {
             display: none;
         }
-
         .universal-stage .stage-header,
         .universal-stage .stage-footer {
             grid-column: 1 / -1;
@@ -111,51 +99,42 @@
             height: auto;
             padding: var(--spacing-m);
         }
-
         .universal-stage .stage-column--center {
             grid-column: 1 / -1;
         }
-
         /* Cinematic Mode: Stacked Header */
         .universal-stage.layout-cinematic {
             grid-template-columns: 1fr 1fr;
             /* Header, Panels (Fixed Height), Content, Footer */
             grid-template-rows: min-content 25vh 1fr min-content;
         }
-
         .universal-stage.layout-cinematic .stage-header {
             grid-row: 1;
         }
-
         .universal-stage.layout-cinematic .stage-column--side {
             display: flex;
             grid-row: 2;
             height: 100%; /* Fill the 25vh row */
             overflow: hidden;
         }
-
         .universal-stage.layout-cinematic .stage-column.left {
             grid-column: 1 / 2;
             background: radial-gradient(circle at top center, var(--gunmetal), var(--black));
             border-right: 1px solid var(--border-light);
         }
-
         .universal-stage.layout-cinematic .stage-column.right {
             grid-column: 2 / 3;
         }
-
         .universal-stage.layout-cinematic .stage-column--center {
             grid-column: 1 / -1;
             grid-row: 3;
             min-height: 0;
             overflow: auto;
         }
-
         .universal-stage.layout-cinematic .stage-footer {
             grid-row: 4;
         }
     }
-
     /* --- HEADER & FOOTER --- */
     /* Default: Spans central 10 columns (Cols 2-11) */
     .stage-header,
@@ -168,12 +147,10 @@
         display: flex;
         justify-content: center;
     }
-
     .stage-header :global(> *),
     .stage-footer :global(> *) {
         pointer-events: auto;
     }
-
     .stage-header {
         position: absolute;
         top: calc(50% - 40%);
@@ -181,7 +158,6 @@
         right: 0;
         align-items: flex-end;
     }
-
     .stage-footer {
         position: absolute;
         bottom: calc(50% - 35%);
@@ -190,7 +166,6 @@
         align-items: flex-start;
         z-index: 101;
     }
-
     /* --- COLUMN BEHAVIOR --- */
     .stage-column {
         position: relative;
@@ -205,7 +180,6 @@
         pointer-events: auto;
         grid-row: 1;
     }
-
     /* 
      === DESKTOP GRID LOGIC (min-width: 769px) ===
     */
@@ -216,31 +190,25 @@
         .universal-stage:not(.layout-cinematic) .stage-column.left {
             grid-column: 2 / span 2;
         }
-
         .universal-stage:not(.layout-cinematic) .stage-column--center {
             grid-column: 4 / span 6; /* 50% width */
             align-items: center;
         }
-
         .universal-stage:not(.layout-cinematic) .stage-column.right {
             grid-column: 10 / span 2;
         }
-
         /* Cinematic Mode (Storymode)
            Structure: Left(2) | Center(8) | Right(2)
         */
         .universal-stage.layout-cinematic .stage-column.left {
             grid-column: 1 / span 2;
         }
-
         .universal-stage.layout-cinematic .stage-column--center {
             grid-column: 3 / span 8; /* 66% width */
         }
-
         .universal-stage.layout-cinematic .stage-column.right {
             grid-column: 11 / span 2;
         }
-
         .universal-stage.layout-cinematic .stage-header,
         .universal-stage.layout-cinematic .stage-footer {
             grid-column: 1 / -1;
@@ -248,7 +216,6 @@
             padding-right: var(--spacing-l);
         }
     }
-
     .gutter-col {
         pointer-events: none;
         grid-row: 1 / -1;

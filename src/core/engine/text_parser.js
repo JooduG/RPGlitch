@@ -3,90 +3,84 @@
  * @description Logic for parsing raw LLM output into structured UI data.
  * Handles: Think blocks, Image prompts, and Scene Headers.
  */
-
 /**
  * Extracts <think> blocks from text.
  * @param {string} text
  * @returns {{ content: string, think: string|null }}
  */
 export function parse_think_block(text) {
-    if (!text) return { content: "", think: null }
-    const match = text.match(/<think>([\s\S]*?)<\/think>/i)
-    const think = match ? match[1].trim() : null
-    const content = text.replace(/<think>[\s\S]*?<\/think>/gi, "")
-    return { content, think }
+  if (!text) return { content: "", think: null };
+  const match = text.match(/<think>([\s\S]*?)<\/think>/i);
+  const think = match ? match[1].trim() : null;
+  const content = text.replace(/<think>[\s\S]*?<\/think>/gi, "");
+  return { content, think };
 }
-
 /**
  * Removes <image_prompt> tags from text.
  * @param {string} text
  * @returns {string}
  */
 export function clean_image_prompts(text) {
-    if (!text) return ""
-    let result = text.replace(/<image_prompt[^>]*\/>/gi, "")
-
-    // Iteratively remove the innermost <image_prompt>...</image_prompt> pairs
-    let previous = ""
-    // Use a regex that matches <image_prompt...> followed by anything that DOES NOT contain <image_prompt
-    // and ends with </image_prompt>
-    // Since javascript regex doesn't support easy "does not contain substring", we can use a simpler loop:
-    while (previous !== result) {
-        previous = result
-        // matches opening tag, followed by characters not containing '<image_prompt', followed by closing tag
-        // Actually, we can just replace any occurrence of <image_prompt>...</image_prompt> where the inside has no <image_prompt>
-        // We can do this with: /<image_prompt[^>]*>(?:(?!<image_prompt)[\s\S])*?<\/image_prompt\s*>/gi
-        result = result.replace(/<image_prompt[^>]*>(?:(?!<image_prompt)[\s\S])*?<\/image_prompt\s*>/gi, "")
-    }
-    return result
+  if (!text) return "";
+  let result = text.replace(/<image_prompt[^>]*\/>/gi, "");
+  // Iteratively remove the innermost <image_prompt>...</image_prompt> pairs
+  let previous = "";
+  // Use a regex that matches <image_prompt...> followed by anything that DOES NOT contain <image_prompt
+  // and ends with </image_prompt>
+  // Since javascript regex doesn't support easy "does not contain substring", we can use a simpler loop:
+  while (previous !== result) {
+    previous = result;
+    // matches opening tag, followed by characters not containing '<image_prompt', followed by closing tag
+    // Actually, we can just replace any occurrence of <image_prompt>...</image_prompt> where the inside has no <image_prompt>
+    // We can do this with: /<image_prompt[^>]*>(?:(?!<image_prompt)[\s\S])*?<\/image_prompt\s*>/gi
+    result = result.replace(
+      /<image_prompt[^>]*>(?:(?!<image_prompt)[\s\S])*?<\/image_prompt\s*>/gi,
+      "",
+    );
+  }
+  return result;
 }
-
 /**
  * Parses Scene Headers in the format: 『 [Location] · [Time] · [Weather] 』
  * @param {string} text
  * @returns {{ content: string, header: { location: string, time: string, weather: string }|null }}
  */
 export function parse_scene_header(text) {
-    if (!text) return { content: "", header: null }
-
-    // Pattern: 『 [Location] · [Time] · [Weather] 』
-    const match = text.match(/^『\s*\[\s*([\s\S]*?)\s*]\s*·\s*\[\s*([\s\S]*?)\s*]\s*·\s*\[\s*([\s\S]*?)\s*]\s*』/)
-
-    if (match) {
-        return {
-            content: text.replace(match[0], "").trim(),
-            header: {
-                location: match[1].trim(),
-                time: match[2].trim(),
-                weather: match[3].trim(),
-            },
-        }
-    }
-
-    return { content: text, header: null }
+  if (!text) return { content: "", header: null };
+  // Pattern: 『 [Location] · [Time] · [Weather] 』
+  const match = text.match(
+    /^『\s*\[\s*([\s\S]*?)\s*]\s*·\s*\[\s*([\s\S]*?)\s*]\s*·\s*\[\s*([\s\S]*?)\s*]\s*』/,
+  );
+  if (match) {
+    return {
+      content: text.replace(match[0], "").trim(),
+      header: {
+        location: match[1].trim(),
+        time: match[2].trim(),
+        weather: match[3].trim(),
+      },
+    };
+  }
+  return { content: text, header: null };
 }
-
 /**
  * Master parser that runs all passes.
  * @param {string} rawText
  * @returns {{ displayText: string, think: string|null, sceneData: object|null }}
  */
 export function parse_message(rawText) {
-    // 1. Remove Image Prompts (Artifacts)
-    let text = clean_image_prompts(rawText || "")
-
-    // 2. Extract Think Block
-    const thinkResult = parse_think_block(text)
-    text = thinkResult.content
-
-    // 3. Extract Scene Header
-    const headerResult = parse_scene_header(text)
-
-    return {
-        displayText: headerResult.content,
-        think: thinkResult.think,
-        sceneData: headerResult.header,
-    }
+  // 1. Remove Image Prompts (Artifacts)
+  let text = clean_image_prompts(rawText || "");
+  // 2. Extract Think Block
+  const thinkResult = parse_think_block(text);
+  text = thinkResult.content;
+  // 3. Extract Scene Header
+  const headerResult = parse_scene_header(text);
+  return {
+    displayText: headerResult.content,
+    think: thinkResult.think,
+    sceneData: headerResult.header,
+  };
 }
 /**
  * Text sanitization for prompt safety.
@@ -96,10 +90,10 @@ export function parse_message(rawText) {
  * @returns {string}
  */
 export function clean_text(text, limit = 500) {
-    if (!text) return ""
-    const clean = text
-        .replace(/[*_#>`-]/g, "")
-        .replace(/\s+/g, " ")
-        .trim()
-    return clean.length > limit ? clean.substring(0, limit) + "..." : clean
+  if (!text) return "";
+  const clean = text
+    .replace(/[*_#>`-]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return clean.length > limit ? clean.substring(0, limit) + "..." : clean;
 }

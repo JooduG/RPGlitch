@@ -4,7 +4,6 @@
     import { pulse, shimmy, spin } from "@ui/utils/actions/kinetic.js"
     import { tilt } from "@ui/utils/actions/tilt.js"
     import { storyboard } from "./storyboardActions.svelte.js"
-
     // Derived State
     let ready_to_begin = $derived(app.selected_ai && app.selected_user && app.selected_fractal)
 </script>
@@ -17,7 +16,6 @@
                 <path fill="currentColor" d="M14.83,13.41L13.42,14.82L16.55,17.95L14.5,20H20V14.5L17.96,16.54L14.83,13.41M14.5,4L16.54,6.04L4,18.59L5.41,20L17.96,7.46L20,9.5V4M10.59,9.17L5.41,4L4,5.41L9.17,10.58L10.59,9.17Z" />
             </svg>
         </Button>
-
         <Button className="capsule-flank icon-glow" variant="ghost" onclick={app.toggle_control_panel} aria-label="Settings" title="Open Control Panel" data-testid="settings-button" actions={[spin]}>
             <svg viewBox="0 0 24 24" class="icon-small">
                 <path
@@ -26,7 +24,6 @@
                 />
             </svg>
         </Button>
-
         <!-- Option 3: "The Pop" (Scale + Brightness) -->
         <Button className="capsule-action pop" variant="ghost" disabled={!ready_to_begin} onclick={storyboard.begin} actions={[pulse]}>
             <div class="core-content">
@@ -46,27 +43,23 @@
         z-index: var(--z-overlay);
         pointer-events: auto;
     }
-
     .unified-capsule {
         background: var(--surface-sunken);
         box-shadow:
             var(--shadow-l),
             inset 0 0 0 1px var(--border-light);
         border: none;
-
         display: flex;
         align-items: center;
         border-radius: var(--border-radius-full);
         padding: var(--spacing-xxs) var(--spacing-m);
     }
-
     /* --- Scoped UI Overrides --- */
     :global(.unified-capsule .btn) {
         background: transparent;
         filter: none;
         transition: all var(--transition-speed);
     }
-
     :global(.unified-capsule .btn:hover:not(:disabled)) {
         background: transparent;
         filter: none;
@@ -75,7 +68,6 @@
         transform: none; /* Prevent jitter from global translateY */
         --label-color: var(--font-color); /* Inject white color to children */
     }
-
     /* Flank Buttons (Shuffle/Settings) */
     :global(.unified-capsule .capsule-flank.btn) {
         flex: 0 0 var(--spacing-xxxl);
@@ -89,12 +81,10 @@
         justify-content: center;
         color: var(--font-muted);
     }
-
     :global(.unified-capsule .capsule-flank.btn:hover svg) {
         fill: var(--font-color);
         stroke: var(--font-color);
     }
-
     /* Primary Action Button (Begin) */
     :global(.unified-capsule .capsule-action.btn) {
         height: 100%;
@@ -108,17 +98,14 @@
         padding: var(--spacing-xs);
         opacity: var(--opacity-m);
     }
-
     :global(.unified-capsule .capsule-action.btn:disabled) {
         opacity: var(--opacity-s);
         cursor: not-allowed;
     }
-
     /* Extra Label Polish */
     :global(.unified-capsule .capsule-action.btn:hover .label) {
         text-shadow: 0 0 var(--spacing-m) var(--white);
     }
-
     /* Ensure icons reset nicely */
     .icon-small {
         width: var(--spacing-l);
@@ -127,7 +114,6 @@
             transform 0.3s ease,
             filter 0.3s ease;
     }
-
     .core-content {
         position: relative;
         z-index: 2;
@@ -135,7 +121,6 @@
         align-items: center;
         gap: var(--spacing-xs);
     }
-
     .label {
         font-family: var(--font-display);
         font-weight: 600;

@@ -14,13 +14,10 @@
     import InputBar from "./InputBar.svelte"
     import ProsePanel from "./ProsePanel.svelte"
     import StorymodePanel from "./StorymodePanel.svelte"
-
     // [FIX] Target flattened profile_picture
     let fractalBg = $derived(runtime?.storyFractal?.profile_picture || "")
-
     // Derived
     let is_thinking = $derived(engineState.phase === "generating")
-
     // --- ON MOUNT: Hydrate Entity Lists for Color Lookups ---
     onMount(async () => {
         if (app.ai_list.length === 0) {
@@ -33,7 +30,6 @@
                 console.error("[Storymode] Failed to hydrate colors:", e)
             }
         }
-
         if (!runtime.is_ready) {
             await runtime.sync()
         }
@@ -44,22 +40,18 @@
     {#if fractalBg}
         <div class="fractal-wallpaper" style="background-image: url('{fractalBg}')"></div>
     {/if}
-
     <Layout mode="cinematic">
         {#snippet left()}
             <StorymodePanel entity={app.selected_ai} side="left" />
         {/snippet}
-
         {#snippet center()}
             <div class="game-stage">
                 <ProsePanel />
-
                 <div class="input-container">
                     <InputBar disabled={is_thinking} />
                 </div>
             </div>
         {/snippet}
-
         {#snippet right()}
             <StorymodePanel entity={app.selected_user} side="right" />
         {/snippet}
@@ -73,7 +65,6 @@
         background: inherit;
         position: relative;
     }
-
     .fractal-wallpaper {
         position: absolute;
         inset: 0;
@@ -85,7 +76,6 @@
         mix-blend-mode: overlay;
         filter: grayscale(100%) contrast(120%);
     }
-
     .game-stage {
         width: 100%;
         height: 100%;
@@ -93,7 +83,6 @@
         flex-direction: column;
         position: relative;
     }
-
     .input-container {
         flex-shrink: 0;
         width: 100%;
