@@ -24,16 +24,10 @@ describe("ThemeStore Color Generation", () => {
     });
   });
   describe("Deterministic color generation fallback", () => {
-    test("generates deterministic color for entity with name only", () => {
-      const entity = { name: "Aether Blade" };
-      const result = get_signature(entity);
-      expect(result).toMatch(/^var\(--color-[a-z]+\)$/);
-    });
-    test("generates deterministic color for entity with name and tags", () => {
-      const entity = {
-        name: "Mystic Bard",
-        tags: ["magic", "music"],
-      };
+    test.each([
+      { case: "entity with name only", entity: { name: "Aether Blade" } },
+      { case: "entity with name and tags", entity: { name: "Mystic Bard", tags: ["magic", "music"] } },
+    ])("generates deterministic color for $case", ({ entity }) => {
       const result = get_signature(entity);
       expect(result).toMatch(/^var\(--color-[a-z]+\)$/);
     });
@@ -68,38 +62,17 @@ describe("ThemeStore Color Generation", () => {
     });
   });
   describe("Edge cases and robustness", () => {
-    test("handles undefined entity parameter", () => {
-      const result = get_signature();
-      expect(result).toMatch(/^var\(--color-[a-z]+\)$/);
-    });
-    test("handles null entity parameter", () => {
-      const result = get_signature(null);
-      expect(result).toMatch(/^var\(--color-[a-z]+\)$/);
-    });
-    test("handles entity with empty signature_color string", () => {
-      const entity = { signature_color: "" };
-      const result = get_signature(entity);
-      // Empty string is falsy, should fall through
-      expect(result).toMatch(/^var\(--color-[a-z]+\)$/);
-    });
-    test("handles entity with empty palette object", () => {
-      const entity = { palette: {} };
-      const result = get_signature(entity);
-      expect(result).toMatch(/^var\(--color-[a-z]+\)$/);
-    });
-    test("handles entity with null palette.brand", () => {
-      const entity = { palette: { brand: null } };
-      const result = get_signature(entity);
-      expect(result).toMatch(/^var\(--color-[a-z]+\)$/);
-    });
-    test("handles entity with empty tags array", () => {
-      const entity = { name: "Test", tags: [] };
-      const result = get_signature(entity);
-      expect(result).toMatch(/^var\(--color-[a-z]+\)$/);
-    });
-    test("handles entity with undefined tags", () => {
-      const entity = { name: "Test", tags: undefined };
-      const result = get_signature(entity);
+    test.each([
+      { case: "undefined entity", input: undefined },
+      { case: "null entity", input: null },
+      { case: "entity with empty signature_color string", input: { signature_color: "" } },
+      { case: "entity with empty palette object", input: { palette: {} } },
+      { case: "entity with null palette.brand", input: { palette: { brand: null } } },
+      { case: "entity with empty tags array", input: { name: "Test", tags: [] } },
+      { case: "entity with undefined tags", input: { name: "Test", tags: undefined } },
+    ])("handles $case", ({ input }) => {
+      const result = get_signature(input);
+      // Falsy values for signature_color, etc., should fall through to deterministic generation.
       expect(result).toMatch(/^var\(--color-[a-z]+\)$/);
     });
   });
