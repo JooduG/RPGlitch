@@ -1,119 +1,78 @@
 # 🔷 RPGlitch (JooduG Monorepo)
 
-> **Standards:** [03-technetium](.agent/rules/03-technetium.md) (Technical Pillar)  
-> **Platform:** [Perchance](https://perchance.org)
-
-A next-generation AI Roleplay Engine built on Perchance, featuring a **Simulation-Driven Architecture** for immersive, consistent, and unrestricted storytelling. RPGlitch is a "Local-First" web application that turns your browser into a sophisticated RPG tabletop. It allows you to create custom Fractals and Characters, then engage in deep, coherent roleplay with an AI Game Master that adheres to strict narrative consistency rules.
+A next-generation AI Roleplay Engine built on the Perchance platform. RPGlitch is a "Local-First" web application that turns your browser into a sophisticated RPG tabletop. It features a **Simulation-Driven Architecture**, allowing you to create custom characters and engage in deep, coherent roleplay with an AI Game Master that adheres to strict narrative consistency.
 
 ## ⚡ Quick Start
 
-```bash
-# 1. Install & Sync
-npm install
-npm run sync
+**Run the following commands** in your terminal to get the engine running locally:
 
-# 2. Build & Launch
-npm run dev
-```
+1.  **`npm install`** (Install dependencies)
+2.  **`npm run sync`** (Sync vendor libraries)
+3.  **`npm run dev`** (Build and launch the local server)
 
-## 🏗️ Architecture & The System
+## ⏳ The Core Engine: Rounds & Turns
 
-The system architecture prioritizes offline-first resilience and agentic automation.
+RPGlitch supersedes standard chatbot patterns by separating the narrative state from the user interface. Time flows via discrete "Rounds," which are broken down into specific "Turns."
 
-- **Agentic Integration:** The Antigravity OS (`.agent/`) governs system rules and automated workflows.
-- **Zero-Trust Security:** Strict sanitization and the "Freedom Protocol" safeguard the runtime environment.
+**Sending a message always ends the current Round and triggers the start of the next.**
 
-### The Build Pipeline (Constraint-Based Engineering)
+Here is the exact lifecycle of a single Round:
 
-This explains how we turn a Monorepo into a Single File for the Perchance platform.
+1.  **SYSTEM\_TURN (The Physics Engine)**
+    Starts the exact moment you send a message. The UI is temporarily locked. In the background, the engine calculates social dynamics, memory consolidation, and world physics.
+2.  **AI\_TURN + USER\_TURN (The Narrative Parallel)**
+    The moment the system finishes calculating, the UI is unlocked. The AI begins streaming its narrative response (**AI\_TURN**). Because the UI is unlocked, your **USER\_TURN** begins at the exact same time.
+3.  **The Interrupt Window**
+    In 99% of cases, you will wait for the AI to finish generating before you begin typing your next move. However, because both turns run in parallel, you have the freedom to interrupt the AI at any time.
+4.  **End of Round**
+    **Click "Send"** on your next message to close the current round and immediately restart the loop at Step 1.
 
-```mermaid
-graph TD
-    subgraph "Development Environment (Local)"
-        SRC[Apps Source Code] -->|Vite 6 + SCSS| BUILD[Build Script]
-        VEND[Vendored Libs] -->|Inject| BUILD
-        WORKER[Worker Logic] -->|Blob Stringify| BUILD
-    end
-    BUILD -->|Output| HTML[Single HTML File]
-    subgraph "Perchance Runtime (Browser)"
-        HTML -->|Loads| IFRAME[Perchance Iframe]
-        IFRAME -->|Hydrates| APP[Running App]
-    end
-```
-
-### ⏳ The Chrono Heartbeat (The Round Loop)
-
-This outlines the strict, linear execution flow managed by **Chrono**. The engine distinguishes between **Rounds** (cumulative session progression) and **Turns** (discrete lifecycle phases within a round).
-
-Specifically, **`1 Round = 1 Full Exchange`**, incremented only after completing the triad of internal turns:
-
-- 🟢 **`USER_TURN`**: The triggering narrative input or physical action from the interface.
-- 🔵 **`SYSTEM_TURN`**: The hidden physics loop—validating security, checking dynamic reflex triggers, and tracking internal state changes.
-- 🟣 **`AI_TURN`**: The cognitive resolution—synthesizing data, calling the LLM Service, and streaming the atmospheric generation.
+### Visualizing the Lifecycle
 
 ```mermaid
-sequenceDiagram
-    participant User
-    participant UI as 🖥️ UI
-    participant Chrono as ⏳ Chrono
-    participant Security as 🛡️ Security
-    participant Engine as 🎬 Engine
-    participant AI as 🧠 LLM Service
-    participant DB as 💾 Dexie
-
-    Note over User, UI: 🟢 USER_TURN
-    User->>UI: Story Action
-    UI->>Chrono: advanceRound(input)
-
-    rect rgb(30, 30, 35)
-        Note over Chrono, DB: UI LOCKED (app.simulation.loading = true)
-
-        Note over Chrono, Security: 🔵 SYSTEM_TURN
-        Chrono->>Security: process(input)
-        Security-->>Chrono: securityContext (Physics Result)
-
-        Note over Engine, DB: 🟣 AI_TURN
-        Chrono->>Engine: generateAiResponse(options)
-        Engine->>AI: LlmService.generate(payload)
-        loop Token Streaming
-            AI-->>UI: app.updateStream(token)
-            UI-->>User: Visual Feedback (Incremental)
-        end
-        AI-->>Engine: Full Response String
-        Engine->>DB: Save Final Message
-
-        Note over Chrono, DB: ⚓ ANCHOR ROUND
-        Chrono->>DB: runtime.save(runtime.round)
-        Note over Chrono, DB: UI UNLOCKED (app.simulation.loading = false)
-    end
-    UI-->>User: Interaction Ready
+flowchart LR
+    Start((Message Sent)) --> Sys[SYSTEM_TURN<br>UI Locked<br>Engine Calculates]
+    
+    Sys --> Unlocks{UI Unlocks}
+    
+    Unlocks --> AI[AI_TURN<br>Streams Response]
+    Unlocks --> User[USER_TURN<br>Free to Type]
+    
+    AI -.->|Wait or Interrupt| Next((Next Message Sent))
+    User -->|Triggers| Next
+    
+    style Start fill:#2a9d8f,stroke:#fff,stroke-width:2px,color:#fff
+    style Sys fill:#e76f51,stroke:#fff,stroke-width:2px,color:#fff
+    style Unlocks fill:#e9c46a,stroke:#fff,stroke-width:2px,color:#333
+    style AI fill:#264653,stroke:#fff,stroke-width:2px,color:#fff
+    style User fill:#264653,stroke:#fff,stroke-width:2px,color:#fff
+    style Next fill:#2a9d8f,stroke:#fff,stroke-width:2px,color:#fff
 ```
 
-### The Simulation Engine
+## 🏗️ Architecture & Technology Stack
 
-RPGlitch supersedes standard chatbot patterns by implementing a **Simulation Engine**. Instead of just generating text, the system calculates the "logic" of the narrative state in the background.
+The system architecture prioritizes offline-first resilience and agentic automation, utilizing a Zero-Trust Security model to sanitize the runtime environment.
 
-```text
-src/
-├── core/   # 🕰️ Logic, Engine, Intelligence, Security
-├── data/   # 📚 Database, Repository, Persistence (Dexie)
-├── state/  # ⚡ Reactive State Bridges (Svelte 5 Runes)
-├── ui/     # 🛠️ UI Components (Atoms, Molecules, Organisms)
-├── theme/  # 🎭 SCSS Design System (7-1 Architecture)
-└── media/  # 🎨 Visuals, Audio, Sensory Layer
-```
+### Folder Structure
 
-## 🛠️ Technology Stack
+* `src/core/` : Logic, Engine, Intelligence, and Security.
+* `src/data/` : Database, Repository, and Persistence.
+* `src/state/` : Reactive State Bridges.
+* `src/ui/` : Interface Components.
+* `src/theme/` : SCSS Design System.
+* `src/media/` : Visuals, Audio, and Sensory Layer.
 
-- **State Management:** IndexedDB via Dexie.js (single source of truth)
-- **UI Framework:** Svelte 5 (Runes) + Native SCSS
-- **Bundler:** Vite 6
-- **Security:** DOMPurify for XSS prevention
+### Tech Stack
 
-## 🗺️ Related Documentation
+* **State Management:** IndexedDB via Dexie.js (Single source of truth)
+* **UI Framework:** Svelte 5 (Runes) + Native SCSS
+* **Bundler:** Vite 6
+* **Security:** DOMPurify (XSS prevention)
 
-- [Prime Directive](.agent/rules/01-foundation.md)
-- [Agent Rules](GEMINI.md)
-- [Automated Workflows](.agent/workflows/)
-- [Architecture Atlas](.agent/knowledge/atlas/02-architecture.md)
-- [Tech Stack Vision](.agent/knowledge/atlas/01-vision.md)
+## 🗺️ Documentation & Rules
+
+* [Prime Directive](https://www.google.com/search?q=.agent/rules/01-foundation.md)
+* [Agent Rules](https://www.google.com/search?q=GEMINI.md)
+* [Automated Workflows](https://www.google.com/search?q=.agent/workflows/)
+* [Architecture Atlas](https://www.google.com/search?q=.agent/knowledge/atlas/02-architecture.md)
+* [Tech Stack Vision](https://www.google.com/search?q=.agent/knowledge/atlas/01-vision.md)

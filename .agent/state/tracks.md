@@ -1,7 +1,9 @@
-# RPGlitch Logic Purge Protocol Summary
+# RPGlitch: Session Tracks
 
-- Svelte 5 component verified.
-- The codebase already employs runes correctly ($state, $derived, $props, $effect). No legacy `writable`/`readable`/`export let` variables found.
-- No dead code logic (`if (false)`) found.
-- Handled svelte-check warning: removed empty `.backdrop.blur` style rule from `src/ui/molecules/dialogs/Backdrop.svelte`.
-- Tested `npx unimported` - false positives confirmed for dynamic component loading and script injection.
+- **Narrative Bridge** (Active): Initiated registration and architectural planning for autonomous scene complications.
+- **UI Audit & Polish**: Standardized Chalk Regime tokens across atomic and organism layers. Implemented `kineticScroll` with momentum decay in `kinetic.js` and injected it into `LibraryDrawer.svelte`.
+- **Verifying System**: `npm run verify` passed all 176 tests. `DynamicsEngine` logic confirmed clean of Bayesian legacy.
+
+## Archive
+
+- **Logic Purge Protocol**: Purged legacy Bayesian suspicions from `DynamicsEngine.js`.

@@ -36,7 +36,7 @@ export class ReactiveSession {
       // This will run the Engine, hit the API, and stream content to the feed
       await Engine.generatePrologue(storyId);
     } catch (e) {
-      console.error("[ReactiveSession] Start Failed:", e);
+      console.error("[Session] Start Failed:", e);
       this.error = e.message;
       // If failed, maybe go back to lobby?
       // app.setView("lobby");
@@ -76,7 +76,7 @@ export class ReactiveSession {
       await runtime.save(runtime.turn);
     } catch (e) {
       app.log(`Simulation Error: ${e.message}`, "error");
-      console.error("[ReactiveSession] AdvanceTurn Failed:", e);
+      console.error("[Session] AdvanceTurn Failed:", e);
       this.error = e.message;
     } finally {
       this.loading = false;

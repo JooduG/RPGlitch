@@ -11,7 +11,7 @@
         "sync": "node .agent/skills/project/scripts/sync.js",
         "lint": "npm-run-all lint:js lint:css",
         "lint:js": "eslint src",
-        "lint:css": "node .agent/skills/styling/scripts/style_audit.js",
+        "lint:css": "node .agent/skills/css/scripts/style_audit.js",
         "lint:fix": "npm run lint:js:fix && npm run lint:css:fix",
         "lint:js:fix": "eslint src --fix",
         "lint:css:fix": "stylelint \"src/**/*.css\" --fix",
@@ -44,6 +44,7 @@
         "dotenv": "^17.3.1",
         "firecrawl-mcp": "^3.11.0",
         "ignore": "^7.0.5",
+        "mcp-mermaid": "^0.4.1",
         "mcp-sequentialthinking-tools": "^0.0.4",
         "paneforge": "^1.0.2",
         "runed": "^0.37.1"

@@ -101,7 +101,9 @@ export class AppStore {
     };
     this.logs.unshift(entry);
     if (this.logs.length > 100) this.logs.pop();
-    console.debug(`[Telemetry:${type.toUpperCase()}] ${message}`);
+    if (this.settings.dev_mode) {
+      console.debug(`[Telemetry:${type.toUpperCase()}] ${message}`);
+    }
   }
   /************************************************************************************
    * 🧩 [SECTION: LIFECYCLE & PERSISTENCE]
@@ -242,7 +244,7 @@ export class AppStore {
    * Bypasses storyboard selection checks.
    */
   force_start = () => {
-    console.warn("⚠️ FORCING STORYMODE START");
+    this.log("FORCING STORYMODE START (Manual Override)", "system");
     this.view = "storymode";
   };
 }

@@ -181,3 +181,78 @@ export function stab(node) {
     },
   };
 }
+
+/**
+ * Kinetic Scroll Action
+ * Enables drag-to-scroll with momentum.
+ * Usage: use:kineticScroll
+ */
+export function kineticScroll(node) {
+  let isDown = false;
+  let startY;
+  let scrollTop;
+  let velocity = 0;
+  let lastY = 0;
+  let lastTime = 0;
+  let rafId;
+
+  const onDown = (e) => {
+    isDown = true;
+    const pageY = e.pageY || (e.touches ? e.touches[0].pageY : 0);
+    startY = pageY - node.offsetTop;
+    scrollTop = node.scrollTop;
+    velocity = 0;
+    lastY = pageY;
+    lastTime = Date.now();
+    if (rafId) cancelAnimationFrame(rafId);
+  };
+
+  const onUp = () => {
+    isDown = false;
+    requestAnimationFrame(applyMomentum);
+  };
+
+  const onMove = (e) => {
+    if (!isDown) return;
+    const pageY = e.pageY || (e.touches ? e.touches[0].pageY : 0);
+    const y = pageY - node.offsetTop;
+    const walk = (y - startY) * 1.5;
+    node.scrollTop = scrollTop - walk;
+
+    const now = Date.now();
+    const dt = now - lastTime;
+    const dy = pageY - lastY;
+    if (dt > 0) velocity = dy / dt;
+    lastY = pageY;
+    lastTime = now;
+  };
+
+  const applyMomentum = () => {
+    if (isDown || Math.abs(velocity) < 0.1) return;
+    node.scrollTop -= velocity * 10;
+    velocity *= 0.95;
+    rafId = requestAnimationFrame(applyMomentum);
+  };
+
+  node.addEventListener("mousedown", onDown);
+  node.addEventListener("mouseleave", onUp);
+  node.addEventListener("mouseup", onUp);
+  node.addEventListener("mousemove", onMove);
+
+  node.addEventListener("touchstart", onDown, { passive: true });
+  node.addEventListener("touchend", onUp);
+  node.addEventListener("touchmove", onMove, { passive: false });
+
+  return {
+    destroy() {
+      if (rafId) cancelAnimationFrame(rafId);
+      node.removeEventListener("mousedown", onDown);
+      node.removeEventListener("mouseleave", onUp);
+      node.removeEventListener("mouseup", onUp);
+      node.removeEventListener("mousemove", onMove);
+      node.removeEventListener("touchstart", onDown);
+      node.removeEventListener("touchend", onUp);
+      node.removeEventListener("touchmove", onMove);
+    },
+  };
+}
