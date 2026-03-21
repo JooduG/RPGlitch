@@ -18,15 +18,14 @@ We rely on strict, named tokens rather than raw hex values in our components. Yo
 
 ### Brand Primitives
 
-- **Chalk** (`var(--color-chalk)`): `#e1e5f2`. The primary high-contrast text and structural accent. Crisp, almost icy white.
-- **Gunmetal** (`var(--color-gunmetal)` / `var(--bg-card)`): `#1b262c`. The core component background. Dense and non-intrusive.
-- **Frozen** (`var(--color-frozen)`): `#0f4c75`. The primary application accent. Used for dominant interactive elements.
-- **Frisk** (`var(--color-frisk)` / `var(--font-muted)`): `#3282b8`. The secondary application accent (muted text).
+- **Chalk** (`var(--color-chalk)`): `#222326`. The primary high-contrast text and structural accent. Crisp, almost icy white.
+- **Gunmetal** (`var(--color-gunmetal)` / `var(--bg-card)`): `#363840`. The core component background. Dense and non-intrusive.
+- **Frozen** (`var(--color-frozen)`): `#555d66`. The primary application accent. Used for dominant interactive elements.
+- **Frisk** (`var(--color-frisk)` / `var(--font-muted)`): `#8a9399`. The secondary application accent (muted text).
 - **Base Primitives**: `var(--color-white)` (`#ffffff`) and `var(--color-black)` (`#000000`).
 
 ### Semantic System States
 
-- **Info**: `var(--color-info)` (`#3b82f6`)
 - **Success**: `var(--color-success)` (`#15803d`)
 - **Warning**: `var(--color-warning)` (`#fbbf24`)
 - **Danger**: `var(--color-danger)` (`#ef4444`)
@@ -56,7 +55,6 @@ We use a strictly defined triad of fonts, scaled via an absolute T-shirt sizing 
 - **Headline Font** (`var(--font-heading)`): `Ubuntu`, sans-serif. Semantic `h1`–`h6`. Smooth, tech-forward, bold (`var(--font-bold)` 700).
 - **Body Font** (`var(--font-sans)`): `Inter`, system-ui. The workhorse. Clean, readable, structurally sound. Normal (`var(--font-weight)` 400).
 - **Label Font** (`var(--font-mono)`): `JetBrains Mono`, monospace. Raw statistics, inputs, `<kbd>`, system logs.
-
 - **Base Line Height** (`var(--line-height-base)`): `1.5`
 - **Heading Line Height** (`var(--line-height-heading)`): `1.2`
 - **Default Text Color** (`var(--font-color)`): `var(--color-white)`
@@ -70,7 +68,7 @@ Shadows employ opacity scaling (`var(--opacity-xxs)` through `var(--opacity-full
 - **Medium**: `var(--shadow-m)` - 1rem blur.
 - **Deep** (Floating Cards): `var(--shadow-l)` - 2rem blur.
 - **Extreme**: `var(--shadow-xl)` and `var(--shadow-xxl)`.
-- **Glow**: `var(--shadow-glow)` - Action highlights injecting `--brand-accent`.
+- **Glow**: `var(--shadow-glow)`
 - **Text Masking**: `var(--shadow-text)` / `var(--shadow-font)`.
 
 ### Semantic Z-Index Architecture
