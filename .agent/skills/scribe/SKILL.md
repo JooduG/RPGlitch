@@ -25,7 +25,7 @@ description: "Maintains semantic rules, skill scaffolding, and documentation int
 
 ## 4. Anti-Patterns
 
-| Pattern              | Mitigation                                                             |
-| :------------------- | :--------------------------------------------------------------------- |
-| **Directory Drift**  | Never create state files in the root; always route to `.agent/state/`. |
-| **Monolithic Bloat** | Monolithic skills must be split once they exceed 500 lines.            |
+| Pattern              | Mitigation                                                                                                                                 |
+| :------------------- | :----------------------------------------------------------------------------------------------------------------------------------------- |
+| **Directory Drift**  | Never create state files in the root (Exception: The visual physics spec `DESIGN.md`); always route execution tracking to `.agent/state/`. |
+| **Monolithic Bloat** | Monolithic skills must be split once they exceed 500 lines.                                                                                |

@@ -3,7 +3,7 @@
  * 🧩 [COMPONENT: PROMPT INTELLIGENCE]
  * Handles aesthetic routing, semantic matching, and prompt composition.
  */
-import { PALETTE } from "@core/engine/palette.js";
+import { PALETTE } from "@theme/palette.svelte.js";
 import { LlmService } from "@core/intelligence/LlmService.js";
 /************************************************************************************
  * 🧩 [SECTION: CONSTANTS & GLOBALS]

@@ -5,7 +5,7 @@
      * Manages signature colors, generation prompts, and modifiers.
      * Updated to target the flattened signature_color and profile_picture.
      */
-    import { PALETTE, PALETTE_VARS } from "@core/engine/palette.js"
+    import { PALETTE, PALETTE_VARS } from "@theme/palette.svelte.js"
     import { LlmService } from "@core/intelligence/LlmService.js"
     import { PromptBuilder } from "@core/intelligence/PromptBuilder.js"
     import { ImageGeneration } from "@media/image_engine.js"
@@ -270,7 +270,7 @@
         box-shadow: var(--shadow-m);
     }
     .swatch.active {
-        outline: var(--spacing-xxs) solid var(--white);
+        outline: var(--spacing-xxs) solid var(--color-white);
         outline-offset: var(--spacing-xxs);
         box-shadow: var(--shadow-glow);
         transform: scale(1.1);
@@ -294,9 +294,9 @@
     }
     .visual-prompt {
         width: 100%;
-        background: transparent;
+        background: var(--surface-base);
         border: none;
-        color: var(--white);
+        color: var(--color-white);
         padding: var(--spacing-s);
         font-size: var(--font-size-s);
         font-family: var(--font-body);
@@ -308,10 +308,10 @@
         opacity: var(--opacity-m);
         color: var(--font-muted);
         cursor: not-allowed;
-        background: var(--tint-dark-surface);
+        background: var(--surface-base);
     }
     .visual-prompt::placeholder {
-        color: var(--surface-elevated);
+        color: var(--font-muted);
         font-style: italic;
         font-weight: 400;
     }
@@ -332,7 +332,7 @@
         width: var(--spacing-l);
         height: var(--spacing-l);
         border: var(--spacing-xxs) solid var(--border-light);
-        border-top-color: var(--app-accent);
+        border-top-color: var(--color-frozen);
         border-radius: var(--border-radius-full);
         animation: spin 0.8s linear infinite;
     }
@@ -350,7 +350,7 @@
         width: 100%;
         border: none;
         border-radius: 0;
-        background: var(--surface-sunken);
+        background: var(--surface-base);
         font-size: var(--font-size-xs);
         padding: var(--spacing-xs);
         transition: all var(--transition-speed);
@@ -367,19 +367,19 @@
         letter-spacing: 0.02em;
     }
     .action-row :global(.btn.action-btn.mode-tech):not(:disabled) {
-        color: var(--app-secondary);
+        color: var(--color-frisk);
     }
     .action-row :global(.btn.action-btn.mode-tech):not(:disabled):hover {
-        background: rgb(var(--app-secondary-rgb) / 0.1);
-        color: var(--white);
+        background: rgb(var(--color-frisk-rgb) / 0.1);
+        color: var(--color-white);
     }
     .action-row :global(.btn.action-btn.mode-magic):not(:disabled) {
-        color: var(--app-accent);
+        color: var(--color-frozen);
         font-weight: 700;
     }
     .action-row :global(.btn.action-btn.mode-magic):not(:disabled):hover {
-        background: rgb(var(--app-accent-rgb) / 0.1);
-        color: var(--white);
+        background: rgb(var(--color-frozen-rgb) / 0.1);
+        color: var(--color-white);
     }
     .toggle-stack {
         display: flex;

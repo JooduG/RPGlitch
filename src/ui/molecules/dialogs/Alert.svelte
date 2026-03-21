@@ -97,8 +97,8 @@
         justify-content: center;
         width: var(--spacing-xl);
         height: var(--spacing-xl);
-        background: rgb(var(--brand-accent-rgb) / var(--opacity-s));
-        color: var(--app-info);
+        background: rgb(var(--color-frozen-rgb) / var(--opacity-s));
+        color: var(--color-frozen);
         border-radius: var(--border-radius-full);
         font-size: var(--font-size-s);
     }

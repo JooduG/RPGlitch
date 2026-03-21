@@ -143,7 +143,7 @@
         box-shadow: inset 0 0 0 1px var(--border-light);
         border: none;
         border-radius: var(--border-radius-m);
-        color: var(--white);
+        color: var(--color-white);
         padding: var(--spacing-m);
         margin: 0;
         outline: none;
@@ -189,7 +189,7 @@
     }
     .content .row .field-group .text-area.readonly :global(strong) {
         font-weight: 800;
-        color: var(--white);
+        color: var(--color-white);
     }
     .content .row .field-group .text-area.readonly :global(em) {
         font-style: italic;

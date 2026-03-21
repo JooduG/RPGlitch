@@ -93,16 +93,16 @@
     }
     .btn:focus-visible {
         outline: none;
-        box-shadow: 0 0 0 2px var(--frisk);
+        box-shadow: 0 0 0 2px var(--color-frisk);
     }
     /* Variants */
     .btn-primary {
-        background: var(--frisk);
-        color: var(--black);
+        background: var(--color-frisk);
+        color: var(--color-black);
         box-shadow: var(--shadow-m);
     }
     .btn-primary:hover:not(:disabled, .disabled) {
-        background: color-mix(in srgb, var(--frisk), var(--white) 5%);
+        background: color-mix(in srgb, var(--color-frisk), var(--color-white) 5%);
     }
     .btn-ghost {
         color: var(--font-muted);
@@ -116,12 +116,12 @@
         color: var(--font-muted);
     }
     .btn-outline:hover:not(:disabled, .disabled) {
-        color: var(--frisk);
+        color: var(--color-frisk);
         background: var(--surface-sunken);
     }
     .btn-glass {
         background: var(--surface-raised);
-        color: var(--white);
+        color: var(--color-white);
     }
     .btn-glass:hover:not(:disabled, .disabled) {
         background: var(--surface-elevated);

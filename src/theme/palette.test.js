@@ -10,17 +10,17 @@ describe("ThemeStore Color Generation", () => {
     test("returns hex value for entity with signature_color", () => {
       const entity = { signature_color: "Electric Cyan" };
       const result = get_signature(entity);
-      expect(result).toBe("var(--signature-cyan)");
+      expect(result).toBe("var(--color-cyan)");
     });
     test("returns hex value for entity with pink signature_color", () => {
       const entity = { signature_color: "Hot Pink" };
       const result = get_signature(entity);
-      expect(result).toBe("var(--signature-pink)");
+      expect(result).toBe("var(--color-pink)");
     });
     test("returns hex value for entity with emerald signature_color", () => {
       const entity = { signature_color: "Emerald Green" };
       const result = get_signature(entity);
-      expect(result).toBe("var(--signature-emerald)");
+      expect(result).toBe("var(--color-emerald)");
     });
   });
   describe("Deterministic color generation fallback", () => {

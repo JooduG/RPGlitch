@@ -14,7 +14,7 @@ body {
     var(--bg-grad-1),
     var(--bg-grad-2) 50%,
     var(--bg-grad-3) 75%,
-    var(--black)
+    var(--bg-grad-4)
   );
   background-size: cover;
 }
@@ -167,7 +167,7 @@ tfoot td {
   top: -100px;
   left: 0;
   background: var(--color-frozen);
-  color: var(--white);
+  color: var(--color-white);
   padding: var(--spacing-xs);
   z-index: 10000;
   transition: top var(--transition-speed);
@@ -219,14 +219,14 @@ tfoot td {
   content: "";
   bottom: calc(100% + 5px);
   border: 0.3rem solid transparent;
-  border-top-color: var(--chalk);
+  border-top-color: var(--color-chalk);
 }
 
 [data-tooltip]::after {
   content: attr(data-tooltip);
   bottom: calc(100% + 15px);
   background: var(--surface-void);
-  color: var(--white);
+  color: var(--color-white);
   padding: var(--spacing-xs) var(--spacing-s);
   border-radius: var(--border-radius-s);
   font-size: var(--font-size-xs);

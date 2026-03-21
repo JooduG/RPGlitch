@@ -130,9 +130,9 @@
         bottom: 100%;
         left: 0;
         width: 100%;
-        background: var(--gunmetal);
+        background: var(--color-gunmetal);
         box-shadow:
-            0 0 2rem var(--black),
+            0 0 2rem var(--color-black),
             inset 0 0 0 1px var(--border-light);
         border: none;
         border-radius: var(--border-radius);

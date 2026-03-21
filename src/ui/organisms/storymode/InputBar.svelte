@@ -64,7 +64,7 @@
         align-items: center;
         width: 100%;
         max-width: var(--max-width-text);
-        background: color-mix(in srgb, var(--signature-color, var(--gunmetal)) 15%, var(--black));
+        background: color-mix(in srgb, var(--signature-color, var(--color-gunmetal)) 15%, var(--color-black));
         border-radius: var(--border-radius-xl);
         padding: 0 var(--spacing-s);
         margin: var(--spacing-l);
@@ -73,7 +73,7 @@
         position: relative;
     }
     .input-bar-unit.is-focused {
-        background: color-mix(in srgb, var(--signature-color, var(--gunmetal)) 25%, var(--black));
+        background: color-mix(in srgb, var(--signature-color, var(--color-gunmetal)) 25%, var(--color-black));
         box-shadow:
             inset 0 0 0 var(--spacing-px) var(--signature-color, transparent),
             0 0 0 var(--spacing-xxs) color-mix(in srgb, var(--signature-color, transparent) 10%, transparent);
@@ -114,7 +114,7 @@
     }
     .icon-btn:hover:not(:disabled) {
         color: var(--font-color);
-        filter: drop-shadow(0 0 var(--spacing-m) color-mix(in srgb, var(--signature-color, var(--gunmetal)) 30%, transparent));
+        filter: drop-shadow(0 0 var(--spacing-m) color-mix(in srgb, var(--signature-color, var(--color-gunmetal)) 30%, transparent));
     }
     .icon-btn:disabled {
         opacity: var(--opacity-xxs);
@@ -127,6 +127,6 @@
     }
     .send-btn:not(:disabled):hover {
         color: var(--font-color);
-        filter: drop-shadow(0 0 var(--spacing-m) color-mix(in srgb, var(--signature-color, var(--gunmetal)) 50%, transparent));
+        filter: drop-shadow(0 0 var(--spacing-m) color-mix(in srgb, var(--signature-color, var(--color-gunmetal)) 50%, transparent));
     }
 </style>

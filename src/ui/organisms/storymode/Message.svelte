@@ -8,7 +8,7 @@
     import { parse_message } from "@core/engine/text_parser.js"
     import { app } from "@state/app.svelte.js"
     import { runtime } from "@state/runtime.svelte.js"
-    import { DEFAULT_COLORS, themeStore } from "@theme/palette.svelte.js"
+    import { themeStore } from "@theme/palette.svelte.js"
     import SceneHeader from "../SceneHeader.svelte"
     import { safe_html } from "@ui/utils/actions/safeHtml.js"
     let {
@@ -58,10 +58,7 @@
         if (is_ai && app.selected_ai?.signature_color) return themeStore.get_signature_color(app.selected_ai)
         if (is_fractal && app.selected_fractal?.signature_color) return themeStore.get_signature_color(app.selected_fractal)
         // 4. Robust Fallback by Role
-        if (is_user) return DEFAULT_COLORS.USER
-        if (is_fractal) return DEFAULT_COLORS.FRACTAL
-        if (is_ai) return DEFAULT_COLORS.AI
-        return DEFAULT_COLORS.SYSTEM
+        return themeStore.get_deterministic_color(sender)
     })
     let text_color = $derived(themeStore.get_contrast_color(signature_color))
     let parsed = $derived(parse_message(text))
@@ -216,7 +213,7 @@
     .thinking-pill .dot {
         width: var(--spacing-xs);
         height: var(--spacing-xs);
-        background: var(--white);
+        background: var(--color-white);
         border-radius: var(--border-radius-full);
         animation: dot-bounce 1.4s infinite ease-in-out both;
     }
@@ -278,7 +275,7 @@
     .think-block .think-label {
         font-size: var(--font-size-xs);
         font-weight: 900;
-        color: var(--signature-cyan);
+        color: var(--color-cyan);
         letter-spacing: 0.1em;
         margin-bottom: var(--spacing-xxs);
     }
@@ -387,7 +384,7 @@
         transform: translateX(-50%) translateY(calc(var(--spacing-xs) * -1));
     }
     .action-btn.delete:hover {
-        background: var(--app-del); /* [R5] Standardized variable from tokens.css */
+        background: var(--color-del); /* [R5] Standardized variable from tokens.css */
         box-shadow: 0 0 0 var(--spacing-px) var(--font-color);
         color: var(--font-color);
     }

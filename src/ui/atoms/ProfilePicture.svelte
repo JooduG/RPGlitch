@@ -65,7 +65,7 @@
     }
     .picture.no-bg {
         object-fit: contain;
-        filter: drop-shadow(0 0.5rem 1rem rgb(var(--pure-black-rgb) / 0.5));
+        filter: drop-shadow(0 0.5rem 1rem rgb(var(--color-black-rgb) / 0.5));
     }
     .picture.flipped {
         transform: scaleX(-1);
@@ -76,7 +76,7 @@
         pointer-events: none;
         mix-blend-mode: overlay;
         opacity: var(--opacity-s);
-        background: linear-gradient(transparent 50%, rgb(var(--pure-black-rgb) / var(--opacity-xs)) 50%);
+        background: linear-gradient(transparent 50%, rgb(var(--color-black-rgb) / var(--opacity-xs)) 50%);
         background-size: 100% var(--spacing-xxs);
     }
     .glitch-overlay::after {
@@ -104,10 +104,10 @@
         height: 100%;
         font-family: var(--font-header);
         font-weight: 700;
-        color: var(--white);
+        color: var(--color-white);
         text-shadow: var(--shadow-l);
         background-color: var(--signature-color);
-        background-image: radial-gradient(at 0% 0%, color-mix(in srgb, var(--signature-color), var(--white) var(--opacity-m-val)) 0, transparent 50%), radial-gradient(at 100% 100%, color-mix(in srgb, var(--signature-color), var(--black) var(--opacity-l-val)) 0, transparent 50%);
+        background-image: radial-gradient(at 0% 0%, color-mix(in srgb, var(--signature-color), var(--color-white) var(--opacity-m-val)) 0, transparent 50%), radial-gradient(at 100% 100%, color-mix(in srgb, var(--signature-color), var(--color-black) var(--opacity-l-val)) 0, transparent 50%);
         background-blend-mode: overlay;
         text-transform: uppercase;
     }

@@ -1,8 +1,6 @@
 // src/core/session/utils.js
 import { Security } from "@core/security.js";
-import { PALETTE } from "./palette.js";
-// --- Color Re-exports ---
-export const getSignatureColor = (key) => PALETTE[key] || PALETTE.default;
+
 // --- Debug & Logging ---
 let is_dev_mode = false;
 export const initDebugMode = async () => {
@@ -66,7 +64,6 @@ export const mockPlugins = () => {
   if (!window["pluginAi"]) window["pluginAi"] = async () => "Mock AI Response";
   if (!window["pluginTextToImage"])
     window["pluginTextToImage"] = async () =>
-      // [VISUALS MOCK] Mocks the generation plugin
       "https://via.placeholder.com/512x768";
   if (!window["pluginRemember"])
     window["pluginRemember"] = { get: () => null, set: () => {} };

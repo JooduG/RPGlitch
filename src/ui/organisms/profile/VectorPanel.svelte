@@ -79,7 +79,7 @@
     }
     :global(.btn-add-unit):hover {
         background: var(--surface-sunken);
-        border-color: rgb(var(--pure-white-rgb) / var(--opacity-m));
+        border-color: rgb(var(--color-white-rgb) / var(--opacity-m));
         transform: translateY(var(--physics-btn-hover-y));
     }
 </style>

@@ -128,7 +128,7 @@
     h1:focus-within {
         outline: none;
         background: var(--surface-raised);
-        box-shadow: 0 0 0 var(--spacing-xxs) var(--signature-color, var(--signature-pink));
+        box-shadow: 0 0 0 var(--spacing-xxs) var(--signature-color, var(--color-pink));
     }
     h1 .title-content {
         display: inline;

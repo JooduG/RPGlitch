@@ -74,8 +74,8 @@
         z-index: var(--z-ui);
         transform: translateZ(0);
         /* Atmospheric Background - transparent to show body's gradient */
-        /* background: radial-gradient(circle at bottom, var(--gunmetal), var(--black) 70%); */
-        color: var(--white);
+        /* background: radial-gradient(circle at bottom, var(--color-gunmetal), var(--color-black) 70%); */
+        color: var(--color-white);
         transition: all 0.6s ease;
         pointer-events: none;
     }
@@ -119,7 +119,7 @@
         }
         .universal-stage.layout-cinematic .stage-column.left {
             grid-column: 1 / 2;
-            background: radial-gradient(circle at top center, var(--gunmetal), var(--black));
+            background: radial-gradient(circle at top center, var(--color-gunmetal), var(--color-black));
             border-right: 1px solid var(--border-light);
         }
         .universal-stage.layout-cinematic .stage-column.right {

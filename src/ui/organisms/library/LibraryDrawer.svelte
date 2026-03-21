@@ -173,7 +173,7 @@
     }
 
     .drawer-header .close-btn:hover {
-        color: var(--white);
+        color: var(--color-white);
     }
 
     .drawer-content {
@@ -192,7 +192,7 @@
     /* --- NEW ENTITY CARD --- */
     .drawer-card--new {
         background: var(--surface-sunken);
-        box-shadow: inset 0 0 0 1px rgb(var(--pure-white-rgb) / 0.05);
+        box-shadow: inset 0 0 0 1px rgb(var(--color-white-rgb) / 0.05);
         border-radius: var(--border-radius-l);
         aspect-ratio: 2 / 3;
         display: flex;
@@ -211,7 +211,7 @@
         width: 50px;
         height: 50px;
         border-radius: 50%;
-        background: rgb(var(--pure-white-rgb) / 0.05);
+        background: rgb(var(--color-white-rgb) / 0.05);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -232,14 +232,14 @@
     }
 
     .drawer-card--new:hover {
-        color: var(--white);
-        background: rgb(var(--pure-white-rgb) / 0.05);
+        color: var(--color-white);
+        background: rgb(var(--color-white-rgb) / 0.05);
         transform: translateY(-5px);
     }
 
     .drawer-card--new:hover .new-icon-wrap {
-        background: var(--app-accent);
-        box-shadow: 0 0 15px var(--app-accent);
+        background: var(--color-frozen);
+        box-shadow: 0 0 15px var(--color-frozen);
     }
 
     /* --- EMPTY STATE --- */

@@ -15,17 +15,18 @@ allowed-tools:
 
 ## 1. The Physics (CRITICAL)
 
-- **State Hub**: You MUST output the synthesized design EXCLUSIVELY to `.agent/state/design.md`. NEVER create a root `DESIGN.md`.
-- **Chalk Mapping**: When analyzing colors and geometry, you must cross-reference `.agent/rules/03-technetium.md`. Map the extracted design concepts to our existing `var(--chalk-...)` tokens whenever possible.
+- **State Hub**: You MUST output the synthesized design EXCLUSIVELY to the root `DESIGN.md`.
+- **Chalk Mapping**: When analyzing colors and geometry, you must cross-reference `.agent/rules/03-technetium.md`. Map the extracted design concepts to our existing `var(--color-chalk-...)` tokens whenever possible.
 
 ## 2. Synthesis Instructions
 
 1. **Fetch**: Use `list_projects` and `get_screen` to pull the target Stitch metadata.
 2. **Translate**: Strip out all Tailwind classes. Convert them into descriptive semantic language ("pill-shaped", "whisper-soft shadows").
 3. **Map**: Assign those semantic descriptions to our Svelte 5 / Chalk framework.
-4. **Write**: Format the output according to the standard and overwrite `.agent/state/design.md`.
+4. **Format**: You MUST format `DESIGN.md` strictly according to the Stitch documentation guidelines, adhering to exact H2 headings in this exact order: `## Overview`, `## Colors`, `## Typography`, `## Elevation`, `## Components`, `## Do's and Don'ts`.
+5. **Write**: Output the formatted markdown to the root `DESIGN.md`.
 
 ## 3. Anti-Patterns
 
-- **Tailwind Bleed**: Allowing Tailwind class names to leak into the `.agent/state/design.md` file.
-- **Root Pollution**: Creating files outside of the `.agent/state/` directory.
+- **Tailwind Bleed**: Allowing Tailwind class names to leak into the `DESIGN.md` file.
+- **Root Pollution**: Creating files outside of the `.agent/state/` directory (except the mandated `DESIGN.md` spec).

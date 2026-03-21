@@ -29,10 +29,10 @@ export const AppBootstrap = {
     } catch (err) {
       console.error("[Engine] ❌ Critical Failure:", err);
       document.body.innerHTML = `
-                <div style="background:var(--bg-base); color:var(--app-danger); padding:var(--spacing-xl); font-family:var(--font-mono); height:100vh; overflow:auto;">
-                    <h1 style="border-bottom: 2px solid var(--app-danger); padding-bottom: var(--spacing-s); margin-bottom: var(--spacing-m);">SYSTEM HALTED</h1>
-                    <p style="color:var(--white); opacity:0.8;">The engine failed to ignite. Check the console or stack trace below:</p>
-                    <pre id="error-stack" style="background:var(--surface-sunken); padding:var(--spacing-m); border-radius:var(--border-radius-m); color:var(--app-info); white-space: pre-wrap; word-break: break-all;"></pre>
+                <div style="background:var(--bg-base); color:var(--color-danger); padding:var(--spacing-xl); font-family:var(--font-mono); height:100vh; overflow:auto;">
+                    <h1 style="border-bottom: 2px solid var(--color-danger); padding-bottom: var(--spacing-s); margin-bottom: var(--spacing-m);">SYSTEM HALTED</h1>
+                    <p style="color:var(--color-white); opacity:0.8;">The engine failed to ignite. Check the console or stack trace below:</p>
+                    <pre id="error-stack" style="background:var(--surface-sunken); padding:var(--spacing-m); border-radius:var(--border-radius-m); color:var(--color-danger); white-space: pre-wrap; word-break: break-all;"></pre>
                 </div>
             `;
       // Use textContent for safety

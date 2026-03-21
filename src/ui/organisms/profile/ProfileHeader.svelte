@@ -111,7 +111,7 @@
     }
     .description.edit {
         pointer-events: auto;
-        caret-color: var(--white);
+        caret-color: var(--color-white);
         cursor: text;
     }
     .description.edit:hover,
@@ -127,7 +127,7 @@
     }
     .description.readonly :global(strong) {
         font-weight: 800;
-        color: var(--white);
+        color: var(--color-white);
     }
     .description.readonly :global(em) {
         font-style: italic;

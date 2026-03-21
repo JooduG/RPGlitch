@@ -11,7 +11,8 @@ description: Drafts strict Svelte 5 / Chalk Regime UI specifications for the Sti
 ## 1. The Physics (CRITICAL)
 
 - **Rules**: You MUST obey `.agent/rules/03-technetium.md`.
-- **State**: You MUST read from and write to `.agent/state/design.md`. NEVER create a root `DESIGN.md`.
+- **State**: You MUST read from and write to the root `DESIGN.md`.
+- **Formatting**: Your generated `DESIGN.md` MUST strictly adhere to the official Stitch markdown guidelines. You must use exactly these six H2 sections in order: `## Overview`, `## Colors`, `## Typography`, `## Elevation`, `## Components`, `## Do's and Don'ts`.
 - **Constraint**: NO React. NO Tailwind. ONLY Svelte 5 Runes and Chalk native CSS variables.
 
 ## 2. Workflows

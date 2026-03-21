@@ -168,7 +168,7 @@
         width: 100%;
         background: transparent;
         border: none;
-        color: var(--white);
+        color: var(--color-white);
         font-family: var(--font-mono);
         font-size: var(--font-size-m);
         font-weight: 700;
@@ -195,7 +195,7 @@
     }
     .step-controls button:hover {
         opacity: var(--opacity-full);
-        color: var(--app-accent);
+        color: var(--color-frozen);
     }
     /* 4. Meta & Raw Explorer */
     .raw-explorer summary {
@@ -210,14 +210,14 @@
     }
     .raw-explorer summary:hover {
         opacity: 1;
-        color: var(--white);
+        color: var(--color-white);
     }
     .json-wrap {
         margin-top: var(--spacing-xs);
-        background: rgba(var(--pure-black-rgb) / 0.4);
+        background: rgba(var(--color-black-rgb) / 0.4);
         box-shadow:
             inset 0 0 0 1px var(--border-light),
-            inset 0 0.125rem 0.25rem rgba(var(--pure-black-rgb) / 0.5);
+            inset 0 0.125rem 0.25rem rgba(var(--color-black-rgb) / 0.5);
         border-radius: var(--spacing-xs);
         padding: var(--spacing-xs);
         max-height: 10rem;

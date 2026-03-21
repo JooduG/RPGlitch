@@ -123,7 +123,7 @@
         transition: all var(--transition-speed) var(--physics-transition-elastic) !important;
     }
     :global(.vector-delete-btn.btn):hover {
-        background: var(--app-del) !important;
+        background: var(--color-del) !important;
         box-shadow: var(--shadow-m) !important;
         color: var(--font-color) !important;
         filter: brightness(1.2) !important;

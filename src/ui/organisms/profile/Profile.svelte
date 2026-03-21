@@ -209,7 +209,7 @@
         order: 2;
         width: 56rem;
         height: 100%;
-        background: var(--gunmetal);
+        background: var(--color-gunmetal);
         border-radius: var(--border-radius-l);
         box-shadow:
             var(--shadow-xl),
@@ -235,7 +235,7 @@
         flex-direction: column;
         overflow-y: auto;
         max-height: 85vh;
-        background: var(--tint-dark-surface);
+        background: var(--surface-base);
         padding: var(--spacing-m);
     }
     .profile-presentation main::-webkit-scrollbar {

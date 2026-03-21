@@ -93,7 +93,7 @@
         --hud-bg: var(--surface-void);
         --hud-text: var(--font-color);
         --hud-muted: var(--font-muted);
-        --hud-accent: var(--app-accent);
+        --hud-accent: var(--color-frozen);
         --hud-mono-font: var(--font-mono);
 
         position: fixed;
@@ -239,7 +239,7 @@
 
     .drawer-tabs button:hover {
         color: var(--hud-text);
-        background: rgb(var(--pure-white-rgb) / var(--opacity-xs));
+        background: rgb(var(--color-white-rgb) / var(--opacity-xs));
     }
 
     .drawer-tabs button.active {
@@ -301,7 +301,7 @@
         background: var(--surface-sunken);
         border: none;
         border-radius: var(--border-radius-sm);
-        box-shadow: inset 0 var(--spacing-xxs) var(--spacing-l) rgb(var(--pure-black-rgb) / var(--opacity-l)); /* Soft Inner Depth */
+        box-shadow: inset 0 var(--spacing-xxs) var(--spacing-l) rgb(var(--color-black-rgb) / var(--opacity-l)); /* Soft Inner Depth */
         padding: var(--spacing-m);
         margin: 0;
         font-size: var(--font-size-s);

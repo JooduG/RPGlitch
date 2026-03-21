@@ -37,7 +37,7 @@
         position: absolute;
         inset: 0;
         transform: translateX(-100%);
-        background-image: linear-gradient(90deg, transparent 0, rgb(var(--pure-white-rgb) / var(--opacity-xs)) 20%, rgb(var(--pure-white-rgb) / var(--opacity-s)) 60%, transparent);
+        background-image: linear-gradient(90deg, transparent 0, rgb(var(--color-white-rgb) / var(--opacity-xs)) 20%, rgb(var(--color-white-rgb) / var(--opacity-s)) 60%, transparent);
         filter: blur(var(--blur-xl));
         animation: skeleton-shimmer 2.5s infinite;
     }

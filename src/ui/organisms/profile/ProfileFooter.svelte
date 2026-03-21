@@ -66,9 +66,9 @@
         transition: all 0.3s ease;
     }
     footer .footer-actions :global(.btn-danger):hover {
-        background: var(--app-del);
-        border-color: var(--app-del);
-        color: var(--white);
+        background: var(--color-del);
+        border-color: var(--color-del);
+        color: var(--color-white);
         box-shadow: 0 0 var(--spacing-xl) rgb(var(--color-danger-rgb) / var(--opacity-m));
         filter: brightness(1.2);
     }
@@ -79,7 +79,7 @@
         width: calc(50% - (var(--spacing-m) / 2));
         justify-self: end;
         background: var(--signature-color);
-        color: var(--white);
+        color: var(--color-white);
         box-shadow: var(--shadow-s);
     }
     footer > :global(.btn-edit):hover {
@@ -90,7 +90,7 @@
     /* Edit Button inside .footer-actions (Save) needs to just inherit flex */
     footer .footer-actions :global(.btn-edit) {
         background: var(--signature-color);
-        color: var(--white);
+        color: var(--color-white);
         box-shadow: var(--shadow-s);
         /* Ensure it fills flex container */
         width: 100%;

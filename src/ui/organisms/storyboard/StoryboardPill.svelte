@@ -65,8 +65,6 @@
         filter: none;
         color: var(--font-color);
         opacity: var(--opacity-full);
-        transform: none; /* Prevent jitter from global translateY */
-        --label-color: var(--font-color); /* Inject white color to children */
     }
     /* Flank Buttons (Shuffle/Settings) */
     :global(.unified-capsule .capsule-flank.btn) {
@@ -104,7 +102,7 @@
     }
     /* Extra Label Polish */
     :global(.unified-capsule .capsule-action.btn:hover .label) {
-        text-shadow: 0 0 var(--spacing-m) var(--white);
+        text-shadow: 0 0 var(--spacing-m) var(--color-white);
     }
     /* Ensure icons reset nicely */
     .icon-small {
@@ -126,7 +124,7 @@
         font-weight: 600;
         font-size: var(--font-size-s);
         letter-spacing: 0.05em;
-        color: var(--label-color, var(--font-color));
+        color: var(--font-color);
         text-shadow: var(--shadow-font);
         transition: all var(--transition-speed) var(--physics-transition-elastic);
     }

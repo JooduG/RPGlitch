@@ -83,7 +83,7 @@
 <style>
     .cockpit-panel {
         width: 32rem;
-        background: var(--gunmetal);
+        background: var(--color-gunmetal);
         box-shadow: var(--shadow-l);
         border-radius: var(--border-radius-l);
         padding: var(--spacing-xl);

@@ -4,7 +4,7 @@
  * Enforces the strict "Twin-Cylinder" data structure across the app.
  * ZERO BACKWARDS COMPATIBILITY.
  */
-import { PALETTE } from "@core/engine/palette.js";
+import { PALETTE } from "@theme/palette.svelte.js";
 import { Security } from "@core/security.js";
 const sanitize_html = Security.sanitize;
 export const STORAGE_VERSION = 3;

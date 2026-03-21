@@ -18,7 +18,7 @@ function createRuntimeStore() {
       dynamics: { chaos: 50, intensity: 50, openness: 50, affinity: 50 },
       voice: { rate: 1.0, pitch: 1.0 },
       profile_picture: null,
-      signature_color: "var(--color-user)",
+      signature_color: "",
       visuals: { profile_picture_seed: 0, no_background: false },
     },
     active_user: null,

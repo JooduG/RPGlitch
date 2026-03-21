@@ -327,7 +327,7 @@
             pointer-events: none;
         }
         .empty-icon {
-            color: var(--white);
+            color: var(--color-white);
             width: var(--spacing-xxxl);
             height: var(--spacing-xxxl);
             display: flex;

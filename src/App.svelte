@@ -112,7 +112,7 @@
         z-index: 10001;
         background: var(--surface-elevated);
         box-shadow: 0 0 0 1px var(--glass-border);
-        color: var(--frisk);
+        color: var(--color-frisk);
         width: 2.5rem;
         height: 2.5rem;
         border-radius: var(--border-radius-full);

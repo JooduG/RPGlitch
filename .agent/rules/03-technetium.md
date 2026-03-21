@@ -14,12 +14,12 @@ description: Application Architecture, Svelte 5 Supremacy, The Chalk Regime, and
 RPGlitch is a **Local-First Reactive Monolith** (PWA). It is structured into five strictly decoupled pillars.
 
 | Pillar                | Role                            | Constraint / Tech                                                      |
-| :-------------------- | :------------------------------ | :--------------------------------------------------------------------- |
+|: -------------------- |: ------------------------------ |: --------------------------------------------------------------------- |
 | **1. Core Engine**    | Logic & Round Orchestration     | **Pure IO**. No DOM manipulation. No CSS classes.                      |
-| **2. UI & Structure** | HTML/Layouts (Artificer)        | Svelte 5 (`src/ui/`).                                                  |
-| **3. Sensory**        | Visuals, Audio, Theme (Mesmer)  | Native CSS / SCSS (`src/media/`).                                      |
-| **4. Data**           | Persistence & History (Scholar) | **Dexie.js** (IndexedDB). `db.version(n)` must be strictly sequential. |
-| **5. Security**       | Validation & Physics (Warden)   | Zod/DOMPurify sanitization boundary.                                   |
+| **2. UI & Structure** | HTML/Layouts       | Svelte 5 (`src/ui/`).                                                  |
+| **3. Sensory**        | Visuals, Audio, Theme   | Native CSS / SCSS (`src/media/`).                                      |
+| **4. Data**           | Persistence & History | **Dexie.js** (IndexedDB). `db.version(n)` must be strictly sequential. |
+| **5. Security**       | Validation & Physics  | Zod/DOMPurify sanitization boundary.                                   |
 
 ### The Reactive Cycle
 
@@ -81,7 +81,7 @@ Our deployment target (Perchance) imposes extreme constraints. We build for a se
 
 ### Aesthetic Rules
 
-- **Colors (No Hardcoded Hex)**: NEVER use raw hex, `rgb()`, or `hsl()` in components. You MUST use tokens mapped from `src/theme/tokens.css` (e.g., `var(--color-chalk)`). Pure white (`#FFFFFF`) is banned to prevent eye strain.
+- **Colors (No Hardcoded Hex)**: NEVER use raw hex, `rgb()`, or `hsl()` in components. You MUST use tokens mapped from `src/theme/tokens.css` (e.g., `var(--color-chalk)`). To prevent eye strain, avoid `#FFFFFF` and `#000000` directly; always route through `var(--color-white)` and `var(--color-black)`.
 - **Depth & Surface**: Use semi-transparent glass with background blurs (`blur-m` to `blur-xl`).
 - **Shadows over Borders**: Pixel borders (`border: 1px solid`) are forbidden for depth. Use "whisper-soft" `box-shadow` elevation.
 - **Motion**: All interactions must use the `Snappy Curve` transition.

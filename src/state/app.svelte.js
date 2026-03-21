@@ -5,7 +5,7 @@
  * ZERO NESTING — Flattened Schema only.
  */
 import { db } from "@data/db.js";
-import { generateUUID } from "@core/engine/utils.js";
+import { generateUUID } from "@ui/utils/core.js";
 import { closeLightbox, openLightbox } from "@state/lightbox.svelte.js";
 import { runtime } from "@state/runtime.svelte.js";
 import { engineState } from "@state/status.svelte.js";

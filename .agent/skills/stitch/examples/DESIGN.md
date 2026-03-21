@@ -22,14 +22,14 @@ A highly tactile Svelte 5 button component using Chalk design tokens.
 
 <style>
     .kinetic-btn {
-        background: var(--chalk-surface);
-        color: var(--chalk-foreground);
-        border: 1px solid var(--chalk-border);
+        background: var(--color-chalk-surface);
+        color: var(--color-chalk-foreground);
+        border: 1px solid var(--color-chalk-border);
         transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
     .kinetic-btn:hover {
         transform: translateY(-2px);
-        border-color: var(--chalk-accent);
+        border-color: var(--color-chalk-accent);
     }
 </style>
 ```

@@ -1,5 +1,5 @@
 <script>
-    let { color = "var(--gunmetal)" } = $props()
+    let { color = "var(--color-gunmetal)" } = $props()
 </script>
 
 <div class="typing-indicator" style="--dot-color: {color}">

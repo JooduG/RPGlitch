@@ -53,8 +53,8 @@
         position: relative;
         width: var(--switch-w);
         height: var(--switch-h);
-        background-color: var(--surface-sunken);
-        box-shadow: inset 0 1px 2px rgb(var(--pure-black-rgb) / 0.2);
+        background-color: var(--color-chalk);
+        box-shadow: inset 0 1px 2px rgb(var(--color-black-rgb) / 0.2);
         border-radius: var(--border-radius-full);
         transition: all 0.2s var(--physics-transition-elastic);
         flex-shrink: 0;
@@ -67,24 +67,24 @@
         width: var(--thumb-size);
         left: calc((var(--switch-h) - var(--thumb-size)) / 2);
         top: calc((var(--switch-h) - var(--thumb-size)) / 2);
-        background-color: var(--frisk);
+        background-color: var(--color-frisk);
         border-radius: var(--border-radius-full);
         transition: all 0.2s var(--physics-transition-elastic);
         box-shadow: var(--shadow-s);
     }
     /* Hover State */
     .toggle-switch:hover:not(.disabled) .slider {
-        border-color: rgb(var(--pure-white-rgb) / var(--opacity-s));
+        border-color: rgb(var(--color-white-rgb) / var(--opacity-s));
     }
     /* Checked State */
     .toggle-switch input:checked + .slider {
-        background-color: var(--gunmetal);
-        box-shadow: 0 0 0 1px rgb(var(--pure-white-rgb) / var(--opacity-l));
+        background-color: var(--color-gunmetal);
+        box-shadow: 0 0 0 1px rgb(var(--color-white-rgb) / var(--opacity-l));
     }
     .toggle-switch input:checked + .slider::before {
         transform: translateX(calc(var(--switch-w) - var(--thumb-size) - (var(--switch-h) - var(--thumb-size))));
-        background-color: var(--white);
-        box-shadow: 0 0 var(--spacing-s) rgb(var(--pure-white-rgb) / 0.4);
+        background-color: var(--color-white);
+        box-shadow: 0 0 var(--spacing-s) rgb(var(--color-white-rgb) / 0.4);
     }
     /* Label Text */
     .label-text {
@@ -97,11 +97,11 @@
         transition: color var(--transition-speed);
     }
     .toggle-switch:hover .label-text {
-        color: var(--white);
+        color: var(--color-white);
     }
     /* Focus State */
     .toggle-switch input:focus-visible + .slider {
-        outline: 2px solid var(--app-accent);
+        outline: 2px solid var(--color-frozen);
         outline-offset: 2px;
     }
 </style>
