@@ -71,7 +71,7 @@ export class ChronoStore {
       engineState.lock(); // Phase 3: Database Lock (Post-Generation)
       app.log("Echo recording temporal resonance...", "db");
       // 5. ANCHOR: Persist the timeline
-      await runtime.save(runtime.turn);
+      await runtime.save(runtime.round);
     } catch (error) {
       app.log(`Time Fracture: ${error.message}`, "error");
       console.error("[Chrono] 💥 Time Fracture:", error);
