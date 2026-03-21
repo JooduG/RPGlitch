@@ -2,7 +2,7 @@
     /**
      * @file Storymode.svelte
      * 🎭 THE MAIN STAGE
-     * Container for the active game session, chat log, and side panels.
+     * Container for the active game session, simulation log, and side panels.
      * Flattened Schema Compliant.
      */
     import { entities } from "@/data/repository.js"

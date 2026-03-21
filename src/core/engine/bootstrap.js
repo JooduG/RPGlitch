@@ -3,19 +3,19 @@ import { seedPremades } from "@data/repository.js";
 import { runtime } from "@state/runtime.svelte.js";
 import { mount } from "svelte";
 import App from "../../App.svelte";
-let isInitialized = false;
+let has_initialized = false;
 /**
  * AppBootstrap handles the initial sequence of the application.
  */
 export const AppBootstrap = {
   async init() {
-    if (isInitialized) {
+    if (has_initialized) {
       console.warn(
         "[Engine] AppBootstrap.init() called more than once. Guarding.",
       );
       return;
     }
-    isInitialized = true;
+    has_initialized = true;
     try {
       // 1. Seed Premades (Entities/Stories)
       await seedPremades();

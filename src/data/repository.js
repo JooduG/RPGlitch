@@ -148,7 +148,7 @@ export const stories = {
             title: story.title || "Untitled Fragment",
             state: story.isConcluded ? "concluded" : "active",
             lastPlayed: story.updated_at,
-            fractal_avatar: fractal?.profile_picture || "",
+            fractal_profile_picture: fractal?.profile_picture || "",
             fractal_name: fractal?.name || "The Void",
             signature_color: fractal?.signature_color || "default",
           };

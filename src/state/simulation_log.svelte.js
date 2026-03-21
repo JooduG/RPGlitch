@@ -1,6 +1,6 @@
 import { Session } from "@core/engine/SessionDriver.js";
 import { runtime } from "@state/runtime.svelte.js";
-// 📜 SCRIBE: Simulation Log State Manager
+// 📜 SCRIBE: Simulation Log State GameMaster
 export class SimulationLogStore {
   feed = $state([]);
   constructor() {}

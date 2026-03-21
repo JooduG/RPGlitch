@@ -1,7 +1,7 @@
 <script>
     /**
      * @file Message.svelte
-     * 💬 THE CHAT BUBBLE
+     * 💬 THE SIMULATION MESSAGE
      * Renders parsed messages, DevMode think blocks, and handles inline actions.
      * Flattened Schema Compliant.
      */

@@ -9,7 +9,7 @@ Entities: AI, USER, FRACTAL
 [PHASE 2: SIMULATION SNAPSHOT]
 Signal Prompts: None
 Flags: None
-Dynamics: undefined
+Dynamics: {"ai":{"intensity":50,"chaos":61,"openness":50,"affinity":54},"fractal":{"velocity":43,"entropy":58}}
 ========================================================================
 [PHASE 3: SYNTHESIZED XML PROMPT]
 <SYSTEM role="Viper" round="1" objective="[VECTOR_IMPULSE]: Wants to be free.">

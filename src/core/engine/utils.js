@@ -4,38 +4,38 @@ import { PALETTE } from "./palette.js";
 // --- Color Re-exports ---
 export const getSignatureColor = (key) => PALETTE[key] || PALETTE.default;
 // --- Debug & Logging ---
-let isDebug = false;
+let is_dev_mode = false;
 export const initDebugMode = async () => {
   try {
     const { db } = await import("@data/db.js");
     const settings = await db.settings.get("app-settings");
     if (settings && typeof settings.debug_mode !== "undefined") {
-      isDebug = !!settings.debug_mode;
+      is_dev_mode = !!settings.debug_mode;
     }
   } catch (e) {
     console.error("[Engine] Failed to load debug mode:", e);
-    isDebug = false;
+    is_dev_mode = false;
   }
-  return isDebug;
+  return is_dev_mode;
 };
 export const log = (...args) => {
-  if (isDebug) console.info("[Engine]", ...args);
+  if (is_dev_mode) console.info("[Engine]", ...args);
 };
 export const error = (...args) => {
   console.error("[Engine]", ...args);
 };
 export const setDebug = async (on) => {
-  isDebug = !!on;
+  is_dev_mode = !!on;
   try {
     const { db } = await import("@data/db.js");
     let settings = await db.settings.get("app-settings");
     if (!settings) settings = { id: "app-settings" };
-    settings.debug_mode = isDebug;
+    settings.debug_mode = is_dev_mode;
     await db.settings.put(settings);
   } catch (e) {
     error("Failed to save debug mode to settings:", e);
   }
-  return isDebug;
+  return is_dev_mode;
 };
 // --- Generic Utilities ---
 export const generateUUID = () => {

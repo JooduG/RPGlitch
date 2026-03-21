@@ -1,5 +1,7 @@
 # 🦇 Next Agent Directive
 
-**Context:** The PR feedback for `clean_image_prompts`, `repository.js` loops, and `Modal.svelte` CSS click blocking was successfully applied and tested. The central design system has also officially pivoted from "The Nordic Collection" to the "High-Contrast Glitch RPG" aesthetic via `design.md`.
+**Context:** The engine is now 100% Svelte 5 (Runes-only) compliant. A full Lexicon Clinic has been performed—all occurrences of "Chat", "Avatar", and "Manager" have been refactored to "Story/Simulation", "Profile Picture", and "GameMaster" respectively. Production is **LIVE** at [perchance.org/rpglitch](https://perchance.org/rpglitch).
 
-**Immediate Goal:** Evaluate the current UI implementations and systematically apply the new "High-Contrast Glitch" rules cross-system (removing standard borders/border-radius, utilizing bright neon contrast colors, scan-line overlays, etc).
+**Immediate Goal:** Proceed to **narrative-bridge** implementation. Connect the Dynamics Engine output to the Session Driver to trigger automatic scene complications based on fractal state shifts.
+
+**Constraints:** Maintain the Chalk Regime (Nordic) aesthetic tokens while exploring the "High-Contrast Glitch" transitions defined in `design.md`.

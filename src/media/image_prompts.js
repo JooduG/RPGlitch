@@ -124,7 +124,7 @@ Constraint: **STRICTLY NO CHARACTERS.** This image MUST NOT contain any humans, 
         break;
       case "user":
         ctxBlock = `
-[CONTEXT: USER (AVATAR)]
+[CONTEXT: USER (Profile Picture)]
 Identity: ${user?.name || "User"}
 Base Form (Eternal): ${user?.eternal?.physical || "Unknown"}
 Dynamic State (Present): ${user?.present?.physical || "Standard outfit"}
