@@ -11,7 +11,7 @@
     import { themeStore } from "@theme/palette.svelte.js"
     import ProfilePicture from "@ui/atoms/ProfilePicture.svelte"
     import Modal from "@ui/molecules/dialogs/Modal.svelte"
-    import DOMPurify from "dompurify"
+    import { sanitize } from "@core/security.js"
     // Modular Components
     import ProfileFooter from "./ProfileFooter.svelte"
     import ProfileFragments from "./ProfileFragments.svelte"
@@ -157,7 +157,7 @@
         html = html.replace(/\*(.*?)\*/g, "<em>$1</em>")
         html = html.replace(/\n\s*\n/g, "<br><br>")
         html = html.replace(/\n/g, " ")
-        return DOMPurify.sanitize(html)
+        return sanitize(html)
     }
     function handle_background_click(e) {
         if (!e.target.closest("textarea, input, button, .swatch, .wing-left, .wing-right, .profile-presentation")) {
