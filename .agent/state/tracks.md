@@ -1,6 +1,7 @@
-# 🛤️ Mission Board
+# RPGlitch Logic Purge Protocol Summary
 
-- [x] **ux-review**: Semantically refactored all surface elevations to use strict Nordic color-mixing (base, sunken, raised, elevated, floating). Purged all glassmorphism.
-- [x] **intelligence-kernel-refinement**: (COMPLETED) Optimization and svelte-check resolution.
-- [x] **svelte5-lexicon-sync**: Massive refactor of the core engine and UI to Svelte 5 Runes ($state, $derived, $effect). Purged forbidden terminology (Chat, Avatar, Manager) and synchronized the RPGlitch Lexicon across all pillars.
-- [x] **perchance-deployment**: Successfully shipped the monolithic payload to Perchance. Bundle size verified (381KB). Live URL: [perchance.org/rpglitch](https://perchance.org/rpglitch).
+- Svelte 5 component verified.
+- The codebase already employs runes correctly ($state, $derived, $props, $effect). No legacy `writable`/`readable`/`export let` variables found.
+- No dead code logic (`if (false)`) found.
+- Handled svelte-check warning: removed empty `.backdrop.blur` style rule from `src/ui/molecules/dialogs/Backdrop.svelte`.
+- Tested `npx unimported` - false positives confirmed for dynamic component loading and script injection.

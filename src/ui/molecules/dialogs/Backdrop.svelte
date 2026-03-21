@@ -34,6 +34,4 @@
         cursor: pointer;
     }
     /* Blur is optional (performance) */
-    .backdrop.blur {
-    }
 </style>
