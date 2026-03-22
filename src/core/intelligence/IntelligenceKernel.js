@@ -138,7 +138,7 @@ export const IntelligenceKernel = {
         "warn",
       );
       await new Promise((resolve) => setTimeout(resolve, delay));
-      return await this._executeWithRetry(fn, retries - 1, delay * 2);
+      return await this._execute_with_retry(fn, retries - 1, delay * 2);
     }
   },
 };
