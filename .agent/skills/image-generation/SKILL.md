@@ -1,8 +1,8 @@
 ---
 name: image-generation
 description: >
-    Owns image generation, Perchance prompts, and external visual asset management.
-    Triggers: "Generate image", "Render character", "Fix aesthetic", "src/media/images/**".
+  Owns image generation, Perchance prompts, and external visual asset management.
+  Triggers: "Generate image", "Render character", "Fix aesthetic", "src/media/images/**".
 ---
 
 # 🛡️ Skill: Visuals & Imagery (The Illustrator)

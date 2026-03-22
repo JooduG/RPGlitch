@@ -27,9 +27,9 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  opacity: 0.03;
+  opacity: var(--opacity-xxs);
   pointer-events: none;
-  z-index: 2;
+  z-index: var(--z-base);
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAApb2uWAAAABlBMVEUAAAD///+l2Z/dAAAAAnRSTlP/AOW3MEoAAAA9SURBVDjLY2BkYGRkYmRmZmdmYWVlZWVlZmZlZmVmZmVmZmZlZmVmZmVmZmZlZmVmZmVmZmZlZmVmZmVmZgcDAAiUADIAAAAA");
 }
 
@@ -45,7 +45,8 @@ h4,
 h5,
 h6 {
   font-family: var(--font-heading);
-  font-weight: 700;
+  font-weight: var(--font-bold);
+  line-height: var(--line-height-heading);
   margin-top: 0;
   color: inherit;
   text-wrap: balance;
@@ -53,38 +54,26 @@ h6 {
 
 h1 {
   font-size: var(--font-size-xxxxl);
-  line-height: 1.125;
-  margin-top: var(--spacing-xxxl);
 }
 
 h2 {
   font-size: var(--font-size-xxxl);
-  line-height: 1.15;
-  margin-top: var(--spacing-xxl);
 }
 
 h3 {
   font-size: var(--font-size-xxl);
-  line-height: 1.175;
-  margin-top: var(--spacing-xl);
 }
 
 h4 {
   font-size: var(--font-size-xl);
-  line-height: 1.2;
-  margin-top: var(--spacing-l);
 }
 
 h5 {
   font-size: var(--font-size-l);
-  line-height: 1.225;
-  margin-top: var(--spacing-m);
 }
 
 h6 {
   font-size: var(--font-size-m);
-  line-height: 1.25;
-  margin-top: var(--spacing-m);
 }
 
 /************************************************************************************
@@ -104,11 +93,11 @@ samp {
 }
 
 kbd {
-  font-weight: bolder;
+  font-weight: var(--font-bold);
 }
 
 small {
-  font-size: 0.875em;
+  font-size: var(--font-size-s);
 }
 
 /* Text Wrapping */
@@ -123,7 +112,7 @@ thead th,
 tfoot th,
 thead td,
 tfoot td {
-  font-weight: 600;
+  font-weight: var(--font-weight);
   border-width: 0.1875rem;
 }
 
@@ -132,15 +121,42 @@ tfoot td {
  * ----------------------------------------------------------------------------------
  * Global utility classes for physics and common patterns.
  ************************************************************************************/
-.material-interactive {
+.surface-tilt {
   transition:
-    transform var(--transition-speed, 0.3s) var(--physics-transition-elastic),
-    box-shadow var(--transition-speed, 0.3s) ease;
+    transform var(--transition-fast, 0.3s) var(--transition-elastic),
+    box-shadow var(--transition-fast, 0.3s) ease;
 }
 
-.material-interactive:hover {
+.surface-tilt:hover {
   transform: translateY(var(--physics-hover-y));
   box-shadow: var(--shadow-l);
+}
+
+/* Level 1: The Base Furniture (Resting Cards, Profiles) */
+.elevation-1 {
+  background-color: var(--surface-bg-1);
+  border: var(--solid-border);
+  box-shadow: var(--shadow-m);
+  z-index: var(--surface-z-1);
+  position: relative;
+}
+
+/* Level 2: The Floaters (Dropdowns, Tooltips, Nav Pills) */
+.elevation-2 {
+  background-color: var(--surface-bg-2);
+  border: var(--solid-border);
+  box-shadow: var(--shadow-l);
+  z-index: var(--surface-z-2);
+  position: relative;
+}
+
+/* Level 3: The Interruption (Modals, Dialogs) */
+.elevation-3 {
+  background-color: var(--surface-bg-3);
+  border: var(--solid-border);
+  box-shadow: var(--shadow-xl);
+  z-index: var(--surface-z-3);
+  position: relative;
 }
 
 .no-scrollbar {
@@ -154,12 +170,6 @@ tfoot td {
   display: none; /* Chrome/Safari */
 }
 
-/************************************************************************************
- * 🧩 [SECTION: GLOBAL COMPONENTS]
- * ----------------------------------------------------------------------------------
- * Pure-CSS structural elements that do not belong to normal elements.
- ************************************************************************************/
-
 /* Accessibility bypass link for screen readers */
 .skip-link {
   position: absolute;
@@ -168,29 +178,12 @@ tfoot td {
   background: var(--color-frozen);
   color: var(--color-white);
   padding: var(--spacing-xs);
-  z-index: 10000;
-  transition: top var(--transition-speed);
+  z-index: var(--z-toast);
+  transition: top var(--transition-fast);
 }
 
 .skip-link:focus {
   top: 0;
-}
-
-/* Cinematic animated hero background layer */
-.fractal-background {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0;
-  filter: blur(var(--blur-m)) brightness(0.25);
-  transform: scale(1.15); /* Overscale to hide blurred edges */
-  pointer-events: none;
-  transition:
-    opacity 2s ease-in-out,
-    filter 2s ease-in-out;
 }
 
 /************************************************************************************
@@ -210,7 +203,7 @@ tfoot td {
   transform: translateX(-50%);
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--transition-speed) ease-in-out;
+  transition: opacity var(--transition-fast) ease-in-out;
   z-index: var(--z-toast);
 }
 
@@ -237,5 +230,5 @@ tfoot td {
 
 [data-tooltip]:hover::before,
 [data-tooltip]:hover::after {
-  opacity: 1;
+  opacity: var(--opacity-full);
 }

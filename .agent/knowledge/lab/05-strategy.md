@@ -24,9 +24,6 @@ description: Strategic risk assessment, premortems, and scaling vision.
 - **The "Ghost World" Effect:**
     - _Risk:_ The AI generates prose that doesn't update the underlying state.
     - _Mitigation:_ Tie all "Impact" text to explicit engine state ticks and **📚 Data** persistence.
-- **Monolith Bloat:**
-    - _Risk:_ The bundle exceeds the 350KB limit of the Perchance platform.
-    - _Mitigation:_ Mandatory **DevOps** optimization audits and asset inlining strategies.
 
 ## 🚀 Scaling Vision
 

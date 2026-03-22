@@ -41,11 +41,11 @@ File: qualified-naming.js
 
 ```javascript
 // Correct: Fully qualified names
-"Use the GitHub:create_issue tool to create issues."
-"Use the Jules:execute_bash tool to list directories."
+"Use the GitHub:create_issue tool to create issues.";
+"Use the Jules:execute_bash tool to list directories.";
 
 // Incorrect: Unqualified names
-"Use the create_issue tool..." // May fail with multiple servers
+"Use the create_issue tool..."; // May fail with multiple servers
 ```
 
 ## Practical Implementation (Perchance / Svelte 5)
@@ -67,10 +67,10 @@ File: bridge-example.js
  * @returns {boolean} True if the UI successfully queued the event
  */
 window.exposed.dispatchNarrativeEvent = function (eventId, context = "exploration") {
-    // Bridges into Svelte 5 $state
-    narrativeState.queue.push({ id: eventId, context })
-    return true
-}
+  // Bridges into Svelte 5 $state
+  narrativeState.queue.push({ id: eventId, context });
+  return true;
+};
 ```
 
 ### Example: Poor Tool Design (Anti-Pattern)
@@ -80,7 +80,7 @@ File: anti-pattern-example.js
 ```javascript
 // BAD: Vague name, no parameters documented, missing return types, zero context.
 function updateUI(x) {
-    uiStore.set(x) // BAD: Uses legacy Svelte 4 store instead of Svelte 5 $state
+  uiStore.set(x); // BAD: Uses legacy Svelte 4 store instead of Svelte 5 $state
 }
 ```
 

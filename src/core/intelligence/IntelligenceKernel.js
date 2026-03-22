@@ -46,11 +46,7 @@ export const IntelligenceKernel = {
         content: m.text || m.content || "",
         character_name: m.character_name,
       }));
-    const payload = await ContextBroker.hydrate(
-      input,
-      "simulation",
-      simulation_log,
-    );
+    const payload = await ContextBroker.hydrate(input, "simulation", simulation_log);
     // 3. SIMULATION: Resolve physics and behaviors
     const snapshot = DynamicsEngine.simulate(payload);
     // 4. SYNTHESIS: Build the final prompt
@@ -75,9 +71,8 @@ export const IntelligenceKernel = {
     });
     // 7. PERSISTENCE: Save the result
     const character_name =
-      role === "ai"
-        ? runtime.active_ai?.name || "AI"
-        : runtime.active_fractal?.name || "Fractal";
+      role === "ai" ? runtime.active_ai?.name || "AI" : runtime.active_fractal?.name || "Fractal";
+
     await Session.logTurn(response, character_name, role, {
       dynamics: meta.ai,
       fractal_dynamics: meta.fractal,
@@ -143,7 +138,7 @@ export const IntelligenceKernel = {
         "warn",
       );
       await new Promise((resolve) => setTimeout(resolve, delay));
-      return await this._execute_with_retry(fn, retries - 1, delay * 2);
+      return await this._executeWithRetry(fn, retries - 1, delay * 2);
     }
   },
 };

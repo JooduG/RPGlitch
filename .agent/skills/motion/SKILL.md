@@ -2,8 +2,8 @@
 name: motion
 version: 1.0.0
 description: >
-    Owns kinetic interactions, physics-based UI transitions, and Svelte action-based animations.
-    Triggers: "Add tilt effect", "Fix animation", "Kinetic scroll", "src/ui/utils/actions/**".
+  Owns kinetic interactions, physics-based UI transitions, and Svelte action-based animations.
+  Triggers: "Add tilt effect", "Fix animation", "Kinetic scroll", "src/ui/utils/actions/**".
 ---
 
 # 🛡️ Skill: Motion & Kinetics (The Choreographer)

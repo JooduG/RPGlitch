@@ -52,8 +52,7 @@ export class VoiceStore {
     if (!this.selectedVoice && this.voices.length > 0) {
       // Try to find a good default (e.g. Google US English, or just first)
       const preferred =
-        this.voices.find((v) => v.name.includes("Google US English")) ||
-        this.voices[0];
+        this.voices.find((v) => v.name.includes("Google US English")) || this.voices[0];
       this.selectedVoice = preferred.uri;
     }
   }
@@ -72,8 +71,7 @@ export class VoiceStore {
     if (!this._synth || !text) return;
     // Cancel current
     this.stop();
-    const voice =
-      this.voices.find((v) => v.uri === this.selectedVoice) || this.voices[0];
+    const voice = this.voices.find((v) => v.uri === this.selectedVoice) || this.voices[0];
     if (!voice) {
       console.warn("[Polish] No voice available.");
       return;

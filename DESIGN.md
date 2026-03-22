@@ -90,7 +90,7 @@ Unlike older harsh glitch aesthetics, the Nordic Refac relies on subtle border r
 - **3D Tilt**: Interactive perspective cards utilize `use:tilt` (`src/ui/utils/actions/tilt.js`) to provide hardware-accelerated `rotateX`/`rotateY` 3D perspective tracking based on mouse position.
 - **Background Vignette & Fractals**: Global `body` background is a radial gradient. Cinematic fractal overlay triggers a blurred image overtaking the sub-layer (`inset: 0`) with a sluggish ease transition.
 - **Tooltips**: Native tooltip functionality is driven by the `[data-tooltip]` attribute. Spawns a stark, `var(--surface-void)` block with `var(--color-chalk)` accent arrows.
-- **Transitions**: Standard timing is `var(--transition-speed)` (`0.2s`). Complex physics use `var(--physics-transition-elastic)`.
+- **Transitions**: Standard timing is `var(--transition-fast)` (`0.2s`). Complex physics use `var(--transition-elastic)`.
 
 ### T-Shirt Spacing
 

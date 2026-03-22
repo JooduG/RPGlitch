@@ -53,11 +53,7 @@ export class AppStore {
     selected: null,
   });
   // --- UI TENSION (Reactive Intensity) ---
-  tension = $derived(
-    engineState.phase === "generating" || engineState.phase === "locked"
-      ? 1
-      : 0,
-  );
+  tension = $derived(engineState.phase === "generating" || engineState.phase === "locked" ? 1 : 0);
   // --- SETTINGS ---
   settings = $state({
     sound: true,
@@ -79,9 +75,7 @@ export class AppStore {
     runtime.turn_type = val;
   }
   // --- READINESS (Derived Logic) ---
-  is_ready = $derived(
-    this.settings.dev_mode || (this.selected_ai && this.selected_user),
-  );
+  is_ready = $derived(this.settings.dev_mode || (this.selected_ai && this.selected_user));
   /** Legacy alias for storyboard readiness */
   get storyboard_ready() {
     return this.is_ready;
@@ -120,6 +114,23 @@ export class AppStore {
       }
     } catch (e) {
       console.error("[Security] Settings Hydration Failed:", e);
+    }
+  }
+  /**
+   * Hydrates the storyboard lists with characters and fractals.
+   */
+  async load_entities() {
+    const { entities } = await import("@data/repository.js");
+    try {
+      const [characters, fractals] = await Promise.all([
+        entities.list("character"),
+        entities.list("fractal"),
+      ]);
+      this.ai_list = characters;
+      this.user_list = characters;
+      this.fractal_list = fractals;
+    } catch (e) {
+      console.error("[AppStore] Failed to load lobby entities:", e);
     }
   }
   save_settings = async () => {

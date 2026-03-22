@@ -10,9 +10,7 @@ let has_initialized = false;
 export const AppBootstrap = {
   async init() {
     if (has_initialized) {
-      console.warn(
-        "[Engine] AppBootstrap.init() called more than once. Guarding.",
-      );
+      console.warn("[Engine] AppBootstrap.init() called more than once. Guarding.");
       return;
     }
     has_initialized = true;

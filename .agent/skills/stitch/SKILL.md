@@ -3,10 +3,10 @@ name: stitch
 version: 3.0.0 (Sovereign Core Edition)
 description: Drafts strict Svelte 5 / Chalk Regime UI specifications and reverse-engineers projects for the Stitch MCP.
 allowed-tools:
-    - "stitch*:*"
-    - "Read"
-    - "Write"
-    - "web_fetch"
+  - "stitch*:*"
+  - "Read"
+  - "Write"
+  - "web_fetch"
 ---
 
 # 🧵 Skill: Stitch Design Architect

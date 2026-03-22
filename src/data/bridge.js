@@ -7,9 +7,7 @@ class PerchanceBridge {
   constructor() {
     this._mockMode = typeof window === "undefined" || !window.oc;
     if (this._mockMode) {
-      console.warn(
-        "[Security:Bridge] Native 'oc' object not found. Running in Mock Mode.",
-      );
+      console.warn("[Security:Bridge] Native 'oc' object not found. Running in Mock Mode.");
     }
   }
   /**
@@ -34,9 +32,7 @@ class PerchanceBridge {
     return {
       name: "Unknown",
       description: "",
-      .../** @type {any} */ (
-        typeof ocChar === "object" && ocChar !== null ? ocChar : {}
-      ),
+      .../** @type {any} */ (typeof ocChar === "object" && ocChar !== null ? ocChar : {}),
     };
   }
   /**
@@ -58,10 +54,7 @@ class PerchanceBridge {
       }
       window.oc.thread.on(event, callback);
     } catch (err) {
-      console.error(
-        `[Security:Bridge] Failed to attach listener for '${event}':`,
-        err,
-      );
+      console.error(`[Security:Bridge] Failed to attach listener for '${event}':`, err);
     }
   }
   /**

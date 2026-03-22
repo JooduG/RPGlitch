@@ -2,8 +2,8 @@
 name: simulation-memory
 version: 1.0.0
 description: >
-    Manages IndexedDB persistence, hydration, and schema validation. The bridge between state and disk.
-    Triggers: "Implement Save Logic", "Debug Hydration", "Define Schema", "src/data/**".
+  Manages IndexedDB persistence, hydration, and schema validation. The bridge between state and disk.
+  Triggers: "Implement Save Logic", "Debug Hydration", "Define Schema", "src/data/**".
 ---
 
 # 🛡️ Skill: Data & Persistence (The Steward)

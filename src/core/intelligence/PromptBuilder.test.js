@@ -61,9 +61,7 @@ describe("PromptBuilder (Refactored)", () => {
       const result = PromptBuilder.synthesize(mock_payload, mock_snapshot);
       expect(result.system).toContain('<SYSTEM role="Viper"');
       expect(result.system).toContain('round="1"');
-      expect(result.system).toContain(
-        "<INPUT_COMMAND>test action</INPUT_COMMAND>",
-      );
+      expect(result.system).toContain("<INPUT_COMMAND>test action</INPUT_COMMAND>");
       // Verify Mental-Only XML Tags
       expect(result.system).toContain("<ETERNAL>Eternal AI</ETERNAL>");
       expect(result.system).toContain("<PRESENT>Present AI</PRESENT>");
@@ -89,11 +87,7 @@ describe("PromptBuilder (Refactored)", () => {
       expect(result.system).toContain('<SYSTEM role="NARRATOR">');
     });
     it("build_memory_prompt() should return memory XML", () => {
-      const result = PromptBuilder.build_memory_prompt(
-        "Viper",
-        "Cold entity",
-        "Past events",
-      );
+      const result = PromptBuilder.build_memory_prompt("Viper", "Cold entity", "Past events");
       expect(result.system).toContain("<MEMORY_PROTOCOL");
       expect(result.system).toContain('role="Viper"');
     });

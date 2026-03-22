@@ -10,14 +10,14 @@ Optionally, they can return a function that is called before the attachment re-r
 ```svelte
 <!--- file: App.svelte --->
 <script>
-    /** @type {import('svelte/attachments').Attachment} */
-    function myAttachment(element) {
-        console.log(element.nodeName) // 'DIV'
+  /** @type {import('svelte/attachments').Attachment} */
+  function myAttachment(element) {
+    console.log(element.nodeName); // 'DIV'
 
-        return () => {
-            console.log("cleaning up")
-        }
-    }
+    return () => {
+      console.log("cleaning up");
+    };
+  }
 </script>
 
 <div {@attach myAttachment}>...</div>
@@ -32,20 +32,20 @@ A useful pattern is for a function, such as `tooltip` in this example, to _retur
 ```svelte
 <!--- file: App.svelte --->
 <script>
-    import tippy from "tippy.js"
+  import tippy from "tippy.js";
 
-    let content = $state("Hello!")
+  let content = $state("Hello!");
 
-    /**
-     * @param {string} content
-     * @returns {import('svelte/attachments').Attachment}
-     */
-    function tooltip(content) {
-        return (element) => {
-            const tooltip = tippy(element, { content })
-            return tooltip.destroy
-        }
-    }
+  /**
+   * @param {string} content
+   * @returns {import('svelte/attachments').Attachment}
+   */
+  function tooltip(content) {
+    return (element) => {
+      const tooltip = tippy(element, { content });
+      return tooltip.destroy;
+    };
+  }
 </script>
 
 <input bind:value={content} />
@@ -62,16 +62,16 @@ Attachments can also be created inline (demo:
 ```svelte
 <!--- file: App.svelte --->
 <canvas
-    width={32}
-    height={32}
-    {@attach (canvas) => {
-        const context = canvas.getContext("2d")
+  width={32}
+  height={32}
+  {@attach (canvas) => {
+    const context = canvas.getContext("2d");
 
-        $effect(() => {
-            context.fillStyle = color
-            context.fillRect(0, 0, canvas.width, canvas.height)
-        })
-    }}
+    $effect(() => {
+      context.fillStyle = color;
+      context.fillRect(0, 0, canvas.width, canvas.height);
+    });
+  }}
 ></canvas>
 ```
 
@@ -95,34 +95,34 @@ This allows you to create _wrapper components_ that augment elements (demo:
 ```svelte
 <!--- file: Button.svelte --->
 <script>
-    /** @type {import('svelte/elements').HTMLButtonAttributes} */
-    let { children, ...props } = $props()
+  /** @type {import('svelte/elements').HTMLButtonAttributes} */
+  let { children, ...props } = $props();
 </script>
 
 <!-- `props` includes attachments -->
 <button {...props}>
-    {@render children?.()}
+  {@render children?.()}
 </button>
 ```
 
 ```svelte
 <!--- file: App.svelte --->
 <script>
-    import tippy from "tippy.js"
-    import Button from "./Button.svelte"
+  import tippy from "tippy.js";
+  import Button from "./Button.svelte";
 
-    let content = $state("Hello!")
+  let content = $state("Hello!");
 
-    /**
-     * @param {string} content
-     * @returns {import('svelte/attachments').Attachment}
-     */
-    function tooltip(content) {
-        return (element) => {
-            const tooltip = tippy(element, { content })
-            return tooltip.destroy
-        }
-    }
+  /**
+   * @param {string} content
+   * @returns {import('svelte/attachments').Attachment}
+   */
+  function tooltip(content) {
+    return (element) => {
+      const tooltip = tippy(element, { content });
+      return tooltip.destroy;
+    };
+  }
 </script>
 
 <input bind:value={content} />
@@ -137,10 +137,10 @@ Attachments, unlike [actions](https://svelte.dev/docs/svelte/use), are fully rea
 ```js
 // @errors: 7006 2304 2552
 function foo(bar) {
-    return (node) => {
-        veryExpensiveSetupWork(node)
-        update(node, bar)
-    }
+  return (node) => {
+    veryExpensiveSetupWork(node);
+    update(node, bar);
+  };
 }
 ```
 

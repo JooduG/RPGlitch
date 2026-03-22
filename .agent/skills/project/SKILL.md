@@ -1,8 +1,8 @@
 ---
 name: project
 description: >
-    Manages the task lifecycle (Plan -> Track -> Code) via the .agent/state hub. 
-    Enforces the Flat Track protocol and maintains the Global State baton.
+  Manages the task lifecycle (Plan -> Track -> Code) via the .agent/state hub. 
+  Enforces the Flat Track protocol and maintains the Global State baton.
 ---
 
 # Skill: Project System
@@ -28,13 +28,13 @@ description: >
 ## 4. Procedures
 
 1. **Scaffold Track**:
-    - Check `backlog.md` or user intent.
-    - Run "Architecture Consultation" if intent is A3 (Ambiguous).
-    - Create `.agent/state/tracks/<slug>.md` using the [Track Template](templates/track.md).
-    - Register the track in `.agent/state/tracks.md`.
+   - Check `backlog.md` or user intent.
+   - Run "Architecture Consultation" if intent is A3 (Ambiguous).
+   - Create `.agent/state/tracks/<slug>.md` using the [Track Template](templates/track.md).
+   - Register the track in `.agent/state/tracks.md`.
 2. **Sync Execution**:
-    - Before implementation, read the target track file.
-    - Use `scripts/sync.js` to ensure environmental parity.
+   - Before implementation, read the target track file.
+   - Use `scripts/sync.js` to ensure environmental parity.
 
 ## 5. Anti-Patterns
 

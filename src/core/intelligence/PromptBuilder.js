@@ -31,14 +31,7 @@
  */
 import { VectorEngine } from "./VectorEngine.js";
 export const SYSTEM_PROMPTS = {
-  simulation: ({
-    round,
-    entities,
-    simulation_log,
-    signal_prompts,
-    input,
-    render_atom,
-  }) => {
+  simulation: ({ round, entities, simulation_log, signal_prompts, input, render_atom }) => {
     const ai = entities.AI;
     const user = entities.USER;
     const fractal = entities.FRACTAL;
@@ -219,11 +212,7 @@ const PROTOCOL_LIBRARY = {
 export class PromptBuilder {
   static synthesize(payload, snapshot) {
     const { type, entities, input, rawMessages } = payload;
-    const render_atom = PromptBuilder.create_render_atom(
-      entities,
-      input,
-      rawMessages,
-    );
+    const render_atom = PromptBuilder.create_render_atom(entities, input, rawMessages);
     if (type === "prologue") {
       const system = SYSTEM_PROMPTS.prologue({
         ...payload,
@@ -269,13 +258,7 @@ export class PromptBuilder {
     return {
       past: (entity_reference, limit = 3, offset = 0, options) => {
         const entity = resolve(entity_reference);
-        return VectorEngine.format_past(
-          entity.past || [],
-          scoring_context,
-          limit,
-          offset,
-          options,
-        );
+        return VectorEngine.format_past(entity.past || [], scoring_context, limit, offset, options);
       },
       future: (entity_reference, limit = 3, offset = 0, options) => {
         const entity = resolve(entity_reference);
@@ -297,8 +280,7 @@ export class PromptBuilder {
    * Renders history of simulation.
    */
   static render_history(simulation_log, count = 10, offset = 0) {
-    if (!simulation_log || typeof simulation_log === "string")
-      return simulation_log || "";
+    if (!simulation_log || typeof simulation_log === "string") return simulation_log || "";
     if (Array.isArray(simulation_log)) {
       const start = Math.max(0, simulation_log.length - (count + offset));
       const end = Math.max(0, simulation_log.length - offset);
@@ -306,14 +288,8 @@ export class PromptBuilder {
         .slice(start, end)
         .map((m) => {
           const role =
-            m.role === "user"
-              ? "USER_PERSONA"
-              : m.role === "prologue"
-                ? "FRACTAL"
-                : "AI_CHARACTER";
-          const name_attr = m.character_name
-            ? ` name="${m.character_name}"`
-            : "";
+            m.role === "user" ? "USER_PERSONA" : m.role === "prologue" ? "FRACTAL" : "AI_CHARACTER";
+          const name_attr = m.character_name ? ` name="${m.character_name}"` : "";
           return `    <entry role="${role}"${name_attr}>${m.content}</entry>`;
         })
         .join("\n");

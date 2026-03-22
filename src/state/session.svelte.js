@@ -87,7 +87,7 @@ export class ReactiveSession {
    * Retry the last AI turn.
    */
   async retry() {
-      await runtime.save(runtime.round);
+    await runtime.save(runtime.round);
     this.loading = true;
     app.simulation.loading = true;
     try {

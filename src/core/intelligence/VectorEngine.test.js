@@ -27,9 +27,7 @@ describe("VectorEngine", () => {
     it("calculates relevance: base weight + bonuses (+1 ID, +2 Word, +3 Tag)", async () => {
       const { DynamicsEngine } = await import("./DynamicsEngine.js");
       // Mock dynamics_scan to return a match with trigger word
-      vi.mocked(DynamicsEngine.dynamics_scan).mockReturnValue([
-        { id: "EXPOSURE", scan: "kiss" },
-      ]);
+      vi.mocked(DynamicsEngine.dynamics_scan).mockReturnValue([{ id: "EXPOSURE", scan: "kiss" }]);
       const vectors = [
         {
           id: 1,
@@ -57,9 +55,7 @@ describe("VectorEngine", () => {
     it("grants +1 for Vibe (ID) match but skip +2 if trigger word differs", async () => {
       const { DynamicsEngine } = await import("./DynamicsEngine.js");
       // Input "hug" matches EXPOSURE id, but trigger word is "hug"
-      vi.mocked(DynamicsEngine.dynamics_scan).mockReturnValue([
-        { id: "EXPOSURE", scan: "hug" },
-      ]);
+      vi.mocked(DynamicsEngine.dynamics_scan).mockReturnValue([{ id: "EXPOSURE", scan: "hug" }]);
       const vectors = [
         {
           id: 1,

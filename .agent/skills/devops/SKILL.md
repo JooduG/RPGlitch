@@ -1,8 +1,8 @@
 ---
 name: devops
 description: >
-    Build scripts, configuration synchronization, environment checks, and workspace hygiene.
-    Triggers: "Start dev server", "Build for production", "Sync configuration", "Fix environment".
+  Build scripts, configuration synchronization, environment checks, and workspace hygiene.
+  Triggers: "Start dev server", "Build for production", "Sync configuration", "Fix environment".
 ---
 
 # 🛡️ Skill: DevOps & Toolchain (The Mechanic)

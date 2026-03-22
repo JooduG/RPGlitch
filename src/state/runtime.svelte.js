@@ -121,12 +121,16 @@ function createRuntimeStore() {
         : null;
     },
     // --- VECTOR API ---
-    activeVectors: (role = "AI") => {
-      const entity = api._getEntityByRole(role);
+    active_vectors: (role = "AI") => {
+      const entity = api._get_entity_by_role(role);
       return entity?.future || [];
     },
-    addVector: (text, role = "AI", is_vanguard = false) => {
-      const entity = api._getEntityByRole(role);
+    active_vector: (role = "AI") => {
+      const entity = api._get_entity_by_role(role);
+      return entity?.future?.[0]?.text || (role === "FRACTAL" ? "Continue the journey." : "");
+    },
+    add_vector: (text, role = "AI", is_vanguard = false) => {
+      const entity = api._get_entity_by_role(role);
       if (!entity) return;
       if (!Array.isArray(entity.future)) entity.future = [];
       const new_vector = VectorEngine.create_vector(text);
@@ -153,7 +157,7 @@ function createRuntimeStore() {
         entity.future.shift();
       }
     },
-    _getEntityByRole: (role) => {
+    _get_entity_by_role: (role) => {
       if (role === "AI") return entityState.active_ai;
       if (role === "USER") return entityState.active_user;
       if (role === "FRACTAL") return entityState.active_fractal;
@@ -199,12 +203,10 @@ function createRuntimeStore() {
         // This gives the physics engine a per-character gravitational center
         // rather than the universal 50 fallback.
         if (story.entity_snapshots?.ai?.dynamics) {
-          entityState.active_ai.dynamics_baseline =
-            story.entity_snapshots.ai.dynamics;
+          entityState.active_ai.dynamics_baseline = story.entity_snapshots.ai.dynamics;
         }
         if (story.entity_snapshots?.fractal?.dynamics) {
-          entityState.active_fractal.dynamics_baseline =
-            story.entity_snapshots.fractal.dynamics;
+          entityState.active_fractal.dynamics_baseline = story.entity_snapshots.fractal.dynamics;
         }
         simulationState.ready = true;
       } catch (err) {

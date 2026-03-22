@@ -2,8 +2,8 @@
 name: quality-assurance
 version: 1.0.0
 description: >
-    Testing, security audits, Playwright/Vitest execution, and naming-analyzer enforcement.
-    Triggers: "Run tests", "Audit code", "Security scan", "Audit codebase".
+  Testing, security audits, Playwright/Vitest execution, and naming-analyzer enforcement.
+  Triggers: "Run tests", "Audit code", "Security scan", "Audit codebase".
 ---
 
 # 🛡️ Skill: Quality Assurance (The Warden)

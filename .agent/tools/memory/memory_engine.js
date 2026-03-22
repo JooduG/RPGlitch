@@ -28,11 +28,7 @@ function getPC() {
  */
 export async function searchScholar({
   query,
-  namespaces = [
-    "knowledge-base.meta",
-    "knowledge-base.external",
-    "knowledge-base.src",
-  ],
+  namespaces = ["knowledge-base.meta", "knowledge-base.external", "knowledge-base.src"],
   topK = 5,
 }) {
   const pc = getPC();
@@ -76,10 +72,7 @@ export async function ingestScholar({
   // 1. Setup Gitignore Filters
   let gitignoreFilter = ignore();
   try {
-    const gitContent = await fs.readFile(
-      path.join(root, ".gitignore"),
-      "utf-8",
-    );
+    const gitContent = await fs.readFile(path.join(root, ".gitignore"), "utf-8");
     gitignoreFilter.add(gitContent);
   } catch {
     /* No .gitignore */
@@ -115,9 +108,7 @@ export async function ingestScholar({
       console.warn(`⚠️  Skipping invalid path: ${p}`);
     }
   }
-  console.log(
-    `📑 Processing ${files.length} files for namespace: ${namespace}`,
-  );
+  console.log(`📑 Processing ${files.length} files for namespace: ${namespace}`);
   // 3. Prune & Chunk
   const allChunks = [];
   console.log(`🧹 Pruning existing vectors for ${files.length} files...`);
@@ -139,12 +130,9 @@ export async function ingestScholar({
       segments = content.split(/^#+\s/gm).filter((s) => s.trim().length > 20);
     } else {
       // Code splitting by comment blocks or large gaps
-      segments = content
-        .split(/\n(?=\/\*\*|\/\/\s[A-Z]{3,})/)
-        .filter((s) => s.trim().length > 30);
+      segments = content.split(/\n(?=\/\*\*|\/\/\s[A-Z]{3,})/).filter((s) => s.trim().length > 30);
     }
-    if (segments.length === 0 && content.trim().length > 0)
-      segments = [content];
+    if (segments.length === 0 && content.trim().length > 0) segments = [content];
     segments.forEach((seg, i) => {
       const clean = seg.trim();
       const id = crypto
@@ -167,11 +155,9 @@ export async function ingestScholar({
     const batch = allChunks.slice(i, i + BATCH_SIZE);
     const texts = batch.map((c) => c.metadata.content);
     try {
-      const embeddings = await pc.inference.embed(
-        "multilingual-e5-large",
-        texts,
-        { inputType: "passage" },
-      );
+      const embeddings = await pc.inference.embed("multilingual-e5-large", texts, {
+        inputType: "passage",
+      });
       const data = embeddings.data || embeddings;
       const vectors = batch.map((record, idx) => ({
         id: record.id,

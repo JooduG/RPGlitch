@@ -1,8 +1,8 @@
 ---
 name: simulation-strategy
 description: >
-    Manages the core narrative engine loop, text-based entity simulation, memory physics, and Director state.
-    Triggers: "Update narrative engine", "Simulate social dynamics", "Fix entity logic", "src/core/engine/**".
+  Manages the core narrative engine loop, text-based entity simulation, memory physics, and Director state.
+  Triggers: "Update narrative engine", "Simulate social dynamics", "Fix entity logic", "src/core/engine/**".
 ---
 
 # 🛡️ Skill: Simulation Engine (The Narrative Director)
@@ -43,12 +43,12 @@ Every standard action follows the **Simulation Cycle** managed by the `Intellige
 
 ## 5. Anti-Patterns
 
-| Pattern                                            | Mitigation                                                                                                                          |
-| :------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------- |
-| **Bypassing ContextBroker**                        | Passing direct state to LLM without hydration breaks the entity memory boundary and risks hallucination.                            |
-| **Continuous Time (Delta MS)**                     | This is a text-based, round-based narrative engine. Time flows via Chrono ticks (`runtime.round++`), not `requestAnimationFrame`.   |
-| **Injecting Raw User Input into Simulation Logic** | Unsanitized input risks prompt injection or state corruption. Always parse intents.                                                 |
-| **Assuming Synchronous Execution**                 | Prompt generation and DB hydration are heavily asynchronous. State must be handled cautiously.                                      |
+| Pattern                                            | Mitigation                                                                                                                        |
+| :------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------- |
+| **Bypassing ContextBroker**                        | Passing direct state to LLM without hydration breaks the entity memory boundary and risks hallucination.                          |
+| **Continuous Time (Delta MS)**                     | This is a text-based, round-based narrative engine. Time flows via Chrono ticks (`runtime.round++`), not `requestAnimationFrame`. |
+| **Injecting Raw User Input into Simulation Logic** | Unsanitized input risks prompt injection or state corruption. Always parse intents.                                               |
+| **Assuming Synchronous Execution**                 | Prompt generation and DB hydration are heavily asynchronous. State must be handled cautiously.                                    |
 
 ## 6. Tools & Assets
 

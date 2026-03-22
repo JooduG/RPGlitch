@@ -135,10 +135,7 @@ export const stories = {
    */
   async list() {
     try {
-      const allStories = await db.stories
-        .orderBy("updated_at")
-        .reverse()
-        .toArray();
+      const allStories = await db.stories.orderBy("updated_at").reverse().toArray();
       return await Promise.all(
         allStories.map(async (story) => {
           const fractal = await db.entities.get(story.fractal_id);

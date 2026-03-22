@@ -1,8 +1,8 @@
 ---
 name: css
 description: >
-    Consolidates Native CSS and polish. Applies the Chalk Regime, glassmorphism, and strict design tokens as defined in .agent/rules/03-technetium.md.
-    Triggers: "Fix CSS", "Add styles", "Check styling rules", "Context: [Polish]".
+  Consolidates Native CSS and polish. Applies the Chalk Regime, glassmorphism, and strict design tokens as defined in .agent/rules/03-technetium.md.
+  Triggers: "Fix CSS", "Add styles", "Check styling rules", "Context: [Polish]".
 ---
 
 # Skill: Styling & Design Systems (The Artisan)
@@ -31,9 +31,9 @@ Define the Clarity Gate constraints specific to this skill.
 ## 4. Procedures
 
 1. **Polish Component**:
-    1. Strip utility classes (Tailwind, Bootstrap).
-    2. Replace with semantic classes mapped strictly to `.agent/rules/03-technetium.md` tokens (e.g., `var(--color-chalk)`).
-    3. Apply standard depth shadows and elastic transitions.
+   1. Strip utility classes (Tailwind, Bootstrap).
+   2. Replace with semantic classes mapped strictly to `.agent/rules/03-technetium.md` tokens (e.g., `var(--color-chalk)`).
+   3. Apply standard depth shadows and elastic transitions.
 
 ## 5. Anti-Patterns
 

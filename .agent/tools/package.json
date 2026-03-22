@@ -1,29 +1,29 @@
 {
-    "name": "agent-tools",
-    "version": "1.0.0",
-    "description": "Local MCP server dependencies to avoid npx timeouts",
-    "dependencies": {
-        "@_davideast/stitch-mcp": "^0.0.6",
-        "@nekzus/mcp-server": "^1.16.0",
-        "@notionhq/notion-mcp-server": "*",
-        "@pinecone-database/mcp": "*",
-        "@playwright/mcp": "^0.0.61",
-        "@pollinations/model-context-protocol": "^1.0.15",
-        "@supabase/mcp-server-supabase": "*",
-        "@sveltejs/mcp": "*",
-        "@waldzellai/clear-thought-onepointfive": "^0.2.1",
-        "@waldzellai/collaborative-reasoning": "^0.1.3",
-        "@waldzellai/decision-framework": "^0.1.3",
-        "@waldzellai/metacognitive-monitoring": "^0.1.3",
-        "@waldzellai/scientific-method": "^0.1.3",
-        "@waldzellai/stochasticthinking": "*",
-        "@waldzellai/structured-argumentation": "^0.1.3",
-        "@waldzellai/visual-reasoning": "^0.1.1",
-        "chrome-devtools-mcp": "^0.15.1",
-        "firecrawl-mcp": "*",
-        "mcp-sequentialthinking-tools": "*"
-    },
-    "overrides": {
-        "@modelcontextprotocol/sdk": "^1.26.0"
-    }
+  "name": "agent-tools",
+  "version": "1.0.0",
+  "description": "Local MCP server dependencies to avoid npx timeouts",
+  "dependencies": {
+    "@_davideast/stitch-mcp": "^0.0.6",
+    "@nekzus/mcp-server": "^1.16.0",
+    "@notionhq/notion-mcp-server": "*",
+    "@pinecone-database/mcp": "*",
+    "@playwright/mcp": "^0.0.61",
+    "@pollinations/model-context-protocol": "^1.0.15",
+    "@supabase/mcp-server-supabase": "*",
+    "@sveltejs/mcp": "*",
+    "@waldzellai/clear-thought-onepointfive": "^0.2.1",
+    "@waldzellai/collaborative-reasoning": "^0.1.3",
+    "@waldzellai/decision-framework": "^0.1.3",
+    "@waldzellai/metacognitive-monitoring": "^0.1.3",
+    "@waldzellai/scientific-method": "^0.1.3",
+    "@waldzellai/stochasticthinking": "*",
+    "@waldzellai/structured-argumentation": "^0.1.3",
+    "@waldzellai/visual-reasoning": "^0.1.1",
+    "chrome-devtools-mcp": "^0.15.1",
+    "firecrawl-mcp": "*",
+    "mcp-sequentialthinking-tools": "*"
+  },
+  "overrides": {
+    "@modelcontextprotocol/sdk": "^1.26.0"
+  }
 }

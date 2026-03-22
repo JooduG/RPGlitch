@@ -31,13 +31,13 @@ We bridge creative prose and mechanical truth through three layers:
 
 ## 4. Target Audience
 
-- **Solo Roleplayers:** Dedicated to individuals who enjoy solitary world-building, character-driven narratives, and the exploration of recursive story structures.
+- **Solo Roleplayers:** Dedicated to individuals who enjoy solitary world-building, character-driven narratives, and the exploration of recursive story structures. This include both the RPG gamers and the erotic RP gooners.
 
 ## 5. Key Features
 
 - **The Narrative Kernel:** An AI-driven prose generation system that manages deep context while maintaining narrative coherence.
 - **Procedural Short Stories:** Instead of monolithic, thousands-message long chats, RPGlitch encourages concise, procedural story arcs.
-- **Character Cycling:** A mechanic designed for frequent character swapping, allowing players to experience different facets of the world through new perspectives.
+- **Character Cycling:** A mechanic designed for frequent character swapping, allowing players to experience different facets of the simulation through new perspectives.
 
 ## 6. Strategic Objectives
 

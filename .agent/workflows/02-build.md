@@ -26,7 +26,7 @@ description: Implementation Loop. Logic, State, and Style fabrication.
 
 1. **Generation**: If using Stitch, generate the component. [[Invoke: stitch]](../skills/stitch/SKILL.md)
 2. **Validation (Svelte 5 Supremacy)**: Ensure all logic uses **Svelte 5 Runes** explicitly (`$state`, `$derived`, `$effect`, snippets).
-    - **Legacy Refactor**: If Svelte 3/4 code (`stores`, `export let`) is encountered, silently refactor it to Runes without asking. [[Invoke: svelte]](../skills/svelte/SKILL.md)
+   - **Legacy Refactor**: If Svelte 3/4 code (`stores`, `export let`) is encountered, silently refactor it to Runes without asking. [[Invoke: svelte]](../skills/svelte/SKILL.md)
 3. **Perchance Isolation**: NO HALLUCINATED IMPORTS. Ensure all code relies entirely on JIT/ESM imports (via `esm.sh` or similar) compatible with a sandboxed HTML runtime. Do not assume `node_modules` exist locally for the runtime.
 4. **Drafting**: Write minimal code to fulfill the task requirements. Prefer extracting monolithic blocks into modular Svelte 5 Snippets where applicable.
 

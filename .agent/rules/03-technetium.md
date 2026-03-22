@@ -13,13 +13,13 @@ description: Application Architecture, Svelte 5 Supremacy, The Chalk Regime, and
 
 RPGlitch is a **Local-First Reactive Monolith** (PWA). It is structured into five strictly decoupled pillars.
 
-| Pillar                | Role                            | Constraint / Tech                                                      |
-|: -------------------- |: ------------------------------ |: --------------------------------------------------------------------- |
-| **1. Core Engine**    | Logic & Round Orchestration     | **Pure IO**. No DOM manipulation. No CSS classes.                      |
-| **2. UI & Structure** | HTML/Layouts       | Svelte 5 (`src/ui/`).                                                  |
-| **3. Sensory**        | Visuals, Audio, Theme   | Native CSS / SCSS (`src/media/`).                                      |
-| **4. Data**           | Persistence & History | **Dexie.js** (IndexedDB). `db.version(n)` must be strictly sequential. |
-| **5. Security**       | Validation & Physics  | Zod/DOMPurify sanitization boundary.                                   |
+| Pillar                | Role                        | Constraint / Tech                                                      |
+| :-------------------- | :-------------------------- | :--------------------------------------------------------------------- |
+| **1. Core Engine**    | Logic & Round Orchestration | **Pure IO**. No DOM manipulation. No CSS classes.                      |
+| **2. UI & Structure** | HTML/Layouts                | Svelte 5 (`src/ui/`).                                                  |
+| **3. Sensory**        | Visuals, Audio, Theme       | Native CSS / SCSS (`src/media/`).                                      |
+| **4. Data**           | Persistence & History       | **Dexie.js** (IndexedDB). `db.version(n)` must be strictly sequential. |
+| **5. Security**       | Validation & Physics        | Zod/DOMPurify sanitization boundary.                                   |
 
 ### The Reactive Cycle
 
@@ -116,12 +116,12 @@ To prevent cognitive drift and conversion errors, these definitions are absolute
 
 ### The Lexicon
 
-| Concept               | Standard Term         | Forbidden Terms                    |
-| :-------------------- | :-------------------- | :--------------------------------- |
-| **The Logic Engine**  | **SimulationMaster**  | Director, Orchestrator, GameMaster |
-| **Debug UI**          | **DevMode**           | Debug Mode, God Mode, Cheat        |
-| **Narrative Control** | **GM Mode**           | Director Mode, Storyteller         |
-| **User Interface**    | **StoryMode**         | Chat, Play Mode                    |
+| Concept               | Standard Term        | Forbidden Terms                    |
+| :-------------------- | :------------------- | :--------------------------------- |
+| **The Logic Engine**  | **SimulationMaster** | Director, Orchestrator, GameMaster |
+| **Debug UI**          | **DevMode**          | Debug Mode, God Mode, Cheat        |
+| **Narrative Control** | **GM Mode**          | Director Mode, Storyteller         |
+| **User Interface**    | **StoryMode**        | Chat, Play Mode                    |
 
 ### Localization (Swedish/SI Standard)
 

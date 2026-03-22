@@ -1,20 +1,14 @@
 #!/usr/bin/env node
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import {
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-} from "@modelcontextprotocol/sdk/types.js";
+import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { searchScholar, ingestScholar } from "./memory_engine.js";
 /**
  * 🔌 Memory MCP Server v2.0.0
  * Exposes the Knowledge Base to the AI Agent ecosystem.
  * Tools: read, write, describe.
  */
-const server = new Server(
-  { name: "memory", version: "2.0.0" },
-  { capabilities: { tools: {} } },
-);
+const server = new Server({ name: "memory", version: "2.0.0" }, { capabilities: { tools: {} } });
 // ── Tool Definitions ────────────────────────────────────────────────────
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
@@ -28,8 +22,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {
             query: {
               type: "string",
-              description:
-                "The search query (e.g. 'How to use Svelte 5 runes')",
+              description: "The search query (e.g. 'How to use Svelte 5 runes')",
             },
           },
           required: ["query"],
@@ -52,11 +45,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               type: "string",
               description:
                 "Target namespace: 'knowledge-base.meta' (rules/config), 'knowledge-base.external' (library docs), or 'knowledge-base.src' (source code)",
-              enum: [
-                "knowledge-base.meta",
-                "knowledge-base.external",
-                "knowledge-base.src",
-              ],
+              enum: ["knowledge-base.meta", "knowledge-base.external", "knowledge-base.src"],
             },
           },
           required: ["paths", "namespace"],

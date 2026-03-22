@@ -32,6 +32,6 @@ description: "Maintains semantic rules, skill scaffolding, and documentation int
 
 ## 5. Tools & Assets
 
-| Tool              | Purpose                                                               | Source     |
-| :---------------- | :-------------------------------------------------------------------- | :--------- |
-| `visualReasoning` | Diagrammatic thinking, developing system diagrams, and concept maps.  | waldzell   |
+| Tool              | Purpose                                                              | Source   |
+| :---------------- | :------------------------------------------------------------------- | :------- |
+| `visualReasoning` | Diagrammatic thinking, developing system diagrams, and concept maps. | waldzell |

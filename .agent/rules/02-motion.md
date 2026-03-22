@@ -54,9 +54,9 @@ If ANY of these conditions are true, **STOP** and initiate a Self-Audit:
 
 1. **Assess Assumptions:** "Am I assuming something that isn't true? Did I misread a file?"
 2. **Confidence Check:** Rate path confidence (0-100%).
-    - **70-100%**: Continue, document the active assumption.
-    - **40-70%**: Re-run C2 Planning. Restate the problem from scratch.
-    - **Below 40%**: Ask user via `notify_user`. Do not guess.
+   - **70-100%**: Continue, document the active assumption.
+   - **40-70%**: Re-run C2 Planning. Restate the problem from scratch.
+   - **Below 40%**: Ask user via `notify_user`. Do not guess.
 
 **C4:** Reframing (Perspective Shift).
 

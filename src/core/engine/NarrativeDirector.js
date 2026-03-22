@@ -27,12 +27,9 @@ export const NarrativeDirector = {
     // No manual sync required.
     // AUTO-SEED: Ensure activeVectors is never empty
     const fractal = runtime.active_fractal;
-    if (
-      fractal &&
-      (!Array.isArray(fractal.future) || fractal.future.length === 0)
-    ) {
-      runtime.addVector("Continue the journey.", "FRACTAL", true);
-      app.log("NarrativeDirector: Auto-seeded activeVectors", "system");
+    if (fractal && (!Array.isArray(fractal.future) || fractal.future.length === 0)) {
+      runtime.add_vector("Continue the journey.", "FRACTAL", true);
+      app.log("NarrativeDirector: Auto-seeded active_vector", "system");
     }
   },
   /**
@@ -49,10 +46,7 @@ export const NarrativeDirector = {
       // Trigger every 10 unconsolidated messages
       if (unconsolidated.length >= 12) {
         const slice = unconsolidated.slice(0, 10);
-        app.log(
-          `Memory Nexus: Consolidating ${slice.length} turns into lore...`,
-          "system",
-        );
+        app.log(`Memory Nexus: Consolidating ${slice.length} turns into lore...`, "system");
         const ai = runtime.active_ai;
         if (ai) {
           const resonance = await consolidate_vector(ai, slice, "character");

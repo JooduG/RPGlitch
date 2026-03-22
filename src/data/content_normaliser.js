@@ -84,9 +84,7 @@ export const normalize = (base = {}) => {
     name: sanitize_html(name).trim(),
     description: sanitize_html(description).trim(),
     type: type,
-    signature_color:
-      sanitize_html(String(signature_color)).trim() ||
-      get_random_signature_key(),
+    signature_color: sanitize_html(String(signature_color)).trim() || get_random_signature_key(),
     profile_picture: sanitize_html(String(profile_picture)).trim(),
     tags: (Array.isArray(tags) ? tags : [])
       .map((s) => sanitize_html(String(s).trim()))
@@ -106,9 +104,7 @@ export const normalize = (base = {}) => {
     dynamics: (() => {
       if (dynamics && Object.keys(dynamics).length > 0) return { ...dynamics };
       // Seed from type-template on birth
-      return ENTITY_TEMPLATES[type]?.dynamics
-        ? { ...ENTITY_TEMPLATES[type].dynamics }
-        : {};
+      return ENTITY_TEMPLATES[type]?.dynamics ? { ...ENTITY_TEMPLATES[type].dynamics } : {};
     })(),
     // --- VOICE ---
     voice: {

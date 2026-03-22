@@ -4,7 +4,7 @@ To render a [snippet](https://svelte.dev/docs/svelte/snippet), use a `{@render .
 
 ```svelte
 {#snippet sum(a, b)}
-    <p>{a} + {b} = {a + b}</p>
+  <p>{a} + {b} = {a + b}</p>
 {/snippet}
 
 {@render sum(1, 2)}
@@ -30,8 +30,8 @@ Alternatively, use an [`{#if ...}`](https://svelte.dev/docs/svelte/if) block wit
 
 ```svelte
 {#if children}
-    {@render children()}
+  {@render children()}
 {:else}
-    <p>fallback content</p>
+  <p>fallback content</p>
 {/if}
 ```

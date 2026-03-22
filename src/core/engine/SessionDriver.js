@@ -41,24 +41,15 @@ export const Session = {
   /**
    * Create a new story from lobby selection
    */
-  createFromSelection: async function ({
-    aiId,
-    userId,
-    fractalId,
-    storyTitle,
-  }) {
+  createFromSelection: async function ({ aiId, userId, fractalId, storyTitle }) {
     // Snapshot active entities at the moment the story is created.
     // This freezes the full entity state as both the gravity baseline and
     // the "before" reference for the end-of-story growth comparison.
-    const ai_snapshot = runtime.active_ai
-      ? structuredClone(runtime.active_ai)
-      : null;
+    const ai_snapshot = runtime.active_ai ? structuredClone(runtime.active_ai) : null;
     const fractal_snapshot = runtime.active_fractal
       ? structuredClone(runtime.active_fractal)
       : null;
-    const user_snapshot = runtime.active_user
-      ? structuredClone(runtime.active_user)
-      : null;
+    const user_snapshot = runtime.active_user ? structuredClone(runtime.active_user) : null;
     const storyData = {
       title: storyTitle,
       ai_id: aiId,
@@ -113,8 +104,7 @@ export const Session = {
    */
   logTurn: async (text, character_name, role = "assistant", meta = {}) => {
     const story_id = Session.requireActive();
-    const turn_type =
-      meta.turn_type || (role === "user" ? "USER_TURN" : "AI_TURN");
+    const turn_type = meta.turn_type || (role === "user" ? "USER_TURN" : "AI_TURN");
     await db.simulation_log.add({
       story_id,
       role, // role: "assistant" | "fractal"
@@ -133,14 +123,8 @@ export const Session = {
    */
   regenerate: async () => {
     const story_id = Session.requireActive();
-    const last_entry = await db.simulation_log
-      .where("story_id")
-      .equals(story_id)
-      .last();
-    if (
-      last_entry &&
-      (last_entry.role === "assistant" || last_entry.role === "ai")
-    ) {
+    const last_entry = await db.simulation_log.where("story_id").equals(story_id).last();
+    if (last_entry && (last_entry.role === "assistant" || last_entry.role === "ai")) {
       await db.simulation_log.delete(last_entry.id);
       simulation_log.refresh();
     }

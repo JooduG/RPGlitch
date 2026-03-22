@@ -2,8 +2,8 @@
 name: audio
 version: 1.0.0
 description: >
-    Owns sound effects (SFX), ambient tracks, and Text-to-Speech (TTS) logic.
-    Triggers: "Add sound", "Fix audio", "Speech synthesis", "src/media/audio/**".
+  Owns sound effects (SFX), ambient tracks, and Text-to-Speech (TTS) logic.
+  Triggers: "Add sound", "Fix audio", "Speech synthesis", "src/media/audio/**".
 ---
 
 # 🛡️ Skill: Audio & Acoustics (The Acoustic Engineer)

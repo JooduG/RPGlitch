@@ -6,11 +6,11 @@ description: System Architecture, Skill Matrix, and logic flow.
 # 🏗️ Architecture (The Skeleton)
 
 > **Mission:** Zero-Latency, Architecture-First, High-Fidelity Engineering.
-> **Red Thread:** The agent is an orchestrator of skills, governed by the Triad Protocol.
+> **Red Thread:** The agent is an orchestrator of skills.
 
-## 1. 🌐 The Triad Protocol (Context Resolution)
+## 1. 🌐 The Context Protocol
 
-The project operates within a **Triad** architecture. Context is unified under the `.agent/` root:
+Context is unified under the `.agent/` root:
 
 - **Passive Governance:** Rules and constraints (`.agent/rules/`).
 - **Specialized Skills:** Modular capabilities and procedures (`.agent/skills/`).
@@ -20,13 +20,12 @@ The project operates within a **Triad** architecture. Context is unified under t
 
 The system is divided into five core functional areas:
 
-| Skill           | Territory            | Responsibility                                       |
-| :-------------- | :------------------- | :--------------------------------------------------- |
-| **🕹️ Engine**   | `src/core/**`        | Narrative progression, time, and logic execution.    |
-| **🛠️ UI**       | `src/ui/**`          | Reactive UI structure and component logic.           |
-| **🎭 Polish**   | `src/theme/**`       | Visual excellence, Native CSS, and sensory fidelity. |
-| **📚 Data**     | `src/data/**`        | Persistence (Dexie.js) and schema management.        |
-| **🛡️ Security** | `src/core/security/` | Zero-Trust enforcement and sanitization.             |
+| Skill                                            | Territory                                   | Responsibility                                       |
+| :----------------------------------------------- | :------------------------------------------ | :--------------------------------------------------- |
+| **🛡️ Security**                                  | `src/core/**`                               | Zero-Trust enforcement and sanitization.             |
+| **🧠 Simulation** (Engine, Intelligence & State) | `src/core/**`                               | Narrative progression, time, and logic execution.    |
+| **🎨 Styling** (UI, Media & Polish)              | `src/ui/**`, `src/theme/**`, `src/media/**` | Visual excellence, Native CSS, and sensory fidelity. |
+| **📚 Data**                                      | `src/data/**`                               | Persistence (Dexie.js) and schema management.        |
 
 ## 3. 📜 Retrieval-Led Reasoning
 

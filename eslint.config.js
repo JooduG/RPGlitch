@@ -4,12 +4,16 @@ import prettier from "eslint-config-prettier";
 import svelte from "eslint-plugin-svelte";
 import globals from "globals";
 import { fileURLToPath } from "node:url";
-import svelteConfig from "./svelte.config.js";
+import markdownlintPlugin from "eslint-plugin-markdownlint";
+import markdownlintParser from "eslint-plugin-markdownlint/parser.js";
+import prettierPlugin from "eslint-plugin-prettier";
 
 const gitignorePath = fileURLToPath(new URL("./.gitignore", import.meta.url));
 
-/** @type {import('eslint').Linter.Config[]} */ export default [
+/** @type {import('eslint').Linter.Config[]} */
+export default [
   includeIgnoreFile(gitignorePath),
+
   {
     // @agent:ignore-start
     ignores: [
@@ -25,7 +29,8 @@ const gitignorePath = fileURLToPath(new URL("./.gitignore", import.meta.url));
       "**/archive/**",
       "**/node_modules/**",
       "**/templates/**",
-      ".gemini/**",
+      "**/.agent/**",
+      "**/.gemini/**",
       ".geminiignore",
       ".gitignore",
       "/.DS_Store",
@@ -43,6 +48,14 @@ const gitignorePath = fileURLToPath(new URL("./.gitignore", import.meta.url));
   ...svelte.configs.recommended,
   prettier,
   ...svelte.configs.prettier,
+  {
+    plugins: {
+      prettier: prettierPlugin,
+    },
+    rules: {
+      "prettier/prettier": ["warn", { endOfLine: "auto" }],
+    },
+  },
 
   {
     languageOptions: {
@@ -77,12 +90,25 @@ const gitignorePath = fileURLToPath(new URL("./.gitignore", import.meta.url));
       "no-console": "off",
     },
   },
-
   {
     files: ["**/*.svelte", "**/*.svelte.js"],
-    languageOptions: { parserOptions: { svelteConfig } },
+    languageOptions: {
+      parserOptions: {
+        /* svelteConfig detected automatically */
+      },
+    },
   },
-
+  {
+    files: ["**/*.md"],
+    plugins: { markdownlint: markdownlintPlugin },
+    languageOptions: { parser: markdownlintParser },
+    rules: {
+      ...markdownlintPlugin.configs.recommended.rules,
+      "markdownlint/md013": "off",
+      "markdownlint/md033": "off",
+      "prettier/prettier": "off",
+    },
+  },
   {
     files: ["tools/**/*.js", "build/scripts/**/*.js"],
     languageOptions: {

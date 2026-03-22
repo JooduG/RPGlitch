@@ -80,11 +80,12 @@ class ThemeStore {
    ************************************************************************************/
   hex_to_rgb(hex) {
     if (!hex) return "168, 85, 247"; // Default purple (Vibrant Violet)
-    
+
     // Reverse lookup CSS tokens back to raw hex if they come from the standard palette
     if (hex.startsWith("var(")) {
       const standard_match = Object.entries(PALETTE_VARS).find(([k, v]) => v === hex);
-      if (standard_match) hex = standard_match[0]; // Feed the raw hex down to the regex
+      if (standard_match)
+        hex = standard_match[0]; // Feed the raw hex down to the regex
       else return hex.replace(")", "-rgb)"); // Nordic custom colors fallback to CSS variable passthrough
     }
 
@@ -150,9 +151,7 @@ class ThemeStore {
     }
 
     // Fallback to deterministic color based on name/tags
-    const seed = [entity?.name || "", ...(entity?.tags || [])]
-      .filter(Boolean)
-      .join(",");
+    const seed = [entity?.name || "", ...(entity?.tags || [])].filter(Boolean).join(",");
     return this.get_deterministic_color(seed || entity?.id || "");
   }
   /************************************************************************************
@@ -162,8 +161,7 @@ class ThemeStore {
    * Calculates the best contrast color (black or white) for a background.
    ************************************************************************************/
   get_contrast_color(hex) {
-    if (!hex || typeof hex !== "string" || hex.startsWith("hsl"))
-      return "var(--color-white)";
+    if (!hex || typeof hex !== "string" || hex.startsWith("hsl")) return "var(--color-white)";
     let color = hex.replace("#", "");
     if (color.length === 3) {
       color = color
@@ -171,8 +169,7 @@ class ThemeStore {
         .map((c) => c + c)
         .join("");
     }
-    if (color.length !== 6 || !/^[0-9a-f]{6}$/i.test(color))
-      return "var(--color-white)";
+    if (color.length !== 6 || !/^[0-9a-f]{6}$/i.test(color)) return "var(--color-white)";
     const r = parseInt(color.substr(0, 2), 16);
     const g = parseInt(color.substr(2, 2), 16);
     const b = parseInt(color.substr(4, 2), 16);

@@ -2,8 +2,8 @@
 name: vibe-decoder
 version: 2.2.0
 description: >
-    Interprets vague user intent and conceptual "vibes" into strict Antigravity Engine execution templates. 
-    Triggers on ambiguous prompts to ensure technical alignment before planning.
+  Interprets vague user intent and conceptual "vibes" into strict Antigravity Engine execution templates. 
+  Triggers on ambiguous prompts to ensure technical alignment before planning.
 ---
 
 # 🛡️ Skill: User Interpreter
@@ -46,9 +46,9 @@ Build the internal interpretation using this schema:
 
 1. **Initialize Plan**: If the interpretation satisfies all technical metrics, hand the structured payload to `.agent/workflows/01-plan.md`.
 2. **The Ambiguity Gate (A3+)**: If the request remains too ambiguous after interpretation (clarity falls below the A3 threshold), you are explicitly **AUTHORIZED AND MANDATED** to halt the workflow and ask the user follow-up questions to lock in the technical scope.
-    - **Crucial Rule**: Your questions MUST be highly specific, concrete, and technically focused. Provide narrow choices based on architectural paths.
-    - 🚫 **DO NOT ask**: "What do you mean by 'cooler'?" or "How would you like me to fix the clunky feel?"
-    - ✅ **DO ask**: "By 'cooler', should we increase the `blur-md` glassmorphism effect on the cards, or switch the accent color to `var(--color-chalk-cyan)`?" or "To fix the 'clunky feel', should I change the Svelte 5 `$effect` to run synchronously, or tweak the CSS `transition-timing-function`?"
+   - **Crucial Rule**: Your questions MUST be highly specific, concrete, and technically focused. Provide narrow choices based on architectural paths.
+   - 🚫 **DO NOT ask**: "What do you mean by 'cooler'?" or "How would you like me to fix the clunky feel?"
+   - ✅ **DO ask**: "By 'cooler', should we increase the `blur-md` glassmorphism effect on the cards, or switch the accent color to `var(--color-chalk-cyan)`?" or "To fix the 'clunky feel', should I change the Svelte 5 `$effect` to run synchronously, or tweak the CSS `transition-timing-function`?"
 3. **Consultation**: If you cannot even formulate specific technical options to offer the user, invoke the `project` skill's "Architecture Consultation" protocol before proceeding.
 
 ## 5. Anti-Patterns

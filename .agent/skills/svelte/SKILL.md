@@ -2,8 +2,8 @@
 name: svelte
 version: 2.0.0
 description: >
-    Consolidates svelte_architecture, svelte_best_practice, and svelte_code_writer. Owns all logic, headless components, and HTML. Enforces strict native CSS token usage.
-    Triggers: "Scaffold a component", "Refactor to Runes", "Fix reactivity", "Audit legacy code", "src/**/*.svelte".
+  Consolidates svelte_architecture, svelte_best_practice, and svelte_code_writer. Owns all logic, headless components, and HTML. Enforces strict native CSS token usage.
+  Triggers: "Scaffold a component", "Refactor to Runes", "Fix reactivity", "Audit legacy code", "src/**/*.svelte".
 ---
 
 # 🛡️ Skill: Svelte Architecture (The Constructor)
@@ -32,14 +32,14 @@ Define the Clarity Gate constraints specific to this skill.
 ## 4. Procedures
 
 1. **Scaffold Atom/Molecule**:
-    1. Check `bits-ui-index.md` for necessary headless logic components.
-    2. Define Props (using Runes).
-    3. Write Semantic HTML wrapped in Bits UI components (utilizing `{#snippet child()}`).
-    4. Style exclusively with native `var(--token)` references in a standard `<style>` block.
+   1. Check `bits-ui-index.md` for necessary headless logic components.
+   2. Define Props (using Runes).
+   3. Write Semantic HTML wrapped in Bits UI components (utilizing `{#snippet child()}`).
+   4. Style exclusively with native `var(--token)` references in a standard `<style>` block.
 2. **Audit Component**:
-    1. Check for Svelte 5 compliance.
-    2. Eradicate all `<style lang="scss">` tags and `@use` imports.
-    3. Verify no hardcoded hex colors or magic numbers.
+   1. Check for Svelte 5 compliance.
+   2. Eradicate all `<style lang="scss">` tags and `@use` imports.
+   3. Verify no hardcoded hex colors or magic numbers.
 
 ## 5. Anti-Patterns
 

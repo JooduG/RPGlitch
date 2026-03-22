@@ -51,9 +51,7 @@ class SoundEffectsService {
     if (this.unlocked) return;
     try {
       if (!this.audioContext) {
-        this.audioContext = new (
-          window.AudioContext || window.webkitAudioContext
-        )();
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
       }
       if (this.audioContext.state === "suspended") {
         await this.audioContext.resume();
@@ -79,10 +77,7 @@ class SoundEffectsService {
         let soundList = window.rpgLists.sounds;
         if (Array.isArray(soundList) && soundList.length > 0) {
           try {
-            if (
-              typeof soundList[0] === "string" &&
-              soundList[0].trim().startsWith("[")
-            ) {
+            if (typeof soundList[0] === "string" && soundList[0].trim().startsWith("[")) {
               soundList = JSON.parse(soundList[0]);
             }
             if (!Array.isArray(soundList)) soundList = [];
@@ -94,9 +89,7 @@ class SoundEffectsService {
           soundList = [];
         }
         if (Array.isArray(soundList)) {
-          const soundEntry = soundList.find(
-            (s) => typeof s === "string" && s.startsWith(key),
-          );
+          const soundEntry = soundList.find((s) => typeof s === "string" && s.startsWith(key));
           if (soundEntry) {
             const parts = soundEntry.split("=");
             if (parts.length > 1) {
@@ -109,8 +102,7 @@ class SoundEffectsService {
       }
     }
     if (!url && key === "notification") {
-      url =
-        "https://user.uploads.dev/file/50dc061d6ed6439719d283d042e9c172.wav";
+      url = "https://user.uploads.dev/file/50dc061d6ed6439719d283d042e9c172.wav";
     }
     if (!url) return;
     try {

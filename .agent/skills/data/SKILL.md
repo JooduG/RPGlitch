@@ -2,8 +2,8 @@
 name: data
 version: 2.0.0
 description: >
-    Governance of Long-Term Semantic Memory (Pinecone), persistent architectural patterns, and external knowledge routing.
-    Triggers: "Recall [Topic]", "Save this decision", "Ingest [File]", Modifying core engine files, "Find documentation".
+  Governance of Long-Term Semantic Memory (Pinecone), persistent architectural patterns, and external knowledge routing.
+  Triggers: "Recall [Topic]", "Save this decision", "Ingest [File]", Modifying core engine files, "Find documentation".
 ---
 
 # 🛡️ Skill: Persistent Memory (The Archivist)
@@ -63,7 +63,7 @@ When the swarm needs to acquire knowledge, follow this strict tiered hierarchy:
 ### Phase 2: Query the MCP
 
 1. **Search**: Use the `read_knowledge_base` tool to query the Pinecone vector database for highly specific historical context.
-    - _Note:_ The database is divided into three strict namespaces: `knowledge-base.meta` (rules), `knowledge-base.external` (libraries), and `knowledge-base.src` (source code).
+   - _Note:_ The database is divided into three strict namespaces: `knowledge-base.meta` (rules), `knowledge-base.external` (libraries), and `knowledge-base.src` (source code).
 
 ### Phase 3: Inject Context
 

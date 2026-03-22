@@ -41,9 +41,7 @@ describe("PerchanceBridge", () => {
     });
     it("should log an error and do nothing for invalid .on() arguments", () => {
       bridge.on(123, null);
-      expect(console.error).toHaveBeenCalledWith(
-        "[Security:Bridge] Invalid arguments for .on()",
-      );
+      expect(console.error).toHaveBeenCalledWith("[Security:Bridge] Invalid arguments for .on()");
     });
     it("should do nothing for valid .on() arguments", () => {
       bridge.on("event", () => {});

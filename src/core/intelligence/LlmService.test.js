@@ -23,9 +23,7 @@ describe("LlmService - sanitize", () => {
     expect(sanitize("Sure: Hello World")).toBe("Hello World");
     expect(sanitize("Certainly: Hello World")).toBe("Hello World");
     expect(sanitize("I can help: Hello World")).toBe("Hello World");
-    expect(sanitize("here is the requested text: Hello World")).toBe(
-      "Hello World",
-    ); // matches 'here is'
+    expect(sanitize("here is the requested text: Hello World")).toBe("Hello World"); // matches 'here is'
     expect(sanitize("enhanced text:: Hello World")).toBe("Hello World");
     expect(sanitize("the enhanced text: Hello World")).toBe("Hello World");
   });
@@ -70,9 +68,7 @@ describe("LlmService - generate", () => {
       { role: "system", content: "You are helpful." },
     ];
     const formatted = LlmService._format_history(messages);
-    expect(formatted).toBe(
-      "User: Hello\n\nAssistant: Hi there\n\nCharacter: You are helpful.",
-    );
+    expect(formatted).toBe("User: Hello\n\nAssistant: Hi there\n\nCharacter: You are helpful.");
   });
   it("should call window.ai with correct instruction assembly", async () => {
     window.ai = vi.fn().mockResolvedValue("Mocked response");
@@ -84,10 +80,7 @@ describe("LlmService - generate", () => {
     await LlmService.generate(payload, { silent: true, raw: true });
     const expectedInstruction =
       "System prompt\n\n\n\n[CONVERSATION HISTORY]\nUser: Hello\n\n\n\n[START RESPONSE WITH]\nStart with this";
-    expect(window.ai).toHaveBeenCalledWith(
-      expectedInstruction,
-      expect.any(Object),
-    );
+    expect(window.ai).toHaveBeenCalledWith(expectedInstruction, expect.any(Object));
   });
   it("should handle streaming callbacks and update app state", async () => {
     const mockResponse = "Chunk1Chunk2";
@@ -139,13 +132,11 @@ describe("LlmService - generate", () => {
     expect(result).toBe("```\nHere is the response\n```");
   });
   it("should handle timeout/keep alive network errors", async () => {
-    window.ai = vi
-      .fn()
-      .mockRejectedValue(new Error("stream keep alive timeout"));
+    window.ai = vi.fn().mockRejectedValue(new Error("stream keep alive timeout"));
     const payload = { messages: [] };
-    await expect(
-      LlmService.generate(payload, { silent: false }),
-    ).rejects.toThrow(ERROR_MESSAGES.CONNECTION_LOST);
+    await expect(LlmService.generate(payload, { silent: false })).rejects.toThrow(
+      ERROR_MESSAGES.CONNECTION_LOST,
+    );
     expect(app.end_stream).toHaveBeenCalled();
     expect(console.error).toHaveBeenCalled();
   });
@@ -153,9 +144,7 @@ describe("LlmService - generate", () => {
     const error = new Error("Generic error");
     window.ai = vi.fn().mockRejectedValue(error);
     const payload = { messages: [] };
-    await expect(
-      LlmService.generate(payload, { silent: true }),
-    ).rejects.toThrow("Generic error");
+    await expect(LlmService.generate(payload, { silent: true })).rejects.toThrow("Generic error");
     expect(console.warn).toHaveBeenCalled();
   });
   it("should execute enhance correctly", async () => {

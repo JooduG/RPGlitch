@@ -302,15 +302,10 @@ export class DynamicsEngine {
         ...state.ai?.dynamics,
         ...state.fractal?.dynamics,
       };
-      const passes_filter = DynamicsEngine._evaluate_filter(
-        active_state,
-        data.filter,
-      );
+      const passes_filter = DynamicsEngine._evaluate_filter(active_state, data.filter);
       const is_turn_event = data.trigger === "turn";
       // Logic: Passive Turn Law OR Active Scan Impulse
-      const should_apply = is_turn_event
-        ? passes_filter
-        : match && passes_filter;
+      const should_apply = is_turn_event ? passes_filter : match && passes_filter;
       if (should_apply) {
         const config = match?.config || data;
         const eff = config.effect;
@@ -340,14 +335,9 @@ export class DynamicsEngine {
         ...state.ai?.dynamics,
         ...state.fractal?.dynamics,
       };
-      const passes_filter = DynamicsEngine._evaluate_filter(
-        active_state,
-        data.filter,
-      );
+      const passes_filter = DynamicsEngine._evaluate_filter(active_state, data.filter);
       const is_turn_event = data.trigger === "turn";
-      const should_echo = is_turn_event
-        ? passes_filter
-        : is_triggered && passes_filter;
+      const should_echo = is_turn_event ? passes_filter : is_triggered && passes_filter;
       if (should_echo && data.effect?.text) {
         state.signal_prompts.push(data.effect.text);
         state.signals[data.id] = true;
@@ -356,12 +346,8 @@ export class DynamicsEngine {
   }
   static _evaluate_filter(d, filter) {
     if (!filter) return true;
-    const above_ok = Object.entries(filter.above || {}).every(
-      ([axis, limit]) => d[axis] > limit,
-    );
-    const below_ok = Object.entries(filter.below || {}).every(
-      ([axis, limit]) => d[axis] < limit,
-    );
+    const above_ok = Object.entries(filter.above || {}).every(([axis, limit]) => d[axis] > limit);
+    const below_ok = Object.entries(filter.below || {}).every(([axis, limit]) => d[axis] < limit);
     return above_ok && below_ok;
   }
   static _get_baselines(entity) {
@@ -382,8 +368,6 @@ export class DynamicsEngine {
       d[axis] += (target - d[axis]) * 0.25;
     });
     // 2. Settlement
-    Object.keys(d).forEach(
-      (axis) => (d[axis] = Math.max(0, Math.min(100, Math.round(d[axis])))),
-    );
+    Object.keys(d).forEach((axis) => (d[axis] = Math.max(0, Math.min(100, Math.round(d[axis])))));
   }
 }

@@ -15,14 +15,7 @@ const SECRET_PATTERNS = [
   /credential/i,
   /bearer/i,
 ];
-const BLACKLIST = [
-  "node_modules",
-  ".git",
-  ".svelte-kit",
-  "dist",
-  "build",
-  ".vercel",
-];
+const BLACKLIST = ["node_modules", ".git", ".svelte-kit", "dist", "build", ".vercel"];
 
 console.log("🛡️  Security Scan Initiated...");
 
@@ -73,9 +66,7 @@ function auditDependencies() {
       });
       console.log(`     ✅ Secure`);
     } catch (e) {
-      console.warn(
-        `     ⚠️  Vulnerabilities found in ${relPath} (Warning only)`,
-      );
+      console.warn(`     ⚠️  Vulnerabilities found in ${relPath} (Warning only)`);
       // errorCount++ // Downgraded to warning for non-critical dependency issues
     }
   });

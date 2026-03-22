@@ -25,10 +25,7 @@ async function handleCreativeAction(ctx) {
   try {
     if (activeField && isEnhanceMode) {
       if (enhancementType === "generative") {
-        const payload = PromptBuilder.build_enhancement(
-          "visuals.prompt",
-          char.visuals.prompt,
-        );
+        const payload = PromptBuilder.build_enhancement("visuals.prompt", char.visuals.prompt);
         await LlmService.enhance(payload);
       } else {
         // ...
