@@ -38,7 +38,7 @@
     "!**/scribbles/**",
     "!**/.playwright-auth/**"
   ],
-  "gitignore": ["!RPGlitch-left-panel.txt"],
+  "gitignore": ["!RPGlitch-left-panel.txt", "**/.eslintcache"],
   "linters": {
     "eslint": [],
     "htmlhint": [],
@@ -65,7 +65,8 @@
       "**/yarn.lock": true,
       "mcp.json": true,
       "test-results/**": true,
-      ".playwright-auth/**": true
+      ".playwright-auth/**": true,
+      "**/.eslintcache": true
     },
     "markdown.validate.referenceLinks.enabled": false,
     "stylelint.validate": ["css", "scss", "svelte"],

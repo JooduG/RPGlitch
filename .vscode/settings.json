@@ -21,7 +21,8 @@
         "**/yarn.lock": true,
         "mcp.json": true,
         "test-results/**": true,
-        ".playwright-auth/**": true
+        ".playwright-auth/**": true,
+        "**/.eslintcache": true
     },
     "css.validate": true,
     "html.validate.styles": false,

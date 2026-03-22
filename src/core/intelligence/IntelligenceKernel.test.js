@@ -25,9 +25,10 @@ vi.mock("@state/runtime.svelte.js", () => ({
     turn_type: "USER_TURN",
     active_vectors: vi.fn(() => [{ text: "Exploration" }]),
     active_vector: vi.fn(() => "Exploration"),
+    add_vector: vi.fn(),
     active_ai: { name: "Ghost" },
     active_user: { name: "Player" },
-    active_fractal: { name: "Void" },
+    active_fractal: { name: "Void", future: [{ text: "Existing" }] },
     physics: {},
   },
 }));

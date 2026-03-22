@@ -11,7 +11,7 @@ description: Application Architecture, Svelte 5 Supremacy, The Chalk Regime, and
 
 ## 1. App Architecture (The Five Pillars)
 
-RPGlitch is a **Local-First Reactive Monolith** (PWA). It is structured into five strictly decoupled pillars.
+RPGlitch is a **Local-First Reactive Monolith** (PWA). It is structured into decoupled pillars.
 
 | Pillar                | Role                        | Constraint / Tech                                                      |
 | :-------------------- | :-------------------------- | :--------------------------------------------------------------------- |
@@ -20,6 +20,14 @@ RPGlitch is a **Local-First Reactive Monolith** (PWA). It is structured into fiv
 | **3. Sensory**        | Visuals, Audio, Theme       | Native CSS / SCSS (`src/media/`).                                      |
 | **4. Data**           | Persistence & History       | **Dexie.js** (IndexedDB). `db.version(n)` must be strictly sequential. |
 | **5. Security**       | Validation & Physics        | Zod/DOMPurify sanitization boundary.                                   |
+| **6. Subject-Matter** | Domain Sovereignty          | Consolidated Logic Anchors (Everything about X in File X).             |
+
+### Subject-Matter Sovereignty (The Subject-First Law)
+
+**Mandate**: Logical, physical, and data-related operations for a specific domain (e.g., Vectors, Narrative Memory) MUST be consolidated into a single **Sovereign Module**.
+
+*   **Rationale**: To ensure extreme discoverability and reduce architectural drift in a reactive monolith.
+*   **Application**: If a function "belongs" to a subject (e.g., `consolidate_memory`), it belongs in the sovereign file for that subject (`NarrativeEcho.js`), even if it performs a background process or physics check.
 
 ### The Reactive Cycle
 
@@ -50,10 +58,10 @@ Modern JavaScript (ESNext, `async/await`, arrow functions) is expected, but Svel
 
 ### Strict Coding Standards
 
-- **ES Modules**: Use `import/export`. `require()` is forbidden.
-- **Strict Equality**: Always use `===`.
-- **State over DOM**: NEVER read UI state from HTML elements (`element.value`); drive and read everything from `$state`.
-- **Automated Hygiene**: Before finalizing complex Svelte components, utilize Svelte MCP tools: `npx @sveltejs/mcp svelte-autofixer <path>`.
+* **ES Modules**: Use `import/export`. `require()` is forbidden.
+* **Strict Equality**: Always use `===`.
+* **State over DOM**: NEVER read UI state from HTML elements (`element.value`); drive and read everything from `$state`.
+* **Automated Hygiene**: Before finalizing complex Svelte components, utilize Svelte MCP tools: `npx @sveltejs/mcp svelte-autofixer <path>`.
 
 ---
 
@@ -74,18 +82,18 @@ Our deployment target (Perchance) imposes extreme constraints. We build for a se
 
 ### The Styling Mandate
 
-- **Native CSS Only**: Use Component-scoped `<style>` or designated theme tokens.
-- **No Utility Classes**: Tailwind and Bootstrap are strictly **FORBIDDEN**.
-- **No Inline Styles**: `style="..."` violates Church & State separation. Keep markup clean.
-- **No SCSS in Components**: Components MUST NOT import SCSS mixins/variables. Rely on global CSS variables (`:root`).
+* **Native CSS Only**: Use Component-scoped `<style>` or designated theme tokens.
+* **No Utility Classes**: Tailwind and Bootstrap are strictly **FORBIDDEN**.
+* **No Inline Styles**: `style="..."` violates Church & State separation. Keep markup clean.
+* **No SCSS in Components**: Components MUST NOT import SCSS mixins/variables. Rely on global CSS variables (`:root`).
 
 ### Aesthetic Rules
 
-- **Colors (No Hardcoded Hex)**: NEVER use raw hex, `rgb()`, or `hsl()` in components. You MUST use tokens mapped from `src/theme/tokens.css` (e.g., `var(--color-chalk)`). To prevent eye strain, avoid `#FFFFFF` and `#000000` directly; always route through `var(--color-white)` and `var(--color-black)`.
-- **Depth & Surface**: Use semi-transparent glass with background blurs (`blur-m` to `blur-xl`).
-- **Shadows over Borders**: Pixel borders (`border: 1px solid`) are forbidden for depth. Use "whisper-soft" `box-shadow` elevation.
-- **Motion**: All interactions must use the `Snappy Curve` transition.
-- **Icons & Typography**: **Inline SVG** only (no external icon fonts). `Inter` (sans-serif) or `Ubuntu` (rounded). Headings must use **Strong Sentence Case**. Use Monospace for data/IDs.
+* **Colors (No Hardcoded Hex)**: NEVER use raw hex, `rgb()`, or `hsl()` in components. You MUST use tokens mapped from `src/theme/tokens.css` (e.g., `var(--color-chalk)`). To prevent eye strain, avoid `#FFFFFF` and `#000000` directly; always route through `var(--color-white)` and `var(--color-black)`.
+* **Depth & Surface**: Use semi-transparent glass with background blurs (`blur-m` to `blur-xl`).
+* **Shadows over Borders**: Pixel borders (`border: 1px solid`) are forbidden for depth. Use "whisper-soft" `box-shadow` elevation.
+* **Motion**: All interactions must use the `Snappy Curve` transition.
+* **Icons & Typography**: **Inline SVG** only (no external icon fonts). `Inter` (sans-serif) or `Ubuntu` (rounded). Headings must use **Strong Sentence Case**. Use Monospace for data/IDs.
 
 ### UX Philosophy
 
@@ -128,8 +136,8 @@ To prevent cognitive drift and conversion errors, these definitions are absolute
 
 ### Localization (Swedish/SI Standard
 
-- **Date & Time**: **ISO 8601** (`YYYY-MM-DD`) and **24-Hour Clock** (`14:30`). _No MM/DD/YYYY or AM/PM._
-- **Measurements**: Metric/SI only. Meters (`m`), Grams (`g`), Celsius (`°C`), Liters (`l`). _Never imperial (miles, pounds, Fahrenheit)._
+* **Date & Time**: **ISO 8601** (`YYYY-MM-DD`) and **24-Hour Clock** (`14:30`). _No MM/DD/YYYY or AM/PM._
+* **Measurements**: Metric/SI only. Meters (`m`), Grams (`g`), Celsius (`°C`), Liters (`l`). _Never imperial (miles, pounds, Fahrenheit)._
 
 ---
 

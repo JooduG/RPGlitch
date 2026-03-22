@@ -283,13 +283,22 @@ export function resolve_vector(entity, vector_id, resolution = null) {
   if (!Array.isArray(entity.past)) entity.past = [];
   entity.past.push(vector);
 }
-/**
- * Unified API Export
- */
 export const VectorEngine = {
   create_vector,
   score_vectors,
   format_past,
   format_future,
   resolve_vector,
+
+  /**
+   * ⚙️ ENSURE MOMENTUM (Simulation Physics)
+   * Ensures narrative state is seeded and vectors are non-empty.
+   */
+  ensure_momentum: (runtime, app) => {
+    const fractal = runtime.active_fractal;
+    if (fractal && (!Array.isArray(fractal.future) || fractal.future.length === 0)) {
+      runtime.add_vector("Continue the journey.", "FRACTAL", true);
+      app?.log("VectorEngine: Auto-seeded active_vector", "system");
+    }
+  },
 };

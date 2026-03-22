@@ -1,12 +1,12 @@
 /**
- * @file src/core/intelligence/intelligence_echo.js
+ * @file src/core/intelligence/MemoryEngine.js
  *
  * ─────────────────────────────────────────────────────────────────────────────
- * 📚 ECHO  —  Temporal Resonance & Memory Condensation
+ * 📚 MEMORY ENGINE  —  Temporal Resonance & Memory Condensation
  * ─────────────────────────────────────────────────────────────────────────────
  *
  * PURPOSE
- * Echo is the long-term memory writer. At consolidation checkpoints, it takes
+ * Memory is the long-term memory writer. At consolidation checkpoints, it takes
  * a raw slice of recent message history and converts it into a structured
  * Resonance object — a compact summary the entity carries across sessions.
  *
@@ -80,3 +80,56 @@ export async function consolidate_vector(target_entity, history_slice, role = "c
     return null;
   }
 }
+
+/**
+ * 📚 [SECTION: CONSOLIDATION]
+ * ----------------------------------------------------------------------------------
+ * Directs the long-term memory lifecycle.
+ * ----------------------------------------------------------------------------------
+ */
+export const MemoryEngine = {
+  consolidate_vector,
+  _is_consolidating: false,
+
+  /**
+   * MEMORY CONSOLIDATION (Vector Promotion)
+   * Evicts old messages and compresses them into lore "Vectors".
+   */
+  consolidate: async (Session, db, entities, runtime, app, simulation_log) => {
+    if (MemoryEngine._is_consolidating) return;
+    MemoryEngine._is_consolidating = true;
+
+    try {
+      const story_id = Session.require_active();
+      const messages = await Session.load_log(story_id);
+      const unconsolidated = messages.filter((m) => !m.meta?.consolidated);
+
+      // Trigger every 12 unconsolidated messages (slice 10)
+      if (unconsolidated.length >= 12) {
+        const slice = unconsolidated.slice(0, 10);
+        app.log(`Memory: Promoting ${slice.length} turns into Lore Vectors...`, "system");
+
+        const ai = runtime.active_ai;
+        if (ai) {
+          const resonance = await consolidate_vector(ai, slice, "character");
+          if (resonance) {
+            if (!Array.isArray(ai.past)) ai.past = [];
+            ai.past.push(resonance);
+            await entities.save("character", ai);
+          }
+        }
+
+        // Mark as consolidated in DB
+        for (const msg of slice) {
+          msg.meta = { ...msg.meta, consolidated: true };
+          await db.simulation_log.update(msg.id, { meta: msg.meta });
+        }
+        simulation_log?.refresh();
+      }
+    } catch (err) {
+      console.error("[Memory] Consolidation failed:", err);
+    } finally {
+      MemoryEngine._is_consolidating = false;
+    }
+  },
+};

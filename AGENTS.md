@@ -39,10 +39,10 @@ This document defines the RPGlitch technical stack and engineering mandates for 
 - **Initialization**: Always use `bash setup.sh` for one-click VM boot sequences. Do NOT use `npm run dev` in setup scripts as it blocks environment snapshotting.
 - **Standard Commands**: Utilize `npm run build` and `npm run test` for validation.
 
-### 5. Governance & Narrative Architecture
+### 6. Subject-Matter Sovereignty
 
-- **ANEX_BLACKTIDE Protocol**: Respect the narrative hierarchy (L1_ABSOLUTE > L2_CRITICAL). Never narrate for the user or break third-person integrity.
-- **Mandate**: All autonomous operations MUST adhere to the protocol defined in [.agent/policies/tools.toml](./.agent/policies/tools.toml).
+- **Mandate**: Group all logic, physics, and state-management related to a specific functional domain (e.g., Vectors, Memory, Sound) into unified, sovereign files.
+- **Goal**: Maximize discoverability and reduce file-system clutter in the reactive monolith.
 
 ---
 
