@@ -71,8 +71,8 @@ The system architecture prioritizes offline-first resilience and agentic automat
 
 ## 🗺️ Documentation & Rules
 
-* [Prime Directive](./.agent/rules/01-foundation.md)
-* [Agent Rules](./GEMINI.md)
-* [Automated Workflows](./.agent/workflows/)
-* [Architecture Atlas](./.agent/knowledge/atlas/02-architecture.md)
-* [Tech Stack Vision](./.agent/knowledge/atlas/01-vision.md)
+* [Prime Directive](.agent/rules/01-foundation.md)
+* [Agent Rules](GEMINI.md)
+* [Automated Workflows](.agent/workflows/)
+* [Architecture Atlas](.agent/knowledge/atlas/02-architecture.md)
+* [Tech Stack Vision](.agent/knowledge/atlas/01-vision.md)
