@@ -28,7 +28,7 @@ export const NarrativeDirector = {
     // AUTO-SEED: Ensure activeVectors is never empty
     const fractal = runtime.active_fractal;
     if (fractal && (!Array.isArray(fractal.future) || fractal.future.length === 0)) {
-      runtime.add_vector("Continue the journey.", "FRACTAL", true);
+      runtime.addVector("Continue the journey.", "FRACTAL", true);
       app.log("NarrativeDirector: Auto-seeded active_vector", "system");
     }
   },
