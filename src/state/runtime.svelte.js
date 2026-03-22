@@ -21,9 +21,9 @@ function createRuntimeStore() {
       signature_color: "",
       visuals: { profile_picture_seed: 0, no_background: false },
     },
-    active_user: null,
-    active_ai: null,
-    active_fractal: {
+    activeUser: null,
+    activeAi: null,
+    activeFractal: {
       name: "Environment",
       description: "",
       eternal: { non_physical: "", physical: "" },
@@ -35,23 +35,23 @@ function createRuntimeStore() {
   });
   let simulationState = $state({
     ready: false,
-    story_id: null,
-    story: { by_id: {}, active_id: null },
-    simulation_log: { by_story_id: {} },
+    storyId: null,
+    story: { byId: {}, activeId: null },
+    simulationLog: { byStoryId: {} },
     round: 0,
-    turn_type: "USER_TURN", // USER_TURN, AI_TURN, SYSTEM_TURN
+    turnType: "USER_TURN", // USER_TURN, AI_TURN, SYSTEM_TURN
   });
   // [R5] Dynamics Snapshots (Live Physics)
-  let ai_physics = $state(null);
-  let fractal_physics = $state(null);
+  let aiPhysics = $state(null);
+  let fractalPhysics = $state(null);
   $effect.root(() => {
     $effect(() => {
       const _round = simulationState.round;
-      const _ai = ai_physics;
-      const _fractal = fractal_physics;
-      if (simulationState.ready && simulationState.story_id) {
+      const _ai = aiPhysics;
+      const _fractal = fractalPhysics;
+      if (simulationState.ready && simulationState.storyId) {
         db.stories
-          .update(simulationState.story_id, {
+          .update(simulationState.storyId, {
             round: _round,
             last_played: Date.now(),
             ai_dynamics: $state.snapshot(_ai),
@@ -66,41 +66,41 @@ function createRuntimeStore() {
     get character() {
       return entityState.character;
     },
-    get active_user() {
-      return entityState.active_user;
+    get activeUser() {
+      return entityState.activeUser;
     },
-    get active_ai() {
-      return entityState.active_ai;
+    get activeAi() {
+      return entityState.activeAi;
     },
-    get active_fractal() {
-      return entityState.active_fractal;
+    get activeFractal() {
+      return entityState.activeFractal;
     },
     get ai() {
-      return ai_physics;
+      return aiPhysics;
     },
     set ai(val) {
-      ai_physics = val;
+      aiPhysics = val;
     },
     get fractal() {
-      return fractal_physics;
+      return fractalPhysics;
     },
     set fractal(val) {
-      fractal_physics = val;
+      fractalPhysics = val;
     },
     get simulation() {
       return simulationState;
     },
-    get simulation_log() {
-      return simulationState.simulation_log;
+    get simulationLog() {
+      return simulationState.simulationLog;
     },
-    get story_id() {
-      return simulationState.story_id;
+    get storyId() {
+      return simulationState.storyId;
     },
-    set story_id(id) {
-      simulationState.story_id = id;
-      simulationState.story.active_id = id;
+    set storyId(id) {
+      simulationState.storyId = id;
+      simulationState.story.activeId = id;
     },
-    get is_ready() {
+    get isReady() {
       return simulationState.ready;
     },
     get round() {
@@ -109,45 +109,45 @@ function createRuntimeStore() {
     set round(val) {
       simulationState.round = val;
     },
-    get turn_type() {
-      return simulationState.turn_type;
+    get turnType() {
+      return simulationState.turnType;
     },
-    set turn_type(val) {
-      simulationState.turn_type = val;
+    set turnType(val) {
+      simulationState.turnType = val;
     },
-    get active_story() {
-      return simulationState.story_id
-        ? simulationState.story.by_id[simulationState.story_id]
+    get activeStory() {
+      return simulationState.storyId
+        ? simulationState.story.byId[simulationState.storyId]
         : null;
     },
     // --- VECTOR API ---
-    active_vectors: (role = "AI") => {
-      const entity = api._get_entity_by_role(role);
+    activeVectors: (role = "AI") => {
+      const entity = api._getEntityByRole(role);
       return entity?.future || [];
     },
-    active_vector: (role = "AI") => {
-      const entity = api._get_entity_by_role(role);
+    activeVector: (role = "AI") => {
+      const entity = api._getEntityByRole(role);
       return entity?.future?.[0]?.text || (role === "FRACTAL" ? "Continue the journey." : "");
     },
-    add_vector: (text, role = "AI", is_vanguard = false) => {
-      const entity = api._get_entity_by_role(role);
+    addVector: (text, role = "AI", is_vanguard = false) => {
+      const entity = api._getEntityByRole(role);
       if (!entity) return;
       if (!Array.isArray(entity.future)) entity.future = [];
-      const new_vector = VectorEngine.create_vector(text);
-      if (is_vanguard) entity.future.unshift(new_vector);
-      else entity.future.push(new_vector);
+      const newVector = VectorEngine.createVector(text);
+      if (is_vanguard) entity.future.unshift(newVector);
+      else entity.future.push(newVector);
     },
-    logTurn: (content, is_user = false) => {
-      const story_id = simulationState.story_id || "debug";
-      if (!simulationState.simulation_log.by_story_id[story_id]) {
-        simulationState.simulation_log.by_story_id[story_id] = [];
+    logTurn: (content, isUser = false) => {
+      const storyId = simulationState.storyId || "debug";
+      if (!simulationState.simulationLog.byStoryId[storyId]) {
+        simulationState.simulationLog.byStoryId[storyId] = [];
       }
-      simulationState.simulation_log.by_story_id[story_id].push({
-        role: is_user ? "user" : "assistant",
+      simulationState.simulationLog.byStoryId[storyId].push({
+        role: isUser ? "user" : "assistant",
         text: content,
-        character_name: is_user
-          ? entityState.active_user?.name || "User"
-          : entityState.active_ai?.name || "AI",
+        character_name: isUser
+          ? entityState.activeUser?.name || "User"
+          : entityState.activeAi?.name || "AI",
         created_at: Date.now(),
       });
     },
@@ -157,26 +157,26 @@ function createRuntimeStore() {
         entity.future.shift();
       }
     },
-    _get_entity_by_role: (role) => {
+    _getEntityByRole: (role) => {
       if (role === "AI") return entityState.active_ai;
       if (role === "USER") return entityState.active_user;
       if (role === "FRACTAL") return entityState.active_fractal;
       return null;
     },
     // --- DATA SYNC ---
-    sync: async (active_story_id = null) => {
-      if (active_story_id) simulationState.story_id = active_story_id;
-      if (!simulationState.story_id) {
+    sync: async (activeStoryId = null) => {
+      if (activeStoryId) simulationState.storyId = activeStoryId;
+      if (!simulationState.storyId) {
         try {
           const entry = await db.kv_settings.get("active_session_id");
-          if (entry?.value) simulationState.story_id = entry.value;
+          if (entry?.value) simulationState.storyId = entry.value;
           else return;
         } catch {
           return;
         }
       }
       try {
-        const story = await db.stories.get(simulationState.story_id);
+        const story = await db.stories.get(simulationState.storyId);
         if (!story) return;
         const [user_data, ai_data, fractal_data] = await Promise.all([
           entities.get("character", story.user_id),
@@ -189,24 +189,24 @@ function createRuntimeStore() {
             ...user_data,
             id: user_data.id,
           };
-          entityState.active_user = entityState.character;
+          entityState.activeUser = entityState.character;
         }
         if (ai_data) {
-          entityState.active_ai = ai_data;
-          ai_physics = ai_data.dynamics; // Initialize with seed dynamics
+          entityState.activeAi = ai_data;
+          aiPhysics = ai_data.dynamics; // Initialize with seed dynamics
         }
         if (fractal_data) {
-          entityState.active_fractal = fractal_data;
-          fractal_physics = fractal_data.dynamics; // Initialize with seed dynamics
+          entityState.activeFractal = fractal_data;
+          fractalPhysics = fractal_data.dynamics; // Initialize with seed dynamics
         }
         // Stamp dynamics_baseline from the story snapshot.
         // This gives the physics engine a per-character gravitational center
         // rather than the universal 50 fallback.
         if (story.entity_snapshots?.ai?.dynamics) {
-          entityState.active_ai.dynamics_baseline = story.entity_snapshots.ai.dynamics;
+          entityState.activeAi.dynamics_baseline = story.entity_snapshots.ai.dynamics;
         }
         if (story.entity_snapshots?.fractal?.dynamics) {
-          entityState.active_fractal.dynamics_baseline = story.entity_snapshots.fractal.dynamics;
+          entityState.activeFractal.dynamics_baseline = story.entity_snapshots.fractal.dynamics;
         }
         simulationState.ready = true;
       } catch (err) {
@@ -214,14 +214,14 @@ function createRuntimeStore() {
       }
     },
     save: async (round = null) => {
-      if (!simulationState.story_id) return;
+      if (!simulationState.storyId) return;
       try {
         const targetRound = round ?? 0;
-        await db.stories.update(simulationState.story_id, {
+        await db.stories.update(simulationState.storyId, {
           round: targetRound,
           last_played: Date.now(),
-          ai_dynamics: $state.snapshot(ai_physics),
-          fractal_dynamics: $state.snapshot(fractal_physics),
+          ai_dynamics: $state.snapshot(aiPhysics),
+          fractal_dynamics: $state.snapshot(fractalPhysics),
         });
       } catch (err) {
         console.error("[Data] Story Save Failed:", err);
@@ -242,8 +242,8 @@ function createRuntimeStore() {
       try {
         if (type === "story") {
           await db.stories.update(id, data);
-          if (simulationState.story_id === id) {
-            Object.assign(simulationState.story.by_id[id] || {}, data);
+          if (simulationState.storyId === id) {
+            Object.assign(simulationState.story.byId[id] || {}, data);
           }
         } else {
           // Add updated_at if not present for consistency
@@ -252,9 +252,9 @@ function createRuntimeStore() {
           const targets = [
             ...new Set([
               entityState.character,
-              entityState.active_user,
-              entityState.active_ai,
-              entityState.active_fractal,
+              entityState.activeUser,
+              entityState.activeAi,
+              entityState.activeFractal,
             ]),
           ];
           targets.forEach((t) => {
@@ -274,9 +274,9 @@ function createRuntimeStore() {
       }
     },
     _debugInject: (mock_data) => {
-      if (mock_data.user) entityState.active_user = mock_data.user;
-      if (mock_data.ai) entityState.active_ai = mock_data.ai;
-      if (mock_data.fractal) entityState.active_fractal = mock_data.fractal;
+      if (mock_data.user) entityState.activeUser = mock_data.user;
+      if (mock_data.ai) entityState.activeAi = mock_data.ai;
+      if (mock_data.fractal) entityState.activeFractal = mock_data.fractal;
       simulationState.ready = true;
     },
   };

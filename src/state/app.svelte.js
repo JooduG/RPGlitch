@@ -68,11 +68,11 @@ export class AppStore {
   set round(val) {
     runtime.round = val;
   }
-  get turn_type() {
-    return runtime.turn_type;
+  get turnType() {
+    return runtime.turnType;
   }
-  set turn_type(val) {
-    runtime.turn_type = val;
+  set turnType(val) {
+    runtime.turnType = val;
   }
   // --- READINESS (Derived Logic) ---
   is_ready = $derived(this.settings.dev_mode || (this.selected_ai && this.selected_user));

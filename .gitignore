@@ -10,8 +10,6 @@
 **/archive/**
 **/node_modules/**
 **/templates/**
-**/.agent/**
-**/.gemini/**
 .geminiignore
 .gitignore
 /.DS_Store

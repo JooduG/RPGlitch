@@ -20,7 +20,7 @@ export const Session = {
    */
   setActive: async function (id) {
     this.activeId = id;
-    runtime.story_id = id;
+    runtime.storyId = id;
     if (typeof window !== "undefined") {
       await db.kv_settings.put({ key: "active_session_id", value: id });
       // also log to history
@@ -35,7 +35,7 @@ export const Session = {
     const entry = await db.kv_settings.get("active_session_id");
     if (entry) {
       this.activeId = entry.value;
-      runtime.story_id = entry.value;
+      runtime.storyId = entry.value;
     }
   },
   /**
@@ -45,11 +45,11 @@ export const Session = {
     // Snapshot active entities at the moment the story is created.
     // This freezes the full entity state as both the gravity baseline and
     // the "before" reference for the end-of-story growth comparison.
-    const ai_snapshot = runtime.active_ai ? structuredClone(runtime.active_ai) : null;
-    const fractal_snapshot = runtime.active_fractal
-      ? structuredClone(runtime.active_fractal)
+    const ai_snapshot = runtime.activeAi ? structuredClone(runtime.activeAi) : null;
+    const fractal_snapshot = runtime.activeFractal
+      ? structuredClone(runtime.activeFractal)
       : null;
-    const user_snapshot = runtime.active_user ? structuredClone(runtime.active_user) : null;
+    const user_snapshot = runtime.activeUser ? structuredClone(runtime.activeUser) : null;
     const storyData = {
       title: storyTitle,
       ai_id: aiId,
@@ -68,8 +68,8 @@ export const Session = {
     storyData.id = id;
     // [CRITICAL] Synchronize Global State immediately
     // Replace legacy applyPatch with direct mutation
-    runtime.story.by_id[id] = storyData;
-    runtime.story.active_id = id;
+    runtime.story.byId[id] = storyData;
+    runtime.story.activeId = id;
     await this.setActive(id);
     // [R5] Synchronize Global State immediately
     await runtime.sync(id);
@@ -104,7 +104,7 @@ export const Session = {
    */
   logTurn: async (text, character_name, role = "assistant", meta = {}) => {
     const story_id = Session.requireActive();
-    const turn_type = meta.turn_type || (role === "user" ? "USER_TURN" : "AI_TURN");
+    const turn_type = meta.turnType || (role === "user" ? "USER_TURN" : "AI_TURN");
     await db.simulation_log.add({
       story_id,
       role, // role: "assistant" | "fractal"

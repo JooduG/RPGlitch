@@ -237,7 +237,7 @@ export const DYNAMICS = [
 export class DynamicsEngine {
   static simulate(payload) {
     const { input, entities, history } = payload;
-    const matches = DynamicsEngine.dynamics_scan(input);
+    const matches = DynamicsEngine.dynamicsScan(input);
     const nextState = {
       ai: { ...entities.AI },
       fractal: entities.FRACTAL
@@ -245,9 +245,9 @@ export class DynamicsEngine {
         : { dynamics: { velocity: 50, entropy: 50 } },
       flags: entities.AI?.flags || [],
       signals: {},
-      signal_prompts: [],
+      signalPrompts: [],
     };
-    DynamicsEngine.simulation_dynamics(nextState, history, matches);
+    DynamicsEngine.simulationDynamics(nextState, history, matches);
     return nextState;
   }
   /**
@@ -256,7 +256,7 @@ export class DynamicsEngine {
    * @param {string} text
    * @returns {Array<{ id: string, scan: string, config?: object }>}
    */
-  static dynamics_scan(text) {
+  static dynamicsScan(text) {
     if (!text) return [];
     const matches = [];
     for (const data of DYNAMICS) {
@@ -273,27 +273,27 @@ export class DynamicsEngine {
    * SIMULATION DYNAMICS (The Umbrella Orchestrator)
    * Processes numerical pass, baseline gravity, and narrative pass.
    */
-  static simulation_dynamics(state, prevState, matches) {
+  static simulationDynamics(state, prevState, matches) {
     // 1. NUMERICAL PASS: Active Impulses and Passive Laws
-    DynamicsEngine.dynamics_numerical(state, matches);
+    DynamicsEngine.dynamicsNumerical(state, matches);
     // 2. PHYSICS PASS: Baseline settlement and Threshold laws (Flags only)
     const ents = Object.keys(state).filter((k) => state[k]?.dynamics);
     ents.forEach((key) => {
-      DynamicsEngine._process_entity_dynamics(
+      DynamicsEngine._processEntityDynamics(
         state[key].dynamics,
-        DynamicsEngine._get_baselines(state[key]),
+        DynamicsEngine._getBaselines(state[key]),
         matches,
         state,
       );
     });
     // 3. NARRATIVE PASS: Environmental prompts
-    DynamicsEngine.dynamics_narrative(state, matches);
+    DynamicsEngine.dynamicsNarrative(state, matches);
   }
   /**
    * DYNAMICS NUMERICAL (Numerical Stage)
    * Applies numerical shifts from matching triggers OR matching filters (for Laws).
    */
-  static dynamics_numerical(state, matches) {
+  static dynamicsNumerical(state, matches) {
     const processed = new Set();
     DYNAMICS.forEach((data) => {
       if (processed.has(data.id)) return;
@@ -302,11 +302,11 @@ export class DynamicsEngine {
         ...state.ai?.dynamics,
         ...state.fractal?.dynamics,
       };
-      const passes_filter = DynamicsEngine._evaluate_filter(active_state, data.filter);
+      const passesFilter = DynamicsEngine._evaluateFilter(active_state, data.filter);
       const is_turn_event = data.trigger === "turn";
       // Logic: Passive Turn Law OR Active Scan Impulse
-      const should_apply = is_turn_event ? passes_filter : match && passes_filter;
-      if (should_apply) {
+      const shouldApply = is_turn_event ? passesFilter : match && passesFilter;
+      if (shouldApply) {
         const config = match?.config || data;
         const eff = config.effect;
         if (eff) {
@@ -328,29 +328,29 @@ export class DynamicsEngine {
    * DYNAMICS NARRATIVE (Narrative Stage)
    * Pushes prompts to the final output based on the settled state.
    */
-  static dynamics_narrative(state, matches) {
+  static dynamicsNarrative(state, matches) {
     DYNAMICS.forEach((data) => {
       const is_triggered = matches.some((m) => m.id === data.id);
       const active_state = {
         ...state.ai?.dynamics,
         ...state.fractal?.dynamics,
       };
-      const passes_filter = DynamicsEngine._evaluate_filter(active_state, data.filter);
+      const passesFilter = DynamicsEngine._evaluateFilter(active_state, data.filter);
       const is_turn_event = data.trigger === "turn";
-      const should_echo = is_turn_event ? passes_filter : is_triggered && passes_filter;
-      if (should_echo && data.effect?.text) {
-        state.signal_prompts.push(data.effect.text);
+      const shouldEcho = is_turn_event ? passesFilter : is_triggered && passesFilter;
+      if (shouldEcho && data.effect?.text) {
+        state.signalPrompts.push(data.effect.text);
         state.signals[data.id] = true;
       }
     });
   }
-  static _evaluate_filter(d, filter) {
+  static _evaluateFilter(d, filter) {
     if (!filter) return true;
     const above_ok = Object.entries(filter.above || {}).every(([axis, limit]) => d[axis] > limit);
     const below_ok = Object.entries(filter.below || {}).every(([axis, limit]) => d[axis] < limit);
     return above_ok && below_ok;
   }
-  static _get_baselines(entity) {
+  static _getBaselines(entity) {
     // dynamics_baseline: permanent per-entity gravitational center.
     // Set by the user outside a simulation; gravity pulls live dynamics back toward it each round.
     // Falls back to 50 (universal mid-point) if not defined.
@@ -361,7 +361,7 @@ export class DynamicsEngine {
    * Pulls dynamics back toward baselines and clamps results.
    * Generates persistent state flags for AI response conditioning.
    */
-  static _process_entity_dynamics(d, baselines, matches, state) {
+  static _processEntityDynamics(d, baselines, matches, state) {
     // 1. Gravity Pull
     Object.keys(d).forEach((axis) => {
       const target = baselines[axis] ?? 50;
