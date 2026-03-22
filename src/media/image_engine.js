@@ -154,7 +154,7 @@ export const ImageGeneration = {
       targetRole = ROLES.USER;
       targetId = story.userId;
     }
-    engine.startTyping(targetRole, targetId);
+    engine.start_typing(targetRole, targetId);
     try {
       let vTarget = targetType || "character";
       if (targetType === ROLES.FRACTAL) vTarget = "scene";
@@ -206,7 +206,7 @@ export const ImageGeneration = {
       console.error("[IMAGE_ENGINE] Visualizer Failed:", visErr);
       return { imageUrl: null, refinedPrompt: null, opticsThoughts: null };
     } finally {
-      engine.stopTyping();
+      engine.stop_typing();
     }
   },
   /**

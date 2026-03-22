@@ -1,5 +1,5 @@
 // src/core/engine/bootstrap.js
-import { seedPremades } from "@data/repository.js";
+import { seed_premades } from "@data/repository.js";
 import { runtime } from "@state/runtime.svelte.js";
 import { mount } from "svelte";
 import App from "../../App.svelte";
@@ -16,7 +16,7 @@ export const AppBootstrap = {
     has_initialized = true;
     try {
       // 1. Seed Premades (Entities/Stories)
-      await seedPremades();
+      await seed_premades();
       // 2. Sync Runtime State (Hydrate from DB)
       await runtime.sync();
       // 3. Mount Svelte App

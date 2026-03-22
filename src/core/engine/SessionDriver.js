@@ -7,20 +7,20 @@ import { simulation_log } from "@state/simulation_log.svelte.js";
  * Replaces the old src/gamemaster/engine/session.js
  */
 export const Session = {
-  activeId: null,
+  active_id: null,
   /**
    * get the active story ID or throw.
    */
-  requireActive: function () {
-    if (!this.activeId) throw new Error("No active session found.");
-    return this.activeId;
+  require_active: function () {
+    if (!this.active_id) throw new Error("No active session found.");
+    return this.active_id;
   },
   /**
    * Set active session ID and persist it.
    */
-  setActive: async function (id) {
-    this.activeId = id;
-    runtime.storyId = id;
+  set_active: async function (id) {
+    this.active_id = id;
+    runtime.story_id = id;
     if (typeof window !== "undefined") {
       await db.kv_settings.put({ key: "active_session_id", value: id });
       // also log to history
@@ -34,27 +34,27 @@ export const Session = {
     if (typeof window === "undefined") return;
     const entry = await db.kv_settings.get("active_session_id");
     if (entry) {
-      this.activeId = entry.value;
-      runtime.storyId = entry.value;
+      this.active_id = entry.value;
+      runtime.story_id = entry.value;
     }
   },
   /**
    * Create a new story from lobby selection
    */
-  createFromSelection: async function ({ aiId, userId, fractalId, storyTitle }) {
+  create_from_selection: async function ({ ai_id, user_id, fractal_id, story_title }) {
     // Snapshot active entities at the moment the story is created.
     // This freezes the full entity state as both the gravity baseline and
     // the "before" reference for the end-of-story growth comparison.
-    const ai_snapshot = runtime.activeAi ? structuredClone(runtime.activeAi) : null;
-    const fractal_snapshot = runtime.activeFractal
-      ? structuredClone(runtime.activeFractal)
+    const ai_snapshot = runtime.active_ai ? $state.snapshot(runtime.active_ai) : null;
+    const fractal_snapshot = runtime.active_fractal
+      ? $state.snapshot(runtime.active_fractal)
       : null;
-    const user_snapshot = runtime.activeUser ? structuredClone(runtime.activeUser) : null;
-    const storyData = {
-      title: storyTitle,
-      ai_id: aiId,
-      user_id: userId,
-      fractal_id: fractalId,
+    const user_snapshot = runtime.active_user ? $state.snapshot(runtime.active_user) : null;
+    const story_data = {
+      title: story_title,
+      ai_id: ai_id,
+      user_id: user_id,
+      fractal_id: fractal_id,
       created_at: Date.now(),
       updated_at: Date.now(),
       entity_snapshots: {
@@ -63,14 +63,14 @@ export const Session = {
         user: user_snapshot,
       },
     };
-    const id = await db.stories.add(storyData);
+    const id = await db.stories.add(story_data);
     // [FIX] Inject ID back into payload for state
-    storyData.id = id;
+    story_data.id = id;
     // [CRITICAL] Synchronize Global State immediately
     // Replace legacy applyPatch with direct mutation
-    runtime.story.byId[id] = storyData;
-    runtime.story.activeId = id;
-    await this.setActive(id);
+    runtime.simulation.story.by_id[id] = story_data;
+    runtime.simulation.story.active_id = id;
+    await this.set_active(id);
     // [R5] Synchronize Global State immediately
     await runtime.sync(id);
     return id;
@@ -78,14 +78,14 @@ export const Session = {
   /**
    * Load log entries for a story
    */
-  loadLog: async (story_id) => {
+  load_log: async (story_id) => {
     return await db.simulation_log.where("story_id").equals(story_id).toArray();
   },
   /**
    * Send a user log entry (Action)
    */
   send: async (text) => {
-    const story_id = Session.requireActive();
+    const story_id = Session.require_active();
     // [R1/R0] User messages always advance the round
     runtime.round++;
     await db.simulation_log.add({
@@ -102,9 +102,9 @@ export const Session = {
   /**
    * Add a simulation log entry (Response)
    */
-  logTurn: async (text, character_name, role = "assistant", meta = {}) => {
-    const story_id = Session.requireActive();
-    const turn_type = meta.turnType || (role === "user" ? "USER_TURN" : "AI_TURN");
+  log_turn: async (text, character_name, role = "assistant", meta = {}) => {
+    const story_id = Session.require_active();
+    const turn_type = meta.turn_type || (role === "user" ? "USER_TURN" : "AI_TURN");
     await db.simulation_log.add({
       story_id,
       role, // role: "assistant" | "fractal"
@@ -122,7 +122,7 @@ export const Session = {
    * Regenerate: Delete last simulation turn
    */
   regenerate: async () => {
-    const story_id = Session.requireActive();
+    const story_id = Session.require_active();
     const last_entry = await db.simulation_log.where("story_id").equals(story_id).last();
     if (last_entry && (last_entry.role === "assistant" || last_entry.role === "ai")) {
       await db.simulation_log.delete(last_entry.id);
@@ -132,16 +132,16 @@ export const Session = {
   /**
    * Delete a specific log entry by ID
    */
-  deleteLogEntry: async (id) => {
-    Session.requireActive();
+  delete_log_entry: async (id) => {
+    Session.require_active();
     await db.simulation_log.delete(id);
     simulation_log.refresh();
   },
   /**
    * Edit a specific log entry text
    */
-  editLogEntry: async (id, new_text) => {
-    Session.requireActive();
+  edit_log_entry: async (id, new_text) => {
+    Session.require_active();
     await db.simulation_log.update(id, { text: new_text });
     simulation_log.refresh();
   },

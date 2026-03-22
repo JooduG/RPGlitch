@@ -9,7 +9,7 @@ export class SimulationLogStore {
    */
   async refresh() {
     if (!runtime.story_id) return;
-    const msgs = await Session.loadLog(runtime.story_id);
+    const msgs = await Session.load_log(runtime.story_id);
     this.feed = msgs;
   }
   /**

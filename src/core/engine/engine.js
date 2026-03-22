@@ -8,20 +8,20 @@ import { Session } from "./SessionDriver.js";
  */
 export const Engine = {
   // --- SESSION ---
-  requireActive: () => Session.requireActive(),
-  getActive: () => Session.activeId,
-  createFromSelection: (data) => Session.createFromSelection(data),
-  loadMessages: (storyId) => Session.loadLog(storyId),
+  require_active: () => Session.require_active(),
+  get_active: () => Session.active_id,
+  create_from_selection: (data) => Session.create_from_selection(data),
+  load_messages: (story_id) => Session.load_log(story_id),
   send: async (text) => {
     await Session.send(text);
-    await Engine.generateAiResponse(Session.requireActive());
+    await Engine.generate_ai_response(Session.require_active());
   },
   regenerate: () => Session.regenerate(),
   // --- GENERATION ---
-  generateAiResponse: async (storyId, options = {}) => {
-    engineState.startGeneration(options.role || "ai");
+  generate_ai_response: async (story_id, options = {}) => {
+    engineState.start_generation(options.role || "ai");
     try {
-      await IntelligenceKernel.executeTurn(storyId, options);
+      await IntelligenceKernel.execute_turn(story_id, options);
       app.log("Generation complete.", "system");
     } catch (e) {
       console.error("Engine: Generation Failed", e);
@@ -31,10 +31,10 @@ export const Engine = {
       engineState.complete();
     }
   },
-  generatePrologue: async (storyId) => {
-    engineState.startGeneration("fractal");
+  generate_prologue: async (story_id) => {
+    engineState.start_generation("fractal");
     try {
-      await IntelligenceKernel.executePrologue(storyId);
+      await IntelligenceKernel.execute_prologue(story_id);
       app.log("Prologue generated and opening turn executed.", "system");
     } catch (e) {
       console.error("Engine: Prologue Failed", e);
@@ -44,10 +44,10 @@ export const Engine = {
       engineState.complete();
     }
   },
-  triggerEpilogue: async () => {
-    engineState.startGeneration("ai");
+  trigger_epilogue: async () => {
+    engineState.start_generation("ai");
     try {
-      await IntelligenceKernel.executeEpilogue(Session.requireActive());
+      await IntelligenceKernel.execute_epilogue(Session.require_active());
     } catch (e) {
       console.error("Engine: Epilogue Failed", e);
       app.log("Error: Epilogue Failed.", "error");

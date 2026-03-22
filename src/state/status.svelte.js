@@ -3,22 +3,22 @@
 export const engineState = $state({
   phase: "idle", // "idle" | "generating" | "locked"
   role: null, // "ai" | "system" | "fractal" | null
-  activeId: null,
+  active_id: null,
   is_typing: false,
   // Actions
-  startGeneration(role = "ai") {
+  start_generation(role = "ai") {
     this.phase = "generating";
     this.role = role;
   },
-  startTyping(role, id) {
+  start_typing(role, id) {
     this.is_typing = true;
     this.role = role;
-    this.activeId = id;
+    this.active_id = id;
   },
-  stopTyping() {
+  stop_typing() {
     this.is_typing = false;
     this.role = null;
-    this.activeId = null;
+    this.active_id = null;
   },
   complete() {
     this.phase = "idle";

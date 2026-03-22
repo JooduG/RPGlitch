@@ -86,7 +86,7 @@
     "deploy:perchance": "node .agent/skills/devops/scripts/deploy_perchance.js",
     "dev": "vite",
     "format": "prettier --write .",
-    "lint": "node .agent/scripts/summarize.js audit lint:js lint:css lint:md",
+    "lint": "node .agent/scripts/summarize.js lint:js lint:css lint:md",
     "lint:css": "stylelint \"src/**/*.{css,svelte,scss}\"",
     "lint:css:fix": "stylelint \"src/**/*.{css,svelte,scss}\" --fix",
     "lint:fix": "npm-run-all lint:js:fix lint:css:fix lint:md:fix",

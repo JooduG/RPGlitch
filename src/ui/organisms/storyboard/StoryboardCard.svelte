@@ -131,6 +131,7 @@
     container-type: inline-size;
     --card-height: 40vh;
     --card-width: 25vh;
+
     height: var(--card-height);
     width: var(--card-width);
     margin: auto;
@@ -317,7 +318,6 @@
     font-size: var(--font-size-m);
     text-align: left;
     line-height: var(--line-height-base);
-    word-break: break-word;
     overflow-wrap: anywhere;
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -384,7 +384,7 @@
   .empty-icon :global(svg) {
     width: 100%;
     height: 100%;
-    fill: currentColor;
+    fill: currentcolor;
     transition: fill var(--transition-slow) var(--transition-elastic);
   }
 
@@ -398,9 +398,11 @@
     0% {
       transform: translateX(-100%);
     }
+
     50% {
       transform: translateX(100%);
     }
+
     100% {
       transform: translateX(100%);
     }

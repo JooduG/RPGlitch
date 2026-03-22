@@ -38,9 +38,6 @@ describe("VectorEngine", () => {
           timestamp: 100,
         },
       ];
-      // Input "Iron kiss" will match:
-      // - Dynamics ID: EXPOSURE (+1)
-      // - Trigger Word: kiss (+2)
       // - Vector Tag: Iron (+3)
       // - Base Weight: 5
       // Total: 11

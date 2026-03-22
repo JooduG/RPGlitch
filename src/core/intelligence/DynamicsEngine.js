@@ -237,18 +237,18 @@ export const DYNAMICS = [
 export class DynamicsEngine {
   static simulate(payload) {
     const { input, entities, history } = payload;
-    const matches = DynamicsEngine.dynamicsScan(input);
-    const nextState = {
+    const matches = DynamicsEngine.dynamics_scan(input);
+    const next_state = {
       ai: { ...entities.AI },
       fractal: entities.FRACTAL
         ? { ...entities.FRACTAL }
         : { dynamics: { velocity: 50, entropy: 50 } },
       flags: entities.AI?.flags || [],
       signals: {},
-      signalPrompts: [],
+      signal_prompts: [],
     };
-    DynamicsEngine.simulationDynamics(nextState, history, matches);
-    return nextState;
+    DynamicsEngine.simulation_dynamics(next_state, history, matches);
+    return next_state;
   }
   /**
    * DYNAMICS SCAN (The Unified Scanner)
@@ -256,7 +256,7 @@ export class DynamicsEngine {
    * @param {string} text
    * @returns {Array<{ id: string, scan: string, config?: object }>}
    */
-  static dynamicsScan(text) {
+  static dynamics_scan(text) {
     if (!text) return [];
     const matches = [];
     for (const data of DYNAMICS) {
@@ -273,27 +273,27 @@ export class DynamicsEngine {
    * SIMULATION DYNAMICS (The Umbrella Orchestrator)
    * Processes numerical pass, baseline gravity, and narrative pass.
    */
-  static simulationDynamics(state, prevState, matches) {
+  static simulation_dynamics(state, prev_state, matches) {
     // 1. NUMERICAL PASS: Active Impulses and Passive Laws
-    DynamicsEngine.dynamicsNumerical(state, matches);
+    DynamicsEngine.dynamics_numerical(state, matches);
     // 2. PHYSICS PASS: Baseline settlement and Threshold laws (Flags only)
     const ents = Object.keys(state).filter((k) => state[k]?.dynamics);
     ents.forEach((key) => {
-      DynamicsEngine._processEntityDynamics(
+      DynamicsEngine._process_entity_dynamics(
         state[key].dynamics,
-        DynamicsEngine._getBaselines(state[key]),
+        DynamicsEngine._get_baselines(state[key]),
         matches,
         state,
       );
     });
     // 3. NARRATIVE PASS: Environmental prompts
-    DynamicsEngine.dynamicsNarrative(state, matches);
+    DynamicsEngine.dynamics_narrative(state, matches);
   }
   /**
    * DYNAMICS NUMERICAL (Numerical Stage)
    * Applies numerical shifts from matching triggers OR matching filters (for Laws).
    */
-  static dynamicsNumerical(state, matches) {
+  static dynamics_numerical(state, matches) {
     const processed = new Set();
     DYNAMICS.forEach((data) => {
       if (processed.has(data.id)) return;
@@ -302,20 +302,20 @@ export class DynamicsEngine {
         ...state.ai?.dynamics,
         ...state.fractal?.dynamics,
       };
-      const passesFilter = DynamicsEngine._evaluateFilter(active_state, data.filter);
+      const passes_filter = DynamicsEngine._evaluate_filter(active_state, data.filter);
       const is_turn_event = data.trigger === "turn";
       // Logic: Passive Turn Law OR Active Scan Impulse
-      const shouldApply = is_turn_event ? passesFilter : match && passesFilter;
-      if (shouldApply) {
+      const should_apply = is_turn_event ? passes_filter : match && passes_filter;
+      if (should_apply) {
         const config = match?.config || data;
         const eff = config.effect;
         if (eff) {
-          Object.keys(eff).forEach((entKey) => {
-            const entState = state[entKey];
-            if (entState?.dynamics) {
-              Object.keys(eff[entKey]).forEach((axis) => {
-                if (entState.dynamics[axis] !== undefined)
-                  entState.dynamics[axis] += eff[entKey][axis];
+          Object.keys(eff).forEach((ent_key) => {
+            const ent_state = state[ent_key];
+            if (ent_state?.dynamics) {
+              Object.keys(eff[ent_key]).forEach((axis) => {
+                if (ent_state.dynamics[axis] !== undefined)
+                  ent_state.dynamics[axis] += eff[ent_key][axis];
               });
             }
           });
@@ -328,29 +328,29 @@ export class DynamicsEngine {
    * DYNAMICS NARRATIVE (Narrative Stage)
    * Pushes prompts to the final output based on the settled state.
    */
-  static dynamicsNarrative(state, matches) {
+  static dynamics_narrative(state, matches) {
     DYNAMICS.forEach((data) => {
       const is_triggered = matches.some((m) => m.id === data.id);
       const active_state = {
         ...state.ai?.dynamics,
         ...state.fractal?.dynamics,
       };
-      const passesFilter = DynamicsEngine._evaluateFilter(active_state, data.filter);
+      const passes_filter = DynamicsEngine._evaluate_filter(active_state, data.filter);
       const is_turn_event = data.trigger === "turn";
-      const shouldEcho = is_turn_event ? passesFilter : is_triggered && passesFilter;
-      if (shouldEcho && data.effect?.text) {
-        state.signalPrompts.push(data.effect.text);
+      const should_echo = is_turn_event ? passes_filter : is_triggered && passes_filter;
+      if (should_echo && data.effect?.text) {
+        state.signal_prompts.push(data.effect.text);
         state.signals[data.id] = true;
       }
     });
   }
-  static _evaluateFilter(d, filter) {
+  static _evaluate_filter(d, filter) {
     if (!filter) return true;
     const above_ok = Object.entries(filter.above || {}).every(([axis, limit]) => d[axis] > limit);
     const below_ok = Object.entries(filter.below || {}).every(([axis, limit]) => d[axis] < limit);
     return above_ok && below_ok;
   }
-  static _getBaselines(entity) {
+  static _get_baselines(entity) {
     // dynamics_baseline: permanent per-entity gravitational center.
     // Set by the user outside a simulation; gravity pulls live dynamics back toward it each round.
     // Falls back to 50 (universal mid-point) if not defined.
@@ -361,7 +361,7 @@ export class DynamicsEngine {
    * Pulls dynamics back toward baselines and clamps results.
    * Generates persistent state flags for AI response conditioning.
    */
-  static _processEntityDynamics(d, baselines, matches, state) {
+  static _process_entity_dynamics(d, baselines, matches, state) {
     // 1. Gravity Pull
     Object.keys(d).forEach((axis) => {
       const target = baselines[axis] ?? 50;

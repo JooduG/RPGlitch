@@ -201,10 +201,10 @@ export function formatPast(
   input,
   limit = 3,
   offset = 0,
-  options = { vectorText: true, vectorLabel: true },
+  options = { vector_text: true, vector_label: true },
 ) {
-  const showText = options.vectorText ?? true;
-  const showLabel = options.vectorLabel ?? true;
+  const show_text = options.vector_text ?? options.vectorText ?? true;
+  const show_label = options.vector_label ?? options.vectorLabel ?? true;
   const ranked = scoreVectors(vectors, input).slice(offset, offset + limit);
   const reversed = [...ranked].reverse();
   return reversed
@@ -241,10 +241,10 @@ export function formatFuture(
   input,
   limit = 3,
   offset = 0,
-  options = { vectorText: true, vectorLabel: true },
+  options = { vector_text: true, vector_label: true },
 ) {
-  const showText = options.vectorText ?? true;
-  const showLabel = options.vectorLabel ?? true;
+  const show_text = options.vector_text ?? options.vectorText ?? true;
+  const show_label = options.vector_label ?? options.vectorLabel ?? true;
   const ranked = scoreVectors(vectors, input).slice(offset, offset + limit);
   const reversed = [...ranked].reverse();
   return reversed
@@ -269,9 +269,9 @@ export function formatFuture(
  * @param {string} vector_id
  * @param {string} [resolution=null]
  */
-export function resolveVector(entity, vectorId, resolution = null) {
+export function resolve_vector(entity, vector_id, resolution = null) {
   if (!Array.isArray(entity.future)) return;
-  const index = entity.future.findIndex((v) => v.id === vectorId);
+  const index = entity.future.findIndex((v) => v.id === vector_id);
   if (index === -1) return;
   const [vector] = entity.future.splice(index, 1);
   // Add resolution tag if provided
@@ -287,9 +287,9 @@ export function resolveVector(entity, vectorId, resolution = null) {
  * Unified API Export
  */
 export const VectorEngine = {
-  createVector,
-  scoreVectors,
-  formatPast,
-  formatFuture,
-  resolveVector,
+  create_vector: createVector,
+  score_vectors: scoreVectors,
+  format_past: formatPast,
+  format_future: formatFuture,
+  resolve_vector,
 };

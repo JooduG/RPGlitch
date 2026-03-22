@@ -35,7 +35,7 @@ vi.mock("@state/runtime.svelte.js", () => ({
     },
     // Universal Vector API Mocks
     active_vectors: vi.fn((role) =>
-      role === "FRACTAL" ? [{ id: "1", text: "Find the key" }] : [{ id: "2", text: "EXPLORE" }]
+      role === "FRACTAL" ? [{ id: "1", text: "Find the key" }] : [{ id: "2", text: "EXPLORE" }],
     ),
     active_vector: vi.fn((role) => (role === "FRACTAL" ? "Find the key" : "EXPLORE")),
     active_echoes: vi.fn(() => []),

@@ -15,7 +15,7 @@ const error = console.error;
  * Seeds the database with premade entities if they don't already exist.
  * Trusts the Normalizer to enforce the flattened "Twin-Cylinder" structure.
  */
-export const seedPremades = async () => {
+export const seed_premades = async () => {
   if (typeof globalThis !== "undefined" && globalThis._seeding) return;
   if (typeof globalThis !== "undefined") globalThis._seeding = true;
   try {

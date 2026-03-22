@@ -2,7 +2,7 @@ import { describe, test, expect, vi, beforeEach } from "vitest";
 import { AppBootstrap } from "./bootstrap.js";
 import * as repository from "@data/repository.js";
 vi.mock("@data/repository.js", () => ({
-  seedPremades: vi.fn(),
+  seed_premades: vi.fn(),
 }));
 vi.mock("@state/runtime.svelte.js", () => ({
   runtime: {
@@ -24,8 +24,8 @@ describe("AppBootstrap", () => {
     const maliciousPayload = "<img src=x onerror=alert(1)>";
     const error = new Error("Critical Failure");
     error.stack = maliciousPayload;
-    // Mocking seedPremades to throw
-    vi.mocked(repository.seedPremades).mockRejectedValue(error);
+    // Mocking seed_premades to throw
+    vi.mocked(repository.seed_premades).mockRejectedValue(error);
     await AppBootstrap.init();
     expect(document.body.innerHTML).toContain("SYSTEM HALTED");
     const errorStackElement = document.getElementById("error-stack");

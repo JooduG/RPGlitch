@@ -102,7 +102,7 @@ Code must be predictably organized. Heavy logic (>50 lines) moves to `scripts/`.
 | File System | **Directories**             | `kebab-case`               | `simulation-engine/`          |
 | File System | **Svelte Component**        | `PascalCase`               | `StoryPanel.svelte`           |
 | File System | **Structure/Class**         | `PascalCase`               | `ContextBroker.js`            |
-| Identifier  | **Process/State/Variables** | `camelCase` / `snake_case` | `buildPrompt`, `current_char` |
+| Identifier  | **Process/State/Variables** | `snake_case`               | `current_char`                |
 | Identifier  | **Booleans**                | `Question Form`            | `isActive`, `hasToken`        |
 | Identifier  | **Global Config**           | `SCREAMING_SNAKE`          | `ENTITY_DEFINITION`           |
 

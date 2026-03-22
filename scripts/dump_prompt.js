@@ -13,7 +13,7 @@ import { runtime } from "../src/state/runtime.svelte.js";
 import { describe, it } from "vitest";
 describe("v5.0 Prompt Audit (LIVE SOURCE)", () => {
   it("renders a full simulation prompt for manual audit", async () => {
-    runtime._debugInject({
+    runtime._debug_inject({
       ai: {
         name: "Viper",
         eternal: {
@@ -50,7 +50,7 @@ describe("v5.0 Prompt Audit (LIVE SOURCE)", () => {
       },
     });
     // 1. Setup Mock State in Runtime
-    runtime.logTurn("Locate the merchant in the Hollow Market.", "Narrator", "ai"); // character_name, role required or it defaults to user
+    runtime.log_turn("Locate the merchant in the Hollow Market.", "Narrator", "ai"); // character_name, role required or it defaults to user
     const input = "I watch the merchant stall from the shadows.";
     // 2. Phase 1: Hydration
     const history = []; // Mock history for now

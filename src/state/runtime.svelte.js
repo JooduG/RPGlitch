@@ -6,7 +6,7 @@ import { entities } from "@data/repository.js";
 // 2. Story / Narrative (story, story_id, simulation_log, turn, ready)
 // 3. Physics / Dynamics (ai_physics, fractal_physics)
 function createRuntimeStore() {
-  let entityState = $state({
+  let entity_state = $state({
     character: {
       id: null,
       name: "Unlinked",
@@ -21,9 +21,9 @@ function createRuntimeStore() {
       signature_color: "",
       visuals: { profile_picture_seed: 0, no_background: false },
     },
-    activeUser: null,
-    activeAi: null,
-    activeFractal: {
+    active_user: null,
+    active_ai: null,
+    active_fractal: {
       name: "Environment",
       description: "",
       eternal: { non_physical: "", physical: "" },
@@ -33,25 +33,25 @@ function createRuntimeStore() {
       dynamics: { velocity: 50, entropy: 50 },
     },
   });
-  let simulationState = $state({
+  let simulation_state = $state({
     ready: false,
-    storyId: null,
-    story: { byId: {}, activeId: null },
-    simulationLog: { byStoryId: {} },
+    story_id: null,
+    story: { by_id: {}, active_id: null },
+    simulation_log: { by_story_id: {} },
     round: 0,
-    turnType: "USER_TURN", // USER_TURN, AI_TURN, SYSTEM_TURN
+    turn_type: "USER_TURN", // USER_TURN, AI_TURN, SYSTEM_TURN
   });
   // [R5] Dynamics Snapshots (Live Physics)
-  let aiPhysics = $state(null);
-  let fractalPhysics = $state(null);
+  let ai_physics = $state(null);
+  let fractal_physics = $state(null);
   $effect.root(() => {
     $effect(() => {
-      const _round = simulationState.round;
-      const _ai = aiPhysics;
-      const _fractal = fractalPhysics;
-      if (simulationState.ready && simulationState.storyId) {
+      const _round = simulation_state.round;
+      const _ai = ai_physics;
+      const _fractal = fractal_physics;
+      if (simulation_state.ready && simulation_state.story_id) {
         db.stories
-          .update(simulationState.storyId, {
+          .update(simulation_state.story_id, {
             round: _round,
             last_played: Date.now(),
             ai_dynamics: $state.snapshot(_ai),
@@ -64,119 +64,119 @@ function createRuntimeStore() {
   const api = {
     // --- GETTERS ---
     get character() {
-      return entityState.character;
+      return entity_state.character;
     },
-    get activeUser() {
-      return entityState.activeUser;
+    get active_user() {
+      return entity_state.active_user;
     },
-    get activeAi() {
-      return entityState.activeAi;
+    get active_ai() {
+      return entity_state.active_ai;
     },
-    get activeFractal() {
-      return entityState.activeFractal;
+    get active_fractal() {
+      return entity_state.active_fractal;
     },
     get ai() {
-      return aiPhysics;
+      return ai_physics;
     },
     set ai(val) {
-      aiPhysics = val;
+      ai_physics = val;
     },
     get fractal() {
-      return fractalPhysics;
+      return fractal_physics;
     },
     set fractal(val) {
-      fractalPhysics = val;
+      fractal_physics = val;
     },
     get simulation() {
-      return simulationState;
+      return simulation_state;
     },
-    get simulationLog() {
-      return simulationState.simulationLog;
+    get simulation_log() {
+      return simulation_state.simulation_log;
     },
-    get storyId() {
-      return simulationState.storyId;
+    get story_id() {
+      return simulation_state.story_id;
     },
-    set storyId(id) {
-      simulationState.storyId = id;
-      simulationState.story.activeId = id;
+    set story_id(id) {
+      simulation_state.story_id = id;
+      simulation_state.story.active_id = id;
     },
-    get isReady() {
-      return simulationState.ready;
+    get is_ready() {
+      return simulation_state.ready;
     },
     get round() {
-      return simulationState.round;
+      return simulation_state.round;
     },
     set round(val) {
-      simulationState.round = val;
+      simulation_state.round = val;
     },
-    get turnType() {
-      return simulationState.turnType;
+    get turn_type() {
+      return simulation_state.turn_type;
     },
-    set turnType(val) {
-      simulationState.turnType = val;
+    set turn_type(val) {
+      simulation_state.turn_type = val;
     },
-    get activeStory() {
-      return simulationState.storyId
-        ? simulationState.story.byId[simulationState.storyId]
+    get active_story() {
+      return simulation_state.story_id
+        ? simulation_state.story.by_id[simulation_state.story_id]
         : null;
     },
     // --- VECTOR API ---
-    activeVectors: (role = "AI") => {
-      const entity = api._getEntityByRole(role);
+    active_vectors: (role = "AI") => {
+      const entity = api._get_entity_by_role(role);
       return entity?.future || [];
     },
-    activeVector: (role = "AI") => {
-      const entity = api._getEntityByRole(role);
+    active_vector: (role = "AI") => {
+      const entity = api._get_entity_by_role(role);
       return entity?.future?.[0]?.text || (role === "FRACTAL" ? "Continue the journey." : "");
     },
-    addVector: (text, role = "AI", is_vanguard = false) => {
-      const entity = api._getEntityByRole(role);
+    add_vector: (text, role = "AI", is_vanguard = false) => {
+      const entity = api._get_entity_by_role(role);
       if (!entity) return;
       if (!Array.isArray(entity.future)) entity.future = [];
-      const newVector = VectorEngine.createVector(text);
-      if (is_vanguard) entity.future.unshift(newVector);
-      else entity.future.push(newVector);
+      const new_vector = VectorEngine.create_vector(text);
+      if (is_vanguard) entity.future.unshift(new_vector);
+      else entity.future.push(new_vector);
     },
-    logTurn: (content, isUser = false) => {
-      const storyId = simulationState.storyId || "debug";
-      if (!simulationState.simulationLog.byStoryId[storyId]) {
-        simulationState.simulationLog.byStoryId[storyId] = [];
+    log_turn: (content, is_user = false) => {
+      const story_id = simulation_state.story_id || "debug";
+      if (!simulation_state.simulation_log.by_story_id[story_id]) {
+        simulation_state.simulation_log.by_story_id[story_id] = [];
       }
-      simulationState.simulationLog.byStoryId[storyId].push({
-        role: isUser ? "user" : "assistant",
+      simulation_state.simulation_log.by_story_id[story_id].push({
+        role: is_user ? "user" : "assistant",
         text: content,
-        character_name: isUser
-          ? entityState.activeUser?.name || "User"
-          : entityState.activeAi?.name || "AI",
+        character_name: is_user
+          ? entity_state.active_user?.name || "User"
+          : entity_state.active_ai?.name || "AI",
         created_at: Date.now(),
       });
     },
-    completeVector: (role = "AI") => {
-      const entity = api._getEntityByRole(role);
+    complete_vector: (role = "AI") => {
+      const entity = api._get_entity_by_role(role);
       if (Array.isArray(entity?.future) && entity.future.length > 0) {
         entity.future.shift();
       }
     },
-    _getEntityByRole: (role) => {
-      if (role === "AI") return entityState.active_ai;
-      if (role === "USER") return entityState.active_user;
-      if (role === "FRACTAL") return entityState.active_fractal;
+    _get_entity_by_role: (role) => {
+      if (role === "AI") return entity_state.active_ai;
+      if (role === "USER") return entity_state.active_user;
+      if (role === "FRACTAL") return entity_state.active_fractal;
       return null;
     },
     // --- DATA SYNC ---
-    sync: async (activeStoryId = null) => {
-      if (activeStoryId) simulationState.storyId = activeStoryId;
-      if (!simulationState.storyId) {
+    sync: async (active_story_id = null) => {
+      if (active_story_id) simulation_state.story_id = active_story_id;
+      if (!simulation_state.story_id) {
         try {
           const entry = await db.kv_settings.get("active_session_id");
-          if (entry?.value) simulationState.storyId = entry.value;
+          if (entry?.value) simulation_state.story_id = entry.value;
           else return;
         } catch {
           return;
         }
       }
       try {
-        const story = await db.stories.get(simulationState.storyId);
+        const story = await db.stories.get(simulation_state.story_id);
         if (!story) return;
         const [user_data, ai_data, fractal_data] = await Promise.all([
           entities.get("character", story.user_id),
@@ -184,66 +184,66 @@ function createRuntimeStore() {
           entities.get("fractal", story.fractal_id),
         ]);
         if (user_data) {
-          entityState.character = {
-            ...entityState.character,
+          entity_state.character = {
+            ...entity_state.character,
             ...user_data,
             id: user_data.id,
           };
-          entityState.activeUser = entityState.character;
+          entity_state.active_user = entity_state.character;
         }
         if (ai_data) {
-          entityState.activeAi = ai_data;
-          aiPhysics = ai_data.dynamics; // Initialize with seed dynamics
+          entity_state.active_ai = ai_data;
+          ai_physics = ai_data.dynamics; // Initialize with seed dynamics
         }
         if (fractal_data) {
-          entityState.activeFractal = fractal_data;
-          fractalPhysics = fractal_data.dynamics; // Initialize with seed dynamics
+          entity_state.active_fractal = fractal_data;
+          fractal_physics = fractal_data.dynamics; // Initialize with seed dynamics
         }
         // Stamp dynamics_baseline from the story snapshot.
         // This gives the physics engine a per-character gravitational center
         // rather than the universal 50 fallback.
         if (story.entity_snapshots?.ai?.dynamics) {
-          entityState.activeAi.dynamics_baseline = story.entity_snapshots.ai.dynamics;
+          entity_state.active_ai.dynamics_baseline = story.entity_snapshots.ai.dynamics;
         }
         if (story.entity_snapshots?.fractal?.dynamics) {
-          entityState.activeFractal.dynamics_baseline = story.entity_snapshots.fractal.dynamics;
+          entity_state.active_fractal.dynamics_baseline = story.entity_snapshots.fractal.dynamics;
         }
-        simulationState.ready = true;
+        simulation_state.ready = true;
       } catch (err) {
         console.warn("[Data] Sync Failed:", err);
       }
     },
     save: async (round = null) => {
-      if (!simulationState.storyId) return;
+      if (!simulation_state.story_id) return;
       try {
-        const targetRound = round ?? 0;
-        await db.stories.update(simulationState.storyId, {
-          round: targetRound,
+        const target_round = round ?? 0;
+        await db.stories.update(simulation_state.story_id, {
+          round: target_round,
           last_played: Date.now(),
-          ai_dynamics: $state.snapshot(aiPhysics),
-          fractal_dynamics: $state.snapshot(fractalPhysics),
+          ai_dynamics: $state.snapshot(ai_physics),
+          fractal_dynamics: $state.snapshot(fractal_physics),
         });
       } catch (err) {
         console.error("[Data] Story Save Failed:", err);
       }
     },
-    saveEntity: async (type, entity) => {
+    save_entity: async (type, entity) => {
       try {
         await entities.upsert(type, entity);
-        if (entityState.character && entityState.character.id === entity.id) {
-          Object.assign(entityState.character, entity);
+        if (entity_state.character && entity_state.character.id === entity.id) {
+          Object.assign(entity_state.character, entity);
         }
       } catch (err) {
         console.error("[Data] Entity Save Failed:", err);
         throw err;
       }
     },
-    updateEntity: async (type, id, data) => {
+    update_entity: async (type, id, data) => {
       try {
         if (type === "story") {
           await db.stories.update(id, data);
-          if (simulationState.storyId === id) {
-            Object.assign(simulationState.story.byId[id] || {}, data);
+          if (simulation_state.story_id === id) {
+            Object.assign(simulation_state.story.by_id[id] || {}, data);
           }
         } else {
           // Add updated_at if not present for consistency
@@ -251,10 +251,10 @@ function createRuntimeStore() {
           await entities.update(type, id, payload);
           const targets = [
             ...new Set([
-              entityState.character,
-              entityState.activeUser,
-              entityState.activeAi,
-              entityState.activeFractal,
+              entity_state.character,
+              entity_state.active_user,
+              entity_state.active_ai,
+              entity_state.active_fractal,
             ]),
           ];
           targets.forEach((t) => {
@@ -265,7 +265,7 @@ function createRuntimeStore() {
         console.error(`[Data] Update Entity (${type}) Failed:`, err);
       }
     },
-    deleteEntity: async (type, id) => {
+    delete_entity: async (type, id) => {
       try {
         await entities.remove(type, id);
       } catch (err) {
@@ -273,11 +273,11 @@ function createRuntimeStore() {
         throw err;
       }
     },
-    _debugInject: (mock_data) => {
-      if (mock_data.user) entityState.activeUser = mock_data.user;
-      if (mock_data.ai) entityState.activeAi = mock_data.ai;
-      if (mock_data.fractal) entityState.activeFractal = mock_data.fractal;
-      simulationState.ready = true;
+    _debug_inject: (mock_data) => {
+      if (mock_data.user) entity_state.active_user = mock_data.user;
+      if (mock_data.ai) entity_state.active_ai = mock_data.ai;
+      if (mock_data.fractal) entity_state.active_fractal = mock_data.fractal;
+      simulation_state.ready = true;
     },
   };
   return api;

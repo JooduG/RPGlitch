@@ -31,33 +31,33 @@
  */
 import { VectorEngine } from "./VectorEngine.js";
 export const SYSTEM_PROMPTS = {
-  simulation: ({ round, entities, simulationLog, signalPrompts, input, renderAtom }) => {
+  simulation: ({ round, entities, simulationLog, signalPrompts, input, render_atom }) => {
     const ai = entities.AI;
     const user = entities.USER;
     const fractal = entities.FRACTAL;
     return `
-<SYSTEM role="${ai.name}" round="${round}" objective="${renderAtom.future(ai, 1, 0, { vectorText: true }).trim()}">
+<SYSTEM role="${ai.name}" round="${round}" objective="${render_atom.future(ai, 1, 0, { vectorText: true }).trim()}">
 <YOUR_IDENTITY name="${ai.name}">
 <PRESENT>${ai.fragments.present.non_physical}</PRESENT>
 <ETERNAL>${ai.fragments.eternal.non_physical}</ETERNAL>
-<FUTURE_VECTORS>${renderAtom.future(ai, 5, 1)}</FUTURE_VECTORS>
-<PAST_MEMORIES>${renderAtom.past(ai, 5)}</PAST_MEMORIES>
+<FUTURE_VECTORS>${render_atom.future(ai, 5, 1)}</FUTURE_VECTORS>
+<PAST_MEMORIES>${render_atom.past(ai, 5)}</PAST_MEMORIES>
 </YOUR_IDENTITY>
 <USER_PERSONA name="${user.name}">
 <PRESENT>${user.fragments.present.non_physical}</PRESENT>
 <ETERNAL>${user.fragments.eternal.non_physical}</ETERNAL>
-<FUTURE vector="${renderAtom.future(user, 1, 0, { vectorText: true }).trim()}" />
-<PAST memory="${renderAtom.past(user, 1, 0, { vectorText: true }).trim()}" />
+<FUTURE vector="${render_atom.future(user, 1, 0, { vectorText: true }).trim()}" />
+<PAST memory="${render_atom.past(user, 1, 0, { vectorText: true }).trim()}" />
 </USER_PERSONA>
 <FRACTAL name="${fractal.name}">
 <PRESENT>${fractal.fragments.present.non_physical}</PRESENT>
 <ETERNAL>${fractal.fragments.eternal.non_physical}</ETERNAL>
-<FUTURE vector="${renderAtom.future(fractal, 1, 0, { vectorText: true }).trim()}" />
-<PAST memory="${renderAtom.past(fractal, 1, 0, { vectorText: true }).trim()}" />
+<FUTURE vector="${render_atom.future(fractal, 1, 0, { vectorText: true }).trim()}" />
+<PAST memory="${render_atom.past(fractal, 1, 0, { vectorText: true }).trim()}" />
 </FRACTAL>
-<SIMULATION_LOG>${PromptBuilder.renderHistory(simulationLog, 10)}</SIMULATION_LOG>
+<SIMULATION_LOG>${PromptBuilder.render_history(simulationLog, 10)}</SIMULATION_LOG>
 <NARRATIVE_STYLE>${signalPrompts.length > 0 ? signalPrompts.join("\n") : "Use default style vectors."}</NARRATIVE_STYLE>
-<PROTOCOLS>${PromptBuilder.renderProtocols("SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL, SUSPICIOUS_COGNITION")}</PROTOCOLS>
+<PROTOCOLS>${PromptBuilder.render_protocols("SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL, SUSPICIOUS_COGNITION")}</PROTOCOLS>
 <TASK_INSTRUCTION>
 The stage is set and the pieces are on the board. Proceed with the simulation immediately.
 CRITICAL: When your <think> block ends, your narrative output MUST be written exclusively in ENGLISH.
@@ -74,7 +74,7 @@ CRITICAL: When your <think> block ends, your narrative output MUST be written ex
    * - <ACTIVE_CHARACTERS>: AI & USER .properties (State) + VectorEngine (RAG)
    * - <PROTOCOLS>: ProtocolLibrary (DNA)
    */
-  prologue: ({ round, entities, input, renderAtom }) => {
+  prologue: ({ round, entities, input, render_atom }) => {
     const ai = entities.AI;
     const user = entities.USER;
     const fractal = entities.FRACTAL;
@@ -83,24 +83,24 @@ CRITICAL: When your <think> block ends, your narrative output MUST be written ex
 <YOUR_IDENTITY name="${fractal.name}">
 <ETERNAL>${fractal.fragments.eternal.non_physical}</ETERNAL>
 <PRESENT>${fractal.fragments.present.non_physical}</PRESENT>
-<FUTURE_VECTORS>${renderAtom.future(fractal, 5)}</FUTURE_VECTORS>
-<PAST_MEMORIES>${renderAtom.past(fractal, 5)}</PAST_MEMORIES>
+<FUTURE_VECTORS>${render_atom.future(fractal, 5)}</FUTURE_VECTORS>
+<PAST_MEMORIES>${render_atom.past(fractal, 5)}</PAST_MEMORIES>
 </YOUR_IDENTITY>
 <ACTIVE_CHARACTERS>
     <AI_CHARACTER name="${ai.name}">
     <ETERNAL>${ai.fragments.eternal.non_physical}</ETERNAL>
     <PRESENT>${ai.fragments.present.non_physical}</PRESENT>
-    <FUTURE_VECTORS>${renderAtom.future(ai, 5)}</FUTURE_VECTORS>
-    <PAST_MEMORIES>${renderAtom.past(ai, 5)}</PAST_MEMORIES>
+    <FUTURE_VECTORS>${render_atom.future(ai, 5)}</FUTURE_VECTORS>
+    <PAST_MEMORIES>${render_atom.past(ai, 5)}</PAST_MEMORIES>
     </AI_CHARACTER>
     <USER_PERSONA name="${user.name}">
     <ETERNAL>${user.fragments.eternal.non_physical}</ETERNAL>
     <PRESENT>${user.fragments.present.non_physical}</PRESENT>
-    <FUTURE_VECTORS>${renderAtom.future(user, 5)}</FUTURE_VECTORS>
-    <PAST_MEMORIES>${renderAtom.past(user, 5)}</PAST_MEMORIES>
+    <FUTURE_VECTORS>${render_atom.future(user, 5)}</FUTURE_VECTORS>
+    <PAST_MEMORIES>${render_atom.past(user, 5)}</PAST_MEMORIES>
     </USER_PERSONA>
 </ACTIVE_CHARACTERS>
-<PROTOCOLS>${PromptBuilder.renderProtocols("SINO_LOGIC, COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, EPISTEMIC_WALL, PLACEMENT, IMMERSION, MOMENTUM")}</PROTOCOLS>
+<PROTOCOLS>${PromptBuilder.render_protocols("SINO_LOGIC, COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, EPISTEMIC_WALL, PLACEMENT, IMMERSION, MOMENTUM")}</PROTOCOLS>
 <TASK_INSTRUCTION>
 You see everything. Open the scene.
 Use your <think> block to assess the environmental resonance and character alignment before speaking. Ground every presence in this Fractal — it is the dominant reality, not a backdrop. ${ai.name} and ${user.name} arrived here through their Pasts.
@@ -123,7 +123,7 @@ The stage is set and the pieces are on the board. Proceed with the simulation im
     `
 <SYSTEM role="NARRATOR">
 <PROTOCOLS>
-${PromptBuilder.renderProtocols("COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE")}
+${PromptBuilder.render_protocols("COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE")}
 </PROTOCOLS>
 <TASK_INSTRUCTION>
 Close the scene. Resolve every active tension thread. Show — do not narrate — the
@@ -144,7 +144,7 @@ Provide a final summary of the narrative arc and the fate of the entities involv
     `
 <MEMORY_PROTOCOL role="${role}">
 <PROTOCOLS>
-${PromptBuilder.renderProtocols("HYGIENE, AFFIRMATIVE, PRESENT")}
+${PromptBuilder.render_protocols("HYGIENE, AFFIRMATIVE, PRESENT")}
 </PROTOCOLS>
 <CONTEXT>
 Entity: ${entity.name || "Unknown"}
@@ -173,7 +173,7 @@ Output strict JSON only: { "summary": "...", "vector_tags": ["...", "..."] }
 ${directive}
 </INSTRUCTIONS>
 <PROTOCOLS>
-${PromptBuilder.renderProtocols("HYGIENE, AFFIRMATIVE, IMMERSION")}
+${PromptBuilder.render_protocols("HYGIENE, AFFIRMATIVE, IMMERSION")}
 </PROTOCOLS>
 <INPUT_CONTENT>
 ${content}
@@ -217,7 +217,7 @@ export class PromptBuilder {
       const system = SYSTEM_PROMPTS.prologue({
         ...payload,
         round: payload.round,
-        renderAtom,
+        render_atom,
       });
       return {
         system: PromptBuilder.clean(system),
@@ -226,9 +226,11 @@ export class PromptBuilder {
     }
     // Default: Simulation
     const system = SYSTEM_PROMPTS.simulation({
-      ...payload,
       round: payload.round,
-      ...snapshot,
+      entities: payload.entities,
+      input: payload.input,
+      simulationLog: payload.simulationLog,
+      signalPrompts: snapshot.signal_prompts || [],
       render_atom,
     });
     return {
@@ -245,12 +247,13 @@ export class PromptBuilder {
    * RENDER ATOM
    * Creates a functional proxy for atomic fragment rendering.
    */
-  static createRenderAtom(entities, input, rawMessages) {
+  static create_render_atom(entities, input, raw_messages) {
     const resolve = (entityReference) =>
       typeof entityReference === "string"
         ? entities[entityReference] || entities.AI
         : entityReference;
-    const recent_history = raw_messages
+    const history_pool = Array.isArray(raw_messages) ? raw_messages : [];
+    const recent_history = history_pool
       .slice(-3)
       .map((message) => message.content)
       .join(" ");
@@ -258,20 +261,20 @@ export class PromptBuilder {
     return {
       past: (entityReference, limit = 3, offset = 0, options) => {
         const entity = resolve(entityReference);
-        return VectorEngine.formatPast(entity.past || [], scoringContext, limit, offset, options);
+        return VectorEngine.format_past(entity.past || [], scoring_context, limit, offset, options);
       },
       future: (entityReference, limit = 3, offset = 0, options) => {
         const entity = resolve(entityReference);
-        return VectorEngine.formatFuture(
+        return VectorEngine.format_future(
           entity.future || [],
-          scoringContext,
+          scoring_context,
           limit,
           offset,
           options,
         );
       },
-      simulationLog: (limit = 10, offset = 0) => {
-        return PromptBuilder.renderHistory(rawMessages, limit, offset);
+      simulation_log: (limit = 10, offset = 0) => {
+        return PromptBuilder.render_history(raw_messages, limit, offset);
       },
     };
   }
@@ -279,7 +282,7 @@ export class PromptBuilder {
    * SIMULATION LOG
    * Renders history of simulation.
    */
-  static renderHistory(simulationLog, count = 10, offset = 0) {
+  static render_history(simulationLog, count = 10, offset = 0) {
     if (!simulationLog || typeof simulationLog === "string") return simulationLog || "";
     if (Array.isArray(simulationLog)) {
       const start = Math.max(0, simulationLog.length - (count + offset));
@@ -299,7 +302,7 @@ export class PromptBuilder {
   /**
    * UTILITIES
    */
-  static renderProtocols(selection) {
+  static render_protocols(selection) {
     if (!selection) return "";
     return selection
       .split(",")

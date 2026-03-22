@@ -7,9 +7,9 @@ import { runtime } from "@state/runtime.svelte.js";
 // Mock dependencies
 vi.mock("@core/engine/SessionDriver.js", () => ({
   Session: {
-    loadLog: vi.fn(),
-    logTurn: vi.fn(),
-    requireActive: vi.fn(() => "story-123"),
+    load_log: vi.fn(),
+    log_turn: vi.fn(),
+    require_active: vi.fn(() => "story-123"),
   },
 }));
 
@@ -45,28 +45,28 @@ describe("IntelligenceKernel Orchestration", () => {
   });
 
   it("should execute a full narrative turn", async () => {
-    vi.mocked(Session.loadLog).mockResolvedValue([{ role: "user", text: "Hello" }]);
+    vi.mocked(Session.load_log).mockResolvedValue([{ role: "user", text: "Hello" }]);
     vi.mocked(LlmService.generate).mockResolvedValue("Identified.");
 
-    const result = await IntelligenceKernel.executeTurn("story-123", {
+    const result = await IntelligenceKernel.execute_turn("story-123", {
       input: "Hi",
     });
 
     expect(runtime.round).toBe(1);
-    expect(Session.loadLog).toHaveBeenCalledWith("story-123");
+    expect(Session.load_log).toHaveBeenCalledWith("story-123");
     expect(LlmService.generate).toHaveBeenCalled();
-    expect(Session.logTurn).toHaveBeenCalledWith("Identified.", "Ghost", "ai", expect.any(Object));
+    expect(Session.log_turn).toHaveBeenCalledWith("Identified.", "Ghost", "ai", expect.any(Object));
     expect(result.response).toBe("Identified.");
   });
 
   it("should execute a prologue", async () => {
     vi.mocked(LlmService.generate).mockResolvedValueOnce("Once upon a time..."); // Prologue
     vi.mocked(LlmService.generate).mockResolvedValueOnce("The adventure begins."); // Follow-up turn
-    vi.mocked(Session.loadLog).mockResolvedValue([]);
+    vi.mocked(Session.load_log).mockResolvedValue([]);
 
-    await IntelligenceKernel.executePrologue("story-123");
+    await IntelligenceKernel.execute_prologue("story-123");
 
-    expect(Session.logTurn).toHaveBeenCalledWith(
+    expect(Session.log_turn).toHaveBeenCalledWith(
       "Once upon a time...",
       "Void",
       "fractal",
@@ -78,10 +78,10 @@ describe("IntelligenceKernel Orchestration", () => {
   it("should execute an epilogue", async () => {
     vi.mocked(LlmService.generate).mockResolvedValue("And so it ends.");
 
-    const result = await IntelligenceKernel.executeEpilogue("story-123");
+    const result = await IntelligenceKernel.execute_epilogue("story-123");
 
     expect(LlmService.generate).toHaveBeenCalled();
-    expect(Session.logTurn).toHaveBeenCalledWith("And so it ends.", "Narrator", "ai");
+    expect(Session.log_turn).toHaveBeenCalledWith("And so it ends.", "Narrator", "ai");
     expect(result).toBe("And so it ends.");
   });
 });

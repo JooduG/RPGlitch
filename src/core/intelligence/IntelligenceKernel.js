@@ -31,14 +31,14 @@ export const IntelligenceKernel = {
    * @param {string} [options.input] - User input to react to.
    * @param {string} [options.role="ai"] - Role to generate for.
    */
-  async executeTurn(story_id, options = {}) {
+  async execute_turn(story_id, options = {}) {
     const { input = "", role = "ai", ...llm_options } = options;
     // 1. CHRONO: Round management
     // Round is managed by Session.send or explicit prologue start.
     // We ensure turn-type consistency here.
-    runtime.turnType = "SYSTEM_TURN";
+    runtime.turn_type = "SYSTEM_TURN";
     // 2. HYDRATION: Fetch history and hydrate context
-    const raw_messages = await Session.loadLog(story_id);
+    const raw_messages = await Session.load_log(story_id);
     const simulation_log = raw_messages
       .filter((m) => !m.meta?.consolidated)
       .map((m) => ({
@@ -54,13 +54,13 @@ export const IntelligenceKernel = {
     // 5. UPDATE: Synchronize runtime physics
     runtime.ai = snapshot.ai.dynamics;
     runtime.fractal = snapshot.fractal.dynamics;
-    runtime.turnType = "AI_TURN";
+    runtime.turn_type = "AI_TURN";
     app.log(
       "Intelligence Kernel: Context hydrated. Physics resolved. Entering AI_TURN. Routing to LLM...",
       "system",
     );
     // 6. GENERATION: Call the model with retry logic
-    const response = await this._executeWithRetry(async () => {
+    const response = await this._execute_with_retry(async () => {
       return await LlmService.generate(
         {
           system,
@@ -71,18 +71,18 @@ export const IntelligenceKernel = {
     });
     // 7. PERSISTENCE: Save the result
     const character_name =
-      role === "ai" ? runtime.activeAi?.name || "AI" : runtime.activeFractal?.name || "Fractal";
+      role === "ai" ? runtime.active_ai?.name || "AI" : runtime.active_fractal?.name || "Fractal";
 
-    await Session.logTurn(response, character_name, role, {
+    await Session.log_turn(response, character_name, role, {
       dynamics: meta.ai,
       fractal_dynamics: meta.fractal,
       flags: meta.flags,
       signal_prompts: meta.signal_prompts,
       round: runtime.round,
-      turnType: "AI_TURN",
+      turn_type: "AI_TURN",
     });
     // 8. TRANSITION: Open the window for User
-    runtime.turnType = "USER_TURN";
+    runtime.turn_type = "USER_TURN";
     runtime.round++;
     return { response, meta };
   },
@@ -90,45 +90,45 @@ export const IntelligenceKernel = {
    * EXECUTE PROLOGUE
    * Specialized turn for starting a new story.
    */
-  async executePrologue(story_id) {
+  async execute_prologue(story_id) {
     const payload = await ContextBroker.hydrate("", "prologue");
     const result = PromptBuilder.synthesize(payload, {});
     if (!result.system) return null;
     app.log("Intelligence Kernel: Generating prologue...", "system");
-    const response = await this._executeWithRetry(async () => {
+    const response = await this._execute_with_retry(async () => {
       return await LlmService.generate({ system: result.system });
     });
-    const fractal_name = runtime.activeFractal?.name || "Fractal Entity";
+    const fractal_name = runtime.active_fractal?.name || "Fractal Entity";
     // 1. Save Prologue
     // Prologue stays at Round 0
     runtime.round = 0;
-    runtime.turnType = "SYSTEM_TURN";
-    await Session.logTurn(response, fractal_name, "fractal", {
+    runtime.turn_type = "SYSTEM_TURN";
+    await Session.log_turn(response, fractal_name, "fractal", {
       round: 0,
-      turnType: "SYSTEM_TURN",
+      turn_type: "SYSTEM_TURN",
     });
     app.log("Intelligence Kernel: Prologue established (Round 0).", "system");
     // 2. The Hook: Trigger immediate AI follow-up to open the scene.
-    return await this.executeTurn(story_id);
+    return await this.execute_turn(story_id);
   },
   /**
    * EXECUTE EPILOGUE
    * Final summary or conclusion for a story.
    */
-  async executeEpilogue(story_id) {
+  async execute_epilogue(story_id) {
     const { system } = PromptBuilder.build_epilogue();
     if (!system) return null;
     app.log("Intelligence Kernel: Generating epilogue...", "system");
-    const response = await this._executeWithRetry(async () => {
+    const response = await this._execute_with_retry(async () => {
       return await LlmService.generate({ system });
     });
-    await Session.logTurn(response, "Narrator", "ai");
+    await Session.log_turn(response, "Narrator", "ai");
     return response;
   },
   /**
    * INTERNAL: Execute with exponential backoff retry.
    */
-  async _executeWithRetry(fn, retries = 3, delay = 1000) {
+  async _execute_with_retry(fn, retries = 3, delay = 1000) {
     try {
       return await fn();
     } catch (err) {
