@@ -1,5 +1,4 @@
 ---
-name: 03-clean
 description: Maintenance & Security. Fixes bugs, audits security, and ensures hygiene.
 ---
 
@@ -35,7 +34,7 @@ description: Maintenance & Security. Fixes bugs, audits security, and ensures hy
 
 ### Phase 3: The Quality Gate (Validation)
 
-1. **Verify**: Every fix REQUIRES a regression test. Prove success with terminal evidence. [[Invoke: quality-assurance]](../skills/quality-assurance/SKILL.md)
+1. **Verify**: Every fix REQUIRES a regression test. Prove success with terminal evidence. Execute `run npm verify`, if the test fails begin Phase 1, if/else proceed. [[Invoke: quality-assurance]](../skills/quality-assurance/SKILL.md)
 2. **Scrub**: Remove `console.log` and temporary debugging artifacts. [[Invoke: markdown]](../skills/markdown/SKILL.md)
 
 ## 4. Anti-Patterns

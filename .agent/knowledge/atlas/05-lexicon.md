@@ -18,8 +18,6 @@ description: Unified Glossary. Standard terminology for the RPGlitch ecosystem.
 | **Chrono Kinetics** | Time progression system based on input density (Micro/Macro).  |
 | **Silent Stage**    | Design philosophy: Minimize UI noise, maximize text immersion. |
 | **Echo**            | A persistent memory fragment stored by the **Data** skill.     |
-| **DevMode**         | Technical analysis and state inspection interface.             |
-| **StoryMode**       | Primary narrative and user interaction interface.              |
 | **Runes**           | Svelte 5 reactive primitives used for state management.        |
 
 ## Fragments & Vectors

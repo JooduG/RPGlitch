@@ -22,19 +22,19 @@ export class ReactiveSession {
     this.loading = true;
     app.simulation.loading = true;
     try {
-      const storyTitle = `The Journey of ${selection.ai.name} & ${selection.user.name} in ${selection.fractal.name}`;
+      const story_title = `The Journey of ${selection.ai.name} & ${selection.user.name} in ${selection.fractal.name}`;
       // 1. Create Core Session
-      const storyId = await Session.createFromSelection({
-        aiId: selection.ai.id,
-        userId: selection.user.id,
-        fractalId: selection.fractal.id,
-        storyTitle,
+      const story_id = await Session.create_from_selection({
+        ai_id: selection.ai.id,
+        user_id: selection.user.id,
+        fractal_id: selection.fractal.id,
+        story_title,
       });
       // 3. Switch View (Immediate Feedback)
-      app.set_view("game");
+      app.set_view("storymode");
       // 4. Trigger Prologue Generation
       // This will run the Engine, hit the API, and stream content to the feed
-      await Engine.generatePrologue(storyId);
+      await Engine.generate_prologue(story_id);
     } catch (e) {
       console.error("[Session] Start Failed:", e);
       this.error = e.message;
@@ -51,13 +51,13 @@ export class ReactiveSession {
    */
   async send(text) {
     if (this.loading || !text.trim()) return;
-    await this.advanceTurn(text);
+    await this.advance_turn(text);
   }
   /**
    * The Diagnostic Turn Loop
    * Forces visibility into the internal state transitions.
    */
-  async advanceTurn(text) {
+  async advance_turn(text) {
     this.loading = true;
     app.simulation.loading = true;
     try {
@@ -68,15 +68,15 @@ export class ReactiveSession {
       app.log(`LLM synthesizing prose response for turn ${app.round}...`, "ai");
       await Session.send(text); // Saves user message
       // TRIGGER AI GENERATION
-      const storyId = Session.requireActive();
-      await Engine.generateAiResponse(storyId, { input: text });
+      const story_id = Session.require_active();
+      await Engine.generate_ai_response(story_id, { input: text });
       // PHASE 3: ECHO (Affinity)
       app.log("Echo recording temporal affinity and syncing database...", "db");
       // PHASE 4: PERSIST (Data)
       await runtime.save(runtime.turn);
     } catch (e) {
       app.log(`Simulation Error: ${e.message}`, "error");
-      console.error("[Session] AdvanceTurn Failed:", e);
+      console.error("[Session] advance_turn Failed:", e);
       this.error = e.message;
     } finally {
       this.loading = false;
@@ -92,8 +92,8 @@ export class ReactiveSession {
     app.simulation.loading = true;
     try {
       await Session.regenerate();
-      const storyId = Session.requireActive();
-      await Engine.generateAiResponse(storyId);
+      const story_id = Session.require_active();
+      await Engine.generate_ai_response(story_id);
     } catch (e) {
       this.error = e.message;
     } finally {
@@ -110,8 +110,8 @@ export class ReactiveSession {
     this.loading = true;
     app.simulation.loading = true;
     try {
-      const storyId = Session.requireActive();
-      await Engine.generateAiResponse(storyId);
+      const story_id = Session.require_active();
+      await Engine.generateAiResponse(story_id);
     } catch (e) {
       this.error = e.message;
     } finally {
@@ -122,20 +122,20 @@ export class ReactiveSession {
   /**
    * 🧪 DEBUG: Inject AI Message
    */
-  async logTurn(text, character_name, role) {
-    await Session.logTurn(text, character_name, role);
+  async log_turn(text, character_name, role) {
+    await Session.log_turn(text, character_name, role);
   }
   /**
    * Delete a log entry by ID
    */
-  async deleteLogEntry(id) {
-    await Session.deleteLogEntry(id);
+  async delete_log_entry(id) {
+    await Session.delete_log_entry(id);
   }
   /**
    * Edit a log entry by ID
    */
-  async editLogEntry(id, new_text) {
-    await Session.editLogEntry(id, new_text);
+  async edit_log_entry(id, new_text) {
+    await Session.edit_log_entry(id, new_text);
   }
 }
 export const session = new ReactiveSession();

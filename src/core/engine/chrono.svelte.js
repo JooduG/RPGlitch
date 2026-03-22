@@ -18,7 +18,7 @@ export class ChronoStore {
    * 5. Anchoring State (Runtime)
    * 6. Unlocks UI
    */
-  async advanceTurn(input = null) {
+  async advance_turn(input = null) {
     if (app.simulation.loading) return; // Prevent double-clicks
     const storyId = runtime.storyId;
     if (!storyId) {
@@ -60,7 +60,7 @@ export class ChronoStore {
       app.log(`LLM synthesizing turn ${app.round + 1}...`, "ai");
       // The GM facade maps generateAiResponse -> Engine.generateAiResponse(storyId, options)
       // We pass shieldContext in options if needed, including reflex deltas for thermodynamics.
-      await Engine.generateAiResponse(storyId, {
+      await Engine.generate_ai_response(storyId, {
         shieldContext,
         input: finalInput,
       });

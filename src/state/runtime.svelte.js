@@ -34,7 +34,7 @@ function createRuntimeStore() {
     },
   });
   let simulation_state = $state({
-    ready: false,
+    is_ready: false,
     story_id: null,
     story: { by_id: {}, active_id: null },
     simulation_log: { by_story_id: {} },
@@ -49,7 +49,7 @@ function createRuntimeStore() {
       const _round = simulation_state.round;
       const _ai = ai_physics;
       const _fractal = fractal_physics;
-      if (simulation_state.ready && simulation_state.story_id) {
+      if (simulation_state.is_ready && simulation_state.story_id) {
         db.stories
           .update(simulation_state.story_id, {
             round: _round,
@@ -101,7 +101,7 @@ function createRuntimeStore() {
       simulation_state.story.active_id = id;
     },
     get is_ready() {
-      return simulation_state.ready;
+      return simulation_state.is_ready;
     },
     get round() {
       return simulation_state.round;
@@ -208,7 +208,7 @@ function createRuntimeStore() {
         if (story.entity_snapshots?.fractal?.dynamics) {
           entity_state.active_fractal.dynamics_baseline = story.entity_snapshots.fractal.dynamics;
         }
-        simulation_state.ready = true;
+        simulation_state.is_ready = true;
       } catch (err) {
         console.warn("[Data] Sync Failed:", err);
       }
@@ -277,7 +277,7 @@ function createRuntimeStore() {
       if (mock_data.user) entity_state.active_user = mock_data.user;
       if (mock_data.ai) entity_state.active_ai = mock_data.ai;
       if (mock_data.fractal) entity_state.active_fractal = mock_data.fractal;
-      simulation_state.ready = true;
+      simulation_state.is_ready = true;
     },
   };
   return api;

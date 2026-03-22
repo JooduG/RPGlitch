@@ -1,17 +1,19 @@
-# 🦇 Next Agent Directive
+# 🚀 RPGlitch: Next Agent Handoff
 
-**Context:** The intelligence core is now fully standardised and 100% camelCase compliant. `PromptBuilder` has been updated to the Markdown `[TAG]` format.
+## 🏁 Current Status
+- **Standardisation Complete**: Intelligence Core (`DynamicsEngine`, `PromptBuilder`, `ContextBroker`, `IntelligenceKernel`) and State Layer (`runtime.svelte.js`, `image_engine.js`) have been refactored to a unified `snake_case` naming regime.
+- **Verification PASS**: Full 176-test suite is Passing. `svelte-check` and `lint` are Green.
+- **Production LIVE**: Monolithic `index.html` (382KB) pushed and saved to Perchance. Final verification via local smoke test confirmed functional integrity.
 
-- **Intelligence Core Standardised**: `DynamicsEngine`, `PromptBuilder`, `ContextBroker`, and `IntelligenceKernel` are verified (56/56 tests passing).
-- **Physical/Visual Inclusion**: `ContextBroker` correctly hydrates physical fields for simulation turns.
-- **UI & Motion**: `kineticScroll` and `tilt` physics are active and stable.
+## 🛠️ Infrastructure & Environment
+- **Node.js**: 20.x+
+- **Framework**: Svelte 5 (Runes)
+- **Deployment**: Perchance (Playwright automated)
+- **Primary Verify**: `npm run verify`
 
-**Immediate Goal:** Proceed to **narrative-bridge** implementation.
+## 🎯 Next Objectives
+1. **Narrative Expansion**: Review and implement the "Narrative Bridge" for autonomous scene complications.
+2. **Context Persistence**: Audit the `Echo` (History) layer in Dexie.js to ensure standardisation didn't break schema migration.
+3. **Optimisation**: Investigate ways to reduce the monolithic bundle size below the 350KB goal without sacrificial UI features.
 
-1. Connect the `DynamicsEngine` output to the `SessionDriver` to ensure signals are stored in history.
-2. Trigger automatic scene complications (random events/interruptions) based on fractal state shifts.
-3. Ensure the narrative feed handles these "Dynamic Interruptions" with the proper kinetic transitions.
-
-**Constraints:** Maintain the Chalk Regime aesthetic. Use existing `app.log` for system-level narrative signals. No Bayesian legacy—use the new `DynamicsEngine` logic.
-
-_Payload processed. Standard established._
+_All systems are operational. The engine is primed._

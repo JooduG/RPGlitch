@@ -21,6 +21,8 @@ import { LlmService } from "./LlmService.js";
 import { runtime } from "@state/runtime.svelte.js";
 import { app } from "@state/app.svelte.js";
 import { Session } from "@core/engine/SessionDriver.js";
+import { Simulation } from "@core/engine/Simulation.js";
+import { Gamemaster } from "@core/engine/Gamemaster.js";
 export const IntelligenceKernel = {
   /**
    * EXECUTE TURN
@@ -36,6 +38,7 @@ export const IntelligenceKernel = {
     // 1. CHRONO: Round management
     // Round is managed by Session.send or explicit prologue start.
     // We ensure turn-type consistency here.
+    Simulation.update();
     runtime.turn_type = "SYSTEM_TURN";
     // 2. HYDRATION: Fetch history and hydrate context
     const raw_messages = await Session.load_log(story_id);
@@ -84,6 +87,10 @@ export const IntelligenceKernel = {
     // 8. TRANSITION: Open the window for User
     runtime.turn_type = "USER_TURN";
     runtime.round++;
+
+    // 9. HOUSEKEEPING: Trigger narrative control (Gamemaster) if needed
+    Gamemaster.consolidate();
+
     return { response, meta };
   },
   /**

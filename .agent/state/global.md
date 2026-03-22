@@ -46,6 +46,22 @@
 - **Focus**: Phase 4.0 Architecture — UI layout is currently stable.
 - **Pending Tasks**: None logged. Awaiting next Track.
 
+# Antigravity Mission Board
+
+## [WIP] [003] [Clinic: Codebase Sanitization & Audit]
+- [x] Phase 1: Diagnosis (Audit & Scoping)
+    - [x] Run `npm audit` for dependency hygiene.
+    - [x] Scan core logic for naming/lexicon violations (Rule 03).
+    - [x] Identify orphaned logic (`NarrativeDirector`).
+- [/] Phase 2: Sanitization (Execution)
+    - [ ] Rename `NarrativeDirector` -> `GameMaster` (Lexicon).
+    - [ ] Refactor `VectorEngine` & `PromptBuilder` to `snake_case`.
+    - [ ] Standardize boolean naming in `runtime.svelte.js`.
+    - [ ] Integrate memory consolidation into the main loop.
+- [ ] Phase 3: Validation (Scholar Gate)
+    - [ ] Run `vitest` suite globally.
+    - [ ] Update documentation and state shards.
+
 ## Completed Tasks
 
 - [x] Context Layering (Milestone 2)

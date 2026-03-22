@@ -2,7 +2,7 @@ import { db } from "@data/db.js";
 import { runtime } from "@state/runtime.svelte.js";
 import { simulation_log } from "@state/simulation_log.svelte.js";
 /**
- * 🕹️ SESSION GameMaster
+ * 🕹️ SESSION (Simulation & Gamemaster)
  * Handles persistence and state for the active story.
  * Replaces the old src/gamemaster/engine/session.js
  */

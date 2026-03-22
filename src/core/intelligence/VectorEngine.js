@@ -107,7 +107,7 @@ export const VECTOR_TEMPLATE = {
  * @param {string} text - Raw content (past) or intent (future).
  * @returns {Object} A strict Vector object.
  */
-export function createVector(text) {
+export function create_vector(text) {
   const reflexes = DynamicsEngine.dynamics_scan(text);
   return {
     id: crypto.randomUUID(),
@@ -136,7 +136,7 @@ export function createVector(text) {
  * @param {string} input   - The current user input or situation context.
  * @returns {Array} Sorted list of vectors (best match first).
  */
-export function scoreVectors(vectors, input) {
+export function score_vectors(vectors, input) {
   if (!Array.isArray(vectors) || !vectors.length) return [];
   if (!input) return vectors.slice(-3); // No input? Just give the 3 newest memories
   const active_reflexes = DynamicsEngine.dynamics_scan(input);
@@ -196,16 +196,16 @@ export function scoreVectors(vectors, input) {
  * @param {Object} [options={ vector_text: true, vector_label: true }]
  * @returns {string} Formatted past block.
  */
-export function formatPast(
+export function format_past(
   vectors,
   input,
   limit = 3,
   offset = 0,
   options = { vector_text: true, vector_label: true },
 ) {
-  const show_text = options.vector_text ?? options.vectorText ?? true;
-  const show_label = options.vector_label ?? options.vectorLabel ?? true;
-  const ranked = scoreVectors(vectors, input).slice(offset, offset + limit);
+  const show_text = options.vector_text ?? true;
+  const show_label = options.vector_label ?? true;
+  const ranked = score_vectors(vectors, input).slice(offset, offset + limit);
   const reversed = [...ranked].reverse();
   return reversed
     .map((v) => {
@@ -236,16 +236,16 @@ export function formatPast(
  * @param {Object} [options={ vector_text: true, vector_label: true }]
  * @returns {string} Formatted future block.
  */
-export function formatFuture(
+export function format_future(
   vectors,
   input,
   limit = 3,
   offset = 0,
   options = { vector_text: true, vector_label: true },
 ) {
-  const show_text = options.vector_text ?? options.vectorText ?? true;
-  const show_label = options.vector_label ?? options.vectorLabel ?? true;
-  const ranked = scoreVectors(vectors, input).slice(offset, offset + limit);
+  const show_text = options.vector_text ?? true;
+  const show_label = options.vector_label ?? true;
+  const ranked = score_vectors(vectors, input).slice(offset, offset + limit);
   const reversed = [...ranked].reverse();
   return reversed
     .map((v) => {
@@ -287,9 +287,9 @@ export function resolve_vector(entity, vector_id, resolution = null) {
  * Unified API Export
  */
 export const VectorEngine = {
-  create_vector: createVector,
-  score_vectors: scoreVectors,
-  format_past: formatPast,
-  format_future: formatFuture,
+  create_vector,
+  score_vectors,
+  format_past,
+  format_future,
   resolve_vector,
 };

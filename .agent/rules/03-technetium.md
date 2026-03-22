@@ -116,14 +116,17 @@ To prevent cognitive drift and conversion errors, these definitions are absolute
 
 ### The Lexicon
 
-| Concept               | Standard Term        | Forbidden Terms                    |
-| :-------------------- | :------------------- | :--------------------------------- |
-| **The Logic Engine**  | **SimulationMaster** | Director, Orchestrator, GameMaster |
-| **Debug UI**          | **DevMode**          | Debug Mode, God Mode, Cheat        |
-| **Narrative Control** | **GM Mode**          | Director Mode, Storyteller         |
-| **User Interface**    | **StoryMode**        | Chat, Play Mode                    |
+| Concept               | Standard Term            | Forbidden Terms                    |
+| :-------------------- | :-------------------     | :--------------------------------- |
+| **Logic Engine**      | **Simulation**           | Director, Orchestrator,            |
+| **Debug UI**          | **Devmode**              | Debug Mode, God Mode, Cheat        |
+| **Narrative Control** | **Gamemaster**           | Director, Storyteller              |
+| **User Interface**    | **Storymode**            | Chat, Play Mode                    |
+| **User Interface**    | **Storyboard**           | Lobby                              |
+| **User**              | **User/Persona**         | Player                             |
+| **AI**                | **AI/Character**         | Persona, Actor                     |
 
-### Localization (Swedish/SI Standard)
+### Localization (Swedish/SI Standard
 
 - **Date & Time**: **ISO 8601** (`YYYY-MM-DD`) and **24-Hour Clock** (`14:30`). _No MM/DD/YYYY or AM/PM._
 - **Measurements**: Metric/SI only. Meters (`m`), Grams (`g`), Celsius (`°C`), Liters (`l`). _Never imperial (miles, pounds, Fahrenheit)._

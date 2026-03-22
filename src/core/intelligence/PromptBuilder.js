@@ -31,12 +31,12 @@
  */
 import { VectorEngine } from "./VectorEngine.js";
 export const SYSTEM_PROMPTS = {
-  simulation: ({ round, entities, simulationLog, signalPrompts, input, render_atom }) => {
+  simulation: ({ round, entities, simulation_log, signal_prompts, input, render_atom }) => {
     const ai = entities.AI;
     const user = entities.USER;
     const fractal = entities.FRACTAL;
     return `
-<SYSTEM role="${ai.name}" round="${round}" objective="${render_atom.future(ai, 1, 0, { vectorText: true }).trim()}">
+<SYSTEM role="${ai.name}" round="${round}" objective="${render_atom.future(ai, 1, 0, { vector_text: true }).trim()}">
 <YOUR_IDENTITY name="${ai.name}">
 <PRESENT>${ai.fragments.present.non_physical}</PRESENT>
 <ETERNAL>${ai.fragments.eternal.non_physical}</ETERNAL>
@@ -46,17 +46,17 @@ export const SYSTEM_PROMPTS = {
 <USER_PERSONA name="${user.name}">
 <PRESENT>${user.fragments.present.non_physical}</PRESENT>
 <ETERNAL>${user.fragments.eternal.non_physical}</ETERNAL>
-<FUTURE vector="${render_atom.future(user, 1, 0, { vectorText: true }).trim()}" />
-<PAST memory="${render_atom.past(user, 1, 0, { vectorText: true }).trim()}" />
+<FUTURE vector="${render_atom.future(user, 1, 0, { vector_text: true }).trim()}" />
+<PAST memory="${render_atom.past(user, 1, 0, { vector_text: true }).trim()}" />
 </USER_PERSONA>
 <FRACTAL name="${fractal.name}">
 <PRESENT>${fractal.fragments.present.non_physical}</PRESENT>
 <ETERNAL>${fractal.fragments.eternal.non_physical}</ETERNAL>
-<FUTURE vector="${render_atom.future(fractal, 1, 0, { vectorText: true }).trim()}" />
-<PAST memory="${render_atom.past(fractal, 1, 0, { vectorText: true }).trim()}" />
+<FUTURE vector="${render_atom.future(fractal, 1, 0, { vector_text: true }).trim()}" />
+<PAST memory="${render_atom.past(fractal, 1, 0, { vector_text: true }).trim()}" />
 </FRACTAL>
-<SIMULATION_LOG>${PromptBuilder.render_history(simulationLog, 10)}</SIMULATION_LOG>
-<NARRATIVE_STYLE>${signalPrompts.length > 0 ? signalPrompts.join("\n") : "Use default style vectors."}</NARRATIVE_STYLE>
+<SIMULATION_LOG>${PromptBuilder.render_history(simulation_log, 10)}</SIMULATION_LOG>
+<NARRATIVE_STYLE>${signal_prompts.length > 0 ? signal_prompts.join("\n") : "Use default style vectors."}</NARRATIVE_STYLE>
 <PROTOCOLS>${PromptBuilder.render_protocols("SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL, SUSPICIOUS_COGNITION")}</PROTOCOLS>
 <TASK_INSTRUCTION>
 The stage is set and the pieces are on the board. Proceed with the simulation immediately.
@@ -186,7 +186,7 @@ ${content}
  */
 const PROTOCOL_LIBRARY = {
   IDENTITY: `IDENTITY: You are the entity currently encapsulated by the "<YOUR_IDENTITY>" block. Ground all inferences in observable signals.`,
-  USER_AGENCY: `USER_AGENCY: Never generate dialogue, thoughts, or actions for the User. Maintain absolute player autonomy.`,
+  USER_AGENCY: `USER_AGENCY: Never generate dialogue, thoughts, or actions for the User. Maintain absolute User Autonomy.`,
   PLACEMENT: `PLACEMENT: You may describe any character's physical presence, position, and sensory experience in the scene. Never generate their dialogue, decisions, or internal thoughts.`,
   EPISTEMIC_WALL: `EPISTEMIC_WALL: Treat the User as a Black Box. You have no access to their internal motivations beyond what is explicitly observable.`,
   COGNITION: `COGNITION: Every response MUST begin with a <think> block for internal state assessment. You MUST assess the physical environment's geometry, atmospheric resonance, and the spatial proximity of all characters BEFORE providing any narrative output.`,
@@ -229,8 +229,8 @@ export class PromptBuilder {
       round: payload.round,
       entities: payload.entities,
       input: payload.input,
-      simulationLog: payload.simulationLog,
-      signalPrompts: snapshot.signal_prompts || [],
+      simulation_log: payload.simulation_log,
+      signal_prompts: snapshot.signal_prompts || [],
       render_atom,
     });
     return {
@@ -239,7 +239,7 @@ export class PromptBuilder {
         ai: snapshot.ai.dynamics,
         fractal: snapshot.fractal.dynamics,
         flags: snapshot.flags,
-        signalPrompts: snapshot.signal_prompts,
+        signal_prompts: snapshot.signal_prompts,
       },
     };
   }
@@ -248,10 +248,10 @@ export class PromptBuilder {
    * Creates a functional proxy for atomic fragment rendering.
    */
   static create_render_atom(entities, input, raw_messages) {
-    const resolve = (entityReference) =>
-      typeof entityReference === "string"
-        ? entities[entityReference] || entities.AI
-        : entityReference;
+    const resolve = (entity_reference) =>
+      typeof entity_reference === "string"
+        ? entities[entity_reference] || entities.AI
+        : entity_reference;
     const history_pool = Array.isArray(raw_messages) ? raw_messages : [];
     const recent_history = history_pool
       .slice(-3)
@@ -259,12 +259,12 @@ export class PromptBuilder {
       .join(" ");
     const scoring_context = `${input || ""} ${recent_history}`.trim();
     return {
-      past: (entityReference, limit = 3, offset = 0, options) => {
-        const entity = resolve(entityReference);
+      past: (entity_reference, limit = 3, offset = 0, options) => {
+        const entity = resolve(entity_reference);
         return VectorEngine.format_past(entity.past || [], scoring_context, limit, offset, options);
       },
-      future: (entityReference, limit = 3, offset = 0, options) => {
-        const entity = resolve(entityReference);
+      future: (entity_reference, limit = 3, offset = 0, options) => {
+        const entity = resolve(entity_reference);
         return VectorEngine.format_future(
           entity.future || [],
           scoring_context,
@@ -282,12 +282,12 @@ export class PromptBuilder {
    * SIMULATION LOG
    * Renders history of simulation.
    */
-  static render_history(simulationLog, count = 10, offset = 0) {
-    if (!simulationLog || typeof simulationLog === "string") return simulationLog || "";
-    if (Array.isArray(simulationLog)) {
-      const start = Math.max(0, simulationLog.length - (count + offset));
-      const end = Math.max(0, simulationLog.length - offset);
-      return simulationLog
+  static render_history(simulation_log, count = 10, offset = 0) {
+    if (!simulation_log || typeof simulation_log === "string") return simulation_log || "";
+    if (Array.isArray(simulation_log)) {
+      const start = Math.max(0, simulation_log.length - (count + offset));
+      const end = Math.max(0, simulation_log.length - offset);
+      return simulation_log
         .slice(start, end)
         .map((m) => {
           const role =

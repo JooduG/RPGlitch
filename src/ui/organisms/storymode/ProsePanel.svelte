@@ -33,7 +33,7 @@
   async function handle_delete(index) {
     const entry = simulation_log.feed[index];
     if (entry && entry.id && confirm("Permanently delete this entry?")) {
-      await session.deleteLogEntry(entry.id);
+      await session.delete_log_entry(entry.id);
     }
   }
 
@@ -50,7 +50,7 @@
     if (!entry) return;
     const new_text = prompt("Edit log entry:", entry.text);
     if (new_text !== null && new_text !== entry.text) {
-      await session.editLogEntry(entry.id, new_text);
+      await session.edit_log_entry(entry.id, new_text);
     }
   }
 </script>

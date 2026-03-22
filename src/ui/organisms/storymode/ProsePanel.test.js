@@ -48,7 +48,7 @@ describe("ProsePanel Integration (Isolated)", () => {
     expect(screen.getByText("Streaming...")).toBeDefined();
   });
   it("handles message deletion", async () => {
-    const deleteSpy = vi.spyOn(session, "deleteLogEntry").mockResolvedValue();
+    const deleteSpy = vi.spyOn(session, "delete_log_entry").mockResolvedValue();
     simulation_log.add({ id: "msg-123", text: "To Delete", role: "user" });
     render(ProsePanel);
     const deleteBtn = screen.getByTestId("mock-delete");
@@ -56,7 +56,7 @@ describe("ProsePanel Integration (Isolated)", () => {
     expect(deleteSpy).toHaveBeenCalledWith("msg-123");
   });
   it("handles message editing", async () => {
-    const editSpy = vi.spyOn(session, "editLogEntry").mockResolvedValue();
+    const editSpy = vi.spyOn(session, "edit_log_entry").mockResolvedValue();
     vi.spyOn(window, "prompt").mockReturnValue("New Text");
     simulation_log.add({ id: "msg-456", text: "To Edit", role: "user" });
     render(ProsePanel);

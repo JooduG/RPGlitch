@@ -10,7 +10,7 @@ describe("Narrative Vector System", () => {
   });
 
   it("should initialize with empty vectors", () => {
-    // Default for FRACTAL is now handled by the caller or NarrativeDirector seeding
+    // Default for FRACTAL is now handled by the caller or Simulation seeding
     expect(runtime.active_vectors("FRACTAL")[0]?.text).toBeUndefined();
     expect(runtime.active_vectors("FRACTAL")).toEqual([]);
   });
