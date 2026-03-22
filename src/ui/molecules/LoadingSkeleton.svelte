@@ -14,7 +14,7 @@
 
 <style>
     .skeleton {
-        background: var(--bg-component);
+        background: var(--surface-sunken);
         border-radius: var(--border-radius-m);
         overflow: hidden;
         position: relative;

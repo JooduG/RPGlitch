@@ -11,7 +11,7 @@ export const Engine = {
   requireActive: () => Session.requireActive(),
   getActive: () => Session.activeId,
   createFromSelection: (data) => Session.createFromSelection(data),
-  loadMessages: (storyId) => Session.load_log(storyId),
+  loadMessages: (storyId) => Session.loadLog(storyId),
   send: async (text) => {
     await Session.send(text);
     await Engine.generateAiResponse(Session.requireActive());

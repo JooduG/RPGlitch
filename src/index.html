@@ -17,13 +17,27 @@
         body {
           margin: 0;
           background-color: var(--bg-base);
-          background-image: radial-gradient(
-            circle at 50% 0%,
-            var(--bg-grad-1),
-            var(--bg-grad-2) 50%,
-            var(--bg-grad-3) 75%,
-            var(--bg-grad-4)
-          );
+          background-image:
+            radial-gradient(
+              circle at 15% 50%,
+              var(--bg-grad-1),
+              transparent 50%
+            ),
+            radial-gradient(
+              circle at 85% 30%,
+              var(--bg-grad-2),
+              transparent 50%
+            ),
+            radial-gradient(
+              circle at 50% 80%,
+              var(--bg-grad-3),
+              transparent 50%
+            ),
+            radial-gradient(
+              circle at 50% 10%,
+              var(--bg-grad-4),
+              transparent 50%
+            );
           background-size: cover;
           background-attachment: fixed;
           background-repeat: no-repeat;

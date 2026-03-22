@@ -1,7 +1,7 @@
 # RPGlitch: Session Tracks
 
 - **Narrative Bridge** (Active): Initiated registration and architectural planning for autonomous scene complications.
-- **UI Audit & Polish**: Standardized Chalk Regime tokens across atomic and organism layers. Implemented `kineticScroll` with momentum decay in `kinetic.js` and injected it into `LibraryDrawer.svelte`.
+- **UI Audit & Polish**: Standardized Chalk Regime tokens across atomic and organism layers. Implemented `kineticScroll` with momentum decay in `kinetic.js` and injected it into `LibraryDrawer.svelte`. [Branch: feat/ui-audit-polish]
 - **Verifying System**: `npm run verify` passed all 176 tests. `DynamicsEngine` logic confirmed clean of Bayesian legacy.
 
 ## Archive

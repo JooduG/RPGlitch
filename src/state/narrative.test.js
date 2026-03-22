@@ -1,43 +1,50 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { runtime } from "./runtime.svelte.js";
+
 describe("Narrative Vector System", () => {
   beforeEach(() => {
     // Reset state before each test
-    runtime._debug_inject({
+    runtime._debugInject({
       fractal: { id: "test-fractal", active: true, future: [] },
     });
   });
+
   it("should initialize with empty vectors", () => {
-    expect(runtime.active_vector("FRACTAL")).toBe("Continue the journey."); // Default for FRACTAL
-    expect(runtime.active_echoes("FRACTAL")).toEqual([]);
+    // Default for FRACTAL is now handled by the caller or NarrativeDirector seeding
+    expect(runtime.activeVectors("FRACTAL")[0]?.text).toBeUndefined();
+    expect(runtime.activeVectors("FRACTAL")).toEqual([]);
   });
+
   it("should add a vector to the background (echoes)", () => {
-    runtime.add_vector("Find the key.", "FRACTAL");
+    runtime.addVector("Find the key.", "FRACTAL");
     expect(runtime.active_fractal.future).toHaveLength(1);
-    expect(runtime.active_vector("FRACTAL")).toBe("Find the key.");
-    expect(runtime.active_echoes("FRACTAL")).toEqual([]);
-    runtime.add_vector("Explore the cave.", "FRACTAL");
+    expect(runtime.activeVectors("FRACTAL")[0].text).toBe("Find the key.");
+    
+    runtime.addVector("Explore the cave.", "FRACTAL");
     expect(runtime.active_fractal.future).toHaveLength(2);
     // "Find the key" is still index 0 because we pushed
-    expect(runtime.active_vector("FRACTAL")).toBe("Find the key.");
-    expect(runtime.active_echoes("FRACTAL")[0].text).toBe("Explore the cave.");
+    expect(runtime.activeVectors("FRACTAL")[0].text).toBe("Find the key.");
+    expect(runtime.activeVectors("FRACTAL")[1].text).toBe("Explore the cave.");
   });
+
   it("should add a vector to the front (is_vanguard)", () => {
-    runtime.add_vector("Background Task", "FRACTAL");
-    runtime.add_vector("Urgent Task", "FRACTAL", true); // isVanguard = true
-    expect(runtime.active_vector("FRACTAL")).toBe("Urgent Task");
-    expect(runtime.active_echoes("FRACTAL")[0].text).toBe("Background Task");
+    runtime.addVector("Background Task", "FRACTAL");
+    runtime.addVector("Urgent Task", "FRACTAL", true); // isVanguard = true
+    expect(runtime.activeVectors("FRACTAL")[0].text).toBe("Urgent Task");
+    expect(runtime.activeVectors("FRACTAL")[1].text).toBe("Background Task");
   });
+
   it("should complete the active vector and promote the next one", () => {
-    runtime.add_vector("Task A", "FRACTAL");
-    runtime.add_vector("Task B", "FRACTAL");
-    expect(runtime.active_vector("FRACTAL")).toBe("Task A");
-    runtime.complete_vector("FRACTAL");
-    expect(runtime.active_vector("FRACTAL")).toBe("Task B");
+    runtime.addVector("Task A", "FRACTAL");
+    runtime.addVector("Task B", "FRACTAL");
+    expect(runtime.activeVectors("FRACTAL")[0].text).toBe("Task A");
+    runtime.completeVector("FRACTAL");
+    expect(runtime.activeVectors("FRACTAL")[0].text).toBe("Task B");
     expect(runtime.active_fractal.future).toHaveLength(1);
   });
-  it("should handle complete_vector on empty vectors safely", () => {
-    runtime.complete_vector("FRACTAL");
+
+  it("should handle completeVector on empty vectors safely", () => {
+    runtime.completeVector("FRACTAL");
     expect(runtime.active_fractal.future).toEqual([]);
   });
 });

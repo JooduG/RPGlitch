@@ -27,8 +27,8 @@
     // --- ACTIONS ---
     async function handle_delete(index) {
         const entry = simulation_log.feed[index]
-        if (entry && entry.id) {
-            await session.delete_entry(entry.id)
+        if (confirm("Permanently delete this entry?")) {
+            await session.deleteLogEntry(entry.id)
         }
     }
     async function handle_regenerate() {
@@ -41,8 +41,8 @@
         const entry = simulation_log.feed[index]
         if (!entry) return
         const new_text = prompt("Edit log entry:", entry.text)
-        if (new_text !== null && new_text !== entry.text) {
-            await session.edit_entry(entry.id, new_text)
+        if (new_text && new_text !== entry.text) {
+            await session.editLogEntry(entry.id, new_text)
         }
     }
 </script>

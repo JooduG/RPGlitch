@@ -121,26 +121,19 @@ function createRuntimeStore() {
         : null;
     },
     // --- VECTOR API ---
-    active_vector: (role = "AI") => {
-      const entity = api._get_entity_by_role(role);
-      return (
-        entity?.future?.[0]?.text ||
-        (role === "FRACTAL" ? "Continue the journey." : "")
-      );
+    activeVectors: (role = "AI") => {
+      const entity = api._getEntityByRole(role);
+      return entity?.future || [];
     },
-    active_echoes: (role = "AI") => {
-      const entity = api._get_entity_by_role(role);
-      return entity?.future?.slice(1) || [];
-    },
-    add_vector: (text, role = "AI", is_vanguard = false) => {
-      const entity = api._get_entity_by_role(role);
+    addVector: (text, role = "AI", is_vanguard = false) => {
+      const entity = api._getEntityByRole(role);
       if (!entity) return;
       if (!Array.isArray(entity.future)) entity.future = [];
       const new_vector = VectorEngine.create_vector(text);
       if (is_vanguard) entity.future.unshift(new_vector);
       else entity.future.push(new_vector);
     },
-    log_turn: (content, is_user = false) => {
+    logTurn: (content, is_user = false) => {
       const story_id = simulationState.story_id || "debug";
       if (!simulationState.simulation_log.by_story_id[story_id]) {
         simulationState.simulation_log.by_story_id[story_id] = [];
@@ -154,13 +147,13 @@ function createRuntimeStore() {
         created_at: Date.now(),
       });
     },
-    complete_vector: (role = "AI") => {
-      const entity = api._get_entity_by_role(role);
+    completeVector: (role = "AI") => {
+      const entity = api._getEntityByRole(role);
       if (Array.isArray(entity?.future) && entity.future.length > 0) {
         entity.future.shift();
       }
     },
-    _get_entity_by_role: (role) => {
+    _getEntityByRole: (role) => {
       if (role === "AI") return entityState.active_ai;
       if (role === "USER") return entityState.active_user;
       if (role === "FRACTAL") return entityState.active_fractal;
@@ -218,22 +211,6 @@ function createRuntimeStore() {
         console.warn("[Data] Sync Failed:", err);
       }
     },
-    update_vibe: (entity_id, new_color, new_seed) => {
-      const targets = [
-        ...new Set([
-          entityState.character,
-          entityState.active_user,
-          entityState.active_ai,
-          entityState.active_fractal,
-        ]),
-      ];
-      targets.forEach((t) => {
-        if (t && t.id === entity_id) {
-          if (new_color) t.signature_color = new_color;
-          if (new_seed !== undefined) t.visuals.profile_picture_seed = new_seed;
-        }
-      });
-    },
     save: async (round = null) => {
       if (!simulationState.story_id) return;
       try {
@@ -248,7 +225,7 @@ function createRuntimeStore() {
         console.error("[Data] Story Save Failed:", err);
       }
     },
-    save_entity: async (type, entity) => {
+    saveEntity: async (type, entity) => {
       try {
         await entities.upsert(type, entity);
         if (entityState.character && entityState.character.id === entity.id) {
@@ -259,7 +236,7 @@ function createRuntimeStore() {
         throw err;
       }
     },
-    update_entity: async (type, id, data) => {
+    updateEntity: async (type, id, data) => {
       try {
         if (type === "story") {
           await db.stories.update(id, data);
@@ -267,7 +244,9 @@ function createRuntimeStore() {
             Object.assign(simulationState.story.by_id[id] || {}, data);
           }
         } else {
-          await entities.update(type, id, data);
+          // Add updated_at if not present for consistency
+          const payload = { ...data, updated_at: Date.now() };
+          await entities.update(type, id, payload);
           const targets = [
             ...new Set([
               entityState.character,
@@ -277,14 +256,14 @@ function createRuntimeStore() {
             ]),
           ];
           targets.forEach((t) => {
-            if (t && t.id === id) Object.assign(t, data);
+            if (t && t.id === id) Object.assign(t, payload);
           });
         }
       } catch (err) {
         console.error(`[Data] Update Entity (${type}) Failed:`, err);
       }
     },
-    delete_entity: async (type, id) => {
+    deleteEntity: async (type, id) => {
       try {
         await entities.remove(type, id);
       } catch (err) {
@@ -292,22 +271,7 @@ function createRuntimeStore() {
         throw err;
       }
     },
-    update_character: async (data) => {
-      Object.assign(entityState.character, data);
-      if (entityState.character.id) {
-        try {
-          await db.entities.update(entityState.character.id, {
-            ...data,
-            updated_at: Date.now(),
-          });
-        } catch (err) {
-          console.error("[Data] Save Failed:", err);
-        }
-      } else {
-        console.warn("[Data] Cannot save: No Character ID linked.");
-      }
-    },
-    _debug_inject: (mock_data) => {
+    _debugInject: (mock_data) => {
       if (mock_data.user) entityState.active_user = mock_data.user;
       if (mock_data.ai) entityState.active_ai = mock_data.ai;
       if (mock_data.fractal) entityState.active_fractal = mock_data.fractal;

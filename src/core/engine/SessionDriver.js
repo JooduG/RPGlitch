@@ -87,7 +87,7 @@ export const Session = {
   /**
    * Load log entries for a story
    */
-  load_log: async (story_id) => {
+  loadLog: async (story_id) => {
     return await db.simulation_log.where("story_id").equals(story_id).toArray();
   },
   /**
@@ -111,7 +111,7 @@ export const Session = {
   /**
    * Add a simulation log entry (Response)
    */
-  log_turn: async (text, character_name, role = "assistant", meta = {}) => {
+  logTurn: async (text, character_name, role = "assistant", meta = {}) => {
     const story_id = Session.requireActive();
     const turn_type =
       meta.turn_type || (role === "user" ? "USER_TURN" : "AI_TURN");
@@ -148,7 +148,7 @@ export const Session = {
   /**
    * Delete a specific log entry by ID
    */
-  delete_entry: async (id) => {
+  deleteLogEntry: async (id) => {
     Session.requireActive();
     await db.simulation_log.delete(id);
     simulation_log.refresh();
@@ -156,7 +156,7 @@ export const Session = {
   /**
    * Edit a specific log entry text
    */
-  edit_entry: async (id, new_text) => {
+  editLogEntry: async (id, new_text) => {
     Session.requireActive();
     await db.simulation_log.update(id, { text: new_text });
     simulation_log.refresh();

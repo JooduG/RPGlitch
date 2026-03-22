@@ -25,6 +25,9 @@ export const AppBootstrap = {
       mount(App, {
         target: document.getElementById("main-app-container") || document.body,
       });
+      // 4. Tear down boot illusion — it lives in #svelte-root which is NOT the
+      //    mount target, so Svelte never cleans it up. Remove it explicitly.
+      document.getElementById("svelte-root")?.remove();
       console.info("[Engine] 🏁 System Online.");
     } catch (err) {
       console.error("[Engine] ❌ Critical Failure:", err);

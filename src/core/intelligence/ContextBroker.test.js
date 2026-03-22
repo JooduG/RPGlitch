@@ -34,10 +34,9 @@ vi.mock("@state/runtime.svelte.js", () => ({
       future: [{ id: "1", text: "Find the key" }],
     },
     // Universal Vector API Mocks
-    active_vector: vi.fn((role) =>
-      role === "FRACTAL" ? "Find the key" : "EXPLORE",
+    activeVectors: vi.fn((role) =>
+      role === "FRACTAL" ? [{ id: "1", text: "Find the key" }] : [{ id: "2", text: "EXPLORE" }]
     ),
-    active_echoes: vi.fn(() => []),
   },
 }));
 describe("ContextBroker (Refactored)", () => {

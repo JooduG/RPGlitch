@@ -122,20 +122,20 @@ export class ReactiveSession {
   /**
    * 🧪 DEBUG: Inject AI Message
    */
-  async log_turn(text, character_name, role) {
-    await Session.log_turn(text, character_name, role);
+  async logTurn(text, character_name, role) {
+    await Session.logTurn(text, character_name, role);
   }
   /**
    * Delete a log entry by ID
    */
-  async delete_entry(id) {
-    await Session.delete_entry(id);
+  async deleteLogEntry(id) {
+    await Session.deleteLogEntry(id);
   }
   /**
    * Edit a log entry by ID
    */
-  async edit_entry(id, new_text) {
-    await Session.edit_entry(id, new_text);
+  async editLogEntry(id, new_text) {
+    await Session.editLogEntry(id, new_text);
   }
 }
 export const session = new ReactiveSession();
