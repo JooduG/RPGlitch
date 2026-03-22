@@ -36,19 +36,11 @@ import { PromptBuilder } from "./PromptBuilder.js";
  * @param {string}   [role]        - Context role: "character" | "user" | "fractal".
  * @returns {Promise<{summary: string, vector_tags: string[], dynamics_tags: string[], timestamp: number}|null>}
  */
-export async function consolidate_vector(
-  target_entity,
-  history_slice,
-  role = "character",
-) {
+export async function consolidate_vector(target_entity, history_slice, role = "character") {
   if (!target_entity) return null;
   try {
     // 1. Build the memory condensation prompt.
-    const payload = PromptBuilder.build_memory_prompt(
-      role,
-      target_entity,
-      history_slice,
-    );
+    const payload = PromptBuilder.build_memory_prompt(role, target_entity, history_slice);
     // 2. Generate a raw Resonance response from the LLM.
     //    Expects: { summary: string, vector_tags: string[] }
     const response = await LlmService.generate(payload, {

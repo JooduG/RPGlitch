@@ -21,18 +21,10 @@ export const VISUAL_CORTEX = `
  * Utility to safely access the lists injected from the Left Panel.
  */
 const getRpgList = (key) => {
-  if (
-    typeof window !== "undefined" &&
-    window.rpgLists &&
-    window.rpgLists[key]
-  ) {
+  if (typeof window !== "undefined" && window.rpgLists && window.rpgLists[key]) {
     let list = window.rpgLists[key];
     // Adaptive Parsing: Handle the [JSON.stringify(...)] quirk or raw arrays
-    if (
-      Array.isArray(list) &&
-      typeof list[0] === "string" &&
-      list[0].startsWith("[")
-    ) {
+    if (Array.isArray(list) && typeof list[0] === "string" && list[0].startsWith("[")) {
       try {
         return JSON.parse(list[0]);
       } catch (e) {
@@ -52,9 +44,7 @@ export const AestheticRouter = {
    */
   select(characterData = {}) {
     const physical = (characterData.physical || "").toLowerCase();
-    const fragments = (characterData.fragments || []).map((f) =>
-      f.toLowerCase(),
-    );
+    const fragments = (characterData.fragments || []).map((f) => f.toLowerCase());
     const haystack = `${physical} ${fragments.join(" ")}`;
     const lists = {
       styles: getRpgList("styles"),
@@ -66,9 +56,7 @@ export const AestheticRouter = {
       const matches = list.filter((item) =>
         haystack.includes(item.toLowerCase().split(",")[0].trim()),
       );
-      return matches.length > 0
-        ? matches[Math.floor(Math.random() * matches.length)]
-        : null;
+      return matches.length > 0 ? matches[Math.floor(Math.random() * matches.length)] : null;
     };
     return {
       style: pickMatch(lists.styles),
@@ -87,9 +75,7 @@ export const AestheticRouter = {
 export const PROMPT_TEMPLATES = {
   optimize: (text, selections = {}) => {
     const { style, lighting, mood, quality } = selections;
-    const grounding = [style, lighting, mood, quality]
-      .filter(Boolean)
-      .join(", ");
+    const grounding = [style, lighting, mood, quality].filter(Boolean).join(", ");
     return `
 [SYSTEM: PROMPT_ENGINEER]
 I translate rough character descriptions into dense, visual-only tokens optimized for text-to-image stable diffusion models.
@@ -109,9 +95,7 @@ ${text}
   builder: (targetType, rawIntent, context, selections = {}) => {
     const { ai, user, fractal, history, mode = "visualize" } = context || {};
     const { style, lighting, mood, quality } = selections;
-    const grounding = [style, lighting, mood, quality]
-      .filter(Boolean)
-      .join(", ");
+    const grounding = [style, lighting, mood, quality].filter(Boolean).join(", ");
     let ctxBlock = "";
     switch (targetType) {
       case "scene":
@@ -207,12 +191,8 @@ export const PromptEngine = {
     const present = entity.present?.physical || "";
     const eternal = entity.eternal?.physical || "";
     let semanticColor = entity.visuals?.colorName || "";
-    if (
-      !semanticColor &&
-      (entity.signature_color || entity.visuals?.signature_color)
-    ) {
-      const rawSigColor =
-        entity.signature_color || entity.visuals?.signature_color;
+    if (!semanticColor && (entity.signature_color || entity.visuals?.signature_color)) {
+      const rawSigColor = entity.signature_color || entity.visuals?.signature_color;
       const sigColor =
         typeof rawSigColor === "string"
           ? rawSigColor.replace(/[^\w# ]/g, "").substring(0, 50)
@@ -233,12 +213,8 @@ export const PromptEngine = {
     if (present) fragments.push(present);
     if (eternal) fragments.push(eternal);
     if (semanticColor)
-      fragments.push(
-        `integrate ${semanticColor} into the image, potentially as background color`,
-      );
-    fragments.push(
-      "high quality, hyper-realistic, volumetric lighting, 8k resolution",
-    );
+      fragments.push(`integrate ${semanticColor} into the image, potentially as background color`);
+    fragments.push("high quality, hyper-realistic, volumetric lighting, 8k resolution");
     return fragments.join(", ");
   },
 };

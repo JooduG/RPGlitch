@@ -26,9 +26,7 @@ describe("ImageGeneration", () => {
       const expectedStart =
         "wearing a trench coat, tall cyborg with glowing eyes, integrate neon blue into the image, potentially as background color";
       expect(prompt).toContain(expectedStart);
-      expect(prompt).toContain(
-        "high quality, hyper-realistic, volumetric lighting, 8k resolution",
-      );
+      expect(prompt).toContain("high quality, hyper-realistic, volumetric lighting, 8k resolution");
     });
     it("should convert known hex codes in signature_color to semantic names", () => {
       const entity = {
@@ -55,9 +53,7 @@ describe("ImageGeneration", () => {
         signature_color: "crimson",
       };
       const prompt = ImageGeneration.composeBasePrompt(entity);
-      expect(prompt).toContain(
-        "integrate crimson into the image, potentially as background color",
-      );
+      expect(prompt).toContain("integrate crimson into the image, potentially as background color");
     });
     it("should handle missing fields gracefully", () => {
       const entity = {

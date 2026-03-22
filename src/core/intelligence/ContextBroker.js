@@ -25,10 +25,7 @@ function get_path_value(obj, path) {
   for (const part of parts) {
     if (current && typeof current === "object") {
       current = current[part];
-    } else if (
-      typeof current === "string" &&
-      parts.indexOf(part) < parts.length - 1
-    ) {
+    } else if (typeof current === "string" && parts.indexOf(part) < parts.length - 1) {
       return current;
     } else {
       return "";
@@ -74,7 +71,8 @@ export class ContextBroker {
    */
   static async hydrate(input, type = "simulation", simulation_log = []) {
     const round = runtime.round || 1;
-    const activeVector = runtime.activeVectors("FRACTAL")[0]?.text || "EXPLORE";
+    const active_vector = runtime.active_vector("FRACTAL");
+
     // 1. Resolve Entities mapping (Role -> Data)
     const entries = [
       { role: "AI", data: runtime.active_ai },
@@ -82,16 +80,17 @@ export class ContextBroker {
       { role: "FRACTAL", data: runtime.active_fractal },
     ];
     const entities = {};
+
     // Parallel hydration of entities
     await Promise.all(
       entries.map(async ({ role, data }) => {
         const raw = data || { name: role, role, fragments: [] };
         const data_points = to_data_points(raw);
+
         // Lexical filtering for AI relevance
         const filtered =
-          role === "AI"
-            ? ContextBroker.lexical_filter(data_points, activeVector)
-            : data_points;
+          role === "AI" ? ContextBroker.lexical_filter(data_points, active_vector) : data_points;
+
         // Safety boot-strap
         if (filtered.length === 0) {
           filtered.push({
@@ -125,6 +124,7 @@ export class ContextBroker {
         };
       }),
     );
+
     // 2. Build Unified Payload
     return {
       input,
@@ -134,7 +134,7 @@ export class ContextBroker {
       simulation_log: ContextBroker.assemble_snapshot(simulation_log),
       rawMessages: simulation_log,
       meta: {
-        activeVector,
+        active_vector,
         timestamp: new Date().toISOString(),
       },
     };

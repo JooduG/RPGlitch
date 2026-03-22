@@ -46,7 +46,7 @@ describe("Modal.svelte", () => {
     const { container } = render(Modal, {
       on_close,
       variant: "profile",
-      children: () => {}
+      children: () => {},
     });
     // Find the outer layout which acts as the backdrop
     const layout = container.querySelector(".modal-layout");
@@ -61,7 +61,7 @@ describe("Modal.svelte", () => {
     const { container } = render(Modal, {
       on_close,
       variant: "profile",
-      children: () => {}
+      children: () => {},
     });
     // Find the modal element
     const modal = container.querySelector(".modal.variant-profile");

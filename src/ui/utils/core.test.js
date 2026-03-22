@@ -21,9 +21,7 @@ describe("utils", () => {
         value: { ...originalCrypto, randomUUID: undefined },
         configurable: true,
       });
-      expect(() => generateUUID()).toThrow(
-        /crypto.randomUUID is not available/,
-      );
+      expect(() => generateUUID()).toThrow(/crypto.randomUUID is not available/);
       // Restore the original crypto object
       Object.defineProperty(globalThis, "crypto", {
         value: originalCrypto,

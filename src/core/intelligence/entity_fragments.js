@@ -136,8 +136,7 @@ function build_entity_catalog() {
     if (section.fields) {
       Object.entries(section.fields).forEach(([field_key, field]) => {
         const id = `${section_key}.${field_key}`;
-        const metadata =
-          typeof field === "string" ? { description: field } : field;
+        const metadata = typeof field === "string" ? { description: field } : field;
         catalog[id] = {
           ...metadata,
           id,

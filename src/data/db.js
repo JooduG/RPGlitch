@@ -19,8 +19,7 @@ db.version(10).stores({
   entities:
     "id, name, description, profile_picture, signature_color, created_at, updated_at, tags, type, [type+isCustom], isChosen",
   stories: "++id, title, ai_id, user_id, fractal_id, created_at, updated_at",
-  simulation_log:
-    "++id, story_id, role, type, character_name, text, seed, meta, created_at",
+  simulation_log: "++id, story_id, role, type, character_name, text, seed, meta, created_at",
   settings: "id",
   kv_settings: "key",
   sessions: "++id, session_id, timestamp",
@@ -28,8 +27,7 @@ db.version(10).stores({
 });
 db.version(11)
   .stores({
-    stories:
-      "++id, title, ai_id, user_id, fractal_id, round, created_at, updated_at",
+    stories: "++id, title, ai_id, user_id, fractal_id, round, created_at, updated_at",
   })
   .upgrade(async (trans) => {
     return await trans
@@ -46,9 +44,7 @@ db.version(11)
   });
 // --- STABILITY HANDLERS ---
 db.on("blocked", () => {
-  console.warn(
-    "[Data] Database is blocked by another tab/version. Please close other instances.",
-  );
+  console.warn("[Data] Database is blocked by another tab/version. Please close other instances.");
 });
 db.on("versionchange", () => {
   db.close();

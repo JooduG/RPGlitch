@@ -11,8 +11,7 @@ describe("AppStore Telemetry", () => {
     expect(entry).toBeDefined();
     expect(entry.message).toBe("test security message");
     // UUID format check (8-4-4-4-12 hex characters)
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     expect(entry.id).toMatch(uuidRegex);
   });
 });

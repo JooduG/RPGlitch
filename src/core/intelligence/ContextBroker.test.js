@@ -34,9 +34,11 @@ vi.mock("@state/runtime.svelte.js", () => ({
       future: [{ id: "1", text: "Find the key" }],
     },
     // Universal Vector API Mocks
-    activeVectors: vi.fn((role) =>
+    active_vectors: vi.fn((role) =>
       role === "FRACTAL" ? [{ id: "1", text: "Find the key" }] : [{ id: "2", text: "EXPLORE" }]
     ),
+    active_vector: vi.fn((role) => (role === "FRACTAL" ? "Find the key" : "EXPLORE")),
+    active_echoes: vi.fn(() => []),
   },
 }));
 describe("ContextBroker (Refactored)", () => {
@@ -61,10 +63,7 @@ describe("ContextBroker (Refactored)", () => {
     expect(payload.entities.AI.fragments.present).toBeDefined();
   });
   it("should prioritize data points based on objective in lexical_filter", () => {
-    const data_points = [
-      { text: "I like apples" },
-      { text: "I need to find the door now" },
-    ];
+    const data_points = [{ text: "I like apples" }, { text: "I need to find the door now" }];
     const objective = "Find the door";
     const filtered = ContextBroker.lexical_filter(data_points, objective);
     expect(filtered[0].text).toContain("find the door");

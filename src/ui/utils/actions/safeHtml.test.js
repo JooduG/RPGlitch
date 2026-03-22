@@ -31,9 +31,7 @@ describe("safe_html action", () => {
       }),
     );
     // Ensure security.sanitizeToFragment was called
-    expect(security.sanitizeToFragment).toHaveBeenCalledWith(
-      "<b>Bold Content</b>",
-    );
+    expect(security.sanitizeToFragment).toHaveBeenCalledWith("<b>Bold Content</b>");
   });
   test("update function works correctly on subsequent calls", () => {
     const action = safe_html(mockNode, "Content 1");

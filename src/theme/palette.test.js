@@ -26,7 +26,10 @@ describe("ThemeStore Color Generation", () => {
   describe("Deterministic color generation fallback", () => {
     test.each([
       { case: "entity with name only", entity: { name: "Aether Blade" } },
-      { case: "entity with name and tags", entity: { name: "Mystic Bard", tags: ["magic", "music"] } },
+      {
+        case: "entity with name and tags",
+        entity: { name: "Mystic Bard", tags: ["magic", "music"] },
+      },
     ])("generates deterministic color for $case", ({ entity }) => {
       const result = get_signature(entity);
       expect(result).toMatch(/^var\(--color-[a-z]+\)$/);

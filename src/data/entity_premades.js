@@ -258,8 +258,7 @@ export const premade = {
     {
       id: "ashen-weald",
       name: "The Ashen Weald",
-      description:
-        "A cursed, eternally twilight forest surrounding a ruined gothic cathedral.",
+      description: "A cursed, eternally twilight forest surrounding a ruined gothic cathedral.",
       type: "fractal",
       signature_color: "Forest Green",
       profile_picture: "",
@@ -400,8 +399,7 @@ export const premade = {
     {
       id: "station-tartarus",
       name: "Station Tartarus",
-      description:
-        "An abandoned, failing deep-space mining rig falling into a black hole.",
+      description: "An abandoned, failing deep-space mining rig falling into a black hole.",
       type: "fractal",
       signature_color: "Ocean Blue",
       profile_picture: "",

@@ -35,30 +35,10 @@
         "node_modules/svelte/src/internal/client/dev/console-log.js"
       ]
     ],
-    [
-      "esm-env/browser",
-      [
-        "node_modules/esm-env/index.js"
-      ]
-    ],
-    [
-      "esm-env/development",
-      [
-        "node_modules/esm-env/index.js"
-      ]
-    ],
-    [
-      "esm-env/node",
-      [
-        "node_modules/esm-env/index.js"
-      ]
-    ],
-    [
-      "svelte/internal/client",
-      [
-        "node_modules/svelte/src/attachments/index.js"
-      ]
-    ]
+    ["esm-env/browser", ["node_modules/esm-env/index.js"]],
+    ["esm-env/development", ["node_modules/esm-env/index.js"]],
+    ["esm-env/node", ["node_modules/esm-env/index.js"]],
+    ["svelte/internal/client", ["node_modules/svelte/src/attachments/index.js"]]
   ],
   "ignoreUnused": [
     "@google/jules",

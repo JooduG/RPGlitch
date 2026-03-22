@@ -35,10 +35,7 @@ import { app } from "@state/app.svelte.js";
 export function sanitize(text) {
   return text
     .replace(/^["']|["']$/g, "")
-    .replace(
-      /^(here is|sure|certainly|i can help|enhanced text:|the enhanced text).*?:/i,
-      "",
-    )
+    .replace(/^(here is|sure|certainly|i can help|enhanced text:|the enhanced text).*?:/i, "")
     .replace(/^\s*```.*?[\r\n]/gm, "")
     .replace(/```\s*$/gm, "")
     .trim();
@@ -100,9 +97,7 @@ export const LlmService = {
     const instruction = [
       payload.system || "",
       chat_history ? `\n\n[CONVERSATION HISTORY]\n${chat_history}` : "",
-      payload.startWith
-        ? `\n\n[START RESPONSE WITH]\n${payload.startWith}`
-        : "",
+      payload.startWith ? `\n\n[START RESPONSE WITH]\n${payload.startWith}` : "",
     ]
       .filter(Boolean)
       .join("\n\n");
@@ -111,8 +106,7 @@ export const LlmService = {
       const gen_options = {
         temperature: options.temperature ?? payload.params?.temperature ?? 0.8,
         top_p: options.top_p ?? payload.params?.top_p,
-        repetition_penalty:
-          options.repetition_penalty ?? payload.params?.repetition_penalty,
+        repetition_penalty: options.repetition_penalty ?? payload.params?.repetition_penalty,
         max_tokens: options.max_tokens ?? payload.params?.max_tokens,
         model: options.model ?? payload.params?.model,
         stop_sequences: payload.stopSequences || [],
@@ -122,8 +116,7 @@ export const LlmService = {
       // 4. Wire streaming to the app layer
       const on_token = (chunk) => {
         if (!options.silent) {
-          if (!app.streaming.active)
-            app.start_stream(payload.node_id || "temp");
+          if (!app.streaming.active) app.start_stream(payload.node_id || "temp");
           app.update_stream(chunk);
         }
         if (options.onToken) options.onToken(chunk);
@@ -146,10 +139,7 @@ export const LlmService = {
         throw err;
       }
       const err_string = String(err);
-      if (
-        err_string.includes("stream keep alive") ||
-        err_string.includes("timeout")
-      ) {
+      if (err_string.includes("stream keep alive") || err_string.includes("timeout")) {
         console.error("[LlmService] Network error:", err);
         throw new Error(`${ERROR_MESSAGES.CONNECTION_LOST}`);
       }
@@ -164,8 +154,7 @@ export const LlmService = {
   _format_history: (messages) =>
     messages
       .map((m) => {
-        const label =
-          m.character_name || (m.role === "user" ? "User" : "Character");
+        const label = m.character_name || (m.role === "user" ? "User" : "Character");
         const text = m.content || m.text || "";
         return `${label}: ${text}`;
       })

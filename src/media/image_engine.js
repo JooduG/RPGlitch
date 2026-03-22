@@ -77,9 +77,7 @@ export const GeneratorEngine = {
    */
   async execute(finalPrompt, negativePrompt, options) {
     if (!window.pluginTextToImage) {
-      console.warn(
-        "[IMAGE_ENGINE] Perchance text to image plugin not available.",
-      );
+      console.warn("[IMAGE_ENGINE] Perchance text to image plugin not available.");
       return null;
     }
     const res = this.getResolution(options.mode);
@@ -125,11 +123,7 @@ export const ImageGeneration = {
       } else {
         finalPrompt = target.toString();
       }
-      const result = await GeneratorEngine.execute(
-        finalPrompt,
-        NEGATIVE_PROMPT,
-        options,
-      );
+      const result = await GeneratorEngine.execute(finalPrompt, NEGATIVE_PROMPT, options);
       if (result && result.dataUrl) {
         if (entityId && !options.noCache) {
           await GeneratorEngine.cacheImage(entityId, result.dataUrl);
@@ -184,12 +178,7 @@ export const ImageGeneration = {
         fragments: [],
       };
       const selections = AestheticRouter.select(characterData);
-      vPayload.system = PROMPT_TEMPLATES.builder(
-        vTarget,
-        visualPrompt,
-        vPayload,
-        selections,
-      );
+      vPayload.system = PROMPT_TEMPLATES.builder(vTarget, visualPrompt, vPayload, selections);
       vPayload.system += `\n<RAW_INTENT>\n${visualPrompt}\n</RAW_INTENT>`;
       const refinedPrompt = await LlmService.generate(
         { system: vPayload.system },

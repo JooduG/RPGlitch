@@ -1,128 +1,121 @@
 <script>
-    /**
-     * @file LibraryCard.svelte
-     * 🃏 THE ARCHIVE TAROT
-     * A compact version of StoryboardCard for the Library drawer.
-     * Flattened Schema Compliant.
-     */
-    let {
-        entity,
-        type = "ai", // "ai" | "user" | "fractal"
-        disabled = false,
-        onSelect,
-        onViewProfile,
-    } = $props()
+  /**
+   * @file LibraryCard.svelte
+   * 🃏 THE ARCHIVE TAROT
+   * A compact version of StoryboardCard for the Library drawer.
+   * Flattened Schema Compliant.
+   */
+  let {
+    entity,
+    type = "ai", // "ai" | "user" | "fractal"
+    disabled = false,
+    onSelect,
+    onViewProfile,
+  } = $props();
 
-    import { themeStore } from "@theme/palette.svelte.js"
-    import ProfilePicture from "@ui/atoms/ProfilePicture.svelte"
-    import { fitText } from "@ui/utils/actions/fitText.js"
+  import { themeStore } from "@theme/palette.svelte.js";
+  import ProfilePicture from "@ui/atoms/ProfilePicture.svelte";
+  import { fitText } from "@ui/utils/actions/fitText.js";
 
-    let signature_color = $derived(themeStore.get_signature_color(entity))
-    let signature_rgb = $derived(themeStore.hex_to_rgb(signature_color))
-    let name = $derived(entity?.name || "Untitled")
+  let signature_color = $derived(themeStore.get_signature_color(entity));
+  let signature_rgb = $derived(themeStore.hex_to_rgb(signature_color));
+  let name = $derived(entity?.name || "Untitled");
 
-    function handleSelect() {
-        if (!disabled && onSelect) onSelect()
-    }
+  function handleSelect() {
+    if (!disabled && onSelect) onSelect();
+  }
 </script>
 
 <button
-    class="drawer-card material-interactive"
-    class:fractal-card={type === "fractal"}
-    class:is-disabled={disabled}
-    style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
-    onclick={handleSelect}
-    {disabled}
-    title={disabled ? "Already selected" : `Select ${name}`}
-    oncontextmenu={(e) => {
-        e.preventDefault()
-        if (onViewProfile) onViewProfile()
-    }}
+  class="drawer-card surface-tilt"
+  class:fractal-card={type === "fractal"}
+  class:is-disabled={disabled}
+  style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
+  onclick={handleSelect}
+  {disabled}
+  title={disabled ? "Already selected" : `Select ${name}`}
+  oncontextmenu={(e) => {
+    e.preventDefault();
+    if (onViewProfile) onViewProfile();
+  }}
 >
-    <div class="card-visual">
-        <ProfilePicture {entity} />
-    </div>
+  <div class="card-visual">
+    <ProfilePicture {entity} />
+  </div>
 
-    <div class="card-info">
-        <h5>
-            <span class="entity-name" use:fitText>{name}</span>
-        </h5>
-    </div>
+  <div class="card-info">
+    <h5>
+      <span class="entity-name" use:fitText>{name}</span>
+    </h5>
+  </div>
 
-    <div class="signature-bar"></div>
+  <div class="signature-bar"></div>
 </button>
 
 <style>
-    .drawer-card {
-        aspect-ratio: 2 / 3;
-        background: var(--bg-card);
-        /* Border purged */
-        border-radius: var(--spacing-s);
-        position: relative;
-        overflow: hidden;
-        cursor: pointer;
-        display: flex;
-        flex-direction: column;
-        padding: 0;
-        transition: all var(--transition-speed) var(--physics-transition-elastic);
-        text-align: left;
-        width: 8.75rem;
-        flex: 0 0 auto;
-        border: 0;
-    }
+  .drawer-card {
+    aspect-ratio: 2 / 3;
+    background: var(--bg-card);
+    border-radius: var(--spacing-s);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    transition: all var(--transition-fast) var(--transition-elastic);
+    text-align: left;
+    width: 8.75rem;
+    flex: 0 0 auto;
+    border: 0;
+  }
 
-    .drawer-card:hover {
-        transform: translateY(var(--physics-hover-y));
-        /* Border-color purged */
-        box-shadow: var(--shadow-m);
-    }
+  .drawer-card:hover:not(:disabled, .is-disabled) {
+    transform: translateY(var(--physics-hover-y));
+    box-shadow: var(--shadow-m);
+  }
 
-    .drawer-card.is-disabled {
-        opacity: 0.5;
-        filter: grayscale(1);
-        cursor: not-allowed;
-        pointer-events: none;
-    }
+  .drawer-card.is-disabled {
+    opacity: 0.5;
+    filter: grayscale(1);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
 
-    .drawer-card.is-disabled:hover {
-        transform: none;
-        box-shadow: none;
-    }
+  .drawer-card .card-visual {
+    flex: 1.5;
+    background: var(--surface-raised);
+    box-shadow: 0 0 0 1px inset var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
 
-    .drawer-card .card-visual {
-        flex: 1.5;
-        background: var(--surface-raised);
-        box-shadow: 0 0 0 1px inset var(--border-light);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        position: relative;
-    }
+  .drawer-card .card-info {
+    flex: 0.6;
+    padding: var(--spacing-s);
+    display: flex;
+    align-items: center;
+    background: var(--surface-sunken);
+  }
 
-    .drawer-card .card-info {
-        flex: 0.6;
-        padding: var(--spacing-s);
-        display: flex;
-        align-items: center;
-        background: var(--surface-sunken);
-    }
+  .drawer-card .card-info h5 {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
 
-    .drawer-card .card-info h5 {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-    }
-
-    .drawer-card .card-info .entity-name {
-        color: var(--signature-color);
-        text-wrap: balance;
-        display: -webkit-box;
-        line-clamp: 2;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        margin: 0;
-        padding: 0;
-    }
+  .drawer-card .card-info .entity-name {
+    color: var(--signature-color);
+    text-wrap: balance;
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+  }
 </style>

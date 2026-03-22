@@ -27,8 +27,7 @@ describe("clean_image_prompts", () => {
     },
     {
       description: "multiple image prompts",
-      input:
-        "Start <image_prompt>one</image_prompt> middle <image_prompt /> end",
+      input: "Start <image_prompt>one</image_prompt> middle <image_prompt /> end",
       expected: "Start  middle  end",
     },
     {
@@ -43,14 +42,12 @@ describe("clean_image_prompts", () => {
     },
     {
       description: "tags with extra whitespace",
-      input:
-        "Test <image_prompt    >content</image_prompt   > test2 <image_prompt   />",
+      input: "Test <image_prompt    >content</image_prompt   > test2 <image_prompt   />",
       expected: "Test  test2 ",
     },
     {
       description: "a non-self-closing tag with attributes",
-      input:
-        'Hello <image_prompt src="cat.png" alt="A cat">cute cat</image_prompt> world',
+      input: 'Hello <image_prompt src="cat.png" alt="A cat">cute cat</image_prompt> world',
       expected: "Hello  world",
     },
     {
@@ -66,8 +63,7 @@ describe("clean_image_prompts", () => {
 });
 describe("parse_scene_header", () => {
   it("should parse a standard scene header", () => {
-    const text =
-      "『 [Dark Forest] · [Midnight] · [Raining] 』\nThe rest of the content.";
+    const text = "『 [Dark Forest] · [Midnight] · [Raining] 』\nThe rest of the content.";
     const result = parse_scene_header(text);
     expect(result).toEqual({
       content: "The rest of the content.",
@@ -79,12 +75,10 @@ describe("parse_scene_header", () => {
     });
   });
   it("should return null header if the format doesn't match", () => {
-    const text =
-      "[Dark Forest] - [Midnight] - [Raining]\nThe rest of the content.";
+    const text = "[Dark Forest] - [Midnight] - [Raining]\nThe rest of the content.";
     const result = parse_scene_header(text);
     expect(result).toEqual({
-      content:
-        "[Dark Forest] - [Midnight] - [Raining]\nThe rest of the content.",
+      content: "[Dark Forest] - [Midnight] - [Raining]\nThe rest of the content.",
       header: null,
     });
   });
@@ -157,12 +151,10 @@ describe("parse_scene_header", () => {
     });
   });
   it("should return null header if the header is not at the start of the text", () => {
-    const text =
-      "Some text before 『 [Location] · [Time] · [Weather] 』\nContent";
+    const text = "Some text before 『 [Location] · [Time] · [Weather] 』\nContent";
     const result = parse_scene_header(text);
     expect(result).toEqual({
-      content:
-        "Some text before 『 [Location] · [Time] · [Weather] 』\nContent",
+      content: "Some text before 『 [Location] · [Time] · [Weather] 』\nContent",
       header: null,
     });
   });
@@ -175,8 +167,7 @@ describe("parse_scene_header", () => {
     });
   });
   it("should handle unicode and special characters inside brackets", () => {
-    const text =
-      "『 [東京 🗼] · [23:00 / 夜] · [嵐 (Storm)] 』\nJapanese Content";
+    const text = "『 [東京 🗼] · [23:00 / 夜] · [嵐 (Storm)] 』\nJapanese Content";
     const result = parse_scene_header(text);
     expect(result).toEqual({
       content: "Japanese Content",
@@ -212,8 +203,7 @@ describe("parse_scene_header", () => {
     });
   });
   it("should handle multiline content in the rest of the text", () => {
-    const text =
-      "『 [Location] · [Time] · [Weather] 』\nLine 1\nLine 2\nLine 3";
+    const text = "『 [Location] · [Time] · [Weather] 』\nLine 1\nLine 2\nLine 3";
     const result = parse_scene_header(text);
     expect(result).toEqual({
       content: "Line 1\nLine 2\nLine 3",
@@ -307,8 +297,7 @@ describe("parse_scene_header additional edge cases", () => {
     });
   });
   it("should handle headers where inner contents contain brackets", () => {
-    const text =
-      "『 [Area [51]] · [Time [Unknown]] · [Weather [Redacted]] 』\nContent";
+    const text = "『 [Area [51]] · [Time [Unknown]] · [Weather [Redacted]] 』\nContent";
     const result = parse_scene_header(text);
     expect(result).toEqual({
       content: "Content",
@@ -320,8 +309,7 @@ describe("parse_scene_header additional edge cases", () => {
     });
   });
   it("should handle different types of whitespace (newlines, tabs) within the header", () => {
-    const text =
-      "『\t[\nLocation\n]\t·\t[\tTime\t]\n·\t[\nWeather\n]\t』\nContent";
+    const text = "『\t[\nLocation\n]\t·\t[\tTime\t]\n·\t[\nWeather\n]\t』\nContent";
     const result = parse_scene_header(text);
     expect(result).toEqual({
       content: "Content",

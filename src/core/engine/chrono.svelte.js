@@ -47,10 +47,7 @@ export class ChronoStore {
           shieldContext.causality &&
           shieldContext.causality.result === "failure"
         ) {
-          app.log(
-            `Causality Violation: ${shieldContext.causality.constraint}`,
-            "error",
-          );
+          app.log(`Causality Violation: ${shieldContext.causality.constraint}`, "error");
           // We override the 'Action' to be a System Constraint.
           // This forces the AI to narrate the failure instead of the action.
           finalInput = `[SYSTEM]: The user attempted '${input}' but failed because: "${shieldContext.causality.constraint}". Describe this failed attempt briefly and dryly.`;

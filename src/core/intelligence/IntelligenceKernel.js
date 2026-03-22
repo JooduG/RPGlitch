@@ -36,7 +36,7 @@ export const IntelligenceKernel = {
     // 1. CHRONO: Round management
     // Round is managed by Session.send or explicit prologue start.
     // We ensure turn-type consistency here.
-    runtime.turn_type = "SYSTEM_TURN";
+    runtime.turnType = "SYSTEM_TURN";
     // 2. HYDRATION: Fetch history and hydrate context
     const raw_messages = await Session.loadLog(story_id);
     const simulation_log = raw_messages
@@ -46,11 +46,7 @@ export const IntelligenceKernel = {
         content: m.text || m.content || "",
         character_name: m.character_name,
       }));
-    const payload = await ContextBroker.hydrate(
-      input,
-      "simulation",
-      simulation_log,
-    );
+    const payload = await ContextBroker.hydrate(input, "simulation", simulation_log);
     // 3. SIMULATION: Resolve physics and behaviors
     const snapshot = DynamicsEngine.simulate(payload);
     // 4. SYNTHESIS: Build the final prompt
@@ -58,7 +54,7 @@ export const IntelligenceKernel = {
     // 5. UPDATE: Synchronize runtime physics
     runtime.ai = snapshot.ai.dynamics;
     runtime.fractal = snapshot.fractal.dynamics;
-    runtime.turn_type = "AI_TURN";
+    runtime.turnType = "AI_TURN";
     app.log(
       "Intelligence Kernel: Context hydrated. Physics resolved. Entering AI_TURN. Routing to LLM...",
       "system",
@@ -75,19 +71,18 @@ export const IntelligenceKernel = {
     });
     // 7. PERSISTENCE: Save the result
     const character_name =
-      role === "ai"
-        ? runtime.active_ai?.name || "AI"
-        : runtime.active_fractal?.name || "Fractal";
+      role === "ai" ? runtime.activeAi?.name || "AI" : runtime.activeFractal?.name || "Fractal";
+
     await Session.logTurn(response, character_name, role, {
       dynamics: meta.ai,
       fractal_dynamics: meta.fractal,
       flags: meta.flags,
       signal_prompts: meta.signal_prompts,
       round: runtime.round,
-      turn_type: "AI_TURN",
+      turnType: "AI_TURN",
     });
     // 8. TRANSITION: Open the window for User
-    runtime.turn_type = "USER_TURN";
+    runtime.turnType = "USER_TURN";
     runtime.round++;
     return { response, meta };
   },
@@ -103,14 +98,14 @@ export const IntelligenceKernel = {
     const response = await this._executeWithRetry(async () => {
       return await LlmService.generate({ system: result.system });
     });
-    const fractal_name = runtime.active_fractal?.name || "Fractal Entity";
+    const fractal_name = runtime.activeFractal?.name || "Fractal Entity";
     // 1. Save Prologue
     // Prologue stays at Round 0
     runtime.round = 0;
-    runtime.turn_type = "SYSTEM_TURN";
+    runtime.turnType = "SYSTEM_TURN";
     await Session.logTurn(response, fractal_name, "fractal", {
       round: 0,
-      turn_type: "SYSTEM_TURN",
+      turnType: "SYSTEM_TURN",
     });
     app.log("Intelligence Kernel: Prologue established (Round 0).", "system");
     // 2. The Hook: Trigger immediate AI follow-up to open the scene.

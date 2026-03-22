@@ -43,78 +43,9 @@
           background-repeat: no-repeat;
           height: 100vh;
         }
-        .boot-illusion {
-          display: grid;
-          grid-template-columns: repeat(12, 1fr);
-          align-items: center;
-          align-content: center;
-          height: 100vh;
-          width: 100%;
-          position: fixed;
-          inset: 0;
-        }
-        .boot-illusion .card {
-          background: linear-gradient(
-            90deg,
-            var(--illusion-bg) 25%,
-            var(--illusion-shimmer) 50%,
-            var(--illusion-bg) 75%
-          );
-          background-size: 200% 100%;
-          animation: illusion-shimmer 5s infinite;
-          border-radius: 24px;
-          justify-self: center;
-          align-self: center;
-        }
-        /* Side cards: Portrait - grid cols 2-3 and 10-11 */
-        .boot-illusion .card-left {
-          grid-column: 2 / span 2;
-          grid-row: 1;
-          width: 25vh;
-          height: 40vh;
-        }
-        .boot-illusion .card-center {
-          grid-column: 4 / span 6;
-          grid-row: 1;
-          width: 40vh;
-          height: 25vh;
-        }
-        .boot-illusion .card-right {
-          grid-column: 10 / span 2;
-          grid-row: 1;
-          width: 25vh;
-          height: 40vh;
-        }
-        @keyframes illusion-shimmer {
-          0% {
-            background-position: 200% 0;
-          }
-          100% {
-            background-position: -200% 0;
-          }
-        }
-        @media (max-width: 768px) {
-          .boot-illusion {
-            grid-template-columns: 1fr;
-            padding-bottom: 0;
-            align-items: center;
-          }
-          .boot-illusion .card-left,
-          .boot-illusion .card-right {
-            display: none;
-          }
-          .boot-illusion .card-center {
-            grid-column: 1 / -1;
-          }
-        }
       </style>
-      <div class="boot-illusion">
-        <div class="card card-left"></div>
-        <div class="card card-center"></div>
-        <div class="card card-right"></div>
-      </div>
-    </div>
-    <a href="#svelte-root" class="skip-link">Skip to main content</a>
+      <div id="svelte-root"></div>
+      <a href="#svelte-root" class="skip-link">Skip to main content</a>
     <div id="fractal-background" hidden></div>
     <dialog id="emergency-modal">
       <article>
