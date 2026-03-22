@@ -6,8 +6,8 @@ import { runtime } from "@state/runtime.svelte.js";
 // Mock dependencies
 vi.mock("@core/engine/SessionDriver.js", () => ({
   Session: {
-    load_log: vi.fn(),
-    log_turn: vi.fn(),
+    loadLog: vi.fn(),
+    logTurn: vi.fn(),
     requireActive: vi.fn(() => "story-123"),
   },
 }));
@@ -20,7 +20,7 @@ vi.mock("@state/runtime.svelte.js", () => ({
   runtime: {
     round: 0,
     turn_type: "USER_TURN",
-    active_vector: vi.fn(() => "Exploration"),
+    activeVectors: vi.fn(() => [{ text: "Exploration" }]),
     active_ai: { name: "Ghost" },
     active_user: { name: "Player" },
     active_fractal: { name: "Void" },
@@ -38,7 +38,7 @@ describe("IntelligenceKernel Orchestration", () => {
     runtime.round = 0;
   });
   it("should execute a full narrative turn", async () => {
-    vi.mocked(Session.load_log).mockResolvedValue([
+    vi.mocked(Session.loadLog).mockResolvedValue([
       { role: "user", text: "Hello" },
     ]);
     vi.mocked(LlmService.generate).mockResolvedValue("Identified.");
@@ -46,9 +46,9 @@ describe("IntelligenceKernel Orchestration", () => {
       input: "Hi",
     });
     expect(runtime.round).toBe(1);
-    expect(Session.load_log).toHaveBeenCalledWith("story-123");
+    expect(Session.loadLog).toHaveBeenCalledWith("story-123");
     expect(LlmService.generate).toHaveBeenCalled();
-    expect(Session.log_turn).toHaveBeenCalledWith(
+    expect(Session.logTurn).toHaveBeenCalledWith(
       "Identified.",
       "Ghost",
       "ai",
@@ -61,9 +61,9 @@ describe("IntelligenceKernel Orchestration", () => {
     vi.mocked(LlmService.generate).mockResolvedValueOnce(
       "The adventure begins.",
     ); // Follow-up turn
-    vi.mocked(Session.load_log).mockResolvedValue([]);
+    vi.mocked(Session.loadLog).mockResolvedValue([]);
     await IntelligenceKernel.executePrologue("story-123");
-    expect(Session.log_turn).toHaveBeenCalledWith(
+    expect(Session.logTurn).toHaveBeenCalledWith(
       "Once upon a time...",
       "Void",
       "fractal",
@@ -75,7 +75,7 @@ describe("IntelligenceKernel Orchestration", () => {
     vi.mocked(LlmService.generate).mockResolvedValue("And so it ends.");
     const result = await IntelligenceKernel.executeEpilogue("story-123");
     expect(LlmService.generate).toHaveBeenCalled();
-    expect(Session.log_turn).toHaveBeenCalledWith(
+    expect(Session.logTurn).toHaveBeenCalledWith(
       "And so it ends.",
       "Narrator",
       "ai",

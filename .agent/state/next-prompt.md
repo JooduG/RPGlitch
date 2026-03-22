@@ -1,7 +1,16 @@
 # 🦇 Next Agent Directive
 
-**Context:** The engine is now 100% Svelte 5 (Runes-only) compliant. A full Lexicon Clinic has been performed—all occurrences of "Chat", "Avatar", and "Manager" have been refactored to "Story/Simulation", "Profile Picture", and "GameMaster" respectively. Production is **LIVE** at [perchance.org/rpglitch](https://perchance.org/rpglitch).
+**Context:** The engine is now 100% Svelte 5 (Runes-only) compliant and the UI layer has been hardened. A full **UI Audit & Clinic** has been performed:
 
-**Immediate Goal:** Proceed to **narrative-bridge** implementation. Connect the Dynamics Engine output to the Session Driver to trigger automatic scene complications based on fractal state shifts.
+- All atomic and organism components (`Button`, `LibraryCard`, `SceneHeader`, etc.) strictly follow the **Chalk Regime** tokens.
+- **Kinetic Motion** is live: `kineticScroll` (momentum drag-to-scroll) is enabled in the Library Drawer and `tilt` physics are active in the Storyboard.
+- Telemetry logs are now gated behind `dev_mode` and standardized with `[Session]` prefixes.
+- Production is **LIVE** at [perchance.org/rpglitch](https://perchance.org/rpglitch).
 
-**Constraints:** Maintain the Chalk Regime (Nordic) aesthetic tokens while exploring the "High-Contrast Glitch" transitions defined in `design.md`.
+**Immediate Goal:** Proceed to **narrative-bridge** implementation.
+
+1. Connect the `DynamicsEngine` output to the `SessionDriver`.
+2. Trigger automatic scene complications (random events/interruptions) based on fractal state shifts.
+3. Ensure the narrative feed handles these "Dynamic Interruptions" with the proper kinetic transitions.
+
+**Constraints:** Maintain the Chalk Regime aesthetic. Use existing `app.log` for system-level narrative signals. No Bayesian legacy—use the new `DynamicsEngine` logic.

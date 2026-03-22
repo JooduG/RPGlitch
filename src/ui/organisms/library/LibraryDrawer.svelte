@@ -9,6 +9,7 @@
     import { app } from "@state/app.svelte.js"
     import { quintOut } from "svelte/easing"
     import { fly } from "svelte/transition"
+    import { kineticScroll } from "@ui/utils/actions/kinetic.js"
 
     import Backdrop from "@ui/molecules/dialogs/Backdrop.svelte"
     import LibraryCard from "./LibraryCard.svelte"
@@ -101,7 +102,7 @@
             <button class="close-btn" onclick={() => app.close_drawer()} aria-label="Close drawer">×</button>
         </header>
 
-        <div class="drawer-content no-scrollbar">
+        <div class="drawer-content no-scrollbar" use:kineticScroll>
             <div class="drawer-grid">
                 <button class="drawer-card drawer-card--new" onclick={handleCreateNew} title="Initialize a new entity from template">
                     <div class="new-icon-wrap">

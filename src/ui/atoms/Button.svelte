@@ -136,7 +136,7 @@
     .btn-security {
         background: var(--surface-sunken);
         color: var(--font-color);
-        box-shadow: 0 0 0 1px var(--frisk);
+        box-shadow: 0 0 0 1px var(--color-frisk);
     }
     .btn-security:hover:not(:disabled, .disabled) {
         box-shadow:

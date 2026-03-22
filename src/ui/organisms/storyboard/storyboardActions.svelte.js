@@ -9,7 +9,7 @@ export const storyboard = {
   /**
    * Shuffle all selected entities randomly.
    */
-  randomize() {
+  shuffle() {
     if (!app.ai_list.length) return;
     // 1. Random AI
     app.selected_ai =

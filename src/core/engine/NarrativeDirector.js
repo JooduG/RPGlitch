@@ -25,14 +25,14 @@ export const NarrativeDirector = {
   update: () => {
     // [R5] Narrative State is now reactive in runtime.narrative
     // No manual sync required.
-    // AUTO-SEED: Ensure active_vector is never empty
+    // AUTO-SEED: Ensure activeVectors is never empty
     const fractal = runtime.active_fractal;
     if (
       fractal &&
       (!Array.isArray(fractal.future) || fractal.future.length === 0)
     ) {
-      runtime.add_vector("Continue the journey.", "FRACTAL", true);
-      app.log("NarrativeDirector: Auto-seeded active_vector", "system");
+      runtime.addVector("Continue the journey.", "FRACTAL", true);
+      app.log("NarrativeDirector: Auto-seeded activeVectors", "system");
     }
   },
   /**
@@ -44,7 +44,7 @@ export const NarrativeDirector = {
     NarrativeDirector._isConsolidating = true;
     try {
       const story_id = Session.requireActive();
-      const messages = await Session.load_log(story_id);
+      const messages = await Session.loadLog(story_id);
       const unconsolidated = messages.filter((m) => !m.meta?.consolidated);
       // Trigger every 10 unconsolidated messages
       if (unconsolidated.length >= 12) {

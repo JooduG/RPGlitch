@@ -145,8 +145,8 @@
             border: none;
             transform: translateZ(0);
             transition:
-                background 1s ease,
-                box-shadow 1s ease-in-out;
+                background var(--transition-speed) ease,
+                box-shadow var(--transition-speed) ease-in-out;
             &:not(.is-empty):not(.is-loading):hover {
                 box-shadow: 0 var(--spacing-xxl) var(--spacing-xxxl) color-mix(in srgb, var(--signature-color), transparent 70%);
             }
@@ -184,6 +184,9 @@
                 }
                 &:hover {
                     box-shadow: var(--surface-elevated), var(--shadow-glow);
+                    transition: 
+                        background var(--transition-speed-slow) ease,
+                        box-shadow var(--transition-speed-slow) ease-in-out;
                     :global(.empty-icon) {
                         opacity: 1;
                         filter: drop-shadow(0 0 8px rgb(var(--signature-rgb) / 0.8));
@@ -212,6 +215,7 @@
                 width: 50%;
                 border-top: none;
                 box-shadow: inset var(--spacing-px) 0 0 var(--border-light);
+                padding: var(--spacing-m);
             }
         }
     }
@@ -240,7 +244,8 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        gap: var(--spacing-xxs);
+        gap: var(--spacing-xs); /* Tighter gap for better grouping */
+        padding: var(--spacing-l); /* Increased padding for premium feel */
         border-radius: 0;
         &:hover {
             transform: none;
@@ -252,30 +257,29 @@
         .text-half {
             width: 100%;
         }
-        .title-half {
-            h2 {
-                margin: 0;
-                color: rgb(var(--signature-rgb));
-                font-weight: var(--font-bold);
-                font-size: var(--font-size-xxxxl);
-                line-height: var(--line-height-heading);
-                word-break: normal;
-                overflow-wrap: normal;
-                white-space: normal;
-                text-align: left;
-                padding-top: var(--spacing-m);
-                display: -webkit-box;
-                -webkit-line-clamp: 2;
-                line-clamp: 2;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-            }
-            padding-bottom: var(--spacing-xs);
+        .title-half h2 {
+            margin: 0;
+            color: rgb(var(--signature-rgb));
+            font-weight: var(--font-bold);
+            font-family: var(--font-heading); /* Reinforce branding */
+            font-size: var(--font-size-xxl);
+            line-height: var(--line-height-heading);
+            text-shadow: var(--shadow-text); /* Added for contrast */
+            word-break: normal;
+            overflow-wrap: normal;
+            white-space: normal;
+            text-align: left;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
         .desc-half p {
             margin: 0;
             color: var(--font-color);
             opacity: var(--opacity-l);
+            font-family: var(--font-sans); /* Reinforce branding */
             font-size: var(--font-size-m);
             text-align: left;
             line-height: var(--line-height-base);
@@ -322,8 +326,8 @@
             text-shadow: var(--shadow-text);
             opacity: 0;
             transition:
-                opacity 1s ease,
-                transform 1s ease;
+                opacity var(--transition-speed-slow) ease,
+                transform var(--transition-speed-slow) ease;
             pointer-events: none;
         }
         .empty-icon {
@@ -335,8 +339,8 @@
             justify-content: center;
             opacity: var(--opacity-l);
             transition:
-                opacity 1s ease,
-                filter 1s ease;
+                opacity var(--transition-speed-slow) ease,
+                filter var(--transition-speed-slow) ease;
             :global(svg),
             svg {
                 width: 100%;

@@ -91,8 +91,8 @@
 
     .drawer-card .card-visual {
         flex: 1.5;
-        background: var(--layer-surface);
-        box-shadow: 0 0 0 1px inset rgb(var(--color-white-rgb) / 0.05);
+        background: var(--surface-raised);
+        box-shadow: 0 0 0 1px inset var(--border-light);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -105,7 +105,7 @@
         padding: var(--spacing-s);
         display: flex;
         align-items: center;
-        background: var(--bg-app);
+        background: var(--surface-sunken);
     }
 
     .drawer-card .card-info h5 {

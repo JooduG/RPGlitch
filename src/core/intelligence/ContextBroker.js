@@ -74,7 +74,7 @@ export class ContextBroker {
    */
   static async hydrate(input, type = "simulation", simulation_log = []) {
     const round = runtime.round || 1;
-    const active_vector = runtime.active_vector("FRACTAL") || "EXPLORE";
+    const activeVector = runtime.activeVectors("FRACTAL")[0]?.text || "EXPLORE";
     // 1. Resolve Entities mapping (Role -> Data)
     const entries = [
       { role: "AI", data: runtime.active_ai },
@@ -90,7 +90,7 @@ export class ContextBroker {
         // Lexical filtering for AI relevance
         const filtered =
           role === "AI"
-            ? ContextBroker.lexical_filter(data_points, active_vector)
+            ? ContextBroker.lexical_filter(data_points, activeVector)
             : data_points;
         // Safety boot-strap
         if (filtered.length === 0) {
@@ -134,7 +134,7 @@ export class ContextBroker {
       simulation_log: ContextBroker.assemble_snapshot(simulation_log),
       rawMessages: simulation_log,
       meta: {
-        active_vector,
+        activeVector,
         timestamp: new Date().toISOString(),
       },
     };

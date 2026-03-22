@@ -88,11 +88,11 @@
   );
 
   /* Background & Structural */
-  --bg-base: #11191f;
-  --bg-grad-1: #181c2f;
-  --bg-grad-2: #23243a;
-  --bg-grad-3: #1a3a4a;
-  --bg-grad-4: #2a1a3a;
+  --bg-base: #0b101a;
+  --bg-grad-1: #14182b;
+  --bg-grad-2: #1e1b38;
+  --bg-grad-3: #16243b;
+  --bg-grad-4: #1d1126;
   --bg-card: var(--color-gunmetal);
   --bg-component: var(--color-chalk);
   --app-component-bg: var(--color-chalk);
