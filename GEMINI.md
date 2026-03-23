@@ -18,7 +18,9 @@
 
 ## 📂 Key Directory Access
 
-- **Labs**: `.agent/skills/workshop-forge/knowledge/experiment-*.md`
+- **Labs (Forge)**: `.agent/skills/workshop-forge/knowledge/`
+- **Audits (Warden)**: `.agent/skills/workshop-warden/knowledge/`
+- **Scaffolds (Scribe)**: `.agent/skills/workshop-scribe/knowledge/`
 - **Tracks**: `.agent/state/tracks/`
 - **Kanban**: `.agent/state/tracks.md`
 - **Design**: `/DESIGN.md` (Root)
