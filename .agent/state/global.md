@@ -86,6 +86,14 @@
 - [x] Phase 4: Purge (Delete 14 legacy skill folders).
 - [x] Phase 5: Verification (166/166 tests pass).
 
+### [DONE] [007] [Metadata & Rule Sync: Sovereign Alignment]
+
+- [x] Phase 1: Audit `GEMINI.md` and `AGENTS.md`.
+- [x] Phase 2: Integration of A-C-M-Q Pipeline (Rule 04).
+- [x] Phase 3: Alignment with Sovereign Skill Hierarchy.
+- [x] Phase 4: Synchronization of `01-blueprint.md` workflow.
+- [x] Phase 5: Verification of 166/166 tests.
+
 ### Completed Tasks
 
 - [x] Context Layering (Milestone 2)

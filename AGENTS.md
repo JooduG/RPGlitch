@@ -32,34 +32,35 @@ This document defines the RPGlitch technical stack and engineering mandates for 
 ### 3. The Chalk Regime (Visual Constitution)
 
 - **No Hallucinated Colors**: Use ONLY CSS variables from `src/theme/tokens.css` (e.g., `var(--color-chalk)`).
-- **Enforcement**: Adhere strictly to the [.agent/rules/03-specification.md](.agent/rules/03-specification.md) visual protocols. Generic hex codes are prohibited.
+- **Enforcement**: Adhere strictly to the [.agent/rules/03-infrastructure.md](.agent/rules/03-infrastructure.md) visual protocols. Generic hex codes are prohibited.
 
-### 4. Tooling & Execution
+### 4. Tooling & Execution / A-C-M-Q
 
-- **Initialization**: Always use `bash setup.sh` for one-click VM boot sequences. Do NOT use `npm run dev` in setup scripts as it blocks environment snapshotting.
-- **Standard Commands**: Utilize `npm run build` and `npm run test` for validation.
+- **Pipeline**: Enforce the **A-C-M-Q** loop (Ambiguity -> Complexity -> Meridian -> Quality) as defined in [.agent/rules/04-intelligence.md](.agent/rules/04-intelligence.md).
+- **Initialization**: Always use `bash setup.sh` for one-click VM boot sequences.
+- **Verification**: Utilize `npm run verify` as the primary quality gate.
 
-### 6. Subject-Matter Sovereignty
+### 5. Subject-Matter Sovereignty
 
-- **Mandate**: Group all logic, physics, and state-management related to a specific functional domain (e.g., Vectors, Memory, Sound) into unified, sovereign files.
-- **Goal**: Maximize discoverability and reduce file-system clutter in the reactive monolith.
+- **Mandate**: Group all logic, physics, and state-management into unified, sovereign files.
+- **Enforcement**: Map all functional domains to the **Sovereign Skills** (`ombudsman`, `snitch`, `sommelier`, `gamemaster`) for authoritative oversight.
 
 ---
 
 ## 🚦 Operational Commands
 
-| Command                                           | Purpose                              |
-| :------------------------------------------------ | :----------------------------------- |
-| [/00-boot](./.agent/workflows/00-boot.md)         | Fresh initialization & Context Sync. |
-| [/01-plan](./.agent/workflows/01-plan.md)         | Unified Scoping & Design.            |
-| [/02-build](./.agent/workflows/02-build.md)       | Implementation Loop.                 |
-| [/03-clean](./.agent/workflows/03-clean.md)       | Maintenance & Bugs.                  |
-| [/04-review](./.agent/workflows/04-review.md)     | Quality Gate & Triage.               |
-| [/05-deploy](./.agent/workflows/05-deploy.md)     | Solo Deployment.                     |
-| [/06-continue](./.agent/workflows/06-continue.md) | Resume without Boot (The Handoff).   |
-| [/07-fleet](./.agent/workflows/07-fleet.md)       | Fleet Orchestration.                 |
-| [/08-github](./.agent/workflows/08-github.md)     | Local GitHub Ops.                    |
-| [/99-rewind](./.agent/workflows/99-rewind.md)     | Emergency Reset.                     |
+| Command                                             | Purpose                              |
+| :-------------------------------------------------- | :----------------------------------- |
+| [/00-boot](./.agent/workflows/00-boot.md)           | Fresh initialization & Context Sync. |
+| [/01-blueprint](./.agent/workflows/01-blueprint.md) | A-C-M-Q Intent Routing & Planning.   |
+| [/02-build](./.agent/workflows/02-build.md)         | Implementation Loop.                 |
+| [/03-clean](./.agent/workflows/03-clean.md)         | Maintenance & Bugs.                  |
+| [/04-review](./.agent/workflows/04-review.md)       | Quality Gate & Triage.               |
+| [/05-deploy](./.agent/workflows/05-deploy.md)       | Solo Deployment.                     |
+| [/06-continue](./.agent/workflows/06-continue.md)   | Resume without Boot (The Handoff).   |
+| [/07-fleet](./.agent/workflows/07-fleet.md)         | Fleet Orchestration.                 |
+| [/08-github](./.agent/workflows/08-github.md)       | Local GitHub Ops.                    |
+| [/99-rewind](./.agent/workflows/99-rewind.md)       | Emergency Reset.                     |
 
 ---
 

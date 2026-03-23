@@ -1,20 +1,19 @@
-# NEXT PROMPT: [Clinic Sanitization & Bridge]
+# Baton: Next Session Preamble
 
-## 🎯 Context
-The **Clinic Sanitization & Audit** (Task [003]) is technically complete. All 162 unit tests are passing (100% stability), and all identifier synchronization/lexicon issues (`gamemaster`, `session_driver`) have been resolved.
-
-## 🚀 Status
-- **Current Branch**: `chore`
-- **Remote**: Local changes pushed to `origin/chore`.
-- **PR**: Automated PR creation failed due to token permissions. User needs to manually create the PR from `chore` -> `main`.
-- **Link**: https://github.com/JooduG/RPGlitch/pull/new/chore
+> **Mission Status**: Clinic Hardening & Metadata Sync (Complete)
+> **Active Branch**: `chore`
+> **Link**: [https://github.com/JooduG/RPGlitch/pull/new/chore]
 
 ## 🛠️ Next Steps
+
 1. **Verify Integration**: Once the user merges the PR, run a final `npm run verify` on `main`.
-2. **Narrative Bridge**: Resume the **Narrative Bridge** track to orchestrate automatic scene complications.
-3. **Dependency Cleanup**: When convenient, address the 3 moderate vulnerabilities in `markdown-it` (logged as technical debt).
+2. **Metadata Sync**: Rule 04 (A-C-M-Q) and the Sovereign Skill hierarchy are now authoritative in `GEMINI.md` and `AGENTS.md`.
+3. **Narrative Bridge**: Resume the **Narrative Bridge** track to orchestrate automatic scene complications.
+4. **Dependency Cleanup**: When convenient, address the 3 moderate vulnerabilities in `markdown-it` (logged as technical debt).
 
 ---
+
 📜 Rules: [01-foundation, 03-specification, 04-intelligence]
-⚡ Workflows: [/03-clean, /08-github]
-🕰️ Time: 2026-03-23T03:38:00Z
+🧠 Skills: [ombudsman, snitch, sommelier, gamemaster]
+📚 Context: [GEMINI.md, AGENTS.md, global.md]
+🕰️ Time: 2026-03-23T11:55:00

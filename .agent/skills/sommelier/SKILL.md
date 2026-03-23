@@ -44,7 +44,7 @@ The Sommelier manages the repository's long-term memory and conceptual blueprint
 
 - **Knowledge Cellar**: [skills/sommelier/knowledge/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/skills/sommelier/knowledge/) (Stored experiments and distilled concepts).
 - **Reference Archive**: [skills/sommelier/reference/](file:///c:/Users/johng/source/repos/RPGlitch/.agent/skills/sommelier/reference/) (Historical design patterns and technical benchmarks).
-- **The Lab**: New, untasted experiments must remain in `knowledge/lab/experiment-*.md`.
+- **The Lab**: New, untasted experiments must remain in `knowledge/lab/`. [Resonance, Echo, Oracle, Glitch, Foundry]
 
 ## 🤝 Absorption Log
 

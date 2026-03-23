@@ -2,27 +2,20 @@
 # 🧠 Skills (Capabilities)
 skills:
   audio: .agent/skills/audio/SKILL.md
-  cognition: .agent/skills/cognition/SKILL.md
   css: .agent/skills/css/SKILL.md
-  data: .agent/skills/data/SKILL.md
   devops: .agent/skills/devops/SKILL.md
-  find-skills: .agent/skills/find-skills/SKILL.md
+  gamemaster: .agent/skills/gamemaster/SKILL.md
   image-generation: .agent/skills/image-generation/SKILL.md
-  markdown: .agent/skills/markdown/SKILL.md
   motion: .agent/skills/motion/SKILL.md
-  naming-analyzer: .agent/skills/naming-analyzer/SKILL.md
-  project: .agent/skills/project/SKILL.md
-  quality-assurance: .agent/skills/quality-assurance/SKILL.md
-  simulation-memory: .agent/skills/simulation-memory/SKILL.md
-  simulation-strategy: .agent/skills/simulation-strategy/SKILL.md
+  ombudsman: .agent/skills/ombudsman/SKILL.md
+  snitch: .agent/skills/snitch/SKILL.md
+  sommelier: .agent/skills/sommelier/SKILL.md
   stitch: .agent/skills/stitch/SKILL.md
   svelte: .agent/skills/svelte/SKILL.md
-  tool-forge: .agent/skills/tool-forge/SKILL.md
-  vibe-decoder: .agent/skills/vibe-decoder/SKILL.md
 # ⚡ Workflows (Standard Operating Procedures)
 workflows:
   00-boot: .agent/workflows/00-boot.md
-  01-plan: .agent/workflows/01-plan.md
+  01-blueprint: .agent/workflows/01-blueprint.md
   02-build: .agent/workflows/02-build.md
   03-clean: .agent/workflows/03-clean.md
   04-review: .agent/workflows/04-review.md
@@ -53,11 +46,11 @@ knowledge:
     dir: .agent/archive/
   # 🔬 Lab: Experimental Theories & Speculative Ideas
   lab:
-    lab-ideation: .agent/knowledge/lab/01-ideation.md
-    lab-interaction: .agent/knowledge/lab/02-interaction.md
-    lab-mechanics: .agent/knowledge/lab/03-mechanics.md
-    lab-logic: .agent/knowledge/lab/04-logic.md
-    lab-strategy: .agent/knowledge/lab/05-strategy.md
+    lab-resonance: .agent/knowledge/lab/experiment-resonance.md
+    lab-echo: .agent/knowledge/lab/experiment-echo.md
+    lab-oracle: .agent/knowledge/lab/experiment-oracle.md
+    lab-glitch: .agent/knowledge/lab/experiment-glitch.md
+    lab-foundry: .agent/knowledge/lab/experiment-foundry.md
 # 📝 Workspace (Active Memory)
 workspace:
   tracks: .agent/state/tracks.md

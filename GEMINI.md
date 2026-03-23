@@ -44,7 +44,7 @@ The project targets **Perchance** as its primary deployment platform, requiring 
 
 - **Mandate:** Respect the narrative hierarchy: **L1_ABSOLUTE (User Agency) > L2_CRITICAL (Character/Temporal Truth) > L3_HIGH (Plot/Sensory) > L4_MODERATE (Style)**.
 - **Forbidden:** You must **never** utilize narrator-voice, and you must **never** speak, think, or act on behalf of the user. Maintain strict third-person limited integrity for the entities.
-- **Diegesis:** Express statistical signals (e.g., trust, sanity, BayesMind data) diegetically through body language or internal logic within `<think>` blocks, never as raw numbers in the narrative output.
+- **Diegesis:** Express statistical signals (e.g., stress, entropy, intensity) diegetically through body language or internal logic within `<think>` blocks, never as raw numbers in the narrative output. Use the **Gamemaster** skill to bridge mechanics and prose.
 
 ### 4. The Handoff Law (Paperwork Routine)
 
@@ -54,12 +54,16 @@ The project targets **Perchance** as its primary deployment platform, requiring 
 
 ## 📂 Directory Map
 
-- `.agent/`: Project-specific intelligence, rules, and automation skills (The Sovereign Core).
-- `src/core/`: Core engine logic (Intelligence, Security, BayesMind/DynamicsEngine).
-- `src/data/`: Database (Dexie), entity premades, and repositories.
-- `src/state/`: Global Svelte 5 app state and reactive stores.
-- `src/theme/`: Design tokens, global styles, and palettes (The Chalk Regime).
-- `src/ui/`: Atomic design components (Atoms, Molecules, Organisms).
+- `.agent/`: The Sovereign Core (Intelligence, Rules, Automation).
+    - `ombudsman/`: Governance & Skill Lifecycle.
+    - `snitch/`: Adversarial Audit & Security.
+    - `sommelier/`: Intent Decoding & Feature Tasting.
+    - `gamemaster/`: Simulation Strategy & Narrative Bridges.
+- `src/core/`: Logic & Round Orchestration (DynamicsEngine, Intelligence Kernel).
+- `src/data/`: Persistence (Dexie) & Entity Repositories.
+- `src/state/`: Reactive Runes (`$state`).
+- `src/theme/`: The Chalk Regime (Tokens, Global Styles).
+- `src/ui/`: Atomic Design (Svelte 5 components).
 
 ---
 
