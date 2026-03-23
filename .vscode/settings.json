@@ -4,7 +4,6 @@
         "compounds": []
     },
     "files.exclude": {
-        ".gemini": true,
         ".geminiignore": true,
         ".playwright-auth/**": true,
         "**/.DS_Store": true,

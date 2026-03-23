@@ -101,12 +101,12 @@
 - [x] Phase 3: Synchronize `.agent/` config files (`config.yaml`, `tooling.json`).
 - [x] Phase 4: Final verification and session cleanup.
 
-### [DONE] [009] [Clinic: /03-clean Sanitization Sweep]
+### [DONE] [010] [Infrastructure: Wiring & Symlink Repair]
 
-- [x] Phase 1: Audit & Diagnosis (Naming and structural checks).
-- [x] Phase 2: Purge (Delete legacy `data` skill).
-- [x] Phase 3: Technical Debt Cleanup (Lint fixes, unit test optimizations).
-- [x] Phase 4: Quality Gate (166/166 passing verify).
+- [x] Phase 1: Audit (Verify .agent/ scripts vs package.json).
+- [x] Phase 2: Wiring (Formally connect `janitor` and `scaffold:skill`).
+- [x] Phase 3: Repair (Purge legacy `.agents/` and repair broken junctions).
+- [x] Phase 4: Materialization (Junction all 6 subfolders to global skeleton).
 
 ### Completed Tasks
 

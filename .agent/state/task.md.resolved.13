@@ -1,0 +1,7 @@
+# Task Checklist
+
+- [x] rework [scribbles.md](file:///c:/Users/johng/source/repos/RPGlitch/scribbles.md) into `sommelier/knowledge/experiment-*.md`
+- [x] merge [01-plan.md](file:///c:/Users/johng/source/repos/RPGlitch/.agent/workflows/01-plan.md) into [01-blueprint.md](file:///c:/Users/johng/source/repos/RPGlitch/.agent/workflows/01-blueprint.md)
+- [x] synchronize `.agent/` configuration
+- [x] execute `/03-clean` (The Clinic)
+- [x] final verify and handoff

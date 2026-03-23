@@ -1,0 +1,10 @@
+# Task Checklist
+
+- [ ] initialize Environment via `/00-boot` [/]
+    - [ ] read state files [global.md](file:///c:/Users/johng/source/repos/RPGlitch/.agent/state/global.md), [tracks.md](file:///c:/Users/johng/source/repos/RPGlitch/.agent/state/tracks.md), [backlog.md](file:///c:/Users/johng/source/repos/RPGlitch/.agent/state/backlog.md)
+    - [ ] verify environment (Perchance, Svelte 5)
+    - [ ] audit project health
+    - [ ] report ready status
+- [ ] sanitize Codebase via `/03-clean` [ ]
+- [ ] review Implementation via `/04-review` [ ]
+- [ ] sync with GitHub via `/08-github` [ ]

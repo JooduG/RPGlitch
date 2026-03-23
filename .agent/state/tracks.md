@@ -14,6 +14,7 @@
 - **Standards & Deployment** (Done): Standardised Intelligence Core and State layers to `snake_case`. Fixed CSS deprecations in `StoryboardCard.svelte`. Successfully deployed monolithic production build (382KB) to Perchance. 176/176 tests passing.
 - **Metadata Alignment & Workflow Merge** (Done): Synchronized `GEMINI.md` and `AGENTS.md` with the Sovereign Skill hierarchy and A-C-M-Q pipeline. Merged `/01-plan` into `/01-blueprint`. Extracted `scribbles.md` into `sommelier/knowledge/experiment-*.md`. Updated `.agent/config.yaml` and `.agent/tooling.json`. All 166/166 tests pass. [Branch: chore]
 - **Clinic Sanitization (/03-clean)** (Done): Purged redundant `data` skill. Optimized unit test execution (`vitest run`). Resolved all remaining linting warnings in the intelligence core. Final verification suite passed with green status. [Branch: chore]
+- **Sovereign Wiring & Symlink Repair (/04-review)** (Done): Audited and wired ALL maintenance scripts. Migrated the repository's `.agent/` subfolders to the global `.gemini/antigravity/` skeleton and established 6 NTFS junctions for full persistent state mirroring. [Branch: chore]
 
 ## Archive
 
