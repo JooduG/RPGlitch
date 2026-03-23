@@ -2,7 +2,7 @@
   "mcpServers": {
     "chrome-devtools": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\chrome-devtools-mcp.cmd",
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\node_modules\\.bin\\chrome-devtools-mcp.cmd",
       "disabledTools": [
         "upload_file",
         "performance_stop_trace",
@@ -22,14 +22,12 @@
       "serverUrl": "https://mcp.context7.com/mcp"
     },
     "deepwiki": {
-      "disabledTools": [
-        "ask_question"
-      ],
+      "disabledTools": ["ask_question"],
       "serverUrl": "https://mcp.deepwiki.com/mcp"
     },
     "firecrawl-mcp": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\firecrawl-mcp.cmd",
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\node_modules\\.bin\\firecrawl-mcp.cmd",
       "disabledTools": [
         "firecrawl_agent",
         "firecrawl_agent_status",
@@ -83,11 +81,11 @@
     },
     "mcp-sequentialthinking-tools": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\mcp-sequentialthinking-tools.cmd"
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\node_modules\\.bin\\mcp-sequentialthinking-tools.cmd"
     },
     "memory": {
       "args": [
-        "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\skills\\data\\scripts\\index.js"
+        "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\memory\\index.js"
       ],
       "command": "node",
       "env": {
@@ -96,7 +94,7 @@
     },
     "pinecone-mcp-server": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\pinecone-mcp.cmd",
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\node_modules\\.bin\\pinecone-mcp.cmd",
       "disabledTools": [
         "search-docs",
         "list-indexes",
@@ -109,7 +107,7 @@
     },
     "playwright": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\playwright-mcp.cmd",
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\node_modules\\.bin\\playwright-mcp.cmd",
       "disabledTools": [
         "browser_drag",
         "browser_network_requests",
@@ -138,7 +136,7 @@
         "--access-token",
         "sbp_0211f76c824072d4b77a5012761ad3fd3baca328"
       ],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\mcp-server-supabase.cmd",
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\node_modules\\.bin\\mcp-server-supabase.cmd",
       "disabledTools": [
         "list_organizations",
         "get_organization",
@@ -169,40 +167,40 @@
     },
     "svelte": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\svelte-mcp.cmd"
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\node_modules\\.bin\\svelte-mcp.cmd"
     },
     "waldzell-clear-thought": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\clear-thought.cmd",
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\node_modules\\.bin\\clear-thought.cmd",
       "disabledTools": []
     },
     "waldzell-collaborative-reasoning": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\mcp-server-collaborative-reasoning.cmd"
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\node_modules\\.bin\\mcp-server-collaborative-reasoning.cmd"
     },
     "waldzell-decision-framework": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\mcp-server-decision-framework.cmd"
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\node_modules\\.bin\\mcp-server-decision-framework.cmd"
     },
     "waldzell-metacognitive-monitoring": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\mcp-server-metacognitive-monitoring.cmd"
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\node_modules\\.bin\\mcp-server-metacognitive-monitoring.cmd"
     },
     "waldzell-scientific-method": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\mcp-server-scientific-method.cmd"
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\node_modules\\.bin\\mcp-server-scientific-method.cmd"
     },
     "waldzell-stochastic-thinking": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\mcp-server-stochasticthinking.cmd"
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\node_modules\\.bin\\mcp-server-stochasticthinking.cmd"
     },
     "waldzell-structured-argumentation": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\mcp-server-structured-argumentation.cmd"
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\node_modules\\.bin\\mcp-server-structured-argumentation.cmd"
     },
     "waldzell-visual-reasoning": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\mcp-server-visual-reasoning.cmd"
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\node_modules\\.bin\\mcp-server-visual-reasoning.cmd"
     }
   }
 }

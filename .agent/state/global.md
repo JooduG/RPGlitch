@@ -54,13 +54,12 @@
 
 ### [DONE] [003] [Clinic: Codebase Sanitization & Audit]
 
-- [x] Phase 1: Diagnosis (Audit & Scoping)
+- [x] Phase 1: Diagnosis (Audit & Scin
+-x]ha 2Satiti (Execution)
 
-- [x] Phase 2: Sanitization (Execution)
+[xPse: liti (hor te)
 
-- [x] Phase 3: Validation (Scholar Gate)
-
-    - [x] Fix broken script paths in `package.json`.
+    - [x] Fix broken kage.json`.
     - [x] Run `npm run verify` (166/166 pass).
     - [x] Verify Svelte 5 & Chalk Regime compliance.
 
@@ -106,13 +105,22 @@
 - [x] Phase 1: Audit (Verify .agent/ scripts vs package.json).
 - [x] Phase 2: Wiring (Formally connect `janitor` and `scaffold:skill`).
 - [x] Phase 3: Repair (Purge legacy `.agents/` and repair broken junctions).
-- [x] Phase 4: Materialization (Junction all 6 subfolders to global skeleton).
+- [x] Phase 4: Repointing (Establish local NTFS junctions to .gemini/).
+
+### [DONE] [011] [Infrastructure: Deep Purge & Shadow Cleanup]
+
+- [x] Phase 1: Shadow Cleanup (Replace physical configs with hard links).
+- [x] Phase 2: State De-cluttering (Purge system metadata and slop).
+- [x] Phase 3: Workflow Purge (Delete obset00ooan01la. [x] Phase 4: Verification (166/166 unit tests pass).
 
 ### Completed Tasks
 
-- [x] Context Layering (Milestone 2)
-    - [x] [task_remove_trust](./tracks/task_remove_trust.md) | Purge Bayesian Suspicion logic.
+yering (Milestone 2)
+    - [x] `task_remove_trust]` | Purge Bayesian
+
+ Suspicion logic.
     - [/] [narrative-bridge](./tracks/narrative-bridge.md) | Connect Dynamics to Narrative Director
+
 - [x] Intelligence Kernel Phase 1 & 2 (Dynamics Engine structural alignment, refactor, and deployment)
 - [x] Intelligence Kernel Refinement (Optimization and svelte-check resolution)
 - [x] Semantic UI Refactor & Glassmorphism Purge (Strict Chalk Regime alignment)
