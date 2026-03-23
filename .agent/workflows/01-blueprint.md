@@ -46,7 +46,7 @@ Determine the cognitive load of the request to route it appropriately.
 
 The idea must be categorized, expanded, and then ruthlessly stress-tested.
 
-1. **Invoke the Workshop Forge**: **[[Invoke: workshop-forge]](../skills/workshop-forge/SKILL.md)**
+1. **Invoke the Sommelier**: **[[Invoke: sommelier]](../skills/sommelier/SKILL.md)**
    - Categorize into the Narrative Triad (Spec, State, or Echo).
    - *(Optional)* Invoke `stitch` for UI specs or `data` for vector history.
 2. **Invoke the Workshop Warden**: **[[Invoke: workshop-warden]](../skills/workshop-warden/SKILL.md)**

@@ -4,7 +4,7 @@
 - **Narrative Bridge**: Initiated registration and architectural planning for autonomous scene complications.
 - **UI Audit & Polish**: Standardized Chalk Regime tokens across atomic and organism layers. Implemented `kineticScroll` with momentum decay. [Branch: feat/ui-audit-polish]
 - **Verifying System**: `npm run verify` passed all 176 tests. `DynamicsEngine` logic confirmed clean of Bayesian legacy. Full 56-test suite for intelligence core is passing.
-- **Entry Skill**: Initializing scoping for a new "Entry" skill (Agent Lifecycle vs Narrative Units).
+- **Sommelier Skill**: Scaffolded the "Feature Taster" Sovereign (Phase 2). Consolidate Vibe Decoder and Workshop Forge into a single intent-sampling domain.
 - **Agent Manager Skill**: Initializing scoping for meta-optimization of the .agent/ core.
 - **Warden Skill**: Initializing scoping for guard/safety/testing refocus.
 - **Gamemaster Skill**: Initializing scoping for game rules/mechanical truth.

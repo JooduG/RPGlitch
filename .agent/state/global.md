@@ -39,7 +39,7 @@
 ## Active WIP
 
 - [/] **Narrative Bridge**: Orchestrating automatic scene complications.
-- [/] **Entry Skill**: Frontier Scout & Conceptual Gateway (Sovereign).
+- [/] **Sommelier Skill**: Feature Taster & Conceptual Gateway (Sovereign).
 - [ ] **Warden Skill**: Adversarial Sentry & Security Audit (Sovereign).
 - [ ] **Gamemaster Skill**: Simulation Strategist & Narrative Engine (Sovereign).
 

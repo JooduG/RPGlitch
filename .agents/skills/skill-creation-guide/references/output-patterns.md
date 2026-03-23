@@ -51,34 +51,32 @@ Adjust sections as needed for the specific analysis type.
 
 ## Examples Pattern
 
-For skills where output quality depends on seeing examples, provide input/output pairs:
+For skills where output quality depends on seeing examples, provide input/output pairs.
 
-```markdown
-## Commit message format
+### **Commit message format**
 
 Generate commit messages following these examples:
 
 **Example 1:**
 Input: Added user authentication with JWT tokens
-Output:
-
-```bash
-feat(auth): implement JWT-based authentication
-
-Add login endpoint and token validation middleware
-```
+Output: `feat(auth): implement JWT-based authentication` (with detailed body)
 
 **Example 2:**
 Input: Fixed bug where dates displayed incorrectly in reports
-Output:
-
-```bash
-fix(reports): correct date formatting in timezone conversion
-
-Use UTC timestamps consistently across report generation
-```
+Output: `fix(reports): correct date formatting` (with detailed body)
 
 Follow this style: type(scope): brief description, then detailed explanation.
-```
 
 Examples help Claude understand the desired style and level of detail more clearly than descriptions alone.
+
+## Multi-file update example
+
+When updating more than one file at once, specify changes clearly using a list or separate blocks:
+
+1. **Update first file**: Use `sed` or appropriate tool.
+2. **Update second file**: Apply changes sequentially.
+
+Example structure:
+
+- **[MODIFY] src/first.js**: Change 'old' to 'new'.
+- **[MODIFY] src/second.js**: Change 'foo' to 'bar'.
