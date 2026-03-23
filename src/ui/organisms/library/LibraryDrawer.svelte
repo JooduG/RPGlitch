@@ -4,7 +4,7 @@
    * 📚 THE ENTITY BIRTHPLACE
    * Slide-up sheet for selecting or creating entities (AI, User, or Fractal).
    */
-  import { create_new } from "@data/content_normaliser.js";
+  import { create_new } from "@data/content-normaliser.js";
   import { entities as repository } from "@data/repository.js";
   import { app } from "@state/app.svelte.js";
   import { quintOut } from "svelte/easing";

@@ -1,7 +1,7 @@
 import { app } from "@state/app.svelte.js";
 import { session } from "@state/session.svelte.js";
-import { simulation_log } from "@state/simulation_log.svelte.js";
-import { engineState } from "@state/status.svelte.js";
+import { simulation_log } from "@state/simulation-log.svelte.js";
+import { simulationState } from "@state/status.svelte.js";
 import { cleanup, fireEvent, render, screen } from "@testing-library/svelte";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import ProsePanel from "./ProsePanel.svelte";
@@ -18,8 +18,8 @@ describe("ProsePanel Integration (Isolated)", () => {
     simulation_log.feed = [];
     app.streaming = { active: false, content: "", node_id: null };
     app.selected_ai = { name: "TestAI" };
-    engineState.phase = "idle";
-    engineState.role = null;
+    simulationState.phase = "idle";
+    simulationState.role = null;
   });
   it("renders empty state when no messages", () => {
     render(ProsePanel);
@@ -38,7 +38,7 @@ describe("ProsePanel Integration (Isolated)", () => {
     expect(screen.getByText("Hello Mock")).toBeDefined();
   });
   it("renders thinking state", async () => {
-    engineState.phase = "generating";
+    simulationState.phase = "generating";
     render(ProsePanel);
     expect(screen.getByTestId("mock-message-thinking")).toBeDefined();
   });

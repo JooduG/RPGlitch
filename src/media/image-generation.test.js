@@ -1,15 +1,15 @@
-import { LlmService } from "@core/intelligence/LlmService.js";
+import { LlmService } from "@core/intelligence/llm-service.js";
 import { describe, expect, it, vi } from "vitest";
-import { ImageGeneration } from "./image_engine.js";
-import { PromptEngine } from "./image_prompts.js";
+import { ImageGeneration } from "./image-engine.js";
+import { PromptEngine } from "./image-prompts.js";
 // Mock dependencies
 vi.mock("@data/db.js", () => ({
   db: {},
 }));
-vi.mock("@core/intelligence/ContextBroker.js", () => ({
+vi.mock("@core/intelligence/context-broker.js", () => ({
   ContextBroker: {},
 }));
-vi.mock("@core/intelligence/intelligence_service.js", () => ({
+vi.mock("@core/intelligence/llm-service.js", () => ({
   LlmService: {
     generate: vi.fn(),
   },

@@ -8,7 +8,7 @@
   import { entities } from "@/data/repository.js";
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
-  import { engineState } from "@state/status.svelte.js";
+  import { simulationState } from "@state/status.svelte.js";
   import Layout from "@ui/organisms/Layout.svelte";
   import { onMount } from "svelte";
   import InputBar from "./InputBar.svelte";
@@ -17,7 +17,7 @@
   // [FIX] Target flattened profile_picture
   let fractalBg = $derived(runtime?.storyFractal?.profile_picture || "");
   // Derived
-  let is_thinking = $derived(engineState.phase === "generating");
+  let is_thinking = $derived(simulationState.phase === "generating");
   // --- ON MOUNT: Hydrate Entity Lists for Color Lookups ---
   onMount(async () => {
     if (app.ai_list.length === 0) {

@@ -1,8 +1,8 @@
 <script>
   import { app } from "@state/app.svelte.js";
   import { session } from "@state/session.svelte.js";
-  import { simulation_log } from "@state/simulation_log.svelte.js";
-  import { engineState } from "@state/status.svelte.js";
+  import { simulation_log } from "@state/simulation-log.svelte.js";
+  import { simulationState } from "@state/status.svelte.js";
   import Button from "@ui/atoms/Button.svelte";
   import Message from "./Message.svelte";
 
@@ -10,7 +10,7 @@
   let scroll_ref = $state(null);
 
   // Derived
-  let is_thinking = $derived(engineState.phase === "generating");
+  let is_thinking = $derived(simulationState.phase === "generating");
 
   // Auto-scroll logic
   $effect(() => {
@@ -75,7 +75,7 @@
   {#if app.streaming?.active}
     <Message text={app.streaming.content} sender="ai" timestamp={new Date()} is_last={true} />
   {:else if is_thinking}
-    <Message sender={engineState.role} is_thinking={true} />
+    <Message sender={simulationState.role} is_thinking={true} />
   {:else if simulation_log.feed.length === 0}
     <div class="empty-feed-fallback">
       <p>

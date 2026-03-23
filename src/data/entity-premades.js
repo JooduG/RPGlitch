@@ -1,5 +1,5 @@
 /**
- * src/data/entity_premades.js
+ * src/data/entity-premades.js
  * ⚡ PREMADE ENTITIES COLLECTION
  * Meticulously crafted baseline characters and fractals.
  * ----------------------------------------------------------------------------------

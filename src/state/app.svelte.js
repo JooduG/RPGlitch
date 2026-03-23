@@ -8,7 +8,7 @@ import { db } from "@data/db.js";
 import { generateUUID } from "@ui/utils/core.js";
 import { closeLightbox, openLightbox } from "@state/lightbox.svelte.js";
 import { runtime } from "@state/runtime.svelte.js";
-import { engineState } from "@state/status.svelte.js";
+import { simulationState } from "@state/status.svelte.js";
 import { themeStore } from "@theme/palette.svelte.js";
 /************************************************************************************
  * 🧩 [SECTION: STATE DEFINITIONS]
@@ -53,7 +53,7 @@ export class AppStore {
     selected: null,
   });
   // --- UI TENSION (Reactive Intensity) ---
-  tension = $derived(engineState.phase === "generating" || engineState.phase === "locked" ? 1 : 0);
+  tension = $derived(simulationState.phase === "generating" || simulationState.phase === "locked" ? 1 : 0);
   // --- SETTINGS ---
   settings = $state({
     sound: true,

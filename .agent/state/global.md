@@ -46,9 +46,10 @@
 - **Focus**: Phase 4.0 Architecture — UI layout is currently stable.
 - **Pending Tasks**: None logged. Awaiting next Track.
 
-# Antigravity Mission Board
+## Mission Board
 
-## [WIP] [003] [Clinic: Codebase Sanitization & Audit]
+### [WIP] [003] [Clinic: Codebase Sanitization & Audit]
+
 - [x] Phase 1: Diagnosis (Audit & Scoping)
     - [x] Run `npm audit` for dependency hygiene.
     - [x] Scan core logic for naming/lexicon violations (Rule 03).
@@ -62,7 +63,7 @@
     - [ ] Run `vitest` suite globally.
     - [ ] Update documentation and state shards.
 
-## Completed Tasks
+### Completed Tasks
 
 - [x] Context Layering (Milestone 2)
     - [x] [task_remove_trust](./tracks/task_remove_trust.md) | Purge Bayesian Suspicion logic.
@@ -72,6 +73,6 @@
 - [x] Semantic UI Refactor & Glassmorphism Purge (Strict Chalk Regime alignment)
 - [x] UI Audit, Polish & Kinetic Motion Enhancement (Standardized tokens, kinetic scroll, and motion physics)
 
-## Known Quirks / Technical Debt
+### Known Quirks / Technical Debt
 
 - None logged.

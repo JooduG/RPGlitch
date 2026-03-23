@@ -3,7 +3,7 @@
   import Button from "@ui/atoms/Button.svelte";
   import { pulse, shimmy, spin } from "@ui/utils/actions/kinetic.js";
   import { tilt } from "@ui/utils/actions/tilt.js";
-  import { storyboard } from "./storyboardActions.svelte.js";
+  import { storyboard } from "./storyboard-actions.svelte.js";
   // Derived State
   let ready_to_begin = $derived(app.selected_ai && app.selected_user && app.selected_fractal);
 </script>

@@ -1,7 +1,7 @@
-import { IntelligenceKernel } from "@core/intelligence/IntelligenceKernel.js";
+import { Gamemaster } from "@core/intelligence/intelligence-kernel.js";
 import { app } from "@state/app.svelte.js";
-import { engineState } from "@state/status.svelte.js";
-import { Session } from "./SessionDriver.js";
+import { simulationState } from "@state/status.svelte.js";
+import { Session } from "./session-driver.js";
 /**
  * The Engine provides a unified interface for the high-level simulation logic.
  * It serves as the primary controller for the Perchance narrative flow.
@@ -19,41 +19,41 @@ export const Engine = {
   regenerate: () => Session.regenerate(),
   // --- GENERATION ---
   generate_ai_response: async (story_id, options = {}) => {
-    engineState.start_generation(options.role || "ai");
+    simulationState.start_generation(options.role || "ai");
     try {
-      await IntelligenceKernel.execute_turn(story_id, options);
+      await Gamemaster.execute_turn(story_id, options);
       app.log("Generation complete.", "system");
     } catch (e) {
       console.error("Engine: Generation Failed", e);
       app.log("Error: Generation Failed.", "error");
       throw e;
     } finally {
-      engineState.complete();
+      simulationState.complete();
     }
   },
   generate_prologue: async (story_id) => {
-    engineState.start_generation("fractal");
+    simulationState.start_generation("fractal");
     try {
-      await IntelligenceKernel.execute_prologue(story_id);
+      await Gamemaster.execute_prologue(story_id);
       app.log("Prologue generated and opening turn executed.", "system");
     } catch (e) {
       console.error("Engine: Prologue Failed", e);
       app.log("Error: Prologue Failed.", "error");
       throw e;
     } finally {
-      engineState.complete();
+      simulationState.complete();
     }
   },
   trigger_epilogue: async () => {
-    engineState.start_generation("ai");
+    simulationState.start_generation("ai");
     try {
-      await IntelligenceKernel.execute_epilogue(Session.require_active());
+      await Gamemaster.execute_epilogue(Session.require_active());
     } catch (e) {
       console.error("Engine: Epilogue Failed", e);
       app.log("Error: Epilogue Failed.", "error");
       throw e;
     } finally {
-      engineState.complete();
+      simulationState.complete();
     }
   },
 };

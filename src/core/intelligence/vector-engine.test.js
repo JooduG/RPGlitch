@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { CONFIG } from "../engine/config.js";
-import { VectorEngine } from "./VectorEngine.js";
-vi.mock("./DynamicsEngine.js", () => ({
+import { VectorEngine } from "./vector-engine.js";
+vi.mock("./dynamics-engine.js", () => ({
   DynamicsEngine: {
     dynamics_scan: vi.fn(() => [{ id: "VIBE_CHECK", scan: "vibe" }]),
   },
@@ -25,7 +25,7 @@ describe("VectorEngine", () => {
   });
   describe("score_vectors", () => {
     it("calculates relevance: base weight + bonuses (+1 ID, +2 Word, +3 Tag)", async () => {
-      const { DynamicsEngine } = await import("./DynamicsEngine.js");
+      const { DynamicsEngine } = await import("./dynamics-engine.js");
       // Mock dynamics_scan to return a match with trigger word
       vi.mocked(DynamicsEngine.dynamics_scan).mockReturnValue([{ id: "EXPOSURE", scan: "kiss" }]);
       const vectors = [
@@ -50,7 +50,7 @@ describe("VectorEngine", () => {
       expect(ranked[0]._relevance).toBe(expected);
     });
     it("grants +1 for Vibe (ID) match but skip +2 if trigger word differs", async () => {
-      const { DynamicsEngine } = await import("./DynamicsEngine.js");
+      const { DynamicsEngine } = await import("./dynamics-engine.js");
       // Input "hug" matches EXPOSURE id, but trigger word is "hug"
       vi.mocked(DynamicsEngine.dynamics_scan).mockReturnValue([{ id: "EXPOSURE", scan: "hug" }]);
       const vectors = [
@@ -88,7 +88,7 @@ describe("VectorEngine", () => {
       expect(ranked[0].id).toBe("new");
     });
     it("high emotional weight outscores low weight even with less matches", async () => {
-      const { DynamicsEngine } = await import("./DynamicsEngine.js");
+      const { DynamicsEngine } = await import("./dynamics-engine.js");
       vi.mocked(DynamicsEngine.dynamics_scan).mockReturnValue([]);
       const vectors = [
         {

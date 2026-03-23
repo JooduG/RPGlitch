@@ -6,9 +6,9 @@
  * NOTE: This script is executed via Vitest to handle Svelte/ESM dependencies.
  * Run with: npx vitest run scripts/dump_prompt.js
  */
-import { ContextBroker } from "../src/core/intelligence/ContextBroker.js";
-import { DynamicsEngine } from "../src/core/intelligence/DynamicsEngine.js";
-import { PromptBuilder } from "../src/core/intelligence/PromptBuilder.js";
+import { ContextBroker } from "../src/core/intelligence/context-broker.js";
+import { DynamicsEngine } from "../src/core/intelligence/dynamics-engine.js";
+import { PromptBuilder } from "../src/core/intelligence/prompt-builder.js";
 import { runtime } from "../src/state/runtime.svelte.js";
 import { describe, it } from "vitest";
 describe("v5.0 Prompt Audit (LIVE SOURCE)", () => {

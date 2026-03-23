@@ -1,4 +1,4 @@
-import { VectorEngine } from "@core/intelligence/VectorEngine.js";
+import { VectorEngine } from "@core/intelligence/vector-engine.js";
 import { db } from "@data/db.js";
 import { entities } from "@data/repository.js";
 // We split the large state object into cohesive internal modules:

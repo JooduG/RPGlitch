@@ -5,12 +5,12 @@
    * Renders parsed messages, DevMode think blocks, and handles inline actions.
    * Flattened Schema Compliant.
    */
-  import { parse_message } from "@core/engine/text_parser.js";
+  import { parse_message } from "@core/engine/text-parser.js";
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
   import SceneHeader from "../SceneHeader.svelte";
-  import { safe_html } from "@ui/utils/actions/safeHtml.js";
+  import { safe_html } from "@ui/utils/actions/safe-html.js";
   let {
     text = "",
     sender = "system", // 'ai', 'user', 'fractal', 'system'

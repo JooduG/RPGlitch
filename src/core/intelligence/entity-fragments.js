@@ -1,5 +1,5 @@
 /**
- * @file src/core/intelligence/entity_fragments.js
+ * @file src/core/intelligence/entity-fragments.js
  *
  * ─────────────────────────────────────────────────────────────────────────────
  * 📋 ENTITY FRAGMENTS  —  The One True Source of Truth for Entity Taxonomy

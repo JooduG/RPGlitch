@@ -1,8 +1,8 @@
 /**
- * @file src/core/intelligence/IntelligenceKernel.js
+ * @file src/core/intelligence/intelligence-kernel.js
  *
  * ─────────────────────────────────────────────────────────────────────────────
- * 🧠 INTELLIGENCE KERNEL  —  The Brain's Orchestrator
+ * 🧠 GAMEMASTER  —  The Brain's Core
  * ─────────────────────────────────────────────────────────────────────────────
  *
  * PURPOSE
@@ -10,22 +10,22 @@
  * and the Transport Layer (LlmService) into a single, cohesive execution flow.
  *
  * RESPONSIBILITIES
- * 1. Orchestration: Hydrate -> Simulate -> Synthesize -> Generate.
+ * 1. Gamemaster Execution: Hydrate -> Simulate -> Synthesize -> Generate.
  * 2. Persistence  : Automatically logs turns to the Session database.
  * 3. Physics      : Updates global runtime physics based on simulation results.
  */
-import { ContextBroker } from "./ContextBroker.js";
-import { DynamicsEngine } from "./DynamicsEngine.js";
-import { PromptBuilder } from "./PromptBuilder.js";
-import { LlmService } from "./LlmService.js";
+import { ContextBroker } from "./context-broker.js";
+import { DynamicsEngine } from "./dynamics-engine.js";
+import { PromptBuilder } from "./prompt-builder.js";
+import { LlmService } from "./llm-service.js";
 import { runtime } from "@state/runtime.svelte.js";
 import { app } from "@state/app.svelte.js";
-import { MemoryEngine } from "./MemoryEngine.js";
-import { VectorEngine } from "./VectorEngine.js";
+import { MemoryEngine } from "./memory-engine.js";
+import { VectorEngine } from "./vector-engine.js";
 import { db } from "@data/db.js";
 import { entities } from "@data/repository.js";
-import { Session } from "@core/engine/SessionDriver.js";
-export const IntelligenceKernel = {
+import { Session } from "@core/engine/session-driver.js";
+export const Gamemaster = {
   /**
    * EXECUTE TURN
    * The primary simulation loop for a narrative turn.
@@ -61,7 +61,7 @@ export const IntelligenceKernel = {
     runtime.fractal = snapshot.fractal.dynamics;
     runtime.turn_type = "AI_TURN";
     app.log(
-      "Intelligence Kernel: Context hydrated. Physics resolved. Entering AI_TURN. Routing to LLM...",
+      "Gamemaster: Context hydrated. Physics resolved. Entering AI_TURN. Routing to LLM...",
       "system",
     );
     // 6. GENERATION: Call the model with retry logic
@@ -103,7 +103,7 @@ export const IntelligenceKernel = {
     const payload = await ContextBroker.hydrate("", "prologue");
     const result = PromptBuilder.synthesize(payload, {});
     if (!result.system) return null;
-    app.log("Intelligence Kernel: Generating prologue...", "system");
+    app.log("Gamemaster: Generating prologue...", "system");
     const response = await this._execute_with_retry(async () => {
       return await LlmService.generate({ system: result.system });
     });
@@ -116,7 +116,7 @@ export const IntelligenceKernel = {
       round: 0,
       turn_type: "SYSTEM_TURN",
     });
-    app.log("Intelligence Kernel: Prologue established (Round 0).", "system");
+    app.log("Gamemaster: Prologue established (Round 0).", "system");
     // 2. The Hook: Trigger immediate AI follow-up to open the scene.
     return await this.execute_turn(story_id);
   },
@@ -127,7 +127,7 @@ export const IntelligenceKernel = {
   async execute_epilogue(story_id) {
     const { system } = PromptBuilder.build_epilogue();
     if (!system) return null;
-    app.log("Intelligence Kernel: Generating epilogue...", "system");
+    app.log("Gamemaster: Generating epilogue...", "system");
     const response = await this._execute_with_retry(async () => {
       return await LlmService.generate({ system });
     });
@@ -143,7 +143,7 @@ export const IntelligenceKernel = {
     } catch (err) {
       if (retries <= 0) throw err;
       app.log(
-        `Intelligence Kernel: Connection issue. Retrying in ${delay}ms... (${retries} attempts left)`,
+        `Gamemaster: Connection issue. Retrying in ${delay}ms... (${retries} attempts left)`,
         "warn",
       );
       await new Promise((resolve) => setTimeout(resolve, delay));

@@ -15,14 +15,14 @@
 
   import Button from "@ui/atoms/Button.svelte";
   import ProfilePicture from "@ui/atoms/ProfilePicture.svelte";
-  import { engineState } from "@state/status.svelte.js";
+  import { simulationState } from "@state/status.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
-  import { fitText } from "@ui/utils/actions/fitText.js";
+  import { fitText } from "@ui/utils/actions/fit-text.js";
   import { tilt } from "@ui/utils/actions/tilt.js";
 
   // --- DERIVED STATE ---
   let is_empty = $derived(!entity);
-  let is_processing = $derived(engineState.phase !== "idle");
+  let is_processing = $derived(simulationState.phase !== "idle");
 
   // Theme Store now natively handles top-level signature_color
   let signature_color = $derived(themeStore.get_signature_color(entity));

@@ -4,7 +4,7 @@
  * This file dynamically translates the central ENTITY_FRAGMENTS schema
  * into renderable UI Sections for the ProfileFragments layout.
  */
-import { ENTITY_FRAGMENTS } from "@/core/intelligence/entity_fragments.js";
+import { ENTITY_FRAGMENTS } from "@/core/intelligence/entity-fragments.js";
 export { ENTITY_FRAGMENTS };
 /**
  * Maps the ENTITY_FRAGMENTS into UI section objects.

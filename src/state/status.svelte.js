@@ -1,6 +1,6 @@
 // 👑 ENGINE: The Silent Observer
 // Tracks the heartbeat of the engine without revealing it.
-export const engineState = $state({
+export const simulationState = $state({
   phase: "idle", // "idle" | "generating" | "locked"
   role: null, // "ai" | "system" | "fractal" | null
   active_id: null,

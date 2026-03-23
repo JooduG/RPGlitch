@@ -6,7 +6,7 @@
    */
   import { PROFILE_SECTIONS } from "./config.js";
   import VectorPanel from "./VectorPanel.svelte";
-  import { safe_html } from "@ui/utils/actions/safeHtml.js";
+  import { safe_html } from "@ui/utils/actions/safe-html.js";
   let {
     char = $bindable(),
     is_editing,

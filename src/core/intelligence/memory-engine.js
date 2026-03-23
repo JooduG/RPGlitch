@@ -1,5 +1,5 @@
 /**
- * @file src/core/intelligence/MemoryEngine.js
+ * @file src/core/intelligence/memory-engine.js
  *
  * ─────────────────────────────────────────────────────────────────────────────
  * 📚 MEMORY ENGINE  —  Temporal Resonance & Memory Condensation
@@ -22,9 +22,9 @@
  *   - summary : A single sentence capturing the most meaningful shift.
  *   - tags    : Categorical labels for search/retrieval (e.g. "trauma", "alliance").
  */
-import { LlmService } from "@core/intelligence/LlmService.js";
-import { DynamicsEngine } from "./DynamicsEngine.js";
-import { PromptBuilder } from "./PromptBuilder.js";
+import { LlmService } from "@core/intelligence/llm-service.js";
+import { DynamicsEngine } from "./dynamics-engine.js";
+import { PromptBuilder } from "./prompt-builder.js";
 /**
  * Condenses a slice of recent history into a structured Resonance record (Vector).
  *

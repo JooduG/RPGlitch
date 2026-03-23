@@ -1,5 +1,5 @@
 /**
- * @file src/core/intelligence/PromptBuilder.js
+ * @file src/core/intelligence/prompt-builder.js
  *
  * ─────────────────────────────────────────────────────────────────────────────
  * 🧠 PROMPT BUILDER — Rebuilt for Structural Excellence
@@ -29,7 +29,7 @@
  * - <NARRATIVE_STYLE>: DynamicsEngine -> signalPrompts (Style)
  * - <PROTOCOLS>: ProtocolLibrary (DNA)
  */
-import { VectorEngine } from "./VectorEngine.js";
+import { VectorEngine } from "./vector-engine.js";
 export const SYSTEM_PROMPTS = {
   simulation: ({ round, entities, simulation_log, signal_prompts, input, render_atom }) => {
     const ai = entities.AI;

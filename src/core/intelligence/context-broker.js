@@ -1,5 +1,5 @@
 /**
- * @file src/core/intelligence/ContextBroker.js
+ * @file src/core/intelligence/context-broker.js
  *
  * ─────────────────────────────────────────────────────────────────────────────
  * 🔌 CONTEXT BROKER  —  The State Adapter & Document Assembler
@@ -11,8 +11,8 @@
  * cleaning it, and packaging it into a unified IntelligencePayload.
  */
 import { runtime } from "@state/runtime.svelte.js";
-import { ENTITY_CATALOG } from "./entity_fragments.js";
-import { clean_text } from "../engine/text_parser.js";
+import { ENTITY_CATALOG } from "./entity-fragments.js";
+import { clean_text } from "../engine/text-parser.js";
 /************************************************************************************
  * 🧩 [SECTION: PRIVATE HELPERS]
  ************************************************************************************/

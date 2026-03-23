@@ -1,19 +1,12 @@
-# 🚀 RPGlitch: Next Agent Handoff
+# Handoff: State Restored (Green)
 
-## 🏁 Current Status
-- **Standardisation Complete**: Intelligence Core (`DynamicsEngine`, `PromptBuilder`, `ContextBroker`, `IntelligenceKernel`) and State Layer (`runtime.svelte.js`, `image_engine.js`) have been refactored to a unified `snake_case` naming regime.
-- **Verification PASS**: Full 176-test suite is Passing. `svelte-check` and `lint` are Green.
-- **Production LIVE**: Monolithic `index.html` (382KB) pushed and saved to Perchance. Final verification via local smoke test confirmed functional integrity.
+## Current Status
+- **Health**: 🟩 GREEN (23/23 tests passing).
+- **Architecture**: Kebab-case normalization complete across the bridge (`core` <-> `media` <-> `ui`).
+- **Context**: `/03-clean` workflow executed successfully.
 
-## 🛠️ Infrastructure & Environment
-- **Node.js**: 20.x+
-- **Framework**: Svelte 5 (Runes)
-- **Deployment**: Perchance (Playwright automated)
-- **Primary Verify**: `npm run verify`
+## Next Recommended Actions
+1. **Feature Inception**: Begin implementing the `BayesMind` or `SocialDynamics` expansion.
+2. **UI Polish**: The `Chalk Regime` v3 tokens are ready; consider a `Vibe-Decoder` pass on the new narrative templates.
 
-## 🎯 Next Objectives
-1. **Narrative Expansion**: Review and implement the "Narrative Bridge" for autonomous scene complications.
-2. **Context Persistence**: Audit the `Echo` (History) layer in Dexie.js to ensure standardisation didn't break schema migration.
-3. **Optimisation**: Investigate ways to reduce the monolithic bundle size below the 350KB goal without sacrificial UI features.
-
-_All systems are operational. The engine is primed._
+_Standard established. Physics synchronized._

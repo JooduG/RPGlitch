@@ -4,7 +4,7 @@
  * Handles sound effects and text-to-speech.
  */
 import { db } from "@data/db.js";
-import { textToSpeech } from "./speech_engine.svelte.js";
+import { textToSpeech } from "./speech-engine.svelte.js";
 const STORAGE_KEY = "rpglitch_audio_settings";
 class SoundEffectsService {
   constructor() {

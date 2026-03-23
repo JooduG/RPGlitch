@@ -15,7 +15,7 @@
 
   import { themeStore } from "@theme/palette.svelte.js";
   import ProfilePicture from "@ui/atoms/ProfilePicture.svelte";
-  import { fitText } from "@ui/utils/actions/fitText.js";
+  import { fitText } from "@ui/utils/actions/fit-text.js";
 
   let signature_color = $derived(themeStore.get_signature_color(entity));
   let signature_rgb = $derived(themeStore.hex_to_rgb(signature_color));

@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { IntelligenceKernel } from "./IntelligenceKernel.js";
-import { Session } from "@core/engine/SessionDriver.js";
-import { LlmService } from "./LlmService.js";
+import { Gamemaster } from "./intelligence-kernel.js";
+import { Session } from "@core/engine/session-driver.js";
+import { LlmService } from "./llm-service.js";
 import { runtime } from "@state/runtime.svelte.js";
 
 // Mock dependencies
-vi.mock("@core/engine/SessionDriver.js", () => ({
+vi.mock("@core/engine/session-driver.js", () => ({
   Session: {
     load_log: vi.fn(),
     log_turn: vi.fn(),
@@ -13,7 +13,7 @@ vi.mock("@core/engine/SessionDriver.js", () => ({
   },
 }));
 
-vi.mock("./LlmService.js", () => ({
+vi.mock("./llm-service.js", () => ({
   LlmService: {
     generate: vi.fn(),
   },
@@ -39,7 +39,7 @@ vi.mock("@state/app.svelte.js", () => ({
   },
 }));
 
-describe("IntelligenceKernel Orchestration", () => {
+describe("Gamemaster Orchestration", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     runtime.round = 0;
@@ -49,7 +49,7 @@ describe("IntelligenceKernel Orchestration", () => {
     vi.mocked(Session.load_log).mockResolvedValue([{ role: "user", text: "Hello" }]);
     vi.mocked(LlmService.generate).mockResolvedValue("Identified.");
 
-    const result = await IntelligenceKernel.execute_turn("story-123", {
+    const result = await Gamemaster.execute_turn("story-123", {
       input: "Hi",
     });
 
@@ -65,7 +65,7 @@ describe("IntelligenceKernel Orchestration", () => {
     vi.mocked(LlmService.generate).mockResolvedValueOnce("The adventure begins."); // Follow-up turn
     vi.mocked(Session.load_log).mockResolvedValue([]);
 
-    await IntelligenceKernel.execute_prologue("story-123");
+    await Gamemaster.execute_prologue("story-123");
 
     expect(Session.log_turn).toHaveBeenCalledWith(
       "Once upon a time...",
@@ -79,7 +79,7 @@ describe("IntelligenceKernel Orchestration", () => {
   it("should execute an epilogue", async () => {
     vi.mocked(LlmService.generate).mockResolvedValue("And so it ends.");
 
-    const result = await IntelligenceKernel.execute_epilogue("story-123");
+    const result = await Gamemaster.execute_epilogue("story-123");
 
     expect(LlmService.generate).toHaveBeenCalled();
     expect(Session.log_turn).toHaveBeenCalledWith("And so it ends.", "Narrator", "ai");

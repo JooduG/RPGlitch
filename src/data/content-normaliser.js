@@ -1,5 +1,5 @@
 /**
- * src/data/content_normaliser.js
+ * src/data/content-normaliser.js
  * 🧪 CONTENT NORMALISATION LOGIC
  * Enforces the strict "Twin-Cylinder" data structure across the app.
  * ZERO BACKWARDS COMPATIBILITY.

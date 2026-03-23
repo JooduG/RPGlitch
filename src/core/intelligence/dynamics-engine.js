@@ -1,5 +1,5 @@
 /**
- * @file src/core/intelligence/DynamicsEngine.js
+ * @file src/core/intelligence/dynamics-engine.js
  * @description The RPGlitch Dynamics Engine (v2).
  * Consolidates all impulses, reactions, and signals into a unified DYNAMICS registry.
  */

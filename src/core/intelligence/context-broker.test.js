@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ContextBroker } from "./ContextBroker.js";
-import { clean_text } from "../engine/text_parser.js";
+import { ContextBroker } from "./context-broker.js";
+import { clean_text } from "../engine/text-parser.js";
 // Mock dependencies
 vi.mock("@state/app.svelte.js", () => ({
   app: {

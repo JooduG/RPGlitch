@@ -9,7 +9,7 @@
  * 🧩 [SECTION: COLOR PALETTE & MAPPINGS]
  * Static registries merged from legacy `palette.js`.
  ************************************************************************************/
-import { normalize } from "@data/content_normaliser.js";
+import { normalize } from "@data/content-normaliser.js";
 export const PALETTE = {
   "Crimson Red": "#ef4444",
   "Sunset Orange": "#f97316",

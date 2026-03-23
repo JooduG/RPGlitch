@@ -1,5 +1,5 @@
 /**
- * @file src/core/intelligence/VectorEngine.js
+ * @file src/core/intelligence/vector-engine.js
  *
  * ─────────────────────────────────────────────────────────────────────────────
  * 🧠 VECTOR ENGINE  —  The Temporal Memory Controller
@@ -30,7 +30,7 @@
  * └────────────────────────────────────────────────────────────────────────┘
  */
 import { CONFIG } from "../engine/config.js";
-import { DynamicsEngine } from "./DynamicsEngine.js";
+import { DynamicsEngine } from "./dynamics-engine.js";
 /************************************************************************************
  * 🧩 [SECTION: VECTOR SOVEREIGNTY]
  * ----------------------------------------------------------------------------------

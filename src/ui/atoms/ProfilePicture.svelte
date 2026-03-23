@@ -6,7 +6,7 @@
    * RUTHLESSLY FLATTENED — Zero backward compatibility.
    */
   import { themeStore } from "@theme/palette.svelte.js";
-  import { fitText } from "@ui/utils/actions/fitText.js";
+  import { fitText } from "@ui/utils/actions/fit-text.js";
   let { entity } = $props();
   // 1. Core Flattened Properties
   let name = $derived(entity?.name || "Entity");

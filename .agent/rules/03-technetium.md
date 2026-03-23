@@ -109,9 +109,9 @@ Code must be predictably organized. Heavy logic (>50 lines) moves to `scripts/`.
 | :---------- | :-------------------------- | :------------------------- | :---------------------------- |
 | File System | **Directories**             | `kebab-case`               | `simulation-engine/`          |
 | File System | **Svelte Component**        | `PascalCase`               | `StoryPanel.svelte`           |
-| File System | **Structure/Class**         | `PascalCase`               | `ContextBroker.js`            |
+| File System | **Structure/Class**         | `kebab-case`               | `context-broker.js`           |
 | Identifier  | **Process/State/Variables** | `snake_case`               | `current_char`                |
-| Identifier  | **Booleans**                | `Question Form`            | `isActive`, `hasToken`        |
+| Identifier  | **Booleans**                | `question_snake`           | `is_active`, `has_token`      |
 | Identifier  | **Global Config**           | `SCREAMING_SNAKE`          | `ENTITY_DEFINITION`           |
 
 > **Architectural High-Visibility**: In complex logic files, major functional areas MUST be separated by 80-character banners (e.g., `/* 🧩 [SECTION: NAME] --- */`).

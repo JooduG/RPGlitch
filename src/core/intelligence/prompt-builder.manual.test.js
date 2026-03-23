@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PromptBuilder } from "./PromptBuilder.js";
+import { PromptBuilder } from "./prompt-builder.js";
 describe("PromptBuilder Visual & Contextual Verification", () => {
   it("collapses double newlines and renders contextual resonance", () => {
     const entities = {

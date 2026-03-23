@@ -1,5 +1,5 @@
 import { describe, expect, test, vi, beforeEach } from "vitest";
-import { safe_html } from "./safeHtml.js";
+import { safe_html } from "./safe-html.js";
 import * as security from "@core/security.js";
 vi.mock("@core/security.js", () => ({
   sanitizeToFragment: vi.fn((dirty) => ({ __isMockFragment: true, source: dirty || "" })),

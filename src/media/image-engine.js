@@ -4,18 +4,18 @@
  * Orchestrates physical image generation, API bridging, and pipeline facades.
  */
 import { CONFIG, ROLES } from "@core/engine/config.js";
-import { ContextBroker } from "@core/intelligence/ContextBroker.js";
-import { LlmService } from "@core/intelligence/LlmService.js";
+import { ContextBroker } from "@core/intelligence/context-broker.js";
+import { LlmService } from "@core/intelligence/llm-service.js";
 import { db } from "@data/db.js";
 import { entities } from "@data/repository.js";
 import { runtime } from "@state/runtime.svelte.js";
-import { engineState as engine } from "@state/status.svelte.js";
+import { simulationState as simulation } from "@state/status.svelte.js";
 import {
   AestheticRouter,
   NEGATIVE_PROMPT,
   PROMPT_TEMPLATES,
   PromptEngine,
-} from "./image_prompts.js";
+} from "./image-prompts.js";
 const { DYNAMICS } = CONFIG;
 const DYNAMICS_CONSTANTS = DYNAMICS;
 /************************************************************************************
@@ -154,7 +154,7 @@ export const ImageGeneration = {
       targetRole = ROLES.USER;
       targetId = story.userId;
     }
-    engine.start_typing(targetRole, targetId);
+    simulation.start_typing(targetRole, targetId);
     try {
       let vTarget = targetType || "character";
       if (targetType === ROLES.FRACTAL) vTarget = "scene";
@@ -206,7 +206,7 @@ export const ImageGeneration = {
       console.error("[IMAGE_ENGINE] Visualizer Failed:", visErr);
       return { imageUrl: null, refinedPrompt: null, opticsThoughts: null };
     } finally {
-      engine.stop_typing();
+      simulation.stop_typing();
     }
   },
   /**

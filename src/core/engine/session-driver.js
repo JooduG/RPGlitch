@@ -1,6 +1,6 @@
 import { db } from "@data/db.js";
 import { runtime } from "@state/runtime.svelte.js";
-import { simulation_log } from "@state/simulation_log.svelte.js";
+import { simulation_log } from "@state/simulation-log.svelte.js";
 /**
  * 🕹️ SESSION (Simulation & Gamemaster)
  * Handles persistence and state for the active story.

@@ -7,11 +7,11 @@
    */
   import { Engine } from "@core/engine/engine.js";
   import { app } from "@state/app.svelte.js";
-  import { engineState } from "@state/status.svelte.js";
+  import { simulationState } from "@state/status.svelte.js";
   import { spin, stab } from "@ui/utils/actions/kinetic.js";
   let { disabled = false } = $props();
   // [R5] Auto-disable when engine is busy
-  let is_locked = $derived(disabled || engineState.phase !== "idle");
+  let is_locked = $derived(disabled || simulationState.phase !== "idle");
   let value = $state("");
   let is_focused = $state(false);
   let textarea;

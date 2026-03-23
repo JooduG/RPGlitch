@@ -3,8 +3,8 @@
 import { Shield } from "@core/security.js";
 import { app } from "@state/app.svelte.js";
 import { runtime } from "@state/runtime.svelte.js";
-import { simulation_log } from "@state/simulation_log.svelte.js";
-import { engineState } from "@state/status.svelte.js"; // [R5] Unified State
+import { simulation_log } from "@state/simulation-log.svelte.js";
+import { simulationState } from "@state/status.svelte.js"; // [R5] Unified State
 import { Engine } from "./engine.js";
 export class ChronoStore {
   // No local state needed, acts as a controller for app.simulation
@@ -27,7 +27,7 @@ export class ChronoStore {
     }
     // 1. STASIS: Lock the Universe
     app.simulation.loading = true;
-    engineState.lock(); // Phase 1: System Lock
+    simulationState.lock(); // Phase 1: System Lock
     app.log("Shield scanning causality and physics...", "system");
     try {
       // 2. OBSERVATION: Process Input & Physics (Shield)
@@ -56,7 +56,7 @@ export class ChronoStore {
         }
       }
       // 3. SYNTHESIS: Generate Narrative (Engine)
-      // engineState.startGeneration('ai') will be called by Engine.generateAiResponse
+      // simulationState.start_generation('ai') will be called by Engine.generate_ai_response
       app.log(`LLM synthesizing turn ${app.round + 1}...`, "ai");
       // The GM facade maps generateAiResponse -> Engine.generateAiResponse(storyId, options)
       // We pass shieldContext in options if needed, including reflex deltas for thermodynamics.
@@ -65,7 +65,7 @@ export class ChronoStore {
         input: finalInput,
       });
       // 4. ECHO: Commit to Resonance (Echo/Scholar)
-      engineState.lock(); // Phase 3: Database Lock (Post-Generation)
+      simulationState.lock(); // Phase 3: Database Lock (Post-Generation)
       app.log("Echo recording temporal resonance...", "db");
       // 5. ANCHOR: Persist the timeline
       await runtime.save(runtime.round);
@@ -82,7 +82,7 @@ export class ChronoStore {
     } finally {
       // 5. RESURRECTION: Unlock the Universe
       app.simulation.loading = false;
-      engineState.unlock();
+      simulationState.unlock();
     }
   }
 }

@@ -6,9 +6,9 @@
    * Updated to target the flattened signature_color and profile_picture.
    */
   import { PALETTE, PALETTE_VARS } from "@theme/palette.svelte.js";
-  import { LlmService } from "@core/intelligence/LlmService.js";
-  import { PromptBuilder } from "@core/intelligence/PromptBuilder.js";
-  import { ImageGeneration } from "@media/image_engine.js";
+  import { LlmService } from "@core/intelligence/llm-service.js";
+  import { PromptBuilder } from "@core/intelligence/prompt-builder.js";
+  import { ImageGeneration } from "@media/image-engine.js";
   import { app } from "@state/app.svelte.js";
   import Button from "@ui/atoms/Button.svelte";
   import Toggle from "@ui/atoms/Toggle.svelte";

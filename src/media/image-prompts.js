@@ -4,7 +4,7 @@
  * Handles aesthetic routing, semantic matching, and prompt composition.
  */
 import { PALETTE } from "@theme/palette.svelte.js";
-import { LlmService } from "@core/intelligence/LlmService.js";
+import { LlmService } from "@core/intelligence/llm-service.js";
 /************************************************************************************
  * 🧩 [SECTION: CONSTANTS & GLOBALS]
  ************************************************************************************/

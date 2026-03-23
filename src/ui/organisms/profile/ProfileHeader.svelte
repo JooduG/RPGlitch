@@ -5,9 +5,9 @@
    * Handles the top-level name and description of the entity.
    * Flattened Schema Compliant.
    */
-  import { ENTITY_FRAGMENTS } from "@/core/intelligence/entity_fragments.js";
-  import { fitText } from "@ui/utils/actions/fitText.js";
-  import { safe_html } from "@ui/utils/actions/safeHtml.js";
+  import { ENTITY_FRAGMENTS } from "@/core/intelligence/entity-fragments.js";
+  import { fitText } from "@ui/utils/actions/fit-text.js";
+  import { safe_html } from "@ui/utils/actions/safe-html.js";
   let { char = $bindable(), is_editing, render_markdown, auto_resize } = $props();
 </script>
 

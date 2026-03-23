@@ -1,9 +1,9 @@
 import { Engine } from "@core/engine/engine.js";
-import { Session } from "@core/engine/SessionDriver.js";
+import { Session } from "@core/engine/session-driver.js";
 import { app } from "@state/app.svelte.js";
 import { runtime } from "@state/runtime.svelte.js";
-import "@state/simulation_log.svelte.js";
-import { engineState } from "@state/status.svelte.js"; // [R5] Unified State
+import "@state/simulation-log.svelte.js";
+import { simulationState } from "@state/status.svelte.js"; // [R5] Unified State
 /**
  * src/state/session.svelte.js
  * 🕹️ ENGINE / 📚 DATA: Session Management
@@ -99,7 +99,7 @@ export class ReactiveSession {
     } finally {
       this.loading = false;
       app.simulation.loading = false;
-      engineState.complete();
+      simulationState.complete();
     }
   }
   /**

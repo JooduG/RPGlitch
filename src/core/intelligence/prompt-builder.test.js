@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PromptBuilder } from "./PromptBuilder.js";
+import { PromptBuilder } from "./prompt-builder.js";
 describe("PromptBuilder (Refactored)", () => {
   describe("Static Helpers", () => {
     it("render_history() should map roles correctly", () => {

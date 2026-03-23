@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parse_scene_header, clean_image_prompts } from "./text_parser.js";
+import { parse_scene_header, clean_image_prompts } from "./text-parser.js";
 describe("clean_image_prompts", () => {
   const testCases = [
     { description: "null input", input: null, expected: "" },

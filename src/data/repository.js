@@ -5,8 +5,8 @@
  * If it's not at the top level, it doesn't exist.
  */
 import { db } from "./db.js";
-import { premade } from "@/data/entity_premades.js";
-import { normalize, STORAGE_VERSION } from "@data/content_normaliser.js";
+import { premade } from "@/data/entity-premades.js";
+import { normalize, STORAGE_VERSION } from "@data/content-normaliser.js";
 const error = console.error;
 // ============================================================================
 // 1. DATA SEEDING (The Entity Foundry)
