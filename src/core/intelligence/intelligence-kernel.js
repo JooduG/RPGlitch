@@ -24,7 +24,7 @@ import { memory_engine } from "./memory-engine.js";
 import { vector_engine } from "./vector-engine.js";
 import { db } from "@data/db.js";
 import { entities } from "@data/repository.js";
-import { session_driver } from "@core/engine/session-driver.js";
+import { session_driver } from "@core/engine/session-driver.svelte.js";
 export const gamemaster = {
   /**
    * THE MECHANICAL GATE

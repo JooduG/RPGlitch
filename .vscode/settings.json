@@ -5,6 +5,8 @@
     },
     "files.exclude": {
         ".geminiignore": true,
+        ".gemini/[!s]*": true,
+        ".gemini/s[!e]*": true,
         ".playwright-auth/**": true,
         "**/.DS_Store": true,
         "**/.eslintcache": true,

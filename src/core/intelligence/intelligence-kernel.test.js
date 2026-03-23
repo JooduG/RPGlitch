@@ -26,7 +26,7 @@ vi.mock("./llm-service.js", () => ({
   },
 }));
 
-vi.mock("@core/engine/session-driver.js", () => ({
+vi.mock("@core/engine/session-driver.svelte.js", () => ({
   session_driver: {
     load_log: vi.fn().mockResolvedValue([]),
     log_turn: vi.fn().mockResolvedValue({}),

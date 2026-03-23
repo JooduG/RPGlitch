@@ -1,4 +1,4 @@
-import { session_driver } from "@core/engine/session-driver.js";
+import { session_driver } from "@core/engine/session-driver.svelte.js";
 import { runtime } from "@state/runtime.svelte.js";
 // 📜 Simulation Log State
 export class SimulationLogStore {

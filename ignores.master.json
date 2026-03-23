@@ -38,10 +38,7 @@
     "!**/scribbles/**",
     "!**/.playwright-auth/**"
   ],
-  "gitignore": [
-    "!**/RPGlitch-left-panel.txt",
-    "**/.eslintcache"
-  ],
+  "gitignore": ["!**/RPGlitch-left-panel.txt", "**/.eslintcache"],
   "linters": {
     "eslint": [],
     "htmlhint": [],
@@ -55,8 +52,9 @@
       "source.fixAll.stylelint": "explicit"
     },
     "files.exclude": {
-      ".gemini": true,
       ".geminiignore": true,
+      ".gemini/[!s]*": true,
+      ".gemini/s[!e]*": true,
       ".playwright-auth/**": true,
       "**/.DS_Store": true,
       "**/.eslintcache": true,
@@ -76,10 +74,6 @@
       "test-results/**": true
     },
     "markdown.validate.referenceLinks.enabled": false,
-    "stylelint.validate": [
-      "css",
-      "scss",
-      "svelte"
-    ]
+    "stylelint.validate": ["css", "scss", "svelte"]
   }
 }

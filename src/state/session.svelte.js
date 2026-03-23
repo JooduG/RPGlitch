@@ -1,5 +1,5 @@
 import { Engine } from "@core/engine/engine.js";
-import { session_driver } from "@core/engine/session-driver.js";
+import { session_driver } from "@core/engine/session-driver.svelte.js";
 import { app } from "@state/app.svelte.js";
 import { runtime } from "@state/runtime.svelte.js";
 import "@state/simulation-log.svelte.js";
