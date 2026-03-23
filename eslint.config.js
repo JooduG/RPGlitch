@@ -29,7 +29,6 @@ export default [
             "**/archive/**",
             "**/node_modules/**",
             "**/templates/**",
-            "**/.agent/**",
             "**/.gemini/**",
             ".geminiignore",
             ".gitignore",

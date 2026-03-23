@@ -12,7 +12,6 @@
     "**/archive/**",
     "**/node_modules/**",
     "**/templates/**",
-    "**/.agent/**",
     "**/.gemini/**",
     ".geminiignore",
     ".gitignore",
@@ -27,6 +26,7 @@
   ],
   "geminiignore": [
     "!**/.env",
+    "!**/.agent/**",
     "!**/.gemini/**",
     "!**/.geminiignore",
     "!**/.git/**",
@@ -39,7 +39,7 @@
     "!**/.playwright-auth/**"
   ],
   "gitignore": [
-    "!RPGlitch-left-panel.txt",
+    "!**/RPGlitch-left-panel.txt",
     "**/.eslintcache"
   ],
   "linters": {

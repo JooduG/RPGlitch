@@ -10,7 +10,6 @@
 **/archive/**
 **/node_modules/**
 **/templates/**
-**/.agent/**
 **/.gemini/**
 .geminiignore
 .gitignore
@@ -22,5 +21,5 @@ node_modules
 **/scribbles/**
 test-results/**
 .playwright-auth/**
-!RPGlitch-left-panel.txt
+!**/RPGlitch-left-panel.txt
 **/.eslintcache

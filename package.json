@@ -88,7 +88,7 @@
     "@modelcontextprotocol/sdk": "^1.26.0"
   },
   "scripts": {
-    "audit": "node .agent/skills/quality-assurance/scripts/summarize.js audit:check audit:css audit:security audit:svelte",
+    "audit": "node .agent/skills/ombudsman/scripts/summarize.js audit:check audit:css audit:security audit:svelte",
     "audit:check": "svelte-check --tsconfig ./jsconfig.json",
     "audit:css": "node .agent/skills/css/scripts/style_audit.js",
     "audit:security": "node .agent/skills/quality-assurance/scripts/security-scan.js",
@@ -98,7 +98,7 @@
     "deploy:perchance": "node .agent/skills/devops/scripts/deploy_perchance.js",
     "dev": "vite",
     "format": "prettier --write .",
-    "lint": "node .agent/skills/quality-assurance/scripts/summarize.js lint:js lint:css lint:md",
+    "lint": "node .agent/skills/ombudsman/scripts/summarize.js lint:js lint:css lint:md",
     "lint:css": "stylelint \"src/**/*.{css,svelte,scss}\"",
     "lint:css:fix": "stylelint \"src/**/*.{css,svelte,scss}\" --fix",
     "lint:fix": "npm-run-all lint:js:fix lint:css:fix lint:md:fix",
@@ -108,11 +108,11 @@
     "lint:md:fix": "markdownlint-cli2 --fix \"**/*.{md,mdx}\" \"!node_modules\" \"!.agent/archive\" \"!.agent/state\"",
     "preview": "vite preview --port 8080",
     "scaffold:component": "node .agent/skills/svelte/scripts/scaffold_component.js",
-    "sync": "node .agent/skills/project/scripts/sync.js",
+    "sync": "node .agent/skills/ombudsman/scripts/sync.js",
     "test": "npm run test:unit && npm run audit:security",
     "test:e2e": "playwright test",
     "test:ui": "vitest --ui",
     "test:unit": "vitest",
-    "verify": "node .agent/skills/quality-assurance/scripts/summarize.js audit lint test"
+    "verify": "node .agent/skills/ombudsman/scripts/summarize.js audit lint test"
   }
 }
