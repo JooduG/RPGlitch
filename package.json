@@ -108,6 +108,8 @@
     "lint:md:fix": "markdownlint-cli2 --fix \"**/*.{md,mdx}\" \"!node_modules\" \"!.agent/archive\" \"!.agent/state\"",
     "preview": "vite preview --port 8080",
     "scaffold:component": "node .agent/skills/svelte/scripts/scaffold_component.js",
+    "scaffold:skill": "node .agent/skills/ombudsman/scripts/scaffold-skill.js",
+    "janitor": "node .agent/skills/snitch/scripts/janitor.js",
     "sync": "node .agent/skills/ombudsman/scripts/sync.js",
     "test": "npm run test:unit && npm run audit:security",
     "test:e2e": "playwright test",
