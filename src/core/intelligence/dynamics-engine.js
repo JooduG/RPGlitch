@@ -234,10 +234,10 @@ export const DYNAMICS = [
     },
   },
 ];
-export class DynamicsEngine {
-  static simulate(payload) {
+export const dynamics_engine = {
+  simulate(payload) {
     const { input, entities, history } = payload;
-    const matches = DynamicsEngine.dynamics_scan(input);
+    const matches = dynamics_engine.dynamics_scan(input);
     const next_state = {
       ai: { ...entities.AI },
       fractal: entities.FRACTAL
@@ -247,16 +247,16 @@ export class DynamicsEngine {
       signals: {},
       signal_prompts: [],
     };
-    DynamicsEngine.simulation_dynamics(next_state, history, matches);
+    dynamics_engine.simulation_dynamics(next_state, history, matches);
     return next_state;
-  }
+  },
   /**
    * DYNAMICS SCAN (The Unified Scanner)
    * Finds every rule in the registry that matches the input text.
    * @param {string} text
    * @returns {Array<{ id: string, scan: string, config?: object }>}
    */
-  static dynamics_scan(text) {
+  dynamics_scan(text) {
     if (!text) return [];
     const matches = [];
     for (const data of DYNAMICS) {
@@ -268,32 +268,32 @@ export class DynamicsEngine {
       }
     }
     return matches;
-  }
+  },
   /**
    * SIMULATION DYNAMICS (The Umbrella Orchestrator)
    * Processes numerical pass, baseline gravity, and narrative pass.
    */
-  static simulation_dynamics(state, prev_state, matches) {
+  simulation_dynamics(state, prev_state, matches) {
     // 1. NUMERICAL PASS: Active Impulses and Passive Laws
-    DynamicsEngine.dynamics_numerical(state, matches);
+    dynamics_engine.dynamics_numerical(state, matches);
     // 2. PHYSICS PASS: Baseline settlement and Threshold laws (Flags only)
     const ents = Object.keys(state).filter((k) => state[k]?.dynamics);
     ents.forEach((key) => {
-      DynamicsEngine._process_entity_dynamics(
+      dynamics_engine._process_entity_dynamics(
         state[key].dynamics,
-        DynamicsEngine._get_baselines(state[key]),
+        dynamics_engine._get_baselines(state[key]),
         matches,
         state,
       );
     });
     // 3. NARRATIVE PASS: Environmental prompts
-    DynamicsEngine.dynamics_narrative(state, matches);
-  }
+    dynamics_engine.dynamics_narrative(state, matches);
+  },
   /**
    * DYNAMICS NUMERICAL (Numerical Stage)
    * Applies numerical shifts from matching triggers OR matching filters (for Laws).
    */
-  static dynamics_numerical(state, matches) {
+  dynamics_numerical(state, matches) {
     const processed = new Set();
     DYNAMICS.forEach((data) => {
       if (processed.has(data.id)) return;
@@ -302,7 +302,7 @@ export class DynamicsEngine {
         ...state.ai?.dynamics,
         ...state.fractal?.dynamics,
       };
-      const passes_filter = DynamicsEngine._evaluate_filter(active_state, data.filter);
+      const passes_filter = dynamics_engine._evaluate_filter(active_state, data.filter);
       const is_turn_event = data.trigger === "turn";
       // Logic: Passive Turn Law OR Active Scan Impulse
       const should_apply = is_turn_event ? passes_filter : match && passes_filter;
@@ -323,19 +323,19 @@ export class DynamicsEngine {
         processed.add(data.id);
       }
     });
-  }
+  },
   /**
    * DYNAMICS NARRATIVE (Narrative Stage)
    * Pushes prompts to the final output based on the settled state.
    */
-  static dynamics_narrative(state, matches) {
+  dynamics_narrative(state, matches) {
     DYNAMICS.forEach((data) => {
       const is_triggered = matches.some((m) => m.id === data.id);
       const active_state = {
         ...state.ai?.dynamics,
         ...state.fractal?.dynamics,
       };
-      const passes_filter = DynamicsEngine._evaluate_filter(active_state, data.filter);
+      const passes_filter = dynamics_engine._evaluate_filter(active_state, data.filter);
       const is_turn_event = data.trigger === "turn";
       const should_echo = is_turn_event ? passes_filter : is_triggered && passes_filter;
       if (should_echo && data.effect?.text) {
@@ -343,25 +343,25 @@ export class DynamicsEngine {
         state.signals[data.id] = true;
       }
     });
-  }
-  static _evaluate_filter(d, filter) {
+  },
+  _evaluate_filter(d, filter) {
     if (!filter) return true;
     const above_ok = Object.entries(filter.above || {}).every(([axis, limit]) => d[axis] > limit);
     const below_ok = Object.entries(filter.below || {}).every(([axis, limit]) => d[axis] < limit);
     return above_ok && below_ok;
-  }
-  static _get_baselines(entity) {
+  },
+  _get_baselines(entity) {
     // dynamics_baseline: permanent per-entity gravitational center.
     // Set by the user outside a simulation; gravity pulls live dynamics back toward it each round.
     // Falls back to 50 (universal mid-point) if not defined.
     return entity?.dynamics_baseline || {};
-  }
+  },
   /**
    * PHYSICS ENGINE (Gravity & Settlement)
    * Pulls dynamics back toward baselines and clamps results.
    * Generates persistent state flags for AI response conditioning.
    */
-  static _process_entity_dynamics(d, baselines, matches, state) {
+  _process_entity_dynamics(d, baselines, matches, state) {
     // 1. Gravity Pull
     Object.keys(d).forEach((axis) => {
       const target = baselines[axis] ?? 50;
@@ -369,5 +369,5 @@ export class DynamicsEngine {
     });
     // 2. Settlement
     Object.keys(d).forEach((axis) => (d[axis] = Math.max(0, Math.min(100, Math.round(d[axis])))));
-  }
-}
+  },
+};

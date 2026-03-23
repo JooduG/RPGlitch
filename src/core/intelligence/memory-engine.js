@@ -22,9 +22,9 @@
  *   - summary : A single sentence capturing the most meaningful shift.
  *   - tags    : Categorical labels for search/retrieval (e.g. "trauma", "alliance").
  */
-import { LlmService } from "@core/intelligence/llm-service.js";
-import { DynamicsEngine } from "./dynamics-engine.js";
-import { PromptBuilder } from "./prompt-builder.js";
+import { llm_service } from "./llm-service.js";
+import { dynamics_engine } from "./dynamics-engine.js";
+import { prompt_builder } from "./prompt-builder.js";
 /**
  * Condenses a slice of recent history into a structured Resonance record (Vector).
  *
@@ -40,10 +40,10 @@ export async function consolidate_vector(target_entity, history_slice, role = "c
   if (!target_entity) return null;
   try {
     // 1. Build the memory condensation prompt.
-    const payload = PromptBuilder.build_memory_prompt(role, target_entity, history_slice);
+    const payload = prompt_builder.build_memory_prompt(role, target_entity, history_slice);
     // 2. Generate a raw Resonance response from the LLM.
     //    Expects: { summary: string, vector_tags: string[] }
-    const response = await LlmService.generate(payload, {
+    const response = await llm_service.generate(payload, {
       json: true,
       silent: true,
       raw: true,
@@ -66,7 +66,7 @@ export async function consolidate_vector(target_entity, history_slice, role = "c
     const resonance = JSON.parse(object_match[0]);
     // 4. Hybrid Tagging Logic (AXIS TAGS)
     //    Run automated Scan Reflexes on the summary to avoid hallucination.
-    const triggered_reflexes = DynamicsEngine.dynamics_scan(resonance.summary);
+    const triggered_reflexes = dynamics_engine.dynamics_scan(resonance.summary);
     const dynamics_tags = triggered_reflexes.map((r) => r.id);
     // 3. Package Return
     return {
@@ -87,7 +87,7 @@ export async function consolidate_vector(target_entity, history_slice, role = "c
  * Directs the long-term memory lifecycle.
  * ----------------------------------------------------------------------------------
  */
-export const MemoryEngine = {
+export const memory_engine = {
   consolidate_vector,
   _is_consolidating: false,
 
@@ -96,8 +96,8 @@ export const MemoryEngine = {
    * Evicts old messages and compresses them into lore "Vectors".
    */
   consolidate: async (Session, db, entities, runtime, app, simulation_log) => {
-    if (MemoryEngine._is_consolidating) return;
-    MemoryEngine._is_consolidating = true;
+    if (memory_engine._is_consolidating) return;
+    memory_engine._is_consolidating = true;
 
     try {
       const story_id = Session.require_active();
@@ -129,7 +129,7 @@ export const MemoryEngine = {
     } catch (err) {
       console.error("[Memory] Consolidation failed:", err);
     } finally {
-      MemoryEngine._is_consolidating = false;
+      memory_engine._is_consolidating = false;
     }
   },
 };

@@ -100,6 +100,8 @@ _This phase triggers at the end of a session, right before clocking out._
 | `read_knowledge_base`     | Recall concepts from Pinecone across the 3 namespaces.                    | Memory MCP    |
 | `write_knowledge_base`    | Save files to Pinecone using strict semantic chunking and Prune-on-Write. | Memory MCP    |
 | `describe_knowledge_base` | Audit the index to see active namespaces and total vector counts.         | Memory MCP    |
+| `index.js`                | Entry point for the Memory MCP server.                                    | Local Script  |
+| `ServerEngine.js`         | Core logic for vector search and ingestion.                               | Local Script  |
 | `mcp_context7`            | Query external library documentation.                                     | Context7 MCP  |
 | `mcp_deepwiki`            | Read GitHub repositories and wikis.                                       | DeepWiki MCP  |
 | `mcp_firecrawl`           | Web search and scraping (Last resort).                                    | Firecrawl MCP |

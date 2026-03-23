@@ -38,7 +38,10 @@
     "!**/scribbles/**",
     "!**/.playwright-auth/**"
   ],
-  "gitignore": ["!RPGlitch-left-panel.txt", "**/.eslintcache"],
+  "gitignore": [
+    "!RPGlitch-left-panel.txt",
+    "**/.eslintcache"
+  ],
   "linters": {
     "eslint": [],
     "htmlhint": [],
@@ -47,10 +50,16 @@
     "stylelint": []
   },
   "vscode": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+      "source.fixAll.stylelint": "explicit"
+    },
     "files.exclude": {
       ".gemini": true,
       ".geminiignore": true,
+      ".playwright-auth/**": true,
       "**/.DS_Store": true,
+      "**/.eslintcache": true,
       "**/.eslintignore": true,
       "**/.gitignore": true,
       "**/.htmlhintignore": true,
@@ -64,15 +73,13 @@
       "**/Thumbs.db": true,
       "**/yarn.lock": true,
       "mcp.json": true,
-      "test-results/**": true,
-      ".playwright-auth/**": true,
-      "**/.eslintcache": true
+      "test-results/**": true
     },
     "markdown.validate.referenceLinks.enabled": false,
-    "stylelint.validate": ["css", "scss", "svelte"],
-    "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": "explicit",
-      "source.fixAll.stylelint": "explicit"
-    }
+    "stylelint.validate": [
+      "css",
+      "scss",
+      "svelte"
+    ]
   }
 }

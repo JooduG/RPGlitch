@@ -3,18 +3,30 @@
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
+    "@_davideast/stitch-mcp": "^0.0.6",
     "@google/jules": "^0.1.42",
     "@google/jules-sdk": "^0.2.0",
     "@google/stitch-sdk": "^0.0.3",
     "@modelcontextprotocol/sdk": "^1.26.0",
+    "@nekzus/mcp-server": "^1.16.0",
+    "@notionhq/notion-mcp-server": "*",
+    "@pinecone-database/mcp": "*",
     "@pinecone-database/pinecone": "^6.1.4",
     "@playwright/mcp": "^0.0.64",
     "@pollinations/model-context-protocol": "^1.0.15",
+    "@supabase/mcp-server-supabase": "*",
     "@supabase/supabase-js": "^2.95.3",
+    "@sveltejs/mcp": "*",
     "@waldzellai/clear-thought-onepointfive": "^0.2.1",
+    "@waldzellai/collaborative-reasoning": "^0.1.3",
+    "@waldzellai/decision-framework": "^0.1.3",
+    "@waldzellai/metacognitive-monitoring": "^0.1.3",
+    "@waldzellai/scientific-method": "^0.1.3",
     "@waldzellai/stochasticthinking": "^0.0.1",
+    "@waldzellai/structured-argumentation": "^0.1.3",
     "@waldzellai/visual-reasoning": "^0.1.1",
     "bits-ui": "^2.16.3",
+    "chrome-devtools-mcp": "^0.15.1",
     "dexie": "^3.2.4",
     "dompurify": "^3.0.5",
     "dotenv": "^17.3.1",
@@ -76,7 +88,7 @@
     "@modelcontextprotocol/sdk": "^1.26.0"
   },
   "scripts": {
-    "audit": "node .agent/scripts/summarize.js audit:check audit:css audit:security audit:svelte",
+    "audit": "node .agent/skills/quality-assurance/scripts/summarize.js audit:check audit:css audit:security audit:svelte",
     "audit:check": "svelte-check --tsconfig ./jsconfig.json",
     "audit:css": "node .agent/skills/css/scripts/style_audit.js",
     "audit:security": "node .agent/skills/quality-assurance/scripts/security-scan.js",
@@ -86,7 +98,7 @@
     "deploy:perchance": "node .agent/skills/devops/scripts/deploy_perchance.js",
     "dev": "vite",
     "format": "prettier --write .",
-    "lint": "node .agent/scripts/summarize.js lint:js lint:css lint:md",
+    "lint": "node .agent/skills/quality-assurance/scripts/summarize.js lint:js lint:css lint:md",
     "lint:css": "stylelint \"src/**/*.{css,svelte,scss}\"",
     "lint:css:fix": "stylelint \"src/**/*.{css,svelte,scss}\" --fix",
     "lint:fix": "npm-run-all lint:js:fix lint:css:fix lint:md:fix",
@@ -101,6 +113,6 @@
     "test:e2e": "playwright test",
     "test:ui": "vitest --ui",
     "test:unit": "vitest",
-    "verify": "node .agent/scripts/summarize.js audit lint test"
+    "verify": "node .agent/skills/quality-assurance/scripts/summarize.js audit lint test"
   }
 }

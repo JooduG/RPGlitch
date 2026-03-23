@@ -1,4 +1,4 @@
-import { LlmService } from "@core/intelligence/llm-service.js";
+import { llm_service } from "@core/intelligence/llm-service.js";
 import { describe, expect, it, vi } from "vitest";
 import { ImageGeneration } from "./image-engine.js";
 import { PromptEngine } from "./image-prompts.js";
@@ -7,10 +7,10 @@ vi.mock("@data/db.js", () => ({
   db: {},
 }));
 vi.mock("@core/intelligence/context-broker.js", () => ({
-  ContextBroker: {},
+  context_broker: {},
 }));
 vi.mock("@core/intelligence/llm-service.js", () => ({
-  LlmService: {
+  llm_service: {
     generate: vi.fn(),
   },
 }));
@@ -78,8 +78,7 @@ describe("ImageGeneration", () => {
         physical: "A cyberpunk gritty cyborg with a neon glow",
         fragments: ["Cybernetic"],
       };
-      // Mock LlmService.generate to see the system prompt
-      LlmService.generate = vi.fn().mockImplementation((payload) => {
+      llm_service.generate = vi.fn().mockImplementation((payload) => {
         return payload.system;
       });
       const result = await PromptEngine.optimize("A character", characterData);
@@ -100,7 +99,7 @@ describe("ImageGeneration", () => {
         },
       });
       const characterData = { physical: "a flower in a field" };
-      LlmService.generate = vi.fn().mockImplementation((payload) => {
+      llm_service.generate = vi.fn().mockImplementation((payload) => {
         return payload.system;
       });
       const result = await PromptEngine.optimize("A flower", characterData);

@@ -6,7 +6,9 @@
     "files.exclude": {
         ".gemini": true,
         ".geminiignore": true,
+        ".playwright-auth/**": true,
         "**/.DS_Store": true,
+        "**/.eslintcache": true,
         "**/.eslintignore": true,
         "**/.gitignore": true,
         "**/.htmlhintignore": true,
@@ -20,9 +22,7 @@
         "**/Thumbs.db": true,
         "**/yarn.lock": true,
         "mcp.json": true,
-        "test-results/**": true,
-        ".playwright-auth/**": true,
-        "**/.eslintcache": true
+        "test-results/**": true
     },
     "css.validate": true,
     "html.validate.styles": false,

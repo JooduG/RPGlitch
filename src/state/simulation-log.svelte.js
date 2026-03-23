@@ -1,4 +1,4 @@
-import { Session } from "@core/engine/session-driver.js";
+import { session_driver } from "@core/engine/session-driver.js";
 import { runtime } from "@state/runtime.svelte.js";
 // 📜 Simulation Log State
 export class SimulationLogStore {
@@ -9,7 +9,7 @@ export class SimulationLogStore {
    */
   async refresh() {
     if (!runtime.story_id) return;
-    const msgs = await Session.load_log(runtime.story_id);
+    const msgs = await session_driver.load_log(runtime.story_id);
     this.feed = msgs;
   }
   /**

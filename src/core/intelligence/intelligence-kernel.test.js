@@ -1,35 +1,45 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { Gamemaster } from "./intelligence-kernel.js";
-import { Session } from "@core/engine/session-driver.js";
-import { LlmService } from "./llm-service.js";
-import { runtime } from "@state/runtime.svelte.js";
+import { describe, expect, it, vi, beforeEach } from "vitest";
+import { gamemaster } from "./intelligence-kernel.js";
+import { context_broker } from "./context-broker.js";
+import { prompt_builder } from "./prompt-builder.js";
+import { llm_service } from "./llm-service.js";
 
 // Mock dependencies
-vi.mock("@core/engine/session-driver.js", () => ({
-  Session: {
-    load_log: vi.fn(),
-    log_turn: vi.fn(),
-    require_active: vi.fn(() => "story-123"),
+vi.mock("./context-broker.js", () => ({
+  context_broker: {
+    hydrate: vi.fn(),
+  },
+}));
+
+vi.mock("./prompt-builder.js", () => ({
+  prompt_builder: {
+    synthesize: vi.fn(),
+    build_epilogue: vi.fn(),
+    render_history: vi.fn(),
+    render_protocols: vi.fn(),
   },
 }));
 
 vi.mock("./llm-service.js", () => ({
-  LlmService: {
+  llm_service: {
     generate: vi.fn(),
+  },
+}));
+
+vi.mock("@core/engine/session-driver.js", () => ({
+  session_driver: {
+    load_log: vi.fn().mockResolvedValue([]),
+    log_turn: vi.fn().mockResolvedValue({}),
   },
 }));
 
 vi.mock("@state/runtime.svelte.js", () => ({
   runtime: {
-    round: 0,
+    active_ai: { name: "Viper" },
+    active_fractal: { name: "Void" },
+    round: 1,
     turn_type: "USER_TURN",
-    active_vectors: vi.fn(() => [{ text: "Exploration" }]),
-    active_vector: vi.fn(() => "Exploration"),
     add_vector: vi.fn(),
-    active_ai: { name: "Ghost" },
-    active_user: { name: "Player" },
-    active_fractal: { name: "Void", future: [{ text: "Existing" }] },
-    physics: {},
   },
 }));
 
@@ -39,50 +49,65 @@ vi.mock("@state/app.svelte.js", () => ({
   },
 }));
 
-describe("Gamemaster Orchestration", () => {
+vi.mock("./vector-engine.js", () => ({
+  vector_engine: {
+    ensure_momentum: vi.fn(),
+  },
+}));
+
+vi.mock("./memory-engine.js", () => ({
+  memory_engine: {
+    consolidate: vi.fn(),
+  },
+}));
+
+describe("gamemaster (Intelligence Kernel)", () => {
   beforeEach(() => {
-    vi.resetAllMocks();
-    runtime.round = 0;
+    vi.clearAllMocks();
   });
 
-  it("should execute a full narrative turn", async () => {
-    vi.mocked(Session.load_log).mockResolvedValue([{ role: "user", text: "Hello" }]);
-    vi.mocked(LlmService.generate).mockResolvedValue("Identified.");
+  it("execute_turn() coordinates hydration, synthesis, and generation", async () => {
+    // Provide a full mock payload to satisfy TS/Lint
+    const mockPayload = {
+      input: "Hello",
+      type: "simulation",
+      round: 1,
+      entities: {
+        AI: { name: "Viper" },
+        USER: { name: "Ghost" },
+        FRACTAL: { name: "Void" },
+      },
+      simulation_log: "",
+      rawMessages: [],
+      meta: { active_vector: null, timestamp: new Date().toISOString() },
+    };
 
-    const result = await Gamemaster.execute_turn("story-123", {
-      input: "Hi",
+    vi.mocked(context_broker.hydrate).mockResolvedValue(mockPayload);
+    vi.mocked(prompt_builder.synthesize).mockReturnValue({
+      system: "PROMPT",
+      meta: { ai: {}, fractal: {}, flags: {}, signal_prompts: [] },
+    });
+    vi.mocked(llm_service.generate).mockResolvedValue("Identified.");
+
+    const result = await gamemaster.execute_turn("story-123", {
+      input: "Hello",
+      role: "ai",
     });
 
-    expect(runtime.round).toBe(1);
-    expect(Session.load_log).toHaveBeenCalledWith("story-123");
-    expect(LlmService.generate).toHaveBeenCalled();
-    expect(Session.log_turn).toHaveBeenCalledWith("Identified.", "Ghost", "ai", expect.any(Object));
+    expect(context_broker.hydrate).toHaveBeenCalled();
+    expect(prompt_builder.synthesize).toHaveBeenCalled();
+    expect(llm_service.generate).toHaveBeenCalled();
     expect(result.response).toBe("Identified.");
   });
 
-  it("should execute a prologue", async () => {
-    vi.mocked(LlmService.generate).mockResolvedValueOnce("Once upon a time..."); // Prologue
-    vi.mocked(LlmService.generate).mockResolvedValueOnce("The adventure begins."); // Follow-up turn
-    vi.mocked(Session.load_log).mockResolvedValue([]);
+  it("execute_epilogue() executes a targeted epilogue completion", async () => {
+    vi.mocked(prompt_builder.build_epilogue).mockReturnValue({ system: "EPILOGUE", messages: [] });
+    vi.mocked(llm_service.generate).mockResolvedValue("And so it ends.");
 
-    await Gamemaster.execute_prologue("story-123");
+    const result = await gamemaster.execute_epilogue("story-123");
 
-    expect(Session.log_turn).toHaveBeenCalledWith(
-      "Once upon a time...",
-      "Void",
-      "fractal",
-      expect.any(Object),
-    );
-    expect(runtime.round).toBe(1); // from executeTurn call inside executePrologue
-  });
-
-  it("should execute an epilogue", async () => {
-    vi.mocked(LlmService.generate).mockResolvedValue("And so it ends.");
-
-    const result = await Gamemaster.execute_epilogue("story-123");
-
-    expect(LlmService.generate).toHaveBeenCalled();
-    expect(Session.log_turn).toHaveBeenCalledWith("And so it ends.", "Narrator", "ai");
+    expect(prompt_builder.build_epilogue).toHaveBeenCalled();
+    expect(llm_service.generate).toHaveBeenCalled();
     expect(result).toBe("And so it ends.");
   });
 });

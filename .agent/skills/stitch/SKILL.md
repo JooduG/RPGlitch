@@ -15,7 +15,7 @@ allowed-tools:
 
 ## 1. The Physics (CRITICAL)
 
-- **Rules**: You MUST obey `.agent/rules/03-technetium.md`.
+- **Rules**: You MUST obey `.agent/rules/03-specification.md`.
 - **Chalk Mapping**: When analyzing colors and geometry, map the extracted design concepts to our existing `var(--color-chalk-...)` tokens whenever possible.
 - **State**: You MUST read from and write to the root `DESIGN.md`. All synthesized design EXCLUSIVELY goes to the root `DESIGN.md`.
 - **Formatting**: Your generated `DESIGN.md` MUST strictly adhere to the official Stitch markdown guidelines. You must use exactly these six H2 sections in order: `## Overview`, `## Colors`, `## Typography`, `## Elevation`, `## Components`, `## Do's and Don'ts`.

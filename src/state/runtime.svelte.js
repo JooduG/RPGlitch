@@ -1,4 +1,4 @@
-import { VectorEngine } from "@core/intelligence/vector-engine.js";
+import { vector_engine } from "@core/intelligence/vector-engine.js";
 import { db } from "@data/db.js";
 import { entities } from "@data/repository.js";
 // We split the large state object into cohesive internal modules:
@@ -133,7 +133,7 @@ function createRuntimeStore() {
       const entity = api._get_entity_by_role(role);
       if (!entity) return;
       if (!Array.isArray(entity.future)) entity.future = [];
-      const new_vector = VectorEngine.create_vector(text);
+      const new_vector = vector_engine.create_vector(text);
       if (is_vanguard) entity.future.unshift(new_vector);
       else entity.future.push(new_vector);
     },

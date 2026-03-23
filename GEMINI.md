@@ -34,9 +34,9 @@ The project targets **Perchance** as its primary deployment platform, requiring 
 - **Forbidden:** `export let`, `$:`, `writable()`, `readable()`, and `onMount` (where `$effect` is applicable).
 - **Action:** Silently refactor legacy Svelte 4 code to Svelte 5 Runes immediately upon encounter.
 
-### 2. The Technetium Protocol (Visual Integrity)
+### 2. The Specification Protocol (Visual Integrity)
 
-- **Mandate:** All styling must strictly adhere to `.agent/rules/03-technetium.md`.
+- **Mandate:** All styling must strictly adhere to `.agent/rules/03-specification.md`.
 - **Constraint:** Use **only** native CSS variables defined in `src/theme/tokens.css` (e.g., `var(--color-chalk)`).
 - **Forbidden:** You are strictly forbidden from hallucinating generic hex codes, RGB values, or arbitrary inline colors.
 

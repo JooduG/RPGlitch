@@ -4,7 +4,7 @@
  * Verifies Physics triggers, Tone resolution, and Prompt assembly.
  */
 import { describe, expect, it } from "vitest";
-import { DynamicsEngine } from "./dynamics-engine.js";
+import { dynamics_engine } from "./dynamics-engine.js";
 describe("Dynamics Engine v2 (Refactored)", () => {
   describe("Mechanics: simulation_dynamics", () => {
     const createBaseState = () => ({
@@ -21,7 +21,7 @@ describe("Dynamics Engine v2 (Refactored)", () => {
     it("should resole Default Dynamics correctly", () => {
       const state = createBaseState();
       const triggered = [];
-      DynamicsEngine.simulation_dynamics(state, null, triggered);
+      dynamics_engine.simulation_dynamics(state, null, triggered);
       expect(state.ai.dynamics.intensity).toBe(50);
       expect(state.signal_prompts.length).toBe(0);
     });
@@ -30,8 +30,8 @@ describe("Dynamics Engine v2 (Refactored)", () => {
       state.ai.dynamics.intensity = 70;
       const prevState = createBaseState();
       prevState.ai.dynamics.intensity = 70;
-      const triggered = DynamicsEngine.dynamics_scan("I run towards the exit");
-      DynamicsEngine.simulation_dynamics(state, prevState, triggered);
+      const triggered = dynamics_engine.dynamics_scan("I run towards the exit");
+      dynamics_engine.simulation_dynamics(state, prevState, triggered);
       // 70 + 10 (KINETICS reflex) = 80
       // Gravity: (50 - 80) * 0.25 = -7.5
       // 80 - 7.5 = 72.5 -> Round to 73
@@ -41,8 +41,8 @@ describe("Dynamics Engine v2 (Refactored)", () => {
     });
     it("should trigger VIOLENCE reflex on combat input", () => {
       const state = createBaseState();
-      const triggered = DynamicsEngine.dynamics_scan("I punch him in the face");
-      DynamicsEngine.simulation_dynamics(state, null, triggered);
+      const triggered = dynamics_engine.dynamics_scan("I punch him in the face");
+      dynamics_engine.simulation_dynamics(state, null, triggered);
       // 50 + 15 (VIOLENCE) = 65
       // Gravity: (50 - 65) * 0.25 = -3.75
       // 65 - 3.75 = 61.25 -> Round to 61
@@ -53,7 +53,7 @@ describe("Dynamics Engine v2 (Refactored)", () => {
     it("should trigger Passive Natural Force (INTENSITY_AUTO_LOCK)", () => {
       const state = createBaseState();
       state.ai.dynamics.intensity = 95; // Above 90 — triggers PHYSICS LAW threshold
-      DynamicsEngine.simulation_dynamics(state, null, []);
+      dynamics_engine.simulation_dynamics(state, null, []);
       // Law: Intensity > 90 -> Openness -10
       // Openness: 50 - 10 = 40. Gravity: 40 + (50-40)*.25 = 42.5 -> 43
       expect(state.ai.dynamics.openness).toBe(43);
@@ -75,7 +75,7 @@ describe("Dynamics Engine v2 (Refactored)", () => {
           dynamics: { intensity: 70, chaos: 50, openness: 50, affinity: 50 },
         },
       };
-      const snapshot = DynamicsEngine.simulate(payload);
+      const snapshot = dynamics_engine.simulate(payload);
       expect(snapshot.ai.dynamics.intensity).toBe(73);
       expect(snapshot.signal_prompts.length).toBeGreaterThan(0);
     });
@@ -106,7 +106,7 @@ describe("Dynamics Engine v2 (Refactored)", () => {
           },
         },
       ];
-      DynamicsEngine.simulation_dynamics(state, null, triggered);
+      dynamics_engine.simulation_dynamics(state, null, triggered);
       expect(state.ai.dynamics.openness).toBe(50);
       expect(state.ai.dynamics.affinity).toBe(50);
       expect(state.signal_prompts.length).toBe(0);
@@ -125,7 +125,7 @@ describe("Dynamics Engine v2 (Refactored)", () => {
           },
         },
       ];
-      DynamicsEngine.simulation_dynamics(state, null, triggered);
+      dynamics_engine.simulation_dynamics(state, null, triggered);
       expect(state.ai.dynamics.openness).toBe(20);
       expect(state.ai.dynamics.intensity).toBe(58);
       expect(state.ai.dynamics.affinity).toBe(43);
@@ -133,7 +133,7 @@ describe("Dynamics Engine v2 (Refactored)", () => {
     });
   });
   describe("Trigger Matching & Semantic Grouping", () => {
-    const scan = (text) => DynamicsEngine.dynamics_scan(text);
+    const scan = (text) => dynamics_engine.dynamics_scan(text);
     it("resolves 'kissing' to root 'affection'", () => {
       const matches = scan("She was kissing him.");
       const match = matches.find((m) => m.scan === "affection");

@@ -4,8 +4,8 @@
  * Orchestrates physical image generation, API bridging, and pipeline facades.
  */
 import { CONFIG, ROLES } from "@core/engine/config.js";
-import { ContextBroker } from "@core/intelligence/context-broker.js";
-import { LlmService } from "@core/intelligence/llm-service.js";
+import { context_broker } from "@core/intelligence/context-broker.js";
+import { llm_service } from "@core/intelligence/llm-service.js";
 import { db } from "@data/db.js";
 import { entities } from "@data/repository.js";
 import { runtime } from "@state/runtime.svelte.js";
@@ -158,7 +158,7 @@ export const ImageGeneration = {
     try {
       let vTarget = targetType || "character";
       if (targetType === ROLES.FRACTAL) vTarget = "scene";
-      const hydrated = await ContextBroker.hydrate("", "image");
+      const hydrated = await context_broker.hydrate("", "image");
       const vPayload = {
         fractal: {
           present: { physical: hydrated.entities.FRACTAL.description || "" },
@@ -180,7 +180,7 @@ export const ImageGeneration = {
       const selections = AestheticRouter.select(characterData);
       vPayload.system = PROMPT_TEMPLATES.builder(vTarget, visualPrompt, vPayload, selections);
       vPayload.system += `\n<RAW_INTENT>\n${visualPrompt}\n</RAW_INTENT>`;
-      const refinedPrompt = await LlmService.generate(
+      const refinedPrompt = await llm_service.generate(
         { system: vPayload.system },
         {
           max_tokens: 300,
@@ -235,7 +235,7 @@ ${character.description || character.name}
         system: PROMPT_TEMPLATES.optimize(system, selections),
         messages: [],
       };
-      const refinedPrompt = await LlmService.generate(payload);
+      const refinedPrompt = await llm_service.generate(payload);
       const imageUrl = await ImageGeneration.generate(refinedPrompt, {
         mode: "character",
       });

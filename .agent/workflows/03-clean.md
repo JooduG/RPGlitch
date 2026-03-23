@@ -15,7 +15,7 @@ description: Maintenance & Security. Fixes bugs, audits security, and ensures hy
 ## 2. Brain (Context Injection)
 
 - **Rules**: [.agent/rules/01-foundation.md](../rules/01-foundation.md).
-- **Rules**: [.agent/rules/04-shield.md](../rules/04-shield.md).
+- **Rules**: [.agent/rules/05-compliance.md](../rules/05-compliance.md).
 - **Audit**: `naming-analyzer.js` script.
 
 ## 3. Procedures

@@ -18,7 +18,7 @@ description: >
 ## 2. The Interpretation Logic
 
 - **Reality Sync**: Must consult `.agent/state/global.md` and `.agent/state/tracks.md`.
-- **Constraint Check**: Must ingest `.agent/rules/03-technetium.md`.
+- **Constraint Check**: Must ingest `.agent/rules/03-specification.md`.
 
 ## 3. Capabilities
 

@@ -20,7 +20,7 @@
   }
   /**
    * Dictionary for human-readable labels and descriptions.
-   * Maps the internal keys from DynamicsEngine to user-facing text.
+   * Maps the internal keys from dynamics_engine to user-facing text.
    */
   const DYNAMICS_META = {
     // Character (Somatic) axes

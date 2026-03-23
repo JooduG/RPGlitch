@@ -32,7 +32,7 @@ This document defines the RPGlitch technical stack and engineering mandates for 
 ### 3. The Chalk Regime (Visual Constitution)
 
 - **No Hallucinated Colors**: Use ONLY CSS variables from `src/theme/tokens.css` (e.g., `var(--color-chalk)`).
-- **Enforcement**: Adhere strictly to the [.agent/rules/03-technetium.md](.agent/rules/03-technetium.md) visual protocols. Generic hex codes are prohibited.
+- **Enforcement**: Adhere strictly to the [.agent/rules/03-specification.md](.agent/rules/03-specification.md) visual protocols. Generic hex codes are prohibited.
 
 ### 4. Tooling & Execution
 

@@ -53,7 +53,9 @@ export class AppStore {
     selected: null,
   });
   // --- UI TENSION (Reactive Intensity) ---
-  tension = $derived(simulationState.phase === "generating" || simulationState.phase === "locked" ? 1 : 0);
+  tension = $derived(
+    simulationState.phase === "generating" || simulationState.phase === "locked" ? 1 : 0,
+  );
   // --- SETTINGS ---
   settings = $state({
     sound: true,

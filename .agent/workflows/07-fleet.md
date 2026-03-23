@@ -19,7 +19,7 @@ description: Orchestration & Sync. Coordinates the multi-agent fleet and swarm s
 - **Fleet Ops**: [../../.github/workflows/ai-fleet-dispatch.yml](../../.github/workflows/ai-fleet-dispatch.yml).
 - **Swarm Merge**: [.agent/state/task_merge_workflows.md](../state/task_merge_workflows.md).
 - **Rules**: [.agent/rules/01-foundation.md](../rules/01-foundation.md).
-- **Rules**: [.agent/rules/04-shield.md](../rules/04-shield.md).
+- **Rules**: [.agent/rules/05-compliance.md](../rules/05-compliance.md).
 
 ## 3. Procedures
 

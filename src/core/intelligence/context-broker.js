@@ -6,7 +6,7 @@
  * ─────────────────────────────────────────────────────────────────────────────
  *
  * PURPOSE
- * ContextBroker is the "Secretary" of the Intelligence Kernel. It handles
+ * context_broker is the "Secretary" of the Intelligence Kernel. It handles
  * the Hydration phase: pulling raw state from the runtime and repository,
  * cleaning it, and packaging it into a unified IntelligencePayload.
  */
@@ -59,7 +59,7 @@ function to_data_points(entity) {
 /************************************************************************************
  * 🧩 [SECTION: CONTEXT BROKER]
  ************************************************************************************/
-export class ContextBroker {
+export const context_broker = {
   /**
    * HYDRATION PHASE
    * Pulls and resolves all necessary state for an intelligence turn.
@@ -69,10 +69,9 @@ export class ContextBroker {
    * @param {string} [type="simulation"] - 'simulation' | 'logic' | 'image'
    * @param {Array} simulation_log - Recent message log.
    */
-  static async hydrate(input, type = "simulation", simulation_log = []) {
+  async hydrate(input, type = "simulation", simulation_log = []) {
     const round = runtime.round || 1;
     const active_vector = runtime.active_vector("FRACTAL");
-
     // 1. Resolve Entities mapping (Role -> Data)
     const entries = [
       { role: "AI", data: runtime.active_ai },
@@ -80,17 +79,14 @@ export class ContextBroker {
       { role: "FRACTAL", data: runtime.active_fractal },
     ];
     const entities = {};
-
     // Parallel hydration of entities
     await Promise.all(
       entries.map(async ({ role, data }) => {
         const raw = data || { name: role, role, fragments: [] };
         const data_points = to_data_points(raw);
-
         // Lexical filtering for AI relevance
         const filtered =
-          role === "AI" ? ContextBroker.lexical_filter(data_points, active_vector) : data_points;
-
+          role === "AI" ? context_broker.lexical_filter(data_points, active_vector) : data_points;
         // Safety boot-strap
         if (filtered.length === 0) {
           filtered.push({
@@ -124,25 +120,24 @@ export class ContextBroker {
         };
       }),
     );
-
     // 2. Build Unified Payload
     return {
       input,
       type,
       round,
       entities,
-      simulation_log: ContextBroker.assemble_snapshot(simulation_log),
+      simulation_log: context_broker.assemble_snapshot(simulation_log),
       rawMessages: simulation_log,
       meta: {
         active_vector,
         timestamp: new Date().toISOString(),
       },
     };
-  }
+  },
   /**
    * Creates a dense beat-map of recent history.
    */
-  static assemble_snapshot(history = []) {
+  assemble_snapshot(history = []) {
     if (!history.length) return null;
     return history
       .map((m) => {
@@ -152,11 +147,11 @@ export class ContextBroker {
         return `[${owner}]: ${clean_text(stripped, 500)}`;
       })
       .join("\n");
-  }
+  },
   /**
    * Relevance-based sorting for raw data points.
    */
-  static lexical_filter(data_points, objective) {
+  lexical_filter(data_points, objective) {
     if (!objective) return data_points;
     const keywords = objective
       .toLowerCase()
@@ -168,5 +163,5 @@ export class ContextBroker {
       const b_hit = keywords.some((k) => get_text(b).includes(k));
       return (b_hit ? 1 : 0) - (a_hit ? 1 : 0);
     });
-  }
-}
+  },
+};

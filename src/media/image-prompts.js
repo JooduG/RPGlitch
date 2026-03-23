@@ -4,7 +4,7 @@
  * Handles aesthetic routing, semantic matching, and prompt composition.
  */
 import { PALETTE } from "@theme/palette.svelte.js";
-import { LlmService } from "@core/intelligence/llm-service.js";
+import { llm_service } from "@core/intelligence/llm-service.js";
 /************************************************************************************
  * 🧩 [SECTION: CONSTANTS & GLOBALS]
  ************************************************************************************/
@@ -176,7 +176,7 @@ export const PromptEngine = {
       system: PROMPT_TEMPLATES.optimize(text, selections),
       messages: [],
     };
-    let result = await LlmService.generate(payload, { silent: true });
+    let result = await llm_service.generate(payload, { silent: true });
     if (typeof result === "string") {
       result = result
         .replace(/^["']|["']$/g, "")

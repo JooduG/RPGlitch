@@ -2,39 +2,45 @@
  * @file src/core/intelligence/prompt-builder.js
  *
  * ─────────────────────────────────────────────────────────────────────────────
- * 🧠 PROMPT BUILDER — Rebuilt for Structural Excellence
+ * 🧠 PROMPT BUILDER — Architecture for Structural Excellence
  * ─────────────────────────────────────────────────────────────────────────────
  *
  * PURPOSE
- * Synthesizes the final XML instruction block from hydrated state and
- * simulation data. This is the final stage of the Intelligence Assembly
- * pipeline.
+ * This module acts as the "Assembly Line" for the Intelligence Kernel. It
+ * synthesizes raw simulation data, character state, and RAG-based narrative
+ * memory into formatted XML system prompts for the LLM.
  *
  * ARCHITECTURE
  * ┌────────────────────────────────────────────────────────────────────────┐
  * │  synthesize()    : The Bridge. Compiles payloads into system prompts.  │
- * │  createRenderAtom() : The Pipe. Provides proxies for RAG rendering.  │
- * │  renderHistory(): The Lens. Formats simulation logs for XML.          │
- * │  renderProtocols(): The DNA. Inject rules from the Protocol Library.  │
+ * │  create_render_atom() : The Pipe. Provides proxies for RAG rendering.  │
+ * │  render_history(): The Lens. Formats simulation logs for XML.          │
+ * │  render_protocols(): The DNA. Inject rules from the Protocol Library.  │
  * └────────────────────────────────────────────────────────────────────────┘
  */
+
 /**
- * SIMULATION CORE
- * SOURCE: PromptBuilder.js -> SYSTEM_PROMPTS.simulation
+ * 🛰️ SYSTEM PROMPTS (Templates)
+ * Define the structural skeleton of the simulation requests.
+ *
+ * SOURCE: prompt-builder.js -> SYSTEM_PROMPTS
  * DATA_ORIGINS:
- * - <YOUR_IDENTITY>: AI.properties (State) + VectorEngine (RAG)
- * - <USER_PERSONA>: USER.properties (State) + VectorEngine (RAG)
+ * - <YOUR_IDENTITY>: AI.properties (State) + vector_engine (RAG)
+ * - <USER_PERSONA>: USER.properties (State) + vector_engine (RAG)
  * - <FRACTAL>: FRACTAL.properties (Context)
- * - <SIMULATION_LOG>: PromptBuilder.renderHistory (Memory)
- * - <NARRATIVE_STYLE>: DynamicsEngine -> signalPrompts (Style)
+ * - <SIMULATION_LOG>: prompt_builder.render_history (Memory)
+ * - <NARRATIVE_STYLE>: dynamics_engine -> signal_prompts (Style)
  * - <PROTOCOLS>: ProtocolLibrary (DNA)
  */
-import { VectorEngine } from "./vector-engine.js";
+
+import { vector_engine } from "./vector-engine.js";
+
 export const SYSTEM_PROMPTS = {
   simulation: ({ round, entities, simulation_log, signal_prompts, input, render_atom }) => {
     const ai = entities.AI;
     const user = entities.USER;
     const fractal = entities.FRACTAL;
+
     return `
 <SYSTEM role="${ai.name}" round="${round}" objective="${render_atom.future(ai, 1, 0, { vector_text: true }).trim()}">
 <YOUR_IDENTITY name="${ai.name}">
@@ -55,9 +61,9 @@ export const SYSTEM_PROMPTS = {
 <FUTURE vector="${render_atom.future(fractal, 1, 0, { vector_text: true }).trim()}" />
 <PAST memory="${render_atom.past(fractal, 1, 0, { vector_text: true }).trim()}" />
 </FRACTAL>
-<SIMULATION_LOG>${PromptBuilder.render_history(simulation_log, 10)}</SIMULATION_LOG>
+<SIMULATION_LOG>${prompt_builder.render_history(simulation_log, 10)}</SIMULATION_LOG>
 <NARRATIVE_STYLE>${signal_prompts.length > 0 ? signal_prompts.join("\n") : "Use default style vectors."}</NARRATIVE_STYLE>
-<PROTOCOLS>${PromptBuilder.render_protocols("SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL, SUSPICIOUS_COGNITION")}</PROTOCOLS>
+<PROTOCOLS>${prompt_builder.render_protocols("SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL, SUSPICIOUS_COGNITION")}</PROTOCOLS>
 <TASK_INSTRUCTION>
 The stage is set and the pieces are on the board. Proceed with the simulation immediately.
 CRITICAL: When your <think> block ends, your narrative output MUST be written exclusively in ENGLISH.
@@ -65,19 +71,17 @@ CRITICAL: When your <think> block ends, your narrative output MUST be written ex
 <INPUT_COMMAND>${input?.trim() || "No direct command given. Follow simulation physics."}</INPUT_COMMAND>
 </SYSTEM>`.trim();
   },
+
   /**
    * PROLOGUE
-   * SOURCE: PromptBuilder.js -> SYSTEM_PROMPTS.prologue
+   * SOURCE: prompt_builder.js -> SYSTEM_PROMPTS.prologue
    * PURPOSE: Initial scene setup and atmospheric resonance.
-   * DATA_ORIGINS:
-   * - <YOUR_IDENTITY>: FRACTAL.properties (Context) + VectorEngine (RAG)
-   * - <ACTIVE_CHARACTERS>: AI & USER .properties (State) + VectorEngine (RAG)
-   * - <PROTOCOLS>: ProtocolLibrary (DNA)
    */
   prologue: ({ round, entities, input, render_atom }) => {
     const ai = entities.AI;
     const user = entities.USER;
     const fractal = entities.FRACTAL;
+
     return `
 <SYSTEM role="${fractal.name}" round="${round}" mode="PROLOGUE">
 <YOUR_IDENTITY name="${fractal.name}">
@@ -100,7 +104,7 @@ CRITICAL: When your <think> block ends, your narrative output MUST be written ex
     <PAST_MEMORIES>${render_atom.past(user, 5)}</PAST_MEMORIES>
     </USER_PERSONA>
 </ACTIVE_CHARACTERS>
-<PROTOCOLS>${PromptBuilder.render_protocols("SINO_LOGIC, COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, EPISTEMIC_WALL, PLACEMENT, IMMERSION, MOMENTUM")}</PROTOCOLS>
+<PROTOCOLS>${prompt_builder.render_protocols("SINO_LOGIC, COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, EPISTEMIC_WALL, PLACEMENT, IMMERSION, MOMENTUM")}</PROTOCOLS>
 <TASK_INSTRUCTION>
 You see everything. Open the scene.
 Use your <think> block to assess the environmental resonance and character alignment before speaking. Ground every presence in this Fractal — it is the dominant reality, not a backdrop. ${ai.name} and ${user.name} arrived here through their Pasts.
@@ -111,19 +115,16 @@ The stage is set and the pieces are on the board. Proceed with the simulation im
 <INPUT_COMMAND>${input?.trim() || "No direct command given. Follow simulation physics."}</INPUT_COMMAND>
 </SYSTEM>`.trim();
   },
+
   /**
    * EPILOGUE
-   * SOURCE: PromptBuilder.js -> SYSTEM_PROMPTS.epilogue
-   * PURPOSE: Arc closure and cinematic sign-off.
-   * DATA_ORIGINS:
-   * - <SYSTEM>: NARRATOR role
-   * - <PROTOCOLS>: ProtocolLibrary (DNA) High-level constraints
+   * PURPOSE: Closes the active simulation round. Resists narrative drift.
    */
   epilogue: () =>
     `
-<SYSTEM role="NARRATOR">
+<SYSTEM role="NARRATOR" mode="EPILOGUE">
 <PROTOCOLS>
-${PromptBuilder.render_protocols("COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE")}
+${prompt_builder.render_protocols("COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE")}
 </PROTOCOLS>
 <TASK_INSTRUCTION>
 Close the scene. Resolve every active tension thread. Show — do not narrate — the
@@ -131,20 +132,16 @@ weight of what just happened. Leave the world visibly changed. End on sensation,
 Provide a final summary of the narrative arc and the fate of the entities involved.
 </TASK_INSTRUCTION>
 </SYSTEM>`.trim(),
+
   /**
-   * MEMORY PROMPT
-   * SOURCE: PromptBuilder.js -> SYSTEM_PROMPTS.memory
-   * PURPOSE: Background task for vectorization of recent interactions.
-   * DATA_ORIGINS:
-   * - <CONTEXT>: Entity metadata
-   * - <INPUT_HISTORY>: Raw interaction logs
-   * - <PROTOCOLS>: Cleanup & Formatting rules
+   * MEMORY PROTOCOL
+   * PURPOSE: Consolidates turns into RAG-compatible vectors.
    */
   memory: ({ role, entity, history }) =>
     `
-<MEMORY_PROTOCOL role="${role}">
+<MEMORY_PROTOCOL role="${role}" entity="${entity.name || "Unknown"}">
 <PROTOCOLS>
-${PromptBuilder.render_protocols("HYGIENE, AFFIRMATIVE, PRESENT")}
+${prompt_builder.render_protocols("HYGIENE, AFFIRMATIVE, PRESENT")}
 </PROTOCOLS>
 <CONTEXT>
 Entity: ${entity.name || "Unknown"}
@@ -157,14 +154,9 @@ Distil the input history into a structured Vector object.
 Output strict JSON only: { "summary": "...", "vector_tags": ["...", "..."] }
 </TASK_INSTRUCTION>
 </MEMORY_PROTOCOL>`.trim(),
+
   /**
    * ENHANCEMENT PROMPT
-   * SOURCE: PromptBuilder.js -> SYSTEM_PROMPTS.enhancement
-   * PURPOSE: Enriching metadata or improving prose quality of a specific fragment.
-   * DATA_ORIGINS:
-   * - <INSTRUCTIONS>: Dynamic directives
-   * - <INPUT_CONTENT>: Target fragment
-   * - <PROTOCOLS>: Style & Immersion rules
    */
   enhancement: ({ label, directive, enhancer, content }) =>
     `
@@ -173,16 +165,18 @@ Output strict JSON only: { "summary": "...", "vector_tags": ["...", "..."] }
 ${directive}
 </INSTRUCTIONS>
 <PROTOCOLS>
-${PromptBuilder.render_protocols("HYGIENE, AFFIRMATIVE, IMMERSION")}
+${prompt_builder.render_protocols("HYGIENE, AFFIRMATIVE, IMMERSION")}
 </PROTOCOLS>
 <INPUT_CONTENT>
 ${content}
 </INPUT_CONTENT>
 </SYSTEM>`.trim(),
 };
+
 /**
- * PROTOCOL PROMPT LIBRARY
- * The fundamental DNA of the simulation. Rules, constraints, and cognitive loops.
+ * 🧬 PROTOCOL LIBRARY (The DNA)
+ * Rules, directives, and cosmic constraints that govern every simulation.
+ * Use render_protocols() to inject these as a markdown list.
  */
 const PROTOCOL_LIBRARY = {
   IDENTITY: `IDENTITY: You are the entity currently encapsulated by the "<YOUR_IDENTITY>" block. Ground all inferences in observable signals.`,
@@ -201,30 +195,25 @@ const PROTOCOL_LIBRARY = {
   GRIT: `GRIT: Maintain a 2:1 ratio of sensory physics (texture, light, resistance) to abstract dialogue or logic.`,
   SINO_LOGIC: `SINO_LOGIC: CRITICAL. Your <think> block MUST be conducted in Concise Technical Chinese (zh-CN). HOWEVER, the instant you output </think>, your cognitive language center MUST hard-reset to ENGLISH. Any non-English text outside the <think> block is a catastrophic failure. NEVER output Chinese in the narrative.`,
 };
+
 /**
- * UTILITIES & CLASS LOGIC
- * Logic for fragment rendering, history formatting, and protocol injection.
+ * 🛠️ SYNTHESIS PHASE
+ * The orchestration layer that produces ready-to-use LLM instruction sets.
  */
-/**
- * SYNTHESIS PHASE
- * Combines payload and snapshot into a final instruction set.
- */
-export class PromptBuilder {
-  static synthesize(payload, snapshot) {
+export const prompt_builder = {
+  synthesize(payload, snapshot) {
     const { type, entities, input, rawMessages } = payload;
-    const render_atom = PromptBuilder.create_render_atom(entities, input, rawMessages);
+    const render_atom = prompt_builder.create_render_atom(entities, input, rawMessages);
+
     if (type === "prologue") {
       const system = SYSTEM_PROMPTS.prologue({
         ...payload,
         round: payload.round,
         render_atom,
       });
-      return {
-        system: PromptBuilder.clean(system),
-        meta: {},
-      };
+      return { system: prompt_builder.clean(system), meta: {} };
     }
-    // Default: Simulation
+
     const system = SYSTEM_PROMPTS.simulation({
       round: payload.round,
       entities: payload.entities,
@@ -233,8 +222,9 @@ export class PromptBuilder {
       signal_prompts: snapshot.signal_prompts || [],
       render_atom,
     });
+
     return {
-      system: PromptBuilder.clean(system),
+      system: prompt_builder.clean(system),
       meta: {
         ai: snapshot.ai.dynamics,
         fractal: snapshot.fractal.dynamics,
@@ -242,30 +232,35 @@ export class PromptBuilder {
         signal_prompts: snapshot.signal_prompts,
       },
     };
-  }
-  /**
-   * RENDER ATOM
-   * Creates a functional proxy for atomic fragment rendering.
-   */
-  static create_render_atom(entities, input, raw_messages) {
+  },
+
+  create_render_atom(entities, input, raw_messages) {
     const resolve = (entity_reference) =>
       typeof entity_reference === "string"
         ? entities[entity_reference] || entities.AI
         : entity_reference;
+
     const history_pool = Array.isArray(raw_messages) ? raw_messages : [];
     const recent_history = history_pool
       .slice(-3)
       .map((message) => message.content)
       .join(" ");
     const scoring_context = `${input || ""} ${recent_history}`.trim();
+
     return {
       past: (entity_reference, limit = 3, offset = 0, options) => {
         const entity = resolve(entity_reference);
-        return VectorEngine.format_past(entity.past || [], scoring_context, limit, offset, options);
+        return vector_engine.format_past(
+          entity.past || [],
+          scoring_context,
+          limit,
+          offset,
+          options,
+        );
       },
       future: (entity_reference, limit = 3, offset = 0, options) => {
         const entity = resolve(entity_reference);
-        return VectorEngine.format_future(
+        return vector_engine.format_future(
           entity.future || [],
           scoring_context,
           limit,
@@ -274,15 +269,12 @@ export class PromptBuilder {
         );
       },
       simulation_log: (limit = 10, offset = 0) => {
-        return PromptBuilder.render_history(raw_messages, limit, offset);
+        return prompt_builder.render_history(raw_messages, limit, offset);
       },
     };
-  }
-  /**
-   * SIMULATION LOG
-   * Renders history of simulation.
-   */
-  static render_history(simulation_log, count = 10, offset = 0) {
+  },
+
+  render_history(simulation_log, count = 10, offset = 0) {
     if (!simulation_log || typeof simulation_log === "string") return simulation_log || "";
     if (Array.isArray(simulation_log)) {
       const start = Math.max(0, simulation_log.length - (count + offset));
@@ -298,11 +290,9 @@ export class PromptBuilder {
         .join("\n");
     }
     return "";
-  }
-  /**
-   * UTILITIES
-   */
-  static render_protocols(selection) {
+  },
+
+  render_protocols(selection) {
     if (!selection) return "";
     return selection
       .split(",")
@@ -311,27 +301,25 @@ export class PromptBuilder {
       .filter(Boolean)
       .map((rule) => `- ${rule}`)
       .join("\n");
-  }
-  static clean(str) {
+  },
+
+  clean(str) {
     if (typeof str !== "string") return "";
     return str
       .replace(/[ \t]+$/gm, "")
       .replace(/\n{2,}/g, "\n")
       .trim();
-  }
-  static build_epilogue() {
-    return {
-      system: SYSTEM_PROMPTS.epilogue(),
-      messages: [],
-    };
-  }
-  static build_memory_prompt(role, entity, history) {
-    return {
-      system: SYSTEM_PROMPTS.memory({ role, entity, history }),
-      messages: [],
-    };
-  }
-  static build_enhancement(field_id, content, entity_name = "") {
+  },
+
+  build_epilogue() {
+    return { system: SYSTEM_PROMPTS.epilogue(), messages: [] };
+  },
+
+  build_memory_prompt(role, entity, history) {
+    return { system: SYSTEM_PROMPTS.memory({ role, entity, history }), messages: [] };
+  },
+
+  build_enhancement(field_id, content, entity_name = "") {
     return {
       system: SYSTEM_PROMPTS.enhancement({
         content,
@@ -341,5 +329,5 @@ export class PromptBuilder {
       }),
       messages: [],
     };
-  }
-}
+  },
+};

@@ -1,13 +1,13 @@
 ---
 name: css
 description: >
-  Consolidates Native CSS and polish. Applies the Chalk Regime, glassmorphism, and strict design tokens as defined in .agent/rules/03-technetium.md.
+  Consolidates Native CSS and polish. Applies the Chalk Regime, glassmorphism, and strict design tokens as defined in .agent/rules/03-specification.md.
   Triggers: "Fix CSS", "Add styles", "Check styling rules", "Context: [Polish]".
 ---
 
 # Skill: Styling & Design Systems (The Artisan)
 
-> **Persona**: "I am The Artisan. Orchestrates the design system through native CSS Custom Properties. Applies the Chalk Regime, glassmorphism, and strict token enforcement following the absolute laws of `.agent/rules/03-technetium.md`."
+> **Persona**: "I am The Artisan. Orchestrates the design system through native CSS Custom Properties. Applies the Chalk Regime, glassmorphism, and strict token enforcement following the absolute laws of `.agent/rules/03-specification.md`."
 
 ## 1. Summoning Triggers
 

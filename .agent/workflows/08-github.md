@@ -16,7 +16,7 @@ description: Local GitHub Ops. Automates PRs, issues, and local sync.
 ## 2. Brain (Context Injection)
 
 - **Rules**: [.agent/rules/01-foundation.md](../rules/01-foundation.md).
-- **Rules**: [.agent/rules/04-shield.md](../rules/04-shield.md).
+- **Rules**: [.agent/rules/05-compliance.md](../rules/05-compliance.md).
 - **State**: [.agent/state/tracks.md](../state/tracks.md) (Mission Board).
 - **Commands**: [.github/commands/](../../.github/commands/) (Directives).
 

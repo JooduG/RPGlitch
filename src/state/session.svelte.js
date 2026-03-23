@@ -1,5 +1,5 @@
 import { Engine } from "@core/engine/engine.js";
-import { Session } from "@core/engine/session-driver.js";
+import { session_driver } from "@core/engine/session-driver.js";
 import { app } from "@state/app.svelte.js";
 import { runtime } from "@state/runtime.svelte.js";
 import "@state/simulation-log.svelte.js";
@@ -24,7 +24,7 @@ export class ReactiveSession {
     try {
       const story_title = `The Journey of ${selection.ai.name} & ${selection.user.name} in ${selection.fractal.name}`;
       // 1. Create Core Session
-      const story_id = await Session.create_from_selection({
+      const story_id = await session_driver.create_from_selection({
         ai_id: selection.ai.id,
         user_id: selection.user.id,
         fractal_id: selection.fractal.id,
@@ -66,9 +66,9 @@ export class ReactiveSession {
       // Simulate physics update for HUD visibility if needed, or rely on Engine events
       // PHASE 2: GM (Synthesis)
       app.log(`LLM synthesizing prose response for turn ${app.round}...`, "ai");
-      await Session.send(text); // Saves user message
+      await session_driver.send(text); // Saves user message
       // TRIGGER AI GENERATION
-      const story_id = Session.require_active();
+      const story_id = session_driver.require_active();
       await Engine.generate_ai_response(story_id, { input: text });
       // PHASE 3: ECHO (Affinity)
       app.log("Echo recording temporal affinity and syncing database...", "db");
@@ -91,8 +91,8 @@ export class ReactiveSession {
     this.loading = true;
     app.simulation.loading = true;
     try {
-      await Session.regenerate();
-      const story_id = Session.require_active();
+      await session_driver.regenerate();
+      const story_id = session_driver.require_active();
       await Engine.generate_ai_response(story_id);
     } catch (e) {
       this.error = e.message;
@@ -110,8 +110,8 @@ export class ReactiveSession {
     this.loading = true;
     app.simulation.loading = true;
     try {
-      const story_id = Session.require_active();
-      await Engine.generateAiResponse(story_id);
+      const story_id = session_driver.require_active();
+      await Engine.generate_ai_response(story_id);
     } catch (e) {
       this.error = e.message;
     } finally {
@@ -123,19 +123,19 @@ export class ReactiveSession {
    * 🧪 DEBUG: Inject AI Message
    */
   async log_turn(text, character_name, role) {
-    await Session.log_turn(text, character_name, role);
+    await session_driver.log_turn(text, character_name, role);
   }
   /**
    * Delete a log entry by ID
    */
   async delete_log_entry(id) {
-    await Session.delete_log_entry(id);
+    await session_driver.delete_log_entry(id);
   }
   /**
    * Edit a log entry by ID
    */
   async edit_log_entry(id, new_text) {
-    await Session.edit_log_entry(id, new_text);
+    await session_driver.edit_log_entry(id, new_text);
   }
 }
 export const session = new ReactiveSession();

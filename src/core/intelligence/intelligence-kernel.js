@@ -2,30 +2,30 @@
  * @file src/core/intelligence/intelligence-kernel.js
  *
  * ─────────────────────────────────────────────────────────────────────────────
- * 🧠 GAMEMASTER  —  The Brain's Core
+ * 🧠 gamemaster  —  The Brain's Core
  * ─────────────────────────────────────────────────────────────────────────────
  *
  * PURPOSE
  * This service unifies the Intelligence Kernel (Broker, Dynamics, Builder)
- * and the Transport Layer (LlmService) into a single, cohesive execution flow.
+ * and the Transport Layer (llm_service) into a single, cohesive execution flow.
  *
  * RESPONSIBILITIES
- * 1. Gamemaster Execution: Hydrate -> Simulate -> Synthesize -> Generate.
+ * 1. gamemaster Execution: Hydrate -> Simulate -> Synthesize -> Generate.
  * 2. Persistence  : Automatically logs turns to the Session database.
  * 3. Physics      : Updates global runtime physics based on simulation results.
  */
-import { ContextBroker } from "./context-broker.js";
-import { DynamicsEngine } from "./dynamics-engine.js";
-import { PromptBuilder } from "./prompt-builder.js";
-import { LlmService } from "./llm-service.js";
+import { context_broker } from "./context-broker.js";
+import { dynamics_engine } from "./dynamics-engine.js";
+import { prompt_builder } from "./prompt-builder.js";
+import { llm_service } from "./llm-service.js";
 import { runtime } from "@state/runtime.svelte.js";
 import { app } from "@state/app.svelte.js";
-import { MemoryEngine } from "./memory-engine.js";
-import { VectorEngine } from "./vector-engine.js";
+import { memory_engine } from "./memory-engine.js";
+import { vector_engine } from "./vector-engine.js";
 import { db } from "@data/db.js";
 import { entities } from "@data/repository.js";
-import { Session } from "@core/engine/session-driver.js";
-export const Gamemaster = {
+import { session_driver } from "@core/engine/session-driver.js";
+export const gamemaster = {
   /**
    * EXECUTE TURN
    * The primary simulation loop for a narrative turn.
@@ -40,10 +40,10 @@ export const Gamemaster = {
     // 1. CHRONO: Round management
     // Round is managed by Session.send or explicit prologue start.
     // We ensure turn-type consistency here.
-    VectorEngine.ensure_momentum(runtime, app);
+    vector_engine.ensure_momentum(runtime, app);
     runtime.turn_type = "SYSTEM_TURN";
     // 2. HYDRATION: Fetch history and hydrate context
-    const raw_messages = await Session.load_log(story_id);
+    const raw_messages = await session_driver.load_log(story_id);
     const simulation_log = raw_messages
       .filter((m) => !m.meta?.consolidated)
       .map((m) => ({
@@ -51,22 +51,22 @@ export const Gamemaster = {
         content: m.text || m.content || "",
         character_name: m.character_name,
       }));
-    const payload = await ContextBroker.hydrate(input, "simulation", simulation_log);
+    const payload = await context_broker.hydrate(input, "simulation", simulation_log);
     // 3. SIMULATION: Resolve physics and behaviors
-    const snapshot = DynamicsEngine.simulate(payload);
+    const snapshot = dynamics_engine.simulate(payload);
     // 4. SYNTHESIS: Build the final prompt
-    const { system, meta } = PromptBuilder.synthesize(payload, snapshot);
+    const { system, meta } = prompt_builder.synthesize(payload, snapshot);
     // 5. UPDATE: Synchronize runtime physics
     runtime.ai = snapshot.ai.dynamics;
     runtime.fractal = snapshot.fractal.dynamics;
     runtime.turn_type = "AI_TURN";
     app.log(
-      "Gamemaster: Context hydrated. Physics resolved. Entering AI_TURN. Routing to LLM...",
+      "gamemaster: Context hydrated. Physics resolved. Entering AI_TURN. Routing to LLM...",
       "system",
     );
     // 6. GENERATION: Call the model with retry logic
     const response = await this._execute_with_retry(async () => {
-      return await LlmService.generate(
+      return await llm_service.generate(
         {
           system,
           messages: simulation_log,
@@ -78,7 +78,7 @@ export const Gamemaster = {
     const character_name =
       role === "ai" ? runtime.active_ai?.name || "AI" : runtime.active_fractal?.name || "Fractal";
 
-    await Session.log_turn(response, character_name, role, {
+    await session_driver.log_turn(response, character_name, role, {
       dynamics: meta.ai,
       fractal_dynamics: meta.fractal,
       flags: meta.flags,
@@ -91,7 +91,7 @@ export const Gamemaster = {
     runtime.round++;
 
     // 9. HOUSEKEEPING: Trigger narrative control (MemoryEngine) if needed
-    MemoryEngine.consolidate(Session, db, entities, runtime, app);
+    await memory_engine.consolidate(session_driver, db, entities, runtime, app, simulation_log);
 
     return { response, meta };
   },
@@ -100,23 +100,23 @@ export const Gamemaster = {
    * Specialized turn for starting a new story.
    */
   async execute_prologue(story_id) {
-    const payload = await ContextBroker.hydrate("", "prologue");
-    const result = PromptBuilder.synthesize(payload, {});
+    const payload = await context_broker.hydrate("", "prologue");
+    const result = prompt_builder.synthesize(payload, {});
     if (!result.system) return null;
-    app.log("Gamemaster: Generating prologue...", "system");
+    app.log("gamemaster: Generating prologue...", "system");
     const response = await this._execute_with_retry(async () => {
-      return await LlmService.generate({ system: result.system });
+      return await llm_service.generate({ system: result.system });
     });
     const fractal_name = runtime.active_fractal?.name || "Fractal Entity";
     // 1. Save Prologue
     // Prologue stays at Round 0
     runtime.round = 0;
     runtime.turn_type = "SYSTEM_TURN";
-    await Session.log_turn(response, fractal_name, "fractal", {
+    await session_driver.log_turn(response, fractal_name, "fractal", {
       round: 0,
       turn_type: "SYSTEM_TURN",
     });
-    app.log("Gamemaster: Prologue established (Round 0).", "system");
+    app.log("gamemaster: Prologue established (Round 0).", "system");
     // 2. The Hook: Trigger immediate AI follow-up to open the scene.
     return await this.execute_turn(story_id);
   },
@@ -125,13 +125,13 @@ export const Gamemaster = {
    * Final summary or conclusion for a story.
    */
   async execute_epilogue(story_id) {
-    const { system } = PromptBuilder.build_epilogue();
+    const { system } = prompt_builder.build_epilogue();
     if (!system) return null;
-    app.log("Gamemaster: Generating epilogue...", "system");
+    app.log("gamemaster: Generating epilogue...", "system");
     const response = await this._execute_with_retry(async () => {
-      return await LlmService.generate({ system });
+      return await llm_service.generate({ system });
     });
-    await Session.log_turn(response, "Narrator", "ai");
+    await session_driver.log_turn(response, "Narrator", "ai");
     return response;
   },
   /**
@@ -143,7 +143,7 @@ export const Gamemaster = {
     } catch (err) {
       if (retries <= 0) throw err;
       app.log(
-        `Gamemaster: Connection issue. Retrying in ${delay}ms... (${retries} attempts left)`,
+        `gamemaster: Connection issue. Retrying in ${delay}ms... (${retries} attempts left)`,
         "warn",
       );
       await new Promise((resolve) => setTimeout(resolve, delay));

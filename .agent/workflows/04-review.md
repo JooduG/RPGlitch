@@ -15,7 +15,7 @@ description: Reviews and stuff.
 ## 2. Brain (Context Injection)
 
 - **Rules**: [.agent/rules/01-foundation.md](../rules/01-foundation.md).
-- **Rules**: [.agent/rules/04-shield.md](../rules/04-shield.md).
+- **Rules**: [.agent/rules/05-compliance.md](../rules/05-compliance.md).
 - **State**: [.agent/state/tracks.md](../state/tracks.md) (Mission Board).
 - **State**: [.agent/state/backlog.md](../state/backlog.md) (Task Sync).
 

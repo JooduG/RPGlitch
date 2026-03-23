@@ -1,13 +1,9 @@
 import { describe, expect, test, vi } from "vitest";
-const LlmService = {
+const llm_service = {
   enhance: vi.fn(),
 };
-const PromptBuilder = {
-  build_enhancement: vi.fn((key, content) => ({
-    mockPayload: true,
-    key,
-    content,
-  })),
+const prompt_builder = {
+  build_enhancement: vi.fn(),
 };
 const TextToImage = {
   composeBasePrompt: vi.fn((_char) => "Composed Prompt"),
@@ -25,8 +21,8 @@ async function handleCreativeAction(ctx) {
   try {
     if (activeField && isEnhanceMode) {
       if (enhancementType === "generative") {
-        const payload = PromptBuilder.build_enhancement("visuals.prompt", char.visuals.prompt);
-        await LlmService.enhance(payload);
+        const payload = prompt_builder.build_enhancement("visuals.prompt", char.visuals.prompt);
+        await llm_service.enhance(payload);
       } else {
         // ...
       }

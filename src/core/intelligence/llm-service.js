@@ -45,7 +45,7 @@ export function sanitize(text) {
  * ----------------------------------------------------------------------------------
  * The primary abstraction for window.ai. All prompt execution flows through here.
  ************************************************************************************/
-export const LlmService = {
+export const llm_service = {
   /**
    * HIGH-FIDELITY PROSE ENHANCER
    * Transforms draft text into visceral, first-person narrative based on
@@ -92,7 +92,7 @@ export const LlmService = {
       throw new Error(msg);
     }
     // 1. Format conversation history into a flat readable string
-    const chat_history = LlmService._format_history(payload.messages || []);
+    const chat_history = llm_service._format_history(payload.messages || []);
     // 2. Assemble the final instruction block
     const instruction = [
       payload.system || "",
@@ -135,12 +135,12 @@ export const LlmService = {
     } catch (err) {
       if (!options.silent) app.end_stream();
       if (options.silent) {
-        console.warn("[LlmService] Silent generation error (suppressed):", err);
+        console.warn("[llm_service] Silent generation error (suppressed):", err);
         throw err;
       }
       const err_string = String(err);
       if (err_string.includes("stream keep alive") || err_string.includes("timeout")) {
-        console.error("[LlmService] Network error:", err);
+        console.error("[llm_service] Network error:", err);
         throw new Error(`${ERROR_MESSAGES.CONNECTION_LOST}`);
       }
       throw err;

@@ -48,20 +48,20 @@
 
 ## Mission Board
 
-### [WIP] [003] [Clinic: Codebase Sanitization & Audit]
+### [DONE] [003] [Clinic: Codebase Sanitization & Audit]
 
 - [x] Phase 1: Diagnosis (Audit & Scoping)
     - [x] Run `npm audit` for dependency hygiene.
     - [x] Scan core logic for naming/lexicon violations (Rule 03).
     - [x] Identify orphaned logic (`NarrativeDirector`).
-- [/] Phase 2: Sanitization (Execution)
-    - [ ] Rename `NarrativeDirector` -> `GameMaster` (Lexicon).
-    - [ ] Refactor `VectorEngine` & `PromptBuilder` to `snake_case`.
-    - [ ] Standardize boolean naming in `runtime.svelte.js`.
-    - [ ] Integrate memory consolidation into the main loop.
-- [ ] Phase 3: Validation (Scholar Gate)
-    - [ ] Run `vitest` suite globally.
-    - [ ] Update documentation and state shards.
+- [x] Phase 2: Sanitization (Execution)
+    - [x] Rename `NarrativeDirector` -> `gamemaster` (Lexicon).
+    - [x] Refactor `VectorEngine` & `PromptBuilder` to `snake_case`.
+    - [x] Standardize boolean naming in `runtime.svelte.js`.
+    - [x] Integrate memory consolidation into the main loop.
+- [x] Phase 3: Validation (Scholar Gate)
+    - [x] Run `vitest` suite globally (162/162 pass).
+    - [x] Update documentation and state shards.
 
 ### Completed Tasks
 
@@ -73,6 +73,6 @@
 - [x] Semantic UI Refactor & Glassmorphism Purge (Strict Chalk Regime alignment)
 - [x] UI Audit, Polish & Kinetic Motion Enhancement (Standardized tokens, kinetic scroll, and motion physics)
 
-### Known Quirks / Technical Debt
+## Known Quirks / Technical Debt
 
-- None logged.
+- [ ] **Dependency Audit**: `npm audit` reports 3 moderate vulnerabilities in `markdown-it` and `eslint-plugin-markdownlint`. (Out of scope for logic sanitization).

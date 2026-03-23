@@ -36,9 +36,10 @@ knowledge:
   atlas:
     # Rules
     rule-foundation: .agent/rules/01-foundation.md
-    rule-motion: .agent/rules/02-motion.md
-    rule-technetium: .agent/rules/03-technetium.md
-    rule-shield: .agent/rules/04-shield.md
+    rule-simulation: .agent/rules/02-simulation.md
+    rule-specification: .agent/rules/03-specification.md
+    rule-intelligence: .agent/rules/04-intelligence.md
+    rule-compliance: .agent/rules/05-compliance.md
     # Knowledge
     atlas-vision: .agent/knowledge/atlas/01-vision.md
     atlas-architecture: .agent/knowledge/atlas/02-architecture.md

@@ -42,6 +42,7 @@ Define the Clarity Gate constraints specific to this skill.
 
 ## 6. Tools & Assets
 
-| Tool          | Purpose                              | Source   |
-| :------------ | :----------------------------------- | :------- |
-| `run_command` | npm run test:unit, npm run test:e2e. | Terminal |
+| Tool           | Purpose                                | Source   |
+| :------------- | :------------------------------------- | :------- |
+| `run_command`  | npm run test:unit, npm run test:e2e.   | Terminal |
+| `summarize.js` | Project Evaluation & Recap Sequence.   | Script   |

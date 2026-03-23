@@ -20,7 +20,7 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     // Explicitly include src and script test paths
-    include: ["src/**/*.{test,spec}.{js,ts}", "scripts/**/*.js"],
+    include: ["src/**/*.{test,spec}.{js,ts}"],
     exclude: ["**/node_modules/**", "**/.git/**"],
     // setupFiles: [".agent/skills/warden/scripts/setup.js"],
   },

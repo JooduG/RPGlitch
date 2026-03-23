@@ -117,8 +117,11 @@ function verifyPillars() {
   const REPO_ROOT = process.cwd();
   const pillars = [
     ".agent/rules/01-foundation.md",
-    ".agent/rules/04-shield.md",
-    ".agent/scripts/summarize.js",
+    ".agent/rules/02-simulation.md",
+    ".agent/rules/03-specification.md",
+    ".agent/rules/04-intelligence.md",
+    ".agent/rules/05-compliance.md",
+    ".agent/skills/quality-assurance/scripts/summarize.js",
     "package.json",
     "vite.config.js",
     "eslint.config.js",

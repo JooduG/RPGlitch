@@ -52,4 +52,6 @@ Every standard action follows the **Simulation Cycle** managed by the `Intellige
 
 ## 6. Tools & Assets
 
-_No specialized tools assigned currently._
+| Tool             | Purpose                                  | Source   |
+| :--------------- | :--------------------------------------- | :------- |
+| `dump_prompt.js` | Diagnostic Audit of synthesized prompts. | Script   |
