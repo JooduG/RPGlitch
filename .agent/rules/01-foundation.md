@@ -73,9 +73,10 @@ Strive for cinematic pacing. Use sensory bridges. End responses with unresolved 
 
 ---
 
-## 5. The Blueprint Mandate
+## 5. The Plan is Truth
 
-> "If it has not survived the Warden and been recorded by the Scribe, it does not exist."
+> "If it is not in the plan, it does not exist."
 
-- **Execution Gate**: No code may be written unless the `workshop-scribe` has successfully initialized a Flat Track in `.agent/state/tracks/` and updated `global.md`.
+- **Flat Track Management**: All work MUST be tracked via single-file tracks in `.agent/state/tracks/` and registered in the `global.md` hub.
+- **The Update Loop**: `[ ]` (Unchecked) -> `[/]` (In Progress) -> `[x]` (Verified via Scholar Gate).
 - **Auditability**: Every transmission must conclude with the **Metadata Mandate** (Rules, Skills, Workflows, Tools).
