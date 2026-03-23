@@ -17,6 +17,9 @@ The Ombudsman is responsible for the health of the `.agent/` directory and the i
 - **Sync**: Maintain absolute parity between `global.md`, `tracks.md`, and `backlog.md`.
 - **Audit**: Identify "Cognitive Rot" in rules and stale tracks in the state directory.
 - **Hierarchy**: Enforce standard directory structures and naming conventions.
+- **Architectural Reduction**: Reject tools that "protect" the model from complexity. Prefer direct access to standard Web APIs or Dexie.js over over-abstracted custom tools.
+- **Tool Standards**: Enforce fully qualified MCP names (e.g., `server:tool`) and Svelte 5 Rune-based bridge patterns.
+- **Skill Lifecycle**: Manage the initialization, structural auditing, and packaging of agentic skills.
 
 ### 2. The Maintenance Loop
 
@@ -29,10 +32,12 @@ The Ombudsman is responsible for the health of the `.agent/` directory and the i
 
 - **Templates**: All tracks and plans must follow the Ombudsman's markdown blueprints (stored in `templates/`).
 - **Purity**: Use GitHub-style alerts and semantic formatting to ensure scannability.
+- **Knowledge Base**: [Skill Creation Guide](knowledge/skill-creation.md), [Workflows](knowledge/workflows.md).
 
 ## 🛠️ Operational Tools
 
-- **`scaffold-skill.js`**: Create new skills within the Sovereign/Atom hierarchy.
+- **`scaffold-skill.js`**: Create new skills (Workflow, Task, Reference) with built-in validation.
+- **`package-skill.js`**: Package a skill into a distributable `.skill` file.
 - **`sync.js`**: Reconcile the mission board and task tracks.
 - **`summarize.js`**: Synthesize session progress for the human executive.
 - **`structural-audit.js`**: Validate the physical file-system structure of skills and rules.
@@ -42,6 +47,15 @@ The Ombudsman is responsible for the health of the `.agent/` directory and the i
 - Absorbed `workshop-scribe` (Track management, Templates, Structural Audit).
 - Absorbed `project` (Lifecycle/Sync).
 - Absorbed `markdown` (Styling standards).
+- Absorbed `tool-forge` (Tool Consolidation, Bridge Design, Naming Standards).
+- Absorbed `skill-creation-guide` (Skill Lifecycle, Knowledge Patterns, Validation).
+
+## 7. Anti-Patterns
+
+| Pattern                     | Mitigation                                                                                         |
+| :----------------------     | :------------------------------------------------------------------------------------------------- |
+| **Untracked Skill creation**| Forbidden. Always use `scaffold-skill.js` to ensure structural metadata purity.                    |
+| **Manual Backdrop update**  | Avoid manual editing of `global.md`. Use `sync.js` to reconcile tasks and session state.           |
 
 ---
 

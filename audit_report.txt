@@ -1,0 +1,22 @@
+
+🏛️  ARCHITECT: Structural Audit of Agent Skills
+
+audio                | [32mPASS[0m
+css                  | [32mPASS[0m
+data                 | [32mPASS[0m
+devops               | [32mPASS[0m
+gamemaster           | [31mFAIL[0m
+  - Missing '## Anti-Patterns' heading or table with headers '| Pattern | Mitigation |'.
+image-generation     | [32mPASS[0m
+motion               | [32mPASS[0m
+ombudsman            | [31mFAIL[0m
+  - Missing '## Anti-Patterns' heading or table with headers '| Pattern | Mitigation |'.
+snitch               | [31mFAIL[0m
+  - Missing '## Anti-Patterns' heading or table with headers '| Pattern | Mitigation |'.
+sommelier            | [31mFAIL[0m
+  - Missing '## Anti-Patterns' heading or table with headers '| Pattern | Mitigation |'.
+stitch               | [31mFAIL[0m
+  - Missing '## Anti-Patterns' heading or table with headers '| Pattern | Mitigation |'.
+svelte               | [32mPASS[0m
+
+Audit Complete: 7/12 skills compliant.

@@ -1,5 +1,6 @@
 ---
 name: image-generation
+version: 1.0.0
 description: >
   Owns image generation, Perchance prompts, and external visual asset management.
   Triggers: "Generate image", "Render character", "Fix aesthetic", "src/media/images/**".

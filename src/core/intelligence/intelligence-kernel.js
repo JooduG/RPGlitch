@@ -27,6 +27,31 @@ import { entities } from "@data/repository.js";
 import { session_driver } from "@core/engine/session-driver.js";
 export const gamemaster = {
   /**
+   * THE MECHANICAL GATE
+   * Translates raw dynamical thresholds into narrative directives.
+   */
+  generate_narrative_bridges(state) {
+    const bridges = [...(state.signal_prompts || [])];
+    
+    // Entropy / Reality Stability
+    if (state.fractal?.dynamics?.entropy > 80) {
+      bridges.push("CRITICAL: Structural reality is collapsing. Describe environmental glitches and non-linear decay.");
+    }
+    
+    // AI Somatics
+    if (state.ai?.dynamics?.intensity > 85) {
+      bridges.push("CONDITION: The AI Character is hyper-adrenalized. Use short, sharp, sensory-heavy sentences.");
+    }
+    
+    // Low Openness / Guarded
+    if (state.ai?.dynamics?.openness < 20) {
+      bridges.push("MECHANIC: The character is emotionally sealed. Deflect personal questions and maintain cold distance.");
+    }
+
+    return bridges;
+  },
+
+  /**
    * EXECUTE TURN
    * The primary simulation loop for a narrative turn.
    *
@@ -54,6 +79,11 @@ export const gamemaster = {
     const payload = await context_broker.hydrate(input, "simulation", simulation_log);
     // 3. SIMULATION: Resolve physics and behaviors
     const snapshot = dynamics_engine.simulate(payload);
+
+    // 3.5. MECHANICAL GATE: Inject GM bridges
+    const gm_bridges = this.generate_narrative_bridges(snapshot);
+    snapshot.signal_prompts = [...(snapshot.signal_prompts || []), ...gm_bridges];
+
     // 4. SYNTHESIS: Build the final prompt
     const { system, meta } = prompt_builder.synthesize(payload, snapshot);
     // 5. UPDATE: Synchronize runtime physics

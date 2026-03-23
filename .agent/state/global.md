@@ -39,9 +39,10 @@
 ## Active WIP
 
 - [/] **Narrative Bridge**: Orchestrating automatic scene complications.
-- [/] **Sommelier Skill**: Feature Taster & Conceptual Gateway (Sovereign).
-- [ ] **Warden Skill**: Adversarial Sentry & Security Audit (Sovereign).
-- [ ] **Gamemaster Skill**: Simulation Strategist & Narrative Engine (Sovereign).
+- [x] **Sommelier Skill**: Feature Taster & Conceptual Gateway (Sovereign).
+- [x] **Snitch Skill**: Adversarial Sentry & Security Audit (Sovereign).
+- [x] **Gamemaster Skill**: Simulation Strategist & Narrative Engine (Sovereign).
+- [x] **Ombudsman Skill**: Governing Sovereign of the .agent/ Core.
 
 ## UI/UX Architecture
 
@@ -54,17 +55,36 @@
 ### [DONE] [003] [Clinic: Codebase Sanitization & Audit]
 
 - [x] Phase 1: Diagnosis (Audit & Scoping)
-    - [x] Run `npm audit` for dependency hygiene.
-    - [x] Scan core logic for naming/lexicon violations (Rule 03).
-    - [x] Identify orphaned logic (`NarrativeDirector`).
+
 - [x] Phase 2: Sanitization (Execution)
-    - [x] Rename `NarrativeDirector` -> `gamemaster` (Lexicon).
-    - [x] Refactor `VectorEngine` & `PromptBuilder` to `snake_case`.
-    - [x] Standardize boolean naming in `runtime.svelte.js`.
-    - [x] Integrate memory consolidation into the main loop.
+
 - [x] Phase 3: Validation (Scholar Gate)
-    - [x] Run `vitest` suite globally (162/162 pass).
-    - [x] Update documentation and state shards.
+
+    - [x] Fix broken script paths in `package.json`.
+    - [x] Run `npm run verify` (166/166 pass).
+    - [x] Verify Svelte 5 & Chalk Regime compliance.
+
+### [DONE] [004] [Snitch Skill: Adversarial Sentry Formalization]
+
+- [x] Phase 1: Diagnosis & Planning (Audit overlap, rename Warden -> Snitch).
+- [x] Phase 2: Scaffolding (Create `.agent/skills/snitch/`, migrate scripts).
+- [x] Phase 3: Implementation (Heresy Detection, unified `audit.js` orchestrator).
+- [x] Phase 4: Verification (100% Audit pass, 162/162 tests).
+
+### [DONE] [005] [Gamemaster Skill: Simulation Strategist Implementation]
+
+- [x] Phase 1: Planning (Audit dynamics-engine, define Simulation Cycle).
+- [x] Phase 2: Scaffolding (Create `.agent/skills/gamemaster/`, SKILL.md).
+- [x] Phase 3: Implementation (Mechanical Gate, `intelligence-kernel.js` integration).
+- [x] Phase 4: Verification (4/4 unit tests, 166/166 total pass).
+
+### [DONE] [006] [Sovereign Consolidation: Final Purge]
+
+- [x] Phase 1: Audit (Leftover scripts, Forge/Cognition logic).
+- [x] Phase 2: Migration (Ombudsman inherits Tool Forge & Skill Creation Guide).
+- [x] Phase 3: Migration (Sommelier/Snitch inherit Cognition).
+- [x] Phase 4: Purge (Delete 14 legacy skill folders).
+- [x] Phase 5: Verification (166/166 tests pass).
 
 ### Completed Tasks
 

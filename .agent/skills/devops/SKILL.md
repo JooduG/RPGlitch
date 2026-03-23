@@ -1,5 +1,6 @@
 ---
 name: devops
+version: 1.0.0
 description: >
   Build scripts, configuration synchronization, environment checks, and workspace hygiene.
   Triggers: "Start dev server", "Build for production", "Sync configuration", "Fix environment".

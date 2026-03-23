@@ -24,11 +24,11 @@ const auditRules = [
     name: "Anti-Patterns Table",
     check: (content) => {
       const hasHeading = /##.*Anti-Patterns/i.test(content);
-      const hasTable = /\|\s+Pattern\s+\|\s+Mitigation\s+\|/.test(content);
+      const hasTable = /\|\s*Pattern\s*\|\s*Mitigation\s*\|/i.test(content);
       return hasHeading && hasTable;
     },
     message:
-      "Missing '## Anti-Patterns' heading (allow numbers like ## 3. Anti-Patterns) or the required table | Pattern | Mitigation |.",
+      "Missing '## Anti-Patterns' heading or table with headers '| Pattern | Mitigation |'.",
   },
   {
     name: "Path Headers",
@@ -78,6 +78,17 @@ function auditSkill(slug) {
 }
 
 function run() {
+  const targetSkill = process.argv[2];
+  
+  if (targetSkill) {
+    const { valid, issues } = auditSkill(targetSkill);
+    if (!valid) {
+      issues.forEach((issue) => console.log(`- ${issue}`));
+      process.exit(1);
+    }
+    process.exit(0);
+  }
+
   console.log("\n🏛️  ARCHITECT: Structural Audit of Agent Skills\n");
 
   if (!fs.existsSync(SKILL_ROOT)) {

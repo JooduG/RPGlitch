@@ -91,7 +91,7 @@
     "audit": "node .agent/skills/ombudsman/scripts/summarize.js audit:check audit:css audit:security audit:svelte",
     "audit:check": "svelte-check --tsconfig ./jsconfig.json",
     "audit:css": "node .agent/skills/css/scripts/style_audit.js",
-    "audit:security": "node .agent/skills/quality-assurance/scripts/security-scan.js",
+    "audit:security": "node .agent/skills/snitch/scripts/security-scan.js",
     "audit:svelte": "node .agent/skills/svelte/scripts/audit_legacy.js",
     "build": "vite build",
     "deploy": "npm run verify && npm run build && npm run deploy:perchance",

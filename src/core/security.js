@@ -33,7 +33,7 @@ export const Security = {
 };
 // Backward Compatibility Alias
 export const Shield = Security;
-export const Warden = Security;
+export const Snitch = Security;
 export default {
   Security,
 };

@@ -19,6 +19,8 @@ Automatically decode the vintage of the User's input:
 - **The Spec**: Deep lore, taxonomies, and static definitions.
 - **The State**: Reactive Svelte 5 logic and UI interactions.
 - **The Echo**: Persistent history and memory mechanics.
+- **10x Product Strategy**: Identify high-leverage, low-friction UX improvements with massive impact. Propose elegant, high-ROI solutions based on the core vision.
+- **Feature Ideation**: Suggest new capabilities grounded in the application's unique value proposition.
 
 ### 2. High-Fidelity Swirling (Provoke)
 
@@ -48,7 +50,15 @@ The Sommelier manages the repository's long-term memory and conceptual blueprint
 
 - Absorbed `vibe-decoder` (Translation & Ambiguity Gate).
 - Absorbed `workshop-forge` (Knowledge, Reference, Experiment management).
+- Absorbed `cognition` (Product Strategy & Feature Ideation).
 - Inherits `find-skills` (Discovery protocols).
+
+## 7. Anti-Patterns
+
+| Pattern                      | Mitigation                                                                                              |
+| :-------------------------   | :------------------------------------------------------------------------------------------------------ |
+| **Premature Implementation** | Forbidden. Vague intent (A3) MUST be swirled through the `consultation.md` before touching the Core.    |
+| **Vibe Consumption**         | Avoid using raw user adjectives in the prompt. Translate into specific design tokens and system states. |
 
 ---
 

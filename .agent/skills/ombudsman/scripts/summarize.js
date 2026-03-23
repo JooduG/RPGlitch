@@ -9,10 +9,10 @@ console.log("\n🚀 Starting Project Evaluation Sequence...\n");
 
 for (const script of args) {
   process.stdout.write(`⏳ Running npm run ${script}...\n`);
-  
-  const result = spawnSync("npm", ["run", script], { 
+
+  const result = spawnSync("npm", ["run", script], {
     stdio: "inherit",
-    shell: true 
+    shell: true,
   });
 
   const success = result.status === 0;
@@ -35,7 +35,7 @@ results.forEach(({ script, success }) => {
 });
 console.log("------------------------\n");
 
-const overallSuccess = results.every(r => r.success);
+const overallSuccess = results.every((r) => r.success);
 if (!overallSuccess) {
   console.error("❌ Evaluation Sequence Failed. Review the logs above.");
   process.exit(1);

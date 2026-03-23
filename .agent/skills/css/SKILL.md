@@ -1,5 +1,6 @@
 ---
 name: css
+version: 1.0.0
 description: >
   Consolidates Native CSS and polish. Applies the Chalk Regime, glassmorphism, and strict design tokens as defined in .agent/rules/03-specification.md.
   Triggers: "Fix CSS", "Add styles", "Check styling rules", "Context: [Polish]".
