@@ -112,7 +112,7 @@
     "test": "npm run test:unit && npm run audit:security",
     "test:e2e": "playwright test",
     "test:ui": "vitest --ui",
-    "test:unit": "vitest",
+    "test:unit": "vitest run",
     "verify": "node .agent/skills/ombudsman/scripts/summarize.js audit lint test"
   }
 }

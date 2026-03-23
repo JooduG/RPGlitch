@@ -32,20 +32,26 @@ export const gamemaster = {
    */
   generate_narrative_bridges(state) {
     const bridges = [...(state.signal_prompts || [])];
-    
+
     // Entropy / Reality Stability
     if (state.fractal?.dynamics?.entropy > 80) {
-      bridges.push("CRITICAL: Structural reality is collapsing. Describe environmental glitches and non-linear decay.");
+      bridges.push(
+        "CRITICAL: Structural reality is collapsing. Describe environmental glitches and non-linear decay.",
+      );
     }
-    
+
     // AI Somatics
     if (state.ai?.dynamics?.intensity > 85) {
-      bridges.push("CONDITION: The AI Character is hyper-adrenalized. Use short, sharp, sensory-heavy sentences.");
+      bridges.push(
+        "CONDITION: The AI Character is hyper-adrenalized. Use short, sharp, sensory-heavy sentences.",
+      );
     }
-    
+
     // Low Openness / Guarded
     if (state.ai?.dynamics?.openness < 20) {
-      bridges.push("MECHANIC: The character is emotionally sealed. Deflect personal questions and maintain cold distance.");
+      bridges.push(
+        "MECHANIC: The character is emotionally sealed. Deflect personal questions and maintain cold distance.",
+      );
     }
 
     return bridges;

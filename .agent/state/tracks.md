@@ -12,6 +12,8 @@
 - **Gamemaster Skill** (Done): Formalized the Simulation Strategist. Implemented the **Mechanical Gate** in `intelligence-kernel.js` to translate raw physics (Stress, Entropy) into narrative bridges. Verified state-machine transitions with `gamemaster.test.js`. 166/166 global tests pass.
 - **Naming Refactor (kebab-case)** (Done): Successfully refactored the entire `src/` directory to strictly adhere to Rule 03 naming standards. Renamed 50+ files (logic/tests) to kebab-case while keeping Svelte components PascalCase. All imports verified. 176/176 tests passing.
 - **Standards & Deployment** (Done): Standardised Intelligence Core and State layers to `snake_case`. Fixed CSS deprecations in `StoryboardCard.svelte`. Successfully deployed monolithic production build (382KB) to Perchance. 176/176 tests passing.
+- **Metadata Alignment & Workflow Merge** (Done): Synchronized `GEMINI.md` and `AGENTS.md` with the Sovereign Skill hierarchy and A-C-M-Q pipeline. Merged `/01-plan` into `/01-blueprint`. Extracted `scribbles.md` into `sommelier/knowledge/experiment-*.md`. Updated `.agent/config.yaml` and `.agent/tooling.json`. All 166/166 tests pass. [Branch: chore]
+- **Clinic Sanitization (/03-clean)** (Done): Purged redundant `data` skill. Optimized unit test execution (`vitest run`). Resolved all remaining linting warnings in the intelligence core. Final verification suite passed with green status. [Branch: chore]
 
 ## Archive
 

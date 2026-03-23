@@ -1,19 +1,24 @@
 # Baton: Next Session Preamble
 
-> **Mission Status**: Clinic Hardening & Metadata Sync (Complete)
+> **Mission Status**: Metadata Alignment, Workflow Consolidation, & Config Sync (Complete)
 > **Active Branch**: `chore`
-> **Link**: [https://github.com/JooduG/RPGlitch/pull/new/chore]
+
+## ✅ Accomplishments
+
+1. **Metadata & Rules**: `GEMINI.md` and `AGENTS.md` are now authoritative for Svelte 5 Sovereignty and the A-C-M-Q pipeline.
+2. **Workflows**: `/01-plan` is absorbed into `/01-blueprint`. The Master Router is the single entry point for planning.
+3. **Experiments**: `scribbles.md` is purged. Ideas migrated to `sommelier/knowledge/experiment-*.md`.
+4. **Config**: `config.yaml` and `tooling.json` are synchronized with Sovereign skills.
 
 ## 🛠️ Next Steps
 
-1. **Verify Integration**: Once the user merges the PR, run a final `npm run verify` on `main`.
-2. **Metadata Sync**: Rule 04 (A-C-M-Q) and the Sovereign Skill hierarchy are now authoritative in `GEMINI.md` and `AGENTS.md`.
-3. **Narrative Bridge**: Resume the **Narrative Bridge** track to orchestrate automatic scene complications.
-4. **Dependency Cleanup**: When convenient, address the 3 moderate vulnerabilities in `markdown-it` (logged as technical debt).
+1. **Verify Integration**: Final sanity check on `main` after merge.
+2. **Narrative Bridge**: Resume the **Narrative Bridge** track to orchestrate automatic scene complications.
+3. **Dependency Cleanup**: Address the 3 moderate vulnerabilities in `markdown-it` (logged in `global.md` debt).
 
 ---
 
 📜 Rules: [01-foundation, 03-specification, 04-intelligence]
 🧠 Skills: [ombudsman, snitch, sommelier, gamemaster]
 📚 Context: [GEMINI.md, AGENTS.md, global.md]
-🕰️ Time: 2026-03-23T11:55:00
+🕰️ 2026-03-23T12:15:00

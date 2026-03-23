@@ -94,6 +94,20 @@
 - [x] Phase 4: Synchronization of `01-blueprint.md` workflow.
 - [x] Phase 5: Verification of 166/166 tests.
 
+### [DONE] [008] [Scribbles & Workflow Consolidation]
+
+- [x] Phase 1: Rework `scribbles.md` unimplemented ideas into `sommelier/knowledge/experiment-*.md`.
+- [x] Phase 2: Merge `/01-plan` into the unified `/01-blueprint` Master Router.
+- [x] Phase 3: Synchronize `.agent/` config files (`config.yaml`, `tooling.json`).
+- [x] Phase 4: Final verification and session cleanup.
+
+### [DONE] [009] [Clinic: /03-clean Sanitization Sweep]
+
+- [x] Phase 1: Audit & Diagnosis (Naming and structural checks).
+- [x] Phase 2: Purge (Delete legacy `data` skill).
+- [x] Phase 3: Technical Debt Cleanup (Lint fixes, unit test optimizations).
+- [x] Phase 4: Quality Gate (166/166 passing verify).
+
 ### Completed Tasks
 
 - [x] Context Layering (Milestone 2)
