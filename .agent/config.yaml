@@ -46,11 +46,11 @@ knowledge:
     dir: .agent/archive/
   # 🔬 Lab: Experimental Theories & Speculative Ideas
   lab:
-    lab-resonance: .agent/knowledge/lab/experiment-resonance.md
-    lab-echo: .agent/knowledge/lab/experiment-echo.md
-    lab-oracle: .agent/knowledge/lab/experiment-oracle.md
-    lab-glitch: .agent/knowledge/lab/experiment-glitch.md
-    lab-foundry: .agent/knowledge/lab/experiment-foundry.md
+    lab-resonance: .agent/skills/sommelier/knowledge/experiment-resonance.md
+    lab-echo: .agent/skills/sommelier/knowledge/experiment-echo.md
+    lab-oracle: .agent/skills/sommelier/knowledge/experiment-oracle.md
+    lab-glitch: .agent/skills/sommelier/knowledge/experiment-glitch.md
+    lab-foundry: .agent/skills/sommelier/knowledge/experiment-foundry.md
 # 📝 Workspace (Active Memory)
 workspace:
   tracks: .agent/state/tracks.md
