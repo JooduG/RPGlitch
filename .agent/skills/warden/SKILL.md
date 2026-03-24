@@ -48,9 +48,9 @@ File: `.agent/skills/warden/scripts/janitor.js`
 
 ## 7. Anti-Patterns
 
-| Pattern         | Mitigation                                                                           |
-| :-------------- | :----------------------------------------------------------------------------------- |
-| **Shadow Logic** | Forbidden. All critical logic must be documented in a Sovereign Skill or Rule.       |
+| Pattern             | Mitigation                                                                         |
+| :------------------ | :--------------------------------------------------------------------------------- |
+| **Shadow Logic**    | Forbidden. All critical logic must be documented in a Sovereign Skill or Rule.     |
 | **Silent Failures** | Prohibited. Every tool must return actionable error messages for the A-C-M-Q loop. |
 
 ---

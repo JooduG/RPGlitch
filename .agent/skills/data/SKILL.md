@@ -46,9 +46,9 @@ File: `.agent/skills/data/scripts/supabase-engine.js`
 
 ## 7. Anti-Patterns
 
-| Pattern               | Mitigation                                                                              |
-| :-------------------- | :-------------------------------------------------------------------------------------- |
-| **Local Memory Leaks** | Avoid storing massive state in `localStorage`. Use Dexie for client-side and Supabase. |
+| Pattern                | Mitigation                                                                              |
+| :--------------------- | :-------------------------------------------------------------------------------------- |
+| **Local Memory Leaks** | Avoid storing massive state in `localStorage`. Use Dexie for client-side and Supabase.  |
 | **Hallucinated Lore**  | Always verify facts against the Knowledge Base before committing to a narrative branch. |
 
 ---

@@ -9,13 +9,7 @@ const SKILL_ROOT = path.join(ROOT, ".agent", "skills");
  * Enforces rigid standards across the agent's internal intelligence.
  */
 
-const EXPECTED_SOVEREIGN_SKILLS = [
-  "gatekeeper",
-  "agent-manager",
-  "warden",
-  "simulation",
-  "data",
-];
+const EXPECTED_SOVEREIGN_SKILLS = ["gatekeeper", "agent-manager", "warden", "simulation", "data"];
 
 const auditRules = [
   {
@@ -35,8 +29,7 @@ const auditRules = [
       const hasTable = /\|\s*Pattern\s*\|\s*Mitigation\s*\|/i.test(content);
       return hasHeading && hasTable;
     },
-    message:
-      "Missing '## Anti-Patterns' heading or table with headers '| Pattern | Mitigation |'.",
+    message: "Missing '## Anti-Patterns' heading or table with headers '| Pattern | Mitigation |'.",
   },
   {
     name: "Path Headers",
@@ -49,7 +42,8 @@ const auditRules = [
         if (line.startsWith("```")) {
           if (!insideBlock) {
             insideBlock = true;
-            const isExempt = line.includes("bash") || line.includes("mermaid") || line.includes("yaml");
+            const isExempt =
+              line.includes("bash") || line.includes("mermaid") || line.includes("yaml");
             if (!isExempt) {
               const prevLine = lines[i - 1] || "";
               const prevPrevLine = lines[i - 2] || "";
@@ -87,7 +81,7 @@ function auditSkill(slug) {
 
 function run() {
   const targetSkill = process.argv[2];
-  
+
   if (targetSkill) {
     const { valid, issues } = auditSkill(targetSkill);
     if (!valid) {

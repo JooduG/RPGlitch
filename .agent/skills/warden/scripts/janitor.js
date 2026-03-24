@@ -26,7 +26,7 @@ function scanDir(dir) {
       const content = fs.readFileSync(fullPath, "utf8");
       const lines = content.split("\n");
       lines.forEach((line, index) => {
-        if (line.includes("#TODO-AI") && !line.includes("line.includes(\"#TODO-AI\")")) {
+        if (line.includes("#TODO-AI") && !line.includes('line.includes("#TODO-AI")')) {
           const relPath = path.relative(process.cwd(), fullPath);
           todoItems.push(
             `- [ ] **${relPath}:${index + 1}**: ${line.trim().replace(/^.*#TODO-AI:?\s*/, "")}`,
@@ -46,7 +46,7 @@ try {
     scanDir(SKILLS_DIR);
   }
 
-  const content = `# 📋 Active AI Backlog\n*Last Swept: ${new Date().toISOString()}*\n\n${todoItems.length > 0 ? todoItems.join("\n") : "No AI tasks found."}`;
+  const content = `\n# 📋 Active AI Backlog\n\n*Last Swept: ${new Date().toISOString()}*\n\n${todoItems.length > 0 ? todoItems.join("\n") : "No AI tasks found."}\n`;
 
   if (!fs.existsSync(STATE_DIR)) fs.mkdirSync(STATE_DIR, { recursive: true });
   fs.writeFileSync(path.join(STATE_DIR, "backlog.md"), content);

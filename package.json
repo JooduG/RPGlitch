@@ -4,7 +4,7 @@
     "@google/jules": "^0.1.42",
     "@google/jules-sdk": "^0.2.0",
     "@google/stitch-sdk": "^0.0.3",
-    "@modelcontextprotocol/sdk": "^1.26.0",
+    "@modelcontextprotocol/sdk": "^1.27.1",
     "@nekzus/mcp-server": "^1.16.0",
     "@notionhq/notion-mcp-server": "*",
     "@pinecone-database/mcp": "*",
@@ -27,7 +27,7 @@
     "dexie": "^3.2.4",
     "dompurify": "^3.0.5",
     "dotenv": "^17.3.1",
-    "firecrawl-mcp": "^3.11.0",
+    "firecrawl-mcp": "^3.6.0",
     "ignore": "^7.0.5",
     "mcp-mermaid": "^0.4.1",
     "mcp-sequentialthinking-tools": "^0.0.4",
@@ -47,7 +47,7 @@
     "autoprefixer": "^10.4.24",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-markdownlint": "^0.9.0",
+    "eslint-plugin-markdownlint": "^0.8.1",
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-svelte": "^3.13.1",
     "fake-indexeddb": "^6.2.5",
@@ -82,7 +82,6 @@
     "vitest-browser-svelte": "^2.0.1"
   },
   "name": "joodug-rpglitch",
-  "overrides": {},
   "scripts": {
     "audit": "node .agent/skills/agent-manager/scripts/summarize.js audit:check audit:css audit:security",
     "audit:check": "node .agent/skills/warden/scripts/audit.js",
@@ -115,5 +114,8 @@
     "verify": "node .agent/skills/agent-manager/scripts/summarize.js audit lint test"
   },
   "type": "module",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "overrides": {
+    "@modelcontextprotocol/sdk": "^1.27.1"
+  }
 }

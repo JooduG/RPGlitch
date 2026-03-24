@@ -128,13 +128,18 @@ function createSkill(name, type = "task", description = "New agentic skill.") {
  * DEPRECATED: Use structural-audit.js for definitive checks.
  */
 function auditSkill(name) {
-  const result = spawnSync("node", [path.join(".agent/skills/agent-manager/scripts/structural-audit.js"), name], { encoding: "utf8" });
+  const result = spawnSync(
+    "node",
+    [path.join(".agent/skills/agent-manager/scripts/structural-audit.js"), name],
+    { encoding: "utf8" },
+  );
   if (result.status === 0) return { valid: true, issues: [] };
-  
-  const issues = result.stdout.split("\n")
-    .filter(line => line.trim().startsWith("-"))
-    .map(line => line.trim().substring(2));
-  
+
+  const issues = result.stdout
+    .split("\n")
+    .filter((line) => line.trim().startsWith("-"))
+    .map((line) => line.trim().substring(2));
+
   return { valid: false, issues };
 }
 

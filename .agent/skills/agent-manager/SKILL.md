@@ -60,10 +60,10 @@ File: `.agent/skills/agent-manager/scripts/structural-audit.js`
 
 ## 7. Anti-Patterns
 
-| Pattern             | Mitigation                                                                              |
-| :------------------ | :-------------------------------------------------------------------------------------- |
-| **Orphaned Skills** | Every folder in `.agent/skills/` must have a valid `SKILL.md` and be registered.     |
-| **Rule Drift**      | Changes to core rules must be reconciled across both `AGENTS.md` and `GEMINI.md`.       |
+| Pattern             | Mitigation                                                                        |
+| :------------------ | :-------------------------------------------------------------------------------- |
+| **Orphaned Skills** | Every folder in `.agent/skills/` must have a valid `SKILL.md` and be registered.  |
+| **Rule Drift**      | Changes to core rules must be reconciled across both `AGENTS.md` and `GEMINI.md`. |
 
 ---
 
