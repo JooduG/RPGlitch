@@ -3,6 +3,7 @@
 - **Sovereign Rebranding** (Done): Successfully migrated the entire Sovereign Skill hierarchy to professional nomenclature: **Data**, **Simulation**, **Gatekeeper**, **Warden**, and **Agent-Manager**. Synchronized all `SKILL.md` files, `package.json` scripts, and MCP configurations. [Branch: feat/sovereign-rebrand]
 - **Clinic Sanitization (/03-clean)** (Done): Resolved all remaining technical debt and documentation lints. Identified and repaired structural corruption in `src/index.html` (duplicate ID and tag balancing). Achieved 100% audit purity across all 12 skill domains. [Branch: chore]
 - **Narrative Bridge**: Initiated registration and architectural planning for autonomous scene complications.
+- **Configuration Alignment (`config.yaml`)** (Done): Synchronized the central agent configuration with the post-rebranding filesystem. All 12 skills, 5 rules, and 10 workflows are now accurately mapped and verified. Commented out legacy knowledge paths. [Branch: chore]
 - **UI Audit & Polish**: Standardized Chalk Regime tokens across atomic and organism layers. Implemented `kineticScroll` with momentum decay. [Branch: feat/ui-audit-polish]
 - **Verifying System**: `npm run verify` passed at 100% purity. `DynamicsEngine` logic confirmed clean.
 

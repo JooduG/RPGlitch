@@ -10,6 +10,7 @@
 3. **Audit Purity**: The system is resonating at 100% purity (`npm run audit` passes).
 4. **HTML Repair**: `src/index.html` has been repaired (removed duplicate `svelte-root` ID and balanced tags).
 5. **Config Sync**: `mcp_config.json`, `mcp.json`, and `package.json` are fully synchronized with the new nomenclature.
+6. **Central Configuration Alignment**: `.agent/config.yaml` is now 100% resonant with the post-rebrand filesystem (Rules, Skills, Workflows).
 
 ## 🛠️ Next Steps
 

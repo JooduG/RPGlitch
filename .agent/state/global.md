@@ -73,6 +73,7 @@
 - [x] **Intelligence Kernel** (Dynamics Engine alignment).
 - [x] **Semantic UI Refactor** (Glassmorphism Purge).
 - [x] **Infrastructure Wiring** (NTFS junctions to .gemini/).
+- [x] **Configuration Alignment** (Aligned `.agent/config.yaml` with Sovereign Rebranding).
 
 ## Known Quirks / Technical Debt
 
