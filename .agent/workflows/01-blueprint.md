@@ -39,9 +39,9 @@ Determine the cognitive load of the request to route it appropriately.
 
 1. **Assign C-Level** (C1 to C6).
 2. If **C1 (Reflex)**: (e.g., Typos, CSS tweaks, hygiene).
-    - **Skip Cortex planning. Proceed directly to [/02-build](../workflows/02-build.md)**.
+   - **Skip Cortex planning. Proceed directly to [/02-build](../workflows/02-build.md)**.
 3. If **C2+ (Cortex)**:
-    - **Proceed to Phase 3**. (If C3+, prepare to inject the required Waldzell metacognitive tools).
+   - **Proceed to Phase 3**. (If C3+, prepare to inject the required Waldzell metacognitive tools).
 
 ### Phase 3: The Workshop Forge & Warden (Blueprint & Stress Test)
 
@@ -50,7 +50,7 @@ The idea must be categorized, expanded, and then ruthlessly stress-tested.
 1. **Invoke the Sommelier**: **[[Invoke: sommelier]](../skills/sommelier/SKILL.md)**
    - Categorize into the Narrative Triad (Spec, State, or Echo).
    - **Context Trigger**: If the task involves UI (`.svelte` files, styling, layout), call `stitch` to synthesize a design spec. [[Invoke: stitch]](../skills/stitch/SKILL.md)
-   - *(Optional)* Invoke `data` for vector history.
+   - _(Optional)_ Invoke `data` for vector history.
 2. **Invoke the Snitch**: **[[Invoke: snitch]](../skills/snitch/SKILL.md)**
    - Stress-test the generated blueprint against Rule 03 (Svelte Runes, Perchance Two-Panel Paradigm).
    - Verify against Prime Directives (P1 User Agency, P2 Internal Consistency).

@@ -1,24 +1,25 @@
 # Baton: Next Session Preamble
 
-> **Mission Status**: Metadata Alignment, Workflow Consolidation, & Config Sync (Complete)
+> **Mission Status**: Sovereign Rebranding & Sanitization Complete
 > **Active Branch**: `chore`
 
 ## ✅ Accomplishments
 
-1. **Metadata & Rules**: `GEMINI.md` and `AGENTS.md` are now authoritative for Svelte 5 Sovereignty and the A-C-M-Q pipeline.
-2. **Workflows**: `/01-plan` is absorbed into `/01-blueprint`. The Master Router is the single entry point for planning.
-3. **Experiments**: `scribbles.md` is purged. Ideas migrated to `sommelier/knowledge/experiment-*.md`.
-4. **Config**: `config.yaml` and `tooling.json` are synchronized with Sovereign skills.
+1. **Sovereign Rebranding**: The engine's intelligence hierarchy is now formally codified as **Data**, **Simulation**, **Gatekeeper**, **Warden**, and **Agent-Manager**.
+2. **Structural Integrity**: All Sovereign Skill directories in `.agent/skills/` have been physically renamed and updated with new personas and mandates.
+3. **Audit Purity**: The system is resonating at 100% purity (`npm run audit` passes).
+4. **HTML Repair**: `src/index.html` has been repaired (removed duplicate `svelte-root` ID and balanced tags).
+5. **Config Sync**: `mcp_config.json`, `mcp.json`, and `package.json` are fully synchronized with the new nomenclature.
 
 ## 🛠️ Next Steps
 
-1. **Verify Integration**: Final sanity check on `main` after merge.
-2. **Narrative Bridge**: Resume the **Narrative Bridge** track to orchestrate automatic scene complications.
-3. **Dependency Cleanup**: Address the 3 moderate vulnerabilities in `markdown-it` (logged in `global.md` debt).
+1. **Narrative Bridge**: Resume development on the **Narrative Bridge** track to orchestrate automatic scene complications between the `DynamicsEngine` and the AI Storyteller.
+2. **Character Cycling**: Implement the seamless perspective swapping logic in the Simulation Layer.
+3. **Sensory Bridges**: Start mapping material textures and environmental glitches to the diegetic UI.
 
 ---
 
-📜 Rules: [01-foundation, 03-specification, 04-intelligence]
-🧠 Skills: [ombudsman, snitch, sommelier, gamemaster]
-📚 Context: [GEMINI.md, AGENTS.md, global.md]
-🕰️ 2026-03-23T12:15:00
+📜 Rules: [01-foundation, 03-infrastructure, 04-intelligence, 05-compliance]
+🧠 Skills: [data, simulation, gatekeeper, warden, agent-manager]
+📚 Context: [GEMINI.md, AGENTS.md, global.md, walkthrough.md]
+🕰️ 2026-03-24T02:55:00

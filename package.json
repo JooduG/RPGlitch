@@ -1,7 +1,4 @@
 {
-  "name": "joodug-rpglitch",
-  "version": "1.0.0",
-  "type": "module",
   "dependencies": {
     "@_davideast/stitch-mcp": "^0.0.6",
     "@google/jules": "^0.1.42",
@@ -84,37 +81,39 @@
     "vitest": "^4.0.15",
     "vitest-browser-svelte": "^2.0.1"
   },
-  "overrides": {
-    "@modelcontextprotocol/sdk": "^1.26.0"
-  },
+  "name": "joodug-rpglitch",
+  "overrides": {},
   "scripts": {
-    "audit": "node .agent/skills/ombudsman/scripts/summarize.js audit:check audit:css audit:security audit:svelte",
-    "audit:check": "svelte-check --tsconfig ./jsconfig.json",
+    "audit": "node .agent/skills/agent-manager/scripts/summarize.js audit:check audit:css audit:security",
+    "audit:check": "node .agent/skills/warden/scripts/audit.js",
     "audit:css": "node .agent/skills/css/scripts/style_audit.js",
-    "audit:security": "node .agent/skills/snitch/scripts/security-scan.js",
+    "audit:security": "node .agent/skills/warden/scripts/security-scan.js",
     "audit:svelte": "node .agent/skills/svelte/scripts/audit_legacy.js",
     "build": "vite build",
-    "deploy": "npm run verify && npm run build && npm run deploy:perchance",
+    "check": "npm run audit:check && npm run lint && npm run test",
+    "clean": "node .agent/skills/agent-manager/scripts/summarize.js audit:security lint janitor",
     "deploy:perchance": "node .agent/skills/devops/scripts/deploy_perchance.js",
     "dev": "vite",
     "format": "prettier --write .",
-    "lint": "node .agent/skills/ombudsman/scripts/summarize.js lint:js lint:css lint:md",
+    "janitor": "node .agent/skills/warden/scripts/janitor.js",
+    "lint": "node .agent/skills/agent-manager/scripts/summarize.js lint:js lint:css lint:md",
     "lint:css": "stylelint \"src/**/*.{css,svelte,scss}\"",
     "lint:css:fix": "stylelint \"src/**/*.{css,svelte,scss}\" --fix",
     "lint:fix": "npm-run-all lint:js:fix lint:css:fix lint:md:fix",
-    "lint:js": "eslint src --cache",
-    "lint:js:fix": "eslint src --fix",
+    "lint:js": "eslint .",
+    "lint:js:fix": "eslint . --fix",
     "lint:md": "markdownlint-cli2 \"**/*.{md,mdx}\" \"!node_modules\" \"!.agent/archive\" \"!.agent/state\"",
     "lint:md:fix": "markdownlint-cli2 --fix \"**/*.{md,mdx}\" \"!node_modules\" \"!.agent/archive\" \"!.agent/state\"",
     "preview": "vite preview --port 8080",
     "scaffold:component": "node .agent/skills/svelte/scripts/scaffold_component.js",
-    "scaffold:skill": "node .agent/skills/ombudsman/scripts/scaffold-skill.js",
-    "janitor": "node .agent/skills/snitch/scripts/janitor.js",
-    "sync": "node .agent/skills/ombudsman/scripts/sync.js",
+    "scaffold:skill": "node .agent/skills/agent-manager/scripts/scaffold-skill.js",
+    "sync": "node .agent/skills/agent-manager/scripts/sync.js",
     "test": "npm run test:unit && npm run audit:security",
     "test:e2e": "playwright test",
     "test:ui": "vitest --ui",
     "test:unit": "vitest run",
-    "verify": "node .agent/skills/ombudsman/scripts/summarize.js audit lint test"
-  }
+    "verify": "node .agent/skills/agent-manager/scripts/summarize.js audit lint test"
+  },
+  "type": "module",
+  "version": "1.0.0"
 }

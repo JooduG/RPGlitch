@@ -22,10 +22,10 @@ allowed-tools:
 
 ## 2. Anti-Patterns
 
-| Pattern                 | Mitigation                                                                                          |
-| :---------------------- | :-------------------------------------------------------------------------------------------------- |
-| **Tailwind in Spec**    | Forbidden. Convert Tailwind utility names into descriptive semantic language ("pill-shaped").       |
-| **Non-Chalk Colors**    | Forbidden. Always map analyzed aesthetics to the nearest `var(--color-chalk-...)` equivalent token. |
+| Pattern              | Mitigation                                                                                          |
+| :------------------- | :-------------------------------------------------------------------------------------------------- |
+| **Tailwind in Spec** | Forbidden. Convert Tailwind utility names into descriptive semantic language ("pill-shaped").       |
+| **Non-Chalk Colors** | Forbidden. Always map analyzed aesthetics to the nearest `var(--color-chalk-...)` equivalent token. |
 
 ## 3. Workflows
 

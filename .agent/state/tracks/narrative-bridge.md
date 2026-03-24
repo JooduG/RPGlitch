@@ -81,7 +81,7 @@ User chooses:
 `DynamicsEngine._get_baselines(entity)` reads `entity.dynamics_baseline`. At story load:
 
 ```js
-active_ai.dynamics_baseline = { ...story.entity_snapshots.ai.dynamics }
+active_ai.dynamics_baseline = { ...story.entity_snapshots.ai.dynamics };
 ```
 
 Falls back to `50` per axis if no snapshot exists. `_get_baselines` itself requires no changes.

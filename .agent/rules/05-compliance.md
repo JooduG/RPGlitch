@@ -60,14 +60,11 @@ The **Scholar Gate** dictates that no task track gets a `[x]` without verified t
 
 ## 4. Structural Hygiene & Triage Standards
 
-Code and communication must be chemically pure. We adhere to the **Boy Scout Rule**: Leave the architecture cleaner than you found it.
-
-### AI Slop Audit & Naming Regimes
+Code and communication must be chemically pure. We adhere to the **Boy Scout Rule**: Leave the architecI Slop Audit & Naming Regimes
 
 - **Vibe & Tone Hardening**:
-    - NEVER use flowery AI tropes: "delve", "tapestry", "testament", "leverage" (unless referring to physics/finance).
-    - NEVER frame updates narratively ("I have added X"). Frame them as terminal states.
-    - Avoid em-dashes (`—`); use precise, atomic sentences.
+- NEVER use flowery AI tropes:"testament", "leverage" (unless referring to physinarratively ("I have added X")). Frame them as terminal states.
+- Avoid em-dashes (`—`); use precise, atomic sentences.
 - **Architectural Limits**: No single context file should exceed 500 lines or mixed responsibilities. If it does, refactoring is mandatory.
 - **Naming Regimes**: Enforce `PascalCase` for Blueprints (Classes/Components) and `camelCase` for variables/functions. Booleans must ask a question (`isActive`, `hasToken`).
 

@@ -5,7 +5,7 @@ import fs from "fs/promises";
 import ignore from "ignore";
 import path from "path";
 /**
- * 🧠 Memory Core: Research & Ingestion Engine
+ * 📚 Librarian Core: Lore & Memory Engine
  * -------------------------------------------------------------------------
  * Handles Vector I/O, Embedding Generation, Pruning, and File Parsing.
  * -------------------------------------------------------------------------
@@ -24,9 +24,9 @@ function getPC() {
   return pc;
 }
 /**
- * 🔍 Search across namespaces
+ * 🔍 Query the Knowledge Base (Semantic Search)
  */
-export async function searchScholar({
+export async function queryKnowledgeBase({
   query,
   namespaces = ["knowledge-base.meta", "knowledge-base.external", "knowledge-base.src"],
   topK = 5,
@@ -60,9 +60,9 @@ export async function searchScholar({
     .slice(0, topK * 2);
 }
 /**
- * 📥 Ingest files into Pinecone with Prune-on-Write
+ * 📥 Write to Knowledge Base (Ingestion with Prune-on-Write)
  */
-export async function ingestScholar({
+export async function writeToKnowledgeBase({
   paths,
   namespace = "knowledge-base.meta",
   root = process.cwd(),
@@ -175,7 +175,32 @@ export async function ingestScholar({
   console.log(`\n✨ Ingestion complete.`);
 }
 
-export const ServerEngine = {
-  searchScholar,
-  ingestScholar,
+export async function describeIndexStats() {
+  const pc = getPC();
+  const index = pc.index(INDEX_NAME);
+  const stats = await index.describeIndexStats();
+
+  const namespaces = stats.namespaces || {};
+  const lines = [
+    `Index: ${INDEX_NAME}`,
+    `Dimensions: ${stats.dimension}`,
+    `Total Vectors: ${stats.totalRecordCount}`,
+    "",
+  ];
+
+  for (const [ns, info] of Object.entries(namespaces)) {
+    lines.push(`  ${ns}: ${info.recordCount} vectors`);
+  }
+
+  if (Object.keys(namespaces).length === 0) {
+    lines.push("  (no namespaces found)");
+  }
+
+  return lines.join("\n");
+}
+
+export const PineconeEngine = {
+  queryKnowledgeBase,
+  writeToKnowledgeBase,
+  describeIndexStats,
 };

@@ -35,11 +35,11 @@ A **Round** increments **only when the User Persona submits a message**.
 
 ### B. The Turn (Micro-Time)
 
-| Turn Type | Responsibility | UI State |
-| :--- | :--- | :--- |
-| **System** | Physics, Sanitization, State Mutation. | **Locked** |
-| **AI** | Processing state and streaming prose. | **Unlocked** |
-| **User** | Biological idle; waiting for input. | **Unlocked** |
+| Turn Type  | Responsibility                         | UI State     |
+| :--------- | :------------------------------------- | :----------- |
+| **System** | Physics, Sanitization, State Mutation. | **Locked**   |
+| **AI**     | Processing state and streaming prose.  | **Unlocked** |
+| **User**   | Biological idle; waiting for input.    | **Unlocked** |
 
 ---
 

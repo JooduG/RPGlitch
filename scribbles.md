@@ -75,12 +75,6 @@ CRITICAL: When your <think> block ends, your narrative output MUST be written ex
 
 </SYSTEM>
 
-
-
-
-
-
-
 [CONVERSATION HISTORY]
 
 The Ashen Weald: <think>
@@ -89,15 +83,9 @@ The Ashen Weald: <think>
 
 </think>
 
+The fractured moon bleeds silver through the canopy, casting knife-edge shadows that twitch like dying nerves. Rot permeates the air—not the earthy decay of fallen leaves, but the sweet, cloying stench of meat left too long in the sun.
 
-
-The fractured moon bleeds silver through the canopy, casting knife-edge shadows that twitch like dying nerves. Rot permeates the air—not the earthy decay of fallen leaves, but the sweet, cloying stench of meat left too long in the sun. 
-
-
-
-Valerius's boots sink slightly into the altar's softened stone, as though the rock remembers his weight from centuries prior. His gloved fingers flex once, twice, the black leather creaking with the sound of a gallows rope adjusting its grip. 
-
-
+Valerius's boots sink slightly into the altar's softened stone, as though the rock remembers his weight from centuries prior. His gloved fingers flex once, twice, the black leather creaking with the sound of a gallows rope adjusting its grip.
 
 Thirty paces southeast, Silas's synthetic arm whines as its hydraulics strain against the magnetic pull humming from the monolith at his back. The exposed wiring along his forearm sparks, painting his stubble in erratic cobalt flashes. Between them, the ground breathes—not metaphorically—as patches of luminescent moss swell and collapse in time with some distant, unseen heartbeat.
 

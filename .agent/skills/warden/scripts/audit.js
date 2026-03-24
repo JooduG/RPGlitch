@@ -2,10 +2,10 @@ import { execSync } from "child_process";
 import path from "path";
 
 const ROOT_DIR = process.cwd();
-const SCRIPTS_DIR = path.join(ROOT_DIR, ".agent/skills/snitch/scripts");
+const SCRIPTS_DIR = path.join(ROOT_DIR, ".agent/skills/warden/scripts");
 
 console.log("\n================================================================================");
-console.log("🕵️  THE SNITCH: SYSTEM AUDIT INITIATED");
+console.log("🛡️  THE WARDEN: SYSTEM AUDIT INITIATED");
 console.log("================================================================================\n");
 
 function run(label, command, ignoreError = false) {
@@ -40,8 +40,8 @@ try {
   process.exit(1);
 }
 
-// 4. Intelligence Structure Scan (Ombudsman)
-run("STRUCTURAL-AUDIT", `node .agent/skills/ombudsman/scripts/structural-audit.js`);
+// 4. Intelligence Structure Scan (Agent-Manager)
+run("STRUCTURAL-AUDIT", `node .agent/skills/agent-manager/scripts/structural-audit.js`);
 
 console.log("\n================================================================================");
 console.log("🏁 AUDIT COMPLETE: System is Resonating at 100% Purity.");

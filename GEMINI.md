@@ -44,7 +44,7 @@ The project targets **Perchance** as its primary deployment platform, requiring 
 
 - **Mandate:** Respect the narrative hierarchy: **L1_ABSOLUTE (User Agency) > L2_CRITICAL (Character/Temporal Truth) > L3_HIGH (Plot/Sensory) > L4_MODERATE (Style)**.
 - **Forbidden:** You must **never** utilize narrator-voice, and you must **never** speak, think, or act on behalf of the user. Maintain strict third-person limited integrity for the entities.
-- **Diegesis:** Express statistical signals (e.g., stress, entropy, intensity) diegetically through body language or internal logic within `<think>` blocks, never as raw numbers in the narrative output. Use the **Gamemaster** skill to bridge mechanics and prose.
+- **Diegesis:** Express statistical signals (e.g., stress, entropy, intensity) diegetically through body language or internal logic within `<think>` blocks, never as raw numbers in the narrative output. Use the **Simulation** skill to bridge mechanics and prose.
 
 ### 4. The Handoff Law (Paperwork Routine)
 
@@ -54,11 +54,11 @@ The project targets **Perchance** as its primary deployment platform, requiring 
 
 ## 📂 Directory Map
 
-- `.agent/`: The Sovereign Core (Intelligence, Rules, Automation).
-    - `ombudsman/`: Governance & Skill Lifecycle.
-    - `snitch/`: Adversarial Audit & Security.
-    - `sommelier/`: Intent Decoding & Feature Tasting.
-    - `gamemaster/`: Simulation Strategy & Narrative Bridges.
+- `.agen`The Sovereign Core (Intelligence, R - `agent-manager/`: Governance & Skill Lifecycle.
+  - `da/`: Persistence (Dexie/Pinecone) & Entity Repositories.
+  - `gatekeeper/`: Intent Decoding & Feature Incubaon.
+    - `simulation/`: Narrative Bridges & Game Logic.
+    - `warden/`: Adversarial Audit & Security.
 - `src/core/`: Logic & Round Orchestration (DynamicsEngine, Intelligence Kernel).
 - `src/data/`: Persistence (Dexie) & Entity Repositories.
 - `src/state/`: Reactive Runes (`$state`).

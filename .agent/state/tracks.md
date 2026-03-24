@@ -1,21 +1,17 @@
 # RPGlitch: Session Tracks
 
-- **Clinic Hardening** (Done): Fixed broken `package.json` scripts for security and svelte audits. Verified environment health with 166/166 passing tests. Standardized `snitch` and `svelte` audit paths. [Branch: chore]
-- **Clinic Sanitization** (Done): Successfully migrated the entire Intelligence layer (`llm_service`, `vector_engine`, `prompt_builder`, `gamemaster`) to `snake_case` structural purity. Repaired 22 test files to achieve a 162/162 green pass. Synchronized `.agent/rules/` and documentation. [Branch: chore (pushed, awaiting manual PR)]
+- **Sovereign Rebranding** (Done): Successfully migrated the entire Sovereign Skill hierarchy to professional nomenclature: **Data**, **Simulation**, **Gatekeeper**, **Warden**, and **Agent-Manager**. Synchronized all `SKILL.md` files, `package.json` scripts, and MCP configurations. [Branch: feat/sovereign-rebrand]
+- **Clinic Sanitization (/03-clean)** (Done): Resolved all remaining technical debt and documentation lints. Identified and repaired structural corruption in `src/index.html` (duplicate ID and tag balancing). Achieved 100% audit purity across all 12 skill domains. [Branch: chore]
 - **Narrative Bridge**: Initiated registration and architectural planning for autonomous scene complications.
 - **UI Audit & Polish**: Standardized Chalk Regime tokens across atomic and organism layers. Implemented `kineticScroll` with momentum decay. [Branch: feat/ui-audit-polish]
-- **Verifying System**: `npm run verify` passed all 176 tests. `DynamicsEngine` logic confirmed clean of Bayesian legacy. Full 56-test suite for intelligence core is passing.
-- **Sommelier Skill**: Scaffolded the "Feature Taster" Sovereign (Phase 2). Consolidate Vibe Decoder and Workshop Forge into a single intent-sampling domain.
-- **Agent Manager Skill**: Initializing scoping for meta-optimization of the .agent/ core.
-- **Snitch Skill** (Done): Formalized the "Warden" as the **Snitch**. Consolidated `quality-assurance` and `naming-analyzer` into a unified Adversarial Logic Sentry. Implemented **Architectural Heresy** detection (Svelte 4/Chalk Regime) and a single-entry `audit.js` orchestrator. Total 162/162 unit tests pass with zero security/hygiene violations.
-- **Warden Skill**: [DELETED - Merged into Snitch]
-- **Gamemaster Skill** (Done): Formalized the Simulation Strategist. Implemented the **Mechanical Gate** in `intelligence-kernel.js` to translate raw physics (Stress, Entropy) into narrative bridges. Verified state-machine transitions with `gamemaster.test.js`. 166/166 global tests pass.
-- **Naming Refactor (kebab-case)** (Done): Successfully refactored the entire `src/` directory to strictly adhere to Rule 03 naming standards. Renamed 50+ files (logic/tests) to kebab-case while keeping Svelte components PascalCase. All imports verified. 176/176 tests passing.
-- **Standards & Deployment** (Done): Standardised Intelligence Core and State layers to `snake_case`. Fixed CSS deprecations in `StoryboardCard.svelte`. Successfully deployed monolithic production build (382KB) to Perchance. 176/176 tests passing.
-- **Metadata Alignment & Workflow Merge** (Done): Synchronized `GEMINI.md` and `AGENTS.md` with the Sovereign Skill hierarchy and A-C-M-Q pipeline. Merged `/01-plan` into `/01-blueprint`. Extracted `scribbles.md` into `sommelier/knowledge/experiment-*.md`. Updated `.agent/config.yaml` and `.agent/tooling.json`. All 166/166 tests pass. [Branch: chore]
-- **Clinic Sanitization (/03-clean)** (Done): Purged redundant `data` skill. Optimized unit test execution (`vitest run`). Resolved all remaining linting warnings in the intelligence core. Final verification suite passed with green status. [Branch: chore]
-- **Sovereign Wiring & Symlink Repair (/04-review)** (Done): Audited and wired ALL maintenance scripts. Migrated the repository's `.agent/` subfolders to the global `.gemini/antigravity/` skeleton and established 6 NTFS junctions for full persistent state mirroring. [Branch: chore]
+- **Verifying System**: `npm run verify` passed at 100% purity. `DynamicsEngine` logic confirmed clean.
 
 ## Archive
 
-- **Logic Purge Protocol**: Purged legacy Bayesian suspicions from `DynamicsEngine.js`.
+- **Librarian Consolidation**: [DELETED - Renamed to Data]
+- **Auditor Implementation**: [DELETED - Renamed to Warden]
+- **Gamemaster Implementation**: [DELETED - Renamed to Simulation]
+- **Architect Scoping**: [DELETED - Renamed to Agent-Manager]
+- **Curator Rebrand**: [DELETED - Renamed to Gatekeeper]
+- **Naming Refactor (kebab-case)**: Renamed 50+ files to kebab-case while keeping Svelte components PascalCase.
+- **Standards & Deployment**: Successfully deployed monolithic production build to Perchance.
