@@ -38,7 +38,7 @@
     "!**/scribbles/**",
     "!**/.playwright-auth/**"
   ],
-  "gitignore": ["!**/RPGlitch-left-panel.txt", "**/.eslintcache"],
+  "gitignore": ["!**/RPGlitch-left-panel.txt", "**/.eslintcache", "**/mcp.json", "**/mcp_config.json"],
   "linters": {
     "eslint": [],
     "htmlhint": [],

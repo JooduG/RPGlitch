@@ -21,7 +21,12 @@ We bridge creative prose and mechanical truth ree layers:
 
 ### The Round
 
-A **Round** is the macro-state. It increments only when t message payload. - **The Absolute Interrupt**: Human input finalizes births the next one. - **Temporal Tracking**: Use the round integer to track th linear progression. - **The State (Live)**: Svelte 5 Reactive Runes mirroring the world's p psychological reality. - **The Echo (History)**: Persistent logs (Dexie.js / Pinecone) that provide context and weight to every decision.
+A **Round** is the macro-state. It increments only when t message payload.
+
+- **The Absolute Interrupt**: Human input finalizes births the next one.
+- **Temporal Tracking**: Use the round integer to track th linear progression.
+- **The State (Live)**: Svelte 5 Reactive Runes mirroring the world's p psychological reality.
+- **The Echo (History)**: Persistent logs (Dexie.js / Pinecone) that provide context and weight to every decision.
 
 ---
 

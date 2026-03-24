@@ -54,11 +54,12 @@ The project targets **Perchance** as its primary deployment platform, requiring 
 
 ## 📂 Directory Map
 
-- `.agen`The Sovereign Core (Intelligence, R - `agent-manager/`: Governance & Skill Lifecycle.
-  - `da/`: Persistence (Dexie/Pinecone) & Entity Repositories.
-  - `gatekeeper/`: Intent Decoding & Feature Incubaon.
-    - `simulation/`: Narrative Bridges & Game Logic.
-    - `warden/`: Adversarial Audit & Security.
+- `.agent/`: The Sovereign Core (Intelligence)
+- `agent-manager/`: Governance & Skill Lifecycle.
+- `da/`: Persistence (Dexie/Pinecone) & Entity Repositories.
+- `gatekeeper/`: Intent Decoding & Feature Incubaon.
+- `simulation/`: Narrative Bridges & Game Logic.
+- `warden/`: Adversarial Audit & Security.
 - `src/core/`: Logic & Round Orchestration (DynamicsEngine, Intelligence Kernel).
 - `src/data/`: Persistence (Dexie) & Entity Repositories.
 - `src/state/`: Reactive Runes (`$state`).
