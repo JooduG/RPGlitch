@@ -36,14 +36,14 @@ Before a single line of code is evaluated, assess the input intent. If the input
 
 **Golden Rule:** Never waste Cortex (Slow/Architect) cycles on Reflex (Fast/Intern) tasks. Never trust Reflex for Cortex tasks.
 
-| Level  | Mode             | Trigger                             | Protocol / Required Tooling         |
-| :----- | :--------------  | :---------------------------------- | :---------------------------------- |
-| **C1** | **Reflex**       | Typos, CSS tweaks, hygiene.         | Direct Execution. _No extra tools._ |
-| **C2** | **Planning**     | Features, Refactors, Svelte 5.      | `mcp-sequentialthinking-tools`      |
-| **C3** | **Metacognition**| Stuck/Looping or Confidence < 70%.  | `waldzell-metacognitive-monitoring` |
-| **C4** | **Reframing**    | "Impossible" bugs, flawed approach. | `waldzell-clear-thought`            |
-| **C5** | **Decision**     | Architecture conflicts.             | `waldzell-decision-framework`       |
-| **C6** | **Science**      | Unknown unknowns.                   | `waldzell-scientific-method`        |
+| Level  | Mode              | Trigger                             | Protocol / Required Tooling         |
+| :----- | :---------------- | :---------------------------------- | :---------------------------------- |
+| **C1** | **Reflex**        | Typos, CSS tweaks, hygiene.         | Direct Execution. _No extra tools._ |
+| **C2** | **Planning**      | Features, Refactors, Svelte 5.      | `mcp-sequentialthinking-tools`      |
+| **C3** | **Metacognition** | Stuck/Looping or Confidence < 70%.  | `waldzell-metacognitive-monitoring` |
+| **C4** | **Reframing**     | "Impossible" bugs, flawed approach. | `waldzell-clear-thought`            |
+| **C5** | **Decision**      | Architecture conflicts.             | `waldzell-decision-framework`       |
+| **C6** | **Science**       | Unknown unknowns.                   | `waldzell-scientific-method`        |
 
 #### The Cognitive Sub-Routines (Loop Breakers)
 

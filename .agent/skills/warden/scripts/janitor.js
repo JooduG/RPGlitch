@@ -21,10 +21,12 @@ function scanDir(dir) {
     if (stat.isDirectory()) {
       scanDir(fullPath);
     } else if (stat.isFile() && /\.(js|ts|svelte|md|txt)$/.test(item)) {
+      if (item === "janitor.js") return; // Skip self
+
       const content = fs.readFileSync(fullPath, "utf8");
       const lines = content.split("\n");
       lines.forEach((line, index) => {
-        if (line.includes("#TODO-AI")) {
+        if (line.includes("#TODO-AI") && !line.includes("line.includes(\"#TODO-AI\")")) {
           const relPath = path.relative(process.cwd(), fullPath);
           todoItems.push(
             `- [ ] **${relPath}:${index + 1}**: ${line.trim().replace(/^.*#TODO-AI:?\s*/, "")}`,
@@ -38,6 +40,10 @@ function scanDir(dir) {
 try {
   if (fs.existsSync(SRC_DIR)) {
     scanDir(SRC_DIR);
+  }
+  const SKILLS_DIR = path.join(process.cwd(), ".agent", "skills");
+  if (fs.existsSync(SKILLS_DIR)) {
+    scanDir(SKILLS_DIR);
   }
 
   const content = `# 📋 Active AI Backlog\n*Last Swept: ${new Date().toISOString()}*\n\n${todoItems.length > 0 ? todoItems.join("\n") : "No AI tasks found."}`;

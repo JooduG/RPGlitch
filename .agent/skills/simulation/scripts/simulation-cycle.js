@@ -20,7 +20,7 @@ export const SimulationCycle = {
    * @param {object} entities - Current entities in play.
    */
   async tick(input, entities) {
-    console.log("🕹️ [GM] Tick Initiated: Round", app.runtime.round);
+    console.log("🕹️ [SIM] Tick Initiated: Round", app.runtime.round);
 
     // 1. SYSTEM TURN: Physics & Mutations
     const payload = {
@@ -59,7 +59,9 @@ export const SimulationCycle = {
 
     // AI Somatics
     if (state.ai?.dynamics?.intensity > 85) {
-      bridges.push("CONDITION: The AI Character is hyper-adrenalized. Use short, sharp, sensory-heavy sentences.");
+      bridges.push(
+        "CONDITION: The AI Character is hyper-adrenalized. Use short, sharp, sensory-heavy sentences.",
+      );
     }
 
     return bridges;

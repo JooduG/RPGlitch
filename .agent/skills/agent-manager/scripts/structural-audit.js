@@ -9,6 +9,14 @@ const SKILL_ROOT = path.join(ROOT, ".agent", "skills");
  * Enforces rigid standards across the agent's internal intelligence.
  */
 
+const EXPECTED_SOVEREIGN_SKILLS = [
+  "gatekeeper",
+  "agent-manager",
+  "warden",
+  "simulation",
+  "data",
+];
+
 const auditRules = [
   {
     name: "Frontmatter Integrity",
@@ -41,7 +49,7 @@ const auditRules = [
         if (line.startsWith("```")) {
           if (!insideBlock) {
             insideBlock = true;
-            const isExempt = line.includes("bash") || line.includes("mermaid");
+            const isExempt = line.includes("bash") || line.includes("mermaid") || line.includes("yaml");
             if (!isExempt) {
               const prevLine = lines[i - 1] || "";
               const prevPrevLine = lines[i - 2] || "";
@@ -57,7 +65,7 @@ const auditRules = [
       }
       return pass;
     },
-    message: "Code blocks (except bash/mermaid) MUST be preceded by 'File: <path>'.",
+    message: "Code blocks (except bash/mermaid/yaml) MUST be preceded by 'File: <path>'.",
   },
 ];
 
@@ -98,7 +106,7 @@ function run() {
 
   const skills = fs
     .readdirSync(SKILL_ROOT, { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory())
+    .filter((dirent) => dirent.isDirectory() || dirent.isSymbolicLink())
     .map((dirent) => dirent.name);
 
   let failCount = 0;

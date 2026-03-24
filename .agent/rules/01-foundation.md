@@ -15,19 +15,13 @@ description: The Core DNA. Vision, UVP, Strategic Objectives, and The Context Pr
 
 ### The Triad Protocol
 
-We bridge creative prose and mechanical truth through three layers:
+We bridge creative prose and mechanical truth ree layers:
 
-1.  **The Spec (Blueprint)**: Deep lore, taxonomies, and character archetypes.
+1. **The Spec (Blueprint)**: Deep lore, taxonomies, and character archetypes.
 
 ### The Round
 
-A **Round** is the macro-state. It increments only when the user submits a new message payload.
-
--   **The Absolute Interrupt**: Human input finalizes the current loop and births the next one.
--   **Temporal Tracking**: Use the round integer to track the session's linear progression.
-
-2.  **The State (Live)**: Svelte 5 Reactive Runes mirroring the world's physical and psychological reality.
-3.  **The Echo (History)**: Persistent logs (Dexie.js / Pinecone) that provide context and weight to every decision.
+A **Round** is the macro-state. It increments only when t message payload. - **The Absolute Interrupt**: Human input finalizes births the next one. - **Temporal Tracking**: Use the round integer to track th linear progression. - **The State (Live)**: Svelte 5 Reactive Runes mirroring the world's p psychological reality. - **The Echo (History)**: Persistent logs (Dexie.js / Pinecone) that provide context and weight to every decision.
 
 ---
 

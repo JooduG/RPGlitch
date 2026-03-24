@@ -17,11 +17,7 @@ This document defines the RPGlitch technical stack and engineering mandates for 
 
 ## ⚡ Engineering Mandates (The Law)
 
-### 1. Svelte 5 Sovereignty
-
-- **Forbidden**: `export let`, `$:`, `writable()`, `readable()`.
-- **Mandate**: Use Svelte 5 Runes exclusively.
-- **Refactoring**: Silently upgrade legacy Svelte 4 reactivity on sight.
+- **Forge**: Silently upgrade legacy Svelte 4 reactivity on sight.
 
 ### 2. Perchance Runtime Compliance
 
@@ -43,7 +39,7 @@ This document defines the RPGlitch technical stack and engineering mandates for 
 ### 5. Subject-Matter Sovereignty
 
 - **Mandate**: Group all logic, physics, and state-management into unified, sovereign files.
-- **Enforcement**: Map all functional domains to the **Sovereign Skills** (`ombudsman`, `snitch`, `sommelier`, `gamemaster`) for authoritative oversight.
+- **Enforcement**: Map all functional domains to the **Sovereign Skills** (`warden`, `agent-manager`, `gatekeeper`, `simulation`, `data`) for authoritative oversight.
 
 ---
 

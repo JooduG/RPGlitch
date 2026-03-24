@@ -1,57 +1,54 @@
 {
-    "launch": {
-        "configurations": [],
-        "compounds": []
-    },
-    "files.exclude": {
-        ".geminiignore": true,
-        ".gemini/[!s]*": true,
-        ".gemini/s[!e]*": true,
-        ".playwright-auth/**": true,
-        "**/.DS_Store": true,
-        "**/.eslintcache": true,
-        "**/.eslintignore": true,
-        "**/.gitignore": true,
-        "**/.htmlhintignore": true,
-        "**/.markdownlintignore": true,
-        "**/.prettierignore": true,
-        "**/.stylelintignore": true,
-        "**/jsconfig.json": true,
-        "**/node_modules/**": true,
-        "**/package-lock.json": true,
-        "**/pnpm-lock.yaml": true,
-        "**/Thumbs.db": true,
-        "**/yarn.lock": true,
-        "mcp.json": true,
-        "test-results/**": true
-    },
-    "css.validate": true,
-    "html.validate.styles": false,
-    "typescript.tsdk": "node_modules\\typescript\\lib",
-    "markdown.validate.enabled": true,
-    "markdown.validate.ignoredLinks": [
-        "always_on | on_change | manual",
-        "high | medium | low",
-        "Rule Name",
-        "Skill Name",
-        "Role Name",
-        "Core Function",
-        "High Level Goal",
-        "Process",
-        "Process Name",
-        "./scripts/tool_name.py",
-        "./scripts/tool_name.js",
-        "./scripts/tool.js",
-        "0"
-    ],
-    "markdown.validate.referenceLinks.enabled": false,
-    "stylelint.validate": [
-        "css",
-        "scss",
-        "svelte"
-    ],
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "explicit",
-        "source.fixAll.stylelint": "explicit"
-    }
+  "launch": {
+    "configurations": [],
+    "compounds": []
+  },
+  "files.exclude": {
+    ".geminiignore": true,
+    ".gemini/[!s]*": true,
+    ".gemini/s[!e]*": true,
+    ".playwright-auth/**": true,
+    "**/.DS_Store": true,
+    "**/.eslintcache": true,
+    "**/.eslintignore": true,
+    "**/.gitignore": true,
+    "**/.htmlhintignore": true,
+    "**/.markdownlintignore": true,
+    "**/.prettierignore": true,
+    "**/.stylelintignore": true,
+    "**/jsconfig.json": true,
+    "**/node_modules/**": true,
+    "**/package-lock.json": true,
+    "**/pnpm-lock.yaml": true,
+    "**/Thumbs.db": true,
+    "**/yarn.lock": true,
+    "mcp.json": true,
+    "test-results/**": true
+  },
+  "css.validate": true,
+  "html.validate.styles": false,
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "markdown.validate.enabled": true,
+  "markdown.validate.ignoredLinks": [
+    "always_on | on_change | manual",
+    "high | medium | low",
+    "Rule Name",
+    "Skill Name",
+    "Role Name",
+    "Core Function",
+    "High Level Goal",
+    "Process",
+    "Process Name",
+    "./scripts/tool_name.py",
+    "./scripts/tool_name.js",
+    "./scripts/tool.js",
+    "0"
+  ],
+  "markdown.validate.referenceLinks.severity": "ignore",
+  "stylelint.validate": ["css", "scss", "svelte"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.stylelint": "explicit"
+  },
+  "markdown.validate.referenceLinks.enabled": false
 }

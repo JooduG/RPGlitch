@@ -39,93 +39,42 @@
 ## Active WIP
 
 - [/] **Narrative Bridge**: Orchestrating automatic scene complications.
-- [x] **Sommelier Skill**: Feature Taster & Conceptual Gateway (Sovereign).
-- [x] **Snitch Skill**: Adversarial Sentry & Security Audit (Sovereign).
-- [x] **Gamemaster Skill**: Simulation Strategist & Narrative Engine (Sovereign).
-- [x] **Ombudsman Skill**: Governing Sovereign of the .agent/ Core.
+- [x] **Data Skill**: Memory, Lore, & Technical Cold Storage (Sovereign).
+- [x] **Gatekeeper Skill**: Intent Decoding, Incubation, & Feature Gateway (Sovereign).
+- [x] **Simulation Skill**: Round/Turn Orchestration & Narrative Bridges (Sovereign).
+- [x] **Warden Skill**: Security, Hygiene (Janitor), & Structural Purity (Sovereign).
+- [x] **Agent-Manager Skill**: Infrastructure, Rules, & Skill Lifecycle (Sovereign).
 
 ## UI/UX Architecture
 
 - **Status**: Live Working Memory
 - **Focus**: Phase 4.0 Architecture — UI layout is currently stable.
-- **Pending Tasks**: None logged. Awaiting next Track.
+- **Pending Tasks**: Fixed structural corruption in `index.html`.
 
 ## Mission Board
 
-### [DONE] [003] [Clinic: Codebase Sanitization & Audit]
+### [DONE] [013] [Sovereign Rebranding: Final Nomenclature]
 
-- [x] Phase 1: Diagnosis (Audit & Scin
--x]ha 2Satiti (Execution)
+- [x] Phase 1: Planning (Data, Simulation, Gatekeeper, Warden, Agent-Manager).
+- [x] Phase 2: Structural Migration (Renamed `.agent/skills/` directories).
+- [x] Phase 3: Alignment (Updated `SKILL.md`, `package.json`, `mcp.json`).
+- [x] Phase 4: Verification (100% Audit Purity pass).
 
-[xPse: liti (hor te)
+### [DONE] [014] [Clinic: System Sanitization (/03-clean)]
 
-    - [x] Fix broken kage.json`.
-    - [x] Run `npm run verify` (166/166 pass).
-    - [x] Verify Svelte 5 & Chalk Regime compliance.
+- [x] Phase 1: Diagnosis (Updated `janitor.js` for new Sovereignty).
+- [x] Phase 2: Execution (Fixed `index.html` syntax error, cleared false positives).
+- [x] Phase 3: Validation (Passed `npm run audit` and `npm run format`).
 
-### [DONE] [004] [Snitch Skill: Adversarial Sentry Formalization]
+---
 
-- [x] Phase 1: Diagnosis & Planning (Audit overlap, rename Warden -> Snitch).
-- [x] Phase 2: Scaffolding (Create `.agent/skills/snitch/`, migrate scripts).
-- [x] Phase 3: Implementation (Heresy Detection, unified `audit.js` orchestrator).
-- [x] Phase 4: Verification (100% Audit pass, 162/162 tests).
+## Completed Tasks
 
-### [DONE] [005] [Gamemaster Skill: Simulation Strategist Implementation]
-
-- [x] Phase 1: Planning (Audit dynamics-engine, define Simulation Cycle).
-- [x] Phase 2: Scaffolding (Create `.agent/skills/gamemaster/`, SKILL.md).
-- [x] Phase 3: Implementation (Mechanical Gate, `intelligence-kernel.js` integration).
-- [x] Phase 4: Verification (4/4 unit tests, 166/166 total pass).
-
-### [DONE] [006] [Sovereign Consolidation: Final Purge]
-
-- [x] Phase 1: Audit (Leftover scripts, Forge/Cognition logic).
-- [x] Phase 2: Migration (Ombudsman inherits Tool Forge & Skill Creation Guide).
-- [x] Phase 3: Migration (Sommelier/Snitch inherit Cognition).
-- [x] Phase 4: Purge (Delete 14 legacy skill folders).
-- [x] Phase 5: Verification (166/166 tests pass).
-
-### [DONE] [007] [Metadata & Rule Sync: Sovereign Alignment]
-
-- [x] Phase 1: Audit `GEMINI.md` and `AGENTS.md`.
-- [x] Phase 2: Integration of A-C-M-Q Pipeline (Rule 04).
-- [x] Phase 3: Alignment with Sovereign Skill Hierarchy.
-- [x] Phase 4: Synchronization of `01-blueprint.md` workflow.
-- [x] Phase 5: Verification of 166/166 tests.
-
-### [DONE] [008] [Scribbles & Workflow Consolidation]
-
-- [x] Phase 1: Rework `scribbles.md` unimplemented ideas into `sommelier/knowledge/experiment-*.md`.
-- [x] Phase 2: Merge `/01-plan` into the unified `/01-blueprint` Master Router.
-- [x] Phase 3: Synchronize `.agent/` config files (`config.yaml`, `tooling.json`).
-- [x] Phase 4: Final verification and session cleanup.
-
-### [DONE] [010] [Infrastructure: Wiring & Symlink Repair]
-
-- [x] Phase 1: Audit (Verify .agent/ scripts vs package.json).
-- [x] Phase 2: Wiring (Formally connect `janitor` and `scaffold:skill`).
-- [x] Phase 3: Repair (Purge legacy `.agents/` and repair broken junctions).
-- [x] Phase 4: Repointing (Establish local NTFS junctions to .gemini/).
-
-### [DONE] [011] [Infrastructure: Deep Purge & Shadow Cleanup]
-
-- [x] Phase 1: Shadow Cleanup (Replace physical configs with hard links).
-- [x] Phase 2: State De-cluttering (Purge system metadata and slop).
-- [x] Phase 3: Workflow Purge (Delete obset00ooan01la. [x] Phase 4: Verification (166/166 unit tests pass).
-
-### Completed Tasks
-
-yering (Milestone 2)
-    - [x] `task_remove_trust]` | Purge Bayesian
-
- Suspicion logic.
-    - [/] [narrative-bridge](./tracks/narrative-bridge.md) | Connect Dynamics to Narrative Director
-
-- [x] Intelligence Kernel Phase 1 & 2 (Dynamics Engine structural alignment, refactor, and deployment)
-- [x] Intelligence Kernel Refinement (Optimization and svelte-check resolution)
-- [x] Semantic UI Refactor & Glassmorphism Purge (Strict Chalk Regime alignment)
-- [x] UI Audit, Polish & Kinetic Motion Enhancement (Standardized tokens, kinetic scroll, and motion physics)
+- [x] **Intelligence Kernel** (Dynamics Engine alignment).
+- [x] **Semantic UI Refactor** (Glassmorphism Purge).
+- [x] **Infrastructure Wiring** (NTFS junctions to .gemini/).
 
 ## Known Quirks / Technical Debt
 
-- [ ] **Dependency Audit**: `npm audit` reports 3 moderate vulnerabilities in `markdown-it` and `eslint-plugin-markdownlint`. (Out of scope for logic sanitization).
+- [ ] **Dependency Audit**: `npm audit` reports 3 moderate vulnerabilities in `markdown-it`.
+- [ ] **Markdown Lints**: Minor stylistic lints in non-Sovereign skills (e.g., `audio`, `motion`).

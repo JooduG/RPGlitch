@@ -10,43 +10,28 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Ubuntu:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
+    <style>
+      body {
+        margin: 0;
+        background-color: var(--bg-base);
+        background-image:
+          radial-gradient(circle at 15% 50%, var(--bg-grad-1), transparent 50%),
+          radial-gradient(circle at 85% 30%, var(--bg-grad-2), transparent 50%),
+          radial-gradient(circle at 50% 80%, var(--bg-grad-3), transparent 50%),
+          radial-gradient(circle at 50% 10%, var(--bg-grad-4), transparent 50%);
+        background-size: cover;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        height: 100vh;
+      }
+    </style>
   </head>
   <body class="storyboard">
-    <div id="svelte-root">
-      <style>
-        body {
-          margin: 0;
-          background-color: var(--bg-base);
-          background-image:
-            radial-gradient(
-              circle at 15% 50%,
-              var(--bg-grad-1),
-              transparent 50%
-            ),
-            radial-gradient(
-              circle at 85% 30%,
-              var(--bg-grad-2),
-              transparent 50%
-            ),
-            radial-gradient(
-              circle at 50% 80%,
-              var(--bg-grad-3),
-              transparent 50%
-            ),
-            radial-gradient(
-              circle at 50% 10%,
-              var(--bg-grad-4),
-              transparent 50%
-            );
-          background-size: cover;
-          background-attachment: fixed;
-          background-repeat: no-repeat;
-          height: 100vh;
-        }
-      </style>
-      <div id="svelte-root"></div>
-      <a href="#svelte-root" class="skip-link">Skip to main content</a>
+    <a href="#svelte-root" class="skip-link">Skip to main content</a>
+    <div id="svelte-root"></div>
+
     <div id="fractal-background" hidden></div>
+
     <dialog id="emergency-modal">
       <article>
         <header>
@@ -66,24 +51,18 @@
         </header>
         <p>An error occurred during loading.</p>
         <footer>
-          <button
-            id="emergency-export"
-            class="secondary"
-            data-action="export-all"
-          >
+          <button id="emergency-export" class="secondary" data-action="export-all">
             Save All Data
           </button>
-          <button
-            id="emergency-delete"
-            class="contrast"
-            data-action="delete-all"
-          >
+          <button id="emergency-delete" class="contrast" data-action="delete-all">
             Delete All Data
           </button>
         </footer>
       </article>
     </dialog>
+
     <div id="profile-screen" hidden></div>
+
     <script src="https://perchance.org/ai-text-plugin"></script>
     <script src="https://perchance.org/text-to-image-plugin"></script>
     <script>
@@ -101,17 +80,16 @@
         window.pluginTextToImage = t2i;
       }
     </script>
+
     <div id="dev-hud" style="display: none"></div>
+
     <style>
       /* Reserved for critical dynamic overrides */
     </style>
+
     <template id="tpl-epilogue-controls">
       <div class="epilogue-controls btn-group-pill">
-        <button
-          id="btn-epilogue-nav-settings"
-          class="btn-ghost"
-          aria-label="Settings"
-        >
+        <button id="btn-epilogue-nav-settings" class="btn-ghost" aria-label="Settings">
           <svg class="icon" viewBox="0 0 24 24">
             <path
               d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6 3.6-1.62 3.6-3.6 3.6z"

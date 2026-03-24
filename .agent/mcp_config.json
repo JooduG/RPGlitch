@@ -79,32 +79,22 @@
       },
       "serverUrl": "https://api.githubcopilot.com/mcp"
     },
+    "librarian": {
+      "args": [
+        "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\skills\\librarian\\scripts\\index.js"
+      ],
+      "command": "node",
+      "env": {
+        "PINECONE_API_KEY": "pcsk_vvGN2_67wnzYvzpZzBpiTWu39K2hWCp19hnS7GDeXYm6PbWothAyacBq67wmcQwspSivq",
+        "SUPABASE_ANON_KEY": "sbp_0211f76c824072d4b77a5012761ad3fd3baca328",
+        "SUPABASE_URL": "https://zjoklmjvkxngbbneldht.supabase.com"
+      }
+    },
     "mcp-sequentialthinking-tools": {
       "args": [],
       "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\node_modules\\.bin\\mcp-sequentialthinking-tools.cmd"
     },
-    "memory": {
-      "args": [
-        "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\memory\\index.js"
-      ],
-      "command": "node",
-      "env": {
-        "PINECONE_API_KEY": "pcsk_vQDQw_JH6oQebjGTqo4TkQqeXu5FU6oFfzDKXQSLC2h7kEccPHCUt1X66oqYdxUgH27nW"
-      }
-    },
-    "pinecone-mcp-server": {
-      "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\node_modules\\.bin\\pinecone-mcp.cmd",
-      "disabledTools": [
-        "search-docs",
-        "list-indexes",
-        "describe-index",
-        "describe-index-stats"
-      ],
-      "env": {
-        "PINECONE_API_KEY": "pcsk_vQDQw_JH6oQebjGTqo4TkQqeXu5FU6oFfzDKXQSLC2h7kEccPHCUt1X66oqYdxUgH27nW"
-      }
-    },
+
     "playwright": {
       "args": [],
       "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\node_modules\\.bin\\playwright-mcp.cmd",
@@ -131,40 +121,7 @@
       "command": "npx",
       "env": {}
     },
-    "supabase-mcp-server": {
-      "args": [
-        "--access-token",
-        "sbp_0211f76c824072d4b77a5012761ad3fd3baca328"
-      ],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\node_modules\\.bin\\mcp-server-supabase.cmd",
-      "disabledTools": [
-        "list_organizations",
-        "get_organization",
-        "get_cost",
-        "confirm_cost",
-        "pause_project",
-        "restore_project",
-        "delete_branch",
-        "merge_branch",
-        "reset_branch",
-        "rebase_branch",
-        "list_branches",
-        "create_branch",
-        "get_project",
-        "list_projects",
-        "create_project",
-        "list_extensions",
-        "list_migrations",
-        "apply_migration",
-        "get_logs",
-        "get_advisors",
-        "generate_typescript_types",
-        "list_edge_functions",
-        "get_edge_function",
-        "deploy_edge_function"
-      ],
-      "env": {}
-    },
+
     "svelte": {
       "args": [],
       "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\tools\\node_modules\\.bin\\svelte-mcp.cmd"
