@@ -96,8 +96,9 @@
     "build": "vite build",
     "check": "node .agent/skills/methodology/scripts/summarize.js audit:check lint test",
     "clean": "node .agent/skills/methodology/scripts/summarize.js audit:security lint audit:method",
-    "deploy:perchance": "node .agent/skills/devops/scripts/deploy_perchance.js",
-    "deploy": "node .agent/skills/methodology/scripts/summarize.js format sync lint:fix audit test build deploy:perchance",
+    "deploy:prepare": "node .agent/skills/methodology/scripts/summarize.js format sync lint:fix audit test build",
+    "deploy:perchance:auto": "node .agent/skills/devops/scripts/deploy_perchance.js",
+    "deploy": "npm run deploy:prepare && npm run deploy:perchance:auto",
     "dev": "vite",
     "forge:skill": "node .agent/skills/agent-forge/scripts/forge-skill.js",
     "forge:skill-package": "node .agent/skills/agent-forge/scripts/forge-skill-package.js",
@@ -107,8 +108,8 @@
     "lint:css": "stylelint \"src/**/*.{css,svelte,scss}\"",
     "lint:css:fix": "stylelint \"src/**/*.{css,svelte,scss}\" --fix",
     "lint:fix": "npm-run-all lint:js:fix lint:css:fix lint:md:fix",
-    "lint:js": "eslint .",
-    "lint:js:fix": "eslint . --fix",
+    "lint:js": "eslint . --cache",
+    "lint:js:fix": "eslint . --fix --cache",
     "lint:md": "markdownlint-cli2 \"**/*.{md,mdx}\" \"!node_modules\" \"!.agent/archive\" \"!.agent/state\"",
     "lint:md:fix": "markdownlint-cli2 --fix \"**/*.{md,mdx}\" \"!node_modules\" \"!.agent/archive\" \"!.agent/state\"",
     "preview": "vite preview --port 8080",
@@ -117,7 +118,7 @@
     "test:e2e": "playwright test",
     "test:ui": "vitest --ui",
     "test:unit": "vitest run",
-    "verify": "node .agent/skills/methodology/scripts/summarize.js lint:fix audit test"
+    "verify": "node .agent/skills/methodology/scripts/summarize.js lint audit test"
   },
   "type": "module",
   "version": "1.0.0"

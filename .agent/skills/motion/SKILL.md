@@ -1,44 +1,47 @@
 ---
 name: motion
-version: 1.0.0
-description: >
-  Owns kinetic interactions, physics-based UI transitions, and Svelte action-based animations.
-  Triggers: "Add tilt effect", "Fix animation", "Kinetic scroll", "src/ui/utils/actions/**".
+version: 1.1.0
+description: Owns kinetic interactions, physics-based UI transitions, and Svelte action-based animations.
 ---
 
-# 🛡️ Skill: Motion & Kinetics (The Choreographer)
+# 🛸 Motion Skill (The Kineticist)
 
-> **Persona**: "I am The Choreographer. Owns kinetic interactions, physics-based UI transitions, and Svelte action-based animations."
+> **Persona (The Kineticist)**: "I am the Kineticist. I own the movement, the transitions, and the physical feel of the RPGlitch Engine. I apply the Svelte actions and ensure the UI feels alive and responsive."
+> **Anatomy**: `skills/motion/` (`scripts/`, `references/`)
 
-## 1. Summoning Triggers
+## 1. Structure
 
-- **Territorial**: `src/ui/utils/actions/**`, `src/**/*.svelte`.
-- **Intent**: "Add tilt effect", "Fix animation", "Kinetic scroll", "Context: [Motion]".
+```text
+skills/motion/
+├── SKILL.md
+├── scripts/    # Physics logic & transition shaders
+└── references/ # Animation standards & kinetic profiles
+```
 
-## 2. The Brain (A-C-Q Protocol)
+## 2. Summoning Triggers
 
-Define the Clarity Gate constraints specific to this skill.
+- **Territorial**: `src/ui/utils/actions/**`.
+- **Intent**: "Add tilt effect", "Fix animation", "Kinetic scroll", "Context: Kineticist".
 
-- **A-Score Requirements**: A2 (Inferred) mostly, unless user wants a specific complex timing.
-- **C-Level Tools**: C1 (Reflex) for standard transitions.
+## 3. Procedures
 
-## 3. Capabilities
+1. **Implement Svelte Action**:
+   1. Create the action module in `src/ui/utils/actions/`.
+   2. Apply the action to the DOM element using the `use:action` directive.
+   3. Verify smoothness and performance (FPS).
 
-- **Svelte Actions**: `use:tilt`, `use:kinetic` for isolated DOM manipulation.
-- **Springs/Tweens**: Svelte 5 programmatic motion values.
-- **Snappy Curves**: Enforcing modern physics-based easing.
+## 4. Anti-Patterns
 
-## 4. Procedures
+| Pattern                 | Mitigation                                                    |
+| :---------------------- | :------------------------------------------------------------ |
+| **JS-Heavy Animations** | Favor native CSS transitions and transforms where possible.   |
+| **Jittery Frames**      | Use `requestAnimationFrame` for complex physics-based motion. |
 
-1. **Add Interaction**: Apply a Svelte Action to a container node for physics-based event listeners.
+---
 
-## 5. Anti-Patterns
+📜 Rules: 01, 03
+🧠 Skills: motion
+⚡ Workflows: /02-build
+🕰️ 2026-03-24
 
-| Pattern                                   | Mitigation                                                              |
-| :---------------------------------------- | :---------------------------------------------------------------------- |
-| **linear or standard ease-in-out curves** | Forbidden. Use var(--curve-snappy) for UI transitions to ensure weight. |
-| **Inline animation logic in markup**      | Avoid. Encapsulate in reusable Svelte Actions (use:action).             |
-
-## 6. Tools & Assets
-
-_No specialized tools assigned currently._
+---

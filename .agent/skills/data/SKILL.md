@@ -4,11 +4,42 @@ version: 3.1.0
 description: The Great Library: Owns Lore Integrity, Semantic Search, and Development Cold Storage.
 ---
 
-# 🔮 Data Skill
+# 🔮 Data Skill (The Great Librarian)
 
-## 1. Memory
+> **Persona**: "I am The Great Librarian. I own Lore Integrity, Semantic Search, and Development Cold Storage. I ensure that the project's memory is persistent and accurate."
+> **Anatomy**: `skills/data/` (`scripts/`, `references/`)
 
-The **Data** skill is the sovereign keeper of the project's semantic memory and cold storage.
+## 1. Structure
+
+```text
+skills/data/
+├── SKILL.md
+├── scripts/    # Memory, Search, & Archival logic
+└── references/ # Knowledge base & Schema docs
+```
+
+## 2. Summoning Triggers
+
+- **Territorial**: `.agent/knowledge/**`, `.agent/state/**`.
+- **Intent**: "Search lore", "Archive log", "Sync memory", "Context: Data".
+
+## 3. Procedures
+
+1. **Ingest Technical Document**:
+   1. Place the `.md` file in `.agent/knowledge/`.
+   2. Run `node .agent/skills/data/scripts/pinecone-engine.js ingest <path>`.
+   3. Verify searchability via the `data` MCP.
+
+2. **Archive Session Log**:
+   1. Gather critical decisions and logs.
+   2. Run `node .agent/skills/data/scripts/supabase-engine.js archive <session_id>`.
+
+## 4. Anti-Patterns
+
+| Pattern                | Mitigation                                                                              |
+| :--------------------- | :-------------------------------------------------------------------------------------- |
+| **Local Memory Leaks** | Avoid storing massive state in `localStorage`. Use Dexie for client-side and Supabase.  |
+| **Hallucinated Lore**  | Always verify facts against the Knowledge Base before committing to a narrative branch. |
 
 ## 📜 Core Mandate
 
@@ -68,22 +99,17 @@ File: `.agent/skills/data/scripts/supabase-engine.js`
 - **Function**: Allows the agent to query past technical decisions and architecture patterns.
 
 - **Tech**: Pinecone.
-- \*\*Ro**: Th\_**Soul" of the data (Embeddings).
+- **Relationship**: The "Soul" of the data (Embeddings).
 - **Ingestion Loop**:
-  1 **Chunk**: Split text by semantic ity (not just char count). 2. **Embed**: Generate vector. 3. **Upsert**: Store with metadata (`type`, `tags`, `weight`).
-
-## 7. Anti-Patterns
-
-| Pattern                | Mitigation                                                                              |
-| :--------------------- | :-------------------------------------------------------------------------------------- |
-| **Local Memory Leaks** | Avoid storing massive state in `localStorage`. Use Dexie for client-side and Supabase.  |
-| **Hallucinated Lore**  | Always verify facts against the Knowledge Base before committing to a narrative branch. |
+  1. **Chunk**: Split text by semantic proximity (not just char count).
+  2. **Embed**: Generate vector.
+  3. **Upsert**: Store with metadata (`type`, `tags`, `weight`).
 
 ---
 
-📜 Rules: [01, 04]
-🧠 Skills: [data]
-⚡ Workflows: [/01-blueprint]
+📜 Rules: 01, 04
+🧠 Skills: data
+⚡ Workflows: /01-blueprint
 🕰️ 2026-03-24
 
 ---

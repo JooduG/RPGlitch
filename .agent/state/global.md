@@ -74,6 +74,7 @@
 - [x] Phase 1: Diagnosis (Updated `janitor.js` for new Sovereignty).
 - [x] Phase 2: Execution (Fixed `index.html` syntax error, cleared false positives).
 - [x] Phase 3: Validation (Passed `npm run audit` and `npm run format`).
+- [x] Phase 4: Debt Purge (Whitelisted CLI scripts, fixed placeholders).
 
 ---
 
@@ -99,5 +100,6 @@
 
 ## Known Quirks / Technical Debt
 
-- [ ] **Dependency Audit**: `npm audit` reports 3 moderate vulnerabilities in `markdown-it`.
+- [ ] **Dependency Audit**: `npm audit` reports 3 moderate vulnerabilities in `markdown-it`. (Post-v1.0 target)
+- [x] **Formatting Syntax Error**: Resolved (Legacy archive and malformed docs).
 - [ ] **Markdown Lints**: Minor stylistic lints in non-Sovereign skills (e.g., `audio`, `motion`).

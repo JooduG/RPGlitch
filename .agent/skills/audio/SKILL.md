@@ -9,37 +9,63 @@ description: >
 # 🛡️ Skill: Audio & Acoustics (The Acoustic Engineer)
 
 > **Persona**: "I am The Acoustic Engineer. Owns sound effects (SFX), ambient tracks, and Text-to-Speech (TTS) logic."
+> **Anatomy**: `skills/audio/` (`scripts/`, `references/`)
 
-## 1. Summoning Triggers
+## 1. Structure
+
+```text
+skills/audio/
+├── SKILL.md
+├── scripts/    # SFX, Ambient, & TTS logic
+└── references/ # Audio context & playback standards
+```
+
+## 2. Summoning Triggers
 
 - **Territorial**: `src/media/audio/**`.
-- **Intent**: "Add sound", "Fix audio", "Speech synthesis", "Context: [Audio]".
+- **Intent**: "Add sound", "Fix audio", "Speech synthesis", "Context: Audio".
 
-## 2. The Brain (A-C-Q Protocol)
+## 3. Procedures
+
+1. **Add Sound Effect**:
+   1. Place the audio file in `src/media/audio/sfx/`.
+   2. Update the `AudioRegistry` in `src/media/audio/registry.js`.
+   3. Verify playback in the development environment.
+
+## 4. Anti-Patterns
+
+| Pattern                 | Mitigation                                                     |
+| :---------------------- | :------------------------------------------------------------- |
+| **Autoplay Violations** | Never trigger audio without a user gesture.                    |
+| **Floating Contexts**   | ALWAYS `.close()` or `.suspend()` the AudioContext on unmount. |
+| **Hardcoded Paths**     | Use the `AudioRegistry` to manage paths centrally.             |
+| **Unpurified Strings**  | Sanitize any text-to-speech inputs before processing.          |
+
+## 5. The Brain (A-C-Q Protocol)
 
 Define the Clarity Gate constraints specific to this skill.
 
 - **A-Score Requirements**: A3 (Ambiguous) for timing offsets or un-specified sound profiles.
 - **C-Level Tools**: C2 (Planning) for audio sprite mapping.
 
-## 3. Capabilities
+## 6. Capabilities
 
 - **SFX Mapping**: Tying user events to sound bytes.
 - **TTS Generation**: Hooking into speech synthesis APIs with precise pitch/rate.
 - **Memory Cleanup**: Releasing AudioContext when nodes unmount.
 
-## 4. Procedures
+## 7. Procedures
 
 1. **Play Sound**: Sensory.play(id) triggered by user click.
 2. **Speak Text**: Sensory.voice.speak(text) with configured parameters.
 
-## 5. Anti-Patterns
+## 8. Anti-Patterns
 
 | Pattern                      | Mitigation                                                                                  |
 | :--------------------------- | :------------------------------------------------------------------------------------------ |
 | **Autoplay without gesture** | Forbidden. Browsers block autoplay; always require user interaction to unlock AudioContext. |
 | **Orphaned AudioContext**    | Forbidden. Always `.close()` or `.suspend()` on component destroy via `$effect` cleanup.    |
 
-## 6. Tools & Assets
+## 9. Tools & Assets
 
 _No specialized tools assigned currently._

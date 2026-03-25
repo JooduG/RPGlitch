@@ -45,24 +45,16 @@ We do not leave messes. Adhere to the **Boy Scout Rule**: Always leave the codeb
 
 ## 3. The Signal Audit (Quality Assurance)
 
-The **Signal Audit** ensures that no task track gets a `[x]` without verified ec and a logical audit.
+The **Signal Audit** ensures that no task track gets a `[x]` without a logical audit.
 
-- *Mandatory Reasoni__ Every transmission should _e___-o-n--- in the **[AG
-E
-N
-
-
-T
-S.md](../../AGENTS.md)*
-
-
-* reasoning pipeline.
+- **Mandatory Reasoning**: Every transmission should echo the **[AGENTS.md](../../AGENTS.md)** reasoning pipeline.
 - **The Proving Grounds**:
-  | Layer | Framework | Requirement |
-  | :--- | :--- | :--- |
-  | **Reflex** | Lint/Prettier | Zero warnings/errors allowed in `src/`. |
-  | **Logic** | `Vitest` | State verification for all engine mutations. |
-  | **Sensory** | `Playwright` | Visual/Functional verification for critical UI paths. |
+
+  | Layer       | Framework     | Requirement                                           |
+  | :---------- | :------------ | :---------------------------------------------------- |
+  | **Reflex**  | Lint/Prettier | Zero warnings/errors allowed in `src/`.               |
+  | **Logic**   | `Vitest`      | State verification for all engine mutations.          |
+  | **Sensory** | `Playwright`  | Visual/Functional verification for critical UI paths. |
 
 ---
 

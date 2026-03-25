@@ -12,7 +12,11 @@ export const method_rules = [
   {
     id: "BACKLOG_EMPTY",
     severity: "ADVICE",
-    validate: (content) => content.includes("[ ]"),
+    validate: (content, filePath) => {
+      // Only check primary backlog/task files
+      if (!filePath.endsWith("backlog.md") && !filePath.endsWith("task.md")) return true;
+      return !content.includes("[ ]");
+    },
     message: "🚨 Backlog appears exhausted. Synchronize mission board or close session.",
   },
 ];

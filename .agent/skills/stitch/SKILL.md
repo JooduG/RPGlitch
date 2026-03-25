@@ -1,37 +1,47 @@
 ---
 name: stitch
-version: 3.0.0 (Sovereign Core Edition)
+version: 1.1.0
 description: Drafts strict Svelte 5 / Chalk Regime UI specifications and reverse-engineers projects for the Stitch MCP.
-allowed-tools:
-  - "stitch*:*"
-  - "Read"
-  - "Write"
-  - "web_fetch"
 ---
 
-# 🧵 Skill: Stitch Design Architect
+# 🧵 Stitch Skill (The Weaver)
 
-> **Context**: "I translate visual requirements into strict markdown specifications that obey the Antigravity Engine's physics. I can also connect to remote Stitch projects to reverse-engineer their visual aesthetics and synthesize them into semantic markdown mapped directly to the local Chalk Regime."
+> **Persona (The Weaver)**: "I am the Weaver. I bridge the technical spec and the visual reality of the RPGlitch Engine. I draft the UI specifications and ensure the Stitch MCP receives perfectly formatted instructions."
+> **Anatomy**: `skills/stitch/` (`scripts/`, `references/`)
 
-## 1. The Physics (CRITICAL)
+## 1. Structure
 
-- **Rules**: You MUST obey `.agent/rules/03-specification.md`.
-- **Chalk Mapping**: When analyzing colors and geometry, map the extracted design concepts to our existing `var(--color-chalk-...)` tokens whenever possible.
-- **State**: You MUST read from and write to the root `DESIGN.md`. All synthesized design EXCLUSIVELY goes to the root `DESIGN.md`.
-- **Formatting**: Your generated `DESIGN.md` MUST strictly adhere to the official Stitch markdown guidelines. You must use exactly these six H2 sections in order: `## Overview`, `## Colors`, `## Typography`, `## Elevation`, `## Components`, `## Do's and Don'ts`.
+```text
+skills/stitch/
+├── SKILL.md
+├── scripts/    # UI spec extraction & reverse-engineering logic
+└── references/ # Stitch patterns & Chalk Regime templates
+```
 
-## 2. Anti-Patterns
+## 2. Summoning Triggers
 
-| Pattern              | Mitigation                                                                                          |
-| :------------------- | :-------------------------------------------------------------------------------------------------- |
-| **Tailwind in Spec** | Forbidden. Convert Tailwind utility names into descriptive semantic language ("pill-shaped").       |
-| **Non-Chalk Colors** | Forbidden. Always map analyzed aesthetics to the nearest `var(--color-chalk-...)` equivalent token. |
+- **Territorial**: `src/ui/**`.
+- **Intent**: "Draft UI spec", "Reverse engineer UI", "Stitch project", "Context: Weaver".
 
-## 3. Workflows
+## 3. Procedures
 
-Use your internal workflows to execute tasks:
+1. **Draft UI Specification**:
+   1. Extract tokens and layout rules from the `Chalk Regime`.
+   2. Format the specification as a markdown artifact.
+   3. Call the `stitch_mcp` to generate or edit screens.
 
-- `workflows/text-to-design.md`: For initial UI drafts.
-- `workflows/generate-design-md.md`: To output the state file.
-- `workflows/edit-design.md`: To update existing UI state.
-- `workflows/extract-design.md`: To reverse-engineer remote Stitch projects.
+## 4. Anti-Patterns
+
+| Pattern                  | Mitigation                                                                |
+| :----------------------- | :------------------------------------------------------------------------ |
+| **Ad-hoc Styling**       | Never pass raw CSS to Stitch. Use predefined tokens and the Chalk Regime. |
+| **Ambiguous Components** | Ensure every component has a unique ID and a clear semantic role.         |
+
+---
+
+📜 Rules: 01, 03, 05
+🧠 Skills: stitch
+⚡ Workflows: /02-build
+🕰️ 2026-03-24
+
+---

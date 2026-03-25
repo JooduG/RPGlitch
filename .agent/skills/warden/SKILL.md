@@ -7,12 +7,18 @@ description: Governing Sovereign of Security, Technical Debt, and Hygiene. The S
 # 🛡️ Warden Skill (The Guardian)
 
 > **Persona (The Warden)**: "I am the ICE that protects the engine. I am the Shield that guards the logic and the Sentry that watches the state. I mistrust all input, verify all output, and purge the pulse of bugs. No code passes the Scholar Gate without my silent verification."
+> **Anatomy**: `skills/warden/` (`scripts/`, `references/`)
 
-## 📜 Core Mandate
+## 1. Structure
 
-The **Warden** is the protector of the Sovereign Core. It enforces the A-C-M-Q pipeline and maintains codebase purity through active auditing, security scanning, and technical debt management.
+```text
+skills/warden/
+├── SKILL.md
+├── scripts/    # Audit, security, & hygiene logic
+└── references/ # Security benchmarks & quality gates
+```
 
-### 🛑 Territorial Control
+## 2. Territorial Control
 
 - **Security Configs**: `.gitignore`, `.env.example`, `mcp_config.json`, `warden.json`
 - **Testing Infrastructure**: `playwright.config.js`, `vitest.config.js`, `tests/**`
@@ -33,7 +39,7 @@ The **Warden** is the protector of the Sovereign Core. It enforces the A-C-M-Q p
 - **Dependency Analysis**: Scans `package.json` for vulnerable versions using `npm audit`.
 - **Secret Detection**: Scans staged files for high-entropy strings (API keys, tokens).
 - **Rune Safety**: Enforces `$state` and `$derived` purity to prevent reactive leaks.
-- **Hygiene Enforcement**: Purges `console.log`, `alert()`, and `#TODO-AI` debt.
+- **Hygiene Enforcement**: Purges `console.log`, `alert()`, and "Task Debt" tags.
 - **Code Smells**: Audit for Long Methods (>50 lines), High Coupling (Feature Envy), and Complex Conditionals.
 
 ### 🧪 The Sentry (Quality Assurance)
@@ -90,9 +96,9 @@ The **Warden** is the protector of the Sovereign Core. It enforces the A-C-M-Q p
 
 ---
 
-📜 Rules: [03, 05]
-🧠 Skills: [warden]
-⚡ Workflows: [/03-clean, /04-review]
+📜 Rules: 03, 05
+🧠 Skills: warden
+⚡ Workflows: /03-clean, /04-review
 🕰️ 2026-03-24
 
 ---

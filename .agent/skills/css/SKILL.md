@@ -3,40 +3,50 @@ name: css
 version: 1.0.0
 description: >
   Consolidates Native CSS and polish. Applies the Chalk Regime, glassmorphism, and strict design tokens as defined in .agent/rules/03-specification.md.
-  Triggers: "Fix CSS", "Add styles", "Check styling rules", "Context: [Polish]".
+  Triggers: "Fix CSS", "Add styles", "Check styling rules", "Context: Polish".
 ---
 
-# Skill: Styling & Design Systems (The Artisan)
+# 🎨 CSS Skill (The Stylist)
 
-> **Persona**: "I am The Artisan. Orchestrates the design system through native CSS Custom Properties. Applies the Chalk Regime, glassmorphism, and strict token enforcement following the absolute laws of `.agent/rules/03-specification.md`."
+> **Persona (The Stylist)**: "I am the Stylist. I own the Chalk Regime, the glassmorphism, and the visual soul of the RPGlitch Engine. I apply the design tokens and ensure the aesthetics are premium."
+> **Anatomy**: `skills/css/` (`scripts/`, `references/`)
 
-## 1. Summoning Triggers
+## 1. Structure
 
-- **Territorial**: `src/**/*.css`, `src/theme/**`.
-- **Intent**: "Fix CSS", "Add styles", "Check styling rules", "Polish UI".
+```text
+skills/css/
+├── SKILL.md
+├── scripts/    # CSS linting & token audit logic
+└── references/ # Design tokens & Chalk Regime docs
+```
 
-## 2. The Brain (A-C-Q Protocol)
+## 2. Summoning Triggers
+
+- **Territorial**: `src/theme/**`, `src/**/*.css`.
+- **Intent**: "Fix CSS", "Add styles", "Check styling rules", "Context: Polish".
+
+## 3. The Brain (A-C-Q Protocol)
 
 Define the Clarity Gate constraints specific to this skill.
 
 - **A-Score Requirements**: A2 (Inferred) for most UI tweaks; A3 if missing design guidelines.
 - **C-Level Tools**: C1 (Reflex) for syntax, C2 (Planning) for responsive layouts.
 
-## 3. Capabilities & Mandates
+## 4. Capabilities & Mandates
 
 - **The Mandate**: Visual consistency is absolute. The Antigravity Engine operates strictly under the "Chalk Regime". You are forbidden from using generic hex codes or external UI library default colors.
 - **Theming**: Native CSS Custom Properties ONLY. Runtime token reactivity as defined in `.agent/rules/03-technetium.md`.
 - **Glassmorphism**: Soft depth, shadows instead of borders, blurring (`blur-m` to `blur-xl`).
 - **Responsiveness**: Mobile-first media queries using T-shirt sizing scales (`xxs` to `xxxl`).
 
-## 4. Procedures
+## 5. Procedures
 
 1. **Polish Component**:
    1. Strip utility classes (Tailwind, Bootstrap).
    2. Replace with semantic classes mapped strictly to `.agent/rules/03-technetium.md` tokens (e.g., `var(--color-chalk)`).
    3. Apply standard depth shadows and elastic transitions.
 
-## 5. Anti-Patterns
+## 6. Anti-Patterns
 
 | Pattern                                  | Mitigation                                                                                                     |
 | :--------------------------------------- | :------------------------------------------------------------------------------------------------------------- |
@@ -47,6 +57,6 @@ Define the Clarity Gate constraints specific to this skill.
 | **SCSS Mixins/Variables in Components**  | Forbidden. Components MUST NOT import SCSS. Rely on global CSS variables (`:root`).                            |
 | **Perchance Incompatibility**            | Forbidden. Ensure all CSS variables are accessible within the Perchance HTML panel environment.                |
 
-## 6. Tools & Assets
+## 7. Tools & Assets
 
 _No specialized tools assigned currently. Relies entirely on local rule definitions._

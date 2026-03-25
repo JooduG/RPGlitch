@@ -33,29 +33,6 @@ function validateSkillMeta(name, description) {
   if (/[<>]/.test(description)) issues.push("Description cannot contain < or >.");
   return issues;
 }
-
-/**
- * 📂 Recursive Copy with Placeholder Injection
- */
-function copyRecursive(src, dest, slug, description) {
-  const stats = fs.statSync(src);
-  if (stats.isDirectory()) {
-    if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
-    fs.readdirSync(src).forEach((file) => {
-      copyRecursive(path.join(src, file), path.join(dest, file), slug, description);
-    });
-  } else {
-    let content = fs.readFileSync(src, "utf-8");
-    if (path.basename(src) === "SKILL.md") {
-      content = content
-        .replace(/\[skill-slug\]/g, slug)
-        .replace(/\[Skill Title\]/g, titleCase(slug))
-        .replace(/\[Description\]/g, description);
-    }
-    fs.writeFileSync(dest, content);
-  }
-}
-
 /**
  * ⚒️ Creation Logic
  */

@@ -2,23 +2,24 @@
 name: agent-forge
 version: 3.1.0
 description: >
- Structural Construction Sovereign, Strategist, & Executive. Owns skill instantiation, capability development, global state architecture (Runes) and critical reasoning. 
- Triggers: "Plan refactor", "Add skill", 
- Glob: .agent/skills/.
+  Structural Construction Sovereign, Strategist, & Executive. Owns skill instantiation, capability development, global state architecture (Runes) and critical reasoning. 
+  Triggers: "Plan refactor", "Add skill", 
+  Glob: .agent/skills/.
 ---
 
 # ⚒️ Agent-Forge Skill (The Architect & Executive)
 
 > **Persona**: "I am the Sovereign Architect. I structure intelligence to ensure technical purity."
+> **Anatomy**: `skills/agent-forge/` (`scripts/`, `references/`, `assets/`)
 
-## Structure _Mandatory_
+## 1. Structure
 
 ```text
 skills/agent-forge/
-├── SKILL.md # The Root Controller
-├── scripts/ # Audit & Forge Logic
+├── SKILL.md    # The Root Controller
+├── scripts/    # Audit & Forge Logic
 ├── references/ # Forging Handbook & Visuals
-└── assets/ # Sovereign Blueprints (Templates)
+└── assets/     # Sovereign Blueprints (Templates)
 ```
 
 ## 📜 Core Mandate
@@ -74,12 +75,12 @@ Trigger: "Add skill", "Plan refactor", "Create tool".
 
 ## 7. Anti-Patterns
 
-| Pattern | Mitigation |
+| Pattern            | Mitigation                                                         |
 | :----------------- | :----------------------------------------------------------------- |
-| **Vibe Slop** | Purge "how-to" guides from `SKILL.md`. Keep only procedural logic. |
-| **Context Bloat** | Move references > 100 lines to `knowledge/`. |
-| **Template Rot** | Updates to `SKILL.md` structure MUST be reflected in `templates/`. |
-| **Orphaned Files** | Every agent-forge operation must include an `audit-skills` run. |
+| **Vibe Slop**      | Purge "how-to" guides from `SKILL.md`. Keep only procedural logic. |
+| **Context Bloat**  | Move references > 100 lines to `knowledge/`.                       |
+| **Template Rot**   | Updates to `SKILL.md` structure MUST be reflected in `templates/`. |
+| **Orphaned Files** | Every agent-forge operation must include an `audit-skills` run.    |
 
 ## 8. Workflow Governance (Structural)
 
