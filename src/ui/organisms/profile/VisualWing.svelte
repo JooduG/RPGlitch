@@ -12,6 +12,9 @@
   import { app } from "@state/app.svelte.js";
   import Button from "@ui/atoms/Button.svelte";
   import Toggle from "@ui/atoms/Toggle.svelte";
+
+  const SPECTRUM_COLORS = Object.entries(PALETTE).filter(([name]) => name !== "default");
+
   /* eslint-disable svelte/prefer-svelte-reactivity */
   let {
     char = $bindable(),
@@ -194,7 +197,7 @@
 >
   <div class="group">
     <div class="spectrum-grid">
-      {#each Object.entries(PALETTE).filter(([name]) => name !== "default") as [name, hex] (name)}
+      {#each SPECTRUM_COLORS as [name, hex] (name)}
         <button
           class="swatch"
           class:active={char.signature_color === hex}
