@@ -26,7 +26,10 @@ function scanDir(dir) {
       const content = fs.readFileSync(fullPath, "utf8");
       const lines = content.split("\n");
       lines.forEach((line, index) => {
-        if (line.includes("#" + "TODO-AI") && !line.includes('line.includes' + '("#" + "TODO-AI")')) {
+        if (
+          line.includes("#" + "TODO-AI") &&
+          !line.includes("line.includes" + '("#" + "TODO-AI")')
+        ) {
           const relPath = path.relative(process.cwd(), fullPath);
           todoItems.push(
             `- [ ] **${relPath}:${index + 1}**: ${line.trim().replace(new RegExp("^.*#" + "TODO-AI:?\\s*"), "")}`,
@@ -50,7 +53,9 @@ try {
 
   if (!fs.existsSync(STATE_DIR)) fs.mkdirSync(STATE_DIR, { recursive: true });
   fs.writeFileSync(path.join(STATE_DIR, "backlog.md"), content);
-  process.stdout.write(`✅ Backlog updated (${todoItems.length} items) in .agent/state/backlog.md\n`);
+  process.stdout.write(
+    `✅ Backlog updated (${todoItems.length} items) in .agent/state/backlog.md\n`,
+  );
 } catch (e) {
   console.error("❌ Janitor Error:", e);
   process.exit(1);

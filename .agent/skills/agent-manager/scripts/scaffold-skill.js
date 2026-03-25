@@ -105,9 +105,11 @@ function createSkill(name, type = "task", description = "New agentic skill.") {
   const targetDir = path.join(SKILL_ROOT, slug);
 
   const metaIssues = validateSkillMeta(slug, description);
-  if (metaIssues.length > 0) return process.stdout.write(`❌ INVALID META: ${metaIssues.join(", ")}\n`);
+  if (metaIssues.length > 0)
+    return process.stdout.write(`❌ INVALID META: ${metaIssues.join(", ")}\n`);
 
-  if (fs.existsSync(targetDir)) return process.stdout.write(`❌ FAIL: Skill '${slug}' already exists.\n`);
+  if (fs.existsSync(targetDir))
+    return process.stdout.write(`❌ FAIL: Skill '${slug}' already exists.\n`);
 
   const template = TEMPLATES[type] || TEMPLATES.task;
   const content = template
@@ -121,7 +123,9 @@ function createSkill(name, type = "task", description = "New agentic skill.") {
 
   fs.writeFileSync(path.join(targetDir, "SKILL.md"), content);
 
-  process.stdout.write(`✅ PASS: [${type.toUpperCase()}] Skill '${slug}' instantiated at ${targetDir}\n`);
+  process.stdout.write(
+    `✅ PASS: [${type.toUpperCase()}] Skill '${slug}' instantiated at ${targetDir}\n`,
+  );
 }
 
 /**
@@ -167,4 +171,7 @@ function auditAll() {
 const [, , command, ...args] = process.argv;
 if (command === "create") createSkill(args[0], args[1], args[2]);
 else if (command === "audit") auditAll();
-else process.stdout.write("Usage: node scaffold-skill.js [create|audit] [name] [type] [description]\n");
+else
+  process.stdout.write(
+    "Usage: node scaffold-skill.js [create|audit] [name] [type] [description]\n",
+  );

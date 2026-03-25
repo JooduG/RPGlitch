@@ -39,7 +39,13 @@
     "!**/scribbles/**",
     "!**/.playwright-auth/**"
   ],
-  "gitignore": ["!**/RPGlitch-left-panel.txt", "**/.eslintcache", "!GEMINI.md", "AGENTS.md", ".playwright-auth/**"],
+  "gitignore": [
+    "!**/RPGlitch-left-panel.txt",
+    "**/.eslintcache",
+    "!GEMINI.md",
+    "AGENTS.md",
+    ".playwright-auth/**"
+  ],
   "linters": {
     "eslint": [],
     "htmlhint": [],
@@ -73,7 +79,8 @@
       "**/Thumbs.db": true,
       "**/yarn.lock": true,
       "mcp.json": true,
-      "test-results/**": true
+      "test-results/**": true,
+      "tests/**": true
     },
     "markdown.validate.referenceLinks.enabled": false,
     "stylelint.validate": ["css", "scss", "svelte"]

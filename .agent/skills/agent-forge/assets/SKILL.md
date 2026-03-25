@@ -1,5 +1,5 @@
 ---
-name: {{Skill-Slug}}
+name: { { Skill-Slug } }
 description: >
   {{Description}}
   Triggers: (Glob), (Phrase)

@@ -1,93 +1,42 @@
----
-name: agent-manager
-version: 1.2.0
-description: Governing Sovereign of the RPGlitch Core. Manages infrastructure, rules, skill-lifecycle, and architectural standards.
----
+# 🛠️ Skill: Agent-Manager (Governance & Lifecycle)
 
-# 🏗️ Agent-Manager Skill (Infrastructure Sovereign)
+The **Agent-Manager** is the governing body for all autonomous entities and modular skills within the RPGlitch ecosystem. It manages the creation, auditing, and maintenance of skills, ensuring they adhere to the Sovereign Audit standards.
 
-> **Persona**: "I am the Sovereign Manager. I own the infrastructure, rules, and architectural standards of the RPGlitch Core."
-> **Anatomy**: `skills/agent-manager/` (`scripts/`, `references/`)
+## 🧠 Governance Personas
 
-## 1. Structure
+- **The Arbiter**: Enforces architectural standards and nomenclature.
+- **The Provisioner**: Orchestrates the instantiation of new logical domains.
+- **The Auditor**: Validates system integrity and technical purity.
 
-```text
-skills/agent-manager/
-├── SKILL.md
-├── scripts/    # Infrastructure & Cycle logic
-└── references/ # Structural audit & standards
+## 🏗️ Skill Anatomy
+
+Every skill must follow this structural hierarchy to pass the **Scholar Gate**:
+
+1.  **SKILL.md**: The primary instruction set with metadata and triggers.
+2.  **scripts/**: Automated routines and logic (e.g., `scaffold-skill.js`, `structural-audit.js`).
+3.  **knowledge/**: Domain-specific context and persistent patterns.
+4.  **workflows/**: Step-by-step procedures for complex multi-turn tasks.
+
+## 📜 Procedures
+
+### 1. Skill Instantiation
+
+To create a new skill, use the provided scaffolding routine:
+
+```bash
+node .agent/skills/agent-manager/scripts/scaffold-skill.js create [name] [type] [description]
 ```
 
-## 2. Procedure
+### 2. Structural Audit
 
-1. **State Reconciliation**:
-   1. Run `node .agent/skills/agent-manager/scripts/sync.js`.
-   2. Verify parity across `global.md` and `tracks.md`.
+All skills are subject to periodic audits. A failure in the structural audit prevents system-wide verification.
 
-2. **Session Summary**:
-   1. Execute `node .agent/skills/agent-manager/scripts/summarize.js`.
-   2. Audit for technical purity.
-
-## 📜 Core Mandate
-
-Responsible for the health of the `.agent/` directory and the integrity of the project's documentation and operational standards.
-
-### 1. Infrastructure Governance
-
-- **Sync**: Maintain absolute parity between `global.md`, `tracks.md`, and `backlog.md`.
-- **Audit**: Identify "Cognitive Rot" in rules and stale tracks in the state directory.
-- **Hierarchy**: Enforce standard directory structures and naming conventions.
-
-### 2. The Maintenance Loop
-
-- **Verify**: The `npm run verify` command is the Agent-Manager's primary tool for project health.
-- **Summarize**: Provide high-fidelity recaps of session progress.
-- **Structural Audit**: Enforce the physical integrity of the Sovereign Core via `structural-audit.js`.
-
-## 🛠️ Operational Tools
-
-File: `.agent/skills/agent-manager/scripts/scaffold-skill.js`
-
-```javascript
-// Skill creation logic
+```bash
+node .agent/skills/agent-manager/scripts/scaffold-skill.js audit
 ```
 
-File: `.agent/skills/agent-manager/scripts/package-skill.js`
+## ⚠️ Integrity Standards
 
-```javascript
-// Skill packaging logic
-```
-
-File: `.agent/skills/agent-manager/scripts/sync.js`
-
-```javascript
-// State reconciliation
-```
-
-File: `.agent/skills/agent-manager/scripts/summarize.js`
-
-```javascript
-// Session summary generation
-```
-
-File: `.agent/skills/agent-manager/scripts/structural-audit.js`
-
-```javascript
-// Physical structure verification
-```
-
-## 7. Anti-Patterns
-
-| Pattern             | Mitigation                                                                        |
-| :------------------ | :-------------------------------------------------------------------------------- |
-| **Orphaned Skills** | Every folder in `.agent/skills/` must have a valid `SKILL.md` and be registered.  |
-| **Rule Drift**      | Changes to core rules must be reconciled across both `AGENTS.md` and `GEMINI.md`. |
-
----
-
-📜 Rules: 01-05
-🧠 Skills: agent-manager, data
-⚡ Workflows: /01-blueprint, /02-build
-🕰️ 2026-03-24
-
----
+- **Nomenclature**: Follow the RPGlitch Lexicon (kebab-case files, PascalCase components).
+- **Documentation**: No bracketed placeholders allowed in production-ready skills.
+- **Purity**: Zero technical debt (No [TODO] markers).

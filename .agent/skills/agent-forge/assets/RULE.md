@@ -1,5 +1,5 @@
 ---
-name: {{Rule-Slug}}
+name: { { Rule-Slug } }
 description: >
   {{Description}}
 trigger: always_on

@@ -1,6 +1,6 @@
 # 📋 Active AI Backlog
 
-*Last Swept: 2026-03-25T05:18:57.546Z*
+_Last Swept: 2026-03-25T05:18:57.546Z_
 
 Last Swept: 2026-03-25T09:00:00.000Z
 

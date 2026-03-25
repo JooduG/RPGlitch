@@ -8,9 +8,11 @@
     ".gemini/[!s]*": true,
     ".gemini/s[!e]*": true,
     "GEMINI.md": true,
+    ".playwright-auth/**": true,
     "**/.DS_Store": true,
     "**/.eslintcache": true,
     "**/.eslintignore": true,
+    "**/.gitignore": true,
     "**/.htmlhintignore": true,
     "**/.markdownlintignore": true,
     "**/.prettierignore": true,
@@ -22,7 +24,8 @@
     "**/Thumbs.db": true,
     "**/yarn.lock": true,
     "mcp.json": true,
-    "test-results/**": true
+    "test-results/**": true,
+    "tests/**": true
   },
   "css.validate": true,
   "html.validate.styles": false,

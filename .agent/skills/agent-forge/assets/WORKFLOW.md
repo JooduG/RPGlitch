@@ -1,5 +1,5 @@
 ---
-name: {{Workflow-Slug}}
+name: { { Workflow-Slug } }
 description: >
   {{Description}}
   Triggers: (Glob), (Phrase), (/slash-command)
