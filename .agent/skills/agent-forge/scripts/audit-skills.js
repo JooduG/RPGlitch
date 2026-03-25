@@ -1,10 +1,10 @@
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
-import yaml from "js-yaml"; // Note: Need to check if js-yaml is available or use a simple regex
+// import { fileURLToPath } from "url";
+// import yaml from "js-yaml";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = process.cwd();
 const SKILL_ROOT = path.join(PROJECT_ROOT, ".agent", "skills");
 
@@ -22,7 +22,7 @@ export const skill_rules = [
   {
     id: "S-SKILL-001",
     severity: "DEBT",
-    regex: /\[(?!file:\/\/|Ref-).*?\]/,
+    regex: /\[(?!file:\/\/|Ref-)(?![^\]]*?\]\()(?![^\]]*?\]:).*?\]/,
     message: "WARNING: Unfilled [placeholder] detected in SKILL.md.",
   },
   {

@@ -3,17 +3,27 @@ name: css
 version: 1.0.0
 description: >
   Consolidates Native CSS and polish. Applies the Chalk Regime, glassmorphism, and strict design tokens as defined in .agent/rules/03-specification.md.
-  Triggers: "Fix CSS", "Add styles", "Check styling rules", "Context: [Polish]".
+  Triggers: "Fix CSS", "Add styles", "Check styling rules", "Context: Polish".
 ---
 
-# Skill: Styling & Design Systems (The Artisan)
+# 🎨 CSS Skill (The Stylist)
 
-> **Persona**: "I am The Artisan. Orchestrates the design system through native CSS Custom Properties. Applies the Chalk Regime, glassmorphism, and strict token enforcement following the absolute laws of `.agent/rules/03-specification.md`."
+> **Persona (The Stylist)**: "I am the Stylist. I own the Chalk Regime, the glassmorphism, and the visual soul of the RPGlitch Engine. I apply the design tokens and ensure the aesthetics are premium."
+> **Anatomy**: `skills/css/` (`scripts/`, `references/`)
 
-## 1. Summoning Triggers
+## 1. Structure
 
-- **Territorial**: `src/**/*.css`, `src/theme/**`.
-- **Intent**: "Fix CSS", "Add styles", "Check styling rules", "Polish UI".
+```text
+skills/css/
+├── SKILL.md
+├── scripts/    # CSS linting & token audit logic
+└── references/ # Design tokens & Chalk Regime docs
+```
+
+## 2. Summoning Triggers
+
+- **Territorial**: `src/theme/**`, `src/**/*.css`.
+- **Intent**: "Fix CSS", "Add styles", "Check styling rules", "Context: Polish".
 
 ## 2. The Brain (A-C-Q Protocol)
 

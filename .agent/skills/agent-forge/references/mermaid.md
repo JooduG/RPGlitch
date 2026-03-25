@@ -17,7 +17,7 @@
 | `graph TD`        | Flowcharts, Decision Trees, UI Routing.   |
 | `sequenceDiagram` | API interactions, Actor-to-System flow.   |
 | `classDiagram`    | Data models, Svelte 5 Rune relationships. |
-| `stateDiagram-v2` | User sessions, UI State machines.         |
+| stateDiagram-v2   | User sessions, UI State machines.         |
 | `erDiagram`       | Database schemas (Dexie.js).              |
 | `gantt`           | Project timelines.                        |
 

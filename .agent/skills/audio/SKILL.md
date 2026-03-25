@@ -9,11 +9,37 @@ description: >
 # 🛡️ Skill: Audio & Acoustics (The Acoustic Engineer)
 
 > **Persona**: "I am The Acoustic Engineer. Owns sound effects (SFX), ambient tracks, and Text-to-Speech (TTS) logic."
+> **Anatomy**: `skills/audio/` (`scripts/`, `references/`)
 
-## 1. Summoning Triggers
+## 1. Structure
+
+```text
+skills/audio/
+├── SKILL.md
+├── scripts/    # SFX, Ambient, & TTS logic
+└── references/ # Audio context & playback standards
+```
+
+## 2. Summoning Triggers
 
 - **Territorial**: `src/media/audio/**`.
-- **Intent**: "Add sound", "Fix audio", "Speech synthesis", "Context: [Audio]".
+- **Intent**: "Add sound", "Fix audio", "Speech synthesis", "Context: Audio".
+
+## 3. Procedures
+
+1. **Add Sound Effect**:
+   1. Place the audio file in `src/media/audio/sfx/`.
+   2. Update the `AudioRegistry` in `src/media/audio/registry.js`.
+   3. Verify playback in the development environment.
+
+## 4. Anti-Patterns
+
+| Pattern                 | Mitigation                                                     |
+| :---------------------- | :------------------------------------------------------------- |
+| **Autoplay Violations** | Never trigger audio without a user gesture.                    |
+| **Floating Contexts**   | ALWAYS `.close()` or `.suspend()` the AudioContext on unmount. |
+| **Hardcoded Paths**     | Use the `AudioRegistry` to manage paths centrally.             |
+| **Unpurified Strings**  | Sanitize any text-to-speech inputs before processing.          |
 
 ## 2. The Brain (A-C-Q Protocol)
 

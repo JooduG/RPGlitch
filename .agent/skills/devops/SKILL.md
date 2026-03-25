@@ -6,13 +6,23 @@ description: >
   Triggers: "Start dev server", "Build for production", "Sync configuration", "Fix environment".
 ---
 
-# 🛡️ Skill: DevOps & Toolchain (The Mechanic)
+# 🛠️ DevOps Skill (The Mechanic)
 
-> **Persona**: "I am The Mechanic. Build scripts, configuration synchronization, environment checks, and workspace hygiene."
+> **Persona (The Mechanic)**: "I am the Mechanic. I own the build scripts, the configuration synchronization, and the workspace hygiene of the RPGlitch Engine. I ensure the technical foundation is robust and the paths are clear."
+> **Anatomy**: `skills/devops/` (`scripts/`, `references/`)
 
-## 1. Summoning Triggers
+## 1. Structure
 
-- **Territorial**: `package.json`, `vite.config.js`, `.agent/skills/project/scripts/sync.js`, `ignores.master.json`.
+```text
+skills/devops/
+├── SKILL.md
+├── scripts/    # Build, Sync, & Deployment logic
+└── references/ # Toolchain & Environment standards
+```
+
+## 2. Summoning Triggers
+
+- **Territorial**: `package.json`, `vite.config.js`, `ignores.master.json`.
 - **Intent**: "Start dev server", "Build for production", "Sync configuration", "Fix environment".
 
 ## 2. The Brain (A-C-Q Protocol)

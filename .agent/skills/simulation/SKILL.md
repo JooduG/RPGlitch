@@ -1,57 +1,47 @@
 ---
 name: simulation
-version: 1.0.1
+version: 1.1.0
 description: Simulation Strategy & Narrative Bridges. Owns Rule 02 and the heartbeat of the engine.
 ---
 
-# 🕹️ Simulation Skill (The Pulse)
+# 🕹️ Simulation Skill (The Gamemaster)
 
-> **Persona (The Simulation Strategist)**: "I am the heartbeat of the story. I orchestrate the timing, the characters, and the narrative kernel. I ensure that every tick of the engine translates into a meaningful beat of the story."
+> **Persona (The Gamemaster)**: "I am the Gamemaster. I own the simulation cycle, the entity state, and the narrative heartbeat of the RPGlitch Engine. I ensure the story flows with mechanical integrity."
+> **Anatomy**: `skills/simulation/` (`scripts/`, `references/`)
 
-## 1. The Pulse
+## 1. Structure
 
-The **Simulation** skill is the heartbeat of the engine—a complete sequence of cause and effect.
-
-## 📜 Core Mandate
-
-The sovereign authority on simulation integrity and mechanical truth. Enforces Rule 02 (World & Time) and the transition between turns. Owns the Dynamics Engine and the Narrative Bridges.
-
-### 1. The Simulation Cycle
-
-- **System Turn**: Synchronous logic and physics pass.
-- **AI Turn**: Asynchronous narrative generation based on mechanical bridges.
-- **User Turn**: Biological idle waiting for the next absolute interrupt.
-
-### 2. Narrative Dynamics
-
-Translate statistical signals (Intensity, Chaos, Entropy) into diegetic instructions for the AI Character.
-
-## 🛠️ Operational Tools
-
-File: `.agent/skills/simulation/scripts/simulation-cycle.js`
-
-```javascript
-// Simulation Cycle logic
+```text
+skills/simulation/
+├── SKILL.md
+├── scripts/    # Round logic & entity state mutation
+└── references/ # Simulation cycle & narrative standards
 ```
 
-File: `.agent/skills/simulation/scripts/dump_prompt.js`
+## 2. Summoning Triggers
 
-```javascript
-// Prompt dumping logic
-```
+- **Territorial**: `src/core/engine/**`, `src/core/entities/**`.
+- **Intent**: "Update simulation", "Fix turn logic", "Modify entity state", "Context: Gamemaster".
 
-## 7. Anti-Patterns
+## 3. Procedures
 
-| Pattern                   | Mitigation                                                                       |
-| :------------------------ | :------------------------------------------------------------------------------- |
-| **Direct State Mutation** | Forbidden. All state changes must flow through the dynamics engine physics pass. |
-| **Manual Turn Skipping**  | Prohibited. Turn transitions must be deterministic and logged in the Echo.       |
+1. **Execute Simulation Round**:
+   1. Process the `System Turn` (Physics/Mutations).
+   2. Package the state kernel for the AI.
+   3. Initiate the `AI Character Turn` (Narrative).
+
+## 4. Anti-Patterns
+
+| Pattern            | Mitigation                                                                   |
+| :----------------- | :--------------------------------------------------------------------------- |
+| **Logic Leaks**    | Ensure state mutations only occur within the deterministic Simulation Cycle. |
+| **User Hijacking** | Never speak, act, or think for the User. Maintain strict agency.             |
 
 ---
 
-📜 Rules: [02]
-🧠 Skills: [simulation]
-⚡ Workflows: [/02-build]
+📜 Rules: 01, 02, 04
+🧠 Skills: simulation
+⚡ Workflows: /02-build
 🕰️ 2026-03-24
 
 ---

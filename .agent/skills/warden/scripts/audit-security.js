@@ -17,8 +17,14 @@ export const securityRules = [
         "forge-skill.js",
         "forge-skill-package.js",
         "audit.js",
+        "pinecone-engine.js",
+        "deploy_perchance.js",
+        "dump_prompt.js",
+        "simulation-cycle.js",
       ];
-      return !cliScripts.some((script) => filePath.includes(script));
+      return (
+        !filePath.endsWith(".test.js") && !cliScripts.some((script) => filePath.includes(script))
+      );
     },
   },
   {

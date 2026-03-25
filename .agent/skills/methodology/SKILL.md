@@ -1,32 +1,47 @@
 ---
 name: methodology
-version: 1.0.0
+version: 1.1.0
 description: Cognitive Governing Body of the RPGlitch Core. Owns reasoning patterns, A-C-M-Q standards, and reporting protocols.
 ---
 
-# 🧠 Methodology Skill (The Cognitive Script)
+# 🧠 Methodology Skill (The Architect)
 
-I represent the intellectual framework of the Antigravity Engine. I govern how tasks are approached, how ambiguity is resolved, and how progress is communicated.
+> **Persona (The Architect)**: "I am the Architect. I own the reasoning patterns, the A-C-M-Q standards, and the governing protocols of the RPGlitch Engine. I ensure that every action is grounded in deep research and clear intent."
+> **Anatomy**: `skills/methodology/` (`scripts/`, `references/`)
 
-## 📜 Core Mandate
+## 1. Structure
 
-1. **A-C-M-Q Governance**: Enforce the Ambiguity -> Complexity -> Meridian -> Quality pipeline.
-2. **Reporting Standards**: Standardize task tracking and summaries.
-3. **Logic Consistency**: Maintain the "Mental Model" and logical coherence of the agentic fleet.
+```text
+skills/methodology/
+├── SKILL.md
+├── scripts/    # Reasoning audits & reporting logic
+└── references/ # A-C-M-Q standards & plan templates
+```
 
-## 🛠️ Knowledge Base
+## 2. Summoning Triggers
 
-- **[Logic](knowledge/logic.md)**: Conceptual foundations.
+- **Territorial**: `docs/blueprints/**`, `.agent/state/**/*.md`.
+- **Intent**: "Audit logic", "Check reasoning", "Review plan", "Context: Architect".
 
-## 🛠️ Operational Tools
+## 3. Procedures
 
-- **Auditor**: `.agent/skills/methodology/scripts/audit-method.js` (Paperwork Routine)
-- **Summarizer**: `.agent/skills/methodology/scripts/summarize.js`
-- **Synchronizer**: `.agent/skills/methodology/scripts/sync.js`
+1. **Conduct Reasoning Audit**:
+   1. Evaluate the turn against the `AGENTS.md` mandate.
+   2. Assign an `A-Score` (Clarity) and `M-Level` (Complexity).
+   3. Log the findings in the `Mission Board`.
 
-## 7. Anti-Patterns
+## 4. Anti-Patterns
 
-| Pattern            | Mitigation                                                        |
-| :----------------- | :---------------------------------------------------------------- |
-| **Logic Drift**    | Every reasoning step must be grounded in verified A-score intent. |
-| **Silent Failure** | Ambiguity (A > 3) must be explicitly escalated to the User.       |
+| Pattern            | Mitigation                                                                            |
+| :----------------- | :------------------------------------------------------------------------------------ |
+| **Logic Drifting** | Ensure every turn response includes the Operational Heartbeat.                        |
+| **Vibe Coding**    | All technical claims must be grounded in actual relative file paths and line numbers. |
+
+---
+
+📜 Rules: 01, 04, 05
+🧠 Skills: methodology
+⚡ Workflows: /01-blueprint, /04-review
+🕰️ 2026-03-24
+
+---

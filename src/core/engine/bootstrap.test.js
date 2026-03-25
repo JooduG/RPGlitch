@@ -26,8 +26,12 @@ describe("AppBootstrap", () => {
     error.stack = maliciousPayload;
     // Mocking seed_premades to throw
     vi.mocked(repository.seed_premades).mockRejectedValue(error);
+    // Silencing the expected error log for this test
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
     await AppBootstrap.init();
     expect(document.body.innerHTML).toContain("SYSTEM HALTED");
+    consoleSpy.mockRestore();
     const errorStackElement = document.getElementById("error-stack");
     expect(errorStackElement).not.toBeNull();
     // When using textContent, the literal string should be present in the text,

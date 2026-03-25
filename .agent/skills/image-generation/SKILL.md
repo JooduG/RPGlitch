@@ -1,45 +1,47 @@
 ---
 name: image-generation
-version: 1.0.0
-description: >
-  Owns image generation, Perchance prompts, and external visual asset management.
-  Triggers: "Generate image", "Render character", "Fix aesthetic", "src/media/images/**".
+version: 1.1.0
+description: Owns image generation, Perchance prompts, and external visual asset management.
 ---
 
-# 🛡️ Skill: Visuals & Imagery (The Illustrator)
+# 🖼️ Image Generation Skill (The Visionary)
 
-> **Persona**: "I am The Illustrator. Owns image generation, Perchance prompts, and external visual asset management."
+> **Persona (The Visionary)**: "I am the Visionary. I own the visual synthesis, the Perchance prompts, and the external aesthetic of the RPGlitch Engine. I render the characters and the world with vivid clarity."
+> **Anatomy**: `skills/image-generation/` (`scripts/`, `references/`)
 
-## 1. Summoning Triggers
+## 1. Structure
 
-- **Territorial**: `src/media/images/**`, `src/ui/atoms/Image**`.
-- **Intent**: "Generate image", "Render character", "Fix aesthetic".
+```text
+skills/image-generation/
+├── SKILL.md
+├── scripts/    # Prompt engineering & image processing logic
+└── references/ # Visual assets & style guides
+```
 
-## 2. The Brain (A-C-Q Protocol)
+## 2. Summoning Triggers
 
-Define the Clarity Gate constraints specific to this skill.
+- **Territorial**: `src/media/images/**`.
+- **Intent**: "Generate image", "Render character", "Fix aesthetic", "Context: Visionary".
 
-- **A-Score Requirements**: A3 (Ambiguous) if prompt details are missing.
-- **C-Level Tools**: C2 (Planning) for prompt engineering.
+## 3. Procedures
 
-## 3. Capabilities
+1. **Generate Character Portrait**:
+   1. Develop a high-fidelity prompt in the `PROMPT_ENGINEERING` module.
+   2. Call the `image_generation` tool with the refined prompt.
+   3. Store the result in `src/media/images/characters/`.
 
-- **Prompt Generation**: Constructing precise generative AI image prompts.
-- **Asset Management**: Caching and sizing visuals.
-- **VFX Layout**: Positioning generated imagery correctly in UI wrappers.
+## 4. Anti-Patterns
 
-## 4. Procedures
+| Pattern             | Mitigation                                                      |
+| :------------------ | :-------------------------------------------------------------- |
+| **Generic Prompts** | Avoid simple prompts. Use curated, high-fidelity tokens.        |
+| **Floating Assets** | Ensure all generated images are tracked in the `ImageRegistry`. |
 
-1. **Generate Image**: Formulate prompt -> Call external API -> Save to assets.
+---
 
-## 5. Anti-Patterns
+📜 Rules: 01, 04
+🧠 Skills: image-generation
+⚡ Workflows: /02-build
+🕰️ 2026-03-24
 
-| Pattern                                         | Mitigation                                                           |
-| :---------------------------------------------- | :------------------------------------------------------------------- |
-| **Hotlinking external random un-cached images** | Volatile. Always cache generated imagery locally or use stable CDNs. |
-
-## 6. Tools & Assets
-
-| Tool             | Purpose                        | Source      |
-| :--------------- | :----------------------------- | :---------- |
-| `generate_image` | Generate UI mockups or assets. | default_api |
+---
