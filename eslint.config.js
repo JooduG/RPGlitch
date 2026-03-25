@@ -40,6 +40,7 @@ export default [
       "**/scribbles/**",
       "test-results/**",
       ".playwright-auth/**",
+      "GEMINI.md",
     ],
     // @agent:ignore-end
   },

@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
- * 🛠️ Svelte 5 Scaffolder
- * Usage: node scaffold.js <Name> [type]
+ * 🛠️ THE COMPONENT FORGE (Svelte 5)
+ * ---------------------------------
+ * Usage: node forge-component.js <Name> [type]
  * Types: atoms, molecules, organisms, templates (default: atoms)
  */
 
@@ -17,7 +18,7 @@ const PROJECT_ROOT = process.cwd();
 const SRC_DIR = path.join(PROJECT_ROOT, "src", "ui");
 const TEMPLATE_DIR = path.join(__dirname, "../templates");
 
-const scaffold = (name, type = "atoms") => {
+const forge = (name, type = "atoms") => {
   if (!name) {
     console.error("❌ Component name required.");
     process.exit(1);
@@ -41,16 +42,28 @@ const scaffold = (name, type = "atoms") => {
   const templatePath = path.join(TEMPLATE_DIR, "COMPONENT.svelte");
   let content = fs.existsSync(templatePath)
     ? fs.readFileSync(templatePath, "utf-8")
-    : `<script>let { children } = $props();</script><h1>${componentName}</h1>`;
+    : `<script>
+  let { children } = $props();
+</script>
+
+<div class="${componentName.toLowerCase()}">
+  {@render children?.()}
+</div>
+
+<style>
+  .${componentName.toLowerCase()} {
+    /* Chalk Regime Tokens Here */
+  }
+</style>`;
 
   // Hydrate Template
   content = content.replace(/PropName/g, componentName);
 
   // Write
   fs.writeFileSync(targetFile, content, "utf-8");
-  console.log(`✅ Created ${type}/${componentName}.svelte`);
+  console.log(`\n✅ FORGE SUCCESS: ${type}/${componentName}.svelte created.`);
 };
 
 // Execution
 const args = process.argv.slice(2);
-scaffold(args[0], args[1]);
+forge(args[0], args[1]);

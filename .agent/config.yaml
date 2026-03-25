@@ -28,38 +28,6 @@ workflows:
   08-github: .agent/workflows/08-github.md
   99-rewind: .agent/workflows/99-rewind.md
 
-# 📚 Knowledge (Reference Library)
-# knowledge:
-#   # 🗺️ Atlas: The Verified Geography (Laws, Architecture, Vision)
-#   atlas:
-#     # Rules
-#     rule-foundation: .agent/rules/01-foundation.md
-#     rule-simulation: .agent/rules/02-simulation.md
-#     rule-infrastructure: .agent/rules/03-infrastructure.md
-#     rule-intelligence: .agent/rules/04-intelligence.md
-#     rule-compliance: .agent/rules/05-compliance.md
-
-#     # Knowledge (Legacy/Pending)
-#     # atlas-physics: .agent/knowledge/atlas/07-physics.md
-#     # atlas-vision: .agent/knowledge/atlas/01-vision.md
-#     # atlas-roadmap: .agent/knowledge/atlas/02-roadmap.md
-#     # atlas-architecture: .agent/knowledge/atlas/03-architecture.md
-#     # atlas-mechanics: .agent/knowledge/atlas/04-mechanics.md
-#     # atlas-environment: .agent/knowledge/atlas/05-environment.md
-#     # atlas-lexicon: .agent/knowledge/atlas/06-lexicon.md
-
-#   # Archive: Previous Implementations
-#   archive:
-#     dir: .agent/archive/
-
-#   # 🔬 Lab: Experimental Theories & Speculative Ideas
-#   lab:
-#     lab-ideation: .agent/knowledge/lab/01-ideation.md
-#     lab-interaction: .agent/knowledge/lab/02-interaction.md
-#     lab-mechanics: .agent/knowledge/lab/03-mechanics.md
-#     lab-logic: .agent/knowledge/lab/04-logic.md
-#     lab-strategy: .agent/knowledge/lab/05-strategy.md
-
 # 📝 Active Governance (Rules)
 rules:
   rule-foundation: .agent/rules/01-foundation.md
@@ -71,4 +39,9 @@ rules:
 # 📝 Workspace (Active Memory)
 workspace:
   tracks: .agent/state/tracks.md
-  global: .agent/state/global.md
+  mission_board: .agent/state/global.md
+
+# ⚖️ Compliance (The Signal Audit)
+compliance:
+  mandate: AGENTS.md
+  audit_level: C3

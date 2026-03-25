@@ -3,8 +3,8 @@ import { execSync } from "child_process";
 const ROOT_DIR = process.cwd();
 
 /**
- * 🏗️ AGENT-MANAGER: SESSION SUMMARY
- * ---------------------------------
+ * 🧠 METHODOLOGY: SESSION SUMMARY
+ * ------------------------------
  * Synthesizes the results of multiple audit and lint steps into a single recap.
  */
 
@@ -26,7 +26,7 @@ if (args.length === 0) {
 }
 
 console.log("\n================================================================================");
-console.log("🏗️  THE AGENT-MANAGER: SESSION SUMMARY");
+console.log("🧠  THE METHODOLOGY: SESSION SUMMARY");
 console.log("================================================================================\n");
 
 args.forEach((arg) => {

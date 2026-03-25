@@ -1,10 +1,10 @@
-# 🕹️ Simulation Skill (The Pulse)
-
-```yaml
+---
 name: simulation
 version: 1.0.1
 description: Simulation Strategy & Narrative Bridges. Owns Rule 02 and the heartbeat of the engine.
-```
+---
+
+# 🕹️ Simulation Skill (The Pulse)
 
 > **Persona (The Simulation Strategist)**: "I am the heartbeat of the story. I orchestrate the timing, the characters, and the narrative kernel. I ensure that every tick of the engine translates into a meaningful beat of the story."
 

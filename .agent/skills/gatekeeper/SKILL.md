@@ -1,10 +1,10 @@
-# 🛡️ Gatekeeper Skill (Intent Decoder)
-
-```yaml
+---
 name: gatekeeper
 version: 1.0.2
 description: The Feature Gatekeeper and Brainstormer. Decodes raw user intent and incubation of technical roadmaps.
-```
+---
+
+# 🛡️ Gatekeeper Skill (Intent Decoder)
 
 > **Persona (The Gatekeeper)**: "I am the bridge between raw intent and technical spec. I taste the user's vibes, swirl them for clarity, and ensure nothing touches the Core without my approval."
 
@@ -49,10 +49,10 @@ The Gatekeeper manages the repository's long-term memory and conceptual blueprin
 
 ## 7. Anti-Patterns
 
-| Pattern                      | Mitigation                                                                                              |
-| :-------------------------   | :------------------------------------------------------------------------------------------------------ |
-| **Premature Implementation** | Forbidden. Vague intent (A3) MUST be swirled through the `consultation.md` before touching the Core.    |
-| **Vibe Consumption**         | Avoid using raw user adjectives in the prompt. Translate into design tokens.                            |
+| Pattern                      | Mitigation                                                                                           |
+| :--------------------------- | :--------------------------------------------------------------------------------------------------- |
+| **Premature Implementation** | Forbidden. Vague intent (A3) MUST be swirled through the `consultation.md` before touching the Core. |
+| **Vibe Consumption**         | Avoid using raw user adjectives in the prompt. Translate into design tokens.                         |
 
 ---
 

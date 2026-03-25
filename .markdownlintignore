@@ -21,3 +21,4 @@ node_modules
 **/scribbles/**
 test-results/**
 .playwright-auth/**
+GEMINI.md

@@ -1,110 +1,89 @@
 ---
 trigger: always_on
-description: The A-C-M-Q cognitive pipeline governing agent operations.
+description: The conceptual and linguistic laws governing agent intelligence.
 ---
 
-# ⚡ Rule 04: Intelligence (The Loop)
+# ⚡ Rule 04: Intelligence
 
-> **Persona (The Cognitive Architect)**: "I am the pulse of the agent. I enforce the A-C-M-Q pipeline, manage complexity, and ensure that every action is grounded in a verified plan. I am the bridge between intent and reality."
-
----
-
-## 1. The Unified Execution Pipeline (A-C-M-Q)
-
-Every task flows through a strict, interlocking cognitive and operational pipeline:
-`Input -> Ambiguity (A) -> Complexity (C) -> Meridian Execution (M) -> Quality Gate (Q) -> Output`
+> **The Cognitive Architect**: "I am the nervous system of the agent. I enforce the linguistic law, manage complexity, and ensure that every action is grounded in a verified plan. I am the bridge between intent and reality."
 
 ---
 
-### Phase 1: Ambiguity Check (A-Score)
+## 1. Intent Taxonomy
 
-Before a single line of code is evaluated, assess the input intent. If the input is a conceptual "vibe" (e.g., "make it cooler"), it must be decoded into technical reality.
+Before a single line of code is evaluated, the intent must be decoded. If the input is a conceptual "vibe", it must be translated into technical reality.
 
-| Level  | Meaning       | Protocol                                                        |
-| :----- | :------------ | :-------------------------------------------------------------- |
-| **A1** | **Clear**     | Crystal clear intent. Proceed to Phase 2.                       |
-| **A2** | **Inferred**  | Context implies the answer. Proceed to Phase 2.                 |
-| **A3** | **Ambiguous** | Propose **One (1)** Solution. _"Are you trying to describe X?"_ |
-| **A4** | **Critical**  | Present **Two (2+)** Options. _"We can either do X or Y."_      |
-| **A5** | **Hazard**    | REFUSE. _"X is blocking progress; we must solve it first."_     |
+| Intent        | Meaning        | Protocol                                                        |
+| :------------ | :------------- | :-------------------------------------------------------------- |
+| **Clear**     | **Ideal**      | Crystal clear intent. Proceed with planning.                    |
+| **Inferred**  | **Contextual** | Context implies the answer. Proceed with planning.              |
+| **Ambiguous** | **Draft**      | Propose **One (1)** Solution. _"Are you trying to describe X?"_ |
+| **Critical**  | **Decision**   | Present **Two (2+)** Options. _"We can either do X or Y."_      |
+| **Hazard**    | **Refusal**    | REFUSE. _"X is blocking progress; we must solve it first."_     |
 
-> **Workshop Forge Constraint:** If **A >= 3**, execution is HALTED. You must invoke `workshop-forge` to translate the vibe/idea into a concrete Lab Experiment before proceeding to build.
-
----
-
-### Phase 2: Complexity Score (C-Level)
-
-**Golden Rule:** Never waste Cortex (Slow/Architect) cycles on Reflex (Fast/Intern) tasks. Never trust Reflex for Cortex tasks.
-
-| Level  | Mode              | Trigger                             | Protocol / Required Tooling         |
-| :----- | :---------------- | :---------------------------------- | :---------------------------------- |
-| **C1** | **Reflex**        | Typos, CSS tweaks, hygiene.         | Direct Execution. _No extra tools._ |
-| **C2** | **Planning**      | Features, Refactors, Svelte 5.      | `mcp-sequentialthinking-tools`      |
-| **C3** | **Metacognition** | Stuck/Looping or Confidence < 70%.  | `waldzell-metacognitive-monitoring` |
-| **C4** | **Reframing**     | "Impossible" bugs, flawed approach. | `waldzell-clear-thought`            |
-| **C5** | **Decision**      | Architecture conflicts.             | `waldzell-decision-framework`       |
-| **C6** | **Science**       | Unknown unknowns.                   | `waldzell-scientific-method`        |
-
-#### The Cognitive Sub-Routines (Loop Breakers)
-
-If ANY of these conditions are true, **STOP** and initiate a Self-Audit:
-
-- You have made 3+ tool calls without measurable progress.
-- The user's last 3 messages address the same unresolved issue.
-- Confidence drops below 70%.
+> **Ambiguity Rule**: Human intent clarity is the absolute prerequisite for planning. If intent is **Ambiguous or higher**, session execution is HALTED. Use the `gatekeeper` skill to translate ideas into concrete technical roadmaps.
 
 ---
 
-### Phase 3: The Meridian Execution (M-Sequence)
+## 2. Cognitive Routing Reference
 
-Once planned via `01-blueprint` and cleared by the `workshop-warden`, execute the task using this atomic sequence.
+Use this reference to select the appropriate MCP reasoning framework based on the shape of the problem.
 
-| Step               | Scope             | Action                                                                                                                                            |
-| ------------------ | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **1. [Scribe]**    | Task Tracking     | Ensure `workshop-scribe` has initialized Flat Tracks in `.agent/state/tracks/<slug>.md`.                                                          |
-| **2. [Construct]** | Logic & Tools     | Wire up **Svelte 5 Runes**. When building Perchance Bridges, use `window.exposed` safely. Consolidate tools; do not proliferate narrow functions. |
-| **3. [Sensory]**   | Aesthetic Polish  | Apply **The Chalk Regime** CSS variables and UI layout rules.                                                                                     |
-| **4. [Data]**      | State Persistence | Anchor dynamic state and memory structures.                                                                                                       |
-
----
-
-### Phase 4: Quality Gate & Security (Q-Audit)
-
-Step 5 of the Meridian acts as the ultimate Quality Gate.
-
-| Audit          | Requirement                                                                               | Failure Action         |
-| -------------- | ----------------------------------------------------------------------------------------- | ---------------------- |
-| **Sovereign**  | Does the plan strictly use Svelte 5 Runes & Chalk Tokens?                                 | Downgrade to **A3**.   |
-| **Integrity**  | Are targeted files/skills currently valid in the environment?                             | Downgrade to **C4**.   |
-| **Tool Forge** | Do all bridge tools return actionable error messages? Are MCP tool calls fully qualified? | Re-plan at **C+1**.    |
-| **Hygiene**    | Are there no `console.log` or untracked `#TODO-AI` tags?                                  | Clean and re-evaluate. |
-
-> **The Circuit Breaker:** 3 consecutive Q-Gate failures = Mandatory **C3 Self-Audit**.
+| Block Type      | Trigger                                 | MCP / Framework                     |
+| :-------------- | :-------------------------------------- | :---------------------------------- |
+| **Research**    | Knowledge gaps, library patterns.       | `context7`, `svelte`, `deepwiki`    |
+| **Reasoning**   | Multi-step breakdown, chain-of-thought. | `mcp-sequentialthinking-tools`      |
+| **Reframing**   | "Impossible" bugs, flawed approach.     | `waldzell-clear-thought`            |
+| **Diversity**   | Trade-offs, simulated expertise.        | `waldzell-collaborative-reasoning`  |
+| **Decision**    | Complex choices, multi-criteria.        | `waldzell-decision-framework`       |
+| **Calibration** | Bias detection, confidence assessment.  | `waldzell-metacognitive-monitoring` |
+| **Systems**     | Pattern recognition, spatial mapping.   | `waldzell-visual-reasoning`         |
 
 ---
 
-## 2. Definition of Done (The Gold Standard)
+## 3. Information Grounding
 
-- [ ] Reality matches the Spec with **Auditable Proof**.
-- [ ] Logic follows Svelte 5 **Runes** exclusively (no legacy stores).
-- [ ] Styling adheres to **The Chalk Regime** CSS variables.
-- [ ] **Hygiene Check**: No `console.log`, `FIXME`, or unresolved out-of-scope `#TODO-AI`.
-- [ ] **Audits**: `npm run lint` and `npm test` pass.
-- [ ] **Handoff**: `.agent/state/tracks.md` and `.agent/state/global.md` updated via `/06-continue`.
+Every claim must be anchored in the "Reality of the Codebase."
+
+- **Quoting Mandate**: Verify logic state by quoting exact applicable information.
+- **Path Sovereignty**: All internal file/logical references MUST use relative paths.
+- **Absolute Mapping**: Technical explanations MUST map to actual file paths and line numbers.
 
 ---
 
-## 3. The Metadata Mandate
+## 4. Lexical Laws & Nomenclature
 
-Every response must conclude with this metadata block to log operational weights:
+To prevent cognitive drift, nomenclature is absolute.
+
+### **Casing Standards**
+
+- **kebab-case**: Folders and files (e.g., `simulation-engine/`, `context-broker.js`).
+- **PascalCase**: Svelte components (e.g., `StoryPanel.svelte`).
+- **snake_case**: Variables and process state (e.g., `current_char`).
+- **question_snake**: Booleans (e.g., `is_active`, `has_token`).
+- **SCREAMING_SNAKE**: Constants and Globals (e.g., `MAX_ENTROPY`).
+
+### **The RPGlitch Lexicon**
+
+- **Simulation**: The overall story/state container.
+- **Entity**: Either a Character or a Fractal.
+- **Fractal**: World, setting, or environmental entity.
+- **User Persona**: Human-controlled character.
+- **AI Character**: Agent-controlled character.
+- **Devmode**: Developer workspace.
+- **Localization**: Metric/SI only. ISO 8601. GMT+1.
+
+---
+
+## 5. The Operational Heartbeat
+
+Every turn response must conclude with this metadata block to log operational weights:
 
 ```text
----
-📜 Rules: [Active rules used this turn]
-🧠 Skills: [Skills utilized]
-📚 Knowledge: [Knowledge files referenced]
-⚡ Workflows: [Workflows executed]
-🤖 Tools: [Specific tools called]
-🕰️ Time: [Current system timestamp]
----
+### 🕹️ Operational Heartbeat
+- **🤖 AGENTS.md**: [Specific step from AGENTS.md]
+- **📜 Rules**: [Active rule enforced this turn]
+- **🧠 Capabilities**: [Skill or Workflow utilized]
+- **💾 State**: [Specific file in .agent/state/ updated]
+- **🛠️ Tools & MCPs**: [Specific tool or MCP-server called]
 ```

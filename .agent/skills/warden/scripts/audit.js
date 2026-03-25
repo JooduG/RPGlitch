@@ -22,26 +22,18 @@ function run(label, command, ignoreError = false) {
   }
 }
 
-// 1. Security & Compliance Scan
-run("SECURITY-SCAN", `node ${path.join(SCRIPTS_DIR, "security-scan.js")}`);
+// 1. Unified Modular Audit (The Reflex)
+run("MODULAR-AUDIT", `node ${path.join(SCRIPTS_DIR, "audit-engine.js")}`);
 
-// 2. Janitor & Backlog Update (Ignore errors as it's non-critical)
-run("JANITOR", `node ${path.join(SCRIPTS_DIR, "janitor.js")}`, true);
-
-// 3. Unit Tests (Vitest)
+// 2. Unit Tests (Vitest)
 console.log("\n▶️  [TESTS] Running: npm run test:unit");
 try {
-  // Use npm run test:unit which triggers vitest
-  // We pass --run to ensure it terminates
   execSync("npm run test:unit -- --run", { stdio: "inherit", cwd: ROOT_DIR });
   console.log("✅ [TESTS] All tests passed.");
 } catch (e) {
   console.error("❌ [TESTS] SOME TESTS FAILED.");
   process.exit(1);
 }
-
-// 4. Intelligence Structure Scan (Agent-Manager)
-run("STRUCTURAL-AUDIT", `node .agent/skills/agent-manager/scripts/structural-audit.js`);
 
 console.log("\n================================================================================");
 console.log("🏁 AUDIT COMPLETE: System is Resonating at 100% Purity.");

@@ -5,7 +5,7 @@ description: Security auditing, Quality Assurance protocols, Automated Hygiene, 
 
 # 🛡️ Rule 05: Compliance (The Guard)
 
-> **Persona (The Warden)**: "I am the ICE that protects the engine. I enforce nomenclature, sweep for technical debt, and prevent vulnerabilities from breaching the production layer. No code passes the Scholar Gate without my silent verification."
+> **The Warden**: "I am the ICE that protects the engine. I enforce nomenclature, sweep for technical debt, and prevent vulnerabilities from breaching the production layer. No code passes the Scholar Gate without my silent verification."
 
 ---
 
@@ -29,54 +29,55 @@ When fixing a bug caused by invalid data, validating at a single point is insuff
 
 ---
 
-## 2. The Warden Protocols (Automated Defense)
+## 2. Automated Defense (The Warden)
 
 Before any task is marked complete, the ecosystem must survive these automated sweeps.
 
-### A. The Antigravity Janitor (Technical Debt Sweep)
+### 2.1 The Antigravity Janitor
 
-We do not leave messes. The Janitor script automatically scans the `src/` directory for tracked technical debt.
+We do not leave messes. Adhere to the **Boy Scout Rule**: Always leave the codebase cleaner than you found it.
 
-- **Protocol**: Any unresolved scope is tagged with `#TODO-AI`.
-- **Execution**: The Janitor compiles all `#TODO-AI` tags and automatically overwrites `.agent/state/backlog.md` to ensure no dropped batons.
-
-### B. The Warden Scan (Hygiene & Vulnerability Audit)
-
-- **Naming Audit**: Use the `naming-analyzer` skill to ensure codebase nomenclature remains consistent and descriptive.
-- **Dependency Scan**: `npm audit --audit-level=high` is a prerequisite for any checkpoint. It runs recursively across the root and `.agent/tools/`.
+- **Nomenclature**: Maintain consistent naming as defined in the **RPGlitch Lexicon**.
+- **Technical Debt**: Tag unresolved scope or bugs with `#TODO-AI`.
+- **Hygiene**: Use the `warden` skill to audit security; `npm audit --audit-level=high` is mandatory for any deployment checkpoint.
 
 ---
 
-## 3. Quality Assurance (The Proving Grounds)
+## 3. The Signal Audit (Quality Assurance)
 
-The **Scholar Gate** dictates that no task track gets a `[x]` without verified test output.
+The **Signal Audit** ensures that no task track gets a `[x]` without verified ec and a logical audit.
 
-| Testing Layer  | Framework    | Requirement                                                  |
-| :------------- | :----------- | :----------------------------------------------------------- |
-| **Unit Tests** | `Vitest`     | Logic verification required for all state changes.           |
-| **E2E Tests**  | `Playwright` | Full-flow visual/functional verification for critical paths. |
+- *Mandatory Reasoni__ Every transmission should _e___-o-n--- in the **[AG
+E
+N
+
+
+T
+S.md](../../AGENTS.md)*
+
+
+* reasoning pipeline.
+- **The Proving Grounds**:
+  | Layer | Framework | Requirement |
+  | :--- | :--- | :--- |
+  | **Reflex** | Lint/Prettier | Zero warnings/errors allowed in `src/`. |
+  | **Logic** | `Vitest` | State verification for all engine mutations. |
+  | **Sensory** | `Playwright` | Visual/Functional verification for critical UI paths. |
 
 ---
 
-## 4. Structural Hygiene & Triage Standards
+## 4. Environmental Purity
 
-Code and communication must be chemically pure. We adhere to the **Boy Scout Rule**: Leave the architecI Slop Audit & Naming Regimes
+Code must be chemically pure. We do not tolerate "Vibe Slop" or AI-isms in code or commentary.
 
-- **Vibe & Tone Hardening**:
-- NEVER use flowery AI tropes:"testament", "leverage" (unless referring to physinarratively ("I have added X")). Frame them as terminal states.
-- Avoid em-dashes (`—`); use precise, atomic sentences.
-- **Architectural Limits**: No single context file should exceed 500 lines or mixed responsibilities. If it does, refactoring is mandatory.
-- **Naming Regimes**: Enforce `PascalCase` for Blueprints (Classes/Components) and `camelCase` for variables/functions. Booleans must ask a question (`isActive`, `hasToken`).
+- **Tone Hardening**: Avoid flowery AI tropes ("testament", "delve"). Use precise, atomic statements.
+- **Naming Protocol**: Refer to [Intelligence](./04-intelligence.md).
 
-### Issue Triage & Review Severity
+---
 
-- `kind/bug`: Contradicts documentation or expected behavior.
-- `kind/enhancement`: New functionality or architectural upgrade.
-- `priority/p1`: Security breach, data loss, or system outage.
+## 5. Constitutional Authority
 
-| Level        | Meaning                                     | Action                        |
-| :----------- | :------------------------------------------ | :---------------------------- |
-| **Critical** | Production failure / Security breach.       | **MUST fix immediately.**     |
-| **High**     | Significant bugs / Performance degradation. | **Should fix before merge.**  |
-| **Medium**   | Technical debt / Unresolved `#TODO-AI`.     | **Log in `backlog.md`.**      |
-| **Low**      | Minor stylistic issues.                     | **Sweep during Janitor run.** |
+In the event of an architectural or logical conflict, **[AGENTS.md](../../AGENTS.md)** serves as the high-level arbiter.
+
+- **Conflict Resolution**: Follow Step 7.1 of the Global Mandate. Resolve in order of importance: **Passive Governance > Order of Operations > Prerequisites**.
+- **Inhibition**: Follow Step 9. Never act without explicit reasoning and verification.
