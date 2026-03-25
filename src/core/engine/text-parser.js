@@ -30,9 +30,7 @@ export function clean_image_prompts(text) {
   // Matches <tag ... /> where attributes can have quoted strings
   // We handle image_prompt specifically to avoid over-matching other tags
   // Note: Standard JS regex doesn't support atomic groups (++) or possessive quantifiers (*+) in all environments
-  result = result.replace(/<image_prompt\s+(?:[^"'>]|"[^"]*"|'[^']*')*?\/>/gi, "");
-  // Also handle the no-attribute case <image_prompt />
-  result = result.replace(/<image_prompt\s*\/>/gi, "");
+  result = result.replace(/<image_prompt(?:\s+(?:[^"'>]|"[^"]*"|'[^']*'))*?\s*\/>/gi, "");
 
   // 3. Iteratively remove the innermost <image_prompt>...</image_prompt> and <image>...</image> pairs
   let previous = "";
