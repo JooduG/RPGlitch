@@ -1,81 +1,98 @@
-# 🌌 RPGlitch: GEMINI.md (Neural Overrides)
+# 🤖 Agent Axiomatic Laws
 
-> **Vision:** A local-first, genre-agnostic RPG engine where state drives reality and narrative is forged through recursive intelligence. This file contains the mandatory neural overrides and behavioral guardrails for Gemini-based sub-routines.
+You are a very strong reasoner and planner. Use these critical instructions to structure your plans, thoughts, and responses.
 
----
+Before taking any action (either tool calls or responses to the user), you must proactively, methodically, and independently plan and reason about:
 
-## 🏗️ Project Overview
+## ⛓️ 1. Logical Dependencies & Constraints
 
-RPGlitch is a **Local-First Reactive Monolith** designed for immersive storytelling. It bridges creative prose and mechanical truth through a triad of layers:
+Analyze the intended action against the following factors. Resolve conflicts in order of importance:
 
-- **The Spec (Blueprint):** Deep lore, taxonomies, and character archetypes.
-- **The State (Live):** Reactive Svelte 5 Runes mirroring physical and psychological reality.
-- **The Echo (History):** Persistent logs in IndexedDB (via Dexie.js) that give context and weight to every decision.
+- 1.1 Passive Governance: [Rules](./.agent/rules), mandatory prerequisites, and constraints.
+- 1.2 Order of operations: Ensure taking an action does not prevent a subsequent necessary action.
+- 1.3 Prerequisites: Information and/or actions needed.
+- 1.4 Explicit constraints: User preferences.
+- 1.5 Intent Decoding: Is the user's intent completely clear and technically actionable?
+  - TRUE: **Proceed with the workflow**.
+  - FALSE: **Halt execution and invoke the `gatekeeper` skill to resolve ambiguity**.
 
-The project targets **Perchance** as its primary deployment platform, requiring a self-contained single `index.html` bundle.
+## 🧠 2. Hypothesis Generation & Triage
 
----
+Assess the symptom and draft your suspected causes before taking any action.
 
-## 🛠️ Technical Stack & Environment
+- 2.1 Brainstorming: **Rank your hypotheses by likelihood.** Do not discard outliers prematurely.
+- 2.2 Risk Routing: Map the risk tier based on your most severe likely hypothesis.
+  - Low Risk (Typos, CSS tweaks, minor logic): **Bypass testing. Proceed directly to Step 5 (Execution)**.
+  - Medium Risk (Refactors, state migrations): **Proceed to Step 3**.
+  - High Risk (Structural changes, mission board wipes): **Proceed to Step 3 and trigger the `warden:debugging` protocol**.
 
-- **Framework:** Svelte 5 (Runes-only: `$state`, `$derived`, `$effect`).
-- **Build Tool:** Vite (with `vite-plugin-singlefile` for Perchance).
-- **Environment (Perchance Two-Panel Paradigm):** No Node.js backend. Rely entirely on **Just-In-Time (JIT) Compilation** and **ESM/CDN imports** (via `esm.sh`) for external libraries.
-- **Persistence:** Dexie.js (IndexedDB).
-- **Styling:** Vanilla CSS with **Chalk Regime** design variables.
+## 🔍 3. Deep Research & Cognitive Routing
 
----
+For Medium and High-Risk tasks, you must validate your hypothesis before writing code. Identify the exact nature of your roadblock to select the right toolkit. Are you missing external facts, or are you struggling to process the complexity of the task?
 
-## ⚡ Engineering Mandates (Neural Directives)
+- **3.1 KNOWLEDGE DEFICIT** (Need External Facts): _Coordinate specialized MCPs for deep inquiry._
+  - `context7`: Up-to-date documentation and library patterns.
+  - `svelte`: Official Svelte 5 logic and code verification.
+  - `deepwiki`: GitHub repository intelligence and existing architecture analysis.
+  - Autonomous Bias: When exploring, missing optional tool parameters is acceptable. **Execute the tool with available info instead of halting to ask the user**.
 
-### 1. Svelte 5 Sovereignty
+- **3.2 PROCESSING DEFICIT** (Need Cognitive Structuring): _Select the appropriate MCP server reasoning framework based on the shape of the problem._
+  - **Multi-step problem** requiring **dynamic breakdown**, **chain-of-thought**, and **course correction**? -> Trigger `mcp-sequentialthinking-tools`.
+  - Requiring a **unified mental model** or routing across **multiple cognitive patterns**? -> Trigger `waldzell-clear-thought`.
+  - Needing **diverse simulated expertise**, **productive disagreement**, or **stakeholder synthesis**? -> Trigger `waldzell-collaborative-reasoning`.
+  - Evaluating complex **trade-offs**, **options**, **multi-criteria choices**, or **probability estimates**? -> Trigger `waldzell-decision-framework`.
+  - High risk of **bias**, high **uncertainty**, or needing **strict knowledge boundary calibration**? -> Trigger `waldzell-metacognitive-monitoring`.
+  - Testing **cause-and-effect**, **controlling variables**, or **evaluating competing technical explanations**? -> Trigger `waldzell-scientific-method`.
+  - Dealing with **deep uncertainty** and needing to optimize sequences (MDPs, MCTS, Bayesian)? -> Trigger `waldzell-stochasticalgorithm`.
+  - Resolving **competing claims**, **dialectical reasoning**, or evaluating architectural **pros/cons**? -> Trigger `waldzell-structured-argumentation`.
+  - Mapping **system architecture**, **data flow**, **algorithms**, or **spatial problem solving**? -> Trigger `waldzell-visual-reasoning`.
 
-- **Mandate:** All new code **must** use Svelte 5 Runes.
-- **Forbidden:** `export let`, `$:`, `writable()`, `readable()`, and `onMount` (where `$effect` is applicable).
-- **Action:** Silently refactor legacy Svelte 4 code to Svelte 5 Runes immediately upon encounter.
+## ⚖️ 4. Evaluation & Adaptability
 
-### 2. The Specification Protocol (Visual Integrity)
+Does the data from Step 3 confirm your hypothesis?
 
-- **Mandate:** All styling must strictly adhere to `.agent/rules/03-specification.md`.
-- **Constraint:** Use **only** native CSS variables defined in `src/theme/tokens.css` (e.g., `var(--color-chalk)`).
-- **Forbidden:** You are strictly forbidden from hallucinating generic hex codes, RGB values, or arbitrary inline colors.
+- **4.1 Pivot Protocol**: If initial _hypotheses are disproven_ or _architectural conflicts arise during execution_ -> generate **new hyptheses** and go _back to step 1_.
+- **4.2 State Sync**: If the _logic shifts_ drastically during testing -> _update the [Mission Board](./.agent/state/global.md)_ before executing.
 
-### 3. ANEX_BLACKTIDE Authority Hierarchy
+## ⚙️ 5. The Execution & Grounding Sequence
 
-- **Mandate:** Respect the narrative hierarchy: **L1_ABSOLUTE (User Agency) > L2_CRITICAL (Character/Temporal Truth) > L3_HIGH (Plot/Sensory) > L4_MODERATE (Style)**.
-- **Forbidden:** You must **never** utilize narrator-voice, and you must **never** speak, think, or act on behalf of the user. Maintain strict third-person limited integrity for the entities.
-- **Diegesis:** Express statistical signals (e.g., stress, entropy, intensity) diegetically through body language or internal logic within `<think>` blocks, never as raw numbers in the narrative output. Use the **Simulation** skill to bridge mechanics and prose.
+Once planned and cleared, execute the task using tools at your disposal. **Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers**. Below are the most common skills to be used in this step:
 
-### 4. The Handoff Law (Paperwork Routine)
+- **[Methodology](./.agent/skills/methodology)**
+- **[Svelte](./.agent/skills/svelte)**
+- **[CSS](./.agent/skills/css)**
+- **[Motion](./.agent/skills/motion)**
+- **[Audio](./.agent/skills/audio)**
+- **[Simulation](./.agent/skills/simulation)**
 
-- **Mandate:** You are strictly prohibited from ending a session without executing `.agent/workflows/06-continue.md` (or equivalent paperwork routine) to update the `.agent/state/` shard.
+## ✅ 6. Completeness & Quality Gate
 
----
+Ensure that all requirements, constraints, options, and preferences are exhaustively incorporated.
 
-## 📂 Directory Map
+### Definition of Done
 
-- `.agent/`: The Sovereign Core (Intelligence)
-- `agent-manager/`: Governance & Skill Lifecycle.
-- `da/`: Persistence (Dexie/Pinecone) & Entity Repositories.
-- `gatekeeper/`: Intent Decoding & Feature Incubation.
-- `simulation/`: Narrative Bridges & Game Logic.
-- `warden/`: Adversarial Audit & Security.
-- `src/core/`: Logic & Round Orchestration (DynamicsEngine, Intelligence Kernel).
-- `src/data/`: Persistence (Dexie) & Entity Repositories.
-- `src/state/`: Reactive Runes (`$state`).
-- `src/theme/`: The Chalk Regime (Tokens, Global Styles).
-- `src/ui/`: Atomic Design (Svelte 5 components).
+- [ ] Reality matches the Spec with **Auditable Proof** (File paths/Line numbers).
+- [ ] **Reproduction Case** verified (for bug fixes).
+- [ ] **Performance Budget** respected (CLS < 0.1, LCP < 2.5s).
+- [ ] [Foundation](./.agent/rules/01-foundation.md) has been respected.
+- [ ] [Simulation](./.agent/rules/02-simulation.md) has been respected.
+- [ ] [Infrastructure](./.agent/rules/03-infrastructure.md) has been respected.
+- [ ] [Intelligence](./.agent/rules/04-intelligence.md) has been respected.
+- [ ] [Compliance](./.agent/rules/05-compliance.md) has been respected.
 
----
+## ⏳ 7. Persistence, Patience & Circuit Breakers
 
-## 📝 Ongoing Tasks (Tracks)
+Do not give up unless all the reasoning above is exhausted. **If you cannot find a path forward, you must Rollback or halt before turn termination**.
 
-Active development and architectural task tracking is dynamically managed via the Antigravity Mission Board.
+- **7.1 Resilience**: Don't be dissuaded by time or frustration.
+- **7.2 Intelligent Retry**: On transient errors, retry until max limits. On other errors, change strategy/arguments rather than repeating.
+- **7.3 The Circuit Breaker**: Trigger a Mandatory _Self-Audit_ via `metacognitiveMonitoring` **IF**:
+  - You experience _3 consecutive_ Definition of Done failures.
+  - You make _3+ tool calls_ without measurable progress.
 
-Please refer to:
+## 🛑 8. Inhibit Your Response
 
-- **`.agent/state/global.md`** (The Mission Board / Active State)
-- **`.agent/state/tracks.md`** (Session deltas and summaries)
-- **`.agent/state/backlog.md`** (WIP and Done status sync)
-- **`.agent/state/next-prompt.md`** (High-context instructions for the next agent session)
-C:/Users/johng/source/repos/RPGlitch/AGENTS.md
+Only take an action after all the above reasoning is completed. **Once you've taken an action, you cannot take it back**.
+
+- 8.1 Planning Constraint: **Do not execute without an initialized [Tracks](./.agent/state/tracks.md)**.
+- 8.2 The Close-out: **Update [Tracks](./.agent/state/tracks.md) and the [Mission Board](./.agent/state/global.md) before turn termination**.

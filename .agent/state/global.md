@@ -45,6 +45,7 @@
 - [x] **Warden Skill**: Security, Hygiene (Janitor), & Structural Purity (Sovereign).
 - [x] **Agent-Manager Skill**: Infrastructure, Rules, & Skill Lifecycle (Sovereign).
 - [x] **Boot & Knowledge Audit**: Completed /00-boot and archive migration.
+- [x] **Agent Auditor Expansion**: Integrated Rules and Workflows into the Reflex Engine.
 
 ## 📜 System Rules
 
@@ -84,11 +85,22 @@
 - [x] Phase 2: Implementation (Updated `package.json` and externalized templates).
 - [x] Phase 3: Validation (Verified 100% Purity and updated `sync.js`).
 
-### [DONE] [016] [Rule-Set & Metadata Synchronization]
+### [DONE] [017] [Rule-Set De-Branding]
 
-- [x] Phase 1: Structural Realignment (Moved M-Sequence to Rule 03).
-- [x] Phase 2: Reasoning Sync (Aligned Rule 04 stages with AGENTS.md 9-step mandate).
-- [x] Phase 3: Aesthetic Polish (Headline-only emojis in AGENTS.md, Heartbeat branding in Rule 04).
+- [x] Phase 1: Structural Realignment (Removed branded jargon from Rule 03/04).
+- [x] Phase 2: Professional Auditability (Simplified to plain English).
+
+### [DONE] [018] [Technical Debt Purge]
+
+- [x] Phase 1: Hygiene Audit (Achieved 100% technical purity across all skills).
+- [x] Phase 2: Security Hardening (Whitelisted CLI tools in Warden).
+
+### [DONE] [019] [Agent Auditor Expansion]
+
+- [x] Phase 1: Planning (Architected modular audits for Rules and Workflows).
+- [x] Phase 2: Implementation (Created `audit-rules.js` and `audit-workflows.js` in `agent-forge`).
+- [x] Phase 3: Engine Integration (Enhanced `audit-engine.js` with `--agent` support).
+- [x] Phase 4: Validation (Verified 100% resonance with `npm run verify`).
 
 ## Completed Tasks
 

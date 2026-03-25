@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import ignore from "ignore";
 
 // 1. Import Domain Rules
 import { svelteRules } from "../../svelte/scripts/audit-svelte.js";
@@ -7,10 +8,21 @@ import { cssRules } from "../../css/scripts/audit-css.js";
 import { securityRules } from "./audit-security.js";
 import { skill_rules } from "../../agent-forge/scripts/audit-skills.js";
 import { method_rules } from "../../methodology/scripts/audit-method.js";
+import { rule_rules } from "../../agent-forge/scripts/audit-rules.js";
+import { workflow_rules } from "../../agent-forge/scripts/audit-workflows.js";
 
 const ROOT_DIR = process.cwd();
 const SRC_DIR = path.join(ROOT_DIR, "src");
 const SKILLS_DIR = path.join(ROOT_DIR, ".agent/skills");
+const RULES_DIR = path.join(ROOT_DIR, ".agent/rules");
+const WORKFLOWS_DIR = path.join(ROOT_DIR, ".agent/workflows");
+
+// Load .gitignore
+const ig = ignore();
+const gitignorePath = path.join(ROOT_DIR, ".gitignore");
+if (fs.existsSync(gitignorePath)) {
+  ig.add(fs.readFileSync(gitignorePath, "utf-8"));
+}
 
 // 2. ANSI Colors
 const RED = "\x1b[31m";
@@ -39,33 +51,28 @@ class Auditor {
       ".md": method_rules,
     };
     this.is_skills_active = true;
+    this.is_rules_active = true;
+    this.is_workflows_active = true;
     this.is_method_active = true;
   }
 
-  scan(
-    dir,
-    ignorePaths = [
-      "node_modules",
-      ".git",
-      "dist",
-      "build",
-      ".svelte-kit",
-      "templates",
-      "assets",
-      "references",
-      "archive",
-    ],
-  ) {
+  scan(dir) {
     if (!fs.existsSync(dir)) return;
     const items = fs.readdirSync(dir);
 
     items.forEach((item) => {
       const fullPath = path.join(dir, item);
-      if (ignorePaths.includes(item) || item.startsWith(".")) return;
+      const relPath = path.relative(ROOT_DIR, fullPath).replace(/\\/g, "/");
+
+      // Use .gitignore patterns
+      if (ig.ignores(relPath)) return;
+
+      // Safety: Never audit node_modules even if not in gitignore
+      if (relPath.includes("node_modules")) return;
 
       const stat = fs.statSync(fullPath);
       if (stat.isDirectory()) {
-        this.scan(fullPath, ignorePaths);
+        this.scan(fullPath);
       } else {
         this.auditFile(fullPath);
       }
@@ -80,6 +87,8 @@ class Auditor {
     if (relPath.includes("audit-") || relPath.endsWith("tokens.css")) return;
 
     let rules = [];
+
+    // 1. Skill Audit
     if (
       this.is_skills_active &&
       relPath.startsWith(".agent/skills") &&
@@ -88,7 +97,27 @@ class Auditor {
       rules.push(...skill_rules);
     }
 
-    // Extension-based rule matching (Respecting CLI filters)
+    // 2. Rules Audit
+    if (
+      this.is_rules_active &&
+      relPath.startsWith(".agent/rules") &&
+      relPath.endsWith(".md") &&
+      !relPath.includes("/scripts/")
+    ) {
+      rules.push(...rule_rules);
+    }
+
+    // 3. Workflows Audit
+    if (
+      this.is_workflows_active &&
+      relPath.startsWith(".agent/workflows") &&
+      relPath.endsWith(".md") &&
+      !relPath.includes("/scripts/")
+    ) {
+      rules.push(...workflow_rules);
+    }
+
+    // 4. Extension-based rule matching (Respecting CLI filters)
     if (this.rules[ext]) {
       rules.push(...this.rules[ext]);
     }
@@ -174,37 +203,72 @@ if (args.includes("--svelte")) {
   console.log("🎯 Filter: Svelte Rules Only\n");
   auditor.rules = { ".svelte": svelteRules };
   auditor.is_skills_active = false;
+  auditor.is_rules_active = false;
+  auditor.is_workflows_active = false;
   auditor.is_method_active = false;
 } else if (args.includes("--css")) {
   console.log("🎯 Filter: CSS Rules Only\n");
   auditor.rules = { ".css": cssRules };
   auditor.is_skills_active = false;
+  auditor.is_rules_active = false;
+  auditor.is_workflows_active = false;
   auditor.is_method_active = false;
 } else if (args.includes("--security")) {
   console.log("🎯 Filter: Security Rules Only\n");
   auditor.rules = { ".js": securityRules };
   auditor.is_skills_active = false;
+  auditor.is_rules_active = false;
+  auditor.is_workflows_active = false;
   auditor.is_method_active = false;
 } else if (args.includes("--skills")) {
   console.log("🎯 Filter: Skill Rules Only\n");
   auditor.rules = {};
   auditor.is_skills_active = true;
+  auditor.is_rules_active = false;
+  auditor.is_workflows_active = false;
+  auditor.is_method_active = false;
+} else if (args.includes("--rules")) {
+  console.log("🎯 Filter: Agent Rules Only\n");
+  auditor.rules = {};
+  auditor.is_skills_active = false;
+  auditor.is_rules_active = true;
+  auditor.is_workflows_active = false;
+  auditor.is_method_active = false;
+} else if (args.includes("--workflows")) {
+  console.log("🎯 Filter: Agent Workflows Only\n");
+  auditor.rules = {};
+  auditor.is_skills_active = false;
+  auditor.is_rules_active = false;
+  auditor.is_workflows_active = true;
+  auditor.is_method_active = false;
+} else if (args.includes("--agent")) {
+  console.log("🎯 Filter: Agent Infrastructure (Skills, Rules, Workflows)\n");
+  auditor.rules = {};
+  auditor.is_skills_active = true;
+  auditor.is_rules_active = true;
+  auditor.is_workflows_active = true;
   auditor.is_method_active = false;
 } else if (args.includes("--method")) {
   console.log("🎯 Filter: Methodology Rules Only\n");
   auditor.rules = { ".js": method_rules, ".md": method_rules };
   auditor.is_skills_active = false;
+  auditor.is_rules_active = false;
+  auditor.is_workflows_active = false;
   auditor.is_method_active = true;
 } else if (args.includes("--todo")) {
   console.log("🎯 Filter: TODO Rules Only\n");
   auditor.rules = {
     ".js": securityRules.filter((r) => r.id === "W-SEC-001"),
     ".svelte": svelteRules.filter((r) => r.id === "S-RUNE-001"),
-  }; // Simplified for now, or use dedicated todoRules
+  };
   auditor.is_skills_active = false;
+  auditor.is_rules_active = false;
+  auditor.is_workflows_active = false;
   auditor.is_method_active = false;
 }
 
 auditor.scan(SRC_DIR);
 auditor.scan(SKILLS_DIR);
+auditor.scan(RULES_DIR);
+auditor.scan(WORKFLOWS_DIR);
 auditor.summary();

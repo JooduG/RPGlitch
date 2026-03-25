@@ -5,28 +5,38 @@ description: Technical Supremacy. Svelte 5 Runes, The Chalk Regime and Perchance
 
 # 🧪 Rule 03: Infrastructure (The Stack & The Law)
 
-> **The Architect**: "I am the structural steel and power grid of the RPGlitch Engine. I enforce Svelte 5 purity, mandate the aesthetic laws of the Chalk Regime, and organize the physical zoning of our reality. Logic that violates this infrastructure is a breach of physics."
+> **Persona**: "I am the Engineering Executive of the RPGlitch Engine. I enforce Svelte 5 purity, mandate the aesthetic laws of the Chalk Regime, and organize the physical zoning of our reality. Logic that violates this infrastructure is a breach of physics."
 
 ---
 
-## 1. App Architecture
+## 1. Physical Architecture (The Map)
 
-RPGlitch is a **Local-First Reactive Monolith** (PWA).
+The project follows a sovereign modular structure to ensure local-first resilience and reactive clarity.
 
-- **Core Engine**: Logic & Round Orchestration. **Pure IO**. No DOM manipulation.
-- **UI & Structure**: HTML/Layouts via **Svelte 5** (`src/ui/`).
-- **Sensory**: Visuals, Audio, Theme via Native CSS (`src/media/`).
-- **Data**: Persistence & History via **Dexie.js** (IndexedDB).
-- **Security**: Validation & Physics via **Zod/DOMPurify** sanitization boundaries.
-
-**The Reactive Cycle (5-Step Loop)**
-Every interaction follows a strict reactive loop propagated by Runes:
-
-1. **Input** -> 2. **Sanity** (Security) -> 3. **Execution** (Core Engine) -> 4. **Persistence** (Data) -> 5. **Expression** (UI/Sensory).
+- **Framework**: [Svelte 5](#3-svelte-5-sovereignty--security) (Runes-only: `$state`, `$derived`, `$effect`).
+- **Build Tool**: Vite (with `vite-plugin-singlefile` for Perchance).
+- **Environment**: Perchance Two-Panel Paradigm. No Node.js backend. Rely entirely on **Just-In-Time (JIT) Compilation** and **ESM/CDN imports** (via `esm.sh`) for external libraries.
+- **Persistence**: Dexie.js (IndexedDB).
+- **Security**: Validation & Physics via **Zod/DOMPurify** sanitization boundaries ([Compliance](./05-compliance.md)).
+- **[Simulation](./02-simulation.md)** building blocks:
+  - [Core](../../src/core/): Logic & Round Orchestration (DynamicsEngine, Intelligence Kernel)
+  - [Data](../../src/data/): Persistence (Dexie) & Entity Repositories.
+  - [State](../../src/state/): Reactive Runes (`$state`).
+  - [Theme](../../src/theme/): The Chalk Regime (Tokens, Global Styles).
+  - [UI](../../src/ui/): Atomic Design (Svelte 5 components).
+  - [Media](../../src/media/): Internal Sensory Assets ([Visuals](../skills/image-generation/), [Audio](../skills/audio/)).
+- [Skills](../skills/) for infrastructural expertise:
+  - [Gatekeeper](../skills/gatekeeper/): Intent Decoding & Feature Incubation.
+  - [Simulation](../skills/simulation/): Narrative Bridges & Game Logic.
+  - [Warden](../skills/warden/): Adversarial Audit & Security.
 
 ---
 
-## 2. Svelte 5 Sovereignty & Security
+## 2. Design System
+
+[DESIGN.md](../../design.md) is the **Single Source of Truth** for any user facing application design, including color palettes, typography and layout rules.
+
+## 3. Svelte 5 Sovereignty & Security
 
 See [Svelte](../skills/svelte).
 
@@ -37,23 +47,12 @@ See [Svelte](../skills/svelte).
 
 ---
 
-## 3. Perchance Constraints
+## 4. Perchance Constraints
 
 - **Two-Panel Paradigm**: Logic operates strictly within the Perchance code-panel vs. output-panel architecture.
 - **Persistence**: `Dexie.js` ONLY. Direct `localStorage` is forbidden due to iframe access limits.
 - **Sovereign Modules**: Consolidate logical, physical, and data operations for a specific domain into a single module (e.g., all memory logic in `NarrativeEcho.js`).
 - **Audio Context**: Native browser safety. NEVER instantiate audio without a direct user gesture to prevent autoplay blocking. ALWAYS `.close()` or `.suspend()` on unmount.
-
----
-
-## 4. Visual Laws
-
-See [DESIGN.md](../../design.md).
-
-- **Native CSS Only**: No Tailwind. No Bootstrap. Rely on global CSS variables (`:root`).
-- **Color Palettes**: NEVER use raw hex, `rgb()`, or `hsl()` in components. Use tokens mapped from `src/theme/tokens.css` (e.g., `var(--color-chalk)`). Avoid `#FFFFFF` and `#000000` directly.
-- **Depth & Surface**: Use semi-transparent glass with background blurs (`blur-m` to `blur-xl`). Pixel borders are forbidden for depth; use "whisper-soft" `box-shadow` elevation.
-- **Icons & Typography**: Inline SVG only. Headings must use Strong Sentence Case. Monospace for data/IDs.
 
 ---
 

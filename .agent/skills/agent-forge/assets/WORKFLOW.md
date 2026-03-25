@@ -1,5 +1,5 @@
 ---
-name: { { Workflow-Slug } }
+name: {{Workflow-Slug}}
 description: >
   {{Description}}
   Triggers: (Glob), (Phrase), (/slash-command)
@@ -7,7 +7,7 @@ description: >
 
 # {{Workflow-Slug}} _Mandatory_
 
-> **Goal:** {{Description}}.
+> **Persona**: **Goal:** {{Description}}.
 
 ## Anatomy _Mandatory_
 

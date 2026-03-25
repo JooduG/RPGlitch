@@ -1,6 +1,6 @@
 # DESIGN.md — The Chalk Regime (Nordic Refac V2)
 
-> **Single Source of Truth**: The definitive visual physics and aesthetic standards for RPGlitch.
+> **Single Source of Truth**: The definitive visual physics, aesthetic standards, and user-facing nomenclature for RPGlitch.
 
 ## Overview
 

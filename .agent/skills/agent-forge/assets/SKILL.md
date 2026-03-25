@@ -1,13 +1,15 @@
 ---
-name: { { Skill-Slug } }
+name: {{Skill-Slug}}
 description: >
-  {{Description}}
+  Build/Analyze/Deploy (WHAT)... 
+  
+  Use when: (WHEN Scenario 1), (WHEN Scenario 2), or troubleshooting (Error/Keyword).
   Triggers: (Glob), (Phrase)
 ---
 
 # {{Skill-Slug}} _Mandatory_
 
-> {{Persona}}: "I am the {{Role}}. I {{Function}} to ensure {{Goal}}."
+> **Persona**: {{Persona}}: "I am the {{Role}}. I {{Function}} to ensure {{Goal}}."
 
 ## Structure _Mandatory_
 

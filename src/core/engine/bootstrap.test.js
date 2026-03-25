@@ -48,15 +48,16 @@ describe("AppBootstrap", () => {
     const error = new Error("INTENTIONAL_REACTION");
     vi.mocked(repository.seed_premades).mockRejectedValue(error);
 
+    // Silence console.error for this specific test
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const innerHTMLSpy = vi.spyOn(document.body, "innerHTML", "set");
 
     await AppBootstrap.init();
 
     // We want this to be false, indicating we used a safer method like replaceChildren or append with a fragment
-    // Note: If we use sanitizeToFragment, we might still be using innerHTML internally in DOMPurify or when appending,
-    // but the goal is to avoid direct document.body.innerHTML = "..." with untrusted or even static-but-large strings.
-    // Actually, if we use document.body.replaceChildren(fragment), innerHTML setter on body won't be called.
     expect(innerHTMLSpy).not.toHaveBeenCalled();
+
+    consoleSpy.mockRestore();
     innerHTMLSpy.mockRestore();
   });
 });

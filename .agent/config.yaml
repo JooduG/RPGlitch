@@ -2,7 +2,7 @@
 
 # 🧠 Skills (Capabilities)
 skills:
-  agent-manager: .agent/skills/agent-manager/SKILL.md
+  agent-forge: .agent/skills/agent-forge/SKILL.md
   audio: .agent/skills/audio/SKILL.md
   css: .agent/skills/css/SKILL.md
   data: .agent/skills/data/SKILL.md

@@ -47,20 +47,27 @@ function createSkill(name, type = "task", description = "New agentic skill.") {
 
   // 1. Validate Type (Case insensitive)
   const availableTemplates = fs.readdirSync(TEMPLATE_DIR).filter((f) => f.endsWith(".md"));
+  
+  // Mapping for legacy "task" to "skill" template
+  let searchType = type.toLowerCase();
+  if (searchType === "task" && !availableTemplates.some(t => t.toLowerCase() === "task.md")) {
+    searchType = "skill";
+  }
+
   const templateFile = availableTemplates.find(
-    (f) => f.toLowerCase() === `${type.toLowerCase()}.md`,
+    (f) => f.toLowerCase() === `${searchType}.md`,
   );
 
   if (!templateFile) {
     console.error(
-      `❌ Template [${type}] not found in assets/. Available: ${availableTemplates.join(", ")}`,
+      `❌ Template [${type}] not found in assets/. Available: ${availableTemplates.map(t => t.replace('.md', '').toLowerCase()).join(", ")}`,
     );
     process.exit(1);
   }
 
   const srcFile = path.join(TEMPLATE_DIR, templateFile);
 
-  console.log(`🔨 Forging [${type.toUpperCase()}] Skill: ${slug}...`);
+  console.log(`🔨 Forging [${searchType.toUpperCase()}] Skill: ${slug}...`);
 
   // 2. Scaffold Core Structure
   const dirs = ["scripts", "references", "assets"];
@@ -68,17 +75,29 @@ function createSkill(name, type = "task", description = "New agentic skill.") {
 
   // 3. Inject Template
   let content = fs.readFileSync(srcFile, "utf-8");
-  content = content
-    .replace(/\[[Ss]kill-[Ss]lug\]/g, slug)
-    .replace(/{{[Ss]kill-[Ss]lug}}/g, slug)
-    .replace(/\[Skill Title\]/g, titleCase(slug))
-    .replace(/{{Skill Title}}/g, titleCase(slug))
-    .replace(/\[Description\]/g, description)
-    .replace(/{{Description}}/g, description);
+  
+  // Dynamic replacements with optional space support
+  const replacements = {
+    "Skill-Slug": slug,
+    "Rule-Slug": slug,
+    "Workflow-Slug": slug,
+    "Skill Title": titleCase(slug),
+    "Description": description,
+    "Persona": "The Sovereign Architect", // Default
+    "Role": searchType.toUpperCase(),
+    "Function": "orchestrate",
+    "Goal": "technical purity"
+  };
+
+  Object.entries(replacements).forEach(([key, value]) => {
+    // Matches { { Key } } or {{Key}} or [Key]
+    const regex = new RegExp(`(\\{\\{\\s*${key}\\s*\\}\\}|\\[${key}\\])`, "gi");
+    content = content.replace(regex, value);
+  });
 
   fs.writeFileSync(path.join(targetDir, "SKILL.md"), content);
 
-  console.log(`\n✅ FORGE SUCCESS: Skill '${slug}' instantiated.`);
+  console.log(`\n✅ FORGE SUCCESS: [${searchType.toUpperCase()}] '${slug}' instantiated.`);
   console.log(`📍 Path: ${targetDir}`);
   console.log(`🚀 Next: node .agent/skills/agent-forge/scripts/audit-agent.js audit ${slug}`);
 }
@@ -97,5 +116,5 @@ if (command === "create") {
   createSkill(args[1], args[2], args[3]);
 } else {
   console.log("Usage: node forge-skill.js create <name> [type] [description]");
-  console.log("Types: task, method, reference, capabilities");
+  console.log("Types: skill, rule, workflow");
 }

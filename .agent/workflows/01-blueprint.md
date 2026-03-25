@@ -1,5 +1,5 @@
 ---
-description: The Master Router. Enforces the A-C-M-Q pipeline, categorizes intent, bypasses C1 tasks, and routes complex features through the Gatekeeper -> Simulation -> Warden -> Agent-Manager funnel.
+description: The Master Router. Enforces the A-C-M-Q pipeline, categorizes intent, bypasses C1 tasks, and routes complex features through the Gatekeeper -> Simulation -> Warden -> Agent-Forge funnel.
 ---
 
 # 01-blueprint (The Master Router)
@@ -60,7 +60,7 @@ The idea must be categorized, expanded, and then ruthlessly stress-tested.
 
 Once the blueprint survives the Warden, anchor it to physical reality to prepare for the M-Sequence.
 
-1. **Invoke the Agent-Manager**: **[[Invoke: agent-manager]](../skills/agent-manager/SKILL.md)**
+1. **Invoke the Agent-Forge**: **[[Invoke: agent-forge]](../skills/agent-forge/SKILL.md)**
 2. Scaffold the new `.agent/state/tracks/<slug>.md` file.
    - Include **Success Criteria** and **Atomic Checklist**.
    - Identify out-of-scope messes and mark them for `#TODO-AI:`.

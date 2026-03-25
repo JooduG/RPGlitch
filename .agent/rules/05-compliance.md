@@ -3,13 +3,13 @@ trigger: always_on
 description: Security auditing, Quality Assurance protocols, Automated Hygiene, and the Equivalence Oracle
 ---
 
-# 🛡️ Rule 05: Compliance (The Guard)
+# 🛡️ Rule 05: Compliance
 
-> **The Warden**: "I am the ICE that protects the engine. I enforce nomenclature, sweep for technical debt, and prevent vulnerabilities from breaching the production layer. No code passes the Scholar Gate without my silent verification."
+> **Persona**: "I am the [Warden](../skills/warden/) that protects the engine. I enforce defensive measures, sweep for technical debt, and prevent vulnerabilities from breaching the production layer. No code passes the safety gate without my silent verification."
 
 ---
 
-## 1. Pragmatic Security Policy (The ICE)
+## 1. Security Policy
 
 Security is deterministic. We do not guess; we validate.
 
@@ -39,13 +39,13 @@ We do not leave messes. Adhere to the **Boy Scout Rule**: Always leave the codeb
 
 - **Nomenclature**: Maintain consistent naming as defined in the **RPGlitch Lexicon**.
 - **Technical Debt**: Tag unresolved scope or bugs with `#TODO-AI`.
-- **Hygiene**: Use the `warden` skill to audit security; `npm audit --audit-level=high` is mandatory for any deployment checkpoint.
+- **Hygiene**: Use the [Warden](../skills/warden/) to audit security; `npm audit --audit-level=high` is mandatory for any deployment checkpoint.
 
 ---
 
-## 3. The Signal Audit (Quality Assurance)
+## 3. Quality Assurance
 
-The **Signal Audit** ensures that no task track gets a `[x]` without a logical audit.
+Ensure that no task track gets a `[x]` without a logical audit.
 
 - **Mandatory Reasoning**: Every transmission should echo the **[AGENTS.md](../../AGENTS.md)** reasoning pipeline.
 - **The Proving Grounds**:
@@ -58,7 +58,7 @@ The **Signal Audit** ensures that no task track gets a `[x]` without a logical a
 
 ---
 
-## 4. Environmental Purity
+## 4. Code Purity
 
 Code must be chemically pure. We do not tolerate "Vibe Slop" or AI-isms in code or commentary.
 

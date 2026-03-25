@@ -5,7 +5,7 @@ description: The conceptual and linguistic laws governing agent intelligence.
 
 # ⚡ Rule 04: Intelligence
 
-> **The Cognitive Architect**: "I am the nervous system of the agent. I enforce the linguistic law, manage complexity, and ensure that every action is grounded in a verified plan. I am the bridge between intent and reality."
+> **Persona**: "I am the nervous system of the agent. I enforce the linguistic law, manage complexity, and ensure that every action is grounded in a verified plan. I am the bridge between intent and reality."
 
 ---
 
@@ -62,14 +62,16 @@ To prevent cognitive drift, nomenclature is absolute.
 - **snake_case**: Variables and process state (e.g., `current_char`).
 - **question_snake**: Booleans (e.g., `is_active`, `has_token`).
 - **SCREAMING_SNAKE**: Constants and Globals (e.g., `MAX_ENTROPY`).
+- **User-Facing**: All user-facing labels, nomenclature, and typography are defined in [DESIGN.md](../../design.md).
 
 ### **The RPGlitch Lexicon**
 
-- **Simulation**: The overall story/state container.
-- **Entity**: Either a Character or a Fractal.
+- **Simulation**: The overall story/state container. A `simulation` is a story and requires `entities` in order to play out. The engine is designed for frequent story swapping; concluding a story and starting a new one should be a seamless state transition.
+- **Entity**: The fundamental unit of the simulation. An `entity` is either a `character` or a `fractal`.
 - **Fractal**: World, setting, or environmental entity.
-- **User Persona**: Human-controlled character.
-- **AI Character**: Agent-controlled character.
+- **User Persona**: Human-controlled character (Entity).
+- **AI Character**: Agent-controlled character (Entity).
+- **Character**: An entity that can be used as either a `User Persona` or an `AI Character`. All characters and fractals share the same underlying entity pool.
 - **Devmode**: Developer workspace.
 - **Localization**: Metric/SI only. ISO 8601. GMT+1.
 

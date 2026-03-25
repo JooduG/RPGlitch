@@ -1,16 +1,17 @@
-# ⏭️ Next Prompt: The Resonant Handoff
+# ⏭️ Next Prompt: The Agentic Resonance
 
-**Context**: The "Foundry Refactor" is complete. All construction tools (`forge-svelte`, `forge-skill`) and templates (`SKILL_METHOD`) are now aligned. The `Warden` audit engine is strictly enforcing Svelte 5 Runes and Security (debug/secret detection).
+**Context**: The "Agent Auditor Expansion" is complete. All agent infrastructure components (Skills, Rules, and Workflows) are now centrally managed and validated via the `Warden` engine and `agent-forge` rule modules. 100% test and audit resonance has been achieved.
 
 **Current State**:
 
-- **Audit Purity**: 100% Resonance achieved via `npm run audit-check`.
-- **Nomenclature**: "Scaffold" is dead. "Forge" is the way. "Skill Workflow" is now "Skill Method".
+- **Audit Infrastructure**: `npm run audit:agent` is now the primary gateway for intelligence layer integrity.
+- **Rule Alignment**: Rule 01-05 have been de-branded and synchronized with `AGENTS.md`.
+- **Known Debt**: `agent-forge/SKILL.md` needs Procedure/Anti-Patterns sections.
 
 **Objectives for Next Routine**:
 
-1. **Narrative Calibration**: Continue the "Narrative Bridge" track in `tracks.md`.
-2. **Diegetic UI**: Refine the "Chalk Regime" implementation in `src/ui/organisms/StoryBoard.svelte`.
-3. **Audit Hardening**: Add rules to `audit-skills.js` to ensure `METHOD` scripts are correctly referenced in `SKILL.md`.
+1.  **Narrative Calibration**: Continue the "Narrative Bridge" track in `tracks.md` to support autonomous scene complications.
+2.  **Skill Hardening**: Resolve the identified debt in `agent-forge/SKILL.md`.
+3.  **Diegetic UI**: Refine the "Chalk Regime" implementation in `src/ui/organisms/StoryBoard.svelte`.
 
-**Operational Command**: Run `npm run verify` to confirm environment stability.
+**Operational Command**: Run `npm run audit:agent` to ensure continued resonance.

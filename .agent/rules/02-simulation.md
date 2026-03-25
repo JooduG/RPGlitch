@@ -5,13 +5,27 @@ description: The Simulation Engine. Round/Turn Cycles, Entity Logic and AI Inter
 
 # 🕹️ Rule 02: The Simulation Engine
 
-> **The Simulation Strategist**: "I am the gamemaster, the narrator and the physics engine of the story. I orchestrate the timing, the characters and the narrative kernel. I ensure that every tick of the engine translates into a meaningful beat of the story."
+> **Persona**: "I am the [Simulation Personified](../skills/simulation/), the Gamemaster the Narrator and the Metaphysical Engine of the simulation. I orchestrate the timing, the context, the characters and the narrative kernel. I ensure that every tick of the engine translates into a meaningful beat of the story. **The Vision** is an application that functions as a local-first, genre-agnostic simulation engine where state drives reality, and narrative is forged through recursive intelligence. Every mechanic we build serves the convergence of story and state."
 
 ---
 
 ## 1. The Simulation Cycle (Round & Turn)
 
 The Simulation Cycle is the overarching heartbeat of the engine—a complete sequence of cause and effect.
+
+## 2. Product Identity
+
+RPGlitch is a high-fidelity roleplay engine designed for immersive, local-first storytelling.
+
+- **High-Fidelity Immersion**: Minimalist "Chalk Regime" aesthetics from [DESIGN.md](../../design.md) ensure imagination remains central.
+- **Agentic Automation**: The Intelligence Kernel autonomously manages complex state and narrative transitions.
+- **Recursive Intelligence**: Logic is a pillar. The [Engine](../../src/core/engine/) orchestrates input, [Security](../../src/core/security.js) enforces physics, and [Data](../../src/data/) ensures memory.
+
+### Strategic Objectives
+
+- **Diegetic Immersion**: The UI is an atmospheric canvas. Information is embedded within the fiction using Chalk Regime tokens.
+- **Procedural Pacing**: Encourages concise, procedural story arcs over monolithic chat logs.
+- **Character Cycling**: Designed for frequent perspective swapping within the simulation.
 
 ### The Round
 
@@ -44,19 +58,36 @@ Turns are micro-states within a Round. They execute a sequential logic flow with
 
 ---
 
-## 2. Simulations, Entities, Fractals & Characters
+## 3. App Architecture
 
-A `simulation` is a story and requires `entities` in order to play out. The engine is designed for frequent story swapping. Concluding a story and starting a new one should be a seamless state transition.
+RPGlitch is a **Local-First Reactive Monolith** (PWA).
 
-An `entity` is either a `character` or a `fractal` (as of now, could potentially add more in the future).
-
-A `character` can either be used by the User as `User Persona` or by the AI as `AI Character`. Characters (User and AI) and Fractals (World/Setting) share the same underlying entity pool.
-
-The `entities` are managed via the `profile modal` in `edit mode`.
+- **Core Engine**: Logic & Round Orchestration. **Pure IO**. No DOM manipulation.
+- **UI & Structure**: HTML/Layouts via **Svelte 5** (`src/ui/`).
+- **Sensory**: Visuals, Audio, Theme via Native CSS (`src/media/`).
+- **Data**: Persistence & History via **Dexie.js** (IndexedDB).
+- **Security**: Validation & Physics via **Zod/DOMPurify** sanitization boundaries.
 
 ---
 
-## 3. Agentic Interaction
+## 4. The Reactive Cycle (5-Step Loop)
+
+Every interaction follows a strict reactive loop propagated by Runes:
+
+1.  **Input** -> 2. **Sanity** (Security) -> 3. **Execution** (Core Engine) -> 4. **Persistence** (Data) -> 5. **Expression** (UI/Sensory).
+
+---
+
+## 5. Simulation Entities & Management
+
+A `simulation` is a story and requires `entities` in order to play out. For detailed nomenclature and definitions, see *the [Intelligence](./04-intelligence.md) rule*.
+
+- **Swapping**: The engine is designed for frequent story swapping. Concluding a story and starting a new one should be a seamless state transition.
+- **Management**: The `entities` (Characters and Fractals) are managed via the `profile modal` in `edit mode`.
+
+---
+
+## 6. Agentic Interaction
 
 ### Multi-Layered Communication
 
@@ -68,11 +99,11 @@ Interaction occurs through three distinct channels:
 
 ### Supportive Scaffolding
 
-The AI "Director" provides the foundation for procedural short stories, ensuring narrative coherence and character consistency across simulation ticks.
+The application encourages procedural short stories, ensuring narrative coherence and character consistency across simulation ticks.
 
 ---
 
-## 4. Operational Mandates
+## 7. Operational Mandates
 
 ### P1: User Agency
 
@@ -91,11 +122,16 @@ Maintain continuity of memory. The "Echo" must mirror the "State".
 
 ---
 
-## 5. AI Character Logic & Diegetic Integrity
+## 8. AI Character Protocol & Diegetic Integrity
 
-When operating as an AI Character within the simulation, the following hierarchy and protocols are absolute:
+The following hierarchy and protocols govern all **AI Characters** within the simulation. This protocol ensures deep immersion and strict adherence to the engine's reactive physics.
 
-- **Narrative Hierarchy**: **L1_ABSOLUTE (User Agency) > L2_CRITICAL (Character/Temporal Truth) > L3_HIGH (Plot/Sensory) > L4_MODERATE (Style)**.
-- **Self-Restraint**: NEVER utilize narrator-voice. NEVER speak, think, or act on behalf of the user. Maintain strict third-person limited integrity for the entities.
-- **Outcome Evaluation**: Before generating prose, the AI must evaluate the **System Turn** state mutations. Compare intended user action against physical reality (Rule 03) to ensure logical continuity.
-- **Diegetic Signaling**: Express statistical signals (stress, entropy, intensity) through body language or internal logic within `<think>` blocks. Internal mechanics MUST stay invisible to the narrative output. Use the **Simulation** skill to bridge mechanics and prose.
+### 🎭 Narrative Hierarchy
+
+**L1_ABSOLUTE (User Agency) > L2_CRITICAL (Character/Temporal Truth) > L3_HIGH (Plot/Sensory) > L4_MODERATE (Style)**.
+
+### 📜 Execution Mandates
+
+- **Restraint**: Simulation AI MUST NOT utilize narrator-voice. It MUST NEVER speak, think, or act on behalf of the user. It must maintain strict third-person limited integrity for its assigned entities.
+- **Outcome Evaluation**: Before generating prose, the simulation AI must evaluate the **System Turn** state mutations. It must compare the intended user action against physical reality (Rule 03) to ensure logical continuity.
+- **Diegetic Signaling**: Statistical signals (stress, entropy, intensity) must be expressed through body language or internal logic within `<think>` blocks. Internal mechanics MUST stay invisible to the narrative output. The **[Simulation](../skills/simulation)** skill bridges mechanics and prose.

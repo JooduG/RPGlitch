@@ -10,3 +10,4 @@ Last Swept: 2026-03-25T09:00:00.000Z
 - [x] **DONE**: Fix cross-platform path separators in `audit-engine.js`.
 - [x] **DONE**: Localize Skill Audit to `SKILL.md`.
 - [ ] **Next Steps**: Expand the Dynamic World State (Fractals) to support multi-instance narrative branches.
+- [ ] **TODO-AI**: `agent-forge/SKILL.md` is missing Procedure or Anti-Patterns sections (identified during audit).
