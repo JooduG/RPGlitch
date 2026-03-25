@@ -96,8 +96,8 @@ skills/warden/
 
 ---
 
-📜 Rules: Ref-Rules-03, Ref-Rules-05
-🧠 Skills: Ref-Skills-warden
+📜 Rules: 03, 05
+🧠 Skills: warden
 ⚡ Workflows: /03-clean, /04-review
 🕰️ 2026-03-24
 

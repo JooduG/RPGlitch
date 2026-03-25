@@ -41,31 +41,31 @@ skills/audio/
 | **Hardcoded Paths**     | Use the `AudioRegistry` to manage paths centrally.             |
 | **Unpurified Strings**  | Sanitize any text-to-speech inputs before processing.          |
 
-## 2. The Brain (A-C-Q Protocol)
+## 5. The Brain (A-C-Q Protocol)
 
 Define the Clarity Gate constraints specific to this skill.
 
 - **A-Score Requirements**: A3 (Ambiguous) for timing offsets or un-specified sound profiles.
 - **C-Level Tools**: C2 (Planning) for audio sprite mapping.
 
-## 3. Capabilities
+## 6. Capabilities
 
 - **SFX Mapping**: Tying user events to sound bytes.
 - **TTS Generation**: Hooking into speech synthesis APIs with precise pitch/rate.
 - **Memory Cleanup**: Releasing AudioContext when nodes unmount.
 
-## 4. Procedures
+## 7. Procedures
 
 1. **Play Sound**: Sensory.play(id) triggered by user click.
 2. **Speak Text**: Sensory.voice.speak(text) with configured parameters.
 
-## 5. Anti-Patterns
+## 8. Anti-Patterns
 
 | Pattern                      | Mitigation                                                                                  |
 | :--------------------------- | :------------------------------------------------------------------------------------------ |
 | **Autoplay without gesture** | Forbidden. Browsers block autoplay; always require user interaction to unlock AudioContext. |
 | **Orphaned AudioContext**    | Forbidden. Always `.close()` or `.suspend()` on component destroy via `$effect` cleanup.    |
 
-## 6. Tools & Assets
+## 9. Tools & Assets
 
 _No specialized tools assigned currently._
