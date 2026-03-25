@@ -1,46 +1,46 @@
 ---
-name: [Workflow-Slug]
+name: {{Workflow-Slug}}
 description: >
-  [Description]
-  Triggers: [Glob], [Phrase], [/slash-command]
+  {{Description}}
+  Triggers: (Glob), (Phrase), (/slash-command)
 ---
 
-# [Workflow-Slug] _Mandatory_
+# {{Workflow-Slug}} _Mandatory_
 
-> **Goal:** [Description].
+> **Goal:** {{Description}}.
 
 ## Anatomy _Mandatory_
 
-skills/[Workflow-Slug]/
+skills/{{Workflow-Slug}}/
 ├── SKILL.md
 ├── scripts/
-│ └── [Script.js]
+│ └── (Script.js)
 ├── references/
-│ └── [Knowledge]
-│ └── [Documentation]
-│ └── [Plan]
-│ └── [Work-in-progress]
+│ └── (Knowledge)
+│ └── (Documentation)
+│ └── (Plan)
+│ └── (Work-in-progress)
 └── assets/
-└── [TEMPLATE]
-└── [Image]
+└── (TEMPLATE)
+└── (Image)
 
-## [Objectives] _Mandatory_
+## {{Objectives}} _Mandatory_
 
-- Objective: [Description]
-- Objective: [Description]
+- Objective: (Description)
+- Objective: (Description)
 
-## [Context-Injection] _Optional_
+## {{Context-Injection}} _Optional_
 
-- Rules: [Rule]
-- Skill: [Skill]
+- Rules: (Rule)
+- Skill: (Skill)
 
-## [Capabilities] _Optional_
+## {{Capabilities}} _Optional_
 
-- [Mandate]
-- [Capability]
-- [Skill]
-- [Tool]
-- [MCP]
+- (Mandate)
+- (Capability)
+- (Skill)
+- (Tool)
+- (MCP)
 
 - `// turbo`: Auto-run the SINGLE next `run_command` step.
 - `// turbo-all`: Auto-run EVERY `run_command` step in the workflow.
@@ -48,27 +48,27 @@ skills/[Workflow-Slug]/
 
 ## Procedure _Mandatory_
 
-### [Sequential-Phase] _Optional_
+### {{Sequential-Phase}} _Optional_
 
-1. [Step]
-2. [Step]
-3. [Step]
+1. (Step)
+2. (Step)
+3. (Step)
 
-### [Conditional-Phase] _Optional_
+### {{Conditional-Phase}} _Optional_
 
-- [Condition]:
-  - [True] → [Consequence]
-  - [False] → [Consequence]
+- (Condition):
+  - (True) → (Consequence)
+  - (False) → (Consequence)
 
-### [Last-Phase] _Mandatory_
+### {{Last-Phase}} _Mandatory_
 
-- [Definition-of-done]
+- (Definition-of-done)
 
-## [Output-Expectations] _Optional_
+## {{Output-Expectations}} _Optional_
 
-- [Result]
-- [Outcome]
+- (Result)
+- (Outcome)
 
 ## Anti-Patterns _Mandatory_
 
-- [Anti-Pattern]
+- (Anti-Pattern)

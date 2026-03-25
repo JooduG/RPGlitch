@@ -39,7 +39,7 @@
     "!**/scribbles/**",
     "!**/.playwright-auth/**"
   ],
-  "gitignore": ["!**/RPGlitch-left-panel.txt", "**/.eslintcache", "!GEMINI.md", "AGENTS.md"],
+  "gitignore": ["!**/RPGlitch-left-panel.txt", "**/.eslintcache", "!GEMINI.md", "AGENTS.md", ".playwright-auth/**"],
   "linters": {
     "eslint": [],
     "htmlhint": [],

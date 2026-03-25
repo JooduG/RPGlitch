@@ -70,8 +70,11 @@ function createSkill(name, type = "task", description = "New agentic skill.") {
   let content = fs.readFileSync(srcFile, "utf-8");
   content = content
     .replace(/\[[Ss]kill-[Ss]lug\]/g, slug)
+    .replace(/{{[Ss]kill-[Ss]lug}}/g, slug)
     .replace(/\[Skill Title\]/g, titleCase(slug))
-    .replace(/\[Description\]/g, description);
+    .replace(/{{Skill Title}}/g, titleCase(slug))
+    .replace(/\[Description\]/g, description)
+    .replace(/{{Description}}/g, description);
 
   fs.writeFileSync(path.join(targetDir, "SKILL.md"), content);
 

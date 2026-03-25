@@ -1,70 +1,70 @@
 ---
-name: [Skill-Slug]
+name: {{Skill-Slug}}
 description: >
-  [Description]
-  Triggers: [Glob], [Phrase]
+  {{Description}}
+  Triggers: (Glob), (Phrase)
 ---
 
-# [Skill-Slug] _Mandatory_
+# {{Skill-Slug}} _Mandatory_
 
-> [Persona]: "I am the [Role]. I [Function] to ensure [Goal]."
+> {{Persona}}: "I am the {{Role}}. I {{Function}} to ensure {{Goal}}."
 
 ## Structure _Mandatory_
 
-skills/[Skill-Slug]/
+skills/{{Skill-Slug}}/
 ├── SKILL.md # Main documentation _Mandatory_
 ├── scripts/
-│ └── [Script.js]
+│ └── (Script.js)
 ├── references/
-│ └── [Knowledge]
-│ └── [Documentation]
-│ └── [Plan]
-│ └── [Work-in-progress]
+│ └── (Knowledge)
+│ └── (Documentation)
+│ └── (Plan)
+│ └── (Work-in-progress)
 └── assets/
-└── [TEMPLATE]
-└── [Image]
+└── (TEMPLATE)
+└── (Image)
 
-## [Objectives] _Optional_
+## {{Objectives}} _Optional_
 
-- [Objective]
-- [Objective]
+- (Objective)
+- (Objective)
 
-## [Context-Injection] _Optional_
+## {{Context-Injection}} _Optional_
 
-- [Rule]
-- [Skill]
+- Rule: (Relationship)
+- Skill: (Relationship)
 
-## [Capabilities] _Optional_
+## {{Capabilities}} _Optional_
 
-- [Mandate]
-- [Capability]
-- [Skill]
-- [Tool]
-- [MCP]
+- (Mandate)
+- (Capability)
+- (Skill)
+- (Tool)
+- (MCP)
 
 ## Procedure _Mandatory_
 
-### [Sequential-Phase] _Optional_
+### {{Sequential-Phase}} _Optional_
 
-1. [Step]
-2. [Step]
-3. [Step]
+1. (Step)
+2. (Step)
+3. (Step)
 
-### [Conditional-Phase] _Optional_
+### {{Conditional-Phase}} _Optional_
 
-- [Condition]:
-  - [True] → [Consequence]
-  - [False] → [Consequence]
+- (Condition):
+  - (True) → (Consequence)
+  - (False) → (Consequence)
 
-### [Last-Phase] _Mandatory_
+### {{Last-Phase}} _Mandatory_
 
-- [Definition-of-done]
+- (Definition-of-done)
 
-## [Output-Expectations] _Optional_
+## {{Output-Expectations}} _Optional_
 
-- [Result]
-- [Outcome]
+- (Result)
+- (Outcome)
 
 ## Anti-Patterns _Mandatory_
 
-- [Anti-Pattern]
+- (Anti-Pattern)

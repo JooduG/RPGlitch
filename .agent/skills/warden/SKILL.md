@@ -87,12 +87,12 @@ skills/warden/
 
 ## 7. Anti-Patterns
 
-| Pattern             | Mitigation                                                                     |
-| :------------------ | :----------------------------------------------------------------------------- |
-| **Shadow Logic**    | Forbidden. All critical logic must be documented in a Sovereign Skill or Rule. |
-| **Silent Failures** | Prohibited. Every tool must return actionable error messages.                  |
-| **innerHTML**       | XSS vector. Always sanitize via DOMPurify before rendering.                    |
-| **Secrets in src/** | Never commit API keys or tokens in the client bundle.                          |
+| Pattern             | Mitigation                                                                           |
+| :------------------ | :----------------------------------------------------------------------------------- |
+| **Shadow Logic**    | Forbidden. All critical logic must be documented in a Sovereign Skill or Rule.       |
+| **Silent Failures** | Prohibited. Every tool must return actionable error messages for the A-C-M-Q loop.   |
+| **innerHTML**       | XSS vector. Always sanitize via DOMPurify before rendering.                          |
+| **Secrets in src/** | Never commit API keys or tokens in the client bundle.                                |
 
 ---
 

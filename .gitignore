@@ -26,4 +26,4 @@ GEMINI.md
 **/.eslintcache
 !GEMINI.md
 AGENTS.md
-lint_report.txt
+*.playwright-auth/**

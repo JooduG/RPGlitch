@@ -45,7 +45,7 @@ describe("AppBootstrap", () => {
   });
 
   test("does not use direct innerHTML assignment for the entire error template", async () => {
-    const error = new Error("Test Error");
+    const error = new Error("INTENTIONAL_REACTION");
     vi.mocked(repository.seed_premades).mockRejectedValue(error);
 
     const innerHTMLSpy = vi.spyOn(document.body, "innerHTML", "set");

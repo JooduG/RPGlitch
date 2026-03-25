@@ -1,30 +1,30 @@
 ---
-name: [Rule-Slug]
+name: {{Rule-Slug}}
 description: >
-  [Description]
+  {{Description}}
 trigger: always_on
 ---
 
-# [Rule-Slug] _Mandatory_
+# {{Rule-Slug}} _Mandatory_
 
-> **Law**: "I am the Absolute Constraint of [Domain]. I enforce [Logic] to ensure [Stability]."
+> **Law**: "I am the Absolute Constraint of (Domain). I enforce (Logic) to ensure (Stability)."
 
 ## Anatomy _Mandatory_
 
 ```text
-rules/[Rule-Slug].md   # The Law
+rules/{{Rule-Slug}}.md   # The Law
 ```
 
-## [Context] _Optional_
+## {{Context}} _Optional_
 
-- Rule: [Relationship]
-- Skill: [Relationship]
+- Rule: (Relationship)
+- Skill: (Relationship)
 
 ## The Law _Mandatory_
 
-- [Requirement]
-- [Restriction]
+- (Requirement)
+- (Restriction)
 
 ## Anti-Patterns _Mandatory_
 
-- [Violation]
+- (Violation)
