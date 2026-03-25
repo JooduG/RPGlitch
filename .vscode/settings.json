@@ -7,11 +7,10 @@
     ".geminiignore": true,
     ".gemini/[!s]*": true,
     ".gemini/s[!e]*": true,
-    ".playwright-auth/**": true,
+    "GEMINI.md": true,
     "**/.DS_Store": true,
     "**/.eslintcache": true,
     "**/.eslintignore": true,
-    "**/.gitignore": true,
     "**/.htmlhintignore": true,
     "**/.markdownlintignore": true,
     "**/.prettierignore": true,
@@ -45,7 +44,11 @@
     "0"
   ],
   "markdown.validate.referenceLinks.severity": "ignore",
-  "stylelint.validate": ["css", "scss", "svelte"],
+  "stylelint.validate": [
+    "css",
+    "scss",
+    "svelte"
+  ],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
     "source.fixAll.stylelint": "explicit"

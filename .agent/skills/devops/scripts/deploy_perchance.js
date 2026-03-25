@@ -184,15 +184,6 @@ async function deploy({ left_content, right_content }) {
       try {
         const dismissed = await page.evaluate(() => {
           // Target buttons with direct keywords
-          const keywords = [
-            "agree",
-            "accept",
-            "consent",
-            "got it",
-            "i understand",
-            "allow all",
-            "accept all",
-          ];
           const buttons = Array.from(document.querySelectorAll('button, [role="button"], a.btn'));
 
           // Priority 1: Specific IAB/Quantcast selectors often seen on Perchance

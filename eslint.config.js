@@ -4,9 +4,8 @@ import prettier from "eslint-config-prettier";
 import svelte from "eslint-plugin-svelte";
 import globals from "globals";
 import { fileURLToPath } from "node:url";
-import markdownlintPlugin from "eslint-plugin-markdownlint";
-import markdownlintParser from "eslint-plugin-markdownlint/parser.js";
-import prettierPlugin from "eslint-plugin-prettier";
+// import markdownlintPlugin from "eslint-plugin-markdownlint";
+// import markdownlintParser from "eslint-plugin-markdownlint/parser.js";
 
 const gitignorePath = fileURLToPath(new URL("./.gitignore", import.meta.url));
 
@@ -40,6 +39,7 @@ export default [
       "**/scribbles/**",
       "test-results/**",
       ".playwright-auth/**",
+      "GEMINI.md"
     ],
     // @agent:ignore-end
   },
@@ -47,14 +47,7 @@ export default [
   ...svelte.configs.recommended,
   prettier,
   ...svelte.configs.prettier,
-  {
-    plugins: {
-      prettier: prettierPlugin,
-    },
-    rules: {
-      "prettier/prettier": ["warn", { endOfLine: "auto" }],
-    },
-  },
+  // prettierPlugin (removed for performance - rely on format script)
 
   {
     languageOptions: {
@@ -97,17 +90,7 @@ export default [
       },
     },
   },
-  {
-    files: ["**/*.md"],
-    plugins: { markdownlint: markdownlintPlugin },
-    languageOptions: { parser: markdownlintParser },
-    rules: {
-      ...markdownlintPlugin.configs.recommended.rules,
-      "markdownlint/md013": "off",
-      "markdownlint/md033": "off",
-      "prettier/prettier": "off",
-    },
-  },
+  // markdownlint (handled by markdownlint-cli2)
   {
     files: ["tools/**/*.js", "build/scripts/**/*.js"],
     languageOptions: {

@@ -6,5 +6,5 @@ export default defineConfig({
     port: 4000,
     reuseExistingServer: !process.env.CI,
   },
-  testDir: ".agent/skills/warden/scripts/e2e",
+  testDir: "tests",
 });

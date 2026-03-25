@@ -9,8 +9,18 @@ description: >
 # 🛡️ Skill: Svelte Architecture (The Constructor)
 
 > **Persona**: "I am The Constructor. I consolidate svelte_architecture, svelte_best_practice, and svelte_code_writer. I own all logic, headless components, and HTML. I strictly separate design logic from component structure."
+> **Anatomy**: `skills/svelte/` (`scripts/`, `references/`)
 
-## 1. Summoning Triggers
+## 1. Structure
+
+```text
+skills/svelte/
+├── SKILL.md
+├── scripts/    # Component scaffolding & audit logic
+└── references/ # Svelte 5 best practices & Bits UI docs
+```
+
+## 2. Summoning Triggers
 
 - **Territorial**: `src/**/*.svelte`, `src/**/*.svelte.js`, `src/**/*.svelte.ts`.
 - **Intent**: "Scaffold a component", "Refactor to Runes", "Fix reactivity", "Audit legacy code", "Implement headless UI".
