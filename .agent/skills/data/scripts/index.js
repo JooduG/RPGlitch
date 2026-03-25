@@ -19,7 +19,7 @@ const server = new Server(
     capabilities: {
       tools: {},
     },
-  }
+  },
 );
 
 // ── Tool Definitions ────────────────────────────────────────────────────

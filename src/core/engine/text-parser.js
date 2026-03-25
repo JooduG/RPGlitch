@@ -22,22 +22,32 @@ export function parse_think_block(text) {
  */
 export function clean_image_prompts(text) {
   if (!text) return "";
-  let result = text.replace(/<image_prompt[^>]*\/>/gi, "");
-  // Iteratively remove the innermost <image_prompt>...</image_prompt> pairs
+
+  // 1. Remove Markdown image syntax ![alt](url)
+  let result = text.replace(/!\[.*?\]\(.*?\)/g, "");
+
+  // 2. Remove self-closing tags with potential quoted '>' in attributes
+  // Matches <tag ... /> where attributes can have quoted strings
+  // We handle image_prompt specifically to avoid over-matching other tags
+  // Note: Standard JS regex doesn't support atomic groups (++) or possessive quantifiers (*+) in all environments
+  result = result.replace(/<image_prompt(?:\s+(?:[^"'>]|"[^"]*"|'[^']*')+)*?\s*\/>/gi, "");
+
+  // 3. Iteratively remove the innermost <image_prompt>...</image_prompt> and <image>...</image> pairs
   let previous = "";
-  // Use a regex that matches <image_prompt...> followed by anything that DOES NOT contain <image_prompt
-  // and ends with </image_prompt>
-  // Since javascript regex doesn't support easy "does not contain substring", we can use a simpler loop:
   while (previous !== result) {
     previous = result;
-    // matches opening tag, followed by characters not containing '<image_prompt', followed by closing tag
-    // Actually, we can just replace any occurrence of <image_prompt>...</image_prompt> where the inside has no <image_prompt>
-    // We can do this with: /<image_prompt[^>]*>(?:(?!<image_prompt)[\s\S])*?<\/image_prompt\s*>/gi
+    // Handle <image_prompt>...</image_prompt>
     result = result.replace(
-      /<image_prompt[^>]*>(?:(?!<image_prompt)[\s\S])*?<\/image_prompt\s*>/gi,
+      /<image_prompt(?:\s+(?:[^"'>]|"[^"]*"|'[^']*')*)?>(?:(?!<image_prompt)[\s\S])*?<\/image_prompt\s*>/gi,
+      "",
+    );
+    // Handle <image>...</image>
+    result = result.replace(
+      /<image(?:\s+(?:[^"'>]|"[^"]*"|'[^']*')*)?>(?:(?!<image)[\s\S])*?<\/image\s*>/gi,
       "",
     );
   }
+
   return result;
 }
 /**

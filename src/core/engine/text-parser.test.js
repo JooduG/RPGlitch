@@ -56,6 +56,46 @@ describe("clean_image_prompts", () => {
         "Start <image_prompt>Outer <image_prompt>Inner</image_prompt> Outer-End</image_prompt> End",
       expected: "Start  End",
     },
+    {
+      description: "markdown image syntax",
+      input: "Hello ![alt text](https://example.com/image.png) world",
+      expected: "Hello  world",
+    },
+    {
+      description: "a standard <image> block",
+      input: "Hello <image>a cute cat</image> world",
+      expected: "Hello  world",
+    },
+    {
+      description: "nested <image> tags",
+      input: "Outer <image>Inner <image>deep</image> post-inner</image> End",
+      expected: "Outer  End",
+    },
+    {
+      description: "tags with '>' in attributes correctly",
+      input: 'Hello <image_prompt alt="quoted > bracket">content</image_prompt> world',
+      expected: "Hello  world",
+    },
+    {
+      description: "self-closing tags with '>' in attributes",
+      input: 'Hello <image_prompt alt="quoted > bracket" /> world',
+      expected: "Hello  world",
+    },
+    {
+      description: "tags that just start with image_prompt but are different",
+      input: "Keep <image_prompt_metadata>data</image_prompt_metadata> this",
+      expected: "Keep <image_prompt_metadata>data</image_prompt_metadata> this",
+    },
+    {
+      description: "malformed unclosed tags",
+      input: "Hello <image_prompt> unclosed tag",
+      expected: "Hello <image_prompt> unclosed tag",
+    },
+    {
+      description: "malformed self-closing tags",
+      input: "Hello <image_prompt world",
+      expected: "Hello <image_prompt world",
+    },
   ];
   it.each(testCases)("should handle $description", ({ input, expected }) => {
     expect(clean_image_prompts(input)).toBe(expected);

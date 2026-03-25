@@ -1,9 +1,19 @@
 // src/core/engine/bootstrap.js
 import { seed_premades } from "@data/repository.js";
+import { sanitizeToFragment } from "@core/security.js";
 import { runtime } from "@state/runtime.svelte.js";
 import { mount } from "svelte";
 import App from "../../App.svelte";
 let has_initialized = false;
+/**
+ * FOR TESTING ONLY: Reset the initialization guard.
+ */
+export const reset_bootstrap_guard =
+  import.meta.env.MODE === "test"
+    ? () => {
+        has_initialized = false;
+      }
+    : () => {};
 /**
  * AppBootstrap handles the initial sequence of the application.
  */
@@ -29,13 +39,16 @@ export const AppBootstrap = {
       console.info("[Engine] 🏁 System Online.");
     } catch (err) {
       console.error("[Engine] ❌ Critical Failure:", err);
-      document.body.innerHTML = `
+      const error_template = `
                 <div style="background:var(--bg-base); color:var(--color-danger); padding:var(--spacing-xl); font-family:var(--font-mono); height:100vh; overflow:auto;">
                     <h1 style="border-bottom: 2px solid var(--color-danger); padding-bottom: var(--spacing-s); margin-bottom: var(--spacing-m);">SYSTEM HALTED</h1>
                     <p style="color:var(--color-white); opacity:0.8;">The engine failed to ignite. Check the console or stack trace below:</p>
                     <pre id="error-stack" style="background:var(--surface-sunken); padding:var(--spacing-m); border-radius:var(--border-radius-m); color:var(--color-danger); white-space: pre-wrap; word-break: break-all;"></pre>
                 </div>
             `;
+      const fragment = sanitizeToFragment(error_template);
+      document.body.replaceChildren(fragment);
+
       // Use textContent for safety
       const error_stack = document.getElementById("error-stack");
       if (error_stack) {

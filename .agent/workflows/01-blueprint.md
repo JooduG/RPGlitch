@@ -1,5 +1,5 @@
 ---
-description: The Master Router. Enforces the A-C-M-Q pipeline, categorizes intent, bypasses C1 tasks, and routes complex features through the Forge -> Warden -> Scribe funnel.
+description: The Master Router. Enforces the A-C-M-Q pipeline, categorizes intent, bypasses C1 tasks, and routes complex features through the Gatekeeper -> Simulation -> Warden -> Agent-Manager funnel.
 ---
 
 # 01-blueprint (The Master Router)
@@ -47,11 +47,11 @@ Determine the cognitive load of the request to route it appropriately.
 
 The idea must be categorized, expanded, and then ruthlessly stress-tested.
 
-1. **Invoke the Sommelier**: **[[Invoke: sommelier]](../skills/sommelier/SKILL.md)**
+1. **Invoke the Gatekeeper**: **[[Invoke: gatekeeper]](../skills/gatekeeper/SKILL.md)**
    - Categorize into the Narrative Triad (Spec, State, or Echo).
    - **Context Trigger**: If the task involves UI (`.svelte` files, styling, layout), call `stitch` to synthesize a design spec. [[Invoke: stitch]](../skills/stitch/SKILL.md)
    - _(Optional)_ Invoke `data` for vector history.
-2. **Invoke the Snitch**: **[[Invoke: snitch]](../skills/snitch/SKILL.md)**
+2. **Invoke the Warden**: **[[Invoke: warden]](../skills/warden/SKILL.md)**
    - Stress-test the generated blueprint against Rule 03 (Svelte Runes, Perchance Two-Panel Paradigm).
    - Verify against Prime Directives (P1 User Agency, P2 Internal Consistency).
 3. **Halt and request user confirmation** on the finalized, sanitized blueprint.
@@ -60,7 +60,7 @@ The idea must be categorized, expanded, and then ruthlessly stress-tested.
 
 Once the blueprint survives the Warden, anchor it to physical reality to prepare for the M-Sequence.
 
-1. **Invoke the Ombudsman**: **[[Invoke: ombudsman]](../skills/ombudsman/SKILL.md)**
+1. **Invoke the Agent-Manager**: **[[Invoke: agent-manager]](../skills/agent-manager/SKILL.md)**
 2. Scaffold the new `.agent/state/tracks/<slug>.md` file.
    - Include **Success Criteria** and **Atomic Checklist**.
    - Identify out-of-scope messes and mark them for `#TODO-AI:`.

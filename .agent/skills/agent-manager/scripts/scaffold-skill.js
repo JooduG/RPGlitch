@@ -18,66 +18,66 @@ const ALLOWED_FOLDERS = [
 
 const TEMPLATES = {
   workflow: `---
-name: [skill-slug]
-description: [TODO: Complete explanation. Trigger on: ... ]
+name: (skill-slug)
+description: (Complete explanation. Trigger on: ... )
 ---
 
-# [Skill Title] (Workflow)
+# (Skill Title) (Workflow)
 
 ## 1. Workflow Decision Tree
-[TODO: Map the sequential logic. If A -> Step 1, If B -> Step 2]
+(Map the sequential logic. If A -> Step 1, If B -> Step 2)
 
-## 2. Step 1: [Name]
-[Actionable instructions]
+## 2. Step 1: (Name)
+(Actionable instructions)
 
-## 3. Step 2: [Name]
-[Actionable instructions]
+## 3. Step 2: (Name)
+(Actionable instructions)
 `,
   task: `---
-name: [skill-slug]
-description: [TODO: Complete explanation. Trigger on: ... ]
+name: (skill-slug)
+description: (Complete explanation. Trigger on: ... )
 ---
 
-# [Skill Title] (Task-Based)
+# (Skill Title) (Task-Based)
 
 ## 1. Quick Start
-[Immediate usage examples]
+(Immediate usage examples)
 
-## 2. [Category 1]
-[Specific tools or operations]
+## 2. (Category 1)
+(Specific tools or operations)
 
-## 3. [Category 2]
-[Specific tools or operations]
+## 3. (Category 2)
+(Specific tools or operations)
 `,
   reference: `---
-name: [skill-slug]
-description: [TODO: Complete explanation. Trigger on: ... ]
+name: (skill-slug)
+description: (Complete explanation. Trigger on: ... )
 ---
 
-# [Skill Title] (Reference)
+# (Skill Title) (Reference)
 
 ## 1. Guidelines
-[Core standards and constraints]
+(Core standards and constraints)
 
 ## 2. Specifications
-[Detailed technical data]
+(Detailed technical data)
 
 ## 3. Usage
-[How to apply the standards]
+(How to apply the standards)
 `,
   capabilities: `---
-name: [skill-slug]
-description: [TODO: Complete explanation. Trigger on: ... ]
+name: (skill-slug)
+description: (Complete explanation. Trigger on: ... )
 ---
 
-# [Skill Title] (Capabilities)
+# (Skill Title) (Capabilities)
 
 ## 1. Core Capabilities
-1. **[Feature 1]**: [Benefit]
-2. **[Feature 2]**: [Benefit]
+1. **(Feature 1)**: (Benefit)
+2. **(Feature 2)**: (Benefit)
 
 ## 2. Implementation
-[How the features interact]
+(How the features interact)
 `,
 };
 
@@ -105,15 +105,15 @@ function createSkill(name, type = "task", description = "New agentic skill.") {
   const targetDir = path.join(SKILL_ROOT, slug);
 
   const metaIssues = validateSkillMeta(slug, description);
-  if (metaIssues.length > 0) return console.error(`❌ INVALID META: ${metaIssues.join(", ")}`);
+  if (metaIssues.length > 0) return process.stdout.write(`❌ INVALID META: ${metaIssues.join(", ")}\n`);
 
-  if (fs.existsSync(targetDir)) return console.error(`❌ FAIL: Skill '${slug}' already exists.`);
+  if (fs.existsSync(targetDir)) return process.stdout.write(`❌ FAIL: Skill '${slug}' already exists.\n`);
 
   const template = TEMPLATES[type] || TEMPLATES.task;
   const content = template
-    .replace(/\[skill-slug\]/g, slug)
-    .replace(/\[Skill Title\]/g, titleCase(slug))
-    .replace(/\[Description\]/g, description);
+    .replace(/\(skill-slug\)/g, slug)
+    .replace(/\(Skill Title\)/g, titleCase(slug))
+    .replace(/\(Description\)/g, description);
 
   fs.mkdirSync(targetDir, { recursive: true });
   fs.mkdirSync(path.join(targetDir, "scripts"), { recursive: true });
@@ -121,25 +121,30 @@ function createSkill(name, type = "task", description = "New agentic skill.") {
 
   fs.writeFileSync(path.join(targetDir, "SKILL.md"), content);
 
-  console.log(`✅ PASS: [${type.toUpperCase()}] Skill '${slug}' instantiated at ${targetDir}`);
+  process.stdout.write(`✅ PASS: [${type.toUpperCase()}] Skill '${slug}' instantiated at ${targetDir}\n`);
 }
 
 /**
  * DEPRECATED: Use structural-audit.js for definitive checks.
  */
 function auditSkill(name) {
-  const result = spawnSync("node", [path.join(".agent/skills/agent-manager/scripts/structural-audit.js"), name], { encoding: "utf8" });
+  const result = spawnSync(
+    "node",
+    [path.join(".agent/skills/agent-manager/scripts/structural-audit.js"), name],
+    { encoding: "utf8" },
+  );
   if (result.status === 0) return { valid: true, issues: [] };
-  
-  const issues = result.stdout.split("\n")
-    .filter(line => line.trim().startsWith("-"))
-    .map(line => line.trim().substring(2));
-  
+
+  const issues = result.stdout
+    .split("\n")
+    .filter((line) => line.trim().startsWith("-"))
+    .map((line) => line.trim().substring(2));
+
   return { valid: false, issues };
 }
 
 function auditAll() {
-  console.log("🔍 Auditing Intelligence Structure...");
+  process.stdout.write("🔍 Auditing Intelligence Structure...\n");
   const skills = fs
     .readdirSync(SKILL_ROOT, { withFileTypes: true })
     .filter((d) => d.isDirectory() && !d.name.startsWith("_"))
@@ -149,17 +154,17 @@ function auditAll() {
   skills.forEach((name) => {
     const { valid, issues } = auditSkill(name);
     const color = valid ? "\x1b[32m" : "\x1b[31m";
-    console.log(
-      `${name.padEnd(30)} | ${color}${valid ? "PASS" : "FAIL"}\x1b[0m | ${issues.join(", ")}`,
+    process.stdout.write(
+      `${name.padEnd(30)} | ${color}${valid ? "PASS" : "FAIL"}\x1b[0m | ${issues.join(", ")}\n`,
     );
     if (valid) validCount++;
   });
 
-  console.log(`\nAudit Complete: ${validCount}/${skills.length} compliant.`);
+  process.stdout.write(`\nAudit Complete: ${validCount}/${skills.length} compliant.\n`);
   if (validCount < skills.length) process.exit(1);
 }
 
 const [, , command, ...args] = process.argv;
 if (command === "create") createSkill(args[0], args[1], args[2]);
 else if (command === "audit") auditAll();
-else console.log("Usage: node scaffold-skill.js [create|audit] [name] [type] [description]");
+else process.stdout.write("Usage: node scaffold-skill.js [create|audit] [name] [type] [description]\n");

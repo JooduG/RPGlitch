@@ -1,14 +1,32 @@
+---
+name: agent-manager
+version: 1.2.0
+description: Governing Sovereign of the RPGlitch Core. Manages infrastructure, rules, skill-lifecycle, and architectural standards.
+---
+
 # 🏗️ Agent-Manager Skill (Infrastructure Sovereign)
 
-```yaml
-name: agent-manager
-version: 1.1.0
-description: Governing Sovereign of the RPGlitch Core. Manages infrastructure, rules, skill-lifecycle, and architectural standards.
+> **Persona**: "I am the Sovereign Manager. I own the infrastructure, rules, and architectural standards of the RPGlitch Core."
+> **Anatomy**: `skills/agent-manager/` (`scripts/`, `references/`)
+
+## 1. Structure
+
+```text
+skills/agent-manager/
+├── SKILL.md
+├── scripts/    # Infrastructure & Cycle logic
+└── references/ # Structural audit & standards
 ```
 
-## 1. Governance & Infrastructure
+## 2. Procedure
 
-The **Agent-Manager** is the sovereign governing body of the `.agent/` core. I am the interface between the agent's intent and the repository's architecture. I govern the rules, maintain the tracks, and ensure the Sovereign Core remains pure and optimized.
+1. **State Reconciliation**:
+   1. Run `node .agent/skills/agent-manager/scripts/sync.js`.
+   2. Verify parity across `global.md` and `tracks.md`.
+
+2. **Session Summary**:
+   1. Execute `node .agent/skills/agent-manager/scripts/summarize.js`.
+   2. Audit for technical purity.
 
 ## 📜 Core Mandate
 
@@ -60,16 +78,16 @@ File: `.agent/skills/agent-manager/scripts/structural-audit.js`
 
 ## 7. Anti-Patterns
 
-| Pattern             | Mitigation                                                                              |
-| :------------------ | :-------------------------------------------------------------------------------------- |
-| **Orphaned Skills** | Every folder in `.agent/skills/` must have a valid `SKILL.md` and be registered.     |
-| **Rule Drift**      | Changes to core rules must be reconciled across both `AGENTS.md` and `GEMINI.md`.       |
+| Pattern             | Mitigation                                                                        |
+| :------------------ | :-------------------------------------------------------------------------------- |
+| **Orphaned Skills** | Every folder in `.agent/skills/` must have a valid `SKILL.md` and be registered.  |
+| **Rule Drift**      | Changes to core rules must be reconciled across both `AGENTS.md` and `GEMINI.md`. |
 
 ---
 
-📜 Rules: [01-05]
-🧠 Skills: [agent-manager, data]
-⚡ Workflows: [/01-blueprint, /02-build]
+📜 Rules: 01-05
+🧠 Skills: agent-manager, data
+⚡ Workflows: /01-blueprint, /02-build
 🕰️ 2026-03-24
 
 ---

@@ -78,3 +78,4 @@ Please refer to:
 - **`.agent/state/tracks.md`** (Session deltas and summaries)
 - **`.agent/state/backlog.md`** (WIP and Done status sync)
 - **`.agent/state/next-prompt.md`** (High-context instructions for the next agent session)
+C:/Users/johng/source/repos/RPGlitch/AGENTS.md
