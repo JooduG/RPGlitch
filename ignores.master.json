@@ -22,7 +22,8 @@
     "node_modules",
     "**/scribbles/**",
     "test-results/**",
-    ".playwright-auth/**"
+    ".playwright-auth/**",
+    "GEMINI.md"
   ],
   "geminiignore": [
     "!**/.env",
@@ -38,7 +39,7 @@
     "!**/scribbles/**",
     "!**/.playwright-auth/**"
   ],
-  "gitignore": ["!**/RPGlitch-left-panel.txt", "**/.eslintcache"],
+  "gitignore": ["!**/RPGlitch-left-panel.txt", "**/.eslintcache", "!GEMINI.md", "AGENTS.md"],
   "linters": {
     "eslint": [],
     "htmlhint": [],
@@ -55,6 +56,7 @@
       ".geminiignore": true,
       ".gemini/[!s]*": true,
       ".gemini/s[!e]*": true,
+      "GEMINI.md": true,
       ".playwright-auth/**": true,
       "**/.DS_Store": true,
       "**/.eslintcache": true,

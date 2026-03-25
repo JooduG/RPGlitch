@@ -21,5 +21,9 @@ node_modules
 **/scribbles/**
 test-results/**
 .playwright-auth/**
+GEMINI.md
 !**/RPGlitch-left-panel.txt
 **/.eslintcache
+!GEMINI.md
+AGENTS.md
+lint_report.txt

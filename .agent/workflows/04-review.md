@@ -23,14 +23,14 @@ description: Reviews and stuff.
 
 ### Phase 1: The Clarity Gate (Audit)
 
-1. **Analysis**: Verify implementation against the original Blueprint and Success Criteria. [[Invoke: quality-assurance]](../skills/quality-assurance/SKILL.md)
+1. **Analysis**: Verify implementation against the original Blueprint and Success Criteria. [[Invoke: warden]](../skills/warden/SKILL.md)
 2. **Standard Check**: Ensure code adheres strictly to **Svelte 5 Runes** and **Chalk Regime** styling. No Svelte 4 patterns or hex codes permitted. [[Invoke: svelte]](../skills/svelte/SKILL.md)
 3. **Validation**: Run internal test scripts (`npm run test` or `npm run verify`) to prove the logic holds weight before committing.
 
 ### Phase 2: Maintenance & Archival
 
-1. **Archival**: If complete, move the track shards to [.agent/archive/](../archive/). [[Invoke: project]](../skills/project/SKILL.md)
-2. **Triage**: Sort incoming issues and seed the next `/01-plan` cycle. [[Invoke: markdown]](../skills/markdown/SKILL.md)
+1. **Archival**: If complete, move the track shards to [.agent/archive/](../archive/). [[Invoke: agent-forge]](../skills/agent-forge/SKILL.md)
+2. **Triage**: Sort incoming issues and seed the next `/01-plan` cycle. [[Invoke: methodology]](../skills/methodology/SKILL.md)
 
 ### Phase 3: The Handoff Law (Anti-Amnesia Protocol)
 
