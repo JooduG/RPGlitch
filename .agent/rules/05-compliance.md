@@ -62,7 +62,7 @@ The **Scholar Gate** dictates that no task track gets a `[x]` without verified t
 
 Code and communication must be chemically pure. We adhere to the
 
-- **Boy Scout Rule**: Leave the architecI Slop Audit & Naming Regimes
+- **Boy Scout Rule**: Leave the architectural Slop Audit & Naming Regimes
 - **Vibe & Tone Hardening**: NEVER use flowery AI tropes:"testament", "leverage" (unless referring to physinarratively ("I have added X")). Frame them as terminal states.
 - **Avoid em-dashes (`—`)**; use precise, atomic sentences.
 - **Architectural Limits**: No single context file should exceed 500 lines or mixed responsibilities. If it does, refactoring is mandatory.
