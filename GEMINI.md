@@ -57,7 +57,7 @@ The project targets **Perchance** as its primary deployment platform, requiring 
 - `.agent/`: The Sovereign Core (Intelligence)
 - `agent-manager/`: Governance & Skill Lifecycle.
 - `da/`: Persistence (Dexie/Pinecone) & Entity Repositories.
-- `gatekeeper/`: Intent Decoding & Feature Incubaon.
+- `gatekeeper/`: Intent Decoding & Feature Incubation.
 - `simulation/`: Narrative Bridges & Game Logic.
 - `warden/`: Adversarial Audit & Security.
 - `src/core/`: Logic & Round Orchestration (DynamicsEngine, Intelligence Kernel).
