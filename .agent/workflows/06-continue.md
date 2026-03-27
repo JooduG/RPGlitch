@@ -23,7 +23,7 @@ description: Resume Interrupted Work. Bypasses boot logic to pick up the baton.
 
 ### Phase 1: The Clarity Gate (Peel)
 
-1. **Intake**: Read [.agent/project-management/next-prompt.md](../project-management/next-prompt.md) for the immediate target objective. [[Invoke: reflection]](../skills/cognition/SKILL.md)
+1. **Intake**: Read [.agent/project-management/next.md](../project-management/next.md) for the immediate target objective. [[Invoke: reflection]](../skills/cognition/SKILL.md)
 2. **Identification**: Locate the specific sub-task in the active [.agent/project-management/tracks/](../project-management/tracks/) task shard. [[Invoke: project-manager]](../skills/project-manager/SKILL.md)
 
 ### Phase 2: Resonance
