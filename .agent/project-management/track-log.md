@@ -1,5 +1,11 @@
 # RPGlitch: Session Tracks
 
+> **Status**: `[ ]` Pending, `[~]` Active, `[x]` Complete, `[!]` Blocked, `[-]` Skipped
+
+## ⚡ Active Tracks
+
+- `[~]` **Project Manager: Sovereign 2.0** (Current): Upgrading PM skill to high-fidelity Sovereign lifecycle. [Branch: chore/pm-upgrade]
+
 - **Sovereign Rebranding** (Done): Successfully migrated the entire Sovereign Skill hierarchy to professional nomenclature: **Data**, **Simulation**, **Gatekeeper**, **Warden**, and **Agent-Manager**. Synchronized all `SKILL.md` files, `package.json` scripts, and MCP configurations. [Branch: chore/sovereign-alignment-final]
 - **Clinic Sanitization (/03-clean)** (Done): Resolved all remaining technical debt and documentation lints. Identified and repaired structural corruption in `src/index.html` (duplicate ID and tag balancing). Achieved 100% audit purity across all 12 skill domains. [Branch: chore/sovereign-alignment-final]
 - **Narrative Bridge**: Initiated registration and architectural planning for autonomous scene complications.

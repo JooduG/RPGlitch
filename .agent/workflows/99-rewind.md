@@ -23,17 +23,17 @@ disable-model-invocation: true
 
 ### Phase 1: The Clarity Gate (Diagnosis)
 
-1. **Halt**: Cease all current execution. Clearly state: "I am looping. Initiating Nope Protocol." [[Invoke: reflection]](../skills/reflection/SKILL.md)
-2. **Trace**: Identify the exact origin of the invalid data or failed assumption. [[Invoke: reflection]](../skills/reflection/SKILL.md)
+1. **Halt**: Cease all current execution. Clearly state: "I am looping. Initiating Nope Protocol." [[Invoke: reflection]](../skills/cognition/SKILL.md)
+2. **Trace**: Identify the exact origin of the invalid data or failed assumption. [[Invoke: reflection]](../skills/cognition/SKILL.md)
 
 ### Phase 2: Restoration
 
-1. **Reset**: `git reset --hard` to the last Review SHA or `git restore .`. [[Invoke: project]](../skills/project/SKILL.md)
+1. **Reset**: `git reset --hard` to the last Review SHA or `git restore .`. [[Invoke: project-manager]](../skills/project-manager/SKILL.md)
 2. **Scrub**: `git clean -fd` to remove untracked debris. [[Invoke: devops]](../skills/devops/SKILL.md)
 
 ### Phase 3: The Quality Gate (Pivoting)
 
-1. **Report**: Explain to the user _what_ broke and formulate a pivot strategy. [[Invoke: markdown]](../skills/markdown/SKILL.md)
+1. **Report**: Explain to the user _what_ broke and formulate a pivot strategy. [[Invoke: markdown]](../skills/cognition/SKILL.md)
 2. **Approval**: Wait for user sign-off before re-entering `/01-plan`.
 
 ## 4. Anti-Patterns

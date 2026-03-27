@@ -13,8 +13,8 @@ Analyze the intended action against the following factors. Resolve conflicts in 
 - 1.3 Prerequisites: Information and/or actions needed.
 - 1.4 Explicit constraints: User preferences.
 - 1.5 Intent Decoding: Is the user's intent completely clear and technically actionable?
-  - TRUE: **Proceed with the workflow**.
-  - FALSE: **Halt execution and invoke the `gatekeeper` skill to resolve ambiguity**.
+  - **TRUE**: *Proceed* with [Hypothesis Generation & Triage](./AGENTS.md#-2-hypothesis-generation--triage).
+  - **FALSE**: *Halt execution* and invoke the [Gatekeeper](./.agent/skills/intent-crucible/SKILL.md) to resolve ambiguity.
 
 ## 🧠 2. Hypothesis Generation & Triage
 
@@ -30,13 +30,13 @@ Assess the symptom and draft your suspected causes before taking any action.
 
 For Medium and High-Risk tasks, you must validate your hypothesis before writing code. Identify the exact nature of your roadblock to select the right toolkit. Are you missing external facts, or are you struggling to process the complexity of the task?
 
-- **3.1 KNOWLEDGE DEFICIT** (Need External Facts): _Coordinate specialized MCPs for deep inquiry._
+- **3.1 KNOWLEDGE DEFICIT** (Need External Facts): *Coordinate specialized MCPs for deep inquiry.*
   - `context7`: Up-to-date documentation and library patterns.
   - `svelte`: Official Svelte 5 logic and code verification.
   - `deepwiki`: GitHub repository intelligence and existing architecture analysis.
   - Autonomous Bias: When exploring, missing optional tool parameters is acceptable. **Execute the tool with available info instead of halting to ask the user**.
 
-- **3.2 PROCESSING DEFICIT** (Need Cognitive Structuring): _Select the appropriate MCP server reasoning framework based on the shape of the problem._
+- **3.2 PROCESSING DEFICIT** (Need Cognitive Structuring): *Select the appropriate MCP server reasoning framework based on the shape of the problem.*
   - **Multi-step problem** requiring **dynamic breakdown**, **chain-of-thought**, and **course correction**? -> Trigger `mcp-sequentialthinking-tools`.
   - Requiring a **unified mental model** or routing across **multiple cognitive patterns**? -> Trigger `waldzell-clear-thought`.
   - Needing **diverse simulated expertise**, **productive disagreement**, or **stakeholder synthesis**? -> Trigger `waldzell-collaborative-reasoning`.
@@ -51,14 +51,14 @@ For Medium and High-Risk tasks, you must validate your hypothesis before writing
 
 Does the data from Step 3 confirm your hypothesis?
 
-- **4.1 Pivot Protocol**: If initial _hypotheses are disproven_ or _architectural conflicts arise during execution_ -> generate **new hyptheses** and go _back to step 1_.
-- **4.2 State Sync**: If the _logic shifts_ drastically during testing -> _update the [Mission Board](./.agent/state/global.md)_ before executing.
+- **4.1 Pivot Protocol**: If initial *hypotheses are disproven* or *architectural conflicts arise during execution* -> generate **new hyptheses** and go *back to step 1*.
+- **4.2 State Sync**: If the *logic shifts* drastically during testing -> *update the [Mission Board](./.agent/project-management/global.md)* before executing.
 
 ## ⚙️ 5. The Execution & Grounding Sequence
 
 Once planned and cleared, execute the task using tools at your disposal. **Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers**. Below are the most common skills to be used in this step:
 
-- **[Methodology](./.agent/skills/methodology)**
+- **[Project Managemenet](./.agent/skills/project-manager)**
 - **[Svelte](./.agent/skills/svelte)**
 - **[CSS](./.agent/skills/css)**
 - **[Motion](./.agent/skills/motion)**
@@ -86,13 +86,13 @@ Do not give up unless all the reasoning above is exhausted. **If you cannot find
 
 - **7.1 Resilience**: Don't be dissuaded by time or frustration.
 - **7.2 Intelligent Retry**: On transient errors, retry until max limits. On other errors, change strategy/arguments rather than repeating.
-- **7.3 The Circuit Breaker**: Trigger a Mandatory _Self-Audit_ via `metacognitiveMonitoring` **IF**:
-  - You experience _3 consecutive_ Definition of Done failures.
-  - You make _3+ tool calls_ without measurable progress.
+- **7.3 The Circuit Breaker**: Trigger a Mandatory *Self-Audit* via `metacognitiveMonitoring` **IF**:
+  - You experience *3 consecutive* Definition of Done failures.
+  - You make *3+ tool calls* without measurable progress.
 
 ## 🛑 8. Inhibit Your Response
 
 Only take an action after all the above reasoning is completed. **Once you've taken an action, you cannot take it back**.
 
-- 8.1 Planning Constraint: **Do not execute without an initialized [Tracks](./.agent/state/tracks.md)**.
-- 8.2 The Close-out: **Update [Tracks](./.agent/state/tracks.md) and the [Mission Board](./.agent/state/global.md) before turn termination**.
+- 8.1 Planning Constraint: **Do not execute without an initialized [Tracks](./.agent/project-management/track-log.md)**.
+- 8.2 The Close-out: **Update [Tracks](./.agent/project-management/track-log.md) and the [Mission Board](./.agent/project-management/global.md) before turn termination**.

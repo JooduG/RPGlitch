@@ -98,8 +98,8 @@ function runJanitor() {
 
 // 3. Reconcile Mission Board (tracks.md -> global.md)
 function reconcileState() {
-  const tracksPath = path.join(ROOT_DIR, ".agent", "state", "tracks.md");
-  const globalPath = path.join(ROOT_DIR, ".agent", "state", "global.md");
+  const tracksPath = path.join(ROOT_DIR, ".agent", "project-management", "track-log.md");
+  const globalPath = path.join(ROOT_DIR, ".agent", "project-management", "mission-board.md");
 
   if (!fs.existsSync(tracksPath) || !fs.existsSync(globalPath)) return;
 
@@ -132,7 +132,7 @@ function reconcileState() {
 // 4. Rule Validation
 function validateRules() {
   const rulesDir = path.join(ROOT_DIR, ".agent", "rules");
-  const globalPath = path.join(ROOT_DIR, ".agent", "state", "global.md");
+  const globalPath = path.join(ROOT_DIR, ".agent", "project-management", "mission-board.md");
 
   if (!fs.existsSync(rulesDir) || !fs.existsSync(globalPath)) return;
 

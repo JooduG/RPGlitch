@@ -27,7 +27,7 @@
     "dexie": "^3.2.4",
     "dompurify": "^3.0.5",
     "dotenv": "^17.3.1",
-    "firecrawl-mcp": "^3.6.0",
+    "firecrawl-mcp": "^3.11.0",
     "ignore": "^7.0.5",
     "mcp-mermaid": "^0.4.1",
     "mcp-sequentialthinking-tools": "^0.0.4",
@@ -84,7 +84,7 @@
   },
   "name": "joodug-rpglitch",
   "scripts": {
-    "audit": "node .agent/skills/methodology/scripts/summarize.js audit:check audit:css audit:security audit:agent audit:svelte audit:todo audit:method",
+    "audit": "node .agent/skills/project-manager/scripts/summarize.js audit:check audit:css audit:security audit:agent audit:svelte audit:todo audit:project",
     "audit:check": "node .agent/skills/warden/scripts/audit-engine.js",
     "audit:css": "node .agent/skills/warden/scripts/audit-engine.js --css",
     "audit:security": "node .agent/skills/warden/scripts/audit-engine.js --security",
@@ -94,11 +94,11 @@
     "audit:agent": "node .agent/skills/warden/scripts/audit-engine.js --agent",
     "audit:svelte": "node .agent/skills/warden/scripts/audit-engine.js --svelte",
     "audit:todo": "node .agent/skills/warden/scripts/audit-engine.js --todo",
-    "audit:method": "node .agent/skills/warden/scripts/audit-engine.js --method",
+    "audit:project": "node .agent/skills/warden/scripts/audit-engine.js --project",
     "build": "vite build",
-    "check": "node .agent/skills/methodology/scripts/summarize.js audit:check lint test",
-    "clean": "node .agent/skills/methodology/scripts/summarize.js audit:security lint audit:method",
-    "deploy:prepare": "node .agent/skills/methodology/scripts/summarize.js format sync lint:fix audit test build",
+    "check": "node .agent/skills/project-manager/scripts/summarize.js audit:check lint test",
+    "clean": "node .agent/skills/project-manager/scripts/summarize.js audit:security lint audit:project",
+    "deploy:prepare": "node .agent/skills/project-manager/scripts/summarize.js format sync lint:fix audit test build",
     "deploy:perchance:auto": "node .agent/skills/devops/scripts/deploy_perchance.js",
     "deploy": "npm run deploy:prepare && npm run deploy:perchance:auto",
     "dev": "vite",
@@ -106,7 +106,7 @@
     "forge:skill-package": "node .agent/skills/agent-forge/scripts/forge-skill-package.js",
     "forge:svelte": "node .agent/skills/svelte/scripts/forge-svelte.js",
     "format": "prettier --write .",
-    "lint": "node .agent/skills/methodology/scripts/summarize.js lint:js lint:css lint:md",
+    "lint": "node .agent/skills/project-manager/scripts/summarize.js lint:js lint:css lint:md",
     "lint:css": "stylelint \"src/**/*.{css,svelte,scss}\"",
     "lint:css:fix": "stylelint \"src/**/*.{css,svelte,scss}\" --fix",
     "lint:fix": "npm-run-all lint:js:fix lint:css:fix lint:md:fix",
@@ -115,16 +115,13 @@
     "lint:md": "markdownlint-cli2 \"**/*.{md,mdx}\" \"!node_modules\" \"!.agent/archive\" \"!.agent/state\"",
     "lint:md:fix": "markdownlint-cli2 --fix \"**/*.{md,mdx}\" \"!node_modules\" \"!.agent/archive\" \"!.agent/state\"",
     "preview": "vite preview --port 8080",
-    "sync": "node .agent/skills/methodology/scripts/sync.js",
-    "test": "node .agent/skills/methodology/scripts/summarize.js test:unit test:e2e",
+    "sync": "node .agent/skills/project-manager/scripts/sync.js",
+    "test": "node .agent/skills/project-manager/scripts/summarize.js test:unit test:e2e",
     "test:e2e": "playwright test",
     "test:ui": "vitest --ui",
     "test:unit": "vitest run",
-    "verify": "node .agent/skills/methodology/scripts/summarize.js lint audit test"
+    "verify": "node .agent/skills/project-manager/scripts/summarize.js lint audit test"
   },
   "type": "module",
-  "version": "1.0.0",
-  "overrides": {
-    "@modelcontextprotocol/sdk": "^1.27.1"
-  }
+  "version": "1.0.0"
 }

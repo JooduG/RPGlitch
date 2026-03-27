@@ -16,9 +16,8 @@ description: Implementation Loop. Logic, State, and Style fabrication.
 ## 2. Brain (Context Injection)
 
 - **Rules**: [.agent/rules/01-foundation.md](../rules/01-foundation.md).
-- **Rules**: [.agent/rules/03-technetium.md](../rules/03-technetium.md).
-- **State**: [.agent/state/tracks.md](../state/tracks.md) (Mission Board).
-- **Reference**: [.agent/knowledge/atlas/07-physics.md](../knowledge/atlas/07-physics.md).
+- **Rules**: [.agent/rules/03-technetium.md](../rules/05-intelligence.md).
+- **State**: [.agent/state/tracks.md](../project-management/tracks.md) (Mission Board).
 
 ## 3. Procedures
 
@@ -37,9 +36,9 @@ description: Implementation Loop. Logic, State, and Style fabrication.
 
 ### Phase 3: The Quality Gate (Proving)
 
-1. **Verify**: Run `npm run check` and `npm test`. [[Invoke: quality-assurance]](../skills/quality-assurance/SKILL.md)
+1. **Verify**: Run `npm run check` and `npm test`. [[Invoke: warden]](../skills/warden/SKILL.md)
 2. **Evidence**: You MUST read and report terminal output to confirm success. No "blind" completion.
-3. **Checkbox**: Mark the sub-task `[x]` in the task shard. [[Invoke: project]](../skills/project/SKILL.md)
+3. **Checkbox**: Mark the sub-task `[x]` in the task shard. [[Invoke: project]](../skills/project-manager/SKILL.md)
 
 ## 4. Anti-Patterns
 

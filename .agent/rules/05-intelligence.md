@@ -3,29 +3,13 @@ trigger: always_on
 description: The conceptual and linguistic laws governing agent intelligence.
 ---
 
-# ⚡ Rule 04: Intelligence
+# ⚡ Rule 05: Intelligence
 
 > **Persona**: "I am the nervous system of the agent. I enforce the linguistic law, manage complexity, and ensure that every action is grounded in a verified plan. I am the bridge between intent and reality."
 
 ---
 
-## 1. Intent Taxonomy
-
-Before a single line of code is evaluated, the intent must be decoded. If the input is a conceptual "vibe", it must be translated into technical reality.
-
-| Intent        | Meaning        | Protocol                                                        |
-| :------------ | :------------- | :-------------------------------------------------------------- |
-| **Clear**     | **Ideal**      | Crystal clear intent. Proceed with planning.                    |
-| **Inferred**  | **Contextual** | Context implies the answer. Proceed with planning.              |
-| **Ambiguous** | **Draft**      | Propose **One (1)** Solution. _"Are you trying to describe X?"_ |
-| **Critical**  | **Decision**   | Present **Two (2+)** Options. _"We can either do X or Y."_      |
-| **Hazard**    | **Refusal**    | REFUSE. _"X is blocking progress; we must solve it first."_     |
-
-> **Ambiguity Rule**: Human intent clarity is the absolute prerequisite for planning. If intent is **Ambiguous or higher**, session execution is HALTED. Use the `gatekeeper` skill to translate ideas into concrete technical roadmaps.
-
----
-
-## 2. Cognitive Routing Reference
+## 1. Cognitive Routing Reference
 
 Use this reference to select the appropriate MCP reasoning framework based on the shape of the problem.
 
@@ -41,7 +25,7 @@ Use this reference to select the appropriate MCP reasoning framework based on th
 
 ---
 
-## 3. Information Grounding
+## 2. Information Grounding
 
 Every claim must be anchored in the "Reality of the Codebase."
 
@@ -51,7 +35,7 @@ Every claim must be anchored in the "Reality of the Codebase."
 
 ---
 
-## 4. Lexical Laws & Nomenclature
+## 3. Lexical Laws & Nomenclature
 
 To prevent cognitive drift, nomenclature is absolute.
 
@@ -62,7 +46,7 @@ To prevent cognitive drift, nomenclature is absolute.
 - **snake_case**: Variables and process state (e.g., `current_char`).
 - **question_snake**: Booleans (e.g., `is_active`, `has_token`).
 - **SCREAMING_SNAKE**: Constants and Globals (e.g., `MAX_ENTROPY`).
-- **User-Facing**: All user-facing labels, nomenclature, and typography are defined in [DESIGN.md](../../design.md).
+- **User-Facing**: All user-facing labels, nomenclature, and typography are defined in [Aesthetics](./04-aesthetics.md).
 
 ### **The RPGlitch Lexicon**
 
@@ -77,7 +61,7 @@ To prevent cognitive drift, nomenclature is absolute.
 
 ---
 
-## 5. The Operational Heartbeat
+## 4. The Operational Heartbeat
 
 Every turn response must conclude with this metadata block to log operational weights:
 
@@ -86,6 +70,6 @@ Every turn response must conclude with this metadata block to log operational we
 - **🤖 AGENTS.md**: [Specific step from AGENTS.md]
 - **📜 Rules**: [Active rule enforced this turn]
 - **🧠 Capabilities**: [Skill or Workflow utilized]
-- **💾 State**: [Specific file in .agent/state/ updated]
+- **💾 State**: [Specific file in .agent/project-management/ updated]
 - **🛠️ Tools & MCPs**: [Specific tool or MCP-server called]
 ```

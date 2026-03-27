@@ -17,18 +17,18 @@ The project follows a sovereign modular structure to ensure local-first resilien
 - **Build Tool**: Vite (with `vite-plugin-singlefile` for Perchance).
 - **Environment**: Perchance Two-Panel Paradigm. No Node.js backend. Rely entirely on **Just-In-Time (JIT) Compilation** and **ESM/CDN imports** (via `esm.sh`) for external libraries.
 - **Persistence**: Dexie.js (IndexedDB).
-- **Security**: Validation & Physics via **Zod/DOMPurify** sanitization boundaries ([Compliance](./05-compliance.md)).
+- **Security**: Validation & Physics via **Zod/DOMPurify** sanitization boundaries ([Compliance](./06-compliance.md)).
 - **[Simulation](./02-simulation.md)** building blocks:
-  - [Core](../../src/core/): Logic & Round Orchestration (DynamicsEngine, Intelligence Kernel)
-  - [Data](../../src/data/): Persistence (Dexie) & Entity Repositories.
-  - [State](../../src/state/): Reactive Runes (`$state`).
-  - [Theme](../../src/theme/): The Chalk Regime (Tokens, Global Styles).
-  - [UI](../../src/ui/): Atomic Design (Svelte 5 components).
-  - [Media](../../src/media/): Internal Sensory Assets ([Visuals](../skills/image-generation/), [Audio](../skills/audio/)).
+    - [Core](../../src/core/): Logic & Round Orchestration (DynamicsEngine, Intelligence Kernel)
+    - [Data](../../src/data/): Persistence (Dexie) & Entity Repositories.
+    - [State](../../src/state/): Reactive Runes (`$state`).
+    - [Theme](../../src/theme/): The Chalk Regime (Tokens, Global Styles).
+    - [UI](../../src/ui/): Atomic Design (Svelte 5 components).
+    - [Media](../../src/media/): Internal Sensory Assets ([Visuals](../skills/image-generation/), [Audio](../skills/audio/)).
 - [Skills](../skills/) for infrastructural expertise:
-  - [Gatekeeper](../skills/gatekeeper/): Intent Decoding & Feature Incubation.
-  - [Simulation](../skills/simulation/): Narrative Bridges & Game Logic.
-  - [Warden](../skills/warden/): Adversarial Audit & Security.
+    - [Intent Crucible](../skills/intent-crucible/): Intent Decoding & Feature Incubation.
+    - [Simulation](../skills/simulation/): Narrative Bridges & Game Logic.
+    - [Warden](../skills/warden/): Adversarial Audit & Security.
 
 ---
 
@@ -60,7 +60,7 @@ See [Svelte](../skills/svelte).
 
 Once a plan is approved and grounded, execute using this atomic sequence:
 
-1. **Task Tracking**: Ensure [agent-forge](../skills/agent-forge) has initialized Flat Tracks and the **Reasoning Block** (Risk/Abductive/Analysis Score) in [Tracks](../state/tracks/).
+1. **Task Tracking**: Ensure [cognition](../skills/cognition/) has initialized Flat Tracks and the **Reasoning Block** (Risk/Abductive/Analysis Score) in [Tracks](../project-management/tracks/).
 2. **Logic & Tools**: Wire up **Svelte 5 Runes**. When building Perchance Bridges, use `window.exposed` safely. Consolidate tools; do not proliferate narrow functions.
 3. **Aesthetic Polish**: Apply **The Chalk Regime** from [DESIGN.md](../../design.md) CSS variables and UI layout rules.
 4. **State Persistence**: Anchor dynamic state and memory structures.

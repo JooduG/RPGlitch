@@ -15,20 +15,21 @@ For information about the simulation application please see *the [Simulation](./
 
 ## RPGlitch Architecture
 
-When working on our infrastructure enforce *the [Infrastructure](./03-infrastructure.md) rule*.
+When working on our infrastructure enforce the [Infrastructure](./03-infrastructure.md) rule and the [Aesthetics](./04-aesthetics.md) rule.
 
 ## Agent Protocol
 
-Adhere to the **Cognitive Protocols** in *the [AGENTS.md](../../AGENTS.md) file* and *the [Intelligence](./04-intelligence.md) rule*.
+Adhere to the **Cognitive Protocols** in [AGENTS.md](../../AGENTS.md) and the [Intelligence](./05-intelligence.md) rule.
 
-- **Mission Board**: Always sync with the **[Global Mission Board](../state/global.md)** to ensure intent alignment.
-- **Deltas**: Log all significant plan shifts in **[Tracks](../state/tracks.md)** to maintain the narrative and technical echo.
+- **Mission Board**: Always sync with the [Mission Board](../project-management/mission-board.md) to ensure intent alignment.
+- **Deltas**: Log all significant plan shifts in [Tracks](../project-management/track-log.md) to maintain the narrative and technical echo.
 - **Inhibition**: Follow Step 9 of the Mandate—reason through all logical dependencies before taking any irreversible action.
-- **The Handoff Law**: Ending a session without executing paperwork routine to update the `.agent/state/` shard is strictly prohibited.
+- **The Handoff Law**: Ending a session without executing paperwork routine to update the `.agent/project-management/` shard is strictly prohibited.
 
 ## Security & Safety
 
-When working on bugs and security issues always follow *the [Compliance](./05-compliance.md) rule*.
+When working on bugs and security issues always follow the [Compliance](./06-compliance.md) rule.
+
 
 ## The Triad Protocol
 
