@@ -1,5 +1,5 @@
 ---
-description: The Master Router. Enforces the A-C-M-Q pipeline, categorizes intent, bypasses C1 tasks, and routes complex features through the Gatekeeper -> Simulation -> Warden -> Agent-Forge funnel.
+description: The Master Router. Enforces the A-C-M-Q pipeline, categorizes intent, bypasses C1 tasks, and routes complex features through the intake -> Simulation -> Warden -> Agent-Forge funnel.
 ---
 
 # [/01-blueprint](./01-blueprint.md) - The Master Router
@@ -47,7 +47,7 @@ Determine the cognitive load of the request to route it appropriately.
 
 The idea must be categorized, expanded, and then ruthlessly stress-tested.
 
-1. **Invoke the Gatekeeper**: **[[Invoke: gatekeeper]](../skills/intent-crucible/SKILL.md)**
+1. **Invoke the intake**: **[[Invoke: intake]](../skills/intake/SKILL.md)**
    - Categorize into the Narrative Triad (Spec, State, or Echo).
    - **Context Trigger**: If the task involves UI (`.svelte` files, styling, layout), call `stitch` to synthesize a design spec. [[Invoke: stitch]](../skills/stitch/SKILL.md)
    - _(Optional)_ Invoke `data` for vector history.

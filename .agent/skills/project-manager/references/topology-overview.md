@@ -17,7 +17,7 @@ The `RPGlitch` agent projects follows a strict state-sovereignty topography to e
 
 ## 3. Data Flow
 
-1.  **Intake** -> [Intent Crucible](../../intent-crucible/SKILL.md) (Decoding & Spec)
+1.  **Intake** -> [intake](../../intake/SKILL.md) (Decoding & Spec)
 2.  **Routing** -> [Mission Board](../../../project-management/mission-board.md)
 3.  **Tracking** -> [Tracks](../../../project-management/tracks/) (Feature Shards)
 4.  **Execution** -> TDD loop (Red-Green-Refactor)

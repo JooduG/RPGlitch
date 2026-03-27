@@ -36,7 +36,7 @@ description: Local GitHub Ops. Automates PRs, issues, and local sync.
 ### Phase 3: The Quality Gate
 
 1. **Registry Update**: Update [.agent/project-management/track-log.md](../project-management/track-log.md) with the PR URL and remote status. [[Invoke: Project Manager]](../skills/project-manager/SKILL.md)
-2. **Handoff**: Prepare [Next](../project-management/next.md) with the remote environment context. [[Invoke: Intent Crucible]](../skills/intent-crucible/SKILL.md)
+2. **Handoff**: Prepare [Next](../project-management/next.md) with the remote environment context. [[Invoke: intake]](../skills/intake/SKILL.md)
 
 ## 4. Anti-Patterns
 

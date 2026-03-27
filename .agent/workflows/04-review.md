@@ -34,7 +34,7 @@ description: Reviews and stuff.
 
 ### Phase 3: The Handoff Law
 
-_You are strictly forbidden from clocking out without updating the state matrix. Never drop the baton. [[Invoke: Intent Crucible]](../skills/intent-crucible/SKILL.md)_
+_You are strictly forbidden from clocking out without updating the state matrix. Never drop the baton. [[Invoke: intake]](../skills/intake/SKILL.md)_
 
 1. **Update Tracks (Mission Board)**: Overwrite [Mission Board](../project-management/mission-board.md) with a bulleted payload of completed tasks for this session. Append a summary of the session's deltas to [Track Log](../project-management/track-log.md).
 2. **Sync Backlog**: Move completed items from WIP to DONE in [Next](../project-management/next.md). Crucially, update this file with any **newly generated `#TODO-AI:` tags** discovered during the session.

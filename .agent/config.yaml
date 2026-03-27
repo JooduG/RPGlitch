@@ -8,7 +8,7 @@ skills:
   data: .agent/skills/data/SKILL.md
   designer: .agent/skills/designer/SKILL.md
   devops: .agent/skills/devops/SKILL.md
-  gatekeeper: .agent/skills/gatekeeper/SKILL.md
+  intake: .agent/skills/intake/SKILL.md
   image-generation: .agent/skills/image-generation/SKILL.md
   motion: .agent/skills/motion/SKILL.md
   simulation: .agent/skills/simulation/SKILL.md

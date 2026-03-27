@@ -42,7 +42,7 @@
 - `[/]` **Narrative Bridge**: Orchestrating automatic scene complications.
 
 - [x] **Data Skill**: Memory, Lore, & Technical Cold Storage (Sovereign).
-- [x] **Gatekeeper Skill**: Intent Decoding, Incubation, & Feature Gateway (Sovereign).
+- [x] **intake Skill**: Intent Decoding, Incubation, & Feature Gateway (Sovereign).
 - [x] **Simulation Skill**: Round/Turn Orchestration & Narrative Bridges (Sovereign).
 - [x] **Warden Skill**: Security, Hygiene (Janitor), & Structural Purity (Sovereign).
 - [x] **Agent-Manager Skill**: Infrastructure, Rules, & Skill Lifecycle (Sovereign).
@@ -67,7 +67,7 @@
 
 ### [DONE] [013] [Sovereign Rebranding]
 
-- [x] Phase 1: Planning (Data, Simulation, Gatekeeper, Warden, Agent-Manager).
+- [x] Phase 1: Planning (Data, Simulation, intake, Warden, Agent-Manager).
 - [x] Phase 2: Structural Migration (Renamed `.agent/skills/` directories).
 - [x] Phase 3: Alignment (Updated `SKILL.md`, `package.json`, `mcp.json`).
 - [x] Phase 4: Verification (100% Audit Purity pass).

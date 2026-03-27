@@ -13,8 +13,8 @@ Analyze the intended action against the following factors. Resolve conflicts in 
 - 1.3 Prerequisites: Information and/or actions needed.
 - 1.4 Explicit constraints: User preferences.
 - 1.5 Intent Decoding: Is the user's intent completely clear and technically actionable?
-  - **TRUE**: *Proceed* with [Hypothesis Generation & Triage](./AGENTS.md#-2-hypothesis-generation--triage).
-  - **FALSE**: *Halt execution* and invoke the [Gatekeeper](./.agent/skills/intent-crucible/SKILL.md) to resolve ambiguity.
+    - **TRUE**: _Proceed_ with [Hypothesis Generation & Triage](./AGENTS.md#-2-hypothesis-generation--triage).
+    - **FALSE**: _Halt execution_ and invoke the [intake](./.agent/skills/intake/SKILL.md) to resolve ambiguity.
 
 ## 🧠 2. Hypothesis Generation & Triage
 
@@ -22,37 +22,37 @@ Assess the symptom and draft your suspected causes before taking any action.
 
 - 2.1 Brainstorming: **Rank your hypotheses by likelihood.** Do not discard outliers prematurely.
 - 2.2 Risk Routing: Map the risk tier based on your most severe likely hypothesis.
-  - Low Risk (Typos, CSS tweaks, minor logic): **Bypass testing. Proceed directly to Step 5 (Execution)**.
-  - Medium Risk (Refactors, state migrations): **Proceed to Step 3**.
-  - High Risk (Structural changes, mission board wipes): **Proceed to Step 3 and trigger the `warden:debugging` protocol**.
+    - Low Risk (Typos, CSS tweaks, minor logic): **Bypass testing. Proceed directly to Step 5 (Execution)**.
+    - Medium Risk (Refactors, state migrations): **Proceed to Step 3**.
+    - High Risk (Structural changes, mission board wipes): **Proceed to Step 3 and trigger the `warden:debugging` protocol**.
 
 ## 🔍 3. Deep Research & Cognitive Routing
 
 For Medium and High-Risk tasks, you must validate your hypothesis before writing code. Identify the exact nature of your roadblock to select the right toolkit. Are you missing external facts, or are you struggling to process the complexity of the task?
 
-- **3.1 KNOWLEDGE DEFICIT** (Need External Facts): *Coordinate specialized MCPs for deep inquiry.*
-  - `context7`: Up-to-date documentation and library patterns.
-  - `svelte`: Official Svelte 5 logic and code verification.
-  - `deepwiki`: GitHub repository intelligence and existing architecture analysis.
-  - Autonomous Bias: When exploring, missing optional tool parameters is acceptable. **Execute the tool with available info instead of halting to ask the user**.
+- **3.1 KNOWLEDGE DEFICIT** (Need External Facts): _Coordinate specialized MCPs for deep inquiry._
+    - `context7`: Up-to-date documentation and library patterns.
+    - `svelte`: Official Svelte 5 logic and code verification.
+    - `deepwiki`: GitHub repository intelligence and existing architecture analysis.
+    - Autonomous Bias: When exploring, missing optional tool parameters is acceptable. **Execute the tool with available info instead of halting to ask the user**.
 
-- **3.2 PROCESSING DEFICIT** (Need Cognitive Structuring): *Select the appropriate MCP server reasoning framework based on the shape of the problem.*
-  - **Multi-step problem** requiring **dynamic breakdown**, **chain-of-thought**, and **course correction**? -> Trigger `mcp-sequentialthinking-tools`.
-  - Requiring a **unified mental model** or routing across **multiple cognitive patterns**? -> Trigger `waldzell-clear-thought`.
-  - Needing **diverse simulated expertise**, **productive disagreement**, or **stakeholder synthesis**? -> Trigger `waldzell-collaborative-reasoning`.
-  - Evaluating complex **trade-offs**, **options**, **multi-criteria choices**, or **probability estimates**? -> Trigger `waldzell-decision-framework`.
-  - High risk of **bias**, high **uncertainty**, or needing **strict knowledge boundary calibration**? -> Trigger `waldzell-metacognitive-monitoring`.
-  - Testing **cause-and-effect**, **controlling variables**, or **evaluating competing technical explanations**? -> Trigger `waldzell-scientific-method`.
-  - Dealing with **deep uncertainty** and needing to optimize sequences (MDPs, MCTS, Bayesian)? -> Trigger `waldzell-stochasticalgorithm`.
-  - Resolving **competing claims**, **dialectical reasoning**, or evaluating architectural **pros/cons**? -> Trigger `waldzell-structured-argumentation`.
-  - Mapping **system architecture**, **data flow**, **algorithms**, or **spatial problem solving**? -> Trigger `waldzell-visual-reasoning`.
+- **3.2 PROCESSING DEFICIT** (Need Cognitive Structuring): _Select the appropriate MCP server reasoning framework based on the shape of the problem._
+    - **Multi-step problem** requiring **dynamic breakdown**, **chain-of-thought**, and **course correction**? -> Trigger `mcp-sequentialthinking-tools`.
+    - Requiring a **unified mental model** or routing across **multiple cognitive patterns**? -> Trigger `waldzell-clear-thought`.
+    - Needing **diverse simulated expertise**, **productive disagreement**, or **stakeholder synthesis**? -> Trigger `waldzell-collaborative-reasoning`.
+    - Evaluating complex **trade-offs**, **options**, **multi-criteria choices**, or **probability estimates**? -> Trigger `waldzell-decision-framework`.
+    - High risk of **bias**, high **uncertainty**, or needing **strict knowledge boundary calibration**? -> Trigger `waldzell-metacognitive-monitoring`.
+    - Testing **cause-and-effect**, **controlling variables**, or **evaluating competing technical explanations**? -> Trigger `waldzell-scientific-method`.
+    - Dealing with **deep uncertainty** and needing to optimize sequences (MDPs, MCTS, Bayesian)? -> Trigger `waldzell-stochasticalgorithm`.
+    - Resolving **competing claims**, **dialectical reasoning**, or evaluating architectural **pros/cons**? -> Trigger `waldzell-structured-argumentation`.
+    - Mapping **system architecture**, **data flow**, **algorithms**, or **spatial problem solving**? -> Trigger `waldzell-visual-reasoning`.
 
 ## ⚖️ 4. Evaluation & Adaptability
 
 Does the data from Step 3 confirm your hypothesis?
 
-- **4.1 Pivot Protocol**: If initial *hypotheses are disproven* or *architectural conflicts arise during execution* -> generate **new hyptheses** and go *back to step 1*.
-- **4.2 State Sync**: If the *logic shifts* drastically during testing -> *update the [Mission Board](./.agent/project-management/mission-board.md)* before executing.
+- **4.1 Pivot Protocol**: If initial _hypotheses are disproven_ or _architectural conflicts arise during execution_ -> generate **new hyptheses** and go _back to step 1_.
+- **4.2 State Sync**: If the _logic shifts_ drastically during testing -> _update the [Mission Board](./.agent/project-management/mission-board.md)_ before executing.
 
 ## ⚙️ 5. The Execution & Grounding Sequence
 
@@ -77,8 +77,9 @@ Ensure that all requirements, constraints, options, and preferences are exhausti
 - [ ] [Foundation](./.agent/rules/01-foundation.md) has been respected.
 - [ ] [Simulation](./.agent/rules/02-simulation.md) has been respected.
 - [ ] [Infrastructure](./.agent/rules/03-infrastructure.md) has been respected.
-- [ ] [Intelligence](./.agent/rules/04-intelligence.md) has been respected.
-- [ ] [Compliance](./.agent/rules/05-compliance.md) has been respected.
+- [ ] [Aesthetics](./.agent/rules/04-aesthetics.md) has been respected.
+- [ ] [Intelligence](./.agent/rules/05-intelligence.md) has been respected.
+- [ ] [Compliance](./.agent/rules/06-compliance.md) has been respected.
 
 ## ⏳ 7. Persistence, Patience & Circuit Breakers
 
@@ -86,9 +87,9 @@ Do not give up unless all the reasoning above is exhausted. **If you cannot find
 
 - **7.1 Resilience**: Don't be dissuaded by time or frustration.
 - **7.2 Intelligent Retry**: On transient errors, retry until max limits. On other errors, change strategy/arguments rather than repeating.
-- **7.3 The Circuit Breaker**: Trigger a Mandatory *Self-Audit* via `metacognitiveMonitoring` **IF**:
-  - You experience *3 consecutive* Definition of Done failures.
-  - You make *3+ tool calls* without measurable progress.
+- **7.3 The Circuit Breaker**: Trigger a Mandatory _Self-Audit_ via `metacognitiveMonitoring` **IF**:
+    - You experience _3 consecutive_ Definition of Done failures.
+    - You make _3+ tool calls_ without measurable progress.
 
 ## 🛑 8. Inhibit Your Response
 

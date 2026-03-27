@@ -24,7 +24,7 @@ description: Fresh Session Initialization. Syncs context and mental model.
 
 ### Phase 1: The Clarity Gate
 
-1. **Intake**: Read [Mission Board](../project-management/mission-board.md), [Track Log](../project-management/track-log.md), and [Next](../project-management/next.md). [[Invoke: Intent Crucible]](../skills/intent-crucible/SKILL.md)
+1. **Intake**: Read [Mission Board](../project-management/mission-board.md), [Track Log](../project-management/track-log.md), and [Next](../project-management/next.md). [[Invoke: intake]](../skills/intake/SKILL.md)
 2. **Environment Verification**: Explicitly confirm the target environment (Perchance sandboxed runtime) and reactivity standard (Svelte 5 Runes).
 3. **Validation**: Ensure the Mission Board is not corrupted and contains valid Markdown. Do not advance until the state matrix is fully parsed. [[Invoke: Project Manager]](../skills/project-manager/SKILL.md)
 

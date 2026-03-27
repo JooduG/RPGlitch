@@ -1,4 +1,4 @@
-# CONCEPTUAL_SPEC: [Concept Name]
+# CONCEPT: [Concept Name]
 
 > **Status**: [DRAFT / FINAL]
 > **Intent Score**: [Level 5 Reached]
