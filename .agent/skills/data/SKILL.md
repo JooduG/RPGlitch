@@ -109,7 +109,7 @@ File: `.agent/skills/data/scripts/supabase-engine.js`
 
 📜 Rules: 01, 04
 🧠 Skills: data
-⚡ Workflows: /01-blueprint
+⚡ Workflows: /01-plan
 🕰️ 2026-03-24
 
 ---

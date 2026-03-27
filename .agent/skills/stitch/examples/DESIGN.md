@@ -9,7 +9,7 @@ A highly tactile Svelte 5 button component using Chalk design tokens.
 - **Framework**: Svelte 5
 - **Styling**: Native CSS via `<style>` block.
 
-## 3. Implementation Blueprint
+## 3. Implementation plan
 
 ```svelte
 <script lang="ts">

@@ -16,7 +16,7 @@ description: >
 
 .agent/skills/project-manager/
 ├── SKILL.md # Sovereign Logic (The Guard)
-├── assets/ # Reusable Blueprints
+├── assets/ # Reusable plans
 │ └── TRACK.template.md # Feature tracking template
 ├── references/ # Information & Topography
 │ └── topology-overview.md # System architecture map

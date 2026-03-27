@@ -12,7 +12,7 @@ Triggers: "Polish UI", "Orchestrate atmosphere", "Audit aesthetics", "Fix layout
 
 - `skills/designer/`
     - `SKILL.md` (Orchestration logic & Triggers)
-    - `references/` (Aesthetic blueprints & UI/UX audits)
+    - `references/` (Aesthetic plans & UI/UX audits)
 
 ---
 
@@ -48,9 +48,9 @@ The Designer does not just write code; it coordinates specialists:
 
 ## 🛡️ Anti-Patterns
 
-| Pattern | Mitigation |
-| :----------------- | :----------------------------------------------------------------- |
-| **Flat Design** | Forbidden. Use depth, gradients, and subtle shadows. |
-| **Generic Colors** | Forbidden. Use the Chalk Regime palette. |
-| **Static UI** | Forbidden. Add micro-animations and kinetic feedback. |
+| Pattern            | Mitigation                                                  |
+| :----------------- | :---------------------------------------------------------- |
+| **Flat Design**    | Forbidden. Use depth, gradients, and subtle shadows.        |
+| **Generic Colors** | Forbidden. Use the Chalk Regime palette.                    |
+| **Static UI**      | Forbidden. Add micro-animations and kinetic feedback.       |
 | **MVP Minimalism** | Forbidden. Elevate to a high-fidelity, diegetic experience. |

@@ -60,13 +60,13 @@
     const type = drawerType === "fractal" ? "fractal" : "character";
 
     // 2. Construct via Factory (Random color, Empty fields, Semantic Structure)
-    const blueprint = create_new(type, {
+    const plan = create_new(type, {
       name: `New ${drawerType.toUpperCase()}`,
     });
 
     try {
       // 3. Save to Database via Repository
-      const saved = await repository.upsert(type, blueprint);
+      const saved = await repository.upsert(type, plan);
 
       // 4. Log the event for telemetry
       app.log(`Birthed new ${type}: ${saved.id}`, "db");

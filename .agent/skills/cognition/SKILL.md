@@ -14,7 +14,7 @@ Globs: .agent/skills/, .agent/rules/, .agent/workflows/
 - `skills/cognition/`
     - `SKILL.md` (Philosophy & Triggers)
     - `scripts/` (Deterministic automation logic)
-    - `assets/` (Templates & Blueprints)
+    - `assets/` (Templates & plans)
     - `references/` (Standards & Cognition maps)
 
 ---
@@ -79,7 +79,7 @@ skills/cognition/
 ├── SKILL.md # The Brain (Philosophy & Triggers)
 ├── scripts/ # The Muscles (Forge & Audit Scripts)
 ├── references/ # Information (Standards & Maps)
-└── assets/ # Reusable (Blueprints)
+└── assets/ # Reusable (plans)
 ```
 
 ### 2. Core Responsibilities
@@ -112,9 +112,9 @@ Trigger: "Add skill", "Add rule", "Plan refactor", "Create tool".
 
 ## 8. Anti-Patterns
 
-| Pattern | Mitigation |
-| :----------------- | :----------------------------------------------------------------- |
-| **Vibe Slop** | Purge "how-to" guides from `SKILL.md`. Keep only procedural logic. |
-| **Context Bloat** | Move references > 100 lines to [References](./references/). |
-| **Template Rot** | Updates to `SKILL.md` structure MUST be reflected in [Assets](./assets/). |
-| **Orphaned Files** | Every operation must include an `audit-skills` run. |
+| Pattern            | Mitigation                                                                |
+| :----------------- | :------------------------------------------------------------------------ |
+| **Vibe Slop**      | Purge "how-to" guides from `SKILL.md`. Keep only procedural logic.        |
+| **Context Bloat**  | Move references > 100 lines to [References](./references/).               |
+| **Template Rot**   | Updates to `SKILL.md` structure MUST be reflected in [Assets](./assets/). |
+| **Orphaned Files** | Every operation must include an `audit-skills` run.                       |

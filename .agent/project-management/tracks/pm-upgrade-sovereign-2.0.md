@@ -8,7 +8,7 @@
 
 ## 1. Context Injection
 
-- **Blueprint**: [/01-blueprint](../../../workflows/01-blueprint.md)
+- **plan**: [/01-plan](../../../workflows/01-plan.md)
 - **Infrastructure**: [Rule 03](../../../rules/03-infrastructure.md)
 - **Compliance**: [Rule 06](../../../rules/06-compliance.md)
 - **Archive Source**: [project-management-comp.md](../../archive/project-management-comp.md)

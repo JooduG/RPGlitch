@@ -16,7 +16,7 @@ In RPGlitch, we do not write "stories"; we simulate **State** and let the story 
 
 ### The Triad of Reality
 
-1. **The Spec**: The DNA. Blueprints and lore.
+1. **The Spec**: The DNA. plans and lore.
 2. **The State**: The Pulse. Live Svelte 5 Runes.
 3. **The Echo**: The Shadow. Persistent memory logs.
 

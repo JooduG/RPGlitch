@@ -41,7 +41,7 @@ import { dynamics_engine } from "./dynamics-engine.js";
 
 /**
  * THE VECTOR TEMPLATE
- * Defining the strict shape of a Vector object (The Blueprint).
+ * Defining the strict shape of a Vector object (The plan).
  */
 export const VECTOR_TEMPLATE = {
   id: "uuid",

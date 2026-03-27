@@ -2,14 +2,14 @@
 description: The Master Router. Enforces the A-C-M-Q pipeline, categorizes intent, bypasses C1 tasks, and routes complex features through the intake -> Simulation -> Warden -> Agent-Forge funnel.
 ---
 
-# [/01-blueprint](./01-blueprint.md) - The Master Router
+# [/01-plan](./01-plan.md) - The Master Router
 
 > **Goal:** Evaluate user intent and route the request to the correct architectural pipeline using the A-C-M-Q loop. I do not design; I direct traffic.
 
 ## 1. Triggers
 
 - Request: Initial user prompt or "I have an idea".
-- Slash Command: **[/01-blueprint](./01-blueprint.md)**
+- Slash Command: **[/01-plan](./01-plan.md)**
 
 ## 2. Context Injection
 
@@ -43,7 +43,7 @@ Determine the cognitive load of the request to route it appropriately.
 3. If **C2+ (Cortex)**:
    - **Proceed to Phase 3**. (If C3+, prepare to inject the required Waldzell metacognitive tools).
 
-### Phase 3: The Workshop Forge & Warden (Blueprint & Stress Test)
+### Phase 3: The Workshop Forge & Warden (plan & Stress Test)
 
 The idea must be categorized, expanded, and then ruthlessly stress-tested.
 
@@ -52,13 +52,13 @@ The idea must be categorized, expanded, and then ruthlessly stress-tested.
    - **Context Trigger**: If the task involves UI (`.svelte` files, styling, layout), call `stitch` to synthesize a design spec. [[Invoke: stitch]](../skills/stitch/SKILL.md)
    - _(Optional)_ Invoke `data` for vector history.
 2. **Invoke the Warden**: **[[Invoke: warden]](../skills/warden/SKILL.md)**
-   - Stress-test the generated blueprint against Rule 03 (Svelte Runes, Perchance Two-Panel Paradigm).
+   - Stress-test the generated plan against Rule 03 (Svelte Runes, Perchance Two-Panel Paradigm).
    - Verify against Prime Directives (P1 User Agency, P2 Internal Consistency).
-3. **Halt and request user confirmation** on the finalized, sanitized blueprint.
+3. **Halt and request user confirmation** on the finalized, sanitized plan.
 
 ### Phase 4: Registration (The Workshop Scribe)
 
-Once the blueprint survives the Warden, anchor it to physical reality to prepare for the M-Sequence.
+Once the plan survives the Warden, anchor it to physical reality to prepare for the M-Sequence.
 
 1. **Invoke the Agent-Forge**: **[[Invoke: cognition]](../skills/cognition/SKILL.md)**
 2. Scaffold the new `.agent/state/tracks/<slug>.md` file.
