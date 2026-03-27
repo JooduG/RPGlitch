@@ -10,7 +10,7 @@
 
 - **Blueprint**: [/01-blueprint](../../../workflows/01-blueprint.md)
 - **Infrastructure**: [Rule 03](../../../rules/03-infrastructure.md)
-- **Compliance**: [Rule 05](../../../rules/05-compliance.md)
+- **Compliance**: [Rule 06](../../../rules/06-compliance.md)
 - **Archive Source**: [project-management-comp.md](../../archive/project-management-comp.md)
 
 ## 2. Hypothesis & Risk
