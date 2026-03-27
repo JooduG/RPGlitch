@@ -15,7 +15,7 @@ description: Resume Interrupted Work. Bypasses boot logic to pick up the baton.
 
 ## 2. Brain (Context Injection)
 
-- **Payload**: [.agent/project-management/next-prompt.md](../project-management/next-prompt.md).
+- **Payload**: [.agent/project-management/next.md](../project-management/next.md).
 - **Tracks**: [.agent/project-management/tracks.md](../project-management/tracks.md).
 - **Reference**: [.agent/rules/01-foundation.md](../rules/01-foundation.md).
 
