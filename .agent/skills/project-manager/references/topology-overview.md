@@ -13,7 +13,7 @@ The `RPGlitch` agent projects follows a strict state-sovereignty topography to e
 
 - [Foundation](../../../rules/01-foundation.md): The persona and prime directives.
 - [Infrastructure](../../../rules/03-infrastructure.md): The tech stack (Svelte 5 / Runes) and physical zoning.
-- [Intelligence](../../../rules/04-intelligence.md): The lexical laws and cognitive routing.
+- [Intelligence](../../../rules/05-intelligence.md): The lexical laws and cognitive routing.
 
 ## 3. Data Flow
 
