@@ -99,7 +99,7 @@ function createSkill(name, type = "task", description = "New agentic skill.") {
 
   console.log(`\n✅ FORGE SUCCESS: [${searchType.toUpperCase()}] '${slug}' instantiated.`);
   console.log(`📍 Path: ${targetDir}`);
-  console.log(`🚀 Next: node .agent/skills/cognition/scripts/audit-agent.js audit ${slug}`);
+  console.log(`🚀 Next: node .agent/skills/cognition/scripts/audit-skills.js audit ${slug}`);
 }
 
 /**
