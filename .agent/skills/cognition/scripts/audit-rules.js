@@ -18,7 +18,7 @@ export const rule_rules = [
     id: "RULE_HEADLINE",
     severity: "DEBT",
     // eslint-disable-next-line no-misleading-character-class
-    regex: /^# [^⚖️🕹️🧪⚡🛡️]/,
+    regex: /^# [^⚖️🕹️🧪⚡🛡️🎨]/,
     message: "⚠️ Rule missing mandatory emoji icon in H1 (⚖️, 🕹️, 🧪, ⚡, 🛡️).",
   },
   {

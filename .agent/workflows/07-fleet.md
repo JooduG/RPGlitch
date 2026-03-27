@@ -1,49 +1,54 @@
 ---
-name: 07-fleet
-description: Orchestration & Sync. Coordinates the multi-agent fleet and swarm sub-routines.
+description: [STUB - NOT IMPLEMENTED] Orchestration & Sync. Coordinates the multi-agent fleet and swarm sub-routines.
 ---
 
-# 07-fleet (The Commander)
+# [/07-fleet](./07-fleet.md) - The Orchestrator
 
-> **Goal:** Propagate core changes, dispatch specialized AI sub-routines, and coordinate the swarm.
+> [!CAUTION]
+> **STUB - NOT IMPLEMENTED**
+> This workflow is currently a structural draft and is NOT wired to the Sovereign Intelligence Kernel. It must NOT be autonomously invoked by agents until core fleet and swarm logic are fully instantiated.
+>
+> **Goal:** Propagate core changes, dispatch specialized sub-agents, and coordinate the system-wide swarm (Rule 01).
 
-## 1. Triggers
+## 1. Future Triggers (Disabled)
 
-- **Core Update**: Significant changes to `DynamicsEngine` or `IntelligenceKernel`.
-- **Swarm Dispatch**: A task exceeds standard context windows and requires sub-agent delegation.
-- **Dispatch**: Explicit request to trigger a fleet scan or cross-repo update.
-- **Slash Command**: [/07-fleet](./07-fleet.md)
+- **Manual Override**: For testing only.
+- **Slash Command**: [/07-fleet](./07-fleet.md) (Use with extreme caution)
 
-## 2. Brain (Context Injection)
+## 2. Context Injection
 
-- **Fleet Ops**: [../../.github/workflows/ai-fleet-dispatch.yml](../../.github/workflows/ai-fleet-dispatch.yml).
-- **Swarm Merge**: [.agent/project-management/task_merge_workflows.md](../project-management/task_merge_workflows.md).
-- **Rules**: [.agent/rules/01-foundation.md](../rules/01-foundation.md).
-- **Rules**: [.agent/rules/06-compliance.md](../rules/06-compliance.md).
+- **Rules**: [Foundation](../rules/01-foundation.md).
+- **Rules**: [Compliance](../rules/06-compliance.md).
+- **Rules**: [Intelligence](../rules/05-intelligence.md).
+- **State**: [.agent/project-management/log.md](../project-management/log.md).
 
 ## 3. Procedures
 
 ### Phase 1: The Clarity Gate (Mapping)
 
-1. **Analysis (External)**: Identify which child repositories are affected by the current core logic change. [[Invoke: reflection]](../skills/cognition/SKILL.md)
-2. **Analysis (Internal/Swarm)**: If a task exceeds context limits, define precise scope and boundaries for sub-routine dispatch (e.g., `codebase_investigator` or `generalist`).
-3. **Conflict Check**: Assess potential breaking changes in child repos or parallel sub-routines. [[Invoke: warden]](../skills/warden/SKILL.md)
+1. **Analysis**: Identify child repositories affected by the current core logic change. [[Invoke: project-manager]](../skills/project-manager/SKILL.md)
+2. **Swarm Scope**: Define precise boundaries for sub-routine dispatch (e.g., `codebase_investigator`). [[Invoke: cognition]](../skills/cognition/SKILL.md)
+3. **Conflict Check**: Assess potential breaking changes in downstream repositories. [[Invoke: warden]](../skills/warden/SKILL.md)
 
 ### Phase 2: Dispatch & Execution
 
-1. **External Action**: Trigger the `fleet-dispatch` GitHub Action. [[Invoke: devops]](../skills/devops/SKILL.md)
-2. **External Tracking**: Create tracking PRs in child repositories with the `fleet-dispatch` label. [[Invoke: markdown]](../skills/cognition/SKILL.md)
-3. **Internal Action (Swarm)**: Dispatch the required sub-agents with strict, isolated objectives.
+1. **Transmission**: Trigger the `fleet-dispatch` GitHub Action. [[Invoke: devops]](../skills/devops/SKILL.md)
+2. **Tracking**: Create tracking PRs in child repositories with the `fleet-dispatch` label.
+3. **Internal Swarm**: Dispatch internal sub-agents with strict, isolated objectives.
 
-### Phase 3: The Quality Gate (Merge & Resolution)
+### Phase 3: The Quality Gate (Merge)
 
-1. **Swarm Merge Protocol**: Ensure internal sub-routines merge their results back to the main track via `.agent/state/task_merge_workflows.md`. Verify Svelte 5 and Perchance compliance before accepting the merge.
-2. **Conflict Resolution**: Handle any downstream core-logic conflicts by prioritizing the Central Sovereign Source. [[Invoke: reflection]](../skills/cognition/SKILL.md)
-3. **Report**: Verify that all child repos have acknowledged the update and all swarm tasks are reconciled.
+1. **Reconciliation**: merge sub-routine results back into the main track. Verify **Svelte 5** and **Chalk Regime** compliance.
+2. **Report**: Verify all child repos have acknowledged the update and all swarm tasks are reconciled.
 
 ## 4. Anti-Patterns
 
-- **The Flood**: Triggering fleet-wide updates for minor UI or aesthetic tweaks.
-- **Solo Divergence**: Letting child repositories diverge from the Core Engine logic.
-- **Untracked Dispatch**: Sending updates or dispatching sub-agents without logging them in the trackers.
-- **Messy Merge**: Accepting sub-agent output that violates Svelte 5 or Perchance isolation constraints.
+- **Solo Divergence**: Letting child repos diverge from the Sovereign Engine logic.
+- **Untracked Swarm**: Dispatching sub-agents without logging them in the trackers.
+
+### 🕹️ Operational Heartbeat
+
+- **🤖 AGENTS.md**: Step 3 (Cognitive Routing - Fleet active)
+- **📜 Rules**: Rule 01 (Foundation), Rule 05 (Intelligence)
+- **🧠 Capabilities**: project-manager (Orchestration), warden (Audit)
+- **💾 State**: .agent/project-management/log.md

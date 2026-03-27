@@ -33,7 +33,7 @@
 - [x] **Performance Budget**: Verified CLS/LCP metrics are included in the skill definition.
 - [x] **Perchance Audit**: No `localStorage` used in templates; Rule 03 compliant.
 - [x] **Security**: Warden sweep passed (no secrets in skill docs).
-- [ ] **Manual Verification**: User to verify the new track-log and mission-board presentation.
+- [ ] **Manual Verification**: User to verify the new log and mission-board presentation.
 
 ## 5. Persistence (Echo)
 

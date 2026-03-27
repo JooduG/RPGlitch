@@ -38,7 +38,6 @@
 
 ## Active WIP
 
-- `[~]` **Project Manager: Sovereign 2.0**: Upgrading PM skill to high-fidelity Sovereign lifecycle.
 - `[/]` **Narrative Bridge**: Orchestrating automatic scene complications.
 
 - [x] **Data Skill**: Memory, Lore, & Technical Cold Storage (Sovereign).
@@ -54,8 +53,9 @@
 - [x] [Rule 01: Foundation (The DNA)](../rules/01-foundation.md)
 - [x] [Rule 02: Simulation (The Engine)](../rules/02-simulation.md)
 - [x] [Rule 03: Infrastructure (The Stack & The Law)](../rules/03-infrastructure.md)
-- [x] [Rule 04: Intelligence (The Loop)](../rules/04-intelligence.md)
-- [x] [Rule 05: Compliance (The Guard)](../rules/05-compliance.md)
+- [x] [Rule 04: Aesthetics](../rules/04-aesthetics.md)
+- [x] [Rule 05: Intelligence (The Loop)](../rules/05-intelligence.md)
+- [x] [Rule 06: Compliance (The Guard)](../rules/06-compliance.md)
 
 ## UI/UX Architecture
 
@@ -104,12 +104,12 @@
 - [x] Phase 3: Engine Integration (Enhanced `audit-engine.js` with `--agent` support).
 - [x] Phase 4: Validation (Verified 100% resonance with `npm run verify`).
 
-### `[~]` `[020]` `[Project Manager: Sovereign 2.0]`
+### [DONE] [020] [Project Manager: Sovereign 2.0]
 
-- `[x]` Phase 1: Planning (Research high-fidelity patterns from archive).
-- `[x]` Phase 2: Skill Refactor (Updated `SKILL.md` and `TRACK.template.md`).
-- `[~]` Phase 3: Verification (Performing manual dry-run in `track-log.md`).
-- `[ ]` Phase 4: Finalize (Complete walkthrough and archival).
+- [x] **Phase 1: Grounding/Plan** (/01-plan): Terminology alignment and Research.
+- [x] **Phase 2: Execution/Build** (/02-build): Updated `SKILL.md`, `TRACK.template.md`, and `intake/SKILL.md`.
+- [x] **Phase 3: Hardening/Audit** (/03-clean): Verification and Security check.
+- [x] **Phase 4: Persistence/Vault/Bridge** (/04-review, /08-github): Final walkthrough and archival.
 
 - [x] **Intelligence Kernel** (Dynamics Engine alignment).
 - [x] **Semantic UI Refactor** (Glassmorphism Purge).

@@ -21,6 +21,7 @@ export const securityRules = [
         "deploy_perchance.js",
         "dump_prompt.js",
         "simulation-cycle.js",
+        "spec-validator.js",
       ];
       return (
         !filePath.endsWith(".test.js") && !cliScripts.some((script) => filePath.includes(script))

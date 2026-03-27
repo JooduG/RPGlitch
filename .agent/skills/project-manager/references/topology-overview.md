@@ -5,7 +5,7 @@ The `RPGlitch` agent projects follows a strict state-sovereignty topography to e
 ## 1. [Project Manager](../../../project-management/)
 
 - [Mission Board](../../../project-management/mission-board.md): The macro-state. Defines the high-level objective and active tracks.
-- [Track Log](../../../project-management/track-log.md): The registry. Lists all initialized, active, and archived feature tracks.
+- [log](../../../project-management/log.md): The registry. Lists all initialized, active, and archived feature tracks.
 - [Tracks](../../../project-management/tracks/): The micro-state. Individual files containing the detailed implementation history for a single feature.
 - [Next](../../../project-management/next.md): The handoff. Contains instructions and environment context for the next session.
 

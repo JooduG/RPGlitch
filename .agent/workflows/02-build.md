@@ -3,9 +3,9 @@ name: 02-build
 description: Implementation Loop. Logic, State, and Style fabrication.
 ---
 
-# 02-build (The Forge)
+# [/02-build](./02-build.md) - The Forge
 
-> **Goal:** High-fidelity implementation using Svelte 5 Runes.
+> **Goal:** High-fidelity implementation using Svelte 5 Runes and the Chalk Regime (AGENTS.md Step 5).
 
 ## 1. Triggers
 
@@ -13,36 +13,43 @@ description: Implementation Loop. Logic, State, and Style fabrication.
 - **Style Polishing**: Chalk Regime updates.
 - **Slash Command**: [/02-build](./02-build.md)
 
-## 2. Brain (Context Injection)
+## 2. Context Injection
 
-- **Rules**: [.agent/rules/01-foundation.md](../rules/01-foundation.md).
+- **Rules**: [Foundation](../rules/01-foundation.md).
+- **Rules**: [Infrastructure](../rules/03-infrastructure.md).
+- **Rules**: [Aesthetics](../rules/04-aesthetics.md).
 - **Rules**: [Intelligence](../rules/05-intelligence.md).
-- **State**: [.agent/state/tracks.md](../project-management/tracks.md) (Mission Board).
+- **State**: [.agent/project-management/tracks/](../project-management/tracks/) (Active Shard).
 
 ## 3. Procedures
 
-### Phase 1: The Clarity Gate (Fabrication & Isolation)
+### Phase 1: Fabrication & Isolation (The Micro-Beat Loop)
 
-1. **Generation**: If using Stitch, generate the component. [[Invoke: stitch]](../skills/stitch/SKILL.md)
-2. **Validation (Svelte 5 Supremacy)**: Ensure all logic uses **Svelte 5 Runes** explicitly (`$state`, `$derived`, `$effect`, snippets).
-   - **Legacy Refactor**: If Svelte 3/4 code (`stores`, `export let`) is encountered, silently refactor it to Runes without asking. [[Invoke: svelte]](../skills/svelte/SKILL.md)
-3. **Perchance Isolation**: NO HALLUCINATED IMPORTS. Ensure all code relies entirely on JIT/ESM imports (via `esm.sh` or similar) compatible with a sandboxed HTML runtime. Do not assume `node_modules` exist locally for the runtime.
-4. **Drafting**: Write minimal code to fulfill the task requirements. Prefer extracting monolithic blocks into modular Svelte 5 Snippets where applicable.
+1. **Generation**: If UI involved, follow the Stitch design spec. [[Invoke: stitch]](../skills/stitch/SKILL.md)
+2. **Validation**: Ensure all logic uses **Svelte 5 Runes** explicitly (`$state`, `$derived`, `$effect`).
+   - **Legacy Refactor**: Silently refactor any Svelte 3/4 patterns (`stores`, `export let`) encountered in the sector. [[Invoke: svelte]](../skills/svelte/SKILL.md)
+3. **Perchance Isolation**: No node-only imports. Rely on `esm.sh` and JIT compilation.
+4. **Execution**: Implement changes in small, atomic beats. After each beat, verify the logic state matches the TDD expectation. [[Invoke: project-manager]](../skills/project-manager/SKILL.md)
 
 ### Phase 2: Refinement (The Chalk Regime)
 
-1. **Styling**: Apply **Chalk Regime** tokens. Use native CSS variables (e.g., `var(--color-chalk)`). No hardcoded generic hex codes or Tailwind. [[Invoke: css]](../skills/css/SKILL.md)
-2. **Motion**: Add kinetic transitions and Snappy Curve animations. [[Invoke: motion]](../skills/motion/SKILL.md)
+1. **Styling**: Apply **Chalk Regime** tokens. Use native CSS variables. Avoid Tailwind unless explicitly requested. [[Invoke: css]](../skills/css/SKILL.md)
+2. **Motion**: Add kinetic transitions using Svelte actions. [[Invoke: motion]](../skills/motion/SKILL.md)
 
-### Phase 3: The Quality Gate (Proving)
+### Phase 3: The Quality Gate (Step 6: Completeness)
 
-1. **Verify**: Run `npm run check` and `npm test`. [[Invoke: warden]](../skills/warden/SKILL.md)
-2. **Evidence**: You MUST read and report terminal output to confirm success. No "blind" completion.
-3. **Checkbox**: Mark the sub-task `[x]` in the task shard. [[Invoke: project]](../skills/project-manager/SKILL.md)
+1. **Verify**: Run `npm run verify` and manual browser checks. Proactively report terminal output. [[Invoke: warden]](../skills/warden/SKILL.md)
+2. **Persistence**: Ensure state mutations are documented in the active track shard.
+3. **Checkbox**: Mark sub-tasks `[x]` as they pass verification.
 
 ## 4. Anti-Patterns
 
-- **Blind Coding**: Committing without testing or verifying output.
-- **Legacy Reactivity**: Sneaking in Svelte 3/4 patterns.
-- **Hallucinated Dependencies**: Importing packages that cannot run in a serverless/Perchance environment.
-- **Style Drift**: Using CSS values not defined in `tokens.css`.
+- **Blind Coding**: Committing without seeing the verification output.
+- **Legacy Reactivity**: Using `$:` or `writable()`.
+- **Style Drift**: Hardcoding hex values instead of using `tokens.css`.
+
+### 🕹️ Operational Heartbeat
+- **🤖 AGENTS.md**: Step 5 (Execution - Forge active)
+- **📜 Rules**: Rule 01 (Foundation), Rule 03 (Infrastructure), Rule 05 (Intelligence)
+- **🧠 Capabilities**: svelte (Runes), css (Chalk Regime), project-manager (TDD)
+- **💾 State**: .agent/project-management/tracks/<slug>.md

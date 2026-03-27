@@ -1,42 +1,48 @@
 ---
-name: 06-continue
 description: Resume Interrupted Work. Bypasses boot logic to pick up the baton.
 ---
 
-# 06-continue (The Relay)
+# [/06-continue](./06-continue.md) - The Resonator
 
-> **Goal:** Pick up the active baton immediately after a pause or interruption.
+> **Goal:** Resonate with the existing state and resume the narrative loop (Rule 01).
 
 ## 1. Triggers
 
-- **Resumption**: Start of a new turn in an existing track.
-- **Interruption**: Re-syncing after a system timeout or crash.
+- **Command**: "Continue", "Carry on", "Next step".
 - **Slash Command**: [/06-continue](./06-continue.md)
 
-## 2. Brain (Context Injection)
+## 2. Context Injection
 
-- **Payload**: [.agent/project-management/next.md](../project-management/next.md).
-- **Tracks**: [.agent/project-management/track-log.md](../project-management/track-log.md).
-- **Reference**: [.agent/rules/01-foundation.md](../rules/01-foundation.md).
+- **Rules**: [Foundation](../rules/01-foundation.md).
+- **Rules**: [Intelligence](../rules/05-intelligence.md).
+- **State**: [.agent/project-management/next.md](../project-management/next.md).
+- **State**: [.agent/project-management/log.md](../project-management/log.md).
 
 ## 3. Procedures
 
-### Phase 1: The Clarity Gate (Peel)
+### Phase 1: Synchronization (Step 1)
 
-1. **Intake**: Read [.agent/project-management/next.md](../project-management/next.md) for the immediate target objective. [[Invoke: reflection]](../skills/cognition/SKILL.md)
-2. **Identification**: Locate the specific sub-task in the active [.agent/project-management/tracks/](../project-management/tracks/) task shard. [[Invoke: project-manager]](../skills/project-manager/SKILL.md)
+1. **Read**: Load `next.md` to identify the current baton. [[Invoke: intake]](../skills/intake/SKILL.md)
+2. **Audit**: Sanity check the last completed track in `log.md`. [[Invoke: project-manager]](../skills/project-manager/SKILL.md)
+3. **Resonate**: Align with the current **Risk Routing** (Step 2.2).
 
-### Phase 2: Resonance
+### Phase 2: Execution (Step 5)
 
-1. **Alignment**: Cross-reference the payload with the current file system state. [[Invoke: project-manager]](../skills/project-manager/SKILL.md)
-2. **Transition**: Move directly to `/02-build` Phase 1 or `/01-plan` Phase 2 depending on the payload status.
+1. **Pick up**: Initialize the next pending sub-task in the active track shard.
+2. **Forge**: Transition directly to [/02-build](./02-build.md) for logic fabrication.
 
-### Phase 3: The Quality Gate (Reporting)
+### Phase 3: Persistence
 
-1. **Status**: Briefly report the current position and intended next action. "Relay active. Resuming from [Checkpoint]."
+1. **Log**: Document any immediate pivots or findings in the active shard.
 
 ## 4. Anti-Patterns
 
-- **Start Over**: Re-analyzing the whole project when the payload objective is provided.
-- **The Loop**: Stalling for instructions when `next-prompt.md` contains the baton.
-- **Phantom Baton**: Resuming work without verifying the state of the active shard.
+- **Cold Start**: Starting new features before completing the `next.md` baton.
+- **Ghost Tasks**: Working on logic not documented in the mission board.
+
+### 🕹️ Operational Heartbeat
+
+- **🤖 AGENTS.md**: Step 1.3 (Prerequisites - Resonator active)
+- **📜 Rules**: Rule 01 (Foundation), Rule 05 (Intelligence)
+- **🧠 Capabilities**: intake (The Handoff), project-manager (State Sync)
+- **💾 State**: .agent/project-management/next.md

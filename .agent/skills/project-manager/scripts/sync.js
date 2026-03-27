@@ -98,7 +98,7 @@ function runJanitor() {
 
 // 3. Reconcile Mission Board (tracks.md -> global.md)
 function reconcileState() {
-  const tracksPath = path.join(ROOT_DIR, ".agent", "project-management", "track-log.md");
+  const tracksPath = path.join(ROOT_DIR, ".agent", "project-management", "log.md");
   const globalPath = path.join(ROOT_DIR, ".agent", "project-management", "mission-board.md");
 
   if (!fs.existsSync(tracksPath) || !fs.existsSync(globalPath)) return;

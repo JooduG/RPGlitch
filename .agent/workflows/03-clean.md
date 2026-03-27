@@ -4,7 +4,7 @@ description: Maintenance & Security. Fixes bugs, audits security, and ensures hy
 
 # [/03-clean](./03-clean.md) - The Clinic
 
-> **Goal:** Sanitize the codebase and resolve identified bugs.
+> **Goal:** Sanitize the codebase, resolve root causes, and enforce technical hygiene (Rule 06).
 
 ## 1. Triggers
 
@@ -16,29 +16,37 @@ description: Maintenance & Security. Fixes bugs, audits security, and ensures hy
 
 - **Rules**: [Foundation](../rules/01-foundation.md).
 - **Rules**: [Compliance](../rules/06-compliance.md).
-- **Audit**: [Audit Engine](../skills/warden/scripts/audit-engine.js) script. 
+- **Rules**: [Intelligence](../rules/05-intelligence.md).
+- **State**: [.agent/project-management/log.md](../project-management/log.md).
 
 ## 3. Procedures
 
-### Phase 1: The Clarity Gate
+### Phase 1: The Clarity Gate (Step 3: Research)
 
-1. **Sync**: Run `/00-boot` to ensure environment resonance. [[Invoke: DevOps]](../skills/devops/SKILL.md)
-2. **Audit**: Execute the `warden` skill and `npm audit`. [[Invoke: Warden]](../skills/warden/SKILL.md)
-3. **Trace**: Map the logic path to the bug. [[Invoke: Simulation]](../skills/simulation/SKILL.md)
+1. **Sync**: Run `/00-boot` to ensure environment resonance.
+2. **Audit**: Execute `warden` and `npm audit`. Identify vulnerabilities or logic flaws. [[Invoke: warden]](../skills/warden/SKILL.md)
+3. **Trace**: Map the logic path to the bug. Use `scientificMethod` if the cause is non-obvious. [[Invoke: warden]](../skills/warden/SKILL.md)
 
-### Phase 2: Sanitization & Debt Management
+### Phase 2: Sanitization (Step 5: Execution)
 
-1. **Purge**: Delete unused assets and legacy artifacts. [[Invoke: Project Manager]](../skills/project-manager/SKILL.md)
-2. **Standard**: Apply fixes using **Runes** and **Chalk Tokens** exclusively. [[Invoke: Svelte]](../skills/svelte/SKILL.md)
-3. **Technical Debt Handling**: Wrap all out-of-scope messy code, non-critical bugs, or unresolved edge cases in professional `#TODO-AI:` tags. Do not spiral into dependency hell trying to fix everything at once.
+1. **Purge**: Delete unused assets or legacy code. [[Invoke: project-manager]](../skills/project-manager/SKILL.md)
+2. **Root Fix**: Avoid "patching" symptoms. Standardize the fix using **Svelte 5 Runes** and **Chalk Regime** tokens. [[Invoke: svelte]](../skills/svelte/SKILL.md)
+3. **Debt Handling**: Wrap out-of-scope messes in professional `TODO-AI:` tags. Register them in `next.md`. [[Invoke: intake]](../skills/intake/SKILL.md)
 
-### Phase 3: The Quality Gate
+### Phase 3: The Quality Gate (Step 6: Completeness)
 
-1. **Verify**: Every fix REQUIRES a regression test. Prove success with terminal evidence. Execute `run npm verify`, if the test fails begin Phase 1, if/else proceed. [[Invoke: Warden]](../skills/warden/SKILL.md)
-2. **Scrub**: Remove `console.log` and temporary debugging artifacts. [[Invoke: Project Manager]](../skills/project-manager/SKILL.md)
+1. **Verify**: Every fix REQUIRES a regression test. Prove success with terminal evidence. Execute `npm run verify`. [[Invoke: warden]](../skills/warden/SKILL.md)
+2. **Scrub**: Remove debug artifacts (`console.log`, temp files). Execute the "Boy Scout Rule". [[Invoke: project-manager]](../skills/project-manager/SKILL.md)
 
 ## 4. Anti-Patterns
 
-- **The Patch**: Fixing symptoms instead of root systems.
-- **Dangling Debt**: Committing fixes without cleaning up surrounding technical debt or logging it properly with `#TODO-AI:`.
-- **Silent Security**: Ignoring `npm audit` warnings.
+- **The Patch**: Fixing symptoms instead of the system.
+- **Silent Security**: Ignoring audit warnings.
+- **Dangling Debt**: Leaving messes without `TODO-AI` tags.
+
+### 🕹️ Operational Heartbeat
+
+- **🤖 AGENTS.md**: Step 2.2 (Risk Routing - Clinic active)
+- **📜 Rules**: Rule 01 (Foundation), Rule 06 (Compliance)
+- **🧠 Capabilities**: warden (Security Audit), project-manager (Hygiene)
+- **💾 State**: .agent/project-management/log.md

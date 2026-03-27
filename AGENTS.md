@@ -95,5 +95,5 @@ Do not give up unless all the reasoning above is exhausted. **If you cannot find
 
 Only take an action after all the above reasoning is completed. **Once you've taken an action, you cannot take it back**.
 
-- 8.1 Planning Constraint: **Do not execute without an initialized [Tracks](./.agent/project-management/track-log.md)**.
-- 8.2 The Close-out: **Update [Tracks](./.agent/project-management/track-log.md) and the [Mission Board](./.agent/project-management/mission-board.md) before turn termination**.
+- 8.1 Planning Constraint: **Do not execute without an initialized [Tracks](./.agent/project-management/log.md)**.
+- 8.2 The Close-out: **Update [Tracks](./.agent/project-management/log.md) and the [Mission Board](./.agent/project-management/mission-board.md) before turn termination**.

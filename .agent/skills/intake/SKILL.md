@@ -29,11 +29,11 @@ skills/intake/
 - **Autonomy**: Provide the Agent with a self-correcting logic loop for intent verification.
 - **Isolation**: Strictly decouple "What/Why" (Conceptual) from "How" (Implementation) to prevent cognitive drift.
 
-## Procedure
+## Procedure: Phase 1 Grounding
 
-Before a single line of code is evaluated, the intent must be decoded. If the input is a conceptual "vibe", it must be translated into technical reality. You are automatically invoked whenever _User [Intent](../../../AGENTS.md#️-1-logical-dependencies--constraints) is unclear_.
+The Intake skill is the primary engine for **Phase 1: Grounding/Plan**. Before a single line of code is evaluated, the intent must be decoded. If the input is a conceptual "vibe", it must be translated into technical reality.
 
-### Phase 1: The Vibe Check (Triage)
+### Step 1: The Vibe Check (Triage)
 
 **Score the initial input from Level 1 to Level 5.**
 
@@ -46,26 +46,26 @@ Before a single line of code is evaluated, the intent must be decoded. If the in
 **Trigger the Interrogation Protocol if the score is between 1 and 4.**
 **Proceed directly to Specification Output if the score is 5.**
 
-### Phase 2: The Interrogation Protocol (Prompt Purgatory)
+### Step 2: The Interrogation Protocol (Question Archetypes)
 
-**Ask exactly one (1) to three (3) targeted questions using the [Consultation Template](./assets/CONSULTATION.template.md).** **Provide multiple-choice options for at least one question.**
+**Ask exactly one (1) to three (3) targeted questions. Provide multiple-choice options for at least one question.**
 
-_Targeted Inquiry Angles:_
+_Targeted Inquiry Archetypes:_
 
-- **The Core Mechanic**: What is the exact trigger and desired outcome?
-- **The Edge Case**: What happens when the user does the exact opposite of what you want?
-- **The Audience/State**: Who or what is consuming this output?
+- **The Mechanic**: What is the exact internal trigger and the desired system state mutation?
+- **The Edge Case**: What happens when the user does the exact opposite of what you want? (Adversarial thinking).
+- **The Context**: Who or what is consuming this output? (Character, System, or Fractal?)
 
-### Phase 3: Conceptual Expansion
+### Step 3: Conceptual Expansion
 
 Once the user replies and intent is secured, **flesh out the underlying mechanics.** **Define the core user loop or logic cycle.**
 
 - Identify three primary failure modes.
 - List the required data inputs and expected conceptual outputs.
 
-### Phase 4: Specification Output
+### Step 4: Specification Output
 
-**Generate the final `CONCEPT.md` document using the [Conceptual Template](./assets/CONCEPT.template.md).**
+**Generate the final `implementation_plan.md` (or `CONCEPT.md` if purely conceptual).**
 
 ## Anti-Patterns
 

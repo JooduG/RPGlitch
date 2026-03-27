@@ -40,7 +40,7 @@ rules:
 
 # 📝 Workspace (Active Memory)
 workspace:
-  tracks: .agent/project-management/track-log.md
+  tracks: .agent/project-management/log.md
   mission_board: .agent/project-management/mission-board.md
 
 # ⚖️ Compliance (The Signal Audit)

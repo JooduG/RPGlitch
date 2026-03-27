@@ -91,7 +91,7 @@
     "audit:skills": "node .agent/skills/warden/scripts/audit-engine.js --skills",
     "audit:rules": "node .agent/skills/warden/scripts/audit-engine.js --rules",
     "audit:workflows": "node .agent/skills/warden/scripts/audit-engine.js --workflows",
-    "audit:agent": "node .agent/skills/warden/scripts/audit-engine.js --agent",
+    "audit:agent": "npm-run-all audit:skills audit:rules audit:workflows",
     "audit:svelte": "node .agent/skills/warden/scripts/audit-engine.js --svelte",
     "audit:todo": "node .agent/skills/warden/scripts/audit-engine.js --todo",
     "audit:project": "node .agent/skills/warden/scripts/audit-engine.js --project",

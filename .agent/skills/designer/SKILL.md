@@ -27,7 +27,7 @@ The Designer is the **Guardian of Rule 04-Aesthetics**. Every action must be mea
 
 ---
 
-## 🏗️ Orchestration Strategy
+## 🏗️ Structure & Orchestration
 
 The Designer does not just write code; it coordinates specialists:
 
@@ -38,7 +38,7 @@ The Designer does not just write code; it coordinates specialists:
 
 ---
 
-## 🎯 Triggers & Scenarios
+## 🎯 Procedure & Triggers
 
 - **Orchestrate Atmosphere**: When the simulation transitions between narrative states (e.g., from "Combat" to "Exploration").
 - **Final Polish Scan**: Before concluding a UI feature to ensure tokens and spacing are perfect.

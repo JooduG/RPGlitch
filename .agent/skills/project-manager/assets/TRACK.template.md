@@ -6,37 +6,30 @@
 > **Risk**: `[Low/Medium/High]`
 > **Start Date**: 2026-03-27
 
-## 1. Context Injection
-
-- **plan**: [/01-plan](../../../workflows/01-plan.md)
-- **Infrastructure**: [Rule 03](../../../rules/03-infrastructure.md)
-- **Compliance**: [Rule 06](../../../rules/06-compliance.md)
-- **Existing Logic**: [File.js](../../../../src/)
-
-## 2. Hypothesis & Risk
+## Phase 1: Grounding/Plan ([/01-plan](../../../workflows/01-plan.md))
 
 - **Hypothesis**: `[Reasoning]`
 - **Risk Tier**: `[Low/Medium/High]`
 - **Reproduction Case**: `[Steps]`
+- **Context**: [Rule 03](../../../rules/03-infrastructure.md), [Rule 06](../../../rules/06-compliance.md).
 
-## 3. Implementation (Micro-Beats)
+## Phase 2: Execution/Build ([/02-build](../../../workflows/02-build.md))
 
 Use the **Micro-Beat Loop** (Red -> Green -> Refactor -> Verify).
 
-- `[ ]` **Beat 1**: `[Description]`
-- `[ ]` **Beat 2**: `[Description]`
+- [ ] **Beat 1**: `[Description]`
+- [ ] **Beat 2**: `[Description]`
 
-## 4. Verification & Quality Gates
-
-Ensure all boxes are checked before marking the track as `[x]` Complete.
+## Phase 3: Hardening/Audit ([/03-clean](../../../workflows/03-clean.md))
 
 - [ ] **Type Safety**: Zero `any` types in Svelte 5 logic.
 - [ ] **Performance Budget**: CLS < 0.1, LCP < 2.5s.
 - [ ] **Perchance Audit**: No `localStorage`, `Dexie.js` validation, Single-file bundle readiness.
 - [ ] **Security**: Warden sweep for secrets and sanitization.
-- [ ] **Manual Verification**: User-facing checklist generated.
 
-## 5. Persistence (Echo)
+## Phase 4: Persistence/Vault/Bridge ([/04-review](../../../workflows/04-review.md), [/08-github](../../../workflows/08-github.md))
 
 - **SHA**: `[Commit-SHA]`
 - **Git Notes**: `[Rich-summary]`
+- **Mission Board**: Updated `[x]`
+- **Next.md**: Updated `[x]`

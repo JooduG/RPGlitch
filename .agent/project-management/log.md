@@ -4,10 +4,7 @@
 
 ## ⚡ Active Tracks
 
-- `[~]` **Project Manager: Sovereign 2.0** (Current): Upgrading PM skill to high-fidelity Sovereign lifecycle. [Branch: chore/pm-upgrade]
-
-- **Sovereign Rebranding** (Done): Successfully migrated the entire Sovereign Skill hierarchy to professional nomenclature: **Data**, **Simulation**, **intake**, **Warden**, and **Agent-Manager**. Synchronized all `SKILL.md` files, `package.json` scripts, and MCP configurations. [Branch: chore/sovereign-alignment-final]
-- **Clinic Sanitization (/03-clean)** (Done): Resolved all remaining technical debt and documentation lints. Identified and repaired structural corruption in `src/index.html` (duplicate ID and tag balancing). Achieved 100% audit purity across all 12 skill domains. [Branch: chore/sovereign-alignment-final]
+- **Project Manager: Sovereign 2.0** (Done): Upgraded the PM cognitive architecture to the Sovereign 2.0 standard. Integrated the **Harmonized Power Cycle** (Grounding -> Execution -> Hardening -> Persistence) and unified terminology with `/01-plan`, `/02-build`, and `/03-clean` workflows. Updated `TRACK.template.md` and `intake/SKILL.md` with high-fidelity grounding archetypes. [Branch: chore/pm-upgrade]
 - **Narrative Bridge**: Initiated registration and architectural planning for autonomous scene complications.
 - **Configuration Alignment (config.yaml)** (Done): Synchronized the central agent configuration with the post-rebranding filesystem. All 12 skills, 5 rules, and 10 workflows are now accurately mapped and verified. Commented out legacy knowledge paths. [Branch: chore]
 - **UI Audit & Polish**: Standardized Chalk Regime tokens across atomic and organism layers. Implemented `kineticScroll` with momentum decay. [Branch: feat/ui-audit-polish]

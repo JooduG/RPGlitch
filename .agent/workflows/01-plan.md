@@ -1,74 +1,62 @@
 ---
-description: The Master Router. Enforces the A-C-M-Q pipeline, categorizes intent, bypasses C1 tasks, and routes complex features through the intake -> Simulation -> Warden -> Agent-Forge funnel.
+description: The Master Router. Enforces the 8-step process from AGENTS.md, categorizes risk, and routes complex features through the intake -> Cognition -> Warden funnel.
 ---
 
 # [/01-plan](./01-plan.md) - The Master Router
 
-> **Goal:** Evaluate user intent and route the request to the correct architectural pipeline using the A-C-M-Q loop. I do not design; I direct traffic.
+> **Goal:** Evaluate user intent, brainstorm hypotheses, and route the request to the correct cognitive framework (AGENTS.md Steps 2-3).
 
 ## 1. Triggers
 
-- Request: Initial user prompt or "I have an idea".
-- Slash Command: **[/01-plan](./01-plan.md)**
+- **Request**: Initial user prompt or "I have an idea".
+- **Slash Command**: **[/01-plan](./01-plan.md)**
 
 ## 2. Context Injection
 
-- Rules: **[Foundation](../rules/01-foundation.md)**.
-- Rules: **[Infrastructure](../rules/03-infrastructure.md)**.
-- Rules: **[Intelligence](../rules/05-intelligence.md)**.
-- State: **[Mission Board](../project-management/mission-board.md)**.
+- **Rules**: [Foundation](../rules/01-foundation.md).
+- **Rules**: [Intelligence](../rules/05-intelligence.md).
+- **State**: [.agent/project-management/mission-board.md](../project-management/mission-board.md).
+- **Core**: [AGENTS.md](../../AGENTS.md).
 
 ## 3. Procedures
 
-### Phase 1: Ambiguity Gate (A-Score)
+### Phase 1: Ambiguity Gate (Step 1.5: Intent Decoding)
 
-Before evaluating complexity, assess the input intent.
+1. **Assess**: Is the intent technically actionable?
+2. **Halt**: If ambiguous, invoke `intake` to resolve the vibe into a concrete schema. formulated 2-3 **Technical Options** if applicable. [[Invoke: intake]](../skills/intake/SKILL.md)
+3. **Recall**: Query `data` for historical context if targeting complex core engine logic. [[Invoke: data]](../skills/data/SKILL.md)
 
-1. **Assess**.
-2. If **Ambiguous**:
-   - **HALT.** You must translate the vibe into a concrete schema before proceeding. Formulate 2-3 **Technical Options** (Logic vs Performance vs UX) if applicable.
-     - **Sector**: [Affected File Paths]
-     - **Constraint**: [Governing Rules / Physics]
-     - **Success Criteria**: [Technical Metric for DoD]
-3. **Semantic Recall**: If targeting complex core engine files (e.g., `ContextBroker`), query the vector database for historical context. [[Invoke: data]](../skills/data/SKILL.md)
-4. If **A1 or A2**, proceed to Phase 2.
+### Phase 2: Hypothesis & Risk Triage (Step 2)
 
-### Phase 2: Complexity Gate (C-Level)
+1. **Hypothesize**: Brainstorm and rank causes/solutions by likelihood.
+2. **Risk Routing**:
+   - **Low Risk** (CSS, Typos, Minor Logic): Skip Phase 3. Proceed directly to [/02-build](./02-build.md).
+   - **Medium Risk** (Refactors, State Migrations): Proceed to Phase 3.
+   - **High Risk** (Architecture Shift, Mission Wipe): Proceed to Phase 3 and trigger the `warden:debugging` protocol.
 
-Determine the cognitive load of the request to route it appropriately.
+### Phase 3: Cognitive Routing & The Warden (Step 3)
 
-1. **Assign C-Level** (C1 to C6).
-2. If **C1 (Reflex)**: (e.g., Typos, CSS tweaks, hygiene).
-   - **Skip Cortex planning. Proceed directly to [/02-build](../workflows/02-build.md)**.
-3. If **C2+ (Cortex)**:
-   - **Proceed to Phase 3**. (If C3+, prepare to inject the required Waldzell metacognitive tools).
-
-### Phase 3: The Workshop Forge & Warden (plan & Stress Test)
-
-The idea must be categorized, expanded, and then ruthlessly stress-tested.
-
-1. **Invoke the intake**: **[[Invoke: intake]](../skills/intake/SKILL.md)**
+1. **Cognitive Routing**: Select the appropriate Waldzell framework (Sequential Thinking, Decision Framework, Metacognitive Monitoring, etc.) based on Rule 05.
+2. **Forge & Stress Test**:
    - Categorize into the Narrative Triad (Spec, State, or Echo).
-   - **Context Trigger**: If the task involves UI (`.svelte` files, styling, layout), call `stitch` to synthesize a design spec. [[Invoke: stitch]](../skills/stitch/SKILL.md)
-   - _(Optional)_ Invoke `data` for vector history.
-2. **Invoke the Warden**: **[[Invoke: warden]](../skills/warden/SKILL.md)**
-   - Stress-test the generated plan against Rule 03 (Svelte Runes, Perchance Two-Panel Paradigm).
-   - Verify against Prime Directives (P1 User Agency, P2 Internal Consistency).
-3. **Halt and request user confirmation** on the finalized, sanitized plan.
+   - If UI involved, call `stitch` for a design spec. [[Invoke: stitch]](../skills/stitch/SKILL.md)
+   - Invoke `warden` to stress-test the plan against Rule 03 (Svelte 5 Runes). [[Invoke: warden]](../skills/warden/SKILL.md)
+3. **User Approval**: Halt and request explicit approval on the finalized plan.
 
-### Phase 4: Registration (The Workshop Scribe)
+### Phase 4: Registration (Step 8.1)
 
-Once the plan survives the Warden, anchor it to physical reality to prepare for the M-Sequence.
-
-1. **Invoke the Agent-Forge**: **[[Invoke: cognition]](../skills/cognition/SKILL.md)**
-2. Scaffold the new `.agent/state/tracks/<slug>.md` file.
-   - Include **Success Criteria** and **Atomic Checklist**.
-   - Identify out-of-scope messes and mark them for `#TODO-AI:`.
-3. Register the track on the Kanban board.
-4. Prepare the `next-prompt.md` file and **prompt the user to trigger [/02-build](../workflows/02-build.md)**.
+1. **Scaffold**: Create or update the task shard in `.agent/project-management/tracks/<slug>.md`. [[Invoke: cognition]](../skills/cognition/SKILL.md)
+2. **Kanban**: Registered the track on the [Mission Board](../project-management/mission-board.md). [[Invoke: project-manager]](../skills/project-manager/SKILL.md)
+3. **Prompt**: Prepare the user to trigger [/02-build](./02-build.md).
 
 ## 4. Anti-Patterns
 
-- The Ghost Route: **Do not write code during the Cortex pipeline.**
-- Pipeline Skipping: **Do not allow complex UI or Logic tasks to bypass the Workshop Warden.**
-- Metadata Omission: **Every response must conclude with the Rule 04 Metadata Mandate block.**
+- **The Ghost Route**: Writing code during the planning phase.
+- **Complexity Denial**: Treating High-Risk tasks as Low-Risk to skip the Warden.
+- **Metadata Omission**: Failing to conclude with the Rule 05 Heartbeat.
+
+### 🕹️ Operational Heartbeat
+- **🤖 AGENTS.md**: Step 2.1 (Brainstorming - Router initialized)
+- **📜 Rules**: Rule 01 (Foundation), Rule 05 (Intelligence)
+- **🧠 Capabilities**: intake (Intent Decoding), project-manager (Track Registration)
+- **💾 State**: .agent/project-management/mission-board.md

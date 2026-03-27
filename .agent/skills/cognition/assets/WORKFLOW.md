@@ -57,8 +57,8 @@ skills/{{Workflow-Slug}}/
 ### {{Conditional-Phase}} _Optional_
 
 - (Condition):
-  - (True) → (Consequence)
-  - (False) → (Consequence)
+    - (True) → (Consequence)
+    - (False) → (Consequence)
 
 ### {{Last-Phase}} _Mandatory_
 

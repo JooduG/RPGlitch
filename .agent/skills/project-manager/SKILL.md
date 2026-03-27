@@ -25,59 +25,50 @@ description: >
 
 .agent/project-management/
 ├── mission-board.md # Macro-state & High-level goals
-├── track-log.md # Static registry of all feature shards
+├── log.md # Static registry of all feature shards
 ├── tracks/ # Micro-state & implementation details
 └── next.md # Handoff context & instructions
 
-## Procedure
+## Procedure: The Harmonized Power Cycle
 
-This lifecycle implements the **Execution & Grounding (Step 5)** and **Quality Gate (Step 6)** mandates of `AGENTS.md`.
+This lifecycle implements the **Execution & Grounding (Step 1-4)** and **Quality Gate (Step 6)** mandates of `AGENTS.md`, aligned with the core project workflows.
 
-### 1. Triage & Sizing
+### Phase 1: Grounding/Plan ([/01-plan](../../workflows/01-plan.md))
 
-Identify the track type (Feature, Bug, Chore, Refactor) and risk tier (Low, Medium, High). Break work into **8-20 micro-tasks** per track to maintain focus.
+**Goal**: Establish technical context and obtain user alignment.
 
-### 2. Status Markers
+- **Triage**: Identify track type (Feature, Bug, Chore, Refactor) and risk tier (Low, Medium, High).
+- **Sizing**: Break work into **8-20 micro-tasks** per track.
+- **Injection**: Load relevant [Rules](../../rules/) and [Skills](../).
+- **Done**: Create `implementation_plan.md` and obtain the **Clarity Gate** approval.
 
-- ✅ **Complete**: Verified and committed.
-- 🚧 **Active**: Only one task per track should be active.
-- ⏸️ **Pending**: Task has not started.
-- 🛑 **Blocked**: External dependency or architectural conflict. Requires [intake](../intake/) intervention.
-- ⏭️ **Skipped**: Task turned out to be irrelevant. Example: `Native drag-drop` (decided on library).
+### Phase 2: Execution/Build ([/02-build](../../workflows/02-build.md))
 
-### 3. TDD Granularity (Micro-Beats)
+**Goal**: Atomic fabrication of logic, state, and style.
 
-Don't write monolithic code. Use the **Micro-Beat Loop**:
+- **Micro-Beat Loop (TDD)**:
+  1. **RED**: Write a failing unit test or reproduction case.
+  2. **GREEN**: Write the minimal code to pass the test.
+  3. **REFACTOR**: Cleanup while maintaining GREEN.
+  4. **VERIFY**: Run full suite to check for regressions.
+- **Runes**: Ensure all state is reactive via Svelte 5 `$state`, `$derived`, and `$effect`.
+- **Chalk**: Apply the [Chalk Regime](../../rules/04-aesthetics.md) tokens and native CSS.
 
-1. **RED**: Write a failing unit test or reproduction case.
-2. **GREEN**: Write the minimal code to pass the test.
-3. **REFACTOR**: Cleanup while maintaining GREEN.
-4. **VERIFY**: Run full suite to check for regressions.
+### Phase 3: Hardening/Audit ([/03-clean](../../workflows/03-clean.md))
 
-### 4. Git Note Persistence
+**Goal**: Quality assurance, security, and technical debt extraction.
 
-Every task MUST be documented via `git notes`. This provides rich, searchable context in the repository without history bloat.
+- **Quality Gates**: Verify **LCP < 2.5s**, **CLS < 0.1**, and zero `any` types.
+- **Warden Sweep**: Audit for secrets, sanitization (DOMPurify), and logic leaks.
+- **Perchance Safety**: Ensure `Dexie.js` persistence and single-file bundle readiness.
 
-### 5. Quality Gates (Performance Budget)
+### Phase 4: Persistence/Vault/Bridge ([/04-review](../../workflows/04-review.md), [/08-github](../../workflows/08-github.md))
 
-Verify against **Step 6** mandates:
+**Goal**: Finalize state, archive shards, and synchronize with the cloud.
 
-- **LCP < 2.5s**: "Snappy" loading performance.
-- **CLS < 0.1**: "Stable" layout (critically important for Perchance iframes).
-- **Type Safety**: Zero `any` types in Svelte 5 logic.
-- **Security**: Warden sweep for secrets and sanitization.
-
-### 6. Perchance Safety Audit (Rule 03)
-
-Verify platform-specific physics:
-
-- **No `localStorage`**: Must use `Dexie.js` for persistence.
-- **Single-File Compatibility**: Verify CSS/JS assets are bundle-ready.
-- **Audio Context**: Proper disposal of audio resources.
-
-### 7. Narrative Handoff
-
-Initialize a **Manual Verification Checklist** for the User. Update the Track Log and Mission Board before turn termination.
+- **The Vault**: Move completed track shards to `archive/`. Update the [Mission Board](../../project-management/mission-board.md).
+- **The Bridge**: Commit changes with `git notes`. Create/Update PRs on GitHub.
+- **Handoff**: Update `next.md` with high-context instructions for the next agent.
 
 ## Output Expectations
 
@@ -90,7 +81,7 @@ Initialize a **Manual Verification Checklist** for the User. Update the Track Lo
 | :----------------- | :-------------------------------------------------------------------------------- |
 | **Vague Beats**    | Ensure every task has a clear binary outcome (e.g., "Add button" vs "Do layout"). |
 | **Floating State** | All state changes MUST be anchored in a Rune or a Dexie repository.               |
-| **Ghost Shards**   | Tracks without a corresponding update in `track-log.md` are forbidden.            |
+| **Ghost Shards**   | Tracks without a corresponding update in `log.md` are forbidden.                  |
 
 ---
 

@@ -11,7 +11,7 @@
 
 **Objectives**:
 
-1.  **Narrative Calibration**: Continue the "Narrative Bridge" track in `track-log.md` to support autonomous scene complications.
+1.  **Narrative Calibration**: Continue the "Narrative Bridge" track in `log.md` to support autonomous scene complications.
 2.  **Skill Hardening**: Resolve the identified debt in `agent-forge/SKILL.md`.
 3.  **Diegetic UI**: Refine the "Chalk Regime" implementation in `src/ui/organisms/StoryBoard.svelte`.
 

@@ -36,4 +36,4 @@ _Please answer the following to unlock the Execution Phase:_
 
 ---
 
-**Next Step**: Once you reply, I will register the **Track** in [track-log.md](../../../project-management/track-log.md) and initialize the [mission-board.md](../../../project-management/mission-board.md).
+**Next Step**: Once you reply, I will register the **Track** in [log.md](../../../project-management/log.md) and initialize the [mission-board.md](../../../project-management/mission-board.md).
