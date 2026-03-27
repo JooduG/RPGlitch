@@ -14,7 +14,7 @@ description: Solo Deployment. Ships the bundle to Perchance.
 
 ## 2. Brain (Context Injection)
 
-- **Rules**: [.agent/rules/03-technetium.md](../rules/03-technetium.md).
+- **Rules**: [Intelligence](../rules/05-intelligence.md).
 - **Config**: `vite-plugin-singlefile` configuration.
 - **Target**: Perchance production environment.
 
@@ -22,17 +22,17 @@ description: Solo Deployment. Ships the bundle to Perchance.
 
 ### Phase 1: The Clarity Gate (Pre-flight)
 
-1. **Verification**: Run full verification suite (`npm run verify`). [[Invoke: quality-assurance]](../skills/quality-assurance/SKILL.md)
-2. **Fabricate**: Run `npm run build`. Confirm 0 errors and check bundle size (Goal < 350KB). [[Invoke: devops]](../skills/devops/SKILL.md)
+1. **Verification**: Run full verification suite (`npm run verify`). [[Invoke: warden]](../skills/warden/SKILL.md)
+2. **Fabricate**: Run `npm run build`. Confirm 0 errors. [[Invoke: devops]](../skills/devops/SKILL.md)
 
 ### Phase 2: Launch
 
-1. **Smoke Test**: Smoke test the `index.html` locally via the browser tool. [[Invoke: quality-assurance]](../skills/quality-assurance/SKILL.md)
+1. **Smoke Test**: Smoke test the `index.html` locally via the browser tool. [[Invoke: warden]](../skills/warden/SKILL.md)
 2. **Push**: Execute `npm run deploy:perchance` (Playwright automation). [[Invoke: devops]](../skills/devops/SKILL.md)
 
 ### Phase 3: The Quality Gate (Verification)
 
-1. **Live Check**: Navigate to the live URL and confirm core functionality. [[Invoke: quality-assurance]](../skills/quality-assurance/SKILL.md)
+1. **Live Check**: Navigate to the live URL and confirm core functionality. [[Invoke: warden]](../skills/warden/SKILL.md)
 2. **Report**: Final deployment statistics (Version ID, Size, timestamp).
 
 ## 4. Anti-Patterns

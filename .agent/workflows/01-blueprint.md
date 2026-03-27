@@ -2,7 +2,7 @@
 description: The Master Router. Enforces the A-C-M-Q pipeline, categorizes intent, bypasses C1 tasks, and routes complex features through the Gatekeeper -> Simulation -> Warden -> Agent-Forge funnel.
 ---
 
-# 01-blueprint (The Master Router)
+# [/01-blueprint](./01-blueprint.md) - The Master Router
 
 > **Goal:** Evaluate user intent and route the request to the correct architectural pipeline using the A-C-M-Q loop. I do not design; I direct traffic.
 
@@ -11,12 +11,12 @@ description: The Master Router. Enforces the A-C-M-Q pipeline, categorizes inten
 - Request: Initial user prompt or "I have an idea".
 - Slash Command: **[/01-blueprint](./01-blueprint.md)**
 
-## 2. Brain (Context Injection)
+## 2. Context Injection
 
-- Rules: **[.agent/rules/01-foundation.md](../rules/01-foundation.md)**.
-- Rules: **[.agent/rules/03-technetium.md](../rules/03-technetium.md)**.
-- Rules: **[.agent/rules/04-intelligence.md](../rules/04-intelligence.md)**.
-- State: **[.agent/state/tracks.md](../state/tracks.md)** (Mission Board).
+- Rules: **[Foundation](../rules/01-foundation.md)**.
+- Rules: **[Infrastructure](../rules/03-infrastructure.md)**.
+- Rules: **[Intelligence](../rules/05-intelligence.md)**.
+- State: **[Mission Board](../project-management/mission-board.md)**.
 
 ## 3. Procedures
 
@@ -24,8 +24,8 @@ description: The Master Router. Enforces the A-C-M-Q pipeline, categorizes inten
 
 Before evaluating complexity, assess the input intent.
 
-1. **Assign A-Score** (A1 to A5).
-2. If **A >= 3 (Ambiguous, Critical, or Hazard)**:
+1. **Assess**.
+2. If **Ambiguous**:
    - **HALT.** You must translate the vibe into a concrete schema before proceeding. Formulate 2-3 **Technical Options** (Logic vs Performance vs UX) if applicable.
      - **Sector**: [Affected File Paths]
      - **Constraint**: [Governing Rules / Physics]
@@ -47,7 +47,7 @@ Determine the cognitive load of the request to route it appropriately.
 
 The idea must be categorized, expanded, and then ruthlessly stress-tested.
 
-1. **Invoke the Gatekeeper**: **[[Invoke: gatekeeper]](../skills/gatekeeper/SKILL.md)**
+1. **Invoke the Gatekeeper**: **[[Invoke: gatekeeper]](../skills/intent-crucible/SKILL.md)**
    - Categorize into the Narrative Triad (Spec, State, or Echo).
    - **Context Trigger**: If the task involves UI (`.svelte` files, styling, layout), call `stitch` to synthesize a design spec. [[Invoke: stitch]](../skills/stitch/SKILL.md)
    - _(Optional)_ Invoke `data` for vector history.
@@ -60,7 +60,7 @@ The idea must be categorized, expanded, and then ruthlessly stress-tested.
 
 Once the blueprint survives the Warden, anchor it to physical reality to prepare for the M-Sequence.
 
-1. **Invoke the Agent-Forge**: **[[Invoke: agent-forge]](../skills/agent-forge/SKILL.md)**
+1. **Invoke the Agent-Forge**: **[[Invoke: cognition]](../skills/cognition/SKILL.md)**
 2. Scaffold the new `.agent/state/tracks/<slug>.md` file.
    - Include **Success Criteria** and **Atomic Checklist**.
    - Identify out-of-scope messes and mark them for `#TODO-AI:`.

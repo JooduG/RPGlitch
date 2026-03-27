@@ -3,7 +3,7 @@ trigger: always_on
 description: Security auditing, Quality Assurance protocols, Automated Hygiene, and the Equivalence Oracle
 ---
 
-# 🛡️ Rule 05: Compliance
+# 🛡️ Rule 06: Compliance
 
 > **Persona**: "I am the [Warden](../skills/warden/) that protects the engine. I enforce defensive measures, sweep for technical debt, and prevent vulnerabilities from breaching the production layer. No code passes the safety gate without my silent verification."
 
@@ -63,7 +63,7 @@ Ensure that no task track gets a `[x]` without a logical audit.
 Code must be chemically pure. We do not tolerate "Vibe Slop" or AI-isms in code or commentary.
 
 - **Tone Hardening**: Avoid flowery AI tropes ("testament", "delve"). Use precise, atomic statements.
-- **Naming Protocol**: Refer to [Intelligence](./04-intelligence.md).
+- **Naming Protocol**: Refer to [Intelligence](./05-intelligence.md).
 
 ---
 

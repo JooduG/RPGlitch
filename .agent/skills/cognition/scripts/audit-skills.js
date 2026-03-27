@@ -145,7 +145,7 @@ async function auditSkill(skillName) {
 
     // 6. Placeholder & Mandatory Section Detection
     const content = fs.readFileSync(skillFile, "utf-8");
-    const bracketMatches = content.match(/\[.*?\]/g) || [];
+    const bracketMatches = content.match(/\[.*?\](?!\()/g) || []; // Ignore [text](link)
     const placeholderCount = bracketMatches.filter(
       (m) => !m.includes("file:///") && !m.includes("Ref-") && m.length > 2 && m.length < 50,
     ).length;
@@ -196,7 +196,7 @@ if (process.argv[1] && process.argv[1].endsWith("audit-skills.js")) {
   const command = args[0];
 
   if (command === "audit") {
-    auditSkill(args[1] || "agent-forge");
+    auditSkill(args[1] || "cognition");
   } else {
     console.log("Usage: node audit-skills.js audit <skill-name>");
   }

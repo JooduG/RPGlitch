@@ -6,10 +6,10 @@ import ignore from "ignore";
 import { svelteRules } from "../../svelte/scripts/audit-svelte.js";
 import { cssRules } from "../../css/scripts/audit-css.js";
 import { securityRules } from "./audit-security.js";
-import { skill_rules } from "../../agent-forge/scripts/audit-skills.js";
-import { method_rules } from "../../methodology/scripts/audit-method.js";
-import { rule_rules } from "../../agent-forge/scripts/audit-rules.js";
-import { workflow_rules } from "../../agent-forge/scripts/audit-workflows.js";
+import { skill_rules } from "../../cognition/scripts/audit-skills.js";
+import { projectRules } from "../../project-manager/scripts/audit-project.js";
+import { rule_rules } from "../../cognition/scripts/audit-rules.js";
+import { workflow_rules } from "../../cognition/scripts/audit-workflows.js";
 
 const ROOT_DIR = process.cwd();
 const SRC_DIR = path.join(ROOT_DIR, "src");
@@ -47,13 +47,13 @@ class Auditor {
     this.rules = {
       ".svelte": svelteRules,
       ".css": cssRules,
-      ".js": [...securityRules, ...method_rules],
-      ".md": method_rules,
+      ".js": [...securityRules, ...projectRules],
+      ".md": projectRules,
     };
     this.is_skills_active = true;
     this.is_rules_active = true;
     this.is_workflows_active = true;
-    this.is_method_active = true;
+    this.is_project_active = true;
   }
 
   scan(dir) {
@@ -129,8 +129,8 @@ class Auditor {
     const lines = content.split("\n");
 
     rules.forEach((rule) => {
-      // Filter out Methodology rules if not requested
-      if (!this.is_method_active && method_rules.includes(rule)) return;
+      // Filter out Project rules if not requested
+      if (!this.is_project_active && projectRules.includes(rule)) return;
 
       // 1. Regex Match (Line-by-Line)
       if (rule.regex) {
@@ -248,13 +248,13 @@ if (args.includes("--svelte")) {
   auditor.is_rules_active = true;
   auditor.is_workflows_active = true;
   auditor.is_method_active = false;
-} else if (args.includes("--method")) {
-  console.log("🎯 Filter: Methodology Rules Only\n");
-  auditor.rules = { ".js": method_rules, ".md": method_rules };
+} else if (args.includes("--project")) {
+  console.log("🎯 Filter: Project Rules Only\n");
+  auditor.rules = { ".js": projectRules, ".md": projectRules };
   auditor.is_skills_active = false;
   auditor.is_rules_active = false;
   auditor.is_workflows_active = false;
-  auditor.is_method_active = true;
+  auditor.is_project_active = true;
 } else if (args.includes("--todo")) {
   console.log("🎯 Filter: TODO Rules Only\n");
   auditor.rules = {

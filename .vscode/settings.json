@@ -34,24 +34,16 @@
   "markdown.validate.ignoredLinks": [
     "always_on | on_change | manual",
     "high | medium | low",
-    "Rule Name",
-    "Skill Name",
-    "Role Name",
-    "Core Function",
-    "High Level Goal",
-    "Process",
-    "Process Name",
-    "./scripts/tool_name.py",
-    "./scripts/tool_name.js",
-    "./scripts/tool.js",
-    "0"
+    "./.agent/project-management/**",
+    "../project-management/**",
+    "./tracks/**",
+    "../tracks/**",
+    "./design.md",
+    "../design.md",
+    "../../.github/workflows/ai-fleet-dispatch.yml"
   ],
   "markdown.validate.referenceLinks.severity": "ignore",
-  "stylelint.validate": [
-    "css",
-    "scss",
-    "svelte"
-  ],
+  "stylelint.validate": ["css", "scss", "svelte"],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
     "source.fixAll.stylelint": "explicit"

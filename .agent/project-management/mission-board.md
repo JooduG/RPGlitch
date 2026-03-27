@@ -38,7 +38,9 @@
 
 ## Active WIP
 
-- [/] **Narrative Bridge**: Orchestrating automatic scene complications.
+- `[~]` **Project Manager: Sovereign 2.0**: Upgrading PM skill to high-fidelity Sovereign lifecycle.
+- `[/]` **Narrative Bridge**: Orchestrating automatic scene complications.
+
 - [x] **Data Skill**: Memory, Lore, & Technical Cold Storage (Sovereign).
 - [x] **Gatekeeper Skill**: Intent Decoding, Incubation, & Feature Gateway (Sovereign).
 - [x] **Simulation Skill**: Round/Turn Orchestration & Narrative Bridges (Sovereign).
@@ -102,7 +104,12 @@
 - [x] Phase 3: Engine Integration (Enhanced `audit-engine.js` with `--agent` support).
 - [x] Phase 4: Validation (Verified 100% resonance with `npm run verify`).
 
-## Completed Tasks
+### `[~]` `[020]` `[Project Manager: Sovereign 2.0]`
+
+- `[x]` Phase 1: Planning (Research high-fidelity patterns from archive).
+- `[x]` Phase 2: Skill Refactor (Updated `SKILL.md` and `TRACK.template.md`).
+- `[~]` Phase 3: Verification (Performing manual dry-run in `track-log.md`).
+- `[ ]` Phase 4: Finalize (Complete walkthrough and archival).
 
 - [x] **Intelligence Kernel** (Dynamics Engine alignment).
 - [x] **Semantic UI Refactor** (Glassmorphism Purge).

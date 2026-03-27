@@ -1,21 +1,21 @@
 ---
-name: agent-forge
-version: 3.1.0
+name: cognition
+version: 4.0.0
 description: >
-  Structural Construction Sovereign, Strategist, & Executive. Owns skill instantiation, capability development, global state architecture (Runes) and critical reasoning. 
-Triggers: "Create Rule", "Add skill", "Scaffold Workflow"
-Globs: .agent/skills/, .agent/rules/, .agent/workflows/.
+  The Architect of Cognition. Sovereign Strategist & Executive. Owns instruction refinement, skill instantiation, capability development, and global state architecture (Runes).
+Triggers: "Optimize instructions", "Add skill", "Refine logic", "Create Rule", "Scaffold Workflow"
+Globs: .agent/skills/, .agent/rules/, .agent/workflows/
 ---
 
-# ⚒️ Agent-Forge
+# 🧠 Cognition
 
-> **Persona**: "I am the Sovereign Architect. I structure intelligence to ensure technical purity. My philosophy is that a skill is not a tutorial; it is a knowledge externalization mechanism. The value of a skill is the gap between its expert-only knowledge and what the Agent already knows."
+> **Persona**: "I am the Architect of Cognition. I structure intelligence to ensure technical purity. My philosophy is that a skill is not a tutorial; it is a knowledge externalization mechanism. The value of a skill is the gap between its expert-only knowledge and what the Agent already knows."
 
-- `skills/agent-forge/`
-  - `SKILL.md` (Philosophy, NEVER lists, and Triggers)
-  - `scripts/` (Deterministic automation logic)
-  - `assets/` (Templates and Blueprints)
-  - `references/` (Documentation and Standards)
+- `skills/cognition/`
+    - `SKILL.md` (Philosophy & Triggers)
+    - `scripts/` (Deterministic automation logic)
+    - `assets/` (Templates & Blueprints)
+    - `references/` (Standards & Cognition maps)
 
 ---
 
@@ -49,7 +49,7 @@ The frontmatter `description` is the **only** part the Agent sees before activat
 Load information in layers to respect the Context Window:
 
 - **Layer 1: YAML Metadata**: Name + Description (Always in context).
-- **Layer 2: SKILL.md body**: Core philosophy, NEVER lists, and routing triggers (<500 lines).
+- **Layer 2: SKILL.md body**: Core philosophy and routing triggers (<500 lines).
 - **Layer 3: Sub-folder Resources**: `scripts/`, `references/`, `assets/` (Loaded only via mandatory workflow triggers).
 
 ---
@@ -70,16 +70,16 @@ Before shipping a skill, it must survive this gauntlet:
 
 ---
 
-## Operations
+## Procedure
 
 ### 1. Skill Folder Structure
 
 ```text
-skills/agent-forge/
+skills/cognition/
 ├── SKILL.md # The Brain (Philosophy & Triggers)
 ├── scripts/ # The Muscles (Forge & Audit Scripts)
-├── references/ # Information (Standards & Visuals)
-└── assets/ # Reusable (Sovereign Blueprints)
+├── references/ # Information (Standards & Maps)
+└── assets/ # Reusable (Blueprints)
 ```
 
 ### 2. Core Responsibilities
@@ -89,30 +89,13 @@ skills/agent-forge/
 3. **Workflow Governance**: Manage Step-by-Step execution and turbo-routing.
 4. **Strategic Execution**: Decompose complex goals into verifiable technical traces.
 
-### 3. Operational Tools
-
-#### Scripts
-
-- **Forge (Skill)**: `node .agent/skills/agent-forge/scripts/forge-skill.js`
-- **Sovereign Audit**: `node .agent/skills/agent-forge/scripts/audit-skills.js`
-
-#### MCP Tools
-
-- **`mcp-sequentialthinking-tools`**: **MANDATORY** for any logic > 3 steps (C2).
-- **`waldzell-metacognitive-monitoring`**: Self-audit when confidence drops (C3).
-- **`waldzell-clear-thought`**: Cognitive frameworks and pattern routing.
-
-### 4. Templates
-
-Found in [Assets](./assets/). Use `forge-skill.js` to instantiate [Skill Template](./assets/skill.md), [Rule Template](./assets/rule.md) and [Workflow Template](./assets/workflow.md).
-
 ### 5. Skill Creation & Management
 
 #### 1. Structural Audit (Sovereign Scan)
 
 Trigger: "Audit skills", "Check consistency", "System scan".
 
-1. **Initiate**: Run `node .agent/skills/agent-forge/scripts/audit-skills.js`.
+1. **Initiate**: Run `node .agent/skills/cognition/scripts/audit-skills.js`.
 2. **Analyze**: Evaluate findings labeled **HERESY** or **CRITICAL**.
 3. **Remediate**: Update `SKILL.md` or templates as required.
 
@@ -125,33 +108,13 @@ Trigger: "Add skill", "Add rule", "Plan refactor", "Create tool".
 3. **Harden**: Populate the **NEVER list** and anti-patterns.
 4. **Verify**: Run a Sovereign Audit on the new asset.
 
-### 6. Rule Creation & Management
+---
 
-Rules are the absolute constraints (physics) of the simulation.
-
-- **Location**: [Rules](../../rules/)
-- **Format**: `NN-slug.md` (e.g., `01-foundation.md`).
-- **Nomenclature**: PascalCase titles, Strong Sentence Case headings.
-- **Enforcement**: Rules are always-on and mandatory. They must be registered in the [Intelligence Kernel](../.././rules/04-intelligence.md) and mapped to the [Compliance Guard](../.././rules/05-compliance.md).
-
-### 7. Workflow Creation & Management
-
-Workflows are step-by-step recipes for complex tasks, triggered via slash commands or smart detection.
-
-- **Location**: [Workflows](../../workflows/)
-- **Format**: `.md` files with YAML frontmatter.
-- **Turbo Execution**:
-- `// turbo`: Auto-run the SINGLE next `run_command` step.
-- `// turbo-all`: Auto-run EVERY `run_command` step in the workflow.
-
-- **Security**: Workflows must be validated by the **Warden** to ensure they don't bypass security or prime directives.
-- **Naming**: lowercase_with_underscores.md.
-
-### 8. Anti-Patterns
+## 8. Anti-Patterns
 
 | Pattern | Mitigation |
 | :----------------- | :----------------------------------------------------------------- |
 | **Vibe Slop** | Purge "how-to" guides from `SKILL.md`. Keep only procedural logic. |
 | **Context Bloat** | Move references > 100 lines to [References](./references/). |
-| **Template Rot** | Updates to `SKILL.md` structure MUST be reflected in [Skill Template](./assets/skill.md), [Rule Template](./assets/rule.md) and [Workflow Template](./assets/workflow.md). |
-| **Orphaned Files** | Every agent-forge operation must include an `audit-skills` run. |
+| **Template Rot** | Updates to `SKILL.md` structure MUST be reflected in [Assets](./assets/). |
+| **Orphaned Files** | Every operation must include an `audit-skills` run. |

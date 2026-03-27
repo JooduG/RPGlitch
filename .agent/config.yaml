@@ -2,10 +2,11 @@
 
 # 🧠 Skills (Capabilities)
 skills:
-  agent-forge: .agent/skills/agent-forge/SKILL.md
+  cognition: .agent/skills/cognition/SKILL.md
   audio: .agent/skills/audio/SKILL.md
   css: .agent/skills/css/SKILL.md
   data: .agent/skills/data/SKILL.md
+  designer: .agent/skills/designer/SKILL.md
   devops: .agent/skills/devops/SKILL.md
   gatekeeper: .agent/skills/gatekeeper/SKILL.md
   image-generation: .agent/skills/image-generation/SKILL.md
@@ -33,13 +34,14 @@ rules:
   rule-foundation: .agent/rules/01-foundation.md
   rule-simulation: .agent/rules/02-simulation.md
   rule-infrastructure: .agent/rules/03-infrastructure.md
-  rule-intelligence: .agent/rules/04-intelligence.md
-  rule-compliance: .agent/rules/05-compliance.md
+  rule-aesthetics: .agent/rules/04-aesthetics.md
+  rule-intelligence: .agent/rules/05-intelligence.md
+  rule-compliance: .agent/rules/06-compliance.md
 
 # 📝 Workspace (Active Memory)
 workspace:
-  tracks: .agent/state/tracks.md
-  mission_board: .agent/state/global.md
+  tracks: .agent/project-management/track-log.md
+  mission_board: .agent/project-management/mission-board.md
 
 # ⚖️ Compliance (The Signal Audit)
 compliance:
