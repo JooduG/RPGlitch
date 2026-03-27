@@ -52,7 +52,7 @@ For Medium and High-Risk tasks, you must validate your hypothesis before writing
 Does the data from Step 3 confirm your hypothesis?
 
 - **4.1 Pivot Protocol**: If initial *hypotheses are disproven* or *architectural conflicts arise during execution* -> generate **new hyptheses** and go *back to step 1*.
-- **4.2 State Sync**: If the *logic shifts* drastically during testing -> *update the [Mission Board](./.agent/project-management/global.md)* before executing.
+- **4.2 State Sync**: If the *logic shifts* drastically during testing -> *update the [Mission Board](./.agent/project-management/mission-board.md)* before executing.
 
 ## ⚙️ 5. The Execution & Grounding Sequence
 
