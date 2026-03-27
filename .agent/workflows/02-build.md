@@ -16,7 +16,7 @@ description: Implementation Loop. Logic, State, and Style fabrication.
 ## 2. Brain (Context Injection)
 
 - **Rules**: [.agent/rules/01-foundation.md](../rules/01-foundation.md).
-- **Rules**: [.agent/rules/03-technetium.md](../rules/05-intelligence.md).
+- **Rules**: [Intelligence](../rules/05-intelligence.md).
 - **State**: [.agent/state/tracks.md](../project-management/tracks.md) (Mission Board).
 
 ## 3. Procedures
