@@ -5,13 +5,13 @@ import path from "path";
 const ROOT_DIR = process.cwd();
 
 /**
- * ⚒️ AGENT-FORGE: GLOBAL STATE SYNC
+ * ⚒️ PROJECT MANAGER: GLOBAL STATE SYNC
  * ---------------------------------
  * Reconciles the mission board, task tracks, and ignore files.
  */
 
 console.log("\n================================================================================");
-console.log("⚒️  THE AGENT-FORGE: GLOBAL STATE SYNC");
+console.log("⚒️  THE PROJECT MANAGER: GLOBAL STATE SYNC");
 console.log("================================================================================\n");
 
 // 1. Sync eslint.config.js, .gitignore, .geminiignore, linter ignores, and vscode settings
@@ -96,7 +96,7 @@ function runJanitor() {
   }
 }
 
-// 3. Reconcile Mission Board (tracks.md -> global.md)
+// 3. Reconcile Mission Board (log.md -> mission-board.md)
 function reconcileState() {
   const tracksPath = path.join(ROOT_DIR, ".agent", "project-management", "log.md");
   const globalPath = path.join(ROOT_DIR, ".agent", "project-management", "mission-board.md");
@@ -125,7 +125,7 @@ function reconcileState() {
     console.log("\n⚠️  State Mismatch: Missing from Global Mission Board:");
     missing.forEach((m) => console.log(`   - ${m}`));
   } else {
-    console.log("\n✅ Mission Board and Task Tracks are resonant.");
+    console.log("\n✅ Mission Board and Audit Log are resonant.");
   }
 }
 

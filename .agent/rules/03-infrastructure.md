@@ -60,7 +60,7 @@ See [Svelte](../skills/svelte).
 
 Once a plan is approved and grounded, execute using this atomic sequence:
 
-1. **Task Tracking**: Ensure [cognition](../skills/cognition/) has initialized Flat Tracks and the **Reasoning Block** (Risk/Abductive/Analysis Score) in [Tracks](../project-management/tracks/).
+1. **Task Tracking**: Ensure [directives](../skills/directives/) has initialized Flat Tracks and the **Reasoning Block** (Risk/Abductive/Analysis Score) in [Tracks](../project-management/tracks/).
 2. **Logic & Tools**: Wire up **Svelte 5 Runes**. When building Perchance Bridges, use `window.exposed` safely. Consolidate tools; do not proliferate narrow functions.
 3. **Aesthetic Polish**: Apply **The Chalk Regime** from [DESIGN.md](../../design.md) CSS variables and UI layout rules.
 4. **State Persistence**: Anchor dynamic state and memory structures.
@@ -69,6 +69,6 @@ Once a plan is approved and grounded, execute using this atomic sequence:
 
 ## 6. The Navigator Protocol
 
-- **Relative Resolution**: Internal references MUST use relative paths (e.g., `[Tracks](../state/tracks.md)`).
+- **Relative Resolution**: Internal references MUST use relative paths (e.g., `[Log](../project-management/log.md)`).
 - **Absolute Grounding**: Technical explanations MUST map to actual file paths and line numbers.
 - **Navigator Protocol**: Adhere to the **Context Protocol** defined in **[AGENTS.md](../../AGENTS.md)**.

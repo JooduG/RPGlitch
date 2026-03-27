@@ -100,7 +100,7 @@
 ### [DONE] [019] [Agent Auditor Expansion]
 
 - [x] Phase 1: Planning (Architected modular audits for Rules and Workflows).
-- [x] Phase 2: Implementation (Created `audit-rules.js` and `audit-workflows.js` in `agent-forge`).
+- [x] Phase 2: Implementation (Created `audit-rules.js` and `audit-workflows.js` in `directives`).
 - [x] Phase 3: Engine Integration (Enhanced `audit-engine.js` with `--agent` support).
 - [x] Phase 4: Validation (Verified 100% resonance with `npm run verify`).
 

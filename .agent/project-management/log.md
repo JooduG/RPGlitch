@@ -13,7 +13,7 @@
 - **Boot & Knowledge Audit** (Done): Completed `/00-boot` sequence. Graduated "Oracle" experiment to sovereign `Data` skill. Cleaned intake knowledge base (fixed `.md.md` extensions and archived Oracle).
 - **Rule-Set De-Branding** (Done): Successfully removed all "cute" and branded jargon from Rule 03 and Rule 04 (e.g., A-C-M-Q, Cortex, Q-Gate, A-Score). Transitioned to plain-English architectural clarity for higher grounding and professional auditability. [Branch: chore/debrand-rules]
 - **Technical Debt Purge** (Done): Achieved 100% technical purity across all 11 skills. Whitelisted CLI tools in the Warden's security audit, resolved documentation placeholders, and cleared formatting syntax errors. System is now chemically pure. [Branch: chore/sovereign-alignment-final]
-- **Agent Auditor Expansion** (Done): Integrated Agent Rules and Workflows into the `Warden` Auditor Engine. Created modular validation scripts in `agent-forge` and added `npm run audit:agent` for consolidated infrastructure integrity checks. [Branch: chore/auditor-expansion]
+- **Agent Auditor Expansion** (Done): Integrated Agent Rules and Workflows into the `Warden` Auditor Engine. Created modular validation scripts in `directives` and added `npm run audit:agent` for consolidated infrastructure integrity checks. [Branch: chore/auditor-expansion]
 
 ## Archive
 

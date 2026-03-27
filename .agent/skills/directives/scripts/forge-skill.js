@@ -47,20 +47,18 @@ function createSkill(name, type = "task", description = "New agentic skill.") {
 
   // 1. Validate Type (Case insensitive)
   const availableTemplates = fs.readdirSync(TEMPLATE_DIR).filter((f) => f.endsWith(".md"));
-  
+
   // Mapping for legacy "task" to "skill" template
   let searchType = type.toLowerCase();
-  if (searchType === "task" && !availableTemplates.some(t => t.toLowerCase() === "task.md")) {
+  if (searchType === "task" && !availableTemplates.some((t) => t.toLowerCase() === "task.md")) {
     searchType = "skill";
   }
 
-  const templateFile = availableTemplates.find(
-    (f) => f.toLowerCase() === `${searchType}.md`,
-  );
+  const templateFile = availableTemplates.find((f) => f.toLowerCase() === `${searchType}.md`);
 
   if (!templateFile) {
     console.error(
-      `❌ Template [${type}] not found in assets/. Available: ${availableTemplates.map(t => t.replace('.md', '').toLowerCase()).join(", ")}`,
+      `❌ Template [${type}] not found in assets/. Available: ${availableTemplates.map((t) => t.replace(".md", "").toLowerCase()).join(", ")}`,
     );
     process.exit(1);
   }
@@ -75,18 +73,18 @@ function createSkill(name, type = "task", description = "New agentic skill.") {
 
   // 3. Inject Template
   let content = fs.readFileSync(srcFile, "utf-8");
-  
+
   // Dynamic replacements with optional space support
   const replacements = {
     "Skill-Slug": slug,
     "Rule-Slug": slug,
     "Workflow-Slug": slug,
     "Skill Title": titleCase(slug),
-    "Description": description,
-    "Persona": "The Sovereign Architect", // Default
-    "Role": searchType.toUpperCase(),
-    "Function": "orchestrate",
-    "Goal": "technical purity"
+    Description: description,
+    Persona: "The Sovereign Architect", // Default
+    Role: searchType.toUpperCase(),
+    Function: "orchestrate",
+    Goal: "technical purity",
   };
 
   Object.entries(replacements).forEach(([key, value]) => {
@@ -99,7 +97,7 @@ function createSkill(name, type = "task", description = "New agentic skill.") {
 
   console.log(`\n✅ FORGE SUCCESS: [${searchType.toUpperCase()}] '${slug}' instantiated.`);
   console.log(`📍 Path: ${targetDir}`);
-  console.log(`🚀 Next: node .agent/skills/cognition/scripts/audit-skills.js audit ${slug}`);
+  console.log(`🚀 Next: node .agent/skills/directives/scripts/audit-skills.js audit ${slug}`);
 }
 
 /**

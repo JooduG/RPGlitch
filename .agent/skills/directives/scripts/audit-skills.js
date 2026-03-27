@@ -196,7 +196,7 @@ if (process.argv[1] && process.argv[1].endsWith("audit-skills.js")) {
   const command = args[0];
 
   if (command === "audit") {
-    auditSkill(args[1] || "cognition");
+    auditSkill(args[1] || "directives");
   } else {
     console.log("Usage: node audit-skills.js audit <skill-name>");
   }

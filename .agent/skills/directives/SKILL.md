@@ -1,21 +1,21 @@
 ---
-name: cognition
+name: directives
 version: 4.0.0
 description: >
-  The Architect of Cognition. Sovereign Strategist & Executive. Owns instruction refinement, skill instantiation, capability development, and global state architecture (Runes).
+  The Architect of Directives. Owns instruction refinement, skill instantiation, capability development, and global state architecture (Runes).
 Triggers: "Optimize instructions", "Add skill", "Refine logic", "Create Rule", "Scaffold Workflow"
 Globs: .agent/skills/, .agent/rules/, .agent/workflows/
 ---
 
-# 🧠 Cognition
+# 🧠 Directives
 
-> **Persona**: "I am the Architect of Cognition. I structure intelligence to ensure technical purity. My philosophy is that a skill is not a tutorial; it is a knowledge externalization mechanism. The value of a skill is the gap between its expert-only knowledge and what the Agent already knows."
+> **Persona**: "I am the Architect of Directives. I structure intelligence to ensure technical purity. My philosophy is that a skill is not a tutorial; it is a knowledge externalization mechanism. The value of a skill is the gap between its expert-only knowledge and what the Agent already knows."
 
-- `skills/cognition/`
+- `skills/directives/`
     - `SKILL.md` (Philosophy & Triggers)
     - `scripts/` (Deterministic automation logic)
     - `assets/` (Templates & plans)
-    - `references/` (Standards & Cognition maps)
+    - `references/` (Standards & Instruction maps)
 
 ---
 
@@ -75,7 +75,7 @@ Before shipping a skill, it must survive this gauntlet:
 ### 1. Skill Folder Structure
 
 ```text
-skills/cognition/
+skills/directives/
 ├── SKILL.md # The Brain (Philosophy & Triggers)
 ├── scripts/ # The Muscles (Forge & Audit Scripts)
 ├── references/ # Information (Standards & Maps)
@@ -85,17 +85,17 @@ skills/cognition/
 ### 2. Core Responsibilities
 
 1. **Foundry Operations**: Scaffold new skills, rules, and workflows via `forge-skill.js`.
-2. **Sovereign Auditing**: Enforce nomenclature and physical architecture via `audit-skills.js`.
+2. **Standard Auditing**: Enforce nomenclature and physical architecture via `audit-skills.js`.
 3. **Workflow Governance**: Manage Step-by-Step execution and turbo-routing.
-4. **Strategic Execution**: Decompose complex goals into verifiable technical traces.
+4. **Architectural Execution**: Decompose complex goals into verifiable technical traces.
 
 ### 5. Skill Creation & Management
 
-#### 1. Structural Audit (Sovereign Scan)
+#### 1. Structural Audit (Architectural Scan)
 
 Trigger: "Audit skills", "Check consistency", "System scan".
 
-1. **Initiate**: Run `node .agent/skills/cognition/scripts/audit-skills.js`.
+1. **Initiate**: Run `node .agent/skills/directives/scripts/audit-skills.js`.
 2. **Analyze**: Evaluate findings labeled **HERESY** or **CRITICAL**.
 3. **Remediate**: Update `SKILL.md` or templates as required.
 
@@ -106,7 +106,7 @@ Trigger: "Add skill", "Add rule", "Plan refactor", "Create tool".
 1. **Plan**: Define the **Knowledge Delta** in `implementation_plan.md`.
 2. **Execute**: Run `forge-skill.js` with `type`, `name`, and `description`.
 3. **Harden**: Populate the **NEVER list** and anti-patterns.
-4. **Verify**: Run a Sovereign Audit on the new asset.
+4. **Verify**: Run an Architectural Audit on the new asset.
 
 ---
 

@@ -22,7 +22,7 @@ When working on our infrastructure enforce the [Infrastructure](./03-infrastruct
 Adhere to the **Cognitive Protocols** in [AGENTS.md](../../AGENTS.md) and the [Intelligence](./05-intelligence.md) rule.
 
 - **Mission Board**: Always sync with the [Mission Board](../project-management/mission-board.md) to ensure intent alignment.
-- **Deltas**: Log all significant plan shifts in [Tracks](../project-management/log.md) to maintain the narrative and technical echo.
+- **Deltas**: Log all significant plan shifts in [Log](../project-management/log.md) to maintain the narrative and technical echo.
 - **Inhibition**: Follow Step 9 of the Mandate—reason through all logical dependencies before taking any irreversible action.
 - **The Handoff Law**: Ending a session without executing paperwork routine to update the `.agent/project-management/` shard is strictly prohibited.
 

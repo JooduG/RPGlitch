@@ -31,7 +31,7 @@ description: Reviews and stuff.
 
 ### Phase 2: Maintenance & Archival
 
-1. **Archival**: If complete, move the track shards to `.agent/project-management/archive/`. [[Invoke: cognition]](../skills/cognition/SKILL.md)
+1. **Archival**: If complete, move the track shards to `.agent/project-management/archive/`. [[Invoke: directives]](../skills/directives/SKILL.md)
 2. **Triage**: Sort incoming issues and seed the next [/01-plan](./01-plan.md) cycle. [[Invoke: project-manager]](../skills/project-manager/SKILL.md)
 
 ### Phase 3: The Handoff Law (Step 8.2)

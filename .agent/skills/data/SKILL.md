@@ -20,7 +20,7 @@ skills/data/
 
 ## 2. Summoning Triggers
 
-- **Territorial**: `.agent/knowledge/**`, `.agent/state/**`.
+- **Territorial**: `.agent/knowledge/**`, `.agent/project-management/**`.
 - **Intent**: "Search lore", "Archive log", "Sync memory", "Context: Data".
 
 ## 3. Procedures

@@ -2,7 +2,8 @@
 
 # 🧠 Skills (Capabilities)
 skills:
-  cognition: .agent/skills/cognition/SKILL.md
+  directives: .agent/skills/directives/SKILL.md
+  project-manager: .agent/skills/project-manager/SKILL.md
   audio: .agent/skills/audio/SKILL.md
   css: .agent/skills/css/SKILL.md
   data: .agent/skills/data/SKILL.md

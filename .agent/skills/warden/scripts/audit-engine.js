@@ -1,15 +1,15 @@
 import fs from "fs";
-import path from "path";
 import ignore from "ignore";
+import path from "path";
 
 // 1. Import Domain Rules
-import { svelteRules } from "../../svelte/scripts/audit-svelte.js";
 import { cssRules } from "../../css/scripts/audit-css.js";
-import { securityRules } from "./audit-security.js";
-import { skill_rules } from "../../cognition/scripts/audit-skills.js";
+import { rule_rules } from "../../directives/scripts/audit-rules.js";
+import { skill_rules } from "../../directives/scripts/audit-skills.js";
+import { workflow_rules } from "../../directives/scripts/audit-workflows.js";
 import { projectRules } from "../../project-manager/scripts/audit-project.js";
-import { rule_rules } from "../../cognition/scripts/audit-rules.js";
-import { workflow_rules } from "../../cognition/scripts/audit-workflows.js";
+import { svelteRules } from "../../svelte/scripts/audit-svelte.js";
+import { securityRules } from "./audit-security.js";
 
 const ROOT_DIR = process.cwd();
 const SRC_DIR = path.join(ROOT_DIR, "src");

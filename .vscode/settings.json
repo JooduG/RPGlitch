@@ -7,6 +7,7 @@
     ".geminiignore": true,
     ".gemini/[!s]*": true,
     ".gemini/s[!e]*": true,
+    "GEMINI.md": true,
     ".playwright-auth/**": true,
     "**/.DS_Store": true,
     "**/.eslintcache": true,
@@ -51,5 +52,5 @@
     "source.fixAll.eslint": "explicit",
     "source.fixAll.stylelint": "explicit"
   },
-  "markdown.validate.referenceLinks.enabled": "ignore"
+  "markdown.validate.referenceLinks.enabled": false
 }

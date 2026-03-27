@@ -23,7 +23,7 @@ disable-model-invocation: true
 
 ### Phase 1: The Clarity Gate (Diagnosis)
 
-1. **Halt**: Cease all execution. State: "I am looping. Initiating Rewind Protocol." [[Invoke: cognition]](../skills/cognition/SKILL.md)
+1. **Halt**: Cease all execution. State: "I am looping. Initiating Rewind Protocol." [[Invoke: directives]](../skills/directives/SKILL.md)
 2. **Trace**: Identify the origin of the invalid data or failed assumption. [[Invoke: project-manager]](../skills/project-manager/SKILL.md)
 
 ### Phase 2: Restoration

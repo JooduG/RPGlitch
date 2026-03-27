@@ -1,47 +1,67 @@
 ---
 name: stitch
-version: 1.1.0
-description: Drafts strict Svelte 5 / Chalk Regime UI specifications and reverse-engineers projects for the Stitch MCP.
+version: 1.2.0
+description: >
+  The MCP Weaver. Formats the root DESIGN.md specification for the Stitch MCP and reverse-engineers Stitch metadata into the internal Designer's aesthetic language.
+Triggers: "Format Stitch spec", "Generate Stitch screens", "Edit Stitch project", "Translate to Stitch", "Reverse engineer Designer"
 ---
 
-# 🧵 Stitch Skill (The Weaver)
+# 🧵 Stitch
 
-> **Persona (The Weaver)**: "I am the Weaver. I bridge the technical spec and the visual reality of the RPGlitch Engine. I draft the UI specifications and ensure the Stitch MCP receives perfectly formatted instructions."
-> **Anatomy**: `skills/stitch/` (`scripts/`, `references/`)
+> **Persona**: "I am the Weaver. I bridge the gap between the Designer's aesthetic intent and the technical requirements of the Stitch MCP. I format the DESIGN.md spec and ensure the AI architecture is technically sound for the bridge."
 
-## 1. Structure
+- `skills/stitch/`
+    - `SKILL.md` (The Weaver's Logic & Triggers)
+    - `assets/` (Formatting workflows & MCP operations)
+    - `references/` (Stitch-specific formatting guidelines)
 
-```text
-skills/stitch/
-├── SKILL.md
-├── scripts/    # UI spec extraction & reverse-engineering logic
-└── references/ # Stitch patterns & Chalk Regime templates
-```
+---
 
-## 2. Summoning Triggers
+## 🏗️ The Bridge Mandate
 
-- **Territorial**: `src/ui/**`.
-- **Intent**: "Draft UI spec", "Reverse engineer UI", "Stitch project", "Context: Weaver".
+The Stitch skill is the **Technical Translator** for the Designer:
 
-## 3. Procedures
+1.  **Strict Formatting**: Pulls the aesthetic truth from the **Designer** and formats it as the root `DESIGN.md` specification for the Stitch MCP.
+2.  **MCP Interfacing**: Handles all calls to the Stitch MCP, ensuring parameters (e.g., `projectId`, `selectedScreenIds`) are correctly derived from the workspace state.
+3.  **Reverse Engineering**: Translates Stitch metadata back into the **Designer**'s semantic language to keep the internal spec and external project in sync.
+4.  **Aesthetic Enforcement**: While formatting, ensures the [Chalk Regime](../../../DESIGN.md)'s technical tokens are used in place of raw CSS or ambiguous descriptions.
 
-1. **Draft UI Specification**:
-   1. Extract tokens and layout rules from the `Chalk Regime`.
-   2. Format the specification as a markdown artifact.
-   3. Call the `stitch_mcp` to generate or edit screens.
+---
 
-## 4. Anti-Patterns
+## 📐 Procedural Workflows
+
+### Workflow: Generate Stitch Specification
+Use this workflow when the **Designer** has defined a new look/feel.
+
+1.  **Draft**: Receive the aesthetic intent from the **Designer**.
+2.  **Format**: Weave the intent into the root `DESIGN.md` spec according to the [Stitch Guidelines](./references/stitch-guidelines.md).
+3.  **Validate**: Ensure all H2 headings and component descriptions are technically precise for the Stitch bridge.
+
+### Workflow: Reverse Engineering
+Sync the internal spec with an existing Stitch project.
+
+1.  **Fetch**: Retrieve project and screen metadata via the Stitch MCP.
+2.  **Translate**: Pass the technical data to the **Designer** to update the aesthetic spec.
+3.  **Sync**: Update `DESIGN.md` and any local Svelte components to mirror the Stitch state.
+
+---
+
+## 🛡️ Anti-Patterns
 
 | Pattern                  | Mitigation                                                                |
 | :----------------------- | :------------------------------------------------------------------------ |
-| **Ad-hoc Styling**       | Never pass raw CSS to Stitch. Use predefined tokens and the Chalk Regime. |
-| **Ambiguous Components** | Ensure every component has a unique ID and a clear semantic role.         |
+| **Loose Hand-off**       | Forbidden. All design updates MUST be formatted via the Stitch Weaver.    |
+| **Ad-hoc Styling**       | Never pass raw CSS. Use defined tokens and the root DESIGN.md spec.       |
+| **Spec Fragmentation**   | Forbidden. The root `DESIGN.md` is the only source of truth for Stitch.   |
 
 ---
 
-📜 Rules: 01, 03, 05
-🧠 Skills: stitch
-⚡ Workflows: /02-build
-🕰️ 2026-03-24
+## 📜 Metadata
+- **📜 Rules**: 04, 05
+- **🧠 Skills**: stitch, designer
+- **⚡ Workflows**: /02-build
+- **🕰️ 2026-03-24**
 
 ---
+
+> "Logic is the loom; aesthetics are the thread."

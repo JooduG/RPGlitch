@@ -3,7 +3,7 @@
 ## 📋 Active Backlog
 
 - [ ] **Next Steps**: Expand the Dynamic World State (Fractals) to support multi-instance narrative branches.
-- [ ] **TODO-AI**: `agent-forge/SKILL.md` is missing Procedure or Anti-Patterns sections (identified during audit).
+- [ ] **TODO-AI**: `directives/SKILL.md` is missing Procedure or Anti-Patterns sections (identified during audit).
 
 ## ⏭️ Context & Objectives
 
@@ -12,7 +12,7 @@
 **Objectives**:
 
 1.  **Narrative Calibration**: Continue the "Narrative Bridge" track in `log.md` to support autonomous scene complications.
-2.  **Skill Hardening**: Resolve the identified debt in `agent-forge/SKILL.md`.
+2.  **Skill Hardening**: Resolve the identified debt in `directives/SKILL.md`.
 3.  **Diegetic UI**: Refine the "Chalk Regime" implementation in `src/ui/organisms/StoryBoard.svelte`.
 
 ---
