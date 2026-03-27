@@ -58,7 +58,7 @@ Does the data from Step 3 confirm your hypothesis?
 
 Once planned and cleared, execute the task using tools at your disposal. **Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers**. Below are the most common skills to be used in this step:
 
-- **[Project Managemenet](./.agent/skills/project-manager)**
+- **[Project Management](./.agent/skills/project-manager)**
 - **[Svelte](./.agent/skills/svelte)**
 - **[CSS](./.agent/skills/css)**
 - **[Motion](./.agent/skills/motion)**
