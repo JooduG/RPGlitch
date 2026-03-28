@@ -33,21 +33,21 @@ description: The Master Router. Enforces the 8-step process from AGENTS.md, cate
 2. **Risk Routing**:
    - **Low Risk** (CSS, Typos, Minor Logic): Skip Phase 3. Proceed directly to [/02-build](./02-build.md).
    - **Medium Risk** (Refactors, State Migrations): Proceed to Phase 3.
-   - **High Risk** (Architecture Shift, Mission Wipe): Proceed to Phase 3 and trigger the `warden:debugging` protocol.
+   - **High Risk** (Architecture Shift, Mission Wipe): **HALT PLANNING**. Invoke `codebase-review-question-audit` to generate `QUESTIONS.md`. Do not proceed to Phase 3 until the user resolves all structural ambiguities. [[Invoke: codebase-review-question-audit]](../skills/codebase-review-question-audit/SKILL.md)
 
 ### Phase 3: Cognitive Routing & The Warden (Step 3)
 
 1. **Cognitive Routing**: Select the appropriate Waldzell framework (Sequential Thinking, Decision Framework, Metacognitive Monitoring, etc.) based on Rule 05.
 2. **Forge & Stress Test**:
    - Categorize into the Narrative Triad (Spec, State, or Echo).
-   - If UI involved, call `stitch` for a design spec. [[Invoke: stitch]](../skills/stitch/SKILL.md)
+   - If UI involved, call `designer` to orchestrate the aesthetic spec and sensory requirements. [[Invoke: designer]](../skills/designer/SKILL.md)
    - Invoke `warden` to stress-test the plan against Rule 03 (Svelte 5 Runes). [[Invoke: warden]](../skills/warden/SKILL.md)
 3. **User Approval**: Halt and request explicit approval on the finalized plan.
 
 ### Phase 4: Registration (Step 8.1)
 
-1. **Scaffold**: Create or update the task shard in `.agent/project-management/tracks/<slug>.md`. [[Invoke: directives]](../skills/directives/SKILL.md)
-2. **Kanban**: Registered the track on the [Mission Board](../project-management/mission-board.md). [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
+1. **Scaffold**: Create or update the task shard in `.agent/project-management/tracks/<slug>.md`. [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
+2. **Kanban**: Register the track on the [Mission Board](../project-management/mission-board.md). [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
 3. **Prompt**: Prepare the user to trigger [/02-build](./02-build.md).
 
 ## 4. Anti-Patterns

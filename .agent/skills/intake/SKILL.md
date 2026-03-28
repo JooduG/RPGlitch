@@ -44,7 +44,7 @@ When a user requests a design or a UI element (e.g., "Make me a sci-fi HUD"):
 
 This skill is the **Intent Decoder** of the engine. It enforces:
 
-- **[Orchestrator](../../orchestrator)**: Sync with Mission Board & Tracks.
+- **[Orchestrator](../orchestrator/)**: Sync with Mission Board & Tracks.
 - **[Rule 05: Intelligence](../../rules/05-intelligence.md)**: Lexical laws & nomenclature.
 
 ---
@@ -63,6 +63,8 @@ This skill is the **Intent Decoder** of the engine. It enforces:
 
 **Trigger the Interrogation Protocol if the score is between 1 and 4.**
 **Proceed directly to Specification Output if the score is 5.**
+
+> **Deep Discovery Handoff**: `intake` is strictly for fast, fuzzy intent distillation (the "What"). If the functional specification reveals a High-Risk architectural shift, or requires scanning the physical codebase to determine feasibility, `intake` MUST hand off to the `[[Invoke: codebase-review-question-audit]](../skills/codebase-review-question-audit/SKILL.md)` skill to perform deep technical discovery.
 
 ### Step 2: The Interrogative Loop (One Question Policy)
 

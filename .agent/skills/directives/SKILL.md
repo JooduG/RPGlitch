@@ -86,8 +86,8 @@ skills/directives/
 
 1. **Foundry Operations**: Scaffold new skills, rules, and workflows via `forge-skill.js`.
 2. **Standard Auditing**: Enforce nomenclature and physical architecture via `audit-skills.js`.
-3. **Workflow Governance**: Manage Step-by-Step execution and turbo-routing.
-4. **Architectural Execution**: Decompose complex goals into verifiable technical traces.
+3. **Workflow Governance**: Forge and audit `.agent/workflows/` step-by-step logic.
+4. **Meta-Programming**: Define the knowledge delta and instructions for Agent autonomy.
 
 ### 5. Skill Creation & Management
 
@@ -114,7 +114,7 @@ Trigger: "Add skill", "Add rule", "Plan refactor", "Create tool".
 
 This skill is the **Architectural Arbiter** of the engine. It enforces:
 
-- **[Rule 01: Foundation](../../rules/01-foundation.md)**: Sync with Mission Board & Tracks.
+- **[Rule 01: Foundation](../../rules/01-foundation.md)**: Enforce agent inhibition and meta-architecture protocols.
 - **[Rule 03: Infrastructure](../../rules/03-infrastructure.md)**: Physical architecture & Svelte 5 purity.
 - **[Rule 05: Intelligence](../../rules/05-intelligence.md)**: Lexical laws & nomenclature.
 

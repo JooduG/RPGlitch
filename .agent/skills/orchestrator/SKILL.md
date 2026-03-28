@@ -34,7 +34,8 @@ The orchestrator skill owns the **State & Routing** of the engine:
 1.  **Macro-State (Mission Board)**:
     - Maintains the single source of truth for high-level goals and project vision.
 2.  **Tracking (Logs & Tracks)**:
-    - Oversees the initialization and finalization of track shards.
+    - Owns the ENTIRE `.agent/project-management/` directory.
+    - Scaffolds, initializes, oversees, and finalizes track shards in `.agent/project-management/tracks/<slug>.md`.
     - Synchronizes state between `log.md` and the `tracks/` directory.
 3.  **Role Routing**:
     - **Orchestration Strategy** (`orchestration-strategy`): Architectural vision and meta-memory.
