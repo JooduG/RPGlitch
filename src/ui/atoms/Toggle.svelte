@@ -38,7 +38,7 @@
     user-select: none;
     position: relative;
     padding: var(--spacing-xxs) 0;
-    transition: opacity var(--transition-fast);
+    transition: opacity var(--motion-fast);
 
     /* --- SIZES --- */
     --switch-w: 2.8rem;
@@ -59,7 +59,7 @@
 
   /* Hidden Input */
   .toggle-switch input {
-    opacity: 0;
+    opacity: var(--opacity-none);
     width: 0;
     height: 0;
     position: absolute;
@@ -73,7 +73,7 @@
     background-color: var(--color-chalk);
     box-shadow: inset 0 1px 2px rgb(var(--color-black-rgb) / 0.2);
     border-radius: var(--border-radius-full);
-    transition: all 0.2s var(--transition-elastic);
+    transition: all 0.2s var(--motion-elastic);
     flex-shrink: 0;
   }
 
@@ -87,7 +87,7 @@
     top: calc((var(--switch-h) - var(--thumb-size)) / 2);
     background-color: var(--color-frisk);
     border-radius: var(--border-radius-full);
-    transition: all 0.2s var(--transition-elastic);
+    transition: all 0.2s var(--motion-elastic);
     box-shadow: var(--shadow-s);
   }
 
@@ -112,13 +112,13 @@
 
   /* Label Text */
   .label-text {
-    color: var(--font-color);
-    font-weight: 700;
+    color: var(--font-color-m);
+    font-weight: var(--font-weight-l);
     font-size: var(--font-size-xs);
-    letter-spacing: 0.08em;
+    letter-spacing: var(--letter-spacing-m);
     text-transform: uppercase;
-    font-family: var(--font-sans);
-    transition: color var(--transition-fast);
+    font-family: var(--font-family-body);
+    transition: color var(--motion-fast);
   }
 
   .toggle-switch:hover .label-text {

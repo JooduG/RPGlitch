@@ -70,7 +70,7 @@
   .vector-card {
     position: relative;
     width: 100%;
-    transition: transform var(--transition-fast) var(--transition-elastic);
+    transition: transform var(--motion-fast) var(--motion-elastic);
   }
 
   .vector-card:hover {
@@ -88,14 +88,14 @@
     padding: var(--spacing-s) var(--spacing-m);
     position: relative;
     overflow: hidden;
-    transition: all var(--transition-fast) ease;
+    transition: all var(--motion-fast) ease;
   }
 
   .display-area .content {
     font-family: inherit;
     font-size: var(--font-size-s);
-    color: var(--font-color);
-    line-height: var(--line-height-base);
+    color: var(--font-color-m);
+    line-height: var(--line-height-m);
     opacity: var(--opacity-full);
     overflow-wrap: anywhere;
   }
@@ -111,10 +111,10 @@
     flex: 1;
     background: transparent;
     border: none;
-    color: var(--font-color);
+    color: var(--font-color-m);
     font-family: inherit;
     font-size: var(--font-size-s);
-    line-height: var(--line-height-base);
+    line-height: var(--line-height-m);
     resize: vertical;
     min-height: var(--spacing-xl);
     width: 100%;
@@ -124,7 +124,7 @@
 
   .edit-area textarea::placeholder {
     color: var(--text-dim);
-    opacity: 0.5;
+    opacity: var(--opacity-m);
   }
 
   .edit-area .actions {
@@ -134,31 +134,31 @@
   }
 
   :global(.vector-delete-btn.btn) {
-    background: transparent !important;
-    color: var(--font-muted) !important;
-    box-shadow: inset 0 0 0 var(--spacing-px) var(--signature-color, var(--glass-edge-l)) !important;
-    width: var(--spacing-xl) !important;
-    height: var(--spacing-xl) !important;
-    padding: 0 !important;
-    border-radius: var(--spacing-xs) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    transition: all var(--transition-fast) var(--transition-elastic) !important;
+    background: transparent;
+    color: var(--font-color-s);
+    box-shadow: inset 0 0 0 var(--spacing-px) var(--signature-color), var(--glass-edge-l);
+    width: var(--spacing-xl);
+    height: var(--spacing-xl);
+    padding: 0;
+    border-radius: var(--spacing-xs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--motion-fast) var(--motion-elastic);
   }
 
   :global(.vector-delete-btn.btn):hover {
-    background: var(--color-del) !important;
-    box-shadow: var(--shadow-m) !important;
-    color: var(--font-color) !important;
-    filter: brightness(1.2) !important;
-    transform: translateY(var(--motion-btn-hover-y)) !important;
+    background: var(--color-del);
+    box-shadow: var(--shadow-m);
+    color: var(--font-color-m);
+    filter: brightness(1.2);
+    transform: translateY(var(--motion-btn-hover-y));
   }
 
   :global(.vector-delete-btn.btn) .icon {
     font-size: var(--font-size-xxl);
     line-height: 1;
-    font-weight: 800;
+    font-weight: var(--font-weight-xl);
     margin-bottom: 2px;
   }
 

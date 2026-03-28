@@ -92,16 +92,16 @@
   .dev-hud-wrapper {
     /* HUD Tokens (Scoped to Debug) */
     --hud-bg: var(--glass-xs);
-    --hud-text: var(--font-color);
-    --hud-muted: var(--font-muted);
+    --hud-text: var(--font-color-m);
+    --hud-muted: var(--font-color-s);
     --hud-accent: var(--color-frozen);
-    --hud-mono-font: var(--font-mono);
+    --hud-mono-font: var(--font-family-mono);
 
     position: fixed;
     top: 0;
     left: 0;
     height: 100vh;
-    z-index: 99999;
+    z-index: var(--z-index-max);
     pointer-events: none;
   }
 
@@ -137,7 +137,7 @@
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-m);
     cursor: pointer;
-    transition: all var(--transition-fast) var(--transition-elastic); /* Snappy Curve */
+    transition: all var(--motion-fast) var(--motion-elastic); /* Snappy Curve */
   }
 
   .dev-button:hover {
@@ -154,7 +154,7 @@
     width: 25rem;
     height: 100%;
     transform: translateX(-100%);
-    transition: transform var(--transition-slow) var(--transition-elastic); /* Snappy Curve */
+    transition: transform var(--motion-slow) var(--motion-elastic); /* Snappy Curve */
     display: flex;
     flex-direction: column;
     pointer-events: auto;
@@ -168,9 +168,9 @@
     position: absolute;
     inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    opacity: 0.02;
+    opacity: var(--opacity-xxs);
     pointer-events: none;
-    z-index: -1;
+    z-index: var(--z-index-xs);
   }
 
   .drawer-header {
@@ -184,7 +184,7 @@
 
   .drawer-header .hud-title {
     color: var(--hud-text);
-    font-weight: 700;
+    font-weight: var(--font-weight-l);
     letter-spacing: var(--letter-spacing-m);
     font-size: var(--font-size-s);
   }
@@ -232,7 +232,7 @@
     width: 0;
     height: 2px;
     background: var(--hud-accent);
-    transition: width var(--transition-fast) var(--transition-elastic);
+    transition: width var(--motion-fast) var(--motion-elastic);
   }
 
   .drawer-tabs button:hover {
@@ -276,17 +276,17 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-m);
-    animation: scanline 0.3s var(--transition-elastic) forwards;
+    animation: scanline 0.3s var(--motion-elastic) forwards;
   }
 
   @keyframes scanline {
     0% {
-      opacity: 0;
+      opacity: var(--opacity-none);
       transform: translateY(5px);
     }
 
     100% {
-      opacity: 1;
+      opacity: var(--opacity-full);
       transform: translateY(0);
     }
   }
@@ -296,7 +296,7 @@
     font-size: var(--font-size-xs);
     letter-spacing: var(--letter-spacing-m);
     text-transform: uppercase;
-    font-weight: 600;
+    font-weight: var(--font-weight-l);
   }
 
   .data-dump {
@@ -338,7 +338,7 @@
 
   .grid-row .val {
     color: var(--hud-text);
-    font-weight: 600;
+    font-weight: var(--font-weight-l);
     font-size: var(--font-size-base);
   }
 </style>

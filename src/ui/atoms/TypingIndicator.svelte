@@ -15,7 +15,7 @@
     justify-content: center;
     gap: var(--spacing-xxs);
     padding: var(--spacing-s) var(--spacing-xl);
-    background: var(--surface-panel);
+    background: var(--glass-l);
     border-radius: var(--border-radius-full);
     box-shadow: var(--shadow-sm);
     height: var(--spacing-xxl);

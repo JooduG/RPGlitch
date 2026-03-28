@@ -9,7 +9,7 @@
 - **UI Audit & Polish**: Standardized Chalk Regime tokens across atomic and organism layers. Implemented `kineticScroll` with momentum decay. [Branch: feat/ui-audit-polish]
 - **Nomenclature Audit**: Implemented `audit-nomenclature.js` enforcing Rule 05 lexical laws (kebab-case for files, PascalCase for Svelte components). Wired `audit:nomenclature` into `package.json` for automated enforcement. Achieved 0 violations across 100% of project items. [Branch: chore/nomenclature-audit]
 - **Sovereign Anatomy Refactor**: Enforced strict `scripts/`, `assets/`, `references/` triad across all skills. Migrated `references/`, renamed templates to `.template.md` suffix, and hardened `audit-skills.js` with structural exclusivity rules. Audit engine reports **0 violations**. [Branch: chore/sovereign-anatomy]
-- **Infrastructure Sanitization (Holistic Audit)**: Purged Operational Heartbeat blocks from all 9 workflows and all SKILL.md files (chat-exclusive convention enforced). Stripped `## 📜 Metadata` footer blocks from `orchestrator`, `intake`, `warden`, `designer`, `data`. Patched `config.yaml`. [Session: 6b89b309]
+- **Clinic Sanitization**: Fixed 100% of desynchronized unit tests in `Modal.test.js` after the Nordic Glass migration. Redirected background interaction logic to the `Backdrop` component and modernized CSS selectors. Achieved a **PERFECT SCORE** in the full verification pipeline (`npm run verify`). [Session: 844a1861]
 
 ## Archive
 

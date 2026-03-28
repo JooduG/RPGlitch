@@ -13,16 +13,18 @@
     on_view_profile = () => {},
   } = $props();
 
+  import { themeStore } from "@theme/palette.svelte.js";
   import Button from "@ui/atoms/Button.svelte";
   import ProfilePicture from "@ui/atoms/ProfilePicture.svelte";
-  import { themeStore } from "@theme/palette.svelte.js";
   import { fitText } from "@ui/utils/actions/fit-text.js";
 
   // --- DERIVED STATE ---
   let is_empty = $derived(!entity);
 
   // Theme Store now natively handles top-level signature_color
-  let signature_color = $derived(is_empty ? "var(--color-frisk)" : themeStore.get_signature_color(entity));
+  let signature_color = $derived(
+    is_empty ? "var(--color-frisk)" : themeStore.get_signature_color(entity),
+  );
   let signature_rgb = $derived(themeStore.hex_to_rgb(signature_color));
 </script>
 
@@ -62,10 +64,7 @@
       <!-- Info Layer (Bottom-up Gradient Scrim) -->
       <div class="card-info-scrim">
         <div class="info-content">
-          <h2
-            use:fitText={{ maxSize: 32, minSize: 16, lineHeight: "1.1" }}
-            title={entity.name}
-          >
+          <h2 use:fitText={{ maxSize: 32, minSize: 16, lineHeight: "1.1" }} title={entity.name}>
             {entity.name}
           </h2>
           <p class="description">{entity.description || "No description provided."}</p>
@@ -92,7 +91,10 @@
         aria-label="View {entity.name} Profile"
       >
         <svg viewBox="0 0 24 24" class="icon-s">
-          <path fill="currentColor" d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z" />
+          <path
+            fill="currentColor"
+            d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"
+          />
         </svg>
       </Button>
     </div>
@@ -106,7 +108,7 @@
     height: 400px;
     border-radius: var(--border-radius-l);
     overflow: hidden;
-    transition: all var(--transition-medium) var(--transition-elastic);
+    transition: all var(--motion-fast) var(--motion-elastic);
   }
 
   /* Fractal Overrides: Landscape (Z x Y) */
@@ -146,28 +148,25 @@
   .empty-content {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-m);
-    opacity: 0.4;
-    transition: opacity var(--transition-fast) ease;
+    z-index: var(--z-index-l);
+    padding: var(--spacing-s);
+    opacity: var(--opacity-s);
+    transition: opacity var(--motion-fast) ease;
   }
 
   :global(.storyboard-empty.btn:hover) .empty-content {
-    opacity: 1;
+    opacity: var(--opacity-full);
   }
 
   .empty-icon-wrap {
-    width: 48px;
-    height: 48px;
-    color: var(--font-muted);
+    color: var(--font-color-s);
   }
 
   .empty-slug {
-    font-family: var(--font-heading);
-    font-size: var(--font-size-xs);
+    font-family: var(--font-family-heading);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--font-muted);
+    letter-spacing: var(--letter-spacing-l);
+    color: var(--font-color-s);
   }
 
   /* --- POPULATED CARD --- */
@@ -184,7 +183,8 @@
     left: 0;
     right: 0;
     height: 50%;
-    background: linear-gradient(to top, 
+    background: linear-gradient(
+      to top,
       var(--color-chalk) 0%, 
       rgb(from var(--color-chalk) r g b / 0.8) 40%, 
       transparent 100%
@@ -193,13 +193,13 @@
     flex-direction: column;
     justify-content: flex-end;
     padding: var(--spacing-xl) var(--spacing-m) var(--spacing-m);
-    z-index: 2;
+    z-index: var(--z-index-l);
     pointer-events: none; /* Let overlay button handle clicks */
   }
 
   .info-content h2 {
     margin: 0;
-    font-family: var(--font-heading);
+    font-family: var(--font-family-heading);
     color: rgb(var(--signature-rgb));
     text-shadow: 0 2px 4px rgb(0 0 0 / 0.5);
   }
@@ -207,7 +207,7 @@
   .description {
     margin: var(--spacing-xs) 0 0;
     font-size: var(--font-size-s);
-    color: var(--font-muted);
+    color: var(--font-color-s);
     line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -220,7 +220,7 @@
   :global(.card-action-overlay.btn) {
     position: absolute;
     inset: 0;
-    z-index: 1;
+    z-index: var(--z-index-m);
     border: none;
     border-radius: 0;
     padding: 0;
@@ -240,7 +240,7 @@
     position: absolute;
     top: var(--spacing-m);
     right: var(--spacing-m);
-    z-index: 10;
+    z-index: var(--z-index-l);
     width: 36px;
     height: 36px;
     padding: 0;
@@ -252,20 +252,20 @@
     border: var(--glass-edge-l);
     border-radius: 50%;
     color: var(--color-white);
-    opacity: 0;
+    opacity: var(--opacity-none);
     transition: 
-      opacity var(--transition-medium) ease,
-      border-color var(--transition-fast) ease,
-      box-shadow var(--transition-fast) ease;
+      opacity var(--motion-slow) ease,
+      border-color var(--motion-fast) ease,
+      box-shadow var(--motion-fast) ease;
     box-shadow: var(--shadow-l);
   }
 
   .storyboard-stack:hover :global(.profile-quick-link.btn) {
-    opacity: 0.6;
+    opacity: var(--opacity-l);
   }
 
   :global(.storyboard-stack .profile-quick-link.btn:hover) {
-    opacity: 1;
+    opacity: var(--opacity-full);
     background: rgb(0 0 0 / 0.6);
   }
 </style>

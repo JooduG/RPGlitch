@@ -58,7 +58,7 @@
   .visual-anchor .nameplate {
     position: absolute;
     top: var(--spacing-m);
-    z-index: var(--z-overlay);
+    z-index: var(--z-index-l);
     display: inline-block;
     padding: var(--spacing-xs) var(--spacing-m);
     background: var(--glass-xs);
@@ -70,11 +70,11 @@
   }
 
   .visual-anchor .nameplate-text {
-    font-family: var(--font-sans);
+    font-family: var(--font-family-body);
     color: var(--entity-color);
     font-size: var(--font-size-s);
-    font-weight: 600;
-    letter-spacing: var(--spacing-xxs);
+    font-weight: var(--font-weight-l);
+    letter-spacing: var(--letter-spacing-s);
     margin: 0;
     text-wrap: balance;
   }

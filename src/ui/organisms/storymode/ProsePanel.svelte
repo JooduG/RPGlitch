@@ -120,7 +120,7 @@
     justify-content: center;
     padding: var(--spacing-xxl) var(--spacing-l);
     text-align: center;
-    color: var(--font-muted);
+    color: var(--font-color-s);
     gap: var(--spacing-m);
   }
 
@@ -130,14 +130,14 @@
 
   .empty-feed-fallback :global(.btn-retry) {
     padding: var(--spacing-xs) var(--spacing-m);
-    background: var(--surface-elevated);
+    background: var(--glass-l);
     box-shadow: var(--shadow-s);
     border-radius: var(--border-radius);
-    color: var(--font-muted);
+    color: var(--font-color-s);
   }
 
   .empty-feed-fallback :global(.btn-retry):hover {
     background: var(--glass-xs);
-    color: var(--font-color);
+    color: var(--font-color-m);
   }
 </style>

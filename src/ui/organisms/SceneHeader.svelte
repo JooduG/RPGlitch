@@ -55,7 +55,7 @@
     align-items: center;
     gap: var(--spacing-l);
     padding: var(--spacing-s) var(--spacing-xl);
-    background: var(--surface-elevated);
+    background: var(--glass-l);
     box-shadow: var(--shadow-m);
     border-radius: var(--border-radius-xs);
     min-width: 18.75rem;
@@ -78,15 +78,15 @@
   .info-group .label {
     font-size: var(--font-size-xs);
     letter-spacing: var(--letter-spacing-l);
-    color: var(--font-muted);
+    color: var(--font-color-s);
     text-transform: uppercase;
   }
 
   .info-group .value {
     font-family: var(--font-header);
     font-size: var(--font-size-s);
-    font-weight: 500;
-    color: var(--font-color);
+    font-weight: var(--font-weight-m);
+    color: var(--font-color-m);
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-m);
     display: flex;

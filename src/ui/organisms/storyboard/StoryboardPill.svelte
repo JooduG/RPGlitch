@@ -63,7 +63,7 @@
     width: 100%;
     padding-bottom: var(--spacing-m);
     position: relative;
-    z-index: var(--z-overlay);
+    z-index: var(--z-index-l);
     pointer-events: auto;
   }
 
@@ -78,13 +78,13 @@
   :global(.unified-capsule .btn) {
     background: transparent;
     filter: none;
-    transition: all var(--transition-fast);
+    transition: all var(--motion-fast);
   }
 
   :global(.unified-capsule .btn:hover:not(:disabled)) {
     background: transparent;
     filter: none;
-    color: var(--font-color);
+    color: var(--font-color-m);
     opacity: var(--opacity-full);
   }
 
@@ -99,12 +99,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--font-muted);
+    color: var(--font-color-s);
   }
 
   :global(.unified-capsule .capsule-flank.btn:hover svg) {
-    fill: var(--font-color);
-    stroke: var(--font-color);
+    fill: var(--font-color-m);
+    stroke: var(--font-color-m);
   }
 
   /* Primary Action Button (Begin) */
@@ -142,19 +142,19 @@
 
   .core-content {
     position: relative;
-    z-index: 2;
+    z-index: var(--z-index-m);
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
   }
 
   .label {
-    font-family: var(--font-display);
-    font-weight: 600;
+    font-family: var(--font-family-body);
+    font-weight: var(--font-weight-l);
     font-size: var(--font-size-s);
-    letter-spacing: 0.05em;
-    color: var(--font-color);
+    letter-spacing: var(--letter-spacing-m);
+    color: var(--font-color-m);
     text-shadow: var(--shadow-font);
-    transition: all var(--transition-fast) var(--transition-elastic);
+    transition: all var(--motion-fast) var(--motion-elastic);
   }
 </style>

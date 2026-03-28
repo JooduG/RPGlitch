@@ -31,10 +31,10 @@
     width: 0;
     min-width: 0;
     max-width: 0;
-    opacity: 0;
+    opacity: var(--opacity-none);
     overflow: visible;
     pointer-events: none;
-    transition: all var(--transition-slow) var(--transition-elastic);
+    transition: all var(--motion-slow) var(--motion-elastic);
     transform: scale(0.9);
     filter: blur(var(--blur-m));
     height: auto;
@@ -46,7 +46,7 @@
     border: none;
     border-radius: var(--spacing-l);
     transform-style: preserve-3d;
-    z-index: var(--z-overlay);
+    z-index: var(--z-index-l);
   }
 
   .wing-left.is-visible,
@@ -54,7 +54,7 @@
     width: 16rem;
     min-width: 16rem;
     max-width: 20rem;
-    opacity: 1;
+    opacity: var(--opacity-full);
     pointer-events: auto;
     filter: blur(0);
   }

@@ -98,7 +98,17 @@ To optimize cognitive load, tasks are triaged into three complexity levels, each
 
 ---
 
-## 6. The Operational Heartbeat
+## 7. Completeness & Truncation
+
+Any tool output that is truncated (e.g. `(...N more results not shown)`) represents a **Hard Stop**. You MUST NOT proceed with an audit or implementation assuming the hidden data is irrelevant.
+
+- **Exhaustive Requirement**: Before concluding a search-based task (audit, refactor, bug hunt), the agent MUST continue searching until **100% of all possible hits** have been reviewed.
+- **Recursion**: Utilize targeted sub-directory searches or more specific filters to bypass tool caps (e.g. 50-result grep limits).
+- **Verification**: Zero tolerance for truncation. An audit is only "done" when the search results return a count that fits within a single, uncapped response.
+
+---
+
+## 8. The Operational Heartbeat
 
 Every turn response must conclude with this metadata block to log operational weights. Include the active Role and Approach emojis.
 

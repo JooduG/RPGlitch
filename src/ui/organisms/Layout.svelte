@@ -76,7 +76,7 @@
     overflow: hidden;
     position: fixed;
     inset: 0;
-    z-index: var(--z-ui);
+    z-index: var(--z-index-m);
     transform: translateZ(0);
 
     /* Atmospheric Background - transparent to show body's gradient */
@@ -163,7 +163,7 @@
   .stage-footer {
     grid-column: 2 / 12;
     grid-row: 1;
-    z-index: 100;
+    z-index: var(--z-index-l);
     pointer-events: none;
     align-self: stretch;
     display: flex;
@@ -189,7 +189,7 @@
     left: 0;
     right: 0;
     align-items: flex-start;
-    z-index: 101;
+    z-index: calc(var(--z-index-l) + 1);
   }
 
   /* --- COLUMN BEHAVIOR --- */

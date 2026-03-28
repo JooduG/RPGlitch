@@ -17,8 +17,8 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden; /* Force no-scroll at root */
-  font-family: var(--font-sans);
-  color: var(--font-color);
+  font-family: var(--font-family-body);
+  color: var(--font-color-m);
   background-color: var(--pure-black);
   position: fixed; /* Prevent bounce/scroll on mobile iOS */
   inset: 0;

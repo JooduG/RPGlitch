@@ -118,6 +118,7 @@
 <style>
   .dev-wing-content {
     background: var(--glass-l);
+    backdrop-filter: var(--glass-blur-l);
     box-shadow: var(--shadow-m);
     border-radius: var(--border-radius-l);
     padding: var(--spacing-m);
@@ -133,7 +134,7 @@
   }
 
   .dev-wing-content::-webkit-scrollbar-thumb {
-    background: var(--surface-elevated);
+    background: var(--glass-l);
     border-radius: var(--border-radius-full);
   }
 
@@ -160,13 +161,13 @@
     align-items: center;
     justify-content: center;
     gap: 0;
-    transition: all var(--transition-fast);
+    transition: all var(--motion-fast);
     min-height: var(--spacing-xxl);
     overflow: hidden;
   }
 
   .dynamic-box.is-editing:hover {
-    background: var(--surface-elevated);
+    background: var(--glass-l);
     box-shadow: inset 0 0 0 1px var(--glass-edge-l);
   }
 
@@ -175,8 +176,8 @@
     font-size: var(--font-size-xs);
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-l);
-    color: var(--font-muted);
-    opacity: 0.8;
+    color: var(--font-color-s);
+    opacity: var(--opacity-xl);
     margin-bottom: var(--spacing-xxs);
     display: block;
     cursor: help;
@@ -195,9 +196,9 @@
     background: transparent;
     border: none;
     color: var(--color-white);
-    font-family: var(--font-mono);
+    font-family: var(--font-family-mono);
     font-size: var(--font-size-m);
-    font-weight: 700;
+    font-weight: var(--font-weight-l);
     text-align: center;
     padding: 0;
     outline: none;
@@ -214,12 +215,12 @@
   .step-controls button {
     background: transparent;
     border: none;
-    color: var(--font-muted);
+    color: var(--font-color-s);
     font-size: var(--font-size-xxs);
     padding: 0 var(--spacing-xxs);
     cursor: pointer;
     opacity: var(--opacity-s);
-    transition: all var(--transition-fast);
+    transition: all var(--motion-fast);
   }
 
   .step-controls button:hover {
@@ -230,17 +231,17 @@
   /* 4. Meta & Raw Explorer */
   .raw-explorer summary {
     font-size: var(--font-size-xs);
-    font-weight: 800;
-    color: var(--font-muted);
+    font-weight: var(--font-weight-xl);
+    color: var(--font-color-s);
     text-transform: uppercase;
     cursor: pointer;
-    opacity: 0.7;
+    opacity: var(--opacity-l);
     letter-spacing: var(--letter-spacing-m);
-    transition: all var(--transition-fast);
+    transition: all var(--motion-fast);
   }
 
   .raw-explorer summary:hover {
-    opacity: 1;
+    opacity: var(--opacity-full);
     color: var(--color-white);
   }
 
@@ -258,8 +259,8 @@
 
   .json-wrap pre {
     font-size: var(--font-size-xs);
-    color: var(--surface-elevated);
-    font-family: var(--font-mono);
+    color: var(--glass-l);
+    font-family: var(--font-family-mono);
     margin: 0;
   }
 
@@ -280,13 +281,13 @@
   }
 
   .meta-item .tag {
-    color: var(--font-muted);
-    opacity: 0.7;
-    font-weight: 900;
+    color: var(--font-color-s);
+    opacity: var(--opacity-l);
+    font-weight: var(--font-weight-xl);
   }
 
   .meta-item .val {
-    color: var(--font-color);
+    color: var(--font-color-m);
     opacity: var(--opacity-l);
   }
 </style>

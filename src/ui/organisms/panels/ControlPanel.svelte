@@ -27,7 +27,7 @@
   let isStoryMode = $derived(app.view === "game");
 </script>
 
-<Modal variant="transparent" on_close={() => app.toggle_control_panel()}>
+<Modal variant="standard" on_close={() => app.toggle_control_panel()}>
   <article class="cockpit-panel glass-overlay" data-testid="cockpit-panel">
     <!-- HEADER: System Toggles -->
     <header class="panel-header">
@@ -124,8 +124,8 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-l);
-    font-family: var(--font-sans);
-    color: var(--font-color);
+    font-family: var(--font-family-body);
+    color: var(--font-color-m);
     overflow: hidden;
   }
 
@@ -145,11 +145,11 @@
     border-radius: var(--border-radius-m);
     padding: var(--spacing-m);
     box-shadow: inset 0 0 0 1px var(--glass-edge-l);
-    transition: all var(--transition-fast) var(--transition-elastic);
+    transition: all var(--motion-fast) var(--motion-elastic);
   }
 
   .prologue-setup .input-wrapper:focus-within {
-    background: var(--surface-elevated);
+    background: var(--glass-l);
     box-shadow: 0 0 0 1px var(--glass-edge-l);
   }
 
@@ -158,8 +158,8 @@
     min-height: 8rem;
     background: transparent;
     border: none;
-    color: var(--font-muted);
-    font-family: var(--font-sans);
+    color: var(--font-color-s);
+    font-family: var(--font-family-body);
     font-size: var(--font-size-s);
     resize: none;
     outline: none;
@@ -167,9 +167,9 @@
   }
 
   .prologue-setup .input-wrapper .prologue-field::placeholder {
-    color: var(--font-muted);
+    color: var(--font-color-s);
     font-style: italic;
-    opacity: 0.5;
+    opacity: var(--opacity-m);
   }
 
   .action-grid {
@@ -197,19 +197,19 @@
   .navigation-links .nav-btn {
     background: none;
     border: none;
-    color: var(--font-muted);
-    font-weight: 600;
+    color: var(--font-color-s);
+    font-weight: var(--font-weight-l);
     font-size: var(--font-size-xs);
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-m);
     cursor: pointer;
-    transition: all var(--transition-fast) var(--transition-elastic);
-    opacity: 0.7;
+    transition: all var(--motion-fast) var(--motion-elastic);
+    opacity: var(--opacity-l);
   }
 
   .navigation-links .nav-btn:hover {
-    color: var(--font-color);
-    opacity: 1;
+    color: var(--font-color-m);
+    opacity: var(--opacity-full);
     transform: translateY(-1px);
   }
 
@@ -221,12 +221,12 @@
   }
 
   .system-meta .dev-toggle {
-    opacity: 0.8;
-    transition: opacity var(--transition-fast);
+    opacity: var(--opacity-xl);
+    transition: opacity var(--motion-fast);
   }
 
   .system-meta .dev-toggle:hover {
-    opacity: 1;
+    opacity: var(--opacity-full);
   }
 
   .system-meta .reset-wrapper {

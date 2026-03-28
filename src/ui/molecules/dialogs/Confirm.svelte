@@ -95,7 +95,7 @@
     max-width: 90vw;
     width: 400px;
     color: inherit;
-    z-index: var(--z-modal);
+    z-index: var(--z-index-xl);
     overflow: visible;
   }
 
@@ -107,7 +107,7 @@
     position: fixed;
     inset: 0;
     background: var(--glass-xs);
-    z-index: calc(var(--z-modal) - 1);
+    z-index: calc(var(--z-index-xl) - 1);
   }
 
   .security-modal {
@@ -132,16 +132,16 @@
   .security-modal h3 {
     margin: 0;
     font-size: var(--font-size-l);
-    font-weight: 700;
-    font-family: var(--font-heading);
-    color: var(--font-color);
+    font-weight: var(--font-weight-l);
+    font-family: var(--font-family-heading);
+    color: var(--font-color-m);
   }
 
   .security-modal .content {
     padding: var(--spacing-xl);
-    color: var(--font-muted);
+    color: var(--font-color-s);
     font-size: var(--font-size-m);
-    line-height: var(--line-height-relaxed);
+    line-height: var(--line-height-m);
   }
 
   .security-modal footer {

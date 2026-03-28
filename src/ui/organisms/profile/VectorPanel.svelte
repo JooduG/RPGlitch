@@ -84,7 +84,7 @@
   .empty-state {
     padding: var(--spacing-m);
     text-align: center;
-    color: var(--font-muted);
+    color: var(--font-color-s);
     font-size: var(--font-size-xs);
     font-style: italic;
     opacity: var(--opacity-m);
@@ -95,7 +95,7 @@
     font-size: var(--font-size-s);
     border: var(--spacing-px) dashed var(--glass-edge-l);
     border-radius: var(--border-radius);
-    transition: all var(--transition-fast) var(--transition-elastic);
+    transition: all var(--motion-fast) var(--motion-elastic);
   }
 
   :global(.btn-add-unit):hover {

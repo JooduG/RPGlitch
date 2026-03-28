@@ -99,8 +99,8 @@
     justify-content: center;
     width: 100%;
     height: 100%;
-    font-family: var(--font-heading);
-    font-weight: 900;
+    font-family: var(--font-family-heading);
+    font-weight: var(--font-weight-xl);
     color: var(--color-white);
     text-shadow: 0 0.2rem 1rem rgb(var(--color-black-rgb) / 0.5);
     background-color: var(--signature-color);

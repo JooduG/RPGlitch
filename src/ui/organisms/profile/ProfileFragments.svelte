@@ -108,11 +108,11 @@
   .content .row .label h2 {
     margin: 0;
     font-size: var(--font-size-l);
-    font-weight: 700;
+    font-weight: var(--font-weight-l);
     color: var(--signature-color);
     text-transform: uppercase;
     text-shadow:
-      var(--shadow-text),
+      var(--shadow-font),
       0 0 var(--spacing-s) rgb(var(--signature-rgb) / var(--opacity-m));
     display: inline-block;
   }
@@ -120,12 +120,12 @@
   .content .row .label p {
     margin: 0;
     font-size: var(--font-size-xs);
-    color: var(--font-color);
-    font-weight: 700;
+    color: var(--font-color-m);
+    font-weight: var(--font-weight-l);
     opacity: var(--opacity-l);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    text-shadow: var(--shadow-text);
+    letter-spacing: var(--letter-spacing-l);
+    text-shadow: var(--shadow-font);
   }
 
   .content .row .split,
@@ -156,13 +156,13 @@
 
   .content .row .field-group .field-label {
     font-size: var(--font-size-xs);
-    font-weight: 800;
+    font-weight: var(--font-weight-xl);
     text-transform: uppercase;
     color: var(--signature-color);
     opacity: var(--opacity-full);
     margin-left: var(--spacing-xxs);
     text-align: center;
-    text-shadow: var(--shadow-text);
+    text-shadow: var(--shadow-font);
     margin-bottom: var(--spacing-xxs);
   }
 
@@ -189,8 +189,8 @@
   }
 
   .content .row .field-group .text-area::placeholder {
-    color: var(--font-muted);
-    opacity: 0.5;
+    color: var(--font-color-s);
+    opacity: var(--opacity-m);
     font-style: italic;
   }
 
@@ -201,12 +201,12 @@
 
   .content .row .field-group .text-area.edit:hover,
   .content .row .field-group .text-area.edit:focus {
-    background: var(--surface-elevated);
+    background: var(--glass-l);
     box-shadow: inset 0 0 0 1px var(--glass-edge-l);
   }
 
   .content .row .field-group .text-area:disabled {
-    opacity: 0.5;
+    opacity: var(--opacity-m);
     cursor: wait;
     pointer-events: none;
   }
@@ -214,7 +214,7 @@
   .content .row .field-group .text-area.muted-info {
     opacity: var(--opacity-l);
     font-size: 0.9em;
-    font-weight: 400;
+    font-weight: var(--font-weight-m);
   }
 
   .content .row .field-group .text-area.readonly {
@@ -227,12 +227,12 @@
   }
 
   .content .row .field-group .text-area.readonly :global(strong) {
-    font-weight: 800;
+    font-weight: var(--font-weight-xl);
     color: var(--color-white);
   }
 
   .content .row .field-group .text-area.readonly :global(em) {
     font-style: italic;
-    opacity: 0.9;
+    opacity: var(--opacity-xxl);
   }
 </style>

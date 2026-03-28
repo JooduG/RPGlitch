@@ -97,7 +97,7 @@
     padding: 0 var(--spacing-s);
     margin: var(--spacing-l);
     box-shadow: none;
-    transition: all var(--transition-slow) var(--transition-elastic);
+    transition: all var(--motion-slow) var(--motion-elastic);
     position: relative;
   }
 
@@ -123,36 +123,36 @@
     flex: 1;
     background: transparent;
     border: none;
-    color: var(--font-color);
+    color: var(--font-color-m);
     padding: var(--spacing-s);
     resize: none;
     outline: none;
     font-family: inherit;
     font-size: var(--font-size-m);
-    line-height: var(--line-height-base);
+    line-height: var(--line-height-m);
     max-height: 12.5rem; /* Standardized ~200px */
     overflow-y: hidden;
   }
 
   .input-area::placeholder {
-    color: var(--font-muted);
+    color: var(--font-color-s);
   }
 
   .icon-btn {
     background: transparent;
     border: none;
-    color: var(--font-muted);
+    color: var(--font-color-s);
     cursor: pointer;
     padding: var(--spacing-s);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all var(--transition-fast);
+    transition: all var(--motion-fast);
     border-radius: var(--border-radius);
   }
 
   .icon-btn:hover:not(:disabled) {
-    color: var(--font-color);
+    color: var(--font-color-m);
     filter: drop-shadow(
       0 0 var(--spacing-m)
         color-mix(in srgb, var(--signature-color, var(--color-gunmetal)) 30%, transparent)
@@ -171,7 +171,7 @@
   }
 
   .send-btn:not(:disabled):hover {
-    color: var(--font-color);
+    color: var(--font-color-m);
     filter: drop-shadow(
       0 0 var(--spacing-m)
         color-mix(in srgb, var(--signature-color, var(--color-gunmetal)) 50%, transparent)

@@ -114,14 +114,14 @@
   @import "https://fonts.googleapis.com/css2?family=Satisfy&display=swap";
 
   h1 {
-    font-size: clamp(var(--font-size-xxxl), 5vw, var(--font-size-xxxxxl));
-    line-height: var(--line-height-heading);
-    min-height: calc(var(--line-height-heading) * 2em);
+    font-size: clamp(var(--font-size-xxxl)), 5vw, var(--font-size-xxxxxl);
+    line-height: var(--line-height-s);
+    min-height: calc(var(--line-height-s) * 2em);
     margin: 0;
     font-family: Satisfy, cursive;
-    letter-spacing: 0.02em;
+    letter-spacing: var(--letter-spacing-s);
     cursor: text;
-    transition: all var(--transition-fast) var(--transition-elastic);
+    transition: all var(--motion-fast) var(--motion-elastic);
     border-radius: var(--border-radius-l);
     padding: var(--spacing-xxs) var(--spacing-s);
     text-wrap: balance;
@@ -145,7 +145,7 @@
   h1:focus-within {
     outline: none;
     background: var(--glass-l);
-    box-shadow: 0 0 0 var(--spacing-xxs) var(--signature-color, var(--color-pink));
+    box-shadow: 0 0 0 var(--spacing-xxs) var(--signature-color), var(--color-pink);
   }
 
   h1 .title-content {

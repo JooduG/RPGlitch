@@ -30,13 +30,13 @@ We rely on strict, named tokens rather than raw hex values in our components. Yo
 - **Chalk** (`var(--color-chalk)`): `#222326`. The primary high-contrast text and structural accent. Crisp, almost icy white.
 - **Gunmetal** (`var(--color-gunmetal)`): `#363840`. The core component background. Dense and non-intrusive.
 - **Frozen** (`var(--color-frozen)`): `#555d66`. The primary application accent.
-- **Frisk** (`var(--color-frisk)` / `var(--font-muted)`): `#8a9399`. Secondary application accent.
+- **Frisk** (`var(--color-frisk)` / `var(--font-color-s)`): `#8a9399`. Secondary application accent.
 
 ### Surface Elevation
 
 Elevation is achieved by progressively mixing `Gunmetal` with `Chalk` to lighten the surface as it lifts toward the user:
 
-- `var(--surface-base)` (`#11191f`): The absolute structural floor.
+- `var(--glass-l)` (`#11191f`): The absolute structural floor.
 - `var(--glass-xs)`: `var(--color-chalk)` + 30% alpha. Submerged base.
 - `var(--glass-s)`: `var(--color-chalk)` + 15% alpha. Sunken surface.
 - `var(--glass-l)`: `var(--color-frisk)` + 5% alpha. Elevated glass.
@@ -48,9 +48,9 @@ Elevation is achieved by progressively mixing `Gunmetal` with `Chalk` to lighten
 
 We use a strictly defined triad of fonts, scaled via an absolute T-shirt sizing scale (`var(--font-size-xxs)` through `var(--font-size-xxxxxl)`).
 
-- **Headline Font** (`var(--font-heading)`): `Ubuntu`, sans-serif.
-- **Body Font** (`var(--font-sans)`): `Inter`, system-ui.
-- **Label Font** (`var(--font-mono)`): `JetBrains Mono`, monospace.
+- **Headline Font** (`var(--font-family-heading)`): `Ubuntu`, sans-serif.
+- **Body Font** (`var(--font-family-body)`): `Inter`, system-ui.
+- **Label Font** (`var(--font-family-mono)`): `JetBrains Mono`, monospace.
 
 ### T-Shirt Spacing
 

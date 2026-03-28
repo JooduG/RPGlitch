@@ -29,7 +29,7 @@
       use:fitText={{
         maxSize: 80,
         minSize: 16,
-        lineHeight: "var(--line-height-heading)",
+        lineHeight: "var(--line-height-s)",
       }}
     >
       {char.name || ENTITY_FRAGMENTS.name}
@@ -63,9 +63,9 @@
     width: 100%;
     color: var(--signature-color);
     font-size: var(--font-size-xxxxl);
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    text-shadow: var(--shadow-text);
+    font-weight: var(--font-weight-l);
+    letter-spacing: -(var(--letter-spacing-s));
+    text-shadow: var(--shadow-font);
     margin: 0;
     padding: var(--spacing-xs);
     text-align: left;
@@ -74,7 +74,7 @@
     border: none;
     box-shadow: inset 0 0 0 1px transparent;
     min-height: 1.2em;
-    line-height: var(--line-height-heading);
+    line-height: var(--line-height-s);
     outline: none;
     background: transparent;
   }
@@ -97,9 +97,9 @@
 
   .name.edit span:empty::before {
     content: attr(data-placeholder);
-    opacity: 0.3;
+    opacity: var(--opacity-s);
     font-style: italic;
-    font-weight: 400;
+    font-weight: var(--font-weight-m);
   }
 
   .name:not(.edit) {
@@ -109,7 +109,7 @@
 
   .description {
     width: 100%;
-    color: var(--font-color);
+    color: var(--font-color-m);
     font-family: inherit;
     font-size: var(--font-size-m);
     line-height: 1.5;
@@ -132,7 +132,7 @@
   .description.muted-info {
     opacity: var(--opacity-l);
     font-size: 0.9em;
-    font-weight: 400;
+    font-weight: var(--font-weight-m);
   }
 
   .description.edit {
@@ -155,12 +155,12 @@
   }
 
   .description.readonly :global(strong) {
-    font-weight: 800;
+    font-weight: var(--font-weight-xl);
     color: var(--color-white);
   }
 
   .description.readonly :global(em) {
     font-style: italic;
-    opacity: 0.9;
+    opacity: var(--opacity-xxl);
   }
 </style>

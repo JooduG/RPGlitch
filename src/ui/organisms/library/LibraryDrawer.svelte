@@ -94,7 +94,7 @@
 <svelte:window onkeydown={handleKeydown} />
 
 {#if is_open}
-  <Backdrop onclick={() => app.close_drawer()} z_index="calc(var(--z-drawer) - 1)" />
+  <Backdrop onclick={() => app.close_drawer()} z_index="calc(var(--z-index-xl) - 1)" />
 
   <div
     class="entity-drawer glass-overlay"
@@ -159,7 +159,7 @@
     max-width: 1200px;
     max-height: 85vh;
     border-radius: var(--border-radius-xl) var(--border-radius-xl) 0 0;
-    z-index: var(--z-drawer);
+    z-index: var(--z-index-xl);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -175,17 +175,17 @@
 
   .drawer-header h3 {
     margin: 0;
-    letter-spacing: 0.5px;
-    font-weight: 800;
+    letter-spacing: var(--letter-spacing-s);
+    font-weight: var(--font-weight-xl);
     font-size: var(--font-size-xl);
-    font-family: var(--font-heading);
+    font-family: var(--font-family-heading);
     text-transform: uppercase;
   }
 
   .drawer-header .close-btn {
     background: transparent;
     border: none;
-    color: var(--font-muted);
+    color: var(--font-color-s);
     font-size: 2rem;
     cursor: pointer;
     line-height: 1;
@@ -221,7 +221,7 @@
     gap: var(--spacing-m);
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    color: var(--font-muted);
+    color: var(--font-color-s);
     border: none;
     padding: 0;
   }
@@ -243,11 +243,11 @@
   }
 
   .drawer-card--new .drawer-card-label {
-    font-weight: 800;
-    font-family: var(--font-heading);
+    font-weight: var(--font-weight-xl);
+    font-family: var(--font-family-heading);
     text-transform: uppercase;
     font-size: var(--font-size-xs);
-    letter-spacing: 1px;
+    letter-spacing: var(--letter-spacing-s);
   }
 
   .drawer-card--new:hover {
@@ -269,24 +269,24 @@
     justify-content: center;
     padding: 4rem 2rem;
     text-align: center;
-    color: var(--font-muted);
+    color: var(--font-color-s);
   }
 
   .drawer-empty .empty-icon {
     width: 80px;
     height: 80px;
-    opacity: 0.1;
+    opacity: var(--opacity-xs);
     margin-bottom: var(--spacing-m);
   }
 
   .drawer-empty h4 {
     margin: 0;
     font-size: 1.5rem;
-    font-weight: 800;
+    font-weight: var(--font-weight-xl);
   }
 
   .drawer-empty p {
-    opacity: 0.6;
+    opacity: var(--opacity-l);
     margin-top: 0.5rem;
   }
 

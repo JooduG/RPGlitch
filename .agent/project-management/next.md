@@ -1,11 +1,8 @@
-
 # 📋 Active AI Backlog
 
 *Last Swept: 2026-03-28T05:23:02.798Z*
 
-**Current State**: Mid-refactor of the **Storyboard UI**. We have successfully transitioned the `StoryboardPill` and `StoryboardCard` components into the **Nordic Glass** regime (Chalk tokens, frosted glass, zero-tilt grounded physics).
-
-**Active Problem**: The last session struggled with **Interaction Leakage**—specifically "phantom" clicky cursors appearing in the flex-gaps between cards and buttons. We also had to reconcile "Spooky Red" hover states that defaulted when no entity was present.
+**Current State**: Mid-refactor of the **Storyboard UI**. We have successfully transitioned the `StoryboardPill` and `StoryboardCard` components into the **Nordic Glass** regime. **Stable Infrastructure**: Fixed desynchronized unit tests for `Modal.svelte` and achieved a 100% clean verification pass (`npm run verify`). The simulation physics and interaction layers are now correctly aligned.
 
 ## 🧠 Logic (The "Why")
 

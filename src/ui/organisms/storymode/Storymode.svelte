@@ -76,7 +76,7 @@
     background-size: cover;
     background-position: center;
     opacity: var(--opacity-xs);
-    z-index: 0;
+    z-index: var(--z-index-s);
     pointer-events: none;
     mix-blend-mode: overlay;
     filter: grayscale(100%) contrast(120%);
@@ -94,6 +94,6 @@
     flex-shrink: 0;
     width: 100%;
     padding-bottom: 0;
-    z-index: 10;
+    z-index: var(--z-index-m);
   }
 </style>

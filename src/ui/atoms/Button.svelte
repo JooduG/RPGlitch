@@ -59,7 +59,7 @@
     padding: var(--spacing-xs) var(--spacing-m);
     min-height: var(--spacing-xxl);
     font-family: inherit;
-    font-weight: var(--font-bold);
+    font-weight: var(--font-weight-l);
     font-size: var(--font-size-s);
     line-height: 1;
     text-decoration: none;
@@ -68,7 +68,7 @@
     border: none;
     border-radius: var(--border-radius);
     background: transparent;
-    color: var(--font-color);
+    color: var(--font-color-m);
   }
 
   .btn.btn-sm {
@@ -87,7 +87,7 @@
 
   .btn:disabled,
   .btn.disabled {
-    opacity: var(--opacity-disabled);
+    opacity: var(--opacity-s);
     cursor: not-allowed;
     filter: grayscale(1);
     pointer-events: none;
@@ -116,17 +116,17 @@
   }
 
   .btn-ghost {
-    color: var(--font-muted);
+    color: var(--font-color-s);
   }
 
   .btn-ghost:hover:not(:disabled, .disabled) {
     background: var(--glass-xs);
-    color: var(--font-color);
+    color: var(--font-color-m);
   }
 
   .btn-outline {
     background: var(--glass-edge-l);
-    color: var(--font-muted);
+    color: var(--font-color-s);
   }
 
   .btn-outline:hover:not(:disabled, .disabled) {
@@ -140,28 +140,28 @@
   }
 
   .btn-glass:hover:not(:disabled, .disabled) {
-    background: var(--surface-elevated);
+    background: var(--glass-l);
   }
 
   .btn-secondary {
     background: var(--glass-l);
-    color: var(--font-color);
+    color: var(--font-color-m);
   }
 
   .btn-secondary:hover:not(:disabled, .disabled) {
-    background: var(--surface-elevated);
+    background: var(--glass-l);
   }
 
   .btn-security {
     background: var(--glass-xs);
-    color: var(--font-color);
+    color: var(--font-color-m);
     box-shadow: 0 0 0 1px var(--color-frisk);
   }
 
   .btn-security:hover:not(:disabled, .disabled) {
     box-shadow:
       0 0 15px var(--glass-xs),
-      0 0 0 1px var(--font-color);
+      0 0 0 1px var(--font-color-m);
   }
 
   /* Shapes */

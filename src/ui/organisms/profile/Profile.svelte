@@ -6,12 +6,12 @@
    * ZERO NESTING — Purged all legacy `visuals` objects.
    */
   import { entities } from "@/data/repository.js";
+  import { sanitize } from "@core/security.js";
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
   import ProfilePicture from "@ui/atoms/ProfilePicture.svelte";
   import Modal from "@ui/molecules/dialogs/Modal.svelte";
-  import { sanitize } from "@core/security.js";
   // Modular Components
   import ProfileFooter from "./ProfileFooter.svelte";
   import ProfileFragments from "./ProfileFragments.svelte";
@@ -239,7 +239,9 @@
     order: 2;
     width: 56rem;
     height: 100%;
-    background: var(--color-gunmetal);
+    background: var(--glass-l);
+    backdrop-filter: var(--glass-blur-l);
+    border: var(--glass-edge-l);
     border-radius: var(--border-radius-l);
     box-shadow:
       var(--shadow-xl),
@@ -248,18 +250,20 @@
     grid-template-columns: 35% 1fr;
     position: relative;
     overflow: hidden;
-    z-index: var(--z-modal);
+    z-index: var(--z-index-l);
     transform-style: preserve-3d;
   }
 
   .profile-presentation .left {
-    background: transparent;
-    border-right: 0;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    align-items: stretch;
+    overflow-y: auto;
+    max-height: 85vh;
+    background: var(--glass-s);
+    backdrop-filter: var(--glass-blur-l);
+    border-right: var(--glass-edge-m);
     padding: 0;
-    gap: 0;
   }
 
   .profile-presentation main {
@@ -267,7 +271,8 @@
     flex-direction: column;
     overflow-y: auto;
     max-height: 85vh;
-    background: var(--surface-base);
+    background: var(--glass-l);
+    backdrop-filter: var(--glass-blur-l);
     padding: var(--spacing-m);
   }
 

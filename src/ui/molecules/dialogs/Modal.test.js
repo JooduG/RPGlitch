@@ -48,11 +48,11 @@ describe("Modal.svelte", () => {
       variant: "profile",
       children: () => {},
     });
-    // Find the outer layout which acts as the backdrop
-    const layout = container.querySelector(".modal-layout");
-    expect(layout).toBeTruthy();
-    // Simulate click on the layout (which would be blocked if min-height: 100% was on .modal)
-    await fireEvent.click(layout);
+    // Find the backdrop which handles external clicks
+    const backdrop = container.querySelector(".backdrop");
+    expect(backdrop).toBeTruthy();
+    // Simulate click on the backdrop
+    await fireEvent.click(backdrop);
     // Ensure on_close was called
     expect(on_close).toHaveBeenCalledTimes(1);
   });
@@ -63,11 +63,14 @@ describe("Modal.svelte", () => {
       variant: "profile",
       children: () => {},
     });
-    // Find the modal element
-    const modal = container.querySelector(".modal.variant-profile");
-    expect(modal).toBeTruthy();
-    // Simulate click on the empty space of the modal container
-    await fireEvent.click(modal);
+    // Find the modal content element
+    const modalContent = container.querySelector(".modal-content.profile");
+    expect(modalContent).toBeTruthy();
+    // Find the backdrop
+    const backdrop = container.querySelector(".backdrop");
+    expect(backdrop).toBeTruthy();
+    // Clicking the backdrop should trigger on_close
+    await fireEvent.click(backdrop);
     // Ensure on_close was called
     expect(on_close).toHaveBeenCalledTimes(1);
   });

@@ -29,7 +29,7 @@ body::before {
   inset: 0;
   opacity: var(--opacity-xxs);
   pointer-events: none;
-  z-index: var(--z-base);
+  z-index: var(--z-index-xs);
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAApb2uWAAAABlBMVEUAAAD///+l2Z/dAAAAAnRSTlP/AOW3MEoAAAA9SURBVDjLY2BkYGRkYmRmZmdmYWVlZWVlZmZlZmVmZmVmZmZlZmVmZmVmZmZlZmVmZmVmZmZlZmVmZmVmZgcDAAiUADIAAAAA");
 }
 
@@ -44,9 +44,9 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-heading);
-  font-weight: var(--font-bold);
-  line-height: var(--line-height-heading);
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-l);
+  line-height: var(--line-height-s);
   margin-top: 0;
   color: inherit;
   text-wrap: balance;
@@ -89,11 +89,11 @@ pre,
 code,
 kbd,
 samp {
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
 }
 
 kbd {
-  font-weight: var(--font-bold);
+  font-weight: var(--font-weight-l);
 }
 
 small {
@@ -112,7 +112,7 @@ thead th,
 tfoot th,
 thead td,
 tfoot td {
-  font-weight: var(--font-weight);
+  font-weight: var(--font-weight-m);
   border-width: 0.1875rem;
 }
 
@@ -123,8 +123,8 @@ tfoot td {
  ************************************************************************************/
 .surface-tilt {
   transition:
-    transform var(--transition-fast, 0.3s) var(--transition-elastic),
-    box-shadow var(--transition-fast, 0.3s) ease;
+    transform var(--motion-fast, 0.3s) var(--motion-elastic),
+    box-shadow var(--motion-fast, 0.3s) ease;
 }
 
 .material-interactive:hover {
@@ -141,7 +141,7 @@ tfoot td {
   border: var(--glass-edge-l);
   border-top: var(--glass-edge-xl); /* Top specular highlight */
   box-shadow: var(--shadow-m);
-  z-index: var(--z-base);
+  z-index: var(--z-index-m);
 }
 
 /* Heavy Floating Modals & Overlays */
@@ -151,7 +151,7 @@ tfoot td {
   border: var(--glass-edge-l);
   border-top: var(--glass-edge-xl);
   box-shadow: var(--shadow-xl);
-  z-index: var(--z-modal);
+  z-index: var(--z-index-xl);
 }
 
 .no-scrollbar {
@@ -171,10 +171,10 @@ tfoot td {
   top: -100px;
   left: 0;
   background: var(--color-frozen);
-  color: var(--color-white);
+  color: var(--font-color-m);
   padding: var(--spacing-xs);
-  z-index: var(--z-toast);
-  transition: top var(--transition-fast);
+  z-index: var(--z-index-max);
+  transition: top var(--motion-fast);
 }
 
 .skip-link:focus {
@@ -196,10 +196,10 @@ tfoot td {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  opacity: 0;
+  opacity: var(--opacity-none);
   pointer-events: none;
-  transition: opacity var(--transition-fast) ease-in-out;
-  z-index: var(--z-toast);
+  transition: opacity var(--motion-fast) ease-in-out;
+  z-index: var(--z-index-max);
 }
 
 [data-tooltip]::before {
@@ -213,7 +213,7 @@ tfoot td {
   content: attr(data-tooltip);
   bottom: calc(100% + 15px);
   background: var(--glass-xs);
-  color: var(--color-white);
+  color: var(--font-color-m);
   padding: var(--spacing-xs) var(--spacing-s);
   border-radius: var(--border-radius-s);
   font-size: var(--font-size-xs);

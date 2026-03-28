@@ -1,12 +1,5 @@
 [[rule]]
-toolName = [
-    "write_file",
-    "read_file",
-    "list_directory",
-    "run_shell_command",
-    "replace",
-    "glob",
-    "grep_search",
-]
+toolName = ["grep_search"]
+constraint = "If tool output is truncated (e.g. '...N more results not shown'), you MUST follow up with additional targeted searches until 100% of results are accounted for."
 decision = "allow"
-priority = 100
+priority = 110

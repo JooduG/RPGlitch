@@ -49,7 +49,7 @@
       var(--signature-color) var(--opacity-xs)
     );
     border-top: 0;
-    z-index: 2;
+    z-index: var(--z-index-m);
     padding-top: var(--spacing-m);
   }
 
@@ -58,11 +58,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 800;
+    font-weight: var(--font-weight-xl);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: var(--letter-spacing-m);
     padding: var(--spacing-s) var(--spacing-xl);
-    transition: all var(--transition-fast) var(--transition-elastic);
+    transition: all var(--motion-fast) var(--motion-elastic);
     width: 50%;
   }
 
@@ -81,7 +81,7 @@
   footer .footer-actions :global(.btn-danger) {
     background: transparent;
     border-color: var(--glass-edge-l);
-    color: var(--font-muted);
+    color: var(--font-color-s);
     box-shadow: none;
     transition: all 0.3s ease;
   }

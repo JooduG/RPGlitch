@@ -4,8 +4,6 @@
    * 🎮 THE CORE SHELL
    * View-switching logic using storyboard and storymode terminology.
    */
-  import { onMount } from "svelte";
-  import { fade } from "svelte/transition";
   import { app } from "@state/app.svelte.js";
   import { lightbox } from "@state/lightbox.svelte.js";
   import Lightbox from "@ui/molecules/dialogs/Lightbox.svelte";
@@ -14,6 +12,8 @@
   import Profile from "@ui/organisms/profile/Profile.svelte";
   import Storyboard from "@ui/organisms/storyboard/Storyboard.svelte";
   import Storymode from "@ui/organisms/storymode/Storymode.svelte";
+  import { onMount } from "svelte";
+  import { fade } from "svelte/transition";
   let mounted = $state(false);
   onMount(() => {
     mounted = true;
@@ -82,9 +82,9 @@
     position: absolute;
     inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    opacity: 0.02;
+    opacity: var(--opacity-xxs);
     pointer-events: none;
-    z-index: 10;
+    z-index: var(--z-index-m);
   }
 
   :global(html),
@@ -105,7 +105,7 @@
     background-size: cover;
     background-position: center;
     pointer-events: none;
-    z-index: -1;
+    z-index: var(--z-index-xs);
     transition:
       opacity 2s ease-in-out,
       filter 2s ease-in-out;
@@ -135,8 +135,8 @@
     position: fixed;
     bottom: var(--spacing-m);
     right: var(--spacing-m);
-    z-index: 10001;
-    background: var(--surface-elevated);
+    z-index: var(--z-index-max);
+    background: var(--glass-l);
     box-shadow: 0 0 0 1px var(--glass-border);
     color: var(--color-frisk);
     width: 2.5rem;
@@ -147,12 +147,12 @@
     align-items: center;
     justify-content: center;
     font-size: 1.2rem;
-    transition: all var(--transition-fast);
+    transition: all var(--motion-fast);
   }
 
   .swap-view-trigger:hover {
     background: var(--glass-xs);
-    color: var(--white);
+    color: var(--color-white);
     transform: scale(1.1);
   }
 </style>

@@ -9,8 +9,8 @@
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
-  import SceneHeader from "../SceneHeader.svelte";
   import { safe_html } from "@ui/utils/actions/safe-html.js";
+  import SceneHeader from "../SceneHeader.svelte";
   let {
     text = "",
     sender = "system", // 'ai', 'user', 'fractal', 'system'
@@ -264,7 +264,7 @@
     padding: 0;
     margin: 0 0 var(--spacing-xs) 0;
     cursor: pointer;
-    transition: transform var(--transition-fast);
+    transition: transform var(--motion-fast);
     display: block;
   }
 
@@ -342,7 +342,7 @@
     border-radius: var(--border-radius-l);
     background: var(--bubble-color);
     box-shadow: var(--shadow-s);
-    color: var(--font-color);
+    color: var(--font-color-m);
     position: relative;
     overflow: hidden;
   }
@@ -363,7 +363,7 @@
     width: 50%;
     max-width: 80%;
     text-align: center;
-    color: var(--font-color);
+    color: var(--font-color-m);
     background: var(--bubble-color);
     box-shadow: var(--shadow-s);
   }
@@ -373,7 +373,7 @@
   }
 
   .think-block {
-    background: var(--surface-elevated);
+    background: var(--glass-l);
     border-radius: var(--border-radius);
     padding: var(--spacing-s);
     margin-bottom: var(--spacing-m);
@@ -382,24 +382,24 @@
 
   .think-block .think-label {
     font-size: var(--font-size-xs);
-    font-weight: 900;
+    font-weight: var(--font-weight-xl);
     color: var(--color-cyan);
-    letter-spacing: 0.1em;
+    letter-spacing: var(--letter-spacing-l);
     margin-bottom: var(--spacing-xxs);
   }
 
   .think-block .think-content {
-    color: var(--font-muted);
-    font-family: var(--font-mono);
+    color: var(--font-color-s);
+    font-family: var(--font-family-mono);
     font-style: italic;
     white-space: pre-wrap;
   }
 
   .message-content {
     white-space: pre-wrap;
-    line-height: var(--line-height-relaxed);
+    line-height: var(--line-height-m);
     font-size: var(--font-size-m);
-    font-family: var(--font-sans);
+    font-family: var(--font-family-body);
     text-shadow: var(--shadow-s);
   }
 
@@ -414,33 +414,33 @@
 
   .message-timestamp {
     font-size: var(--font-size-xs);
-    color: var(--font-color);
-    font-weight: 500;
+    color: var(--font-color-m);
+    font-weight: var(--font-weight-m);
     opacity: var(--opacity-s);
     text-shadow: var(--shadow-s);
-    transition: opacity var(--transition-fast);
+    transition: opacity var(--motion-fast);
   }
 
   .message-actions {
     display: flex;
     gap: var(--spacing-xxs);
-    opacity: 0;
+    opacity: var(--opacity-none);
     pointer-events: none;
-    transition: opacity var(--transition-fast);
+    transition: opacity var(--motion-fast);
   }
 
   .message-bubble:hover .message-timestamp {
-    opacity: 1;
+    opacity: var(--opacity-full);
   }
 
   .message-bubble:hover .message-actions {
-    opacity: 1;
+    opacity: var(--opacity-full);
     pointer-events: auto;
   }
 
   .action-btn {
-    background: var(--surface-elevated);
-    color: var(--font-muted);
+    background: var(--glass-l);
+    color: var(--font-color-s);
     border-radius: var(--border-radius);
     width: var(--spacing-xl);
     height: var(--spacing-xl);
@@ -448,7 +448,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: all var(--motion-fast);
     position: relative;
     border: none;
     padding: 0;
@@ -472,8 +472,8 @@
   }
 
   .action-btn:hover {
-    background: var(--font-color);
-    box-shadow: 0 0 0 var(--spacing-px) var(--font-color);
+    background: var(--font-color-m);
+    box-shadow: 0 0 0 var(--spacing-px) var(--font-color-m);
     color: var(--signature-color);
   }
 
@@ -489,30 +489,30 @@
     left: 50%;
     transform: translateX(-50%) translateY(calc(var(--spacing-xs) * -2));
     background: var(--bg-component);
-    color: var(--font-color);
+    color: var(--font-color-m);
     padding: var(--spacing-xxs) var(--spacing-xs);
     border-radius: var(--border-radius-s);
     font-size: var(--font-size-xs);
     white-space: nowrap;
-    opacity: 0;
+    opacity: var(--opacity-none);
     pointer-events: none;
     transition: all 0.2s;
-    z-index: 100;
+    z-index: var(--z-index-l);
     box-shadow: var(--glass-border);
   }
 
   .action-btn:hover::after {
-    opacity: 1;
+    opacity: var(--opacity-full);
     transform: translateX(-50%) translateY(calc(var(--spacing-xs) * -1));
   }
 
   .action-btn.delete:hover {
     background: var(--color-del); /* [R5] Standardized variable from tokens.css */
-    box-shadow: 0 0 0 var(--spacing-px) var(--font-color);
-    color: var(--font-color);
+    box-shadow: 0 0 0 var(--spacing-px) var(--font-color-m);
+    color: var(--font-color-m);
   }
 
   .action-btn.delete:hover svg {
-    stroke: var(--font-color);
+    stroke: var(--font-color-m);
   }
 </style>

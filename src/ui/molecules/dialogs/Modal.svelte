@@ -1,63 +1,56 @@
 <script>
-  let {
-    on_close,
-    variant = "standard", // 'standard' | 'profile' | 'preview'
-    z_index = 9999,
-    children,
-  } = $props();
+  /**
+   * @file Modal.svelte
+   * 🖼️ THE VOID CONTAINER
+   * A generic glassmorphic modal wrapper.
+   */
   import { quintOut } from "svelte/easing";
   import { fly } from "svelte/transition";
   import Backdrop from "./Backdrop.svelte";
+
+  /**
+   * @typedef {Object} Props
+   * @property {Function} [on_close] - Callback when modal should close.
+   * @property {"standard" | "profile" | "preview"} [variant] - Visual variant.
+   * @property {string} [z_index] - Z-index of the backdrop.
+   * @property {import("svelte").Snippet} children - Modal content.
+   */
+
+  /** @type {Props} */
+  let {
+    on_close = () => {},
+    variant = "standard",
+    z_index = "var(--z-index-xl)",
+    children,
+  } = $props();
+
+  /** @param {KeyboardEvent} e */
   function handle_keydown(e) {
-    if (e.key === "Escape") on_close();
+    if (e.key === "Escape") on_close(e);
+  }
+
+  /** @param {MouseEvent} e */
+  function handle_close(e) {
+    on_close(e);
   }
 </script>
 
 <svelte:window onkeydown={handle_keydown} />
+
 <!-- Visual Layer -->
-<Backdrop onclick={on_close} z_index={z_index - 1} />
+<Backdrop onclick={handle_close} z_index={z_index} />
+
 <!-- Interaction & Layout Layer -->
-<div
-  class="modal-layout"
-  style="z-index: {z_index};"
-  role="button"
-  tabindex="-1"
-  onclick={(e) => {
-    if (e.target === e.currentTarget) on_close();
-  }}
-  onkeydown={(e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      if (e.target === e.currentTarget) on_close();
-    }
-  }}
->
-  <!-- 
-        The Modal Container 
-        Note: For variant-profile, we check click on this element explicitly 
-        if it happens to be the one capturing the click due to sizing.
-    -->
+<div class="modal-layout">
+  <!-- Content -->
   <div
-    class="modal glass-overlay variant-{variant}"
-    role="dialog"
-    aria-modal="true"
-    tabindex="-1"
-    transition:fly={{ y: 20, duration: 400, easing: quintOut }}
-    onclick={(e) => {
-      if (variant === "profile" && e.target === e.currentTarget) {
-        on_close();
-      }
-    }}
-    onkeydown={(e) => {
-      if (
-        variant === "profile" &&
-        e.target === e.currentTarget &&
-        (e.key === "Enter" || e.key === " ")
-      ) {
-        on_close();
-      }
-    }}
+    class="modal-content {variant}"
+    transition:fly={{ y: 20, duration: 300, easing: quintOut }}
   >
-    {@render children?.()}
+    <button class="close-btn" onclick={handle_close} aria-label="Close modal">
+      &times;
+    </button>
+    {@render children()}
   </div>
 </div>
 
@@ -65,84 +58,61 @@
   .modal-layout {
     position: fixed;
     inset: 0;
-    z-index: 9999; /* Above backdrop */
+    z-index: calc(var(--z-index-xl) + 1); /* Above backdrop */
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow-y: auto; /* Allow scrolling */
     padding: var(--spacing-m);
+    pointer-events: none;
   }
 
-  .modal {
-    display: flex;
-    flex-direction: column;
-
-    /* Standard Styles */
+  .modal-content {
+    background: var(--glass-xl);
+    backdrop-filter: var(--glass-blur-l);
+    border: var(--glass-edge-l);
+    border-top: var(--glass-edge-xl);
     border-radius: var(--border-radius-l);
-    padding: 0;
-    max-width: 37.5rem; /* ~600px */
-    width: auto;
+    box-shadow: var(--shadow-xxl);
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
     position: relative;
-    max-height: 85vh;
-    overflow: hidden;
+    pointer-events: auto;
+    z-index: calc(var(--z-index-xl) + 2);
   }
 
-  .modal.variant-profile {
-    align-self: center; /* Ensure top alignment for scrolling */
-    margin: auto;
-
-    /* Reset Standard constraints */
-    max-height: none;
-    width: max-content;
-    max-width: 100vw;
-    height: auto;
-    min-height: auto; /* Prevents the modal from stretching to full height, which would block clicks on elements behind it. */
-
-    /* If the Profile Card *needs* to be tall, it will define its own height. */
-
-    /* If we need the modal container to be the scroll surface, .modal-layout does that. */
-    border: none;
-    background: transparent;
-    box-shadow: none;
-    overflow: visible;
-    padding: 0;
+  .modal-content.profile {
+    max-width: 90vw;
   }
 
-  .modal.variant-preview {
-    background: transparent;
-    width: auto;
-    height: auto;
-    max-width: 95vw;
-    max-height: 95vh;
-    border: none;
-    box-shadow: none;
-    position: relative;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: visible;
+  .modal-content.preview {
+    max-width: 400px;
   }
 
   .close-btn {
     position: absolute;
     top: var(--spacing-xs);
     right: var(--spacing-xs);
-    background: none;
+    background: var(--glass-xl);
+    backdrop-filter: var(--glass-blur-l);
     border: none;
-    color: var(--zinc-400);
+    color: var(--font-color-s);
     font-size: var(--font-size-xxl);
-    width: var(--spacing-xl);
-    height: var(--spacing-xl);
+    line-height: 1;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--border-radius-full);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 10;
+    z-index: var(--z-index-xl);
+    box-shadow: var(--shadow-xxl);
     transition: color 0.2s;
   }
 
   .close-btn:hover {
-    color: var(--zinc-100);
+    color: var(--color-white);
   }
 </style>

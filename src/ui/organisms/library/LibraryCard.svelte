@@ -63,7 +63,7 @@
     display: flex;
     flex-direction: column;
     padding: 0;
-    transition: all var(--transition-fast) var(--transition-elastic);
+    transition: all var(--motion-fast) var(--motion-elastic);
     text-align: left;
     width: 8.75rem;
     flex: 0 0 auto;
@@ -76,7 +76,7 @@
   }
 
   .drawer-card.is-disabled {
-    opacity: 0.5;
+    opacity: var(--opacity-m);
     filter: grayscale(1);
     cursor: not-allowed;
     pointer-events: none;
