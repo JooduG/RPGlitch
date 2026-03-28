@@ -127,36 +127,31 @@ tfoot td {
     box-shadow var(--transition-fast, 0.3s) ease;
 }
 
-.surface-tilt:hover {
-  transform: translateY(var(--physics-hover-y));
-  box-shadow: var(--shadow-l);
-}
-
-/* Level 1: The Base Furniture (Resting Cards, Profiles) */
-.elevation-1 {
-  background-color: var(--surface-bg-1);
-  border: var(--solid-border);
+.material-interactive:hover {
+  transform: translateY(var(--motion-hover-y));
   box-shadow: var(--shadow-m);
-  z-index: var(--surface-z-1);
-  position: relative;
 }
 
-/* Level 2: The Floaters (Dropdowns, Tooltips, Nav Pills) */
-.elevation-2 {
-  background-color: var(--surface-bg-2);
-  border: var(--solid-border);
-  box-shadow: var(--shadow-l);
-  z-index: var(--surface-z-2);
-  position: relative;
+/* Structural Glass Panels (Instead of Opaque Elevations) */
+
+/* The Standard Frosted Widget Panel */
+.glass-base {
+  background: var(--glass-s); /* Sinks slightly to inherit base */
+  backdrop-filter: var(--glass-blur-m);
+  border: var(--glass-edge-l);
+  border-top: var(--glass-edge-xl); /* Top specular highlight */
+  box-shadow: var(--shadow-m);
+  z-index: var(--z-base);
 }
 
-/* Level 3: The Interruption (Modals, Dialogs) */
-.elevation-3 {
-  background-color: var(--surface-bg-3);
-  border: var(--solid-border);
+/* Heavy Floating Modals & Overlays */
+.glass-overlay {
+  background: var(--glass-xs); /* Sinks heavier into the backdrop */
+  backdrop-filter: var(--glass-blur-l);
+  border: var(--glass-edge-l);
+  border-top: var(--glass-edge-xl);
   box-shadow: var(--shadow-xl);
-  z-index: var(--surface-z-3);
-  position: relative;
+  z-index: var(--z-modal);
 }
 
 .no-scrollbar {
@@ -217,7 +212,7 @@ tfoot td {
 [data-tooltip]::after {
   content: attr(data-tooltip);
   bottom: calc(100% + 15px);
-  background: var(--surface-void);
+  background: var(--glass-xs);
   color: var(--color-white);
   padding: var(--spacing-xs) var(--spacing-s);
   border-radius: var(--border-radius-s);
@@ -225,7 +220,7 @@ tfoot td {
   white-space: nowrap;
   box-shadow:
     var(--shadow-s),
-    inset 0 0 0 1px var(--border-light);
+    inset 0 0 0 1px var(--glass-edge-l);
 }
 
 [data-tooltip]:hover::before,

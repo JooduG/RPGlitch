@@ -16,28 +16,38 @@
   --color-gunmetal: #363840;
   --color-frozen: #555d66;
   --color-frisk: #8a9399;
+  --color-chalk-rgb: 34 35 38;
+  --color-gunmetal-rgb: 54 56 64;
+  --color-frozen-rgb: 85 93 102;
+  --color-frisk-rgb: 138 147 153;
 
   /* Primitive Base Colors */
   --color-white: #fff;
   --color-black: #000;
-
-  /* RGB Values for Opacity Overlays */
-  --color-frozen-rgb: 85 93 102;
-  --color-frisk-rgb: 138 147 153;
   --color-white-rgb: 255 255 255;
   --color-black-rgb: 0 0 0;
 
   /* Signature Palette (Identity) */
   --color-red: #ef4444;
+  --color-red-rgb: 239 68 68;
   --color-rose: #fb7185;
+  --color-rose-rgb: 251 113 133;
   --color-orange: #f97316;
+  --color-orange-rgb: 249 115 22;
   --color-amber: #fbbf24;
+  --color-amber-rgb: 251 191 36;
   --color-yellow: #fde047;
+  --color-yellow-rgb: 253 224 71;
   --color-lime: #84cc16;
+  --color-lime-rgb: 132 204 22;
   --color-forest: #15803d;
+  --color-forest-rgb: 21 128 61;
   --color-emerald: #10b981;
+  --color-emerald-rgb: 16 185 129;
   --color-teal: #14b8a6;
+  --color-teal-rgb: 20 184 166;
   --color-cyan: #11aecc;
+  --color-cyan-rgb: 17 174 204;
   --color-blue: #3b82f6;
   --color-indigo: #818cf8;
   --color-violet: #c084fc;
@@ -59,21 +69,14 @@
 
   /* Opacity */
   --opacity-xxs: 0.05;
-  --opacity-xs: 0.1;
+  --opacity-xs: 0.15;
   --opacity-s: 0.3;
   --opacity-m: 0.5;
-  --opacity-l: 0.8;
-  --opacity-xl: 0.95;
-  --opacity-xxl: 0.85;
+  --opacity-l: 0.7;
+  --opacity-xl: 0.85;
+  --opacity-xxl: 0.95;
   --opacity-full: 1;
   --opacity-disabled: var(--opacity-s);
-
-  /* Solid Surfaces & Elevations (Derived purely from Nordic variables) */
-  --surface-base: var(--color-chalk);
-  --surface-sunken: var(--color-gunmetal);
-  --surface-raised: color-mix(in srgb, var(--color-gunmetal), var(--color-chalk) 6%);
-  --surface-elevated: color-mix(in srgb, var(--color-gunmetal), var(--color-chalk) 12%);
-  --surface-floating: color-mix(in srgb, var(--color-gunmetal), var(--color-chalk) 20%);
 
   /* Background & Structural */
   --bg-base: var(--color-chalk);
@@ -81,21 +84,6 @@
   --bg-grad-2: #14182b;
   --bg-grad-3: #1e1b38;
   --bg-grad-4: #16243b;
-  --bg-card: var(--color-gunmetal);
-  --bg-component: var(--color-chalk);
-  --app-component-bg: var(--color-chalk);
-
-  /* Universal Z-Axis Solid Surfaces (Cosmos Theme) */
-  --surface-bg-1: color-mix(in srgb, var(--bg-base), var(--color-white) var(--opacity-m));
-  --surface-bg-2: color-mix(in srgb, var(--bg-base), var(--color-white) 8%);
-  --surface-bg-3: color-mix(in srgb, var(--bg-base), var(--color-white) 12%);
-
-  /* Edge Definition */
-  --solid-border: 1px solid color-mix(in srgb, var(--bg-base), var(--color-white) 15%);
-
-  /* Illusion / Placeholder Colors */
-  --illusion-bg: #1e1e2e;
-  --illusion-shimmer: #2a2a3e;
 
   /************************************************************************************
   * 🧩 [SECTION: GLASSMORPHISM & EFFECTS]
@@ -103,10 +91,24 @@
   * Surfaces, depth, blurs, and shadows
   ************************************************************************************/
 
-  /* Surfaces & Depth */
-  --border-light: rgba(var(--white-rgb) / var(--opacity-xxs));
-  --surface-void: rgba(var(--black-rgb) / 0.85);
-  --tint-dark-surface: rgba(var(--black-rgb) / 0.15);
+  /* Atomic Glass (Translucent Overlays) */
+
+  /* SUNKEN: Drops into the background (Mapped to Chalk) */
+  --glass-xs: rgb(from var(--color-chalk) r g b / var(--opacity-s));
+  --glass-s: rgb(from var(--color-chalk) r g b / var(--opacity-xs));
+
+  /* ELEVATED: Raises above the background (Mapped to Frisk) */
+  --glass-l: rgb(from var(--color-frisk) r g b / var(--opacity-xxs));
+  --glass-xl: rgb(from var(--color-frisk) r g b / var(--opacity-xs));
+
+  /* The Specular Edge: For the borders of interactive atoms */
+  --glass-edge-l: 1px solid rgb(from var(--color-frisk) r g b / var(--opacity-xs));
+  --glass-edge-xl: 1px solid rgb(from var(--color-frisk) r g b / var(--opacity-s));
+
+  /* Blurs & Frosting */
+  --glass-blur-s: blur(4px);
+  --glass-blur-m: blur(12px);
+  --glass-blur-l: blur(24px);
 
   /* Shadows */
   --shadow-s: 0 0.25rem 0.5rem rgba(var(--black-rgb) / var(--opacity-xs));
@@ -140,9 +142,13 @@
   --font-size-xxxxxl: 3.5rem;
   --line-height-base: 1.5;
   --line-height-heading: 1.2;
+  --font-black: 800;
   --font-bold: 700;
   --font-height: var(--line-height-base);
   --font-weight: 400;
+  --letter-spacing-s: 0.02em;
+  --letter-spacing-m: 0.05em;
+  --letter-spacing-l: 0.1em;
 
   /************************************************************************************
   * 🧩 [SECTION: SPACING & LAYOUT]
@@ -178,13 +184,13 @@
   --breakpoint-tablet: var(--breakpoints-l);
   --breakpoint-desktop: var(--breakpoints-xl);
 
-  /* Physics */
+  /* Motion */
   --transition-fast: 0.2s;
   --transition-slow: 0.4s;
   --transition-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --physics-hover-y: -0.25rem;
-  --physics-btn-hover-y: -0.1rem;
-  --physics-btn-active-scale: 0.95;
+  --motion-hover-y: -0.25rem;
+  --motion-btn-hover-y: -0.1rem;
+  --motion-btn-active-scale: 0.95;
 
   /* Flattened Z-Index Map */
   --z-base: 10;
@@ -194,8 +200,6 @@
   --z-overlay: 100;
   --z-modal: 150;
   --z-drawer: 2000;
-  --z-toast: 10000;
-  --surface-z-1: var(--z-base);
-  --surface-z-2: var(--z-ui);
-  --surface-z-3: var(--z-modal);
+  --z-system-toast: 9999;
+  --z-toast: var(--z-system-toast); /* Maintain backward compatibility for tooltips */
 }

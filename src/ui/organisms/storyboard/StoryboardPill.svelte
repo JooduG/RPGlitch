@@ -2,14 +2,13 @@
   import { app } from "@state/app.svelte.js";
   import Button from "@ui/atoms/Button.svelte";
   import { pulse, shimmy, spin } from "@ui/utils/actions/kinetic.js";
-  import { tilt } from "@ui/utils/actions/tilt.js";
   import { storyboard } from "./storyboard-actions.svelte.js";
   // Derived State
   let ready_to_begin = $derived(app.selected_ai && app.selected_user && app.selected_fractal);
 </script>
 
 <div class="pill-container">
-  <div class="unified-capsule" use:tilt={{ max: 15, scale: 1.05, speed: 400 }}>
+  <div class="unified-capsule glass-base">
     <!-- Option 1: "The Twitch" (Subtle nervous energy) -->
     <Button
       className="capsule-flank icon-glow"
@@ -69,11 +68,6 @@
   }
 
   .unified-capsule {
-    background: var(--surface-sunken);
-    box-shadow:
-      var(--shadow-l),
-      inset 0 0 0 1px var(--border-light);
-    border: none;
     display: flex;
     align-items: center;
     border-radius: var(--border-radius-full);

@@ -38,7 +38,8 @@
 
 ## Active WIP
 
-- `[/]` **Narrative Bridge**: Orchestrating automatic scene complications.
+- `[/]` **Nordic Glass Refactor**: Unified the Storyboard into the Nordic regime (frosted glass, Chalk tokens, zero-tilt grounded physics). Implemented the **"Vacuum Lock"** (pointer-events) and purged the **"Annoying Red"** from placeholders (now uses `var(--color-frozen)`). Resolved all Stylelint and ESLint debt in `StoryboardCard.svelte`. [Session: 422c4a6f]
+- `[ ]` **Narrative Bridge**: Orchestrating automatic scene complications.
 
 - [x] **Data Skill**: Memory, Lore, & Technical Cold Storage (Sovereign).
 - [x] **intake Skill**: Intent Decoding, Incubation, & Feature Gateway (Sovereign).
@@ -131,8 +132,10 @@
 - [x] Phase 3: Integration (Wired `audit:nomenclature` into `package.json`).
 - [x] Phase 4: Validation (Achieved 0 violations across 100% of project items).
 
-## Known Quirks / Technical Debt
+### [WIP] [023] [Nordic Glass Refactor]
 
-- [ ] **Dependency Audit**: `npm audit` reports 3 moderate vulnerabilities in `markdown-it`. (Post-v1.0 target)
-- [x] **Formatting Syntax Error**: Resolved (Legacy archive and malformed docs).
-- [ ] **Markdown Lints**: Minor stylistic lints in non-Sovereign skills (e.g., `audio`, `motion`).
+- [x] Phase 1: Planning (Drafted Nordic Glass Drawer implementation plan).
+    - [x] Phase 2: Storyboard Polish (Fixed phantom cursors, signature defaults, glass-base purity, and Stylelint debt).
+    - [/] Phase 3: Drawer & Modal Migration (Apply var(--glass-xl) to LibraryDrawer and ProfileModal).
+    - [ ] Phase 4: Atomic Parity (Align LibraryCard with Storyboard material density).
+    - [ ] Phase 5: Verification (Zero-debt audit pass).

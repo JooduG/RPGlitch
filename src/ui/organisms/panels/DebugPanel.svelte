@@ -38,7 +38,7 @@
   </button>
 
   <!-- Slide-out Drawer -->
-  <aside class="dev-drawer">
+  <aside class="dev-drawer glass-overlay">
     <header class="drawer-header">
       <span class="hud-title">NET_INSPECTOR v1.0</span>
       <button class="close-btn" onclick={togglePanel}>×</button>
@@ -91,7 +91,7 @@
 <style>
   .dev-hud-wrapper {
     /* HUD Tokens (Scoped to Debug) */
-    --hud-bg: var(--surface-void);
+    --hud-bg: var(--glass-xs);
     --hud-text: var(--font-color);
     --hud-muted: var(--font-muted);
     --hud-accent: var(--color-frozen);
@@ -142,7 +142,7 @@
 
   .dev-button:hover {
     color: var(--hud-text);
-    background: var(--surface-raised);
+    background: var(--glass-l);
     transform: scale(1.02);
     box-shadow: var(--shadow-m);
   }
@@ -153,9 +153,6 @@
     left: 0;
     width: 25rem;
     height: 100%;
-    background: var(--hud-bg);
-    border: none; /* No Borders */
-    box-shadow: var(--shadow-l); /* Soft Depth */
     transform: translateX(-100%);
     transition: transform var(--transition-slow) var(--transition-elastic); /* Snappy Curve */
     display: flex;
@@ -181,8 +178,8 @@
     justify-content: space-between;
     align-items: center;
     padding: var(--spacing-m) var(--spacing-l);
-    background: var(--surface-sunken);
-    box-shadow: 0 var(--spacing-px) 0 0 var(--border-light); /* Very subtle separator */
+    background: var(--glass-xs);
+    box-shadow: 0 var(--spacing-px) 0 0 var(--glass-edge-l); /* Very subtle separator */
   }
 
   .drawer-header .hud-title {
@@ -208,7 +205,7 @@
 
   .drawer-tabs {
     display: flex;
-    box-shadow: 0 var(--spacing-px) 0 0 var(--border-light);
+    box-shadow: 0 var(--spacing-px) 0 0 var(--glass-edge-l);
   }
 
   .drawer-tabs button {
@@ -267,12 +264,12 @@
   }
 
   .drawer-content::-webkit-scrollbar-thumb {
-    background: var(--surface-sunken);
+    background: var(--glass-xs);
     border-radius: 3px;
   }
 
   .drawer-content::-webkit-scrollbar-thumb:hover {
-    background: var(--surface-raised);
+    background: var(--glass-l);
   }
 
   .panel-section {
@@ -303,7 +300,7 @@
   }
 
   .data-dump {
-    background: var(--surface-sunken);
+    background: var(--glass-xs);
     border: none;
     border-radius: var(--border-radius-sm);
     box-shadow: inset 0 var(--spacing-xxs) var(--spacing-l)
@@ -328,7 +325,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--surface-sunken);
+    background: var(--glass-xs);
     border-radius: var(--border-radius-m);
     padding: var(--spacing-s) var(--spacing-m);
   }

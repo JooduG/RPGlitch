@@ -28,7 +28,7 @@
 </script>
 
 <Modal variant="transparent" on_close={() => app.toggle_control_panel()}>
-  <article class="cockpit-panel" data-testid="cockpit-panel">
+  <article class="cockpit-panel glass-overlay" data-testid="cockpit-panel">
     <!-- HEADER: System Toggles -->
     <header class="panel-header">
       <div class="status-toggles">
@@ -119,15 +119,13 @@
 <style>
   .cockpit-panel {
     width: 32rem;
-    background: var(--color-gunmetal);
-    box-shadow: var(--shadow-l);
     border-radius: var(--border-radius-l);
     padding: var(--spacing-xl);
     display: flex;
     flex-direction: column;
     gap: var(--spacing-l);
     font-family: var(--font-sans);
-    color: var(--text-primary);
+    color: var(--font-color);
     overflow: hidden;
   }
 
@@ -139,20 +137,20 @@
     align-items: center;
     margin-bottom: var(--spacing-l);
     padding: var(--spacing-m) 0;
-    box-shadow: 0 1px 0 var(--border-light);
+    box-shadow: 0 1px 0 var(--glass-edge-l);
   }
 
   .prologue-setup .input-wrapper {
-    background: var(--surface-sunken);
+    background: var(--glass-xs);
     border-radius: var(--border-radius-m);
     padding: var(--spacing-m);
-    box-shadow: inset 0 0 0 1px var(--border-light);
+    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
     transition: all var(--transition-fast) var(--transition-elastic);
   }
 
   .prologue-setup .input-wrapper:focus-within {
     background: var(--surface-elevated);
-    box-shadow: 0 0 0 1px var(--border-light);
+    box-shadow: 0 0 0 1px var(--glass-edge-l);
   }
 
   .prologue-setup .input-wrapper .prologue-field {
@@ -160,7 +158,7 @@
     min-height: 8rem;
     background: transparent;
     border: none;
-    color: var(--text-secondary);
+    color: var(--font-muted);
     font-family: var(--font-sans);
     font-size: var(--font-size-s);
     resize: none;
@@ -169,7 +167,7 @@
   }
 
   .prologue-setup .input-wrapper .prologue-field::placeholder {
-    color: var(--text-muted);
+    color: var(--font-muted);
     font-style: italic;
     opacity: 0.5;
   }
@@ -188,7 +186,7 @@
     gap: var(--spacing-l);
     margin-top: auto;
     padding-top: var(--spacing-m);
-    border-top: 1px solid var(--border-light);
+    border-top: 1px solid var(--glass-edge-l);
   }
 
   .navigation-links {
@@ -199,7 +197,7 @@
   .navigation-links .nav-btn {
     background: none;
     border: none;
-    color: var(--text-secondary);
+    color: var(--font-muted);
     font-weight: 600;
     font-size: var(--font-size-xs);
     text-transform: uppercase;
@@ -210,7 +208,7 @@
   }
 
   .navigation-links .nav-btn:hover {
-    color: var(--text-primary);
+    color: var(--font-color);
     opacity: 1;
     transform: translateY(-1px);
   }

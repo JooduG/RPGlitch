@@ -82,7 +82,7 @@
   }
 
   .card-inner {
-    background: var(--surface-sunken);
+    background: var(--glass-xs);
     box-shadow: var(--shadow-s);
     border-radius: var(--border-radius-m);
     padding: var(--spacing-s) var(--spacing-m);
@@ -136,7 +136,7 @@
   :global(.vector-delete-btn.btn) {
     background: transparent !important;
     color: var(--font-muted) !important;
-    box-shadow: inset 0 0 0 var(--spacing-px) var(--signature-color, var(--border-light)) !important;
+    box-shadow: inset 0 0 0 var(--spacing-px) var(--signature-color, var(--glass-edge-l)) !important;
     width: var(--spacing-xl) !important;
     height: var(--spacing-xl) !important;
     padding: 0 !important;
@@ -152,7 +152,7 @@
     box-shadow: var(--shadow-m) !important;
     color: var(--font-color) !important;
     filter: brightness(1.2) !important;
-    transform: translateY(var(--physics-hover-y-compact)) !important;
+    transform: translateY(var(--motion-btn-hover-y)) !important;
   }
 
   :global(.vector-delete-btn.btn) .icon {

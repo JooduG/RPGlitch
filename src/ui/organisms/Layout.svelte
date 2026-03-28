@@ -137,7 +137,7 @@
     .universal-stage.layout-cinematic .stage-column.left {
       grid-column: 1 / 2;
       background: radial-gradient(circle at top center, var(--color-gunmetal), var(--color-black));
-      border-right: 1px solid var(--border-light);
+      border-right: 1px solid var(--glass-edge-l);
     }
 
     .universal-stage.layout-cinematic .stage-column.right {

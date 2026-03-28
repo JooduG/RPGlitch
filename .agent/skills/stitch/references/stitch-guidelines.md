@@ -23,7 +23,7 @@ Always use these tokens instead of raw colors or generic descriptions:
 
 ## 3. Formatting Rules
 
-- **No Ambiguity**: Instead of "Make it look professional", use "Apply elevation `var(--surface-raised)` and glassmorphic blur `var(--blur-m)`".
+- **No Ambiguity**: Instead of "Make it look professional", use "Apply elevation `var(--glass-l)` and glassmorphic blur `var(--blur-m)`".
 - **ID Integrity**: Every interactive element described in a screen spec MUST have a unique, descriptive ID (e.g., `#btn-inventory-open`).
 - **Responsive Logic**: Describe layout shifts using T-shirt sizes (e.g., "On `Mobile`, stack; on `Desktop`, grid").
 

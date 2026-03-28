@@ -106,14 +106,14 @@
   .backdrop {
     position: fixed;
     inset: 0;
-    background: var(--surface-void);
+    background: var(--glass-xs);
     z-index: calc(var(--z-modal) - 1);
   }
 
   .security-modal {
-    background: var(--surface-raised);
+    background: var(--glass-l);
     box-shadow:
-      inset 0 0 0 1px var(--border-light),
+      inset 0 0 0 1px var(--glass-edge-l),
       var(--shadow-xxl);
     border-radius: var(--border-radius-l);
     overflow: hidden;
@@ -126,7 +126,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--surface-raised);
+    background: var(--glass-l);
   }
 
   .security-modal h3 {
@@ -149,7 +149,7 @@
     display: flex;
     justify-content: flex-end;
     gap: var(--spacing-s);
-    background: var(--surface-sunken);
+    background: var(--glass-xs);
   }
 
   /* Button styling delegated to Button component */

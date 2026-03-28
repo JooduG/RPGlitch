@@ -37,7 +37,7 @@
         if it happens to be the one capturing the click due to sizing.
     -->
   <div
-    class="modal variant-{variant}"
+    class="modal glass-overlay variant-{variant}"
     role="dialog"
     aria-modal="true"
     tabindex="-1"
@@ -78,10 +78,6 @@
     flex-direction: column;
 
     /* Standard Styles */
-    background: var(--surface-raised);
-    box-shadow:
-      inset 0 0 0 1px var(--border-light),
-      var(--shadow-xl);
     border-radius: var(--border-radius-l);
     padding: 0;
     max-width: 37.5rem; /* ~600px */

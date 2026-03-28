@@ -69,7 +69,6 @@
     border-radius: var(--border-radius);
     background: transparent;
     color: var(--font-color);
-    transition: all var(--transition-fast, 0.2s) ease-out;
   }
 
   .btn.btn-sm {
@@ -79,12 +78,11 @@
   }
 
   .btn:hover:not(:disabled, .disabled) {
-    transform: translateY(var(--physics-btn-hover-y));
     filter: brightness(1.1);
   }
 
   .btn:active:not(:disabled, .disabled) {
-    transform: scale(var(--physics-btn-active-scale));
+    transform: none;
   }
 
   .btn:disabled,
@@ -94,13 +92,11 @@
     filter: grayscale(1);
     pointer-events: none;
     transform: none;
-    transition: none;
     box-shadow: none;
   }
 
   .btn :global(.icon) {
     pointer-events: none;
-    transition: transform 0.2s var(--transition-elastic);
   }
 
   .btn:focus-visible {
@@ -124,22 +120,22 @@
   }
 
   .btn-ghost:hover:not(:disabled, .disabled) {
-    background: var(--surface-sunken);
+    background: var(--glass-xs);
     color: var(--font-color);
   }
 
   .btn-outline {
-    background: var(--border-light);
+    background: var(--glass-edge-l);
     color: var(--font-muted);
   }
 
   .btn-outline:hover:not(:disabled, .disabled) {
     color: var(--color-frisk);
-    background: var(--surface-sunken);
+    background: var(--glass-xs);
   }
 
   .btn-glass {
-    background: var(--surface-raised);
+    background: var(--glass-l);
     color: var(--color-white);
   }
 
@@ -148,7 +144,7 @@
   }
 
   .btn-secondary {
-    background: var(--surface-raised);
+    background: var(--glass-l);
     color: var(--font-color);
   }
 
@@ -157,14 +153,14 @@
   }
 
   .btn-security {
-    background: var(--surface-sunken);
+    background: var(--glass-xs);
     color: var(--font-color);
     box-shadow: 0 0 0 1px var(--color-frisk);
   }
 
   .btn-security:hover:not(:disabled, .disabled) {
     box-shadow:
-      0 0 15px var(--surface-sunken),
+      0 0 15px var(--glass-xs),
       0 0 0 1px var(--font-color);
   }
 
@@ -190,7 +186,7 @@
   }
 
   :global(.btn-group-joined) .btn:not(:last-child) {
-    border-right: 1px solid var(--tint-dark-surface);
+    border-right: 1px solid var(--glass-s);
   }
 
   :global(.btn-group-pill) .btn {

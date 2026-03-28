@@ -87,8 +87,8 @@
 
   .name.edit:hover,
   .name.edit:focus-within {
-    background: var(--surface-sunken);
-    box-shadow: inset 0 0 0 1px var(--border-light);
+    background: var(--glass-xs);
+    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
   }
 
   .name.edit span {
@@ -143,8 +143,8 @@
 
   .description.edit:hover,
   .description.edit:focus {
-    background: var(--surface-sunken);
-    box-shadow: inset 0 0 0 1px var(--border-light);
+    background: var(--glass-xs);
+    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
     outline: none;
   }
 

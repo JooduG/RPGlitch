@@ -90,7 +90,7 @@
 
 <style>
   .voice-wing-content {
-    background: var(--surface-raised);
+    background: var(--glass-l);
     box-shadow: var(--shadow-m);
     border-radius: var(--border-radius-l);
     padding: var(--spacing-m);
@@ -115,8 +115,8 @@
 
   .voice-btn {
     width: 100%;
-    background: var(--surface-sunken);
-    box-shadow: inset 0 0 0 1px var(--border-light);
+    background: var(--glass-xs);
+    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
     border: none;
     border-radius: var(--border-radius);
     color: var(--font-color);
@@ -135,7 +135,7 @@
 
   .voice-btn:hover:not(:disabled) {
     background: var(--surface-elevated);
-    box-shadow: inset 0 0 0 1px var(--border-light);
+    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
   }
 
   .voice-btn:disabled {
@@ -149,8 +149,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--surface-sunken);
-    box-shadow: inset 0 0 0 1px var(--border-light);
+    background: var(--glass-xs);
+    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
     border: none;
     border-radius: var(--border-radius);
     color: var(--font-color);
@@ -161,7 +161,7 @@
 
   .preview-btn:hover:not(:disabled) {
     background: var(--surface-elevated);
-    box-shadow: inset 0 0 0 1px var(--border-light);
+    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
   }
 
   .preview-btn:active:not(:disabled) {
@@ -182,7 +182,7 @@
     background: var(--color-gunmetal);
     box-shadow:
       0 0 2rem var(--color-black),
-      inset 0 0 0 1px var(--border-light);
+      inset 0 0 0 1px var(--glass-edge-l);
     border: none;
     border-radius: var(--border-radius);
   }
@@ -208,7 +208,7 @@
   }
 
   .voice-option:hover {
-    background: var(--surface-sunken);
+    background: var(--glass-xs);
   }
 
   .voice-option.active {
@@ -292,7 +292,7 @@
   .slider-group input[type="range"]::-webkit-slider-runnable-track {
     width: 100%;
     height: var(--spacing-px);
-    background: var(--border-light);
+    background: var(--glass-edge-l);
     border-radius: var(--border-radius-xs);
     border: none;
   }
@@ -304,7 +304,7 @@
     background: var(--font-color);
     border-radius: var(--border-radius-full);
     cursor: pointer;
-    box-shadow: 0 0 var(--spacing-xs) var(--border-light);
+    box-shadow: 0 0 var(--spacing-xs) var(--glass-edge-l);
     margin-top: calc(-1 * var(--spacing-xs));
     border: none;
   }

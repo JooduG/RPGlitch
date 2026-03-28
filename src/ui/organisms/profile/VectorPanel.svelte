@@ -93,14 +93,14 @@
   :global(.btn-add-unit) {
     width: 100%;
     font-size: var(--font-size-s);
-    border: var(--spacing-px) dashed var(--border-light);
+    border: var(--spacing-px) dashed var(--glass-edge-l);
     border-radius: var(--border-radius);
     transition: all var(--transition-fast) var(--transition-elastic);
   }
 
   :global(.btn-add-unit):hover {
-    background: var(--surface-sunken);
+    background: var(--glass-xs);
     border-color: rgb(var(--color-white-rgb) / var(--opacity-m));
-    transform: translateY(var(--physics-btn-hover-y));
+    transform: translateY(var(--motion-btn-hover-y));
   }
 </style>
