@@ -68,6 +68,7 @@
   ************************************************************************************/
 
   /* Opacity */
+  --opacity-none: 0;
   --opacity-xxs: 0.05;
   --opacity-xs: 0.15;
   --opacity-s: 0.3;
@@ -76,7 +77,6 @@
   --opacity-xl: 0.85;
   --opacity-xxl: 0.95;
   --opacity-full: 1;
-  --opacity-disabled: var(--opacity-s);
 
   /* Background & Structural */
   --bg-base: var(--color-chalk);
@@ -93,17 +93,19 @@
 
   /* Atomic Glass (Translucent Overlays) */
 
-  /* SUNKEN: Drops into the background (Mapped to Chalk) */
-  --glass-xs: rgb(from var(--color-chalk) r g b / var(--opacity-s));
-  --glass-s: rgb(from var(--color-chalk) r g b / var(--opacity-xs));
+  /* SUNKEN: Drops into the background (s - xs) */
+  --glass-xs: rgb(var(--color-black-rgb) / var(--opacity-s));
+  --glass-s: rgb(var(--color-black-rgb) / var(--opacity-xs));
 
-  /* ELEVATED: Raises above the background (Mapped to Frisk) */
-  --glass-l: rgb(from var(--color-frisk) r g b / var(--opacity-xxs));
-  --glass-xl: rgb(from var(--color-frisk) r g b / var(--opacity-xs));
+  /* ELEVATED: Raises above the background (l - xl) */
+  --glass-l: rgb(var(--color-frisk-rgb) / var(--opacity-xs));
+  --glass-xl: rgb(var(--color-frisk-rgb) / var(--opacity-s));
 
   /* The Specular Edge: For the borders of interactive atoms */
-  --glass-edge-l: 1px solid rgb(from var(--color-frisk) r g b / var(--opacity-xs));
-  --glass-edge-xl: 1px solid rgb(from var(--color-frisk) r g b / var(--opacity-s));
+  --glass-edge-s: 1px solid rgb(var(--color-chalk-rgb) / var(--opacity-s));
+  --glass-edge-m: 1px solid rgb(var(--color-frozen-rgb) / var(--opacity-xs));
+  --glass-edge-l: 1px solid rgb(var(--color-frisk-rgb) / var(--opacity-xs));
+  --glass-edge-xl: 1px solid rgb(var(--color-frisk-rgb) / var(--opacity-s));
 
   /* Blurs & Frosting */
   --glass-blur-s: blur(4px);
@@ -111,25 +113,31 @@
   --glass-blur-l: blur(24px);
 
   /* Shadows */
-  --shadow-s: 0 0.25rem 0.5rem rgba(var(--black-rgb) / var(--opacity-xs));
-  --shadow-m: 0 0.25rem 1rem rgba(var(--black-rgb) / var(--opacity-s));
-  --shadow-l: 0 0.5rem 2rem rgba(var(--black-rgb) / var(--opacity-m));
-  --shadow-xl: 0 1rem 3rem rgba(var(--black-rgb) / var(--opacity-l));
-  --shadow-xxl: 0 2rem 5rem rgba(var(--black-rgb) / var(--opacity-full));
+  --shadow-s: 0 0.25rem 0.5rem rgba(var(--color-black-rgb) / var(--opacity-xs));
+  --shadow-m: 0 0.25rem 1rem rgba(var(--color-black-rgb) / var(--opacity-s));
+  --shadow-l: 0 0.5rem 2rem rgba(var(--color-black-rgb) / var(--opacity-m));
+  --shadow-xl: 0 1rem 3rem rgba(var(--color-black-rgb) / var(--opacity-l));
+  --shadow-xxl: 0 2rem 5rem rgba(var(--color-black-rgb) / var(--opacity-full));
   --shadow-glow: 0 0 1.5rem rgb(var(--color-frozen-rgb) / var(--opacity-m));
-  --shadow-font: 0 var(--spacing-px) var(--spacing-xxs) rgba(var(--black-rgb) / var(--opacity-s));
-  --shadow-text: var(--shadow-font);
+  --shadow-font: 0 var(--spacing-px) var(--spacing-xxs)
+    rgba(var(--color-black-rgb) / var(--opacity-s));
 
   /************************************************************************************
   * 🧩 [SECTION: TYPOGRAPHY METRICS]
   * ----------------------------------------------------------------------------------
   * Font families, scales, colors and line heights
   ************************************************************************************/
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --font-heading: "Ubuntu", sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
-  --font-color: var(--color-white);
-  --font-muted: color-mix(in srgb, var(--color-white), var(--color-black) 8%);
+
+  /* Font Families */
+  --font-family-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-family-heading: "Ubuntu", sans-serif;
+  --font-family-mono: "JetBrains Mono", monospace;
+
+  /* Font Colors */
+  --font-color-m: var(--color-white);
+  --font-color-s: color-mix(in srgb, var(--color-white), var(--color-black) 8%);
+
+  /* Font Sizes */
   --font-size-xxs: 0.5rem;
   --font-size-xs: 0.75rem;
   --font-size-s: 0.875rem;
@@ -140,12 +148,17 @@
   --font-size-xxxl: 1.875rem;
   --font-size-xxxxl: 2.25rem;
   --font-size-xxxxxl: 3.5rem;
-  --line-height-base: 1.5;
-  --line-height-heading: 1.2;
-  --font-black: 800;
-  --font-bold: 700;
-  --font-height: var(--line-height-base);
-  --font-weight: 400;
+
+  /* Line Heights */
+  --line-height-s: 1.2;
+  --line-height-m: 1.5;
+
+  /* Font Weights */
+  --font-weight-m: 400;
+  --font-weight-l: 700;
+  --font-weight-xl: 800;
+
+  /* Letter Spacing */
   --letter-spacing-s: 0.02em;
   --letter-spacing-m: 0.05em;
   --letter-spacing-l: 0.1em;
@@ -185,21 +198,54 @@
   --breakpoint-desktop: var(--breakpoints-xl);
 
   /* Motion */
-  --transition-fast: 0.2s;
-  --transition-slow: 0.4s;
-  --transition-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --motion-fast: 0.2s;
+  --motion-slow: 0.4s;
+  --motion-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
   --motion-hover-y: -0.25rem;
   --motion-btn-hover-y: -0.1rem;
   --motion-btn-active-scale: 0.95;
 
-  /* Flattened Z-Index Map */
-  --z-base: 10;
-  --z-chip: 20;
-  --z-ui: 50;
-  --z-mobile-drawer-container: 90;
-  --z-overlay: 100;
-  --z-modal: 150;
-  --z-drawer: 2000;
-  --z-system-toast: 9999;
-  --z-toast: var(--z-system-toast); /* Maintain backward compatibility for tooltips */
+  /* T-Shirt Z-Index Scale */
+  --z-index-xs: -1; /* Below Floor: Noise, vignettes, background underlays */
+  --z-index-s: 0; /* Floor: Standard atmospheric components */
+  --z-index-m: 10; /* Surface: Main application widgets, Cards, UI Buttons */
+  --z-index-l: 100; /* Overlays: Storyboard Pill, floating widgets */
+  --z-index-xl: 450; /* Shields: Modals, Backdrops, Global Drawers */
+  --z-index-max: 9999; /* Toasts: System alerts, Tooltips, Context Menus */
+}
+
+/* ============================================================================
+* 💎 GLOBAL TOOLTIP UTILITY
+* Usage: <div data-tooltip="My Message">...</div>
+* ============================================================================ */
+[data-tooltip] {
+  position: relative;
+  cursor: help;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  padding: var(--spacing-xxs) var(--spacing-s);
+  background: var(--glass-xl);
+  backdrop-filter: var(--glass-blur-m);
+  border: var(--glass-edge-l);
+  color: var(--font-color-m);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xxs);
+  white-space: nowrap;
+  border-radius: var(--border-radius-s);
+  box-shadow: var(--shadow-m);
+  opacity: 0;
+  pointer-events: none;
+  transition: all var(--motion-fast) var(--motion-elastic);
+  z-index: var(--z-index-max);
+}
+
+[data-tooltip]:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(var(--motion-hover-y));
 }

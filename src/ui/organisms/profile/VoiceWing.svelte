@@ -20,70 +20,80 @@
   onmouseleave={() => (show_voice_dropdown = false)}
   role="presentation"
 >
-  <div class="voice-control-row">
-    <div class="dropdown">
-      <button
+  <div class="wing-header">
+    <div class="voice-control-row">
+      <div class="dropdown">
+        <button
         class="voice-btn"
         type="button"
         disabled={!is_editing}
         onclick={() => (show_voice_dropdown = !show_voice_dropdown)}
+        title="Select Voice"
       >
-        {format_voice_name(
-          Audio.voice.voices.find((v) => v.uri === char.voice.uri)?.name || "Select Voice",
-        )}
+        <span class="voice-name-truncate">
+          {format_voice_name(
+            Audio.voice.voices.find((v) => v.uri === char.voice.uri)?.name || "Select Voice",
+          )}
+        </span>
       </button>
-      <div class="dropdown-content" class:visible={show_voice_dropdown}>
-        {#each Audio.voice.voices as voice (voice.uri)}
-          <button
-            class="voice-option"
-            class:active={char.voice.uri === voice.uri}
-            onclick={() => {
-              char.voice.uri = voice.uri;
-              show_voice_dropdown = false;
-            }}
-          >
-            <span class="voice-name">{format_voice_name(voice.name)}</span>
-            <span class="region-pill">{voice.region}</span>
-          </button>
-        {/each}
+        <div class="dropdown-content" class:visible={show_voice_dropdown}>
+          {#each Audio.voice.voices as voice (voice.uri)}
+            <button
+              class="voice-option"
+              class:active={char.voice.uri === voice.uri}
+              onclick={() => {
+                char.voice.uri = voice.uri;
+                show_voice_dropdown = false;
+              }}
+            >
+              <span class="voice-name">{format_voice_name(voice.name)}</span>
+              <span class="region-pill">{voice.region}</span>
+            </button>
+          {/each}
+        </div>
       </div>
+      <button
+        class="preview-btn"
+        type="button"
+        title="Preview Voice"
+        disabled={!is_editing || !char.voice.uri}
+        onclick={() => Audio.voice.preview(char.voice.uri, char.voice.rate, char.voice.pitch)}
+      >
+        🔊
+      </button>
     </div>
-    <button
-      class="preview-btn"
-      type="button"
-      title="Preview Voice"
-      disabled={!is_editing || !char.voice.uri}
-      onclick={() => Audio.voice.preview(char.voice.uri, char.voice.rate, char.voice.pitch)}
-    >
-      🔊
-    </button>
   </div>
-  <div class="sliders">
-    <div class="slider-group" data-tooltip={`Rate: ${char.voice.rate.toFixed(1)}x`}>
-      <input
-        type="range"
-        min="0.5"
-        max="2.0"
-        step="0.1"
-        bind:value={char.voice.rate}
-        disabled={!is_editing}
-      />
-    </div>
-    <div
-      class="slider-group"
-      class:locked={is_natural_voice}
-      data-tooltip={is_natural_voice
-        ? "Locked (Natural Voice)"
-        : `Pitch: ${char.voice.pitch.toFixed(1)}`}
-    >
-      <input
-        type="range"
-        min="0.5"
-        max="2.0"
-        step="0.1"
-        bind:value={char.voice.pitch}
-        disabled={!is_editing || is_natural_voice}
-      />
+
+  <div class="wing-body">
+    <div class="sliders">
+      <div class="slider-group" data-tooltip={`Rate: ${char.voice.rate.toFixed(1)}x`}>
+        <input
+          type="range"
+          min="0.5"
+          max="2.0"
+          step="0.1"
+          bind:value={char.voice.rate}
+          disabled={!is_editing}
+          title="Voice Rate (Speed)"
+        />
+      </div>
+      <div
+        class="slider-group"
+        class:locked={is_natural_voice}
+        data-tooltip={is_natural_voice
+          ? "Locked (Natural Voice)"
+          : `Pitch: ${char.voice.pitch.toFixed(1)}`}
+      >
+        <input
+          type="range"
+          min="0.5"
+          max="1.5"
+          step="0.1"
+          bind:value={char.voice.pitch}
+          disabled={!is_editing || is_natural_voice}
+          title="Voice Pitch"
+        />
+      </div>
     </div>
   </div>
 </div>
@@ -91,6 +101,9 @@
 <style>
   .voice-wing-content {
     background: var(--glass-l);
+    /* stylelint-disable-next-line property-no-vendor-prefix */
+    -webkit-backdrop-filter: var(--glass-blur-l);
+    backdrop-filter: var(--glass-blur-l);
     box-shadow: var(--shadow-m);
     border-radius: var(--border-radius-l);
     padding: var(--spacing-m);
@@ -98,69 +111,106 @@
     flex-direction: column;
     gap: var(--spacing-m);
     height: 100%;
+    overflow: visible;
+  }
+
+  .wing-header {
+    flex: 0 0 auto;
+    overflow: visible;
+    z-index: 20; /* High enough to beat slider thumbs */
+  }
+
+  .wing-body {
+    flex: 1;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-m);
+    padding-right: var(--spacing-xxs); /* minimal scrollbar accommodation */
+  }
+
+  /* Custom scrollbar for wing-body */
+  .wing-body::-webkit-scrollbar {
+    width: var(--spacing-xxs);
+  }
+
+  .wing-body::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .wing-body::-webkit-scrollbar-thumb {
+    background: rgb(var(--color-frozen-rgb) / var(--opacity-s));
+    border-radius: var(--border-radius-full);
   }
 
   .voice-control-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: var(--spacing-xs);
     width: 100%;
-    position: relative;
-    margin-bottom: calc(-1 * var(--spacing-m)); /* Tighten gap to sliders */
+    align-items: center;
   }
 
   .dropdown {
-    flex: 1;
+    position: relative;
+    min-width: 0;
   }
 
   .voice-btn {
     width: 100%;
-    background: var(--glass-xs);
-    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
-    border: none;
-    border-radius: var(--border-radius);
-    color: var(--font-color);
-    padding: var(--spacing-s);
+    height: 2.5rem;
+    background: var(--glass-s);
+    border: var(--glass-edge-s);
+    border-radius: var(--border-radius-m);
+    padding: 0 var(--spacing-m);
     display: flex;
-    justify-content: space-between;
-    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    color: var(--font-color-m);
     font-size: var(--font-size-s);
-    text-align: left;
+    cursor: pointer;
+    transition: all var(--motion-fast);
+    overflow: hidden;
+  }
+
+  .voice-name-truncate {
+    display: block;
+    width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-right: var(--spacing-s);
-    transition: all 0.2s;
+    text-align: center;
   }
 
   .voice-btn:hover:not(:disabled) {
-    background: var(--surface-elevated);
+    background: var(--glass-l);
     box-shadow: inset 0 0 0 1px var(--glass-edge-l);
   }
 
   .voice-btn:disabled {
-    opacity: 0.5;
+    opacity: var(--opacity-m);
     cursor: default;
   }
 
   .preview-btn {
-    aspect-ratio: 1;
-    width: var(--spacing-xl);
     display: flex;
     align-items: center;
     justify-content: center;
+    aspect-ratio: 1;
+    height: 2.5rem;
+    width: 2.5rem;
     background: var(--glass-xs);
     box-shadow: inset 0 0 0 1px var(--glass-edge-l);
     border: none;
-    border-radius: var(--border-radius);
-    color: var(--font-color);
+    border-radius: var(--border-radius-m);
+    color: var(--font-color-m);
     cursor: pointer;
     font-size: var(--font-size-m);
-    transition: all var(--transition-fast) ease;
+    transition: all var(--motion-fast) ease;
   }
 
   .preview-btn:hover:not(:disabled) {
-    background: var(--surface-elevated);
+    background: var(--glass-l);
     box-shadow: inset 0 0 0 1px var(--glass-edge-l);
   }
 
@@ -175,21 +225,32 @@
 
   .dropdown-content {
     display: none;
+    opacity: 0;
+    transform: translateY(-var(--spacing-xs));
     position: absolute;
-    bottom: 100%;
-    left: 0;
-    width: 100%;
-    background: var(--color-gunmetal);
-    box-shadow:
-      0 0 2rem var(--color-black),
-      inset 0 0 0 1px var(--glass-edge-l);
-    border: none;
-    border-radius: var(--border-radius);
+    top: 100%;
+    right: 0;
+    width: calc(100% + 4rem); /* Allow overflow to the left */
+    background: var(--glass-xl);
+    /* stylelint-disable-next-line property-no-vendor-prefix */
+    -webkit-backdrop-filter: var(--glass-blur-l);
+    backdrop-filter: var(--glass-blur-l);
+    border: var(--glass-edge-l);
+    border-radius: var(--border-radius-m);
+    box-shadow: var(--shadow-xl);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: var(--z-index-max);
+    transition: 
+      opacity var(--motion-fast) ease,
+      transform var(--motion-fast) var(--motion-elastic);
   }
 
   .dropdown-content.visible {
     display: flex;
     flex-direction: column;
+    opacity: 1;
+    transform: translateY(0);
   }
 
   .voice-option {
@@ -197,7 +258,7 @@
     padding: var(--spacing-xs) var(--spacing-s);
     background: transparent;
     border: none;
-    color: var(--font-color);
+    color: var(--font-color-m);
     text-align: left;
     font-size: var(--font-size-s);
     cursor: pointer;
@@ -218,16 +279,16 @@
 
   .voice-option.active .region-pill {
     color: var(--app-accent);
-    opacity: 0.8;
+    opacity: var(--opacity-xl);
   }
 
   .voice-option .region-pill {
     font-size: var(--font-size-xs);
     text-transform: uppercase;
-    font-weight: 700;
-    color: var(--font-muted);
+    font-weight: var(--font-weight-l);
+    color: var(--font-color-s);
     letter-spacing: var(--letter-spacing-m);
-    transition: color var(--transition-fast);
+    transition: color var(--motion-fast);
   }
 
   .voice-option .region-pill::before {
@@ -245,9 +306,8 @@
 
   .sliders {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: var(--spacing-xs);
-    margin-top: var(--spacing-xxs);
     width: 100%;
   }
 
@@ -255,12 +315,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
-    gap: var(--spacing-s);
-    border-radius: var(--spacing-xs);
-    overflow: visible;
     position: relative;
-    transition: all var(--transition-fast) ease;
   }
 
   .slider-group.locked {
@@ -291,9 +346,10 @@
 
   .slider-group input[type="range"]::-webkit-slider-runnable-track {
     width: 100%;
-    height: var(--spacing-px);
-    background: var(--glass-edge-l);
-    border-radius: var(--border-radius-xs);
+    height: 0.25rem;
+    background: var(--glass-xs);
+    box-shadow: inset 0 1px 2px var(--color-black);
+    border-radius: var(--border-radius-full);
     border: none;
   }
 
@@ -301,11 +357,18 @@
     appearance: none;
     width: var(--spacing-s);
     height: var(--spacing-s);
-    background: var(--font-color);
+    background: var(--color-frozen);
     border-radius: var(--border-radius-full);
     cursor: pointer;
-    box-shadow: 0 0 var(--spacing-xs) var(--glass-edge-l);
-    margin-top: calc(-1 * var(--spacing-xs));
+    box-shadow: 
+      0 0 8px var(--color-frozen),
+      var(--shadow-s);
+    margin-top: -0.25rem; /* Centering on 0.25rem track */
     border: none;
+    transition: transform var(--motion-fast) var(--motion-elastic);
+  }
+
+  .slider-group input[type="range"]:active::-webkit-slider-thumb {
+    transform: scale(1.2);
   }
 </style>
