@@ -72,11 +72,19 @@ class Auditor {
       // Safety: Never audit node_modules even if not in gitignore
       if (relPath.includes("node_modules")) return;
 
-      const stat = fs.statSync(fullPath);
-      if (stat.isDirectory()) {
-        this.scan(fullPath);
-      } else {
-        this.auditFile(fullPath);
+      try {
+        const stat = fs.statSync(fullPath);
+        if (stat.isDirectory()) {
+          this.scan(fullPath);
+        } else {
+          this.auditFile(fullPath);
+        }
+      } catch (e) {
+        if (e.code === 'ENAMETOOLONG') {
+          console.warn(`Skipping ${fullPath} due to ENAMETOOLONG`);
+        } else {
+          throw e;
+        }
       }
     });
   }

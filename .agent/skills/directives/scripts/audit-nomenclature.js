@@ -215,7 +215,16 @@ export function scan_nomenclature(dir, stats, report) {
 
     const full_path = path.join(dir, item);
     const rel_path = path.relative(PROJECT_ROOT, full_path).replace(/\\/g, "/");
-    const stat = fs.statSync(full_path);
+    let stat;
+    try {
+      stat = fs.statSync(full_path);
+    } catch (e) {
+      if (e.code === 'ENAMETOOLONG') {
+        console.warn(`Skipping ${full_path} due to ENAMETOOLONG`);
+        continue;
+      }
+      throw e;
+    }
 
     if (stat.isDirectory()) {
       if (SKIP_DIRS.has(item)) continue;
