@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { safeStatSync } from "../../warden/scripts/safe-fs.js";
 
 const PROJECT_ROOT = process.cwd();
 
@@ -215,7 +216,9 @@ export function scan_nomenclature(dir, stats, report) {
 
     const full_path = path.join(dir, item);
     const rel_path = path.relative(PROJECT_ROOT, full_path).replace(/\\/g, "/");
-    const stat = fs.statSync(full_path);
+
+    const stat = safeStatSync(full_path);
+    if (!stat) continue;
 
     if (stat.isDirectory()) {
       if (SKIP_DIRS.has(item)) continue;

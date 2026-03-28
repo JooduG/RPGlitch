@@ -2,6 +2,8 @@ import fs from "fs";
 import ignore from "ignore";
 import path from "path";
 
+import { safeStatSync } from "./safe-fs.js";
+
 // 1. Import Domain Rules
 import { cssRules } from "../../css/scripts/audit-css.js";
 import { rule_rules } from "../../directives/scripts/audit-rules.js";
@@ -72,7 +74,9 @@ class Auditor {
       // Safety: Never audit node_modules even if not in gitignore
       if (relPath.includes("node_modules")) return;
 
-      const stat = fs.statSync(fullPath);
+      const stat = safeStatSync(fullPath);
+      if (!stat) return;
+
       if (stat.isDirectory()) {
         this.scan(fullPath);
       } else {
