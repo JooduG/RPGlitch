@@ -81,14 +81,14 @@
   .backdrop {
     position: fixed;
     inset: 0;
-    background: var(--surface-void);
+    background: var(--glass-xs);
     z-index: calc(var(--z-modal) - 1);
   }
 
   .security-modal {
-    background: var(--surface-raised);
+    background: var(--glass-l);
     box-shadow:
-      inset 0 0 0 1px var(--border-light),
+      inset 0 0 0 1px var(--glass-edge-l),
       var(--shadow-xxl);
     border-radius: var(--border-radius-l);
     overflow: hidden;
@@ -98,7 +98,7 @@
 
   .security-modal header {
     padding: var(--spacing-m) var(--spacing-xl);
-    background: var(--surface-raised);
+    background: var(--glass-l);
   }
 
   .security-modal h3 {
@@ -136,7 +136,7 @@
     padding: var(--spacing-m) var(--spacing-xl);
     display: flex;
     justify-content: flex-end;
-    background: var(--surface-sunken);
+    background: var(--glass-xs);
   }
 
   /* button styles removed - utilizing Button component */

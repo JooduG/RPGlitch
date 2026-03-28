@@ -80,7 +80,7 @@
 
   footer .footer-actions :global(.btn-danger) {
     background: transparent;
-    border-color: var(--border-light);
+    border-color: var(--glass-edge-l);
     color: var(--font-muted);
     box-shadow: none;
     transition: all 0.3s ease;
@@ -108,7 +108,7 @@
 
   footer > :global(.btn-edit):hover {
     filter: brightness(1.1);
-    transform: translateY(var(--physics-hover-y-compact));
+    transform: translateY(var(--motion-hover-y-compact));
     box-shadow: var(--shadow-m);
   }
 
@@ -124,7 +124,7 @@
 
   footer .footer-actions :global(.btn-edit):hover {
     filter: brightness(1.1);
-    transform: translateY(var(--physics-hover-y-compact));
+    transform: translateY(var(--motion-hover-y-compact));
     box-shadow: var(--shadow-m);
   }
 </style>

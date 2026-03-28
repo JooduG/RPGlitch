@@ -32,7 +32,7 @@
   .backdrop {
     position: fixed;
     inset: 0;
-    background: var(--surface-void); /* Standard dark overlay */
+    background: var(--glass-xs); /* Standard dark overlay */
     display: flex;
     justify-content: center;
     align-items: center;

@@ -109,7 +109,7 @@
   }
 
   .prose-panel::-webkit-scrollbar-thumb {
-    background: var(--surface-sunken);
+    background: var(--glass-xs);
     border-radius: var(--border-radius-full);
   }
 
@@ -137,7 +137,7 @@
   }
 
   .empty-feed-fallback :global(.btn-retry):hover {
-    background: var(--surface-sunken);
+    background: var(--glass-xs);
     color: var(--font-color);
   }
 </style>

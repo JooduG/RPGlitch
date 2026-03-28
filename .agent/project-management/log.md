@@ -4,10 +4,9 @@
 
 ## ⚡ Active Tracks
 
-- **Sovereign Anatomy Refactor**: Enforced strict `scripts/`, `assets/`, `references/` triad across all skills. Migrated `knowledge/` → `references/`, renamed templates to `.template.md` suffix, removed stale `templates/` folder refs. Hardened `audit-skills.js` with S-SKILL-004/005/006 rules (structural exclusivity, template naming, docs links). Audit engine reports **0 violations**. [Branch: chore/sovereign-anatomy]
+- **Nordic Glass Refactor**: Unified the Storyboard into the Nordic regime (frosted glass, Chalk tokens, zero-tilt grounded physics). Implemented the **"Vacuum Lock"** (pointer-events) and purged the **"Annoying Red"** from placeholders (now uses `var(--color-frozen)`). Resolved all Stylelint and ESLint debt in `StoryboardCard.svelte`. [Session: 422c4a6f]
 - **Narrative Bridge**: Initiated registration and architectural planning for autonomous scene complications.
 - **UI Audit & Polish**: Standardized Chalk Regime tokens across atomic and organism layers. Implemented `kineticScroll` with momentum decay. [Branch: feat/ui-audit-polish]
-
 - **Nomenclature Audit**: Implemented `audit-nomenclature.js` enforcing Rule 05 lexical laws (kebab-case for files, PascalCase for Svelte components). Wired `audit:nomenclature` into `package.json` for automated enforcement. Achieved 0 violations across 100% of project items. [Branch: chore/nomenclature-audit]
 - **Sovereign Anatomy Refactor**: Enforced strict `scripts/`, `assets/`, `references/` triad across all skills. Migrated `references/`, renamed templates to `.template.md` suffix, and hardened `audit-skills.js` with structural exclusivity rules. Audit engine reports **0 violations**. [Branch: chore/sovereign-anatomy]
 - **Infrastructure Sanitization (Holistic Audit)**: Purged Operational Heartbeat blocks from all 9 workflows and all SKILL.md files (chat-exclusive convention enforced). Stripped `## 📜 Metadata` footer blocks from `orchestrator`, `intake`, `warden`, `designer`, `data`. Patched `config.yaml`. [Session: 6b89b309]

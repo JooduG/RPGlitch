@@ -71,7 +71,7 @@
   }
 
   .drawer-card:hover:not(:disabled, .is-disabled) {
-    transform: translateY(var(--physics-hover-y));
+    transform: translateY(var(--motion-hover-y));
     box-shadow: var(--shadow-m);
   }
 
@@ -84,8 +84,8 @@
 
   .drawer-card .card-visual {
     flex: 1.5;
-    background: var(--surface-raised);
-    box-shadow: 0 0 0 1px inset var(--border-light);
+    background: var(--glass-l);
+    box-shadow: 0 0 0 1px inset var(--glass-edge-l);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -98,7 +98,7 @@
     padding: var(--spacing-s);
     display: flex;
     align-items: center;
-    background: var(--surface-sunken);
+    background: var(--glass-xs);
   }
 
   .drawer-card .card-info h5 {

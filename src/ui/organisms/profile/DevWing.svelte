@@ -117,7 +117,7 @@
 
 <style>
   .dev-wing-content {
-    background: var(--surface-raised);
+    background: var(--glass-l);
     box-shadow: var(--shadow-m);
     border-radius: var(--border-radius-l);
     padding: var(--spacing-m);
@@ -151,8 +151,8 @@
   }
 
   .dynamic-box {
-    background: var(--surface-sunken);
-    box-shadow: inset 0 0 0 1px var(--border-light);
+    background: var(--glass-xs);
+    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
     border-radius: var(--spacing-xs);
     padding: var(--spacing-s);
     display: flex;
@@ -167,7 +167,7 @@
 
   .dynamic-box.is-editing:hover {
     background: var(--surface-elevated);
-    box-shadow: inset 0 0 0 1px var(--border-light);
+    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
   }
 
   .dynamic-label {
@@ -248,7 +248,7 @@
     margin-top: var(--spacing-xs);
     background: rgba(var(--color-black-rgb) / 0.4);
     box-shadow:
-      inset 0 0 0 1px var(--border-light),
+      inset 0 0 0 1px var(--glass-edge-l),
       inset 0 0.125rem 0.25rem rgba(var(--color-black-rgb) / 0.5);
     border-radius: var(--spacing-xs);
     padding: var(--spacing-xs);

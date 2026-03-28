@@ -5,11 +5,11 @@
    * Manages signature colors, generation prompts, and modifiers.
    * Updated to target the flattened signature_color and profile_picture.
    */
-  import { PALETTE, PALETTE_VARS } from "@theme/palette.svelte.js";
   import { llm_service } from "@core/intelligence/llm-service.js";
   import { prompt_builder } from "@core/intelligence/prompt-builder.js";
   import { ImageGeneration } from "@media/image-engine.js";
   import { app } from "@state/app.svelte.js";
+  import { PALETTE, PALETTE_VARS } from "@theme/palette.svelte.js";
   import Button from "@ui/atoms/Button.svelte";
   import Toggle from "@ui/atoms/Toggle.svelte";
 
@@ -285,7 +285,7 @@
 
 <style>
   .visual-wing-content {
-    background: var(--surface-raised);
+    background: var(--glass-l);
     box-shadow: var(--shadow-m);
     border-radius: var(--border-radius-l);
     padding: var(--spacing-m);
@@ -339,9 +339,9 @@
   }
 
   .prompt-box {
-    background: var(--surface-sunken);
+    background: var(--glass-xs);
     box-shadow:
-      inset 0 0 0 1px var(--border-light),
+      inset 0 0 0 1px var(--glass-edge-l),
       inset 0 0.125rem 0.25rem var(--surface-elevated);
     border-radius: var(--border-radius-m);
     overflow: hidden;
@@ -387,7 +387,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--surface-void);
+    background: var(--glass-xs);
     z-index: 5;
     cursor: wait;
   }
@@ -395,7 +395,7 @@
   .spinner {
     width: var(--spacing-l);
     height: var(--spacing-l);
-    border: var(--spacing-xxs) solid var(--border-light);
+    border: var(--spacing-xxs) solid var(--glass-edge-l);
     border-top-color: var(--color-frozen);
     border-radius: var(--border-radius-full);
     animation: spin 0.8s linear infinite;
@@ -410,7 +410,7 @@
   .action-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    box-shadow: inset 0 1px 0 var(--border-light);
+    box-shadow: inset 0 1px 0 var(--glass-edge-l);
   }
 
   .action-row :global(.btn) {
@@ -425,11 +425,11 @@
   }
 
   .action-row :global(.btn:not(:last-child)) {
-    box-shadow: 1px 0 0 var(--border-light);
+    box-shadow: 1px 0 0 var(--glass-edge-l);
   }
 
   .action-row :global(.btn:hover) {
-    background: var(--surface-raised);
+    background: var(--glass-l);
   }
 
   .action-row :global(.btn.action-btn) {

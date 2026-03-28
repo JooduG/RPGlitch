@@ -7,9 +7,9 @@
   import { create_new } from "@data/content-normaliser.js";
   import { entities as repository } from "@data/repository.js";
   import { app } from "@state/app.svelte.js";
+  import { kineticScroll } from "@ui/utils/actions/kinetic.js";
   import { quintOut } from "svelte/easing";
   import { fly } from "svelte/transition";
-  import { kineticScroll } from "@ui/utils/actions/kinetic.js";
 
   import Backdrop from "@ui/molecules/dialogs/Backdrop.svelte";
   import LibraryCard from "./LibraryCard.svelte";
@@ -97,7 +97,7 @@
   <Backdrop onclick={() => app.close_drawer()} z_index="calc(var(--z-drawer) - 1)" />
 
   <div
-    class="entity-drawer"
+    class="entity-drawer glass-overlay"
     role="dialog"
     aria-labelledby="drawer-title"
     transition:fly={{ y: "100%", duration: 500, easing: quintOut }}
@@ -151,8 +151,6 @@
 
 <style>
   .entity-drawer {
-    background: var(--bg-card);
-    box-shadow: var(--shadow-l);
     position: fixed;
     bottom: 0;
     left: 50%;
@@ -172,7 +170,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--bg-base);
+    border-bottom: var(--glass-edge-l);
   }
 
   .drawer-header h3 {
@@ -212,7 +210,7 @@
 
   /* --- NEW ENTITY CARD --- */
   .drawer-card--new {
-    background: var(--surface-sunken);
+    background: var(--glass-xs);
     box-shadow: inset 0 0 0 1px rgb(var(--color-white-rgb) / 0.05);
     border-radius: var(--border-radius-l);
     aspect-ratio: 2 / 3;

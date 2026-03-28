@@ -15,62 +15,32 @@
 
   import Button from "@ui/atoms/Button.svelte";
   import ProfilePicture from "@ui/atoms/ProfilePicture.svelte";
-  import { simulationState } from "@state/status.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
   import { fitText } from "@ui/utils/actions/fit-text.js";
-  import { tilt } from "@ui/utils/actions/tilt.js";
 
   // --- DERIVED STATE ---
   let is_empty = $derived(!entity);
-  let is_processing = $derived(simulationState.phase !== "idle");
 
   // Theme Store now natively handles top-level signature_color
-  let signature_color = $derived(themeStore.get_signature_color(entity));
+  let signature_color = $derived(is_empty ? "var(--color-frisk)" : themeStore.get_signature_color(entity));
   let signature_rgb = $derived(themeStore.hex_to_rgb(signature_color));
-
-  // --- ANIMATION STATE ---
-  let is_shimmering = $state(false);
-
-  function trigger_shimmer() {
-    if (!is_shimmering) is_shimmering = true;
-  }
-
-  function reset_shimmer() {
-    is_shimmering = false;
-  }
 </script>
 
 <div
-  class="split-card {type}-card surface-tilt"
-  class:fractal-card={type === "fractal"}
-  onmouseenter={trigger_shimmer}
-  onanimationend={reset_shimmer}
-  role="group"
-  aria-label="{role_label || 'Entity'} Card"
+  class="storyboard-stack {type}-card glass-base"
+  class:is-empty={is_empty}
   style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
   data-testid="storyboard-card"
-  use:tilt={{
-    max: is_empty ? 0 : 25,
-    scale: is_empty ? 1 : 1.05,
-    speed: 400,
-    perspective: 1000,
-  }}
 >
-  <div
-    class="card-surface"
-    class:is-empty={is_empty}
-    class:is-processing={is_processing}
-    class:shimmering={is_shimmering}
-  >
-    {#snippet emptyState()}
-      <Button
-        className="empty-card"
-        variant="ghost"
-        onclick={on_select}
-        aria-label="Select {role_label}"
-      >
-        <span class="empty-label">{role_label}</span>
-        <div class="empty-icon">
+  {#if is_empty}
+    <Button
+      className="storyboard-empty"
+      variant="ghost"
+      onclick={on_select}
+      aria-label="Select {role_label}"
+    >
+      <div class="empty-content">
+        <div class="empty-icon-wrap">
           {#if type === "fractal"}
             <svg viewBox="0 0 24 24" class="icon">
               <path fill="currentColor" d="M19,12L12,22L5,12L12,2M12,2L19,12H5L12,2Z" />
@@ -84,225 +54,161 @@
             </svg>
           {/if}
         </div>
-      </Button>
-    {/snippet}
+        <span class="empty-slug">{role_label}</span>
+      </div>
+    </Button>
+  {:else}
+    <div class="storyboard-card">
+      <!-- Info Layer (Bottom-up Gradient Scrim) -->
+      <div class="card-info-scrim">
+        <div class="info-content">
+          <h2
+            use:fitText={{ maxSize: 32, minSize: 16, lineHeight: "1.1" }}
+            title={entity.name}
+          >
+            {entity.name}
+          </h2>
+          <p class="description">{entity.description || "No description provided."}</p>
+        </div>
+      </div>
 
-    {#snippet populatedState()}
+      <!-- Action Layer (Top-level Pointer Target) -->
       <Button
-        className="card-top"
+        className="card-action-overlay"
+        variant="ghost"
+        onclick={on_select}
+        aria-label="Change {role_label}"
+      >
+        <div class="visual-anchor">
+          <ProfilePicture {entity} />
+        </div>
+      </Button>
+
+      <!-- Profile Quick-Link -->
+      <Button
+        className="profile-quick-link"
         variant="ghost"
         onclick={on_view_profile}
-        aria-label="View {role_label} Profile"
+        aria-label="View {entity.name} Profile"
       >
-        <ProfilePicture {entity} />
+        <svg viewBox="0 0 24 24" class="icon-s">
+          <path fill="currentColor" d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z" />
+        </svg>
       </Button>
-      <Button className="card-bottom" variant="ghost" onclick={on_select}>
-        <div class="text-half title-half">
-          <h2
-            use:fitText={{
-              maxSize: 42,
-              minSize: 16,
-              lineHeight: "1.1",
-            }}
-          >
-            {entity?.name || `Select ${role_label}`}
-          </h2>
-        </div>
-        <div class="text-half desc-half">
-          <p>{entity?.description || "Click to browse choices..."}</p>
-        </div>
-      </Button>
-    {/snippet}
-
-    {#if is_empty}
-      {@render emptyState()}
-    {:else}
-      {@render populatedState()}
-    {/if}
-  </div>
+    </div>
+  {/if}
 </div>
 
 <style>
-  .split-card {
-    background: transparent;
-    box-shadow: none;
-    border-radius: 0;
-    transition: transform var(--transition-fast) var(--transition-elastic);
-    container-type: inline-size;
-    --card-height: 40vh;
-    --card-width: 25vh;
-
-    height: var(--card-height);
-    width: var(--card-width);
-    margin: auto;
-    justify-self: center;
+  .storyboard-stack {
     position: relative;
-  }
-
-  .split-card.fractal-card {
-    height: var(--card-width);
-    width: var(--card-height);
-    transform: scale(1.02);
-    z-index: var(--z-chip);
-  }
-
-  .split-card:hover {
-    z-index: var(--z-chip);
-  }
-
-  .card-surface {
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
+    width: 280px; 
+    height: 400px;
     border-radius: var(--border-radius-l);
     overflow: hidden;
-    background: var(--surface-raised);
-    box-shadow:
-      var(--shadow-xl),
-      inset 0 0 0 1px var(--border-light);
-    border: none;
-    transform: translateZ(0);
-    transition:
-      background var(--transition-fast) ease,
-      box-shadow var(--transition-fast) ease-in-out;
+    transition: all var(--transition-medium) var(--transition-elastic);
   }
 
-  .card-surface:not(.is-empty):hover {
-    box-shadow: 0 var(--spacing-xxl) var(--spacing-xxxl)
-      color-mix(in srgb, var(--signature-color), transparent 70%);
+  /* Fractal Overrides: Landscape (Z x Y) */
+  .fractal-card {
+    width: 400px;
+    height: 280px;
   }
 
-  .card-surface.shimmering::after {
-    animation: shimmer 1.5s var(--transition-elastic) forwards;
+  .storyboard-stack:hover {
+    border-color: var(--signature-color);
+    box-shadow: 
+      0 12px 24px -12px rgb(from var(--signature-color) r g b / 0.4),
+      0 0 0 1px var(--signature-color);
+    filter: brightness(1.1);
   }
 
-  .card-surface::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      105deg,
-      transparent 20%,
-      var(--border-light) 35%,
-      var(--border-light) 50%,
-      var(--border-light) 65%,
-      transparent 80%
-    );
-    transform: translateX(-100%);
-    z-index: var(--z-overlay);
-    pointer-events: none;
+  /* Prevent over-exposure by suppressing the overlay's internal brightness */
+  :global(.storyboard-stack .card-action-overlay.btn:hover) {
+    filter: none;
+    background: var(--glass-xs);
   }
 
-  .card-surface.is-empty {
-    background: var(--surface-sunken);
-    box-shadow: inset 0 2px 10px var(--surface-elevated);
-  }
-
-  .card-surface.is-empty::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    transform: translateX(-100%);
-    background-image: linear-gradient(
-      90deg,
-      transparent 0,
-      var(--border-light) 20%,
-      var(--surface-elevated) 60%,
-      transparent
-    );
-    filter: blur(var(--blur-l));
-    animation: skeleton-shimmer 2.5s infinite;
-    z-index: var(--z-overlay);
-    pointer-events: none;
-  }
-
-  .card-surface.is-empty:hover {
-    box-shadow: var(--surface-elevated), var(--shadow-glow);
-  }
-
-  .card-surface.is-empty:hover :global(.empty-icon) {
-    opacity: 1;
-    filter: drop-shadow(0 0 8px rgb(var(--signature-rgb) / 0.8));
-  }
-
-  .card-surface.is-empty:hover :global(.empty-label) {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  :global(.card-top) {
-    height: 60%;
-  }
-
-  :global(.card-bottom) {
-    height: 40%;
-  }
-
-  .fractal-card .card-surface {
-    flex-direction: row;
-  }
-
-  .fractal-card .card-surface :global(.card-top) {
-    height: 100%;
-    width: 50%;
-  }
-
-  .fractal-card .card-surface :global(.card-bottom) {
-    height: 100%;
-    width: 50%;
-    border-top: none;
-    box-shadow: inset var(--spacing-px) 0 0 var(--border-light);
-  }
-
-  :global(.card-top.btn) {
+  /* --- EMPTY STATE --- */
+  :global(.storyboard-empty.btn) {
     width: 100%;
-    border: none;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    background-color: transparent;
-    overflow: hidden;
-    border-radius: 0;
-  }
-
-  :global(.card-bottom.btn) {
-    width: 100%;
-    background: color-mix(in oklab, var(--signature-color) 10%, var(--surface-sunken));
-    border: none;
+    height: 100%;
     display: flex;
     flex-direction: column;
+    align-items: center;
     justify-content: center;
-    gap: var(--spacing-xxs);
+    background: transparent;
+    border: none;
     border-radius: 0;
-    padding: var(--spacing-m);
+    padding: 0;
   }
 
-  :global(.card-bottom.btn:hover) {
-    transform: none;
-    box-shadow: none;
-    filter: none;
-    background: color-mix(in oklab, var(--signature-color) 10%, var(--surface-sunken));
+  .empty-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-m);
+    opacity: 0.4;
+    transition: opacity var(--transition-fast) ease;
   }
 
-  .text-half {
-    width: 100%;
+  :global(.storyboard-empty.btn:hover) .empty-content {
+    opacity: 1;
   }
 
-  .title-half h2 {
-    margin: 0;
-    color: rgb(var(--signature-rgb));
-    font-weight: var(--font-bold);
+  .empty-icon-wrap {
+    width: 48px;
+    height: 48px;
+    color: var(--font-muted);
+  }
+
+  .empty-slug {
     font-family: var(--font-heading);
-    font-size: var(--font-size-xxl);
-    line-height: var(--line-height-heading);
-    text-shadow: var(--shadow-text);
-    word-break: normal;
-    overflow-wrap: normal;
-    white-space: normal;
-    text-align: left;
+    font-size: var(--font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--font-muted);
+  }
+
+  /* --- POPULATED CARD --- */
+  .storyboard-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Info Layer: Visual bottom scrim */
+  .card-info-scrim {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(to top, 
+      var(--bg-card) 0%, 
+      rgb(from var(--bg-card) r g b / 0.8) 40%, 
+      transparent 100%
+    );
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: var(--spacing-xl) var(--spacing-m) var(--spacing-m);
+    z-index: 2;
+    pointer-events: none; /* Let overlay button handle clicks */
+  }
+
+  .info-content h2 {
+    margin: 0;
+    font-family: var(--font-heading);
+    color: rgb(var(--signature-rgb));
+    text-shadow: 0 2px 4px rgb(0 0 0 / 0.5);
+  }
+
+  .description {
+    margin: var(--spacing-xs) 0 0;
+    font-size: var(--font-size-s);
+    color: var(--font-muted);
+    line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -310,117 +216,56 @@
     overflow: hidden;
   }
 
-  .desc-half p {
-    margin: 0;
-    color: var(--font-color);
-    opacity: var(--opacity-l);
-    font-family: var(--font-sans);
-    font-size: var(--font-size-m);
-    text-align: left;
-    line-height: var(--line-height-base);
-    overflow-wrap: anywhere;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  :global(.empty-card.btn) {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-m);
-    background: transparent;
-    border: none;
-    transform: none;
-    box-shadow: none;
-    filter: none;
-    transition: all var(--transition-slow) var(--transition-elastic);
-    position: relative;
-    overflow: hidden;
-    border-radius: var(--border-radius-l);
-  }
-
-  :global(.empty-card.btn:hover) {
-    background: transparent;
-    transform: none;
-    box-shadow: none;
-    filter: none;
-  }
-
-  .empty-label {
+  /* Action Layer: Full card click */
+  :global(.card-action-overlay.btn) {
     position: absolute;
-    bottom: 25%;
-    font-size: var(--font-size-s);
-    font-weight: 800;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    font-family: var(--font-heading);
-    color: var(--font-color);
-    text-shadow: var(--shadow-text);
-    opacity: 0;
-    transition:
-      opacity var(--transition-slow) ease,
-      transform var(--transition-slow) ease;
-    pointer-events: none;
-  }
-
-  .empty-icon {
-    color: var(--color-white);
-    width: var(--spacing-xxxl);
-    height: var(--spacing-xxxl);
+    inset: 0;
+    z-index: 1;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: var(--opacity-l);
-    transition:
-      opacity var(--transition-slow) ease,
-      filter var(--transition-slow) ease;
   }
 
-  .empty-icon :global(svg) {
+  .visual-anchor {
     width: 100%;
     height: 100%;
-    fill: currentcolor;
-    transition: fill var(--transition-slow) var(--transition-elastic);
   }
 
-  @keyframes skeleton-shimmer {
-    100% {
-      transform: translateX(100%);
-    }
+  /* Profile Link: Floating button on top */
+  :global(.profile-quick-link.btn) {
+    position: absolute;
+    top: var(--spacing-m);
+    right: var(--spacing-m);
+    z-index: 10;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(0 0 0 / 0.4);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-light);
+    border-radius: 50%;
+    color: var(--color-white);
+    opacity: 0;
+    transition: 
+      opacity var(--transition-medium) ease,
+      border-color var(--transition-fast) ease,
+      box-shadow var(--transition-fast) ease;
+    box-shadow: var(--shadow-l);
   }
 
-  @keyframes shimmer {
-    0% {
-      transform: translateX(-100%);
-    }
-
-    50% {
-      transform: translateX(100%);
-    }
-
-    100% {
-      transform: translateX(100%);
-    }
-  }
-
-  /* --------------------------------------------------------------------------
-       CLEAN OVERRIDES: Subverting Button.svelte's physical press physics
-       to maintain the Floating Ethereal Aesthetic.
-       -------------------------------------------------------------------------- */
-  :global(.split-card .card-surface .btn:active:not(:disabled)) {
-    transform: none;
-    opacity: 0.7;
-    transition: opacity 0.1s var(--transition-elastic);
-  }
-
-  :global(.split-card .card-surface .empty-card.btn:active:not(:disabled)) {
-    transform: none;
+  .storyboard-stack:hover :global(.profile-quick-link.btn) {
     opacity: 0.6;
-    transition: opacity 0.1s var(--transition-elastic);
+  }
+
+  :global(.storyboard-stack .profile-quick-link.btn:hover) {
+    opacity: 1;
+    background: rgb(0 0 0 / 0.6);
   }
 </style>

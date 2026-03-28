@@ -42,7 +42,7 @@
     />
   </div>
 {:else}
-  <Layout align="end">
+  <Layout align="center">
     {#snippet header()}
       <div class="header-container">
         <StoryboardDynamicTitle />
@@ -76,7 +76,7 @@
       <StoryboardCard
         type="user"
         entity={app.selected_user}
-        role_label="Your Persona"
+        role_label="User Persona"
         on_select={() => app.open_drawer("user")}
         on_view_profile={() => app.toggle_profile(true, app.selected_user)}
       />

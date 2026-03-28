@@ -4,9 +4,9 @@
    * 🧩 THE TEMPORAL HYBRID FIELDS
    * Dynamically renders the Eternal, Present, Past, and Future sections.
    */
+  import { safe_html } from "@ui/utils/actions/safe-html.js";
   import { PROFILE_SECTIONS } from "./config.js";
   import VectorPanel from "./VectorPanel.svelte";
-  import { safe_html } from "@ui/utils/actions/safe-html.js";
   let {
     char = $bindable(),
     is_editing,
@@ -171,8 +171,8 @@
     height: 100%;
     min-height: var(--spacing-xxxl);
     overflow-y: auto;
-    background: var(--surface-sunken);
-    box-shadow: inset 0 0 0 1px var(--border-light);
+    background: var(--glass-xs);
+    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
     border: none;
     border-radius: var(--border-radius-m);
     color: var(--color-white);
@@ -202,7 +202,7 @@
   .content .row .field-group .text-area.edit:hover,
   .content .row .field-group .text-area.edit:focus {
     background: var(--surface-elevated);
-    box-shadow: inset 0 0 0 1px var(--border-light);
+    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
   }
 
   .content .row .field-group .text-area:disabled {
@@ -221,8 +221,8 @@
     white-space: pre-wrap;
     pointer-events: auto;
     cursor: default;
-    background: var(--surface-sunken);
-    box-shadow: inset 0 0 0 1px var(--border-light);
+    background: var(--glass-xs);
+    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
     border: none;
   }
 

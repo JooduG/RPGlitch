@@ -51,7 +51,7 @@
     height: 100%;
     position: relative;
     cursor: pointer;
-    background: var(--surface-void);
+    background: var(--glass-xs);
   }
 
   /* Corner Nameplate: Neural Minimalism */
@@ -61,7 +61,7 @@
     z-index: var(--z-overlay);
     display: inline-block;
     padding: var(--spacing-xs) var(--spacing-m);
-    background: var(--surface-sunken);
+    background: var(--glass-xs);
     box-shadow: var(--shadow-l);
     border-radius: var(--border-radius-s);
     width: fit-content;

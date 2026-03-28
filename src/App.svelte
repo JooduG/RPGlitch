@@ -4,14 +4,14 @@
    * 🎮 THE CORE SHELL
    * View-switching logic using storyboard and storymode terminology.
    */
+  import { app } from "@state/app.svelte.js";
+  import { lightbox } from "@state/lightbox.svelte.js";
   import Lightbox from "@ui/molecules/dialogs/Lightbox.svelte";
   import ControlPanel from "@ui/organisms/panels/ControlPanel.svelte";
   import DebugPanel from "@ui/organisms/panels/DebugPanel.svelte";
   import Profile from "@ui/organisms/profile/Profile.svelte";
   import Storyboard from "@ui/organisms/storyboard/Storyboard.svelte";
   import Storymode from "@ui/organisms/storymode/Storymode.svelte";
-  import { app } from "@state/app.svelte.js";
-  import { lightbox } from "@state/lightbox.svelte.js";
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
   let mounted = $state(false);
@@ -151,7 +151,7 @@
   }
 
   .swap-view-trigger:hover {
-    background: var(--surface-sunken);
+    background: var(--glass-xs);
     color: var(--white);
     transform: scale(1.1);
   }

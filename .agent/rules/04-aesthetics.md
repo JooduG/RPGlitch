@@ -37,10 +37,10 @@ We rely on strict, named tokens rather than raw hex values in our components. Yo
 Elevation is achieved by progressively mixing `Gunmetal` with `Chalk` to lighten the surface as it lifts toward the user:
 
 - `var(--surface-base)` (`#11191f`): The absolute structural floor.
-- `var(--surface-sunken)`: Raw `var(--color-gunmetal)`.
-- `var(--surface-raised)`: `gunmetal` + 6% `chalk`.
+- `var(--glass-xs)`: Raw `var(--color-gunmetal)`.
+- `var(--glass-l)`: `gunmetal` + 6% `chalk`.
 - `var(--surface-elevated)`: `gunmetal` + 12% `chalk`.
-- `var(--surface-floating)`: `gunmetal` + 20% `chalk`.
+- `var(--glass-xl)`: `gunmetal` + 20% `chalk`.
 
 ---
 

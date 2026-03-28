@@ -8,12 +8,14 @@
   import { themeStore } from "@theme/palette.svelte.js";
   import { fitText } from "@ui/utils/actions/fit-text.js";
   let { entity } = $props();
+
   // 1. Core Flattened Properties
   let name = $derived(entity?.name || "Entity");
   let pictureUrl = $derived(entity?.profile_picture);
   let signature_color = $derived(themeStore.get_signature_color(entity));
   let initials = $derived(themeStore.get_initials(name));
-  // 2. Minor Modifiers (Fallback safely if visuals object is missing)
+
+  // 2. Minor Modifiers
   let isNoBg = $derived(entity?.visuals?.noBackground ?? false);
   let isFlipped = $derived(entity?.visuals?.flipped ?? false);
 </script>
@@ -53,15 +55,13 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    border-radius: 0;
-    background: var(--surface-void);
+    background: var(--glass-xs);
   }
 
   .image-container {
     position: relative;
     width: 100%;
     height: 100%;
-    overflow: hidden;
   }
 
   .picture {
@@ -69,7 +69,6 @@
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform var(--transition-slow) var(--transition-elastic);
   }
 
   .picture.no-bg {
@@ -94,54 +93,20 @@
     background-size: 100% var(--spacing-xxs);
   }
 
-  .glitch-overlay::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      90deg,
-      rgb(255 0 0 / var(--opacity-xs)),
-      rgb(0 255 0 / var(--opacity-xs)),
-      rgb(0 0 255 / var(--opacity-xs))
-    );
-    background-size: 300% 100%;
-    animation: chromatic-drift 10s infinite linear;
-  }
-
-  @keyframes chromatic-drift {
-    0% {
-      background-position: 0% 0%;
-    }
-
-    100% {
-      background-position: 300% 0%;
-    }
-  }
-
   .placeholder {
-    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
     height: 100%;
-    font-family: var(--font-header);
-    font-weight: 700;
+    font-family: var(--font-heading);
+    font-weight: 900;
     color: var(--color-white);
-    text-shadow: var(--shadow-l);
+    text-shadow: 0 0.2rem 1rem rgb(var(--color-black-rgb) / 0.5);
     background-color: var(--signature-color);
-    background-image:
-      radial-gradient(
-        at 0% 0%,
-        color-mix(in srgb, var(--signature-color), var(--color-white) var(--opacity-m-val)) 0,
-        transparent 50%
-      ),
-      radial-gradient(
-        at 100% 100%,
-        color-mix(in srgb, var(--signature-color), var(--color-black) var(--opacity-l-val)) 0,
-        transparent 50%
-      );
-    background-blend-mode: overlay;
+    background-image: 
+      linear-gradient(to bottom, transparent, rgb(var(--color-black-rgb) / 0.3)),
+      radial-gradient(circle at top left, rgb(255 255 255 / 0.2), transparent);
     text-transform: uppercase;
   }
 </style>
