@@ -30,21 +30,20 @@ workflows:
   08-github: .agent/workflows/08-github.md
   99-rewind: .agent/workflows/99-rewind.md
 
-# 📝 Active Governance (Rules)
-rules:
-  rule-foundation: .agent/rules/01-foundation.md
-  rule-simulation: .agent/rules/02-simulation.md
-  rule-infrastructure: .agent/rules/03-infrastructure.md
-  rule-aesthetics: .agent/rules/04-aesthetics.md
-  rule-intelligence: .agent/rules/05-intelligence.md
-  rule-compliance: .agent/rules/06-compliance.md
+# ⚖️ Governance (The Law & The Audit)
+governance:
+  mandate: AGENTS.md
+  audit_level: C3
+  rules:
+    rule-foundation: .agent/rules/01-foundation.md
+    rule-simulation: .agent/rules/02-simulation.md
+    rule-infrastructure: .agent/rules/03-infrastructure.md
+    rule-aesthetics: .agent/rules/04-aesthetics.md
+    rule-intelligence: .agent/rules/05-intelligence.md
+    rule-compliance: .agent/rules/06-compliance.md
 
 # 📝 Workspace (Active Memory)
 workspace:
   tracks: .agent/project-management/log.md
   mission_board: .agent/project-management/mission-board.md
-
-# ⚖️ Compliance (The Signal Audit)
-compliance:
-  mandate: AGENTS.md
-  audit_level: C3
+  next: .agent/project-management/next.md

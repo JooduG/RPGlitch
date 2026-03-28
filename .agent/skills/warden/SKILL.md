@@ -53,7 +53,7 @@ This skill is the **Absolute Authority** on code health. It enforces:
 1.  **Scan**: Execute `npm audit` and internal `security-scan.js`.
 2.  **Sweep**: Run `janitor.js` to clear technical debt and formatting issues.
 3.  **Verify**: Execute `verify.js` (Playwright) to ensure UI and state stability.
-4.  **Certify**: Mark the task as `[x]` only after all layers pass.
+4.  **Certify**: Mark the task as `completed` only after all layers pass.
 
 ### Workflow: Technical Debt Cleanup
 1.  **Identify**: Search for `console.log`, `alert`, and `TODO-AI` tags.
