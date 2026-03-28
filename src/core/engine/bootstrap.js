@@ -1,8 +1,8 @@
 // src/core/engine/bootstrap.js
+import { mount } from "svelte";
 import { sanitizeToFragment } from "@core/security.js";
 import { seed_premades } from "@data/repository.js";
 import { runtime } from "@state/runtime.svelte.js";
-import { mount } from "svelte";
 import App from "../../App.svelte";
 let has_initialized = false;
 /**
