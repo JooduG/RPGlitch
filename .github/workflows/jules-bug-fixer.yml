@@ -23,7 +23,7 @@ jobs:
             ${{ github.event.issue.body }}
             MANDATORY PROTOCOL:
             1. You MUST read and execute `.agent/workflows/03-clean.md`.
-            2. You MUST enforce the physics defined in `.agent/rules/03-technetium.md` and `.agent/rules/04-shield.md`.
+            2. You MUST enforce the physics defined in `.agent/rules/03-infrastructure.md` and `.agent/rules/06-compliance.md`.
             3. Do not rely on external generic knowledge.
           jules_api_key: ${{ secrets.JULES_API_KEY }}
           starting_branch: "main"
