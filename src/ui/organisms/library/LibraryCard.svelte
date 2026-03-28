@@ -55,7 +55,7 @@
 <style>
   .drawer-card {
     aspect-ratio: 2 / 3;
-    background: var(--bg-card);
+    background: var(--glass-xs);
     border-radius: var(--spacing-s);
     position: relative;
     overflow: hidden;

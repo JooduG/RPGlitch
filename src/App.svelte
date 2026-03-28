@@ -4,6 +4,8 @@
    * 🎮 THE CORE SHELL
    * View-switching logic using storyboard and storymode terminology.
    */
+  import { onMount } from "svelte";
+  import { fade } from "svelte/transition";
   import { app } from "@state/app.svelte.js";
   import { lightbox } from "@state/lightbox.svelte.js";
   import Lightbox from "@ui/molecules/dialogs/Lightbox.svelte";
@@ -12,8 +14,6 @@
   import Profile from "@ui/organisms/profile/Profile.svelte";
   import Storyboard from "@ui/organisms/storyboard/Storyboard.svelte";
   import Storymode from "@ui/organisms/storymode/Storymode.svelte";
-  import { onMount } from "svelte";
-  import { fade } from "svelte/transition";
   let mounted = $state(false);
   onMount(() => {
     mounted = true;

@@ -249,7 +249,7 @@
     justify-content: center;
     background: rgb(0 0 0 / 0.4);
     backdrop-filter: blur(12px);
-    border: 1px solid var(--border-light);
+    border: var(--glass-edge-l);
     border-radius: 50%;
     color: var(--color-white);
     opacity: 0;
