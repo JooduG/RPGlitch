@@ -42,7 +42,7 @@ When a user requests a design or a UI element (e.g., "Make me a sci-fi HUD"):
 
 This skill is the **Intent Decoder** of the engine. It enforces:
 
-- **[Rule 01: Foundation](../../rules/01-foundation.md)**: Sync with Mission Board & Tracks.
+- **[Orchestrator](../../orchestrator)**: Sync with Mission Board & Tracks.
 - **[Rule 05: Intelligence](../../rules/05-intelligence.md)**: Lexical laws & nomenclature.
 
 ---
@@ -93,14 +93,6 @@ When the user specifically asks to "promptify" or "refine" an idea for external 
 | **Technical Drift**  | Forbidden. Inventing technical stacks, file names, or database schemas.           |
 | **Self-Interrogation**| Forbidden. Answering your own interrogation questions.                             |
 | **Premature Design** | Forbidden. Writing CSS or generating images before functional intent is solidified. |
-
----
-
-## 📜 Metadata
-- **📜 Rules**: 01, 05
-- **🧠 Skills**: intake, designer
-- **⚡ Workflows**: /01-plan
-- **🕰️ 2026-03-24**
 
 ---
 

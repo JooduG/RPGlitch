@@ -2,7 +2,7 @@
 
 The `RPGlitch` agent projects follows a strict state-sovereignty topography to ensure AI continuity and technical purity.
 
-## 1. [Project Manager](../../../project-management/)
+## 1. [Project Management](../../../project-management/)
 
 - [Mission Board](../../../project-management/mission-board.md): The macro-state. Defines the high-level objective and active tracks.
 - [log](../../../project-management/log.md): The registry. Lists all initialized, active, and archived feature tracks.

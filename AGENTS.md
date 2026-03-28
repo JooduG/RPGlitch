@@ -21,10 +21,15 @@ Analyze the intended action against the following factors. Resolve conflicts in 
 Assess the symptom and draft your suspected causes before taking any action.
 
 - 2.1 Brainstorming: **Rank your hypotheses by likelihood.** Do not discard outliers prematurely.
-- 2.2 Risk Routing: Map the risk tier based on your most severe likely hypothesis.
-    - Low Risk (Typos, CSS tweaks, minor logic): **Bypass testing. Proceed directly to Step 5 (Execution)**.
-    - Medium Risk (Refactors, state migrations): **Proceed to Step 3**.
-    - High Risk (Structural changes, mission board wipes): **Proceed to Step 3 and trigger the `warden:debugging` protocol**.
+- 2.2 Complexity Triage (The Orchestrator): Map the task to a complexity level to determine the active role and thinking approach.
+    - **Level 1 (Quick Fix)**: ⚒️ **Operational Role** -> ⚡ **Professional Coding**. (Bypass Step 3 Research. Proceed directly to Step 5. Requires **[orchestration-operations](./.agent/skills/orchestration-operations/SKILL.md)** skill).
+    - **Level 2 (Enhancement)**: 🎨 **Tactical Role** -> 🧠 **Sequential Thinking**. (Proceed to Step 3. Requires **[orchestration-tactics](./.agent/skills/orchestration-tactics/SKILL.md)** skill for scoping).
+    - **Level 3 (Complex Feature)**: 🎭 **Strategic Role** -> 🤔 **Contemplative Thinking**. (Proceed to Step 3 and trigger the `warden:debugging` protocol if high risk. Requires **[orchestration-strategy](./.agent/skills/orchestration-strategy/SKILL.md)** skill).
+- 2.3 Risk Routing: Map the risk tier based on your most severe likely hypothesis.
+    - Low Risk: Typos, CSS tweaks, minor logic.
+    - Medium Risk: Refactors, state migrations.
+    - High Risk: Structural changes, mission board wipes. Proceed to Step 3 and trigger the `warden:debugging` protocol.
+    - **Note**: Level 3 tasks REQUIRES a transition to the **[orchestration-strategy](./.agent/skills/orchestration-strategy/SKILL.md)** and **[intake](./.agent/skills/intake/SKILL.md)** skills to resolve ambiguity.
 
 ## 🔍 3. Deep Research & Cognitive Routing
 
@@ -56,9 +61,21 @@ Does the data from Step 3 confirm your hypothesis?
 
 ## ⚙️ 5. The Execution & Grounding Sequence
 
-Once planned and cleared, execute the task using tools at your disposal. **Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers**. Below are the most common skills to be used in this step:
+Once planned and cleared, execute the task using tools at your disposal. **Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers**. 
 
-- **[Project Management](./.agent/skills/project-manager)**
+### 🎭 Unified Orchestrator Signaling
+Every operational turn must conclude with a metadata block that signals the active role and thinking approach. 
+
+- **🎭 Strategic Role**: High-level architecture and vision.
+- **🎨 Tactical Role**: Planning, scoping, and track management.
+- **⚒️ Operational Role**: Direct implementation and execution.
+
+Below are the most common skills to be used in this step:
+
+- **[Orchestrator](./.agent/skills/orchestrator)** (Central Hub & Execution Logic)
+- **[Strategy](./.agent/skills/orchestration-strategy)** (Architecture & Vision)
+- **[Tactical](./.agent/skills/orchestration-tactics)** (Planning & Scoping)
+- **[Operations](./.agent/skills/orchestration-operations)** (Execution & TDD)
 - **[Svelte](./.agent/skills/svelte)**
 - **[CSS](./.agent/skills/css)**
 - **[Motion](./.agent/skills/motion)**
@@ -96,4 +113,13 @@ Do not give up unless all the reasoning above is exhausted. **If you cannot find
 Only take an action after all the above reasoning is completed. **Once you've taken an action, you cannot take it back**.
 
 - 8.1 Planning Constraint: **Do not execute without an initialized [Tracks](./.agent/project-management/log.md)**.
-- 8.2 The Close-out: **Update [Tracks](./.agent/project-management/log.md) and the [Mission Board](./.agent/project-management/mission-board.md) before turn termination**.
+- 8.2 The Close-out: **Update [Tracks](./.agent/project-management/log.md), the [Mission Board](./.agent/project-management/mission-board.md), and [Next](./.agent/project-management/next.md) before turn termination**.
+
+### 🕹️ Operational Heartbeat
+- **🎭 Role**: [Strategic/Tactical/Operational]
+- **🤔 Approach**: [Contemplative/Sequential/Professional]
+- **🤖 AGENTS.md**: [Specific step from AGENTS.md]
+- **📜 Rules**: [Active rule enforced this turn]
+- **🧠 Capabilities**: [Skill or Workflow utilized]
+- **💾 State**: [Specific file in .agent/project-management/ updated]
+- **🛠️ Tools & MCPs**: [Specific tool or MCP-server called]

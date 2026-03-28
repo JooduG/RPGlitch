@@ -38,12 +38,45 @@ export const skill_rules = [
     validate: (content) => content.includes("Procedure") && content.includes("Anti-Patterns"),
     message: "WARNING: Missing Procedure or Anti-Patterns sections.",
   },
+  {
+    id: "S-SKILL-004",
+    severity: "HERESY",
+    validate: (content, filePath) => {
+      const skillPath = path.dirname(filePath);
+      const allowedSubfolders = ["scripts", "references", "assets"];
+      const currentSubfolders = fs
+        .readdirSync(skillPath)
+        .filter((f) => fs.statSync(path.join(skillPath, f)).isDirectory());
+
+      return currentSubfolders.every((dir) => allowedSubfolders.includes(dir) || dir.startsWith("."));
+    },
+    message: "HERESY: Disallowed Subfolder Detected. Only scripts, assets, and references are permitted.",
+  },
+  {
+    id: "S-SKILL-005",
+    severity: "HIGH",
+    validate: (content, filePath) => {
+      const assetsPath = path.join(path.dirname(filePath), "assets");
+      if (!fs.existsSync(assetsPath)) return true;
+      const assetFiles = fs.readdirSync(assetsPath);
+      return !assetFiles.some((file) => {
+        const fullPath = path.join(assetsPath, file);
+        if (fs.statSync(fullPath).isDirectory()) return false;
+        return (
+          file.endsWith(".md") &&
+          !file.endsWith(".template.md") &&
+          fs.readFileSync(fullPath, "utf-8").toLowerCase().includes("template")
+        );
+      });
+    },
+    message: "HIGH: Improperly named asset. Reusable templates must use the .template.md suffix.",
+  },
 ];
 
 /**
  * 🕵️ Audit Logic (Sovereign Standalone)
  */
-async function auditSkill(skillName) {
+async function audit_skill(skillName) {
   const skillPath = path.join(SKILL_ROOT, skillName);
   const skillFile = path.join(skillPath, "SKILL.md");
 
@@ -101,14 +134,6 @@ async function auditSkill(skillName) {
       });
     }
 
-    // 3. Documentation Links
-    if (!rawContent.includes("knowledge/")) {
-      report.issues.push({
-        sev: SEVERITY.LOW,
-        msg: "No deep-dive knowledge/ references found",
-        deduction: 5,
-      });
-    }
 
     // 4. Case Sensitivity (Nomenclature)
     if (skillName !== skillName.toLowerCase() || skillName.includes("_")) {
@@ -119,31 +144,45 @@ async function auditSkill(skillName) {
       });
     }
 
-    // 5. Sovereign Anatomy Check
-    const mandatory = ["scripts", "references"];
-    const modular = ["assets"];
 
-    mandatory.forEach((dir) => {
-      if (!fs.existsSync(path.join(skillPath, dir))) {
+    // 5. Structural Exclusivity Check (Strict TRIAD)
+    // Subfolders are optional — but if one exists it MUST be named scripts, assets, or references.
+    const allowedSubfolders = ["scripts", "references", "assets"];
+    const currentSubfolders = fs
+      .readdirSync(skillPath)
+      .filter((f) => fs.statSync(path.join(skillPath, f)).isDirectory());
+
+    currentSubfolders.forEach((dir) => {
+      if (!allowedSubfolders.includes(dir) && !dir.startsWith(".")) {
         report.issues.push({
-          sev: SEVERITY.CRITICAL,
-          msg: `Missing Anatomy Component: ${dir}/`,
-          deduction: 20,
+          sev: SEVERITY.HERESY,
+          msg: `Disallowed Subfolder Detected: ${dir}/. Only scripts, assets, and references are permitted.`,
+          deduction: 50,
         });
       }
     });
 
-    modular.forEach((dir) => {
-      if (!fs.existsSync(path.join(skillPath, dir))) {
-        report.issues.push({
-          sev: SEVERITY.LOW,
-          msg: `Missing Modular Component: ${dir}/ (Recommended)`,
-          deduction: 2,
-        });
-      }
-    });
+    // 7. Template Naming Check (.template.md)
+    const assetsPath = path.join(skillPath, "assets");
+    if (fs.existsSync(assetsPath)) {
+      const assetFiles = fs.readdirSync(assetsPath);
+      assetFiles.forEach((file) => {
+        if (
+          file.endsWith(".md") &&
+          !file.endsWith(".template.md") &&
+          content.toLowerCase().includes("template")
+        ) {
+          // Note: This is a soft heuristic, but strictly required if intended as a template.
+          report.issues.push({
+            sev: SEVERITY.HIGH,
+            msg: `Improperly named asset: ${file}. Reusable templates must use the .template.md suffix.`,
+            deduction: 15,
+          });
+        }
+      });
+    }
 
-    // 6. Placeholder & Mandatory Section Detection
+    // 8. Placeholder & Mandatory Section Detection
     const content = fs.readFileSync(skillFile, "utf-8");
     const bracketMatches = content.match(/\[.*?\](?!\()/g) || []; // Ignore [text](link)
     const placeholderCount = bracketMatches.filter(
@@ -196,7 +235,7 @@ if (process.argv[1] && process.argv[1].endsWith("audit-skills.js")) {
   const command = args[0];
 
   if (command === "audit") {
-    auditSkill(args[1] || "directives");
+    audit_skill(args[1] || "directives");
   } else {
     console.log("Usage: node audit-skills.js audit <skill-name>");
   }

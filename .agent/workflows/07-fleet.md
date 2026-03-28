@@ -26,7 +26,7 @@ description: [STUB - NOT IMPLEMENTED] Orchestration & Sync. Coordinates the mult
 
 ### Phase 1: The Clarity Gate (Mapping)
 
-1. **Analysis**: Identify child repositories affected by the current core logic change. [[Invoke: project-manager]](../skills/project-manager/SKILL.md)
+1. **Analysis**: Identify child repositories affected by the current core logic change. [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
 2. **Swarm Scope**: Define precise boundaries for sub-routine dispatch (e.g., `codebase_investigator`). [[Invoke: directives]](../skills/directives/SKILL.md)
 3. **Conflict Check**: Assess potential breaking changes in downstream repositories. [[Invoke: warden]](../skills/warden/SKILL.md)
 
@@ -50,5 +50,5 @@ description: [STUB - NOT IMPLEMENTED] Orchestration & Sync. Coordinates the mult
 
 - **🤖 AGENTS.md**: Step 3 (Cognitive Routing - Fleet active)
 - **📜 Rules**: Rule 01 (Foundation), Rule 05 (Intelligence)
-- **🧠 Capabilities**: project-manager (Orchestration), warden (Audit)
+- **🧠 Capabilities**: orchestrator (Orchestration), warden (Audit)
 - **💾 State**: .agent/project-management/log.md

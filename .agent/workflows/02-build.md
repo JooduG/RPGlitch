@@ -29,7 +29,7 @@ description: Implementation Loop. Logic, State, and Style fabrication.
 2. **Validation**: Ensure all logic uses **Svelte 5 Runes** explicitly (`$state`, `$derived`, `$effect`).
    - **Legacy Refactor**: Silently refactor any Svelte 3/4 patterns (`stores`, `export let`) encountered in the sector. [[Invoke: svelte]](../skills/svelte/SKILL.md)
 3. **Perchance Isolation**: No node-only imports. Rely on `esm.sh` and JIT compilation.
-4. **Execution**: Implement changes in small, atomic beats. After each beat, verify the logic state matches the TDD expectation. [[Invoke: project-manager]](../skills/project-manager/SKILL.md)
+4. **Execution**: Implement changes in small, atomic beats. After each beat, verify the logic state matches the TDD expectation. [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
 
 ### Phase 2: Refinement (The Chalk Regime)
 
@@ -47,9 +47,3 @@ description: Implementation Loop. Logic, State, and Style fabrication.
 - **Blind Coding**: Committing without seeing the verification output.
 - **Legacy Reactivity**: Using `$:` or `writable()`.
 - **Style Drift**: Hardcoding hex values instead of using `tokens.css`.
-
-### 🕹️ Operational Heartbeat
-- **🤖 AGENTS.md**: Step 5 (Execution - Forge active)
-- **📜 Rules**: Rule 01 (Foundation), Rule 03 (Infrastructure), Rule 05 (Intelligence)
-- **🧠 Capabilities**: svelte (Runes), css (Chalk Regime), project-manager (TDD)
-- **💾 State**: .agent/project-management/tracks/<slug>.md

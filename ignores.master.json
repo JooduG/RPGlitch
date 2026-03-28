@@ -1,8 +1,8 @@
 {
   "common": [
     "!.gemini/settings.json",
-    "!dist/RPGlitch-left-panel.txt",
-    "!src/RPGlitch-left-panel.txt",
+    "!dist/rpglitch-left-panel.txt",
+    "!src/rpglitch-left-panel.txt",
     "*.bak",
     "*.log",
     "*.tmp",
@@ -23,6 +23,8 @@
     "**/scribbles/**",
     "test-results/**",
     ".playwright-auth/**",
+    "**/skills/**/assets/**",
+    "**/skills/**/references/**",
     "GEMINI.md"
   ],
   "geminiignore": [
@@ -33,17 +35,21 @@
     "!**/.git/**",
     "!**/mcp.json",
     "!**/index/**",
-    "!**/RPGlitch-left-panel.txt",
+    "!**/rpglitch-left-panel.txt",
     "!**/templates/**",
     "!**/test-results/**",
     "!**/scribbles/**",
-    "!**/.playwright-auth/**"
+    "!**/.playwright-auth/**",
+    "!**/skills/**/assets/**",
+    "!**/skills/**/references/**"
   ],
   "gitignore": [
-    "!**/RPGlitch-left-panel.txt",
+    "!**/rpglitch-left-panel.txt",
     "**/.eslintcache",
     "!GEMINI.md",
-    ".playwright-auth/**"
+    ".playwright-auth/**",
+    "!**/skills/**/assets/**",
+    "!**/skills/**/references/**"
   ],
   "linters": {
     "eslint": [],
@@ -82,6 +88,6 @@
       "tests/**": true
     },
     "markdown.validate.referenceLinks.enabled": false,
-    "stylelint.validate": ["css", "scss", "svelte"]
+    "stylelint.validate": ["css", "svelte"]
   }
 }

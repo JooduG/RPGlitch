@@ -1,6 +1,6 @@
 !.gemini/settings.json
-!dist/RPGlitch-left-panel.txt
-!src/RPGlitch-left-panel.txt
+!dist/rpglitch-left-panel.txt
+!src/rpglitch-left-panel.txt
 *.bak
 *.log
 *.tmp
@@ -21,4 +21,6 @@ node_modules
 **/scribbles/**
 test-results/**
 .playwright-auth/**
+**/skills/**/assets/**
+**/skills/**/references/**
 GEMINI.md

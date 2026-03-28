@@ -26,11 +26,11 @@ description: Fresh Session Initialization. Syncs context and mental model.
 
 1. **Intake**: Read [Mission Board](../project-management/mission-board.md), [log](../project-management/log.md), and [Next](../project-management/next.md). Ensure intent matches the current mission. [[Invoke: intake]](../skills/intake/SKILL.md)
 2. **Environment Verification**: Explicitly acknowledge the target environment (Perchance sandboxed runtime) and reactivity standard (Svelte 5 Runes).
-3. **Validation**: Ensure neither the Mission Board nor log contain corrupted entries. Parse the "Current Goal" and identify the active baton. [[Invoke: project-manager]](../skills/project-manager/SKILL.md)
+3. **Validation**: Ensure neither the Mission Board nor log contain corrupted entries. Parse the "Current Goal" and identify the active baton. [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
 
 ### Phase 2: Registry (Step 1.3: Prerequisites)
 
-1. **Registry**: Identify any active track `[/]` or pending tasks `[ ]` in [log](../project-management/log.md). If no active track exists, wait for user input or initiate [/01-plan](./01-plan.md). [[Invoke: project-manager]](../skills/project-manager/SKILL.md)
+1. **Registry**: Identify any active track `[/]` or pending tasks `[ ]` in [log](../project-management/log.md). If no active track exists, wait for user input or initiate [/01-plan](./01-plan.md). [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
 
 ### Phase 3: The Quality Gate (Audit & Heartbeat)
 
@@ -42,10 +42,3 @@ description: Fresh Session Initialization. Syncs context and mental model.
 - **Blind Boot**: Starting work without reading the Mission Board.
 - **Amnesia**: Failing to parse the historical context in the log.
 - **Path Drift**: Using absolute drive letters instead of relative `.agent/` paths.
-
-### 🕹️ Operational Heartbeat
-
-- **🤖 AGENTS.md**: Step 1.5 (Intent Decoding - Bootstrapped)
-- **📜 Rules**: Rule 01 (Foundation), Rule 05 (Intelligence)
-- **🧠 Capabilities**: project-manager (Sync State)
-- **💾 State**: .agent/project-management/mission-board.md

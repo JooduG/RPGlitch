@@ -44,7 +44,7 @@
 - [x] **intake Skill**: Intent Decoding, Incubation, & Feature Gateway (Sovereign).
 - [x] **Simulation Skill**: Round/Turn Orchestration & Narrative Bridges (Sovereign).
 - [x] **Warden Skill**: Security, Hygiene (Janitor), & Structural Purity (Sovereign).
-- [x] **Project-Manager Skill**: Infrastructure, Rules, & Skill Lifecycle (Sovereign).
+- [x] **orchestrator Skill**: Infrastructure, Rules, & Skill Lifecycle (Sovereign).
 - [x] **Designer Skill**: Creative Direction, Aesthetics, & Sensory Orchestration.
 - [x] **Boot & Knowledge Audit**: Completed /00-boot and archive migration.
 - [x] **Agent Auditor Expansion**: Integrated Rules and Workflows into the Reflex Engine.
@@ -68,7 +68,7 @@
 
 ### [DONE] [013] [Sovereign Rebranding]
 
-- [x] Phase 1: Planning (Data, Simulation, intake, Warden, Agent-Manager).
+- [x] Phase 1: Planning (Data, Simulation, intake, Warden, orchestrator).
 - [x] Phase 2: Structural Migration (Renamed `.agent/skills/` directories).
 - [x] Phase 3: Alignment (Updated `SKILL.md`, `package.json`, `mcp.json`).
 - [x] Phase 4: Verification (100% Audit Purity pass).
@@ -105,7 +105,7 @@
 - [x] Phase 3: Engine Integration (Enhanced `audit-engine.js` with `--agent` support).
 - [x] Phase 4: Validation (Verified 100% resonance with `npm run verify`).
 
-### [DONE] [020] [Project Manager: Sovereign 2.0]
+### [DONE] [020] [orchestrator: Sovereign 2.0]
 
 - [x] **Phase 1: Grounding/Plan** (/01-plan): Terminology alignment and Research.
 - [x] **Phase 2: Execution/Build** (/02-build): Updated `SKILL.md`, `TRACK.template.md`, and `intake/SKILL.md`.
@@ -117,6 +117,19 @@
 - [x] **Infrastructure Wiring** (NTFS junctions to .gemini/).
 - [x] **Configuration Alignment (config.yaml)** (Aligned `.agent/config.yaml` with Sovereign Rebranding).
 - [x] **Rule-Set Synchronization**: Aligned Rule 01-05 with AGENTS.md and moved the Implementation M-Sequence to Rule 03.
+
+### [DONE] [021] [Sovereign Anatomy Refactor]
+
+- [x] Phase 1: Structural Audit (Enforced `scripts/`, `assets/`, `references/` triad).
+- [x] Phase 2: Refactoring (Migrated all skill-specific logic into `scripts/`).
+- [x] Phase 3: Validation (Verified anatomy compliance across 100% of internal skills).
+
+### [DONE] [022] [Nomenclature Audit]
+
+- [x] Phase 1: Planning (Defined Rule 05 lexical laws for automated enforcement).
+- [x] Phase 2: Implementation (Created `audit-nomenclature.js` in `directives/scripts/`).
+- [x] Phase 3: Integration (Wired `audit:nomenclature` into `package.json`).
+- [x] Phase 4: Validation (Achieved 0 violations across 100% of project items).
 
 ## Known Quirks / Technical Debt
 

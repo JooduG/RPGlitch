@@ -33,5 +33,5 @@
     "task_boundary",
     "notify_user"
   ],
-  "validation_command": "node .agent/skills/project-manager/scripts/sync.js"
+  "validation_command": "node .agent/skills/orchestrator/scripts/sync.js"
 }

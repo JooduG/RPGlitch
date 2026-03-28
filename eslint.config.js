@@ -17,8 +17,8 @@ export default [
     // @agent:ignore-start
     ignores: [
       "!.gemini/settings.json",
-      "!dist/RPGlitch-left-panel.txt",
-      "!src/RPGlitch-left-panel.txt",
+      "!dist/rpglitch-left-panel.txt",
+      "!src/rpglitch-left-panel.txt",
       "*.bak",
       "*.log",
       "*.tmp",
@@ -39,6 +39,8 @@ export default [
       "**/scribbles/**",
       "test-results/**",
       ".playwright-auth/**",
+      "**/skills/**/assets/**",
+      "**/skills/**/references/**",
       "GEMINI.md"
     ],
     // @agent:ignore-end

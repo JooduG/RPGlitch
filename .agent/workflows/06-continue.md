@@ -23,7 +23,7 @@ description: Resume Interrupted Work. Bypasses boot logic to pick up the baton.
 ### Phase 1: Synchronization (Step 1)
 
 1. **Read**: Load `next.md` to identify the current baton. [[Invoke: intake]](../skills/intake/SKILL.md)
-2. **Audit**: Sanity check the last completed track in `log.md`. [[Invoke: project-manager]](../skills/project-manager/SKILL.md)
+2. **Audit**: Sanity check the last completed track in `log.md`. [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
 3. **Resonate**: Align with the current **Risk Routing** (Step 2.2).
 
 ### Phase 2: Execution (Step 5)
@@ -39,10 +39,3 @@ description: Resume Interrupted Work. Bypasses boot logic to pick up the baton.
 
 - **Cold Start**: Starting new features before completing the `next.md` baton.
 - **Ghost Tasks**: Working on logic not documented in the mission board.
-
-### 🕹️ Operational Heartbeat
-
-- **🤖 AGENTS.md**: Step 1.3 (Prerequisites - Resonator active)
-- **📜 Rules**: Rule 01 (Foundation), Rule 05 (Intelligence)
-- **🧠 Capabilities**: intake (The Handoff), project-manager (State Sync)
-- **💾 State**: .agent/project-management/next.md

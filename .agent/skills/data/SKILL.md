@@ -20,13 +20,13 @@ skills/data/
 
 ## 2. Summoning Triggers
 
-- **Territorial**: `.agent/knowledge/**`, `.agent/project-management/**`.
+- **Territorial**: `.agent/references/**`, `.agent/project-management/**`.
 - **Intent**: "Search lore", "Archive log", "Sync memory", "Context: Data".
 
 ## 3. Procedures
 
 1. **Ingest Technical Document**:
-   1. Place the `.md` file in `.agent/knowledge/`.
+   1. Place the `.md` file in `.agent/references/`.
    2. Run `node .agent/skills/data/scripts/pinecone-engine.js ingest <path>`.
    3. Verify searchability via the `data` MCP.
 
@@ -86,7 +86,7 @@ File: `.agent/skills/data/scripts/supabase-engine.js`
 
 - **The Source (Source Code)**: `src/` - The living reality of the application.
 - **The Protocol (Operating System)**: `.agent/` (`config`, `rules`, `workflows`) - How the agent thinks.
-- **The Library (Distilled Knowledge)**: `.agent/knowledge/` - Structured research, patterns, and archives.
+- **The Library (Distilled Knowledge)**: `.agent/references/` - Structured research, patterns, and archives.
 
 ## 2. 🔵 Cold Storage (Supabase) — _Deferred_
 
@@ -104,12 +104,5 @@ File: `.agent/skills/data/scripts/supabase-engine.js`
   1. **Chunk**: Split text by semantic proximity (not just char count).
   2. **Embed**: Generate vector.
   3. **Upsert**: Store with metadata (`type`, `tags`, `weight`).
-
----
-
-📜 Rules: 01, 04
-🧠 Skills: data
-⚡ Workflows: /01-plan
-🕰️ 2026-03-24
 
 ---

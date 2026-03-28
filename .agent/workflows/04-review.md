@@ -32,7 +32,7 @@ description: Reviews and stuff.
 ### Phase 2: Maintenance & Archival
 
 1. **Archival**: If complete, move the track shards to `.agent/project-management/archive/`. [[Invoke: directives]](../skills/directives/SKILL.md)
-2. **Triage**: Sort incoming issues and seed the next [/01-plan](./01-plan.md) cycle. [[Invoke: project-manager]](../skills/project-manager/SKILL.md)
+2. **Triage**: Sort incoming issues and seed the next [/01-plan](./01-plan.md) cycle. [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
 
 ### Phase 3: The Handoff Law (Step 8.2)
 
@@ -45,10 +45,3 @@ description: Reviews and stuff.
 - **The Dropped Baton**: Terminating a session without executing Phase 3 (Paperwork).
 - **Silent Done**: Marking tasks complete without providing an audit report or terminal evidence.
 - **Logic Leak**: Committing untested edge cases or legacy reactivity.
-
-### 🕹️ Operational Heartbeat
-
-- **🤖 AGENTS.md**: Step 8.2 (The Close-out - Vault secured)
-- **📜 Rules**: Rule 01 (Foundation), Rule 05 (Intelligence)
-- **🧠 Capabilities**: project-manager (Paperwork), intake (The Handoff)
-- **💾 State**: .agent/project-management/next.md

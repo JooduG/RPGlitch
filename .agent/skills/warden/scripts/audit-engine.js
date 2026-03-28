@@ -7,7 +7,8 @@ import { cssRules } from "../../css/scripts/audit-css.js";
 import { rule_rules } from "../../directives/scripts/audit-rules.js";
 import { skill_rules } from "../../directives/scripts/audit-skills.js";
 import { workflow_rules } from "../../directives/scripts/audit-workflows.js";
-import { projectRules } from "../../project-manager/scripts/audit-project.js";
+import { scan_nomenclature } from "../../directives/scripts/audit-nomenclature.js";
+import { projectRules } from "../../orchestration-operations/scripts/audit-project.js";
 import { svelteRules } from "../../svelte/scripts/audit-svelte.js";
 import { securityRules } from "./audit-security.js";
 
@@ -54,6 +55,7 @@ class Auditor {
     this.is_rules_active = true;
     this.is_workflows_active = true;
     this.is_project_active = true;
+    this.is_names_active = true; // on by default; disabled by content-only filters
   }
 
   scan(dir) {
@@ -199,62 +201,74 @@ console.log("🦾 THE REFLEX: MODULAR AUDITOR ENGINE");
 console.log("================================================================================\n");
 
 // Handle CLI Filters
-if (args.includes("--svelte")) {
+if (args.includes("--names")) {
+  console.log("🎯 Filter: Nomenclature (Filename Casing) Only\n");
+  auditor.rules = {};
+  auditor.is_skills_active = false;
+  auditor.is_rules_active = false;
+  auditor.is_workflows_active = false;
+  auditor.is_project_active = false;
+  auditor.is_names_active = true;
+} else if (args.includes("--svelte")) {
   console.log("🎯 Filter: Svelte Rules Only\n");
   auditor.rules = { ".svelte": svelteRules };
   auditor.is_skills_active = false;
   auditor.is_rules_active = false;
   auditor.is_workflows_active = false;
-  auditor.is_method_active = false;
+  auditor.is_names_active = false;
 } else if (args.includes("--css")) {
   console.log("🎯 Filter: CSS Rules Only\n");
   auditor.rules = { ".css": cssRules };
   auditor.is_skills_active = false;
   auditor.is_rules_active = false;
   auditor.is_workflows_active = false;
-  auditor.is_method_active = false;
+  auditor.is_names_active = false;
 } else if (args.includes("--security")) {
   console.log("🎯 Filter: Security Rules Only\n");
   auditor.rules = { ".js": securityRules };
   auditor.is_skills_active = false;
   auditor.is_rules_active = false;
   auditor.is_workflows_active = false;
-  auditor.is_method_active = false;
+  auditor.is_names_active = false;
 } else if (args.includes("--skills")) {
   console.log("🎯 Filter: Skill Rules Only\n");
   auditor.rules = {};
   auditor.is_skills_active = true;
   auditor.is_rules_active = false;
   auditor.is_workflows_active = false;
-  auditor.is_method_active = false;
+  auditor.is_project_active = false;
+  auditor.is_names_active = false;
 } else if (args.includes("--rules")) {
   console.log("🎯 Filter: Agent Rules Only\n");
   auditor.rules = {};
   auditor.is_skills_active = false;
   auditor.is_rules_active = true;
   auditor.is_workflows_active = false;
-  auditor.is_method_active = false;
+  auditor.is_project_active = false;
+  auditor.is_names_active = false;
 } else if (args.includes("--workflows")) {
   console.log("🎯 Filter: Agent Workflows Only\n");
   auditor.rules = {};
   auditor.is_skills_active = false;
   auditor.is_rules_active = false;
   auditor.is_workflows_active = true;
-  auditor.is_method_active = false;
+  auditor.is_project_active = false;
+  auditor.is_names_active = false;
 } else if (args.includes("--agent")) {
   console.log("🎯 Filter: Agent Infrastructure (Skills, Rules, Workflows)\n");
   auditor.rules = {};
   auditor.is_skills_active = true;
   auditor.is_rules_active = true;
   auditor.is_workflows_active = true;
-  auditor.is_method_active = false;
+  auditor.is_project_active = false;
+  auditor.is_names_active = false;
 } else if (args.includes("--project")) {
   console.log("🎯 Filter: Project Rules Only\n");
   auditor.rules = { ".js": projectRules, ".md": projectRules };
   auditor.is_skills_active = false;
   auditor.is_rules_active = false;
   auditor.is_workflows_active = false;
-  auditor.is_project_active = true;
+  auditor.is_names_active = false;
 } else if (args.includes("--todo")) {
   console.log("🎯 Filter: TODO Rules Only\n");
   auditor.rules = {
@@ -264,11 +278,30 @@ if (args.includes("--svelte")) {
   auditor.is_skills_active = false;
   auditor.is_rules_active = false;
   auditor.is_workflows_active = false;
-  auditor.is_method_active = false;
+  auditor.is_project_active = false;
+  auditor.is_names_active = false;
 }
 
 auditor.scan(SRC_DIR);
 auditor.scan(SKILLS_DIR);
 auditor.scan(RULES_DIR);
 auditor.scan(WORKFLOWS_DIR);
+
+// Nomenclature pass — filename casing check (Rule 05 Lexical Laws)
+if (auditor.is_names_active) {
+  const name_stats = { scanned: 0, violations: 0 };
+  const SLEVELS = { HERESY: { color: RED, label: "HERESY" }, DEBT: { color: YELLOW, label: "DEBT" } };
+
+  [SRC_DIR, SKILLS_DIR, RULES_DIR, WORKFLOWS_DIR].forEach((dir) => {
+    scan_nomenclature(dir, name_stats, (id, sev, rel_path, msg) => {
+      auditor.stats.violations++;
+      const s = SLEVELS[sev] || SLEVELS.DEBT;
+      console.log(`${s.color}[${s.label}] ${rel_path}${RESET}`);
+      console.log(`  [${id}] ${msg}\n`);
+    });
+  });
+
+  auditor.stats.scanned += name_stats.scanned;
+}
+
 auditor.summary();

@@ -85,12 +85,4 @@ Before final certification, the Warden must perform a **Nervous System Sweep**:
 
 ---
 
-## 📜 Metadata
-- **📜 Rules**: 03, 05, 06
-- **🧠 Skills**: warden, devops
-- **⚡ Workflows**: /03-clean, /04-review
-- **🕰️ 2026-03-24**
-
----
-
 > "Vigilance is the price of purity."

@@ -47,7 +47,7 @@ description: The Master Router. Enforces the 8-step process from AGENTS.md, cate
 ### Phase 4: Registration (Step 8.1)
 
 1. **Scaffold**: Create or update the task shard in `.agent/project-management/tracks/<slug>.md`. [[Invoke: directives]](../skills/directives/SKILL.md)
-2. **Kanban**: Registered the track on the [Mission Board](../project-management/mission-board.md). [[Invoke: project-manager]](../skills/project-manager/SKILL.md)
+2. **Kanban**: Registered the track on the [Mission Board](../project-management/mission-board.md). [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
 3. **Prompt**: Prepare the user to trigger [/02-build](./02-build.md).
 
 ## 4. Anti-Patterns
@@ -55,10 +55,3 @@ description: The Master Router. Enforces the 8-step process from AGENTS.md, cate
 - **The Ghost Route**: Writing code during the planning phase.
 - **Complexity Denial**: Treating High-Risk tasks as Low-Risk to skip the Warden.
 - **Metadata Omission**: Failing to conclude with the Rule 05 Heartbeat.
-
-### 🕹️ Operational Heartbeat
-
-- **🤖 AGENTS.md**: Step 2.1 (Brainstorming - Router initialized)
-- **📜 Rules**: Rule 01 (Foundation), Rule 05 (Intelligence)
-- **🧠 Capabilities**: intake (Intent Decoding), project-manager (Track Registration)
-- **💾 State**: .agent/project-management/mission-board.md

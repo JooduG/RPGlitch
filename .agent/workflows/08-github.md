@@ -41,10 +41,3 @@ description: Local GitHub Ops. Automates PRs, issues, and local sync.
 
 - **Solo Branching**: Pushing changes without an active track or PR context.
 - **Blind Push**: Skipping the hygiene/security audit before orbiting.
-
-### 🕹️ Operational Heartbeat
-
-- **🤖 AGENTS.md**: Step 8.2 (The Close-out - Bridge sync active)
-- **📜 Rules**: Rule 01 (Foundation), Rule 06 (Compliance)
-- **🧠 Capabilities**: devops (Sync), project-manager (State Tracker)
-- **💾 State**: .agent/project-management/log.md

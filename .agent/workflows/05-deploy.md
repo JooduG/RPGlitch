@@ -39,10 +39,3 @@ description: Solo Deployment. Ships the bundle to Perchance.
 
 - **Blind Shipping**: Deploying without passing the latest tests or local visual check.
 - **Leakage**: Deploying with hardcoded API keys or debug flags active.
-
-### 🕹️ Operational Heartbeat
-
-- **🤖 AGENTS.md**: Step 5 (Execution - Deployment active)
-- **📜 Rules**: Rule 01 (Foundation), Rule 03 (Infrastructure)
-- **🧠 Capabilities**: devops (Build), warden (Verify)
-- **💾 State**: .agent/project-management/log.md

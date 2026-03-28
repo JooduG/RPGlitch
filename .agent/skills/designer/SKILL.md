@@ -67,12 +67,4 @@ This skill is the **Creative Director** of the engine. It enforces:
 
 ---
 
-## 📜 Metadata
-- **📜 Rules**: 04, 05
-- **🧠 Skills**: designer, intake, stitch
-- **⚡ Workflows**: /02-build
-- **🕰️ 2026-03-24**
-
----
-
 > "Aesthetics are the physics of the imagination."

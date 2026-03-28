@@ -1,18 +1,32 @@
-# ⏭️ Next: The Project Horizon
+# ⏭️ Next: Unified Handoff
 
-## 📋 Active Backlog
+> [!NOTE]
+> This file is the high-fidelity state bridge for the Unified Orchestrator. It ensures crystalline context between agent sessions.
 
-- [ ] **Next Steps**: Expand the Dynamic World State (Fractals) to support multi-instance narrative branches.
+## 📜 Context (The "Where")
 
-## ⏭️ Context & Objectives
+**Current State**: `.agent` infrastructure and naming conventions are now hardened. The `audit:nomenclature` engine is live and integrated. Sovereign Anatomy is enforced across all 11 skills. 100% Audit Purity achieved.
 
-**Context**: The "Holistic Audit & Harmonization" is complete. All agent infrastructure components (Skills, Rules, and Workflows) are centrally registered in `config.yaml`, and naming is synchronized across the Mission Board and Filesystem.
+**Strategic Alignment**: **Narrative Bridge** is the active track. Next priority is orchestrating autonomous scene complications and sensory triggers.
 
-**Objectives**:
+## 🧠 Logic (The "Why")
 
-1.  **Narrative Calibration**: Continue the "Narrative Bridge" track in `log.md` to support autonomous scene complications.
-2.  **Diegetic UI**: Refine the "Chalk Regime" implementation in `src/ui/organisms/StoryBoard.svelte`.
+**Decisions**:
+- Consolidated `todo-handoff.md` into an enhanced `next.md` to avoid file proliferation.
+- Elevated `insights.md` to `project-management/` to serve as a cross-session "Architect's Journal".
+
+**Rationale**: Local-first simulation requires local-first memory. By centralizing insights and handoff state, we ensure the agent's logic remains cohesive across human breaks.
+
+## ⚒️ Actions (The "What")
+
+- [x] Relocate and rename `insights.md`.
+- [x] **Governance Alignment**: `AGENTS.md` and `Rule 05` updated in prior sessions.
+- [x] **Heartbeat Purge**: Removed Operational Heartbeat blocks from all 9 workflows and all SKILL.md files (convention-only, chat-exclusive).
+- [x] **Registry Patch**: Added `orchestration-operations`, `-tactics`, `-strategy` to `config.yaml`.
+- [x] **Orchestrator SKILL.md**: Restored clean `## 🛠️ Standard Procedures` section; removed duplicate closing quote.
+- [x] **Nomenclature Audit**: Implemented `audit-nomenclature.js` enforcing Rule 05 lexical laws (kebab-case/PascalCase).
+- [ ] **Narrative Bridge**: Register and plan autonomous scene complications.
 
 ---
 
-**Operational Command**: Run `npm run audit:project` to ensure continued resonance.
+**Operational Command**: Run `npm run audit` to verify system integrity and nomenclature compliance.

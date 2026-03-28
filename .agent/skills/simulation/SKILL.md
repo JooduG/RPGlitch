@@ -36,12 +36,3 @@ skills/simulation/
 | :----------------- | :--------------------------------------------------------------------------- |
 | **Logic Leaks**    | Ensure state mutations only occur within the deterministic Simulation Cycle. |
 | **User Hijacking** | Never speak, act, or think for the User. Maintain strict agency.             |
-
----
-
-📜 Rules: 01, 02, 04
-🧠 Skills: simulation
-⚡ Workflows: /02-build
-🕰️ 2026-03-24
-
----

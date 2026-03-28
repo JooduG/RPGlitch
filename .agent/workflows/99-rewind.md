@@ -24,7 +24,7 @@ disable-model-invocation: true
 ### Phase 1: The Clarity Gate (Diagnosis)
 
 1. **Halt**: Cease all execution. State: "I am looping. Initiating Rewind Protocol." [[Invoke: directives]](../skills/directives/SKILL.md)
-2. **Trace**: Identify the origin of the invalid data or failed assumption. [[Invoke: project-manager]](../skills/project-manager/SKILL.md)
+2. **Trace**: Identify the origin of the invalid data or failed assumption. [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
 
 ### Phase 2: Restoration
 
@@ -33,17 +33,10 @@ disable-model-invocation: true
 
 ### Phase 3: The Quality Gate (Pivoting)
 
-1. **Report**: Explain _what_ broke and formulate a pivot strategy. [[Invoke: project-manager]](../skills/project-manager/SKILL.md)
+1. **Report**: Explain _what_ broke and formulate a pivot strategy. [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
 2. **Approval**: Wait for user sign-off before re-entering [/01-plan](./01-plan.md).
 
 ## 4. Anti-Patterns
 
 - **Sunk Cost**: Continuing a failed path instead of rewinding.
 - **Silent Reset**: Deleting work without informing the user.
-
-### 🕹️ Operational Heartbeat
-
-- **🤖 AGENTS.md**: Step 7 (Persistence & Rewind)
-- **📜 Rules**: Rule 01 (Foundation), Rule 05 (Intelligence)
-- **🧠 Capabilities**: project-manager (Restoration), devops (Clean)
-- **💾 State**: .agent/project-management/log.md

@@ -5,13 +5,13 @@ import path from "path";
 const ROOT_DIR = process.cwd();
 
 /**
- * ⚒️ PROJECT MANAGER: GLOBAL STATE SYNC
+ * ⚒️ orchestrator: GLOBAL STATE SYNC
  * ---------------------------------
  * Reconciles the mission board, task tracks, and ignore files.
  */
 
 console.log("\n================================================================================");
-console.log("⚒️  THE PROJECT MANAGER: GLOBAL STATE SYNC");
+console.log("⚒️  THE orchestrator: GLOBAL STATE SYNC");
 console.log("================================================================================\n");
 
 // 1. Sync eslint.config.js, .gitignore, .geminiignore, linter ignores, and vscode settings
