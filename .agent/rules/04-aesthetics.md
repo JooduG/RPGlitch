@@ -48,8 +48,8 @@ Elevation is achieved by progressively mixing `Gunmetal` with `Chalk` to lighten
 
 We use a strictly defined triad of fonts, scaled via an absolute T-shirt sizing scale (`var(--font-size-xxs)` through `var(--font-size-xxxxxl)`).
 
-- **Headline Font** (`var(--font-heading)`): `Ubuntu`, sans-serif. 
-- **Body Font** (`var(--font-sans)`): `Inter`, system-ui. 
+- **Headline Font** (`var(--font-heading)`): `Ubuntu`, sans-serif.
+- **Body Font** (`var(--font-sans)`): `Inter`, system-ui.
 - **Label Font** (`var(--font-mono)`): `JetBrains Mono`, monospace.
 
 ### T-Shirt Spacing

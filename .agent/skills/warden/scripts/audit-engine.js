@@ -290,7 +290,10 @@ auditor.scan(WORKFLOWS_DIR);
 // Nomenclature pass — filename casing check (Rule 05 Lexical Laws)
 if (auditor.is_names_active) {
   const name_stats = { scanned: 0, violations: 0 };
-  const SLEVELS = { HERESY: { color: RED, label: "HERESY" }, DEBT: { color: YELLOW, label: "DEBT" } };
+  const SLEVELS = {
+    HERESY: { color: RED, label: "HERESY" },
+    DEBT: { color: YELLOW, label: "DEBT" },
+  };
 
   [SRC_DIR, SKILLS_DIR, RULES_DIR, WORKFLOWS_DIR].forEach((dir) => {
     scan_nomenclature(dir, name_stats, (id, sev, rel_path, msg) => {

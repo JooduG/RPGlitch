@@ -80,7 +80,7 @@ Every interaction follows a strict reactive loop propagated by Runes:
 
 ## 5. Simulation Entities & Management
 
-A `simulation` is a story and requires `entities` in order to play out. For detailed nomenclature and definitions, see *the [Intelligence](./04-intelligence.md) rule*.
+A `simulation` is a story and requires `entities` in order to play out. For detailed nomenclature and definitions, see _the [Intelligence](./04-intelligence.md) rule_.
 
 - **Swapping**: The engine is designed for frequent story swapping. Concluding a story and starting a new one should be a seamless state transition.
 - **Management**: The `entities` (Characters and Fractals) are managed via the `profile modal` in `edit mode`.

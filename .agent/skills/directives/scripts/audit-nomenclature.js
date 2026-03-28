@@ -220,17 +220,29 @@ export function scan_nomenclature(dir, stats, report) {
     if (stat.isDirectory()) {
       if (SKIP_DIRS.has(item)) continue;
       stats.scanned++;
-      check_item(item, true, rel_path, (id, sev, rp, msg) => {
-        stats.violations++;
-        report(id, sev, rp, msg);
-      }, dir);
+      check_item(
+        item,
+        true,
+        rel_path,
+        (id, sev, rp, msg) => {
+          stats.violations++;
+          report(id, sev, rp, msg);
+        },
+        dir,
+      );
       scan_nomenclature(full_path, stats, report);
     } else {
       stats.scanned++;
-      check_item(item, false, rel_path, (id, sev, rp, msg) => {
-        stats.violations++;
-        report(id, sev, rp, msg);
-      }, dir);
+      check_item(
+        item,
+        false,
+        rel_path,
+        (id, sev, rp, msg) => {
+          stats.violations++;
+          report(id, sev, rp, msg);
+        },
+        dir,
+      );
     }
   }
 }
@@ -240,9 +252,7 @@ export function scan_nomenclature(dir, stats, report) {
  * Usage: node audit-nomenclature.js [dir]
  */
 if (process.argv[1] && process.argv[1].endsWith("audit-nomenclature.js")) {
-  const target = process.argv[2]
-    ? path.resolve(process.argv[2])
-    : path.join(PROJECT_ROOT, "src");
+  const target = process.argv[2] ? path.resolve(process.argv[2]) : path.join(PROJECT_ROOT, "src");
 
   const stats = { scanned: 0, violations: 0 };
   const RED = "\x1b[31m";

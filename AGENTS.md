@@ -61,10 +61,11 @@ Does the data from Step 3 confirm your hypothesis?
 
 ## ⚙️ 5. The Execution & Grounding Sequence
 
-Once planned and cleared, execute the task using tools at your disposal. **Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers**. 
+Once planned and cleared, execute the task using tools at your disposal. **Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers**.
 
 ### 🎭 Unified Orchestrator Signaling
-Every operational turn must conclude with a metadata block that signals the active role and thinking approach. 
+
+Every operational turn must conclude with a metadata block that signals the active role and thinking approach.
 
 - **🎭 Strategic Role**: High-level architecture and vision.
 - **🎨 Tactical Role**: Planning, scoping, and track management.
@@ -116,6 +117,7 @@ Only take an action after all the above reasoning is completed. **Once you've ta
 - 8.2 The Close-out: **Update [Tracks](./.agent/project-management/log.md), the [Mission Board](./.agent/project-management/mission-board.md), and [Next](./.agent/project-management/next.md) before turn termination**.
 
 ### 🕹️ Operational Heartbeat
+
 - **🎭 Role**: [Strategic/Tactical/Operational]
 - **🤔 Approach**: [Contemplative/Sequential/Professional]
 - **🤖 AGENTS.md**: [Specific step from AGENTS.md]

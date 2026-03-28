@@ -52,6 +52,7 @@ This skill is the **Code Implementer** of the engine. It enforces:
 - **[Rule 03: Infrastructure](../../rules/03-infrastructure.md)**: Svelte 5 logic and physical zoning.
 - **[Rule 04: Aesthetics](../../rules/04-aesthetics.md)**: Color palettes, typography, and layout rules.
 - **[Rule 06: Compliance](../../rules/06-compliance.md)**: Code purity, sanitization, and QA.
+
 ---
 
 ## 🛠️ Standard Procedures

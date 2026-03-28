@@ -13,17 +13,17 @@ Triggers: "Update Mission Board", "Triage task", "Check track status", "Project 
 ## Structure
 
 .agent/skills/orchestrator/
-├── SKILL.md   # Executive Logic (The Guard)
-├── scripts/   # Deterministic automation logic
-│   └── sync.js # Macro-state & Global sync engine
+├── SKILL.md # Executive Logic (The Guard)
+├── scripts/ # Deterministic automation logic
+│ └── sync.js # Macro-state & Global sync engine
 └── references/ # PM standards & routing guides
 
 .agent/project-management/
 ├── mission-board.md # Macro-state & High-level goals
-├── insights.md      # Architectural Meta-Memory (The Journal)
-├── log.md           # Static registry of all feature shards
-├── tracks/          # Micro-state & implementation details
-└── next.md          # Handoff context & instructions
+├── insights.md # Architectural Meta-Memory (The Journal)
+├── log.md # Static registry of all feature shards
+├── tracks/ # Micro-state & implementation details
+└── next.md # Handoff context & instructions
 
 ---
 

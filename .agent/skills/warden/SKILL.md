@@ -37,6 +37,7 @@ The Warden is the **Absolute Authority** on code health and safety:
     - Acts as the final reviewer for every milestone. If the "Definition of Done" criteria from Rule 01 aren't met, the Warden halts execution.
 
 ---
+
 ## ⚖️ Active Governance
 
 This skill is the **Absolute Authority** on code health. It enforces:
@@ -48,6 +49,7 @@ This skill is the **Absolute Authority** on code health. It enforces:
 ---
 
 ## 🧠 The Nervous System Checklist (Structural Integrity)
+
 Before final certification, the Warden must perform a **Nervous System Sweep**:
 
 1.  **Ghost File Audit**: Are all links in `tech-stack.md`, `rules/`, and `skills/` pointing to existing files? Purge dangling references.
@@ -61,6 +63,7 @@ Before final certification, the Warden must perform a **Nervous System Sweep**:
 ## Procedure
 
 ### Workflow: Final Safety Audit
+
 1.  **Scan**: Execute `npm audit` and internal `security-scan.js`.
 2.  **Sweep**: Run `janitor.js` to clear technical debt and formatting issues.
 3.  **Audit**: Perform the **Nervous System Sweep** for structural consistency.
@@ -68,6 +71,7 @@ Before final certification, the Warden must perform a **Nervous System Sweep**:
 5.  **Certify**: Mark the task as `completed` only after all layers pass.
 
 ### Workflow: Technical Debt Cleanup
+
 1.  **Identify**: Search for `console.log`, `alert`, and `TODO-AI` tags.
 2.  **Refactor**: Consolidate redundant logic (DRY) and simplify high-complexity functions (>50 lines).
 3.  **Standardize**: Ensure all filenames and variables match the **Lexical Laws** from Rule 05.
@@ -76,12 +80,12 @@ Before final certification, the Warden must perform a **Nervous System Sweep**:
 
 ## 🛡️ Anti-Patterns
 
-| Pattern              | Mitigation                                                                         |
-| :------------------- | :--------------------------------------------------------------------------------- |
-| **Silent Failures**  | Forbidden. All errors must be explicitly captured and communicated to the kernel. |
-| **Security Shortcuts**| Forbidden. "Quick fixes" that bypass Zod validation or sanitization are breaches.  |
-| **Vibe Slop**        | Forbidden. AI-isms and flowery comments in code are prohibited.                   |
-| **Shadow Logic**     | Forbidden. All critical engine logic must be registered in a Sovereign Skill.      |
+| Pattern                | Mitigation                                                                        |
+| :--------------------- | :-------------------------------------------------------------------------------- |
+| **Silent Failures**    | Forbidden. All errors must be explicitly captured and communicated to the kernel. |
+| **Security Shortcuts** | Forbidden. "Quick fixes" that bypass Zod validation or sanitization are breaches. |
+| **Vibe Slop**          | Forbidden. AI-isms and flowery comments in code are prohibited.                   |
+| **Shadow Logic**       | Forbidden. All critical engine logic must be registered in a Sovereign Skill.     |
 
 ---
 

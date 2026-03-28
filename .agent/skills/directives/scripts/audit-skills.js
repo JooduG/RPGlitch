@@ -48,9 +48,12 @@ export const skill_rules = [
         .readdirSync(skillPath)
         .filter((f) => fs.statSync(path.join(skillPath, f)).isDirectory());
 
-      return currentSubfolders.every((dir) => allowedSubfolders.includes(dir) || dir.startsWith("."));
+      return currentSubfolders.every(
+        (dir) => allowedSubfolders.includes(dir) || dir.startsWith("."),
+      );
     },
-    message: "HERESY: Disallowed Subfolder Detected. Only scripts, assets, and references are permitted.",
+    message:
+      "HERESY: Disallowed Subfolder Detected. Only scripts, assets, and references are permitted.",
   },
   {
     id: "S-SKILL-005",
@@ -134,7 +137,6 @@ async function audit_skill(skillName) {
       });
     }
 
-
     // 4. Case Sensitivity (Nomenclature)
     if (skillName !== skillName.toLowerCase() || skillName.includes("_")) {
       report.issues.push({
@@ -143,7 +145,6 @@ async function audit_skill(skillName) {
         deduction: 15,
       });
     }
-
 
     // 5. Structural Exclusivity Check (Strict TRIAD)
     // Subfolders are optional — but if one exists it MUST be named scripts, assets, or references.

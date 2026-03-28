@@ -29,6 +29,7 @@ The Stitch skill is the **Technical Translator** for the Designer:
 4.  **Aesthetic Enforcement**: While formatting, ensures the [Chalk Regime](../../../DESIGN.md)'s technical tokens are used in place of raw CSS or ambiguous descriptions.
 
 ---
+
 ## ⚖️ Active Governance
 
 This skill is the **Technical Weaver** for the bridge. It enforces:
@@ -41,6 +42,7 @@ This skill is the **Technical Weaver** for the bridge. It enforces:
 ## Procedure
 
 ### Workflow: Generate Stitch Specification
+
 Use this workflow when the **Designer** has defined a new look/feel.
 
 1.  **Draft**: Receive the aesthetic intent from the **Designer**.
@@ -48,6 +50,7 @@ Use this workflow when the **Designer** has defined a new look/feel.
 3.  **Validate**: Ensure all H2 headings and component descriptions are technically precise for the Stitch bridge.
 
 ### Workflow: Reverse Engineering
+
 Sync the internal spec with an existing Stitch project.
 
 1.  **Fetch**: Retrieve project and screen metadata via the Stitch MCP.
@@ -58,15 +61,16 @@ Sync the internal spec with an existing Stitch project.
 
 ## 🛡️ Anti-Patterns
 
-| Pattern                  | Mitigation                                                                |
-| :----------------------- | :------------------------------------------------------------------------ |
-| **Loose Hand-off**       | Forbidden. All design updates MUST be formatted via the Stitch Weaver.    |
-| **Ad-hoc Styling**       | Never pass raw CSS. Use defined tokens and the root DESIGN.md spec.       |
-| **Spec Fragmentation**   | Forbidden. The root `DESIGN.md` is the only source of truth for Stitch.   |
+| Pattern                | Mitigation                                                              |
+| :--------------------- | :---------------------------------------------------------------------- |
+| **Loose Hand-off**     | Forbidden. All design updates MUST be formatted via the Stitch Weaver.  |
+| **Ad-hoc Styling**     | Never pass raw CSS. Use defined tokens and the root DESIGN.md spec.     |
+| **Spec Fragmentation** | Forbidden. The root `DESIGN.md` is the only source of truth for Stitch. |
 
 ---
 
 ## 📜 Metadata
+
 - **📜 Rules**: 04, 05
 - **🧠 Skills**: stitch, designer
 - **⚡ Workflows**: /02-build

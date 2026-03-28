@@ -23,7 +23,7 @@ Triggers: "Define aesthetic truth", "Orchestrate atmosphere", "Audit aesthetics"
 
 The Designer is the **Sovereign of Aesthetic Truth**. Every action must be measured against the [Chalk Regime](../../../DESIGN.md):
 
-1.  **Defining the Vibe**: Receives functional specifications from **Intake** and defines the *aesthetic truth* (vibe, depth, and sensory tone).
+1.  **Defining the Vibe**: Receives functional specifications from **Intake** and defines the _aesthetic truth_ (vibe, depth, and sensory tone).
 2.  **Sensory Orchestration**:
     - **Audio**: Selects the appropriate [Audio Engine](../../../src/media/audio.js) profile for the current state.
     - **Motion**: Determines the speed and elasticity of transitions to match narrative intensity.
@@ -32,6 +32,7 @@ The Designer is the **Sovereign of Aesthetic Truth**. Every action must be measu
 4.  **Spec Delegation**: Hands off technical formatting to the **Stitch** skill for MCP integration.
 
 ---
+
 ## ⚖️ Active Governance
 
 This skill is the **Creative Director** of the engine. It enforces:
@@ -44,12 +45,14 @@ This skill is the **Creative Director** of the engine. It enforces:
 ## Procedure
 
 ### Workflow: Define Aesthetic Truth
+
 1.  **Input**: Receive a functional specification from **Intake**.
 2.  **Synthesis**: Determine the aesthetic direction (e.g., "Frozen Subterranean Lab").
 3.  **Spec Generation**: Define the layout (T-shirt sizing), typography, and atomic sensory requirements.
 4.  **Handoff**: Pass the aesthetic specification to **Stitch** for technical formatting.
 
 ### Workflow: Sensory Audit
+
 1.  **Trigger**: User or system requests a visual/audio polish.
 2.  **Review**: Compare current state against Rule 04-Aesthetics.
 3.  **Adjustment**: Propose specific kinetic or visual tweaks (e.g., "Add `var(--blur-m)` to the character cards").
@@ -58,12 +61,12 @@ This skill is the **Creative Director** of the engine. It enforces:
 
 ## 🛡️ Anti-Patterns
 
-| Pattern              | Mitigation                                                                         |
-| :------------------- | :--------------------------------------------------------------------------------- |
-| **Functional Drift** | Forbidden. The Designer does not define "What" or "Why" (Intake does).             |
-| **Ad-hoc Styling**   | Forbidden. Use defined tokens from the Chalk Regime.                              |
-| **Flat Design**      | Forbidden. Use depth, gradients, and subtle shadows.                              |
-| **Generic Colors**   | Forbidden. Use the Chalk Regime palette.                                          |
+| Pattern              | Mitigation                                                             |
+| :------------------- | :--------------------------------------------------------------------- |
+| **Functional Drift** | Forbidden. The Designer does not define "What" or "Why" (Intake does). |
+| **Ad-hoc Styling**   | Forbidden. Use defined tokens from the Chalk Regime.                   |
+| **Flat Design**      | Forbidden. Use depth, gradients, and subtle shadows.                   |
+| **Generic Colors**   | Forbidden. Use the Chalk Regime palette.                               |
 
 ---
 

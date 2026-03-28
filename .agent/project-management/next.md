@@ -12,6 +12,7 @@
 ## 🧠 Logic (The "Why")
 
 **Decisions**:
+
 - Consolidated `todo-handoff.md` into an enhanced `next.md` to avoid file proliferation.
 - Elevated `insights.md` to `project-management/` to serve as a cross-session "Architect's Journal".
 
