@@ -200,7 +200,6 @@
   --z-overlay: 100;
   --z-modal: 150;
   --z-drawer: 2000;
-
-  /* Z-Index mapping */
   --z-system-toast: 9999;
+  --z-toast: var(--z-system-toast); /* Maintain backward compatibility for tooltips */
 }

@@ -14,8 +14,6 @@
 - **Material Parity**: Removed `opacity: 0.6` from empty cards to ensure they have the same material density as active buttons.
 - **Spectral Fallback**: Forced `signature_color` to `var(--color-frisk)` when slots are empty to avoid aggressive red alerts.
 
-- **Spectral Fallback**: Forced `signature_color` to `var(--color-frisk)` when slots are empty to avoid aggressive red alerts.
-
 ### Completed (Nordic Polish)
 - [x] **Zero-Tilt Prop**: Removed `use:tilt` from `StoryboardPill.svelte` (Grounded).
 - [x] **Placeholder Logic**: Forced interaction through the "Select" button; empty cards are now visual-only (`cursor: default`).
