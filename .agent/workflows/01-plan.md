@@ -23,8 +23,9 @@ description: The Master Router. Enforces the 8-step process from AGENTS.md, cate
 ### Phase 1: Ambiguity Gate (Step 1.5: Intent Decoding)
 
 1. **Assess**: Is the intent technically actionable?
-2. **Halt**: If ambiguous, invoke `intake` to resolve the vibe into a concrete schema. formulated 2-3 **Technical Options** if applicable. [[Invoke: intake]](../skills/intake/SKILL.md)
-3. **Recall**: Query `data` for historical context if targeting complex core engine logic. [[Invoke: data]](../skills/data/SKILL.md)
+2. **The Loop**: If ambiguous, invoke `intake` to resolve the vibe via the **One Question Loop**. [[Invoke: intake]](../skills/intake/SKILL.md)
+3. **The Pulse**: Formulate 2-3 **Technical Options** with trade-offs. Present the design in 300-word beats for iterative validation.
+4. **Recall**: Query `data` for historical context if targeting complex core engine logic. [[Invoke: data]](../skills/data/SKILL.md)
 
 ### Phase 2: Hypothesis & Risk Triage (Step 2)
 

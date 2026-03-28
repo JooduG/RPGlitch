@@ -60,13 +60,29 @@ This skill is the **Intent Decoder** of the engine. It enforces:
 **Trigger the Interrogation Protocol if the score is between 1 and 4.**
 **Proceed directly to Specification Output if the score is 5.**
 
-### Step 2: The Interrogation Protocol (Question Archetypes)
-**Ask exactly one (1) to three (3) targeted questions. Provide multiple-choice options for at least one question.**
+### Step 2: The Interrogative Loop (One Question Policy)
+**Ask exactly ONE (1) targeted question at a time.** Provide multiple-choice options or clear archetypes. Do not overwhelm the user with multiple inquiries in a single turn.
 
 *Targeted Inquiry Archetypes:*
 - **The Mechanic**: What is the exact internal trigger and the desired system state mutation?
 - **The Edge Case**: What happens when the user does the exact opposite of what you want? (Adversarial thinking).
 - **The Context**: Who or what is consuming this output? (Character, System, or Fractal?)
+
+### Step 3: The Design Pulse (Collaborative Refinement)
+Before committing to an implementation plan, you must:
+1.  **Propose Options**: Present 2-3 different approaches/architectures with clear trade-offs.
+2.  **Recommendation**: Lead with your recommended option and state the rationale.
+3.  **Validation**: Present the design in small, digestible sections (200-300 words) and ask for validation after each section.
+
+### Step 4: The Prompt Refinement Protocol (Expert Output)
+When the user specifically asks to "promptify" or "refine" an idea for external use:
+1.  **Distill**: Convert the casual request into a **Rigorous Specification**.
+2.  **Structure**:
+    - Avoid emojis. Use `-` for bullets, never `*`.
+    - Use headers and bold text for visual hierarchy.
+    - Think of the language as **code/spec**, not prose.
+3.  **Constraint**: Keep the prompt between 0.75x and 1.5x the length of the original request. Avoid "vibe slop" or creative flourishes.
+4.  **Handoff**: Provide only the final refined prompt as markdown.
 
 ---
 
