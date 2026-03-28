@@ -44,7 +44,8 @@
 - [x] **intake Skill**: Intent Decoding, Incubation, & Feature Gateway (Sovereign).
 - [x] **Simulation Skill**: Round/Turn Orchestration & Narrative Bridges (Sovereign).
 - [x] **Warden Skill**: Security, Hygiene (Janitor), & Structural Purity (Sovereign).
-- [x] **Agent-Manager Skill**: Infrastructure, Rules, & Skill Lifecycle (Sovereign).
+- [x] **Project-Manager Skill**: Infrastructure, Rules, & Skill Lifecycle (Sovereign).
+- [x] **Designer Skill**: Creative Direction, Aesthetics, & Sensory Orchestration.
 - [x] **Boot & Knowledge Audit**: Completed /00-boot and archive migration.
 - [x] **Agent Auditor Expansion**: Integrated Rules and Workflows into the Reflex Engine.
 

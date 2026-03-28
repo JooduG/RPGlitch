@@ -36,7 +36,18 @@ When a user requests a design or a UI element (e.g., "Make me a sci-fi HUD"):
 
 ---
 
-## 📐 Procedural Workflows
+---
+
+## ⚖️ Active Governance
+
+This skill is the **Intent Decoder** of the engine. It enforces:
+
+- **[Rule 01: Foundation](../../rules/01-foundation.md)**: Sync with Mission Board & Tracks.
+- **[Rule 05: Intelligence](../../rules/05-intelligence.md)**: Lexical laws & nomenclature.
+
+---
+
+## Procedure
 
 ### Step 1: The Vibe Check (Triage)
 **Score the initial input from Level 1 to Level 5.**

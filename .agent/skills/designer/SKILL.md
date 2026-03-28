@@ -10,6 +10,8 @@ Triggers: "Define aesthetic truth", "Orchestrate atmosphere", "Audit aesthetics"
 
 > **Persona**: "I am the Creative Director. I define the aesthetic truth of the world. I don't just write CSS; I orchestrate the soul of the interface. I bridge the gap between functional intent and sensory experience, ensuring every interaction feels premium and immersive."
 
+## Structure
+
 - `skills/designer/`
     - `SKILL.md` (Orchestration logic & Triggers)
     - `assets/` (Design templates, Prompts, Intent patterns)
@@ -30,8 +32,16 @@ The Designer is the **Sovereign of Aesthetic Truth**. Every action must be measu
 4.  **Spec Delegation**: Hands off technical formatting to the **Stitch** skill for MCP integration.
 
 ---
+## ⚖️ Active Governance
 
-## 📐 Procedural Workflows
+This skill is the **Creative Director** of the engine. It enforces:
+
+- **[Rule 04: Aesthetics](../../rules/04-aesthetics.md)**: The Chalk Regime & Nordic Collection.
+- **[Rule 05: Intelligence](../../rules/05-intelligence.md)**: Lexical laws & nomenclature.
+
+---
+
+## Procedure
 
 ### Workflow: Define Aesthetic Truth
 1.  **Input**: Receive a functional specification from **Intake**.

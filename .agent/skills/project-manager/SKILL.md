@@ -75,6 +75,17 @@ This lifecycle implements the **Execution & Grounding (Step 1-4)** and **Quality
 - **Definition of Done**: Reality matches the Spec with **Auditable Proof** (e.g., `src/ui/Button.svelte:L42`).
 - **Traceability**: Every atomic change mapped to a specific Git SHA + Note.
 
+---
+
+## ⚖️ Active Governance
+
+This skill is the **Engineering Executive** of the engine. It enforces:
+
+- **[Rule 01: Foundation](../../rules/01-foundation.md)**: Sync with Mission Board & Tracks.
+- **[Rule 05: Intelligence](../../rules/05-intelligence.md)**: Lexical laws & nomenclature.
+
+---
+
 ## Anti-Patterns
 
 | Pattern            | Mitigation                                                                        |

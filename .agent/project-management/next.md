@@ -3,17 +3,15 @@
 ## 📋 Active Backlog
 
 - [ ] **Next Steps**: Expand the Dynamic World State (Fractals) to support multi-instance narrative branches.
-- [ ] **TODO-AI**: `directives/SKILL.md` is missing Procedure or Anti-Patterns sections (identified during audit).
 
 ## ⏭️ Context & Objectives
 
-**Context**: The "Project Manager Consolidation" is complete. All agent infrastructure components (Skills, Rules, and Workflows) are now centrally managed and validated via the `Warden` engine and renamed `project-management` state.
+**Context**: The "Holistic Audit & Harmonization" is complete. All agent infrastructure components (Skills, Rules, and Workflows) are centrally registered in `config.yaml`, and naming is synchronized across the Mission Board and Filesystem.
 
 **Objectives**:
 
 1.  **Narrative Calibration**: Continue the "Narrative Bridge" track in `log.md` to support autonomous scene complications.
-2.  **Skill Hardening**: Resolve the identified debt in `directives/SKILL.md`.
-3.  **Diegetic UI**: Refine the "Chalk Regime" implementation in `src/ui/organisms/StoryBoard.svelte`.
+2.  **Diegetic UI**: Refine the "Chalk Regime" implementation in `src/ui/organisms/StoryBoard.svelte`.
 
 ---
 

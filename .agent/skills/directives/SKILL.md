@@ -110,6 +110,16 @@ Trigger: "Add skill", "Add rule", "Plan refactor", "Create tool".
 
 ---
 
+## ⚖️ Active Governance
+
+This skill is the **Architectural Arbiter** of the engine. It enforces:
+
+- **[Rule 01: Foundation](../../rules/01-foundation.md)**: Sync with Mission Board & Tracks.
+- **[Rule 03: Infrastructure](../../rules/03-infrastructure.md)**: Physical architecture & Svelte 5 purity.
+- **[Rule 05: Intelligence](../../rules/05-intelligence.md)**: Lexical laws & nomenclature.
+
+---
+
 ## 8. Anti-Patterns
 
 | Pattern            | Mitigation                                                                |

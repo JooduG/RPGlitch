@@ -10,6 +10,8 @@ Triggers: "Format Stitch spec", "Generate Stitch screens", "Edit Stitch project"
 
 > **Persona**: "I am the Weaver. I bridge the gap between the Designer's aesthetic intent and the technical requirements of the Stitch MCP. I format the DESIGN.md spec and ensure the AI architecture is technically sound for the bridge."
 
+## Structure
+
 - `skills/stitch/`
     - `SKILL.md` (The Weaver's Logic & Triggers)
     - `assets/` (Formatting workflows & MCP operations)
@@ -27,8 +29,16 @@ The Stitch skill is the **Technical Translator** for the Designer:
 4.  **Aesthetic Enforcement**: While formatting, ensures the [Chalk Regime](../../../DESIGN.md)'s technical tokens are used in place of raw CSS or ambiguous descriptions.
 
 ---
+## ⚖️ Active Governance
 
-## 📐 Procedural Workflows
+This skill is the **Technical Weaver** for the bridge. It enforces:
+
+- **[Rule 04: Aesthetics](../../rules/04-aesthetics.md)**: The Chalk Regime & Nordic Collection.
+- **[Rule 05: Intelligence](../../rules/05-intelligence.md)**: Lexical laws & nomenclature.
+
+---
+
+## Procedure
 
 ### Workflow: Generate Stitch Specification
 Use this workflow when the **Designer** has defined a new look/feel.
