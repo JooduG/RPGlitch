@@ -28,7 +28,7 @@ We rely on strict, named tokens rather than raw hex values in our components. Yo
 ### Brand Primitives
 
 - **Chalk** (`var(--color-chalk)`): `#222326`. The primary high-contrast text and structural accent. Crisp, almost icy white.
-- **Gunmetal** (`var(--color-gunmetal)` / `var(--bg-card)`): `#363840`. The core component background. Dense and non-intrusive.
+- **Gunmetal** (`var(--color-gunmetal)`): `#363840`. The core component background. Dense and non-intrusive.
 - **Frozen** (`var(--color-frozen)`): `#555d66`. The primary application accent.
 - **Frisk** (`var(--color-frisk)` / `var(--font-muted)`): `#8a9399`. Secondary application accent.
 
@@ -37,10 +37,10 @@ We rely on strict, named tokens rather than raw hex values in our components. Yo
 Elevation is achieved by progressively mixing `Gunmetal` with `Chalk` to lighten the surface as it lifts toward the user:
 
 - `var(--surface-base)` (`#11191f`): The absolute structural floor.
-- `var(--glass-xs)`: Raw `var(--color-gunmetal)`.
-- `var(--glass-l)`: `gunmetal` + 6% `chalk`.
-- `var(--surface-elevated)`: `gunmetal` + 12% `chalk`.
-- `var(--glass-xl)`: `gunmetal` + 20% `chalk`.
+- `var(--glass-xs)`: `var(--color-chalk)` + 30% alpha. Submerged base.
+- `var(--glass-s)`: `var(--color-chalk)` + 15% alpha. Sunken surface.
+- `var(--glass-l)`: `var(--color-frisk)` + 5% alpha. Elevated glass.
+- `var(--glass-xl)`: `var(--color-frisk)` + 15% alpha. Floating monolith.
 
 ---
 

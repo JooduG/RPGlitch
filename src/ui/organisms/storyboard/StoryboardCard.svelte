@@ -185,8 +185,8 @@
     right: 0;
     height: 50%;
     background: linear-gradient(to top, 
-      var(--bg-card) 0%, 
-      rgb(from var(--bg-card) r g b / 0.8) 40%, 
+      var(--color-chalk) 0%, 
+      rgb(from var(--color-chalk) r g b / 0.8) 40%, 
       transparent 100%
     );
     display: flex;

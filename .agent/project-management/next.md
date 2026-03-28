@@ -12,7 +12,7 @@
 **Decisions**:
 - **Vacuum Lock**: Applied `pointer-events: none` to `.storyboard-stack` (flex container) and `pointer-events: auto` to children to kill phantom cursors in the `gap`.
 - **Material Parity**: Removed `opacity: 0.6` from empty cards to ensure they have the same material density as active buttons.
-- **Spectral Fallback**: Forced `signature_color` to `var(--color-frozen)` when slots are empty to avoid aggressive red alerts.
+- **Spectral Fallback**: Forced `signature_color` to `var(--color-frisk)` when slots are empty to avoid aggressive red alerts.
 
 ## ⚒️ Actions (The "What")
 

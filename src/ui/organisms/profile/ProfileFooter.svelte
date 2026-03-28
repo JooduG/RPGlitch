@@ -45,7 +45,7 @@
     gap: var(--spacing-s);
     background: color-mix(
       in srgb,
-      var(--surface-elevated),
+      var(--color-gunmetal),
       var(--signature-color) var(--opacity-xs)
     );
     border-top: 0;
@@ -108,7 +108,7 @@
 
   footer > :global(.btn-edit):hover {
     filter: brightness(1.1);
-    transform: translateY(var(--motion-hover-y-compact));
+    transform: translateY(var(--motion-btn-hover-y));
     box-shadow: var(--shadow-m);
   }
 
@@ -124,7 +124,7 @@
 
   footer .footer-actions :global(.btn-edit):hover {
     filter: brightness(1.1);
-    transform: translateY(var(--motion-hover-y-compact));
+    transform: translateY(var(--motion-btn-hover-y));
     box-shadow: var(--shadow-m);
   }
 </style>

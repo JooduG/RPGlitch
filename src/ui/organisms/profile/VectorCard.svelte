@@ -152,7 +152,7 @@
     box-shadow: var(--shadow-m) !important;
     color: var(--font-color) !important;
     filter: brightness(1.2) !important;
-    transform: translateY(var(--motion-hover-y-compact)) !important;
+    transform: translateY(var(--motion-btn-hover-y)) !important;
   }
 
   :global(.vector-delete-btn.btn) .icon {
