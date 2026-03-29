@@ -29,3 +29,6 @@
 !**/skills/**/assets/**
 !**/skills/**/references/**
 !**/.gemini/settings.json
+
+.gemini/
+gha-creds-*.json

@@ -15,7 +15,7 @@ This document maps the technical "treasures" identified in the `scribbles.md` co
 | **audit-skills**, **audit-context-building**, **agentic-actions-auditor**, **bdistill-behavioral-xray** | 📂 **warden/SKILL.md** | **[REFINED]** Defensive auditing and behavioral security verification. |
 | **memory-systems**, **agent-memory-systems**, **agent-memory-mcp**, **bdistill-knowledge-extraction**, **bdi-mental-states** | 📂 **data/SKILL.md** | Persistent knowledge and state memory for the "Echo" layer. |
 | **design-spells**, **design-orchestration**, **antigravity-design-expert**, **baseline-ui** | 📂 **designer/SKILL.md** & **css/SKILL.md** | Aesthetic laws and creative "spells" (Chalk Regime). |
-| **architecture**, **full-stack-orchestration-\***, **project-development** | 📂 **orchestration-strategy/SKILL.md** | **[REFINED]** High-level project management, strategic design, and structural integrity. |
+| **architecture**, **full-stack-orchestration-\***, **project-development** | 📂 **orchestration-strategy/SKILL.md** | **[INTEGRATED]** High-level project management, strategic design, and structural integrity. |
 
 ---
 

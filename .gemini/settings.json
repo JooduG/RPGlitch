@@ -1,20 +1,7 @@
 {
-  "ui": {
-    "accessibility": {},
-    "theme": "Atom One",
-    "showLineNumbers": false
-  },
   "context": {
     "fileFiltering": {
       "respectGitIgnore": false
-    }
-  },
-  "security": {
-    "folderTrust": {
-      "featureEnabled": true
-    },
-    "auth": {
-      "selectedType": "oauth-personal"
     }
   },
   "ide": {
@@ -23,88 +10,13 @@
   "mcpServers": {
     "chrome-devtools": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\chrome-devtools-mcp.cmd",
-      "disabledTools": [
-        "upload_file",
-        "performance_stop_trace",
-        "performance_start_trace",
-        "performance_analyze_insight",
-        "list_network_requests",
-        "get_network_request",
-        "fill_form",
-        "drag",
-        "resize_page"
-      ]
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\chrome-devtools-mcp.cmd"
     },
     "context7": {
       "headers": {
         "CONTEXT7_API_KEY": "ctx7sk-47294459-6c98-4af4-8546-a3616fe3d7d9"
       },
       "serverUrl": "https://mcp.context7.com/mcp"
-    },
-    "deepwiki": {
-      "disabledTools": [
-        "ask_question"
-      ],
-      "serverUrl": "https://mcp.deepwiki.com/mcp"
-    },
-    "firecrawl-mcp": {
-      "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\firecrawl-mcp.cmd",
-      "disabledTools": [
-        "firecrawl_agent",
-        "firecrawl_agent_status",
-        "firecrawl_crawl",
-        "firecrawl_check_crawl_status"
-      ],
-      "env": {
-        "FIRECRAWL_API_KEY": "fc-968e355e236f460092834ec49afdd6ae"
-      }
-    },
-    "github-copilot": {
-      "disabledTools": [
-        "add_issue_comment",
-        "assign_copilot_to_issue",
-        "create_repository",
-        "fork_repository",
-        "get_release_by_tag",
-        "get_tag",
-        "get_team_members",
-        "get_teams",
-        "list_issue_types",
-        "list_issues",
-        "list_tags",
-        "search_issues",
-        "sub_issue_write",
-        "get_label",
-        "add_comment_to_pending_review",
-        "create_branch",
-        "create_or_update_file",
-        "delete_file",
-        "get_commit",
-        "get_latest_release",
-        "get_me",
-        "list_branches",
-        "list_commits",
-        "list_releases",
-        "merge_pull_request",
-        "pull_request_read",
-        "pull_request_review_write",
-        "push_files",
-        "request_copilot_review",
-        "search_pull_requests",
-        "search_users",
-        "update_pull_request_branch",
-        "update_pull_request"
-      ],
-      "headers": {
-        "Authorization": "Bearer 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"
-      },
-      "serverUrl": "https://api.githubcopilot.com/mcp"
-    },
-    "mcp-sequentialthinking-tools": {
-      "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\mcp-sequentialthinking-tools.cmd"
     },
     "data": {
       "args": [
@@ -117,26 +29,34 @@
         "SUPABASE_URL": "https://zjoklmjvkxngbbneldht.supabase.com"
       }
     },
-    "warden": {
-      "args": [
-        "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\skills\\warden\\scripts\\audit.js"
-      ],
-      "command": "node"
+    "deepwiki": {
+      "serverUrl": "https://mcp.deepwiki.com/mcp"
+    },
+    "firecrawl-mcp": {
+      "args": [],
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\firecrawl-mcp.cmd",
+      "env": {
+        "FIRECRAWL_API_KEY": "fc-968e355e236f460092834ec49afdd6ae"
+      }
+    },
+    "general": {
+      "enablePromptCompletion": true,
+      "plan": {},
+      "preferredEditor": "antigravity"
+    },
+    "github-copilot": {
+      "headers": {
+        "Authorization": "Bearer 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"
+      },
+      "serverUrl": "https://api.githubcopilot.com/mcp"
+    },
+    "mcp-sequentialthinking-tools": {
+      "args": [],
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\mcp-sequentialthinking-tools.cmd"
     },
     "playwright": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\playwright-mcp.cmd",
-      "disabledTools": [
-        "browser_drag",
-        "browser_network_requests",
-        "browser_install",
-        "browser_fill_form",
-        "browser_file_upload",
-        "browser_resize",
-        "browser_handle_dialog",
-        "browser_select_option",
-        "browser_run_code"
-      ]
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\playwright-mcp.cmd"
     },
     "StitchMCP": {
       "args": [
@@ -153,10 +73,12 @@
       "args": [],
       "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\svelte-mcp.cmd"
     },
+    "tools": {
+      "enableHooks": true
+    },
     "waldzell-clear-thought": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\clear-thought.cmd",
-      "disabledTools": []
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\clear-thought.cmd"
     },
     "waldzell-collaborative-reasoning": {
       "args": [],
@@ -187,12 +109,17 @@
       "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\mcp-server-visual-reasoning.cmd"
     }
   },
-  "general": {
-    "enablePromptCompletion": true,
-    "preferredEditor": "antigravity",
-    "plan": {}
+  "security": {
+    "auth": {
+      "selectedType": "oauth-personal"
+    },
+    "folderTrust": {
+      "featureEnabled": true
+    }
   },
-  "tools": {
-    "enableHooks": true
+  "ui": {
+    "accessibility": {},
+    "showLineNumbers": false,
+    "theme": "Atom One"
   }
 }

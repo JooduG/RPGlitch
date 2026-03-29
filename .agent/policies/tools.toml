@@ -1,0 +1,5 @@
+[[rules]]
+mcpName = "*"
+toolName = "*"
+decision = "allow"
+priority = 100
