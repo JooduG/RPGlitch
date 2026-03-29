@@ -1,72 +1,67 @@
 ---
 name: {{Skill-Slug}}
 description: >
-  Build/Analyze/Deploy (WHAT)... 
+  A short, high-fidelity description of the skill's purpose.
   
-  Use when: (WHEN Scenario 1), (WHEN Scenario 2), or troubleshooting (Error/Keyword).
-  Triggers: (Glob), (Phrase)
+  Use when: (Primary triggering scenario), (Secondary triggering scenario), or (Error/Keyword pattern).
+  Triggers: (Glob path, e.g., "src/**/*.svelte"), (Search phrase, e.g., "Fix CSS")
 ---
 
-# {{Skill-Slug}} _Mandatory_
+# 🛠️ {{Skill-Slug}}
 
-> **Persona**: {{Persona}}: "I am the {{Role}}. I {{Function}} to ensure {{Goal}}."
+> **Persona**: "I am the {{Role}}. I {{Function}} using the {{Primary Methodology}} to ensure {{High-Fidelity Goal}}. My logic is an extension of the Sovereign System."
 
-## Structure _Mandatory_
+## 🔬 Structure
 
+```text
 skills/{{Skill-Slug}}/
-├── SKILL.md # Main documentation _Mandatory_
-├── scripts/
-│ └── (Script.js)
-├── references/
-│ └── (Knowledge)
-│ └── (Documentation)
-│ └── (Plan)
-│ └── (Work-in-progress)
-└── assets/
-└── (TEMPLATE)
-└── (Image)
+├── SKILL.md          # Sovereign Documentation
+├── scripts/          # Operational Automation
+│   └── {{Script}}.js
+├── assets/           # Blueprints & Templates
+│   └── {{Template}}.md
+└── references/       # Grounding & Ground Truth
+    └── {{Ref}}.md
+```
 
-## {{Objectives}} _Optional_
+## 🎯 Objectives
 
-- (Objective)
-- (Objective)
+- **High-Fidelity Implementation**: (How this skill achieves premium results)
+- **Architectural Integrity**: (How this skill respects Rule 01/03)
+- **Sensory Excellence**: (How this skill respects the Chalk Regime)
 
-## {{Context-Injection}} _Optional_
+## ⛓️ Connectivity
 
-- Rule: (Relationship)
-- Skill: (Relationship)
+- **Parent Rule**: (The fundamental law this skill must never breach)
+- **Collaborator Skill**: (Complementary skills for multi-agent workflows)
 
-## {{Capabilities}} _Optional_
+## 📋 Procedure
 
-- (Mandate)
-- (Capability)
-- (Skill)
-- (Tool)
-- (MCP)
+### Phase 1: Diagnostic Sensing
+1. (Observation step)
+2. (Context gathering step)
 
-## Procedure _Mandatory_
+### Phase 2: Technical Execution
+1. (Primary action step)
+2. (Refinement step)
 
-### {{Sequential-Phase}} _Optional_
+### Phase 3: Final Polish
+1. (Aesthetic alignment step)
+2. **Definition of Done**: (Clear indicator of completion)
 
-1. (Step)
-2. (Step)
-3. (Step)
+## ⚖️ Evaluation Rubric (Agentic Success)
 
-### {{Conditional-Phase}} _Optional_
+| Criterion | Evaluation Method | Success Metric |
+|-----------|-------------------|----------------|
+| (Rule Compliance) | Direct Scoring (1-5) | Score >= 4 |
+| (Behavioral Invariant) | Behavioral Contract | Result: Passed |
+| (Aesthetic Quality) | Pairwise Preference | Preferred over previous state |
 
-- (Condition):
-    - (True) → (Consequence)
-    - (False) → (Consequence)
+## 🚫 Anti-Patterns
 
-### {{Last-Phase}} _Mandatory_
+- **{{Pattern Name}}**: (Description of the failure mode)
+- **{{Pattern Name}}**: (Description of the failure mode)
 
-- (Definition-of-done)
+---
 
-## {{Output-Expectations}} _Optional_
-
-- (Result)
-- (Outcome)
-
-## Anti-Patterns _Mandatory_
-
-- (Anti-Pattern)
+> "Precision is the baseline of sovereignty."

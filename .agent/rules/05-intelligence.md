@@ -41,7 +41,7 @@ To prevent cognitive drift, nomenclature is absolute.
 
 ### **Casing Standards**
 
-- **kebab-case**: Folders and files (e.g., `simulation-engine/`, `context-broker.js`).
+- **kebab-case**: Folders and files (e.g., `simulation-engine/`, `context-broker.js`). **Exception**: Uppercase is allowed for abbreviations (e.g., `GLI/`).
 - **PascalCase**: Svelte components (e.g., `StoryPanel.svelte`).
 - **snake_case**: Variables and process state (e.g., `current_char`).
 - **question_snake**: Booleans (e.g., `is_active`, `has_token`).

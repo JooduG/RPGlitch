@@ -247,10 +247,10 @@
 
   .json-wrap {
     margin-top: var(--spacing-xs);
-    background: rgba(var(--color-black-rgb) / 0.4);
+    background: rgb(var(--color-black-rgb) / 40%);
     box-shadow:
       inset 0 0 0 1px var(--glass-edge-l),
-      inset 0 0.125rem 0.25rem rgba(var(--color-black-rgb) / 0.5);
+      inset 0 0.125rem 0.25rem rgb(var(--color-black-rgb) / 50%);
     border-radius: var(--spacing-xs);
     padding: var(--spacing-xs);
     max-height: 10rem;

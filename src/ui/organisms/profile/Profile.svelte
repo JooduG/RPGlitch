@@ -237,11 +237,12 @@
 
   .profile-presentation {
     order: 2;
-    width: 56rem;
+    width: 64rem;
     height: 100%;
-    background: var(--glass-l);
-    backdrop-filter: var(--glass-blur-l);
+    background: var(--glass-xl);
+    backdrop-filter: var(--glass-blur-xl);
     border: var(--glass-edge-l);
+    border-top: 2px solid var(--signature-color);
     border-radius: var(--border-radius-l);
     box-shadow:
       var(--shadow-xl),
@@ -252,6 +253,7 @@
     overflow: hidden;
     z-index: var(--z-index-l);
     transform-style: preserve-3d;
+    transition: all var(--motion-slow) var(--motion-elastic);
   }
 
   .profile-presentation .left {
@@ -260,8 +262,6 @@
     flex-direction: column;
     overflow-y: auto;
     max-height: 85vh;
-    background: var(--glass-s);
-    backdrop-filter: var(--glass-blur-l);
     border-right: var(--glass-edge-m);
     padding: 0;
   }
@@ -271,9 +271,8 @@
     flex-direction: column;
     overflow-y: auto;
     max-height: 85vh;
-    background: var(--glass-l);
-    backdrop-filter: var(--glass-blur-l);
     padding: var(--spacing-m);
+    background-color: color-mix(in srgb, var(--signature-color) 10%, transparent 90%);
   }
 
   .profile-presentation main::-webkit-scrollbar {

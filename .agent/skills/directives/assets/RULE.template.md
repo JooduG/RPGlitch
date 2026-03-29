@@ -1,36 +1,50 @@
 ---
 name: {{Rule-Slug}}
 description: >
-  {{Description}}
+  The definitive high-fidelity law for this domain.
 trigger: always_on
+priority: absolute
 ---
 
-# {{Rule-Slug}} _Mandatory_
+# 🛡️ {{Rule-Slug}}
 
-> **Persona**: **Law**: "I am the Absolute Constraint of (Domain). I enforce (Logic) to ensure (Stability)."
+> **Persona**: **Agentic Mandate**: "I am the Absolute Constraint of {{Domain}}. I enforce the {{Physical/Aesthetic Law}} to ensure {{Architectural Stability}}."
 
-## Anatomy _Mandatory_
+## 🔬 Anatomy
 
 ```text
-rules/{{Rule-Slug}}.md   # The Law
+rules/{{Rule-Slug}}.md   # Sovereign Law
 ```
 
-## {{Context}} _Optional_
+## 🎯 Contextual Physics
 
-- Rule: (Relationship)
-- Skill: (Relationship)
+- **Parent Law**: (The higher-level rule this law must respect)
+- **Primary Skill**: (The skill that must always invoke this law)
 
-## The Law _Mandatory_
+## ⚖️ The Law
 
-- (Requirement)
-- (Restriction)
+- **Mandatory**: (Requirement for all operations)
+- **Forbidden**: (Absolute restriction for all operations)
+- **Aesthetic**: (Chalk Regime alignment)
 
-## Procedure _Mandatory_
+## 📋 Compliance Audit (Sovereign Verification)
 
-1. **Verify**: Ensure the context matches the domain.
-2. **Observe**: Check for violations of the restriction.
-3. **Enforce**: Halt or redirect if logic breaches the law.
+1. **Verify State**: Confirm that the target context matches this domain.
+2. **Observe Invariant**: Check for any breach of the mandatory/forbidden requirements.
+3. **Calibrate**: If a violation is found, halt execution and apply the **Causal Analysis** logic.
 
-## Anti-Patterns _Mandatory_
+## 📊 Success Metrics
 
-- (Violation)
+| Requirement | Compliance Indicator | Failure Mode |
+|-------------|----------------------|--------------|
+| {{Requirement}} | (Metric) | (Deviation) |
+| {{Requirement}} | (Metric) | (Deviation) |
+
+## 🚫 Critical Violations (Anti-Patterns)
+
+- **{{Violation Name}}**: (How this breach destabilizes the system)
+- **{{Violation Name}}**: (How this breach destabilizes the system)
+
+---
+
+> "Stability is the fruit of strict constraints."

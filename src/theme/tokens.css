@@ -111,16 +111,17 @@
   --glass-blur-s: blur(4px);
   --glass-blur-m: blur(12px);
   --glass-blur-l: blur(24px);
+  --glass-blur-xl: blur(48px);
 
   /* Shadows */
-  --shadow-s: 0 0.25rem 0.5rem rgba(var(--color-black-rgb) / var(--opacity-xs));
-  --shadow-m: 0 0.25rem 1rem rgba(var(--color-black-rgb) / var(--opacity-s));
-  --shadow-l: 0 0.5rem 2rem rgba(var(--color-black-rgb) / var(--opacity-m));
-  --shadow-xl: 0 1rem 3rem rgba(var(--color-black-rgb) / var(--opacity-l));
-  --shadow-xxl: 0 2rem 5rem rgba(var(--color-black-rgb) / var(--opacity-full));
+  --shadow-s: 0 0.25rem 0.5rem rgb(var(--color-black-rgb) / var(--opacity-xs));
+  --shadow-m: 0 0.25rem 1rem rgb(var(--color-black-rgb) / var(--opacity-s));
+  --shadow-l: 0 0.5rem 2rem rgb(var(--color-black-rgb) / var(--opacity-m));
+  --shadow-xl: 0 1rem 3rem rgb(var(--color-black-rgb) / var(--opacity-l));
+  --shadow-xxl: 0 2rem 5rem rgb(var(--color-black-rgb) / var(--opacity-full));
   --shadow-glow: 0 0 1.5rem rgb(var(--color-frozen-rgb) / var(--opacity-m));
   --shadow-font: 0 var(--spacing-px) var(--spacing-xxs)
-    rgba(var(--color-black-rgb) / var(--opacity-s));
+    rgb(var(--color-black-rgb) / var(--opacity-s));
 
   /************************************************************************************
   * 🧩 [SECTION: TYPOGRAPHY METRICS]

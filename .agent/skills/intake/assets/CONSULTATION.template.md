@@ -1,39 +1,38 @@
 ---
-description: Standardized interview protocol for scoping new Tracks. Use this when triggering the "Clarity Gate".
+description: Standardized "Mirror" protocol for scoping new Tracks.
 ---
 
-# 🛑 Architecture Consultation
+# 🛠️ Mirror Protocol: [Concept Name]
 
-> **Status**: ⏸️ PAUSED (Waiting for Alignment)
-> **Objective**: Clarify scope to prevent "hallucinated requirements."
-
-I am ready to initialize this track, but I need to calibrate the parameters first.
-
-## 1. 🎯 Intent Confirmation
-
-> `[INSERT BRIEF SUMMARY OF USER REQUEST HERE]`
-
-## 2. ❓ Clarifying Questions
-
-_Please answer the following to unlock the Execution Phase:_
-
-### A. Scope Boundaries (The "Fence")
-
-1. `[QUESTION 1: e.g., "Is this feature mobile-only or responsive?"]`
-2. `[QUESTION 2: e.g., "Should I handle the database migration now or later?"]`
-
-### B. Technical Integration (The "Glue")
-
-1. `[QUESTION: e.g., "This modifies auth.js. Should I maintain backward compatibility for X?"]`
-
-### C. Implementation Strategy (The "Path")
-
-- **Option A (Safe)**: `[Describe conservative approach]`
-- **Option B (Fast)**: `[Describe rapid approach]`
-- **Option C (Robust)**: `[Describe complex/scalable approach]`
-
-> _Which path should I take?_
+> **Status**: [WAITING FOR NOD]
+> **Objective**: Building a shared vision between the Protagonist and the Engine.
 
 ---
 
-**Next Step**: Once you reply, I will register the **Track** in [log.md](../../../project-management/log.md) and initialize the [mission-board.md](../../../project-management/mission-board.md).
+Hey, I'm ready to pull the lever on this new track, but I want to make sure I've got the logic dialed in first. Does this cover what you had in mind?
+
+## 1. 🎯 What I've Understood
+
+> `[INSERT CASUAL SUMMARY OF USER INTENT — THE WHAT AND THE WHY]`
+
+## 2. ❓ The "Pitting" (Just a few edge cases)
+
+*I'm looking at the physics for this... what do you think about these points?*
+
+- **The Trigger**: [How should this start? e.g., "On hover" or "After a specific dialogue"?]
+- **The Persistence**: [Should this be a one-time thing or stick around in the Echo forever?]
+
+## 3. 🛤️ Three Paths (How do we build it?)
+
+### Option A: The Safe Route (Conservative)
+- [Fast to build, utilizes existing code, zero risk of breaking things.]
+
+### Option B: The Fast Route (Direct)
+- [Minimal logic, focused entirely on the immediate vibe.]
+
+### Option C: The Robust Route (Premium)
+- [Highly scalable, adds new reusable patterns to the engine, high-fidelity dynamics.]
+
+---
+
+**Next Step**: Give me a quick nod on the path you prefer or tell me if I've missed a beat! I'll register it in the **Mission Board** and we'll start the execution.

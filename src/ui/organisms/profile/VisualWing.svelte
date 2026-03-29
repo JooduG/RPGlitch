@@ -443,7 +443,7 @@
   }
 
   .action-row :global(.btn.action-btn.mode-tech):not(:disabled):hover {
-    background: rgb(var(--color-frisk-rgb) / 0.1);
+    background: rgb(var(--color-frisk-rgb) / 10%);
     color: var(--color-white);
   }
 
@@ -453,7 +453,7 @@
   }
 
   .action-row :global(.btn.action-btn.mode-magic):not(:disabled):hover {
-    background: rgb(var(--color-frozen-rgb) / 0.1);
+    background: rgb(var(--color-frozen-rgb) / 10%);
     color: var(--color-white);
   }
 

@@ -120,7 +120,7 @@
   .storyboard-stack:hover {
     border-color: var(--signature-color);
     box-shadow: 
-      0 12px 24px -12px rgb(from var(--signature-color) r g b / 0.4),
+      0 12px 24px -12px rgb(from var(--signature-color) r g b / 40%),
       0 0 0 1px var(--signature-color);
     filter: brightness(1.1);
   }
@@ -186,7 +186,7 @@
     background: linear-gradient(
       to top,
       var(--color-chalk) 0%, 
-      rgb(from var(--color-chalk) r g b / 0.8) 40%, 
+      rgb(from var(--color-chalk) r g b / 80%) 40%, 
       transparent 100%
     );
     display: flex;
@@ -201,7 +201,7 @@
     margin: 0;
     font-family: var(--font-family-heading);
     color: rgb(var(--signature-rgb));
-    text-shadow: 0 2px 4px rgb(0 0 0 / 0.5);
+    text-shadow: 0 2px 4px rgb(0 0 0 / 50%);
   }
 
   .description {
@@ -247,7 +247,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgb(0 0 0 / 0.4);
+    background: rgb(0 0 0 / 40%);
     backdrop-filter: blur(12px);
     border: var(--glass-edge-l);
     border-radius: 50%;
@@ -266,6 +266,6 @@
 
   :global(.storyboard-stack .profile-quick-link.btn:hover) {
     opacity: var(--opacity-full);
-    background: rgb(0 0 0 / 0.6);
+    background: rgb(0 0 0 / 60%);
   }
 </style>

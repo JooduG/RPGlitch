@@ -171,7 +171,7 @@
     height: 100%;
     min-height: var(--spacing-xxxl);
     overflow-y: auto;
-    background: var(--glass-xs);
+    background: var(--glass-s);
     box-shadow: inset 0 0 0 1px var(--glass-edge-l);
     border: none;
     border-radius: var(--border-radius-m);
@@ -201,7 +201,7 @@
 
   .content .row .field-group .text-area.edit:hover,
   .content .row .field-group .text-area.edit:focus {
-    background: var(--glass-l);
+    background: var(--glass-xs);
     box-shadow: inset 0 0 0 1px var(--glass-edge-l);
   }
 

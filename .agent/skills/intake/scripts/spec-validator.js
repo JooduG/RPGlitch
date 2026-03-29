@@ -6,12 +6,12 @@ const fs = require("fs");
 const path = require("path");
 
 const MANDATORY_SECTIONS = [
-  "# CONCEPT:",
-  "## 🎯 Elevator Pitch",
-  "## ⚙️ Core Mechanics",
+  "# 📓 Discovery Journal:",
+  "## 🎯 The Core Intent",
+  "## ⚙️ How it Works (The Mechanics)",
   "## 🗺️ Data Topography",
-  "## ⚠️ Failure States",
-  "## 🚫 Out of Scope",
+  "## ⚠️ Failure States & Logic Gaps",
+  "## 🚫 The \"Fence\" (Out of Scope)",
 ];
 
 function validate(filePath) {

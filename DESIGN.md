@@ -75,6 +75,7 @@ The Nordic Refac relies on subtle border rounding and kinetic physics to create 
 - **Do** maintain the semantic typography split.
 - **Don't** use standard hard glitch sharp edges; this regime favors soft glass and `var(--border-radius-m)`.
 - **Don't** use raw hex colors. To prevent eye strain, avoid `#FFFFFF` and `#000000` directly.
+- **Don't** use visible 'X' close buttons on modals. Modals must close via clicking outside the bounds or pressing Escape.
 
 ---
 

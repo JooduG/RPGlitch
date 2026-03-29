@@ -274,7 +274,7 @@
 
   .voice-option.active {
     color: var(--app-accent);
-    background: rgb(var(--app-accent-rgb) / 0.05);
+    background: rgb(var(--app-accent-rgb) / 5%);
   }
 
   .voice-option.active .region-pill {

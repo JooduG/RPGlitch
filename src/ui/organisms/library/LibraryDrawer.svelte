@@ -211,7 +211,7 @@
   /* --- NEW ENTITY CARD --- */
   .drawer-card--new {
     background: var(--glass-xs);
-    box-shadow: inset 0 0 0 1px rgb(var(--color-white-rgb) / 0.05);
+    box-shadow: inset 0 0 0 1px rgb(var(--color-white-rgb) / 5%);
     border-radius: var(--border-radius-l);
     aspect-ratio: 2 / 3;
     display: flex;
@@ -230,7 +230,7 @@
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background: rgb(var(--color-white-rgb) / 0.05);
+    background: rgb(var(--color-white-rgb) / 5%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -252,7 +252,7 @@
 
   .drawer-card--new:hover {
     color: var(--color-white);
-    background: rgb(var(--color-white-rgb) / 0.05);
+    background: rgb(var(--color-white-rgb) / 5%);
     transform: translateY(-5px);
   }
 

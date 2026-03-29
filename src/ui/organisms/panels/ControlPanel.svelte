@@ -28,7 +28,7 @@
 </script>
 
 <Modal variant="standard" on_close={() => app.toggle_control_panel()}>
-  <article class="cockpit-panel glass-overlay" data-testid="cockpit-panel">
+  <article class="control-panel-wrapper" data-testid="control-panel">
     <!-- HEADER: System Toggles -->
     <header class="panel-header">
       <div class="status-toggles">
@@ -117,16 +117,14 @@
 </Modal>
 
 <style>
-  .cockpit-panel {
-    width: 32rem;
-    border-radius: var(--border-radius-l);
+  .control-panel-wrapper {
+    width: 100%;
     padding: var(--spacing-xl);
     display: flex;
     flex-direction: column;
     gap: var(--spacing-l);
     font-family: var(--font-family-body);
     color: var(--font-color-m);
-    overflow: hidden;
   }
 
   .status-toggles {

@@ -73,7 +73,7 @@
 
   .picture.no-bg {
     object-fit: contain;
-    filter: drop-shadow(0 0.5rem 1rem rgb(var(--color-black-rgb) / 0.5));
+    filter: drop-shadow(0 0.5rem 1rem rgb(var(--color-black-rgb) / 50%));
   }
 
   .picture.flipped {
@@ -102,11 +102,11 @@
     font-family: var(--font-family-heading);
     font-weight: var(--font-weight-xl);
     color: var(--color-white);
-    text-shadow: 0 0.2rem 1rem rgb(var(--color-black-rgb) / 0.5);
+    text-shadow: 0 0.2rem 1rem rgb(var(--color-black-rgb) / 50%);
     background-color: var(--signature-color);
     background-image: 
-      linear-gradient(to bottom, transparent, rgb(var(--color-black-rgb) / 0.3)),
-      radial-gradient(circle at top left, rgb(255 255 255 / 0.2), transparent);
+      linear-gradient(to bottom, transparent, rgb(var(--color-black-rgb) / 30%)),
+      radial-gradient(circle at top left, rgb(255 255 255 / 20%), transparent);
     text-transform: uppercase;
   }
 </style>

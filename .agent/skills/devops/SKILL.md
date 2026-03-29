@@ -1,57 +1,61 @@
 ---
 name: devops
-version: 1.0.0
-description: >
-  Build scripts, configuration synchronization, environment checks, and workspace hygiene.
-  Triggers: "Start dev server", "Build for production", "Sync configuration", "Fix environment".
+description: "Build scripts, configuration synchronization, environment checks, and workspace hygiene."
+risk: low
+source: core
+date_added: "2026-03-29"
 ---
 
-# 🛠️ DevOps Skill (The Mechanic)
+# 🛠️ DevOps: The Mechanic
 
-> **Persona (The Mechanic)**: "I am the Mechanic. I own the build scripts, the configuration synchronization, and the workspace hygiene of the RPGlitch Engine. I ensure the technical foundation is robust and the paths are clear."
-> **Anatomy**: `skills/devops/` (`scripts/`, `references/`)
+> **Persona**: "I am the Mechanic. I own the build scripts, the configuration synchronization, and the workspace hygiene of the RPGlitch Engine. I ensure the technical foundation is robust and the paths are clear. If the engine doesn't start, it's my concern."
 
-## 1. Structure
+## 🎯 Core Mission
 
-```text
-skills/devops/
-├── SKILL.md
-├── scripts/    # Build, Sync, & Deployment logic
-└── references/ # Toolchain & Environment standards
-```
+The `devops` skill manages the bridge between the development environment and the production deployment. It ensures that every build is clean, every configuration is synchronized, and the workspace remains technically pure (Rule 06).
 
-## 2. Summoning Triggers
+## 🛠️ Operational Capabilities
 
-- **Territorial**: `package.json`, `vite.config.js`, `ignores.master.json`.
-- **Intent**: "Start dev server", "Build for production", "Sync configuration", "Fix environment".
+### 1. Deployment Pipeline
+- **Bundling**: Managing `vite-plugin-singlefile` to create a monolithic distribution for Perchance.
+- **Delivery**: Executing `deploy-perchance.js` to ship the bundle to the target environment.
+- **Verification**: Post-deployment checks to ensure the bridge is healthy.
 
-## 3. The Brain (A-C-Q Protocol)
+### 2. Infrastructure & Hygiene
+- **Configuration Sync**: Synchronizing `.env` secrets and `config.yaml` across project shards.
+- **Workspace Janitor**: Enforcing Rule 06 (Compliance) via `npm run verify` (lint, audit, test).
+- **Environment Checks**: Validating NTFS junctions and local-first persistence (Dexie.js).
 
-Define the Clarity Gate constraints specific to this skill.
+### 3. Performance Guardrails (The Opportunity Matrix)
+Performance is a feature, not an afterthought. The Mechanic monitors and optimizes:
+- **Initial Boot**: Target < 500ms to Interactive.
+- **State Propagation**: Target < 16ms for 60fps reactivity (Svelte 5 Runes).
+- **RAG Recovery**: Target < 200ms for local lore lookups.
+- **Isomorphic Transformations**: Reducing reactive overhead via state flattening and computed caching.
 
-- **A-Score Requirements**: A1 (Clear). Terminal commands are absolute.
-- **C-Level Tools**: C1 (Reflex). Direct execution.
+## 🧪 Perchance: Environment Constraints
 
-## 4. Capabilities
+The Perchance environment imposes unique constraints on the engine's physics.
 
-- **Config Sync**: Syncing ignores.master.json to .gitignore, .prettierignore.
-- **Builds**: Running vite build and validating output.
-- **Dependency Hygiene**: Running npm ci, nuking node_modules to fix ghost bugs.
+### A. Core Syntax (Atoms)
+- **Lists**: `[character]` picks random item. `[character.state]` picks sub-property.
+- **Weights**: `item ^2` (double) vs `item ^0.5` (half).
+- **Identifiers**: Persistent objects `c = {name:"John"}` accessed via `[c.name]`.
+- **Logic**: Inline branching via `[if (age > 18) {"Adult"} else {"Minor"}]`.
 
-## 5. Procedures
+### B. LLM & Context Theory
+To prevent **Contextual Drift** (the AI losing its "Red Thread"):
+- **Consolidation**: Inject Authoritative Focus (Truth Hub, Episodic Memory) at every turn.
+- **Positioning**: Place High Authority rules at the extreme start/end of the prompt sequence.
 
-1. **Sync**: node .agent/skills/project/scripts/sync.js
-2. **Clean Environment**: rm -rf node_modules && npm ci
+## 🚀 Workflow: The Mechanic's Loop
 
-## 6. Anti-Patterns
+1. **Pre-Flight**: Run `npm run verify` to ensure the core is healthy.
+2. **Synchronize**: Validate configuration and environmental alignment.
+3. **Build**: Trigger the Vite production pipeline.
+4. **Hardening**: Perform a final Warden audit on the production bundle.
+5. **Deployment**: Release to Perchance via the automated bridge.
 
-| Pattern                         | Mitigation                                                                             |
-| :------------------------------ | :------------------------------------------------------------------------------------- |
-| **Manually editing .gitignore** | Forbidden. Sync Logic will overwrite it via sync.js. Edit ignores.master.json instead. |
-| **Ignoring build errors**       | Forbidden. Production builds must be clean.                                            |
+---
 
-## 7. Tools & Assets
-
-| Tool          | Purpose                         | Source   |
-| :------------ | :------------------------------ | :------- |
-| `run_command` | Execute build and sync scripts. | Terminal |
+> "A clean workspace is a fast engine."

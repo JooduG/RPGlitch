@@ -47,9 +47,6 @@
     class="modal-content {variant}"
     transition:fly={{ y: 20, duration: 300, easing: quintOut }}
   >
-    <button class="close-btn" onclick={handle_close} aria-label="Close modal">
-      &times;
-    </button>
     {@render children()}
   </div>
 </div>
@@ -84,35 +81,15 @@
 
   .modal-content.profile {
     max-width: 90vw;
+    background: transparent;
+    backdrop-filter: none;
+    border: none;
+    box-shadow: none;
+    overflow-y: visible;
   }
 
   .modal-content.preview {
     max-width: 400px;
   }
 
-  .close-btn {
-    position: absolute;
-    top: var(--spacing-xs);
-    right: var(--spacing-xs);
-    background: var(--glass-xl);
-    backdrop-filter: var(--glass-blur-l);
-    border: none;
-    color: var(--font-color-s);
-    font-size: var(--font-size-xxl);
-    line-height: 1;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: var(--border-radius-full);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: var(--z-index-xl);
-    box-shadow: var(--shadow-xxl);
-    transition: color 0.2s;
-  }
-
-  .close-btn:hover {
-    color: var(--color-white);
-  }
 </style>

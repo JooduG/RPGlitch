@@ -1,30 +1,45 @@
-# CONCEPT: [Concept Name]
+# 📓 Discovery Journal: [Concept Name]
 
+> [!TIP]
 > **Status**: [DRAFT / FINAL]
-> **Intent Score**: [Level 5 Reached]
-> **Source Link**: [Link to conversation or brain log]
+> **Signal Level**: [Crystalline Reached]
+> **Source**: [Link to brain log / conversation]
 
-## 🎯 Elevator Pitch
+## 🎯 The Core Intent
 
-[One uncompromisingly clear sentence describing the core objective.]
+[One uncompromisingly clear sentence describing the "What" and the "Why" of this feature.]
 
-## ⚙️ Core Mechanics
+## ⚙️ How it Works (The Mechanics)
 
-- [Behavior 1]: [Trigger] -> [Action] -> [Outcome]
-- [Behavior 2]
-- [Behavior 3]
+> [!IMPORTANT]
+> This section defines the "Physics" of the simulation. If a trigger is pulled, these actions MUST follow.
+
+- **[Mechanic 1]**: [Trigger] -> [Action] -> [Outcome]
+- **[Mechanic 2]**
+- **[Mechanic 3]**
+
+## 🧩 Diegetic Mirror (Rule 02)
+
+*How does this manifest within the simulation's narrative reality?*
+
+- **Sensory Expression**: [Visual/Audio cues associated with this mechanic]
+- **Entity Impact**: [How does this affect Characters or Fractals?]
 
 ## 🗺️ Data Topography
 
-- **Conceptual Inputs**: [What information enters the system?]
-- **Conceptual Outputs**: [What is the resulting user/state change?]
+- **Inputs**: [What raw information enters this logic block?]
+- **Persistence**: [What is saved to the Echo (Dexie/IndexDB)?]
+- **Outputs**: [What is the resulting change in the User/State?]
 
-## ⚠️ Failure States
+## ⚠️ Failure States & Logic Gaps
 
-- **[Mode 1]**: [Response]
+- **[Mode 1]**: [Response/Mitigation]
 - **[Mode 2]**
-- **[Mode 3]**
 
-## 🚫 Out of Scope
+## 🚫 The "Fence" (Out of Scope)
 
-- [Behavior or feature explicitly NOT included to prevent creep.]
+- [Behavior or feature explicitly NOT included to prevent scope creep.]
+
+---
+
+> *"Does this capture the vibe correctly? Let me know if I should tweak the mechanics before I start the execution."*

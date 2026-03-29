@@ -171,7 +171,7 @@ async function audit_skill(skillName) {
         if (
           file.endsWith(".md") &&
           !file.endsWith(".template.md") &&
-          content.toLowerCase().includes("template")
+          fs.readFileSync(path.join(assetsPath, file), "utf-8").toLowerCase().includes("template")
         ) {
           // Note: This is a soft heuristic, but strictly required if intended as a template.
           report.issues.push({

@@ -588,8 +588,8 @@ async function attempt_login(page) {
 
 async function main() {
   console.log("\n  ╔═══════════════════════════════════════════════╗");
-  console.log("  ║   🚀 RPGlitch → Perchance Deploy Pipeline    ║");
-  console.log("  ╚═══════════════════════════════════════════════╝\n");
+  console.log("    ║   🚀 RPGlitch → Perchance Deploy Pipeline   ║");
+  console.log("    ╚═══════════════════════════════════════════════╝\n");
 
   // Phase 1: Pre-flight
   const payload = pre_flight();

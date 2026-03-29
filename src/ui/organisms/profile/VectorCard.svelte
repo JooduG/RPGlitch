@@ -82,7 +82,7 @@
   }
 
   .card-inner {
-    background: var(--glass-xs);
+    background: var(--glass-s);
     box-shadow: var(--shadow-s);
     border-radius: var(--border-radius-m);
     padding: var(--spacing-s) var(--spacing-m);
@@ -123,7 +123,7 @@
   }
 
   .edit-area textarea::placeholder {
-    color: var(--text-dim);
+    color: var(--font-color-s);
     opacity: var(--opacity-m);
   }
 

@@ -1,0 +1,34 @@
+name: Sovereign Smart CI
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Smart Test Selection
+        id: test-selection
+        env:
+          JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
+        run: |
+          # Use CLI to identify relevant test slices based on git diff
+          node .agent/skills/gli/scripts/gli.js test --agent
+          
+          # Automated UI Action: Log Selection
+          echo "SMART_SUITE: Core, State, UI"
+          
+          # Run tests (Simulated)
+          npm test -- --shard 1/4

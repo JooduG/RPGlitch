@@ -83,30 +83,35 @@
     "vitest-browser-svelte": "^2.0.1"
   },
   "name": "joodug-rpglitch",
+  "overrides": {
+    "@modelcontextprotocol/sdk": "^1.28.0"
+  },
   "scripts": {
     "audit": "node .agent/skills/orchestration-operations/scripts/summarize.js audit:check audit:css audit:security audit:agent audit:svelte audit:todo audit:project audit:nomenclature",
+    "audit:agent": "npm-run-all audit:skills audit:rules audit:workflows",
     "audit:check": "node .agent/skills/warden/scripts/audit-engine.js",
     "audit:css": "node .agent/skills/warden/scripts/audit-engine.js --css",
+    "audit:nomenclature": "node .agent/skills/directives/scripts/audit-nomenclature.js",
+    "audit:project": "node .agent/skills/warden/scripts/audit-engine.js --project",
+    "audit:rules": "node .agent/skills/warden/scripts/audit-engine.js --rules",
     "audit:security": "node .agent/skills/warden/scripts/audit-engine.js --security",
     "audit:skills": "node .agent/skills/warden/scripts/audit-engine.js --skills",
-    "audit:rules": "node .agent/skills/warden/scripts/audit-engine.js --rules",
-    "audit:workflows": "node .agent/skills/warden/scripts/audit-engine.js --workflows",
-    "audit:agent": "npm-run-all audit:skills audit:rules audit:workflows",
     "audit:svelte": "node .agent/skills/warden/scripts/audit-engine.js --svelte",
     "audit:todo": "node .agent/skills/warden/scripts/audit-engine.js --todo",
-    "audit:project": "node .agent/skills/warden/scripts/audit-engine.js --project",
-    "audit:nomenclature": "node .agent/skills/directives/scripts/audit-nomenclature.js",
+    "audit:workflows": "node .agent/skills/warden/scripts/audit-engine.js --workflows",
     "build": "vite build",
     "check": "node .agent/skills/orchestration-operations/scripts/summarize.js audit:check lint test",
     "clean": "node .agent/skills/orchestration-operations/scripts/summarize.js audit:security lint audit:project",
+    "deploy": "npm run deploy:prepare && npm run deploy:auto",
+    "deploy:auto": "node .agent/skills/devops/scripts/deploy-perchance.js",
     "deploy:prepare": "node .agent/skills/orchestration-operations/scripts/summarize.js format sync lint:fix audit test build",
-    "deploy:perchance:auto": "node .agent/skills/devops/scripts/deploy_perchance.js",
-    "deploy": "npm run deploy:prepare && npm run deploy:perchance:auto",
     "dev": "vite",
     "forge:skill": "node .agent/skills/directives/scripts/forge-skill.js",
     "forge:skill-package": "node .agent/skills/directives/scripts/forge-skill-package.js",
     "forge:svelte": "node .agent/skills/svelte/scripts/forge-svelte.js",
     "format": "prettier --write .",
+    "GLI:agent": "node .agent/skills/GLI/scripts/gli.js brief --agent",
+    "GLI:human": "node .agent/skills/GLI/scripts/gli.js brief --human",
     "lint": "node .agent/skills/orchestration-operations/scripts/summarize.js lint:js lint:css lint:md",
     "lint:css": "stylelint \"src/**/*.{css,svelte,scss}\"",
     "lint:css:fix": "stylelint \"src/**/*.{css,svelte,scss}\" --fix",
@@ -124,8 +129,5 @@
     "verify": "node .agent/skills/orchestration-operations/scripts/summarize.js lint audit test"
   },
   "type": "module",
-  "version": "1.0.0",
-  "overrides": {
-    "@modelcontextprotocol/sdk": "^1.28.0"
-  }
+  "version": "1.0.0"
 }

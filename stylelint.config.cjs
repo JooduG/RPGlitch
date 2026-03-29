@@ -10,7 +10,6 @@ module.exports = {
     "stylelint-prettier/recommended",
   ],
   overrides: [
-    { files: ["**/*.scss"], customSyntax: "postcss-scss" },
     { files: ["**/*.svelte"], customSyntax: "postcss-html" },
   ],
   rules: {
@@ -30,17 +29,17 @@ module.exports = {
         ignorePseudoClasses: ["global", "deep", "slotted"],
       },
     ],
-    "no-descending-specificity": null,
+    // "no-descending-specificity": null,
     // 1. Unplug the rgba vs rgb debate completely
-    "color-function-alias-notation": null,
+    // "color-function-alias-notation": null,
 
     // 2. Unplug the decimals vs percentages debate
-    "alpha-value-notation": null,
+    // "alpha-value-notation": null,
 
     // 3. Let yourself use empty lines for readability
     "custom-property-empty-line-before": null,
 
     // 4. Stop it from yelling about your cascading duplicate variables
-    "declaration-block-no-duplicate-custom-properties": null,
+    // "declaration-block-no-duplicate-custom-properties": null,
   },
 };
