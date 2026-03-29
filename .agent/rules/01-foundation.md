@@ -1,4 +1,5 @@
 ---
+name: foundation
 trigger: always_on
 description: The Core DNA. Vision, UVP, Strategic Objectives, and The Context Protocol.
 ---
@@ -9,15 +10,17 @@ description: The Core DNA. Vision, UVP, Strategic Objectives, and The Context Pr
 
 ---
 
-## Vision & The Red Thread
+## ⚖️ The Law
+
+### Vision & The Red Thread
 
 For information about the simulation application please see _the [Simulation](./02-simulation.md) rule_.
 
-## RPGlitch Architecture
+### RPGlitch Architecture
 
 When working on our infrastructure enforce the [Infrastructure](./03-infrastructure.md) rule and the [Aesthetics](./04-aesthetics.md) rule.
 
-## Agent Protocol
+### Agent Protocol
 
 Adhere to the **Cognitive Protocols** in [AGENTS.md](../../AGENTS.md) and the [Intelligence](./05-intelligence.md) rule.
 
@@ -26,11 +29,11 @@ Adhere to the **Cognitive Protocols** in [AGENTS.md](../../AGENTS.md) and the [I
 - **Inhibition**: Follow Step 9 of the Mandate—reason through all logical dependencies before taking any irreversible action.
 - **The Handoff Law**: Ending a session without executing paperwork routine to update the `.agent/project-management/` shard is strictly prohibited.
 
-## Security & Safety
+### Security & Safety
 
 When working on bugs and security issues always follow the [Compliance](./06-compliance.md) rule.
 
-## The Triad Protocol
+### The Triad Protocol
 
 We bridge creative prose and mechanical truth through theese layers:
 

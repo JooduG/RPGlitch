@@ -152,14 +152,18 @@ class Auditor {
 
       // 2. Global Content Match (File-Wide)
       if (rule.validate && !rule.regex) {
-        if (!rule.validate(content, filePath)) {
-          this.reportViolation(rule, filePath, 0, "[File Structure]");
+        const result = rule.validate(content, filePath);
+        const isValid = typeof result === "object" ? result.valid : result;
+        const errors = typeof result === "object" ? result.errors : [];
+
+        if (!isValid) {
+          this.reportViolation(rule, filePath, 0, "[File Structure]", errors);
         }
       }
     });
   }
 
-  reportViolation(rule, filePath, line, code) {
+  reportViolation(rule, filePath, line, code, errors = []) {
     this.stats.violations++;
     const sev = SEVERITY_LEVELS[rule.severity] || SEVERITY_LEVELS.ADVICE;
     const relPath = path.relative(ROOT_DIR, filePath);
@@ -170,13 +174,20 @@ class Auditor {
       file: relPath,
       line,
       message: rule.message,
+      errors
     });
 
     console.log(`${sev.color}[${sev.label}] ${relPath}${line ? `:${line}` : ""}${RESET}`);
     console.log(`  ${rule.message}`);
+    
     if (code && code !== "[File Structure]") {
       console.log(`  Code: ${code.substring(0, 100).trim()}`);
     }
+
+    if (errors && errors.length > 0) {
+      errors.forEach(err => console.log(`    - ${err}`));
+    }
+    
     console.log("");
   }
 

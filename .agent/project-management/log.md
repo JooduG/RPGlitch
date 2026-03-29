@@ -4,8 +4,8 @@
 
 ## ⚡ Active Tracks
 
-- **Nordic Glass Refactor**: Unified the Storyboard into the Nordic regime (frosted glass, Chalk tokens, zero-tilt grounded physics). Implemented the **"Vacuum Lock"** (pointer-events) and purged the **"Annoying Red"** from placeholders (now uses `var(--color-frozen)`). Resolved all Stylelint and ESLint debt in `StoryboardCard.svelte`. [Session: 422c4a6f]
-- **Narrative Bridge**: Initiated registration and architectural planning for autonomous scene complications.
+- **Clinic Sanitization**: Fixed 100% of desynchronized unit tests in `Modal.test.js` after the Nordic Glass migration. Redirected background interaction logic to the `Backdrop` component and modernized CSS selectors. Achieved a **PERFECT SCORE** in the full verification pipeline (`npm run verify`). [Session: 844a1861]
+- **Auditor Optionality Fix**: Diagnosing and fixing the Sovereign Auditor's failure to recognize `_Optional_` markers in templates. Created implementation plan for regex hardening and placeholder expansion. [Session: 9df699d7]
 - **UI Audit & Polish**: Standardized Chalk Regime tokens across atomic and organism layers. Implemented `kineticScroll` with momentum decay. [Branch: feat/ui-audit-polish]
 - **Nomenclature Audit**: Implemented `audit-nomenclature.js` enforcing Rule 05 lexical laws (kebab-case for files, PascalCase for Svelte components). Wired `audit:nomenclature` into `package.json` for automated enforcement. Achieved 0 violations across 100% of project items. [Branch: chore/nomenclature-audit]
 - **Sovereign Anatomy Refactor**: Enforced strict `scripts/`, `assets/`, `references/` triad across all skills. Migrated `references/`, renamed templates to `.template.md` suffix, and hardened `audit-skills.js` with structural exclusivity rules. Audit engine reports **0 violations**. [Branch: chore/sovereign-anatomy]

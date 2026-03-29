@@ -1,4 +1,5 @@
 ---
+name: simulation
 trigger: always_on
 description: The Simulation Engine. Round/Turn Cycles, Entity Logic and AI Interaction.
 ---
@@ -9,11 +10,13 @@ description: The Simulation Engine. Round/Turn Cycles, Entity Logic and AI Inter
 
 ---
 
-## 1. The Simulation Cycle (Round & Turn)
+## ⚖️ The Law
+
+### 1. The Simulation Cycle (Round & Turn)
 
 The Simulation Cycle is the overarching heartbeat of the engine—a complete sequence of cause and effect.
 
-## 2. Product Identity
+### 2. Product Identity
 
 RPGlitch is a high-fidelity roleplay engine designed for immersive, local-first storytelling.
 
@@ -21,13 +24,13 @@ RPGlitch is a high-fidelity roleplay engine designed for immersive, local-first 
 - **Agentic Automation**: The Intelligence Kernel autonomously manages complex state and narrative transitions.
 - **Recursive Intelligence**: Logic is a pillar. The [Engine](../../src/core/engine/) orchestrates input, [Security](../../src/core/security.js) enforces physics, and [Data](../../src/data/) ensures memory.
 
-### Strategic Objectives
+#### Strategic Objectives
 
 - **Diegetic Immersion**: The UI is an atmospheric canvas. Information is embedded within the fiction using Chalk Regime tokens.
 - **Procedural Pacing**: Encourages concise, procedural story arcs over monolithic chat logs.
 - **Character Cycling**: Designed for frequent perspective swapping within the simulation.
 
-### The Round
+#### The Round
 
 A **Round** is the macro-state of the simulation. It increments only when the user submits a new message payload.
 
@@ -37,7 +40,7 @@ A **Round** is the macro-state of the simulation. It increments only when the us
 - **The Echo (History)**: Persistent logs (Dexie.js / Pinecone) that provide context and weight to every decision.
 - **Completion**: A `round` is over when all turns for that round are complete.
 
-### The Turn
+#### The Turn
 
 Turns are micro-states within a Round. They execute a sequential logic flow with asynchronous overlapping.
 
@@ -58,7 +61,7 @@ Turns are micro-states within a Round. They execute a sequential logic flow with
 
 ---
 
-## 3. App Architecture
+### 3. App Architecture
 
 RPGlitch is a **Local-First Reactive Monolith** (PWA).
 
@@ -70,7 +73,7 @@ RPGlitch is a **Local-First Reactive Monolith** (PWA).
 
 ---
 
-## 4. The Reactive Cycle (5-Step Loop)
+### 4. The Reactive Cycle (5-Step Loop)
 
 Every interaction follows a strict reactive loop propagated by Runes:
 
@@ -78,18 +81,18 @@ Every interaction follows a strict reactive loop propagated by Runes:
 
 ---
 
-## 5. Simulation Entities & Management
+### 5. Simulation Entities & Management
 
-A `simulation` is a story and requires `entities` in order to play out. For detailed nomenclature and definitions, see _the [Intelligence](./04-intelligence.md) rule_.
+A `simulation` is a story and requires `entities` in order to play out. For detailed nomenclature and definitions, see _the [Intelligence](./05-intelligence.md) rule_.
 
 - **Swapping**: The engine is designed for frequent story swapping. Concluding a story and starting a new one should be a seamless state transition.
 - **Management**: The `entities` (Characters and Fractals) are managed via the `profile modal` in `edit mode`.
 
 ---
 
-## 6. Agentic Interaction
+### 6. Agentic Interaction
 
-### Multi-Layered Communication
+#### Multi-Layered Communication
 
 Interaction occurs through three distinct channels:
 
@@ -97,23 +100,23 @@ Interaction occurs through three distinct channels:
 - **System Messages**: Out-of-Character (/OOC) narrative scaffolding or technical alerts.
 - **The Fractal**: The world/setting sending direct "sensory" messages.
 
-### Supportive Scaffolding
+#### Supportive Scaffolding
 
 The application encourages procedural short stories, ensuring narrative coherence and character consistency across simulation ticks.
 
 ---
 
-## 7. Operational Mandates
+### 7. Operational Mandates
 
-### P1: User Agency
+#### P1: User Agency
 
 Never violate user intent. Do not speak, act, or think for the User. Maintain strict third-person limited integrity for entities.
 
-### P2: Internal Consistency
+#### P2: Internal Consistency
 
 Maintain continuity of memory. The "Echo" must mirror the "State".
 
-### P3: Narrative Momentum
+#### P3: Narrative Momentum
 
 - **Cinematic pacing**: Use sensory bridges. End responses with unresolved tension or meaningful choices.
 - **Meaningful Interactions**: Favor intuitive actions over explicit controls (e.g., clicking a slot triggers character selection).
@@ -122,15 +125,15 @@ Maintain continuity of memory. The "Echo" must mirror the "State".
 
 ---
 
-## 8. AI Character Protocol & Diegetic Integrity
+### 8. AI Character Protocol & Diegetic Integrity
 
 The following hierarchy and protocols govern all **AI Characters** within the simulation. This protocol ensures deep immersion and strict adherence to the engine's reactive physics.
 
-### 🎭 Narrative Hierarchy
+#### 🎭 Narrative Hierarchy
 
 **L1_ABSOLUTE (User Agency) > L2_CRITICAL (Character/Temporal Truth) > L3_HIGH (Plot/Sensory) > L4_MODERATE (Style)**.
 
-### 📜 Execution Mandates
+#### 📜 Execution Mandates
 
 - **Restraint**: Simulation AI MUST NOT utilize narrator-voice. It MUST NEVER speak, think, or act on behalf of the user. It must maintain strict third-person limited integrity for its assigned entities.
 - **Outcome Evaluation**: Before generating prose, the simulation AI must evaluate the **System Turn** state mutations. It must compare the intended user action against physical reality (Rule 03) to ensure logical continuity.

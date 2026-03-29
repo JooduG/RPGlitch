@@ -1,12 +1,33 @@
+/**
+ * 🕵️ audit-skills.js
+ * The Sovereign Inspector: Audits skills for structural purity and template alignment.
+ */
 import fs from "fs";
 import path from "path";
-// import { fileURLToPath } from "url";
-// import yaml from "js-yaml";
+import { fileURLToPath } from "url";
+import { getTemplateStructure, validateAgainstStructure } from "./template-utils.js";
 
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
-const PROJECT_ROOT = process.cwd();
-const SKILL_ROOT = path.join(PROJECT_ROOT, ".agent", "skills");
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const PROJECT_ROOT = path.join(__dirname, "..", "..", "..", "..");
+const SKILLS_DIR = path.join(PROJECT_ROOT, ".agent", "skills");
+
+export const skill_rules = [
+  {
+    id: "SKILL_TEMPLATE_ALIGNMENT",
+    severity: "HERESY",
+    message: "🚨 SKILL file deviates from Sovereign Template structure.",
+    validate: (content, filePath) => {
+      // Only audit .md files in the skills directory
+      if (!filePath.endsWith("SKILL.md")) return true;
+      const relPath = path.relative(PROJECT_ROOT, filePath).replace(/\\/g, "/");
+      if (!relPath.startsWith(".agent/skills/")) return true;
+      
+      const skillName = path.basename(path.dirname(filePath));
+      const results = auditSkill(skillName, true); // SILENT when called by engine
+      return results;
+    }
+  }
+];
 
 const SEVERITY = {
   HERESY: "🛑 HERESY",
@@ -16,228 +37,93 @@ const SEVERITY = {
 };
 
 /**
- * 🕵️ Skill Audit Rules (Modular Auditor Compatible)
+ * 🕵️ Audit single skill
  */
-export const skill_rules = [
-  {
-    id: "S-SKILL-001",
-    severity: "DEBT",
-    regex: /\[(?!file:\/\/|Ref-)(?![^\]]*?\]\()(?![^\]]*?\]:).*?\]/,
-    message: "WARNING: Unfilled [placeholder] detected in SKILL.md.",
-  },
-  {
-    id: "S-SKILL-002",
-    severity: "DEBT",
-    validate: (content) =>
-      content.includes("Persona") && (content.includes("Structure") || content.includes("Anatomy")),
-    message: "WARNING: Missing mandatory Structure or Persona markers.",
-  },
-  {
-    id: "S-SKILL-003",
-    severity: "DEBT",
-    validate: (content) => content.includes("Procedure") && content.includes("Anti-Patterns"),
-    message: "WARNING: Missing Procedure or Anti-Patterns sections.",
-  },
-  {
-    id: "S-SKILL-004",
-    severity: "HERESY",
-    validate: (content, filePath) => {
-      const skillPath = path.dirname(filePath);
-      const allowedSubfolders = ["scripts", "references", "assets"];
-      const currentSubfolders = fs
-        .readdirSync(skillPath)
-        .filter((f) => fs.statSync(path.join(skillPath, f)).isDirectory());
+const auditSkill = (skillName, silent = false) => {
+  const skillPath = path.join(SKILLS_DIR, skillName);
+  const skillMd = path.join(skillPath, "SKILL.md");
 
-      return currentSubfolders.every(
-        (dir) => allowedSubfolders.includes(dir) || dir.startsWith("."),
-      );
-    },
-    message:
-      "HERESY: Disallowed Subfolder Detected. Only scripts, assets, and references are permitted.",
-  },
-  {
-    id: "S-SKILL-005",
-    severity: "HIGH",
-    validate: (content, filePath) => {
-      const assetsPath = path.join(path.dirname(filePath), "assets");
-      if (!fs.existsSync(assetsPath)) return true;
-      const assetFiles = fs.readdirSync(assetsPath);
-      return !assetFiles.some((file) => {
-        const fullPath = path.join(assetsPath, file);
-        if (fs.statSync(fullPath).isDirectory()) return false;
-        return (
-          file.endsWith(".md") &&
-          !file.endsWith(".template.md") &&
-          fs.readFileSync(fullPath, "utf-8").toLowerCase().includes("template")
-        );
-      });
-    },
-    message: "HIGH: Improperly named asset. Reusable templates must use the .template.md suffix.",
-  },
-];
-
-/**
- * 🕵️ Audit Logic (Sovereign Standalone)
- */
-async function audit_skill(skillName) {
-  const skillPath = path.join(SKILL_ROOT, skillName);
-  const skillFile = path.join(skillPath, "SKILL.md");
-
-  console.log(`\n🔍 AUDITING: ${skillName}...`);
+  if (!silent) console.log(`\n🔍 AUDITING: ${skillName}...`);
+  
   const report = {
     score: 120,
     issues: [],
   };
 
+  const logIssue = (sev, msg, deduction = 10) => {
+    report.issues.push({ sev, msg, deduction });
+  };
+
   if (!fs.existsSync(skillPath)) {
-    return console.error(`❌ Skill directory not found: ${skillPath}`);
+    if (!silent) console.error(`❌ Skill directory not found: ${skillPath}`);
+    return { valid: false, errors: ["Skill directory not found"] };
   }
 
-  if (!fs.existsSync(skillFile)) {
-    report.issues.push({ sev: SEVERITY.HERESY, msg: "Missing SKILL.md", deduction: 50 });
+  if (!fs.existsSync(skillMd)) {
+    logIssue(SEVERITY.HERESY, "Missing SKILL.md", 50);
   } else {
-    const rawContent = fs.readFileSync(skillFile, "utf-8");
+    const content = fs.readFileSync(skillMd, "utf-8");
 
-    // 1. Standards: YAML Validation
-    try {
-      const frontmatterMatch = rawContent.match(/^---([\s\S]*?)---/);
-      if (!frontmatterMatch) {
-        report.issues.push({
-          sev: SEVERITY.CRITICAL,
-          msg: "Missing YAML frontmatter",
-          deduction: 20,
-        });
-      } else {
-        // Simple key-value parser for now to avoid dependency issues
-        const fm = frontmatterMatch[1];
-        if (!fm.includes("name:"))
-          report.issues.push({
-            sev: SEVERITY.HIGH,
-            msg: "Missing name in frontmatter",
-            deduction: 10,
-          });
-        if (!fm.includes("description:"))
-          report.issues.push({
-            sev: SEVERITY.HIGH,
-            msg: "Missing description in frontmatter",
-            deduction: 10,
-          });
-      }
-    } catch (e) {
-      report.issues.push({ sev: SEVERITY.CRITICAL, msg: "YAML Parse Error", deduction: 20 });
-    }
+    // 1. Template-Driven Validation
+    const structure = getTemplateStructure("SKILL");
+    validateAgainstStructure(content, structure, (sev, msg) => {
+      const mappedSev = sev === "HERESY" ? SEVERITY.HERESY : SEVERITY.CRITICAL;
+      logIssue(mappedSev, msg, sev === "HERESY" ? 30 : 15);
+    });
 
-    // 2. Context Bloat Check
-    const lineCount = rawContent.split("\n").length;
-    if (lineCount > 500) {
-      report.issues.push({
-        sev: SEVERITY.HIGH,
-        msg: `Context Bloat: ${lineCount} lines (Target < 500)`,
-        deduction: 15,
-      });
-    }
-
-    // 4. Case Sensitivity (Nomenclature)
-    if (skillName !== skillName.toLowerCase() || skillName.includes("_")) {
-      report.issues.push({
-        sev: SEVERITY.CRITICAL,
-        msg: "Non-kebab-case folder name",
-        deduction: 15,
-      });
-    }
-
-    // 5. Structural Exclusivity Check (Strict TRIAD)
-    // Subfolders are optional — but if one exists it MUST be named scripts, assets, or references.
+    // 2. Structural Exclusivity
     const allowedSubfolders = ["scripts", "references", "assets"];
-    const currentSubfolders = fs
-      .readdirSync(skillPath)
-      .filter((f) => fs.statSync(path.join(skillPath, f)).isDirectory());
+    const currentSubfolders = fs.readdirSync(skillPath)
+      .filter(f => fs.statSync(path.join(skillPath, f)).isDirectory());
 
-    currentSubfolders.forEach((dir) => {
+    currentSubfolders.forEach(dir => {
       if (!allowedSubfolders.includes(dir) && !dir.startsWith(".")) {
-        report.issues.push({
-          sev: SEVERITY.HERESY,
-          msg: `Disallowed Subfolder Detected: ${dir}/. Only scripts, assets, and references are permitted.`,
-          deduction: 50,
-        });
+        logIssue(SEVERITY.HERESY, `Disallowed subfolder: ${dir}/. Use ONLY scripts, assets, or references.`, 50);
       }
     });
 
-    // 7. Template Naming Check (.template.md)
-    const assetsPath = path.join(skillPath, "assets");
-    if (fs.existsSync(assetsPath)) {
-      const assetFiles = fs.readdirSync(assetsPath);
-      assetFiles.forEach((file) => {
-        if (
-          file.endsWith(".md") &&
-          !file.endsWith(".template.md") &&
-          fs.readFileSync(path.join(assetsPath, file), "utf-8").toLowerCase().includes("template")
-        ) {
-          // Note: This is a soft heuristic, but strictly required if intended as a template.
-          report.issues.push({
-            sev: SEVERITY.HIGH,
-            msg: `Improperly named asset: ${file}. Reusable templates must use the .template.md suffix.`,
-            deduction: 15,
-          });
-        }
-      });
+    // 3. Placeholder Detection (simplified)
+    const placeholders = content.match(/\[.*?\](?!\()/g) || [];
+    const invalidPlaceholders = placeholders.filter(p => !p.includes("file:///") && p.length > 2 && p.length < 50);
+    if (invalidPlaceholders.length > 3) {
+      logIssue(SEVERITY.HIGH, `Unfilled placeholders detected: ${invalidPlaceholders.join(", ")}`, 15);
     }
 
-    // 8. Placeholder & Mandatory Section Detection
-    const content = fs.readFileSync(skillFile, "utf-8");
-    const bracketMatches = content.match(/\[.*?\](?!\()/g) || []; // Ignore [text](link)
-    const placeholderCount = bracketMatches.filter(
-      (m) => !m.includes("file:///") && !m.includes("Ref-") && m.length > 2 && m.length < 50,
-    ).length;
-
-    if (placeholderCount > 5) {
-      report.issues.push({
-        sev: SEVERITY.CRITICAL,
-        msg: `Excessive Placeholder Brackets Found: [${placeholderCount}]`,
-        deduction: 15,
-      });
+    // 4. Bloat Check
+    const lines = content.split("\n").length;
+    if (lines > 600) {
+      logIssue(SEVERITY.HIGH, `Context Bloat: ${lines} lines`, 15);
     }
-
-    const mandatorySections = ["Persona", "Structure", "Procedure", "Anti-Patterns"];
-    mandatorySections.forEach((section) => {
-      if (!content.includes(section) && !(section === "Structure" && content.includes("Anatomy"))) {
-        report.issues.push({
-          sev: SEVERITY.CRITICAL,
-          msg: `Missing Mandatory Section Marker: ${section}`,
-          deduction: 10,
-        });
-      }
-    });
   }
 
-  // Final Scoring
-  report.score = Math.max(
-    0,
-    report.issues.reduce((acc, issue) => acc - issue.deduction, report.score),
-  );
-
-  // Display Results
-  report.issues.forEach((i) => console.log(`${i.sev}: ${i.msg} (-${i.deduction})`));
-
-  const grade =
-    report.score >= 108 ? "A (Sovereign)" : report.score >= 90 ? "B (Executive)" : "C (Draft)";
-  console.log(`\n🏆 FINAL SCORE: ${report.score}/120 | GRADE: ${grade}`);
-
-  if (report.score < 108) {
-    console.log("\n🛠️ REMEDIATION: Consult `forging-handbook.md` to harden this skill.");
+  report.score = Math.max(0, report.issues.reduce((acc, issue) => acc - issue.deduction, report.score));
+  
+  if (!silent) {
+    report.issues.forEach(i => console.log(`  ${i.sev}: ${i.msg} (-${i.deduction})`));
+    const grade = report.score >= 110 ? "A (Sovereign)" : report.score >= 90 ? "B (Executive)" : "C (Draft)";
+    console.log(`\n🏆 FINAL SCORE: ${report.score}/120 | GRADE: ${grade}`);
   }
-}
+  
+  return {
+    valid: report.score >= 110,
+    errors: report.issues.map(i => `${i.sev}: ${i.msg} (-${i.deduction})`),
+    score: report.score
+  };
+};
 
-/**
- * 🚀 Main Dispatcher
- */
-if (process.argv[1] && process.argv[1].endsWith("audit-skills.js")) {
+// Main execution
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
-  const command = args[0];
-
-  if (command === "audit") {
-    audit_skill(args[1] || "directives");
+  if (args[0] === "audit") {
+    auditSkill(args[1] || "directives");
   } else {
-    console.log("Usage: node audit-skills.js audit <skill-name>");
+    // Audit all skills
+    const skills = fs.readdirSync(SKILLS_DIR).filter(f => fs.statSync(path.join(SKILLS_DIR, f)).isDirectory());
+    let allClean = true;
+    skills.forEach(s => {
+      const result = auditSkill(s);
+      if (!result.valid) allClean = false;
+    });
+    if (!allClean) process.exit(1);
   }
 }

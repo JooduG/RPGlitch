@@ -1,41 +1,48 @@
 ---
+name: continue
 description: Resume Interrupted Work. Bypasses boot logic to pick up the baton.
+risk: low
+source: AI
+date_added: 2024-03-29
 ---
 
-# [/06-continue](./06-continue.md) - The Resonator
+# [Continue](./06-continue.md)
 
-> **Goal:** Resonate with the existing state and resume the narrative loop (Rule 01).
+## Objectives: Resumption
 
-## 1. Triggers
+- Identify the exact point of interruption from the log.
+- Restore the active reasoning chain and task track.
 
-- **Command**: "Continue", "Carry on", "Next step".
-- **Slash Command**: [/06-continue](./06-continue.md)
+## Context-Injection: Resumption Logic
 
-## 2. Context Injection
+- [Log Book](../project-management/log.md)
+- [Mission Board](../project-management/mission-board.md)
+- [Foundation](../rules/01-foundation.md)
 
-- **Rules**: [Foundation](../rules/01-foundation.md).
-- **Rules**: [Intelligence](../rules/05-intelligence.md).
-- **State**: [.agent/project-management/next.md](../project-management/next.md).
-- **State**: [.agent/project-management/log.md](../project-management/log.md).
+## Capabilities: Continuation Logic
 
-## 3. Procedures
+- **Baton Recovery**: Identify the `[/]` (In Progress) item in the log.
+- **State Restoration**: Synchronize the current context with the last recorded step.
 
-### Phase 1: Synchronization (Step 1)
+## Procedure
 
-1. **Read**: Load `next.md` to identify the current baton. [[Invoke: intake]](../skills/intake/SKILL.md)
-2. **Audit**: Sanity check the last completed track in `log.md`. [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
-3. **Resonate**: Align with the current **Risk Routing** (Step 2.2).
+### Phase 1: Baton Discovery (Step 1.2: Order of Ops)
 
-### Phase 2: Execution (Step 5)
+1. **Log Parsing**: Scan the [Log Book](../project-management/log.md) for the active track `[/]`. Identify the last successful action and the next pending step. [[Invoke: Orchestrator]](../skills/orchestrator/)
+2. **Track Integrity**: If multiple tracks are in progress, prioritize the one marked as the "active" baton.
 
-1. **Pick up**: Initialize the next pending sub-task in the active track shard.
-2. **Forge**: Transition directly to [/02-build](./02-build.md) for logic fabrication.
+### Phase 2: Reasoning Sync (Step 1.3: Prerequisites)
 
-### Phase 3: Persistence
+1. **Chain Restore**: Re-read the relevant implementation_plan.md and task.md artifacts. Ensure the mental model matches the recorded progress.
+2. **Context Update**: If files were modified since the last turn, perform a quick re-audit to ensure zero drift. [[Invoke: Warden]](../skills/warden/)
 
-1. **Log**: Document any immediate pivots or findings in the active shard.
+### Phase 3: Resumption (Step 5: Execution)
 
-## 4. Anti-Patterns
+1. **Signal**: State "Continuing from [Step X] of [Task Y]. Ready for execution."
+2. **Action**: Resume work on the identified track as per the approved plan.
 
-- **Cold Start**: Starting new features before completing the `next.md` baton.
-- **Ghost Tasks**: Working on logic not documented in the mission board.
+## Anti-Patterns
+
+- **Duplicate Work**: Re-executing steps that are already marked as `[x]` in the log.
+- **Context Loss**: Starting work without parsing the previous turn's concluding state.
+- **Track Hijack**: Switching to a new task before concluding or stashing the current one.

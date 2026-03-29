@@ -1,29 +1,47 @@
 /**
- * 🌊 Workflow Audit Rules (The Procedure Check)
+ * 🕵️ audit-workflows.js
+ * The Sovereign Auditor: Ensures all workflows are template-compliant and actionable.
  */
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { getTemplateStructure, validateAgainstStructure } from "./template-utils.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const PROJECT_ROOT = path.join(__dirname, "..", "..", "..", "..");
+const WORKFLOWS_DIR = path.join(PROJECT_ROOT, ".agent", "workflows");
 
 export const workflow_rules = [
   {
-    id: "WORKFLOW_FRONTMATTER",
+    id: "WORKFLOW_TEMPLATE_ALIGNMENT",
     severity: "HERESY",
+    message: "🚨 WORKFLOW file deviates from Sovereign Template structure.",
     validate: (content, filePath) => {
+      // Only audit .md files in the workflows directory
       if (!filePath.endsWith(".md")) return true;
-      const frontmatter = content.split("---")[1];
-      if (!frontmatter) return false;
-      return frontmatter.includes("description:");
-    },
-    message: "🚨 Workflow missing mandatory YAML frontmatter (description).",
-  },
-  {
-    id: "WORKFLOW_GOAL",
-    severity: "DEBT",
-    validate: (content) => content.includes("> **Goal:**"),
-    message: "⚠️ Workflow missing defined Goal statement.",
-  },
-  {
-    id: "WORKFLOW_STEPS",
-    severity: "ADVICE",
-    validate: (content) => content.includes("## ") && content.includes("Phase"),
-    message: "💡 Workflow should use structured Phases/Steps.",
-  },
+      const relPath = path.relative(PROJECT_ROOT, filePath).replace(/\\/g, "/");
+      if (!relPath.startsWith(".agent/workflows/")) return true;
+      
+      const errors = [];
+      const structure = getTemplateStructure("WORKFLOW");
+      
+      validateAgainstStructure(content, structure, (sev, msg) => {
+        errors.push(`${sev === "HERESY" ? "🛑" : "⚠️"} ${msg}`);
+      });
+      
+      return {
+        valid: errors.length === 0,
+        errors
+      };
+    }
+  }
 ];
+
+// Standalone execution
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const workflows = fs.readdirSync(WORKFLOWS_DIR).filter(f => f.endsWith(".md") && !f.includes("template"));
+  workflows.forEach(file => {
+    const content = fs.readFileSync(path.join(WORKFLOWS_DIR, file), "utf-8");
+    workflow_rules[0].validate(content, path.join(WORKFLOWS_DIR, file));
+  });
+}

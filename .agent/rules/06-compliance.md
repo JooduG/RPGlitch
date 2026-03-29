@@ -1,4 +1,5 @@
 ---
+name: compliance
 trigger: always_on
 description: Security auditing, Quality Assurance protocols, Automated Hygiene, and the Equivalence Oracle
 ---
@@ -9,7 +10,9 @@ description: Security auditing, Quality Assurance protocols, Automated Hygiene, 
 
 ---
 
-## 1. Security Policy
+## ⚖️ The Law
+
+### 1. Security Policy
 
 Security is deterministic. We do not guess; we validate.
 
@@ -18,7 +21,7 @@ Security is deterministic. We do not guess; we validate.
 3. **Template Rendering**: `innerHTML` & `{@html ...}` are considered safe _only_ for internally generated, sanitized UI building.
 4. **Boundary Validation**: All data crossing boundaries (URLs, API payloads) MUST be validated using `Zod` or `Valibot`.
 
-### 1.1 Defense-in-Depth Validation
+#### 1.1 Defense-in-Depth Validation
 
 When fixing a bug caused by invalid data, validating at a single point is insufficient. You must validate at EVERY layer the data passes through:
 
@@ -29,11 +32,11 @@ When fixing a bug caused by invalid data, validating at a single point is insuff
 
 ---
 
-## 2. Automated Defense (The Warden)
+### 2. Automated Defense (The Warden)
 
 Before any task is marked complete, the ecosystem must survive these automated sweeps.
 
-### 2.1 The Antigravity Janitor
+#### 2.1 The Antigravity Janitor
 
 We do not leave messes. Adhere to the **Boy Scout Rule**: Always leave the codebase cleaner than you found it.
 
@@ -43,7 +46,7 @@ We do not leave messes. Adhere to the **Boy Scout Rule**: Always leave the codeb
 
 ---
 
-## 3. Quality Assurance
+### 3. Quality Assurance
 
 Ensure that no task track gets a `[x]` without a logical audit.
 
@@ -58,7 +61,7 @@ Ensure that no task track gets a `[x]` without a logical audit.
 
 ---
 
-## 4. Code Purity
+### 4. Code Purity
 
 Code must be chemically pure. We do not tolerate "Vibe Slop" or AI-isms in code or commentary.
 
@@ -67,7 +70,7 @@ Code must be chemically pure. We do not tolerate "Vibe Slop" or AI-isms in code 
 
 ---
 
-## 5. Constitutional Authority
+### 5. Constitutional Authority
 
 In the event of an architectural or logical conflict, **[AGENTS.md](../../AGENTS.md)** serves as the high-level arbiter.
 

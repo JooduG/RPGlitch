@@ -40,6 +40,7 @@
 
 - `[/]` **Nordic Glass Refactor**: Unified the Storyboard into the Nordic regime (frosted glass, Chalk tokens, zero-tilt grounded physics). Implemented the **"Vacuum Lock"** (pointer-events) and purged the **"Annoying Red"** from placeholders (now uses `var(--color-frozen)`). Resolved all Stylelint and ESLint debt in `StoryboardCard.svelte`. [Session: 422c4a6f]
 - `[ ]` **Narrative Bridge**: Orchestrating automatic scene complications.
+- `[~]` **Auditor Optionality Fix**: Restoring the physical law of `_Optional_` markers in the Sovereign Auditor. [Session: 9df699d7]
 
 - [x] **Data Skill**: Memory, Lore, & Technical Cold Storage (Sovereign).
 - [x] **intake Skill**: Intent Decoding, Incubation, & Feature Gateway (Sovereign).

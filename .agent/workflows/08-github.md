@@ -1,43 +1,50 @@
 ---
+name: github
 description: Local GitHub Ops. Automates PRs, issues, and local sync.
+risk: low
+source: AI
+date_added: 2024-03-29
 ---
 
-# [/08-github](./08-github.md) - The Bridge
+# [GitHub](./08-github.md)
 
-> **Goal:** Synchronize local state with the cloud Sovereign and automate repository management.
+## Objectives: Phase 6 - Collaboration
 
-## 1. Triggers
+- Synchronize the local repository with GitHub.
+- Automate PR creation and issue management.
 
-- **Command**: "Create PR", "Sync with GitHub", "Update issue".
-- **Slash Command**: [/08-github](./08-github.md)
-- **Quality Gate Passed**: Moving from Review to Cloud Sync.
+## Context-Injection: GitHub Context
 
-## 2. Context Injection
+- [Foundation](../rules/01-foundation.md)
+- [GLI](../skills/GLI/)
+- `npm run gli:agent`
 
-- **Rules**: [Foundation](../rules/01-foundation.md).
-- **Rules**: [Compliance](../rules/06-compliance.md).
-- **Rules**: [Intelligence](../rules/05-intelligence.md).
-- **State**: [.agent/project-management/log.md](../project-management/log.md).
+## Capabilities: Integration Chain
 
-## 3. Procedures
+- **Version Control**: Git (Local).
+- **Remote Ops**: [Cli Commands](../../package.json).
+- **PR Automation**: [General Logistics Interface](../skills/GLI/).
 
-### Phase 1: The Clarity Gate (Audit)
+## Procedure
 
-1. **Hygiene Scan**: Run [/03-clean](./03-clean.md) (Focus: Security & Lint). [[Invoke: warden]](../skills/warden/SKILL.md)
-2. **Conflict Check**: Pull latest from `origin/main` to ensure no upstream divergence. [[Invoke: devops]](../skills/devops/SKILL.md)
+### Phase 1: Pre-Sync (Step 3: Research)
 
-### Phase 2: Transmission
+1. **Commit Audit**: Ensure all local changes are captured. Mark all tasks as `[x]` in the [Log Book](../project-management/log.md).
+2. **Branch Hygiene**: Verify that the current branch is correctly named and isolated.
 
-1. **PR Fabrication**: Create or update the Pull Request for the current track. [[Invoke: devops]](../skills/devops/SKILL.md)
-2. **Issue Binding**: Link the local track status to the corresponding remote Issue.
-3. **CI/CD**: Dispatch manual test runs via [GitHub Workflows](../../.github/workflows/).
+### Phase 2: Remote Ops (Step 5: Execution)
 
-### Phase 3: expression (Reporting)
+1. **Push**: Sync all local commits to the remote origin.
+2. **PR Initiation**: Open the PR using the GitHub CLI or GLI skill. Ensure a tactical summary is provided. [[GLI]](../skills/GLI/)
+3. **Issue Sync**: Link the PR to the relevant issue ID. Update the issue status to `Resolved`.
 
-1. **Log**: Update [log](../project-management/log.md) with the PR URL and remote status.
-2. **Handoff**: Prepare [Next](../project-management/next.md) with the remote environment context. [[Invoke: intake]](../skills/intake/SKILL.md)
+### Phase 3: Merging (Step 8: Handoff)
 
-## 4. Anti-Patterns
+1. **Semantic Approval**: Perform an automated self-audit (Step 6) before merging.
+2. **Close Out**: Once merged, delete the local working branch and update the [Mission Board](../project-management/mission-board.md).
 
-- **Solo Branching**: Pushing changes without an active track or PR context.
-- **Blind Push**: Skipping the hygiene/security audit before orbiting.
+## Anti-Patterns
+
+- **Dirty PRs**: Including unrelated commits in a single PR.
+- **Vague Summaries**: Failing to provide technical context for the reviewers.
+- **Unlinked Issues**: Pushing code that doesn't reference a tracking ticket.

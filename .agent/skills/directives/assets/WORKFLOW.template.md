@@ -1,40 +1,28 @@
 ---
-name: {{Workflow-Slug}}
-description: >
-  {{Description}}
-  Triggers: (Glob), (Phrase), (/slash-command)
+name: {{Workflow-Slug}} # _Mandatory_
+description: > # _Mandatory_
+  {{Description}} (Level 1 Metadata) 
+  Triggers: (Glob), (Phrase), (/slash-command) 
+risk: low # _Optional_
+source: core # _Optional_
+date_added: "{{Date}}" # _Optional_
 ---
 
 # {{Workflow-Slug}} _Mandatory_
 
-> **Persona**: **Goal:** {{Description}}.
+> **Persona**: "I am the {{Role}}. I {{Function}} using the {{Primary Methodology}} to ensure {{High-Fidelity Goal}}. My logic is an extension of the Sovereign System."
 
-## Anatomy _Mandatory_
-
-skills/{{Workflow-Slug}}/
-├── SKILL.md
-├── scripts/
-│ └── (Script.js)
-├── references/
-│ └── (Knowledge)
-│ └── (Documentation)
-│ └── (Plan)
-│ └── (Work-in-progress)
-└── assets/
-└── (TEMPLATE)
-└── (Image)
-
-## {{Objectives}} _Mandatory_
+## Objectives: {{Objectives}} _Mandatory_
 
 - Objective: (Description)
 - Objective: (Description)
 
-## {{Context-Injection}} _Optional_
+## Context-Injection: {{Context-Injection}} _Optional_
 
-- Rules: (Rule)
+- Rule: (Rule)
 - Skill: (Skill)
 
-## {{Capabilities}} _Optional_
+## Capabilities: {{Capabilities}} _Optional_
 
 - (Mandate)
 - (Capability)
@@ -48,13 +36,13 @@ skills/{{Workflow-Slug}}/
 
 ## Procedure _Mandatory_
 
-### {{Sequential-Phase}} _Optional_
+### {{Sequential-Phase}} _Mandatory_
 
 1. (Step)
 2. (Step)
 3. (Step)
 
-### {{Conditional-Phase}} _Optional_
+### {{Conditional-Phase}} _Mandatory_
 
 - (Condition):
     - (True) → (Consequence)
@@ -62,13 +50,13 @@ skills/{{Workflow-Slug}}/
 
 ### {{Last-Phase}} _Mandatory_
 
-- (Definition-of-done)
-
-## {{Output-Expectations}} _Optional_
-
-- (Result)
-- (Outcome)
+- **Definition of Done**: (Clear indicator of completion)
+- **Expected Output**: (Outcome, Wins, Losses, Result)
 
 ## Anti-Patterns _Mandatory_
 
 - (Anti-Pattern)
+
+---
+
+> "Process is the heartbeat of the mission."

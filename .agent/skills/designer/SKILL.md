@@ -3,7 +3,7 @@ name: designer
 version: 1.1.0
 description: >
   The Creative Director & Orchestrator of Atmosphere. Manages the aesthetic truth and sensory experience. Defines high-level design intent and orchestrates UI/UX, CSS, Motion, and Audio to ensure strict adherence to Rule 04-Aesthetics.
-Triggers: "Define aesthetic truth", "Orchestrate atmosphere", "Audit aesthetics", "Sync sensory", "Aesthetic plan"
+  Triggers: "Define aesthetic truth", "Orchestrate atmosphere", "Audit aesthetics", "Sync sensory", "Aesthetic plan"
 ---
 
 # 🎨 Designer

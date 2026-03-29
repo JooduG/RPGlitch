@@ -1,57 +1,51 @@
 ---
+name: plan
 description: The Master Router. Enforces the 8-step process from AGENTS.md, categorizes risk, and routes complex features through the intake -> Directives -> Warden funnel.
+risk: low
+source: AI
+date_added: 2024-03-29
 ---
 
-# [/01-plan](./01-plan.md) - The Master Router
+# [Plan](./01-plan.md) - Blueprint Architect
 
-> **Goal:** Evaluate user intent, brainstorm hypotheses, and route the request to the correct cognitive framework (AGENTS.md Steps 2-3).
+## Objectives: Strategic Intent
 
-## 1. Triggers
+- Objective: Resolve ambiguity using the Intake skill.
+- Objective: Map complex tasks to the correct capability toolkit.
 
-- **Request**: Initial user prompt or "I have an idea".
-- **Slash Command**: **[/01-plan](./01-plan.md)**
+## Context-Injection: Strategic Routing
 
-## 2. Context Injection
+MUST INVOKE [Intake](../skills/intake/SKILL.md). 
+- And then inject: 
+    - [Intelligence](../rules/01-foundation.md)
+    - [Orchestrator](../skills/orchestrator/)
 
-- **Rules**: [Foundation](../rules/01-foundation.md).
-- **Rules**: [Intelligence](../rules/05-intelligence.md).
-- **State**: [.agent/project-management/mission-board.md](../project-management/mission-board.md).
-- **Core**: [AGENTS.md](../../AGENTS.md).
+## Capabilities: Decision Matrix
 
-## 3. Procedures
+- **Feature Discovery**: [10x Strategic Mode](./10x.md)
+- **Problem Solving**: [Sequential Thinking](../skills/orchestrator/)
+- **Risk Analysis**: [Warden Debugging](../skills/warden/)
 
-### Phase 1: Ambiguity Gate (Step 1.5: Intent Decoding)
+## Procedure
 
-1. **Assess**: Is the intent technically actionable?
-2. **The Loop**: If ambiguous, invoke `intake` to resolve the vibe via the **One Question Loop**. [[Invoke: intake]](../skills/intake/SKILL.md)
-3. **The Pulse**: Formulate 2-3 **Technical Options** with trade-offs. Present the design in 300-word beats for iterative validation.
-4. **Recall**: Query `data` for historical context if targeting complex core engine logic. [[Invoke: data]](../skills/data/SKILL.md)
+### Phase 1: Ambiguity Resolution (Step 1.5: Intent Decoding)
 
-### Phase 2: Hypothesis & Risk Triage (Step 2)
+1. **Intake**: If intent is vague, halt and initiate the Intake skill. Resolve all semantic gaps before committing to a technical path. [[Invoke: intake]](../skills/intake/SKILL.md)
+2. **Constraint Check**: Verify logical dependencies (Step 1.1) and prerequisites (Step 1.3). Ensure no cross-operational conflicts exist.
 
-1. **Hypothesize**: Brainstorm and rank causes/solutions by likelihood.
-2. **Risk Routing**:
-   - **Low Risk** (CSS, Typos, Minor Logic): Skip Phase 3. Proceed directly to [/02-build](./02-build.md).
-   - **Medium Risk** (Refactors, State Migrations): Proceed to Phase 3.
-   - **High Risk** (Architecture Shift, Mission Wipe): **HALT PLANNING**. Invoke `codebase-review-question-audit` to generate `QUESTIONS.md`. Do not proceed to Phase 3 until the user resolves all structural ambiguities. [[Invoke: codebase-review-question-audit]](../skills/codebase-review-question-audit/SKILL.md)
+### Phase 2: Hypothesis & Triage (Step 2: Hypothesis)
 
-### Phase 3: Cognitive Routing & The Warden (Step 3)
+1. **Brainstorming**: Draft multiple hypotheses (Step 2.1) and rank by probability.
+2. **Orchestration**: Assign a complexity level (1, 2, or 3) and map the task to the appropriate capability toolkit (Step 2.2).
+3. **Risk Profile**: Categorize risk (Low, Medium, High). High-risk tasks MUST trigger a research phase (Step 3).
 
-1. **Cognitive Routing**: Select the appropriate Waldzell framework (Sequential Thinking, Decision Framework, Metacognitive Monitoring, etc.) based on Rule 05.
-2. **Forge & Stress Test**:
-   - Categorize into the Narrative Triad (Spec, State, or Echo).
-   - If UI involved, call `designer` to orchestrate the aesthetic spec and sensory requirements. [[Invoke: designer]](../skills/designer/SKILL.md)
-   - Invoke `warden` to stress-test the plan against Rule 03 (Svelte 5 Runes). [[Invoke: warden]](../skills/warden/SKILL.md)
-3. **User Approval**: Halt and request explicit approval on the finalized plan.
+### Phase 3: Drafting the Spec (Step 5: Grounding)
 
-### Phase 4: Registration (Step 8.1)
+1. **Plan Generation**: Create the implementation plan artifact. Ensure it is grounded in absolute file paths and line numbers.
+2. **User Authorization**: Wait for explicit user approval before execution begins.
 
-1. **Scaffold**: Create or update the task shard in `.agent/project-management/tracks/<slug>.md`. [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
-2. **Kanban**: Register the track on the [Mission Board](../project-management/mission-board.md). [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
-3. **Prompt**: Prepare the user to trigger [/02-build](./02-build.md).
+## Anti-Patterns
 
-## 4. Anti-Patterns
-
-- **The Ghost Route**: Writing code during the planning phase.
-- **Complexity Denial**: Treating High-Risk tasks as Low-Risk to skip the Warden.
-- **Metadata Omission**: Failing to conclude with the Rule 05 Heartbeat.
+- **Premature Execution**: Coding before the plan is approved.
+- **Vibe Coding**: Relying on assumptions without research for Medium/High-risk tasks.
+- **Silent Pivot**: Making major architectural shifts without updating the plan.

@@ -1,26 +1,33 @@
 ---
+name: boot
 description: Fresh Session Initialization. Syncs context and mental model.
+risk: low
+source: AI
+date_added: 2024-03-29
 ---
 
-# [/00-boot](./00-boot.md) - The Entry
+# [/00-boot](./00-boot.md) - Fresh Session Initialization
 
-> **Goal:** Synchronize the mental model with reality and initialize the reasoning chain (AGENTS.md Step 1).
+## Objectives: Initialization
 
-## 1. Triggers
+- Objective: Synchronize the Agent's mental model with the current repository state.
+- Objective: Ground the reasoning in the project-management shards.
+
+## Context-Injection: Core Context
+
+- [Foundation](../rules/01-foundation.md) Rule
+- [Intelligence](../rules/05-intelligence.md) Rule
+- [Log](../project-management/log.md) Book
+- [Mission Board](../project-management/mission-board.md)
+- [Next](../project-management/next.md)
+
+## Capabilities: Boot Sequence
 
 - **New Session**: Start of a conversation.
 - **Wake Up**: "Hello", "Status check".
 - **Slash Command**: [/00-boot](./00-boot.md)
 
-## 2. Context Injection
-
-- **Rules**: [Foundation](../rules/01-foundation.md).
-- **Rules**: [Intelligence](../rules/05-intelligence.md).
-- **State**: [.agent/project-management/log.md](../project-management/log.md).
-- **State**: [.agent/project-management/mission-board.md](../project-management/mission-board.md).
-- **State**: [.agent/project-management/next.md](../project-management/next.md).
-
-## 3. Procedures
+## Procedure
 
 ### Phase 1: The Clarity Gate (Step 1: Dependencies)
 
@@ -37,7 +44,7 @@ description: Fresh Session Initialization. Syncs context and mental model.
 1. **Audit**: Verify project health using Rule 06 (Compliance). Identify any immediate hygiene anomalies or security leaks. [[Invoke: warden]](../skills/warden/SKILL.md)
 2. **Report**: State current mission, environment acknowledgment, and ready status. "Boot complete. Resonant with Global State."
 
-## 4. Anti-Patterns
+## Anti-Patterns
 
 - **Blind Boot**: Starting work without reading the Mission Board.
 - **Amnesia**: Failing to parse the historical context in the log.

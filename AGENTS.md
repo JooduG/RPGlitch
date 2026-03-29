@@ -14,7 +14,7 @@ Analyze the intended action against the following factors. Resolve conflicts in 
 - 1.4 Explicit constraints: User preferences.
 - 1.5 Intent Decoding: Is the user's intent completely clear and technically actionable?
     - **TRUE**: _Proceed_ with [Hypothesis Generation & Triage](./AGENTS.md#-2-hypothesis-generation--triage).
-    - **FALSE**: _Halt execution_ and invoke the [intake](./.agent/skills/intake/SKILL.md) to resolve ambiguity.
+    - **FALSE**: _Halt execution_ and invoke the [Intake](./.agent/skills/intake/SKILL.md) to resolve ambiguity.
 
 ## 🧠 2. Hypothesis Generation & Triage
 
@@ -22,23 +22,26 @@ Assess the symptom and draft your suspected causes before taking any action.
 
 - 2.1 Brainstorming: **Rank your hypotheses by likelihood.** Do not discard outliers prematurely.
 - 2.2 Complexity Triage (The Orchestrator): Map the task to a complexity level to determine the active role and thinking approach.
-    - **Level 1 (Quick Fix)**: ⚒️ **Operational Role** -> ⚡ **Professional Coding**. (Bypass Step 3 Research. Proceed directly to Step 5. Requires **[orchestration-operations](./.agent/skills/orchestration-operations/SKILL.md)** skill).
-    - **Level 2 (Enhancement)**: 🎨 **Tactical Role** -> 🧠 **Sequential Thinking**. (Proceed to Step 3. Requires **[orchestration-tactics](./.agent/skills/orchestration-tactics/SKILL.md)** skill for scoping).
-    - **Level 3 (Complex Feature)**: 🎭 **Strategic Role** -> 🤔 **Contemplative Thinking**. (Proceed to Step 3 and trigger the `warden:debugging` protocol if high risk. Requires **[orchestration-strategy](./.agent/skills/orchestration-strategy/SKILL.md)** skill).
+    - **Level 1 (Quick Fix)**: ⚒️ **[Operations](./.agent/skills/orchestration-operations/SKILL.md) Role** -> ⚡ **Professional Coding**. (Bypass Step 3 Research. Proceed directly to Step 5).
+    - **Level 2 (Enhancement)**: 🎨 **[Tactical](./.agent/skills/orchestration-tactics/SKILL.md) Role** -> 🧠 **Sequential Thinking**. (Proceed to Step 3).
+    - **Level 3 (Complex Feature)**: 🎭 **[Strategic](./.agent/skills/orchestration-strategy/SKILL.md) Role** -> 🤔 **Contemplative Thinking**. (Proceed to Step 3).
 - 2.3 Risk Routing: Map the risk tier based on your most severe likely hypothesis.
-    - Low Risk: Typos, CSS tweaks, minor logic.
-    - Medium Risk: Refactors, state migrations.
-    - High Risk: Structural changes, mission board wipes. Proceed to Step 3 and trigger the `warden:debugging` protocol.
-    - **Note**: Level 3 tasks REQUIRES a transition to the **[orchestration-strategy](./.agent/skills/orchestration-strategy/SKILL.md)** and **[intake](./.agent/skills/intake/SKILL.md)** skills to resolve ambiguity.
+    - **Low Risk**: Typos, CSS tweaks, minor logic.
+    - **Medium Risk**: Refactors, state migrations.
+    - **High Risk**: Structural changes, mission board wipes. Proceed to Step 3 and trigger the `warden:debugging` protocol.
+    - **Note**: Level 3 tasks REQUIRES a transition to the **[Strategic](./.agent/skills/orchestration-strategy/SKILL.md)** orchestration and **[Intake](./.agent/skills/intake/SKILL.md)** skills to resolve ambiguity.
 
 ## 🔍 3. Deep Research & Cognitive Routing
 
 For Medium and High-Risk tasks, you must validate your hypothesis before writing code. Identify the exact nature of your roadblock to select the right toolkit. Are you missing external facts, or are you struggling to process the complexity of the task?
 
 - **3.1 KNOWLEDGE DEFICIT** (Need External Facts): _Coordinate specialized MCPs for deep inquiry._
-    - `context7`: Up-to-date documentation and library patterns.
-    - `svelte`: Official Svelte 5 logic and code verification.
-    - `deepwiki`: GitHub repository intelligence and existing architecture analysis.
+    - **Context7**: Up-to-date documentation and library patterns. Tools: `resolve-library-id` and `query-docs`.
+    - **Svelte**: Official Svelte 5 logic and code verification. Tools: `get-documentation` and `list-sections`.
+    - **Deepwiki**: GitHub repository intelligence and existing architecture analysis. Tools: `read_wiki_structure` and `read_wiki_contents`.
+    - **[Data](./.agent/skills/data)**: Local MCP server for accessing cloud storage. Tools: `read_knowledge_base`, `describe_knowledge_base` and `query_cold_storage`. 
+    - **Firecrawl**: Web scraping and data extraction. Tools: `firecrawl_scrape`, `firecrawl_map`, `firecrawl_search`, `firecrawl_extract`, `firecrawl_browser_create`, `firecrawl_browser_execute`, `firecrawl_browser_delete` and `firecrawl_browser_list`.
+    - **Github**: Tools: `get_file_contents`, `search_code` and `search_repositories`.
     - Autonomous Bias: When exploring, missing optional tool parameters is acceptable. **Execute the tool with available info instead of halting to ask the user**.
 
 - **3.2 PROCESSING DEFICIT** (Need Cognitive Structuring): _Select the appropriate MCP server reasoning framework based on the shape of the problem._
@@ -67,21 +70,18 @@ Once planned and cleared, execute the task using tools at your disposal. **Verif
 
 Every operational turn must conclude with a metadata block that signals the active role and thinking approach.
 
-- **🎭 Strategic Role**: High-level architecture and vision.
-- **🎨 Tactical Role**: Planning, scoping, and track management.
-- **⚒️ Operational Role**: Direct implementation and execution.
+- **🎭 [Strategic](./.agent/skills/orchestration-strategy/SKILL.md)**: High-level architecture and vision _(Architecture & Vision)_.
+- **🎨 [Tactical](./.agent/skills/orchestration-tactics/SKILL.md)**: Planning, scoping, and track management _(Planning & Scoping)_.
+- **⚒️ [Operational](./.agent/skills/orchestration-operations/SKILL.md)**: Direct implementation and execution _(Execution & TDD)_.
 
 Below are the most common skills to be used in this step:
 
-- **[Orchestrator](./.agent/skills/orchestrator)** (Central Hub & Execution Logic)
-- **[Strategy](./.agent/skills/orchestration-strategy)** (Architecture & Vision)
-- **[Tactical](./.agent/skills/orchestration-tactics)** (Planning & Scoping)
-- **[Operations](./.agent/skills/orchestration-operations)** (Execution & TDD)
-- **[Svelte](./.agent/skills/svelte)**
-- **[CSS](./.agent/skills/css)**
-- **[Motion](./.agent/skills/motion)**
-- **[Audio](./.agent/skills/audio)**
-- **[Simulation](./.agent/skills/simulation)**
+- **[Orchestrator](./.agent/skills/orchestrator)** (Central Hub & Router)
+- **[Svelte Specialist](./.agent/skills/svelte)**
+- **[CSS Specialist](./.agent/skills/css)**
+- **[Motion Specialist](./.agent/skills/motion)**
+- **[Audio Specialist](./.agent/skills/audio)**
+- **[Simulation Orchestration](./.agent/skills/simulation)**
 
 ## ✅ 6. Completeness & Quality Gate
 
@@ -92,12 +92,12 @@ Ensure that all requirements, constraints, options, and preferences are exhausti
 - [ ] Reality matches the Spec with **Auditable Proof** (File paths/Line numbers).
 - [ ] **Reproduction Case** verified (for bug fixes).
 - [ ] **Performance Budget** respected (CLS < 0.1, LCP < 2.5s).
-- [ ] [Foundation](./.agent/rules/01-foundation.md) has been respected.
-- [ ] [Simulation](./.agent/rules/02-simulation.md) has been respected.
-- [ ] [Infrastructure](./.agent/rules/03-infrastructure.md) has been respected.
-- [ ] [Aesthetics](./.agent/rules/04-aesthetics.md) has been respected.
-- [ ] [Intelligence](./.agent/rules/05-intelligence.md) has been respected.
-- [ ] [Compliance](./.agent/rules/06-compliance.md) has been respected.
+- [ ] [Foundation Rule](./.agent/rules/01-foundation.md) has been respected.
+- [ ] [Simulation Rule](./.agent/rules/02-simulation.md) has been respected.
+- [ ] [Infrastructure Rule](./.agent/rules/03-infrastructure.md) has been respected.
+- [ ] [Aesthetics Rule](./.agent/rules/04-aesthetics.md) has been respected.
+- [ ] [Intelligence Rule](./.agent/rules/05-intelligence.md) has been respected.
+- [ ] [Compliance Rule](./.agent/rules/06-compliance.md) has been respected.
 
 ## ⏳ 7. Persistence, Patience & Circuit Breakers
 
@@ -113,15 +113,5 @@ Do not give up unless all the reasoning above is exhausted. **If you cannot find
 
 Only take an action after all the above reasoning is completed. **Once you've taken an action, you cannot take it back**.
 
-- 8.1 Planning Constraint: **Do not execute without an initialized [Tracks](./.agent/project-management/log.md)**.
-- 8.2 The Close-out: **Update [Tracks](./.agent/project-management/log.md), the [Mission Board](./.agent/project-management/mission-board.md), and [Next](./.agent/project-management/next.md) before turn termination**.
-
-### 🕹️ Operational Heartbeat
-
-- **🎭 Role**: [Strategic/Tactical/Operational]
-- **🤔 Approach**: [Contemplative/Sequential/Professional]
-- **🤖 AGENTS.md**: [Specific step from AGENTS.md]
-- **📜 Rules**: [Active rule enforced this turn]
-- **🧠 Capabilities**: [Skill or Workflow utilized]
-- **💾 State**: [Specific file in .agent/project-management/ updated]
-- **🛠️ Tools & MCPs**: [Specific tool or MCP-server called]
+- 8.1 Planning Constraint: **Do not execute without an initialized [Log Book](./.agent/project-management/log.md)**.
+- 8.2 The Close-out: **Update [Log Book](./.agent/project-management/log.md), the [Mission Board](./.agent/project-management/mission-board.md), and [Next](./.agent/project-management/next.md) before turn termination**.

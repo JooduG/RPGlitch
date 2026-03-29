@@ -1,4 +1,5 @@
 ---
+name: intelligence
 trigger: always_on
 description: The conceptual and linguistic laws governing agent intelligence.
 ---
@@ -9,7 +10,9 @@ description: The conceptual and linguistic laws governing agent intelligence.
 
 ---
 
-## 1. Cognitive Routing Reference
+## ⚖️ The Law
+
+### 1. Cognitive Routing Reference
 
 Use this reference to select the appropriate MCP reasoning framework based on the shape of the problem.
 
@@ -25,7 +28,7 @@ Use this reference to select the appropriate MCP reasoning framework based on th
 
 ---
 
-## 2. Information Grounding
+### 2. Information Grounding
 
 Every claim must be anchored in the "Reality of the Codebase."
 
@@ -35,11 +38,11 @@ Every claim must be anchored in the "Reality of the Codebase."
 
 ---
 
-## 3. Lexical Laws & Nomenclature
+### 3. Lexical Laws & Nomenclature
 
 To prevent cognitive drift, nomenclature is absolute.
 
-### **Casing Standards**
+#### **Casing Standards**
 
 - **kebab-case**: Folders and files (e.g., `simulation-engine/`, `context-broker.js`). **Exception**: Uppercase is allowed for abbreviations (e.g., `GLI/`).
 - **PascalCase**: Svelte components (e.g., `StoryPanel.svelte`).
@@ -48,7 +51,7 @@ To prevent cognitive drift, nomenclature is absolute.
 - **SCREAMING_SNAKE**: Constants and Globals (e.g., `MAX_ENTROPY`).
 - **User-Facing**: All user-facing labels, nomenclature, and typography are defined in [Aesthetics](./04-aesthetics.md).
 
-### **The RPGlitch Lexicon**
+#### **The RPGlitch Lexicon**
 
 - **Simulation**: The overall story/state container. A `simulation` is a story and requires `entities` in order to play out. The engine is designed for frequent story swapping; concluding a story and starting a new one should be a seamless state transition.
 - **Entity**: The fundamental unit of the simulation. An `entity` is either a `character` or a `fractal`.
@@ -61,25 +64,25 @@ To prevent cognitive drift, nomenclature is absolute.
 
 ---
 
-## 4. Complexity & Role Routing
+### 4. Complexity & Role Routing
 
 To optimize cognitive load, tasks are triaged into three complexity levels, each triggering a specific role and thinking approach.
 
-### **Level 1: Quick Fix (⚒️ Operational Role)**
+#### **Level 1: Quick Fix (⚒️ Operational Role)**
 
 - **Scope**: Typos, CSS tweaks, minor logic, or well-defined single-file edits.
 - **Approach**: ⚡ **Professional Coding**.
 - **Execution**: Bypass Step 3 Research. Proceed directly to Step 5.
 - **Skill**: `orchestration-operations`.
 
-### **Level 2: Enhancement (🎨 Tactical Role)**
+#### **Level 2: Enhancement (🎨 Tactical Role)**
 
 - **Scope**: New small features, refactors, state migrations, or multi-file logic changes.
 - **Approach**: 🧠 **Sequential Thinking**.
 - **Execution**: Full analysis and implementation plan required.
 - **Skill**: `orchestration-tactics` (for scoping).
 
-### **Level 3: Complex Feature (🎭 Strategic Role)**
+#### **Level 3: Complex Feature (🎭 Strategic Role)**
 
 - **Scope**: Major architectural changes, new core systems, or highly ambiguous requirements.
 - **Approach**: 🤔 **Contemplative Thinking**.
@@ -88,7 +91,7 @@ To optimize cognitive load, tasks are triaged into three complexity levels, each
 
 ---
 
-## 5. Thinking Approach Triggers
+### 5. Thinking Approach Triggers
 
 | Approach          | Marker | Trigger Framework              | When to Use                                                   |
 | :---------------- | :----- | :----------------------------- | :------------------------------------------------------------ |
@@ -98,7 +101,7 @@ To optimize cognitive load, tasks are triaged into three complexity levels, each
 
 ---
 
-## 7. Completeness & Truncation
+### 7. Completeness & Truncation
 
 Any tool output that is truncated (e.g. `(...N more results not shown)`) represents a **Hard Stop**. You MUST NOT proceed with an audit or implementation assuming the hidden data is irrelevant.
 
@@ -108,12 +111,12 @@ Any tool output that is truncated (e.g. `(...N more results not shown)`) represe
 
 ---
 
-## 8. The Operational Heartbeat
+### 8. The Operational Heartbeat
 
 Every turn response must conclude with this metadata block to log operational weights. Include the active Role and Approach emojis.
 
 ```text
-### 🕹️ Operational Heartbeat
+#### 🕹️ Operational Heartbeat
 - **🎭 Role**: [Strategic/Tactical/Operational]
 - **🤔 Approach**: [Contemplative/Sequential/Professional]
 - **🤖 AGENTS.md**: [Specific step from AGENTS.md]

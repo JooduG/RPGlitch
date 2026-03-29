@@ -1,54 +1,50 @@
 ---
-description: [STUB - NOT IMPLEMENTED] Orchestration & Sync. Coordinates the multi-agent fleet and swarm sub-routines.
+name: fleet
+description: WORK IN PROGRESS. Orchestrate Character-Swapping and Simulation-Switching.
+risk: medium
+source: AI
+date_added: 2024-03-29
 ---
 
-# [/07-fleet](./07-fleet.md) - The Orchestrator
+# [Fleet](./07-fleet.md) - WORK IN PROGRESS
 
-> [!CAUTION]
-> **STUB - NOT IMPLEMENTED**
-> This workflow is currently a structural draft and is NOT wired to the Sovereign Intelligence Kernel. It must NOT be autonomously invoked by agents until core fleet and swarm logic are fully instantiated.
->
-> **Goal:** Propagate core changes, dispatch specialized sub-agents, and coordinate the system-wide swarm (Rule 01).
+## Objectives: Simulation Orchestration
 
-## 1. Future Triggers (Disabled)
+- Manage the transitions between distinct simulation states.
+- Handle Character-Cycling without state corruption.
 
-- **Manual Override**: For testing only.
-- **Slash Command**: [/07-fleet](./07-fleet.md) (Use with extreme caution)
+## Context-Injection: Fleet Control
 
-## 2. Context Injection
+- [Simulation](../rules/02-simulation.md)
+- [Simulation Specialist](../skills/simulation/)
 
-- **Rules**: [Foundation](../rules/01-foundation.md).
-- **Rules**: [Compliance](../rules/06-compliance.md).
-- **Rules**: [Intelligence](../rules/05-intelligence.md).
-- **State**: [.agent/project-management/log.md](../project-management/log.md).
+## Capabilities: State Transitions
 
-## 3. Procedures
+- Character Swap: Seamless persona rotation.
+- Story Switch: Genre-agnostic state reloading.
 
-### Phase 1: The Clarity Gate (Mapping)
+## Procedure
 
-1. **Analysis**: Identify child repositories affected by the current core logic change. [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
-2. **Swarm Scope**: Define precise boundaries for sub-routine dispatch (e.g., `codebase_investigator`). [[Invoke: directives]](../skills/directives/SKILL.md)
-3. **Conflict Check**: Assess potential breaking changes in downstream repositories. [[Invoke: warden]](../skills/warden/SKILL.md)
+### Phase 1: Context Preparation
 
-### Phase 2: Dispatch & Execution
+1. **State Audit**: Verify current entity states before swapping.
+2. **Persistence Check**: Ensure the Echo represents the latest tick.
 
-1. **Transmission**: Trigger the `fleet-dispatch` GitHub Action. [[Invoke: devops]](../skills/devops/SKILL.md)
-2. **Tracking**: Create tracking PRs in child repositories with the `fleet-dispatch` label.
-3. **Internal Swarm**: Dispatch internal sub-agents with strict, isolated objectives.
+### Phase 2: Execution
 
-### Phase 3: The Quality Gate (Merge)
+1. **Load Entity**: Instantiate the new focus character from the pool.
+2. **Context Update**: Inject the new narrative kernel into the Intelligence Kernel.
 
-1. **Reconciliation**: merge sub-routine results back into the main track. Verify **Svelte 5** and **Chalk Regime** compliance.
-2. **Report**: Verify all child repos have acknowledged the update and all swarm tasks are reconciled.
+### Future Triggers (Disabled)
 
-## 4. Anti-Patterns
+- Automated background fleet management based on entropy.
 
-- **Solo Divergence**: Letting child repos diverge from the Sovereign Engine logic.
-- **Untracked Swarm**: Dispatching sub-agents without logging them in the trackers.
+## Anti-Patterns
 
-### 🕹️ Operational Heartbeat
+- **Hard Deletion**: Deleting entities during swap instead of cycling.
+- **Narrative Drift**: Swapping characters without syncing the world state.
 
-- **🤖 AGENTS.md**: Step 3 (Cognitive Routing - Fleet active)
-- **📜 Rules**: Rule 01 (Foundation), Rule 05 (Intelligence)
-- **🧠 Capabilities**: orchestrator (Orchestration), warden (Audit)
-- **💾 State**: .agent/project-management/log.md
+## Output: Fleet Snapshot
+
+- Updated active focus entity.
+- Verified transition integrity.

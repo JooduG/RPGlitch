@@ -1,49 +1,50 @@
 ---
-name: 02-build
+name: build
 description: Implementation Loop. Logic, State, and Style fabrication.
+risk: low
+source: AI
+date_added: 2024-03-29
 ---
 
-# [/02-build](./02-build.md) - The Forge
+# [Build](./02-build.md) - Code Execution
 
-> **Goal:** High-fidelity implementation using Svelte 5 Runes and the Chalk Regime (AGENTS.md Step 5).
+## Objectives: Fabrication
 
-## 1. Triggers
+- Objective: Implement approved features using Svelte 5 Runes.
+- Objective: Ensure aesthetic compliance with the Chalk Regime.
 
-- **Logic Fabrication**: New runes or components.
-- **Style Polishing**: Chalk Regime updates.
-- **Slash Command**: [/02-build](./02-build.md)
+## Context-Injection: Tactical Implementation
 
-## 2. Context Injection
+- [Foundation](../rules/01-foundation.md)
+- [Aesthetics](../rules/04-aesthetics.md)
+- [Svelte Specialist](../skills/svelte/)
+- [Designer Orchestrator](../skills/designer/)
+- [Operations Executor](../skills/orchestration-operations/)
 
-- **Rules**: [Foundation](../rules/01-foundation.md).
-- **Rules**: [Infrastructure](../rules/03-infrastructure.md).
-- **Rules**: [Aesthetics](../rules/04-aesthetics.md).
-- **Rules**: [Intelligence](../rules/05-intelligence.md).
-- **State**: [.agent/project-management/tracks/](../project-management/tracks/) (Active Shard).
+## Capabilities: Reactive Construction
 
-## 3. Procedures
+- **Logic**: Svelte 5 Runes ($state, $derived, $effect).
+- **Style**: Native CSS (The Chalk Regime).
+- **Sensory**: [Motion](../skills/motion/) & [Audio](../skills/audio/).
 
-### Phase 1: Fabrication & Isolation (The Micro-Beat Loop)
+## Procedure
 
-1. **Generation**: If UI involved, follow the Stitch design spec. [[Invoke: stitch]](../skills/stitch/SKILL.md)
-2. **Validation**: Ensure all logic uses **Svelte 5 Runes** explicitly (`$state`, `$derived`, `$effect`).
-   - **Legacy Refactor**: Silently refactor any Svelte 3/4 patterns (`stores`, `export let`) encountered in the sector. [[Invoke: svelte]](../skills/svelte/SKILL.md)
-3. **Perchance Isolation**: No node-only imports. Rely on `esm.sh` and JIT compilation.
-4. **Execution**: Implement changes in small, atomic beats. After each beat, verify the logic state matches the TDD expectation. [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
+### Phase 1: Foundational Scaffolding (Step 1.2: Order of Ops)
 
-### Phase 2: Refinement (The Chalk Regime)
+1. **State First**: Define the reactive state models using Svelte 5 Runes. Prioritize data integrity over UI layout. [[Invoke: svelte]](../skills/svelte/)
+2. **Logic Wiring**: Connect state mutations to the Core Engine. Maintain strict separation of concerns—pure IO only. [[Invoke: orchestrator]](../skills/orchestrator/)
 
-1. **Styling**: Apply **Chalk Regime** tokens. Use native CSS variables. Avoid Tailwind unless explicitly requested. [[Invoke: css]](../skills/css/SKILL.md)
-2. **Motion**: Add kinetic transitions using Svelte actions. [[Invoke: motion]](../skills/motion/SKILL.md)
+### Phase 2: Cosmetic Polish (Step 5: Execution)
 
-### Phase 3: The Quality Gate (Step 6: Completeness)
+1. **The Chalk Regime**: Apply CSS tokens (Rule 04: Aesthetics). Use glassmorphism and the Nordic palette for all surface components. [[Invoke: css]](../skills/css/)
+2. **Kinetic UI**: Add motion bridges using Svelte actions (use:shimmy, use:pulse). Ensure physics-based transitions. [[Invoke: motion]](../skills/motion/)
 
-1. **Verify**: Run `npm run verify` and manual browser checks. Proactively report terminal output. [[Invoke: warden]](../skills/warden/SKILL.md)
-2. **Persistence**: Ensure state mutations are documented in the active track shard.
-3. **Checkbox**: Mark sub-tasks `[x]` as they pass verification.
+### Phase 3: Logic Grounding (Step 4: Persistence)
 
-## 4. Anti-Patterns
+1. **Persistence**: Anchor the new state in Dexie.js (IndexedDB). Ensure memory continuity. [[Invoke: orchestrator]](../skills/orchestrator/)
 
-- **Blind Coding**: Committing without seeing the verification output.
-- **Legacy Reactivity**: Using `$:` or `writable()`.
-- **Style Drift**: Hardcoding hex values instead of using `tokens.css`.
+## Anti-Patterns
+
+- **Ad-hoc Utilities**: Using inline styles or one-off CSS instead of tokens.
+- **Legacy Reactivity**: Using `export let` or `writable()` in Svelte 5.
+- **Shadow Logic**: Managing state in the DOM instead of the context block.

@@ -1,42 +1,49 @@
 ---
+name: rewind
 description: Emergency Stop. Abandon failed path and restore state.
-disable-model-invocation: true
+risk: low
+source: AI
+date_added: 2024-03-29
 ---
 
-# [/99-rewind](./99-rewind.md) - The Reset
+# [Rewind](./99-rewind.md) - Emergency Stop
 
-> **Goal:** Abandon toxic/hallucinated paths and restore environmental stability (Rule 01).
+## Objectives: Phase ERR - Recovery
 
-## 1. Triggers
+- Revert the repository to the last known-good state.
+- Cleanse the workspace of experimental artifacts or failed logic.
 
-- **Failure**: "This is a mess", "Back up", "Looping".
-- **Hallucination**: Agent is repetitively failing or stuck.
-- **Slash Command**: [/99-rewind](./99-rewind.md)
+## Context-Injection: Recovery Strategy
 
-## 2. Context Injection
+- [Git History](../../package.json)
+- [Foundation](../rules/01-foundation.md)
+- [Warden](../skills/warden/)
 
-- **Rules**: [Foundation](../rules/01-foundation.md).
-- **Rules**: [Intelligence](../rules/05-intelligence.md).
-- **History**: Git commit logs and track checkpoints.
+## Capabilities: Restoration Sequence
 
-## 3. Procedures
+- **State Reversion**: [git checkout -- .](../../package.json)
+- **Log Reset**: Identify the last successful `[x]` entry in the log.
+- **Warden Audit**: Perform a post-restoration hygiene check.
 
-### Phase 1: The Clarity Gate (Diagnosis)
+## Procedure
 
-1. **Halt**: Cease all execution. State: "I am looping. Initiating Rewind Protocol." [[Invoke: directives]](../skills/directives/SKILL.md)
-2. **Trace**: Identify the origin of the invalid data or failed assumption. [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
+### Phase 1: Impact Analysis (Step 7: Circuit Breakers)
 
-### Phase 2: Restoration
+1. **Diagnosis**: Identify why the current path failed. Determine if it's an architectural conflict or a transient bug. [[Invoke: Warden]](../skills/warden/)
+2. **Snapshot**: If the failure is complex, create a debug log before reverting.
 
-1. **Reset**: `git reset --hard` to the last stable checkpoint. [[Invoke: devops]](../skills/devops/SKILL.md)
-2. **Scrub**: `git clean -fd` to remove untracked debris.
+### Phase 2: Restoration (Step 7: Rewind)
 
-### Phase 3: The Quality Gate (Pivoting)
+1. **Reversion**: Execute the appropriate git reset or checkout command to restore file state. [[Invoke: DevOps]](../skills/devops/)
+2. **Artifact Purge**: Manually delete any scratch files or temporary directories.
 
-1. **Report**: Explain _what_ broke and formulate a pivot strategy. [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
-2. **Approval**: Wait for user sign-off before re-entering [/01-plan](./01-plan.md).
+### Phase 3: Post-Flight (Step 1: Re-Boot)
 
-## 4. Anti-Patterns
+1. **Resync**: Execute [/00-boot](./00-boot.md) to re-synchronize the mental model with the restored reality.
+2. **Plan Pivot**: If the path is abandoned, update the implementation plan to reflect the new direction.
 
-- **Sunk Cost**: Continuing a failed path instead of rewinding.
-- **Silent Reset**: Deleting work without informing the user.
+## Anti-Patterns
+
+- **Sunk Cost Fallacy**: Continuing to troubleshoot a fundamentally flawed path.
+- **Partial Rewind**: Reverting files without resetting the corresponding log entries.
+- **Panic Cleansing**: Deleting files before understanding the root cause of the failure.

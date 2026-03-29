@@ -1,47 +1,48 @@
 ---
+name: review
 description: Reviews and stuff.
+risk: low
+source: AI
+date_added: 2024-03-29
 ---
 
-# [/04-review](./04-review.md) - The Vault
+# [Review](./04-review.md) - Quality Review & Feedback Loop
 
-> **Goal:** Final quality audit, test validation, and mandatory session paperwork (AGENTS.md Step 8).
+## Objectives: Review
 
-## 1. Triggers
+- Audit the implementation against the original plan.
+- Ensure code quality and adherence to all Sovereign Rules.
 
-- **Command**: "Finish task", "Ready for review", "Clock out".
-- **Refactor Complete**: Moving from Build to Review.
-- **Slash Command**: [/04-review](./04-review.md)
+## Context-Injection: Verification Strategy
 
-## 2. Context Injection
+- [Foundation](../rules/01-foundation.md)
+- [Compliance](../rules/06-compliance.md)
+- [GLI](../skills/GLI/)
 
-- **Rules**: [Foundation](../rules/01-foundation.md).
-- **Rules**: [Compliance](../rules/06-compliance.md).
-- **Rules**: [Intelligence](../rules/05-intelligence.md).
-- **State**: [.agent/project-management/log.md](../project-management/log.md).
-- **State**: [.agent/project-management/mission-board.md](../project-management/mission-board.md).
-- **State**: [.agent/project-management/next.md](../project-management/next.md).
+## Capabilities: Peer Review
 
-## 3. Procedures
+- **Manual Audit**: Codebase walking and pattern matching.
+- **Automated Audit**: [Warden Audit Engine](../skills/warden/)
 
-### Phase 1: The Clarity Gate (Step 6-7)
+## Procedure
 
-1. **Analysis**: Verify implementation against the original plan and Success Criteria. [[Invoke: warden]](../skills/warden/SKILL.md)
-2. **Standard Check**: Ensure code adheres strictly to **Svelte 5 Runes** and **Chalk Regime** styling. No Svelte 4 patterns or hex codes permitted. [[Invoke: svelte]](../skills/svelte/SKILL.md)
-3. **Validation**: Run internal test scripts (`npm run verify`) to prove the logic holds weight before committing.
+### Phase 1: Logic Verification (Step 6: Completion)
 
-### Phase 2: Maintenance & Archival
+1. **Reality Matching**: Confirm that the implementation matches the approved Spec (Step 6). Verify all file paths and line numbers.
+2. **Reproduction Test**: If a bug was fixed, verify that the reproduction case no longer triggers the fault.
 
-1. **Archival**: If complete, move the track shards to `.agent/project-management/archive/`. [[Invoke: directives]](../skills/directives/SKILL.md)
-2. **Triage**: Sort incoming issues and seed the next [/01-plan](./01-plan.md) cycle. [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
+### Phase 2: Aesthetic Audit (Step 6: Performance)
 
-### Phase 3: The Handoff Law (Step 8.2)
+1. **Nordic Check**: Ensure all UI elements use the Nordic palette and correct border-radii (Rule 04).
+2. **Reactivity Check**: Confirm Svelte 5 Runes are used correctly without legacy patterns.
 
-1. **Update Tracks**: Overwrite [Mission Board](../project-management/mission-board.md) with a bulleted payload of completed tasks for this session. Append a summary of the session's deltas to [log](../project-management/log.md).
-2. **Sync Backlog**: Move completed items from WIP to DONE in [Next](../project-management/next.md). Update this file with any **newly generated `TODO-AI:` tags**.
-3. **Pass the Baton**: Stage instructions in `next.md` with high-context instructions so the next agent knows exactly where to begin. [[Invoke: intake]](../skills/intake/SKILL.md)
+### Phase 3: The Echo (Step 8: Handoff)
 
-## 4. Anti-Patterns
+1. **Walkthrough**: Create a walkthrough artifact summarizing all changes and testing results. Include media markers for UI updates.
+2. **Persistence**: Update the [Log Book](../project-management/log.md) and [Mission Board](../project-management/mission-board.md) to close the loop.
 
-- **The Dropped Baton**: Terminating a session without executing Phase 3 (Paperwork).
-- **Silent Done**: Marking tasks complete without providing an audit report or terminal evidence.
-- **Logic Leak**: Committing untested edge cases or legacy reactivity.
+## Anti-Patterns
+
+- **Surface Review**: Reviewing only the UI without auditing the underlying logic.
+- **Spec Drift**: Approving changes that deviate from the plan without technical justification.
+- **Silent Feedback**: Failing to document issues discovered during the review phase.

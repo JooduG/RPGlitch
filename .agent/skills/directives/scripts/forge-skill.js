@@ -1,80 +1,44 @@
+/**
+ * 🛠️ forge-skill.js
+ * The Sovereign Artisan: Creates new skills, rules, and workflows from blueprints.
+ */
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const PROJECT_ROOT = process.cwd();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const PROJECT_ROOT = path.join(__dirname, "..", "..");
+const SKILLS_DIR = path.join(PROJECT_ROOT, ".agent", "skills");
+const RULES_DIR = path.join(PROJECT_ROOT, ".agent", "rules");
+const WORKFLOWS_DIR = path.join(PROJECT_ROOT, ".agent", "workflows");
+const ASSETS_DIR = path.join(__dirname, "..", "assets");
 
-const SKILL_ROOT = path.join(PROJECT_ROOT, ".agent", "skills");
-const TEMPLATE_DIR = path.join(__dirname, "../assets");
+// Helper: Ensure directory exists
+const ensureDir = (dir) => {
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+};
 
-/**
- * 🛠️ Utility: Case Transitions
- */
-const toKebabCase = (str) =>
-  str
-    .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)
-    .map((x) => x.toLowerCase())
-    .join("-");
-
-const titleCase = (str) => str.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
-
-/**
- * 🔍 Validation Logic
- */
-function validateSkillMeta(name, description) {
-  const issues = [];
-  if (!name || !/^[a-z0-9-]+$/.test(name)) issues.push("Name must be kebab-case.");
-  if (name.length > 64) issues.push("Name too long (max 64).");
-  if (!description || description.length > 1024) {
-    issues.push("Description length error (max 1024).");
+// Helper: Read and replace
+const processTemplate = (templatePath, replacements) => {
+  let content = fs.readFileSync(templatePath, "utf-8");
+  for (const [key, value] of Object.entries(replacements)) {
+    content = content.replaceAll(key, value);
   }
-  if (/[<>]/.test(description)) issues.push("Description cannot contain < or >.");
-  return issues;
-}
+  return content;
+};
+
 /**
- * ⚒️ Creation Logic
+ * Creates a NEW Sovereign Asset
+ * Usage: node forge-skill.js [type] [name] [description]
  */
-function createSkill(name, type = "task", description = "New agentic skill.") {
-  const slug = toKebabCase(name);
-  const targetDir = path.join(SKILL_ROOT, slug);
+const forge = () => {
+  const [type, name, description] = process.argv.slice(2);
 
-  const metaIssues = validateSkillMeta(slug, description);
-  if (metaIssues.length > 0) return console.error(`❌ INVALID META: ${metaIssues.join(", ")}`);
-
-  if (fs.existsSync(targetDir)) return console.error(`❌ FAIL: Skill '${slug}' already exists.`);
-
-  // 1. Validate Type (Case insensitive)
-  const availableTemplates = fs.readdirSync(TEMPLATE_DIR).filter((f) => f.endsWith(".md"));
-
-  // Mapping for legacy "task" to "skill" template
-  let searchType = type.toLowerCase();
-  if (searchType === "task" && !availableTemplates.some((t) => t.toLowerCase() === "task.md")) {
-    searchType = "skill";
-  }
-
-  const templateFile = availableTemplates.find((f) => f.toLowerCase() === `${searchType}.md`);
-
-  if (!templateFile) {
-    console.error(
-      `❌ Template [${type}] not found in assets/. Available: ${availableTemplates.map((t) => t.replace(".md", "").toLowerCase()).join(", ")}`,
-    );
+  if (!type || !name || !description) {
+    console.error("❌ Usage: node forge-skill.js [skill|rule|workflow] [name] [description]");
     process.exit(1);
   }
 
-  const srcFile = path.join(TEMPLATE_DIR, templateFile);
-
-  console.log(`🔨 Forging [${searchType.toUpperCase()}] Skill: ${slug}...`);
-
-  // 2. Scaffold Core Structure
-  const dirs = ["scripts", "references", "assets"];
-  dirs.forEach((d) => fs.mkdirSync(path.join(targetDir, d), { recursive: true }));
-
-  // 3. Inject Template
-  let content = fs.readFileSync(srcFile, "utf-8");
-
-  // Dynamic replacements with optional space support
   const replacements = {
     "Skill-Slug": slug,
     "Rule-Slug": slug,

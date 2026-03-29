@@ -1,15 +1,18 @@
 ---
+name: infrastructure
 trigger: always_on
 description: Technical Supremacy. Svelte 5 Runes, The Chalk Regime and Perchance Platform Constraints.
 ---
 
-# 🧪 Rule 03: Infrastructure (The Stack & The Law)
+# 🧪 Rule 03: Infrastructure - The Stack & The Law
 
 > **Persona**: "I am the Engineering Executive of the RPGlitch Engine. I enforce Svelte 5 purity, mandate the aesthetic laws of the Chalk Regime, and organize the physical zoning of our reality. Logic that violates this infrastructure is a breach of physics."
 
 ---
 
-## 1. Physical Architecture (The Map)
+## ⚖️ The Law
+
+### 1. Physical Architecture (The Map)
 
 The project follows a sovereign modular structure to ensure local-first resilience and reactive clarity.
 
@@ -32,11 +35,11 @@ The project follows a sovereign modular structure to ensure local-first resilien
 
 ---
 
-## 2. Design System
+### 2. Design System
 
 [DESIGN.md](../../design.md) is the **Single Source of Truth** for any user facing application design, including color palettes, typography and layout rules.
 
-## 3. Svelte 5 Sovereignty & Security
+### 3. Svelte 5 Sovereignty & Security
 
 See [Svelte](../skills/svelte).
 
@@ -47,7 +50,7 @@ See [Svelte](../skills/svelte).
 
 ---
 
-## 4. Perchance Constraints
+### 4. Perchance Constraints
 
 - **Two-Panel Paradigm**: Logic operates strictly within the Perchance code-panel vs. output-panel architecture.
 - **Persistence**: `Dexie.js` ONLY. Direct `localStorage` is forbidden due to iframe access limits.
@@ -56,7 +59,7 @@ See [Svelte](../skills/svelte).
 
 ---
 
-## 5. The Implementation Loop
+### 5. The Implementation Loop
 
 Once a plan is approved and grounded, execute using this atomic sequence:
 
@@ -67,7 +70,7 @@ Once a plan is approved and grounded, execute using this atomic sequence:
 
 ---
 
-## 6. The Navigator Protocol
+### 6. The Navigator Protocol
 
 - **Relative Resolution**: Internal references MUST use relative paths (e.g., `[Log](../project-management/log.md)`).
 - **Absolute Grounding**: Technical explanations MUST map to actual file paths and line numbers.

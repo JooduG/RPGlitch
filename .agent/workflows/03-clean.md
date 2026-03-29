@@ -1,45 +1,48 @@
 ---
+name: clean
 description: Maintenance & Security. Fixes bugs, audits security, and ensures hygiene.
+risk: low
+source: AI
+date_added: 2024-03-29
 ---
 
-# [/03-clean](./03-clean.md) - The Clinic
+# [Clean](./03-clean.md) - Ordning & Reda: Pengar på Fredag
 
-> **Goal:** Sanitize the codebase, resolve root causes, and enforce technical hygiene (Rule 06).
+## Objectives: Maintenance
 
-## 1. Triggers
+- Eliminate technical debt and security vulnerabilities.
+- Enforce the Boy Scout Rule across the codebase.
 
-- **Bug Fix**: Labeled issues or manual reports.
-- **Security Check**: Audit requests or scheduled scans.
-- **Slash Command**: [/03-clean](./03-clean.md)
+## Context-Injection: Security Audit
 
-## 2. Context Injection
+- [Compliance](../rules/06-compliance.md)
+- [Warden](../skills/warden/)
 
-- **Rules**: [Foundation](../rules/01-foundation.md).
-- **Rules**: [Compliance](../rules/06-compliance.md).
-- **Rules**: [Intelligence](../rules/05-intelligence.md).
-- **State**: [.agent/project-management/log.md](../project-management/log.md).
+## Capabilities: Hygiene & Security
 
-## 3. Procedures
+- **Vulnerability Check**: `npm run audit`
+- **Linting**: `npm run lint`
+- **Refactoring**: [Boy Scout Logic](../skills/warden/)
 
-### Phase 1: The Clarity Gate (Step 3: Research)
+## Procedure
 
-1. **Sync**: Run `/00-boot` to ensure environment resonance.
-2. **Audit**: Execute `warden` and `npm audit`. Identify vulnerabilities or logic flaws. [[Invoke: warden]](../skills/warden/SKILL.md)
-3. **Trace**: Map the logic path to the bug. Use `scientificMethod` if the cause is non-obvious. [[Invoke: warden]](../skills/warden/SKILL.md)
+### Phase 1: Threat Detection (Step 2.3: Risk Routing)
 
-### Phase 2: Sanitization (Step 5: Execution)
+1. **Audit**: Run dependency checks and linting. Identify security leaks and high-entropy secrets. [[Invoke: Warden]](../skills/warden/)
+2. **Reproduction**: If fixing a bug, create a minimal reproduction case (Step 5.2).
 
-1. **Purge**: Delete unused assets or legacy code. [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
-2. **Root Fix**: Avoid "patching" symptoms. Standardize the fix using **Svelte 5 Runes** and **Chalk Regime** tokens. [[Invoke: svelte]](../skills/svelte/SKILL.md)
-3. **Debt Handling**: Wrap out-of-scope messes in professional `TODO-AI:` tags. Register them in `next.md`. [[Invoke: intake]](../skills/intake/SKILL.md)
+### Phase 2: Elimination (Step 5: Execution)
 
-### Phase 3: The Quality Gate (Step 6: Completeness)
+1. **Isolation**: Fix the bug or debt in isolation. Ensure the fix adheres to Defense-in-Depth (Rule 06.1.1). [[Invoke: Warden]](../skills/warden/)
+2. **Standard Alignment**: Ensure all code follows the [Intelligence Protocol](../rules/05-intelligence.md) and [Aesthetic Design System](../rules/04-aesthetics.md).
 
-1. **Verify**: Every fix REQUIRES a regression test. Prove success with terminal evidence. Execute `npm run verify`. [[Invoke: warden]](../skills/warden/SKILL.md)
-2. **Scrub**: Remove debug artifacts (`console.log`, temp files). Execute the "Boy Scout Rule". [[Invoke: orchestrator]](../skills/orchestrator/SKILL.md)
+### Phase 3: The Quality Gate (Step 6: Completion)
 
-## 4. Anti-Patterns
+1. **Verification**: Verify that the fix does not introduce regression. Run unit and E2E tests. [[Invoke: Warden]](../skills/warden/)
+2. **Sanitization**: Ensure all new inputs are validated using Zod/DOMPurify (Rule 06.1).
 
-- **The Patch**: Fixing symptoms instead of the system.
-- **Silent Security**: Ignoring audit warnings.
-- **Dangling Debt**: Leaving messes without `TODO-AI` tags.
+## Anti-Patterns
+
+- **Temporary Fixes**: Patching symptoms without treating the cause.
+- **Hygiene Drift**: Adding "slop" comments or unaligned variable names.
+- **Silent Vulnerabilities**: Ignoring non-critical security tool outputs.

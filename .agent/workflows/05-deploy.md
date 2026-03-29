@@ -1,41 +1,49 @@
 ---
+name: deploy
 description: Solo Deployment. Ships the bundle to Perchance.
+risk: low
+source: AI
+date_added: 2024-03-29
 ---
 
-# [/05-deploy](./05-deploy.md) - The Gateway
+# [Deploy](./05-deploy.md) - Solo Deployment
 
-> **Goal:** Deliver the monolithic reactive payload to production (AGENTS.md Step 5).
+## Objectives: Shipment
 
-## 1. Triggers
+- Build a production-ready single-file bundle for Perchance.
+- Verify the bundle in the target environment.
 
-- **Command**: "Deploy", "Ship it", "Update Perchance".
-- **Slash Command**: [/05-deploy](./05-deploy.md)
+## Context-Injection: Production Environment
 
-## 2. Context Injection
+- [Infrastructure](../rules/03-infrastructure.md)
+- [DevOps](../skills/devops/)
+- [Vite Plugin Singlefile](../../package.json)
 
-- **Rules**: [Foundation](../rules/01-foundation.md).
-- **Rules**: [Infrastructure](../rules/03-infrastructure.md).
-- **Rules**: [Aesthetics](../rules/04-aesthetics.md).
-- **State**: [.agent/project-management/log.md](../project-management/log.md).
+## Capabilities: Deployment Chain
 
-## 3. Procedures
+- **Build Pipeline**: Vite logic with inline assets.
+- **Environment Sync**: [Perchance Bridge](../../src/core/security.js).
+- **Quality Gate**: `npm run build`
 
-### Phase 1: The Clarity Gate (Pre-flight)
+## Procedure
 
-1. **Verification**: Run full verification suite (`npm run verify`). Never ship broken physics. [[Invoke: warden]](../skills/warden/SKILL.md)
-2. **Fabricate**: Run `npm run build`. Confirm 0 errors. [[Invoke: devops]](../skills/devops/SKILL.md)
+### Phase 1: Pre-Flight (Step 3: Research)
 
-### Phase 2: Launch
+1. **Hygiene Audit**: Run `npm run lint` and `npm run test` to ensure zero regressions exist in the build candidate. [[Invoke: Warden]](../skills/warden/)
+2. **Version Control**: Ensure all changes are committed and the [Log Book](../project-management/log.md) reflects the deployment milestone.
 
-1. **Smoke Test**: Smoke test the `index.html` locally via the browser tool. [[Invoke: warden]](../skills/warden/SKILL.md)
-2. **Push**: Execute `npm run deploy:perchance` (Playwright automation). [[Invoke: devops]](../skills/devops/SKILL.md)
+### Phase 2: Fabrication (Step 5: Execution)
 
-### Phase 3: expression (Verification)
+1. **Production Build**: Execute `npm run build`. Verify that the output is a single `index.html` file (via vite-plugin-singlefile). [[Invoke: DevOps]](../skills/devops/)
+2. **Bundle Verification**: Inspect the build for oversized assets or broken resource links.
 
-1. **Live Check**: Confirm the deployment reflects the **Chalk Regime** aesthetics and **Svelte 5** reactive state.
-2. **Log**: Final deployment statistics (Version ID, Size, timestamp) in `log.md`.
+### Phase 3: Deployment (Step 8: Handoff)
 
-## 4. Anti-Patterns
+1. **Shipment**: Upload the `dist/index.html` payload to the Perchance code panel. [[Invoke: DevOps]](../skills/devops/)
+2. **Runtime Verification**: Test the simulation live on Perchance. Verify reactivity and persistence.
 
-- **Blind Shipping**: Deploying without passing the latest tests or local visual check.
-- **Leakage**: Deploying with hardcoded API keys or debug flags active.
+## Anti-Patterns
+
+- **Dirty Builds**: Deploying with uncommitted local changes.
+- **Oversized Assets**: Failing to compress media before bundling.
+- **Zero Testing**: Shipping the bundle without a final manual verification.

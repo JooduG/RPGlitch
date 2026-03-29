@@ -1,6 +1,7 @@
 ---
 name: GLI
 version: 1.1.0
+risk: medium
 description: >
   General Logistics Interface (GLI).
   Handles AI-driven repository maintenance, semantic PR reviews, issue triage, and smart testing logic.
