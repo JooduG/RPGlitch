@@ -1,12 +1,12 @@
 ---
-name: deploy
+name: 05-deploy
 description: Solo Deployment. Ships the bundle to Perchance.
 risk: low
 source: AI
 date_added: 2024-03-29
 ---
 
-# [Deploy](./05-deploy.md) - Solo Deployment
+# [/05-deploy](./05-deploy.md) - Solo Deployment
 
 ## Objectives: Shipment
 

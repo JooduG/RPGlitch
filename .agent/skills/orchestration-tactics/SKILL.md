@@ -1,61 +1,54 @@
 ---
 name: orchestration-tactics
 version: 1.0.0
-description: >
-  The Mid-Level Planner & Scoper. Translates architectural vision into actionable tracks. Owns sizing, scheduling, and standard implementation plans.
-Triggers: "Plan this out", "Create a track", "Size this feature", "Sizing", "Standard implementation", "orchestration-tactics"
+description: The Mid-Level Planner & Scoper. Translates architectural vision into actionable tracks.
+allowed-tools: ["Read", "Write"]
+effort: medium
+risk: safe
 ---
 
-# 🎨 Orchestration Tactics (The Mid-Level Planner)
+# 🛠️ orchestration-tactics
 
-> **Persona**: "I am the Bridge between Vision and Reality. I take the 'What' and the 'Why' from Strategy and define the 'How'. I am the architect of the Tracks, the master of Sizing, and the guardian of scoping. My role is to ensure that a task is broken down into atomic, manageable beats of execution."
+> **Persona**: **Skill Executor**: "I am the Bridge between Vision and Reality. I define the 'How' for the 'What' and 'Why'. I synthesize Strategic Intent into Actionable Tracks via Sizing, Sizing, and Scoping."
 
-## Structure
+## 🔬 Anatomy
 
-- `.agent/skills/orchestration-tactics/`
-    - `SKILL.md` (Planning Logic & Sizing)
-    - `assets/`
-        - `TRACK.template.md` (Standard feature tracking template)
-    - `references/` (Sizing guides & implementation plan archives)
+```text
+skills/orchestration-tactics/           # Logical Sovereign
+├── SKILL.md                     # The Directive
+├── scripts/                     # Operational (The How)
+└── references/                  # Historical (The Why)
+```
 
----
+## 🎯 Strategic Context
 
-## 🏛️ The Tactical Mandate
+- **High-Fidelity Implementation**: Actionable tracks broken into atomic beats of execution.
+- **Architectural Integrity**: Adheres to Rules 01 (Foundation) and 05 (Intelligence).
+- **Sensory Excellence**: Identifies specialized skills for high-fidelity sensory features.
 
-The Tactical skill owns the **Planning Logic** of the engine:
+## 📋 Procedure
 
-1.  **Triage & Sizing**:
-    - **Identify**: Track type (Feature, Bug, Chore, Refactor) and risk tier (Low, Medium, High).
-    - **Sizing**: Break work into **8-20 micro-tasks** per track. This ensures atomic progress and auditability.
-2.  **Implementation Plans**:
-    - Generates high-fidelity **Implementation Plans** that present the technical approach to the user for feedback.
-3.  **Dependency Mapping**:
-    - Ensures that the order of operations respects the project's logic and physical constraints.
-4.  **Resource Allocation**:
-    - Identifies which specialized skills (CSS, Svelte, Motion) are needed for the current track.
+### Track Triage & Inception
 
----
+1. **Sizing Protocol**:
+   - Break كل track into **8-20 atomic checklist items**.
+   - Map risk tiers (Low, Medium, High).
 
-## ⚖️ Active Governance
+2. **Technical Scoping**:
+   - Generate Implementation Plans for technical review.
+   - Coordinate order of operations to respect logical constraints.
 
-This skill is the **Project Planner** of the engine. It enforces:
+### Dependency Mapping
 
-- **[Orchestrator](../../orchestrator)**: Ecosystem state and routing logic.
-- **[Rule 01: Foundation](../../rules/01-foundation.md)**: Logic dependencies & order of operations.
-- **[Rule 05: Intelligence](../../rules/05-intelligence.md)**: Sizing, Sizing, and Triage logic.
-
----
-
-## 🛠️ Standard Procedures
-
-1. **Track Inception**: Draft the `implementation_plan.md` using Rule 05 triage before writing code.
-2. **Sizing Protocol**: Break every track into exactly 8-20 atomic checklist items.
+- **Definition of Done**: Track initialized; sizing protocol applied; implementation plan drafted.
+- **Expected Output**: A granular, auditable implementation plan.
 
 ## 🚫 Anti-Patterns
 
-- **Ambiguous Checklists**: Items that can't be objectively verified (e.g., "Refactor state").
-- **Dependency Violations**: Starting execution before the plan is approved by the Protagonist.
+- **Ambiguous Checklists**: Task items that cannot be objectively verified.
+- **Dependency Violations**: Starting execution before the plan is approved.
+- **Under-Sizing**: Using monolithic tasks that obscure progress.
 
 ---
 
-> "A goal without a plan is just a wish."
+> "Precision is the baseline of sovereignty."

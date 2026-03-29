@@ -156,7 +156,7 @@ export const validateAgainstStructure = (content, structure, report) => {
     );
 
     if (!hasMatch && !tHeader.isOptional) {
-      report("ADVICE", `💡 Missing mandatory section: "${tHeader.text.replace(/[(\s#].*$/, "").trim()}".`);
+      report("ADVICE", `💡 Missing mandatory section: "${"#".repeat(tHeader.level)} ${tHeader.cleanLabel}".`);
     }
   }
 

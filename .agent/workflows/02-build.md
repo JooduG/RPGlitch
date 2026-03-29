@@ -1,12 +1,12 @@
 ---
-name: build
+name: 02-build
 description: Implementation Loop. Logic, State, and Style fabrication.
 risk: low
 source: AI
 date_added: 2024-03-29
 ---
 
-# [Build](./02-build.md) - Code Execution
+# [/02-build](./02-build.md) - Code Execution
 
 ## Objectives: Fabrication
 

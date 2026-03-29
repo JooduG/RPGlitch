@@ -147,3 +147,8 @@
     - [/] Phase 3: Drawer & Modal Migration (Apply var(--glass-xl) to LibraryDrawer and ProfileModal).
     - [ ] Phase 4: Atomic Parity (Align LibraryCard with Storyboard material density).
     - [ ] Phase 5: Verification (Zero-debt audit pass).
+### [WIP] [025] [Project Hygiene & Technical Debt Purge (/03-clean)]
+
+- [~] Phase 1: Diagnosis (Ran `npm run clean`, identified 40+ lint/audit violations across CSS and nomenclature).
+- [~] Phase 2: Execution (Fixing `gli/` directory casing, sub-script debuggers, and atomic CSS specificity).
+- [ ] Phase 3: Validation (Passing all project audits and verification loops).

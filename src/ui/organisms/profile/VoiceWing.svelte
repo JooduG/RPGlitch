@@ -173,13 +173,9 @@
     overflow: hidden;
   }
 
-  .voice-name-truncate {
-    display: block;
-    width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: center;
+  .voice-btn:disabled {
+    opacity: var(--opacity-m);
+    cursor: default;
   }
 
   .voice-btn:hover:not(:disabled) {
@@ -187,9 +183,13 @@
     box-shadow: inset 0 0 0 1px var(--glass-edge-l);
   }
 
-  .voice-btn:disabled {
-    opacity: var(--opacity-m);
-    cursor: default;
+  .voice-name-truncate {
+    display: block;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
   }
 
   .preview-btn {
@@ -209,6 +209,11 @@
     transition: all var(--motion-fast) ease;
   }
 
+  .preview-btn:disabled {
+    opacity: var(--opacity-s);
+    cursor: default;
+  }
+
   .preview-btn:hover:not(:disabled) {
     background: var(--glass-l);
     box-shadow: inset 0 0 0 1px var(--glass-edge-l);
@@ -216,11 +221,6 @@
 
   .preview-btn:active:not(:disabled) {
     transform: scale(0.95);
-  }
-
-  .preview-btn:disabled {
-    opacity: var(--opacity-s);
-    cursor: default;
   }
 
   .dropdown-content {
@@ -272,16 +272,6 @@
     background: var(--glass-xs);
   }
 
-  .voice-option.active {
-    color: var(--app-accent);
-    background: rgb(var(--app-accent-rgb) / 5%);
-  }
-
-  .voice-option.active .region-pill {
-    color: var(--app-accent);
-    opacity: var(--opacity-xl);
-  }
-
   .voice-option .region-pill {
     font-size: var(--font-size-xs);
     text-transform: uppercase;
@@ -304,6 +294,16 @@
     flex: 1;
   }
 
+  .voice-option.active {
+    color: var(--app-accent);
+    background: rgb(var(--app-accent-rgb) / 5%);
+  }
+
+  .voice-option.active .region-pill {
+    color: var(--app-accent);
+    opacity: var(--opacity-xl);
+  }
+
   .sliders {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -321,14 +321,6 @@
   .slider-group.locked {
     opacity: var(--opacity-m);
     cursor: not-allowed;
-  }
-
-  .slider-group input[type="range"]:disabled {
-    cursor: not-allowed;
-  }
-
-  .slider-group input[type="range"]:disabled::-webkit-slider-thumb {
-    display: none;
   }
 
   .slider-group input[type="range"] {
@@ -370,5 +362,13 @@
 
   .slider-group input[type="range"]:active::-webkit-slider-thumb {
     transform: scale(1.2);
+  }
+
+  .slider-group input[type="range"]:disabled {
+    cursor: not-allowed;
+  }
+
+  .slider-group input[type="range"]:disabled::-webkit-slider-thumb {
+    display: none;
   }
 </style>

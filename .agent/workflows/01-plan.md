@@ -1,12 +1,12 @@
 ---
-name: plan
+name: 01-plan
 description: The Master Router. Enforces the 8-step process from AGENTS.md, categorizes risk, and routes complex features through the intake -> Directives -> Warden funnel.
 risk: low
 source: AI
 date_added: 2024-03-29
 ---
 
-# [Plan](./01-plan.md) - Blueprint Architect
+# [/01-plan](./01-plan.md) - Blueprint Architect
 
 ## Objectives: Strategic Intent
 

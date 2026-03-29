@@ -1,12 +1,12 @@
 ---
-name: rewind
+name: 99-rewind
 description: Emergency Stop. Abandon failed path and restore state.
 risk: low
 source: AI
 date_added: 2024-03-29
 ---
 
-# [Rewind](./99-rewind.md) - Emergency Stop
+# [/99-rewind](./99-rewind.md) - Emergency Stop
 
 ## Objectives: Phase ERR - Recovery
 

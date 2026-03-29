@@ -1,12 +1,12 @@
 ---
-name: review
+name: 04-review
 description: Reviews and stuff.
 risk: low
 source: AI
 date_added: 2024-03-29
 ---
 
-# [Review](./04-review.md) - Quality Review & Feedback Loop
+# [/04-review](./04-review.md) - Quality Review & Feedback Loop
 
 ## Objectives: Review
 

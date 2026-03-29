@@ -1,5 +1,5 @@
 ---
-name: boot
+name: 00-boot
 description: Fresh Session Initialization. Syncs context and mental model.
 risk: low
 source: AI

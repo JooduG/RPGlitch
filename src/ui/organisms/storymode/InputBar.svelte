@@ -151,6 +151,18 @@
     border-radius: var(--border-radius);
   }
 
+  .icon-btn .icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: currentcolor;
+  }
+
+  /* 1. Icon Button States */
+  .icon-btn:disabled {
+    opacity: var(--opacity-xxs);
+    cursor: not-allowed;
+  }
+
   .icon-btn:hover:not(:disabled) {
     color: var(--font-color-m);
     filter: drop-shadow(
@@ -159,17 +171,7 @@
     );
   }
 
-  .icon-btn:disabled {
-    opacity: var(--opacity-xxs);
-    cursor: not-allowed;
-  }
-
-  .icon-btn .icon {
-    width: 1.25rem;
-    height: 1.25rem;
-    fill: currentcolor;
-  }
-
+  /* 2. Specific Overrides */
   .send-btn:not(:disabled):hover {
     color: var(--font-color-m);
     filter: drop-shadow(

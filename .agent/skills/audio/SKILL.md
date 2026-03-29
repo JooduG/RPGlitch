@@ -1,71 +1,61 @@
 ---
 name: audio
 version: 1.0.0
-description: >
-  Owns sound effects (SFX), ambient tracks, and Text-to-Speech (TTS) logic.
-  Triggers: "Add sound", "Fix audio", "Speech synthesis", "src/media/audio/**".
+description: Owns sound effects (SFX), ambient tracks, and Text-to-Speech (TTS) logic.
+allowed-tools: ["Read", "Write"]
+effort: medium
+risk: safe
 ---
 
-# 🛡️ Skill: Audio & Acoustics (The Acoustic Engineer)
+# 🛠️ audio
 
-> **Persona**: "I am The Acoustic Engineer. Owns sound effects (SFX), ambient tracks, and Text-to-Speech (TTS) logic."
-> **Anatomy**: `skills/audio/` (`scripts/`, `references/`)
+> **Persona**: **Skill Executor**: "I am the Sovereign Logical Operator of Audio & Acoustics. I synthesize User Input into Sensory Reality via SFX Mapping, TTS Generation, and Memory Management."
 
-## 1. Structure
+## 🔬 Anatomy
 
 ```text
-skills/audio/
-├── SKILL.md
-├── scripts/    # SFX, Ambient, & TTS logic
-└── references/ # Audio context & playback standards
+skills/audio/           # Logical Sovereign
+├── SKILL.md                     # The Directive
+├── scripts/                     # Operational (The How)
+└── references/                  # Historical (The Why)
 ```
 
-## 2. Summoning Triggers
+## 🎯 Strategic Context
 
-- **Territorial**: `src/media/audio/**`.
-- **Intent**: "Add sound", "Fix audio", "Speech synthesis", "Context: Audio".
+- **High-Fidelity Implementation**: Minimalist sonic landscape ensuring atmosphere doesn't overwhelm the narrative.
+- **Architectural Integrity**: Adheres to Rule 03 (Perchance Constraints) regarding AudioContext safety.
+- **Sensory Excellence**: Part of the Nordic Collection's auditory identity.
 
-## 3. Procedures
+## 📋 Procedure
+
+### SFX & TTS Integration
 
 1. **Add Sound Effect**:
-   1. Place the audio file in `src/media/audio/sfx/`.
-   2. Update the `AudioRegistry` in `src/media/audio/registry.js`.
-   3. Verify playback in the development environment.
+   - Place the audio file in `src/media/audio/sfx/`.
+   - Update the `AudioRegistry` in `src/media/audio/registry.js`.
+   - Verify playback in the development environment.
 
-## 4. Anti-Patterns
+2. **Speak Text**: 
+   - Use `Sensory.voice.speak(text)` with configured parameters.
+   - Sanitize any text-to-speech inputs before processing.
 
-| Pattern                 | Mitigation                                                     |
-| :---------------------- | :------------------------------------------------------------- |
-| **Autoplay Violations** | Never trigger audio without a user gesture.                    |
-| **Floating Contexts**   | ALWAYS `.close()` or `.suspend()` the AudioContext on unmount. |
-| **Hardcoded Paths**     | Use the `AudioRegistry` to manage paths centrally.             |
-| **Unpurified Strings**  | Sanitize any text-to-speech inputs before processing.          |
+### Audio Cleanup
 
-## 5. The Brain (A-C-Q Protocol)
+- **Definition of Done**: AudioContext is closed or suspended on unmount; registry is synchronized.
+- **Expected Output**: Immersive, sanitized auditory experience.
 
-Define the Clarity Gate constraints specific to this skill.
+## 📋 Technical constraints
 
-- **A-Score Requirements**: A3 (Ambiguous) for timing offsets or un-specified sound profiles.
-- **C-Level Tools**: C2 (Planning) for audio sprite mapping.
+- **Svelte 5 Runes**: Use `$effect` cleanup for AudioContext management.
+- **Autoplay Protocol**: NEVER trigger audio without a direct user gesture (Browser safety).
+- **Hardcoded Paths**: Forbidden. Use the `AudioRegistry` to manage paths centrally.
 
-## 6. Capabilities
+## 🚫 Anti-Patterns
 
-- **SFX Mapping**: Tying user events to sound bytes.
-- **TTS Generation**: Hooking into speech synthesis APIs with precise pitch/rate.
-- **Memory Cleanup**: Releasing AudioContext when nodes unmount.
+- **Autoplay Violations**: Triggering audio without a user gesture.
+- **Floating Contexts**: Orphaned AudioContexts that leak memory.
+- **Unpurified Strings**: Passing unsanitized input to TTS engines.
 
-## 7. Procedures
+---
 
-1. **Play Sound**: Sensory.play(id) triggered by user click.
-2. **Speak Text**: Sensory.voice.speak(text) with configured parameters.
-
-## 8. Anti-Patterns
-
-| Pattern                      | Mitigation                                                                                  |
-| :--------------------------- | :------------------------------------------------------------------------------------------ |
-| **Autoplay without gesture** | Forbidden. Browsers block autoplay; always require user interaction to unlock AudioContext. |
-| **Orphaned AudioContext**    | Forbidden. Always `.close()` or `.suspend()` on component destroy via `$effect` cleanup.    |
-
-## 9. Tools & Assets
-
-_No specialized tools assigned currently._
+> "Precision is the baseline of sovereignty."

@@ -28,7 +28,8 @@ const isAgent = !flags.human;
 // Helper to output structured data
 function output(data) {
   if (isAgent) {
-    console.log(JSON.stringify(data, null, 2));
+    // Agent-friendly JSON output
+    process.stdout.write(JSON.stringify(data, null, 2) + '\n');
   } else {
     // Human-friendly output logic
     if (typeof data === 'string') {

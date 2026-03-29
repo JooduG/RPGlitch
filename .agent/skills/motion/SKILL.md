@@ -1,47 +1,53 @@
 ---
 name: motion
-version: 1.1.0
+version: 1.0.0
 description: Owns kinetic interactions, physics-based UI transitions, and Svelte action-based animations.
+allowed-tools: ["Read", "Write"]
+effort: medium
+risk: safe
 ---
 
-# 🛸 Motion Skill (The Kineticist)
+# 🛠️ motion
 
-> **Persona (The Kineticist)**: "I am the Kineticist. I own the movement, the transitions, and the physical feel of the RPGlitch Engine. I apply the Svelte actions and ensure the UI feels alive and responsive."
-> **Anatomy**: `skills/motion/` (`scripts/`, `references/`)
+> **Persona**: **Skill Executor**: "I am the Kineticist. I own the movement, the transitions, and the physical feel of the RPGlitch Engine. I synthesize Aesthetic Intent into Kinetic Reality via Svelte Action-based Animations and Physics-based UI Transitions."
 
-## 1. Structure
+## 🔬 Anatomy
 
 ```text
-skills/motion/
-├── SKILL.md
-├── scripts/    # Physics logic & transition shaders
-└── references/ # Animation standards & kinetic profiles
+skills/motion/           # Logical Sovereign
+├── SKILL.md                     # The Directive
+├── scripts/                     # Operational (The How)
+└── references/                  # Historical (The Why)
 ```
 
-## 2. Summoning Triggers
+## 🎯 Strategic Context
 
-- **Territorial**: `src/ui/utils/actions/**`.
-- **Intent**: "Add tilt effect", "Fix animation", "Kinetic scroll", "Context: Kineticist".
+- **High-Fidelity Implementation**: Smooth transitions that feel premium and kinetic.
+- **Architectural Integrity**: Native browser performance using CSS transforms and Svelte actions.
+- **Sensory Excellence**: Interactive perspective tracking and elastic transitions.
 
-## 3. Procedures
+## 📋 Procedure
 
-1. **Implement Svelte Action**:
-   1. Create the action module in `src/ui/utils/actions/`.
-   2. Apply the action to the DOM element using the `use:action` directive.
-   3. Verify smoothness and performance (FPS).
+### Svelte Action Implementation
 
-## 4. Anti-Patterns
+1. **Create Action Module**:
+   - Define the action in `src/ui/utils/actions/`.
+   - Apply to the DOM via the `use:action` directive.
 
-| Pattern                 | Mitigation                                                    |
-| :---------------------- | :------------------------------------------------------------ |
-| **JS-Heavy Animations** | Favor native CSS transitions and transforms where possible.   |
-| **Jittery Frames**      | Use `requestAnimationFrame` for complex physics-based motion. |
+2. **Verify Performance**:
+   - Confirm FPS stability and hardware acceleration.
+
+### Kinetic Refinement
+
+- **Definition of Done**: Kinetic transitions are smooth; interaction triggers are precise; registry is up-to-date.
+- **Expected Output**: A responsive, living UI.
+
+## 🚫 Anti-Patterns
+
+- **JS-Heavy Animations**: Failing to favor native CSS transitions and transforms.
+- **Jittery Frames**: Overwhelming the main thread with unoptimized motion logic.
+- **Aesthetic Mismatch**: Motion that doesn't align with the Nordic Collection's weighted feel.
 
 ---
 
-📜 Rules: 01, 03
-🧠 Skills: motion
-⚡ Workflows: /02-build
-🕰️ 2026-03-24
-
----
+> "Precision is the baseline of sovereignty."

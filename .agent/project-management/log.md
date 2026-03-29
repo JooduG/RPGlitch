@@ -4,6 +4,7 @@
 
 ## ⚡ Active Tracks
 
+- **Project Hygiene & Technical Debt Purge**: Initiated `/03-clean` workflow to address audit and linting failures. Fixes include folder casing for `gli`, purging debug statements, and resolving Stylelint/ESLint debt across the codebase. [Session: d95eea10]
 - **Clinic Sanitization**: Fixed 100% of desynchronized unit tests in `Modal.test.js` after the Nordic Glass migration. Redirected background interaction logic to the `Backdrop` component and modernized CSS selectors. Achieved a **PERFECT SCORE** in the full verification pipeline (`npm run verify`). [Session: 844a1861]
 - **Auditor Optionality Fix**: Diagnosing and fixing the Sovereign Auditor's failure to recognize `_Optional_` markers in templates. Created implementation plan for regex hardening and placeholder expansion. [Session: 9df699d7]
 - **UI Audit & Polish**: Standardized Chalk Regime tokens across atomic and organism layers. Implemented `kineticScroll` with momentum decay. [Branch: feat/ui-audit-polish]

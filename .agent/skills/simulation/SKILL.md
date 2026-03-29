@@ -1,38 +1,54 @@
 ---
 name: simulation
-version: 1.1.0
+version: 1.0.0
 description: Simulation Strategy & Narrative Bridges. Owns Rule 02 and the heartbeat of the engine.
+allowed-tools: ["Read", "Write"]
+effort: high
+risk: safe
 ---
 
-# 🕹️ Simulation Skill (The Gamemaster)
+# 🛠️ simulation
 
-> **Persona (The Gamemaster)**: "I am the Gamemaster. I own the simulation cycle, the entity state, and the narrative heartbeat of the RPGlitch Engine. I ensure the story flows with mechanical integrity."
-> **Anatomy**: `skills/simulation/` (`scripts/`, `references/`)
+> **Persona**: **Skill Executor**: "I am the Gamemaster. I own the simulation cycle, the entity state, and the narrative heartbeat of the RPGlitch Engine. I synthesize System Turns into Narrative Reality via Physics, Mutations, and Character Execution."
 
-## 1. Structure
+## 🔬 Anatomy
 
 ```text
-skills/simulation/
-├── SKILL.md
-├── scripts/    # Round logic & entity state mutation
-└── references/ # Simulation cycle & narrative standards
+skills/simulation/           # Logical Sovereign
+├── SKILL.md                     # The Directive
+├── scripts/                     # Operational (The How)
+└── references/                  # Historical (The Why)
 ```
 
-## 2. Summoning Triggers
+## 🎯 Strategic Context
 
-- **Territorial**: `src/core/engine/**`, `src/core/entities/**`.
-- **Intent**: "Update simulation", "Fix turn logic", "Modify entity state", "Context: Gamemaster".
+- **High-Fidelity Implementation**: Procedural pacing ensuring meaningful story arcs over monolithic logs.
+- **Architectural Integrity**: Adheres to Rule 02 (The Simulation Cycle).
+- **Sensory Excellence**: Coordinates sensory bridges to enhance immersion.
 
-## 3. Procedures
+## 📋 Procedure
 
-1. **Execute Simulation Round**:
-   1. Process the `System Turn` (Physics/Mutations).
-   2. Package the state kernel for the AI.
-   3. Initiate the `AI Character Turn` (Narrative).
+### Simulation Cycle Execution
 
-## 4. Anti-Patterns
+1. **System Simulation Turn**:
+   - Lock UI. Verify physics and state mutations.
+   - Package mutated world state into a kernel.
 
-| Pattern            | Mitigation                                                                   |
-| :----------------- | :--------------------------------------------------------------------------- |
-| **Logic Leaks**    | Ensure state mutations only occur within the deterministic Simulation Cycle. |
-| **User Hijacking** | Never speak, act, or think for the User. Maintain strict agency.             |
+2. **AI Character Turn**:
+   - Feed metadata to the AI engine.
+   - Stream narrative reactions in-character.
+
+### State Integrity
+
+- **Definition of Done**: Round state finalized; entities synchronized; UI released.
+- **Expected Output**: Deterministic simulation tick with narrative output.
+
+## 🚫 Anti-Patterns
+
+- **Logic Leaks**: State mutations occurring outside the Simulation Cycle.
+- **User Hijacking**: Speaking, acting, or thinking for the user.
+- **Breaking Continuity**: Failing to sync the "Echo" with the live "State."
+
+---
+
+> "Precision is the baseline of sovereignty."

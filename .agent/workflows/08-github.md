@@ -1,12 +1,12 @@
 ---
-name: github
+name: 08-github
 description: Local GitHub Ops. Automates PRs, issues, and local sync.
 risk: low
 source: AI
 date_added: 2024-03-29
 ---
 
-# [GitHub](./08-github.md)
+# [/08-github](./08-github.md)
 
 ## Objectives: Phase 6 - Collaboration
 

@@ -1,16 +1,16 @@
 ---
 name: {{Skill-Slug}} # _Mandatory_
-description: > # _Mandatory_
-  A short, high-fidelity description of the skill's purpose. (Level 1 Metadata)
-  
-  Use when: (Primary triggering scenario).
-  Triggers: (Glob path, e.g., "src/**/*.svelte"), (Search phrase, e.g., "Fix CSS")
-version: 1.0.0 # _Optional_
-risk: low/medium/high # _Optional_
-source: core/external # _Optional_
-date_added: "{{Date}}" # _Optional_
-triggers: [] # _Optional_
-globs: [] # _Optional_
+version: 1.0.0 # _Mandatory_
+source: self # _Optional_
+description: A short, high-fidelity description of the skill's purpose, when it should be used (triggers), the files it governs (globs), and what it does. Very imortant that this is on 1 line. # _Mandatory_
+paths: ["src/**/*.svelte", "src/**/*.ts"] # _Optional_ These paths are excluding. 
+disable-model-invocation: false # _Optional_
+user-invocable: true # _Optional_
+allowed-tools: ["Read", "Glob"] # _Optional_
+context: fork # _Optional_ Fork = New context window
+model: gemini-3-pro # _Optional_
+effort: high # _Optional_
+risk: safe # _Optional_ Dictates agent balls
 ---
 
 # 🛠️ {{Skill-Slug}} _Mandatory_
@@ -20,11 +20,16 @@ globs: [] # _Optional_
 ## 🔬 Anatomy _Mandatory_
 
 ```text
-skills/{{Skill-Name}}/           # Logical Sovereign
-├── SKILL.md                     # The Directive
-├── scripts/                     # Operational (The How)
-├── assets/                      # Atomic Data (The What)
-└── references/                  # Historical (The Why)
+skills/{{Skill-Name}}/ # Skill Folder                                                      # _Mandatory_
+├── SKILL.md           # Main Skill File                                                   # _Mandatory_
+├── scripts/           # The execution muscle. The IDE runs these autonomously if allowed. # _Optional_
+├── assets/            # Static media. UI mockups, icons, or HTML review templates         # _Optional_
+├── rules/             # Behavioral boundaries.                                            # _Optional_
+├── templates/         # The boilerplate molds.                                            # _Optional_
+├── agents/            # Persona definitions for sub-routines.                             # _Optional_
+├── data/              # Structured data payloads.                                         # _Optional_
+├── references/        # The knowledge base.                                               # _Optional_
+└── {{unique}}/        # The Special Folder.                                               # _Not Encouraged But Allowed_
 ```
 
 ## 🎯 Strategic Context _Optional_

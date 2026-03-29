@@ -71,18 +71,65 @@
     color: var(--font-color-m);
   }
 
+  /* 1. Modifiers & Globals (Structural) */
   .btn.btn-sm {
     min-height: var(--spacing-xl);
     padding: var(--spacing-xxs) var(--spacing-s);
     font-size: var(--font-size-xs);
   }
 
-  .btn:hover:not(:disabled, .disabled) {
-    filter: brightness(1.1);
+  .btn-round {
+    border-radius: var(--border-radius-full);
+    padding: 0;
+    width: var(--spacing-xxl);
+    height: var(--spacing-xxl);
   }
 
-  .btn:active:not(:disabled, .disabled) {
-    transform: none;
+  :global(.btn-group-joined) .btn {
+    border-radius: 0;
+  }
+
+  :global(.btn-group-pill) .btn {
+    border-radius: var(--border-radius-full);
+    min-height: var(--spacing-xl);
+  }
+
+  /* 2. Variants (Thematic) */
+  .btn-primary {
+    background: var(--color-frisk);
+    color: var(--color-black);
+    box-shadow: var(--shadow-m);
+  }
+
+  .btn-ghost {
+    color: var(--font-color-s);
+  }
+
+  .btn-outline {
+    background: var(--glass-edge-l);
+    color: var(--font-color-s);
+  }
+
+  .btn-glass {
+    background: var(--glass-l);
+    color: var(--color-white);
+  }
+
+  .btn-secondary {
+    background: var(--glass-l);
+    color: var(--font-color-m);
+  }
+
+  .btn-security {
+    background: var(--glass-xs);
+    color: var(--font-color-m);
+    box-shadow: 0 0 0 1px var(--color-frisk);
+  }
+
+  /* 3. Base States (Behavioral - Lower Specificity) */
+  .btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-frisk);
   }
 
   .btn:disabled,
@@ -95,28 +142,17 @@
     box-shadow: none;
   }
 
-  .btn :global(.icon) {
-    pointer-events: none;
+  .btn:active:not(:disabled, .disabled) {
+    transform: none;
   }
 
-  .btn:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px var(--color-frisk);
-  }
-
-  /* Variants */
-  .btn-primary {
-    background: var(--color-frisk);
-    color: var(--color-black);
-    box-shadow: var(--shadow-m);
+  /* 4. The Hover Monster (Highest Specificity due to :not) */
+  .btn:hover:not(:disabled, .disabled) {
+    filter: brightness(1.1);
   }
 
   .btn-primary:hover:not(:disabled, .disabled) {
     background: color-mix(in srgb, var(--color-frisk), var(--color-white) 5%);
-  }
-
-  .btn-ghost {
-    color: var(--font-color-s);
   }
 
   .btn-ghost:hover:not(:disabled, .disabled) {
@@ -124,38 +160,17 @@
     color: var(--font-color-m);
   }
 
-  .btn-outline {
-    background: var(--glass-edge-l);
-    color: var(--font-color-s);
-  }
-
   .btn-outline:hover:not(:disabled, .disabled) {
     color: var(--color-frisk);
     background: var(--glass-xs);
-  }
-
-  .btn-glass {
-    background: var(--glass-l);
-    color: var(--color-white);
   }
 
   .btn-glass:hover:not(:disabled, .disabled) {
     background: var(--glass-l);
   }
 
-  .btn-secondary {
-    background: var(--glass-l);
-    color: var(--font-color-m);
-  }
-
   .btn-secondary:hover:not(:disabled, .disabled) {
     background: var(--glass-l);
-  }
-
-  .btn-security {
-    background: var(--glass-xs);
-    color: var(--font-color-m);
-    box-shadow: 0 0 0 1px var(--color-frisk);
   }
 
   .btn-security:hover:not(:disabled, .disabled) {
@@ -164,19 +179,11 @@
       0 0 0 1px var(--font-color-m);
   }
 
-  /* Shapes */
-  .btn-round {
-    border-radius: var(--border-radius-full);
-    padding: 0;
-    width: var(--spacing-xxl);
-    height: var(--spacing-xxl);
+  .btn :global(.icon) {
+    pointer-events: none;
   }
 
-  /* Button Groups Support (using :global to catch parent containers) */
-  :global(.btn-group-joined) .btn {
-    border-radius: 0;
-  }
-
+  /* 5. Positional Overrides (Must be last) */
   :global(.btn-group-joined) .btn:first-child {
     border-radius: var(--border-radius) 0 0 var(--border-radius);
   }
@@ -187,10 +194,5 @@
 
   :global(.btn-group-joined) .btn:not(:last-child) {
     border-right: 1px solid var(--glass-s);
-  }
-
-  :global(.btn-group-pill) .btn {
-    border-radius: var(--border-radius-full);
-    min-height: var(--spacing-xl);
   }
 </style>

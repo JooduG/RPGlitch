@@ -1,12 +1,12 @@
 ---
-name: clean
+name: 03-clean
 description: Maintenance & Security. Fixes bugs, audits security, and ensures hygiene.
 risk: low
 source: AI
 date_added: 2024-03-29
 ---
 
-# [Clean](./03-clean.md) - Ordning & Reda: Pengar på Fredag
+# [/03-clean](./03-clean.md) - Ordning & Reda: Pengar på Fredag
 
 ## Objectives: Maintenance
 

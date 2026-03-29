@@ -1,62 +1,60 @@
 ---
 name: css
 version: 1.0.0
-description: >
-  Consolidates Native CSS and polish. Applies the Chalk Regime, glassmorphism, and strict design tokens as defined in .agent/rules/03-specification.md.
-  Triggers: "Fix CSS", "Add styles", "Check styling rules", "Context: Polish".
+description: Consolidates Native CSS and polish. Applies the Chalk Regime, glassmorphism, and strict design tokens.
+allowed-tools: ["Read", "Write"]
+effort: medium
+risk: safe
 ---
 
-# 🎨 CSS Skill (The Stylist)
+# 🛠️ css
 
-> **Persona (The Stylist)**: "I am the Stylist. I own the Chalk Regime, the glassmorphism, and the visual soul of the RPGlitch Engine. I apply the design tokens and ensure the aesthetics are premium."
-> **Anatomy**: `skills/css/` (`scripts/`, `references/`)
+> **Persona**: **Skill Executor**: "I am the Stylist. I own the Chalk Regime, the glassmorphism, and the visual soul of the RPGlitch Engine. I synthesize Aesthetic Intent into Visual Reality via Design Tokens and Native CSS."
 
-## 1. Structure
+## 🔬 Anatomy
 
 ```text
-skills/css/
-├── SKILL.md
-├── scripts/    # CSS linting & token audit logic
-└── references/ # Design tokens & Chalk Regime docs
+skills/css/           # Logical Sovereign
+├── SKILL.md                     # The Directive
+├── scripts/                     # Operational (The How)
+└── references/                  # Historical (The Why)
 ```
 
-## 2. Summoning Triggers
+## 🎯 Strategic Context
 
-- **Territorial**: `src/theme/**`, `src/**/*.css`.
-- **Intent**: "Fix CSS", "Add styles", "Check styling rules", "Context: Polish".
+- **High-Fidelity Implementation**: Visual consistency is absolute. Use of the "Chalk Regime" ensures a premium, Nordic aesthetic.
+- **Architectural Integrity**: Native CSS Custom Properties only. Strict separation of layout and theme.
+- **Sensory Excellence**: Implementation of atmospheric noise and glassmorphism for depth.
 
-## 3. The Brain (A-C-Q Protocol)
+## 📋 Procedure
 
-Define the Clarity Gate constraints specific to this skill.
+### Component Polishing
 
-- **A-Score Requirements**: A2 (Inferred) for most UI tweaks; A3 if missing design guidelines.
-- **C-Level Tools**: C1 (Reflex) for syntax, C2 (Planning) for responsive layouts.
+1. **Token Synchronization**:
+   - Strip utility classes (Tailwind, etc.).
+   - Replace with semantic classes mapped to `var(--token)` values (e.g., `var(--color-chalk)`).
 
-## 4. Capabilities & Mandates
+2. **Depth Application**:
+   - Apply standard elevation shadows and glassmorphic blurs (`blur-m` to `blur-xl`).
+   - Add kinetic transitions for interactions.
 
-- **The Mandate**: Visual consistency is absolute. The Antigravity Engine operates strictly under the "Chalk Regime". You are forbidden from using generic hex codes or external UI library default colors.
-- **Theming**: Native CSS Custom Properties ONLY. Runtime token reactivity as defined in `.agent/rules/03-technetium.md`.
-- **Glassmorphism**: Soft depth, shadows instead of borders, blurring (`blur-m` to `blur-xl`).
-- **Responsiveness**: Mobile-first media queries using T-shirt sizing scales (`xxs` to `xxxl`).
+### UI Consistency Audit
 
-## 5. Procedures
+- **Definition of Done**: All hardcoded hex values removed; components utilize global tokens; responsive scale respects T-shirt sizing.
+- **Expected Output**: Premium, coherent visual interface.
 
-1. **Polish Component**:
-   1. Strip utility classes (Tailwind, Bootstrap).
-   2. Replace with semantic classes mapped strictly to `.agent/rules/03-technetium.md` tokens (e.g., `var(--color-chalk)`).
-   3. Apply standard depth shadows and elastic transitions.
+## 📋 Technical constraints
 
-## 6. Anti-Patterns
+- **Svelte 5 Runes**: Styling component state via reactive CSS variables.
+- **Zod/DOMPurify**: Sanitization for any dynamic style injections.
 
-| Pattern                                  | Mitigation                                                                                                     |
-| :--------------------------------------- | :------------------------------------------------------------------------------------------------------------- |
-| **Inline Styles (`style="..."`)**        | Forbidden. Violates Church & State separation; keeps structural markup clean.                                  |
-| **Global CSS in Components**             | Forbidden. Use component-scoped styles or designated theme tokens.                                             |
-| **Utility classes (Tailwind/Bootstrap)** | Forbidden. Violates semantic HTML and design system token protocols.                                           |
-| **Hardcoded hex values**                 | Forbidden except in `src/theme/tokens.css`. Use `var(--token-name)`. Never write raw hex, `rgb()`, or `hsl()`. |
-| **SCSS Mixins/Variables in Components**  | Forbidden. Components MUST NOT import SCSS. Rely on global CSS variables (`:root`).                            |
-| **Perchance Incompatibility**            | Forbidden. Ensure all CSS variables are accessible within the Perchance HTML panel environment.                |
+## 🚫 Anti-Patterns
 
-## 7. Tools & Assets
+- **Inline Styles**: Forbidden. Markup must remain structural.
+- **Utility Libraries**: Forbidden. Rely on the internal design system.
+- **Hardcoded Hex**: Forbidden (except in `tokens.css`). Use `var(--token)`.
+- **Global Pollution**: Avoid styling baseline elements; use semantic classes.
 
-_No specialized tools assigned currently. Relies entirely on local rule definitions._
+---
+
+> "Precision is the baseline of sovereignty."

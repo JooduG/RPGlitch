@@ -1,12 +1,12 @@
 ---
-name: fleet
+name: 07-fleet
 description: WORK IN PROGRESS. Orchestrate Character-Swapping and Simulation-Switching.
 risk: medium
 source: AI
 date_added: 2024-03-29
 ---
 
-# [Fleet](./07-fleet.md) - WORK IN PROGRESS
+# [/07-fleet](./07-fleet.md) - WORK IN PROGRESS
 
 ## Objectives: Simulation Orchestration
 

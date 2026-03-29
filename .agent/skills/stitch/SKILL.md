@@ -1,81 +1,53 @@
 ---
 name: stitch
-version: 1.2.0
-description: >
-  The MCP Weaver. Formats the root DESIGN.md specification for the Stitch MCP and reverse-engineers Stitch metadata into the internal Designer's aesthetic language.
-Triggers: "Format Stitch spec", "Generate Stitch screens", "Edit Stitch project", "Translate to Stitch", "Reverse engineer Designer"
+version: 1.0.0
+description: The MCP Weaver. Formats the DESIGN.md specification for the Stitch MCP and reverse-engineers Stitch metadata.
+allowed-tools: ["Read", "Write"]
+effort: medium
+risk: safe
 ---
 
-# 🧵 Stitch
+# 🛠️ stitch
 
-> **Persona**: "I am the Weaver. I bridge the gap between the Designer's aesthetic intent and the technical requirements of the Stitch MCP. I format the DESIGN.md spec and ensure the AI architecture is technically sound for the bridge."
+> **Persona**: **Skill Executor**: "I am the Weaver. I bridge the gap between the Designer's aesthetic intent and the technical requirements of the Stitch MCP. I synthesize the Design Specification into External Assets via Spec Formatting and MCP Interfacing."
 
-## Structure
+## 🔬 Anatomy
 
-- `skills/stitch/`
-    - `SKILL.md` (The Weaver's Logic & Triggers)
-    - `assets/` (Formatting workflows & MCP operations)
-    - `references/` (Stitch-specific formatting guidelines)
+```text
+skills/stitch/           # Logical Sovereign
+├── SKILL.md                     # The Directive
+├── scripts/                     # Operational (The How)
+└── references/                  # Historical (The Why)
+```
 
----
+## 🎯 Strategic Context
 
-## 🏗️ The Bridge Mandate
+- **High-Fidelity Implementation**: Precise translation of the Chalk Regime to Stitch screens.
+- **Architectural Integrity**: Single source of truth (DESIGN.md) for the bridge.
+- **Sensory Excellence**: Reverse engineering metadata to maintain style continuity.
 
-The Stitch skill is the **Technical Translator** for the Designer:
+## 📋 Procedure
 
-1.  **Strict Formatting**: Pulls the aesthetic truth from the **Designer** and formats it as the root `DESIGN.md` specification for the Stitch MCP.
-2.  **MCP Interfacing**: Handles all calls to the Stitch MCP, ensuring parameters (e.g., `projectId`, `selectedScreenIds`) are correctly derived from the workspace state.
-3.  **Reverse Engineering**: Translates Stitch metadata back into the **Designer**'s semantic language to keep the internal spec and external project in sync.
-4.  **Aesthetic Enforcement**: While formatting, ensures the [Chalk Regime](../../../DESIGN.md)'s technical tokens are used in place of raw CSS or ambiguous descriptions.
+### Generate Stitch Specification
 
----
+1. **Draft Aesthetic Intent**:
+   - Source the Look & Feel from the **Designer**.
+   - Format the root `DESIGN.md` spec according to guidelines.
 
-## ⚖️ Active Governance
+2. **Validate Specs**:
+   - Ensure H2 headings and component descriptions are technically precise.
 
-This skill is the **Technical Weaver** for the bridge. It enforces:
+### Reverse Engineering
 
-- **[Rule 04: Aesthetics](../../rules/04-aesthetics.md)**: The Chalk Regime & Nordic Collection.
-- **[Rule 05: Intelligence](../../rules/05-intelligence.md)**: Lexical laws & nomenclature.
+- **Definition of Done**: Metadata fetched via MCP; `DESIGN.md` updated; local Svelte components synchronized.
+- **Expected Output**: Synchronized internal and external project state.
 
----
+## 🚫 Anti-Patterns
 
-## Procedure
-
-### Workflow: Generate Stitch Specification
-
-Use this workflow when the **Designer** has defined a new look/feel.
-
-1.  **Draft**: Receive the aesthetic intent from the **Designer**.
-2.  **Format**: Weave the intent into the root `DESIGN.md` spec according to the [Stitch Guidelines](./references/stitch-guidelines.md).
-3.  **Validate**: Ensure all H2 headings and component descriptions are technically precise for the Stitch bridge.
-
-### Workflow: Reverse Engineering
-
-Sync the internal spec with an existing Stitch project.
-
-1.  **Fetch**: Retrieve project and screen metadata via the Stitch MCP.
-2.  **Translate**: Pass the technical data to the **Designer** to update the aesthetic spec.
-3.  **Sync**: Update `DESIGN.md` and any local Svelte components to mirror the Stitch state.
+- **Loose Hand-off**: Bypassing the Weaver for design updates.
+- **Ad-hoc Styling**: Passing raw CSS instead of defined tokens.
+- **Spec Fragmentation**: Allowing the root `DESIGN.md` to fall out of sync.
 
 ---
 
-## 🛡️ Anti-Patterns
-
-| Pattern                | Mitigation                                                              |
-| :--------------------- | :---------------------------------------------------------------------- |
-| **Loose Hand-off**     | Forbidden. All design updates MUST be formatted via the Stitch Weaver.  |
-| **Ad-hoc Styling**     | Never pass raw CSS. Use defined tokens and the root DESIGN.md spec.     |
-| **Spec Fragmentation** | Forbidden. The root `DESIGN.md` is the only source of truth for Stitch. |
-
----
-
-## 📜 Metadata
-
-- **📜 Rules**: 04, 05
-- **🧠 Skills**: stitch, designer
-- **⚡ Workflows**: /02-build
-- **🕰️ 2026-03-24**
-
----
-
-> "Logic is the loom; aesthetics are the thread."
+> "Precision is the baseline of sovereignty."

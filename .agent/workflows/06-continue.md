@@ -1,12 +1,12 @@
 ---
-name: continue
+name: 06-continue
 description: Resume Interrupted Work. Bypasses boot logic to pick up the baton.
 risk: low
 source: AI
 date_added: 2024-03-29
 ---
 
-# [Continue](./06-continue.md)
+# [/06-continue](./06-continue.md)
 
 ## Objectives: Resumption
 
