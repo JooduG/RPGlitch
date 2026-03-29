@@ -4,6 +4,7 @@
 
 ## ⚡ Active Tracks
 
+- **Tactical Planning Integration**: Successfully integrated 'plan-writing' and 'concise-planning' treasures into `orchestration-tactics/SKILL.md`. Infused the scoper/planner with atomic 2-5 min task protocols and minimal-interaction strategies. Achieved **RESONANT** status in the audit engine. [Session: e8647ef0]
 - **Project Hygiene & Technical Debt Purge**: Initiated `/03-clean` workflow to address audit and linting failures. Fixes include folder casing for `gli`, purging debug statements, and resolving Stylelint/ESLint debt across the codebase. [Session: d95eea10]
 - **Clinic Sanitization**: Fixed 100% of desynchronized unit tests in `Modal.test.js` after the Nordic Glass migration. Redirected background interaction logic to the `Backdrop` component and modernized CSS selectors. Achieved a **PERFECT SCORE** in the full verification pipeline (`npm run verify`). [Session: 844a1861]
 - **Auditor Optionality Fix**: Diagnosing and fixing the Sovereign Auditor's failure to recognize `_Optional_` markers in templates. Created implementation plan for regex hardening and placeholder expansion. [Session: 9df699d7]

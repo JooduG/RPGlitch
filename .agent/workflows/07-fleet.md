@@ -44,7 +44,7 @@ date_added: 2024-03-29
 - **Hard Deletion**: Deleting entities during swap instead of cycling.
 - **Narrative Drift**: Swapping characters without syncing the world state.
 
-## Output: Fleet Snapshot
+### Phase 3: Finalization
 
-- Updated active focus entity.
-- Verified transition integrity.
+- **Definition of Done**: Focus entity swapped; transition integral.
+- **Expected Output**: Updated active focus entity and verified transition integrity (Fleet Snapshot).

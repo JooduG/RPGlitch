@@ -101,7 +101,7 @@ To optimize cognitive load, tasks are triaged into three complexity levels, each
 
 ---
 
-### 7. Completeness & Truncation
+### 6. Completeness & Truncation
 
 Any tool output that is truncated (e.g. `(...N more results not shown)`) represents a **Hard Stop**. You MUST NOT proceed with an audit or implementation assuming the hidden data is irrelevant.
 
@@ -111,17 +111,16 @@ Any tool output that is truncated (e.g. `(...N more results not shown)`) represe
 
 ---
 
-### 8. The Operational Heartbeat
+### 7. The Operational Heartbeat
 
-Every turn response must conclude with this metadata block to log operational weights. Include the active Role and Approach emojis.
+Every turn response must conclude with this metadata block to log operational weights. Include the active Role and Approach emojis. If no specific tool or MCP etc. was used, use "None".
 
 ```text
-#### 🕹️ Operational Heartbeat
-- **🎭 Role**: [Strategic/Tactical/Operational]
-- **🤔 Approach**: [Contemplative/Sequential/Professional]
-- **🤖 AGENTS.md**: [Specific step from AGENTS.md]
-- **📜 Rules**: [Active rule enforced this turn]
-- **🧠 Capabilities**: [Skill or Workflow utilized]
-- **💾 State**: [Specific file in .agent/project-management/ updated]
-- **🛠️ Tools & MCPs**: [Specific tool or MCP-server called]
+### 🕹️ Operational Heartbeat
+- **🎭 Role**: [.agent/skills/orchestrator/]
+- **📜 Rules**: [.agent/rules/]
+- **🧠 Skill**: [.agent/skills/]
+- **🛤️ Workflow**: [.agent/workflows/]
+- **🛠️ Tools**: [Specific tool used]
+- **📡 MCPs**: [Specific MCP called]
 ```

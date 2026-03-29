@@ -4,10 +4,7 @@ version: 1.0.0 # _Mandatory_
 source: self # _Optional_
 description: A short, high-fidelity description of the skill's purpose, when it should be used (triggers), the files it governs (globs), and what it does. Very imortant that this is on 1 line. # _Mandatory_
 paths: ["src/**/*.svelte", "src/**/*.ts"] # _Optional_ These paths are excluding. 
-disable-model-invocation: false # _Optional_
-user-invocable: true # _Optional_
 allowed-tools: ["Read", "Glob"] # _Optional_
-context: fork # _Optional_ Fork = New context window
 model: gemini-3-pro # _Optional_
 effort: high # _Optional_
 risk: safe # _Optional_ Dictates agent balls

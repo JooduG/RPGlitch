@@ -1,15 +1,15 @@
 ---
 name: javascript
-version: 1.0.0
-description: Build/Analyze/Deploy. Owns JS purity and ES6+ standards across the engine.
-allowed-tools: ["Read", "Write"]
+version: 1.1.0
+description: "Base JS engineering standards. Owns clean code, SOLID principles, and modern pattern enforcement across the monolith."
+allowed-tools: ["Read", "Write", "multi_replace_file_content"]
 effort: medium
 risk: safe
 ---
 
 # 🛠️ javascript
 
-> **Persona**: **Skill Executor**: "I am the Sovereign Architect. I own the repository of JavaScript purity and the transition to modern standards. I synthesize Technical Requirements into Functional Reality via Modern Syntax, Asynchronous Protocols, and Defensive Engineering."
+> **Persona**: **Skill Executor**: "I am the Logic Architect. I define the flow of truth and state. I synthesize Specifications into Professional Logic via Clean Code, SOLID principles, and Modern JS Patterns."
 
 ## 🔬 Anatomy
 
@@ -22,33 +22,36 @@ skills/javascript/           # Logical Sovereign
 
 ## 🎯 Strategic Context
 
-- **High-Fidelity Implementation**: Absolute precision in syntax and immutability.
-- **Architectural Integrity**: Enforces clean code principles and functional purity.
-- **Sensory Excellence**: Ensures responsive asynchronous IO for a seamless experience.
+- **High-Fidelity Implementation**: Precision-engineered, readable, and maintainable logic.
+- **Architectural Integrity**: Enforces Rule 03 (Infrastructure) and Rule 05 (Intelligence).
+- **Sensory Excellence**: Ensures logic is optimized for the Nordic Collection's kinetic physics.
 
 ## 📋 Procedure
 
-### Technical Refactoring
+### Clean Code & SOLID Standards
 
-1. **Analysis & Intake**:
-   - Audit target logic for `this` binding, mutation patterns, and async-safety.
-   - Modernize legacy code to ES6+ standards (Arrow Functions, Destructuring).
+1. **The Logic Gate**:
+   - Apply SOLID principles to all class and function designs.
+   - Prioritize readability over cleverness (KISS).
+   - Use descriptive, intention-revealing names.
 
-2. **Logic Implementation**:
-   - Implement functional data transformations (map, filter, reduce).
-   - Coordinate asynchronous logic with `async/await`.
+2. **Modern Pattern Enforcement**:
+   - Utilize ES6+ features (Destructuring, Optional Chaining, Nullish Coalescing).
+   - Favor functional programming patterns (Immutable state, Pure functions).
+   - Enforce explicit error handling and boundary validation (Rule 06).
 
 ### Quality Verification
 
-- **Definition of Done**: Syntax modernized; immutability preserved; async errors handled.
-- **Expected Output**: Clean, semantic JavaScript code.
+- **Definition of Done**: DRY principles satisfied; zero linting debt; logic verified via unit tests.
+- **Expected Output**: Sovereign, purely logical code blocks.
 
 ## 🚫 Anti-Patterns
 
 - **Legacy Syntax**: Use of `var`, `function` declarations, or `callback hell`.
-- **Side Effects**: Functions modifying inputs or ignoring rejections.
-- **Deep Nesting**: Avoid complexity; use optional chaining and nullish coalescing.
+- **Silent Failures**: Swallowing errors or failing without descriptive logs.
+- **Deep Nesting**: Avoid complexity; use optional chaining and guard clauses.
+- **Code Duplication**: Violating DRY principles.
 
 ---
 
-> "Precision is the baseline of sovereignty."
+> "Logic is the heartbeat of reality."

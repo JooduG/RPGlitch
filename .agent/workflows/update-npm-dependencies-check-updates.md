@@ -36,18 +36,13 @@ date_added: 2024-03-29
 1. **Candidate Review**: Run `npm run update:check` (or `ncu -i`). Select the packages for update. [[Invoke: devops]](../skills/devops/)
 2. **Execution**: Apply the updates and run `npm install`.
 
-### Phase 3: Validation (Step 6: Completion)
+### Phase 3: Finalization
 
-1. **Regression Test**: Run `npm run build` and `npm test` to ensure zero breakage from the new versions. [[Invoke: warden]](../skills/warden/)
-2. **Sanity Check**: Verify the application runtime for any breaking changes (Step 6.3).
+- **Definition of Done**: Updated package.json and package-lock.json verified via regression tests.
+- **Expected Output**: Normalized dependency baseline and verified scan results (Update Log).
 
 ## Anti-Patterns
 
 - **Blind Updating**: Updating all packages without a post-update test suite.
 - **Dependency Bloat**: Adding new packages instead of updating existing ones.
 - **Ignoring Warnings**: Closing the update turn while audit warnings still exist.
-
-## Output: Update Log
-
-- Updated package.json and package-lock.json.
-- Verified scan results.

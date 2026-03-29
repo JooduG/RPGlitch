@@ -140,14 +140,21 @@
 - [x] Phase 3: Validation (Achieved 100% test pass and "PERFECT SCORE" verification).
 - [x] Phase 4: Persistence (Updated Mission Board, Log, and Next).
 
+### [DONE] [026] [Tactical Planning Integration]
+
+- [x] Phase 1: Planning (Defined 'plan-writing' and 'concise-planning' protocols).
+- [x] Phase 2: Implementation (Updated orchestration-tactics/SKILL.md).
+- [x] Phase 3: Validation (Audit pass; Sovereign alignment verified).
+
 ### [WIP] [023] [Nordic Glass Refactor]
 
 - [x] Phase 1: Planning (Drafted Nordic Glass Drawer implementation plan).
-    - [x] Phase 2: Storyboard Polish (Fixed phantom cursors, signature defaults, glass-base purity, and Stylelint debt).
-    - [/] Phase 3: Drawer & Modal Migration (Apply var(--glass-xl) to LibraryDrawer and ProfileModal).
-    - [ ] Phase 4: Atomic Parity (Align LibraryCard with Storyboard material density).
-    - [ ] Phase 5: Verification (Zero-debt audit pass).
-### [WIP] [025] [Project Hygiene & Technical Debt Purge (/03-clean)]
+- [x] Phase 2: Storyboard Polish (Fixed phantom cursors, signature defaults, glass-base purity, and Stylelint debt).
+- [x] Phase 3: Drawer & Modal Migration (Apply var(--glass-xl) to LibraryDrawer and ProfileModal).
+- [ ] Phase 4: Atomic Parity (Align LibraryCard with Storyboard material density).
+- [ ] Phase 5: Verification (Zero-debt audit pass).
+
+### [WIP] [025] Project Hygiene & Technical Debt Purge (/03-clean)
 
 - [~] Phase 1: Diagnosis (Ran `npm run clean`, identified 40+ lint/audit violations across CSS and nomenclature).
 - [~] Phase 2: Execution (Fixing `gli/` directory casing, sub-script debuggers, and atomic CSS specificity).

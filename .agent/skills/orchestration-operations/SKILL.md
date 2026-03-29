@@ -1,6 +1,6 @@
 ---
 name: orchestration-operations
-version: 1.0.0
+version: 1.1.0
 description: The Level 1 Implementer & Auditor. Owns the final fabrication of code, CSS aesthetics, and technical audit.
 allowed-tools: ["Read", "Write", "run_command", "command_status"]
 effort: high
@@ -28,15 +28,29 @@ skills/orchestration-operations/           # Logical Sovereign
 
 ## 📋 Procedure
 
-### Implementation & TDD Loop
+### Executing Plans & TDD Loop
 
-1. **The Micro-Beat Loop**:
-   - RED: Write a failing unit test or reproduction case.
-   - GREEN: Write minimal code to pass the test.
-   - REFACTOR: Cleanup while maintaining GREEN.
+1. **Load and Review Plan**:
+   - Read the plan file and review it critically before starting.
+   - Identify any questions or concerns about the plan and raise them with your human partner.
+   - If the plan is approved, announce: *"I'm using the executing-plans skill to implement this plan."*
 
-2. **Final Verification**:
-   - Run `npm run audit` before marking a task as complete.
+2. **Execute Batch (Default: 3 tasks)**:
+   - For each task in the batch:
+     - Mark the task state as `in_progress` in the [Log Book](../../project-management/log.md).
+     - **The Micro-Beat Loop**:
+       - RED: Write a failing unit test or reproduction case.
+       - GREEN: Write minimal code to pass the test.
+       - REFACTOR: Cleanup while maintaining GREEN.
+     - Run all specified verifications and TDD protocols.
+     - Mark the task as `completed` once verified.
+
+3. **Report & Wait**:
+   - When the batch is complete, show what was implemented and provide verification output.
+   - Say: *"Ready for feedback."* and wait for architect review before proceeding to the next batch.
+
+4. **Complete Development**:
+   - After all tasks are finished and verified, announce: *"I'm using the finishing-a-development-branch skill to complete this work."*
 
 ### State & Aesthetic Sovereignty
 
@@ -46,8 +60,10 @@ skills/orchestration-operations/           # Logical Sovereign
 ## 🚫 Anti-Patterns
 
 - **Blind Implementation**: Coding without a verified implementation plan.
+- **Non-Contiguous Batches**: Executing more than 3 tasks without a checkpoint or skipping verification.
 - **Aesthetic Drifting**: Using raw hex colors instead of Chalk tokens.
 - **State-over-DOM Violations**: Reading UI state from HTML elements instead of Runes.
+- **Dangling Blockers**: Forcing through blockers or guessing instructions instead of asking.
 
 ---
 
