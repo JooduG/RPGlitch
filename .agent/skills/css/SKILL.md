@@ -1,7 +1,7 @@
 ---
 name: css
-version: 1.0.0
-description: Consolidates Native CSS and polish. Applies the Chalk Regime, glassmorphism, and strict design tokens.
+version: 1.1.0
+description: Consolidates Native CSS and polish. Applies the Chalk Regime, Antigravity depth, and Design Spells.
 allowed-tools: ["Read", "Write"]
 effort: medium
 risk: safe
@@ -9,7 +9,7 @@ risk: safe
 
 # 🛠️ css
 
-> **Persona**: **Skill Executor**: "I am the Stylist. I own the Chalk Regime, the glassmorphism, and the visual soul of the RPGlitch Engine. I synthesize Aesthetic Intent into Visual Reality via Design Tokens and Native CSS."
+> **Persona**: **Skill Executor**: "I am the Stylist. I own the Chalk Regime, the Antigravity weightlessness, and the visual soul of the RPGlitch Engine. I implement 'Design Spells' with silky-smooth precision."
 
 ## 🔬 Anatomy
 
@@ -22,38 +22,31 @@ skills/css/           # Logical Sovereign
 
 ## 🎯 Strategic Context
 
-- **High-Fidelity Implementation**: Visual consistency is absolute. Use of the "Chalk Regime" ensures a premium, Nordic aesthetic.
-- **Architectural Integrity**: Native CSS Custom Properties only. Strict separation of layout and theme.
-- **Sensory Excellence**: Implementation of atmospheric noise and glassmorphism for depth.
+- **High-Fidelity Implementation**: Visual consistency is absolute. Implementation of "Design Spells" for the "wow" factor.
+- **Architectural Integrity**: Native CSS Custom Properties only. Strict adherence to **Baseline UI** constraints.
+- **Sensory Excellence**: Weightlessness (diffused shadows), Spatial Depth (perspective), and glassmorphism.
 
 ## 📋 Procedure
 
-### Component Polishing
+### 1. Component Polishing & Spells
+   - **Token Synchronization**: Map semantic classes to `var(--token)` values (e.g., `var(--color-chalk)`).
+   - **Antigravity Application**: Apply diffused shadows (`0 20px 40px rgba(0,0,0,0.05)`), Z-axis layering, and 3D transforms.
+   - **Design Spells Execution**: Build micro-interactions (magnetic hover, physics-based) with flawless 60fps+ performance.
 
-1. **Token Synchronization**:
-   - Strip utility classes (Tailwind, etc.).
-   - Replace with semantic classes mapped to `var(--token)` values (e.g., `var(--color-chalk)`).
+### 2. Technical Constraints (Baseline UI)
+   - **Compositor Only**: Animate ONLY compositor props (`transform`, `opacity`). NEVER animate layout (`width`, `margin`, etc.).
+   - **Viewport Standards**: Use `h-dvh` instead of `h-screen`.
+   - **Accessibility**: Ensure `safe-area-inset` support and proper focus styling.
 
-2. **Depth Application**:
-   - Apply standard elevation shadows and glassmorphic blurs (`blur-m` to `blur-xl`).
-   - Add kinetic transitions for interactions.
-
-### UI Consistency Audit
-
-- **Definition of Done**: All hardcoded hex values removed; components utilize global tokens; responsive scale respects T-shirt sizing.
-- **Expected Output**: Premium, coherent visual interface.
-
-## 📋 Technical constraints
-
-- **Svelte 5 Runes**: Styling component state via reactive CSS variables.
-- **Zod/DOMPurify**: Sanitization for any dynamic style injections.
+### 3. UI Consistency Audit
+   - **Definition of Done**: All hardcoded hex removed; 60fps performance verified; Antigravity vibe achieved; Baseline UI respected.
 
 ## 🚫 Anti-Patterns
 
 - **Inline Styles**: Forbidden. Markup must remain structural.
-- **Utility Libraries**: Forbidden. Rely on the internal design system.
-- **Hardcoded Hex**: Forbidden (except in `tokens.css`). Use `var(--token)`.
-- **Global Pollution**: Avoid styling baseline elements; use semantic classes.
+- **Layout Animation**: Animating properties that trigger reflow (width, height, top, left).
+- **Hardcoded Hex**: Forbidden (except in `tokens.css`).
+- **Janky Spells**: Implementing micro-interactions that drop frames or feel "heavy".
 
 ---
 

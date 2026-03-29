@@ -27,24 +27,24 @@ risk: safe
 ## 📋 Procedure
 
 ### 1. Strategic Sync & Discovery
-   - **Task-Model Fit**: Evaluate if the task is suited for LLM processing (Synthesis, Subjective Judgment) or traditional code (Precise Computation, Real-time).
-   - **Manual Prototyping**: Validate intent with a manual test before investing in automation.
-   - **Context Discovery**: Gather context using the **Question Hierarchy** (Scale, Team, Timeline, Domain, Constraints).
-   - **Project Classification Matrix**: Classify the project (MVP, SaaS, Enterprise) to select the appropriate architectural density.
+- **Task-Model Fit**: Evaluate if the task is suited for LLM processing (Synthesis, Subjective Judgment) or traditional code (Precise Computation, Real-time).
+- **Manual Prototyping**: Validate intent with a manual test before investing in automation.
+- **Context Discovery**: Gather context using the **Question Hierarchy** (Scale, Team, Timeline, Domain, Constraints).
+- **Project Classification Matrix**: Classify the project (MVP, SaaS, Enterprise) to select the appropriate architectural density.
 
 ### 2. Architectural Design & Topography
-   - **File System State Machine**: Map the project topography. Mandate that state is tracked via directory structure and file existence (e.g., `parsed.json` existence gates the render stage).
-   - **Pipeline Architecture**: Enforce the `acquire → prepare → process → parse → render` sequence. Ensure stages are discrete, idempotent, and cacheable.
-   - **Multi-Agent Coordination**: Select the orchestration mode (Supervisor, Swarm, or Hierarchical) to ensure **Context Isolation**.
-   - **Full-Stack Orchestration**: For complex features, follow the staged foundation:
+- **File System State Machine**: Map the project topography. Mandate that state is tracked via directory structure and file existence (e.g., `parsed.json` existence gates the render stage).
+- **Pipeline Architecture**: Enforce the `acquire → prepare → process → parse → render` sequence. Ensure stages are discrete, idempotent, and cacheable.
+- **Multi-Agent Coordination**: Select the orchestration mode (Supervisor, Swarm, or Hierarchical) to ensure **Context Isolation**.
+- **Full-Stack Orchestration**: For complex features, follow the staged foundation:
      1. **Database Architecture Design** (ERDs, Table Schemas, Migrations).
      2. **Backend Service Architecture** (API Contracts, OpenAPI/GraphQL, Auth).
      3. **Frontend Component Architecture** (Hierarchy, State, Routing).
 
 ### 3. Structural Execution & Meta-Memory
-   - **Architecture Decision Framework**: Capture rationale, requirements, and trade-offs for significant decisions (ADRs).
-   - **Simplicity Mandate**: "Simplicity is the ultimate sophistication. Start simple. Add complexity ONLY when proven necessary."
-   - **Definition of Done**: Insights updated; topography verified; pipeline stages defined; intent grounded in physics.
+- **Architecture Decision Framework**: Capture rationale, requirements, and trade-offs for significant decisions (ADRs).
+- **Simplicity Mandate**: "Simplicity is the ultimate sophistication. Start simple. Add complexity ONLY when proven necessary."
+- **Definition of Done**: Insights updated; topography verified; pipeline stages defined; intent grounded in physics.
 
 ## 🚫 Anti-Patterns
 

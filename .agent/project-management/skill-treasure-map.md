@@ -12,9 +12,9 @@ This document maps the technical "treasures" identified in the `scribbles.md` co
 | **executing-plans** | 📂 **orchestration-operations/SKILL.md** | **[INTEGRATED]** Merged batch-execution (3-task default) and reporting protocols into the TDD loop. |
 | **github-workflow-automation**, **github-actions-templates**, **ai-native-cli**, **ai-engineering-toolkit**, **github-automation** | 📂 **GLI/SKILL.md** | **[NEW]** General Logistics Interface. Owns repository management, automation, and AI-native engineering specs. |
 | **conductor-\*** (setup, status, manage, new-track, validator, implement, revert), **multi-agent-patterns**, **antigravity-skill-orchestrator**, **behavioral-modes**, **agents-md** (Instruction management), **multi-agent-brainstorming** | 📂 **orchestrator/SKILL.md** | **[REFINED]** The "Frontal Cortex." Manages execution loops, track control (Conductor), and persona orchestration. |
-| **audit-skills**, **audit-context-building**, **agentic-actions-auditor**, **bdistill-behavioral-xray** | 📂 **warden/SKILL.md** | **[REFINED]** Defensive auditing and behavioral security verification. |
-| **memory-systems**, **agent-memory-systems**, **agent-memory-mcp**, **bdistill-knowledge-extraction**, **bdi-mental-states** | 📂 **data/SKILL.md** | Persistent knowledge and state memory for the "Echo" layer. |
-| **design-spells**, **design-orchestration**, **antigravity-design-expert**, **baseline-ui** | 📂 **designer/SKILL.md** & **css/SKILL.md** | Aesthetic laws and creative "spells" (Chalk Regime). |
+| **audit-skills**, **audit-context-building**, **agentic-actions-auditor**, **bdistill-behavioral-xray** | 📂 **warden/SKILL.md** | **[INTEGRATED]** Defensive auditing and behavioral security verification. |
+| **memory-systems**, **agent-memory-systems**, **agent-memory-mcp**, **bdistill-knowledge-extraction**, **bdi-mental-states** | 📂 **data/SKILL.md** | **[INTEGRATED]** Persistent knowledge and state memory for the "Echo" layer. |
+| **design-spells**, **design-orchestration**, **antigravity-design-expert**, **baseline-ui** | 📂 **designer/SKILL.md** & **css/SKILL.md** | **[INTEGRATED]** Aesthetic laws and creative "spells" (Chalk Regime). |
 | **architecture**, **full-stack-orchestration-\***, **project-development** | 📂 **orchestration-strategy/SKILL.md** | **[INTEGRATED]** High-level project management, strategic design, and structural integrity. |
 
 ---

@@ -9,11 +9,13 @@
 - [x] **javascript Skill Refinement**: Infused with SOLID principles, Clean Code mandates, and ES6+ standards.
 - [x] **prompting Skill Expansion**: Integrated 11 specialized frameworks (RTF, RISEN, etc.) and "Magic Mode" silent optimization.
 - [x] **Strategic Orchestration**: Integrated high-level architecture and project development frameworks.
+- [x] **Aesthetic Orchestration**: Infused Designer and CSS skills with magic spells and Antigravity depth.
+- [x] **Data & Memory Integration**: Infused Data skill with cognitive memory architectures and BDI modeling.
+- [x] **Defensive Hardening**: Infused Warden skill with deep context auditing, platform scanning, and behavioral X-rays.
 - [x] **Ecosystem Audit**: Verified 100% Sovereign status (120/120) across all 12 internal skills.
 
 ## 🔜 Next Actions
 
 - [ ] **[WIP] [023] Nordic Glass Refactor**: Apply `var(--glass-xl)` to `LibraryDrawer` and `ProfileModal`.
 - [ ] **[WIP] [025] Project Hygiene**: Resolve remaining Stylelint/ESLint debt in `StoryboardCard.svelte`.
-- [ ] **Memory & Lore Integration**: Infuse `data/SKILL.md` with 'memory-systems' and 'knowledge-extraction' treasures.
 - [ ] **Audit Deployment**: Verify the monolithic production bundle after skill updates.
