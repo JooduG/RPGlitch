@@ -4,10 +4,6 @@
     "compounds": []
   },
   "files.exclude": {
-    "**/.geminiignore": true,
-    "**/.gemini/[!s]*": true,
-    "**/.gemini/s[!e]*": true,
-    "**/GEMINI.md": true,
     "**/.agent/settings.json": true,
     "**/.playwright-auth/**": true,
     "**/.DS_Store": true,

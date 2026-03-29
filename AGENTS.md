@@ -35,25 +35,43 @@ Assess the symptom and draft your suspected causes before taking any action.
 
 For Medium and High-Risk tasks, you must validate your hypothesis before writing code. Identify the exact nature of your roadblock to select the right toolkit. Are you missing external facts, or are you struggling to process the complexity of the task?
 
-- **3.1 KNOWLEDGE DEFICIT** (Need External Facts): _Coordinate specialized MCPs for deep inquiry._
-    - **Context7**: Up-to-date documentation and library patterns. Tools: `resolve-library-id` and `query-docs`.
-    - **Svelte**: Official Svelte 5 logic and code verification. Tools: `get-documentation` and `list-sections`.
-    - **Deepwiki**: GitHub repository intelligence and existing architecture analysis. Tools: `read_wiki_structure` and `read_wiki_contents`.
-    - **[Data](./.agent/skills/data)**: Local MCP server for accessing cloud storage. Tools: `read_knowledge_base`, `describe_knowledge_base` and `query_cold_storage`. 
-    - **Firecrawl**: Web scraping and data extraction. Tools: `firecrawl_scrape`, `firecrawl_map`, `firecrawl_search`, `firecrawl_extract`, `firecrawl_browser_create`, `firecrawl_browser_execute`, `firecrawl_browser_delete` and `firecrawl_browser_list`.
-    - **Github**: Tools: `get_file_contents`, `search_code` and `search_repositories`.
-    - Autonomous Bias: When exploring, missing optional tool parameters is acceptable. **Execute the tool with available info instead of halting to ask the user**.
+### 3.1 KNOWLEDGE DEFICIT (Need External Facts): Coordinate specialized MCPs for deep inquiry
 
-- **3.2 PROCESSING DEFICIT** (Need Cognitive Structuring): _Select the appropriate MCP server reasoning framework based on the shape of the problem._
-    - **Multi-step problem** requiring **dynamic breakdown**, **chain-of-thought**, and **course correction**? -> Trigger `mcp-sequentialthinking-tools`.
-    - Requiring a **unified mental model** or routing across **multiple cognitive patterns**? -> Trigger `waldzell-clear-thought`.
-    - Needing **diverse simulated expertise**, **productive disagreement**, or **stakeholder synthesis**? -> Trigger `waldzell-collaborative-reasoning`.
-    - Evaluating complex **trade-offs**, **options**, **multi-criteria choices**, or **probability estimates**? -> Trigger `waldzell-decision-framework`.
-    - High risk of **bias**, high **uncertainty**, or needing **strict knowledge boundary calibration**? -> Trigger `waldzell-metacognitive-monitoring`.
-    - Testing **cause-and-effect**, **controlling variables**, or **evaluating competing technical explanations**? -> Trigger `waldzell-scientific-method`.
-    - Dealing with **deep uncertainty** and needing to optimize sequences (MDPs, MCTS, Bayesian)? -> Trigger `waldzell-stochasticalgorithm`.
-    - Resolving **competing claims**, **dialectical reasoning**, or evaluating architectural **pros/cons**? -> Trigger `waldzell-structured-argumentation`.
-    - Mapping **system architecture**, **data flow**, **algorithms**, or **spatial problem solving**? -> Trigger `waldzell-visual-reasoning`.
+- **Context7**: Up-to-date documentation and library patterns. 
+    - Tools: `resolve-library-id` and `query-docs`.
+- **Svelte**: Official Svelte 5 logic and code verification. 
+    - Tools: `get-documentation` and `list-sections`.
+- **DeepWiki**: GitHub repository intelligence and existing architecture analysis. 
+    - Tools: `read_wiki_structure` and `read_wiki_contents`.
+- **[Data](./.agent/skills/data)**: Local MCP server for accessing cloud storage. 
+    - Tools: `read_knowledge_base`, `describe_knowledge_base` and `query_cold_storage`. 
+- **FireCrawl**: Web scraping and data extraction. 
+    - Tools: `firecrawl_scrape`, `firecrawl_map`, `firecrawl_search`, `firecrawl_extract`, `firecrawl_browser_create`, `firecrawl_browser_execute`, `firecrawl_browser_delete` and `firecrawl_browser_list`.
+- **GitHub**: 
+    - Tools: `get_file_contents`, `search_code` and `search_repositories`.
+
+**Autonomous Bias**: When exploring, missing optional tool parameters is acceptable. _Execute the tool with available info instead of halting to ask the user_
+
+### 3.2 PROCESSING DEFICIT (Need Cognitive Structuring): Select the appropriate MCP server reasoning framework based on the shape of the problem
+
+- **Multi-step problem** requiring **dynamic breakdown**, **chain-of-thought**, and **course correction**?
+    - Trigger `mcp-sequentialthinking-tools`.
+- Requiring a **unified mental model** or routing across **multiple cognitive patterns**?
+    - Trigger `waldzell-clear-thought`.
+- Needing **diverse simulated expertise**, **productive disagreement**, or **stakeholder synthesis**?
+    - Trigger `waldzell-collaborative-reasoning`.
+- Evaluating complex **trade-offs**, **options**, **multi-criteria choices**, or **probability estimates**?
+    - Trigger `waldzell-decision-framework`.
+- High risk of **bias**, high **uncertainty**, or needing **strict knowledge boundary calibration**?
+    - Trigger `waldzell-metacognitive-monitoring`.
+- Testing **cause-and-effect**, **controlling variables**, or **evaluating competing technical explanations**?
+    - Trigger `waldzell-scientific-method`.
+- Dealing with **deep uncertainty** and needing to optimize sequences (MDPs, MCTS, Bayesian)?
+    - Trigger `waldzell-stochasticalgorithm`.
+- Resolving **competing claims**, **dialectical reasoning**, or evaluating architectural **pros/cons**?
+    - Trigger `waldzell-structured-argumentation`.
+- Mapping **system architecture**, **data flow**, **algorithms**, or **spatial problem solving**?
+    - Trigger `waldzell-visual-reasoning`.
 
 ## ⚖️ 4. Evaluation & Adaptability
 
