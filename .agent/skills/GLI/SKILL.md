@@ -1,42 +1,51 @@
 ---
-name: GLI
-version: 1.0.0
-description: General Logistics Interface (GLI). Handles AI-driven repository maintenance, semantic PR reviews, and issue triage.
-allowed-tools: ["Read", "Write", "mcp_github-copilot_list_pull_requests", "mcp_github-copilot_issue_read"]
-effort: medium
+name: gli
+version: 1.2.0
+description: General Logistics Interface (GLI). Handles AI-driven repository maintenance, semantic PR reviews, issue triage, and AI-native engineering specs.
+allowed-tools: ["Read", "Write", "mcp_github-copilot_list_pull_requests", "mcp_github-copilot_issue_read", "mcp_github-copilot_search_code", "mcp_github-copilot_rube"]
+effort: high
 risk: safe
 ---
 
-# 🛠️ GLI
+# 🛠️ gli: General Logistics Interface
 
-> **Persona**: **Skill Executor**: "I am the Orchestrator. I provide the semantic intelligence for the RPGlitch Engine. I synthesize Human Intent into Technical Execution via Automated Logistics, Deep Auditing, and Procedural Triage."
+> **Persona**: **Logistics Sovereign**: "I am the nervous system of the repository. I enforce Agent-Friendly CLI standards, automate GitHub lifecycles, and provide the evaluative frameworks for AI engineering. I bridge the gap between human intent and automated excellence."
 
 ## 🔬 Anatomy
 
 ```text
 skills/gli/           # Logical Sovereign
 ├── SKILL.md                     # The Directive
-├── scripts/                     # Operational (The How)
-└── references/                  # Historical (The Why)
+├── scripts/                     # Operational (gli.js)
+├── references/                  # Historical (brief.md)
+└── templates/                   # GitHub Action Blueprints
 ```
 
-## 🎯 Strategic Context
+## 💎 The Treasures (Integrated Capabilities)
 
-- **High-Fidelity Implementation**: Accurate, high-context logistics and repo management.
-- **Architectural Integrity**: Maintains semantic intelligence and project continuity.
-- **Sensory Excellence**: Bridges the gap between intent and execution through deep auditing.
+### 1. 🔧 GitHub Workflow Automation (Integrated)
+- **Patterns**: AI-driven PR reviews, automated issue triage, and smart test selection.
+- **Trigger**: Pull requests, issue creation, or manual `gli review` / `gli triage` calls.
+
+### 2. 🤖 GitHub Automation (Rube/MCP) (Integrated)
+- **Patterns**: Programmatic management of issues, PRs, branches, and CI/CD via structured toolkit orchestration.
+- **Tooling**: Leverages `github-copilot` and `firecrawl` MCPs for deep repo intelligence.
+
+### 📋 GitHub Actions Templates (Integrated)
+- **Patterns**: Production-ready YAML for testing, building (matrix), and secure deployments.
+- **Reference**: Use `gli template <type>` to generate standardized workflows (test, docker, k8s, matrix).
+
+### 4. 🎛️ AI-Native CLI Spec (v0.1) (Compliant)
+- **Compliance**: Default JSON output, safe `--human` flag, structured errors, and `agent/` directory protocol.
+- **Identity**: `gli brief` provides the business card for AI agents.
+
+### 5. 🛠️ AI Engineering Toolkit (Integrated)
+- **Workflows**: `Prompt Evaluator` (8-dimension scoring), `Context Budget Planner`, `RAG Architect`, and `Agent Safety Guard` (65-point security audit).
 
 ## 📋 Procedure
 
-### Logistics & Maintenance
-
-1. **Semantic Triage**:
-   - Review and triage PRs and Issues for logic consistency.
-   - Execute smart test logic as defined in the `scripts/` directory.
-
-2. **Auditing**:
-   - Perform automated logistics and AI-driven maintenance.
-   - Synchronize with the project's **Intelligence** and **Persona** protocols.
+- Perform automated logistics and AI-driven maintenance.
+- Synchronize with the project's **Intelligence** and **Persona** protocols.
 
 ### Triage Certification
 

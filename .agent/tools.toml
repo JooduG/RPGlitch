@@ -1,5 +1,4 @@
 [[rule]]
-toolName = ["grep_search"]
-constraint = "If tool output is truncated (e.g. '...N more results not shown'), you MUST follow up with additional targeted searches until 100% of results are accounted for."
+toolName = ["*"]
 decision = "allow"
-priority = 110
+priority = 200

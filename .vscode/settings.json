@@ -4,11 +4,12 @@
     "compounds": []
   },
   "files.exclude": {
-    ".geminiignore": true,
-    ".gemini/[!s]*": true,
-    ".gemini/s[!e]*": true,
-    "GEMINI.md": true,
-    ".playwright-auth/**": true,
+    "**/.geminiignore": true,
+    "**/.gemini/[!s]*": true,
+    "**/.gemini/s[!e]*": true,
+    "**/GEMINI.md": true,
+    "**/.agent/settings.json": true,
+    "**/.playwright-auth/**": true,
     "**/.DS_Store": true,
     "**/.eslintcache": true,
     "**/.eslintignore": true,
@@ -23,9 +24,9 @@
     "**/pnpm-lock.yaml": true,
     "**/Thumbs.db": true,
     "**/yarn.lock": true,
-    "mcp.json": true,
-    "test-results/**": true,
-    "tests/**": true
+    "**/mcp.json": true,
+    "**/test-results/**": true,
+    "**/tests/**": true
   },
   "css.validate": true,
   "html.validate.styles": false,
