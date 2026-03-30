@@ -46,7 +46,7 @@
 - [x] **intake Skill**: Intent Decoding, Incubation, & Feature Gateway (Sovereign).
 - [x] **Simulation Skill**: Round/Turn Orchestration & Narrative Bridges (Sovereign).
 - [x] **Warden Skill**: Security, Hygiene (Janitor), & Structural Purity (Sovereign).
-- [x] Align core orchestration skills with Unified Orchestrator Mode research. (Track: unified-orchestrator-alignment.md).
+- [x] Deconstructed orchestrator skill into Relay Model (intake, strategy, tactics, operations). (Track: unified-orchestrator-alignment.md).
 - [x] **Designer Skill**: Creative Direction, Aesthetics, & Sensory Orchestration.
 - [x] **Boot & Knowledge Audit**: Completed /00-boot and archive migration.
 - [x] **Agent Auditor Expansion**: Integrated Rules and Workflows into the Reflex Engine.
@@ -107,7 +107,7 @@
 - [x] Phase 3: Engine Integration (Enhanced `audit-engine.js` with `--agent` support).
 - [x] Phase 4: Validation (Verified 100% resonance with `npm run verify`).
 
-### [DONE] [020] [orchestrator: Sovereign 2.0]
+### [DONE] [020] [Orchestration System: Relay Model]
 
 - [x] **Phase 1: Grounding/Plan** (/01-plan): Terminology alignment and Research.
 - [x] **Phase 2: Execution/Build** (/02-build): Updated `SKILL.md`, `TRACK.template.md`, and `intake/SKILL.md`.
@@ -118,7 +118,7 @@
 - [x] **Semantic UI Refactor** (Glassmorphism Purge).
 - [x] **Infrastructure Wiring** (NTFS junctions to .gemini/).
 - [x] **Configuration Alignment (config.yaml)** (Aligned `.agent/config.yaml` with Sovereign Rebranding).
-- [x] **Rule-Set Synchronization**: Aligned Rule 01-05 with AGENTS.md and moved the Implementation M-Sequence to Rule 03.
+- [x] **Rule-Set Synchronization**: Aligned Rule 01-05 with GEMINI.md and moved the Implementation M-Sequence to Rule 03.
 
 ### [DONE] [021] [Sovereign Anatomy Refactor]
 

@@ -5,13 +5,13 @@ import path from "path";
 const ROOT_DIR = process.cwd();
 
 /**
- * ⚒️ orchestrator: GLOBAL STATE SYNC
+ * 🎨 orchestration-tactics: GLOBAL STATE SYNC
  * ---------------------------------
  * Reconciles the mission board, task tracks, and ignore files.
  */
 
 console.log("\n================================================================================");
-console.log("⚒️  THE orchestrator: GLOBAL STATE SYNC");
+console.log("🎨  TACTICAL: GLOBAL STATE SYNC");
 console.log("================================================================================\n");
 
 // 1. Sync eslint.config.js, .gitignore, .geminiignore, linter ignores, and vscode settings
@@ -88,7 +88,7 @@ function syncIgnores() {
 
 // 2. Trigger Janitor (Warden)
 function runJanitor() {
-  console.log("\n🧹 Triggering Antigravity Janitor...");
+  console.log("\n sweep Triggering Antigravity Janitor...");
   try {
     execSync("npm run audit:skills", { stdio: "inherit" });
     console.log("✅ Backlog synchronized.");

@@ -1,24 +1,54 @@
 # Project Topography & Sovereign State
 
-The `RPGlitch` agent projects follows a strict state-sovereignty topography to ensure AI continuity and technical purity.
+The `RPGlitch` agent projects follows a strict state-sovereignty topography to ensure AI continuity and technical purity. All operations must ground themselves in the **Axiomatic Laws**.
 
-## 1. [Project Management](../../../project-management/)
+## [**Axiomatic** Laws](../../../../GEMINI.md)
 
-- [Mission Board](../../../project-management/mission-board.md): The macro-state. Defines the high-level objective and active tracks.
-- [log](../../../project-management/log.md): The registry. Lists all initialized, active, and archived feature tracks.
-- [Tracks](../../../project-management/tracks/): The micro-state. Individual files containing the detailed implementation history for a single feature.
-- [Next](../../../project-management/next.md): The handoff. Contains instructions and environment context for the next session.
+### [1. **Logic** & **Constraints**](../../../../GEMINI.md#️-1-logical-dependencies--constraints)
+- [**Foundation**](../../../rules/01-foundation.md): The persona and prime directives.
+- [**Simulation**](../../../rules/02-simulation.md): The narrative engine and heartbeat.
+- [**Infrastructure**](../../../rules/03-infrastructure.md): The tech stack (Svelte 5 / Runes).
+- [**Aesthetics**](../../../rules/04-aesthetics.md): The Nordic Collection & Chalk Regime.
+- [**Intelligence**](../../../rules/05-intelligence.md): Lexical laws and cognitive routing.
+- [**Compliance**](../../../rules/06-compliance.md): Security boundaries and technical debt.
 
-## 2. [Rules](../../../rules/)
+### [2. **Hypothesis** & **Triage**](../../../../GEMINI.md#-2-hypothesis-generation--triage)
+- [**Intake**](../../../skills/intake/SKILL.md): Semantic border checkpoint for intent decoding.
+- [**Directives**](../../../skills/directives/SKILL.md): Architecture of the `.agent/` shards.
+- [**Prompting**](../../../skills/prompting/SKILL.md): Expert instruction architecture.
 
-- [Foundation](../../../rules/01-foundation.md): The persona and prime directives.
-- [Infrastructure](../../../rules/03-infrastructure.md): The tech stack (Svelte 5 / Runes) and physical zoning.
-- [Intelligence](../../../rules/05-intelligence.md): The lexical laws and cognitive routing.
+### [3. **Research** & **Cognition**](../../../../GEMINI.md#-3-deep-research--cognitive-routing)
+- [**Knowledge Deficit**](../../../../GEMINI.md#31-knowledge-deficit): External facts via **Context7**, **FireCrawl**, and **DeepWiki**.
+- [**Svelte Specialist**](../../../skills/svelte/SKILL.md): Official Svelte 5 logic verification.
+- [**Data**](../../../skills/data/SKILL.md): Local knowledge base and cold storage.
+- [**Stitch**](../../../skills/stitch/SKILL.md): Design system reverse-engineering.
+- [**Processing Deficit**](../../../../GEMINI.md#32-processing-deficit): Reasoning via **Clear-Thought**, **Collaborative-Reasoning**, and **SequentialThinking**.
 
-## 3. Data Flow
+### [4. **Evaluation** & **Adaptability**](../../../../GEMINI.md#️-4-evaluation--adaptability)
+- **Pivot Protocol**: Architectural conflict resolution.
+- **State Sync**: Mission Board alignment.
 
-1.  **Intake** -> [intake](../../intake/SKILL.md) (Decoding & Spec)
-2.  **Routing** -> [Mission Board](../../../project-management/mission-board.md)
-3.  **Tracking** -> [Tracks](../../../project-management/tracks/) (Feature Shards)
-4.  **Execution** -> TDD loop (Red-Green-Refactor)
-5.  **Wrap** -> [Next](../../../project-management/next.md) + Git Notes
+### [5. **Execution** & **Grounding**](../../../../GEMINI.md#️-5-the-execution--grounding-sequence)
+- [**Strategic**](../../../skills/orchestration-strategy/SKILL.md): High-level architecture and swarm command.
+- [**Tactical**](../../../skills/orchestration-tactics/SKILL.md): Planning, scoping, and track management.
+- [**Operations**](../../../skills/orchestration-operations/SKILL.md): Direct implementation and execution.
+- [**Designer**](../../../skills/designer/SKILL.md): Meta-skill for [CSS](../../../skills/css/SKILL.md), [Motion](../../../skills/motion/SKILL.md), and [Audio](../../../skills/audio/SKILL.md).
+- [**Simulation**](../../../skills/simulation/SKILL.md): Narrative logic and [Image Generation](../../../skills/image-generation/SKILL.md).
+
+### [6. **Completeness** & **Quality**](../../../../GEMINI.md#-6-completeness--quality-gate)
+- [**Swarm Captain**](../../../skills/swarm/SKILL.md): Parallel execution and confidence checks.
+- [**Warden**](../../../skills/warden/SKILL.md): Zero-Trust security and QA.
+- [**DevOps**](../../../skills/devops/SKILL.md): Build logic and workspace hygiene.
+
+### [7. **Persistence** & **Circuit Breakers**](../../../../GEMINI.md#-7-persistence-patience--circuit-breakers)
+- **Circuit Breaker**: Mandatory self-audit protocol (metacognitiveMonitoring).
+
+### [8. **Inhibit Response**](../../../../GEMINI.md#-8-inhibit-your-response)
+- [**Log Book**](../../../orchestration/operation-logs.md): Historical registry.
+- [**Mission Board**](../../../orchestration/strategy-board.md): Current objective state.
+
+---
+
+## 🧭 Data Flow
+Every interaction follows the reactive heart rate:
+1. **Intake** (Decoding) → 2. **Routing** (Strategy/Tactics) → 3. **Execution** (Operations/Swarm) → 4. **Verification** (Warden/QA).

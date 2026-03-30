@@ -32,7 +32,7 @@ date_added: 2024-03-29
 ### Phase 1: Foundational Scaffolding (Step 1.2: Order of Ops)
 
 1. **State First**: Define the reactive state models using Svelte 5 Runes. Prioritize data integrity over UI layout. [[Invoke: svelte]](../skills/svelte/)
-2. **Logic Wiring**: Connect state mutations to the Core Engine. Maintain strict separation of concerns—pure IO only. [[Invoke: orchestrator]](../skills/orchestrator/)
+2. **Logic Wiring**: Connect state mutations to the Core Engine. Maintain strict separation of concerns—pure IO only. [[Invoke: orchestration-tactics]](../skills/orchestration-tactics/)
 
 ### Phase 2: Cosmetic Polish (Step 5: Execution)
 
@@ -41,7 +41,7 @@ date_added: 2024-03-29
 
 ### Phase 3: Logic Grounding (Step 4: Persistence)
 
-1. **Persistence**: Anchor the new state in Dexie.js (IndexedDB). Ensure memory continuity. [[Invoke: orchestrator]](../skills/orchestrator/)
+1. **Persistence**: Anchor the new state in Dexie.js (IndexedDB). Ensure memory continuity. [[Invoke: orchestration-tactics]](../skills/orchestration-tactics/)
 
 ## Anti-Patterns
 

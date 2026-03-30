@@ -14,34 +14,49 @@ risk: safe
 ## 🔬 Anatomy
 
 ```text
-skills/intake/           # Logical Sovereign
-├── SKILL.md                     # The Directive
-├── scripts/                     # Operational (The How)
-└── references/                  # Historical (The Why)
+skills/intake/
+├── SKILL.md        
+├── scripts/ # Validator
+├── templates/ # Concept, Consultation & Design
+└── references/ # NON-CANON - Idea Incubator
 ```
 
 ## 🎯 Strategic Context
 
-- **High-Fidelity Implementation**: Accurate decoding of user intent for Phase 1 (Research & Grounding).
-- **Architectural Integrity**: Adheres to Rules 02 (Simulation) and 05 (Intelligence).
-- **Sensory Excellence**: Translates aesthetic "vibs" into rigorous functional specifications.
+- **High-Fidelity Implementation**: Practical implementation of intent decoding for [User Intent Decoding](../../../GEMINI.md#15-intent-decoding).
+- **Architectural Integrity**: Adheres to rules [Infrastructure](../../rules/03-infrastructure.md) and [Intelligence](../../rules/05-intelligence.md).
+- **Sensory Excellence**: Translates aesthetic "vibes" into rigorous functional specifications adhering to [Aesthetics](../../rules/04-aesthetics.md).
 
 ## 📋 Procedure
 
 ### Intent & Discovery Gate
 
 1. **Signal-to-Noise Triage**:
-   - Score input from Noisy to Crystalline.
-   - If Noisy, trigger the **Interrogative Loop (One Question Policy)**.
+   - Score input from Noisy to Crystalline Clear understanding.
+   - If Noisy, trigger the **Interrogation Loop** with the *One Question Policy*.
 
-2. **Mirror Protocol**:
+2. **Complexity Triage (The Conductor's Bridge)**:
+   - Once intent is clear, assign a Complexity Level and route to the optimal role.
+   - **Mandate**: An orchestration turn MUST act in exactly ONE role.
+
+| Level | Task Type | Flow | Role(s) |
+| :--- | :--- | :--- | :--- |
+| **Level 1** | **Quick Fix** | ⚡ `Operational` | ⚒️ Direct implement/hotfixes. |
+| **Level 2** | **Enhancement** | 🧠 `Tactical` → ⚡ `Operational` | 🎨 Plan first, then execute. |
+| **Level 3** | **Complex Feature** | 🤔 `Strategic` → 🧠 `Tactical` → ⚡ `Operational` | 🎭 Architecture first, then plan, then execute. |
+
+3. **Mirror Protocol**:
    - Reflect goal back to the user ("So, we're building X to achieve Y?") and propose 2-3 options with trade-offs.
    - Present final specification for a "Semantic Handshake."
 
 ### Technical Handover
 
-- **Definition of Done**: Intent is decoded; crystalline spec generated; Protagonist handshake received.
-- **Expected Output**: A crystalline functional specification ready for implementation.
+- **Definition of Done**: Intent decoded; complexity assigned; crystalline spec generated; Protagonist handshake received.
+- **Expected Output**: A crystalline functional specification ready for implementation or planning.
+- **Handover Logic**:
+    - **Level 1**: Handover directly to [Operations](../orchestration-operations/SKILL.md).
+    - **Level 2**: Handover to [Tactics](../orchestration-tactics/SKILL.md).
+    - **Level 3**: Handover to [Strategy](../orchestration-strategy/SKILL.md).
 
 ## 🚫 Anti-Patterns
 

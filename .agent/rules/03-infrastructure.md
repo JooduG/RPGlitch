@@ -74,4 +74,4 @@ Once a plan is approved and grounded, execute using this atomic sequence:
 
 - **Relative Resolution**: Internal references MUST use relative paths (e.g., `[Log](../project-management/log.md)`).
 - **Absolute Grounding**: Technical explanations MUST map to actual file paths and line numbers.
-- **Navigator Protocol**: Adhere to the **Context Protocol** defined in **[AGENTS.md](../../AGENTS.md)**.
+- **Navigator Protocol**: Adhere to the **Context Protocol** defined in **[GEMINI.md](../../GEMINI.md)**.

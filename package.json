@@ -121,7 +121,7 @@
     "lint:md": "markdownlint-cli2 \"**/*.{md,mdx}\" \"!node_modules\" \"!.agent/archive\" \"!.agent/project-management\"",
     "lint:md:fix": "markdownlint-cli2 --fix \"**/*.{md,mdx}\" \"!node_modules\" \"!.agent/archive\" \"!.agent/project-management\"",
     "preview": "vite preview --port 8080",
-    "sync": "node .agent/skills/orchestrator/scripts/sync.js",
+    "sync": "node .agent/skills/orchestration-tactics/scripts/sync.js",
     "test": "node .agent/skills/orchestration-operations/scripts/summarize.js test:unit test:e2e",
     "test:e2e": "playwright test",
     "test:ui": "vitest --ui",

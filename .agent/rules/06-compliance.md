@@ -50,7 +50,7 @@ We do not leave messes. Adhere to the **Boy Scout Rule**: Always leave the codeb
 
 Ensure that no task track gets a `[x]` without a logical audit.
 
-- **Mandatory Reasoning**: Every transmission should echo the **[AGENTS.md](../../AGENTS.md)** reasoning pipeline.
+- **Mandatory Reasoning**: Every transmission should echo the **[GEMINI.md](../../GEMINI.md)** reasoning pipeline.
 - **The Proving Grounds**:
 
   | Layer       | Framework     | Requirement                                           |
@@ -72,7 +72,7 @@ Code must be chemically pure. We do not tolerate "Vibe Slop" or AI-isms in code 
 
 ### 5. Constitutional Authority
 
-In the event of an architectural or logical conflict, **[AGENTS.md](../../AGENTS.md)** serves as the high-level arbiter.
+In the event of an architectural or logical conflict, **[GEMINI.md](../../GEMINI.md)** serves as the high-level arbiter.
 
 - **Conflict Resolution**: Follow Step 7.1 of the Global Mandate. Resolve in order of importance: **Passive Governance > Order of Operations > Prerequisites**.
 - **Inhibition**: Follow Step 9. Never act without explicit reasoning and verification.

@@ -18,12 +18,12 @@ date_added: 2024-03-29
 MUST INVOKE [Intake](../skills/intake/SKILL.md). 
 - And then inject: 
     - [Intelligence](../rules/01-foundation.md)
-    - [Orchestrator](../skills/orchestrator/)
+    - [Intake](../skills/intake/)
 
 ## Capabilities: Decision Matrix
 
 - **Feature Discovery**: [10x Strategic Mode](./10x.md)
-- **Problem Solving**: [Sequential Thinking](../skills/orchestrator/)
+- **Problem Solving**: [Sequential Thinking](../skills/orchestration-tactics/)
 - **Risk Analysis**: [Warden Debugging](../skills/warden/)
 
 ## Procedure

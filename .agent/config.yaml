@@ -3,7 +3,6 @@
 # 🧠 Skills (Capabilities)
 skills:
   directives: .agent/skills/directives/SKILL.md
-  orchestrator: .agent/skills/orchestrator/SKILL.md
   orchestration-operations: .agent/skills/orchestration-operations/SKILL.md
   orchestration-tactics: .agent/skills/orchestration-tactics/SKILL.md
   orchestration-strategy: .agent/skills/orchestration-strategy/SKILL.md

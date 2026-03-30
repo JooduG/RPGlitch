@@ -14,10 +14,10 @@ risk: safe
 ## 🔬 Anatomy
 
 ```text
-skills/designer/           # Logical Sovereign
-├── SKILL.md                     # The Directive
-├── scripts/                     # Operational (The How)
-└── references/                  # Historical (The Why)
+skills/designer/
+├── SKILL.md
+├── templates/
+└── references/
 ```
 
 ## 🎯 Strategic Context
@@ -26,6 +26,10 @@ skills/designer/           # Logical Sovereign
 - **Architectural Integrity**: Ensures strict adherence to Rule 04 (Aesthetics) and the Antigravity Design principles.
 - **Sensory Excellence**: Orchestrates UI/UX, CSS, Motion, and Audio into a weightless, spatial interface.
 - **Design Orchestration**: Meta-skill for routing work: `Brainstorming → Review → Validated Design → Implementation`.
+- **Specialist Skills**
+    - [CSS](../css/SKILL.md)
+    - [Motion](../motion/SKILL.md)
+    - [Audio](../audio/SKILL.md)
 
 ## 📋 Procedure
 

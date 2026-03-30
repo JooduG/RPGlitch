@@ -28,7 +28,7 @@ date_added: 2024-03-29
 
 ### Phase 1: Baton Discovery (Step 1.2: Order of Ops)
 
-1. **Log Parsing**: Scan the [Log Book](../project-management/log.md) for the active track `[/]`. Identify the last successful action and the next pending step. [[Invoke: Orchestrator]](../skills/orchestrator/)
+1. **Log Parsing**: Scan the [Log Book](../project-management/log.md) for the active track `[/]`. Identify the last successful action and the next pending step. [[Invoke: orchestration-tactics]](../skills/orchestration-tactics/)
 2. **Track Integrity**: If multiple tracks are in progress, prioritize the one marked as the "active" baton.
 
 ### Phase 2: Reasoning Sync (Step 1.3: Prerequisites)

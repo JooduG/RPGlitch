@@ -14,10 +14,8 @@ risk: safe
 ## 🔬 Anatomy
 
 ```text
-skills/motion/           # Logical Sovereign
-├── SKILL.md                     # The Directive
-├── scripts/                     # Operational (The How)
-└── references/                  # Historical (The Why)
+skills/motion/
+└── SKILL.md/
 ```
 
 ## 🎯 Strategic Context

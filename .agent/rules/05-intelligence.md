@@ -71,37 +71,26 @@ To optimize cognitive load, tasks are triaged into three complexity levels, each
 #### **Level 1: Quick Fix (⚒️ Operational Role)**
 
 - **Scope**: Typos, CSS tweaks, minor logic, or well-defined single-file edits.
-- **Approach**: ⚡ **Professional Coding**.
-- **Execution**: Bypass Step 3 Research. Proceed directly to Step 5.
-- **Skill**: `orchestration-operations`.
+- **Approach**: ⚡ *Professional Coding*. Direct execution, TDD, quick fixes, and cleanup.    
+- **Skill**: [Orchestration Operations](../../.agent/skills/orchestration-operations/SKILL.md).
 
 #### **Level 2: Enhancement (🎨 Tactical Role)**
 
 - **Scope**: New small features, refactors, state migrations, or multi-file logic changes.
-- **Approach**: 🧠 **Sequential Thinking**.
+- **Approach**: 🧠 *Sequential Thinking* (mcp: `mcp-sequentialthinking-tools`). Multi-step logic, tool-guided analysis, implementation plans.
 - **Execution**: Full analysis and implementation plan required.
-- **Skill**: `orchestration-tactics` (for scoping).
+- **Skill**: [Orchestration Tactics](../../.agent/skills/orchestration-tactics/SKILL.md).
 
 #### **Level 3: Complex Feature (🎭 Strategic Role)**
 
 - **Scope**: Major architectural changes, new core systems, or highly ambiguous requirements.
-- **Approach**: 🤔 **Contemplative Thinking**.
+- **Approach**: 🤔 *Contemplative Thinking* (mcp: `waldzell-clear-thought`). Deep exploration, architectural mapping, reframing.
 - **Execution**: Trigger `warden:debugging` if high risk. Requires transition from `intake` to `strategy`.
-- **Skill**: `orchestration-strategy` (for architecture).
+- **Skill**: [Orchestration Strategy](../../.agent/skills/orchestration-strategy/SKILL.md).
 
 ---
 
-### 5. Thinking Approach Triggers
-
-| Approach          | Marker | Trigger Framework              | When to Use                                                   |
-| :---------------- | :----- | :----------------------------- | :------------------------------------------------------------ |
-| **Contemplative** | 🤔     | `waldzell-clear-thought`       | Deep exploration, architectural mapping, reframing.           |
-| **Sequential**    | 🧠     | `mcp-sequentialthinking-tools` | Multi-step logic, tool-guided analysis, implementation plans. |
-| **Professional**  | ⚡     | Internal Logic                 | Direct execution, TDD, quick fixes, and cleanup.              |
-
----
-
-### 6. Completeness & Truncation
+### 5. Completeness & Truncation
 
 Any tool output that is truncated (e.g. `(...N more results not shown)`) represents a **Hard Stop**. You MUST NOT proceed with an audit or implementation assuming the hidden data is irrelevant.
 
@@ -111,15 +100,15 @@ Any tool output that is truncated (e.g. `(...N more results not shown)`) represe
 
 ---
 
-### 7. The Operational Heartbeat
+### 6. The Operational Heartbeat
 
-Every turn response must conclude with this metadata block to log operational weights. Include the active Role and Approach emojis. If no specific tool or MCP etc. was used, use "None".
+Every turn response must conclude with this metadata block to log operational weights. Include the active Role and Thinking Approach emojis.
 
 ```text
 ### 🕹️ Operational Heartbeat
-- **🎭 Role**: [.agent/skills/orchestrator/]
+- **🎭 Role**: [Strategy 🤔 | Tactics 🧠 | Operations ⚡]
 - **📜 Rules**: [.agent/rules/]
-- **🧠 Skill**: [.agent/skills/]
+- **🧠 Skills**: [.agent/skills/]
 - **🛤️ Workflow**: [.agent/workflows/]
 - **🛠️ Tools**: [Specific tool used]
 - **📡 MCPs**: [Specific MCP called]

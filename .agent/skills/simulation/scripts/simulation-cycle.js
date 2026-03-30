@@ -1,6 +1,6 @@
 /**
  * @file simulation-cycle.js
- * 🕹️ THE PULSE: The Simulation Cycle Orchestrator.
+ * 🕹️ THE PULSE: The Simulation Cycle Processor.
  * Governs Rule 02 and the transition between turns.
  */
 

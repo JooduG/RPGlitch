@@ -1,7 +1,7 @@
 ---
 name: javascript
 version: 1.1.0
-description: "Base JS engineering standards. Owns clean code, SOLID principles, and modern pattern enforcement across the monolith."
+description: "Base JS engineering standards. Owns clean code, SOLID principles, and modern pattern enforcement across the monolith. MUST be invoked when working on ANY JavaScript code."
 allowed-tools: ["Read", "Write", "multi_replace_file_content"]
 effort: medium
 risk: safe
@@ -14,10 +14,9 @@ risk: safe
 ## 🔬 Anatomy
 
 ```text
-skills/javascript/           # Logical Sovereign
-├── SKILL.md                     # The Directive
-├── scripts/                     # Operational (The How)
-└── references/                  # Historical (The Why)
+skills/javascript/
+├── SKILL.md
+└── references/
 ```
 
 ## 🎯 Strategic Context

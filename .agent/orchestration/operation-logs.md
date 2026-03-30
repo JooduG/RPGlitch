@@ -4,7 +4,7 @@
 
 ## ⚡ Active Tracks
 
-- **Executive Orchestration Integration**: Infused `orchestrator` skill with the 'Master Conductor' lifecycle (new-track, implement, revert), 'Multi-Agent Patterns' (Supervisor, Swarm, Hierarchy), and 'Behavioral Modes' (Brainstorm, Implement, Debug, Review). Implemented 'Complexity Triage' guardrails to prevent skill overuse. [Session: 29mar2026]
+- [x] **Relay Model Orchestration**: Deconstructed the monolithic `orchestrator` skill into specialized roles (intake, strategy, tactics, operations).
 - **Security Strategy Integration**: Infused `warden` skill with 'audit-skills' (cross-platform static analysis), 'audit-context-building' (ultra-granular line-by-line foundation), 'agentic-actions-auditor' (CI/CD and workflow security), and 'behavioral-xray' (systematic boundary probing). Hardened the "ICE" with deep context mandates. [Session: 29mar2026]
 - **Data & Memory Strategy Integration**: Infused `data` skill with 'memory-systems' (Context-Memory Spectrum), 'knowledge-extraction' (bdistill/adversarial), and 'BDI-mental-states' (Beliefs/Desires/Intentions). Integrated 'agent-memory-mcp' for persistent, relationship-aware storage (Knowledge Graphs). [Session: 29mar2026]
 - **Tactical Planning Integration**: Successfully integrated 'plan-writing' and 'concise-planning' treasures into `orchestration-tactics/SKILL.md`. Infused the scoper/planner with atomic 2-5 min task protocols and minimal-interaction strategies. Achieved **RESONANT** status in the audit engine. [Session: e8647ef0]
