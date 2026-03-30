@@ -96,7 +96,7 @@ ${text}
     const { ai, user, fractal, history, mode = "visualize" } = context || {};
     const { style, lighting, mood, quality } = selections;
     const grounding = [style, lighting, mood, quality].filter(Boolean).join(", ");
-    let ctxBlock = "";
+    let ctxBlock;
     switch (targetType) {
       case "scene":
         ctxBlock = `

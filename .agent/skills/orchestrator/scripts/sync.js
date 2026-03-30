@@ -50,6 +50,7 @@ function syncIgnores() {
   const lineBased = [
     { file: ".gitignore", patterns: [...common, ...(master.gitignore || [])] },
     { file: ".geminiignore", patterns: [...common, ...(master.geminiignore || [])] },
+    { file: ".antigravityignore", patterns: [...common, ...(master.antigravityignore || [])] },
     { file: ".htmlhintignore", patterns: [...common, ...(master.linters?.htmlhint || [])] },
     { file: ".markdownlintignore", patterns: [...common, ...(master.linters?.markdownlint || [])] },
     { file: ".prettierignore", patterns: [...common, ...(master.linters?.prettier || [])] },

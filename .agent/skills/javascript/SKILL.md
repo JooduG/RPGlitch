@@ -40,10 +40,27 @@ skills/javascript/           # Logical Sovereign
    - Favor functional programming patterns (Immutable state, Pure functions).
    - Enforce explicit error handling and boundary validation (Rule 06).
 
+### Modern Pattern Lexicon (The Core)
+
+1. **Async Orchestration**:
+   - **Parallelism**: Use `Promise.allSettled()` or `Promise.all()` for concurrent operations.
+   - **Resilience**: Implement `fetchWithRetry` and `withTimeout` wrappers for external I/O.
+   - **Streams**: Favor `Async Generators` for paginated or streaming data.
+
+2. **Functional Pipelines**:
+   - **Composition**: Use `pipe(...fns)` or `compose(...fns)` for data transformation sequences (e.g., `sanitize → transform → validate`).
+   - **Pure Power**: Maintain strict immutability using `spread` (`...`) and `structuredClone()` for deep copies.
+   - **Array Mastery**: Deep utilization of `flatMap`, `reduce`, and `Array.from` for complex state derivation.
+
+3. **Sovereign Class Design**:
+   - **Privacy**: Enforce true encapsulation using `#private` fields and methods.
+   - **Statics**: Use `static` factory methods (e.g., `User.create()`) for complex initialization.
+
 ### Quality Verification
 
 - **Definition of Done**: DRY principles satisfied; zero linting debt; logic verified via unit tests.
 - **Expected Output**: Sovereign, purely logical code blocks.
+- **Reference**: High-leverage patterns integrated from [Scribbles](../../../scribbles.md).
 
 ## 🚫 Anti-Patterns
 

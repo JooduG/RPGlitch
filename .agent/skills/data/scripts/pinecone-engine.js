@@ -124,7 +124,7 @@ export async function writeToKnowledgeBase({
       // Ignore "not found" or "no filter support" errors silently
     }
     const ext = path.extname(file);
-    let segments = [];
+    let segments;
     // Smart Splitting
     if (ext === ".md") {
       segments = content.split(/^#+\s/gm).filter((s) => s.trim().length > 20);

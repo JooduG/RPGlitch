@@ -46,7 +46,7 @@
 - [x] **intake Skill**: Intent Decoding, Incubation, & Feature Gateway (Sovereign).
 - [x] **Simulation Skill**: Round/Turn Orchestration & Narrative Bridges (Sovereign).
 - [x] **Warden Skill**: Security, Hygiene (Janitor), & Structural Purity (Sovereign).
-- [x] **orchestrator Skill**: Infrastructure, Rules, & Skill Lifecycle (Sovereign).
+- [x] Align core orchestration skills with Unified Orchestrator Mode research. (Track: unified-orchestrator-alignment.md).
 - [x] **Designer Skill**: Creative Direction, Aesthetics, & Sensory Orchestration.
 - [x] **Boot & Knowledge Audit**: Completed /00-boot and archive migration.
 - [x] **Agent Auditor Expansion**: Integrated Rules and Workflows into the Reflex Engine.
@@ -154,8 +154,20 @@
 - [ ] Phase 4: Atomic Parity (Align LibraryCard with Storyboard material density).
 - [ ] Phase 5: Verification (Zero-debt audit pass).
 
+### [WIP] [027] [Dependency Synchronization (/update-npm-dependencies-check-updates)]
+
+- [ ] Phase 1: Pre-Audit (`npm audit` reporting 2 moderate vulnerabilities).
+- [ ] Phase 2: Interactive Update (`ncu -i` execution).
+- [ ] Phase 3: Finalization (Test and verification).
+
 ### [WIP] [025] Project Hygiene & Technical Debt Purge (/03-clean)
 
 - [~] Phase 1: Diagnosis (Ran `npm run clean`, identified 40+ lint/audit violations across CSS and nomenclature).
 - [~] Phase 2: Execution (Fixing `gli/` directory casing, sub-script debuggers, and atomic CSS specificity).
 - [ ] Phase 3: Validation (Passing all project audits and verification loops).
+### [DONE] [028] [Unified Orchestrator Alignment]
+
+- [x] Phase 1: Planning (Aligned core orchestration skills with Research).
+- [x] Phase 2: Implementation (Updated `orchestrator`, `strategy`, `tactics`, and `operations` directives).
+- [x] Phase 3: Validation (Verified complexity routing and thinking approaches).
+- [x] Phase 4: Persistence (Updated Mission Board, Log, and Next).

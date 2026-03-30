@@ -7,62 +7,55 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PROJECT_ROOT = path.join(__dirname, "..", "..");
+const PROJECT_ROOT = path.join(__dirname, "..", "..", "..");
 const SKILLS_DIR = path.join(PROJECT_ROOT, ".agent", "skills");
 const RULES_DIR = path.join(PROJECT_ROOT, ".agent", "rules");
 const WORKFLOWS_DIR = path.join(PROJECT_ROOT, ".agent", "workflows");
-const ASSETS_DIR = path.join(__dirname, "..", "assets");
 
 // Helper: Ensure directory exists
 const ensureDir = (dir) => {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 };
 
-// Helper: Read and replace
-const processTemplate = (templatePath, replacements) => {
-  let content = fs.readFileSync(templatePath, "utf-8");
-  for (const [key, value] of Object.entries(replacements)) {
-    content = content.replaceAll(key, value);
-  }
-  return content;
-};
+// Helper: Slugify name
+const slugify = (name) => name.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
+
+// Helper: Title Case
+const titleCase = (text) => text.split("-").map(w => w[0].toUpperCase() + w.substring(1)).join(" ");
 
 /**
  * Creates a NEW Sovereign Asset
- * Usage: node forge-skill.js [type] [name] [description]
  */
-const forge = () => {
-  const [type, name, description] = process.argv.slice(2);
+const createSkill = async (name, type = "skill", description = "A Sovereign Asset") => {
+  const slug = slugify(name);
+  const searchType = type.toLowerCase();
+  let targetDir;
 
-  if (!type || !name || !description) {
-    console.error("❌ Usage: node forge-skill.js [skill|rule|workflow] [name] [description]");
-    process.exit(1);
+  switch (searchType) {
+    case "rule": targetDir = path.join(RULES_DIR, slug); break;
+    case "workflow": targetDir = WORKFLOWS_DIR; break;
+    default: targetDir = path.join(SKILLS_DIR, slug);
   }
 
-  const replacements = {
-    "Skill-Slug": slug,
-    "Rule-Slug": slug,
-    "Workflow-Slug": slug,
-    "Skill Title": titleCase(slug),
-    Description: description,
-    Persona: "The Sovereign Architect", // Default
-    Role: searchType.toUpperCase(),
-    Function: "orchestrate",
-    Goal: "technical purity",
-  };
+  ensureDir(targetDir);
 
-  Object.entries(replacements).forEach(([key, value]) => {
-    // Matches { { Key } } or {{Key}} or [Key]
-    const regex = new RegExp(`(\\{\\{\\s*${key}\\s*\\}\\}|\\[${key}\\])`, "gi");
-    content = content.replace(regex, value);
-  });
+  const content = `
+# ${titleCase(slug)}
 
-  fs.writeFileSync(path.join(targetDir, "SKILL.md"), content);
+${description}
+
+## Status
+- **Type**: ${searchType.toUpperCase()}
+- **Slug**: ${slug}
+- **Role**: Sovereign Agent Layer
+`.trim();
+
+  const fileName = searchType === "workflow" ? `${slug}.md` : "SKILL.md";
+  fs.writeFileSync(path.join(targetDir, fileName), content);
 
   console.log(`\n✅ FORGE SUCCESS: [${searchType.toUpperCase()}] '${slug}' instantiated.`);
   console.log(`📍 Path: ${targetDir}`);
-  console.log(`🚀 Next: node .agent/skills/directives/scripts/audit-skills.js audit ${slug}`);
-}
+};
 
 /**
  * 🚀 Main Dispatcher

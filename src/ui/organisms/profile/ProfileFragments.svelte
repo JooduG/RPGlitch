@@ -15,7 +15,7 @@
     auto_resize,
     busy_fields,
     render_markdown,
-    active_field = $bindable(),
+    active_field = $bindable(), // eslint-disable-line no-useless-assignment
   } = $props();
   /**
    * Utility to ensure the textarea receives an empty string for empty data.

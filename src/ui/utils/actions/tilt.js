@@ -20,7 +20,7 @@ export function tilt(node, options = {}) {
     ...options,
   };
   let width, height, left, top;
-  let transitionTimeout;
+  let transitionTimeout = null;
   // Initialize styles
   node.style.willChange = "transform";
   node.style.transformStyle = "preserve-3d";

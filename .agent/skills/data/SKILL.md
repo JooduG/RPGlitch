@@ -29,21 +29,21 @@ skills/data/           # Logical Sovereign
 ## 📋 Procedure
 
 ### 1. Knowledge Extraction & Ingestion (bdistill)
-   - **Compounding Memory**: Extract structured domain knowledge from every session. Use **Adversarial Validation** to challenge claims and ensure evidence-based entries.
-   - **Quality Scoring**: Assign category, quality_score, and confidence to ingested knowledge.
-   - **Structured Ingestion**: Use `mcp_data_write_knowledge_base` for semantic boundaries and embeddings.
+- **Compounding Memory**: Extract structured domain knowledge from every session. Use **Adversarial Validation** to challenge claims and ensure evidence-based entries.
+- **Quality Scoring**: Assign category, quality_score, and confidence to ingested knowledge.
+- **Structured Ingestion**: Use `mcp_data_write_knowledge_base` for semantic boundaries and embeddings.
 
 ### 2. Cognitive Architecture (BDI & KG)
-   - **Mental State Modeling**: Track the agent's **Beliefs** (world state), **Desires** (goals), and **Intentions** (action plans).
-   - **Knowledge Graphing**: Move beyond vector stores. Map relationships (Entity A → Relation R → Entity B) to enable complex reasoning and cross-agent memory.
-   - **Temporal Validity**: Implement temporal scoring/validity periods to distinguish current from outdated facts.
+- **Mental State Modeling**: Track the agent's **Beliefs** (world state), **Desires** (goals), and **Intentions** (action plans).
+- **Knowledge Graphing**: Move beyond vector stores. Map relationships (Entity A → Relation R → Entity B) to enable complex reasoning and cross-agent memory.
+- **Temporal Validity**: Implement temporal scoring/validity periods to distinguish current from outdated facts.
 
 ### 3. Retrieval & Memory Management
-   - **Retrieval Optimization**: Treat intelligence failures as retrieval failures. Use contextual chunking and metadata filtering.
-   - **Memory Operations**: 
-     - `memory_write`: Record institutional knowledge or ADR decisions.
-     - `memory_search`: Traverse the KG or vector space for similar past tasks.
-     - `memory_read`: Retrieve specific persistent state by key.
+- **Retrieval Optimization**: Treat intelligence failures as retrieval failures. Use contextual chunking and metadata filtering.
+- **Memory Operations**: 
+    - `memory_write`: Record institutional knowledge or ADR decisions.
+    - `memory_search`: Traverse the KG or vector space for similar past tasks.
+    - `memory_read`: Retrieve specific persistent state by key.
 
 ## 📊 Evaluation Rubric (Laws of Success)
 

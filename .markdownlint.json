@@ -13,5 +13,9 @@
   "MD032": false,
   "MD022": false,
   "MD009": false,
-  "MD060": false
+  "MD060": false,
+  "MD003": {
+    "style": "atx"
+  },
+  "MD040": false
 }

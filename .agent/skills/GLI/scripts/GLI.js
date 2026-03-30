@@ -5,12 +5,10 @@
  * Spec Version: v0.1 (Agent-Native)
  */
 
-import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const args = process.argv.slice(2);
 const flags = {
@@ -79,7 +77,29 @@ const META = {
   ]
 };
 
-// ... (main remains the same)
+/**
+ * MAIN DISPATCHER
+ */
+async function main() {
+  const command = args[0];
+
+  if (flags.help || !command) {
+    output(META);
+    return;
+  }
+
+  switch (command) {
+    case 'review': await handleReview(); break;
+    case 'triage': await handleTriage(); break;
+    case 'template': await handleTemplate(); break;
+    case 'eval': await handleEval(); break;
+    case 'audit': await handleAudit(); break;
+    case 'issue': await handleIssue(); break;
+    case 'brief': output(META); break;
+    case 'version': console.log(META.version); break;
+    default: error('USAGE_ERROR', `Command '${command}' not recognized.`);
+  }
+}
 
 async function handleReview() {
   output({ 

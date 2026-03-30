@@ -29,17 +29,17 @@ skills/css/           # Logical Sovereign
 ## 📋 Procedure
 
 ### 1. Component Polishing & Spells
-   - **Token Synchronization**: Map semantic classes to `var(--token)` values (e.g., `var(--color-chalk)`).
-   - **Antigravity Application**: Apply diffused shadows (`0 20px 40px rgba(0,0,0,0.05)`), Z-axis layering, and 3D transforms.
-   - **Design Spells Execution**: Build micro-interactions (magnetic hover, physics-based) with flawless 60fps+ performance.
+- **Token Synchronization**: Map semantic classes to `var(--token)` values (e.g., `var(--color-chalk)`).
+- **Antigravity Application**: Apply diffused shadows (`0 20px 40px rgba(0,0,0,0.05)`), Z-axis layering, and 3D transforms.
+- **Design Spells Execution**: Build micro-interactions (magnetic hover, physics-based) with flawless 60fps+ performance.
 
 ### 2. Technical Constraints (Baseline UI)
-   - **Compositor Only**: Animate ONLY compositor props (`transform`, `opacity`). NEVER animate layout (`width`, `margin`, etc.).
-   - **Viewport Standards**: Use `h-dvh` instead of `h-screen`.
-   - **Accessibility**: Ensure `safe-area-inset` support and proper focus styling.
+- **Compositor Only**: Animate ONLY compositor props (`transform`, `opacity`). NEVER animate layout (`width`, `margin`, etc.).
+- **Viewport Standards**: Use `h-dvh` instead of `h-screen`.
+- **Accessibility**: Ensure `safe-area-inset` support and proper focus styling.
 
 ### 3. UI Consistency Audit
-   - **Definition of Done**: All hardcoded hex removed; 60fps performance verified; Antigravity vibe achieved; Baseline UI respected.
+- **Definition of Done**: All hardcoded hex removed; 60fps performance verified; Antigravity vibe achieved; Baseline UI respected.
 
 ## 🚫 Anti-Patterns
 

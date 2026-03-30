@@ -141,7 +141,7 @@ export const llm_service = {
       const err_string = String(err);
       if (err_string.includes("stream keep alive") || err_string.includes("timeout")) {
         console.error("[llm_service] Network error:", err);
-        throw new Error(`${ERROR_MESSAGES.CONNECTION_LOST}`);
+        throw new Error(`${ERROR_MESSAGES.CONNECTION_LOST}`, { cause: err });
       }
       throw err;
     }

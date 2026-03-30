@@ -11,17 +11,9 @@ risk: safe
 
 > **Persona**: **Logistics Sovereign**: "I am the nervous system of the repository. I enforce Agent-Friendly CLI standards, automate GitHub lifecycles, and provide the evaluative frameworks for AI engineering. I bridge the gap between human intent and automated excellence."
 
-## 🔬 Anatomy
+## 🎯 Strategic Context
 
-```text
-skills/gli/           # Logical Sovereign
-├── SKILL.md                     # The Directive
-├── scripts/                     # Operational (gli.js)
-├── references/                  # Historical (brief.md)
-└── templates/                   # GitHub Action Blueprints
-```
-
-## 💎 The Treasures (Integrated Capabilities)
+The General Logistics Interface (GLI) integrates advanced repository management and AI-native engineering capabilities.
 
 ### 1. 🔧 GitHub Workflow Automation (Integrated)
 - **Patterns**: AI-driven PR reviews, automated issue triage, and smart test selection.
@@ -31,7 +23,7 @@ skills/gli/           # Logical Sovereign
 - **Patterns**: Programmatic management of issues, PRs, branches, and CI/CD via structured toolkit orchestration.
 - **Tooling**: Leverages `github-copilot` and `firecrawl` MCPs for deep repo intelligence.
 
-### 📋 GitHub Actions Templates (Integrated)
+### 3. 📋 GitHub Actions Templates (Integrated)
 - **Patterns**: Production-ready YAML for testing, building (matrix), and secure deployments.
 - **Reference**: Use `gli template <type>` to generate standardized workflows (test, docker, k8s, matrix).
 
@@ -41,6 +33,16 @@ skills/gli/           # Logical Sovereign
 
 ### 5. 🛠️ AI Engineering Toolkit (Integrated)
 - **Workflows**: `Prompt Evaluator` (8-dimension scoring), `Context Budget Planner`, `RAG Architect`, and `Agent Safety Guard` (65-point security audit).
+
+## 🔬 Anatomy
+
+```text
+skills/gli/           # Logical Sovereign
+├── SKILL.md                     # The Directive
+├── scripts/                     # Operational (gli.js)
+├── references/                  # Historical (brief.md)
+└── templates/                   # GitHub Action Blueprints
+```
 
 ## 📋 Procedure
 
