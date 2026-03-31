@@ -14,7 +14,4 @@
 - **UI Audit & Polish**: Standardized Chalk Regime tokens across atomic and organism layers. Implemented `kineticScroll` with momentum decay. [Branch: feat/ui-audit-polish]
 - **Nomenclature Audit**: Implemented `audit-nomenclature.js` enforcing Rule 05 lexical laws (kebab-case for files, PascalCase for Svelte components). Wired `audit:nomenclature` into `package.json` for automated enforcement. Achieved 0 violations across 100% of project items. [Branch: chore/nomenclature-audit]
 - **Sovereign Anatomy Refactor**: Enforced strict `scripts/`, `assets/`, `references/` triad across all skills. Migrated `references/`, renamed templates to `.template.md` suffix, and hardened `audit-skills.js` with structural exclusivity rules. Audit engine reports **0 violations**. [Branch: chore/sovereign-anatomy]
-
-## Archive
-
-- _Historical milestones moved to [.agent/orchestration/archive/historical-milestones.md](./archive/historical-milestones.md)_
+- [x] **Maintenance & Verification Success**: Resolved Sovereign Template violations in `07-fleet.md`, fixed linting escapes in `audit-skills.js`, and standardized project-wide markdown indentation to 2 spaces via `.markdownlint.json`. Handled Playwright E2E gate without file-system clutter. Achieved a **PERFECT SCORE** across all automated verification gates (Lint, Audit, Test). [Session: 74f133cb]

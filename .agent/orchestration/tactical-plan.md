@@ -35,8 +35,8 @@
 | ID        | Mission Name                     | Status  | Priority   | Linked Journal                       |
 | :-------- | :------------------------------- | :------ | :--------- | :----------------------------------- |
 | **[023]** | **Nordic Glass Refactor**        | `[WIP]` | `[High]`   | `docs/discovery/023-nordic-glass.md` |
-| **[025]** | **Project Hygiene & Debt Purge** | `[WIP]` | `[Medium]` | `docs/discovery/025-hygiene.md`      |
-| **[027]** | **Dependency Synchronization**   | `[WIP]` | `[Low]`    | `docs/discovery/027-npm-sync.md`     |
+| **[025]** | **Project Hygiene & Debt Purge** | `[DONE]` | `[Medium]` | `docs/discovery/025-hygiene.md`      |
+| **[027]** | **Dependency Synchronization**   | `[WIP]`  | `[Low]`    | `docs/discovery/027-npm-sync.md`     |
 
 ---
 
@@ -59,10 +59,10 @@
 
 **Goal**: Finalize `/03-clean` and achieve 100% technical purity.
 
-- [\~] **Beat 01**: Fix `SWARM/` directory casing and update internal script paths.
-- [\~] **Beat 02**: Remove sub-script debuggers from production logic.
-- [ ] **Beat 03**: Refactor Atomic CSS for higher specificity in glass containers.
-- [ ] **Beat 04**: **Run `npm run verify`** to confirm "PERFECT SCORE".
+- [x] **Beat 01**: Fix `SWARM/` directory casing and update internal script paths.
+- [x] **Beat 02**: Remove sub-script debuggers from production logic.
+- [x] **Beat 03**: Refactor Atomic CSS for higher specificity in glass containers.
+- [x] **Beat 04**: **Run `npm run verify`** to confirm "PERFECT SCORE".
 
 ---
 
@@ -77,6 +77,7 @@
 
 ## 🗄️ The Archive (Completed Missions)
 
+- **[025]** **Project Hygiene & Debt Purge**: 100% project-wide technical purity and verification.
 - **[028] Unified Orchestrator Alignment**: Aligned the core Trinity.
 - **[026] Tactical Planning Integration**: Defined the planning protocols.
 - **[024] Clinic Sanitization**: Fixed Modal selectors and Backdrop events.
