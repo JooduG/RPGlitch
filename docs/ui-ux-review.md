@@ -34,7 +34,7 @@ However, the aggressive use of glassmorphism (translucency + background blur) co
 - **Kinetic Scroll:** The custom drag-to-scroll mechanic on mobile will cause severe jitter because it fails to prevent the browser's native scrolling behavior during touch movements.
 
 ## Copy, labels, and structure
-- **Vague Role Labels:** In the Storyboard, roles are labeled "AI Character", "Fractal", and "User Persona". While descriptive, they are slightly technical. "Fractal" in particular is ambiguous—if it represents a setting or scenario, labeling it "World" or "Scenario" would significantly reduce cognitive load.
+- **Vague Role Labels:** In the Storyboard, roles are labeled "AI Companion", "Fractal", and "User Persona". While descriptive, they are slightly technical. "Fractal" in particular is ambiguous—if it represents a setting or scenario, labeling it "World" or "Scenario" would significantly reduce cognitive load.
 - **Drawer Headers:** "Select AI Companion" is good, but "Select User Persona" is a bit wordy. "Choose Your Persona" feels more direct and engaging.
 - **Empty States:** The drawer empty state says "No Realities Found" for fractals. If the user doesn't know what a Fractal/Reality is, this is confusing.
 - **Tooltips vs Visible Text:** Actions like "Change Character" or "View Profile" are hidden behind tooltips on icon buttons. Relying on tooltips for primary actions slows down the user.
