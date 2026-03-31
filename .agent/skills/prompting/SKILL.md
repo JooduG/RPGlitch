@@ -32,26 +32,34 @@ skills/prompting/
 ## 📋 Procedure
 
 ### Step 1: Signal Interception (Intent Analysis)
+
 **Analyze the raw task payload** received from Tactics.
+
 - **Categorize**: Is this Coding, Analysis, or Aesthetic Design?
 - **Assess Complexity**: Is it a Level 1 Quick-Fix or a Level 3 Structural Refactor?
 - **Identify Implicit Needs**: Does this require specific Svelte 5 Runes, Dexie schemas, or CSS Glassmorphism?
 
 ### Step 2: Framework Selection (The Matrix)
+
 **Select the optimal framework** from `references/matrix.md` without informing the user.
+
 - **RTF**: For role-based tasks.
 - **CoT**: For complex logic/reasoning.
 - **RISEN**: For structured, multi-step engineering.
 - **CoD**: For high-density summarization.
 
 ### Step 3: Magic Mode Synthesis (The Forge)
+
 **Fabricate the Directive**.
+
 - **Combine 2-3 frameworks** if the task is multi-dimensional (e.g., RISEN + CoT).
 - **Hardcode Constraints**: Ensure the prompt explicitly forbids Svelte 4 legacy patterns or "vibe slop."
 - **Inject Context**: Reference the exact file paths and line numbers provided by Tactics.
 
 ### Step 4: Validation Gate
+
 **Perform a final audit** of the generated prompt.
+
 - **Is it self-contained?** (Does the agent have everything they need to start?)
 - **Is it binary?** (Is the success criteria clearly defined?)
 - **Output the prompt** in a clean Markdown code block for the next node in the pipeline.

@@ -24,18 +24,18 @@
     <div class="voice-control-row">
       <div class="dropdown">
         <button
-        class="voice-btn"
-        type="button"
-        disabled={!is_editing}
-        onclick={() => (show_voice_dropdown = !show_voice_dropdown)}
-        title="Select Voice"
-      >
-        <span class="voice-name-truncate">
-          {format_voice_name(
-            Audio.voice.voices.find((v) => v.uri === char.voice.uri)?.name || "Select Voice",
-          )}
-        </span>
-      </button>
+          class="voice-btn"
+          type="button"
+          disabled={!is_editing}
+          onclick={() => (show_voice_dropdown = !show_voice_dropdown)}
+          title="Select Voice"
+        >
+          <span class="voice-name-truncate">
+            {format_voice_name(
+              Audio.voice.voices.find((v) => v.uri === char.voice.uri)?.name || "Select Voice",
+            )}
+          </span>
+        </button>
         <div class="dropdown-content" class:visible={show_voice_dropdown}>
           {#each Audio.voice.voices as voice (voice.uri)}
             <button
@@ -241,7 +241,7 @@
     max-height: 200px;
     overflow-y: auto;
     z-index: var(--z-index-max);
-    transition: 
+    transition:
       opacity var(--motion-fast) ease,
       transform var(--motion-fast) var(--motion-elastic);
   }
@@ -352,7 +352,7 @@
     background: var(--color-frozen);
     border-radius: var(--border-radius-full);
     cursor: pointer;
-    box-shadow: 
+    box-shadow:
       0 0 8px var(--color-frozen),
       var(--shadow-s);
     margin-top: -0.25rem; /* Centering on 0.25rem track */

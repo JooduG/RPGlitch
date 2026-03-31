@@ -1,37 +1,37 @@
-name: '🌙 The Night Shift (Hygiene & Security)'
+name: "🌙 The Night Shift (Hygiene & Security)"
 
 on:
   schedule:
-    - cron: '0 4 * * *' # Wakes up at 4:00 AM UTC every day
-  workflow_dispatch:    # Allows manual trigger from the Actions tab
+    - cron: "0 4 * * *" # Wakes up at 4:00 AM UTC every day
+  workflow_dispatch: # Allows manual trigger from the Actions tab
 
 jobs:
   janitorial-duties:
-    runs-on: 'ubuntu-latest'
+    runs-on: "ubuntu-latest"
     timeout-minutes: 15
     permissions:
-      contents: 'write'       # Required to commit janitorial fixes
-      pull-requests: 'write'  # Required if Jules needs to open a security PR
+      contents: "write" # Required to commit janitorial fixes
+      pull-requests: "write" # Required if Jules needs to open a security PR
 
     steps:
-      - name: '📥 Checkout Repository'
-        uses: 'actions/checkout@v4'
+      - name: "📥 Checkout Repository"
+        uses: "actions/checkout@v4"
         with:
           fetch-depth: 0 # Required for git diffs and memory embedding
 
-      - name: '⚙️ Setup Node.js'
-        uses: 'actions/setup-node@v4'
+      - name: "⚙️ Setup Node.js"
+        uses: "actions/setup-node@v4"
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
-      - name: '📦 Install Dependencies'
+      - name: "📦 Install Dependencies"
         run: npm install
 
-      - name: '🛡️ The Watchman (Rule 06 Security Scan)'
-        uses: 'google-labs-code/jules-action@v1.0.0'
+      - name: "🛡️ The Watchman (Rule 06 Security Scan)"
+        uses: "google-labs-code/jules-action@v1.0.0"
         with:
-          jules_api_key: '${{ secrets.JULES_API_KEY }}'
+          jules_api_key: "${{ secrets.JULES_API_KEY }}"
           prompt: |
             SYSTEM OVERRIDE: OBEY LOCAL CORE.
             MANDATORY PROTOCOL:
@@ -40,29 +40,29 @@ jobs:
             3. Target only Critical and High vulnerabilities.
             4. If you apply auto-fixes, ensure they strictly respect Svelte 5 Rune purity.
 
-      - name: '🧹 The Bouncer (Format & CSS Audit)'
+      - name: "🧹 The Bouncer (Format & CSS Audit)"
         run: |
           # Runs standard Svelte checks and custom Nordic Glass style audits.
           # We use || true so a linting failure doesn't halt the nightly commit.
           npm run check || true
           node .agent/skills/css/scripts/audit-css.js || true
 
-      - name: '📋 The Secretary (Janitor & Backlog)'
+      - name: "📋 The Secretary (Janitor & Backlog)"
         run: |
           # Extracts #TODO-AI tags from the codebase and updates the session backlog.
           node .agent/skills/warden/scripts/janitor.js || true
 
-      - name: '🧠 The RAG-Sweeper (Pinecone Memory Sync)'
+      - name: "🧠 The RAG-Sweeper (Pinecone Memory Sync)"
         env:
-          PINECONE_API_KEY: '${{ secrets.PINECONE_API_KEY }}'
+          PINECONE_API_KEY: "${{ secrets.PINECONE_API_KEY }}"
         run: |
           # Syncs current codebase state to Pinecone memory.
           node .agent/skills/data/scripts/index.js upsert || echo "Memory sync skipped/failed."
 
-      - name: '💾 Commit & Pass the Baton'
-        uses: 'stefanzweifel/git-auto-commit-action@v5'
+      - name: "💾 Commit & Pass the Baton"
+        uses: "stefanzweifel/git-auto-commit-action@v5"
         with:
-          commit_message: 'chore(night-shift): sync memory, enforce security, and purge slop'
-          commit_author: 'Antigravity Janitor <actions@github.com>'
+          commit_message: "chore(night-shift): sync memory, enforce security, and purge slop"
+          commit_author: "Antigravity Janitor <actions@github.com>"
           # Captures any code changes made by Jules, the formatter, or the Janitor script
-          file_pattern: 'src/**/*.svelte src/**/*.js src/**/*.css .agent/orchestration/*.md'
+          file_pattern: "src/**/*.svelte src/**/*.js src/**/*.css .agent/orchestration/*.md"

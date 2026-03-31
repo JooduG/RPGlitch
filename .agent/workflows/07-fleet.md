@@ -45,7 +45,7 @@ date_added: 2024-03-31
 
 ### Phase 4: Resonance Synthesis (The Merge)
 
-1. **Collective Review**: Consolidate the output of all sub-agents. 
+1. **Collective Review**: Consolidate the output of all sub-agents.
 2. **The 80% Gate**: Ensure the swarm has performed its own internal audit.
 3. **Global Audit**: Run a final compliance sweep to ensure no cross-file regressions. [[Invoke: Warden]](../skills/warden/SKILL.md)
 
@@ -55,7 +55,7 @@ date_added: 2024-03-31
 - **Token Flooding**: Launching more than 3 agents for a single mission without clear justification.
 - **Dirty Handoff**: Dispatching a swarm without a verified Pinecone context kernel.
 
-## Definition of Done
+### Definition of Done
 
 - **Mission Success**: Parallel tasks merged and verified.
 - **Historical Record**: Mission summary archived in Cold Storage.

@@ -1,6 +1,6 @@
 # 📋 Active AI Backlog
 
-*Last Swept: 2026-03-29T15:15:00Z*
+## Last Swept: 2026-03-29T15:15:00Z
 
 ## 🏁 Current Objective: [027] Skill Ecosystem Hardening
 

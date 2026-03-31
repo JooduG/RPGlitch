@@ -136,7 +136,9 @@
   :global(.vector-delete-btn.btn) {
     background: transparent;
     color: var(--font-color-s);
-    box-shadow: inset 0 0 0 var(--spacing-px) var(--signature-color), var(--glass-edge-l);
+    box-shadow:
+      inset 0 0 0 var(--spacing-px) var(--signature-color),
+      var(--glass-edge-l);
     width: var(--spacing-xl);
     height: var(--spacing-xl);
     padding: 0;

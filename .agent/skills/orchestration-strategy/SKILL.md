@@ -2,7 +2,15 @@
 name: orchestration-strategy
 version: 4.0.0
 description: The Product Owner & Strategic Sovereign. Intercepts vague intent, workshops concepts, and initiates new missions in the Command Center.
-allowed-tools: ["read_file", "write_file", "grep_search", "mcp_context7_resolve-library-id", "read_knowledge_base", "archive_log_entry"]
+allowed-tools:
+  [
+    "read_file",
+    "write_file",
+    "grep_search",
+    "mcp_context7_resolve-library-id",
+    "read_knowledge_base",
+    "archive_log_entry",
+  ]
 effort: high
 risk: safe
 ---
@@ -42,9 +50,9 @@ skills/orchestration-strategy/
 
 ### Artifact Generation
 
-- **If Level 2/3**: 
-    - Generate `discovery-journal.template.md` in `docs/discovery/`.
-    - Run `node scripts/spec-validator.js`.
+- **If Level 2/3**:
+  - Generate `discovery-journal.template.md` in `docs/discovery/`.
+  - Run `node scripts/spec-validator.js`.
 - **Else**: Proceed to Mission Initiation.
 
 ### Completion Criteria
@@ -56,6 +64,7 @@ skills/orchestration-strategy/
 - **Expected Output**: A crystalline mission entry in the Tactical Plan and matching archive record.
 
 ## 🚫 Anti-Patterns
+
 - **Amnesia**: Forgetting to check the **Mission Board** for conflicting goals before triaging.
 - **Premature Architecture**: Discussing Svelte 5 Runes or file paths. Stay in the realm of the **User**.
 - **Cognitive Flooding**: Asking the user more than two questions at a time.

@@ -2,7 +2,19 @@
 name: orchestration-tactics
 version: 4.0.0
 description: The Technical Architect & Tech Lead. Translates Strategy into structural topography and owns the unified tactical-plan.md Command Center.
-allowed-tools: ["codebase-review-question-audit", "questions-md-resolution-implementation", "prompting", "swarm", "mcp-sequentialthinking-tools", "read_file", "write_file", "run_shell_command", "read_knowledge_base", "write_knowledge_base"]
+allowed-tools:
+  [
+    "codebase-review-question-audit",
+    "questions-md-resolution-implementation",
+    "prompting",
+    "swarm",
+    "mcp-sequentialthinking-tools",
+    "read_file",
+    "write_file",
+    "run_shell_command",
+    "read_knowledge_base",
+    "write_knowledge_base",
+  ]
 effort: high
 risk: safe
 ---
@@ -42,11 +54,11 @@ skills/orchestration-tactics/
 ### Execution Routing
 
 - **If Swarm**:
-    - Generate `manifest.json`.
-    - Invoke Swarm Captain.
+  - Generate `manifest.json`.
+  - Invoke Swarm Captain.
 - **Else (Linear)**:
-    - Fabricate execution track in `tactical-plan.md`.
-    - Enforce 8-20 atomic beats.
+  - Fabricate execution track in `tactical-plan.md`.
+  - Enforce 8-20 atomic beats.
 
 ### Completion Criteria
 
@@ -60,4 +72,4 @@ skills/orchestration-tactics/
 - **Protocol Drift**: Asking the user for info the Auditor could find.
 - **Board Neglect**: Updating the files without updating the **`tactical-plan.md`** status.
 - **Monolithic Planning**: Creating beats that take more than 5 minutes.
-- **Syntax Leakage**: Writing code during the planning phase. Provide the *blueprint*, not the *bricks*.
+- **Syntax Leakage**: Writing code during the planning phase. Provide the _blueprint_, not the _bricks_.

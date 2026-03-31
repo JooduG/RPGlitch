@@ -29,27 +29,35 @@ skills/devops/
 ## 📋 Procedure
 
 ### Step 1: Pre-Flight Audit
-Before any deployment, **execute `npm run verify`**. 
+
+Before any deployment, **execute `npm run verify`**.
+
 - Audit the bundle size against the **500KB limit**.
 - Ensure all logic is transpiled for Svelte 5 production.
 - If the build fails or exceeds the budget, **HALT** and notify the Tactical Architect.
 
 ### Step 2: Environmental Sync
-**Validate the `.env` configuration**. 
+
+**Validate the `.env` configuration**.
 Ensure `PERCHANCE_URL`, `PERCHANCE_USERNAME`, and `PERCHANCE_KEY` are present and uncorrupted. If synchronization is required, **reconcile the environment** before proceeding.
 
 ### Step 3: Production Build
-**Trigger the Vite production pipeline**. 
+
+**Trigger the Vite production pipeline**.
 Capture the build logs and audit the output for "Aesthetic Debt" or broken assets.
 
 ### Step 4: The Perchance Bridge
+
 **Execute `node scripts/deploy_perchance.js`**.
+
 - Monitor the Playwright automation logs.
 - If a Cloudflare challenge or login error occurs, **provide the error screenshot** to the human director for manual intervention.
 - Once the "Saved Successfully" signal is received, **verify the live link** at `https://perchance.org/rpSWARMtch`.
 
 ### Step 5: Workspace Hygiene
-Perform a post-deployment cleanup. 
+
+Perform a post-deployment cleanup.
+
 - Log the Commit-SHA and deployment timestamp into the **Log Book**.
 - Update the **Mission Board** to reflect the live production state.
 

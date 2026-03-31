@@ -7,7 +7,7 @@
 ## 1. Contract Enforcement
 
 - **Schema Validation**: Do not cast API responses (`as User`). Validate them using `Zod` or `Valibot`.
-    - _Why?_ TypeScript types disappear at runtime. Validation ensures data shape matches expectations.
+  - _Why?_ TypeScript types disappear at runtime. Validation ensures data shape matches expectations.
 - **Fail Safe**: If data validation fails, render a "Fallout UI" (Error Boundary) rather than crashing the app.
 
 ## 2. State Isolation

@@ -35,7 +35,7 @@ skills/audio/           # Logical Sovereign
    - Update the `AudioRegistry` in `src/media/audio/registry.js`.
    - Verify playback in the development environment.
 
-2. **Speak Text**: 
+2. **Speak Text**:
    - Use `Sensory.voice.speak(text)` with configured parameters.
    - Sanitize any text-to-speech inputs before processing.
 

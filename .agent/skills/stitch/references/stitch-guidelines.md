@@ -14,12 +14,12 @@ The `DESIGN.md` MUST follow this hierarchy to be parsed correctly by the Stitch 
 
 Always use these tokens instead of raw colors or generic descriptions:
 
-| Semantic Goal | Token | Technical Value |
-| :--- | :--- | :--- |
-| **High-Contrast Text** | `var(--color-chalk)` | `#222326` |
-| **Icy Accent** | `var(--color-frozen)` | `#555d66` |
-| **Card Background** | `var(--bg-card)` | `#363840` |
-| **Rounded Corners** | `var(--border-radius-m)` | `0.5rem` |
+| Semantic Goal          | Token                    | Technical Value |
+| :--------------------- | :----------------------- | :-------------- |
+| **High-Contrast Text** | `var(--color-chalk)`     | `#222326`       |
+| **Icy Accent**         | `var(--color-frozen)`    | `#555d66`       |
+| **Card Background**    | `var(--bg-card)`         | `#363840`       |
+| **Rounded Corners**    | `var(--border-radius-m)` | `0.5rem`        |
 
 ## 3. Formatting Rules
 
@@ -30,8 +30,9 @@ Always use these tokens instead of raw colors or generic descriptions:
 ## 4. MCP Operation Logic
 
 When calling the Stitch MCP:
+
 - **`projectId`**: Must be the unique identifier for the Stitch cloud project.
-- **`prompt`**: Should be a concise summary of the *change* relative to the existing `DESIGN.md`.
+- **`prompt`**: Should be a concise summary of the _change_ relative to the existing `DESIGN.md`.
 - **`selectedScreenIds`**: Use only the IDs of the screens that require direct editing.
 
 ---

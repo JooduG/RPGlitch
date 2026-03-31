@@ -21,26 +21,28 @@ export const workflow_rules = [
       if (!filePath.endsWith(".md")) return true;
       const relPath = path.relative(PROJECT_ROOT, filePath).replace(/\\/g, "/");
       if (!relPath.startsWith(".agent/workflows/")) return true;
-      
+
       const errors = [];
       const structure = getTemplateStructure("WORKFLOW");
-      
+
       validateAgainstStructure(content, structure, (sev, msg) => {
         errors.push(`${sev === "HERESY" ? "🛑" : "⚠️"} ${msg}`);
       });
-      
+
       return {
         valid: errors.length === 0,
-        errors
+        errors,
       };
-    }
-  }
+    },
+  },
 ];
 
 // Standalone execution
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const workflows = fs.readdirSync(WORKFLOWS_DIR).filter(f => f.endsWith(".md") && !f.includes("template"));
-  workflows.forEach(file => {
+  const workflows = fs
+    .readdirSync(WORKFLOWS_DIR)
+    .filter((f) => f.endsWith(".md") && !f.includes("template"));
+  workflows.forEach((file) => {
     const content = fs.readFileSync(path.join(WORKFLOWS_DIR, file), "utf-8");
     workflow_rules[0].validate(content, path.join(WORKFLOWS_DIR, file));
   });

@@ -17,4 +17,4 @@
 
 ## Archive
 
-- *Historical milestones moved to [.agent/orchestration/archive/historical-milestones.md](./archive/historical-milestones.md)*
+- _Historical milestones moved to [.agent/orchestration/archive/historical-milestones.md](./archive/historical-milestones.md)_

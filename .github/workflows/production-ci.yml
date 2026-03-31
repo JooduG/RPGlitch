@@ -1,56 +1,56 @@
-name: '🚧 Production CI (The Physics Gate)'
+name: "🚧 Production CI (The Physics Gate)"
 
 on:
   push:
-    branches: ['main', 'develop']
+    branches: ["main", "develop"]
   pull_request:
-    branches: ['main']
+    branches: ["main"]
 
 concurrency:
-  group: '${{ github.workflow }}-${{ github.ref }}'
+  group: "${{ github.workflow }}-${{ github.ref }}"
   cancel-in-progress: true
 
 jobs:
   physics-gate:
-    name: 'Engine Verification'
-    runs-on: 'ubuntu-latest'
+    name: "Engine Verification"
+    runs-on: "ubuntu-latest"
     timeout-minutes: 10
-    
+
     steps:
-      - name: '📥 Checkout Repository'
-        uses: 'actions/checkout@v4'
+      - name: "📥 Checkout Repository"
+        uses: "actions/checkout@v4"
 
-      - name: '⚙️ Setup Node.js'
-        uses: 'actions/setup-node@v4'
+      - name: "⚙️ Setup Node.js"
+        uses: "actions/setup-node@v4"
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
-      - name: '📦 Install Dependencies'
+      - name: "📦 Install Dependencies"
         run: npm install
 
-      - name: '🛡️ The Physics Gate (Sovereign Audit)'
+      - name: "🛡️ The Physics Gate (Sovereign Audit)"
         run: |
           # Executes comprehensive verification: check, lint, and unit tests
           npm run verify
 
-      - name: '🔨 The Forge (Production Build)'
+      - name: "🔨 The Forge (Production Build)"
         run: |
           # Compiles the single-file Perchance artifact
           npm run build
 
-      - name: '⚖️ The Scale (500KB Strict Limit)'
+      - name: "⚖️ The Scale (500KB Strict Limit)"
         run: |
           # Verify directory exists
           if [ ! -d "dist/" ]; then
             echo "🚨 BUILD REJECTED: 'dist/' directory not found. Build failed silently."
             exit 1
           fi
-          
+
           # Calculate size in KB
           SIZE=$(du -sk dist/ | cut -f1)
           echo "📦 Total Bundle Size: ${SIZE} KB"
-          
+
           # The Physics Gate Logic
           if [ "$SIZE" -gt 500 ]; then
             echo "🚨 PHYSICS GATE FAILED: Bundle size ${SIZE} KB exceeds the 500KB Sovereign limit."

@@ -27,7 +27,15 @@ const RE_PASCAL = /^[A-Z][a-zA-Z0-9]+$/;
 const RE_ALL_CAPS = /^[A-Z][A-Z0-9_]*$/;
 const RE_VAR = /\bvar\s+[a-zA-Z_$][a-zA-Z0-9_$]*/g;
 
-const STRIP_SUFFIXES = [".template", ".svelte", ".test", ".spec", ".manual", ".unit", ".integration"];
+const STRIP_SUFFIXES = [
+  ".template",
+  ".svelte",
+  ".test",
+  ".spec",
+  ".manual",
+  ".unit",
+  ".integration",
+];
 const TEST_SUFFIXES = [".test", ".spec", ".manual", ".unit", ".integration"];
 const SUBJECT_EXTS = [".svelte", ".svelte.js", ".svelte.ts", ".js", ".ts"];
 
@@ -59,24 +67,29 @@ const findTestSubject = (filename, dir) => {
     }
   }
   if (!subjectStem) return false;
-  return SUBJECT_EXTS.some(se => fs.existsSync(path.join(dir, subjectStem + se)));
+  return SUBJECT_EXTS.some((se) => fs.existsSync(path.join(dir, subjectStem + se)));
 };
 
 /**
  * 🕵️ Audit Logic
  */
 const checkItem = (name, isDir, relPath, report, parentDir = null) => {
-  if (SKIP_PREFIXES.some(p => name.startsWith(p))) return;
+  if (SKIP_PREFIXES.some((p) => name.startsWith(p))) return;
 
   if (isDir) {
     if (!RE_KEBAB.test(name) && !RE_ALL_CAPS.test(name)) {
-      report("N-LANG-003", "DEBT", relPath + "/", `Folder must be kebab-case or All-Caps abbreviation. Got: "${name}"`);
+      report(
+        "N-LANG-003",
+        "DEBT",
+        relPath + "/",
+        `Folder must be kebab-case or All-Caps abbreviation. Got: "${name}"`,
+      );
     }
     return;
   }
 
   const base = getBase(name);
-  if (SKIP_PREFIXES.some(p => base.startsWith(p))) return;
+  if (SKIP_PREFIXES.some((p) => base.startsWith(p))) return;
   if (RE_ALL_CAPS.test(base)) return;
 
   if (name.endsWith(".svelte") && !name.includes(".template.")) {
@@ -95,9 +108,16 @@ const checkItem = (name, isDir, relPath, report, parentDir = null) => {
       const content = fs.readFileSync(filePath, "utf-8");
       const varMatches = content.match(RE_VAR);
       if (varMatches) {
-        report("N-LANG-VAR", "HERESY", relPath, `Forbidden usage of 'var' detected: ${varMatches.join(", ")}`);
+        report(
+          "N-LANG-VAR",
+          "HERESY",
+          relPath,
+          `Forbidden usage of 'var' detected: ${varMatches.join(", ")}`,
+        );
       }
-    } catch (e) { /* skip */ }
+    } catch (e) {
+      /* skip */
+    }
   }
 };
 
@@ -126,9 +146,9 @@ export const scan_nomenclature = (dir, stats, report) => {
 if (process.argv[1] && process.argv[1].endsWith("audit-nomenclature.js")) {
   const target = process.argv[2] ? path.resolve(process.argv[2]) : path.join(PROJECT_ROOT, "src");
   const stats = { scanned: 0, violations: 0 };
-  
+
   console.log("\n🔤 NOMENCLATURE & MODERNITY AUDITOR");
-  
+
   scan_nomenclature(target, stats, (id, sev, relPath, msg) => {
     stats.violations++;
     console.log(`  [${sev}] ${relPath}: ${msg} (${id})`);

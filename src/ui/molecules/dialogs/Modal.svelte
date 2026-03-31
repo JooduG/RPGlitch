@@ -38,15 +38,12 @@
 <svelte:window onkeydown={handle_keydown} />
 
 <!-- Visual Layer -->
-<Backdrop onclick={handle_close} z_index={z_index} />
+<Backdrop onclick={handle_close} {z_index} />
 
 <!-- Interaction & Layout Layer -->
 <div class="modal-layout">
   <!-- Content -->
-  <div
-    class="modal-content {variant}"
-    transition:fly={{ y: 20, duration: 300, easing: quintOut }}
-  >
+  <div class="modal-content {variant}" transition:fly={{ y: 20, duration: 300, easing: quintOut }}>
     {@render children()}
   </div>
 </div>
@@ -91,5 +88,4 @@
   .modal-content.preview {
     max-width: 400px;
   }
-
 </style>

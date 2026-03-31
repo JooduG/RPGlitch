@@ -104,7 +104,7 @@
 <style>
   .storyboard-stack {
     position: relative;
-    width: 280px; 
+    width: 280px;
     height: 400px;
     border-radius: var(--border-radius-l);
     overflow: hidden;
@@ -119,7 +119,7 @@
 
   .storyboard-stack:hover {
     border-color: var(--signature-color);
-    box-shadow: 
+    box-shadow:
       0 12px 24px -12px rgb(from var(--signature-color) r g b / 40%),
       0 0 0 1px var(--signature-color);
     filter: brightness(1.1);
@@ -185,8 +185,8 @@
     height: 50%;
     background: linear-gradient(
       to top,
-      var(--color-chalk) 0%, 
-      rgb(from var(--color-chalk) r g b / 80%) 40%, 
+      var(--color-chalk) 0%,
+      rgb(from var(--color-chalk) r g b / 80%) 40%,
       transparent 100%
     );
     display: flex;
@@ -253,7 +253,7 @@
     border-radius: 50%;
     color: var(--color-white);
     opacity: var(--opacity-none);
-    transition: 
+    transition:
       opacity var(--motion-slow) ease,
       border-color var(--motion-fast) ease,
       box-shadow var(--motion-fast) ease;

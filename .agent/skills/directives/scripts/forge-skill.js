@@ -18,10 +18,18 @@ const ensureDir = (dir) => {
 };
 
 // Helper: Slugify name
-const slugify = (name) => name.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
+const slugify = (name) =>
+  name
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]/g, "");
 
 // Helper: Title Case
-const titleCase = (text) => text.split("-").map(w => w[0].toUpperCase() + w.substring(1)).join(" ");
+const titleCase = (text) =>
+  text
+    .split("-")
+    .map((w) => w[0].toUpperCase() + w.substring(1))
+    .join(" ");
 
 /**
  * Creates a NEW Sovereign Asset
@@ -32,9 +40,14 @@ const createSkill = async (name, type = "skill", description = "A Sovereign Asse
   let targetDir;
 
   switch (searchType) {
-    case "rule": targetDir = path.join(RULES_DIR, slug); break;
-    case "workflow": targetDir = WORKFLOWS_DIR; break;
-    default: targetDir = path.join(SKILLS_DIR, slug);
+    case "rule":
+      targetDir = path.join(RULES_DIR, slug);
+      break;
+    case "workflow":
+      targetDir = WORKFLOWS_DIR;
+      break;
+    default:
+      targetDir = path.join(SKILLS_DIR, slug);
   }
 
   ensureDir(targetDir);

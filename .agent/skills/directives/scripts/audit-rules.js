@@ -22,28 +22,30 @@ export const rule_rules = [
       const projectRoot = PROJECT_ROOT.toLowerCase().replace(/\\/g, "/");
       const normalizedPath = filePath.toLowerCase().replace(/\\/g, "/");
       const relPath = path.relative(projectRoot, normalizedPath).replace(/\\/g, "/");
-      
+
       if (!relPath.startsWith(".agent/rules/")) return true;
-      
+
       const errors = [];
       const structure = getTemplateStructure("RULE");
-      
+
       validateAgainstStructure(content, structure, (sev, msg) => {
         errors.push(`${sev === "HERESY" ? "🛑" : "⚠️"} ${msg}`);
       });
-      
+
       return {
         valid: errors.length === 0,
-        errors
+        errors,
       };
-    }
-  }
+    },
+  },
 ];
 
 // Standalone execution
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const rules = fs.readdirSync(RULES_DIR).filter(f => f.endsWith(".md") && !f.includes("template"));
-  rules.forEach(file => {
+  const rules = fs
+    .readdirSync(RULES_DIR)
+    .filter((f) => f.endsWith(".md") && !f.includes("template"));
+  rules.forEach((file) => {
     const content = fs.readFileSync(path.join(RULES_DIR, file), "utf-8");
     rule_rules[0].validate(content, path.join(RULES_DIR, file));
   });

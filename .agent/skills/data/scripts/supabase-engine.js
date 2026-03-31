@@ -19,24 +19,24 @@ export async function archiveLog({ session_id, task_slug, content, metadata = {}
   }
 
   const endpoint = `${URL}/rest/v1/development_logs`;
-  
+
   console.error(`📡 Archiving log to Supabase at ${endpoint}...`);
-  
+
   const response = await fetch(endpoint, {
     method: "POST",
     headers: {
-      "apikey": KEY,
-      "Authorization": `Bearer ${KEY}`,
+      apikey: KEY,
+      Authorization: `Bearer ${KEY}`,
       "Content-Type": "application/json",
-      "Prefer": "return=minimal"
+      Prefer: "return=minimal",
     },
     body: JSON.stringify({
       session_id,
       task_slug,
       content,
       metadata,
-      created_at: new Date().toISOString()
-    })
+      created_at: new Date().toISOString(),
+    }),
   });
 
   if (!response.ok) {
@@ -65,9 +65,9 @@ export async function queryLogs({ task_slug, limit = 10 }) {
   const response = await fetch(endpoint, {
     method: "GET",
     headers: {
-      "apikey": KEY,
-      "Authorization": `Bearer ${KEY}`
-    }
+      apikey: KEY,
+      Authorization: `Bearer ${KEY}`,
+    },
   });
 
   if (!response.ok) {

@@ -30,21 +30,25 @@ skills/warden/
 ## 📋 Procedure
 
 ### 1. Deep Context Building (The Foundation)
+
 - **Line-by-Line Analysis**: Perform ultra-granular code analysis before vulnerability hunting.
 - **First Principles**: Apply **5 Whys** and **5 Hows** at the micro scale to identify invariants and reasoning hazards.
 - **Stable Mental Model**: Maintain an explicit mental model of data flow, from entry point to execution.
 
 ### 2. Behavioral X-Ray (The Probe)
+
 - **Self-Probing**: Systematically test model patterns (Refusal Boundaries, Grounding, Reasoning Style).
 - **Boundary Mapping**: Identify hallucination tendencies and formatting defaults to prevent "AI Slop" in production.
 - **Drift Tracking**: Monitor behavioral drift over time to ensure consistent persona and safety alignment.
 
 ### 3. Advanced Safety Audit (The Shield)
+
 - **Platform-Specific Scanning**: Scan for threats across Windows (PowerShell Bypass), macOS, and Linux (Privilege Escalation).
 - **Agentic Action Audit**: Review GitHub Actions workflows for vulnerabilities. Trace data flow from `${{ event }}` context through `env:` blocks to AI prompts.
 - **Nervous System Sweep**: Execute `janitor.js` to purge debt and `audit-engine.js` to verify Sovereign nomenclature.
 
 ### 4. QA Certification
+
 - **Definition of Done**: 100% test pass; hygiene sweeps complete; structural integrity verified; E2E/Contract tests passed.
 - **Expected Output**: Precision-audited, certified code ready for deployment.
 

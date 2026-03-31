@@ -15,10 +15,11 @@ date_added: 2024-03-29
 
 ## Context-Injection: Strategic Routing
 
-MUST INVOKE [Intake](../skills/orchestration-strategy/SKILL.md). 
-- And then inject: 
-    - [Intelligence](../rules/01-foundation.md)
-    - [Intake](../skills/orchestration-strategy/)
+MUST INVOKE [Intake](../skills/orchestration-strategy/SKILL.md).
+
+- And then inject:
+  - [Intelligence](../rules/01-foundation.md)
+  - [Intake](../skills/orchestration-strategy/)
 
 ## Capabilities: Decision Matrix
 

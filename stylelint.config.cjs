@@ -9,9 +9,7 @@ module.exports = {
     "stylelint-config-html/svelte",
     "stylelint-prettier/recommended",
   ],
-  overrides: [
-    { files: ["**/*.svelte"], customSyntax: "postcss-html" },
-  ],
+  overrides: [{ files: ["**/*.svelte"], customSyntax: "postcss-html" }],
   rules: {
     // Accept kebab-case and optional BEM modifier: e.g.
     // .card-title, .card-title--editing

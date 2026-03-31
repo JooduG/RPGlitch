@@ -9,7 +9,7 @@ This file contains detailed patterns, checklists, and code samples for the `java
 ```javascript
 // Syntax and Use Cases
 const add = (a, b) => a + b;
-const double = x => x * 2;
+const double = (x) => x * 2;
 const getRandom = () => Math.random();
 
 // Lexical 'this' Binding
@@ -23,7 +23,11 @@ class Counter {
 
 ```javascript
 // Object Destructuring
-const { name, email, address: { city } } = user;
+const {
+  name,
+  email,
+  address: { city },
+} = user;
 const { name: userName, age = 25 } = user;
 
 // Array Destructuring
@@ -61,9 +65,9 @@ const html = `
 
 ```javascript
 fetchUser(1)
-  .then(user => console.log(user))
-  .catch(error => console.error(error))
-  .finally(() => console.log('Done'));
+  .then((user) => console.log(user))
+  .catch((error) => console.error(error))
+  .finally(() => console.log("Done"));
 
 // Combinators
 const [users, posts] = await Promise.all([fetchUsers(), fetchPosts()]);
@@ -84,8 +88,11 @@ async function getUserData(id) {
 // Retry logic
 async function fetchWithRetry(url, retries = 3) {
   for (let i = 0; i < retries; i++) {
-    try { return await fetch(url); }
-    catch (e) { if (i === retries - 1) throw e; }
+    try {
+      return await fetch(url);
+    } catch (e) {
+      if (i === retries - 1) throw e;
+    }
   }
 }
 ```
@@ -96,8 +103,8 @@ async function fetchWithRetry(url, retries = 3) {
 
 ```javascript
 const activeNames = users
-  .filter(u => u.active)
-  .map(u => u.name)
+  .filter((u) => u.active)
+  .map((u) => u.name)
   .sort();
 
 const totalAge = users.reduce((sum, u) => sum + u.age, 0);
@@ -106,15 +113,19 @@ const totalAge = users.reduce((sum, u) => sum + u.age, 0);
 ### 2. Composition and Piping
 
 ```javascript
-const pipe = (...fns) => x => fns.reduce((acc, fn) => fn(acc), x);
+const pipe =
+  (...fns) =>
+  (x) =>
+    fns.reduce((acc, fn) => fn(acc), x);
 
 const processUser = pipe(
-  u => ({ ...u, name: u.name.trim() }),
-  u => ({ ...u, age: parseInt(u.age) })
+  (u) => ({ ...u, name: u.name.trim() }),
+  (u) => ({ ...u, age: parseInt(u.age) }),
 );
 ```
 
 ## Best Practices Checklist
+
 - [ ] Use `const` by default.
 - [ ] Prefer arrow functions for callbacks.
 - [ ] Use template literals for strings.
@@ -124,6 +135,7 @@ const processUser = pipe(
 - [ ] Use optional chaining (`?.`) and nullish coalescing (`??`).
 
 ## Common Pitfalls
+
 1. **this binding confusion**: Ensure arrow functions are used in classes for callbacks.
 2. **Missing await**: Remember that async functions return Promises.
 3. **Blocking the event loop**: Keep heavy computations off the main thread.

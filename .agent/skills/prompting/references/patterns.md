@@ -1,7 +1,7 @@
 # 📜 patterns.md
 
 > **Status**: [HARDENED]
-> **Directive**: Advanced engineering patterns to maximize LLM performance. 
+> **Directive**: Advanced engineering patterns to maximize LLM performance.
 > **Law**: Use these to structure the "Forge" logic in the **Prompting** skill.
 
 ---
@@ -9,6 +9,7 @@
 ## 🔬 Core Capabilities
 
 ### 1. Few-Shot Learning (The Mimic)
+
 Don't explain the rules; show the physics. Provide 2–5 input-output pairs to anchor the model in the desired behavior. Use this for consistent formatting or complex Svelte 5 Rune transformations.
 
 **Project Example (State to Rune):**
@@ -26,6 +27,7 @@ Now transform: "let user = { name: 'Dev' }; function update() { user.name = 'New
 ```
 
 ### 2. Chain-of-Thought (CoT) (The Logic Trace)
+
 Force the model to show its work before outputting code. This prevents "hallucinated shortcuts."
 
 **Project Example (Bug Analysis):**
@@ -33,6 +35,7 @@ Force the model to show its work before outputting code. This prevents "hallucin
 ```markdown
 Analyze this engine drift and identify the root cause.
 Think step-by-step:
+
 1. **Initial State**: What are the current $state values?
 2. **The Trigger**: Which $effect or event listener fired?
 3. **The Mutation**: How did the data change?
@@ -41,7 +44,9 @@ Think step-by-step:
 ```
 
 ### 3. Iterative Density (The Compactor)
+
 Used for summarizing complex **Discovery Journals** or long technical logs without losing the "Red Thread."
+
 - **V1**: Summarize the journal.
 - **V2**: Extract exactly 5 mechanical requirements.
 - **V3**: Map those requirements to specific file paths in `src/lib/`.
@@ -74,15 +79,19 @@ Since we're building this for a neurodivergent flow, use these patterns to ensur
 ## 🚀 Key Orchestration Patterns
 
 ### Progressive Disclosure
-Start with the "Vibe" and move to the "Physics." 
+
+Start with the "Vibe" and move to the "Physics."
+
 - **Level 1**: **Strategy** defines the goal.
 - **Level 2**: **Tactics** maps the files.
 - **Level 3**: **Operations** writes the code.
 - **Level 4**: **Warden** audits the result.
 
 ### Error Recovery & Self-Correction
+
 Instruct the agent to provide a "Confidence Score" (0–1.0) and a "Risk Assessment."
-> *"If your confidence in this implementation is below 0.8, HALT and ask for clarification on the [FILE_PATH] logic."*
+
+> _"If your confidence in this implementation is below 0.8, HALT and ask for clarification on the [FILE_PATH] logic."_
 
 ---
 

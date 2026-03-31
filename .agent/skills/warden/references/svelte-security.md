@@ -5,9 +5,9 @@
 - **Risk**: `{@html ...}` tag.
 - **Rule**: NEVER use `{@html user_content}` directly.
 - **Protocol**:
-    - **Bad**: `{@html post.content}`
-    - **Good**: `{@html DOMPurify.sanitize(post.content)}`
-    - **Best**: Use a secure markdown renderer (e.g., `marked` with sanitization enabled).
+  - **Bad**: `{@html post.content}`
+  - **Good**: `{@html DOMPurify.sanitize(post.content)}`
+  - **Best**: Use a secure markdown renderer (e.g., `marked` with sanitization enabled).
 
 ## 2. Reactivity & State
 

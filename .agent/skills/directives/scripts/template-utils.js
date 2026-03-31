@@ -41,7 +41,7 @@ const isHeaderMatch = (templateHeader, actualLevel, actualText, projectName) => 
     // 2. Generic Placeholder Regex Matching
     // Escapes special characters but keeps {{...}} as .* wildcard
     const parts = templateClean.split(/\{\{[^}]+\}\}/);
-    const escapedParts = parts.map(p => p.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&"));
+    const escapedParts = parts.map((p) => p.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&"));
     const regexStr = "^" + escapedParts.join(".*") + "$";
     const regex = new RegExp(regexStr, "i");
     return regex.test(actualClean);
@@ -73,7 +73,7 @@ export const getTemplateStructure = (type) => {
 
   const content = fs.readFileSync(filePath, "utf-8");
   const contentNoCode = stripCodeBlocks(content);
-  
+
   // 1. Extract Frontmatter Structure
   const fields = [];
   const fmMatch = content.match(/^---\r?\n([\s\S]+?)\r?\n---/m);
@@ -82,9 +82,9 @@ export const getTemplateStructure = (type) => {
     for (const line of lines) {
       const match = line.match(/^(\w+):/);
       if (match) {
-        fields.push({ 
-          name: match[1], 
-          isOptional: /[(\s#]_?Optional_?([)\s#\n]|$)/i.test(line) 
+        fields.push({
+          name: match[1],
+          isOptional: /[(\s#]_?Optional_?([)\s#\n]|$)/i.test(line),
         });
       }
     }
@@ -101,7 +101,7 @@ export const getTemplateStructure = (type) => {
       text: `${match[1]} ${text}`,
       cleanLabel: cleanHeaderLabel(text),
       isOptional: /[(\s#]_?Optional_?([)\s#\n]|$)/i.test(text),
-      isPlaceholder: /\{\{/.test(text)
+      isPlaceholder: /\{\{/.test(text),
     });
   }
 
@@ -129,13 +129,17 @@ export const validateAgainstStructure = (content, structure, report) => {
   for (const line of fmLines) {
     const match = line.match(/^(\w+):\s*(.*)$/);
     if (match) {
-      actualFields[match[1]] = match[2].trim().replace(/^["']|["']$/g, "").split(" #")[0].trim();
+      actualFields[match[1]] = match[2]
+        .trim()
+        .replace(/^["']|["']$/g, "")
+        .split(" #")[0]
+        .trim();
     }
   }
 
   // 2. Field Audit
-  const templateFieldNames = new Set(structure.fields.map(f => f.name));
-  
+  const templateFieldNames = new Set(structure.fields.map((f) => f.name));
+
   // Check for missing mandatory fields
   for (const field of structure.fields) {
     if (!field.isOptional && !actualFields[field.name]) {
@@ -146,27 +150,33 @@ export const validateAgainstStructure = (content, structure, report) => {
   // Check for illegal fields (only for Rules and Skills, bypass for now if needed)
   for (const name in actualFields) {
     if (!templateFieldNames.has(name)) {
-      report("HERESY", `🚨 Illegal frontmatter field detected: "${name}". Not in Sovereign Template.`);
+      report(
+        "HERESY",
+        `🚨 Illegal frontmatter field detected: "${name}". Not in Sovereign Template.`,
+      );
     }
   }
 
   // 3. Header Audit
   const hMatches = contentNoCode.matchAll(/^(#|##|###)\s+(.+)$/gm);
-  const actualHeaders = Array.from(hMatches).map(m => ({
+  const actualHeaders = Array.from(hMatches).map((m) => ({
     level: m[1].length,
-    text: m[2].trim()
+    text: m[2].trim(),
   }));
 
   const projectName = actualFields["name"] || "";
 
   // Check for missing mandatory sections
   for (const tHeader of structure.headers) {
-    const hasMatch = actualHeaders.some(aHeader => 
-      isHeaderMatch(tHeader, aHeader.level, aHeader.text, projectName)
+    const hasMatch = actualHeaders.some((aHeader) =>
+      isHeaderMatch(tHeader, aHeader.level, aHeader.text, projectName),
     );
 
     if (!hasMatch && !tHeader.isOptional) {
-      report("ADVICE", `💡 Missing mandatory section: "${"#".repeat(tHeader.level)} ${tHeader.cleanLabel}".`);
+      report(
+        "ADVICE",
+        `💡 Missing mandatory section: "${"#".repeat(tHeader.level)} ${tHeader.cleanLabel}".`,
+      );
     }
   }
 
@@ -174,12 +184,15 @@ export const validateAgainstStructure = (content, structure, report) => {
   for (const aHeader of actualHeaders) {
     if (aHeader.level > 2) continue; // H3 is free space (as long as mandatory H3s are present)
 
-    const isRecognized = structure.headers.some(tHeader => 
-      isHeaderMatch(tHeader, aHeader.level, aHeader.text, projectName)
+    const isRecognized = structure.headers.some((tHeader) =>
+      isHeaderMatch(tHeader, aHeader.level, aHeader.text, projectName),
     );
 
     if (!isRecognized) {
-      report("HERESY", `🚨 Illegal section detected: "${"#".repeat(aHeader.level)} ${aHeader.text}". Not in Sovereign Template.`);
+      report(
+        "HERESY",
+        `🚨 Illegal section detected: "${"#".repeat(aHeader.level)} ${aHeader.text}". Not in Sovereign Template.`,
+      );
     }
   }
 };

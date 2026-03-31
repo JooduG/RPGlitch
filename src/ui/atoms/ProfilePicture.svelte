@@ -104,7 +104,7 @@
     color: var(--color-white);
     text-shadow: 0 0.2rem 1rem rgb(var(--color-black-rgb) / 50%);
     background-color: var(--signature-color);
-    background-image: 
+    background-image:
       linear-gradient(to bottom, transparent, rgb(var(--color-black-rgb) / 30%)),
       radial-gradient(circle at top left, rgb(255 255 255 / 20%), transparent);
     text-transform: uppercase;

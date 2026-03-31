@@ -7,24 +7,31 @@
 When a gap, bug, or technical debt is identified, you **MUST** anchor it into the physical history of the repository.
 
 ### Step 1: The De-Duplication Check
-Before creating a new record, **execute `SWARM issue list`**. 
-- Analyze the output to ensure the concern isn't already logged. 
+
+Before creating a new record, **execute `SWARM issue list`**.
+
+- Analyze the output to ensure the concern isn't already logged.
 - We do not burn storage on redundant complaints.
 
 ### Step 2: Issue Creation
+
 If the issue is unique, **execute `SWARM issue create`**.
 Utilize the following **Strict Schema**:
+
 - **`id`**: [Auto-generated UUID]
 - **`type`**: `BUG` (Broken logic), `RECO` (Architectural suggestion), or `DEBT` (Aesthetic/Technical shortcuts).
 - **`status`**: `OPEN` (Always initialized as open).
 - **`context`**: A JSON artifact containing the failed state.
 
 ### Step 3: Context Saturation
+
 An issue without data is just a complaint. You **MUST** be context-heavy:
+
 - **Attach exact line numbers** and **relative file paths**.
 - Describe the expected behavior vs. the actual "vibe slop" encountered.
 
 ### Step 4: Establishing Traceability
+
 - **Link the new issue** to the specific PR or Issue ID that triggered the review.
 - Ensure the thread of logic is unbroken from the initial Strategy down to the detected failure.
 

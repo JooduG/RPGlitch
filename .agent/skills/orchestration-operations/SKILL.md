@@ -2,7 +2,14 @@
 name: orchestration-operations
 version: 3.0.0
 description: The Operational Implementer. Executes tactical plans, manages the Log Book, and ensures Svelte 5 technical purity.
-allowed-tools: ["run_command", "write_to_file", "multi_replace_file_content", "view_file", "write_knowledge_base"]
+allowed-tools:
+  [
+    "run_command",
+    "write_to_file",
+    "multi_replace_file_content",
+    "view_file",
+    "write_knowledge_base",
+  ]
 effort: high
 risk: safe
 ---

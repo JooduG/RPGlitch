@@ -43,11 +43,7 @@
     display: grid;
     grid-template-columns: var(--spacing-xxxl) 1fr;
     gap: var(--spacing-s);
-    background: color-mix(
-      in srgb,
-      var(--color-gunmetal),
-      var(--signature-color) var(--opacity-xs)
-    );
+    background: color-mix(in srgb, var(--color-gunmetal), var(--signature-color) var(--opacity-xs));
     border-top: 0;
     z-index: var(--z-index-m);
     padding-top: var(--spacing-m);

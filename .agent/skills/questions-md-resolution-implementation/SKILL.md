@@ -19,6 +19,7 @@ skills/questions-md-resolution-implementation/
 ```
 
 ## 🎯 Strategic Context
+
 This is Phase 2 of the review-to-release workflow. It triggers only after a human director has answered and tagged the items in QUESTIONS.md.
 
 ## 📋 Procedure
@@ -27,9 +28,9 @@ This is Phase 2 of the review-to-release workflow. It triggers only after a huma
 
 1. **Artifact Verification**: Read `QUESTIONS.md` in the root directory. Halt execution immediately if any questions lack a resolution tag.
 2. **Triage & Filtering**: Filter the tagged items based on their status:
-    - `[verified]` or `[partial]`: Add to the active implementation queue.
-    - `[blocked]`, `[deferred]`, or `[out-of-scope]`: Ignore entirely. Do not write code for these.
-    - `[caveat]`: Apply the specific human-directed constraints to the implementation.
+   - `[verified]` or `[partial]`: Add to the active implementation queue.
+   - `[blocked]`, `[deferred]`, or `[out-of-scope]`: Ignore entirely. Do not write code for these.
+   - `[caveat]`: Apply the specific human-directed constraints to the implementation.
 
 ### Execution Loop
 
@@ -42,5 +43,6 @@ This is Phase 2 of the review-to-release workflow. It triggers only after a huma
 - **Expected Output**: A codebase updated according to human-resolved architecture.
 
 ## 🚫 Anti-Patterns
+
 - Rogue Engineering: Implementing solutions for questions that were marked deferred or out-of-scope.
 - Ghost Writing: Proceeding with implementation when questions are completely unanswered.

@@ -174,20 +174,20 @@ class Auditor {
       file: relPath,
       line,
       message: rule.message,
-      errors
+      errors,
     });
 
     console.log(`${sev.color}[${sev.label}] ${relPath}${line ? `:${line}` : ""}${RESET}`);
     console.log(`  ${rule.message}`);
-    
+
     if (code && code !== "[File Structure]") {
       console.log(`  Code: ${code.substring(0, 100).trim()}`);
     }
 
     if (errors && errors.length > 0) {
-      errors.forEach(err => console.log(`    - ${err}`));
+      errors.forEach((err) => console.log(`    - ${err}`));
     }
-    
+
     console.log("");
   }
 

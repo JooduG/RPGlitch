@@ -22,16 +22,16 @@ The project follows a sovereign modular structure to ensure local-first resilien
 - **Persistence**: Dexie.js (IndexedDB).
 - **Security**: Validation & Physics via **Zod/DOMPurify** sanitization boundaries ([Compliance](./06-compliance.md)).
 - **[Simulation](./02-simulation.md)** building blocks:
-    - [Core](../../src/core/): Logic & Round Orchestration (DynamicsEngine, Intelligence Kernel)
-    - [Data](../../src/data/): Persistence (Dexie) & Entity Repositories.
-    - [State](../../src/state/): Reactive Runes (`$state`).
-    - [Theme](../../src/theme/): The Chalk Regime (Tokens, Global Styles).
-    - [UI](../../src/ui/): Atomic Design (Svelte 5 components).
-    - [Media](../../src/media/): Internal Sensory Assets ([Visuals](../skills/image-generation/), [Audio](../skills/audio/)).
+  - [Core](../../src/core/): Logic & Round Orchestration (DynamicsEngine, Intelligence Kernel)
+  - [Data](../../src/data/): Persistence (Dexie) & Entity Repositories.
+  - [State](../../src/state/): Reactive Runes (`$state`).
+  - [Theme](../../src/theme/): The Chalk Regime (Tokens, Global Styles).
+  - [UI](../../src/ui/): Atomic Design (Svelte 5 components).
+  - [Media](../../src/media/): Internal Sensory Assets ([Visuals](../skills/image-generation/), [Audio](../skills/audio/)).
 - [Skills](../skills/) for infrastructural expertise:
-    - [intake](../skills/intake/): Intent Decoding & Feature Incubation.
-    - [Simulation](../skills/simulation/): Narrative Bridges & Game Logic.
-    - [Warden](../skills/warden/): Adversarial Audit & Security.
+  - [intake](../skills/intake/): Intent Decoding & Feature Incubation.
+  - [Simulation](../skills/simulation/): Narrative Bridges & Game Logic.
+  - [Warden](../skills/warden/): Adversarial Audit & Security.
 
 ---
 

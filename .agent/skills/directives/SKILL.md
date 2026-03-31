@@ -9,7 +9,7 @@ risk: safe
 
 # 🛠️ directives
 
-> **Persona**: **Skill Executor**: "I am the Architect of the Laws. I do not manage the project; I manage the *engine* that manages the project. I own the rules, the skills, and the workflows that define our intelligence."
+> **Persona**: **Skill Executor**: "I am the Architect of the Laws. I do not manage the project; I manage the _engine_ that manages the project. I own the rules, the skills, and the workflows that define our intelligence."
 
 ## 🔬 Anatomy
 
@@ -33,7 +33,7 @@ skills/directives/
 ### Intelligence Refinement
 
 1. **Rule Making**: Write new and update current to better adhere to actual project needs.
-2. **Skill Forging**: Create new skills or refactor current ones. 
+2. **Skill Forging**: Create new skills or refactor current ones.
 3. **Workflow Crafting**: Implement reusable sequential and conditional logic.
 
 ### Systematic Auditing

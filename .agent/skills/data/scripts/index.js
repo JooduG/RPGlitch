@@ -142,7 +142,7 @@ async function handleReadKB(args) {
       return { content: [{ type: "text", text: "No relevant documentation found." }] };
     }
     const text = matches
-      .filter(m => m && m.metadata)
+      .filter((m) => m && m.metadata)
       .map(
         (m) =>
           `[Source: ${m.metadata.source}] (Score: ${(m.score * 100).toFixed(0)}%)\n${m.metadata.content}`,
@@ -152,7 +152,7 @@ async function handleReadKB(args) {
   } catch (err) {
     return {
       content: [{ type: "text", text: `Search Error: ${err.message}` }],
-      isError: true
+      isError: true,
     };
   }
 }
@@ -186,15 +186,15 @@ async function handleQueryCold(args) {
 
 async function main() {
   const args = process.argv.slice(2);
-  
+
   // CLI Mode: Allow running tasks directly (e.g. for batch jobs in CI)
   if (args.length > 0) {
     console.error(`🔮 Librarian CLI: Executing task '${args[0]}'...`);
     if (args[0] === "upsert") {
       // Default: Upsert critical core logic and rules
-      await handleWriteKB({ 
-        paths: [".agent/rules", ".agent/skills", "src/core"], 
-        namespace: "knowledge-base.meta" 
+      await handleWriteKB({
+        paths: [".agent/rules", ".agent/skills", "src/core"],
+        namespace: "knowledge-base.meta",
       });
       process.exit(0);
     }
@@ -203,7 +203,7 @@ async function main() {
       await handleArchive({
         session_id: "manual-cli-archive",
         task_slug: "historical-cleanup",
-        content
+        content,
       });
       process.exit(0);
     }

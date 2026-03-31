@@ -21,12 +21,12 @@ export const skill_rules = [
       if (!filePath.endsWith("SKILL.md")) return true;
       const relPath = path.relative(PROJECT_ROOT, filePath).replace(/\\/g, "/");
       if (!relPath.startsWith(".agent/skills/")) return true;
-      
+
       const skillName = path.basename(path.dirname(filePath));
       const results = auditSkill(skillName, true); // SILENT when called by engine
       return results;
-    }
-  }
+    },
+  },
 ];
 
 const SEVERITY = {
@@ -44,7 +44,7 @@ const auditSkill = (skillName, silent = false) => {
   const skillMd = path.join(skillPath, "SKILL.md");
 
   if (!silent) console.log(`\n🔍 AUDITING: ${skillName}...`);
-  
+
   const report = {
     score: 120,
     issues: [],
@@ -73,21 +73,40 @@ const auditSkill = (skillName, silent = false) => {
     });
 
     // 2. Structural Exclusivity
-    const allowedSubfolders = ["scripts", "references", "assets", "rules", "templates", "agents", "data"];
-    const currentSubfolders = fs.readdirSync(skillPath)
-      .filter(f => fs.statSync(path.join(skillPath, f)).isDirectory());
+    const allowedSubfolders = [
+      "scripts",
+      "references",
+      "assets",
+      "rules",
+      "templates",
+      "agents",
+      "data",
+    ];
+    const currentSubfolders = fs
+      .readdirSync(skillPath)
+      .filter((f) => fs.statSync(path.join(skillPath, f)).isDirectory());
 
-    currentSubfolders.forEach(dir => {
+    currentSubfolders.forEach((dir) => {
       if (!allowedSubfolders.includes(dir) && !dir.startsWith(".")) {
-        logIssue(SEVERITY.HERESY, `Disallowed subfolder: ${dir}/. Use ONLY scripts, assets, or references.`, 50);
+        logIssue(
+          SEVERITY.HERESY,
+          `Disallowed subfolder: ${dir}/. Use ONLY scripts, assets, or references.`,
+          50,
+        );
       }
     });
 
     // 3. Placeholder Detection (simplified)
-    const placeholders = contentNoCode.match(/\[[A-Z][A-Z0-9_\/]{2,}\](?!\()/g) || [];
-    const invalidPlaceholders = placeholders.filter(p => !p.includes("file:///") && p.length > 2 && p.length < 50);
+    const placeholders = contentNoCode.match(/\[[A-Z][A-Z0-9_/]{2,}\](?!\()/g) || [];
+    const invalidPlaceholders = placeholders.filter(
+      (p) => !p.includes("file:///") && p.length > 2 && p.length < 50,
+    );
     if (invalidPlaceholders.length > 3) {
-      logIssue(SEVERITY.HIGH, `Unfilled placeholders detected: ${invalidPlaceholders.join(", ")}`, 15);
+      logIssue(
+        SEVERITY.HIGH,
+        `Unfilled placeholders detected: ${invalidPlaceholders.join(", ")}`,
+        15,
+      );
     }
 
     // 4. Bloat Check
@@ -97,18 +116,22 @@ const auditSkill = (skillName, silent = false) => {
     }
   }
 
-  report.score = Math.max(0, report.issues.reduce((acc, issue) => acc - issue.deduction, report.score));
-  
+  report.score = Math.max(
+    0,
+    report.issues.reduce((acc, issue) => acc - issue.deduction, report.score),
+  );
+
   if (!silent) {
-    report.issues.forEach(i => console.log(`  ${i.sev}: ${i.msg} (-${i.deduction})`));
-    const grade = report.score >= 110 ? "A (Sovereign)" : report.score >= 90 ? "B (Executive)" : "C (Draft)";
+    report.issues.forEach((i) => console.log(`  ${i.sev}: ${i.msg} (-${i.deduction})`));
+    const grade =
+      report.score >= 110 ? "A (Sovereign)" : report.score >= 90 ? "B (Executive)" : "C (Draft)";
     console.log(`\n🏆 FINAL SCORE: ${report.score}/120 | GRADE: ${grade}`);
   }
-  
+
   return {
     valid: report.score >= 110,
-    errors: report.issues.map(i => `${i.sev}: ${i.msg} (-${i.deduction})`),
-    score: report.score
+    errors: report.issues.map((i) => `${i.sev}: ${i.msg} (-${i.deduction})`),
+    score: report.score,
   };
 };
 
@@ -119,9 +142,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     auditSkill(args[1] || "directives");
   } else {
     // Audit all skills
-    const skills = fs.readdirSync(SKILLS_DIR).filter(f => fs.statSync(path.join(SKILLS_DIR, f)).isDirectory());
+    const skills = fs
+      .readdirSync(SKILLS_DIR)
+      .filter((f) => fs.statSync(path.join(SKILLS_DIR, f)).isDirectory());
     let allClean = true;
-    skills.forEach(s => {
+    skills.forEach((s) => {
       const result = auditSkill(s);
       if (!result.valid) allClean = false;
     });
