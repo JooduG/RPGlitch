@@ -60,8 +60,9 @@ jobs:
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN || github.token }}'
         run: |-
-          ISSUES="$(gh issue list --state 'open' --search 'no:label label:"status/needs-triage"' --json number,title,body --limit '100' --repo "${{ github.repository }}")"
-          echo "issues_to_triage=${ISSUES}" >> "${GITHUB_OUTPUT}"
+          echo "issues_to_triage<<EOF" >> "${GITHUB_OUTPUT}"
+          gh issue list --state 'open' --search 'no:label label:"status/needs-triage"' --json number,title,body --limit '100' --repo "${{ github.repository }}" >> "${GITHUB_OUTPUT}"
+          echo "EOF" >> "${GITHUB_OUTPUT}"
 
       - name: 'Run Sovereign Batch Analysis'
         id: 'gemini_issue_analysis'

@@ -29,16 +29,10 @@ jobs:
       - name: '📦 Install Dependencies'
         run: npm install
 
-      - name: '🧹 The Bouncer (Static Analysis)'
+      - name: '🛡️ The Physics Gate (Sovereign Audit)'
         run: |
-          # Enforces syntax and Svelte 5 logic rules
-          npm run check
-          npm run lint
-
-      - name: '⚔️ The Proving Grounds (Unit Tests)'
-        run: |
-          # Full deterministic test suite (No AI skipping)
-          npx vitest run
+          # Executes comprehensive verification: check, lint, and unit tests
+          npm run verify
 
       - name: '🔨 The Forge (Production Build)'
         run: |

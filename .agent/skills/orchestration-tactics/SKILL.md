@@ -17,6 +17,7 @@ risk: moderate
 skills/orchestration-tactics/
 ├── SKILL.md                 # The Tactical Directive
 ├── scripts/
+│   ├── summarize.js         # The Session Recapper (Audit/Lint/Test)
 │   └── sync.js              # State & Ignore Reconciler
 └── references/
     └── PLAN.template.md     # The Blueprint for tracks
