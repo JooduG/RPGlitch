@@ -22,26 +22,15 @@ However, the aggressive use of glassmorphism (translucency + background blur) co
   - *Fix:* Keep the text container at full opacity, or use a much brighter color if the container must remain translucent.
 - **Library Drawer "Create New" Card:** The background uses a 30% black overlay while the icon wrap uses a 5% white overlay. It doesn't look like a distinct interactive element until hovered.
   - *Fix:* Increase the base opacity to at least 10% or use a dashed border to define the click target.
-- **Profile & Drawer Modals:** Stacking heavily blurred, translucent gray layers creates a muddy effect when multiple dialogs are open.
-  - *Fix:* Reduce the opacity of the top-most modal layer, or introduce a solid, very dark base color to anchor the modal before applying the blur.
 - **VectorCard Delete Button:** Stacking an inset shadow with a border-like shadow creates visual noise and looks cluttered.
   - *Fix:* Pick one. A clean 1px solid border looks more premium than complex shadow stacking.
-
-## Accessibility & readability
 - **Keyboard Navigation:** The app fails the "Keyboard-Only" test. While standard buttons have a focus ring, custom interactive elements (cards, lists, panels) lack clear focus states. The existing focus ring uses a medium gray which doesn't provide enough contrast against dark backgrounds.
 - **Focus Trapping:** Modals and drawers do not trap focus. A keyboard user can tab right out of the drawer and interact with the blurred background elements.
 - **Animation Conflicts:** The custom kinetic hover action for `spin` manually triggers a new animation on `mouseleave` to reset state, rather than reversing the existing animation. Rapid hovering causes these animations to overlap and stutter.
 - **Kinetic Scroll:** The custom drag-to-scroll mechanic on mobile will cause severe jitter because it fails to prevent the browser's native scrolling behavior during touch movements.
-
-## Copy, labels, and structure
-- **Vague Role Labels:** In the Storyboard, roles are labeled "AI Companion", "Fractal", and "User Persona". While descriptive, they are slightly technical. "Fractal" in particular is ambiguous—if it represents a setting or scenario, labeling it "World" or "Scenario" would significantly reduce cognitive load.
-- **Drawer Headers:** "Select AI Companion" is good, but "Select User Persona" is a bit wordy. "Choose Your Persona" feels more direct and engaging.
-- **Empty States:** The drawer empty state says "No Realities Found" for fractals. If the user doesn't know what a Fractal/Reality is, this is confusing.
-- **Tooltips vs Visible Text:** Actions like "Change Character" or "View Profile" are hidden behind tooltips on icon buttons. Relying on tooltips for primary actions slows down the user.
-  - *Suggestion:* If there's room on the card, consider a visible "Edit" or "Swap" text label next to the icons.
+- **Drawer Headers:** "Select AI Character" is good, but "Select User Persona" is a bit wordy. "Choose Your Persona" feels more direct and engaging.
 
 ## Concrete improvement suggestions
 1. **Fix the Glass Contrast:** Immediately audit and bump the opacity or brightness of translucent backgrounds, especially for empty states and tooltips.
 2. **Implement Global Focus Rings:** Define a high-contrast, globally accessible `:focus-visible` utility class (perhaps using a brighter, icy blue or pure white) and apply it to *all* interactive elements, not just buttons.
-3. **Refine Terminology:** Audit the use of "Fractal" and "User Persona". Replace them with standard, immediately understandable terms like "Scenario/World" and "Player/You" where possible to reduce friction.
-4. **Solidify Overlays:** Modals and tooltips at the highest z-index should abandon heavy glassmorphism in favor of solid, opaque backgrounds with subtle borders. This guarantees readability regardless of the complex gradients beneath them.
+3. **Solidify Overlays:** Modals and tooltips at the highest z-index should abandon heavy glassmorphism in favor of solid, opaque backgrounds with subtle borders. This guarantees readability regardless of the complex gradients beneath them.
