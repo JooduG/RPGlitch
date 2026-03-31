@@ -1,4 +1,4 @@
-name: '🔎 Gemini Review'
+name: '🔎 Sovereign PR Review (The Inspector)'
 
 on:
   workflow_call:
@@ -19,7 +19,7 @@ defaults:
 jobs:
   review:
     runs-on: 'ubuntu-latest'
-    timeout-minutes: 7
+    timeout-minutes: 10
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -39,10 +39,10 @@ jobs:
           permission-pull-requests: 'write'
 
       - name: 'Checkout repository'
-        uses: 'actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8' # ratchet:actions/checkout@v6
+        uses: 'actions/checkout@v4'
 
-      - name: 'Run Gemini pull request review'
-        uses: 'google-github-actions/run-gemini-cli@v0' # ratchet:exclude
+      - name: 'Run Inspector Audit (Gemini CLI + MCP)'
+        uses: 'google-github-actions/run-gemini-cli@v0'
         id: 'gemini_pr_review'
         env:
           GITHUB_TOKEN: '${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}'
@@ -106,4 +106,16 @@ jobs:
                 ]
               }
             }
-          prompt: '/gemini-review'
+          # SOVEREIGN RULE INJECTION
+          prompt: |
+            /gemini-review
+            SYSTEM OVERRIDE: OBEY LOCAL CORE.
+            Your objective is to audit PR #${{ github.event.pull_request.number }} against the Antigravity Sovereign Rules.
+            
+            MANDATORY PROTOCOL:
+            1. Check for Svelte 5 Rune purity. Flag any legacy `$store` usage or reactive declarations (`$:`) as a hard failure.
+            2. Check for Nordic Glass aesthetics (Rule 04). Ensure variables like `var(--glass-xl)` are used over raw hex codes.
+            3. Use your MCP tools (`pull_request_read` and `pull_request_review_write`) to leave a structured code review.
+            4. Provide a clear, binary PASS/FAIL verdict at the top of your review comment, followed by bullet points detailing any structural drift or "vibe slop".
+            
+            Context: ${{ inputs.additional_context }}

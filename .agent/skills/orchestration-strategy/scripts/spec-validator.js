@@ -1,7 +1,7 @@
 /**
  * CONCEPT Validator
- * Enforces the border control policy. 
- * Ensures the Discovery Journal contains all mandatory architectural markers before downstream execution.
+ * Enforces the Product Owner policy. 
+ * Ensures the Discovery Journal contains all mandatory conceptual markers before downstream tactical planning.
  */
 
 const fs = require("fs");
@@ -31,12 +31,12 @@ function validate(filePath) {
     process.exit(1);
   }
 
-  console.log(`[CLEARANCE GRANTED] ${path.basename(filePath)} has entered the canon. Routing to orchestrator...`);
+  console.log(`[CLEARANCE GRANTED] ${path.basename(filePath)} has entered the canon. Routing to Tactics...`);
 }
 
 const target = process.argv[2];
 if (!target) {
-  console.log("Usage: node validator.js <path-to-spec.md>");
+  console.log("Usage: node spec-validator.js <path-to-spec.md>");
   process.exit(0);
 }
 

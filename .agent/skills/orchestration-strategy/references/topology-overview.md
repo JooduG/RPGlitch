@@ -1,4 +1,34 @@
-# Project Topography & Sovereign State
+# Project Topography
+
+The ecosystem follows a strict state-sovereignty topography to ensure AI continuity and execution purity. All operations must ground themselves in the **Axiomatic Laws**.
+
+## 🧭 Data Flow
+Every interaction follows the reactive heart rate:
+**1. Strategy (Product) → 2. Tactics (Architecture) → 3. Operations (Execution) → 4. QA (Verification)**
+
+### 1. Strategy & Decoding (The What & Why)
+- **Product Owner**: Intercepts vague intent, performs semantic triage, and drafts the Discovery Journal.
+- **Routing**: Determines complexity level (1, 2, or 3).
+
+### 2. Tactics & Architecture (The How)
+- **Tech Lead**: Receives the Discovery Journal.
+- **Auditor**: For Level 3 tasks, runs the `codebase-review-question-audit` to identify structural traps.
+- **Prompt Engineer**: Optimizes the architectural blueprint into actionable directives.
+- **Output**: Generates atomic, 2-5 minute execution checklists for Operations.
+
+### 3. Operations & Execution (The Build)
+- **Developer**: Direct implementation of the tactical checklist.
+- **Specialists**: CSS, Motion, Audio, and Svelte experts invoked as needed.
+- **State**: Strictly utilizes Svelte 5 Runes.
+
+### 4. Verification & QA (The Gate)
+- **Warden**: Zero-Trust security and logic QA.
+- **DevOps**: Build logic and workspace hygiene.
+- **Circuit Breaker**: Mandatory self-audit protocol on consecutive failures.
+
+---
+
+## Project Topography & Sovereign State
 
 The `RPGlitch` agent projects follows a strict state-sovereignty topography to ensure AI continuity and technical purity. All operations must ground themselves in the **Axiomatic Laws**.
 
@@ -45,10 +75,10 @@ The `RPGlitch` agent projects follows a strict state-sovereignty topography to e
 
 ### [8. **Inhibit Response**](../../../../GEMINI.md#-8-inhibit-your-response)
 - [**Log Book**](../../../orchestration/operation-logs.md): Historical registry.
-- [**Mission Board**](../../../orchestration/strategy-board.md): Current objective state.
+- [**Mission Board**](../../../orchestration/tactical-plan.md): Current objective state.
 
 ---
 
-## 🧭 Data Flow
+## 🧭 Data Flowy
 Every interaction follows the reactive heart rate:
 1. **Intake** (Decoding) → 2. **Routing** (Strategy/Tactics) → 3. **Execution** (Operations/Swarm) → 4. **Verification** (Warden/QA).

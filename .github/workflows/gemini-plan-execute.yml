@@ -1,4 +1,4 @@
-name: '🧙 Gemini Plan Execution'
+name: '🧙 Swarm Execution (The Captain)'
 
 on:
   workflow_call:
@@ -7,9 +7,20 @@ on:
         type: 'string'
         description: 'Any additional context from the request'
         required: false
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: "Dispatch scope (all | logic | ui | css)"
+        required: true
+        default: "all"
+      reason:
+        description: "Reason for dispatch"
+        required: true
+  issues:
+    types: [labeled]
 
 concurrency:
-  group: '${{ github.workflow }}-plan-execute-${{ github.event_name }}-${{ github.event.pull_request.number || github.event.issue.number }}'
+  group: '${{ github.workflow }}-plan-execute-${{ github.event_name }}-${{ github.event.pull_request.number || github.event.issue.number || github.run_id }}'
   cancel-in-progress: true
 
 defaults:
@@ -18,8 +29,12 @@ defaults:
 
 jobs:
   plan-execute:
+    # Only run on issues if it's the 'bug' label, otherwise run normally for dispatch/call
+    if: |-
+      github.event_name != 'issues' || (github.event_name == 'issues' && github.event.label.name == 'bug')
     timeout-minutes: 30
     runs-on: 'ubuntu-latest'
+    
     permissions:
       contents: 'write'
       id-token: 'write'
@@ -42,18 +57,18 @@ jobs:
       - name: 'Checkout Code'
         uses: 'actions/checkout@v4' # ratchet:exclude
 
-      - name: 'Run Gemini CLI'
+      - name: 'Run Gemini CLI (Swarm Operations)'
         id: 'run_gemini'
         uses: 'google-github-actions/run-gemini-cli@v0' # ratchet:exclude
         env:
-          TITLE: '${{ github.event.pull_request.title || github.event.issue.title }}'
-          DESCRIPTION: '${{ github.event.pull_request.body || github.event.issue.body }}'
+          TITLE: '${{ github.event.pull_request.title || github.event.issue.title || github.event.inputs.reason }}'
+          DESCRIPTION: '${{ github.event.pull_request.body || github.event.issue.body || github.event.inputs.scope }}'
           EVENT_NAME: '${{ github.event_name }}'
           GITHUB_TOKEN: '${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}'
           IS_PULL_REQUEST: '${{ !!github.event.pull_request }}'
           ISSUE_NUMBER: '${{ github.event.pull_request.number || github.event.issue.number }}'
           REPOSITORY: '${{ github.repository }}'
-          ADDITIONAL_CONTEXT: '${{ inputs.additional_context }}'
+          ADDITIONAL_CONTEXT: '${{ inputs.additional_context || github.event.inputs.scope }}'
         with:
           gcp_location: '${{ vars.GOOGLE_CLOUD_LOCATION }}'
           gcp_project_id: '${{ vars.GOOGLE_CLOUD_PROJECT }}'
@@ -67,7 +82,7 @@ jobs:
           use_gemini_code_assist: '${{ vars.GOOGLE_GENAI_USE_GCA }}'
           use_vertex_ai: '${{ vars.GOOGLE_GENAI_USE_VERTEXAI }}'
           upload_artifacts: '${{ vars.UPLOAD_ARTIFACTS }}'
-          workflow_name: 'gemini-invoke'
+          workflow_name: 'gemini-plan-execute'
           settings: |-
             {
               "model": {
@@ -123,4 +138,12 @@ jobs:
                 ]
               }
             }
-          prompt: '/gemini-plan-execute'
+          # THE SLOP GATE INJECTION
+          prompt: |
+            /gemini-plan-execute
+            SYSTEM OVERRIDE: OBEY LOCAL CORE.
+            MANDATORY PROTOCOL:
+            1. You MUST read `.agent/skills/swarm/SKILL.md` before execution.
+            2. Enforce the physics defined in `.agent/rules/03-infrastructure.md` and `.agent/rules/06-compliance.md`.
+            3. Evaluate your Confidence Score (0-100%) internally.
+            4. THE SLOP GATE: If your Confidence is < 80%, DO NOT push files directly to the main branch. Instead, use the `create_branch` and `create_pull_request` MCP tools to generate a Draft PR tagged with '⚠️ Swarm Rescue' for the Human Gatekeeper to review.
