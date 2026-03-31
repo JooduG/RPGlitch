@@ -10,7 +10,7 @@ import { rule_rules } from "../../directives/scripts/audit-rules.js";
 import { skill_rules } from "../../directives/scripts/audit-skills.js";
 import { workflow_rules } from "../../directives/scripts/audit-workflows.js";
 import { scan_nomenclature } from "../../directives/scripts/audit-nomenclature.js";
-import { projectRules } from "../../orchestration-operations/scripts/audit-project.js";
+import { projectRules } from "./audit-project.js";
 import { svelteRules } from "../../svelte/scripts/audit-svelte.js";
 import { securityRules } from "./audit-security.js";
 

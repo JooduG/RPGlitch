@@ -5,7 +5,7 @@ process.stdout.write("🧹 Running Antigravity Janitor...\n");
 
 const BLACKLIST = ["node_modules", ".git", ".svelte-kit", "dist", "build", ".vercel"];
 const SRC_DIR = path.join(process.cwd(), "src");
-const STATE_DIR = path.join(process.cwd(), ".agent", "project-management");
+const STATE_DIR = path.join(process.cwd(), ".agent", "orchestration");
 
 let todoItems = [];
 
@@ -52,7 +52,7 @@ try {
   const content = `\n# 📋 Active AI Backlog\n\n*Last Swept: ${new Date().toISOString()}*\n\n${todoItems.length > 0 ? todoItems.join("\n") : "No AI tasks found."}\n`;
 
   if (!fs.existsSync(STATE_DIR)) fs.mkdirSync(STATE_DIR, { recursive: true });
-  fs.writeFileSync(path.join(STATE_DIR, "next.md"), content);
+  fs.writeFileSync(path.join(STATE_DIR, "handover.md"), content);
   process.stdout.write(
     `✅ Backlog updated (${todoItems.length} items) in .agent/orchestration/handover.md\n`,
   );

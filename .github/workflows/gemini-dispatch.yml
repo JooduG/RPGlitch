@@ -1,4 +1,4 @@
-name: '🔀 Gemini Dispatch (The Router)'
+name: '🔀 Gemini Dispatch'
 
 on:
   pull_request_review_comment:
@@ -18,31 +18,14 @@ on:
     types:
       - 'created'
 
-env:
-  # Sovereign Engine: Logic & Round Orchestration
-  GOOGLE_CLOUD_LOCATION: "${{ vars['GOOGLE_CLOUD_LOCATION'] || '' }}"
-  GOOGLE_CLOUD_PROJECT: "${{ vars['GOOGLE_CLOUD_PROJECT'] || '' }}"
-  SERVICE_ACCOUNT_EMAIL: "${{ vars['SERVICE_ACCOUNT_EMAIL'] || '' }}"
-  GCP_WIF_PROVIDER: "${{ vars['GCP_WIF_PROVIDER'] || '' }}"
-  GEMINI_CLI_VERSION: "${{ vars['GEMINI_CLI_VERSION'] || '' }}"
-  GEMINI_MODEL: "${{ vars['GEMINI_MODEL'] || '' }}"
-  GEMINI_DEBUG: "${{ vars['GEMINI_DEBUG'] || '' }}"
-  GOOGLE_GENAI_USE_GCA: "${{ vars['GOOGLE_GENAI_USE_GCA'] || '' }}"
-  GOOGLE_GENAI_USE_VERTEXAI: "${{ vars['GOOGLE_GENAI_USE_VERTEXAI'] || '' }}"
-  UPLOAD_ARTIFACTS: "${{ vars['UPLOAD_ARTIFACTS'] || '' }}"
-  APP_ID: "${{ vars['APP_ID'] || '' }}"
-
 defaults:
   run:
     shell: 'bash'
 
 jobs:
   debugger:
-    env:
-      GEMINI_DEBUG: "${{ vars['GEMINI_DEBUG'] || '' }}"
-      ACTIONS_STEP_DEBUG: "${{ vars['ACTIONS_STEP_DEBUG'] || '' }}"
     if: |-
-      ${{ vars['GEMINI_DEBUG'] == 'true' || vars['ACTIONS_STEP_DEBUG'] == 'true' }}
+      ${{ fromJSON(vars.GEMINI_DEBUG || vars.ACTIONS_STEP_DEBUG || false) }}
     runs-on: 'ubuntu-latest'
     permissions:
       contents: 'read'
@@ -89,16 +72,16 @@ jobs:
       - name: 'Mint identity token'
         id: 'mint_identity_token'
         if: |-
-          ${{ env.APP_ID != '' }}
+          ${{ vars.APP_ID }}
         uses: 'actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf' # ratchet:actions/create-github-app-token@v2
         with:
-          app-id: '${{ env.APP_ID }}'
-          private-key: "${{ secrets['APP_PRIVATE_KEY'] }}"
+          app-id: '${{ vars.APP_ID }}'
+          private-key: '${{ secrets.APP_PRIVATE_KEY }}'
           permission-contents: 'read'
           permission-issues: 'write'
           permission-pull-requests: 'write'
 
-      - name: 'Extract command & Route to Tier'
+      - name: 'Extract command'
         id: 'extract_command'
         uses: 'actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea' # ratchet:actions/github-script@v7
         env:
@@ -120,11 +103,8 @@ jobs:
               core.setOutput('additional_context', additionalContext);
             } else if (request.startsWith("@gemini-cli /triage")) {
               core.setOutput('command', 'triage');
-            } else if (request.startsWith("@gemini-cli /approve") || request.startsWith("@gemini-cli /swarm")) {
-              // Map both approve and the new /swarm command to the Swarm Captain
-              core.setOutput('command', 'plan-execute');
-              const additionalContext = request.replace(/^@gemini-cli \/(approve|swarm)/, '').trim();
-              core.setOutput('additional_context', additionalContext);
+            } else if (request.startsWith("@gemini-cli /approve")) {
+              core.setOutput('command', 'approve');
             } else if (request.startsWith("@gemini-cli")) {
               const additionalContext = request.replace(/^@gemini-cli/, '').trim();
               core.setOutput('command', 'invoke');
@@ -133,14 +113,12 @@ jobs:
               core.setOutput('command', 'fallthrough');
             }
 
-      - name: 'Acknowledge request (Sovereign Comms)'
+      - name: 'Acknowledge request'
         env:
           GITHUB_TOKEN: '${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}'
           ISSUE_NUMBER: '${{ github.event.pull_request.number || github.event.issue.number }}'
           MESSAGE: |-
-            🤖 **The Sovereign Router** has intercepted your signal, @${{ github.actor }}. 
-            
-            I am routing this task to the appropriate node. You can monitor the telemetry [in the pipeline logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+            🤖 Hi @${{ github.actor }}, I've received your request, and I'm working on it now! You can track my progress [in the logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more details.
           REPOSITORY: '${{ github.repository }}'
         run: |-
           gh issue comment "${ISSUE_NUMBER}" \
@@ -151,113 +129,57 @@ jobs:
     needs: 'dispatch'
     if: |-
       ${{ needs.dispatch.outputs.command == 'review' }}
-    uses: "./.github/workflows/gemini-review.yml"
+    uses: './.github/workflows/gemini-review.yml'
     permissions:
-      contents: read
-      id-token: write
-      issues: write
-      pull-requests: write
+      contents: 'read'
+      id-token: 'write'
+      issues: 'write'
+      pull-requests: 'write'
     with:
-      additional_context: ${{ needs.dispatch.outputs.additional_context }}
-      GOOGLE_CLOUD_LOCATION: "${{ vars['GOOGLE_CLOUD_LOCATION'] || '' }}"
-      GOOGLE_CLOUD_PROJECT: "${{ vars['GOOGLE_CLOUD_PROJECT'] || '' }}"
-      SERVICE_ACCOUNT_EMAIL: "${{ vars['SERVICE_ACCOUNT_EMAIL'] || '' }}"
-      GCP_WIF_PROVIDER: "${{ vars['GCP_WIF_PROVIDER'] || '' }}"
-      GEMINI_CLI_VERSION: "${{ vars['GEMINI_CLI_VERSION'] || '' }}"
-      GEMINI_MODEL: "${{ vars['GEMINI_MODEL'] || '' }}"
-      GEMINI_DEBUG: "${{ vars['GEMINI_DEBUG'] || '' }}"
-      GOOGLE_GENAI_USE_GCA: "${{ vars['GOOGLE_GENAI_USE_GCA'] || '' }}"
-      GOOGLE_GENAI_USE_VERTEXAI: "${{ vars['GOOGLE_GENAI_USE_VERTEXAI'] || '' }}"
-      UPLOAD_ARTIFACTS: "${{ vars['UPLOAD_ARTIFACTS'] || '' }}"
-      APP_ID: "${{ vars['APP_ID'] || '' }}"
-    secrets:
-      GEMINI_API_KEY: "${{ secrets['GEMINI_API_KEY'] }}"
-      GOOGLE_API_KEY: "${{ secrets['GOOGLE_API_KEY'] }}"
-      APP_PRIVATE_KEY: "${{ secrets['APP_PRIVATE_KEY'] }}"
+      additional_context: '${{ needs.dispatch.outputs.additional_context }}'
+    secrets: 'inherit'
 
   triage:
     needs: 'dispatch'
     if: |-
       ${{ needs.dispatch.outputs.command == 'triage' }}
-    uses: "./.github/workflows/gemini-triage.yml"
+    uses: './.github/workflows/gemini-triage.yml'
     permissions:
-      contents: read
-      id-token: write
-      issues: write
-      pull-requests: write
+      contents: 'read'
+      id-token: 'write'
+      issues: 'write'
+      pull-requests: 'write'
     with:
-      additional_context: ${{ needs.dispatch.outputs.additional_context }}
-      GOOGLE_CLOUD_LOCATION: "${{ vars['GOOGLE_CLOUD_LOCATION'] || '' }}"
-      GOOGLE_CLOUD_PROJECT: "${{ vars['GOOGLE_CLOUD_PROJECT'] || '' }}"
-      SERVICE_ACCOUNT_EMAIL: "${{ vars['SERVICE_ACCOUNT_EMAIL'] || '' }}"
-      GCP_WIF_PROVIDER: "${{ vars['GCP_WIF_PROVIDER'] || '' }}"
-      GEMINI_CLI_VERSION: "${{ vars['GEMINI_CLI_VERSION'] || '' }}"
-      GEMINI_MODEL: "${{ vars['GEMINI_MODEL'] || '' }}"
-      GEMINI_DEBUG: "${{ vars['GEMINI_DEBUG'] || '' }}"
-      GOOGLE_GENAI_USE_GCA: "${{ vars['GOOGLE_GENAI_USE_GCA'] || '' }}"
-      GOOGLE_GENAI_USE_VERTEXAI: "${{ vars['GOOGLE_GENAI_USE_VERTEXAI'] || '' }}"
-      UPLOAD_ARTIFACTS: "${{ vars['UPLOAD_ARTIFACTS'] || '' }}"
-      APP_ID: "${{ vars['APP_ID'] || '' }}"
-    secrets:
-      GEMINI_API_KEY: "${{ secrets['GEMINI_API_KEY'] }}"
-      GOOGLE_API_KEY: "${{ secrets['GOOGLE_API_KEY'] }}"
-      APP_PRIVATE_KEY: "${{ secrets['APP_PRIVATE_KEY'] }}"
+      additional_context: '${{ needs.dispatch.outputs.additional_context }}'
+    secrets: 'inherit'
 
   invoke:
     needs: 'dispatch'
     if: |-
       ${{ needs.dispatch.outputs.command == 'invoke' }}
-    uses: "./.github/workflows/gemini-invoke.yml"
+    uses: './.github/workflows/gemini-invoke.yml'
     permissions:
-      contents: read
-      id-token: write
-      issues: write
-      pull-requests: write
+      contents: 'read'
+      id-token: 'write'
+      issues: 'write'
+      pull-requests: 'write'
     with:
-      additional_context: ${{ needs.dispatch.outputs.additional_context }}
-      GOOGLE_CLOUD_LOCATION: "${{ vars['GOOGLE_CLOUD_LOCATION'] || '' }}"
-      GOOGLE_CLOUD_PROJECT: "${{ vars['GOOGLE_CLOUD_PROJECT'] || '' }}"
-      SERVICE_ACCOUNT_EMAIL: "${{ vars['SERVICE_ACCOUNT_EMAIL'] || '' }}"
-      GCP_WIF_PROVIDER: "${{ vars['GCP_WIF_PROVIDER'] || '' }}"
-      GEMINI_CLI_VERSION: "${{ vars['GEMINI_CLI_VERSION'] || '' }}"
-      GEMINI_MODEL: "${{ vars['GEMINI_MODEL'] || '' }}"
-      GEMINI_DEBUG: "${{ vars['GEMINI_DEBUG'] || '' }}"
-      GOOGLE_GENAI_USE_GCA: "${{ vars['GOOGLE_GENAI_USE_GCA'] || '' }}"
-      GOOGLE_GENAI_USE_VERTEXAI: "${{ vars['GOOGLE_GENAI_USE_VERTEXAI'] || '' }}"
-      UPLOAD_ARTIFACTS: "${{ vars['UPLOAD_ARTIFACTS'] || '' }}"
-      APP_ID: "${{ vars['APP_ID'] || '' }}"
-    secrets:
-      GEMINI_API_KEY: "${{ secrets['GEMINI_API_KEY'] }}"
-      GOOGLE_API_KEY: "${{ secrets['GOOGLE_API_KEY'] }}"
-      APP_PRIVATE_KEY: "${{ secrets['APP_PRIVATE_KEY'] }}"
+      additional_context: '${{ needs.dispatch.outputs.additional_context }}'
+    secrets: 'inherit'
 
   plan-execute:
     needs: 'dispatch'
     if: |-
-      ${{ needs.dispatch.outputs.command == 'plan-execute' }}
-    uses: "./.github/workflows/gemini-plan-execute.yml"
+      ${{ needs.dispatch.outputs.command == 'approve' }}
+    uses: './.github/workflows/gemini-plan-execute.yml'
     permissions:
-      contents: write
-      id-token: write
-      issues: write
-      pull-requests: write
+      contents: 'write'
+      id-token: 'write'
+      issues: 'write'
+      pull-requests: 'write'
     with:
-      additional_context: ${{ needs.dispatch.outputs.additional_context }}
-      GOOGLE_CLOUD_LOCATION: "${{ vars['GOOGLE_CLOUD_LOCATION'] || '' }}"
-      GOOGLE_CLOUD_PROJECT: "${{ vars['GOOGLE_CLOUD_PROJECT'] || '' }}"
-      SERVICE_ACCOUNT_EMAIL: "${{ vars['SERVICE_ACCOUNT_EMAIL'] || '' }}"
-      GCP_WIF_PROVIDER: "${{ vars['GCP_WIF_PROVIDER'] || '' }}"
-      GEMINI_CLI_VERSION: "${{ vars['GEMINI_CLI_VERSION'] || '' }}"
-      GEMINI_MODEL: "${{ vars['GEMINI_MODEL'] || '' }}"
-      GEMINI_DEBUG: "${{ vars['GEMINI_DEBUG'] || '' }}"
-      GOOGLE_GENAI_USE_GCA: "${{ vars['GOOGLE_GENAI_USE_GCA'] || '' }}"
-      GOOGLE_GENAI_USE_VERTEXAI: "${{ vars['GOOGLE_GENAI_USE_VERTEXAI'] || '' }}"
-      UPLOAD_ARTIFACTS: "${{ vars['UPLOAD_ARTIFACTS'] || '' }}"
-      APP_ID: "${{ vars['APP_ID'] || '' }}"
-    secrets:
-      GEMINI_API_KEY: "${{ secrets['GEMINI_API_KEY'] }}"
-      GOOGLE_API_KEY: "${{ secrets['GOOGLE_API_KEY'] }}"
-      APP_PRIVATE_KEY: "${{ secrets['APP_PRIVATE_KEY'] }}"
+      additional_context: '${{ needs.dispatch.outputs.additional_context }}'
+    secrets: 'inherit'
 
   fallthrough:
     needs:
@@ -277,23 +199,21 @@ jobs:
       - name: 'Mint identity token'
         id: 'mint_identity_token'
         if: |-
-          ${{ env.APP_ID != '' }}
+          ${{ vars.APP_ID }}
         uses: 'actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf' # ratchet:actions/create-github-app-token@v2
         with:
-          app-id: '${{ env.APP_ID }}'
-          private-key: "${{ secrets['APP_PRIVATE_KEY'] }}"
+          app-id: '${{ vars.APP_ID }}'
+          private-key: '${{ secrets.APP_PRIVATE_KEY }}'
           permission-contents: 'read'
           permission-issues: 'write'
           permission-pull-requests: 'write'
 
-      - name: 'Send failure comment (Sovereign Comms)'
+      - name: 'Send failure comment'
         env:
           GITHUB_TOKEN: '${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}'
           ISSUE_NUMBER: '${{ github.event.pull_request.number || github.event.issue.number }}'
           MESSAGE: |-
-            🚨 **Engine Stall:** @${{ github.actor }}, the routing layer failed to process this request or encountered a structural error. 
-            
-            Please review the [system logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for the exact stack trace.
+            🤖 I'm sorry @${{ github.actor }}, but I was unable to process your request. Please [see the logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more details.
           REPOSITORY: '${{ github.repository }}'
         run: |-
           gh issue comment "${ISSUE_NUMBER}" \

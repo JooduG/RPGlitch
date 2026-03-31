@@ -35,3 +35,6 @@
 **/.DS_Store
 **/.gemini/**
 !**/rpglitch-left-panel.txt
+
+.gemini/
+gha-creds-*.json

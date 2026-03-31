@@ -7,7 +7,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PROJECT_ROOT = path.join(__dirname, "..", "..", "..");
+const PROJECT_ROOT = path.join(__dirname, "..", "..", "..", "..");
 const SKILLS_DIR = path.join(PROJECT_ROOT, ".agent", "skills");
 const RULES_DIR = path.join(PROJECT_ROOT, ".agent", "rules");
 const WORKFLOWS_DIR = path.join(PROJECT_ROOT, ".agent", "workflows");

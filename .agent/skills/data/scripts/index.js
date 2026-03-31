@@ -176,6 +176,23 @@ async function handleQueryCold(args) {
 // ── Bootstrap ───────────────────────────────────────────────────────────
 
 async function main() {
+  const args = process.argv.slice(2);
+  
+  // CLI Mode: Allow running tasks directly (e.g. for batch jobs in CI)
+  if (args.length > 0) {
+    console.error(`🔮 Librarian CLI: Executing task '${args[0]}'...`);
+    if (args[0] === "upsert") {
+      // Default: Upsert critical core logic and rules
+      await handleWriteKB({ 
+        paths: [".agent/rules", ".agent/skills", "src/core"], 
+        namespace: "knowledge-base.meta" 
+      });
+      process.exit(0);
+    }
+    console.error(`❌ Unknown CLI command: ${args[0]}`);
+    process.exit(1);
+  }
+
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error("Oracle MCP Server v3.0.0 running on stdio");

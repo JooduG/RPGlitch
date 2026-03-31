@@ -97,10 +97,10 @@ function runJanitor() {
   }
 }
 
-// 3. Reconcile Mission Board (log.md -> mission-board.md)
+// 3. Reconcile Mission Board (operation-logs.md -> tactical-plan.md)
 function reconcileState() {
-  const tracksPath = path.join(ROOT_DIR, ".agent", "project-management", "log.md");
-  const globalPath = path.join(ROOT_DIR, ".agent", "project-management", "mission-board.md");
+  const tracksPath = path.join(ROOT_DIR, ".agent", "orchestration", "operation-logs.md");
+  const globalPath = path.join(ROOT_DIR, ".agent", "orchestration", "tactical-plan.md");
 
   if (!fs.existsSync(tracksPath) || !fs.existsSync(globalPath)) return;
 
@@ -133,7 +133,7 @@ function reconcileState() {
 // 4. Rule Validation
 function validateRules() {
   const rulesDir = path.join(ROOT_DIR, ".agent", "rules");
-  const globalPath = path.join(ROOT_DIR, ".agent", "project-management", "mission-board.md");
+  const globalPath = path.join(ROOT_DIR, ".agent", "orchestration", "tactical-plan.md");
 
   if (!fs.existsSync(rulesDir) || !fs.existsSync(globalPath)) return;
 

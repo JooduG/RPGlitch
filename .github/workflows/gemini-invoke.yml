@@ -1,4 +1,4 @@
-name: '▶️ Gemini Invoke (Direct Comm)'
+name: '▶️ Gemini Invoke'
 
 on:
   workflow_call:
@@ -6,46 +6,6 @@ on:
       additional_context:
         type: 'string'
         description: 'Any additional context from the request'
-        required: false
-      GOOGLE_CLOUD_LOCATION:
-        type: 'string'
-        required: false
-      GOOGLE_CLOUD_PROJECT:
-        type: 'string'
-        required: false
-      SERVICE_ACCOUNT_EMAIL:
-        type: 'string'
-        required: false
-      GCP_WIF_PROVIDER:
-        type: 'string'
-        required: false
-      GEMINI_CLI_VERSION:
-        type: 'string'
-        required: false
-      GEMINI_MODEL:
-        type: 'string'
-        required: false
-      GEMINI_DEBUG:
-        type: 'string'
-        required: false
-      GOOGLE_GENAI_USE_GCA:
-        type: 'string'
-        required: false
-      GOOGLE_GENAI_USE_VERTEXAI:
-        type: 'string'
-        required: false
-      UPLOAD_ARTIFACTS:
-        type: 'string'
-        required: false
-      APP_ID:
-        type: 'string'
-        required: false
-    secrets:
-      GEMINI_API_KEY:
-        required: false
-      GOOGLE_API_KEY:
-        required: false
-      APP_PRIVATE_KEY:
         required: false
 
 concurrency:
@@ -68,21 +28,21 @@ jobs:
       - name: 'Mint identity token'
         id: 'mint_identity_token'
         if: |-
-          ${{ inputs.APP_ID != '' }}
+          ${{ vars.APP_ID }}
         uses: 'actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf' # ratchet:actions/create-github-app-token@v2
         with:
-          app-id: '${{ inputs.APP_ID }}'
+          app-id: '${{ vars.APP_ID }}'
           private-key: '${{ secrets.APP_PRIVATE_KEY }}'
           permission-contents: 'read'
           permission-issues: 'write'
           permission-pull-requests: 'write'
 
       - name: 'Checkout Code'
-        uses: 'actions/checkout@v4'
+        uses: 'actions/checkout@v4' # ratchet:exclude
 
-      - name: 'Run Gemini CLI (Direct Comm)'
+      - name: 'Run Gemini CLI'
         id: 'run_gemini'
-        uses: 'google-github-actions/run-gemini-cli@v0'
+        uses: 'google-github-actions/run-gemini-cli@v0' # ratchet:exclude
         env:
           TITLE: '${{ github.event.pull_request.title || github.event.issue.title }}'
           DESCRIPTION: '${{ github.event.pull_request.body || github.event.issue.body }}'
@@ -93,18 +53,18 @@ jobs:
           REPOSITORY: '${{ github.repository }}'
           ADDITIONAL_CONTEXT: '${{ inputs.additional_context }}'
         with:
-          gcp_location: '${{ inputs.GOOGLE_CLOUD_LOCATION }}'
-          gcp_project_id: '${{ inputs.GOOGLE_CLOUD_PROJECT }}'
-          gcp_service_account: '${{ inputs.SERVICE_ACCOUNT_EMAIL }}'
-          gcp_workload_identity_provider: '${{ inputs.GCP_WIF_PROVIDER }}'
+          gcp_location: '${{ vars.GOOGLE_CLOUD_LOCATION }}'
+          gcp_project_id: '${{ vars.GOOGLE_CLOUD_PROJECT }}'
+          gcp_service_account: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
+          gcp_workload_identity_provider: '${{ vars.GCP_WIF_PROVIDER }}'
           gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
-          gemini_cli_version: '${{ inputs.GEMINI_CLI_VERSION }}'
-          gemini_debug: '${{ fromJSON(inputs.GEMINI_DEBUG || false) }}'
-          gemini_model: '${{ inputs.GEMINI_MODEL }}'
+          gemini_cli_version: '${{ vars.GEMINI_CLI_VERSION }}'
+          gemini_debug: '${{ fromJSON(vars.GEMINI_DEBUG || vars.ACTIONS_STEP_DEBUG || false) }}'
+          gemini_model: '${{ vars.GEMINI_MODEL }}'
           google_api_key: '${{ secrets.GOOGLE_API_KEY }}'
-          use_gemini_code_assist: '${{ inputs.GOOGLE_GENAI_USE_GCA }}'
-          use_vertex_ai: '${{ inputs.GOOGLE_GENAI_USE_VERTEXAI }}'
-          upload_artifacts: '${{ inputs.UPLOAD_ARTIFACTS }}'
+          use_gemini_code_assist: '${{ vars.GOOGLE_GENAI_USE_GCA }}'
+          use_vertex_ai: '${{ vars.GOOGLE_GENAI_USE_VERTEXAI }}'
+          upload_artifacts: '${{ vars.UPLOAD_ARTIFACTS }}'
           workflow_name: 'gemini-invoke'
           settings: |-
             {
@@ -155,13 +115,4 @@ jobs:
                 ]
               }
             }
-          # SOVEREIGN Q&A INJECTION
-          prompt: |
-            /gemini-invoke
-            SYSTEM OVERRIDE: OBEY LOCAL CORE.
-            You are the Sovereign AI responding to a direct inquiry or analysis request.
-            1. You may use your MCP tools to read the repository to gather context.
-            2. Do NOT attempt to write code to the repository (you do not have those permissions here).
-            3. Provide your analysis directly as an issue/PR comment.
-            
-            User Context/Request: ${{ inputs.additional_context }}
+          prompt: '/gemini-invoke'
