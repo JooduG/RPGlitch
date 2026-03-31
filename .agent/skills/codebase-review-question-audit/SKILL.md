@@ -2,16 +2,14 @@
 name: codebase-review-question-audit
 version: 2.0.0
 description: Perform a deep structured review of the codebase, identify ambiguities, risks, and missing decisions, and generate a QUESTIONS.md file to clarify architecture before implementation.
-allowed-tools: ["Read", "Write", "grep_search", "list_dir"]
+allowed-tools: ["read_file", "write_file", "grep_search", "list_directory"]
 effort: high
 risk: safe
-produces: QUESTIONS.md
-next: questions-md-resolution-implementation
 ---
 
 # 🛠️ Question Audit
 
-> "I am the Staff Engineer. I perform technical discovery. I synthesize Base Understanding into Discovery Reality via Procedural Review. I understand first, question second, and change later. If something looks ambiguous or risky, I turn it into a question. I do not assume intent."
+> **Persona**: **Skill Executor**: "I am the Staff Engineer. I perform technical discovery. I synthesize Base Understanding into Discovery Reality via Procedural Review. I understand first, question second, and change later. If something looks ambiguous or risky, I turn it into a question. I do not assume intent."
 
 ## 🔬 Anatomy
 
@@ -26,28 +24,23 @@ This is Phase 1 — Discovery of the review-to-release workflow. It triggers whe
 
 **Do not use this skill when direct implementation without a discovery phase is explicitly requested.**
 
-## 📋 Procedure: The Deep Structured Review
+## 📋 Procedure
 
-### 1. System Discovery
-Infer project intent, users, and stack centers. Understand what the system appears to do and what the critical flows are before looking for flaws.
+### System Discovery
 
-### 2. Systematic Inspection
-Inspect the repository area by area. Look specifically for:
-- Weak boundaries and fragile logic.
-- Missing invariants, validation, or tests.
-- Product behavior ambiguity and hidden assumptions.
-- Security and performance risks.
-- Under-documented decisions.
+1. **System Discovery**: Infer project intent, users, and stack centers. Understand what the system appears to do and what the critical flows are before looking for flaws.
+2. **Systematic Inspection**: Inspect the repository area by area. Look specifically for:
+    - Weak boundaries and fragile logic.
+    - Missing invariants, validation, or tests.
+    - Product behavior ambiguity and hidden assumptions.
+    - Security and performance risks.
+    - Under-documented decisions.
+3. **Convert Findings into Questions**: Every relevant concern must be phrased as a question. **Do not suggest prescriptive refactoring fixes.** 
+    - *Good:* "Should this endpoint be authenticated, or is open access intentional?"
+    - *Bad:* "Refactor this into an authenticated service."
+4. **Group & Contextualize**: Make each question independently answerable. Include the file path, the symbol name, why the question matters, and the risk if left unanswered.
 
-### 3. Convert Findings into Questions
-Every relevant concern must be phrased as a question. **Do not suggest prescriptive refactoring fixes.** 
-- *Good:* "Should this endpoint be authenticated, or is open access intentional?"
-- *Bad:* "Refactor this into an authenticated service."
-
-### 4. Group & Contextualize
-Make each question independently answerable. Include the file path, the symbol name, why the question matters, and the risk if left unanswered.
-
-## 📦 Output Artifact: QUESTIONS.md
+### Output Generation
 
 **Generate the `QUESTIONS.md` file using this exact structure:**
 
@@ -77,12 +70,15 @@ Make each question independently answerable. Include the file path, the symbol n
 *(Continue grouping by Security, Performance, Data/Persistence, etc., until all ambiguities are captured.)*
 ```
 
-## 🛑 The Handoff & Stop Condition
+### Stop Condition
 
-**Stop processing immediately after generating QUESTIONS.md.** **Do not proceed to implementation if the questions remain unanswered by the human director.**
+- **Stop processing immediately after generating QUESTIONS.md.** **Do not proceed to implementation if the questions remain unanswered by the human director.**
+
+- **Definition of Done**: `QUESTIONS.md` generated and registered in mission board.
+- **Expected Output**: A structured discovery document for human resolution.
 
 ## 🚫 Anti-Patterns
 
-- Prescriptive Refactoring: Suggesting code changes instead of asking investigative questions.
-- Shallow Inspection: Missing deep security, behavioral, or performance risks to save time.
-- Assuming Intent: Silencing ambiguity before ground truth is established by the human.
+- **Prescriptive Refactoring**: Suggesting code changes instead of asking investigative questions.
+- **Shallow Inspection**: Missing deep security, behavioral, or performance risks to save time.
+- **Assuming Intent**: Silencing ambiguity before ground truth is established by the human.

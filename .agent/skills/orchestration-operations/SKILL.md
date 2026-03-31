@@ -2,7 +2,7 @@
 name: orchestration-operations
 version: 3.0.0
 description: The Operational Implementer. Executes tactical plans, manages the Log Book, and ensures Svelte 5 technical purity.
-allowed-tools: ["run_command", "write_to_file", "multi_replace_file_content", "view_file"]
+allowed-tools: ["run_command", "write_to_file", "multi_replace_file_content", "view_file", "write_knowledge_base"]
 effort: high
 risk: safe
 ---
@@ -49,6 +49,10 @@ Execute every checklist beat in the plan using this sequence:
 
 - Before finishing the task, **invoke [Warden](https://www.google.com/search?q=../../skills/warden/SKILL.md)**.
 - Ensure the code survives a security and logic sweep.
+
+### Step 4.5: Knowledge Ingestion
+
+- **Ingestion**: Invoke `write_knowledge_base` to ingest the verified implementation logic and core components into Pinecone (Working Memory).
 
 ### Step 5: The Close-out
 

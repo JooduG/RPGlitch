@@ -65,7 +65,7 @@
 
   .modal-content {
     background: var(--glass-xl);
-    backdrop-filter: var(--glass-blur-l);
+    backdrop-filter: var(--glass-blur-xl);
     border: var(--glass-edge-l);
     border-top: var(--glass-edge-xl);
     border-radius: var(--border-radius-l);

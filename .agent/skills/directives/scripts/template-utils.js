@@ -3,7 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ASSET_DIR = path.join(__dirname, "..", "assets");
+const TEMPLATES_DIR = path.join(__dirname, "..", "templates");
 
 /**
  * 🌊 Template Utilities (The Sovereign Blueprint)
@@ -54,17 +54,25 @@ const isHeaderMatch = (templateHeader, actualLevel, actualText, projectName) => 
 };
 
 /**
+ * Removes markdown code blocks from text to prevent false positives during header auditing.
+ */
+const stripCodeBlocks = (text) => {
+  return text.replace(/```[\s\S]*?```/g, "");
+};
+
+/**
  * Reads a .template.md file and extracts mandatory fields and headers.
  * @param {string} type - "SKILL", "RULE", or "WORKFLOW"
  * @returns {object} - { fields: object[], headers: object[] }
  */
 export const getTemplateStructure = (type) => {
-  const filePath = path.join(ASSET_DIR, `${type}.template.md`);
+  const filePath = path.join(TEMPLATES_DIR, `${type}.template.md`);
   if (!fs.existsSync(filePath)) {
     throw new Error(`🚨 Template not found: ${filePath}`);
   }
 
   const content = fs.readFileSync(filePath, "utf-8");
+  const contentNoCode = stripCodeBlocks(content);
   
   // 1. Extract Frontmatter Structure
   const fields = [];
@@ -84,7 +92,7 @@ export const getTemplateStructure = (type) => {
 
   // 2. Extract Header Structure (H1, H2, H3)
   const headers = [];
-  const hMatches = content.matchAll(/^(#|##|###)\s+(.+)$/gm);
+  const hMatches = contentNoCode.matchAll(/^(#|##|###)\s+(.+)$/gm);
   for (const match of hMatches) {
     const level = match[1].length;
     const text = match[2].trim();
@@ -107,6 +115,8 @@ export const getTemplateStructure = (type) => {
  * @param {function} report - callback(severity, message)
  */
 export const validateAgainstStructure = (content, structure, report) => {
+  const contentNoCode = stripCodeBlocks(content);
+
   // 1. Extract Actual Frontmatter
   const fmMatch = content.match(/^---\r?\n([\s\S]+?)\r?\n---/);
   if (!fmMatch) {
@@ -141,7 +151,7 @@ export const validateAgainstStructure = (content, structure, report) => {
   }
 
   // 3. Header Audit
-  const hMatches = content.matchAll(/^(#|##|###)\s+(.+)$/gm);
+  const hMatches = contentNoCode.matchAll(/^(#|##|###)\s+(.+)$/gm);
   const actualHeaders = Array.from(hMatches).map(m => ({
     level: m[1].length,
     text: m[2].trim()

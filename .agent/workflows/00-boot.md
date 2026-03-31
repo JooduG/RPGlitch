@@ -29,20 +29,15 @@ date_added: 2024-03-29
 
 ## Procedure
 
-### Phase 1: The Clarity Gate (Step 1: Dependencies)
+### Phase 1: Context Mastery (The Awakening)
 
-1. **Intake**: Read [Mission Board](../orchestration/strategy-board.md), [log](../orchestration/operation-logs.md), and [Next](../orchestration/handover.md). Ensure intent matches the current mission. [[Invoke: orchestration-strategy]](../skills/orchestration-strategy/SKILL.md)
-2. **Environment Verification**: Explicitly acknowledge the target environment (Perchance sandboxed runtime) and reactivity standard (Svelte 5 Runes).
-3. **State Sync**: Use [sync.js](../skills/orchestration-tactics/scripts/sync.js) to reconcile the mission board and ignore layers. [[Invoke: orchestration-tactics]](../skills/orchestration-tactics/SKILL.md)
+1. **Mission Reconciler**: Reconcile the Mission Board and Log Book with the current repository state. This skill now internally recovers global architectural context from Pinecone. [[Invoke: orchestration-tactics]](../skills/orchestration-tactics/SKILL.md)
+2. **Registry Sync**: Identifies any active track `[/]` or pending tasks `[ ]`.
 
-### Phase 2: Registry (Step 1.3: Prerequisites)
+### Phase 2: Quality Gate (The Resonance)
 
-1. **Registry**: Identify any active track `[/]` or pending tasks `[ ]` in [log](../orchestration/operation-logs.md). If no active track exists, wait for user input or initiate [/01-plan](./01-plan.md). [[Invoke: orchestration-tactics]](../skills/orchestration-tactics/SKILL.md)
-
-### Phase 3: The Quality Gate (Audit & Heartbeat)
-
-1. **Audit**: Verify project health using Rule 06 (Compliance). Identify any immediate hygiene anomalies or security leaks. [[Invoke: warden]](../skills/warden/SKILL.md)
-2. **Report**: State current mission, environment acknowledgment, and ready status. "Boot complete. Resonant with Global State."
+1. **System Audit**: Verify project health and security invariants. This skill internally checks the "Permanent Record" for known vulnerabilities or overrides. [[Invoke: warden]](../skills/warden/SKILL.md)
+2. **Report**: Signal the mission status and target environment. "Boot complete. Resonant with Global State."
 
 ## Anti-Patterns
 

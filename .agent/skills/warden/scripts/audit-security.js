@@ -23,6 +23,7 @@ export const securityRules = [
         "simulation-cycle.js",
         "spec-validator.js",
         "SWARM.js",
+        "swarm-ops.js",
       ];
       return (
         !filePath.endsWith(".test.js") && !cliScripts.some((script) => filePath.includes(script))

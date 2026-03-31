@@ -26,6 +26,7 @@ export class AppStore {
   // --- NAVIGATION ---
   view = $state("storyboard"); // 'storyboard' | 'storymode'
   control_panel_open = $state(false);
+  left_panel_open = $state(false);
   profile_open = $state(false);
   // --- ENTITY SELECTION STATE (STORYBOARD) ---
   selected_ai = $state(null);
@@ -168,6 +169,9 @@ export class AppStore {
    ************************************************************************************/
   toggle_control_panel = () => {
     this.control_panel_open = !this.control_panel_open;
+  };
+  toggle_left_panel = () => {
+    this.left_panel_open = !this.left_panel_open;
   };
   set_view = (view) => {
     this.view = view;

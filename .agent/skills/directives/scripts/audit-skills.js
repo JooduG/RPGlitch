@@ -63,6 +63,7 @@ const auditSkill = (skillName, silent = false) => {
     logIssue(SEVERITY.HERESY, "Missing SKILL.md", 50);
   } else {
     const content = fs.readFileSync(skillMd, "utf-8");
+    const contentNoCode = content.replace(/```[\s\S]*?```/g, "");
 
     // 1. Template-Driven Validation
     const structure = getTemplateStructure("SKILL");
@@ -72,7 +73,7 @@ const auditSkill = (skillName, silent = false) => {
     });
 
     // 2. Structural Exclusivity
-    const allowedSubfolders = ["scripts", "references", "assets"];
+    const allowedSubfolders = ["scripts", "references", "assets", "rules", "templates", "agents", "data"];
     const currentSubfolders = fs.readdirSync(skillPath)
       .filter(f => fs.statSync(path.join(skillPath, f)).isDirectory());
 
@@ -83,7 +84,7 @@ const auditSkill = (skillName, silent = false) => {
     });
 
     // 3. Placeholder Detection (simplified)
-    const placeholders = content.match(/\[.*?\](?!\()/g) || [];
+    const placeholders = contentNoCode.match(/\[[A-Z][A-Z0-9_\/]{2,}\](?!\()/g) || [];
     const invalidPlaceholders = placeholders.filter(p => !p.includes("file:///") && p.length > 2 && p.length < 50);
     if (invalidPlaceholders.length > 3) {
       logIssue(SEVERITY.HIGH, `Unfilled placeholders detected: ${invalidPlaceholders.join(", ")}`, 15);

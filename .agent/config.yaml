@@ -23,7 +23,7 @@ skills:
 workflows:
   00-boot: .agent/workflows/00-boot.md
   01-plan: .agent/workflows/01-plan.md
-  02-build: .agent/workflows/02-build.md
+  02-execute: .agent/workflows/02-execute.md
   03-clean: .agent/workflows/03-clean.md
   04-review: .agent/workflows/04-review.md
   05-deploy: .agent/workflows/05-deploy.md

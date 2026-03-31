@@ -100,16 +100,34 @@ Any tool output that is truncated (e.g. `(...N more results not shown)`) represe
 
 ---
 
-### 6. The Operational Heartbeat
+### 7. Memory Protocol (Pinecone & Supabase)
+
+Agents MUST utilize the dual-layer memory system via the [Data](../../.agent/skills/data/SKILL.md) skill to maintain technical precision and historical continuity.
+
+#### **Working Memory (Pinecone)**
+- **Mandate**: Use `read_knowledge_base` BEFORE starting any task involving architectural patterns or external library implementation (e.g., Svelte 5 runes, Bits UI).
+- **Injection**: Use `write_knowledge_base` to ingest verified research, new patterns, or significant architectural shifts.
+- **Namespaces**:
+    - `knowledge-base.meta`: Constitution (Rules/Skills).
+    - `knowledge-base.src`: Source code logic.
+    - `knowledge-base.external`: Third-party docs and patterns.
+
+#### **Cold Storage (Supabase)**
+- **Mandate**: Use `archive_log_entry` to persist task plans, research logs, and final implementation summaries upon mission completion.
+- **Recall**: Use `query_cold_storage` to resolve conflicts or understand past design decisions (the "Why").
+
+---
+
+## 🕹️ Operational Heartbeat
 
 Every turn response must conclude with this metadata block to log operational weights. Include the active Role and Thinking Approach emojis.
 
 ```text
 ### 🕹️ Operational Heartbeat
-- **🎭 Role**: [Strategy 🤔 | Tactics 🧠 | Operations ⚡]
-- **📜 Rules**: [.agent/rules/]
-- **🧠 Skills**: [.agent/skills/]
+-   **🎭   Role**: [Strategy 🤔 | Tactics 🧠 | Operations ⚡]
+-   **📡   MCPs**: [Specific MCP called]
+-   **🛠️  Tools**: [Specific tool used]
+-   **📜  Rules**: [.agent/rules/]
+-   **🧠 Skills**: [.agent/skills/]
 - **🛤️ Workflow**: [.agent/workflows/]
-- **🛠️ Tools**: [Specific tool used]
-- **📡 MCPs**: [Specific MCP called]
 ```

@@ -8,6 +8,7 @@
   import { lightbox } from "@state/lightbox.svelte.js";
   import Lightbox from "@ui/molecules/dialogs/Lightbox.svelte";
   import ControlPanel from "@ui/organisms/panels/ControlPanel.svelte";
+  import LeftPanel from "@ui/organisms/panels/LeftPanel.svelte";
   import DebugPanel from "@ui/organisms/panels/DebugPanel.svelte";
   import Profile from "@ui/organisms/profile/Profile.svelte";
   import Storyboard from "@ui/organisms/storyboard/Storyboard.svelte";
@@ -47,6 +48,9 @@
     {#if app.control_panel_open}
       <ControlPanel />
     {/if}
+    {#if app.left_panel_open}
+      <LeftPanel />
+    {/if}
     {#if app.settings.dev_mode}
       <DebugPanel />
     {/if}
@@ -55,6 +59,19 @@
     {:else if app.view === "storymode"}
       <Storymode />
     {/if}
+
+    <!-- UI TRIGGER: Console -->
+    <button
+      class="console-trigger"
+      class:active={app.left_panel_open}
+      onclick={() => app.toggle_left_panel()}
+      title="Toggle Generation Console"
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 20v-8m0 0V4m0 8h8m-8 0H4"/>
+      </svg>
+    </button>
+
     {#if app.settings.dev_mode && app.control_panel_open}
       <button
         class="swap-view-trigger"
@@ -154,5 +171,38 @@
     background: var(--glass-xs);
     color: var(--color-white);
     transform: scale(1.1);
+  }
+
+  .console-trigger {
+    position: fixed;
+    top: var(--spacing-m);
+    left: var(--spacing-m);
+    z-index: var(--z-index-max);
+    background: var(--glass-l);
+    box-shadow: 0 0 0 1px var(--glass-border);
+    color: var(--color-frisk);
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--border-radius-full);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--motion-fast);
+  }
+
+  .console-trigger:hover,
+  .console-trigger.active {
+    background: var(--glass-xs);
+    color: var(--color-white);
+    transform: scale(1.1);
+  }
+
+  .console-trigger svg {
+    transition: transform var(--motion-slow) var(--motion-elastic);
+  }
+
+  .console-trigger.active svg {
+    transform: rotate(45deg);
   }
 </style>

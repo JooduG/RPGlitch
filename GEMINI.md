@@ -34,7 +34,7 @@ Perform Complexity Triage via [Orchestration Strategy](./.agent/skills/orchestra
 - Level 3 **Complex Feature**: 🎭 **[Strategic](./.agent/skills/orchestration-strategy/SKILL.md)** Role -> 🤔 _Contemplative Thinking_: Proceed to Step 3.
 
 ### 2.3 Risk Routing
-Map the risk tier based on your most severe likely hypothesis. Level 3 tasks REQUIRES a transition to the **[Strategic](./.agent/skills/orchestration-strategy/SKILL.md)** orchestration and **[Orchestration Strategy](./.agent/skills/orchestration-strategy/SKILL.md)** skills to resolve ambiguity.
+Map the risk tier based on your most severe likely hypothesis. Level 3 tasks REQUIRES a transition to the **[Strategic](./.agent/skills/orchestration-strategy/SKILL.md)** orchestration skill to resolve ambiguity.
 - **Low Risk**: Typos, CSS tweaks, minor logic.
 - **Medium Risk**: Refactors, state migrations.
 - **High Risk**: Structural changes, mission board wipes. Proceed to Step 3 and trigger the `warden:debugging` protocol.
@@ -44,14 +44,14 @@ For **Medium** and **High-Risk** tasks, you must validate your hypothesis before
 
 ### 3.1 Knowledge Deficit
 When external facts are needed. Coordinate specialized MCPs for deep inquiry. When exploring, missing optional tool parameters is acceptable. Execute the tool with available info _instead of halting to ask the user_.
+- **[Data](./.agent/skills/data)**: Dual-layer memory system via the [Data](./.agent/skills/data/SKILL.md) skill to maintain technical precision and historical continuity.
+    - Tools: `read_knowledge_base`, `describe_knowledge_base` and `query_cold_storage`. 
 - **Context7**: Up-to-date documentation and library patterns. 
     - Tools: `resolve-library-id` and `query-docs`.
 - **Svelte**: Official Svelte 5 logic and code verification. 
     - Tools: `get-documentation` and `list-sections`.
 - **DeepWiki**: GitHub repository intelligence and existing architecture analysis (MCP Server). 
     - Tools: `read_wiki_structure` and `read_wiki_contents`.
-- **[Data](./.agent/skills/data)**: Local MCP server for accessing cloud storage. 
-    - Tools: `read_knowledge_base`, `describe_knowledge_base` and `query_cold_storage`. 
 - **FireCrawl**: Web scraping and data extraction. 
     - Tools: `firecrawl_scrape`, `firecrawl_map`, `firecrawl_search`, `firecrawl_extract`, `firecrawl_browser_create`, `firecrawl_browser_execute`, `firecrawl_browser_delete` and `firecrawl_browser_list`.
 - **GitHub**: 

@@ -119,7 +119,7 @@ import App from './App.svelte';
 const { head, body } = +++await+++ render(App);
 ```
 
-> [!NOTE] If you're using a framework like SvelteKit, this is done on your behalf.
+> [!NOTE] If you're using a framework, this might be done on your behalf.
 
 If a `<svelte:boundary>` with a `pending` snippet is encountered during SSR, that snippet will be rendered while the rest of the content is ignored. All `await` expressions encountered outside boundaries with `pending` snippets will resolve and render their contents prior to `await render(...)` returning.
 
@@ -127,7 +127,7 @@ If a `<svelte:boundary>` with a `pending` snippet is encountered during SSR, tha
 
 ## Forking
 
-The [`fork(...)`](https://svelte.dev/docs/svelte/svelte#fork) API, added in 5.42, makes it possible to run `await` expressions that you _expect_ to happen in the near future. This is mainly intended for frameworks like SvelteKit to implement preloading when (for example) users signal an intent to navigate.
+The [`fork(...)`](https://svelte.dev/docs/svelte/svelte#fork) API, added in 5.42, makes it possible to run `await` expressions that you _expect_ to happen in the near future. This is mainly intended for frameworks to implement preloading when (for example) users signal an intent to navigate.
 
 ```svelte
 <script>

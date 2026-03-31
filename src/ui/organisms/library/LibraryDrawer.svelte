@@ -163,6 +163,11 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    background: var(--glass-xl);
+    backdrop-filter: var(--glass-blur-xl);
+    border: var(--glass-edge-l);
+    border-bottom: none;
+    box-shadow: var(--shadow-xl);
   }
 
   .drawer-header {

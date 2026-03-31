@@ -28,21 +28,15 @@ MUST INVOKE [Intake](../skills/orchestration-strategy/SKILL.md).
 
 ## Procedure
 
-### Phase 1: Ambiguity Resolution (Step 1.5: Intent Decoding)
+### Phase 1: Strategic Intent (The Discovery)
 
-1. **Intake**: If intent is vague, halt and initiate the Intake skill. Resolve all semantic gaps before committing to a technical path. [[Invoke: orchestration-strategy]](../skills/orchestration-strategy/SKILL.md)
-2. **Constraint Check**: Verify logical dependencies (Step 1.1) and prerequisites (Step 1.3). Ensure no cross-operational conflicts exist.
+1. **Strategic Intake**: If intent is vague or requires architectural definition, initiate the Strategy skill. This skill now internally handles context recovery from Pinecone. [[Invoke: orchestration-strategy]](../skills/orchestration-strategy/SKILL.md)
+2. **Contextual Physics**: Resolve all semantic gaps and establish the "What" and "Why" of the mission.
 
-### Phase 2: Hypothesis & Triage (Step 2: Hypothesis)
+### Phase 2: Tactical Blueprint (The Design)
 
-1. **Brainstorming**: Draft multiple hypotheses (Step 2.1) and rank by probability.
-2. **Orchestration**: Assign a complexity level (1, 2, or 3) and map the task to the appropriate capability toolkit (Step 2.2).
-3. **Risk Profile**: Categorize risk (Low, Medium, High). High-risk tasks MUST trigger a research phase (Step 3).
-
-### Phase 3: Drafting the Spec (Step 5: Grounding)
-
-1. **Plan Generation**: Create the implementation plan artifact. Ensure it is grounded in absolute file paths and line numbers.
-2. **User Authorization**: Wait for explicit user approval before execution begins.
+1. **Blueprint Generation**: Once intent is crystalline, invoke the Tactics skill to map the structural topography and draft the checklist. This skill internally performs topographical research. [[Invoke: orchestration-tactics]](../skills/orchestration-tactics/SKILL.md)
+2. **Authorization**: Present the finalized implementation plan for explicit user approval.
 
 ## Anti-Patterns
 

@@ -2,7 +2,7 @@
 name: warden
 version: 1.1.0
 description: The Governing Sovereign. Shield & Guardian of the RPSWARMtch Engine. Enforces Zero-Trust security, QA, and Behavioral Auditing.
-allowed-tools: ["Read", "Write", "grep_search", "run_shell_command"]
+allowed-tools: ["Read", "Write", "grep_search", "run_shell_command", "query_cold_storage"]
 effort: high
 risk: safe
 ---

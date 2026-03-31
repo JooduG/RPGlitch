@@ -27,7 +27,7 @@ function validate(filePath) {
   if (missing.length > 0) {
     console.error(`[QUARANTINE ENFORCED] Missing structural physics in ${path.basename(filePath)}:`);
     missing.forEach((m) => console.error(`   - ${m}`));
-    console.error("\n#TODO-AI: Reject payload. Return to user for semantic handshake.");
+    console.error("\n[REJECTION] Payload rejected due to missing mandatory sections. Return to user for semantic handshake.");
     process.exit(1);
   }
 

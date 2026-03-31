@@ -47,7 +47,7 @@ Upon mission completion, **ship the records to Cold Storage**.
 - **Invoke**: `archive_log_entry`.
 - **Logic**: Format the mission's findings into the `ARCHIVE-LOG.md` template and persist in Supabase.
 
-## 🛡️ Governance
+## 📋 Technical constraints
 1.  **Observability**: All memory updates must be logged in `.agent/orchestration/operation-logs.md`.
 2.  **Pruning**: Working memory should be audited monthly using `scripts/memory-audit.js` to flush redundant "Ghost Vectors".
 3.  **Integrity**: NEVER log credentials, secrets, or high-entropy tokens to either layer.

@@ -69,8 +69,8 @@ const checkItem = (name, isDir, relPath, report, parentDir = null) => {
   if (SKIP_PREFIXES.some(p => name.startsWith(p))) return;
 
   if (isDir) {
-    if (!RE_KEBAB.test(name)) {
-      report("N-LANG-003", "DEBT", relPath + "/", `Folder must be kebab-case. Got: "${name}"`);
+    if (!RE_KEBAB.test(name) && !RE_ALL_CAPS.test(name)) {
+      report("N-LANG-003", "DEBT", relPath + "/", `Folder must be kebab-case or All-Caps abbreviation. Got: "${name}"`);
     }
     return;
   }

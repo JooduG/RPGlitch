@@ -69,8 +69,37 @@ The system architecture prioritizes offline-first resilience and agentic automat
 - **Bundler:** Vite 6
 - **Security:** DOMPurify (XSS prevention)
 
+## 🧠 Living Memory & Data Sovereignty
+
+RPGlitch operates a dual-layer memory system to ensure the simulation is both technically sharp and historically aware.
+
+### 1. 🔥 Working Memory (Pinecone)
+-   **Purpose**: Active context grounding and RAG.
+-   **Content**: Current Rules, Skills, Workflows, and Core Logic patterns.
+-   **Namespaces**: 
+    -   `knowledge-base.meta`: The Constitution (Rules/Skills).
+    -   `knowledge-base.src`: High-fidelity code patterns.
+    -   `knowledge-base.external`: Official documentation and community patterns.
+
+### 2. ❄️ Cold Storage (Supabase)
+-   **Purpose**: Historical decision tracking and archiving.
+-   **Content**: Archived task plans, research logs, and architectural post-mortems.
+-   **Usage**: Conflict resolution and understanding the "Why" behind past shifts.
+
+---
+
+## 🚀 Performance & Best Practices (Supabase/Postgres)
+
+The project includes a specialized skill for **Postgres performance optimization** located in `.agent/skills/supabase-postgres-best-practices/`.
+
+- **Objective**: Ensure the data layer is optimized for high-fidelity simulation and agentic retrieval.
+- **Key Areas**: Query performance, Connection management, Security/RLS, and Schema design.
+- **Agent Mandate**: Agents should refer to the compiled `AGENTS.md` in the skill directory for concrete transformation patterns (e.g., "Change X to Y" for 10x faster queries).
+
+---
+
 ## 🗺️ Documentation & Rules
 
 - [Prime Directive](.agent/rules/01-foundation.md)
 - [Agent Rules](GEMINI.md)
-- [Automated Workflows](.agent/workflows/)
+- [Automated Workflows](.agent/workflows)
