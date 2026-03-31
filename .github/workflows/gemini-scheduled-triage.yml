@@ -11,13 +11,14 @@ concurrency:
 
 env:
   # Formalizing context for the IDE linter
-  GOOGLE_CLOUD_LOCATION: '${{ vars.GOOGLE_CLOUD_LOCATION }}'
-  GOOGLE_CLOUD_PROJECT: '${{ vars.GOOGLE_CLOUD_PROJECT }}'
-  SERVICE_ACCOUNT_EMAIL: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
-  GCP_WIF_PROVIDER: '${{ vars.GCP_WIF_PROVIDER }}'
-  GEMINI_CLI_VERSION: '${{ vars.GEMINI_CLI_VERSION }}'
-  GEMINI_MODEL: '${{ vars.GEMINI_MODEL }}'
-  GEMINI_DEBUG: '${{ vars.GEMINI_DEBUG }}'
+  GOOGLE_CLOUD_LOCATION: "${{ vars['GOOGLE_CLOUD_LOCATION'] || '' }}"
+  GOOGLE_CLOUD_PROJECT: "${{ vars['GOOGLE_CLOUD_PROJECT'] || '' }}"
+  SERVICE_ACCOUNT_EMAIL: "${{ vars['SERVICE_ACCOUNT_EMAIL'] || '' }}"
+  GCP_WIF_PROVIDER: "${{ vars['GCP_WIF_PROVIDER'] || '' }}"
+  GEMINI_CLI_VERSION: "${{ vars['GEMINI_CLI_VERSION'] || '' }}"
+  GEMINI_MODEL: "${{ vars['GEMINI_MODEL'] || '' }}"
+  GEMINI_DEBUG: "${{ vars['GEMINI_DEBUG'] || '' }}"
+  APP_ID: "${{ vars['APP_ID'] || '' }}"
 
 defaults:
   run:
@@ -72,14 +73,14 @@ jobs:
           ISSUES_TO_TRIAGE: '${{ steps.find_issues.outputs.issues_to_triage }}'
           AVAILABLE_LABELS: '${{ steps.get_labels.outputs.available_labels }}'
         with:
-          gcp_location: '${{ vars.GOOGLE_CLOUD_LOCATION }}'
-          gcp_project_id: '${{ vars.GOOGLE_CLOUD_PROJECT }}'
-          gcp_service_account: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
-          gcp_workload_identity_provider: '${{ vars.GCP_WIF_PROVIDER }}'
-          gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
-          gemini_cli_version: '${{ vars.GEMINI_CLI_VERSION }}'
-          gemini_model: '${{ vars.GEMINI_MODEL }}'
-          google_api_key: '${{ secrets.GOOGLE_API_KEY }}'
+          gcp_location: '${{ env.GOOGLE_CLOUD_LOCATION }}'
+          gcp_project_id: '${{ env.GOOGLE_CLOUD_PROJECT }}'
+          gcp_service_account: '${{ env.SERVICE_ACCOUNT_EMAIL }}'
+          gcp_workload_identity_provider: '${{ env.GCP_WIF_PROVIDER }}'
+          gemini_api_key: "${{ secrets['GEMINI_API_KEY'] }}"
+          gemini_cli_version: '${{ env.GEMINI_CLI_VERSION }}'
+          gemini_model: '${{ env.GEMINI_MODEL }}'
+          google_api_key: "${{ secrets['GOOGLE_API_KEY'] }}"
           workflow_name: 'gemini-scheduled-triage'
           settings: |-
             {
@@ -108,11 +109,11 @@ jobs:
       - name: 'Mint identity token'
         id: 'mint_identity_token'
         if: |-
-          ${{ vars.APP_ID != '' }}
-        uses: 'actions/create-github-app-token@v2'
+          ${{ env.APP_ID != '' }}
+        uses: 'actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf' # ratchet:actions/create-github-app-token@v2
         with:
-          app-id: '${{ vars.APP_ID }}'
-          private-key: '${{ secrets.APP_PRIVATE_KEY }}'
+          app-id: '${{ env.APP_ID }}'
+          private-key: "${{ secrets['APP_PRIVATE_KEY'] }}"
           permission-contents: 'read'
           permission-issues: 'write'
 

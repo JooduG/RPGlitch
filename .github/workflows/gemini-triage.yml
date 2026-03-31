@@ -37,6 +37,9 @@ on:
       UPLOAD_ARTIFACTS:
         type: 'string'
         required: false
+      APP_ID:
+        type: 'string'
+        required: false
     secrets:
       GEMINI_API_KEY:
         required: false
@@ -98,13 +101,13 @@ jobs:
           ISSUE_BODY: '${{ github.event.issue.body }}'
           AVAILABLE_LABELS: '${{ steps.get_labels.outputs.available_labels }}'
         with:
-          gcp_location: '${{ vars.GOOGLE_CLOUD_LOCATION }}'
-          gcp_project_id: '${{ vars.GOOGLE_CLOUD_PROJECT }}'
-          gcp_service_account: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
-          gcp_workload_identity_provider: '${{ vars.GCP_WIF_PROVIDER }}'
+          gcp_location: '${{ inputs.GOOGLE_CLOUD_LOCATION }}'
+          gcp_project_id: '${{ inputs.GOOGLE_CLOUD_PROJECT }}'
+          gcp_service_account: '${{ inputs.SERVICE_ACCOUNT_EMAIL }}'
+          gcp_workload_identity_provider: '${{ inputs.GCP_WIF_PROVIDER }}'
           gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
-          gemini_cli_version: '${{ vars.GEMINI_CLI_VERSION }}'
-          gemini_model: '${{ vars.GEMINI_MODEL }}'
+          gemini_cli_version: '${{ inputs.GEMINI_CLI_VERSION }}'
+          gemini_model: '${{ inputs.GEMINI_MODEL }}'
           google_api_key: '${{ secrets.GOOGLE_API_KEY }}'
           workflow_name: 'gemini-triage'
           settings: |-
@@ -135,10 +138,10 @@ jobs:
       - name: 'Mint identity token'
         id: 'mint_identity_token'
         if: |-
-          ${{ vars.APP_ID != '' }}
-        uses: actions/create-github-app-token@v2
+          ${{ inputs.APP_ID != '' }}
+        uses: 'actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf' # ratchet:actions/create-github-app-token@v2
         with:
-          app-id: '${{ vars.APP_ID }}'
+          app-id: '${{ inputs.APP_ID }}'
           private-key: '${{ secrets.APP_PRIVATE_KEY }}'
           permission-contents: 'read'
           permission-issues: 'write'
