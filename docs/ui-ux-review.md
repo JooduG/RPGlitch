@@ -16,7 +16,7 @@ However, the aggressive use of glassmorphism (translucency + background blur) co
 - **Low-Contrast Grays:** Relying on medium grays for primary accents and borders against dark slate backgrounds often lacks the necessary "pop" to guide the user's eye to primary actions.
 
 ## Components & patterns to fix
-- **Global Tooltips:** The tooltip implementation uses a 15% opacity black background. This is nearly invisible against the dark theme, making the white text completely unreadable.
+- **Global Tooltips:** The tooltip implementation uses a 30% opacity black background. This is nearly invisible against the dark theme, making the white text completely unreadable.
   - *Fix:* Use a solid, high-contrast background for tooltips to ensure they stand out as top-layer elements.
 - **Storyboard Empty State (`StoryboardCard.svelte`):** When a card is empty, the container drops to 30% opacity, and the text uses an off-white color. This results in 30% opaque off-white text on a dark background—a severe contrast violation that is very hard to read.
   - *Fix:* Keep the text container at full opacity, or use a much brighter color if the container must remain translucent.
