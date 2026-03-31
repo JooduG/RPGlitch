@@ -1,22 +1,23 @@
 /**
  * CONCEPT Validator
- * Ensures that a spec file contains all mandatory intake sections.
+ * Enforces the border control policy. 
+ * Ensures the Discovery Journal contains all mandatory architectural markers before downstream execution.
  */
+
 const fs = require("fs");
 const path = require("path");
 
 const MANDATORY_SECTIONS = [
   "# 📓 Discovery Journal:",
   "## 🎯 The Core Intent",
-  "## ⚙️ How it Works (The Mechanics)",
+  "## ⚙️ The Physics (Mechanics)",
   "## 🗺️ Data Topography",
-  "## ⚠️ Failure States & Logic Gaps",
-  "## 🚫 The \"Fence\" (Out of Scope)",
+  "## ⚠️ Failure States & 🚫 The Fence (Out of Scope)"
 ];
 
 function validate(filePath) {
   if (!fs.existsSync(filePath)) {
-    console.error(`❌ File not found: ${filePath}`);
+    console.error(`[FATAL] File missing at checkpoint: ${filePath}`);
     process.exit(1);
   }
 
@@ -24,17 +25,18 @@ function validate(filePath) {
   const missing = MANDATORY_SECTIONS.filter((section) => !content.includes(section));
 
   if (missing.length > 0) {
-    console.error(`❌ Missing mandatory sections in ${path.basename(filePath)}:`);
+    console.error(`[QUARANTINE ENFORCED] Missing structural physics in ${path.basename(filePath)}:`);
     missing.forEach((m) => console.error(`   - ${m}`));
+    console.error("\n#TODO-AI: Reject payload. Return to user for semantic handshake.");
     process.exit(1);
   }
 
-  console.log(`✅ ${path.basename(filePath)} is valid for the intake.`);
+  console.log(`[CLEARANCE GRANTED] ${path.basename(filePath)} has entered the canon. Routing to orchestrator...`);
 }
 
 const target = process.argv[2];
 if (!target) {
-  console.log("Usage: node spec-validator.js <path-to-spec.md>");
+  console.log("Usage: node validator.js <path-to-spec.md>");
   process.exit(0);
 }
 

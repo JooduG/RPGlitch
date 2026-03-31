@@ -46,6 +46,6 @@ governance:
 
 # 📝 Workspace (Active Memory)
 workspace:
-  tracks: .agent/project-management/log.md
-  mission_board: .agent/project-management/mission-board.md
-  next: .agent/project-management/next.md
+  tracks: .agent/orchestration/operation-logs.md
+  mission_board: .agent/orchestration/strategy-board.md
+  next: .agent/orchestration/handover.md

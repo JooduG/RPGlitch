@@ -30,7 +30,7 @@ date_added: 2024-03-29
 ### Phase 1: Pre-Flight (Step 3: Research)
 
 1. **Hygiene Audit**: Run `npm run lint` and `npm run test` to ensure zero regressions exist in the build candidate. [[Invoke: Warden]](../skills/warden/)
-2. **Version Control**: Ensure all changes are committed and the [Log Book](../project-management/log.md) reflects the deployment milestone.
+2. **Version Control**: Ensure all changes are committed and the [Log Book](../orchestration/operation-logs.md) reflects the deployment milestone.
 
 ### Phase 2: Fabrication (Step 5: Execution)
 

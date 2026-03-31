@@ -85,7 +85,7 @@ Does the data from Step 3 confirm your hypothesis?
 If initial _hypotheses are disproven_ or _architectural conflicts arise during execution_ -> generate **new hyptheses** and go _back to [Phase 1](./GEMINI.md#️-1-logical-dependencies--constraints)_.
 
 ### 4.2 State Sync
-If the _logic shifts_ drastically during testing -> _update the [Mission Board](./.agent/project-management/mission-board.md)_ before executing.
+If the _logic shifts_ drastically during testing -> _update the [Mission Board](./.agent/orchestration/strategy-board.md)_ before executing.
 
 ## ⚙️ 5. The Execution & Grounding Sequence
 Once planned and cleared, execute the task using tools at your disposal. Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers.
@@ -137,7 +137,7 @@ Trigger a Mandatory _Self-Audit_ via `metacognitiveMonitoring` **IF**:
 Only take an action after all the above reasoning is completed. Once you've taken an action, **you cannot take it back**.
 
 ### 8.1 Planning Constraint
-Do not execute without an initialized [Log Book](./.agent/project-management/log.md).
+Do not execute without an initialized [Log Book](./.agent/orchestration/operation-logs.md).
 
 ### 8.2 The Close-out
-Update [Log Book](./.agent/project-management/log.md), the [Mission Board](./.agent/project-management/mission-board.md), and [Next](./.agent/project-management/next.md) before turn termination.
+Update [Log Book](./.agent/orchestration/operation-logs.md), the [Mission Board](./.agent/orchestration/strategy-board.md), and [Next](./.agent/orchestration/handover.md) before turn termination.

@@ -17,9 +17,9 @@ date_added: 2024-03-29
 
 - [Foundation](../rules/01-foundation.md) Rule
 - [Intelligence](../rules/05-intelligence.md) Rule
-- [Log](../project-management/log.md) Book
-- [Mission Board](../project-management/mission-board.md)
-- [Next](../project-management/next.md)
+- [Log](../orchestration/operation-logs.md) Book
+- [Mission Board](../orchestration/strategy-board.md)
+- [Next](../orchestration/handover.md)
 
 ## Capabilities: Boot Sequence
 
@@ -31,13 +31,13 @@ date_added: 2024-03-29
 
 ### Phase 1: The Clarity Gate (Step 1: Dependencies)
 
-1. **Intake**: Read [Mission Board](../project-management/mission-board.md), [log](../project-management/log.md), and [Next](../project-management/next.md). Ensure intent matches the current mission. [[Invoke: intake]](../skills/intake/SKILL.md)
+1. **Intake**: Read [Mission Board](../orchestration/strategy-board.md), [log](../orchestration/operation-logs.md), and [Next](../orchestration/handover.md). Ensure intent matches the current mission. [[Invoke: intake]](../skills/intake/SKILL.md)
 2. **Environment Verification**: Explicitly acknowledge the target environment (Perchance sandboxed runtime) and reactivity standard (Svelte 5 Runes).
 3. **State Sync**: Use [sync.js](../skills/orchestration-tactics/scripts/sync.js) to reconcile the mission board and ignore layers. [[Invoke: orchestration-tactics]](../skills/orchestration-tactics/SKILL.md)
 
 ### Phase 2: Registry (Step 1.3: Prerequisites)
 
-1. **Registry**: Identify any active track `[/]` or pending tasks `[ ]` in [log](../project-management/log.md). If no active track exists, wait for user input or initiate [/01-plan](./01-plan.md). [[Invoke: orchestration-tactics]](../skills/orchestration-tactics/SKILL.md)
+1. **Registry**: Identify any active track `[/]` or pending tasks `[ ]` in [log](../orchestration/operation-logs.md). If no active track exists, wait for user input or initiate [/01-plan](./01-plan.md). [[Invoke: orchestration-tactics]](../skills/orchestration-tactics/SKILL.md)
 
 ### Phase 3: The Quality Gate (Audit & Heartbeat)
 

@@ -54,7 +54,7 @@ try {
   if (!fs.existsSync(STATE_DIR)) fs.mkdirSync(STATE_DIR, { recursive: true });
   fs.writeFileSync(path.join(STATE_DIR, "next.md"), content);
   process.stdout.write(
-    `✅ Backlog updated (${todoItems.length} items) in .agent/project-management/next.md\n`,
+    `✅ Backlog updated (${todoItems.length} items) in .agent/orchestration/handover.md\n`,
   );
 } catch (e) {
   console.error("❌ Janitor Error:", e);

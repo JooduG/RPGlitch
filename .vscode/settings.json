@@ -38,8 +38,8 @@
   "markdown.validate.ignoredLinks": [
     "always_on | on_change | manual",
     "high | medium | low",
-    "./.agent/project-management/**",
-    "../project-management/**",
+    "./.agent/orchestration/**",
+    "../orchestration/**",
     "./tracks/**",
     "../tracks/**",
     "./design.md",
@@ -47,10 +47,7 @@
     "../../.github/workflows/ai-fleet-dispatch.yml"
   ],
   "markdown.validate.referenceLinks.severity": "ignore",
-  "stylelint.validate": [
-    "css",
-    "svelte"
-  ],
+  "stylelint.validate": ["css", "svelte"],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
     "source.fixAll.stylelint": "explicit"

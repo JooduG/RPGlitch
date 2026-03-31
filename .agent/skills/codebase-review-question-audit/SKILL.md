@@ -1,15 +1,17 @@
 ---
 name: codebase-review-question-audit
-version: 1.0.0
-description: Perform a deep structured review of the codebase, identify ambiguities, risks, and missing decisions.
+version: 2.0.0
+description: Perform a deep structured review of the codebase, identify ambiguities, risks, and missing decisions, and generate a QUESTIONS.md file to clarify architecture before implementation.
 allowed-tools: ["Read", "Write", "grep_search", "list_dir"]
 effort: high
 risk: safe
+produces: QUESTIONS.md
+next: questions-md-resolution-implementation
 ---
 
 # 🛠️ codebase-review-question-audit
 
-> "I am the Staff Engineer. I perform technical discovery. I synthesize Base Understanding into Discovery Reality via Procedural Review and the QUESTIONS.md artifact."
+> "I am the Staff Engineer. I perform technical discovery. I synthesize Base Understanding into Discovery Reality via Procedural Review. I understand first, question second, and change later. If something looks ambiguous or risky, I turn it into a question. I do not assume intent."
 
 ## 🔬 Anatomy
 
@@ -20,277 +22,110 @@ skills/codebase-review-question-audit/
 
 ## 🎯 Strategic Context
 
-- **High-Fidelity Implementation**: Exhaustive, technical, and architectural discovery.
-- **Architectural Integrity**: Phase 1 — Discovery of the review-to-release workflow.
-- **Sensory Excellence**: Identifies open design gaps and product behavior ambiguity.
+This is Phase 1 — Discovery of the review-to-release workflow. It triggers when `intake` routes a Level 3 (Complex Feature) task, or when explicitly requested. 
 
-## 📋 Procedure
+**Do not use this skill when direct implementation without a discovery phase is explicitly requested.**
 
-### Deep Structured Review
+## 📋 Procedure: The Deep Structured Review
 
-1. **System Discovery**:
-   - Infer project intent, users, and stack centers.
-   - Systematic inspection for weak boundaries and hidden assumptions.
+### 1. System Discovery
+Infer project intent, users, and stack centers. Understand what the system appears to do and what the critical flows are before looking for flaws.
 
-2. **Artifact Generation**:
-   - Convert findings into Contextualized, independently answerable questions.
-   - Organize into `QUESTIONS.md` by area (Product, Security, API, etc.).
+### 2. Systematic Inspection
+Inspect the repository area by area. Look specifically for:
+- Weak boundaries and fragile logic.
+- Missing invariants, validation, or tests.
+- Product behavior ambiguity and hidden assumptions.
+- Security and performance risks.
+- Under-documented decisions.
 
-### Discovery Finalization
+### 3. Convert Findings into Questions
+Every relevant concern must be phrased as a question. **Do not suggest prescriptive refactoring fixes.** 
+- *Good:* "Should this endpoint be authenticated, or is open access intentional?"
+- *Bad:* "Refactor this into an authenticated service."
 
-- **Definition of Done**: QUESTIONS.md produced;major ambiguities identified; technical debt mapped.
-- **Expected Output**: A decision backlog for implementation or refactoring.
+### 4. Group & Contextualize
+Make each question independently answerable. Include the file path, the symbol name, why the question matters, and the risk if left unanswered.
 
-## 🚫 Anti-Patterns
+## 📦 Output Artifact: QUESTIONS.md
 
-- **Prescriptive Refactoring**: Suggesting fixes instead of asking investigative questions.
-- **Shallow Inspection**: Missing deep security, behavioral, or performance risks.
-- **Prescriptive Prescriptions**: Using the skill to change code directly.
-- **Assume Intent**: Silencing ambiguity before ground truth is established.
+**Generate the `QUESTIONS.md` file using this exact structure:**
 
----
-
-> "Precision is the baseline of sovereignty."
-
-
----
-name: codebase-review-question-audit
-description: Perform a deep structured review of the codebase, identify ambiguities, risks, and missing decisions, and generate a QUESTIONS.md file to clarify architecture, behavior, security, performance, and refactoring concerns before implementation.
-version: 1.0.0
-phase: discovery
-produces: QUESTIONS.md
-next: questions-md-resolution-implementation
----
-
-# Codebase Review Question Audit
-
-## Purpose
-
-Use this skill to perform a deep, structured review of a project before implementation or refactoring begins.
-
-The purpose is to understand the codebase holistically and generate a `QUESTIONS.md` file containing all relevant technical, architectural, behavioral, product, security, and maintainability questions that should be answered before making broad changes.
-
-This skill is designed for discovery, not implementation.
-
----
-
-## 🏗️ Structure
-
-This is **Phase 1 — Discovery** of the review-to-release workflow.
-
-### Inputs
-This skill expects access to the codebase and any supporting project documentation.
-
-### Produces
-- `QUESTIONS.md`
-
-### Recommended next skill
-- `questions-md-resolution-implementation`
-
-### Do not proceed automatically if
-- `QUESTIONS.md` still needs human answers
-- major ambiguities remain unresolved
-- the user wants to review the questions first
-
----
-
-## When to use
-
-Use this skill when the user asks to:
-
-- review the whole codebase
-- identify odd patterns, unclear decisions, or risks
-- prepare questions before refactoring
-- understand the architecture before making changes
-- perform a discovery pass as a tech lead or staff engineer
-
-Do not use this skill when the user explicitly wants direct implementation without a discovery phase.
-
----
-
-## 🎯 Persona
-
-Act as a professional code reviewer, a staff/principal engineer, or a tech lead performing technical discovery. Your job is to understand first, question second, and change later. If something looks unclear, risky, inconsistent, incomplete, or surprising, turn it into a question. Do not assume intent when the code is ambiguous.
-
----
-
-## Review scope
-
-Review the project as broadly and deeply as possible, including where applicable:
-
-- folder and module structure
-- architecture and boundaries
-- framework conventions
-- dependency choices
-- environment variable usage
-- build and deployment assumptions
-- pages, routes, screens, and layouts
-- API endpoints and handlers
-- domain modeling and business logic
-- persistence and data access
-- authentication and authorization
-- validation and error handling
-- async flows and retries
-- performance hotspots and caching
-- observability and logging
-- tests and coverage strategy
-- duplication, dead code, and naming consistency
-- security flaws
-- missing docs and implicit decisions
-
----
-
-## 🧬 Procedures
-
-### 1. Understand the system first
-Infer internally:
-
-- what the project appears to do
-- who the likely users are
-- what the critical flows are
-- what the stack and architectural center are
-- what seems mature versus unfinished
-
-### 2. Review the codebase systematically
-Inspect the repository area by area and identify:
-
-- ambiguity
-- weak boundaries
-- fragile logic
-- missing invariants
-- hidden assumptions
-- missing validation
-- missing tests
-- security concerns
-- product behavior ambiguity
-- performance risks
-- under-documented decisions
-
-### 3. Convert findings into questions
-Every relevant concern must be phrased as a question, not as a refactor prescription.
-
-Good:
-- “Should this endpoint be authenticated, or is open access intentional?”
-
-Avoid:
-- “Refactor this into a service.”
-
-### 4. Group questions by area
-Organize questions into sections such as:
-
-- Product & Intended Behavior
-- Architecture
-- Code Structure & Boundaries
-- API Design
-- Data & Persistence
-- Security
-- Performance
-- Error Handling & Resilience
-- Testing & QA
-- Observability
-- Documentation
-- Technical Debt / Suspicious Areas
-- Possible Bugs
-- Missing Decisions / Open Design Gaps
-
-### 5. Make each question independently answerable
-Each question should be:
-
-- specific
-- contextualized
-- self-contained
-- easy to answer directly
-
-Include when useful:
-
-- file path
-- symbol or module name
-- why the question matters
-- risk if unanswered
-
-### 6. Be exhaustive
-Do not optimize for brevity. Optimize for completeness and clarity.
-
----
-
-## Output
-
-Create:
-
-`QUESTIONS.md`
-
-Suggested structure:
-
-`#` `QUESTIONS.md`
+```md
+# QUESTIONS.md
 
 ## Project Understanding Summary
-Brief summary of what the system appears to do, how it seems structured, and what high-risk areas were identified.
+[Brief summary of what the system appears to do, how it seems structured, and what high-risk areas were identified.]
 
 ## How to Answer
-Explain that the project owner should answer each question directly and mark whether the item is:
-- intended behavior
-- bug
-- approved improvement
-- deferred
-- out-of-scope
+**Provide direct answers below each question. Mark each item using one of these tags: `[verified]`, `[partial]`, `[blocked]`, `[deferred]`, `[out-of-scope]`, or `[caveat]`.**
 
 ## Questions
 
-### 1. Product & Intended Behavior
-#### Q1. Product Question
-- **Where:** `src/path/to/file`
-- **Why this matters:** Significance of the question.
-- **Question:** Specific query about behavior.
+### 1. Architecture & Boundaries
+#### Q1. [Short Title]
+- Where: `src/path/to/file`
+- Why this matters: [Significance/Risk]
+- Question: [Specific query]
 
-### 2. Architecture
-#### Q2. Architectural Question
-- **Where:** `src/core/`
-- **Why this matters:** Significance of the architectural choice.
-- **Question:** Specific query about architecture.
+### 2. Product & Intended Behavior
+#### Q2. [Short Title]
+- Where: `src/path/to/file`
+- Why this matters: [Significance/Risk]
+- Question: [Specific query]
 
-Continue until all relevant questions are captured.
+*(Continue grouping by Security, Performance, Data/Persistence, etc., until all ambiguities are captured.)*
+```
 
-## Suggested answer tags
-Use these tags consistently in answers:
-- `verified`
-- `partial`
-- `blocked`
-- `deferred`
-- `out-of-scope`
-- `caveat`
+## 🛑 The Handoff & Stop Condition
 
----
-
-## Quality bar
-
-A strong `QUESTIONS.md`:
-
-- reveals ambiguity before implementation
-- creates a real decision backlog
-- exposes risky assumptions
-- improves the quality of future refactors
-- reduces the chance of changing the wrong thing
-
-A weak `QUESTIONS.md` is shallow, generic, and misses behavior/security/performance/design risks.
-
----
+**Stop processing immediately after generating QUESTIONS.md.** **Do not proceed to implementation if the questions remain unanswered by the human director.**
 
 ## 🚫 Anti-Patterns
 
-- **Prescriptive Refactoring**: Suggesting a fix instead of asking a question.
-- **Shallow Inspection**: Missing deep behavioral or security risks.
-- **Silencing Ambiguity**: Assuming intent when the logic is unclear.
-- **Prescriptive Prescriptions**: Using the skill to change code directly.
+- Prescriptive Refactoring: Suggesting code changes instead of asking investigative questions.
+- Shallow Inspection: Missing deep security, behavioral, or performance risks to save time.
+- Assuming Intent: Silencing ambiguity before ground truth is established by the human.
 
 ---
 
-## Handoff to next phase
+```md
+---
+name: questions-md-resolution-implementation
+version: 1.0.0
+description: Executes codebase modifications based strictly on the human-resolved QUESTIONS.md artifact.
+allowed-tools: ["Read", "Write", "grep_search", "mcp_context7_resolve-library-id"]
+effort: high
+risk: moderate
+---
 
-This skill ends when `QUESTIONS.md` is complete.
+# 🛠️ questions-md-resolution-implementation
 
-### Recommended next step
-Run `questions-md-resolution-implementation` **only after** the project owner has answered `QUESTIONS.md`.
+> Persona: "I am the Surgical Implementer. I do not guess; I execute. I translate the resolved decisions from QUESTIONS.md into physical architecture."
 
-### Stop condition
-If `QUESTIONS.md` is unanswered or incomplete, do not continue to implementation.
+## 🎯 Strategic Context
+This is Phase 2 of the review-to-release workflow. It triggers only after a human director has answered and tagged the items in QUESTIONS.md.
 
+## 📋 Procedure
+
+### 1. Artifact Verification
+Read QUESTIONS.md in the root directory.
+Halt execution immediately if any questions lack a resolution tag. 
+
+### 2. Triage & Filtering
+Filter the tagged items based on their status:
+- [verified] or [partial]: Add to the active implementation queue.
+- [blocked], [deferred], or [out-of-scope]: Ignore entirely. Do not write code for these.
+- [caveat]: Apply the specific human-directed constraints to the implementation.
+
+### 3. Execution
+Implement the approved changes sequentially.
+Rely strictly on Svelte 5 Runes for any state management modifications.
+
+### 4. Cleanup
+Once all verified items are implemented, delete QUESTIONS.md to close the loop and prevent duplicate processing.
+
+## 🚫 Anti-Patterns
+- Rogue Engineering: Implementing solutions for questions that were marked deferred or out-of-scope.
+- Ghost Writing: Proceeding with implementation when questions are completely unanswered.
+```
