@@ -53,6 +53,8 @@ To prevent cognitive drift, nomenclature is absolute.
 
 #### **The RPSWARMtch Lexicon**
 
+- **Fleet**: Strategic grouping of specialized sub-agents working on a single mission. A "Fleet" represents the human-initiated or agent-led organization of parallel work.
+- **Swarm**: Tactical dispatch and execution of a Fleet. The technical engine that manages token scaling and the 80% Confidence Gate.
 - **Simulation**: The overall story/state container. A `simulation` is a story and requires `entities` in order to play out. The engine is designed for frequent story swapping; concluding a story and starting a new one should be a seamless state transition.
 - **Entity**: The fundamental unit of the simulation. An `entity` is either a `character` or a `fractal`.
 - **Fractal**: World, setting, or environmental entity.
@@ -97,6 +99,23 @@ Any tool output that is truncated (e.g. `(...N more results not shown)`) represe
 - **Exhaustive Requirement**: Before concluding a search-based task (audit, refactor, bug hunt), the agent MUST continue searching until **100% of all possible hits** have been reviewed.
 - **Recursion**: Utilize targeted sub-directory searches or more specific filters to bypass tool caps (e.g. 50-result grep limits).
 - **Verification**: Zero tolerance for truncation. An audit is only "done" when the search results return a count that fits within a single, uncapped response.
+
+---
+
+### 6. Workflow Registry
+
+The following sovereign workflows are registered for agentic orchestration.
+
+- **/00-boot**: Fresh Session Initialization. Syncs context, mental model, and global state.
+- **/01-plan**: The Master Router. Enforces the execution process, categorizes risk, and routes complex features.
+- **/02-execute**: Code Execution Loop. Tactical implementation, Logic wiring, and Aesthetic polish.
+- **/03-clean**: Maintenance & Security. Fixes bugs, audits security, and ensures hygiene.
+- **/04-review**: Quality Assurance & Review.
+- **/05-deploy**: Solo Deployment. Ships the bundle to Perchance.
+- **/06-continue**: Resume Interrupted Work.
+- **/07-fleet**: Fleet Command. Manual Swarm Orchestration. Human-initiated specialized sub-agent deployment.
+- **/08-github**: Local GitHub Ops. Automates PRs, issues, and local sync.
+- **/99-rewind**: Emergency Stop. Restore state from failover.
 
 ---
 

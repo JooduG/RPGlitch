@@ -50,4 +50,6 @@ Upon mission completion, **ship the records to Cold Storage**.
 ## 📋 Technical constraints
 1.  **Observability**: All memory updates must be logged in `.agent/orchestration/operation-logs.md`.
 2.  **Pruning**: Working memory should be audited monthly using `scripts/memory-audit.js` to flush redundant "Ghost Vectors".
-3.  **Integrity**: NEVER log credentials, secrets, or high-entropy tokens to either layer.
+3.  **Retention Guard**: NEVER wipe or clear the `knowledge-base.external` or `knowledge-base.meta` namespaces without an explicit User Directive. These contain exclusive "Living Memory" documentation that no longer exists in the local codebase.
+4.  **Integrity**: NEVER log credentials, secrets, or high-entropy tokens to either layer.
+

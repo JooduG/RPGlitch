@@ -1,4 +1,4 @@
-name: '▶️ Gemini Invoke'
+name: '▶️ Sovereign Invoke'
 
 on:
   workflow_call:
@@ -40,7 +40,7 @@ jobs:
       - name: 'Checkout Code'
         uses: 'actions/checkout@v4' # ratchet:exclude
 
-      - name: 'Run Gemini CLI'
+      - name: 'Run Sovereign CLI'
         id: 'run_gemini'
         uses: 'google-github-actions/run-gemini-cli@v0' # ratchet:exclude
         env:
@@ -65,7 +65,7 @@ jobs:
           use_gemini_code_assist: '${{ vars.GOOGLE_GENAI_USE_GCA }}'
           use_vertex_ai: '${{ vars.GOOGLE_GENAI_USE_VERTEXAI }}'
           upload_artifacts: '${{ vars.UPLOAD_ARTIFACTS }}'
-          workflow_name: 'gemini-invoke'
+          workflow_name: 'sovereign-invoke'
           settings: |-
             {
               "model": {

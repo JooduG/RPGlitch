@@ -1,4 +1,4 @@
-name: '🔀 Gemini Triage'
+name: '🔀 Sovereign Triage'
 
 on:
   workflow_call:
@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 7
     outputs:
       available_labels: '${{ steps.get_labels.outputs.available_labels }}'
-      selected_labels: '${{ env.SELECTED_LABELS }}'
+      selected_labels: '${{ steps.collect_outputs.outputs.selected_labels }}'
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -55,7 +55,7 @@ jobs:
             core.info(`Found ${labelNames.length} labels: ${labelNames.join(', ')}`);
             return labelNames;
 
-      - name: 'Run Gemini issue analysis'
+      - name: 'Run Sovereign issue analysis'
         id: 'gemini_analysis'
         if: |-
           ${{ steps.get_labels.outputs.available_labels != '' }}
@@ -78,7 +78,7 @@ jobs:
           use_gemini_code_assist: '${{ vars.GOOGLE_GENAI_USE_GCA }}'
           use_vertex_ai: '${{ vars.GOOGLE_GENAI_USE_VERTEXAI }}'
           upload_artifacts: '${{ vars.UPLOAD_ARTIFACTS }}'
-          workflow_name: 'gemini-triage'
+          workflow_name: 'sovereign-triage'
           settings: |-
             {
               "model": {
@@ -96,6 +96,13 @@ jobs:
               }
             }
           prompt: '/gemini-triage'
+      - name: 'Collect selected labels'
+        id: 'collect_outputs'
+        if: always()
+        run: |-
+          echo "selected_labels<<EOF" >> "${GITHUB_OUTPUT}"
+          echo "${SELECTED_LABELS}" >> "${GITHUB_OUTPUT}"
+          echo "EOF" >> "${GITHUB_OUTPUT}"
 
   label:
     runs-on: 'ubuntu-latest'
@@ -127,7 +134,7 @@ jobs:
           SELECTED_LABELS: '${{ needs.triage.outputs.selected_labels }}'
         uses: 'actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd' # ratchet:actions/github-script@v8.0.0
         with:
-          # Use the provided token so that the "gemini-cli" is the actor in the
+          # Use the provided token so that the "sovereign-cli" is the actor in the
           # log for what changed the labels.
           github-token: '${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}'
           script: |-

@@ -4,10 +4,10 @@ A next-generation AI Roleplay Engine built on the Perchance platform. RPGlitch i
 
 ## ⚡ Quick Start
 
-**Run the following commands** in your trmnl
+**Run the following commands** in your terminal:
 
-1. \*_`npm install`_ es)
-2. \*_`npm run sync`_ ies)
+1. **`npm install`** (Install dependencies)
+2. **`npm run sync`** (Sync local libraries)
 3. **`npm run dev`** (Build and launch the local server)
 
 ## ⏳ The Core Engine: Rounds & Turns
@@ -16,14 +16,14 @@ RPGlitch supersedes standard chatbot patterns by separating the narrative state 
 
 **Sending a message always ends the current Round and triggers the start of the next.**
 
-Here is the e ingle Round:
+Here is the anatomy of a single Round:
 
 1. **SYSTEM_TURN (The Physics Engine)**
-   Starts the exact moment you send a message. The UI is temporarily locked. In the background, the engine calculates social dynamics, mem d world physics.
+   Starts the exact moment you send a message. The UI is temporarily locked. In the background, the engine calculates social dynamics, memory updates, and world physics.
 2. **AI_TURN + USER_TURN (The Narrative Parallel)**
-   The moment the system finishes calculating, the UI is unlocked. The AI begins streaming its narrative response (**AI_TURN**). Because the UI is unlocked, your \*\*USE e exact same time.
+   The moment the system finishes calculating, the UI is unlocked. The AI begins streaming its narrative response (**AI_TURN**). Because the UI is unlocked, your **USER_TURN** is active at the exact same time.
 3. **The Interrupt Window**
-   In 99% of cases, you will wait for the AI to finish generating before you begin typing your next move. However, because both turns run in parallel, you have th the AI at any time.
+   In 99% of cases, you will wait for the AI to finish generating before you begin typing your next move. However, because both turns run in parallel, you have the agency to interrupt the AI at any time.
 4. **End of Round**
    **Click "Send"** on your next message to close the current round and immediately restart the loop at Step 1.
 
@@ -101,5 +101,5 @@ The project includes a specialized skill for **Postgres performance optimization
 ## 🗺️ Documentation & Rules
 
 - [Prime Directive](.agent/rules/01-foundation.md)
-- [Agent Rules](GEMINI.md)
+- [Sovereign Rules](GEMINI.md)
 - [Automated Workflows](.agent/workflows)
