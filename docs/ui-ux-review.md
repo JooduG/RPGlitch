@@ -20,7 +20,7 @@ However, the aggressive use of glassmorphism (translucency + background blur) co
   - *Fix:* Use a solid, high-contrast background for tooltips to ensure they stand out as top-layer elements.
 - **Storyboard Empty State (`StoryboardCard.svelte`):** When a card is empty, the container drops to 30% opacity, and the text uses an off-white color. This results in 30% opaque off-white text on a dark background—a severe contrast violation that is very hard to read.
   - *Fix:* Keep the text container at full opacity, or use a much brighter color if the container must remain translucent.
-- **Library Drawer "Create New" Card:** The background uses a 5% white overlay which is barely visible. It doesn't look like a distinct interactive element until hovered.
+- **Library Drawer "Create New" Card:** The background uses a 30% black overlay while the icon wrap uses a 5% white overlay. It doesn't look like a distinct interactive element until hovered.
   - *Fix:* Increase the base opacity to at least 10% or use a dashed border to define the click target.
 - **Profile & Drawer Modals:** Stacking heavily blurred, translucent gray layers creates a muddy effect when multiple dialogs are open.
   - *Fix:* Reduce the opacity of the top-most modal layer, or introduce a solid, very dark base color to anchor the modal before applying the blur.
