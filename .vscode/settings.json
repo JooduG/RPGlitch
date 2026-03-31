@@ -29,6 +29,7 @@
     "**/pnpm-lock.yaml": true,
     "**/test-results/**": true,
     "**/tests/**": true,
+    "DESIGN.md": true,
     "**/yarn.lock": true
   },
   "css.validate": true,
@@ -47,7 +48,10 @@
     "../../.github/workflows/ai-fleet-dispatch.yml"
   ],
   "markdown.validate.referenceLinks.severity": "ignore",
-  "stylelint.validate": ["css", "svelte"],
+  "stylelint.validate": [
+    "css",
+    "svelte"
+  ],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
     "source.fixAll.stylelint": "explicit"

@@ -2,6 +2,7 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
+import fs from "fs";
 import * as PineconeEngine from "./pinecone-engine.js";
 import * as SupabaseEngine from "./supabase-engine.js";
 
@@ -135,17 +136,25 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 // ── Handlers ────────────────────────────────────────────────────────────
 
 async function handleReadKB(args) {
-  const matches = await PineconeEngine.queryKnowledgeBase(args);
-  if (matches.length === 0) {
-    return { content: [{ type: "text", text: "No relevant documentation found." }] };
+  try {
+    const matches = await PineconeEngine.queryKnowledgeBase(args);
+    if (!matches || matches.length === 0) {
+      return { content: [{ type: "text", text: "No relevant documentation found." }] };
+    }
+    const text = matches
+      .filter(m => m && m.metadata)
+      .map(
+        (m) =>
+          `[Source: ${m.metadata.source}] (Score: ${(m.score * 100).toFixed(0)}%)\n${m.metadata.content}`,
+      )
+      .join("\n\n---\n\n");
+    return { content: [{ type: "text", text: text || "No readable content found." }] };
+  } catch (err) {
+    return {
+      content: [{ type: "text", text: `Search Error: ${err.message}` }],
+      isError: true
+    };
   }
-  const text = matches
-    .map(
-      (m) =>
-        `[Source: ${m.metadata.source}] (Score: ${(m.score * 100).toFixed(0)}%)\n${m.metadata.content}`,
-    )
-    .join("\n\n---\n\n");
-  return { content: [{ type: "text", text }] };
 }
 
 async function handleWriteKB(args) {
@@ -186,6 +195,15 @@ async function main() {
       await handleWriteKB({ 
         paths: [".agent/rules", ".agent/skills", "src/core"], 
         namespace: "knowledge-base.meta" 
+      });
+      process.exit(0);
+    }
+    if (args[0] === "archive") {
+      const content = await fs.promises.readFile(args[1], "utf8");
+      await handleArchive({
+        session_id: "manual-cli-archive",
+        task_slug: "historical-cleanup",
+        content
       });
       process.exit(0);
     }

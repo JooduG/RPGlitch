@@ -85,6 +85,7 @@
       "**/pnpm-lock.yaml": true,
       "**/test-results/**": true,
       "**/tests/**": true,
+      "DESIGN.md": true,
       "**/yarn.lock": true
     },
     "markdown.validate.referenceLinks.enabled": false,
