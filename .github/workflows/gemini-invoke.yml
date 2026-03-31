@@ -7,6 +7,43 @@ on:
         type: 'string'
         description: 'Any additional context from the request'
         required: false
+      GOOGLE_CLOUD_LOCATION:
+        type: 'string'
+        required: false
+      GOOGLE_CLOUD_PROJECT:
+        type: 'string'
+        required: false
+      SERVICE_ACCOUNT_EMAIL:
+        type: 'string'
+        required: false
+      GCP_WIF_PROVIDER:
+        type: 'string'
+        required: false
+      GEMINI_CLI_VERSION:
+        type: 'string'
+        required: false
+      GEMINI_MODEL:
+        type: 'string'
+        required: false
+      GEMINI_DEBUG:
+        type: 'string'
+        required: false
+      GOOGLE_GENAI_USE_GCA:
+        type: 'string'
+        required: false
+      GOOGLE_GENAI_USE_VERTEXAI:
+        type: 'string'
+        required: false
+      UPLOAD_ARTIFACTS:
+        type: 'string'
+        required: false
+    secrets:
+      GEMINI_API_KEY:
+        required: false
+      GOOGLE_API_KEY:
+        required: false
+      APP_PRIVATE_KEY:
+        required: false
 
 concurrency:
   group: '${{ github.workflow }}-invoke-${{ github.event_name }}-${{ github.event.pull_request.number || github.event.issue.number }}'
@@ -28,7 +65,7 @@ jobs:
       - name: 'Mint identity token'
         id: 'mint_identity_token'
         if: |-
-          ${{ vars.APP_ID }}
+          ${{ vars.APP_ID != '' }}
         uses: 'actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf' # ratchet:actions/create-github-app-token@v2
         with:
           app-id: '${{ vars.APP_ID }}'
@@ -59,7 +96,7 @@ jobs:
           gcp_workload_identity_provider: '${{ vars.GCP_WIF_PROVIDER }}'
           gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
           gemini_cli_version: '${{ vars.GEMINI_CLI_VERSION }}'
-          gemini_debug: '${{ fromJSON(vars.GEMINI_DEBUG || vars.ACTIONS_STEP_DEBUG || false) }}'
+          gemini_debug: ${{ vars.GEMINI_DEBUG == 'true' || vars.ACTIONS_STEP_DEBUG == 'true' }}
           gemini_model: '${{ vars.GEMINI_MODEL }}'
           google_api_key: '${{ secrets.GOOGLE_API_KEY }}'
           use_gemini_code_assist: '${{ vars.GOOGLE_GENAI_USE_GCA }}'

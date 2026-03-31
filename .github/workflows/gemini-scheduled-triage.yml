@@ -9,6 +9,16 @@ concurrency:
   group: '${{ github.workflow }}'
   cancel-in-progress: true
 
+env:
+  # Formalizing context for the IDE linter
+  GOOGLE_CLOUD_LOCATION: '${{ vars.GOOGLE_CLOUD_LOCATION }}'
+  GOOGLE_CLOUD_PROJECT: '${{ vars.GOOGLE_CLOUD_PROJECT }}'
+  SERVICE_ACCOUNT_EMAIL: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
+  GCP_WIF_PROVIDER: '${{ vars.GCP_WIF_PROVIDER }}'
+  GEMINI_CLI_VERSION: '${{ vars.GEMINI_CLI_VERSION }}'
+  GEMINI_MODEL: '${{ vars.GEMINI_MODEL }}'
+  GEMINI_DEBUG: '${{ vars.GEMINI_DEBUG }}'
+
 defaults:
   run:
     shell: 'bash'
@@ -21,8 +31,8 @@ jobs:
       contents: 'read'
       issues: 'read'
     outputs:
-      available_labels: '${{ steps.get_labels.outputs.available_labels }}'
-      triaged_issues: '${{ env.TRIAGED_ISSUES }}'
+      available_labels: ${{ steps.get_labels.outputs.available_labels }}
+      triaged_issues: ${{ steps.gemini_issue_analysis.outputs.text }}
     steps:
       - name: 'Get repository labels'
         id: 'get_labels'
@@ -98,7 +108,7 @@ jobs:
       - name: 'Mint identity token'
         id: 'mint_identity_token'
         if: |-
-          ${{ vars.APP_ID }}
+          ${{ vars.APP_ID != '' }}
         uses: 'actions/create-github-app-token@v2'
         with:
           app-id: '${{ vars.APP_ID }}'
