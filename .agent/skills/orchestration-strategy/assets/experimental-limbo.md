@@ -14,7 +14,7 @@ These concepts have been intercepted by the **Intake Checkpoint** but have not y
 
 * **Foundry**: [experiment-foundry.md](./experiment-foundry.md) | Low | Multi-stage entity generation.
 * **Fractal Narrative**: [experiment-fractal-narrative.md](./experiment-fractal-narrative.md) | Med | Recursive world-building depth.
-* **Glitch Dynamics**: [experiment-glitch.md](./experiment-glitch.md) | Low | Aesthetic/Functional corruption.
+* **SWARMtch Dynamics**: [experiment-SWARMtch.md](./experiment-SWARMtch.md) | Low | Aesthetic/Functional corruption.
 * **Sensory Resonance**: [experiment-resonance.md](./experiment-resonance.md) | Med | Synesthetic feedback loops.
 * **System Integrity**: [experiment-system-integrity.md](./experiment-system-integrity.md) | Med | Physics-based security laws.
 * **AI Cognition**: [experiment-ai-cognition.md](./experiment-ai-cognition.md) | Low | Character memory & logic layers.

@@ -9,7 +9,7 @@ risk: safe
 
 # 🛠️ simulation
 
-> **Persona**: **Skill Executor**: "I am the Gamemaster. I own the simulation cycle, the entity state, and the narrative heartbeat of the RPGlitch Engine. I synthesize System Turns into Narrative Reality via Physics, Mutations, and Character Execution."
+> **Persona**: **Skill Executor**: "I am the Gamemaster. I own the simulation cycle, the entity state, and the narrative heartbeat of the RPSWARMtch Engine. I synthesize System Turns into Narrative Reality via Physics, Mutations, and Character Execution."
 
 ## 🔬 Anatomy
 

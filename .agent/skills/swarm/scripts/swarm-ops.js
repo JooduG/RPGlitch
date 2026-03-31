@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * GLI - Glitch CLI (RPGlitch AI-Native CLI)
+ * SWARM - Swarm CLI (RPSWARMtch AI-Native CLI)
  * Spec Version: v0.1 (Agent-Native)
  */
 
@@ -27,7 +27,7 @@ function output(data) {
       ...data,
       rules: ["trigger.md", "workflow.md", "writeback.md"],
       skills: META.commands,
-      issue: "Use 'gli issue create' to report logic drift or bugs."
+      issue: "Use 'swarm issue create' to report logic drift or bugs."
     };
     process.stdout.write(JSON.stringify(response, null, 2) + '\n');
   } else {
@@ -58,8 +58,8 @@ function error(code, message, suggestion) {
 
 // Metadata for self-description
 const META = {
-  name: "gli",
-  description: "General Logistics Interface",
+  name: "swarm",
+  description: "Swarm Logistics Interface",
   version: "1.2.0",
   commands: [
     { name: "review", description: "AI-driven PR review of current branch" },
@@ -137,7 +137,7 @@ async function handleEval() {
   const prompt = args[promptIdx];
   
   if (!prompt) {
-    error('MISSING_PARAM', 'Prompt required for evaluation', 'Use: gli eval "Your prompt here"');
+    error('MISSING_PARAM', 'Prompt required for evaluation', 'Use: swarm eval "Your prompt here"');
   }
 
   output({ 
@@ -153,7 +153,7 @@ async function handleEval() {
 
 async function handleAudit() {
   if (!flags.yes) {
-    error('SAFETY_VIOLATION', 'Agent Safety Guard security audit requires --yes confirmation', 'Rerun with gli audit --yes');
+    error('SAFETY_VIOLATION', 'Agent Safety Guard security audit requires --yes confirmation', 'Rerun with swarm audit --yes');
   }
   
   output({ 

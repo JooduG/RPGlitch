@@ -59,7 +59,7 @@
 
 **Goal**: Finalize `/03-clean` and achieve 100% technical purity.
 
-* [\~] **Beat 01**: Fix `gli/` directory casing and update internal script paths.
+* [\~] **Beat 01**: Fix `SWARM/` directory casing and update internal script paths.
 * [\~] **Beat 02**: Remove sub-script debuggers from production logic.
 * [ ] **Beat 03**: Refactor Atomic CSS for higher specificity in glass containers.
 * [ ] **Beat 04**: **Run `npm run verify`** to confirm "PERFECT SCORE".
@@ -68,9 +68,9 @@
 
 ## 📜 System Rules & Skills (Current State)
 
-* **Rules**: [Foundation](https://www.google.com/search?q=../rules/01-foundation.md), [Sim](https://www.google.com/search?q=../rules/02-simulation.md), [Infra](https://www.google.com/search?q=../rules/03-infrastructure.md), [Aesthetic](https://www.google.com/search?q=../rules/04-aesthetics.md), [Intel](https://www.google.com/search?q=../rules/05-intelligence.md), [Compliance](https://www.google.com/search?q=../rules/06-compliance.md) 
+* **Rules**: [Foundation](../rules/01-foundation.md), [Sim](../rules/02-simulation.md), [Infra](../rules/03-infrastructure.md), [Aesthetic](../rules/04-aesthetics.md), [Intel](../rules/05-intelligence.md), [Compliance](../rules/06-compliance.md) 
 — **[All Rooted]** 
-* **Skills**: [Data], [Simulation], [Warden], [Designer], [Strategy], [Tactics], [Operations] 
+* **Skills**: [Data](../skills/data/SKILL.md), [Simulation](../skills/simulation/SKILL.md), [Warden](../skills/warden/SKILL.md), [Designer](../skills/designer/SKILL.md), [Strategy](../skills/orchestration-strategy/SKILL.md), [Tactics](../skills/orchestration-tactics/SKILL.md), [Operations](../skills/orchestration-operations/SKILL.md), [Swarm](../skills/swarm/SKILL.md) 
 — **[All Sovereign]**
 
 -----

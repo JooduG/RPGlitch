@@ -31,7 +31,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "read_knowledge_base",
         description:
-          "Search the RPGlitch technical knowledge base (rules, architecture, patterns) via Pinecone semantic search.",
+          "Search the RPSWARMtch technical knowledge base (rules, architecture, patterns) via Pinecone semantic search.",
         inputSchema: {
           type: "object",
           properties: {
@@ -46,7 +46,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "write_knowledge_base",
         description:
-          "Ingest files into the RPGlitch knowledge base (Pinecone). Chunks files by semantic boundaries and generates embeddings.",
+          "Ingest files into the RPSWARMtch knowledge base (Pinecone). Chunks files by semantic boundaries and generates embeddings.",
         inputSchema: {
           type: "object",
           properties: {

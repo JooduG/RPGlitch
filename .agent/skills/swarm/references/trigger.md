@@ -4,10 +4,10 @@
 
 ## 📅 Event-Driven Activation
 
-* **PR Created / Updated**: Trigger **`gli review`** to audit mutations against `.agent/rules/`.
-* **Issue Labeled / Created**: Trigger **`gli triage`** to analyze intent and categorize technical debt.
-* **CI Initialization**: Trigger **`gli test`** to identify relevant test slices for the build.
-* **Manual Maintenance**: Invoke **`gli audit`** for adversarial security or documentation sweeps.
+* **PR Created / Updated**: Trigger **`SWARM review`** to audit mutations against `.agent/rules/`.
+* **Issue Labeled / Created**: Trigger **`SWARM triage`** to analyze intent and categorize technical debt.
+* **CI Initialization**: Trigger **`SWARM test`** to identify relevant test slices for the build.
+* **Manual Maintenance**: Invoke **`SWARM audit`** for adversarial security or documentation sweeps.
 
 ---
 

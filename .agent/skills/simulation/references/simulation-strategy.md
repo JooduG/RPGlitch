@@ -1,7 +1,7 @@
 ---
 name: simulation-strategy
 version: 5.0.0
-description: The unified playbook for the RPGlitch Narrative Engine. Governs the mechanical cycle, entity autonomy, and memory physics.
+description: The unified playbook for the RPSWARMtch Narrative Engine. Governs the mechanical cycle, entity autonomy, and memory physics.
 ---
 
 # 🕹️ Skill: Simulation Strategy (The Heartbeat)
@@ -12,7 +12,7 @@ description: The unified playbook for the RPGlitch Narrative Engine. Governs the
 
 ## 🌀 1. The Red Thread: "State is Truth"
 
-In RPGlitch, we do not write "stories"; we simulate **State** and let the story emerge from it. If a character is "angry" in the code, they must be "angry" in the prose. There is no gap between the math and the myth.
+In RPSWARMtch, we do not write "stories"; we simulate **State** and let the story emerge from it. If a character is "angry" in the code, they must be "angry" in the prose. There is no gap between the math and the myth.
 
 ### The Triad of Reality
 

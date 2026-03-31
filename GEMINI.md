@@ -19,7 +19,7 @@ User preferences.
 ### 1.5 Intent Decoding
 Is the user's intent completely clear and technically actionable?
 - **TRUE**: _Proceed_ with [Phase 2](./GEMINI.md#-2-hypothesis-generation--triage).
-- **FALSE**: _Halt_ execution and invoke [Intake](./.agent/skills/intake/SKILL.md) to resolve ambiguity.
+- **FALSE**: _Halt_ execution and invoke [Orchestration Strategy](./.agent/skills/orchestration-strategy/SKILL.md) to resolve ambiguity.
 
 ## 🧠 2. Hypothesis Generation & Triage
 Assess the symptom and draft your suspected causes before taking any action.
@@ -28,13 +28,13 @@ Assess the symptom and draft your suspected causes before taking any action.
 Rank your hypotheses by likelihood. **Do not** discard outliers prematurely.
 
 ### 2.2 Complexity Triage
-Perform Complexity Triage via [Intake](./.agent/skills/intake/SKILL.md) and map the task to a complexity level to determine the active role and thinking approach.
+Perform Complexity Triage via [Orchestration Strategy](./.agent/skills/orchestration-strategy/SKILL.md) and map the task to a complexity level to determine the active role and thinking approach.
 - Level 1 **Quick Fix**: ⚒️ **[Operations](./.agent/skills/orchestration-operations/SKILL.md)** Role -> ⚡ _Professional Coding_: Bypass Step 3. Proceed directly to Step 5.
 - Level 2 **Sequential or Conditional Workflows**: 🎨 **[Tactical](./.agent/skills/orchestration-tactics/SKILL.md)** Role -> 🧠 _Sequential Thinking_: Proceed to Step 3.
 - Level 3 **Complex Feature**: 🎭 **[Strategic](./.agent/skills/orchestration-strategy/SKILL.md)** Role -> 🤔 _Contemplative Thinking_: Proceed to Step 3.
 
 ### 2.3 Risk Routing
-Map the risk tier based on your most severe likely hypothesis. Level 3 tasks REQUIRES a transition to the **[Strategic](./.agent/skills/orchestration-strategy/SKILL.md)** orchestration and **[Intake](./.agent/skills/intake/SKILL.md)** skills to resolve ambiguity.
+Map the risk tier based on your most severe likely hypothesis. Level 3 tasks REQUIRES a transition to the **[Strategic](./.agent/skills/orchestration-strategy/SKILL.md)** orchestration and **[Orchestration Strategy](./.agent/skills/orchestration-strategy/SKILL.md)** skills to resolve ambiguity.
 - **Low Risk**: Typos, CSS tweaks, minor logic.
 - **Medium Risk**: Refactors, state migrations.
 - **High Risk**: Structural changes, mission board wipes. Proceed to Step 3 and trigger the `warden:debugging` protocol.
@@ -48,7 +48,7 @@ When external facts are needed. Coordinate specialized MCPs for deep inquiry. Wh
     - Tools: `resolve-library-id` and `query-docs`.
 - **Svelte**: Official Svelte 5 logic and code verification. 
     - Tools: `get-documentation` and `list-sections`.
-- **DeepWiki**: GitHub repository intelligence and existing architecture analysis. 
+- **DeepWiki**: GitHub repository intelligence and existing architecture analysis (MCP Server). 
     - Tools: `read_wiki_structure` and `read_wiki_contents`.
 - **[Data](./.agent/skills/data)**: Local MCP server for accessing cloud storage. 
     - Tools: `read_knowledge_base`, `describe_knowledge_base` and `query_cold_storage`. 

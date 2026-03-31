@@ -7,12 +7,12 @@
 When a gap, bug, or technical debt is identified, you **MUST** anchor it into the physical history of the repository.
 
 ### Step 1: The De-Duplication Check
-Before creating a new record, **execute `gli issue list`**. 
+Before creating a new record, **execute `SWARM issue list`**. 
 - Analyze the output to ensure the concern isn't already logged. 
 - We do not burn storage on redundant complaints.
 
 ### Step 2: Issue Creation
-If the issue is unique, **execute `gli issue create`**.
+If the issue is unique, **execute `SWARM issue create`**.
 Utilize the following **Strict Schema**:
 - **`id`**: [Auto-generated UUID]
 - **`type`**: `BUG` (Broken logic), `RECO` (Architectural suggestion), or `DEBT` (Aesthetic/Technical shortcuts).

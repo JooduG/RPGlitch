@@ -3,14 +3,14 @@
 /************************************************************************************
  * 🚀 [SECTION: DEPLOY TO PERCHANCE]
  * ----------------------------------------------------------------------------------
- * Automates deployment of the RPGlitch Vite build to the Perchance platform
+ * Automates deployment of the RPSWARMtch Vite build to the Perchance platform
  * via Playwright browser automation and CodeMirror 6 EditorView API injection.
  *
  * Usage: node .agent/skills/devops/scripts/deploy_perchance.js
  * Env:   PERCHANCE_URL, PERCHANCE_USERNAME, PERCHANCE_KEY (from .env)
  *
  * Architecture:
- *   Left Panel  → src/RPGlitch-left-panel.txt  → window.modelTextEditor
+ *   Left Panel  → src/RPSWARMtch-left-panel.txt  → window.modelTextEditor
  *   Right Panel → dist/index.html              → window.outputTemplateEditor
  *   Save        → app.saveGenerator()
  ************************************************************************************/
@@ -31,11 +31,11 @@ const PROJECT_ROOT = resolve(__dirname, "..", "..", "..", "..");
  ************************************************************************************/
 
 const CONFIG = {
-  perchance_url: process.env.PERCHANCE_URL || "https://perchance.org/rpglitch#edit",
+  perchance_url: process.env.PERCHANCE_URL || "https://perchance.org/rpSWARMtch#edit",
   perchance_username: process.env.PERCHANCE_USERNAME || "",
   perchance_key: process.env.PERCHANCE_KEY || "",
 
-  left_panel_path: resolve(PROJECT_ROOT, "src", "RPGlitch-left-panel.txt"),
+  left_panel_path: resolve(PROJECT_ROOT, "src", "RPSWARMtch-left-panel.txt"),
   right_panel_path: resolve(PROJECT_ROOT, "dist", "index.html"),
 
   max_bundle_size: 500 * 1024, // 500KB — Perchance effective limit
@@ -439,7 +439,7 @@ async function deploy({ left_content, right_content }) {
       "📊",
       `Final state — Left: ${final_state.model_length} chars, Right: ${final_state.output_length} chars, Save: ${final_state.save_state}`,
     );
-    log("🚀", `Deployment complete! Live at: https://perchance.org/rpglitch`);
+    log("🚀", `Deployment complete! Live at: https://perchance.org/rpSWARMtch`);
 
     return true;
   } catch (error) {
@@ -588,7 +588,7 @@ async function attempt_login(page) {
 
 async function main() {
   console.log("\n  ╔═══════════════════════════════════════════════╗");
-  console.log("    ║   🚀 RPGlitch → Perchance Deploy Pipeline   ║");
+  console.log("    ║   🚀 RPSWARMtch → Perchance Deploy Pipeline   ║");
   console.log("    ╚═══════════════════════════════════════════════╝\n");
 
   // Phase 1: Pre-flight

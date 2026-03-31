@@ -7,7 +7,7 @@
 The system tracks divergent narrative paths within a specific Fractal.
 
 - Allow users to visualize divergent paths via a node graph.
-- Implement "Glitch Protocol" events that intentionally break the fourth wall as a narrative device.
+- Implement "SWARMtch Protocol" events that intentionally break the fourth wall as a narrative device.
 
 ## 2. Conflict Mechanics
 

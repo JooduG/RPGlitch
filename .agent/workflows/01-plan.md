@@ -15,10 +15,10 @@ date_added: 2024-03-29
 
 ## Context-Injection: Strategic Routing
 
-MUST INVOKE [Intake](../skills/intake/SKILL.md). 
+MUST INVOKE [Intake](../skills/orchestration-strategy/SKILL.md). 
 - And then inject: 
     - [Intelligence](../rules/01-foundation.md)
-    - [Intake](../skills/intake/)
+    - [Intake](../skills/orchestration-strategy/)
 
 ## Capabilities: Decision Matrix
 
@@ -30,7 +30,7 @@ MUST INVOKE [Intake](../skills/intake/SKILL.md).
 
 ### Phase 1: Ambiguity Resolution (Step 1.5: Intent Decoding)
 
-1. **Intake**: If intent is vague, halt and initiate the Intake skill. Resolve all semantic gaps before committing to a technical path. [[Invoke: intake]](../skills/intake/SKILL.md)
+1. **Intake**: If intent is vague, halt and initiate the Intake skill. Resolve all semantic gaps before committing to a technical path. [[Invoke: orchestration-strategy]](../skills/orchestration-strategy/SKILL.md)
 2. **Constraint Check**: Verify logical dependencies (Step 1.1) and prerequisites (Step 1.3). Ensure no cross-operational conflicts exist.
 
 ### Phase 2: Hypothesis & Triage (Step 2: Hypothesis)

@@ -30,7 +30,7 @@ Every interaction follows the reactive heart rate:
 
 ## Project Topography & Sovereign State
 
-The `RPGlitch` agent projects follows a strict state-sovereignty topography to ensure AI continuity and technical purity. All operations must ground themselves in the **Axiomatic Laws**.
+The `RPSWARMtch` agent projects follows a strict state-sovereignty topography to ensure AI continuity and technical purity. All operations must ground themselves in the **Axiomatic Laws**.
 
 ## [**Axiomatic** Laws](../../../../GEMINI.md)
 
@@ -43,7 +43,7 @@ The `RPGlitch` agent projects follows a strict state-sovereignty topography to e
 - [**Compliance**](../../../rules/06-compliance.md): Security boundaries and technical debt.
 
 ### [2. **Hypothesis** & **Triage**](../../../../GEMINI.md#-2-hypothesis-generation--triage)
-- [**Intake**](../../../skills/intake/SKILL.md): Semantic border checkpoint for intent decoding.
+- [**Intake**](../../../skills/orchestration-strategy/SKILL.md): Semantic border checkpoint for intent decoding.
 - [**Directives**](../../../skills/directives/SKILL.md): Architecture of the `.agent/` shards.
 - [**Prompting**](../../../skills/prompting/SKILL.md): Expert instruction architecture.
 

@@ -24,17 +24,17 @@ select * from articles where lower(content) like '%postgresql%';
 ```sql
 -- Add tsvector column and index
 alter table articles add column search_vector tsvector
-  generated always as (to_tsvector('english', coalesce(title,'') || ' ' || coalesce(content,''))) stored;
+  generated always as (to_tsvector('enSWARMsh', coalesce(title,'') || ' ' || coalesce(content,''))) stored;
 
 create index articles_search_idx on articles using gin (search_vector);
 
 -- Fast full-text search
 select * from articles
-where search_vector @@ to_tsquery('english', 'postgresql & performance');
+where search_vector @@ to_tsquery('enSWARMsh', 'postgresql & performance');
 
 -- With ranking
 select *, ts_rank(search_vector, query) as rank
-from articles, to_tsquery('english', 'postgresql') query
+from articles, to_tsquery('enSWARMsh', 'postgresql') query
 where search_vector @@ query
 order by rank desc;
 ```

@@ -16,14 +16,14 @@ date_added: 2024-03-29
 ## Context-Injection: GitHub Context
 
 - [Foundation](../rules/01-foundation.md)
-- [GLI](../skills/GLI/)
-- `npm run gli:agent`
+- [SWARM](../skills/SWARM/)
+- `npm run SWARM:agent`
 
 ## Capabilities: Integration Chain
 
 - **Version Control**: Git (Local).
 - **Remote Ops**: [Cli Commands](../../package.json).
-- **PR Automation**: [General Logistics Interface](../skills/GLI/).
+- **PR Automation**: [General Logistics Interface](../skills/SWARM/).
 
 ## Procedure
 
@@ -35,7 +35,7 @@ date_added: 2024-03-29
 ### Phase 2: Remote Ops (Step 5: Execution)
 
 1. **Push**: Sync all local commits to the remote origin.
-2. **PR Initiation**: Open the PR using the GitHub CLI or GLI skill. Ensure a tactical summary is provided. [[GLI]](../skills/GLI/)
+2. **PR Initiation**: Open the PR using the GitHub CLI or SWARM skill. Ensure a tactical summary is provided. [[SWARM]](../skills/SWARM/)
 3. **Issue Sync**: Link the PR to the relevant issue ID. Update the issue status to `Resolved`.
 
 ### Phase 3: Merging (Step 8: Handoff)

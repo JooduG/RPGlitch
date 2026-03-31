@@ -5,7 +5,7 @@
 ## 🏗️ The PR Review: Surgical Protocol
 
 ### Step 1: Preparation (The Scouting)
-- **Run `gli review --dry-run`** to simulate the audit without writing to the history. 
+- **Run `SWARM review --dry-run`** to simulate the audit without writing to the history. 
 - **Fetch the diff** from the base branch (usually `main`) to isolate the mutation.
 
 ### Step 2: Analysis (The Interrogation)

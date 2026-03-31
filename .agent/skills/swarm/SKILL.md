@@ -25,7 +25,7 @@ skills/swarm/
 ## 🎯 Strategic Context
 
 - **Operations in Parallel**: You trigger when Tactics determines a "Parallel Win" (\>20m + independent files).
-- **The Confidence Gate**: You enforce a minimum **80% audit score** (via `gli review`) before allowing a merge.
+- **The Confidence Gate**: You enforce a minimum **80% audit score** (via `SWARM review`) before allowing a merge.
 
 ## 📋 Procedure
 
@@ -48,7 +48,7 @@ skills/swarm/
 
 Once sub-agents finish:
 
-1.  **Run `gli review`** on all parallel outputs.
+1.  **Run `SWARM review`** on all parallel outputs.
 2.  **Calculate the confidence score**.
 3.  **If Score \< 80%**: **FAIL** the merge. Generate a Draft PR for human intervention.
 4.  **If Score ≥ 80%**: **PASS**. Merge the code and update the Log Book.
@@ -56,5 +56,5 @@ Once sub-agents finish:
 ## 🚫 Anti-Patterns
 
 - **Identity Drift**: Allowing sub-agents to wander outside their assigned file boundaries.
-- **Silent Failure**: Merging a swarm's output without a successful `gli audit`.
+- **Silent Failure**: Merging a swarm's output without a successful `SWARM audit`.
 - **Over-Scaling**: Launching a swarm for Level 1 "Quick Fix" tasks.

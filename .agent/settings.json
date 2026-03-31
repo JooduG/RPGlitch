@@ -7,6 +7,14 @@
   "ide": {
     "hasSeenNudge": true
   },
+  "general": {
+    "enablePromptCompletion": true,
+    "plan": {},
+    "preferredEditor": "antigravity"
+  },
+  "tools": {
+    "enableHooks": true
+  },
   "mcpServers": {
     "chrome-devtools": {
       "args": [],
@@ -16,7 +24,7 @@
       "headers": {
         "CONTEXT7_API_KEY": "ctx7sk-47294459-6c98-4af4-8546-a3616fe3d7d9"
       },
-      "serverUrl": "https://mcp.context7.com/mcp"
+      "url": "https://mcp.context7.com/mcp"
     },
     "data": {
       "args": [
@@ -30,7 +38,7 @@
       }
     },
     "deepwiki": {
-      "serverUrl": "https://mcp.deepwiki.com/mcp"
+      "url": "https://mcp.deepwiki.com/mcp"
     },
     "firecrawl-mcp": {
       "args": [],
@@ -39,16 +47,11 @@
         "FIRECRAWL_API_KEY": "fc-968e355e236f460092834ec49afdd6ae"
       }
     },
-    "general": {
-      "enablePromptCompletion": true,
-      "plan": {},
-      "preferredEditor": "antigravity"
-    },
     "github-copilot": {
       "headers": {
         "Authorization": "Bearer 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"
       },
-      "serverUrl": "https://api.githubcopilot.com/mcp"
+      "url": "https://api.githubcopilot.com/mcp"
     },
     "mcp-sequentialthinking-tools": {
       "args": [],
@@ -73,9 +76,6 @@
       "args": [],
       "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\svelte-mcp.cmd"
     },
-    "tools": {
-      "enableHooks": true
-    },
     "waldzell-clear-thought": {
       "args": [],
       "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\clear-thought.cmd"
@@ -90,7 +90,7 @@
     },
     "waldzell-metacognitive-monitoring": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\mcp-server-metacognitive-monitoring.cmd"
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\skills\\waldzell\\metacognitive-monitoring\\dist\\index.js"
     },
     "waldzell-scientific-method": {
       "args": [],

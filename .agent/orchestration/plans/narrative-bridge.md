@@ -17,7 +17,7 @@ Connect the `DynamicsEngine` output to the `SessionDriver` and `NarrativeDirecto
 - [ ] [ENGINE] Integrate bridge into `IntelligenceKernel` simulation loop.
 - [ ] [ENGINE] Define complication turn injection protocol (Fractal voice).
 - [ ] [TEST] Create `src/core/engine/NarrativeDirector.test.js`.
-- [ ] [VERIFY] Verify "Glitch" complications via DevWing state forcing.
+- [ ] [VERIFY] Verify "SWARMtch" complications via DevWing state forcing.
 
 ## Entity Snapshot & Growth Mechanic
 

@@ -40,7 +40,7 @@ Before any task is marked complete, the ecosystem must survive these automated s
 
 We do not leave messes. Adhere to the **Boy Scout Rule**: Always leave the codebase cleaner than you found it.
 
-- **Nomenclature**: Maintain consistent naming as defined in the **RPGlitch Lexicon**.
+- **Nomenclature**: Maintain consistent naming as defined in the **RPSWARMtch Lexicon**.
 - **Technical Debt**: Tag unresolved scope or bugs with `TODO-AI`.
 - **Hygiene**: Use the [Warden](../skills/warden/) to audit security; `npm audit --audit-level=high` is mandatory for any deployment checkpoint.
 

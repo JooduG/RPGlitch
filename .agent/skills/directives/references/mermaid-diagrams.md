@@ -1,6 +1,6 @@
 # 📐 Visualization (Mermaid.js)
 
-> **Context**: Diagramming standards and visual reasoning for the RPGlitch engine.
+> **Context**: Diagramming standards and visual reasoning for the RPSWARMtch engine.
 > **Tooling**: `waldzell-visual-reasoning`
 
 ## 1. 🎯 Approach

@@ -18,7 +18,7 @@ Use this reference to select the appropriate MCP reasoning framework based on th
 
 | Block Type      | Trigger                                 | MCP / Framework                     |
 | :-------------- | :-------------------------------------- | :---------------------------------- |
-| **Research**    | Knowledge gaps, library patterns.       | `context7`, `svelte`, `deepwiki`    |
+| **Research**    | Knowledge gaps, library patterns.       | `context7`, `svelte`, `deepwiki` (MCP) |
 | **Reasoning**   | Multi-step breakdown, chain-of-thought. | `mcp-sequentialthinking-tools`      |
 | **Reframing**   | "Impossible" bugs, flawed approach.     | `waldzell-clear-thought`            |
 | **Diversity**   | Trade-offs, simulated expertise.        | `waldzell-collaborative-reasoning`  |
@@ -44,14 +44,14 @@ To prevent cognitive drift, nomenclature is absolute.
 
 #### **Casing Standards**
 
-- **kebab-case**: Folders and files (e.g., `simulation-engine/`, `context-broker.js`). **Exception**: Uppercase is allowed for abbreviations (e.g., `GLI/`).
+- **kebab-case**: Folders and files (e.g., `simulation-engine/`, `context-broker.js`). **Exception**: Uppercase is allowed for abbreviations (e.g., `SWARM/`).
 - **PascalCase**: Svelte components (e.g., `StoryPanel.svelte`).
 - **snake_case**: Variables and process state (e.g., `current_char`).
 - **question_snake**: Booleans (e.g., `is_active`, `has_token`).
 - **SCREAMING_SNAKE**: Constants and Globals (e.g., `MAX_ENTROPY`).
 - **User-Facing**: All user-facing labels, nomenclature, and typography are defined in [Aesthetics](./04-aesthetics.md).
 
-#### **The RPGlitch Lexicon**
+#### **The RPSWARMtch Lexicon**
 
 - **Simulation**: The overall story/state container. A `simulation` is a story and requires `entities` in order to play out. The engine is designed for frequent story swapping; concluding a story and starting a new one should be a seamless state transition.
 - **Entity**: The fundamental unit of the simulation. An `entity` is either a `character` or a `fractal`.
@@ -85,7 +85,7 @@ To optimize cognitive load, tasks are triaged into three complexity levels, each
 
 - **Scope**: Major architectural changes, new core systems, or highly ambiguous requirements.
 - **Approach**: 🤔 *Contemplative Thinking* (mcp: `waldzell-clear-thought`). Deep exploration, architectural mapping, reframing.
-- **Execution**: Trigger `warden:debugging` if high risk. Requires transition from `intake` to `strategy`.
+- **Execution**: Trigger `warden:debugging` if high risk. Requires transition from `orchestration-strategy` (Intake) to `orchestration-strategy` (Strategy).
 - **Skill**: [Orchestration Strategy](../../.agent/skills/orchestration-strategy/SKILL.md).
 
 ---

@@ -9,7 +9,7 @@ Eliminate cognitive redundancy and clarify role boundaries. Ensure that the Agen
 
 ### Phase 1: Semantic Triage (Intake)
 - **Objective**: Absorb Complexity Triage from Orchestrator.
-- **Update**: `intake/SKILL.md` to handle Level 1/2/3 routing.
+- **Update**: `orchestration-strategy/SKILL.md` to handle Level 1/2/3 routing.
 - **Handover**: If intent is clear and L2/L3, handover to `strategy` (L3) or `tactics` (L2).
 
 ### Phase 2: Architectural Handover (Strategy)
@@ -33,7 +33,7 @@ Eliminate cognitive redundancy and clarify role boundaries. Ensure that the Agen
 ## Atomic Checklist
 
 - [ ] **Phase 1: Intake Evolution**
-    - [ ] Update `intake/SKILL.md` with Triage Table.
+    - [ ] Update `orchestration-strategy/SKILL.md` with Triage Table.
 - [ ] **Phase 2: Strategy Handover**
     - [ ] Update `orchestration-strategy/SKILL.md` with Handover protocols.
 - [ ] **Phase 3: Tactics & Sync Migration**

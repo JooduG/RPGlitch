@@ -17,7 +17,7 @@ date_added: 2024-03-29
 
 - [Foundation](../rules/01-foundation.md)
 - [Compliance](../rules/06-compliance.md)
-- [GLI](../skills/GLI/)
+- [SWARM](../skills/SWARM/)
 
 ## Capabilities: Peer Review
 

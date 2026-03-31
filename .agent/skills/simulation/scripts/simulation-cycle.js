@@ -54,7 +54,7 @@ export const SimulationCycle = {
 
     // Entropy / Reality Stability
     if (state.fractal?.dynamics?.entropy > 80) {
-      bridges.push("CRITICAL: Structural reality is collapsing. Describe environmental glitches.");
+      bridges.push("CRITICAL: Structural reality is collapsing. Describe environmental SWARMtches.");
     }
 
     // AI Somatics

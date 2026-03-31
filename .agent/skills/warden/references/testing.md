@@ -6,7 +6,7 @@
 
 **Trace backward through the call chain.**
 
-1. **Observe Symptom:** Identify where the failure manifests (UI glitch, error log).
+1. **Observe Symptom:** Identify where the failure manifests (UI SWARMtch, error log).
 2. **Immediate Cause:** Find the code directly throwing the error (e.g., `undefined` access).
 3. **Trace Up:** Ask "What called this?" and "What value was passed?" until the origin point is found.
 4. **Fix Source:** Never patch the symptom. Add validation or fix the logic at the origin.

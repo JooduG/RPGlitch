@@ -46,7 +46,7 @@ Capture the build logs and audit the output for "Aesthetic Debt" or broken asset
 **Execute `node scripts/deploy_perchance.js`**.
 - Monitor the Playwright automation logs.
 - If a Cloudflare challenge or login error occurs, **provide the error screenshot** to the human director for manual intervention.
-- Once the "Saved Successfully" signal is received, **verify the live link** at `https://perchance.org/rpglitch`.
+- Once the "Saved Successfully" signal is received, **verify the live link** at `https://perchance.org/rpSWARMtch`.
 
 ### Step 5: Workspace Hygiene
 Perform a post-deployment cleanup. 

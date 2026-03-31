@@ -16,7 +16,7 @@ description: The Core DNA. Vision, UVP, Strategic Objectives, and The Context Pr
 
 For information about the simulation application please see _the [Simulation](./02-simulation.md) rule_.
 
-### RPGlitch Architecture
+### RPSWARMtch Architecture
 
 When working on our infrastructure enforce the [Infrastructure](./03-infrastructure.md) rule and the [Aesthetics](./04-aesthetics.md) rule.
 
