@@ -30,7 +30,7 @@ However, the aggressive use of glassmorphism (translucency + background blur) co
 ## Accessibility & readability
 - **Keyboard Navigation:** The app fails the "Keyboard-Only" test. While standard buttons have a focus ring, custom interactive elements (cards, lists, panels) lack clear focus states. The existing focus ring uses a medium gray which doesn't provide enough contrast against dark backgrounds.
 - **Focus Trapping:** Modals and drawers do not trap focus. A keyboard user can tab right out of the drawer and interact with the blurred background elements.
-- **Animation Conflicts:** The custom kinetic hover actions (spin and stab) manually trigger new animations on `mouseleave` to reset state, rather than reversing the existing animation. Rapid hovering causes these animations to overlap and stutter.
+- **Animation Conflicts:** The custom kinetic hover action for `spin` manually triggers a new animation on `mouseleave` to reset state, rather than reversing the existing animation. Rapid hovering causes these animations to overlap and stutter.
 - **Kinetic Scroll:** The custom drag-to-scroll mechanic on mobile will cause severe jitter because it fails to prevent the browser's native scrolling behavior during touch movements.
 
 ## Copy, labels, and structure
