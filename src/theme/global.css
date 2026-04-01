@@ -165,6 +165,25 @@ tfoot td {
   display: none; /* Chrome/Safari */
 }
 
+/* ============================================================================
+   ACCESSIBILITY: FOCUS STATES
+   ============================================================================ */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-s);
+}
+
+.entity-drawer :focus-visible,
+.modal :focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px; /* Inset for tight containers */
+}
+
 /* Accessibility bypass link for screen readers */
 .skip-link {
   position: absolute;
@@ -212,15 +231,14 @@ tfoot td {
 [data-tooltip]::after {
   content: attr(data-tooltip);
   bottom: calc(100% + 15px);
-  background: var(--glass-xs);
-  color: var(--font-color-m);
+  background: var(--bg-base); /* Pure opaque background for tooltips */
+  color: var(--color-white);
   padding: var(--spacing-xs) var(--spacing-s);
   border-radius: var(--border-radius-s);
+  border: 1px solid var(--color-frisk);
   font-size: var(--font-size-xs);
   white-space: nowrap;
-  box-shadow:
-    var(--shadow-s),
-    inset 0 0 0 1px var(--glass-edge-l);
+  box-shadow: var(--shadow-m);
 }
 
 [data-tooltip]:hover::before,

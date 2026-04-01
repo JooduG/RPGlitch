@@ -209,8 +209,6 @@
 
   /* SIDE COLUMN (WINGS) STYLING */
   .stage-column--side {
-    background: var(--glass-s);
-    backdrop-filter: var(--glass-blur-s);
     transition: all 0.6s var(--motion-elastic);
   }
 

@@ -43,7 +43,7 @@
   let title = $derived(() => {
     const labels = {
       ai: "Select AI Companion",
-      user: "Select User Persona",
+      user: "Choose Your Persona",
       fractal: "Select Fractal",
     };
     return labels[drawerType] || "Select Entity";
@@ -216,7 +216,7 @@
   /* --- NEW ENTITY CARD --- */
   .drawer-card--new {
     background: var(--glass-xs);
-    box-shadow: inset 0 0 0 1px rgb(var(--color-white-rgb) / 5%);
+    border: 2px dashed rgb(var(--color-white-rgb) / 10%); /* Defined target area - jules review */
     border-radius: var(--border-radius-l);
     aspect-ratio: 2 / 3;
     display: flex;
@@ -227,7 +227,6 @@
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     color: var(--font-color-s);
-    border: none;
     padding: 0;
   }
 

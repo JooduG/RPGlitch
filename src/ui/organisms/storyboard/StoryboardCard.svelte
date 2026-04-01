@@ -150,12 +150,13 @@
     flex-direction: column;
     z-index: var(--z-index-l);
     padding: var(--spacing-s);
-    opacity: var(--opacity-s);
-    transition: opacity var(--motion-fast) ease;
+
+    /* opacity removed to prevent contrast violations - jules review */
+    transition: transform var(--motion-fast) ease;
   }
 
   :global(.storyboard-empty.btn:hover) .empty-content {
-    opacity: var(--opacity-full);
+    transform: scale(1.05);
   }
 
   .empty-icon-wrap {
@@ -167,6 +168,7 @@
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-l);
     color: var(--font-color-s);
+    filter: brightness(1.5); /* Ensure readability even when container is de-emphasized */
   }
 
   /* --- POPULATED CARD --- */

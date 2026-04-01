@@ -60,6 +60,8 @@
   --color-danger: var(--color-red);
   --color-info: var(--color-blue);
   --color-del: var(--color-danger);
+  --color-focus: var(--color-white);
+  --color-focus-alt: var(--color-cyan);
 
   /************************************************************************************
   * 🧩 [SECTION: CORE SYSTEM OPACITY]
@@ -71,7 +73,7 @@
   --opacity-none: 0;
   --opacity-xxs: 0.05;
   --opacity-xs: 0.15;
-  --opacity-s: 0.3;
+  --opacity-s: 0.4;
   --opacity-m: 0.5;
   --opacity-l: 0.7;
   --opacity-xl: 0.85;
@@ -94,12 +96,12 @@
   /* Atomic Glass (Translucent Overlays) */
 
   /* SUNKEN: Drops into the background (s - xs) */
-  --glass-xs: rgb(var(--color-black-rgb) / var(--opacity-s));
-  --glass-s: rgb(var(--color-black-rgb) / var(--opacity-xs));
+  --glass-xs: rgb(var(--color-black-rgb) / 50%); /* Solidified for contrast */
+  --glass-s: rgb(var(--color-black-rgb) / var(--opacity-s));
 
   /* ELEVATED: Raises above the background (l - xl) */
   --glass-l: rgb(var(--color-frisk-rgb) / var(--opacity-xs));
-  --glass-xl: rgb(var(--color-frisk-rgb) / var(--opacity-s));
+  --glass-xl: rgb(var(--color-frisk-rgb) / 45%); /* Solidified for readability */
 
   /* The Specular Edge: For the borders of interactive atoms */
   --glass-edge-s: 1px solid rgb(var(--color-chalk-rgb) / var(--opacity-s));
@@ -213,40 +215,4 @@
   --z-index-l: 100; /* Overlays: Storyboard Pill, floating widgets */
   --z-index-xl: 450; /* Shields: Modals, Backdrops, Global Drawers */
   --z-index-max: 9999; /* Toasts: System alerts, Tooltips, Context Menus */
-}
-
-/* ============================================================================
-* 💎 GLOBAL TOOLTIP UTILITY
-* Usage: <div data-tooltip="My Message">...</div>
-* ============================================================================ */
-[data-tooltip] {
-  position: relative;
-  cursor: help;
-}
-
-[data-tooltip]::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: 125%;
-  left: 50%;
-  transform: translateX(-50%) translateY(0);
-  padding: var(--spacing-xxs) var(--spacing-s);
-  background: var(--glass-xl);
-  backdrop-filter: var(--glass-blur-m);
-  border: var(--glass-edge-l);
-  color: var(--font-color-m);
-  font-family: var(--font-family-mono);
-  font-size: var(--font-size-xxs);
-  white-space: nowrap;
-  border-radius: var(--border-radius-s);
-  box-shadow: var(--shadow-m);
-  opacity: 0;
-  pointer-events: none;
-  transition: all var(--motion-fast) var(--motion-elastic);
-  z-index: var(--z-index-max);
-}
-
-[data-tooltip]:hover::after {
-  opacity: 1;
-  transform: translateX(-50%) translateY(var(--motion-hover-y));
 }

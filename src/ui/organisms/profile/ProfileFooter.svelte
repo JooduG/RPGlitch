@@ -76,8 +76,8 @@
 
   footer .footer-actions :global(.btn-danger) {
     background: transparent;
-    border-color: var(--glass-edge-l);
-    color: var(--font-color-s);
+    border: 1px solid var(--color-del); /* Clean 1px border - jules review */
+    color: var(--color-del);
     box-shadow: none;
     transition: all 0.3s ease;
   }
@@ -86,8 +86,8 @@
     background: var(--color-del);
     border-color: var(--color-del);
     color: var(--color-white);
-    box-shadow: 0 0 var(--spacing-xl) rgb(var(--color-danger-rgb) / var(--opacity-m));
-    filter: brightness(1.2);
+    box-shadow: 0 0 var(--spacing-l) rgb(var(--color-danger-rgb) / 30%);
+    filter: brightness(1.1);
   }
 
   /* Readonly "Edit" Button - Target direct child of footer */

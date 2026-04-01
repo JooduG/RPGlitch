@@ -91,39 +91,42 @@ export function pulse(node) {
  * Usage: use:spin
  */
 export function spin(node) {
-  // Target the SVG inside if possible, or spin the whole node?
-  // The original CSS targeted "svg" inside: :global(.spin-hover:hover svg)
-  // To be generic, this action should probably spin the node it's attached to.
-  // If the user wants to spin the icon, they should attach it to the icon.
-  // HOWEVER, for Button component, we are attaching to the Button, but want to spin the Icon.
-  // We can accept a selector option.
   const targetSelector = "svg";
+  let animation;
+
   function getTarget() {
     return node.querySelector(targetSelector) || node;
   }
+
   function trigger() {
     const target = getTarget();
-    // Check if already animating?
-    // CSS was: transform: rotate(90deg); transition...
-    // We use WAAPI to rotate to 90deg
-    target.animate([{ transform: "rotate(0deg)" }, { transform: "rotate(90deg)" }], {
-      duration: SPIN_DURATION,
-      easing: EASE_ELASTIC,
-      fill: "forwards",
-    });
+    if (animation) {
+      animation.playbackRate = 1;
+      animation.play();
+    } else {
+      animation = target.animate(
+        [{ transform: "rotate(0deg)" }, { transform: "rotate(90deg)" }],
+        {
+          duration: SPIN_DURATION,
+          easing: EASE_ELASTIC,
+          fill: "forwards",
+        },
+      );
+    }
   }
+
   function reset() {
-    const target = getTarget();
-    target.animate([{ transform: "rotate(90deg)" }, { transform: "rotate(0deg)" }], {
-      duration: SPIN_DURATION,
-      easing: "ease-out",
-      fill: "forwards",
-    });
+    if (animation) {
+      animation.playbackRate = -1;
+      animation.play();
+    }
   }
+
   node.addEventListener("mouseenter", trigger);
   node.addEventListener("mouseleave", reset);
   return {
     destroy() {
+      if (animation) animation.cancel();
       node.removeEventListener("mouseenter", trigger);
       node.removeEventListener("mouseleave", reset);
     },
@@ -205,6 +208,10 @@ export function kineticScroll(node) {
 
   const onMove = (e) => {
     if (!isDown) return;
+    
+    // Prevent native scrolling while dragging - jules review
+    if (e.cancelable) e.preventDefault();
+
     const pageY = e.pageY || (e.touches ? e.touches[0].pageY : 0);
     const y = pageY - node.offsetTop;
     const walk = (y - startY) * 1.5;

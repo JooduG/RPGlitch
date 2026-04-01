@@ -1,0 +1,27 @@
+{
+  "mission_id": "001-ui-refinement",
+  "commander": "Antigravity",
+  "priority": "CRITICAL",
+  "agents": [
+    {
+      "id": "agent-svelte",
+      "persona": "UI Refinement specialist",
+      "scope": ["src/ui/organisms/Layout.svelte", "src/ui/organisms/storyboard/StoryboardCard.svelte"],
+      "directive": "Verify the absolute removal of layout stripes and ensure high-contrast empty states."
+    },
+    {
+      "id": "agent-css",
+      "persona": "Theme Polish specialist",
+      "scope": ["src/theme/tokens.css", "src/theme/global.css"],
+      "directive": "Validate focus rings, tooltip opacities, and Stylelint compliance (alpha-value-notation)."
+    },
+    {
+      "id": "agent-motion",
+      "persona": "Kinetic Calibration specialist",
+      "scope": ["src/ui/utils/actions/kinetic.js"],
+      "directive": "Audit the spin reversal logic and touchmove preventDefault implementation for jitter-free mobile experience."
+    }
+  ],
+  "status": "DISPATCHED",
+  "timestamp": "2026-04-01T00:46:12Z"
+}
