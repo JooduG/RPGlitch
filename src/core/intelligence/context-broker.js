@@ -79,47 +79,45 @@ export const context_broker = {
       { role: "FRACTAL", data: runtime.active_fractal },
     ];
     const entities = {};
-    // Parallel hydration of entities
-    await Promise.all(
-      entries.map(async ({ role, data }) => {
-        const raw = data || { name: role, role, fragments: [] };
-        const data_points = to_data_points(raw);
-        // Lexical filtering for AI relevance
-        const filtered =
-          role === "AI" ? context_broker.lexical_filter(data_points, active_vector) : data_points;
-        // Safety boot-strap
-        if (filtered.length === 0) {
-          filtered.push({
-            text: `A nascent ${role.toLowerCase()} entity. State: Initializing.`,
-            type: "Status",
-            enhancer: "SYSTEM",
-            section: "Present",
-          });
-        }
-        // Build the structured Fragment view (Sovereign Schema)
-        const fragments = {
-          eternal: { physical: "", non_physical: "" },
-          present: { physical: "", non_physical: "" },
-        };
-        filtered.forEach((f) => {
-          const layer = f.layer?.toLowerCase();
-          const field = f.type === "Physical" ? "physical" : "non_physical";
-          if (fragments[layer] && fragments[layer][field] === "") {
-            fragments[layer][field] = f.text;
-          }
+    // Synchronous hydration of entities
+    entries.forEach(({ role, data }) => {
+      const raw = data || { name: role, role, fragments: [] };
+      const data_points = to_data_points(raw);
+      // Lexical filtering for AI relevance
+      const filtered =
+        role === "AI" ? context_broker.lexical_filter(data_points, active_vector) : data_points;
+      // Safety boot-strap
+      if (filtered.length === 0) {
+        filtered.push({
+          text: `A nascent ${role.toLowerCase()} entity. State: Initializing.`,
+          type: "Status",
+          enhancer: "SYSTEM",
+          section: "Present",
         });
-        entities[role] = {
-          id: raw.id,
-          name: raw.name || role,
-          _data_points: filtered,
-          fragments,
-          past: raw.past,
-          future: raw.future,
-          dynamics: raw.dynamics, // Pass through for physics calculation
-          associated_ids: raw.associated_ids || [],
-        };
-      }),
-    );
+      }
+      // Build the structured Fragment view (Sovereign Schema)
+      const fragments = {
+        eternal: { physical: "", non_physical: "" },
+        present: { physical: "", non_physical: "" },
+      };
+      filtered.forEach((f) => {
+        const layer = f.layer?.toLowerCase();
+        const field = f.type === "Physical" ? "physical" : "non_physical";
+        if (fragments[layer] && fragments[layer][field] === "") {
+          fragments[layer][field] = f.text;
+        }
+      });
+      entities[role] = {
+        id: raw.id,
+        name: raw.name || role,
+        _data_points: filtered,
+        fragments,
+        past: raw.past,
+        future: raw.future,
+        dynamics: raw.dynamics, // Pass through for physics calculation
+        associated_ids: raw.associated_ids || [],
+      };
+    });
     // 2. Build Unified Payload
     return {
       input,
