@@ -8,6 +8,7 @@ import { context_broker } from "@core/intelligence/context-broker.js";
 import { llm_service } from "@core/intelligence/llm-service.js";
 import { db } from "@data/db.js";
 import { entities } from "@data/repository.js";
+import { generateSecureSeed } from "@ui/utils/core.js";
 import { runtime } from "@state/runtime.svelte.js";
 import { simulationState as simulation } from "@state/status.svelte.js";
 import {
@@ -84,7 +85,7 @@ export const GeneratorEngine = {
     const result = await window.pluginTextToImage({
       prompt: finalPrompt,
       negativePrompt: negativePrompt,
-      seed: options.seed || Math.floor(Math.random() * 1000000),
+      seed: options.seed || generateSecureSeed(1000000),
       width: options.width || res.width,
       height: options.height || res.height,
     });

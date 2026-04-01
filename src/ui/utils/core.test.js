@@ -1,6 +1,52 @@
-import { describe, it, expect } from "vitest";
-import { generateUUID } from "./core.js";
+import { describe, it, expect, vi } from "vitest";
+import { generateUUID, generateSecureSeed } from "./core.js";
 describe("utils", () => {
+  describe("generateSecureSeed", () => {
+    it("should return a number within the specified limit", () => {
+      const limit = 1000;
+      for (let i = 0; i < 100; i++) {
+        const seed = generateSecureSeed(limit);
+        expect(seed).toBeGreaterThanOrEqual(0);
+        expect(seed).toBeLessThan(limit);
+        expect(Number.isInteger(seed)).toBe(true);
+      }
+    });
+
+    it("should throw an error if crypto.getRandomValues is not available", () => {
+      const originalCrypto = globalThis.crypto;
+      Object.defineProperty(globalThis, "crypto", {
+        value: { ...originalCrypto, getRandomValues: undefined },
+        configurable: true,
+      });
+      expect(() => generateSecureSeed()).toThrow(/crypto.getRandomValues is not available/);
+      Object.defineProperty(globalThis, "crypto", {
+        value: originalCrypto,
+        configurable: true,
+      });
+    });
+
+    it("should use crypto.getRandomValues", () => {
+      const originalCrypto = globalThis.crypto;
+      const mockGetRandomValues = vi.fn((arr) => {
+        arr[0] = 123456;
+        return arr;
+      });
+      Object.defineProperty(globalThis, "crypto", {
+        value: { ...originalCrypto, getRandomValues: mockGetRandomValues },
+        configurable: true,
+      });
+
+      const seed = generateSecureSeed(100);
+      expect(mockGetRandomValues).toHaveBeenCalled();
+      expect(seed).toBe(123456 % 100);
+
+      Object.defineProperty(globalThis, "crypto", {
+        value: originalCrypto,
+        configurable: true,
+      });
+    });
+  });
+
   describe("generateUUID", () => {
     it("should return a valid UUID string", () => {
       const uuid = generateUUID();

@@ -44,6 +44,16 @@ export const generateUUID = () => {
   }
   return globalThis.crypto.randomUUID();
 };
+export const generateSecureSeed = (limit = 1000000) => {
+  if (!globalThis.crypto?.getRandomValues) {
+    throw new Error(
+      "crypto.getRandomValues is not available in this environment. Ensure you are in a secure context (HTTPS).",
+    );
+  }
+  const array = new Uint32Array(1);
+  globalThis.crypto.getRandomValues(array);
+  return array[0] % limit;
+};
 export const debounce = (fn, wait = 250) => {
   let t;
   return (...args) => {
