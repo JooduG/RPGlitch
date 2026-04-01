@@ -3,6 +3,7 @@ import { mount } from "svelte";
 import { sanitizeToFragment } from "@core/security.js";
 import { seed_premades } from "@data/repository.js";
 import { runtime } from "@state/runtime.svelte.js";
+import { app } from "@state/app.svelte.js";
 import App from "../../App.svelte";
 let has_initialized = false;
 /**
@@ -20,7 +21,7 @@ export const reset_bootstrap_guard =
 export const AppBootstrap = {
   async init() {
     if (has_initialized) {
-      console.warn("[Engine] AppBootstrap.init() called more than once. Guarding.");
+      app.log("[Engine] AppBootstrap.init() called more than once. Guarding.", "system");
       return;
     }
     has_initialized = true;
@@ -36,9 +37,9 @@ export const AppBootstrap = {
       // 4. Tear down boot illusion — it lives in #svelte-root which is NOT the
       //    mount target, so Svelte never cleans it up. Remove it explicitly.
       document.getElementById("svelte-root")?.remove();
-      console.info("[Engine] 🏁 System Online.");
+      app.log("[Engine] 🏁 System Online.", "system");
     } catch (err) {
-      console.error("[Engine] ❌ Critical Failure:", err);
+      app.log("[Engine] ❌ Critical Failure: " + (err.message || err), "error");
       const error_template = `
                 <div style="background:var(--bg-base); color:var(--color-danger); padding:var(--spacing-xl); font-family:var(--font-family-mono); height:100vh; overflow:auto;">
                     <h1 style="border-bottom: 2px solid var(--color-danger); padding-bottom: var(--spacing-s); margin-bottom: var(--spacing-m);">SYSTEM HALTED</h1>
