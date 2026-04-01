@@ -58,16 +58,16 @@ export async function consolidate_vector(target_entity, history_slice, role = "c
       raw_text = String(r.generatedText ?? r.text ?? "").trim();
     }
     const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
-    const object_match = stripped.match(/\{[\s\S]*\}/);
+    const object_match = stripped.match(/\{[\s\S]*?\}/);
     if (!object_match) {
       console.warn("[Echo] No valid JSON object found in response.");
       return null;
     }
     const resonance = JSON.parse(object_match[0]);
 
-    // Validation: Require summary
-    if (typeof resonance?.summary !== "string" || !resonance.summary.trim()) {
-      console.warn("[Echo] Invalid resonance object: summary is missing, empty, or not a string.");
+    // Validation: Require non-empty summary
+    if (!resonance || typeof resonance.summary !== "string" || resonance.summary.trim() === "") {
+      console.warn("[Echo] Invalid resonance object: summary is missing or empty.");
       return null;
     }
 

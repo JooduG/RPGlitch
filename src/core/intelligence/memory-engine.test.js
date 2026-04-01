@@ -77,7 +77,17 @@ describe("memory-engine - consolidate_vector", () => {
     const result = await consolidate_vector({ name: "Viper" }, []);
 
     expect(result).toBeNull();
-    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("summary is missing"));
+    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("summary is missing or empty"));
+  });
+
+  it("should return null and warn if resonance summary property is empty", async () => {
+    const mockResonance = { summary: "  ", vector_tags: ["tag"] }; // Empty/whitespace summary
+    vi.mocked(llm_service.generate).mockResolvedValue(JSON.stringify(mockResonance));
+
+    const result = await consolidate_vector({ name: "Viper" }, []);
+
+    expect(result).toBeNull();
+    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("summary is missing or empty"));
   });
 
   it("should return resonance object on valid JSON response and verify dependency calls", async () => {
@@ -157,16 +167,15 @@ describe("memory-engine - consolidate_vector", () => {
     expect(result.vector_tags).toEqual(mockResonance.tags);
   });
 
-  it("should attempt parsing and fail if multiple JSON objects are returned (greedy regex limitation)", async () => {
+  it("should parse the first object correctly when multiple JSON objects are returned (non-greedy regex)", async () => {
     const json1 = JSON.stringify({ summary: "First" });
     const json2 = JSON.stringify({ summary: "Second" });
     vi.mocked(llm_service.generate).mockResolvedValue(`${json1}\nSome noise\n${json2}`);
 
     const result = await consolidate_vector({ name: "Viper" }, []);
 
-    // The current greedy regex /\{[\s\S]*\}/ will match from first { to last },
-    // which results in invalid JSON when multiple objects are present.
-    expect(result).toBeNull();
-    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Resonance condensation failed"), expect.any(Error));
+    // With non-greedy regex, it should correctly isolate and parse the first object
+    expect(result).not.toBeNull();
+    expect(result.summary).toBe("First");
   });
 });
