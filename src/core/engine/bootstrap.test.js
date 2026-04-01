@@ -36,12 +36,16 @@ describe("AppBootstrap", () => {
     // Mocking seed_premades to throw
     vi.mocked(repository.seed_premades).mockRejectedValue(error);
 
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
     await AppBootstrap.init();
     expect(document.body.innerHTML).toContain("SYSTEM HALTED");
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("[Engine] ❌ Critical Failure:"), error);
     expect(app.log).toHaveBeenCalledWith(
       expect.stringContaining("[Engine] ❌ Critical Failure: Critical Failure"),
       "error",
     );
+    consoleSpy.mockRestore();
     const errorStackElement = document.getElementById("error-stack");
     expect(errorStackElement).not.toBeNull();
     // When using textContent, the literal string should be present in the text,
@@ -57,6 +61,7 @@ describe("AppBootstrap", () => {
     const error = new Error("INTENTIONAL_REACTION");
     vi.mocked(repository.seed_premades).mockRejectedValue(error);
 
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const innerHTMLSpy = vi.spyOn(document.body, "innerHTML", "set");
 
     await AppBootstrap.init();
@@ -64,6 +69,7 @@ describe("AppBootstrap", () => {
     // We want this to be false, indicating we used a safer method like replaceChildren or append with a fragment
     expect(innerHTMLSpy).not.toHaveBeenCalled();
 
+    consoleSpy.mockRestore();
     innerHTMLSpy.mockRestore();
   });
 });
