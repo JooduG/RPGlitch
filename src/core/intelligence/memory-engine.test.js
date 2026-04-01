@@ -4,16 +4,6 @@ import { llm_service } from "./llm-service.js";
 import { dynamics_engine } from "./dynamics-engine.js";
 import { prompt_builder } from "./prompt-builder.js";
 
-// Mock app state
-vi.mock("@state/app.svelte.js", () => ({
-  app: {
-    start_stream: vi.fn(),
-    update_stream: vi.fn(),
-    end_stream: vi.fn(),
-    streaming: { active: false },
-  },
-}));
-
 // Mock dependencies
 vi.mock("./llm-service.js", () => ({
   llm_service: {
@@ -35,12 +25,15 @@ vi.mock("./prompt-builder.js", () => ({
 
 describe("memory-engine - consolidate_vector", () => {
   beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2024-01-01"));
     vi.clearAllMocks();
     vi.spyOn(console, "warn").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
@@ -67,21 +60,38 @@ describe("memory-engine - consolidate_vector", () => {
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Resonance condensation failed"), expect.any(Error));
   });
 
-  it("should return resonance object on valid JSON response", async () => {
+  it("should return resonance object on valid JSON response and verify dependency calls", async () => {
+    const mockEntity = { name: "Viper" };
+    const mockHistory = [{ role: "user", content: "test message" }];
     const mockResonance = {
       summary: "A significant event happened.",
       vector_tags: ["event", "significant"]
     };
+    const mockPayload = { system: "mock prompt", messages: [] };
+
+    vi.mocked(prompt_builder.build_memory_prompt).mockReturnValue(mockPayload);
     vi.mocked(llm_service.generate).mockResolvedValue(JSON.stringify(mockResonance));
     vi.mocked(dynamics_engine.dynamics_scan).mockReturnValue([{ id: "DYNAMICS_TAG" }]);
 
-    const result = await consolidate_vector({ name: "Viper" }, []);
+    const result = await consolidate_vector(mockEntity, mockHistory, "character");
 
-    expect(result).not.toBeNull();
-    expect(result.summary).toBe(mockResonance.summary);
-    expect(result.vector_tags).toEqual(mockResonance.vector_tags);
-    expect(result.dynamics_tags).toEqual(["DYNAMICS_TAG"]);
-    expect(result.timestamp).toBeDefined();
+    // Verify dependency interactions
+    expect(prompt_builder.build_memory_prompt).toHaveBeenCalledWith("character", mockEntity, mockHistory);
+    expect(llm_service.generate).toHaveBeenCalledWith(mockPayload, {
+      json: true,
+      silent: true,
+      raw: true,
+    });
+    expect(dynamics_engine.dynamics_scan).toHaveBeenCalledWith(mockResonance.summary);
+
+    // Verify final resonance object
+    expect(result).toEqual({
+      summary: mockResonance.summary,
+      vector_tags: mockResonance.vector_tags,
+      dynamics_tags: ["DYNAMICS_TAG"],
+      timestamp: Date.now(),
+    });
+    expect(result.timestamp).toBe(new Date("2024-01-01").getTime());
   });
 
   it("should handle response objects with generatedText property", async () => {
