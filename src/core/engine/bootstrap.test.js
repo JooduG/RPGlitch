@@ -1,6 +1,14 @@
 import { describe, test, expect, vi, beforeEach } from "vitest";
 import { AppBootstrap, reset_bootstrap_guard } from "./bootstrap.js";
 import * as repository from "@data/repository.js";
+import { app } from "@state/app.svelte.js";
+
+vi.mock("@state/app.svelte.js", () => ({
+  app: {
+    log: vi.fn(),
+  },
+}));
+
 vi.mock("@data/repository.js", () => ({
   seed_premades: vi.fn(),
 }));
@@ -27,11 +35,16 @@ describe("AppBootstrap", () => {
     error.stack = maliciousPayload;
     // Mocking seed_premades to throw
     vi.mocked(repository.seed_premades).mockRejectedValue(error);
-    // Silencing the expected error log for this test
+
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     await AppBootstrap.init();
     expect(document.body.innerHTML).toContain("SYSTEM HALTED");
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("[Engine] ❌ Critical Failure:"), error);
+    expect(app.log).toHaveBeenCalledWith(
+      expect.stringContaining("[Engine] ❌ Critical Failure: Critical Failure"),
+      "error",
+    );
     consoleSpy.mockRestore();
     const errorStackElement = document.getElementById("error-stack");
     expect(errorStackElement).not.toBeNull();
@@ -48,7 +61,6 @@ describe("AppBootstrap", () => {
     const error = new Error("INTENTIONAL_REACTION");
     vi.mocked(repository.seed_premades).mockRejectedValue(error);
 
-    // Silence console.error for this specific test
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const innerHTMLSpy = vi.spyOn(document.body, "innerHTML", "set");
 
