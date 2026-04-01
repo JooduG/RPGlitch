@@ -70,6 +70,16 @@ describe("memory-engine - consolidate_vector", () => {
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Resonance condensation failed"), networkError);
   });
 
+  it("should return null and warn if resonance summary property is missing", async () => {
+    const mockResonance = { vector_tags: ["tag"] }; // Missing summary
+    vi.mocked(llm_service.generate).mockResolvedValue(JSON.stringify(mockResonance));
+
+    const result = await consolidate_vector({ name: "Viper" }, []);
+
+    expect(result).toBeNull();
+    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("summary is missing"));
+  });
+
   it("should return resonance object on valid JSON response and verify dependency calls", async () => {
     const mockEntity = { name: "Viper" };
     const mockHistory = [{ role: "user", content: "test message" }];
@@ -102,6 +112,17 @@ describe("memory-engine - consolidate_vector", () => {
       timestamp: Date.now(),
     });
     expect(result.timestamp).toBe(new Date("2024-01-01").getTime());
+  });
+
+  it("should use empty array for vector_tags if both tags and vector_tags are missing", async () => {
+    const mockResonance = { summary: "Only summary provided" };
+    vi.mocked(llm_service.generate).mockResolvedValue(JSON.stringify(mockResonance));
+
+    const result = await consolidate_vector({ name: "Viper" }, []);
+
+    expect(result).not.toBeNull();
+    expect(result.summary).toBe(mockResonance.summary);
+    expect(result.vector_tags).toEqual([]);
   });
 
   it("should handle response objects with generatedText property", async () => {
