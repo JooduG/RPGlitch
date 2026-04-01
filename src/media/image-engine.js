@@ -85,7 +85,7 @@ export const GeneratorEngine = {
     const result = await window.pluginTextToImage({
       prompt: finalPrompt,
       negativePrompt: negativePrompt,
-      seed: options.seed || generateSecureSeed(1000000),
+      seed: options.seed ?? generateSecureSeed(),
       width: options.width || res.width,
       height: options.height || res.height,
     });
