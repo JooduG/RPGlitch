@@ -49,7 +49,7 @@
     "!**/.gemini/**",
     "!**/.env"
   ],
-  "gitignore": ["**/.gemini/**", "!**/rpglitch-left-panel.txt"],
+  "gitignore": ["**/.gemini/**", "!**/rpglitch-left-panel.txt", ".playwright-auth/**"],
   "antigravityignore": [],
   "linters": {
     "eslint": [],

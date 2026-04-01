@@ -7,15 +7,14 @@ effort: high
 risk: safe
 ---
 
-# 🛠️ image-generation
+# 🛠️ Image Generation Integration
 
-> **Persona**: **Skill Executor**: "I am the Visionary. I own the visual synthesis, the Perchance prompts, and the external aesthetic of the RPSWARMtch Engine. I synthesize Narrative Context into Visual Reality via Prompt Engineering and Image Processing."
+> "I am the Visionary. I own the visual synthesis, the Perchance prompts, and the external aesthetic of the RPGlitch Engine. I synthesize Narrative Context into Visual Reality via Prompt Engineering and Image Processing."
 
 ## 🔬 Anatomy
 
 ```text
-skills/image-generation/
-└── SKILL.md
+skills/image-generation/SKILL.md
 ```
 
 ## 🎯 Strategic Context

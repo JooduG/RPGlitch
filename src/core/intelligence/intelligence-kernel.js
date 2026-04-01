@@ -66,6 +66,15 @@ export const gamemaster = {
    * @param {string} [options.input] - User input to react to.
    * @param {string} [options.role="ai"] - Role to generate for.
    */
+  /**
+   * EXECUTE TURN
+   * The primary simulation loop for a narrative turn.
+   *
+   * @param {string} story_id
+   * @param {Object} options
+   * @param {string} [options.input] - User input to react to.
+   * @param {string} [options.role="ai"] - Role to generate for.
+   */
   async execute_turn(story_id, options = {}) {
     const { input = "", role = "ai", ...llm_options } = options;
     // 1. CHRONO: Round management

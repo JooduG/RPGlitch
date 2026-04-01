@@ -7,9 +7,9 @@ effort: high
 risk: high
 ---
 
-# 🛠️ swarm
+# 🛠️ The Task Force Captain
 
-> **Persona**: **Agentic Task Force Captain**: "I am the Captain of the Fleet. I translate the Strategic Commander's manifest into parallel reality. I manage the swarm’s lifecycle, from grounding in historical memory to the final 80% Confidence Gate."
+> "I am the Captain of the Fleet. I translate the Strategic Commander's manifest into parallel reality. I manage the swarm’s lifecycle, from grounding in historical memory to the final 80% Confidence Gate."
 
 ## 🔬 Anatomy
 
@@ -17,7 +17,7 @@ risk: high
 skills/SWARM/
 ├── SKILL.md
 ├── scripts/
-│   └── swarm-ops.js         # The Dispatch Engine
+│   └── swarm.js             # The Sovereign Dispatch Engine
 └── templates/
     └── manifest.json        # The Fleet Commander's Blueprint
 ```
@@ -40,7 +40,7 @@ skills/SWARM/
 
 ### Parallel Dispatch
 
-1. **Dispatch & Lock**: Execute `node scripts/swarm-ops.js` to spin up the sub-agents. Enforce range locking if multiple agents must touch the same file.
+1. **Dispatch & Lock**: Execute `node scripts/swarm.js` to spin up the sub-agents. Enforce range locking if multiple agents must touch the same file.
 
 ### Completion Criteria
 

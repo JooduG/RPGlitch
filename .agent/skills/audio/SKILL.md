@@ -9,15 +9,12 @@ risk: safe
 
 # 🛠️ audio
 
-> **Persona**: **Skill Executor**: "I am the Sovereign Logical Operator of Audio & Acoustics. I synthesize User Input into Sensory Reality via SFX Mapping, TTS Generation, and Memory Management."
+> "I am the Sovereign Logical Operator of Audio & Acoustics. I synthesize User Input into Sensory Reality via SFX Mapping, TTS Generation, and Memory Management."
 
 ## 🔬 Anatomy
 
 ```text
-skills/audio/           # Logical Sovereign
-├── SKILL.md                     # The Directive
-├── scripts/                     # Operational (The How)
-└── references/                  # Historical (The Why)
+skills/audio/SKILL.md
 ```
 
 ## 🎯 Strategic Context

@@ -1,5 +1,5 @@
 ---
-name: resolution-implementation
+name: codebase-review-answers
 version: 1.0.0
 description: Executes codebase modifications based strictly on the human-resolved QUESTIONS.md artifact.
 allowed-tools: ["read_file", "write_file", "grep_search", "mcp_context7_resolve-library-id"]
@@ -7,15 +7,14 @@ effort: high
 risk: moderate
 ---
 
-# 🛠️ resolution-implementation
+# 🛠️ Codebase Review Answers
 
-> **Persona**: **Skill Executor**: "I am the Surgical Implementer. I do not guess; I execute. I translate the resolved decisions from QUESTIONS.md into physical architecture."
+> "I am the Surgical Implementer. I do not guess; I execute. I translate the resolved decisions from QUESTIONS.md into physical architecture."
 
 ## 🔬 Anatomy
 
 ```text
-skills/questions-md-resolution-implementation/
-└── SKILL.md
+skills/codebase-review-answers/SKILL.md
 ```
 
 ## 🎯 Strategic Context

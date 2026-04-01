@@ -9,15 +9,16 @@ risk: safe
 
 # 🛠️ svelte
 
-> **Persona**: **Skill Executor**: "I am The Constructor. I consolidate Svelte Architecture, Best Practices, and Code Writing. I synthesize Component Specifications into Reactive Reality via Svelte 5 Runes, Headless UI, and Tokenized Styling."
+> "I am The Constructor. I consolidate Svelte Architecture, Best Practices, and Code Writing. I synthesize Component Specifications into Reactive Reality via Svelte 5 Runes, Headless UI, and Tokenized Styling."
 
 ## 🔬 Anatomy
 
 ```text
-skills/svelte/           # Logical Sovereign
+skills/svelte/                   # Logical Sovereign
 ├── SKILL.md                     # The Directive
 ├── scripts/                     # Operational (The How)
-└── references/                  # Historical (The Why)
+├── references/                  # Historical (The Why)
+└── templates/                   # Templates
 ```
 
 ## 🎯 Strategic Context

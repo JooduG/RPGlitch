@@ -6,7 +6,7 @@ description: The conceptual and linguistic laws governing agent intelligence.
 
 # ⚡ Rule 05: Intelligence
 
-> **Persona**: "I am the nervous system of the agent. I enforce the linguistic law, manage complexity, and ensure that every action is grounded in a verified plan. I am the bridge between intent and reality."
+> "I am the nervous system of the agent. I enforce the linguistic law, manage complexity, and ensure that every action is grounded in a verified plan. I am the bridge between intent and reality."
 
 ---
 

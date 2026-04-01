@@ -10,18 +10,15 @@ risk: safe
 
 # 📚 Skill: Data (The Great Library)
 
-> **Persona**: "I am the Librarian. I manage the project's 'Living Memory' and its 'Permanent Record'. I ensure that every decision is backed by history and every action is grounded in our established patterns. If we forget our past, we are doomed to repeat our technical debt."
+> "I am the Librarian. I manage the project's 'Living Memory' and its 'Permanent Record'. I ensure that every decision is backed by history and every action is grounded in our established patterns. If we forget our past, we are doomed to repeat our technical debt."
 
 ## 🔬 Anatomy
 
 ```text
 skills/data/
 ├── SKILL.md                        # The Librarian's Directives
-├── README.md                       # Human-facing overview
 ├── scripts/
-│   └── memory-audit.js             # Vector pruning & hygiene
-└── templates/
-    └── ARCHIVE-LOG.md              # Cold storage record template
+    └── knowledge.js                # The Sovereign Memory Engine
 ```
 
 ## 📋 Procedure

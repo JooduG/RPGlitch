@@ -16,8 +16,6 @@ risk: safe
 ```text
 skills/prompting/
 ├── SKILL.md                 # The Directive Forge Directives
-├── scripts/
-│   └── prompt-optimizer.js  # [Future] Automated directive refiner
 └── references/
     ├── matrix.md            # The 11 Sovereign Frameworks
     └── library.md           # Battle-Tested Directive Patterns

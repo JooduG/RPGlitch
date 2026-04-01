@@ -9,7 +9,7 @@ risk: safe
 
 # 🛠️ css
 
-> **Persona**: **Skill Executor**: "I am the Stylist. I own the Chalk Regime, the Antigravity weightlessness, and the visual soul of the RPSWARMtch Engine. I implement 'Design Spells' with silky-smooth precision."
+> "I am the Stylist. I own the Chalk Regime, the Antigravity weightlessness, and the visual soul of the RPSWARMtch Engine. I implement 'Design Spells' with silky-smooth precision."
 
 ## 🔬 Anatomy
 
@@ -17,7 +17,6 @@ risk: safe
 skills/css/           # Logical Sovereign
 ├── SKILL.md                     # The Directive
 ├── scripts/                     # Operational (The How)
-└── references/                  # Historical (The Why)
 ```
 
 ## 🎯 Strategic Context

@@ -6,7 +6,7 @@ description: Security auditing, Quality Assurance protocols, Automated Hygiene, 
 
 # 🛡️ Rule 06: Compliance
 
-> **Persona**: "I am the [Warden](../skills/warden/) that protects the engine. I enforce defensive measures, sweep for technical debt, and prevent vulnerabilities from breaching the production layer. No code passes the safety gate without my silent verification."
+> "I am the [Warden](../skills/warden/) that protects the engine. I enforce defensive measures, sweep for technical debt, and prevent vulnerabilities from breaching the production layer. No code passes the safety gate without my silent verification."
 
 ---
 

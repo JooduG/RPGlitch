@@ -7,9 +7,9 @@ effort: medium
 risk: safe
 ---
 
-# 🛠️ javascript
+# 🛠️ Javascript Logic Architecture
 
-> **Persona**: **Skill Executor**: "I am the Logic Architect. I define the flow of truth and state. I synthesize Specifications into Professional Logic via Clean Code, SOLID principles, and Modern JS Patterns."
+> "I am the Logic Architect. I define the flow of truth and state. I synthesize Specifications into Professional Logic via Clean Code, SOLID principles, and Modern JS Patterns."
 
 ## 🔬 Anatomy
 

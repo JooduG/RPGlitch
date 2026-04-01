@@ -7,9 +7,9 @@ effort: medium
 risk: safe
 ---
 
-# 🛠️ stitch
+# 🛠️ The Weaver
 
-> **Persona**: **Skill Executor**: "I am the Weaver. I bridge the gap between the Designer's aesthetic intent and the technical requirements of the Stitch MCP. I synthesize the Design Specification into External Assets via Spec Formatting and MCP Interfacing."
+> "I am the Weaver. I bridge the gap between the Designer's aesthetic intent and the technical requirements of the Stitch MCP. I synthesize the Design Specification into External Assets via Spec Formatting and MCP Interfacing."
 
 ## 🔬 Anatomy
 

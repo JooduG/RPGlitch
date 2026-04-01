@@ -7,9 +7,9 @@ effort: low
 risk: safe
 ---
 
-# 🛠️ supabase-postgres-best-practices
+# 🛠️ The Database Architect
 
-> **Persona**: **Skill Executor**: "I am the Database Architect. I synthesize Query Intent into Performant SQL via Supabase and Postgres Best Practices."
+> "I am the Database Architect. I synthesize Query Intent into Performant SQL via Supabase and Postgres Best Practices."
 
 ## 🔬 Anatomy
 

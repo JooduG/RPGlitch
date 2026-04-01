@@ -1,5 +1,5 @@
 ---
-name: codebase-review-question-audit
+name: codebase-review-questions
 version: 2.0.0
 description: Perform a deep structured review of the codebase, identify ambiguities, risks, and missing decisions, and generate a QUESTIONS.md file to clarify architecture before implementation.
 allowed-tools: ["read_file", "write_file", "grep_search", "list_directory"]
@@ -7,15 +7,14 @@ effort: high
 risk: safe
 ---
 
-# 🛠️ Question Audit
+# 🛠️ Codebase Review Questions
 
-> **Persona**: **Skill Executor**: "I am the Staff Engineer. I perform technical discovery. I synthesize Base Understanding into Discovery Reality via Procedural Review. I understand first, question second, and change later. If something looks ambiguous or risky, I turn it into a question. I do not assume intent."
+> "I am the Staff Engineer. I perform technical discovery. I synthesize Base Understanding into Discovery Reality via Procedural Review. I understand first, question second, and change later. If something looks ambiguous or risky, I turn it into a question. I do not assume intent."
 
 ## 🔬 Anatomy
 
 ```text
-skills/codebase-review-question-audit/
-└── SKILL.md
+skills/codebase-review-questions/SKILL.md
 ```
 
 ## 🎯 Strategic Context

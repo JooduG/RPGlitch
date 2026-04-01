@@ -19,7 +19,7 @@
     "allowArbitraryExtensions": true,
     "verbatimModuleSyntax": true
   },
-  "include": ["src/**/*", "types.d.ts"],
+  "include": ["src/**/*", "types.d.ts", ".agent/skills/SWARM/scripts/swarm.js", ".agent/skills/data/scripts/knowledge.js"],
   "exclude": [
     "**/.git/**",
     "**/archive/**",
