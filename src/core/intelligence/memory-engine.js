@@ -66,8 +66,8 @@ export async function consolidate_vector(target_entity, history_slice, role = "c
     const resonance = JSON.parse(object_match[0]);
 
     // Validation: Require summary
-    if (!resonance || typeof resonance.summary !== "string") {
-      console.warn("[Echo] Invalid resonance object: summary is missing or not a string.");
+    if (typeof resonance?.summary !== "string" || !resonance.summary.trim()) {
+      console.warn("[Echo] Invalid resonance object: summary is missing, empty, or not a string.");
       return null;
     }
 
