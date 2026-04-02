@@ -93,6 +93,9 @@ export const llm_service = {
         const session = await jules.session({
           prompt: payload.system || "",
           messages: payload.messages || [],
+          temperature: options.temperature ?? payload.params?.temperature ?? 0.8,
+          max_tokens: options.max_tokens ?? payload.params?.max_tokens,
+          top_p: options.top_p ?? payload.params?.top_p,
         });
         // We handle streaming or direct result based on options
         if (options.onToken) {
