@@ -45,7 +45,7 @@ export async function bootstrapPrompt(): Promise<string> {
 Run this command to get the current open issues as markdown:
 
 \`\`\`bash
-bun run .agent/skills/swarm/scripts/automation/swarm-analyze.ts
+npm run swarm:analyze
 \`\`\`
 
 Capture the entire output. This is the issues document you will analyze.
