@@ -39,7 +39,7 @@ echo ""
 
 # Install dependencies
 echo "📦 Installing dependencies..."
-npm install
+npm ci
 echo "✅ Dependencies installed."
 
 echo ""
