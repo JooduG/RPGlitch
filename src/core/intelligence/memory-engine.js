@@ -58,7 +58,7 @@ export async function consolidate_vector(target_entity, history_slice, role = "c
       raw_text = String(r.generatedText ?? r.text ?? "").trim();
     }
     const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
-    const object_match = stripped.match(/\{[\s\S]*?\}/);
+    const object_match = stripped.match(/\{[\s\S]*\}/);
     if (!object_match) {
       console.warn("[Echo] No valid JSON object found in response.");
       return null;
