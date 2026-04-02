@@ -59,7 +59,7 @@
     },
     "playwright": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\playwright-mcp.cmd",
+      "command": "./node_modules/.bin/playwright-mcp.cmd",
       "excludeTools": ["browser_close"]
     },
     "StitchMCP": {
