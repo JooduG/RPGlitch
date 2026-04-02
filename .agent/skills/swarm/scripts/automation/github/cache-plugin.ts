@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import type { Octokit } from "@octokit/core";
+import type { RequestOptions, OctokitResponse } from "@octokit/types";
 
 /**
  * Octokit plugin that caches responses using GitHub's ETag mechanism.
@@ -21,27 +22,37 @@ import type { Octokit } from "@octokit/core";
 export function cachePlugin(octokit: Octokit) {
   const cache = new Map<string, { etag: string; data: unknown }>();
 
-  octokit.hook.wrap("request", async (request, options) => {
+  octokit.hook.wrap("request", async (request, options: RequestOptions) => {
     const key = `${options.method} ${options.url}`;
     const cached = cache.get(key);
 
     if (cached) {
-      (options as any).headers = {
-        ...(options as any).headers,
+      options.headers = {
+        ...options.headers,
         "if-none-match": cached.etag,
       };
     }
 
     try {
-      const response = await request(options);
-      const etag = response.headers.etag;
+      const response = (await request(options)) as OctokitResponse<unknown>;
+      const etag = response.headers.etag as string | undefined;
       if (etag) {
         cache.set(key, { etag, data: response.data });
       }
       return response;
-    } catch (error: any) {
-      if (error.status === 304 && cached) {
-        return { ...error.response, data: cached.data, status: 200 };
+    } catch (error: unknown) {
+      if (
+        error &&
+        typeof error === "object" &&
+        "status" in error &&
+        error.status === 304 &&
+        cached
+      ) {
+        return {
+          ...(error as { response: OctokitResponse<unknown> }).response,
+          data: cached.data,
+          status: 200,
+        };
       }
       throw error;
     }

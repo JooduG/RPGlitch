@@ -47,7 +47,11 @@ const date = new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit
   .format(new Date())
   .replaceAll("-", "_");
 
-const root = path.dirname(findUpSync(".git")!);
+const gitRoot = findUpSync(".git");
+if (!gitRoot) {
+  throw new Error("Could not find .git directory. Please run this script from within a git repository.");
+}
+const root = path.dirname(gitRoot);
 const swarmDir = path.join(root, ".swarm", date);
 
 // Load task ordering (already sorted by risk in the analysis phase)

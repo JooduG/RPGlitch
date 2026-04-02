@@ -19,22 +19,27 @@ set -e
 echo "🔧 Setting up Swarm (Automated GitHub Issues)..."
 echo ""
 
-# Check for Bun
-if command -v bun &> /dev/null; then
-  echo "✅ Bun found: $(bun --version)"
+# Check for Node.js
+if command -v node &> /dev/null; then
+  echo "✅ Node.js found: $(node --version)"
 else
-  echo "⚠️  Bun not found. Installing..."
-  curl -fsSL https://bun.sh/install | bash
-  export BUN_INSTALL="$HOME/.bun"
-  export PATH="$BUN_INSTALL/bin:$PATH"
-  echo "✅ Bun installed: $(bun --version)"
+  echo "❌ Node.js not found. Please install Node.js (v18+) to continue."
+  exit 1
+fi
+
+# Check for npm
+if command -v npm &> /dev/null; then
+  echo "✅ npm found: $(npm --version)"
+else
+  echo "❌ npm not found. Please ensure npm is installed with Node.js."
+  exit 1
 fi
 
 echo ""
 
 # Install dependencies
 echo "📦 Installing dependencies..."
-bun install
+npm install
 echo "✅ Dependencies installed."
 
 echo ""

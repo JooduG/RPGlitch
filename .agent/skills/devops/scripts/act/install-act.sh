@@ -43,10 +43,18 @@ mkdir -p "$INSTALL_DIR"
 # Try system-wide install first, fall back to user-local
 if command -v sudo &> /dev/null && sudo -n true 2>/dev/null; then
   echo "  Installing to /usr/local/bin (system-wide)..."
-  curl -sL https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash -s -- -b /usr/local/bin
+  TEMP_INSTALL_SCRIPT=$(mktemp)
+  trap 'rm -f "$TEMP_INSTALL_SCRIPT"' EXIT
+  curl -sL https://raw.githubusercontent.com/nektos/act/master/install.sh -o "$TEMP_INSTALL_SCRIPT"
+  chmod +x "$TEMP_INSTALL_SCRIPT"
+  sudo "$TEMP_INSTALL_SCRIPT" -b /usr/local/bin
 else
   echo "  No sudo access. Installing to ${INSTALL_DIR} (user-local)..."
-  curl -sL https://raw.githubusercontent.com/nektos/act/master/install.sh | bash -s -- -b "$INSTALL_DIR"
+  TEMP_INSTALL_SCRIPT=$(mktemp)
+  trap 'rm -f "$TEMP_INSTALL_SCRIPT"' EXIT
+  curl -sL https://raw.githubusercontent.com/nektos/act/master/install.sh -o "$TEMP_INSTALL_SCRIPT"
+  chmod +x "$TEMP_INSTALL_SCRIPT"
+  "$TEMP_INSTALL_SCRIPT" -b "$INSTALL_DIR"
 
   # Ensure install dir is on PATH
   if [[ ":$PATH:" != *":${INSTALL_DIR}:"* ]]; then

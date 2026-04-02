@@ -21,9 +21,9 @@ import { getGitRepoInfo } from "../github/git.js";
  *
  * Since the Jules scheduled session receives a fixed prompt (issues aren't
  * known at scheduling time), this prompt instructs Jules to:
- * 1. Run `bun run scripts/fleet/fleet-analyze.ts` to fetch current open issues
+ * 1. Run `npm run swarm:analyze` to fetch current open issues
  * 2. Use the output as input for the analyze-issues prompt
- * 3. Run the dispatcher to dispatch sub-tasks
+ * 3. Run `npm run swarm:dispatch` to dispatch sub-tasks
  *
  * Usage: Pass this prompt's output as the `prompt` field when creating
  * a scheduled Jules session.

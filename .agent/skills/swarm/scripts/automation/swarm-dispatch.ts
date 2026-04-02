@@ -23,7 +23,11 @@ const date = new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit
   .format(new Date())
   .replaceAll("-", "_");
 
-const root = path.dirname(findUpSync(".git")!);
+const gitRoot = findUpSync(".git");
+if (!gitRoot) {
+  throw new Error("Could not find .git directory. Please run this script from within a git repository.");
+}
+const root = path.dirname(gitRoot);
 const swarmDir = path.join(root, ".swarm", date);
 const tasksPath = path.join(swarmDir, "issue_tasks.json");
 const analysis = JSON.parse(await readFile(tasksPath, "utf-8")) as IssueAnalysis;
@@ -71,5 +75,4 @@ for await (const session of sessions) {
 // Write session mapping for swarm-merge.ts
 const sessionsPath = path.join(swarmDir, "sessions.json");
 await writeFile(sessionsPath, JSON.stringify(sessionResults, null, 2));
-console.log(`📝 Session mapping written to ${sessionsPath}`);
 console.log(`📝 Session mapping written to ${sessionsPath}`);
