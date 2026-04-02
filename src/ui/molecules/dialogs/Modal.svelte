@@ -8,15 +8,12 @@
   import { fly } from "svelte/transition";
   import Backdrop from "./Backdrop.svelte";
 
-  /**
-   * @typedef {Object} Props
-   * @property {Function} [on_close] - Callback when modal should close.
-   * @property {"standard" | "profile" | "preview"} [variant] - Visual variant.
-   * @property {string} [z_index] - Z-index of the backdrop.
-   * @property {import("svelte").Snippet} children - Modal content.
-   */
-
-  /** @type {Props} */
+  /** @type {{ 
+   *    on_close?: (e: any) => void, 
+   *    variant?: "standard" | "profile" | "preview", 
+   *    z_index?: string, 
+   *    children: import('svelte').Snippet 
+   *  }} */
   let {
     on_close = () => {},
     variant = "standard",
