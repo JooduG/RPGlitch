@@ -12,17 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import path from "node:path";
-import { readFile, writeFile } from "node:fs/promises";
-import { findUpSync } from "find-up";
-import type { IssueAnalysis, Task } from "./types.js";
-import { getGitRepoInfo, getCurrentBranch } from "./github/git.js";
-import { jules } from "@google/jules-sdk";
+import { get_swarm_dir } from "./utils.js";
 
-const repoInfo = await getGitRepoInfo();
-const OWNER = repoInfo.owner;
-const REPO = repoInfo.repo;
-const BASE_BRANCH = process.env.SWARM_BASE_BRANCH ?? "main";
+const repo_info = await getGitRepoInfo();
+const OWNER = repo_info.owner;
+const REPO = repo_info.repo;
+const BASE_BRANCH = process.env.SWARM_BASE_BRANCH ?? await getCurrentBranch();
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 // Re-dispatch configuration
@@ -42,22 +37,13 @@ const headers = {
 
 const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
 
-const date = new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit", day: "2-digit" })
-  .format(new Date())
-  .replaceAll("-", "_");
-
-const gitRoot = findUpSync(".git");
-if (!gitRoot) {
-  throw new Error("Could not find .git directory. Please run this script from within a git repository.");
-}
-const root = path.dirname(gitRoot);
-const swarmDir = path.join(root, ".swarm", date);
+const swarm_dir = await get_swarm_dir();
 
 // Load task ordering (already sorted by risk in the analysis phase)
-const analysis = JSON.parse(await readFile(path.join(swarmDir, "issue_tasks.json"), "utf-8")) as IssueAnalysis;
+const analysis = JSON.parse(await readFile(path.join(swarm_dir, "issue_tasks.json"), "utf-8")) as IssueAnalysis;
 
-// Load session mapping written by swarm-dispatch.ts
-const sessions = JSON.parse(await readFile(path.join(swarmDir, "sessions.json"), "utf-8")) as Array<{
+// Load session mapping written by swarm_dispatch.ts
+const sessions = JSON.parse(await readFile(path.join(swarm_dir, "sessions.json"), "utf-8")) as Array<{
   taskId: string;
   sessionId: string;
 }>;
@@ -71,6 +57,7 @@ interface GitHubPR {
 // Find open PRs created by swarm sessions
 async function findSwarmPRs() {
   const res = await fetch(`${API}/pulls?state=open&per_page=100`, { headers });
+  if (!res.ok) throw new Error(`Failed to fetch PRs (${res.status}): ${await res.text()}`);
   const pulls = (await res.json()) as GitHubPR[];
 
   const prMap = new Map<string, GitHubPR>();
@@ -96,18 +83,31 @@ async function waitForCI(prNumber: number, maxWaitMs = 10 * 60 * 1000): Promise<
 
   // First, get the head SHA for this PR
   const prRes = await fetch(`${API}/pulls/${prNumber}`, { headers });
+  if (!prRes.ok) throw new Error(`Failed to fetch PR #${prNumber} (${prRes.status}): ${await prRes.text()}`);
   const prData = (await prRes.json()) as { head: { sha: string } };
-  const headSha = prData.head.sha;
+  const head_sha = prData.head.sha;
+
+  let checks_found = false;
+  let attempts_without_checks = 0;
+  const MAX_ATTEMPTS_WITHOUT_CHECKS = 3;
 
   while (Date.now() - start < maxWaitMs) {
-    const res = await fetch(`${API}/commits/${headSha}/check-runs`, { headers });
+    const res = await fetch(`${API}/commits/${head_sha}/check-runs`, { headers });
+    if (!res.ok) throw new Error(`Failed to fetch check-runs for ${head_sha} (${res.status}): ${await res.text()}`);
     const data = (await res.json()) as { check_runs: CheckRun[] };
 
-    // No CI configured — skip validation
     if (data.check_runs.length === 0) {
+      if (!checks_found && attempts_without_checks < MAX_ATTEMPTS_WITHOUT_CHECKS) {
+        attempts_without_checks++;
+        console.log(`  ℹ️  No check runs found yet for PR #${prNumber} (attempt ${attempts_without_checks}/${MAX_ATTEMPTS_WITHOUT_CHECKS}). Waiting...`);
+        await new Promise(r => setTimeout(r, 10_000));
+        continue;
+      }
       console.log(`  ℹ️  No check runs found for PR #${prNumber}. Proceeding without CI.`);
       return true;
     }
+
+    checks_found = true;
 
     const allComplete = data.check_runs.every((run: CheckRun) => run.status === "completed");
     const allPassed = data.check_runs.every((run: CheckRun) =>
@@ -131,7 +131,7 @@ async function redispatchTask(
 ): Promise<GitHubPR> {
   // Close the conflicting PR
   console.log(`  🔒 Closing conflicting PR #${oldPr.number}...`);
-  await fetch(`${API}/pulls/${oldPr.number}`, {
+  const close_res = await fetch(`${API}/pulls/${oldPr.number}`, {
     method: "PATCH",
     headers: { ...headers, "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -139,6 +139,7 @@ async function redispatchTask(
       body: `${oldPr.body ?? ""}\n\n---\n⚠️ Closed by swarm-merge: merge conflict detected. Task re-dispatched as a new session.`,
     }),
   });
+  if (!close_res.ok) throw new Error(`Failed to close PR #${oldPr.number} (${close_res.status}): ${await close_res.text()}`);
 
   // Create a new Jules session with the same prompt
   console.log(`  🚀 Re-dispatching task "${task.id}" against current ${BASE_BRANCH}...`);
@@ -152,11 +153,11 @@ async function redispatchTask(
   console.log(`  📝 New session: ${session.id}`);
 
   // Update sessions.json with new session ID
-  const sessionEntry = sessions.find(s => s.taskId === task.id);
-  if (sessionEntry) {
-    sessionEntry.sessionId = session.id;
-    const sessionsPath = path.join(swarmDir, "sessions.json");
-    await writeFile(sessionsPath, JSON.stringify(sessions, null, 2));
+  const session_entry = sessions.find(s => s.taskId === task.id);
+  if (session_entry) {
+    session_entry.sessionId = session.id;
+    const sessions_path = path.join(swarm_dir, "sessions.json");
+    await writeFile(sessions_path, JSON.stringify(sessions, null, 2));
   }
 
   // Poll for the new PR
@@ -165,6 +166,7 @@ async function redispatchTask(
   while (Date.now() - start < PR_POLL_TIMEOUT_MS) {
     await new Promise(r => setTimeout(r, PR_POLL_INTERVAL_MS));
     const res = await fetch(`${API}/pulls?state=open&per_page=100`, { headers });
+    if (!res.ok) throw new Error(`Failed to poll PRs (${res.status}): ${await res.text()}`);
     const pulls = (await res.json()) as GitHubPR[];
     const newPr = pulls.find(
       (pr: GitHubPR) =>
@@ -181,50 +183,50 @@ async function redispatchTask(
 }
 
 // Main: sequential merge in task order
-const prMap = await findSwarmPRs();
+const pr_map = await findSwarmPRs();
 
-console.log(`Found ${prMap.size}/${analysis.tasks.length} swarm PRs`);
-for (const [taskId, pr] of prMap) {
+console.log(`Found ${pr_map.size}/${analysis.tasks.length} swarm PRs`);
+for (const [taskId, pr] of pr_map) {
   console.log(`  ${taskId} → PR #${pr.number} (${pr.head.ref})`);
 }
 
-if (prMap.size !== analysis.tasks.length) {
-  throw new Error(`Expected ${analysis.tasks.length} PRs but found ${prMap.size}. All PRs must be ready before merging.`);
+if (pr_map.size !== analysis.tasks.length) {
+  throw new Error(`Expected ${analysis.tasks.length} PRs but found ${pr_map.size}. All PRs must be ready before merging.`);
 }
 
 for (const task of analysis.tasks) {
-  let pr = prMap.get(task.id);
+  let pr = pr_map.get(task.id);
   if (!pr) {
     throw new Error(`No PR found for task "${task.id}". Aborting.`);
   }
 
-  let retryCount = 0;
+  let retry_count = 0;
   let merged = false;
 
   while (!merged) {
-    console.log(`\n📦 Processing Task "${task.id}" → PR #${pr!.number}${retryCount > 0 ? ` (retry ${retryCount})` : ""}`);
+    console.log(`\n📦 Processing Task "${task.id}" → PR #${pr!.number}${retry_count > 0 ? ` (retry ${retry_count})` : ""}`);
 
     // Update branch from base before merging (skip for first PR on first attempt)
-    if (analysis.tasks.indexOf(task) > 0 || retryCount > 0) {
+    if (analysis.tasks.indexOf(task) > 0 || retry_count > 0) {
       console.log(`  🔄 Updating PR #${pr!.number} branch from ${BASE_BRANCH}...`);
-      const updateRes = await fetch(`${API}/pulls/${pr!.number}/update-branch`, {
+      const update_res = await fetch(`${API}/pulls/${pr!.number}/update-branch`, {
         method: "PUT",
         headers: { ...headers, "Content-Type": "application/json" },
       });
-      if (!updateRes.ok) {
-        const body = await updateRes.text();
-        if (updateRes.status === 422) {
-          if (retryCount >= MAX_RETRIES) {
+      if (!update_res.ok) {
+        const body = await update_res.text();
+        if (update_res.status === 422) {
+          if (retry_count >= MAX_RETRIES) {
             console.error(`  ❌ Conflict persists after ${MAX_RETRIES} retries. Human intervention required.`);
             console.error(`  PR: https://github.com/${OWNER}/${REPO}/pull/${pr!.number}`);
             throw new Error(`Merge conflict persists for task "${task.id}" after ${MAX_RETRIES} retries.`);
           }
           console.log(`  ⚠️ Merge conflict detected. Re-dispatching task "${task.id}"...`);
           pr = await redispatchTask(task, pr!);
-          retryCount++;
+          retry_count++;
           continue;
         }
-        throw new Error(`Update branch failed (${updateRes.status}): ${body}`);
+        throw new Error(`Update branch failed (${update_res.status}): ${body}`);
       }
       // Wait for the update to propagate
       await new Promise(r => setTimeout(r, 5_000));
@@ -239,24 +241,24 @@ for (const task of analysis.tasks) {
 
     // Merge with retry
     console.log(`  ✅ CI passed. Merging PR #${pr!.number}...`);
-    let mergeSuccess = false;
-    let mergeAttempts = 0;
+    let merge_success = false;
+    let merge_attempts = 0;
     const MAX_MERGE_ATTEMPTS = 3;
 
-    while (mergeAttempts < MAX_MERGE_ATTEMPTS && !mergeSuccess) {
-      mergeAttempts++;
-      const mergeRes = await fetch(`${API}/pulls/${pr!.number}/merge`, {
+    while (merge_attempts < MAX_MERGE_ATTEMPTS && !merge_success) {
+      merge_attempts++;
+      const merge_res = await fetch(`${API}/pulls/${pr!.number}/merge`, {
         method: "PUT",
         headers: { ...headers, "Content-Type": "application/json" },
         body: JSON.stringify({ merge_method: "squash" }),
       });
 
-      if (mergeRes.ok) {
-        mergeSuccess = true;
+      if (merge_res.ok) {
+        merge_success = true;
       } else {
-        const body = await mergeRes.text();
-        console.error(`  ⚠️ Attempt ${mergeAttempts} failed to merge PR #${pr!.number}: ${body}`);
-        if (mergeAttempts < MAX_MERGE_ATTEMPTS) {
+        const body = await merge_res.text();
+        console.error(`  ⚠️ Attempt ${merge_attempts} failed to merge PR #${pr!.number}: ${body}`);
+        if (merge_attempts < MAX_MERGE_ATTEMPTS) {
           console.log(`  🔄 Retrying merge in 5s...`);
           await new Promise(r => setTimeout(r, 5000));
         } else {

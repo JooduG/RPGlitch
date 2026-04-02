@@ -19,23 +19,16 @@ import type { IssueAnalysis } from "./types.js";
 import { jules } from "@google/jules-sdk";
 import { getGitRepoInfo, getCurrentBranch } from "./github/git.js";
 
-const date = new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit", day: "2-digit" })
-  .format(new Date())
-  .replaceAll("-", "_");
+import { get_swarm_dir } from "./utils.js";
 
-const gitRoot = findUpSync(".git");
-if (!gitRoot) {
-  throw new Error("Could not find .git directory. Please run this script from within a git repository.");
-}
-const root = path.dirname(gitRoot);
-const swarmDir = path.join(root, ".swarm", date);
-const tasksPath = path.join(swarmDir, "issue_tasks.json");
-const analysis = JSON.parse(await readFile(tasksPath, "utf-8")) as IssueAnalysis;
+const swarm_dir = await get_swarm_dir();
+const tasks_path = path.join(swarm_dir, "issue_tasks.json");
+const analysis = JSON.parse(await readFile(tasks_path, "utf-8")) as IssueAnalysis;
 const { tasks } = analysis;
 
 // Resolve repo info dynamically from git remote
-const repoInfo = await getGitRepoInfo();
-const baseBranch = process.env.SWARM_BASE_BRANCH ?? await getCurrentBranch();
+const repo_info = await getGitRepoInfo();
+const base_branch = process.env.SWARM_BASE_BRANCH ?? await getCurrentBranch();
 
 // Pre-dispatch ownership validation
 function validateOwnership(analysis: IssueAnalysis): void {
@@ -60,8 +53,8 @@ console.log(`✅ Ownership validated: ${analysis.tasks.length} tasks, no conflic
 const sessions = await jules.all(tasks, task => ({
   prompt: task.prompt,
   source: {
-    github: repoInfo.fullName,
-    baseBranch,
+    github: repo_info.fullName,
+    baseBranch: base_branch,
   }
 }))
 
@@ -72,7 +65,7 @@ for await (const session of sessions) {
   console.log(`Task ${taskId} → Session ${session.id}`);
 }
 
-// Write session mapping for swarm-merge.ts
-const sessionsPath = path.join(swarmDir, "sessions.json");
-await writeFile(sessionsPath, JSON.stringify(sessionResults, null, 2));
-console.log(`📝 Session mapping written to ${sessionsPath}`);
+// Write session mapping for swarm_merge.ts
+const sessions_path = path.join(swarm_dir, "sessions.json");
+await writeFile(sessions_path, JSON.stringify(sessionResults, null, 2));
+console.log(`📝 Session mapping written to ${sessions_path}`);

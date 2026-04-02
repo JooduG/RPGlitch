@@ -19,7 +19,7 @@
 
 set -euo pipefail
 
-ACT_ARGS="${1:-}"
+# Configuration
 LOG_FILE="act_output.log"
 TIMEOUT="${ACT_TIMEOUT:-600}"       # Default: 10 minutes
 POLL_INTERVAL="${ACT_POLL:-10}"     # Default: 10 seconds
@@ -32,10 +32,10 @@ log() {
   echo "[$timestamp] $level: $message"
 }
 
-if [ -z "$ACT_ARGS" ]; then
+if [ $# -eq 0 ]; then
   log "ERROR" "No arguments provided."
-  echo "Usage: $0 \"<act arguments>\""
-  echo "Example: $0 \"push -j build --matrix node-version:20.x\""
+  echo "Usage: $0 <act arguments...>"
+  echo "Example: $0 push -j build --matrix node-version:20.x"
   exit 1
 fi
 
@@ -51,31 +51,39 @@ if ! command -v act &> /dev/null; then
   exit 1
 fi
 
-log "INFO" "Starting: act ${ACT_ARGS}"
+log "INFO" "Starting: act $*"
 log "INFO" "Logging to: ${LOG_FILE}"
 log "INFO" "Timeout: ${TIMEOUT}s | Poll: ${POLL_INTERVAL}s"
 echo ""
 
 # Run act in background
 # Add default runner image only if the user didn't specify one via -P
-if echo "$ACT_ARGS" | grep -q -- '-P '; then
-  act ${ACT_ARGS} > "$LOG_FILE" 2>&1 &
+has_custom_platform=false
+for arg in "$@"; do
+  if [[ "$arg" == "-P" ]] || [[ "$arg" == "--platform" ]]; then
+    has_custom_platform=true
+    break
+  fi
+done
+
+if [ "$has_custom_platform" = true ]; then
+  act "$@" > "$LOG_FILE" 2>&1 &
 else
-  act ${ACT_ARGS} -P ubuntu-latest=catthehacker/ubuntu:act-latest > "$LOG_FILE" 2>&1 &
+  act "$@" -P ubuntu-latest=catthehacker/ubuntu:act-latest > "$LOG_FILE" 2>&1 &
 fi
 
-ACT_PID=$!
-log "INFO" "Process started (PID: ${ACT_PID})"
+act_pid=$!
+log "INFO" "Process started (PID: ${act_pid})"
 
-ELAPSED=0
+elapsed=0
 
 # Poll log file while process is running
-while kill -0 "$ACT_PID" 2>/dev/null; do
-  if [ $ELAPSED -ge $TIMEOUT ]; then
+while kill -0 "$act_pid" 2>/dev/null; do
+  if [ $elapsed -ge $TIMEOUT ]; then
     echo ""
     log "WARN" "Timeout reached (${TIMEOUT}s). Killing act process..."
-    kill "$ACT_PID" 2>/dev/null || true
-    wait "$ACT_PID" 2>/dev/null || true
+    kill "$act_pid" 2>/dev/null || true
+    wait "$act_pid" 2>/dev/null || true
     echo ""
     echo "--- Full Log ---"
     cat "$LOG_FILE" 2>/dev/null || true
@@ -84,17 +92,17 @@ while kill -0 "$ACT_PID" 2>/dev/null; do
   fi
 
   sleep "$POLL_INTERVAL"
-  ELAPSED=$((ELAPSED + POLL_INTERVAL))
+  elapsed=$((elapsed + POLL_INTERVAL))
 
   # Show last few lines as progress
-  log "INFO" "Running... (${ELAPSED}s/${TIMEOUT}s)"
+  log "INFO" "Running... (${elapsed}s/${TIMEOUT}s)"
   tail -n 5 "$LOG_FILE" 2>/dev/null || true
   echo ""
 done
 
 # Capture exit code
-wait "$ACT_PID"
-EXIT_CODE=$?
+wait "$act_pid"
+exit_code=$?
 
 echo ""
 echo "--- Full Execution Log ---"
@@ -102,10 +110,10 @@ cat "$LOG_FILE"
 echo "--- End Log ---"
 echo ""
 
-if [ $EXIT_CODE -eq 0 ]; then
+if [ $exit_code -eq 0 ]; then
   log "SUCCESS" "Local GitHub Actions passed."
   exit 0
 else
-  log "ERROR" "Local GitHub Actions failed (exit code: ${EXIT_CODE})."
+  log "ERROR" "Local GitHub Actions failed (exit code: ${exit_code})."
   exit 1
 fi

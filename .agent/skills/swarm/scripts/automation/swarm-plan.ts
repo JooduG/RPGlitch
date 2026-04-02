@@ -12,23 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { jules } from '@google/jules-sdk'
-import { analyzeIssuesPrompt } from './prompts/analyze-issues.js'
-import { getIssuesAsMarkdown } from './github/markdown.js'
-import { getGitRepoInfo, getCurrentBranch } from './github/git.js'
+import { get_formatted_date, get_git_root } from "./utils.js";
 
-const repoInfo = await getGitRepoInfo()
-const baseBranch = process.env.SWARM_BASE_BRANCH ?? await getCurrentBranch()
-const issuesMarkdown = await getIssuesAsMarkdown()
-const prompt = analyzeIssuesPrompt({ issuesMarkdown, repoFullName: repoInfo.fullName })
+const repo_info = await getGitRepoInfo()
+const base_branch = process.env.SWARM_BASE_BRANCH ?? await getCurrentBranch()
+const issues_markdown = await getIssuesAsMarkdown()
+const prompt = analyzeIssuesPrompt({ issuesMarkdown: issues_markdown, repoFullName: repo_info.fullName })
 
-console.log(`🔍 Planning swarm for ${repoInfo.fullName} (branch: ${baseBranch})`)
+console.log(`🔍 Planning swarm for ${repo_info.fullName} (branch: ${base_branch})`)
 
 const session = await jules.session({
   prompt,
   source: {
-    github: repoInfo.fullName,
-    baseBranch,
+    github: repo_info.fullName,
+    baseBranch: base_branch,
   },
   autoPr: true
 })
