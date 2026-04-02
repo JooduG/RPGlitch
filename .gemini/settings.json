@@ -27,7 +27,7 @@
     },
     "data": {
       "args": [
-        "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\skills\\data\\scripts\\knowledge.js"
+        "./.agent/skills/data/scripts/knowledge.js"
       ],
       "command": "node",
       "env": {
@@ -92,7 +92,7 @@
     },
     "waldzell-metacognitive-monitoring": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\mcp-server-metacognitive-monitoring.cmd"
+      "command": "../node_modules/.bin/mcp-server-metacognitive-monitoring.cmd"
     },
     "waldzell-scientific-method": {
       "args": [],

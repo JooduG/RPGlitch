@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import path from "node:path";
+import { readFile, writeFile } from "node:fs/promises";
+import { jules } from "@google/jules-sdk";
+import type { IssueAnalysis, Task } from "./types.js";
+import { getGitRepoInfo, getCurrentBranch } from "./github/git.js";
 import { get_swarm_dir } from "./utils.js";
 
 const repo_info = await getGitRepoInfo();
@@ -153,7 +158,7 @@ async function redispatchTask(task: Task, oldPr: GitHubPR): Promise<GitHubPR> {
 
   // Create a new Jules session with the same prompt
   console.log(`  🚀 Re-dispatching task "${task.id}" against current ${BASE_BRANCH}...`);
-  const session = await jules.createSession({
+  const session = await jules.session({
     prompt: task.prompt,
     source: {
       github: `${OWNER}/${REPO}`,

@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { jules } from "@google/jules-sdk";
+import { getGitRepoInfo, getCurrentBranch } from "./github/git.js";
+import { getIssuesAsMarkdown } from "./github/markdown.js";
+import { analyzeIssuesPrompt } from "./prompts/analyze-issues.js";
 import { get_formatted_date, get_git_root } from "./utils.js";
 
 const repo_info = await getGitRepoInfo();

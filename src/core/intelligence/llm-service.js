@@ -108,7 +108,7 @@ export const llm_service = {
       } catch (err) {
         const msg = "LLM Engine Unavailable: Neither window.ai nor jules-sdk found.";
         if (!options.silent) console.error(msg, err);
-        throw new Error(msg);
+        throw new Error(msg, { cause: err });
       }
     }
 
