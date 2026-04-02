@@ -36,3 +36,6 @@
 **/.gemini/**
 !**/rpglitch-left-panel.txt
 .playwright-auth/**
+.swarm
+act_output.log
+.secrets

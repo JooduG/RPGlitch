@@ -1,4 +1,4 @@
-# RPSWARMtch: Session Tracks
+# RPGlitch: Session Tracks
 
 > **Status**: `[ ]` Pending, `[~]` Active, `[x]` Complete, `[!]` Blocked, `[-]` Skipped
 

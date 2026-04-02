@@ -37,7 +37,7 @@
     }
   ],
   "meta": {
-    "workflow": "07-fleet",
+    "workflow": "07-swarm",
     "rules": "04-aesthetics, 06-compliance"
   }
 }
