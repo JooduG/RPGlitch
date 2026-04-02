@@ -32,8 +32,8 @@
 
 ## 🛰️ Mission Board (The Active WIP)
 
-| ID        | Mission Name                     | Status   | Priority   | Linked Journal                       |
-| :-------- | :------------------------------- | :------- | :--------- | :----------------------------------- |
+| ID        | Mission Name                     | Status     | Priority   | Linked Journal                       |
+| :-------- | :------------------------------- | :--------- | :--------- | :----------------------------------- |
 | **[023]** | **Nordic Glass Refactor**        | `[ACTIVE]` | `[High]`   | `docs/discovery/023-nordic-glass.md` |
 | **[025]** | **Project Hygiene & Debt Purge** | `[DONE]`   | `[Medium]` | `docs/discovery/025-hygiene.md`      |
 | **[029]** | **Debt Liquidation**             | `[DONE]`   | `[High]`   | `docs/discovery/029-debt.md`         |

@@ -35,7 +35,6 @@ if (typeof globalThis.$state === "undefined") {
 }
 const { llm_service } = await import("../../../../src/core/intelligence/llm-service.js");
 
-
 export class SwarmEngine {
   // --- PRIVATE STATE (#) ---
   #tasks = [];
@@ -133,7 +132,6 @@ export class SwarmEngine {
   async _execute_task(task) {
     this.#active_agent_count++;
     try {
-
       const response = await llm_service.generate({ system: task.prompt }, { silent: true });
       task.result = response;
       task.status = "verifying";
@@ -158,7 +156,6 @@ export class SwarmEngine {
    */
   async _verify_task(prompt, output) {
     try {
-
       const payload = {
         system: SWARM_TEMPLATES.review({ input_prompt: prompt, agent_output: output }),
         messages: [],

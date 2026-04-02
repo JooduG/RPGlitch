@@ -26,9 +26,7 @@
       "url": "https://mcp.context7.com/mcp"
     },
     "data": {
-      "args": [
-        "./.agent/skills/data/scripts/knowledge.js"
-      ],
+      "args": ["./.agent/skills/data/scripts/knowledge.js"],
       "command": "node",
       "env": {
         "PINECONE_API_KEY": "pcsk_vvGN2_67wnzYvzpZzBpiTWu39K2hWCp19hnS7GDeXYm6PbWothAyacBq67wmcQwspSivq",
