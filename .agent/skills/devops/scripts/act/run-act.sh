@@ -59,9 +59,10 @@ echo ""
 # Run act in background
 # Add default runner image only if the user didn't specify one via -P
 if echo "$ACT_ARGS" | grep -q -- '-P '; then
-  act ${ACT_ARGS} > "$LOG_FILE" 2>&1 &
+if echo "$@" | grep -q -- '-P '; then
+  act "$@" > "$LOG_FILE" 2>&1 &
 else
-  act ${ACT_ARGS} -P ubuntu-latest=catthehacker/ubuntu:act-latest > "$LOG_FILE" 2>&1 &
+  act "$@" -P ubuntu-latest=catthehacker/ubuntu:act-latest > "$LOG_FILE" 2>&1 &
 fi
 
 ACT_PID=$!
