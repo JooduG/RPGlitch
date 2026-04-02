@@ -65,7 +65,7 @@ ${analysisPrompt}
 After writing both \`.swarm/\` files, run the dispatcher:
 
 \`\`\`bash
-bun run .agent/skills/swarm/scripts/automation/swarm-dispatch.ts
+npm run swarm:dispatch
 \`\`\`
 
 This dispatches parallel Jules sessions for each task and logs session IDs to \`.swarm/{date}/sessions.json\`.
