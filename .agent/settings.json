@@ -27,7 +27,7 @@
     },
     "data": {
       "args": [
-        "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\skills\\data\\scripts\\knowledge.js"
+        "./.agent/skills/data/scripts/knowledge.js"
       ],
       "command": "node",
       "env": {
