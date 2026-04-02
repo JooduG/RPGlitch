@@ -31,8 +31,7 @@ const PR_POLL_INTERVAL_MS = 30_000;
 const PR_POLL_TIMEOUT_MS = 15 * 60 * 1000;
 
 if (!GITHUB_TOKEN) {
-  console.error("❌ GITHUB_TOKEN environment variable is required.");
-  process.exit(1);
+  throw new Error("GITHUB_TOKEN environment variable is required.");
 }
 
 const headers = {
@@ -190,15 +189,13 @@ for (const [taskId, pr] of prMap) {
 }
 
 if (prMap.size !== analysis.tasks.length) {
-  console.error(`❌ Expected ${analysis.tasks.length} PRs but found ${prMap.size}. Waiting for all PRs before merging.`);
-  process.exit(1);
+  throw new Error(`Expected ${analysis.tasks.length} PRs but found ${prMap.size}. All PRs must be ready before merging.`);
 }
 
 for (const task of analysis.tasks) {
   let pr = prMap.get(task.id);
   if (!pr) {
-    console.error(`❌ No PR found for task "${task.id}". Aborting.`);
-    process.exit(1);
+    throw new Error(`No PR found for task "${task.id}". Aborting.`);
   }
 
   let retryCount = 0;
@@ -220,7 +217,7 @@ for (const task of analysis.tasks) {
           if (retryCount >= MAX_RETRIES) {
             console.error(`  ❌ Conflict persists after ${MAX_RETRIES} retries. Human intervention required.`);
             console.error(`  PR: https://github.com/${OWNER}/${REPO}/pull/${pr!.number}`);
-            process.exit(1);
+            throw new Error(`Merge conflict persists for task "${task.id}" after ${MAX_RETRIES} retries.`);
           }
           console.log(`  ⚠️ Merge conflict detected. Re-dispatching task "${task.id}"...`);
           pr = await redispatchTask(task, pr!);
@@ -237,21 +234,35 @@ for (const task of analysis.tasks) {
     console.log(`  🧪 Waiting for CI on PR #${pr!.number}...`);
     const ciPassed = await waitForCI(pr!.number);
     if (!ciPassed) {
-      console.error(`  ❌ CI failed for PR #${pr!.number}. Aborting sequential merge.`);
-      process.exit(1);
+      throw new Error(`CI failed for PR #${pr!.number}. Aborting sequential merge.`);
     }
 
-    // Merge
+    // Merge with retry
     console.log(`  ✅ CI passed. Merging PR #${pr!.number}...`);
-    const mergeRes = await fetch(`${API}/pulls/${pr!.number}/merge`, {
-      method: "PUT",
-      headers: { ...headers, "Content-Type": "application/json" },
-      body: JSON.stringify({ merge_method: "squash" }),
-    });
-    if (!mergeRes.ok) {
-      const body = await mergeRes.text();
-      console.error(`  ❌ Failed to merge PR #${pr!.number}: ${body}`);
-      process.exit(1);
+    let mergeSuccess = false;
+    let mergeAttempts = 0;
+    const MAX_MERGE_ATTEMPTS = 3;
+
+    while (mergeAttempts < MAX_MERGE_ATTEMPTS && !mergeSuccess) {
+      mergeAttempts++;
+      const mergeRes = await fetch(`${API}/pulls/${pr!.number}/merge`, {
+        method: "PUT",
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify({ merge_method: "squash" }),
+      });
+
+      if (mergeRes.ok) {
+        mergeSuccess = true;
+      } else {
+        const body = await mergeRes.text();
+        console.error(`  ⚠️ Attempt ${mergeAttempts} failed to merge PR #${pr!.number}: ${body}`);
+        if (mergeAttempts < MAX_MERGE_ATTEMPTS) {
+          console.log(`  🔄 Retrying merge in 5s...`);
+          await new Promise(r => setTimeout(r, 5000));
+        } else {
+          throw new Error(`Failed to merge PR #${pr!.number} after ${MAX_MERGE_ATTEMPTS} attempts: ${body}`);
+        }
+      }
     }
     console.log(`  🎉 PR #${pr!.number} merged successfully.`);
     merged = true;

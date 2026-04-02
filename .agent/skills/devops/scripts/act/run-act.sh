@@ -24,8 +24,16 @@ LOG_FILE="act_output.log"
 TIMEOUT="${ACT_TIMEOUT:-600}"       # Default: 10 minutes
 POLL_INTERVAL="${ACT_POLL:-10}"     # Default: 10 seconds
 
+# Logging function
+log() {
+  local level="${1:-INFO}"
+  local message="${2:-}"
+  local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+  echo "[$timestamp] $level: $message"
+}
+
 if [ -z "$ACT_ARGS" ]; then
-  echo "Error: No arguments provided."
+  log "ERROR" "No arguments provided."
   echo "Usage: $0 \"<act arguments>\""
   echo "Example: $0 \"push -j build --matrix node-version:20.x\""
   exit 1
@@ -33,19 +41,19 @@ fi
 
 # Check Docker is running
 if ! docker info > /dev/null 2>&1; then
-  echo "❌ Docker is not running. Start Docker and try again."
+  log "ERROR" "Docker is not running. Start Docker and try again."
   exit 1
 fi
 
 # Check act is available
 if ! command -v act &> /dev/null; then
-  echo "❌ 'act' is not installed. Run install-act.sh first."
+  log "ERROR" "'act' is not installed. Run install-act.sh first."
   exit 1
 fi
 
-echo "🚀 Starting: act ${ACT_ARGS}"
-echo "📄 Logging to: ${LOG_FILE}"
-echo "⏱️  Timeout: ${TIMEOUT}s | Poll: ${POLL_INTERVAL}s"
+log "INFO" "Starting: act ${ACT_ARGS}"
+log "INFO" "Logging to: ${LOG_FILE}"
+log "INFO" "Timeout: ${TIMEOUT}s | Poll: ${POLL_INTERVAL}s"
 echo ""
 
 # Run act in background
@@ -57,7 +65,7 @@ else
 fi
 
 ACT_PID=$!
-echo "Process started (PID: ${ACT_PID})"
+log "INFO" "Process started (PID: ${ACT_PID})"
 
 ELAPSED=0
 
@@ -65,7 +73,7 @@ ELAPSED=0
 while kill -0 "$ACT_PID" 2>/dev/null; do
   if [ $ELAPSED -ge $TIMEOUT ]; then
     echo ""
-    echo "⏰ Timeout reached (${TIMEOUT}s). Killing act process..."
+    log "WARN" "Timeout reached (${TIMEOUT}s). Killing act process..."
     kill "$ACT_PID" 2>/dev/null || true
     wait "$ACT_PID" 2>/dev/null || true
     echo ""
@@ -79,7 +87,7 @@ while kill -0 "$ACT_PID" 2>/dev/null; do
   ELAPSED=$((ELAPSED + POLL_INTERVAL))
 
   # Show last few lines as progress
-  echo "⏳ Running... (${ELAPSED}s/${TIMEOUT}s)"
+  log "INFO" "Running... (${ELAPSED}s/${TIMEOUT}s)"
   tail -n 5 "$LOG_FILE" 2>/dev/null || true
   echo ""
 done
@@ -95,9 +103,9 @@ echo "--- End Log ---"
 echo ""
 
 if [ $EXIT_CODE -eq 0 ]; then
-  echo "✅ Local GitHub Actions passed."
+  log "SUCCESS" "Local GitHub Actions passed."
   exit 0
 else
-  echo "❌ Local GitHub Actions failed (exit code: ${EXIT_CODE})."
+  log "ERROR" "Local GitHub Actions failed (exit code: ${EXIT_CODE})."
   exit 1
 fi
