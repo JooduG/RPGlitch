@@ -171,7 +171,7 @@ ${prompt_builder.render_protocols("HYGIENE, AFFIRMATIVE, IMMERSION")}
 ${content}
 </INPUT_CONTENT>
 </SYSTEM>`.trim(),
-  };
+};
 
 /**
  * 🧬 PROTOCOL LIBRARY (The DNA)

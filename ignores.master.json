@@ -83,6 +83,7 @@
       "**/Thumbs.db": true,
       "**/jsconfig.json": true,
       "**/mcp.json": true,
+      "/.env": false,
       "**/node_modules/**": true,
       "**/package-lock.json": true,
       "**/pnpm-lock.yaml": true,

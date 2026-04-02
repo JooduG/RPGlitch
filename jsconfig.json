@@ -19,7 +19,12 @@
     "allowArbitraryExtensions": true,
     "verbatimModuleSyntax": true
   },
-  "include": ["src/**/*", "types.d.ts", ".agent/skills/swarm/scripts/swarm-engine.js", ".agent/skills/data/scripts/knowledge.js"],
+  "include": [
+    "src/**/*",
+    "types.d.ts",
+    ".agent/skills/swarm/scripts/swarm-engine.js",
+    ".agent/skills/data/scripts/knowledge.js"
+  ],
   "exclude": [
     "**/.git/**",
     "**/archive/**",

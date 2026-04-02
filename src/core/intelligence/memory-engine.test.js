@@ -48,7 +48,9 @@ describe("memory-engine - consolidate_vector", () => {
     const result = await consolidate_vector({ name: "Viper" }, []);
 
     expect(result).toBeNull();
-    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("No valid JSON object found"));
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining("No valid JSON object found"),
+    );
   });
 
   it("should return null and error if JSON parsing fails", async () => {
@@ -57,7 +59,10 @@ describe("memory-engine - consolidate_vector", () => {
     const result = await consolidate_vector({ name: "Viper" }, []);
 
     expect(result).toBeNull();
-    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Resonance condensation failed"), expect.any(Error));
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining("Resonance condensation failed"),
+      expect.any(Error),
+    );
   });
 
   it("should return null and error if llm_service.generate rejects (network error)", async () => {
@@ -67,7 +72,10 @@ describe("memory-engine - consolidate_vector", () => {
     const result = await consolidate_vector({ name: "Viper" }, []);
 
     expect(result).toBeNull();
-    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Resonance condensation failed"), networkError);
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining("Resonance condensation failed"),
+      networkError,
+    );
   });
 
   it("should return null and warn if resonance summary property is missing", async () => {
@@ -77,7 +85,9 @@ describe("memory-engine - consolidate_vector", () => {
     const result = await consolidate_vector({ name: "Viper" }, []);
 
     expect(result).toBeNull();
-    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("summary is missing or empty"));
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining("summary is missing or empty"),
+    );
   });
 
   it("should return null and warn if resonance summary property is empty", async () => {
@@ -87,7 +97,9 @@ describe("memory-engine - consolidate_vector", () => {
     const result = await consolidate_vector({ name: "Viper" }, []);
 
     expect(result).toBeNull();
-    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("summary is missing or empty"));
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining("summary is missing or empty"),
+    );
   });
 
   it("should return resonance object on valid JSON response and verify dependency calls", async () => {
@@ -95,7 +107,7 @@ describe("memory-engine - consolidate_vector", () => {
     const mockHistory = [{ role: "user", content: "test message" }];
     const mockResonance = {
       summary: "A significant event happened.",
-      vector_tags: ["event", "significant"]
+      vector_tags: ["event", "significant"],
     };
     const mockPayload = { system: "mock prompt", messages: [] };
 
@@ -106,7 +118,11 @@ describe("memory-engine - consolidate_vector", () => {
     const result = await consolidate_vector(mockEntity, mockHistory, "character");
 
     // Verify dependency interactions
-    expect(prompt_builder.build_memory_prompt).toHaveBeenCalledWith("character", mockEntity, mockHistory);
+    expect(prompt_builder.build_memory_prompt).toHaveBeenCalledWith(
+      "character",
+      mockEntity,
+      mockHistory,
+    );
     expect(llm_service.generate).toHaveBeenCalledWith(mockPayload, {
       json: true,
       silent: true,
@@ -138,10 +154,10 @@ describe("memory-engine - consolidate_vector", () => {
   it("should handle response objects with generatedText property", async () => {
     const mockResonance = {
       summary: "Event from object generatedText.",
-      tags: ["tag1"]
+      tags: ["tag1"],
     };
     vi.mocked(llm_service.generate).mockResolvedValue({
-      generatedText: "```json\n" + JSON.stringify(mockResonance) + "\n```"
+      generatedText: "```json\n" + JSON.stringify(mockResonance) + "\n```",
     });
 
     const result = await consolidate_vector({ name: "Viper" }, []);
@@ -154,10 +170,10 @@ describe("memory-engine - consolidate_vector", () => {
   it("should handle response objects with text property (fallback from generatedText)", async () => {
     const mockResonance = {
       summary: "Event from object text.",
-      tags: ["tag2"]
+      tags: ["tag2"],
     };
     vi.mocked(llm_service.generate).mockResolvedValue({
-      text: "```json\n" + JSON.stringify(mockResonance) + "\n```"
+      text: "```json\n" + JSON.stringify(mockResonance) + "\n```",
     });
 
     const result = await consolidate_vector({ name: "Viper" }, []);

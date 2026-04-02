@@ -49,6 +49,9 @@ export default [
       "**/.eslintcache",
       "**/.env.*",
       "**/.env",
+      "**/.env.example",
+      "!**/.env.example",
+      "**/bun.lockb",
       "**/.antigravityignore",
       "**/.DS_Store"
     ],

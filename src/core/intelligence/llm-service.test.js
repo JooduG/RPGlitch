@@ -58,11 +58,13 @@ describe("llm_service - generate", () => {
     vi.restoreAllMocks();
   });
 
-  it("should throw an error if window.ai is not available", async () => {
+  it("should throw an error if window.ai is not available and jules-sdk fails", async () => {
     window.ai = undefined;
+    // Mocking jules-sdk failure to hit the final throw
+    vi.doMock("@google/jules-sdk", () => ({ jules: null }));
     await expect(
       llm_service.generate({ system: "", messages: [] }, { silent: true }),
-    ).rejects.toThrow("Perchance AI plugin not available.");
+    ).rejects.toThrow(/Neither window.ai nor jules-sdk found/);
   });
 
   it("should correctly format conversation history", () => {

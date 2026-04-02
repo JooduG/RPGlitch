@@ -40,6 +40,7 @@ date_added: 2024-03-29
 
 1. **Verification**: Verify that the fix does not introduce regression. Run unit and E2E tests. [[Invoke: Warden]](../skills/warden/)
 2. **Sanitization**: Ensure all new inputs are validated using Zod/DOMPurify (Rule 06.1).
+3. **Convergence**: If any verification step fails or new debt is identified, restart the lifecycle from Phase 1. Repeat until all protocols align and a clean, zero-failure run is achieved.
 
 ## Anti-Patterns
 

@@ -18,8 +18,8 @@
  * LlmService has no opinion on prompt content. It injects no rules and knows
  * nothing about the narrative. It only sends and receives.
  */
-import { ERROR_MESSAGES } from "@core/engine/config.js";
-import { app } from "@state/app.svelte.js";
+import { ERROR_MESSAGES } from "../engine/config.js";
+import { app } from "../../state/app.svelte.js";
 /************************************************************************************
  * 🧩 [SECTION: SANITIZATION]
  * ----------------------------------------------------------------------------------
@@ -86,11 +86,33 @@ export const llm_service = {
    * @returns {Promise<string>}
    */
   generate: async (payload, options = {}) => {
-    if (!window.ai) {
-      const msg = "Perchance AI plugin not available.";
-      if (!options.silent) console.error(msg);
-      throw new Error(msg);
+    // --- NODE.JS / JULES-SDK FALLBACK ---
+    if (typeof window === "undefined" || !window.ai) {
+      try {
+        const { jules } = await import("@google/jules-sdk");
+        const session = await jules.session({
+          prompt: payload.system || "",
+          messages: payload.messages || [],
+          temperature: options.temperature ?? payload.params?.temperature ?? 0.8,
+          max_tokens: options.max_tokens ?? payload.params?.max_tokens,
+          top_p: options.top_p ?? payload.params?.top_p,
+        });
+        // We handle streaming or direct result based on options
+        if (options.onToken) {
+          for await (const chunk of session.stream()) {
+            if (chunk.type === "token") options.onToken(chunk.text);
+          }
+        }
+        const result = await session.result();
+        return typeof result === "string" && !options.raw ? sanitize(result) : result;
+      } catch (err) {
+        const msg = "LLM Engine Unavailable: Neither window.ai nor jules-sdk found.";
+        if (!options.silent) console.error(msg, err);
+        throw new Error(msg, { cause: err });
+      }
     }
+
+    // --- BROWSER / PERCHANCE ENGINE ---
     // 1. Format conversation history into a flat readable string
     const chat_history = llm_service._format_history(payload.messages || []);
     // 2. Assemble the final instruction block

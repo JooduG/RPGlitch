@@ -28,7 +28,7 @@ const { tasks } = analysis;
 
 // Resolve repo info dynamically from git remote
 const repo_info = await getGitRepoInfo();
-const base_branch = process.env.SWARM_BASE_BRANCH ?? await getCurrentBranch();
+const base_branch = process.env.SWARM_BASE_BRANCH ?? (await getCurrentBranch());
 
 // Pre-dispatch ownership validation
 function validateOwnership(analysis: IssueAnalysis): void {
@@ -39,7 +39,7 @@ function validateOwnership(analysis: IssueAnalysis): void {
       const existing = claimed.get(file);
       if (existing) {
         throw new Error(
-          `Ownership conflict: "${file}" claimed by both "${existing}" and "${task.id}". These tasks must be merged.`
+          `Ownership conflict: "${file}" claimed by both "${existing}" and "${task.id}". These tasks must be merged.`,
         );
       }
       claimed.set(file, task.id);
@@ -50,13 +50,13 @@ function validateOwnership(analysis: IssueAnalysis): void {
 validateOwnership(analysis);
 console.log(`✅ Ownership validated: ${analysis.tasks.length} tasks, no conflicts.`);
 
-const sessions = await jules.all(tasks, task => ({
+const sessions = await jules.all(tasks, (task) => ({
   prompt: task.prompt,
   source: {
     github: repo_info.fullName,
     baseBranch: base_branch,
-  }
-}))
+  },
+}));
 
 const sessionResults: Array<{ taskId: string; sessionId: string }> = [];
 for await (const session of sessions) {
