@@ -162,7 +162,8 @@ export class SwarmEngine {
         messages: [],
       };
       const response = await llm_service.generate(payload, { silent: true, raw: true });
-      const clean_json = response.replace(/```json|```/g, "").trim();
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      const clean_json = jsonMatch ? jsonMatch[0] : response;
       return JSON.parse(clean_json);
     } catch (err) {
       return { score: 0, rationale: "Verification Engine Error" };
