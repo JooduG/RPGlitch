@@ -64,6 +64,13 @@ export async function consolidate_vector(target_entity, history_slice, role = "c
       return null;
     }
     const resonance = JSON.parse(object_match[0]);
+
+    // Validation: Require non-empty summary
+    if (!resonance || typeof resonance.summary !== "string" || resonance.summary.trim() === "") {
+      console.warn("[Echo] Invalid resonance object: summary is missing or empty.");
+      return null;
+    }
+
     // 4. Hybrid Tagging Logic (AXIS TAGS)
     //    Run automated Scan Reflexes on the summary to avoid hallucination.
     const triggered_reflexes = dynamics_engine.dynamics_scan(resonance.summary);
