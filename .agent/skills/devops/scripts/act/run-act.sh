@@ -59,11 +59,11 @@ echo ""
 # Run act in background
 # Add default runner image only if the user didn't specify one via -P
 has_custom_platform=false
-for arg in "$@"; do
-  if [[ "$arg" == "-P" ]] || [[ "$arg" == "--platform" ]]; then
-    has_custom_platform=true
-    break
-  fi
+if [[ "$*" == *"-P"* ]] || [[ "$*" == *"--platform"* ]]; then
+  act "$@" > "$LOG_FILE" 2>&1 &
+else
+  act "$@" -P ubuntu-latest=catthehacker/ubuntu:act-latest > "$LOG_FILE" 2>&1 &
+fi
 done
 
 if [ "$has_custom_platform" = true ]; then
