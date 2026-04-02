@@ -30,7 +30,7 @@ skills/devops/
 
 ### Step 1: Pre-Flight Audit
 
-Before any deployment, **execute `npm run verify` and `bash scripts/act/run-act.sh`**.
+Before any deployment, **execute `npm run verify` and `bash .agent/skills/devops/scripts/act/run-act.sh`**.
 
 - Audit the bundle size against the **500KB limit**.
 - Ensure all logic is transpiled for Svelte 5 production.
