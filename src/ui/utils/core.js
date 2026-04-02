@@ -1,11 +1,11 @@
 // src/core/session/utils.js
-import { Security } from "@core/security.js";
+import { Security } from "../../core/security.js";
 
 // --- Debug & Logging ---
 let is_dev_mode = false;
 export const initDebugMode = async () => {
   try {
-    const { db } = await import("@data/db.js");
+    const { db } = await import("../../data/db.js");
     const settings = await db.settings.get("app-settings");
     if (settings && typeof settings.debug_mode !== "undefined") {
       is_dev_mode = !!settings.debug_mode;
@@ -25,7 +25,7 @@ export const error = (...args) => {
 export const setDebug = async (on) => {
   is_dev_mode = !!on;
   try {
-    const { db } = await import("@data/db.js");
+    const { db } = await import("../../data/db.js");
     let settings = await db.settings.get("app-settings");
     if (!settings) settings = { id: "app-settings" };
     settings.debug_mode = is_dev_mode;

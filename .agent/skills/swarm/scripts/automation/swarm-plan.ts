@@ -14,12 +14,15 @@
 
 import { get_formatted_date, get_git_root } from "./utils.js";
 
-const repo_info = await getGitRepoInfo()
-const base_branch = process.env.SWARM_BASE_BRANCH ?? await getCurrentBranch()
-const issues_markdown = await getIssuesAsMarkdown()
-const prompt = analyzeIssuesPrompt({ issuesMarkdown: issues_markdown, repoFullName: repo_info.fullName })
+const repo_info = await getGitRepoInfo();
+const base_branch = process.env.SWARM_BASE_BRANCH ?? (await getCurrentBranch());
+const issues_markdown = await getIssuesAsMarkdown();
+const prompt = analyzeIssuesPrompt({
+  issuesMarkdown: issues_markdown,
+  repoFullName: repo_info.fullName,
+});
 
-console.log(`🔍 Planning swarm for ${repo_info.fullName} (branch: ${base_branch})`)
+console.log(`🔍 Planning swarm for ${repo_info.fullName} (branch: ${base_branch})`);
 
 const session = await jules.session({
   prompt,
@@ -27,7 +30,7 @@ const session = await jules.session({
     github: repo_info.fullName,
     baseBranch: base_branch,
   },
-  autoPr: true
-})
+  autoPr: true,
+});
 
-console.log(`✅ Planner session started: ${session.id}`)
+console.log(`✅ Planner session started: ${session.id}`);

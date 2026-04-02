@@ -203,7 +203,7 @@
     margin: 0;
     font-family: var(--font-family-heading);
     color: rgb(var(--signature-rgb));
-    text-shadow: 0 2px 4px rgb(0 0 0 / 50%);
+    text-shadow: var(--shadow-font);
   }
 
   .description {
@@ -249,8 +249,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgb(0 0 0 / 40%);
-    backdrop-filter: blur(12px);
+    background: var(--glass-s);
+    backdrop-filter: var(--glass-blur-m);
     border: var(--glass-edge-l);
     border-radius: 50%;
     color: var(--color-white);
@@ -268,6 +268,6 @@
 
   :global(.storyboard-stack .profile-quick-link.btn:hover) {
     opacity: var(--opacity-full);
-    background: rgb(0 0 0 / 60%);
+    background: var(--glass-xs);
   }
 </style>

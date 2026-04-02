@@ -104,14 +104,11 @@ export function spin(node) {
       animation.playbackRate = 1;
       animation.play();
     } else {
-      animation = target.animate(
-        [{ transform: "rotate(0deg)" }, { transform: "rotate(90deg)" }],
-        {
-          duration: SPIN_DURATION,
-          easing: EASE_ELASTIC,
-          fill: "forwards",
-        },
-      );
+      animation = target.animate([{ transform: "rotate(0deg)" }, { transform: "rotate(90deg)" }], {
+        duration: SPIN_DURATION,
+        easing: EASE_ELASTIC,
+        fill: "forwards",
+      });
     }
   }
 
@@ -208,7 +205,7 @@ export function kineticScroll(node) {
 
   const onMove = (e) => {
     if (!isDown) return;
-    
+
     // Prevent native scrolling while dragging - jules review
     if (e.cancelable) e.preventDefault();
 

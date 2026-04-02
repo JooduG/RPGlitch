@@ -8,11 +8,11 @@
   import { fly } from "svelte/transition";
   import Backdrop from "./Backdrop.svelte";
 
-  /** @type {{ 
-   *    on_close?: (e: any) => void, 
-   *    variant?: "standard" | "profile" | "preview", 
-   *    z_index?: string, 
-   *    children: import('svelte').Snippet 
+  /** @type {{
+   *    on_close?: (e: any) => void,
+   *    variant?: "standard" | "profile" | "preview",
+   *    z_index?: string,
+   *    children: import('svelte').Snippet
    *  }} */
   let {
     on_close = () => {},

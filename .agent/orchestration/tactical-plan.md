@@ -1,8 +1,8 @@
 # 🛸 Antigravity Engine: Tactical Plan
 
 > **Sovereign State**: `[ACTIVE]`
-> **Last Sync**: 2026-03-31
-> **Current Focus**: Milestone 1 (The Foundry)
+> **Last Sync**: 2026-04-02
+> **Current Focus**: Milestone 2 (Convergence)
 
 ---
 
@@ -32,11 +32,12 @@
 
 ## 🛰️ Mission Board (The Active WIP)
 
-| ID        | Mission Name                     | Status  | Priority   | Linked Journal                       |
-| :-------- | :------------------------------- | :------ | :--------- | :----------------------------------- |
-| **[023]** | **Nordic Glass Refactor**        | `[WIP]` | `[High]`   | `docs/discovery/023-nordic-glass.md` |
-| **[025]** | **Project Hygiene & Debt Purge** | `[DONE]` | `[Medium]` | `docs/discovery/025-hygiene.md`      |
-| **[027]** | **Dependency Synchronization**   | `[WIP]`  | `[Low]`    | `docs/discovery/027-npm-sync.md`     |
+| ID        | Mission Name                     | Status   | Priority   | Linked Journal                       |
+| :-------- | :------------------------------- | :------- | :--------- | :----------------------------------- |
+| **[023]** | **Nordic Glass Refactor**        | `[ACTIVE]` | `[High]`   | `docs/discovery/023-nordic-glass.md` |
+| **[025]** | **Project Hygiene & Debt Purge** | `[DONE]`   | `[Medium]` | `docs/discovery/025-hygiene.md`      |
+| **[029]** | **Debt Liquidation**             | `[DONE]`   | `[High]`   | `docs/discovery/029-debt.md`         |
+| **[030]** | **Sovereign Handoff**            | `[DONE]`   | `[High]`   | `[Current Session]`                  |
 
 ---
 
@@ -59,10 +60,18 @@
 
 **Goal**: Finalize `/03-clean` and achieve 100% technical purity.
 
+- [x] **Boot & Clean Sequence**: Executed `/00-boot` and `/03-clean`. Reconciled [025] debt in `StoryboardCard.svelte` and achieved 100% technical purity (Perfect Score). [Session: current]
 - [x] **Beat 01**: Fix `SWARM/` directory casing and update internal script paths.
 - [x] **Beat 02**: Remove sub-script debuggers from production logic.
-- [x] **Beat 03**: Refactor Atomic CSS for higher specificity in glass containers.
-- [x] **Beat 04**: **Run `npm run verify`** to confirm "PERFECT SCORE".
+
+### 📍 Track [029]: Debt Liquidation
+
+**Goal**: Purge remaining technical debt in `swarm-engine.js` and align linter.
+
+- [x] **Relay Model Orchestration**: Deconstructed orchestrator roles. [Session: current]
+- [x] **Initialize Task Tracking**: Commissioned `task.md`. [Session: current]
+- [x] **Beat 01**: Synchronize `audit-security.js` allowlist for Swarm CLI.
+- [x] **Beat 02**: Standardize `swarm-engine.js` header and casing.
 
 ---
 

@@ -9,17 +9,16 @@
   },
   "general": {
     "enablePromptCompletion": true,
-    "plan": {},
+    "plan": {
+      "directory": ".agent/orchestration/plans",
+      "modelRouting": true
+    },
     "preferredEditor": "antigravity"
   },
   "tools": {
     "enableHooks": true
   },
   "mcpServers": {
-    "chrome-devtools": {
-      "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\chrome-devtools-mcp.cmd"
-    },
     "context7": {
       "headers": {
         "CONTEXT7_API_KEY": "ctx7sk-47294459-6c98-4af4-8546-a3616fe3d7d9"
@@ -28,7 +27,7 @@
     },
     "data": {
       "args": [
-        "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\skills\\data\\scripts\\index.js"
+        "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\skills\\data\\scripts\\knowledge.js"
       ],
       "command": "node",
       "env": {
@@ -38,7 +37,8 @@
       }
     },
     "deepwiki": {
-      "url": "https://mcp.deepwiki.com/mcp"
+      "url": "https://mcp.deepwiki.com/mcp",
+      "excludeTools": []
     },
     "firecrawl-mcp": {
       "args": [],
@@ -59,7 +59,8 @@
     },
     "playwright": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\playwright-mcp.cmd"
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\playwright-mcp.cmd",
+      "excludeTools": ["browser_close"]
     },
     "StitchMCP": {
       "args": [
@@ -74,7 +75,8 @@
     },
     "svelte": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\svelte-mcp.cmd"
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\svelte-mcp.cmd",
+      "excludeTools": []
     },
     "waldzell-clear-thought": {
       "args": [],
@@ -90,7 +92,7 @@
     },
     "waldzell-metacognitive-monitoring": {
       "args": [],
-      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\.agent\\skills\\waldzell\\metacognitive-monitoring\\dist\\index.js"
+      "command": "c:\\Users\\johng\\source\\repos\\RPGlitch\\node_modules\\.bin\\mcp-server-metacognitive-monitoring.cmd"
     },
     "waldzell-scientific-method": {
       "args": [],

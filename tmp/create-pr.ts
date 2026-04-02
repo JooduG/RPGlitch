@@ -1,6 +1,9 @@
 import { Octokit } from "octokit";
 import { config } from "dotenv";
-import { getGitRepoInfo, getCurrentBranch } from "../.agent/skills/swarm/scripts/automation/github/git.js";
+import {
+  getGitRepoInfo,
+  getCurrentBranch,
+} from "../.agent/skills/swarm/scripts/automation/github/git.js";
 
 async function create_pr() {
   try {
@@ -25,7 +28,7 @@ Consolidated all root-level automation scripts into their respective .agent/skil
 - **Refactor**: Replaced Bun APIs with standard node:fs/promises equivalents.
 - **Hygiene**: Cleaned up and categorized the .env template.`,
       head: branch,
-      base: "main"
+      base: "main",
     });
     console.log("✅ PR Created: " + pr.html_url);
   } catch (err: any) {

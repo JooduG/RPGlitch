@@ -9,10 +9,7 @@
       "id": "agent-css",
       "role": "CSS Specialist",
       "focus": "Legibility & Accessibility",
-      "target_files": [
-        "src/theme/tokens.css",
-        "src/theme/global.css"
-      ],
+      "target_files": ["src/theme/tokens.css", "src/theme/global.css"],
       "instructions": "Increase glass opacity for tooltips and overlays. Implement high-contrast global focus states."
     },
     {
@@ -30,9 +27,7 @@
       "id": "agent-motion",
       "role": "Motion Specialist",
       "focus": "Kinetic Physics",
-      "target_files": [
-        "src/ui/utils/actions/kinetic.js"
-      ],
+      "target_files": ["src/ui/utils/actions/kinetic.js"],
       "instructions": "Refactor spin reset to reverse animation. Prevent native scroll jitter on touch devices."
     }
   ],

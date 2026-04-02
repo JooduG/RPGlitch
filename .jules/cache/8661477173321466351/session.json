@@ -1,0 +1,19 @@
+{
+  "resource": {
+    "name": "sessions/8661477173321466351",
+    "prompt": "Perform a security audit.",
+    "url": "https://jules.google.com/session/8661477173321466351",
+    "requirePlanApproval": true,
+    "id": "8661477173321466351",
+    "automationMode": "AUTO_CREATE_PR",
+    "archived": false,
+    "state": "unspecified",
+    "outputs": [],
+    "outcome": {
+      "sessionId": "8661477173321466351",
+      "state": "completed",
+      "outputs": []
+    }
+  },
+  "_lastSyncedAt": 1775155781755
+}

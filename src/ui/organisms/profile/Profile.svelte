@@ -183,8 +183,7 @@
 
 {#if char && char.id}
   <Modal variant="profile" on_close={handle_close}>
-    {#snippet children()}
-      <div
+    <div
       class="profile-container"
       class:editing={is_editing}
       class:dev-mode={app.settings.dev_mode}
@@ -219,7 +218,6 @@
         </main>
       </div>
     </div>
-    {/snippet}
   </Modal>
 {/if}
 

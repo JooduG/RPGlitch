@@ -31,11 +31,11 @@
 **/.eslintcache
 **/.env.*
 **/.env
+**/.env.example
+!**/.env.example
+**/bun.lockb
 **/.antigravityignore
 **/.DS_Store
 **/.gemini/**
 !**/rpglitch-left-panel.txt
 .playwright-auth/**
-.swarm
-act_output.log
-.secrets

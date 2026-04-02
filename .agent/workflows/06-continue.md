@@ -28,8 +28,9 @@ date_added: 2024-03-29
 
 ### Phase 1: Baton Discovery (Step 1.2: Order of Ops)
 
-1. **Log Parsing**: Scan the [Log Book](../orchestration/operation-logs.md) for the active track `[/]`. Identify the last successful action and the next pending step. [[Invoke: orchestration-tactics]](../skills/orchestration-tactics/)
-2. **Track Integrity**: If multiple tracks are in progress, prioritize the one marked as the "active" baton.
+1. **Chat Log Assessment**: Review the immediate conversation context. If the previous agent's intent, active task, and progress are clearly stated in the chat log, identify the "baton" and proceed directly to Phase 3.
+2. **Supplemental Parsing**: If the chat log is ambiguous or insufficient, scan the [Log Book](../orchestration/operation-logs.md) and current [task.md] for the active track `[/]`. Identify the last successful action and the next pending step. [[Invoke: orchestration-tactics]](../skills/orchestration-tactics/)
+3. **Track Integrity**: If multiple tracks are in progress, prioritize the one marked as the "active" baton in the logs.
 
 ### Phase 2: Reasoning Sync (Step 1.3: Prerequisites)
 
