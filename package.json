@@ -32,6 +32,7 @@
     "ignore": "^7.0.5",
     "mcp-mermaid": "^0.4.1",
     "mcp-sequentialthinking-tools": "^0.0.4",
+    "@google/jules-sdk": "latest",
     "octokit": "^4.1.0",
     "paneforge": "^1.0.2",
     "runed": "^0.37.1"
