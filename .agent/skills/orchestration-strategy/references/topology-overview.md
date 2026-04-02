@@ -35,7 +35,7 @@ Every interaction follows the reactive heart rate:
 
 ## Project Topography & Sovereign State
 
-The `RPSWARMtch` agent projects follows a strict state-sovereignty topography to ensure AI continuity and technical purity. All operations must ground themselves in the **Axiomatic Laws**.
+The `RPGlitch` agent projects follows a strict state-sovereignty topography to ensure AI continuity and technical purity. All operations must ground themselves in the **Axiomatic Laws**.
 
 ## [**Axiomatic** Laws](../../../../GEMINI.md)
 

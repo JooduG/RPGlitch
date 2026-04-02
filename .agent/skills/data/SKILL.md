@@ -29,7 +29,7 @@ Before proposing architectural shifts or complex refactors, **query the Living M
 
 - **Invoke**: `read_knowledge_base`.
 - **Logic**: Search for related rules, skills, or prior implementations in the `knowledge-base.meta` and `knowledge-base.src` namespaces.
-- **Goal**: Ensure the proposal aligns with existing Svelte 5 patterns and RPSWARMtch Axiomatic Laws.
+- **Goal**: Ensure the proposal aligns with existing Svelte 5 patterns and RPGlitch Axiomatic Laws.
 
 ### Step 2: Historical Forensics (The Cold Trace)
 

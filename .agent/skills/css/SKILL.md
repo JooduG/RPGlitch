@@ -9,7 +9,7 @@ risk: safe
 
 # 🛠️ css
 
-> "I am the Stylist. I own the Chalk Regime, the Antigravity weightlessness, and the visual soul of the RPSWARMtch Engine. I implement 'Design Spells' with silky-smooth precision."
+> "I am the Stylist. I own the Chalk Regime, the Antigravity weightlessness, and the visual soul of the RPGlitch Engine. I implement 'Design Spells' with silky-smooth precision."
 
 ## 🔬 Anatomy
 

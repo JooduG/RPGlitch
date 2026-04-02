@@ -18,7 +18,7 @@ The Simulation Cycle is the overarching heartbeat of the engine—a complete seq
 
 ### 2. Product Identity
 
-RPSWARMtch is a high-fidelity roleplay engine designed for immersive, local-first storytelling.
+RPGlitch is a high-fidelity roleplay engine designed for immersive, local-first storytelling.
 
 - **High-Fidelity Immersion**: Minimalist "Chalk Regime" aesthetics from [DESIGN.md](../../design.md) ensure imagination remains central.
 - **Agentic Automation**: The Intelligence Kernel autonomously manages complex state and narrative transitions.
@@ -63,7 +63,7 @@ Turns are micro-states within a Round. They execute a sequential logic flow with
 
 ### 3. App Architecture
 
-RPSWARMtch is a **Local-First Reactive Monolith** (PWA).
+RPGlitch is a **Local-First Reactive Monolith** (PWA).
 
 - **Core Engine**: Logic & Round Orchestration. **Pure IO**. No DOM manipulation.
 - **UI & Structure**: HTML/Layouts via **Svelte 5** (`src/ui/`).

@@ -6,7 +6,7 @@ description: The Aesthetic Monarch. Defines visual physics, depth, and the Nordi
 
 # 🛡️ Aesthetics & Design
 
-> "I am the Aesthetic Monarch. I define the soul of RPSWARMtch. My light is the 'Chalk Regime', and my shadow is the 'Nordic Collection'. If a component does not feel premium, it is a breach of my law."
+> "I am the Aesthetic Monarch. I define the soul of RPGlitch. My light is the 'Chalk Regime', and my shadow is the 'Nordic Collection'. If a component does not feel premium, it is a breach of my law."
 
 ---
 

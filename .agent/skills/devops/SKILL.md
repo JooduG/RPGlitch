@@ -30,11 +30,11 @@ skills/devops/
 
 ### Step 1: Pre-Flight Audit
 
-Before any deployment, **execute `npm run verify`**.
+Before any deployment, **execute `npm run verify` and `bash .agent/skills/devops/scripts/act/run-act.sh`**.
 
 - Audit the bundle size against the **500KB limit**.
 - Ensure all logic is transpiled for Svelte 5 production.
-- If the build fails or exceeds the budget, **HALT** and notify the Tactical Architect.
+- If the build fails, CI fails, or exceeds the budget, **HALT** and notify the Tactical Architect.
 
 ### Step 2: Environmental Sync
 
@@ -52,7 +52,7 @@ Capture the build logs and audit the output for "Aesthetic Debt" or broken asset
 
 - Monitor the Playwright automation logs.
 - If a Cloudflare challenge or login error occurs, **provide the error screenshot** to the human director for manual intervention.
-- Once the "Saved Successfully" signal is received, **verify the live link** at `https://perchance.org/rpSWARMtch`.
+- Once the "Saved Successfully" signal is received, **verify the live link** at `https://perchance.org/RPGlitch`.
 
 ### Step 5: Workspace Hygiene
 

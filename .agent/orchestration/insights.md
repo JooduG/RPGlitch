@@ -6,7 +6,7 @@ This file captures dynamic meta-learnings and project-specific quirks to improve
 
 ## 🛠️ Preferred Patterns
 
-These represent the most efficient ways to work with the RPSWARMtch stack.
+These represent the most efficient ways to work with the RPGlitch stack.
 
 - **Stack Context**: Vite, Svelte 5, native CSS, Dexie.js.
 - **Dependency Loading**: Favor `esm.sh` for all CDN-based ESM imports for Perchance compatibility.

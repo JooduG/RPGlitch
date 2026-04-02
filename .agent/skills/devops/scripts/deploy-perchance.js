@@ -3,24 +3,24 @@
 /************************************************************************************
  * 🚀 [SECTION: DEPLOY TO PERCHANCE]
  * ----------------------------------------------------------------------------------
- * Automates deployment of the RPSWARMtch Vite build to the Perchance platform
+ * Automates deployment of the RPGlitch Vite build to the Perchance platform
  * via Playwright browser automation and CodeMirror 6 EditorView API injection.
  *
  * Usage: node .agent/skills/devops/scripts/deploy_perchance.js
  * Env:   PERCHANCE_URL, PERCHANCE_USERNAME, PERCHANCE_KEY (from .env)
  *
  * Architecture:
- *   Left Panel  → src/RPSWARMtch-left-panel.txt  → window.modelTextEditor
+ *   Left Panel  → src/RPGlitch-left-panel.txt  → window.modelTextEditor
  *   Right Panel → dist/index.html              → window.outputTemplateEditor
  *   Save        → app.saveGenerator()
  ************************************************************************************/
 
-import { chromium } from "playwright";
-import { readFileSync, existsSync } from "fs";
-import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
-import { createInterface } from "readline";
 import "dotenv/config";
+import { existsSync, readFileSync } from "fs";
+import { dirname, resolve } from "path";
+import { chromium } from "playwright";
+import { createInterface } from "readline";
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -35,7 +35,7 @@ const CONFIG = {
   perchance_username: process.env.PERCHANCE_USERNAME || "",
   perchance_key: process.env.PERCHANCE_KEY || "",
 
-  left_panel_path: resolve(PROJECT_ROOT, "src", "RPSWARMtch-left-panel.txt"),
+  left_panel_path: resolve(PROJECT_ROOT, "src", "RPGlitch-left-panel.txt"),
   right_panel_path: resolve(PROJECT_ROOT, "dist", "index.html"),
 
   max_bundle_size: 500 * 1024, // 500KB — Perchance effective limit
@@ -588,7 +588,7 @@ async function attempt_login(page) {
 
 async function main() {
   console.log("\n  ╔═══════════════════════════════════════════════╗");
-  console.log("    ║   🚀 RPSWARMtch → Perchance Deploy Pipeline   ║");
+  console.log("    ║   🚀 RPGlitch → Perchance Deploy Pipeline   ║");
   console.log("    ╚═══════════════════════════════════════════════╝\n");
 
   // Phase 1: Pre-flight

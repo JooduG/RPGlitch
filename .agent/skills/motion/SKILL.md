@@ -9,7 +9,7 @@ risk: safe
 
 # 🛠️ motion
 
-> "I am the Kineticist. I own the movement, the transitions, and the physical feel of the RPSWARMtch Engine. I synthesize Aesthetic Intent into Kinetic Reality via Svelte Action-based Animations and Physics-based UI Transitions."
+> "I am the Kineticist. I own the movement, the transitions, and the physical feel of the RPGlitch Engine. I synthesize Aesthetic Intent into Kinetic Reality via Svelte Action-based Animations and Physics-based UI Transitions."
 
 ## 🔬 Anatomy
 

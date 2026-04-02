@@ -165,7 +165,7 @@
     overflow: hidden;
     background: var(--glass-xl);
     backdrop-filter: var(--glass-blur-xl);
-    border: var(--glass-edge-l);
+    border: var(--glass-edge-xl);
     border-bottom: none;
     box-shadow: var(--shadow-xl);
   }
@@ -175,7 +175,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: var(--glass-edge-l);
+    border-bottom: var(--glass-edge-xl);
   }
 
   .drawer-header h3 {

@@ -33,6 +33,9 @@
     "**/.eslintcache",
     "**/.env.*",
     "**/.env",
+    "**/.env.example",
+    "!**/.env.example",
+    "**/bun.lockb",
     "**/.antigravityignore",
     "**/.DS_Store"
   ],
@@ -86,7 +89,8 @@
       "**/test-results/**": true,
       "**/tests/**": true,
       "DESIGN.md": true,
-      "**/yarn.lock": true
+      "**/yarn.lock": true,
+      "**/bun.lockb": true
     },
     "markdown.validate.referenceLinks.enabled": false,
     "stylelint.validate": ["svelte", "css"]

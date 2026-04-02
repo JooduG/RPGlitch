@@ -1,23 +1,23 @@
 ---
-name: 07-fleet
+name: 07-swarm
 description: Manual Swarm Orchestration. The human-initiated interface for deploying specialized sub-agents.
 risk: high
 source: AI
 date_added: 2024-03-31
 ---
 
-# [/07-fleet](./07-fleet.md) - Manual Swarm Commander
+# [/07-swarm](./07-swarm.md) - Manual Swarm Commander
 
 ## Objectives: Parallel Multi-Agent Strategy
 
 - Manage user-requested parallel missions with surgical precision.
-- Coordinate the "Fleet" (the set of sub-agents) before technical dispatch.
+- Coordinate the "Swarm" (the set of sub-agents) before technical dispatch.
 - Ensure all parallel operations are grounded in the same architectural truth.
 
-## Context-Injection: Fleet Command
+## Context-Injection: Swarm Command
 
 - [Intelligence](../rules/05-intelligence.md): Lexicon & Registry.
-- [SWARM](../skills/SWARM/SKILL.md): The Tactical Execution Captain.
+- [SWARM](../skills/swarm/SKILL.md): The Tactical Execution Captain.
 - [Data](../skills/data/SKILL.md): Memory Protocol grounding.
 
 ## Capabilities: Strategic Coordination
@@ -40,7 +40,7 @@ date_added: 2024-03-31
 
 ### Phase 3: Tactical Dispatch (The Launch)
 
-1. **Handoff**: Invoke the `SWARM` captain to begin technical execution and sub-agent management. [[Invoke: SWARM]](../skills/SWARM/SKILL.md)
+1. **Handoff**: Invoke the `SWARM` captain or use `npm run swarm:dispatch` to begin technical execution and sub-agent management. [[Invoke: SWARM]](../skills/swarm/SKILL.md)
 2. **Monitoring**: Track the swarm's progress through the Log Book.
 
 ### Phase 4: Resonance Synthesis (The Merge)

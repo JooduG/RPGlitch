@@ -55,7 +55,8 @@
 <style>
   .drawer-card {
     aspect-ratio: 2 / 3;
-    background: var(--glass-xs);
+    background: var(--glass-s);
+    border: var(--glass-edge-m);
     border-radius: var(--spacing-s);
     position: relative;
     overflow: hidden;
@@ -67,7 +68,6 @@
     text-align: left;
     width: 8.75rem;
     flex: 0 0 auto;
-    border: 0;
   }
 
   .drawer-card:hover:not(:disabled, .is-disabled) {
@@ -98,7 +98,8 @@
     padding: var(--spacing-s);
     display: flex;
     align-items: center;
-    background: var(--glass-xs);
+    background: var(--glass-s);
+    border-top: var(--glass-edge-m);
   }
 
   .drawer-card .card-info h5 {

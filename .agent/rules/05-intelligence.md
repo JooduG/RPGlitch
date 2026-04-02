@@ -44,18 +44,18 @@ To prevent cognitive drift, nomenclature is absolute.
 
 #### **Casing Standards**
 
-- **kebab-case**: Folders and files (e.g., `simulation-engine/`, `context-broker.js`). **Exception**: Uppercase is allowed for abbreviations (e.g., `SWARM/`).
+- **kebab-case**: Folders and files (e.g., `simulation-engine/`, `context-broker.js`).
 - **PascalCase**: Svelte components (e.g., `StoryPanel.svelte`).
 - **snake_case**: Variables and process state (e.g., `current_char`).
 - **question_snake**: Booleans (e.g., `is_active`, `has_token`).
 - **SCREAMING_SNAKE**: Constants and Globals (e.g., `MAX_ENTROPY`).
 - **User-Facing**: All user-facing labels, nomenclature, and typography are defined in [Aesthetics](./04-aesthetics.md).
 
-#### **The RPSWARMtch Lexicon**
+#### **The RPGlitch Lexicon**
 
-- **Fleet**: Strategic grouping of specialized sub-agents working on a single mission. A "Fleet" represents the human-initiated or agent-led organization of parallel work.
-- **Swarm**: Tactical dispatch and execution of a Fleet. The technical engine that manages token scaling and the 80% Confidence Gate.
-- **Simulation**: The overall story/state container. A `simulation` is a story and requires `entities` in order to play out. The engine is designed for frequent story swapping; concluding a story and starting a new one should be a seamless state transition.
+- **Swarm**: The tactical engine and lifecycle for multi-agent operations. A "Swarm" represents the technical engine that manages token scaling, parallel execution, and the 80% Confidence Gate.
+- **RPSWARMtch**: (Deprecated) See **RPGlitch**.
+- **RPGlitch**: The core simulation engine and repository name.
 - **Entity**: The fundamental unit of the simulation. An `entity` is either a `character` or a `fractal`.
 - **Fractal**: World, setting, or environmental entity.
 - **User Persona**: Human-controlled character (Entity).
@@ -113,7 +113,7 @@ The following sovereign workflows are registered for agentic orchestration.
 - **/04-review**: Quality Assurance & Review.
 - **/05-deploy**: Solo Deployment. Ships the bundle to Perchance.
 - **/06-continue**: Resume Interrupted Work.
-- **/07-fleet**: Fleet Command. Manual Swarm Orchestration. Human-initiated specialized sub-agent deployment.
+- **/07-swarm**: Swarm Command. Manual Swarm Orchestration. Human-initiated specialized sub-agent deployment.
 - **/08-github**: Local GitHub Ops. Automates PRs, issues, and local sync.
 - **/99-rewind**: Emergency Stop. Restore state from failover.
 
