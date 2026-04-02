@@ -217,7 +217,7 @@ export class SwarmEngine {
       }
       if (in_task_section && line.startsWith("##")) break;
 
-      const match = line.match(/^[-*]\s*\[([ x])\]\s*(.*)/i);
+      const match = line.match(/^\s*[-*]\s*\[([ x])\]\s*(.*)/i);
       if (match) {
         tasks.push({
           id: `task-${tasks.length + 1}`,
