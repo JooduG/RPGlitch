@@ -43,4 +43,4 @@
 
 # Act Local Verification
 act_output.log
-.secrets
+.env

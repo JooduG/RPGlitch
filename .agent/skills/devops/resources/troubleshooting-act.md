@@ -6,7 +6,7 @@
 
 **Fix:**
 1. Set `DOCKER_USERNAME` and `DOCKER_PASSWORD` environment variables in your local `.env`.
-2. Run: `echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin`
+2. Run: `docker login --username "$DOCKER_USERNAME" --password-stdin <<< "$DOCKER_PASSWORD"`
 3. Re-run the action.
 
 ## Image Pull Failures

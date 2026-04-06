@@ -35,8 +35,10 @@ if (typeof globalThis.$state === "undefined") {
 }
 const { llm_service } = await import("../../../../src/core/intelligence/llm-service.js");
 const { jules } = await import("@google/jules-sdk");
-import { execSync } from "node:child_process";
+import { exec as execCallback } from "node:child_process";
+import { promisify } from "node:util";
 
+const execAsync = promisify(execCallback);
 const jules_client = jules.with({
   apiKey: process.env.JULES_API_KEY,
   pollingIntervalMs: 500,
@@ -87,13 +89,16 @@ export class SwarmEngine {
    * GET GIT CONTEXT
    * Injects branch, status, and recent log into the mission kernel.
    * @private
+   * @async
    */
-  #get_git_context() {
+  async #get_git_context() {
     try {
-      const branch = execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
-      const status = execSync("git status --short").toString().trim();
-      const logs = execSync("git log -n 3 --oneline").toString().trim();
-      return `[GIT_CONTEXT]\nBranch: ${branch}\nStatus: ${status}\nRecent:\n${logs}\n`;
+      const [{ stdout: branch }, { stdout: status }, { stdout: logs }] = await Promise.all([
+        execAsync("git rev-parse --abbrev-ref HEAD"),
+        execAsync("git status --short"),
+        execAsync("git log -n 3 --oneline"),
+      ]);
+      return `[GIT_CONTEXT]\nBranch: ${branch.trim()}\nStatus: ${status.trim()}\nRecent:\n${logs.trim()}\n`;
     } catch (e) {
       return "[GIT_CONTEXT] (Git not available)";
     }
@@ -118,7 +123,7 @@ export class SwarmEngine {
     this.#errors = [];
 
     const queue = [...this.#tasks];
-    const git_context = this.#get_git_context();
+    const git_context = await this.#get_git_context();
 
     // 2. Main Orchestration Loop via Jules SDK
     try {
