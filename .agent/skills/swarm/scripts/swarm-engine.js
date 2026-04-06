@@ -52,6 +52,11 @@ import { exec as execCallback } from "node:child_process";
 import { promisify } from "node:util";
 
 const execAsync = promisify(execCallback);
+
+if (!process.env.JULES_API_KEY) {
+  console.warn("[swarm-engine] JULES_API_KEY is not set. Swarm dispatch will fail.");
+}
+
 const jules_client = jules.with({
   apiKey: process.env.JULES_API_KEY,
 });
@@ -115,10 +120,27 @@ export class SwarmEngine {
   }
 
   /**
+   * GET REPO NAME
+   * Resolves the current owner/repo from git.
+   */
+  async #get_repo_name() {
+    try {
+      const { stdout: url } = await execAsync("git remote get-url origin");
+      const match = url.trim().match(/[:/]([^/]+\/[^/.]+)(\.git)?$/);
+      return match ? match[1] : "JooduG/RPGlitch";
+    } catch (e) {
+      return "JooduG/RPGlitch";
+    }
+  }
+
+  /**
    * DISPATCH SWARM
    * Run a fleet of agents on a manifest.
+   * @param {Array<import('./swarm-types.js').InputTask>} manifest
+   * @param {import('./swarm-types.js').DispatchOptions} [options]
+   * @returns {Promise<import('./swarm-types.js').DispatchResult>}
    */
-  async dispatch_manifest(manifest, options = { max_concurrency: 3, stop_on_error: false }) {
+  async dispatch_manifest(manifest, options = {}) {
     // 1. Initialize State
     this.#tasks = manifest.map((t) => ({
       ...t,
@@ -133,7 +155,10 @@ export class SwarmEngine {
     this.#errors = [];
 
     const queue = [...this.#tasks];
-    const git_context = await this.#get_git_context();
+    const [git_context, repo_name] = await Promise.all([
+      this.#get_git_context(),
+      this.#get_repo_name(),
+    ]);
 
     // 2. Main Orchestration Loop via Jules SDK
     try {
@@ -144,7 +169,7 @@ export class SwarmEngine {
           prompt: `${git_context}\n\n[TASK_INSTRUCTIONS]\n${task.instructions || task.prompt}`,
           files: task.target_files || task.files,
           source: {
-            github: "JooduG/RPGlitch",
+            github: options.repo_full_name || repo_name,
             baseBranch: options.base_branch || "main",
           },
         };
@@ -156,6 +181,7 @@ export class SwarmEngine {
       for await (const session of sessions) {
         if (options.stop_on_error && this.#errors.length > 0) break;
         const task = this.#tasks[this.#processed_count];
+        task.sessionId = session.id;
 
         // AutomatedSession.result() blocks until terminal state and returns the outcome
         const outcome = await session.result();
