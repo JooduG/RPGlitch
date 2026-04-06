@@ -19,13 +19,13 @@ Security is deterministic. We do not guess; we validate.
 1. **Input Sanitization**: Construct HTML deterministically. `DOMPurify` is strictly for untrusted, external inputs.
 2. **Secret Detection**: Never commit `.env`, `_KEY`, `_TOKEN`, or high-entropy strings. `.env` MUST be explicitly registered in `.gitignore`.
 3. **Template Rendering**: `innerHTML` & `{@html ...}` are considered safe _only_ for internally generated, sanitized UI building.
-4. **Boundary Validation**: All data crossing boundaries (URLs, API payloads) MUST be validated using `Zod` or `Valibot`.
+4. **Boundary Validation**: All data crossing boundaries (URLs, API payloads) MUST be explicitly validated.
 
 #### 1.1 Defense-in-Depth Validation
 
 When fixing a bug caused by invalid data, validating at a single point is insufficient. You must validate at EVERY layer the data passes through:
 
-- **Layer 1 (Entry)**: Reject obviously invalid input at the API/Component boundary using `Zod`/`Valibot`.
+- **Layer 1 (Entry)**: Reject obviously invalid input at the API/Component boundary using explicit typing and validation.
 - **Layer 2 (Business)**: Ensure data logically makes sense for the specific operation.
 - **Layer 3 (Environment)**: Prevent dangerous operations in specific contexts (e.g., test mocks).
 - **Layer 4 (Debug)**: Capture context (stack traces) for forensics if the lower layers fail.

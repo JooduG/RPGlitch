@@ -11,13 +11,8 @@
 - **Status**: [INGESTED]
 
 ### 2. Library Intelligence
-- **Content**: Best practices for core dependencies (Bits UI, Melt UI, Dexie.js, Zod, Valibot).
+- **Content**: Best practices for core dependencies (Bits UI, Dexie.js).
 - **Status**: [INGESTED]
-
-### 3. Postgres Performance (Supabase)
-- **Content**: 34+ granular SQL optimization patterns for Indexing, Locking, and RLS.
-- **Status**: [PENDING INGESTION]
-
 ## 📁 Namespace: `knowledge-base.meta`
 *The agentic constitution and behavioral directives.*
 

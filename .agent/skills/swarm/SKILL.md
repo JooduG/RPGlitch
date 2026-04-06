@@ -17,7 +17,7 @@ risk: high
 skills/swarm/
 ├── SKILL.md
 ├── scripts/
-│   └── swarm.js             # [PLANNED] The Sovereign Dispatch Engine
+│   └── swarm-engine.js      # [LIVE] The Sovereign Dispatch Engine
 └── templates/
     └── manifest.json        # The Fleet Commander's Blueprint
 ```
@@ -40,7 +40,7 @@ skills/swarm/
 
 ### Parallel Dispatch
 
-1. **Dispatch & Lock**: Execute `node scripts/swarm.js` [PLANNED] to spin up the sub-agents. Enforce range locking if multiple agents must touch the same file.
+1. **Dispatch & Lock**: Execute `node scripts/swarm-engine.js` [LIVE] to spin up the sub-agents. Enforce range locking if multiple agents must touch the same file.
 
 ### Completion Criteria
 

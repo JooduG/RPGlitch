@@ -69,7 +69,7 @@ RPGlitch is a **Local-First Reactive Monolith** (PWA).
 - **UI & Structure**: HTML/Layouts via **Svelte 5** (`src/ui/`).
 - **Sensory**: Visuals, Audio, Theme via Native CSS (`src/media/`).
 - **Data**: Persistence & History via **Dexie.js** (IndexedDB).
-- **Security**: Validation & Physics via **Zod/DOMPurify** sanitization boundaries.
+- **Security**: Validation & Physics via **DOMPurify** sanitization boundaries.
 
 ---
 

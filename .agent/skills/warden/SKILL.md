@@ -54,9 +54,9 @@ skills/warden/
 
 ### 5. Data Boundary Enforcement (The Filter)
 
-- **Library Sovereignty**: Utilize `Zod` or `Valibot` for all external and cross-layer data boundaries.
+- **Library Sovereignty**: Rely on raw JavaScript validation and strict typing for all external and cross-layer data boundaries.
 - **Load Validation**: Intercept and validate all `load` function payloads before delivery to Svelte components.
-- **Type Safety**: Strictly infer TypeScript interfaces from validation schemas to ensure 100% type-to-logic alignment and eliminate runtime "Vibe Slop."
+- **Type Safety**: Strictly define TypeScript interfaces or JSDoc types to ensure 100% type-to-logic alignment and eliminate runtime "Vibe Slop."
 
 ## 🚫 Anti-Patterns
 

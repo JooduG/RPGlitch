@@ -119,7 +119,11 @@ The following sovereign workflows are registered for agentic orchestration.
 
 ---
 
-### 7. Memory Protocol (Pinecone & Supabase)
+### 7. Memory Protocol (Agent vs Application)
+
+> **CRITICAL DISTINCTION**:
+> - **Application Memory** (Dexie.js, RPGlitch State, Entity memory): Consult the **[Simulation](../../.agent/skills/simulation/SKILL.md)** skill.
+> - **Development Data** (Pinecone, Supabase, Agent Context): Consult the **[Data](../../.agent/skills/data/SKILL.md)** skill.
 
 Agents MUST utilize the dual-layer memory system via the [Data](../../.agent/skills/data/SKILL.md) skill to maintain technical precision and historical continuity.
 

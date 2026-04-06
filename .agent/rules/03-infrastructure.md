@@ -20,7 +20,7 @@ The project follows a sovereign modular structure to ensure local-first resilien
 - **Build Tool**: Vite (with `vite-plugin-singlefile` for Perchance).
 - **Environment**: Perchance Two-Panel Paradigm. No Node.js backend. Rely entirely on **Just-In-Time (JIT) Compilation** and **ESM/CDN imports** (via `esm.sh`) for external libraries.
 - **Persistence**: Dexie.js (IndexedDB).
-- **Security**: Validation & Physics via **Zod/DOMPurify** sanitization boundaries ([Compliance](./06-compliance.md)).
+- **Security**: Validation & Physics via **DOMPurify** sanitization boundaries ([Compliance](./06-compliance.md)).
 - **[Simulation](./02-simulation.md)** building blocks:
   - [Core](../../src/core/): Logic & Round Orchestration (DynamicsEngine, Intelligence Kernel)
   - [Data](../../src/data/): Persistence (Dexie) & Entity Repositories.
@@ -29,7 +29,7 @@ The project follows a sovereign modular structure to ensure local-first resilien
   - [UI](../../src/ui/): Atomic Design (Svelte 5 components).
   - [Media](../../src/media/): Internal Sensory Assets ([Visuals](../skills/image-generation/), [Audio](../skills/audio/)).
 - [Skills](../skills/) for infrastructural expertise:
-  - [intake](../skills/intake/): Intent Decoding & Feature Incubation.
+  - [Strategy](../skills/orchestration-strategy/): Intent Decoding & Feature Incubation.
   - [Simulation](../skills/simulation/): Narrative Bridges & Game Logic.
   - [Warden](../skills/warden/): Adversarial Audit & Security.
 
@@ -45,7 +45,7 @@ See [Svelte](../skills/svelte).
 
 - **Forbidden**: `export let`, `$:`, `writable()`, `readable()`, `<slot />`, `createEventDispatcher`.
 - **Mandate**: Use Svelte 5 Runes exclusively (`$state()`, `$derived()`, `$effect()`, `{@render snippet}`). State over DOM—NEVER read UI state from HTML elements.
-- **Data Boundaries**: All data crossing boundaries MUST be validated using `Zod` or `Valibot`.
+- **Data Boundaries**: All data crossing boundaries MUST be validated using strict raw JS typing and assertions.
 - **Sanitization**: Construct HTML deterministically. `DOMPurify` is strictly mandated for untrusted, external inputs before rendering via `{@html ...}`.
 
 ---
