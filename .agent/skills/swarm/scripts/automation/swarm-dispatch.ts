@@ -14,12 +14,11 @@
 
 import path from "node:path";
 import { readFile, writeFile } from "node:fs/promises";
-import { findUpSync } from "find-up";
 import type { IssueAnalysis } from "./types.js";
-import { jules } from "@google/jules-sdk";
 import { getGitRepoInfo, getCurrentBranch } from "./github/git.js";
-
 import { get_swarm_dir } from "./utils.js";
+import { swarm } from "../swarm-engine.js";
+import type { DispatchResult, SwarmTask, InputTask } from "../swarm-types.js";
 
 const swarm_dir = await get_swarm_dir();
 const tasks_path = path.join(swarm_dir, "issue_tasks.json");
@@ -31,9 +30,9 @@ const repo_info = await getGitRepoInfo();
 const base_branch = process.env.SWARM_BASE_BRANCH ?? (await getCurrentBranch());
 
 // Pre-dispatch ownership validation
-function validateOwnership(analysis: IssueAnalysis): void {
+function validateOwnership(input: IssueAnalysis): void {
   const claimed = new Map<string, string>();
-  for (const task of analysis.tasks) {
+  for (const task of input.tasks) {
     const allFiles = [...task.files, ...task.new_files, ...(task.test_files ?? [])];
     for (const file of allFiles) {
       const existing = claimed.get(file);
@@ -50,19 +49,21 @@ function validateOwnership(analysis: IssueAnalysis): void {
 validateOwnership(analysis);
 console.log(`✅ Ownership validated: ${analysis.tasks.length} tasks, no conflicts.`);
 
-const sessions = await jules.all(tasks, (task) => ({
-  prompt: task.prompt,
-  source: {
-    github: repo_info.fullName,
-    baseBranch: base_branch,
-  },
+console.log(`🚀 Dispatching swarm for ${repo_info.fullName} (${tasks.length} tasks)...`);
+
+const results: DispatchResult = await swarm.dispatch_manifest(tasks as InputTask[], {
+  base_branch,
+  repo_full_name: repo_info.fullName,
+  delay_ms: 1000,
+});
+
+const sessionResults = results.results.map((task: SwarmTask) => ({
+  taskId: task.id,
+  sessionId: task.sessionId,
 }));
 
-const sessionResults: Array<{ taskId: string; sessionId: string }> = [];
-for await (const session of sessions) {
-  const taskId = tasks[sessionResults.length]?.id ?? "unknown";
-  sessionResults.push({ taskId, sessionId: session.id });
-  console.log(`Task ${taskId} → Session ${session.id}`);
+for (const res of sessionResults) {
+  console.log(`Task ${res.taskId} → Session ${res.sessionId}`);
 }
 
 // Write session mapping for swarm_merge.ts

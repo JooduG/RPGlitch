@@ -1,6 +1,6 @@
 ---
 name: swarm
-version: 3.1.0
+version: 3.2.0
 description: The Swarm Captain. Manages parallel sub-agent dispatch, token scaling, and the 80% Confidence Gate.
 allowed-tools: ["run_shell_command", "write_file", "replace", "read_knowledge_base"]
 effort: high
@@ -17,9 +17,24 @@ risk: high
 skills/swarm/
 ├── SKILL.md
 ├── scripts/
-│   └── swarm-engine.js      # [LIVE] The Sovereign Dispatch Engine
-└── templates/
-    └── manifest.json        # The Fleet Commander's Blueprint
+│   ├── swarm-engine.js      # [LIVE] The Sovereign Dispatch Engine
+│   └── automation/          # Fleet automation pipeline (analyze → plan → dispatch → merge)
+│       ├── github/           # Git/GitHub helpers (git.ts, issues.ts, markdown.ts, cache-plugin.ts)
+│       ├── prompts/
+│       │   ├── analyze-issues.ts  # [PROMPT] Issue triage → task generation (4-phase)
+│       │   ├── bootstrap.ts       # [PROMPT] Scheduled Jules session wrapper
+│       │   └── swarm-review.js    # [PROMPT] The 80% Gate verifier
+│       ├── swarm-analyze.ts  # CLI: npm run swarm:analyze
+│       ├── swarm-dispatch.ts # CLI: npm run swarm:dispatch
+│       ├── swarm-merge.ts    # CLI: npm run swarm:merge
+│       ├── swarm-plan.ts     # CLI: npm run swarm:plan
+│       ├── types.ts           # Shared interfaces (IssueAnalysis, Task, RootCause)
+│       └── utils.ts           # Shared helpers
+├── templates/
+│   └── manifest.json        # [TEMPLATE] Fleet blueprint schema v5.0.0
+└── .swarm/                  # Archive for dated mission outputs
+    └── 2026-04-01/
+        └── manifest.json    # [ARCHIVE] Historic mission artifact
 ```
 
 ## 🎯 Strategic Context
@@ -33,9 +48,9 @@ skills/swarm/
 
 1. **Shared Recovery**: Execute `read_knowledge_base` to retrieve the relevant architectural patterns for the mission. This context MUST be distributed to all sub-agents. [[Invoke: Data]](../../skills/data/SKILL.md)
 
-### Manifest Validation
+### Task Validation
 
-1. **Manifest Audit**: Read the `manifest.json` provided by the Commander. Verify the specialized agent slots and ensure file ranges are distinct.
+1. **Task Audit**: Read the `issue_tasks.json` (or `manifest.json`) provided by the Commander. Verify the specialized agent slots and ensure file ranges are distinct.
 2. **Resource Scaling**: Analyze the token budget. Scale the swarm size (1-3 sub-agents) based on mission complexity.
 
 ### Parallel Dispatch

@@ -1,6 +1,11 @@
 {
   "version": 1,
   "skills": {
+    "local-action-verification": {
+      "source": "google-labs-code/jules-skills",
+      "sourceType": "github",
+      "computedHash": "3dcddd917d92ede8268fa19df54b6011e19297e3c787c46ed24b1e53ba4b8dd3"
+    },
     "naming-analyzer": {
       "source": "softaworks/agent-toolkit",
       "sourceType": "github",

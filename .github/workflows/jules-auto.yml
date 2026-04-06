@@ -1,0 +1,141 @@
+name: "🚀 Jules Sovereign Lifecycle"
+
+on:
+  # 1. Reactive Protocol (Issues & PRs)
+  issues:
+    types: [opened, reopened]
+  issue_comment:
+    types: [created]
+  pull_request:
+    types: [opened, reopened, synchronize]
+  pull_request_review:
+    types: [submitted]
+  pull_request_review_comment:
+    types: [created]
+
+  # 2. Strategic Triggers (Schedules)
+  schedule:
+    - cron: "0 4 * * *" # 4 AM: Security & Hygiene (The Night Shift)
+    - cron: "0 6 * * *" # 6 AM: Swarm Planning (Fleet Dispatch)
+
+  # 3. Operational Triggers (Manual)
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Operation to perform"
+        required: true
+        default: "dispatch"
+        type: choice
+        options:
+          - dispatch
+          - merge
+      base_branch:
+        description: "Target branch"
+        default: "main"
+        type: string
+
+  # 4. Physics Gate (Push to Core)
+  push:
+    branches: ["main", "develop"]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.event.pull_request.number || github.event.issue.number || github.run_id }}"
+  cancel-in-progress: false
+
+jobs:
+  # --- JOB A: PHYSICS GATE (CI) ---
+  # Runs on every push/PR to ensure engine integrity.
+  physics-gate:
+    name: "🧪 Physics Gate"
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm install
+      - name: "Sovereign Audit"
+        run: npm run verify
+      - name: "Production Build"
+        run: npm run build
+
+  # --- JOB B: JULES REACTIVE AGENT ---
+  # Handles issues, PR comments, and reactive tasks.
+  jules-reactive:
+    name: "🛸 Reactive Agent"
+    needs: [physics-gate]
+    if: |-
+      (github.event_name == 'issues' || github.event_name == 'issue_comment' || github.event_name == 'pull_request') &&
+      github.event.sender.type == 'User' &&
+      !github.event.pull_request.head.repo.fork
+    runs-on: ubuntu-latest
+    steps:
+      - uses: "google-labs-code/jules-action@main"
+        with:
+          jules_api_key: "${{ secrets.JULES_API_KEY }}"
+          prompt: "Analyze the current context and take appropriate action. Respect Rule 05 & 06."
+          include_last_commit: true
+          include_commit_log: true
+
+  # --- JOB C: STRATEGIC OPERATIONS ---
+  # Handles scheduled hygiene and swarm planning.
+  strategic-ops:
+    name: "🧠 Strategic Ops"
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm install
+
+      # NIGHTLY HYGIENE (4 AM)
+      - name: "🌙 The Night Shift"
+        if: github.event.schedule == '0 4 * * *'
+        uses: "google-labs-code/jules-action@main"
+        with:
+          jules_api_key: "${{ secrets.JULES_API_KEY }}"
+          prompt: "Execute .agent/rules/06-compliance.md (Audit section). Target Critical/High vulnerabilities."
+
+      # SWARM PLANNING (6 AM or Dispatch)
+      - name: "🐝 Fleet Dispatch"
+        if: github.event.schedule == '0 6 * * *' || (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'dispatch')
+        env:
+          JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
+          FLEET_BASE_BRANCH: ${{ github.event.inputs.base_branch || 'main' }}
+        run: npm run swarm:plan
+
+      # SWARM MERGING (Manual Dispatch)
+      - name: "🤝 Fleet Merge"
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'merge'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
+        run: |
+          # Simplified sequence: find PRs, update, merge.
+          # Resolve PRs, update, and merge based on task completion.
+          npx tsx .agent/skills/swarm/scripts/automation/swarm-merge.ts --base ${{ github.event.inputs.base_branch || 'main' }}
+
+      # PERSISTENCE
+      - name: "🧠 RAG Sync"
+        if: github.event.schedule == '0 4 * * *'
+        env:
+          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+        run: node .agent/skills/data/scripts/index.js upsert || true
+
+      - name: "💾 Commit Hygiene"
+        if: github.event.schedule == '0 4 * * *'
+        uses: "stefanzweifel/git-auto-commit-action@v5"
+        with:
+          commit_message: "chore(sovereign): nightly hygiene and memory sync"

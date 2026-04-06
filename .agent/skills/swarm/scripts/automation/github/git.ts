@@ -94,3 +94,12 @@ export async function getCurrentBranch(): Promise<string> {
   const { stdout } = await execFileAsync("git", ["rev-parse", "--abbrev-ref", "HEAD"]);
   return stdout.trim();
 }
+
+/**
+ * Gets the current git context (log and show) for agent prompts.
+ */
+export async function getGitContext(): Promise<string> {
+  const { stdout: log } = await execFileAsync("git", ["log", "--oneline", "-n", "20", "--stat"]);
+  const { stdout: show } = await execFileAsync("git", ["show", "HEAD"]);
+  return `--- GIT LOG ---\n${log}\n\n--- GIT SHOW HEAD ---\n${show}`;
+}

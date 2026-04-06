@@ -51,25 +51,21 @@ if ! command -v act &> /dev/null; then
   exit 1
 fi
 
+# Detect Repository Root
+ROOT_DIR=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+LOG_PATH="${ROOT_DIR}/${LOG_FILE}"
+
 log "INFO" "Starting: act $*"
-log "INFO" "Logging to: ${LOG_FILE}"
+log "INFO" "Logging to: ${LOG_PATH}"
 log "INFO" "Timeout: ${TIMEOUT}s | Poll: ${POLL_INTERVAL}s"
 echo ""
 
 # Run act in background
 # Add default runner image only if the user didn't specify one via -P
-has_custom_platform=false
 if [[ "$*" == *"-P"* ]] || [[ "$*" == *"--platform"* ]]; then
-  act "$@" > "$LOG_FILE" 2>&1 &
+  act "$@" > "$LOG_PATH" 2>&1 &
 else
-  act "$@" -P ubuntu-latest=catthehacker/ubuntu:act-latest > "$LOG_FILE" 2>&1 &
-fi
-done
-
-if [ "$has_custom_platform" = true ]; then
-  act "$@" > "$LOG_FILE" 2>&1 &
-else
-  act "$@" -P ubuntu-latest=catthehacker/ubuntu:act-latest > "$LOG_FILE" 2>&1 &
+  act "$@" -P ubuntu-latest=node:20-bookworm > "$LOG_PATH" 2>&1 &
 fi
 
 act_pid=$!
@@ -86,7 +82,7 @@ while kill -0 "$act_pid" 2>/dev/null; do
     wait "$act_pid" 2>/dev/null || true
     echo ""
     echo "--- Full Log ---"
-    cat "$LOG_FILE" 2>/dev/null || true
+    cat "$LOG_PATH" 2>/dev/null || true
     echo "--- End Log ---"
     exit 1
   fi
@@ -96,7 +92,7 @@ while kill -0 "$act_pid" 2>/dev/null; do
 
   # Show last few lines as progress
   log "INFO" "Running... (${elapsed}s/${TIMEOUT}s)"
-  tail -n 5 "$LOG_FILE" 2>/dev/null || true
+  tail -n 5 "$LOG_PATH" 2>/dev/null || true
   echo ""
 done
 
@@ -106,7 +102,7 @@ exit_code=$?
 
 echo ""
 echo "--- Full Execution Log ---"
-cat "$LOG_FILE"
+cat "$LOG_PATH"
 echo "--- End Log ---"
 echo ""
 

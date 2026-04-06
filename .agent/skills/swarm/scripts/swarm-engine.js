@@ -22,18 +22,44 @@
  */
 
 import url from "node:url";
-import { SWARM_TEMPLATES } from "../templates/swarm-templates.js";
+import { SWARM_TEMPLATES } from "./automation/prompts/swarm-review.js";
 
 // --- Svelte 5 Rune Shims for Node.js ---
 if (typeof globalThis.$state === "undefined") {
-  globalThis.$state = (v) => v;
-  globalThis.$state.snapshot = (v) => JSON.parse(JSON.stringify(v));
-  globalThis.$derived = (v) => v;
-  globalThis.$derived.by = (fn) => fn();
-  globalThis.$effect = (fn) => {};
-  globalThis.$effect.root = (fn) => fn();
+  /** @type {any} */
+  const _state = (v = undefined) => v;
+  _state.snapshot = (v) => JSON.parse(JSON.stringify(v));
+  _state.raw = (v = undefined) => v;
+  _state.eager = (v = undefined) => v;
+  globalThis.$state = _state;
+
+  /** @type {any} */
+  const _derived = (v) => v;
+  _derived.by = (fn) => fn();
+  globalThis.$derived = _derived;
+
+  /** @type {any} */
+  const _effect = (fn) => {};
+  _effect.pre = (fn) => {};
+  _effect.pending = () => false;
+  _effect.tracking = () => false;
+  _effect.root = (fn) => { fn(); return () => {}; };
+  globalThis.$effect = _effect;
 }
 const { llm_service } = await import("../../../../src/core/intelligence/llm-service.js");
+const { jules } = await import("@google/jules-sdk");
+import { exec as execCallback } from "node:child_process";
+import { promisify } from "node:util";
+
+const execAsync = promisify(execCallback);
+
+if (!process.env.JULES_API_KEY) {
+  console.warn("[swarm-engine] JULES_API_KEY is not set. Swarm dispatch will fail.");
+}
+
+const jules_client = jules.with({
+  apiKey: process.env.JULES_API_KEY,
+});
 
 export class SwarmEngine {
   // --- PRIVATE STATE (#) ---
@@ -76,10 +102,45 @@ export class SwarmEngine {
   }
 
   /**
+   * GET GIT CONTEXT
+   * Injects branch, status, and recent log into the mission kernel.
+   * @async
+   */
+  async #get_git_context() {
+    try {
+      const [{ stdout: branch }, { stdout: status }, { stdout: logs }] = await Promise.all([
+        execAsync("git rev-parse --abbrev-ref HEAD"),
+        execAsync("git status --short"),
+        execAsync("git log -n 3 --oneline"),
+      ]);
+      return `[GIT_CONTEXT]\nBranch: ${branch.trim()}\nStatus: ${status.trim()}\nRecent:\n${logs.trim()}\n`;
+    } catch (e) {
+      return "[GIT_CONTEXT] (Git not available)";
+    }
+  }
+
+  /**
+   * GET REPO NAME
+   * Resolves the current owner/repo from git.
+   */
+  async #get_repo_name() {
+    try {
+      const { stdout: url } = await execAsync("git remote get-url origin");
+      const match = url.trim().match(/[:/]([^/]+\/[^/.]+)(\.git)?$/);
+      return match ? match[1] : "JooduG/RPGlitch";
+    } catch (e) {
+      return "JooduG/RPGlitch";
+    }
+  }
+
+  /**
    * DISPATCH SWARM
    * Run a fleet of agents on a manifest.
+   * @param {Array<import('./swarm-types.js').InputTask>} manifest
+   * @param {import('./swarm-types.js').DispatchOptions} [options]
+   * @returns {Promise<import('./swarm-types.js').DispatchResult>}
    */
-  async dispatch_manifest(manifest, options = { max_concurrency: 3, stop_on_error: false }) {
+  async dispatch_manifest(manifest, options = {}) {
     // 1. Initialize State
     this.#tasks = manifest.map((t) => ({
       ...t,
@@ -94,28 +155,58 @@ export class SwarmEngine {
     this.#errors = [];
 
     const queue = [...this.#tasks];
-    const active_slots = [];
+    const [git_context, repo_name] = await Promise.all([
+      this.#get_git_context(),
+      this.#get_repo_name(),
+    ]);
 
-    // 2. Main Orchestration Loop
-    while (queue.length > 0 || active_slots.length > 0) {
-      if (options.stop_on_error && this.#errors.length > 0) break;
-
-      while (queue.length > 0 && active_slots.length < (options.max_concurrency || 3)) {
-        const task = queue.shift();
+    // 2. Main Orchestration Loop via Jules SDK
+    try {
+      const sessions = await jules_client.all(queue, (task) => {
         task.status = "executing";
+        this.#active_agent_count++;
+        return {
+          prompt: `${git_context}\n\n[TASK_INSTRUCTIONS]\n${task.instructions || task.prompt}`,
+          files: task.target_files || task.files,
+          source: {
+            github: options.repo_full_name || repo_name,
+            baseBranch: options.base_branch || "main",
+          },
+        };
+      }, {
+        concurrency: options.max_concurrency || 3,
+        delayMs: options.delay_ms || 1000,
+      });
 
-        const promise = this._execute_task(task).finally(() => {
-          this.#processed_count++;
-          const idx = active_slots.indexOf(promise);
-          if (idx > -1) active_slots.splice(idx, 1);
-        });
+      for await (const session of sessions) {
+        if (options.stop_on_error && this.#errors.length > 0) break;
+        const task = this.#tasks[this.#processed_count];
+        task.sessionId = session.id;
 
-        active_slots.push(promise);
+        // AutomatedSession.result() blocks until terminal state and returns the outcome
+        const outcome = await session.result();
+        this.#active_agent_count--;
+
+        if (outcome.state === "completed") {
+          task.result = outcome;
+          task.status = "verifying";
+          // Serialize the outcome for the 80% Gate verifier
+          const output_data = outcome.outputs !== undefined ? outcome.outputs : outcome;
+          const output = typeof output_data === 'string' ? output_data : JSON.stringify(output_data);
+          const verification = await this.#verify_task(task.instructions || task.prompt, output);
+          task.score = verification.score;
+          task.rationale = verification.rationale;
+          task.status = "completed";
+        } else {
+          task.status = "failed";
+          task.error = `Session ${session.id} failed with state: ${outcome.state}`;
+          this.#errors.push({ taskId: task.id, message: task.error });
+        }
+        this.#processed_count++;
       }
-
-      if (active_slots.length > 0) {
-        await Promise.race(active_slots);
-      }
+    } catch (err) {
+      console.error(`[swarm_engine] Swarm dispatch failed:`, err);
+      this.#errors.push({ message: err.message });
     }
 
     return {
@@ -125,36 +216,12 @@ export class SwarmEngine {
     };
   }
 
-  /**
-   * INTERNAL: Individual task execution.
-   * @private
-   */
-  async _execute_task(task) {
-    this.#active_agent_count++;
-    try {
-      const response = await llm_service.generate({ system: task.prompt }, { silent: true });
-      task.result = response;
-      task.status = "verifying";
 
-      const verification = await this._verify_task(task.prompt, response);
-      task.score = verification.score;
-      task.rationale = verification.rationale;
-      task.status = "completed";
-    } catch (err) {
-      task.status = "failed";
-      task.error = err.message;
-      this.#errors.push({ taskId: task.id, message: err.message });
-      console.error(`[swarm_engine] Task ${task.id} failed:`, err);
-    } finally {
-      this.#active_agent_count--;
-    }
-  }
 
   /**
    * INTERNAL: 80% Gate verification.
-   * @private
    */
-  async _verify_task(prompt, output) {
+  async #verify_task(prompt, output) {
     try {
       const payload = {
         system: SWARM_TEMPLATES.review({ input_prompt: prompt, agent_output: output }),
@@ -233,6 +300,36 @@ export class SwarmEngine {
     const manifest = [{ id: "audit-1", prompt: "Perform a security audit." }];
     const result = await this.dispatch_manifest(manifest);
     console.log(JSON.stringify(result, null, 2));
+  }
+
+  /**
+   * THE ECHO DSL (Query)
+   * Wraps jules.select() to expose SQL-like querying for the engine.
+   * @param {import("@google/jules-sdk").JulesQuery} queryObj 
+   */
+  async query(queryObj) {
+    try {
+      // jules.select() takes a JulesQuery object: { from, where, select, limit, order, include }
+      return await jules_client.select(queryObj);
+    } catch (err) {
+      console.error(`[swarm-engine] Query failed:`, err);
+      return [];
+    }
+  }
+
+  /**
+   * LOG STREAM
+   * Maps to Jules SDK's native session.stream() with a typed handler map.
+   */
+  async logStream(session, handlers = {}) {
+    for await (const activity of session.stream()) {
+      const type = activity.type;
+      if (handlers[type]) {
+        handlers[type](activity.data);
+      } else {
+        console.log(`[swarm-engine] Activity [${type}]:`, activity.data);
+      }
+    }
   }
 }
 

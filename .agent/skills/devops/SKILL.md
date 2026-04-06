@@ -16,17 +16,41 @@ risk: moderate
 ```text
 skills/devops/
 ├── SKILL.md                 # The Mechanic's Directive
+├── resources/
+│   └── troubleshooting-act.md # Local CI troubleshooting
 └── scripts/
-    └── deploy_perchance.js  # The Automated Perchance Bridge
+    ├── deploy_perchance.js  # The Automated Perchance Bridge
+    └── act/                 # Local Action Verification
+        ├── install-act.sh   # Act installer
+        └── run-act.sh       # Act background runner
 ```
 
 ## 🎯 Strategic Context
 
 - **Release Authority**: This skill triggers during the **Phase 4: Persistence/Vault/Bridge** part of the tactical plan.
+- **Local CI Verification**: Owns the [act](https://github.com/nektos/act) bootstrap and local verification pipeline.
 - **Performance Budget**: Enforces Rule 03 (Infrastructure). Every build is audited against the <500ms Interactive target and the 500KB Perchance bundle limit.
 - **Environmental Hardening**: Manages `.env` and configuration alignment to prevent desync across shards.
 
 ## 📋 Procedure
+
+### Step 0: Local CI Bootstrap (Setup)
+
+If this is a new repository or local verification is not yet configured:
+
+1. **Prerequisites**: Docker must be installed and running.
+2. **Environment**: Standardize on `.env` (ensure it is in `.gitignore`).
+3. **act Setup**: Run `bash .agent/skills/devops/scripts/act/install-act.sh` to install the binary.
+4. **.gitignore Check**:
+
+   ```bash
+   # act artifacts
+   act_output.log
+   .env
+   .secrets
+   ```
+
+5. **Troubleshooting**: If act fails, consult [troubleshooting-act.md](./resources/troubleshooting-act.md).
 
 ### Step 1: Pre-Flight Audit
 
