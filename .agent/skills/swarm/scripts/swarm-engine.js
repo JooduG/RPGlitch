@@ -135,25 +135,25 @@ export class SwarmEngine {
         delayMs: options.delay_ms || 1000,
       });
 
-      for (let i = 0; i < results.length; i++) {
+      await Promise.all(results.map(async (res, i) => {
         const task = this.#tasks[i];
-        const res = results[i];
 
         if (res.status === "fulfilled") {
           task.result = res.value;
           task.status = "verifying";
-          const verification = await this._verify_task(task.instructions || task.prompt, res.value);
+          // Extract output string from session object if present, otherwise use value directly
+          const output = res.value?.output || res.value;
+          const verification = await this._verify_task(task.instructions || task.prompt, output);
           task.score = verification.score;
           task.rationale = verification.rationale;
           task.status = "completed";
-          this.#processed_count++;
         } else {
           task.status = "failed";
           task.error = res.reason?.message || "Unknown Jules Error";
           this.#errors.push({ taskId: task.id, message: task.error });
-          this.#processed_count++;
         }
-      }
+        this.#processed_count++;
+      }));
     } catch (err) {
       console.error(`[swarm_engine] Swarm dispatch failed:`, err);
       this.#errors.push({ message: err.message });

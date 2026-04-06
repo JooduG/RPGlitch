@@ -17,11 +17,10 @@
 # Always installs the latest release.
 # Usage: ./install-act.sh
 
-set -euo pipefail
-
 INSTALL_DIR="${HOME}/.local/bin"
+ROOT_DIR=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 
-echo "🔧 Installing act..."
+echo "🔧 Installing act for repository: ${ROOT_DIR}..."
 
 # Detect platform
 OS=$(uname -s | tr '[:upper:]' '[:lower:]')
