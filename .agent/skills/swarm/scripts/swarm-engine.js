@@ -26,12 +26,25 @@ import { SWARM_TEMPLATES } from "./automation/prompts/swarm-review.js";
 
 // --- Svelte 5 Rune Shims for Node.js ---
 if (typeof globalThis.$state === "undefined") {
-  globalThis.$state = (v) => v;
-  globalThis.$state.snapshot = (v) => JSON.parse(JSON.stringify(v));
-  globalThis.$derived = (v) => v;
-  globalThis.$derived.by = (fn) => fn();
-  globalThis.$effect = (fn) => {};
-  globalThis.$effect.root = (fn) => fn();
+  /** @type {any} */
+  const _state = (v = undefined) => v;
+  _state.snapshot = (v) => JSON.parse(JSON.stringify(v));
+  _state.raw = (v = undefined) => v;
+  _state.eager = (v = undefined) => v;
+  globalThis.$state = _state;
+
+  /** @type {any} */
+  const _derived = (v) => v;
+  _derived.by = (fn) => fn();
+  globalThis.$derived = _derived;
+
+  /** @type {any} */
+  const _effect = (fn) => {};
+  _effect.pre = (fn) => {};
+  _effect.pending = () => false;
+  _effect.tracking = () => false;
+  _effect.root = (fn) => { fn(); return () => {}; };
+  globalThis.$effect = _effect;
 }
 const { llm_service } = await import("../../../../src/core/intelligence/llm-service.js");
 const { jules } = await import("@google/jules-sdk");
@@ -41,8 +54,6 @@ import { promisify } from "node:util";
 const execAsync = promisify(execCallback);
 const jules_client = jules.with({
   apiKey: process.env.JULES_API_KEY,
-  pollingIntervalMs: 500,
-  timeout: 600000,
 });
 
 export class SwarmEngine {
@@ -88,7 +99,6 @@ export class SwarmEngine {
   /**
    * GET GIT CONTEXT
    * Injects branch, status, and recent log into the mission kernel.
-   * @private
    * @async
    */
   async #get_git_context() {
@@ -127,30 +137,32 @@ export class SwarmEngine {
 
     // 2. Main Orchestration Loop via Jules SDK
     try {
-      const results = await jules_client.all(queue, (task) => ({
+      const sessions = await jules_client.all(queue, (task) => ({
         prompt: `${git_context}\n\n[TASK_INSTRUCTIONS]\n${task.instructions || task.prompt}`,
-        files: task.target_files,
+        files: task.target_files || task.files,
       }), {
-        maxConcurrency: options.max_concurrency || 3,
+        concurrency: options.max_concurrency || 3,
         delayMs: options.delay_ms || 1000,
       });
 
-      for (let i = 0; i < results.length; i++) {
-        const res = results[i];
-        const task = this.#tasks[i];
+      for (const session of sessions) {
+        const task = this.#tasks.find(t => t.id === session.id) || this.#tasks[this.#processed_count];
 
-        if (res.status === "fulfilled") {
-          task.result = res.value;
+        // AutomatedSession.result() blocks until terminal state and returns the outcome
+        const outcome = await session.result();
+
+        if (outcome.state === "completed") {
+          task.result = outcome;
           task.status = "verifying";
-          // Extract output string from session object if present, otherwise use value directly
-          const output = res.value?.output || res.value;
+          // Serialize the outcome for the 80% Gate verifier
+          const output = JSON.stringify(outcome);
           const verification = await this._verify_task(task.instructions || task.prompt, output);
           task.score = verification.score;
           task.rationale = verification.rationale;
           task.status = "completed";
         } else {
           task.status = "failed";
-          task.error = res.reason?.message || "Unknown Jules Error";
+          task.error = `Session ${session.id} failed with state: ${outcome.state}`;
           this.#errors.push({ taskId: task.id, message: task.error });
         }
         this.#processed_count++;
@@ -280,10 +292,12 @@ export class SwarmEngine {
   /**
    * THE ECHO DSL (Query)
    * Wraps jules.select() to expose SQL-like querying for the engine.
+   * @param {import("@google/jules-sdk").JulesQuery} queryObj 
    */
-  async query(statement, params = []) {
+  async query(queryObj) {
     try {
-      return await jules_client.select(statement, params);
+      // jules.select() takes a JulesQuery object: { from, where, select, limit, order, include }
+      return await jules_client.select(queryObj);
     } catch (err) {
       console.error(`[swarm-engine] Query failed:`, err);
       return [];
