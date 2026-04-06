@@ -47,6 +47,7 @@ If this is a new repository or local verification is not yet configured:
    # act artifacts
    act_output.log
    .env
+   .secrets
    ```
 
 5. **Troubleshooting**: If act fails, consult [troubleshooting-act.md](./resources/troubleshooting-act.md).
