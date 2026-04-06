@@ -65,7 +65,7 @@ echo ""
 if [[ "$*" == *"-P"* ]] || [[ "$*" == *"--platform"* ]]; then
   act "$@" > "$LOG_PATH" 2>&1 &
 else
-  act "$@" -P ubuntu-latest=catthehacker/ubuntu:act-latest > "$LOG_PATH" 2>&1 &
+  act "$@" -P ubuntu-latest=node:20-bookworm > "$LOG_PATH" 2>&1 &
 fi
 
 act_pid=$!
