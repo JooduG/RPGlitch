@@ -17,7 +17,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { findUpSync } from "find-up";
 import type { IssueAnalysis } from "./types.js";
 import { jules } from "@google/jules-sdk";
-import { getGitRepoInfo, getCurrentBranch } from "./github/git.js";
+import { getGitRepoInfo, getCurrentBranch, getGitContext } from "./github/git.js";
 
 import { get_swarm_dir } from "./utils.js";
 
@@ -50,13 +50,17 @@ function validateOwnership(analysis: IssueAnalysis): void {
 validateOwnership(analysis);
 console.log(`✅ Ownership validated: ${analysis.tasks.length} tasks, no conflicts.`);
 
+const git_context = await getGitContext();
+
 const sessions = await jules.all(tasks, (task) => ({
-  prompt: task.prompt,
+  prompt: `${git_context}\n\n--- TASK BORDER ---\n\n${task.prompt}`,
   source: {
     github: repo_info.fullName,
     baseBranch: base_branch,
   },
-}));
+}), {
+  delayMs: 1000,
+});
 
 const sessionResults: Array<{ taskId: string; sessionId: string }> = [];
 for await (const session of sessions) {

@@ -3,6 +3,8 @@
     "*.tmp",
     "*.template",
     "*.log",
+    "act_output.log",
+    ".secrets",
     "*.bak",
     "**/yarn.lock",
     "**/test-results/**",
@@ -53,7 +55,7 @@
     "!**/.gemini/**",
     "!**/.env"
   ],
-  "gitignore": ["**/.gemini/**", "!**/rpglitch-left-panel.txt", ".playwright-auth/**"],
+  "gitignore": ["**/.gemini/**", "!**/rpglitch-left-panel.txt", ".playwright-auth/**", "act_output.log", ".secrets"],
   "antigravityignore": [],
   "linters": {
     "eslint": [],

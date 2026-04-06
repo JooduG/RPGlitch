@@ -100,6 +100,35 @@ The project includes a specialized skill for **Postgres performance optimization
 
 ---
 
+## 🛸 Sovereign Swarm Operations (v3.2.0)
+
+RPGlitch utilizes an agentic "Swarm" to handle complex, multi-file features in parallel. For human operators, the lifecycle is broken down into four distinct phases.
+
+### 🏁 Swarm Lifecycle
+
+1.  **Analysis (`npm run swarm:analyze`)**
+    Triage open GitHub issues. The engine identifies if a task is a "Parallel Win" (>20m effort or modular boundaries) and generates a root cause analysis.
+2.  **Planning (`npm run swarm:plan`)**
+    Generates a `issue_tasks.json` blueprint. This defines the specialized agent slots (Svelte, logic, CSS) and their restricted file-ownership ranges.
+3.  **Dispatch (`npm run swarm:dispatch`)**
+    Launches the parallel fleet. Each sub-agent is spun up in a dedicated, isolated Jules Cloud session to execute its specific task.
+4.  **Merge (`npm run swarm:merge`)**
+    The final synthesis. Consolidates the code, executes the **80% Confidence Gate** (internal AI audit), and prepares the final PR.
+
+### 🛠️ Command Reference
+
+| Command | Purpose |
+|---------|---------|
+| `npm run swarm:analyze` | Triage issues and identify parallel opportunities. |
+| `npm run swarm:plan` | Create the execution blueprint and assign agent roles. |
+| `npm run swarm:dispatch` | Spin up the parallel agent fleet. |
+| `npm run swarm:merge` | Consolidate output and perform the 80% Gate audit. |
+
+> [!TIP]
+> For a detailed walkthrough of manual swarm coordination, see the **[/07-swarm](.agent/workflows/07-swarm.md)** workflow.
+
+---
+
 ## 🗺️ Documentation & Rules
 
 - [Prime Directive](.agent/rules/01-foundation.md)

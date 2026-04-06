@@ -113,6 +113,10 @@ If the _logic shifts_ drastically during testing -> _update the [Mission Board](
 
 Once planned and cleared, execute the task using tools at your disposal. Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers.
 
+Tell the user:
+1. Docker must be installed and running on any machine (or Jules VM) where verification runs
+2. `act` will be auto-installed on first use via `.agent/skills/devops/scripts/act/install-act.sh`
+
 ### 🎭 Unified Role Signaling
 
 Every operational turn must conclude with a metadata block that signals the active role and thinking approach according to [Intelligence](.agent/rules/05-intelligence.md).
@@ -138,6 +142,7 @@ Ensure that all requirements, constraints, options, and preferences are exhausti
 - [ ] Reality matches the Spec with **Auditable Proof** (File paths/Line numbers).
 - [ ] **Reproduction Case** verified (for bug fixes).
 - [ ] **Performance Budget** respected (CLS < 0.1, LCP < 2.5s).
+- [ ] **Local CI Verification**: Pass `npm run verify` or `bash .agent/skills/devops/scripts/act/run-act.sh "push"` locally.
 - [ ] All [Rules](./.agent/rules/) have been respected.
   - [ ] [Foundation](./.agent/rules/01-foundation.md)
   - [ ] [Simulation](./.agent/rules/02-simulation.md)

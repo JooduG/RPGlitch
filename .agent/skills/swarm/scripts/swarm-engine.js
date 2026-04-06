@@ -22,7 +22,7 @@
  */
 
 import url from "node:url";
-import { SWARM_TEMPLATES } from "../templates/swarm-templates.js";
+import { SWARM_TEMPLATES } from "./automation/prompts/swarm-review.js";
 
 // --- Svelte 5 Rune Shims for Node.js ---
 if (typeof globalThis.$state === "undefined") {
@@ -34,6 +34,14 @@ if (typeof globalThis.$state === "undefined") {
   globalThis.$effect.root = (fn) => fn();
 }
 const { llm_service } = await import("../../../../src/core/intelligence/llm-service.js");
+const { jules } = await import("@google/jules-sdk");
+import { execSync } from "node:child_process";
+
+const jules_client = jules.with({
+  apiKey: process.env.JULES_API_KEY,
+  pollingIntervalMs: 500,
+  timeout: 600000,
+});
 
 export class SwarmEngine {
   // --- PRIVATE STATE (#) ---
@@ -76,6 +84,22 @@ export class SwarmEngine {
   }
 
   /**
+   * GET GIT CONTEXT
+   * Injects branch, status, and recent log into the mission kernel.
+   * @private
+   */
+  #get_git_context() {
+    try {
+      const branch = execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
+      const status = execSync("git status --short").toString().trim();
+      const logs = execSync("git log -n 3 --oneline").toString().trim();
+      return `[GIT_CONTEXT]\nBranch: ${branch}\nStatus: ${status}\nRecent:\n${logs}\n`;
+    } catch (e) {
+      return "[GIT_CONTEXT] (Git not available)";
+    }
+  }
+
+  /**
    * DISPATCH SWARM
    * Run a fleet of agents on a manifest.
    */
@@ -94,28 +118,40 @@ export class SwarmEngine {
     this.#errors = [];
 
     const queue = [...this.#tasks];
-    const active_slots = [];
+    const git_context = this.#get_git_context();
 
-    // 2. Main Orchestration Loop
-    while (queue.length > 0 || active_slots.length > 0) {
-      if (options.stop_on_error && this.#errors.length > 0) break;
+    // 2. Main Orchestration Loop via Jules SDK
+    try {
+      const results = await jules_client.all(queue, (task) => ({
+        prompt: `${git_context}\n\n[TASK_INSTRUCTIONS]\n${task.instructions || task.prompt}`,
+        files: task.target_files,
+      }), {
+        maxConcurrency: options.max_concurrency || 3,
+        delayMs: options.delay_ms || 1000,
+      });
 
-      while (queue.length > 0 && active_slots.length < (options.max_concurrency || 3)) {
-        const task = queue.shift();
-        task.status = "executing";
+      for (let i = 0; i < results.length; i++) {
+        const task = this.#tasks[i];
+        const res = results[i];
 
-        const promise = this._execute_task(task).finally(() => {
+        if (res.status === "fulfilled") {
+          task.result = res.value;
+          task.status = "verifying";
+          const verification = await this._verify_task(task.instructions || task.prompt, res.value);
+          task.score = verification.score;
+          task.rationale = verification.rationale;
+          task.status = "completed";
           this.#processed_count++;
-          const idx = active_slots.indexOf(promise);
-          if (idx > -1) active_slots.splice(idx, 1);
-        });
-
-        active_slots.push(promise);
+        } else {
+          task.status = "failed";
+          task.error = res.reason?.message || "Unknown Jules Error";
+          this.#errors.push({ taskId: task.id, message: task.error });
+          this.#processed_count++;
+        }
       }
-
-      if (active_slots.length > 0) {
-        await Promise.race(active_slots);
-      }
+    } catch (err) {
+      console.error(`[swarm_engine] Swarm dispatch failed:`, err);
+      this.#errors.push({ message: err.message });
     }
 
     return {
@@ -233,6 +269,34 @@ export class SwarmEngine {
     const manifest = [{ id: "audit-1", prompt: "Perform a security audit." }];
     const result = await this.dispatch_manifest(manifest);
     console.log(JSON.stringify(result, null, 2));
+  }
+
+  /**
+   * THE ECHO DSL (Query)
+   * Wraps jules.select() to expose SQL-like querying for the engine.
+   */
+  async query(statement, params = []) {
+    try {
+      return await jules_client.select(statement, params);
+    } catch (err) {
+      console.error(`[swarm-engine] Query failed:`, err);
+      return [];
+    }
+  }
+
+  /**
+   * LOG STREAM
+   * Maps to Jules SDK's native session.stream() with a typed handler map.
+   */
+  async logStream(session, handlers = {}) {
+    for await (const activity of session.stream()) {
+      const type = activity.type;
+      if (handlers[type]) {
+        handlers[type](activity.data);
+      } else {
+        console.log(`[swarm-engine] Activity [${type}]:`, activity.data);
+      }
+    }
   }
 }
 
