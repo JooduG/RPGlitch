@@ -38,7 +38,7 @@ date_added: 2024-03-29
 
 ### Phase 3: The Echo (Step 8: Handoff)
 
-1. **Walkthrough**: Create a walkthrough artifact summarizing all changes and testing results. Include media markers for UI updates.
+1. **Walkthrough**: Create a walkthrough artifact summarizing all changes and testing results. Include media markers for UI updates. Ensure any formal audit reports are generated in `.agent/skills/warden/references/audits/` to maintain the technical quality trail.
 2. **Persistence**: Update the [Log Book](../orchestration/operation-logs.md) and [Mission Board](../orchestration/strategy-board.md) to close the loop.
 
 ## Anti-Patterns

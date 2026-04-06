@@ -37,7 +37,8 @@
     "!**/.env.example",
     "**/bun.lockb",
     "**/.antigravityignore",
-    "**/.DS_Store"
+    "**/.DS_Store",
+    "**/.jules/cache/**"
   ],
   "geminiignore": [
     "!**/test-results/**",
@@ -91,7 +92,8 @@
       "**/tests/**": true,
       "DESIGN.md": true,
       "**/yarn.lock": true,
-      "**/bun.lockb": true
+      "**/bun.lockb": true,
+      "**/.jules/**": true
     },
     "markdown.validate.referenceLinks.enabled": false,
     "stylelint.validate": ["svelte", "css"]

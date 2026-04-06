@@ -36,3 +36,4 @@
 **/bun.lockb
 **/.antigravityignore
 **/.DS_Store
+**/.jules/cache/**

@@ -53,7 +53,8 @@ export default [
       "!**/.env.example",
       "**/bun.lockb",
       "**/.antigravityignore",
-      "**/.DS_Store"
+      "**/.DS_Store",
+      "**/.jules/cache/**"
     ],
     // @agent:ignore-end
   },

@@ -32,7 +32,8 @@
     "**/tests/**": true,
     "DESIGN.md": true,
     "**/yarn.lock": true,
-    "**/bun.lockb": true
+    "**/bun.lockb": true,
+    "**/.jules/**": true
   },
   "css.validate": true,
   "html.validate.styles": false,
