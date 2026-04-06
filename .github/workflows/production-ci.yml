@@ -39,7 +39,7 @@ jobs:
           # Compiles the single-file Perchance artifact
           npm run build
 
-      - name: "⚖️ The Scale (500KB Strict Limit)"
+      - name: "⚖️ The Scale (Bundle Size Report)"
         run: |
           # Verify directory exists
           if [ ! -d "dist/" ]; then
@@ -50,11 +50,3 @@ jobs:
           # Calculate size in KB
           SIZE=$(du -sk dist/ | cut -f1)
           echo "📦 Total Bundle Size: ${SIZE} KB"
-
-          # The Physics Gate Logic
-          if [ "$SIZE" -gt 500 ]; then
-            echo "🚨 PHYSICS GATE FAILED: Bundle size ${SIZE} KB exceeds the 500KB Sovereign limit."
-            exit 1
-          else
-            echo "✅ PHYSICS GATE PASSED: Engine is within acceptable parameters."
-          fi

@@ -40,7 +40,7 @@ date_added: 2024-03-31
 
 ### Phase 3: Tactical Dispatch (The Launch)
 
-1. **Handoff**: Invoke the `SWARM` captain or use `npm run swarm:dispatch` to begin technical execution and sub-agent management. [[Invoke: SWARM]](../skills/swarm/SKILL.md)
+1. **Handoff**: Invoke the `swarm` captain or use `npm run swarm:dispatch` to begin technical execution and sub-agent management. [[Invoke: swarm]](../skills/swarm/SKILL.md)
 2. **Monitoring**: Track the swarm's progress through the Log Book.
 
 ### Phase 4: Resonance Synthesis (The Merge)

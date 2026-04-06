@@ -25,7 +25,7 @@ skills/directives/
 
 - **Sovereign Systems**: Owns the integrity of the [.agent directory](../../../.agent).
 - **Law Composer**: Writer of **[Rule 01: Foundation](../../rules/01-foundation.md)** through **[Rule 06: Compliance](../../rules/06-compliance.md)**.
-- **Workflow Architect**: Designs [Workflows/](../../.agent/workflows/).
+- **Workflow Architect**: Designs [Workflows/](../../../.agent/workflows/).
 - **Skill Fabricator**: Orchestrates the creation and refactoring of [Skills](../../skills).
 
 ## 📋 Procedure

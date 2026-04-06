@@ -38,12 +38,21 @@
 | **[025]** | **Project Hygiene & Debt Purge** | `[DONE]`   | `[Medium]` | `docs/discovery/025-hygiene.md`      |
 | **[029]** | **Debt Liquidation**             | `[DONE]`   | `[High]`   | `docs/discovery/029-debt.md`         |
 | **[030]** | **Sovereign Handoff**            | `[DONE]`   | `[High]`   | `[Current Session]`                  |
+| **[031]** | **Jules Ecosystem Integration**  | `[ACTIVE]` | `[High]`   | `references/jules-ecosystem-analysis.md` |
 
 ---
 
 ## 🎨 Active Tactical Tracks (The Atomic Beats)
 
 > **Tactical Law**: Max 20 beats per mission. 2-5 minutes per beat.
+
+### 📍 Track [031]: Jules Ecosystem Integration
+
+**Goal**: Implement `scripts/swarm.js` logic and Fleet Concurrency as modeled in `jules-ecosystem-analysis.md`.
+
+- [ ] **Beat 01**: Scaffold `scripts/swarm.js` using the Jules SDK.
+- [ ] **Beat 02**: Implement `swarm.all` concurrency handler.
+- [ ] **Beat 03**: Verify `npm run swarm:plan` against GitHub Actions.
 
 ### 📍 Track [023]: Nordic Glass Refactor
 
