@@ -81,6 +81,7 @@ const auditSkill = (skillName, silent = false) => {
       "templates",
       "agents",
       "data",
+      "resources",
     ];
     const currentSubfolders = fs
       .readdirSync(skillPath)

@@ -18,3 +18,7 @@
 - [x] **Boot & Clean Sequence**: Executed `/00-boot` and `/03-clean`. Reconciled [025] debt in `StoryboardCard.svelte` and achieved 100% technical purity (Perfect Score). [Session: 74f133cb]
 - [x] **Mission [029] (Debt Liquidation)**: Purge of CLI-related debt in the Swarm engine. Synchronized `audit-security.js` allowlist and standardized `swarm-engine.js` headers. Achieved a **PERFECT SCORE** in the pre-deployment pre-flight. [Session: current]
 - [x] **Mission [030] (Sovereign Handoff)**: Formally acknowledged the new Node-native infrastructure (Swarm Engine, Rune Shims, Knowledge CLI). Resolved internal regressions in `llm-service.test.js` and `audit-security.js` allowlist. Achieved 100% Technical Purity gate. [Session: current]
+
+## 🛸 Swarm Fleet Dispatches
+
+- [~] **Mission 001-ui-refinement**: Dispatched agents `agent-svelte`, `agent-css`, and `agent-motion` to target Layout, Storyboard, Theme, and Kinetic actions. Status: DISPATCHED [Session: 2026-04-01T00:46:12Z]

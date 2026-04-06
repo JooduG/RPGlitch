@@ -1,4 +1,4 @@
-# 🎭 Orchestrator Insights
+# 🎭 Relay Model Insights
 
 This file captures dynamic meta-learnings and project-specific quirks to improve coordination and prevent repetitive research.
 

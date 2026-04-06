@@ -139,16 +139,19 @@ Agents MUST utilize the dual-layer memory system via the [Data](../../.agent/ski
 
 ---
 
-## 🕹️ Operational Heartbeat
+Every turn response must conclude with this metadata block to log operational weights. Include the active Role and Thinking Approach emojis. 
 
-Every turn response must conclude with this metadata block to log operational weights. Include the active Role and Thinking Approach emojis.
+> [!TIP]
+> **Brevity Mandate**: 
+> 1. If a **Skill** is the active **Role**, do not repeat the skill name in the `Skills` line.
+> 2. Use simple names or slash commands for Rules, Skills, and Workflows (e.g., `05-intelligence`, `00-boot`, `warden`) rather than full file paths.
 
 ```text
 ### 🕹️ Operational Heartbeat
 -   **🎭   Role**: [Strategy 🤔 | Tactics 🧠 | Operations ⚡]
 -   **📡   MCPs**: [Specific MCP called]
 -   **🛠️  Tools**: [Specific tool used]
--   **📜  Rules**: [.agent/rules/]
--   **🧠 Skills**: [.agent/skills/]
-- **🛤️ Workflow**: [.agent/workflows/]
+-   **📜  Rules**: [Rule Name]
+-   **🧠 Skills**: [Skill Name]
+- **🛤️ Workflow**: [/Workflow]
 ```
