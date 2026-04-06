@@ -135,7 +135,8 @@ export class SwarmEngine {
         delayMs: options.delay_ms || 1000,
       });
 
-      await Promise.all(results.map(async (res, i) => {
+      for (let i = 0; i < results.length; i++) {
+        const res = results[i];
         const task = this.#tasks[i];
 
         if (res.status === "fulfilled") {
@@ -153,7 +154,7 @@ export class SwarmEngine {
           this.#errors.push({ taskId: task.id, message: task.error });
         }
         this.#processed_count++;
-      }));
+      }
     } catch (err) {
       console.error(`[swarm_engine] Swarm dispatch failed:`, err);
       this.#errors.push({ message: err.message });
