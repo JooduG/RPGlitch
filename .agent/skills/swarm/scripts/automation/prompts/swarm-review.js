@@ -1,5 +1,5 @@
 /**
- * @file .agent/skills/swarm/templates/swarm-templates.js
+ * @file .agent/skills/swarm/scripts/automation/prompts/swarm-review.js
  * 
  * 🧩 SWARM TEMPLATES
  * Prompt engineering for the Fleet Captain's verification and dispatch logic.
