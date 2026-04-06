@@ -145,8 +145,8 @@ export class SwarmEngine {
         delayMs: options.delay_ms || 1000,
       });
 
-      for (const session of sessions) {
-        const task = this.#tasks.find(t => t.id === session.id) || this.#tasks[this.#processed_count];
+      for await (const session of sessions) {
+        const task = this.#tasks[this.#processed_count];
 
         // AutomatedSession.result() blocks until terminal state and returns the outcome
         const outcome = await session.result();
@@ -155,7 +155,8 @@ export class SwarmEngine {
           task.result = outcome;
           task.status = "verifying";
           // Serialize the outcome for the 80% Gate verifier
-          const output = JSON.stringify(outcome);
+          const output_data = outcome.outputs || outcome;
+          const output = typeof output_data === 'string' ? output_data : JSON.stringify(output_data);
           const verification = await this._verify_task(task.instructions || task.prompt, output);
           task.score = verification.score;
           task.rationale = verification.rationale;
