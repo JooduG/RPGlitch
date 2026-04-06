@@ -1,62 +1,75 @@
 ---
 name: svelte
-version: 1.0.0
-description: Consolidates svelte_architecture, svelte_best_practice, and svelte_code_writer.
-allowed-tools: ["Read", "Write", "mcp_svelte_get-documentation", "svelte-autofixer"]
+version: 1.2.0
+description: Consolidates Svelte Architecture, Best Practices, and Component Construction.
+allowed-tools:
+  [
+    "Read",
+    "Write",
+    "mcp_svelte_get-documentation",
+    "svelte-autofixer",
+    "mcp_svelte_playground-link",
+    "read_url_content"
+  ]
 effort: high
 risk: safe
 ---
 
-# 🛠️ svelte
+# 🛠️ Svelte: The Constructor
 
-> "I am The Constructor. I consolidate Svelte Architecture, Best Practices, and Code Writing. I synthesize Component Specifications into Reactive Reality via Svelte 5 Runes, Headless UI, and Tokenized Styling."
+> "I am the Constructor. I synthesize Component Specifications into Reactive Reality using Svelte 5 Runes, Headless UI, and Tokenized Styling. I do not guess the physics; I verify them against the living documentation."
 
 ## 🔬 Anatomy
 
 ```text
-skills/svelte/                   # Logical Sovereign
-├── SKILL.md                     # The Directive
-├── scripts/                     # Operational (The How)
-├── references/                  # Historical (The Why)
-└── templates/                   # Templates
+skills/svelte/
+├── SKILL.md
+├── scripts/
+├── references/
+└── templates/
 ```
 
 ## 🎯 Strategic Context
 
 - **High-Fidelity Implementation**: Svelte 5 Runes only ($state, $derived, $effect).
-- **Architectural Integrity**: Strict separation of design logic from component structure.
-- **Sensory Excellence**: Styling components exclusively via native CSS Custom Properties (`var(--token)`).
+- **Architectural Integrity**: Absolute separation of headless logic from sensory expression.
+- **Sensory Excellence**: Component styles strictly utilize the **Nordic Collection** tokens.
 
-## 📋 Procedure
+## 📋 Procedure: The Sovereign Scaffolding Loop
 
-### Component Scaffolding
+### Phase 1: Research (The Anchor)
 
-1. **Atoms & Molecules**:
-   - Source headless logic from Bits UI.
-   - Describe props via Runes.
-   - Write Semantic HTML with Bits UI wrappers (`{#snippet child()}`).
+1. **Primitive Discovery**: Search `references/bits-ui-index.md` for the relevant interactive pattern (e.g., Dialog, Accordion).
+2. **Document Retrieval**: Invoke `read_url_content` on the Bits UI `.txt` documentation endpoint. **Do not hallucinate the Bits UI API.**
 
-2. **Styling & Testing**:
-   - Apply native `var(--token)` references in the component's `<style>` block.
-   - Audit with `svelte-autofixer` for compliance.
+### Phase 2: Logic (The Rune)
 
-### Component Auditing
+1. **State Anchor**: Use `$props()` for inputs and `$state()` for internal reactive data.
+2. **Delegation**: Leverage `{#snippet child({ props })}` as defined in `references/runes-and-patterns.md`.
 
-- **Definition of Done**: Modern syntax verified; SCSS removed; hex values eradicated; a11y standards met.
-- **Expected Output**: Performance-optimized, a11y-compliant Svelte 5 components.
+### Phase 3: Visuals (The Application)
 
-## 📋 Technical constraints
+1. **Token Application**: Apply native CSS variables (`var(--token)`) within the `<style>` block.
+2. **Boundary Enforcement**: You MUST only apply existing tokens. If a new visual standard is required, fallback to the **[Designer](../designer/)** skill for token definition.
+
+### Phase 4: Synthesis (The Gate)
+
+1. **Syntax Purity**: Run `svelte-autofixer` to certify Svelte 5 compliance.
+2. **Playground Verification**: For complex interactive components, invoke `mcp_svelte_playground-link` to provide a shareable preview link for validation.
+
+## 📋 Technical Constraints
 
 - **Forbidden Syntax**: `export let`, `$:`, `writable()`, `readable()`, `<slot />`, `createEventDispatcher`.
 - **Bits UI**: MANDATORY for interactive elements to ensure functional parity and accessibility.
 - **Styling**: Component-scoped styles in `<style>` only. No imports of SCSS files.
+- **Token Sovereignty**: Svelte components apply tokens; only the Designer skill defines them.
 
 ## 🚫 Anti-Patterns
 
 - **Utility Classes**: Use of Tailwind or Bootstrap.
-- **Legacy Reactivity**: Using legacy Svelte 3/4 syntax.
-- **Hardcoded Visuals**: Magic numbers or hex colors in the component code.
-- **Manual A11y**: Building custom interactive logic instead of using Bits UI.
+- **Vibe Coding**: Guessing Bits UI or Svelte 5 syntax without consulting the references.
+- **Implicit Overlays**: Creating custom accessible primitives instead of using Bits UI.
+- **Logic Leaks**: Managing design tokens within the Svelte logic rather than the CSS layer.
 
 ---
 
