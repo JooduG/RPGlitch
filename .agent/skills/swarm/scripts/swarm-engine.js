@@ -137,27 +137,37 @@ export class SwarmEngine {
 
     // 2. Main Orchestration Loop via Jules SDK
     try {
-      const sessions = await jules_client.all(queue, (task) => ({
-        prompt: `${git_context}\n\n[TASK_INSTRUCTIONS]\n${task.instructions || task.prompt}`,
-        files: task.target_files || task.files,
-      }), {
+      const sessions = await jules_client.all(queue, (task) => {
+        task.status = "executing";
+        this.#active_agent_count++;
+        return {
+          prompt: `${git_context}\n\n[TASK_INSTRUCTIONS]\n${task.instructions || task.prompt}`,
+          files: task.target_files || task.files,
+          source: {
+            github: "JooduG/RPGlitch",
+            baseBranch: options.base_branch || "main",
+          },
+        };
+      }, {
         concurrency: options.max_concurrency || 3,
         delayMs: options.delay_ms || 1000,
       });
 
       for await (const session of sessions) {
+        if (options.stop_on_error && this.#errors.length > 0) break;
         const task = this.#tasks[this.#processed_count];
 
         // AutomatedSession.result() blocks until terminal state and returns the outcome
         const outcome = await session.result();
+        this.#active_agent_count--;
 
         if (outcome.state === "completed") {
           task.result = outcome;
           task.status = "verifying";
           // Serialize the outcome for the 80% Gate verifier
-          const output_data = outcome.outputs || outcome;
+          const output_data = outcome.outputs !== undefined ? outcome.outputs : outcome;
           const output = typeof output_data === 'string' ? output_data : JSON.stringify(output_data);
-          const verification = await this._verify_task(task.instructions || task.prompt, output);
+          const verification = await this.#verify_task(task.instructions || task.prompt, output);
           task.score = verification.score;
           task.rationale = verification.rationale;
           task.status = "completed";
@@ -180,36 +190,12 @@ export class SwarmEngine {
     };
   }
 
-  /**
-   * INTERNAL: Individual task execution.
-   * @private
-   */
-  async _execute_task(task) {
-    this.#active_agent_count++;
-    try {
-      const response = await llm_service.generate({ system: task.prompt }, { silent: true });
-      task.result = response;
-      task.status = "verifying";
 
-      const verification = await this._verify_task(task.prompt, response);
-      task.score = verification.score;
-      task.rationale = verification.rationale;
-      task.status = "completed";
-    } catch (err) {
-      task.status = "failed";
-      task.error = err.message;
-      this.#errors.push({ taskId: task.id, message: err.message });
-      console.error(`[swarm_engine] Task ${task.id} failed:`, err);
-    } finally {
-      this.#active_agent_count--;
-    }
-  }
 
   /**
    * INTERNAL: 80% Gate verification.
-   * @private
    */
-  async _verify_task(prompt, output) {
+  async #verify_task(prompt, output) {
     try {
       const payload = {
         system: SWARM_TEMPLATES.review({ input_prompt: prompt, agent_output: output }),
