@@ -18,6 +18,7 @@ import { swarm } from "../swarm-engine.js";
 import { getIssuesAsMarkdown } from "./github/markdown.js";
 import { analyzeIssuesPrompt } from "./prompts/analyze-issues.js";
 import { get_formatted_date, get_git_root } from "./utils.js";
+import type { PlanData, ProgressData, AgentMessageData } from "../swarm-types.js";
 
 const repo_info = await getGitRepoInfo();
 const base_branch = process.env.SWARM_BASE_BRANCH ?? (await getCurrentBranch());
@@ -42,7 +43,7 @@ const session = await jules.session({
 console.log(`✅ Planner session started: ${session.id}`);
 
 await swarm.logStream(session, {
-  planGenerated: (data) => console.log(`📋 Plan Generated:\n${data.plan}`),
-  progressUpdated: (data) => console.log(`⏳ Progress: ${data.percent}% - ${data.message}`),
-  agentMessaged: (data) => console.log(`💬 Agent: ${data.message}`),
+  planGenerated: (data: PlanData) => console.log(`📋 Plan Generated:\n${data.plan}`),
+  progressUpdated: (data: ProgressData) => console.log(`⏳ Progress: ${data.percent}% - ${data.message}`),
+  agentMessaged: (data: AgentMessageData) => console.log(`💬 Agent: ${data.message}`),
 });

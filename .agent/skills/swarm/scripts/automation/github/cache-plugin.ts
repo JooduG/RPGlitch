@@ -22,7 +22,7 @@ import type { RequestOptions, OctokitResponse } from "@octokit/types";
 export function cachePlugin(octokit: Octokit) {
   const cache = new Map<string, { etag: string; data: unknown }>();
 
-  octokit.hook.wrap("request", async (request, options: RequestOptions) => {
+  octokit.hook.wrap("request", async (request, options: any) => {
     const key = `${options.method} ${options.url}`;
     const cached = cache.get(key);
 
@@ -34,22 +34,16 @@ export function cachePlugin(octokit: Octokit) {
     }
 
     try {
-      const response = (await request(options)) as OctokitResponse<unknown>;
+      const response = await request(options);
       const etag = response.headers.etag as string | undefined;
       if (etag) {
         cache.set(key, { etag, data: response.data });
       }
       return response;
-    } catch (error: unknown) {
-      if (
-        error &&
-        typeof error === "object" &&
-        "status" in error &&
-        error.status === 304 &&
-        cached
-      ) {
+    } catch (error: any) {
+      if (error && error.status === 304 && cached) {
         return {
-          ...(error as { response: OctokitResponse<unknown> }).response,
+          ...error.response,
           data: cached.data,
           status: 200,
         };

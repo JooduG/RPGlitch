@@ -40,3 +40,24 @@ export interface DispatchOptions {
   repo_full_name?: string;
   delay_ms?: number;
 }
+export interface PlanData {
+  plan: string;
+}
+
+export interface ProgressData {
+  percent: number;
+  message: string;
+}
+
+export interface AgentMessageData {
+  message: string;
+}
+
+export type ActivityData = PlanData | ProgressData | AgentMessageData;
+
+export interface StreamHandlers {
+  planGenerated?: (data: PlanData) => void;
+  progressUpdated?: (data: ProgressData) => void;
+  agentMessaged?: (data: AgentMessageData) => void;
+  [key: string]: ((data: any) => void) | undefined;
+}

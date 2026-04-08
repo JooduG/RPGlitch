@@ -162,8 +162,8 @@ async function withRetry<T>(
 
 Produce two files in the target repository:
 
-- \`.swarm/${YYYY_MM_DD}/issue_tasks.md\`
-- \`.swarm/${YYYY_MM_DD}/issue_tasks.json\`
+- \`.agent/archive/swarm/${YYYY_MM_DD}/issue_tasks.md\`
+- \`.agent/archive/swarm/${YYYY_MM_DD}/issue_tasks.json\`
 
 #### Merge conflict avoidance rule
 
@@ -309,7 +309,7 @@ Issues that require changes outside this repository (backend API, infrastructure
 
 ## Phase 4: Dispatch
 
-After you have written both \`.swarm/${YYYY_MM_DD}/issue_tasks.md\` and \`.swarm/${YYYY_MM_DD}/issue_tasks.json\`, run the dispatcher to spawn parallel Jules sessions for each task:
+After you have written both \`.agent/archive/swarm/${YYYY_MM_DD}/issue_tasks.md\` and \`.agent/archive/swarm/${YYYY_MM_DD}/issue_tasks.json\`, run the dispatcher to spawn parallel Jules sessions for each task:
 
 \`\`\`bash
 npm run swarm:dispatch

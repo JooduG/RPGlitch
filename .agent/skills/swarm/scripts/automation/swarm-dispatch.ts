@@ -51,7 +51,7 @@ console.log(`✅ Ownership validated: ${analysis.tasks.length} tasks, no conflic
 
 console.log(`🚀 Dispatching swarm for ${repo_info.fullName} (${tasks.length} tasks)...`);
 
-const results: DispatchResult = await swarm.dispatch_manifest(tasks as InputTask[], {
+const results: DispatchResult = await swarm.dispatch_manifest(tasks, {
   base_branch,
   repo_full_name: repo_info.fullName,
   delay_ms: 1000,

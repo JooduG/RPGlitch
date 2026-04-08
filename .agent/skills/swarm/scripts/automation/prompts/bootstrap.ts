@@ -62,13 +62,13 @@ ${analysisPrompt}
 
 ## Step 3: Dispatch
 
-After writing both \`.swarm/\` files, run the dispatcher:
+After writing both \`.agent/archive/swarm/\` files, run the dispatcher:
 
 \`\`\`bash
 npm run swarm:dispatch
 \`\`\`
 
-This dispatches parallel Jules sessions for each task and logs session IDs to \`.swarm/{date}/sessions.json\`.
+This dispatches parallel Jules sessions for each task and logs session IDs to \`.agent/archive/swarm/{date}/sessions.json\`.
 
 **Do not skip any step. The analysis is only complete once sub-tasks have been dispatched.**`;
 }

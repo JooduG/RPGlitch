@@ -5,40 +5,9 @@
  * importing scripts require no 'as any' casts or 'unknown' annotations.
  */
 
-export interface SwarmTask {
-  id: string;
-  prompt?: string;
-  instructions?: string;
-  files?: string[];
-  new_files?: string[];
-  test_files?: string[];
-  target_files?: string[];
-  status: "pending" | "executing" | "completed" | "failed";
-  sessionId?: string;
-  score: number;
-  rationale: string | null;
-  result: string | null;
-  error: string | null;
-}
+import { SwarmTask, SwarmError, DispatchResult, DispatchOptions, InputTask, StreamHandlers } from "./swarm-types.js";
 
-export interface SwarmError {
-  taskId?: string;
-  message: string;
-}
 
-export interface DispatchResult {
-  success: boolean;
-  score: number;
-  results: SwarmTask[];
-}
-
-export interface DispatchOptions {
-  max_concurrency?: number;
-  stop_on_error?: boolean;
-  base_branch?: string;
-  repo_full_name?: string;
-  delay_ms?: number;
-}
 
 export declare class SwarmEngine {
   get tasks(): SwarmTask[];
@@ -49,10 +18,10 @@ export declare class SwarmEngine {
   get is_complete(): boolean;
   get confidence_score(): number;
 
-  dispatch_manifest(manifest: SwarmTask[], options?: DispatchOptions): Promise<DispatchResult>;
+  dispatch_manifest(manifest: (SwarmTask | InputTask)[], options?: DispatchOptions): Promise<DispatchResult>;
   parse_markdown_manifest(content: string): Promise<SwarmTask[]>;
   query(queryObj: Record<string, unknown>): Promise<unknown[]>;
-  logStream(session: unknown, handlers?: Record<string, (data: unknown) => void>): Promise<void>;
+  logStream(session: any, handlers?: StreamHandlers): Promise<void>;
 
   static bootstrap(args: string[]): Promise<void>;
   static show_meta(flags?: { agent: boolean }): void;

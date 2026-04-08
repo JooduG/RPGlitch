@@ -53,7 +53,7 @@ export async function get_swarm_dir(): Promise<string> {
       : path.join(root, process.env.SWARM_DIR);
   }
 
-  const swarm_base = path.join(root, ".swarm");
+  const swarm_base = path.join(root, ".agent", "archive", "swarm");
 
   // 2. Exact match for today
   const today_dir = path.join(swarm_base, today);
