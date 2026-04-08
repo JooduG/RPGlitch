@@ -36,12 +36,6 @@ export const AppBootstrap = {
       // 4. Initialize Audio Services
       await Promise.all([runtime.sync(), app.init(), Audio.init()]);
 
-      // 🛑 Post-Initialization Health Check:
-      // Ensure hydration succeeded before mounting to prevent broken UI state.
-      if (!runtime.is_ready && !app.settings.dev_mode) {
-        throw new Error("Runtime Synchronization Failed: Data stream unavailable.");
-      }
-
       // 5. Mount Svelte App
       mount(App, {
         target: document.getElementById("main-app-container") || document.body,

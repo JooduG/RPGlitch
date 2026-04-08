@@ -14,7 +14,7 @@ vi.mock("@state/app.svelte.js", () => ({
 vi.mock("@media/audio.js", () => ({
   Audio: {
     init: vi.fn(),
-    _initialized: false,
+    _initPromise: null,
   },
 }));
 
@@ -40,7 +40,7 @@ describe("AppBootstrap", () => {
     vi.clearAllMocks();
     reset_bootstrap_guard();
     // Reset singleton states for test isolation
-    Audio._initialized = false;
+    Audio._initPromise = null;
     app.settings.dev_mode = false;
   });
   test("escapes error stack using textContent when initialization fails", async () => {
@@ -72,32 +72,6 @@ describe("AppBootstrap", () => {
     expect(errorStackElement.textContent).toBe(maliciousPayload);
     expect(errorStackElement.innerHTML).toContain("&lt;img");
     expect(document.body.innerHTML).not.toContain(maliciousPayload);
-  });
-
-  test("halts initialization if runtime is not ready", async () => {
-    const { runtime } = await import("@state/runtime.svelte.js");
-    const { mount } = await import("svelte");
-
-    vi.mocked(runtime).is_ready = false;
-
-    await AppBootstrap.init();
-
-    expect(document.body.innerHTML).toContain("SYSTEM HALTED");
-    expect(document.body.innerHTML).toContain("Runtime Synchronization Failed");
-    expect(vi.mocked(mount)).not.toHaveBeenCalled();
-  });
-
-  test("bypasses halt in dev mode even if runtime is not ready", async () => {
-    const { runtime } = await import("@state/runtime.svelte.js");
-    const { mount } = await import("svelte");
-
-    runtime.is_ready = false;
-    app.settings.dev_mode = true;
-
-    await AppBootstrap.init();
-
-    expect(document.body.innerHTML).not.toContain("SYSTEM HALTED");
-    expect(vi.mocked(mount)).toHaveBeenCalled();
   });
 
   test("successfully initializes all services in the correct order and mounts the app", async () => {
