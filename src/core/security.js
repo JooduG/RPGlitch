@@ -29,8 +29,8 @@ export const clean = (text) => (text ? text.trim() : "");
  * @returns {Promise<boolean>} - Resolves if valid, throws error otherwise.
  */
 export const validateImage = async (file, options = {}) => {
-  const maxSize = options.maxSize || 5 * 1024 * 1024; // Default 5MB
-  const allowedTypes = options.allowedTypes || ["image/jpeg", "image/png", "image/webp", "image/gif"];
+  const maxSize = options.maxSize ?? 5 * 1024 * 1024; // Default 5MB
+  const allowedTypes = options.allowedTypes ?? ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
   if (!file) throw new Error("No file provided");
 
