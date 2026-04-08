@@ -138,7 +138,7 @@ export const stories = {
       const allStories = await db.stories.orderBy("updated_at").reverse().toArray();
 
       // Batch fetch fractals to avoid N+1 queries
-      const fractalIds = [...new Set(allStories.map((s) => s.fractal_id).filter(Boolean))];
+      const fractalIds = [...new Set(allStories.filter((s) => s.fractal_id).map((s) => s.fractal_id))];
       const fractals = await db.entities.where("id").anyOf(fractalIds).toArray();
       const fractalMap = new Map(fractals.map((f) => [f.id, f]));
 
