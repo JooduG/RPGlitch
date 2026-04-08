@@ -6,6 +6,16 @@ import { app } from "@state/app.svelte.js";
 vi.mock("@state/app.svelte.js", () => ({
   app: {
     log: vi.fn(),
+    init: vi.fn(),
+  },
+}));
+
+vi.mock("@media/audio.js", () => ({
+  Audio: {
+    _effects: {
+      init: vi.fn(),
+      initSettings: vi.fn(),
+    },
   },
 }));
 
