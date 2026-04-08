@@ -58,22 +58,22 @@ export const validateImage = async (file, options = {}) => {
       // JPEG: FF D8 FF
       isValid = hex.startsWith("FFD8FF");
       break;
-    case "image/png":
-      // PNG: 89 50 4E 47
-      isValid = hex.startsWith("89504E47");
-      break;
-    case "image/gif":
-      // GIF: 47 49 46 38 (GIF87a or GIF89a)
-      isValid = hex.startsWith("47494638");
-      break;
-    case "image/webp":
-      // WebP: 52 49 46 46 (RIFF) at 0, 57 45 42 50 (WEBP) at 8
-      isValid = hex.startsWith("52494646") && hex.substring(16, 24) === "57454250";
-      break;
-  }
+  const signatures = {
+    "image/jpeg": (h) => h[0] === 0xFF && h[1] === 0xD8 && h[2] === 0xFF,
+    "image/png": (h) => h[0] === 0x89 && h[1] === 0x50 && h[2] === 0x4E && h[3] === 0x47,
+    "image/gif": (h) => h[0] === 0x47 && h[1] === 0x49 && h[2] === 0x46 && h[3] === 0x38,
+    "image/webp": (h) => h[0] === 0x52 && h[1] === 0x49 && h[2] === 0x46 && h[3] === 0x46 &&
+                         h[8] === 0x57 && h[9] === 0x45 && h[10] === 0x42 && h[11] === 0x50
+  };
 
-  if (!isValid) {
-    throw new Error("Security verification failed: File content does not match its extension.");
+  const verify = signatures[file.type];
+  if (verify) {
+    if (!verify(header)) {
+      throw new Error("Security verification failed: File content does not match its declared type.");
+    }
+  } else {
+    // Fail if the type is allowed but we don't have a signature check for it to maintain Zero-Trust
+    throw new Error(`Security verification failed: No signature check available for type ${file.type}`);
   }
 
   return true;
