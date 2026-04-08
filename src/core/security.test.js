@@ -64,4 +64,98 @@ describe("validation.js", () => {
       expect(output.textContent).toContain("<p>Hello</p>");
     });
   });
+
+  describe("validateImage()", () => {
+    const JPEG_HEADER = new Uint8Array([0xff, 0xd8, 0xff, 0xe0]);
+    const PNG_HEADER = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
+    const GIF_HEADER = new Uint8Array([0x47, 0x49, 0x46, 0x38]);
+    const WEBP_HEADER = new Uint8Array([
+      0x52,
+      0x49,
+      0x46,
+      0x46, // RIFF
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x57,
+      0x45,
+      0x42,
+      0x50, // WEBP
+    ]);
+
+    // Mock File for Vitest
+    class MockFile {
+      constructor(parts, filename, properties) {
+        this.parts = parts;
+        this.name = filename;
+        this.type = properties.type;
+        this.size = properties.size || parts.reduce((acc, p) => acc + p.byteLength, 0);
+      }
+      async arrayBuffer() {
+        const combined = new Uint8Array(this.parts.reduce((acc, p) => acc + p.byteLength, 0));
+        let offset = 0;
+        for (const part of this.parts) {
+          combined.set(new Uint8Array(part), offset);
+          offset += part.byteLength;
+        }
+        return combined.buffer;
+      }
+      slice(start, end) {
+        const slicedParts = [];
+        let currentPos = 0;
+        for (const part of this.parts) {
+          const partEnd = currentPos + part.byteLength;
+          if (partEnd > start && currentPos < end) {
+            const relativeStart = Math.max(0, start - currentPos);
+            const relativeEnd = Math.min(part.byteLength, end - currentPos);
+            slicedParts.push(part.slice(relativeStart, relativeEnd));
+          }
+          currentPos = partEnd;
+          if (currentPos >= end) break;
+        }
+        return new MockFile(slicedParts, this.name, { type: this.type });
+      }
+    }
+
+    test("should validate a correct JPEG file", async () => {
+      const file = new MockFile([JPEG_HEADER], "test.jpg", { type: "image/jpeg" });
+      await expect(Security.validateImage(file)).resolves.toBe(true);
+    });
+
+    test("should validate a correct PNG file", async () => {
+      const file = new MockFile([PNG_HEADER], "test.png", { type: "image/png" });
+      await expect(Security.validateImage(file)).resolves.toBe(true);
+    });
+
+    test("should validate a correct GIF file", async () => {
+      const file = new MockFile([GIF_HEADER], "test.gif", { type: "image/gif" });
+      await expect(Security.validateImage(file)).resolves.toBe(true);
+    });
+
+    test("should validate a correct WebP file", async () => {
+      const file = new MockFile([WEBP_HEADER], "test.webp", { type: "image/webp" });
+      await expect(Security.validateImage(file)).resolves.toBe(true);
+    });
+
+    test("should throw error if file is too large", async () => {
+      const file = new MockFile([JPEG_HEADER], "large.jpg", {
+        type: "image/jpeg",
+        size: 10 * 1024 * 1024,
+      });
+      await expect(Security.validateImage(file)).rejects.toThrow(/File too large/);
+    });
+
+    test("should throw error for invalid MIME type", async () => {
+      const file = new MockFile([new Uint8Array([0, 0, 0, 0])], "test.exe", {
+        type: "application/x-msdownload",
+      });
+      await expect(Security.validateImage(file)).rejects.toThrow(/Invalid file type/);
+    });
+
+    test("should throw error if magic numbers don't match", async () => {
+      const file = new MockFile([JPEG_HEADER], "fake.png", { type: "image/png" });
+      await expect(Security.validateImage(file)).rejects.toThrow(/Security verification failed/);
+    });
+  });
 });
