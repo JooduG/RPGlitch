@@ -53,14 +53,24 @@ export const validateImage = async (file, options = {}) => {
     .join("");
 
   let isValid = false;
-  // JPEG: FF D8 FF
-  if (file.type === "image/jpeg" && hex.startsWith("FFD8FF")) isValid = true;
-  // PNG: 89 50 4E 47
-  else if (file.type === "image/png" && hex.startsWith("89504E47")) isValid = true;
-  // GIF: 47 49 46 38 (GIF87a or GIF89a)
-  else if (file.type === "image/gif" && hex.startsWith("47494638")) isValid = true;
-  // WebP: 52 49 46 46 (RIFF) at 0, 57 45 42 50 (WEBP) at 8
-  else if (file.type === "image/webp" && hex.startsWith("52494646") && hex.substring(16, 24) === "57454250") isValid = true;
+  switch (file.type) {
+    case "image/jpeg":
+      // JPEG: FF D8 FF
+      isValid = hex.startsWith("FFD8FF");
+      break;
+    case "image/png":
+      // PNG: 89 50 4E 47
+      isValid = hex.startsWith("89504E47");
+      break;
+    case "image/gif":
+      // GIF: 47 49 46 38 (GIF87a or GIF89a)
+      isValid = hex.startsWith("47494638");
+      break;
+    case "image/webp":
+      // WebP: 52 49 46 46 (RIFF) at 0, 57 45 42 50 (WEBP) at 8
+      isValid = hex.startsWith("52494646") && hex.substring(16, 24) === "57454250";
+      break;
+  }
 
   if (!isValid) {
     throw new Error("Security verification failed: File content does not match its extension.");
