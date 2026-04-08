@@ -10,11 +10,12 @@ let has_initialized = false;
 /**
  * FOR TESTING ONLY: Reset the initialization guard.
  */
-export const reset_bootstrap_guard = () => {
-  if (import.meta.env.MODE === "test") {
-    has_initialized = false;
-  }
-};
+export const reset_bootstrap_guard =
+  import.meta.env.MODE === "test"
+    ? () => {
+        has_initialized = false;
+      }
+    : () => {};
 /**
  * AppBootstrap handles the initial sequence of the application.
  */
