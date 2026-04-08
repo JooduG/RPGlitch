@@ -15,7 +15,8 @@
   import ProsePanel from "./ProsePanel.svelte";
   import StorymodePanel from "./StorymodePanel.svelte";
   // [FIX] Target flattened profile_picture
-  let fractalBg = $derived(runtime.active_fractal?.profile_picture || "");
+  let storyFractal = $derived(runtime.active_fractal);
+  let fractalBg = $derived(storyFractal?.profile_picture || "");
   // Derived
   let is_thinking = $derived(simulationState.phase === "generating");
   // --- ON MOUNT: Hydrate Entity Lists for Color Lookups ---
