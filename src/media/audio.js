@@ -137,10 +137,13 @@ export const Audio = {
   play: (soundId) => {
     return soundEffects.play(soundId);
   },
+  _initialized: false,
   /**
    * Initialize the Audio service and settings.
    */
   init: async () => {
+    if (Audio._initialized) return;
+    Audio._initialized = true;
     soundEffects.init();
     await soundEffects.initSettings();
   },

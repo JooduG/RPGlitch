@@ -7,12 +7,14 @@ vi.mock("@state/app.svelte.js", () => ({
   app: {
     log: vi.fn(),
     init: vi.fn(),
+    settings: { dev_mode: false },
   },
 }));
 
 vi.mock("@media/audio.js", () => ({
   Audio: {
     init: vi.fn(),
+    _initialized: false,
   },
 }));
 
@@ -22,6 +24,7 @@ vi.mock("@data/repository.js", () => ({
 vi.mock("@state/runtime.svelte.js", () => ({
   runtime: {
     sync: vi.fn(),
+    is_ready: false,
   },
 }));
 vi.mock("svelte", () => ({
@@ -67,10 +70,25 @@ describe("AppBootstrap", () => {
     expect(document.body.innerHTML).not.toContain(maliciousPayload);
   });
 
+  test("halts initialization if runtime is not ready", async () => {
+    const { runtime } = await import("@state/runtime.svelte.js");
+    const { mount } = await import("svelte");
+
+    vi.mocked(runtime).is_ready = false;
+
+    await AppBootstrap.init();
+
+    expect(document.body.innerHTML).toContain("SYSTEM HALTED");
+    expect(document.body.innerHTML).toContain("Runtime Synchronization Failed");
+    expect(vi.mocked(mount)).not.toHaveBeenCalled();
+  });
+
   test("successfully initializes all services in the correct order and mounts the app", async () => {
     const { Audio } = await import("@media/audio.js");
     const { runtime } = await import("@state/runtime.svelte.js");
     const { mount } = await import("svelte");
+
+    vi.mocked(runtime).is_ready = true;
 
     await AppBootstrap.init();
 
