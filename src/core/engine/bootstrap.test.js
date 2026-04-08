@@ -6,6 +6,15 @@ import { app } from "@state/app.svelte.js";
 vi.mock("@state/app.svelte.js", () => ({
   app: {
     log: vi.fn(),
+    init: vi.fn(),
+    settings: { dev_mode: false },
+  },
+}));
+
+vi.mock("@media/audio.js", () => ({
+  Audio: {
+    init: vi.fn(),
+    _initPromise: null,
   },
 }));
 
@@ -15,6 +24,7 @@ vi.mock("@data/repository.js", () => ({
 vi.mock("@state/runtime.svelte.js", () => ({
   runtime: {
     sync: vi.fn(),
+    is_ready: false,
   },
 }));
 vi.mock("svelte", () => ({
@@ -24,10 +34,14 @@ vi.mock("../../App.svelte", () => ({
   default: {},
 }));
 describe("AppBootstrap", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    const { Audio } = await import("@media/audio.js");
     document.body.innerHTML = "";
     vi.clearAllMocks();
     reset_bootstrap_guard();
+    // Reset singleton states for test isolation
+    Audio._initPromise = null;
+    app.settings.dev_mode = false;
   });
   test("escapes error stack using textContent when initialization fails", async () => {
     const maliciousPayload = "<img src=x onerror=alert(1)>";
@@ -58,6 +72,42 @@ describe("AppBootstrap", () => {
     expect(errorStackElement.textContent).toBe(maliciousPayload);
     expect(errorStackElement.innerHTML).toContain("&lt;img");
     expect(document.body.innerHTML).not.toContain(maliciousPayload);
+  });
+
+  test("successfully initializes all services in the correct order and mounts the app", async () => {
+    const { Audio } = await import("@media/audio.js");
+    const { runtime } = await import("@state/runtime.svelte.js");
+    const { mount } = await import("svelte");
+
+    vi.mocked(runtime).is_ready = true;
+
+    await AppBootstrap.init();
+
+    // Verify all functions were called
+    expect(repository.seed_premades).toHaveBeenCalled();
+    expect(vi.mocked(runtime.sync)).toHaveBeenCalled();
+    expect(app.init).toHaveBeenCalled();
+    expect(Audio.init).toHaveBeenCalled();
+    expect(vi.mocked(mount)).toHaveBeenCalled();
+
+    // Verify the critical execution order
+    const seedPremadesOrder = vi.mocked(repository.seed_premades).mock.invocationCallOrder[0];
+    const runtimeSyncOrder = vi.mocked(runtime.sync).mock.invocationCallOrder[0];
+    const appInitOrder = app.init.mock.invocationCallOrder[0];
+    const audioInitOrder = Audio.init.mock.invocationCallOrder[0];
+    const mountOrder = vi.mocked(mount).mock.invocationCallOrder[0];
+
+    // Verify seed_premades runs before parallel tasks
+    expect(seedPremadesOrder).toBeLessThan(runtimeSyncOrder);
+    expect(seedPremadesOrder).toBeLessThan(appInitOrder);
+    expect(seedPremadesOrder).toBeLessThan(audioInitOrder);
+
+    // Verify mount runs after all parallel tasks are initiated
+    const parallelInitMaxOrder = Math.max(runtimeSyncOrder, appInitOrder, audioInitOrder);
+    expect(mountOrder).toBeGreaterThan(parallelInitMaxOrder);
+
+    expect(document.getElementById("svelte-root")).toBeNull();
+    expect(app.log).toHaveBeenCalledWith(expect.stringContaining("System Online"), "system");
   });
 
   test("does not use direct innerHTML assignment for the entire error template", async () => {

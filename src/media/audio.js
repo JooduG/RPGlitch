@@ -137,6 +137,18 @@ export const Audio = {
   play: (soundId) => {
     return soundEffects.play(soundId);
   },
-  // Expose for initialization
+  _initPromise: null,
+  /**
+   * Initialize the Audio service and settings.
+   */
+  init: async () => {
+    if (Audio._initPromise) return Audio._initPromise;
+    Audio._initPromise = (async () => {
+      soundEffects.init();
+      await soundEffects.initSettings();
+    })();
+    return Audio._initPromise;
+  },
+  // Expose for internal debugging or specific overrides
   _effects: soundEffects,
 };
