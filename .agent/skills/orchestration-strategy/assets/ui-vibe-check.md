@@ -1,12 +1,12 @@
-## RPGlitch UI/UX Vibe Check
+# RPGlitch UI/UX Vibe Check
 
-### High-level impression
+## High-level impression
 
 The application feels like a high-end, futuristic terminal. The strict reliance on a dark, cohesive color palette, consistent spacing, and a global noise overlay gives it a distinct, premium, and slightly mysterious atmosphere.
 
 However, the aggressive use of glassmorphism (translucency + background blur) combined with a dark, low-contrast palette creates significant readability issues. While the interface looks beautiful as a static piece of art, the "visual friction" when actually using it is high. Stacking multiple transparent layers (e.g., a modal over a drawer over a gradient background) quickly devolves into an illegible, muddy gray mess.
 
-### Design system & visual language
+## Design system & visual language
 
 **What works:**
 
@@ -19,7 +19,7 @@ However, the aggressive use of glassmorphism (translucency + background blur) co
 - **The "Glass" effects are too dark:** Variables controlling translucency (like 15% black or 15% gray) rely too heavily on the underlying background being dark. When these glass surfaces overlap or sit over lighter parts of the gradient, contrast drops below accessible levels.
 - **Low-Contrast Grays:** Relying on medium grays for primary accents and borders against dark slate backgrounds often lacks the necessary "pop" to guide the user's eye to primary actions.
 
-### Components & patterns to fix
+## Components & patterns to fix
 
 - **Global Tooltips:** The tooltip implementation uses a 30% opacity black background. This is nearly invisible against the dark theme, making the white text completely unreadable.
   - *Fix:* Use a solid, high-contrast background for tooltips to ensure they stand out as top-layer elements.
@@ -35,7 +35,7 @@ However, the aggressive use of glassmorphism (translucency + background blur) co
 - **Kinetic Scroll:** The custom drag-to-scroll mechanic on mobile will cause severe jitter because it fails to prevent the browser's native scrolling behavior during touch movements.
 - **Drawer Headers:** "Select AI Character" is good, but "Select User Persona" is a bit wordy. "Choose Your Persona" feels more direct and engaging.
 
-### Concrete improvement suggestions
+## Concrete improvement suggestions
 
 1. **Fix the Glass Contrast:** Immediately audit and bump the opacity or brightness of translucent backgrounds, especially for empty states and tooltips.
 2. **Implement Global Focus Rings:** Define a high-contrast, globally accessible `:focus-visible` utility class (perhaps using a brighter, icy blue or pure white) and apply it to *all* interactive elements, not just buttons.

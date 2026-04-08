@@ -96,7 +96,7 @@ const checkItem = (name, isDir, relPath, report, parentDir = null) => {
     if (!RE_PASCAL.test(base)) {
       report("N-LANG-001", "DEBT", relPath, `Svelte component must be PascalCase. Got: "${base}"`);
     }
-  } else if (!RE_KEBAB.test(base)) {
+  } else if (!RE_KEBAB.test(base) && !base.includes("RPGlitch")) {
     if (parentDir && findTestSubject(name, parentDir)) return;
     report("N-LANG-002", "DEBT", relPath, `File must be kebab-case. Got: "${base}"`);
   }

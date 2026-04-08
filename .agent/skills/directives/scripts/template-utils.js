@@ -3,7 +3,16 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const TEMPLATES_DIR = path.join(__dirname, "..", "templates");
+let TEMPLATES_DIR = path.join(__dirname, "..", "templates");
+
+// Fallback search if relative path fails (CI/CD hardening)
+if (!fs.existsSync(TEMPLATES_DIR)) {
+  const root = process.cwd();
+  const altPath = path.join(root, ".agent", "skills", "directives", "templates");
+  if (fs.existsSync(altPath)) {
+    TEMPLATES_DIR = altPath;
+  }
+}
 
 /**
  * 🌊 Template Utilities (The Sovereign Blueprint)
