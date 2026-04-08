@@ -67,18 +67,36 @@ describe("AppBootstrap", () => {
     expect(document.body.innerHTML).not.toContain(maliciousPayload);
   });
 
-  test("successfully initializes all services and mounts the app", async () => {
+  test("successfully initializes all services in the correct order and mounts the app", async () => {
     const { Audio } = await import("@media/audio.js");
     const { runtime } = await import("@state/runtime.svelte.js");
     const { mount } = await import("svelte");
 
     await AppBootstrap.init();
 
+    // Verify all functions were called
     expect(repository.seed_premades).toHaveBeenCalled();
     expect(vi.mocked(runtime.sync)).toHaveBeenCalled();
     expect(app.init).toHaveBeenCalled();
     expect(Audio.init).toHaveBeenCalled();
     expect(vi.mocked(mount)).toHaveBeenCalled();
+
+    // Verify the critical execution order
+    const seedPremadesOrder = vi.mocked(repository.seed_premades).mock.invocationCallOrder[0];
+    const runtimeSyncOrder = vi.mocked(runtime.sync).mock.invocationCallOrder[0];
+    const appInitOrder = app.init.mock.invocationCallOrder[0];
+    const audioInitOrder = Audio.init.mock.invocationCallOrder[0];
+    const mountOrder = vi.mocked(mount).mock.invocationCallOrder[0];
+
+    // Verify seed_premades runs before parallel tasks
+    expect(seedPremadesOrder).toBeLessThan(runtimeSyncOrder);
+    expect(seedPremadesOrder).toBeLessThan(appInitOrder);
+    expect(seedPremadesOrder).toBeLessThan(audioInitOrder);
+
+    // Verify mount runs after all parallel tasks are initiated
+    const parallelInitMaxOrder = Math.max(runtimeSyncOrder, appInitOrder, audioInitOrder);
+    expect(mountOrder).toBeGreaterThan(parallelInitMaxOrder);
+
     expect(document.getElementById("svelte-root")).toBeNull();
     expect(app.log).toHaveBeenCalledWith(expect.stringContaining("System Online"), "system");
   });
