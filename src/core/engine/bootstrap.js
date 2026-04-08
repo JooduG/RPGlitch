@@ -27,15 +27,15 @@ export const AppBootstrap = {
     }
     has_initialized = true;
     try {
-      // 1. Seed Premades (Entities/Stories)
+      // 1. Seed Premades (Entities/Stories) - Must happen before sync to ensure data exists.
       await seed_premades();
+
+      // Parallel Initialization: Reduce critical path for LCP.
       // 2. Sync Runtime State (Hydrate from DB)
-      await runtime.sync();
       // 3. Hydrate Application Settings
-      await app.init();
       // 4. Initialize Audio Services
-      Audio._effects.init();
-      await Audio._effects.initSettings();
+      await Promise.all([runtime.sync(), app.init(), Audio.init()]);
+
       // 5. Mount Svelte App
       mount(App, {
         target: document.getElementById("main-app-container") || document.body,

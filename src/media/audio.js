@@ -137,6 +137,13 @@ export const Audio = {
   play: (soundId) => {
     return soundEffects.play(soundId);
   },
-  // Expose for initialization
+  /**
+   * Initialize the Audio service and settings.
+   */
+  init: async () => {
+    soundEffects.init();
+    await soundEffects.initSettings();
+  },
+  // Expose for internal debugging or specific overrides
   _effects: soundEffects,
 };

@@ -12,10 +12,7 @@ vi.mock("@state/app.svelte.js", () => ({
 
 vi.mock("@media/audio.js", () => ({
   Audio: {
-    _effects: {
-      init: vi.fn(),
-      initSettings: vi.fn(),
-    },
+    init: vi.fn(),
   },
 }));
 
@@ -68,6 +65,22 @@ describe("AppBootstrap", () => {
     expect(errorStackElement.textContent).toBe(maliciousPayload);
     expect(errorStackElement.innerHTML).toContain("&lt;img");
     expect(document.body.innerHTML).not.toContain(maliciousPayload);
+  });
+
+  test("successfully initializes all services and mounts the app", async () => {
+    const { Audio } = await import("@media/audio.js");
+    const { runtime } = await import("@state/runtime.svelte.js");
+    const { mount } = await import("svelte");
+
+    await AppBootstrap.init();
+
+    expect(repository.seed_premades).toHaveBeenCalled();
+    expect(vi.mocked(runtime.sync)).toHaveBeenCalled();
+    expect(app.init).toHaveBeenCalled();
+    expect(Audio.init).toHaveBeenCalled();
+    expect(vi.mocked(mount)).toHaveBeenCalled();
+    expect(document.getElementById("svelte-root")).toBeNull();
+    expect(app.log).toHaveBeenCalledWith(expect.stringContaining("System Online"), "system");
   });
 
   test("does not use direct innerHTML assignment for the entire error template", async () => {
