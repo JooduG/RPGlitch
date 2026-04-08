@@ -8,6 +8,7 @@
   import { llm_service } from "@core/intelligence/llm-service.js";
   import { prompt_builder } from "@core/intelligence/prompt-builder.js";
   import { ImageGeneration } from "@media/image-engine.js";
+  import { validateImage } from "@core/security.js";
   import { app } from "@state/app.svelte.js";
   import { PALETTE, PALETTE_VARS } from "@theme/palette.svelte.js";
   import Button from "@ui/atoms/Button.svelte";
@@ -138,6 +139,7 @@
     const file = e.target.files[0];
     if (!file) return;
     try {
+      await validateImage(file);
       const url = await ImageGeneration.upload(file);
       if (url) char.profile_picture = url;
     } catch (err) {
