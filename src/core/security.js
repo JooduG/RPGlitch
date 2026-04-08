@@ -48,16 +48,6 @@ export const validateImage = async (file, options = {}) => {
   // We read the first 12 bytes to cover JPEG, PNG, GIF, and WebP
   const buffer = await file.slice(0, 12).arrayBuffer();
   const header = new Uint8Array(buffer);
-  const hex = Array.from(header)
-    .map((b) => b.toString(16).padStart(2, "0").toUpperCase())
-    .join("");
-
-  let isValid = false;
-  switch (file.type) {
-    case "image/jpeg":
-      // JPEG: FF D8 FF
-      isValid = hex.startsWith("FFD8FF");
-      break;
   const signatures = {
     "image/jpeg": (h) => h[0] === 0xFF && h[1] === 0xD8 && h[2] === 0xFF,
     "image/png": (h) => h[0] === 0x89 && h[1] === 0x50 && h[2] === 0x4E && h[3] === 0x47,
