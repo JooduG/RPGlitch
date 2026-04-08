@@ -1,6 +1,8 @@
 *.tmp
 *.template
 *.log
+act_output.log
+.secrets
 *.bak
 **/yarn.lock
 **/test-results/**
@@ -39,8 +41,7 @@
 **/.jules/cache/**
 **/.gemini/**
 !**/rpglitch-left-panel.txt
-.playwright-auth/**
-
-# Act Local Verification
+**/playwright-auth/**
 act_output.log
-.env
+.secrets
+**/.jules/**

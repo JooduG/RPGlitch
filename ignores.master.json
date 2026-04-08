@@ -55,7 +55,7 @@
     "!**/.gemini/**",
     "!**/.env"
   ],
-  "gitignore": ["**/.gemini/**", "!**/rpglitch-left-panel.txt", ".playwright-auth/**", "act_output.log", ".secrets"],
+  "gitignore": ["**/.gemini/**", "!**/rpglitch-left-panel.txt", "**/playwright-auth/**", "act_output.log", ".secrets", "**/.jules/**"],
   "antigravityignore": [],
   "linters": {
     "eslint": [],

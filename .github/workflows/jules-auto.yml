@@ -58,9 +58,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: "npm"
-      - run: npm install
+      - run: npm install --legacy-peer-deps
       - name: "Sovereign Audit"
         run: npm run verify
       - name: "Production Build"
@@ -96,9 +96,9 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: "npm"
-      - run: npm install
+      - run: npm install --legacy-peer-deps
 
       # NIGHTLY HYGIENE (4 AM)
       - name: "🌙 The Night Shift"

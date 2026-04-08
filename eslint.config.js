@@ -19,6 +19,8 @@ export default [
       "*.tmp",
       "*.template",
       "*.log",
+      "act_output.log",
+      ".secrets",
       "*.bak",
       "**/yarn.lock",
       "**/test-results/**",
