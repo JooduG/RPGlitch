@@ -83,8 +83,7 @@
         plugin settings.
       </p>
       <Button
-        className="btn-retry"
-        variant="ghost"
+        variant="dashed"
         onclick={() => session.retry()}
         label="Retry Connection"
       />
@@ -126,18 +125,5 @@
 
   .empty-feed-fallback p {
     max-width: 25rem;
-  }
-
-  .empty-feed-fallback :global(.btn-retry) {
-    padding: var(--spacing-xs) var(--spacing-m);
-    background: var(--glass-l);
-    box-shadow: var(--shadow-s);
-    border-radius: var(--border-radius);
-    color: var(--font-color-s);
-  }
-
-  .empty-feed-fallback :global(.btn-retry):hover {
-    background: var(--glass-xs);
-    color: var(--font-color-m);
   }
 </style>

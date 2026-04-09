@@ -46,7 +46,7 @@
 <div class="vector-panel" style="--accent-color: {signature_color}">
   <div class="vector-list">
     {#if is_editing}
-      <Button variant="ghost" className="btn-add-unit" onclick={add_item}>
+      <Button variant="dashed" onclick={add_item}>
         + Add {unit_label}
       </Button>
     {/if}
@@ -88,19 +88,5 @@
     font-size: var(--font-size-xs);
     font-style: italic;
     opacity: var(--opacity-m);
-  }
-
-  :global(.btn-add-unit) {
-    width: 100%;
-    font-size: var(--font-size-s);
-    border: var(--spacing-px) dashed var(--glass-edge-l);
-    border-radius: var(--border-radius);
-    transition: all var(--motion-fast) var(--motion-elastic);
-  }
-
-  :global(.btn-add-unit):hover {
-    background: var(--glass-xs);
-    border-color: rgb(var(--color-white-rgb) / var(--opacity-m));
-    transform: translateY(var(--motion-btn-hover-y));
   }
 </style>

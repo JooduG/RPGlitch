@@ -16,11 +16,11 @@
     open = $bindable(false),
   } = $props();
   let dialog = $state();
-  let confirm_btn = $state();
+  let confirm_button = $state();
   $effect(() => {
     if (open && dialog) {
       dialog.showModal();
-      confirm_btn?.focus();
+      confirm_button?.focus();
     } else if (!open && dialog) {
       dialog.close();
     }
@@ -50,7 +50,7 @@
     <article class="security-modal">
       <header>
         <h3>{title}</h3>
-        <Button variant="ghost" className="icon-only" onclick={handle_cancel} aria-label="Close">
+        <Button variant="ghost" square={true} size="sm" onclick={handle_cancel} aria-label="Close">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -71,7 +71,7 @@
         <Button
           variant="danger"
           onclick={handle_confirm}
-          bind:this={confirm_btn}
+          bind:this={confirm_button}
           label={confirm_label}
         />
       </footer>
@@ -153,16 +153,4 @@
   }
 
   /* Button styling delegated to Button component */
-  :global(.security-modal .icon-only.btn) {
-    padding: var(--spacing-xxs);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: auto;
-  }
-
-  :global(.security-modal .icon-only .icon) {
-    width: var(--spacing-l);
-    height: var(--spacing-l);
-  }
 </style>

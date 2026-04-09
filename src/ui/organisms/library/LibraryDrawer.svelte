@@ -104,7 +104,7 @@
   >
     <header class="drawer-header">
       <h3 id="drawer-title">{title()}</h3>
-      <button class="close-btn" onclick={() => app.close_drawer()} aria-label="Close drawer"
+      <button class="close-button" onclick={() => app.close_drawer()} aria-label="Close drawer"
         >×</button
       >
     </header>
@@ -187,7 +187,7 @@
     text-transform: uppercase;
   }
 
-  .drawer-header .close-btn {
+  .drawer-header .close-button {
     background: transparent;
     border: none;
     color: var(--font-color-s);
@@ -196,7 +196,7 @@
     line-height: 1;
   }
 
-  .drawer-header .close-btn:hover {
+  .drawer-header .close-button:hover {
     color: var(--color-white);
   }
 

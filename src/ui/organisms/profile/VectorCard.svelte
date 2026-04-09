@@ -34,7 +34,8 @@
         <div class="actions">
           <Button
             variant="danger"
-            className="vector-delete-btn"
+            square={true}
+            size="sm"
             onclick={on_delete}
             title="Remove {unit_label}"
           >
@@ -133,31 +134,7 @@
     margin-top: 0;
   }
 
-  :global(.vector-delete-btn.btn) {
-    background: transparent;
-    color: var(--font-color-s);
-    box-shadow:
-      inset 0 0 0 var(--spacing-px) var(--signature-color),
-      var(--glass-edge-l);
-    width: var(--spacing-xl);
-    height: var(--spacing-xl);
-    padding: 0;
-    border-radius: var(--spacing-xs);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all var(--motion-fast) var(--motion-elastic);
-  }
-
-  :global(.vector-delete-btn.btn):hover {
-    background: var(--color-del);
-    box-shadow: var(--shadow-m);
-    color: var(--font-color-m);
-    filter: brightness(1.2);
-    transform: translateY(var(--motion-btn-hover-y));
-  }
-
-  :global(.vector-delete-btn.btn) .icon {
+  :global(.vector-card .button .icon) {
     font-size: var(--font-size-xxl);
     line-height: 1;
     font-weight: var(--font-weight-xl);

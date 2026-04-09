@@ -75,13 +75,13 @@
   }
 
   /* --- Scoped UI Overrides --- */
-  :global(.unified-capsule .btn) {
+  :global(.unified-capsule .button) {
     background: transparent;
     filter: none;
     transition: all var(--motion-fast);
   }
 
-  :global(.unified-capsule .btn:hover:not(:disabled)) {
+  :global(.unified-capsule .button:hover:not(:disabled)) {
     background: transparent;
     filter: none;
     color: var(--font-color-m);
@@ -89,7 +89,7 @@
   }
 
   /* Flank Buttons (Shuffle/Settings) */
-  :global(.unified-capsule .capsule-flank.btn) {
+  :global(.unified-capsule .capsule-flank.button) {
     flex: 0 0 var(--spacing-xxxl);
     width: var(--spacing-xxxl);
     height: 100%;
@@ -102,13 +102,13 @@
     color: var(--font-color-s);
   }
 
-  :global(.unified-capsule .capsule-flank.btn:hover svg) {
+  :global(.unified-capsule .capsule-flank.button:hover svg) {
     fill: var(--font-color-m);
     stroke: var(--font-color-m);
   }
 
   /* Primary Action Button (Begin) */
-  :global(.unified-capsule .capsule-action.btn) {
+  :global(.unified-capsule .capsule-action.button) {
     height: 100%;
     min-width: 8.125rem; /* ~130px */
     border: none;
@@ -121,13 +121,13 @@
     opacity: var(--opacity-m);
   }
 
-  :global(.unified-capsule .capsule-action.btn:disabled) {
+  :global(.unified-capsule .capsule-action.button:disabled) {
     opacity: var(--opacity-s);
     cursor: not-allowed;
   }
 
   /* Extra Label Polish */
-  :global(.unified-capsule .capsule-action.btn:hover .label) {
+  :global(.unified-capsule .capsule-action.button:hover .label) {
     text-shadow: 0 0 var(--spacing-m) var(--color-white);
   }
 

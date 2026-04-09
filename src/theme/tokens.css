@@ -181,6 +181,10 @@
   --spacing-xxxl: 6rem;
   --spacing-px: 1px;
 
+  /* Button Metrics */
+  --button-icon-m: 2.5rem; /* 40px - Standard icon actions */
+  --button-icon-s: 2rem; /* 32px - Dense icon actions */
+
   /* Border-radius */
   --border-radius-xs: 0.125rem;
   --border-radius-s: 0.25rem;
@@ -205,8 +209,8 @@
   --motion-slow: 0.4s;
   --motion-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
   --motion-hover-y: -0.25rem;
-  --motion-btn-hover-y: -0.1rem;
-  --motion-btn-active-scale: 0.95;
+  --motion-button-hover-y: -0.1rem;
+  --motion-button-active-scale: 0.95;
 
   /* T-Shirt Z-Index Scale */
   --z-index-xs: -1; /* Below Floor: Noise, vignettes, background underlays */

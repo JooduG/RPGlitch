@@ -24,7 +24,7 @@
     <div class="voice-control-row">
       <div class="dropdown">
         <button
-          class="voice-btn"
+          class="voice-button"
           type="button"
           disabled={!is_editing}
           onclick={() => (show_voice_dropdown = !show_voice_dropdown)}
@@ -53,7 +53,7 @@
         </div>
       </div>
       <button
-        class="preview-btn"
+        class="preview-button"
         type="button"
         title="Preview Voice"
         disabled={!is_editing || !char.voice.uri}
@@ -156,7 +156,7 @@
     min-width: 0;
   }
 
-  .voice-btn {
+  .voice-button {
     width: 100%;
     height: 2.5rem;
     background: var(--glass-s);
@@ -173,12 +173,12 @@
     overflow: hidden;
   }
 
-  .voice-btn:disabled {
+  .voice-button:disabled {
     opacity: var(--opacity-m);
     cursor: default;
   }
 
-  .voice-btn:hover:not(:disabled) {
+  .voice-button:hover:not(:disabled) {
     background: var(--glass-l);
     box-shadow: inset 0 0 0 1px var(--glass-edge-l);
   }
@@ -192,7 +192,7 @@
     text-align: center;
   }
 
-  .preview-btn {
+  .preview-button {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -209,17 +209,17 @@
     transition: all var(--motion-fast) var(--motion-elastic);
   }
 
-  .preview-btn:disabled {
+  .preview-button:disabled {
     opacity: var(--opacity-s);
     cursor: default;
   }
 
-  .preview-btn:hover:not(:disabled) {
+  .preview-button:hover:not(:disabled) {
     background: var(--glass-l);
     box-shadow: inset 0 0 0 1px var(--glass-edge-l);
   }
 
-  .preview-btn:active:not(:disabled) {
+  .preview-button:active:not(:disabled) {
     transform: scale(0.95);
   }
 

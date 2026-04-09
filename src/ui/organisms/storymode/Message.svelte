@@ -108,7 +108,7 @@
           {#each attachments as src (src)}
             <button
               type="button"
-              class="attachment-btn"
+              class="attachment-button"
               onclick={() => app.open_lightbox(src)}
               title="View Attachment"
             >
@@ -133,7 +133,7 @@
           <div class="message-actions">
             {#if is_last}
               <button
-                class="action-btn"
+                class="action-button"
                 type="button"
                 title="Continue"
                 onclick={(e) => on_continue(e)}
@@ -153,7 +153,7 @@
                 </svg>
               </button>
               <button
-                class="action-btn"
+                class="action-button"
                 type="button"
                 title="Reroll"
                 onclick={(e) => on_regenerate(e)}
@@ -174,7 +174,7 @@
                 </svg>
               </button>
             {/if}
-            <button class="action-btn" type="button" title="Edit" onclick={(e) => on_edit(e)}>
+            <button class="action-button" type="button" title="Edit" onclick={(e) => on_edit(e)}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="14"
@@ -191,7 +191,7 @@
               </svg>
             </button>
             <button
-              class="action-btn"
+              class="action-button"
               type="button"
               title="Copy"
               onclick={async () => {
@@ -218,7 +218,7 @@
               </svg>
             </button>
             <button
-              class="action-btn delete"
+              class="action-button delete"
               type="button"
               title="Delete"
               onclick={(e) => on_delete(e)}
@@ -258,7 +258,7 @@
     margin-bottom: var(--spacing-s);
   }
 
-  .attachments .attachment-btn {
+  .attachments .attachment-button {
     background: none;
     border: none;
     padding: 0;
@@ -268,7 +268,7 @@
     display: block;
   }
 
-  .attachments .attachment-btn:hover {
+  .attachments .attachment-button:hover {
     transform: scale(1.02);
   }
 
@@ -438,7 +438,7 @@
     pointer-events: auto;
   }
 
-  .action-btn {
+  .action-button {
     background: var(--glass-l);
     color: var(--font-color-s);
     border-radius: var(--border-radius);
@@ -454,35 +454,35 @@
     padding: 0;
   }
 
-  .action-btn,
-  .action-btn svg,
-  .action-btn path,
-  .action-btn rect,
-  .action-btn polygon,
-  .action-btn polyline {
+  .action-button,
+  .action-button svg,
+  .action-button path,
+  .action-button rect,
+  .action-button polygon,
+  .action-button polyline {
     text-shadow: none;
     filter: none;
     box-shadow: none;
     shape-rendering: geometricprecision;
   }
 
-  .action-btn svg {
+  .action-button svg {
     stroke-width: 1.5;
     pointer-events: none;
   }
 
-  .action-btn:hover {
+  .action-button:hover {
     background: var(--font-color-m);
     box-shadow: 0 0 0 var(--spacing-px) var(--font-color-m);
     color: var(--signature-color);
   }
 
-  .action-btn:hover svg {
+  .action-button:hover svg {
     stroke-width: 2;
     stroke: currentcolor;
   }
 
-  .action-btn::after {
+  .action-button::after {
     content: attr(title);
     position: absolute;
     bottom: 100%;
@@ -501,18 +501,18 @@
     box-shadow: var(--glass-border);
   }
 
-  .action-btn:hover::after {
+  .action-button:hover::after {
     opacity: var(--opacity-full);
     transform: translateX(-50%) translateY(calc(var(--spacing-xs) * -1));
   }
 
-  .action-btn.delete:hover {
+  .action-button.delete:hover {
     background: var(--color-del); /* [R5] Standardized variable from tokens.css */
     box-shadow: 0 0 0 var(--spacing-px) var(--font-color-m);
     color: var(--font-color-m);
   }
 
-  .action-btn.delete:hover svg {
+  .action-button.delete:hover svg {
     stroke: var(--font-color-m);
   }
 </style>

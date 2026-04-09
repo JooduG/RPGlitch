@@ -236,7 +236,7 @@
               if (active_field?.key === "visual-prompt") {
                 const focused = document.activeElement;
                 if (
-                  !focused?.closest(".action-btn") &&
+                  !focused?.closest(".action-button") &&
                   !focused?.closest(".text-area") &&
                   busy_fields.size === 0
                 ) {
@@ -254,18 +254,16 @@
       </div>
       <div class="action-row">
         <Button
-          variant="ghost"
+          variant={creative_variant}
           size="sm"
           label={creative_label}
-          className="action-btn mode-{creative_variant}"
           onclick={handle_creative_action}
           disabled={is_creative_disabled}
         />
         <Button
-          variant="ghost"
+          variant={generation_variant}
           size="sm"
           label={is_prompt_busy ? "Busy..." : has_prompt_text ? "Generate" : "Upload"}
-          className="action-btn mode-{generation_variant}"
           onclick={handle_generation_action}
           disabled={!is_editing || is_prompt_busy}
         />
@@ -416,47 +414,18 @@
     box-shadow: inset 0 1px 0 var(--glass-edge-l);
   }
 
-  .action-row :global(.btn) {
+  .action-row :global(.button) {
     width: 100%;
-    border: none;
     border-radius: 0;
-    background: var(--glass-l);
     font-size: var(--font-size-xs);
     padding: var(--spacing-xs);
-    transition: all var(--motion-fast);
     text-transform: capitalize;
-  }
-
-  .action-row :global(.btn:not(:last-child)) {
-    box-shadow: 1px 0 0 var(--glass-edge-l);
-  }
-
-  .action-row :global(.btn:hover) {
-    background: var(--glass-l);
-  }
-
-  .action-row :global(.btn.action-btn) {
     font-weight: var(--font-weight-l);
     letter-spacing: var(--letter-spacing-s);
   }
 
-  .action-row :global(.btn.action-btn.mode-tech):not(:disabled) {
-    color: var(--color-frisk);
-  }
-
-  .action-row :global(.btn.action-btn.mode-tech):not(:disabled):hover {
-    background: rgb(var(--color-frisk-rgb) / 10%);
-    color: var(--color-white);
-  }
-
-  .action-row :global(.btn.action-btn.mode-magic):not(:disabled) {
-    color: var(--color-frozen);
-    font-weight: var(--font-weight-l);
-  }
-
-  .action-row :global(.btn.action-btn.mode-magic):not(:disabled):hover {
-    background: rgb(var(--color-frozen-rgb) / 10%);
-    color: var(--color-white);
+  .action-row :global(.button:not(:last-child)) {
+    box-shadow: 1px 0 0 var(--glass-edge-l);
   }
 
   .toggle-stack {

@@ -1,10 +1,11 @@
 <script>
   let {
     label = "",
-    variant = "primary", // primary | secondary | ghost | danger | glass
+    variant = "primary", // primary | secondary | ghost | danger | glass | dashed | overlay | magic | tech
     size = "md", // sm | md
-    className = "", // Allow local overrides (use className="..." when calling)
-    children = null, // For icons/complex content
+    square = false, // Enforce 1:1 aspect ratio
+    className = "", // Allow local overrides
+    children = null,
     onclick = null,
     ...restProps // Pass through disabled, etc.
   } = $props();
@@ -38,7 +39,7 @@
 
 <button
   bind:this={element}
-  class="btn btn-{variant} {size === 'sm' ? 'btn-sm' : ''} {className}"
+  class="button button-{variant} {size === 'sm' ? 'button-sm' : ''} {square ? 'button-square' : ''} {className}"
   {...restProps}
   {onclick}
   use:applyActions={restProps.actions || []}
@@ -51,7 +52,7 @@
 </button>
 
 <style>
-  .btn {
+  .button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -72,68 +73,113 @@
   }
 
   /* 1. Modifiers & Globals (Structural) */
-  .btn.btn-sm {
+  .button.button-sm {
     min-height: var(--spacing-xl);
     padding: var(--spacing-xxs) var(--spacing-s);
     font-size: var(--font-size-xs);
   }
 
-  .btn-round {
+  .button.button-square {
+    padding: 0;
+    width: var(--button-icon-m);
+    height: var(--button-icon-m);
+    aspect-ratio: 1;
+    flex-shrink: 0;
+  }
+
+  .button.button-square.button-sm {
+    width: var(--button-icon-s);
+    height: var(--button-icon-s);
+  }
+
+  .button-round {
     border-radius: var(--border-radius-full);
     padding: 0;
     width: var(--spacing-xxl);
     height: var(--spacing-xxl);
   }
 
-  :global(.btn-group-joined) .btn {
+  :global(.button-group-joined) .button {
     border-radius: 0;
   }
 
-  :global(.btn-group-pill) .btn {
+  :global(.button-group-pill) .button {
     border-radius: var(--border-radius-full);
     min-height: var(--spacing-xl);
   }
 
   /* 2. Variants (Thematic) */
-  .btn-primary {
+  .button-primary {
     background: var(--color-frisk);
     color: var(--color-black);
     box-shadow: var(--shadow-m);
   }
 
-  .btn-ghost {
+  .button-ghost {
     color: var(--font-color-s);
   }
 
-  .btn-outline {
+  .button-outline {
     background: var(--glass-edge-l);
     color: var(--font-color-s);
   }
 
-  .btn-glass {
+  .button-danger {
+    background: transparent;
+    border: 1px solid var(--color-danger);
+    color: var(--color-danger);
+  }
+
+  .button-dashed {
+    background: transparent;
+    border: 1px dashed var(--glass-edge-l);
+    color: var(--font-color-s);
+  }
+
+  .button-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-index-m);
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+  }
+
+  .button-magic {
+    background: transparent;
+    color: var(--color-frozen);
+  }
+
+  .button-tech {
+    background: transparent;
+    color: var(--color-frisk);
+  }
+
+  .button-glass {
     background: var(--glass-l);
     color: var(--color-white);
   }
 
-  .btn-secondary {
+  .button-secondary {
     background: var(--glass-l);
     color: var(--font-color-m);
   }
 
-  .btn-security {
+  .button-security {
     background: var(--glass-xs);
     color: var(--font-color-m);
     box-shadow: 0 0 0 1px var(--color-frisk);
   }
 
   /* 3. Base States (Behavioral - Lower Specificity) */
-  .btn:focus-visible {
+  .button:focus-visible {
     outline: none;
     box-shadow: 0 0 0 2px var(--color-frisk);
   }
 
-  .btn:disabled,
-  .btn.disabled {
+  .button:disabled,
+  .button.disabled {
     opacity: var(--opacity-s);
     cursor: not-allowed;
     filter: grayscale(1);
@@ -142,57 +188,85 @@
     box-shadow: none;
   }
 
-  .btn:active:not(:disabled, .disabled) {
+  .button:active:not(:disabled, .disabled) {
     transform: none;
   }
 
   /* 4. The Hover Monster (Highest Specificity due to :not) */
-  .btn:hover:not(:disabled, .disabled) {
+  .button:hover:not(:disabled, .disabled) {
     filter: brightness(1.1);
   }
 
-  .btn-primary:hover:not(:disabled, .disabled) {
+  .button-primary:hover:not(:disabled, .disabled) {
     background: color-mix(in srgb, var(--color-frisk), var(--color-white) 5%);
   }
 
-  .btn-ghost:hover:not(:disabled, .disabled) {
+  .button-ghost:hover:not(:disabled, .disabled) {
     background: var(--glass-xs);
     color: var(--font-color-m);
   }
 
-  .btn-outline:hover:not(:disabled, .disabled) {
+  .button-outline:hover:not(:disabled, .disabled) {
     color: var(--color-frisk);
     background: var(--glass-xs);
   }
 
-  .btn-glass:hover:not(:disabled, .disabled) {
+  .button-danger:hover:not(:disabled, .disabled) {
+    background: var(--color-danger);
+    color: var(--color-white);
+    box-shadow: 0 0 1rem rgb(var(--color-danger-rgb) / var(--opacity-s));
+    filter: brightness(1.2);
+  }
+
+  .button-dashed:hover:not(:disabled, .disabled) {
+    background: var(--glass-xs);
+    border-color: var(--font-color-s);
+    color: var(--font-color-m);
+    transform: translateY(var(--motion-button-hover-y));
+  }
+
+  .button-overlay:hover:not(:disabled, .disabled) {
+    background: var(--glass-xs);
+  }
+
+  .button-magic:hover:not(:disabled, .disabled) {
+    background: rgb(var(--color-frozen-rgb) / 15%);
+    color: var(--color-white);
+  }
+
+  .button-tech:hover:not(:disabled, .disabled) {
+    background: rgb(var(--color-frisk-rgb) / 15%);
+    color: var(--color-white);
+  }
+
+  .button-glass:hover:not(:disabled, .disabled) {
     background: var(--glass-l);
   }
 
-  .btn-secondary:hover:not(:disabled, .disabled) {
+  .button-secondary:hover:not(:disabled, .disabled) {
     background: var(--glass-l);
   }
 
-  .btn-security:hover:not(:disabled, .disabled) {
+  .button-security:hover:not(:disabled, .disabled) {
     box-shadow:
       0 0 15px var(--glass-xs),
       0 0 0 1px var(--font-color-m);
   }
 
-  .btn :global(.icon) {
+  .button :global(.icon) {
     pointer-events: none;
   }
 
   /* 5. Positional Overrides (Must be last) */
-  :global(.btn-group-joined) .btn:first-child {
+  :global(.button-group-joined) .button:first-child {
     border-radius: var(--border-radius) 0 0 var(--border-radius);
   }
 
-  :global(.btn-group-joined) .btn:last-child {
+  :global(.button-group-joined) .button:last-child {
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
   }
 
-  :global(.btn-group-joined) .btn:not(:last-child) {
+  :global(.button-group-joined) .button:not(:last-child) {
     border-right: 1px solid var(--glass-s);
   }
 </style>

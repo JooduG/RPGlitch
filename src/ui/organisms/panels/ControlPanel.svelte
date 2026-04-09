@@ -80,7 +80,7 @@
     <!-- FOOTER: Navigation & Meta -->
     <footer class="panel-footer">
       <div class="navigation-links">
-        <button class="nav-btn" onclick={() => handleAction("OpenLibrary")}> Story Library </button>
+        <button class="nav-button" onclick={() => handleAction("OpenLibrary")}> Story Library </button>
       </div>
 
       <div class="system-meta">
@@ -192,7 +192,7 @@
     justify-content: center;
   }
 
-  .navigation-links .nav-btn {
+  .navigation-links .nav-button {
     background: none;
     border: none;
     color: var(--font-color-s);
@@ -205,7 +205,7 @@
     opacity: var(--opacity-l);
   }
 
-  .navigation-links .nav-btn:hover {
+  .navigation-links .nav-button:hover {
     color: var(--font-color-m);
     opacity: var(--opacity-full);
     transform: translateY(-1px);

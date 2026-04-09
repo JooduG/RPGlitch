@@ -36,8 +36,7 @@
 >
   {#if is_empty}
     <Button
-      className="storyboard-empty"
-      variant="ghost"
+      variant="overlay"
       onclick={on_select}
       aria-label="Select {role_label}"
     >
@@ -73,8 +72,7 @@
 
       <!-- Action Layer (Top-level Pointer Target) -->
       <Button
-        className="card-action-overlay"
-        variant="ghost"
+        variant="overlay"
         onclick={on_select}
         aria-label="Change {role_label}"
       >
@@ -125,26 +123,7 @@
     filter: brightness(1.1);
   }
 
-  /* Prevent over-exposure by suppressing the overlay's internal brightness */
-  :global(.storyboard-stack .card-action-overlay.btn:hover) {
-    filter: none;
-    background: var(--glass-xs);
-  }
-
   /* --- EMPTY STATE --- */
-  :global(.storyboard-empty.btn) {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: none;
-    border-radius: 0;
-    padding: 0;
-  }
-
   .empty-content {
     display: flex;
     flex-direction: column;
@@ -155,7 +134,7 @@
     transition: transform var(--motion-fast) var(--motion-elastic);
   }
 
-  :global(.storyboard-empty.btn:hover) .empty-content {
+  :global(.storyboard-empty.button:hover) .empty-content {
     transform: scale(1.05);
   }
 
@@ -218,27 +197,13 @@
     overflow: hidden;
   }
 
-  /* Action Layer: Full card click */
-  :global(.card-action-overlay.btn) {
-    position: absolute;
-    inset: 0;
-    z-index: var(--z-index-m);
-    border: none;
-    border-radius: 0;
-    padding: 0;
-    background: transparent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
   .visual-anchor {
     width: 100%;
     height: 100%;
   }
 
   /* Profile Link: Floating button on top */
-  :global(.profile-quick-link.btn) {
+  :global(.profile-quick-link.button) {
     position: absolute;
     top: var(--spacing-m);
     right: var(--spacing-m);
@@ -262,11 +227,11 @@
     box-shadow: var(--shadow-l);
   }
 
-  .storyboard-stack:hover :global(.profile-quick-link.btn) {
+  .storyboard-stack:hover :global(.profile-quick-link.button) {
     opacity: var(--opacity-l);
   }
 
-  :global(.storyboard-stack .profile-quick-link.btn:hover) {
+  :global(.storyboard-stack .profile-quick-link.button:hover) {
     opacity: var(--opacity-full);
     background: var(--glass-xs);
   }

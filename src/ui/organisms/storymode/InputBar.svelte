@@ -44,7 +44,7 @@
 
 <div class="input-bar-unit" class:is-focused={is_focused} class:is-disabled={is_locked}>
   <button
-    class="icon-btn settings-btn"
+    class="icon-button settings-button"
     onclick={() => app.toggle_control_panel()}
     title="Settings"
     type="button"
@@ -69,7 +69,7 @@
     disabled={is_locked}
   ></textarea>
   <button
-    class="icon-btn send-btn"
+    class="icon-button send-button"
     onclick={handle_send}
     disabled={!value.trim() || is_locked}
     title="Send Message"
@@ -138,7 +138,7 @@
     color: var(--font-color-s);
   }
 
-  .icon-btn {
+  .icon-button {
     background: transparent;
     border: none;
     color: var(--font-color-s);
@@ -151,19 +151,19 @@
     border-radius: var(--border-radius);
   }
 
-  .icon-btn .icon {
+  .icon-button .icon {
     width: 1.25rem;
     height: 1.25rem;
     fill: currentcolor;
   }
 
   /* 1. Icon Button States */
-  .icon-btn:disabled {
+  .icon-button:disabled {
     opacity: var(--opacity-xxs);
     cursor: not-allowed;
   }
 
-  .icon-btn:hover:not(:disabled) {
+  .icon-button:hover:not(:disabled) {
     color: var(--font-color-m);
     filter: drop-shadow(
       0 0 var(--spacing-m)
@@ -172,7 +172,7 @@
   }
 
   /* 2. Specific Overrides */
-  .send-btn:not(:disabled):hover {
+  .send-button:not(:disabled):hover {
     color: var(--font-color-m);
     filter: drop-shadow(
       0 0 var(--spacing-m)

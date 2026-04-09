@@ -8,17 +8,17 @@
     <div class="footer-actions">
       <Button
         variant="danger"
-        className="profile-btn"
+        className="profile-button"
         onclick={handle_delete}
         disabled={is_saving}
-        data-testid="delete-btn">Delete</Button
+        data-testid="delete-button">Delete</Button
       >
       <Button
         variant="edit"
-        className="profile-btn"
+        className="profile-button"
         onclick={handle_save}
         disabled={is_saving}
-        data-testid="save-btn"
+        data-testid="save-button"
       >
         {is_saving ? "Saving..." : "Save"}
       </Button>
@@ -26,11 +26,11 @@
   {:else}
     <Button
       variant="edit"
-      className="profile-btn"
+      className="profile-button"
       onclick={() => {
         is_editing = true;
       }}
-      data-testid="edit-btn"
+      data-testid="edit-button"
     >
       Edit
     </Button>
@@ -49,7 +49,7 @@
     padding-top: var(--spacing-m);
   }
 
-  footer :global(.profile-btn.btn) {
+  footer :global(.profile-button.button) {
     height: auto;
     display: flex;
     align-items: center;
@@ -69,29 +69,13 @@
     width: 100%;
   }
 
-  footer .footer-actions :global(.btn) {
+  footer .footer-actions :global(.button) {
     flex: 1;
     width: 100%;
   }
 
-  footer .footer-actions :global(.btn-danger) {
-    background: transparent;
-    border: 1px solid var(--color-del); /* Clean 1px border - jules review */
-    color: var(--color-del);
-    box-shadow: none;
-    transition: all var(--motion-fast) var(--motion-elastic);
-  }
-
-  footer .footer-actions :global(.btn-danger):hover {
-    background: var(--color-del);
-    border-color: var(--color-del);
-    color: var(--color-white);
-    box-shadow: 0 0 var(--spacing-l) rgb(var(--color-danger-rgb) / 30%);
-    filter: brightness(1.1);
-  }
-
   /* Readonly "Edit" Button - Target direct child of footer */
-  footer > :global(.btn-edit) {
+  footer > :global(.button-edit) {
     grid-column: 2;
 
     /* Calculate 50% width minus half the gap, to match one of the two buttons */
@@ -102,14 +86,14 @@
     box-shadow: var(--shadow-s);
   }
 
-  footer > :global(.btn-edit):hover {
+  footer > :global(.button-edit):hover {
     filter: brightness(1.1);
-    transform: translateY(var(--motion-btn-hover-y));
+    transform: translateY(var(--motion-button-hover-y));
     box-shadow: var(--shadow-m);
   }
 
   /* Edit Button inside .footer-actions (Save) needs to just inherit flex */
-  footer .footer-actions :global(.btn-edit) {
+  footer .footer-actions :global(.button-edit) {
     background: var(--signature-color);
     color: var(--color-white);
     box-shadow: var(--shadow-s);
@@ -118,9 +102,9 @@
     width: 100%;
   }
 
-  footer .footer-actions :global(.btn-edit):hover {
+  footer .footer-actions :global(.button-edit):hover {
     filter: brightness(1.1);
-    transform: translateY(var(--motion-btn-hover-y));
+    transform: translateY(var(--motion-button-hover-y));
     box-shadow: var(--shadow-m);
   }
 </style>
