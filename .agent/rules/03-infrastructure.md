@@ -17,8 +17,9 @@ description: Technical Supremacy. Svelte 5 Runes, The Chalk Regime and Perchance
 The project follows a sovereign modular structure to ensure local-first resilience and reactive clarity.
 
 - **Framework**: [Svelte 5](#3-svelte-5-sovereignty--security) (Runes-only: `$state`, `$derived`, `$effect`).
-- **Build Tool**: Vite (with `vite-plugin-singlefile` for Perchance).
+- **Build Tool**: Vite 6 (LTS) (with `vite-plugin-singlefile` for Perchance).
 - **Environment**: Perchance Two-Panel Paradigm. No Node.js backend. Rely entirely on **Just-In-Time (JIT) Compilation** and **ESM/CDN imports** (via `esm.sh`) for external libraries.
+
 - **Persistence**: Dexie.js (IndexedDB).
 - **Security**: Validation & Physics via **DOMPurify** sanitization boundaries ([Compliance](./06-compliance.md)).
 - **[Simulation](./02-simulation.md)** building blocks:
