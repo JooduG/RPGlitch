@@ -74,7 +74,11 @@ function syncIgnores() {
     }
 
     // Optional: Sync specific other keys if they exist in master.vscode
-    const keysToSync = ["editor.codeActionsOnSave", "markdown.validate.referenceLinks.enabled"];
+    const keysToSync = [
+      "files.associations",
+      "editor.codeActionsOnSave",
+      "markdown.validate.referenceLinks.enabled",
+    ];
     keysToSync.forEach((key) => {
       if (master.vscode[key] !== undefined) {
         settings[key] = master.vscode[key];

@@ -1,7 +1,6 @@
 *.tmp
 *.template
 *.log
-act_output.log
 .secrets
 *.bak
 **/yarn.lock
@@ -31,13 +30,9 @@ act_output.log
 **/.git/**
 **/.geminiignore
 **/.eslintcache
-**/.env.*
-**/.env
-**/.env.example
+**/.env*
 !**/.env.example
 **/bun.lockb
 **/.antigravityignore
 **/.DS_Store
 **/.jules/cache/**
-scribbles.md
-scribbles.md

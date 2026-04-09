@@ -4,6 +4,10 @@
     "compounds": []
   },
   "files.associations": {
+    "*.markdownlintignore": "ignore",
+    "*.htmlhintignore": "ignore",
+    "*.stylelintignore": "ignore",
+    "*.prettierignore": "ignore",
     "*.geminiignore": "ignore",
     "*.antigravityignore": "ignore"
   },
