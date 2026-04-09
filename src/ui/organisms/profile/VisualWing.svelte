@@ -414,20 +414,6 @@
     box-shadow: inset 0 1px 0 var(--glass-edge-l);
   }
 
-  .action-row :global(.button) {
-    width: 100%;
-    border-radius: 0;
-    font-size: var(--font-size-xs);
-    padding: var(--spacing-xs);
-    text-transform: capitalize;
-    font-weight: var(--font-weight-l);
-    letter-spacing: var(--letter-spacing-s);
-  }
-
-  .action-row :global(.button:not(:last-child)) {
-    box-shadow: 1px 0 0 var(--glass-edge-l);
-  }
-
   .toggle-stack {
     display: flex;
     flex-direction: column;

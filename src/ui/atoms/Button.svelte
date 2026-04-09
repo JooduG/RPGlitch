@@ -1,9 +1,10 @@
 <script>
   let {
     label = "",
-    variant = "primary", // primary | secondary | ghost | danger | glass | dashed | overlay | magic | tech
+    variant = "primary", // primary | secondary | ghost | danger | glass | dashed | overlay | magic | tech | signature
     size = "md", // sm | md
     square = false, // Enforce 1:1 aspect ratio
+    fullWidth = false, // Enforce 100% width
     className = "", // Allow local overrides
     children = null,
     onclick = null,
@@ -39,7 +40,9 @@
 
 <button
   bind:this={element}
-  class="button button-{variant} {size === 'sm' ? 'button-sm' : ''} {square ? 'button-square' : ''} {className}"
+  class="button button-{variant} {size === 'sm' ? 'button-sm' : ''} {square ? 'button-square' : ''} {fullWidth
+    ? 'button-full'
+    : ''} {className}"
   {...restProps}
   {onclick}
   use:applyActions={restProps.actions || []}
@@ -92,6 +95,11 @@
     height: var(--button-icon-s);
   }
 
+  .button.button-full {
+    width: 100%;
+    flex: 1;
+  }
+
   .button-round {
     border-radius: var(--border-radius-full);
     padding: 0;
@@ -101,6 +109,7 @@
 
   :global(.button-group-joined) .button {
     border-radius: 0;
+    flex: 1;
   }
 
   :global(.button-group-pill) .button {
@@ -126,8 +135,8 @@
 
   .button-danger {
     background: transparent;
-    border: 1px solid var(--color-danger);
-    color: var(--color-danger);
+    color: var(--color-white);
+    border: none;
   }
 
   .button-dashed {
@@ -154,6 +163,13 @@
   .button-tech {
     background: transparent;
     color: var(--color-frisk);
+  }
+
+  .button-signature {
+    background: var(--signature-color, var(--color-frisk));
+    color: var(--color-white);
+    border: none;
+    box-shadow: var(--shadow-s);
   }
 
   .button-glass {
@@ -237,6 +253,12 @@
   .button-tech:hover:not(:disabled, .disabled) {
     background: rgb(var(--color-frisk-rgb) / 15%);
     color: var(--color-white);
+  }
+
+  .button-signature:hover:not(:disabled, .disabled) {
+    filter: brightness(1.1);
+    box-shadow: var(--shadow-m);
+    transform: translateY(var(--motion-button-hover-y));
   }
 
   .button-glass:hover:not(:disabled, .disabled) {

@@ -8,13 +8,15 @@
     <div class="footer-actions">
       <Button
         variant="danger"
+        fullWidth={true}
         className="profile-button"
         onclick={handle_delete}
         disabled={is_saving}
         data-testid="delete-button">Delete</Button
       >
       <Button
-        variant="edit"
+        variant="signature"
+        fullWidth={true}
         className="profile-button"
         onclick={handle_save}
         disabled={is_saving}
@@ -24,16 +26,20 @@
       </Button>
     </div>
   {:else}
-    <Button
-      variant="edit"
-      className="profile-button"
-      onclick={() => {
-        is_editing = true;
-      }}
-      data-testid="edit-button"
-    >
-      Edit
-    </Button>
+    <div class="footer-actions">
+      <div class="footer-spacer"></div>
+      <Button
+        variant="signature"
+        fullWidth={true}
+        className="profile-button"
+        onclick={() => {
+          is_editing = true;
+        }}
+        data-testid="edit-button"
+      >
+        Edit
+      </Button>
+    </div>
   {/if}
 </footer>
 
@@ -49,62 +55,18 @@
     padding-top: var(--spacing-m);
   }
 
-  footer :global(.profile-button.button) {
-    height: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: var(--font-weight-xl);
-    text-transform: uppercase;
-    letter-spacing: var(--letter-spacing-m);
-    padding: var(--spacing-s) var(--spacing-xl);
-    transition: all var(--motion-fast) var(--motion-elastic);
-    width: 50%;
-  }
-
-  footer .footer-actions {
+  .footer-actions {
     grid-column: 2;
     display: flex;
     gap: var(--spacing-m);
     width: 100%;
   }
 
-  footer .footer-actions :global(.button) {
+  .footer-spacer {
     flex: 1;
-    width: 100%;
   }
 
-  /* Readonly "Edit" Button - Target direct child of footer */
-  footer > :global(.button-edit) {
-    grid-column: 2;
-
-    /* Calculate 50% width minus half the gap, to match one of the two buttons */
-    width: calc(50% - (var(--spacing-m) / 2));
-    justify-self: end;
-    background: var(--signature-color);
-    color: var(--color-white);
-    box-shadow: var(--shadow-s);
-  }
-
-  footer > :global(.button-edit):hover {
-    filter: brightness(1.1);
-    transform: translateY(var(--motion-button-hover-y));
-    box-shadow: var(--shadow-m);
-  }
-
-  /* Edit Button inside .footer-actions (Save) needs to just inherit flex */
-  footer .footer-actions :global(.button-edit) {
-    background: var(--signature-color);
-    color: var(--color-white);
-    box-shadow: var(--shadow-s);
-
-    /* Ensure it fills flex container */
-    width: 100%;
-  }
-
-  footer .footer-actions :global(.button-edit):hover {
-    filter: brightness(1.1);
-    transform: translateY(var(--motion-button-hover-y));
-    box-shadow: var(--shadow-m);
+  :global(.profile-button.button) {
+    flex: 1;
   }
 </style>

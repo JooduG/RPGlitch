@@ -1,7 +1,4 @@
-# Track Template - `Global Component Standardization`
-
-> Goal: `Standardize common component patterns (specifically Buttons and Cards) found in Organisms by promoting them to base Atom/Molecule definitions.`
-> Status: `[ ]` Pending
+> Status: `[x]` DONE
 > Type: `Refactor/Archnitecture`
 > Risk: `Medium`
 > Start Date: `2026-04-09`
@@ -29,19 +26,15 @@
     -   Targets: `VisualWing` (Magic vs Tech modes).
     -   Goal: Promote local colors to theme variants in `Button.svelte`.
 
-## Phase 2: Execution/Build ([/02-build](../../workflows/02-execute.md))
-
-*Constraint: 8-20 items maximum. 2-5 minutes per beat. Binary (Done/Not Done) definitions only.*
-
-- [ ] Beat 01: `Implement base .btn-danger styles in Button.svelte`
-- [ ] Beat 02: `Add 'dashed' and 'outline-thick' variants to Button.svelte`
-- [ ] Beat 03: `Implement 'square' (iconOnly) prop in Button.svelte with CSS logic`
-- [ ] Beat 04: `Add 'overlay' variant to Button.svelte (inset 0, transparent)`
-- [ ] Beat 05: `Standardize VisualWing modes to use semantic Button variants`
-- [ ] Beat 06: `Liquidation: Remove :global(.btn-danger) from ProfileFooter and VectorCard`
-- [ ] Beat 07: `Liquidation: Remove :global(.btn-retry) from ProsePanel`
-- [ ] Beat 08: `Liquidation: Remove :global(.btn-add-unit) from VectorPanel`
-- [ ] Beat 09: `Final Audit: Ensure Confirm.svelte picks up danger/square styles naturally`
+- [x] Beat 01: `Implement base .btn-danger styles in Button.svelte`
+- [x] Beat 02: `Add 'dashed' and 'outline-thick' variants to Button.svelte`
+- [x] Beat 03: `Implement 'square' (iconOnly) prop in Button.svelte with CSS logic`
+- [x] Beat 04: `Add 'overlay' variant to Button.svelte (inset 0, transparent)`
+- [x] Beat 05: `Standardize VisualWing modes to use semantic Button variants`
+- [x] Beat 06: `Liquidation: Remove :global(.btn-danger) from ProfileFooter and VectorCard`
+- [x] Beat 07: `Liquidation: Remove :global(.btn-retry) from ProsePanel`
+- [x] Beat 08: `Liquidation: Remove :global(.btn-add-unit) from VectorPanel`
+- [x] Beat 09: `Final Audit: Ensure Confirm.svelte picks up danger/square styles naturally`
 
 ## Phase 3: Hardening/Audit ([/03-clean](../../workflows/03-clean.md))
 
@@ -51,5 +44,5 @@
 
 ## Phase 4: Persistence/Vault/Bridge ([/04-review](../../workflows/04-review.md))
 
-- Mission Board: Updated `[ ]`
-- Walkthrough: Created `[ ]`
+- Mission Board: Updated `[x]`
+- Walkthrough: Created `[x]`
