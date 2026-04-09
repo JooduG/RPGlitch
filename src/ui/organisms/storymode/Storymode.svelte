@@ -12,7 +12,7 @@
   import Layout from "@ui/organisms/Layout.svelte";
   import { onMount } from "svelte";
   import InputBar from "./InputBar.svelte";
-  import ProsePanel from "./ProsePanel.svelte";
+  import StorymodeFeed from "./StorymodeFeed.svelte";
   import StorymodePanel from "./StorymodePanel.svelte";
   // [FIX] Target flattened profile_picture
   let storyFractal = $derived(runtime.active_fractal);
@@ -51,7 +51,7 @@
     {/snippet}
     {#snippet center()}
       <div class="game-stage">
-        <ProsePanel />
+        <StorymodeFeed />
         <div class="input-container">
           <InputBar disabled={is_thinking} />
         </div>

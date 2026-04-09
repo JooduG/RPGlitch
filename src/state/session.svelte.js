@@ -65,7 +65,7 @@ export class ReactiveSession {
       app.log("Security checking physics and causality...", "system");
       // Simulate physics update for HUD visibility if needed, or rely on Engine events
       // PHASE 2: GM (Synthesis)
-      app.log(`LLM synthesizing prose response for turn ${app.round}...`, "ai");
+      app.log(`LLM synthesizing story response for turn ${app.round}...`, "ai");
       await session_driver.send(text); // Saves user message
       // TRIGGER AI GENERATION
       const story_id = session_driver.require_active();

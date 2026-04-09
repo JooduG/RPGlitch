@@ -18,5 +18,4 @@
 ## 🔜 Next Actions
 
 - [ ] **[WIP] [023] Nordic Glass Refactor**: Apply `var(--glass-xl)` to `LibraryDrawer` and `ProfileModal`.
-- [ ] **[WIP] [025] Project Hygiene**: Resolve remaining Stylelint/ESLint debt in `StoryboardCard.svelte`.
 - [ ] **Audit Deployment**: Verify the monolithic production bundle after skill updates.

@@ -4,12 +4,12 @@ import { simulation_log } from "@state/simulation-log.svelte.js";
 import { simulationState } from "@state/status.svelte.js";
 import { cleanup, fireEvent, render, screen } from "@testing-library/svelte";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import ProsePanel from "./ProsePanel.svelte";
+import StorymodeFeed from "./StorymodeFeed.svelte";
 // Mock child components
 vi.mock("./Message.svelte", async () => {
   return await import("./MockMessage.svelte");
 });
-describe("ProsePanel Integration (Isolated)", () => {
+describe("StorymodeFeed Integration (Isolated)", () => {
   beforeEach(() => {
     cleanup();
     vi.clearAllMocks();
@@ -22,7 +22,7 @@ describe("ProsePanel Integration (Isolated)", () => {
     simulationState.role = null;
   });
   it("renders empty state when no messages", () => {
-    render(ProsePanel);
+    render(StorymodeFeed);
     expect(screen.getByText(/Establishing context stream/i)).toBeDefined();
     // Check for Retry Button
     expect(screen.getByText("Retry Connection")).toBeDefined();
@@ -34,23 +34,23 @@ describe("ProsePanel Integration (Isolated)", () => {
       role: "user",
       timestamp: new Date(),
     });
-    render(ProsePanel);
+    render(StorymodeFeed);
     expect(screen.getByText("Hello Mock")).toBeDefined();
   });
   it("renders thinking state", async () => {
     simulationState.phase = "generating";
-    render(ProsePanel);
+    render(StorymodeFeed);
     expect(screen.getByTestId("mock-message-thinking")).toBeDefined();
   });
   it("renders streaming content", async () => {
     app.streaming = { active: true, content: "Streaming...", node_id: null };
-    render(ProsePanel);
+    render(StorymodeFeed);
     expect(screen.getByText("Streaming...")).toBeDefined();
   });
   it("handles message deletion", async () => {
     const deleteSpy = vi.spyOn(session, "delete_log_entry").mockResolvedValue();
     simulation_log.add({ id: "msg-123", text: "To Delete", role: "user" });
-    render(ProsePanel);
+    render(StorymodeFeed);
     const deleteBtn = screen.getByTestId("mock-delete");
     await fireEvent.click(deleteBtn);
     expect(deleteSpy).toHaveBeenCalledWith("msg-123");
@@ -59,7 +59,7 @@ describe("ProsePanel Integration (Isolated)", () => {
     const editSpy = vi.spyOn(session, "edit_log_entry").mockResolvedValue();
     vi.spyOn(window, "prompt").mockReturnValue("New Text");
     simulation_log.add({ id: "msg-456", text: "To Edit", role: "user" });
-    render(ProsePanel);
+    render(StorymodeFeed);
     const editBtn = screen.getByTestId("mock-edit");
     await fireEvent.click(editBtn);
     expect(window.prompt).toHaveBeenCalledWith("Edit log entry:", "To Edit");

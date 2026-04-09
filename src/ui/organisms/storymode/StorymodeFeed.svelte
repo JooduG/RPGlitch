@@ -55,7 +55,7 @@
   }
 </script>
 
-<div class="prose-panel" bind:this={scroll_ref}>
+<div class="storymode-feed" bind:this={scroll_ref}>
   {#each simulation_log.feed as entry, index (entry.id)}
     <Message
       text={entry.text}
@@ -92,7 +92,7 @@
 </div>
 
 <style>
-  .prose-panel {
+  .storymode-feed {
     flex: 1;
     min-height: 12.5rem;
     overflow: hidden auto;
@@ -103,11 +103,11 @@
     scroll-behavior: smooth;
   }
 
-  .prose-panel::-webkit-scrollbar {
+  .storymode-feed::-webkit-scrollbar {
     width: var(--spacing-xxs);
   }
 
-  .prose-panel::-webkit-scrollbar-thumb {
+  .storymode-feed::-webkit-scrollbar-thumb {
     background: var(--glass-xs);
     border-radius: var(--border-radius-full);
   }

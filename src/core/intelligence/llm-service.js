@@ -47,7 +47,7 @@ export function sanitize(text) {
  ************************************************************************************/
 export const llm_service = {
   /**
-   * HIGH-FIDELITY PROSE ENHANCER
+   * HIGH-FIDELITY STORYMODE ENHANCER
    * Transforms draft text into visceral, first-person narrative based on
    * field-specific directives from the Entity Definition.
    *

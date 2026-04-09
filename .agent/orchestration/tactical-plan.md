@@ -61,9 +61,20 @@
 - [x] **Beat 01**: Implement **"Vacuum Lock"** (pointer-events) in Storyboard.
 - [x] **Beat 02**: Purge **"Annoying Red"** from placeholders; switch to `var(--color-frozen)`.
 - [x] **Beat 03**: Resolve Stylelint debt in `StoryboardCard.svelte`.
-- [\~] **Beat 04**: Apply `var(--glass-xl)` to `LibraryDrawer` and `ProfileModal`.
+- [x] **Beat 04**: Apply `var(--glass-xl)` to `LibraryDrawer` and `ProfileModal`.
 - [ ] **Beat 05**: Align `LibraryCard` material density with Storyboard.
 - [ ] **Beat 06**: **Final Zero-Debt Verification Audit**.
+
+---
+
+## [033] StorymodeFeed Refactor [DONE]
+
+Rename of "Prose" nomenclature to "StorymodeFeed" for architectural clarity.
+
+- [x] **Beat 01**: Rename `ProsePanel.svelte` and CSS classes.
+- [x] **Beat 02**: Update `Storymode.svelte` imports.
+- [x] **Beat 03**: Update `session.svelte.js` and `llm-service.js` labels.
+- [x] **Beat 04**: Standardize tests.
 
 ### 📍 Track [025]: Project Hygiene & Debt Purge
 
