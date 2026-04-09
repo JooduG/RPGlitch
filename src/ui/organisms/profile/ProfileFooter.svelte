@@ -79,7 +79,7 @@
     border: 1px solid var(--color-del); /* Clean 1px border - jules review */
     color: var(--color-del);
     box-shadow: none;
-    transition: all 0.3s ease;
+    transition: all var(--motion-fast) var(--motion-elastic);
   }
 
   footer .footer-actions :global(.btn-danger):hover {

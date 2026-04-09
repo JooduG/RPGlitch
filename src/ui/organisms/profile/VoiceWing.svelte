@@ -206,7 +206,7 @@
     color: var(--font-color-m);
     cursor: pointer;
     font-size: var(--font-size-m);
-    transition: all var(--motion-fast) ease;
+    transition: all var(--motion-fast) var(--motion-elastic);
   }
 
   .preview-btn:disabled {
@@ -265,7 +265,7 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-s);
-    transition: all 0.2s ease;
+    transition: all var(--motion-fast);
   }
 
   .voice-option:hover {

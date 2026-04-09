@@ -73,7 +73,7 @@
     background-color: var(--color-chalk);
     box-shadow: inset 0 1px 2px rgb(var(--color-black-rgb) / 20%);
     border-radius: var(--border-radius-full);
-    transition: all 0.2s var(--motion-elastic);
+    transition: all var(--motion-fast) var(--motion-elastic);
     flex-shrink: 0;
   }
 
@@ -87,7 +87,7 @@
     top: calc((var(--switch-h) - var(--thumb-size)) / 2);
     background-color: var(--color-frisk);
     border-radius: var(--border-radius-full);
-    transition: all 0.2s var(--motion-elastic);
+    transition: all var(--motion-fast) var(--motion-elastic);
     box-shadow: var(--shadow-s);
   }
 

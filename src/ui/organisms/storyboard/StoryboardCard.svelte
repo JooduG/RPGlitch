@@ -152,7 +152,7 @@
     padding: var(--spacing-s);
 
     /* opacity removed to prevent contrast violations - jules review */
-    transition: transform var(--motion-fast) ease;
+    transition: transform var(--motion-fast) var(--motion-elastic);
   }
 
   :global(.storyboard-empty.btn:hover) .empty-content {

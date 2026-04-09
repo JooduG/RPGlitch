@@ -225,7 +225,7 @@
     justify-content: center;
     gap: var(--spacing-m);
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all var(--motion-fast) var(--motion-elastic);
     color: var(--font-color-s);
     padding: 0;
   }

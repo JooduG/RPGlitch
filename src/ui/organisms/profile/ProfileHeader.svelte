@@ -70,7 +70,7 @@
     padding: var(--spacing-xs);
     text-align: left;
     border-radius: var(--border-radius-m);
-    transition: background 0.2s;
+    transition: background var(--motion-fast);
     border: none;
     box-shadow: inset 0 0 0 1px transparent;
     min-height: 1.2em;
@@ -114,7 +114,7 @@
     font-size: var(--font-size-m);
     line-height: 1.5;
     min-height: 1.4em;
-    transition: all 0.2s;
+    transition: all var(--motion-fast);
     border-radius: var(--border-radius-m);
     padding: var(--spacing-s);
     margin: 0;

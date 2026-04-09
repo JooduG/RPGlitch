@@ -183,7 +183,7 @@
     font-family: inherit;
     font-size: var(--font-size-s);
     line-height: 1.5;
-    transition: all 0.2s;
+    transition: all var(--motion-fast);
     cursor: text;
     pointer-events: auto;
   }

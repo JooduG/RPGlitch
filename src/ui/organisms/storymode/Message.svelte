@@ -496,7 +496,7 @@
     white-space: nowrap;
     opacity: var(--opacity-none);
     pointer-events: none;
-    transition: all 0.2s;
+    transition: all var(--motion-fast);
     z-index: var(--z-index-l);
     box-shadow: var(--glass-border);
   }

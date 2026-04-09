@@ -88,7 +88,7 @@
     padding: var(--spacing-s) var(--spacing-m);
     position: relative;
     overflow: hidden;
-    transition: all var(--motion-fast) ease;
+    transition: all var(--motion-fast) var(--motion-elastic);
   }
 
   .display-area .content {
