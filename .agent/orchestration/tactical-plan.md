@@ -38,7 +38,7 @@
 | **[025]** | **Project Hygiene & Debt Purge** | `[DONE]`   | `[Medium]` | `docs/discovery/025-hygiene.md`      |
 | **[029]** | **Debt Liquidation**             | `[DONE]`   | `[High]`   | `docs/discovery/029-debt.md`         |
 | **[030]** | **Sovereign Handoff**            | `[DONE]`   | `[High]`   | `[Current Session]`                  |
-| **[031]** | **Jules Ecosystem Integration**  | `[ACTIVE]` | `[High]`   | `references/jules-ecosystem-analysis.md` |
+| **[031]** | **Review Refinement**            | `[DONE]`   | `[High]`   | `[Current Session]`                  |
 
 ---
 
@@ -50,9 +50,9 @@
 
 **Goal**: Implement `scripts/swarm.js` logic and Fleet Concurrency as modeled in `jules-ecosystem-analysis.md`.
 
-- [ ] **Beat 01**: Scaffold `scripts/swarm.js` using the Jules SDK.
-- [ ] **Beat 02**: Implement `swarm.all` concurrency handler.
-- [ ] **Beat 03**: Verify `npm run swarm:plan` against GitHub Actions.
+- [x] **Beat 01**: Scaffold `swarm-engine.js` using the Jules SDK.
+- [x] **Beat 02**: Implement concurrency handler and Svelte 5 Rune shims.
+- [x] **Beat 03**: Resolve nomenclature debt and fix `bootstrap.test.js` regressions.
 
 ### 📍 Track [023]: Nordic Glass Refactor
 

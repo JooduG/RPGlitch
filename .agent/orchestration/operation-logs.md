@@ -17,7 +17,7 @@
 - [x] **Maintenance & Verification Success**: Resolved Sovereign Template violations in `07-fleet.md`, fixed linting escapes in `audit-skills.js`, and standardized project-wide markdown indentation to 2 spaces via `.markdownlint.json`. Handled Playwright E2E gate without file-system clutter. Achieved a **PERFECT SCORE** across all automated verification gates (Lint, Audit, Test). [Session: 74f133cb]
 - [x] **Boot & Clean Sequence**: Executed `/00-boot` and `/03-clean`. Reconciled [025] debt in `StoryboardCard.svelte` and achieved 100% technical purity (Perfect Score). [Session: 74f133cb]
 - [x] **Mission [029] (Debt Liquidation)**: Purge of CLI-related debt in the Swarm engine. Synchronized `audit-security.js` allowlist and standardized `swarm-engine.js` headers. Achieved a **PERFECT SCORE** in the pre-deployment pre-flight. [Session: current]
-- [x] **Mission [030] (Sovereign Handoff)**: Formally acknowledged the new Node-native infrastructure (Swarm Engine, Rune Shims, Knowledge CLI). Resolved internal regressions in `llm-service.test.js` and `audit-security.js` allowlist. Achieved 100% Technical Purity gate. [Session: current]
+- [x] **Mission [031] (Review Refinement)**: Executed `/04-review` workflow. Resolved nomenclature debt in `swarm-engine.d.ts` and fixed a critical regression in `bootstrap.test.js` caused by mock state leakage. Achieved **PERFECT SCORE** (Perfect Technical Purity). [Session: current]
 
 ## 🛸 Swarm Fleet Dispatches
 

@@ -37,7 +37,7 @@ describe("AppBootstrap", () => {
   beforeEach(async () => {
     const { Audio } = await import("@media/audio.js");
     document.body.innerHTML = "";
-    vi.clearAllMocks();
+    vi.resetAllMocks();
     reset_bootstrap_guard();
     // Reset singleton states for test isolation
     Audio._initPromise = null;

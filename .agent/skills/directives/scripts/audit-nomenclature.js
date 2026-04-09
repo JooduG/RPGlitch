@@ -35,6 +35,7 @@ const STRIP_SUFFIXES = [
   ".manual",
   ".unit",
   ".integration",
+  ".d",
 ];
 const TEST_SUFFIXES = [".test", ".spec", ".manual", ".unit", ".integration"];
 const SUBJECT_EXTS = [".svelte", ".svelte.js", ".svelte.ts", ".js", ".ts"];
