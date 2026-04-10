@@ -40,7 +40,7 @@
 <!-- Interaction & Layout Layer -->
 <div class="modal-layout">
   <!-- Content -->
-  <div class="modal-content {variant}" transition:fly={{ y: 20, duration: 300, easing: quintOut }}>
+  <div class="modal-content {variant}" transition:fly={{ y: 20, duration: 200, easing: quintOut }}>
     {@render children()}
   </div>
 </div>

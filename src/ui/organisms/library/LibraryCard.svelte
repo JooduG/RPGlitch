@@ -71,8 +71,8 @@
   }
 
   .drawer-card:hover:not(:disabled, .is-disabled) {
-    transform: translateY(var(--motion-hover-y));
     box-shadow: var(--shadow-m);
+    filter: brightness(1.1);
   }
 
   .drawer-card.is-disabled {

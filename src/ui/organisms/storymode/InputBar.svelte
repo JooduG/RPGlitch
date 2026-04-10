@@ -111,7 +111,7 @@
       inset 0 0 0 var(--spacing-px) var(--signature-color, transparent),
       0 0 0 var(--spacing-xxs)
         color-mix(in srgb, var(--signature-color, transparent) 10%, transparent);
-    transform: translateY(-2px);
+    transform: none;
   }
 
   .input-bar-unit.is-disabled {

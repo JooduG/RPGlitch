@@ -36,7 +36,6 @@
     pointer-events: none;
     transition: all var(--motion-slow) var(--motion-elastic);
     transform: scale(0.9);
-    filter: blur(var(--blur-m));
     height: auto;
     max-height: 50rem;
     display: flex;
@@ -56,7 +55,6 @@
     max-width: 20rem;
     opacity: var(--opacity-full);
     pointer-events: auto;
-    filter: blur(0);
   }
 
   .wing-left {

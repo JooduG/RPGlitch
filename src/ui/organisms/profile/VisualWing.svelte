@@ -279,16 +279,18 @@
   </div>
   <div class="toggle-stack">
     <Toggle label="No Background" bind:value={char.visuals.noBackground} disabled={!is_editing} />
-    <Toggle label="Flip Profile Picture" bind:value={char.visuals.flipped} disabled={!is_editing} />
+    <Toggle label="Mirror Image" bind:value={char.visuals.flipped} disabled={!is_editing} />
   </div>
 </div>
 
 <style>
   .visual-wing-content {
-    background: var(--glass-l);
+    background: rgb(var(--color-gunmetal-rgb) / 75%);
     box-shadow: var(--shadow-m);
     border-radius: var(--border-radius-l);
-    backdrop-filter: var(--glass-blur-l);
+    /* stylelint-disable-next-line property-no-vendor-prefix */
+    -webkit-backdrop-filter: var(--glass-blur-s);
+    backdrop-filter: var(--glass-blur-s);
     padding: var(--spacing-m);
     display: flex;
     flex-direction: column;

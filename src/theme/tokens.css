@@ -208,8 +208,8 @@
   --motion-fast: 0.2s;
   --motion-slow: 0.4s;
   --motion-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --motion-hover-y: -0.25rem;
-  --motion-button-hover-y: -0.1rem;
+  --motion-hover-y: 0;
+  --motion-button-hover-y: 0;
   --motion-button-active-scale: 0.95;
 
   /* T-Shirt Z-Index Scale */

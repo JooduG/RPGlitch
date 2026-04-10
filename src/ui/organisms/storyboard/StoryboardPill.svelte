@@ -136,8 +136,8 @@
     width: var(--spacing-l);
     height: var(--spacing-l);
     transition:
-      transform 0.3s ease,
-      filter 0.3s ease;
+      transform var(--motion-fast) var(--motion-elastic),
+      filter var(--motion-fast) ease;
   }
 
   .core-content {

@@ -92,7 +92,17 @@ To optimize cognitive load, tasks are triaged into three complexity levels, each
 
 ---
 
-### 5. Completeness & Truncation
+### 5. Architectural Documentation (The Blueprint)
+
+To maintain the technical quality trail and ensure historical continuity, all complex missions (Level 2 & Level 3) MUST have a dedicated blueprint file.
+
+- **Location**: `.agent/orchestration/plans/XXX-mission-slug.md`
+- **Mirroring**: During the planning phase, the blueprint MUST be mirrored to an `implementation_plan` **Brain Artifact** for user feedback. The `.agent/` directory remains the permanent source of truth.
+- **Archival**: Upon mission completion (`[DONE]`), move the blueprint file from `./plans/` to `.agent/archive/tracks/`.
+
+---
+
+### 6. Completeness & Truncation
 
 Any tool output that is truncated (e.g. `(...N more results not shown)`) represents a **Hard Stop**. You MUST NOT proceed with an audit or implementation assuming the hidden data is irrelevant.
 

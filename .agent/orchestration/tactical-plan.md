@@ -39,6 +39,7 @@
 | **[029]** | **Debt Liquidation**             | `[DONE]`   | `[High]`   | `docs/discovery/029-debt.md`         |
 | **[030]** | **Sovereign Handoff**            | `[DONE]`   | `[High]`   | `[Current Session]`                  |
 | **[031]** | **Review Refinement**            | `[DONE]`   | `[High]`   | `[Current Session]`                  |
+| **[035]** | **Standardization Audit**        | `[DONE]`   | `[Medium]` | `[Current Session]`                  |
 
 ---
 

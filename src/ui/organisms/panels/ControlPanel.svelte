@@ -208,7 +208,6 @@
   .navigation-links .nav-button:hover {
     color: var(--font-color-m);
     opacity: var(--opacity-full);
-    transform: translateY(-1px);
   }
 
   .system-meta {

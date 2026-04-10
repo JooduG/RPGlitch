@@ -117,8 +117,10 @@
 
 <style>
   .dev-wing-content {
-    background: var(--glass-l);
-    backdrop-filter: var(--glass-blur-l);
+    background: rgb(var(--color-gunmetal-rgb) / 75%);
+    /* stylelint-disable-next-line property-no-vendor-prefix */
+    -webkit-backdrop-filter: var(--glass-blur-s);
+    backdrop-filter: var(--glass-blur-s);
     box-shadow: var(--shadow-m);
     border-radius: var(--border-radius-l);
     padding: var(--spacing-m);

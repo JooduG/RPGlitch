@@ -69,6 +69,7 @@
     text-decoration: none;
     cursor: pointer;
     pointer-events: auto;
+    user-select: none;
     border: none;
     border-radius: var(--border-radius);
     background: transparent;
@@ -118,6 +119,8 @@
   }
 
   /* 2. Variants (Thematic) */
+
+
   .button-primary {
     background: var(--color-frisk);
     color: var(--color-black);
@@ -143,6 +146,7 @@
     background: transparent;
     border: 1px dashed var(--glass-edge-l);
     color: var(--font-color-s);
+    cursor: pointer;
   }
 
   .button-overlay {
@@ -177,6 +181,8 @@
     color: var(--color-white);
   }
 
+
+
   .button-secondary {
     background: var(--glass-l);
     color: var(--font-color-m);
@@ -205,12 +211,14 @@
   }
 
   .button:active:not(:disabled, .disabled) {
-    transform: none;
+    transform: scale(var(--motion-button-active-scale, 0.96));
+    transition-duration: var(--motion-fast);
   }
 
   /* 4. The Hover Monster (Highest Specificity due to :not) */
   .button:hover:not(:disabled, .disabled) {
     filter: brightness(1.1);
+    transition: all var(--motion-fast) var(--motion-elastic);
   }
 
   .button-primary:hover:not(:disabled, .disabled) {
@@ -238,7 +246,6 @@
     background: var(--glass-xs);
     border-color: var(--font-color-s);
     color: var(--font-color-m);
-    transform: translateY(var(--motion-button-hover-y));
   }
 
   .button-overlay:hover:not(:disabled, .disabled) {
@@ -258,7 +265,6 @@
   .button-signature:hover:not(:disabled, .disabled) {
     filter: brightness(1.1);
     box-shadow: var(--shadow-m);
-    transform: translateY(var(--motion-button-hover-y));
   }
 
   .button-glass:hover:not(:disabled, .disabled) {

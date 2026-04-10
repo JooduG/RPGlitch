@@ -240,7 +240,7 @@
     width: 64rem;
     height: 100%;
     background: var(--glass-xl);
-    backdrop-filter: var(--glass-blur-xl);
+    backdrop-filter: var(--glass-blur-l);
     border: var(--glass-edge-l);
     border-top: 2px solid var(--signature-color);
     border-radius: var(--border-radius-l);

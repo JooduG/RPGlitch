@@ -75,7 +75,7 @@
   }
 
   .vector-card:hover {
-    transform: translateX(var(--spacing-xxs));
+    filter: brightness(1.1);
   }
 
   .vector-card.editing:hover {
@@ -116,7 +116,7 @@
     font-family: inherit;
     font-size: var(--font-size-s);
     line-height: var(--line-height-m);
-    resize: vertical;
+    resize: none;
     min-height: var(--spacing-xl);
     width: 100%;
     outline: none;
@@ -130,7 +130,7 @@
 
   .edit-area .actions {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     margin-top: 0;
   }
 

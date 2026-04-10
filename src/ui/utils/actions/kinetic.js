@@ -5,12 +5,24 @@
  *
  * "Identical Math System-Wide."
  */
-// --- Constants ---
-const SHIMMY_DEG = 45; // 12 to 3 swing
+// --- Constants & Token Integration ---
+const getMotionToken = (token, fallback) => {
+  if (typeof window === "undefined") return fallback;
+  const val = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+  if (!val) return fallback;
+  if (val.endsWith("s")) return parseFloat(val) * 1000;
+  if (val.endsWith("ms")) return parseFloat(val);
+  return isNaN(parseFloat(val)) ? val : parseFloat(val);
+};
+
+// Standardized Durations (ms)
+const MOTION_FAST = getMotionToken("--motion-fast", 200);
+const MOTION_SLOW = getMotionToken("--motion-slow", 400);
+
+// Physics Primitives
+const SHIMMY_DEG = 45;
 const PULSE_SCALE = 1.05;
-const SHIMMY_DURATION = 300; // ms
-const SPIN_DURATION = 400; // ms
-const EASE_ELASTIC = "cubic-bezier(0.34, 1.56, 0.64, 1)";
+const EASE_ELASTIC = getMotionToken("--motion-elastic", "cubic-bezier(0.34, 1.56, 0.64, 1)");
 const EASE_SMOOTH = "ease-in-out";
 /**
  * Shimmy Action
@@ -28,7 +40,7 @@ export function shimmy(node) {
       { transform: "rotate(0deg)", offset: 1 },
     ];
     animation = node.animate(keyframes, {
-      duration: SHIMMY_DURATION,
+      duration: MOTION_FAST,
       easing: EASE_SMOOTH,
       iterations: Infinity,
     });
@@ -62,7 +74,7 @@ export function pulse(node) {
     const keyframes = [{ transform: "scale(1)" }, { transform: `scale(${PULSE_SCALE})` }];
     // Fill: forwards to keep it scaled while hovering
     animation = node.animate(keyframes, {
-      duration: 300,
+      duration: MOTION_FAST,
       easing: "ease-out",
       fill: "forwards",
     });
@@ -105,7 +117,7 @@ export function spin(node) {
       animation.play();
     } else {
       animation = target.animate([{ transform: "rotate(0deg)" }, { transform: "rotate(90deg)" }], {
-        duration: SPIN_DURATION,
+        duration: MOTION_SLOW,
         easing: EASE_ELASTIC,
         fill: "forwards",
       });
@@ -151,7 +163,7 @@ export function stab(node) {
       { transform: "translateX(0)", offset: 1 }, // Slow return (80% of time)
     ];
     animation = target.animate(keyframes, {
-      duration: 600,
+      duration: MOTION_SLOW,
       easing: "ease-out",
       iterations: Infinity,
     });
