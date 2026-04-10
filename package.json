@@ -109,7 +109,7 @@
     "check": "node .agent/skills/orchestration/scripts/summarize.js audit:check lint test",
     "clean": "node .agent/skills/orchestration/scripts/summarize.js audit:security lint audit:project",
     "deploy": "npm run deploy:prepare && npm run deploy:auto",
-    "deploy:auto": "node .agent/skills/devops/scripts/deploy-perchance.js",
+    "deploy:auto": "node .agent/skills/shipping-and-launch/scripts/deploy-perchance.js",
     "deploy:prepare": "node .agent/skills/orchestration/scripts/summarize.js format sync lint:fix audit test build",
     "dev": "vite",
     "forge:skill": "node .agent/skills/directives/scripts/forge-skill.js",
