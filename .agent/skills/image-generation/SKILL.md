@@ -11,8 +11,6 @@ description: Triggered by any task involving prompt engineering, visual asset re
 
 skills/image-generation/SKILL.md
 
-```
-
 ## 🎯 Strategic Context
 
 - **High-Fidelity Implementation**: Vivid, high-quality character and world renders.
