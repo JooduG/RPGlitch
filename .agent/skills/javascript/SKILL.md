@@ -1,13 +1,9 @@
 ---
 name: javascript
-version: 1.1.0
-description: "Base JS engineering standards. Owns clean code, SOLID principles, and modern pattern enforcement across the monolith. MUST be invoked when working on ANY JavaScript code."
-allowed-tools: ["Read", "Write", "multi_replace_file_content"]
-effort: medium
-risk: safe
+description: Triggered by any task involving core logic, utility functions, or monolith engineering in .js or .ts files. MUST be invoked for all non-UI logic.
 ---
 
-# 🛠️ Javascript Logic Architecture
+# 💻 Javascript Logic Architecture
 
 > "I am the Logic Architect. I define the flow of truth and state. I synthesize Specifications into Professional Logic via Clean Code, SOLID principles, and Modern JS Patterns."
 
@@ -55,7 +51,7 @@ skills/javascript/
    - **Privacy**: Enforce true encapsulation using `#private` fields and methods.
    - **Statics**: Use `static` factory methods (e.g., `User.create()`) for complex initialization.
 
-### Quality Verification
+## 📋 Quality Verification
 
 - **Definition of Done**: DRY principles satisfied; zero linting debt; logic verified via unit tests.
 - **Expected Output**: Sovereign, purely logical code blocks.
@@ -67,6 +63,21 @@ skills/javascript/
 - **Silent Failures**: Swallowing errors or failing without descriptive logs.
 - **Deep Nesting**: Avoid complexity; use optional chaining and guard clauses.
 - **Code Duplication**: Violating DRY principles.
+
+## ⚖️ Common Rationalizations
+
+| Excuse | Counter-Measure |
+| :--- | :--- |
+| "I'll use a `var` here; it's a legacy script." | "Legacy is debt. Refactor to ES6+ standards immediately." |
+| "This doesn't need a private field; it's internal anyway." | "Encapsulation is safety. Use `#private` fields for class state." |
+| "I'll skip the error handling for this small utility." | "Logic failures must be descriptive. Implement robust boundary validation." |
+
+## ✅ Verification
+
+- [ ] SOLID principles satisfied for new class and function designs.
+- [ ] Logic verified via successful unit test execution.
+- [ ] No use of legacy syntax (`var`, `function` declarations).
+- [ ] All class state encapsulated via `#private` fields.
 
 ---
 

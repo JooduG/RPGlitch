@@ -1,0 +1,67 @@
+# SPEC: RPGlitch Simulation Engine
+
+> **Version**: 1.0.0
+> **Status**: Sovereign / Grounded
+
+## 1. Objective
+RPGlitch is a high-fidelity, local-first simulation engine designed for immersive storytelling. It functions as a reactive monolith where state drives reality and narrative is forged through recursive intelligence.
+
+### Target Vision
+- **Atmospheric Canvas**: Chalk Regime aesthetics focusing on imagination.
+- **Agentic Pacing**: Procedural story arcs managed by an autonomous Intelligence Kernel.
+- **Local Sovereignty**: Zero-latency, browser-resident state (Dexie.js).
+
+---
+
+## 2. Technical Stack
+The engine is built on a sovereign, client-side-only stack optimized for the Perchance Two-Panel Paradigm.
+
+- **Framework**: Svelte 5 (Runes-only: `$state`, `$derived`, `$effect`).
+- **Persistence**: Dexie.js (IndexedDB).
+- **Security**: DOMPurify sanitization boundaries + Zod contract enforcement.
+- **Build**: Vite 6 (Single-file ESM output).
+- **Communication**: Post-Message bridges for Perchance inter-panel logic.
+
+---
+
+## 3. Project Structure
+
+```text
+RPGlitch/
+├── SPEC.md                # This document (Master Spec)
+├── tasks/                 # Active mission board & technical plans
+├── src/
+│   ├── core/              # Logic & Round Orchestration (IO-only)
+│   ├── data/              # Persistence & Entity Repositories
+│   ├── state/             # Global Reactive Runes
+│   ├── theme/             # The Chalk Regime (Tokens & Glass)
+│   ├── ui/                # Atomic Svelte 5 Components
+│   └── media/             # Internal Sensory Assets (Visual/Audio)
+└── .agent/                # AI Constitution (Rules & Skills)
+```
+
+---
+
+## 4. Code Style & Design
+### Narrative Logic (Rule 02)
+- **Diegetic Integrity**: Strict third-person limited for entities.
+- **Turn Cycle**: 1. System Turn (Lock) -> 2. AI Turn (Asynch) -> 3. User Turn (Release).
+
+### Aesthetics (Rule 04)
+- **The Nordic Regime**: Abyssal radial gradients, atmospheric noise (3%), and glassmorphic elevation.
+- **Naming**: kebab-case (files), PascalCase (Svelte), snake_case (variables).
+
+---
+
+## 5. Testing & Verification (The Proving Grounds)
+- **Unit**: Vitest for core engine logic and state mutations.
+- **UI**: Svelte testing-library for rune-based component reactions.
+- **E2E**: Playwright for high-fidelity sensory user flows.
+- **Rule**: Every logic change requires an accompanying `.test.js` or `.svelte.test.js`.
+
+---
+
+## 6. Boundaries
+- **NEVER**: Commit secrets, use Svelte 4 styles, or read UI state from DOM.
+- **ALWAYS**: Validate data crossing boundaries (Dexie/PostMessage).
+- **ALWAYS**: Sanitize `{@html}` inputs via the `sanitize()` secure bridge.

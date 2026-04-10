@@ -1,13 +1,9 @@
 ---
 name: simulation
-version: 1.0.0
-description: Simulation Strategy & Narrative Bridges. Owns Rule 02 and the heartbeat of the engine.
-allowed-tools: ["Read", "Write"]
-effort: high
-risk: safe
+description: Triggered by any task involving core engine logic, round/turn orchestration, or narrative state mutations.
 ---
 
-# 🛠️ The Simulation Protocol
+# 🕹️ Simulation Protocol
 
 > "I am the Gamemaster. I own the simulation cycle, the entity state, and the narrative heartbeat of the RPGlitch Engine. I synthesize System Turns into Narrative Reality via Physics, Mutations, and Character Execution."
 
@@ -48,6 +44,21 @@ skills/simulation/
 - **Logic Leaks**: State mutations occurring outside the Simulation Cycle.
 - **User Hijacking**: Speaking, acting, or thinking for the user.
 - **Breaking Continuity**: Failing to sync the "Echo" with the live "State."
+
+## ⚖️ Common Rationalizations
+
+| Excuse | Counter-Measure |
+| :--- | :--- |
+| "I'll just mutate the state directly for this edge case." | "State mutations MUST pass through the System Turn boundary." |
+| "The AI character needs to know the player's inner thoughts." | "Maintain strict third-person limited integrity. No mind-reading." |
+| "The Echo doesn't need to be updated for every minor tick." | "Memory is state. Continuity is forged in the Echo." |
+
+## ✅ Verification
+
+- [ ] System Turn state mutations verified as synchronous and sanitized.
+- [ ] AI Character reactions verified as in-character and non-narrator.
+- [ ] Narrative Echo synchronized with the live Simulation State.
+- [ ] Round increment and Turn transitions verified as deterministic.
 
 ---
 

@@ -8,7 +8,7 @@ Analyze the intended action against the following factors. Resolve conflicts in 
 
 ### 1.1 Passive Governance
 
-[Rules](./.agent/rules), mandatory prerequisites, and constraints.
+[Rules](./.agent/rules), mandatory prerequisites ([spec-driven-development](./.agent/skills/spec-driven-development/SKILL.md) and [test-driven-development](./.agent/skills/test-driven-development/SKILL.md)), and constraints.
 
 ### 1.2 Order of operations
 
@@ -27,7 +27,7 @@ User preferences.
 Is the user's intent completely clear and technically actionable?
 
 - **TRUE**: _Proceed_ with [Phase 2](./GEMINI.md#-2-hypothesis-generation--triage).
-- **FALSE**: _Halt_ execution and invoke [Orchestration Strategy](./.agent/skills/orchestration-strategy/SKILL.md) to resolve ambiguity.
+- **FALSE**: _Halt_ execution and invoke [Orchestration Skill](./.agent/skills/orchestration/SKILL.md) to resolve ambiguity.
 
 ## 🧠 2. Hypothesis Generation & Triage
 
@@ -39,15 +39,15 @@ Rank your hypotheses by likelihood. **Do not** discard outliers prematurely.
 
 ### 2.2 Complexity Triage
 
-Perform Complexity Triage via [Orchestration Strategy](./.agent/skills/orchestration-strategy/SKILL.md) and map the task to a complexity level to determine the active role and thinking approach.
+Perform Complexity Triage via the [Orchestration](./.agent/skills/orchestration/SKILL.md) skill and map the task to a complexity level to determine the active role and thinking approach.
 
-- Level 1 **Quick Fix**: ⚒️ **[Operations](./.agent/skills/orchestration-operations/SKILL.md)** Role -> ⚡ _Professional Coding_: Bypass Step 3. Proceed directly to Step 5.
-- Level 2 **Sequential or Conditional Workflows**: 🎨 **[Tactical](./.agent/skills/orchestration-tactics/SKILL.md)** Role -> 🧠 _Sequential Thinking_: Proceed to Step 3.
-- Level 3 **Complex Feature**: 🎭 **[Strategic](./.agent/skills/orchestration-strategy/SKILL.md)** Role -> 🤔 _Contemplative Thinking_: Proceed to Step 3.
+- Level 1 **Quick Fix**: ⚒️ **Operations** Role -> ⚡ **[/test](./.agent/workflows/test.md)** -> **[/build](./.agent/workflows/build.md)**.
+- Level 2 **Sequential Workflows**: 🎨 **Tactics** Role -> 🧠 **[/plan](./.agent/workflows/plan.md)** -> **[/build](./.agent/workflows/build.md)**.
+- Level 3 **Complex Feature**: 🎭 **Strategy** Role -> 🤔 **[/spec](./.agent/workflows/spec.md)** -> **[/plan](./.agent/workflows/plan.md)** -> **[/build](./.agent/workflows/build.md)**.
 
 ### 2.3 Risk Routing
 
-Map the risk tier based on your most severe likely hypothesis. Level 3 tasks REQUIRES a transition to the **[Strategic](./.agent/skills/orchestration-strategy/SKILL.md)** orchestration skill to resolve ambiguity.
+Map the risk tier based on your most severe likely hypothesis. Level 3 tasks REQUIRE transition to the **Strategy** role to resolve ambiguity using the [orchestration](./.agent/skills/orchestration/SKILL.md) skill.
 
 - **Low Risk**: Typos, CSS tweaks, minor logic.
 - **Medium Risk**: Refactors, state migrations.
@@ -55,11 +55,11 @@ Map the risk tier based on your most severe likely hypothesis. Level 3 tasks REQ
 
 ## 🔍 3. Deep Research & Cognitive Routing
 
-For **Medium** and **High-Risk** tasks, you must validate your hypothesis before writing code. Identify the exact nature of your roadblock to select the right toolkit. Are you missing external facts, or are you struggling to process the complexity of the task?
+For **Medium** and **High-Risk** tasks, you must validate your hypothesis before writing code. Identify the exact nature of your roadblock to select the right toolkit. First, consult the [Master Dispatcher](./.agent/skills/using-agent-skills/SKILL.md) to select the appropriate workflow. Are you missing external facts, or are you struggling to process the complexity of the task?
 
 ### 3.1 Knowledge Deficit
 
-When external facts are needed. Coordinate specialized MCPs for deep inquiry. When exploring, missing optional tool parameters is acceptable. Execute the tool with available info _instead of halting to ask the user_.
+When external facts are needed. Coordinate specialized MCPs for deep inquiry via the [Using Agent Skills](./.agent/skills/using-agent-skills/SKILL.md) router. When exploring, missing optional tool parameters is acceptable. Execute the tool with available info _instead of halting to ask the user_.
 
 - **[Data](./.agent/skills/data)**: Dual-layer memory system via the [Data](./.agent/skills/data/SKILL.md) skill to maintain technical precision and historical continuity.
   - Tools: `read_knowledge_base`, `describe_knowledge_base` and `query_cold_storage`.
@@ -107,23 +107,21 @@ If initial _hypotheses are disproven_ or _architectural conflicts arise during e
 
 ### 4.2 State Sync
 
-If the _logic shifts_ drastically during testing -> _update the [Mission Board](./.agent/orchestration/tactical-plan.md)_ before executing.
+If the _logic shifts_ drastically during testing -> _update the [Mission Command (TODO)](./tasks/todo.md)_ before executing.
 
 ## ⚙️ 5. The Execution & Grounding Sequence
 
-Once planned and cleared, execute the task using tools at your disposal. Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers.
+Once planned and cleared, execute the task using tools at your disposal. **EVERY** implementation must be preceded by [spec-driven-development](./.agent/skills/spec-driven-development/SKILL.md) and verified via [test-driven-development](./.agent/skills/test-driven-development/SKILL.md). Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers.
 
 Tell the user:
 1. Docker must be installed and running on any machine (or Jules VM) where verification runs
 2. `act` will be auto-installed on first use via `.agent/skills/devops/scripts/act/install-act.sh`
 
-### 🎭 Unified Role Signaling
-
 Every operational turn must conclude with a metadata block that signals the active role and thinking approach according to [Intelligence](.agent/rules/05-intelligence.md).
 
-- **🎭 [Strategic](./.agent/skills/orchestration-strategy/SKILL.md)**: High-level architecture and vision.
-- **🎨 [Tactical](./.agent/skills/orchestration-tactics/SKILL.md)**: Planning, scoping, and track management.
-- **⚒️ [Operational](./.agent/skills/orchestration-operations/SKILL.md)**: Direct implementation and execution.
+- **🎭 Strategy**: High-level architecture and vision (/spec).
+- **🎨 Tactics**: Planning, scoping, and track management (/plan).
+- **⚒️ Operations**: Direct implementation and execution (/build).
 
 Below are the most common skills to be used in this step:
 
@@ -167,6 +165,7 @@ On transient errors, retry until max limits. On other errors, change strategy/ar
 
 Trigger a Mandatory _Self-Audit_ via `metacognitiveMonitoring` **IF**:
 
+- You experience _3 consecutive Skill Verification failures_ (as defined in the skill's exit criteria).
 - You experience _3 consecutive_ Definition of Done failures.
 - You make _3+ tool calls_ without measurable progress.
 
@@ -176,8 +175,6 @@ Only take an action after all the above reasoning is completed. Once you've take
 
 ### 8.1 Planning Constraint
 
-Do not execute without an initialized [Log Book](./.agent/orchestration/operation-logs.md).
+Do not execute without an initialized [Mission Plan](./tasks/plan.md).
 
-### 8.2 The Close-out
-
-Update [Log Book](./.agent/orchestration/operation-logs.md), the [Mission Board](./.agent/orchestration/tactical-plan.md), and [Next](./.agent/orchestration/handover.md) before turn termination.
+Update the [Mission Plan (Tracks)](./tasks/plan.md) and [Mission Command (TODO)](./tasks/todo.md) before turn termination.

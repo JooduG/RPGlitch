@@ -1,13 +1,9 @@
 ---
 name: swarm
-version: 3.2.0
-description: The Swarm Captain. Manages parallel sub-agent dispatch, token scaling, and the 80% Confidence Gate.
-allowed-tools: ["run_shell_command", "write_file", "replace", "read_knowledge_base"]
-effort: high
-risk: high
+description: Triggered by any task involving multi-agent orchestration, parallel task scaling, or swarm lifecycle management.
 ---
 
-# 🛠️ The Swarm Captain
+# 🐝 Swarm Captain
 
 > "I am the Captain of the Swarm. I translate the Strategic Commander's manifest into parallel reality. I manage the swarm’s lifecycle, from grounding in historical memory to the final 80% Confidence Gate."
 

@@ -39,24 +39,24 @@ const isHeaderMatch = (templateHeader, actualLevel, actualText, projectName) => 
   const templateClean = templateHeader.cleanLabel;
 
   if (templateHeader.isPlaceholder) {
-    // 1. Slug Matching (Workflow, Rule, Skill)
-    const isSlugPlaceholder = /\{\{(Workflow|Rule|Skill)-Slug\}\}/i.test(templateClean);
-    if (templateHeader.level === 1 && isSlugPlaceholder) {
-      if (projectName && actualClean.toLowerCase().includes(projectName.toLowerCase())) {
-        return true;
-      }
-    }
-
-    // 2. Generic Placeholder Regex Matching
+    // 1. Multi-Placeholder Regex Matching
     // Escapes special characters but keeps {{...}} as .* wildcard
     const parts = templateClean.split(/\{\{[^}]+\}\}/);
     const escapedParts = parts.map((p) => p.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&"));
+    
+    // If the template is an H1 with a slug placeholder, ensure we match broadly but correctly
     const regexStr = "^" + escapedParts.join(".*") + "$";
     const regex = new RegExp(regexStr, "i");
-    return regex.test(actualClean);
+    
+    // Check if the actual text (with formatting) matches the regex
+    // We use the full text here because cleanHeaderLabel might strip too much for H1 links
+    const fullActualText = actualText.trim();
+    if (regex.test(fullActualText) || regex.test(actualClean)) {
+      return true;
+    }
   }
 
-  // 3. Literal Matching (Case-insensitive, allows for slight variation)
+  // 2. Literal Matching (Case-insensitive, allows for slight variation)
   const tLower = templateClean.toLowerCase();
   const aLower = actualClean.toLowerCase();
   return aLower === tLower || aLower.startsWith(tLower) || tLower.startsWith(aLower);

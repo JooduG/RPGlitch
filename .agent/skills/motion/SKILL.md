@@ -1,13 +1,9 @@
 ---
 name: motion
-version: 1.0.0
-description: Owns kinetic interactions, physics-based UI transitions, and Svelte action-based animations.
-allowed-tools: ["Read", "Write"]
-effort: medium
-risk: safe
+description: Triggered by any task involving kinetic interactions, physics-based UI transitions, or Svelte action-based animations.
 ---
 
-# 🛠️ motion
+# 🌀 Motion Specialist
 
 > "I am the Kineticist. I own the movement, the transitions, and the physical feel of the RPGlitch Engine. I synthesize Aesthetic Intent into Kinetic Reality via Svelte Action-based Animations and Physics-based UI Transitions."
 
@@ -44,6 +40,21 @@ skills/motion/SKILL.md/
 - **JS-Heavy Animations**: Failing to favor native CSS transitions and transforms.
 - **Jittery Frames**: Overwhelming the main thread with unoptimized motion logic.
 - **Aesthetic Mismatch**: Motion that doesn't align with the Nordic Collection's weighted feel.
+
+## ⚖️ Common Rationalizations
+
+| Excuse | Counter-Measure |
+| :--- | :--- |
+| "A pure CSS transition is too limited for this." | "CSS transitions are the most performant. Exhaust them first." |
+| "I'll skip the FPS check for this one bounce." | "Kinetic truth requires smooth delivery. Audit all motion at 60fps." |
+| "The motion feel doesn't have to be 'weighted'." | "The Nordic Collection is deliberate. Maintain physical weight." |
+
+## ✅ Verification
+
+- [ ] FPS stability verified at 60fps+ for all motion logic.
+- [ ] Hardware acceleration (compositor-only properties) confirmed.
+- [ ] Interaction triggers (hover, click, gesture) are precise and responsive.
+- [ ] Transition durations and easing functions align with the Nordic style guide.
 
 ---
 

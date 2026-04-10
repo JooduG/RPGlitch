@@ -11,13 +11,14 @@ const PROJECT_ROOT = path.join(__dirname, "..", "..", "..", "..");
 const SKILLS_DIR = path.join(PROJECT_ROOT, ".agent", "skills");
 const RULES_DIR = path.join(PROJECT_ROOT, ".agent", "rules");
 const WORKFLOWS_DIR = path.join(PROJECT_ROOT, ".agent", "workflows");
+const TEMPLATES_DIR = path.join(__dirname, "..", "templates");
 
 // Helper: Ensure directory exists
 const ensureDir = (dir) => {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 };
 
-// Helper: Slugify name
+// Helper: Slugify name (lowercase-hyphen-separated)
 const slugify = (name) =>
   name
     .toLowerCase()
@@ -32,42 +33,55 @@ const titleCase = (text) =>
     .join(" ");
 
 /**
- * Creates a NEW Sovereign Asset
+ * Creates a NEW Sovereign Asset using templates
  */
-const createSkill = async (name, type = "skill", description = "A Sovereign Asset") => {
+const createAsset = async (name, type = "skill", description = "") => {
   const slug = slugify(name);
+  const title = titleCase(slug);
   const searchType = type.toLowerCase();
   let targetDir;
+  let templateName;
+  let fileName;
 
   switch (searchType) {
     case "rule":
       targetDir = path.join(RULES_DIR, slug);
+      templateName = "RULE.template.md";
+      fileName = "RULE.md";
       break;
     case "workflow":
       targetDir = WORKFLOWS_DIR;
+      templateName = "WORKFLOW.template.md";
+      fileName = `${slug}.md`;
       break;
+    case "skill":
     default:
       targetDir = path.join(SKILLS_DIR, slug);
+      templateName = "SKILL.template.md";
+      fileName = "SKILL.md";
+      break;
   }
 
+  const templatePath = path.join(TEMPLATES_DIR, templateName);
+  if (!fs.existsSync(templatePath)) {
+    console.error(`❌ Template not found: ${templatePath}`);
+    process.exit(1);
+  }
+
+  const template = fs.readFileSync(templatePath, "utf-8");
+  
+  // Robust Placeholder Replacement
+  const finalContent = template
+    .replace(/\{\{(skill-name|Workflow-Slug|Rule-Slug)\}\}/gi, slug)
+    .replace(/\{\{(Skill-Title|Title|Rule-Title)\}\}/gi, title)
+    .replace(/\{\{(description|Description)\}\}/g, description || `A Sovereign ${searchType} asset.`)
+    .replace(/\{\{Persona\}\}/g, `The ${title} Orchestrator`);
+
   ensureDir(targetDir);
+  fs.writeFileSync(path.join(targetDir, fileName), finalContent);
 
-  const content = `
-# ${titleCase(slug)}
-
-${description}
-
-## Status
-- **Type**: ${searchType.toUpperCase()}
-- **Slug**: ${slug}
-- **Role**: Sovereign Agent Layer
-`.trim();
-
-  const fileName = searchType === "workflow" ? `${slug}.md` : "SKILL.md";
-  fs.writeFileSync(path.join(targetDir, fileName), content);
-
-  console.log(`\n✅ FORGE SUCCESS: [${searchType.toUpperCase()}] '${slug}' instantiated.`);
-  console.log(`📍 Path: ${targetDir}`);
+  console.log(`\n✅ FORGE SUCCESS: [${searchType.toUpperCase()}] '${slug}' instantiated from template.`);
+  console.log(`📍 Path: ${path.join(targetDir, fileName)}`);
 };
 
 /**
@@ -81,7 +95,7 @@ if (command === "create") {
     console.log("Usage: node forge-skill.js create <name> [type] [description]");
     process.exit(1);
   }
-  createSkill(args[1], args[2], args[3]);
+  createAsset(args[1], args[2], args[3]);
 } else {
   console.log("Usage: node forge-skill.js create <name> [type] [description]");
   console.log("Types: skill, rule, workflow");

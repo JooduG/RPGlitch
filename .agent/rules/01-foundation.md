@@ -4,7 +4,7 @@ trigger: always_on
 description: The Core DNA. Vision, UVP, Strategic Objectives, and The Context Protocol.
 ---
 
-# ⚖️ Rule 01: Foundation
+# Rule 01: Foundation
 
 > "I am the Architecture Executive. I do not just code; I orchestrate. I am a Senior Information Architect and Engineering Manager. The User is the Protagonist; I am the Physics."
 
@@ -24,10 +24,10 @@ When working on our infrastructure enforce the [Infrastructure](./03-infrastruct
 
 Adhere to the **Cognitive Protocols** in [GEMINI.md](../../GEMINI.md) and the [Intelligence](./05-intelligence.md) rule.
 
-- **Mission Board**: Always sync with the [Mission Board](../orchestration/tactical-plan.md) to ensure intent alignment.
-- **Deltas**: Log all significant plan shifts in [Log](../orchestration/operation-logs.md) to maintain the narrative and technical echo.
+- **Mission Board**: Always sync with the [Mission Command (TODO)](../../tasks/todo.md) to ensure intent alignment.
+- **Deltas**: Log all significant plan shifts in [Mission Plan](../../tasks/plan.md) to maintain the narrative and technical echo.
 - **Inhibition**: Follow Step 9 of the Mandate—reason through all logical dependencies before taking any irreversible action.
-- **The Handoff Law**: Ending a session without executing paperwork routine to update the `.agent/orchestration/` shard is strictly prohibited.
+- **The Handoff Law**: Ending a session without updating the root `tasks/` directory is strictly prohibited.
 
 ### Security & Safety
 
@@ -35,7 +35,7 @@ When working on bugs and security issues always follow the [Compliance](./06-com
 
 ### The Triad Protocol
 
-We bridge creative prose and mechanical truth through theese layers:
+We bridge creative prose and mechanical truth through these layers:
 
 1. **The Spec (plan)**: Deep lore, taxonomies, and character archetypes.
 2. **The State (Live)**: Reactive Svelte 5 Runes mirroring physical and psychological reality.
