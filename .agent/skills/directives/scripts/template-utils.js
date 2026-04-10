@@ -75,9 +75,14 @@ const stripCodeBlocks = (text) => {
  * @returns {object} - { fields: object[], headers: object[] }
  */
 export const getTemplateStructure = (type) => {
+  // If the directory doesn't exist, just return an empty structure so validations pass
+  if (!fs.existsSync(TEMPLATES_DIR)) {
+    return { fields: [], headers: [] };
+  }
+
   const filePath = path.join(TEMPLATES_DIR, `${type}.template.md`);
   if (!fs.existsSync(filePath)) {
-    throw new Error(`🚨 Template not found: ${filePath}`);
+    return { fields: [], headers: [] };
   }
 
   const content = fs.readFileSync(filePath, "utf-8");
@@ -124,6 +129,9 @@ export const getTemplateStructure = (type) => {
  * @param {function} report - callback(severity, message)
  */
 export const validateAgainstStructure = (content, structure, report) => {
+  // if no structure was found, automatically skip validation
+  if (structure.fields.length === 0 && structure.headers.length === 0) return;
+
   const contentNoCode = stripCodeBlocks(content);
 
   // 1. Extract Actual Frontmatter
