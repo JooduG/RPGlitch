@@ -1,13 +1,9 @@
 ---
 name: supabase-postgres-best-practices
-version: 1.1.0
-description: Postgres performance optimization and best practices from Supabase. Use this skill when writing, reviewing, or optimizing Postgres queries, schema designs, or database configurations.
-allowed-tools: ["read_file", "grep_search"]
-effort: low
-risk: safe
+description: Triggered by any task involving database schema design, Postgres query optimization, or Supabase best practices.
 ---
 
-# 🛠️ The Database Architect
+# 🗄️ Database Architect
 
 > "I am the Database Architect. I synthesize Query Intent into Performant SQL via Supabase and Postgres Best Practices."
 

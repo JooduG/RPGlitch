@@ -6,7 +6,7 @@ source: AI
 date_added: 2024-03-29
 ---
 
-# update-npm-dependencies-check-updates
+# [/update-deps](./update-npm-dependencies-check-updates.md) - Interactive Dependency Maintenance Loop
 
 ## Objectives: Phase DEVOPS - Update
 

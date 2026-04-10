@@ -1,21 +1,15 @@
 ---
 name: image-generation
-version: 1.0.0
-description: Owns image generation, Perchance prompts, and external visual asset management.
-allowed-tools: ["Read", "Write", "GenerateImage"]
-effort: high
-risk: safe
+description: Triggered by any task involving prompt engineering, visual asset requests, or image generation via Perchance.
 ---
 
-# 🛠️ Image Generation Integration
+# 👁️ Image Synthesis & Vision
 
 > "I am the Visionary. I own the visual synthesis, the Perchance prompts, and the external aesthetic of the RPGlitch Engine. I synthesize Narrative Context into Visual Reality via Prompt Engineering and Image Processing."
 
 ## 🔬 Anatomy
 
-```text
 skills/image-generation/SKILL.md
-```
 
 ## 🎯 Strategic Context
 
@@ -45,6 +39,22 @@ skills/image-generation/SKILL.md
 - **Generic Prompts**: Using simplistic, low-fidelity tokens.
 - **Floating Assets**: Generating images without registry tracking.
 - **Aesthetic Drift**: Deviating from the Nordic Collection style guide.
+
+
+## ⚖️ Common Rationalizations
+
+| Excuse | Counter-Measure |
+| :--- | :--- |
+| "A simple prompt will do for this placeholder." | "Placeholders are forbidden. Use high-fidelity prompts only." |
+| "I'll just save the image and not update the registry." | "Orphaned assets cause drift. Always synchronize with the registry." |
+| "Style consistency isn't vital for NPC portraits." | "The Nordic Collection is absolute. Maintain aesthetic purity." |
+
+## ✅ Verification
+
+- [ ] High-fidelity asset generated and stored in the correct directory.
+- [ ] Asset registered in `ImageRegistry`.
+- [ ] Prompt metadata archived for future iterative refinement.
+- [ ] Aesthetic consistency verified against the Nordic Collection style guide.
 
 ---
 

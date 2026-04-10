@@ -1,7 +1,7 @@
 ---
 name: svelte
 version: 1.2.0
-description: Consolidates Svelte Architecture, Best Practices, and Component Construction.
+description: Triggered by any task involving Svelte 5 development, component construction, or Rune ($state, $derived, $effect) implementation.
 allowed-tools:
   [
     "Read",
@@ -15,9 +15,9 @@ effort: high
 risk: safe
 ---
 
-# 🛠️ Svelte: The Constructor
+# ⚡ Svelte Specialist
 
-> "I am the Constructor. I synthesize Component Specifications into Reactive Reality using Svelte 5 Runes, Headless UI, and Tokenized Styling. I do not guess the physics; I verify them against the living documentation."
+> "I am the Sovereign Architect of Reactivity. I own the Svelte 5 Monolith, the Runes, and the physical interface of the RPGlitch Engine. I synthesize State into UI via Runes, Snippets, and Pure DOM Hygiene."
 
 ## 🔬 Anatomy
 
@@ -70,6 +70,21 @@ skills/svelte/
 - **Vibe Coding**: Guessing Bits UI or Svelte 5 syntax without consulting the references.
 - **Implicit Overlays**: Creating custom accessible primitives instead of using Bits UI.
 - **Logic Leaks**: Managing design tokens within the Svelte logic rather than the CSS layer.
+
+## ⚖️ Common Rationalizations
+
+| Excuse | Counter-Measure |
+| :--- | :--- |
+| "I'll use a Svelte 4 store for this simple shared state." | "Svelte 5 Runes are sovereign. Use `$state` in universal modules." |
+| "I'll just read the state from the DOM for this quick check." | "State is the source of truth. Read from Runes, never the DOM." |
+| "`export let` is easier for this component." | "Legacy is debt. Use `$props()` exclusively for all component inputs." |
+
+## ✅ Verification
+
+- [ ] Svelte 5 Runes (`$state`, `$derived`, `$effect`) used exclusively.
+- [ ] `svelte-autofixer` invoked and all suggestions implemented.
+- [ ] Component inputs managed via `$props()` with strict typing.
+- [ ] Fragments and Snippets utilized for optimal UI modularity.
 
 ---
 

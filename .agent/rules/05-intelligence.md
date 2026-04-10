@@ -1,10 +1,10 @@
 ---
 name: intelligence
 trigger: always_on
-description: The conceptual and linguistic laws governing agent intelligence.
+description: The Core Protocol. Cognitive Routing, Lexical Laws and Strategic Alignment.
 ---
 
-# ⚡ Rule 05: Intelligence
+# Rule 05: Intelligence
 
 > "I am the nervous system of the agent. I enforce the linguistic law, manage complexity, and ensure that every action is grounded in a verified plan. I am the bridge between intent and reality."
 
@@ -66,29 +66,24 @@ To prevent cognitive drift, nomenclature is absolute.
 
 ---
 
-### 4. Complexity & Role Routing
+### 4. Complexity & Workflow Routing
 
-To optimize cognitive load, tasks are triaged into three complexity levels, each triggering a specific role and thinking approach.
+To optimize cognitive load, tasks are triaged into three complexity levels, each triggering the appropriate **Role** and **Master Workflow** sequence.
 
-#### **Level 1: Quick Fix (⚒️ Operational Role)**
+#### **Level 1: Quick Fix (⚒️ Operations)**
+- **Scope**: Typos, CSS tweaks, minor logic, or single-file edits.
+- **Workflow**: ⚡ **[/test](../workflows/test.md)** -> **[/build](../workflows/build.md)**. Direct implementation and cleanup.
+- **Skill**: `orchestration`.
 
-- **Scope**: Typos, CSS tweaks, minor logic, or well-defined single-file edits.
-- **Approach**: ⚡ _Professional Coding_. Direct execution, TDD, quick fixes, and cleanup.
-- **Skill**: [Orchestration Operations](../../.agent/skills/orchestration-operations/SKILL.md).
+#### **Level 2: Enhancement (🎨 Tactics)**
+- **Scope**: New features, refactors, or multi-file logic changes.
+- **Workflow**: 🧠 **[/plan](../workflows/plan.md)** -> **[/build](../workflows/build.md)**. Technical scoping and incremental delivery.
+- **Skill**: `orchestration`.
 
-#### **Level 2: Enhancement (🎨 Tactical Role)**
-
-- **Scope**: New small features, refactors, state migrations, or multi-file logic changes.
-- **Approach**: 🧠 _Sequential Thinking_ (mcp: `mcp-sequentialthinking-tools`). Multi-step logic, tool-guided analysis, implementation plans.
-- **Execution**: Full analysis and implementation plan required.
-- **Skill**: [Orchestration Tactics](../../.agent/skills/orchestration-tactics/SKILL.md).
-
-#### **Level 3: Complex Feature (🎭 Strategic Role)**
-
-- **Scope**: Major architectural changes, new core systems, or highly ambiguous requirements.
-- **Approach**: 🤔 _Contemplative Thinking_ (mcp: `waldzell-clear-thought`). Deep exploration, architectural mapping, reframing.
-- **Execution**: Trigger `warden:debugging` if high risk. Requires transition from `orchestration-strategy` (Intake) to `orchestration-strategy` (Strategy).
-- **Skill**: [Orchestration Strategy](../../.agent/skills/orchestration-strategy/SKILL.md).
+#### **Level 3: Complex Feature (🎭 Strategy)**
+- **Scope**: Major architectural changes or high ambiguity.
+- **Workflow**: 🤔 **[/spec](../workflows/spec.md)** -> **[/plan](../workflows/plan.md)** -> **[/build](../workflows/build.md)**. Direct feature incubation.
+- **Skill**: `orchestration`.
 
 ---
 
@@ -96,9 +91,8 @@ To optimize cognitive load, tasks are triaged into three complexity levels, each
 
 To maintain the technical quality trail and ensure historical continuity, all complex missions (Level 2 & Level 3) MUST have a dedicated blueprint file.
 
-- **Location**: `.agent/orchestration/plans/XXX-mission-slug.md`
-- **Mirroring**: During the planning phase, the blueprint MUST be mirrored to an `implementation_plan` **Brain Artifact** for user feedback. The `.agent/` directory remains the permanent source of truth.
-- **Archival**: Upon mission completion (`[DONE]`), move the blueprint file from `./plans/` to `.agent/archive/tracks/`.
+- **Location**: `tasks/plan.md`
+- **Archival**: Upon mission completion (`[DONE]`), move the blueprint file content to a persistent archive or the `walkthrough.md`.
 
 ---
 
@@ -117,11 +111,6 @@ Any tool output that is truncated (e.g. `(...N more results not shown)`) represe
 The following sovereign workflows are registered for agentic orchestration.
 
 - **/00-boot**: Fresh Session Initialization. Syncs context, mental model, and global state.
-- **/01-plan**: The Master Router. Enforces the execution process, categorizes risk, and routes complex features.
-- **/02-execute**: Code Execution Loop. Tactical implementation, Logic wiring, and Aesthetic polish.
-- **/03-clean**: Maintenance & Security. Fixes bugs, audits security, and ensures hygiene.
-- **/04-review**: Quality Assurance & Review.
-- **/05-deploy**: Solo Deployment. Ships the bundle to Perchance.
 - **/06-continue**: Resume Interrupted Work.
 - **/07-swarm**: Swarm Command. Manual Swarm Orchestration. Human-initiated specialized sub-agent deployment.
 - **/08-github**: Local GitHub Ops. Automates PRs, issues, and local sync.

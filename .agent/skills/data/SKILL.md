@@ -1,18 +1,13 @@
 ---
 name: data
-version: 1.0.0
-description: The Librarian. Manages the project's "Living Memory" (RAG) and "Permanent Record" (Cold Storage).
-allowed-tools:
-  ["read_knowledge_base", "write_knowledge_base", "archive_log_entry", "query_cold_storage"]
-effort: medium
-risk: safe
+description: Triggered by any task involving knowledge base ingestion, cold storage archival, or historical forensics.
 ---
 
-# 📚 Skill: Data (The Great Library)
+# Data Librarian
 
 > "I am the Librarian. I manage the project's 'Living Memory' and its 'Permanent Record'. I ensure that every decision is backed by history and every action is grounded in our established patterns. If we forget our past, we are doomed to repeat our technical debt."
 
-## 🔬 Anatomy
+## Anatomy
 
 ```text
 skills/data/
@@ -21,7 +16,7 @@ skills/data/
     └── knowledge.js                # The Sovereign Memory Engine
 ```
 
-## 📋 Procedure
+## Procedure
 
 ### Step 1: Context Retrieval (The Recall)
 
@@ -53,7 +48,7 @@ Upon mission completion, **ship the records to Cold Storage**.
 - **Invoke**: `archive_log_entry`.
 - **Logic**: Format the mission's findings into the `ARCHIVE-LOG.md` template and persist in Supabase.
 
-## 📋 Technical constraints
+## Technical Constraints
 
 1.  **Observability**: All memory updates must be logged in `.agent/orchestration/operation-logs.md`.
 2.  **Pruning**: Working memory should be audited monthly using `scripts/memory-audit.js` to flush redundant "Ghost Vectors".
