@@ -55,18 +55,19 @@ We use a strictly defined triad of fonts, scaled via an absolute T-shirt sizing 
 - **Body Font** (`var(--font-family-body)`): `Inter`, system-ui.
 - **Label Font** (`var(--font-family-mono)`): `JetBrains Mono`, monospace.
 
-#### T-Shirt Spacing
-
 Padding, margins, and gaps must strictly adhere to the modular scale:
 `var(--spacing-xxs)` (0.25rem) to `var(--spacing-xxxl)` (6rem).
 
 ---
 
-### 🕹️ Component Interactions
+### 🕹️ Component Interactions (Grounded Engine)
 
-The Nordic Refac relies on subtle border rounding and kinetic physics to create a premium feel.
+The Nordic Collection relies on static spatial depth and kinetic scaling rather than floating bounciness.
 
-- **Buttons & UI Modules**: Utilize `var(--border-radius-m)` (`0.5rem`). Must leverage `.material-interactive` for consistent physical behavior.
+- **Interaction Engine**: Atoms (Buttons, Cards, Pills) use the centralized engine in `global.css`.
+  - **Hover**: Driven by `--hover-brightness` and `--hover-blur`.
+  - **Grounded Policy**: Explicitly avoid `translateY` on hover to maintain subterranean weight.
+- **Active States**: High-precision scale reduction via `--motion-click` (Scale: 0.95).
 - **Kinetic Physics**: Svelte Action-driven Web Animations API primitives (`use:shimmy`, `use:pulse`, `use:spin`, `use:stab`).
 - **3D Tilt**: Interactive perspective cards utilize `use:tilt` to provide hardware-accelerated perspective tracking.
 

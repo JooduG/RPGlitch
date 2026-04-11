@@ -22,7 +22,7 @@ The `designer` skill is the sovereign orchestrator of the simulation's sensory l
 
 ## When to Use
 - **Trigger**: Tasks involving "Premium feel", "Atmosphere", or visual polish.
-- **Trigger**: Modifying **[DESIGN.md](../../design.md)** or `src/theme/tokens.css`.
+- **Trigger**: Modifying **[DESIGN.md](../../../design.md)** or `src/theme/tokens.css`.
 - **Trigger**: Orchestrating between **[CSS](../css/SKILL.md)**, **[Motion](../motion/SKILL.md)**, and **[Audio](../audio/SKILL.md)**.
 - **Trigger**: Managing design documentation via the **Stitch MCP**.
 - **Exclusion**: Tasks involving purely mechanical component state or data persistence without visual impact.
@@ -31,8 +31,8 @@ The `designer` skill is the sovereign orchestrator of the simulation's sensory l
 
 ### Phase 1: Aesthetic Analysis
 1. **Analyze Rule 04**: Verify the task against the atmospheric laws of the **Chalk Regime**.
-2. **Consult [DESIGN.md](../../design.md)**: Map requirements to existing tokens (Glassmorphism, Spacing, Typography).
-3. **Draft Design Spells**: Define the micro-interactions (magnetic hovers, elastic physics) required for "magic".
+2. **Consult [DESIGN.md](../../../DESIGN.md)**: Map requirements to existing tokens (Glassmorphism, Spacing, Typography).
+3. **Draft Design Spells**: Define the micro-interactions (magnetic hovers, elastic physics, grounded depth) required for "magic".
 
 ### Phase 2: Sensory Orchestration
 1. **Direct Implementation**: Coordinate specialized skills (**CSS**, **Motion**, **Audio**) to ensure a unified sensory experience.
@@ -51,6 +51,7 @@ The `designer` skill is the sovereign orchestrator of the simulation's sensory l
 - **Flat Design**: Ignoring the spatial depth and glassmorphism required by Rule 04.
 - **SNAP Snapping**: Using instant state changes instead of smooth transitions (min 0.3s).
 - **AI Aesthetic**: Defaulting to the "Safe Indigo/Purple" palette instead of Slate/Gunmetal.
+- **Bouncy UI**: Violating the Grounded Policy by adding vertical transforms to standard atoms.
 - **Functional Drift**: Losing the "Atmosphere" by focusing strictly on technical utility.
 
 ## Verification

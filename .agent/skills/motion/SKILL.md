@@ -18,8 +18,19 @@ skills/motion/SKILL.md/
 - **High-Fidelity Implementation**: Smooth transitions that feel premium and kinetic.
 - **Architectural Integrity**: Native browser performance using CSS transforms and Svelte actions.
 - **Sensory Excellence**: Interactive perspective tracking and elastic transitions.
+- **The Grounded Policy**: Standard UI (buttons, cards) favors filters/depth over vertical shifts (`translateY`).
 
 ## 📋 Procedure
+
+### Interaction & Motion Engine (Canon)
+
+1. **Leverage Design Tokens**:
+   - **Motion**: `--motion-fast`, `--motion-slow`, `--motion-elastic`, `--motion-click`.
+   - **Interaction**: `--hover-brightness`, `--hover-blur`, `--hover-background-color`.
+   
+2. **Global Implementation**:
+   - Prefer `src/theme/global.css` interaction rules for shared atoms.
+   - Use high-specificity parent selectors for component overrides instead of `!important`.
 
 ### Svelte Action Implementation
 
@@ -40,6 +51,7 @@ skills/motion/SKILL.md/
 - **JS-Heavy Animations**: Failing to favor native CSS transitions and transforms.
 - **Jittery Frames**: Overwhelming the main thread with unoptimized motion logic.
 - **Aesthetic Mismatch**: Motion that doesn't align with the Nordic Collection's weighted feel.
+- **Unauthorized Vertical Shifts**: Adding "bounce" or "lift" to standard UI elements without explicit design approval.
 
 ## ⚖️ Common Rationalizations
 

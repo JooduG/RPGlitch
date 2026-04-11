@@ -206,19 +206,20 @@
   --breakpoint-tablet: var(--breakpoints-l);
   --breakpoint-desktop: var(--breakpoints-xl);
 
-  /* Motion */
-  --motion-fast: 0.2s;
-  --motion-slow: 0.4s;
-  --motion-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --motion-hover-y: 0;
-  --motion-button-hover-y: 0;
-  --motion-button-active-scale: 0.95;
-
   /* T-Shirt Z-Index Scale */
   --z-index-xs: -1; /* Below Floor: Noise, vignettes, background underlays */
   --z-index-s: 0; /* Floor: Standard atmospheric components */
   --z-index-m: 10; /* Surface: Main application widgets, Cards, UI Buttons */
   --z-index-l: 100; /* Overlays: Storyboard Pill, floating widgets */
   --z-index-xl: 450; /* Shields: Modals, Backdrops, Global Drawers */
-  --z-index-max: 9999; /* Toasts: System alerts, Tooltips, Context Menus */
+  --z-index-max: 9999; /* System alerts, Tooltips, Context Menus */
+
+  /* Interaction & Motion */
+  --motion-fast: 0.2s;
+  --motion-slow: 0.4s;
+  --motion-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --motion-click: 0.95;
+  --hover-blur: var(--glass-blur-m);
+  --hover-brightness: brightness(1.1);
+  --hover-background-color: rgb(var(--color-frisk-rgb) / 15%);
 }

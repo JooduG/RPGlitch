@@ -75,15 +75,17 @@
   }
 
   /* --- Scoped UI Overrides --- */
-  :global(.unified-capsule .button) {
+  :global(.pill-container .unified-capsule .button) {
     background: transparent;
     filter: none;
+    backdrop-filter: none;
     transition: all var(--motion-fast);
   }
 
-  :global(.unified-capsule .button:hover:not(:disabled)) {
+  :global(.pill-container .unified-capsule .button:hover:not(:disabled)) {
     background: transparent;
     filter: none;
+    backdrop-filter: none;
     color: var(--font-color-m);
     opacity: var(--opacity-full);
   }

@@ -120,7 +120,6 @@
     box-shadow:
       0 12px 24px -12px rgb(from var(--signature-color) r g b / 40%),
       0 0 0 1px var(--signature-color);
-    filter: brightness(1.1);
   }
 
   /* --- EMPTY STATE --- */
@@ -147,7 +146,6 @@
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-l);
     color: var(--font-color-s);
-    filter: brightness(1.5); /* Ensure readability even when container is de-emphasized */
   }
 
   /* --- POPULATED CARD --- */
@@ -233,6 +231,5 @@
 
   :global(.storyboard-stack .profile-quick-link.button:hover) {
     opacity: var(--opacity-full);
-    background: var(--glass-xs);
   }
 </style>

@@ -127,11 +127,6 @@ tfoot td {
     box-shadow var(--motion-fast, 0.3s) ease;
 }
 
-.material-interactive:hover {
-  transform: translateY(var(--motion-hover-y));
-  box-shadow: var(--shadow-m);
-}
-
 /* Structural Glass Panels (Instead of Opaque Elevations) */
 
 /* The Standard Frosted Widget Panel */
@@ -247,4 +242,14 @@ tfoot td {
 [data-tooltip]:hover::before,
 [data-tooltip]:hover::after {
   opacity: var(--opacity-full);
+}
+
+/* Interaction Engine */
+.button:hover:not(:disabled, .disabled),
+.storyboard-stack:hover,
+.drawer-card:hover:not(:disabled, .is-disabled),
+.button-overlay:hover:not(:disabled, .disabled),
+.profile-quick-link.button:hover {
+  filter: var(--hover-brightness);
+  backdrop-filter: var(--hover-blur);
 }

@@ -69,7 +69,6 @@
 
   .drawer-card:hover:not(:disabled, .is-disabled) {
     box-shadow: var(--shadow-m);
-    filter: brightness(1.2);
   }
 
   .drawer-card.is-disabled {

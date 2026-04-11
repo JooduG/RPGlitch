@@ -27,6 +27,13 @@
 - [x] Standardize `LibraryDrawer` and `Wings`
 - [x] Sync `Modal` and `StoryboardCard` quick-links
 
+### [027] Interaction Engine Canonization - [COMPLETED]
+- [x] Unify tokens in `tokens.css` (Nomenclature Refac)
+- [x] Route master targets in `global.css`
+- [x] Purge component-level hover overrides (Filter/Background)
+- [x] Update `Button.svelte` active scale to `--motion-click`
+- [x] Final Grep Audit & Verification
+
 ### [025] Glass Audit & Polish - [COMPLETED]
 **Goal**: Finalize Nordic Glassmorphism standardization and button alignment.
 - [x] Define `--glass-deep` (Chalk base).

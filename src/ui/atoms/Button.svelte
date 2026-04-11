@@ -191,7 +191,6 @@
   }
 
   .button-security {
-    background: var(--glass-xs);
     color: var(--font-color-m);
     box-shadow: 0 0 0 1px var(--color-frisk);
   }
@@ -213,13 +212,12 @@
   }
 
   .button:active:not(:disabled, .disabled) {
-    transform: scale(var(--motion-button-active-scale, 0.96));
+    transform: scale(var(--motion-click, 0.95));
     transition-duration: var(--motion-fast);
   }
 
   /* 4. The Hover Monster (Highest Specificity due to :not) */
   .button:hover:not(:disabled, .disabled) {
-    filter: brightness(1.1);
     transition: all var(--motion-fast) var(--motion-elastic);
   }
 
@@ -242,17 +240,12 @@
     background: var(--color-danger);
     color: var(--color-white);
     box-shadow: 0 0 1rem rgb(var(--color-danger-rgb) / var(--opacity-s));
-    filter: brightness(1.2);
   }
 
   .button-dashed:hover:not(:disabled, .disabled) {
     background: rgb(var(--color-frisk-rgb) / 10%);
     border-color: var(--font-color-s);
     color: var(--font-color-m);
-  }
-
-  .button-overlay:hover:not(:disabled, .disabled) {
-    background: var(--glass-xs);
   }
 
   .button-magic:hover:not(:disabled, .disabled) {
@@ -266,7 +259,6 @@
   }
 
   .button-signature:hover:not(:disabled, .disabled) {
-    filter: brightness(1.1);
     box-shadow: var(--shadow-m);
   }
 
@@ -283,9 +275,7 @@
   }
 
   .button-security:hover:not(:disabled, .disabled) {
-    box-shadow:
-      0 0 15px var(--glass-xs),
-      0 0 0 1px var(--font-color-m);
+    box-shadow: 0 0 0 1px var(--font-color-m);
   }
 
   .button :global(.icon) {
