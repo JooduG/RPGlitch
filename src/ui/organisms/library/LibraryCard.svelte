@@ -27,7 +27,7 @@
 </script>
 
 <button
-  class="drawer-card surface-tilt"
+  class="drawer-card glass-base surface-tilt"
   class:fractal-card={type === "fractal"}
   class:is-disabled={disabled}
   style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
@@ -54,28 +54,22 @@
 
 <style>
   .drawer-card {
-    aspect-ratio: 2 / 3;
-    background: var(--glass-s);
-    backdrop-filter: var(--glass-blur-m);
-    border: var(--glass-edge-l);
-    border-top: var(--glass-edge-xl); /* Specular highlight */
-    border-radius: var(--border-radius-m);
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
+    width: 100%;
+    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
+    border: none;
     padding: 0;
-    transition: all var(--motion-fast) var(--motion-elastic);
-    text-align: left;
-    width: 8.75rem;
-    flex: 0 0 auto;
+    background: transparent;
+    cursor: pointer;
+    border-radius: var(--border-radius-m);
+    overflow: hidden;
+    border-top: var(--glass-edge-xl); /* Maintain specular highlight override */
   }
 
   .drawer-card:hover:not(:disabled, .is-disabled) {
     box-shadow: var(--shadow-m);
     filter: brightness(1.2);
-    transform: translateY(-2px);
   }
 
   .drawer-card.is-disabled {
@@ -87,8 +81,8 @@
 
   .drawer-card .card-visual {
     flex: 1.5;
-    background: var(--glass-xs); /* Sinks deeper for contrast */
-    box-shadow: 0 0 0 1px inset var(--glass-edge-l);
+    background: rgb(var(--color-black-rgb) / 20%); /* Softened from 50% for Nordic look */
+    border-top: none; /* Radius handled by parent overflow */
     display: flex;
     align-items: center;
     justify-content: center;

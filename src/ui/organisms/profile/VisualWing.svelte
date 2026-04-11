@@ -181,7 +181,7 @@
 </script>
 
 <div
-  class="visual-wing-content"
+  class="visual-wing-content glass-overlay"
   onfocusout={(e) => {
     const wing_root = e.currentTarget;
     setTimeout(() => {
@@ -285,12 +285,6 @@
 
 <style>
   .visual-wing-content {
-    background: rgb(var(--color-gunmetal-rgb) / 75%);
-    box-shadow: var(--shadow-m);
-    border-radius: var(--border-radius-l);
-    /* stylelint-disable-next-line property-no-vendor-prefix */
-    -webkit-backdrop-filter: var(--glass-blur-s);
-    backdrop-filter: var(--glass-blur-s);
     padding: var(--spacing-m);
     display: flex;
     flex-direction: column;
@@ -316,7 +310,7 @@
     width: 100%;
     aspect-ratio: 1;
     border: 0;
-    border-radius: var(--spacing-xs);
+    border-radius: var(--border-radius-m);
     cursor: pointer;
     transition: all var(--motion-fast) var(--motion-elastic);
     box-shadow: var(--shadow-s);

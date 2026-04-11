@@ -112,7 +112,7 @@
     <div class="drawer-content no-scrollbar" use:kineticScroll>
       <div class="drawer-grid">
         <button
-          class="drawer-card drawer-card--new"
+          class="drawer-card drawer-card--new glass-base"
           onclick={handleCreateNew}
           title="Initialize a new entity from template"
         >
@@ -163,11 +163,6 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-
-    /* Transparency Tuning per user request (45% -> 32%) */
-    background: rgb(var(--color-frisk-rgb) / 32%);
-    backdrop-filter: var(--glass-blur-xl);
-    border: var(--glass-edge-xl);
     border-bottom: none;
     box-shadow: var(--shadow-xl);
   }
@@ -220,10 +215,7 @@
 
   /* --- NEW ENTITY CARD --- */
   .drawer-card--new {
-    background: var(--glass-s);
-    backdrop-filter: var(--glass-blur-m);
     border: 2px dashed rgb(var(--color-white-rgb) / 10%);
-    border-radius: var(--border-radius-m);
     aspect-ratio: 2 / 3;
     display: flex;
     flex-direction: column;
@@ -234,14 +226,16 @@
     transition: all var(--motion-fast) var(--motion-elastic);
     color: var(--font-color-s);
     padding: 0;
-    width: 8.75rem; /* Match LibraryCard width */
+    width: 100%; /* Match LibraryCard width */
+    border-radius: var(--border-radius-m);
+    overflow: hidden;
   }
 
   .drawer-card--new .new-icon-wrap {
     width: 3.5rem;
     height: 3.5rem;
     border-radius: 50%;
-    background: var(--glass-xs);
+    background: rgb(var(--color-black-rgb) / 20%);
     border: var(--glass-edge-l);
     display: flex;
     align-items: center;
@@ -265,7 +259,6 @@
   .drawer-card--new:hover {
     color: var(--color-white);
     filter: brightness(1.2);
-    transform: translateY(-5px);
     border-color: var(--color-frozen);
   }
 

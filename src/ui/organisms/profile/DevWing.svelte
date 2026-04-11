@@ -53,7 +53,7 @@
   });
 </script>
 
-<div class="dev-wing-content">
+<div class="dev-wing-content glass-overlay">
   <div class="group dynamics-group">
     <div class="dynamics-grid">
       {#each active_dynamics as dynamic (dynamic.source + "-" + dynamic.key)}
@@ -117,12 +117,6 @@
 
 <style>
   .dev-wing-content {
-    background: rgb(var(--color-gunmetal-rgb) / 75%);
-    /* stylelint-disable-next-line property-no-vendor-prefix */
-    -webkit-backdrop-filter: var(--glass-blur-s);
-    backdrop-filter: var(--glass-blur-s);
-    box-shadow: var(--shadow-m);
-    border-radius: var(--border-radius-l);
     padding: var(--spacing-m);
     display: flex;
     flex-direction: column;
@@ -156,7 +150,7 @@
   .dynamic-box {
     background: var(--glass-xs);
     box-shadow: inset 0 0 0 1px var(--glass-edge-l);
-    border-radius: var(--spacing-xs);
+    border-radius: var(--border-radius-m);
     padding: var(--spacing-s);
     display: flex;
     flex-direction: column;
@@ -249,11 +243,11 @@
 
   .json-wrap {
     margin-top: var(--spacing-xs);
-    background: rgb(var(--color-black-rgb) / 40%);
+    background: rgb(var(--color-black-rgb) / 20%);
     box-shadow:
       inset 0 0 0 1px var(--glass-edge-l),
       inset 0 0.125rem 0.25rem rgb(var(--color-black-rgb) / 50%);
-    border-radius: var(--spacing-xs);
+    border-radius: var(--border-radius-m);
     padding: var(--spacing-xs);
     max-height: 10rem;
     overflow: auto;

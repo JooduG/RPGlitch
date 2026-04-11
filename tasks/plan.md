@@ -1,37 +1,48 @@
-# MISSION PLAN: Nordic Glass Refactor [023]
+# MISSION PLAN: [026] Nordic Glass Standardization (Frozen ⮕ Frisk)
 
-**Goal**: Align the `LibraryCard` and the "Create New" template card in `LibraryDrawer` with the "Nordic Collection" aesthetics (frosted glass, specular highlights, and calibrated shadows) established in `StoryboardCard.svelte`.
+**Goal**: Unify the UI using a physically accurate glass hierarchy where lower layers are darker (Frozen) and the top-most layer is lighter (Frisk). Standardize global design tokens and purge manual glass overrides.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> This refactor will update the visual materials of the Library drawer components. The structure will remain largely the same, but the "look and feel" will shift from basic transparency to the "Chalk Regime" / "Nordic Collection" standard.
+> **Stealth Sync Protocol**: I am now strictly using the `tasks/` directory as the "Source of Truth" for historical continuity. Every Antigravity update is mirrored here.
+> [!TIP]
+> **New Elevation Hierarchy**:
+> - **Base/Overlay** (Bottom/Mid): Use `Frozen` (#555d66).
+> - **Surface** (Top): Uses `Frisk` (#8a9399) to simulate closer light proximity.
+> - **Rename**: `glass-deep` is officially renamed to `glass-surface`.
 
 ## Proposed Changes
 
-### UI: Organisms (`src/ui/organisms/`)
+### 🎨 [SECTION: THE NORDIC SYSTEM]
 
-#### [MODIFY] [LibraryCard.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/organisms/library/LibraryCard.svelte)
-- **Material Update**: Apply `glass-base` properties:
-  - `background: var(--glass-s)`
-  - `backdrop-filter: var(--glass-blur-m)`
-  - `border: var(--glass-edge-l)`
-  - `border-top: var(--glass-edge-xl)` (Specular highlight)
-- **Typography Check**: Ensure `entity-name` matches the signature color and visibility of the Nordic standard.
-- **Interactives**: Ensure hover states align with the `surface-tilt` and `material-interactive` patterns.
+#### [MODIFY] [tokens.css](file:///c:/Users/johng/source/repos/RPGlitch/src/theme/tokens.css)
+- Standardize `--glass-s`, `--glass-xl` to Frozen.
+- Replace `--glass-deep` with `--glass-surface` (Frisk 30%).
 
-#### [MODIFY] [LibraryDrawer.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/organisms/library/LibraryDrawer.svelte)
-- **Template Card**: Refactor `.drawer-card--new` to utilize Nordic glass primitives.
-- **Grid Layout**: Ensure the grid spacing (`gap: var(--spacing-l)`) remains balanced with the new card aesthetics.
+#### [MODIFY] [global.css](file:///c:/Users/johng/source/repos/RPGlitch/src/theme/global.css)
+- Update `.glass-base`, `.glass-overlay`, `.glass-surface` utility classes.
+
+### 🏢 [SECTION: CORE ORGANISMS]
+
+#### [MODIFY] [Wings & Headers]
+- Refactor `SceneHeader`, `VoiceWing`, `VisualWing`, `DevWing` to use `.glass-overlay`.
+- Refactor `LibraryDrawer` to remove manual glass overrides.
+
+### 🧪 [SECTION: ATOMS & MOLECULES]
+
+#### [MODIFY] [Modal](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/molecules/dialogs/Modal.svelte)
+- Standardize `.modal-content` to `.glass-surface`.
+
+#### [MODIFY] [StoryboardCard](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/organisms/storyboard/StoryboardCard.svelte)
+- Standardize `.profile-quick-link` to `var(--glass-surface)`.
 
 ---
 
 ## Verification Plan
 
 ### Automated Tests
-- `npm run verify`: General verification of the build and reactive state.
-- Component Audit: I will use the `browser-subagent` to visually verify the changes in a simulated environment if possible (or rely on code inspection against the `tokens.css` source of truth).
+- `npm run verify`: General verification of the build and CSS linting.
 
 ### Manual Verification
-- Verify that `LibraryCard` and `StoryboardCard` feel like part of the same "set" when viewed in succession.
-- Confirm the `Create New` card stands out appropriately while maintaining material consistency.
+- Visual audit of the **Drawer**, **Wings**, and **Headers** in the browser.

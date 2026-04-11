@@ -214,9 +214,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--glass-s);
-    backdrop-filter: var(--glass-blur-m);
-    border: var(--glass-edge-l);
+    background: var(--glass-surface);
+    border: var(--glass-edge-xl);
+    backdrop-filter: var(--glass-blur-xl);
     border-radius: 50%;
     color: var(--color-white);
     opacity: var(--opacity-none);

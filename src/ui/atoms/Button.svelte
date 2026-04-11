@@ -120,7 +120,6 @@
 
   /* 2. Variants (Thematic) */
 
-
   .button-primary {
     background: var(--color-frisk);
     color: var(--color-black);
@@ -177,14 +176,17 @@
   }
 
   .button-glass {
-    background: var(--glass-l);
+    background: var(--glass-l); /* 15% Frisk */
+    backdrop-filter: var(--glass-blur-s);
+    border: var(--glass-edge-m);
     color: var(--color-white);
+    transition: all var(--motion-fast) var(--motion-elastic);
   }
 
-
-
   .button-secondary {
-    background: var(--glass-l);
+    background: rgb(var(--color-frisk-rgb) / 10%); /* Subtle initial state */
+    backdrop-filter: var(--glass-blur-s);
+    border: var(--glass-edge-s);
     color: var(--font-color-m);
   }
 
@@ -223,16 +225,17 @@
 
   .button-primary:hover:not(:disabled, .disabled) {
     background: color-mix(in srgb, var(--color-frisk), var(--color-white) 5%);
+    box-shadow: var(--shadow-l);
   }
 
   .button-ghost:hover:not(:disabled, .disabled) {
-    background: var(--glass-xs);
+    background: rgb(var(--color-frisk-rgb) / 10%);
     color: var(--font-color-m);
   }
 
   .button-outline:hover:not(:disabled, .disabled) {
     color: var(--color-frisk);
-    background: var(--glass-xs);
+    background: rgb(var(--color-frisk-rgb) / 10%);
   }
 
   .button-danger:hover:not(:disabled, .disabled) {
@@ -243,7 +246,7 @@
   }
 
   .button-dashed:hover:not(:disabled, .disabled) {
-    background: var(--glass-xs);
+    background: rgb(var(--color-frisk-rgb) / 10%);
     border-color: var(--font-color-s);
     color: var(--font-color-m);
   }
@@ -268,11 +271,15 @@
   }
 
   .button-glass:hover:not(:disabled, .disabled) {
-    background: var(--glass-l);
+    background: var(--glass-xl); /* 30% Nordic Deep Glass */
+    backdrop-filter: var(--glass-blur-m);
+    border-color: var(--color-frisk);
+    box-shadow: var(--shadow-m);
   }
 
   .button-secondary:hover:not(:disabled, .disabled) {
-    background: var(--glass-l);
+    background: var(--glass-l); /* 15% Frisk on hover */
+    backdrop-filter: var(--glass-blur-m);
   }
 
   .button-security:hover:not(:disabled, .disabled) {

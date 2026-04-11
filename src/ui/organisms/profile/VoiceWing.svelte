@@ -16,7 +16,7 @@
 </script>
 
 <div
-  class="voice-wing-content"
+  class="voice-wing-content glass-overlay"
   onmouseleave={() => (show_voice_dropdown = false)}
   role="presentation"
 >
@@ -36,7 +36,7 @@
             )}
           </span>
         </button>
-        <div class="dropdown-content" class:visible={show_voice_dropdown}>
+        <div class="dropdown-content glass-surface" class:visible={show_voice_dropdown}>
           {#each Audio.voice.voices as voice (voice.uri)}
             <button
               class="voice-option"
@@ -100,12 +100,6 @@
 
 <style>
   .voice-wing-content {
-    background: rgb(var(--color-gunmetal-rgb) / 75%);
-    /* stylelint-disable-next-line property-no-vendor-prefix */
-    -webkit-backdrop-filter: var(--glass-blur-s);
-    backdrop-filter: var(--glass-blur-s);
-    box-shadow: var(--shadow-m);
-    border-radius: var(--border-radius-l);
     padding: var(--spacing-m);
     display: flex;
     flex-direction: column;
@@ -231,13 +225,6 @@
     top: 100%;
     right: 0;
     width: calc(100% + 4rem); /* Allow overflow to the left */
-    background: var(--glass-xl);
-    /* stylelint-disable-next-line property-no-vendor-prefix */
-    -webkit-backdrop-filter: var(--glass-blur-l);
-    backdrop-filter: var(--glass-blur-l);
-    border: var(--glass-edge-l);
-    border-radius: var(--border-radius-m);
-    box-shadow: var(--shadow-xl);
     max-height: 200px;
     overflow-y: auto;
     z-index: var(--z-index-max);

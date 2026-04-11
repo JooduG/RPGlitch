@@ -19,7 +19,7 @@
 </script>
 
 <div class="scene-header" transition:fade>
-  <div class="glass-plate">
+  <div class="glass-plate glass-overlay">
     <div class="info-group location">
       <span class="label">LOCATION</span>
       <span class="value">{location}</span>
@@ -55,7 +55,6 @@
     align-items: center;
     gap: var(--spacing-l);
     padding: var(--spacing-s) var(--spacing-xl);
-    background: var(--glass-l);
     box-shadow: var(--shadow-m);
     border-radius: var(--border-radius-xs);
     min-width: 18.75rem;

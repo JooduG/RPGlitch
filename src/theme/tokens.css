@@ -97,13 +97,15 @@
 
   /* SUNKEN: Drops into the background (s - xs) */
   --glass-xs: rgb(var(--color-black-rgb) / 50%); /* Solidified for contrast */
-  --glass-s: rgb(var(--color-black-rgb) / var(--opacity-s));
+  --glass-s: rgb(var(--color-frozen-rgb) / 15%); /* Base layer: Submerged */
 
   /* ELEVATED: Raises above the background (l - xl) */
-  --glass-l: rgb(var(--color-frisk-rgb) / var(--opacity-xs));
-  --glass-xl: rgb(var(--color-frisk-rgb) / 45%); /* Solidified for readability */
+  --glass-l: rgb(var(--color-frozen-rgb) / 5%);
+  --glass-xl: rgb(var(--color-frozen-rgb) / 30%); /* Overlay layer: Floating */
+  --glass-surface: rgb(var(--color-frisk-rgb) / 30%); /* Surface layer: Top-most focus */
 
   /* The Specular Edge: For the borders of interactive atoms */
+
   --glass-edge-s: 1px solid rgb(var(--color-chalk-rgb) / var(--opacity-s));
   --glass-edge-m: 1px solid rgb(var(--color-frozen-rgb) / var(--opacity-xs));
   --glass-edge-l: 1px solid rgb(var(--color-frisk-rgb) / var(--opacity-xs));

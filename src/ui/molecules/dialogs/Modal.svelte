@@ -4,8 +4,8 @@
    * 🖼️ THE VOID CONTAINER
    * A generic glassmorphic modal wrapper.
    */
-  import { quintOut } from "svelte/easing";
-  import { fly } from "svelte/transition";
+  import { quartOut } from "svelte/easing";
+  import { scale } from "svelte/transition";
   import Backdrop from "./Backdrop.svelte";
 
   /** @type {{
@@ -40,7 +40,7 @@
 <!-- Interaction & Layout Layer -->
 <div class="modal-layout">
   <!-- Content -->
-  <div class="modal-content {variant}" transition:fly={{ y: 20, duration: 200, easing: quintOut }}>
+  <div class="modal-content glass-surface {variant}" transition:scale={{ duration: 400, easing: quartOut, start: 0.9 }}>
     {@render children()}
   </div>
 </div>
@@ -58,19 +58,17 @@
   }
 
   .modal-content {
-    background: var(--glass-xl);
-    backdrop-filter: var(--glass-blur-xl);
-    border: var(--glass-edge-l);
-    border-top: var(--glass-edge-xl);
-    border-radius: var(--border-radius-l);
-    box-shadow: var(--shadow-xxl);
-    width: 100%;
-    max-width: 600px;
-    max-height: 90vh;
-    overflow-y: auto;
     position: relative;
+    width: 95%;
+    max-width: 500px;
+    max-height: 90vh;
+    padding: var(--spacing-xl);
+    z-index: calc(var(--z-index-max) + 1);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-l);
+    overflow: hidden;
     pointer-events: auto;
-    z-index: calc(var(--z-index-xl) + 2);
   }
 
   .modal-content.profile {
@@ -79,7 +77,7 @@
     backdrop-filter: none;
     border: none;
     box-shadow: none;
-    overflow-y: visible;
+    overflow: visible;
   }
 
   .modal-content.preview {

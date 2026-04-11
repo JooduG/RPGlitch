@@ -136,22 +136,25 @@ tfoot td {
 
 /* The Standard Frosted Widget Panel */
 .glass-base {
-  background: var(--glass-s); /* Sinks slightly to inherit base */
+  background: var(--glass-s);
   backdrop-filter: var(--glass-blur-m);
   border: var(--glass-edge-l);
-  border-top: var(--glass-edge-xl); /* Top specular highlight */
-  box-shadow: var(--shadow-m);
-  z-index: var(--z-index-m);
+  border-radius: var(--border-radius-m);
 }
 
-/* Heavy Floating Modals & Overlays */
 .glass-overlay {
-  background: var(--glass-xs); /* Sinks heavier into the backdrop */
+  background: var(--glass-xl);
   backdrop-filter: var(--glass-blur-l);
-  border: var(--glass-edge-l);
-  border-top: var(--glass-edge-xl);
-  box-shadow: var(--shadow-xl);
-  z-index: var(--z-index-xl);
+  border: var(--glass-edge-xl);
+  border-radius: var(--border-radius-m);
+}
+
+.glass-surface {
+  background: var(--glass-surface);
+  backdrop-filter: var(--glass-blur-xl);
+  border: var(--glass-edge-xl);
+  border-top: 1px solid rgb(255 255 255 / 15%); /* Specular lift */
+  border-radius: var(--border-radius-m);
 }
 
 .no-scrollbar {
