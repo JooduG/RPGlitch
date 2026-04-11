@@ -1,6 +1,6 @@
 # SPEC: RPGlitch Simulation Engine
 
-> **Version**: 1.0.0
+> **Version**: 0.5.0 (The Foundry)
 > **Status**: Sovereign / Grounded
 
 ## 1. Objective
@@ -48,7 +48,7 @@ RPGlitch/
 - **Turn Cycle**: 1. System Turn (Lock) -> 2. AI Turn (Asynch) -> 3. User Turn (Release).
 
 ### Aesthetics (Rule 04)
-- **The Nordic Regime**: Abyssal radial gradients, atmospheric noise (3%), and glassmorphic elevation.
+- **The Nordic Collection**: Abyssal radial gradients, atmospheric noise (3%), and glassmorphic elevation.
 - **Naming**: kebab-case (files), PascalCase (Svelte), snake_case (variables).
 
 ---

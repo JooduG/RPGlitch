@@ -22,18 +22,14 @@
 
 ## ⚔️ Active Missions
 
-### [023] Nordic Glass Refactor - [PAUSED]
-**Goal**: Unified Storyboard aesthetics (Frosted glass, Chalk tokens).
-- [x] Implement "Vacuum Lock" (pointer-events)
-- [x] Purge placeholders; switch to `var(--color-frozen)`
-- [x] Resolve Stylelint debt in `StoryboardCard.svelte`
-- [x] Apply `var(--glass-xl)` to Modals & Drawers
-- [ ] Align `LibraryCard` material density with Storyboard
-- [ ] Final Zero-Debt Verification Audit
+### [024] Context Layering - [PLANNING]
+**Goal**: Recursive intelligence kernel integration.
+- [ ] Map vector-engine inputs to dynamics-engine.
 
 ---
 
 ## 🏁 Completed Missions (Recent)
+- **[023]** Nordic Glass Refactor: Unified Storyboard aesthetics & Transparency tuning.
 - **[034]** Architectural Pivot: Unified Mission Command (Master Workflow Sync)
 - **[033]** StorymodeFeed Refactor (Rename from Prose)
 - **[025]** Project Hygiene & Debt Purge (100% Purity achieved)

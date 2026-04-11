@@ -56,8 +56,10 @@
   .drawer-card {
     aspect-ratio: 2 / 3;
     background: var(--glass-s);
-    border: var(--glass-edge-m);
-    border-radius: var(--spacing-s);
+    backdrop-filter: var(--glass-blur-m);
+    border: var(--glass-edge-l);
+    border-top: var(--glass-edge-xl); /* Specular highlight */
+    border-radius: var(--border-radius-m);
     position: relative;
     overflow: hidden;
     cursor: pointer;
@@ -72,7 +74,8 @@
 
   .drawer-card:hover:not(:disabled, .is-disabled) {
     box-shadow: var(--shadow-m);
-    filter: brightness(1.1);
+    filter: brightness(1.2);
+    transform: translateY(-2px);
   }
 
   .drawer-card.is-disabled {
@@ -84,7 +87,7 @@
 
   .drawer-card .card-visual {
     flex: 1.5;
-    background: var(--glass-l);
+    background: var(--glass-xs); /* Sinks deeper for contrast */
     box-shadow: 0 0 0 1px inset var(--glass-edge-l);
     display: flex;
     align-items: center;
@@ -99,7 +102,7 @@
     display: flex;
     align-items: center;
     background: var(--glass-s);
-    border-top: var(--glass-edge-m);
+    border-top: var(--glass-edge-l);
   }
 
   .drawer-card .card-info h5 {
@@ -110,6 +113,10 @@
 
   .drawer-card .card-info .entity-name {
     color: var(--signature-color);
+    font-family: var(--font-family-heading);
+    font-weight: var(--font-weight-xl);
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-s);
     text-wrap: balance;
     display: -webkit-box;
     line-clamp: 2;

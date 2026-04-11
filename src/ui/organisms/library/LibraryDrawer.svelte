@@ -163,7 +163,9 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background: var(--glass-xl);
+
+    /* Transparency Tuning per user request (45% -> 32%) */
+    background: rgb(var(--color-frisk-rgb) / 32%);
     backdrop-filter: var(--glass-blur-xl);
     border: var(--glass-edge-xl);
     border-bottom: none;
@@ -180,11 +182,13 @@
 
   .drawer-header h3 {
     margin: 0;
-    letter-spacing: var(--letter-spacing-s);
+    letter-spacing: var(--letter-spacing-l);
     font-weight: var(--font-weight-xl);
     font-size: var(--font-size-xl);
     font-family: var(--font-family-heading);
     text-transform: uppercase;
+    color: var(--color-white);
+    text-shadow: var(--shadow-font);
   }
 
   .drawer-header .close-button {
@@ -194,6 +198,7 @@
     font-size: 2rem;
     cursor: pointer;
     line-height: 1;
+    transition: color var(--motion-fast);
   }
 
   .drawer-header .close-button:hover {
@@ -203,7 +208,7 @@
   .drawer-content {
     flex: 1;
     overflow-y: auto;
-    padding: var(--spacing-l);
+    padding: var(--spacing-xl);
   }
 
   .drawer-grid {
@@ -215,9 +220,10 @@
 
   /* --- NEW ENTITY CARD --- */
   .drawer-card--new {
-    background: var(--glass-xs);
-    border: 2px dashed rgb(var(--color-white-rgb) / 10%); /* Defined target area - jules review */
-    border-radius: var(--border-radius-l);
+    background: var(--glass-s);
+    backdrop-filter: var(--glass-blur-m);
+    border: 2px dashed rgb(var(--color-white-rgb) / 10%);
+    border-radius: var(--border-radius-m);
     aspect-ratio: 2 / 3;
     display: flex;
     flex-direction: column;
@@ -228,13 +234,15 @@
     transition: all var(--motion-fast) var(--motion-elastic);
     color: var(--font-color-s);
     padding: 0;
+    width: 8.75rem; /* Match LibraryCard width */
   }
 
   .drawer-card--new .new-icon-wrap {
-    width: 50px;
-    height: 50px;
+    width: 3.5rem;
+    height: 3.5rem;
     border-radius: 50%;
-    background: rgb(var(--color-white-rgb) / 5%);
+    background: var(--glass-xs);
+    border: var(--glass-edge-l);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -251,18 +259,20 @@
     font-family: var(--font-family-heading);
     text-transform: uppercase;
     font-size: var(--font-size-xs);
-    letter-spacing: var(--letter-spacing-s);
+    letter-spacing: var(--letter-spacing-m);
   }
 
   .drawer-card--new:hover {
     color: var(--color-white);
-    background: rgb(var(--color-white-rgb) / 5%);
+    filter: brightness(1.2);
     transform: translateY(-5px);
+    border-color: var(--color-frozen);
   }
 
   .drawer-card--new:hover .new-icon-wrap {
     background: var(--color-frozen);
-    box-shadow: 0 0 15px var(--color-frozen);
+    box-shadow: 0 0 1.5rem var(--color-frozen);
+    color: var(--color-white);
   }
 
   /* --- EMPTY STATE --- */
