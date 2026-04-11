@@ -1,4 +1,4 @@
-# Warden Skill: Diagnostics & Resilience (The Divergence Protocol)
+# Security & Hardening Skill: Diagnostics & Resilience (The Divergence Protocol)
 
 > **Context:** Mental debugging and assumption checking.
 

@@ -39,13 +39,13 @@ Task arrives
     │   │
     │   ├── Infrastructure & Memory
     │   │   ├── Persistence & KB Forensics? ────→ data
-    │   │   ├── Relational DB & SQL? ───────────→ supabase-pg
+    │   │   ├── Relational DB & SQL? ───────────→ supabase-postgres-best-practices
     │   │   ├── Multi-Agent Swarm Ops? ─────────→ swarm
     │   │   └── Design System Sync? ────────────→ stitch
     │   │
     │   └── Governance & Support
     │       ├── Rules & Skill Mod? ─────────────→ directives
-    │       └── Security Audit? ────────────────→ warden
+    │       └── Security Audit? ────────────────→ security-and-hardening
     │
     ├── Verification
     │   ├── Writing/running tests? ─────────────→ test-driven-development

@@ -1,5 +1,5 @@
 ---
-name: 08-github
+name: github
 description: Local GitHub Ops. Automates PRs, issues, and local sync.
 risk: low
 source: AI

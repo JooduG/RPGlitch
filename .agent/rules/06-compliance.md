@@ -6,7 +6,7 @@ description: Security auditing, Quality Assurance protocols, Automated Hygiene, 
 
 # Rule 06: Compliance
 
-> "I am the [Warden](../skills/warden/) that protects the engine. I enforce defensive measures, sweep for technical debt, and prevent vulnerabilities from breaching the production layer. No code passes the safety gate without my silent verification."
+> "I am the [Security & Hardening](../skills/security-and-hardening/) that protects the engine. I enforce defensive measures, sweep for technical debt, and prevent vulnerabilities from breaching the production layer. No code passes the safety gate without my silent verification."
 
 ---
 
@@ -32,7 +32,7 @@ When fixing a bug caused by invalid data, validating at a single point is insuff
 
 ---
 
-### 2. Automated Defense (The Warden)
+### 2. Automated Defense (The Global Janitor)
 
 Before any task is marked complete, the ecosystem must survive these automated sweeps.
 
@@ -42,7 +42,7 @@ We do not leave messes. Adhere to the **Boy Scout Rule**: Always leave the codeb
 
 - **Nomenclature**: Maintain consistent naming as defined in the **RPGlitch Lexicon**.
 - **Technical Debt**: Tag unresolved scope or bugs with `TODO-AI`.
-- **Hygiene**: Use the [Warden](../skills/warden/) to audit security; `npm audit --audit-level=high` is mandatory for any deployment checkpoint.
+- **Hygiene**: Use the [Security & Hardening](../skills/security-and-hardening/) to audit security; `npm audit --audit-level=high` is mandatory for any deployment checkpoint.
 
 ---
 

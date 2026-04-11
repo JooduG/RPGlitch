@@ -17,7 +17,7 @@ date_added: 2024-03-29
 
 - [Simulation](../rules/02-simulation.md)
 - [Intelligence](../rules/05-intelligence.md)
-- [Intake](../skills/intake/)
+- [Idea Refinement](../skills/idea-refine/)
 
 ## Capabilities: Strategic Thinking
 

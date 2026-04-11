@@ -22,15 +22,6 @@
 
 ## ⚔️ Active Missions
 
-### [034] Architectural Pivot: Unified Mission Command - [IN-PROGRESS]
-**Goal**: Align project metadata with Master Workflows.
-- [x] Initialize root `SPEC.md`
-- [x] Initialize root `tasks/` directory
-- [x] Migrate legacy Roadmap to `tasks/todo.md`
-- [ ] Consolidate Orchestration skills into unified `orchestration` blueprint
-- [ ] Delete legacy `.agent/orchestration/` folder
-- [ ] Update Rule 05 (Intelligence) to point to new workflows
-
 ### [023] Nordic Glass Refactor - [PAUSED]
 **Goal**: Unified Storyboard aesthetics (Frosted glass, Chalk tokens).
 - [x] Implement "Vacuum Lock" (pointer-events)
@@ -43,6 +34,7 @@
 ---
 
 ## 🏁 Completed Missions (Recent)
+- **[034]** Architectural Pivot: Unified Mission Command (Master Workflow Sync)
 - **[033]** StorymodeFeed Refactor (Rename from Prose)
 - **[025]** Project Hygiene & Debt Purge (100% Purity achieved)
 - **[031]** Jules Ecosystem Integration (Swarm logic initialized)

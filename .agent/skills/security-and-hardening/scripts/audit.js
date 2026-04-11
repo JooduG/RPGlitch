@@ -3,7 +3,7 @@ import { execSync } from "child_process";
 const ROOT_DIR = process.cwd();
 
 console.log("\n================================================================================");
-console.log("🛡️  THE WARDEN: SYSTEM AUDIT INITIATED");
+console.log("🛡️  SYSTEM AUDIT INITIATED");
 console.log("================================================================================\n");
 
 function run(label, command, ignoreError = false) {

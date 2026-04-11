@@ -8,7 +8,7 @@ date_added: 2024-03-29
 
 # [/update-deps](./update-npm-dependencies-check-updates.md) - Interactive Dependency Maintenance Loop
 
-## Objectives: Phase DEVOPS - Update
+## Objectives: Phase CI/CD & AUTOMATION - Update
 
 - Objective: Synchronize the repository dependencies with the latest stable versions.
 - Objective: Minimize security vulnerabilities and technical debt.
@@ -16,7 +16,7 @@ date_added: 2024-03-29
 ## Context-Injection: Dependency Management
 
 - Rules: [Compliance](../rules/06-compliance.md)
-- Skill: [DevOps](../skills/devops/)
+- Skill: [CI/CD & Automation](../skills/ci-cd-and-automation/)
 - Tool: [npm-check-updates (ncu)](../../package.json)
 
 ## Capabilities: Dependency Audit
@@ -28,12 +28,12 @@ date_added: 2024-03-29
 
 ### Phase 1: Pre-Audit (Step 3: Research)
 
-1. **Hygiene Scan**: Run `npm audit` to determine the current security risk. [[Invoke: warden]](../skills/warden/)
+1. **Hygiene Scan**: Run `npm audit` to determine the current security risk. [[Invoke: security-and-hardening]](../skills/security-and-hardening/)
 2. **Current Baseline**: Record the current versions of any major dependencies (Svelte, Vite).
 
 ### Phase 2: Interactive Update (Step 5: Execution)
 
-1. **Candidate Review**: Run `npm run update:check` (or `ncu -i`). Select the packages for update. [[Invoke: devops]](../skills/devops/)
+1. **Candidate Review**: Run `npm run update:check` (or `ncu -i`). Select the packages for update. [[Invoke: ci-cd-and-automation]](../skills/ci-cd-and-automation/)
 2. **Execution**: Apply the updates and run `npm install`.
 
 ### Phase 3: Finalization

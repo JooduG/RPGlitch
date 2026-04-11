@@ -1,5 +1,5 @@
 ---
-name: 06-continue
+name: continue
 description: Resume Interrupted Work. Bypasses boot logic to pick up the baton.
 risk: low
 source: AI
@@ -15,8 +15,8 @@ date_added: 2024-03-29
 
 ## Context-Injection: Resumption Logic
 
-- [Log Book](../orchestration/operation-logs.md)
-- [Mission Board](../orchestration/strategy-board.md)
+- [Todo](../../tasks/todo.md)
+- [Plan](../../tasks/plan.md)
 - [Foundation](../rules/01-foundation.md)
 
 ## Capabilities: Continuation Logic
@@ -29,13 +29,13 @@ date_added: 2024-03-29
 ### Phase 1: Baton Discovery (Step 1.2: Order of Ops)
 
 1. **Chat Log Assessment**: Review the immediate conversation context. If the previous agent's intent, active task, and progress are clearly stated in the chat log, identify the "baton" and proceed directly to Phase 3.
-2. **Supplemental Parsing**: If the chat log is ambiguous or insufficient, scan the [Log Book](../orchestration/operation-logs.md) and current [task.md] for the active track `[/]`. Identify the last successful action and the next pending step. [[Invoke: orchestration-tactics]](../skills/orchestration-tactics/)
+2. **Supplemental Parsing**: If the chat log is ambiguous or insufficient, scan the [Log Book](../../tasks/todo.md) and current [task.md] for the active track `[/]`. Identify the last successful action and the next pending step. [[Invoke: orchestration]](../skills/orchestration/)
 3. **Track Integrity**: If multiple tracks are in progress, prioritize the one marked as the "active" baton in the logs.
 
 ### Phase 2: Reasoning Sync (Step 1.3: Prerequisites)
 
 1. **Chain Restore**: Re-read the relevant implementation_plan.md and task.md artifacts. Ensure the mental model matches the recorded progress.
-2. **Context Update**: If files were modified since the last turn, perform a quick re-audit to ensure zero drift. [[Invoke: Warden]](../skills/warden/)
+2. **Context Update**: If files were modified since the last turn, perform a quick re-audit to ensure zero drift. [[Invoke: security-and-hardening]](../skills/security-and-hardening/)
 
 ### Phase 3: Resumption (Step 5: Execution)
 

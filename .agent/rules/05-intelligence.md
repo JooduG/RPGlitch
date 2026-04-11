@@ -110,21 +110,21 @@ Any tool output that is truncated (e.g. `(...N more results not shown)`) represe
 
 The following sovereign workflows are registered for agentic orchestration.
 
-- **/00-boot**: Fresh Session Initialization. Syncs context, mental model, and global state.
-- **/06-continue**: Resume Interrupted Work.
-- **/07-swarm**: Swarm Command. Manual Swarm Orchestration. Human-initiated specialized sub-agent deployment.
-- **/08-github**: Local GitHub Ops. Automates PRs, issues, and local sync.
-- **/99-rewind**: Emergency Stop. Restore state from failover.
+- **/boot**: Fresh Session Initialization. Syncs context, mental model, and global state.
+- **/continue**: Resume Interrupted Work.
+- **/swarm**: Swarm Command. Manual Swarm Orchestration. Human-initiated specialized sub-agent deployment.
+- **/github**: Local GitHub Ops. Automates PRs, issues, and local sync.
+- **/rewind**: Emergency Stop. Restore state from failover.
 
 ---
 
 ### 7. Memory Protocol (Agent vs Application)
 
 > **CRITICAL DISTINCTION**:
-> - **Application Memory** (Dexie.js, RPGlitch State, Entity memory): Consult the **[Simulation](../../.agent/skills/simulation/SKILL.md)** skill.
-> - **Development Data** (Pinecone, Supabase, Agent Context): Consult the **[Data](../../.agent/skills/data/SKILL.md)** skill.
+> - **Application Memory** (Dexie.js, RPGlitch State, Entity memory): Consult the **[Simulation](../skills/simulation/SKILL.md)** skill.
+> - **Development Data** (Pinecone, Supabase, Agent Context): Consult the **[Data](../skills/data/SKILL.md)** skill.
 
-Agents MUST utilize the dual-layer memory system via the [Data](../../.agent/skills/data/SKILL.md) skill to maintain technical precision and historical continuity.
+Agents MUST utilize the dual-layer memory system via the [Data](../skills/data/SKILL.md) skill to maintain technical precision and historical continuity.
 
 #### **Working Memory (Pinecone)**
 
@@ -147,7 +147,7 @@ Every turn response must conclude with this metadata block to log operational we
 > [!TIP]
 > **Brevity Mandate**: 
 > 1. If a **Skill** is the active **Role**, do not repeat the skill name in the `Skills` line.
-> 2. Use simple names or slash commands for Rules, Skills, and Workflows (e.g., `05-intelligence`, `00-boot`, `warden`) rather than full file paths.
+> 2. Use simple names or slash commands for Rules, Skills, and Workflows (e.g., `05-intelligence`, `00-boot`, `security-and-hardening`) rather than full file paths.
 
 ```text
 ### 🕹️ Operational Heartbeat

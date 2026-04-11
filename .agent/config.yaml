@@ -2,39 +2,61 @@
 
 # 🧠 Skills (Capabilities)
 skills:
-  directives: .agent/skills/directives/SKILL.md
-  orchestration-operations: .agent/skills/orchestration-operations/SKILL.md
-  orchestration-tactics: .agent/skills/orchestration-tactics/SKILL.md
-  orchestration-strategy: .agent/skills/orchestration-strategy/SKILL.md
+  api-and-interface-design: .agent/skills/api-and-interface-design/SKILL.md
   audio: .agent/skills/audio/SKILL.md
+  browser-testing-with-devtools: .agent/skills/browser-testing-with-devtools/SKILL.md
+  ci-cd-and-automation: .agent/skills/ci-cd-and-automation/SKILL.md
+  code-review-and-quality: .agent/skills/code-review-and-quality/SKILL.md
+  code-simplification: .agent/skills/code-simplification/SKILL.md
+  context-engineering: .agent/skills/context-engineering/SKILL.md
   css: .agent/skills/css/SKILL.md
   data: .agent/skills/data/SKILL.md
+  debugging-and-error-recovery: .agent/skills/debugging-and-error-recovery/SKILL.md
+  deprecation-and-migration: .agent/skills/deprecation-and-migration/SKILL.md
   designer: .agent/skills/designer/SKILL.md
-  devops: .agent/skills/devops/SKILL.md
-  intake: .agent/skills/orchestration-strategy/SKILL.md
+  directives: .agent/skills/directives/SKILL.md
+  documentation-and-adrs: .agent/skills/documentation-and-adrs/SKILL.md
+  frontend-ui-engineering: .agent/skills/frontend-ui-engineering/SKILL.md
+  git-workflow-and-versioning: .agent/skills/git-workflow-and-versioning/SKILL.md
+  idea-refine: .agent/skills/idea-refine/SKILL.md
   image-generation: .agent/skills/image-generation/SKILL.md
+  incremental-implementation: .agent/skills/incremental-implementation/SKILL.md
+  javascript: .agent/skills/javascript/SKILL.md
   motion: .agent/skills/motion/SKILL.md
+  orchestration: .agent/skills/orchestration/SKILL.md
+  performance-optimization: .agent/skills/performance-optimization/SKILL.md
+  planning-and-task-breakdown: .agent/skills/planning-and-task-breakdown/SKILL.md
+  security-and-hardening: .agent/skills/security-and-hardening/SKILL.md
+  shipping-and-launch: .agent/skills/shipping-and-launch/SKILL.md
   simulation: .agent/skills/simulation/SKILL.md
+  source-driven-development: .agent/skills/source-driven-development/SKILL.md
+  spec-driven-development: .agent/skills/spec-driven-development/SKILL.md
   stitch: .agent/skills/stitch/SKILL.md
+  supabase-postgres-best-practices: .agent/skills/supabase-postgres-best-practices/SKILL.md
   svelte: .agent/skills/svelte/SKILL.md
-  warden: .agent/skills/warden/SKILL.md
+  swarm: .agent/skills/swarm/SKILL.md
+  test-driven-development: .agent/skills/test-driven-development/SKILL.md
+  using-agent-skills: .agent/skills/using-agent-skills/SKILL.md
 
 # ⚡ Workflows (Standard Operating Procedures)
 workflows:
-  00-boot: .agent/workflows/00-boot.md
-  01-plan: .agent/workflows/01-plan.md
-  02-execute: .agent/workflows/02-execute.md
-  03-clean: .agent/workflows/03-clean.md
-  04-review: .agent/workflows/04-review.md
-  05-deploy: .agent/workflows/05-deploy.md
-  06-continue: .agent/workflows/06-continue.md
-  07-fleet: .agent/workflows/07-fleet.md
-  08-github: .agent/workflows/08-github.md
-  99-rewind: .agent/workflows/99-rewind.md
+  10x: .agent/workflows/idea-generation.md
+  boot: .agent/workflows/boot.md
+  build: .agent/workflows/build.md
+  code-simplify: .agent/workflows/code-simplify.md
+  continue: .agent/workflows/continue.md
+  github: .agent/workflows/github.md
+  plan: .agent/workflows/plan.md
+  review: .agent/workflows/review.md
+  ship: .agent/workflows/ship.md
+  spec: .agent/workflows/spec.md
+  swarm: .agent/workflows/swarm.md
+  test: .agent/workflows/test.md
+  update-npm-dependencies-check-updates: .agent/workflows/update-npm-dependencies-check-updates.md
 
 # ⚖️ Governance (The Law & The Audit)
 governance:
-  mandate: AGENTS.md
+  mandate: GEMINI.md
   audit_level: C3
   rules:
     rule-foundation: .agent/rules/01-foundation.md
@@ -46,6 +68,6 @@ governance:
 
 # 📝 Workspace (Active Memory)
 workspace:
-  tracks: .agent/orchestration/operation-logs.md
-  mission_board: .agent/orchestration/strategy-board.md
-  next: .agent/orchestration/handover.md
+  tracks: tasks/plan.md
+  mission_board: tasks/todo.md
+  next: tasks/handover.md

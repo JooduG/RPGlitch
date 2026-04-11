@@ -24,7 +24,7 @@ The default image `catthehacker/ubuntu:act-latest` is ~20GB. Alternatives:
 To override, add `-P ubuntu-latest=<image>` to the act arguments:
 
 ```bash
-bash .agent/skills/devops/scripts/act/run-act.sh "push -j test -P ubuntu-latest=node:20-bookworm"
+bash .agent/skills/ci-cd-and-automation/scripts/act/run-act.sh "push -j test -P ubuntu-latest=node:20-bookworm"
 ```
 
 ### ARM64 (Apple Silicon) Issues
@@ -63,7 +63,7 @@ git checkout package-lock.json
 - The Docker image is still downloading (first run can take 10+ minutes)
 
 **Fixes:**
-1. Increase timeout: `ACT_TIMEOUT=1200 bash .agent/skills/devops/scripts/act/run-act.sh "..."`
+1. Increase timeout: `ACT_TIMEOUT=1200 bash .agent/skills/ci-cd-and-automation/scripts/act/run-act.sh "..."`
 2. Check `act_output.log` for the last step that ran
 3. Kill stale containers: `docker ps | grep act | awk '{print $1}' | xargs docker kill`
 
@@ -75,6 +75,6 @@ git checkout package-lock.json
 
 ```bash
 docker run -d --name test-postgres -p 5432:5432 -e POSTGRES_PASSWORD=test postgres:15
-bash .agent/skills/devops/scripts/act/run-act.sh "push -j test"
+bash .agent/skills/ci-cd-and-automation/scripts/act/run-act.sh "push -j test"
 docker stop test-postgres && docker rm test-postgres
 ```

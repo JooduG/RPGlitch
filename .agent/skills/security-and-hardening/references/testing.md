@@ -1,4 +1,4 @@
-# Warden Skill: Testing & QA Procedures
+# Security & Hardening Skill: Testing & QA Procedures
 
 > **Context:** Structural integrity and logic hygiene protocols.
 

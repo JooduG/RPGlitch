@@ -32,7 +32,7 @@ The project follows a sovereign modular structure to ensure local-first resilien
 - [Skills](../skills/) for infrastructural expertise:
   - [Orchestration](../skills/orchestration/): Intent Decoding & Feature Incubation.
   - [Simulation](../skills/simulation/): Narrative Bridges & Game Logic.
-  - [Warden](../skills/warden/): Adversarial Audit & Security.
+  - [Security & Hardening](../skills/security-and-hardening/): Adversarial Audit & Security.
 
 ---
 

@@ -1,10 +1,10 @@
 /**
- * 🛡️ Security Audit Rules (The Warden's Shield)
+ * 🛡️ Security Audit Rules (The Shield)
  */
 
 export const securityRules = [
   {
-    id: "WARDEN_DEBUG_LOG",
+    id: "SECURITY_DEBUG_LOG",
     severity: "DEBT",
     regex: /console\.log\(|alert\(|debugger;/,
     message: "⚠️ Debug statement detected. Please purge before commit.",
@@ -37,7 +37,7 @@ export const securityRules = [
     },
   },
   {
-    id: "WARDEN_SECRET_LEAK",
+    id: "SECURITY_SECRET_LEAK",
     severity: "HERESY",
     // Look for assignments/keys that look like secrets. Avoid matching generic "key" or "token".
     regex: /\b(api_?key|auth_?token|secret_?key|password)\b\s*[:=]\s*["'][^"']{8,}/i,
