@@ -40,7 +40,6 @@ skills/image-generation/SKILL.md
 - **Floating Assets**: Generating images without registry tracking.
 - **Aesthetic Drift**: Deviating from the Nordic Collection style guide.
 
-
 ## ⚖️ Common Rationalizations
 
 | Excuse | Counter-Measure |
