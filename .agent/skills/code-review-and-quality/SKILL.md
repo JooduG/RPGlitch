@@ -315,7 +315,7 @@ Part of code review is dependency review:
 ## Resource Documents
 
 For specialized instructions and domain-specific checklists, see:
-- [code-reviewer.md](file:///c:/Users/johng/source/repos/RPGlitch/.agent/skills/code-review-and-quality/agents/code-reviewer.md)
+- [code-reviewer.md](./references/code-reviewer.md)
 - [security-checklist.md](file:///c:/Users/johng/source/repos/RPGlitch/.agent/skills/security-and-hardening/references/security-checklist.md)
 - [performance-checklist.md](file:///c:/Users/johng/source/repos/RPGlitch/.agent/skills/performance-optimization/references/performance-checklist.md)
 

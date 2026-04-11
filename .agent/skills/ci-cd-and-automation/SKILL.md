@@ -12,7 +12,7 @@ description: The Quality Gatekeeper. Automates build pipelines, local verificati
 ```text
 skills/ci-cd-and-automation/
 ├── SKILL.md                 # The Gatekeeper's Directive
-├── resources/
+├── references/
 │   └── troubleshooting-act.md # Local CI forensics
 └── scripts/
     └── act/                 # Local Action Verification
