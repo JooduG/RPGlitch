@@ -144,8 +144,8 @@ tfoot td {
   border-radius: var(--border-radius-m);
 }
 
-.glass-surface {
-  background: var(--glass-surface);
+.glass-xxl {
+  background: var(--glass-xxl);
   backdrop-filter: var(--glass-blur-xl);
   border: var(--glass-edge-xl);
   border-top: 1px solid rgb(255 255 255 / 15%); /* Specular lift */

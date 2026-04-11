@@ -40,7 +40,7 @@
 <!-- Interaction & Layout Layer -->
 <div class="modal-layout">
   <!-- Content -->
-  <div class="modal-content glass-surface {variant}" transition:scale={{ duration: 400, easing: quartOut, start: 0.9 }}>
+  <div class="modal-content glass-xxl {variant}" transition:scale={{ duration: 400, easing: quartOut, start: 0.9 }}>
     {@render children()}
   </div>
 </div>

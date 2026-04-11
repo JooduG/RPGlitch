@@ -37,13 +37,13 @@ We rely on strict, named tokens rather than raw hex values in our components. Yo
 
 #### Surface Elevation
 
-Elevation is achieved by progressively mixing `Gunmetal` with `Chalk` to lighten the surface as it lifts toward the user:
+Elevation is achieved by layering translucent glass tokens that shift from deep submerged tones to bright elevated focus:
 
-- `var(--glass-l)` (`#11191f`): The absolute structural floor.
-- `var(--glass-xs)`: `var(--color-chalk)` + 30% alpha. Submerged base.
-- `var(--glass-s)`: `var(--color-chalk)` + 15% alpha. Sunken surface.
-- `var(--glass-l)`: `var(--color-frisk)` + 5% alpha. Elevated glass.
-- `var(--glass-xl)`: `var(--color-frisk)` + 15% alpha. Floating monolith.
+- `var(--glass-xs)`: Submerged base (Dark contrast).
+- `var(--glass-s)`: Sunken surface (Subtle depth).
+- `var(--glass-l)`: Elevated glass (Base widget layer).
+- `var(--glass-xl)`: Floating monolith (Overlay/Pop-up layer).
+- `var(--glass-xxl)`: Top-most focus (Active modal/Selection layer).
 
 ---
 
