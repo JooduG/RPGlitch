@@ -50,7 +50,9 @@
   }
 
   .slider-group.disabled {
-    opacity: var(--opacity-m);
+    opacity: var(--opacity-s);
+    filter: grayscale(1);
+    cursor: default;
   }
 
   input[type="range"] {

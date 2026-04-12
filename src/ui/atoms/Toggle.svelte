@@ -71,7 +71,7 @@
     width: var(--switch-w);
     height: var(--switch-h);
     background-color: var(--glass-xs);
-    box-shadow: inset 0 1px 2px rgb(0 0 0 / 40%);
+    box-shadow: inset 0 1px 2px rgb(var(--color-black-rgb) / var(--opacity-s));
     border-radius: var(--border-radius-full);
     transition: all var(--motion-fast) var(--motion-elastic);
     flex-shrink: 0;
@@ -107,7 +107,7 @@
       calc(var(--switch-w) - var(--thumb-size) - (var(--switch-h) - var(--thumb-size)))
     );
     background-color: var(--color-frozen);
-    box-shadow: 0 0 var(--spacing-s) rgb(var(--color-frozen-rgb) / 40%);
+    box-shadow: 0 0 var(--spacing-s) rgb(var(--color-frozen-rgb) / var(--opacity-s));
   }
 
   /* Label Text */
