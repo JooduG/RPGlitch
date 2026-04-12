@@ -1,5 +1,42 @@
 import { describe, it, expect } from "vitest";
-import { parse_scene_header, clean_image_prompts, escapeXml } from "./text-parser.js";
+import { parse_scene_header, clean_image_prompts, escapeXml, strip_cognition_blocks } from "./text-parser.js";
+
+describe("strip_cognition_blocks", () => {
+  it("should handle null or empty input", () => {
+    expect(strip_cognition_blocks(null)).toBe("");
+    expect(strip_cognition_blocks(undefined)).toBe("");
+    expect(strip_cognition_blocks("")).toBe("");
+  });
+
+  it("should return text unmodified if no think block exists", () => {
+    const input = "This is a normal response.";
+    expect(strip_cognition_blocks(input)).toBe(input);
+  });
+
+  it("should strip <think> blocks and trailing newlines", () => {
+    const input = "<think>\nThinking...\n</think>\nHere is the response.";
+    const expected = "Here is the response.";
+    expect(strip_cognition_blocks(input)).toBe(expected);
+  });
+
+  it("should strip multiple <think> blocks", () => {
+    const input = "<think>first</think>Response 1<think>second</think>Response 2";
+    const expected = "Response 1Response 2";
+    expect(strip_cognition_blocks(input)).toBe(expected);
+  });
+
+  it("should be case-insensitive to <think> tags", () => {
+    const input = "<THINK>loudly</ThInK>Yes.";
+    const expected = "Yes.";
+    expect(strip_cognition_blocks(input)).toBe(expected);
+  });
+
+  it("should handle think blocks with only spaces or newlines", () => {
+    const input = "<think>   \n  </think>Done.";
+    const expected = "Done.";
+    expect(strip_cognition_blocks(input)).toBe(expected);
+  });
+});
 
 describe("clean_image_prompts", () => {
   const testCases = [
