@@ -45,7 +45,7 @@ permissions:
 
 concurrency:
   group: "${{ github.workflow }}-${{ github.event.pull_request.number || github.event.issue.number || github.run_id }}"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   # --- JOB A: PHYSICS GATE (CI) ---
@@ -74,6 +74,10 @@ jobs:
     if: |-
       (github.event_name == 'issues' || github.event_name == 'issue_comment' || github.event_name == 'pull_request') &&
       github.event.sender.type == 'User' &&
+      github.event.sender.login != 'google-labs-jules[bot]' &&
+      github.event.sender.login != 'github-actions[bot]' &&
+      !contains(github.event.head_commit.message, '[bot-auto]') &&
+      !contains(github.event.head_commit.message, 'chore(sovereign)') &&
       !github.event.pull_request.head.repo.fork
     runs-on: ubuntu-latest
     steps:
@@ -138,4 +142,4 @@ jobs:
         if: github.event.schedule == '0 4 * * *'
         uses: "stefanzweifel/git-auto-commit-action@v5"
         with:
-          commit_message: "chore(sovereign): nightly hygiene and memory sync"
+          commit_message: "chore(sovereign): nightly hygiene and memory sync [bot-auto]"
