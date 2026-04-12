@@ -4,7 +4,7 @@ description: Run TDD workflow — write failing tests, implement, verify. For bu
 
 # [/test](./test.md) - Test-Driven Development (TDD) Loop
 
-Invoke the agent-skills:test-driven-development skill.
+Invoke the [Test-Driven Development](../skills/test-driven-development/SKILL.md) skill.
 
 For new features:
 
@@ -20,4 +20,4 @@ For bug fixes (Prove-It pattern):
 4. Confirm the test passes
 5. Run the full test suite for regressions
 
-For browser-related issues, also invoke agent-skills:browser-testing-with-devtools to verify with Chrome DevTools MCP.
+For browser-related issues, also invoke the [Browser Testing with DevTools](../skills/browser-testing-with-devtools/SKILL.md) skill to verify with Chrome DevTools MCP.

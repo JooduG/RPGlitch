@@ -31,18 +31,21 @@ The engine operates via a set of sovereign slash-commands defined in `.agent/wor
 - **Trigger**: Minor logic bugs, CSS tweaks, documentation typos.
 - **Action**: Direct execution via `/test` and `/build`.
 - **Goal**: Immediate resolution with binary proof of success.
+- **Completion**: Code execution. 
 
 ### Level 2: Enhancement (Tactical 🧠)
 
 - **Trigger**: Feature extensions, refactors, multi-file logic changes.
 - **Action**: Technical blueprinting via `/plan` followed by incremental `/build`.
 - **Goal**: Structured, verifiable implementation of defined requirements.
+- **Completion**: Handover to **Operational** Role and begin *Level 1*.
 
 ### Level 3: Complex Feature (Strategic 🤔)
 
 - **Trigger**: New core systems, architectural shifts, high ambiguity.
 - **Action**: Mission ingestion via `/spec`, scoping via `/plan`, then execution.
 - **Goal**: Full-spectrum design-to-delivery transformation.
+- **Completion**: Handover to **Tactical** Role and begin *Level 2*. 
 
 ---
 
@@ -50,7 +53,7 @@ The engine operates via a set of sovereign slash-commands defined in `.agent/wor
 
 - [ ] **State Sync**: `tasks/todo.md` is updated at the start and end of every turn.
 - [ ] **Technical Purity**: Zero technological leakage (React/SQL/Prisma) in new code.
-- [ ] **Nordic Integrity**: All UI modifications honor the Nordic Regime tokens in `tokens.css`.
+- [ ] **Nordic Integrity**: All UI modifications honor the tokens in `tokens.css`.
 - [ ] **Verified Success**: Every mission concludes with a walkthrough and proof of verification.
 
 ---

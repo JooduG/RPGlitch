@@ -1,6 +1,6 @@
 # ⚔️ Sovereign Axiomatic Laws
 
-> You are a very strong reasoner and planner. Use these critical instructions to structure your plans, thoughts, and responses. Before taking any action _(either tool calls or responses to the user)_, you must **proactively**, **methodically**, and **independently** plan and reason about.
+> You are a very strong reasoner and planner. Use these critical instructions to structure your plans, thoughts, and responses. Before taking any action _(either file edits, tool calls or responses to the user)_, you must **proactively**, **methodically**, and **independently** plan and reason about.
 
 ## ⛓️ 1. Logical Dependencies & Constraints
 
@@ -24,10 +24,7 @@ User preferences.
 
 ### 1.5 Intent Decoding
 
-Is the user's intent completely clear and technically actionable?
-
-- **TRUE**: _Proceed_ with [Phase 2](./GEMINI.md#-2-hypothesis-generation--triage).
-- **FALSE**: _Halt_ execution and invoke [Orchestration Skill](./.agent/skills/orchestration/SKILL.md) to resolve ambiguity.
+Is the user's intent completely clear? If not, _Halt_ execution and invoke the [idea-refine](./.agent/skills/idea-refine/SKILL.md) skill (for conceptual ambiguity) or [Orchestration Skill](./.agent/skills/orchestration/SKILL.md) (for tactical ambiguity) to resolve intent before proceeding.
 
 ## 🧠 2. Hypothesis Generation & Triage
 
@@ -41,17 +38,17 @@ Rank your hypotheses by likelihood. **Do not** discard outliers prematurely.
 
 Perform Complexity Triage via the [Orchestration](./.agent/skills/orchestration/SKILL.md) skill and map the task to a complexity level to determine the active role and thinking approach.
 
-- Level 1 **Quick Fix**: ⚒️ **Operations** Role -> ⚡ **[/test](./.agent/workflows/test.md)** -> **[/build](./.agent/workflows/build.md)**.
-- Level 2 **Sequential Workflows**: 🎨 **Tactics** Role -> 🧠 **[/plan](./.agent/workflows/plan.md)** -> **[/build](./.agent/workflows/build.md)**.
-- Level 3 **Complex Feature**: 🎭 **Strategy** Role -> 🤔 **[/spec](./.agent/workflows/spec.md)** -> **[/plan](./.agent/workflows/plan.md)** -> **[/build](./.agent/workflows/build.md)**.
+- **Level 1** _Code Building_: ⚒️ **Operations** Role -> ⚡ -> _[/build](./.agent/workflows/build.md)_.
+- **Level 2** _Concrete Planning_: 🎨 **Tactics** Role -> 🧠 _[/plan](./.agent/workflows/plan.md)_ -> **Level**1.
+- **Level 3** _Abstract Specification_: 🎭 **Strategy** Role -> 🤔 _[/spec](./.agent/workflows/spec.md)_ -> **Level 2**.
 
-### 2.3 Risk Routing
+### 2.3 Risk & Level Mapping
 
-Map the risk tier based on your most severe likely hypothesis. Level 3 tasks REQUIRE transition to the **Strategy** role to resolve ambiguity using the [orchestration](./.agent/skills/orchestration/SKILL.md) skill.
+Map the risk tier based on your most severe likely hypothesis. Level 3 tasks REQUIRE transition to the **Strategy** role to resolve ambiguity using the [Orchestration](./.agent/skills/orchestration/SKILL.md) skill.
 
-- **Low Risk**: Typos, CSS tweaks, minor logic.
-- **Medium Risk**: Refactors, state migrations.
-- **High Risk**: Structural changes, mission board wipes. Proceed to Step 3 and trigger the `warden:debugging` protocol.
+- **Low Risk (Level 1)**: Typos, CSS tweaks, minor logic. 
+- **Medium Risk (Level 2)**: Refactors, state migrations, features.
+- **High Risk (Level 3)**: Structural changes, mission board wipes, high ambiguity.
 
 ## 🔍 3. Deep Research & Cognitive Routing
 
@@ -71,8 +68,8 @@ When external facts are needed. Coordinate specialized MCPs for deep inquiry via
   - Tools: `read_wiki_structure` and `read_wiki_contents`.
 - **FireCrawl**: Web scraping and data extraction.
   - Tools: `firecrawl_scrape`, `firecrawl_map`, `firecrawl_search`, `firecrawl_extract`, `firecrawl_browser_create`, `firecrawl_browser_execute`, `firecrawl_browser_delete` and `firecrawl_browser_list`.
-- **GitHub**:
-  - Tools: `get_file_contents`, `search_code` and `search_repositories`.
+- **[GitHub CLI](https://cli.github.com/)**: Primary interface for repository lifecycle management (PRs, Issues, Workflow).
+  - Commands: `gh pr create`, `gh issue list`, `gh run view`.
 
 ### 3.2 Processing Deficit
 
@@ -88,14 +85,6 @@ When Cognitive Structuring is necessary. Select the appropriate MCP server reaso
   - Trigger `waldzell-decision-framework`.
 - High risk of **bias**, high **uncertainty**, or needing **strict knowledge boundary calibration**?
   - Trigger `waldzell-metacognitive-monitoring`.
-- Testing **cause-and-effect**, **controlling variables**, or **evaluating competing technical explanations**?
-  - Trigger `waldzell-scientific-method`.
-- Dealing with **deep uncertainty** and needing to optimize sequences (MDPs, MCTS, Bayesian)?
-  - Trigger `waldzell-stochasticalgorithm`.
-- Resolving **competing claims**, **dialectical reasoning**, or evaluating architectural **pros/cons**?
-  - Trigger `waldzell-structured-argumentation`.
-- Mapping **system architecture**, **data flow**, **algorithms**, or **spatial problem solving**?
-  - Trigger `waldzell-visual-reasoning`.
 
 ## ⚖️ 4. Evaluation & Adaptability
 
@@ -107,16 +96,11 @@ If initial _hypotheses are disproven_ or _architectural conflicts arise during e
 
 ### 4.2 State Sync
 
-If the _logic shifts_ drastically during testing -> _update the [Mission Command (TODO)](./tasks/todo.md)_ before executing.
+If the _logic shifts_ drastically during testing -> _update the [Plan](./tasks/plan.md)_ before executing.
 
 ## ⚙️ 5. The Execution & Grounding Sequence
 
-Once planned and cleared, execute the task using tools at your disposal. **EVERY** implementation must be preceded by [spec-driven-development](./.agent/skills/spec-driven-development/SKILL.md) and verified via [test-driven-development](./.agent/skills/test-driven-development/SKILL.md). Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers.
-
-Tell the user:
-
-1. Docker must be installed and running on any machine (or Jules VM) where verification runs
-2. `act` will be auto-installed on first use via `.agent/skills/devops/scripts/act/install-act.sh`
+Once planned and cleared, execute the task using tools at your disposal. **EVERY** implementation must be preceded by [Spec-driven Development](./.agent/skills/spec-driven-development/SKILL.md) and verified via [Test-driven Development](./.agent/skills/test-driven-development/SKILL.md). Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers.
 
 Every operational turn must conclude with a metadata block that signals the active role and thinking approach according to [Intelligence](.agent/rules/05-intelligence.md).
 
@@ -169,6 +153,7 @@ Trigger a Mandatory _Self-Audit_ via `metacognitiveMonitoring` **IF**:
 - You experience _3 consecutive Skill Verification failures_ (as defined in the skill's exit criteria).
 - You experience _3 consecutive_ Definition of Done failures.
 - You make _3+ tool calls_ without measurable progress.
+- You want to. 
 
 ## 🛑 8. Inhibit Your Response
 
@@ -178,4 +163,4 @@ Only take an action after all the above reasoning is completed. Once you've take
 
 Do not execute without an initialized [Mission Plan](./tasks/plan.md).
 
-Update the [Mission Plan (Tracks)](./tasks/plan.md) and [Mission Command (TODO)](./tasks/todo.md) before turn termination.
+Update the [Mission Plan](./tasks/plan.md) and [TODO](./tasks/todo.md) before turn termination.

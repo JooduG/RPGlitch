@@ -19,7 +19,6 @@ date_added: 2024-03-29
 - [Intelligence](../rules/05-intelligence.md) Rule
 - [Todo](../../tasks/todo.md)
 - [Plan](../../tasks/plan.md)
-- [Next](../../tasks/handover.md)
 
 ## Capabilities: Boot Sequence
 

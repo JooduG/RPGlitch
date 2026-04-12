@@ -18,13 +18,14 @@ Use this reference to select the appropriate MCP reasoning framework based on th
 
 | Block Type      | Trigger                                 | MCP / Framework                        |
 | :-------------- | :-------------------------------------- | :------------------------------------- |
-| **Research**    | Knowledge gaps, library patterns.       | `context7`, `svelte`, `deepwiki` (MCP) |
+| **Research**    | Knowledge gaps, library patterns, web access. | `context7`, `svelte`, `deepwiki`, `firecrawl`, `data` |
+| **Logic**       | Core engine mutations, unit tests.      | `node`, `vitest` (Local)               |
+| **Operations**  | Repository lifecycle, PRs, Issues.      | **GH CLI** (`gh`)                      |
 | **Reasoning**   | Multi-step breakdown, chain-of-thought. | `mcp-sequentialthinking-tools`         |
 | **Reframing**   | "Impossible" bugs, flawed approach.     | `waldzell-clear-thought`               |
 | **Diversity**   | Trade-offs, simulated expertise.        | `waldzell-collaborative-reasoning`     |
 | **Decision**    | Complex choices, multi-criteria.        | `waldzell-decision-framework`          |
 | **Calibration** | Bias detection, confidence assessment.  | `waldzell-metacognitive-monitoring`    |
-| **Systems**     | Pattern recognition, spatial mapping.   | `waldzell-visual-reasoning`            |
 
 ---
 
@@ -62,6 +63,8 @@ To prevent cognitive drift, nomenclature is absolute.
 - **AI Character**: Agent-controlled character (Entity).
 - **Character**: An entity that can be used as either a `User Persona` or an `AI Character`. All characters and fractals share the same underlying entity pool.
 - **Devmode**: Developer workspace.
+- **GH CLI**: (`gh`) The primary interface for GitHub lifecycle management. Mandatory for Issue/PR/Workflow operations.
+- **Lean Agent**: A performance configuration maintaining < 50 active MCP tools to ensure context window integrity.
 - **Localization**: Metric/SI only. ISO 8601. GMT+1.
 
 ---
@@ -116,7 +119,7 @@ The following sovereign workflows are registered for agentic orchestration.
 - **/boot**: Fresh Session Initialization. Syncs context, mental model, and global state.
 - **/continue**: Resume Interrupted Work.
 - **/swarm**: Swarm Command. Manual Swarm Orchestration. Human-initiated specialized sub-agent deployment.
-- **/github**: Local GitHub Ops. Automates PRs, issues, and local sync.
+- **/github**: Local GitHub Ops. Automates PRs, issues, and local sync via **GH CLI**.
 - **/rewind**: Emergency Stop. Restore state from failover.
 
 ---

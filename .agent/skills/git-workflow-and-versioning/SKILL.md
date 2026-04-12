@@ -137,7 +137,27 @@ main (always deployable)
 - Delete branches after merge
 - Prefer feature flags over long-lived branches for incomplete features
 
-### Branch Naming
+### GitHub CLI (gh) Operations
+
+For repository lifecycle management beyond basic git, use the **GitHub CLI**:
+
+```bash
+# PR Management
+gh pr create --fill        # Create PR using last commit as title/body
+gh pr list                 # View open PRs
+gh pr view --web           # Open current branch PR in browser
+
+# Issue Management
+gh issue list              # List assigned issues
+gh issue view <ID>         # View issue details
+gh issue close <ID>        # Close once task is verified
+
+# CI/CD Monitoring
+gh run list                # Check remote CI status
+gh run view --log          # Debug remote CI failures
+```
+
+## Branch Naming
 
 ```
 feature/<short-description>   → feature/task-creation

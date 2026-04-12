@@ -4,7 +4,7 @@ description: Start spec-driven development — write a structured specification 
 
 # [/spec](./spec.md) - Spec-Driven Development Initialization
 
-Invoke the agent-skills:spec-driven-development skill.
+Invoke the [Spec-Driven Development](../skills/spec-driven-development/SKILL.md) skill.
 
 Begin by understanding what the user wants to build. Ask clarifying questions about:
 
@@ -15,4 +15,4 @@ Begin by understanding what the user wants to build. Ask clarifying questions ab
 
 Then generate a structured spec covering all six core areas: objective, commands, project structure, code style, testing strategy, and boundaries.
 
-Save the spec as SPEC.md in the project root and confirm with the user before proceeding.
+Save the spec as [SPEC](../../SPEC.md) and confirm with the user before proceeding.

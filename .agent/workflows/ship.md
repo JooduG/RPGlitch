@@ -4,7 +4,7 @@ description: Run the pre-launch checklist and prepare for production deployment
 
 # [/ship](./ship.md) - Pre-Launch Checklist & Deployment
 
-Invoke the agent-skills:shipping-and-launch skill.
+Invoke the [Shipping & Launch](../skills/shipping-and-launch/SKILL.md) skill.
 
 Run through the complete pre-launch checklist:
 

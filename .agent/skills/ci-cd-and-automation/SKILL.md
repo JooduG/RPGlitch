@@ -62,6 +62,14 @@ Always execute `bash .agent/skills/ci-cd-and-automation/scripts/act/run-act.sh` 
 - Ensure all logic is correctly transpiled for the simulation environment.
 - If any gate fails, **HALT** and resolve the root cause.
 
+### 4. Remote CI Verification (The Final Gate)
+
+Once the PR is opened, do not rely solely on local `act` runs. Verify the "Reality of the Remote":
+
+1. **Monitor**: Use `gh run list` to find the active workflow.
+2. **Watch**: Run `gh run watch` to follow the live deployment.
+3. **Forensics**: If failing, use `gh run view --log` to identify environment-specific bugs that didn't appear in local emulation.
+
 ---
 
 ## 🏛️ Extended Operational Framework

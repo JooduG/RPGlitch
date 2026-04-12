@@ -22,8 +22,8 @@ date_added: 2024-03-29
 ## Capabilities: Integration Chain
 
 - **Version Control**: Git (Local).
-- **Remote Ops**: [Cli Commands](../../package.json).
-- **PR Automation**: [Swarm Interface](../skills/swarm/).
+- **Remote Ops**: [GH CLI (gh)](https://cli.github.com/).
+- **PR Automation**: [GH CLI / Swarm](../skills/swarm/).
 
 ## Procedure
 
@@ -34,9 +34,9 @@ date_added: 2024-03-29
 
 ### Phase 2: Remote Ops (Step 5: Execution)
 
-1. **Push**: Sync all local commits to the remote origin.
-2. **PR Initiation**: Open the PR using the GitHub CLI or `npm run swarm:dispatch`. Ensure a tactical summary is provided. [[Swarm]](../skills/swarm/)
-3. **Issue Sync**: Link the PR to the relevant issue ID using `npm run swarm:merge`. Update the issue status to `Resolved`.
+1. **Push**: Sync all local commits to the remote origin (`git push`).
+2. **PR Initiation**: Open the PR using the GitHub CLI (`gh pr create --fill`). Ensure a tactical summary is provided.
+3. **Issue Sync**: Link the PR to the relevant issue ID (`gh issue list`, `gh pr checkout`). Update the issue status via `gh issue close`.
 
 ### Phase 3: Merging (Step 8: Handoff)
 
