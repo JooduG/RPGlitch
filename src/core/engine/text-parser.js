@@ -103,11 +103,11 @@ export function parse_message(rawText) {
 }
 
 /**
- * Escapes characters for safe use in XML attributes.
+ * Escapes characters for safe use in XML.
  * @param {string} str
  * @returns {string}
  */
-export function escapeXmlAttributes(str) {
+export function escapeXml(str) {
   if (typeof str !== "string") return "";
   return str
     .replace(/&/g, "&amp;")
@@ -116,8 +116,7 @@ export function escapeXmlAttributes(str) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/\[/g, "&#91;") // Optional: hardening against internal tagging
-    .replace(/\]/g, "&#93;")
-    .trim();
+    .replace(/\]/g, "&#93;");
 }
 
 /**

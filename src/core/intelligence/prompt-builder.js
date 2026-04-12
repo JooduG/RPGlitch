@@ -21,7 +21,7 @@
 
 import { vector_engine } from "./vector-engine.js";
 import { ENTITY_CATALOG } from "./entity-fragments.js";
-import { escapeXmlAttributes } from "../engine/text-parser.js";
+import { escapeXml } from "../engine/text-parser.js";
 
 export const SYSTEM_PROMPTS = {
   /**
@@ -33,12 +33,12 @@ export const SYSTEM_PROMPTS = {
     const user = entities.USER;
     const fractal = entities.FRACTAL;
 
-    const roundSafe = escapeXmlAttributes(String(round));
-    const aiNameSafe = escapeXmlAttributes(ai.name);
-    const userNameSafe = escapeXmlAttributes(user.name);
-    const fractalNameSafe = escapeXmlAttributes(fractal.name);
-    const objectiveSafe = escapeXmlAttributes(
-      render_atom.future(ai, 1, 0, { vector_text: true }).trim()
+    const roundSafe = escapeXml(String(round));
+    const aiNameSafe = escapeXml(ai.name);
+    const userNameSafe = escapeXml(user.name);
+    const fractalNameSafe = escapeXml(fractal.name);
+    const objectiveSafe = escapeXml(
+      render_atom.future(ai, 1, 0, { vector_text: true })
     );
 
     const baseProtocols = "SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL";
@@ -50,22 +50,22 @@ export const SYSTEM_PROMPTS = {
     return `
 <SYSTEM role="${aiNameSafe}" round="${roundSafe}" objective="${objectiveSafe}">
 <YOUR_IDENTITY name="${aiNameSafe}">
-<PRESENT>${ai.fragments.present.non_physical}</PRESENT>
-<ETERNAL>${ai.fragments.eternal.non_physical}</ETERNAL>
+<PRESENT>${escapeXml(ai.fragments.present.non_physical)}</PRESENT>
+<ETERNAL>${escapeXml(ai.fragments.eternal.non_physical)}</ETERNAL>
 <FUTURE_VECTORS>${render_atom.future(ai, 5, 1)}</FUTURE_VECTORS>
 <PAST_MEMORIES>${render_atom.past(ai, 5)}</PAST_MEMORIES>
 </YOUR_IDENTITY>
 <USER_PERSONA name="${userNameSafe}">
-<PRESENT>${user.fragments.present.non_physical}</PRESENT>
-<ETERNAL>${user.fragments.eternal.non_physical}</ETERNAL>
-<FUTURE vector="${escapeXmlAttributes(render_atom.future(user, 1, 0, { vector_text: true }).trim())}" />
-<PAST memory="${escapeXmlAttributes(render_atom.past(user, 1, 0, { vector_text: true }).trim())}" />
+<PRESENT>${escapeXml(user.fragments.present.non_physical)}</PRESENT>
+<ETERNAL>${escapeXml(user.fragments.eternal.non_physical)}</ETERNAL>
+<FUTURE vector="${escapeXml(render_atom.future(user, 1, 0, { vector_text: true }))}" />
+<PAST memory="${escapeXml(render_atom.past(user, 1, 0, { vector_text: true }))}" />
 </USER_PERSONA>
 <FRACTAL name="${fractalNameSafe}">
-<PRESENT>${fractal.fragments.present.non_physical}</PRESENT>
-<ETERNAL>${fractal.fragments.eternal.non_physical}</ETERNAL>
-<FUTURE vector="${escapeXmlAttributes(render_atom.future(fractal, 1, 0, { vector_text: true }).trim())}" />
-<PAST memory="${escapeXmlAttributes(render_atom.past(fractal, 1, 0, { vector_text: true }).trim())}" />
+<PRESENT>${escapeXml(fractal.fragments.present.non_physical)}</PRESENT>
+<ETERNAL>${escapeXml(fractal.fragments.eternal.non_physical)}</ETERNAL>
+<FUTURE vector="${escapeXml(render_atom.future(fractal, 1, 0, { vector_text: true }))}" />
+<PAST memory="${escapeXml(render_atom.past(fractal, 1, 0, { vector_text: true }))}" />
 </FRACTAL>
 <SIMULATION_LOG>${prompt_builder.render_history(simulation_log, 10)}</SIMULATION_LOG>
 <NARRATIVE_STYLE>${signal_prompts.length > 0 ? signal_prompts.join("\n") : "Use default style vectors."}</NARRATIVE_STYLE>
@@ -74,7 +74,7 @@ export const SYSTEM_PROMPTS = {
 The stage is set and the pieces are on the board. Proceed with the simulation immediately.
 CRITICAL: When your <think> block ends, your narrative output MUST be written exclusively in ENGLISH.
 </TASK_INSTRUCTION>
-<INPUT_COMMAND>${input?.trim() || "No direct command given. Follow simulation physics."}</INPUT_COMMAND>
+<INPUT_COMMAND>${escapeXml(input?.trim() || "No direct command given. Follow simulation physics.")}</INPUT_COMMAND>
 </SYSTEM>`.trim();
   },
 
@@ -88,29 +88,29 @@ CRITICAL: When your <think> block ends, your narrative output MUST be written ex
     const user = entities.USER;
     const fractal = entities.FRACTAL;
 
-    const roundSafe = escapeXmlAttributes(String(round));
-    const aiNameSafe = escapeXmlAttributes(ai.name);
-    const userNameSafe = escapeXmlAttributes(user.name);
-    const fractalNameSafe = escapeXmlAttributes(fractal.name);
+    const roundSafe = escapeXml(String(round));
+    const aiNameSafe = escapeXml(ai.name);
+    const userNameSafe = escapeXml(user.name);
+    const fractalNameSafe = escapeXml(fractal.name);
 
     return `
 <SYSTEM role="${fractalNameSafe}" round="${roundSafe}" mode="PROLOGUE">
 <YOUR_IDENTITY name="${fractalNameSafe}">
-<ETERNAL>${fractal.fragments.eternal.non_physical}</ETERNAL>
-<PRESENT>${fractal.fragments.present.non_physical}</PRESENT>
+<ETERNAL>${escapeXml(fractal.fragments.eternal.non_physical)}</ETERNAL>
+<PRESENT>${escapeXml(fractal.fragments.present.non_physical)}</PRESENT>
 <FUTURE_VECTORS>${render_atom.future(fractal, 5)}</FUTURE_VECTORS>
 <PAST_MEMORIES>${render_atom.past(fractal, 5)}</PAST_MEMORIES>
 </YOUR_IDENTITY>
 <ACTIVE_CHARACTERS>
     <AI_CHARACTER name="${aiNameSafe}">
-    <ETERNAL>${ai.fragments.eternal.non_physical}</ETERNAL>
-    <PRESENT>${ai.fragments.present.non_physical}</PRESENT>
+    <ETERNAL>${escapeXml(ai.fragments.eternal.non_physical)}</ETERNAL>
+    <PRESENT>${escapeXml(ai.fragments.present.non_physical)}</PRESENT>
     <FUTURE_VECTORS>${render_atom.future(ai, 5)}</FUTURE_VECTORS>
     <PAST_MEMORIES>${render_atom.past(ai, 5)}</PAST_MEMORIES>
     </AI_CHARACTER>
     <USER_PERSONA name="${userNameSafe}">
-    <ETERNAL>${user.fragments.eternal.non_physical}</ETERNAL>
-    <PRESENT>${user.fragments.present.non_physical}</PRESENT>
+    <ETERNAL>${escapeXml(user.fragments.eternal.non_physical)}</ETERNAL>
+    <PRESENT>${escapeXml(user.fragments.present.non_physical)}</PRESENT>
     <FUTURE_VECTORS>${render_atom.future(user, 5)}</FUTURE_VECTORS>
     <PAST_MEMORIES>${render_atom.past(user, 5)}</PAST_MEMORIES>
     </USER_PERSONA>
@@ -123,7 +123,7 @@ The Fractal speaks first. Begin with sensation. No dialogue.
 CRITICAL: When your <think> block ends, your narrative output MUST be written in English.
 The stage is set and the pieces are on the board. Proceed with the simulation immediately.
 </TASK_INSTRUCTION>
-<INPUT_COMMAND>${input?.trim() || "No direct command given. Follow simulation physics."}</INPUT_COMMAND>
+<INPUT_COMMAND>${escapeXml(input?.trim() || "No direct command given. Follow simulation physics.")}</INPUT_COMMAND>
 </SYSTEM>`.trim();
   },
 
@@ -149,8 +149,8 @@ Provide a final summary of the narrative arc and the fate of the entities involv
    * PURPOSE: Consolidates turns into RAG-compatible vectors.
    */
   memory: ({ role, entity, history }) => {
-    const roleSafe = escapeXmlAttributes(role);
-    const entityNameSafe = escapeXmlAttributes(entity.name || "Unknown");
+    const roleSafe = escapeXml(role);
+    const entityNameSafe = escapeXml(entity.name || "Unknown");
     return `
 <MEMORY_PROTOCOL role="${roleSafe}" entity="${entityNameSafe}">
 <PROTOCOLS>
@@ -173,8 +173,8 @@ Output strict JSON only: { "summary": "...", "vector_tags": ["...", "..."] }
    * ENHANCEMENT PROMPT
    */
   enhancement: ({ label, directive, enhancer, content }) => {
-    const labelSafe = escapeXmlAttributes(label || "");
-    const roleSafe = escapeXmlAttributes(enhancer || "GENERAL");
+    const labelSafe = escapeXml(label || "");
+    const roleSafe = escapeXml(enhancer || "GENERAL");
     return `
 <SYSTEM role="${roleSafe}" enhancing="${labelSafe}">
 <INSTRUCTIONS>
@@ -304,7 +304,7 @@ export const prompt_builder = {
           const role =
             m.role === "user" ? "USER_PERSONA" : m.role === "prologue" ? "FRACTAL" : "AI_CHARACTER";
           const nameAttr = m.character_name ? ` name="${m.character_name}"` : "";
-          return `    <entry role="${role}"${nameAttr}>${m.content}</entry>`;
+          return `    <entry role="${role}"${nameAttr}>${escapeXml(m.content)}</entry>`;
         })
         .join("\n");
     }
