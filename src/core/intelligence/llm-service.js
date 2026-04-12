@@ -37,7 +37,7 @@ export function sanitize(text) {
   if (!text) return "";
 
   // 1. Strip cognition blocks before general sanitization
-  let cleaned = strip_cognition_blocks(text);
+  const cleaned = strip_cognition_blocks(text).trim();
 
   // 2. Clean standard AI filler and artifacts
   return cleaned
