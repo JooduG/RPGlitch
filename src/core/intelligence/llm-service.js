@@ -36,8 +36,11 @@ import { strip_cognition_blocks } from "../engine/text-parser.js";
 export function sanitize(text) {
   if (!text) return "";
 
-  // 1. Clean standard AI filler and artifacts
-  return text
+  // 1. Strip cognition blocks before general sanitization
+  let cleaned = strip_cognition_blocks(text);
+
+  // 2. Clean standard AI filler and artifacts
+  return cleaned
     .replace(/^["']|["']$/g, "")
     .replace(/^(here is|sure|certainly|i can help|enhanced text:|the enhanced text).*?:/i, "")
     .replace(/^\s*```.*?[\r\n]/gm, "")

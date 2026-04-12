@@ -1,5 +1,41 @@
 import { describe, it, expect } from "vitest";
-import { parse_scene_header, clean_image_prompts, escapeXml } from "./text-parser.js";
+import { parse_scene_header, clean_image_prompts, escapeXml, strip_cognition_blocks } from "./text-parser.js";
+
+describe("strip_cognition_blocks", () => {
+  it("should strip single-line think blocks", () => {
+    const input = "<think>I am thinking</think>Hello World";
+    expect(strip_cognition_blocks(input)).toBe("Hello World");
+  });
+
+  it("should strip multiline think blocks", () => {
+    const input = "<think>\nLine 1\nLine 2\n</think>Hello World";
+    expect(strip_cognition_blocks(input)).toBe("Hello World");
+  });
+
+  it("should strip optional trailing newlines after think blocks", () => {
+    const input1 = "<think>Thoughts</think>\nHello World";
+    expect(strip_cognition_blocks(input1)).toBe("Hello World");
+
+    const input2 = "<think>Thoughts</think>\n\nHello World";
+    expect(strip_cognition_blocks(input2)).toBe("\nHello World");
+  });
+
+  it("should handle multiple think blocks", () => {
+    const input = "<think>One</think>Hello <think>Two</think>World";
+    expect(strip_cognition_blocks(input)).toBe("Hello World");
+  });
+
+  it("should handle text without think blocks", () => {
+    const input = "Hello World";
+    expect(strip_cognition_blocks(input)).toBe("Hello World");
+  });
+
+  it("should handle empty or null input gracefully", () => {
+    expect(strip_cognition_blocks(null)).toBe("");
+    expect(strip_cognition_blocks(undefined)).toBe("");
+    expect(strip_cognition_blocks("")).toBe("");
+  });
+});
 
 describe("clean_image_prompts", () => {
   const testCases = [
