@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parse_scene_header, clean_image_prompts } from "./text-parser.js";
+import { parse_scene_header, clean_image_prompts, escapeXml } from "./text-parser.js";
 describe("clean_image_prompts", () => {
   const testCases = [
     { description: "null input", input: null, expected: "" },
@@ -394,5 +394,35 @@ describe("parse_scene_header additional basic edge cases", () => {
       content: "",
       header: null,
     });
+  });
+});
+
+describe("text-parser: escapeXml", () => {
+  it("should escape basic XML special characters including single quotes", () => {
+    const input = "This & that 'quoted' \"quoted\" <tag>";
+    const expected = "This &amp; that &apos;quoted&apos; &quot;quoted&quot; &lt;tag&gt;";
+    expect(escapeXml(input)).toBe(expected);
+  });
+
+  it("should escape square brackets to prevent injection/misinterpretation", () => {
+    const input = "[VstartWith: content]";
+    const expected = "&#91;VstartWith: content&#93;";
+    expect(escapeXml(input)).toBe(expected);
+  });
+
+  it("should handle empty or null input gracefully", () => {
+    expect(escapeXml(null)).toBe("");
+    expect(escapeXml(undefined)).toBe("");
+    expect(escapeXml("")).toBe("");
+  });
+
+  it("should NOT trim the input", () => {
+    const input = "  content  ";
+    expect(escapeXml(input)).toBe("  content  ");
+  });
+
+  it("should handle multi-line strings", () => {
+     const input = "line 1\nline 2";
+     expect(escapeXml(input)).toBe("line 1\nline 2");
   });
 });

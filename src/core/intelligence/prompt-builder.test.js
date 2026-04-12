@@ -47,6 +47,15 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain("<USER_PERSONA");
     });
 
+    it("synthesize() injects SUSPICIOUS_COGNITION when meta.is_suspicious is true", () => {
+      const suspiciousPayload = {
+        ...mockPayload,
+        meta: { is_suspicious: true },
+      };
+      const result = prompt_builder.synthesize(suspiciousPayload, mockSnapshot);
+      expect(result.system).toContain("SUSPICIOUS_COGNITION");
+    });
+
     it("synthesize() respects prologue mode", () => {
       const prologue_payload = { ...mockPayload, type: "prologue" };
       const result = prompt_builder.synthesize(prologue_payload, {});
