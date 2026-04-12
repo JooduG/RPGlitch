@@ -20,6 +20,7 @@
  */
 import { ERROR_MESSAGES } from "../engine/config.js";
 import { app } from "../../state/app.svelte.js";
+import { strip_cognition_blocks } from "../engine/text-parser.js";
 /************************************************************************************
  * 🧩 [SECTION: SANITIZATION]
  * ----------------------------------------------------------------------------------
@@ -33,7 +34,12 @@ import { app } from "../../state/app.svelte.js";
  * @returns {string}
  */
 export function sanitize(text) {
-  return text
+  if (!text) return "";
+  // 1. Strip AI internal thoughts (<think> blocks)
+  let clean = strip_cognition_blocks(text);
+
+  // 2. Clean standard AI filler and artifacts
+  return clean
     .replace(/^["']|["']$/g, "")
     .replace(/^(here is|sure|certainly|i can help|enhanced text:|the enhanced text).*?:/i, "")
     .replace(/^\s*```.*?[\r\n]/gm, "")

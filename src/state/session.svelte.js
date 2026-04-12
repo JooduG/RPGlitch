@@ -58,16 +58,20 @@ export class ReactiveSession {
    * Forces visibility into the internal state transitions.
    */
   async advance_turn(text) {
+    if (this.loading) return;
     this.loading = true;
     app.simulation.loading = true;
+
     try {
+      // 1. ATOMIC CHRONO: Only increment once per interaction loop
+      runtime.round++;
+      app.log(`Simulation entering Round ${runtime.round}...`, "system");
+
       // PHASE 1: WARDEN (Observation)
       app.log("Security checking physics and causality...", "system");
-      // Simulate physics update for HUD visibility if needed, or rely on Engine events
+
       // PHASE 2: GM (Synthesis)
-      app.log(`LLM synthesizing story response for turn ${app.round}...`, "ai");
-      await session_driver.send(text); // Saves user message
-      // TRIGGER AI GENERATION
+      await session_driver.send(text);
       const story_id = session_driver.require_active();
       await Engine.generate_ai_response(story_id, { input: text });
       // PHASE 3: ECHO (Affinity)

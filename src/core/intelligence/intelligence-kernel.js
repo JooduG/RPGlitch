@@ -133,7 +133,6 @@ export const gamemaster = {
     });
     // 8. TRANSITION: Open the window for User
     runtime.turn_type = "USER_TURN";
-    runtime.round++;
 
     // 9. HOUSEKEEPING: Trigger narrative control (MemoryEngine) if needed
     await memory_engine.consolidate(session_driver, db, entities, runtime, app, simulation_log);
