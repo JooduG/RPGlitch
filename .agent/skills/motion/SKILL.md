@@ -27,7 +27,6 @@ skills/motion/SKILL.md/
 1. **Leverage Design Tokens**:
    - **Motion**: `--motion-fast`, `--motion-slow`, `--motion-elastic`, `--motion-click`.
    - **Interaction**: `--hover-brightness`, `--hover-blur`, `--hover-background-color`.
-   
 2. **Global Implementation**:
    - Prefer `src/theme/global.css` interaction rules for shared atoms.
    - Use high-specificity parent selectors for component overrides instead of `!important`.
@@ -55,11 +54,11 @@ skills/motion/SKILL.md/
 
 ## ⚖️ Common Rationalizations
 
-| Excuse | Counter-Measure |
-| :--- | :--- |
-| "A pure CSS transition is too limited for this." | "CSS transitions are the most performant. Exhaust them first." |
-| "I'll skip the FPS check for this one bounce." | "Kinetic truth requires smooth delivery. Audit all motion at 60fps." |
-| "The motion feel doesn't have to be 'weighted'." | "The Nordic Collection is deliberate. Maintain physical weight." |
+| Excuse                                           | Counter-Measure                                                      |
+| :----------------------------------------------- | :------------------------------------------------------------------- |
+| "A pure CSS transition is too limited for this." | "CSS transitions are the most performant. Exhaust them first."       |
+| "I'll skip the FPS check for this one bounce."   | "Kinetic truth requires smooth delivery. Audit all motion at 60fps." |
+| "The motion feel doesn't have to be 'weighted'." | "The Nordic Collection is deliberate. Maintain physical weight."     |
 
 ## ✅ Verification
 

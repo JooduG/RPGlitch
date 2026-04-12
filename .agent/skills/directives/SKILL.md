@@ -50,11 +50,13 @@ skills/directives/
 Every `SKILL.md` file within the `.agent/skills/` directory must adhere to the standard defined in [SKILL.template.md](./templates/SKILL.template.md).
 
 ### 1. Naming & Metadata
+
 - **Directory & Name**: `lowercase-hyphen-separated`. Must be identical.
 - **Description**: Must include both **what** the skill does (third person) and **when** it triggers (exact symptoms or file globs).
 - **Triggers**: description must enable agent discovery via system prompt injection.
 
 ### 2. Mandatory Sections
+
 1. **Overview**: The elevator pitch (What & Why).
 2. **When to Use**: Bulleted triggers and exclusions (When NOT to use).
 3. **Core Process**: Step-by-step workflow (Numbered).
@@ -63,6 +65,7 @@ Every `SKILL.md` file within the `.agent/skills/` directory must adhere to the s
 6. **Verification**: Measurable exit criteria checklist with evidence requirements.
 
 ### 3. Writing Principles
+
 - **Process over Knowledge**: Skills are workflows, not reference docs.
 - **Specific over General**: "Run `npm test`" vs "Verify tests".
 - **Evidence over Assumption**: Every checkbox requires proof (tool output/screenshot).
@@ -75,10 +78,12 @@ Every `SKILL.md` file within the `.agent/skills/` directory must adhere to the s
 Every `.md` file in the `.agent/workflows/` directory must adhere to the standard defined in the [WORKFLOW.template.md](./templates/WORKFLOW.template.md).
 
 ### 1. Header Requirement
+
 All workflows must display an H1 header featuring the command name, a relative link to the file, and a brief description.
 **Format**: `# [/command-name](./file-name.md) - Brief Descriptive Title`
 
 ### 2. YAML Frontmatter
+
 Workflows must contain at least a `description` field in the YAML frontmatter.
 
 ---

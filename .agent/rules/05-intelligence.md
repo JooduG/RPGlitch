@@ -71,16 +71,19 @@ To prevent cognitive drift, nomenclature is absolute.
 To optimize cognitive load, tasks are triaged into three complexity levels, each triggering the appropriate **Role** and **Master Workflow** sequence.
 
 #### **Level 1: Quick Fix (⚒️ Operations)**
+
 - **Scope**: Typos, CSS tweaks, minor logic, or single-file edits.
 - **Workflow**: ⚡ **[/test](../workflows/test.md)** -> **[/build](../workflows/build.md)**. Direct implementation and cleanup.
 - **Skill**: `orchestration`.
 
 #### **Level 2: Enhancement (🎨 Tactics)**
+
 - **Scope**: New features, refactors, or multi-file logic changes.
 - **Workflow**: 🧠 **[/plan](../workflows/plan.md)** -> **[/build](../workflows/build.md)**. Technical scoping and incremental delivery.
 - **Skill**: `orchestration`.
 
 #### **Level 3: Complex Feature (🎭 Strategy)**
+
 - **Scope**: Major architectural changes or high ambiguity.
 - **Workflow**: 🤔 **[/spec](../workflows/spec.md)** -> **[/plan](../workflows/plan.md)** -> **[/build](../workflows/build.md)**. Direct feature incubation.
 - **Skill**: `orchestration`.
@@ -121,6 +124,7 @@ The following sovereign workflows are registered for agentic orchestration.
 ### 7. Memory Protocol (Agent vs Application)
 
 > **CRITICAL DISTINCTION**:
+>
 > - **Application Memory** (Dexie.js, RPGlitch State, Entity memory): Consult the **[Simulation](../skills/simulation/SKILL.md)** skill.
 > - **Development Data** (Pinecone, Supabase, Agent Context): Consult the **[Data](../skills/data/SKILL.md)** skill.
 
@@ -142,10 +146,11 @@ Agents MUST utilize the dual-layer memory system via the [Data](../skills/data/S
 
 ---
 
-Every turn response must conclude with this metadata block to log operational weights. Include the active Role and Thinking Approach emojis. 
+Every turn response must conclude with this metadata block to log operational weights. Include the active Role and Thinking Approach emojis.
 
 > [!TIP]
-> **Brevity Mandate**: 
+> **Brevity Mandate**:
+>
 > 1. If a **Skill** is the active **Role**, do not repeat the skill name in the `Skills` line.
 > 2. Use simple names or slash commands for Rules, Skills, and Workflows (e.g., `05-intelligence`, `00-boot`, `security-and-hardening`) rather than full file paths.
 

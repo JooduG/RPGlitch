@@ -32,29 +32,36 @@ Shipping is the final act of the simulation cycle. Our goal is to deploy with ze
 ## ⚙️ Core Process: The Perchance Bridge
 
 ### 1. Environmental Sync & Secret Audit
+
 Before every launch, **validate the `.env` configuration** and production secrets.
+
 - Ensure `PERCHANCE_URL`, `PERCHANCE_USERNAME`, and `PERCHANCE_KEY` are present.
 - Reconcile local environment variables with the target deployment shard.
 - **Audit**: Verify no development-only flags (`is_mock`, `debug_mode`) leak into the production payload.
 
 ### 2. The Hardened Production Build
+
 Trigger the Vite production pipeline with the goal of generating a **single-file bundle** (Rule 03).
+
 - **Physical Law**: The total bundle size MUST be optimized for the Perchance editor environment. Avoid bloated artifacts that could cause editor instability.
 - **Audit**: Review the build manifest for unintended external dependencies or oversized assets.
 
 ### 3. The Perchance Bridge Execution
+
 Execute the automated deployment: `node .agent/skills/shipping-and-launch/scripts/deploy-perchance.js`.
+
 - Monitor Playwright logs for Cloudflare challenges or login errors.
 - If a manual intervention is required, capture a results screenshot for the director.
 - **Success Signal**: On "Saved Successfully", immediately verify the live link at `https://perchance.org/RPGlitch`.
 
 ### 4. Release Hygiene & Post-Launch Verification
+
 - Log the Commit-SHA and deployment timestamp into the **Log Book**.
 - Update the **Mission Board** to reflect the new live production state.
 - **Verification**: Run a quick 3-point check on the live URL:
-    1. Does the simulation initialize?
-    2. Are there any console errors?
-    3. Does the main interaction feel responsive (< 500ms)?
+  1. Does the simulation initialize?
+  2. Are there any console errors?
+  3. Does the main interaction feel responsive (< 500ms)?
 
 ---
 
@@ -64,13 +71,13 @@ Execute the automated deployment: `node .agent/skills/shipping-and-launch/script
 
 Before Crossing the Bridge, verify these axis points:
 
-| Axis | Check | Standard |
-|------|-------|----------|
-| **Integrity** | Build Artifact | Unminified logic check, CSS consistency |
-| **Security** | Secret Leakage | No hardcoded keys in bundle |
-| **UX** | A11y & Contrast | Chalk Regime / Nordic Collection adherence |
-| **Perf** | Bundle Budget | Optimized (High Priority) |
-| **Stability** | Fallback Paths | Verify offline-first Dexie.js resilience |
+| Axis          | Check           | Standard                                   |
+| ------------- | --------------- | ------------------------------------------ |
+| **Integrity** | Build Artifact  | Unminified logic check, CSS consistency    |
+| **Security**  | Secret Leakage  | No hardcoded keys in bundle                |
+| **UX**        | A11y & Contrast | Chalk Regime / Nordic Collection adherence |
+| **Perf**      | Bundle Budget   | Optimized (High Priority)                  |
+| **Stability** | Fallback Paths  | Verify offline-first Dexie.js resilience   |
 
 ### Release Pacing & Risk Management
 
@@ -81,6 +88,7 @@ Before Crossing the Bridge, verify these axis points:
 ### Rollback & Failover Procedures
 
 If a deployment fails or introduces a mission-breaking bug:
+
 1. **Identify**: Locate the last known-good Commit-SHA in the git history.
 2. **Revert**: `git checkout <SHA>` and perform a clean production build.
 3. **Bridge**: Immediately re-run the `deploy-perchance.js` script to restore the environment.
@@ -94,9 +102,9 @@ If a deployment fails or introduces a mission-breaking bug:
 
 ## 📋 Common Rationalizations
 
-- *"It works in staging"* → Production has different data and traffic. Always verify the live bridge.
-- *"Bundle size is increasing"* → Optimization is a requirement, not a suggestion. Ensure code is chemically pure.
-- *"Deploy first, monitor later"* → Monitoring starts before the Bridge is crossed.
+- _"It works in staging"_ → Production has different data and traffic. Always verify the live bridge.
+- _"Bundle size is increasing"_ → Optimization is a requirement, not a suggestion. Ensure code is chemically pure.
+- _"Deploy first, monitor later"_ → Monitoring starts before the Bridge is crossed.
 
 ## 🚩 Red Flags
 

@@ -30,7 +30,8 @@ skills/css/           # Logical Sovereign
 - **Design Spells Execution**: Build micro-interactions (magnetic hover, physics-based) with flawless 60fps+ performance.
 
 ### 📋 Technical Constraints
- (Baseline UI)
+
+(Baseline UI)
 
 - **Compositor Only**: Animate ONLY compositor props (`transform`, `opacity`). NEVER animate layout (`width`, `margin`, etc.).
 - **Viewport Standards**: Use `h-dvh` instead of `h-screen`.
@@ -49,10 +50,10 @@ skills/css/           # Logical Sovereign
 
 ## ⚖️ Common Rationalizations
 
-| Excuse | Counter-Measure |
-| :--- | :--- |
-| "I'll just use a quick hex color to test." | "Hex is debt. Use Nordic Collection tokens only." |
-| "Animating height is easier for this transition." | "Performance first. Use compositor-only transforms/opacity." |
+| Excuse                                              | Counter-Measure                                                 |
+| :-------------------------------------------------- | :-------------------------------------------------------------- |
+| "I'll just use a quick hex color to test."          | "Hex is debt. Use Nordic Collection tokens only."               |
+| "Animating height is easier for this transition."   | "Performance first. Use compositor-only transforms/opacity."    |
 | "This component is unique, it doesn't need tokens." | "Structural integrity requires standard tokens for everything." |
 
 ## ✅ Verification

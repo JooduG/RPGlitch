@@ -30,13 +30,20 @@ export const clean = (text) => (text ? text.trim() : "");
  */
 export const validateImage = async (file, options = {}) => {
   const maxSize = options.maxSize ?? 5 * 1024 * 1024; // Default 5MB
-  const allowedTypes = options.allowedTypes ?? ["image/jpeg", "image/png", "image/webp", "image/gif"];
+  const allowedTypes = options.allowedTypes ?? [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/gif",
+  ];
 
   if (!file) throw new Error("No file provided");
 
   // 1. Size Check
   if (file.size > maxSize) {
-    throw new Error(`File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB. Max limit: ${maxSize / 1024 / 1024}MB`);
+    throw new Error(
+      `File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB. Max limit: ${maxSize / 1024 / 1024}MB`,
+    );
   }
 
   // 2. MIME Type Check
@@ -49,21 +56,32 @@ export const validateImage = async (file, options = {}) => {
   const buffer = await file.slice(0, 12).arrayBuffer();
   const header = new Uint8Array(buffer);
   const signatures = {
-    "image/jpeg": (h) => h[0] === 0xFF && h[1] === 0xD8 && h[2] === 0xFF,
-    "image/png": (h) => h[0] === 0x89 && h[1] === 0x50 && h[2] === 0x4E && h[3] === 0x47,
+    "image/jpeg": (h) => h[0] === 0xff && h[1] === 0xd8 && h[2] === 0xff,
+    "image/png": (h) => h[0] === 0x89 && h[1] === 0x50 && h[2] === 0x4e && h[3] === 0x47,
     "image/gif": (h) => h[0] === 0x47 && h[1] === 0x49 && h[2] === 0x46 && h[3] === 0x38,
-    "image/webp": (h) => h[0] === 0x52 && h[1] === 0x49 && h[2] === 0x46 && h[3] === 0x46 &&
-                         h[8] === 0x57 && h[9] === 0x45 && h[10] === 0x42 && h[11] === 0x50
+    "image/webp": (h) =>
+      h[0] === 0x52 &&
+      h[1] === 0x49 &&
+      h[2] === 0x46 &&
+      h[3] === 0x46 &&
+      h[8] === 0x57 &&
+      h[9] === 0x45 &&
+      h[10] === 0x42 &&
+      h[11] === 0x50,
   };
 
   const verify = signatures[file.type];
   if (verify) {
     if (!verify(header)) {
-      throw new Error("Security verification failed: File content does not match its declared type.");
+      throw new Error(
+        "Security verification failed: File content does not match its declared type.",
+      );
     }
   } else {
     // Fail if the type is allowed but we don't have a signature check for it to maintain Zero-Trust
-    throw new Error(`Security verification failed: No signature check available for type ${file.type}`);
+    throw new Error(
+      `Security verification failed: No signature check available for type ${file.type}`,
+    );
   }
 
   return true;

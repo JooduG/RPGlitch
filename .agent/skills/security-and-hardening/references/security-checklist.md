@@ -74,7 +74,7 @@ Never expose engine internals to the user persona.
 ```javascript
 // 🟢 GOOD: Sovereign Error Handing
 if (engine_failure) {
-  triggerFallout('simulation-desync'); 
+  triggerFallout("simulation-desync");
   logger.critical("Engine Failure", { trace: err.stack });
 }
 
@@ -86,18 +86,18 @@ renderHTML(`<div>Error: ${err.message} <pre>${err.stack}</pre></div>`);
 
 ## OWASP Top 10: Simulation Context
 
-| # | Vulnerability | Sovereign Prevention |
-|:--- |:--- |:--- |
-| **1** | **Broken Access Control** | Permission-aware Runes gated by round-state. |
-| **2** | **Cryptographic Failures** | Secure token handling for Intelligence Kernel keys. |
-| **3** | **Injection** | 100% `DOMPurify` mandate for all dynamic HTML rendering. |
-| **4** | **Insecure Design** | Spec-driven development (Rule 01) before coding. |
-| **5** | **Security Misconfiguration** | Zero-Trust Svelte manifest and ESM-only imports. |
-| **6** | **Vulnerable Components** | Mandatory `npm audit` on every release checkpoint. |
-| **7** | **Auth Failures** | Strict entity-persona parity in IndexedDB lookups. |
-| **8** | **Data Integrity Failures** | Blockchain-style 'Echo' (History) verification. |
-| **9** | **Logging Failures** | Forensic logging of all critical engine state shifts. |
-| **10** | **SSRF** | Strict allowlist for Intelligence Kernel API endpoints. |
+| #      | Vulnerability                 | Sovereign Prevention                                     |
+| :----- | :---------------------------- | :------------------------------------------------------- |
+| **1**  | **Broken Access Control**     | Permission-aware Runes gated by round-state.             |
+| **2**  | **Cryptographic Failures**    | Secure token handling for Intelligence Kernel keys.      |
+| **3**  | **Injection**                 | 100% `DOMPurify` mandate for all dynamic HTML rendering. |
+| **4**  | **Insecure Design**           | Spec-driven development (Rule 01) before coding.         |
+| **5**  | **Security Misconfiguration** | Zero-Trust Svelte manifest and ESM-only imports.         |
+| **6**  | **Vulnerable Components**     | Mandatory `npm audit` on every release checkpoint.       |
+| **7**  | **Auth Failures**             | Strict entity-persona parity in IndexedDB lookups.       |
+| **8**  | **Data Integrity Failures**   | Blockchain-style 'Echo' (History) verification.          |
+| **9**  | **Logging Failures**          | Forensic logging of all critical engine state shifts.    |
+| **10** | **SSRF**                      | Strict allowlist for Intelligence Kernel API endpoints.  |
 
 ## ✅ Final Safety Gate
 

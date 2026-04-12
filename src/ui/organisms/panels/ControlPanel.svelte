@@ -80,7 +80,9 @@
     <!-- FOOTER: Navigation & Meta -->
     <footer class="panel-footer">
       <div class="navigation-links">
-        <button class="nav-button" onclick={() => handleAction("OpenLibrary")}> Story Library </button>
+        <button class="nav-button" onclick={() => handleAction("OpenLibrary")}>
+          Story Library
+        </button>
       </div>
 
       <div class="system-meta">

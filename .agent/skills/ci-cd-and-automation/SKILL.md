@@ -36,14 +36,18 @@ CI/CD is the enforcement mechanism for every other skill. It ensures that no cha
 ## ⚙️ Core Process: The Quality Gate Pipeline
 
 ### 1. Local CI Bootstrap (Setup)
+
 Before pushing to the remote repository, verify the logic locally using **`act`** (Project Standard).
+
 1. **Prerequisites**: Ensure Docker is running.
 2. **Environment**: Standardize on `.env` (strictly ignored by git).
 3. **Bootstrap**: Run `bash .agent/skills/ci-cd-and-automation/scripts/act/install-act.sh`.
 4. **Governance**: Ensure `act_output.log` and `.env` are in `.gitignore`.
 
 ### 2. Mandatory Verification Gates
+
 Every single commit must survive this sequence:
+
 - **Lint**: `npm run lint` (Zero tolerance for Prettier/ESLint warnings).
 - **Type Check**: `npx tsc --noEmit` (Crucial for Svelte 5 Rune safety).
 - **Unit Tests**: `npm test` (Verify engine mutations and state logic).
@@ -51,7 +55,9 @@ Every single commit must survive this sequence:
 - **Security Audit**: `npm audit --audit-level=high` (Mandatory before every commit).
 
 ### 3. Pre-Flight Verification
+
 Always execute `bash .agent/skills/ci-cd-and-automation/scripts/act/run-act.sh` before finalizing a PR.
+
 - Audit the bundle size for Perchance editor stability.
 - Ensure all logic is correctly transpiled for the simulation environment.
 - If any gate fails, **HALT** and resolve the root cause.
@@ -76,12 +82,12 @@ npm test -- --coverage
 
 #### Selection Matrix
 
-| Test Type | Target | Tool | Frequency |
-|-----------|--------|------|-----------|
-| Unit | Pure IO / Core Logic | Vitest | Every Commit |
-| Integration | State Mutations / Dexie.js | Vitest | Every Commit |
-| Visual | Styles / Nordic Collection | Playwright | On UI Change |
-| E2E | Critical User Paths | Playwright | Before Release |
+| Test Type   | Target                     | Tool       | Frequency      |
+| ----------- | -------------------------- | ---------- | -------------- |
+| Unit        | Pure IO / Core Logic       | Vitest     | Every Commit   |
+| Integration | State Mutations / Dexie.js | Vitest     | Every Commit   |
+| Visual      | Styles / Nordic Collection | Playwright | On UI Change   |
+| E2E         | Critical User Paths        | Playwright | Before Release |
 
 ### Security & Sanitization Gates
 
@@ -100,9 +106,9 @@ Always perform a manual audit pass alongside automated `npm audit` calls:
 
 ## 📋 Common Rationalizations
 
-- *"CI is too slow"* → Optimize the pipeline; never skip it. A 5-minute gate saves hours of production debugging.
-- *"This change is trivial"* → Trivial changes break builds. The gate applies to every byte.
-- *"The test is flaky"* → Flaky tests mask real regressions. Fix the test; do not ignore it.
+- _"CI is too slow"_ → Optimize the pipeline; never skip it. A 5-minute gate saves hours of production debugging.
+- _"This change is trivial"_ → Trivial changes break builds. The gate applies to every byte.
+- _"The test is flaky"_ → Flaky tests mask real regressions. Fix the test; do not ignore it.
 
 ## 🚩 Red Flags
 

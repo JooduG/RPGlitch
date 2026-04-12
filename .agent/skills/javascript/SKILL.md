@@ -66,11 +66,11 @@ skills/javascript/
 
 ## ⚖️ Common Rationalizations
 
-| Excuse | Counter-Measure |
-| :--- | :--- |
-| "I'll use a `var` here; it's a legacy script." | "Legacy is debt. Refactor to ES6+ standards immediately." |
-| "This doesn't need a private field; it's internal anyway." | "Encapsulation is safety. Use `#private` fields for class state." |
-| "I'll skip the error handling for this small utility." | "Logic failures must be descriptive. Implement robust boundary validation." |
+| Excuse                                                     | Counter-Measure                                                             |
+| :--------------------------------------------------------- | :-------------------------------------------------------------------------- |
+| "I'll use a `var` here; it's a legacy script."             | "Legacy is debt. Refactor to ES6+ standards immediately."                   |
+| "This doesn't need a private field; it's internal anyway." | "Encapsulation is safety. Use `#private` fields for class state."           |
+| "I'll skip the error handling for this small utility."     | "Logic failures must be descriptive. Implement robust boundary validation." |
 
 ## ✅ Verification
 

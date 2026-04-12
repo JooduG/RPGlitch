@@ -114,6 +114,7 @@ If the _logic shifts_ drastically during testing -> _update the [Mission Command
 Once planned and cleared, execute the task using tools at your disposal. **EVERY** implementation must be preceded by [spec-driven-development](./.agent/skills/spec-driven-development/SKILL.md) and verified via [test-driven-development](./.agent/skills/test-driven-development/SKILL.md). Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers.
 
 Tell the user:
+
 1. Docker must be installed and running on any machine (or Jules VM) where verification runs
 2. `act` will be auto-installed on first use via `.agent/skills/devops/scripts/act/install-act.sh`
 

@@ -17,13 +17,14 @@
 In Svelte 5, the `{@html}` tag is the primary XSS vector. Under no circumstances should raw user content enter this tag.
 
 ### The Sanitization Boundary
+
 All HTML rendering MUST be deterministically sanitized using `DOMPurify` via the `src/core/security.js` bridge.
 
 ```svelte
 <script>
-  import { sanitize } from '$core/security';
+  import { sanitize } from "$core/security";
   let { narrative_block } = $props();
-  
+
   // 🟢 GOOD: Sanitized at the boundary
   let safe_html = $derived(sanitize(narrative_block));
 </script>
@@ -42,11 +43,12 @@ All HTML rendering MUST be deterministically sanitized using `DOMPurify` via the
 Runes are the engine's nervous system. Leaking unsanitized external data directly into a `$state` object can pollute the entire reactive tree.
 
 ### The Inversion Pattern
+
 Never bind external input (bind:value) directly to core engine state. Use a "Sanity Transfer" object.
 
 ```javascript
 // 🔴 BAD: Direct binding to engine state
-<input bind:value={character.bio} />
+<input bind:value={character.bio} />;
 
 // 🟢 GOOD: Intermediate proxy with validation
 let local_bio = $state(character.bio);
@@ -69,7 +71,8 @@ Snippets (`{#snippet ...}`) should be treated as functional boundaries. Any snip
 ```svelte
 {#snippet entityStatus(entity)}
   <div class="status-token" class:glitch={entity.entropy > 0.9}>
-    {entity.name} <!-- Svelte auto-escapes standard text -->
+    {entity.name}
+    <!-- Svelte auto-escapes standard text -->
     <span class="stress-bar" style="width: {entity.stress * 100}%"></span>
   </div>
 {/snippet}
@@ -86,18 +89,20 @@ Snippets (`{#snippet ...}`) should be treated as functional boundaries. Any snip
 Complex reactivity can create recursive vulnerabilities where state cycles freeze the browser (Low-level DoS).
 
 ### The Effect Loop Guard
+
 1. **Never** mutate a state rune inside an `$effect` that depends on that same rune without a clear conditional exit.
 2. **Minimize** logic inside `$effect`. Move complex state transitions to pure functions in `src/core/`.
 3. **Audit**: Every `$effect` must be documented for its trigger-dependency map.
 
 ### Secure Derivation
+
 Use `$derived` to enforce immutable views of sensitive state.
 
 ```javascript
 // Creates a read-only, sanitized view of character data for the UI
 const ui_char = $derived({
   ...character,
-  display_name: sanitize(character.name)
+  display_name: sanitize(character.name),
 });
 ```
 

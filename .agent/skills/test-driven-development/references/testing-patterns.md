@@ -20,15 +20,15 @@ Quick reference for sovereign testing patterns across the RPGlitch stack. Use al
 Every test in the 'Proving Grounds' MUST follow the Triple-A pattern for clarity and deterministic outcomes.
 
 ```typescript
-import { it, expect, describe, vi } from 'vitest';
+import { it, expect, describe, vi } from "vitest";
 
-it('properly mutates character entropy during intense rounds', () => {
+it("properly mutates character entropy during intense rounds", () => {
   // 🟢 Arrange: Set up character state and engine environment
-  const character = $state(createEntity({ name: 'Kael', stress: 10 }));
+  const character = $state(createEntity({ name: "Kael", stress: 10 }));
   const engine = new DynamicsEngine();
 
   // 🟡 Act: Perform the action being tested
-  engine.processTick(character, { intensity: 'high' });
+  engine.processTick(character, { intensity: "high" });
 
   // 🔴 Assert: Verify the outcome (State Over Interaction)
   expect(character.stress).toBeGreaterThan(10);
@@ -39,13 +39,14 @@ it('properly mutates character entropy during intense rounds', () => {
 ## Test Naming Conventions
 
 Names must describe **BEHAVIOR**, not implementation.
+
 - **Pattern**: `[unit] [expected behavior] [under condition]`
 
 ```typescript
-describe('DynamicsEngine', () => {
-  it('increments round counter after user submission', () => {});
-  it('refuses turn transition if engine state is locked', () => {});
-  it('emits sensory bridge even when narrative output is empty', () => {});
+describe("DynamicsEngine", () => {
+  it("increments round counter after user submission", () => {});
+  it("refuses turn transition if engine state is locked", () => {});
+  it("emits sensory bridge even when narrative output is empty", () => {});
 });
 ```
 
@@ -58,8 +59,8 @@ We utilize **Vitest** for its blazing speed and Svelte 5 compatibility.
 ### Equality & Truthiness
 
 ```typescript
-expect(result).toBe(expected);           // Strict equality (===)
-expect(result).toEqual(expected);        // Deep equality (objects/arrays)
+expect(result).toBe(expected); // Strict equality (===)
+expect(result).toEqual(expected); // Deep equality (objects/arrays)
 expect(result).toBeTruthy();
 expect(result).toBeDefined();
 ```
@@ -68,7 +69,7 @@ expect(result).toBeDefined();
 
 ```typescript
 expect(entity.stress).toBeCloseTo(0.85, 2); // Floating point runes
-expect(narrative).toMatch(/Kael.*sword/i);  // Narrative grounding check
+expect(narrative).toMatch(/Kael.*sword/i); // Narrative grounding check
 expect(history).toContainEqual(expectedTurn);
 ```
 
@@ -76,7 +77,7 @@ expect(history).toContainEqual(expectedTurn);
 
 ```typescript
 await expect(kernel.generate()).resolves.toBeDefined();
-expect(() => engine.lock()).toThrow('Engine already locked');
+expect(() => engine.lock()).toThrow("Engine already locked");
 ```
 
 ---
@@ -96,16 +97,17 @@ expect(onTurnEnd).toHaveBeenCalledWith(expect.objectContaining({ round: 1 }));
 ```
 
 ### The Dexie 'Witness' Mock
+
 When testing the data layer, use an in-memory instance of the database rather than mocking the methods.
 
 ```typescript
-import Dexie from 'dexie';
-import 'dexie-export-import';
+import Dexie from "dexie";
+import "dexie-export-import";
 
 // Creates a fresh, isolated in-memory DB for every test
 async function setupTestDB() {
-  const db = new Dexie('TestDB', { indexedDB: require('fake-indexeddb') });
-  db.version(1).stores({ entities: 'id, name, type' });
+  const db = new Dexie("TestDB", { indexedDB: require("fake-indexeddb") });
+  db.version(1).stores({ entities: "id, name, type" });
   return db;
 }
 ```
@@ -119,20 +121,21 @@ Testing components in the Nordic Regime focuses on **Runes** and **User Visibili
 ### Testing Runes in `.svelte.test.js`
 
 ```typescript
-import { flushSync } from 'svelte';
+import { flushSync } from "svelte";
 
-it('reacts to external state changes via runes', () => {
+it("reacts to external state changes via runes", () => {
   let count = $state(0);
   const component = mount(Counter, { target: document.body, props: { count } });
 
   count = 5; // Mutative update
   flushSync(); // Force Svelte to update the DOM
 
-  expect(document.body.innerHTML).toContain('5');
+  expect(document.body.innerHTML).toContain("5");
 });
 ```
 
 ### Behavioral Probing (Narrative TDD)
+
 Verify that UI components properly signal diegetic states (e.g., stress indicators reaching max).
 
 ```javascript
@@ -140,8 +143,8 @@ it('renders the "Glitch" overlay when entropy exceeds 0.9', () => {
   const char = $state({ entropy: 0.95 });
   render(StatusPanel, { props: { char } });
 
-  expect(screen.getByTestId('glitch-vfx')).toBeInTheDocument();
-  expect(screen.queryByText('Normal')).not.toBeInTheDocument();
+  expect(screen.getByTestId("glitch-vfx")).toBeInTheDocument();
+  expect(screen.queryByText("Normal")).not.toBeInTheDocument();
 });
 ```
 
@@ -154,11 +157,11 @@ Engine tests must verify the recursive intelligence kernel and turn-cycle integr
 ### Turn Cycle Isolation
 
 ```typescript
-it('locks UI during System Simulation Turn', async () => {
+it("locks UI during System Simulation Turn", async () => {
   const state = new AppState();
   expect(state.ui_locked).toBe(false);
 
-  state.submitAction('open door');
+  state.submitAction("open door");
   expect(state.ui_locked).toBe(true); // Immediate lock
 
   await state.turnComplete;
@@ -173,21 +176,21 @@ it('locks UI during System Simulation Turn', async () => {
 Use Playwright for high-fidelity sensory verification.
 
 ```typescript
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test('user can cycle characters during a simulation round', async ({ page }) => {
-  await page.goto('/');
+test("user can cycle characters during a simulation round", async ({ page }) => {
+  await page.goto("/");
 
   // Select slot
   await page.click('[data-slot="1"]');
-  await expect(page.locator('.active-profile')).toContainText('Kael');
+  await expect(page.locator(".active-profile")).toContainText("Kael");
 
   // Swap via profile modal
-  await page.click('.profile-avatar');
-  await page.click('text=Swap Character');
-  await page.click('text=Elara');
+  await page.click(".profile-avatar");
+  await page.click("text=Swap Character");
+  await page.click("text=Elara");
 
-  await expect(page.locator('.active-profile')).toContainText('Elara');
+  await expect(page.locator(".active-profile")).toContainText("Elara");
 });
 ```
 
@@ -195,13 +198,13 @@ test('user can cycle characters during a simulation round', async ({ page }) => 
 
 ## Test Anti-Patterns
 
-| Anti-Pattern | Problem | Better Approach |
-|:--- |:--- |:--- |
-| **Testing implementation details** | Breaks on refactor | Test inputs/outputs of the engine |
-| **Silent Failures** | Swallowed errors in async effects | Always `await` or use `unhandledrejection` guards |
-| **Global State Pollution** | Tests leak into each other | Reset Dexie and Runes in `beforeEach` |
-| **Arbitrary Timeouts** | Flaky tests on slower environments | Use `waitFor` or `vi.advanceTimersByTime` |
-| **Narration Logic in Unit Tests** | Narrative is non-deterministic | Test the *kernel state*, not the exact prose |
+| Anti-Pattern                       | Problem                            | Better Approach                                   |
+| :--------------------------------- | :--------------------------------- | :------------------------------------------------ |
+| **Testing implementation details** | Breaks on refactor                 | Test inputs/outputs of the engine                 |
+| **Silent Failures**                | Swallowed errors in async effects  | Always `await` or use `unhandledrejection` guards |
+| **Global State Pollution**         | Tests leak into each other         | Reset Dexie and Runes in `beforeEach`             |
+| **Arbitrary Timeouts**             | Flaky tests on slower environments | Use `waitFor` or `vi.advanceTimersByTime`         |
+| **Narration Logic in Unit Tests**  | Narrative is non-deterministic     | Test the _kernel state_, not the exact prose      |
 
 ## ✅ Done Criteria (The Proving Grounds)
 

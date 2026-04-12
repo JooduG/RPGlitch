@@ -9,7 +9,7 @@ allowed-tools:
     "mcp_svelte_get-documentation",
     "svelte-autofixer",
     "mcp_svelte_playground-link",
-    "read_url_content"
+    "read_url_content",
   ]
 effort: high
 risk: safe
@@ -73,11 +73,11 @@ skills/svelte/
 
 ## ⚖️ Common Rationalizations
 
-| Excuse | Counter-Measure |
-| :--- | :--- |
-| "I'll use a Svelte 4 store for this simple shared state." | "Svelte 5 Runes are sovereign. Use `$state` in universal modules." |
-| "I'll just read the state from the DOM for this quick check." | "State is the source of truth. Read from Runes, never the DOM." |
-| "`export let` is easier for this component." | "Legacy is debt. Use `$props()` exclusively for all component inputs." |
+| Excuse                                                        | Counter-Measure                                                        |
+| :------------------------------------------------------------ | :--------------------------------------------------------------------- |
+| "I'll use a Svelte 4 store for this simple shared state."     | "Svelte 5 Runes are sovereign. Use `$state` in universal modules."     |
+| "I'll just read the state from the DOM for this quick check." | "State is the source of truth. Read from Runes, never the DOM."        |
+| "`export let` is easier for this component."                  | "Legacy is debt. Use `$props()` exclusively for all component inputs." |
 
 ## ✅ Verification
 

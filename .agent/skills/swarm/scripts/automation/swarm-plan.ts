@@ -44,6 +44,7 @@ console.log(`✅ Planner session started: ${session.id}`);
 
 await swarm.logStream(session, {
   planGenerated: (data: PlanData) => console.log(`📋 Plan Generated:\n${data.plan}`),
-  progressUpdated: (data: ProgressData) => console.log(`⏳ Progress: ${data.percent}% - ${data.message}`),
+  progressUpdated: (data: ProgressData) =>
+    console.log(`⏳ Progress: ${data.percent}% - ${data.message}`),
   agentMessaged: (data: AgentMessageData) => console.log(`💬 Agent: ${data.message}`),
 });

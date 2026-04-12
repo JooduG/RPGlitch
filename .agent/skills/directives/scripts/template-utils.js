@@ -43,11 +43,11 @@ const isHeaderMatch = (templateHeader, actualLevel, actualText, projectName) => 
     // Escapes special characters but keeps {{...}} as .* wildcard
     const parts = templateClean.split(/\{\{[^}]+\}\}/);
     const escapedParts = parts.map((p) => p.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&"));
-    
+
     // If the template is an H1 with a slug placeholder, ensure we match broadly but correctly
     const regexStr = "^" + escapedParts.join(".*") + "$";
     const regex = new RegExp(regexStr, "i");
-    
+
     // Check if the actual text (with formatting) matches the regex
     // We use the full text here because cleanHeaderLabel might strip too much for H1 links
     const fullActualText = actualText.trim();

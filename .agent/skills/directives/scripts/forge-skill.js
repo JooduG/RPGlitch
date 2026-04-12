@@ -69,18 +69,23 @@ const createAsset = async (name, type = "skill", description = "") => {
   }
 
   const template = fs.readFileSync(templatePath, "utf-8");
-  
+
   // Robust Placeholder Replacement
   const finalContent = template
     .replace(/\{\{(skill-name|Workflow-Slug|Rule-Slug)\}\}/gi, slug)
     .replace(/\{\{(Skill-Title|Title|Rule-Title)\}\}/gi, title)
-    .replace(/\{\{(description|Description)\}\}/g, description || `A Sovereign ${searchType} asset.`)
+    .replace(
+      /\{\{(description|Description)\}\}/g,
+      description || `A Sovereign ${searchType} asset.`,
+    )
     .replace(/\{\{Persona\}\}/g, `The ${title} Orchestrator`);
 
   ensureDir(targetDir);
   fs.writeFileSync(path.join(targetDir, fileName), finalContent);
 
-  console.log(`\n✅ FORGE SUCCESS: [${searchType.toUpperCase()}] '${slug}' instantiated from template.`);
+  console.log(
+    `\n✅ FORGE SUCCESS: [${searchType.toUpperCase()}] '${slug}' instantiated from template.`,
+  );
   console.log(`📍 Path: ${path.join(targetDir, fileName)}`);
 };
 

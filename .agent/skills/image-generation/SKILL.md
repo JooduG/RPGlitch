@@ -42,11 +42,11 @@ skills/image-generation/SKILL.md
 
 ## ⚖️ Common Rationalizations
 
-| Excuse | Counter-Measure |
-| :--- | :--- |
-| "A simple prompt will do for this placeholder." | "Placeholders are forbidden. Use high-fidelity prompts only." |
+| Excuse                                                  | Counter-Measure                                                      |
+| :------------------------------------------------------ | :------------------------------------------------------------------- |
+| "A simple prompt will do for this placeholder."         | "Placeholders are forbidden. Use high-fidelity prompts only."        |
 | "I'll just save the image and not update the registry." | "Orphaned assets cause drift. Always synchronize with the registry." |
-| "Style consistency isn't vital for NPC portraits." | "The Nordic Collection is absolute. Maintain aesthetic purity." |
+| "Style consistency isn't vital for NPC portraits."      | "The Nordic Collection is absolute. Maintain aesthetic purity."      |
 
 ## ✅ Verification
 

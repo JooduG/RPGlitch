@@ -42,7 +42,11 @@
   }
 </script>
 
-<div class="input-bar-unit seamless-field" class:is-focused={is_focused} class:is-disabled={is_locked}>
+<div
+  class="input-bar-unit seamless-field"
+  class:is-focused={is_focused}
+  class:is-disabled={is_locked}
+>
   <button
     class="icon-button settings-button"
     onclick={() => app.toggle_control_panel()}
@@ -93,7 +97,7 @@
     box-shadow: none;
     transition: all var(--motion-slow) var(--motion-elastic);
     position: relative;
-    
+
     /* seamless-field provides background, border, and radius */
   }
 

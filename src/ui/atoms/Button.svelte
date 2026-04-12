@@ -40,9 +40,9 @@
 
 <button
   bind:this={element}
-  class="button button-{variant} {size === 'sm' ? 'button-sm' : ''} {square ? 'button-square' : ''} {fullWidth
-    ? 'button-full'
-    : ''} {className}"
+  class="button button-{variant} {size === 'sm' ? 'button-sm' : ''} {square
+    ? 'button-square'
+    : ''} {fullWidth ? 'button-full' : ''} {className}"
   {...restProps}
   {onclick}
   use:applyActions={restProps.actions || []}

@@ -35,11 +35,7 @@
   data-testid="storyboard-card"
 >
   {#if is_empty}
-    <Button
-      variant="overlay"
-      onclick={on_select}
-      aria-label="Select {role_label}"
-    >
+    <Button variant="overlay" onclick={on_select} aria-label="Select {role_label}">
       <div class="empty-content">
         <div class="empty-icon-wrap">
           {#if type === "fractal"}
@@ -71,11 +67,7 @@
       </div>
 
       <!-- Action Layer (Top-level Pointer Target) -->
-      <Button
-        variant="overlay"
-        onclick={on_select}
-        aria-label="Change {role_label}"
-      >
+      <Button variant="overlay" onclick={on_select} aria-label="Change {role_label}">
         <div class="visual-anchor">
           <ProfilePicture {entity} />
         </div>

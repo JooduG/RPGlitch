@@ -5,9 +5,14 @@
  * importing scripts require no 'as any' casts or 'unknown' annotations.
  */
 
-import { SwarmTask, SwarmError, DispatchResult, DispatchOptions, InputTask, StreamHandlers } from "./swarm-types.js";
-
-
+import {
+  SwarmTask,
+  SwarmError,
+  DispatchResult,
+  DispatchOptions,
+  InputTask,
+  StreamHandlers,
+} from "./swarm-types.js";
 
 export declare class SwarmEngine {
   get tasks(): SwarmTask[];
@@ -18,7 +23,10 @@ export declare class SwarmEngine {
   get is_complete(): boolean;
   get confidence_score(): number;
 
-  dispatch_manifest(manifest: (SwarmTask | InputTask)[], options?: DispatchOptions): Promise<DispatchResult>;
+  dispatch_manifest(
+    manifest: (SwarmTask | InputTask)[],
+    options?: DispatchOptions,
+  ): Promise<DispatchResult>;
   parse_markdown_manifest(content: string): Promise<SwarmTask[]>;
   query(queryObj: Record<string, unknown>): Promise<unknown[]>;
   logStream(session: any, handlers?: StreamHandlers): Promise<void>;

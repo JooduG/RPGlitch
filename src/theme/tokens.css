@@ -117,7 +117,9 @@
   --field-background-idle: var(--glass-xs);
   --field-background-hover: var(--glass-s);
   --field-border-idle: var(--glass-edge-l);
-  --field-border-hover: var(--field-border-idle); /* Default to idle unless specifically needed, using edge-xl for interactive hover */
+  --field-border-hover: var(
+    --field-border-idle
+  ); /* Default to idle unless specifically needed, using edge-xl for interactive hover */
   --field-border-active: var(--glass-edge-xl);
 
   /* Blurs & Frosting */
@@ -163,7 +165,6 @@
   --font-size-xxxxl: 2.25rem;
   --font-size-xxxxxl: 3.5rem;
   --field-placeholder-color: rgb(var(--color-white-rgb) / var(--opacity-s));
-
 
   /* Line Heights */
   --line-height-s: 1.2;

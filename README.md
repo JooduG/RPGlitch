@@ -117,12 +117,12 @@ RPGlitch utilizes an agentic "Swarm" to handle complex, multi-file features in p
 
 ### 🛠️ Command Reference
 
-| Command | Purpose |
-|---------|---------|
-| `npm run swarm:analyze` | Triage issues and identify parallel opportunities. |
-| `npm run swarm:plan` | Create the execution blueprint and assign agent roles. |
-| `npm run swarm:dispatch` | Spin up the parallel agent fleet. |
-| `npm run swarm:merge` | Consolidate output and perform the 80% Gate audit. |
+| Command                  | Purpose                                                |
+| ------------------------ | ------------------------------------------------------ |
+| `npm run swarm:analyze`  | Triage issues and identify parallel opportunities.     |
+| `npm run swarm:plan`     | Create the execution blueprint and assign agent roles. |
+| `npm run swarm:dispatch` | Spin up the parallel agent fleet.                      |
+| `npm run swarm:merge`    | Consolidate output and perform the 80% Gate audit.     |
 
 > [!TIP]
 > For a detailed walkthrough of manual swarm coordination, see the **[/07-swarm](.agent/workflows/07-swarm.md)** workflow.

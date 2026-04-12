@@ -45,11 +45,11 @@ skills/stitch
 
 ## ⚖️ Common Rationalizations
 
-| Excuse | Counter-Measure |
-| :--- | :--- |
-| "I'll just update the component and skip `DESIGN.md`." | "`DESIGN.md` is the source of truth. Always update the spec first." |
-| "The Stitch metadata doesn't need to match our local state." | "Synchronization is safety. Maintain perfect parity." |
-| "This small tweak doesn't need a technically precise description." | "Precision in the spec ensures reliability in the MCP Weaver." |
+| Excuse                                                             | Counter-Measure                                                     |
+| :----------------------------------------------------------------- | :------------------------------------------------------------------ |
+| "I'll just update the component and skip `DESIGN.md`."             | "`DESIGN.md` is the source of truth. Always update the spec first." |
+| "The Stitch metadata doesn't need to match our local state."       | "Synchronization is safety. Maintain perfect parity."               |
+| "This small tweak doesn't need a technically precise description." | "Precision in the spec ensures reliability in the MCP Weaver."      |
 
 ## ✅ Verification
 

@@ -3,24 +3,31 @@
 > **Sovereign Directive**: I am the anchor for all project intelligence existing exclusively in the Pinecone vector space. This manifest tracks our long-term memory state to prevent cognitive redundancy and ensure historical continuity.
 
 ## 📁 Namespace: `knowledge-base.external`
-*Technical specifications and community-proven patterns.*
+
+_Technical specifications and community-proven patterns._
 
 ### 1. Svelte 5 Sovereignty
+
 - **Content**: Official Svelte 5 logic (Runes, State, Migration).
 - **Source**: Svelte 5 Stable Documentation.
 - **Status**: [INGESTED]
 
 ### 2. Library Intelligence
+
 - **Content**: Best practices for core dependencies (Bits UI, Dexie.js).
 - **Status**: [INGESTED]
+
 ## 📁 Namespace: `knowledge-base.meta`
-*The agentic constitution and behavioral directives.*
+
+_The agentic constitution and behavioral directives._
 
 ### 1. Project Blueprint
+
 - **Content**: Macro-architectural mapping of RPGlitch (Core, UI, Data, Intelligence layers).
 - **Status**: [INGESTED]
 
 ### 2. Behavioral References
+
 - **Content**: Prompting Matrix, Warden Security SOPs, and Trace Guidelines.
 - **Status**: [PENDING INGESTION]
 

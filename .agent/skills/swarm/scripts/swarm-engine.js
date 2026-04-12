@@ -43,7 +43,10 @@ if (typeof globalThis.$state === "undefined") {
   _effect.pre = (fn) => {};
   _effect.pending = () => false;
   _effect.tracking = () => false;
-  _effect.root = (fn) => { fn(); return () => {}; };
+  _effect.root = (fn) => {
+    fn();
+    return () => {};
+  };
   globalThis.$effect = _effect;
 }
 const { llm_service } = await import("../../../../src/core/intelligence/llm-service.js");
@@ -162,21 +165,25 @@ export class SwarmEngine {
 
     // 2. Main Orchestration Loop via Jules SDK
     try {
-      const sessions = await jules_client.all(queue, (task) => {
-        task.status = "executing";
-        this.#active_agent_count++;
-        return {
-          prompt: `${git_context}\n\n[TASK_INSTRUCTIONS]\n${task.instructions || task.prompt}`,
-          files: task.target_files || task.files,
-          source: {
-            github: options.repo_full_name || repo_name,
-            baseBranch: options.base_branch || "main",
-          },
-        };
-      }, {
-        concurrency: options.max_concurrency || 3,
-        delayMs: options.delay_ms || 1000,
-      });
+      const sessions = await jules_client.all(
+        queue,
+        (task) => {
+          task.status = "executing";
+          this.#active_agent_count++;
+          return {
+            prompt: `${git_context}\n\n[TASK_INSTRUCTIONS]\n${task.instructions || task.prompt}`,
+            files: task.target_files || task.files,
+            source: {
+              github: options.repo_full_name || repo_name,
+              baseBranch: options.base_branch || "main",
+            },
+          };
+        },
+        {
+          concurrency: options.max_concurrency || 3,
+          delayMs: options.delay_ms || 1000,
+        },
+      );
 
       for await (const session of sessions) {
         if (options.stop_on_error && this.#errors.length > 0) break;
@@ -192,7 +199,8 @@ export class SwarmEngine {
           task.status = "verifying";
           // Serialize the outcome for the 80% Gate verifier
           const output_data = outcome.outputs !== undefined ? outcome.outputs : outcome;
-          const output = typeof output_data === 'string' ? output_data : JSON.stringify(output_data);
+          const output =
+            typeof output_data === "string" ? output_data : JSON.stringify(output_data);
           const verification = await this.#verify_task(task.instructions || task.prompt, output);
           task.score = verification.score;
           task.rationale = verification.rationale;
@@ -215,8 +223,6 @@ export class SwarmEngine {
       results: this.#tasks,
     };
   }
-
-
 
   /**
    * INTERNAL: 80% Gate verification.
@@ -305,7 +311,7 @@ export class SwarmEngine {
   /**
    * THE ECHO DSL (Query)
    * Wraps jules.select() to expose SQL-like querying for the engine.
-   * @param {import("@google/jules-sdk").JulesQuery} queryObj 
+   * @param {import("@google/jules-sdk").JulesQuery} queryObj
    */
   async query(queryObj) {
     try {

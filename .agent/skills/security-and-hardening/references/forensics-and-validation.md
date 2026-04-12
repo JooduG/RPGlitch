@@ -25,11 +25,11 @@ Bugs often manifest deep in the call stack—a state mutation triggered by an em
 
 ### Diagnostics Toolbox
 
-| Method             | Procedure                                                               | Trigger                              |
-| :----------------- | :---------------------------------------------------------------------- | :----------------------------------- |
-| **Binary Search**  | Comment out 50% of the logic to isolate the failure region.               | Unclear location of failure.         |
-| **Rubber Ducking** | Explain the code line-by-line to the user or yourself.                    | Logic seems correct but fails.       |
-| **Clear Thought**  | Use `waldzell-clear-thought` to map findings formally before editing.   | Complex, multi-file logic errors.    |
+| Method             | Procedure                                                             | Trigger                           |
+| :----------------- | :-------------------------------------------------------------------- | :-------------------------------- |
+| **Binary Search**  | Comment out 50% of the logic to isolate the failure region.           | Unclear location of failure.      |
+| **Rubber Ducking** | Explain the code line-by-line to the user or yourself.                | Logic seems correct but fails.    |
+| **Clear Thought**  | Use `waldzell-clear-thought` to map findings formally before editing. | Complex, multi-file logic errors. |
 
 ---
 
@@ -38,16 +38,20 @@ Bugs often manifest deep in the call stack—a state mutation triggered by an em
 Validating at a single point is insufficient. We apply 'Defense-in-Depth' to ensure that if Layer 1 fails, Layer 2 catches it.
 
 ### Layer 1: Boundary Enforcement (Entry)
+
 Reject obviously invalid input at the API, Component, or Method entry point using strict typing and schema validation (Zod).
 
 ### Layer 2: Business Logic Validation (Core)
+
 Ensure the data logically makes sense for the specific operation. Even if it's a valid string, does it violate simulation physics (e.g., a character trying to move through a locked state)?
 
 ### Layer 3: Environment Guard (System)
+
 Prevent dangerous operations in specific contexts. In RPGlitch, this means ensuring that state mutations cannot occur if the `ui_locked` rune is active during a System Turn.
 
 ### Layer 4: Debug Instrumentation (Forensics)
-Capture deep context for forensics. Log stack traces and state snapshots *before* high-risk operations so failures can be replayed.
+
+Capture deep context for forensics. Log stack traces and state snapshots _before_ high-risk operations so failures can be replayed.
 
 ---
 
@@ -87,7 +91,7 @@ const SanitizedUpdate = (raw) => {
   return {
     name: DOMPurify.sanitize(raw.name),
     stress: Math.max(0, Math.min(1, raw.stress)), // Bound to 0-1 range
-    timestamp: Date.now()
+    timestamp: Date.now(),
   };
 };
 

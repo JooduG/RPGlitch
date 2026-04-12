@@ -32,14 +32,17 @@ Build production-quality user interfaces that are accessible, performant, and vi
 ## Core Process
 
 ### Phase 1: Structural Scaffolding
+
 1. **Choose Composition**: Prioritize snippets (`{@render ...}`) over configuration flags to keep components flexible.
 2. **Draft Semantic HTML**: Use appropriate tags (`<main>`, `<nav>`, `<article>`) to ensure a solid structural foundation.
 
 ### Phase 2: Behavioral Implementation
+
 1. **Manage State**: Choose the simplest Rune approach that works. Avoid prop drilling deeper than 3 levels.
 2. **Focus Management**: Move focus logically when content changes; ensure keyboard accessibility is baked in.
 
 ### Phase 3: Performance & Polish
+
 1. **Responsive Audit**: Test layout at 320px, 768px, 1024px, and 1440px.
 2. **Constraint Check**: Ensure no inline styles or arbitrary pixel values are used.
 

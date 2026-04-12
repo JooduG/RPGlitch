@@ -47,11 +47,11 @@ skills/simulation/
 
 ## ⚖️ Common Rationalizations
 
-| Excuse | Counter-Measure |
-| :--- | :--- |
-| "I'll just mutate the state directly for this edge case." | "State mutations MUST pass through the System Turn boundary." |
+| Excuse                                                        | Counter-Measure                                                    |
+| :------------------------------------------------------------ | :----------------------------------------------------------------- |
+| "I'll just mutate the state directly for this edge case."     | "State mutations MUST pass through the System Turn boundary."      |
 | "The AI character needs to know the player's inner thoughts." | "Maintain strict third-person limited integrity. No mind-reading." |
-| "The Echo doesn't need to be updated for every minor tick." | "Memory is state. Continuity is forged in the Echo." |
+| "The Echo doesn't need to be updated for every minor tick."   | "Memory is state. Continuity is forged in the Echo."               |
 
 ## ✅ Verification
 

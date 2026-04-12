@@ -55,11 +55,11 @@ skills/audio/SKILL.md
 
 ## ⚖️ Common Rationalizations
 
-| Excuse | Counter-Measure |
-| :--- | :--- |
-| "The user won't notice a slight audio delay." | "Latency kills immersion. Optimize for immediate feedback." |
-| "I'll just trigger it on page load; it's fine." | "Autoplay safety is a hard browser constraint. Use gestures." |
-| "TTS doesn't need sanitization for internal strings." | "Injection is possible in many layers. Always sanitize." |
+| Excuse                                                | Counter-Measure                                               |
+| :---------------------------------------------------- | :------------------------------------------------------------ |
+| "The user won't notice a slight audio delay."         | "Latency kills immersion. Optimize for immediate feedback."   |
+| "I'll just trigger it on page load; it's fine."       | "Autoplay safety is a hard browser constraint. Use gestures." |
+| "TTS doesn't need sanitization for internal strings." | "Injection is possible in many layers. Always sanitize."      |
 
 ## ✅ Verification
 

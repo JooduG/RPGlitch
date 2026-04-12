@@ -3,7 +3,8 @@
 As the engine's heartbeat, the **simulation** skill maintains the overarching topological map of our reality. The engine is divided into four sovereign layers, each with specific interfaces for state and interaction.
 
 ## ⚙️ Core Engine (`src/core/engine`)
-*The physical laws and chronos of the simulation.*
+
+_The physical laws and chronos of the simulation._
 
 - **Bootstrap**: Engine initialization lifecycle and global state orchestration.
 - **Chrono**: Temporal tracking and reactive cycles via Svelte 5 Runes.
@@ -11,7 +12,8 @@ As the engine's heartbeat, the **simulation** skill maintains the overarching to
 - **Text Parser**: The diegetic bridge for translating narrative into command state.
 
 ## 💾 Data Layer (`src/data`)
-*The permanent record and local persistence.*
+
+_The permanent record and local persistence._
 
 - **Persistence**: `Dexie.js` implementation for local-first IndexedDB storage.
 - **Normaliser**: Data sanitization and consistency enforcement for cross-source inputs.
@@ -19,14 +21,16 @@ As the engine's heartbeat, the **simulation** skill maintains the overarching to
 - **Bridge**: The IPC layer mediating between the UI and the persistence layer.
 
 ## 💎 UI Layer (`src/ui`)
-*The sensory expression and the Atomic UI.*
+
+_The sensory expression and the Atomic UI._
 
 - **Atomic Design**: Structural hierarchy (Atoms → Molecules → Organisms).
 - **Headless SDKs**: Integrated `Bits UI` for accessible interaction primitives.
 - **Reactivity Model**: Pure Svelte 5 Runes (`$state`, `$derived`, `$effect`) for all presentation logic.
 
 ## 📡 Intelligence Layer (`src/core/intelligence`)
-*The neural drivers and context management.*
+
+_The neural drivers and context management._
 
 - **Agent Integration**: Communication with external AI models and the Swarm/Jules SDK.
 - **Context Management**: Coordination of the "Living Memory" (Pinecone) and the "Echo" for diegetic continuity.
