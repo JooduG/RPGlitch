@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parse_scene_header, clean_image_prompts, escapeXml } from "./text-parser.js";
+import { parse_scene_header, clean_image_prompts, escapeXml, strip_cognition_blocks } from "./text-parser.js";
 
 describe("clean_image_prompts", () => {
   const testCases = [
@@ -100,6 +100,28 @@ describe("clean_image_prompts", () => {
   ];
   it.each(testCases)("should handle $description", ({ input, expected }) => {
     expect(clean_image_prompts(input)).toBe(expected);
+  });
+});
+
+describe("strip_cognition_blocks", () => {
+  it("should remove <think> blocks and optional trailing newlines", () => {
+    const text = "<think>Some thought process</think>\nThe actual content";
+    expect(strip_cognition_blocks(text)).toBe("The actual content");
+  });
+
+  it("should handle multiline <think> blocks", () => {
+    const text = "<think>\nThinking about this...\nStill thinking...\n</think>\nThe actual content";
+    expect(strip_cognition_blocks(text)).toBe("The actual content");
+  });
+
+  it("should handle missing text", () => {
+    expect(strip_cognition_blocks("")).toBe("");
+    expect(strip_cognition_blocks(null)).toBe("");
+  });
+
+  it("should remove multiple <think> blocks", () => {
+    const text = "<think>thought 1</think>\ntext 1<think>thought 2</think>text 2";
+    expect(strip_cognition_blocks(text)).toBe("text 1text 2");
   });
 });
 
