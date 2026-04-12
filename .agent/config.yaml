@@ -23,7 +23,6 @@ skills:
   incremental-implementation: .agent/skills/incremental-implementation/SKILL.md
   javascript: .agent/skills/javascript/SKILL.md
   motion: .agent/skills/motion/SKILL.md
-  orchestration: .agent/skills/orchestration/SKILL.md
   performance-optimization: .agent/skills/performance-optimization/SKILL.md
   planning-and-task-breakdown: .agent/skills/planning-and-task-breakdown/SKILL.md
   security-and-hardening: .agent/skills/security-and-hardening/SKILL.md

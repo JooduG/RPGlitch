@@ -95,7 +95,7 @@
     }
   },
   "scripts": {
-    "audit": "node .agent/skills/orchestration/scripts/summarize.js audit:check audit:css audit:security audit:agent audit:svelte audit:todo audit:project audit:nomenclature --force",
+    "audit": "node .agent/skills/using-agent-skills/scripts/summarize.js audit:check audit:css audit:security audit:agent audit:svelte audit:todo audit:project audit:nomenclature --force",
     "audit:agent": "npm-run-all audit:skills audit:rules audit:workflows",
     "audit:check": "node .agent/skills/security-and-hardening/scripts/audit.js",
     "audit:css": "stylelint \"src/**/*.{css,svelte,scss}\"",
@@ -108,11 +108,11 @@
     "audit:todo": "node .agent/skills/directives/scripts/audit-workflows.js",
     "audit:workflows": "node .agent/skills/directives/scripts/audit-workflows.js",
     "build": "vite build",
-    "check": "node .agent/skills/orchestration/scripts/summarize.js audit:check lint test",
-    "clean": "node .agent/skills/orchestration/scripts/summarize.js audit:security lint audit:project",
+    "check": "node .agent/skills/using-agent-skills/scripts/summarize.js audit:check lint test",
+    "clean": "node .agent/skills/using-agent-skills/scripts/summarize.js audit:security lint audit:project",
     "deploy": "npm run deploy:prepare && npm run deploy:auto",
     "deploy:auto": "node .agent/skills/shipping-and-launch/scripts/deploy-perchance.js",
-    "deploy:prepare": "node .agent/skills/orchestration/scripts/summarize.js format sync lint:fix audit test build",
+    "deploy:prepare": "node .agent/skills/using-agent-skills/scripts/summarize.js format sync lint:fix audit test build",
     "dev": "vite",
     "forge:skill": "node .agent/skills/directives/scripts/forge-skill.js",
     "forge:svelte": "node .agent/skills/svelte/scripts/forge-svelte.js",
@@ -122,7 +122,7 @@
     "knowledge:archive": "node .agent/skills/data/scripts/knowledge.js archive",
     "knowledge:select": "node .agent/skills/data/scripts/knowledge.js select",
     "knowledge:upsert": "node .agent/skills/data/scripts/knowledge.js upsert",
-    "lint": "node .agent/skills/orchestration/scripts/summarize.js lint:js lint:css lint:md",
+    "lint": "node .agent/skills/using-agent-skills/scripts/summarize.js lint:js lint:css lint:md",
     "lint:css": "stylelint \"src/**/*.{css,svelte,scss}\"",
     "lint:css:fix": "stylelint \"src/**/*.{css,svelte,scss}\" --fix",
     "lint:fix": "npm-run-all lint:js:fix lint:css:fix lint:md:fix",
@@ -135,12 +135,12 @@
     "swarm:dispatch": "node --import tsx .agent/skills/swarm/scripts/automation/swarm-dispatch.ts",
     "swarm:merge": "node --import tsx .agent/skills/swarm/scripts/automation/swarm-merge.ts",
     "swarm:plan": "node --import tsx .agent/skills/swarm/scripts/automation/swarm-plan.ts",
-    "sync": "node .agent/skills/orchestration/scripts/sync.js",
-    "test": "node .agent/skills/orchestration/scripts/summarize.js test:unit test:e2e",
+    "sync": "node .agent/skills/using-agent-skills/scripts/sync.js",
+    "test": "node .agent/skills/using-agent-skills/scripts/summarize.js test:unit test:e2e",
     "test:e2e": "echo 'No E2E tests found in root. Skipping Playwright check.'",
     "test:ui": "vitest --ui",
     "test:unit": "vitest run",
-    "verify": "node .agent/skills/orchestration/scripts/summarize.js lint audit test"
+    "verify": "node .agent/skills/using-agent-skills/scripts/summarize.js lint audit test"
   },
   "type": "module",
   "version": "1.0.0"

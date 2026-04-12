@@ -24,7 +24,7 @@ User preferences.
 
 ### 1.5 Intent Decoding
 
-Is the user's intent completely clear? If not, _Halt_ execution and invoke the [idea-refine](./.agent/skills/idea-refine/SKILL.md) skill (for conceptual ambiguity) or [Orchestration Skill](./.agent/skills/orchestration/SKILL.md) (for tactical ambiguity) to resolve intent before proceeding.
+Is the user's intent completely clear? If not, _Halt_ execution and invoke the [idea-refine](./.agent/skills/idea-refine/SKILL.md) skill (for conceptual ambiguity) or the [Master Dispatcher](./.agent/skills/using-agent-skills/SKILL.md) (for tactical ambiguity) to resolve intent before proceeding.
 
 ## 🧠 2. Hypothesis Generation & Triage
 
@@ -36,7 +36,7 @@ Rank your hypotheses by likelihood. **Do not** discard outliers prematurely.
 
 ### 2.2 Complexity Triage
 
-Perform Complexity Triage via the [Orchestration](./.agent/skills/orchestration/SKILL.md) skill and map the task to a complexity level to determine the active role and thinking approach.
+Perform Complexity Triage via the [Master Dispatcher](./.agent/skills/using-agent-skills/SKILL.md) and map the task to a complexity level to determine the active role and thinking approach.
 
 - **Level 1** _Code Building_: ⚒️ **Operations** Role -> ⚡ -> _[/build](./.agent/workflows/build.md)_.
 - **Level 2** _Concrete Planning_: 🎨 **Tactics** Role -> 🧠 _[/plan](./.agent/workflows/plan.md)_ -> **Level**1.
@@ -44,7 +44,7 @@ Perform Complexity Triage via the [Orchestration](./.agent/skills/orchestration/
 
 ### 2.3 Risk & Level Mapping
 
-Map the risk tier based on your most severe likely hypothesis. Level 3 tasks REQUIRE transition to the **Strategy** role to resolve ambiguity using the [Orchestration](./.agent/skills/orchestration/SKILL.md) skill.
+Map the risk tier based on your most severe likely hypothesis. Level 3 tasks REQUIRE transition to the **Strategy** role to resolve ambiguity using the [Master Dispatcher](./.agent/skills/using-agent-skills/SKILL.md).
 
 - **Low Risk (Level 1)**: Typos, CSS tweaks, minor logic. 
 - **Medium Risk (Level 2)**: Refactors, state migrations, features.

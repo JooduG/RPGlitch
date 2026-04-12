@@ -71,25 +71,9 @@ To prevent cognitive drift, nomenclature is absolute.
 
 ### 4. Complexity & Workflow Routing
 
-To optimize cognitive load, tasks are triaged into three complexity levels, each triggering the appropriate **Role** and **Master Workflow** sequence.
+See the authoritative triage table in **[using-agent-skills §Complexity Triage](../skills/using-agent-skills/SKILL.md)**.
 
-#### **Level 1: Quick Fix (⚒️ Operations)**
-
-- **Scope**: Typos, CSS tweaks, minor logic, or single-file edits.
-- **Workflow**: ⚡ **[/test](../workflows/test.md)** -> **[/build](../workflows/build.md)**. Direct implementation and cleanup.
-- **Skill**: `orchestration`.
-
-#### **Level 2: Enhancement (🎨 Tactics)**
-
-- **Scope**: New features, refactors, or multi-file logic changes.
-- **Workflow**: 🧠 **[/plan](../workflows/plan.md)** -> **[/build](../workflows/build.md)**. Technical scoping and incremental delivery.
-- **Skill**: `orchestration`.
-
-#### **Level 3: Complex Feature (🎭 Strategy)**
-
-- **Scope**: Major architectural changes or high ambiguity.
-- **Workflow**: 🤔 **[/spec](../workflows/spec.md)** -> **[/plan](../workflows/plan.md)** -> **[/build](../workflows/build.md)**. Direct feature incubation.
-- **Skill**: `orchestration`.
+All complexity routing (Level 1/2/3 → Role → Workflow) is defined there. `GEMINI.md` and this rule defer to it as the single source of truth.
 
 ---
 
@@ -149,20 +133,40 @@ Agents MUST utilize the dual-layer memory system via the [Data](../skills/data/S
 
 ---
 
-Every turn response must conclude with this metadata block to log operational weights. Include the active Role and Thinking Approach emojis.
+### 8. Turn Signal & Skill Log Protocol
+
+Operational metadata is emitted at two layers:
+
+#### Turn Signal (inline — end of every response)
+
+A single lean line emitted at the end of each response. No tables, no lists.
+
+```
+> [Role emoji] [Role] | `[active-skill]` | [/workflow]
+```
+
+**Examples:**
+```
+> ⚒️ Operations | `incremental-implementation` | /build
+> 🎨 Tactics | `planning-and-task-breakdown` | /plan
+> 🎭 Strategy | `spec-driven-development` | /spec
+```
 
 > [!TIP]
-> **Brevity Mandate**:
->
-> 1. If a **Skill** is the active **Role**, do not repeat the skill name in the `Skills` line.
-> 2. Use simple names or slash commands for Rules, Skills, and Workflows (e.g., `05-intelligence`, `00-boot`, `security-and-hardening`) rather than full file paths.
+> Omit the workflow if none is active (e.g., analysis-only turns).
 
-```text
-### 🕹️ Operational Heartbeat
--   **🎭   Role**: [Strategy 🤔 | Tactics 🧠 | Operations ⚡]
--   **📡   MCPs**: [Specific MCP called]
--   **🛠️  Tools**: [Specific tool used]
--   **📜  Rules**: [Rule Name]
--   **🧠 Skills**: [Skill Name]
-- **🛤️ Workflow**: [/Workflow]
+#### Skill Log (persistent — `tasks/todo.md`)
+
+A durable table updated whenever a skill is invoked or a task transitions state. This survives context drops and provides cross-session forensics.
+
+```markdown
+## 🧠 Skill Log
+| Timestamp (ISO 8601) | Task | Skill Invoked | Outcome |
+|----------------------|------|---------------|---------|
+| 2026-04-12T12:00+02:00 | Fix round counter race | debugging-and-error-recovery | ✅ Resolved |
 ```
+
+**Mandate**: Update the Skill Log in `tasks/todo.md`:
+- When a new skill is invoked (new row, `Outcome: 🔄 Active`).
+- When a task completes (update row, `Outcome: ✅ Done` or `❌ Failed`).
+- At session end, add a summary row if multiple skills were used.

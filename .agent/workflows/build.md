@@ -8,6 +8,16 @@ Invoke the [Incremental Implementation](../skills/incremental-implementation/SKI
 
 Pick the next pending task from the plan. For each task:
 
+0. **Skill Declaration** (required — see [using-agent-skills §Invocation Protocol](../skills/using-agent-skills/SKILL.md))
+
+   ```
+   SKILL:  [skill-name selected from the Master Dispatcher]
+   TASK:   [tasks/todo.md anchor | task description]
+   EXIT:   [specific, measurable verification criterion]
+   ```
+
+   Do not proceed to Step 1 until this anchor is declared.
+
 1. Read the task's acceptance criteria
 2. Load relevant context (existing code, patterns, types)
 3. Write a failing test for the expected behavior (RED)
@@ -15,6 +25,6 @@ Pick the next pending task from the plan. For each task:
 5. Run the full test suite to check for regressions
 6. Run the build to verify compilation
 7. Commit with a descriptive message
-8. Mark the task complete and move to the next one
+8. Mark the task complete, update the Skill Log in `tasks/todo.md`, and move to the next one
 
 If any step fails, follow the [Debugging & Error Recovery](../skills/debugging-and-error-recovery/SKILL.md) skill.

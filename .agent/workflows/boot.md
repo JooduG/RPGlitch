@@ -17,6 +17,7 @@ date_added: 2024-03-29
 
 - [Foundation](../rules/01-foundation.md) Rule
 - [Intelligence](../rules/05-intelligence.md) Rule
+- [Master Dispatcher](../skills/using-agent-skills/SKILL.md)
 - [Todo](../../tasks/todo.md)
 - [Plan](../../tasks/plan.md)
 
@@ -28,10 +29,14 @@ date_added: 2024-03-29
 
 ## Procedure
 
+### Phase 0: Router Load (Skill Activation)
+
+1. **Dispatcher Load**: Read the [[Master Dispatcher]](../skills/using-agent-skills/SKILL.md). This activates the skill routing map, complexity triage table, and behavioral laws for the session. Signal: "Skill Router loaded. Behavioral laws active."
+
 ### Phase 1: Context Mastery (The Awakening)
 
-1. **Mission Reconciler**: Reconcile the Mission Board and Log Book with the current repository state. This skill now internally recovers global architectural context from Pinecone. [[Invoke: orchestration]](../skills/orchestration/SKILL.md)
-2. **Registry Sync**: Identifies any active track `[/]` or pending tasks `[ ]`.
+1. **Mission Reconciler**: Reconcile the Mission Board and Log Book with the current repository state. Recover global architectural context from Pinecone via the [[Data]](../skills/data/SKILL.md) skill.
+2. **Registry Sync**: Identify any active track `[/]` or pending tasks `[ ]`. Update the Skill Log in `tasks/todo.md`.
 
 ### Phase 2: Quality Gate (The Resonance)
 

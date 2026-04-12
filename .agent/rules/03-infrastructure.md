@@ -30,7 +30,7 @@ The project follows a sovereign modular structure to ensure local-first resilien
   - [UI](../../src/ui/): Atomic Design (Svelte 5 components).
   - [Media](../../src/media/): Internal Sensory Assets ([Visuals](../skills/image-generation/), [Audio](../skills/audio/)).
 - [Skills](../skills/) for infrastructural expertise:
-  - [Orchestration](../skills/orchestration/): Intent Decoding & Feature Incubation.
+  - [Skill Router](../skills/using-agent-skills/): Intent Decoding, Complexity Triage & Skill Selection.
   - [Simulation](../skills/simulation/): Narrative Bridges & Game Logic.
   - [Security & Hardening](../skills/security-and-hardening/): Adversarial Audit & Security.
 

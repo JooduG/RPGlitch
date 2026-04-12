@@ -1,13 +1,15 @@
 ---
 name: using-agent-skills
-description: Discovers and invokes agent skills. Use when starting a session or when you need to discover which skill applies to the current task. This is the meta-skill that governs how all other skills are discovered and invoked.
+description: The Master Dispatcher. Governs skill discovery, complexity triage, and invocation protocol for all agent operations. Single authoritative routing surface — supersedes the deprecated orchestration skill.
 ---
 
 # Using Agent Skills
 
 ## Overview
 
-Agent Skills is a collection of engineering workflow skills organized by development phase. Each skill encodes a specific process that senior engineers follow. This meta-skill helps you discover and apply the right skill for your current task.
+Agent Skills is a collection of engineering workflow skills organized by development phase. Each skill encodes a specific process that senior engineers follow. This meta-skill is the **single authoritative router**: it maps tasks to skills, triages complexity to workflows, and enforces the behavioral laws that govern all skills.
+
+---
 
 ## Skill Discovery
 
@@ -61,9 +63,66 @@ Task arrives
     └── Shipping
         ├── Committing/branching? ──────────────→ git-workflow-and-versioning
         ├── CI/CD pipeline work? ───────────────→ ci-cd-and-automation
-        ├── Writing docs/ADRs? ────────────────→ documentation-and-adrs
-        └── Deploying/launching? ──────────────→ shipping-and-launch
+        ├── Writing docs/ADRs? ─────────────────→ documentation-and-adrs
+        └── Deploying/launching? ───────────────→ shipping-and-launch
 ```
+
+---
+
+## Complexity Triage
+
+Before selecting a skill, triage the complexity level to determine the active Role and master workflow. This is the **authoritative complexity table** — `GEMINI.md` and `05-intelligence.md` defer here.
+
+### Level 1: Quick Fix (⚒️ Operations)
+
+- **Scope**: Typos, CSS tweaks, minor logic, single-file edits.
+- **Workflow**: ⚡ `/test` → `/build`. Direct implementation and cleanup.
+- **Quality Gate**: Binary proof — passing test or verified build output.
+
+### Level 2: Enhancement (🎨 Tactics)
+
+- **Scope**: New features, refactors, multi-file logic changes.
+- **Workflow**: 🧠 `/plan` → `/build`. Technical scoping and incremental delivery.
+- **Quality Gate**: `tasks/plan.md` initialized; all acceptance criteria met.
+
+### Level 3: Complex Feature (🎭 Strategy)
+
+- **Scope**: Architectural changes, new core systems, high ambiguity.
+- **Workflow**: 🤔 `/spec` → `/plan` → `/build`. Full design-to-delivery transformation.
+- **Quality Gate**: `SPEC.md` authored; all tracks verified in `tasks/todo.md`.
+
+#### Universal Quality Gate
+
+These apply at every level:
+
+- [ ] **State Sync**: `tasks/todo.md` Skill Log updated at the start and end of every turn.
+- [ ] **Technical Purity**: Zero framework leakage (React/SQL/Prisma) in new code.
+- [ ] **Nordic Integrity**: All UI modifications honor the tokens in `tokens.css`.
+- [ ] **Verified Success**: Every mission concludes with proof of verification (test output, build log, or runtime data).
+
+---
+
+## Skill Invocation Protocol
+
+Every skill invocation must declare its anchor **before** work begins. This closes the loop between skill selection and task tracking.
+
+```
+SKILL:  [skill-name]
+TASK:   [tasks/todo.md anchor | task description]
+EXIT:   [specific, measurable verification criterion]
+```
+
+**Example:**
+
+```
+SKILL:  debugging-and-error-recovery
+TASK:   tasks/todo.md → "Fix round counter race condition"
+EXIT:   4 unit tests green; ReactiveSession.spec.js passes with no skips
+```
+
+A task is **not started** until the anchor is declared. A task is **not complete** until the EXIT criterion is provably satisfied.
+
+---
 
 ## Core Operating Behaviors
 
@@ -136,6 +195,8 @@ Your job is surgical precision, not unsolicited renovation.
 
 Every skill includes a verification step. A task is not complete until verification passes. "Seems right" is never sufficient — there must be evidence (passing tests, build output, runtime data).
 
+---
+
 ## Failure Modes to Avoid
 
 These are the subtle errors that look like productivity but create problems:
@@ -151,6 +212,8 @@ These are the subtle errors that look like productivity but create problems:
 9. Building without a spec because "it's obvious"
 10. Skipping verification because "it looks right"
 
+---
+
 ## Skill Rules
 
 1. **Check for an applicable skill before starting work.** Skills encode processes that prevent common mistakes.
@@ -160,6 +223,8 @@ These are the subtle errors that look like productivity but create problems:
 3. **Multiple skills can apply.** A feature implementation might involve `idea-refine` → `spec-driven-development` → `planning-and-task-breakdown` → `incremental-implementation` → `test-driven-development` → `code-review-and-quality` → `shipping-and-launch` in sequence.
 
 4. **When in doubt, start with a spec.** If the task is non-trivial and there's no spec, begin with `spec-driven-development`.
+
+---
 
 ## Lifecycle Sequence
 
@@ -180,6 +245,8 @@ For a complete feature, the typical skill sequence is:
 ```
 
 Not every task needs every skill. A bug fix might only need: `debugging-and-error-recovery` → `test-driven-development` → `code-review-and-quality`.
+
+---
 
 ## Quick Reference
 
