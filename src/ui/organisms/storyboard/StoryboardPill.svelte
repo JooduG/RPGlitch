@@ -125,7 +125,6 @@
 
   :global(.unified-capsule .capsule-action.button:disabled) {
     opacity: var(--opacity-s);
-    cursor: not-allowed;
   }
 
   /* Extra Label Polish */

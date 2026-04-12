@@ -204,7 +204,6 @@
   .button:disabled,
   .button.disabled {
     opacity: var(--opacity-s);
-    cursor: not-allowed;
     filter: grayscale(1);
     pointer-events: none;
     transform: none;

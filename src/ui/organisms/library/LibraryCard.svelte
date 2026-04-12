@@ -74,7 +74,6 @@
   .drawer-card.is-disabled {
     opacity: var(--opacity-m);
     filter: grayscale(1);
-    cursor: not-allowed;
     pointer-events: none;
   }
 

@@ -1,5 +1,6 @@
 <script>
   import { Audio } from "@media/audio.js";
+  import Slider from "@ui/atoms/Slider.svelte";
   let { char = $bindable(), is_editing } = $props();
   let show_voice_dropdown = $state(false);
   // Voice metadata
@@ -13,6 +14,19 @@
       .replace(/\s+-\s+English\s+\(.*\)/gi, "")
       .trim();
   }
+
+  // Synchronously ensure voice object and defaults exist
+  const ensure_voice = () => {
+    if (!char.voice) {
+      char.voice = { uri: "", rate: 1.0, pitch: 1.0 };
+    } else {
+      char.voice.rate ??= 1.0;
+      char.voice.pitch ??= 1.0;
+    }
+  };
+
+  ensure_voice();
+  $effect(ensure_voice);
 </script>
 
 <div
@@ -42,7 +56,7 @@
               class="voice-option"
               class:active={char.voice.uri === voice.uri}
               onclick={() => {
-                char.voice.uri = voice.uri;
+                if (is_editing) char.voice.uri = voice.uri;
                 show_voice_dropdown = false;
               }}
             >
@@ -56,7 +70,7 @@
         class="preview-button seamless-field"
         type="button"
         title="Preview Voice"
-        disabled={!is_editing || !char.voice.uri}
+        disabled={!selected_voice}
         onclick={() => Audio.voice.preview(char.voice.uri, char.voice.rate, char.voice.pitch)}
       >
         🔊
@@ -66,34 +80,22 @@
 
   <div class="wing-body">
     <div class="sliders">
-      <div class="slider-group" data-tooltip={`Rate: ${char.voice.rate.toFixed(1)}x`}>
-        <input
-          type="range"
-          min="0.5"
-          max="2.0"
-          step="0.1"
-          bind:value={char.voice.rate}
-          disabled={!is_editing}
-          title="Voice Rate (Speed)"
-        />
-      </div>
-      <div
-        class="slider-group"
-        class:locked={is_natural_voice}
-        data-tooltip={is_natural_voice
-          ? "Locked (Natural Voice)"
-          : `Pitch: ${char.voice.pitch.toFixed(1)}`}
-      >
-        <input
-          type="range"
-          min="0.5"
-          max="1.5"
-          step="0.1"
-          bind:value={char.voice.pitch}
-          disabled={!is_editing || is_natural_voice}
-          title="Voice Pitch"
-        />
-      </div>
+      <Slider
+        min={0.1}
+        max={2.0}
+        step={0.1}
+        bind:value={char.voice.rate}
+        disabled={!is_editing || !selected_voice}
+        label="Rate"
+      />
+      <Slider
+        min={0.1}
+        max={2.0}
+        step={0.1}
+        bind:value={char.voice.pitch}
+        disabled={!is_editing || !selected_voice || is_natural_voice}
+        label="Pitch"
+      />
     </div>
   </div>
 </div>
@@ -161,24 +163,24 @@
     font-size: var(--font-size-s);
     cursor: pointer;
     overflow: hidden;
+    background: var(--glass-xs);
+    border: var(--glass-edge-s);
+    border-radius: var(--border-radius-m);
+    transition: all var(--motion-fast) var(--motion-elastic);
+  }
 
-    /* foundation handled by .seamless-field */
+  .voice-button:hover:not(:disabled) {
+    background: var(--glass-s);
+    border-color: var(--glass-edge-m);
+    filter: var(--hover-brightness);
+  }
+
+  .voice-button:active:not(:disabled) {
+    transform: scale(var(--motion-click));
   }
 
   .voice-button:disabled {
     opacity: var(--opacity-m);
-    cursor: default;
-  }
-
-  /* hover handled by .seamless-field */
-
-  .voice-name-truncate {
-    display: block;
-    width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: center;
   }
 
   .preview-button {
@@ -191,19 +193,24 @@
     color: var(--font-color-m);
     cursor: pointer;
     font-size: var(--font-size-m);
+    background: var(--glass-xs);
+    border: var(--glass-edge-s);
+    border-radius: var(--border-radius-m);
+    transition: all var(--motion-fast) var(--motion-elastic);
+  }
 
-    /* foundation handled by .seamless-field */
+  .preview-button:hover:not(:disabled) {
+    background: var(--glass-s);
+    border-color: var(--glass-edge-m);
+    filter: var(--hover-brightness);
+  }
+
+  .preview-button:active:not(:disabled) {
+    transform: scale(var(--motion-click));
   }
 
   .preview-button:disabled {
     opacity: var(--opacity-s);
-    cursor: default;
-  }
-
-  /* hover handled by .seamless-field */
-
-  .preview-button:active:not(:disabled) {
-    transform: scale(0.95);
   }
 
   .dropdown-content {
@@ -285,66 +292,5 @@
     grid-template-columns: repeat(2, 1fr);
     gap: var(--spacing-xs);
     width: 100%;
-  }
-
-  .slider-group {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    position: relative;
-  }
-
-  .slider-group.locked {
-    opacity: var(--opacity-m);
-    cursor: not-allowed;
-  }
-
-  .slider-group input[type="range"] {
-    display: block;
-    width: calc(100% - var(--spacing-xxs));
-    margin: 0 auto;
-    height: var(--spacing-s);
-    background: transparent;
-    appearance: none;
-    outline: none;
-    border: none;
-    padding: 0;
-    overflow: visible;
-  }
-
-  .slider-group input[type="range"]::-webkit-slider-runnable-track {
-    width: 100%;
-    height: 0.25rem;
-    background: var(--glass-xs);
-    box-shadow: inset 0 1px 2px var(--color-black);
-    border-radius: var(--border-radius-full);
-    border: none;
-  }
-
-  .slider-group input[type="range"]::-webkit-slider-thumb {
-    appearance: none;
-    width: var(--spacing-s);
-    height: var(--spacing-s);
-    background: var(--color-frozen);
-    border-radius: var(--border-radius-full);
-    cursor: pointer;
-    box-shadow:
-      0 0 8px var(--color-frozen),
-      var(--shadow-s);
-    margin-top: -0.25rem; /* Centering on 0.25rem track */
-    border: none;
-    transition: transform var(--motion-fast) var(--motion-elastic);
-  }
-
-  .slider-group input[type="range"]:active::-webkit-slider-thumb {
-    transform: scale(1.2);
-  }
-
-  .slider-group input[type="range"]:disabled {
-    cursor: not-allowed;
-  }
-
-  .slider-group input[type="range"]:disabled::-webkit-slider-thumb {
-    display: none;
   }
 </style>

@@ -149,7 +149,6 @@
   /* 1. Icon Button States */
   .icon-button:disabled {
     opacity: var(--opacity-xxs);
-    cursor: not-allowed;
   }
 
   .icon-button:hover:not(:disabled) {
