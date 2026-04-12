@@ -50,7 +50,7 @@
             )}
           </span>
         </button>
-        <div class="dropdown-content glass-xxl" class:visible={show_voice_dropdown}>
+        <div class="dropdown-content glass-surface" class:visible={show_voice_dropdown}>
           {#each Audio.voice.voices as voice (voice.uri)}
             <button
               class="voice-option"

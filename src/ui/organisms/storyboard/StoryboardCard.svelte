@@ -204,7 +204,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--glass-xxl);
+    background: var(--glass-surface);
     border: var(--glass-edge-xl);
     backdrop-filter: var(--glass-blur-xl);
     border-radius: 50%;

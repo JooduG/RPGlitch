@@ -104,7 +104,7 @@
   /* ELEVATED: Raises above the background (l - xl) */
   --glass-l: rgb(var(--color-frozen-rgb) / var(--opacity-xxs));
   --glass-xl: rgb(var(--color-frozen-rgb) / var(--opacity-s)); /* Overlay layer: Floating */
-  --glass-xxl: rgb(var(--color-frisk-rgb) / var(--opacity-s)); /* Surface layer: Top-most focus */
+  --glass-surface: rgb(var(--color-frisk-rgb) / 30%); /* Surface layer: Top-most focus */
 
   /* The Specular Edge: For the borders of interactive atoms */
 
