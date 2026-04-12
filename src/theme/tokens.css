@@ -1,3 +1,5 @@
+/* stylelint-disable prettier/prettier */
+
 /* ============================================================================
 * ABSTRACT: DESIGN TOKENS (NORDIC REFAC V2)
 * Single Source of Truth. "The Nordic Collection"
@@ -102,9 +104,7 @@
   /* ELEVATED: Raises above the background (l - xl) */
   --glass-l: rgb(var(--color-frozen-rgb) / var(--opacity-xxs));
   --glass-xl: rgb(var(--color-frozen-rgb) / var(--opacity-s)); /* Overlay layer: Floating */
-  --glass-xxl: rgb(
-    var(--color-frisk-rgb) / var(--opacity-s)
-  ); /* Surface layer: Top-most focus */
+  --glass-xxl: rgb(var(--color-frisk-rgb) / var(--opacity-s)); /* Surface layer: Top-most focus */
 
   /* The Specular Edge: For the borders of interactive atoms */
 
@@ -112,6 +112,13 @@
   --glass-edge-m: 1px solid rgb(var(--color-frozen-rgb) / var(--opacity-xs));
   --glass-edge-l: 1px solid rgb(var(--color-frisk-rgb) / var(--opacity-xs));
   --glass-edge-xl: 1px solid rgb(var(--color-frisk-rgb) / var(--opacity-s));
+
+  /* Unified Field Foundation (Nordic Glass Standard) */
+  --field-background-idle: var(--glass-xs);
+  --field-background-hover: var(--glass-s);
+  --field-border-idle: var(--glass-edge-l);
+  --field-border-hover: var(--field-border-idle); /* Default to idle unless specifically needed, using edge-xl for interactive hover */
+  --field-border-active: var(--glass-edge-xl);
 
   /* Blurs & Frosting */
   --glass-blur-s: blur(4px);
@@ -155,6 +162,8 @@
   --font-size-xxxl: 1.875rem;
   --font-size-xxxxl: 2.25rem;
   --font-size-xxxxxl: 3.5rem;
+  --field-placeholder-color: rgb(var(--color-white-rgb) / var(--opacity-s));
+
 
   /* Line Heights */
   --line-height-s: 1.2;

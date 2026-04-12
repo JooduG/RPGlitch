@@ -215,7 +215,7 @@
     </div>
   </div>
   <div class="group">
-    <div class="prompt-box">
+    <div class="prompt-box seamless-field">
       <div class="visual-prompt-container">
         <textarea
           use:auto_resize
@@ -268,14 +268,14 @@
           disabled={!is_editing || is_prompt_busy}
         />
       </div>
-      <input
-        type="file"
-        accept="image/*"
-        style="display: none;"
-        bind:this={file_input}
-        onchange={handle_upload}
-      />
     </div>
+    <input
+      type="file"
+      accept="image/*"
+      style="display: none;"
+      bind:this={file_input}
+      onchange={handle_upload}
+    />
   </div>
   <div class="toggle-stack">
     <Toggle label="No Background" bind:value={char.visuals.noBackground} disabled={!is_editing} />
@@ -336,12 +336,10 @@
   }
 
   .prompt-box {
-    background: var(--glass-xs);
-    box-shadow:
-      inset 0 0 0 1px var(--glass-edge-l),
-      inset 0 0.125rem 0.25rem var(--glass-l);
-    border-radius: var(--border-radius-m);
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
+    border-radius: var(--border-radius-m);
   }
 
   .visual-prompt-container {
@@ -351,10 +349,10 @@
 
   .visual-prompt {
     width: 100%;
-    background: var(--glass-s);
+    background: transparent;
     border: none;
     color: var(--color-white);
-    padding: var(--spacing-s);
+    padding: var(--spacing-m);
     font-size: var(--font-size-s);
     font-family: var(--font-family-body);
     resize: none;
@@ -366,13 +364,6 @@
     opacity: var(--opacity-m);
     color: var(--font-color-s);
     cursor: not-allowed;
-    background: var(--glass-s);
-  }
-
-  .visual-prompt::placeholder {
-    color: var(--font-color-s);
-    font-style: italic;
-    font-weight: var(--font-weight-m);
   }
 
   .spinner-overlay {
@@ -407,7 +398,9 @@
   .action-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    box-shadow: inset 0 1px 0 var(--glass-edge-l);
+    border-top: 1px solid var(--glass-edge-l);
+    border-bottom-left-radius: inherit;
+    border-bottom-right-radius: inherit;
   }
 
   .toggle-stack {

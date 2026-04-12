@@ -23,7 +23,7 @@
 </script>
 
 <div class="vector-card" class:editing={is_editing} style="--accent-color: {signature_color}">
-  <div class="card-inner">
+  <div class="card-inner seamless-field">
     {#if is_editing}
       <div class="edit-area">
         <textarea
@@ -75,7 +75,7 @@
   }
 
   .vector-card:hover {
-    filter: brightness(1.1);
+    /* Standardized hover handled by .card-inner .seamless-field */
   }
 
   .vector-card.editing:hover {
@@ -83,13 +83,11 @@
   }
 
   .card-inner {
-    background: var(--glass-s);
-    box-shadow: var(--shadow-s);
-    border-radius: var(--border-radius-m);
     padding: var(--spacing-s) var(--spacing-m);
     position: relative;
     overflow: hidden;
-    transition: all var(--motion-fast) var(--motion-elastic);
+
+    /* transition and foundation handled by .seamless-field */
   }
 
   .display-area .content {
@@ -121,11 +119,6 @@
     width: 100%;
     outline: none;
     padding: 0;
-  }
-
-  .edit-area textarea::placeholder {
-    color: var(--font-color-s);
-    opacity: var(--opacity-m);
   }
 
   .edit-area .actions {

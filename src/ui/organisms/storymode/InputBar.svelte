@@ -42,7 +42,7 @@
   }
 </script>
 
-<div class="input-bar-unit" class:is-focused={is_focused} class:is-disabled={is_locked}>
+<div class="input-bar-unit seamless-field" class:is-focused={is_focused} class:is-disabled={is_locked}>
   <button
     class="icon-button settings-button"
     onclick={() => app.toggle_control_panel()}
@@ -88,25 +88,18 @@
     align-items: center;
     width: 100%;
     max-width: var(--max-width-text);
-    background: color-mix(
-      in srgb,
-      var(--signature-color, var(--color-gunmetal)) 15%,
-      var(--color-black)
-    );
-    border-radius: var(--border-radius-xl);
     padding: 0 var(--spacing-s);
     margin: var(--spacing-l);
     box-shadow: none;
     transition: all var(--motion-slow) var(--motion-elastic);
     position: relative;
+    
+    /* seamless-field provides background, border, and radius */
   }
 
+  /* .seamless-field:focus-within in global.css handles the core active state, 
+     but we maintain is-focused class for specific signature color logic */
   .input-bar-unit.is-focused {
-    background: color-mix(
-      in srgb,
-      var(--signature-color, var(--color-gunmetal)) 25%,
-      var(--color-black)
-    );
     box-shadow:
       inset 0 0 0 var(--spacing-px) var(--signature-color, transparent),
       0 0 0 var(--spacing-xxs)
@@ -132,10 +125,6 @@
     line-height: var(--line-height-m);
     max-height: 12.5rem; /* Standardized ~200px */
     overflow-y: hidden;
-  }
-
-  .input-area::placeholder {
-    color: var(--font-color-s);
   }
 
   .icon-button {

@@ -71,12 +71,12 @@
     text-align: left;
     border-radius: var(--border-radius-m);
     transition: background var(--motion-fast);
-    border: none;
     box-shadow: inset 0 0 0 1px transparent;
     min-height: 1.2em;
     line-height: var(--line-height-s);
     outline: none;
     background: transparent;
+    border: none;
   }
 
   .name.edit {
@@ -87,19 +87,11 @@
 
   .name.edit:hover,
   .name.edit:focus-within {
-    background: var(--glass-xs);
-    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
+    outline: none;
   }
 
   .name.edit span {
     outline: none;
-  }
-
-  .name.edit span:empty::before {
-    content: attr(data-placeholder);
-    opacity: var(--opacity-s);
-    font-style: italic;
-    font-weight: var(--font-weight-m);
   }
 
   .name:not(.edit) {
@@ -116,10 +108,9 @@
     min-height: 1.4em;
     transition: all var(--motion-fast);
     border-radius: var(--border-radius-m);
-    padding: var(--spacing-s);
+    padding: var(--spacing-s) var(--spacing-xs);
     margin: 0;
     border: none;
-    box-shadow: inset 0 0 0 1px transparent;
     background: transparent;
     resize: none;
     text-align: left;
@@ -143,8 +134,6 @@
 
   .description.edit:hover,
   .description.edit:focus {
-    background: var(--glass-xs);
-    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
     outline: none;
   }
 

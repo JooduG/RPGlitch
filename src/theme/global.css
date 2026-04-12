@@ -164,6 +164,56 @@ tfoot td {
 }
 
 /* ============================================================================
+   SEAMLESS FIELD SYSTEM
+   A unified foundation for Edit and Readonly states.
+   ============================================================================ */
+.seamless-field {
+  background: var(--field-background-idle);
+  border: var(--field-border-idle);
+  border-radius: var(--border-radius-m);
+  transition:
+    background var(--motion-fast, 0.2s) ease,
+    border var(--motion-fast, 0.2s) ease,
+    box-shadow var(--motion-fast, 0.2s) ease;
+}
+
+.seamless-field:hover:read-write {
+  background: var(--field-background-hover);
+  border: var(--field-border-hover);
+}
+
+/* Simulated Placeholder for contenteditable */
+[data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  color: var(--field-placeholder-color);
+  font-style: italic;
+  font-weight: var(--font-weight-m);
+  pointer-events: none;
+}
+
+/* Focused state applying the active border token */
+.seamless-field:focus,
+.seamless-field:focus-within {
+  background: var(--field-background-hover);
+  border: var(--field-border-active);
+  outline: none;
+}
+
+/* Readonly fields follow the hover foundation but remain non-focusable */
+[readonly].seamless-field {
+  cursor: default;
+}
+
+/* Standardized Input Placeholders */
+input::placeholder,
+textarea::placeholder {
+  color: var(--field-placeholder-color);
+  font-style: italic;
+  font-weight: var(--font-weight-m);
+  opacity: 1; /* Override browser defaults */
+}
+
+/* ============================================================================
    ACCESSIBILITY: FOCUS STATES
    ============================================================================ */
 :focus {

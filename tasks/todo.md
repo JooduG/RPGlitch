@@ -20,9 +20,11 @@
 
 ---
 
-## ⚔️ Active Missions
-
-### [026] Standardize Glass Infrastructure - [COMPLETED]
+### [035] Profile Field Aesthetic Standardization - [COMPLETED]
+- [x] Integrate `--field` tokens into `tokens.css`
+- [x] Implement `.seamless-field` foundation in `global.css`
+- [x] Applied unified standard to Header, Fragments, and Wings
+- [x] Verified interaction states across all Profile layers
 - [x] Update `tokens.css` with Frozen/Frisk hierarchy
 - [x] Standardize `LibraryDrawer` and `Wings`
 - [x] Sync `Modal` and `StoryboardCard` quick-links
@@ -46,6 +48,7 @@
 ---
 
 ## 🏁 Completed Missions (Recent)
+- **[035]** Profile Field Aesthetics: Standardized all text fields with Nordic Glass foundation.
 - **[023]** Nordic Glass Migration: Unified initial aesthetics for `LibraryCard` and `LibraryDrawer` (32% alpha base).
 - **[034]** Architectural Pivot: Unified Mission Command (Master Workflow Sync)
 - **[033]** StorymodeFeed Refactor (Rename from Prose)

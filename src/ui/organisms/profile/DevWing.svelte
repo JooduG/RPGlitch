@@ -57,7 +57,7 @@
   <div class="group dynamics-group">
     <div class="dynamics-grid">
       {#each active_dynamics as dynamic (dynamic.source + "-" + dynamic.key)}
-        <div class="dynamic-box" class:is-editing={is_editing}>
+        <div class="dynamic-box seamless-field" class:is-editing={is_editing}>
           <span class="dynamic-label" title={dynamic.desc}>{dynamic.label}</span>
           <div class="value-container">
             {#if is_editing}
@@ -148,24 +148,19 @@
   }
 
   .dynamic-box {
-    background: var(--glass-xs);
-    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
-    border-radius: var(--border-radius-m);
     padding: var(--spacing-s);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0;
-    transition: all var(--motion-fast);
     min-height: var(--spacing-xxl);
     overflow: hidden;
+
+    /* foundation handled by .seamless-field */
   }
 
-  .dynamic-box.is-editing:hover {
-    background: var(--glass-l);
-    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
-  }
+  /* hover and focus handled by .seamless-field */
 
   .dynamic-label {
     font-family: var(--font-header);

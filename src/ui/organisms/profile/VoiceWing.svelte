@@ -24,7 +24,7 @@
     <div class="voice-control-row">
       <div class="dropdown">
         <button
-          class="voice-button"
+          class="voice-button seamless-field"
           type="button"
           disabled={!is_editing}
           onclick={() => (show_voice_dropdown = !show_voice_dropdown)}
@@ -53,7 +53,7 @@
         </div>
       </div>
       <button
-        class="preview-button"
+        class="preview-button seamless-field"
         type="button"
         title="Preview Voice"
         disabled={!is_editing || !char.voice.uri}
@@ -153,9 +153,6 @@
   .voice-button {
     width: 100%;
     height: 2.5rem;
-    background: var(--glass-s);
-    border: var(--glass-edge-s);
-    border-radius: var(--border-radius-m);
     padding: 0 var(--spacing-m);
     display: flex;
     align-items: center;
@@ -163,8 +160,9 @@
     color: var(--font-color-m);
     font-size: var(--font-size-s);
     cursor: pointer;
-    transition: all var(--motion-fast);
     overflow: hidden;
+
+    /* foundation handled by .seamless-field */
   }
 
   .voice-button:disabled {
@@ -172,10 +170,7 @@
     cursor: default;
   }
 
-  .voice-button:hover:not(:disabled) {
-    background: var(--glass-l);
-    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
-  }
+  /* hover handled by .seamless-field */
 
   .voice-name-truncate {
     display: block;
@@ -193,14 +188,11 @@
     aspect-ratio: 1;
     height: 2.5rem;
     width: 2.5rem;
-    background: var(--glass-xs);
-    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
-    border: none;
-    border-radius: var(--border-radius-m);
     color: var(--font-color-m);
     cursor: pointer;
     font-size: var(--font-size-m);
-    transition: all var(--motion-fast) var(--motion-elastic);
+
+    /* foundation handled by .seamless-field */
   }
 
   .preview-button:disabled {
@@ -208,10 +200,7 @@
     cursor: default;
   }
 
-  .preview-button:hover:not(:disabled) {
-    background: var(--glass-l);
-    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
-  }
+  /* hover handled by .seamless-field */
 
   .preview-button:active:not(:disabled) {
     transform: scale(0.95);

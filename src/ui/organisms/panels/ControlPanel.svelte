@@ -48,7 +48,7 @@
     <!-- BODY: Prologue (Lobby Only) -->
     {#if isStoryboard}
       <section class="prologue-setup">
-        <div class="input-wrapper">
+        <div class="input-wrapper seamless-field">
           <textarea
             class="prologue-field"
             placeholder="(Optional) e.g., 'Start in media res', 'Describe the weather first'"
@@ -138,19 +138,6 @@
     box-shadow: 0 1px 0 var(--glass-edge-l);
   }
 
-  .prologue-setup .input-wrapper {
-    background: var(--glass-xs);
-    border-radius: var(--border-radius-m);
-    padding: var(--spacing-m);
-    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
-    transition: all var(--motion-fast) var(--motion-elastic);
-  }
-
-  .prologue-setup .input-wrapper:focus-within {
-    background: var(--glass-l);
-    box-shadow: 0 0 0 1px var(--glass-edge-l);
-  }
-
   .prologue-setup .input-wrapper .prologue-field {
     width: 100%;
     min-height: 8rem;
@@ -162,12 +149,6 @@
     resize: none;
     outline: none;
     line-height: var(--line-height-m);
-  }
-
-  .prologue-setup .input-wrapper .prologue-field::placeholder {
-    color: var(--font-color-s);
-    font-style: italic;
-    opacity: var(--opacity-m);
   }
 
   .action-grid {

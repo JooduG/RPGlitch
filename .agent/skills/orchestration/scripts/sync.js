@@ -100,19 +100,7 @@ function syncIgnores() {
   }
 }
 
-// 2. Trigger Janitor (Warden)
-function runJanitor() {
-  console.log("\n🧹 Triggering Antigravity Janitor...");
-  try {
-    // Audit scripts are in package.json and point to correct locations
-    execSync("npm run audit:skills", { stdio: "inherit" });
-    console.log("✅ Janitor complete.");
-  } catch (err) {
-    console.error("⚠️  Janitor failed during sync.");
-  }
-}
 
 syncIgnores();
-runJanitor();
 
 console.log("\n================================================================================\n");

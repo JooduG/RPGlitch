@@ -56,7 +56,7 @@
                   syncId: section.label,
                 }}
                 data-sync-id={section.label}
-                class="text-area edit"
+                class="text-area edit seamless-field"
                 placeholder={field.description}
                 value={safe_get(field.key)}
                 oninput={(e) => set_value(char, field.key, e.target.value)}
@@ -70,7 +70,7 @@
               ></textarea>
             {:else}
               <div
-                class="text-area readonly"
+                class="text-area readonly seamless-field"
                 class:muted-info={!get_value(char, field.key)}
                 data-sync-id={section.label}
                 use:safe_html={render_markdown(get_value(char, field.key) || "*Record undefined.*")}
@@ -171,10 +171,6 @@
     height: 100%;
     min-height: var(--spacing-xxxl);
     overflow-y: auto;
-    background: var(--glass-s);
-    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
-    border: none;
-    border-radius: var(--border-radius-m);
     color: var(--color-white);
     padding: var(--spacing-m);
     margin: 0;
@@ -188,21 +184,9 @@
     pointer-events: auto;
   }
 
-  .content .row .field-group .text-area::placeholder {
-    color: var(--font-color-s);
-    opacity: var(--opacity-m);
-    font-style: italic;
-  }
-
   .content .row .field-group .text-area.edit {
     pointer-events: auto;
     cursor: text;
-  }
-
-  .content .row .field-group .text-area.edit:hover,
-  .content .row .field-group .text-area.edit:focus {
-    background: var(--glass-xs);
-    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
   }
 
   .content .row .field-group .text-area:disabled {
@@ -221,9 +205,6 @@
     white-space: pre-wrap;
     pointer-events: auto;
     cursor: default;
-    background: var(--glass-xs);
-    box-shadow: inset 0 0 0 1px var(--glass-edge-l);
-    border: none;
   }
 
   .content .row .field-group .text-area.readonly :global(strong) {
