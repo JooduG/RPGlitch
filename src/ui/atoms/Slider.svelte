@@ -17,7 +17,7 @@
 
 <label class="slider-group" class:disabled>
   <span class="slider-label">
-    {label}: {disabled ? "DISABLED" : (value ?? 1.0).toFixed(1)}
+    {label.toUpperCase()}: {disabled ? "DISABLED" : (value ?? 1.0).toFixed(1)}
   </span>
   <input type="range" {min} {max} {step} bind:value {disabled} onchange={(e) => onchange?.(e)} />
 </label>

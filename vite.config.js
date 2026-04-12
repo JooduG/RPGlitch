@@ -57,6 +57,7 @@ export default defineConfig({
       "@theme": path.resolve(__dirname, "./src/theme"),
       "@media": path.resolve(__dirname, "./src/media"),
       "@scholar": path.resolve(__dirname, "./src/data"),
+      "@google/jules-sdk": path.resolve(__dirname, "./src/core/intelligence/jules-shim.js"),
     },
   },
 
