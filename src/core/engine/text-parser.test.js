@@ -1,5 +1,37 @@
 import { describe, it, expect } from "vitest";
-import { parse_scene_header, clean_image_prompts, escapeXml } from "./text-parser.js";
+import { parse_scene_header, clean_image_prompts, escapeXml, strip_cognition_blocks } from "./text-parser.js";
+
+describe("strip_cognition_blocks", () => {
+  it("should strip <think> block from text", () => {
+    const text = "Hello <think>World</think>";
+    const result = strip_cognition_blocks(text);
+    expect(result).toBe("Hello ");
+  });
+
+  it("should strip <think> block with newlines", () => {
+    const text = "Hello\n<think>\nWorld\n</think>\nHow are you?";
+    const result = strip_cognition_blocks(text);
+    expect(result).toBe("Hello\nHow are you?");
+  });
+
+  it("should strip multiple <think> blocks", () => {
+    const text = "Hello <think>A</think> World <think>B</think>!";
+    const result = strip_cognition_blocks(text);
+    expect(result).toBe("Hello  World !");
+  });
+
+  it("should handle text without <think> blocks", () => {
+    const text = "Hello World";
+    const result = strip_cognition_blocks(text);
+    expect(result).toBe("Hello World");
+  });
+
+  it("should return empty string for null or undefined", () => {
+    expect(strip_cognition_blocks(null)).toBe("");
+    expect(strip_cognition_blocks(undefined)).toBe("");
+    expect(strip_cognition_blocks("")).toBe("");
+  });
+});
 
 describe("clean_image_prompts", () => {
   const testCases = [
