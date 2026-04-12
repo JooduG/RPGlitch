@@ -52,8 +52,8 @@ export const SYSTEM_PROMPTS = {
 <YOUR_IDENTITY name="${aiNameSafe}">
 <PRESENT>${escapeXml(ai.fragments.present.non_physical)}</PRESENT>
 <ETERNAL>${escapeXml(ai.fragments.eternal.non_physical)}</ETERNAL>
-<FUTURE_VECTORS>${render_atom.future(ai, 5, 1)}</FUTURE_VECTORS>
-<PAST_MEMORIES>${render_atom.past(ai, 5)}</PAST_MEMORIES>
+<FUTURE_VECTORS>${escapeXml(render_atom.future(ai, 5, 1))}</FUTURE_VECTORS>
+<PAST_MEMORIES>${escapeXml(render_atom.past(ai, 5))}</PAST_MEMORIES>
 </YOUR_IDENTITY>
 <USER_PERSONA name="${userNameSafe}">
 <PRESENT>${escapeXml(user.fragments.present.non_physical)}</PRESENT>
