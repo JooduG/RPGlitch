@@ -1,73 +1,80 @@
 ---
 name: audio
-version: 1.0.0
 description: Triggered by any task involving sound effects (SFX), ambient tracks, or Text-to-Speech (TTS) logic.
-allowed-tools: ["Read", "Write"]
-effort: medium
-risk: safe
 ---
 
-# 🔊 Audio Specialist
+# Audio Specialist
 
-> "I am the Sovereign Logical Operator of Audio & Acoustics. I synthesize User Input into Sensory Reality via SFX Mapping, TTS Generation, and Memory Management."
+> "I am the Sovereign Logical Operator of Audio & Acoustics. I synthesize user input into sensory reality via SFX mapping and memory management."
 
-## 🔬 Anatomy
+## Overview
 
-```text
-skills/audio/SKILL.md
+The `audio` skill manages the minimalist sonic landscape of the RPGlitch Engine. It ensures that auditory atmosphere enhances the narrative without overwhelming it, while strictly adhering to browser safety protocols and memory management best practices.
+
+### Strategic Context
+
+- **Nordic Auditory Identity**: Cool, elegant, and non-intrusive soundscapes.
+- **Perchance Integrity**: Adheres to hard browser constraints regarding `AudioContext`.
+- **Sensory Excellence**: High-fidelity SFX and TTS integration.
+
+## When to Use
+
+- **Positive Triggers**: Adding SFX, configuring ambient loops, implementing TTS triggers, or managing the global audio registry.
+- **Memory Hygiene**: Debugging audio context leaks or performance issues.
+- **EXCLUSIONS**: Do not use for pure visual or logic changes; use `motion` or `javascript` instead.
+
+## How It Works
+
+1. **Asset Registration**: Add new audio files to `src/media/audio/sfx/` and record them in the `AudioRegistry`.
+2. **Gesture Protocol**: Ensure all audio is triggered behind a direct user gesture to prevent autoplay blocks.
+3. **Context Management**: Use Svelte 5 `$effect` cleanups to close or suspend `AudioContext` on unmount.
+4. **TTS Synthesis**: Sanitize all text before passing to the `Sensory.voice` engine.
+
+### Technical Constraints
+
+- **Single Registry**: All paths must be managed centrally via `src/media/audio/registry.js`.
+- **Memory Safety**: Never leave orphaned contexts that can accumulate and cause performance degradation.
+- **Browser Compliance**: Auto-suspend inactive contexts to save resources.
+
+## Usage
+
+```bash
+# Verify audio asset availability
+ls src/media/audio/sfx/
+
+# Audit audio context leaks
+npm run audit:audio
 ```
 
-## 🎯 Strategic Context
+## Present Results
 
-- **High-Fidelity Implementation**: Minimalist sonic landscape ensuring atmosphere doesn't overwhelm the narrative.
-- **Architectural Integrity**: Adheres to Rule 03 (Perchance Constraints) regarding AudioContext safety.
-- **Sensory Excellence**: Part of the Nordic Collection's auditory identity.
+Present the updated audio configuration and verify playback functionality.
 
-## 📋 Procedure
+- **Evidence**: Links to the updated `AudioRegistry` and confirmation of successful asset loading.
+- **Validation**: Proof that audio triggers correctly after user interaction and cleans up on unmount.
 
-### SFX & TTS Integration
+## Common Rationalizations
 
-1. **Add Sound Effect**:
-   - Place the audio file in `src/media/audio/sfx/`.
-   - Update the `AudioRegistry` in `src/media/audio/registry.js`.
-   - Verify playback in the development environment.
+| Agent Excuse               | The Reality                                                              |
+| :------------------------- | :----------------------------------------------------------------------- |
+| "A slight delay is fine."  | Latency destroys immersion. Optimize for immediate feedback responses.   |
+| "I'll trigger it on load." | Autoplay is blocked without interaction. Always bind to gestures.        |
+| "It doesn't need cleanup." | Small leaks in SPAs eventually crash the browser or degrade performance. |
 
-2. **Speak Text**:
-   - Use `Sensory.voice.speak(text)` with configured parameters.
-   - Sanitize any text-to-speech inputs before processing.
+## Red Flags
 
-### Audio Cleanup
+- **Autoplay Violations**: Attempting to play sound without an explicit user gesture.
+- **Floating Contexts**: `AudioContext` instances created outside of a controlled lifecycle.
+- **Hardcoded Paths**: Relative or absolute strings for audio files outside of the registry.
 
-- **Definition of Done**: AudioContext is closed or suspended on unmount; registry is synchronized.
-- **Expected Output**: Immersive, sanitized auditory experience.
+## Troubleshooting
 
-## 📋 Technical Constraints
+- **No Sound Output**: Check if the browser has "Audio Blocked" notifications or check `AudioContext.state`.
+- **Muffled Audio**: Verify file format compatibility (favor `.mp3` or `.webm`).
 
-- **Svelte 5 Runes**: Use `$effect` cleanup for AudioContext management.
-- **Autoplay Protocol**: NEVER trigger audio without a direct user gesture (Browser safety).
-- **Hardcoded Paths**: Forbidden. Use the `AudioRegistry` to manage paths centrally.
-
-## 🚫 Anti-Patterns
-
-- **Autoplay Violations**: Triggering audio without a user gesture.
-- **Floating Contexts**: Orphaned AudioContexts that leak memory.
-- **Unpurified Strings**: Passing unsanitized input to TTS engines.
-
-## ⚖️ Common Rationalizations
-
-| Excuse                                                | Counter-Measure                                               |
-| :---------------------------------------------------- | :------------------------------------------------------------ |
-| "The user won't notice a slight audio delay."         | "Latency kills immersion. Optimize for immediate feedback."   |
-| "I'll just trigger it on page load; it's fine."       | "Autoplay safety is a hard browser constraint. Use gestures." |
-| "TTS doesn't need sanitization for internal strings." | "Injection is possible in many layers. Always sanitize."      |
-
-## ✅ Verification
+## Verification
 
 - [ ] All new audio assets registered in `AudioRegistry`.
 - [ ] Autoplay protocol respected (triggered by user gesture).
 - [ ] AudioContext cleanup verified in `$effect` routines.
-- [ ] No hardcoded audio paths in component logic.
-
----
-
-> "Precision is the baseline of sovereignty."
+- [ ] **Hard Evidence Recorded**: Console log verification that AudioContext is successfully initialized and suspended.

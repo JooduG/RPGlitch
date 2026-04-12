@@ -1,194 +1,86 @@
 ---
 name: source-driven-development
-description: Grounds every implementation decision in official documentation. Use when you want authoritative, source-cited code free from outdated patterns. Use when building with any framework or library where correctness matters.
+description: Grounds every implementation decision in official documentation and sovereign rules. Use when you want authoritative, source-cited code free from outdated patterns.
 ---
 
 # Source-Driven Development
 
+> "Ground every decision in official documentation or sovereign rules. Verification is the antidote to hallucination."
+
 ## Overview
 
-Every framework-specific code decision must be backed by official documentation. Don't implement from memory — verify, cite, and let the user see your sources. Training data goes stale, APIs get deprecated, best practices evolve. This skill ensures the user gets code they can trust because every pattern traces back to an authoritative source they can check.
+The `source-driven-development` skill ensures that all code in the RPGlitch Engine adheres to the most recent, authoritative patterns. By prioritizing official Svelte 5 documentation and the project's own Sovereign Rules (01-06) over memory or outdated training data, we guarantee technical precision and forward-compatibility. Every non-trivial implementation is backed by a cited source.
+
+### Strategic Context
+
+- **Authoritative Hierarchy**: 1. Sovereign Rules → 2. Svelte MCP/Official Docs → 3. Library Docs (Dexie, Vite) → 4. Web Standards (MDN).
+- **Rune Sovereignty**: Force the use of Svelte 5 Runes by citing the official migration guides.
+- **Transparency**: Cite your sources in the code and the final response to build user trust.
 
 ## When to Use
 
-- The user wants code that follows current best practices for a given framework
-- Building boilerplate, starter code, or patterns that will be copied across a project
-- The user explicitly asks for documented, verified, or "correct" implementation
-- Implementing features where the framework's recommended approach matters (forms, routing, data fetching, state management, auth)
-- Reviewing or improving code that uses framework-specific patterns
-- Any time you are about to write framework-specific code from memory
+- **Positive Triggers**: Implementing Svelte 5 features (`$state`, snippets), building engine boilerplate, or using a library (Dexie.js) for the first time in a new context.
+- **Review Triggers**: When existing code appears to use legacy patterns (Svelte 4 stores) and needs a modern refactor (Rule 03).
+- **EXCLUSIONS**: Do not use research tools for trivial JS logic (e.g., basic math or string manipulation) that doesn't touch proprietary or framework-specific APIs.
 
-**When NOT to use:**
+## How It Works
 
-- Correctness does not depend on a specific version (renaming variables, fixing typos, moving files)
-- Pure logic that works the same across all versions (loops, conditionals, data structures)
-- The user explicitly wants speed over verification ("just do it quickly")
-
-## The Process
-
-```
-DETECT ──→ FETCH ──→ IMPLEMENT ──→ CITE
-  │          │           │            │
-  ▼          ▼           ▼            ▼
- What       Get the    Follow the   Show your
- stack?     relevant   documented   sources
-            docs       patterns
-```
+1. **Stack & Rule Detection**: Verify dependency versions from `package.json` and relevant constraints from Rule 03 and Rule 04.
+2. **Authoritative Fetch**: Use the Svelte MCP or search tools to retrieve the latest official documentation.
+3. **Pattern Implementation**: Align the code with the cited patterns, resolving any conflicts between documentation and existing legacy code in favor of the Sovereign Rules.
+4. **Citation (The Echo)**: Explicitly cite the source (e.g., "Source: Svelte 5 Docs - Runes Reference") in comments and summaries.
 
 ### Step 1: Detect Stack and Versions
 
-Read the project's dependency file to identify exact versions:
-
-```
-package.json    → Node/React/Vue/Angular/Svelte
-composer.json   → PHP/Symfony/Laravel
-requirements.txt / pyproject.toml → Python/Django/Flask
-go.mod          → Go
-Cargo.toml      → Rust
-Gemfile         → Ruby/Rails
-```
-
-State what you found explicitly:
-
-```
-STACK DETECTED:
-- React 19.1.0 (from package.json)
-- Vite 6.2.0
-- Tailwind CSS 4.0.3
-→ Fetching official docs for the relevant patterns.
-```
-
-If versions are missing or ambiguous, **ask the user**. Don't guess — the version determines which patterns are correct.
+Always check `package.json` first. Do not assume versions from memory. For RPGlitch, Svelte 5 is the mandated standard for all reactive UI logic.
 
 ### Step 2: Fetch Official Documentation
 
-Fetch the specific documentation page for the feature you're implementing. Not the homepage, not the full docs — the relevant page.
+Prioritize MCP servers (Svelte, context7) over general web search. Avoid second-party tutorials or blog posts which may contain unverified patterns or "slop".
 
-**Source hierarchy (in order of authority):**
+### Step 3: Cite Your Sources
 
-| Priority | Source                        | Example                                            |
-| -------- | ----------------------------- | -------------------------------------------------- |
-| 1        | Official documentation        | react.dev, docs.djangoproject.com, symfony.com/doc |
-| 2        | Official blog / changelog     | react.dev/blog, nextjs.org/blog                    |
-| 3        | Web standards references      | MDN, web.dev, html.spec.whatwg.org                 |
-| 4        | Browser/runtime compatibility | caniuse.com, node.green                            |
+Use deep links or Rule references (e.g., "Rule 04 §Interactors"). If you cannot find official documentation for a chosen pattern, state this explicitly and justify the decision as an "Inferred Best Practice".
 
-**Not authoritative — never cite as primary sources:**
+## Usage
 
-- Stack Overflow answers
-- Blog posts or tutorials (even popular ones)
-- AI-generated documentation or summaries
-- Your own training data (that is the whole point — verify it)
+```bash
+# Fetch latest Svelte 5 Rune documentation
+mcp_svelte_get_documentation section="$state"
 
-**Be precise with what you fetch:**
-
-```
-BAD:  Fetch the React homepage
-GOOD: Fetch react.dev/reference/react/useActionState
-
-BAD:  Search "django authentication best practices"
-GOOD: Fetch docs.djangoproject.com/en/6.0/topics/auth/
+# Verify project rules before implementing aesthetics
+view_file AbsolutePath=".../.agent/rules/04-aesthetics.md"
 ```
 
-After fetching, extract the key patterns and note any deprecation warnings or migration guidance.
+## Present Results
 
-When official sources conflict with each other (e.g. a migration guide contradicts the API reference), surface the discrepancy to the user and verify which pattern actually works against the detected version.
+Present the implementation alongside the cited sources.
 
-### Step 3: Implement Following Documented Patterns
-
-Write code that matches what the documentation shows:
-
-- Use the API signatures from the docs, not from memory
-- If the docs show a new way to do something, use the new way
-- If the docs deprecate a pattern, don't use the deprecated version
-- If the docs don't cover something, flag it as unverified
-
-**When docs conflict with existing project code:**
-
-```
-CONFLICT DETECTED:
-The existing codebase uses useState for form loading state,
-but React 19 docs recommend useActionState for this pattern.
-(Source: react.dev/reference/react/useActionState)
-
-Options:
-A) Use the modern pattern (useActionState) — consistent with current docs
-B) Match existing code (useState) — consistent with codebase
-→ Which approach do you prefer?
-```
-
-Surface the conflict. Don't silently pick one.
-
-### Step 4: Cite Your Sources
-
-Every framework-specific pattern gets a citation. The user must be able to verify every decision.
-
-**In code comments:**
-
-```typescript
-// React 19 form handling with useActionState
-// Source: https://react.dev/reference/react/useActionState#usage
-const [state, formAction, isPending] = useActionState(submitOrder, initialState);
-```
-
-**In conversation:**
-
-```
-I'm using useActionState instead of manual useState for the
-form submission state. React 19 replaced the manual
-isPending/setIsPending pattern with this hook.
-
-Source: https://react.dev/blog/2024/12/05/react-19#actions
-"useTransition now supports async functions [...] to handle
-pending states automatically"
-```
-
-**Citation rules:**
-
-- Full URLs, not shortened
-- Prefer deep links with anchors where possible (e.g. `/useActionState#usage` over `/useActionState`) — anchors survive doc restructuring better than top-level pages
-- Quote the relevant passage when it supports a non-obvious decision
-- Include browser/runtime support data when recommending platform features
-- If you cannot find documentation for a pattern, say so explicitly:
-
-```
-UNVERIFIED: I could not find official documentation for this
-pattern. This is based on training data and may be outdated.
-Verify before using in production.
-```
-
-Honesty about what you couldn't verify is more valuable than false confidence.
+- **Evidence**: The code block featuring inline Source citations.
+- **Validation**: Demonstrate how the solution precisely matches the documented patterns and the Engine's Rules.
 
 ## Common Rationalizations
 
-| Rationalization                           | Reality                                                                                                                                                            |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| "I'm confident about this API"            | Confidence is not evidence. Training data contains outdated patterns that look correct but break against current versions. Verify.                                 |
-| "Fetching docs wastes tokens"             | Hallucinating an API wastes more. The user debugs for an hour, then discovers the function signature changed. One fetch prevents hours of rework.                  |
-| "The docs won't have what I need"         | If the docs don't cover it, that's valuable information — the pattern may not be officially recommended.                                                           |
-| "I'll just mention it might be outdated"  | A disclaimer doesn't help. Either verify and cite, or clearly flag it as unverified. Hedging is the worst option.                                                  |
-| "This is a simple task, no need to check" | Simple tasks with wrong patterns become templates. The user copies your deprecated form handler into ten components before discovering the modern approach exists. |
+| Agent Excuse                       | The Reality                                                                               |
+| :--------------------------------- | :---------------------------------------------------------------------------------------- |
+| "I'm confident I know this API."   | Training data is often legacy. Svelte 5 core patterns have fundamentally shifted. Verify. |
+| "Fetching docs wastes context."    | Hallucinating an API and having to refactor it later wastes _more_ context and time.      |
+| "This task is too simple to cite." | Every interaction must follow Rule 04. Even a "simple" hover must be grounded.            |
 
 ## Red Flags
 
-- Writing framework-specific code without checking the docs for that version
-- Using "I believe" or "I think" about an API instead of citing the source
-- Implementing a pattern without knowing which version it applies to
-- Citing Stack Overflow or blog posts instead of official documentation
-- Using deprecated APIs because they appear in training data
-- Not reading `package.json` / dependency files before implementing
-- Delivering code without source citations for framework-specific decisions
-- Fetching an entire docs site when only one page is relevant
+- **Uncited Modernity**: Using Svelte 5 Runes without a verification step (risk of hallucinated syntax).
+- **Legacy Carryover**: Copying existing Svelte 4 patterns from the codebase instead of migrating to the Sovereign standard.
+- **Vibe-Grounded Implementation**: Defending a decision based on "vibe" instead of an official source or Rule.
+
+## Troubleshooting
+
+- **Conflicting Docs**: When documentation and Engine Rules conflict, the **Sovereign Rules (01-06)** take precedence.
+- **404/Missing Docs**: If the official source is offline, use the next level of the authority hierarchy (MDN/Library Docs).
 
 ## Verification
 
-After implementing with source-driven development:
-
-- [ ] Framework and library versions were identified from the dependency file
-- [ ] Official documentation was fetched for framework-specific patterns
-- [ ] All sources are official documentation, not blog posts or training data
-- [ ] Code follows the patterns shown in the current version's documentation
-- [ ] Non-trivial decisions include source citations with full URLs
-- [ ] No deprecated APIs are used (checked against migration guides)
-- [ ] Conflicts between docs and existing code were surfaced to the user
-- [ ] Anything that could not be verified is explicitly flagged as unverified
+- [ ] Framework and library versions were verified against `package.json`.
+- [ ] Official documentation was fetched and cited for all framework-specific logic.
+- [ ] Logic follows Rule 03 (Infrastructure) and Rule 04 (Aesthetics) explicitly.
+- [ ] **Hard Evidence Recorded**: Links to official documentation and Engine Rules used in implementation.

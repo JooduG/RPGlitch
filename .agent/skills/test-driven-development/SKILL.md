@@ -3,183 +3,86 @@ name: test-driven-development
 description: Drives development with tests. Use when implementing any logic, fixing any bug, or changing any behavior. Use when you need to prove that code works, when a bug report arrives, or when you're about to modify existing functionality.
 ---
 
-# 🧪 TDD & The Proving Grounds
+# TDD & The Proving Grounds
 
 > "I am the Witness of Truth. I do not accept 'it works' as a final state. I demand proof via the Red-Green-Refactor cycle and ensure every behavior is anchored in the Proving Grounds."
 
-## 🔬 Anatomy (Sovereign)
+## Overview
 
-```text
-skills/test-driven-development/
-├── SKILL.md                 # The Witness's Directive
-├── references/
-│   ├── testing-patterns.md
-│   └── audits/              # (Migrated from Warden)
-└── templates/               # (Migrated from Warden)
-    ├── bug-report.template.md
-    ├── debug-protocol.template.md
-    └── test-plan.template.md
+Test-Driven Development (TDD) is the core discipline of ensuring functional correctness in the RPGlitch Engine. By writing a failing test first, we define the technical contract and prevent regressions before any production code is touched. This skill expands TDD into **The Proving Grounds**, where automated logic verification meets behavioral probing for narrative consistency (Rule 02).
+
+### Strategic Context
+
+- **Contract Enforcement**: Tests are the specifications of how the engine must behave.
+- **Regression Guard**: Protect core simulation physics (Rule 03) and state boundaries.
+- **Diegetic Consistency**: Verify that AI character reactions align with the state kernel.
+
+## When to Use
+
+- **Positive Triggers**: Implementing new engine logic, fixing bugs (Prove-It Pattern), or modifying entity behavior.
+- **Update Triggers**: Refactoring existing modules or upgrading core dependencies (Dexie, Svelte).
+- **EXCLUSIONS**: Do not use for pure aesthetic tweaks (CSS tokens) unless they involve interactive layout logic that can be audited.
+
+## How It Works
+
+1. **Reproduction (Bug Fixes)**: Start by writing a test that demonstrates the failure.
+2. **Contract Definition**: Define the inputs and expected outputs for new simulation features.
+3. **Incremental Implementation**: Satisfy the test with the simplest possible code following the Red-Green-Refactor cycle.
+4. **Behavioral Probing**: Test for narrative drift by verifying entity reactions against the state kernel during the AI Turn.
+
+### The Witness Cycle
+
+1. **RED**: Write a failing test that describes the desired state.
+2. **GREEN**: Write the minimal logic to satisfy the test.
+3. **REFACTOR**: Polish the implementation while keeping tests green.
+
+### Writing Good Tests (DAMP)
+
+Favor **DAMP (Descriptive And Meaningful Phrases)** over DRY in tests. A test should read like a specification of behavior:
+
+- **Arrange**: Set up the world state.
+- **Act**: Trigger a simulation turn or action.
+- **Assert**: Verify the resulting state mutation.
+
+## Usage
+
+```bash
+# Run all unit tests for the Engine logic (Rule 06)
+npm run test:unit
+
+# Run specific integration tests for simulation rounds
+npx vitest src/core/engine/round.test.js
 ```
 
-## 🎯 Overview
+## Present Results
 
-Write a failing test before writing the code that makes it pass. For bug fixes, reproduce the bug with a test before attempting a fix. Tests are proof — "seems right" is not done. A codebase with good tests is an AI agent's superpower; a codebase without tests is a liability. For RPGlitch, we expand this to **The Proving Grounds**, where automated logic verification meets **Behavioral Probing** for narrative consistency.
+Present the test execution logs and confirm any bug reproductions.
 
-## 🎯 When to Use
+- **Evidence**: Terminal output of passing test files and coverage reports.
+- **Validation**: Demonstrate that the new behavior is explicitly covered by unit or integration tests.
 
-- Implementing any new engine logic or behavior (DynamicsEngine, Kernel).
-- Fixing any bug (the **Prove-It Pattern**).
-- Modifying existing character or fractal entity behavior.
-- Adding edge case handling to state mutations.
-- Verifying UI interactions and sensory bridges via Chrome DevTools.
-- Ensuring narrative consistency after an intelligence kernel update (Behavioral Probing).
+## Common Rationalizations
 
----
+| Agent Excuse                         | The Reality                                                            |
+| :----------------------------------- | :--------------------------------------------------------------------- |
+| "This is too simple for a test."     | Small logic errors aggregate into simulation-breaking failures.        |
+| "I'll add the tests after I'm done." | Post-hoc testing is often skipped and misses boundary cases.           |
+| "Snapshot testing is enough."        | Snapshots hide the intent. Use specific property assertions for truth. |
 
-## ⚙️ Core Process: The Witness Cycle
+## Red Flags
 
-### 1. The RED-GREEN-REFACTOR Protocol
+- **Flaky Tests**: Tests that pass/fail inconsistently reveal race conditions in the engine.
+- **Testing Implementation**: Asserting on internal private method calls instead of final state outcomes.
+- **Mock Overload**: Using too many mocks until the test no longer reflects real-world physics.
 
-- **RED**: Write a failing test in Vitest that describes the desired state.
-- **GREEN**: Write the minimal Svelte 5 logic to satisfy the test. Avoid over-engineering.
-- **REFACTOR**: Polish the implementation while ensuring the tests remain green.
+## Troubleshooting
 
-### 2. The Prove-It Pattern (Bug Fixes)
+- **Test Timeout**: Check for unhandled promises or infinite loops in reactive state mutations.
+- **Dexie Mocking**: Ensure the IndexedDB mock is properly reset between test blocks to prevent data contamination.
 
-When a bug is reported, **do not start by trying to fix it.** Start by writing a test that reproduces it.
+## Verification
 
-- Bug report arrives.
-- Write a test that demonstrates the bug.
-- Test FAILS (confirming the bug exists).
-- Implement the fix.
-- Test PASSES (proving the fix works).
-- Run full test suite (confirming no regressions).
-
-### 3. Behavioral Probing (Narrative TDD)
-
-Beyond unit tests, use "Behavioral Probes" to test for narrative drift.
-
-- Define expected entity reactions and verify they align with the current state kernel.
-- Use `debug-protocol.template.md` to document complex state/narrative intersections.
-
-### 4. The Proving Grounds (Definition of Done)
-
-A task is NOT complete until it survives the Proving Grounds:
-
-- 100% test pass rate for the module.
-- All edge cases documented in `test-plan.template.md`.
-- Visual/Functional verification completed via Browser DevTools for UI components.
-- Zero regressions in the main simulation heartbeat.
-
----
-
-## 🏛️ Extended Operational Framework
-
-### The Test Pyramid
-
-Invest testing effort according to the pyramid to ensure speed and reliability:
-
-```
-          ╱╲
-         ╱  ╲         E2E Tests (~5%)
-        ╱    ╲        Full user flows, real browser
-       ╱──────╲
-      ╱        ╲      Integration Tests (~15%)
-     ╱          ╲     Component interactions, API boundaries
-    ╱────────────╲
-   ╱              ╲   Unit Tests (~80%)
-  ╱                ╲  Pure logic, isolated, milliseconds each
- ╱──────────────────╲
-```
-
-**The Beyonce Rule**: If you liked it, you should have put a test on it. Infrastructure changes, refactoring, and migrations are not responsible for catching your bugs — your tests are. If a change breaks your code and you didn't have a test for it, that's on you.
-
-### Test Sizes (Resource Model)
-
-| Size       | Constraints                               | Standard         | Example                                |
-| ---------- | ----------------------------------------- | ---------------- | -------------------------------------- |
-| **Small**  | Single process, no I/O, no network.       | Vitest           | Pure function tests, state transforms  |
-| **Medium** | Multi-process OK, localhost only (Dexie). | Vitest + DB-Mock | Component tests, local persistence     |
-| **Large**  | Multi-machine / External services.        | Playwright       | Full E2E tests, performance benchmarks |
-
----
-
-## ✍️ Writing Good Tests (DAMP Standard)
-
-### Test State, Not Interactions
-
-Assert on the _outcome_ of an operation, not on which methods were called internally. Tests that verify method call sequences break when you refactor, even if the behavior is unchanged.
-
-### DAMP Over DRY in Tests
-
-In production code, DRY (Don't Repeat Yourself) is usually right. In tests, **DAMP (Descriptive And Meaningful Phrases)** is better. A test should read like a specification — each test should tell a complete story without requiring the reader to trace through shared helpers.
-
-### Prefer Real Implementations Over Mocks
-
-Use the simplest test double that gets the job done. The more your tests use real code, the more confidence they provide.
-
-1. **Real implementation** → Highest confidence.
-2. **Fake** → In-memory version of a dependency (e.g., in-memory Dexie).
-3. **Stub** → Returns canned data, no behavior.
-4. **Mock** → Verifies method calls — use sparingly.
-
-### Use the Arrange-Act-Assert (Triple-A) Pattern
-
-```javascript
-it("marks overdue tasks when deadline has passed", () => {
-  // Arrange: Set up the test scenario
-  const task = createTask({ title: "Test", deadline: new Date("2025-01-01") });
-
-  // Act: Perform the action being tested
-  const result = checkOverdue(task, new Date("2025-01-02"));
-
-  // Assert: Verify the outcome
-  expect(result.isOverdue).toBe(true);
-});
-```
-
-### One Assertion Per Concept
-
-Each test should verify exactly one behavior. Do not bundle multiple validation rules into a single monolithic test.
-
----
-
-## 🌐 Browser Testing with DevTools
-
-For anything that runs in a browser (Sensory UI), unit tests alone aren't enough — you need runtime verification.
-
-### The DevTools Debugging Workflow
-
-1. **REPRODUCE**: Navigate to the page, trigger the bug, screenshot.
-2. **INSPECT**: Console errors? DOM structure? Computed styles? Network responses?
-3. **DIAGNOSE**: Compare actual vs expected — is it HTML, CSS, JS, or data?
-4. **FIX**: Implement the fix in source code.
-5. **VERIFY**: Reload, screenshot, confirm console is clean, run tests.
-
-### What to Check
-
-- **Console**: Zero errors and warnings in production-quality code.
-- **Network**: Status codes, payload shape, timing, CORS errors.
-- **DOM**: Element structure, attributes, accessibility tree.
-- **Styles**: Computed styles vs expected, specificity conflicts.
-- **Screenshots**: Before/after comparison for CSS and layout changes.
-
----
-
-## 🚩 Test Anti-Patterns to Avoid
-
-- **Testing implementation details**: Tests break when refactoring even if behavior is unchanged.
-- **Flaky tests**: Erode trust. Ensure deterministic assertions.
-- **Snapshot abuse**: Use sparingly; large snapshots mask real bugs.
-- **No test isolation**: Each test must set up and tear down its own state.
-
----
-
-## ✅ Final Verification Checklist
-
-- [ ] Every new behavior has a corresponding test in the `src/` hierarchy.
-- [ ] Bug fixes include a reproduction test that failed before the fix.
-- [ ] Test names describe the behavior being verified rather than the method name.
-- [ ] All tests pass: `npm test` or `vitest run`.
-- [ ] Coverage hasn't decreased (if tracked).
-- [ ] UI changes verified via Chrome DevTools.
+- [ ] Every new behavior has a corresponding test in the `tests/` or `src/` hierarchy.
+- [ ] Bug fixes include a reproduction test that failed before the implementation.
+- [ ] Existing tests still pass, ensuring zero regressions (Rule 03).
+- [ ] **Hard Evidence Recorded**: A successful `npm test` log showing 100% pass rate.

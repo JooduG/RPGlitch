@@ -78,9 +78,9 @@ RPGlitch operates a dual-layer memory system to ensure the simulation is both te
 - **Purpose**: Active context grounding and RAG.
 - **Content**: Current Rules, Skills, Workflows, and Core Logic patterns.
 - **Namespaces**:
-  - `knowledge-base.meta`: The Constitution (Rules/Skills).
-  - `knowledge-base.src`: High-fidelity code patterns.
-  - `knowledge-base.external`: Official documentation and community patterns.
+- `knowledge-base.meta`: The Constitution (Rules/Skills).
+- `knowledge-base.src`: High-fidelity code patterns.
+- `knowledge-base.external`: Official documentation and community patterns.
 
 ### 2. ❄️ Cold Storage (Supabase)
 
@@ -106,14 +106,14 @@ RPGlitch utilizes an agentic "Swarm" to handle complex, multi-file features in p
 
 ### 🏁 Swarm Lifecycle
 
-1.  **Analysis (`npm run swarm:analyze`)**
-    Triage open GitHub issues. The engine identifies if a task is a "Parallel Win" (>20m effort or modular boundaries) and generates a root cause analysis.
-2.  **Planning (`npm run swarm:plan`)**
-    Generates a `issue_tasks.json` blueprint. This defines the specialized agent slots (Svelte, logic, CSS) and their restricted file-ownership ranges.
-3.  **Dispatch (`npm run swarm:dispatch`)**
-    Launches the parallel fleet. Each sub-agent is spun up in a dedicated, isolated Jules Cloud session to execute its specific task.
-4.  **Merge (`npm run swarm:merge`)**
-    The final synthesis. Consolidates the code, executes the **80% Confidence Gate** (internal AI audit), and prepares the final PR.
+1. **Analysis (`npm run swarm:analyze`)**
+   Triage open GitHub issues. The engine identifies if a task is a "Parallel Win" (>20m effort or modular boundaries) and generates a root cause analysis.
+2. **Planning (`npm run swarm:plan`)**
+   Generates a `issue_tasks.json` blueprint. This defines the specialized agent slots (Svelte, logic, CSS) and their restricted file-ownership ranges.
+3. **Dispatch (`npm run swarm:dispatch`)**
+   Launches the parallel fleet. Each sub-agent is spun up in a dedicated, isolated Jules Cloud session to execute its specific task.
+4. **Merge (`npm run swarm:merge`)**
+   The final synthesis. Consolidates the code, executes the **80% Confidence Gate** (internal AI audit), and prepares the final PR.
 
 ### 🛠️ Command Reference
 
@@ -125,7 +125,7 @@ RPGlitch utilizes an agentic "Swarm" to handle complex, multi-file features in p
 | `npm run swarm:merge`    | Consolidate output and perform the 80% Gate audit.     |
 
 > [!TIP]
-> For a detailed walkthrough of manual swarm coordination, see the **[/07-swarm](.agent/workflows/07-swarm.md)** workflow.
+> For a detailed walkthrough of manual swarm coordination, see the **[/07-swarm](.agent/workflows/swarm.md)** workflow.
 
 ---
 

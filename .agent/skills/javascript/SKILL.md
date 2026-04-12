@@ -1,84 +1,80 @@
 ---
 name: javascript
-description: Triggered by any task involving core logic, utility functions, or monolith engineering in .js or .ts files. MUST be invoked for all non-UI logic.
+description: Triggered by any task involving core engine logic, utility functions, or monolith engineering in .js or .ts files. MUST be invoked for all non-UI logic.
 ---
 
-# 💻 Javascript Logic Architecture
+# Javascript Logic Architecture
 
-> "I am the Logic Architect. I define the flow of truth and state. I synthesize Specifications into Professional Logic via Clean Code, SOLID principles, and Modern JS Patterns."
+> "I am the Logic Architect. I define the flow of truth and state. I synthesize specifications into professional logic via Clean Code and SOLID principles."
 
-## 🔬 Anatomy
+## Overview
 
-```text
-skills/javascript/
-├── SKILL.md
-└── references/
+The `javascript` skill is the authoritative workflow for core engine logic, state management, and utility functions within the RPGlitch Engine. It enforces modern ES6+ standards, functional programming patterns, and robust encapsulation to ensure the engine's "heartbeat" remains predictable and maintainable. This skill governs the "how" of the simulation's mechanical truth.
+
+### Strategic Context
+
+- **High-Fidelity Logic**: Precision-engineered, readable, and maintainable.
+- **Architectural Integrity**: Enforces Rule 03 (Infrastructure) and Rule 06 (Compliance).
+- **Modern Paradigms**: Prioritize pure functions, immutable state, and explicit error paths.
+
+## When to Use
+
+- **Positive Triggers**: Implementing core simulation logic, dynamics engine mutations, utility data transforms, or persistent data models (Dexie).
+- **System Logic**: Modifying global state handlers or asynchronous orchestration modules.
+- **EXCLUSIONS**: Do not use for UI-specific logic (e.g., component-level reactivity); use `svelte` instead.
+
+## How It Works
+
+1. **The Logic Gate**: Apply SOLID principles and KISS (Keep It Simple, Stupid) to all function designs.
+2. **Modern Pattern Enforcement**: Use destructuring, optional chaining, and nullish coalescing.
+3. **Async Orchestration**: Use `Promise.allSettled()` for concurrent ops and `Async Generators` for streaming data flows.
+4. **Functional Pipelines**: Use `pipe` or `compose` for data transformation sequences (sanitize → transform → validate).
+
+### Modern Pattern Lexicon
+
+- **Composition**: Favor small, pure functions over large, stateful classes where possible.
+- **Encapsulation**: Enforce true privacy using `#private` fields in classes.
+- **Array Mastery**: Deep utilization of `flatMap`, `reduce`, and `Array.from` for efficient data processing.
+
+## Usage
+
+```bash
+# Verify JavaScript logic with unit tests (Rule 06)
+npm run test:unit
+
+# Audit logic complexity and coverage
+npm run audit:logic
 ```
 
-## 🎯 Strategic Context
+## Present Results
 
-- **High-Fidelity Implementation**: Precision-engineered, readable, and maintainable logic.
-- **Architectural Integrity**: Enforces Rule 03 (Infrastructure) and Rule 05 (Intelligence).
-- **Sensory Excellence**: Ensures logic is optimized for the Nordic Collection's kinetic physics.
+Present the updated logic and explain the architectural decisions.
 
-## 📋 Procedure
+- **Evidence**: Links to the `.js` files and results of unit test execution.
+- **Validation**: Demonstrate that the logic satisfies Rule 06 sanitization and Rule 03 modularity.
 
-### Clean Code & SOLID Standards
+## Common Rationalizations
 
-1. **The Logic Gate**:
-   - Apply SOLID principles to all class and function designs.
-   - Prioritize readability over cleverness (KISS).
-   - Use descriptive, intention-revealing names.
+| Agent Excuse                         | The Reality                                                                    |
+| :----------------------------------- | :----------------------------------------------------------------------------- |
+| "I'll use `var` for this small fix." | Legacy syntax is technical debt. Refactor to ES6+ immediately.                 |
+| "This doesn't need private fields."  | Encapsulation is safety. Use `#private` for internal class state.              |
+| "I'll skip specific error handling." | Logic failures must be descriptive. Implement robust validation at boundaries. |
 
-2. **Modern Pattern Enforcement**:
-   - Utilize ES6+ features (Destructuring, Optional Chaining, Nullish Coalescing).
-   - Favor functional programming patterns (Immutable state, Pure functions).
-   - Enforce explicit error handling and boundary validation (Rule 06).
+## Red Flags
 
-### Modern Pattern Lexicon (The Core)
+- **Legacy Syntax**: Use of `var`, `function` declarations (outside of constructors), or "callback hell".
+- **Silent Failures**: Swallowing errors or missing descriptive logging at boundary points.
+- **Deep Nesting**: Complexity that should be flattened with guard clauses.
 
-1. **Async Orchestration**:
-   - **Parallelism**: Use `Promise.allSettled()` or `Promise.all()` for concurrent operations.
-   - **Resilience**: Implement `fetchWithRetry` and `withTimeout` wrappers for external I/O.
-   - **Streams**: Favor `Async Generators` for paginated or streaming data.
+## Troubleshooting
 
-2. **Functional Pipelines**:
-   - **Composition**: Use `pipe(...fns)` or `compose(...fns)` for data transformation sequences (e.g., `sanitize → transform → validate`).
-   - **Pure Power**: Maintain strict immutability using `spread` (`...`) and `structuredClone()` for deep copies.
-   - **Array Mastery**: Deep utilization of `flatMap`, `reduce`, and `Array.from` for complex state derivation.
+- **Race Conditions**: Audit `async/await` flows and ensure no unhandled promise rejections.
+- **Memory Context**: Check for circular references or uncleaned event listeners in long-running services.
 
-3. **Sovereign Class Design**:
-   - **Privacy**: Enforce true encapsulation using `#private` fields and methods.
-   - **Statics**: Use `static` factory methods (e.g., `User.create()`) for complex initialization.
-
-## 📋 Quality Verification
-
-- **Definition of Done**: DRY principles satisfied; zero linting debt; logic verified via unit tests.
-- **Expected Output**: Sovereign, purely logical code blocks.
-- **Reference**: High-leverage patterns integrated from [Scribbles](../../../scribbles.md).
-
-## 🚫 Anti-Patterns
-
-- **Legacy Syntax**: Use of `var`, `function` declarations, or `callback hell`.
-- **Silent Failures**: Swallowing errors or failing without descriptive logs.
-- **Deep Nesting**: Avoid complexity; use optional chaining and guard clauses.
-- **Code Duplication**: Violating DRY principles.
-
-## ⚖️ Common Rationalizations
-
-| Excuse                                                     | Counter-Measure                                                             |
-| :--------------------------------------------------------- | :-------------------------------------------------------------------------- |
-| "I'll use a `var` here; it's a legacy script."             | "Legacy is debt. Refactor to ES6+ standards immediately."                   |
-| "This doesn't need a private field; it's internal anyway." | "Encapsulation is safety. Use `#private` fields for class state."           |
-| "I'll skip the error handling for this small utility."     | "Logic failures must be descriptive. Implement robust boundary validation." |
-
-## ✅ Verification
+## Verification
 
 - [ ] SOLID principles satisfied for new class and function designs.
-- [ ] Logic verified via successful unit test execution.
 - [ ] No use of legacy syntax (`var`, `function` declarations).
-- [ ] All class state encapsulated via `#private` fields.
-
----
-
-> "Logic is the heartbeat of reality."
+- [ ] All class state encapsulated via `#private` fields where applicable.
+- [ ] **Hard Evidence Recorded**: Unit test output proving logical correctness (Vitest).

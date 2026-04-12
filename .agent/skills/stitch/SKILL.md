@@ -3,61 +3,72 @@ name: stitch
 description: Triggered by any task involving DESIGN.md specification updates, reverse-engineering Stitch metadata, or Stitch MCP operations.
 ---
 
-# 🧵 The Weaver (Stitch)
+# The Weaver (Stitch)
 
-> "I am the Weaver. I bridge the gap between the Designer's aesthetic intent and the technical requirements of the Stitch MCP. I synthesize the Design Specification into External Assets via Spec Formatting and MCP Interfacing."
+> "I am the Weaver. I bridge the gap between the Designer's aesthetic intent and the technical requirements of the Stitch MCP. I synchronize the Design Specification into External Assets."
 
-## 🔬 Anatomy
+## Overview
 
-```text
-skills/stitch
-├── SKILL.md
-└── references/
+The `stitch` skill manages the synchronization between the RPGlitch Engine's local design specifications (`DESIGN.md`) and the external Stitch environment. It ensures that the **Chalk Regime** aesthetics are precisely documented and woven into the project metadata. This skill governs the spec formatting and MCP interfacing required to maintain a single source of truth for the project's visual identity.
+
+### Strategic Context
+
+- **High-Fidelity Implementation**: Precise translation of the Chalk Regime and Nordic Collection to Stitch screen metadata.
+- **Architectural Integrity**: Maintenance of the root `DESIGN.md` as the authoritative sovereign source for all visual tokens.
+- **Synchronized Reality**: Ensuring parity between local Svelte components and external Stitch screen assets.
+
+## When to Use
+
+- **Positive Triggers**: Updating the `DESIGN.md` specification, reverse-engineering Stitch metadata via MCP tools, or creating/modifying Stitch screens and projects.
+- **Synchronicity Triggers**: When a local aesthetic change needs to be "woven" into the external project via `mcp_StitchMCP`.
+- **EXCLUSIONS**: Do not use for pure CSS layout tweaks that do not impact the root design specification or external assets.
+
+## How It Works
+
+1. **Spec Alignment**: Compare the proposed aesthetic intent with the existing `DESIGN.md` and Chalk Regime tokens.
+2. **Technical Translation**: Draft technically precise component descriptions and metadata for the Stitch environment.
+3. **MCP Interfacing**: Utilize the `StitchMCP` tools to fetch or update project/screen metadata.
+4. **Parity Verification**: Confirm that the external Stitch state matches the local Svelte implementation and DESIGN.md.
+
+## Usage
+
+```bash
+# Fetch the latest screen metadata from the Stitch environment
+mcp_StitchMCP_get_screen projectId="..." screenId="..."
+
+# List all screens in the project to verify synchronization
+mcp_StitchMCP_list_screens projectId="..."
 ```
 
-## 🎯 Strategic Context
+## Present Results
 
-- **High-Fidelity Implementation**: Precise translation of the Chalk Regime to Stitch screens.
-- **Architectural Integrity**: Single source of truth (DESIGN.md) for the bridge.
-- **Sensory Excellence**: Reverse engineering metadata to maintain style continuity.
+Present the updated design specification and synchronization status.
 
-## 📋 Procedure
+- **Evidence**: Links to the updated `DESIGN.md` and the successful `StitchMCP` output logs.
+- **Validation**: Demonstrate that local tokens and external screen metadata are in perfect parity.
 
-### Generate Stitch Specification
+## Common Rationalizations
 
-1. **Draft Aesthetic Intent**:
-   - Source the Look & Feel from the **Designer**.
-   - Format the root `DESIGN.md` spec according to guidelines.
+| Agent Excuse                         | The Reality                                                                                |
+| :----------------------------------- | :----------------------------------------------------------------------------------------- |
+| "I'll just update the CSS directly." | Bypassing `DESIGN.md` creates "spec drift" and violates Rule 04 sovereignty.               |
+| "The Stitch metadata is secondary."  | Synchronization is safety. Parity between environments is a mandatory quality gate.        |
+| "The spec doesn't need precision."   | A vague spec leads to failure in the MCP Weaver. Precision is the baseline of sovereignty. |
 
-2. **Validate Specs**:
-   - Ensure H2 headings and component descriptions are technically precise.
+## Red Flags
 
-### Reverse Engineering
+- **Spec Fragmentation**: Allowing the root `DESIGN.md` to fall out of sync with actual component implementations.
+- **Ad-hoc Tokenization**: Introducing raw hex values or non-standard spacing that isn't documented in the specification.
+- **Stitch Drift**: External project screens that no longer mirror local engine physics or aesthetics.
 
-- **Definition of Done**: Metadata fetched via MCP; `DESIGN.md` updated; local Svelte components synchronized.
-- **Expected Output**: Synchronized internal and external project state.
+## Troubleshooting
 
-## 🚫 Anti-Patterns
+- **Sync Failure**: If MCP tools return errors, verify the `projectId` and `screenId` against the Stitch dashboard.
+- **Metadata Conflict**: If external metadata differs from local state, prioritize the `DESIGN.md` specification as the arbiter.
 
-- **Loose Hand-off**: Bypassing the Weaver for design updates.
-- **Ad-hoc Styling**: Passing raw CSS instead of defined tokens.
-- **Spec Fragmentation**: Allowing the root `DESIGN.md` to fall out of sync.
+## Verification
 
-## ⚖️ Common Rationalizations
-
-| Excuse                                                             | Counter-Measure                                                     |
-| :----------------------------------------------------------------- | :------------------------------------------------------------------ |
-| "I'll just update the component and skip `DESIGN.md`."             | "`DESIGN.md` is the source of truth. Always update the spec first." |
-| "The Stitch metadata doesn't need to match our local state."       | "Synchronization is safety. Maintain perfect parity."               |
-| "This small tweak doesn't need a technically precise description." | "Precision in the spec ensures reliability in the MCP Weaver."      |
-
-## ✅ Verification
-
-- [ ] `DESIGN.md` updated with technically precise component descriptions.
-- [ ] Stitch screen metadata fetched and synchronized with local state.
-- [ ] Component look-and-feel verified against the Designer's intent.
-- [ ] `mcp_StitchMCP` tools utilized for official screen/project updates.
-
----
-
-> "Precision is the baseline of sovereignty."
+- [ ] `DESIGN.md` updated with technically precise component descriptions and tokens.
+- [ ] Stitch screen metadata fetched and synchronized via official MCP tools.
+- [ ] Component look-and-feel verified against the Designer's sovereign intent (Rule 04).
+- [ ] **Hard Evidence Recorded**: A successful `mcp_StitchMCP` sync log and updated `DESIGN.md`.

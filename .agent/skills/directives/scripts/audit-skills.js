@@ -82,16 +82,19 @@ const auditSkill = (skillName, silent = false) => {
       if (!allowedSubfolders.includes(dir) && !dir.startsWith(".")) {
         logIssue(
           SEVERITY.HERESY,
-          `Disallowed subfolder: ${dir}/. Use ONLY scripts, assets, or references.`,
+          `Disallowed subfolder: ${dir}/. Use ONLY scripts, assets, references, rules, data, or templates.`,
           50,
         );
       }
     });
 
-    // 3. Placeholder Detection (simplified)
-    const placeholders = contentNoCode.match(/\[[A-Z][A-Z0-9_/]{2,}\](?!\()/g) || [];
+    // 3. Placeholder Detection (Handle both [PLACEHOLDER] and {{placeholder}})
+    const oldPlaceholders = contentNoCode.match(/\[[A-Z][A-Z0-9_/]{2,}\](?!\()/g) || [];
+    const newPlaceholders = contentNoCode.match(/\{\{[^}]+\}\}/g) || [];
+    const placeholders = [...oldPlaceholders, ...newPlaceholders];
+
     const invalidPlaceholders = placeholders.filter(
-      (p) => !p.includes("file:///") && p.length > 2 && p.length < 50,
+      (p) => !p.includes("file:///") && p.length > 2 && p.length < 100,
     );
     if (invalidPlaceholders.length > 3) {
       logIssue(

@@ -6,9 +6,9 @@
 
 The `DESIGN.md` MUST follow this hierarchy to be parsed correctly by the Stitch bridge:
 
-1.  **# Project Title**: One H1 heading.
-2.  **## Component Name**: High-level feature or page.
-3.  **### Element/ID**: Atomic descriptions.
+1. **# Project Title**: One H1 heading.
+2. **## Component Name**: High-level feature or page.
+3. **### Element/ID**: Atomic descriptions.
 
 ## 2. Terminology (The Chalk Regime)
 

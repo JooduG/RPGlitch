@@ -7,6 +7,7 @@
 ## 🗺️ Project Roadmap
 
 ### Milestone 1: The Foundry (v0.5) - [ACTIVE]
+
 - [x] Core Runes Foundation (Svelte 5)
 - [x] The Data Pillar (Dexie.js)
 - [x] Diegetic UI Base (Nordic Regime)
@@ -19,11 +20,13 @@
 ### [037] State Atomicity & Token Asphyxiation Patch - [ACTIVE]
 
 #### **Track 1: Hygiene (Stripping)**
+
 - [ ] Implement `strip_cognition_blocks` in `text-parser.js` (Regex-based)
 - [ ] Integrate into `llm-service.js` sanitization pipeline
 - [ ] Verify stripping via `text-parser.test.js`
 
 #### **Track 2: Control (Atomicity)**
+
 - [ ] Add `isProcessing` flag and locking methods to `session.svelte.js`
 - [ ] Wrap `advance_turn` in `session.svelte.js` with lock logic
 - [ ] Purge redundant `runtime.round` increments (session-driver, intelligence-kernel)
@@ -32,6 +35,8 @@
 ---
 
 ## 🏁 Completed Missions (Recent)
+
+- **[038]** Skill Standardization & Sovereign Alignment (34 Skills)
 - **[036]** Nordic UI Component Harmonization
 - **[035]** Profile Field Aesthetics
 - **[027]** Interaction Engine Canonization
@@ -41,6 +46,7 @@
 
 ## 🧠 Skill Log
 
-| Timestamp (ISO 8601) | Task | Skill Invoked | Outcome |
-|---|---|---|---|
+| Timestamp (ISO 8601)   | Task                                         | Skill Invoked                      | Outcome |
+| ---------------------- | -------------------------------------------- | ---------------------------------- | ------- |
 | 2026-04-12T12:10+02:00 | Agent OS Refactor (orchestration absorption) | `using-agent-skills`, `directives` | ✅ Done |
+| 2026-04-12T17:45+02:00 | Skill Standardization (Sovereign Template)   | `directives`, `using-agent-skills` | ✅ Done |

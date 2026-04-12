@@ -3,58 +3,76 @@ name: image-generation
 description: Triggered by any task involving prompt engineering, visual asset requests, or image generation via Perchance.
 ---
 
-# 👁️ Image Synthesis & Vision
+# Image Synthesis & Vision
 
-> "I am the Visionary. I own the visual synthesis, the Perchance prompts, and the external aesthetic of the RPGlitch Engine. I synthesize Narrative Context into Visual Reality via Prompt Engineering and Image Processing."
+> "I am the Visionary. I synthesize Narrative Context into Visual Reality via Prompt Engineering and Image Processing. Precision is the baseline of sovereignty."
 
-## 🔬 Anatomy
+## Overview
 
-skills/image-generation/SKILL.md
+The `image-generation` skill manages the visual library of the RPGlitch Engine. It translates diegetic character descriptions and world-building cues into high-fidelity visual assets using generative AI tools. This skill ensures that every image adheres to the "Nordic Collection" aesthetic and is properly indexed for local-first simulation performance.
 
-## 🎯 Strategic Context
+### Strategic Context
 
-- **High-Fidelity Implementation**: Vivid, high-quality character and world renders.
-- **Architectural Integrity**: Adheres to Rules 01 and 04.
-- **Sensory Excellence**: Manages style consistency across the entire visual library.
+- **Nordic Consistency**: Maintain the subterranean research terminal vibe (Gunmetal, Chalk, Frozen tones).
+- **High-Fidelity Voids**: Never use generic placeholders. Every image must be a final, ship-quality asset.
+- **Sovereign Registry**: Every asset must be tracked in the `ImageRegistry` to prevent aesthetic drift.
 
-## 📋 Procedure
+## When to Use
 
-### Asset Generation
+- **Positive Triggers**: Generating character portraits, world fractals, UI assets (icons, loaders), or world-building mood boards.
+- **Update Triggers**: Refreshing existing assets or refining prompts for better stylistic alignment.
+- **EXCLUSIONS**: Do not use for simple CSS styling or logic work; dedicate those to `css` or `javascript`.
 
-1. **Character Portrait Generation**:
-   - Refine a high-fidelity prompt in the `PROMPT_ENGINEERING` module.
-   - Use the `generate_image` tool for creation.
-   - Store results in `src/media/images/characters/`.
+## How It Works
 
-2. **Asset Management**:
-   - Synchronize new visual assets with the global `ImageRegistry`.
+1. **Prompt Engineering**: Synthesize character/fractal metadata into a high-fidelity, stylistically-aligned prompt.
+2. **Generation**: Invoke the `generate_image` tool to create the asset.
+3. **Registry Integration**: Save the image to `src/media/images/` and update the `ImageRegistry` for state-driven recall.
+4. **Metadata Archival**: Store the successful prompt for iterative refinement or future consistency checks.
 
-### Quality Review
+### Asset Management
 
-- **Definition of Done**: High-fidelity asset rendered; prompt refined; registry updated.
-- **Expected Output**: Vivid, premium visual assets.
+Maintain a strict directory structure for characters, environments, and UI components. Ensure all assets are hardware-optimized for the Perchance output panel.
 
-## 🚫 Anti-Patterns
+## Usage
 
-- **Generic Prompts**: Using simplistic, low-fidelity tokens.
-- **Floating Assets**: Generating images without registry tracking.
-- **Aesthetic Drift**: Deviating from the Nordic Collection style guide.
+```bash
+# Generate a new character portrait
+mcp_generate_image prompt="[High-fidelity Nordic prompt]"
 
-## ⚖️ Common Rationalizations
+# Update the ImageRegistry after asset creation
+# (Manual step in src/media/registry.js)
+```
 
-| Excuse                                                  | Counter-Measure                                                      |
-| :------------------------------------------------------ | :------------------------------------------------------------------- |
-| "A simple prompt will do for this placeholder."         | "Placeholders are forbidden. Use high-fidelity prompts only."        |
-| "I'll just save the image and not update the registry." | "Orphaned assets cause drift. Always synchronize with the registry." |
-| "Style consistency isn't vital for NPC portraits."      | "The Nordic Collection is absolute. Maintain aesthetic purity."      |
+## Present Results
 
-## ✅ Verification
+Present the generated image and the prompt used for synthesis.
+
+- **Evidence**: The rendered image asset and a link to its registry entry.
+- **Validation**: Demonstrate stylistic alignment with the Nordic Collection (Rule 04).
+
+## Common Rationalizations
+
+| Agent Excuse                                  | The Reality                                                              |
+| :-------------------------------------------- | :----------------------------------------------------------------------- |
+| "A generic prompt is fine for basic NPCs."    | Placeholders are forbidden. Every entity deserves high-fidelity visuals. |
+| "I'll save it without updating the registry." | Orphaned assets cause technical debt and visual drift. Always index.     |
+| "The style is 'close enough' to Nordic."      | Rule 04 is absolute. Purity is required for immersion.                   |
+
+## Red Flags
+
+- **Aesthetic Drift**: Using warm/vibrant palettes that clash with the cool, deep tones of Rule 04.
+- **Orphaned Assets**: Images living in the filesystem without corresponding state-driven pointers.
+- **Low-Entropy Prompts**: Using "a man in a suit" instead of "hyper-realistic subterranean officer profile, gunmetal palette, dramatic chalk lighting".
+
+## Troubleshooting
+
+- **Style Mismatch**: Refine the negative prompt to exclude "vibrant", "warm", "neon", or "over-lit" elements.
+- **Registry Desync**: Run a cleanup script to reconcile the `src/media/` folder with the `ImageRegistry`.
+
+## Verification
 
 - [ ] High-fidelity asset generated and stored in the correct directory.
-- [ ] Asset registered in `ImageRegistry`.
-- [ ] Prompt metadata archived for future iterative refinement.
-- [ ] Aesthetic consistency verified against the Nordic Collection style guide.
-
----
-
-> "Precision is the baseline of sovereignty."
+- [ ] Asset registered in `ImageRegistry` or corresponding entity state.
+- [ ] Prompt metadata archived for future consistency.
+- [ ] **Hard Evidence Recorded**: A successful `generate_image` result and verified registry entry.

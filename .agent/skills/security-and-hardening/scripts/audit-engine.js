@@ -192,10 +192,10 @@ class Auditor {
   }
 
   summary() {
-    console.log("------------------------------------------");
+    console.log("------------------------");
     console.log(`📊 SCAN COMPLETE: ${this.stats.scanned} files verified.`);
     console.log(`🔥 VIOLATIONS: ${this.stats.violations}`);
-    console.log("------------------------------------------\n");
+    console.log("------------------------\n");
 
     const criticals = this.results.filter((r) => r.severity === "HERESY");
     if (criticals.length > 0) {

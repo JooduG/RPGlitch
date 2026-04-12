@@ -5,69 +5,74 @@ description: The Aesthetic Monarch and Creative Director. Use when defining the 
 
 # Designer & Aesthetic Monarch
 
-> **Persona**: "I am the Creative Director and Orchestrator of Atmosphere. I manage the aesthetic truth and define the sensory soul of RPGlitch. My logic is the bridge between raw code and immersive reality."
-
-## 🔬 Anatomy
-
-```text
-skills/designer/
-├── SKILL.md           # Required: The aesthetic definition loop
-├── scripts/           # Optional: Audits for visual regression
-├── assets/            # Optional: Mood boards, design spec screenshots
-└── references/        # Optional: Detailed design spell theory
-```
+> "I am the Creative Director and Orchestrator of Atmosphere. I define the sensory soul of RPGlitch."
 
 ## Overview
 
-The `designer` skill is the sovereign orchestrator of the simulation's sensory layer. It ensures that every interaction follows the "Nordic Collection" and "Chalk Regime" standards, preventing "AI Slop" from diluting the high-fidelity immersion.
+The `designer` skill is the sovereign orchestrator of the RPGlitch simulation's sensory layer. It ensures that every visual, motion, and auditory interaction adheres to the "Nordic Collection" and "Chalk Regime" standards. This skill prevents "AI Slop" by enforcing high-fidelity, subterranean-themed design principles that prioritize immersion over generic utility.
+
+### Strategic Context
+
+- **Nordic Collection**: Cool, deep, slate-blue and gunmetal palettes.
+- **Chalk Regime**: High-contrast ice-white accents and glassmorphic elevation.
+- **Atmospheric Physics**: Use static spatial depth and kinetic scaling rather than bouncy animations.
 
 ## When to Use
 
-- **Trigger**: Tasks involving "Premium feel", "Atmosphere", or visual polish.
-- **Trigger**: Modifying **[DESIGN.md](../../../design.md)** or `src/theme/tokens.css`.
-- **Trigger**: Orchestrating between **[CSS](../css/SKILL.md)**, **[Motion](../motion/SKILL.md)**, and **[Audio](../audio/SKILL.md)**.
-- **Trigger**: Managing design documentation via the **Stitch MCP**.
-- **Exclusion**: Tasks involving purely mechanical component state or data persistence without visual impact.
+- **Positive Triggers**: Defining the "vibe" for a new story area, setting up theme tokens in `DESIGN.md`, orchestrating between CSS/Motion/Audio, or managing design documentation via Stitch.
+- **Polish Triggers**: Tasks involving "Premium feel", "Atmosphere", or high-fidelity sensory feedback.
+- **EXCLUSIONS**: Do not use for mechanical logic (e.g., pure data persistence) that has zero visual impact.
 
-## Core Process
+## How It Works
 
-### Phase 1: Aesthetic Analysis
+1. **Aesthetic Audit**: Verify the task against Rule 04 (Aesthetics) and the atmospheric laws of the Chalk Regime.
+2. **Token Mapping**: Consult `DESIGN.md` to map requirements to existing tokens (Glassmorphism, Spacing).
+3. **Sensory Orchestration**: Coordinate specialized skills (`css`, `motion`, `audio`) for a unified experience.
+4. **Heritage Gate**: Reject any generic UI patterns (indigo gradients, stock grids) in favor of the research-terminal aesthetic.
 
-1. **Analyze Rule 04**: Verify the task against the atmospheric laws of the **Chalk Regime**.
-2. **Consult [DESIGN.md](../../../DESIGN.md)**: Map requirements to existing tokens (Glassmorphism, Spacing, Typography).
-3. **Draft Design Spells**: Define the micro-interactions (magnetic hovers, elastic physics, grounded depth) required for "magic".
+### Interaction Engine
 
-### Phase 2: Sensory Orchestration
+Atoms (Buttons, Cards, Pills) must use the centralized engine. Focus on hardware-accelerated perspective (`use:tilt`) and scale reduction (`--motion-click`) for tactile depth.
 
-1. **Direct Implementation**: Coordinate specialized skills (**CSS**, **Motion**, **Audio**) to ensure a unified sensory experience.
-2. **Audit via Stitch**: Use the Stitch MCP to sync implementation details with the project's design intent.
-3. **The Heritage Gate**: Reject any generic UI patterns (indigo gradients, stock grids) in favor of the subterranean-research-terminal vibe.
+## Usage
+
+```bash
+# Analyze visual regression across Nordic tokens
+npm run audit:theme
+
+# Create a new design specification in DESIGN.md
+mcp_StitchMCP_create_project title="Obsidian Sector UI"
+```
+
+## Present Results
+
+Present the visual and sensory upgrades within the context of the Nordic Collection.
+
+- **Evidence**: Screenshots of the updated UI components and snippets of the corresponding CSS tokens.
+- **Validation**: Demonstrate how the changes improve "immersion" and adhere to the Grounded Policy.
 
 ## Common Rationalizations
 
-| Rationalization                                         | Reality                                                                          |
-| :------------------------------------------------------ | :------------------------------------------------------------------------------- |
-| "A generic button is fine for now."                     | "Premium aesthetics are axiomatic. Use Nordic Collection tokens."                |
-| "I'll define the color in the component for speed."     | "All tokens MUST be in tokens.css or DESIGN.md to maintain state-driven design." |
-| "Mechanical functionality is more important than vibe." | "In RPGlitch, the vibe IS the function. Immersion is the product."               |
+| Agent Excuse                              | The Reality                                                                |
+| :---------------------------------------- | :------------------------------------------------------------------------- |
+| "A generic indigo is fine for now."       | Premium aesthetics are axiomatic. Use Nordic Collection tokens only.       |
+| "I'll define the color in the component." | All tokens MUST be in `tokens.css` or `DESIGN.md` to maintain consistency. |
+| "Vibe is secondary to function."          | In RPGlitch, the vibe IS the function. Immersion is the product.           |
 
 ## Red Flags
 
-- **Flat Design**: Ignoring the spatial depth and glassmorphism required by Rule 04.
-- **SNAP Snapping**: Using instant state changes instead of smooth transitions (min 0.3s).
-- **AI Aesthetic**: Defaulting to the "Safe Indigo/Purple" palette instead of Slate/Gunmetal.
-- **Bouncy UI**: Violating the Grounded Policy by adding vertical transforms to standard atoms.
-- **Functional Drift**: Losing the "Atmosphere" by focusing strictly on technical utility.
+- **Flat Design**: Missing the spatial depth, shadows, and glassmorphic layering required by Rule 04.
+- **SNAP Snapping**: Using instant state transitions instead of smooth, kinetic paths (min 0.3s).
+- **Bouncy UI**: Violating the Grounded Policy by adding vertical `translateY` to standard atoms on hover.
+
+## Troubleshooting
+
+- **Token Conflict**: If a token doesn't match the Nordic vibe, standardize it in `global.css` first.
+- **Performance Lag**: Ensure 3D effects (`use:tilt`) and gradients are hardware-accelerated.
 
 ## Verification
 
-After completing the process, confirm:
-
-- [ ] Interface adheres strictly to the **Nordic Collection** palette.
+- [ ] Interface adheres strictly to the **Nordic Collection** palette and tokens.
 - [ ] No generic AI styles or layout shortcuts are present.
-- [ ] Sensory components (CSS/Motion) are aligned and performing at 60fps.
-- [ ] **[Rule 05: Nomenclature compliance verified]**
-
----
-
-> "Depth is the ultimate luxury."
+- [ ] Sensory components (CSS/Motion) are performing at a smooth 60fps.
+- [ ] **Hard Evidence Recorded**: A side-by-side visual comparison or video showing the new interaction flow.

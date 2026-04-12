@@ -46,7 +46,7 @@ Perform Complexity Triage via the [Master Dispatcher](./.agent/skills/using-agen
 
 Map the risk tier based on your most severe likely hypothesis. Level 3 tasks REQUIRE transition to the **Strategy** role to resolve ambiguity using the [Master Dispatcher](./.agent/skills/using-agent-skills/SKILL.md).
 
-- **Low Risk (Level 1)**: Typos, CSS tweaks, minor logic. 
+- **Low Risk (Level 1)**: Typos, CSS tweaks, minor logic.
 - **Medium Risk (Level 2)**: Refactors, state migrations, features.
 - **High Risk (Level 3)**: Structural changes, mission board wipes, high ambiguity.
 
@@ -153,7 +153,7 @@ Trigger a Mandatory _Self-Audit_ via `metacognitiveMonitoring` **IF**:
 - You experience _3 consecutive Skill Verification failures_ (as defined in the skill's exit criteria).
 - You experience _3 consecutive_ Definition of Done failures.
 - You make _3+ tool calls_ without measurable progress.
-- You want to. 
+- You want to.
 
 ## 🛑 8. Inhibit Your Response
 

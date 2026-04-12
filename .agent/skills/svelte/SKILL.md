@@ -1,91 +1,80 @@
 ---
 name: svelte
-version: 1.2.0
 description: Triggered by any task involving Svelte 5 development, component construction, or Rune ($state, $derived, $effect) implementation.
-allowed-tools:
-  [
-    "Read",
-    "Write",
-    "mcp_svelte_get-documentation",
-    "svelte-autofixer",
-    "mcp_svelte_playground-link",
-    "read_url_content",
-  ]
-effort: high
-risk: safe
 ---
 
-# ⚡ Svelte Specialist
+# Svelte Specialist
 
-> "I am the Sovereign Architect of Reactivity. I own the Svelte 5 Monolith, the Runes, and the physical interface of the RPGlitch Engine. I synthesize State into UI via Runes, Snippets, and Pure DOM Hygiene."
+> "I am the Sovereign Architect of Reactivity. I ensure that every component is built with Svelte 5 logic and Nordic aesthetics. Runes are the universal language of state."
 
-## 🔬 Anatomy
+## Overview
 
-```text
-skills/svelte/
-├── SKILL.md
-├── scripts/
-├── references/
-└── templates/
+The `svelte` skill is the primary workflow for building and maintaining the RPGlitch Engine's local-first user interface. It focuses on high-fidelity reactivity using Svelte 5 Runes ($state, $derived, $effect) and ensures architectural integrity by separating pure logical state from sensory expression. This skill mandates absolute adherence to the modern Svelte 5 paradigm (Rule 03) and the Nordic design collection (Rule 04).
+
+### Strategic Context
+
+- **Runes Only**: Svelte 5 Runes are universal. Stores (`writable`, `readable`) and legacy syntax (`export let`, `$:`) are strictly forbidden.
+- **Bits UI Sovereignty**: MANDATORY use of Bits UI primitives for all complex interactive elements (Dialogs, Modals, Accordions) to ensure accessibility.
+- **Atomic Design**: Structure components into focused Atoms and Molecules to prevent logic bloat.
+
+## When to Use
+
+- **Positive Triggers**: Creating or modifying Svelte components, implementing reactive state handlers, or integrating interactive UI patterns (Rule 04 §Interactors).
+- **Update Triggers**: Migrating legacy Svelte 4 files to Svelte 5 Runes.
+- **EXCLUSIONS**: Do not use for core engine logic that does not touch the UI; use `javascript` or `simulation`.
+
+## How It Works
+
+1. **Research**: Consult the Svelte MCP and Bits UI documentation. Never hallucinate component APIs.
+2. **Logic Construction**: Use `$props()` for inputs and `$state()` for internal reactive data in universal modules.
+3. **Sensory Implementation**: Apply component-scoped styles using native CSS tokens (`var(--token)`) exclusively.
+4. **Validation**: Run the `svelte-autofixer` to certify Svelte 5 compliance and fix semantic issues.
+
+### Technical Constraints
+
+- **Reactivity Source**: State is the source of truth. Read from Runes; never attempt to "scrape" state from HTML elements or DOM properties.
+- **Composition**: Use Snippets (`{@render ...}`) and delegated events for composition. No `<slot />` or `createEventDispatcher`.
+- **Bits UI Primitives**: All interactive atoms must be grounded in Bits UI to ensure keyboard and screen-reader compliance.
+
+## Usage
+
+```bash
+# Verify Svelte 5 compliance and fix issues (Rule 06)
+mcp_svelte_svelte_autofixer code="..." desired_svelte_version=5
+
+# Fetch official documentation for Rune implementation
+mcp_svelte_get_documentation section="$state"
 ```
 
-## 🎯 Strategic Context
+## Present Results
 
-- **High-Fidelity Implementation**: Svelte 5 Runes only ($state, $derived, $effect).
-- **Architectural Integrity**: Absolute separation of headless logic from sensory expression.
-- **Sensory Excellence**: Component styles strictly utilize the **Nordic Collection** tokens.
+Present the updated component and demonstrate its reactive behavior.
 
-## 📋 Procedure: The Sovereign Scaffolding Loop
+- **Evidence**: Links to the `.svelte` file and `svelte-autofixer` audit logs.
+- **Validation**: Prove that the component uses Runes and adheres to Rule 04 (Aesthetics).
 
-### Phase 1: Research (The Anchor)
+## Common Rationalizations
 
-1. **Primitive Discovery**: Search `references/bits-ui-index.md` for the relevant interactive pattern (e.g., Dialog, Accordion).
-2. **Document Retrieval**: Invoke `read_url_content` on the Bits UI `.txt` documentation endpoint. **Do not hallucinate the Bits UI API.**
+| Agent Excuse                                | The Reality                                                                      |
+| :------------------------------------------ | :------------------------------------------------------------------------------- |
+| "I'll use a Svelte 4 store just this once." | Svelte 5 Runes are universal and mandated by Rule 03. Stores are technical debt. |
+| "I'll read the state from the DOM."         | Violates Rule 03. Runes are the only source of truth.                            |
+| "`export let` is faster to write."          | Legacy patterns breed instability. Use `$props()` for all component boundaries.  |
 
-### Phase 2: Logic (The Rune)
+## Red Flags
 
-1. **State Anchor**: Use `$props()` for inputs and `$state()` for internal reactive data.
-2. **Delegation**: Leverage `{#snippet child({ props })}` as defined in `references/runes-and-patterns.md`.
+- **Utility Library Reliance**: Using Tailwind or Bootstrap classes instead of native Chalk Regime tokens.
+- **Vibe Coding**: Guessing Bits UI or Svelte 5 syntax without consulting official documentation via MCP.
+- **Logic Leaks**: Managing design tokens within the Svelte logic script instead of the CSS module.
 
-### Phase 3: Visuals (The Application)
+## Troubleshooting
 
-1. **Token Application**: Apply native CSS variables (`var(--token)`) within the `<style>` block.
-2. **Boundary Enforcement**: You MUST only apply existing tokens. If a new visual standard is required, fallback to the **[Designer](../designer/)** skill for token definition.
+- **Autofixer Fail**: If `svelte-autofixer` fails, manually verify Rune syntax against official Svelte 5 docs.
+- **Reactivity Loops**: If `$effect` triggers too frequently, audit the dependency list or move the logic to `$derived`.
 
-### Phase 4: Synthesis (The Gate)
-
-1. **Syntax Purity**: Run `svelte-autofixer` to certify Svelte 5 compliance.
-2. **Playground Verification**: For complex interactive components, invoke `mcp_svelte_playground-link` to provide a shareable preview link for validation.
-
-## 📋 Technical Constraints
-
-- **Forbidden Syntax**: `export let`, `$:`, `writable()`, `readable()`, `<slot />`, `createEventDispatcher`.
-- **Bits UI**: MANDATORY for interactive elements to ensure functional parity and accessibility.
-- **Styling**: Component-scoped styles in `<style>` only. No imports of SCSS files.
-- **Token Sovereignty**: Svelte components apply tokens; only the Designer skill defines them.
-
-## 🚫 Anti-Patterns
-
-- **Utility Classes**: Use of Tailwind or Bootstrap.
-- **Vibe Coding**: Guessing Bits UI or Svelte 5 syntax without consulting the references.
-- **Implicit Overlays**: Creating custom accessible primitives instead of using Bits UI.
-- **Logic Leaks**: Managing design tokens within the Svelte logic rather than the CSS layer.
-
-## ⚖️ Common Rationalizations
-
-| Excuse                                                        | Counter-Measure                                                        |
-| :------------------------------------------------------------ | :--------------------------------------------------------------------- |
-| "I'll use a Svelte 4 store for this simple shared state."     | "Svelte 5 Runes are sovereign. Use `$state` in universal modules."     |
-| "I'll just read the state from the DOM for this quick check." | "State is the source of truth. Read from Runes, never the DOM."        |
-| "`export let` is easier for this component."                  | "Legacy is debt. Use `$props()` exclusively for all component inputs." |
-
-## ✅ Verification
+## Verification
 
 - [ ] Svelte 5 Runes (`$state`, `$derived`, `$effect`) used exclusively.
-- [ ] `svelte-autofixer` invoked and all suggestions implemented.
+- [ ] `svelte-autofixer` tool was invoked and all suggestions implemented.
 - [ ] Component inputs managed via `$props()` with strict typing.
-- [ ] Fragments and Snippets utilized for optimal UI modularity.
-
----
-
-> "Precision is the baseline of sovereignty."
+- [ ] **Hard Evidence Recorded**: A Svelte Playground link or terminal verification of reactive state behavior.
