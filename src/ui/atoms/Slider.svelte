@@ -17,7 +17,7 @@
 
 <div class="slider-group" class:disabled>
   <span class="slider-label">
-    {label}: {disabled ? 'DISABLED' : (Number(value) || 1.0).toFixed(1)}
+    {label}: {disabled ? 'DISABLED' : (value ?? 1.0).toFixed(1)}
   </span>
   <input
     type="range"

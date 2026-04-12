@@ -15,20 +15,18 @@
       .trim();
   }
 
-  // [CRITICAL] Synchronously ensure the voice object and defaults exist
-  if (!char.voice) {
-    char.voice = { uri: "", rate: 1.0, pitch: 1.0 };
-  } else {
-    if (char.voice.rate === undefined || char.voice.rate === null) char.voice.rate = 1.0;
-    if (char.voice.pitch === undefined || char.voice.pitch === null) char.voice.pitch = 1.0;
-  }
+  // Synchronously ensure voice object and defaults exist
+  const ensure_voice = () => {
+    if (!char.voice) {
+      char.voice = { uri: "", rate: 1.0, pitch: 1.0 };
+    } else {
+      char.voice.rate ??= 1.0;
+      char.voice.pitch ??= 1.0;
+    }
+  };
 
-  // Reactive guard for state swaps
-  $effect(() => {
-    if (!char.voice) return;
-    if (char.voice.rate === undefined || char.voice.rate === null) char.voice.rate = 1.0;
-    if (char.voice.pitch === undefined || char.voice.pitch === null) char.voice.pitch = 1.0;
-  });
+  ensure_voice();
+  $effect(ensure_voice);
 </script>
 
 <div
