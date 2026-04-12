@@ -303,7 +303,6 @@ export const prompt_builder = {
         .map((m) => {
           const role =
             m.role === "user" ? "USER_PERSONA" : m.role === "prologue" ? "FRACTAL" : "AI_CHARACTER";
-          const nameAttr = m.character_name ? ` name="${m.character_name}"` : "";
           return `    <entry role="${role}"${m.character_name ? ` name="${escapeXml(m.character_name)}"` : ""}>${escapeXml(strip_cognition_blocks(m.content))}</entry>`;
         })
         .join("\n");
