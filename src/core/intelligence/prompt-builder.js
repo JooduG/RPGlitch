@@ -21,7 +21,7 @@
 
 import { vector_engine } from "./vector-engine.js";
 import { ENTITY_CATALOG } from "./entity-fragments.js";
-import { escapeXml } from "../engine/text-parser.js";
+import { escapeXml, strip_cognition_blocks } from "../engine/text-parser.js";
 
 export const SYSTEM_PROMPTS = {
   /**
