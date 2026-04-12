@@ -100,7 +100,7 @@ export class ReactiveSession {
       app.log(`Simulation entering Round ${runtime.round}...`, "system");
 
       // PHASE 4: PERSIST (Data)
-      await runtime.save(runtime.turn);
+      await runtime.save(runtime.round);
     } catch (e) {
       app.log(`Simulation Error: ${e.message}`, "error");
       console.error("[Session] advance_turn Failed:", e);

@@ -39,6 +39,11 @@ describe("llm_service - sanitize", () => {
     expect(sanitize("  Hello World  ")).toBe("Hello World");
     expect(sanitize("\nHello World\n")).toBe("Hello World");
   });
+
+  it("should PRESERVE <think> blocks in llm response", () => {
+    const input = "<think>I need to be mysterious.</think>Hello Ghost.";
+    expect(sanitize(input)).toBe(input);
+  });
 });
 
 describe("llm_service - generate", () => {
