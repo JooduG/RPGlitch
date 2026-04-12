@@ -37,12 +37,12 @@ export function sanitize(text) {
   if (!text) return "";
 
   // 1. Strip deep-think blocks to prevent Context Window collapse
-  let sanitized = strip_cognition_blocks(text);
+  const sanitized = strip_cognition_blocks(text);
 
   // 2. Clean standard AI filler and artifacts
   return sanitized
-    .replace(/^["']|["']$/g, "")
     .replace(/^(here is|sure|certainly|i can help|enhanced text:|the enhanced text).*?:/i, "")
+    .replace(/^["']|[ "']$/g, "")
     .replace(/^\s*```.*?[\r\n]/gm, "")
     .replace(/```\s*$/gm, "")
     .trim();
