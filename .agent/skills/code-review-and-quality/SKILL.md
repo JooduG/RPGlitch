@@ -78,7 +78,7 @@ Present the review findings and the final verdict.
 
 ## Troubleshooting
 
-- **Review Deadlock**: If there's a disagreement, defer to технически data, style guides, and engineering principles.
+- **Review Deadlock**: If there's a disagreement, defer to technical data, style guides, and engineering principles.
 - **Inconsistent Feedback**: Use a standardized checklist to ensure every review covers all axes.
 
 ## Verification
