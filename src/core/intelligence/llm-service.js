@@ -36,8 +36,8 @@ import { strip_cognition_blocks } from "../engine/text-parser.js";
 export function sanitize(text) {
   if (!text) return "";
 
-  // 1. Remove `<think>` blocks
-  let clean = strip_cognition_blocks(text);
+  // 1. Remove 'think' blocks and trim to ensure start-anchored regexes match
+  let clean = strip_cognition_blocks(text).trim();
 
   // 2. Clean standard AI filler and artifacts
   return clean
