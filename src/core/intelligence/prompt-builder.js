@@ -178,7 +178,7 @@ Output strict JSON only: { "summary": "...", "vector_tags": ["...", "..."] }
     return `
 <SYSTEM role="${roleSafe}" enhancing="${labelSafe}">
 <INSTRUCTIONS>
-${directive}
+${escapeXml(directive)}
 </INSTRUCTIONS>
 <PROTOCOLS>
 ${prompt_builder.render_protocols("HYGIENE, AFFIRMATIVE, IMMERSION, SUPPRESS_TECHNICAL_DIRECTIVES")}
