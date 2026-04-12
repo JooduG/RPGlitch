@@ -112,6 +112,7 @@ export function escapeXmlAttributes(str) {
   return str
     .replace(/&/g, "&amp;")
     .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/\[/g, "&#91;") // Optional: hardening against internal tagging
