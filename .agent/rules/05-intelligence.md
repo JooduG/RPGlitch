@@ -146,10 +146,12 @@ A single lean line emitted at the end of each response. No tables, no lists.
 ```
 
 **Examples:**
+
 ```
 > ⚒️ Operations | `incremental-implementation` | /build
 > 🎨 Tactics | `planning-and-task-breakdown` | /plan
 > 🎭 Strategy | `spec-driven-development` | /spec
+
 ```
 
 > [!TIP]
