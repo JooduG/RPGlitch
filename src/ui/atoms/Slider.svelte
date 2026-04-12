@@ -15,7 +15,7 @@
   } = $props();
 </script>
 
-<div class="slider-group" class:disabled>
+<label class="slider-group" class:disabled>
   <span class="slider-label">
     {label}: {disabled ? 'DISABLED' : (value ?? 1.0).toFixed(1)}
   </span>
@@ -28,7 +28,7 @@
     {disabled}
     onchange={(e) => onchange?.(e)}
   />
-</div>
+</label>
 
 <style>
   .slider-group {
@@ -71,7 +71,7 @@
     width: 100%;
     height: 0.25rem;
     background: var(--glass-xs);
-    box-shadow: inset 0 1px 2px rgb(0 0 0 / 40%);
+    box-shadow: inset 0 1px 2px rgb(var(--color-black-rgb) / var(--opacity-s));
     border-radius: var(--border-radius-full);
     border: none;
   }
@@ -80,7 +80,7 @@
     width: 100%;
     height: 0.25rem;
     background: var(--glass-xs);
-    box-shadow: inset 0 1px 2px rgb(0 0 0 / 40%);
+    box-shadow: inset 0 1px 2px rgb(var(--color-black-rgb) / var(--opacity-s));
     border-radius: var(--border-radius-full);
     border: none;
   }
@@ -125,13 +125,15 @@
 
   input[type="range"]:disabled::-webkit-slider-thumb {
     appearance: none;
-    background: transparent;
+    background: var(--color-frozen);
+    opacity: var(--opacity-s);
     box-shadow: none;
     border: none;
   }
 
   input[type="range"]:disabled::-moz-range-thumb {
-    background: transparent;
+    background: var(--color-frozen);
+    opacity: var(--opacity-s);
     box-shadow: none;
     border: none;
   }

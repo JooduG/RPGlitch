@@ -40,6 +40,7 @@
         <button
           class="voice-button seamless-field"
           type="button"
+          disabled={!is_editing}
           onclick={() => (show_voice_dropdown = !show_voice_dropdown)}
           title="Select Voice"
         >
@@ -80,7 +81,7 @@
   <div class="wing-body">
     <div class="sliders">
       <Slider
-        min={0.0}
+        min={0.1}
         max={2.0}
         step={0.1}
         bind:value={char.voice.rate}
@@ -88,7 +89,7 @@
         label="Rate"
       />
       <Slider
-        min={0.0}
+        min={0.1}
         max={2.0}
         step={0.1}
         bind:value={char.voice.pitch}

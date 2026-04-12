@@ -406,7 +406,7 @@
     overflow: hidden;
   }
 
-  :global(.action-button) {
+  .action-row :global(.action-button) {
     height: 2.5rem;
     border-radius: 0;
     background: var(--glass-xs);
