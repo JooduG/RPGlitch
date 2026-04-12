@@ -13,6 +13,8 @@
 import { runtime } from "@state/runtime.svelte.js";
 import { ENTITY_CATALOG } from "./entity-fragments.js";
 import { clean_text } from "../engine/text-parser.js";
+import { dynamics_engine } from "./dynamics-engine.js";
+
 /************************************************************************************
  * 🧩 [SECTION: PRIVATE HELPERS]
  ************************************************************************************/
@@ -41,12 +43,11 @@ function to_data_points(entity) {
   const list = [];
   Object.entries(ENTITY_CATALOG).forEach(([fieldId, metadata]) => {
     let val = get_path_value(entity, fieldId);
-    if (!val && fieldId === "present.physical" && entity.description) {
-      val = entity.description; // Legacy fallback
-    }
+
     if (val && typeof val === "string") {
+      // FIX: Increase limit to 2000 for Entity Fragments to prevent truncation of identity blocks
       list.push({
-        text: clean_text(val),
+        text: clean_text(val, 2000),
         type: metadata.label,
         enhancer: metadata.enhancer,
         section: metadata.section_label || "Present",
@@ -72,6 +73,13 @@ export const context_broker = {
   async hydrate(input, type = "simulation", simulation_log = []) {
     const round = runtime.round || 1;
     const active_vector = runtime.active_vector("FRACTAL");
+
+    // Check for empathy/trust flags in recent input to conditionalize SUSPICIOUS_COGNITION
+    const matches = dynamics_engine.dynamics_scan(input);
+    const has_trust_plea = matches.some((m) => m.id === "VULNERABILITY" || m.id === "SUSPICIOUS");
+
+    // #TODO-AI: Build a vector lifecycle manager that marks a FUTURE_VECTOR as resolved
+    // when its semantic criteria are met in the simulation log, clearing it from the subsequent prompt payloads.
     // 1. Resolve Entities mapping (Role -> Data)
     const entries = [
       { role: "AI", data: runtime.active_ai },
@@ -128,6 +136,7 @@ export const context_broker = {
       rawMessages: simulation_log,
       meta: {
         active_vector,
+        is_suspicious: has_trust_plea,
         timestamp: new Date().toISOString(),
       },
     };

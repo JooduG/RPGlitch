@@ -16,6 +16,15 @@ export function parse_think_block(text) {
   return { content, think };
 }
 /**
+ * Strips all <think> blocks and optional trailing newlines.
+ * @param {string} text
+ * @returns {string}
+ */
+export function strip_cognition_blocks(text) {
+  if (!text) return "";
+  return text.replace(/<think>[\s\S]*?<\/think>\r?\n?/gi, "");
+}
+/**
  * Removes <image_prompt> tags from text.
  * @param {string} text
  * @returns {string}
@@ -92,6 +101,24 @@ export function parse_message(rawText) {
     sceneData: headerResult.header,
   };
 }
+
+/**
+ * Escapes characters for safe use in XML.
+ * @param {string} str
+ * @returns {string}
+ */
+export function escapeXml(str) {
+  if (typeof str !== "string") return "";
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\[/g, "&#91;") // Optional: hardening against internal tagging
+    .replace(/\]/g, "&#93;");
+}
+
 /**
  * Text sanitization for prompt safety.
  * Removes markdown-like characters and collapses whitespace.

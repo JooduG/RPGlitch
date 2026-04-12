@@ -1,75 +1,38 @@
 # MISSION COMMAND: TODO
 
 > **Status**: `[ACTIVE]`
-> **Last Update**: 2026-04-11
+> **Last Update**: 2026-04-12
 > **Current Milestone**: Milestone 1 (The Foundry)
 
 ## 🗺️ Project Roadmap
 
 ### Milestone 1: The Foundry (v0.5) - [ACTIVE]
-
 - [x] Core Runes Foundation (Svelte 5)
 - [x] The Data Pillar (Dexie.js)
 - [x] Diegetic UI Base (Nordic Regime)
 - [x] Chrono Kinetics (Simulation Cycle)
 - [x] Security Protocol (Warden/DOMPurify)
-
-### Milestone 2: Convergence (v1.0) - [UPCOMING]
-
-- [ ] Context Layering (Recursive Intelligence)
-- [ ] Sensory Bridges (Audio/SFX)
-- [ ] Fail-Forward Engine (Fallout UI)
+- [ ] Round Stability & Hygiene (Patch [037])
 
 ---
 
-### [035] Profile Field Aesthetic Standardization - [COMPLETED]
+### [037] State Atomicity & Token Asphyxiation Patch - [ACTIVE]
 
-- [x] Integrate `--field` tokens into `tokens.css`
-- [x] Implement `.seamless-field` foundation in `global.css`
-- [x] Applied unified standard to Header, Fragments, and Wings
-- [x] Verified interaction states across all Profile layers
-- [x] Update `tokens.css` with Frozen/Frisk hierarchy
-- [x] Standardize `LibraryDrawer` and `Wings`
-- [x] Sync `Modal` and `StoryboardCard` quick-links
+#### **Track 1: Hygiene (Stripping)**
+- [ ] Implement `strip_cognition_blocks` in `text-parser.js` (Regex-based)
+- [ ] Integrate into `llm-service.js` sanitization pipeline
+- [ ] Verify stripping via `text-parser.test.js`
 
-### [027] Interaction Engine Canonization - [COMPLETED]
-
-- [x] Unify tokens in `tokens.css` (Nomenclature Refac)
-- [x] Route master targets in `global.css`
-- [x] Purge component-level hover overrides (Filter/Background)
-- [x] Update `Button.svelte` active scale to `--motion-click`
-- [x] Final Grep Audit & Verification
-
-### [025] Glass Audit & Polish - [COMPLETED]
-
-**Goal**: Finalize Nordic Glassmorphism standardization and button alignment.
-
-- [x] Define `--glass-deep` (Chalk base).
-- [x] Establish Stealth Sync (Mirroring Antigravity -> tasks/).
-
-### [036] Nordic UI Component Harmonization - [COMPLETED]
-
-**Goal**: Harmonize Fetch, Upload, Select Voice, toggles, and sliders in Visual/Voice wings.
-
-- [x] Create `Slider.svelte` atom (Glass track, Frozen knob).
-- [x] Update `Toggle.svelte` track to `var(--glass-xs)`.
-- [x] Harmonize `VisualWing.svelte` buttons ("Fetch", "Upload/Generate").
-- [x] Refine `VoiceWing.svelte` sliders and custom button styles.
-- [x] Verify interaction consistency and Nordic aesthetic.
-
-### [024] Context Layering - [PAUSED]
-
-**Goal**: Recursive intelligence kernel integration.
-
-- [ ] Map vector-engine inputs to dynamics-engine.
+#### **Track 2: Control (Atomicity)**
+- [ ] Add `isProcessing` flag and locking methods to `session.svelte.js`
+- [ ] Wrap `advance_turn` in `session.svelte.js` with lock logic
+- [ ] Purge redundant `runtime.round` increments (session-driver, intelligence-kernel)
+- [ ] Verify atomic round stability in browser DevMode
 
 ---
 
 ## 🏁 Completed Missions (Recent)
-
-- **[035]** Profile Field Aesthetics: Standardized all text fields with Nordic Glass foundation.
-- **[023]** Nordic Glass Migration: Unified initial aesthetics for `LibraryCard` and `LibraryDrawer` (32% alpha base).
-- **[034]** Architectural Pivot: Unified Mission Command (Master Workflow Sync)
-- **[033]** StorymodeFeed Refactor (Rename from Prose)
-- **[022]** Project Hygiene & Debt Purge (100% Purity achieved)
-- **[031]** Jules Ecosystem Integration (Swarm logic initialized)
+- **[036]** Nordic UI Component Harmonization
+- **[035]** Profile Field Aesthetics
+- **[027]** Interaction Engine Canonization
+- **[025]** Glass Audit & Polish

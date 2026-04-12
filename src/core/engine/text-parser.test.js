@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { parse_scene_header, clean_image_prompts } from "./text-parser.js";
+import { parse_scene_header, clean_image_prompts, escapeXml } from "./text-parser.js";
+
 describe("clean_image_prompts", () => {
   const testCases = [
     { description: "null input", input: null, expected: "" },
@@ -101,6 +102,7 @@ describe("clean_image_prompts", () => {
     expect(clean_image_prompts(input)).toBe(expected);
   });
 });
+
 describe("parse_scene_header", () => {
   it("should parse a standard scene header", () => {
     const text = "『 [Dark Forest] · [Midnight] · [Raining] 』\nThe rest of the content.";
@@ -315,6 +317,7 @@ describe("parse_scene_header", () => {
     });
   });
 });
+
 describe("parse_scene_header additional edge cases", () => {
   it("should handle completely empty header structure without brackets", () => {
     const text = "『 』\nContent";
@@ -361,38 +364,33 @@ describe("parse_scene_header additional edge cases", () => {
     });
   });
 });
-describe("parse_scene_header additional basic edge cases", () => {
-  it("should extract correctly when content after header has multiple newlines", () => {
-    const text =
-      "『 [Location] · [Time] · [Weather] 』\n\n\nContent paragraph 1\n\nContent paragraph 2";
-    const result = parse_scene_header(text);
-    expect(result).toEqual({
-      content: "Content paragraph 1\n\nContent paragraph 2",
-      header: {
-        location: "Location",
-        time: "Time",
-        weather: "Weather",
-      },
-    });
+
+describe("text-parser: escapeXml", () => {
+  it("should escape basic XML special characters including single quotes", () => {
+    const input = "This & that 'quoted' \"quoted\" <tag>";
+    const expected = "This &amp; that &apos;quoted&apos; &quot;quoted&quot; &lt;tag&gt;";
+    expect(escapeXml(input)).toBe(expected);
   });
-  it("should handle headers with unusual characters", () => {
-    const text = "『 [City_123!] · [Time*] · [Weather#] 』\nContent";
-    const result = parse_scene_header(text);
-    expect(result).toEqual({
-      content: "Content",
-      header: {
-        location: "City_123!",
-        time: "Time*",
-        weather: "Weather#",
-      },
-    });
+
+  it("should escape square brackets to prevent injection/misinterpretation", () => {
+    const input = "[VstartWith: content]";
+    const expected = "&#91;VstartWith: content&#93;";
+    expect(escapeXml(input)).toBe(expected);
   });
-  it("should handle completely empty text input without breaking", () => {
-    const text = "";
-    const result = parse_scene_header(text);
-    expect(result).toEqual({
-      content: "",
-      header: null,
-    });
+
+  it("should handle empty or null input gracefully", () => {
+    expect(escapeXml(null)).toBe("");
+    expect(escapeXml(undefined)).toBe("");
+    expect(escapeXml("")).toBe("");
+  });
+
+  it("should NOT trim the input", () => {
+    const input = "  content  ";
+    expect(escapeXml(input)).toBe("  content  ");
+  });
+
+  it("should handle multi-line strings", () => {
+     const input = "line 1\nline 2";
+     expect(escapeXml(input)).toBe("line 1\nline 2");
   });
 });

@@ -13,6 +13,12 @@ RPGlitch is a high-fidelity, local-first simulation engine designed for immersiv
 - **Agentic Pacing**: Procedural story arcs managed by an autonomous Intelligence Kernel.
 - **Local Sovereignty**: Zero-latency, browser-resident state (Dexie.js).
 
+### Persistent Integrity
+- **Atomicity**: The simulation round increments are locked to prevent desynchronization during asynchronous turn transitions.
+- **Log Hygiene**: AI internal "thoughts" (`<think>` blocks) are purged before log persistence to maintain context window efficiency.
+- **Metadata Isolation**: Visual generation metadata (e.g., "8k", "hyper-realistic") is stripped from narrative prose to maintain diegetic immersion.
+- **XML Hygiene**: Outbound prompt attributes are escaped to prevent data structure corruption from unclosed brackets or quotes.
+
 ---
 
 ## 2. Technical Stack
@@ -50,7 +56,8 @@ RPGlitch/
 ### Narrative Logic (Rule 02)
 
 - **Diegetic Integrity**: Strict third-person limited for entities.
-- **Turn Cycle**: 1. System Turn (Lock) -> 2. AI Turn (Asynch) -> 3. User Turn (Release).
+- **Turn Cycle**: 1. System Turn (Lock/Round++) -> 2. AI Turn (Asynch/Strip) -> 3. User Turn (Release).
+- **Atomic Locking**: All state mutations affecting the current round must be performed via an `isProcessing` gate in `ReactiveSession`.
 
 ### Aesthetics (Rule 04)
 

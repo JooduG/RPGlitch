@@ -87,7 +87,6 @@ export const session_driver = {
    */
   send: async function (text) {
     const story_id = this.require_active();
-    runtime.round++;
     await db.simulation_log.add({
       story_id,
       role: "user",
