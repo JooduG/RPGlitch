@@ -160,7 +160,7 @@ ${prompt_builder.render_protocols("HYGIENE, AFFIRMATIVE, PRESENT")}
 Entity: ${entityNameSafe}
 </CONTEXT>
 <INPUT_HISTORY>
-${JSON.stringify(history, null, 2)}
+${escapeXml(JSON.stringify(history, null, 2))}
 </INPUT_HISTORY>
 <TASK_INSTRUCTION>
 Distil the input history into a structured Vector object.
