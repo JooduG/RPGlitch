@@ -68,7 +68,7 @@ export const SYSTEM_PROMPTS = {
 <PAST memory="${escapeXml(render_atom.past(fractal, 1, 0, { vector_text: true }))}" />
 </FRACTAL>
 <SIMULATION_LOG>${prompt_builder.render_history(simulation_log, 10)}</SIMULATION_LOG>
-<NARRATIVE_STYLE>${signal_prompts.length > 0 ? signal_prompts.join("\n") : "Use default style vectors."}</NARRATIVE_STYLE>
+<NARRATIVE_STYLE>${signal_prompts.length > 0 ? escapeXml(signal_prompts.join("\n")) : "Use default style vectors."}</NARRATIVE_STYLE>
 <PROTOCOLS>${prompt_builder.render_protocols(protocolSelection)}</PROTOCOLS>
 <TASK_INSTRUCTION>
 The stage is set and the pieces are on the board. Proceed with the simulation immediately.
