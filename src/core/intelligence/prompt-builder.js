@@ -184,7 +184,7 @@ ${directive}
 ${prompt_builder.render_protocols("HYGIENE, AFFIRMATIVE, IMMERSION, SUPPRESS_TECHNICAL_DIRECTIVES")}
 </PROTOCOLS>
 <INPUT_CONTENT>
-${content}
+${escapeXml(content)}
 </INPUT_CONTENT>
 </SYSTEM>`.trim();
   },
