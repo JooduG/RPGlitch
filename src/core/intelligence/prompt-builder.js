@@ -304,7 +304,7 @@ export const prompt_builder = {
           const role =
             m.role === "user" ? "USER_PERSONA" : m.role === "prologue" ? "FRACTAL" : "AI_CHARACTER";
           const nameAttr = m.character_name ? ` name="${m.character_name}"` : "";
-          return `    <entry role="${role}"${nameAttr}>${escapeXml(m.content)}</entry>`;
+          return `    <entry role="${role}"${nameAttr}>${escapeXml(strip_cognition_blocks(m.content))}</entry>`;
         })
         .join("\n");
     }
