@@ -48,7 +48,7 @@
 
   .toggle-switch.disabled {
     opacity: var(--opacity-m);
-    cursor: not-allowed;
+    cursor: default;
   }
 
   .toggle-switch.sm {
@@ -70,8 +70,8 @@
     position: relative;
     width: var(--switch-w);
     height: var(--switch-h);
-    background-color: var(--color-chalk);
-    box-shadow: inset 0 1px 2px rgb(var(--color-black-rgb) / 20%);
+    background-color: var(--glass-xs);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 40%);
     border-radius: var(--border-radius-full);
     transition: all var(--motion-fast) var(--motion-elastic);
     flex-shrink: 0;
@@ -85,7 +85,7 @@
     width: var(--thumb-size);
     left: calc((var(--switch-h) - var(--thumb-size)) / 2);
     top: calc((var(--switch-h) - var(--thumb-size)) / 2);
-    background-color: var(--color-frisk);
+    background-color: var(--color-frozen);
     border-radius: var(--border-radius-full);
     transition: all var(--motion-fast) var(--motion-elastic);
     box-shadow: var(--shadow-s);
@@ -98,7 +98,7 @@
 
   /* Checked State */
   .toggle-switch input:checked + .slider {
-    background-color: var(--color-gunmetal);
+    background-color: rgb(var(--color-frozen-rgb) / 10%);
     box-shadow: 0 0 0 1px rgb(var(--color-white-rgb) / var(--opacity-l));
   }
 
@@ -106,8 +106,8 @@
     transform: translateX(
       calc(var(--switch-w) - var(--thumb-size) - (var(--switch-h) - var(--thumb-size)))
     );
-    background-color: var(--color-white);
-    box-shadow: 0 0 var(--spacing-s) rgb(var(--color-white-rgb) / 40%);
+    background-color: var(--color-frozen);
+    box-shadow: 0 0 var(--spacing-s) rgb(var(--color-frozen-rgb) / 40%);
   }
 
   /* Label Text */
@@ -121,7 +121,7 @@
     transition: color var(--motion-fast);
   }
 
-  .toggle-switch:hover .label-text {
+  .toggle-switch:hover:not(.disabled) .label-text {
     color: var(--color-white);
   }
 

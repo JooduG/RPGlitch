@@ -41,6 +41,14 @@
 - [x] Define `--glass-deep` (Chalk base).
 - [x] Establish Stealth Sync (Mirroring Antigravity -> tasks/).
 
+### [036] Nordic UI Component Harmonization - [COMPLETED]
+**Goal**: Harmonize Fetch, Upload, Select Voice, toggles, and sliders in Visual/Voice wings.
+- [x] Create `Slider.svelte` atom (Glass track, Frozen knob).
+- [x] Update `Toggle.svelte` track to `var(--glass-xs)`.
+- [x] Harmonize `VisualWing.svelte` buttons ("Fetch", "Upload/Generate").
+- [x] Refine `VoiceWing.svelte` sliders and custom button styles.
+- [x] Verify interaction consistency and Nordic aesthetic.
+
 ### [024] Context Layering - [PAUSED]
 **Goal**: Recursive intelligence kernel integration.
 - [ ] Map vector-engine inputs to dynamics-engine.

@@ -256,6 +256,7 @@
         <Button
           variant={creative_variant}
           size="sm"
+          className="action-button"
           label={creative_label}
           onclick={handle_creative_action}
           disabled={is_creative_disabled}
@@ -263,6 +264,7 @@
         <Button
           variant={generation_variant}
           size="sm"
+          className="action-button"
           label={is_prompt_busy ? "Busy..." : has_prompt_text ? "Generate" : "Upload"}
           onclick={handle_generation_action}
           disabled={!is_editing || is_prompt_busy}
@@ -363,7 +365,7 @@
   .visual-prompt:disabled {
     opacity: var(--opacity-m);
     color: var(--font-color-s);
-    cursor: not-allowed;
+    cursor: default;
   }
 
   .spinner-overlay {
@@ -401,6 +403,29 @@
     border-top: 1px solid var(--glass-edge-l);
     border-bottom-left-radius: inherit;
     border-bottom-right-radius: inherit;
+    overflow: hidden;
+  }
+
+  :global(.action-button) {
+    height: 2.5rem;
+    border-radius: 0;
+    background: var(--glass-xs);
+    border: none;
+    border-right: 1px solid var(--glass-edge-l);
+    transition: all var(--motion-fast) var(--motion-elastic);
+  }
+
+  :global(.action-button:last-child) {
+    border-right: none;
+  }
+
+  :global(.action-button:hover:not(:disabled)) {
+    background: var(--glass-s);
+    filter: brightness(1.2);
+  }
+
+  :global(.action-button:active:not(:disabled)) {
+    transform: scale(0.98);
   }
 
   .toggle-stack {
