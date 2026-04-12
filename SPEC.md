@@ -14,6 +14,7 @@ RPGlitch is a high-fidelity, local-first simulation engine designed for immersiv
 - **Local Sovereignty**: Zero-latency, browser-resident state (Dexie.js).
 
 ### Persistent Integrity
+
 - **Atomicity**: The simulation round increments are locked to prevent desynchronization during asynchronous turn transitions.
 - **Log Hygiene**: AI internal "thoughts" (`<think>` blocks) are purged before log persistence to maintain context window efficiency.
 - **Metadata Isolation**: Visual generation metadata (e.g., "8k", "hyper-realistic") is stripped from narrative prose to maintain diegetic immersion.

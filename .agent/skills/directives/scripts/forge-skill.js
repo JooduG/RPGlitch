@@ -78,7 +78,9 @@ const createAsset = async (name, type = "skill", description = "") => {
       /\{\{(description|Description)\}\}/g,
       description || `A Sovereign ${searchType} asset.`,
     )
-    .replace(/\{\{Persona\}\}/g, `The ${title} Orchestrator`);
+    .replace(/\{\{Persona\}\}/g, `The ${title} Orchestrator`)
+    .replace(/\{\{script\}\}/g, slug)
+    .replace(/\{\{Reference\}\}/g, title);
 
   ensureDir(targetDir);
   fs.writeFileSync(path.join(targetDir, fileName), finalContent);

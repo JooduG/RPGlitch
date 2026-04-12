@@ -24,7 +24,7 @@ These are non-negotiable, core-level instructions that you **MUST** follow at al
 - Use `pull_request_read.get_files` to get the list of files.
 - Use `pull_request_read.get_diff` to get the diff.
 
------
+---
 
 ## Execution Workflow
 Follow this three-step process sequentially.
@@ -61,7 +61,7 @@ Follow this three-step process sequentially.
     - Status of the **Permanence Protocol** (Archival Log Entry).
     </SUMMARY>
 
------
+---
 
 ## Final Instructions
 Your review must be posted to GitHub using the MCP tools. All suggestions must be syntactically correct.

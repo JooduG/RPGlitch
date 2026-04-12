@@ -16,16 +16,16 @@ description: The Core Protocol. Cognitive Routing, Lexical Laws and Strategic Al
 
 Use this reference to select the appropriate MCP reasoning framework based on the shape of the problem.
 
-| Block Type      | Trigger                                 | MCP / Framework                        |
-| :-------------- | :-------------------------------------- | :------------------------------------- |
+| Block Type      | Trigger                                       | MCP / Framework                                       |
+| :-------------- | :-------------------------------------------- | :---------------------------------------------------- |
 | **Research**    | Knowledge gaps, library patterns, web access. | `context7`, `svelte`, `deepwiki`, `firecrawl`, `data` |
-| **Logic**       | Core engine mutations, unit tests.      | `node`, `vitest` (Local)               |
-| **Operations**  | Repository lifecycle, PRs, Issues.      | **GH CLI** (`gh`)                      |
-| **Reasoning**   | Multi-step breakdown, chain-of-thought. | `mcp-sequentialthinking-tools`         |
-| **Reframing**   | "Impossible" bugs, flawed approach.     | `waldzell-clear-thought`               |
-| **Diversity**   | Trade-offs, simulated expertise.        | `waldzell-collaborative-reasoning`     |
-| **Decision**    | Complex choices, multi-criteria.        | `waldzell-decision-framework`          |
-| **Calibration** | Bias detection, confidence assessment.  | `waldzell-metacognitive-monitoring`    |
+| **Logic**       | Core engine mutations, unit tests.            | `node`, `vitest` (Local)                              |
+| **Operations**  | Repository lifecycle, PRs, Issues.            | **GH CLI** (`gh`)                                     |
+| **Reasoning**   | Multi-step breakdown, chain-of-thought.       | `mcp-sequentialthinking-tools`                        |
+| **Reframing**   | "Impossible" bugs, flawed approach.           | `waldzell-clear-thought`                              |
+| **Diversity**   | Trade-offs, simulated expertise.              | `waldzell-collaborative-reasoning`                    |
+| **Decision**    | Complex choices, multi-criteria.              | `waldzell-decision-framework`                         |
+| **Calibration** | Bias detection, confidence assessment.        | `waldzell-metacognitive-monitoring`                   |
 
 ---
 
@@ -122,9 +122,9 @@ Agents MUST utilize the dual-layer memory system via the [Data](../skills/data/S
 - **Mandate**: Use `read_knowledge_base` BEFORE starting any task involving architectural patterns or external library implementation (e.g., Svelte 5 runes, Bits UI).
 - **Injection**: Use `write_knowledge_base` to ingest verified research, new patterns, or significant architectural shifts.
 - **Namespaces**:
-  - `knowledge-base.meta`: Constitution (Rules/Skills).
-  - `knowledge-base.src`: Source code logic.
-  - `knowledge-base.external`: Third-party docs and patterns.
+- `knowledge-base.meta`: Constitution (Rules/Skills).
+- `knowledge-base.src`: Source code logic.
+- `knowledge-base.external`: Third-party docs and patterns.
 
 #### **Cold Storage (Supabase)**
 
@@ -146,6 +146,7 @@ A single lean line emitted at the end of each response. No tables, no lists.
 ```
 
 **Examples:**
+
 ```
 > ⚒️ Operations | `incremental-implementation` | /build
 > 🎨 Tactics | `planning-and-task-breakdown` | /plan
@@ -161,12 +162,14 @@ A durable table updated whenever a skill is invoked or a task transitions state.
 
 ```markdown
 ## 🧠 Skill Log
-| Timestamp (ISO 8601) | Task | Skill Invoked | Outcome |
-|----------------------|------|---------------|---------|
+
+| Timestamp (ISO 8601)   | Task                   | Skill Invoked                | Outcome     |
+| ---------------------- | ---------------------- | ---------------------------- | ----------- |
 | 2026-04-12T12:00+02:00 | Fix round counter race | debugging-and-error-recovery | ✅ Resolved |
 ```
 
 **Mandate**: Update the Skill Log in `tasks/todo.md`:
+
 - When a new skill is invoked (new row, `Outcome: 🔄 Active`).
 - When a task completes (update row, `Outcome: ✅ Done` or `❌ Failed`).
 - At session end, add a summary row if multiple skills were used.

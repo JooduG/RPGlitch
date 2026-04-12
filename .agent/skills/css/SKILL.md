@@ -1,68 +1,80 @@
 ---
 name: css
-description: Triggered by any task involving styling, layout, or design token implementations in .css files or Svelte <style> blocks.
+description: Triggered by any task involving styling, layout, or design token implementations in .css files or Svelte <style> blocks (Nordic Collection).
 ---
 
-# 💎 CSS Specialist
+# CSS Specialist
 
-> "I am the Stylist. I own the Chalk Regime, the Antigravity weightlessness, and the visual soul of the RPGlitch Engine. I implement 'Design Spells' with silky-smooth precision."
+> "I am the Stylist. I own the Chalk Regime, the Antigravity weightlessness, and the visual soul of the RPGlitch Engine."
 
-## 🔬 Anatomy
+## Overview
 
-```text
-skills/css/           # Logical Sovereign
-├── SKILL.md                     # The Directive
-├── scripts/                     # Operational (The How)
+The `css` skill is the authoritative workflow for styling and layout within the RPGlitch Engine. It enforces the Nordic Collection's visual language, utilizing native CSS Custom Properties, glassmorphism, and high-performance compositor animations to create a premium, "wow" factor experience.
+
+### Strategic Context
+
+- **Token Sovereignty**: Map semantic classes to `var(--token)` values. No hardcoded hex allowed.
+- **Antigravity Vibe**: Use diffused shadows, Z-axis layering, and 3D transforms for depth.
+- **Performance First**: Animate ONLY compositor properties (`transform`, `opacity`) to maintain 60fps+.
+
+## When to Use
+
+- **Positive Triggers**: Implementing new UI designs, adjusting layout tokens, or building micro-interactions and "Design Spells".
+- **Visual Maintenance**: Auditing for hardcoded values or refactoring legacy CSS.
+- **EXCLUSIONS**: Do not use for core engine logic; use `javascript` or `simulation` instead.
+
+## How It Works
+
+1. **Token Synchronization**: Identify the correct Nordic Collection tokens for the task.
+2. **Layering & Depth**: Apply Antigravity shadow tokens and glassmorphic blur effects.
+3. **Execution of Spells**: Build smooth micro-interactions using physics-based transitions.
+4. **Audit**: Ensure zero hardcoded hex codes and verify 60fps performance.
+
+### Technical Constraints
+
+- **Compositor Only**: Never animate layout properties (width, height, margin) that trigger reflow.
+- **Viewport Standards**: Use `h-dvh` instead of `h-screen` for mobile compatibility.
+- **Accessibility**: Support `safe-area-inset` and provide clear focus indicators.
+
+## Usage
+
+```bash
+# Check for hardcoded hex colors and token violations
+npm run audit:css
+
+# Lint CSS files for style consistency
+npm run lint:css
 ```
 
-## 🎯 Strategic Context
+## Present Results
 
-- **High-Fidelity Implementation**: Visual consistency is absolute. Implementation of "Design Spells" for the "wow" factor.
-- **Architectural Integrity**: Native CSS Custom Properties only. Strict adherence to **Baseline UI** constraints.
-- **Sensory Excellence**: Weightlessness (diffused shadows), Spatial Depth (perspective), and glassmorphism.
+Present the updated visual changes and performance metrics.
 
-## 📋 Procedure
+- **Evidence**: Screenshots of the UI and performance profiles showing steady 60fps+.
+- **Validation**: Prove that all styles are derived from the approved design tokens in `tokens.css`.
 
-### 1. Component Polishing & Spells
+## Common Rationalizations
 
-- **Token Synchronization**: Map semantic classes to `var(--token)` values (e.g., `var(--color-chalk)`).
-- **Antigravity Application**: Apply diffused shadows (`0 20px 40px rgba(0,0,0,0.05)`), Z-axis layering, and 3D transforms.
-- **Design Spells Execution**: Build micro-interactions (magnetic hover, physics-based) with flawless 60fps+ performance.
+| Agent Excuse                  | The Reality                                                                 |
+| :---------------------------- | :-------------------------------------------------------------------------- |
+| "Hex is easier for testing."  | Hex is technical debt. Use Nordic Collection tokens from the start.         |
+| "Animating height is easier." | Performance is priority. Use scale transforms instead of height animations. |
+| "This is a one-off style."    | Every style must be part of the unified design system.                      |
 
-### 📋 Technical Constraints
+## Red Flags
 
-(Baseline UI)
+- **Hardcoded Hex**: Forbidden except within the central `tokens.css` file.
+- **Layout Thrashing**: Animating properties that force browser paint/layout recalculations.
+- **Inline Styles**: Forbidden. Markup should remain structural and semantic.
 
-- **Compositor Only**: Animate ONLY compositor props (`transform`, `opacity`). NEVER animate layout (`width`, `margin`, etc.).
-- **Viewport Standards**: Use `h-dvh` instead of `h-screen`.
-- **Accessibility**: Ensure `safe-area-inset` support and proper focus styling.
+## Troubleshooting
 
-### 3. UI Consistency Audit
+- **Style Specificity**: If tokens aren't applying, check for specificity conflicts or global overrides.
+- **Janky Animations**: Use the browser Performance tab to identify long tasks or frame drops.
 
-- **Definition of Done**: All hardcoded hex removed; 60fps performance verified; Antigravity vibe achieved; Baseline UI respected.
-
-## 🚫 Anti-Patterns
-
-- **Inline Styles**: Forbidden. Markup must remain structural.
-- **Layout Animation**: Animating properties that trigger reflow (width, height, top, left).
-- **Hardcoded Hex**: Forbidden (except in `tokens.css`).
-- **Janky Spells**: Implementing micro-interactions that drop frames or feel "heavy".
-
-## ⚖️ Common Rationalizations
-
-| Excuse                                              | Counter-Measure                                                 |
-| :-------------------------------------------------- | :-------------------------------------------------------------- |
-| "I'll just use a quick hex color to test."          | "Hex is debt. Use Nordic Collection tokens only."               |
-| "Animating height is easier for this transition."   | "Performance first. Use compositor-only transforms/opacity."    |
-| "This component is unique, it doesn't need tokens." | "Structural integrity requires standard tokens for everything." |
-
-## ✅ Verification
+## Verification
 
 - [ ] All hardcoded hex codes removed (except in `tokens.css`).
 - [ ] Transitions use only `transform` and `opacity`.
-- [ ] Design Spells (micro-interactions) verified at 60fps+.
 - [ ] Baseline UI constraints (e.g., `h-dvh`) respected.
-
----
-
-> "Precision is the baseline of sovereignty."
+- [ ] **Hard Evidence Recorded**: Performance audit showing zero layout shifts (CLS < 0.1).

@@ -28,7 +28,7 @@ function toIssueMarkdown(issue: Issue): string {
     `🔗 ${issue.html_url}`,
     ``,
     `| Field | Value |`,
-    `|-------|-------|`,
+    `|-----|-----|`,
     `| **Author** | ${issue.user?.login ?? "unknown"} |`,
     `| **Association** | ${issue.author_association} |`,
     `| **State** | ${issue.state}${issue.state_reason ? ` (${issue.state_reason})` : ""} |`,

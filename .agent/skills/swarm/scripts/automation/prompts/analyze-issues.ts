@@ -222,14 +222,14 @@ If any coupled file appears in more than one task's dependency cone, **merge tho
 ## Task Plan
 
 | # | Task | Root Cause | Issues | Files | Risk |
-|---|------|-----------|--------|-------|------|
+|---|----|-------|-----|-----|----|
 | 1 | [title] | RC-1 | #X, #Y | \\\`src/a.ts\\\`, \\\`src/b.ts\\\` | Medium |
 | 2 | [title] | RC-2 | #Z | \\\`src/c.ts\\\` | Low |
 
 ## File Ownership Matrix
 
 | File | Task | Change Type |
-|------|------|-------------|
+|----|----|--------|
 | \\\`src/a.ts\\\` | 1 | Modify |
 | \\\`src/b.ts\\\` | 1 | Modify |
 | \\\`src/retry.ts\\\` | 1 | Create |
@@ -242,7 +242,7 @@ If any coupled file appears in more than one task's dependency cone, **merge tho
 Issues that require changes outside this repository (backend API, infrastructure, product decisions):
 
 | Issue | Reason | Suggested Owner |
-|-------|--------|-----------------|
+|-----|-----|----------|
 | #18 | Requires backend API to support \\\`requireApproval: false\\\` | Backend team |
 \`\`\`
 

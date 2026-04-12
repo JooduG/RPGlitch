@@ -53,11 +53,11 @@ Ensure that no task track gets a `[x]` without a logical audit.
 - **Mandatory Reasoning**: Every transmission should echo the **[GEMINI.md](../../GEMINI.md)** reasoning pipeline.
 - **The Proving Grounds**:
 
-  | Layer       | Framework     | Requirement                                           |
-  | :---------- | :------------ | :---------------------------------------------------- |
-  | **Reflex**  | Lint/Prettier | Zero warnings/errors allowed in `src/`.               |
-  | **Logic**   | `Vitest`      | State verification for all engine mutations.          |
-  | **Sensory** | `Playwright`  | Visual/Functional verification for critical UI paths. |
+| Layer       | Framework     | Requirement                                           |
+| :---------- | :------------ | :---------------------------------------------------- |
+| **Reflex**  | Lint/Prettier | Zero warnings/errors allowed in `src/`.               |
+| **Logic**   | `Vitest`      | State verification for all engine mutations.          |
+| **Sensory** | `Playwright`  | Visual/Functional verification for critical UI paths. |
 
 ---
 

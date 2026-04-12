@@ -37,15 +37,12 @@ export const SYSTEM_PROMPTS = {
     const aiNameSafe = escapeXml(ai.name);
     const userNameSafe = escapeXml(user.name);
     const fractalNameSafe = escapeXml(fractal.name);
-    const objectiveSafe = escapeXml(
-      render_atom.future(ai, 1, 0, { vector_text: true })
-    );
+    const objectiveSafe = escapeXml(render_atom.future(ai, 1, 0, { vector_text: true }));
 
-    const baseProtocols = "SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL";
+    const baseProtocols =
+      "SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL";
     const protocolSelection =
-      meta?.is_suspicious === true
-        ? `${baseProtocols}, SUSPICIOUS_COGNITION`
-        : baseProtocols;
+      meta?.is_suspicious === true ? `${baseProtocols}, SUSPICIOUS_COGNITION` : baseProtocols;
 
     return `
 <SYSTEM role="${aiNameSafe}" round="${roundSafe}" objective="${objectiveSafe}">

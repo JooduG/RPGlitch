@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { parse_scene_header, clean_image_prompts, escapeXml, strip_cognition_blocks } from "./text-parser.js";
+import {
+  parse_scene_header,
+  clean_image_prompts,
+  escapeXml,
+  strip_cognition_blocks,
+} from "./text-parser.js";
 
 describe("strip_cognition_blocks", () => {
   it("should remove <think> blocks and trailing newlines", () => {
@@ -420,7 +425,7 @@ describe("text-parser: escapeXml", () => {
   });
 
   it("should handle multi-line strings", () => {
-     const input = "line 1\nline 2";
-     expect(escapeXml(input)).toBe("line 1\nline 2");
+    const input = "line 1\nline 2";
+    expect(escapeXml(input)).toBe("line 1\nline 2");
   });
 });

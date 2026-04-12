@@ -3,63 +3,76 @@ name: simulation
 description: Triggered by any task involving core engine logic, round/turn orchestration, or narrative state mutations.
 ---
 
-# 🕹️ Simulation Protocol
+# Simulation Protocol
 
-> "I am the Gamemaster. I own the simulation cycle, the entity state, and the narrative heartbeat of the RPGlitch Engine. I synthesize System Turns into Narrative Reality via Physics, Mutations, and Character Execution."
+> "I am the Gamemaster. I own the simulation cycle, the reactive state, and the narrative heartbeat of the RPGlitch Engine. Every tick of the engine translates into a meaningful beat of the story."
 
-## 🔬 Anatomy
+## Overview
 
-```text
-skills/simulation/
-├── SKILL.md
-├── scripts/
-└── references/
+The `simulation` skill is the core metaphysical heartbeat of the RPGlitch Engine. It orchestrates the flow of rounds and turns, manages the transition between system physics (System Turn) and AI storytelling (AI Turn), and ensures that the world state remains consistent and reactive. This skill governs the "what" and "when" of the simulation's reality.
+
+### Strategic Context
+
+- **Simulation Cycle**: Rounds are macro-states (User finalizes); Turns are micro-states (Logic flows).
+- **Reactive Loop**: Input → Sanity → Execution → Persistence → Expression.
+- **Narrative Integrity**: Maintain strict third-person limited integrity for all entities. No narrator-voice for AI.
+
+## When to Use
+
+- **Positive Triggers**: Modifying round/turn logic in the `DynamicsEngine`, implementing new physics or state mutations, adjusting the Intelligence Kernel handover, or adding new entity management behaviors.
+- **Narrative Shifts**: Changing how AI characters react to world state mutations or updating the story-swapping logic.
+- **EXCLUSIONS**: Do not use for pure UI layout changes or aesthetic tweaks; use `frontend-ui-engineering` or `designer`.
+
+## How It Works
+
+1. **System Turn (Metaphysical Chronos)**: Synchronous execution of physics and state mutations. UI is locked to prevent race conditions.
+2. **AI Turn (Asynchronous Storyteller)**: AI processes the packaged state kernel and streams narrative reaction in the background.
+3. **User Turn (Protagonist)**: UI is released, enabling input for the next cycle.
+4. **Echo Synchronization**: Every state mutation is persisted to Dexie.js (Rule 03) to provide historical context.
+
+### Persistence & The Echo
+
+Every simulation tick is anchored in the "Echo" (History). Live Svelte 5 `$state` runes mirror current reality, while the persistent logs provide the weight and context required for deep, recursive intelligence.
+
+## Usage
+
+```bash
+# Verify simulation turn logic with unit tests (Rule 06)
+npm run test:simulation
+
+# Debug the state kernel sent to the AI
+node src/core/engine/scripts/debug-kernel.js
 ```
 
-## 🎯 Strategic Context
+## Present Results
 
-- **High-Fidelity Implementation**: Procedural pacing ensuring meaningful story arcs over monolithic logs.
-- **Architectural Integrity**: Adheres to Rule 02 (The Simulation Cycle).
-- **Sensory Excellence**: Coordinates sensory bridges to enhance immersion.
+Present the updated simulation cycle results and state mutation logs.
 
-## 📋 Procedure
+- **Evidence**: Links to the modified `src/core/engine/` logic and successful test results.
+- **Validation**: Demonstrate that the new simulation logic adheres to Rule 02 (Engine) and Rule 03 (Infrastructure).
 
-### Simulation Cycle Execution
+## Common Rationalizations
 
-1. **System Simulation Turn**:
-   - Lock UI. Verify physics and state mutations.
-   - Package mutated world state into a kernel.
+| Agent Excuse                        | The Reality                                                                                         |
+| :---------------------------------- | :-------------------------------------------------------------------------------------------------- |
+| "Direct state mutation is faster."  | Direct mutation outside the System Turn boundary breaks the reactive lifecycle and Rule 03 physics. |
+| "The AI needs to act for the user." | Violates User Agency (P1). AI characters are reactive, never proactive for the protagonist.         |
+| "I'll skip the state kernel audit." | The kernel is the AI's eyes. Ensuring it is precise and sanitized is essential for narrative truth. |
 
-2. **AI Character Turn**:
-   - Feed metadata to the AI engine.
-   - Stream narrative reactions in-character.
+## Red Flags
 
-### State Integrity
+- **Logic Leaks**: Mutating simulation state outside of the designated Engine core modules.
+- **Turn Hanging**: Unhandled exceptions/timeouts in the synchronous System Turn that leave the UI locked.
+- **Third-Person Violation**: AI characters speaking for the user or adopting an OOC narrator-voice.
 
-- **Definition of Done**: Round state finalized; entities synchronized; UI released.
-- **Expected Output**: Deterministic simulation tick with narrative output.
+## Troubleshooting
 
-## 🚫 Anti-Patterns
+- **State Drift**: If the Echo (Dexie) does not match the Live state (Runes), force a reconciliation sync.
+- **Race conditions**: Ensure all async AI streams are cancellable if a new round is triggered prematurely.
 
-- **Logic Leaks**: State mutations occurring outside the Simulation Cycle.
-- **User Hijacking**: Speaking, acting, or thinking for the user.
-- **Breaking Continuity**: Failing to sync the "Echo" with the live "State."
+## Verification
 
-## ⚖️ Common Rationalizations
-
-| Excuse                                                        | Counter-Measure                                                    |
-| :------------------------------------------------------------ | :----------------------------------------------------------------- |
-| "I'll just mutate the state directly for this edge case."     | "State mutations MUST pass through the System Turn boundary."      |
-| "The AI character needs to know the player's inner thoughts." | "Maintain strict third-person limited integrity. No mind-reading." |
-| "The Echo doesn't need to be updated for every minor tick."   | "Memory is state. Continuity is forged in the Echo."               |
-
-## ✅ Verification
-
-- [ ] System Turn state mutations verified as synchronous and sanitized.
-- [ ] AI Character reactions verified as in-character and non-narrator.
-- [ ] Narrative Echo synchronized with the live Simulation State.
-- [ ] Round increment and Turn transitions verified as deterministic.
-
----
-
-> "Precision is the baseline of sovereignty."
+- [ ] System Turn mutations verified as synchronous and properly sanitized (Rule 06).
+- [ ] AI Character reactions verified as in-character and strictly reactive (Rule 02).
+- [ ] Narrative Echo is successfully synchronized with the live `$state` via Dexie transactions.
+- [ ] **Hard Evidence Recorded**: Simulation logs showing a successful, multi-round Turn transition.
