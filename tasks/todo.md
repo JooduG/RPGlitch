@@ -50,3 +50,4 @@
 | ---------------------- | -------------------------------------------- | ---------------------------------- | ------- |
 | 2026-04-12T12:10+02:00 | Agent OS Refactor (orchestration absorption) | `using-agent-skills`, `directives` | ✅ Done |
 | 2026-04-12T17:45+02:00 | Skill Standardization (Sovereign Template)   | `directives`, `using-agent-skills` | ✅ Done |
+| 2026-04-13T06:24+00:00 | Resolve MCP ReDOS and Data Leak Vulns        | `security-and-hardening`           | ✅ Done |
