@@ -90,10 +90,9 @@
   .input-bar-unit {
     display: flex;
     align-items: center;
-    width: 100%;
-    max-width: var(--max-width-text);
+    max-width: 48rem; /* Target ~8 panels width on desktop */
     padding: 0 var(--spacing-s);
-    margin: var(--spacing-l);
+    margin: var(--spacing-l) auto;
     box-shadow: none;
     transition: all var(--motion-slow) var(--motion-elastic);
     position: relative;
