@@ -124,3 +124,11 @@ When defining MVP scope for the chosen direction:
 3. **Time-box, not feature-list.** "What can we build and test in [timeframe]?" is better than "What features do we need?"
 4. **The 'Not Doing' list is mandatory.** Explicitly name what you're cutting and why. This prevents scope creep and forces honest prioritization.
 5. **If it's not embarrassing, you waited too long.** The first version should feel incomplete to the builder. If it doesn't, you over-built.
+
+## Guardrail Check
+
+Before finalizing a Discovery Journal, filter the idea through these "Noise" detectors:
+
+- **Vibe Slop**: Eliminate meaningless adjectives ("awesome", "cool", "premium") that lack functional or aesthetic token mappings (Rule 04).
+- **Ghost Mechanics**: Flag features that have no defined trigger, state mutation, or persistence layer.
+- **Physics Violations**: Reject logic that ignores the sovereign layers of the engine (e.g., direct DOM manipulation instead of Svelte 5 Runes).

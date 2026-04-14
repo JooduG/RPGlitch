@@ -99,3 +99,14 @@ Look at how other domains solved similar problems:
 The key is finding _structural_ similarities, not surface-level ones. "Uber for X" is surface-level. "A two-sided marketplace that solves a trust problem between strangers" is structural.
 
 **Best for:** Phase 1 expansion. Generating variations that feel genuinely different from the obvious approach.
+
+## Archetype Mapping (RPGlitch Only)
+
+Ground vague vibes into the specific technical "primitives" of the engine:
+
+- **The Slot**: A static data display with a single, high-stakes reactive update (e.g., a "Health Bar" or "Character Slot").
+- **The Flow**: A multi-stage sequence or narrative transition (e.g., A -> B -> C).
+- **The Pulse**: A repeating background simulation tick that drives automated World State mutations.
+- **The Lens**: A filtered or specialized view of existing simulation data (e.g., a "Combat Log" or "Inventory Overlay").
+
+**Best for:** Phase 1 grounding. When a vibe feels "floaty" and needs to be anchored into the Engine's `src/core` or `src/ui` logic.
