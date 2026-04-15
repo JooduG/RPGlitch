@@ -26,6 +26,13 @@ export const ENTITY_TEMPLATES = {
     },
     eternal: { physical: "", non_physical: "" },
     present: { physical: "", non_physical: "" },
+    modifiers: {
+      prompt: "",
+      noBackground: false,
+      flipped: false,
+      profilePictureSeed: 0,
+      colorName: "",
+    },
     past: [],
     future: [],
   },
@@ -74,6 +81,8 @@ export const normalize = (base = {}) => {
     signature_color = "",
     profile_picture = "",
     dynamics = null,
+    modifiers = {},
+    visuals = null, // [BACKWARD COMPAT] Legacy object
     voice = {},
     custom_data = {},
     _backup_state = null,
@@ -100,6 +109,14 @@ export const normalize = (base = {}) => {
     },
     past: Array.isArray(past) ? past : [],
     future: Array.isArray(future) ? future : [],
+    // --- MODIFIERS (Visual/Aesthetic overrides) ---
+    modifiers: {
+      prompt: sanitize_html(modifiers?.prompt ?? visuals?.prompt ?? "").trim(),
+      noBackground: !!(modifiers?.noBackground ?? visuals?.noBackground ?? visuals?.no_background ?? false),
+      flipped: !!(modifiers?.flipped ?? visuals?.flipped ?? false),
+      profile_picture_seed: Number(modifiers?.profile_picture_seed ?? visuals?.profile_picture_seed ?? 0),
+      colorName: sanitize_html(modifiers?.colorName ?? visuals?.colorName ?? "").trim(),
+    },
     // --- DYNAMICS (Physics Sliders) ---
     dynamics: (() => {
       if (dynamics && Object.keys(dynamics).length > 0) return { ...dynamics };

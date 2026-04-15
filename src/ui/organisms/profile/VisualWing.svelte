@@ -24,15 +24,32 @@
     active_field = $bindable(),
   } = $props();
   // [CRITICAL FIX] Synchronously ensure the modifiers object exists so Svelte bindings don't crash
-  if (!char.visuals) {
-    char.visuals = { prompt: "", noBackground: false, flipped: false };
-  }
-  if (char.visuals.prompt === undefined) char.visuals.prompt = "";
+  const ensure_modifiers = () => {
+    if (!char.modifiers) {
+      char.modifiers = {
+        prompt: "",
+        noBackground: false,
+        flipped: false,
+        profile_picture_seed: 0,
+        colorName: "",
+      };
+    } else {
+      char.modifiers.prompt ??= "";
+      char.modifiers.noBackground ??= false;
+      char.modifiers.flipped ??= false;
+      char.modifiers.profile_picture_seed ??= 0;
+      char.modifiers.colorName ??= "";
+    }
+  };
+
+  ensure_modifiers();
+  $effect(ensure_modifiers);
+
   // Derived: Check if the visual-prompt specifically is busy
   let is_prompt_busy = $derived(busy_fields.has("visual-prompt"));
   let file_input = $state();
   // Determine current state
-  const prompt_value = $derived((char.visuals.prompt || "").trim());
+  const prompt_value = $derived((char.modifiers.prompt || "").trim());
   const has_prompt_text = $derived(
     prompt_value.length > 0 &&
       !prompt_value.startsWith("http") &&
@@ -81,9 +98,9 @@
         active_field = null;
       }
       if (current_target_key === "visual-prompt" && is_enhance_mode) {
-        const payload = prompt_builder.build_enhancement("visuals.prompt", char.visuals.prompt);
+        const payload = prompt_builder.build_enhancement("modifiers.prompt", char.modifiers.prompt);
         const result = await llm_service.enhance(payload);
-        if (result) char.visuals.prompt = result;
+        if (result) char.modifiers.prompt = result;
       } else if (current_target_key !== "visual-prompt") {
         const field_val = get_value(char, current_target_key);
         if (field_val) {
@@ -92,7 +109,7 @@
           if (result) set_value(char, current_target_key, result);
         }
       } else {
-        char.visuals.prompt = ImageGeneration.composeBasePrompt(char);
+        char.modifiers.prompt = ImageGeneration.composeBasePrompt(char);
       }
     } catch (err) {
       console.error("Creative action failed:", err);
@@ -115,7 +132,7 @@
           return;
         }
         const url = await ImageGeneration.generate(prompt_value, {
-          noBackground: char.visuals.noBackground,
+          noBackground: char.modifiers.noBackground,
         });
         app.log(`[VisualWing] Generation Result: ${url}`, "system");
         if (url) char.profile_picture = url;
@@ -220,7 +237,7 @@
         <textarea
           use:auto_resize
           class="visual-prompt"
-          bind:value={char.visuals.prompt}
+          bind:value={char.modifiers.prompt}
           placeholder="Enter image prompt or paste a URL..."
           disabled={!is_editing || is_prompt_busy}
           onfocus={() => {
@@ -280,8 +297,8 @@
     />
   </div>
   <div class="toggle-stack">
-    <Toggle label="No Background" bind:value={char.visuals.noBackground} disabled={!is_editing} />
-    <Toggle label="Mirror Image" bind:value={char.visuals.flipped} disabled={!is_editing} />
+    <Toggle label="No Background" bind:value={char.modifiers.noBackground} disabled={!is_editing} />
+    <Toggle label="Mirror Image" bind:value={char.modifiers.flipped} disabled={!is_editing} />
   </div>
 </div>
 

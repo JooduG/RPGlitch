@@ -190,9 +190,9 @@ export const PromptEngine = {
   composeBase(entity) {
     const present = entity.present?.physical || "";
     const eternal = entity.eternal?.physical || "";
-    let semanticColor = entity.visuals?.colorName || "";
-    if (!semanticColor && (entity.signature_color || entity.visuals?.signature_color)) {
-      const rawSigColor = entity.signature_color || entity.visuals?.signature_color;
+    let semanticColor = entity.modifiers?.colorName || "";
+    if (!semanticColor && (entity.signature_color || entity.modifiers?.signature_color)) {
+      const rawSigColor = entity.signature_color || entity.modifiers?.signature_color;
       const sigColor =
         typeof rawSigColor === "string"
           ? rawSigColor.replace(/[^\w# ]/g, "").substring(0, 50)

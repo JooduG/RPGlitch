@@ -54,6 +54,7 @@
 | 2026-04-12T17:45+02:00 | Skill Standardization (Sovereign Template)   | `directives`, `using-agent-skills` | ✅ Done |
 | 2026-04-13T06:24+00:00 | Resolve MCP ReDOS and Data Leak Vulns        | `security-and-hardening`           | ✅ Done |
 | 2026-04-14T17:03+02:00 | Fix InputBar Overlap & Panel Wiring           | `incremental-implementation`         | ✅ Resolved |
+| 2026-04-15T20:10+02:00 | Manifest Modifiers & Stabilize VisualWing     | `directives`, `incremental-implementation` | ✅ Done |
 | 2026-04-15T20:03:20+00:00 | State Atomicity & Token Asphyxiation Patch | `debugging-and-error-recovery` | ✅ Resolved |
 | 2026-04-15T19:58+00:00 | Add unit tests for entity-fragments.js        | `test-driven-development`            | ✅ Done     |
 | 2026-04-15T19:59+02:00 | 🔒 Security Fix: Unsafe JSON Parsing in Memory | `security-and-hardening`             | ✅ Done     |

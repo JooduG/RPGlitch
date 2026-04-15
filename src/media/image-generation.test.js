@@ -20,7 +20,7 @@ describe("ImageGeneration", () => {
       const entity = {
         present: { physical: "wearing a trench coat" },
         eternal: { physical: "tall cyborg with glowing eyes" },
-        visuals: { colorName: "neon blue" },
+        modifiers: { colorName: "neon blue" },
       };
       const prompt = ImageGeneration.composeBasePrompt(entity);
       const expectedStart =

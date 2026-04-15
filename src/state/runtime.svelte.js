@@ -19,7 +19,7 @@ function createRuntimeStore() {
       voice: { rate: 1.0, pitch: 1.0 },
       profile_picture: null,
       signature_color: "",
-      visuals: { profile_picture_seed: 0, no_background: false },
+      modifiers: { prompt: "", noBackground: false, flipped: false, profile_picture_seed: 0, colorName: "" },
     },
     active_user: null,
     active_ai: null,
