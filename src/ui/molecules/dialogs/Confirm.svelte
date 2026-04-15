@@ -67,7 +67,7 @@
         <p>{message}</p>
       </div>
       <footer>
-        <Button variant="ghost" onclick={handle_cancel} label={cancel_label} />
+        <Button variant="danger" onclick={handle_cancel} label={cancel_label} />
         <Button
           variant="danger"
           onclick={handle_confirm}

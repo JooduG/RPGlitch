@@ -1,10 +1,10 @@
-# Experimental Collection (Legacy Identities)
+# Ideas Collection (Legacy Identities)
 
-This is a collection of smaller experiments regarding specialized AI identities and mechanics from the early development phases.
+This is a collection of smaller Ideas regarding specialized AI identities and mechanics from the early development phases.
 
 ---
 
-## 🎭 Experiment: Resonance (Emotional Intelligence)
+## 🎭 Idea: Resonance (Emotional Intelligence)
 
 **Identity**: The Empath.
 
@@ -13,7 +13,7 @@ This is a collection of smaller experiments regarding specialized AI identities 
 
 ---
 
-## 🌀 Experiment: Glitch (Procedural Entropy)
+## 🌀 Idea: Glitch (Procedural Entropy)
 
 **Identity**: The Reality-Breaker.
 
@@ -22,7 +22,7 @@ This is a collection of smaller experiments regarding specialized AI identities 
 
 ---
 
-## 🛠️ Experiment: The Foundry (Asset Engineering)
+## 🛠️ Idea: The Foundry (Asset Engineering)
 
 **Identity**: The Architect.
 
@@ -31,9 +31,18 @@ This is a collection of smaller experiments regarding specialized AI identities 
 
 ---
 
-## 📜 Experiment: Echo (Narrative Persistence)
+## 📜 Idea: Echo (Narrative Persistence)
 
 **Identity**: The Historian.
 
 - **Purpose**: Managing **Long-term Recall** and **Recap Generation**.
 - **Mechanics**: Current memory is just state-saving. `echo` performs "Narrative Compression"—summarizing past Rounds into a "Living History" that follows the AI characters, ensuring your choices have a "Shadow" even 50 Rounds later.
+
+---
+
+## 🔥 Idea: The Inline Burn (Destructive Integrity)
+
+**Identity**: The Warden.
+
+- **Purpose**: Managing **Permanent State Erasure** and **Confirmations**.
+- **Mechanics**: Replacing intrusive system popups with "Diegetic Destruction". Clicking a destructive action (like Delete) transforms the button into a "Confirm/Burn" state (e.g., a checkmark or flame icon) for a 3-second window. It uses optimistic UI (instant disappearance) with background sync, maintaining the "subterranean" immersion of the RPGlitch engine.
