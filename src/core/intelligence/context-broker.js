@@ -78,7 +78,10 @@ export const context_broker = {
     const matches = dynamics_engine.dynamics_scan(input);
     const has_trust_plea = matches.some((m) => m.id === "VULNERABILITY" || m.id === "SUSPICIOUS");
 
-    const recent_log_text = context_broker.assemble_snapshot(simulation_log) || "";
+    // Extract raw log text without truncation or owner headers for lifecycle matching
+    const full_log_text = Array.isArray(simulation_log)
+      ? simulation_log.map(m => (m.content || "").replace(/<think>[\s\S]*?<\/think>/gi, "")).join(" ")
+      : "";
 
     // 1. Resolve Entities mapping (Role -> Data)
     const entries = [
@@ -89,7 +92,7 @@ export const context_broker = {
 
     // Lifecycle Management: Resolve satisfied future vectors asynchronously without blocking hydration
     Promise.all(
-      entries.map(({ data }) => context_broker.manage_vector_lifecycle(data, recent_log_text))
+      entries.map(({ data }) => context_broker.manage_vector_lifecycle(data, full_log_text))
     ).catch(err => console.warn("[Vector Lifecycle] Failed to auto-resolve vectors:", err));
 
     const entities = {};
@@ -169,6 +172,13 @@ export const context_broker = {
     if (!recent_log_text) return;
 
     const log_lower = recent_log_text.toLowerCase();
+
+    // Create a Set of lowercase words for O(1) lookup
+    const log_words = new Set(log_lower.split(/[\s,.;:!?()"'[\]{}]+/));
+
+    // Helper to safely escape strings for RegExp if needed
+    const escape_regex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
     const vectors_to_resolve = [];
 
     for (const vector of entity.future) {
@@ -176,16 +186,29 @@ export const context_broker = {
 
       // 1. Check strict vector tags
       if (Array.isArray(vector.vector_tags)) {
-        is_resolved = vector.vector_tags.some((tag) => log_lower.includes(tag.toLowerCase()));
+        is_resolved = vector.vector_tags.some((tag) => {
+          const t = tag.toLowerCase();
+          if (t.includes(' ')) {
+            // Multi-word tag: use escaped regex with word boundaries
+            try {
+              const regex = new RegExp(`\\b${escape_regex(t)}\\b`, 'i');
+              return regex.test(recent_log_text);
+            } catch {
+              return log_lower.includes(t);
+            }
+          }
+          // Single word tag: fast O(1) lookup
+          return log_words.has(t);
+        });
       }
 
       // 2. Check significant keywords from the vector text if no tag match
       if (!is_resolved && vector.text) {
-        // Use a set to deduplicate, extract words (allowing some non-ASCII letters depending on engine support, but \b\w+\b or similar is better, sticking to split but deduplicating)
+        // Extract deduplicated words > 4 chars
         const words = vector.text
           .toLowerCase()
-          .split(/[\s,.;:!?()]+/)
-          .filter((w) => w.length > 3); // Only words > 3 chars
+          .split(/[\s,.;:!?()"'[\]{}]+/)
+          .filter((w) => w.length > 4);
 
         const keywords = Array.from(new Set(words));
 
@@ -193,13 +216,11 @@ export const context_broker = {
           // If at least 3 significant keywords (or all if < 3) are found, consider it matched
           const match_threshold = Math.min(3, keywords.length);
 
-          // Use whole word boundary matching if possible, but includes with spaces is a simpler safe fallback
           let matched_count = 0;
           for (const k of keywords) {
-             const regex = new RegExp(`\\b${k}\\b`, 'i');
-             if (regex.test(recent_log_text)) {
-                 matched_count++;
-             }
+            if (log_words.has(k)) {
+               matched_count++;
+            }
           }
 
           if (matched_count >= match_threshold) {

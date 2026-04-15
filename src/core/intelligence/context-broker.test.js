@@ -38,16 +38,33 @@ describe("context_broker", () => {
       const entity = {
         future: [
           { id: "v1", vector_tags: ["apple", "banana"], text: "Some short text" },
-          { id: "v2", vector_tags: ["cherry"], text: "Another text" }
+          { id: "v2", vector_tags: ["cherry"], text: "Another text" },
+          { id: "v3", vector_tags: ["multi word tag"], text: "Yet another text" }
         ]
       };
-      const log = "I ate a Banana yesterday.";
+      const log = "I ate a Banana yesterday and saw a multi word tag in the wild.";
 
       await context_broker.manage_vector_lifecycle(entity, log);
 
       const { vector_engine } = await import("./vector-engine.js");
-      expect(vector_engine.resolve_vector).toHaveBeenCalledTimes(1);
+      expect(vector_engine.resolve_vector).toHaveBeenCalledTimes(2);
       expect(vector_engine.resolve_vector).toHaveBeenCalledWith(entity, "v1", "AUTO_RESOLVED");
+      expect(vector_engine.resolve_vector).toHaveBeenCalledWith(entity, "v3", "AUTO_RESOLVED");
+    });
+
+    it("should not resolve vectors using substring false positives", async () => {
+      const entity = {
+        future: [
+          { id: "v1", vector_tags: ["cat"], text: "Some short text" }
+        ]
+      };
+      // The word 'category' contains 'cat', but it should not match the exact word 'cat'
+      const log = "This is a new category.";
+
+      await context_broker.manage_vector_lifecycle(entity, log);
+
+      const { vector_engine } = await import("./vector-engine.js");
+      expect(vector_engine.resolve_vector).not.toHaveBeenCalled();
     });
 
     it("should resolve vectors based on significant keywords if no tags match", async () => {
