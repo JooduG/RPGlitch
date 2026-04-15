@@ -27,10 +27,11 @@
     "dexie": "^4.4.1",
     "dompurify": "^3.3.3",
     "dotenv": "^17.3.1",
-    "markdown-it": "^14.1.1",
     "find-up": "^7.0.0",
+    "firecrawl-fastmcp": "^1.0.4",
     "firecrawl-mcp": "^3.11.0",
     "ignore": "^7.0.5",
+    "markdown-it": "^14.1.1",
     "mcp-mermaid": "^0.4.1",
     "mcp-sequentialthinking-tools": "^0.0.4",
     "octokit": "^4.1.0",
@@ -91,7 +92,7 @@
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
     "firecrawl-fastmcp": {
-      "@modelcontextprotocol/sdk": "1.18.0"
+      "@modelcontextprotocol/sdk": "^1.29.0"
     }
   },
   "scripts": {
