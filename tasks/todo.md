@@ -54,4 +54,5 @@
 | 2026-04-12T17:45+02:00 | Skill Standardization (Sovereign Template)   | `directives`, `using-agent-skills` | ✅ Done |
 | 2026-04-13T06:24+00:00 | Resolve MCP ReDOS and Data Leak Vulns        | `security-and-hardening`           | ✅ Done |
 | 2026-04-14T17:03+02:00 | Fix InputBar Overlap & Panel Wiring           | `incremental-implementation`         | ✅ Resolved |
+| 2026-04-15T19:59+02:00 | 🔒 Security Fix: Unsafe JSON Parsing in Memory | `security-and-hardening`             | ✅ Done     |
 | 2026-04-15T05:29+00:00 | Refactor duplicated random selection logic     | `incremental-implementation`         | ✅ Done     |
