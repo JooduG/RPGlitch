@@ -161,7 +161,7 @@ export const context_broker = {
    * Vector Lifecycle Manager
    * Scans future vectors and resolves them if they match semantic criteria in the recent simulation log.
    */
-  manage_vector_lifecycle(entries, simulation_log) {
+  async manage_vector_lifecycle(entries, simulation_log) {
     if (!simulation_log || simulation_log.length === 0) return;
 
     // We only check the most recent few messages to avoid resolving vectors based on ancient history
