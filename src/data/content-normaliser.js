@@ -112,7 +112,7 @@ export const normalize = (base = {}) => {
     // --- MODIFIERS (Visual/Aesthetic overrides) ---
     modifiers: {
       prompt: sanitize_html(modifiers?.prompt ?? visuals?.prompt ?? "").trim(),
-      noBackground: !!(modifiers?.noBackground ?? visuals?.noBackground ?? false),
+      noBackground: !!(modifiers?.noBackground ?? visuals?.noBackground ?? visuals?.no_background ?? false),
       flipped: !!(modifiers?.flipped ?? visuals?.flipped ?? false),
       profile_picture_seed: Number(modifiers?.profile_picture_seed ?? visuals?.profile_picture_seed ?? 0),
       colorName: sanitize_html(modifiers?.colorName ?? visuals?.colorName ?? "").trim(),
