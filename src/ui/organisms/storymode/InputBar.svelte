@@ -9,6 +9,7 @@
   import { app } from "@state/app.svelte.js";
   import { simulationState } from "@state/status.svelte.js";
   import { spin, stab } from "@ui/utils/actions/kinetic.js";
+  import GlassPill from "@ui/atoms/GlassPill.svelte";
   let { disabled = false } = $props();
   // [R5] Auto-disable when engine is busy
   let is_locked = $derived(disabled || simulationState.phase !== "idle");
@@ -42,24 +43,26 @@
   }
 </script>
 
-<div
-  class="input-bar-unit seamless-field"
-  class:is-focused={is_focused}
-  class:is-disabled={is_locked}
+<GlassPill
+  isFocused={is_focused}
+  className="input-bar-pill {is_locked ? 'is-disabled' : ''}"
 >
-  <button
-    class="icon-button settings-button"
-    onclick={() => app.toggle_control_panel()}
-    title="Settings"
-    type="button"
-    use:spin
-  >
-    <svg class="icon" viewBox="0 0 24 24">
-      <path
-        d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"
-      />
-    </svg>
-  </button>
+  {#snippet left()}
+    <button
+      class="icon-button settings-button"
+      onclick={() => app.toggle_control_panel()}
+      title="Settings"
+      type="button"
+      use:spin
+    >
+      <svg class="icon" viewBox="0 0 24 24">
+        <path
+          d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"
+        />
+      </svg>
+    </button>
+  {/snippet}
+
   <textarea
     bind:this={textarea}
     class="input-area"
@@ -72,46 +75,31 @@
     rows="1"
     disabled={is_locked}
   ></textarea>
-  <button
-    class="icon-button send-button"
-    onclick={handle_send}
-    disabled={!value.trim() || is_locked}
-    title="Send Message"
-    type="button"
-    use:stab
-  >
-    <svg class="icon" viewBox="0 0 24 24">
-      <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-    </svg>
-  </button>
-</div>
+
+  {#snippet right()}
+    <button
+      class="icon-button send-button"
+      onclick={handle_send}
+      disabled={!value.trim() || is_locked}
+      title="Send Message"
+      type="button"
+      use:stab
+    >
+      <svg class="icon" viewBox="0 0 24 24">
+        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+      </svg>
+    </button>
+  {/snippet}
+</GlassPill>
 
 <style>
-  .input-bar-unit {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    max-width: var(--max-width-text);
-    padding: 0 var(--spacing-s);
-    margin: var(--spacing-l);
-    box-shadow: none;
-    transition: all var(--motion-slow) var(--motion-elastic);
-    position: relative;
-
-    /* seamless-field provides background, border, and radius */
+  :global(.input-bar-pill) {
+    max-width: 48rem;
+    margin: var(--spacing-l) auto;
   }
 
-  /* .seamless-field:focus-within in global.css handles the core active state, 
-     but we maintain is-focused class for specific signature color logic */
-  .input-bar-unit.is-focused {
-    box-shadow:
-      inset 0 0 0 var(--spacing-px) var(--signature-color, transparent),
-      0 0 0 var(--spacing-xxs)
-        color-mix(in srgb, var(--signature-color, transparent) 10%, transparent);
-    transform: none;
-  }
-
-  .input-bar-unit.is-disabled {
+  :global(.input-bar-pill.is-disabled) .input-area,
+  :global(.input-bar-pill.is-disabled) .send-button {
     opacity: var(--opacity-m);
     pointer-events: none;
   }
@@ -156,19 +144,13 @@
   }
 
   .icon-button:hover:not(:disabled) {
-    color: var(--font-color-m);
-    filter: drop-shadow(
-      0 0 var(--spacing-m)
-        color-mix(in srgb, var(--signature-color, var(--color-gunmetal)) 30%, transparent)
-    );
+    color: var(--color-white);
+    background: transparent;
   }
 
   /* 2. Specific Overrides */
   .send-button:not(:disabled):hover {
-    color: var(--font-color-m);
-    filter: drop-shadow(
-      0 0 var(--spacing-m)
-        color-mix(in srgb, var(--signature-color, var(--color-gunmetal)) 50%, transparent)
-    );
+    color: var(--color-white);
+    background: transparent;
   }
 </style>

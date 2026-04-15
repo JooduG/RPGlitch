@@ -38,7 +38,7 @@ Skills follow a strict, predictable structure:
 .agent/skills/
   {skill-name}/         # kebab-case directory
     SKILL.md            # Required: Primary definition
-    scripts/            # Required: Executable shell scripts
+    scripts/            # Optional: Executable shell scripts
     {reference}.md      # Optional: Detailed supporting files (>100 lines)
 ```
 

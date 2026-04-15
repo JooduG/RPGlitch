@@ -1,6 +1,8 @@
 <script>
   import { db } from "@data/db.js";
   import { app } from "@state/app.svelte.js";
+  import { runtime } from "@state/runtime.svelte.js";
+  import { Session } from "@core/engine/engine.js";
   import Button from "@ui/atoms/Button.svelte";
   import Toggle from "@ui/atoms/Toggle.svelte";
   import Modal from "@ui/molecules/dialogs/Modal.svelte";
@@ -15,6 +17,21 @@
     app.log(`Control Panel: ${action}`, "system");
   }
 
+  async function handleMockMessage(role) {
+    const name =
+      role === "fractal"
+        ? runtime.active_fractal?.name || "Fractal"
+        : runtime.active_ai?.name || "AI";
+
+    const dummyText =
+      role === "fractal"
+        ? `<think>The simulation layer shifts. Applying high-altitude atmospheric metrics to the local shard.</think>\n\n『 [Cyber London] · [21:30] · [Acid Neon] 』\n\nLorem ipsum dolor sit amet, **consectetur** adipiscing elit. *Sed do eiusmod* tempor incididunt ut labore et dolore magna aliqua.\n\nUt enim ad minim veniam, quis nostrud **exercitation** ullamco laboris nisi ut aliquip ex ea commodo consequat.`
+        : `<think>Subject is entering the dead-zone. Adjusting internal optics for low-light tracking.</think>\n\nDuis aute irure dolor in **reprehenderit** in voluptate velit esse cillum dolore eu fugiat nulla pariatur. *Excepteur sint occaecat* cupidatat non proident.\n\nSunt in culpa qui officia **deserunt** mollit anim id est laborum.`;
+
+    await Session.log_turn(dummyText, name, role);
+    app.log(`Mock ${role} message injected.`, "system");
+  }
+
   async function handleReset() {
     if (confirm("This will wash away all memories. Are you sure?")) {
       await db.delete();
@@ -23,8 +40,8 @@
   }
 
   /* --- STATE HELPERS --- */
-  let isStoryboard = $derived(app.view === "lobby");
-  let isStoryMode = $derived(app.view === "game");
+  let isStoryboard = $derived(app.view === "storyboard");
+  let isStoryMode = $derived(app.view === "storymode");
 </script>
 
 <Modal variant="standard" on_close={() => app.toggle_control_panel()}>
@@ -60,7 +77,7 @@
 
     <!-- BODY: Actions (Story Mode Only) -->
     {#if isStoryMode}
-      <nav class="action-grid">
+      <nav class="storymode-controls">
         <Button
           label="GHOSTWRITE"
           variant="secondary"
@@ -68,6 +85,18 @@
           onclick={() => handleAction("Ghostwrite")}
         />
         <Button label="PHOTO" variant="secondary" size="sm" onclick={() => handleAction("Photo")} />
+        <Button
+          label="MOCK FRACTAL"
+          variant="secondary"
+          size="sm"
+          onclick={() => handleMockMessage("fractal")}
+        />
+        <Button
+          label="MOCK AI"
+          variant="secondary"
+          size="sm"
+          onclick={() => handleMockMessage("ai")}
+        />
         <Button
           label="END STORY"
           variant="secondary"
@@ -153,7 +182,7 @@
     line-height: var(--line-height-m);
   }
 
-  .action-grid {
+  .storymode-controls {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-s);

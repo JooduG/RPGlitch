@@ -14,6 +14,7 @@
 - [x] Chrono Kinetics (Simulation Cycle)
 - [x] Security Protocol (Warden/DOMPurify)
 - [ ] Round Stability & Hygiene (Patch [037])
+- [x] InputBar Layout & Control Panel Wiring ([039])
 
 ---
 
@@ -36,6 +37,7 @@
 
 ## 🏁 Completed Missions (Recent)
 
+- **[039]** Control Panel Wiring & Mock Controls
 - **[038]** Skill Standardization & Sovereign Alignment (34 Skills)
 - **[036]** Nordic UI Component Harmonization
 - **[035]** Profile Field Aesthetics
@@ -51,3 +53,4 @@
 | 2026-04-12T12:10+02:00 | Agent OS Refactor (orchestration absorption) | `using-agent-skills`, `directives` | ✅ Done |
 | 2026-04-12T17:45+02:00 | Skill Standardization (Sovereign Template)   | `directives`, `using-agent-skills` | ✅ Done |
 | 2026-04-13T06:24+00:00 | Resolve MCP ReDOS and Data Leak Vulns        | `security-and-hardening`           | ✅ Done |
+| 2026-04-14T17:03+02:00 | Fix InputBar Overlap & Panel Wiring           | `incremental-implementation`         | ✅ Resolved |

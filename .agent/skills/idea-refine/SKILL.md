@@ -1,81 +1,82 @@
 ---
 name: idea-refine
-description: Refines ideas iteratively. Refine ideas through structured divergent and convergent thinking. Use "idea-refine" or "ideate" to trigger.
+description: Handles the end-to-end Concept Lifecycle, from raw vibes (Research) to sharp, actionable specifications (Refinement). 
 ---
 
-# Idea Refine
+# Idea Refine (Concept Lifecycle)
 
-> "Simplicity is the ultimate sophistication. Refine raw ideas into sharp, actionable concepts worth building."
+> "Every chaotic vibe is distilled into a sharp, functional reality before it touches the engine. Simplicity is the ultimate sophistication. We move from raw inspiration to actionable concepts in a single sovereign pipeline."
 
 ## Overview
 
-The `idea-refine` skill is an architectural and product-thinking framework designed to sharpen ambiguous requests into concrete implementations. It utilizes a three-phase loop (Diverge, Converge, Sharpen) to ensure that we are building the _right_ thing before we worry about building it _right_. This skill acts as the creative partner to the Engine's physical laws.
+The `idea-refine` skill is the RPGlitch Engine's central filter for product and architectural thinking. It manages the entire **Concept Lifecycle**, ensuring that we are building the _right_ thing before we worry about building it _right_.
 
-### Philosophy
+### The Concept Lifecycle
 
-- **User-Backwards**: Start with the experience, then work backwards to the technology.
-- **Focus over Breadth**: Say no to 1,000 things to make the core 1 thing perfect.
-- **Chesterton's Fence**: Understand existing patterns before refactoring or extending.
-- **Beautiful Internals**: The logic you can't see should be as elegant as the UI you can.
+1.  **Phase 0: Research (Legacy Incubation)**: Exploration of experimental or "non-canon" vibes and legacy mechanics. This phase captures inspirations that are too valuable to lose but not yet ready for the engine's physics.
+2.  **Phase 1: Diverge (Signal Sweep)**: Interrogating ambiguous requests to find the **Core Mechanic**.
+3.  **Phase 2: Handshake (The Mirror)**: Reflecting intent back to the user for confirmation.
+4.  **Phase 3: Converge (Stress-Test)**: Evaluating directions against Value, Feasibility, and the "Nordic Aesthetic."
+5.  **Phase 4: Crystallization (The Concept)**: Producing a final **Concept Document** (formerly Discovery Journal).
 
 ## When to Use
 
-- **Positive Triggers**: Ambiguous feature requests, "How would we...?" questions, or when designing a new narrative mechanic.
-- **Conflict Triggers**: When two implementation directions seem equally valid and need stress-testing.
-- **EXCLUSIONS**: Do not use for trivial tasks (CSS tweaks, bug fixes); proceed directly to implementation.
+- **Research**: When digging into legacy or procedural entropy concepts.
+- **Ambiguity**: When a request is vague or "vibey."
+- **Conflict**: When two implementation paths need stress-testing.
+- **Inspiration**: When looking for "non-canon" mechanics to solve engine roadblocks.
+- **EXCLUSIONS**: Do not use for trivial bug fixes or CSS tweaks.
 
 ## How It Works
 
-1. **Understand & Expand (Diverge)**: Restate the idea as a "How Might We" statement. Ask sharpening questions to define success.
-2. **Evaluate & Converge**: Stress-test directions against Value, Feasibility, and Differentiation. Surface hidden assumptions.
-3. **Sharpen & Ship**: Produce a concrete markdown one-pager summarizing the direction, assumptions, and MVP scope.
+1.  **Research & Assets**: Experimental assets are stored in `assets/` without prefixes.
+2.  **Inhibition**: Research findings are "non-canon" insights until they pass through the refinement pipeline.
+3.  **Refinement Analysis**: Evaluate concepts against the core RPGlitch architecture.
+4.  **Concept Documentation**: Finalize concepts to the localized `assets/` directory.
 
-### Output Artifact
-
-The final result is a markdown one-pager saved to `docs/ideas/` or the `artifacts/` directory, containing:
-
+### Concept Schema
+Final crystallization assets MUST contain:
 - **Problem Statement**: One-sentence framing.
 - **Recommended Direction**: The chosen path and rationale.
 - **Key Assumptions**: What we are betting is true.
-- **MVP Scope**: What's in vs. What's out (The "Not Doing" list).
+- **MVP Scope**: What's in vs. What's out.
 
 ## Usage
 
 ```bash
 # Call the skill to begin an ideation session
-# "Help me refine the magic system"
-# "Ideate on local-first persistent history"
+# "Help me research legacy glitch mechanics"
+# "Refine the local-first history concept"
 ```
 
 ## Present Results
 
-Present the refined idea summary for review.
+Present the refined concept or research findings in a structured format.
 
-- **Evidence**: A link to the generated idea one-pager and a summary of the trade-offs made.
-- **Validation**: Confirmation of the "Not Doing" list to ensure scope discipline.
+- **Evidence**: Finalized Concept document saved to `.agent/skills/idea-refine/assets/`.
+- **Validation**: Confirmation of user "Handshake" and alignment with Rule 02 (Simulation).
 
 ## Common Rationalizations
 
-| Agent Excuse                      | The Reality                                                         |
-| :-------------------------------- | :------------------------------------------------------------------ |
-| "I'll just list 20 variations."   | Quality over quantity. 5-8 well-considered ideas are more valuable. |
-| "Users always want more options." | Choice is a cognitive load. Curate the single best path.            |
-| "This doesn't need a spec."       | Ambiguity leads to technical debt. Refine before you slam.          |
+| Agent Excuse | The Reality |
+| :--- | :--- |
+| "I'll just list 20 variations." | Quality over quantity. |
+| "I should apply this research now." | Research stays in `assets/` until it passes Phase 4. |
+| "This doesn't need a spec." | Ambiguity leads to technical debt. |
 
 ## Red Flags
 
-- **Yes-Machining**: Agreeing with a weak or complex idea instead of pushing back for simplicity.
-- **Skipping Assumptions**: Proceeding to implementation with unvalidated bets.
+- **Logic Drift**: Treating research assets as current technical specifications.
+- **Context Pollution**: Loading non-canon research into an active `/build` turn before refinement.
 - **Missing "Not Doing"**: A plan that tries to do everything is a plan for failure.
 
 ## Troubleshooting
 
-- **Ideation Deadlock**: If the user is unsure, propose a minimal experiment (Spike) to gather data.
-- **Scope Creep**: If the idea starts growing, trigger the Converge phase immediately to prune.
+- **Access Issues**: Ensure you are using relative paths from the `.agent/` root.
+- **Scope Creep**: If the concept starts growing, trigger the Converge phase immediately.
 
 ## Verification
 
-- [ ] A clear "How Might We" problem statement exists.
-- [ ] Target user and success criteria are explicitly defined.
-- [ ] Hidden assumptions are surfaced with validation strategies.
-- [ ] **Hard Evidence Recorded**: A finalized idea one-pager saved to the project documentation.
+- [ ] A clear "How Might We" statement exists.
+- [ ] **Signal Handshake**: User confirmed intent before crystallization.
+- [ ] **Hard Evidence Recorded**: A finalized **Concept** saved to `assets/`.

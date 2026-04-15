@@ -1,8 +1,15 @@
 /**
  * @file text_parser.js
  * @description Logic for parsing raw LLM output into structured UI data.
- * Handles: Think blocks, Image prompts, and Scene Headers.
+ * Handles: Think blocks, Image prompts, Scene Headers, and Markdown.
  */
+import MarkdownIt from "markdown-it";
+
+const md = new MarkdownIt({
+  html: false,
+  breaks: true,
+  linkify: true,
+});
 /**
  * Extracts <think> blocks from text.
  * @param {string} text
@@ -95,8 +102,12 @@ export function parse_message(rawText) {
   text = thinkResult.content;
   // 3. Extract Scene Header
   const headerResult = parse_scene_header(text);
+
+  // 4. Render Markdown
+  const rendered = md.render(headerResult.content).trim();
+
   return {
-    displayText: headerResult.content,
+    displayText: rendered,
     think: thinkResult.think,
     sceneData: headerResult.header,
   };
