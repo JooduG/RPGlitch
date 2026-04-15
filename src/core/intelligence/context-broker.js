@@ -78,14 +78,16 @@ export const context_broker = {
     const matches = dynamics_engine.dynamics_scan(input);
     const has_trust_plea = matches.some((m) => m.id === "VULNERABILITY" || m.id === "SUSPICIOUS");
 
-    // #TODO-AI: Build a vector lifecycle manager that marks a FUTURE_VECTOR as resolved
-    // when its semantic criteria are met in the simulation log, clearing it from the subsequent prompt payloads.
     // 1. Resolve Entities mapping (Role -> Data)
     const entries = [
       { role: "AI", data: runtime.active_ai },
       { role: "USER", data: runtime.active_user },
       { role: "FRACTAL", data: runtime.active_fractal },
     ];
+
+    // Vector Lifecycle Management
+    await context_broker.manage_vector_lifecycle(entries, simulation_log);
+
     const entities = {};
     // Synchronous hydration of entities
     entries.forEach(({ role, data }) => {
@@ -155,6 +157,73 @@ export const context_broker = {
       })
       .join("\n");
   },
+  /**
+   * Vector Lifecycle Manager
+   * Scans future vectors and resolves them if they match semantic criteria in the recent simulation log.
+   */
+  async manage_vector_lifecycle(entries, simulation_log) {
+    if (!simulation_log || simulation_log.length === 0) return;
+
+    // We only check the most recent few messages to avoid resolving vectors based on ancient history
+    const recent_log = simulation_log.slice(-3).map((m) => (m.content || "").toLowerCase()).join(" ");
+    if (!recent_log) return;
+
+    for (const { data } of entries) {
+      if (!data || !Array.isArray(data.future) || data.future.length === 0) continue;
+
+      const to_resolve = [];
+      for (const vector of data.future) {
+        if (!vector.text && (!vector.vector_tags || vector.vector_tags.length === 0)) continue;
+
+        let matched = false;
+
+        // Check if any specific vector tags were met
+        if (vector.vector_tags) {
+          for (const tag of vector.vector_tags) {
+            if (tag && recent_log.includes(tag.toLowerCase())) {
+              matched = true;
+              break;
+            }
+          }
+        }
+
+        // Check if main keywords from the vector text are in the recent log
+        if (!matched && vector.text) {
+          const keywords = vector.text
+            .toLowerCase()
+            .split(/\W+/)
+            .filter((w) => w.length > 2); // Only look for significant words
+
+          let hit_count = 0;
+          for (const keyword of keywords) {
+             if (recent_log.includes(keyword)) {
+                hit_count++;
+             }
+          }
+          // Arbitrary threshold: if we match at least 2 significant words from the goal, it might be resolved
+          if (hit_count >= 2 || (keywords.length > 0 && hit_count === keywords.length)) {
+             matched = true;
+          }
+        }
+
+        if (matched) {
+          to_resolve.push(vector.id);
+        }
+      }
+
+      if (to_resolve.length > 0) {
+        // dynamic import once to avoid circular dependency and loop over to_resolve
+        import("./vector-engine.js")
+          .then(({ vector_engine }) => {
+            for (const id of to_resolve) {
+              vector_engine.resolve_vector(data, id, "MET_IN_SIMULATION");
+            }
+          })
+          .catch((err) => console.warn("Vector resolution failed:", err));
+      }
+    }
+  },
+
   /**
    * Relevance-based sorting for raw data points.
    */
