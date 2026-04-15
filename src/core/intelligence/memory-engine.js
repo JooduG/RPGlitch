@@ -63,7 +63,14 @@ export async function consolidate_vector(target_entity, history_slice, role = "c
       console.warn("[Echo] No valid JSON object found in response.");
       return null;
     }
-    const resonance = JSON.parse(object_match[0]);
+
+    let resonance = null;
+    try {
+      resonance = JSON.parse(object_match[0]);
+    } catch (e) {
+      console.warn("[Echo] Failed to parse resonance JSON:", e);
+      return null;
+    }
 
     // Validation: Require non-empty summary
     if (!resonance || typeof resonance.summary !== "string" || resonance.summary.trim() === "") {
@@ -75,10 +82,17 @@ export async function consolidate_vector(target_entity, history_slice, role = "c
     //    Run automated Scan Reflexes on the summary to avoid hallucination.
     const triggered_reflexes = dynamics_engine.dynamics_scan(resonance.summary);
     const dynamics_tags = triggered_reflexes.map((r) => r.id);
+
     // 3. Package Return
+    const vector_tags = Array.isArray(resonance.vector_tags)
+      ? resonance.vector_tags
+      : Array.isArray(resonance.tags)
+        ? resonance.tags
+        : [];
+
     return {
       summary: resonance.summary,
-      vector_tags: resonance.vector_tags || resonance.tags || [],
+      vector_tags,
       dynamics_tags: dynamics_tags,
       timestamp: Date.now(),
     };
