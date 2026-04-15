@@ -16,8 +16,8 @@
   let initials = $derived(themeStore.get_initials(name));
 
   // 2. Minor Modifiers
-  let isNoBg = $derived(entity?.visuals?.noBackground ?? false);
-  let isFlipped = $derived(entity?.visuals?.flipped ?? false);
+  let isNoBg = $derived(entity?.modifiers?.noBackground ?? false);
+  let isFlipped = $derived(entity?.modifiers?.flipped ?? false);
 </script>
 
 <div class="profile-picture" style="--signature-color: {signature_color}">
