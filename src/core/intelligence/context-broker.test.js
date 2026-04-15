@@ -42,10 +42,7 @@ describe("context_broker", () => {
       resolve_called.push(id);
     });
 
-    context_broker.manage_vector_lifecycle(mock_entries, mock_simulation_log);
-
-    // Wait for dynamic import microtasks
-    await new Promise(r => setTimeout(r, 50));
+    await context_broker.manage_vector_lifecycle(mock_entries, mock_simulation_log);
 
     expect(resolve_called).toContain("v1"); // Matched by vector tag
     expect(resolve_called).not.toContain("v2"); // Did not match
