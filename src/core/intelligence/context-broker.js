@@ -78,14 +78,23 @@ export const context_broker = {
     const matches = dynamics_engine.dynamics_scan(input);
     const has_trust_plea = matches.some((m) => m.id === "VULNERABILITY" || m.id === "SUSPICIOUS");
 
-    // #TODO-AI: Build a vector lifecycle manager that marks a FUTURE_VECTOR as resolved
-    // when its semantic criteria are met in the simulation log, clearing it from the subsequent prompt payloads.
+    // Extract raw log text without truncation or owner headers for lifecycle matching
+    const full_log_text = Array.isArray(simulation_log)
+      ? simulation_log.map(m => (m.content || "").replace(/<think>[\s\S]*?<\/think>/gi, "")).join(" ")
+      : "";
+
     // 1. Resolve Entities mapping (Role -> Data)
     const entries = [
       { role: "AI", data: runtime.active_ai },
       { role: "USER", data: runtime.active_user },
       { role: "FRACTAL", data: runtime.active_fractal },
     ];
+
+    // Lifecycle Management: Resolve satisfied future vectors asynchronously without blocking hydration
+    Promise.all(
+      entries.map(({ data }) => context_broker.manage_vector_lifecycle(data, full_log_text))
+    ).catch(err => console.warn("[Vector Lifecycle] Failed to auto-resolve vectors:", err));
+
     const entities = {};
     // Synchronous hydration of entities
     entries.forEach(({ role, data }) => {
@@ -154,6 +163,83 @@ export const context_broker = {
         return `[${owner}]: ${clean_text(stripped, 500)}`;
       })
       .join("\n");
+  },
+  /**
+   * Dynamically resolves FUTURE_VECTOR items based on recent simulation log keywords.
+   */
+  async manage_vector_lifecycle(entity, recent_log_text) {
+    if (!entity || !Array.isArray(entity.future) || entity.future.length === 0) return;
+    if (!recent_log_text) return;
+
+    const log_lower = recent_log_text.toLowerCase();
+
+    // Create a Set of lowercase words for O(1) lookup
+    const log_words = new Set(log_lower.split(/[\s,.;:!?()"'[\]{}]+/));
+
+    // Helper to safely escape strings for RegExp if needed
+    const escape_regex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    const vectors_to_resolve = [];
+
+    for (const vector of entity.future) {
+      let is_resolved = false;
+
+      // 1. Check strict vector tags
+      if (Array.isArray(vector.vector_tags)) {
+        is_resolved = vector.vector_tags.some((tag) => {
+          const t = tag.toLowerCase();
+          if (t.includes(' ')) {
+            // Multi-word tag: use escaped regex with word boundaries
+            try {
+              const regex = new RegExp(`\\b${escape_regex(t)}\\b`, 'i');
+              return regex.test(recent_log_text);
+            } catch {
+              return log_lower.includes(t);
+            }
+          }
+          // Single word tag: fast O(1) lookup
+          return log_words.has(t);
+        });
+      }
+
+      // 2. Check significant keywords from the vector text if no tag match
+      if (!is_resolved && vector.text) {
+        // Extract deduplicated words > 4 chars
+        const words = vector.text
+          .toLowerCase()
+          .split(/[\s,.;:!?()"'[\]{}]+/)
+          .filter((w) => w.length > 4);
+
+        const keywords = Array.from(new Set(words));
+
+        if (keywords.length > 0) {
+          // If at least 3 significant keywords (or all if < 3) are found, consider it matched
+          const match_threshold = Math.min(3, keywords.length);
+
+          let matched_count = 0;
+          for (const k of keywords) {
+            if (log_words.has(k)) {
+               matched_count++;
+            }
+          }
+
+          if (matched_count >= match_threshold) {
+            is_resolved = true;
+          }
+        }
+      }
+
+      if (is_resolved) {
+        vectors_to_resolve.push(vector.id);
+      }
+    }
+
+    if (vectors_to_resolve.length > 0) {
+      const { vector_engine } = await import("./vector-engine.js");
+      for (const id of vectors_to_resolve) {
+        vector_engine.resolve_vector(entity, id, "AUTO_RESOLVED");
+      }
+    }
   },
   /**
    * Relevance-based sorting for raw data points.
