@@ -295,9 +295,14 @@ export const dynamics_engine = {
    */
   dynamics_numerical(state, matches) {
     const processed = new Set();
+    const match_map = new Map();
+    matches.forEach((m) => {
+      if (!match_map.has(m.id)) match_map.set(m.id, m);
+    });
+
     DYNAMICS.forEach((data) => {
       if (processed.has(data.id)) return;
-      const match = matches.find((m) => m.id === data.id);
+      const match = match_map.get(data.id);
       const active_state = {
         ...state.ai?.dynamics,
         ...state.fractal?.dynamics,
@@ -329,8 +334,9 @@ export const dynamics_engine = {
    * Pushes prompts to the final output based on the settled state.
    */
   dynamics_narrative(state, matches) {
+    const match_ids = new Set(matches.map((m) => m.id));
     DYNAMICS.forEach((data) => {
-      const is_triggered = matches.some((m) => m.id === data.id);
+      const is_triggered = match_ids.has(data.id);
       const active_state = {
         ...state.ai?.dynamics,
         ...state.fractal?.dynamics,
