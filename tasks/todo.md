@@ -53,3 +53,4 @@
 | 2026-04-12T12:10+02:00 | Agent OS Refactor (orchestration absorption) | `using-agent-skills`, `directives` | ✅ Done |
 | 2026-04-12T17:45+02:00 | Skill Standardization (Sovereign Template)   | `directives`, `using-agent-skills` | ✅ Done     |
 | 2026-04-14T17:03+02:00 | Fix InputBar Overlap & Panel Wiring           | `incremental-implementation`         | ✅ Resolved |
+| 2026-04-15T19:58+00:00 | Add unit tests for entity-fragments.js        | `test-driven-development`            | ✅ Done     |
