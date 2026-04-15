@@ -53,14 +53,14 @@ describe("memory-engine - consolidate_vector", () => {
     );
   });
 
-  it("should return null and error if JSON parsing fails", async () => {
+  it("should return null and warn if JSON parsing fails", async () => {
     vi.mocked(llm_service.generate).mockResolvedValue("{ malformed: json }");
 
     const result = await consolidate_vector({ name: "Viper" }, []);
 
     expect(result).toBeNull();
-    expect(console.error).toHaveBeenCalledWith(
-      expect.stringContaining("Resonance condensation failed"),
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining("Failed to parse resonance JSON"),
       expect.any(Error),
     );
   });
