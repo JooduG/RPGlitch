@@ -1,10 +1,19 @@
-import { describe, expect, it, beforeEach } from "vitest";
+import { describe, expect, it, beforeEach, vi } from "vitest";
 import { context_broker } from "./context-broker.js";
+
+// Mock vector_engine to intercept dynamic import calls
+vi.mock("./vector-engine.js", () => ({
+  vector_engine: {
+    resolve_vector: vi.fn(),
+  },
+}));
 
 describe("context_broker", () => {
   beforeEach(() => {
     // Initial state cleanup if needed
+    vi.clearAllMocks();
   });
+
   it("hydrate() returns a valid payload for simulation", async () => {
     // Basic test to verify snake_case integration
 
@@ -12,42 +21,84 @@ describe("context_broker", () => {
     expect(context_broker.hydrate).toBeDefined();
   });
 
-  it("manage_vector_lifecycle() identifies vectors that meet semantic criteria", async () => {
-    const mock_simulation_log = [
-      { content: "The entity discovers a hidden key." },
-      { content: "They look at the glowing sword in the stone." }
-    ];
-
-    const mock_entries = [
-      {
-        role: "AI",
-        data: {
-          future: [
-            { id: "v1", text: "Find the hidden key", vector_tags: ["hidden key"] }, // Should match tag
-            { id: "v2", text: "Ignore the distraction", vector_tags: [] }, // Should not match
-            { id: "v3", text: "Discover glowing sword stone", vector_tags: [] } // Should match text keywords (glowing, sword, stone)
-          ],
-          past: []
-        }
-      }
-    ];
-
-    // Wait for dynamic import inside manage_vector_lifecycle to resolve
-    let resolve_called = [];
-
-    // In test environment, the real vector_engine dynamically imported will not have a mock applied via doMock if not careful,
-    // so we spy on the real vector_engine instead.
-    const { vector_engine } = await import("./vector-engine.js");
-    vi.spyOn(vector_engine, "resolve_vector").mockImplementation((data, id, res) => {
-      resolve_called.push(id);
+  describe("manage_vector_lifecycle", () => {
+    it("should gracefully handle missing entity or future arrays", async () => {
+      await expect(context_broker.manage_vector_lifecycle(null, "log")).resolves.not.toThrow();
+      await expect(context_broker.manage_vector_lifecycle({ future: null }, "log")).resolves.not.toThrow();
+      await expect(context_broker.manage_vector_lifecycle({ future: [] }, "log")).resolves.not.toThrow();
     });
 
-    await context_broker.manage_vector_lifecycle(mock_entries, mock_simulation_log);
+    it("should gracefully handle missing log text", async () => {
+      const entity = { future: [{ id: "1" }] };
+      await expect(context_broker.manage_vector_lifecycle(entity, null)).resolves.not.toThrow();
+      await expect(context_broker.manage_vector_lifecycle(entity, "")).resolves.not.toThrow();
+    });
 
-    expect(resolve_called).toContain("v1"); // Matched by vector tag
-    expect(resolve_called).not.toContain("v2"); // Did not match
-    expect(resolve_called).toContain("v3"); // Matched by keywords ("glowing", "sword", "stone")
+    it("should resolve vectors based on vector_tags match", async () => {
+      const entity = {
+        future: [
+          { id: "v1", vector_tags: ["apple", "banana"], text: "Some short text" },
+          { id: "v2", vector_tags: ["cherry"], text: "Another text" },
+          { id: "v3", vector_tags: ["multi word tag"], text: "Yet another text" }
+        ]
+      };
+      const log = "I ate a Banana yesterday and saw a multi word tag in the wild.";
 
-    vi.restoreAllMocks();
+      await context_broker.manage_vector_lifecycle(entity, log);
+
+      const { vector_engine } = await import("./vector-engine.js");
+      expect(vector_engine.resolve_vector).toHaveBeenCalledTimes(2);
+      expect(vector_engine.resolve_vector).toHaveBeenCalledWith(entity, "v1", "AUTO_RESOLVED");
+      expect(vector_engine.resolve_vector).toHaveBeenCalledWith(entity, "v3", "AUTO_RESOLVED");
+    });
+
+    it("should not resolve vectors using substring false positives", async () => {
+      const entity = {
+        future: [
+          { id: "v1", vector_tags: ["cat"], text: "Some short text" }
+        ]
+      };
+      // The word 'category' contains 'cat', but it should not match the exact word 'cat'
+      const log = "This is a new category.";
+
+      await context_broker.manage_vector_lifecycle(entity, log);
+
+      const { vector_engine } = await import("./vector-engine.js");
+      expect(vector_engine.resolve_vector).not.toHaveBeenCalled();
+    });
+
+    it("should resolve vectors based on significant keywords if no tags match", async () => {
+      const entity = {
+        future: [
+          { id: "v1", text: "The grand master spoke." }, // keywords: grand, master, spoke
+          { id: "v2", text: "A tiny cat slept." }      // keywords: slept (others <= 4 chars)
+        ]
+      };
+
+      // Match "grand", "master", "spoke"
+      const log = "The Grand old Master spoke loudly.";
+
+      await context_broker.manage_vector_lifecycle(entity, log);
+
+      const { vector_engine } = await import("./vector-engine.js");
+      expect(vector_engine.resolve_vector).toHaveBeenCalledTimes(1);
+      expect(vector_engine.resolve_vector).toHaveBeenCalledWith(entity, "v1", "AUTO_RESOLVED");
+    });
+
+    it("should not resolve vectors if keywords don't meet threshold", async () => {
+      const entity = {
+        future: [
+          { id: "v1", text: "The grand master spoke." } // keywords: grand, master, spoke
+        ]
+      };
+
+      // Match only "grand" (threshold is 3)
+      const log = "The Grand canyon is big.";
+
+      await context_broker.manage_vector_lifecycle(entity, log);
+
+      const { vector_engine } = await import("./vector-engine.js");
+      expect(vector_engine.resolve_vector).not.toHaveBeenCalled();
+    });
   });
 });
