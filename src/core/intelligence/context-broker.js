@@ -185,7 +185,7 @@ export const context_broker = {
         const words = vector.text
           .toLowerCase()
           .split(/[\s,.;:!?()]+/)
-          .filter((w) => w.length > 4); // Only words > 4 chars
+          .filter((w) => w.length > 3); // Only words > 3 chars
 
         const keywords = Array.from(new Set(words));
 
