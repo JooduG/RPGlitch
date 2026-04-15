@@ -86,7 +86,7 @@ export const context_broker = {
     ];
 
     // Vector Lifecycle Management
-    context_broker.manage_vector_lifecycle(entries, simulation_log);
+    await context_broker.manage_vector_lifecycle(entries, simulation_log);
 
     const entities = {};
     // Synchronous hydration of entities
