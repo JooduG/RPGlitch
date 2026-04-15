@@ -19,6 +19,7 @@ RPGlitch is a high-fidelity, local-first simulation engine designed for immersiv
 - **Log Hygiene**: AI internal "thoughts" (`<think>` blocks) are purged before log persistence to maintain context window efficiency.
 - **Metadata Isolation**: Visual generation metadata (e.g., "8k", "hyper-realistic") is stripped from narrative prose to maintain diegetic immersion.
 - **XML Hygiene**: Outbound prompt attributes are escaped to prevent data structure corruption from unclosed brackets or quotes.
+- **UI: Interaction Hygiene**: Message actions sit outside the content boundary in a vertical `GlassPill` to eliminate "whitespace chin" and preserve narrative focus.
 
 ---
 
@@ -64,6 +65,11 @@ RPGlitch/
 
 - **The Nordic Collection**: Abyssal radial gradients, atmospheric noise (3%), and glassmorphic elevation.
 - **Naming**: kebab-case (files), PascalCase (Svelte), snake_case (variables).
+
+### Interaction (Vertical Monolith)
+
+- **Standardization**: High-frequency actions utilize the `GlassPill` atom.
+- **Narrative Toolbar**: Vertical action strip triggered by row-hover, positioned in the inner gutter (Right for AI/Fractal, Left for User).
 
 ---
 

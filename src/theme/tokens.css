@@ -57,7 +57,7 @@
   --color-pink: #ec4899;
 
   /* Base Shades & System Colors */
-  --color-success: var(--color-forest);
+  --color-success: var(--color-emerald);
   --color-warning: var(--color-amber);
   --color-danger: var(--color-red);
   --color-info: var(--color-blue);
