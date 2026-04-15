@@ -81,3 +81,15 @@ export const mockPlugins = () => {
     window["pluginUpload"] = async (data) => "https://via.placeholder.com/150";
 };
 export const clamp = (n, min = 0, max = 100) => Math.min(max, Math.max(min, Number(n) || 0));
+/**
+ * Returns a random element from an array.
+ * Uses secure seed if available, fallbacks to Math.random.
+ */
+export const pickRandom = (array) => {
+  if (!Array.isArray(array) || array.length === 0) return null;
+  try {
+    return array[generateSecureSeed(array.length)];
+  } catch (e) {
+    return array[Math.floor(Math.random() * array.length)];
+  }
+};

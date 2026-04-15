@@ -77,7 +77,12 @@ export class AppStore {
     runtime.turnType = val;
   }
   // --- READINESS (Derived Logic) ---
-  is_ready = $derived(this.settings.dev_mode || (this.selected_ai && this.selected_user));
+  selected_count = $derived(
+    (this.selected_ai ? 1 : 0) + (this.selected_user ? 1 : 0) + (this.selected_fractal ? 1 : 0),
+  );
+  is_ready = $derived(
+    this.settings.dev_mode || (this.selected_ai && this.selected_user && this.selected_fractal),
+  );
   /** Legacy alias for storyboard readiness */
   get storyboard_ready() {
     return this.is_ready;

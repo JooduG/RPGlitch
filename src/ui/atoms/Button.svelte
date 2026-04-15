@@ -226,13 +226,15 @@
   }
 
   .button-ghost:hover:not(:disabled, .disabled) {
-    background: rgb(var(--color-frisk-rgb) / 10%);
-    color: var(--font-color-m);
+    background: transparent;
+    color: var(--color-white);
+    filter: brightness(1.2);
   }
 
   .button-outline:hover:not(:disabled, .disabled) {
-    color: var(--color-frisk);
-    background: rgb(var(--color-frisk-rgb) / 10%);
+    color: var(--color-white);
+    background: transparent;
+    filter: brightness(1.2);
   }
 
   .button-danger:hover:not(:disabled, .disabled) {
@@ -242,9 +244,10 @@
   }
 
   .button-dashed:hover:not(:disabled, .disabled) {
-    background: rgb(var(--color-frisk-rgb) / 10%);
-    border-color: var(--font-color-s);
-    color: var(--font-color-m);
+    background: transparent;
+    border-color: var(--font-color-m);
+    color: var(--color-white);
+    filter: brightness(1.2);
   }
 
   .button-magic:hover:not(:disabled, .disabled) {
