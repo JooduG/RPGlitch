@@ -192,7 +192,7 @@ export const context_broker = {
           const keywords = vector.text
             .toLowerCase()
             .split(/\W+/)
-            .filter((w) => w.length > 4); // Only look for significant words
+            .filter((w) => w.length > 2); // Only look for significant words
 
           let hit_count = 0;
           for (const keyword of keywords) {
