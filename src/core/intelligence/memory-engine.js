@@ -83,7 +83,7 @@ export async function consolidate_vector(target_entity, history_slice, role = "c
     const triggered_reflexes = dynamics_engine.dynamics_scan(resonance.summary);
     const dynamics_tags = triggered_reflexes.map((r) => r.id);
 
-    // 3. Package Return
+// 5. Package Return
     const vector_tags = Array.isArray(resonance.vector_tags)
       ? resonance.vector_tags
       : Array.isArray(resonance.tags)
