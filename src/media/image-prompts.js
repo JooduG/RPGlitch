@@ -5,6 +5,7 @@
  */
 import { PALETTE } from "@theme/palette.svelte.js";
 import { llm_service } from "@core/intelligence/llm-service.js";
+import { pickRandom } from "@ui/utils/core.js";
 /************************************************************************************
  * 🧩 [SECTION: CONSTANTS & GLOBALS]
  ************************************************************************************/
@@ -56,16 +57,13 @@ export const AestheticRouter = {
       const matches = list.filter((item) =>
         haystack.includes(item.toLowerCase().split(",")[0].trim()),
       );
-      return matches.length > 0 ? matches[Math.floor(Math.random() * matches.length)] : null;
+      return pickRandom(matches);
     };
     return {
       style: pickMatch(lists.styles),
       lighting: pickMatch(lists.lighting),
       mood: pickMatch(lists.mood),
-      quality:
-        lists.quality.length > 0
-          ? lists.quality[Math.floor(Math.random() * lists.quality.length)]
-          : null,
+      quality: pickRandom(lists.quality),
     };
   },
 };

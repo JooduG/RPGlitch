@@ -43,9 +43,11 @@ export class AppStore {
   // --- NARRATIVE CONFIG ---
   prologue = $state(""); // Starting directions/context
   // --- SIMULATION STATE ---
-  simulation = $state({
-    loading: false, // STASIS: True when Chrono is processing
-  });
+  simulation = {
+    get loading() {
+      return simulationState.phase !== "idle";
+    },
+  };
   // --- FATE SYSTEM ---
   fate = $state({
     active: false,

@@ -63,7 +63,13 @@ export async function consolidate_vector(target_entity, history_slice, role = "c
       console.warn("[Echo] No valid JSON object found in response.");
       return null;
     }
-    const resonance = JSON.parse(object_match[0]);
+    let resonance = null;
+    try {
+      resonance = JSON.parse(object_match[0]);
+    } catch (e) {
+      console.warn("[Echo] Failed to parse resonance JSON:", e);
+      return null;
+    }
 
     // Validation: Require non-empty summary
     if (!resonance || typeof resonance.summary !== "string" || resonance.summary.trim() === "") {
