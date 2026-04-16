@@ -62,7 +62,7 @@ export function clean_image_prompts(text) {
     );
     // Handle <image>...</image>
     result = result.replace(
-      /<image(?:\s+[^"'>\s]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^"'>\s]+))?)*\s*>(?:(?!<image)[\s\S])*?<\/image\s*>/gi,
+      /<image(?:\s+[^"'>\s]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^"'>\s]+))?)*\s*>(?:(?!<image(?=[\s>\/]))[\s\S])*?<\/image\s*>/gi,
       "",
     );
   }
