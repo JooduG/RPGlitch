@@ -71,7 +71,7 @@
     pointer-events: auto;
     user-select: none;
     border: none;
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-m);
     background: transparent;
     color: var(--font-color-m);
   }
@@ -85,15 +85,15 @@
 
   .button.button-square {
     padding: 0;
-    width: var(--button-icon-m);
-    height: var(--button-icon-m);
+    width: var(--icon-m);
+    height: var(--icon-m);
     aspect-ratio: 1;
     flex-shrink: 0;
   }
 
   .button.button-square.button-sm {
-    width: var(--button-icon-s);
-    height: var(--button-icon-s);
+    width: var(--icon-s);
+    height: var(--icon-s);
   }
 
   .button.button-full {
@@ -131,7 +131,7 @@
   }
 
   .button-outline {
-    background: var(--glass-edge-l);
+    background: var(--border-l);
     color: var(--font-color-s);
   }
 
@@ -143,7 +143,7 @@
 
   .button-dashed {
     background: transparent;
-    border: 1px dashed var(--glass-edge-l);
+    border: 1px dashed var(--border-l);
     color: var(--font-color-s);
     cursor: pointer;
   }
@@ -177,16 +177,16 @@
 
   .button-glass {
     background: var(--glass-l); /* 15% Frisk */
-    backdrop-filter: var(--glass-blur-s);
-    border: var(--glass-edge-m);
+    backdrop-filter: var(--blur-s);
+    border: var(--border-m);
     color: var(--color-white);
     transition: all var(--motion-fast) var(--motion-elastic);
   }
 
   .button-secondary {
     background: rgb(var(--color-frisk-rgb) / 10%); /* Subtle initial state */
-    backdrop-filter: var(--glass-blur-s);
-    border: var(--glass-edge-s);
+    backdrop-filter: var(--blur-s);
+    border: var(--border-s);
     color: var(--font-color-m);
   }
 
@@ -238,9 +238,9 @@
   }
 
   .button-danger:hover:not(:disabled, .disabled) {
-    background: var(--color-danger);
+    background: var(--color-red);
     color: var(--color-white);
-    box-shadow: 0 0 1rem rgb(var(--color-danger-rgb) / var(--opacity-s));
+    box-shadow: 0 0 1rem rgb(var(--color-red-rgb) / var(--opacity-s));
   }
 
   .button-dashed:hover:not(:disabled, .disabled) {
@@ -266,14 +266,14 @@
 
   .button-glass:hover:not(:disabled, .disabled) {
     background: var(--glass-xl); /* 30% Nordic Deep Glass */
-    backdrop-filter: var(--glass-blur-m);
+    backdrop-filter: var(--blur-m);
     border-color: var(--color-frisk);
     box-shadow: var(--shadow-m);
   }
 
   .button-secondary:hover:not(:disabled, .disabled) {
     background: var(--glass-l); /* 15% Frisk on hover */
-    backdrop-filter: var(--glass-blur-m);
+    backdrop-filter: var(--blur-m);
   }
 
   .button-security:hover:not(:disabled, .disabled) {
@@ -286,11 +286,11 @@
 
   /* 5. Positional Overrides (Must be last) */
   :global(.button-group-joined) .button:first-child {
-    border-radius: var(--border-radius) 0 0 var(--border-radius);
+    border-radius: var(--border-radius-m) 0 0 var(--border-radius-m);
   }
 
   :global(.button-group-joined) .button:last-child {
-    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    border-radius: 0 var(--border-radius-m) var(--border-radius-m) 0;
   }
 
   :global(.button-group-joined) .button:not(:last-child) {

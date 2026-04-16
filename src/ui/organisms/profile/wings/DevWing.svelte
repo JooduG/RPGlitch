@@ -4,8 +4,8 @@
    * 🛠️ DYNAMIC DEVELOPER CONSOLE
    * Dynamically renders and binds to all entity dynamics (Somatic or Environmental).
    */
-  import Wing from "./Wing.svelte";
   import DataBox from "@ui/atoms/DataBox.svelte";
+  import Wing from "./Wing.svelte";
 
   let { char = $bindable(), is_editing } = $props();
 
@@ -137,7 +137,7 @@
     justify-content: center;
     min-height: 4rem;
     background: var(--glass-xs);
-    border: 1px solid var(--glass-edge-l);
+    border: 1px solid var(--border-l);
     border-radius: var(--border-radius-m);
     transition: all var(--motion-fast) var(--motion-elastic);
   }

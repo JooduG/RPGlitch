@@ -4,13 +4,7 @@
    * A standardized frosted container for informational blocks.
    * Used for AI "Think" blocks, JSON Data, and System Logs.
    */
-  let { 
-    label = "", 
-    isCode = true,
-    height = "auto",
-    maxHeight = "none",
-    children 
-  } = $props();
+  let { label = "", isCode = true, height = "auto", maxHeight = "none", children } = $props();
 </script>
 
 <div class="data-box" style="--box-height: {height}; --box-max-height: {maxHeight}">
@@ -24,7 +18,7 @@
   .data-box {
     width: 100%;
     background: var(--glass-xs);
-    border: var(--glass-edge-s);
+    border: var(--border-s);
     border-radius: var(--border-radius-m);
     overflow: hidden;
     display: flex;
@@ -66,7 +60,7 @@
   }
 
   .data-content::-webkit-scrollbar-thumb {
-    background: var(--glass-edge-l);
+    background: var(--border-l);
     border-radius: var(--border-radius-full);
   }
 

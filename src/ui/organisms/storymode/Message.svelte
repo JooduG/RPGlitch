@@ -9,9 +9,9 @@
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
-  import { safe_html } from "@ui/utils/actions/safe-html.js";
-  import TypingIndicator from "@ui/atoms/TypingIndicator.svelte";
   import DataBox from "@ui/atoms/DataBox.svelte";
+  import TypingIndicator from "@ui/atoms/TypingIndicator.svelte";
+  import { safe_html } from "@ui/utils/actions/safe-html.js";
   import SceneHeader from "../SceneHeader.svelte";
   import MessageToolbar from "./MessageToolbar.svelte";
 
@@ -58,7 +58,8 @@
     }
     if (is_user && runtime.active_user?.name === character_name) return runtime.active_user;
     if (is_ai && runtime.active_ai?.name === character_name) return runtime.active_ai;
-    if (is_fractal && runtime.active_fractal?.name === character_name) return runtime.active_fractal;
+    if (is_fractal && runtime.active_fractal?.name === character_name)
+      return runtime.active_fractal;
     if (is_user) return app.user_list.find((e) => e.name === character_name);
     if (is_ai) return app.ai_list.find((e) => e.name === character_name);
     if (is_fractal) return app.fractal_list.find((e) => e.name === character_name);
@@ -68,9 +69,12 @@
   let signature_color = $derived.by(() => {
     if (entity) return themeStore.get_signature_color(entity);
     if (character_name) return themeStore.get_deterministic_color(character_name);
-    if (is_user && app.selected_user?.signature_color) return themeStore.get_signature_color(app.selected_user);
-    if (is_ai && app.selected_ai?.signature_color) return themeStore.get_signature_color(app.selected_ai);
-    if (is_fractal && app.selected_fractal?.signature_color) return themeStore.get_signature_color(app.selected_fractal);
+    if (is_user && app.selected_user?.signature_color)
+      return themeStore.get_signature_color(app.selected_user);
+    if (is_ai && app.selected_ai?.signature_color)
+      return themeStore.get_signature_color(app.selected_ai);
+    if (is_fractal && app.selected_fractal?.signature_color)
+      return themeStore.get_signature_color(app.selected_fractal);
     return themeStore.get_deterministic_color(sender);
   });
 
@@ -131,10 +135,10 @@
       </div>
 
       <MessageToolbar
-        sender={sender}
+        {sender}
         isLast={is_last}
-        text={text}
-        timestamp={timestamp}
+        {text}
+        {timestamp}
         onDelete={on_delete}
         onRegenerate={on_regenerate}
         onContinue={on_continue}
@@ -153,9 +157,15 @@
     position: relative;
   }
 
-  .message-row.user-row { justify-content: flex-end; }
-  .message-row.ai-row { justify-content: flex-start; }
-  .message-row.fractal-row { justify-content: center; }
+  .message-row.user-row {
+    justify-content: flex-end;
+  }
+  .message-row.ai-row {
+    justify-content: flex-start;
+  }
+  .message-row.fractal-row {
+    justify-content: center;
+  }
 
   /* --- Container Logic: Side-by-side Bubble & Toolbar --- */
   .message-container {
@@ -192,8 +202,12 @@
   }
 
   /* Pointy Corners */
-  .user-bubble { border-bottom-right-radius: 0; }
-  .ai-bubble { border-bottom-left-radius: 0; }
+  .user-bubble {
+    border-bottom-right-radius: 0;
+  }
+  .ai-bubble {
+    border-bottom-left-radius: 0;
+  }
 
   .fractal-bubble {
     width: 60rem;
@@ -221,10 +235,16 @@
     text-shadow: 0 1px 2px rgb(var(--color-black-rgb) / 60%);
   }
 
-  .message-content :global(p) { margin: 0 0 var(--spacing-s) 0; }
-  .message-content :global(p:last-child) { margin-bottom: 0; }
+  .message-content :global(p) {
+    margin: 0 0 var(--spacing-s) 0;
+  }
+  .message-content :global(p:last-child) {
+    margin-bottom: 0;
+  }
 
-  .attachments { margin-bottom: var(--spacing-s); }
+  .attachments {
+    margin-bottom: var(--spacing-s);
+  }
 
   .attachment-button {
     background: none;
@@ -237,8 +257,7 @@
 
   .attachment-image {
     max-width: 100%;
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-m);
     box-shadow: var(--shadow-s);
   }
-
 </style>

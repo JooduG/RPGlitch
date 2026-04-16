@@ -5,7 +5,7 @@
   import { Session } from "@core/engine/engine.js";
   import Button from "@ui/atoms/Button.svelte";
   import Toggle from "@ui/atoms/Toggle.svelte";
-  import Modal from "@ui/molecules/dialogs/Modal.svelte";
+  import Modal from "@ui/molecules/Modal.svelte";
   import TextField from "@ui/atoms/TextField.svelte";
 
   /**

@@ -64,7 +64,7 @@
   .separator {
     width: var(--spacing-px);
     height: var(--spacing-l);
-    box-shadow: 0 0 var(--spacing-m) var(--glass-edge-l);
+    box-shadow: 0 0 var(--spacing-m) var(--border-l);
   }
 
   .info-group {

@@ -10,16 +10,15 @@
   import { runtime } from "@state/runtime.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
   import ProfilePicture from "@ui/atoms/ProfilePicture.svelte";
-  import Modal from "@ui/molecules/dialogs/Modal.svelte";
-
+  import Modal from "@ui/molecules/Modal.svelte";
   // New Modular Components
-  import EntityHeader from "./panels/EntityHeader.svelte";
-  import EntityFragments from "./panels/EntityFragments.svelte";
   import EntityFooter from "./panels/EntityFooter.svelte";
-  
-  import VisualWing from "./wings/VisualWing.svelte";
+  import EntityFragments from "./panels/EntityFragments.svelte";
+  import EntityHeader from "./panels/EntityHeader.svelte";
+
   import AudioWing from "./wings/AudioWing.svelte";
   import DevWing from "./wings/DevWing.svelte";
+  import VisualWing from "./wings/VisualWing.svelte";
 
   import { SvelteSet } from "svelte/reactivity";
 
@@ -54,19 +53,19 @@
       await runtime.save_entity(entity_type || "character", char);
       const eid = char.id;
       const type = entity_type || "character";
-      
+
       if (type === "character") {
         const characters = await entities.list("character");
         app.ai_list = characters;
         app.user_list = characters;
-        
+
         const updated = characters.find((e) => e.id === eid);
         if (app.selected_ai?.id === eid) app.selected_ai = updated;
         if (app.selected_user?.id === eid) app.selected_user = updated;
       } else if (type === "fractal") {
         const fractals = await entities.list("fractal");
         app.fractal_list = fractals;
-        
+
         const updated = fractals.find((e) => e.id === eid);
         if (app.selected_fractal?.id === eid) app.selected_fractal = updated;
       }
@@ -95,9 +94,9 @@
         active instanceof HTMLInputElement ||
         active instanceof HTMLTextAreaElement ||
         (active instanceof HTMLElement && active.contentEditable === "true");
-      
+
       const isWing = active?.closest(".wing-left, .wing-right");
-      
+
       if (!isInput && !isWing && busy_fields.size === 0) {
         active_field = { key: "visual-prompt", label: "Image Prompt" };
       }
@@ -151,18 +150,13 @@
         </div>
         <main class="right-panel">
           <EntityHeader bind:char {is_editing} />
-          <EntityFragments
-            bind:char
+          <EntityFragments bind:char {is_editing} {busy_fields} bind:active_field />
+          <EntityFooter
             {is_editing}
-            {busy_fields}
-            bind:active_field
-          />
-          <EntityFooter 
-            {is_editing} 
-            {is_saving} 
-            onclick_edit={() => is_editing = true}
-            onclick_save={handle_save} 
-            onclick_delete={handle_delete} 
+            {is_saving}
+            onclick_edit={() => (is_editing = true)}
+            onclick_save={handle_save}
+            onclick_delete={handle_delete}
           />
         </main>
       </div>
@@ -230,8 +224,8 @@
     height: 100%;
     max-height: 85vh;
     background: var(--glass-xl);
-    backdrop-filter: var(--glass-blur-l);
-    border: var(--glass-edge-l);
+    backdrop-filter: var(--blur-l);
+    border: var(--border-l);
     border-top: 2px solid var(--signature-color);
     border-radius: var(--border-radius-l);
     box-shadow:
@@ -252,7 +246,7 @@
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    border-right: var(--glass-edge-m);
+    border-right: var(--border-m);
     padding: 0;
   }
 

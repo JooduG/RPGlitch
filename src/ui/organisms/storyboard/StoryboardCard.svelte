@@ -205,8 +205,8 @@
     align-items: center;
     justify-content: center;
     background: var(--glass-xxl);
-    border: var(--glass-edge-xl);
-    backdrop-filter: var(--glass-blur-xl);
+    border: var(--border-xl);
+    backdrop-filter: var(--blur-xl);
     border-radius: 50%;
     color: var(--color-white);
     opacity: var(--opacity-none);

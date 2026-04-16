@@ -6,8 +6,8 @@
    */
   import { app } from "@state/app.svelte.js";
   import { lightbox } from "@state/lightbox.svelte.js";
-  import Lightbox from "@ui/molecules/dialogs/Lightbox.svelte";
-  import ControlPanel from "@ui/organisms/panels/ControlPanel.svelte";
+  import Lightbox from "@ui/molecules/Lightbox.svelte";
+  import ControlPanel from "@ui/organisms/ControlPanel.svelte";
   import Profile from "@ui/organisms/profile/Profile.svelte";
   import Storyboard from "@ui/organisms/storyboard/Storyboard.svelte";
   import Storymode from "@ui/organisms/storymode/Storymode.svelte";

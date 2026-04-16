@@ -110,7 +110,7 @@
   }
 
   :global(.unified-capsule .capsule-action.button.is-ready .label) {
-    color: var(--color-success);
+    color: var(--color-emerald);
     text-shadow: 0 0 var(--spacing-xs) rgb(var(--color-emerald-rgb) / 30%);
   }
 

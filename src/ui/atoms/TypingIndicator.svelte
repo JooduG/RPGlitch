@@ -4,17 +4,14 @@
    * Standard activity indicator for entities.
    * Supports pill (chat), glass (bubbles), and minimal states.
    */
-  let { 
+  let {
     variant = "glass", // 'glass', 'pill', 'minimal'
     signatureColor = "var(--color-gunmetal)",
-    className = ""
+    className = "",
   } = $props();
 </script>
 
-<div 
-  class="activity-dots {variant} {className}" 
-  style="--activity-color: {signatureColor}"
->
+<div class="activity-dots {variant} {className}" style="--activity-color: {signatureColor}">
   <div class="dot"></div>
   <div class="dot"></div>
   <div class="dot"></div>
@@ -35,7 +32,7 @@
   .activity-dots.glass {
     padding: var(--spacing-xs) var(--spacing-l);
     background: var(--glass-l);
-    border: var(--glass-edge-s);
+    border: var(--border-s);
     box-shadow: var(--shadow-s);
     height: 2.5rem;
   }
@@ -63,8 +60,12 @@
     animation: bounce 1.4s infinite ease-in-out both;
   }
 
-  .dot:nth-child(1) { animation-delay: -0.32s; }
-  .dot:nth-child(2) { animation-delay: -0.16s; }
+  .dot:nth-child(1) {
+    animation-delay: -0.32s;
+  }
+  .dot:nth-child(2) {
+    animation-delay: -0.16s;
+  }
 
   @keyframes bounce {
     0%,
@@ -73,7 +74,7 @@
       transform: scale(0);
       opacity: 0.3;
     }
-    
+
     40% {
       transform: scale(1);
       opacity: 1;
@@ -81,5 +82,7 @@
   }
 
   /* Adjust dot color for glass variant if needed */
-  .glass .dot { background-color: var(--font-color-m); }
+  .glass .dot {
+    background-color: var(--font-color-m);
+  }
 </style>

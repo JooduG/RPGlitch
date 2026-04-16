@@ -1,19 +1,18 @@
 /* stylelint-disable prettier/prettier */
 
 /* ============================================================================
-* ABSTRACT: DESIGN TOKENS (NORDIC REFAC V2)
-* Single Source of Truth. "The Nordic Collection"
-* Standard: T-Shirt Sizing (XXS - XXL) for Opacity & Spacing
+* ABSTRACT: DESIGN TOKENS (NORDIC RED THREAD)
+* Single Source of Truth for the RPGlitch Engine.
+* Following the "Red Thread" Architecture: Foundation -> Surfaces -> Atoms.
 * ============================================================================ */
 
 :root {
   /************************************************************************************
-  * 🧩 [SECTION: CORE BRAND PALETTE]
-  * ----------------------------------------------------------------------------------
-  * The Nordic Collection & Signature Variables
+  * 🧩 [LEVEL 0: FOUNDATION]
+  * Core constants and physical primitives of the engine.
   ************************************************************************************/
 
-  /* Nordic Collection (Brand Colors) */
+  /* Brand Primitives (Nordic Collection) */
   --color-chalk: #222326;
   --color-chalk-rgb: 34 35 38;
   --color-gunmetal: #363840;
@@ -23,13 +22,13 @@
   --color-frisk: #8a9399;
   --color-frisk-rgb: 138 147 153;
 
-  /* Primitive Base Colors */
+  /* Basic Colors */
   --color-white: #fff;
   --color-white-rgb: 255 255 255;
   --color-black: #000;
   --color-black-rgb: 0 0 0;
 
-  /* Signature Palette (Identity) */
+  /* Signature Palette (Entity Identity) */
   --color-red: #ef4444;
   --color-red-rgb: 239 68 68;
   --color-rose: #fb7185;
@@ -56,33 +55,19 @@
   --color-purple: #a855f7;
   --color-pink: #ec4899;
 
-  /* Base Shades & System Colors */
-  --color-success: var(--color-emerald);
-  --color-warning: var(--color-amber);
-  --color-danger: var(--color-red);
-  --color-info: var(--color-blue);
-  --color-del: var(--color-danger);
-  --color-focus: var(--color-white);
-  --color-focus-alt: var(--color-cyan);
-
-  /************************************************************************************
-  * 🧩 [SECTION: CORE SYSTEM OPACITY]
-  * ----------------------------------------------------------------------------------
-  * Primitives, semantic mapping, and alpha scaling
-  ************************************************************************************/
-
-  /* Opacity */
+  /* Translucency (Standardized Scale)
+  * M is the Baseline (Solid). Decreasing scales into translucency.
+  */
+  --opacity-m: 1; /* Solid Baseline */
+  --opacity-l: 0.85; /* Substantial Overlay */
+  --opacity-s: 0.4; /* Soft Background */
+  --opacity-xs: 0.15; /* Subtle Hint */
+  --opacity-xxs: 0.05; /* Ghost Veil */
+  --opacity-xxxs: 0.02; /* Whisper State */
   --opacity-none: 0;
-  --opacity-xxs: 0.05;
-  --opacity-xs: 0.15;
-  --opacity-s: 0.4;
-  --opacity-m: 0.5;
-  --opacity-l: 0.7;
-  --opacity-xl: 0.85;
-  --opacity-xxl: 0.95;
   --opacity-full: 1;
 
-  /* Background & Structural */
+  /* Atmospheric Foundations */
   --bg-base: var(--color-chalk);
   --bg-grad-1: #0b101a;
   --bg-grad-2: #14182b;
@@ -90,138 +75,160 @@
   --bg-grad-4: #16243b;
 
   /************************************************************************************
-  * 🧩 [SECTION: GLASSMORPHISM & EFFECTS]
-  * ----------------------------------------------------------------------------------
-  * Surfaces, depth, blurs, and shadows
+  * 🧩 [LEVEL 1: TYPOGRAPHY]
+  * The voice and legibility standards of the engine.
   ************************************************************************************/
 
-  /* Atomic Glass (Translucent Overlays) */
-
-  /* SUNKEN: Drops into the background (s - xs) */
-  --glass-xs: rgb(var(--color-black-rgb) / var(--opacity-m)); /* Solidified for contrast */
-  --glass-s: rgb(var(--color-frozen-rgb) / var(--opacity-xs)); /* Base layer: Submerged */
-
-  /* ELEVATED: Raises above the background (l - xl) */
-  --glass-l: rgb(var(--color-frozen-rgb) / var(--opacity-xxs));
-  --glass-xl: rgb(var(--color-frozen-rgb) / var(--opacity-s)); /* Overlay layer: Floating */
-  --glass-xxl: rgb(var(--color-frisk-rgb) / var(--opacity-s)); /* Surface layer: Top-most focus */
-
-  /* The Specular Edge: For the borders of interactive atoms */
-  --glass-edge-s: 1px solid rgb(var(--color-chalk-rgb) / var(--opacity-s));
-  --glass-edge-m: 1px solid rgb(var(--color-frozen-rgb) / var(--opacity-xs));
-  --glass-edge-l: 1px solid rgb(var(--color-frisk-rgb) / var(--opacity-xs));
-  --glass-edge-xl: 1px solid rgb(var(--color-frisk-rgb) / var(--opacity-s));
-
-  /* Blurs & Frosting */
-  --glass-blur-s: blur(4px);
-  --glass-blur-m: blur(12px);
-  --glass-blur-l: blur(24px);
-  --glass-blur-xl: blur(48px);
-
-  /* Shadows */
-  --shadow-s: 0 0.25rem 0.5rem rgb(var(--color-black-rgb) / var(--opacity-xs));
-  --shadow-m: 0 0.25rem 1rem rgb(var(--color-black-rgb) / var(--opacity-s));
-  --shadow-l: 0 0.5rem 2rem rgb(var(--color-black-rgb) / var(--opacity-m));
-  --shadow-xl: 0 1rem 3rem rgb(var(--color-black-rgb) / var(--opacity-l));
-  --shadow-xxl: 0 2rem 5rem rgb(var(--color-black-rgb) / var(--opacity-full));
-  --shadow-glow: 0 0 1.5rem rgb(var(--color-frozen-rgb) / var(--opacity-m));
-  --shadow-font: 0 var(--spacing-px) var(--spacing-xxs)
-    rgb(var(--color-black-rgb) / var(--opacity-s));
-
-  /************************************************************************************
-  * 🧩 [SECTION: TYPOGRAPHY METRICS]
-  * ----------------------------------------------------------------------------------
-  * Font families, scales, colors and line heights
-  ************************************************************************************/
-
-  /* Font Families */
+  /* Type Families */
   --font-family-body: "Inter", system-ui, -apple-system, sans-serif;
   --font-family-heading: "Ubuntu", sans-serif;
   --font-family-mono: "JetBrains Mono", monospace;
 
-  /* Font Colors */
+  /* Font Color Palette */
   --font-color-m: var(--color-white);
   --font-color-s: color-mix(in srgb, var(--color-white), var(--color-black) 8%);
-  --field-placeholder-color: rgb(var(--color-white-rgb) / var(--opacity-s));
 
-  /* Font Sizes */
-  --font-size-xxs: 0.6rem;
-  --font-size-xs: 0.75rem;
-  --font-size-s: 0.875rem;
-  --font-size-m: 1rem;
-  --font-size-l: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-xxl: 1.5rem;
-  --font-size-xxxl: 1.875rem;
-  --font-size-xxxxl: 2.25rem;
-  --font-size-xxxxxl: 3.5rem;
+  /* Standardized Typography Scale
+  * M is the Midpoint (Baseline/Body).
+  */
+  --font-size-xxxxxl: 3.5rem; /* Display Focus */
+  --font-size-xxxxl: 2.5rem; /* Major Heading */
+  --font-size-xxxl: var(--spacing-xl); /* Medium Heading */
+  --font-size-xxl: var(--spacing-l); /* Subheading */
+  --font-size-xl: 1.25rem; /* Feature Copy */
+  --font-size-l: 1.125rem; /* Large Body */
+  --font-size-m: var(--spacing-m); /* BASELINE Body */
+  --font-size-s: 0.875rem; /* Dense Text */
+  --font-size-xs: var(--spacing-s); /* Auxiliary Info */
+  --font-size-xxs: 0.625rem; /* Micro Metadata */
+  --font-size-xxxs: var(--spacing-xs); /* Ghost Label */
 
-  /* Line Heights */
+  /* Typographic Metrics */
   --line-height-s: 1.2;
   --line-height-m: 1.5;
-
-  /* Font Weights */
   --font-weight-m: 400;
   --font-weight-l: 700;
   --font-weight-xl: 800;
-
-  /* Letter Spacing */
   --letter-spacing-s: 0.02em;
   --letter-spacing-m: 0.05em;
   --letter-spacing-l: 0.1em;
 
   /************************************************************************************
-  * 🧩 [SECTION: SPACING & LAYOUT]
-  * ----------------------------------------------------------------------------------
-  * Paddings, radii, breakpoints, grids, and z-indexes
+  * 🧩 [LEVEL 2: GEOMETRY & LAYOUT]
+  * Spatial consistency and grid boundaries.
   ************************************************************************************/
-  --spacing-xxs: 0.25rem;
-  --spacing-xs: 0.5rem;
-  --spacing-s: 0.75rem;
-  --spacing-m: 1rem;
-  --spacing-l: 1.5rem;
-  --spacing-xl: 2rem;
+
+  /* Modular Spacing Scale
+  * M is the Baseline (1rem).
+  */
+  --spacing-xxxxl: 6rem; /* Global Gutter */
+  --spacing-xxxl: 4rem; /* Major Section */
   --spacing-xxl: 3rem;
-  --spacing-xxxl: 6rem;
+  --spacing-xl: 2rem; /* Component Block */
+  --spacing-l: 1.5rem; /* Standard Gap */
+  --spacing-m: 1rem; /* BASELINE Padding */
+  --spacing-s: 0.75rem; /* Group Spacing */
+  --spacing-xs: 0.5rem; /* Atom Padding */
+  --spacing-xxs: 0.25rem; /* Micro Spacing */
+  --spacing-xxxs: 0.125rem; /* Detail Shift */
   --spacing-px: 1px;
 
-  /* Button Metrics */
-  --button-icon-m: 2.5rem; /* 40px - Standard icon actions */
-  --button-icon-s: 2rem; /* 32px - Dense icon actions */
-
-  /* Border-radius */
-  --border-radius-xs: 0.125rem;
-  --border-radius-s: 0.25rem;
-  --border-radius-m: 0.5rem;
-  --border-radius-l: 0.75rem;
-  --border-radius-xl: 1rem;
+  /* Interactive Radii */
+  --border-radius-xl: var(--spacing-m);
+  --border-radius-l: var(--spacing-s);
+  --border-radius-m: var(--spacing-xs);
+  --border-radius-s: var(--spacing-xxs);
+  --border-radius-xs: var(--spacing-xxxs);
   --border-radius-full: 9999px;
-  --border-radius: var(--border-radius-m);
 
-  /* Flattened Breakpoints Map */
-  --breakpoints-s: 576px;
-  --breakpoints-m: 768px;
-  --breakpoints-l: 1024px;
-  --breakpoints-xl: 1280px;
-  --breakpoints-xxl: 1536px;
-  --breakpoint-mobile: var(--breakpoints-m);
-  --breakpoint-tablet: var(--breakpoints-l);
-  --breakpoint-desktop: var(--breakpoints-xl);
+  /* Breakpoints Registry */
+  --breakpoint-mobile: 768px;
+  --breakpoint-tablet: 1024px;
+  --breakpoint-desktop: 1280px;
+
+  /************************************************************************************
+  * 🧩 [LEVEL 3: ELEVATION]
+  * Vertical stacking and depth layers.
+  ************************************************************************************/
 
   /* T-Shirt Z-Index Scale */
-  --z-index-xs: -1; /* Below Floor: Noise, vignettes, background underlays */
-  --z-index-s: 0; /* Floor: Standard atmospheric components */
-  --z-index-m: 10; /* Surface: Main application widgets, Cards, UI Buttons */
-  --z-index-l: 100; /* Overlays: Storyboard Pill, floating widgets */
-  --z-index-xl: 450; /* Shields: Modals, Backdrops, Global Drawers */
-  --z-index-max: 9999; /* System alerts, Tooltips, Context Menus */
+  --z-index-max: 9999; /* System Alerts & Tooltips */
+  --z-index-xxl: 950; /* Focus Layers (Active Modals) */
+  --z-index-xl: 450; /* Shields (Backdrops, Drawers) */
+  --z-index-l: 100; /* Overlays (Pills, Floating Widgets) */
+  --z-index-m: 10; /* Surface (Main Cards, Buttons) */
+  --z-index-s: 0; /* Floor (Standard UI) */
+  --z-index-xs: -1; /* Sub-Floor (Atmospheric noise) */
 
-  /* Interaction & Motion */
-  --motion-fast: 0.2s;
-  --motion-slow: 0.4s;
+  /************************************************************************************
+  * 🧩 [LEVEL 4: SURFACES]
+  * Atmospheric depth markers. Binary SUNKEN vs ELEVATED logic.
+  ************************************************************************************/
+
+  /* Signature Glassmorph Scale */
+  --glass-xxl: rgb(var(--color-frisk-rgb) / var(--opacity-s)); /* Surface Focus */
+  --glass-xl: rgb(var(--color-frozen-rgb) / var(--opacity-s)); /* Floating Monolith */
+  --glass-l: rgb(var(--color-frozen-rgb) / var(--opacity-xxs)); /* Elevated Base */
+  --glass-s: rgb(var(--color-frozen-rgb) / var(--opacity-xs)); /* Sunken Surface */
+  --glass-xs: rgb(var(--color-black-rgb) / var(--opacity-s)); /* Solid Depth Contrast */
+
+  /* Specular Edges */
+  --border-xl: 1px solid rgb(var(--color-frisk-rgb) / var(--opacity-s));
+  --border-l: 1px solid rgb(var(--color-frisk-rgb) / var(--opacity-xs));
+  --border-m: 1px solid rgb(var(--color-frozen-rgb) / var(--opacity-xs));
+  --border-s: 1px solid rgb(var(--color-chalk-rgb) / var(--opacity-s));
+
+  /* Atmospheric Blur Scale */
+  --blur-xl: blur(48px);
+  --blur-l: blur(24px);
+  --blur-m: blur(12px);
+  --blur-s: blur(4px);
+
+  /* Layer Shadows */
+  --shadow-xxl: 0 var(--spacing-xl) var(--spacing-xxxxl)
+    rgb(var(--color-black-rgb) / var(--opacity-m));
+  --shadow-xl: 0 var(--spacing-m) var(--spacing-xxxxl) rgb(var(--color-black-rgb) / var(--opacity-l));
+  --shadow-l: 0 var(--spacing-xs) var(--spacing-xl) rgb(var(--color-black-rgb) / var(--opacity-s));
+  --shadow-m: 0 var(--spacing-xxs) var(--spacing-m) rgb(var(--color-black-rgb) / var(--opacity-s));
+  --shadow-s: 0 var(--spacing-xxs) var(--spacing-xs) rgb(var(--color-black-rgb) / var(--opacity-xs));
+  --shadow-glow: 0 0 var(--spacing-l) rgb(var(--color-frozen-rgb) / var(--opacity-s));
+  --shadow-font: 0 1px var(--spacing-xxs) rgb(var(--color-black-rgb) / var(--opacity-s));
+
+  /************************************************************************************
+  * 🧩 [LEVEL 5: INTERACTION]
+  * The kinetic logic of the engine.
+  ************************************************************************************/
+
+  /* Motion Timing (Intensity-based)
+   * L is Impactful/Fast. S is Slow/Subtle.
+   */
+  --motion-l: 0.2s; /* Fast / Reflex */
+  --motion-m: 0.3s; /* Standard / Fluent */
+  --motion-s: 0.6s; /* Slow / Atmospheric */
+  --motion-xl: 0.8s; /* Cinematic / Ultra-Slow */
+  --motion-xxl: 2.5s; /* Pulse */
+
+  /* Motion Curves (Narrative Easing) */
   --motion-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --motion-dissolve: cubic-bezier(0.2, 1, 0.2, 1);
+
+  /* State Constants */
   --motion-click: 0.95;
-  --hover-blur: var(--glass-blur-m);
   --hover-brightness: brightness(1.1);
-  --hover-background-color: rgb(var(--color-frisk-rgb) / 15%);
+  --hover-background-color: rgb(var(--color-frisk-rgb) / var(--opacity-xs));
+
+  /************************************************************************************
+  * 🧩 [LEVEL 6: ATOMS]
+  * Component-specific mechanics and narrative highlights.
+  ************************************************************************************/
+
+  /* Danger Protocol (Dissolve) */
+  --danger-glow: rgb(var(--color-red-rgb) / var(--opacity-s));
+  --danger-progress: 0;
+  --danger-zone-glow-size: var(--spacing-xxl);
+  --danger-zone-width: 40px;
+
+  /* Button & Widget Metrics */
+  --icon-m: 2.5rem;
+  --icon-s: 2rem;
 }

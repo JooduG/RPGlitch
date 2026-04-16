@@ -53,7 +53,7 @@
   .field-foundation {
     width: 100%;
     background: var(--glass-xs);
-    border: var(--glass-edge-l);
+    border: var(--border-l);
     color: var(--color-white);
     font-family: var(--font-family-body);
     font-size: var(--font-size-s);
@@ -77,13 +77,13 @@
 
   .field-foundation:hover:not(:disabled) {
     background: var(--glass-xs);
-    border-color: var(--glass-edge-l);
+    border-color: var(--border-l);
   }
 
   .field-foundation:focus {
     outline: none;
     background: var(--glass-xs);
-    border-color: var(--glass-edge-xl);
+    border-color: var(--border-xl);
   }
 
   .field-foundation.busy {
@@ -103,7 +103,7 @@
     padding: var(--spacing-xs) var(--spacing-s);
     white-space: normal;
     background: var(--glass-xs);
-    border: var(--glass-edge-l);
+    border: var(--border-l);
     color: var(--color-white);
     font-family: var(--font-family-body);
     border-radius: var(--border-radius-m);

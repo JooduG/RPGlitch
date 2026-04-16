@@ -40,7 +40,7 @@
   style="--pill-signature: {signatureColor};"
 >
   <div class="pill-backing glass-base"></div>
-  
+
   <div class="pill-content">
     {#if orientation === "horizontal"}
       {#if left}{@render left()}{/if}
@@ -75,8 +75,8 @@
     z-index: -1;
     pointer-events: none;
     background: var(--glass-xl);
-    backdrop-filter: var(--glass-blur-l);
-    border: var(--glass-edge-xl);
+    backdrop-filter: var(--blur-l);
+    border: var(--border-xl);
     transition: all var(--motion-fast);
   }
 

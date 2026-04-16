@@ -64,7 +64,7 @@
     cursor: pointer;
     border-radius: var(--border-radius-m);
     overflow: hidden;
-    border-top: var(--glass-edge-xl); /* Maintain specular highlight override */
+    border-top: var(--border-xl); /* Maintain specular highlight override */
   }
 
   .drawer-card:hover:not(:disabled, .is-disabled) {
@@ -94,7 +94,7 @@
     display: flex;
     align-items: center;
     background: var(--glass-s);
-    border-top: var(--glass-edge-l);
+    border-top: var(--border-l);
   }
 
   .drawer-card .card-info h5 {

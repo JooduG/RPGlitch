@@ -201,8 +201,8 @@
     overflow-y: auto;
     z-index: var(--z-index-max);
     background: var(--glass-xxl); /* Clarified transparency */
-    backdrop-filter: var(--glass-blur-m);
-    border: 1px solid var(--glass-edge-xl);
+    backdrop-filter: var(--blur-m);
+    border: 1px solid var(--border-xl);
     border-radius: var(--border-radius-m);
     box-shadow: var(--shadow-xxl);
     transition:

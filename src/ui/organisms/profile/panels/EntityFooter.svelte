@@ -56,12 +56,11 @@
   footer {
     margin-top: auto;
     display: grid;
-    grid-template-columns: var(--spacing-xxxl) 1fr;
+    grid-template-columns: var(--spacing-xxxxl) 1fr;
     gap: var(--spacing-s);
     background: color-mix(in srgb, var(--color-gunmetal), var(--signature-color) var(--opacity-xs));
     border-top: 0;
     z-index: var(--z-index-m);
-    padding-top: var(--spacing-m);
     transition: all var(--motion-fast);
   }
 

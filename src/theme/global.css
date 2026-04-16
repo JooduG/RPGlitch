@@ -1,13 +1,52 @@
 /* ============================================================================
-   GLOBAL ATMOSPHERE & COMPONENTS
-   Application-level typography scaling, gradients, utilities, and native styles.
+   GLOBAL STYLE ARCHITECTURE (RPGlitch Engine)
+   A unified foundational layer merging browser resets and thematic atmosphere.
    ============================================================================ */
 
-/************************************************************************************
- * 🧩 [SECTION: BODY & BACKGROUND]
- * ----------------------------------------------------------------------------------
- * The root atmospheric vignette gradient.
- ************************************************************************************/
+/* ----------------------------------------------------------------------------
+   1. RESETS & NORMALIZATION
+   Wiping the slate clean. No thematic styles allowed here.
+   ---------------------------------------------------------------------------- */
+html,
+body {
+  font-size: 100%; /* Typography baseline for rem units */
+  box-sizing: border-box;
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Force no-scroll at root */
+  position: fixed; /* Prevent bounce/scroll on mobile iOS */
+  inset: 0;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+/* Hide scrollbars globally. Can be restored per-element if needed. */
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* ----------------------------------------------------------------------------
+   2. ATMOSPHERE & FOUNDATIONS
+   Thematic backgrounds, ambient gradients, and root focus policies.
+   ---------------------------------------------------------------------------- */
+:focus-visible {
+  outline: 2px solid var(--color-white);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-s);
+}
+
 body {
   background-color: var(--bg-base);
   background-image:
@@ -16,13 +55,12 @@ body {
     radial-gradient(circle at 50% 80%, var(--bg-grad-3), transparent 50%),
     radial-gradient(circle at 50% 10%, var(--bg-grad-4), transparent 50%);
   background-size: cover;
+  background-attachment: fixed;
+  font-family: var(--font-family-body);
+  color: var(--font-color-m);
 }
 
-body:has(.has-fractal-bg) {
-  background-image: none;
-}
-
-/* Noise Filter Overlay */
+/* Atmospheric Noise Texture Overlay */
 body::before {
   content: "";
   position: fixed;
@@ -33,11 +71,28 @@ body::before {
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAApb2uWAAAABlBMVEUAAAD///+l2Z/dAAAAAnRSTlP/AOW3MEoAAAA9SURBVDjLY2BkYGRkYmRmZmdmYWVlZWVlZmZlZmVmZmVmZmZlZmVmZmVmZmZlZmVmZmVmZmZlZmVmZmVmZgcDAAiUADIAAAAA");
 }
 
-/************************************************************************************
- * 🧩 [SECTION: TYPOGRAPHY HIERARCHY]
- * ----------------------------------------------------------------------------------
- * Modular scales for semantic headings.
- ************************************************************************************/
+/* Visibility modifiers for environment states */
+body:not(.mode-developer) .developer-content {
+  display: none;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+body:has(.has-fractal-bg) {
+  background-image: none;
+}
+
+/* ----------------------------------------------------------------------------
+   3. TYPOGRAPHY
+   Semantic heading scales and baseline typographic traits.
+   ---------------------------------------------------------------------------- */
+body {
+  font-size: var(--font-size-m);
+  line-height: var(--line-height-m);
+}
+
 h1,
 h2,
 h3,
@@ -48,6 +103,7 @@ h6 {
   font-weight: var(--font-weight-l);
   line-height: var(--line-height-s);
   margin-top: 0;
+  margin-bottom: var(--spacing-m);
   color: inherit;
   text-wrap: balance;
 }
@@ -76,13 +132,23 @@ h6 {
   font-size: var(--font-size-m);
 }
 
-/************************************************************************************
- * 🧩 [SECTION: HTML ELEMENTS]
- * ----------------------------------------------------------------------------------
- * Semantic HTML tag normalization.
- ************************************************************************************/
+p,
+li,
+figcaption {
+  text-wrap: pretty;
+  margin-top: 0;
+  margin-bottom: var(--spacing-m);
+}
+
 a {
+  color: inherit;
   text-decoration: underline;
+  text-underline-offset: 4px;
+  transition: opacity var(--motion-fast);
+}
+
+a:hover {
+  opacity: var(--opacity-l);
 }
 
 pre,
@@ -90,122 +156,199 @@ code,
 kbd,
 samp {
   font-family: var(--font-family-mono);
+  font-size: 0.9em;
 }
 
 kbd {
   font-weight: var(--font-weight-l);
+  background: var(--glass-s);
+  padding: 2px 4px;
+  border-radius: var(--border-radius-xs);
+  border: var(--border-s);
 }
 
 small {
   font-size: var(--font-size-s);
 }
 
-/* Text Wrapping */
-p,
-li,
-figcaption {
-  text-wrap: pretty;
-}
-
-/* Tables */
-thead th,
-tfoot th,
-thead td,
-tfoot td {
-  font-weight: var(--font-weight-m);
-  border-width: 0.1875rem;
-}
-
-/************************************************************************************
- * 🧩 [SECTION: UTILITIES]
- * ----------------------------------------------------------------------------------
- * Global utility classes for physics and common patterns.
- ************************************************************************************/
-.surface-tilt {
-  transition:
-    transform var(--motion-fast, 0.3s) var(--motion-elastic),
-    box-shadow var(--motion-fast, 0.3s) ease;
-}
-
-/* Structural Glass Panels (Instead of Opaque Elevations) */
-
-/* The Standard Frosted Widget Panel */
-.glass-base {
-  background: var(--glass-s);
-  backdrop-filter: var(--glass-blur-m);
-  border: var(--glass-edge-l);
+/* ----------------------------------------------------------------------------
+   4. SURFACES
+   Structural glass panels matching the 5-layer elevation system.
+   ---------------------------------------------------------------------------- */
+.glass-xs {
+  background: var(--glass-xs);
+  backdrop-filter: var(--blur-s);
+  border: var(--border-s);
   border-radius: var(--border-radius-m);
 }
 
-.glass-overlay {
+.glass-s {
+  background: var(--glass-s);
+  backdrop-filter: var(--blur-m);
+  border: var(--border-m);
+  border-radius: var(--border-radius-m);
+}
+
+.glass-l {
+  background: var(--glass-l);
+  backdrop-filter: var(--blur-l);
+  border: var(--border-l);
+  border-radius: var(--border-radius-m);
+}
+
+.glass-xl {
   background: var(--glass-xl);
-  backdrop-filter: var(--glass-blur-l);
-  border: var(--glass-edge-xl);
+  backdrop-filter: var(--blur-xl);
+  border: var(--border-xl);
   border-radius: var(--border-radius-m);
 }
 
 .glass-xxl {
   background: var(--glass-xxl);
-  backdrop-filter: var(--glass-blur-xl);
-  border: var(--glass-edge-xl);
-  border-top: 1px solid rgb(var(--color-white-rgb) / 15%); /* Specular lift */
+  backdrop-filter: var(--blur-xl);
+  border: var(--border-xl);
+  border-top: 1px solid rgb(var(--color-white-rgb) / 15%);
   border-radius: var(--border-radius-m);
+  box-shadow: var(--shadow-xl);
 }
 
-.no-scrollbar {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
+/* ----------------------------------------------------------------------------
+   5. INTERACTION
+   Global hover states, kinetic hardware scaling, and transitions.
+   ---------------------------------------------------------------------------- */
+.interactive,
+.button:not(:disabled, .disabled),
+.storyboard-stack,
+.drawer-card:not(:disabled, .is-disabled),
+.button-overlay:not(:disabled, .disabled),
+.profile-quick-link.button {
+  cursor: pointer;
+  transition:
+    transform var(--motion-fast) var(--motion-elastic),
+    filter var(--motion-fast),
+    backdrop-filter var(--motion-fast);
 }
 
-.no-scrollbar::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-  display: none; /* Chrome/Safari */
+.interactive:hover,
+.button:hover:not(:disabled, .disabled),
+.storyboard-stack:hover,
+.drawer-card:hover:not(:disabled, .is-disabled),
+.button-overlay:hover:not(:disabled, .disabled),
+.profile-quick-link.button:hover {
+  filter: var(--hover-brightness);
+  backdrop-filter: var(--blur-m);
 }
 
-/* ============================================================================
-   ACCESSIBILITY: FOCUS STATES
-   ============================================================================ */
-:focus {
-  outline: none;
+.interactive:active,
+.button:active:not(:disabled, .disabled),
+.drawer-card:active:not(:disabled, .is-disabled) {
+  transform: scale(var(--motion-click));
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 2px;
-  border-radius: var(--border-radius-s);
-}
+/* ----------------------------------------------------------------------------
+   6. ATOMS
+   Consolidated interactive components and global behaviors.
+   ---------------------------------------------------------------------------- */
 
-.entity-drawer :focus-visible,
-.modal :focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: -2px; /* Inset for tight containers */
-}
-
-/* Accessibility bypass link for screen readers */
-.skip-link {
+/* Danger Zone: Consolidated interactive delete/threat pulse system */
+.danger-zone {
   position: absolute;
-  top: -100px;
-  left: 0;
-  background: var(--color-frozen);
-  color: var(--font-color-m);
-  padding: var(--spacing-xs);
-  z-index: var(--z-index-max);
-  transition: top var(--motion-fast);
-}
-
-.skip-link:focus {
   top: 0;
+  right: 0;
+  width: var(--danger-zone-width);
+  height: 100%;
+  z-index: var(--z-index-xxl);
+  cursor: pointer;
 }
 
-/************************************************************************************
- * 🧩 [SECTION: TOOLTIP COMPONENT]
- * ----------------------------------------------------------------------------------
- * Simple declarative tooltips using data-attributes.
- ************************************************************************************/
+.danger-zone::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: calc(-1 * var(--danger-zone-glow-size));
+  width: var(--danger-zone-glow-size);
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgb(var(--color-red-rgb) / 15%));
+  opacity: var(--opacity-none);
+  pointer-events: none;
+  transition: opacity var(--motion-standard);
+  z-index: -1;
+}
+
+.danger-zone::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 1px;
+  height: 60%;
+  transform: translateY(-50%);
+  background: var(--color-red);
+  box-shadow: 0 0 var(--blur-xl) var(--color-red);
+  opacity: var(--opacity-none);
+  pointer-events: none;
+  transition: opacity var(--motion-standard);
+}
+
+.danger-charging::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 2px;
+  height: calc(100% * var(--danger-progress, 0));
+  background: var(--color-red);
+  box-shadow: 0 0 10px var(--color-red);
+  z-index: 2;
+  pointer-events: none;
+  transition: height 0.05s linear;
+  opacity: var(--opacity-full);
+  animation: none;
+}
+
+.danger-zone:hover::before,
+.danger-zone:hover::after,
+.danger-charging::before {
+  opacity: var(--opacity-full);
+  animation: pulse-danger var(--motion-xxl) infinite ease-in-out;
+}
+
+@keyframes pulse-danger {
+  0%,
+  100% {
+    opacity: var(--opacity-m);
+    filter: brightness(1);
+  }
+
+  50% {
+    opacity: var(--opacity-full);
+    filter: brightness(1.4);
+  }
+}
+
+/* Dissolve Animation: Shared kinetic effect for removing entities */
+.dissolving {
+  animation: dissolve-out 0.8s forwards var(--motion-dissolve);
+  pointer-events: none;
+}
+
+@keyframes dissolve-out {
+  0% {
+    opacity: var(--opacity-full);
+    filter: blur(0);
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: var(--opacity-none);
+    filter: blur(10px);
+    transform: scale(var(--motion-click));
+  }
+}
+
+/* Tooltips: Declarative CSS-only tooltips */
 [data-tooltip] {
   position: relative;
-  cursor: help;
 }
 
 [data-tooltip]::before,
@@ -229,11 +372,11 @@ tfoot td {
 [data-tooltip]::after {
   content: attr(data-tooltip);
   bottom: calc(100% + 15px);
-  background: var(--bg-base); /* Pure opaque background for tooltips */
+  background: var(--bg-base);
   color: var(--color-white);
   padding: var(--spacing-xs) var(--spacing-s);
   border-radius: var(--border-radius-s);
-  border: var(--glass-edge-l);
+  border: var(--border-l);
   font-size: var(--font-size-xs);
   white-space: nowrap;
   box-shadow: var(--shadow-m);
@@ -244,12 +387,33 @@ tfoot td {
   opacity: var(--opacity-full);
 }
 
-/* Interaction Engine */
-.button:hover:not(:disabled, .disabled),
-.storyboard-stack:hover,
-.drawer-card:hover:not(:disabled, .is-disabled),
-.button-overlay:hover:not(:disabled, .disabled),
-.profile-quick-link.button:hover {
-  filter: var(--hover-brightness);
-  backdrop-filter: var(--hover-blur);
+/* ----------------------------------------------------------------------------
+   7. UTILITY
+   Accessibility helpers and global layout overrides.
+   ---------------------------------------------------------------------------- */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: var(--color-frozen);
+  color: var(--color-white);
+  padding: var(--spacing-xs);
+  z-index: var(--z-index-max);
+  transition: top var(--motion-fast);
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }

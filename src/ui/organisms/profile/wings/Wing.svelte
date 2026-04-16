@@ -8,10 +8,7 @@
   let { children, class: className = "", ...rest } = $props();
 </script>
 
-<div 
-  class="wing-shell glass-overlay {className}"
-  {...rest}
->
+<div class="wing-shell glass-overlay {className}" {...rest}>
   <div class="scroller">
     {@render children()}
   </div>
@@ -29,7 +26,8 @@
     position: relative;
     transition: all var(--motion-fast) var(--motion-elastic);
     background-color: rgb(var(--color-gunmetal-rgb) / 45%);
-    backdrop-filter: var(--glass-blur-l);
+    backdrop-filter: var(--blur-l);
+    border-radius: var(--border-radius-m);
   }
 
   .scroller {
@@ -39,10 +37,10 @@
     flex-direction: column;
     padding: var(--spacing-m);
     gap: var(--spacing-m);
-    
+
     /* Custom Scrollbar */
     scrollbar-width: thin;
-    scrollbar-color: var(--glass-edge-l) transparent;
+    scrollbar-color: var(--border-l) transparent;
   }
 
   .scroller::-webkit-scrollbar {
@@ -50,7 +48,7 @@
   }
 
   .scroller::-webkit-scrollbar-thumb {
-    background: var(--glass-edge-l);
+    background: var(--border-l);
     border-radius: var(--border-radius-full);
   }
 

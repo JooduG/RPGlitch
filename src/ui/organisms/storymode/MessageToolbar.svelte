@@ -5,7 +5,7 @@
    * Handles message-level actions (Edit, Delete, Reroll) in a context-aware vertical pill.
    */
   import GlassPill from "@ui/atoms/GlassPill.svelte";
-  
+
   /**
    * @typedef {Object} Props
    * @property {string} [sender="ai"]
@@ -45,7 +45,9 @@
           title="Continue"
           onclick={(e) => onContinue?.(e)}
         >
-          <svg viewBox="0 0 24 24" class="icon-m"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          <svg viewBox="0 0 24 24" class="icon-m"
+            ><polygon points="5 3 19 12 5 21 5 3"></polygon></svg
+          >
         </button>
         <button
           class="toolbar-btn reroll"
@@ -60,12 +62,7 @@
         </button>
       {/if}
 
-      <button
-        class="toolbar-btn edit"
-        type="button"
-        title="Edit"
-        onclick={(e) => onEdit?.(e)}
-      >
+      <button class="toolbar-btn edit" type="button" title="Edit" onclick={(e) => onEdit?.(e)}>
         <svg viewBox="0 0 24 24" class="icon-m">
           <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -98,7 +95,8 @@
       >
         <svg viewBox="0 0 24 24" class="icon-m">
           <polyline points="3 6 5 6 21 6"></polyline>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+          ></path>
         </svg>
       </button>
     </div>
@@ -163,11 +161,25 @@
     transform: scale(1.1);
   }
 
-  .toolbar-btn.continue:hover { color: var(--color-success); }
-  .toolbar-btn.reroll:hover { color: var(--color-pink); }
-  .toolbar-btn.edit:hover { color: var(--color-warning); }
-  .toolbar-btn.copy:hover { color: var(--color-cyan); }
-  .toolbar-btn.delete:hover { color: var(--color-danger); }
+  .toolbar-btn.continue:hover {
+    color: var(--color-emerald);
+  }
+
+  .toolbar-btn.reroll:hover {
+    color: var(--color-pink);
+  }
+
+  .toolbar-btn.edit:hover {
+    color: var(--color-amber);
+  }
+
+  .toolbar-btn.copy:hover {
+    color: var(--color-cyan);
+  }
+
+  .toolbar-btn.delete:hover {
+    color: var(--color-red);
+  }
 
   .icon-m {
     width: 1.125rem;

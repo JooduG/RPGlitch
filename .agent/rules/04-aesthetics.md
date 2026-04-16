@@ -56,7 +56,7 @@ We use a strictly defined triad of fonts, scaled via an absolute T-shirt sizing 
 - **Label Font** (`var(--font-family-mono)`): `JetBrains Mono`, monospace.
 
 Padding, margins, and gaps must strictly adhere to the modular scale:
-`var(--spacing-xxs)` (0.25rem) to `var(--spacing-xxxl)` (6rem).
+`var(--spacing-xxs)` (0.25rem) to `var(--spacing-xxxxl)` (6rem).
 
 ---
 
@@ -65,7 +65,7 @@ Padding, margins, and gaps must strictly adhere to the modular scale:
 The Nordic Collection relies on static spatial depth and kinetic scaling rather than floating bounciness.
 
 - **Interaction Engine**: Atoms (Buttons, Cards, Pills) use the centralized engine in `global.css`.
-  - **Hover**: Driven by `--hover-brightness` and `--hover-blur`.
+  - **Hover**: Driven by `--hover-brightness` and `--blur-m`.
   - **Grounded Policy**: Explicitly avoid `translateY` on hover to maintain subterranean weight.
 - **Active States**: High-precision scale reduction via `--motion-click` (Scale: 0.95).
 - **Kinetic Physics**: Svelte Action-driven Web Animations API primitives (`use:shimmy`, `use:pulse`, `use:spin`, `use:stab`).

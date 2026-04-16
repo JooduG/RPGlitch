@@ -6,14 +6,14 @@
    */
   import { llm_service } from "@core/intelligence/llm-service.js";
   import { prompt_builder } from "@core/intelligence/prompt-builder.js";
-  import { ImageGeneration } from "@media/image-engine.js";
   import { validateImage } from "@core/security.js";
+  import { ImageGeneration } from "@media/image-engine.js";
   import { app } from "@state/app.svelte.js";
   import { PALETTE, PALETTE_VARS } from "@theme/palette.svelte.js";
-  import { get_value, set_value } from "@ui/utils/field-path.js";
   import Button from "@ui/atoms/Button.svelte";
-  import Toggle from "@ui/atoms/Toggle.svelte";
   import TextField from "@ui/atoms/TextField.svelte";
+  import Toggle from "@ui/atoms/Toggle.svelte";
+  import { get_value, set_value } from "@ui/utils/field-path.js";
   import Wing from "./Wing.svelte";
 
   const SPECTRUM_COLORS = Object.entries(PALETTE).filter(([name]) => name !== "default");
@@ -348,7 +348,7 @@
   .spinner {
     width: var(--spacing-l);
     height: var(--spacing-l);
-    border: var(--spacing-xxs) solid var(--glass-edge-l);
+    border: var(--spacing-xxs) solid var(--border-l);
     border-top-color: var(--color-frozen);
     border-radius: var(--border-radius-full);
     animation: spin 0.8s linear infinite;
@@ -363,7 +363,7 @@
   .action-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    border-top: 1px solid var(--glass-edge-l);
+    border-top: 1px solid var(--border-l);
     overflow: hidden;
     gap: var(--spacing-xxs);
   }
@@ -371,7 +371,7 @@
   .action-row :global(.action-button) {
     height: 2.5rem;
     background: var(--glass-xs);
-    border-right: 1px solid var(--glass-edge-l);
+    border-right: 1px solid var(--border-l);
     transition: all var(--motion-fast) var(--motion-elastic);
   }
 

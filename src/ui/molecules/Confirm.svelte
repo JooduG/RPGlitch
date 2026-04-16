@@ -1,54 +1,79 @@
 <script>
   /**
-   * Security Alert Modal
-   * Simple informational dialog.
+   * Security Confirm Modal
+   * A promise-based confirmation dialog.
    */
   import Button from "@ui/atoms/Button.svelte";
   import { quintOut } from "svelte/easing";
   import { fade, scale } from "svelte/transition";
   let {
-    title = "System Alert",
-    message = "Notice",
-    button_label = "OK",
-    on_close = () => {},
+    title = "Confirm Action",
+    message = "Are you sure?",
+    confirm_label = "Confirm",
+    cancel_label = "Cancel",
+    on_confirm = () => {},
+    on_cancel = () => {},
     open = $bindable(false),
   } = $props();
   let dialog = $state();
-  let ok_btn = $state();
+  let confirm_button = $state();
   $effect(() => {
     if (open && dialog) {
       dialog.showModal();
-      // Manual focus management to clear a11y warning
-      ok_btn?.focus();
+      confirm_button?.focus();
     } else if (!open && dialog) {
       dialog.close();
     }
   });
-  function handle_close() {
-    on_close();
+  function handle_confirm() {
+    on_confirm();
+    open = false;
+  }
+  function handle_cancel() {
+    on_cancel();
     open = false;
   }
   function handle_keydown(e) {
-    if (e.key === "Escape") handle_close();
+    if (e.key === "Escape") {
+      handle_cancel();
+    }
   }
 </script>
 
 {#if open}
   <dialog
     bind:this={dialog}
-    onclose={handle_close}
+    onclose={handle_cancel}
     onkeydown={handle_keydown}
     transition:scale={{ duration: 200, start: 0.95, easing: quintOut }}
   >
     <article class="security-modal">
       <header>
         <h3>{title}</h3>
+        <Button variant="ghost" square={true} size="sm" onclick={handle_cancel} aria-label="Close">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            class="icon"
+          >
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+            />
+          </svg>
+        </Button>
       </header>
       <div class="content">
         <p>{message}</p>
       </div>
       <footer>
-        <Button variant="primary" onclick={handle_close} bind:this={ok_btn} label={button_label} />
+        <Button variant="danger" onclick={handle_cancel} label={cancel_label} />
+        <Button
+          variant="danger"
+          onclick={handle_confirm}
+          bind:this={confirm_button}
+          label={confirm_label}
+        />
       </footer>
     </article>
   </dialog>
@@ -56,7 +81,7 @@
   <div
     class="backdrop"
     transition:fade={{ duration: 150 }}
-    onclick={handle_close}
+    onclick={handle_cancel}
     role="presentation"
   ></div>
 {/if}
@@ -68,14 +93,14 @@
     padding: 0;
     margin: auto;
     max-width: 90vw;
-    width: 350px;
+    width: 400px;
     color: inherit;
     z-index: var(--z-index-xl);
     overflow: visible;
   }
 
   dialog::backdrop {
-    background: transparent;
+    background: transparent; /* Handled by our custom backdrop div */
   }
 
   .backdrop {
@@ -88,7 +113,7 @@
   .security-modal {
     background: var(--glass-l);
     box-shadow:
-      inset 0 0 0 1px var(--glass-edge-l),
+      inset 0 0 0 1px var(--border-l),
       var(--shadow-xxl);
     border-radius: var(--border-radius-l);
     overflow: hidden;
@@ -98,6 +123,9 @@
 
   .security-modal header {
     padding: var(--spacing-m) var(--spacing-xl);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     background: var(--glass-l);
   }
 
@@ -107,22 +135,6 @@
     font-weight: var(--font-weight-l);
     font-family: var(--font-family-heading);
     color: var(--font-color-m);
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-s);
-  }
-
-  .security-modal h3::before {
-    content: "ℹ";
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: var(--spacing-xl);
-    height: var(--spacing-xl);
-    background: rgb(var(--color-frozen-rgb) / var(--opacity-s));
-    color: var(--color-frozen);
-    border-radius: var(--border-radius-full);
-    font-size: var(--font-size-s);
   }
 
   .security-modal .content {
@@ -136,8 +148,9 @@
     padding: var(--spacing-m) var(--spacing-xl);
     display: flex;
     justify-content: flex-end;
+    gap: var(--spacing-s);
     background: var(--glass-xs);
   }
 
-  /* button styles removed - utilizing Button component */
+  /* Button styling delegated to Button component */
 </style>

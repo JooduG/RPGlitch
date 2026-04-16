@@ -111,7 +111,7 @@
 
   .content .row {
     display: grid;
-    grid-template-columns: var(--spacing-xxxl) 1fr;
+    grid-template-columns: var(--spacing-xxxxl) 1fr;
     gap: var(--spacing-s);
     min-width: 0;
   }

@@ -2,7 +2,7 @@
   import { app } from "@state/app.svelte.js";
   import LoadingSkeleton from "@ui/molecules/LoadingSkeleton.svelte";
   import Layout from "@ui/organisms/Layout.svelte";
-  import LibraryDrawer from "@ui/organisms/library/LibraryDrawer.svelte";
+  import Drawer from "@ui/organisms/Drawer.svelte";
   import StoryboardCard from "@ui/organisms/storyboard/StoryboardCard.svelte";
   import StoryboardDynamicTitle from "@ui/organisms/storyboard/StoryboardDynamicTitle.svelte";
   import StoryboardPill from "@ui/organisms/storyboard/StoryboardPill.svelte";
@@ -90,7 +90,7 @@
   </Layout>
 
   <!-- Entity Drawer (The Library) -->
-  <LibraryDrawer />
+  <Drawer />
 {/if}
 
 <style>

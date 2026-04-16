@@ -8,8 +8,8 @@
   import { Engine } from "@core/engine/engine.js";
   import { app } from "@state/app.svelte.js";
   import { simulationState } from "@state/status.svelte.js";
-  import { spin, stab } from "@ui/utils/actions/kinetic.js";
   import GlassPill from "@ui/atoms/GlassPill.svelte";
+  import { spin, stab } from "@ui/utils/actions/kinetic.js";
   let { disabled = false } = $props();
   // [R5] Auto-disable when engine is busy
   let is_locked = $derived(disabled || simulationState.phase !== "idle");
@@ -43,10 +43,7 @@
   }
 </script>
 
-<GlassPill
-  isFocused={is_focused}
-  className="input-bar-pill {is_locked ? 'is-disabled' : ''}"
->
+<GlassPill isFocused={is_focused} className="input-bar-pill {is_locked ? 'is-disabled' : ''}">
   {#snippet left()}
     <button
       class="icon-button settings-button"
@@ -129,7 +126,7 @@
     align-items: center;
     justify-content: center;
     transition: all var(--motion-fast);
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-m);
   }
 
   .icon-button .icon {

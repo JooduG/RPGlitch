@@ -11,8 +11,8 @@
   import { quintOut } from "svelte/easing";
   import { fly } from "svelte/transition";
 
-  import Backdrop from "@ui/molecules/dialogs/Backdrop.svelte";
-  import LibraryCard from "./LibraryCard.svelte";
+  import Backdrop from "@ui/molecules/Backdrop.svelte";
+  import LibraryCard from "@ui/molecules/LibraryCard.svelte";
 
   // --- STATE & DERIVATIONS ---
   let is_open = $derived(app.drawer.open);
@@ -104,15 +104,12 @@
   >
     <header class="drawer-header">
       <h3 id="drawer-title">{title()}</h3>
-      <button class="close-button" onclick={() => app.close_drawer()} aria-label="Close drawer"
-        >×</button
-      >
     </header>
 
     <div class="drawer-content no-scrollbar" use:kineticScroll>
       <div class="drawer-grid">
         <button
-          class="drawer-card drawer-card--new glass-base"
+          class="drawer-card drawer-card--new glass-s"
           onclick={handleCreateNew}
           title="Initialize a new entity from template"
         >
@@ -172,7 +169,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: var(--glass-edge-xl);
+    border-bottom: var(--border-xl);
   }
 
   .drawer-header h3 {
@@ -184,20 +181,6 @@
     text-transform: uppercase;
     color: var(--color-white);
     text-shadow: var(--shadow-font);
-  }
-
-  .drawer-header .close-button {
-    background: transparent;
-    border: none;
-    color: var(--font-color-s);
-    font-size: 2rem;
-    cursor: pointer;
-    line-height: 1;
-    transition: color var(--motion-fast);
-  }
-
-  .drawer-header .close-button:hover {
-    color: var(--color-white);
   }
 
   .drawer-content {
@@ -236,7 +219,7 @@
     height: 3.5rem;
     border-radius: 50%;
     background: rgb(var(--color-black-rgb) / 20%);
-    border: var(--glass-edge-l);
+    border: var(--border-l);
     display: flex;
     align-items: center;
     justify-content: center;

@@ -2,26 +2,35 @@
  *  src/theme/palette.svelte.js
  *  🎨 THEME STORE (REACTIVE)
  *  Centralized management for Signature Colors using Svelte 5 Runes.
- *  Flattened for the Twin-Cylinder architecture.
+ *  Following the "Red Thread": Foundation -> Logic -> UI Fallbacks.
  *  ============================================================================ */
 
-/**************************************************************************************
- * 🧩 [SECTION: COLOR PALETTE & MAPPINGS]
- * Static registries merged from legacy `palette.js`.
- ************************************************************************************/
 import { normalize } from "../data/content-normaliser.js";
+
+/**************************************************************************************
+ * 🧩 [LEVEL 0: FOUNDATION REGISTRY]
+ * The static mapping of colors and their CSS variable counterparts.
+ ************************************************************************************/
+
 export const PALETTE = {
+  /* Warm Hues */
   "Crimson Red": "#ef4444",
   "Sunset Orange": "#f97316",
   "Pumpkin Amber": "#fbbf24",
   "Lemon Yellow": "#fde047",
+  
+  /* Green Hues */
   "Lime Green": "#84cc16",
   "Forest Green": "#15803d",
   "Emerald Green": "#10b981",
+  
+  /* Cool Hues */
   "Neon Teal": "#14b8a6",
   "Electric Cyan": "#11aecc",
   "Ocean Blue": "#3b82f6",
   "Deep Indigo": "#818cf8",
+  
+  /* Purple & Pink Hues */
   "Twilight Violet": "#c084fc",
   "Royal Purple": "#a855f7",
   "Hot Pink": "#ec4899",
@@ -29,17 +38,24 @@ export const PALETTE = {
 };
 
 export const PALETTE_VARS = {
+  /* Warm */
   "#ef4444": "var(--color-red)",
   "#f97316": "var(--color-orange)",
   "#fbbf24": "var(--color-amber)",
   "#fde047": "var(--color-yellow)",
+  
+  /* Green */
   "#84cc16": "var(--color-lime)",
   "#15803d": "var(--color-forest)",
   "#10b981": "var(--color-emerald)",
+  
+  /* Cool */
   "#14b8a6": "var(--color-teal)",
   "#11aecc": "var(--color-cyan)",
   "#3b82f6": "var(--color-blue)",
   "#818cf8": "var(--color-indigo)",
+  
+  /* Purple/Pink */
   "#c084fc": "var(--color-violet)",
   "#a855f7": "var(--color-purple)",
   "#ec4899": "var(--color-pink)",
@@ -65,109 +81,108 @@ export const RGB_MAP = {
 };
 
 export const IMG_RESOLUTION = "512x768";
+
 export const PROFILE_PICTURE_PLACEHOLDERS = {
   default:
     "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJjdXJyZW50Q29xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIi8+PHBhdGggZD0iTTEyIDhhNCA0IDAgMSAwIDAtOCA0IDQgMCAwIDAgMCA4eiIvPjxwYXRoIGQ9Ik02IDIxdi0yYTYgNiAwIDAgMSAxMiAweiIvPjwvc3ZnPg==",
 };
+
 class ThemeStore {
   /************************************************************************************
-   * 🧩 [SECTION: CORE PARSERS & HELPERS]
+   * 🧩 [LEVEL 1: LOGIC & PARSERS]
    * ----------------------------------------------------------------------------------
-   * Raw string and hex manipulation utilities.
-   * Helper to convert Hex to RGB triplet
-   * @param {string} hex - "#RRGGBB"
-   * @returns {string} - "R, G, B" (Updated to use comma separation for CSS variables)
+   * utilities for color transformation and entity resolution.
    ************************************************************************************/
+
+  /**
+   * Helper to convert Hex to RGB triplet
+   * @param {string} hex - "#RRGGBB" or "var(--color-name)"
+   * @returns {string} - "R, G, B"
+   */
   hex_to_rgb(hex) {
-    if (!hex) return "168, 85, 247"; // Default purple (Vibrant Violet)
+    if (!hex) return "168, 85, 247"; // Default purple
 
     // Reverse lookup CSS tokens back to raw hex if they come from the standard palette
     if (hex.startsWith("var(")) {
       const standard_match = Object.entries(PALETTE_VARS).find(([k, v]) => v === hex);
       if (standard_match)
-        hex = standard_match[0]; // Feed the raw hex down to the regex
-      else return hex.replace(")", "-rgb)"); // Nordic custom colors fallback to CSS variable passthrough
+        hex = standard_match[0]; 
+      else return hex.replace(")", "-rgb)"); // Nordic custom colors fallback
     }
 
     const shorthand_regex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
     hex = hex.replace(shorthand_regex, (m, r, g, b) => r + r + g + g + b + b);
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    
     return result
       ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
       : "168, 85, 247";
   }
 
-  /************************************************************************************
-   * 🧩 [SECTION: ENTITY RESOLUTION]
-   * ----------------------------------------------------------------------------------
-   * Determining base aesthetic states from entity data.
+  /**
    * Delegates to the central normalizer to ensure strict data structure.
-   * ZERO backwards compatibility; ignores nested 'visuals' object.
-   ************************************************************************************/
+   */
   normalize_entity(entity) {
     if (!entity) return null;
     return normalize(entity);
   }
 
-  /**************************************************************************************
+  /**
    * Gets a deterministic color from a seed if no explicit color is set.
-   * Pulls strictly from the predefined PALETTE to enforce design tokens.
-   **************************************************************************************/
+   */
   get_deterministic_color(seed) {
     const final_seed = seed || "default";
     let hash = 0;
     for (let i = 0; i < final_seed.length; i++) {
       hash = final_seed.charCodeAt(i) + ((hash << 5) - hash);
     }
-    const keys = Object.keys(PALETTE).filter((k) => k !== "default");
+    const keys = Object.keys(PALETTE);
     const hex = PALETTE[keys[Math.abs(hash) % keys.length]];
     return this.resolve_token(hex) || hex;
   }
+
   resolve_token(color) {
     if (!color) return null;
     if (color.startsWith("var(")) return color;
     return PALETTE_VARS[color] || null;
   }
 
-  /**************************************************************************************
-   * Resolves the actual color value (Hex, HSL, or Token) for an entity.
-   * Looks at the flattened signature_color property.
-   **************************************************************************************/
+  /**
+   * Resolves the actual color value (Hex or Token) for an entity.
+   */
   get_signature_color(entity) {
     if (entity) {
       const color = entity.signature_color;
       if (color) {
-        // 1. Check if it's already a token or a mapped hex
+        // 1. Check mapped tokens
         const token = this.resolve_token(color);
         if (token) return token;
 
-        // 2. Check if it's a named palette key (e.g., "Hot Pink")
+        // 2. Check named palette keys
         if (PALETTE[color]) {
           const hex = PALETTE[color];
           return this.resolve_token(hex) || hex;
         }
-        return color; // Fallback to raw hex string
+        return color; // Fallback to raw hex
       }
     }
 
-    // Fallback to deterministic color based on name/tags
+    // Fallback to deterministic color
     const seed = [entity?.name || "", ...(entity?.tags || [])].filter(Boolean).join(",");
     return this.get_deterministic_color(seed || entity?.id || "");
   }
+
   /************************************************************************************
-   * 🧩 [SECTION: CONTRAST & MATH]
+   * 🧩 [LEVEL 2: UI FALLBACKS & MATH]
    * ----------------------------------------------------------------------------------
-   * Luminosity calculations and dynamic color adjustments.
-   * Calculates the best contrast color (black or white) for a background.
+   * Luminosity and generative aesthetics.
    ************************************************************************************/
+
   get_contrast_color(hex) {
     if (!hex || typeof hex !== "string" || hex.startsWith("hsl")) return "var(--color-white)";
     let color = hex.replace("#", "");
     if (color.length === 3) {
-      color = color
-        .split("")
-        .map((c) => c + c)
-        .join("");
+      color = color.split("").map((c) => c + c).join("");
     }
     if (color.length !== 6 || !/^[0-9a-f]{6}$/i.test(color)) return "var(--color-white)";
     const r = parseInt(color.substr(0, 2), 16);
@@ -177,9 +192,6 @@ class ThemeStore {
     return yiq >= 128 ? "var(--color-black)" : "var(--color-white)";
   }
 
-  /**************************************************************************************
-   * Simple darkening utility for borders or hover states.
-   **************************************************************************************/
   darken_color(hex, amount = 20) {
     if (!hex || hex.startsWith("var") || hex.startsWith("hsl")) return hex;
     let color = hex.replace("#", "");
@@ -195,48 +207,15 @@ class ThemeStore {
     );
   }
 
-  /************************************************************************************
-   * 🧩 [SECTION: UI FALLBACKS]
-   * ----------------------------------------------------------------------------------
-   * Generating aesthetic fallbacks for missing assets.
-   * Generates initials for avatar fallbacks.
-   * Safely strips all punctuation and symbols before extracting letters.
-   ************************************************************************************/
   get_initials(name) {
     if (!name) return "?";
-
-    // 1. Strip everything that is not a letter or a space (removes ', ", -, etc.)
     const clean_name = name.replace(/[^a-zA-Z\s]/g, "");
-    const stop_words = new Set([
-      "the",
-      "a",
-      "an",
-      "of",
-      "in",
-      "and",
-      "or",
-      "for",
-      "to",
-      "at",
-      "by",
-      "with",
-    ]);
-
-    // 2. Split into words
     const words = clean_name.trim().split(/\s+/);
-
-    // 3. Filter stopwords (unless the name *is* just a stopword)
+    const stop_words = new Set(["the", "a", "an", "of", "in", "and", "or", "for", "to", "at", "by", "with"]);
     let filtered_words = words.filter((w) => !stop_words.has(w.toLowerCase()));
     if (filtered_words.length === 0) filtered_words = words;
-
-    // 4. Extract first letter of up to 3 words
-    return (
-      filtered_words
-        .slice(0, 3)
-        .map((w) => w.charAt(0))
-        .join("")
-        .toUpperCase() || "?"
-    );
+    return filtered_words.slice(0, 3).map((w) => w.charAt(0)).join("").toUpperCase() || "?";
   }
 }
+
 export const themeStore = new ThemeStore();
