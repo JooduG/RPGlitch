@@ -80,7 +80,7 @@ export const context_broker = {
 
     // Extract raw log text without truncation or owner headers for lifecycle matching
     const full_log_text = Array.isArray(simulation_log)
-      ? simulation_log.map(m => (m.content || "").replace(/<think>[\s\S]*?<\/think>/gi, "")).join(" ")
+      ? simulation_log.map(m => (m.text || m.content || "").replace(/<think>[\s\S]*?<\/think>/gi, "")).join(" ")
       : "";
 
     // 1. Resolve Entities mapping (Role -> Data)
