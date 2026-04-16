@@ -74,21 +74,10 @@ function syncIgnores() {
       console.warn("⚠️  Could not parse .vscode/settings.json, creating new.");
     }
 
-    // Authoritative merge for files.exclude and other requested keys
+    // Authoritative merge for files.exclude
     if (master.vscode["files.exclude"]) {
       settings["files.exclude"] = master.vscode["files.exclude"];
     }
-
-    const keysToSync = [
-      "files.associations",
-      "editor.codeActionsOnSave",
-      "markdown.validate.referenceLinks.enabled",
-    ];
-    keysToSync.forEach((key) => {
-      if (master.vscode[key] !== undefined) {
-        settings[key] = master.vscode[key];
-      }
-    });
 
     // Ensure directory exists
     const vscodeDir = path.dirname(vscodePath);

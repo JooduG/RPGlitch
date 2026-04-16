@@ -13,6 +13,7 @@
   import { PALETTE, PALETTE_VARS } from "@theme/palette.svelte.js";
   import Button from "@ui/atoms/Button.svelte";
   import Toggle from "@ui/atoms/Toggle.svelte";
+  import TextField from "@ui/atoms/TextField.svelte";
 
   const SPECTRUM_COLORS = Object.entries(PALETTE).filter(([name]) => name !== "default");
 
@@ -174,27 +175,6 @@
     const target = keys.reduce((acc, key) => (acc[key] = acc[key] || {}), obj);
     target[last] = val;
   }
-  function auto_resize(node) {
-    let frame;
-    const update = () => {
-      if (frame) cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        node.style.height = "auto";
-        node.style.height = node.scrollHeight + "px";
-      });
-    };
-    node.addEventListener("input", update);
-    const observer = new ResizeObserver(update);
-    observer.observe(node);
-    update();
-    return {
-      destroy() {
-        if (frame) cancelAnimationFrame(frame);
-        node.removeEventListener("input", update);
-        observer.disconnect();
-      },
-    };
-  }
 </script>
 
 <div
@@ -233,10 +213,25 @@
   </div>
   <div class="group">
     <div class="prompt-box seamless-field">
-      <div class="visual-prompt-container">
-        <textarea
-          use:auto_resize
+      <div class="visual-prompt-container"
+        onfocusout={(e) => {
+          setTimeout(() => {
+            if (active_field?.key === "visual-prompt") {
+              const focused = document.activeElement;
+              if (
+                !focused?.closest(".action-button") &&
+                !focused?.closest(".visual-prompt") &&
+                busy_fields.size === 0
+              ) {
+                active_field = null;
+              }
+            }
+          }, 150);
+        }}
+      >
+        <TextField
           class="visual-prompt"
+          is_edit={is_editing && !is_prompt_busy}
           bind:value={char.modifiers.prompt}
           placeholder="Enter image prompt or paste a URL..."
           disabled={!is_editing || is_prompt_busy}
@@ -248,21 +243,7 @@
               };
             }
           }}
-          onblur={() => {
-            setTimeout(() => {
-              if (active_field?.key === "visual-prompt") {
-                const focused = document.activeElement;
-                if (
-                  !focused?.closest(".action-button") &&
-                  !focused?.closest(".text-area") &&
-                  busy_fields.size === 0
-                ) {
-                  active_field = null;
-                }
-              }
-            }, 150);
-          }}
-        ></textarea>
+        />
         {#if is_prompt_busy}
           <div class="spinner-overlay">
             <div class="spinner"></div>
@@ -366,20 +347,15 @@
     width: 100%;
   }
 
-  .visual-prompt {
+  :global(.visual-prompt) {
     width: 100%;
-    background: transparent;
-    border: none;
     color: var(--color-white);
     padding: var(--spacing-m);
     font-size: var(--font-size-s);
     font-family: var(--font-family-body);
-    resize: none;
-    outline: none;
-    display: block;
   }
 
-  .visual-prompt:disabled {
+  :global(.visual-prompt:disabled) {
     opacity: var(--opacity-m);
     color: var(--font-color-s);
     cursor: default;

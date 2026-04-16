@@ -1,18 +1,22 @@
 {
-  "launch": {
-    "configurations": [],
-    "compounds": []
+  "css.validate": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.stylelint": "explicit"
   },
   "files.associations": {
-    "*.markdownlintignore": "ignore",
-    "*.htmlhintignore": "ignore",
-    "*.stylelintignore": "ignore",
-    "*.prettierignore": "ignore",
+    "*.antigravityignore": "ignore",
     "*.geminiignore": "ignore",
-    "*.antigravityignore": "ignore"
+    "*.htmlhintignore": "ignore",
+    "*.markdownlintignore": "ignore",
+    "*.prettierignore": "ignore",
+    "*.stylelintignore": "ignore"
   },
   "files.exclude": {
+    "/.env": false,
+    "DESIGN.md": true,
     "**/.DS_Store": true,
+    "**/.antigravityignore": true,
     "**/.eslintcache": true,
     "**/.eslintignore": true,
     "**/.gemini/[!s]*": true,
@@ -20,48 +24,36 @@
     "**/.geminiignore": true,
     "**/.gitignore": true,
     "**/.htmlhintignore": true,
+    "**/.jules/**": true,
     "**/.markdownlintignore": true,
     "**/.playwright-auth/**": true,
     "**/.prettierignore": true,
     "**/.stylelintignore": true,
-    "**/.antigravityignore": true,
     "**/Thumbs.db": true,
+    "**/bun.lockb": true,
     "**/jsconfig.json": true,
     "**/mcp.json": true,
-    "/.env": false,
     "**/node_modules/**": true,
     "**/package-lock.json": true,
     "**/pnpm-lock.yaml": true,
     "**/test-results/**": true,
     "**/tests/**": true,
-    "DESIGN.md": true,
-    "**/yarn.lock": true,
-    "**/bun.lockb": true,
-    "**/.jules/**": true
+    "**/yarn.lock": true
   },
-  "css.validate": true,
   "html.validate.styles": false,
-  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "launch": {
+    "compounds": [],
+    "configurations": []
+  },
   "markdown.validate.enabled": true,
   "markdown.validate.ignoredLinks": [
     "always_on | on_change | manual",
-    "high | medium | low",
-    "./.agent/orchestration/**",
-    "../orchestration/**",
-    "./tracks/**",
-    "../tracks/**",
-    "./design.md",
-    "../design.md",
-    "../../.github/workflows/ai-fleet-dispatch.yml"
+    "high | medium | low"
   ],
-  "markdown.validate.referenceLinks.severity": "ignore",
+  "markdown.validate.referenceLinks.enabled": "ignore",
   "stylelint.validate": [
     "css",
     "svelte"
   ],
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit",
-    "source.fixAll.stylelint": "explicit"
-  },
-  "markdown.validate.referenceLinks.enabled": false
+  "typescript.tsdk": "node_modules\\typescript\\lib"
 }

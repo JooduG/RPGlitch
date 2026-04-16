@@ -7,8 +7,8 @@
    */
   import { ENTITY_FRAGMENTS } from "@/core/intelligence/entity-fragments.js";
   import { fitText } from "@ui/utils/actions/fit-text.js";
-  import { safe_html } from "@ui/utils/actions/safe-html.js";
-  let { char = $bindable(), is_editing, render_markdown, auto_resize } = $props();
+  import TextField from "@ui/atoms/TextField.svelte";
+  let { char = $bindable(), is_editing, render_markdown } = $props();
 </script>
 
 <header class:is-editing={is_editing} data-testid="profile-header">
@@ -35,21 +35,14 @@
       {char.name || ENTITY_FRAGMENTS.name}
     </h1>
   {/if}
-  {#if is_editing}
-    <textarea
-      use:auto_resize
-      class="description edit"
-      value={char.description || ""}
-      oninput={(e) => (char.description = e.target.value)}
-      placeholder={ENTITY_FRAGMENTS.description}
-    ></textarea>
-  {:else}
-    <div
-      class="description readonly"
-      class:muted-info={!char.description}
-      use:safe_html={render_markdown(char.description || ENTITY_FRAGMENTS.description)}
-    ></div>
-  {/if}
+  <TextField
+    is_edit={is_editing}
+    class="description"
+    placeholder={ENTITY_FRAGMENTS.description}
+    value={char.description || ""}
+    oninput={(e) => (char.description = e.target.value)}
+    {render_markdown}
+  />
 </header>
 
 <style>
@@ -94,62 +87,4 @@
     outline: none;
   }
 
-  .name:not(.edit) {
-    cursor: default;
-    pointer-events: none;
-  }
-
-  .description {
-    width: 100%;
-    color: var(--font-color-m);
-    font-family: inherit;
-    font-size: var(--font-size-m);
-    line-height: 1.5;
-    min-height: 1.4em;
-    transition: all var(--motion-fast);
-    border-radius: var(--border-radius-m);
-    padding: var(--spacing-s) var(--spacing-xs);
-    margin: 0;
-    border: none;
-    background: transparent;
-    resize: none;
-    text-align: left;
-  }
-
-  .description:focus {
-    outline: none;
-  }
-
-  .description.muted-info {
-    opacity: var(--opacity-l);
-    font-size: 0.9em;
-    font-weight: var(--font-weight-m);
-  }
-
-  .description.edit {
-    pointer-events: auto;
-    caret-color: var(--color-white);
-    cursor: text;
-  }
-
-  .description.edit:hover,
-  .description.edit:focus {
-    outline: none;
-  }
-
-  .description.readonly {
-    pointer-events: auto;
-    white-space: pre-wrap;
-    cursor: default;
-  }
-
-  .description.readonly :global(strong) {
-    font-weight: var(--font-weight-xl);
-    color: var(--color-white);
-  }
-
-  .description.readonly :global(em) {
-    font-style: italic;
-    opacity: var(--opacity-xxl);
-  }
 </style>

@@ -17,47 +17,8 @@
   import ProfileFragments from "./ProfileFragments.svelte";
   import ProfileHeader from "./ProfileHeader.svelte";
   import ProfileWings from "./ProfileWings.svelte";
+
   let { entity_id, entity_type } = $props();
-  /**
-   * Svelte 5 Action: Auto-resize textarea to fit content
-   */
-  function auto_resize(node, options = {}) {
-    let frame;
-    const update = () => {
-      if (frame) cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        node.style.height = "auto";
-        const height = node.scrollHeight;
-        node.style.height = height + "px";
-        if (options.syncId) {
-          const siblings = document.querySelectorAll(`[data-sync-id="${options.syncId}"]`);
-          let maxHeight = 0;
-          siblings.forEach((s) => {
-            if (s instanceof HTMLElement) {
-              s.style.height = "auto";
-              maxHeight = Math.max(maxHeight, s.scrollHeight);
-            }
-          });
-          siblings.forEach((s) => {
-            if (s instanceof HTMLElement) {
-              s.style.height = maxHeight + "px";
-            }
-          });
-        }
-      });
-    };
-    node.addEventListener("input", update);
-    const observer = new ResizeObserver(update);
-    observer.observe(node);
-    update();
-    return {
-      destroy() {
-        if (frame) cancelAnimationFrame(frame);
-        node.removeEventListener("input", update);
-        observer.disconnect();
-      },
-    };
-  }
   // --- STATE ---
   let is_editing = $state(false);
   let is_saving = $state(false);
@@ -203,13 +164,12 @@
           <ProfilePicture entity={char} />
         </div>
         <main class="right">
-          <ProfileHeader bind:char {is_editing} {render_markdown} {auto_resize} />
+          <ProfileHeader bind:char {is_editing} {render_markdown} />
           <ProfileFragments
             bind:char
             {is_editing}
             {get_value}
             {set_value}
-            {auto_resize}
             {busy_fields}
             {render_markdown}
             bind:active_field

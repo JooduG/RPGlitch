@@ -4,7 +4,8 @@
    * 🧩 THE TEMPORAL HYBRID FIELDS
    * Dynamically renders the Eternal, Present, Past, and Future sections.
    */
-  import { safe_html } from "@ui/utils/actions/safe-html.js";
+
+  import TextField from "@ui/atoms/TextField.svelte";
   import { PROFILE_SECTIONS } from "./config.js";
   import VectorPanel from "./VectorPanel.svelte";
   let {
@@ -12,7 +13,6 @@
     is_editing,
     get_value,
     set_value,
-    auto_resize,
     busy_fields,
     render_markdown,
     active_field = $bindable(), // eslint-disable-line no-useless-assignment
@@ -50,31 +50,23 @@
                 unit_label={field.unitLabel}
                 signature_color="var(--signature-color)"
               />
-            {:else if is_editing}
-              <textarea
-                use:auto_resize={{
-                  syncId: section.label,
-                }}
-                data-sync-id={section.label}
-                class="text-area edit seamless-field"
+            {:else}
+              <TextField
+                is_edit={is_editing}
+                syncId={section.label}
+                class="text-area custom-field"
                 placeholder={field.description}
                 value={safe_get(field.key)}
                 oninput={(e) => set_value(char, field.key, e.target.value)}
-                disabled={busy_fields.has(field.key)}
+                busy={busy_fields.has(field.key)}
                 onfocus={() => {
                   active_field = {
                     key: field.key,
                     label: field.label || section.label,
                   };
                 }}
-              ></textarea>
-            {:else}
-              <div
-                class="text-area readonly seamless-field"
-                class:muted-info={!get_value(char, field.key)}
-                data-sync-id={section.label}
-                use:safe_html={render_markdown(get_value(char, field.key) || "*Record undefined.*")}
-              ></div>
+                {render_markdown}
+              />
             {/if}
           </div>
         {/each}
@@ -164,56 +156,5 @@
     text-align: center;
     text-shadow: var(--shadow-font);
     margin-bottom: var(--spacing-xxs);
-  }
-
-  .content .row .field-group .text-area {
-    width: 100%;
-    height: 100%;
-    min-height: var(--spacing-xxxl);
-    overflow-y: auto;
-    color: var(--color-white);
-    padding: var(--spacing-m);
-    margin: 0;
-    outline: none;
-    resize: none;
-    font-family: inherit;
-    font-size: var(--font-size-s);
-    line-height: 1.5;
-    transition: all var(--motion-fast);
-    cursor: text;
-    pointer-events: auto;
-  }
-
-  .content .row .field-group .text-area.edit {
-    pointer-events: auto;
-    cursor: text;
-  }
-
-  .content .row .field-group .text-area:disabled {
-    opacity: var(--opacity-m);
-    cursor: wait;
-    pointer-events: none;
-  }
-
-  .content .row .field-group .text-area.muted-info {
-    opacity: var(--opacity-l);
-    font-size: 0.9em;
-    font-weight: var(--font-weight-m);
-  }
-
-  .content .row .field-group .text-area.readonly {
-    white-space: pre-wrap;
-    pointer-events: auto;
-    cursor: default;
-  }
-
-  .content .row .field-group .text-area.readonly :global(strong) {
-    font-weight: var(--font-weight-xl);
-    color: var(--color-white);
-  }
-
-  .content .row .field-group .text-area.readonly :global(em) {
-    font-style: italic;
-    opacity: var(--opacity-xxl);
   }
 </style>
