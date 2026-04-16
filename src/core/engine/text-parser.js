@@ -57,7 +57,7 @@ export function clean_image_prompts(text) {
     previous = result;
     // Handle <image_prompt>...</image_prompt>
     result = result.replace(
-      /<image_prompt(?:\s+[^"'>\s]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^"'>\s]+))?)*\s*>(?:(?!<image_prompt)[\s\S])*?<\/image_prompt\s*>/gi,
+      /<image_prompt(?:\s+[^"'>\s]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^"'>\s]+))?)*\s*>(?:(?!<image_prompt(?=[\s>\/]))[\s\S])*?<\/image_prompt\s*>/gi,
       "",
     );
     // Handle <image>...</image>
