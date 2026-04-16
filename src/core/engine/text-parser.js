@@ -42,11 +42,14 @@ export function clean_image_prompts(text) {
   // 1. Remove Markdown image syntax ![alt](url)
   let result = text.replace(/!\[.*?\]\(.*?\)/g, "");
 
+  // Shared attribute-matching regex string to prevent ReDoS (linear scanning)
+  const attrRegex = '(?:\\s+[^"\'>\\s]+(?:\\s*=\\s*(?:"[^"]*"|\'[^\']*\'|[^"\'>\\s]+))?)*';
+
   // 2. Remove self-closing tags with potential quoted '>' in attributes
   // Matches <tag ... /> where attributes can have quoted strings
   // We handle image_prompt specifically to avoid over-matching other tags
   // Note: Standard JS regex doesn't support atomic groups (++) or possessive quantifiers (*+) in all environments
-  result = result.replace(/<image_prompt(?:\s+(?:[^"'>]|"[^"]*"|'[^']*')+)*?\s*\/>/gi, "");
+  result = result.replace(new RegExp(`<image_prompt${attrRegex}\\s*\\/>`, "gi"), "");
 
   // 3. Iteratively remove the innermost <image_prompt>...</image_prompt> and <image>...</image> pairs
   let previous = "";
@@ -54,12 +57,12 @@ export function clean_image_prompts(text) {
     previous = result;
     // Handle <image_prompt>...</image_prompt>
     result = result.replace(
-      /<image_prompt(?:\s+(?:[^"'>]|"[^"]*"|'[^']*')*)?>(?:(?!<image_prompt)[\s\S])*?<\/image_prompt\s*>/gi,
+      new RegExp(`<image_prompt${attrRegex}\\s*>(?:(?!<image_prompt)[\\s\\S])*?<\\/image_prompt\\s*>`, "gi"),
       "",
     );
     // Handle <image>...</image>
     result = result.replace(
-      /<image(?:\s+(?:[^"'>]|"[^"]*"|'[^']*')*)?>(?:(?!<image)[\s\S])*?<\/image\s*>/gi,
+      new RegExp(`<image${attrRegex}\\s*>(?:(?!<image)[\\s\\S])*?<\\/image\\s*>`, "gi"),
       "",
     );
   }

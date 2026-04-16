@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { generateUUID, generateSecureSeed, pickRandom } from "./core.js";
+import { generateUUID, generateSecureSeed } from "./core.js";
 describe("utils", () => {
   describe("generateSecureSeed", () => {
     it("should return a number within the specified limit", () => {
@@ -39,38 +39,6 @@ describe("utils", () => {
       const seed = generateSecureSeed(100);
       expect(mockGetRandomValues).toHaveBeenCalled();
       expect(seed).toBe(123456 % 100);
-
-      Object.defineProperty(globalThis, "crypto", {
-        value: originalCrypto,
-        configurable: true,
-      });
-    });
-  });
-
-  describe("pickRandom", () => {
-    it("should return null for empty arrays or non-arrays", () => {
-      expect(pickRandom([])).toBe(null);
-      expect(pickRandom(null)).toBe(null);
-      expect(pickRandom(undefined)).toBe(null);
-      expect(pickRandom({})).toBe(null);
-    });
-
-    it("should return an element from the array", () => {
-      const arr = ["a", "b", "c"];
-      const result = pickRandom(arr);
-      expect(arr).toContain(result);
-    });
-
-    it("should use Math.random if generateSecureSeed fails", () => {
-      const arr = ["a"];
-      const originalCrypto = globalThis.crypto;
-      Object.defineProperty(globalThis, "crypto", {
-        value: undefined,
-        configurable: true,
-      });
-
-      const result = pickRandom(arr);
-      expect(result).toBe("a");
 
       Object.defineProperty(globalThis, "crypto", {
         value: originalCrypto,

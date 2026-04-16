@@ -11,13 +11,10 @@ import { simulationState } from "@state/status.svelte.js"; // [R5] Unified State
  * Coordinates active narrative flows and persistence.
  */
 export class ReactiveSession {
+  isProcessing = $state(false);
   error = $state(null);
 
   constructor() {}
-
-  get isProcessing() {
-    return simulationState.phase !== "idle";
-  }
 
   /**
    * Increments the global simulation round.
@@ -31,7 +28,8 @@ export class ReactiveSession {
    * Releases the processing lock and resets application loading states.
    */
   releaseLock() {
-    simulationState.complete();
+    this.isProcessing = false;
+    app.simulation.loading = false;
   }
 
   /**
@@ -40,7 +38,8 @@ export class ReactiveSession {
    */
   async start(selection) {
     if (this.isProcessing) return;
-    simulationState.lock();
+    this.isProcessing = true;
+    app.simulation.loading = true;
 
     try {
       const story_title = `The Journey of ${selection.ai.name} & ${selection.user.name} in ${selection.fractal.name}`;
@@ -80,7 +79,8 @@ export class ReactiveSession {
    */
   async advance_turn(text) {
     if (this.isProcessing) return;
-    simulationState.lock();
+    this.isProcessing = true;
+    app.simulation.loading = true;
 
     try {
       // PHASE 1: WARDEN (Observation)
@@ -115,7 +115,8 @@ export class ReactiveSession {
    */
   async retry() {
     if (this.isProcessing) return;
-    simulationState.lock();
+    this.isProcessing = true;
+    app.simulation.loading = true;
 
     try {
       await runtime.save(runtime.round);
@@ -126,6 +127,7 @@ export class ReactiveSession {
       this.error = e.message;
     } finally {
       this.releaseLock();
+      simulationState.complete();
     }
   }
 
@@ -134,7 +136,8 @@ export class ReactiveSession {
    */
   async continue() {
     if (this.isProcessing) return;
-    simulationState.lock();
+    this.isProcessing = true;
+    app.simulation.loading = true;
 
     try {
       const story_id = session_driver.require_active();
