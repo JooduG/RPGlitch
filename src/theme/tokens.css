@@ -15,18 +15,18 @@
 
   /* Nordic Collection (Brand Colors) */
   --color-chalk: #222326;
-  --color-gunmetal: #363840;
-  --color-frozen: #555d66;
-  --color-frisk: #8a9399;
   --color-chalk-rgb: 34 35 38;
+  --color-gunmetal: #363840;
   --color-gunmetal-rgb: 54 56 64;
+  --color-frozen: #555d66;
   --color-frozen-rgb: 85 93 102;
+  --color-frisk: #8a9399;
   --color-frisk-rgb: 138 147 153;
 
   /* Primitive Base Colors */
   --color-white: #fff;
-  --color-black: #000;
   --color-white-rgb: 255 255 255;
+  --color-black: #000;
   --color-black-rgb: 0 0 0;
 
   /* Signature Palette (Identity) */
@@ -107,20 +107,10 @@
   --glass-xxl: rgb(var(--color-frisk-rgb) / var(--opacity-s)); /* Surface layer: Top-most focus */
 
   /* The Specular Edge: For the borders of interactive atoms */
-
   --glass-edge-s: 1px solid rgb(var(--color-chalk-rgb) / var(--opacity-s));
   --glass-edge-m: 1px solid rgb(var(--color-frozen-rgb) / var(--opacity-xs));
   --glass-edge-l: 1px solid rgb(var(--color-frisk-rgb) / var(--opacity-xs));
   --glass-edge-xl: 1px solid rgb(var(--color-frisk-rgb) / var(--opacity-s));
-
-  /* Unified Field Foundation (Nordic Glass Standard) */
-  --field-background-idle: var(--glass-xs);
-  --field-background-hover: var(--glass-s);
-  --field-border-idle: var(--glass-edge-l);
-  --field-border-hover: var(
-    --field-border-idle
-  ); /* Default to idle unless specifically needed, using edge-xl for interactive hover */
-  --field-border-active: var(--glass-edge-xl);
 
   /* Blurs & Frosting */
   --glass-blur-s: blur(4px);
@@ -152,9 +142,10 @@
   /* Font Colors */
   --font-color-m: var(--color-white);
   --font-color-s: color-mix(in srgb, var(--color-white), var(--color-black) 8%);
+  --field-placeholder-color: rgb(var(--color-white-rgb) / var(--opacity-s));
 
   /* Font Sizes */
-  --font-size-xxs: 0.5rem;
+  --font-size-xxs: 0.6rem;
   --font-size-xs: 0.75rem;
   --font-size-s: 0.875rem;
   --font-size-m: 1rem;
@@ -164,7 +155,6 @@
   --font-size-xxxl: 1.875rem;
   --font-size-xxxxl: 2.25rem;
   --font-size-xxxxxl: 3.5rem;
-  --field-placeholder-color: rgb(var(--color-white-rgb) / var(--opacity-s));
 
   /* Line Heights */
   --line-height-s: 1.2;

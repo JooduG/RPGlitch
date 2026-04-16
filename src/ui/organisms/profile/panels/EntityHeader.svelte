@@ -1,19 +1,19 @@
 <script>
   /**
-   * @file ProfileHeader.svelte
+   * @file src/ui/organisms/profile/panels/EntityHeader.svelte
    * 🏷️ THE IDENTITY BANNER
    * Handles the top-level name and description of the entity.
-   * Flattened Schema Compliant.
    */
   import { ENTITY_FRAGMENTS } from "@/core/intelligence/entity-fragments.js";
   import { fitText } from "@ui/utils/actions/fit-text.js";
   import TextField from "@ui/atoms/TextField.svelte";
-  let { char = $bindable(), is_editing, render_markdown } = $props();
+  
+  let { char = $bindable(), is_editing } = $props();
 </script>
 
 <header class:is-editing={is_editing} data-testid="profile-header">
   {#if is_editing}
-    <h1 class="name edit" aria-label="Edit Character Name">
+    <h1 class="name edit" aria-label="Edit Entity Name">
       <span
         contenteditable="true"
         bind:innerText={char.name}
@@ -25,7 +25,7 @@
   {:else}
     <h1
       class="name"
-      aria-label="Character Name"
+      aria-label="Entity Name"
       use:fitText={{
         maxSize: 80,
         minSize: 16,
@@ -35,14 +35,14 @@
       {char.name || ENTITY_FRAGMENTS.name}
     </h1>
   {/if}
+  <div class="description">
   <TextField
     is_edit={is_editing}
     class="description"
     placeholder={ENTITY_FRAGMENTS.description}
     value={char.description || ""}
     oninput={(e) => (char.description = e.target.value)}
-    {render_markdown}
-  />
+  /></div>
 </header>
 
 <style>
@@ -87,4 +87,31 @@
     outline: none;
   }
 
+  .description {
+    width: 100%;
+    padding: 0 var(--spacing-xs);
+  }
+
+  /* Target both edit and readonly modes of the TextField */
+  .description :global(.field-foundation),
+  .description :global(.readonly-field),
+  .description :global(.field-foundation:hover),
+  .description :global(.field-foundation:focus) {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    font-size: var(--font-size-l);
+    font-weight: var(--font-weight-m);
+    color: var(--font-color-m);
+    line-height: var(--line-height-m);
+    min-height: 1.5em;
+    transition: color var(--motion-fast);
+    border-radius: 0;
+  }
+
+  .description :global(.field-foundation::placeholder) {
+    font-size: var(--font-size-m);
+    opacity: 0.6;
+  }
 </style>

@@ -1,39 +1,63 @@
 <script>
   /**
-   * @file ProfileFragments.svelte
+   * @file src/ui/organisms/profile/panels/EntityFragments.svelte
    * 🧩 THE TEMPORAL HYBRID FIELDS
    * Dynamically renders the Eternal, Present, Past, and Future sections.
    */
-
   import TextField from "@ui/atoms/TextField.svelte";
-  import { PROFILE_SECTIONS } from "./config.js";
-  import VectorPanel from "./VectorPanel.svelte";
+  import { PROFILE_SECTIONS } from "../profile-config.js";
+  import VectorArray from "./VectorArray.svelte";
+  import { get_value, set_value } from "@ui/utils/field-path.js";
+
   let {
     char = $bindable(),
     is_editing,
-    get_value,
-    set_value,
     busy_fields,
-    render_markdown,
-    active_field = $bindable(), // eslint-disable-line no-useless-assignment
+    active_field = $bindable(),
   } = $props();
+
+  // Track which section is hovered for the "Aperture" peek
+  let hovered_section = $state(null);
+  
+  // Storage for VectorArray instances to call add_item()
+  let vector_refs = $state({});
+
   /**
    * Utility to ensure the textarea receives an empty string for empty data.
-   * This is required for the HTML 'placeholder' attribute to trigger.
    */
   const safe_get = (path) => {
     const val = get_value(char, path);
     return val === undefined || val === null ? "" : val;
   };
+
+  function handle_label_click(sectionId, fieldKey) {
+    if (!is_editing) return;
+    if (vector_refs[fieldKey]) {
+      vector_refs[fieldKey].add_item();
+    }
+  }
 </script>
 
 <div class="content" data-testid="profile-fragments">
   {#each PROFILE_SECTIONS as section (section.label)}
     <div class="row">
-      <div class="label">
-        <h2>{section.label}</h2>
-        <p>{section.sublabel}</p>
+      <div 
+        class="label" 
+        class:interactive={is_editing && section.fields.some(f => f.type === 'array')}
+        onclick={() => {
+          const arrayField = section.fields.find(f => f.type === 'array');
+          if (arrayField) handle_label_click(section.id, arrayField.key);
+        }}
+        onmouseenter={() => (hovered_section = section.id)}
+        onmouseleave={() => (hovered_section = null)}
+        role="presentation"
+      >
+        <div class="label-box">
+          <h2>{section.label}</h2>
+          <p>{section.sublabel}</p>
+        </div>
       </div>
+
       <div class={section.fields.length === 2 ? "split" : "full"}>
         {#each section.fields as field (field.key)}
           <div class="field-group">
@@ -41,7 +65,8 @@
               <span class="field-label">{field.label}</span>
             {/if}
             {#if field.type === "array"}
-              <VectorPanel
+              <VectorArray
+                bind:this={vector_refs[field.key]}
                 {char}
                 path={field.key}
                 {is_editing}
@@ -49,12 +74,13 @@
                 {set_value}
                 unit_label={field.unitLabel}
                 signature_color="var(--signature-color)"
+                is_peeking={hovered_section === section.id}
               />
             {:else}
               <TextField
                 is_edit={is_editing}
                 syncId={section.label}
-                class="text-area custom-field"
+                class="text-area custom-field {active_field?.key === field.key ? 'active' : ''}"
                 placeholder={field.description}
                 value={safe_get(field.key)}
                 oninput={(e) => set_value(char, field.key, e.target.value)}
@@ -65,7 +91,6 @@
                     label: field.label || section.label,
                   };
                 }}
-                {render_markdown}
               />
             {/if}
           </div>
@@ -95,6 +120,18 @@
     text-align: right;
     align-self: center;
     padding: 0;
+    cursor: default;
+    transition: all var(--motion-fast);
+  }
+
+  .content .row .label.interactive {
+    cursor: pointer;
+  }
+
+  .label-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
   }
 
   .content .row .label h2 {
@@ -103,10 +140,16 @@
     font-weight: var(--font-weight-l);
     color: var(--signature-color);
     text-transform: uppercase;
-    text-shadow:
-      var(--shadow-font),
-      0 0 var(--spacing-s) rgb(var(--signature-rgb) / var(--opacity-m));
-    display: inline-block;
+    text-shadow: var(--shadow-font);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    transition: all var(--motion-fast);
+  }
+
+  .content .row .label.interactive:hover h2 {
+    filter: brightness(1.3);
+    text-shadow: 0 0 var(--spacing-s) rgb(var(--signature-rgb) / 80%);
   }
 
   .content .row .label p {

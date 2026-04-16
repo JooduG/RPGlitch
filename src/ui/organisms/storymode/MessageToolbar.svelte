@@ -152,7 +152,6 @@
     color: var(--font-color-s);
     cursor: pointer;
     padding: var(--spacing-xs);
-    border-radius: var(--border-radius);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -183,14 +182,13 @@
   .toolbar-footer {
     display: flex;
     justify-content: center;
-    padding-top: var(--spacing-xs);
-    border-top: 1px solid rgb(255 255 255 / 5%);
+    padding-bottom: var(--spacing-xs);
     margin-top: var(--spacing-xxs);
   }
 
   .timestamp-label {
     font-family: var(--font-family-mono);
-    font-size: 0.65rem;
+    font-size: var(--font-size-xxs);
     color: var(--font-color-s);
     opacity: var(--opacity-m);
     letter-spacing: var(--letter-spacing-s);

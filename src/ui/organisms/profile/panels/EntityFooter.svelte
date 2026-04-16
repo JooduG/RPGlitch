@@ -1,16 +1,27 @@
 <script>
+  /**
+   * @file src/ui/organisms/profile/panels/EntityFooter.svelte
+   * 🛠️ THE COMMAND CENTER
+   * Houses the primary Save, Delete, and Edit actions.
+   */
   import Button from "@ui/atoms/Button.svelte";
-  let { is_editing = $bindable(), is_saving, handle_save, handle_delete } = $props();
+  let { 
+    is_editing, 
+    is_saving, 
+    onclick_edit, 
+    onclick_save, 
+    onclick_delete 
+  } = $props();
 </script>
 
-<footer data-testid="profile-footer">
+<footer data-testid="entity-footer">
   {#if is_editing}
     <div class="footer-actions">
       <Button
         variant="danger"
         fullWidth={true}
         className="profile-button"
-        onclick={handle_delete}
+        onclick={onclick_delete}
         disabled={is_saving}
         data-testid="delete-button">Delete</Button
       >
@@ -18,7 +29,7 @@
         variant="signature"
         fullWidth={true}
         className="profile-button"
-        onclick={handle_save}
+        onclick={onclick_save}
         disabled={is_saving}
         data-testid="save-button"
       >
@@ -32,9 +43,7 @@
         variant="signature"
         fullWidth={true}
         className="profile-button"
-        onclick={() => {
-          is_editing = true;
-        }}
+        onclick={onclick_edit}
         data-testid="edit-button"
       >
         Edit
@@ -53,6 +62,7 @@
     border-top: 0;
     z-index: var(--z-index-m);
     padding-top: var(--spacing-m);
+    transition: all var(--motion-fast);
   }
 
   .footer-actions {

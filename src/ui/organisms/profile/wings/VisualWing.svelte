@@ -1,9 +1,8 @@
 <script>
   /**
-   * @file VisualWing.svelte
+   * @file src/ui/organisms/profile/wings/VisualWing.svelte
    * 🎨 THE AESTHETIC ENGINE
    * Manages signature colors, generation prompts, and modifiers.
-   * Updated to target the flattened signature_color and profile_picture.
    */
   import { llm_service } from "@core/intelligence/llm-service.js";
   import { prompt_builder } from "@core/intelligence/prompt-builder.js";
@@ -11,20 +10,17 @@
   import { validateImage } from "@core/security.js";
   import { app } from "@state/app.svelte.js";
   import { PALETTE, PALETTE_VARS } from "@theme/palette.svelte.js";
+  import { get_value, set_value } from "@ui/utils/field-path.js";
   import Button from "@ui/atoms/Button.svelte";
   import Toggle from "@ui/atoms/Toggle.svelte";
   import TextField from "@ui/atoms/TextField.svelte";
+  import Wing from "./Wing.svelte";
 
   const SPECTRUM_COLORS = Object.entries(PALETTE).filter(([name]) => name !== "default");
 
-  /* eslint-disable svelte/prefer-svelte-reactivity */
-  let {
-    char = $bindable(),
-    is_editing,
-    busy_fields = $bindable(),
-    active_field = $bindable(),
-  } = $props();
-  // [CRITICAL FIX] Synchronously ensure the modifiers object exists so Svelte bindings don't crash
+  let { char = $bindable(), is_editing, busy_fields, active_field = $bindable() } = $props();
+
+  // [CRITICAL FIX] Synchronously ensure the modifiers object exists
   const ensure_modifiers = () => {
     if (!char.modifiers) {
       char.modifiers = {
@@ -46,17 +42,15 @@
   ensure_modifiers();
   $effect(ensure_modifiers);
 
-  // Derived: Check if the visual-prompt specifically is busy
   let is_prompt_busy = $derived(busy_fields.has("visual-prompt"));
   let file_input = $state();
-  // Determine current state
   const prompt_value = $derived((char.modifiers.prompt || "").trim());
   const has_prompt_text = $derived(
     prompt_value.length > 0 &&
       !prompt_value.startsWith("http") &&
       !prompt_value.startsWith("data:"),
   );
-  // Determine the active target value (prompt or focused field)
+
   const target_value = $derived(
     active_field?.key === "visual-prompt"
       ? prompt_value
@@ -64,15 +58,15 @@
         ? get_value(char, active_field.key)
         : "",
   );
-  // Action is "Enhance" if the target we are looking at has text (ready for AI)
+
   let is_enhance_mode = $derived(is_editing && target_value.trim().length > 0);
-  // Button Logic:
+
   let is_creative_disabled = $derived(
     !is_editing ||
       (is_prompt_busy && (!active_field || active_field.key === "visual-prompt")) ||
       (!active_field && has_prompt_text),
   );
-  // Label Logic:
+
   let creative_label = $derived.by(() => {
     if (is_prompt_busy && (!active_field || active_field.key === "visual-prompt")) return "Busy...";
     if (active_field) {
@@ -87,13 +81,14 @@
     }
     return "Fetch";
   });
-  // Design Variants
+
   let creative_variant = $derived(active_field && is_enhance_mode ? "magic" : "tech");
   let generation_variant = $derived(has_prompt_text ? "magic" : "tech");
+
   async function handle_creative_action() {
     const current_target_key = active_field?.key || "visual-prompt";
     if (busy_fields.has(current_target_key)) return;
-    busy_fields = new Set([...busy_fields, current_target_key]);
+    busy_fields.add(current_target_key);
     try {
       if (active_field && active_field.key !== "visual-prompt") {
         active_field = null;
@@ -115,14 +110,13 @@
     } catch (err) {
       console.error("Creative action failed:", err);
     } finally {
-      const updated = new Set(busy_fields);
-      updated.delete(current_target_key);
-      busy_fields = updated;
+      busy_fields.delete(current_target_key);
     }
   }
+
   async function handle_generation_action() {
     if (busy_fields.has("visual-prompt")) return;
-    busy_fields = new Set([...busy_fields, "visual-prompt"]);
+    busy_fields.add("visual-prompt");
     if (has_prompt_text) {
       app.log(`[VisualWing] Triggering Generate. Prompt: ${prompt_value}`, "system");
       try {
@@ -141,18 +135,14 @@
         console.error("Generation failed:", err);
         app.log(`Generation failed: ${err.message}`, "error");
       } finally {
-        const updated = new Set(busy_fields);
-        updated.delete("visual-prompt");
-        busy_fields = updated;
+        busy_fields.delete("visual-prompt");
       }
     } else {
       file_input.click();
-      const updated = new Set(busy_fields);
-      updated.delete("visual-prompt");
-      busy_fields = updated;
+      busy_fields.delete("visual-prompt");
     }
   }
-  // --- UTILITIES ---
+
   async function handle_upload(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -165,21 +155,8 @@
       app.log(`Upload failed: ${err.message}`, "error");
     }
   }
-  function get_value(obj, path) {
-    if (!path) return "";
-    return path.split(".").reduce((acc, part) => acc && acc[part], obj) || "";
-  }
-  function set_value(obj, path, val) {
-    const keys = path.split(".");
-    const last = keys.pop();
-    const target = keys.reduce((acc, key) => (acc[key] = acc[key] || {}), obj);
-    target[last] = val;
-  }
-</script>
 
-<div
-  class="visual-wing-content glass-overlay"
-  onfocusout={(e) => {
+  function handle_wing_focus_out(e) {
     const wing_root = e.currentTarget;
     setTimeout(() => {
       const current_focus = document.activeElement;
@@ -192,8 +169,10 @@
         active_field = null;
       }
     }, 50);
-  }}
->
+  }
+</script>
+
+<Wing class="visual-wing" onfocusout={handle_wing_focus_out}>
   <div class="group">
     <div class="spectrum-grid">
       {#each SPECTRUM_COLORS as [name, hex] (name)}
@@ -211,9 +190,11 @@
       {/each}
     </div>
   </div>
+
   <div class="group">
-    <div class="prompt-box seamless-field">
-      <div class="visual-prompt-container"
+    <div class="prompt-box">
+      <div
+        class="visual-prompt-container"
         onfocusout={(e) => {
           setTimeout(() => {
             if (active_field?.key === "visual-prompt") {
@@ -277,33 +258,24 @@
       onchange={handle_upload}
     />
   </div>
-  <div class="toggle-stack">
-    <Toggle label="No Background" bind:value={char.modifiers.noBackground} disabled={!is_editing} />
-    <Toggle label="Mirror Image" bind:value={char.modifiers.flipped} disabled={!is_editing} />
+  <div class="group">
+    <div class="toggle-stack">
+      <Toggle
+        label="No Background"
+        bind:value={char.modifiers.noBackground}
+        disabled={!is_editing}
+      />
+      <Toggle label="Mirror Image" bind:value={char.modifiers.flipped} disabled={!is_editing} />
+    </div>
   </div>
-</div>
+</Wing>
 
 <style>
-  .visual-wing-content {
-    padding: var(--spacing-m);
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-m);
-    height: 100%;
-    overflow-y: auto;
-  }
-
-  .group {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-s);
-  }
-
   .spectrum-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: var(--spacing-xs);
-    padding: 0;
+    padding: var(--spacing-xs) 0;
   }
 
   .swatch {
@@ -340,6 +312,14 @@
     flex-direction: column;
     overflow: hidden;
     border-radius: var(--border-radius-m);
+    border: transparent;
+    background: transparent;
+    transition: all var(--motion-fast) var(--motion-elastic);
+  }
+
+  .prompt-box:focus-within {
+    border-color: transparent;
+    background: transparent;
   }
 
   .visual-prompt-container {
@@ -348,17 +328,7 @@
   }
 
   :global(.visual-prompt) {
-    width: 100%;
-    color: var(--color-white);
     padding: var(--spacing-m);
-    font-size: var(--font-size-s);
-    font-family: var(--font-family-body);
-  }
-
-  :global(.visual-prompt:disabled) {
-    opacity: var(--opacity-m);
-    color: var(--font-color-s);
-    cursor: default;
   }
 
   .spinner-overlay {
@@ -394,16 +364,13 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     border-top: 1px solid var(--glass-edge-l);
-    border-bottom-left-radius: inherit;
-    border-bottom-right-radius: inherit;
     overflow: hidden;
+    gap: var(--spacing-xxs);
   }
 
   .action-row :global(.action-button) {
     height: 2.5rem;
-    border-radius: 0;
     background: var(--glass-xs);
-    border: none;
     border-right: 1px solid var(--glass-edge-l);
     transition: all var(--motion-fast) var(--motion-elastic);
   }
@@ -424,6 +391,6 @@
   .toggle-stack {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-s);
+    gap: var(--spacing-xs);
   }
 </style>

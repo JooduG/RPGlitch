@@ -1,38 +1,25 @@
 <script>
-  import { sanitize } from "@core/security.js";
   import { auto_resize } from "@ui/utils/actions/auto-resize.js";
+  import { parse_markdown } from "@ui/utils/markdown.js";
 
   let {
     value = $bindable(""),
     is_edit = false,
     placeholder = "Enter text...",
-    render_markdown = undefined,
     syncId = null,
     busy = false,
     disabled = false,
     oninput = undefined,
     onfocus = undefined,
-    class: className = ""
+    class: className = "",
   } = $props();
 
-  function default_render_markdown(text) {
-    if (!text) return "";
-    let source = Array.isArray(text) ? text.join("\n\n") : text;
-    let html = source.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-    html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
-    html = html.replace(/\n\s*\n/g, "<br><br>");
-    html = html.replace(/\n/g, " ");
-    return sanitize(html);
-  }
-
-  let final_html = $derived(
-    render_markdown ? render_markdown(value) : default_render_markdown(value)
-  );
+  let paragraphs = $derived(parse_markdown(value));
 </script>
 
 {#if is_edit}
   <textarea
-    class="seamless-field {className}"
+    class="field-foundation {className}"
     class:busy
     class:disabled
     bind:value
@@ -45,9 +32,17 @@
   ></textarea>
 {:else}
   <div class="readonly-field {className}" data-sync-id={syncId}>
-    {#if value && String(value).trim().length > 0}
-      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-      {@html final_html}
+    {#if paragraphs.length > 0}
+      {#each paragraphs as tokens, i (i)}
+        <div class="paragraph" class:mt={i > 0}>
+          {#each tokens as token, j (token.content + j)}
+            {#if token.type === "text"}{token.content}{:else if token.type === "strong"}<strong
+                >{token.content}</strong
+              >{:else if token.type === "em"}<em>{token.content}</em
+              >{:else if token.type === "strong-em"}<strong><em>{token.content}</em></strong>{/if}
+          {/each}
+        </div>
+      {/each}
     {:else}
       <span class="placeholder">{placeholder}</span>
     {/if}
@@ -55,11 +50,11 @@
 {/if}
 
 <style>
-  .seamless-field {
+  .field-foundation {
     width: 100%;
-    background: transparent;
-    border: 1px solid transparent;
-    color: var(--color-chalk);
+    background: var(--glass-xs);
+    border: var(--glass-edge-l);
+    color: var(--color-white);
     font-family: var(--font-family-body);
     font-size: var(--font-size-s);
     line-height: var(--line-height-m);
@@ -73,36 +68,50 @@
       box-shadow var(--motion-fast) var(--motion-elastic);
   }
 
-  .seamless-field:hover:not(:disabled) {
+  .field-foundation::placeholder {
+    color: var(--color-frisk);
+    font-style: italic;
+    font-weight: var(--font-weight-m);
+    opacity: 1; /* Override browser defaults */
+  }
+
+  .field-foundation:hover:not(:disabled) {
     background: var(--glass-xs);
-    border-color: rgb(255 255 255 / 5%);
+    border-color: var(--glass-edge-l);
   }
 
-  .seamless-field:focus {
+  .field-foundation:focus {
     outline: none;
-    background: var(--glass-s);
-    border-color: var(--signature-color, var(--color-frozen));
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--signature-color, var(--color-frozen)) 20%, transparent);
+    background: var(--glass-xs);
+    border-color: var(--glass-edge-xl);
   }
 
-  .seamless-field.busy {
+  .field-foundation.busy {
     cursor: wait;
     opacity: var(--opacity-m);
   }
 
-  .seamless-field.disabled {
+  .field-foundation.disabled {
     cursor: not-allowed;
     opacity: var(--opacity-s);
   }
 
   .readonly-field {
     width: 100%;
-    color: var(--color-chalk);
-    font-family: var(--font-family-body);
     font-size: var(--font-size-s);
     line-height: var(--line-height-m);
     padding: var(--spacing-xs) var(--spacing-s);
     white-space: normal;
+    background: var(--glass-xs);
+    border: var(--glass-edge-l);
+    color: var(--color-white);
+    font-family: var(--font-family-body);
+    border-radius: var(--border-radius-m);
+    height: inherit;
+  }
+
+  .paragraph.mt {
+    margin-top: var(--spacing-s);
   }
 
   .placeholder {

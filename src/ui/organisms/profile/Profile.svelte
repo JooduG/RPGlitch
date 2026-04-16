@@ -1,39 +1,44 @@
 <script>
   /**
-   * @file Profile.svelte
-   * 🗃️ THE ENTITY EDITOR
-   * Handles viewing and editing of flattened entities.
-   * ZERO NESTING — Purged all legacy `visuals` objects.
+   * @file src/ui/organisms/profile/Profile.svelte
+   * 🗃️ THE ENTITY EDITOR (REBORN)
+   * The primary orchestrator for viewing and editing entities.
+   * Uses the new Panel/Wing architecture for better modularity and focus.
    */
   import { entities } from "@/data/repository.js";
-  import { sanitize } from "@core/security.js";
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
   import ProfilePicture from "@ui/atoms/ProfilePicture.svelte";
   import Modal from "@ui/molecules/dialogs/Modal.svelte";
-  // Modular Components
-  import ProfileFooter from "./ProfileFooter.svelte";
-  import ProfileFragments from "./ProfileFragments.svelte";
-  import ProfileHeader from "./ProfileHeader.svelte";
-  import ProfileWings from "./ProfileWings.svelte";
+
+  // New Modular Components
+  import EntityHeader from "./panels/EntityHeader.svelte";
+  import EntityFragments from "./panels/EntityFragments.svelte";
+  import EntityFooter from "./panels/EntityFooter.svelte";
+  
+  import VisualWing from "./wings/VisualWing.svelte";
+  import AudioWing from "./wings/AudioWing.svelte";
+  import DevWing from "./wings/DevWing.svelte";
+
+  import { SvelteSet } from "svelte/reactivity";
 
   let { entity_id, entity_type } = $props();
+
   // --- STATE ---
   let is_editing = $state(false);
   let is_saving = $state(false);
-  let busy_fields = $state(new Set());
+  let busy_fields = new SvelteSet();
   let active_field = $state({ key: "visual-prompt", label: "Image Prompt" });
+
   // Normalizer guarantees flattened schema
   let char = $state(themeStore.normalize_entity(app.editing_entity || runtime.character));
-  // Theme values derived directly from the flattened entity
+
+  // Theme values
   let signature_color = $derived(themeStore.get_signature_color(char));
   let signature_rgb = $derived(themeStore.hex_to_rgb(signature_color));
-  $effect(() => {
-    if (!is_editing) {
-      active_field = { key: "visual-prompt", label: "Image Prompt" };
-    }
-  });
+
+  // --- ACTIONS ---
   function handle_close() {
     if (is_editing) {
       is_editing = false;
@@ -41,6 +46,7 @@
       app.toggle_profile(false);
     }
   }
+
   async function handle_save() {
     is_editing = false;
     is_saving = true;
@@ -48,20 +54,21 @@
       await runtime.save_entity(entity_type || "character", char);
       const eid = char.id;
       const type = entity_type || "character";
+      
       if (type === "character") {
         const characters = await entities.list("character");
         app.ai_list = characters;
         app.user_list = characters;
-        // Refresh Selection
-        const updatedEntity = characters.find((e) => e.id === eid);
-        if (app.selected_ai?.id === eid) app.selected_ai = updatedEntity;
-        if (app.selected_user?.id === eid) app.selected_user = updatedEntity;
+        
+        const updated = characters.find((e) => e.id === eid);
+        if (app.selected_ai?.id === eid) app.selected_ai = updated;
+        if (app.selected_user?.id === eid) app.selected_user = updated;
       } else if (type === "fractal") {
         const fractals = await entities.list("fractal");
         app.fractal_list = fractals;
-        // Refresh Selection
-        const updatedEntity = fractals.find((e) => e.id === eid);
-        if (app.selected_fractal?.id === eid) app.selected_fractal = updatedEntity;
+        
+        const updated = fractals.find((e) => e.id === eid);
+        if (app.selected_fractal?.id === eid) app.selected_fractal = updated;
       }
     } catch (err) {
       console.error("Failed to save profile:", err);
@@ -70,6 +77,7 @@
       is_saving = false;
     }
   }
+
   async function handle_delete() {
     if (!confirm("Are you sure you want to delete this entity?")) return;
     try {
@@ -79,28 +87,7 @@
       console.error("Failed to delete entity:", err);
     }
   }
-  // --- UTILITIES ---
-  function get_value(obj, path) {
-    if (!path) return "";
-    return path.split(".").reduce((acc, part) => acc && acc[part], obj) || "";
-  }
-  function set_value(obj, path, val) {
-    const keys = path.split(".");
-    const last = keys.pop();
-    const target = keys.reduce((acc, key) => (acc[key] = acc[key] || {}), obj);
-    if (path === "past" || path === "future") {
-      if (Array.isArray(val)) {
-        target[last] = val;
-      } else {
-        target[last] = val
-          .split("\n")
-          .map((v) => v.trim())
-          .filter((v) => v.length > 0);
-      }
-    } else {
-      target[last] = val;
-    }
-  }
+
   function handle_focus_out() {
     setTimeout(() => {
       const active = document.activeElement;
@@ -108,21 +95,15 @@
         active instanceof HTMLInputElement ||
         active instanceof HTMLTextAreaElement ||
         (active instanceof HTMLElement && active.contentEditable === "true");
+      
       const isWing = active?.closest(".wing-left, .wing-right");
+      
       if (!isInput && !isWing && busy_fields.size === 0) {
         active_field = { key: "visual-prompt", label: "Image Prompt" };
       }
     }, 50);
   }
-  function render_markdown(text) {
-    if (!text) return "";
-    let source = Array.isArray(text) ? text.join("\n\n") : text;
-    let html = source.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-    html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
-    html = html.replace(/\n\s*\n/g, "<br><br>");
-    html = html.replace(/\n/g, " ");
-    return sanitize(html);
-  }
+
   function handle_background_click(e) {
     if (
       !e.target.closest(
@@ -148,35 +129,48 @@
       class="profile-container"
       class:editing={is_editing}
       class:dev-mode={app.settings.dev_mode}
-      class:show-dev-wing={app.settings.dev_mode}
       onclick={handle_background_click}
       onfocusout={handle_focus_out}
       role="presentation"
       data-testid="profile-container"
       data-is-editing={is_editing}
     >
-      <ProfileWings bind:char {is_editing} bind:busy_fields bind:active_field />
+      <!-- LEFT WING: UNIFIED IDENTITY -->
+      <aside class="wing-left" class:is-visible={is_editing}>
+        <VisualWing bind:char {is_editing} {busy_fields} bind:active_field />
+        <AudioWing bind:char {is_editing} />
+      </aside>
+
+      <!-- MAIN PRESENTATION PANEL -->
       <div
         class="profile-presentation"
         style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
       >
-        <div class="left">
+        <div class="left-panel">
           <ProfilePicture entity={char} />
         </div>
-        <main class="right">
-          <ProfileHeader bind:char {is_editing} {render_markdown} />
-          <ProfileFragments
+        <main class="right-panel">
+          <EntityHeader bind:char {is_editing} />
+          <EntityFragments
             bind:char
             {is_editing}
-            {get_value}
-            {set_value}
             {busy_fields}
-            {render_markdown}
             bind:active_field
           />
-          <ProfileFooter bind:is_editing {is_saving} {handle_save} {handle_delete} />
+          <EntityFooter 
+            {is_editing} 
+            {is_saving} 
+            onclick_edit={() => is_editing = true}
+            onclick_save={handle_save} 
+            onclick_delete={handle_delete} 
+          />
         </main>
       </div>
+
+      <!-- RIGHT WING: DEVELOPER METRICS -->
+      <aside class="wing-right" class:is-visible={app.settings.dev_mode}>
+        <DevWing bind:char {is_editing} />
+      </aside>
     </div>
   </Modal>
 {/if}
@@ -189,16 +183,52 @@
     gap: var(--spacing-l);
     width: 100%;
     max-width: 90vw;
-    perspective: 2000px;
     overflow: visible;
-    padding: var(--spacing-xxl) 0;
-    transform-style: preserve-3d;
+  }
+
+  /* Wings logic integrated from ProfileWings.svelte */
+  .wing-left,
+  .wing-right {
+    width: 0;
+    min-width: 0;
+    max-width: 0;
+    opacity: var(--opacity-none);
+    overflow: visible;
+    pointer-events: none;
+    transition: all var(--motion-slow) var(--motion-elastic);
+    transform: scale(0.9);
+    height: 100%;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-m);
+    z-index: var(--z-index-m); /* Keep below main presentation */
+  }
+
+  .wing-left.is-visible,
+  .wing-right.is-visible {
+    width: 18rem;
+    min-width: 18rem;
+    max-width: 22rem;
+    opacity: var(--opacity-full);
+    pointer-events: auto;
+    transform: scale(1);
+  }
+
+  .wing-left {
+    order: 1;
+  }
+
+  .wing-right {
+    order: 3;
   }
 
   .profile-presentation {
     order: 2;
-    width: 64rem;
+    max-width: 64rem;
+    width: 100%;
     height: 100%;
+    max-height: 85vh;
     background: var(--glass-xl);
     backdrop-filter: var(--glass-blur-l);
     border: var(--glass-edge-l);
@@ -209,41 +239,40 @@
       0 0 var(--spacing-xxl) rgb(var(--signature-rgb) / var(--opacity-s));
     display: grid;
     grid-template-columns: 35% 1fr;
+    grid-template-rows: 1fr;
     position: relative;
     overflow: hidden;
     z-index: var(--z-index-l);
-    transform-style: preserve-3d;
     transition: all var(--motion-slow) var(--motion-elastic);
   }
 
-  .profile-presentation .left {
+  .left-panel {
     height: 100%;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    max-height: 85vh;
     border-right: var(--glass-edge-m);
     padding: 0;
   }
 
-  .profile-presentation main {
+  .right-panel {
+    height: 100%;
     display: flex;
     flex-direction: column;
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
-    max-height: 85vh;
     padding: var(--spacing-m);
     background-color: color-mix(in srgb, var(--signature-color) 10%, transparent 90%);
+    gap: var(--spacing-m);
   }
 
-  .profile-presentation main::-webkit-scrollbar {
-    width: var(--spacing-xxs);
+  .right-panel::-webkit-scrollbar {
+    width: 4px;
   }
 
-  .profile-presentation main::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .profile-presentation main::-webkit-scrollbar-thumb {
+  .right-panel::-webkit-scrollbar-thumb {
     background: rgb(var(--signature-rgb) / var(--opacity-s));
     border-radius: var(--border-radius-full);
   }

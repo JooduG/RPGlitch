@@ -10,6 +10,8 @@
   import { runtime } from "@state/runtime.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
   import { safe_html } from "@ui/utils/actions/safe-html.js";
+  import TypingIndicator from "@ui/atoms/TypingIndicator.svelte";
+  import DataBox from "@ui/atoms/DataBox.svelte";
   import SceneHeader from "../SceneHeader.svelte";
   import MessageToolbar from "./MessageToolbar.svelte";
 
@@ -31,7 +33,7 @@
   /** @type {Props} */
   let {
     text = "",
-    sender = "system", // 'ai', 'user', 'fractal', 'system'
+    sender = "system",
     character_name = "",
     timestamp = new Date(),
     attachments = [],
@@ -72,7 +74,6 @@
     return themeStore.get_deterministic_color(sender);
   });
 
-  let text_color = $derived(themeStore.get_contrast_color(signature_color));
   let parsed = $derived(parse_message(text));
   let display_text = $derived(parsed.displayText);
   let think_block = $derived(parsed.think);
@@ -87,11 +88,7 @@
   class:thinking-row={is_thinking}
 >
   {#if is_thinking}
-    <div class="thinking-pill" style="background: {signature_color};">
-      <span class="dot"></span>
-      <span class="dot"></span>
-      <span class="dot"></span>
-    </div>
+    <TypingIndicator variant="pill" signatureColor={signature_color} />
   {:else}
     <div class="message-container">
       <div
@@ -99,7 +96,7 @@
         class:user-bubble={is_user}
         class:ai-bubble={is_ai}
         class:fractal-bubble={is_fractal}
-        style="--bubble-color: {signature_color}; --signature-color: {signature_color}; --bubble-text-color: {text_color};"
+        style="--signature-color: {signature_color};"
       >
         {#if scene_data}
           <div class="scene-header-wrapper">
@@ -108,9 +105,10 @@
         {/if}
 
         {#if app.settings.dev_mode && think_block}
-          <div class="think-block">
-            <div class="think-label">🎬 DevMode</div>
-            <div class="think-content">{think_block}</div>
+          <div class="think-block-wrapper">
+            <DataBox label="🎬 DevMode">
+              {think_block}
+            </DataBox>
           </div>
         {/if}
 
@@ -178,36 +176,17 @@
     flex-direction: row;
   }
 
-  .thinking-pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-xxs);
-    padding: var(--spacing-xs) var(--spacing-m);
-    border-radius: var(--border-radius-full);
-    height: var(--spacing-xl);
-  }
-
-  .thinking-pill .dot {
-    width: var(--spacing-xs);
-    height: var(--spacing-xs);
-    background: var(--color-white);
-    border-radius: var(--border-radius-full);
-    animation: dot-bounce 1.4s infinite ease-in-out both;
-  }
-
-  @keyframes dot-bounce {
-    0%, 80%, 100% { transform: scale(0); }
-    40% { transform: scale(1); }
+  .think-block-wrapper {
+    margin-bottom: var(--spacing-m);
   }
 
   .message-bubble {
     width: max-content;
     padding: var(--spacing-m);
     border-radius: var(--border-radius-l);
-    background: var(--bubble-color);
+    background: var(--signature-color);
     box-shadow: var(--shadow-s);
-    color: var(--bubble-text-color);
+    color: var(--font-color-m);
     position: relative;
     overflow: hidden;
   }
@@ -244,32 +223,6 @@
 
   .message-content :global(p) { margin: 0 0 var(--spacing-s) 0; }
   .message-content :global(p:last-child) { margin-bottom: 0; }
-
-  .think-block {
-    background: var(--glass-xs);
-    border-radius: var(--border-radius);
-    padding: var(--spacing-s);
-    margin-bottom: var(--spacing-m);
-    font-size: var(--font-size-s);
-    border: var(--glass-edge-s);
-    text-align: left;
-    width: 100%;
-  }
-
-  .think-block .think-label {
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-xl);
-    color: var(--color-focus-alt);
-    letter-spacing: var(--letter-spacing-l);
-    margin-bottom: var(--spacing-xxs);
-  }
-
-  .think-block .think-content {
-    color: var(--font-color-m);
-    font-family: var(--font-family-mono);
-    font-style: italic;
-    white-space: pre-wrap;
-  }
 
   .attachments { margin-bottom: var(--spacing-s); }
 

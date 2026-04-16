@@ -144,6 +144,21 @@ export const normalize = (base = {}) => {
   if (is_custom !== undefined) result.is_custom = is_custom;
   return result;
 };
+
+/**
+ * Coerces a value into a strictly cleaned array of strings.
+ * Used for 'past' and 'future' temporal hybrid fields.
+ * @param {string|string[]} val 
+ * @returns {string[]}
+ */
+export function coerce_temporal_array(val) {
+  if (Array.isArray(val)) return val;
+  if (typeof val !== "string") return [];
+  return val
+    .split("\n")
+    .map((v) => v.trim())
+    .filter((v) => v.length > 0);
+}
 /**
  * 🏭 THE FACTORY
  * Creates a brand new, fully normalized entity with a RANDOM signature color.
