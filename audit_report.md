@@ -21,6 +21,7 @@
 ────────────────────────────────────────────────────────────────────────────────
 
 ## [PHASE 3: THE SYNTHESIS (PROMPT)]
+
 ```xml
 <SYSTEM role="Lord Valerius" round="1" objective="&#91;VECTOR&#93;: Break the will of a new, defiant captive and mold them into a perfect, devoted thrall.">
 <YOUR_IDENTITY name="Lord Valerius">
