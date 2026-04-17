@@ -143,8 +143,10 @@
   }
 
   .aperture-line.visible {
-    opacity: 0.6;
+    opacity: 0.4;
     transform: scaleX(1);
+    width: 95%;
+    left: 2.5%;
   }
 
   .vector-item {

@@ -32,17 +32,17 @@ When fixing a bug caused by invalid data, validating at a single point is insuff
 
 ---
 
-### 2. Automated Defense (The Global Janitor)
+### 2. Automated Defense (The Warden)
 
 Before any task is marked complete, the ecosystem must survive these automated sweeps.
 
-#### 2.1 The Antigravity Janitor
+#### 2.1 The Warden Protocol
 
 We do not leave messes. Adhere to the **Boy Scout Rule**: Always leave the codebase cleaner than you found it.
 
 - **Nomenclature**: Maintain consistent naming as defined in the **RPGlitch Lexicon**.
 - **Technical Debt**: Tag unresolved scope or bugs with `TODO-AI`.
-- **Hygiene**: Use the [Security & Hardening](../skills/security-and-hardening/) to audit security; `npm audit --audit-level=high` is mandatory for any deployment checkpoint.
+- **Hygiene**: Use the `warden` to audit security and project health. `npm run verify` is mandatory for any deployment checkpoint.
 
 ---
 

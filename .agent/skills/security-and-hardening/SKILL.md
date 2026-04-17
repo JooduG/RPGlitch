@@ -20,7 +20,7 @@ The `security-and-hardening` skill is the sovereign gatekeeper of the RPGlitch E
 ## When to Use
 
 - **Positive Triggers**: Handling user/OOC input, storing entity data in Dexie, or integrating Perchance callbacks.
-- **Audit Triggers**: Before any major release, when refining the `window.exposed` bridge, or during "Janitor" sweeps for technical debt.
+- **Audit Triggers**: Before any major release, when refining the `window.exposed` bridge, or during "Warden" sweeps for project health.
 - **EXCLUSIONS**: Do not use for pure CSS aesthetics unless they involve dynamic style injections.
 
 ## How It Works
@@ -28,7 +28,7 @@ The `security-and-hardening` skill is the sovereign gatekeeper of the RPGlitch E
 1. **Input Sanitization**: All narrative and user output must pass through the `DOMPurify` hub in `src/core/security.js`.
 2. **Boundary Validation**: Validate JSON payloads at the iframe edge and persistence load points using strict typing.
 3. **Prompt Injection Guard**: Strip high-entropy instructional keywords from entity bios to prevent AI "hallucination" hijacks.
-4. **Janitor Protocol**: Regular sweeps for dead code, hardcoded secrets, and nomenclature violations (Rule 05).
+4. **Warden Protocol**: Regular sweeps for dead code, hardcoded secrets, and nomenclature violations (Rule 05).
 
 ### Operational Framework
 
@@ -83,4 +83,4 @@ Present the security audit findings and confirmation of hardened logic.
 - [ ] All user/AI input validated at the system boundary before processing.
 - [ ] Final narrative output passes through the `DOMPurify` service.
 - [ ] No secrets or high-entropy tokens are present in the code or history.
-- [ ] **Hard Evidence Recorded**: A Janitor protocol report confirming zero security "Heresies".
+- [ ] **Hard Evidence Recorded**: A Warden protocol report confirming zero security "Heresies".

@@ -36,6 +36,7 @@ skills:
   swarm: .agent/skills/swarm/SKILL.md
   test-driven-development: .agent/skills/test-driven-development/SKILL.md
   using-agent-skills: .agent/skills/using-agent-skills/SKILL.md
+  warden: .agent/skills/warden/SKILL.md
 
 # ⚡ Workflows (Standard Operating Procedures)
 workflows:

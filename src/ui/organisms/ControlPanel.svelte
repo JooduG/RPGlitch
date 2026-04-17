@@ -48,28 +48,28 @@
   <article class="control-panel-wrapper" data-testid="control-panel">
     <!-- HEADER: System Toggles -->
     <header>
-        <Toggle
-          label="CALL MODE"
-          bind:value={app.settings.call_mode}
-          onchange={() => app.save_settings()}
-        />
-        <Toggle
-          label="NOTIFICATIONS"
-          bind:value={app.settings.sound}
-          onchange={() => app.save_settings()}
-        />
+      <Toggle
+        label="CALL MODE"
+        bind:value={app.settings.call_mode}
+        onchange={() => app.save_settings()}
+      />
+      <Toggle
+        label="NOTIFICATIONS"
+        bind:value={app.settings.sound}
+        onchange={() => app.save_settings()}
+      />
     </header>
 
     <!-- BODY: Prologue (Lobby Only) -->
     {#if isStoryboard}
-    <div class="storyboard">
-          <TextField
-            class="prologue-field"
-            is_edit={true}
-            placeholder="(Optional) e.g., 'Start in media res', 'Describe the weather first'"
-            bind:value={app.prologue}
-          />
-    </div>
+      <div class="storyboard">
+        <TextField
+          class="prologue-field"
+          is_edit={true}
+          placeholder="(Optional) e.g., 'Start in media res', 'Describe the weather first'"
+          bind:value={app.prologue}
+        />
+      </div>
     {/if}
 
     <!-- BODY: Actions (Story Mode Only) -->
@@ -81,12 +81,7 @@
           size="sm"
           onclick={() => handleAction("Ghostwrite")}
         />
-        <Button 
-          label="PHOTO" 
-          variant="secondary" 
-          size="sm" 
-          onclick={() => handleAction("Photo")} 
-        />
+        <Button label="PHOTO" variant="secondary" size="sm" onclick={() => handleAction("Photo")} />
         <Button
           label="MOCK: FRACTAL"
           variant="secondary"
@@ -109,34 +104,38 @@
     {/if}
 
     <footer>
-
       <div class="stories-row">
-        <Button label="STORIES" variant="secondary" size="sm" onclick={() => handleAction("OpenLibrary")} />
+        <Button
+          label="STORIES"
+          variant="secondary"
+          size="sm"
+          onclick={() => handleAction("OpenLibrary")}
+        />
       </div>
 
       <div class="dev-row">
-          <Toggle
-            label="DevMode"
-            bind:value={app.settings.dev_mode}
-            onchange={() => app.save_settings()}
-          />
+        <Toggle
+          label="DevMode"
+          bind:value={app.settings.dev_mode}
+          onchange={() => app.save_settings()}
+        />
         <Button variant="secondary" size="sm" onclick={handleReset}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M3 6h18" />
-              <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />
-              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-            </svg>
-            <span>RESET DATA</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M3 6h18" />
+            <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />
+            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+          </svg>
+          <span>RESET DATA</span>
         </Button>
       </div>
     </footer>

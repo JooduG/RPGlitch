@@ -160,9 +160,11 @@
   .message-row.user-row {
     justify-content: flex-end;
   }
+
   .message-row.ai-row {
     justify-content: flex-start;
   }
+
   .message-row.fractal-row {
     justify-content: center;
   }
@@ -205,6 +207,7 @@
   .user-bubble {
     border-bottom-right-radius: 0;
   }
+
   .ai-bubble {
     border-bottom-left-radius: 0;
   }
@@ -238,6 +241,7 @@
   .message-content :global(p) {
     margin: 0 0 var(--spacing-s) 0;
   }
+
   .message-content :global(p:last-child) {
     margin-bottom: 0;
   }

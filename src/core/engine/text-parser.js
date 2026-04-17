@@ -43,7 +43,7 @@ export function clean_image_prompts(text) {
   let result = text.replace(/!\[.*?\]\(.*?\)/g, "");
 
   // Shared attribute-matching regex string to prevent ReDoS (linear scanning)
-  const attrRegex = '(?:\\s+[^"\'>\\s]+(?:\\s*=\\s*(?:"[^"]*"|\'[^\']*\'|[^"\'>\\s]+))?)*';
+  const attrRegex = "(?:\\s+[^\"'>\\s]+(?:\\s*=\\s*(?:\"[^\"]*\"|'[^']*'|[^\"'>\\s]+))?)*";
 
   // 2. Remove self-closing tags with potential quoted '>' in attributes
   // Matches <tag ... /> where attributes can have quoted strings
@@ -57,7 +57,10 @@ export function clean_image_prompts(text) {
     previous = result;
     // Handle <image_prompt>...</image_prompt>
     result = result.replace(
-      new RegExp(`<image_prompt${attrRegex}\\s*>(?:(?!<image_prompt)[\\s\\S])*?<\\/image_prompt\\s*>`, "gi"),
+      new RegExp(
+        `<image_prompt${attrRegex}\\s*>(?:(?!<image_prompt)[\\s\\S])*?<\\/image_prompt\\s*>`,
+        "gi",
+      ),
       "",
     );
     // Handle <image>...</image>

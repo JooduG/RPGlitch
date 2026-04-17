@@ -1,18 +1,20 @@
+/**
+ * 🕵️ warden.js
+ * The Sovereign Auditor Engine (The Reflex)
+ */
 import fs from "fs";
 import ignore from "ignore";
 import path from "path";
-
 import { safeStatSync } from "./safe-fs.js";
 
-// 1. Import Domain Rules
+// 1. Import Domain Rules (Updated Paths)
 import { cssRules } from "../../css/scripts/audit-css.js";
-import { rule_rules } from "../../directives/scripts/audit-rules.js";
+import { rule_rules, workflow_rules } from "../../directives/scripts/audit-templates.js";
 import { skill_rules } from "../../directives/scripts/audit-skills.js";
-import { workflow_rules } from "../../directives/scripts/audit-workflows.js";
 import { scan_nomenclature } from "../../directives/scripts/audit-nomenclature.js";
-import { projectRules } from "./audit-project.js";
+import { projectRules } from "./warden-project.js";
 import { svelteRules } from "../../svelte/scripts/audit-svelte.js";
-import { securityRules } from "./audit-security.js";
+import { securityRules } from "../../security-and-hardening/scripts/audit-security.js";
 
 const ROOT_DIR = process.cwd();
 const SRC_DIR = path.join(ROOT_DIR, "src");
@@ -57,7 +59,7 @@ class Auditor {
     this.is_rules_active = true;
     this.is_workflows_active = true;
     this.is_project_active = true;
-    this.is_names_active = true; // on by default; disabled by content-only filters
+    this.is_names_active = true; 
   }
 
   scan(dir) {
@@ -68,11 +70,7 @@ class Auditor {
       const fullPath = path.join(dir, item);
       const relPath = path.relative(ROOT_DIR, fullPath).replace(/\\/g, "/");
 
-      // Use .gitignore patterns
-      if (ig.ignores(relPath)) return;
-
-      // Safety: Never audit node_modules even if not in gitignore
-      if (relPath.includes("node_modules")) return;
+      if (ig.ignores(relPath) || relPath.includes("node_modules")) return;
 
       const stat = safeStatSync(fullPath);
       if (!stat) return;
@@ -89,41 +87,22 @@ class Auditor {
     const ext = path.extname(filePath);
     const relPath = path.relative(ROOT_DIR, filePath).replace(/\\/g, "/");
 
-    // Path-based rule matching
     if (relPath.includes("audit-") || relPath.endsWith("tokens.css")) return;
 
     let rules = [];
 
-    // 1. Skill Audit
-    if (
-      this.is_skills_active &&
-      relPath.startsWith(".agent/skills") &&
-      relPath.endsWith("SKILL.md")
-    ) {
+    // 1. Skill/Template Rules
+    if (this.is_skills_active && relPath.startsWith(".agent/skills") && relPath.endsWith("SKILL.md")) {
       rules.push(...skill_rules);
     }
-
-    // 2. Rules Audit
-    if (
-      this.is_rules_active &&
-      relPath.startsWith(".agent/rules") &&
-      relPath.endsWith(".md") &&
-      !relPath.includes("/scripts/")
-    ) {
+    if (this.is_rules_active && relPath.startsWith(".agent/rules") && relPath.endsWith(".md")) {
       rules.push(...rule_rules);
     }
-
-    // 3. Workflows Audit
-    if (
-      this.is_workflows_active &&
-      relPath.startsWith(".agent/workflows") &&
-      relPath.endsWith(".md") &&
-      !relPath.includes("/scripts/")
-    ) {
+    if (this.is_workflows_active && relPath.startsWith(".agent/workflows") && relPath.endsWith(".md")) {
       rules.push(...workflow_rules);
     }
 
-    // 4. Extension-based rule matching (Respecting CLI filters)
+    // 2. Extension-based rule matching
     if (this.rules[ext]) {
       rules.push(...this.rules[ext]);
     }
@@ -135,16 +114,13 @@ class Auditor {
     const lines = content.split("\n");
 
     rules.forEach((rule) => {
-      // Filter out Project rules if not requested
       if (!this.is_project_active && projectRules.includes(rule)) return;
 
       // 1. Regex Match (Line-by-Line)
       if (rule.regex) {
         lines.forEach((line, i) => {
           if (rule.regex.test(line)) {
-            // Optional custom validation function
             if (rule.validate && !rule.validate(line, filePath)) return;
-
             this.reportViolation(rule, filePath, i + 1, line.trim());
           }
         });
@@ -187,7 +163,6 @@ class Auditor {
     if (errors && errors.length > 0) {
       errors.forEach((err) => console.log(`    - ${err}`));
     }
-
     console.log("");
   }
 
@@ -197,9 +172,8 @@ class Auditor {
     console.log(`🔥 VIOLATIONS: ${this.stats.violations}`);
     console.log("------------------------\n");
 
-    const criticals = this.results.filter((r) => r.severity === "HERESY");
-    if (criticals.length > 0) {
-      console.log(`${RED}❌ REJECTED: Heresy detected in Sovereign logic. Build blocked.${RESET}`);
+    if (this.results.some(r => r.severity === "HERESY")) {
+      console.log(`${RED}❌ REJECTED: Heresy detected in Sovereign logic. Gate closed.${RESET}`);
       process.exit(1);
     } else {
       console.log(`${GREEN}✅ RESONANT: All protocols align. Proceeding.${RESET}`);
@@ -207,118 +181,78 @@ class Auditor {
   }
 }
 
-// 3. Execution
+/**
+ * 3. CLI Configuration lookup table
+ */
+const FILTERS = {
+  "--names": { names: true, skills: false, rules: false, workflows: false, project: false, extRules: {} },
+  "--svelte": { names: false, skills: false, rules: false, workflows: false, extRules: { ".svelte": svelteRules } },
+  "--css": { names: false, skills: false, rules: false, workflows: false, extRules: { ".css": cssRules } },
+  "--security": { names: false, skills: false, rules: false, workflows: false, extRules: { ".js": securityRules } },
+  "--skills": { names: false, skills: true, rules: false, workflows: false, project: false, extRules: {} },
+  "--rules": { names: false, skills: false, rules: true, workflows: false, project: false, extRules: {} },
+  "--workflows": { names: false, skills: false, rules: false, workflows: true, project: false, extRules: {} },
+  "--agent": { names: false, skills: true, rules: true, workflows: true, project: false, extRules: {} },
+  "--project": { names: false, skills: false, rules: false, workflows: false, extRules: { ".js": projectRules, ".md": projectRules } },
+  "--todo": { names: false, skills: false, rules: false, workflows: false, project: false, extRules: { 
+      ".js": securityRules.filter(r => r.id === "SECURITY_DEBUG_LOG"),
+      ".svelte": svelteRules.filter(r => r.id === "S_RUNE_DEBUG")
+    }
+  }
+};
+
 const auditor = new Auditor();
 const args = process.argv.slice(2);
 
 console.log("\n================================================================================");
-console.log("🦾 THE REFLEX: MODULAR AUDITOR ENGINE");
+console.log("🛡️  WARDEN: QUALITY GATE ENGINE");
 console.log("================================================================================\n");
 
-// Handle CLI Filters
-if (args.includes("--names")) {
-  console.log("🎯 Filter: Nomenclature (Filename Casing) Only\n");
+// Apply Filters if present
+const filterArgs = args.filter(arg => FILTERS[arg]);
+if (filterArgs.length > 0) {
+  // If filters are provided, start from a clean state
   auditor.rules = {};
   auditor.is_skills_active = false;
   auditor.is_rules_active = false;
   auditor.is_workflows_active = false;
   auditor.is_project_active = false;
-  auditor.is_names_active = true;
-} else if (args.includes("--svelte")) {
-  console.log("🎯 Filter: Svelte Rules Only\n");
-  auditor.rules = { ".svelte": svelteRules };
-  auditor.is_skills_active = false;
-  auditor.is_rules_active = false;
-  auditor.is_workflows_active = false;
   auditor.is_names_active = false;
-} else if (args.includes("--css")) {
-  console.log("🎯 Filter: CSS Rules Only\n");
-  auditor.rules = { ".css": cssRules };
-  auditor.is_skills_active = false;
-  auditor.is_rules_active = false;
-  auditor.is_workflows_active = false;
-  auditor.is_names_active = false;
-} else if (args.includes("--security")) {
-  console.log("🎯 Filter: Security Rules Only\n");
-  auditor.rules = { ".js": securityRules };
-  auditor.is_skills_active = false;
-  auditor.is_rules_active = false;
-  auditor.is_workflows_active = false;
-  auditor.is_names_active = false;
-} else if (args.includes("--skills")) {
-  console.log("🎯 Filter: Skill Rules Only\n");
-  auditor.rules = {};
-  auditor.is_skills_active = true;
-  auditor.is_rules_active = false;
-  auditor.is_workflows_active = false;
-  auditor.is_project_active = false;
-  auditor.is_names_active = false;
-} else if (args.includes("--rules")) {
-  console.log("🎯 Filter: Agent Rules Only\n");
-  auditor.rules = {};
-  auditor.is_skills_active = false;
-  auditor.is_rules_active = true;
-  auditor.is_workflows_active = false;
-  auditor.is_project_active = false;
-  auditor.is_names_active = false;
-} else if (args.includes("--workflows")) {
-  console.log("🎯 Filter: Agent Workflows Only\n");
-  auditor.rules = {};
-  auditor.is_skills_active = false;
-  auditor.is_rules_active = false;
-  auditor.is_workflows_active = true;
-  auditor.is_project_active = false;
-  auditor.is_names_active = false;
-} else if (args.includes("--agent")) {
-  console.log("🎯 Filter: Agent Infrastructure (Skills, Rules, Workflows)\n");
-  auditor.rules = {};
-  auditor.is_skills_active = true;
-  auditor.is_rules_active = true;
-  auditor.is_workflows_active = true;
-  auditor.is_project_active = false;
-  auditor.is_names_active = false;
-} else if (args.includes("--project")) {
-  console.log("🎯 Filter: Project Rules Only\n");
-  auditor.rules = { ".js": projectRules, ".md": projectRules };
-  auditor.is_skills_active = false;
-  auditor.is_rules_active = false;
-  auditor.is_workflows_active = false;
-  auditor.is_names_active = false;
-} else if (args.includes("--todo")) {
-  console.log("🎯 Filter: TODO Rules Only\n");
-  auditor.rules = {
-    ".js": securityRules.filter((r) => r.id === "W-SEC-001"),
-    ".svelte": svelteRules.filter((r) => r.id === "S-RUNE-001"),
-  };
-  auditor.is_skills_active = false;
-  auditor.is_rules_active = false;
-  auditor.is_workflows_active = false;
-  auditor.is_project_active = false;
-  auditor.is_names_active = false;
+
+  filterArgs.forEach(arg => {
+    const f = FILTERS[arg];
+    console.log(`🎯 Filter: ${arg.substring(2).toUpperCase()} Rules Active`);
+    
+    // Merge Extension Rules
+    if (f.extRules) {
+      for (const [ext, rules] of Object.entries(f.extRules)) {
+        auditor.rules[ext] = [...(auditor.rules[ext] || []), ...rules];
+      }
+    }
+    
+    // OR Boolean Flags
+    if (f.skills === true) auditor.is_skills_active = true;
+    if (f.rules === true) auditor.is_rules_active = true;
+    if (f.workflows === true) auditor.is_workflows_active = true;
+    if (f.project === true) auditor.is_project_active = true;
+    if (f.names === true) auditor.is_names_active = true;
+  });
+  console.log(""); // Spacing
 }
 
-auditor.scan(SRC_DIR);
-auditor.scan(SKILLS_DIR);
-auditor.scan(RULES_DIR);
-auditor.scan(WORKFLOWS_DIR);
+// Primary Scan Paths
+[SRC_DIR, SKILLS_DIR, RULES_DIR, WORKFLOWS_DIR].forEach(dir => auditor.scan(dir));
 
-// Nomenclature pass — filename casing check (Rule 05 Lexical Laws)
+// Nomenclature Scan
 if (auditor.is_names_active) {
   const name_stats = { scanned: 0, violations: 0 };
-  const SLEVELS = {
-    HERESY: { color: RED, label: "HERESY" },
-    DEBT: { color: YELLOW, label: "DEBT" },
-  };
-
-  [SRC_DIR, SKILLS_DIR, RULES_DIR, WORKFLOWS_DIR].forEach((dir) => {
+  [SRC_DIR, SKILLS_DIR, RULES_DIR, WORKFLOWS_DIR].forEach(dir => {
     scan_nomenclature(dir, name_stats, (id, sev, rel_path, msg) => {
       auditor.stats.violations++;
-      const s = SLEVELS[sev] || SLEVELS.DEBT;
-      console.log(`${s.color}[${s.label}] ${rel_path}${RESET}`);
-      console.log(`  [${id}] ${msg}\n`);
+      const s = SEVERITY_LEVELS[sev] || SEVERITY_LEVELS.DEBT;
+      console.log(`${s.color}[${s.label}] ${rel_path}${RESET}\n  [${id}] ${msg}\n`);
     });
   });
-
   auditor.stats.scanned += name_stats.scanned;
 }
 

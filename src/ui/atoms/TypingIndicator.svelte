@@ -63,6 +63,7 @@
   .dot:nth-child(1) {
     animation-delay: -0.32s;
   }
+
   .dot:nth-child(2) {
     animation-delay: -0.16s;
   }

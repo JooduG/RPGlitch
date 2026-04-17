@@ -11,7 +11,11 @@
  */
 export function get_value(obj, path) {
   if (!obj || !path) return "";
-  return path.split(".").reduce((acc, part) => (acc && acc[part] !== undefined ? acc[part] : undefined), obj) ?? "";
+  return (
+    path
+      .split(".")
+      .reduce((acc, part) => (acc && acc[part] !== undefined ? acc[part] : undefined), obj) ?? ""
+  );
 }
 
 /**

@@ -5,13 +5,7 @@
    * Houses the primary Save, Delete, and Edit actions.
    */
   import Button from "@ui/atoms/Button.svelte";
-  let { 
-    is_editing, 
-    is_saving, 
-    onclick_edit, 
-    onclick_save, 
-    onclick_delete 
-  } = $props();
+  let { is_editing, is_saving, onclick_edit, onclick_save, onclick_delete } = $props();
 </script>
 
 <footer data-testid="entity-footer">
