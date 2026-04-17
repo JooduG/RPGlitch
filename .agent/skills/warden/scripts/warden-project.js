@@ -57,7 +57,7 @@ function scanForTodo(dir, items_found = []) {
       const lines = content.split("\n");
       lines.forEach((line, index) => {
         if (line.includes("#TODO-AI") && !line.includes("line.includes(\"#TODO-AI\")")) {
-          const relPath = path.relative(ROOT_DIR, fullPath);
+          const relPath = path.relative(ROOT_DIR, fullPath).replace(/\\/g, "/");
           const taskMatch = line.match(/#TODO-AI:?\s*(.*)$/);
           const taskDesc = taskMatch ? taskMatch[1].trim() : "Unspecified debt";
           items_found.push(`- [ ] **${relPath}:${index + 1}**: ${taskDesc}`);
