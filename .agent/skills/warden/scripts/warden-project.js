@@ -94,8 +94,8 @@ export function syncBacklog() {
     const parts = content.split(backlogHeader);
     const before = parts[0];
     // Find where the next header starts or end of file
-    const remainingParts = parts[1].split("\n## ").slice(1);
-    const remaining = remainingParts.join("\n## ");
+    const nextHeaderMatch = parts[1].match(/\n#+ /);
+    const remaining = nextHeaderMatch ? parts[1].slice(nextHeaderMatch.index) : "";
     content = before.trim() + "\n" + newBacklogContent + (remaining ? "\n## " + remaining : "");
   } else {
     // Append to end
