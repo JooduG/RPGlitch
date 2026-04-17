@@ -18,18 +18,18 @@ export const PALETTE = {
   "Sunset Orange": "#f97316",
   "Pumpkin Amber": "#fbbf24",
   "Lemon Yellow": "#fde047",
-  
+
   /* Green Hues */
   "Lime Green": "#84cc16",
   "Forest Green": "#15803d",
   "Emerald Green": "#10b981",
-  
+
   /* Cool Hues */
   "Neon Teal": "#14b8a6",
   "Electric Cyan": "#11aecc",
   "Ocean Blue": "#3b82f6",
   "Deep Indigo": "#818cf8",
-  
+
   /* Purple & Pink Hues */
   "Twilight Violet": "#c084fc",
   "Royal Purple": "#a855f7",
@@ -43,18 +43,18 @@ export const PALETTE_VARS = {
   "#f97316": "var(--color-orange)",
   "#fbbf24": "var(--color-amber)",
   "#fde047": "var(--color-yellow)",
-  
+
   /* Green */
   "#84cc16": "var(--color-lime)",
   "#15803d": "var(--color-forest)",
   "#10b981": "var(--color-emerald)",
-  
+
   /* Cool */
   "#14b8a6": "var(--color-teal)",
   "#11aecc": "var(--color-cyan)",
   "#3b82f6": "var(--color-blue)",
   "#818cf8": "var(--color-indigo)",
-  
+
   /* Purple/Pink */
   "#c084fc": "var(--color-violet)",
   "#a855f7": "var(--color-purple)",
@@ -105,15 +105,14 @@ class ThemeStore {
     // Reverse lookup CSS tokens back to raw hex if they come from the standard palette
     if (hex.startsWith("var(")) {
       const standard_match = Object.entries(PALETTE_VARS).find(([k, v]) => v === hex);
-      if (standard_match)
-        hex = standard_match[0]; 
+      if (standard_match) hex = standard_match[0];
       else return hex.replace(")", "-rgb)"); // Nordic custom colors fallback
     }
 
     const shorthand_regex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
     hex = hex.replace(shorthand_regex, (m, r, g, b) => r + r + g + g + b + b);
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    
+
     return result
       ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
       : "168, 85, 247";
@@ -182,7 +181,10 @@ class ThemeStore {
     if (!hex || typeof hex !== "string" || hex.startsWith("hsl")) return "var(--color-white)";
     let color = hex.replace("#", "");
     if (color.length === 3) {
-      color = color.split("").map((c) => c + c).join("");
+      color = color
+        .split("")
+        .map((c) => c + c)
+        .join("");
     }
     if (color.length !== 6 || !/^[0-9a-f]{6}$/i.test(color)) return "var(--color-white)";
     const r = parseInt(color.substr(0, 2), 16);
@@ -211,10 +213,29 @@ class ThemeStore {
     if (!name) return "?";
     const clean_name = name.replace(/[^a-zA-Z\s]/g, "");
     const words = clean_name.trim().split(/\s+/);
-    const stop_words = new Set(["the", "a", "an", "of", "in", "and", "or", "for", "to", "at", "by", "with"]);
+    const stop_words = new Set([
+      "the",
+      "a",
+      "an",
+      "of",
+      "in",
+      "and",
+      "or",
+      "for",
+      "to",
+      "at",
+      "by",
+      "with",
+    ]);
     let filtered_words = words.filter((w) => !stop_words.has(w.toLowerCase()));
     if (filtered_words.length === 0) filtered_words = words;
-    return filtered_words.slice(0, 3).map((w) => w.charAt(0)).join("").toUpperCase() || "?";
+    return (
+      filtered_words
+        .slice(0, 3)
+        .map((w) => w.charAt(0))
+        .join("")
+        .toUpperCase() || "?"
+    );
   }
 }
 

@@ -21,6 +21,7 @@ Use this reference to select the appropriate MCP reasoning framework based on th
 | **Research**    | Knowledge gaps, library patterns, web access. | `context7`, `svelte`, `deepwiki`, `firecrawl`, `data` |
 | **Logic**       | Core engine mutations, unit tests.            | `node`, `vitest` (Local)                              |
 | **Operations**  | Repository lifecycle, PRs, Issues.            | **GH CLI** (`gh`)                                     |
+| **Resonance**   | Quality gates, template compliance, health.   | `warden`                                              |
 | **Reasoning**   | Multi-step breakdown, chain-of-thought.       | `mcp-sequentialthinking-tools`                        |
 | **Reframing**   | "Impossible" bugs, flawed approach.           | `waldzell-clear-thought`                              |
 | **Diversity**   | Trade-offs, simulated expertise.              | `waldzell-collaborative-reasoning`                    |

@@ -125,7 +125,7 @@ Ensure that all requirements, constraints, options, and preferences are exhausti
 - [ ] Reality matches the Spec with **Auditable Proof** (File paths/Line numbers).
 - [ ] **Reproduction Case** verified (for bug fixes).
 - [ ] **Performance Budget** respected (CLS < 0.1, LCP < 2.5s).
-- [ ] **Local CI Verification**: Pass `npm run verify` or `bash .agent/skills/devops/scripts/act/run-act.sh "push"` locally.
+- [ ] **Local CI Verification**: Pass `npm run verify` locally.
 - [ ] All [Rules](./.agent/rules/) have been respected.
   - [ ] [Foundation](./.agent/rules/01-foundation.md)
   - [ ] [Simulation](./.agent/rules/02-simulation.md)

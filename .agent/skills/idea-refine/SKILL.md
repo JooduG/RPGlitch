@@ -1,6 +1,6 @@
 ---
 name: idea-refine
-description: Handles the end-to-end Concept Lifecycle, from raw vibes (Research) to sharp, actionable specifications (Refinement). 
+description: Handles the end-to-end Concept Lifecycle, from raw vibes (Research) to sharp, actionable specifications (Refinement).
 ---
 
 # Idea Refine (Concept Lifecycle)
@@ -35,7 +35,9 @@ The `idea-refine` skill is the RPGlitch Engine's central filter for product and 
 4.  **Concept Documentation**: Finalize concepts to the localized `assets/` directory.
 
 ### Concept Schema
+
 Final crystallization assets MUST contain:
+
 - **Problem Statement**: One-sentence framing.
 - **Recommended Direction**: The chosen path and rationale.
 - **Key Assumptions**: What we are betting is true.
@@ -58,11 +60,11 @@ Present the refined concept or research findings in a structured format.
 
 ## Common Rationalizations
 
-| Agent Excuse | The Reality |
-| :--- | :--- |
-| "I'll just list 20 variations." | Quality over quantity. |
+| Agent Excuse                        | The Reality                                          |
+| :---------------------------------- | :--------------------------------------------------- |
+| "I'll just list 20 variations."     | Quality over quantity.                               |
 | "I should apply this research now." | Research stays in `assets/` until it passes Phase 4. |
-| "This doesn't need a spec." | Ambiguity leads to technical debt. |
+| "This doesn't need a spec."         | Ambiguity leads to technical debt.                   |
 
 ## Red Flags
 

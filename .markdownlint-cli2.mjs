@@ -9,10 +9,10 @@ export default {
     ...init(),
     "line-length": false,
     "no-inline-html": false,
-    ...localConfig 
+    ...localConfig,
   },
   markdownItFactory: () => markdownIt({ html: true }),
   customRules: githubRules,
-  
+
   outputFormatters: [["markdownlint-cli2-formatter-pretty", { appendLink: true }]],
 };

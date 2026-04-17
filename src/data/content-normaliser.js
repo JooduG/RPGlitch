@@ -112,9 +112,16 @@ export const normalize = (base = {}) => {
     // --- MODIFIERS (Visual/Aesthetic overrides) ---
     modifiers: {
       prompt: sanitize_html(modifiers?.prompt ?? visuals?.prompt ?? "").trim(),
-      noBackground: !!(modifiers?.noBackground ?? visuals?.noBackground ?? visuals?.no_background ?? false),
+      noBackground: !!(
+        modifiers?.noBackground ??
+        visuals?.noBackground ??
+        visuals?.no_background ??
+        false
+      ),
       flipped: !!(modifiers?.flipped ?? visuals?.flipped ?? false),
-      profile_picture_seed: Number(modifiers?.profile_picture_seed ?? visuals?.profile_picture_seed ?? 0),
+      profile_picture_seed: Number(
+        modifiers?.profile_picture_seed ?? visuals?.profile_picture_seed ?? 0,
+      ),
       colorName: sanitize_html(modifiers?.colorName ?? visuals?.colorName ?? "").trim(),
     },
     // --- DYNAMICS (Physics Sliders) ---
@@ -148,7 +155,7 @@ export const normalize = (base = {}) => {
 /**
  * Coerces a value into a strictly cleaned array of strings.
  * Used for 'past' and 'future' temporal hybrid fields.
- * @param {string|string[]} val 
+ * @param {string|string[]} val
  * @returns {string[]}
  */
 export function coerce_temporal_array(val) {

@@ -80,7 +80,9 @@ export const context_broker = {
 
     // Extract raw log text without truncation or owner headers for lifecycle matching
     const full_log_text = Array.isArray(simulation_log)
-      ? simulation_log.map(m => (m.text || m.content || "").replace(/<think>[\s\S]*?<\/think>/gi, "")).join(" ")
+      ? simulation_log
+          .map((m) => (m.text || m.content || "").replace(/<think>[\s\S]*?<\/think>/gi, ""))
+          .join(" ")
       : "";
 
     // 1. Resolve Entities mapping (Role -> Data)
@@ -92,8 +94,8 @@ export const context_broker = {
 
     // Lifecycle Management: Resolve satisfied future vectors asynchronously without blocking hydration
     Promise.all(
-      entries.map(({ data }) => context_broker.manage_vector_lifecycle(data, full_log_text))
-    ).catch(err => console.warn("[Vector Lifecycle] Failed to auto-resolve vectors:", err));
+      entries.map(({ data }) => context_broker.manage_vector_lifecycle(data, full_log_text)),
+    ).catch((err) => console.warn("[Vector Lifecycle] Failed to auto-resolve vectors:", err));
 
     const entities = {};
     // Synchronous hydration of entities
@@ -177,7 +179,7 @@ export const context_broker = {
     const log_words = new Set(log_lower.split(/[\s,.;:!?()"'[\]{}]+/));
 
     // Helper to safely escape strings for RegExp if needed
-    const escape_regex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escape_regex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
     const vectors_to_resolve = [];
 
@@ -188,10 +190,10 @@ export const context_broker = {
       if (Array.isArray(vector.vector_tags)) {
         is_resolved = vector.vector_tags.some((tag) => {
           const t = tag.toLowerCase();
-          if (t.includes(' ')) {
+          if (t.includes(" ")) {
             // Multi-word tag: use escaped regex with word boundaries
             try {
-              const regex = new RegExp(`\\b${escape_regex(t)}\\b`, 'i');
+              const regex = new RegExp(`\\b${escape_regex(t)}\\b`, "i");
               return regex.test(recent_log_text);
             } catch {
               return log_lower.includes(t);
@@ -219,7 +221,7 @@ export const context_broker = {
           let matched_count = 0;
           for (const k of keywords) {
             if (log_words.has(k)) {
-               matched_count++;
+              matched_count++;
             }
           }
 

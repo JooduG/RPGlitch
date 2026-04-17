@@ -9,7 +9,7 @@ description: The Quality Gatekeeper. Automates build pipelines, local verificati
 
 ## Overview
 
-The `ci-cd-and-automation` skill is the enforcement mechanism for technical quality in the RPGlitch Engine. It ensures that no change reaches production without passing strict gates for testing, linting, type checking, and security audits. We prioritize a "Shift Left" approach, using local emulation of GitHub Actions (via `act`) to catch issues before they reach the remote repository.
+The `ci-cd-and-automation` skill is the enforcement mechanism for technical quality in the RPGlitch Engine. It ensures that no change reaches production without passing strict gates for testing, linting, type checking, and security audits. We prioritize a "Shift Left" approach, using the **Warden** for local verification (`npm run verify`) and optional `act` emulation to catch issues before they reach the remote repository.
 
 ### Strategic Context
 
@@ -25,9 +25,9 @@ The `ci-cd-and-automation` skill is the enforcement mechanism for technical qual
 
 ## How It Works
 
-1. **Bootstrap**: Install and configure local CI tools (`act`, Docker).
-2. **Verification Gate Service**: Execute linting, type checking, unit tests, and build verification.
-3. **Pre-Flight**: Run the full local action suite using `bash .agent/skills/ci-cd-and-automation/scripts/act/run-act.sh`.
+1. **Bootstrap**: Install and configure local CI tools (`npm`, `act`, Docker).
+2. **Verification Gate Service**: Execute linting, type checking, unit tests, and build verification via `npm run verify`.
+3. **Pre-Flight**: Run the Warden for project health checks (`npm run audit`) and optional local action suite using `act`.
 4. **Remote Watch**: Monitor and audit the remote GitHub Actions results via `gh run watch`.
 
 ### Quality Gate Hierarchy
@@ -47,7 +47,10 @@ Maintain a clean, fast pipeline (ideally under 10 minutes). Parallelize independ
 ## Usage
 
 ```bash
-# Run the local CI emulation
+# Run the local primary verification gate (Warden + Tests)
+npm run verify
+
+# Optional: Run the local action emulation (Requires Docker)
 bash .agent/skills/ci-cd-and-automation/scripts/act/run-act.sh
 
 # Check the status of remote workflow runs

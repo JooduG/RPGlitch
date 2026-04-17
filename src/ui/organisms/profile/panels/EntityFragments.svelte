@@ -5,20 +5,16 @@
    * Dynamically renders the Eternal, Present, Past, and Future sections.
    */
   import TextField from "@ui/atoms/TextField.svelte";
+  import { get_value, set_value } from "@ui/utils/field-path.js";
+  import { fly } from "svelte/transition";
   import { PROFILE_SECTIONS } from "../profile-config.js";
   import VectorArray from "./VectorArray.svelte";
-  import { get_value, set_value } from "@ui/utils/field-path.js";
 
-  let {
-    char = $bindable(),
-    is_editing,
-    busy_fields,
-    active_field = $bindable(),
-  } = $props();
+  let { char = $bindable(), is_editing, busy_fields, active_field = $bindable() } = $props();
 
   // Track which section is hovered for the "Aperture" peek
   let hovered_section = $state(null);
-  
+
   // Storage for VectorArray instances to call add_item()
   let vector_refs = $state({});
 
@@ -41,11 +37,11 @@
 <div class="content" data-testid="profile-fragments">
   {#each PROFILE_SECTIONS as section (section.label)}
     <div class="row">
-      <div 
-        class="label" 
-        class:interactive={is_editing && section.fields.some(f => f.type === 'array')}
+      <div
+        class="label"
+        class:interactive={is_editing && section.fields.some((f) => f.type === "array")}
         onclick={() => {
-          const arrayField = section.fields.find(f => f.type === 'array');
+          const arrayField = section.fields.find((f) => f.type === "array");
           if (arrayField) handle_label_click(section.id, arrayField.key);
         }}
         onmouseenter={() => (hovered_section = section.id)}
@@ -53,7 +49,12 @@
         role="presentation"
       >
         <div class="label-box">
-          <h2>{section.label}</h2>
+          <h2 class="dynamic-label">
+            {#if is_editing && hovered_section === section.id && section.fields.some((f) => f.type === "array")}
+              <span class="label-add" transition:fly={{ x: -10, duration: 300 }}> ADD </span>
+            {/if}
+            {section.label}
+          </h2>
           <p>{section.sublabel}</p>
         </div>
       </div>
@@ -145,11 +146,28 @@
     align-items: center;
     gap: var(--spacing-xs);
     transition: all var(--motion-fast);
+    position: relative;
   }
 
-  .content .row .label.interactive:hover h2 {
-    filter: brightness(1.3);
-    text-shadow: 0 0 var(--spacing-s) rgb(var(--signature-rgb) / 80%);
+  .label-add {
+    position: absolute;
+    right: calc(100% + var(--spacing-xxs));
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-xl);
+    color: var(--color-white);
+    opacity: 0.8;
+    pointer-events: none;
+    letter-spacing: var(--letter-spacing-l);
+    white-space: nowrap;
+    text-shadow: 0 0 8px rgb(255 255 255 / 40%);
+  }
+
+  .content .row .label.interactive:hover {
+    filter: none;
+    backdrop-filter: none;
   }
 
   .content .row .label p {

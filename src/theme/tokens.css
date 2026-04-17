@@ -187,7 +187,8 @@
   /* Layer Shadows */
   --shadow-xxl: 0 var(--spacing-xl) var(--spacing-xxxxl)
     rgb(var(--color-black-rgb) / var(--opacity-m));
-  --shadow-xl: 0 var(--spacing-m) var(--spacing-xxxxl) rgb(var(--color-black-rgb) / var(--opacity-l));
+  --shadow-xl: 0 var(--spacing-m) var(--spacing-xxxxl)
+    rgb(var(--color-black-rgb) / var(--opacity-l));
   --shadow-l: 0 var(--spacing-xs) var(--spacing-xl) rgb(var(--color-black-rgb) / var(--opacity-s));
   --shadow-m: 0 var(--spacing-xxs) var(--spacing-m) rgb(var(--color-black-rgb) / var(--opacity-s));
   --shadow-s: 0 var(--spacing-xxs) var(--spacing-xs) rgb(var(--color-black-rgb) / var(--opacity-xs));

@@ -7,7 +7,7 @@
   import { ENTITY_FRAGMENTS } from "@/core/intelligence/entity-fragments.js";
   import { fitText } from "@ui/utils/actions/fit-text.js";
   import TextField from "@ui/atoms/TextField.svelte";
-  
+
   let { char = $bindable(), is_editing } = $props();
 </script>
 
@@ -36,13 +36,14 @@
     </h1>
   {/if}
   <div class="description">
-  <TextField
-    is_edit={is_editing}
-    class="description"
-    placeholder={ENTITY_FRAGMENTS.description}
-    value={char.description || ""}
-    oninput={(e) => (char.description = e.target.value)}
-  /></div>
+    <TextField
+      is_edit={is_editing}
+      class="description"
+      placeholder={ENTITY_FRAGMENTS.description}
+      value={char.description || ""}
+      oninput={(e) => (char.description = e.target.value)}
+    />
+  </div>
 </header>
 
 <style>

@@ -4,7 +4,7 @@ Quick reference for simulation engine security. Use alongside the `security-and-
 
 ## 🔬 Table of Contents
 
-- [Pre-Commit Checks (The Janitor Phase)](#pre-commit-checks-the-janitor-phase)
+- [Pre-Commit Checks (The Warden Phase)](#pre-commit-checks-the-warden-phase)
 - [Input & Narrative Integrity](#input--narrative-integrity)
 - [Access Control & Permission Runes](#access-control--permission-runes)
 - [Data Protection (Dexie.js)](#data-protection-dexiejs)
@@ -15,12 +15,12 @@ Quick reference for simulation engine security. Use alongside the `security-and-
 
 ---
 
-## Pre-Commit Checks (The Janitor Phase)
+## Pre-Commit Checks (The Warden Phase)
 
 - [ ] **No Secrets**: Zero passwords, API keys, or tokens in source code.
 - [ ] **Git Hygiene**: `.gitignore` covers local environment state.
 - [ ] **Nomenclature**: All files and folders follow the Rule 05 kebab-case standard.
-- [ ] **Janitor Protocol**: `bash .agent/skills/security-and-hardening/scripts/janitor.js` returns green.
+- [ ] **Warden Protocol**: `npm run verify` returns green.
 
 ---
 

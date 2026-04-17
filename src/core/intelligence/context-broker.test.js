@@ -24,8 +24,12 @@ describe("context_broker", () => {
   describe("manage_vector_lifecycle", () => {
     it("should gracefully handle missing entity or future arrays", async () => {
       await expect(context_broker.manage_vector_lifecycle(null, "log")).resolves.not.toThrow();
-      await expect(context_broker.manage_vector_lifecycle({ future: null }, "log")).resolves.not.toThrow();
-      await expect(context_broker.manage_vector_lifecycle({ future: [] }, "log")).resolves.not.toThrow();
+      await expect(
+        context_broker.manage_vector_lifecycle({ future: null }, "log"),
+      ).resolves.not.toThrow();
+      await expect(
+        context_broker.manage_vector_lifecycle({ future: [] }, "log"),
+      ).resolves.not.toThrow();
     });
 
     it("should gracefully handle missing log text", async () => {
@@ -39,8 +43,8 @@ describe("context_broker", () => {
         future: [
           { id: "v1", vector_tags: ["apple", "banana"], text: "Some short text" },
           { id: "v2", vector_tags: ["cherry"], text: "Another text" },
-          { id: "v3", vector_tags: ["multi word tag"], text: "Yet another text" }
-        ]
+          { id: "v3", vector_tags: ["multi word tag"], text: "Yet another text" },
+        ],
       };
       const log = "I ate a Banana yesterday and saw a multi word tag in the wild.";
 
@@ -54,9 +58,7 @@ describe("context_broker", () => {
 
     it("should not resolve vectors using substring false positives", async () => {
       const entity = {
-        future: [
-          { id: "v1", vector_tags: ["cat"], text: "Some short text" }
-        ]
+        future: [{ id: "v1", vector_tags: ["cat"], text: "Some short text" }],
       };
       // The word 'category' contains 'cat', but it should not match the exact word 'cat'
       const log = "This is a new category.";
@@ -71,8 +73,8 @@ describe("context_broker", () => {
       const entity = {
         future: [
           { id: "v1", text: "The grand master spoke." }, // keywords: grand, master, spoke
-          { id: "v2", text: "A tiny cat slept." }      // keywords: slept (others <= 4 chars)
-        ]
+          { id: "v2", text: "A tiny cat slept." }, // keywords: slept (others <= 4 chars)
+        ],
       };
 
       // Match "grand", "master", "spoke"
@@ -88,8 +90,8 @@ describe("context_broker", () => {
     it("should not resolve vectors if keywords don't meet threshold", async () => {
       const entity = {
         future: [
-          { id: "v1", text: "The grand master spoke." } // keywords: grand, master, spoke
-        ]
+          { id: "v1", text: "The grand master spoke." }, // keywords: grand, master, spoke
+        ],
       };
 
       // Match only "grand" (threshold is 3)
