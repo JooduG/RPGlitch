@@ -23,9 +23,7 @@ const createTemplateRule = (id, type) => ({
     // Only audit .md files in the specific directory
     if (!filePath.endsWith(".md")) return true;
 
-    const projectRoot = PROJECT_ROOT.toLowerCase().replace(/\\/g, "/");
-    const normalizedPath = filePath.toLowerCase().replace(/\\/g, "/");
-    const relPath = path.relative(projectRoot, normalizedPath).replace(/\\/g, "/");
+    const relPath = path.relative(PROJECT_ROOT, filePath).replace(/\\/g, "/");
 
     const targetDir = `.agent/${type.toLowerCase()}s/`;
     if (!relPath.startsWith(targetDir)) return true;
