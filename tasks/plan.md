@@ -39,7 +39,48 @@ This plan replaces the standard "dashed" Add buttons in `VectorArray.svelte` wit
 
 - N/A (Visual/Kinetic).
 
+### Fix Busy State Alignment in Profile Modal and Wings
+
+The user reported that the busy state text in the profile modal and wings is center-aligned, and requested it be left-aligned. Research revealed several areas where centered alignment might be the culprit, particularly in the `VisualWing` spinner overlay and the `EntityFragments` layout.
+
+## User Review Required
+
+> [!IMPORTANT]
+> This change will affect the visual alignment of the "Busy..." and "Saving..." indicators in the profile modal and wings. By default, these were centered for aesthetic balance, but left-alignment will be applied as requested.
+
+## Proposed Changes
+
+### UI Atoms
+
+#### [MODIFY] [Button.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/atoms/Button.svelte)
+- Add `align` prop to support `"center"` (default) or `"left"`.
+- Update styles to reflect the alignment.
+
+### UI Organisms (Profile)
+
+#### [MODIFY] [EntityFragments.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/organisms/profile/panels/EntityFragments.svelte)
+- Update `.field-group` to be left-aligned (`align-items: flex-start`).
+- Change `.field-label` to `text-align: left`.
+
+#### [MODIFY] [VisualWing.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/organisms/profile/wings/VisualWing.svelte)
+- Update `.spinner-overlay` to `justify-content: flex-start` or add left-aligned "Busy..." text if appropriate.
+- Ensure the "Busy..." button labels are left-aligned if possible.
+
+#### [MODIFY] [DevWing.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/organisms/profile/wings/DevWing.svelte)
+- Update `.dynamic-box` and `.value-container` to be left-aligned.
+
+## Open Questions
+
+- Should the spinner itself move to the left, or just any accompanying text? Current plan assumes the entire "busy" container should align left.
+
+## Verification Plan
+
 ### Manual Verification
+- Open the profile modal.
+- Enter edit mode.
+- Trigger a "save" or "generate" action to see the busy state.
+- Verify that the "Busy..." or "Saving..." indicators and their containers are left-aligned.
+
 
 - Enter **Edit Mode**.
 - Hover the **"PAST"** or **"FUTURE"** header.

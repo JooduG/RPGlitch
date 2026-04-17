@@ -23,6 +23,7 @@ import { app } from "@state/app.svelte.js";
 import { memory_engine } from "./memory-engine.js";
 import { vector_engine } from "./vector-engine.js";
 import { db } from "@data/db.js";
+import { simulationState } from "@state/status.svelte.js";
 import { entities } from "@data/repository.js";
 import { session_driver } from "@core/engine/session-driver.svelte.js";
 export const gamemaster = {
@@ -66,17 +67,10 @@ export const gamemaster = {
    * @param {string} [options.input] - User input to react to.
    * @param {string} [options.role="ai"] - Role to generate for.
    */
-  /**
-   * EXECUTE TURN
-   * The primary simulation loop for a narrative turn.
-   *
-   * @param {string} story_id
-   * @param {Object} options
-   * @param {string} [options.input] - User input to react to.
-   * @param {string} [options.role="ai"] - Role to generate for.
-   */
   async execute_turn(story_id, options = {}) {
     const { input = "", role = "ai", ...llm_options } = options;
+    simulationState.start_generation(role);
+
     // 1. CHRONO: Round management
     // Round is managed by Session.send or explicit prologue start.
     // We ensure turn-type consistency here.
@@ -162,7 +156,8 @@ export const gamemaster = {
     });
     app.log("gamemaster: Prologue established (Round 0).", "system");
     // 2. The Hook: Trigger immediate AI follow-up to open the scene.
-    return await this.execute_turn(story_id);
+    // Ensure we transition simulationState to 'ai' role for the hook.
+    return await this.execute_turn(story_id, { role: "ai" });
   },
   /**
    * EXECUTE EPILOGUE

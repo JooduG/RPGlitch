@@ -62,6 +62,7 @@
     border-radius: var(--border-radius-m);
     resize: none;
     overflow: hidden;
+    text-align: left;
     transition:
       background var(--motion-fast) var(--motion-elastic),
       border-color var(--motion-fast) var(--motion-elastic),
@@ -108,6 +109,15 @@
     font-family: var(--font-family-body);
     border-radius: var(--border-radius-m);
     height: inherit;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .paragraph {
+    width: 100%;
+    text-align: left;
   }
 
   .paragraph.mt {

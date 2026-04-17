@@ -109,6 +109,10 @@
     min-height: 1.5em;
     transition: color var(--motion-fast);
     border-radius: 0;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .description :global(.field-foundation::placeholder) {

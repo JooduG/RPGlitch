@@ -339,7 +339,8 @@
     height: 100%;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    padding-left: var(--spacing-m);
     background: var(--glass-xs);
     z-index: var(--z-index-m);
     cursor: wait;

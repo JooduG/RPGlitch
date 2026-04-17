@@ -204,7 +204,8 @@
     flex-direction: column;
     gap: var(--spacing-xxs);
     min-width: 0;
-    justify-content: center;
+    justify-content: flex-start;
+    align-items: flex-start;
   }
 
   .content .row .field-group .field-label {
@@ -213,9 +214,10 @@
     text-transform: uppercase;
     color: var(--signature-color);
     opacity: var(--opacity-full);
-    margin-left: var(--spacing-xxs);
-    text-align: center;
+    margin-left: 0;
+    text-align: left;
     text-shadow: var(--shadow-font);
     margin-bottom: var(--spacing-xxs);
+    width: 100%;
   }
 </style>
