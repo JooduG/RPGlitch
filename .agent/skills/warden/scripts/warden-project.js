@@ -54,7 +54,7 @@ function scanForTodo(dir, items_found = []) {
     if (stat.isDirectory()) {
       scanForTodo(fullPath, items_found);
     } else if (stat.isFile() && /\.(js|ts|svelte|md|txt)$/.test(item)) {
-      if (item === "warden-project.js" || item === "janitor.js") continue;
+      if (item === "warden-project.js") continue;
 
       const content = fs.readFileSync(fullPath, "utf8");
       const lines = content.split("\n");
