@@ -44,8 +44,11 @@ function scanForTodo(dir, items_found = []) {
   const items = fs.readdirSync(dir);
 
   for (const item of items) {
-    if (BLACKLIST.includes(item)) continue;
     const fullPath = path.join(dir, item);
+    const relPath = path.relative(ROOT_DIR, fullPath).replace(/\\/g, "/");
+
+    if (BLACKLIST.some(p => relPath === p || relPath.startsWith(p + "/"))) continue;
+
     const stat = fs.statSync(fullPath);
 
     if (stat.isDirectory()) {
