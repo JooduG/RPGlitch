@@ -95,16 +95,13 @@
     "lodash-es": "^4.17.21"
   },
   "scripts": {
-    "audit": "node .agent/skills/using-agent-skills/scripts/summarize.js audit:warden audit:css audit:security audit:agent audit:svelte audit:nomenclature --force",
+    "audit": "node .agent/skills/using-agent-skills/scripts/summarize.js audit:warden audit:agent audit:nomenclature --force",
     "audit:agent": "node .agent/skills/using-agent-skills/scripts/summarize.js audit:skills audit:templates",
     "audit:warden": "node .agent/skills/warden/scripts/warden.js",
     "audit:backlog": "node .agent/skills/warden/scripts/warden-project.js",
-    "audit:css": "node .agent/skills/css/scripts/audit-css.js",
     "audit:nomenclature": "node .agent/skills/directives/scripts/audit-nomenclature.js",
     "audit:skills": "node .agent/skills/directives/scripts/audit-skills.js",
     "audit:templates": "node .agent/skills/directives/scripts/audit-templates.js",
-    "audit:security": "node .agent/skills/security-and-hardening/scripts/audit-security.js",
-    "audit:svelte": "node .agent/skills/svelte/scripts/audit-svelte.js",
     "build": "vite build",
     "check": "node .agent/skills/using-agent-skills/scripts/summarize.js audit:warden lint test",
     "clean": "node .agent/skills/using-agent-skills/scripts/summarize.js audit:security lint audit:backlog",
