@@ -95,7 +95,7 @@
     "lodash-es": "^4.17.21"
   },
   "scripts": {
-    "audit": "node .agent/skills/using-agent-skills/scripts/summarize.js audit:warden audit:agent audit:nomenclature --force",
+    "audit": "node .agent/skills/using-agent-skills/scripts/summarize.js audit:warden --force",
     "audit:agent": "node .agent/skills/using-agent-skills/scripts/summarize.js audit:skills audit:templates",
     "audit:warden": "node .agent/skills/warden/scripts/warden.js",
     "audit:backlog": "node .agent/skills/warden/scripts/warden-project.js",
