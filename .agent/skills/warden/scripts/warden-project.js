@@ -103,15 +103,15 @@ export function syncBacklog() {
   
   const newBacklogContent = `${markerStart}\n${lastSwept}\n\n${found.join("\n")}\n${markerEnd}`;
 
-  const sectionRegex = new RegExp(`${backlogHeader}[\\s\\S]*?${markerEnd}`, "m");
+  const sectionRegex = new RegExp(`${backlogHeader.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}[\\s\\S]*?${markerEnd}`, "g");
 
   if (content.includes(backlogHeader)) {
-    // Replace existing backlog section
+    // Replace existing backlog section(s)
     if (content.match(sectionRegex)) {
-      content = content.replace(sectionRegex, `${backlogHeader}\n${newBacklogContent}`);
+      content = content.replace(sectionRegex, () => `${backlogHeader}\n${newBacklogContent}`);
     } else {
-      // Legacy transition: Append markers to existing header
-      content = content.replace(backlogHeader, `${backlogHeader}\n${newBacklogContent}`);
+      // Legacy transition: Insert markers after existing header
+      content = content.replace(backlogHeader, () => `${backlogHeader}\n${newBacklogContent}`);
     }
   } else {
     // Append to end
