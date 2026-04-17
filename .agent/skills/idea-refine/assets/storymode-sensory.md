@@ -21,7 +21,7 @@ Auditory immersion adhering to strict browser autoplay rules.
 
 Tactile interface feedback utilizing the Chalk Regime.
 
-- SWARMtch Haptics: Simulate digital decay through CSS-based visual feedback.
+- glitch Haptics: Simulate digital decay through CSS-based visual feedback.
 - Depth Layering: Use shadows and 2% grain textures to provide tactile weight.
 
 **Action:** **Draft a Svelte 5 snippet utilizing `$effect()` to bind a CSS blur transition to an AI Character's stress level.**

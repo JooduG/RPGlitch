@@ -31,7 +31,7 @@ const PROJECT_ROOT = resolve(__dirname, "..", "..", "..", "..");
  ************************************************************************************/
 
 const CONFIG = {
-  perchance_url: process.env.PERCHANCE_URL || "https://perchance.org/rpSWARMtch#edit",
+  perchance_url: process.env.PERCHANCE_URL || "https://perchance.org/rpglitch#edit",
   perchance_username: process.env.PERCHANCE_USERNAME || "",
   perchance_key: process.env.PERCHANCE_KEY || "",
 
@@ -439,7 +439,7 @@ async function deploy({ left_content, right_content }) {
       "📊",
       `Final state — Left: ${final_state.model_length} chars, Right: ${final_state.output_length} chars, Save: ${final_state.save_state}`,
     );
-    log("🚀", `Deployment complete! Live at: https://perchance.org/rpSWARMtch`);
+    log("🚀", `Deployment complete! Live at: https://perchance.org/rpglitch`);
 
     return true;
   } catch (error) {

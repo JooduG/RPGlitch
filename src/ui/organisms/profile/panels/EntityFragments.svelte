@@ -215,7 +215,7 @@
     color: var(--signature-color);
     opacity: var(--opacity-full);
     margin-left: 0;
-    text-align: left;
+    text-align: center;
     text-shadow: var(--shadow-font);
     margin-bottom: var(--spacing-xxs);
     width: 100%;

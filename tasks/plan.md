@@ -2,7 +2,7 @@
 
 This plan replaces the standard "dashed" Add buttons in `VectorArray.svelte` with a kinetic, multi-column interaction triggered by section headers.
 
-## User Review Required
+## User Review Required: Tectonic Labels
 
 > [!IMPORTANT]
 > **Aesthetic Change**: The explicit "Add" button is purged. The section label (e.g. "PAST") becomes the primary action hub.
@@ -12,7 +12,7 @@ This plan replaces the standard "dashed" Add buttons in `VectorArray.svelte` wit
 > 1. **Hover Label**: A `+` appears on the header; a signature-colored 1px line appears at the top of the corresponding vector list.
 > 2. **Click Label**: The 1px line in the list vertically splits/expands and "becomes" the new empty TextField.
 
-## Proposed Changes
+## Proposed Changes: Tectonic Labels
 
 ### [UI Components]
 
@@ -33,7 +33,7 @@ This plan replaces the standard "dashed" Add buttons in `VectorArray.svelte` wit
   - Pass the hover state to the child `VectorArray` to show the "Horizon Line."
 - clicking the label calls `trigger_add()` on the child `VectorArray`.
 
-## Verification Plan
+## Verification Plan: Tectonic Labels
 
 ### Automated Tests
 
@@ -43,12 +43,12 @@ This plan replaces the standard "dashed" Add buttons in `VectorArray.svelte` wit
 
 The user reported that the busy state text in the profile modal and wings is center-aligned, and requested it be left-aligned. Research revealed several areas where centered alignment might be the culprit, particularly in the `VisualWing` spinner overlay and the `EntityFragments` layout.
 
-## User Review Required
+## User Review Required: Busy Alignment
 
 > [!IMPORTANT]
 > This change will affect the visual alignment of the "Busy..." and "Saving..." indicators in the profile modal and wings. By default, these were centered for aesthetic balance, but left-alignment will be applied as requested.
 
-## Proposed Changes
+## Proposed Changes: Busy Alignment
 
 ### UI Atoms
 
@@ -73,14 +73,13 @@ The user reported that the busy state text in the profile modal and wings is cen
 
 - Should the spinner itself move to the left, or just any accompanying text? Current plan assumes the entire "busy" container should align left.
 
-## Verification Plan
+## Verification Plan: Busy Alignment
 
 ### Manual Verification
 - Open the profile modal.
 - Enter edit mode.
 - Trigger a "save" or "generate" action to see the busy state.
 - Verify that the "Busy..." or "Saving..." indicators and their containers are left-aligned.
-
 
 - Enter **Edit Mode**.
 - Hover the **"PAST"** or **"FUTURE"** header.

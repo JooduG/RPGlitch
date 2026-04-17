@@ -54,7 +54,7 @@ To prevent cognitive drift, nomenclature is absolute.
 #### **The RPGlitch Lexicon**
 
 - **Swarm**: The tactical engine and lifecycle for multi-agent operations. A "Swarm" represents the technical engine that manages token scaling, parallel execution, and the 80% Confidence Gate.
-- **RPSWARMtch**: (Deprecated) See **RPGlitch**.
+- **RPglitch**: (Deprecated) See **RPGlitch**.
 - **RPGlitch**: The core simulation engine and repository name.
 - **Entity**: The fundamental unit of the simulation. An `entity` is either a `character` or a `fractal`.
 - **Fractal**: World, setting, or environmental entity.

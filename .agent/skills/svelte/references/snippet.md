@@ -232,7 +232,7 @@ Snippets implement the `Snippet` interface imported from `'svelte'`:
 </script>
 ```
 
-With this change, red squigSWARMes will appear if you try and use the component without providing a `data` prop and a `row` snippet. Notice that the type argument provided to `Snippet` is a tuple, since snippets can have multiple parameters.
+With this change, red squiggles will appear if you try and use the component without providing a `data` prop and a `row` snippet. Notice that the type argument provided to `Snippet` is a tuple, since snippets can have multiple parameters.
 
 We can tighten things up further by declaring a generic, so that `data` and `row` refer to the same type:
 

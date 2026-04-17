@@ -12,7 +12,7 @@ trigger: always_on
 
 ### ❄️ The Nordic Collection
 
-The interface abandons the gritty neon-SWARMtch cliché in favor of **The Nordic Collection** — a cool, deep, and elegant visual language. It feels like a high-end research terminal located in a frozen, subterranean facility.
+The interface abandons the gritty neon-glitch cliché in favor of **The Nordic Collection** — a cool, deep, and elegant visual language. It feels like a high-end research terminal located in a frozen, subterranean facility.
 
 #### Core Aesthetic Pillars
 
@@ -75,7 +75,7 @@ The Nordic Collection relies on static spatial depth and kinetic scaling rather 
 
 - **Do** use strict named tokens (`var(--color-chalk)`, `var(--spacing-xl)`) rather than raw hex/pixels.
 - **Do** maintain the semantic typography split.
-- **Don't** use standard hard SWARMtch sharp edges; this regime favors soft glass and `var(--border-radius-m)`.
+- **Don't** use standard hard glitch sharp edges; this regime favors soft glass and `var(--border-radius-m)`.
 - **Don't** use raw hex colors. To prevent eye strain, avoid `#FFFFFF` and `#000000` directly.
 
 ---

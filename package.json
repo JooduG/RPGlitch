@@ -22,7 +22,7 @@
     "@waldzellai/stochasticthinking": "^0.0.1",
     "@waldzellai/structured-argumentation": "^0.1.3",
     "@waldzellai/visual-reasoning": "^0.1.1",
-    "bits-ui": "^2.16.4",
+    "bits-ui": "^2.17.3",
     "chrome-devtools-mcp": "^0.20.3",
     "dexie": "^4.4.1",
     "dompurify": "^3.3.3",
