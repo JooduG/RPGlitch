@@ -1,7 +1,7 @@
-# Task List - Vector Consolidation
+# Task List - Sovereign Alignment
 
-> **Status**: `[ACTIVE]`
-> **Last Update**: 2026-04-12
+> **Status**: `[DONE]`
+> **Last Update**: 2026-04-17
 > **Current Milestone**: Milestone 1 (The Foundry)
 
 ## 🗺️ Project Roadmap
@@ -37,6 +37,8 @@
 
 ## 🏁 Completed Missions (Recent)
 
+- **[041]** Rule & Workflow Template Standardization (PR #132)
+- **[040]** Git Ignore Fixes & .playwright-auth Untracking
 - **[039]** Control Panel Wiring & Mock Controls
 - **[038]** Skill Standardization & Sovereign Alignment (34 Skills)
 - **[036]** Nordic UI Component Harmonization
@@ -56,6 +58,7 @@
 | 2026-04-14T17:03+02:00    | Fix InputBar Overlap & Panel Wiring                | `incremental-implementation`               | ✅ Resolved |
 | 2026-04-15T20:10+02:00    | Manifest Modifiers & Stabilize VisualWing          | `directives`, `incremental-implementation` | ✅ Done     |
 | 2026-04-15T21:46:00Z      | Commit Audit & Restoration Patch                   | `debugging-and-error-recovery`             | ✅ Resolved |
+| 2026-04-17T02:44:00+02:00 | Rule & Workflow Refactoring (Standardization)      | `directives`, `warden`, `github-copilot`   | ✅ PR #132  |
 | 2026-04-16T01:41:23+00:00 | Rule 06 Compliance Sweep                           | `security-and-hardening`                   | ✅ Done     |
 | 2026-04-15T20:03:20+00:00 | State Atomicity & Token Asphyxiation Patch         | `debugging-and-error-recovery`             | ✅ Resolved |
 | 2026-04-15T19:58+00:00    | Add unit tests for entity-fragments.js             | `test-driven-development`                  | ✅ Done     |
@@ -68,17 +71,12 @@
 | 2026-04-16T07:18:10+00:00 | Rule 06: Remove temporary bot artifacts            | `security-and-hardening`                   | ✅ Done     |
 | 2026-04-16T08:28:03+00:00 | Rule 06: Remove tasks/plan.md temporary scratchpad | `security-and-hardening`                   | ✅ Done     |
 
-- [x] Merge logic into `VectorPanel.svelte`
-- [x] Integrate styles into `VectorPanel.svelte`
-- [x] Verify edit/delete functionality in UI
-- [x] Delete `VectorCard.svelte`
-
 ## 🧹 Backlog (Automated)
 <!-- BACKLOG_START -->
-*Last Swept: 2026-04-17T01:52:11.327Z*
+*Last Swept: 2026-04-17T02:33:54.171Z*
 
-- [ ] **.agent/skills/warden/SKILL.md:18**: ) needs to be surfaced in `tasks/todo.md`.
-- [ ] **.agent/skills/warden/SKILL.md:34**: tags to the backlog in tasks/todo.md
-- [ ] **.agent/skills/warden/SKILL.md:56**: ` tags cluttering the source code without corresponding task items.
-- [ ] **.agent/skills/warden/SKILL.md:66**: ` tags are correctly synced to `tasks/todo.md`.
+- [ ] **.agent/skills/warden/SKILL.md:18**: Unspecified debt
+- [ ] **.agent/skills/warden/SKILL.md:34**: Unspecified debt
+- [ ] **.agent/skills/warden/SKILL.md:56**: Unspecified debt
+- [ ] **.agent/skills/warden/SKILL.md:66**: Unspecified debt
 <!-- BACKLOG_END -->

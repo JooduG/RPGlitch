@@ -1,6 +1,0 @@
-2026/03/25-07:32:55.220 8e40 Reusing MANIFEST C:\Users\johng\source\repos\RPGlitch\.playwright-auth\Default\Local Storage\leveldb/MANIFEST-000001
-2026/03/25-07:32:55.231 8e40 Recovering log #3
-2026/03/25-07:32:55.234 8e40 Reusing old log C:\Users\johng\source\repos\RPGlitch\.playwright-auth\Default\Local Storage\leveldb/000003.log 
-2026/03/25-07:33:24.745 1ebc Level-0 table #5: started
-2026/03/25-07:33:24.751 1ebc Level-0 table #5: 23521 bytes OK
-2026/03/25-07:33:24.755 1ebc Delete type=0 #3

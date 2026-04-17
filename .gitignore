@@ -40,5 +40,4 @@
 .secrets
 **/.gemini/**
 **/.jules/**
-**/playwright-auth/**
 act_output.log

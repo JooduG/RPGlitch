@@ -27,8 +27,10 @@ export const projectRules = [
     id: "PROJECT_TODO_AI_TAG",
     severity: "DEBT",
     regex: /#TODO-AI/,
-    message: "⚠️ Unresolved Agentic Debt (#TODO-AI) found. Ensure it is registered in tasks/todo.md.",
-    validate: (line, filePath) => !filePath.includes("warden-project.js") && !filePath.includes("audit-security.js"),
+    message:
+      "⚠️ Unresolved Agentic Debt (#TODO-AI) found. Ensure it is registered in tasks/todo.md.",
+    validate: (line, filePath) =>
+      !filePath.includes("warden-project.js") && !filePath.includes("audit-security.js"),
   },
   {
     id: "PROJECT_BACKLOG_SYNC",
@@ -37,7 +39,7 @@ export const projectRules = [
       // Only check main task files
       const relPath = path.relative(ROOT_DIR, filePath).replace(/\\/g, "/");
       if (!relPath.startsWith("tasks/")) return true;
-      
+
       // Advice if a task file has no open checkboxes
       return content.includes("[ ]");
     },
@@ -68,7 +70,7 @@ function scanForTodo(dir, items_found = []) {
       const content = fs.readFileSync(fullPath, "utf8");
       const lines = content.split("\n");
       lines.forEach((line, index) => {
-        if (line.includes("#TODO-AI") && !line.includes("line.includes(\"#TODO-AI\")")) {
+        if (line.includes("#TODO-AI") && !line.includes('line.includes("#TODO-AI")')) {
           const relPath = path.relative(ROOT_DIR, fullPath).replace(/\\/g, "/");
           const taskMatch = line.match(/#TODO-AI:?\s*(.*)$/);
           const taskDesc = taskMatch ? taskMatch[1].trim() : "Unspecified debt";
@@ -83,7 +85,7 @@ function scanForTodo(dir, items_found = []) {
 export function syncBacklog() {
   console.log("🧹 Scanning for #TODO-AI tags...");
   const found = scanForTodo(ROOT_DIR);
-  
+
   if (found.length === 0) {
     console.log("✅ No new AI debt found.");
     return;
@@ -99,11 +101,14 @@ export function syncBacklog() {
   const backlogHeader = "## 🧹 Backlog (Automated)";
   const markerStart = "<!-- BACKLOG_START -->";
   const markerEnd = "<!-- BACKLOG_END -->";
-  const lastSwept = `*Last Swept: ${new Date().toISOString()}*`;
-  
+  const lastSwept = `*Last Swept: ${new Date().toISOString().replace(/T/, " ").replace(/\..+/, "")}*`;
+
   const newBacklogContent = `${markerStart}\n${lastSwept}\n\n${found.join("\n")}\n${markerEnd}`;
 
-  const sectionRegex = new RegExp(`${backlogHeader.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}[\\s\\S]*?${markerEnd}`, "g");
+  const sectionRegex = new RegExp(
+    `${backlogHeader.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}[\\s\\S]*?${markerEnd}`,
+    "g",
+  );
 
   if (content.includes(backlogHeader)) {
     // Replace existing backlog section(s)

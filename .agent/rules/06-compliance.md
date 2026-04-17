@@ -1,14 +1,12 @@
 ---
-name: compliance
+name: 06-compliance
+description: Security auditing, Quality Assurance protocols, Automated Hygiene, and the Equivalence Oracle.
 trigger: always_on
-description: Security auditing, Quality Assurance protocols, Automated Hygiene, and the Equivalence Oracle
 ---
 
-# Rule 06: Compliance
+# 🛡️ 06-compliance
 
-> "I am the [Security & Hardening](../skills/security-and-hardening/) that protects the engine. I enforce defensive measures, sweep for technical debt, and prevent vulnerabilities from breaching the production layer. No code passes the safety gate without my silent verification."
-
----
+> **Persona**: "I am the [Security & Hardening](../skills/security-and-hardening/) that protects the engine. I enforce defensive measures, sweep for technical debt, and prevent vulnerabilities from breaching the production layer. No code passes the safety gate without my silent verification."
 
 ## ⚖️ The Law
 

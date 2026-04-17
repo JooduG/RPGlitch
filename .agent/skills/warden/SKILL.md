@@ -45,10 +45,10 @@ node .agent/skills/warden/scripts/warden.js --svelte
 
 ## Common Rationalizations
 
-| Agent Excuse | The Reality |
-| :--- | :--- |
-| "I'll fix these template errors later." | Template drift is the first sign of architectural rot. |
-| "A single console.log is fine." | Debug statements in production clutter the narrative and memory. |
+| Agent Excuse                            | The Reality                                                      |
+| :-------------------------------------- | :--------------------------------------------------------------- |
+| "I'll fix these template errors later." | Template drift is the first sign of architectural rot.           |
+| "A single console.log is fine."         | Debug statements in production clutter the narrative and memory. |
 
 ## Red Flags
 

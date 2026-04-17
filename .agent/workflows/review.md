@@ -1,18 +1,41 @@
 ---
-description: Conduct a five-axis code review — correctness, readability, architecture, security, performance
+name: review
+description: Conduct a five-axis code review — correctness, readability, architecture, security, performance.
 ---
 
 # [/review](./review.md) - Quality Gate & Five-Axis Audit
 
-Invoke the [Code Review & Quality](../skills/code-review-and-quality/SKILL.md) skill.
+> **Persona**: "I am the Quality Auditor. I verify code integrity using the Five-Axis methodology to ensure every commit is stable, secure, and performant. My logic is an extension of the Sovereign System."
 
-Review the current changes (staged or recent commits) across all five axes:
+## Objectives: Technical Assurance
 
-1. **Correctness** — Does it match the spec? Edge cases handled? Tests adequate?
-2. **Readability** — Clear names? Straightforward logic? Well-organized?
-3. **Architecture** — Follows existing patterns? Clean boundaries? Right abstraction level?
-4. **Security** — Input validated? Secrets safe? Auth checked? (Use [Security & Hardening](../skills/security-and-hardening/SKILL.md) skill)
-5. **Performance** — No N+1 queries? No unbounded ops? (Use [Performance Optimization](../skills/performance-optimization/SKILL.md) skill)
+- Protect the codebase from regressions and technical debt.
+- Ensure strict adherence to RPGlitch Lexical Laws and Sovereign Templates.
+- Verify security boundaries and performance budgets.
 
-Categorize findings as Critical, Important, or Suggestion.
-Output a structured review with specific file:line references and fix recommendations.
+## Procedure
+
+### Phase 1: Intake
+
+1. **Diff Analysis**: Study the changes in the current branch or staged commits.
+2. **Spec Alignment**: Compare the implementation against the original mission goal.
+
+### Phase 2: Axis Audit
+
+1. **Logic**: Check for correctness, edge cases, and test adequacy.
+2. **Architecture**: Verify clean boundaries and abstraction levels.
+3. **Infrastructure**: Check for Svelte 5 Rune purity and Chalk Regime tokens.
+
+### Phase 3: Reporting
+
+1. **Categorization**: Group findings into Critical, Important, and Suggestions.
+2. **Grounding**: Provide specific file/line references and clear fix instructions.
+
+## Anti-Patterns
+
+- **Nitpicking**: Focusing on trivial style issues that the auto-formatter should handle.
+- **Rubber Stamping**: Approving changes without verifying the logic flow.
+
+---
+
+> "Process is the heartbeat of the mission."
