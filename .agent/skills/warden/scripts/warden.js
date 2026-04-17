@@ -259,6 +259,7 @@ const FILTERS = {
     skills: false,
     rules: false,
     workflows: false,
+    project: true,
     extRules: { ".js": projectRules, ".md": projectRules },
   },
   "--todo": {
