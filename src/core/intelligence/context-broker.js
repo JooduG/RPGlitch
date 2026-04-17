@@ -15,9 +15,20 @@ import { ENTITY_CATALOG } from "./entity-fragments.js";
 import { clean_text } from "../engine/text-parser.js";
 import { dynamics_engine } from "./dynamics-engine.js";
 
+const LOG_CACHE = new WeakMap();
+
 /************************************************************************************
  * 🧩 [SECTION: PRIVATE HELPERS]
  ************************************************************************************/
+function get_sanitized_text(msg) {
+  if (!msg || typeof msg !== "object") return "";
+  if (LOG_CACHE.has(msg)) return LOG_CACHE.get(msg);
+
+  const raw = msg.text || msg.content || "";
+  const sanitized = raw.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+  LOG_CACHE.set(msg, sanitized);
+  return sanitized;
+}
 /**
  * Resolves a dot-notation path against a nested object.
  */
@@ -78,11 +89,9 @@ export const context_broker = {
     const matches = dynamics_engine.dynamics_scan(input);
     const has_trust_plea = matches.some((m) => m.id === "VULNERABILITY" || m.id === "SUSPICIOUS");
 
-    // Extract raw log text without truncation or owner headers for lifecycle matching
+    // Extract raw log text without truncation or owner headers for lifecycle matching (Optimized)
     const full_log_text = Array.isArray(simulation_log)
-      ? simulation_log
-          .map((m) => (m.text || m.content || "").replace(/<think>[\s\S]*?<\/think>/gi, ""))
-          .join(" ")
+      ? simulation_log.map(get_sanitized_text).join(" ")
       : "";
 
     // 1. Resolve Entities mapping (Role -> Data)

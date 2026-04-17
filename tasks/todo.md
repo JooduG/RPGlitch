@@ -74,13 +74,19 @@
 - [x] Delete `VectorCard.svelte`
 
 ## 🧹 Backlog (Automated)
-*Last Swept: 2026-04-17T01:31:57.952Z*
+<!-- BACKLOG_START -->
+*Last Swept: 2026-04-17T01:47:36.221Z*
 
 - [ ] **.agent/skills/warden/SKILL.md:18**: ) needs to be surfaced in `tasks/todo.md`.
 - [ ] **.agent/skills/warden/SKILL.md:34**: tags to the backlog in tasks/todo.md
 - [ ] **.agent/skills/warden/SKILL.md:56**: ` tags cluttering the source code without corresponding task items.
 - [ ] **.agent/skills/warden/SKILL.md:66**: ` tags are correctly synced to `tasks/todo.md`.
-- [ ] **.gemini/skills/warden/SKILL.md:18**: ) needs to be surfaced in `tasks/todo.md`.
-- [ ] **.gemini/skills/warden/SKILL.md:34**: tags to the backlog in tasks/todo.md
-- [ ] **.gemini/skills/warden/SKILL.md:56**: ` tags cluttering the source code without corresponding task items.
-- [ ] **.gemini/skills/warden/SKILL.md:66**: ` tags are correctly synced to `tasks/todo.md`.
+<!-- BACKLOG_END -->
+<!-- BACKLOG_START -->
+*Last Swept: 2026-04-17T01:47:14.574Z*
+
+- [ ] **.agent/skills/warden/SKILL.md:18**: ) needs to be surfaced in `tasks/todo.md`.
+- [ ] **.agent/skills/warden/SKILL.md:34**: tags to the backlog in tasks/todo.md
+- [ ] **.agent/skills/warden/SKILL.md:56**: ` tags cluttering the source code without corresponding task items.
+- [ ] **.agent/skills/warden/SKILL.md:66**: ` tags are correctly synced to `tasks/todo.md`.
+<!-- BACKLOG_END -->

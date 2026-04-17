@@ -4,11 +4,20 @@
  */
 import fs from "fs";
 import path from "path";
+import ignore from "ignore";
 import { fileURLToPath } from "url";
 
 const ROOT_DIR = process.cwd();
 const TODO_FILE = path.join(ROOT_DIR, "tasks", "todo.md");
-const BLACKLIST = ["node_modules", ".git", ".svelte-kit", "dist", "build", ".vercel", ".agent/archive"];
+
+// Load .gitignore
+const ig = ignore();
+const gitignorePath = path.join(ROOT_DIR, ".gitignore");
+if (fs.existsSync(gitignorePath)) {
+  ig.add(fs.readFileSync(gitignorePath, "utf-8"));
+}
+// Sovereign core exclusions
+ig.add(["node_modules", ".git", ".svelte-kit", "dist", "build", ".vercel", ".agent/archive"]);
 
 /**
  * 1. Auditor Rules (for warden.js)
@@ -47,7 +56,7 @@ function scanForTodo(dir, items_found = []) {
     const fullPath = path.join(dir, item);
     const relPath = path.relative(ROOT_DIR, fullPath).replace(/\\/g, "/");
 
-    if (BLACKLIST.some(p => relPath === p || relPath.startsWith(p + "/"))) continue;
+    if (ig.ignores(relPath)) continue;
 
     const stat = fs.statSync(fullPath);
 
@@ -88,21 +97,25 @@ export function syncBacklog() {
 
   let content = fs.readFileSync(TODO_FILE, "utf-8");
   const backlogHeader = "## 🧹 Backlog (Automated)";
+  const markerStart = "<!-- BACKLOG_START -->";
+  const markerEnd = "<!-- BACKLOG_END -->";
   const lastSwept = `*Last Swept: ${new Date().toISOString()}*`;
   
-  const newBacklogContent = `\n${backlogHeader}\n${lastSwept}\n\n${found.join("\n")}\n`;
+  const newBacklogContent = `${markerStart}\n${lastSwept}\n\n${found.join("\n")}\n${markerEnd}`;
+
+  const sectionRegex = new RegExp(`${backlogHeader}[\\s\\S]*?${markerEnd}`, "m");
 
   if (content.includes(backlogHeader)) {
-    // Replace existing backlog
-    const parts = content.split(backlogHeader);
-    const before = parts[0];
-    // Find where the next header starts or end of file
-    const nextHeaderMatch = parts[1].match(/\n#+ /);
-    const remaining = nextHeaderMatch ? parts[1].slice(nextHeaderMatch.index) : "";
-    content = before.trim() + "\n" + newBacklogContent + remaining;
+    // Replace existing backlog section
+    if (content.match(sectionRegex)) {
+      content = content.replace(sectionRegex, `${backlogHeader}\n${newBacklogContent}`);
+    } else {
+      // Legacy transition: Append markers to existing header
+      content = content.replace(backlogHeader, `${backlogHeader}\n${newBacklogContent}`);
+    }
   } else {
     // Append to end
-    content = content.trim() + "\n\n" + newBacklogContent;
+    content = content.trim() + `\n\n${backlogHeader}\n${newBacklogContent}\n`;
   }
 
   fs.writeFileSync(TODO_FILE, content);
