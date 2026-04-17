@@ -195,8 +195,8 @@ const FILTERS = {
   "--agent": { names: false, skills: true, rules: true, workflows: true, project: false, extRules: {} },
   "--project": { names: false, skills: false, rules: false, workflows: false, extRules: { ".js": projectRules, ".md": projectRules } },
   "--todo": { names: false, skills: false, rules: false, workflows: false, project: false, extRules: { 
-      ".js": securityRules.filter(r => r.id === "W-SEC-001"),
-      ".svelte": svelteRules.filter(r => r.id === "S-RUNE-001")
+      ".js": securityRules.filter(r => r.id === "SECURITY_DEBUG_LOG"),
+      ".svelte": svelteRules.filter(r => r.id === "S_RUNE_DEBUG")
     }
   }
 };
