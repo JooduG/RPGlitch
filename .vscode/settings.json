@@ -46,8 +46,14 @@
     "configurations": []
   },
   "markdown.validate.enabled": true,
-  "markdown.validate.ignoredLinks": ["always_on | on_change | manual", "high | medium | low"],
+  "markdown.validate.ignoredLinks": [
+    "always_on | on_change | manual",
+    "high | medium | low"
+  ],
   "markdown.validate.referenceLinks.enabled": "ignore",
-  "stylelint.validate": ["css", "svelte"],
+  "stylelint.validate": [
+    "css",
+    "svelte"
+  ],
   "typescript.tsdk": "node_modules\\typescript\\lib"
 }

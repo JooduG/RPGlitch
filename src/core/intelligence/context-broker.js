@@ -92,8 +92,8 @@ export const context_broker = {
       { role: "FRACTAL", data: runtime.active_fractal },
     ];
 
-    // Lifecycle Management: Resolve satisfied future vectors asynchronously without blocking hydration
-    Promise.all(
+    // Lifecycle Management: Resolve satisfied future vectors before hydration to ensure current turn accuracy
+    await Promise.all(
       entries.map(({ data }) => context_broker.manage_vector_lifecycle(data, full_log_text)),
     ).catch((err) => console.warn("[Vector Lifecycle] Failed to auto-resolve vectors:", err));
 

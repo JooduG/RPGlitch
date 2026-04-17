@@ -53,7 +53,7 @@ export default [
       "**/scribbles/**",
       "**/templates/**",
       "**/test-results/**",
-      "**/yarn.lock",
+      "**/yarn.lock"
     ],
     // @agent:ignore-end
   },
