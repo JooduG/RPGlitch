@@ -209,18 +209,36 @@ console.log("🛡️  WARDEN: QUALITY GATE ENGINE");
 console.log("================================================================================\n");
 
 // Apply Filters if present
-args.forEach(arg => {
-  if (FILTERS[arg]) {
+const filterArgs = args.filter(arg => FILTERS[arg]);
+if (filterArgs.length > 0) {
+  // If filters are provided, start from a clean state
+  auditor.rules = {};
+  auditor.is_skills_active = false;
+  auditor.is_rules_active = false;
+  auditor.is_workflows_active = false;
+  auditor.is_project_active = false;
+  auditor.is_names_active = false;
+
+  filterArgs.forEach(arg => {
     const f = FILTERS[arg];
-    console.log(`🎯 Filter: ${arg.substring(2).toUpperCase()} Rules Active\n`);
-    if (f.extRules !== undefined) auditor.rules = f.extRules;
-    if (f.skills !== undefined) auditor.is_skills_active = f.skills;
-    if (f.rules !== undefined) auditor.is_rules_active = f.rules;
-    if (f.workflows !== undefined) auditor.is_workflows_active = f.workflows;
-    if (f.project !== undefined) auditor.is_project_active = f.project;
-    if (f.names !== undefined) auditor.is_names_active = f.names;
-  }
-});
+    console.log(`🎯 Filter: ${arg.substring(2).toUpperCase()} Rules Active`);
+    
+    // Merge Extension Rules
+    if (f.extRules) {
+      for (const [ext, rules] of Object.entries(f.extRules)) {
+        auditor.rules[ext] = [...(auditor.rules[ext] || []), ...rules];
+      }
+    }
+    
+    // OR Boolean Flags
+    if (f.skills === true) auditor.is_skills_active = true;
+    if (f.rules === true) auditor.is_rules_active = true;
+    if (f.workflows === true) auditor.is_workflows_active = true;
+    if (f.project === true) auditor.is_project_active = true;
+    if (f.names === true) auditor.is_names_active = true;
+  });
+  console.log(""); // Spacing
+}
 
 // Primary Scan Paths
 [SRC_DIR, SKILLS_DIR, RULES_DIR, WORKFLOWS_DIR].forEach(dir => auditor.scan(dir));
