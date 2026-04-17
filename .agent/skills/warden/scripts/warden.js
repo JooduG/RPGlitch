@@ -315,7 +315,7 @@ if (filterArgs.length > 0) {
 }
 
 // Primary Scan Paths
-[SRC_DIR, SKILLS_DIR, RULES_DIR, WORKFLOWS_DIR].forEach((dir) => auditor.scan(dir));
+[SRC_DIR, SKILLS_DIR, RULES_DIR, WORKFLOWS_DIR, path.join(ROOT_DIR, "tasks")].forEach((dir) => auditor.scan(dir));
 
 // Nomenclature Scan
 if (auditor.is_names_active) {

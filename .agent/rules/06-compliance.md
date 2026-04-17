@@ -1,6 +1,6 @@
 ---
 name: 06-compliance
-description: Security auditing, Quality Assurance protocols, Automated Hygiene, and the Equivalence Oracle
+description: Security auditing, Quality Assurance protocols, Automated Hygiene, and the Equivalence Oracle.
 trigger: always_on
 ---
 
