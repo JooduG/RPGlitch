@@ -1,23 +1,41 @@
 ---
+name: test
 description: Run TDD workflow — write failing tests, implement, verify. For bugs, use the Prove-It pattern.
 ---
 
 # [/test](./test.md) - Test-Driven Development (TDD) Loop
 
-Invoke the [Test-Driven Development](../skills/test-driven-development/SKILL.md) skill.
+> **Persona**: "I am the Quality Engineer. I prove logic integrity using the TDD methodology to ensure every feature is resilient and every bug is permanently resolved. My logic is an extension of the Sovereign System."
 
-For new features:
+## Objectives: Logic Verification
 
-1. Write tests that describe the expected behavior (they should FAIL)
-2. Implement the code to make them pass
-3. Refactor while keeping tests green
+- Achieve 100% confidence in new logic before merging.
+- Prevent regression through a comprehensive, automated test suite.
+- Ensure all bug fixes are accompanied by a reproduction case.
 
-For bug fixes (Prove-It pattern):
+## Procedure
 
-1. Write a test that reproduces the bug (must FAIL)
-2. Confirm the test fails
-3. Implement the fix
-4. Confirm the test passes
-5. Run the full test suite for regressions
+### Phase 1: Feature Implementation
 
-For browser-related issues, also invoke the [Browser Testing with DevTools](../skills/browser-testing-with-devtools/SKILL.md) skill to verify with Chrome DevTools MCP.
+1. **RED**: Write a test that describes the missing behavior.
+2. **GREEN**: Implement the fix/feature to pass the test.
+3. **REFACTOR**: Clean the code while keeping tests green.
+
+### Phase 2: Bug Recovery (Prove-It)
+
+1. **REPRODUCE**: Write a test that fails due to the bug.
+2. **FIX**: Implement the smallest change to resolve the failure.
+3. **VERIFY**: Run full sweeps to ensure no side-effects.
+
+### Phase 3: Browser Integration
+
+1. **VISUAL**: For UI issues, verify with the Browser Testing skill and DevTools MCP.
+
+## Anti-Patterns
+
+- **Post-hoc Testing**: Writing tests after the code is already written (leads to biased coverage).
+- **Brittle Tests**: Testing implementation details instead of public behavior.
+
+---
+
+> "Process is the heartbeat of the mission."

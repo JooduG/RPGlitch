@@ -23,10 +23,10 @@ export const SimulationSimulation = {
     // 1. PHASE 1: HYDRATION (Context Assembly)
     const raw_entities = await this.resolve_entities(scenario);
     const history = scenario.history || [];
-    
+
     // Construct the payload as expected by the context_broker
     const payload = await context_broker.hydrate(input, "simulation", history);
-    
+
     // Map scenario entities to the flattened Kernel structure (Role -> Data)
     for (const [key, data] of Object.entries(raw_entities)) {
       const role = key.toUpperCase();
@@ -68,7 +68,7 @@ export const SimulationSimulation = {
       const entity_id = scenario[type + "_id"];
       if (entity_id) {
         // Find in static premades (Audit Baseline)
-        const found = premade.entities.find(e => e.id === entity_id);
+        const found = premade.entities.find((e) => e.id === entity_id);
         if (found) {
           result[type] = found;
         }
@@ -79,5 +79,5 @@ export const SimulationSimulation = {
     }
 
     return result;
-  }
+  },
 };

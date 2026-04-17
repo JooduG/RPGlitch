@@ -59,7 +59,7 @@ class Auditor {
     this.is_rules_active = true;
     this.is_workflows_active = true;
     this.is_project_active = true;
-    this.is_names_active = true; 
+    this.is_names_active = true;
   }
 
   scan(dir) {
@@ -92,13 +92,21 @@ class Auditor {
     let rules = [];
 
     // 1. Skill/Template Rules
-    if (this.is_skills_active && relPath.startsWith(".agent/skills") && relPath.endsWith("SKILL.md")) {
+    if (
+      this.is_skills_active &&
+      relPath.startsWith(".agent/skills") &&
+      relPath.endsWith("SKILL.md")
+    ) {
       rules.push(...skill_rules);
     }
     if (this.is_rules_active && relPath.startsWith(".agent/rules") && relPath.endsWith(".md")) {
       rules.push(...rule_rules);
     }
-    if (this.is_workflows_active && relPath.startsWith(".agent/workflows") && relPath.endsWith(".md")) {
+    if (
+      this.is_workflows_active &&
+      relPath.startsWith(".agent/workflows") &&
+      relPath.endsWith(".md")
+    ) {
       rules.push(...workflow_rules);
     }
 
@@ -172,7 +180,7 @@ class Auditor {
     console.log(`🔥 VIOLATIONS: ${this.stats.violations}`);
     console.log("------------------------\n");
 
-    if (this.results.some(r => r.severity === "HERESY")) {
+    if (this.results.some((r) => r.severity === "HERESY")) {
       console.log(`${RED}❌ REJECTED: Heresy detected in Sovereign logic. Gate closed.${RESET}`);
       process.exit(1);
     } else {
@@ -185,20 +193,85 @@ class Auditor {
  * 3. CLI Configuration lookup table
  */
 const FILTERS = {
-  "--names": { names: true, skills: false, rules: false, workflows: false, project: false, extRules: {} },
-  "--svelte": { names: false, skills: false, rules: false, workflows: false, extRules: { ".svelte": svelteRules } },
-  "--css": { names: false, skills: false, rules: false, workflows: false, extRules: { ".css": cssRules } },
-  "--security": { names: false, skills: false, rules: false, workflows: false, extRules: { ".js": securityRules } },
-  "--skills": { names: false, skills: true, rules: false, workflows: false, project: false, extRules: {} },
-  "--rules": { names: false, skills: false, rules: true, workflows: false, project: false, extRules: {} },
-  "--workflows": { names: false, skills: false, rules: false, workflows: true, project: false, extRules: {} },
-  "--agent": { names: false, skills: true, rules: true, workflows: true, project: false, extRules: {} },
-  "--project": { names: false, skills: false, rules: false, workflows: false, extRules: { ".js": projectRules, ".md": projectRules } },
-  "--todo": { names: false, skills: false, rules: false, workflows: false, project: false, extRules: { 
-      ".js": securityRules.filter(r => r.id === "SECURITY_DEBUG_LOG"),
-      ".svelte": svelteRules.filter(r => r.id === "S_RUNE_DEBUG")
-    }
-  }
+  "--names": {
+    names: true,
+    skills: false,
+    rules: false,
+    workflows: false,
+    project: false,
+    extRules: {},
+  },
+  "--svelte": {
+    names: false,
+    skills: false,
+    rules: false,
+    workflows: false,
+    extRules: { ".svelte": svelteRules },
+  },
+  "--css": {
+    names: false,
+    skills: false,
+    rules: false,
+    workflows: false,
+    extRules: { ".css": cssRules },
+  },
+  "--security": {
+    names: false,
+    skills: false,
+    rules: false,
+    workflows: false,
+    extRules: { ".js": securityRules },
+  },
+  "--skills": {
+    names: false,
+    skills: true,
+    rules: false,
+    workflows: false,
+    project: false,
+    extRules: {},
+  },
+  "--rules": {
+    names: false,
+    skills: false,
+    rules: true,
+    workflows: false,
+    project: false,
+    extRules: {},
+  },
+  "--workflows": {
+    names: false,
+    skills: false,
+    rules: false,
+    workflows: true,
+    project: false,
+    extRules: {},
+  },
+  "--agent": {
+    names: false,
+    skills: true,
+    rules: true,
+    workflows: true,
+    project: false,
+    extRules: {},
+  },
+  "--project": {
+    names: false,
+    skills: false,
+    rules: false,
+    workflows: false,
+    extRules: { ".js": projectRules, ".md": projectRules },
+  },
+  "--todo": {
+    names: false,
+    skills: false,
+    rules: false,
+    workflows: false,
+    project: false,
+    extRules: {
+      ".js": securityRules.filter((r) => r.id === "SECURITY_DEBUG_LOG"),
+      ".svelte": svelteRules.filter((r) => r.id === "S_RUNE_DEBUG"),
+    },
+  },
 };
 
 const auditor = new Auditor();
@@ -209,7 +282,7 @@ console.log("🛡️  WARDEN: QUALITY GATE ENGINE");
 console.log("================================================================================\n");
 
 // Apply Filters if present
-const filterArgs = args.filter(arg => FILTERS[arg]);
+const filterArgs = args.filter((arg) => FILTERS[arg]);
 if (filterArgs.length > 0) {
   // If filters are provided, start from a clean state
   auditor.rules = {};
@@ -219,17 +292,17 @@ if (filterArgs.length > 0) {
   auditor.is_project_active = false;
   auditor.is_names_active = false;
 
-  filterArgs.forEach(arg => {
+  filterArgs.forEach((arg) => {
     const f = FILTERS[arg];
     console.log(`🎯 Filter: ${arg.substring(2).toUpperCase()} Rules Active`);
-    
+
     // Merge Extension Rules
     if (f.extRules) {
       for (const [ext, rules] of Object.entries(f.extRules)) {
         auditor.rules[ext] = [...(auditor.rules[ext] || []), ...rules];
       }
     }
-    
+
     // OR Boolean Flags
     if (f.skills === true) auditor.is_skills_active = true;
     if (f.rules === true) auditor.is_rules_active = true;
@@ -241,12 +314,12 @@ if (filterArgs.length > 0) {
 }
 
 // Primary Scan Paths
-[SRC_DIR, SKILLS_DIR, RULES_DIR, WORKFLOWS_DIR].forEach(dir => auditor.scan(dir));
+[SRC_DIR, SKILLS_DIR, RULES_DIR, WORKFLOWS_DIR].forEach((dir) => auditor.scan(dir));
 
 // Nomenclature Scan
 if (auditor.is_names_active) {
   const name_stats = { scanned: 0, violations: 0 };
-  [SRC_DIR, SKILLS_DIR, RULES_DIR, WORKFLOWS_DIR].forEach(dir => {
+  [SRC_DIR, SKILLS_DIR, RULES_DIR, WORKFLOWS_DIR].forEach((dir) => {
     scan_nomenclature(dir, name_stats, (id, sev, rel_path, msg) => {
       auditor.stats.violations++;
       const s = SEVERITY_LEVELS[sev] || SEVERITY_LEVELS.DEBT;

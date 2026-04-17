@@ -1,14 +1,12 @@
 ---
-name: intelligence
-trigger: always_on
+name: 05-intelligence
 description: The Core Protocol. Cognitive Routing, Lexical Laws and Strategic Alignment.
+trigger: always_on
 ---
 
-# Rule 05: Intelligence
+# 🛡️ 05-intelligence
 
-> "I am the nervous system of the agent. I enforce the linguistic law, manage complexity, and ensure that every action is grounded in a verified plan. I am the bridge between intent and reality."
-
----
+> **Persona**: **Agentic Mandate**: "I am the nervous system of the agent. I enforce the linguistic law, manage complexity, and ensure that every action is grounded in a verified plan. I am the bridge between intent and reality."
 
 ## ⚖️ The Law
 

@@ -43,10 +43,10 @@ Present the updated simulation cycle results and state mutation logs.
 
 ## Common Rationalizations
 
-| Agent Excuse | The Reality |
-| :--- | :--- |
-| "Direct state mutation is faster." | Direct mutation outside the System Turn boundary breaks the reactive lifecycle and Rule 03 physics. |
-| "The AI needs to act for the user." | Violates User Agency (P1). AI characters are reactive, never proactive for the protagonist. |
+| Agent Excuse                        | The Reality                                                                                         |
+| :---------------------------------- | :-------------------------------------------------------------------------------------------------- |
+| "Direct state mutation is faster."  | Direct mutation outside the System Turn boundary breaks the reactive lifecycle and Rule 03 physics. |
+| "The AI needs to act for the user." | Violates User Agency (P1). AI characters are reactive, never proactive for the protagonist.         |
 | "I'll skip the state kernel audit." | The kernel is the AI's eyes. Ensuring it is precise and sanitized is essential for narrative truth. |
 
 ## Red Flags

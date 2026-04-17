@@ -1,7 +1,7 @@
 /**
  * @file simulation-audit.js
  * 📊 THE DASHBOARD: High-Fidelity Technical Reporter.
- * 
+ *
  * NOTE: This script is executed via Vitest to handle Svelte/ESM/Rune dependencies.
  * Run with: npx vitest run .agent/skills/simulation/scripts/simulation-audit.js
  */
@@ -19,13 +19,13 @@ describe("🕹️ SYSTEM TURN: Source Audit", () => {
       user_id: "caelum",
       fractal_id: "ashen-weald",
       history: [
-        { 
-          role: "ai", 
-          character_name: "Lord Valerius", 
+        {
+          role: "ai",
+          character_name: "Lord Valerius",
           text: "You stumble through the ash, little bird. Do you seek sanctuary or a cage?",
-          type: "dialogue"
-        }
-      ]
+          type: "dialogue",
+        },
+      ],
     };
 
     const input = "I offer no resistance, only a silent plea for protection from the dark.";
@@ -36,7 +36,7 @@ describe("🕹️ SYSTEM TURN: Source Audit", () => {
 
     // 3. GENERATE REPORT
     const SEP = "────────────────────────────────────────────────────────────────────────────────";
-    const timestamp = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+    const timestamp = new Date().toISOString().replace(/T/, " ").replace(/\..+/, "");
 
     const report = `# 📊 Simulation Audit Report
 **Timestamp:** \`${timestamp}\`

@@ -44,7 +44,7 @@
     "!**/.gemini/**",
     "!**/.geminiignore",
     "!**/.git/**",
-    "!**/.playwright-auth/**",
+    "**/.playwright-auth/**",
     "!**/index/**",
     "!**/mcp.json",
     "!**/rpglitch-left-panel.txt",
@@ -57,7 +57,6 @@
     ".secrets",
     "**/.gemini/**",
     "**/.jules/**",
-    "**/playwright-auth/**",
     "act_output.log"
   ],
   "antigravityignore": [],
