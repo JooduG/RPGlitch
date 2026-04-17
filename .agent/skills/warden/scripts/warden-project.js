@@ -101,7 +101,7 @@ export function syncBacklog() {
   const backlogHeader = "## 🧹 Backlog (Automated)";
   const markerStart = "<!-- BACKLOG_START -->";
   const markerEnd = "<!-- BACKLOG_END -->";
-  const lastSwept = `*Last Swept: ${new Date().toISOString()}*`;
+  const lastSwept = `*Last Swept: ${new Date().toISOString().replace(/T/, " ").replace(/\..+/, "")}*`;
 
   const newBacklogContent = `${markerStart}\n${lastSwept}\n\n${found.join("\n")}\n${markerEnd}`;
 
