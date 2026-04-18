@@ -75,6 +75,7 @@ The Nordic Collection relies on static spatial depth and kinetic scaling rather 
 
 - **Do** use strict named tokens (`var(--color-chalk)`, `var(--spacing-xl)`) rather than raw hex/pixels.
 - **Do** maintain the semantic typography split.
+- **Do** use `aria-label` for all interactive labels and tooltips. Browser-default `title` attributes are strictly forbidden to ensure consistent Nordic styling.
 - **Don't** use standard hard glitch sharp edges; this regime favors soft glass and `var(--border-radius-m)`.
 - **Don't** use raw hex colors. To prevent eye strain, avoid `#FFFFFF` and `#000000` directly.
 

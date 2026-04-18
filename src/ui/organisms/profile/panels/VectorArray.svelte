@@ -62,11 +62,11 @@
 
 <div class="vector-panel" style="--accent-color: {signature_color}">
   <div class="vector-list">
-    <div
-      class="aperture-line"
-      class:visible={is_peeking && is_editing}
-      title="Click Header to Append"
-    ></div>
+      <div
+        class="aperture-line"
+        class:visible={is_peeking && is_editing}
+        aria-label="Click Header to Append"
+      ></div>
 
     {#each items as item, i (i)}
       <div
@@ -85,18 +85,18 @@
         </div>
 
         {#if is_editing}
-          <div
-            class="danger-zone"
-            use:danger={{ type: "hold", onComplete: () => remove_item(i) }}
-            title="Charge to Disintegrate"
-          ></div>
+            <div
+              class="danger-zone"
+              use:danger={{ type: "hold", onComplete: () => remove_item(i) }}
+              aria-label="Charge to Disintegrate"
+            ></div>
         {/if}
       </div>
     {/each}
 
     {#if items.length === 0 && !is_editing}
       <div class="placeholder-wrap" in:slide>
-        <span class="diegetic-placeholder">
+        <span class="system-placeholder">
           <svg viewBox="0 0 24 24" class="icon-xs" style="width: 14px; height: 14px;">
             <path
               fill="currentColor"
@@ -174,8 +174,8 @@
     pointer-events: none;
   }
 
-  /* Diegetic Placeholder: For empty system slots */
-  .diegetic-placeholder {
+  /* System Placeholder: For empty system slots */
+  .system-placeholder {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-xxs);
     color: var(--color-frisk);

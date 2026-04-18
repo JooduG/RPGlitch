@@ -19,7 +19,7 @@
 </script>
 
 <div class="scene-header" transition:fade>
-  <div class="glass-plate glass-overlay">
+  <div class="glass-plate glass-l">
     <div class="info-group location">
       <span class="label">LOCATION</span>
       <span class="value">{location}</span>

@@ -63,7 +63,7 @@
     background: transparent;
     cursor: pointer;
     border-radius: var(--border-radius-m);
-    overflow: hidden;
+    overflow: visible; /* Allow tooltips and highlights to bleed */
     border-top: var(--border-xl); /* Maintain specular highlight override */
   }
 
@@ -84,8 +84,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
+    overflow: hidden; /* Mask internal visual */
     position: relative;
+    border-radius: var(--border-radius-m) var(--border-radius-m) 0 0;
   }
 
   .drawer-card .card-info {
@@ -95,6 +96,7 @@
     align-items: center;
     background: var(--glass-s);
     border-top: var(--border-l);
+    border-radius: 0 0 var(--border-radius-m) var(--border-radius-m);
   }
 
   .drawer-card .card-info h5 {

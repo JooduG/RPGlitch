@@ -136,35 +136,28 @@
   }
 
   .button-danger {
-    background: transparent;
     color: var(--color-white);
-    border: none;
   }
 
   .button-dashed {
-    background: transparent;
     border: 1px dashed var(--border-l);
     color: var(--font-color-s);
-    cursor: pointer;
   }
 
   .button-overlay {
     position: absolute;
     inset: 0;
     z-index: var(--z-index-m);
-    background: transparent;
-    border: none;
     border-radius: 0;
     padding: 0;
+    min-height: 0;
   }
 
   .button-magic {
-    background: transparent;
     color: var(--color-frozen);
   }
 
   .button-tech {
-    background: transparent;
     color: var(--color-frisk);
   }
 
@@ -197,8 +190,8 @@
 
   /* 3. Base States (Behavioral - Lower Specificity) */
   .button:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px var(--color-frisk);
+    outline: 2px solid var(--color-frisk);
+    outline-offset: 2px;
   }
 
   .button:disabled,

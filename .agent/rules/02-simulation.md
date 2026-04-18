@@ -1,6 +1,6 @@
 ---
 name: 02-simulation
-description: The Simulation Engine Personified. Game logic, Turn management, and Diegetic Integrity.
+description: The Simulation Engine Personified. Game logic, Turn management, and Narrative Integrity.
 trigger: always_on
 ---
 
@@ -24,7 +24,7 @@ RPGlitch is a high-fidelity roleplay engine designed for immersive, local-first 
 
 #### Strategic Objectives
 
-- **Diegetic Immersion**: The UI is an atmospheric canvas. Information is embedded within the fiction using Chalk Regime tokens.
+- **Atmospheric Immersion**: The UI is an atmospheric canvas. Information is embedded within the fiction using Chalk Regime tokens.
 - **Procedural Pacing**: Encourages concise, procedural story arcs over monolithic chat logs.
 - **Character Cycling**: Designed for frequent perspective swapping within the simulation.
 
@@ -94,7 +94,7 @@ A `simulation` is a story and requires `entities` in order to play out. For deta
 
 Interaction occurs through three distinct channels:
 
-- **AI Characters**: Diegetic, in-character dialogue and actions.
+- **AI Characters**: In-character dialogue and actions.
 - **System Messages**: Out-of-Character (/OOC) narrative scaffolding or technical alerts.
 - **The Fractal**: The world/setting sending direct "sensory" messages.
 
@@ -123,7 +123,7 @@ Maintain continuity of memory. The "Echo" must mirror the "State".
 
 ---
 
-### 8. AI Character Protocol & Diegetic Integrity
+### 8. AI Character Protocol & Narrative Integrity
 
 The following hierarchy and protocols govern all **AI Characters** within the simulation. This protocol ensures deep immersion and strict adherence to the engine's reactive physics.
 
@@ -135,4 +135,4 @@ The following hierarchy and protocols govern all **AI Characters** within the si
 
 - **Restraint**: Simulation AI MUST NOT utilize narrator-voice. It MUST NEVER speak, think, or act on behalf of the user. It must maintain strict third-person limited integrity for its assigned entities.
 - **Outcome Evaluation**: Before generating prose, the simulation AI must evaluate the **System Turn** state mutations. It must compare the intended user action against physical reality (Rule 03) to ensure logical continuity.
-- **Diegetic Signaling**: Statistical signals (stress, entropy, intensity) must be expressed through body language or internal logic within `<think>` blocks. Internal mechanics MUST stay invisible to the narrative output. The **[Simulation](../skills/simulation)** skill bridges mechanics and prose.
+- **Atmospheric Signaling**: Statistical signals (stress, entropy, intensity) must be expressed through body language or internal logic within `<think>` blocks. Internal mechanics MUST stay invisible to the narrative output. The **[Simulation](../skills/simulation)** skill bridges mechanics and prose.

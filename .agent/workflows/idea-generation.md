@@ -1,12 +1,12 @@
 ---
-name: 10x
+name: idea-generation
 description: 10x Strategic Mode. Find high-leverage product opportunities and game-changing features for the RPGlitch engine. Use when you want to think like a founder/strategist.
 risk: low
 source: AI
 date_added: 2024-03-29
 ---
 
-# [/10x](./idea-generation.md) - High-Leverage Strategic Idea Generation
+# [/idea-generation](./idea-generation.md) - High-Leverage Strategic Idea Generation
 
 ## Objectives: Phase STRAT - Scaling
 

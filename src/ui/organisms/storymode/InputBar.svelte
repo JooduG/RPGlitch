@@ -48,7 +48,7 @@
     <button
       class="icon-button settings-button"
       onclick={() => app.toggle_control_panel()}
-      title="Settings"
+      aria-label="Settings"
       type="button"
       use:spin
     >
@@ -78,7 +78,7 @@
       class="icon-button send-button"
       onclick={handle_send}
       disabled={!value.trim() || is_locked}
-      title="Send Message"
+      aria-label="Send Message"
       type="button"
       use:stab
     >

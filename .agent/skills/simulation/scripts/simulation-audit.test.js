@@ -39,12 +39,14 @@ describe("🕹️ SYSTEM TURN: Source Audit", () => {
     const timestamp = new Date().toISOString().replace(/T/, " ").replace(/\..+/, "");
 
     const report = `# 📊 Simulation Audit Report
+
 **Timestamp:** \`${timestamp}\`
 **Round:** \`${runtime.round}\`
 
 ${SEP}
 
 ## [PHASE 1: THE KERNEL (HYDRATION)]
+
 - **Input:** "${input}"
 - **Scenario:** Gothic Baseline (Valerius / Caelum / Ashen Weald)
 - **Entities Loaded:** ${Object.keys(result.payload.entities).join(", ")}
@@ -52,6 +54,7 @@ ${SEP}
 ${SEP}
 
 ## [PHASE 2: THE ECHO (DYNAMICS)]
+
 - **Signal Prompts:** ${result.snapshot.signal_prompts.join(", ") || "None"}
 - **Mechanical Weights:**
   - **AI (Intensity):** \`${result.snapshot.ai?.dynamics?.intensity || 50}\`
@@ -61,6 +64,7 @@ ${SEP}
 ${SEP}
 
 ## [PHASE 3: THE SYNTHESIS (PROMPT)]
+
 \`\`\`xml
 ${result.system}
 \`\`\`

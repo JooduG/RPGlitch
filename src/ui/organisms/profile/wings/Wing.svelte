@@ -3,12 +3,12 @@
    * @file src/ui/organisms/profile/wings/Wing.svelte
    * 🛸 THE WING SHELL
    * Shared decorative and structural container for Profile wings.
-   * Handles glass-overlay aesthetics and height-constrained scrolling.
+   * Handles glass-l aesthetics and height-constrained scrolling.
    */
   let { children, class: className = "", ...rest } = $props();
 </script>
 
-<div class="wing-shell glass-overlay {className}" {...rest}>
+<div class="wing-shell glass-l {className}" {...rest}>
   <div class="scroller">
     {@render children()}
   </div>

@@ -145,20 +145,23 @@
         class="profile-presentation"
         style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
       >
-        <div class="left-panel">
-          <ProfilePicture entity={char} />
+        <div class="presentation-shell">
+          <div class="signature-bar"></div>
+          <div class="left-panel">
+            <ProfilePicture entity={char} />
+          </div>
+          <main class="right-panel">
+            <EntityHeader bind:char {is_editing} />
+            <EntityFragments bind:char {is_editing} {busy_fields} bind:active_field />
+            <EntityFooter
+              {is_editing}
+              {is_saving}
+              onclick_edit={() => (is_editing = true)}
+              onclick_save={handle_save}
+              onclick_delete={handle_delete}
+            />
+          </main>
         </div>
-        <main class="right-panel">
-          <EntityHeader bind:char {is_editing} />
-          <EntityFragments bind:char {is_editing} {busy_fields} bind:active_field />
-          <EntityFooter
-            {is_editing}
-            {is_saving}
-            onclick_edit={() => (is_editing = true)}
-            onclick_save={handle_save}
-            onclick_delete={handle_delete}
-          />
-        </main>
       </div>
 
       <!-- RIGHT WING: DEVELOPER METRICS -->
@@ -226,28 +229,44 @@
     background: var(--glass-xl);
     backdrop-filter: var(--blur-l);
     border: var(--border-l);
-    border-top: 2px solid var(--signature-color);
     border-radius: var(--border-radius-l);
-    box-shadow:
-      var(--shadow-xl),
-      0 0 var(--spacing-xxl) rgb(var(--signature-rgb) / var(--opacity-s));
-    display: grid;
-    grid-template-columns: 35% 1fr;
-    grid-template-rows: 1fr;
+    box-shadow: var(--shadow-xl);
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     z-index: var(--z-index-l);
     transition: all var(--motion-slow) var(--motion-elastic);
   }
 
+  .presentation-shell {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 35% 1fr;
+    grid-template-rows: 1fr;
+    border-radius: inherit;
+    overflow: hidden; /* THE SOVEREIGN CLIP */
+    background: transparent;
+    position: relative;
+  }
+
+  .signature-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--signature-color);
+    z-index: var(--z-index-xxl); /* Above everything in the shell */
+    pointer-events: none;
+  }
+
   .left-panel {
     height: 100%;
-    min-height: 0;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    border-right: var(--border-m);
-    padding: 0;
+    border-right: 1px solid var(--border-l); /* Shared divider */
+    background: transparent;
   }
 
   .right-panel {
@@ -255,10 +274,9 @@
     display: flex;
     flex-direction: column;
     flex: 1;
-    min-height: 0;
     overflow-y: auto;
     padding: var(--spacing-m);
-    background-color: color-mix(in srgb, var(--signature-color) 10%, transparent 90%);
+    background-color: rgb(from var(--signature-color) r g b / 5%); /* Subtle Identity Wash */
     gap: var(--spacing-m);
   }
 

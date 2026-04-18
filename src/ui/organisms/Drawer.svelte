@@ -97,7 +97,7 @@
   <Backdrop onclick={() => app.close_drawer()} z_index="calc(var(--z-index-xl) - 1)" />
 
   <div
-    class="entity-drawer glass-overlay"
+    class="entity-drawer glass-l"
     role="dialog"
     aria-labelledby="drawer-title"
     transition:fly={{ y: "100%", duration: 500, easing: quintOut }}
@@ -111,7 +111,7 @@
         <button
           class="drawer-card drawer-card--new glass-s"
           onclick={handleCreateNew}
-          title="Initialize a new entity from template"
+          aria-label="Initialize a new entity from template"
         >
           <div class="new-icon-wrap">
             <span class="drawer-card-icon">+</span>

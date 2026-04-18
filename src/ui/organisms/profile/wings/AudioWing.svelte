@@ -49,7 +49,7 @@
             type="button"
             disabled={!is_editing}
             onclick={() => (show_voice_dropdown = !show_voice_dropdown)}
-            title="Select Voice"
+            aria-label="Select Voice"
           >
             <span class="voice-name-truncate">
               {format_voice_name(
@@ -76,7 +76,7 @@
         <button
           class="preview-button"
           type="button"
-          title="Preview Voice"
+          aria-label="Preview Voice"
           disabled={!selected_voice}
           onclick={() => Audio.voice.preview(char.voice.uri, char.voice.rate, char.voice.pitch)}
         >
@@ -136,7 +136,7 @@
     color: var(--font-color-m);
     font-size: var(--font-size-s);
     cursor: pointer;
-    overflow: hidden;
+    overflow: visible; /* Prevent tooltip clipping */
     background: var(--glass-xs);
     border: none;
     border-radius: var(--border-radius-m);
@@ -246,8 +246,7 @@
 
   .voice-option .voice-name {
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow: visible;
     flex: 1;
   }
 

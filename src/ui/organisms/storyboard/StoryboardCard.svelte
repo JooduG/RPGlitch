@@ -32,42 +32,46 @@
   class="storyboard-stack {type}-card glass-base"
   class:is-empty={is_empty}
   style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
+  aria-label={is_empty ? `Select ${role_label}` : `Change ${role_label}`}
   data-testid="storyboard-card"
 >
   {#if is_empty}
-    <Button variant="overlay" onclick={on_select} aria-label="Select {role_label}">
-      <div class="empty-content">
-        <div class="empty-icon-wrap">
-          {#if type === "fractal"}
-            <svg viewBox="0 0 24 24" class="icon">
-              <path fill="currentColor" d="M19,12L12,22L5,12L12,2M12,2L19,12H5L12,2Z" />
-            </svg>
-          {:else}
-            <svg viewBox="0 0 24 24" class="icon">
-              <path
-                fill="currentColor"
-                d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
-              />
-            </svg>
-          {/if}
+    <Button variant="overlay" onclick={on_select}>
+      <div class="card-shell">
+        <div class="empty-content">
+          <div class="empty-icon-wrap">
+            {#if type === "fractal"}
+              <svg viewBox="0 0 24 24" class="icon">
+                <path fill="currentColor" d="M19,12L12,22L5,12L12,2M12,2L19,12H5L12,2Z" />
+              </svg>
+            {:else}
+              <svg viewBox="0 0 24 24" class="icon">
+                <path
+                  fill="currentColor"
+                  d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+                />
+              </svg>
+            {/if}
+          </div>
+          <span class="empty-slug">{role_label}</span>
         </div>
-        <span class="empty-slug">{role_label}</span>
       </div>
     </Button>
   {:else}
-    <div class="storyboard-card">
-      <!-- Info Layer (Bottom-up Gradient Scrim) -->
-      <div class="card-info-scrim">
-        <div class="info-content">
-          <h2 use:fitText={{ maxSize: 32, minSize: 16, lineHeight: "1.1" }} title={entity.name}>
-            {entity.name}
-          </h2>
-          <p class="description">{entity.description || "No description provided."}</p>
+    <div class="card-shell">
+      <div class="storyboard-card">
+        <!-- Info Layer (Bottom-up Gradient Scrim) -->
+        <div class="card-info-scrim">
+          <div class="info-content">
+            <h2 use:fitText={{ maxSize: 32, minSize: 16, lineHeight: "1.1" }} title={entity.name}>
+              {entity.name}
+            </h2>
+            <p class="description">{entity.description || "No description provided."}</p>
+          </div>
         </div>
-      </div>
 
       <!-- Action Layer (Top-level Pointer Target) -->
-      <Button variant="overlay" onclick={on_select} aria-label="Change {role_label}">
+      <Button variant="overlay" onclick={on_select}>
         <div class="visual-anchor">
           <ProfilePicture {entity} />
         </div>
@@ -88,7 +92,11 @@
         </svg>
       </Button>
     </div>
-  {/if}
+  </div>
+{/if}
+
+  <!-- Border Highlight (Dedicated layer to prevent ::after collisions) -->
+  <div class="card-border"></div>
 </div>
 
 <style>
@@ -96,9 +104,30 @@
     position: relative;
     width: 280px;
     height: 400px;
-    border-radius: var(--border-radius-l);
-    overflow: hidden;
+    overflow: visible; /* Allow tooltips and specular highlights to bleed */
     transition: all var(--motion-fast) var(--motion-elastic);
+  }
+
+  /* Master clipping shell */
+  .card-shell {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: var(--border-radius-l);
+    background: var(--glass-l);
+    box-shadow: var(--shadow-m);
+    transition: inherit;
+  }
+
+  /* Overlay border highlight (Above the shell) */
+  .card-border {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: var(--border-radius-l);
+    transition: box-shadow var(--motion-fast) ease;
+    z-index: var(--z-index-xl); /* Above the shell and scrims */
   }
 
   /* Fractal Overrides: Landscape (Z x Y) */
@@ -107,37 +136,52 @@
     height: 280px;
   }
 
-  .storyboard-stack:hover {
-    border-color: var(--signature-color);
-    box-shadow:
-      0 12px 24px -12px rgb(from var(--signature-color) r g b / 40%),
-      0 0 0 1px var(--signature-color);
+  .storyboard-stack:hover .card-border {
+    box-shadow: inset 0 0 0 1.5px var(--signature-color);
+  }
+  
+  .storyboard-stack:hover .card-shell {
+    box-shadow: 0 12px 24px -12px rgb(from var(--signature-color) r g b / 40%);
+  }
+  
+  .storyboard-stack:focus-visible {
+    outline: none;
+  }
+
+  .storyboard-stack:focus-visible .card-border {
+    box-shadow: inset 0 0 0 2.5px var(--signature-color);
   }
 
   /* --- EMPTY STATE --- */
   .empty-content {
     display: flex;
     flex-direction: column;
-    z-index: var(--z-index-l);
-    padding: var(--spacing-s);
-
-    /* opacity removed to prevent contrast violations - jules review */
-    transition: transform var(--motion-fast) var(--motion-elastic);
-  }
-
-  :global(.storyboard-empty.button:hover) .empty-content {
-    transform: scale(1.05);
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    gap: var(--spacing-m);
+    padding: var(--spacing-xl);
+    text-align: center;
   }
 
   .empty-icon-wrap {
     color: var(--font-color-s);
+    opacity: var(--opacity-m);
+  }
+
+  .empty-icon-wrap :global(svg) {
+    width: 64px;
+    height: 64px;
   }
 
   .empty-slug {
     font-family: var(--font-family-heading);
+    font-size: var(--font-size-xs);
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-l);
     color: var(--font-color-s);
+    opacity: var(--opacity-m);
   }
 
   /* --- POPULATED CARD --- */
@@ -166,6 +210,7 @@
     padding: var(--spacing-xl) var(--spacing-m) var(--spacing-m);
     z-index: var(--z-index-l);
     pointer-events: none; /* Let overlay button handle clicks */
+    background-clip: padding-box;
   }
 
   .info-content h2 {
@@ -184,12 +229,14 @@
     -webkit-line-clamp: 2;
     line-clamp: 2;
     -webkit-box-orient: vertical;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .visual-anchor {
     width: 100%;
     height: 100%;
+    border-radius: var(--border-radius-l);
+    overflow: hidden; /* Mask the individual profile picture */
   }
 
   /* Profile Link: Floating button on top */

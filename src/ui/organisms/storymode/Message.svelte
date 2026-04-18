@@ -123,7 +123,7 @@
                 type="button"
                 class="attachment-button"
                 onclick={() => app.open_lightbox(src)}
-                title="View Attachment"
+                aria-label="View Attachment"
               >
                 <img {src} alt="Attachment" class="attachment-image" />
               </button>
@@ -251,17 +251,32 @@
   }
 
   .attachment-button {
-    background: none;
-    border: none;
-    padding: 0;
+    background: var(--glass-s);
+    border: var(--border-l);
+    padding: var(--spacing-xxs);
     margin: 0 0 var(--spacing-xs) 0;
     cursor: pointer;
-    transition: transform var(--motion-fast);
+    border-radius: var(--border-radius-m);
+    transition: all var(--motion-fast) var(--motion-elastic);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .attachment-button:hover {
+    background: var(--glass-l);
+    filter: brightness(1.2);
+  }
+
+  .attachment-button:active {
+    transform: scale(var(--motion-click));
   }
 
   .attachment-image {
     max-width: 100%;
-    border-radius: var(--border-radius-m);
+    border-radius: var(--border-radius-s);
     box-shadow: var(--shadow-s);
+    object-fit: cover;
   }
 </style>

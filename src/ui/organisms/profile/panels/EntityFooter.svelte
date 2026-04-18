@@ -56,6 +56,7 @@
     border-top: 0;
     z-index: var(--z-index-m);
     transition: all var(--motion-fast);
+    border-radius: 0 0 var(--border-radius-l) 0;
   }
 
   .footer-actions {

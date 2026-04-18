@@ -60,6 +60,8 @@ To prevent cognitive drift, nomenclature is absolute.
 - **Fractal**: World, setting, or environmental entity.
 - **User Persona**: Human-controlled character (Entity).
 - **AI Character**: Agent-controlled character (Entity).
+- **Profile Readonly**: A state where entity data is locked from user editing (e.g., during specific narrative sequences or preview modes).
+- **Simulation Lock**: A state where the simulation UI is disabled while the engine processes a turn.
 - **Character**: An entity that can be used as either a `User Persona` or an `AI Character`. All characters and fractals share the same underlying entity pool.
 - **Devmode**: Developer workspace.
 - **GH CLI**: (`gh`) The primary interface for GitHub lifecycle management. Mandatory for Issue/PR/Workflow operations.

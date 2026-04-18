@@ -180,12 +180,11 @@
           class="swatch"
           class:active={char.signature_color === hex}
           style="background-color: {PALETTE_VARS[hex] || hex}"
-          aria-label="Select color {name}"
+          aria-label="{name.charAt(0).toUpperCase() + name.slice(1)} ({char.signature_color === hex ? 'Selected' : 'Select Color'})"
           onclick={() => {
             char.signature_color = hex;
           }}
           disabled={!is_editing}
-          data-tooltip={name.charAt(0).toUpperCase() + name.slice(1)}
         ></button>
       {/each}
     </div>
@@ -310,7 +309,7 @@
   .prompt-box {
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: visible; /* Prevent tooltip clipping */
     border-radius: var(--border-radius-m);
     border: transparent;
     background: transparent;
@@ -365,7 +364,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     border-top: 1px solid var(--border-l);
-    overflow: hidden;
+    overflow: visible;
     gap: var(--spacing-xxs);
   }
 

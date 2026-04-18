@@ -42,7 +42,7 @@
         <button
           class="toolbar-btn continue"
           type="button"
-          title="Continue"
+          aria-label="Continue"
           onclick={(e) => onContinue?.(e)}
         >
           <svg viewBox="0 0 24 24" class="icon-m"
@@ -52,7 +52,7 @@
         <button
           class="toolbar-btn reroll"
           type="button"
-          title="Reroll"
+          aria-label="Reroll"
           onclick={(e) => onRegenerate?.(e)}
         >
           <svg viewBox="0 0 24 24" class="icon-m">
@@ -62,7 +62,12 @@
         </button>
       {/if}
 
-      <button class="toolbar-btn edit" type="button" title="Edit" onclick={(e) => onEdit?.(e)}>
+      <button
+        class="toolbar-btn edit"
+        type="button"
+        aria-label="Edit"
+        onclick={(e) => onEdit?.(e)}
+      >
         <svg viewBox="0 0 24 24" class="icon-m">
           <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -72,7 +77,7 @@
       <button
         class="toolbar-btn copy"
         type="button"
-        title="Copy"
+        aria-label="Copy"
         onclick={async () => {
           try {
             await navigator.clipboard.writeText(text);
@@ -90,7 +95,7 @@
       <button
         class="toolbar-btn delete"
         type="button"
-        title="Delete"
+        aria-label="Delete"
         onclick={(e) => onDelete?.(e)}
       >
         <svg viewBox="0 0 24 24" class="icon-m">
