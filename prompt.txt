@@ -1,0 +1,1591 @@
+Execute .agent/rules/06-compliance.md (Audit section). Target Critical/High vulnerabilities.
+
+
+Content of the latest commit (in the format of `git show`):
+```
+commit 708c482a7b3ba4020b155f719102f606fa9c803e
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Fri Apr 17 13:10:24 2026 +0200
+
+    feat: add intelligence rules, testing protocols, and entity management components while updating dependencies
+
+diff --git a/.agent/rules/04-aesthetics.md b/.agent/rules/04-aesthetics.md
+index d9fc77dd..f9117742 100644
+--- a/.agent/rules/04-aesthetics.md
++++ b/.agent/rules/04-aesthetics.md
+@@ -12,7 +12,7 @@ trigger: always_on
+ 
+ ### ❄️ The Nordic Collection
+ 
+-The interface abandons the gritty neon-SWARMtch cliché in favor of **The Nordic Collection** — a cool, deep, and elegant visual language. It feels like a high-end research terminal located in a frozen, subterranean facility.
++The interface abandons the gritty neon-glitch cliché in favor of **The Nordic Collection** — a cool, deep, and elegant visual language. It feels like a high-end research terminal located in a frozen, subterranean facility.
+ 
+ #### Core Aesthetic Pillars
+ 
+@@ -75,7 +75,7 @@ The Nordic Collection relies on static spatial depth and kinetic scaling rather
+ 
+ - **Do** use strict named tokens (`var(--color-chalk)`, `var(--spacing-xl)`) rather than raw hex/pixels.
+ - **Do** maintain the semantic typography split.
+-- **Don't** use standard hard SWARMtch sharp edges; this regime favors soft glass and `var(--border-radius-m)`.
++- **Don't** use standard hard glitch sharp edges; this regime favors soft glass and `var(--border-radius-m)`.
+ - **Don't** use raw hex colors. To prevent eye strain, avoid `#FFFFFF` and `#000000` directly.
+ 
+ ---
+diff --git a/.agent/rules/05-intelligence.md b/.agent/rules/05-intelligence.md
+index 0f8093f5..6879fcf7 100644
+--- a/.agent/rules/05-intelligence.md
++++ b/.agent/rules/05-intelligence.md
+@@ -54,7 +54,7 @@ To prevent cognitive drift, nomenclature is absolute.
+ #### **The RPGlitch Lexicon**
+ 
+ - **Swarm**: The tactical engine and lifecycle for multi-agent operations. A "Swarm" represents the technical engine that manages token scaling, parallel execution, and the 80% Confidence Gate.
+-- **RPSWARMtch**: (Deprecated) See **RPGlitch**.
++- **RPglitch**: (Deprecated) See **RPGlitch**.
+ - **RPGlitch**: The core simulation engine and repository name.
+ - **Entity**: The fundamental unit of the simulation. An `entity` is either a `character` or a `fractal`.
+ - **Fractal**: World, setting, or environmental entity.
+diff --git a/.agent/skills/idea-refine/assets/fractal-narrative.md b/.agent/skills/idea-refine/assets/fractal-narrative.md
+index a743bd72..7d71f923 100644
+--- a/.agent/skills/idea-refine/assets/fractal-narrative.md
++++ b/.agent/skills/idea-refine/assets/fractal-narrative.md
+@@ -7,7 +7,7 @@
+ The system tracks divergent narrative paths within a specific Fractal.
+ 
+ - Allow users to visualize divergent paths via a node graph.
+-- Implement "SWARMtch Protocol" events that intentionally break the fourth wall as a narrative device.
++- Implement "glitch Protocol" events that intentionally break the fourth wall as a narrative device.
+ 
+ ## 2. Conflict Mechanics
+ 
+diff --git a/.agent/skills/idea-refine/assets/storymode-sensory.md b/.agent/skills/idea-refine/assets/storymode-sensory.md
+index b1156134..48966026 100644
+--- a/.agent/skills/idea-refine/assets/storymode-sensory.md
++++ b/.agent/skills/idea-refine/assets/storymode-sensory.md
+@@ -21,7 +21,7 @@ Auditory immersion adhering to strict browser autoplay rules.
+ 
+ Tactile interface feedback utilizing the Chalk Regime.
+ 
+-- SWARMtch Haptics: Simulate digital decay through CSS-based visual feedback.
++- glitch Haptics: Simulate digital decay through CSS-based visual feedback.
+ - Depth Layering: Use shadows and 2% grain textures to provide tactile weight.
+ 
+ **Action:** **Draft a Svelte 5 snippet utilizing `$effect()` to bind a CSS blur transition to an AI Character's stress level.**
+diff --git a/.agent/skills/security-and-hardening/references/testing.md b/.agent/skills/security-and-hardening/references/testing.md
+index f753b8b3..584a5fac 100644
+--- a/.agent/skills/security-and-hardening/references/testing.md
++++ b/.agent/skills/security-and-hardening/references/testing.md
+@@ -6,7 +6,7 @@
+ 
+ **Trace backward through the call chain.**
+ 
+-1. **Observe Symptom:** Identify where the failure manifests (UI SWARMtch, error log).
++1. **Observe Symptom:** Identify where the failure manifests (UI glitch, error log).
+ 2. **Immediate Cause:** Find the code directly throwing the error (e.g., `undefined` access).
+ 3. **Trace Up:** Ask "What called this?" and "What value was passed?" until the origin point is found.
+ 4. **Fix Source:** Never patch the symptom. Add validation or fix the logic at the origin.
+diff --git a/.agent/skills/shipping-and-launch/scripts/deploy-perchance.js b/.agent/skills/shipping-and-launch/scripts/deploy-perchance.js
+index b021403b..d6f01f52 100644
+--- a/.agent/skills/shipping-and-launch/scripts/deploy-perchance.js
++++ b/.agent/skills/shipping-and-launch/scripts/deploy-perchance.js
+@@ -31,7 +31,7 @@ const PROJECT_ROOT = resolve(__dirname, "..", "..", "..", "..");
+  ************************************************************************************/
+ 
+ const CONFIG = {
+-  perchance_url: process.env.PERCHANCE_URL || "https://perchance.org/rpSWARMtch#edit",
++  perchance_url: process.env.PERCHANCE_URL || "https://perchance.org/rpglitch#edit",
+   perchance_username: process.env.PERCHANCE_USERNAME || "",
+   perchance_key: process.env.PERCHANCE_KEY || "",
+ 
+@@ -439,7 +439,7 @@ async function deploy({ left_content, right_content }) {
+       "📊",
+       `Final state — Left: ${final_state.model_length} chars, Right: ${final_state.output_length} chars, Save: ${final_state.save_state}`,
+     );
+-    log("🚀", `Deployment complete! Live at: https://perchance.org/rpSWARMtch`);
++    log("🚀", `Deployment complete! Live at: https://perchance.org/rpglitch`);
+ 
+     return true;
+   } catch (error) {
+diff --git a/.agent/skills/supabase-postgres-best-practices/references/advanced-full-text-search.md b/.agent/skills/supabase-postgres-best-practices/references/advanced-full-text-search.md
+index 9c5d5ce2..582cbeaa 100644
+--- a/.agent/skills/supabase-postgres-best-practices/references/advanced-full-text-search.md
++++ b/.agent/skills/supabase-postgres-best-practices/references/advanced-full-text-search.md
+@@ -24,17 +24,17 @@ select * from articles where lower(content) like '%postgresql%';
+ ```sql
+ -- Add tsvector column and index
+ alter table articles add column search_vector tsvector
+-  generated always as (to_tsvector('enSWARMsh', coalesce(title,'') || ' ' || coalesce(content,''))) stored;
++  generated always as (to_tsvector('english', coalesce(title,'') || ' ' || coalesce(content,''))) stored;
+ 
+ create index articles_search_idx on articles using gin (search_vector);
+ 
+ -- Fast full-text search
+ select * from articles
+-where search_vector @@ to_tsquery('enSWARMsh', 'postgresql & performance');
++where search_vector @@ to_tsquery('english', 'postgresql & performance');
+ 
+ -- With ranking
+ select *, ts_rank(search_vector, query) as rank
+-from articles, to_tsquery('enSWARMsh', 'postgresql') query
++from articles, to_tsquery('english', 'postgresql') query
+ where search_vector @@ query
+ order by rank desc;
+ ```
+diff --git a/.agent/skills/svelte/references/snippet.md b/.agent/skills/svelte/references/snippet.md
+index 006e3fa6..35e3fba1 100644
+--- a/.agent/skills/svelte/references/snippet.md
++++ b/.agent/skills/svelte/references/snippet.md
+@@ -232,7 +232,7 @@ Snippets implement the `Snippet` interface imported from `'svelte'`:
+ </script>
+ ```
+ 
+-With this change, red squigSWARMes will appear if you try and use the component without providing a `data` prop and a `row` snippet. Notice that the type argument provided to `Snippet` is a tuple, since snippets can have multiple parameters.
++With this change, red squiggles will appear if you try and use the component without providing a `data` prop and a `row` snippet. Notice that the type argument provided to `Snippet` is a tuple, since snippets can have multiple parameters.
+ 
+ We can tighten things up further by declaring a generic, so that `data` and `row` refer to the same type:
+ 
+diff --git a/audit_report.md b/audit_report.md
+index f28cbeed..4dbd5343 100644
+--- a/audit_report.md
++++ b/audit_report.md
+@@ -1,5 +1,5 @@
+ # 📊 Simulation Audit Report
+-**Timestamp:** `2026-04-17 05:30:57`
++**Timestamp:** `2026-04-17 09:40:34`
+ **Round:** `0`
+ 
+ ────────────────────────────────────────────────────────────────────────────────
+diff --git a/package-lock.json b/package-lock.json
+index 8cb9e3e8..639c1e7f 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -30,7 +30,7 @@
+         "@waldzellai/stochasticthinking": "^0.0.1",
+         "@waldzellai/structured-argumentation": "^0.1.3",
+         "@waldzellai/visual-reasoning": "^0.1.1",
+-        "bits-ui": "^2.16.4",
++        "bits-ui": "^2.17.3",
+         "chrome-devtools-mcp": "^0.20.3",
+         "dexie": "^4.4.1",
+         "dompurify": "^3.3.3",
+@@ -3103,9 +3103,6 @@
+       "cpu": [
+         "arm"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3126,9 +3123,6 @@
+       "cpu": [
+         "arm"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3149,9 +3143,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3172,9 +3163,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3195,9 +3183,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3218,9 +3203,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3538,9 +3520,6 @@
+       "cpu": [
+         "arm"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3554,9 +3533,6 @@
+       "cpu": [
+         "arm"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3570,9 +3546,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3586,9 +3559,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3602,9 +3572,6 @@
+       "cpu": [
+         "loong64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3618,9 +3585,6 @@
+       "cpu": [
+         "loong64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3634,9 +3598,6 @@
+       "cpu": [
+         "ppc64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3650,9 +3611,6 @@
+       "cpu": [
+         "ppc64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3666,9 +3624,6 @@
+       "cpu": [
+         "riscv64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3682,9 +3637,6 @@
+       "cpu": [
+         "riscv64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3698,9 +3650,6 @@
+       "cpu": [
+         "s390x"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3714,9 +3663,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3730,9 +3676,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+diff --git a/package.json b/package.json
+index 7f480495..d361c89a 100644
+--- a/package.json
++++ b/package.json
+@@ -22,7 +22,7 @@
+     "@waldzellai/stochasticthinking": "^0.0.1",
+     "@waldzellai/structured-argumentation": "^0.1.3",
+     "@waldzellai/visual-reasoning": "^0.1.1",
+-    "bits-ui": "^2.16.4",
++    "bits-ui": "^2.17.3",
+     "chrome-devtools-mcp": "^0.20.3",
+     "dexie": "^4.4.1",
+     "dompurify": "^3.3.3",
+diff --git a/prompt.txt b/prompt.txt
+deleted file mode 100644
+index e77e4370..00000000
+--- a/prompt.txt
++++ /dev/null
+@@ -1,557 +0,0 @@
+-Execute .agent/rules/06-compliance.md (Audit section). Target Critical/High vulnerabilities.
+-
+-
+-Content of the latest commit (in the format of `git show`):
+-```
+-commit d4ef11796803e01faba54086080120587fa8a6b5
+-Merge: 13d898f1 40a6cec9
+-Author: JooduG <62556217+JooduG@users.noreply.github.com>
+-Date:   Fri Apr 17 05:01:45 2026 +0200
+-
+-    Merge pull request #132 from JooduG/chore/refactor-rules-and-workflows-v2
+-    
+-    Refactor: Rule and Workflow Template Compliance
+-
+-```
+-
+-
+-Log of the last 20 commits (in the format of `git log --stat`):
+-```
+-commit d4ef11796803e01faba54086080120587fa8a6b5
+-Merge: 13d898f1 40a6cec9
+-Author: JooduG <62556217+JooduG@users.noreply.github.com>
+-Date:   Fri Apr 17 05:01:45 2026 +0200
+-
+-    Merge pull request #132 from JooduG/chore/refactor-rules-and-workflows-v2
+-    
+-    Refactor: Rule and Workflow Template Compliance
+-
+-commit 40a6cec99a098e9e425dd51989000e3ff03a64d0
+-Author: JooduG <62556217+JooduG@users.noreply.github.com>
+-Date:   Fri Apr 17 05:01:33 2026 +0200
+-
+-    Update .agent/skills/directives/scripts/audit-templates.js
+-    
+-    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+-
+- .agent/skills/directives/scripts/audit-templates.js | 4 +---
+- 1 file changed, 1 insertion(+), 3 deletions(-)
+-
+-commit 25e44b98227bf5f11905aa32329fa622574ff368
+-Merge: fb4d8274 96c8c134
+-Author: JohnG <johnfrejgranlund@gmail.com>
+-Date:   Fri Apr 17 04:56:16 2026 +0200
+-
+-    Merge branch 'chore/refactor-rules-and-workflows-v2' of https://github.com/JooduG/RPGlitch into chore/refactor-rules-and-workflows-v2
+-
+-commit fb4d8274b7d92c09d293ce5459c6e4dfc6a4e2e2
+-Author: JohnG <johnfrejgranlund@gmail.com>
+-Date:   Fri Apr 17 04:56:06 2026 +0200
+-
+-    fix: restore --project flag in warden.js
+-
+- .agent/skills/warden/scripts/warden.js | 1 +
+- 1 file changed, 1 insertion(+)
+-
+-commit f50e457d7f1e5e6efd44c701ca6230dde1df7664
+-Author: JohnG <johnfrejgranlund@gmail.com>
+-Date:   Fri Apr 17 04:52:14 2026 +0200
+-
+-    feat: initialize project roadmap and task tracking documentation
+-
+- tasks/todo.md | 14 ++++++--------
+- 1 file changed, 6 insertions(+), 8 deletions(-)
+-
+-commit 96c8c1343c71af671f9409ccbe12962e89e401b5
+-Author: JooduG <62556217+JooduG@users.noreply.github.com>
+-Date:   Fri Apr 17 04:51:51 2026 +0200
+-
+-    Update .agent/skills/warden/scripts/warden.js
+-    
+-    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+-
+- .agent/skills/warden/scripts/warden.js | 2 +-
+- 1 file changed, 1 insertion(+), 1 deletion(-)
+-
+-commit 128a2a74ff557dd327486d7cbbab22fadba5dbbb
+-Author: JooduG <62556217+JooduG@users.noreply.github.com>
+-Date:   Fri Apr 17 04:51:04 2026 +0200
+-
+-    Update .agent/skills/warden/scripts/warden-project.js
+-    
+-    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+-
+- .agent/skills/warden/scripts/warden-project.js | 2 +-
+- 1 file changed, 1 insertion(+), 1 deletion(-)
+-
+-commit aa7c87513fb1f0dc0ed73add81ea9ab9bba860d8
+-Author: JooduG <62556217+JooduG@users.noreply.github.com>
+-Date:   Fri Apr 17 04:50:58 2026 +0200
+-
+-    Update .agent/rules/06-compliance.md
+-    
+-    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+-
+- .agent/rules/06-compliance.md | 2 +-
+- 1 file changed, 1 insertion(+), 1 deletion(-)
+-
+-commit 69628dcbd756374ad1f62259f00d129511f1137e
+-Author: JooduG <62556217+JooduG@users.noreply.github.com>
+-Date:   Fri Apr 17 04:50:51 2026 +0200
+-
+-    Update .agent/rules/05-intelligence.md
+-    
+-    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+-
+- .agent/rules/05-intelligence.md | 2 +-
+- 1 file changed, 1 insertion(+), 1 deletion(-)
+-
+-commit 6c23f2466225ea03d7119f78bfba29d15aa81f69
+-Author: JooduG <62556217+JooduG@users.noreply.github.com>
+-Date:   Fri Apr 17 04:50:45 2026 +0200
+-
+-    Update .agent/rules/04-aesthetics.md
+-    
+-    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+-
+- .agent/rules/04-aesthetics.md | 2 +-
+- 1 file changed, 1 insertion(+), 1 deletion(-)
+-
+-commit e3f2fb192874ef729033b790f8d968c11138c386
+-Author: JooduG <62556217+JooduG@users.noreply.github.com>
+-Date:   Fri Apr 17 04:50:38 2026 +0200
+-
+-    Update .agent/rules/03-infrastructure.md
+-    
+-    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+-
+- .agent/rules/03-infrastructure.md | 2 +-
+- 1 file changed, 1 insertion(+), 1 deletion(-)
+-
+-commit 76fe32cdc1ad1dcec6c94144921a45c57ebf4c40
+-Author: JooduG <62556217+JooduG@users.noreply.github.com>
+-Date:   Fri Apr 17 04:50:29 2026 +0200
+-
+-    Update .agent/rules/01-foundation.md
+-    
+-    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+-
+- .agent/rules/01-foundation.md | 2 +-
+- 1 file changed, 1 insertion(+), 1 deletion(-)
+-
+-commit b25cd5a51149454e51d96ec62a2b1a597ba02cfc
+-Author: JohnG <johnfrejgranlund@gmail.com>
+-Date:   Fri Apr 17 04:44:06 2026 +0200
+-
+-    chore: refactor rules and workflows for template compliance
+-
+- .agent/rules/01-foundation.md                      |  10 +-
+- .agent/rules/02-simulation.md                      |  10 +-
+- .agent/rules/03-infrastructure.md                  |  10 +-
+- .agent/rules/04-aesthetics.md                      |  10 +-
+- .agent/rules/05-intelligence.md                    |  10 +-
+- .agent/rules/06-compliance.md                      |  10 +-
+- .../skills/directives/scripts/audit-templates.js   |  10 +-
+- .agent/skills/simulation/SKILL.md                  |   8 +-
+- ...imulation-audit.js => simulation-audit.test.js} |  16 +--
+- .../simulation/scripts/simulation-simulation.js    |   8 +-
+- .agent/skills/warden/SKILL.md                      |   8 +-
+- .agent/skills/warden/scripts/warden-project.js     |  19 ++--
+- .agent/skills/warden/scripts/warden.js             | 121 +++++++++++++++++----
+- .agent/workflows/build.md                          |  49 +++++----
+- .agent/workflows/code-simplify.md                  |  48 +++++---
+- .agent/workflows/plan.md                           |  42 +++++--
+- .agent/workflows/review.md                         |  43 ++++++--
+- .agent/workflows/ship.md                           |  43 ++++++--
+- .agent/workflows/spec.md                           |  40 +++++--
+- .agent/workflows/test.md                           |  42 +++++--
+- .gitignore                                         |   1 -
+- audit_report.md                                    |   2 +-
+- ignores.master.json                                |   3 +-
+- package.json                                       |  11 +-
+- scribbles.md                                       |   1 +
+- tasks/todo.md                                      |  10 +-
+- 26 files changed, 392 insertions(+), 193 deletions(-)
+-
+-commit 35228b59a5cc0aa7c26321c970466251b8e5581d
+-Author: JohnG <johnfrejgranlund@gmail.com>
+-Date:   Fri Apr 17 04:42:31 2026 +0200
+-
+-    feat: add simulation and audit scripts, update project configuration, and initialize playwright authentication state
+-
+- .playwright-auth/Crashpad/settings.dat                | Bin 40 -> 0 bytes
+- .playwright-auth/Default/Account Web Data             | Bin 77824 -> 0 bytes
+- .playwright-auth/Default/Account Web Data-journal     |   0
+- .playwright-auth/Default/Affiliation Database         | Bin 53248 -> 0 bytes
+- .playwright-auth/Default/Affiliation Database-journal |   0
+- .playwright-auth/Default/AutofillAiModelCache/LOCK    |   0
+- .playwright-auth/Default/AutofillAiModelCache/LOG     |   0
+- .playwright-auth/Default/AutofillAiModelCache/LOG.old |   0
+- .playwright-auth/Default/AutofillStrikeDatabase/LOCK  |   0
+- .playwright-auth/Default/AutofillStrikeDatabase/LOG   |   0
+- .../Default/AutofillStrikeDatabase/LOG.old            |   0
+- .../Default/BookmarkMergedSurfaceOrdering             |   2 --
+- .playwright-auth/Default/BudgetDatabase/LOCK          |   0
+- .playwright-auth/Default/BudgetDatabase/LOG           |   0
+- .playwright-auth/Default/BudgetDatabase/LOG.old       |   0
+- .playwright-auth/Default/Cache/Cache_Data/data_0      | Bin 45056 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/data_1      | Bin 794624 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/data_2      | Bin 3153920 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/data_3      | Bin 4202496 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_000002    | Bin 18792 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_000004    | Bin 48256 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_000005    | Bin 22724 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_000006    | Bin 29844 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_000008    | Bin 114927 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_000009    | Bin 20802 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_00000b    | Bin 19909 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_00000c    | Bin 146853 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_00000d    | Bin 93746 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_00000e    | Bin 30990 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_00000f    | Bin 157860 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_000011    | Bin 43994 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_000014    | Bin 23492 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_000015    | Bin 188225 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_000017    | Bin 79550 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_000019    | Bin 26338 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_00001a    | Bin 20460 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_00001b    | Bin 266794 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_00001c    | Bin 39275 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_00001d    | Bin 359032 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_00001e    | Bin 17034 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_000020    | Bin 356983 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_000022    | Bin 63802 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_000023    | Bin 102334 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_000024    | Bin 272212 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_000026    | Bin 357233 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_000028    | Bin 115229 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_00002f    | Bin 357422 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_000034    | Bin 115972 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_000036    | Bin 357357 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_00003d    | Bin 357876 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/f_00003e    | Bin 357084 -> 0 bytes
+- .playwright-auth/Default/Cache/Cache_Data/index       | Bin 524656 -> 0 bytes
+- .../Default/Cache/No_Vary_Search/journal.baj          |   1 -
+- .../Default/Cache/No_Vary_Search/snapshot.baf         | Bin 20 -> 0 bytes
+- .playwright-auth/Default/ClientCertificates/LOCK      |   0
+- .playwright-auth/Default/ClientCertificates/LOG       |   0
+- .playwright-auth/Default/ClientCertificates/LOG.old   |   0
+- .../Default/Code Cache/js/01d3b5b7313085f1_0          | Bin 306 -> 0 bytes
+- .../Default/Code Cache/js/0265ac97029f4c43_0          | Bin 238 -> 0 bytes
+- .../Default/Code Cache/js/06f6387daff8cccd_0          | Bin 140256 -> 0 bytes
+- .../Default/Code Cache/js/18dee79e21e3805b_0          | Bin 20976 -> 0 bytes
+- .../Default/Code Cache/js/20c3b64ef1ae4926_0          | Bin 253 -> 0 bytes
+- .../Default/Code Cache/js/22da04d645360dba_0          | Bin 18840 -> 0 bytes
+- .../Default/Code Cache/js/24578a1764273971_0          | Bin 277 -> 0 bytes
+- .../Default/Code Cache/js/24a24593b97c65a1_0          | Bin 78320 -> 0 bytes
+- .../Default/Code Cache/js/27695d0706fd8015_0          | Bin 12030 -> 0 bytes
+- .../Default/Code Cache/js/2947bbf036c71531_0          | Bin 3340 -> 0 bytes
+- .../Default/Code Cache/js/2d3d7e81e24a70d0_0          | Bin 2610 -> 0 bytes
+- .../Default/Code Cache/js/36389d323a146588_0          | Bin 143368 -> 0 bytes
+- .../Default/Code Cache/js/373ebb6c125be702_0          | Bin 5899 -> 0 bytes
+- .../Default/Code Cache/js/3c1a1c0c8f16a9fb_0          | Bin 1608 -> 0 bytes
+- .../Default/Code Cache/js/3ce68e3f0b257577_0          | Bin 443208 -> 0 bytes
+- .../Default/Code Cache/js/3e2e58cbaf925930_0          | Bin 245 -> 0 bytes
+- .../Default/Code Cache/js/3fc6ab045af1226a_0          | Bin 263 -> 0 bytes
+- .../Default/Code Cache/js/4150a0c9de6f0d55_0          | Bin 260 -> 0 bytes
+- .../Default/Code Cache/js/4236883774505bf8_0          | Bin 2545 -> 0 bytes
+- .../Default/Code Cache/js/444ba1a4a950694b_0          | Bin 650064 -> 0 bytes
+- .../Default/Code Cache/js/4803d0447860c05e_0          | Bin 449440 -> 0 bytes
+- .../Default/Code Cache/js/4c9e4d52148a6c14_0          | Bin 284 -> 0 bytes
+- .../Default/Code Cache/js/59c073c7f3f5aa41_0          | Bin 272 -> 0 bytes
+- .../Default/Code Cache/js/5a19e02e8ae756ef_0          | Bin 896 -> 0 bytes
+- .../Default/Code Cache/js/5c5ae9114d988c15_0          | Bin 4408 -> 0 bytes
+- .../Default/Code Cache/js/5f43c4075c687199_0          | Bin 46528 -> 0 bytes
+- .../Default/Code Cache/js/6003ea573346f39f_0          | Bin 442640 -> 0 bytes
+- .../Default/Code Cache/js/60a5fd1f95e0e9af_0          | Bin 1816 -> 0 bytes
+- .../Default/Code Cache/js/6270f25ba3a857fc_0          | Bin 6715 -> 0 bytes
+- .../Default/Code Cache/js/63e969ae4dbce5bb_0          | Bin 209 -> 0 bytes
+- .../Default/Code Cache/js/67f331c80b12ad84_0          | Bin 140216 -> 0 bytes
+- .../Default/Code Cache/js/680a5e2bba5c0a37_0          | Bin 254 -> 0 bytes
+- .../Default/Code Cache/js/74a442370c1e4cac_0          | Bin 662 -> 0 bytes
+- .../Default/Code Cache/js/7eb5cb84db81f07f_0          | Bin 252 -> 0 bytes
+- .../Default/Code Cache/js/86b0b0ea5ae4e788_0          | Bin 270 -> 0 bytes
+- .../Default/Code Cache/js/8cccac4a1065bc08_0          | Bin 442640 -> 0 bytes
+- .../Default/Code Cache/js/982e138f3177728b_0          | Bin 2730 -> 0 bytes
+- .../Default/Code Cache/js/9c05587b24e65599_0          | Bin 8991 -> 0 bytes
+- .../Default/Code Cache/js/a5efa93157445787_0          | Bin 661168 -> 0 bytes
+- .../Default/Code Cache/js/a67a38e93266e55e_0          | Bin 667256 -> 0 bytes
+- .../Default/Code Cache/js/abd7499e11129299_0          | Bin 48648 -> 0 bytes
+- .../Default/Code Cache/js/b29f872f8e4dbb55_0          | Bin 266 -> 0 bytes
+- .../Default/Code Cache/js/b6f7164aec898814_0          | Bin 282 -> 0 bytes
+- .../Default/Code Cache/js/bbaf0a7c3ed9b724_0          | Bin 671080 -> 0 bytes
+- .../Default/Code Cache/js/c00787fa1d0d78f4_0          | Bin 554 -> 0 bytes
+- .../Default/Code Cache/js/c7d1a30bb81e6d0a_0          | Bin 528 -> 0 bytes
+- .../Default/Code Cache/js/d0b0d69ad9be6676_0          | Bin 239 -> 0 bytes
+- .../Default/Code Cache/js/d3946000fa96aa99_0          | Bin 252 -> 0 bytes
+- .../Default/Code Cache/js/d5b33859d1d37600_0          | Bin 260 -> 0 bytes
+- .../Default/Code Cache/js/d7ce294ae1297cea_0          | Bin 710456 -> 0 bytes
+- .../Default/Code Cache/js/d9ea01002196c8d6_0          | Bin 339 -> 0 bytes
+- .../Default/Code Cache/js/db0479a1ca16649d_0          | Bin 679616 -> 0 bytes
+- .../Default/Code Cache/js/df506c5e30a90d35_0          | Bin 268 -> 0 bytes
+- .../Default/Code Cache/js/e6276743559f253e_0          | Bin 284 -> 0 bytes
+- .../Default/Code Cache/js/e81c30389b59b066_0          | Bin 587408 -> 0 bytes
+- .../Default/Code Cache/js/e9c428cba01fd4e1_0          | Bin 671608 -> 0 bytes
+- .../Default/Code Cache/js/f6e53c56933524fa_0          | Bin 1710 -> 0 bytes
+- .../Default/Code Cache/js/f8a3b6c2af3b0a45_0          | Bin 3105 -> 0 bytes
+- .playwright-auth/Default/Code Cache/js/index          | Bin 24 -> 0 bytes
+- .../Default/Code Cache/js/index-dir/the-real-index    | Bin 2832 -> 0 bytes
+- .playwright-auth/Default/Code Cache/wasm/index        | Bin 24 -> 0 bytes
+- .../Default/Code Cache/wasm/index-dir/the-real-index  | Bin 48 -> 0 bytes
+- .playwright-auth/Default/DIPS                         | Bin 36864 -> 0 bytes
+- .playwright-auth/Default/DawnGraphiteCache/data_0     | Bin 8192 -> 0 bytes
+- .playwright-auth/Default/DawnGraphiteCache/data_1     | Bin 270336 -> 0 bytes
+- .playwright-auth/Default/DawnGraphiteCache/data_2     | Bin 8192 -> 0 bytes
+- .playwright-auth/Default/DawnGraphiteCache/data_3     | Bin 8192 -> 0 bytes
+- .playwright-auth/Default/DawnGraphiteCache/index      | Bin 262512 -> 0 bytes
+- .playwright-auth/Default/DawnWebGPUCache/data_0       | Bin 8192 -> 0 bytes
+- .playwright-auth/Default/DawnWebGPUCache/data_1       | Bin 270336 -> 0 bytes
+- .playwright-auth/Default/DawnWebGPUCache/data_2       | Bin 8192 -> 0 bytes
+- .playwright-auth/Default/DawnWebGPUCache/data_3       | Bin 8192 -> 0 bytes
+- .playwright-auth/Default/DawnWebGPUCache/index        | Bin 262512 -> 0 bytes
+- .playwright-auth/Default/Extension Rules/CURRENT      |   1 -
+- .playwright-auth/Default/Extension Rules/LOCK         |   0
+- .playwright-auth/Default/Extension Rules/LOG          |   2 --
+- .../Default/Extension Rules/MANIFEST-000001           | Bin 41 -> 0 bytes
+- .playwright-auth/Default/Extension Scripts/CURRENT    |   1 -
+- .playwright-auth/Default/Extension Scripts/LOCK       |   0
+- .playwright-auth/Default/Extension Scripts/LOG        |   2 --
+- .../Default/Extension Scripts/MANIFEST-000001         | Bin 41 -> 0 bytes
+- .playwright-auth/Default/Extension State/CURRENT      |   1 -
+- .playwright-auth/Default/Extension State/LOCK         |   0
+- .playwright-auth/Default/Extension State/LOG          |   0
+- .playwright-auth/Default/Extension State/LOG.old      |   0
+- .../Default/Extension State/MANIFEST-000001           | Bin 41 -> 0 bytes
+- .playwright-auth/Default/Favicons                     | Bin 20480 -> 0 bytes
+- .playwright-auth/Default/Favicons-journal             |   0
+- .../Feature Engagement Tracker/AvailabilityDB/LOCK    |   0
+- .../Feature Engagement Tracker/AvailabilityDB/LOG     |   0
+- .../Feature Engagement Tracker/AvailabilityDB/LOG.old |   0
+- .../Default/Feature Engagement Tracker/EventDB/LOCK   |   0
+- .../Default/Feature Engagement Tracker/EventDB/LOG    |   0
+- .../Feature Engagement Tracker/EventDB/LOG.old        |   0
+- .playwright-auth/Default/GCM Store/CURRENT            |   1 -
+- .playwright-auth/Default/GCM Store/LOCK               |   0
+- .playwright-auth/Default/GCM Store/LOG                |   3 ---
+- .playwright-auth/Default/GCM Store/MANIFEST-000001    | Bin 41 -> 0 bytes
+- .playwright-auth/Default/GPUCache/data_0              | Bin 45056 -> 0 bytes
+- .playwright-auth/Default/GPUCache/data_1              | Bin 270336 -> 0 bytes
+- .playwright-auth/Default/GPUCache/data_2              | Bin 1056768 -> 0 bytes
+- .playwright-auth/Default/GPUCache/data_3              | Bin 8192 -> 0 bytes
+- .playwright-auth/Default/GPUCache/index               | Bin 262512 -> 0 bytes
+- .playwright-auth/Default/History                      | Bin 163840 -> 0 bytes
+- .playwright-auth/Default/History-journal              |   0
+- .../CURRENT                                           |   1 -
+- .../LOCK                                              |   0
+- .../LOG                                               |   0
+- .../LOG.old                                           |   0
+- .../MANIFEST-000001                                   | Bin 23 -> 0 bytes
+- .../https_perchance.org_0.indexeddb.leveldb/CURRENT   |   1 -
+- .../https_perchance.org_0.indexeddb.leveldb/LOCK      |   0
+- .../https_perchance.org_0.indexeddb.leveldb/LOG       |   0
+- .../https_perchance.org_0.indexeddb.leveldb/LOG.old   |   0
+- .../MANIFEST-000001                                   | Bin 23 -> 0 bytes
+- .../Default/Local Storage/leveldb/CURRENT             |   1 -
+- .playwright-auth/Default/Local Storage/leveldb/LOCK   |   0
+- .playwright-auth/Default/Local Storage/leveldb/LOG    |   6 ------
+- .../Default/Local Storage/leveldb/MANIFEST-000001     | Bin 138 -> 0 bytes
+- .playwright-auth/Default/Login Data                   | Bin 40960 -> 0 bytes
+- .playwright-auth/Default/Login Data For Account       | Bin 40960 -> 0 bytes
+- .../Default/Login Data For Account-journal            |   0
+- .playwright-auth/Default/Login Data-journal           |   0
+- .playwright-auth/Default/Network Action Predictor     | Bin 53248 -> 0 bytes
+- .../Default/Network Action Predictor-journal          |   0
+- .playwright-auth/Default/Network/Cookies              | Bin 135168 -> 0 bytes
+- .playwright-auth/Default/Network/Cookies-journal      |   0
+- .../Default/Network/Network Persistent State          |   1 -
+- .playwright-auth/Default/Network/NetworkDataMigrated  |   0
+- .playwright-auth/Default/Network/Reporting and NEL    | Bin 36864 -> 0 bytes
+- .../Default/Network/Reporting and NEL-journal         |   0
+- .../Default/Network/SCT Auditing Pending Reports      |   1 -
+- .playwright-auth/Default/Network/TransportSecurity    |   1 -
+- .playwright-auth/Default/Network/Trust Tokens         | Bin 36864 -> 0 bytes
+- .playwright-auth/Default/Network/Trust Tokens-journal |   0
+- .playwright-auth/Default/PersistentOriginTrials/LOCK  |   0
+- .playwright-auth/Default/PersistentOriginTrials/LOG   |   0
+- .../Default/PersistentOriginTrials/LOG.old            |   0
+- .playwright-auth/Default/Preferences                  |   1 -
+- .playwright-auth/Default/PreferredApps                |   1 -
+- .playwright-auth/Default/README                       |   1 -
+- .../Default/Safe Browsing Network/NetworkDataMigrated |   0
+- .../Safe Browsing Network/Safe Browsing Cookies       | Bin 20480 -> 0 bytes
+- .../Safe Browsing Cookies-journal                     |   0
+- .playwright-auth/Default/Secure Preferences           |   1 -
+- .../Default/Segmentation Platform/SegmentInfoDB/LOCK  |   0
+- .../Default/Segmentation Platform/SegmentInfoDB/LOG   |   0
+- .../Segmentation Platform/SegmentInfoDB/LOG.old       |   0
+- .../Default/Segmentation Platform/SignalDB/LOCK       |   0
+- .../Default/Segmentation Platform/SignalDB/LOG        |   0
+- .../Default/Segmentation Platform/SignalDB/LOG.old    |   0
+- .../Segmentation Platform/SignalStorageConfigDB/LOCK  |   0
+- .../Segmentation Platform/SignalStorageConfigDB/LOG   |   0
+- .../SignalStorageConfigDB/LOG.old                     |   0
+- .playwright-auth/Default/ServerCertificate            | Bin 20480 -> 0 bytes
+- .playwright-auth/Default/ServerCertificate-journal    |   0
+- .playwright-auth/Default/Session Storage/CURRENT      |   1 -
+- .playwright-auth/Default/Session Storage/LOCK         |   0
+- .playwright-auth/Default/Session Storage/LOG          |   3 ---
+- .../Default/Session Storage/MANIFEST-000001           | Bin 41 -> 0 bytes
+- .../Default/Shared Dictionary/cache/index             | Bin 24 -> 0 bytes
+- .../Shared Dictionary/cache/index-dir/the-real-index  | Bin 72 -> 0 bytes
+- .playwright-auth/Default/Shared Dictionary/db         | Bin 45056 -> 0 bytes
+- .playwright-auth/Default/Shared Dictionary/db-journal |   0
+- .playwright-auth/Default/SharedStorage                | Bin 4096 -> 0 bytes
+- .playwright-auth/Default/Shortcuts                    | Bin 20480 -> 0 bytes
+- .playwright-auth/Default/Shortcuts-journal            |   0
+- .../Default/Site Characteristics Database/CURRENT     |   1 -
+- .../Default/Site Characteristics Database/LOCK        |   0
+- .../Default/Site Characteristics Database/LOG         |   3 ---
+- .../Default/Site Characteristics Database/LOG.old     |   1 -
+- .../Site Characteristics Database/MANIFEST-000001     | Bin 113 -> 0 bytes
+- .playwright-auth/Default/Sync Data/LevelDB/CURRENT    |   1 -
+- .playwright-auth/Default/Sync Data/LevelDB/LOCK       |   0
+- .playwright-auth/Default/Sync Data/LevelDB/LOG        |   0
+- .playwright-auth/Default/Sync Data/LevelDB/LOG.old    |   0
+- .../Default/Sync Data/LevelDB/MANIFEST-000001         | Bin 41 -> 0 bytes
+- .playwright-auth/Default/Top Sites                    | Bin 20480 -> 0 bytes
+- .playwright-auth/Default/Top Sites-journal            |   0
+- .playwright-auth/Default/Web Data                     | Bin 153600 -> 0 bytes
+- .playwright-auth/Default/Web Data-journal             |   0
+- .playwright-auth/Default/WebStorage/QuotaManager      | Bin 40960 -> 0 bytes
+- .../Default/WebStorage/QuotaManager-journal           |   0
+- .playwright-auth/Default/chrome_cart_db/LOCK          |   0
+- .playwright-auth/Default/chrome_cart_db/LOG           |   0
+- .playwright-auth/Default/chrome_cart_db/LOG.old       |   0
+- .../Default/commerce_subscription_db/LOCK             |   0
+- .playwright-auth/Default/commerce_subscription_db/LOG |   0
+- .../Default/commerce_subscription_db/LOG.old          |   0
+- .playwright-auth/Default/discount_infos_db/LOCK       |   0
+- .playwright-auth/Default/discount_infos_db/LOG        |   0
+- .playwright-auth/Default/discount_infos_db/LOG.old    |   0
+- .playwright-auth/Default/discounts_db/LOCK            |   0
+- .playwright-auth/Default/discounts_db/LOG             |   0
+- .playwright-auth/Default/discounts_db/LOG.old         |   0
+- .../Default/heavy_ad_intervention_opt_out.db          | Bin 16384 -> 0 bytes
+- .../Default/heavy_ad_intervention_opt_out.db-journal  |   0
+- .playwright-auth/Default/parcel_tracking_db/LOCK      |   0
+- .playwright-auth/Default/parcel_tracking_db/LOG       |   0
+- .playwright-auth/Default/parcel_tracking_db/LOG.old   |   0
+- .playwright-auth/Default/shared_proto_db/CURRENT      |   1 -
+- .playwright-auth/Default/shared_proto_db/LOCK         |   0
+- .playwright-auth/Default/shared_proto_db/LOG          |   3 ---
+- .playwright-auth/Default/shared_proto_db/LOG.old      |   3 ---
+- .../Default/shared_proto_db/MANIFEST-000001           | Bin 41 -> 0 bytes
+- .../Default/shared_proto_db/metadata/CURRENT          |   1 -
+- .../Default/shared_proto_db/metadata/LOCK             |   0
+- .playwright-auth/Default/shared_proto_db/metadata/LOG |   0
+- .../Default/shared_proto_db/metadata/LOG.old          |   0
+- .../Default/shared_proto_db/metadata/MANIFEST-000001  | Bin 41 -> 0 bytes
+- .playwright-auth/Default/trusted_vault.pb             |   2 --
+- .playwright-auth/GrShaderCache/data_0                 | Bin 45056 -> 0 bytes
+- .playwright-auth/GrShaderCache/data_1                 | Bin 270336 -> 0 bytes
+- .playwright-auth/GrShaderCache/data_2                 | Bin 8192 -> 0 bytes
+- .playwright-auth/GrShaderCache/data_3                 | Bin 4202496 -> 0 bytes
+- .playwright-auth/GrShaderCache/f_000001               | Bin 16704 -> 0 bytes
+- .playwright-auth/GrShaderCache/f_000002               | Bin 17928 -> 0 bytes
+- .playwright-auth/GrShaderCache/f_000003               | Bin 18256 -> 0 bytes
+- .playwright-auth/GrShaderCache/f_000004               | Bin 16772 -> 0 bytes
+- .playwright-auth/GrShaderCache/f_000005               | Bin 21188 -> 0 bytes
+- .playwright-auth/GrShaderCache/f_000006               | Bin 17600 -> 0 bytes
+- .playwright-auth/GrShaderCache/f_000007               | Bin 19760 -> 0 bytes
+- .playwright-auth/GrShaderCache/f_000008               | Bin 16480 -> 0 bytes
+- .playwright-auth/GrShaderCache/f_000009               | Bin 18720 -> 0 bytes
+- .playwright-auth/GrShaderCache/f_00000a               | Bin 19036 -> 0 bytes
+- .playwright-auth/GrShaderCache/f_00000b               | Bin 18644 -> 0 bytes
+- .playwright-auth/GrShaderCache/f_00000c               | Bin 19540 -> 0 bytes
+- .playwright-auth/GrShaderCache/f_00000d               | Bin 18612 -> 0 bytes
+- .playwright-auth/GrShaderCache/f_00000e               | Bin 18704 -> 0 bytes
+- .playwright-auth/GrShaderCache/f_00000f               | Bin 19952 -> 0 bytes
+- .playwright-auth/GrShaderCache/f_000010               | Bin 20268 -> 0 bytes
+- .playwright-auth/GrShaderCache/f_000011               | Bin 16604 -> 0 bytes
+- .playwright-auth/GrShaderCache/f_000012               | Bin 29856 -> 0 bytes
+- .playwright-auth/GrShaderCache/f_000013               | Bin 22724 -> 0 bytes
+- .playwright-auth/GrShaderCache/f_000014               | Bin 21600 -> 0 bytes
+- .playwright-auth/GrShaderCache/index                  | Bin 262512 -> 0 bytes
+- .playwright-auth/GraphiteDawnCache/data_0             | Bin 8192 -> 0 bytes
+- .playwright-auth/GraphiteDawnCache/data_1             | Bin 270336 -> 0 bytes
+- .playwright-auth/GraphiteDawnCache/data_2             | Bin 8192 -> 0 bytes
+- .playwright-auth/GraphiteDawnCache/data_3             | Bin 8192 -> 0 bytes
+- .playwright-auth/GraphiteDawnCache/index              | Bin 262512 -> 0 bytes
+- .playwright-auth/Last Browser                         | Bin 160 -> 0 bytes
+- .playwright-auth/Last Version                         |   1 -
+- .playwright-auth/Local State                          |   1 -
+- .playwright-auth/ShaderCache/data_0                   | Bin 8192 -> 0 bytes
+- .playwright-auth/ShaderCache/data_1                   | Bin 270336 -> 0 bytes
+- .playwright-auth/ShaderCache/data_2                   | Bin 8192 -> 0 bytes
+- .playwright-auth/ShaderCache/data_3                   | Bin 8192 -> 0 bytes
+- .playwright-auth/ShaderCache/index                    | Bin 262512 -> 0 bytes
+- .playwright-auth/Variations                           |   1 -
+- .playwright-auth/component_crx_cache/metadata.json    |   1 -
+- .playwright-auth/extensions_crx_cache/metadata.json   |   1 -
+- .playwright-auth/first_party_sets.db                  | Bin 49152 -> 0 bytes
+- .playwright-auth/first_party_sets.db-journal          |   0
+- .playwright-auth/segmentation_platform/ukm_db         | Bin 49152 -> 0 bytes
+- .playwright-auth/segmentation_platform/ukm_db-wal     |   0
+- 313 files changed, 55 deletions(-)
+-
+-commit 13d898f1e7977cbccb92c12a39a8e5d78c85f79a
+-Merge: f4ec8998 ff56bbd3
+-Author: JooduG <62556217+JooduG@users.noreply.github.com>
+-Date:   Fri Apr 17 03:57:07 2026 +0200
+-
+-    Merge pull request #131 from JooduG/feat/warden-quality-gate
+-    
+-    Warden: Implementation of the Sovereign Quality Gate
+-
+-commit ff56bbd3f09f78af2439c119c209ec1751a13642
+-Author: JohnG <johnfrejgranlund@gmail.com>
+-Date:   Fri Apr 17 03:52:15 2026 +0200
+-
+-    fix: regex escaping and safe replacement in backlog sync
+-
+- .agent/skills/warden/scripts/warden-project.js | 10 +++++-----
+- tasks/todo.md                                  | 10 +---------
+- 2 files changed, 6 insertions(+), 14 deletions(-)
+-
+-commit c2358391404ff5190393543df50105085cf2788d
+-Author: JohnG <johnfrejgranlund@gmail.com>
+-Date:   Fri Apr 17 03:47:49 2026 +0200
+-
+-    fix: hardening and optimization of Warden and Context Broker
+-
+- .agent/skills/warden/scripts/warden-project.js | 35 ++++++++++++++++++--------
+- src/core/intelligence/context-broker.js        | 17 ++++++++++---
+- tasks/todo.md                                  | 16 ++++++++----
+- 3 files changed, 48 insertions(+), 20 deletions(-)
+-
+-commit c8bb427875d8cd5e07bc6855e2986967c206af21
+-Author: JooduG <62556217+JooduG@users.noreply.github.com>
+-Date:   Fri Apr 17 03:39:27 2026 +0200
+-
+-    Update .agent/skills/warden/scripts/warden-project.js
+-    
+-    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+-
+- .agent/skills/warden/scripts/warden-project.js | 2 +-
+- 1 file changed, 1 insertion(+), 1 deletion(-)
+-
+-commit e6d76cc5a12998b6e2fd09494ba9c3e324e26bce
+-Author: JooduG <62556217+JooduG@users.noreply.github.com>
+-Date:   Fri Apr 17 03:38:59 2026 +0200
+-
+-    Update package.json
+-    
+-    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+-
+- package.json | 2 +-
+- 1 file changed, 1 insertion(+), 1 deletion(-)
+-
+-commit 25ff96bf3c8840ded2afe3c0df44e1a3f6185626
+-Author: JohnG <johnfrejgranlund@gmail.com>
+-Date:   Fri Apr 17 03:36:02 2026 +0200
+-
+-    fix: support multiple cumulative filters in Warden
+-
+- .agent/skills/warden/scripts/warden.js | 40 ++++++++++++++++++++++++----------
+- 1 file changed, 29 insertions(+), 11 deletions(-)
+-```
+diff --git a/scribbles.md b/scribbles.md
+index cfdbbc2d..e69de29b 100644
+--- a/scribbles.md
++++ b/scribbles.md
+@@ -1,5 +0,0 @@
+-# stuff
+-
+-## svelte-autofixer
+-
+-Given a svelte component or module returns a list of suggestions to fix any issues it has. This tool MUST be used whenever the user is asking to write svelte code before sending the code back to the user
+diff --git a/src/ui/organisms/profile/panels/EntityFragments.svelte b/src/ui/organisms/profile/panels/EntityFragments.svelte
+index 26f39d5e..d7cfa425 100644
+--- a/src/ui/organisms/profile/panels/EntityFragments.svelte
++++ b/src/ui/organisms/profile/panels/EntityFragments.svelte
+@@ -215,7 +215,7 @@
+     color: var(--signature-color);
+     opacity: var(--opacity-full);
+     margin-left: 0;
+-    text-align: left;
++    text-align: center;
+     text-shadow: var(--shadow-font);
+     margin-bottom: var(--spacing-xxs);
+     width: 100%;
+diff --git a/tasks/plan.md b/tasks/plan.md
+index b1952f7d..851c171e 100644
+--- a/tasks/plan.md
++++ b/tasks/plan.md
+@@ -2,7 +2,7 @@
+ 
+ This plan replaces the standard "dashed" Add buttons in `VectorArray.svelte` with a kinetic, multi-column interaction triggered by section headers.
+ 
+-## User Review Required
++## User Review Required: Tectonic Labels
+ 
+ > [!IMPORTANT]
+ > **Aesthetic Change**: The explicit "Add" button is purged. The section label (e.g. "PAST") becomes the primary action hub.
+@@ -12,7 +12,7 @@ This plan replaces the standard "dashed" Add buttons in `VectorArray.svelte` wit
+ > 1. **Hover Label**: A `+` appears on the header; a signature-colored 1px line appears at the top of the corresponding vector list.
+ > 2. **Click Label**: The 1px line in the list vertically splits/expands and "becomes" the new empty TextField.
+ 
+-## Proposed Changes
++## Proposed Changes: Tectonic Labels
+ 
+ ### [UI Components]
+ 
+@@ -33,7 +33,7 @@ This plan replaces the standard "dashed" Add buttons in `VectorArray.svelte` wit
+   - Pass the hover state to the child `VectorArray` to show the "Horizon Line."
+ - clicking the label calls `trigger_add()` on the child `VectorArray`.
+ 
+-## Verification Plan
++## Verification Plan: Tectonic Labels
+ 
+ ### Automated Tests
+ 
+@@ -43,12 +43,12 @@ This plan replaces the standard "dashed" Add buttons in `VectorArray.svelte` wit
+ 
+ The user reported that the busy state text in the profile modal and wings is center-aligned, and requested it be left-aligned. Research revealed several areas where centered alignment might be the culprit, particularly in the `VisualWing` spinner overlay and the `EntityFragments` layout.
+ 
+-## User Review Required
++## User Review Required: Busy Alignment
+ 
+ > [!IMPORTANT]
+ > This change will affect the visual alignment of the "Busy..." and "Saving..." indicators in the profile modal and wings. By default, these were centered for aesthetic balance, but left-alignment will be applied as requested.
+ 
+-## Proposed Changes
++## Proposed Changes: Busy Alignment
+ 
+ ### UI Atoms
+ 
+@@ -73,7 +73,7 @@ The user reported that the busy state text in the profile modal and wings is cen
+ 
+ - Should the spinner itself move to the left, or just any accompanying text? Current plan assumes the entire "busy" container should align left.
+ 
+-## Verification Plan
++## Verification Plan: Busy Alignment
+ 
+ ### Manual Verification
+ - Open the profile modal.
+@@ -81,7 +81,6 @@ The user reported that the busy state text in the profile modal and wings is cen
+ - Trigger a "save" or "generate" action to see the busy state.
+ - Verify that the "Busy..." or "Saving..." indicators and their containers are left-aligned.
+ 
+-
+ - Enter **Edit Mode**.
+ - Hover the **"PAST"** or **"FUTURE"** header.
+ - Confirm a `+` appears on the header and a 1px colored line appears at the very top of the list to the right.
+diff --git a/tasks/todo.md b/tasks/todo.md
+index dfc79b8e..1ce8f7e8 100644
+--- a/tasks/todo.md
++++ b/tasks/todo.md
+@@ -73,7 +73,7 @@
+ 
+ ## 🧹 Backlog (Automated)
+ <!-- BACKLOG_START -->
+-*Last Swept: 2026-04-17 05:30:21*
++*Last Swept: 2026-04-17 09:40:07*
+ 
+ - [ ] **.agent/skills/warden/SKILL.md:18**: Unspecified debt
+ - [ ] **.agent/skills/warden/SKILL.md:34**: Unspecified debt
+```
+
+
+Log of the last 20 commits (in the format of `git log --stat`):
+```
+commit 708c482a7b3ba4020b155f719102f606fa9c803e
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Fri Apr 17 13:10:24 2026 +0200
+
+    feat: add intelligence rules, testing protocols, and entity management components while updating dependencies
+
+ .agent/rules/04-aesthetics.md                      |   4 +-
+ .agent/rules/05-intelligence.md                    |   2 +-
+ .../skills/idea-refine/assets/fractal-narrative.md |   2 +-
+ .../skills/idea-refine/assets/storymode-sensory.md |   2 +-
+ .../security-and-hardening/references/testing.md   |   2 +-
+ .../scripts/deploy-perchance.js                    |   4 +-
+ .../references/advanced-full-text-search.md        |   6 +-
+ .agent/skills/svelte/references/snippet.md         |   2 +-
+ audit_report.md                                    |   2 +-
+ package-lock.json                                  |  59 +--
+ package.json                                       |   2 +-
+ prompt.txt                                         | 557 ---------------------
+ scribbles.md                                       |   5 -
+ .../profile/panels/EntityFragments.svelte          |   2 +-
+ tasks/plan.md                                      |  13 +-
+ tasks/todo.md                                      |   2 +-
+ 16 files changed, 23 insertions(+), 643 deletions(-)
+
+commit 9de63f5547695f8087f4d5a58b5b4769ea5f844f
+Merge: 4929bead fbbf5903
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Fri Apr 17 09:14:29 2026 +0200
+
+    Merge branch 'main' of https://github.com/JooduG/RPGlitch
+
+commit 4929bead665d741430416eb37fd30fd29a3848c5
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Fri Apr 17 09:14:25 2026 +0200
+
+    feat: implement TextField atom and EntityHeader organism to support profile editing and text management.
+
+ .agent/skills/warden/scripts/warden.js             |  4 ++-
+ audit_report.md                                    |  2 +-
+ src/core/intelligence/intelligence-kernel.js       | 15 +++-----
+ src/ui/atoms/TextField.svelte                      | 10 ++++++
+ .../profile/panels/EntityFragments.svelte          |  8 +++--
+ .../organisms/profile/panels/EntityHeader.svelte   |  4 +++
+ src/ui/organisms/profile/wings/VisualWing.svelte   |  3 +-
+ tasks/plan.md                                      | 41 ++++++++++++++++++++++
+ tasks/todo.md                                      |  2 +-
+ 9 files changed, 72 insertions(+), 17 deletions(-)
+
+commit fbbf590338059a0788f479e2401c366f10ddadb1
+Merge: 608677af ea545127
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Fri Apr 17 08:45:32 2026 +0200
+
+    Merge pull request #133 from JooduG/chore/warden-fix-audit-markdown-4803072081423228600
+    
+    fix(warden): update regex, backlog items, and report formatting
+
+commit ea545127a4e028ee83714c2997be30ef78dc9001
+Author: google-labs-jules[bot] <161369871+google-labs-jules[bot]@users.noreply.github.com>
+Date:   Fri Apr 17 06:30:45 2026 +0000
+
+    fix(warden): update regex, backlog items, and report formatting
+    
+    Co-authored-by: JooduG <62556217+JooduG@users.noreply.github.com>
+
+commit 608677af0eac7403af7e2890a451a4513b7845a0
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Fri Apr 17 06:00:53 2026 +0000
+
+    chore(sovereign): nightly hygiene and memory sync [bot-auto]
+
+ jules_payload.json |  11 ++
+ prompt.txt         | 557 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 568 insertions(+)
+
+commit d4ef11796803e01faba54086080120587fa8a6b5
+Merge: 13d898f1 40a6cec9
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Fri Apr 17 05:01:45 2026 +0200
+
+    Merge pull request #132 from JooduG/chore/refactor-rules-and-workflows-v2
+    
+    Refactor: Rule and Workflow Template Compliance
+
+commit 40a6cec99a098e9e425dd51989000e3ff03a64d0
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Fri Apr 17 05:01:33 2026 +0200
+
+    Update .agent/skills/directives/scripts/audit-templates.js
+    
+    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+
+ .agent/skills/directives/scripts/audit-templates.js | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+commit 25e44b98227bf5f11905aa32329fa622574ff368
+Merge: fb4d8274 96c8c134
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Fri Apr 17 04:56:16 2026 +0200
+
+    Merge branch 'chore/refactor-rules-and-workflows-v2' of https://github.com/JooduG/RPGlitch into chore/refactor-rules-and-workflows-v2
+
+commit fb4d8274b7d92c09d293ce5459c6e4dfc6a4e2e2
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Fri Apr 17 04:56:06 2026 +0200
+
+    fix: restore --project flag in warden.js
+
+ .agent/skills/warden/scripts/warden.js | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit f50e457d7f1e5e6efd44c701ca6230dde1df7664
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Fri Apr 17 04:52:14 2026 +0200
+
+    feat: initialize project roadmap and task tracking documentation
+
+ tasks/todo.md | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
+
+commit 96c8c1343c71af671f9409ccbe12962e89e401b5
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Fri Apr 17 04:51:51 2026 +0200
+
+    Update .agent/skills/warden/scripts/warden.js
+    
+    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+
+ .agent/skills/warden/scripts/warden.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 128a2a74ff557dd327486d7cbbab22fadba5dbbb
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Fri Apr 17 04:51:04 2026 +0200
+
+    Update .agent/skills/warden/scripts/warden-project.js
+    
+    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+
+ .agent/skills/warden/scripts/warden-project.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit aa7c87513fb1f0dc0ed73add81ea9ab9bba860d8
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Fri Apr 17 04:50:58 2026 +0200
+
+    Update .agent/rules/06-compliance.md
+    
+    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+
+ .agent/rules/06-compliance.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 69628dcbd756374ad1f62259f00d129511f1137e
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Fri Apr 17 04:50:51 2026 +0200
+
+    Update .agent/rules/05-intelligence.md
+    
+    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+
+ .agent/rules/05-intelligence.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 6c23f2466225ea03d7119f78bfba29d15aa81f69
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Fri Apr 17 04:50:45 2026 +0200
+
+    Update .agent/rules/04-aesthetics.md
+    
+    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+
+ .agent/rules/04-aesthetics.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit e3f2fb192874ef729033b790f8d968c11138c386
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Fri Apr 17 04:50:38 2026 +0200
+
+    Update .agent/rules/03-infrastructure.md
+    
+    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+
+ .agent/rules/03-infrastructure.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 76fe32cdc1ad1dcec6c94144921a45c57ebf4c40
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Fri Apr 17 04:50:29 2026 +0200
+
+    Update .agent/rules/01-foundation.md
+    
+    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+
+ .agent/rules/01-foundation.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit b25cd5a51149454e51d96ec62a2b1a597ba02cfc
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Fri Apr 17 04:44:06 2026 +0200
+
+    chore: refactor rules and workflows for template compliance
+
+ .agent/rules/01-foundation.md                      |  10 +-
+ .agent/rules/02-simulation.md                      |  10 +-
+ .agent/rules/03-infrastructure.md                  |  10 +-
+ .agent/rules/04-aesthetics.md                      |  10 +-
+ .agent/rules/05-intelligence.md                    |  10 +-
+ .agent/rules/06-compliance.md                      |  10 +-
+ .../skills/directives/scripts/audit-templates.js   |  10 +-
+ .agent/skills/simulation/SKILL.md                  |   8 +-
+ ...imulation-audit.js => simulation-audit.test.js} |  16 +--
+ .../simulation/scripts/simulation-simulation.js    |   8 +-
+ .agent/skills/warden/SKILL.md                      |   8 +-
+ .agent/skills/warden/scripts/warden-project.js     |  19 ++--
+ .agent/skills/warden/scripts/warden.js             | 121 +++++++++++++++++----
+ .agent/workflows/build.md                          |  49 +++++----
+ .agent/workflows/code-simplify.md                  |  48 +++++---
+ .agent/workflows/plan.md                           |  42 +++++--
+ .agent/workflows/review.md                         |  43 ++++++--
+ .agent/workflows/ship.md                           |  43 ++++++--
+ .agent/workflows/spec.md                           |  40 +++++--
+ .agent/workflows/test.md                           |  42 +++++--
+ .gitignore                                         |   1 -
+ audit_report.md                                    |   2 +-
+ ignores.master.json                                |   3 +-
+ package.json                                       |  11 +-
+ scribbles.md                                       |   1 +
+ tasks/todo.md                                      |  10 +-
+ 26 files changed, 392 insertions(+), 193 deletions(-)
+
+commit 35228b59a5cc0aa7c26321c970466251b8e5581d
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Fri Apr 17 04:42:31 2026 +0200
+
+    feat: add simulation and audit scripts, update project configuration, and initialize playwright authentication state
+
+ .playwright-auth/Crashpad/settings.dat                | Bin 40 -> 0 bytes
+ .playwright-auth/Default/Account Web Data             | Bin 77824 -> 0 bytes
+ .playwright-auth/Default/Account Web Data-journal     |   0
+ .playwright-auth/Default/Affiliation Database         | Bin 53248 -> 0 bytes
+ .playwright-auth/Default/Affiliation Database-journal |   0
+ .playwright-auth/Default/AutofillAiModelCache/LOCK    |   0
+ .playwright-auth/Default/AutofillAiModelCache/LOG     |   0
+ .playwright-auth/Default/AutofillAiModelCache/LOG.old |   0
+ .playwright-auth/Default/AutofillStrikeDatabase/LOCK  |   0
+ .playwright-auth/Default/AutofillStrikeDatabase/LOG   |   0
+ .../Default/AutofillStrikeDatabase/LOG.old            |   0
+ .../Default/BookmarkMergedSurfaceOrdering             |   2 --
+ .playwright-auth/Default/BudgetDatabase/LOCK          |   0
+ .playwright-auth/Default/BudgetDatabase/LOG           |   0
+ .playwright-auth/Default/BudgetDatabase/LOG.old       |   0
+ .playwright-auth/Default/Cache/Cache_Data/data_0      | Bin 45056 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/data_1      | Bin 794624 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/data_2      | Bin 3153920 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/data_3      | Bin 4202496 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_000002    | Bin 18792 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_000004    | Bin 48256 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_000005    | Bin 22724 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_000006    | Bin 29844 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_000008    | Bin 114927 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_000009    | Bin 20802 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_00000b    | Bin 19909 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_00000c    | Bin 146853 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_00000d    | Bin 93746 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_00000e    | Bin 30990 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_00000f    | Bin 157860 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_000011    | Bin 43994 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_000014    | Bin 23492 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_000015    | Bin 188225 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_000017    | Bin 79550 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_000019    | Bin 26338 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_00001a    | Bin 20460 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_00001b    | Bin 266794 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_00001c    | Bin 39275 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_00001d    | Bin 359032 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_00001e    | Bin 17034 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_000020    | Bin 356983 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_000022    | Bin 63802 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_000023    | Bin 102334 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_000024    | Bin 272212 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_000026    | Bin 357233 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_000028    | Bin 115229 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_00002f    | Bin 357422 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_000034    | Bin 115972 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_000036    | Bin 357357 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_00003d    | Bin 357876 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/f_00003e    | Bin 357084 -> 0 bytes
+ .playwright-auth/Default/Cache/Cache_Data/index       | Bin 524656 -> 0 bytes
+ .../Default/Cache/No_Vary_Search/journal.baj          |   1 -
+ .../Default/Cache/No_Vary_Search/snapshot.baf         | Bin 20 -> 0 bytes
+ .playwright-auth/Default/ClientCertificates/LOCK      |   0
+ .playwright-auth/Default/ClientCertificates/LOG       |   0
+ .playwright-auth/Default/ClientCertificates/LOG.old   |   0
+ .../Default/Code Cache/js/01d3b5b7313085f1_0          | Bin 306 -> 0 bytes
+ .../Default/Code Cache/js/0265ac97029f4c43_0          | Bin 238 -> 0 bytes
+ .../Default/Code Cache/js/06f6387daff8cccd_0          | Bin 140256 -> 0 bytes
+ .../Default/Code Cache/js/18dee79e21e3805b_0          | Bin 20976 -> 0 bytes
+ .../Default/Code Cache/js/20c3b64ef1ae4926_0          | Bin 253 -> 0 bytes
+ .../Default/Code Cache/js/22da04d645360dba_0          | Bin 18840 -> 0 bytes
+ .../Default/Code Cache/js/24578a1764273971_0          | Bin 277 -> 0 bytes
+ .../Default/Code Cache/js/24a24593b97c65a1_0          | Bin 78320 -> 0 bytes
+ .../Default/Code Cache/js/27695d0706fd8015_0          | Bin 12030 -> 0 bytes
+ .../Default/Code Cache/js/2947bbf036c71531_0          | Bin 3340 -> 0 bytes
+ .../Default/Code Cache/js/2d3d7e81e24a70d0_0          | Bin 2610 -> 0 bytes
+ .../Default/Code Cache/js/36389d323a146588_0          | Bin 143368 -> 0 bytes
+ .../Default/Code Cache/js/373ebb6c125be702_0          | Bin 5899 -> 0 bytes
+ .../Default/Code Cache/js/3c1a1c0c8f16a9fb_0          | Bin 1608 -> 0 bytes
+ .../Default/Code Cache/js/3ce68e3f0b257577_0          | Bin 443208 -> 0 bytes
+ .../Default/Code Cache/js/3e2e58cbaf925930_0          | Bin 245 -> 0 bytes
+ .../Default/Code Cache/js/3fc6ab045af1226a_0          | Bin 263 -> 0 bytes
+ .../Default/Code Cache/js/4150a0c9de6f0d55_0          | Bin 260 -> 0 bytes
+ .../Default/Code Cache/js/4236883774505bf8_0          | Bin 2545 -> 0 bytes
+ .../Default/Code Cache/js/444ba1a4a950694b_0          | Bin 650064 -> 0 bytes
+ .../Default/Code Cache/js/4803d0447860c05e_0          | Bin 449440 -> 0 bytes
+ .../Default/Code Cache/js/4c9e4d52148a6c14_0          | Bin 284 -> 0 bytes
+ .../Default/Code Cache/js/59c073c7f3f5aa41_0          | Bin 272 -> 0 bytes
+ .../Default/Code Cache/js/5a19e02e8ae756ef_0          | Bin 896 -> 0 bytes
+ .../Default/Code Cache/js/5c5ae9114d988c15_0          | Bin 4408 -> 0 bytes
+ .../Default/Code Cache/js/5f43c4075c687199_0          | Bin 46528 -> 0 bytes
+ .../Default/Code Cache/js/6003ea573346f39f_0          | Bin 442640 -> 0 bytes
+ .../Default/Code Cache/js/60a5fd1f95e0e9af_0          | Bin 1816 -> 0 bytes
+ .../Default/Code Cache/js/6270f25ba3a857fc_0          | Bin 6715 -> 0 bytes
+ .../Default/Code Cache/js/63e969ae4dbce5bb_0          | Bin 209 -> 0 bytes
+ .../Default/Code Cache/js/67f331c80b12ad84_0          | Bin 140216 -> 0 bytes
+ .../Default/Code Cache/js/680a5e2bba5c0a37_0          | Bin 254 -> 0 bytes
+ .../Default/Code Cache/js/74a442370c1e4cac_0          | Bin 662 -> 0 bytes
+ .../Default/Code Cache/js/7eb5cb84db81f07f_0          | Bin 252 -> 0 bytes
+ .../Default/Code Cache/js/86b0b0ea5ae4e788_0          | Bin 270 -> 0 bytes
+ .../Default/Code Cache/js/8cccac4a1065bc08_0          | Bin 442640 -> 0 bytes
+ .../Default/Code Cache/js/982e138f3177728b_0          | Bin 2730 -> 0 bytes
+ .../Default/Code Cache/js/9c05587b24e65599_0          | Bin 8991 -> 0 bytes
+ .../Default/Code Cache/js/a5efa93157445787_0          | Bin 661168 -> 0 bytes
+ .../Default/Code Cache/js/a67a38e93266e55e_0          | Bin 667256 -> 0 bytes
+ .../Default/Code Cache/js/abd7499e11129299_0          | Bin 48648 -> 0 bytes
+ .../Default/Code Cache/js/b29f872f8e4dbb55_0          | Bin 266 -> 0 bytes
+ .../Default/Code Cache/js/b6f7164aec898814_0          | Bin 282 -> 0 bytes
+ .../Default/Code Cache/js/bbaf0a7c3ed9b724_0          | Bin 671080 -> 0 bytes
+ .../Default/Code Cache/js/c00787fa1d0d78f4_0          | Bin 554 -> 0 bytes
+ .../Default/Code Cache/js/c7d1a30bb81e6d0a_0          | Bin 528 -> 0 bytes
+ .../Default/Code Cache/js/d0b0d69ad9be6676_0          | Bin 239 -> 0 bytes
+ .../Default/Code Cache/js/d3946000fa96aa99_0          | Bin 252 -> 0 bytes
+ .../Default/Code Cache/js/d5b33859d1d37600_0          | Bin 260 -> 0 bytes
+ .../Default/Code Cache/js/d7ce294ae1297cea_0          | Bin 710456 -> 0 bytes
+ .../Default/Code Cache/js/d9ea01002196c8d6_0          | Bin 339 -> 0 bytes
+ .../Default/Code Cache/js/db0479a1ca16649d_0          | Bin 679616 -> 0 bytes
+ .../Default/Code Cache/js/df506c5e30a90d35_0          | Bin 268 -> 0 bytes
+ .../Default/Code Cache/js/e6276743559f253e_0          | Bin 284 -> 0 bytes
+ .../Default/Code Cache/js/e81c30389b59b066_0          | Bin 587408 -> 0 bytes
+ .../Default/Code Cache/js/e9c428cba01fd4e1_0          | Bin 671608 -> 0 bytes
+ .../Default/Code Cache/js/f6e53c56933524fa_0          | Bin 1710 -> 0 bytes
+ .../Default/Code Cache/js/f8a3b6c2af3b0a45_0          | Bin 3105 -> 0 bytes
+ .playwright-auth/Default/Code Cache/js/index          | Bin 24 -> 0 bytes
+ .../Default/Code Cache/js/index-dir/the-real-index    | Bin 2832 -> 0 bytes
+ .playwright-auth/Default/Code Cache/wasm/index        | Bin 24 -> 0 bytes
+ .../Default/Code Cache/wasm/index-dir/the-real-index  | Bin 48 -> 0 bytes
+ .playwright-auth/Default/DIPS                         | Bin 36864 -> 0 bytes
+ .playwright-auth/Default/DawnGraphiteCache/data_0     | Bin 8192 -> 0 bytes
+ .playwright-auth/Default/DawnGraphiteCache/data_1     | Bin 270336 -> 0 bytes
+ .playwright-auth/Default/DawnGraphiteCache/data_2     | Bin 8192 -> 0 bytes
+ .playwright-auth/Default/DawnGraphiteCache/data_3     | Bin 8192 -> 0 bytes
+ .playwright-auth/Default/DawnGraphiteCache/index      | Bin 262512 -> 0 bytes
+ .playwright-auth/Default/DawnWebGPUCache/data_0       | Bin 8192 -> 0 bytes
+ .playwright-auth/Default/DawnWebGPUCache/data_1       | Bin 270336 -> 0 bytes
+ .playwright-auth/Default/DawnWebGPUCache/data_2       | Bin 8192 -> 0 bytes
+ .playwright-auth/Default/DawnWebGPUCache/data_3       | Bin 8192 -> 0 bytes
+ .playwright-auth/Default/DawnWebGPUCache/index        | Bin 262512 -> 0 bytes
+ .playwright-auth/Default/Extension Rules/CURRENT      |   1 -
+ .playwright-auth/Default/Extension Rules/LOCK         |   0
+ .playwright-auth/Default/Extension Rules/LOG          |   2 --
+ .../Default/Extension Rules/MANIFEST-000001           | Bin 41 -> 0 bytes
+ .playwright-auth/Default/Extension Scripts/CURRENT    |   1 -
+ .playwright-auth/Default/Extension Scripts/LOCK       |   0
+ .playwright-auth/Default/Extension Scripts/LOG        |   2 --
+ .../Default/Extension Scripts/MANIFEST-000001         | Bin 41 -> 0 bytes
+ .playwright-auth/Default/Extension State/CURRENT      |   1 -
+ .playwright-auth/Default/Extension State/LOCK         |   0
+ .playwright-auth/Default/Extension State/LOG          |   0
+ .playwright-auth/Default/Extension State/LOG.old      |   0
+ .../Default/Extension State/MANIFEST-000001           | Bin 41 -> 0 bytes
+ .playwright-auth/Default/Favicons                     | Bin 20480 -> 0 bytes
+ .playwright-auth/Default/Favicons-journal             |   0
+ .../Feature Engagement Tracker/AvailabilityDB/LOCK    |   0
+ .../Feature Engagement Tracker/AvailabilityDB/LOG     |   0
+ .../Feature Engagement Tracker/AvailabilityDB/LOG.old |   0
+ .../Default/Feature Engagement Tracker/EventDB/LOCK   |   0
+ .../Default/Feature Engagement Tracker/EventDB/LOG    |   0
+ .../Feature Engagement Tracker/EventDB/LOG.old        |   0
+ .playwright-auth/Default/GCM Store/CURRENT            |   1 -
+ .playwright-auth/Default/GCM Store/LOCK               |   0
+ .playwright-auth/Default/GCM Store/LOG                |   3 ---
+ .playwright-auth/Default/GCM Store/MANIFEST-000001    | Bin 41 -> 0 bytes
+ .playwright-auth/Default/GPUCache/data_0              | Bin 45056 -> 0 bytes
+ .playwright-auth/Default/GPUCache/data_1              | Bin 270336 -> 0 bytes
+ .playwright-auth/Default/GPUCache/data_2              | Bin 1056768 -> 0 bytes
+ .playwright-auth/Default/GPUCache/data_3              | Bin 8192 -> 0 bytes
+ .playwright-auth/Default/GPUCache/index               | Bin 262512 -> 0 bytes
+ .playwright-auth/Default/History                      | Bin 163840 -> 0 bytes
+ .playwright-auth/Default/History-journal              |   0
+ .../CURRENT                                           |   1 -
+ .../LOCK                                              |   0
+ .../LOG                                               |   0
+ .../LOG.old                                           |   0
+ .../MANIFEST-000001                                   | Bin 23 -> 0 bytes
+ .../https_perchance.org_0.indexeddb.leveldb/CURRENT   |   1 -
+ .../https_perchance.org_0.indexeddb.leveldb/LOCK      |   0
+ .../https_perchance.org_0.indexeddb.leveldb/LOG       |   0
+ .../https_perchance.org_0.indexeddb.leveldb/LOG.old   |   0
+ .../MANIFEST-000001                                   | Bin 23 -> 0 bytes
+ .../Default/Local Storage/leveldb/CURRENT             |   1 -
+ .playwright-auth/Default/Local Storage/leveldb/LOCK   |   0
+ .playwright-auth/Default/Local Storage/leveldb/LOG    |   6 ------
+ .../Default/Local Storage/leveldb/MANIFEST-000001     | Bin 138 -> 0 bytes
+ .playwright-auth/Default/Login Data                   | Bin 40960 -> 0 bytes
+ .playwright-auth/Default/Login Data For Account       | Bin 40960 -> 0 bytes
+ .../Default/Login Data For Account-journal            |   0
+ .playwright-auth/Default/Login Data-journal           |   0
+ .playwright-auth/Default/Network Action Predictor     | Bin 53248 -> 0 bytes
+ .../Default/Network Action Predictor-journal          |   0
+ .playwright-auth/Default/Network/Cookies              | Bin 135168 -> 0 bytes
+ .playwright-auth/Default/Network/Cookies-journal      |   0
+ .../Default/Network/Network Persistent State          |   1 -
+ .playwright-auth/Default/Network/NetworkDataMigrated  |   0
+ .playwright-auth/Default/Network/Reporting and NEL    | Bin 36864 -> 0 bytes
+ .../Default/Network/Reporting and NEL-journal         |   0
+ .../Default/Network/SCT Auditing Pending Reports      |   1 -
+ .playwright-auth/Default/Network/TransportSecurity    |   1 -
+ .playwright-auth/Default/Network/Trust Tokens         | Bin 36864 -> 0 bytes
+ .playwright-auth/Default/Network/Trust Tokens-journal |   0
+ .playwright-auth/Default/PersistentOriginTrials/LOCK  |   0
+ .playwright-auth/Default/PersistentOriginTrials/LOG   |   0
+ .../Default/PersistentOriginTrials/LOG.old            |   0
+ .playwright-auth/Default/Preferences                  |   1 -
+ .playwright-auth/Default/PreferredApps                |   1 -
+ .playwright-auth/Default/README                       |   1 -
+ .../Default/Safe Browsing Network/NetworkDataMigrated |   0
+ .../Safe Browsing Network/Safe Browsing Cookies       | Bin 20480 -> 0 bytes
+ .../Safe Browsing Cookies-journal                     |   0
+ .playwright-auth/Default/Secure Preferences           |   1 -
+ .../Default/Segmentation Platform/SegmentInfoDB/LOCK  |   0
+ .../Default/Segmentation Platform/SegmentInfoDB/LOG   |   0
+ .../Segmentation Platform/SegmentInfoDB/LOG.old       |   0
+ .../Default/Segmentation Platform/SignalDB/LOCK       |   0
+ .../Default/Segmentation Platform/SignalDB/LOG        |   0
+ .../Default/Segmentation Platform/SignalDB/LOG.old    |   0
+ .../Segmentation Platform/SignalStorageConfigDB/LOCK  |   0
+ .../Segmentation Platform/SignalStorageConfigDB/LOG   |   0
+ .../SignalStorageConfigDB/LOG.old                     |   0
+ .playwright-auth/Default/ServerCertificate            | Bin 20480 -> 0 bytes
+ .playwright-auth/Default/ServerCertificate-journal    |   0
+ .playwright-auth/Default/Session Storage/CURRENT      |   1 -
+ .playwright-auth/Default/Session Storage/LOCK         |   0
+ .playwright-auth/Default/Session Storage/LOG          |   3 ---
+ .../Default/Session Storage/MANIFEST-000001           | Bin 41 -> 0 bytes
+ .../Default/Shared Dictionary/cache/index             | Bin 24 -> 0 bytes
+ .../Shared Dictionary/cache/index-dir/the-real-index  | Bin 72 -> 0 bytes
+ .playwright-auth/Default/Shared Dictionary/db         | Bin 45056 -> 0 bytes
+ .playwright-auth/Default/Shared Dictionary/db-journal |   0
+ .playwright-auth/Default/SharedStorage                | Bin 4096 -> 0 bytes
+ .playwright-auth/Default/Shortcuts                    | Bin 20480 -> 0 bytes
+ .playwright-auth/Default/Shortcuts-journal            |   0
+ .../Default/Site Characteristics Database/CURRENT     |   1 -
+ .../Default/Site Characteristics Database/LOCK        |   0
+ .../Default/Site Characteristics Database/LOG         |   3 ---
+ .../Default/Site Characteristics Database/LOG.old     |   1 -
+ .../Site Characteristics Database/MANIFEST-000001     | Bin 113 -> 0 bytes
+ .playwright-auth/Default/Sync Data/LevelDB/CURRENT    |   1 -
+ .playwright-auth/Default/Sync Data/LevelDB/LOCK       |   0
+ .playwright-auth/Default/Sync Data/LevelDB/LOG        |   0
+ .playwright-auth/Default/Sync Data/LevelDB/LOG.old    |   0
+ .../Default/Sync Data/LevelDB/MANIFEST-000001         | Bin 41 -> 0 bytes
+ .playwright-auth/Default/Top Sites                    | Bin 20480 -> 0 bytes
+ .playwright-auth/Default/Top Sites-journal            |   0
+ .playwright-auth/Default/Web Data                     | Bin 153600 -> 0 bytes
+ .playwright-auth/Default/Web Data-journal             |   0
+ .playwright-auth/Default/WebStorage/QuotaManager      | Bin 40960 -> 0 bytes
+ .../Default/WebStorage/QuotaManager-journal           |   0
+ .playwright-auth/Default/chrome_cart_db/LOCK          |   0
+ .playwright-auth/Default/chrome_cart_db/LOG           |   0
+ .playwright-auth/Default/chrome_cart_db/LOG.old       |   0
+ .../Default/commerce_subscription_db/LOCK             |   0
+ .playwright-auth/Default/commerce_subscription_db/LOG |   0
+ .../Default/commerce_subscription_db/LOG.old          |   0
+ .playwright-auth/Default/discount_infos_db/LOCK       |   0
+ .playwright-auth/Default/discount_infos_db/LOG        |   0
+ .playwright-auth/Default/discount_infos_db/LOG.old    |   0
+ .playwright-auth/Default/discounts_db/LOCK            |   0
+ .playwright-auth/Default/discounts_db/LOG             |   0
+ .playwright-auth/Default/discounts_db/LOG.old         |   0
+ .../Default/heavy_ad_intervention_opt_out.db          | Bin 16384 -> 0 bytes
+ .../Default/heavy_ad_intervention_opt_out.db-journal  |   0
+ .playwright-auth/Default/parcel_tracking_db/LOCK      |   0
+ .playwright-auth/Default/parcel_tracking_db/LOG       |   0
+ .playwright-auth/Default/parcel_tracking_db/LOG.old   |   0
+ .playwright-auth/Default/shared_proto_db/CURRENT      |   1 -
+ .playwright-auth/Default/shared_proto_db/LOCK         |   0
+ .playwright-auth/Default/shared_proto_db/LOG          |   3 ---
+ .playwright-auth/Default/shared_proto_db/LOG.old      |   3 ---
+ .../Default/shared_proto_db/MANIFEST-000001           | Bin 41 -> 0 bytes
+ .../Default/shared_proto_db/metadata/CURRENT          |   1 -
+ .../Default/shared_proto_db/metadata/LOCK             |   0
+ .playwright-auth/Default/shared_proto_db/metadata/LOG |   0
+ .../Default/shared_proto_db/metadata/LOG.old          |   0
+ .../Default/shared_proto_db/metadata/MANIFEST-000001  | Bin 41 -> 0 bytes
+ .playwright-auth/Default/trusted_vault.pb             |   2 --
+ .playwright-auth/GrShaderCache/data_0                 | Bin 45056 -> 0 bytes
+ .playwright-auth/GrShaderCache/data_1                 | Bin 270336 -> 0 bytes
+ .playwright-auth/GrShaderCache/data_2                 | Bin 8192 -> 0 bytes
+ .playwright-auth/GrShaderCache/data_3                 | Bin 4202496 -> 0 bytes
+ .playwright-auth/GrShaderCache/f_000001               | Bin 16704 -> 0 bytes
+ .playwright-auth/GrShaderCache/f_000002               | Bin 17928 -> 0 bytes
+ .playwright-auth/GrShaderCache/f_000003               | Bin 18256 -> 0 bytes
+ .playwright-auth/GrShaderCache/f_000004               | Bin 16772 -> 0 bytes
+ .playwright-auth/GrShaderCache/f_000005               | Bin 21188 -> 0 bytes
+ .playwright-auth/GrShaderCache/f_000006               | Bin 17600 -> 0 bytes
+ .playwright-auth/GrShaderCache/f_000007               | Bin 19760 -> 0 bytes
+ .playwright-auth/GrShaderCache/f_000008               | Bin 16480 -> 0 bytes
+ .playwright-auth/GrShaderCache/f_000009               | Bin 18720 -> 0 bytes
+ .playwright-auth/GrShaderCache/f_00000a               | Bin 19036 -> 0 bytes
+ .playwright-auth/GrShaderCache/f_00000b               | Bin 18644 -> 0 bytes
+ .playwright-auth/GrShaderCache/f_00000c               | Bin 19540 -> 0 bytes
+ .playwright-auth/GrShaderCache/f_00000d               | Bin 18612 -> 0 bytes
+ .playwright-auth/GrShaderCache/f_00000e               | Bin 18704 -> 0 bytes
+ .playwright-auth/GrShaderCache/f_00000f               | Bin 19952 -> 0 bytes
+ .playwright-auth/GrShaderCache/f_000010               | Bin 20268 -> 0 bytes
+ .playwright-auth/GrShaderCache/f_000011               | Bin 16604 -> 0 bytes
+ .playwright-auth/GrShaderCache/f_000012               | Bin 29856 -> 0 bytes
+ .playwright-auth/GrShaderCache/f_000013               | Bin 22724 -> 0 bytes
+ .playwright-auth/GrShaderCache/f_000014               | Bin 21600 -> 0 bytes
+ .playwright-auth/GrShaderCache/index                  | Bin 262512 -> 0 bytes
+ .playwright-auth/GraphiteDawnCache/data_0             | Bin 8192 -> 0 bytes
+ .playwright-auth/GraphiteDawnCache/data_1             | Bin 270336 -> 0 bytes
+ .playwright-auth/GraphiteDawnCache/data_2             | Bin 8192 -> 0 bytes
+ .playwright-auth/GraphiteDawnCache/data_3             | Bin 8192 -> 0 bytes
+ .playwright-auth/GraphiteDawnCache/index              | Bin 262512 -> 0 bytes
+ .playwright-auth/Last Browser                         | Bin 160 -> 0 bytes
+ .playwright-auth/Last Version                         |   1 -
+ .playwright-auth/Local State                          |   1 -
+ .playwright-auth/ShaderCache/data_0                   | Bin 8192 -> 0 bytes
+ .playwright-auth/ShaderCache/data_1                   | Bin 270336 -> 0 bytes
+ .playwright-auth/ShaderCache/data_2                   | Bin 8192 -> 0 bytes
+ .playwright-auth/ShaderCache/data_3                   | Bin 8192 -> 0 bytes
+ .playwright-auth/ShaderCache/index                    | Bin 262512 -> 0 bytes
+ .playwright-auth/Variations                           |   1 -
+ .playwright-auth/component_crx_cache/metadata.json    |   1 -
+ .playwright-auth/extensions_crx_cache/metadata.json   |   1 -
+ .playwright-auth/first_party_sets.db                  | Bin 49152 -> 0 bytes
+ .playwright-auth/first_party_sets.db-journal          |   0
+ .playwright-auth/segmentation_platform/ukm_db         | Bin 49152 -> 0 bytes
+ .playwright-auth/segmentation_platform/ukm_db-wal     |   0
+ 313 files changed, 55 deletions(-)
+```
