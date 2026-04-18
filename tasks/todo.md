@@ -74,10 +74,7 @@
 | 2026-04-18T05:47:12.314Z | Fix Rule 06 Compliance regarding SKILL.md TODO-AI false positive | `security-and-hardening` | ✅ Done |
 ## 🧹 Backlog (Automated)
 <!-- BACKLOG_START -->
-*Last Swept: 2026-04-18 05:41:26*
+*Last Swept: 2026-04-18 11:41:00*
 
-- [ ] **.agent/skills/warden/SKILL.md:18**: ) needs to be surfaced in `tasks/todo.md`.
-- [ ] **.agent/skills/warden/SKILL.md:34**: tags to the backlog in tasks/todo.md
-- [ ] **.agent/skills/warden/SKILL.md:56**: ` tags cluttering the source code without corresponding task items.
-- [ ] **.agent/skills/warden/SKILL.md:66**: ` tags are correctly synced to `tasks/todo.md`.
+✅ No outstanding AI debt.
 <!-- BACKLOG_END -->
