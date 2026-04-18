@@ -71,12 +71,13 @@
 | 2026-04-16T07:18:10+00:00 | Rule 06: Remove temporary bot artifacts            | `security-and-hardening`                   | ✅ Done     |
 | 2026-04-16T08:28:03+00:00 | Rule 06: Remove tasks/plan.md temporary scratchpad | `security-and-hardening`                   | ✅ Done     |
 
+| 2026-04-18T05:47:12.314Z | Fix Rule 06 Compliance regarding SKILL.md TODO-AI false positive | `security-and-hardening` | ✅ Done |
 ## 🧹 Backlog (Automated)
 <!-- BACKLOG_START -->
-*Last Swept: 2026-04-17 09:40:07*
+*Last Swept: 2026-04-18 05:41:26*
 
-- [ ] **.agent/skills/warden/SKILL.md:18**: Unspecified debt
-- [ ] **.agent/skills/warden/SKILL.md:34**: Unspecified debt
-- [ ] **.agent/skills/warden/SKILL.md:56**: Unspecified debt
-- [ ] **.agent/skills/warden/SKILL.md:66**: Unspecified debt
+- [ ] **.agent/skills/warden/SKILL.md:18**: ) needs to be surfaced in `tasks/todo.md`.
+- [ ] **.agent/skills/warden/SKILL.md:34**: tags to the backlog in tasks/todo.md
+- [ ] **.agent/skills/warden/SKILL.md:56**: ` tags cluttering the source code without corresponding task items.
+- [ ] **.agent/skills/warden/SKILL.md:66**: ` tags are correctly synced to `tasks/todo.md`.
 <!-- BACKLOG_END -->
