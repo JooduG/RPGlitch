@@ -36,3 +36,4 @@
 **/templates/**
 **/test-results/**
 **/yarn.lock
+**/artifacts/**
