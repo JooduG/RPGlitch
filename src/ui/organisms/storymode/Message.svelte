@@ -257,7 +257,7 @@
     margin: 0 0 var(--spacing-xs) 0;
     cursor: pointer;
     border-radius: var(--border-radius-m);
-    transition: all var(--motion-fast) var(--motion-elastic);
+    transition: all var(--motion-l) var(--motion-elastic);
     display: flex;
     align-items: center;
     justify-content: center;

@@ -139,7 +139,7 @@
     background: var(--glass-xs);
     border: 1px solid var(--border-l);
     border-radius: var(--border-radius-m);
-    transition: all var(--motion-fast) var(--motion-elastic);
+    transition: all var(--motion-l) var(--motion-elastic);
   }
 
   .dynamic-label {
@@ -171,7 +171,7 @@
     text-align: center;
     padding: var(--spacing-xxs);
     outline: none;
-    transition: all var(--motion-fast) var(--motion-elastic);
+    transition: all var(--motion-l) var(--motion-elastic);
   }
 
   .value-container input:focus {
@@ -201,7 +201,7 @@
     padding: 0 var(--spacing-xs);
     cursor: pointer;
     opacity: 0.5;
-    transition: all var(--motion-fast);
+    transition: all var(--motion-l);
   }
 
   .step-controls button:hover {

@@ -9,11 +9,40 @@
   import { fitText } from "@ui/utils/actions/fit-text.js";
   let { entity } = $props();
 
+  function calculate_initials(str) {
+    if (!str) return "?";
+    const clean_name = str.replace(/[^a-zA-Z\s]/g, "");
+    const words = clean_name.trim().split(/\s+/);
+    const stop_words = new Set([
+      "the",
+      "a",
+      "an",
+      "of",
+      "in",
+      "and",
+      "or",
+      "for",
+      "to",
+      "at",
+      "by",
+      "with",
+    ]);
+    let filtered_words = words.filter((w) => !stop_words.has(w.toLowerCase()));
+    if (filtered_words.length === 0) filtered_words = words;
+    return (
+      filtered_words
+        .slice(0, 3)
+        .map((w) => w.charAt(0))
+        .join("")
+        .toUpperCase() || "?"
+    );
+  }
+
   // 1. Core Flattened Properties
   let name = $derived(entity?.name || "Entity");
   let pictureUrl = $derived(entity?.profile_picture);
   let signature_color = $derived(themeStore.get_signature_color(entity));
-  let initials = $derived(themeStore.get_initials(name));
+  let initials = $derived(calculate_initials(name));
 
   // 2. Minor Modifiers
   let isNoBg = $derived(entity?.modifiers?.noBackground ?? false);
@@ -30,7 +59,6 @@
         class:no-bg={isNoBg}
         class:flipped={isFlipped}
       />
-      <div class="glitch-overlay"></div>
     </div>
   {:else}
     <div
@@ -42,7 +70,6 @@
       }}
     >
       {initials}
-      <div class="glitch-overlay"></div>
     </div>
   {/if}
 </div>
@@ -80,19 +107,6 @@
     transform: scaleX(-1);
   }
 
-  .glitch-overlay {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    mix-blend-mode: overlay;
-    opacity: var(--opacity-s);
-    background: linear-gradient(
-      transparent 50%,
-      rgb(var(--color-black-rgb) / var(--opacity-xs)) 50%
-    );
-    background-size: 100% var(--spacing-xxs);
-  }
-
   .placeholder {
     display: flex;
     align-items: center;
@@ -104,9 +118,11 @@
     color: var(--color-white);
     text-shadow: 0 0.2rem 1rem rgb(var(--color-black-rgb) / 50%);
     background-color: var(--signature-color);
-    background-image:
-      linear-gradient(to bottom, transparent, rgb(var(--color-black-rgb) / 30%)),
-      radial-gradient(circle at top left, rgb(255 255 255 / 20%), transparent);
+    background-image: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--color-black-rgb) / 30%)
+    );
     text-transform: uppercase;
   }
 </style>

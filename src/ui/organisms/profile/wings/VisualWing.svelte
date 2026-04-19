@@ -180,7 +180,9 @@
           class="swatch"
           class:active={char.signature_color === hex}
           style="background-color: {PALETTE_VARS[hex] || hex}"
-          aria-label="{name.charAt(0).toUpperCase() + name.slice(1)} ({char.signature_color === hex ? 'Selected' : 'Select Color'})"
+          aria-label="{name.charAt(0).toUpperCase() + name.slice(1)} ({char.signature_color === hex
+            ? 'Selected'
+            : 'Select Color'})"
           onclick={() => {
             char.signature_color = hex;
           }}
@@ -224,11 +226,6 @@
             }
           }}
         />
-        {#if is_prompt_busy}
-          <div class="spinner-overlay">
-            <div class="spinner"></div>
-          </div>
-        {/if}
       </div>
       <div class="action-row">
         <Button
@@ -283,7 +280,7 @@
     border: 0;
     border-radius: var(--border-radius-m);
     cursor: pointer;
-    transition: all var(--motion-fast) var(--motion-elastic);
+    transition: all var(--motion-l) var(--motion-elastic);
     box-shadow: var(--shadow-s);
   }
 
@@ -313,7 +310,7 @@
     border-radius: var(--border-radius-m);
     border: transparent;
     background: transparent;
-    transition: all var(--motion-fast) var(--motion-elastic);
+    transition: all var(--motion-l) var(--motion-elastic);
   }
 
   .prompt-box:focus-within {
@@ -330,36 +327,6 @@
     padding: var(--spacing-m);
   }
 
-  .spinner-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding-left: var(--spacing-m);
-    background: var(--glass-xs);
-    z-index: var(--z-index-m);
-    cursor: wait;
-  }
-
-  .spinner {
-    width: var(--spacing-l);
-    height: var(--spacing-l);
-    border: var(--spacing-xxs) solid var(--border-l);
-    border-top-color: var(--color-frozen);
-    border-radius: var(--border-radius-full);
-    animation: spin 0.8s linear infinite;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
   .action-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -372,7 +339,7 @@
     height: 2.5rem;
     background: var(--glass-xs);
     border-right: 1px solid var(--border-l);
-    transition: all var(--motion-fast) var(--motion-elastic);
+    transition: all var(--motion-l) var(--motion-elastic);
   }
 
   :global(.action-button:last-child) {

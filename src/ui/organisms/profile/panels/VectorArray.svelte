@@ -153,7 +153,7 @@
     position: relative;
     width: 100%;
     overflow: visible;
-    transition: all var(--motion-standard);
+    transition: all var(--motion-m);
   }
 
   .textfield {

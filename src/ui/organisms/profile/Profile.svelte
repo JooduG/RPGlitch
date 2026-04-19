@@ -192,7 +192,7 @@
     opacity: var(--opacity-none);
     overflow: visible;
     pointer-events: none;
-    transition: all var(--motion-slow) var(--motion-elastic);
+    transition: all var(--motion-s) cubic-bezier(0.4, 0, 0.2, 1);
     transform: scale(0.9);
     height: 100%;
     max-height: 85vh;
@@ -234,7 +234,7 @@
     position: relative;
     overflow: visible;
     z-index: var(--z-index-l);
-    transition: all var(--motion-slow) var(--motion-elastic);
+    transition: all var(--motion-s) var(--motion-elastic);
   }
 
   .presentation-shell {

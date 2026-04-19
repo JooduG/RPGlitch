@@ -209,34 +209,7 @@ class ThemeStore {
     );
   }
 
-  get_initials(name) {
-    if (!name) return "?";
-    const clean_name = name.replace(/[^a-zA-Z\s]/g, "");
-    const words = clean_name.trim().split(/\s+/);
-    const stop_words = new Set([
-      "the",
-      "a",
-      "an",
-      "of",
-      "in",
-      "and",
-      "or",
-      "for",
-      "to",
-      "at",
-      "by",
-      "with",
-    ]);
-    let filtered_words = words.filter((w) => !stop_words.has(w.toLowerCase()));
-    if (filtered_words.length === 0) filtered_words = words;
-    return (
-      filtered_words
-        .slice(0, 3)
-        .map((w) => w.charAt(0))
-        .join("")
-        .toUpperCase() || "?"
-    );
-  }
+
 }
 
 export const themeStore = new ThemeStore();

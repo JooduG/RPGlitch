@@ -64,9 +64,9 @@
     overflow: hidden;
     text-align: left;
     transition:
-      background var(--motion-fast) var(--motion-elastic),
-      border-color var(--motion-fast) var(--motion-elastic),
-      box-shadow var(--motion-fast) var(--motion-elastic);
+      background var(--motion-l) var(--motion-elastic),
+      border-color var(--motion-l) var(--motion-elastic),
+      box-shadow var(--motion-l) var(--motion-elastic);
   }
 
   .field-foundation::placeholder {

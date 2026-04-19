@@ -25,7 +25,7 @@
     flex-direction: column;
     height: var(--box-height);
     max-height: var(--box-max-height);
-    transition: all var(--motion-fast);
+    transition: all var(--motion-l);
     text-align: left;
     font-family: var(--font-family-mono);
     opacity: var(--opacity-xl);

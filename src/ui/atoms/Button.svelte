@@ -173,7 +173,7 @@
     backdrop-filter: var(--blur-s);
     border: var(--border-m);
     color: var(--color-white);
-    transition: all var(--motion-fast) var(--motion-elastic);
+    transition: all var(--motion-l) var(--motion-elastic);
   }
 
   .button-secondary {
@@ -205,12 +205,12 @@
 
   .button:active:not(:disabled, .disabled) {
     transform: scale(var(--motion-click, 0.95));
-    transition-duration: var(--motion-fast);
+    transition-duration: var(--motion-l);
   }
 
   /* 4. The Hover Monster (Highest Specificity due to :not) */
   .button:hover:not(:disabled, .disabled) {
-    transition: all var(--motion-fast) var(--motion-elastic);
+    transition: all var(--motion-l) var(--motion-elastic);
   }
 
   .button-primary:hover:not(:disabled, .disabled) {

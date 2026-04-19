@@ -25,7 +25,7 @@
     gap: var(--spacing-xxs);
     width: fit-content;
     border-radius: var(--border-radius-full);
-    transition: all var(--motion-fast) var(--motion-elastic);
+    transition: all var(--motion-l) var(--motion-elastic);
   }
 
   /* Variant: Glass (Default - Floating Bubble) */

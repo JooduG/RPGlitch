@@ -25,7 +25,7 @@ The `motion` skill governs the kinetic soul of the RPGlitch Engine. It focuses o
 
 ## How It Works
 
-1. **Leverage Design Tokens**: Utilize `--motion-fast`, `--motion-elastic`, and interaction tokens from `tokens.css`.
+1. **Leverage Design Tokens**: Utilize `--motion-l`, `--motion-elastic`, and interaction tokens from `tokens.css`.
 2. **Svelte Action Implementation**: Define refined motion logic in `src/ui/utils/actions/` and apply via `use:action`.
 3. **Compositor Optimization**: Ensure all animations bypass the heavy lifting of the rendering pipeline.
 4. **Kinetic Audit**: Verify FPS stability and responsiveness of interaction triggers in the browser.

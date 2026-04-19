@@ -35,8 +35,27 @@
 
 ---
 
+### [042] Ghost Token Audit & Profile UI Stabilization - [COMPLETED]
+
+#### **Phase 1: Ghost Token Audit**
+- [x] List all valid tokens from `tokens.css`
+- [x] Search for usage of legacy/ghost tokens (e.g., `--motion-slow`, `--motion-fast`)
+- [x] Repair components using ghost tokens
+
+#### **Phase 2: Profile UI Stabilization**
+- [x] Update `tokens.css`: Set `--font-size-xxxxxl` to `5rem` (80px)
+- [x] Update `EntityHeader.svelte`: Harmonize `.name` font size and add stability
+- [x] Update `Profile.svelte`: Replace elastic easing with stable easing for layout shifts
+
+#### **Phase 3: Verification**
+- [x] Run `npm run verify`
+- [x] Manual verification of Profile transitions
+
+---
+
 ## 🏁 Completed Missions (Recent)
 
+- **[042]** Ghost Token Audit & Profile UI Stabilization
 - **[041]** Rule & Workflow Template Standardization (PR #132)
 - **[040]** Git Ignore Fixes & .playwright-auth Untracking
 - **[039]** Control Panel Wiring & Mock Controls

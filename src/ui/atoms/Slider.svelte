@@ -92,7 +92,7 @@
       var(--shadow-s);
     margin-top: -0.25rem; /* Centering on 0.25rem track */
     border: none;
-    transition: transform var(--motion-fast) var(--motion-elastic);
+    transition: transform var(--motion-l) var(--motion-elastic);
   }
 
   input[type="range"]::-moz-range-thumb {
@@ -106,7 +106,7 @@
       0 0 8px var(--color-frozen),
       var(--shadow-s);
     border: none;
-    transition: transform var(--motion-fast) var(--motion-elastic);
+    transition: transform var(--motion-l) var(--motion-elastic);
   }
 
   input[type="range"]:active:not(:disabled)::-webkit-slider-thumb {

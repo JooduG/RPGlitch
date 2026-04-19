@@ -140,7 +140,7 @@
     background: var(--glass-xs);
     border: none;
     border-radius: var(--border-radius-m);
-    transition: all var(--motion-fast) var(--motion-elastic);
+    transition: all var(--motion-l) var(--motion-elastic);
   }
 
   .voice-button:hover:not(:disabled) {
@@ -173,7 +173,7 @@
     background: var(--glass-xs);
     border: none;
     border-radius: var(--border-radius-m);
-    transition: all var(--motion-fast) var(--motion-elastic);
+    transition: all var(--motion-l) var(--motion-elastic);
   }
 
   .preview-button:hover:not(:disabled) {
@@ -206,8 +206,8 @@
     border-radius: var(--border-radius-m);
     box-shadow: var(--shadow-xxl);
     transition:
-      opacity var(--motion-fast) ease,
-      transform var(--motion-fast) var(--motion-elastic);
+      opacity var(--motion-l) ease,
+      transform var(--motion-l) var(--motion-elastic);
   }
 
   .dropdown-content.visible {
@@ -229,7 +229,7 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-s);
-    transition: all var(--motion-fast);
+    transition: all var(--motion-l);
   }
 
   .voice-option:hover {

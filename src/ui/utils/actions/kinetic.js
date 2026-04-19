@@ -16,8 +16,8 @@ const getMotionToken = (token, fallback) => {
 };
 
 // Standardized Durations (ms)
-const MOTION_FAST = getMotionToken("--motion-fast", 200);
-const MOTION_SLOW = getMotionToken("--motion-slow", 400);
+const MOTION_FAST = getMotionToken("--motion-l", 200);
+const MOTION_SLOW = getMotionToken("--motion-s", 400);
 
 // Physics Primitives
 const SHIMMY_DEG = 45;

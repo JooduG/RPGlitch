@@ -24,7 +24,7 @@
     flex: 1;
     min-height: 0;
     position: relative;
-    transition: all var(--motion-fast) var(--motion-elastic);
+    transition: all var(--motion-l) var(--motion-elastic);
     background-color: rgb(var(--color-gunmetal-rgb) / 45%);
     backdrop-filter: var(--blur-l);
     border-radius: var(--border-radius-m);

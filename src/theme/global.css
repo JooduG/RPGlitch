@@ -60,17 +60,6 @@ body {
   color: var(--font-color-m);
 }
 
-/* Atmospheric Noise Texture Overlay */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  opacity: var(--opacity-xxs);
-  pointer-events: none;
-  z-index: var(--z-index-xs);
-  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAApb2uWAAAABlBMVEUAAAD///+l2Z/dAAAAAnRSTlP/AOW3MEoAAAA9SURBVDjLY2BkYGRkYmRmZmdmYWVlZWVlZmZlZmVmZmVmZmZlZmVmZmVmZmZlZmVmZmVmZmZlZmVmZmVmZgcDAAiUADIAAAAA");
-}
-
 /* Visibility modifiers for environment states */
 body:not(.mode-developer) .developer-content {
   display: none;
@@ -144,7 +133,7 @@ a {
   color: inherit;
   text-decoration: underline;
   text-underline-offset: 4px;
-  transition: opacity var(--motion-fast);
+  transition: opacity var(--motion-l);
 }
 
 a:hover {
@@ -224,9 +213,9 @@ small {
 .profile-quick-link.button {
   cursor: pointer;
   transition:
-    transform var(--motion-fast) var(--motion-elastic),
-    filter var(--motion-fast),
-    backdrop-filter var(--motion-fast);
+    transform var(--motion-l) var(--motion-elastic),
+    filter var(--motion-l),
+    backdrop-filter var(--motion-l);
 }
 
 .interactive:hover,
@@ -271,7 +260,7 @@ small {
   background: linear-gradient(to right, transparent, rgb(var(--color-red-rgb) / 15%));
   opacity: var(--opacity-none);
   pointer-events: none;
-  transition: opacity var(--motion-standard);
+  transition: opacity var(--motion-m);
   z-index: -1;
 }
 
@@ -287,7 +276,7 @@ small {
   box-shadow: 0 0 var(--blur-xl) var(--color-red);
   opacity: var(--opacity-none);
   pointer-events: none;
-  transition: opacity var(--motion-standard);
+  transition: opacity var(--motion-m);
 }
 
 .danger-charging::after {
@@ -359,9 +348,9 @@ small {
   opacity: var(--opacity-none);
   pointer-events: none;
   transition:
-    opacity var(--motion-fast) var(--motion-elastic),
-    transform var(--motion-fast) var(--motion-elastic),
-    filter var(--motion-fast) var(--motion-elastic);
+    opacity var(--motion-l) var(--motion-elastic),
+    transform var(--motion-l) var(--motion-elastic),
+    filter var(--motion-l) var(--motion-elastic);
   transition-delay: 0ms; /* Instant exit */
   z-index: var(--z-index-max);
   filter: blur(4px);
@@ -407,7 +396,7 @@ small {
   color: var(--color-white);
   padding: var(--spacing-xs);
   z-index: var(--z-index-max);
-  transition: top var(--motion-fast);
+  transition: top var(--motion-l);
 }
 
 .skip-link:focus {

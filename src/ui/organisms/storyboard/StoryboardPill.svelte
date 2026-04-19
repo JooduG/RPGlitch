@@ -88,7 +88,7 @@
   :global(.unified-capsule .capsule-flank.button),
   :global(.unified-capsule .capsule-action.button) {
     background: transparent;
-    transition: all var(--motion-fast);
+    transition: all var(--motion-l);
     border: none;
     box-shadow: none;
   }

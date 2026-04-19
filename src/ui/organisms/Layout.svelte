@@ -83,7 +83,7 @@
 
     /* background: radial-gradient(circle at bottom, var(--color-gunmetal), var(--color-black) 70%); */
     color: var(--color-white);
-    transition: all var(--motion-slow) var(--motion-elastic);
+    transition: all var(--motion-s) var(--motion-elastic);
     pointer-events: none;
   }
 
@@ -200,7 +200,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: var(--stage-align, center);
-    transition: all var(--motion-slow) var(--motion-elastic);
+    transition: all var(--motion-s) var(--motion-elastic);
     overflow: visible;
     min-height: 0;
     pointer-events: auto;
@@ -209,7 +209,7 @@
 
   /* SIDE COLUMN (WINGS) STYLING */
   .stage-column--side {
-    transition: all var(--motion-slow) var(--motion-elastic);
+    transition: all var(--motion-s) var(--motion-elastic);
   }
 
   /* 
