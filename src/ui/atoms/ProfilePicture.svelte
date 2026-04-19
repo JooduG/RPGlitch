@@ -11,7 +11,7 @@
 
   function calculate_initials(str) {
     if (!str) return "?";
-    const clean_name = str.replace(/[^a-zA-Z\s]/g, "");
+    const clean_name = str.replace(/[^\p{L}\s]/gu, "");
     const words = clean_name.trim().split(/\s+/);
     const stop_words = new Set([
       "the",
