@@ -24,7 +24,6 @@
           className="capsule-flank icon-glow"
           variant="ghost"
           onclick={() => storyboard.shuffle()}
-          title="Randomize Entities"
           actions={[shimmy]}
         >
           <svg viewBox="0 0 24 24" class="icon-small">
@@ -57,7 +56,6 @@
           className="capsule-flank icon-glow"
           variant="ghost"
           onclick={app.toggle_control_panel}
-          title="Open Control Panel"
           data-testid="settings-button"
           actions={[spin]}
         >

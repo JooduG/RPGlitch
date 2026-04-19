@@ -178,13 +178,11 @@
       {#each SPECTRUM_COLORS as [name, hex] (name)}
         <button
           class="swatch"
-          class:active={char.signature_color === hex}
+          class:active={char.signature_color === hex || char.signature_color === name}
           style="background-color: {PALETTE_VARS[hex] || hex}"
-          aria-label="{name.charAt(0).toUpperCase() + name.slice(1)} ({char.signature_color === hex
-            ? 'Selected'
-            : 'Select Color'})"
+          aria-label={name.charAt(0).toUpperCase() + name.slice(1)}
           onclick={() => {
-            char.signature_color = hex;
+            char.signature_color = name;
           }}
           disabled={!is_editing}
         ></button>

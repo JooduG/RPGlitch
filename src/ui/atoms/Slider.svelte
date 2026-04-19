@@ -37,6 +37,7 @@
     font-size: var(--font-size-xxs);
     color: var(--font-color-s);
     text-transform: uppercase;
+    text-align: left;
     letter-spacing: var(--letter-spacing-m);
     margin-bottom: var(--spacing-xxs);
   }

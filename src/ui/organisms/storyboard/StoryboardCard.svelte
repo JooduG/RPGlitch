@@ -29,8 +29,7 @@
 </script>
 
 <div
-  class="storyboard-stack {type}-card glass-base"
-  class:is-empty={is_empty}
+  class="storyboard-stack {type}-card glass-base no-tooltip"
   style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
   aria-label={is_empty ? `Select ${role_label}` : `Change ${role_label}`}
   data-testid="storyboard-card"
@@ -63,35 +62,40 @@
         <!-- Info Layer (Bottom-up Gradient Scrim) -->
         <div class="card-info-scrim">
           <div class="info-content">
-            <h2 use:fitText={{ maxSize: 32, minSize: 16, lineHeight: "1.1" }} title={entity.name}>
+            <h2 use:fitText={{ maxSize: 32, minSize: 16, lineHeight: "1.1" }}>
               {entity.name}
             </h2>
             <p class="description">{entity.description || "No description provided."}</p>
           </div>
         </div>
 
-        <!-- Action Layer (Top-level Pointer Target) -->
         <Button variant="overlay" onclick={on_select}>
           <div class="visual-anchor">
             <ProfilePicture {entity} />
           </div>
         </Button>
-
-        <!-- Profile Quick-Link -->
-        <Button
-          className="profile-quick-link"
-          variant="ghost"
-          onclick={on_view_profile}
-          aria-label="View {entity.name} Profile"
-        >
-          <svg viewBox="0 0 24 24" class="icon-s">
-            <path
-              fill="currentColor"
-              d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"
-            />
-          </svg>
-        </Button>
       </div>
+    </div>
+
+    <!-- Profile Quick-Link (Wrapped to prevent opacity layer flattening for tooltip) -->
+    <div
+      class="quick-link-wrapper"
+      aria-label="View {entity.name} Profile"
+    >
+      <Button
+        className="profile-quick-link"
+        variant="ghost"
+        onclick={on_view_profile}
+        tabindex="-1"
+      >
+        <div class="button-surface"></div>
+        <svg viewBox="0 0 24 24" class="icon-s">
+          <path
+            fill="currentColor"
+            d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"
+          />
+        </svg>
+      </Button>
     </div>
   {/if}
 
@@ -239,36 +243,60 @@
     overflow: hidden; /* Mask the individual profile picture */
   }
 
-  /* Profile Link: Floating button on top */
-  :global(.profile-quick-link.button) {
+  /* Profile Link Wrapper: Static anchor for tooltips (NO OPACITY TRANSITIONS) */
+  .quick-link-wrapper {
     position: absolute;
     top: var(--spacing-m);
     right: var(--spacing-m);
-    z-index: var(--z-index-l);
+    z-index: var(--z-index-max);
     width: 36px;
     height: 36px;
+    visibility: hidden; /* Hide tooltip interaction when not hovered */
+  }
+
+  .storyboard-stack:hover .quick-link-wrapper {
+    visibility: visible;
+  }
+
+  /* Profile Link Button: Handles visual transitions ONLY */
+  :global(.profile-quick-link.button) {
+    width: 100%;
+    height: 100%;
     padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: 50%;
+    color: var(--color-white);
+    opacity: var(--opacity-none);
+    transition: opacity var(--motion-s) ease;
+    filter: none;
+  }
+
+  .button-surface {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
     background: var(--glass-xxl);
     border: var(--border-xl);
     backdrop-filter: var(--blur-xl);
     border-radius: 50%;
-    color: var(--color-white);
-    opacity: var(--opacity-none);
     transition:
-      opacity var(--motion-s) ease,
+      background var(--motion-l) ease,
       border-color var(--motion-l) ease,
-      box-shadow var(--motion-l) ease;
-    box-shadow: var(--shadow-l);
+      backdrop-filter var(--motion-l) ease;
+  }
+
+  .quick-link-wrapper:hover .button-surface {
+    background: color-mix(in srgb, var(--glass-xxl), var(--color-white) 15%);
+    border-color: var(--color-white);
   }
 
   .storyboard-stack:hover :global(.profile-quick-link.button) {
     opacity: var(--opacity-l);
   }
 
-  :global(.storyboard-stack .profile-quick-link.button:hover) {
+  .quick-link-wrapper:hover :global(.profile-quick-link.button) {
     opacity: var(--opacity-full);
   }
 </style>

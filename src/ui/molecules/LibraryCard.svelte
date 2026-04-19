@@ -33,7 +33,8 @@
   style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
   onclick={handleSelect}
   {disabled}
-  title={disabled ? "Already selected" : `Select ${name}`}
+  aria-label={disabled ? "Already selected" : `Select ${name}`}
+  class:no-tooltip={true}
   oncontextmenu={(e) => {
     e.preventDefault();
     if (onViewProfile) onViewProfile();

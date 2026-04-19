@@ -207,10 +207,8 @@ small {
    ---------------------------------------------------------------------------- */
 .interactive,
 .button:not(:disabled, .disabled),
-.storyboard-stack,
 .drawer-card:not(:disabled, .is-disabled),
-.button-overlay:not(:disabled, .disabled),
-.profile-quick-link.button {
+.button-overlay:not(:disabled, .disabled) {
   cursor: pointer;
   transition:
     transform var(--motion-l) var(--motion-elastic),
@@ -220,10 +218,8 @@ small {
 
 .interactive:hover,
 .button:hover:not(:disabled, .disabled),
-.storyboard-stack:hover,
 .drawer-card:hover:not(:disabled, .is-disabled),
-.button-overlay:hover:not(:disabled, .disabled),
-.profile-quick-link.button:hover {
+.button-overlay:hover:not(:disabled, .disabled) {
   filter: var(--hover-brightness);
   backdrop-filter: var(--blur-m);
 }
@@ -336,51 +332,54 @@ small {
 }
 
 /* Tooltips: Declarative CSS-only tooltips */
-[aria-label] {
+[aria-label]:not(.no-tooltip) {
   position: relative;
 }
 
-[aria-label]::before,
-[aria-label]::after {
+[aria-label]:not(.no-tooltip)::before,
+[aria-label]:not(.no-tooltip)::after {
   position: absolute;
   left: 50%;
-  transform: translateX(-50%) translateY(4px);
+  transform: translateX(-50%) translateY(4px) translateZ(0);
   opacity: var(--opacity-none);
   pointer-events: none;
   transition:
-    opacity var(--motion-l) var(--motion-elastic),
-    transform var(--motion-l) var(--motion-elastic),
-    filter var(--motion-l) var(--motion-elastic);
+    opacity var(--motion-m) var(--motion-elastic),
+    transform var(--motion-m) var(--motion-elastic);
   transition-delay: 0ms; /* Instant exit */
   z-index: var(--z-index-max);
-  filter: blur(4px);
+  will-change: opacity, transform;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
 }
 
-[aria-label]::before {
+[aria-label]:not(.no-tooltip)::before {
   content: "";
-  bottom: calc(100% + 5px);
-  border: 0.3rem solid transparent;
-  border-top-color: var(--color-chalk);
+  bottom: calc(100% + 0px);
+  border: 6px solid transparent;
+  border-top-color: rgb(var(--color-frisk-rgb) / var(--opacity-s));
+  z-index: 2; /* Sits on top of the blur filter to retain geometry */
 }
 
-[aria-label]::after {
+[aria-label]:not(.no-tooltip)::after {
   content: attr(aria-label);
-  bottom: calc(100% + 15px);
-  background: var(--bg-base);
+  bottom: calc(100% + 12px);
+  background: var(--glass-xl);
+  backdrop-filter: var(--blur-l);
   color: var(--color-white);
   padding: var(--spacing-xs) var(--spacing-s);
-  border-radius: var(--border-radius-s);
-  border: var(--border-l);
+  border-radius: var(--border-radius-m);
+  border: var(--border-xl);
   font-size: var(--font-size-xs);
   white-space: nowrap;
   box-shadow: var(--shadow-m);
+  z-index: 1;
 }
 
-[aria-label]:hover::before,
-[aria-label]:hover::after {
+[aria-label]:not(.no-tooltip):hover:not(:has([aria-label]:hover))::before,
+[aria-label]:not(.no-tooltip):hover:not(:has([aria-label]:hover))::after {
   opacity: var(--opacity-full);
-  transform: translateX(-50%) translateY(0);
-  filter: blur(0);
+  transform: translateX(-50%) translateY(0) translateZ(0);
   transition-delay: 400ms; /* Deliberate entrance */
 }
 

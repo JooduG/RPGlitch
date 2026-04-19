@@ -1,7 +1,7 @@
 # Task List - Sovereign Alignment
 
-> **Status**: `[DONE]`
-> **Last Update**: 2026-04-17
+> **Status**: `[ACTIVE]`
+> **Last Update**: 2026-04-19
 > **Current Milestone**: Milestone 1 (The Foundry)
 
 ## 🗺️ Project Roadmap
@@ -15,6 +15,17 @@
 - [x] Security Protocol (Warden/DOMPurify)
 - [x] Round Stability & Hygiene (Patch [037])
 - [x] InputBar Layout & Control Panel Wiring ([039])
+- [ ] Release Candidate Stability Audit ([043])
+
+---
+
+### [043] Release Candidate Prep - [ACTIVE]
+
+#### **Track 1: Stability Audit**
+
+- [ ] Run full `deploy:prepare` suite
+- [ ] Resolve any lingering audit advice or debt
+- [ ] Verify build integrity and asset inlining
 
 ---
 
@@ -92,9 +103,11 @@
 | 2026-04-16T06:24:14+00:00 | Fix Naming Convention SIMPLIFY-IGNORE.md           | `security-and-hardening`                   | ✅ Done     |
 | 2026-04-16T07:18:10+00:00 | Rule 06: Remove temporary bot artifacts            | `security-and-hardening`                   | ✅ Done     |
 | 2026-04-16T08:28:03+00:00 | Rule 06: Remove tasks/plan.md temporary scratchpad | `security-and-hardening`                   | ✅ Done     |
-
 | 2026-04-18T05:47:12.314Z | Fix Rule 06 Compliance regarding SKILL.md TODO-AI false positive | `security-and-hardening` | ✅ Done |
 | 2026-04-18T12:00:00Z | Fresh Session Initialization (/boot) | `using-agent-skills`, `data`, `warden` | ✅ Resonant |
+| 2026-04-19T15:05:00Z | Fix Signature Color grid selection for premades | `frontend-ui-engineering` | ✅ Done |
+| 2026-04-19T15:11:00Z | Clean up signature color swatch tooltips           | `frontend-ui-engineering` | ✅ Done |
+| 2026-04-19T15:25:00Z | Storyboard UI Stabilization                        | `frontend-ui-engineering` | ✅ Done     |
 
 ## 🧹 Backlog (Automated)
 

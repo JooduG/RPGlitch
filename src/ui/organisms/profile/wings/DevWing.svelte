@@ -61,7 +61,7 @@
     <div class="dynamics-grid">
       {#each active_dynamics as dynamic (dynamic.source + "-" + dynamic.key)}
         <div class="dynamic-box" class:is-editing={is_editing}>
-          <span class="dynamic-label" title={dynamic.desc}>{dynamic.label}</span>
+          <span class="dynamic-label" aria-label={dynamic.desc}>{dynamic.label}</span>
           <div class="value-container">
             {#if is_editing}
               <input

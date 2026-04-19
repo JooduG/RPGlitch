@@ -94,7 +94,7 @@
 
 <h1
   contenteditable="true"
-  title="Double-click to re-roll title"
+  aria-label="Double-click to re-roll title"
   oninput={handle_input}
   ondblclick={handle_dbl_click}
 >
