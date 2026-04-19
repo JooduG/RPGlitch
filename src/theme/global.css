@@ -356,7 +356,9 @@ small {
 [aria-label]:not(.no-tooltip)::before {
   content: "";
   bottom: calc(100% + 0px);
-  border: 6px solid transparent;
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent;
   border-top-color: rgb(var(--color-frisk-rgb) / var(--opacity-s));
   z-index: 2; /* Sits on top of the blur filter to retain geometry */
 }

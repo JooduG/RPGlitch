@@ -1,5 +1,5 @@
 /**
- * @file .agent/skills/swarm/lib/jules-provider.js
+ * @file .agent/skills/swarm/scripts/jules-provider.js
  * 🧪 DEVELOPER LLM PROVIDER  —  Node.js / Jules SDK
  *
  * This file contains the implementation for calling the LLM via the Google Jules SDK.
@@ -11,7 +11,7 @@ import { jules } from "@google/jules-sdk";
 
 /**
  * Executes a generation request using the Jules SDK.
- * 
+ *
  * @param {Object} payload - The prompt payload.
  * @param {Object} options - Runtime overrides.
  * @returns {Promise<string>}
