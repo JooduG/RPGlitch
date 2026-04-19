@@ -20,7 +20,6 @@ db.version(10).stores({
     "id, name, description, profile_picture, signature_color, created_at, updated_at, tags, type, [type+isCustom], isChosen",
   stories: "++id, title, ai_id, user_id, fractal_id, created_at, updated_at",
   simulation_log: "++id, story_id, role, type, character_name, text, seed, meta, created_at",
-  settings: "id",
   kv_settings: "key",
   sessions: "++id, session_id, timestamp",
   audio_prefs: "key",
@@ -49,26 +48,6 @@ db.on("blocked", () => {
 db.on("versionchange", () => {
   db.close();
   if (typeof window !== "undefined") window.location.reload();
-});
-// 3. Populate default data
-db.on("populate", async (trans) => {
-  try {
-    const settings = trans.table("settings");
-    await settings.put({
-      id: "app-settings",
-      temperature: 0.7,
-      top_p: 1.0,
-      max_tokens: 512,
-      stop: [],
-      model: "default",
-      debug_mode: false,
-      developer_mode: false,
-      story_prologue_instructions: "",
-      storyboard_selection: { fractal: null, user: null },
-    });
-  } catch (err) {
-    console.error("[Data] Failed to populate default settings:", err);
-  }
 });
 /**
  * Initializes the database connection.

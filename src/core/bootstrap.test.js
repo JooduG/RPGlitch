@@ -11,7 +11,7 @@ vi.mock("@state/app.svelte.js", () => ({
   },
 }));
 
-vi.mock("@media/audio.js", () => ({
+vi.mock("@media/audio.svelte.js", () => ({
   Audio: {
     init: vi.fn(),
     _initPromise: null,
@@ -30,12 +30,12 @@ vi.mock("@state/runtime.svelte.js", () => ({
 vi.mock("svelte", () => ({
   mount: vi.fn(),
 }));
-vi.mock("../../App.svelte", () => ({
+vi.mock("../ui/App.svelte", () => ({
   default: {},
 }));
 describe("AppBootstrap", () => {
   beforeEach(async () => {
-    const { Audio } = await import("@media/audio.js");
+    const { Audio } = await import("@media/audio.svelte.js");
     document.body.innerHTML = "";
     vi.resetAllMocks();
     reset_bootstrap_guard();
@@ -75,7 +75,7 @@ describe("AppBootstrap", () => {
   });
 
   test("successfully initializes all services in the correct order and mounts the app", async () => {
-    const { Audio } = await import("@media/audio.js");
+    const { Audio } = await import("@media/audio.svelte.js");
     const { runtime } = await import("@state/runtime.svelte.js");
     const { mount } = await import("svelte");
 

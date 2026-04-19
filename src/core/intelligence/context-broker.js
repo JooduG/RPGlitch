@@ -12,8 +12,9 @@
  */
 import { runtime } from "@state/runtime.svelte.js";
 import { ENTITY_CATALOG } from "./entity-fragments.js";
-import { clean_text } from "../engine/text-parser.js";
+import { clean_text } from "../text-parser.js";
 import { dynamics_engine } from "./dynamics-engine.js";
+import { temporal_engine } from "./temporal-engine.js";
 
 const LOG_CACHE = new WeakMap();
 
@@ -246,9 +247,8 @@ export const context_broker = {
     }
 
     if (vectors_to_resolve.length > 0) {
-      const { vector_engine } = await import("./vector-engine.js");
       for (const id of vectors_to_resolve) {
-        vector_engine.resolve_vector(entity, id, "AUTO_RESOLVED");
+        temporal_engine.resolve(entity, id, "AUTO_RESOLVED");
       }
     }
   },

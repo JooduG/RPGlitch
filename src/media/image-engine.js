@@ -8,7 +8,7 @@ import { context_broker } from "@core/intelligence/context-broker.js";
 import { llm_service } from "@core/intelligence/llm-service.js";
 import { db } from "@data/db.js";
 import { entities } from "@data/repository.js";
-import { generateSecureSeed } from "@ui/utils/core.js";
+import { generateSecureSeed } from "@ui/utils/helpers.js";
 import { runtime } from "@state/runtime.svelte.js";
 import { simulationState as simulation } from "@state/status.svelte.js";
 import {

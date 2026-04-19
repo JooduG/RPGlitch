@@ -1,10 +1,12 @@
 import { describe, expect, it, beforeEach, vi } from "vitest";
 import { context_broker } from "./context-broker.js";
 
-// Mock vector_engine to intercept dynamic import calls
-vi.mock("./vector-engine.js", () => ({
-  vector_engine: {
-    resolve_vector: vi.fn(),
+import { temporal_engine } from "./temporal-engine.js";
+
+// Mock temporal_engine to intercept resolution calls
+vi.mock("./temporal-engine.js", () => ({
+  temporal_engine: {
+    resolve: vi.fn(),
   },
 }));
 
@@ -50,10 +52,9 @@ describe("context_broker", () => {
 
       await context_broker.manage_vector_lifecycle(entity, log);
 
-      const { vector_engine } = await import("./vector-engine.js");
-      expect(vector_engine.resolve_vector).toHaveBeenCalledTimes(2);
-      expect(vector_engine.resolve_vector).toHaveBeenCalledWith(entity, "v1", "AUTO_RESOLVED");
-      expect(vector_engine.resolve_vector).toHaveBeenCalledWith(entity, "v3", "AUTO_RESOLVED");
+      expect(temporal_engine.resolve).toHaveBeenCalledTimes(2);
+      expect(temporal_engine.resolve).toHaveBeenCalledWith(entity, "v1", "AUTO_RESOLVED");
+      expect(temporal_engine.resolve).toHaveBeenCalledWith(entity, "v3", "AUTO_RESOLVED");
     });
 
     it("should not resolve vectors using substring false positives", async () => {
@@ -65,8 +66,7 @@ describe("context_broker", () => {
 
       await context_broker.manage_vector_lifecycle(entity, log);
 
-      const { vector_engine } = await import("./vector-engine.js");
-      expect(vector_engine.resolve_vector).not.toHaveBeenCalled();
+      expect(temporal_engine.resolve).not.toHaveBeenCalled();
     });
 
     it("should resolve vectors based on significant keywords if no tags match", async () => {
@@ -82,9 +82,8 @@ describe("context_broker", () => {
 
       await context_broker.manage_vector_lifecycle(entity, log);
 
-      const { vector_engine } = await import("./vector-engine.js");
-      expect(vector_engine.resolve_vector).toHaveBeenCalledTimes(1);
-      expect(vector_engine.resolve_vector).toHaveBeenCalledWith(entity, "v1", "AUTO_RESOLVED");
+      expect(temporal_engine.resolve).toHaveBeenCalledTimes(1);
+      expect(temporal_engine.resolve).toHaveBeenCalledWith(entity, "v1", "AUTO_RESOLVED");
     });
 
     it("should not resolve vectors if keywords don't meet threshold", async () => {
@@ -99,8 +98,7 @@ describe("context_broker", () => {
 
       await context_broker.manage_vector_lifecycle(entity, log);
 
-      const { vector_engine } = await import("./vector-engine.js");
-      expect(vector_engine.resolve_vector).not.toHaveBeenCalled();
+      expect(temporal_engine.resolve).not.toHaveBeenCalled();
     });
   });
 });

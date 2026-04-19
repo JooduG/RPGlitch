@@ -8,7 +8,7 @@
  */
 
 import { vi } from "vitest";
-import { execute_jules } from "../../swarm/lib/jules-provider.js";
+import { execute_jules } from "../../swarm/scripts/jules-provider.js";
 
 // Ensure window.ai exists to prevent reference errors in purified simulation code.
 // In development, we bridge it to our Node.js provider.

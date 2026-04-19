@@ -66,11 +66,11 @@ describe("llm_service - generate", () => {
   it("should throw an error if window.ai is not available", async () => {
     const originalAi = window.ai;
     delete window.ai; // Ensure it's totally gone
-    
+
     await expect(
       llm_service.generate({ system: "", messages: [] }, { silent: true }),
     ).rejects.toThrow(/LLM Engine Unavailable: window.ai not found/);
-    
+
     window.ai = originalAi;
   });
 

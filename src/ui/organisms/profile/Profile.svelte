@@ -9,6 +9,7 @@
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
+  import { normalize } from "@data/content-normaliser.js";
   import ProfilePicture from "@ui/atoms/ProfilePicture.svelte";
   import Modal from "@ui/molecules/Modal.svelte";
   // New Modular Components
@@ -31,7 +32,7 @@
   let active_field = $state({ key: "visual-prompt", label: "Image Prompt" });
 
   // Normalizer guarantees flattened schema
-  let char = $state(themeStore.normalize_entity(app.editing_entity || runtime.character));
+  let char = $state(normalize(app.editing_entity || runtime.character));
 
   // Theme values
   let signature_color = $derived(themeStore.get_signature_color(char));
