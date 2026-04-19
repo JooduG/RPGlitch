@@ -78,7 +78,7 @@ ${SEP}
 
     // 4. PERSISTENCE
     console.log(report);
-    fs.writeFileSync("audit_report.md", report);
-    console.log("✅ Audit report synthesized: audit_report.md");
+    fs.writeFileSync("artifacts/audit_report.md", report);
+    console.log("✅ Audit report synthesized: artifacts/audit_report.md");
   });
 });

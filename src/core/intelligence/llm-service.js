@@ -93,35 +93,17 @@ export const llm_service = {
    * @returns {Promise<string>}
    */
   generate: async (payload, options = {}) => {
-    // --- NODE.JS / JULES-SDK FALLBACK ---
+    // [SAFETY] Guard against missing plugin in non-Perchance environments
     if (typeof window === "undefined" || !window.ai) {
-      try {
-        const { jules } = await import("@google/jules-sdk");
-        const session = await jules.session({
-          prompt: payload.system || "",
-          messages: payload.messages || [],
-          temperature: options.temperature ?? payload.params?.temperature ?? 0.8,
-          max_tokens: options.max_tokens ?? payload.params?.max_tokens,
-          top_p: options.top_p ?? payload.params?.top_p,
-        });
-        // We handle streaming or direct result based on options
-        if (options.onToken) {
-          for await (const chunk of session.stream()) {
-            if (chunk.type === "token") options.onToken(chunk.text);
-          }
-        }
-        const result = await session.result();
-        return typeof result === "string" && !options.raw ? sanitize(result) : result;
-      } catch (err) {
-        const msg = "LLM Engine Unavailable: Neither window.ai nor jules-sdk found.";
-        if (!options.silent) console.error(msg, err);
-        throw new Error(msg, { cause: err });
-      }
+      const msg = "LLM Engine Unavailable: window.ai not found. This simulation requires the Perchance AI plugin.";
+      if (!options.silent) console.error(msg);
+      throw new Error(msg);
     }
 
     // --- BROWSER / PERCHANCE ENGINE ---
     // 1. Format conversation history into a flat readable string
     const chat_history = llm_service._format_history(payload.messages || []);
+    
     // 2. Assemble the final instruction block
     const instruction = [
       payload.system || "",
@@ -130,6 +112,7 @@ export const llm_service = {
     ]
       .filter(Boolean)
       .join("\n\n");
+
     try {
       // 3. Prepare generation parameters
       const gen_options = {
@@ -142,6 +125,7 @@ export const llm_service = {
         signal: options.signal,
         silent: options.silent,
       };
+
       // 4. Wire streaming to the app layer
       const on_token = (chunk) => {
         if (!options.silent) {
@@ -150,12 +134,15 @@ export const llm_service = {
         }
         if (options.onToken) options.onToken(chunk);
       };
+
       // 5. Execute
       let result = await window.ai(instruction, {
         ...gen_options,
         onToken: on_token,
       });
+
       if (!options.silent) app.end_stream();
+
       // 6. Sanitize unless caller opted out with raw: true
       if (typeof result === "string" && !options.raw) {
         result = sanitize(result);
@@ -167,6 +154,7 @@ export const llm_service = {
         console.warn("[llm_service] Silent generation error (suppressed):", err);
         throw err;
       }
+
       const err_string = String(err);
       if (err_string.includes("stream keep alive") || err_string.includes("timeout")) {
         console.error("[llm_service] Network error:", err);

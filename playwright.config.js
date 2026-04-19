@@ -6,5 +6,6 @@ export default defineConfig({
     port: 4000,
     reuseExistingServer: !process.env.CI,
   },
-  testDir: "tests",
+  testDir: ".agent/skills/warden/tests/playwright",
+  outputDir: "artifacts/test-results/playwright",
 });
