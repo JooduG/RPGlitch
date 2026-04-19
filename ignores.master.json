@@ -37,7 +37,8 @@
     "**/scribbles/**",
     "**/templates/**",
     "**/test-results/**",
-    "**/yarn.lock"
+    "**/yarn.lock",
+    "**/artifacts/**"
   ],
   "geminiignore": [
     "!**/.env",
@@ -50,7 +51,9 @@
     "!**/rpglitch-left-panel.txt",
     "!**/scribbles/**",
     "!**/templates/**",
-    "!**/test-results/**"
+    "!**/test-results/**",
+    "!**/artifacts/**"
+
   ],
   "gitignore": [
     "!**/rpglitch-left-panel.txt",
