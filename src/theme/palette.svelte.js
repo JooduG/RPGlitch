@@ -208,8 +208,6 @@ class ThemeStore {
         .padStart(6, "0")
     );
   }
-
-
 }
 
 export const themeStore = new ThemeStore();

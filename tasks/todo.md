@@ -38,16 +38,19 @@
 ### [042] Ghost Token Audit & Profile UI Stabilization - [COMPLETED]
 
 #### **Phase 1: Ghost Token Audit**
+
 - [x] List all valid tokens from `tokens.css`
 - [x] Search for usage of legacy/ghost tokens (e.g., `--motion-slow`, `--motion-fast`)
 - [x] Repair components using ghost tokens
 
 #### **Phase 2: Profile UI Stabilization**
+
 - [x] Update `tokens.css`: Set `--font-size-xxxxxl` to `5rem` (80px)
 - [x] Update `EntityHeader.svelte`: Harmonize `.name` font size and add stability
 - [x] Update `Profile.svelte`: Replace elastic easing with stable easing for layout shifts
 
 #### **Phase 3: Verification**
+
 - [x] Run `npm run verify`
 - [x] Manual verification of Profile transitions
 
@@ -91,10 +94,14 @@
 | 2026-04-16T08:28:03+00:00 | Rule 06: Remove tasks/plan.md temporary scratchpad | `security-and-hardening`                   | ✅ Done     |
 
 | 2026-04-18T05:47:12.314Z | Fix Rule 06 Compliance regarding SKILL.md TODO-AI false positive | `security-and-hardening` | ✅ Done |
-| 2026-04-18T12:00:00Z      | Fresh Session Initialization (/boot)               | `using-agent-skills`, `data`, `warden` | ✅ Resonant |
+| 2026-04-18T12:00:00Z | Fresh Session Initialization (/boot) | `using-agent-skills`, `data`, `warden` | ✅ Resonant |
+
 ## 🧹 Backlog (Automated)
+
 <!-- BACKLOG_START -->
-*Last Swept: 2026-04-18 11:41:00*
+
+_Last Swept: 2026-04-18 11:41:00_
 
 ✅ No outstanding AI debt.
+
 <!-- BACKLOG_END -->

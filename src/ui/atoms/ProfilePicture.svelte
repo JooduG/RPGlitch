@@ -118,11 +118,7 @@
     color: var(--color-white);
     text-shadow: 0 0.2rem 1rem rgb(var(--color-black-rgb) / 50%);
     background-color: var(--signature-color);
-    background-image: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--color-black-rgb) / 30%)
-    );
+    background-image: linear-gradient(to bottom, transparent, rgb(var(--color-black-rgb) / 30%));
     text-transform: uppercase;
   }
 </style>

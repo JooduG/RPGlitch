@@ -62,11 +62,11 @@
 
 <div class="vector-panel" style="--accent-color: {signature_color}">
   <div class="vector-list">
-      <div
-        class="aperture-line"
-        class:visible={is_peeking && is_editing}
-        aria-label="Click Header to Append"
-      ></div>
+    <div
+      class="aperture-line"
+      class:visible={is_peeking && is_editing}
+      aria-label="Click Header to Append"
+    ></div>
 
     {#each items as item, i (i)}
       <div
@@ -85,11 +85,11 @@
         </div>
 
         {#if is_editing}
-            <div
-              class="danger-zone"
-              use:danger={{ type: "hold", onComplete: () => remove_item(i) }}
-              aria-label="Charge to Disintegrate"
-            ></div>
+          <div
+            class="danger-zone"
+            use:danger={{ type: "hold", onComplete: () => remove_item(i) }}
+            aria-label="Charge to Disintegrate"
+          ></div>
         {/if}
       </div>
     {/each}
