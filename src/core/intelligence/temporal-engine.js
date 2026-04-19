@@ -113,7 +113,8 @@ export function format(vectors, input, options = {}) {
   const show_text = options.vector_text ?? true;
   const show_label = options.vector_label ?? true;
 
-  const ranked = score(vectors, input).slice(0, limit);
+  const offset = options.offset || 0;
+  const ranked = score(vectors, input).slice(offset, offset + limit);
   // Maintain reverse-chrono order in the prompt (oldest to newest)
   const sorted = [...ranked].reverse();
 
