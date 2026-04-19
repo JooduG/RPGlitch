@@ -156,6 +156,20 @@ describe("temporal_engine", () => {
       expect(result.text).toBe("First object");
     });
 
+    it("handles nested JSON structures robustly", async () => {
+      const nestedResonance = {
+        summary: "Event with nested info.",
+        details: { depth: 2, meta: "data" },
+      };
+      const response = `Here is the JSON: ${JSON.stringify(nestedResonance)} and some noise.`;
+      vi.mocked(llm_service.generate).mockResolvedValue(response);
+
+      const result = await temporal_engine.weave_resonance({ name: "Viper" }, []);
+
+      expect(result.text).toBe(nestedResonance.summary);
+      expect(JSON.stringify(result.text)).not.toBe(JSON.stringify(nestedResonance)); // summary is text
+    });
+
     it("returns null and logs error if LLM fails", async () => {
       vi.mocked(llm_service.generate).mockRejectedValue(new Error("LLM Down"));
 
@@ -163,6 +177,33 @@ describe("temporal_engine", () => {
 
       expect(result).toBeNull();
       expect(console.error).toHaveBeenCalled();
+    });
+  });
+
+  describe("consolidate", () => {
+    it("does not crash when simulation_log is a plain array and consolidation is triggered", async () => {
+      const mockMessages = Array(15).fill({ id: 1, meta: {} });
+      const mockSession = {
+        require_active: vi.fn(() => "story_1"),
+        load_log: vi.fn(() => mockMessages),
+      };
+      const mockDb = { simulation_log: { update: vi.fn() } };
+      const mockEntities = { save: vi.fn() };
+      const mockRuntime = { active_ai: { past: [] } };
+      const mockApp = { log: vi.fn() };
+      const mockLogArray = []; // Plain array
+
+      await temporal_engine.consolidate(
+        mockSession,
+        mockDb,
+        mockEntities,
+        mockRuntime,
+        mockApp,
+        mockLogArray,
+      );
+
+      expect(mockSession.require_active).toHaveBeenCalled();
+      expect(mockDb.simulation_log.update).toHaveBeenCalled();
     });
   });
 });

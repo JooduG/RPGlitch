@@ -15,6 +15,7 @@ import { CONFIG } from "../engine/config.js";
 import { dynamics_engine } from "./dynamics-engine.js";
 import { llm_service } from "./llm-service.js";
 import { prompt_builder } from "./prompt-builder.js";
+import { simulation_log as log_store } from "@state/simulation-log.svelte.js";
 
 /**
  * 🧩 TEMPORAL LOG ENTRY (Vector Schema)
@@ -186,11 +187,12 @@ export async function weave_resonance(target_entity, history_slice, role = "char
     }
 
     const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
-    const start = stripped.indexOf("{");
-    const end = stripped.lastIndexOf("}");
-    if (start === -1 || end === -1) return null;
+    // Robust JSON extraction for potentially nested structures
+    const first_brace = stripped.indexOf("{");
+    const last_brace = stripped.lastIndexOf("}");
+    if (first_brace === -1 || last_brace === -1) return null;
 
-    const resonance = JSON.parse(stripped.substring(start, end + 1));
+    const resonance = JSON.parse(stripped.substring(first_brace, last_brace + 1));
     if (!resonance || !resonance.summary?.trim()) return null;
 
     // Scan reflex tagging for the new memory
@@ -251,7 +253,7 @@ export const temporal_engine = {
           msg.meta = { ...msg.meta, consolidated: true };
           await db.simulation_log.update(msg.id, { meta: msg.meta });
         }
-        simulation_log?.refresh();
+        log_store?.refresh();
       }
     } catch (err) {
       console.error("[TemporalEngine] Consolidation weave failed:", err);

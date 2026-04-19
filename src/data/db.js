@@ -23,10 +23,12 @@ db.version(10).stores({
   kv_settings: "key",
   sessions: "++id, session_id, timestamp",
   audio_prefs: "key",
+  settings: "id",
 });
 db.version(11)
   .stores({
     stories: "++id, title, ai_id, user_id, fractal_id, round, created_at, updated_at",
+    settings: null,
   })
   .upgrade(async (trans) => {
     return await trans

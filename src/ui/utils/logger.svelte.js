@@ -21,7 +21,7 @@ export const error = (...args) => {
 // but we are decommissioning 'app-settings' table as per plan.
 export const initDebugMode = async () => true;
 export const setDebug = async (on) => {
-  if (!globalThis.app) return;
+  if (!globalThis.app?.settings) return;
   globalThis.app.settings.dev_mode = !!on;
   await globalThis.app.save_settings();
 };
