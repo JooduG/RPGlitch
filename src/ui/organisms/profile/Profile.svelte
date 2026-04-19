@@ -234,7 +234,7 @@
     position: relative;
     overflow: visible;
     z-index: var(--z-index-l);
-    transition: all var(--motion-s) var(--motion-elastic);
+    transition: all var(--motion-s) cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .presentation-shell {

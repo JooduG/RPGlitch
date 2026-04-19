@@ -100,7 +100,7 @@
 
 <!-- BACKLOG_START -->
 
-_Last Swept: 2026-04-18 11:41:00_
+> **Last Swept**: 2026-04-18 11:41:00
 
 ✅ No outstanding AI debt.
 
