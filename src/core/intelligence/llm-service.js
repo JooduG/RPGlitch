@@ -20,7 +20,7 @@
  */
 import { ERROR_MESSAGES } from "../engine/config.js";
 import { app } from "../../state/app.svelte.js";
-import { strip_cognition_blocks } from "../engine/text-parser.js";
+import { strip_cognition_blocks } from "../text-parser.js";
 /************************************************************************************
  * 🧩 [SECTION: SANITIZATION]
  * ----------------------------------------------------------------------------------
@@ -95,7 +95,8 @@ export const llm_service = {
   generate: async (payload, options = {}) => {
     // [SAFETY] Guard against missing plugin in non-Perchance environments
     if (typeof window === "undefined" || !window.ai) {
-      const msg = "LLM Engine Unavailable: window.ai not found. This simulation requires the Perchance AI plugin.";
+      const msg =
+        "LLM Engine Unavailable: window.ai not found. This simulation requires the Perchance AI plugin.";
       if (!options.silent) console.error(msg);
       throw new Error(msg);
     }
@@ -103,7 +104,7 @@ export const llm_service = {
     // --- BROWSER / PERCHANCE ENGINE ---
     // 1. Format conversation history into a flat readable string
     const chat_history = llm_service._format_history(payload.messages || []);
-    
+
     // 2. Assemble the final instruction block
     const instruction = [
       payload.system || "",

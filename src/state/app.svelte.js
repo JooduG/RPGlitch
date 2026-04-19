@@ -5,11 +5,11 @@
  * ZERO NESTING — Flattened Schema only.
  */
 import { db } from "../data/db.js";
-import { generateUUID } from "../ui/utils/core.js";
+import { generateUUID } from "../ui/utils/helpers.js";
 import { closeLightbox, openLightbox } from "./lightbox.svelte.js";
 import { runtime } from "./runtime.svelte.js";
 import { simulationState } from "./status.svelte.js";
-import { themeStore } from "../theme/palette.svelte.js";
+import { normalize } from "../data/content-normaliser.js";
 /************************************************************************************
  * 🧩 [SECTION: STATE DEFINITIONS]
  * ----------------------------------------------------------------------------------
@@ -192,7 +192,7 @@ export class AppStore {
    * Automatically normalizes the object to ensure a flattened schema.
    */
   select_entity = (type, entity) => {
-    const clean = themeStore.normalize_entity(entity);
+    const clean = normalize(entity);
     if (type === "ai") this.selected_ai = clean;
     else if (type === "user") this.selected_user = clean;
     else if (type === "fractal") this.selected_fractal = clean;
@@ -206,7 +206,7 @@ export class AppStore {
     if (force_state !== null) this.profile_open = force_state;
     else this.profile_open = !this.profile_open;
     if (entity) {
-      this.editing_entity = themeStore.normalize_entity(entity);
+      this.editing_entity = normalize(entity);
     }
   };
   close_profile = () => {

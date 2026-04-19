@@ -78,10 +78,7 @@
     </div>
 
     <!-- Profile Quick-Link (Wrapped to prevent opacity layer flattening for tooltip) -->
-    <div
-      class="quick-link-wrapper"
-      aria-label="View {entity.name} Profile"
-    >
+    <div class="quick-link-wrapper" aria-label="View {entity.name} Profile">
       <Button
         className="profile-quick-link"
         variant="ghost"

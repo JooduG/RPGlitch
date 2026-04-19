@@ -5,8 +5,6 @@
  *  Following the "Red Thread": Foundation -> Logic -> UI Fallbacks.
  *  ============================================================================ */
 
-import { normalize } from "../data/content-normaliser.js";
-
 /**************************************************************************************
  * 🧩 [LEVEL 0: FOUNDATION REGISTRY]
  * The static mapping of colors and their CSS variable counterparts.
@@ -116,14 +114,6 @@ class ThemeStore {
     return result
       ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
       : "168, 85, 247";
-  }
-
-  /**
-   * Delegates to the central normalizer to ensure strict data structure.
-   */
-  normalize_entity(entity) {
-    if (!entity) return null;
-    return normalize(entity);
   }
 
   /**

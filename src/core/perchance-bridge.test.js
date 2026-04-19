@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 describe("PerchanceBridge", () => {
   let bridge;
   beforeEach(async () => {
-    // Clear modules to re-evaluate bridge.js and re-instantiate the singleton
+    // Clear modules to re-evaluate perchance-bridge.js and re-instantiate the singleton
     vi.resetModules();
     // Mock console.warn and console.error
     vi.spyOn(console, "warn").mockImplementation(() => {});
@@ -22,7 +22,7 @@ describe("PerchanceBridge", () => {
         delete window.oc;
       }
       // Dynamically import to get a fresh instance
-      const module = await import("./bridge.js");
+      const module = await import("./perchance-bridge.js");
       bridge = module.bridge;
     });
     it("should log a warning on instantiation", () => {
@@ -71,7 +71,7 @@ describe("PerchanceBridge", () => {
       };
       window.oc = mockOc;
       // Dynamically import to get a fresh instance
-      const module = await import("./bridge.js");
+      const module = await import("./perchance-bridge.js");
       bridge = module.bridge;
     });
     it("should not log a warning on instantiation", () => {

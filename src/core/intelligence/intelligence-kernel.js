@@ -20,8 +20,7 @@ import { prompt_builder } from "./prompt-builder.js";
 import { llm_service } from "./llm-service.js";
 import { runtime } from "@state/runtime.svelte.js";
 import { app } from "@state/app.svelte.js";
-import { memory_engine } from "./memory-engine.js";
-import { vector_engine } from "./vector-engine.js";
+import { temporal_engine } from "./temporal-engine.js";
 import { db } from "@data/db.js";
 import { simulationState } from "@state/status.svelte.js";
 import { entities } from "@data/repository.js";
@@ -74,7 +73,7 @@ export const gamemaster = {
     // 1. CHRONO: Round management
     // Round is managed by Session.send or explicit prologue start.
     // We ensure turn-type consistency here.
-    vector_engine.ensure_momentum(runtime, app);
+    temporal_engine.ensure_momentum(runtime, app);
     runtime.turn_type = "SYSTEM_TURN";
     // 2. HYDRATION: Fetch history and hydrate context
     const raw_messages = await session_driver.load_log(story_id);
@@ -129,7 +128,7 @@ export const gamemaster = {
     runtime.turn_type = "USER_TURN";
 
     // 9. HOUSEKEEPING: Trigger narrative control (MemoryEngine) if needed
-    await memory_engine.consolidate(session_driver, db, entities, runtime, app, simulation_log);
+    await temporal_engine.consolidate(session_driver, db, entities, runtime, app, simulation_log);
 
     return { response, meta };
   },

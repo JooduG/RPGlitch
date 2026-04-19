@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
-import { generateUUID, generateSecureSeed } from "./core.js";
-describe("utils", () => {
+import { generateUUID, generateSecureSeed } from "./helpers.js";
+
+describe("helpers", () => {
   describe("generateSecureSeed", () => {
     it("should return a number within the specified limit", () => {
       const limit = 1000;

@@ -1,5 +1,5 @@
 /**
- * @file src/warden/bridge.js
+ * @file src/core/engine/perchance-bridge.js
  * @description The Perchance Bridge acts as a safe adapter for the native `oc` object.
  * It isolates the application from the chaotic environment of the host window.
  */

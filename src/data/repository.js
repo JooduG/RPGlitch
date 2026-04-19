@@ -124,6 +124,21 @@ export const entities = {
       throw err;
     }
   },
+  /**
+   * Updates an entity directly without full normalization.
+   * Useful for partial updates or metadata stamps.
+   */
+  async update(type, id, data) {
+    try {
+      const item = await db.entities.get(id);
+      if (item && item.type === type) {
+        return db.entities.update(id, data);
+      }
+    } catch (err) {
+      error(`Failed to update ${type} [${id}]:`, err);
+      throw err;
+    }
+  },
 };
 // ============================================================================
 // 3. STORIES (The Narrative Archive)

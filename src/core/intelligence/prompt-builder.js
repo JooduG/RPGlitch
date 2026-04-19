@@ -19,9 +19,9 @@
  * └────────────────────────────────────────────────────────────────────────┘
  */
 
-import { vector_engine } from "./vector-engine.js";
+import { temporal_engine } from "./temporal-engine.js";
 import { ENTITY_CATALOG } from "./entity-fragments.js";
-import { escapeXml, strip_cognition_blocks } from "../engine/text-parser.js";
+import { escapeXml, strip_cognition_blocks } from "../text-parser.js";
 
 export const SYSTEM_PROMPTS = {
   /**
@@ -266,23 +266,21 @@ export const prompt_builder = {
     return {
       past: (entity_reference, limit = 3, offset = 0, options) => {
         const entity = resolve(entity_reference);
-        return vector_engine.format_past(
-          entity.past || [],
-          scoring_context,
+        return temporal_engine.format(entity.past || [], scoring_context, {
+          ...options,
+          mode: "past",
           limit,
           offset,
-          options,
-        );
+        });
       },
       future: (entity_reference, limit = 3, offset = 0, options) => {
         const entity = resolve(entity_reference);
-        return vector_engine.format_future(
-          entity.future || [],
-          scoring_context,
+        return temporal_engine.format(entity.future || [], scoring_context, {
+          ...options,
+          mode: "future",
           limit,
           offset,
-          options,
-        );
+        });
       },
       simulation_log: (limit = 10, offset = 0) => {
         return prompt_builder.render_history(raw_messages, limit, offset);
