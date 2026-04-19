@@ -243,7 +243,7 @@ export const temporal_engine = {
           if (resonance) {
             if (!Array.isArray(ai.past)) ai.past = [];
             ai.past.push(resonance);
-            await entities.save("character", ai);
+            await entities.upsert("character", ai);
           }
         }
 
