@@ -186,10 +186,11 @@ export async function weave_resonance(target_entity, history_slice, role = "char
     }
 
     const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
-    const object_match = stripped.match(/\{[\s\S]*?\}/);
-    if (!object_match) return null;
+    const start = stripped.indexOf("{");
+    const end = stripped.lastIndexOf("}");
+    if (start === -1 || end === -1) return null;
 
-    const resonance = JSON.parse(object_match[0]);
+    const resonance = JSON.parse(stripped.substring(start, end + 1));
     if (!resonance || !resonance.summary?.trim()) return null;
 
     // Scan reflex tagging for the new memory
