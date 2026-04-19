@@ -189,10 +189,11 @@ export async function weave_resonance(target_entity, history_slice, role = "char
 
     const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
     // Robust JSON extraction for potentially nested structures
-    const object_match = stripped.match(/\{[\s\S]*?\}/);
-    if (!object_match) return null;
+    const first_brace = stripped.indexOf("{");
+    const last_brace = stripped.lastIndexOf("}");
+    if (first_brace === -1 || last_brace === -1) return null;
 
-    const resonance = JSON.parse(object_match[0]);
+    const resonance = JSON.parse(stripped.substring(first_brace, last_brace + 1));
     if (!resonance || !resonance.summary?.trim()) return null;
 
     // Scan reflex tagging for the new memory
@@ -226,7 +227,7 @@ export const temporal_engine = {
    * BATCH CONSOLIDATION (The Weaving Cycle)
    * Evicts old messages and weaves them into the Temporal Fabric.
    */
-  consolidate: async (Session, db, entities, runtime, app, simulation_log) => {
+  consolidate: async (Session, db, entities, runtime, app) => {
     if (temporal_engine._is_weaving) return;
     temporal_engine._is_weaving = true;
 
