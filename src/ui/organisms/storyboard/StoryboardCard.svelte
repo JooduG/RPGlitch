@@ -70,30 +70,30 @@
           </div>
         </div>
 
-      <!-- Action Layer (Top-level Pointer Target) -->
-      <Button variant="overlay" onclick={on_select}>
-        <div class="visual-anchor">
-          <ProfilePicture {entity} />
-        </div>
-      </Button>
+        <!-- Action Layer (Top-level Pointer Target) -->
+        <Button variant="overlay" onclick={on_select}>
+          <div class="visual-anchor">
+            <ProfilePicture {entity} />
+          </div>
+        </Button>
 
-      <!-- Profile Quick-Link -->
-      <Button
-        className="profile-quick-link"
-        variant="ghost"
-        onclick={on_view_profile}
-        aria-label="View {entity.name} Profile"
-      >
-        <svg viewBox="0 0 24 24" class="icon-s">
-          <path
-            fill="currentColor"
-            d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"
-          />
-        </svg>
-      </Button>
+        <!-- Profile Quick-Link -->
+        <Button
+          className="profile-quick-link"
+          variant="ghost"
+          onclick={on_view_profile}
+          aria-label="View {entity.name} Profile"
+        >
+          <svg viewBox="0 0 24 24" class="icon-s">
+            <path
+              fill="currentColor"
+              d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"
+            />
+          </svg>
+        </Button>
+      </div>
     </div>
-  </div>
-{/if}
+  {/if}
 
   <!-- Border Highlight (Dedicated layer to prevent ::after collisions) -->
   <div class="card-border"></div>
@@ -105,7 +105,7 @@
     width: 280px;
     height: 400px;
     overflow: visible; /* Allow tooltips and specular highlights to bleed */
-    transition: all var(--motion-fast) var(--motion-elastic);
+    transition: all var(--motion-l) var(--motion-elastic);
   }
 
   /* Master clipping shell */
@@ -126,7 +126,7 @@
     inset: 0;
     pointer-events: none;
     border-radius: var(--border-radius-l);
-    transition: box-shadow var(--motion-fast) ease;
+    transition: box-shadow var(--motion-l) ease;
     z-index: var(--z-index-xl); /* Above the shell and scrims */
   }
 
@@ -139,11 +139,11 @@
   .storyboard-stack:hover .card-border {
     box-shadow: inset 0 0 0 1.5px var(--signature-color);
   }
-  
+
   .storyboard-stack:hover .card-shell {
     box-shadow: 0 12px 24px -12px rgb(from var(--signature-color) r g b / 40%);
   }
-  
+
   .storyboard-stack:focus-visible {
     outline: none;
   }
@@ -258,9 +258,9 @@
     color: var(--color-white);
     opacity: var(--opacity-none);
     transition:
-      opacity var(--motion-slow) ease,
-      border-color var(--motion-fast) ease,
-      box-shadow var(--motion-fast) ease;
+      opacity var(--motion-s) ease,
+      border-color var(--motion-l) ease,
+      box-shadow var(--motion-l) ease;
     box-shadow: var(--shadow-l);
   }
 

@@ -125,7 +125,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all var(--motion-fast);
+    transition: all var(--motion-l);
     border-radius: var(--border-radius-m);
   }
 

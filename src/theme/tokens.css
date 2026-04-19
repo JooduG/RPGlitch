@@ -91,7 +91,7 @@
   /* Standardized Typography Scale
   * M is the Midpoint (Baseline/Body).
   */
-  --font-size-xxxxxl: 3.5rem; /* Display Focus */
+  --font-size-xxxxxl: 5rem; /* Display Focus - Harmonized at 80px */
   --font-size-xxxxl: 2.5rem; /* Major Heading */
   --font-size-xxxl: var(--spacing-xl); /* Medium Heading */
   --font-size-xxl: var(--spacing-l); /* Subheading */

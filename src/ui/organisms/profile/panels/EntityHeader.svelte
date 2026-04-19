@@ -5,8 +5,8 @@
    * Handles the top-level name and description of the entity.
    */
   import { ENTITY_FRAGMENTS } from "@/core/intelligence/entity-fragments.js";
-  import { fitText } from "@ui/utils/actions/fit-text.js";
   import TextField from "@ui/atoms/TextField.svelte";
+  import { fitText } from "@ui/utils/actions/fit-text.js";
 
   let { char = $bindable(), is_editing } = $props();
 </script>
@@ -56,7 +56,7 @@
   .name {
     width: 100%;
     color: var(--signature-color);
-    font-size: var(--font-size-xxxxl);
+    font-size: var(--font-size-xxxxxl); /* 80px */
     font-weight: var(--font-weight-l);
     letter-spacing: -(var(--letter-spacing-s));
     text-shadow: var(--shadow-font);
@@ -64,9 +64,9 @@
     padding: var(--spacing-xs);
     text-align: left;
     border-radius: var(--border-radius-m);
-    transition: background var(--motion-fast);
+    transition: background var(--motion-l);
     box-shadow: inset 0 0 0 1px transparent;
-    min-height: 1.2em;
+    min-height: 1.5em; /* Stable height ceiling */
     line-height: var(--line-height-s);
     outline: none;
     background: transparent;
@@ -107,7 +107,7 @@
     color: var(--font-color-m);
     line-height: var(--line-height-m);
     min-height: 1.5em;
-    transition: color var(--motion-fast);
+    transition: color var(--motion-l);
     border-radius: 0;
     text-align: left;
     display: flex;

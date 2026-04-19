@@ -63,7 +63,7 @@
     align-items: center;
     justify-content: center;
     border-radius: var(--border-radius-full);
-    transition: all var(--motion-fast);
+    transition: all var(--motion-l);
     z-index: var(--z-index-m);
     pointer-events: auto;
   }
@@ -77,7 +77,7 @@
     background: var(--glass-xl);
     backdrop-filter: var(--blur-l);
     border: var(--border-xl);
-    transition: all var(--motion-fast);
+    transition: all var(--motion-l);
   }
 
   .pill-content {

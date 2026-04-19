@@ -62,12 +62,7 @@
         </button>
       {/if}
 
-      <button
-        class="toolbar-btn edit"
-        type="button"
-        aria-label="Edit"
-        onclick={(e) => onEdit?.(e)}
-      >
+      <button class="toolbar-btn edit" type="button" aria-label="Edit" onclick={(e) => onEdit?.(e)}>
         <svg viewBox="0 0 24 24" class="icon-m">
           <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -121,7 +116,7 @@
     transform: translateY(-50%);
     opacity: var(--opacity-none);
     pointer-events: none;
-    transition: opacity var(--motion-fast);
+    transition: opacity var(--motion-l);
     z-index: var(--z-index-l);
     height: max-content;
   }
@@ -158,7 +153,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all var(--motion-fast);
+    transition: all var(--motion-l);
   }
 
   .toolbar-btn:hover {

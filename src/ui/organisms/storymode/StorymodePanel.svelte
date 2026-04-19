@@ -33,7 +33,6 @@
     <header class="nameplate">
       <h3 class="nameplate-text">{title}</h3>
     </header>
-    <div class="cinematic-overlay"></div>
   </div>
 </article>
 
@@ -77,14 +76,6 @@
     letter-spacing: var(--letter-spacing-s);
     margin: 0;
     text-wrap: balance;
-  }
-
-  .visual-anchor .cinematic-overlay {
-    display: none;
-  }
-
-  .visual-anchor:hover .cinematic-overlay {
-    opacity: var(--opacity-xl);
   }
 
   /* Side positioning logic */

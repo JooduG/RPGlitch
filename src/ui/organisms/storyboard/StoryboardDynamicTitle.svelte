@@ -121,7 +121,7 @@
     font-family: Satisfy, cursive;
     letter-spacing: var(--letter-spacing-s);
     cursor: text;
-    transition: all var(--motion-fast) var(--motion-elastic);
+    transition: all var(--motion-l) var(--motion-elastic);
     border-radius: var(--border-radius-l);
     padding: var(--spacing-xxs) var(--spacing-s);
     text-wrap: balance;

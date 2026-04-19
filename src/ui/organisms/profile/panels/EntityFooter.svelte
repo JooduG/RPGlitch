@@ -55,7 +55,7 @@
     background: color-mix(in srgb, var(--color-gunmetal), var(--signature-color) var(--opacity-xs));
     border-top: 0;
     z-index: var(--z-index-m);
-    transition: all var(--motion-fast);
+    transition: all var(--motion-l);
     border-radius: 0 0 var(--border-radius-l) 0;
   }
 

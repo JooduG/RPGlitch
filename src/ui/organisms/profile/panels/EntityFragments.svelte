@@ -122,7 +122,7 @@
     align-self: center;
     padding: 0;
     cursor: default;
-    transition: all var(--motion-fast);
+    transition: all var(--motion-l);
   }
 
   .content .row .label.interactive {
@@ -145,7 +145,7 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
-    transition: all var(--motion-fast);
+    transition: all var(--motion-l);
     position: relative;
   }
 

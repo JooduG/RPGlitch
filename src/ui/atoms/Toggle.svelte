@@ -38,7 +38,7 @@
     user-select: none;
     position: relative;
     padding: var(--spacing-xxs) 0;
-    transition: opacity var(--motion-fast);
+    transition: opacity var(--motion-l);
 
     /* --- SIZES --- */
     --switch-w: 2.8rem;
@@ -73,7 +73,7 @@
     background-color: var(--glass-xs);
     box-shadow: inset 0 1px 2px rgb(var(--color-black-rgb) / var(--opacity-s));
     border-radius: var(--border-radius-full);
-    transition: all var(--motion-fast) var(--motion-elastic);
+    transition: all var(--motion-l) var(--motion-elastic);
     flex-shrink: 0;
   }
 
@@ -87,7 +87,7 @@
     top: calc((var(--switch-h) - var(--thumb-size)) / 2);
     background-color: var(--color-frozen);
     border-radius: var(--border-radius-full);
-    transition: all var(--motion-fast) var(--motion-elastic);
+    transition: all var(--motion-l) var(--motion-elastic);
     box-shadow: var(--shadow-s);
   }
 
@@ -118,7 +118,7 @@
     letter-spacing: var(--letter-spacing-m);
     text-transform: uppercase;
     font-family: var(--font-family-body);
-    transition: color var(--motion-fast);
+    transition: color var(--motion-l);
   }
 
   .toggle-switch:hover:not(.disabled) .label-text {

@@ -18,9 +18,9 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-  class="backdrop {blur ? 'blur' : ''}"
+  class="backdrop"
   transition:fade={{ duration: 200 }}
-  style="z-index: {z_index};"
+  style="z-index: {z_index}; --backdrop-blur: {blur ? 'blur(2px)' : 'none'};"
   {onclick}
 >
   {#if children}
@@ -33,11 +33,10 @@
     position: fixed;
     inset: 0;
     background: var(--glass-xs); /* Standard dark overlay */
+    backdrop-filter: var(--backdrop-blur);
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
   }
-
-  /* Blur is optional (performance) */
 </style>

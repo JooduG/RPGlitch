@@ -206,7 +206,7 @@
     justify-content: center;
     gap: var(--spacing-m);
     cursor: pointer;
-    transition: all var(--motion-fast) var(--motion-elastic);
+    transition: all var(--motion-l) var(--motion-elastic);
     color: var(--font-color-s);
     padding: 0;
     width: 100%; /* Match LibraryCard width */

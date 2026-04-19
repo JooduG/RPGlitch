@@ -30,7 +30,9 @@ export const projectRules = [
     message:
       "⚠️ Unresolved Agentic Debt (#TODO-AI) found. Ensure it is registered in tasks/todo.md.",
     validate: (line, filePath) =>
-      !filePath.includes("warden-project.js") && !filePath.includes("audit-security.js") && !filePath.includes("SKILL.md"),
+      !filePath.includes("warden-project.js") &&
+      !filePath.includes("audit-security.js") &&
+      !filePath.includes("SKILL.md"),
   },
   {
     id: "PROJECT_BACKLOG_SYNC",
@@ -65,7 +67,8 @@ function scanForTodo(dir, items_found = []) {
     if (stat.isDirectory()) {
       scanForTodo(fullPath, items_found);
     } else if (stat.isFile() && /\.(js|ts|svelte|md|txt)$/.test(item)) {
-      if (item === "warden-project.js" || item === "audit-security.js" || item === "SKILL.md") continue;
+      if (item === "warden-project.js" || item === "audit-security.js" || item === "SKILL.md")
+        continue;
 
       const content = fs.readFileSync(fullPath, "utf8");
       const lines = content.split("\n");
