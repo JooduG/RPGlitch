@@ -137,7 +137,8 @@ export class VisualEngine {
 
       const refined = await llm_service.generate(
         {
-          system: system + `\n<RAW_INTENT>\n${visualPrompt}\n</RAW_INTENT>`,
+          system: system + "\n<RAW_INTENT>\n" + visualPrompt + "\n</RAW_INTENT>",
+          messages: [],
         },
         { silent: true },
       );
