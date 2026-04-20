@@ -131,7 +131,7 @@ export class VisualEngine {
 
     const targetIdMap = { fractal: story.fractalId, scene: story.fractalId, user: story.userId };
     const targetId = targetIdMap[targetType] || story.aiId;
-    simulation.start_typing(targetType || "ai", targetId);
+    simulation.start_typing(targetType === "scene" ? "fractal" : (targetType || "ai"), targetId);
 
     try {
       const hydrated = await context_broker.hydrate("", "image");
