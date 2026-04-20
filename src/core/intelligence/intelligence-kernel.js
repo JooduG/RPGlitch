@@ -128,7 +128,7 @@ export const gamemaster = {
     runtime.turn_type = "USER_TURN";
 
     // 9. HOUSEKEEPING: Trigger narrative control (MemoryEngine) if needed
-    await temporal_engine.consolidate(session_driver, db, entities, runtime, app, simulation_log);
+    await temporal_engine.consolidate(session_driver, db, entities, runtime, app);
 
     return { response, meta };
   },

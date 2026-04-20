@@ -7,7 +7,6 @@
   import { llm_service } from "@core/intelligence/llm-service.js";
   import { prompt_builder } from "@core/intelligence/prompt-builder.js";
   import { validateImage } from "@core/security.js";
-  import { ImageGeneration } from "@media/image-engine.js";
   import { app } from "@state/app.svelte.js";
   import { PALETTE, PALETTE_VARS } from "@theme/palette.svelte.js";
   import Button from "@ui/atoms/Button.svelte";
@@ -42,7 +41,7 @@
   ensure_modifiers();
   $effect(ensure_modifiers);
 
-  let is_prompt_busy = $derived(busy_fields.has("visual-prompt"));
+  let is_prompt_busy = $derived(app.visual.isLoading || busy_fields.has("visual-prompt"));
   let file_input = $state();
   const prompt_value = $derived((char.modifiers.prompt || "").trim());
   const has_prompt_text = $derived(
@@ -105,7 +104,9 @@
           if (result) set_value(char, current_target_key, result);
         }
       } else {
-        char.modifiers.prompt = ImageGeneration.composeBasePrompt(char);
+        char.modifiers.prompt = await app.visual.optimize(char.description || char.name, {
+          physical: char.description || char.name,
+        });
       }
     } catch (err) {
       console.error("Creative action failed:", err);
@@ -126,10 +127,9 @@
           app.log(msg, "error");
           return;
         }
-        const url = await ImageGeneration.generate(prompt_value, {
+        const url = await app.visual.generate(prompt_value, {
           noBackground: char.modifiers.noBackground,
         });
-        app.log(`[VisualWing] Generation Result: ${url}`, "system");
         if (url) char.profile_picture = url;
       } catch (err) {
         console.error("Generation failed:", err);
@@ -148,7 +148,7 @@
     if (!file) return;
     try {
       await validateImage(file);
-      const url = await ImageGeneration.upload(file);
+      const url = await app.visual.upload(file);
       if (url) char.profile_picture = url;
     } catch (err) {
       console.error("Upload failed:", err);
@@ -243,6 +243,21 @@
           disabled={!is_editing || is_prompt_busy}
         />
       </div>
+
+      {#if app.visual.attempts > 0 || app.visual.error || app.visual.isOffline}
+        <div class="engine-status" class:error={app.visual.error || app.visual.isOffline}>
+          {#if app.visual.isOffline}
+            <span class="status-tag">SYSTEM OFFLINE</span>
+            <span class="status-msg">GPU Cluster Cooling Down...</span>
+          {:else if app.visual.error}
+            <span class="status-tag">ERROR</span>
+            <span class="status-msg">{app.visual.error}</span>
+          {:else if app.visual.attempts > 0}
+            <span class="status-tag pulse">RETRYING</span>
+            <span class="status-msg">Attempt {app.visual.attempts}/3...</span>
+          {/if}
+        </div>
+      {/if}
     </div>
     <input
       type="file"
@@ -357,5 +372,62 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
+  }
+
+  .engine-status {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-s);
+    padding: var(--spacing-xs) var(--spacing-m);
+    background: var(--glass-xs);
+    border-top: 1px solid var(--border-l);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xxxs);
+    color: var(--color-chalk);
+    animation: slide-in var(--motion-m) ease-out;
+  }
+
+  .engine-status.error {
+    color: var(--color-red);
+  }
+
+  .status-tag {
+    font-weight: bold;
+    letter-spacing: 0.05em;
+    opacity: 0.8;
+  }
+
+  .status-msg {
+    opacity: 0.6;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  .pulse {
+    animation: pulse 1s infinite ease-in-out;
+  }
+
+  @keyframes slide-in {
+    from {
+      transform: translateY(-10px);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
 </style>

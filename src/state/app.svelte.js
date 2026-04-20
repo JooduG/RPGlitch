@@ -10,6 +10,8 @@ import { closeLightbox, openLightbox } from "./lightbox.svelte.js";
 import { runtime } from "./runtime.svelte.js";
 import { simulationState } from "./status.svelte.js";
 import { normalize } from "../data/content-normaliser.js";
+import { visual_engine } from "../media/visual-engine.svelte.js";
+
 /************************************************************************************
  * 🧩 [SECTION: STATE DEFINITIONS]
  * ----------------------------------------------------------------------------------
@@ -64,6 +66,8 @@ export class AppStore {
     auto_scroll: true,
     dev_mode: false,
   });
+  // --- SENSORY ENGINES ---
+  visual = visual_engine;
   get round() {
     return runtime.round;
   }
@@ -271,4 +275,6 @@ if (typeof window !== "undefined") {
   window.app = app;
   window.rpgApp = app;
   window.state = app;
+  // @ts-ignore
+  window.visual = app.visual;
 }
