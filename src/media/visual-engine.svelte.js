@@ -121,7 +121,14 @@ export class VisualEngine {
     try {
       const hydrated = await context_broker.hydrate("", "image");
       const optics = AestheticResolver.resolve({ physical: visualPrompt });
-      const system = PromptTemplates.BUILDER(vTarget, visualPrompt, hydrated.entities, optics);
+      const context = {
+        ai: hydrated.entities.AI,
+        user: hydrated.entities.USER,
+        fractal: hydrated.entities.FRACTAL,
+        history: "",
+        mode: "visualize"
+      };
+      const system = PromptTemplates.BUILDER(vTarget, visualPrompt, context, optics);
 
       const refined = await llm_service.generate(
         {
