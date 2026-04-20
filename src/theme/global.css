@@ -235,102 +235,6 @@ small {
    Consolidated interactive components and global behaviors.
    ---------------------------------------------------------------------------- */
 
-/* Danger Zone: Consolidated interactive delete/threat pulse system */
-.danger-zone {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: var(--danger-zone-width);
-  height: 100%;
-  z-index: var(--z-index-xxl);
-  cursor: pointer;
-}
-
-.danger-zone::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: calc(-1 * var(--danger-zone-glow-size));
-  width: var(--danger-zone-glow-size);
-  height: 100%;
-  background: linear-gradient(to right, transparent, rgb(var(--color-red-rgb) / 15%));
-  opacity: var(--opacity-none);
-  pointer-events: none;
-  transition: opacity var(--motion-m);
-  z-index: -1;
-}
-
-.danger-zone::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  right: 0;
-  width: 1px;
-  height: 60%;
-  transform: translateY(-50%);
-  background: var(--color-red);
-  box-shadow: 0 0 var(--blur-xl) var(--color-red);
-  opacity: var(--opacity-none);
-  pointer-events: none;
-  transition: opacity var(--motion-m);
-}
-
-.danger-charging::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 2px;
-  height: calc(100% * var(--danger-progress, 0));
-  background: var(--color-red);
-  box-shadow: 0 0 10px var(--color-red);
-  z-index: 2;
-  pointer-events: none;
-  transition: height 0.05s linear;
-  opacity: var(--opacity-full);
-  animation: none;
-}
-
-.danger-zone:hover::before,
-.danger-zone:hover::after,
-.danger-charging::before {
-  opacity: var(--opacity-full);
-  animation: pulse-danger var(--motion-xxl) infinite ease-in-out;
-}
-
-@keyframes pulse-danger {
-  0%,
-  100% {
-    opacity: var(--opacity-m);
-    filter: brightness(1);
-  }
-
-  50% {
-    opacity: var(--opacity-full);
-    filter: brightness(1.4);
-  }
-}
-
-/* Dissolve Animation: Shared kinetic effect for removing entities */
-.dissolving {
-  animation: dissolve-out 0.8s forwards var(--motion-dissolve);
-  pointer-events: none;
-}
-
-@keyframes dissolve-out {
-  0% {
-    opacity: var(--opacity-full);
-    filter: blur(0);
-    transform: scale(1);
-  }
-
-  100% {
-    opacity: var(--opacity-none);
-    filter: blur(10px);
-    transform: scale(var(--motion-click));
-  }
-}
-
 /* Tooltips: Declarative CSS-only tooltips */
 [aria-label]:not(.no-tooltip) {
   position: relative;
@@ -373,7 +277,7 @@ small {
   font-size: var(--font-size-xs);
   white-space: nowrap;
   box-shadow: var(--shadow-m);
-  z-index: 1;
+  z-index: var(--z-index-max);
 }
 
 [aria-label]:not(.no-tooltip):hover:not(:has([aria-label]:hover))::before,
@@ -412,4 +316,44 @@ small {
   clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
+}
+
+/* ----------------------------------------------------------------------------
+   ICONS
+   ---------------------------------------------------------------------------- */
+.icon-xs,
+.icon-s,
+.icon-m {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* --- Visual Styles --- */
+.icon-outline {
+  stroke: currentcolor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.icon-solid {
+  fill: currentcolor;
+  stroke: none;
+}
+
+.icon-xs {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+}
+
+.icon-s {
+  width: var(--icon-s);
+  height: var(--icon-s);
+}
+
+.icon-m {
+  width: var(--icon-m);
+  height: var(--icon-m);
 }

@@ -223,13 +223,8 @@
   * Component-specific mechanics and narrative highlights.
   ************************************************************************************/
 
-  /* Danger Protocol (Dissolve) */
-  --danger-glow: rgb(var(--color-red-rgb) / var(--opacity-s));
-  --danger-progress: 0;
-  --danger-zone-glow-size: var(--spacing-xxl);
-  --danger-zone-width: 40px;
-
   /* Button & Widget Metrics */
   --icon-m: 2.5rem;
   --icon-s: 2rem;
+  --icon-xs: 1rem;
 }

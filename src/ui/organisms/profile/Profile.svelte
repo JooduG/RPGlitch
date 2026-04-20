@@ -245,7 +245,7 @@
     grid-template-columns: 35% 1fr;
     grid-template-rows: 1fr;
     border-radius: inherit;
-    overflow: hidden; /* THE SOVEREIGN CLIP */
+    overflow: hidden; /* THE SOVEREIGN CLIP (RESTORED) */
     background: transparent;
     position: relative;
   }

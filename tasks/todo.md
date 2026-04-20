@@ -1,7 +1,7 @@
 # Task List - Sovereign Alignment
 
 > **Status**: `[ACTIVE]`
-> **Last Update**: 2026-04-19
+> **Last Update**: 2026-04-20 (Stockholm Sync)
 > **Current Milestone**: Milestone 1 (The Foundry)
 
 ## 🗺️ Project Roadmap
@@ -108,6 +108,7 @@
 | 2026-04-19T15:05:00Z      | Fix Signature Color grid selection for premades                  | `frontend-ui-engineering`                  | ✅ Done     |
 | 2026-04-19T15:11:00Z      | Clean up signature color swatch tooltips                         | `frontend-ui-engineering`                  | ✅ Done     |
 | 2026-04-19T15:25:00Z      | Storyboard UI Stabilization                                      | `frontend-ui-engineering`                  | ✅ Done     |
+| 2026-04-20T02:18:10+02:00 | Project Timezone Sync (Europe/Stockholm)                         | `directives`, `simulation`                 | ✅ Done     |
 
 ## 🧹 Backlog (Automated)
 

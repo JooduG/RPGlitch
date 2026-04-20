@@ -59,7 +59,7 @@ export function create(text, type = "future", weight = 5) {
  */
 export function score(vectors, input) {
   if (!Array.isArray(vectors) || !vectors.length) return [];
-  if (!input) return vectors.slice(-3); // No input? Give the 3 newest fragments.
+  if (!input) return [...vectors].sort((a, b) => b.timestamp - a.timestamp);
 
   const active_reflexes = dynamics_engine.dynamics_scan(input);
   const active_ids = new Set();
@@ -227,7 +227,7 @@ export const temporal_engine = {
    * BATCH CONSOLIDATION (The Weaving Cycle)
    * Evicts old messages and weaves them into the Temporal Fabric.
    */
-  consolidate: async (Session, db, entities, runtime, app, simulation_log) => {
+  consolidate: async (Session, db, entities, runtime, app) => {
     if (temporal_engine._is_weaving) return;
     temporal_engine._is_weaving = true;
 

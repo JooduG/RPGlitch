@@ -66,7 +66,7 @@ To prevent cognitive drift, nomenclature is absolute.
 - **Devmode**: Developer workspace.
 - **GH CLI**: (`gh`) The primary interface for GitHub lifecycle management. Mandatory for Issue/PR/Workflow operations.
 - **Lean Agent**: A performance configuration maintaining < 50 active MCP tools to ensure context window integrity.
-- **Localization**: Metric/SI only. ISO 8601. GMT+1.
+- **Localization**: Metric/SI only. ISO 8601. Europe/Stockholm (GMT+2 CEST).
 
 ---
 

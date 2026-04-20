@@ -75,7 +75,6 @@
                 {set_value}
                 unit_label={field.unitLabel}
                 signature_color="var(--signature-color)"
-                is_peeking={hovered_section === section.id}
               />
             {:else}
               <TextField

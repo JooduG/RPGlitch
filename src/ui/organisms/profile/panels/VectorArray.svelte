@@ -1,6 +1,6 @@
 <script>
   import TextField from "@ui/atoms/TextField.svelte";
-  import { danger } from "@ui/utils/actions/danger.js";
+  import Button from "@ui/atoms/Button.svelte";
   import { quintOut } from "svelte/easing";
   import { slide } from "svelte/transition";
 
@@ -12,7 +12,6 @@
     get_value,
     signature_color,
     unit_label = "Vector",
-    is_peeking = false,
   } = $props();
 
   let raw_items = $derived(get_value(char, path) || []);
@@ -39,18 +38,10 @@
     set_value(char, path, current);
   }
 
-  let danger_index = $state(-1);
-
   function remove_item(index) {
-    if (danger_index !== -1) return;
-
-    danger_index = index;
-    setTimeout(() => {
-      const current = [...items];
-      current.splice(index, 1);
-      set_value(char, path, current);
-      danger_index = -1;
-    }, 800);
+    const current = [...items];
+    current.splice(index, 1);
+    set_value(char, path, current);
   }
 
   export function add_item() {
@@ -62,18 +53,11 @@
 
 <div class="vector-panel" style="--accent-color: {signature_color}">
   <div class="vector-list">
-    <div
-      class="aperture-line"
-      class:visible={is_peeking && is_editing}
-      aria-label="Click Header to Append"
-    ></div>
-
     {#each items as item, i (i)}
       <div
         class="vector-item"
         class:editing={is_editing}
-        class:dissolving={danger_index === i}
-        transition:slide={{ duration: 800, easing: quintOut }}
+        transition:slide={{ duration: 400, easing: quintOut }}
       >
         <div class="textfield">
           <TextField
@@ -85,11 +69,21 @@
         </div>
 
         {#if is_editing}
-          <div
-            class="danger-zone"
-            use:danger={{ type: "hold", onComplete: () => remove_item(i) }}
-            aria-label="Charge to Disintegrate"
-          ></div>
+          <Button
+            variant="danger"
+            size="sm"
+            square={true}
+            aria-label="Remove {unit_label}"
+            className="delete-btn no-tooltip"
+            onclick={() => remove_item(i)}
+          >
+            <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path
+                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+              ></path>
+            </svg>
+          </Button>
         {/if}
       </div>
     {/each}
@@ -122,31 +116,7 @@
     flex-direction: column;
     gap: var(--spacing-xs);
     position: relative;
-  }
-
-  .aperture-line {
-    position: absolute;
-    top: calc(var(--spacing-m) / -2);
-    left: 0;
-    width: 100%;
-    height: 1px;
-    background: var(--accent-color);
-    opacity: 0;
-    transform: scaleX(0);
-    transform-origin: center;
-    transition:
-      transform 0.8s cubic-bezier(0.2, 1, 0.2, 1),
-      opacity 0.8s cubic-bezier(0.2, 1, 0.2, 1);
-    box-shadow: 0 0 8px var(--accent-color);
-    z-index: var(--z-index-m);
-    pointer-events: none;
-  }
-
-  .aperture-line.visible {
-    opacity: 0.4;
-    transform: scaleX(1);
-    width: 95%;
-    left: 2.5%;
+    overflow: visible;
   }
 
   .vector-item {
@@ -154,12 +124,33 @@
     width: 100%;
     overflow: visible;
     transition: all var(--motion-m);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding-right: var(--spacing-xxs);
   }
 
   .textfield {
-    display: block;
-    width: 100%;
+    flex: 1;
     position: relative;
+  }
+
+  :global(.delete-btn) {
+    transform: translateX(10px);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity var(--motion-l) var(--motion-elastic),
+      transform var(--motion-l) var(--motion-elastic);
+    background: transparent;
+    margin-left: auto;
+  }
+
+  .vector-item:hover :global(.delete-btn),
+  .vector-item:focus-within :global(.delete-btn) {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
   }
 
   .placeholder-wrap {
@@ -167,11 +158,6 @@
     min-height: 2.5rem;
     display: flex;
     align-items: center;
-  }
-
-  .dissolving {
-    animation: dissolve-out 0.8s forwards cubic-bezier(0.4, 0, 1, 1);
-    pointer-events: none;
   }
 
   /* System Placeholder: For empty system slots */
