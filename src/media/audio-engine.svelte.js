@@ -225,7 +225,10 @@ class AudioEffectsEngine {
       if (!buffer) {
         const response = await fetch(url);
         const arrayBuffer = await response.arrayBuffer();
-        buffer = await this.#audioContext.decodeAudioData(arrayBuffer);
+        buffer = await new Promise((resolve, reject) => {
+          const promise = this.#audioContext.decodeAudioData(arrayBuffer, resolve, reject);
+          if (promise) promise.then(resolve).catch(reject);
+        });
         this.#buffers.set(key, buffer);
       }
       const source = this.#audioContext.createBufferSource();

@@ -149,7 +149,7 @@ export class VisualEngine {
           .replace(/<image_prompt[^>]*>|<\/image_prompt>/gi, "")
       );
 
-      const imageUrl = await this.generate(cleanPrompt, { mode: vTarget });
+      const imageUrl = await this.generate(cleanPrompt, { mode: vTarget, ...options });
       return { imageUrl, refinedPrompt: cleanPrompt };
     } catch (err) {
       return { imageUrl: null, refinedPrompt: null };
