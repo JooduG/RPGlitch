@@ -5,6 +5,7 @@
  * notifications, and text-to-speech with Svelte 5 reactivity.
  */
 import { db } from "@data/db.js";
+import { getRpgList } from "@ui/utils/helpers.js";
 
 const STORAGE_KEY = "rpglitch_audio_settings";
 
@@ -206,24 +207,10 @@ class AudioEffectsEngine {
     if (now - this.#lastPlayed < this.#threshold) return;
     this.#lastPlayed = now;
 
-    let url = null;
-    if (window.rpgLists?.sounds) {
-      try {
-        let soundList = window.rpgLists.sounds;
-        if (
-          Array.isArray(soundList) &&
-          typeof soundList[0] === "string" &&
-          soundList[0].startsWith("[")
-        ) {
-          soundList = JSON.parse(soundList[0]);
-        }
-        if (Array.isArray(soundList)) {
-          const entry = soundList.find((s) => typeof s === "string" && s.startsWith(key));
-          if (entry) url = entry.split("=").slice(1).join("=").trim();
-        }
-      } catch (e) {
-        console.error("[AudioEngine] Sound lookup failed:", e);
-      }
+    const soundList = getRpgList("sounds");
+    if (soundList.length > 0) {
+      const entry = soundList.find((s) => typeof s === "string" && s.startsWith(key + "="));
+      if (entry) url = entry.split("=").slice(1).join("=").trim();
     }
 
     if (!url && key === "notification") {

@@ -51,6 +51,7 @@ export class VisualEngine {
         finalPrompt = await this.optimize(entity.description || entity.name, {
           physical: entity.description,
         });
+        options.type = entity.type || "character"; // Store resolved type
       } else {
         finalPrompt = String(target);
       }
@@ -79,9 +80,11 @@ export class VisualEngine {
         );
       });
 
-      // 3. Persistence
+      // 3. Persistence & State Sync
+      this.isOffline = this.breaker.isOpen;
+      
       if (result && entityId && !options.noCache) {
-        await this._cacheImage(entityId, result);
+        await this._cacheImage(entityId, result, options.type || "character");
       }
 
       return result;
@@ -116,7 +119,9 @@ export class VisualEngine {
     const targetTypeMap = { fractal: "scene", scene: "scene", user: "user" };
     const vTarget = targetTypeMap[targetType] || "ai";
 
-    simulation.start_typing(targetType || "ai", story.aiId);
+    const targetIdMap = { fractal: story.fractalId, scene: story.fractalId, user: story.userId };
+    const targetId = targetIdMap[targetType] || story.aiId;
+    simulation.start_typing(targetType || "ai", targetId);
 
     try {
       const hydrated = await context_broker.hydrate("", "image");
@@ -166,9 +171,9 @@ export class VisualEngine {
     );
   }
 
-  async _cacheImage(id, data) {
+  async _cacheImage(id, data, type = "character") {
     await db.entities.update(id, { profile_picture: data, updatedAt: Date.now() });
-    await runtime.updateEntity("character", id, { profile_picture: data });
+    await runtime.updateEntity(type, id, { profile_picture: data });
   }
 
   _cleanPrompt(raw) {
