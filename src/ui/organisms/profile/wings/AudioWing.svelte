@@ -86,18 +86,6 @@
     </div>
 
     <div class="group">
-      <button
-        class="notification-toggle-button"
-        class:active={Audio.notifications_enabled}
-        onclick={() => (Audio.notifications_enabled = !Audio.notifications_enabled)}
-        type="button"
-      >
-        <span class="icon">{Audio.notifications_enabled ? "🔕" : "🔔"}</span>
-        <span class="label">{Audio.notifications_enabled ? "SILENCE" : "CHIME"}</span>
-      </button>
-    </div>
-
-    <div class="group">
       <div class="sliders">
         <Slider
           min={0.1}
@@ -271,38 +259,5 @@
     flex-direction: row;
     gap: var(--spacing-m);
     width: 100%;
-  }
-
-  .notification-toggle-button {
-    width: 100%;
-    height: 2.5rem;
-    padding: 0 var(--spacing-m);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-s);
-    color: var(--font-color-s);
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-xxs);
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    background: var(--glass-xs);
-    border: 1px solid var(--border-l);
-    border-radius: var(--border-radius-m);
-    transition: all var(--motion-m) var(--motion-elastic);
-  }
-
-  .notification-toggle-button:hover {
-    background: var(--glass-s);
-    color: var(--font-color-m);
-  }
-
-  .notification-toggle-button.active {
-    border-color: var(--color-cyan);
-    color: var(--color-cyan);
-  }
-
-  .notification-toggle-button:active {
-    transform: scale(var(--motion-click));
   }
 </style>

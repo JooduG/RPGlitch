@@ -74,6 +74,12 @@
     border-radius: var(--border-radius-m);
     background: transparent;
     color: var(--font-color-m);
+    transition:
+      background-color var(--motion-l) var(--motion-elastic),
+      color var(--motion-l) var(--motion-elastic),
+      box-shadow var(--motion-l) var(--motion-elastic),
+      transform var(--motion-l) var(--motion-elastic),
+      filter var(--motion-l) var(--motion-elastic);
   }
 
   /* 1. Modifiers & Globals (Structural) */
@@ -173,7 +179,6 @@
     backdrop-filter: var(--blur-s);
     border: var(--border-m);
     color: var(--color-white);
-    transition: all var(--motion-l) var(--motion-elastic);
   }
 
   .button-secondary {
@@ -210,7 +215,7 @@
 
   /* 4. The Hover Monster (Highest Specificity due to :not) */
   .button:hover:not(:disabled, .disabled) {
-    transition: all var(--motion-l) var(--motion-elastic);
+    /* Transitions inherited from base .button */
   }
 
   .button-primary:hover:not(:disabled, .disabled) {
