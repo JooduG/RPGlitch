@@ -207,6 +207,7 @@ class AudioEffectsEngine {
     if (now - this.#lastPlayed < this.#threshold) return;
     this.#lastPlayed = now;
 
+    let url = null;
     const soundList = getRpgList("sounds");
     if (soundList.length > 0) {
       const entry = soundList.find((s) => typeof s === "string" && s.startsWith(key + "="));
