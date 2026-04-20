@@ -1,0 +1,419 @@
+Execute .agent/rules/06-compliance.md (Audit section). Target Critical/High vulnerabilities.
+
+
+Content of the latest commit (in the format of `git show`):
+```
+commit 9479eaca841e345f2aaad4531d674e6d89ddfea4
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 07:10:22 2026 +0200
+
+    feat: implement EntityHeader component for profile name and description editing
+
+diff --git a/artifacts/audit_report.md b/artifacts/audit_report.md
+index ee959b13..bbb7ac71 100644
+--- a/artifacts/audit_report.md
++++ b/artifacts/audit_report.md
+@@ -1,6 +1,6 @@
+ # 📊 Simulation Audit Report
+ 
+-**Timestamp:** `2026-04-20 02:19:40`
++**Timestamp:** `2026-04-20 07:09:52`
+ **Round:** `1`
+ 
+ ────────────────────────────────────────────────────────────────────────────────
+diff --git a/src/ui/organisms/profile/panels/EntityHeader.svelte b/src/ui/organisms/profile/panels/EntityHeader.svelte
+index 3efe3fba..e6ff4e0f 100644
+--- a/src/ui/organisms/profile/panels/EntityHeader.svelte
++++ b/src/ui/organisms/profile/panels/EntityHeader.svelte
+@@ -13,7 +13,7 @@
+ 
+ <header class:is-editing={is_editing} data-testid="profile-header">
+   {#if is_editing}
+-    <h1 class="name edit" aria-label="Edit Entity Name">
++    <h1 class="name edit no-tooltip" aria-label="Edit Entity Name">
+       <span
+         contenteditable="true"
+         bind:innerText={char.name}
+@@ -24,7 +24,7 @@
+     </h1>
+   {:else}
+     <h1
+-      class="name"
++      class="name no-tooltip"
+       aria-label="Entity Name"
+       use:fitText={{
+         maxSize: 80,
+@@ -64,13 +64,17 @@
+     padding: var(--spacing-xs);
+     text-align: left;
+     border-radius: var(--border-radius-m);
+-    transition: background var(--motion-l);
++    transition:
++      background var(--motion-l),
++      border-color var(--motion-l),
++      box-shadow var(--motion-l);
+     box-shadow: inset 0 0 0 1px transparent;
+     min-height: 1.5em; /* Stable height ceiling */
+     line-height: var(--line-height-s);
+     outline: none;
+     background: transparent;
+     border: none;
++    border-bottom: 1px solid transparent;
+   }
+ 
+   .name.edit {
+@@ -79,15 +83,24 @@
+     caret-color: var(--signature-color);
+   }
+ 
+-  .name.edit:hover,
+   .name.edit:focus-within {
+     outline: none;
+   }
+ 
+   .name.edit span {
++    display: inline-block;
++    min-width: 2px;
+     outline: none;
+   }
+ 
++  .name.edit span:empty::before {
++    content: attr(data-placeholder);
++    color: var(--color-frisk);
++    opacity: 0.4;
++    font-style: italic;
++    pointer-events: none;
++  }
++
+   .description {
+     width: 100%;
+     padding: 0 var(--spacing-xs);
+@@ -95,11 +108,10 @@
+ 
+   /* Target both edit and readonly modes of the TextField */
+   .description :global(.field-foundation),
+-  .description :global(.readonly-field),
+-  .description :global(.field-foundation:hover),
+-  .description :global(.field-foundation:focus) {
++  .description :global(.readonly-field) {
+     background: transparent;
+     border: none;
++    border-bottom: 1px solid transparent;
+     box-shadow: none;
+     padding: 0;
+     font-size: var(--font-size-l);
+@@ -107,7 +119,11 @@
+     color: var(--font-color-m);
+     line-height: var(--line-height-m);
+     min-height: 1.5em;
+-    transition: color var(--motion-l);
++    min-width: 2px;
++    transition:
++      color var(--motion-l),
++      background var(--motion-l),
++      border-color var(--motion-l);
+     border-radius: 0;
+     text-align: left;
+     display: flex;
+@@ -115,6 +131,13 @@
+     align-items: flex-start;
+   }
+ 
++  .description :global(.field-foundation:hover),
++  .description :global(.field-foundation:focus) {
++    background: transparent;
++    border-color: transparent;
++    outline: none;
++  }
++
+   .description :global(.field-foundation::placeholder) {
+     font-size: var(--font-size-m);
+     opacity: 0.6;
+```
+
+
+Log of the last 20 commits (in the format of `git log --stat`):
+```
+commit 9479eaca841e345f2aaad4531d674e6d89ddfea4
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 07:10:22 2026 +0200
+
+    feat: implement EntityHeader component for profile name and description editing
+
+ artifacts/audit_report.md                          |  2 +-
+ .../organisms/profile/panels/EntityHeader.svelte   | 39 +++++++++++++++++-----
+ 2 files changed, 32 insertions(+), 9 deletions(-)
+
+commit e837d557c6d3b0c215e2b0ab05b96cfaa8b79e3a
+Merge: 146d37bd 9eae74fb
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Mon Apr 20 02:23:24 2026 +0200
+
+    Merge pull request #139 from JooduG/feat/temporal-engine-consolidation
+    
+    Merge pull request #138 from JooduG/main
+
+commit 9eae74fb6833418cf3767a8cf4b8a58c2b4e0403
+Merge: 2bb44f23 146d37bd
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Mon Apr 20 02:22:55 2026 +0200
+
+    Merge pull request #138 from JooduG/main
+    
+    lll
+
+commit 146d37bd27b865c7bf5110342d7a0385981a97cb
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 02:20:04 2026 +0200
+
+    feat: establish intelligence protocol, add simulation audit test, and initialize project documentation.
+
+ .agent/rules/05-intelligence.md                           | 2 +-
+ .agent/skills/simulation/scripts/simulation-audit.test.js | 6 ++++--
+ artifacts/audit_report.md                                 | 4 ++--
+ tasks/todo.md                                             | 3 ++-
+ 4 files changed, 9 insertions(+), 6 deletions(-)
+
+commit 75cef35e64cc9cf59b6d68c33c0ce6d10b1394bf
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 02:09:31 2026 +0200
+
+    feat: implement design system tokens and initial UI component architecture for profile management
+
+ artifacts/audit_report.md                          |   2 +-
+ src/theme/global.css                               | 138 ++++++---------------
+ src/theme/tokens.css                               |   7 +-
+ src/ui/atoms/Button.svelte                         |   9 +-
+ src/ui/organisms/profile/Profile.svelte            |   2 +-
+ .../profile/panels/EntityFragments.svelte          |   1 -
+ src/ui/organisms/profile/panels/VectorArray.svelte | 102 +++++++--------
+ src/ui/organisms/profile/wings/AudioWing.svelte    |  45 -------
+ src/ui/utils/actions/danger.js                     |  82 ------------
+ 9 files changed, 95 insertions(+), 293 deletions(-)
+
+commit ca1ed43b0e9dee905e10449d8da25a168d122375
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 00:58:48 2026 +0200
+
+    chore: add artifacts directory to ignore configurations and project audit report
+
+ .gitignore                | 1 +
+ .htmlhintignore           | 1 +
+ .markdownlintignore       | 1 +
+ .prettierignore           | 1 +
+ .stylelintignore          | 1 +
+ artifacts/audit_report.md | 2 +-
+ eslint.config.js          | 3 ++-
+ ignores.master.json       | 1 -
+ 8 files changed, 8 insertions(+), 3 deletions(-)
+
+commit 3651d67a8786805a43ab9cf60a0e5830ac29315a
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 00:57:02 2026 +0200
+
+    fix: restore robust JSON extraction and stabilize consolidation
+
+ artifacts/audit_report.md                | 2 +-
+ src/core/intelligence/temporal-engine.js | 9 +++++----
+ 2 files changed, 6 insertions(+), 5 deletions(-)
+
+commit 30f204c6cbd4474063814ddf61d1f6abc8e2edf0
+Merge: 4fbf1522 2bb44f23
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 00:55:43 2026 +0200
+
+    Merge branch 'feat/temporal-engine-consolidation'
+
+commit 2bb44f23dedac420509bd5aa2c919cbc896f297c
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 00:53:28 2026 +0200
+
+    fix: robust JSON extraction and ignores syntax
+
+ artifacts/audit_report.md | 4 ++--
+ ignores.master.json       | 7 +++++--
+ 2 files changed, 7 insertions(+), 4 deletions(-)
+
+commit 4fbf15220880d91cd0c5aee202cb793ad93336a1
+Merge: fc2f49dc ba54dbe8
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Mon Apr 20 00:48:40 2026 +0200
+
+    Merge pull request #136 from JooduG/feat/temporal-engine-consolidation
+    
+    feat(intelligence): consolidate temporal-engine and verify stability
+
+commit ba54dbe86f5ae526049babc2b2157cf97e32e291
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Mon Apr 20 00:48:20 2026 +0200
+
+    Update src/core/intelligence/temporal-engine.js
+    
+    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+
+ src/core/intelligence/temporal-engine.js | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+commit 9f8efd2659c12c9f479cc8fd16e2e2e4b764a842
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Mon Apr 20 00:48:06 2026 +0200
+
+    Update src/core/intelligence/temporal-engine.js
+    
+    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+
+ src/core/intelligence/temporal-engine.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit d807de3c851d0e9f7f7440747ca83fc5c4303437
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Mon Apr 20 00:42:56 2026 +0200
+
+    Update src/core/intelligence/temporal-engine.js
+    
+    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+
+ src/core/intelligence/temporal-engine.js | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit d2bfabbf8803e2c59e20c8390ceffea27e711f05
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 00:42:30 2026 +0200
+
+    feat: add audit report artifact to project directory
+
+ artifacts/audit_report.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit f400381d17bde9b340fc5582bb0555a53b16a27d
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 00:36:11 2026 +0200
+
+    feat: implement temporal-engine for managing historical anchors and active impulses with RAG-based scoring and automated memory weaving
+
+ artifacts/audit_report.md                     |  2 +-
+ src/core/intelligence/temporal-engine.js      | 12 ++++----
+ src/core/intelligence/temporal-engine.test.js | 41 +++++++++++++++++++++++++++
+ src/data/db.js                                |  2 ++
+ src/ui/utils/logger.svelte.js                 |  2 +-
+ 5 files changed, 52 insertions(+), 7 deletions(-)
+
+commit 85baf43950bbe493baad1fe1bbf15b7fd6fb8de7
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Mon Apr 20 00:30:47 2026 +0200
+
+    Update src/core/intelligence/temporal-engine.js
+    
+    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+
+ src/core/intelligence/temporal-engine.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit bcff9ab267c9d390ffe25aa0baebc50c03707c54
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Mon Apr 20 00:30:37 2026 +0200
+
+    Update src/core/intelligence/temporal-engine.js
+    
+    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+
+ src/core/intelligence/temporal-engine.js | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+commit 24a54710caecbe95460a69b8ba6f1a9d2b6bd1af
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 00:25:18 2026 +0200
+
+    feat(intelligence): consolidate temporal-engine and verify stability
+    
+    This commit unifies memory-engine and vector-engine into a single Temporal Engine, refactors all intelligence dependencies, and resolves Warden quality gate violations (pixel borders, heretical folder structures). Passed full verification suite with 215 tests.
+
+ .../swarm/{lib => scripts}/jules-provider.js       |   4 +-
+ .agent/skills/swarm/{lib => scripts}/jules-shim.js |   0
+ .agent/skills/warden/scripts/test-setup.js         |   2 +-
+ artifacts/audit_report.md                          |  16 +-
+ src/core/{engine => }/bootstrap.js                 |   6 +-
+ src/core/{engine => }/bootstrap.test.js            |   8 +-
+ src/core/intelligence/context-broker.js            |   6 +-
+ src/core/intelligence/context-broker.test.js       |  28 +--
+ src/core/intelligence/gamemaster.test.js           |  58 -----
+ src/core/intelligence/intelligence-kernel.js       |   7 +-
+ src/core/intelligence/intelligence-kernel.test.js  |  60 ++++-
+ src/core/intelligence/llm-service.js               |   7 +-
+ src/core/intelligence/llm-service.test.js          |   4 +-
+ src/core/intelligence/memory-engine.js             | 142 -----------
+ src/core/intelligence/memory-engine.test.js        | 197 ---------------
+ src/core/intelligence/prompt-builder.js            |  22 +-
+ .../intelligence/prompt-builder.manual.test.js     |  58 -----
+ src/core/intelligence/prompt-builder.test.js       |  59 +++++
+ src/core/intelligence/temporal-engine.js           | 272 +++++++++++++++++++++
+ src/core/intelligence/temporal-engine.test.js      | 168 +++++++++++++
+ src/core/intelligence/vector-engine.js             | 247 -------------------
+ src/core/intelligence/vector-engine.test.js        | 106 --------
+ src/{data/bridge.js => core/perchance-bridge.js}   |   2 +-
+ .../perchance-bridge.test.js}                      |   6 +-
+ src/core/{engine => }/text-parser.js               |   0
+ src/core/{engine => }/text-parser.test.js          |   0
+ src/data/db.js                                     |  21 --
+ src/data/db.test.js                                |  54 +---
+ src/data/repository.js                             |  15 ++
+ src/index.html                                     |   6 +-
+ src/main.js                                        |   2 +-
+ src/media/audio.js                                 | 154 ------------
+ src/media/audio.svelte.js                          | 175 +++++++++++++
+ src/media/image-engine.js                          |   2 +-
+ src/state/app.svelte.js                            |   8 +-
+ src/state/runtime.svelte.js                        |   4 +-
+ src/state/{narrative.test.js => runtime.test.js}   |   0
+ src/theme/global.css                               |   2 +-
+ src/theme/palette.svelte.js                        |  10 -
+ src/{ => ui}/App.svelte                            |   0
+ src/ui/organisms/profile/Profile.svelte            |   3 +-
+ src/ui/organisms/profile/wings/AudioWing.svelte    |  47 +++-
+ src/ui/organisms/storyboard/StoryboardCard.svelte  |   5 +-
+ src/ui/organisms/storymode/Message.svelte          |   2 +-
+ src/ui/utils/core.js                               |  83 -------
+ src/ui/utils/helpers.js                            |  61 +++++
+ src/ui/utils/{core.test.js => helpers.test.js}     |   5 +-
+ src/ui/utils/logger.svelte.js                      |  27 ++
+ tasks/todo.md                                      |  50 ++--
+ 49 files changed, 985 insertions(+), 1236 deletions(-)
+
+commit fc2f49dcf3ab6ac19ba1b5cf49e1a950f14b7217
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Sun Apr 19 23:07:59 2026 +0200
+
+    refactor: isolate Jules SDK into a server-side provider and implement core LLM service testing utilities
+
+ .../simulation/scripts/simulation-audit.test.js    |  4 +-
+ .agent/skills/swarm/lib/jules-provider.js          | 44 ++++++++++++++++++++++
+ .../skills/swarm/lib}/jules-shim.js                |  0
+ .agent/skills/warden/scripts/test-setup.js         | 31 +++++++++++++++
+ audit_report.md => artifacts/audit_report.md       |  2 +-
+ jules_payload.json => artifacts/jules_payload.json |  0
+ playwright.config.js                               |  3 +-
+ src/core/intelligence/llm-service.js               | 34 ++++++-----------
+ src/core/intelligence/llm-service.test.js          | 12 +++---
+ vite.config.js                                     |  1 -
+ vitest.config.js                                   |  1 +
+ 11 files changed, 99 insertions(+), 33 deletions(-)
+
+commit a2148e54d79884d410e8d483d0f275b1a81bb1a6
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Sun Apr 19 17:41:46 2026 +0200
+
+    feat: implement story UI components including dynamic title generation, range sliders, and library cards.
+
+ audit_report.md                                    |  2 +-
+ src/index.html                                     |  1 -
+ src/theme/global.css                               | 53 +++++++-------
+ src/ui/atoms/Slider.svelte                         |  1 +
+ src/ui/molecules/LibraryCard.svelte                |  3 +-
+ src/ui/organisms/profile/wings/DevWing.svelte      |  2 +-
+ src/ui/organisms/profile/wings/VisualWing.svelte   |  8 +--
+ src/ui/organisms/storyboard/StoryboardCard.svelte  | 84 ++++++++++++++--------
+ .../storyboard/StoryboardDynamicTitle.svelte       |  2 +-
+ src/ui/organisms/storyboard/StoryboardPill.svelte  |  2 -
+ tasks/todo.md                                      | 19 ++++-
+ 11 files changed, 107 insertions(+), 70 deletions(-)
+```
