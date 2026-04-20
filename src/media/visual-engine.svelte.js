@@ -137,15 +137,17 @@ export class VisualEngine {
 
       const refined = await llm_service.generate(
         {
-          system: system + `\n<RAW_INTENT>\n${visualPrompt}\n</RAW_INTENT>`,
+          system: system + "\n<RAW_INTENT>\n" + visualPrompt + "\n</RAW_INTENT>",
+          messages: [],
         },
         { silent: true },
       );
 
-      const cleanPrompt = refined
-        .replace(/<think>[\s\S]*?<\/think>/gi, "")
-        .replace(/<image_prompt[^>]*>|<\/image_prompt>/gi, "")
-        .trim();
+      const cleanPrompt = this._cleanPrompt(
+        refined
+          ?.replace(/<think>[\s\S]*?<\/think>/gi, "")
+          .replace(/<image_prompt[^>]*>|<\/image_prompt>/gi, "")
+      );
 
       const imageUrl = await this.generate(cleanPrompt, { mode: vTarget });
       return { imageUrl, refinedPrompt: cleanPrompt };
