@@ -1,6 +1,6 @@
-import { gamemaster } from "@core/intelligence/intelligence-kernel.js";
-import { app } from "@state/app.svelte.js";
-import { simulationState } from "@state/status.svelte.js";
+import { gamemaster } from "../intelligence/intelligence-kernel.js";
+import { app } from "../../state/app.svelte.js";
+import { simulationState } from "../../state/status.svelte.js";
 import { session_driver } from "./session-driver.svelte.js";
 /**
  * The Engine provides a unified interface for the high-level simulation logic.

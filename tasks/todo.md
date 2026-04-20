@@ -16,6 +16,23 @@
 - [x] Round Stability & Hygiene (Patch [037])
 - [x] InputBar Layout & Control Panel Wiring ([039])
 - [ ] Release Candidate Stability Audit ([043])
+- [x] Documentation Sync & Infrastructure Hygiene ([044])
+
+---
+
+### [044] Documentation Sync & Infrastructure Hygiene - [DONE]
+
+#### **Track 1: Documentation Sync**
+
+- [x] Analyze last 20 commits for architectural drift
+- [x] Sync `SPEC.md` for v0.6.0 (The Forge)
+- [x] Update Rule 04 (Aesthetics) with Ghost tokens & Registry
+- [x] Update Rule 05 (Intelligence) with Temporal Engine Lexicon
+
+#### **Track 2: Infrastructure Hygiene**
+
+- [x] Initialize `tasks/plan.md` to resolve rule violations
+- [x] Sync `tasks/todo.md` with recent missions and skill logs
 
 ---
 
@@ -69,6 +86,8 @@
 
 ## 🏁 Completed Missions (Recent)
 
+- **[044]** Documentation Sync & Infrastructure Hygiene
+- **[043]** Release Candidate Prep (In Progress)
 - **[042]** Ghost Token Audit & Profile UI Stabilization
 - **[041]** Rule & Workflow Template Standardization (PR #132)
 - **[040]** Git Ignore Fixes & .playwright-auth Untracking
@@ -109,6 +128,8 @@
 | 2026-04-19T15:11:00Z      | Clean up signature color swatch tooltips                         | `frontend-ui-engineering`                  | ✅ Done     |
 | 2026-04-19T15:25:00Z      | Storyboard UI Stabilization                                      | `frontend-ui-engineering`                  | ✅ Done     |
 | 2026-04-20T02:18:10+02:00 | Project Timezone Sync (Europe/Stockholm)                         | `directives`, `simulation`                 | ✅ Done     |
+| 2026-04-20T10:14:00+02:00 | Documentation Sync (v0.6.0)                                      | `frontend-ui-engineering`, `directives`    | ✅ Done     |
+| 2026-04-20T10:16:00+02:00 | Infrastructure Hygiene (plan/todo sync)                          | `security-and-hardening`, `directives`     | ✅ Resolved |
 
 ## 🧹 Backlog (Automated)
 

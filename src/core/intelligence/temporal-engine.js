@@ -15,7 +15,7 @@ import { CONFIG } from "../engine/config.js";
 import { dynamics_engine } from "./dynamics-engine.js";
 import { llm_service } from "./llm-service.js";
 import { prompt_builder } from "./prompt-builder.js";
-import { simulation_log as log_store } from "@state/simulation-log.svelte.js";
+import { simulation_log as log_store } from "../../state/simulation-log.svelte.js";
 
 /**
  * 🧩 TEMPORAL LOG ENTRY (Vector Schema)

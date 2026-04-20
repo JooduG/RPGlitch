@@ -18,13 +18,13 @@ import { context_broker } from "./context-broker.js";
 import { dynamics_engine } from "./dynamics-engine.js";
 import { prompt_builder } from "./prompt-builder.js";
 import { llm_service } from "./llm-service.js";
-import { runtime } from "@state/runtime.svelte.js";
-import { app } from "@state/app.svelte.js";
+import { runtime } from "../../state/runtime.svelte.js";
+import { app } from "../../state/app.svelte.js";
 import { temporal_engine } from "./temporal-engine.js";
-import { db } from "@data/db.js";
-import { simulationState } from "@state/status.svelte.js";
-import { entities } from "@data/repository.js";
-import { session_driver } from "@core/engine/session-driver.svelte.js";
+import { db } from "../../data/db.js";
+import { simulationState } from "../../state/status.svelte.js";
+import { entities } from "../../data/repository.js";
+import { session_driver } from "../engine/session-driver.svelte.js";
 export const gamemaster = {
   /**
    * THE MECHANICAL GATE

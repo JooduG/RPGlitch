@@ -56,6 +56,9 @@ To prevent cognitive drift, nomenclature is absolute.
 - **Swarm**: The tactical engine and lifecycle for multi-agent operations. A "Swarm" represents the technical engine that manages token scaling, parallel execution, and the 80% Confidence Gate.
 - **RPglitch**: (Deprecated) See **RPGlitch**.
 - **RPGlitch**: The core simulation engine and repository name.
+- **Temporal Engine**: The consolidated intelligence module managing the temporal continuum of an entity.
+- **Past Vectors**: (User UI: **Memories**) Historical anchors, traumas, and session resonances.
+- **Future Vectors**: Active impulses, plans, prophecies, and impending intent.
 - **Entity**: The fundamental unit of the simulation. An `entity` is either a `character` or a `fractal`.
 - **Fractal**: World, setting, or environmental entity.
 - **User Persona**: Human-controlled character (Entity).
@@ -113,7 +116,7 @@ The following sovereign workflows are registered for agentic orchestration.
 
 > **CRITICAL DISTINCTION**:
 >
-> - **Application Memory** (Dexie.js, RPGlitch State, Entity memory): Consult the **[Simulation](../skills/simulation/SKILL.md)** skill.
+> - **Application Memory** (**Temporal Engine**, Dexie.js, RPGlitch State): Consult the **[Simulation](../skills/simulation/SKILL.md)** skill.
 > - **Development Data** (Pinecone, Supabase, Agent Context): Consult the **[Data](../skills/data/SKILL.md)** skill.
 
 Agents MUST utilize the dual-layer memory system via the [Data](../skills/data/SKILL.md) skill to maintain technical precision and historical continuity.

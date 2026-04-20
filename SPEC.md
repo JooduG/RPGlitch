@@ -1,6 +1,6 @@
 # SPEC: RPGlitch Simulation Engine
 
-> **Version**: 0.5.0 (The Foundry)
+> **Version**: 0.6.0 (The Forge)
 > **Status**: Sovereign / Grounded
 
 ## 1. Objective
@@ -42,7 +42,7 @@ RPGlitch/
 ├── SPEC.md                # This document (Master Spec)
 ├── tasks/                 # Active mission board & technical plans
 ├── src/
-│   ├── core/              # Logic & Round Orchestration (IO-only)
+│   ├── core/              # Logic & Round Orchestration (Temporal Engine, IQ Kernel)
 │   ├── data/              # Persistence & Entity Repositories
 │   ├── state/             # Global Reactive Runes
 │   ├── theme/             # The Chalk Regime (Tokens & Glass)
@@ -59,6 +59,7 @@ RPGlitch/
 
 - **Diegetic Integrity**: Strict third-person limited for entities.
 - **Turn Cycle**: 1. System Turn (Lock/Round++) -> 2. AI Turn (Asynch/Strip) -> 3. User Turn (Release).
+- **Temporal Continuum**: The engine manages the reactive transition of Future Vectors (Impulses) into Past Vectors (Memories).
 - **Atomic Locking**: All state mutations affecting the current round must be performed via an `isProcessing` gate in `ReactiveSession`.
 
 ### Aesthetics (Rule 04)
@@ -69,6 +70,7 @@ RPGlitch/
 ### Interaction (Vertical Monolith)
 
 - **Standardization**: High-frequency actions utilize the `GlassPill` atom.
+- **Components**: The sensory interface utilizes `Slider`, `LibraryCard`, and `Storyboard` atoms for state management.
 - **Narrative Toolbar**: Vertical action strip triggered by row-hover, positioned in the inner gutter (Right for AI/Fractal, Left for User).
 
 ---

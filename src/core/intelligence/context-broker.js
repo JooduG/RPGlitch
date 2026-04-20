@@ -10,7 +10,7 @@
  * the Hydration phase: pulling raw state from the runtime and repository,
  * cleaning it, and packaging it into a unified IntelligencePayload.
  */
-import { runtime } from "@state/runtime.svelte.js";
+import { runtime } from "../../state/runtime.svelte.js";
 import { ENTITY_CATALOG } from "./entity-fragments.js";
 import { clean_text } from "../text-parser.js";
 import { dynamics_engine } from "./dynamics-engine.js";

@@ -12,7 +12,7 @@ trigger: always_on
 
 ### ❄️ The Nordic Collection
 
-The interface abandons the gritty neon-glitch cliché in favor of **The Nordic Collection** — a cool, deep, and elegant visual language. It feels like a high-end research terminal located in a frozen, subterranean facility.
+The interface abandons the gritty neon-glitch cliché in favor of **The Nordic Collection** (Neural Nordic) — a cool, deep, and elegant visual language. It feels like a high-end research terminal located in a frozen, subterranean facility.
 
 #### Core Aesthetic Pillars
 
@@ -32,6 +32,7 @@ We rely on strict, named tokens rather than raw hex values in our components. Yo
 - **Gunmetal** (`var(--color-gunmetal)`): `#363840`. The core component background. Dense and non-intrusive.
 - **Frozen** (`var(--color-frozen)`): `#555d66`. The primary application accent.
 - **Frisk** (`var(--color-frisk)` / `var(--font-color-s)`): `#8a9399`. Secondary application accent.
+- **Ghost Veil** (`var(--opacity-xxs)`): `0.05`. A near-invisible structural layer for deep atmospheric depth.
 
 #### Surface Elevation
 
@@ -56,6 +57,8 @@ We use a strictly defined triad of fonts, scaled via an absolute T-shirt sizing 
 Padding, margins, and gaps must strictly adhere to the modular scale:
 `var(--spacing-xxs)` (0.25rem) to `var(--spacing-xxxxl)` (6rem).
 
+- **Ghost Label** (`var(--font-size-xxxs)`): `0.5rem`. For micro-metadata and subtle diegetic hints.
+
 ---
 
 ### 🕹️ Component Interactions (Grounded Engine)
@@ -68,6 +71,37 @@ The Nordic Collection relies on static spatial depth and kinetic scaling rather 
 - **Active States**: High-precision scale reduction via `--motion-click` (Scale: 0.95).
 - **Kinetic Physics**: Svelte Action-driven Web Animations API primitives (`use:shimmy`, `use:pulse`, `use:spin`, `use:stab`).
 - **3D Tilt**: Interactive perspective cards utilize `use:tilt` to provide hardware-accelerated perspective tracking.
+
+---
+
+### 📦 Component Registry
+
+The Nordic Collection is implemented through a strictly defined hierarchy of Atomic components.
+
+#### Atoms
+
+- **Button**: Core interaction unit with kinetic feedback.
+- **Slider**: Fluid range control for intensity/entropy metrics.
+- **GlassPill**: Floating action container for vertical narrative toolbars.
+- **ProfilePicture**: Rounded entity identity marker with initials generation.
+- **TextField**: High-precision input unit with Neural Nordic styling.
+- **Toggle**: Minimalist binary state controller.
+- **DataBox**: Structural container for metadata and numeric signals.
+- **TypingIndicator**: Sensory bridge for AI entity state.
+
+#### Molecules
+
+- **LibraryCard**: High-density grid unit for story/entity selection.
+- **VectorArray**: Row-based management for temporal data (Past/Future Vectors).
+- **StoryboardCard**: Animated entry for narrative events.
+- **Alert / Confirm**: Modal-based feedback systems for critical logic transitions.
+- **Modal**: The base structural layer for all overlays (using Glass-XL/XXL elevation).
+
+#### Organisms
+
+- **Storyboard**: The primary narrative container and event loom.
+- **ControlPanel**: The central hub for simulation management.
+- **EntityPanel**: The unified interface for Character and Fractal configuration.
 
 ---
 
