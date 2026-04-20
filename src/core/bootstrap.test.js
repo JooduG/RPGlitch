@@ -11,7 +11,7 @@ vi.mock("@state/app.svelte.js", () => ({
   },
 }));
 
-vi.mock("@media/audio.svelte.js", () => ({
+vi.mock("@media/audio-engine.svelte.js", () => ({
   Audio: {
     init: vi.fn(),
     _initPromise: null,
@@ -35,12 +35,9 @@ vi.mock("../ui/App.svelte", () => ({
 }));
 describe("AppBootstrap", () => {
   beforeEach(async () => {
-    const { Audio } = await import("@media/audio.svelte.js");
     document.body.innerHTML = "";
     vi.resetAllMocks();
     reset_bootstrap_guard();
-    // Reset singleton states for test isolation
-    Audio._initPromise = null;
     app.settings.dev_mode = false;
   });
   test("escapes error stack using textContent when initialization fails", async () => {
@@ -75,7 +72,7 @@ describe("AppBootstrap", () => {
   });
 
   test("successfully initializes all services in the correct order and mounts the app", async () => {
-    const { Audio } = await import("@media/audio.svelte.js");
+    const { Audio } = await import("@media/audio-engine.svelte.js");
     const { runtime } = await import("@state/runtime.svelte.js");
     const { mount } = await import("svelte");
 
@@ -93,8 +90,8 @@ describe("AppBootstrap", () => {
     // Verify the critical execution order
     const seedPremadesOrder = vi.mocked(repository.seed_premades).mock.invocationCallOrder[0];
     const runtimeSyncOrder = vi.mocked(runtime.sync).mock.invocationCallOrder[0];
-    const appInitOrder = app.init.mock.invocationCallOrder[0];
-    const audioInitOrder = Audio.init.mock.invocationCallOrder[0];
+    const appInitOrder = vi.mocked(app.init).mock.invocationCallOrder[0];
+    const audioInitOrder = vi.mocked(Audio.init).mock.invocationCallOrder[0];
     const mountOrder = vi.mocked(mount).mock.invocationCallOrder[0];
 
     // Verify seed_premades runs before parallel tasks

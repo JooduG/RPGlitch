@@ -1,7 +1,7 @@
 // src/core/bootstrap.js
 import { sanitizeToFragment } from "./security.js";
 import { seed_premades } from "../data/repository.js";
-import { Audio } from "../media/audio.svelte.js";
+import { Audio } from "../media/audio-engine.svelte.js";
 import { app } from "../state/app.svelte.js";
 import { runtime } from "../state/runtime.svelte.js";
 import { mount } from "svelte";

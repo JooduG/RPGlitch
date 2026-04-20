@@ -59,3 +59,23 @@ export const mockPlugins = () => {
   if (!window["pluginUpload"])
     window["pluginUpload"] = async (data) => "https://via.placeholder.com/150";
 };
+
+/**
+ * Safely accesses Perchance lists injected from the Left Panel.
+ * Handles both raw arrays and stringified JSON arrays.
+ */
+export const getRpgList = (key) => {
+  if (typeof window !== "undefined" && window.rpgLists && window.rpgLists[key]) {
+    let list = window.rpgLists[key];
+    // Check if the first element is a stringified JSON array (Perchance quirk)
+    if (Array.isArray(list) && typeof list[0] === "string" && list[0].startsWith("[")) {
+      try {
+        return JSON.parse(list[0]);
+      } catch (e) {
+        return list;
+      }
+    }
+    return Array.isArray(list) ? list : [];
+  }
+  return [];
+};

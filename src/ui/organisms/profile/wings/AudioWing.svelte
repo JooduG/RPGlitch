@@ -4,7 +4,7 @@
    * 🔊 THE SONIC IDENTITY
    * Manages character voice selection and parameters.
    */
-  import { Audio } from "@media/audio.svelte.js";
+  import { Audio } from "@media/audio-engine.svelte.js";
   import Slider from "@ui/atoms/Slider.svelte";
   import Wing from "./Wing.svelte";
 

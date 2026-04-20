@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 /**
  * 🛸 RPGlitch: Global Type Definitions
  * This file silences TypeScript noise for runtime-injected APIs.
