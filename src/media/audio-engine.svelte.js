@@ -136,6 +136,7 @@ class AudioEffectsEngine {
   // --- PRIVATE STATE ---
   #audioContext = null;
   #buffers = new Map();
+  #pendingBuffers = new Map();
   #unlocked = false;
   #lastPlayed = 0;
   #threshold = 500; // debounce in ms
@@ -223,13 +224,29 @@ class AudioEffectsEngine {
     try {
       let buffer = this.#buffers.get(key);
       if (!buffer) {
-        const response = await fetch(url);
-        const arrayBuffer = await response.arrayBuffer();
-        buffer = await new Promise((resolve, reject) => {
-          const promise = this.#audioContext.decodeAudioData(arrayBuffer, resolve, reject);
-          if (promise) promise.then(resolve).catch(reject);
-        });
-        this.#buffers.set(key, buffer);
+        // Handle concurrent requests for the same key
+        if (this.#pendingBuffers.has(key)) {
+          buffer = await this.#pendingBuffers.get(key);
+        } else {
+          const fetchPromise = (async () => {
+            try {
+              const response = await fetch(url);
+              if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+              const arrayBuffer = await response.arrayBuffer();
+              const decoded = await new Promise((resolve, reject) => {
+                const promise = this.#audioContext.decodeAudioData(arrayBuffer, resolve, reject);
+                if (promise) promise.then(resolve).catch(reject);
+              });
+              this.#buffers.set(key, decoded);
+              return decoded;
+            } finally {
+              this.#pendingBuffers.delete(key);
+            }
+          })();
+
+          this.#pendingBuffers.set(key, fetchPromise);
+          buffer = await fetchPromise;
+        }
       }
       const source = this.#audioContext.createBufferSource();
       source.buffer = buffer;

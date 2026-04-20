@@ -13,7 +13,7 @@ vi.stubGlobal("window", {
 
 vi.mock("@core/intelligence/llm-service.js", () => ({
   llm_service: {
-    generate: vi.fn(),
+    generate: vi.fn().mockResolvedValue("Mocked prompt contribution"),
   },
 }));
 
@@ -60,6 +60,19 @@ describe("VisualEngine (Reactive)", () => {
     expect(visual_engine.error).toBe(null);
   });
 
+  it("should distinguish short prompts from UUIDs", async () => {
+    vi.mocked(window.pluginTextToImage).mockResolvedValue("image_url");
+
+    // Case 1: Short prompt (previously failed)
+    await visual_engine.generate("A cat", { noCache: true });
+    expect(entities.get).not.toHaveBeenCalled();
+
+    // Case 2: UUID (should resolve)
+    const uuid = "550e8400-e29b-41d4-a716-446655440000";
+    await visual_engine.generate(uuid, { noCache: true });
+    expect(entities.get).toHaveBeenCalledWith("character", uuid);
+  });
+
   it("should handle service failures with retries and circuit breaker", async () => {
     vi.mocked(window.pluginTextToImage).mockRejectedValue(new Error("GPU Offline"));
 
@@ -81,14 +94,35 @@ describe("VisualEngine (Reactive)", () => {
     expect(llm_service.generate).toHaveBeenCalled();
   });
 
+  it("should retry optimization on failure", async () => {
+    vi.mocked(llm_service.generate)
+      .mockRejectedValueOnce(new Error("LLM Timeout"))
+      .mockResolvedValueOnce("Successful prompt");
+
+    const result = await visual_engine.optimize("text");
+
+    expect(result).toBe("Successful prompt");
+    expect(llm_service.generate).toHaveBeenCalledTimes(2);
+  });
+
+  it("should handle null LLM responses in visualize safely", async () => {
+    vi.mocked(llm_service.generate).mockResolvedValue(null);
+
+    const result = await visual_engine.visualize("text");
+
+    expect(result.imageUrl).toBe(null);
+    expect(result.refinedPrompt).toBe(null);
+  });
+
   it("should resolve entities and use them for prompt generation", async () => {
     vi.mocked(entities.get).mockResolvedValue({ name: "Kai", description: "A rugged survivor" });
     vi.mocked(llm_service.generate).mockResolvedValue("Kai, rugged survivor, cinematic");
     vi.mocked(window.pluginTextToImage).mockResolvedValue("Kai_Image_URL");
 
-    const result = await visual_engine.generate("Kai_Entity_ID", { noCache: true });
+    const uuid = "550e8400-e29b-41d4-a716-446655440001";
+    const result = await visual_engine.generate(uuid, { noCache: true });
 
-    expect(entities.get).toHaveBeenCalledWith("character", "Kai_Entity_ID");
+    expect(entities.get).toHaveBeenCalledWith("character", uuid);
     expect(result).toBe("Kai_Image_URL");
   });
 });

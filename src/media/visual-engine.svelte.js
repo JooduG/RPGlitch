@@ -43,7 +43,9 @@ export class VisualEngine {
       let entityId = null;
 
       // 1. Resolve Target & Prompt
-      if (typeof target === "string" && target.length > 100) {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(target);
+      
+      if (typeof target === "string" && !isUuid) {
         finalPrompt = target; // Direct prompt
       } else if (typeof target === "string") {
         entityId = target;
@@ -102,11 +104,19 @@ export class VisualEngine {
    * Translates character descriptions into optimized visual tokens.
    */
   async optimize(text, context = {}) {
-    const optics = AestheticResolver.resolve(context);
-    const system = PromptTemplates.OPTIMIZE(text, optics);
+    return await this.breaker.execute(async () => {
+      return await this.retryer.retry(async () => {
+        const optics = AestheticResolver.resolve(context);
+        const system = PromptTemplates.OPTIMIZE(text, optics);
 
-    const result = await llm_service.generate({ system, messages: [] }, { silent: true });
-    return this._cleanPrompt(result);
+        const result = await llm_service.generate({ system, messages: [] }, { silent: true });
+        if (!result) throw new Error("Prompt optimization failed - no content.");
+        
+        return this._cleanPrompt(result);
+      }, (attempt) => {
+        console.warn(`[VisualEngine] Optimization retry ${attempt}...`);
+      });
+    });
   }
 
   /**
@@ -142,6 +152,8 @@ export class VisualEngine {
         },
         { silent: true },
       );
+
+      if (!refined) return { imageUrl: null, refinedPrompt: null };
 
       const cleanPrompt = this._cleanPrompt(
         refined
