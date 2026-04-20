@@ -13,7 +13,7 @@
 
 <header class:is-editing={is_editing} data-testid="profile-header">
   {#if is_editing}
-    <h1 class="name edit" aria-label="Edit Entity Name">
+    <h1 class="name edit no-tooltip" aria-label="Edit Entity Name">
       <span
         contenteditable="true"
         bind:innerText={char.name}
@@ -24,7 +24,7 @@
     </h1>
   {:else}
     <h1
-      class="name"
+      class="name no-tooltip"
       aria-label="Entity Name"
       use:fitText={{
         maxSize: 80,
@@ -64,13 +64,17 @@
     padding: var(--spacing-xs);
     text-align: left;
     border-radius: var(--border-radius-m);
-    transition: background var(--motion-l);
+    transition:
+      background var(--motion-l),
+      border-color var(--motion-l),
+      box-shadow var(--motion-l);
     box-shadow: inset 0 0 0 1px transparent;
     min-height: 1.5em; /* Stable height ceiling */
     line-height: var(--line-height-s);
     outline: none;
     background: transparent;
     border: none;
+    border-bottom: 1px solid transparent;
   }
 
   .name.edit {
@@ -79,13 +83,22 @@
     caret-color: var(--signature-color);
   }
 
-  .name.edit:hover,
   .name.edit:focus-within {
     outline: none;
   }
 
   .name.edit span {
+    display: inline-block;
+    min-width: 2px;
     outline: none;
+  }
+
+  .name.edit span:empty::before {
+    content: attr(data-placeholder);
+    color: var(--color-frisk);
+    opacity: 0.4;
+    font-style: italic;
+    pointer-events: none;
   }
 
   .description {
@@ -95,11 +108,10 @@
 
   /* Target both edit and readonly modes of the TextField */
   .description :global(.field-foundation),
-  .description :global(.readonly-field),
-  .description :global(.field-foundation:hover),
-  .description :global(.field-foundation:focus) {
+  .description :global(.readonly-field) {
     background: transparent;
     border: none;
+    border-bottom: 1px solid transparent;
     box-shadow: none;
     padding: 0;
     font-size: var(--font-size-l);
@@ -107,12 +119,23 @@
     color: var(--font-color-m);
     line-height: var(--line-height-m);
     min-height: 1.5em;
-    transition: color var(--motion-l);
+    min-width: 2px;
+    transition:
+      color var(--motion-l),
+      background var(--motion-l),
+      border-color var(--motion-l);
     border-radius: 0;
     text-align: left;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .description :global(.field-foundation:hover),
+  .description :global(.field-foundation:focus) {
+    background: transparent;
+    border-color: transparent;
+    outline: none;
   }
 
   .description :global(.field-foundation::placeholder) {
