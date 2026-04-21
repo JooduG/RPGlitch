@@ -1,0 +1,244 @@
+Execute .agent/rules/06-compliance.md (Audit section). Target Critical/High vulnerabilities.
+
+
+Content of the latest commit (in the format of `git show`):
+```
+commit d236ea1460e4d2d341a1d5c9e75e3e60b3c62915
+Merge: 0136925d 067d1c38
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Mon Apr 20 17:57:13 2026 +0200
+
+    Merge pull request #140 from JooduG/feature/sensory-cortex-overhaul
+    
+    refactor: overhaul sensory cortex (visual & audio) with resilient reactive architecture
+
+```
+
+
+Log of the last 20 commits (in the format of `git log --stat`):
+```
+commit d236ea1460e4d2d341a1d5c9e75e3e60b3c62915
+Merge: 0136925d 067d1c38
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Mon Apr 20 17:57:13 2026 +0200
+
+    Merge pull request #140 from JooduG/feature/sensory-cortex-overhaul
+    
+    refactor: overhaul sensory cortex (visual & audio) with resilient reactive architecture
+
+commit 067d1c38a247d28ca1c66d3e2a8eb4ed066e245b
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Mon Apr 20 17:56:49 2026 +0200
+
+    Update src/media/visual-engine.svelte.js
+    
+    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+
+ src/media/visual-engine.svelte.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 73a9533b4ce548ba7fb9ecead33938995db53365
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 17:53:19 2026 +0200
+
+    feat: implement reactive audio and visual engines with comprehensive unit testing and audit reporting.
+
+ artifacts/audit_report.md         |  2 +-
+ src/media/audio-engine.svelte.js  | 31 +++++++++++++++++++++++-------
+ src/media/visual-engine.svelte.js | 24 +++++++++++++++++------
+ src/media/visual-engine.test.js   | 40 ++++++++++++++++++++++++++++++++++++---
+ 4 files changed, 80 insertions(+), 17 deletions(-)
+
+commit 2aa35718efd02ae161ca53f65615bfb52873b0ee
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 17:42:19 2026 +0200
+
+    fix: implement legacy AudioContext support and pass options in visualize
+
+ src/media/audio-engine.svelte.js  | 5 ++++-
+ src/media/visual-engine.svelte.js | 2 +-
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+
+commit 849d78403d7a972a3f3759d85081f12c82ab68d2
+Merge: 4f8265fa c8a31826
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 17:40:38 2026 +0200
+
+    Merge branch 'feature/sensory-cortex-overhaul' of https://github.com/JooduG/RPGlitch into feature/sensory-cortex-overhaul
+
+commit 4f8265fac7fca6dd21dc83c270fcdae70fa60bdc
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 17:40:35 2026 +0200
+
+    prog
+
+ artifacts/audit_report.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit c8a31826bf07e638b0934633900881d5bb9e62f3
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Mon Apr 20 17:40:15 2026 +0200
+
+    Update src/media/visual-engine.svelte.js
+    
+    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+
+ src/media/visual-engine.svelte.js | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+commit b1dc6e9ecc5de2b830c37eedaaa676bf45e14114
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Mon Apr 20 17:40:04 2026 +0200
+
+    Update src/media/visual-engine.svelte.js
+    
+    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+
+ src/media/visual-engine.svelte.js | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit ca5415589868aff2fd57c2cf410ceed05f76ed73
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 17:35:40 2026 +0200
+
+    fix: resolve undefined 'url' variable in AudioEffectsEngine.play
+
+ src/media/audio-engine.svelte.js | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit cc55681501442ee431b643ef3f96915557868c21
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 17:33:59 2026 +0200
+
+    fix: resolve target ID mapping, sync isOffline state, and refactor sound lookups
+
+ src/media/audio-engine.svelte.js  | 23 +++++------------------
+ src/media/visual-engine.svelte.js | 15 ++++++++++-----
+ 2 files changed, 15 insertions(+), 23 deletions(-)
+
+commit fcc16c79b8adeb7943a8c4758e19790ee34fb977
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 17:30:56 2026 +0200
+
+    prog
+
+ artifacts/audit_report.md |   2 +-
+ prompt.txt                | 419 ----------------------------------------------
+ 2 files changed, 1 insertion(+), 420 deletions(-)
+
+commit c56fbd49627bd476f198a2913d1b3c8c2d49a403
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Mon Apr 20 17:29:32 2026 +0200
+
+    Update src/media/visual-engine.svelte.js
+    
+    Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>
+
+ src/media/visual-engine.svelte.js | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+commit 2071a32cd604ec79d5ac7aa66d8b679b97f31b92
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 17:23:04 2026 +0200
+
+    refactor: overhaul sensory cortex (visual & audio) with resilient reactive architecture
+
+ src/core/bootstrap.js                            |   2 +-
+ src/core/bootstrap.test.js                       |  11 +-
+ src/core/intelligence/intelligence-kernel.js     |   2 +-
+ src/media/audio-engine.svelte.js                 | 279 +++++++++++++++++++++++
+ src/media/audio.svelte.js                        | 175 --------------
+ src/media/image-engine.js                        | 256 ---------------------
+ src/media/image-generation.test.js               | 111 ---------
+ src/media/image-prompts.js                       | 220 ------------------
+ src/media/optics.js                              | 119 ++++++++++
+ src/media/resilience.js                          | 118 ++++++++++
+ src/media/resilience.test.js                     |  77 +++++++
+ src/media/speech-engine.svelte.js                | 118 ----------
+ src/media/visual-engine.svelte.js                | 178 +++++++++++++++
+ src/media/visual-engine.test.js                  |  94 ++++++++
+ src/state/app.svelte.js                          |   6 +
+ src/ui/organisms/profile/wings/AudioWing.svelte  |   2 +-
+ src/ui/organisms/profile/wings/VisualWing.svelte |  84 ++++++-
+ src/ui/utils/helpers.js                          |  20 ++
+ types.d.ts                                       |   1 +
+ 19 files changed, 977 insertions(+), 896 deletions(-)
+
+commit 0136925d43762fa362b8993a067b9e4f34fdbcb1
+Merge: 002f71a6 94edeca9
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 10:24:30 2026 +0200
+
+    Merge branch 'main' of https://github.com/JooduG/RPGlitch
+
+commit 002f71a653d29760624355fb3ff1e35e0506797f
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 10:24:27 2026 +0200
+
+    feat: implement core engine, session management, and intelligence context-broker architecture
+
+ .agent/rules/04-aesthetics.md                | 36 +++++++++++++++++++++++++++-
+ .agent/rules/05-intelligence.md              |  5 +++-
+ SPEC.md                                      |  6 +++--
+ artifacts/audit_report.md                    |  2 +-
+ src/core/bootstrap.js                        | 10 ++++----
+ src/core/engine/chrono.svelte.js             | 10 ++++----
+ src/core/engine/engine.js                    |  6 ++---
+ src/core/engine/session-driver.svelte.js     |  6 ++---
+ src/core/intelligence/context-broker.js      |  2 +-
+ src/core/intelligence/intelligence-kernel.js | 12 +++++-----
+ src/core/intelligence/temporal-engine.js     |  2 +-
+ tasks/plan.md                                | 21 ++++++++++++++++
+ tasks/todo.md                                | 21 ++++++++++++++++
+ 13 files changed, 110 insertions(+), 29 deletions(-)
+
+commit 94edeca9f9ac6b445c2fd714862770e1b357a8cf
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Mon Apr 20 06:11:12 2026 +0000
+
+    chore(sovereign): nightly hygiene and memory sync [bot-auto]
+
+ jules_payload.json |  11 ++
+ prompt.txt         | 419 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 430 insertions(+)
+
+commit 9479eaca841e345f2aaad4531d674e6d89ddfea4
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 07:10:22 2026 +0200
+
+    feat: implement EntityHeader component for profile name and description editing
+
+ artifacts/audit_report.md                          |  2 +-
+ .../organisms/profile/panels/EntityHeader.svelte   | 39 +++++++++++++++++-----
+ 2 files changed, 32 insertions(+), 9 deletions(-)
+
+commit e837d557c6d3b0c215e2b0ab05b96cfaa8b79e3a
+Merge: 146d37bd 9eae74fb
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Mon Apr 20 02:23:24 2026 +0200
+
+    Merge pull request #139 from JooduG/feat/temporal-engine-consolidation
+    
+    Merge pull request #138 from JooduG/main
+
+commit 9eae74fb6833418cf3767a8cf4b8a58c2b4e0403
+Merge: 2bb44f23 146d37bd
+Author: JooduG <62556217+JooduG@users.noreply.github.com>
+Date:   Mon Apr 20 02:22:55 2026 +0200
+
+    Merge pull request #138 from JooduG/main
+    
+    lll
+
+commit 146d37bd27b865c7bf5110342d7a0385981a97cb
+Author: JohnG <johnfrejgranlund@gmail.com>
+Date:   Mon Apr 20 02:20:04 2026 +0200
+
+    feat: establish intelligence protocol, add simulation audit test, and initialize project documentation.
+
+ .agent/rules/05-intelligence.md                           | 2 +-
+ .agent/skills/simulation/scripts/simulation-audit.test.js | 6 ++++--
+ artifacts/audit_report.md                                 | 4 ++--
+ tasks/todo.md                                             | 3 ++-
+ 4 files changed, 9 insertions(+), 6 deletions(-)
+```
