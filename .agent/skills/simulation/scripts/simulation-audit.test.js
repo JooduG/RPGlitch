@@ -8,7 +8,6 @@
 
 import { describe, it } from "vitest";
 import { SimulationSimulation } from "./simulation-simulation.js";
-import { runtime } from "../../../../src/state/runtime.svelte.js";
 import fs from "fs";
 
 describe("🕹️ SYSTEM TURN: Source Audit", () => {

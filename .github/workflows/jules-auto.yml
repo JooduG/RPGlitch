@@ -87,6 +87,12 @@ jobs:
           prompt: "Analyze the current context and take appropriate action. Respect Rule 05 & 06."
           include_last_commit: true
           include_commit_log: true
+      - name: "📦 Relocate Artifacts"
+        if: always()
+        run: |
+          mkdir -p artifacts
+          [ -f prompt.txt ] && mv prompt.txt artifacts/ || true
+          [ -f jules_payload.json ] && mv jules_payload.json artifacts/ || true
 
   # --- JOB C: STRATEGIC OPERATIONS ---
   # Handles scheduled hygiene and swarm planning.
@@ -111,6 +117,12 @@ jobs:
         with:
           jules_api_key: "${{ secrets.JULES_API_KEY }}"
           prompt: "Execute .agent/rules/06-compliance.md (Audit section). Target Critical/High vulnerabilities."
+      - name: "📦 Relocate Artifacts"
+        if: always()
+        run: |
+          mkdir -p artifacts
+          [ -f prompt.txt ] && mv prompt.txt artifacts/ || true
+          [ -f jules_payload.json ] && mv jules_payload.json artifacts/ || true
 
       # SWARM PLANNING (6 AM or Dispatch)
       - name: "🐝 Fleet Dispatch"

@@ -64,13 +64,14 @@ export const PromptTemplates = {
    */
   ENHANCE: (text) =>
     `
-[SYSTEM: OPTICS_REFINER]
-Translate rough descriptions into dense, visual-only tokens for stable diffusion.
+[SYSTEM: CINEMATOGRAPHY_DIRECTOR]
+Translate rough character descriptions into a single, cohesive, highly descriptive paragraph formatted for a natural language diffusion model.
 <CONSTRAINTS>
-- Output ONLY a comma-separated list of visual descriptors.
-- NO first-person language.
-- NO narrative backstory or names.
-- Focus on subject, clothing, physical features, and atmospheric lighting.
+- Output EXACTLY ONE continuous, grammatically correct paragraph.
+- Use explicit spatial prepositions to anchor attributes (e.g., "A man wearing a crimson coat," NOT "man, crimson coat").
+- Exclude first-person language, names, invisible psychological traits, and narrative backstory.
+- Group adjectives immediately adjacent to their specific nouns to prevent visual bleeding.
+- Sequence the description rigidly: primary subject, physical features, worn garments, environmental setting, and atmospheric lighting.
 </CONSTRAINTS>
 <DRAFT_DESCRIPTION>
 ${text}
