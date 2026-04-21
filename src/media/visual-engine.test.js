@@ -83,23 +83,23 @@ describe("VisualEngine (Reactive)", () => {
     expect(visual_engine.breaker.failureCount).toBe(1); // One high-level failure reported to breaker
   });
 
-  it("should optimize a character description using Optics", async () => {
+  it("should enhance a prompt using Optics", async () => {
     vi.mocked(llm_service.generate).mockResolvedValue(
       '"Subject: A man in a cold facility, sharp focus, 8k."',
     );
 
-    const result = await visual_engine.optimize("A tired scientist");
+    const result = await visual_engine.enhance("A tired scientist");
 
     expect(result).toBe("Subject: A man in a cold facility, sharp focus, 8k.");
     expect(llm_service.generate).toHaveBeenCalled();
   });
 
-  it("should retry optimization on failure", async () => {
+  it("should retry enhancement on failure", async () => {
     vi.mocked(llm_service.generate)
       .mockRejectedValueOnce(new Error("LLM Timeout"))
       .mockResolvedValueOnce("Successful prompt");
 
-    const result = await visual_engine.optimize("text");
+    const result = await visual_engine.enhance("text");
 
     expect(result).toBe("Successful prompt");
     expect(llm_service.generate).toHaveBeenCalledTimes(2);

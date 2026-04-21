@@ -136,6 +136,56 @@ class ThemeStore {
     return PALETTE_VARS[color] || null;
   }
 
+  get_color_name(hex) {
+    if (!hex) return "";
+    // 1. Direct search in PALETTE by value
+    const match = Object.entries(PALETTE).find(
+      ([_, value]) => value.toLowerCase() === hex.toLowerCase(),
+    );
+    if (match) return match[0];
+
+    // 2. Resolve token first if it's a var()
+    if (hex.startsWith("var(")) {
+      const hex_val = Object.entries(PALETTE_VARS).find(([k, v]) => v === hex)?.[0];
+      if (hex_val) return this.get_color_name(hex_val);
+    }
+
+    return "";
+  }
+
+  /**
+   * Returns the direct human-readable label for an entity's signature color.
+   * Eliminates the Name -> Hex -> Name round-trip.
+   */
+  get_signature_label(entity) {
+    if (!entity) return "";
+    const color = entity.signature_color;
+
+    // 1. If it's already a valid label (UI default), use it
+    if (color && PALETTE[color]) return color;
+
+    // 2. If it's a hex or token, try to resolve it
+    if (color) {
+      const name = this.get_color_name(color);
+      if (name) return name;
+    }
+
+    // 3. Fallback to deterministic label (Seed -> Name)
+    const seed = [entity?.name || "", ...(entity?.tags || [])].filter(Boolean).join(",");
+    const hash = this._hash(seed || entity?.id || "");
+    const keys = Object.keys(PALETTE).filter((k) => k !== "default");
+    return keys[Math.abs(hash) % keys.length];
+  }
+
+  // Internal hash helper for deterministic resolution
+  _hash(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return hash;
+  }
+
   /**
    * Resolves the actual color value (Hex or Token) for an entity.
    */

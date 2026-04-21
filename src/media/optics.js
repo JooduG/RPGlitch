@@ -8,32 +8,50 @@
 export const NEGATIVE_PROMPT =
   "cartoon, anime, 3d render, illustration, painting, drawing, sketch, watermark, text, signature, low quality, blurry, deformed, mutated, extra limbs, missing limbs, fused fingers, distorted face, amateur, grainy, pixelated";
 
+import { themeStore } from "../theme/palette.svelte.js";
+
 /**
- * Resolves camera specs and atmospheric grounding based on character context.
+ * Resolves camera specs based on character context.
  */
 export const AestheticResolver = {
-  resolve(characterData = {}) {
-    const physical = (characterData.physical || "").toLowerCase();
+  /**
+   * Deterministic extraction of traits from entity fields.
+   * EXCLUDES name and description for privacy and precision.
+   */
+  extract(entity = {}) {
+    const present = entity.present?.physical || "";
+    const eternal = entity.eternal?.physical || "";
+    const colorName = themeStore.get_signature_label(entity);
 
-    // High-end Cinematic/Photographic Primitives
-    const optics = {
+    /**
+     * High-end hardware presets.
+     * We keep cinema and macro here for future wiring.
+     */
+    const presets = {
       portrait:
-        "Shot on Hasselblad H6D-100c, 80mm f/1.9 lens, shallow depth of field, sharp focus on eyes, hyper-realistic skin texture, 8k resolution.",
-      street:
-        "Shot on Leica M11, 35mm Summilux lens, street photography style, high contrast, natural grain, cinematic lighting.",
-      cinema:
-        "Shot on ARRI Alexa 35, anamorphic lenses, cinematic movie still, masterclass lighting, volumetric atmosphere, teal and orange highlights.",
+        "Photorealistic portrait shot on Hasselblad H6D-100c, 80mm f/1.9 lens, vogue magazine cover, shallow depth of field, sharp focus on detailed eyes, hyper-realistic textures, natural skin blemishes, golden ratio composition, cinematic volumetric lighting, 8k resolution.",
+      landscape:
+        "Photorealistic cinematic landscape shot on Leica M11, 35mm Summilux lens, wide angle, volumetric natural lighting, golden ratio composition, cinematic scope, movie still, 8k resolution.",
       macro:
-        "Shot on Canon EOS R5, 100mm macro lens, extreme detail, sharp focus, beautiful bokeh, scientific precision.",
+        "Photorealistic macro shot on Canon EOS R5, 100mm macro lens, extreme detail, sharp focus, beautiful bokeh, scientific precision, 8k resolution.",
     };
 
-    // Simple keyword mapping
-    if (physical.includes("landscape") || physical.includes("environment")) return optics.street;
-    if (physical.includes("machine") || physical.includes("tech")) return optics.macro;
-    if (physical.includes("cinematic") || physical.includes("epic")) return optics.cinema;
+    const fragments = [];
+    if (present) fragments.push(present);
+    if (eternal) fragments.push(eternal);
 
-    // Default to portrait optics for most entities
-    return optics.portrait;
+    if (colorName) {
+      fragments.push(`${colorName.toLowerCase()} aesthetic`);
+    }
+
+    // Context-Aware Hardware Presets
+    if (entity.type === "fractal" || entity.type === "scene") {
+      fragments.push(presets.landscape);
+    } else {
+      fragments.push(presets.portrait);
+    }
+
+    return fragments.join(", ");
   },
 };
 
@@ -44,7 +62,7 @@ export const PromptTemplates = {
   /**
    * Refines raw description into dense visual tokens.
    */
-  OPTIMIZE: (text, optics) =>
+  ENHANCE: (text) =>
     `
 [SYSTEM: OPTICS_REFINER]
 Translate rough descriptions into dense, visual-only tokens for stable diffusion.
@@ -54,17 +72,15 @@ Translate rough descriptions into dense, visual-only tokens for stable diffusion
 - NO narrative backstory or names.
 - Focus on subject, clothing, physical features, and atmospheric lighting.
 </CONSTRAINTS>
-<OPTICS_GROUNDING>
-${optics}
-</OPTICS_GROUNDING>
 <DRAFT_DESCRIPTION>
 ${text}
-</DRAFT_DESCRIPTION>`.trim(),
+</DRAFT_DESCRIPTION>
+`.trim(),
 
   /**
    * Builds the final system prompt for context-aware generation.
    */
-  BUILDER: (targetType, rawIntent, context, optics) => {
+  BUILDER: (targetType, rawIntent, context) => {
     const { ai, user, fractal, history, mode = "visualize" } = context || {};
 
     let ctxBlock;
@@ -87,8 +103,6 @@ Target: ${targetType}
 Mode: ${mode.toUpperCase()}
 ${history ? `[HISTORY]\n${history}` : ""}
 ${ctxBlock}
-[OPTICS]
-${optics}
 [INSTRUCTIONS]
 Convert intent into a single impactful image prompt.
 Input Intent: "${rawIntent}"

@@ -11,7 +11,7 @@ import { runtime } from "@state/runtime.svelte.js";
 import { simulationState as simulation } from "@state/status.svelte.js";
 import { generateSecureSeed } from "@ui/utils/helpers.js";
 import { ExponentialBackoffRetryer, CircuitBreaker } from "./resilience.js";
-import { AestheticResolver, PromptTemplates, getResolution, NEGATIVE_PROMPT } from "./optics.js";
+import { PromptTemplates, getResolution, NEGATIVE_PROMPT } from "./optics.js";
 
 export class VisualEngine {
   // --- Reactive State (Runes) ---
@@ -44,15 +44,17 @@ export class VisualEngine {
 
       // 1. Resolve Target & Prompt
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(target);
-      
+
       if (typeof target === "string" && !isUuid) {
         finalPrompt = target; // Direct prompt
       } else if (typeof target === "string") {
         entityId = target;
         const entity = await this._resolveEntity(entityId);
-        finalPrompt = await this.optimize(entity.description || entity.name, {
-          physical: entity.description,
-        });
+
+        // PRIORITY: Use user-edited prompt if available.
+        // Fallback to name ONLY for the engine's final generation path.
+        finalPrompt = entity.modifiers?.prompt || entity.name;
+
         options.type = entity.type || "character"; // Store resolved type
       } else {
         finalPrompt = String(target);
@@ -84,7 +86,7 @@ export class VisualEngine {
 
       // 3. Persistence & State Sync
       this.isOffline = this.breaker.isOpen;
-      
+
       if (result && entityId && !options.noCache) {
         await this._cacheImage(entityId, result, options.type || "character");
       }
@@ -101,21 +103,23 @@ export class VisualEngine {
   }
 
   /**
-   * Translates character descriptions into optimized visual tokens.
+   * Translates text into enhanced visual tokens.
    */
-  async optimize(text, context = {}) {
+  async enhance(text, context = {}) {
     return await this.breaker.execute(async () => {
-      return await this.retryer.retry(async () => {
-        const optics = AestheticResolver.resolve(context);
-        const system = PromptTemplates.OPTIMIZE(text, optics);
+      return await this.retryer.retry(
+        async () => {
+          const system = PromptTemplates.ENHANCE(text);
 
-        const result = await llm_service.generate({ system, messages: [] }, { silent: true });
-        if (!result) throw new Error("Prompt optimization failed - no content.");
-        
-        return this._cleanPrompt(result);
-      }, (attempt) => {
-        console.warn(`[VisualEngine] Optimization retry ${attempt}...`);
-      });
+          const result = await llm_service.generate({ system, messages: [] }, { silent: true });
+          if (!result) throw new Error("Prompt enhancement failed - no content.");
+
+          return this._cleanPrompt(result);
+        },
+        (attempt) => {
+          console.warn(`[VisualEngine] Enhancement retry ${attempt}...`);
+        },
+      );
     });
   }
 
@@ -131,19 +135,18 @@ export class VisualEngine {
 
     const targetIdMap = { fractal: story.fractalId, scene: story.fractalId, user: story.userId };
     const targetId = targetIdMap[targetType] || story.aiId;
-    simulation.start_typing(targetType === "scene" ? "fractal" : (targetType || "ai"), targetId);
+    simulation.start_typing(targetType === "scene" ? "fractal" : targetType || "ai", targetId);
 
     try {
       const hydrated = await context_broker.hydrate("", "image");
-      const optics = AestheticResolver.resolve({ physical: visualPrompt });
       const context = {
         ai: hydrated.entities.AI,
         user: hydrated.entities.USER,
         fractal: hydrated.entities.FRACTAL,
         history: "",
-        mode: "visualize"
+        mode: "visualize",
       };
-      const system = PromptTemplates.BUILDER(vTarget, visualPrompt, context, optics);
+      const system = PromptTemplates.BUILDER(vTarget, visualPrompt, context);
 
       const refined = await llm_service.generate(
         {
@@ -158,7 +161,7 @@ export class VisualEngine {
       const cleanPrompt = this._cleanPrompt(
         refined
           ?.replace(/<think>[\s\S]*?<\/think>/gi, "")
-          .replace(/<image_prompt[^>]*>|<\/image_prompt>/gi, "")
+          .replace(/<image_prompt[^>]*>|<\/image_prompt>/gi, ""),
       );
 
       const imageUrl = await this.generate(cleanPrompt, { mode: vTarget, ...options });

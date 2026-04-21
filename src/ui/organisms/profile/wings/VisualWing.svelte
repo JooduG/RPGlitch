@@ -9,6 +9,7 @@
   import { validateImage } from "@core/security.js";
   import { app } from "@state/app.svelte.js";
   import { PALETTE, PALETTE_VARS } from "@theme/palette.svelte.js";
+  import { AestheticResolver } from "@media/optics.js";
   import Button from "@ui/atoms/Button.svelte";
   import TextField from "@ui/atoms/TextField.svelte";
   import Toggle from "@ui/atoms/Toggle.svelte";
@@ -68,16 +69,24 @@
 
   let creative_label = $derived.by(() => {
     if (is_prompt_busy && (!active_field || active_field.key === "visual-prompt")) return "Busy...";
+
+    // Priority 1: Visual Prompt Context
+    const current_key = active_field?.key || "visual-prompt";
+    if (current_key === "visual-prompt") {
+      return has_prompt_text ? "Enhance" : "Fetch";
+    }
+
+    // Priority 2: Generic Field Refinement
     if (active_field) {
       const key = active_field.key;
       const label = active_field.label?.toLowerCase() || "";
-      if (key === "visual-prompt") return has_prompt_text ? "Enhance" : "Fetch";
       if (key.startsWith("past")) return "Enhance Memories";
       if (key.startsWith("future")) return "Enhance Vectors";
       if (key.includes("present") || label.includes("present")) return "Enhance Present";
       if (key.includes("eternal") || label.includes("eternal")) return "Enhance Eternal";
       return "Enhance";
     }
+
     return "Fetch";
   });
 
@@ -89,24 +98,28 @@
     if (busy_fields.has(current_target_key)) return;
     busy_fields.add(current_target_key);
     try {
-      if (active_field && active_field.key !== "visual-prompt") {
-        active_field = null;
-      }
-      if (current_target_key === "visual-prompt" && is_enhance_mode) {
-        const payload = prompt_builder.build_enhancement("modifiers.prompt", char.modifiers.prompt);
-        const result = await llm_service.enhance(payload);
-        if (result) char.modifiers.prompt = result;
-      } else if (current_target_key !== "visual-prompt") {
+      // 1. Visual Prompt Flow: Fetch (JS) -> Enhance (AI)
+      if (current_target_key === "visual-prompt") {
+        if (!has_prompt_text) {
+          // FETCH: Deterministic Trait Extraction (NO Description mining)
+          char.modifiers.prompt = AestheticResolver.extract(char);
+        } else {
+          // ENHANCE: AI-driven Prompt Refinery
+          const result = await app.visual.enhance(char.modifiers.prompt, {
+            physical: char.modifiers.prompt,
+          });
+          if (result) char.modifiers.prompt = result;
+        }
+      } else {
+        // 2. Generic Field Flow: Refine current text
+        if (active_field) active_field = null; // Blur if not prompt
+
         const field_val = get_value(char, current_target_key);
         if (field_val) {
           const payload = prompt_builder.build_enhancement(current_target_key, field_val);
           const result = await llm_service.enhance(payload);
           if (result) set_value(char, current_target_key, result);
         }
-      } else {
-        char.modifiers.prompt = await app.visual.optimize(char.description || char.name, {
-          physical: char.description || char.name,
-        });
       }
     } catch (err) {
       console.error("Creative action failed:", err);
