@@ -8,6 +8,7 @@
 export const NEGATIVE_PROMPT =
   "cartoon, anime, 3d render, illustration, painting, drawing, sketch, watermark, text, signature, low quality, blurry, deformed, mutated, extra limbs, missing limbs, fused fingers, distorted face, amateur, grainy, pixelated";
 
+import { escapeXml } from "../core/text-parser.js";
 import { themeStore } from "../theme/palette.svelte.js";
 
 /**
@@ -74,7 +75,7 @@ Translate rough character descriptions into a single, cohesive, highly descripti
 - Sequence the description rigidly: primary subject, physical features, worn garments, environmental setting, and atmospheric lighting.
 </CONSTRAINTS>
 <DRAFT_DESCRIPTION>
-${text}
+${escapeXml(text)}
 </DRAFT_DESCRIPTION>
 `.trim(),
 
@@ -102,11 +103,11 @@ ${text}
 [SYSTEM: SENSORY_CORTEX_V5]
 Target: ${targetType}
 Mode: ${mode.toUpperCase()}
-${history ? `[HISTORY]\n${history}` : ""}
+${history ? `[HISTORY]\n${escapeXml(history)}` : ""}
 ${ctxBlock}
 [INSTRUCTIONS]
 Convert intent into a single impactful image prompt.
-Input Intent: "${rawIntent}"
+Input Intent: "${escapeXml(rawIntent)}"
 [PROTOCOL]
 1. Start with <think> for composition planning.
 2. Output exactly one <image_prompt> tag.
