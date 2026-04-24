@@ -74,7 +74,7 @@ Translate rough character descriptions into a single, cohesive, highly descripti
 - Sequence the description rigidly: primary subject, physical features, worn garments, environmental setting, and atmospheric lighting.
 </CONSTRAINTS>
 <DRAFT_DESCRIPTION>
-${text}
+${escape(text)}
 </DRAFT_DESCRIPTION>
 `.trim(),
 
