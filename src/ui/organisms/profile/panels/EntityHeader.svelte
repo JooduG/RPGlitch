@@ -115,7 +115,7 @@
     border: none;
     border-bottom: 1px solid transparent;
     box-shadow: none;
-    padding: 0 0 12px;
+    padding: 0 0 var(--spacing-s);
     font-size: var(--font-size-l);
     font-weight: var(--font-weight-m);
     color: var(--font-color-m);

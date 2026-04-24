@@ -351,7 +351,7 @@
   }
 
   :global(.visual-prompt) {
-    padding: var(--spacing-m) var(--spacing-m) 12px; 
+    padding: var(--spacing-m) var(--spacing-m) var(--spacing-s); 
     
     /* Removed max-height/overflow to allow wing extension as requested */
   }

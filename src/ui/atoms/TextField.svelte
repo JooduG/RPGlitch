@@ -62,7 +62,7 @@
     font-family: var(--font-family-body);
     font-size: var(--font-size-s);
     line-height: var(--line-height-m);
-    padding: var(--spacing-xs) var(--spacing-s) 12px;
+    padding: var(--spacing-xs) var(--spacing-s) var(--spacing-s);
     border-radius: var(--border-radius-m);
     resize: none;
     text-align: left;
@@ -106,7 +106,7 @@
     width: 100%;
     font-size: var(--font-size-s);
     line-height: var(--line-height-m);
-    padding: var(--spacing-xs) var(--spacing-s) 12px;
+    padding: var(--spacing-xs) var(--spacing-s) var(--spacing-s);
     white-space: normal;
     background: var(--glass-xs);
     border: var(--border-l);

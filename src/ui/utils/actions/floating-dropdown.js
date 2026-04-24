@@ -22,6 +22,13 @@
  * @param {HTMLElement} node
  * @param {{ trigger_el: HTMLElement|null, width_el?: HTMLElement|null, visible: boolean }} params
  */
+
+const DEFAULT_HEIGHT = 300;
+const MAX_PANEL_HEIGHT = 320;
+const MIN_VISIBLE_HEIGHT = 120;
+const VIEWPORT_GUTTER = 8;
+const ANCHOR_GAP = 4;
+
 export function floating_dropdown(node, params) {
   let { trigger_el, width_el, visible } = params;
 
@@ -49,7 +56,7 @@ export function floating_dropdown(node, params) {
       // Measure panel height capped at a comfortable maximum.
       node.style.display = 'flex';
       node.style.flexDirection = 'column';
-      const panel_height = Math.min(node.scrollHeight || 300, 320);
+      const panel_height = Math.min(node.scrollHeight || DEFAULT_HEIGHT, MAX_PANEL_HEIGHT);
 
       const space_above = trigger_rect.top;
       const space_below = window.innerHeight - trigger_rect.bottom;
@@ -58,15 +65,15 @@ export function floating_dropdown(node, params) {
       node.style.position = 'fixed';
       node.style.width = `${rect.width}px`;
       node.style.left = `${rect.left}px`;
-      node.style.maxHeight = `${Math.max(go_up ? space_above : space_below, 120) - 8}px`;
+      node.style.maxHeight = `${Math.max(go_up ? space_above : space_below, MIN_VISIBLE_HEIGHT) - VIEWPORT_GUTTER}px`;
       node.style.overflowY = 'auto';
       node.style.zIndex = 'var(--z-index-max, 9999)';
 
       if (go_up) {
         node.style.top = 'auto';
-        node.style.bottom = `${window.innerHeight - trigger_rect.top + 4}px`;
+        node.style.bottom = `${window.innerHeight - trigger_rect.top + ANCHOR_GAP}px`;
       } else {
-        node.style.top = `${trigger_rect.bottom + 4}px`;
+        node.style.top = `${trigger_rect.bottom + ANCHOR_GAP}px`;
         node.style.bottom = 'auto';
       }
     });

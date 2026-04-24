@@ -2,6 +2,9 @@
  * @file auto-resize.js
  * Svelte 5 logic action to resize textareas automatically based on their content.
  */
+
+let cached_buffer = null;
+
 export function auto_resize(node, options = {}) {
   let frame;
   let lastWidth = node.clientWidth;
@@ -9,15 +12,17 @@ export function auto_resize(node, options = {}) {
 
   // Robustly resolve buffer from theme once on initialization to respect accessibility
   // while preventing layout thrashing during rapid updates.
-  let buffer = 10;
-  const temp = document.createElement("div");
-  temp.style.paddingTop = "var(--spacing-s)";
-  temp.style.visibility = "hidden";
-  temp.style.position = "absolute";
-  document.body.appendChild(temp);
-  const computedSpacing = window.getComputedStyle(temp).paddingTop;
-  buffer = parseFloat(computedSpacing) || 10;
-  document.body.removeChild(temp);
+  if (cached_buffer === null) {
+    const temp = document.createElement("div");
+    temp.style.paddingTop = "var(--spacing-s)";
+    temp.style.visibility = "hidden";
+    temp.style.position = "absolute";
+    document.body.appendChild(temp);
+    const computedSpacing = window.getComputedStyle(temp).paddingTop;
+    cached_buffer = parseFloat(computedSpacing) || 10;
+    document.body.removeChild(temp);
+  }
+  const buffer = cached_buffer;
 
   const update = (force = false) => {
     if (frame) cancelAnimationFrame(frame);
