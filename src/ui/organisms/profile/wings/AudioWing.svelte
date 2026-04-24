@@ -57,21 +57,21 @@
               )}
             </span>
           </button>
-          <div class="dropdown-content glass-xxl" class:visible={show_voice_dropdown}>
-            {#each Audio.voice.voices as voice (voice.uri)}
-              <button
-                class="voice-option"
-                class:active={char.voice.uri === voice.uri}
-                onclick={() => {
-                  if (is_editing) char.voice.uri = voice.uri;
-                  show_voice_dropdown = false;
-                }}
-              >
-                <span class="voice-name">{format_voice_name(voice.name)}</span>
-                <span class="region-pill">{voice.region}</span>
-              </button>
-            {/each}
-          </div>
+        </div>
+        <div class="dropdown-content glass-xxl" class:visible={show_voice_dropdown}>
+          {#each Audio.voice.voices as voice (voice.uri)}
+            <button
+              class="voice-option"
+              class:active={char.voice.uri === voice.uri}
+              onclick={() => {
+                if (is_editing) char.voice.uri = voice.uri;
+                show_voice_dropdown = false;
+              }}
+            >
+              <span class="voice-name">{format_voice_name(voice.name)}</span>
+              <span class="region-pill">{voice.region}</span>
+            </button>
+          {/each}
         </div>
         <button
           class="preview-button"

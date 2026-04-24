@@ -130,6 +130,7 @@
 | 2026-04-20T02:18:10+02:00 | Project Timezone Sync (Europe/Stockholm)                         | `directives`, `simulation`                 | ✅ Done     |
 | 2026-04-20T10:14:00+02:00 | Documentation Sync (v0.6.0)                                      | `frontend-ui-engineering`, `directives`    | ✅ Done     |
 | 2026-04-20T10:16:00+02:00 | Infrastructure Hygiene (plan/todo sync)                          | `security-and-hardening`, `directives`     | ✅ Resolved |
+| 2026-04-20T11:45:00+02:00 | Match audio dropdown width to parent row                         | `frontend-ui-engineering`                  | ✅ Done     |
 
 ## 🧹 Backlog (Automated)
 
