@@ -147,6 +147,7 @@
 | 2026-04-20T10:14:00+02:00 | Documentation Sync (v0.6.0)                                      | `frontend-ui-engineering`, `directives`    | ✅ Done     |
 | 2026-04-20T18:07:00+02:00 | Rule 06 Compliance Cleanup (Remove temporary payload files, prompt.txt, and untrack artifacts/audit_report.md) | `security-and-hardening`                   | ✅ Done     |
 | 2026-04-20T10:16:00+02:00 | Infrastructure Hygiene (plan/todo sync)                          | `security-and-hardening`, `directives`     | ✅ Resolved |
+| 2026-04-22T05:45:00Z      | Replace deprecated substr with substring in palette.svelte.js    | `incremental-implementation`               | ✅ Done     |
 | 2026-04-24T08:18:00+02:00 | Rule 06 Compliance: Add try-catch around JSON.parse in temporal-engine.js | `security-and-hardening`                   | ✅ Done     |
 | 2026-04-24T18:45:00+02:00 | Security Hardening & UI Polish ([045])                          | `planning-and-task-breakdown`, `security-and-hardening`, `frontend-ui-engineering` | ✅ Resolved |
 | 2026-04-24T19:15:00+02:00 | Security & UI Refinement (Finalize [045])                        | `incremental-implementation`, `performance-optimization` | ✅ Resolved |
