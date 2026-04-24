@@ -13,7 +13,7 @@ import { Security } from "../core/security.js";
 // Mock Security.sanitize
 vi.mock("../core/security.js", () => ({
   Security: {
-    sanitize: vi.fn((val) => (typeof val === "string" ? val.trim() : val)),
+    sanitize: vi.fn((val) => (val == null ? "" : String(val).trim())),
   },
 }));
 
