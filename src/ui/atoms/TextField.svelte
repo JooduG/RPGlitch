@@ -31,7 +31,7 @@
     data-sync-id={syncId}
   ></textarea>
 {:else}
-  <div class="readonly-field {className}" data-sync-id={syncId}>
+  <div class="readonly-field {className}" data-sync-id={syncId} use:auto_resize={{ syncId }}>
     {#if paragraphs.length > 0}
       {#each paragraphs as tokens, i (i)}
         <div class="paragraph" class:mt={i > 0}>

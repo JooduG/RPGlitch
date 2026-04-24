@@ -94,7 +94,7 @@
       const isInput =
         active instanceof HTMLInputElement ||
         active instanceof HTMLTextAreaElement ||
-        (active instanceof HTMLElement && active.contentEditable === "true");
+        (active instanceof HTMLElement && active.isContentEditable);
 
       const isWing = active?.closest(".wing-left, .wing-right");
 
@@ -107,7 +107,7 @@
   function handle_background_click(e) {
     if (
       !e.target.closest(
-        "textarea, input, button, .swatch, .wing-left, .wing-right, .profile-presentation",
+        "textarea, input, button, .swatch, .wing-left, .wing-right, .profile-presentation, [contenteditable]",
       )
     ) {
       if (is_editing) {
