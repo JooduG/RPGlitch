@@ -46,7 +46,7 @@ export function auto_resize(node, options = {}) {
             const sStyle = window.getComputedStyle(s);
             const sBorderTop = parseFloat(sStyle.borderTopWidth) || 0;
             const sBorderBottom = parseFloat(sStyle.borderBottomWidth) || 0;
-            maxHeight = Math.max(maxHeight, Math.ceil(s.scrollHeight) + sBorderTop + sBorderBottom + 10);
+            maxHeight = Math.max(maxHeight, Math.ceil(s.scrollHeight) + sBorderTop + sBorderBottom + buffer);
             s.style.height = sSaved;
           }
         });
