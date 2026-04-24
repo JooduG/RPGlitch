@@ -114,7 +114,7 @@
   function handle_background_click(e) {
     // If clicking outside the main presentation area, check if we should close or just exit edit mode
     if (
-      !e.target.closest(
+      !(e.target instanceof Element ? e.target : e.target.parentElement)?.closest(
         "textarea, input, button, .swatch, .wing-unit, .profile-presentation, [contenteditable]",
       )
     ) {
