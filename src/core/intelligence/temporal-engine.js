@@ -263,8 +263,8 @@ export const temporal_engine = {
 
         for (const msg of slice) {
           msg.meta = { ...msg.meta, consolidated: true };
-          await db.simulation_log.update(msg.id, { meta: msg.meta });
         }
+        await db.simulation_log.bulkPut(slice);
         log_store?.refresh();
       }
     } catch (err) {

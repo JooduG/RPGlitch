@@ -31,6 +31,15 @@ export const generateSecureSeed = (limit = 1000000) => {
 };
 
 /**
+ * Picks a random element from an array securely.
+ */
+export const pickRandom = (array) => {
+  if (!Array.isArray(array) || array.length === 0) return null;
+  const index = generateSecureSeed(array.length);
+  return array[index];
+};
+
+/**
  * Standard debounce implementation.
  */
 export const debounce = (fn, wait = 250) => {

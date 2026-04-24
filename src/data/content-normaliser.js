@@ -6,6 +6,7 @@
  */
 import { PALETTE } from "../theme/palette.svelte.js";
 import { Security } from "../core/security.js";
+import { pickRandom } from "../ui/utils/helpers.js";
 const sanitize_html = Security.sanitize;
 export const STORAGE_VERSION = 3;
 /**
@@ -55,7 +56,7 @@ export const ENTITY_TEMPLATES = {
  */
 export const get_random_signature_key = () => {
   const keys = Object.keys(PALETTE).filter((k) => k !== "default");
-  return keys[Math.floor(Math.random() * keys.length)];
+  return pickRandom(keys);
 };
 /**
  * Main Normalizer

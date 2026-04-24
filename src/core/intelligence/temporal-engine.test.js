@@ -187,7 +187,7 @@ describe("temporal_engine", () => {
         require_active: vi.fn(() => "story_1"),
         load_log: vi.fn(() => mockMessages),
       };
-      const mockDb = { simulation_log: { update: vi.fn() } };
+      const mockDb = { simulation_log: { bulkPut: vi.fn() } };
       const mockEntities = { save: vi.fn() };
       const mockRuntime = { active_ai: { past: [] } };
       const mockApp = { log: vi.fn() };
@@ -203,7 +203,7 @@ describe("temporal_engine", () => {
       );
 
       expect(mockSession.require_active).toHaveBeenCalled();
-      expect(mockDb.simulation_log.update).toHaveBeenCalled();
+      expect(mockDb.simulation_log.bulkPut).toHaveBeenCalled();
     });
   });
 });

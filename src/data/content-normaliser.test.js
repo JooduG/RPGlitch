@@ -20,9 +20,13 @@ vi.mock("../core/security.js", () => ({
 describe("content-normaliser.js", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Mock crypto.randomUUID idiomatic way
+    // Mock crypto idiomatic way
     vi.stubGlobal("crypto", {
       randomUUID: vi.fn(() => "test-uuid"),
+      getRandomValues: vi.fn((buffer) => {
+        for (let i = 0; i < buffer.length; i++) buffer[i] = Math.floor(Math.random() * 256);
+        return buffer;
+      }),
     });
   });
 
