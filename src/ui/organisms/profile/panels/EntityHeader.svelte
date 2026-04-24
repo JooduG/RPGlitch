@@ -83,8 +83,10 @@
     caret-color: var(--signature-color);
   }
 
+  /* Show underline when actively editing the name */
   .name.edit:focus-within {
     outline: none;
+    border-bottom-color: var(--signature-color, var(--color-frisk));
   }
 
   .name.edit span {
@@ -113,7 +115,7 @@
     border: none;
     border-bottom: 1px solid transparent;
     box-shadow: none;
-    padding: 0;
+    padding: 0 0 var(--spacing-s);
     font-size: var(--font-size-l);
     font-weight: var(--font-weight-m);
     color: var(--font-color-m);
@@ -131,11 +133,19 @@
     align-items: flex-start;
   }
 
-  .description :global(.field-foundation:hover),
-  .description :global(.field-foundation:focus) {
+  .description :global(.field-foundation:hover) {
     background: transparent;
     border-color: transparent;
     outline: none;
+  }
+
+  /* Visible focus state: signature-color underline signals editability */
+  .description :global(.field-foundation:focus) {
+    background: transparent;
+    border-color: transparent;
+    border-bottom-color: var(--signature-color, var(--color-frisk));
+    outline: none;
+    box-shadow: none;
   }
 
   .description :global(.field-foundation::placeholder) {

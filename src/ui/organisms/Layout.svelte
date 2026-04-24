@@ -148,7 +148,6 @@
       grid-column: 1 / -1;
       grid-row: 3;
       min-height: 0;
-      overflow: auto;
     }
 
     .universal-stage.layout-cinematic .stage-footer {

@@ -7,9 +7,9 @@
   import { llm_service } from "@core/intelligence/llm-service.js";
   import { prompt_builder } from "@core/intelligence/prompt-builder.js";
   import { validateImage } from "@core/security.js";
+  import { AestheticResolver } from "@media/optics.js";
   import { app } from "@state/app.svelte.js";
   import { PALETTE, PALETTE_VARS } from "@theme/palette.svelte.js";
-  import { AestheticResolver } from "@media/optics.js";
   import Button from "@ui/atoms/Button.svelte";
   import TextField from "@ui/atoms/TextField.svelte";
   import Toggle from "@ui/atoms/Toggle.svelte";
@@ -223,7 +223,7 @@
         }}
       >
         <TextField
-          class="visual-prompt"
+          class="visual-prompt scrollbar"
           is_edit={is_editing && !is_prompt_busy}
           bind:value={char.modifiers.prompt}
           placeholder="Enter image prompt or paste a URL..."
@@ -298,6 +298,7 @@
     grid-template-columns: repeat(5, 1fr);
     gap: var(--spacing-xs);
     padding: var(--spacing-xs) 0;
+    overflow: visible; /* Ensure tooltips can bleed through the grid */
   }
 
   .swatch {
@@ -350,7 +351,9 @@
   }
 
   :global(.visual-prompt) {
-    padding: var(--spacing-m);
+    padding: var(--spacing-m) var(--spacing-m) var(--spacing-s); 
+    
+    /* Removed max-height/overflow to allow wing extension as requested */
   }
 
   .action-row {
@@ -379,12 +382,6 @@
 
   :global(.action-button:active:not(:disabled)) {
     transform: scale(0.98);
-  }
-
-  .toggle-stack {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
   }
 
   .engine-status {

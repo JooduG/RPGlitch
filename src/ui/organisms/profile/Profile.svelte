@@ -12,10 +12,12 @@
   import { normalize } from "@data/content-normaliser.js";
   import ProfilePicture from "@ui/atoms/ProfilePicture.svelte";
   import Modal from "@ui/molecules/Modal.svelte";
+  import Confirm from "@ui/molecules/Confirm.svelte";
   // New Modular Components
   import EntityFooter from "./panels/EntityFooter.svelte";
   import EntityFragments from "./panels/EntityFragments.svelte";
   import EntityHeader from "./panels/EntityHeader.svelte";
+  import { fly } from "svelte/transition";
 
   import AudioWing from "./wings/AudioWing.svelte";
   import DevWing from "./wings/DevWing.svelte";
@@ -28,6 +30,7 @@
   // --- STATE ---
   let is_editing = $state(false);
   let is_saving = $state(false);
+  let confirm_delete_open = $state(false);
   let busy_fields = new SvelteSet();
   let active_field = $state({ key: "visual-prompt", label: "Image Prompt" });
 
@@ -78,8 +81,11 @@
     }
   }
 
-  async function handle_delete() {
-    if (!confirm("Are you sure you want to delete this entity?")) return;
+  function handle_delete() {
+    confirm_delete_open = true;
+  }
+
+  async function confirm_delete() {
     try {
       await runtime.delete_entity(entity_type || "character", entity_id || char.id);
       handle_close();
@@ -94,20 +100,22 @@
       const isInput =
         active instanceof HTMLInputElement ||
         active instanceof HTMLTextAreaElement ||
-        (active instanceof HTMLElement && active.contentEditable === "true");
+        (active instanceof HTMLElement && active.isContentEditable);
 
-      const isWing = active?.closest(".wing-left, .wing-right");
+      const isWing = active?.closest(".wing-unit") || active?.closest(".voice-dropdown-panel");
+      const isConfirm = active?.closest("dialog");
 
-      if (!isInput && !isWing && busy_fields.size === 0) {
+      if (!isInput && !isWing && !isConfirm && busy_fields.size === 0) {
         active_field = { key: "visual-prompt", label: "Image Prompt" };
       }
     }, 50);
   }
 
   function handle_background_click(e) {
+    // If clicking outside the main presentation area, check if we should close or just exit edit mode
     if (
-      !e.target.closest(
-        "textarea, input, button, .swatch, .wing-left, .wing-right, .profile-presentation",
+      !(e.target instanceof Element ? e.target : e.target.parentElement)?.closest(
+        "textarea, input, button, .swatch, .wing-unit, .profile-presentation, [contenteditable]",
       )
     ) {
       if (is_editing) {
@@ -135,23 +143,42 @@
       data-testid="profile-container"
       data-is-editing={is_editing}
     >
-      <!-- LEFT WING: UNIFIED IDENTITY -->
-      <aside class="wing-left" class:is-visible={is_editing}>
-        <VisualWing bind:char {is_editing} {busy_fields} bind:active_field />
-        <AudioWing bind:char {is_editing} />
-      </aside>
+      <!-- LEFT WING: UNIFIED IDENTITY & DEV (ABSOLUTE) -->
+      {#if app.settings.dev_mode || is_editing}
+        <aside class="wing-left no-scrollbar">
+          {#if app.settings.dev_mode}
+            <div class="wing-unit dev-group" transition:fly={{ x: -20, duration: 300 }}>
+              <DevWing bind:char {is_editing} />
+            </div>
+          {/if}
+          {#if is_editing}
+            <div class="wing-unit" transition:fly={{ x: -20, duration: 300 }}>
+              <VisualWing bind:char {is_editing} {busy_fields} bind:active_field />
+            </div>
+            <div class="wing-unit" transition:fly={{ x: -20, duration: 300 }}>
+              <AudioWing bind:char {is_editing} />
+            </div>
+          {/if}
+        </aside>
+      {/if}
 
       <!-- MAIN PRESENTATION PANEL -->
-      <div
+      <main
         class="profile-presentation"
         style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
       >
         <div class="presentation-shell">
           <div class="signature-bar"></div>
-          <div class="left-panel">
-            <ProfilePicture entity={char} />
-          </div>
-          <main class="right-panel">
+          
+          <!-- PORTRAIT PANEL (STATIC) -->
+          <aside class="left-panel">
+            <div class="portrait-container">
+              <ProfilePicture entity={char} />
+            </div>
+          </aside>
+
+          <!-- SCROLLING FRAGMENTS PANEL (LOCAL SCROLL) -->
+          <div class="right-panel scrollbar">
             <EntityHeader bind:char {is_editing} />
             <EntityFragments bind:char {is_editing} {busy_fields} bind:active_field />
             <EntityFooter
@@ -161,16 +188,21 @@
               onclick_save={handle_save}
               onclick_delete={handle_delete}
             />
-          </main>
+          </div>
         </div>
-      </div>
-
-      <!-- RIGHT WING: DEVELOPER METRICS -->
-      <aside class="wing-right" class:is-visible={app.settings.dev_mode}>
-        <DevWing bind:char {is_editing} />
-      </aside>
+      </main>
     </div>
   </Modal>
+
+  <!-- Delete confirmation dialog (outside the profile Modal to avoid z-index conflicts) -->
+  <Confirm
+    bind:open={confirm_delete_open}
+    title="Delete Entity"
+    message="This entity will be permanently removed. Are you sure?"
+    confirm_label="Delete"
+    cancel_label="Cancel"
+    on_confirm={confirm_delete}
+  />
 {/if}
 
 <style>
@@ -178,75 +210,76 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--spacing-l);
-    width: 100%;
-    max-width: 90vw;
-    overflow: visible;
+    width: fit-content;
+    max-width: 100%;
+    height: 100vh;
+    position: relative;
+    padding: 0 var(--spacing-xl);
   }
 
-  /* Wings logic integrated from ProfileWings.svelte */
-  .wing-left,
-  .wing-right {
-    width: 0;
-    min-width: 0;
-    max-width: 0;
-    opacity: var(--opacity-none);
-    overflow: visible;
-    pointer-events: none;
-    transition: all var(--motion-s) cubic-bezier(0.4, 0, 0.2, 1);
-    transform: scale(0.9);
-    height: 100%;
-    max-height: 85vh;
+  /* SIDE WING COLUMN (PUSH-FLEX & CENTERED) */
+  .wing-left {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-m);
-    z-index: var(--z-index-m); /* Keep below main presentation */
-  }
-
-  .wing-left.is-visible,
-  .wing-right.is-visible {
-    width: 18rem;
-    min-width: 18rem;
-    max-width: 22rem;
-    opacity: var(--opacity-full);
+    width: var(--panel-s); 
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden auto;
+    padding: 10vh 0;
+    margin-right: var(--spacing-m);
+    flex: 0 0 auto;
     pointer-events: auto;
-    transform: scale(1);
+    z-index: var(--z-index-xl);
+
+    /* Atmospheric Fade Mask: Solves the "weird cutoff" by dissolving content into the abyss */
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      black 10%,
+      black 90%,
+      transparent 100%
+    );
   }
 
-  .wing-left {
-    order: 1;
+  /* Internal centering that respects overflow */
+  .wing-left::before,
+  .wing-left::after {
+    content: "";
+    margin: auto;
   }
 
-  .wing-right {
-    order: 3;
-  }
-
-  .profile-presentation {
-    order: 2;
-    max-width: 64rem;
+  .wing-unit {
     width: 100%;
-    height: 100%;
-    max-height: 85vh;
+    flex-shrink: 0;
+  }
+
+  /* MAIN PANEL */
+  .profile-presentation {
+    width: var(--panel-full);
+    max-width: 100%;
     background: var(--glass-xl);
     backdrop-filter: var(--blur-l);
     border: var(--border-l);
     border-radius: var(--border-radius-l);
     box-shadow: var(--shadow-xl);
     position: relative;
-    overflow: visible;
+    height: auto;
+    max-height: 90vh;
     z-index: var(--z-index-l);
-    transition: all var(--motion-s) cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
 
   .presentation-shell {
-    width: 100%;
-    height: 100%;
     display: grid;
-    grid-template-columns: 35% 1fr;
-    grid-template-rows: 1fr;
+    grid-template-columns: var(--panel-s) 1fr;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    height: auto;
     border-radius: inherit;
-    overflow: hidden; /* THE SOVEREIGN CLIP (RESTORED) */
-    background: transparent;
     position: relative;
   }
 
@@ -257,36 +290,37 @@
     right: 0;
     height: 2px;
     background: var(--signature-color);
-    z-index: var(--z-index-xxl); /* Above everything in the shell */
+    z-index: var(--z-index-xxl);
     pointer-events: none;
   }
 
+  /* LEFT PANEL: STATIC PORTRAIT */
   .left-panel {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    border-right: 1px solid var(--border-l); /* Shared divider */
+    border-right: 1px solid var(--border-l);
     background: transparent;
-  }
-
-  .right-panel {
-    height: 100%;
     display: flex;
     flex-direction: column;
-    flex: 1;
-    overflow-y: auto;
+    height: auto;
+  }
+
+  .portrait-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  /* RIGHT PANEL: LOCAL SCROLL */
+  .right-panel {
     padding: var(--spacing-m);
-    background-color: rgb(from var(--signature-color) r g b / 5%); /* Subtle Identity Wash */
+    background-color: rgb(from var(--signature-color) r g b / 5%);
+    display: flex;
+    flex-direction: column;
     gap: var(--spacing-m);
-  }
-
-  .right-panel::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  .right-panel::-webkit-scrollbar-thumb {
-    background: rgb(var(--signature-rgb) / var(--opacity-s));
-    border-radius: var(--border-radius-full);
+    height: auto;
+    min-height: 0;
+    max-height: inherit;
+    overflow: hidden auto;
   }
 </style>
