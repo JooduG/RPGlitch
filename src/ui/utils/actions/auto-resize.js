@@ -24,7 +24,11 @@ export function auto_resize(node, options = {}) {
       const style = window.getComputedStyle(node);
       const borderTop = parseFloat(style.borderTopWidth) || 0;
       const borderBottom = parseFloat(style.borderBottomWidth) || 0;
-      const buffer = 10;
+      
+      // Resolve buffer from theme if possible, fallback to 10px
+      const spacingS = window.getComputedStyle(document.documentElement).getPropertyValue('--spacing-s');
+      const buffer = spacingS ? parseFloat(spacingS) * 16 : 10; 
+      
       const calculatedHeight = Math.ceil(node.scrollHeight) + borderTop + borderBottom + buffer;
       
       // Only apply if different to avoid triggering observers unnecessarily
@@ -39,20 +43,22 @@ export function auto_resize(node, options = {}) {
         const siblings = document.querySelectorAll(`[data-sync-id="${options.syncId}"]`);
         let maxHeight = 0;
         
-        siblings.forEach((s) => {
-          if (s instanceof HTMLElement) {
-            const sSaved = s.style.height;
-            s.style.height = "auto";
-            const sStyle = window.getComputedStyle(s);
-            const sBorderTop = parseFloat(sStyle.borderTopWidth) || 0;
-            const sBorderBottom = parseFloat(sStyle.borderBottomWidth) || 0;
-            maxHeight = Math.max(maxHeight, Math.ceil(s.scrollHeight) + sBorderTop + sBorderBottom + 10);
-            s.style.height = sSaved;
-          }
+        const siblingData = Array.from(siblings).filter(s => s instanceof HTMLElement);
+        
+        // Batch 1: Reset heights to auto
+        siblingData.forEach(s => s.style.height = "auto");
+        
+        // Batch 2: Read scrollHeights and styles
+        siblingData.forEach(s => {
+          const sStyle = window.getComputedStyle(s);
+          const sBorderTop = parseFloat(sStyle.borderTopWidth) || 0;
+          const sBorderBottom = parseFloat(sStyle.borderBottomWidth) || 0;
+          maxHeight = Math.max(maxHeight, Math.ceil(s.scrollHeight) + sBorderTop + sBorderBottom + buffer);
         });
 
-        siblings.forEach((s) => {
-          if (s instanceof HTMLElement && Math.abs(parseFloat(s.style.height) - maxHeight) > 1) {
+        // Batch 3: Apply synchronized height
+        siblingData.forEach(s => {
+          if (Math.abs(parseFloat(s.style.height) - maxHeight) > 1) {
             s.style.height = maxHeight + "px";
           }
         });

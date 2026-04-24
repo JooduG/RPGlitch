@@ -102,7 +102,7 @@
         active instanceof HTMLTextAreaElement ||
         (active instanceof HTMLElement && active.contentEditable === "true");
 
-      const isWing = active?.closest(".wing-unit");
+      const isWing = active?.closest(".wing-unit") || active?.closest(".voice-dropdown-panel");
       const isConfirm = active?.closest("dialog");
 
       if (!isInput && !isWing && !isConfirm && busy_fields.size === 0) {

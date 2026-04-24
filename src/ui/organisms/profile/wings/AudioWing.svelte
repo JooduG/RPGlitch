@@ -13,6 +13,8 @@
   /** @type {HTMLButtonElement|null} */
   let voice_btn_el = $state(null);
   /** @type {HTMLDivElement|null} */
+  let voice_panel_el = $state(null);
+  /** @type {HTMLDivElement|null} */
   let voice_row_el = $state(null);
   let show_voice_dropdown = $state(false);
 
@@ -45,7 +47,7 @@
 
     function on_outside_click(e) {
       const target = /** @type {Node} */ (e.target);
-      const panel = document.querySelector('.voice-dropdown-panel');
+      const panel = voice_panel_el;
       if (
         voice_btn_el && !voice_btn_el.contains(target) &&
         (!panel || !panel.contains(target))
@@ -79,6 +81,7 @@
             </span>
           </button>
           <div
+            bind:this={voice_panel_el}
             class="voice-dropdown-panel"
             use:floating_dropdown={{ trigger_el: voice_btn_el, width_el: voice_row_el, visible: show_voice_dropdown }}
           >

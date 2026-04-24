@@ -33,39 +33,43 @@ export function floating_dropdown(node, params) {
 
   let cleanup_fns = [];
 
+  let frame;
   function position() {
-    if (!visible || !trigger_el) {
-      node.style.display = 'none';
-      return;
-    }
+    if (frame) cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(() => {
+      if (!visible || !trigger_el) {
+        node.style.display = 'none';
+        return;
+      }
 
-    const anchor_el = width_el ?? trigger_el;
-    const rect = anchor_el.getBoundingClientRect();
-    const trigger_rect = trigger_el.getBoundingClientRect();
+      const anchor_el = width_el ?? trigger_el;
+      const rect = anchor_el.getBoundingClientRect();
+      const trigger_rect = trigger_el.getBoundingClientRect();
 
-    // Measure panel height capped at a comfortable maximum.
-    node.style.display = 'flex';
-    node.style.flexDirection = 'column';
-    const panel_height = Math.min(node.scrollHeight || 300, 320);
+      // Measure panel height capped at a comfortable maximum.
+      node.style.display = 'flex';
+      node.style.flexDirection = 'column';
+      const panel_height = Math.min(node.scrollHeight || 300, 320);
 
-    const space_above = trigger_rect.top;
-    const space_below = window.innerHeight - trigger_rect.bottom;
-    const go_up = space_above > panel_height || space_above > space_below;
+      const space_above = trigger_rect.top;
+      const space_below = window.innerHeight - trigger_rect.bottom;
+      const go_up = space_above > panel_height || space_above > space_below;
 
-    node.style.position = 'fixed';
-    node.style.width = `${rect.width}px`;
-    node.style.left = `${rect.left}px`;
-    node.style.maxHeight = `${Math.max(go_up ? space_above : space_below, 120) - 8}px`;
-    node.style.overflowY = 'auto';
-    node.style.zIndex = 'var(--z-index-max, 9999)';
+      node.style.position = 'fixed';
+      node.style.width = `${rect.width}px`;
+      node.style.left = `${rect.left}px`;
+      node.style.maxHeight = `${Math.max(go_up ? space_above : space_below, 120) - 8}px`;
+      node.style.overflowY = 'auto';
+      node.style.zIndex = 'var(--z-index-max, 9999)';
 
-    if (go_up) {
-      node.style.top = 'auto';
-      node.style.bottom = `${window.innerHeight - trigger_rect.top + 4}px`;
-    } else {
-      node.style.top = `${trigger_rect.bottom + 4}px`;
-      node.style.bottom = 'auto';
-    }
+      if (go_up) {
+        node.style.top = 'auto';
+        node.style.bottom = `${window.innerHeight - trigger_rect.top + 4}px`;
+      } else {
+        node.style.top = `${trigger_rect.bottom + 4}px`;
+        node.style.bottom = 'auto';
+      }
+    });
   }
 
   function attach() {
@@ -93,6 +97,7 @@ export function floating_dropdown(node, params) {
       position();
     },
     destroy() {
+      if (frame) cancelAnimationFrame(frame);
       detach();
       // Restore node to its original DOM position before Svelte cleans it up.
       placeholder.parentNode?.insertBefore(node, placeholder);
