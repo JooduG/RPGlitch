@@ -39,14 +39,22 @@
   }
 
   async function executeReset() {
+    // Safety timeout to prevent hanging if deletion is blocked
+    const timeout = setTimeout(() => {
+      console.warn("Database reset timed out. Forcing reload.");
+      window.location.reload();
+    }, 2000);
+
     try {
       localStorage.setItem(STORAGE_SKIP_SEED, "1");
       // Close connections first to avoid "blocked" state
       db.close();
       await db.delete();
+      clearTimeout(timeout);
       window.location.reload();
     } catch (err) {
       console.error("Failed to reset database:", err);
+      clearTimeout(timeout);
       // Fallback: at least try to reload
       window.location.reload();
     }

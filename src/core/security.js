@@ -16,8 +16,9 @@ export const sanitizeToFragment = (dirty) => {
 };
 // 2. Escape Logic
 export const escape = (str) => {
-  if (!str) return "";
-  return str
+  if (str === null || str === undefined) return "";
+  const s = String(str);
+  return s
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")

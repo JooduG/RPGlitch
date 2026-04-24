@@ -53,7 +53,9 @@ export function auto_resize(node, options = {}) {
       }
       
       if (options.syncId) {
-        const siblings = document.querySelectorAll(`[data-sync-id="${options.syncId}"]`);
+        const boundarySelector = options.boundary || "[data-resize-boundary], .modal-content, .panel-content";
+        const boundary = node.closest(boundarySelector) || document;
+        const siblings = boundary.querySelectorAll(`[data-sync-id="${options.syncId}"]`);
         let maxHeight = 0;
         
         const siblingData = Array.from(siblings).filter(s => s instanceof HTMLElement);
