@@ -44,8 +44,9 @@ export function auto_resize(node, options = {}) {
       }
       
       if (options.syncId) {
-        const boundarySelector = options.boundary || "[data-resize-boundary], .modal-content, .panel-content";
-        const boundary = node.closest(boundarySelector) || document;
+        const boundarySelector = options.boundary || "[data-resize-boundary], .modal-content, .panel-content, .profile-presentation, .wing-unit";
+        const boundary = node.closest(boundarySelector);
+        if (!boundary) return;
         const siblings = boundary.querySelectorAll(`[data-sync-id="${options.syncId}"]`);
         let maxHeight = 0;
         
