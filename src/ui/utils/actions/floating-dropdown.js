@@ -44,7 +44,7 @@ export function floating_dropdown(node, params) {
   node.style.pointerEvents = 'none';
   node.style.display = 'flex';
   node.style.flexDirection = 'column';
-  node.style.zIndex = 'var(--z-index-max)';
+  node.style.zIndex = 'var(--z-index-max, 9999)';
 
   let cleanup_fns = [];
 
