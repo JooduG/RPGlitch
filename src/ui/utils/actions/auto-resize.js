@@ -24,7 +24,7 @@ export function auto_resize(node, options = {}) {
       const style = window.getComputedStyle(node);
       const borderTop = parseFloat(style.borderTopWidth) || 0;
       const borderBottom = parseFloat(style.borderBottomWidth) || 0;
-      const buffer = 10;
+      const buffer = 0; // Or use a theme-based spacing value
       const calculatedHeight = Math.ceil(node.scrollHeight) + borderTop + borderBottom + buffer;
       
       // Only apply if different to avoid triggering observers unnecessarily
