@@ -35,12 +35,8 @@
   $effect(ensure_voice);
 </script>
 
-<div
-  class="audio-wing-wrapper"
-  onmouseleave={() => (show_voice_dropdown = false)}
-  role="presentation"
->
-  <Wing class="audio-wing">
+<div class="audio-wing-wrapper" role="presentation">
+  <Wing class="audio-wing" onmouseleave={() => (show_voice_dropdown = false)}>
     <div class="group">
       <div class="voice-control-row">
         <div class="dropdown">
@@ -198,7 +194,8 @@
   }
 
   .dropdown-content {
-    display: none;
+    visibility: hidden;
+    pointer-events: none;
     opacity: 0;
     transform: translateY(-var(--spacing-xs));
     position: absolute;
@@ -215,10 +212,13 @@
     box-shadow: var(--shadow-xxl);
     transition:
       opacity var(--motion-l) ease,
-      transform var(--motion-l) var(--motion-elastic);
+      transform var(--motion-l) var(--motion-elastic),
+      visibility var(--motion-l);
   }
 
   .dropdown-content.visible {
+    visibility: visible;
+    pointer-events: auto;
     display: flex;
     flex-direction: column;
     opacity: 1;

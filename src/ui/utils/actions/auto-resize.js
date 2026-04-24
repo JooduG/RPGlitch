@@ -21,13 +21,14 @@ export function auto_resize(node, options = {}) {
       const borderBottom = parseFloat(style.borderBottomWidth) || 0;
 
       const height = node.scrollHeight + borderTop + borderBottom;
-      node.style.height = height + "px";
+      const buffer = 10; // Prevent flickering on rapid input
+      node.style.height = height + buffer + "px";
 
       lastWidth = currentWidth;
       lastScrollHeight = height;
 
       if (options.syncId) {
-        const boundary = node.closest(".storymode-grid") || node.closest(".modal-content") || document;
+        const boundary = node.closest("[data-auto-resize-boundary]") || node.closest(".storymode-grid") || node.closest(".modal-content") || document;
         const siblings = boundary.querySelectorAll(`[data-sync-id="${options.syncId}"]`);
         let maxHeight = 0;
 

@@ -106,8 +106,9 @@
   }
 
   function handle_background_click(e) {
+    const target = e.target instanceof Element ? e.target : e.target.parentElement;
     if (
-      !e.target.closest(
+      !target?.closest(
         "textarea, input, button, .swatch, .wing-left, .wing-right, .profile-presentation, [contenteditable]",
       )
     ) {

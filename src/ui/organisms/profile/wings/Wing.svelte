@@ -32,7 +32,7 @@
 
   .scroller {
     flex: 1;
-    overflow: visible;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     padding: var(--spacing-m);
