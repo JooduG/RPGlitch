@@ -73,7 +73,7 @@ export function floating_dropdown(node, params) {
       node.style.position = 'fixed';
       node.style.width = `${rect.width}px`;
       node.style.left = `${rect.left}px`;
-      node.style.maxHeight = `${Math.max(go_up ? space_above : space_below, MIN_VISIBLE_HEIGHT) - VIEWPORT_GUTTER}px`;
+      node.style.maxHeight = `${Math.max(go_up ? space_above : space_below, MIN_VISIBLE_HEIGHT) - VIEWPORT_GUTTER - ANCHOR_GAP}px`;
       node.style.overflowY = 'auto';
 
       node.style.visibility = 'visible';
