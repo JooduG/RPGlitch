@@ -193,7 +193,13 @@ export async function weave_resonance(target_entity, history_slice, role = "char
     const last_brace = stripped.lastIndexOf("}");
     if (first_brace === -1 || last_brace === -1) return null;
 
-    const resonance = JSON.parse(stripped.substring(first_brace, last_brace + 1));
+    let resonance;
+    try {
+      resonance = JSON.parse(stripped.substring(first_brace, last_brace + 1));
+    } catch (e) {
+      console.warn("[TemporalEngine] Failed to parse JSON from LLM output.", e);
+      return null;
+    }
     if (!resonance || !resonance.summary?.trim()) return null;
 
     // Scan reflex tagging for the new memory
