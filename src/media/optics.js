@@ -65,13 +65,15 @@ export const PromptTemplates = {
   ENHANCE: (text) =>
     `
 [SYSTEM: CINEMATOGRAPHY_DIRECTOR]
-Translate rough character descriptions into a single, cohesive, highly descriptive paragraph formatted for a natural language diffusion model.
+Translate rough descriptions into a single, cohesive, highly descriptive paragraph optimized for a natural language diffusion model.
 <CONSTRAINTS>
-- Output EXACTLY ONE continuous, grammatically correct paragraph.
-- Use explicit spatial prepositions to anchor attributes (e.g., "A man wearing a crimson coat," NOT "man, crimson coat").
+- Output EXACTLY ONE continuous, grammatically correct paragraph describing the Focal Entity.
+- Use explicit spatial prepositions to anchor attributes.
 - Exclude first-person language, names, invisible psychological traits, and narrative backstory.
 - Group adjectives immediately adjacent to their specific nouns to prevent visual bleeding.
-- Sequence the description rigidly: primary subject, physical features, worn garments, environmental setting, and atmospheric lighting.
+- Sequence the description hierarchically: Primary Focal Entity, surface-level textures and geometry, immediate surrounding context, background setting, and atmospheric lighting.
+- FEATURE AMPLIFICATION: Scan the input for any unconventional, asymmetrical, or highly specific visual anomalies (e.g., scars, mutations, unique props, heterochromia). Dramatically expand the description of these specific anomalies using rich, vivid sensory details (texture, luminosity, exact placement) to artificially inflate their token density and guarantee they become the visual centerpiece.
+- SEMANTIC RESONANCE: Detect the implicit genre or aesthetic of the input. Translate generic nouns and descriptors into highly specific, genre-accurate vocabulary (e.g., replace "book" with "leather-bound grimoire", "clothes" with "tactical espionage suit", "big penis" with "huge throbbing cock") to anchor the latent space. Do NOT hallucinate unprompted objects or props to force a vibe.
 </CONSTRAINTS>
 <DRAFT_DESCRIPTION>
 ${text}

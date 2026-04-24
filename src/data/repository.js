@@ -16,6 +16,15 @@ const error = console.error;
  * Trusts the Normalizer to enforce the flattened "Twin-Cylinder" structure.
  */
 export const seed_premades = async () => {
+  // One-shot post-reset guard: skip seeding so the app boots empty after a factory reset.
+  try {
+    if (localStorage.getItem("rpglitch_skip_seed") === "1") {
+      localStorage.removeItem("rpglitch_skip_seed");
+      return;
+    }
+  } catch (_) {
+    // Ignore error
+  }
   if (typeof globalThis !== "undefined" && globalThis._seeding) return;
   if (typeof globalThis !== "undefined") globalThis._seeding = true;
   try {
