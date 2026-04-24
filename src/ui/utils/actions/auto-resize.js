@@ -27,8 +27,8 @@ export function auto_resize(node, options = {}) {
       const borderBottom = parseFloat(style.borderBottomWidth) || 0;
       
       // Read buffer from theme directly to ensure reactivity to media queries
-      const bufferValue = style.getPropertyValue("--spacing-s") || "10px";
-      const buffer = parseFloat(bufferValue) || 10;
+      // Use a fixed pixel value to ensure consistent behavior across different units.
+      const buffer = 10;
 
       const savedHeight = node.style.height;
       node.style.height = "auto";
