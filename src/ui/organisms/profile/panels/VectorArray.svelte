@@ -127,7 +127,6 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
-    padding-right: var(--spacing-xxs);
   }
 
   .textfield {
