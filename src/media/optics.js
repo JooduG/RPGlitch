@@ -9,7 +9,6 @@ export const NEGATIVE_PROMPT =
   "cartoon, anime, 3d render, illustration, painting, drawing, sketch, watermark, text, signature, low quality, blurry, deformed, mutated, extra limbs, missing limbs, fused fingers, distorted face, amateur, grainy, pixelated";
 
 import { themeStore } from "../theme/palette.svelte.js";
-import { escape } from "../core/security.js";
 
 /**
  * Resolves camera specs based on character context.
@@ -66,18 +65,16 @@ export const PromptTemplates = {
   ENHANCE: (text) =>
     `
 [SYSTEM: CINEMATOGRAPHY_DIRECTOR]
-Translate rough descriptions into a single, cohesive, highly descriptive paragraph optimized for a natural language diffusion model.
+Translate rough character descriptions into a single, cohesive, highly descriptive paragraph formatted for a natural language diffusion model.
 <CONSTRAINTS>
-- Output EXACTLY ONE continuous, grammatically correct paragraph describing the Focal Entity.
-- Use explicit spatial prepositions to anchor attributes.
+- Output EXACTLY ONE continuous, grammatically correct paragraph.
+- Use explicit spatial prepositions to anchor attributes (e.g., "A man wearing a crimson coat," NOT "man, crimson coat").
 - Exclude first-person language, names, invisible psychological traits, and narrative backstory.
 - Group adjectives immediately adjacent to their specific nouns to prevent visual bleeding.
-- Sequence the description hierarchically: Primary Focal Entity, surface-level textures and geometry, immediate surrounding context, background setting, and atmospheric lighting.
-- FEATURE AMPLIFICATION: Scan the input for any unconventional, asymmetrical, or highly specific visual anomalies (e.g., scars, mutations, unique props, heterochromia). Dramatically expand the description of these specific anomalies using rich, vivid sensory details (texture, luminosity, exact placement) to artificially inflate their token density and guarantee they become the visual centerpiece.
-- SEMANTIC RESONANCE: Detect the implicit genre or aesthetic of the input. Translate generic nouns and descriptors into highly specific, genre-accurate vocabulary (e.g., replace "book" with "leather-bound grimoire", "clothes" with "tactical espionage suit", "weapon" with "serrated mono-molecular blade") to anchor the latent space. Do NOT hallucinate unprompted objects or props to force a vibe.
+- Sequence the description rigidly: primary subject, physical features, worn garments, environmental setting, and atmospheric lighting.
 </CONSTRAINTS>
 <DRAFT_DESCRIPTION>
-${escape(text)}
+${text}
 </DRAFT_DESCRIPTION>
 `.trim(),
 
@@ -109,7 +106,7 @@ ${history ? `[HISTORY]\n${history}` : ""}
 ${ctxBlock}
 [INSTRUCTIONS]
 Convert intent into a single impactful image prompt.
-Input Intent: "${escape(rawIntent)}"
+Input Intent: "${rawIntent}"
 [PROTOCOL]
 1. Start with <think> for composition planning.
 2. Output exactly one <image_prompt> tag.

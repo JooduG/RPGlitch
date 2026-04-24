@@ -208,10 +208,10 @@ function createRuntimeStore() {
         // Stamp dynamics_baseline from the story snapshot.
         // This gives the physics engine a per-character gravitational center
         // rather than the universal 50 fallback.
-        if (story.entity_snapshots?.ai?.dynamics && entity_state.active_ai) {
+        if (story.entity_snapshots?.ai?.dynamics) {
           entity_state.active_ai.dynamics_baseline = story.entity_snapshots.ai.dynamics;
         }
-        if (story.entity_snapshots?.fractal?.dynamics && entity_state.active_fractal) {
+        if (story.entity_snapshots?.fractal?.dynamics) {
           entity_state.active_fractal.dynamics_baseline = story.entity_snapshots.fractal.dynamics;
         }
         simulation_state.is_ready = true;

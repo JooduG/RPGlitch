@@ -319,46 +319,7 @@ small {
 }
 
 /* ----------------------------------------------------------------------------
-   8. SCROLLBARS (THE NORDIC TRACK)
-   Restoring accessibility with thematic restraint.
-   ---------------------------------------------------------------------------- */
-.scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-.scrollbar::-webkit-scrollbar-track {
-  background: var(--glass-xs);
-  border-radius: var(--border-radius-full);
-}
-
-.scrollbar::-webkit-scrollbar-thumb {
-  background: var(--color-frozen);
-  border-radius: var(--border-radius-full);
-  transition: background var(--motion-m);
-}
-
-.scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--color-frisk);
-}
-
-.scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-frozen) var(--glass-xs);
-  overflow-y: auto; /* Force override for TextField */
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.no-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
-
-/* ----------------------------------------------------------------------------
-   9. ICONS
+   ICONS
    ---------------------------------------------------------------------------- */
 .icon-xs,
 .icon-s,

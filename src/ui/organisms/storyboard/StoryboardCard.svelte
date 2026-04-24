@@ -103,8 +103,8 @@
 <style>
   .storyboard-stack {
     position: relative;
-    width: var(--panel-s);
-    height: var(--panel-l);
+    width: 280px;
+    height: 400px;
     overflow: visible; /* Allow tooltips and specular highlights to bleed */
     transition: all var(--motion-l) var(--motion-elastic);
   }
@@ -131,10 +131,10 @@
     z-index: var(--z-index-xl); /* Above the shell and scrims */
   }
 
-  /* Fractal Overrides: Landscape */
+  /* Fractal Overrides: Landscape (Z x Y) */
   .fractal-card {
-    width: var(--panel-l);
-    height: var(--panel-s);
+    width: 400px;
+    height: 280px;
   }
 
   .storyboard-stack:hover .card-border {
@@ -230,7 +230,7 @@
     -webkit-line-clamp: 2;
     line-clamp: 2;
     -webkit-box-orient: vertical;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .visual-anchor {
