@@ -7,15 +7,8 @@
   import { Audio } from "@media/audio-engine.svelte.js";
   import Slider from "@ui/atoms/Slider.svelte";
   import Wing from "./Wing.svelte";
-  import { floating_dropdown } from "@ui/utils/actions/floating-dropdown.js";
 
   let { char = $bindable(), is_editing } = $props();
-  /** @type {HTMLButtonElement|null} */
-  let voice_btn_el = $state(null);
-  /** @type {HTMLDivElement|null} */
-  let voice_panel_el = $state(null);
-  /** @type {HTMLDivElement|null} */
-  let voice_row_el = $state(null);
   let show_voice_dropdown = $state(false);
 
   const selected_voice = $derived(Audio.voice.voices.find((v) => v.uri === char.voice.uri));
@@ -40,34 +33,18 @@
 
   ensure_voice();
   $effect(ensure_voice);
-
-  // Close dropdown when clicking outside the trigger button or the portalled panel.
-  $effect(() => {
-    if (!show_voice_dropdown) return;
-
-    function on_outside_click(e) {
-      const target = /** @type {Node} */ (e.target);
-      const panel = voice_panel_el;
-      if (
-        voice_btn_el && !voice_btn_el.contains(target) &&
-        (!panel || !panel.contains(target))
-      ) {
-        show_voice_dropdown = false;
-      }
-    }
-
-    document.addEventListener('pointerdown', on_outside_click, { capture: true });
-    return () => document.removeEventListener('pointerdown', on_outside_click, { capture: true });
-  });
 </script>
 
-<div class="audio-wing-wrapper" role="presentation">
+<div
+  class="audio-wing-wrapper"
+  onmouseleave={() => (show_voice_dropdown = false)}
+  role="presentation"
+>
   <Wing class="audio-wing">
     <div class="group">
-      <div class="voice-control-row" bind:this={voice_row_el}>
+      <div class="voice-control-row">
         <div class="dropdown">
           <button
-            bind:this={voice_btn_el}
             class="voice-button"
             type="button"
             disabled={!is_editing}
@@ -80,11 +57,7 @@
               )}
             </span>
           </button>
-          <div
-            bind:this={voice_panel_el}
-            class="voice-dropdown-panel"
-            use:floating_dropdown={{ trigger_el: voice_btn_el, width_el: voice_row_el, visible: show_voice_dropdown }}
-          >
+          <div class="dropdown-content glass-xxl" class:visible={show_voice_dropdown}>
             {#each Audio.voice.voices as voice (voice.uri)}
               <button
                 class="voice-option"
@@ -141,6 +114,7 @@
   }
 
   .voice-control-row {
+    position: relative; /* Fix: Anchor for the wide dropdown */
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: var(--spacing-xs);
@@ -215,17 +189,35 @@
     opacity: var(--opacity-s);
   }
 
-  /* :global — node is portalled to document.body, scoped selectors won't reach it */
-  :global(.voice-dropdown-panel) {
-    background: var(--glass-xxl);
-    backdrop-filter: var(--blur-l);
+  .dropdown-content {
+    display: none;
+    opacity: 0;
+    transform: translateY(-var(--spacing-xs));
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%; /* Expansion fix: Match parent row width */
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: var(--z-index-max);
+    background: var(--glass-xxl); /* Clarified transparency */
+    backdrop-filter: var(--blur-m);
     border: 1px solid var(--border-xl);
     border-radius: var(--border-radius-m);
     box-shadow: var(--shadow-xxl);
-    transition: opacity var(--motion-m) ease;
+    transition:
+      opacity var(--motion-l) ease,
+      transform var(--motion-l) var(--motion-elastic);
   }
 
-  :global(.voice-dropdown-panel .voice-option) {
+  .dropdown-content.visible {
+    display: flex;
+    flex-direction: column;
+    opacity: 1;
+    transform: translateY(var(--spacing-xs));
+  }
+
+  .voice-option {
     width: 100%;
     padding: var(--spacing-xs) var(--spacing-s);
     background: transparent;
@@ -240,15 +232,11 @@
     transition: all var(--motion-l);
   }
 
-  :global(.voice-dropdown-panel .voice-option:hover) {
+  .voice-option:hover {
     background: var(--glass-xs);
   }
 
-  :global(.voice-dropdown-panel .voice-option.active) {
-    background: var(--glass-xs);
-  }
-
-  :global(.voice-dropdown-panel .voice-option .region-pill) {
+  .voice-option .region-pill {
     font-size: var(--font-size-xxs);
     text-transform: uppercase;
     font-weight: var(--font-weight-bold);
@@ -256,10 +244,14 @@
     letter-spacing: 0.1em;
   }
 
-  :global(.voice-dropdown-panel .voice-option .voice-name) {
+  .voice-option .voice-name {
     white-space: nowrap;
     overflow: visible;
     flex: 1;
+  }
+
+  .voice-option.active {
+    background: var(--glass-xs);
   }
 
   .sliders {

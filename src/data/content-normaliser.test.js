@@ -13,23 +13,17 @@ import { Security } from "../core/security.js";
 // Mock Security.sanitize
 vi.mock("../core/security.js", () => ({
   Security: {
-    sanitize: vi.fn((val) => (val == null ? "" : String(val).trim())),
+    sanitize: vi.fn((val) => (typeof val === "string" ? val.trim() : val)),
   },
 }));
 
 describe("content-normaliser.js", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Mock crypto.randomUUID
-    if (!global.crypto) {
-      Object.defineProperty(global, "crypto", {
-        value: { randomUUID: vi.fn(() => "test-uuid") },
-        writable: true,
-        configurable: true,
-      });
-    } else {
-      vi.spyOn(global.crypto, "randomUUID").mockReturnValue("test-uuid");
-    }
+    // Mock crypto.randomUUID idiomatic way
+    vi.stubGlobal("crypto", {
+      randomUUID: vi.fn(() => "test-uuid"),
+    });
   });
 
   describe("normalize()", () => {

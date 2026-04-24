@@ -96,7 +96,7 @@ export const normalize = (base = {}) => {
     signature_color: sanitize_html(String(signature_color)).trim() || get_random_signature_key(),
     profile_picture: sanitize_html(String(profile_picture)).trim(),
     tags: (Array.isArray(tags) ? tags : [])
-      .map((s) => (s != null ? sanitize_html(String(s).trim()) : ""))
+      .map((s) => (s ? sanitize_html(String(s).trim()) : ""))
       .filter(Boolean),
     // --- TEMPORAL HYBRID 6 (PURGED: appearance, identity, outfit, status) ---
     eternal: {

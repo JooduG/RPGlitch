@@ -7,31 +7,15 @@
 import { db } from "./db.js";
 import { premade } from "./entity-premades.js";
 import { normalize, STORAGE_VERSION } from "./content-normaliser.js";
-import { STORAGE_SKIP_SEED } from "../core/constants.js";
-
 const error = console.error;
-
-const DEFAULT_AI = "00000000-0000-0000-0000-000000000001";
-const DEFAULT_USER = "00000000-0000-0000-0000-000000000002";
-const DEFAULT_FRACTAL = "00000000-0000-0000-0000-000000000003";
-
 // ============================================================================
 // 1. DATA SEEDING (The Entity Foundry)
 // ============================================================================
-
 /**
  * Seeds the database with premade entities if they don't already exist.
  * Trusts the Normalizer to enforce the flattened "Twin-Cylinder" structure.
  */
 export const seed_premades = async () => {
-  try {
-    if (localStorage.getItem(STORAGE_SKIP_SEED) === "1") {
-      localStorage.removeItem(STORAGE_SKIP_SEED);
-      return;
-    }
-  } catch (_) {
-    // Ignore error
-  }
   if (typeof globalThis !== "undefined" && globalThis._seeding) return;
   if (typeof globalThis !== "undefined") globalThis._seeding = true;
   try {

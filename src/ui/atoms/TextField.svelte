@@ -31,11 +31,7 @@
     data-sync-id={syncId}
   ></textarea>
 {:else}
-  <div 
-    class="readonly-field {className}" 
-    data-sync-id={syncId}
-    use:auto_resize={{ syncId }}
-  >
+  <div class="readonly-field {className}" data-sync-id={syncId}>
     {#if paragraphs.length > 0}
       {#each paragraphs as tokens, i (i)}
         <div class="paragraph" class:mt={i > 0}>
@@ -62,12 +58,11 @@
     font-family: var(--font-family-body);
     font-size: var(--font-size-s);
     line-height: var(--line-height-m);
-    padding: var(--spacing-xs) var(--spacing-s) var(--spacing-s);
+    padding: var(--spacing-xs) var(--spacing-s);
     border-radius: var(--border-radius-m);
     resize: none;
-    text-align: left;
     overflow: hidden;
-    height: auto;
+    text-align: left;
     transition:
       background var(--motion-l) var(--motion-elastic),
       border-color var(--motion-l) var(--motion-elastic),
@@ -106,20 +101,18 @@
     width: 100%;
     font-size: var(--font-size-s);
     line-height: var(--line-height-m);
-    padding: var(--spacing-xs) var(--spacing-s) var(--spacing-s);
+    padding: var(--spacing-xs) var(--spacing-s);
     white-space: normal;
     background: var(--glass-xs);
     border: var(--border-l);
     color: var(--color-white);
     font-family: var(--font-family-body);
     border-radius: var(--border-radius-m);
-    height: auto;
-    min-height: 2.5rem;
+    height: inherit;
     text-align: left;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    overflow: hidden;
   }
 
   .paragraph {

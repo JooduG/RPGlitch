@@ -106,7 +106,7 @@
       <h3 id="drawer-title">{title()}</h3>
     </header>
 
-    <div class="drawer-content scrollbar" use:kineticScroll>
+    <div class="drawer-content no-scrollbar" use:kineticScroll>
       <div class="drawer-grid">
         <button
           class="drawer-card drawer-card--new glass-s"
