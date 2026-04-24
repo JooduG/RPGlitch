@@ -67,7 +67,7 @@
         <p>{message}</p>
       </div>
       <footer>
-        <Button variant="danger" onclick={handle_cancel} label={cancel_label} />
+        <Button variant="ghost" onclick={handle_cancel} label={cancel_label} />
         <Button
           variant="danger"
           onclick={handle_confirm}
@@ -93,7 +93,7 @@
     padding: 0;
     margin: auto;
     max-width: 90vw;
-    width: 400px;
+    width: var(--panel-width-m);
     color: inherit;
     z-index: var(--z-index-xl);
     overflow: visible;

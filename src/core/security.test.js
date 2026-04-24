@@ -50,6 +50,25 @@ describe("validation.js", () => {
       expect(sanitizeHtml("")).toBe("");
     });
   });
+
+  describe("escape()", () => {
+    test("escapes HTML special characters including quotes", () => {
+      const input = '<b>Hello</b> "World" & \'Peace\'';
+      const output = Security.escape(input);
+      expect(output).toBe("&lt;b&gt;Hello&lt;/b&gt; &quot;World&quot; &amp; &#39;Peace&#39;");
+    });
+
+    test("handles null and undefined", () => {
+      expect(Security.escape(null)).toBe("");
+      expect(Security.escape(undefined)).toBe("");
+    });
+
+    test("coerces non-strings to strings", () => {
+      expect(Security.escape(123)).toBe("123");
+      expect(Security.escape(true)).toBe("true");
+    });
+  });
+
   describe("sanitizeToFragment()", () => {
     test("returns a DocumentFragment-like object", () => {
       const input = "<p>Hello</p>";

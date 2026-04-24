@@ -227,4 +227,8 @@
   --icon-m: 2.5rem;
   --icon-s: 2rem;
   --icon-xs: 1rem;
+
+  /* Panel & Container Geometry */
+  --panel-width-m: 400px;
+  --panel-width-s: 280px;
 }

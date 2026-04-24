@@ -103,8 +103,8 @@
 <style>
   .storyboard-stack {
     position: relative;
-    width: 280px;
-    height: 400px;
+    width: var(--panel-width-s);
+    height: var(--panel-width-m);
     overflow: visible; /* Allow tooltips and specular highlights to bleed */
     transition: all var(--motion-l) var(--motion-elastic);
   }
