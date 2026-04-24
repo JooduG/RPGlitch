@@ -100,7 +100,7 @@
       const isInput =
         active instanceof HTMLInputElement ||
         active instanceof HTMLTextAreaElement ||
-        (active instanceof HTMLElement && active.contentEditable === "true");
+        (active instanceof HTMLElement && active.isContentEditable);
 
       const isWing = active?.closest(".wing-unit") || active?.closest(".voice-dropdown-panel");
       const isConfirm = active?.closest("dialog");
@@ -115,7 +115,7 @@
     // If clicking outside the main presentation area, check if we should close or just exit edit mode
     if (
       !e.target.closest(
-        "textarea, input, button, .swatch, .wing-unit, .profile-presentation, [contenteditable=\"true\"]",
+        "textarea, input, button, .swatch, .wing-unit, .profile-presentation, [contenteditable]",
       )
     ) {
       if (is_editing) {

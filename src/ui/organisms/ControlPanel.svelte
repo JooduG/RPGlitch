@@ -3,6 +3,7 @@
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
   import { Session } from "@core/engine/engine.js";
+  import { STORAGE_SKIP_SEED } from "@core/constants.js";
   import Button from "@ui/atoms/Button.svelte";
   import Toggle from "@ui/atoms/Toggle.svelte";
   import Modal from "@ui/molecules/Modal.svelte";
@@ -39,7 +40,7 @@
 
   async function executeReset() {
     try {
-      localStorage.setItem("rpglitch_skip_seed", "1");
+      localStorage.setItem(STORAGE_SKIP_SEED, "1");
       // Close connections first to avoid "blocked" state
       db.close();
       await db.delete();

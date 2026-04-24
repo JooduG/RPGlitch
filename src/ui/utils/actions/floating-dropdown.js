@@ -91,7 +91,7 @@ export function floating_dropdown(node, params) {
   }
 
   function attach() {
-    position();
+    if (cleanup_fns.length > 0) return;
     window.addEventListener('resize', position, { passive: true });
     window.addEventListener('scroll', position, { passive: true, capture: true });
     cleanup_fns.push(
@@ -101,18 +101,32 @@ export function floating_dropdown(node, params) {
   }
 
   function detach() {
+    if (frame) cancelAnimationFrame(frame);
     cleanup_fns.forEach((fn) => fn());
     cleanup_fns = [];
   }
 
-  attach();
+  function sync() {
+    if (visible) {
+      attach();
+      position();
+    } else {
+      detach();
+      // Ensure it's hidden immediately when detached
+      node.style.visibility = 'hidden';
+      node.style.opacity = '0';
+      node.style.pointerEvents = 'none';
+    }
+  }
+
+  sync();
 
   return {
     update(new_params) {
       trigger_el = new_params.trigger_el;
       width_el = new_params.width_el ?? null;
       visible = new_params.visible;
-      position();
+      sync();
     },
     destroy() {
       if (frame) cancelAnimationFrame(frame);
