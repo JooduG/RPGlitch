@@ -38,6 +38,7 @@
     bind:this={dialog}
     onclose={handle_close}
     onkeydown={handle_keydown}
+    onclick={(e) => { if (e.target === dialog) handle_close(); }}
     transition:scale={{ duration: 200, start: 0.95, easing: quintOut }}
   >
     <article class="security-modal">
@@ -68,7 +69,7 @@
     padding: 0;
     margin: auto;
     max-width: 90vw;
-    width: 350px;
+    width: var(--panel-xs);
     color: inherit;
     z-index: var(--z-index-xl);
     overflow: visible;
@@ -85,28 +86,36 @@
     z-index: calc(var(--z-index-xl) - 1);
   }
 
+  /* Matched to the Wing container aesthetic */
   .security-modal {
-    background: var(--glass-l);
-    box-shadow:
-      inset 0 0 0 1px var(--border-l),
-      var(--shadow-xxl);
-    border-radius: var(--border-radius-l);
+    background: var(--glass-s);
+    backdrop-filter: var(--blur-l);
+    border: var(--border-m);
+    box-shadow: var(--shadow-xl);
+    border-radius: var(--border-radius-m);
+    padding: var(--spacing-m);
+    gap: var(--spacing-m);
     overflow: hidden;
     display: flex;
     flex-direction: column;
   }
 
   .security-modal header {
-    padding: var(--spacing-m) var(--spacing-xl);
-    background: var(--glass-l);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: var(--spacing-xs); /* align with group-label */
   }
 
+  /* Match the .group-label styling from Wing.svelte */
   .security-modal h3 {
     margin: 0;
-    font-size: var(--font-size-l);
-    font-weight: var(--font-weight-l);
-    font-family: var(--font-family-heading);
-    color: var(--font-color-m);
+    font-size: var(--font-size-xxs);
+    font-weight: var(--font-weight-bold);
+    font-family: var(--font-family-body);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--font-color-s);
     display: flex;
     align-items: center;
     gap: var(--spacing-s);
@@ -126,17 +135,16 @@
   }
 
   .security-modal .content {
-    padding: var(--spacing-xl);
-    color: var(--font-color-s);
-    font-size: var(--font-size-m);
+    padding: 0 var(--spacing-xs);
+    color: var(--font-color-m);
+    font-size: var(--font-size-s);
     line-height: var(--line-height-m);
   }
 
   .security-modal footer {
-    padding: var(--spacing-m) var(--spacing-xl);
     display: flex;
     justify-content: flex-end;
-    background: var(--glass-xs);
+    padding-top: var(--spacing-s);
   }
 
   /* button styles removed - utilizing Button component */
