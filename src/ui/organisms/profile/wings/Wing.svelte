@@ -8,7 +8,8 @@
   let { children, class: className = "", ...rest } = $props();
 </script>
 
-<div class="wing-shell glass-l {className}" {...rest}>
+<div class="wing-shell {className}" {...rest}>
+  <div class="wing-background glass-s"></div>
   <div class="scroller">
     {@render children()}
   </div>
@@ -17,39 +18,31 @@
 <style>
   .wing-shell {
     width: 100%;
-    height: 100%;
-    overflow: visible; /* Scroller handles it */
+    height: auto;
+    overflow: visible;
     display: flex;
     flex-direction: column;
-    flex: 1;
-    min-height: 0;
     position: relative;
     transition: all var(--motion-l) var(--motion-elastic);
-    background-color: rgb(var(--color-gunmetal-rgb) / 45%);
-    backdrop-filter: var(--blur-l);
+
+    /* Decoupled aesthetics from container to prevent clipping context */
+  }
+
+  .wing-background {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
     border-radius: var(--border-radius-m);
+    pointer-events: none;
   }
 
   .scroller {
-    flex: 1;
-    overflow: visible;
+    width: 100%;
     display: flex;
     flex-direction: column;
     padding: var(--spacing-m);
     gap: var(--spacing-m);
-
-    /* Custom Scrollbar */
-    scrollbar-width: thin;
-    scrollbar-color: var(--border-l) transparent;
-  }
-
-  .scroller::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  .scroller::-webkit-scrollbar-thumb {
-    background: var(--border-l);
-    border-radius: var(--border-radius-full);
+    overflow: visible;
   }
 
   /* Shared internal group styling */

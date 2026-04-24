@@ -3,9 +3,11 @@
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
   import { Session } from "@core/engine/engine.js";
+  import { STORAGE_SKIP_SEED } from "@core/constants.js";
   import Button from "@ui/atoms/Button.svelte";
   import Toggle from "@ui/atoms/Toggle.svelte";
   import Modal from "@ui/molecules/Modal.svelte";
+  import Confirm from "@ui/molecules/Confirm.svelte";
   import TextField from "@ui/atoms/TextField.svelte";
 
   /**
@@ -32,14 +34,34 @@
     app.log(`Mock ${role} message injected.`, "system");
   }
 
-  async function handleReset() {
-    if (confirm("This will wash away all memories. Are you sure?")) {
+  function handleReset() {
+    confirm_reset_open = true;
+  }
+
+  async function executeReset() {
+    // Safety timeout to prevent hanging if deletion is blocked
+    const timeout = setTimeout(() => {
+      console.warn("Database reset timed out. Forcing reload.");
+      window.location.reload();
+    }, 2000);
+
+    try {
+      localStorage.setItem(STORAGE_SKIP_SEED, "1");
+      // Close connections first to avoid "blocked" state
+      db.close();
       await db.delete();
+      clearTimeout(timeout);
+      window.location.reload();
+    } catch (err) {
+      console.error("Failed to reset database:", err);
+      clearTimeout(timeout);
+      // Fallback: at least try to reload
       window.location.reload();
     }
   }
 
   /* --- STATE HELPERS --- */
+  let confirm_reset_open = $state(false);
   let isStoryboard = $derived(app.view === "storyboard");
   let isStoryMode = $derived(app.view === "storymode");
 </script>
@@ -48,16 +70,16 @@
   <article class="control-panel-wrapper" data-testid="control-panel">
     <!-- HEADER: System Toggles -->
     <header>
-      <Toggle
-        label="CALL MODE"
-        bind:value={app.settings.call_mode}
-        onchange={() => app.save_settings()}
-      />
-      <Toggle
-        label="NOTIFICATIONS"
-        bind:value={app.settings.sound}
-        onchange={() => app.save_settings()}
-      />
+        <Toggle
+          label="CALL MODE"
+          bind:value={app.settings.call_mode}
+          onchange={() => app.save_settings()}
+        />
+        <Toggle
+          label="NOTIFICATIONS"
+          bind:value={app.settings.sound}
+          onchange={() => app.save_settings()}
+        />
     </header>
 
     <!-- BODY: Prologue (Lobby Only) -->
@@ -142,6 +164,16 @@
   </article>
 </Modal>
 
+<!-- Reset confirmation dialog (outside the settings Modal to avoid z-index conflicts) -->
+<Confirm
+  bind:open={confirm_reset_open}
+  title="Factory Reset"
+  message="This will wash away all memories and entities. This cannot be undone. Are you sure?"
+  confirm_label="Reset"
+  cancel_label="Cancel"
+  on_confirm={executeReset}
+/>
+
 <style>
   .control-panel-wrapper {
     width: 100%;
@@ -154,6 +186,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding-left: var(--spacing-xs);
   }
 
   .storymode {
