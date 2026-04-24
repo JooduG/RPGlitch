@@ -12,6 +12,7 @@ export function auto_resize(node, options = {}) {
       node.style.height = height + "px";
       if (options.syncId) {
         const scope = node.closest(".storymode-grid, .modal-content, body");
+        if (!scope) return;
         const siblings = scope.querySelectorAll(`[data-sync-id="${options.syncId}"]`);
         let maxHeight = 0;
         siblings.forEach((s) => {
