@@ -24,11 +24,15 @@ export function auto_resize(node, options = {}) {
       const style = window.getComputedStyle(node);
       const borderTop = parseFloat(style.borderTopWidth) || 0;
       const borderBottom = parseFloat(style.borderBottomWidth) || 0;
+<<<<<<< HEAD
       
       // Resolve buffer from theme if possible, fallback to 10px
       const spacingS = window.getComputedStyle(document.documentElement).getPropertyValue('--spacing-s');
       const buffer = spacingS ? parseFloat(spacingS) * 16 : 10; 
       
+=======
+      const buffer = 0; // Or use a theme-based spacing value
+>>>>>>> fa54d7ad3a1ff447ee1f0c25aa08d258a9625b07
       const calculatedHeight = Math.ceil(node.scrollHeight) + borderTop + borderBottom + buffer;
       
       // Only apply if different to avoid triggering observers unnecessarily
@@ -43,6 +47,7 @@ export function auto_resize(node, options = {}) {
         const siblings = document.querySelectorAll(`[data-sync-id="${options.syncId}"]`);
         let maxHeight = 0;
         
+<<<<<<< HEAD
         const siblingData = Array.from(siblings).filter(s => s instanceof HTMLElement);
         
         // Batch 1: Reset heights to auto
@@ -54,6 +59,18 @@ export function auto_resize(node, options = {}) {
           const sBorderTop = parseFloat(sStyle.borderTopWidth) || 0;
           const sBorderBottom = parseFloat(sStyle.borderBottomWidth) || 0;
           maxHeight = Math.max(maxHeight, Math.ceil(s.scrollHeight) + sBorderTop + sBorderBottom + buffer);
+=======
+        siblings.forEach((s) => {
+          if (s instanceof HTMLElement) {
+            const sSaved = s.style.height;
+            s.style.height = "auto";
+            const sStyle = window.getComputedStyle(s);
+            const sBorderTop = parseFloat(sStyle.borderTopWidth) || 0;
+            const sBorderBottom = parseFloat(sStyle.borderBottomWidth) || 0;
+            maxHeight = Math.max(maxHeight, Math.ceil(s.scrollHeight) + sBorderTop + sBorderBottom + buffer);
+            s.style.height = sSaved;
+          }
+>>>>>>> fa54d7ad3a1ff447ee1f0c25aa08d258a9625b07
         });
 
         // Batch 3: Apply synchronized height
