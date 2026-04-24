@@ -7,17 +7,20 @@ export function auto_resize(node, options = {}) {
   let frame;
   let lastWidth = node.clientWidth;
   let lastHeight = 0;
+  let lastScrollHeight = 0;
 
   const update = (force = false) => {
     if (frame) cancelAnimationFrame(frame);
     frame = requestAnimationFrame(() => {
       const currentWidth = node.clientWidth;
+      const currentScrollHeight = node.scrollHeight;
       
       // Only update if width changed, content changed (via mutation/input), or forced
-      if (!force && currentWidth === lastWidth && node.scrollHeight === lastHeight) {
+      if (!force && currentWidth === lastWidth && currentScrollHeight === lastScrollHeight) {
         return;
       }
       lastWidth = currentWidth;
+      lastScrollHeight = currentScrollHeight;
 
       const style = window.getComputedStyle(node);
       const borderTop = parseFloat(style.borderTopWidth) || 0;
