@@ -217,7 +217,6 @@
 
   /* :global — node is portalled to document.body, scoped selectors won't reach it */
   :global(.voice-dropdown-panel) {
-    z-index: 9999;
     background: var(--glass-xxl);
     backdrop-filter: var(--blur-l);
     border: 1px solid var(--border-xl);

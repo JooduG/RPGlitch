@@ -38,6 +38,14 @@ export function floating_dropdown(node, params) {
   node.parentNode?.insertBefore(placeholder, node);
   document.body.appendChild(node);
 
+  // Initialize styles for transitions
+  node.style.visibility = 'hidden';
+  node.style.opacity = '0';
+  node.style.pointerEvents = 'none';
+  node.style.display = 'flex';
+  node.style.flexDirection = 'column';
+  node.style.zIndex = 'var(--z-index-max)';
+
   let cleanup_fns = [];
 
   let frame;
@@ -45,7 +53,9 @@ export function floating_dropdown(node, params) {
     if (frame) cancelAnimationFrame(frame);
     frame = requestAnimationFrame(() => {
       if (!visible || !trigger_el) {
-        node.style.display = 'none';
+        node.style.visibility = 'hidden';
+        node.style.opacity = '0';
+        node.style.pointerEvents = 'none';
         return;
       }
 
@@ -54,8 +64,6 @@ export function floating_dropdown(node, params) {
       const trigger_rect = trigger_el.getBoundingClientRect();
 
       // Measure panel height capped at a comfortable maximum.
-      node.style.display = 'flex';
-      node.style.flexDirection = 'column';
       const panel_height = Math.min(node.scrollHeight || DEFAULT_HEIGHT, MAX_PANEL_HEIGHT);
 
       const space_above = trigger_rect.top;
@@ -67,7 +75,10 @@ export function floating_dropdown(node, params) {
       node.style.left = `${rect.left}px`;
       node.style.maxHeight = `${Math.max(go_up ? space_above : space_below, MIN_VISIBLE_HEIGHT) - VIEWPORT_GUTTER}px`;
       node.style.overflowY = 'auto';
-      node.style.zIndex = 'var(--z-index-max, 9999)';
+
+      node.style.visibility = 'visible';
+      node.style.opacity = '1';
+      node.style.pointerEvents = 'auto';
 
       if (go_up) {
         node.style.top = 'auto';

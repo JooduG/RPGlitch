@@ -74,7 +74,7 @@ Translate rough descriptions into a single, cohesive, highly descriptive paragra
 - Group adjectives immediately adjacent to their specific nouns to prevent visual bleeding.
 - Sequence the description hierarchically: Primary Focal Entity, surface-level textures and geometry, immediate surrounding context, background setting, and atmospheric lighting.
 - FEATURE AMPLIFICATION: Scan the input for any unconventional, asymmetrical, or highly specific visual anomalies (e.g., scars, mutations, unique props, heterochromia). Dramatically expand the description of these specific anomalies using rich, vivid sensory details (texture, luminosity, exact placement) to artificially inflate their token density and guarantee they become the visual centerpiece.
-- SEMANTIC RESONANCE: Detect the implicit genre or aesthetic of the input. Translate generic nouns and descriptors into highly specific, genre-accurate vocabulary (e.g., replace "book" with "leather-bound grimoire", "clothes" with "tactical espionage suit", "big penis" with "huge throbbing cock") to anchor the latent space. Do NOT hallucinate unprompted objects or props to force a vibe.
+- SEMANTIC RESONANCE: Detect the implicit genre or aesthetic of the input. Translate generic nouns and descriptors into highly specific, genre-accurate vocabulary (e.g., replace "book" with "leather-bound grimoire", "clothes" with "tactical espionage suit", "weapon" with "serrated mono-molecular blade") to anchor the latent space. Do NOT hallucinate unprompted objects or props to force a vibe.
 </CONSTRAINTS>
 <DRAFT_DESCRIPTION>
 ${escape(text)}

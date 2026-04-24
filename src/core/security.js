@@ -17,7 +17,12 @@ export const sanitizeToFragment = (dirty) => {
 // 2. Escape Logic
 export const escape = (str) => {
   if (!str) return "";
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 };
 // Stub for now, can be expanded
 export const checkRefusal = (text) => false;

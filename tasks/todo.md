@@ -16,6 +16,7 @@
 - [x] Round Stability & Hygiene (Patch [037])
 - [x] InputBar Layout & Control Panel Wiring ([039])
 - [ ] Release Candidate Stability Audit ([043])
+- [x] Security Hardening & UI Polish ([045])
 - [x] Documentation Sync & Infrastructure Hygiene ([044])
 
 ---
@@ -44,6 +45,20 @@
 - [ ] Resolve any lingering audit advice or debt
 - [ ] Verify build integrity and asset inlining
 
+---
+ 
+### [045] Security Hardening & UI Polish - [DONE]
+ 
+#### **Track 1: Security Hardening**
+ 
+- [x] Update `escape` function in `security.js`
+- [x] Replace NSFW terminology in `optics.js`
+ 
+#### **Track 2: UI Polish**
+ 
+- [x] Refactor `floating-dropdown.js` for transitions
+- [x] Normalize z-index layering tokens
+ 
 ---
 
 ### [037] State Atomicity & Token Asphyxiation Patch - [COMPLETED]
@@ -86,6 +101,7 @@
 
 ## 🏁 Completed Missions (Recent)
 
+- **[045]** Security Hardening & UI Polish
 - **[044]** Documentation Sync & Infrastructure Hygiene
 - **[043]** Release Candidate Prep (In Progress)
 - **[042]** Ghost Token Audit & Profile UI Stabilization
@@ -131,6 +147,7 @@
 | 2026-04-20T10:14:00+02:00 | Documentation Sync (v0.6.0)                                      | `frontend-ui-engineering`, `directives`    | ✅ Done     |
 | 2026-04-20T18:07:00+02:00 | Rule 06 Compliance Cleanup (Remove temporary payload files, prompt.txt, and untrack artifacts/audit_report.md) | `security-and-hardening`                   | ✅ Done     |
 | 2026-04-20T10:16:00+02:00 | Infrastructure Hygiene (plan/todo sync)                          | `security-and-hardening`, `directives`     | ✅ Resolved |
+| 2026-04-24T18:45:00+02:00 | Security Hardening & UI Polish ([045])                          | `planning-and-task-breakdown`, `security-and-hardening`, `frontend-ui-engineering` | ✅ Resolved |
 
 ## 🧹 Backlog (Automated)
 
