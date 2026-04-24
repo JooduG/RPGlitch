@@ -7,6 +7,18 @@ export function auto_resize(node, options = {}) {
   let lastWidth = node.clientWidth;
   let lastHeight = 0;
 
+  // Robustly resolve buffer from theme once on initialization to respect accessibility
+  // while preventing layout thrashing during rapid updates.
+  let buffer = 10;
+  const temp = document.createElement("div");
+  temp.style.paddingTop = "var(--spacing-s)";
+  temp.style.visibility = "hidden";
+  temp.style.position = "absolute";
+  document.body.appendChild(temp);
+  const computedSpacing = window.getComputedStyle(temp).paddingTop;
+  buffer = parseFloat(computedSpacing) || 10;
+  document.body.removeChild(temp);
+
   const update = (force = false) => {
     if (frame) cancelAnimationFrame(frame);
     frame = requestAnimationFrame(() => {
@@ -24,17 +36,6 @@ export function auto_resize(node, options = {}) {
       const style = window.getComputedStyle(node);
       const borderTop = parseFloat(style.borderTopWidth) || 0;
       const borderBottom = parseFloat(style.borderBottomWidth) || 0;
-      
-      // Robustly resolve buffer from theme to respect accessibility settings
-      let buffer = 10;
-      const temp = document.createElement("div");
-      temp.style.paddingTop = "var(--spacing-s)";
-      temp.style.visibility = "hidden";
-      temp.style.position = "absolute";
-      document.body.appendChild(temp);
-      const computedSpacing = window.getComputedStyle(temp).paddingTop;
-      buffer = parseFloat(computedSpacing) || 10;
-      document.body.removeChild(temp);
       
       const calculatedHeight = Math.ceil(node.scrollHeight) + borderTop + borderBottom + buffer;
       
