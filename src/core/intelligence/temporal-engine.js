@@ -194,8 +194,13 @@ export async function weave_resonance(target_entity, history_slice, role = "char
     if (first_brace === -1 || last_brace === -1) return null;
 
     let resonance;
+    const json_string = stripped.substring(first_brace, last_brace + 1);
+    if (json_string.length > 65536) {
+      console.warn("[TemporalEngine] LLM output exceeded safe JSON parsing length.");
+      return null;
+    }
     try {
-      resonance = JSON.parse(stripped.substring(first_brace, last_brace + 1));
+      resonance = JSON.parse(json_string);
     } catch (e) {
       console.warn("[TemporalEngine] Failed to parse JSON from LLM output.", e);
       return null;
