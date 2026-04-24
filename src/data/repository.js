@@ -33,7 +33,7 @@ export const seed_premades = async () => {
     // Ignore error
   }
   if (typeof globalThis !== "undefined" && globalThis._seeding) return;
-  globalThis._seeding = true;
+  if (typeof globalThis !== "undefined") globalThis._seeding = true;
   try {
     const existing = await db.entities.toArray();
     const toAdd = [];

@@ -132,7 +132,11 @@ export function floating_dropdown(node, params) {
       if (frame) cancelAnimationFrame(frame);
       detach();
       // Restore node to its original DOM position before Svelte cleans it up.
-      placeholder.parentNode?.insertBefore(node, placeholder);
+      if (placeholder.parentNode) {
+        placeholder.parentNode.insertBefore(node, placeholder);
+      } else {
+        node.remove();
+      }
       placeholder.remove();
     },
   };
