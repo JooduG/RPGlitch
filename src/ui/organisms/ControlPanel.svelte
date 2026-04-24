@@ -36,6 +36,7 @@
   let show_reset_confirm = $state(false);
 
   async function handleReset() {
+    db.close();
     await db.delete();
     window.location.reload();
   }

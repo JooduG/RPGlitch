@@ -16,6 +16,7 @@
   import EntityFooter from "./panels/EntityFooter.svelte";
   import EntityFragments from "./panels/EntityFragments.svelte";
   import EntityHeader from "./panels/EntityHeader.svelte";
+  import Confirm from "@ui/molecules/Confirm.svelte";
 
   import AudioWing from "./wings/AudioWing.svelte";
   import DevWing from "./wings/DevWing.svelte";
@@ -30,6 +31,7 @@
   let is_saving = $state(false);
   let busy_fields = new SvelteSet();
   let active_field = $state({ key: "visual-prompt", label: "Image Prompt" });
+  let show_delete_confirm = $state(false);
 
   // Normalizer guarantees flattened schema
   let char = $state(normalize(app.editing_entity || runtime.character));
@@ -79,7 +81,6 @@
   }
 
   async function handle_delete() {
-    if (!confirm("Are you sure you want to delete this entity?")) return;
     try {
       await runtime.delete_entity(entity_type || "character", entity_id || char.id);
       handle_close();
@@ -124,6 +125,14 @@
 </script>
 
 {#if char && char.id}
+  <Confirm
+    bind:open={show_delete_confirm}
+    title="Delete {char.name || 'Entity'}"
+    message="This action is irreversible. All associated data, including history and vectors, will be lost."
+    confirm_label="Delete Permanently"
+    on_confirm={handle_delete}
+  />
+
   <Modal variant="profile" on_close={handle_close}>
     <div
       class="profile-container"
@@ -159,7 +168,7 @@
               {is_saving}
               onclick_edit={() => (is_editing = true)}
               onclick_save={handle_save}
-              onclick_delete={handle_delete}
+              onclick_delete={() => (show_delete_confirm = true)}
             />
           </main>
         </div>
