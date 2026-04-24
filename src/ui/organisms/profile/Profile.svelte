@@ -12,6 +12,7 @@
   import { normalize } from "@data/content-normaliser.js";
   import ProfilePicture from "@ui/atoms/ProfilePicture.svelte";
   import Modal from "@ui/molecules/Modal.svelte";
+  import Confirm from "@ui/molecules/Confirm.svelte";
   // New Modular Components
   import EntityFooter from "./panels/EntityFooter.svelte";
   import EntityFragments from "./panels/EntityFragments.svelte";
@@ -78,8 +79,12 @@
     }
   }
 
+  let show_delete_confirm = $state(false);
   async function handle_delete() {
-    if (!confirm("Are you sure you want to delete this entity?")) return;
+    show_delete_confirm = true;
+  }
+
+  async function execute_delete() {
     try {
       await runtime.delete_entity(entity_type || "character", entity_id || char.id);
       handle_close();
@@ -124,6 +129,14 @@
 </script>
 
 {#if char && char.id}
+  <Confirm
+    bind:open={show_delete_confirm}
+    title="Delete Entity?"
+    message="Are you sure you want to delete this entity? This action cannot be undone."
+    confirm_label="Delete Permanently"
+    on_confirm={execute_delete}
+  />
+
   <Modal variant="profile" on_close={handle_close}>
     <div
       class="profile-container"

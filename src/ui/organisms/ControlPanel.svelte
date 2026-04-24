@@ -39,8 +39,10 @@
   }
 
   async function executeReset() {
+    db.close(); // Close connection first
     await db.delete();
-    window.location.reload();
+    // Tiny delay to ensure IO is complete
+    setTimeout(() => window.location.reload(), 150);
   }
 
   /* --- STATE HELPERS --- */
@@ -49,11 +51,11 @@
 </script>
 
 <Confirm
-  bind:show={showResetConfirm}
+  bind:open={showResetConfirm}
   title="Wipe Memories?"
   message="This will permanently delete all characters and logs. This action cannot be undone."
   confirm_label="Wipe Everything"
-  onConfirm={executeReset}
+  on_confirm={executeReset}
 />
 
 <Modal variant="standard" on_close={() => app.toggle_control_panel()}>

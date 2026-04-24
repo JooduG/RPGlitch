@@ -4,6 +4,7 @@
   import { simulation_log } from "@state/simulation-log.svelte.js";
   import { simulationState } from "@state/status.svelte.js";
   import Button from "@ui/atoms/Button.svelte";
+  import Confirm from "@ui/molecules/Confirm.svelte";
   import Message from "./Message.svelte";
 
   // --- STATE ---
@@ -29,11 +30,22 @@
     return role;
   }
 
+  let show_delete_confirm = $state(false);
+  let delete_target_id = $state(null);
+
   // --- ACTIONS ---
   async function handle_delete(index) {
     const entry = simulation_log.feed[index];
-    if (entry && entry.id && confirm("Permanently delete this entry?")) {
-      await session.delete_log_entry(entry.id);
+    if (entry && entry.id) {
+      delete_target_id = entry.id;
+      show_delete_confirm = true;
+    }
+  }
+
+  async function execute_delete() {
+    if (delete_target_id) {
+      await session.delete_log_entry(delete_target_id);
+      delete_target_id = null;
     }
   }
 
@@ -54,6 +66,14 @@
     }
   }
 </script>
+
+<Confirm
+  bind:open={show_delete_confirm}
+  title="Delete Entry?"
+  message="Permanently delete this log entry? This cannot be undone."
+  confirm_label="Delete"
+  on_confirm={execute_delete}
+/>
 
 <div class="storymode-feed" bind:this={scroll_ref}>
   {#each simulation_log.feed as entry, index (entry.id)}

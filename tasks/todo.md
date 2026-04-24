@@ -132,10 +132,6 @@
 | 2026-04-20T10:16:00+02:00 | Infrastructure Hygiene (plan/todo sync)                          | `security-and-hardening`, `directives`     | ✅ Resolved |
 | 2026-04-22T05:19:28Z      | Implement `content-normaliser.test.js` and fix tag edge case     | `test-driven-development`                  | ✅ Done     |
 | 2026-04-24T20:59:08Z      | Repair security regressions and restore diegetic UI components   | `security-and-hardening`, `test-driven-development` | ✅ Done     |
-| 2026-04-22T05:45:00Z      | Replace deprecated substr with substring in palette.svelte.js    | `incremental-implementation`               | ✅ Done     |
-| 2026-04-24T08:18:00+02:00 | Rule 06 Compliance: Add try-catch around JSON.parse in temporal-engine.js | `security-and-hardening`                   | ✅ Done     |
-| 2026-04-24T18:45:00+02:00 | Security Hardening & UI Polish ([045])                          | `planning-and-task-breakdown`, `security-and-hardening`, `frontend-ui-engineering` | ✅ Resolved |
-| 2026-04-24T19:15:00+02:00 | Security & UI Refinement (Finalize [045])                        | `incremental-implementation`, `performance-optimization` | ✅ Resolved |
 
 ## 🧹 Backlog (Automated)
 
