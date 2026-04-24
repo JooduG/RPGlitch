@@ -106,7 +106,7 @@ ${history ? `[HISTORY]\n${history}` : ""}
 ${ctxBlock}
 [INSTRUCTIONS]
 Convert intent into a single impactful image prompt.
-Input Intent: "${rawIntent}"
+Input Intent: "${escape(rawIntent)}"
 [PROTOCOL]
 1. Start with <think> for composition planning.
 2. Output exactly one <image_prompt> tag.
