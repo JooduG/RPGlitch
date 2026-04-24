@@ -65,6 +65,21 @@ describe("validation.js", () => {
     });
   });
 
+  describe("escape()", () => {
+    test("escapes HTML special characters", () => {
+      const input = '<div>"Hello" & \'World\'</div>';
+      const output = Security.escape(input);
+      expect(output).toBe("&lt;div&gt;&quot;Hello&quot; &amp; &#39;World&#39;&lt;/div&gt;");
+    });
+
+    test("handles non-string inputs", () => {
+      expect(Security.escape(123)).toBe("123");
+      expect(Security.escape(0)).toBe("0");
+      expect(Security.escape(null)).toBe("");
+      expect(Security.escape(undefined)).toBe("");
+    });
+  });
+
   describe("validateImage()", () => {
     const JPEG_HEADER = new Uint8Array([0xff, 0xd8, 0xff, 0xe0]);
     const PNG_HEADER = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);

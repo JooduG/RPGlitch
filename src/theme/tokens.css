@@ -172,6 +172,13 @@
   --glass-s: rgb(var(--color-frozen-rgb) / var(--opacity-xs)); /* Sunken Surface */
   --glass-xs: rgb(var(--color-black-rgb) / var(--opacity-s)); /* Solid Depth Contrast */
 
+  /* Panel & Container Dimensions */
+  --panel-width-m: 480px;
+  --panel-width-l: 640px;
+  --panel-width-xl: 800px;
+  --card-height-m: 320px;
+  --card-width-m: 240px;
+
   /* Specular Edges */
   --border-xl: 1px solid rgb(var(--color-frisk-rgb) / var(--opacity-s));
   --border-l: 1px solid rgb(var(--color-frisk-rgb) / var(--opacity-xs));

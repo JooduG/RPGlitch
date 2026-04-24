@@ -7,6 +7,7 @@
   import Toggle from "@ui/atoms/Toggle.svelte";
   import Modal from "@ui/molecules/Modal.svelte";
   import TextField from "@ui/atoms/TextField.svelte";
+  import Confirm from "@ui/molecules/Confirm.svelte";
 
   /**
    * Main system interface for settings and prologue configuration.
@@ -32,17 +33,28 @@
     app.log(`Mock ${role} message injected.`, "system");
   }
 
+  let showResetConfirm = $state(false);
   async function handleReset() {
-    if (confirm("This will wash away all memories. Are you sure?")) {
-      await db.delete();
-      window.location.reload();
-    }
+    showResetConfirm = true;
+  }
+
+  async function executeReset() {
+    await db.delete();
+    window.location.reload();
   }
 
   /* --- STATE HELPERS --- */
   let isStoryboard = $derived(app.view === "storyboard");
   let isStoryMode = $derived(app.view === "storymode");
 </script>
+
+<Confirm
+  bind:show={showResetConfirm}
+  title="Wipe Memories?"
+  message="This will permanently delete all characters and logs. This action cannot be undone."
+  confirm_label="Wipe Everything"
+  onConfirm={executeReset}
+/>
 
 <Modal variant="standard" on_close={() => app.toggle_control_panel()}>
   <article class="control-panel-wrapper" data-testid="control-panel">

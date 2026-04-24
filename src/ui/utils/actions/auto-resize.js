@@ -11,7 +11,8 @@ export function auto_resize(node, options = {}) {
       const height = node.scrollHeight;
       node.style.height = height + "px";
       if (options.syncId) {
-        const siblings = document.querySelectorAll(`[data-sync-id="${options.syncId}"]`);
+        const scope = node.closest(".storymode-grid, .modal-content, body");
+        const siblings = scope.querySelectorAll(`[data-sync-id="${options.syncId}"]`);
         let maxHeight = 0;
         siblings.forEach((s) => {
           if (s instanceof HTMLElement) {
