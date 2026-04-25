@@ -77,7 +77,7 @@
 
       <div class={section.fields.length === 2 ? "split" : "full"}>
         {#each section.fields as field (field.key)}
-          <div class="field-group">
+          <div class="field-group tooltip-container">
             {#if field.label && section.id === "eternal"}
               <span class="field-label">{field.label}</span>
             {/if}
@@ -242,6 +242,11 @@
     min-width: 0;
     justify-content: stretch;
     align-items: stretch;
+    transition: z-index 0s;
+  }
+
+  .content .row .field-group:hover {
+    z-index: calc(var(--z-index-xxl) + 1); /* Above everything in the shell */
   }
 
   :global(.text-area.custom-field) {

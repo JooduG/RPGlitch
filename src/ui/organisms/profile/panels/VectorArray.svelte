@@ -76,7 +76,7 @@
   <div class="vector-list">
     {#each items as item, i (i)}
       <div
-        class="vector-item"
+        class="vector-item tooltip-container"
         class:editing={is_editing}
         transition:slide={{ duration: 400, easing: quintOut }}
       >
@@ -180,6 +180,10 @@
     transition: all var(--motion-m);
     display: flex;
     align-items: flex-start;
+  }
+
+  .vector-item:hover {
+    z-index: calc(var(--z-index-xxl) + 1); /* Above header */
   }
 
   .vector-header-rich {

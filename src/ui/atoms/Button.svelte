@@ -74,6 +74,7 @@
     border-radius: var(--border-radius-m);
     background: transparent;
     color: var(--font-color-m);
+    position: relative; /* Anchor tooltips correctly */
     transition:
       background-color var(--motion-l) var(--motion-elastic),
       color var(--motion-l) var(--motion-elastic),

@@ -16,6 +16,7 @@
     style = "",
     actions = null, // Snippet for the expanding header
     weight = 0, // 0-10 for the weight line thickness/glow
+    noBackground = false, // If true, removes background and border
   } = $props();
 
   let isFocused = $state(false);
@@ -44,6 +45,7 @@
   class="field-chassis {className}"
   class:is-focused={isFocused && canExpand}
   class:has-actions={!!actions}
+  class:no-background={noBackground}
   style="{style}; --weight-intensity: {weight / 10}; --header-opacity: {weight > 0
     ? 0.2 + (weight / 10) * 0.8
     : 0.8}; --header-bg-mix: {weight > 0 ? (0.2 + (weight / 10) * 0.8) * 100 : 100}%;"
@@ -113,6 +115,12 @@
     background: var(--glass-xs);
     border: var(--border-l);
     overflow: hidden;
+  }
+
+  .field-chassis.no-background {
+    background: transparent;
+    border: none;
+    box-shadow: none;
   }
 
   .field-chassis.is-focused {

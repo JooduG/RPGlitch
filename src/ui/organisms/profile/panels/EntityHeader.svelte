@@ -40,6 +40,7 @@
       <TextField
         is_edit={is_editing}
         class="description-field"
+        noBackground={true}
         placeholder={ENTITY_FRAGMENTS.description}
         value={char.description || ""}
         oninput={(e) => (char.description = e.target.value)}
@@ -60,6 +61,7 @@
     border-bottom: var(--border-s);
     z-index: var(--z-index-xl);
     transition: all var(--motion-l);
+    border-top-right-radius: var(--border-radius-m);
   }
 
   .header-glass-context {
@@ -123,49 +125,25 @@
     margin-top: 0;
   }
 
-  :global(.description-field) {
-    background: transparent;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
+  .description :global(.field-chassis) {
+    transition: background var(--motion-l);
   }
 
-  :global(.description-field.is-focused) {
-    background: transparent;
-    box-shadow: none;
+  header.is-editing .description :global(.field-chassis:focus-within) {
+    background: rgb(var(--color-white-rgb) / 3%);
   }
 
   :global(.description-field .field-header) {
-    display: none; /* Human eyes only - remove AI header */
-  }
-
-  :global(.enhance-btn) {
-    color: var(--color-white);
-    border: none;
-    outline: none;
-    box-shadow: none;
-    background: transparent;
-    filter: drop-shadow(0 1px 2px rgb(var(--color-black-rgb) / 80%));
-  }
-
-  :global(.enhance-btn:hover) {
-    background: transparent;
-    color: var(--color-white);
-    transform: scale(1.1);
+    display: none;
   }
 
   :global(.description-field .field-foundation),
   :global(.description-field .readonly-field) {
-    padding: var(--spacing-xs); /* Match name padding */
+    padding: var(--spacing-xs);
     font-size: var(--font-size-l);
     color: var(--font-color-m);
     background: transparent;
     border: none;
     outline: none;
-  }
-
-  :global(.description-field .field-foundation:focus) {
-    background: rgb(var(--color-white-rgb) / 3%);
-    border: none;
   }
 </style>

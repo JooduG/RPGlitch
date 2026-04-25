@@ -262,7 +262,7 @@
     grid-template-columns: 35% 1fr;
     grid-template-rows: 1fr;
     border-radius: inherit;
-    overflow: hidden; /* THE SOVEREIGN CLIP (RESTORED) */
+    overflow: visible;
     background: transparent;
     position: relative;
   }
@@ -270,18 +270,25 @@
   .signature-bar {
     position: absolute;
     top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: var(--signature-color);
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--signature-color) 20%,
+      var(--signature-color) 80%,
+      transparent
+    );
     z-index: var(--z-index-xxl); /* Above everything in the shell */
     pointer-events: none;
+    box-shadow: 0 0 12px var(--signature-color);
+    opacity: 0.6;
   }
 
   .left-panel,
   .right-panel {
     height: 100%;
-    overflow: hidden auto;
 
     /* Custom Scrollbar (Standard) */
     scrollbar-width: thin;
@@ -294,6 +301,8 @@
     border-right: 1px solid
       color-mix(in srgb, var(--color-gunmetal) 85%, var(--signature-color) 15%);
     background: transparent;
+    border-radius: var(--border-radius-m) 0 0 var(--border-radius-m);
+    overflow: hidden;
   }
 
   .right-panel {
@@ -303,6 +312,7 @@
     background-color: rgb(from var(--signature-color) r g b / 5%); /* Subtle Identity Wash */
     gap: var(--spacing-m);
     min-height: 0; /* CRITICAL: Allow panel to be smaller than content for scrolling */
+    overflow: visible;
   }
 
   .left-panel::-webkit-scrollbar,
