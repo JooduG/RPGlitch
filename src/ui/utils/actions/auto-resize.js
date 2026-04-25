@@ -12,12 +12,6 @@ export function auto_resize(node, options = {}) {
     if (frame) cancelAnimationFrame(frame);
 
     frame = requestAnimationFrame(() => {
-      const style = getComputedStyle(node);
-      const isBorderBox = style.boxSizing === "border-box";
-      const borderOffset = isBorderBox
-        ? parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth)
-        : 0;
-
       // Add a small buffer to prevent flickering scrollbars
       const buffer = 2;
 
@@ -36,19 +30,27 @@ export function auto_resize(node, options = {}) {
       });
 
       // 2. PHASE: BATCH READ (Measure)
-      let maxHeight = 0;
+      let maxScrollHeight = 0;
+      const metrics = [];
+
       siblings.forEach((s) => {
         if (s instanceof HTMLElement) {
-          maxHeight = Math.max(maxHeight, s.scrollHeight);
+          const sStyle = getComputedStyle(s);
+          const sIsBorderBox = sStyle.boxSizing === "border-box";
+          const sBorderOffset = sIsBorderBox
+            ? parseFloat(sStyle.borderTopWidth) + parseFloat(sStyle.borderBottomWidth)
+            : 0;
+          
+          const sScrollHeight = s.scrollHeight;
+          maxScrollHeight = Math.max(maxScrollHeight, sScrollHeight);
+          
+          metrics.push({ el: s, borderOffset: sBorderOffset });
         }
       });
 
       // 3. PHASE: BATCH WRITE (Apply)
-      const finalHeight = maxHeight + borderOffset + buffer + "px";
-      siblings.forEach((s) => {
-        if (s instanceof HTMLElement) {
-          s.style.height = finalHeight;
-        }
+      metrics.forEach((m) => {
+        m.el.style.height = maxScrollHeight + m.borderOffset + buffer + "px";
       });
 
       lastWidth = node.clientWidth;

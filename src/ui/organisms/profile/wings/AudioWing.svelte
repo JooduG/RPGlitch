@@ -12,7 +12,7 @@
   let { char = $bindable(), is_editing } = $props();
   let show_voice_dropdown = $state(false);
   let row_el = $state();
-  let coords = $state({ top: 0, left: 0, width: 0, is_dropup: false });
+  let coords = $state({ top: null, bottom: null, left: 0, width: 0, is_dropup: false });
 
   $effect(() => {
     if (show_voice_dropdown && row_el) {
@@ -24,7 +24,8 @@
         const use_dropup = space_below < dropdown_height && rect.top > dropdown_height;
 
         coords = {
-          top: use_dropup ? rect.top - dropdown_height : rect.bottom,
+          top: use_dropup ? null : rect.bottom,
+          bottom: use_dropup ? vh - rect.top : null,
           left: rect.left,
           width: rect.width,
           is_dropup: use_dropup,
@@ -73,6 +74,13 @@
 
   ensure_voice();
   $effect(ensure_voice);
+
+  const dropdown_style = $derived(
+    `top: ${coords.top !== null ? coords.top + "px" : "auto"}; ` +
+      `bottom: ${coords.bottom !== null ? coords.bottom + "px" : "auto"}; ` +
+      `left: ${coords.left}px; ` +
+      `width: ${coords.width}px;`,
+  );
 </script>
 
 <div class="audio-wing-wrapper" role="presentation">
@@ -88,6 +96,7 @@
             aria-label="Select Voice"
             aria-haspopup="listbox"
             aria-expanded={show_voice_dropdown}
+            aria-controls="voice-listbox"
           >
             <span class="voice-name-truncate">
               {format_voice_name(
@@ -97,12 +106,13 @@
           </button>
         </div>
         <div
+          id="voice-listbox"
           use:portal
           role="listbox"
           class="dropdown-content glass-xxl"
           class:visible={show_voice_dropdown}
           class:dropup={coords.is_dropup}
-          style="top: {coords.top}px; left: {coords.left}px; width: {coords.width}px;"
+          style={dropdown_style}
         >
           {#each Audio.voice.voices as voice (voice.uri)}
             <button
