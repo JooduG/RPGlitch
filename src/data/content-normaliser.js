@@ -156,7 +156,7 @@ export const normalize = (base = {}) => {
 /**
  * Coerces a value into a strictly cleaned array of strings.
  * Used for 'past' and 'future' temporal hybrid fields.
- * @param {string|string[]} val
+ * @param {any} val
  * @returns {string[]}
  */
 export function coerce_temporal_array(val) {

@@ -33,15 +33,13 @@
     app.log(`Mock ${role} message injected.`, "system");
   }
 
-  let showResetConfirm = $state(false);
-  async function handleReset() {
-    showResetConfirm = true;
-  }
+  let show_reset_confirm = $state(false);
+
+  
 
   async function executeReset() {
-    db.close(); // Close connection first
+    db.close();
     await db.delete();
-    // Tiny delay to ensure IO is complete
     setTimeout(() => window.location.reload(), 150);
   }
 
@@ -51,10 +49,10 @@
 </script>
 
 <Confirm
-  bind:open={showResetConfirm}
+  bind:open={show_reset_confirm}
   title="Wipe Memories?"
-  message="This will permanently delete all characters and logs. This action cannot be undone."
-  confirm_label="Wipe Everything"
+  message="This will permanently delete all stories, characters, and logs. This action cannot be undone."
+  confirm_label="Erase All"
   on_confirm={executeReset}
 />
 
@@ -133,7 +131,7 @@
           bind:value={app.settings.dev_mode}
           onchange={() => app.save_settings()}
         />
-        <Button variant="secondary" size="sm" onclick={handleReset}>
+        <Button variant="secondary" size="sm" onclick={() => (show_reset_confirm = true)}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="14"

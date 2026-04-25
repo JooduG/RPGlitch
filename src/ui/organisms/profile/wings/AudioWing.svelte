@@ -7,10 +7,49 @@
   import { Audio } from "@media/audio-engine.svelte.js";
   import Slider from "@ui/atoms/Slider.svelte";
   import Wing from "./Wing.svelte";
-  import { click_outside } from "@ui/utils/actions/click-outside.js";
+  import { portal } from "@ui/utils/actions/portal.js";
 
   let { char = $bindable(), is_editing } = $props();
   let show_voice_dropdown = $state(false);
+  let row_el = $state();
+  let coords = $state({ top: 0, left: 0, width: 0, is_dropup: false });
+
+  $effect(() => {
+    if (show_voice_dropdown && row_el) {
+      const update = () => {
+        const rect = row_el.getBoundingClientRect();
+        const vh = window.innerHeight;
+        const dropdown_height = 300; // max-height in CSS
+        const space_below = vh - rect.bottom;
+        const use_dropup = space_below < dropdown_height && rect.top > dropdown_height;
+
+        coords = {
+          top: use_dropup ? rect.top - dropdown_height : rect.bottom,
+          left: rect.left,
+          width: rect.width,
+          is_dropup: use_dropup,
+        };
+      };
+
+      const handle_outside = (e) => {
+        if (!(e.target instanceof Element)) return;
+        if (!row_el.contains(e.target) && !e.target.closest(".dropdown-content")) {
+          show_voice_dropdown = false;
+        }
+      };
+
+      update();
+      window.addEventListener("scroll", update, true);
+      window.addEventListener("resize", update);
+      window.addEventListener("mousedown", handle_outside, true);
+
+      return () => {
+        window.removeEventListener("scroll", update, true);
+        window.removeEventListener("resize", update);
+        window.removeEventListener("mousedown", handle_outside, true);
+      };
+    }
+  });
 
   const selected_voice = $derived(Audio.voice.voices.find((v) => v.uri === char.voice.uri));
   const is_natural_voice = $derived(selected_voice?.name.includes("Natural"));
@@ -36,14 +75,10 @@
   $effect(ensure_voice);
 </script>
 
-<div
-  class="audio-wing-wrapper"
-  use:click_outside={() => (show_voice_dropdown = false)}
-  role="presentation"
->
+<div class="audio-wing-wrapper" role="presentation">
   <Wing class="audio-wing">
     <div class="group">
-      <div class="voice-control-row">
+      <div class="voice-control-row" bind:this={row_el}>
         <div class="dropdown">
           <button
             class="voice-button"
@@ -51,6 +86,8 @@
             disabled={!is_editing}
             onclick={() => (show_voice_dropdown = !show_voice_dropdown)}
             aria-label="Select Voice"
+            aria-haspopup="listbox"
+            aria-expanded={show_voice_dropdown}
           >
             <span class="voice-name-truncate">
               {format_voice_name(
@@ -58,21 +95,30 @@
               )}
             </span>
           </button>
-          <div class="dropdown-content glass-xxl" class:visible={show_voice_dropdown}>
-            {#each Audio.voice.voices as voice (voice.uri)}
-              <button
-                class="voice-option"
-                class:active={char.voice.uri === voice.uri}
-                onclick={() => {
-                  if (is_editing) char.voice.uri = voice.uri;
-                  show_voice_dropdown = false;
-                }}
-              >
-                <span class="voice-name">{format_voice_name(voice.name)}</span>
-                <span class="region-pill">{voice.region}</span>
-              </button>
-            {/each}
-          </div>
+        </div>
+        <div
+          use:portal
+          role="listbox"
+          class="dropdown-content glass-xxl"
+          class:visible={show_voice_dropdown}
+          class:dropup={coords.is_dropup}
+          style="top: {coords.top}px; left: {coords.left}px; width: {coords.width}px;"
+        >
+          {#each Audio.voice.voices as voice (voice.uri)}
+            <button
+              role="option"
+              aria-selected={char.voice.uri === voice.uri}
+              class="voice-option"
+              class:active={char.voice.uri === voice.uri}
+              onclick={() => {
+                if (is_editing) char.voice.uri = voice.uri;
+                show_voice_dropdown = false;
+              }}
+            >
+              <span class="voice-name">{format_voice_name(voice.name)}</span>
+              <span class="region-pill">{voice.region}</span>
+            </button>
+          {/each}
         </div>
         <button
           class="preview-button"
@@ -195,10 +241,7 @@
     pointer-events: none;
     opacity: 0;
     transform: translateY(-var(--spacing-xs));
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%; /* Expansion fix: Match parent row width */
+    position: fixed;
     max-height: 300px;
     overflow-y: auto;
     z-index: var(--z-index-max);
@@ -209,7 +252,8 @@
     box-shadow: var(--shadow-xxl);
     transition:
       opacity var(--motion-l) ease,
-      transform var(--motion-l) var(--motion-elastic);
+      transform var(--motion-l) var(--motion-elastic),
+      visibility var(--motion-l);
   }
 
   .dropdown-content.visible {
@@ -219,6 +263,10 @@
     flex-direction: column;
     opacity: 1;
     transform: translateY(var(--spacing-xs));
+  }
+
+  .dropdown-content.visible.dropup {
+    transform: translateY(calc(-1 * var(--spacing-xs)));
   }
 
   .voice-option {

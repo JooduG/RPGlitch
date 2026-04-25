@@ -55,10 +55,14 @@ export function auto_resize(node, options = {}) {
       lastScrollHeight = node.scrollHeight;
     });
   };
-
   node.addEventListener("input", update);
   const observer = new ResizeObserver(update);
   observer.observe(node);
+
+  const mutationObserver = new MutationObserver(update);
+  if (!(node instanceof HTMLTextAreaElement || node instanceof HTMLInputElement)) {
+    mutationObserver.observe(node, { childList: true, characterData: true, subtree: true });
+  }
 
   update();
 
@@ -67,6 +71,7 @@ export function auto_resize(node, options = {}) {
       if (frame) cancelAnimationFrame(frame);
       node.removeEventListener("input", update);
       observer.disconnect();
+      mutationObserver.disconnect();
     },
   };
 }

@@ -1,21 +1,27 @@
-# Mission Plan: Infrastructure Hygiene [044]
+# Mission Plan: UI Stabilization & Alignment [045]
 
 > **Status**: `[DONE]`
-> **Mission**: Resolve IDE warnings by initializing standard plan location and syncing the mission board.
+> **Mission**: Resolve regressions in UI layout, accessibility, and architectural standards identified during the AudioWing refactor.
 
 ## Proposed Changes
 
-### [Documentation]
+### [UI/UX]
 
-- [x] Documentation Sync (SPEC.md, Rules 04/05)
-- [x] Expand Component Registry in Rule 04 (Nordic Atoms/Molecules)
+- [x] Match Audio selection dropdown width to parent row.
+- [x] Implement portal-based positioning for voice selection to prevent clipping.
+- [x] Enhance accessibility with WAI-ARIA listbox patterns in `AudioWing.svelte`.
+- [x] Fix line-clamping and scrolling stability in `StoryboardCard` and `Wing` components.
+- [x] Correct event safety and robustness in `Profile.svelte`.
 
-### [Infrastructure]
+### [Architectural Stabilization]
 
-- [x] Initialize `tasks/plan.md` to resolve rule violations.
-- [x] Sync `tasks/todo.md` with recent missions and skill logs.
+- [x] Restore security safeguards (payload limits, JSON parsing, prompt escaping).
+- [x] Align UI containers with semantic design tokens (`--panel-width-*`).
+- [x] Refine `auto-resize` utility with `MutationObserver` and performance optimizations.
+- [x] Reinstate `get_contrast_color` unit tests and standard verification suites.
 
 ## Verification
 
-- [x] IDE warnings for missing `tasks/plan.md` resolved.
-- [x] `todo.md` shows [044] as complete.
+- [x] All unit tests passing (`npm run test:unit`).
+- [x] Linting and structural audits clean.
+- [x] Visual verification of dropdown alignment and smooth transitions.

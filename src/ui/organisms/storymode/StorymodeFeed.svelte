@@ -74,7 +74,6 @@
   confirm_label="Delete"
   on_confirm={execute_delete}
 />
-
 <div class="storymode-feed" bind:this={scroll_ref}>
   {#each simulation_log.feed as entry, index (entry.id)}
     <Message

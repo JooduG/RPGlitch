@@ -12,11 +12,11 @@
   import { normalize } from "@data/content-normaliser.js";
   import ProfilePicture from "@ui/atoms/ProfilePicture.svelte";
   import Modal from "@ui/molecules/Modal.svelte";
-  import Confirm from "@ui/molecules/Confirm.svelte";
   // New Modular Components
   import EntityFooter from "./panels/EntityFooter.svelte";
   import EntityFragments from "./panels/EntityFragments.svelte";
   import EntityHeader from "./panels/EntityHeader.svelte";
+  import Confirm from "@ui/molecules/Confirm.svelte";
 
   import AudioWing from "./wings/AudioWing.svelte";
   import DevWing from "./wings/DevWing.svelte";
@@ -31,6 +31,7 @@
   let is_saving = $state(false);
   let busy_fields = new SvelteSet();
   let active_field = $state({ key: "visual-prompt", label: "Image Prompt" });
+  let show_delete_confirm = $state(false);
 
   // Normalizer guarantees flattened schema
   let char = $state(normalize(app.editing_entity || runtime.character));
@@ -79,10 +80,7 @@
     }
   }
 
-  let show_delete_confirm = $state(false);
-  async function handle_delete() {
-    show_delete_confirm = true;
-  }
+  
 
   async function execute_delete() {
     try {
@@ -101,7 +99,7 @@
         active instanceof HTMLTextAreaElement ||
         (active instanceof HTMLElement && active.isContentEditable);
 
-      const isWing = active?.closest?.(".wing-left, .wing-right");
+      const isWing = active?.closest?.(".wing-left, .wing-right, .dropdown-content");
 
       if (!isInput && !isWing && busy_fields.size === 0) {
         active_field = { key: "visual-prompt", label: "Image Prompt" };
@@ -110,9 +108,10 @@
   }
 
   function handle_background_click(e) {
+    const target = e.target instanceof Element ? e.target : e.target.parentElement;
     if (
-      !e.target.closest?.(
-        "textarea, input, button, .swatch, .wing-left, .wing-right, .profile-presentation, [contenteditable]",
+      !target?.closest?.(
+        "textarea, input, button, .swatch, .wing-left, .wing-right, .dropdown-content, .profile-presentation, [contenteditable]",
       )
     ) {
       if (is_editing) {
@@ -131,8 +130,8 @@
 {#if char && char.id}
   <Confirm
     bind:open={show_delete_confirm}
-    title="Delete Entity?"
-    message="Are you sure you want to delete this entity? This action cannot be undone."
+    title="Delete {char.name || 'Entity'}"
+    message="This action is irreversible. All associated data, including history and vectors, will be lost."
     confirm_label="Delete Permanently"
     on_confirm={execute_delete}
   />
@@ -172,7 +171,7 @@
               {is_saving}
               onclick_edit={() => (is_editing = true)}
               onclick_save={handle_save}
-              onclick_delete={handle_delete}
+              onclick_delete={() => (show_delete_confirm = true)}
             />
           </main>
         </div>

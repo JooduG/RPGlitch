@@ -50,6 +50,23 @@ describe("validation.js", () => {
       expect(sanitizeHtml("")).toBe("");
     });
   });
+
+  describe("escape()", () => {
+    test("escapes HTML special characters including quotes", () => {
+      const input = '<b>Hello</b> "World" & \'Peace\'';
+      const output = Security.escape(input);
+      expect(output).toBe("&lt;b&gt;Hello&lt;/b&gt; &quot;World&quot; &amp; &#39;Peace&#39;");
+    });
+
+    test("handles non-string inputs", () => {
+      expect(Security.escape(123)).toBe("123");
+      expect(Security.escape(0)).toBe("0");
+      expect(Security.escape(true)).toBe("true");
+      expect(Security.escape(null)).toBe("");
+      expect(Security.escape(undefined)).toBe("");
+    });
+  });
+
   describe("sanitizeToFragment()", () => {
     test("returns a DocumentFragment-like object", () => {
       const input = "<p>Hello</p>";
@@ -64,22 +81,6 @@ describe("validation.js", () => {
       expect(output.textContent).toContain("<p>Hello</p>");
     });
   });
-
-  describe("escape()", () => {
-    test("escapes HTML special characters", () => {
-      const input = '<div>"Hello" & \'World\'</div>';
-      const output = Security.escape(input);
-      expect(output).toBe("&lt;div&gt;&quot;Hello&quot; &amp; &#39;World&#39;&lt;/div&gt;");
-    });
-
-    test("handles non-string inputs", () => {
-      expect(Security.escape(123)).toBe("123");
-      expect(Security.escape(0)).toBe("0");
-      expect(Security.escape(null)).toBe("");
-      expect(Security.escape(undefined)).toBe("");
-    });
-  });
-
   describe("validateImage()", () => {
     const JPEG_HEADER = new Uint8Array([0xff, 0xd8, 0xff, 0xe0]);
     const PNG_HEADER = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
@@ -106,6 +107,22 @@ describe("validation.js", () => {
         this.name = filename;
         this.type = properties.type;
         this.size = properties.size || parts.reduce((acc, p) => acc + p.byteLength, 0);
+        this.lastModified = properties.lastModified || Date.now();
+        this.webkitRelativePath = properties.webkitRelativePath || "";
+      }
+      async bytes() {
+        return new Uint8Array(await this.arrayBuffer());
+      }
+      stream() {
+        return new ReadableStream({
+          start: async (controller) => {
+            controller.enqueue(await this.bytes());
+            controller.close();
+          },
+        });
+      }
+      async text() {
+        return new TextDecoder().decode(await this.arrayBuffer());
       }
       async arrayBuffer() {
         const combined = new Uint8Array(this.parts.reduce((acc, p) => acc + p.byteLength, 0));
