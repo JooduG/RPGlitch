@@ -5,7 +5,8 @@
  */
 
 export const DB_NAME = "rpglitch";
-export const KV_SETTINGS_KEY = "active_session_id";
+export const KV_SETTINGS_KEY = "rpg_settings";
+export const SESSION_ID_KEY = "active_session_id";
 
 export const ROLES = {
   USER: "user",

@@ -119,7 +119,8 @@ export class AppStore {
     if (typeof window === "undefined" || this.initialized) return;
     this.initialized = true;
     try {
-      const entry = await db.kv_settings.get("rpg_settings");
+      const { KV_SETTINGS_KEY } = await import("../core/constants.js");
+      const entry = await db.kv_settings.get(KV_SETTINGS_KEY);
       if (entry && entry.value) {
         this.settings = { ...this.settings, ...entry.value };
       }
@@ -147,8 +148,9 @@ export class AppStore {
   save_settings = async () => {
     if (typeof window === "undefined" || !this.settings) return;
     try {
+      const { KV_SETTINGS_KEY } = await import("../core/constants.js");
       await db.kv_settings.put({
-        key: "rpg_settings",
+        key: KV_SETTINGS_KEY,
         value: $state.snapshot(this.settings),
       });
     } catch (e) {

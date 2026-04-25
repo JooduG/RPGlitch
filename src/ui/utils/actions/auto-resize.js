@@ -37,14 +37,18 @@ export function auto_resize(node, options = {}) {
         let maxHeight = 0;
 
         const siblingData = Array.from(siblings).filter((s) => s instanceof HTMLElement);
+        // Batch reset to avoid interleaved reads/writes
+        siblingData.forEach((s) => (s.style.height = "auto"));
+
+        // Batch reads
         siblingData.forEach((s) => {
-          s.style.height = "auto";
           const sStyle = window.getComputedStyle(s);
           const sBT = parseFloat(sStyle.borderTopWidth) || 0;
           const sBB = parseFloat(sStyle.borderBottomWidth) || 0;
           maxHeight = Math.max(maxHeight, Math.ceil(s.scrollHeight) + sBT + sBB + buffer);
         });
 
+        // Batch final writes
         siblingData.forEach((s) => {
           const newHeight = maxHeight + "px";
           if (s.style.height !== newHeight) {

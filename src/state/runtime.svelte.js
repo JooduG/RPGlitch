@@ -174,7 +174,8 @@ function createRuntimeStore() {
       if (active_story_id) simulation_state.story_id = active_story_id;
       if (!simulation_state.story_id) {
         try {
-          const entry = await db.kv_settings.get("active_session_id");
+          const { SESSION_ID_KEY } = await import("../core/constants.js");
+          const entry = await db.kv_settings.get(SESSION_ID_KEY);
           if (entry?.value) simulation_state.story_id = entry.value;
           else return;
         } catch {

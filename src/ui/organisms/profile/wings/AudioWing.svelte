@@ -18,14 +18,21 @@
     if (show_voice_dropdown && row_el) {
       const update = () => {
         const rect = row_el.getBoundingClientRect();
+        const vh = window.innerHeight;
+        const dropdown_height = 300; // max-height in CSS
+        const space_below = vh - rect.bottom;
+        const use_dropup = space_below < dropdown_height && rect.top > dropdown_height;
+
         coords = {
-          top: rect.bottom,
+          top: use_dropup ? rect.top - dropdown_height : rect.bottom,
           left: rect.left,
           width: rect.width,
+          is_dropup: use_dropup,
         };
       };
 
       const handle_outside = (e) => {
+        if (!(e.target instanceof Element)) return;
         if (!row_el.contains(e.target) && !e.target.closest(".dropdown-content")) {
           show_voice_dropdown = false;
         }
@@ -94,6 +101,7 @@
           role="listbox"
           class="dropdown-content glass-xxl"
           class:visible={show_voice_dropdown}
+          class:dropup={coords.is_dropup}
           style="top: {coords.top}px; left: {coords.left}px; width: {coords.width}px;"
         >
           {#each Audio.voice.voices as voice (voice.uri)}
@@ -255,6 +263,10 @@
     flex-direction: column;
     opacity: 1;
     transform: translateY(var(--spacing-xs));
+  }
+
+  .dropdown-content.visible.dropup {
+    transform: translateY(calc(-1 * var(--spacing-xs)));
   }
 
   .voice-option {
