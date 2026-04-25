@@ -90,14 +90,14 @@ ${escapeXml(text)}
     let ctxBlock;
     switch (targetType) {
       case "scene":
-        ctxBlock = `[CONTEXT: ENVIRONMENT]\nSetting: ${fractal?.present?.physical || "Unknown"}\n**STRICTLY NO CHARACTERS.** Focus on composition and lighting.`;
+        ctxBlock = `[CONTEXT: ENVIRONMENT]\nSetting: ${escapeXml(fractal?.present?.physical || "Unknown")}\n**STRICTLY NO CHARACTERS.** Focus on composition and lighting.`;
         break;
       case "user":
-        ctxBlock = `[CONTEXT: USER_PORTRAIT]\nIdentity: ${user?.name || "User"}\nPhysical: ${user?.present?.physical || "Standard"}\n**SOLO PROTOCOL.**`;
+        ctxBlock = `[CONTEXT: USER_PORTRAIT]\nIdentity: ${escapeXml(user?.name || "User")}\nPhysical: ${escapeXml(user?.present?.physical || "Standard")}\n**SOLO PROTOCOL.**`;
         break;
       case "ai":
       default:
-        ctxBlock = `[CONTEXT: ENTITY_PORTRAIT]\nIdentity: ${ai?.name || "AI"}\nPhysical: ${ai?.present?.physical || "Standard"}\n**SOLO PROTOCOL.**`;
+        ctxBlock = `[CONTEXT: ENTITY_PORTRAIT]\nIdentity: ${escapeXml(ai?.name || "AI")}\nPhysical: ${escapeXml(ai?.present?.physical || "Standard")}\n**SOLO PROTOCOL.**`;
         break;
     }
 
@@ -105,7 +105,7 @@ ${escapeXml(text)}
 [SYSTEM: SENSORY_CORTEX_V5]
 Target: ${targetType}
 Mode: ${mode.toUpperCase()}
-${history ? `[HISTORY]\n${history}` : ""}
+${history ? `[HISTORY]\n${escapeXml(history)}` : ""}
 ${ctxBlock}
 [INSTRUCTIONS]
 Convert intent into a single impactful image prompt.
