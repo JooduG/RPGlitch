@@ -60,7 +60,7 @@
   }
 
   .data-content::-webkit-scrollbar-thumb {
-    background: var(--border-l);
+    background: var(--color-border-l);
     border-radius: var(--border-radius-full);
   }
 

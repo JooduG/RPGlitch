@@ -5,5 +5,8 @@
  */
 
 // Storage Keys
-export const SESSION_ID_KEY = "rpglitch_session_id";
-export const KV_SETTINGS_KEY = "rpglitch_settings";
+export const SESSION_ID_KEY = "active_session_id";
+export const KV_SETTINGS_KEY = "rpg_settings";
+
+// UI Metrics
+export const DROPDOWN_MAX_HEIGHT = 300;

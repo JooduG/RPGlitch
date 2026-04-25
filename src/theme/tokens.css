@@ -182,12 +182,18 @@
   /* Container Dimensions */
   --card-height-m: 320px;
   --card-width-m: 240px;
+  --dropdown-max-height: 300px;
 
   /* Specular Edges */
-  --border-xl: 1px solid rgb(var(--color-frisk-rgb) / var(--opacity-s));
-  --border-l: 1px solid rgb(var(--color-frisk-rgb) / var(--opacity-xs));
-  --border-m: 1px solid rgb(var(--color-frozen-rgb) / var(--opacity-xs));
-  --border-s: 1px solid rgb(var(--color-chalk-rgb) / var(--opacity-s));
+  --color-border-xl: rgb(var(--color-frisk-rgb) / var(--opacity-s));
+  --color-border-l: rgb(var(--color-frisk-rgb) / var(--opacity-xs));
+  --color-border-m: rgb(var(--color-frozen-rgb) / var(--opacity-xs));
+  --color-border-s: rgb(var(--color-chalk-rgb) / var(--opacity-s));
+
+  --border-xl: 1px solid var(--color-border-xl);
+  --border-l: 1px solid var(--color-border-l);
+  --border-m: 1px solid var(--color-border-m);
+  --border-s: 1px solid var(--color-border-s);
 
   /* Atmospheric Blur Scale */
   --blur-xl: blur(48px);
@@ -238,5 +244,4 @@
   --icon-m: 2.5rem;
   --icon-s: 2rem;
   --icon-xs: 1rem;
-
 }

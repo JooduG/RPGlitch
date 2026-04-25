@@ -21,7 +21,9 @@ export function auto_resize(node, options = {}) {
       }
 
       const syncId = options.syncId;
-      const scope = syncId ? (node.closest(".storymode-grid, .modal-content, body") || document.body) : null;
+      const scope = syncId
+        ? node.closest(".storymode-grid, .modal-content, body") || document.body
+        : null;
       const siblings = syncId ? scope.querySelectorAll(`[data-sync-id="${syncId}"]`) : [node];
 
       // 1. PHASE: BATCH WRITE (Reset)
@@ -40,10 +42,10 @@ export function auto_resize(node, options = {}) {
           const sBorderOffset = sIsBorderBox
             ? parseFloat(sStyle.borderTopWidth) + parseFloat(sStyle.borderBottomWidth)
             : 0;
-          
+
           const sScrollHeight = s.scrollHeight;
           maxScrollHeight = Math.max(maxScrollHeight, sScrollHeight);
-          
+
           metrics.push({ el: s, borderOffset: sBorderOffset });
         }
       });

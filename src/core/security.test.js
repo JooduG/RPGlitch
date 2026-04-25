@@ -53,7 +53,7 @@ describe("validation.js", () => {
 
   describe("escape()", () => {
     test("escapes HTML special characters including quotes", () => {
-      const input = '<b>Hello</b> "World" & \'Peace\'';
+      const input = "<b>Hello</b> \"World\" & 'Peace'";
       const output = Security.escape(input);
       expect(output).toBe("&lt;b&gt;Hello&lt;/b&gt; &quot;World&quot; &amp; &#39;Peace&#39;");
     });

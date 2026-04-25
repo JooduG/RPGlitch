@@ -1,6 +1,7 @@
 import { temporal_engine } from "../core/intelligence/temporal-engine.js";
 import { db } from "../data/db.js";
 import { entities } from "../data/repository.js";
+import { SESSION_ID_KEY } from "@core/constants.js";
 // We split the large state object into cohesive internal modules:
 // 1. Entities (character, active_user, active_ai, active_fractal)
 // 2. Story / Narrative (story, story_id, simulation_log, turn, ready)
@@ -174,7 +175,6 @@ function createRuntimeStore() {
       if (active_story_id) simulation_state.story_id = active_story_id;
       if (!simulation_state.story_id) {
         try {
-          const { SESSION_ID_KEY } = await import("../core/constants.js");
           const entry = await db.kv_settings.get(SESSION_ID_KEY);
           if (entry?.value) simulation_state.story_id = entry.value;
           else return;

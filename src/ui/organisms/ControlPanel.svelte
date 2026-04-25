@@ -35,8 +35,6 @@
 
   let show_reset_confirm = $state(false);
 
-  
-
   async function executeReset() {
     db.close();
     await db.delete();

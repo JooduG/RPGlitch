@@ -8,6 +8,7 @@
   import Slider from "@ui/atoms/Slider.svelte";
   import Wing from "./Wing.svelte";
   import { portal } from "@ui/utils/actions/portal.js";
+  import { DROPDOWN_MAX_HEIGHT } from "@core/constants.js";
 
   let { char = $bindable(), is_editing } = $props();
   let show_voice_dropdown = $state(false);
@@ -19,7 +20,7 @@
       const update = () => {
         const rect = row_el.getBoundingClientRect();
         const vh = window.innerHeight;
-        const dropdown_height = 300; // max-height in CSS
+        const dropdown_height = DROPDOWN_MAX_HEIGHT;
         const space_below = vh - rect.bottom;
         const use_dropup = space_below < dropdown_height && rect.top > dropdown_height;
 
@@ -63,18 +64,6 @@
       .trim();
   }
 
-  const ensure_voice = () => {
-    if (!char.voice) {
-      char.voice = { uri: "", rate: 1.0, pitch: 1.0 };
-    } else {
-      char.voice.rate ??= 1.0;
-      char.voice.pitch ??= 1.0;
-    }
-  };
-
-  ensure_voice();
-  $effect(ensure_voice);
-
   const dropdown_style = $derived(
     `top: ${coords.top !== null ? coords.top + "px" : "auto"}; ` +
       `bottom: ${coords.bottom !== null ? coords.bottom + "px" : "auto"}; ` +
@@ -109,7 +98,7 @@
           id="voice-listbox"
           use:portal
           role="listbox"
-          class="dropdown-content glass-xxl"
+          class="dropdown-content"
           class:visible={show_voice_dropdown}
           class:dropup={coords.is_dropup}
           style={dropdown_style}
@@ -252,12 +241,12 @@
     opacity: 0;
     transform: translateY(-var(--spacing-xs));
     position: fixed;
-    max-height: 300px;
+    max-height: var(--dropdown-max-height);
     overflow-y: auto;
     z-index: var(--z-index-max);
     background: var(--glass-xxl); /* Clarified transparency */
     backdrop-filter: var(--blur-m);
-    border: 1px solid var(--border-xl);
+    border: var(--border-xl);
     border-radius: var(--border-radius-m);
     box-shadow: var(--shadow-xxl);
     transition:

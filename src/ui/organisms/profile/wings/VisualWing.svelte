@@ -356,7 +356,7 @@
   .action-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    border-top: 1px solid var(--border-l);
+    border-top: var(--border-l);
     overflow: visible;
     gap: var(--spacing-xxs);
   }
@@ -364,7 +364,7 @@
   .action-row :global(.action-button) {
     height: 2.5rem;
     background: var(--glass-xs);
-    border-right: 1px solid var(--border-l);
+    border-right: var(--border-l);
     transition: all var(--motion-l) var(--motion-elastic);
   }
 
@@ -393,7 +393,7 @@
     gap: var(--spacing-s);
     padding: var(--spacing-xs) var(--spacing-m);
     background: var(--glass-xs);
-    border-top: 1px solid var(--border-l);
+    border-top: var(--border-l);
     font-family: var(--font-family-mono);
     font-size: var(--font-size-xxxs);
     color: var(--color-chalk);

@@ -130,8 +130,8 @@
 
     /* Soft ethereal glow */
     text-shadow:
-      0 var(--spacing-xxs) var(--spacing-m) var(--border-l),
-      0 0 var(--spacing-xl) var(--border-l);
+      0 var(--spacing-xxs) var(--spacing-m) var(--color-border-l),
+      0 0 var(--spacing-xl) var(--color-border-l);
     display: grid;
     place-content: center;
     min-width: 300px;

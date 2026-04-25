@@ -78,13 +78,13 @@
 
   .field-foundation:hover:not(:disabled) {
     background: var(--glass-xs);
-    border-color: var(--border-l);
+    border-color: var(--color-border-l);
   }
 
   .field-foundation:focus {
     outline: none;
     background: var(--glass-xs);
-    border-color: var(--border-xl);
+    border-color: var(--color-border-xl);
   }
 
   .field-foundation.busy {

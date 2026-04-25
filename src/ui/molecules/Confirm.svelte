@@ -113,7 +113,7 @@
   .security-modal {
     background: var(--glass-l);
     box-shadow:
-      inset 0 0 0 1px var(--border-l),
+      inset 0 0 0 1px var(--color-border-l),
       var(--shadow-xxl);
     border-radius: var(--border-radius-l);
     overflow: hidden;

@@ -40,7 +40,7 @@
 
     /* Custom Scrollbar */
     scrollbar-width: thin;
-    scrollbar-color: var(--border-l) transparent;
+    scrollbar-color: var(--color-border-l) transparent;
   }
 
   .scroller::-webkit-scrollbar {
@@ -48,7 +48,7 @@
   }
 
   .scroller::-webkit-scrollbar-thumb {
-    background: var(--border-l);
+    background: var(--color-border-l);
     border-radius: var(--border-radius-full);
   }
 

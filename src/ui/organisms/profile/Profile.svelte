@@ -80,8 +80,6 @@
     }
   }
 
-  
-
   async function execute_delete() {
     try {
       await runtime.delete_entity(entity_type || "character", entity_id || char.id);
@@ -278,7 +276,7 @@
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    border-right: 1px solid var(--border-l); /* Shared divider */
+    border-right: var(--border-l); /* Shared divider */
     background: transparent;
   }
 
