@@ -131,6 +131,7 @@
 | 2026-04-20T10:14:00+02:00 | Documentation Sync (v0.6.0)                                      | `frontend-ui-engineering`, `directives`    | ✅ Done     |
 | 2026-04-20T10:16:00+02:00 | Infrastructure Hygiene (plan/todo sync)                          | `security-and-hardening`, `directives`     | ✅ Resolved |
 | 2026-04-20T11:45:00+02:00 | Match audio dropdown width to parent row                         | `frontend-ui-engineering`                  | ✅ Done     |
+| 2026-04-21T00:30:00+02:00 | Stabilization sweep and architectural restoration                | `security-and-hardening`, `directives`     | ✅ Resolved |
 
 ## 🧹 Backlog (Automated)
 

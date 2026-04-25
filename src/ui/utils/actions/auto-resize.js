@@ -46,7 +46,10 @@ export function auto_resize(node, options = {}) {
         });
 
         siblingData.forEach((s) => {
-          s.style.height = maxHeight + "px";
+          const newHeight = maxHeight + "px";
+          if (s.style.height !== newHeight) {
+            s.style.height = newHeight;
+          }
         });
       }
     });

@@ -97,7 +97,7 @@
         active instanceof HTMLTextAreaElement ||
         (active instanceof HTMLElement && active.isContentEditable);
 
-      const isWing = active?.closest(".wing-left, .wing-right");
+      const isWing = active?.closest(".wing-left, .wing-right, .dropdown-content");
 
       if (!isInput && !isWing && busy_fields.size === 0) {
         active_field = { key: "visual-prompt", label: "Image Prompt" };
@@ -109,7 +109,7 @@
     const target = e.target instanceof Element ? e.target : e.target.parentElement;
     if (
       !target?.closest(
-        "textarea, input, button, .swatch, .wing-left, .wing-right, .profile-presentation, [contenteditable]",
+        "textarea, input, button, .swatch, .wing-left, .wing-right, .dropdown-content, .profile-presentation, [contenteditable]",
       )
     ) {
       if (is_editing) {

@@ -24,12 +24,22 @@
           width: rect.width,
         };
       };
+
+      const handle_outside = (e) => {
+        if (!row_el.contains(e.target) && !e.target.closest(".dropdown-content")) {
+          show_voice_dropdown = false;
+        }
+      };
+
       update();
       window.addEventListener("scroll", update, true);
       window.addEventListener("resize", update);
+      window.addEventListener("mousedown", handle_outside, true);
+
       return () => {
         window.removeEventListener("scroll", update, true);
         window.removeEventListener("resize", update);
+        window.removeEventListener("mousedown", handle_outside, true);
       };
     }
   });
@@ -59,7 +69,7 @@
 </script>
 
 <div class="audio-wing-wrapper" role="presentation">
-  <Wing class="audio-wing" onmouseleave={() => (show_voice_dropdown = false)}>
+  <Wing class="audio-wing">
     <div class="group">
       <div class="voice-control-row" bind:this={row_el}>
         <div class="dropdown">
