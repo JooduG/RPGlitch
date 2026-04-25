@@ -35,16 +35,12 @@
 
   let show_reset_confirm = $state(false);
 
-  async function handleReset() {
-    const timeout = setTimeout(() => window.location.reload(), 2000);
-    try {
-      db.close();
-      await db.delete();
-      clearTimeout(timeout);
-      window.location.reload();
-    } catch (err) {
-      window.location.reload();
-    }
+  
+
+  async function executeReset() {
+    db.close();
+    await db.delete();
+    setTimeout(() => window.location.reload(), 150);
   }
 
   /* --- STATE HELPERS --- */
@@ -54,10 +50,10 @@
 
 <Confirm
   bind:open={show_reset_confirm}
-  title="Wipe Memories"
-  message="This will permanently delete all stories and characters. This action cannot be undone."
+  title="Wipe Memories?"
+  message="This will permanently delete all stories, characters, and logs. This action cannot be undone."
   confirm_label="Erase All"
-  on_confirm={handleReset}
+  on_confirm={executeReset}
 />
 
 <Modal variant="standard" on_close={() => app.toggle_control_panel()}>

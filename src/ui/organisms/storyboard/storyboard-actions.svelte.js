@@ -5,6 +5,7 @@
  */
 import { app } from "@state/app.svelte.js";
 import { session } from "@state/session.svelte.js";
+import { pickRandom } from "@ui/utils/helpers.js";
 export const storyboard = {
   /**
    * Shuffle all selected entities randomly.
@@ -15,14 +16,14 @@ export const storyboard = {
     }
     if (!app.ai_list.length) return;
     // 1. Random AI
-    app.selected_ai = app.ai_list[Math.floor(Math.random() * app.ai_list.length)];
+    app.selected_ai = pickRandom(app.ai_list);
     // 2. Random User (Cannot be same as AI)
     let available_users = app.user_list;
     if (app.selected_ai) {
       available_users = app.user_list.filter((u) => u.id !== app.selected_ai.id);
     }
     if (available_users.length) {
-      app.selected_user = available_users[Math.floor(Math.random() * available_users.length)];
+      app.selected_user = pickRandom(available_users);
     } else {
       // If no other users, pick the AI itself (fallback) or first user
       if (app.user_list.length) {
@@ -31,7 +32,7 @@ export const storyboard = {
     }
     // 3. Random Fractal
     if (app.fractal_list.length) {
-      app.selected_fractal = app.fractal_list[Math.floor(Math.random() * app.fractal_list.length)];
+      app.selected_fractal = pickRandom(app.fractal_list);
     }
     // Ensure title updates on randomize
     if (typeof app.reroll_title === "function") {

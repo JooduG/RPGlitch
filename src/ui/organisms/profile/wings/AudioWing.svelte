@@ -12,7 +12,7 @@
   let { char = $bindable(), is_editing } = $props();
   let show_voice_dropdown = $state(false);
   let row_el = $state();
-  let coords = $state({ top: 0, left: 0, width: 0 });
+  let coords = $state({ top: 0, left: 0, width: 0, is_dropup: false });
 
   $effect(() => {
     if (show_voice_dropdown && row_el) {

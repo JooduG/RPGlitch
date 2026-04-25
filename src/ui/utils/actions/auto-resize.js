@@ -1,6 +1,7 @@
 /**
  * @file auto-resize.js
  * Svelte 5 logic action to resize textareas automatically based on their content.
+ * Optimized to prevent layout thrashing by batching DOM reads and writes.
  */
 export function auto_resize(node, options = {}) {
   let frame;
@@ -9,50 +10,49 @@ export function auto_resize(node, options = {}) {
 
   const update = () => {
     if (frame) cancelAnimationFrame(frame);
+
     frame = requestAnimationFrame(() => {
-      const currentWidth = node.clientWidth;
-      const currentScrollHeight = Math.ceil(node.scrollHeight);
+      const style = getComputedStyle(node);
+      const isBorderBox = style.boxSizing === "border-box";
+      const borderOffset = isBorderBox
+        ? parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth)
+        : 0;
 
-      if (currentWidth === lastWidth && currentScrollHeight === lastScrollHeight) return;
+      // Add a small buffer to prevent flickering scrollbars
+      const buffer = 2;
 
-      node.style.height = "auto";
-      const style = window.getComputedStyle(node);
-      const borderTop = parseFloat(style.borderTopWidth) || 0;
-      const borderBottom = parseFloat(style.borderBottomWidth) || 0;
-
-      const buffer = 10;
-      const height = currentScrollHeight + borderTop + borderBottom + buffer;
-      node.style.height = height + "px";
-
-      lastWidth = currentWidth;
-      lastScrollHeight = currentScrollHeight;
-
-      if (options.syncId) {
-        const boundary =
-          node.closest("[data-auto-resize-boundary]") ||
-          node.closest(".storymode-grid") ||
-          node.closest(".modal-content") ||
-          document;
-        const siblings = boundary.querySelectorAll(`[data-sync-id="${options.syncId}"]`);
-        let maxHeight = 0;
-
-        const siblingData = Array.from(siblings).filter((s) => s instanceof HTMLElement);
-        siblingData.forEach((s) => (s.style.height = "auto"));
-        siblingData.forEach((s) => {
-          const sStyle = window.getComputedStyle(s);
-          const sBT = parseFloat(sStyle.borderTopWidth) || 0;
-          const sBB = parseFloat(sStyle.borderBottomWidth) || 0;
-          maxHeight = Math.max(maxHeight, Math.ceil(s.scrollHeight) + sBT + sBB + buffer);
-        });
-
-        // Batch final writes
-        siblingData.forEach((s) => {
-          const newHeight = maxHeight + "px";
-          if (s.style.height !== newHeight) {
-            s.style.height = newHeight;
-          }
-        });
+      // Skip if no change in content or width
+      if (node.clientWidth === lastWidth && node.scrollHeight === lastScrollHeight) {
+        return;
       }
+
+      const syncId = options.syncId;
+      const scope = syncId ? (node.closest(".storymode-grid, .modal-content, body") || document.body) : null;
+      const siblings = syncId ? scope.querySelectorAll(`[data-sync-id="${syncId}"]`) : [node];
+
+      // 1. PHASE: BATCH WRITE (Reset)
+      siblings.forEach((s) => {
+        if (s instanceof HTMLElement) s.style.height = "auto";
+      });
+
+      // 2. PHASE: BATCH READ (Measure)
+      let maxHeight = 0;
+      siblings.forEach((s) => {
+        if (s instanceof HTMLElement) {
+          maxHeight = Math.max(maxHeight, s.scrollHeight);
+        }
+      });
+
+      // 3. PHASE: BATCH WRITE (Apply)
+      const finalHeight = maxHeight + borderOffset + buffer + "px";
+      siblings.forEach((s) => {
+        if (s instanceof HTMLElement) {
+          s.style.height = finalHeight;
+        }
+      });
+
+      lastWidth = node.clientWidth;
+      lastScrollHeight = node.scrollHeight;
     });
   };
   node.addEventListener("input", update);

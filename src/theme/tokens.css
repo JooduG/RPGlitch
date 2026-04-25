@@ -146,6 +146,13 @@
   --breakpoint-tablet: 1024px;
   --breakpoint-desktop: 1280px;
 
+  /* Responsive Metric: The Panel Unit
+   * Scales layout components based on viewport width.
+   */
+  --panel-unit: clamp(280px, 35vw, 600px);
+  --panel-width-m: var(--panel-unit);
+  --panel-width-s: calc(var(--panel-unit) * 0.7);
+
   /************************************************************************************
   * 🧩 [LEVEL 3: ELEVATION]
   * Vertical stacking and depth layers.
@@ -171,6 +178,10 @@
   --glass-l: rgb(var(--color-frozen-rgb) / var(--opacity-xxs)); /* Elevated Base */
   --glass-s: rgb(var(--color-frozen-rgb) / var(--opacity-xs)); /* Sunken Surface */
   --glass-xs: rgb(var(--color-black-rgb) / var(--opacity-s)); /* Solid Depth Contrast */
+
+  /* Container Dimensions */
+  --card-height-m: 320px;
+  --card-width-m: 240px;
 
   /* Specular Edges */
   --border-xl: 1px solid rgb(var(--color-frisk-rgb) / var(--opacity-s));
@@ -228,7 +239,4 @@
   --icon-s: 2rem;
   --icon-xs: 1rem;
 
-  /* Panel & Container Geometry */
-  --panel-width-m: 400px;
-  --panel-width-s: 280px;
 }
