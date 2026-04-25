@@ -85,6 +85,8 @@
 
   .name.edit:focus-within {
     outline: none;
+    background: rgb(var(--color-white-rgb) / 3%);
+    border-bottom-color: var(--signature-color, var(--color-frisk));
   }
 
   .name.edit span {
@@ -131,10 +133,14 @@
     align-items: flex-start;
   }
 
-  .description :global(.field-foundation:hover),
-  .description :global(.field-foundation:focus) {
+  .description :global(.field-foundation:hover) {
     background: transparent;
     border-color: transparent;
+  }
+
+  .description :global(.field-foundation:focus) {
+    background: rgb(var(--color-white-rgb) / 3%);
+    border-bottom-color: var(--signature-color, var(--color-frisk));
     outline: none;
   }
 

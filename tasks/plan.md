@@ -1,7 +1,7 @@
 # Mission Plan: UI Stabilization & Alignment [045]
 
 > **Status**: `[DONE]`
-> **Mission**: Resolve regressions in UI layout, accessibility, and architectural standards identified during the AudioWing refactor.
+> **Mission**: Resolve regressions in UI layout, accessibility, and architectural standards identified during the AudioWing refactor. Continued with code review accessibility fixes in the Profile modal.
 
 ## Proposed Changes
 
@@ -12,6 +12,9 @@
 - [x] Enhance accessibility with WAI-ARIA listbox patterns in `AudioWing.svelte`.
 - [x] Fix line-clamping and scrolling stability in `StoryboardCard` and `Wing` components.
 - [x] Correct event safety and robustness in `Profile.svelte`.
+- [x] Restore visible `:focus-within` indicator on `.name.edit` in `EntityHeader.svelte`.
+- [x] Decouple `:hover` and `:focus` styles for description `TextField` to ensure keyboard accessibility.
+- [x] Sync custom scrollbar styles to `.left-panel` in `Profile.svelte` for visual consistency.
 
 ### [Architectural Stabilization]
 

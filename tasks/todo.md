@@ -136,6 +136,8 @@
 | 2026-04-24T20:59:08Z      | Repair security regressions and restore diegetic UI components   | `security-and-hardening`, `test-driven-development`          | ✅ Done     |
 | 2026-04-25T00:16:57Z      | Implement content-normaliser tests & full restoration suite      | `test-driven-development`, `security-and-hardening`          | ✅ Done     |
 | 2026-04-25T13:45:00Z      | Resolve PR #149 Merge Conflicts & IDE Errors                     | `debugging-and-error-recovery`, `incremental-implementation` | ✅ Done     |
+| 2026-04-25T17:16:00+02:00 | Restore focus accessibility styles & sync panel scrollbars       | `frontend-ui-engineering`, `css`                             | ✅ Done     |
+| 2026-04-25T17:18:00+02:00 | Apply custom scrollbar to `.left-panel` for UI consistency       | `css`                                                        | ✅ Done     |
 
 ## 🧹 Backlog (Automated)
 

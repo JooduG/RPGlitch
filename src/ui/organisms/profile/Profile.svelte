@@ -271,30 +271,36 @@
     pointer-events: none;
   }
 
-  .left-panel {
+  .left-panel,
+  .right-panel {
     height: 100%;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+
+    /* Custom Scrollbar (Standard) */
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--signature-rgb) / var(--opacity-s)) transparent;
+  }
+
+  .left-panel {
     border-right: var(--border-l); /* Shared divider */
     background: transparent;
   }
 
   .right-panel {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
     flex: 1;
-    overflow-y: auto;
     padding: var(--spacing-m);
     background-color: rgb(from var(--signature-color) r g b / 5%); /* Subtle Identity Wash */
     gap: var(--spacing-m);
   }
 
+  .left-panel::-webkit-scrollbar,
   .right-panel::-webkit-scrollbar {
     width: 4px;
   }
 
+  .left-panel::-webkit-scrollbar-thumb,
   .right-panel::-webkit-scrollbar-thumb {
     background: rgb(var(--signature-rgb) / var(--opacity-s));
     border-radius: var(--border-radius-full);
