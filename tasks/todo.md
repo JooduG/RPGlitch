@@ -132,6 +132,7 @@
 | 2026-04-20T10:16:00+02:00 | Infrastructure Hygiene (plan/todo sync)                          | `security-and-hardening`, `directives`     | ✅ Resolved |
 | 2026-04-22T05:19:28Z      | Implement `content-normaliser.test.js` and fix tag edge case     | `test-driven-development`                  | ✅ Done     |
 | 2026-04-24T20:59:08Z      | Repair security regressions and restore diegetic UI components   | `security-and-hardening`, `test-driven-development` | ✅ Done     |
+| 2026-04-25T00:16:57Z      | Implement content-normaliser tests & full restoration suite      | `test-driven-development`, `security-and-hardening` | ✅ Done     |
 
 ## 🧹 Backlog (Automated)
 

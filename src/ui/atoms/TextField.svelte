@@ -108,7 +108,8 @@
     color: var(--color-white);
     font-family: var(--font-family-body);
     border-radius: var(--border-radius-m);
-    height: inherit;
+    height: auto;
+    min-height: 2.5rem;
     text-align: left;
     display: flex;
     flex-direction: column;

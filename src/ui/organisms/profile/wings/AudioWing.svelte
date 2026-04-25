@@ -191,7 +191,8 @@
   }
 
   .dropdown-content {
-    display: none;
+    visibility: hidden;
+    pointer-events: none;
     opacity: 0;
     transform: translateY(-var(--spacing-xs));
     position: absolute;
@@ -212,6 +213,8 @@
   }
 
   .dropdown-content.visible {
+    visibility: visible;
+    pointer-events: auto;
     display: flex;
     flex-direction: column;
     opacity: 1;

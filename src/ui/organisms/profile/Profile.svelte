@@ -99,9 +99,9 @@
       const isInput =
         active instanceof HTMLInputElement ||
         active instanceof HTMLTextAreaElement ||
-        (active instanceof HTMLElement && active.contentEditable === "true");
+        (active instanceof HTMLElement && active.isContentEditable);
 
-      const isWing = active?.closest(".wing-left, .wing-right");
+      const isWing = active?.closest?.(".wing-left, .wing-right");
 
       if (!isInput && !isWing && busy_fields.size === 0) {
         active_field = { key: "visual-prompt", label: "Image Prompt" };
@@ -111,8 +111,8 @@
 
   function handle_background_click(e) {
     if (
-      !e.target.closest(
-        "textarea, input, button, .swatch, .wing-left, .wing-right, .profile-presentation",
+      !e.target.closest?.(
+        "textarea, input, button, .swatch, .wing-left, .wing-right, .profile-presentation, [contenteditable]",
       )
     ) {
       if (is_editing) {

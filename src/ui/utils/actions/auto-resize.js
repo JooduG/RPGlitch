@@ -37,21 +37,24 @@ export function auto_resize(node, options = {}) {
         const scope = node.closest(".storymode-grid, .modal-content, body") || document.body;
         const siblings = scope.querySelectorAll(`[data-sync-id="${options.syncId}"]`);
 
-        // Batch Reads
+        // 1. Batch Write: Reset all to auto
+        siblings.forEach((s) => {
+          if (s instanceof HTMLElement) s.style.height = "auto";
+        });
+
+        // 2. Batch Read: Measure all heights
         let maxHeight = 0;
-        const measurements = [];
         siblings.forEach((s) => {
           if (s instanceof HTMLElement) {
-            s.style.height = "auto";
-            const sHeight = s.scrollHeight;
-            measurements.push({ element: s, height: sHeight });
-            maxHeight = Math.max(maxHeight, sHeight);
+            maxHeight = Math.max(maxHeight, s.scrollHeight);
           }
         });
 
-        // Batch Writes
-        measurements.forEach((m) => {
-          m.element.style.height = maxHeight + borderOffset + "px";
+        // 3. Batch Write: Apply max height
+        siblings.forEach((s) => {
+          if (s instanceof HTMLElement) {
+            s.style.height = maxHeight + borderOffset + "px";
+          }
         });
       }
     });
