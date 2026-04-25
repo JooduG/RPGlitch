@@ -1,4 +1,6 @@
 import { execSync } from "child_process";
+import fs from "fs";
+import path from "path";
 
 /**
  * 🎨 orchestration: SUMMARIZE WRAPPER
@@ -8,20 +10,47 @@ import { execSync } from "child_process";
  */
 
 const args = process.argv.slice(2).filter((arg) => !arg.startsWith("--"));
+const outputDir = path.join(process.cwd(), "artifacts");
+const outputFile = path.join(outputDir, "audit_output.txt");
 
-console.log("\n================================================================================");
-console.log(`🎨  ORCHESTRATION: SUMMARIZE [ ${args.join(" | ")} ]`);
-console.log("================================================================================\n");
+// Ensure artifacts directory exists
+if (!fs.existsSync(outputDir)) {
+  fs.mkdirSync(outputDir, { recursive: true });
+}
+
+// Clear existing log
+fs.writeFileSync(outputFile, "");
+
+const log = (msg) => {
+  console.log(msg);
+  fs.appendFileSync(outputFile, msg + "\n");
+};
+
+const logError = (msg) => {
+  console.error(msg);
+  fs.appendFileSync(outputFile, "ERROR: " + msg + "\n");
+};
+
+log("\n================================================================================");
+log(`🎨  ORCHESTRATION: SUMMARIZE [ ${args.join(" | ")} ]`);
+log("================================================================================\n");
 
 for (const arg of args) {
-  console.log(`🚀 Executing: npm run ${arg}...`);
+  log(`🚀 Executing: npm run ${arg}...`);
   try {
-    execSync(`npm run ${arg}`, { stdio: "inherit" });
-    console.log(`✅ ${arg} complete.\n`);
+    // Capture output to both console and file
+    // We use "pipe" to capture output, but we also want it to be "live" if possible.
+    // However, execSync with "inherit" is easier for live, but harder to capture.
+    // Let's use { stdio: ["inherit", "pipe", "inherit"] } or just capture after.
+    const output = execSync(`npm run ${arg}`, { encoding: "utf8" });
+    log(output);
+    log(`✅ ${arg} complete.\n`);
   } catch (err) {
-    console.error(`❌ ${arg} failed. Halting summary execution.`);
+    if (err.stdout) log(err.stdout);
+    if (err.stderr) logError(err.stderr);
+    logError(`❌ ${arg} failed. Halting summary execution.`);
     process.exit(1);
   }
 }
 
-console.log("================================================================================\n");
+log("================================================================================\n");

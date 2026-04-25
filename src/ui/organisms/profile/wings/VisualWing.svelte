@@ -156,7 +156,8 @@
         <button
           class="swatch"
           class:active={char.signature_color === hex || char.signature_color === name}
-          style="background-color: {PALETTE_VARS[hex] || hex}; --swatch-color: {PALETTE_VARS[hex] || hex};"
+          style="background-color: {PALETTE_VARS[hex] || hex}; --swatch-color: {PALETTE_VARS[hex] ||
+            hex};"
           aria-label={name.charAt(0).toUpperCase() + name.slice(1)}
           onclick={() => {
             char.signature_color = name;
@@ -198,17 +199,19 @@
             >
               {#if has_prompt_text}
                 <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
-                  <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="var(--color-white)"></path>
+                  <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="var(--color-white)"
+                  ></path>
                 </svg>
               {:else}
                 <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="var(--color-white)"></path>
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="var(--color-white)"
+                  ></path>
                   <polyline points="7 10 12 15 17 10" stroke="var(--color-white)"></polyline>
                   <line x1="12" y1="15" x2="12" y2="3" stroke="var(--color-white)"></line>
                 </svg>
               {/if}
             </Button>
-            
+
             <Button
               variant="ghost"
               size="sm"
@@ -219,7 +222,10 @@
               disabled={!is_editing || is_prompt_busy}
             >
               <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="var(--color-white)"></path>
+                <path
+                  d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+                  stroke="var(--color-white)"
+                ></path>
                 <circle cx="12" cy="13" r="4" stroke="var(--color-white)"></circle>
               </svg>
             </Button>
@@ -290,7 +296,8 @@
     box-shadow: 0 0 16px var(--swatch-color);
     transform: scale(1.15);
     z-index: var(--z-index-m);
-    border: 1px solid rgb(255 255 255 / 50%); /* Subtle crisp edge inside the glow */
+    border: var(--border-l);
+    border-color: rgb(var(--color-white-rgb) / var(--opacity-s));
   }
 
   .swatch:disabled {

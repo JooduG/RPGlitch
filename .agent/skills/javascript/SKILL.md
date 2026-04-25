@@ -40,10 +40,10 @@ The `javascript` skill is the authoritative workflow for core engine logic, stat
 
 ```bash
 # Verify JavaScript logic with unit tests (Rule 06)
-npm run test:unit
-
-# Audit logic complexity and coverage
 npm run audit:logic
+
+# Audit code for project standards and logic safety (Warden)
+npm run audit:api
 ```
 
 ## Present Results

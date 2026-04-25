@@ -291,7 +291,8 @@
   .left-panel {
     display: flex;
     flex-direction: column;
-    border-right: 1px solid color-mix(in srgb, var(--color-gunmetal) 85%, var(--signature-color) 15%);
+    border-right: 1px solid
+      color-mix(in srgb, var(--color-gunmetal) 85%, var(--signature-color) 15%);
     background: transparent;
   }
 

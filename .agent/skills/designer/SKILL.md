@@ -3,45 +3,78 @@ name: designer
 description: The Aesthetic Monarch and Creative Director. Use when defining the "vibe", modifying DESIGN.md, implementing Chalk Regime tokens, or orchestrating sensory features (CSS, Motion, Audio, Stitch).
 ---
 
-# Designer & Aesthetic Monarch
+# Designer & Aesthetic Monarch (The Director)
 
 > "I am the Creative Director and Orchestrator of Atmosphere. I define the sensory soul of RPGlitch."
 
 ## Overview
 
-The `designer` skill is the sovereign orchestrator of the RPGlitch simulation's sensory layer. It ensures that every visual, motion, and auditory interaction adheres to the "Nordic Collection" and "Chalk Regime" standards. This skill prevents "AI Slop" by enforcing high-fidelity, subterranean-themed design principles that prioritize immersion over generic utility.
+The `designer` skill is the sovereign orchestrator of the RPGlitch simulation's sensory layer. It acts as the **Director**, coordinating between Visuals, Kinematics, Acoustics, and the overall narrative "vibe". It ensures that every interaction adheres to the **Nordic Collection** and **Chalk Regime** standards, preventing "AI Slop" through high-fidelity, subterranean-themed design principles.
 
-### Strategic Context
+### The Design Triad
 
-- **Nordic Collection**: Cool, deep, slate-blue and gunmetal palettes.
-- **Chalk Regime**: High-contrast ice-white accents and glassmorphic elevation.
-- **Atmospheric Physics**: Use static spatial depth and kinetic scaling rather than bouncy animations.
+The `designer` skill coordinates three specialized domains:
+
+1.  **Visuals (`css`)**: The structural look, tokens, and Chalk Regime elevation.
+2.  **Kinematics (`motion`)**: The physical feel, weighted transitions, and interaction reflexes.
+3.  **Acoustics (`audio`)**: The minimalist sonic landscape and atmospheric SFX.
 
 ## When to Use
 
-- **Positive Triggers**: Defining the "vibe" for a new story area, setting up theme tokens in `DESIGN.md`, orchestrating between CSS/Motion/Audio, or managing design documentation via Stitch.
+- **Positive Triggers**: Defining a new "vibe", modifying `DESIGN.md` (via Rule 04), orchestrating between CSS/Motion/Audio, or managing design documentation via Stitch.
 - **Polish Triggers**: Tasks involving "Premium feel", "Atmosphere", or high-fidelity sensory feedback.
-- **EXCLUSIONS**: Do not use for mechanical logic (e.g., pure data persistence) that has zero visual impact.
+- **EXCLUSIONS**: Do not use for mechanical logic (e.g., pure data persistence) with zero visual impact.
 
 ## How It Works
 
-1. **Aesthetic Audit**: Verify the task against Rule 04 (Aesthetics) and the laws of the **Nordic Collection**.
-2. **Token Mapping**: Map requirements to existing tokens (Glassmorphism, Spacing, Instrumental Neutral).
-3. **Component Sovereignty**: Ensure atoms own their kinetic reflexes (hover/active states) within scoped styles.
-4. **Universal Field Chassis**: Use the focus-activated chassis for all text entry modules, utilizing **Quantum Presence** (opacity/glow) for gravity readouts.
-5. **High-Contrast instrumentation**: All primary actions must use **Pure White** icons with static hover backgrounds to prevent visual smudging.
+1.  **Aesthetic Alignment**: Verify intent against Rule 04 (Aesthetics) and the **Nordic Collection**.
+2.  **Orchestration**: Delegate specific implementations to the `css`, `motion`, or `audio` skills as needed.
+3.  **The Weaver (Stitch) Sync**:
+    - **Vision**: Define the aesthetic intent.
+    - **Spec**: Update `DESIGN.md` (which points to `04-aesthetics.md`) to reflect new patterns.
+    - **Sync**: Use `npm run sync` to propagate design changes to project metadata.
+4.  **Audit & Resonance**: Use the Warden to ensure zero hardcoded hex codes and structural purity.
 
-### Interaction Engine
+### Reference Mappings & Workflows
 
-Atoms (Buttons, Cards, Toggles, Sliders) must be self-contained units of physics. Focus on high-contrast scaling and brightness shifts rather than border or background shifts during interaction.
+### Design Mappings (Physical Reality)
 
----
+Strictly map concepts to these tokens and patterns:
 
-## usage
+- **Stateful variable** -> `let count = $state(0);`
+- **Derived value** -> `let doubled = $derived(count * 2);`
+- **Background color** -> `background: var(--bg-base);`
+- **Text color** -> `color: var(--font-color-m);`
+- **Subtle border** -> `border: var(--border-l);`
+- **Primary Button** -> `background: var(--color-chalk); color: var(--color-white);`
+
+### Workflow: Edit Design Spec
+
+1.  **Read**: Load the current `DESIGN.md` spec from the root.
+2.  **Translate**: Hand off requested changes to the **Director** to ensure aesthetic consistency.
+3.  **Draft**: Update `DESIGN.md` with new instructions, maintaining token integrity.
+
+### Workflow: Text to Design
+
+1.  **Analyze Intent**: Extract the core "vibe" and functional requirements.
+2.  **Apply Physics**: Translate requests into `CHALK_REGIME` tokens and subterranean constraints.
+3.  **Component Breakdown**: Define Svelte 5 structure using `$state()` runes for reactive state.
+4.  **Handoff**: Execute the implementation plan via the `css` and `motion` skills.
+
+## Usage
 
 ```bash
-# Analyze visual precision and token consistency
+# Analyze visual precision and Rule 04 compliance
 npm run audit:theme
+
+# Verify Svelte 5 component aesthetic compliance
+npm run audit:svelte
+
+# Synchronize design intent with external assets
+npm run sync
+
+# Full project quality audit
+npm run verify
 ```
 
 ## Present Results

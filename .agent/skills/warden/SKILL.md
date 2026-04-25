@@ -28,11 +28,11 @@ The **Warden** is the gatekeeper of the RPGlitch engine. It provides a unified i
 ## Usage
 
 ```bash
-# Run the full project audit
-npm run audit:warden
+# Run the full project quality audit (Warden)
+npm run audit:quality
 
-# Sync #TODO-AI tags to the backlog in tasks/todo.md
-npm run audit:backlog
+# Run the theme-specific audit (Rule 04 compliance)
+npm run audit:theme
 
 # Run a specific domain filter (e.g. Svelte)
 node .agent/skills/warden/scripts/warden.js --svelte

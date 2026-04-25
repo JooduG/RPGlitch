@@ -39,11 +39,11 @@ The `audio` skill manages the minimalist sonic landscape of the RPGlitch Engine.
 ## Usage
 
 ```bash
-# Verify audio asset availability
-ls src/media/audio/sfx/
+# Verify audio logic and engine health
+npm run audit:logic src/media/audio-engine.test.js
 
-# Audit audio context leaks
-npm run audit:audio
+# Audit Svelte 5 component audio lifecycle and types
+npm run audit:perf
 ```
 
 ## Present Results

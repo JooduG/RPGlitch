@@ -74,7 +74,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       },
       simulation_log: "",
       rawMessages: [],
-      meta: { active_vector: null, timestamp: new Date().toISOString() },
+      meta: { active_vector: null, timestamp: new Date().toISOString(), is_suspicious: false },
     };
 
     vi.mocked(context_broker.hydrate).mockResolvedValue(mockPayload);

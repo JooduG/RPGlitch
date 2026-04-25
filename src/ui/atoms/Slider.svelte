@@ -18,12 +18,16 @@
   let center_val = $derived(neutral !== null ? neutral : (min + max) / 2);
   let val_pct = $derived(((value - min) / (max - min)) * 100);
   let center_pct = $derived(((center_val - min) / (max - min)) * 100);
-  
+
   let fill_start = $derived(Math.min(val_pct, center_pct));
   let fill_end = $derived(Math.max(val_pct, center_pct));
 </script>
 
-<label class="slider-group" class:disabled style="--fill-start: {fill_start}%; --fill-end: {fill_end}%;">
+<label
+  class="slider-group"
+  class:disabled
+  style="--fill-start: {fill_start}%; --fill-end: {fill_end}%;"
+>
   <span class="slider-label">
     {label.toUpperCase()}: {disabled ? "DISABLED" : (value ?? 1.0).toFixed(1)}
   </span>
@@ -80,12 +84,12 @@
     width: 100%;
     height: 0.25rem;
     background: linear-gradient(
-      to right, 
-      var(--glass-xs) 0%, 
-      var(--glass-xs) var(--fill-start), 
-      var(--color-frozen) var(--fill-start), 
-      var(--color-frozen) var(--fill-end), 
-      var(--glass-xs) var(--fill-end), 
+      to right,
+      var(--glass-xs) 0%,
+      var(--glass-xs) var(--fill-start),
+      var(--color-frozen) var(--fill-start),
+      var(--color-frozen) var(--fill-end),
+      var(--glass-xs) var(--fill-end),
       var(--glass-xs) 100%
     );
     box-shadow: inset 0 1px 2px rgb(var(--color-black-rgb) / var(--opacity-s));
@@ -97,12 +101,12 @@
     width: 100%;
     height: 0.25rem;
     background: linear-gradient(
-      to right, 
-      var(--glass-xs) 0%, 
-      var(--glass-xs) var(--fill-start), 
-      var(--color-frozen) var(--fill-start), 
-      var(--color-frozen) var(--fill-end), 
-      var(--glass-xs) var(--fill-end), 
+      to right,
+      var(--glass-xs) 0%,
+      var(--glass-xs) var(--fill-start),
+      var(--color-frozen) var(--fill-start),
+      var(--color-frozen) var(--fill-end),
+      var(--glass-xs) var(--fill-end),
       var(--glass-xs) 100%
     );
     box-shadow: inset 0 1px 2px rgb(var(--color-black-rgb) / var(--opacity-s));
@@ -123,7 +127,7 @@
       var(--shadow-s);
     margin-top: -0.25rem; /* Centering on 0.25rem track */
     border: none;
-    transition: 
+    transition:
       transform var(--motion-l) var(--motion-elastic),
       filter var(--motion-l);
   }
@@ -143,7 +147,7 @@
       0 0 8px var(--color-white),
       var(--shadow-s);
     border: none;
-    transition: 
+    transition:
       transform var(--motion-l) var(--motion-elastic),
       filter var(--motion-l);
   }

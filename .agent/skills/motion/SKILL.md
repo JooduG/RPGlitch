@@ -37,11 +37,14 @@ Standard UI atoms (buttons, cards, pills) use a centralized interaction engine. 
 ## Usage
 
 ```bash
-# Analyze animation performance and frame timings (Rule 06)
+# Verify Rule 04 compliance and Grounded Policy (no translateY on hover)
+npm run audit:theme
+
+# Audit animation performance and Svelte 5 component health
 npm run audit:perf
 
-# Verify kinetic UI responsiveness
-mcp_chrome_devtools_performance_start_trace
+# Verify kinetic UI responsiveness via unit tests
+npm run audit:logic src/ui/utils/actions/
 ```
 
 ## Present Results

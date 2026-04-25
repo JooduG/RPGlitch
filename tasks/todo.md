@@ -20,72 +20,25 @@
 
 ---
 
-### [044] Documentation Sync & Infrastructure Hygiene - [DONE]
+### [046] Skill Rewiring & Script Realignment - [DONE]
 
 #### **Track 1: Documentation Sync**
 
-- [x] Analyze last 20 commits for architectural drift
-- [x] Sync `SPEC.md` for v0.6.0 (The Forge)
-- [x] Update Rule 04 (Aesthetics) with Ghost tokens & Registry
-- [x] Update Rule 05 (Intelligence) with Temporal Engine Lexicon
+- [x] Audit all `SKILL.md` files for hallucinated scripts
+- [x] Rewire `designer/SKILL.md` as an orchestrator for sensory modules
+- [x] Align all audit commands with `package.json` and `warden.js`
 
 #### **Track 2: Infrastructure Hygiene**
 
-- [x] Initialize `tasks/plan.md` to resolve rule violations
-- [x] Sync `tasks/todo.md` with recent missions and skill logs
-
----
-
-### [043] Release Candidate Prep - [ACTIVE]
-
-#### **Track 1: Stability Audit**
-
-- [ ] Run full `deploy:prepare` suite
-- [ ] Resolve any lingering audit advice or debt
-- [ ] Verify build integrity and asset inlining
-
----
-
-### [037] State Atomicity & Token Asphyxiation Patch - [COMPLETED]
-
-#### **Track 1: Hygiene (Stripping)**
-
-- [x] Implement `strip_cognition_blocks` in `text-parser.js` (Regex-based)
-- [x] Integrate into `llm-service.js` sanitization pipeline
-- [x] Verify stripping via `text-parser.test.js`
-
-#### **Track 2: Control (Atomicity)**
-
-- [x] Add `isProcessing` flag and locking methods to `session.svelte.js`
-- [x] Wrap `advance_turn` in `session.svelte.js` with lock logic
-- [x] Purge redundant `runtime.round` increments (session-driver, intelligence-kernel)
-- [x] Verify atomic round stability in browser DevMode
-
----
-
-### [042] Ghost Token Audit & Profile UI Stabilization - [COMPLETED]
-
-#### **Phase 1: Ghost Token Audit**
-
-- [x] List all valid tokens from `tokens.css`
-- [x] Search for usage of legacy/ghost tokens (e.g., `--motion-slow`, `--motion-fast`)
-- [x] Repair components using ghost tokens
-
-#### **Phase 2: Profile UI Stabilization**
-
-- [x] Update `tokens.css`: Set `--font-size-xxxxxl` to `5rem` (80px)
-- [x] Update `EntityHeader.svelte`: Harmonize `.name` font size and add stability
-- [x] Update `Profile.svelte`: Replace elastic easing with stable easing for layout shifts
-
-#### **Phase 3: Verification**
-
-- [x] Run `npm run verify`
-- [x] Manual verification of Profile transitions
+- [x] Verify `npm run verify` passes globally
+- [x] Manual verification of skill invocation accuracy
 
 ---
 
 ## 🏁 Completed Missions (Recent)
 
+- **[046]** Skill Rewiring & Script Realignment (Complete)
+- **[045]** UI Stabilization & Alignment
 - **[044]** Documentation Sync & Infrastructure Hygiene
 - **[043]** Release Candidate Prep (In Progress)
 - **[042]** Ghost Token Audit & Profile UI Stabilization
@@ -102,42 +55,10 @@
 
 ## 🧠 Skill Log
 
-| Timestamp (ISO 8601)      | Task                                                             | Skill Invoked                                                | Outcome     |
-| ------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------ | ----------- |
-| 2026-04-12T12:10+02:00    | Agent OS Refactor (orchestration absorption)                     | `using-agent-skills`, `directives`                           | ✅ Done     |
-| 2026-04-12T17:45+02:00    | Skill Standardization (Sovereign Template)                       | `directives`, `using-agent-skills`                           | ✅ Done     |
-| 2026-04-13T06:24+00:00    | Resolve MCP ReDOS and Data Leak Vulns                            | `security-and-hardening`                                     | ✅ Done     |
-| 2026-04-14T17:03+02:00    | Fix InputBar Overlap & Panel Wiring                              | `incremental-implementation`                                 | ✅ Resolved |
-| 2026-04-15T20:10+02:00    | Manifest Modifiers & Stabilize VisualWing                        | `directives`, `incremental-implementation`                   | ✅ Done     |
-| 2026-04-15T21:46:00Z      | Commit Audit & Restoration Patch                                 | `debugging-and-error-recovery`                               | ✅ Resolved |
-| 2026-04-17T02:44:00+02:00 | Rule & Workflow Refactoring (Standardization)                    | `directives`, `warden`, `github-copilot`                     | ✅ PR #132  |
-| 2026-04-16T01:41:23+00:00 | Rule 06 Compliance Sweep                                         | `security-and-hardening`                                     | ✅ Done     |
-| 2026-04-15T20:03:20+00:00 | State Atomicity & Token Asphyxiation Patch                       | `debugging-and-error-recovery`                               | ✅ Resolved |
-| 2026-04-15T19:58+00:00    | Add unit tests for entity-fragments.js                           | `test-driven-development`                                    | ✅ Done     |
-| 2026-04-15T19:59+02:00    | 🔒 Security Fix: Unsafe JSON Parsing in Memory                   | `security-and-hardening`                                     | ✅ Done     |
-| 2026-04-15T05:29+00:00    | Refactor duplicated random selection logic                       | `incremental-implementation`                                 | ✅ Done     |
-| 2026-04-15T21:05+00:00    | Add vector lifecycle management auto-resolution                  | `debugging-and-error-recovery`                               | ✅ Done     |
-| 2026-04-16T12:00+00:00    | Fix ReDoS in text parser via Rule 06 compliance                  | `security-and-hardening`                                     | ✅ Done     |
-| 2026-04-16T06:24:14+00:00 | Fix Heresy / Hardcoded Colors in CSS                             | `security-and-hardening`                                     | ✅ Done     |
-| 2026-04-16T06:24:14+00:00 | Fix Naming Convention SIMPLIFY-IGNORE.md                         | `security-and-hardening`                                     | ✅ Done     |
-| 2026-04-16T07:18:10+00:00 | Rule 06: Remove temporary bot artifacts                          | `security-and-hardening`                                     | ✅ Done     |
-| 2026-04-16T08:28:03+00:00 | Rule 06: Remove tasks/plan.md temporary scratchpad               | `security-and-hardening`                                     | ✅ Done     |
-| 2026-04-18T05:47:12.314Z  | Fix Rule 06 Compliance regarding SKILL.md TODO-AI false positive | `security-and-hardening`                                     | ✅ Done     |
-| 2026-04-18T12:00:00Z      | Fresh Session Initialization (/boot)                             | `using-agent-skills`, `data`, `warden`                       | ✅ Resonant |
-| 2026-04-19T15:05:00Z      | Fix Signature Color grid selection for premades                  | `frontend-ui-engineering`                                    | ✅ Done     |
-| 2026-04-19T15:11:00Z      | Clean up signature color swatch tooltips                         | `frontend-ui-engineering`                                    | ✅ Done     |
-| 2026-04-19T15:25:00Z      | Storyboard UI Stabilization                                      | `frontend-ui-engineering`                                    | ✅ Done     |
-| 2026-04-20T02:18:10+02:00 | Project Timezone Sync (Europe/Stockholm)                         | `directives`, `simulation`                                   | ✅ Done     |
-| 2026-04-20T10:14:00+02:00 | Documentation Sync (v0.6.0)                                      | `frontend-ui-engineering`, `directives`                      | ✅ Done     |
-| 2026-04-20T10:16:00+02:00 | Infrastructure Hygiene (plan/todo sync)                          | `security-and-hardening`, `directives`                       | ✅ Resolved |
-| 2026-04-20T11:45:00+02:00 | Match audio dropdown width to parent row                         | `frontend-ui-engineering`                                    | ✅ Done     |
-| 2026-04-21T00:30:00+02:00 | Stabilization sweep and architectural restoration                | `security-and-hardening`, `directives`                       | ✅ Resolved |
-| 2026-04-22T05:19:28Z      | Implement `content-normaliser.test.js` and fix tag edge case     | `test-driven-development`                                    | ✅ Done     |
-| 2026-04-24T20:59:08Z      | Repair security regressions and restore diegetic UI components   | `security-and-hardening`, `test-driven-development`          | ✅ Done     |
-| 2026-04-25T00:16:57Z      | Implement content-normaliser tests & full restoration suite      | `test-driven-development`, `security-and-hardening`          | ✅ Done     |
-| 2026-04-25T13:45:00Z      | Resolve PR #149 Merge Conflicts & IDE Errors                     | `debugging-and-error-recovery`, `incremental-implementation` | ✅ Done     |
-| 2026-04-25T17:16:00+02:00 | Restore focus accessibility styles & sync panel scrollbars       | `frontend-ui-engineering`, `css`                             | ✅ Done     |
-| 2026-04-25T17:18:00+02:00 | Apply custom scrollbar to `.left-panel` for UI consistency       | `css`                                                        | ✅ Done     |
+| Timestamp (ISO 8601)      | Task                                                       | Skill Invoked                                | Outcome |
+| ------------------------- | ---------------------------------------------------------- | -------------------------------------------- | ------- |
+| 2026-04-25T21:25:00Z      | Skill Rewiring & Script Realignment ([046])                | `directives`, `using-agent-skills`, `warden` | ✅ Done |
+| 2026-04-25T17:18:00+02:00 | Apply custom scrollbar to `.left-panel` for UI consistency | `css`                                        | ✅ Done |
 
 ## 🧹 Backlog (Automated)
 

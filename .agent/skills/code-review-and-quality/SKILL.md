@@ -48,11 +48,8 @@ Always check for orphaned methods, constants, or components after refactoring. E
 ## Usage
 
 ```bash
-# Run a comprehensive code quality audit
+# Run a comprehensive code quality audit (Verify + Warden)
 npm run audit:quality
-
-# Check for dead code and unused dependencies
-npm run audit:hygiene
 ```
 
 ## Present Results

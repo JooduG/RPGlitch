@@ -33,7 +33,7 @@
 
   .data-header {
     padding: var(--spacing-xs) var(--spacing-s);
-    background: rgb(255 255 255 / 3%);
+    background: rgb(var(--color-white-rgb) / 3%);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-xl);
     text-transform: uppercase;
@@ -50,7 +50,7 @@
   }
 
   .data-content.is-code {
-    background: rgb(0 0 0 / 10%);
+    background: rgb(var(--color-black-rgb) / 10%);
   }
 
   /* Custom Scrollbar for the data content */

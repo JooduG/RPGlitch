@@ -146,7 +146,8 @@
   }
 
   .button-dashed {
-    border: 1px dashed var(--color-border-l);
+    border: var(--border-l);
+    border-style: dashed;
     color: var(--font-color-s);
   }
 

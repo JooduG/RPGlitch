@@ -8,7 +8,7 @@ import path from "path";
 import { safeStatSync } from "./safe-fs.js";
 
 // 1. Import Domain Rules (Updated Paths)
-import { cssRules } from "../../css/scripts/audit-css.js";
+import { cssRules, themeRules } from "../../css/scripts/audit-css.js";
 import { rule_rules, workflow_rules } from "../../directives/scripts/audit-templates.js";
 import { skill_rules } from "../../directives/scripts/audit-skills.js";
 import { scan_nomenclature } from "../../directives/scripts/audit-nomenclature.js";
@@ -213,7 +213,14 @@ const FILTERS = {
     skills: false,
     rules: false,
     workflows: false,
-    extRules: { ".css": cssRules },
+    extRules: { ".css": cssRules, ".svelte": cssRules },
+  },
+  "--theme": {
+    names: false,
+    skills: false,
+    rules: false,
+    workflows: false,
+    extRules: { ".css": themeRules, ".svelte": themeRules },
   },
   "--security": {
     names: false,

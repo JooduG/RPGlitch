@@ -78,7 +78,7 @@ Padding, margins, and gaps must strictly adhere to the modular scale:
 
 The Nordic Collection follows the law of **Component Sovereignty**: Atoms must own their own "Reflex" logic (kinetic feedback) within their scoped styles.
 
-- **Interaction Engine**: 
+- **Interaction Engine**:
   - **Hover**: Concentrated on **Icon Color** (White), **Subtle Scale** (1.1), and **Brightness**.
   - **Grounded Policy**: Explicitly avoid `translateY` on hover to maintain subterranean weight.
   - **Flat Aesthetics**: Eliminate heavy inset shadows and borders during interaction to maintain a clean, high-fidelity glass look.

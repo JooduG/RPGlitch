@@ -13,6 +13,7 @@
     onfocus = undefined,
     onblur = undefined,
     class: className = "",
+    style = "",
     actions = null, // Snippet for the expanding header
     weight = 0, // 0-10 for the weight line thickness/glow
   } = $props();
@@ -39,11 +40,13 @@
   }
 </script>
 
-<div 
-  class="field-chassis {className}" 
-  class:is-focused={isFocused && canExpand} 
+<div
+  class="field-chassis {className}"
+  class:is-focused={isFocused && canExpand}
   class:has-actions={!!actions}
-  style="--weight-intensity: {weight / 10}; --header-opacity: {weight > 0 ? 0.2 + (weight / 10) * 0.8 : 0.8}; --header-bg-mix: {weight > 0 ? (0.2 + (weight / 10) * 0.8) * 100 : 100}%;"
+  style="{style}; --weight-intensity: {weight / 10}; --header-opacity: {weight > 0
+    ? 0.2 + (weight / 10) * 0.8
+    : 0.8}; --header-bg-mix: {weight > 0 ? (0.2 + (weight / 10) * 0.8) * 100 : 100}%;"
   onfocusout={handle_focus_out}
 >
   {#if actions}
@@ -69,9 +72,9 @@
         data-sync-id={syncId}
       ></textarea>
     {:else}
-      <div 
-        class="readonly-field" 
-        data-sync-id={syncId} 
+      <div
+        class="readonly-field"
+        data-sync-id={syncId}
         use:auto_resize={{ syncId }}
         tabindex={actions ? "0" : "-1"}
         onfocus={handle_focus}
@@ -85,7 +88,8 @@
                 {#if token.type === "text"}{token.content}{:else if token.type === "strong"}<strong
                     >{token.content}</strong
                   >{:else if token.type === "em"}<em>{token.content}</em
-                  >{:else if token.type === "strong-em"}<strong><em>{token.content}</em></strong>{/if}
+                  >{:else if token.type === "strong-em"}<strong><em>{token.content}</em></strong
+                  >{/if}
               {/each}
             </div>
           {/each}
@@ -113,7 +117,7 @@
 
   .field-chassis.is-focused {
     border-color: var(--color-white);
-    box-shadow: 0 0 15px rgb(255 255 255 / 5%);
+    box-shadow: 0 0 15px rgb(var(--color-white-rgb) / 5%);
     background: var(--glass-xs);
     overflow: visible; /* Allow tooltips to bleed out */
   }
@@ -129,10 +133,10 @@
     opacity: var(--header-opacity);
     position: relative;
     top: 1px; /* Visual offset to prevent top-border clash */
-    
+
     /* Account for 1px chassis border to prevent bleed in dormant state */
     border-radius: calc(var(--border-radius-m) - 1px) calc(var(--border-radius-m) - 1px) 0 0;
-    
+
     /* Passive Glow */
     box-shadow: 0 0 calc(var(--weight-intensity) * 6px) var(--signature-color);
   }
@@ -140,15 +144,16 @@
   .field-chassis.is-focused .field-header {
     height: 2.2rem;
     background: color-mix(
-      in srgb, 
-      rgb(0 0 0 / 50%), 
+      in srgb,
+      rgb(var(--color-black-rgb) / 50%),
       var(--signature-color, var(--color-frozen)) var(--header-bg-mix)
     );
     border-bottom: 1px solid rgb(var(--color-white-rgb) / 8%);
     opacity: 1;
     top: 0; /* Snap back to top in focused state */
     overflow: visible; /* Allow tooltips and glow to breathe */
-    box-shadow: 0 0 calc(var(--weight-intensity) * 12px) rgb(from var(--signature-color) r g b / 15%);
+    box-shadow: 0 0 calc(var(--weight-intensity) * 12px)
+      rgb(from var(--signature-color) r g b / 15%);
   }
 
   .header-actions {

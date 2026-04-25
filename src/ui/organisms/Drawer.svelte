@@ -198,7 +198,8 @@
 
   /* --- NEW ENTITY CARD --- */
   .drawer-card--new {
-    border: 2px dashed rgb(var(--color-white-rgb) / 10%);
+    border: var(--border-l);
+    border-style: dashed;
     aspect-ratio: 2 / 3;
     display: flex;
     flex-direction: column;
@@ -217,7 +218,7 @@
   .drawer-card--new .new-icon-wrap {
     width: 3.5rem;
     height: 3.5rem;
-    border-radius: 50%;
+    border-radius: var(--border-radius-full);
     background: rgb(var(--color-black-rgb) / 20%);
     border: var(--border-l);
     display: flex;
@@ -283,7 +284,7 @@
   @media (width <= 768px) {
     .entity-drawer {
       max-width: 100vw;
-      border-radius: 20px 20px 0 0;
+      border-radius: var(--border-radius-xl) var(--border-radius-xl) 0 0;
     }
 
     .drawer-grid {

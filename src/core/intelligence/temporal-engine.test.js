@@ -203,14 +203,7 @@ describe("temporal_engine", () => {
       const mockApp = { log: vi.fn() };
       const mockLogArray = []; // Plain array
 
-      await temporal_engine.consolidate(
-        mockSession,
-        mockDb,
-        mockEntities,
-        mockRuntime,
-        mockApp,
-        mockLogArray,
-      );
+      await temporal_engine.consolidate(mockSession, mockDb, mockEntities, mockRuntime, mockApp);
 
       expect(mockSession.require_active).toHaveBeenCalled();
       expect(mockDb.simulation_log.bulkPut).toHaveBeenCalled();

@@ -1,6 +1,6 @@
 <script>
-  import TextField from "@ui/atoms/TextField.svelte";
   import Button from "@ui/atoms/Button.svelte";
+  import TextField from "@ui/atoms/TextField.svelte";
   import { quintOut } from "svelte/easing";
   import { slide } from "svelte/transition";
 
@@ -93,13 +93,19 @@
                 <div class="weight-stack">
                   {#if is_editing}
                     <button onclick={() => update_weight(i, 1)} aria-label="Increase weight">
-                      <svg viewBox="0 0 24 24" class="icon-xxs"><path d="M7 14l5-5 5 5H7z" fill="currentColor"/></svg>
+                      <svg viewBox="0 0 24 24" class="icon-xxs"
+                        ><path d="M7 14l5-5 5 5H7z" fill="currentColor" /></svg
+                      >
                     </button>
                   {/if}
-                  <span class="weight-val">{typeof item === "object" ? (item.base_weight ?? 5) : 5}</span>
+                  <span class="weight-val"
+                    >{typeof item === "object" ? (item.base_weight ?? 5) : 5}</span
+                  >
                   {#if is_editing}
                     <button onclick={() => update_weight(i, -1)} aria-label="Decrease weight">
-                      <svg viewBox="0 0 24 24" class="icon-xxs"><path d="M7 10l5 5 5-5H7z" fill="currentColor"/></svg>
+                      <svg viewBox="0 0 24 24" class="icon-xxs"
+                        ><path d="M7 10l5 5 5-5H7z" fill="currentColor" /></svg
+                      >
                     </button>
                   {/if}
                 </div>
@@ -191,7 +197,7 @@
     gap: var(--spacing-xs);
     font-family: var(--font-family-mono);
     color: var(--color-white);
-    text-shadow: 0 1px 3px rgb(0 0 0 / 80%);
+    text-shadow: 0 1px 3px rgb(var(--color-black-rgb) / 80%);
   }
 
   .weight-stack {
@@ -221,7 +227,7 @@
     justify-content: center;
     opacity: 0.5;
     transition: all var(--motion-m);
-    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 80%));
+    filter: drop-shadow(0 1px 2px rgb(var(--color-black-rgb) / 80%));
   }
 
   .weight-stack button:hover {
@@ -255,29 +261,30 @@
     font-size: 0.6rem;
     background: rgb(var(--color-white-rgb) / 10%); /* High-end glass tag */
     padding: 2px 8px;
-    border: 1px solid rgb(var(--color-white-rgb) / 5%);
+    border: var(--border-m);
+    border-color: rgb(var(--color-white-rgb) / var(--opacity-xxs));
     border-radius: var(--border-radius-s);
     color: var(--color-white);
     opacity: 0.9;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     white-space: nowrap;
-    text-shadow: 0 1px 2px rgb(0 0 0 / 80%);
+    text-shadow: 0 1px 2px rgb(var(--color-black-rgb) / 80%);
   }
 
   :global(.delete-btn) {
-    color: var(--color-white) !important;
-    transition: all var(--motion-m) !important;
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 80%));
+    color: var(--color-white);
+    transition: all var(--motion-m);
+    border: none;
+    outline: none;
+    box-shadow: none;
+    background: transparent;
+    filter: drop-shadow(0 1px 2px rgb(var(--color-black-rgb) / 80%));
   }
 
   :global(.delete-btn:hover) {
-    color: var(--color-red) !important;
-    background: transparent !important;
+    color: var(--color-red);
+    background: transparent;
     transform: scale(1.1);
   }
 

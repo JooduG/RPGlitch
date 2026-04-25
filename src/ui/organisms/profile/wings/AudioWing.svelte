@@ -13,7 +13,14 @@
   let { char = $bindable(), is_editing } = $props();
   let show_voice_dropdown = $state(false);
   let row_el = $state();
-  let coords = $state({ top: null, bottom: null, left: 0, width: 0, is_dropup: false, max_h: DROPDOWN_MAX_HEIGHT });
+  let coords = $state({
+    top: null,
+    bottom: null,
+    left: 0,
+    width: 0,
+    is_dropup: false,
+    max_h: DROPDOWN_MAX_HEIGHT,
+  });
 
   $effect(() => {
     if (show_voice_dropdown && row_el) {
@@ -23,9 +30,9 @@
         const padding = 16;
         const space_below = vh - rect.bottom - padding;
         const space_above = rect.top - padding;
-        
+
         const use_dropup = space_below < DROPDOWN_MAX_HEIGHT && space_above > space_below;
-        const max_h = use_dropup 
+        const max_h = use_dropup
           ? Math.min(space_above, DROPDOWN_MAX_HEIGHT)
           : Math.min(space_below, DROPDOWN_MAX_HEIGHT);
 
@@ -35,7 +42,7 @@
           left: rect.left,
           width: rect.width,
           is_dropup: use_dropup,
-          max_h
+          max_h,
         };
       };
 

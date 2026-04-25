@@ -84,7 +84,9 @@
                     ))}
                   aria-label="Increase"
                 >
-                  <svg viewBox="0 0 24 24" class="icon-xxs"><path d="M7 14l5-5 5 5H7z" fill="currentColor"/></svg>
+                  <svg viewBox="0 0 24 24" class="icon-xxs"
+                    ><path d="M7 14l5-5 5 5H7z" fill="currentColor" /></svg
+                  >
                 </button>
                 <button
                   class="step-down no-tooltip"
@@ -95,7 +97,9 @@
                     ))}
                   aria-label="Decrease"
                 >
-                  <svg viewBox="0 0 24 24" class="icon-xxs"><path d="M7 10l5 5 5-5H7z" fill="currentColor"/></svg>
+                  <svg viewBox="0 0 24 24" class="icon-xxs"
+                    ><path d="M7 10l5 5 5-5H7z" fill="currentColor" /></svg
+                  >
                 </button>
               </div>
             {:else}

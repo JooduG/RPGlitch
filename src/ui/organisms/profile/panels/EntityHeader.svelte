@@ -124,48 +124,48 @@
   }
 
   :global(.description-field) {
-    background: transparent !important;
-    border: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
   }
 
   :global(.description-field.is-focused) {
-    background: transparent !important;
-    box-shadow: none !important;
+    background: transparent;
+    box-shadow: none;
   }
 
   :global(.description-field .field-header) {
-    display: none !important; /* Human eyes only - remove AI header */
+    display: none; /* Human eyes only - remove AI header */
   }
 
   :global(.enhance-btn) {
-    color: var(--color-white) !important;
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 80%));
+    color: var(--color-white);
+    border: none;
+    outline: none;
+    box-shadow: none;
+    background: transparent;
+    filter: drop-shadow(0 1px 2px rgb(var(--color-black-rgb) / 80%));
   }
 
   :global(.enhance-btn:hover) {
-    background: transparent !important;
-    color: var(--color-white) !important;
+    background: transparent;
+    color: var(--color-white);
     transform: scale(1.1);
   }
 
   :global(.description-field .field-foundation),
   :global(.description-field .readonly-field) {
-    padding: var(--spacing-xs) !important; /* Match name padding */
-    font-size: var(--font-size-l) !important;
-    color: var(--font-color-m) !important;
-    background: transparent !important;
-    border: none !important;
-    outline: none !important;
+    padding: var(--spacing-xs); /* Match name padding */
+    font-size: var(--font-size-l);
+    color: var(--font-color-m);
+    background: transparent;
+    border: none;
+    outline: none;
   }
 
   :global(.description-field .field-foundation:focus) {
-    background: rgb(var(--color-white-rgb) / 3%) !important;
-    border: none !important;
+    background: rgb(var(--color-white-rgb) / 3%);
+    border: none;
   }
 </style>

@@ -95,11 +95,16 @@
     "lodash-es": "^4.17.21"
   },
   "scripts": {
-    "audit": "node .agent/skills/using-agent-skills/scripts/summarize.js audit:warden audit:backlog audit:simulation",
+    "audit": "node .agent/skills/using-agent-skills/scripts/summarize.js audit:warden audit:theme audit:perf audit:backlog audit:simulation",
     "audit:agent": "node .agent/skills/using-agent-skills/scripts/summarize.js audit:skills audit:templates",
     "audit:backlog": "node .agent/skills/warden/scripts/warden-project.js",
     "audit:css": "node .agent/skills/warden/scripts/warden.js --css",
     "audit:nomenclature": "node .agent/skills/directives/scripts/audit-nomenclature.js",
+    "audit:perf": "svelte-check",
+    "audit:logic": "npm run test:unit",
+    "audit:api": "npm run audit:warden",
+    "audit:quality": "npm run verify",
+    "audit:theme": "npm run audit:warden -- --theme",
     "audit:security": "node .agent/skills/warden/scripts/warden.js --security",
     "audit:simulation": "vitest run .agent/skills/simulation/scripts/simulation-audit.test.js",
     "audit:skills": "node .agent/skills/directives/scripts/audit-skills.js",

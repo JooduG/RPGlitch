@@ -1,30 +1,24 @@
-# Mission Plan: UI Stabilization & Alignment [045]
+# Mission Plan: Skill Rewiring & Script Realignment [046]
 
-> **Status**: `[DONE]`
-> **Mission**: Resolve regressions in UI layout, accessibility, and architectural standards identified during the AudioWing refactor. Continued with code review accessibility fixes in the Profile modal.
+> **Status**: `[PLANNING]`
+> **Mission**: Synchronize all `.agent/skills` with the actual project infrastructure and scripts. Merge sub-references into primary skill files, update templates, and implement missing audit logic to prevent "hallucination debt".
 
 ## Proposed Changes
 
-### [UI/UX]
+### [Infrastructure & Tooling]
 
-- [x] Match Audio selection dropdown width to parent row.
-- [x] Implement portal-based positioning for voice selection to prevent clipping.
-- [x] Enhance accessibility with WAI-ARIA listbox patterns in `AudioWing.svelte`.
-- [x] Fix line-clamping and scrolling stability in `StoryboardCard` and `Wing` components.
-- [x] Correct event safety and robustness in `Profile.svelte`.
-- [x] Restore visible `:focus-within` indicator on `.name.edit` in `EntityHeader.svelte`.
-- [x] Decouple `:hover` and `:focus` styles for description `TextField` to ensure keyboard accessibility.
-- [x] Sync custom scrollbar styles to `.left-panel` in `Profile.svelte` for visual consistency.
+- [ ] **package.json**: Add `audit:theme`, `audit:perf`, `audit:logic`, and `audit:api` aliases.
+- [ ] **warden.js**: Implement `--theme` filter to audit Rule 04 (Aesthetics) compliance.
 
-### [Architectural Stabilization]
+### [Skills & Documentation]
 
-- [x] Restore security safeguards (payload limits, JSON parsing, prompt escaping).
-- [x] Align UI containers with semantic design tokens (`--panel-width-*`).
-- [x] Refine `auto-resize` utility with `MutationObserver` and performance optimizations.
-- [x] Reinstate `get_contrast_color` unit tests and standard verification suites.
+- [ ] **Designer**: Merge `references/` into `SKILL.md` and elevate to "Director" role.
+- [ ] **Designer**: Update `design.template.md` (fix `translateY` and tokens).
+- [ ] **Motion/Audio/JS**: Align all audit commands with the new script registry.
+- [ ] **Warden**: Sync all skill audit patterns with `audit:warden`.
 
 ## Verification
 
-- [x] All unit tests passing (`npm run test:unit`).
-- [x] Linting and structural audits clean.
-- [x] Visual verification of dropdown alignment and smooth transitions.
+- [ ] `npm run audit:theme` correctly identifies Rule 04 violations.
+- [ ] All `SKILL.md` files are self-contained (no broken external references).
+- [ ] `npm run verify` passes globally.

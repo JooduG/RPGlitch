@@ -4,10 +4,10 @@
    * 🧩 THE TEMPORAL HYBRID FIELDS
    * Dynamically renders the Eternal, Present, Past, and Future sections.
    */
-  import TextField from "@ui/atoms/TextField.svelte";
-  import Button from "@ui/atoms/Button.svelte";
-  import { prompt_builder } from "@core/intelligence/prompt-builder.js";
   import { llm_service } from "@core/intelligence/llm-service.js";
+  import { prompt_builder } from "@core/intelligence/prompt-builder.js";
+  import Button from "@ui/atoms/Button.svelte";
+  import TextField from "@ui/atoms/TextField.svelte";
   import { get_value, set_value } from "@ui/utils/field-path.js";
   import { fly } from "svelte/transition";
   import { PROFILE_SECTIONS } from "../profile-config.js";
@@ -120,7 +120,10 @@
                       onclick={() => handle_enhance(field.key, safe_get(field.key))}
                     >
                       <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
-                        <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="var(--color-white)"></path>
+                        <path
+                          d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"
+                          fill="var(--color-white)"
+                        ></path>
                       </svg>
                     </Button>
                   {/if}
@@ -195,7 +198,7 @@
     pointer-events: none;
     letter-spacing: var(--letter-spacing-l);
     white-space: nowrap;
-    text-shadow: 0 0 8px rgb(255 255 255 / 40%);
+    text-shadow: 0 0 8px rgb(var(--color-white-rgb) / 40%);
   }
 
   .content .row .label.interactive:hover {
@@ -246,17 +249,17 @@
   }
 
   :global(.enhance-btn) {
-    color: var(--color-white) !important;
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 80%));
+    color: var(--color-white);
+    border: none;
+    outline: none;
+    box-shadow: none;
+    background: transparent;
+    filter: drop-shadow(0 1px 2px rgb(var(--color-black-rgb) / 80%));
   }
 
   :global(.enhance-btn:hover) {
-    background: transparent !important;
-    color: var(--color-white) !important;
+    background: transparent;
+    color: var(--color-white);
     transform: scale(1.1);
   }
 
