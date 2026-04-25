@@ -1,7 +1,7 @@
 /**
  * @file auto-resize.js
  * Svelte 5 logic action to resize textareas automatically based on their content.
- * Batches DOM reads and writes via requestAnimationFrame to prevent layout thrashing.
+ * Optimized to prevent layout thrashing by batching DOM reads and writes.
  */
 export function auto_resize(node, options = {}) {
   let frame;
@@ -12,51 +12,47 @@ export function auto_resize(node, options = {}) {
     if (frame) cancelAnimationFrame(frame);
 
     frame = requestAnimationFrame(() => {
-      // 1. Accuracy: Account for border box if necessary
       const style = getComputedStyle(node);
       const isBorderBox = style.boxSizing === "border-box";
       const borderOffset = isBorderBox
         ? parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth)
         : 0;
 
-      // 2. Optimization: Skip if no change in content or width
+      // Add a small buffer to prevent flickering scrollbars
+      const buffer = 2;
+
+      // Skip if no change in content or width
       if (node.clientWidth === lastWidth && node.scrollHeight === lastScrollHeight) {
         return;
       }
 
-      // 3. Batched DOM manipulation
-      node.style.height = "auto";
-      const height = node.scrollHeight + borderOffset;
-      node.style.height = height + "px";
+      const syncId = options.syncId;
+      const scope = syncId ? (node.closest(".storymode-grid, .modal-content, body") || document.body) : null;
+      const siblings = syncId ? scope.querySelectorAll(`[data-sync-id="${syncId}"]`) : [node];
+
+      // 1. PHASE: BATCH WRITE (Reset)
+      siblings.forEach((s) => {
+        if (s instanceof HTMLElement) s.style.height = "auto";
+      });
+
+      // 2. PHASE: BATCH READ (Measure)
+      let maxHeight = 0;
+      siblings.forEach((s) => {
+        if (s instanceof HTMLElement) {
+          maxHeight = Math.max(maxHeight, s.scrollHeight);
+        }
+      });
+
+      // 3. PHASE: BATCH WRITE (Apply)
+      const finalHeight = maxHeight + borderOffset + buffer + "px";
+      siblings.forEach((s) => {
+        if (s instanceof HTMLElement) {
+          s.style.height = finalHeight;
+        }
+      });
 
       lastWidth = node.clientWidth;
       lastScrollHeight = node.scrollHeight;
-
-      // 4. Sync Logic (if applicable)
-      if (options.syncId) {
-        const scope = node.closest(".storymode-grid, .modal-content, body") || document.body;
-        const siblings = scope.querySelectorAll(`[data-sync-id="${options.syncId}"]`);
-
-        // 1. Batch Write: Reset all to auto
-        siblings.forEach((s) => {
-          if (s instanceof HTMLElement) s.style.height = "auto";
-        });
-
-        // 2. Batch Read: Measure all heights
-        let maxHeight = 0;
-        siblings.forEach((s) => {
-          if (s instanceof HTMLElement) {
-            maxHeight = Math.max(maxHeight, s.scrollHeight);
-          }
-        });
-
-        // 3. Batch Write: Apply max height
-        siblings.forEach((s) => {
-          if (s instanceof HTMLElement) {
-            s.style.height = maxHeight + borderOffset + "px";
-          }
-        });
-      }
     });
   };
 
