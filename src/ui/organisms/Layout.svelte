@@ -137,7 +137,7 @@
     .universal-stage.layout-cinematic .stage-column.left {
       grid-column: 1 / 2;
       background: radial-gradient(circle at top center, var(--color-gunmetal), var(--color-black));
-      border-right: 1px solid var(--border-l);
+      border-right: var(--border-l);
     }
 
     .universal-stage.layout-cinematic .stage-column.right {
@@ -148,6 +148,7 @@
       grid-column: 1 / -1;
       grid-row: 3;
       min-height: 0;
+      overflow: auto;
     }
 
     .universal-stage.layout-cinematic .stage-footer {

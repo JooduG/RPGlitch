@@ -7,16 +7,58 @@
   import { Audio } from "@media/audio-engine.svelte.js";
   import Slider from "@ui/atoms/Slider.svelte";
   import Wing from "./Wing.svelte";
-  import { floating_dropdown } from "@ui/utils/actions/floating-dropdown.js";
+  import { portal } from "@ui/utils/actions/portal.js";
+  import { DROPDOWN_MAX_HEIGHT } from "@core/constants.js";
 
   let { char = $bindable(), is_editing } = $props();
-  /** @type {HTMLButtonElement|null} */
-  let voice_btn_el = $state(null);
-  /** @type {HTMLDivElement|null} */
-  let voice_panel_el = $state(null);
-  /** @type {HTMLDivElement|null} */
-  let voice_row_el = $state(null);
   let show_voice_dropdown = $state(false);
+  let row_el = $state();
+  let coords = $state({ top: null, bottom: null, left: 0, width: 0, is_dropup: false, max_h: DROPDOWN_MAX_HEIGHT });
+
+  $effect(() => {
+    if (show_voice_dropdown && row_el) {
+      const update = () => {
+        const rect = row_el.getBoundingClientRect();
+        const vh = window.innerHeight;
+        const padding = 16;
+        const space_below = vh - rect.bottom - padding;
+        const space_above = rect.top - padding;
+        
+        const use_dropup = space_below < DROPDOWN_MAX_HEIGHT && space_above > space_below;
+        const max_h = use_dropup 
+          ? Math.min(space_above, DROPDOWN_MAX_HEIGHT)
+          : Math.min(space_below, DROPDOWN_MAX_HEIGHT);
+
+        coords = {
+          top: use_dropup ? null : rect.bottom,
+          bottom: use_dropup ? vh - rect.top : null,
+          left: rect.left,
+          width: rect.width,
+          is_dropup: use_dropup,
+          max_h
+        };
+      };
+
+      const handle_outside = (e) => {
+        const target = e.target instanceof Element ? e.target : e.target.parentElement;
+        if (!target) return;
+        if (!row_el.contains(target) && !target.closest(".dropdown-content")) {
+          show_voice_dropdown = false;
+        }
+      };
+
+      update();
+      window.addEventListener("scroll", update, true);
+      window.addEventListener("resize", update);
+      window.addEventListener("mousedown", handle_outside, true);
+
+      return () => {
+        window.removeEventListener("scroll", update, true);
+        window.removeEventListener("resize", update);
+        window.removeEventListener("mousedown", handle_outside, true);
+      };
+    }
+  });
 
   const selected_voice = $derived(Audio.voice.voices.find((v) => v.uri === char.voice.uri));
   const is_natural_voice = $derived(selected_voice?.name.includes("Natural"));
@@ -29,50 +71,29 @@
       .trim();
   }
 
-  const ensure_voice = () => {
-    if (!char.voice) {
-      char.voice = { uri: "", rate: 1.0, pitch: 1.0 };
-    } else {
-      char.voice.rate ??= 1.0;
-      char.voice.pitch ??= 1.0;
-    }
-  };
-
-  ensure_voice();
-  $effect(ensure_voice);
-
-  // Close dropdown when clicking outside the trigger button or the portalled panel.
-  $effect(() => {
-    if (!show_voice_dropdown) return;
-
-    function on_outside_click(e) {
-      const target = /** @type {Node} */ (e.target);
-      const panel = voice_panel_el;
-      if (
-        voice_btn_el && !voice_btn_el.contains(target) &&
-        (!panel || !panel.contains(target))
-      ) {
-        show_voice_dropdown = false;
-      }
-    }
-
-    document.addEventListener('pointerdown', on_outside_click, { capture: true });
-    return () => document.removeEventListener('pointerdown', on_outside_click, { capture: true });
-  });
+  const dropdown_style = $derived(
+    `top: ${coords.top !== null ? coords.top + "px" : "auto"}; ` +
+      `bottom: ${coords.bottom !== null ? coords.bottom + "px" : "auto"}; ` +
+      `left: ${coords.left}px; ` +
+      `width: ${coords.width}px; ` +
+      `max-height: ${coords.max_h}px;`,
+  );
 </script>
 
 <div class="audio-wing-wrapper" role="presentation">
   <Wing class="audio-wing">
     <div class="group">
-      <div class="voice-control-row" bind:this={voice_row_el}>
+      <div class="voice-control-row" bind:this={row_el}>
         <div class="dropdown">
           <button
-            bind:this={voice_btn_el}
             class="voice-button"
             type="button"
             disabled={!is_editing}
             onclick={() => (show_voice_dropdown = !show_voice_dropdown)}
             aria-label="Select Voice"
+            aria-haspopup="listbox"
+            aria-expanded={show_voice_dropdown}
+            aria-controls="voice-listbox"
           >
             <span class="voice-name-truncate">
               {format_voice_name(
@@ -80,25 +101,31 @@
               )}
             </span>
           </button>
-          <div
-            bind:this={voice_panel_el}
-            class="voice-dropdown-panel"
-            use:floating_dropdown={{ trigger_el: voice_btn_el, width_el: voice_row_el, visible: show_voice_dropdown }}
-          >
-            {#each Audio.voice.voices as voice (voice.uri)}
-              <button
-                class="voice-option"
-                class:active={char.voice.uri === voice.uri}
-                onclick={() => {
-                  if (is_editing) char.voice.uri = voice.uri;
-                  show_voice_dropdown = false;
-                }}
-              >
-                <span class="voice-name">{format_voice_name(voice.name)}</span>
-                <span class="region-pill">{voice.region}</span>
-              </button>
-            {/each}
-          </div>
+        </div>
+        <div
+          id="voice-listbox"
+          use:portal
+          role="listbox"
+          class="dropdown-content"
+          class:visible={show_voice_dropdown}
+          class:dropup={coords.is_dropup}
+          style={dropdown_style}
+        >
+          {#each Audio.voice.voices as voice (voice.uri)}
+            <button
+              role="option"
+              aria-selected={char.voice.uri === voice.uri}
+              class="voice-option"
+              class:active={char.voice.uri === voice.uri}
+              onclick={() => {
+                if (is_editing) char.voice.uri = voice.uri;
+                show_voice_dropdown = false;
+              }}
+            >
+              <span class="voice-name">{format_voice_name(voice.name)}</span>
+              <span class="region-pill">{voice.region}</span>
+            </button>
+          {/each}
         </div>
         <button
           class="preview-button"
@@ -141,6 +168,7 @@
   }
 
   .voice-control-row {
+    position: relative; /* Fix: Anchor for the wide dropdown */
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: var(--spacing-xs);
@@ -215,17 +243,43 @@
     opacity: var(--opacity-s);
   }
 
-  /* :global — node is portalled to document.body, scoped selectors won't reach it */
-  :global(.voice-dropdown-panel) {
-    background: var(--glass-xxl);
-    backdrop-filter: var(--blur-l);
-    border: 1px solid var(--border-xl);
+  .dropdown-content {
+    visibility: hidden;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-var(--spacing-xs));
+    position: fixed;
+    overflow-y: auto;
+    z-index: var(--z-index-max);
+    background: var(--glass-xxl); /* Clarified transparency */
+    backdrop-filter: var(--blur-m);
+    border: var(--border-xl);
     border-radius: var(--border-radius-m);
     box-shadow: var(--shadow-xxl);
-    transition: opacity var(--motion-m) ease;
+    transition:
+      opacity var(--motion-l) ease,
+      transform var(--motion-l) var(--motion-elastic),
+      visibility var(--motion-l);
   }
 
-  :global(.voice-dropdown-panel .voice-option) {
+  .dropdown-content.visible {
+    visibility: visible;
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    opacity: 1;
+    transform: translateY(var(--spacing-xs));
+  }
+
+  .dropdown-content.dropup {
+    transform: translateY(var(--spacing-xs)); /* Start from below when opening upwards */
+  }
+
+  .dropdown-content.visible.dropup {
+    transform: translateY(calc(-1 * var(--spacing-xs)));
+  }
+
+  .voice-option {
     width: 100%;
     padding: var(--spacing-xs) var(--spacing-s);
     background: transparent;
@@ -240,15 +294,11 @@
     transition: all var(--motion-l);
   }
 
-  :global(.voice-dropdown-panel .voice-option:hover) {
+  .voice-option:hover {
     background: var(--glass-xs);
   }
 
-  :global(.voice-dropdown-panel .voice-option.active) {
-    background: var(--glass-xs);
-  }
-
-  :global(.voice-dropdown-panel .voice-option .region-pill) {
+  .voice-option .region-pill {
     font-size: var(--font-size-xxs);
     text-transform: uppercase;
     font-weight: var(--font-weight-bold);
@@ -256,10 +306,16 @@
     letter-spacing: 0.1em;
   }
 
-  :global(.voice-dropdown-panel .voice-option .voice-name) {
+  .voice-name-truncate,
+  .voice-option .voice-name {
     white-space: nowrap;
-    overflow: visible;
+    overflow: hidden;
+    text-overflow: ellipsis;
     flex: 1;
+  }
+
+  .voice-option.active {
+    background: var(--glass-xs);
   }
 
   .sliders {

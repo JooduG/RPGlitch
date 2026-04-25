@@ -83,9 +83,9 @@
     caret-color: var(--signature-color);
   }
 
-  /* Show underline when actively editing the name */
   .name.edit:focus-within {
     outline: none;
+    background: rgb(var(--color-white-rgb) / 3%);
     border-bottom-color: var(--signature-color, var(--color-frisk));
   }
 
@@ -115,7 +115,7 @@
     border: none;
     border-bottom: 1px solid transparent;
     box-shadow: none;
-    padding: 0 0 var(--spacing-s);
+    padding: 0;
     font-size: var(--font-size-l);
     font-weight: var(--font-weight-m);
     color: var(--font-color-m);
@@ -136,16 +136,12 @@
   .description :global(.field-foundation:hover) {
     background: transparent;
     border-color: transparent;
-    outline: none;
   }
 
-  /* Visible focus state: signature-color underline signals editability */
   .description :global(.field-foundation:focus) {
-    background: transparent;
-    border-color: transparent;
+    background: rgb(var(--color-white-rgb) / 3%);
     border-bottom-color: var(--signature-color, var(--color-frisk));
     outline: none;
-    box-shadow: none;
   }
 
   .description :global(.field-foundation::placeholder) {

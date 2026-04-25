@@ -11,6 +11,8 @@ import { runtime } from "./runtime.svelte.js";
 import { simulationState } from "./status.svelte.js";
 import { normalize } from "../data/content-normaliser.js";
 import { visual_engine } from "../media/visual-engine.svelte.js";
+import { KV_SETTINGS_KEY } from "@core/constants.js";
+import { entities } from "../data/repository.js";
 
 /************************************************************************************
  * 🧩 [SECTION: STATE DEFINITIONS]
@@ -119,7 +121,7 @@ export class AppStore {
     if (typeof window === "undefined" || this.initialized) return;
     this.initialized = true;
     try {
-      const entry = await db.kv_settings.get("rpg_settings");
+      const entry = await db.kv_settings.get(KV_SETTINGS_KEY);
       if (entry && entry.value) {
         this.settings = { ...this.settings, ...entry.value };
       }
@@ -131,7 +133,6 @@ export class AppStore {
    * Hydrates the storyboard lists with characters and fractals.
    */
   async load_entities() {
-    const { entities } = await import("@data/repository.js");
     try {
       const [characters, fractals] = await Promise.all([
         entities.list("character"),
@@ -148,7 +149,7 @@ export class AppStore {
     if (typeof window === "undefined" || !this.settings) return;
     try {
       await db.kv_settings.put({
-        key: "rpg_settings",
+        key: KV_SETTINGS_KEY,
         value: $state.snapshot(this.settings),
       });
     } catch (e) {

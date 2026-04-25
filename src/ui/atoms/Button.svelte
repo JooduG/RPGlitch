@@ -137,7 +137,7 @@
   }
 
   .button-outline {
-    background: var(--border-l);
+    background: var(--color-border-l);
     color: var(--font-color-s);
   }
 
@@ -146,7 +146,7 @@
   }
 
   .button-dashed {
-    border: 1px dashed var(--border-l);
+    border: 1px dashed var(--color-border-l);
     color: var(--font-color-s);
   }
 
@@ -214,9 +214,6 @@
   }
 
   /* 4. The Hover Monster (Highest Specificity due to :not) */
-  .button:hover:not(:disabled, .disabled) {
-    /* Transitions inherited from base .button */
-  }
 
   .button-primary:hover:not(:disabled, .disabled) {
     background: color-mix(in srgb, var(--color-frisk), var(--color-white) 5%);

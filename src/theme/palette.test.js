@@ -79,29 +79,30 @@ describe("ThemeStore Color Generation", () => {
       expect(result).toMatch(/^var\(--color-[a-z]+\)$/);
     });
   });
+});
 
-  describe("get_contrast_color", () => {
-    test("returns white for invalid hex", () => {
-      expect(themeStore.get_contrast_color(null)).toBe("var(--color-white)");
-      expect(themeStore.get_contrast_color("")).toBe("var(--color-white)");
-      expect(themeStore.get_contrast_color("invalid")).toBe("var(--color-white)");
-      expect(themeStore.get_contrast_color("#1234")).toBe("var(--color-white)");
-    });
-
-    test("returns white for hsl colors", () => {
-      expect(themeStore.get_contrast_color("hsl(0, 0%, 100%)")).toBe("var(--color-white)");
-    });
-
-    test("handles 3-digit hex codes", () => {
-      expect(themeStore.get_contrast_color("#000")).toBe("var(--color-white)");
-      expect(themeStore.get_contrast_color("#fff")).toBe("var(--color-black)");
-    });
-
-    test("handles 6-digit hex codes", () => {
-      expect(themeStore.get_contrast_color("#000000")).toBe("var(--color-white)");
+describe("ThemeStore Contrast Utilities", () => {
+  describe("get_contrast_color()", () => {
+    test("returns black for light colors", () => {
       expect(themeStore.get_contrast_color("#ffffff")).toBe("var(--color-black)");
-      expect(themeStore.get_contrast_color("#ef4444")).toBe("var(--color-white)"); // Crimson Red
       expect(themeStore.get_contrast_color("#fde047")).toBe("var(--color-black)"); // Lemon Yellow
+    });
+
+    test("returns white for dark colors", () => {
+      expect(themeStore.get_contrast_color("#000000")).toBe("var(--color-white)");
+      expect(themeStore.get_contrast_color("#15803d")).toBe("var(--color-white)"); // Forest Green
+      expect(themeStore.get_contrast_color("#ef4444")).toBe("var(--color-white)"); // Crimson Red
+    });
+
+    test("handles shorthand hex codes", () => {
+      expect(themeStore.get_contrast_color("#fff")).toBe("var(--color-black)");
+      expect(themeStore.get_contrast_color("#000")).toBe("var(--color-white)");
+    });
+
+    test("handles invalid inputs gracefully", () => {
+      expect(themeStore.get_contrast_color(null)).toBe("var(--color-white)");
+      expect(themeStore.get_contrast_color("invalid")).toBe("var(--color-white)");
+      expect(themeStore.get_contrast_color("hsl(0, 0%, 100%)")).toBe("var(--color-white)");
     });
   });
 });

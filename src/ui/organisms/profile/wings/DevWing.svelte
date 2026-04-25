@@ -137,7 +137,7 @@
     justify-content: center;
     min-height: 4rem;
     background: var(--glass-xs);
-    border: 1px solid var(--border-l);
+    border: var(--border-l);
     border-radius: var(--border-radius-m);
     transition: all var(--motion-l) var(--motion-elastic);
   }

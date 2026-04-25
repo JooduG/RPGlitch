@@ -19,14 +19,10 @@
   let confirm_button = $state();
   $effect(() => {
     if (open && dialog) {
-      if (!dialog.open) {
-        dialog.showModal();
-        confirm_button?.focus();
-      }
+      dialog.showModal();
+      confirm_button?.focus();
     } else if (!open && dialog) {
-      if (dialog.open) {
-        dialog.close();
-      }
+      dialog.close();
     }
   });
   function handle_confirm() {
@@ -49,12 +45,23 @@
     bind:this={dialog}
     onclose={handle_cancel}
     onkeydown={handle_keydown}
-    onclick={(e) => { if (e.target === dialog) handle_cancel(); }}
     transition:scale={{ duration: 200, start: 0.95, easing: quintOut }}
   >
     <article class="security-modal">
       <header>
         <h3>{title}</h3>
+        <Button variant="ghost" square={true} size="sm" onclick={handle_cancel} aria-label="Close">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            class="icon"
+          >
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+            />
+          </svg>
+        </Button>
       </header>
       <div class="content">
         <p>{message}</p>
@@ -86,9 +93,9 @@
     padding: 0;
     margin: auto;
     max-width: 90vw;
-    width: var(--panel-s);
+    width: var(--panel-width-m);
     color: inherit;
-    z-index: var(--z-index-xxl);
+    z-index: var(--z-index-xl);
     overflow: visible;
   }
 
@@ -96,62 +103,53 @@
     background: transparent; /* Handled by our custom backdrop div */
   }
 
-  p {
-    margin: 0;
-  }
-
-  /* Nordic backdrop: token-based to match the main Modal's Backdrop component */
   .backdrop {
     position: fixed;
     inset: 0;
     background: var(--glass-xs);
-    backdrop-filter: var(--blur-m);
-    z-index: calc(var(--z-index-xxl) - 1);
+    z-index: calc(var(--z-index-xl) - 1);
   }
 
-  /* Matched to the Wing container aesthetic */
   .security-modal {
-    background: var(--glass-s);
-    backdrop-filter: var(--blur-l);
-    border: var(--border-m);
-    box-shadow: var(--shadow-xl);
-    border-radius: var(--border-radius-m);
-    padding: var(--spacing-m);
-    gap: var(--spacing-m);
+    background: var(--glass-l);
+    box-shadow:
+      inset 0 0 0 1px var(--color-border-l),
+      var(--shadow-xxl);
+    border-radius: var(--border-radius-l);
     overflow: hidden;
     display: flex;
     flex-direction: column;
   }
 
   .security-modal header {
+    padding: var(--spacing-m) var(--spacing-xl);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-left: var(--spacing-xs); /* align with group-label */
+    background: var(--glass-l);
   }
 
-  /* Match the .group-label styling from Wing.svelte */
   .security-modal h3 {
     margin: 0;
-    font-size: var(--font-size-xxs);
-    font-weight: var(--font-weight-bold);
-    font-family: var(--font-family-body);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--font-color-s);
+    font-size: var(--font-size-l);
+    font-weight: var(--font-weight-l);
+    font-family: var(--font-family-heading);
+    color: var(--font-color-m);
   }
 
   .security-modal .content {
-    padding: 0 var(--spacing-xs);
-    color: var(--font-color-m);
-    font-size: var(--font-size-s);
+    padding: var(--spacing-xl);
+    color: var(--font-color-s);
+    font-size: var(--font-size-m);
     line-height: var(--line-height-m);
   }
 
   .security-modal footer {
+    padding: var(--spacing-m) var(--spacing-xl);
     display: flex;
     justify-content: flex-end;
     gap: var(--spacing-s);
+    background: var(--glass-xs);
   }
 
   /* Button styling delegated to Button component */

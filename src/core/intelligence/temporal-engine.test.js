@@ -39,7 +39,12 @@ describe("temporal_engine", () => {
 
   describe("create", () => {
     it("creates a symmetric temporal entry", () => {
-      vi.mocked(dynamics_engine.dynamics_scan).mockReturnValue([{ id: "VIBE_CHECK" }]);
+      vi.mocked(dynamics_engine.dynamics_scan).mockReturnValue([
+        {
+          id: "VIBE_CHECK",
+          scan: "",
+        },
+      ]);
 
       const entry = temporal_engine.create("He felt a strange vibe.");
 
@@ -137,13 +142,18 @@ describe("temporal_engine", () => {
       };
 
       vi.mocked(llm_service.generate).mockResolvedValue(JSON.stringify(mockResonance));
-      vi.mocked(dynamics_engine.dynamics_scan).mockReturnValue([{ id: "TEST_TAG" }]);
+      vi.mocked(dynamics_engine.dynamics_scan).mockReturnValue([
+        {
+          id: "TEST_TAG",
+          scan: "",
+        },
+      ]);
 
       const result = await temporal_engine.weave_resonance(mockEntity, mockHistory, "character");
 
       expect(result.text).toBe(mockResonance.summary);
       expect(result.vector_tags).toEqual(["event"]);
-      expect(result.dynamics_tags).toEqual([{ id: "TEST_TAG" }]);
+      expect(result.dynamics_tags).toEqual([{ id: "TEST_TAG", word: "" }]);
       expect(result.timestamp).toBe(Date.now());
     });
 
@@ -187,7 +197,7 @@ describe("temporal_engine", () => {
         require_active: vi.fn(() => "story_1"),
         load_log: vi.fn(() => mockMessages),
       };
-      const mockDb = { simulation_log: { update: vi.fn() } };
+      const mockDb = { simulation_log: { bulkPut: vi.fn() } };
       const mockEntities = { save: vi.fn() };
       const mockRuntime = { active_ai: { past: [] } };
       const mockApp = { log: vi.fn() };
@@ -203,7 +213,7 @@ describe("temporal_engine", () => {
       );
 
       expect(mockSession.require_active).toHaveBeenCalled();
-      expect(mockDb.simulation_log.update).toHaveBeenCalled();
+      expect(mockDb.simulation_log.bulkPut).toHaveBeenCalled();
     });
   });
 });

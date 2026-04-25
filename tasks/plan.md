@@ -1,43 +1,30 @@
-# Mission Plan: Security Hardening & UI Polish [045]
+# Mission Plan: UI Stabilization & Alignment [045]
 
 > **Status**: `[DONE]`
-> **Mission**: Resolve security and architectural vulnerabilities identified in code review, including prompt injection, NSFW content, and UI layering/animation debt.
-
-## User Review Required
-
-> [!IMPORTANT]
-> The `escape` function is being updated to include double and single quotes. This is a breaking change for any logic that depends on quotes being preserved in the escaped output, but it is necessary for prompt injection protection.
+> **Mission**: Resolve regressions in UI layout, accessibility, and architectural standards identified during the AudioWing refactor. Continued with code review accessibility fixes in the Profile modal.
 
 ## Proposed Changes
 
-### [Security]
+### [UI/UX]
 
-#### [MODIFY] [security.js](file:///c:/Users/johng/source/repos/RPGlitch/src/core/security.js)
-- Update the `escape` function to also escape double quotes (`"`) and single quotes (`'`).
-- This prevents users from "escaping" string-wrapped prompt templates.
+- [x] Match Audio selection dropdown width to parent row.
+- [x] Implement portal-based positioning for voice selection to prevent clipping.
+- [x] Enhance accessibility with WAI-ARIA listbox patterns in `AudioWing.svelte`.
+- [x] Fix line-clamping and scrolling stability in `StoryboardCard` and `Wing` components.
+- [x] Correct event safety and robustness in `Profile.svelte`.
+- [x] Restore visible `:focus-within` indicator on `.name.edit` in `EntityHeader.svelte`.
+- [x] Decouple `:hover` and `:focus` styles for description `TextField` to ensure keyboard accessibility.
+- [x] Sync custom scrollbar styles to `.left-panel` in `Profile.svelte` for visual consistency.
 
-#### [MODIFY] [optics.js](file:///c:/Users/johng/source/repos/RPGlitch/src/media/optics.js)
-- Replace explicit NSFW examples in the `SEMANTIC RESONANCE` instruction with neutral, genre-accurate examples.
-- This ensures compliance with AI safety filters.
+### [Architectural Stabilization]
 
----
+- [x] Restore security safeguards (payload limits, JSON parsing, prompt escaping).
+- [x] Align UI containers with semantic design tokens (`--panel-width-*`).
+- [x] Refine `auto-resize` utility with `MutationObserver` and performance optimizations.
+- [x] Reinstate `get_contrast_color` unit tests and standard verification suites.
 
-### [UI & Aesthetics]
+## Verification
 
-#### [MODIFY] [floating-dropdown.js](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/utils/actions/floating-dropdown.js)
-- Replace `display: none/flex` with `visibility`, `opacity`, and `pointer-events`.
-- Update `zIndex` calculation to use `var(--z-index-max)`.
-
-#### [MODIFY] [AudioWing.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/organisms/profile/wings/AudioWing.svelte)
-- Remove redundant `z-index: 9999;`.
-
-## Verification Plan
-
-### Automated Tests
-- `npm test src/core/security.js`
-- `npm test src/media/optics.js`
-
-### Manual Verification
-- **Prompt Injection**: Verify quotes are escaped in input.
-- **UI Transitions**: Verify smooth fade in/out for dropdowns.
-- **Z-Index**: Verify dropdowns render above all other elements.
+- [x] All unit tests passing (`npm run test:unit`).
+- [x] Linting and structural audits clean.
+- [x] Visual verification of dropdown alignment and smooth transitions.

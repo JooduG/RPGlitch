@@ -7,9 +7,9 @@
   import { llm_service } from "@core/intelligence/llm-service.js";
   import { prompt_builder } from "@core/intelligence/prompt-builder.js";
   import { validateImage } from "@core/security.js";
-  import { AestheticResolver } from "@media/optics.js";
   import { app } from "@state/app.svelte.js";
   import { PALETTE, PALETTE_VARS } from "@theme/palette.svelte.js";
+  import { AestheticResolver } from "@media/optics.js";
   import Button from "@ui/atoms/Button.svelte";
   import TextField from "@ui/atoms/TextField.svelte";
   import Toggle from "@ui/atoms/Toggle.svelte";
@@ -223,7 +223,7 @@
         }}
       >
         <TextField
-          class="visual-prompt scrollbar"
+          class="visual-prompt"
           is_edit={is_editing && !is_prompt_busy}
           bind:value={char.modifiers.prompt}
           placeholder="Enter image prompt or paste a URL..."
@@ -298,7 +298,6 @@
     grid-template-columns: repeat(5, 1fr);
     gap: var(--spacing-xs);
     padding: var(--spacing-xs) 0;
-    overflow: visible; /* Ensure tooltips can bleed through the grid */
   }
 
   .swatch {
@@ -351,15 +350,13 @@
   }
 
   :global(.visual-prompt) {
-    padding: var(--spacing-m) var(--spacing-m) var(--spacing-s); 
-    
-    /* Removed max-height/overflow to allow wing extension as requested */
+    padding: var(--spacing-m);
   }
 
   .action-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    border-top: 1px solid var(--border-l);
+    border-top: var(--border-l);
     overflow: visible;
     gap: var(--spacing-xxs);
   }
@@ -367,7 +364,7 @@
   .action-row :global(.action-button) {
     height: 2.5rem;
     background: var(--glass-xs);
-    border-right: 1px solid var(--border-l);
+    border-right: var(--border-l);
     transition: all var(--motion-l) var(--motion-elastic);
   }
 
@@ -384,13 +381,19 @@
     transform: scale(0.98);
   }
 
+  .toggle-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
   .engine-status {
     display: flex;
     align-items: center;
     gap: var(--spacing-s);
     padding: var(--spacing-xs) var(--spacing-m);
     background: var(--glass-xs);
-    border-top: 1px solid var(--border-l);
+    border-top: var(--border-l);
     font-family: var(--font-family-mono);
     font-size: var(--font-size-xxxs);
     color: var(--color-chalk);

@@ -146,25 +146,12 @@
   --breakpoint-tablet: 1024px;
   --breakpoint-desktop: 1280px;
 
-  /* ------------------------------------------------------------
-     THE UNIVERSAL PANEL SYSTEM (T-SHIRT SCALE)
-     A 12-unit cinematic grid translated into modular width tokens.
-     1 Unit = 1/12th of the 'Ideal' Cinematic Stage.
-     ------------------------------------------------------------ */
-  --panel-unit: min(8vh, 120px); 
-
-  --panel-xxxs:   calc(var(--panel-unit) * 1);
-  --panel-xxs:    calc(var(--panel-unit) * 2);  /* Storymode Side Wings (span 2) */
-  --panel-xs:     calc(var(--panel-unit) * 3);  /* Profile Wings / Portrait Cards */
-  --panel-s:      calc(var(--panel-unit) * 4);  /* Landscape Card Dimension */
-  --panel-m:      calc(var(--panel-unit) * 5);  /* THE IDEAL CENTER */
-  --panel-l:      calc(var(--panel-unit) * 6);
-  --panel-xl:     calc(var(--panel-unit) * 7);
-  --panel-xxl:    calc(var(--panel-unit) * 8);
-  --panel-xxxl:   calc(var(--panel-unit) * 9);  /* Profile Content Canvas */
-  --panel-xxxxl:  calc(var(--panel-unit) * 10);
-  --panel-xxxxxl: calc(var(--panel-unit) * 11);
-  --panel-full:   calc(var(--panel-unit) * 12); /* Full Cinematic Stage */
+  /* Responsive Metric: The Panel Unit
+   * Scales layout components based on viewport width.
+   */
+  --panel-unit: clamp(280px, 35vw, 600px);
+  --panel-width-m: var(--panel-unit);
+  --panel-width-s: calc(var(--panel-unit) * 0.7);
 
   /************************************************************************************
   * 🧩 [LEVEL 3: ELEVATION]
@@ -192,11 +179,21 @@
   --glass-s: rgb(var(--color-frozen-rgb) / var(--opacity-xs)); /* Sunken Surface */
   --glass-xs: rgb(var(--color-black-rgb) / var(--opacity-s)); /* Solid Depth Contrast */
 
+  /* Container Dimensions */
+  --card-height-m: 320px;
+  --card-width-m: 240px;
+  --dropdown-max-height: 300px;
+
   /* Specular Edges */
-  --border-xl: 1px solid rgb(var(--color-frisk-rgb) / var(--opacity-s));
-  --border-l: 1px solid rgb(var(--color-frisk-rgb) / var(--opacity-xs));
-  --border-m: 1px solid rgb(var(--color-frozen-rgb) / var(--opacity-xs));
-  --border-s: 1px solid rgb(var(--color-chalk-rgb) / var(--opacity-s));
+  --color-border-xl: rgb(var(--color-frisk-rgb) / var(--opacity-s));
+  --color-border-l: rgb(var(--color-frisk-rgb) / var(--opacity-xs));
+  --color-border-m: rgb(var(--color-frozen-rgb) / var(--opacity-xs));
+  --color-border-s: rgb(var(--color-chalk-rgb) / var(--opacity-s));
+
+  --border-xl: 1px solid var(--color-border-xl);
+  --border-l: 1px solid var(--color-border-l);
+  --border-m: 1px solid var(--color-border-m);
+  --border-s: 1px solid var(--color-border-s);
 
   /* Atmospheric Blur Scale */
   --blur-xl: blur(48px);

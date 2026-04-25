@@ -1,6 +1,7 @@
 import { db } from "../../data/db.js";
 import { runtime } from "../../state/runtime.svelte.js";
 import { simulation_log } from "../../state/simulation-log.svelte.js";
+import { SESSION_ID_KEY } from "@core/constants.js";
 
 /**
  * 🕹️ SESSION (Simulation & Gamemaster)
@@ -24,7 +25,7 @@ export const session_driver = {
     this.active_id = id;
     runtime.story_id = id;
     if (typeof window !== "undefined") {
-      await db.kv_settings.put({ key: "active_session_id", value: id });
+      await db.kv_settings.put({ key: SESSION_ID_KEY, value: id });
       // also log to history
       await db.sessions.add({ session_id: id, timestamp: Date.now() });
     }
@@ -35,7 +36,7 @@ export const session_driver = {
    */
   init: async function () {
     if (typeof window === "undefined") return;
-    const entry = await db.kv_settings.get("active_session_id");
+    const entry = await db.kv_settings.get(SESSION_ID_KEY);
     if (entry) {
       this.active_id = entry.value;
       runtime.story_id = entry.value;
