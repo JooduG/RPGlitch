@@ -7,9 +7,32 @@
   import { Audio } from "@media/audio-engine.svelte.js";
   import Slider from "@ui/atoms/Slider.svelte";
   import Wing from "./Wing.svelte";
+  import { portal } from "@ui/utils/actions/portal.js";
 
   let { char = $bindable(), is_editing } = $props();
   let show_voice_dropdown = $state(false);
+  let row_el = $state();
+  let coords = $state({ top: 0, left: 0, width: 0 });
+
+  $effect(() => {
+    if (show_voice_dropdown && row_el) {
+      const update = () => {
+        const rect = row_el.getBoundingClientRect();
+        coords = {
+          top: rect.bottom,
+          left: rect.left,
+          width: rect.width,
+        };
+      };
+      update();
+      window.addEventListener("scroll", update, true);
+      window.addEventListener("resize", update);
+      return () => {
+        window.removeEventListener("scroll", update, true);
+        window.removeEventListener("resize", update);
+      };
+    }
+  });
 
   const selected_voice = $derived(Audio.voice.voices.find((v) => v.uri === char.voice.uri));
   const is_natural_voice = $derived(selected_voice?.name.includes("Natural"));
@@ -38,7 +61,7 @@
 <div class="audio-wing-wrapper" role="presentation">
   <Wing class="audio-wing" onmouseleave={() => (show_voice_dropdown = false)}>
     <div class="group">
-      <div class="voice-control-row">
+      <div class="voice-control-row" bind:this={row_el}>
         <div class="dropdown">
           <button
             class="voice-button"
@@ -57,9 +80,11 @@
           </button>
         </div>
         <div
+          use:portal
           role="listbox"
           class="dropdown-content glass-xxl"
           class:visible={show_voice_dropdown}
+          style="top: {coords.top}px; left: {coords.left}px; width: {coords.width}px;"
         >
           {#each Audio.voice.voices as voice (voice.uri)}
             <button
@@ -198,10 +223,7 @@
     pointer-events: none;
     opacity: 0;
     transform: translateY(-var(--spacing-xs));
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%; /* Expansion fix: Match parent row width */
+    position: fixed;
     max-height: 300px;
     overflow-y: auto;
     z-index: var(--z-index-max);

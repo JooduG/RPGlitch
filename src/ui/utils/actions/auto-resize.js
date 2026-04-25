@@ -11,7 +11,7 @@ export function auto_resize(node, options = {}) {
     if (frame) cancelAnimationFrame(frame);
     frame = requestAnimationFrame(() => {
       const currentWidth = node.clientWidth;
-      const currentScrollHeight = node.scrollHeight;
+      const currentScrollHeight = Math.ceil(node.scrollHeight);
 
       if (currentWidth === lastWidth && currentScrollHeight === lastScrollHeight) return;
 
@@ -20,29 +20,33 @@ export function auto_resize(node, options = {}) {
       const borderTop = parseFloat(style.borderTopWidth) || 0;
       const borderBottom = parseFloat(style.borderBottomWidth) || 0;
 
-      const height = node.scrollHeight + borderTop + borderBottom;
-      const buffer = 10; // Prevent flickering on rapid input
-      node.style.height = height + buffer + "px";
+      const buffer = 10;
+      const height = currentScrollHeight + borderTop + borderBottom + buffer;
+      node.style.height = height + "px";
 
       lastWidth = currentWidth;
-      lastScrollHeight = height;
+      lastScrollHeight = currentScrollHeight;
 
       if (options.syncId) {
-        const boundary = node.closest("[data-auto-resize-boundary]") || node.closest(".storymode-grid") || node.closest(".modal-content") || document;
+        const boundary =
+          node.closest("[data-auto-resize-boundary]") ||
+          node.closest(".storymode-grid") ||
+          node.closest(".modal-content") ||
+          document;
         const siblings = boundary.querySelectorAll(`[data-sync-id="${options.syncId}"]`);
         let maxHeight = 0;
 
-        siblings.forEach((s) => {
-          if (s instanceof HTMLElement) {
-            s.style.height = "auto";
-            maxHeight = Math.max(maxHeight, s.scrollHeight + borderTop + borderBottom);
-          }
+        const siblingData = Array.from(siblings).filter((s) => s instanceof HTMLElement);
+        siblingData.forEach((s) => {
+          s.style.height = "auto";
+          const sStyle = window.getComputedStyle(s);
+          const sBT = parseFloat(sStyle.borderTopWidth) || 0;
+          const sBB = parseFloat(sStyle.borderBottomWidth) || 0;
+          maxHeight = Math.max(maxHeight, Math.ceil(s.scrollHeight) + sBT + sBB + buffer);
         });
 
-        siblings.forEach((s) => {
-          if (s instanceof HTMLElement) {
-            s.style.height = maxHeight + "px";
-          }
+        siblingData.forEach((s) => {
+          s.style.height = maxHeight + "px";
         });
       }
     });
@@ -50,12 +54,20 @@ export function auto_resize(node, options = {}) {
   node.addEventListener("input", update);
   const observer = new ResizeObserver(update);
   observer.observe(node);
+
+  const mutationObserver = new MutationObserver(update);
+  if (!(node instanceof HTMLTextAreaElement || node instanceof HTMLInputElement)) {
+    mutationObserver.observe(node, { childList: true, characterData: true, subtree: true });
+  }
+
   update();
+
   return {
     destroy() {
       if (frame) cancelAnimationFrame(frame);
       node.removeEventListener("input", update);
       observer.disconnect();
+      mutationObserver.disconnect();
     },
   };
 }

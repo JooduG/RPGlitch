@@ -36,9 +36,15 @@
   let show_reset_confirm = $state(false);
 
   async function handleReset() {
-    db.close();
-    await db.delete();
-    window.location.reload();
+    const timeout = setTimeout(() => window.location.reload(), 2000);
+    try {
+      db.close();
+      await db.delete();
+      clearTimeout(timeout);
+      window.location.reload();
+    } catch (err) {
+      window.location.reload();
+    }
   }
 
   /* --- STATE HELPERS --- */
