@@ -38,6 +38,21 @@
     set_value(char, path, current);
   }
 
+  function update_tags(index, raw_string) {
+    const current = Array.isArray(items) ? [...items] : [];
+    const tags = raw_string
+      .split(",")
+      .map((t) => t.trim())
+      .filter((t) => t.length > 0);
+
+    if (typeof current[index] === "object") {
+      current[index] = { ...current[index], vector_tags: tags };
+    } else {
+      current[index] = { text: current[index], vector_tags: tags };
+    }
+    set_value(char, path, current);
+  }
+
   function update_weight(index, delta) {
     const current = Array.isArray(items) ? [...items] : [];
     const item = current[index];
@@ -109,13 +124,22 @@
                     </button>
                   {/if}
                 </div>
-                <span class="weight-label">GRAV</span>
               </div>
 
               <div class="tag-cloud">
-                {#each item?.vector_tags || [] as tag (tag)}
-                  <span class="vector-tag">{tag}</span>
-                {/each}
+                {#if is_editing}
+                  <input
+                    type="text"
+                    class="tag-edit-input"
+                    value={(item?.vector_tags || []).join(", ")}
+                    placeholder="TAGS (COMMA SEPARATED)..."
+                    onchange={(e) => update_tags(i, e.target.value)}
+                  />
+                {:else}
+                  {#each item?.vector_tags || [] as tag (tag)}
+                    <span class="vector-tag">{tag}</span>
+                  {/each}
+                {/if}
               </div>
 
               {#if is_editing}
@@ -259,6 +283,30 @@
     overflow: hidden;
     align-items: center;
     height: 100%;
+  }
+
+  .tag-edit-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--color-white);
+    font-family: var(--font-family-mono);
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 0;
+    outline: none;
+    opacity: 0.8;
+    transition: opacity var(--motion-m);
+  }
+
+  .tag-edit-input:focus {
+    opacity: 1;
+  }
+
+  .tag-edit-input::placeholder {
+    color: var(--color-white);
+    opacity: 0.3;
   }
 
   .vector-tag {

@@ -7,7 +7,7 @@
   import Toggle from "@ui/atoms/Toggle.svelte";
   import Modal from "@ui/molecules/Modal.svelte";
   import TextField from "@ui/atoms/TextField.svelte";
-  import Confirm from "@ui/molecules/Confirm.svelte";
+  import Dialog from "@ui/molecules/Dialog.svelte";
 
   /**
    * Main system interface for settings and prologue configuration.
@@ -46,7 +46,8 @@
   let isStoryMode = $derived(app.view === "storymode");
 </script>
 
-<Confirm
+<Dialog
+  type="confirm"
   bind:open={show_reset_confirm}
   title="Wipe Memories?"
   message="This will permanently delete all stories, characters, and logs. This action cannot be undone."

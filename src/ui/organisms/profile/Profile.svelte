@@ -16,7 +16,7 @@
   import EntityFooter from "./panels/EntityFooter.svelte";
   import EntityFragments from "./panels/EntityFragments.svelte";
   import EntityHeader from "./panels/EntityHeader.svelte";
-  import Confirm from "@ui/molecules/Confirm.svelte";
+  import Dialog from "@ui/molecules/Dialog.svelte";
 
   import AudioWing from "./wings/AudioWing.svelte";
   import DevWing from "./wings/DevWing.svelte";
@@ -132,7 +132,8 @@
 </script>
 
 {#if char && char.id}
-  <Confirm
+  <Dialog
+    type="confirm"
     bind:open={show_delete_confirm}
     title="Delete {char.name || 'Entity'}"
     message="This action is irreversible. All associated data, including history and vectors, will be lost."

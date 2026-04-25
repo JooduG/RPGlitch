@@ -37,6 +37,7 @@
 
 ## 🏁 Completed Missions (Recent)
 
+- **[047]** Unified Dialog System & Modal Standardization
 - **[046]** Skill Rewiring & Script Realignment (Complete)
 - **[045]** UI Stabilization & Alignment
 - **[044]** Documentation Sync & Infrastructure Hygiene

@@ -22,8 +22,8 @@
   let isFocused = $state(false);
   let paragraphs = $derived(parse_markdown(value));
 
-  // Only allow header expansion if we are editing or specifically allowed
-  let canExpand = $derived(is_edit && !!actions);
+  // Only allow header expansion if we have actions to show
+  let canExpand = $derived(!!actions);
 
   function handle_focus(e) {
     if (!is_edit && !actions) return;

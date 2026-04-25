@@ -10,7 +10,7 @@
 
   /** @type {{
    *    on_close?: (e: any) => void,
-   *    variant?: "standard" | "profile" | "preview",
+   *    variant?: "standard" | "profile" | "preview" | "mini",
    *    z_index?: string,
    *    children: import('svelte').Snippet
    *  }} */
@@ -38,7 +38,7 @@
 <Backdrop onclick={handle_close} {z_index} />
 
 <!-- Interaction & Layout Layer -->
-<div class="modal-layout">
+<div class="modal-layout" style="z-index: calc({z_index} + 1);">
   <!-- Content -->
   <div
     class="modal-content glass-xxl {variant}"
@@ -52,7 +52,7 @@
   .modal-layout {
     position: fixed;
     inset: 0;
-    z-index: calc(var(--z-index-xl) + 1); /* Above backdrop */
+    /* z-index moved to inline style for dynamic control */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -83,7 +83,13 @@
     overflow: visible;
   }
 
-  .modal-content.preview {
+  .modal-content.preview,
+  .modal-content.mini {
     max-width: 400px;
+  }
+
+  .modal-content.mini {
+    padding: var(--spacing-l);
+    gap: var(--spacing-m);
   }
 </style>

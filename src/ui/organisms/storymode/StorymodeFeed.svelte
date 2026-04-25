@@ -4,7 +4,7 @@
   import { simulation_log } from "@state/simulation-log.svelte.js";
   import { simulationState } from "@state/status.svelte.js";
   import Button from "@ui/atoms/Button.svelte";
-  import Confirm from "@ui/molecules/Confirm.svelte";
+  import Dialog from "@ui/molecules/Dialog.svelte";
   import Message from "./Message.svelte";
 
   // --- STATE ---
@@ -67,7 +67,8 @@
   }
 </script>
 
-<Confirm
+<Dialog
+  type="confirm"
   bind:open={show_delete_confirm}
   title="Delete Entry?"
   message="Permanently delete this log entry? This cannot be undone."
