@@ -30,9 +30,9 @@ We rely on strict, named tokens rather than raw hex values in our components. Yo
 
 - **Chalk** (`var(--color-chalk)`): `#222326`. The primary high-contrast text and structural accent. Crisp, almost icy white.
 - **Gunmetal** (`var(--color-gunmetal)`): `#363840`. The core component background. Dense and non-intrusive.
-- **Frozen** (`var(--color-frozen)`): `#555d66`. The primary application accent.
-- **Frisk** (`var(--color-frisk)` / `var(--font-color-s)`): `#8a9399`. Secondary application accent.
-- **Ghost Veil** (`var(--opacity-xxs)`): `0.05`. A near-invisible structural layer for deep atmospheric depth.
+- **Frozen** (`var(--color-frozen)`): `#555d66`. The primary application accent. Used for "Instrumental Neutral" modules and hardware thumbs.
+- **Frisk** (`var(--color-frisk)` / `var(--font-color-s)`): `#8a9399`. Secondary application accent. Used for metadata, labels, and desaturated backgrounds.
+- **Cyan** (`var(--color-cyan)`): `#11aecc`. Reserved exclusively for "System/Developer" metrics and diagnostic signals.
 
 #### Surface Elevation
 
@@ -46,13 +46,26 @@ Elevation is achieved by layering translucent glass tokens that shift from deep 
 
 ---
 
+### 📏 The Universal Field Chassis
+
+All narrative text entry is governed by the **Universal Field Chassis**. It treats text not as a "box," but as a dormant **Narrative Module** that awakens on focus.
+
+- **Dormant State**: Modules feature a thin 2px "Signature Line" at the top.
+- **Focus Activation**: The module elastically expands its header to reveal a functional control strip (Actions).
+- **Quantum Presence (Gravity)**: The narrative weight (GRAV) of a module is expressed through **Opacity and Glow Intensity** rather than width.
+  - High-weight (e.g., Trauma): Solid, burning line (100% opacity).
+  - Low-weight (e.g., Dream): Faint, spectral line (20% opacity).
+- **Elastic Constraints**: Fields grow elastically with content but are capped at `15rem` before triggering internal scrollbars to preserve modal integrity.
+
+---
+
 ### 📐 Typography & Spacing
 
 We use a strictly defined triad of fonts, scaled via an absolute T-shirt sizing scale (`var(--font-size-xxs)` through `var(--font-size-xxxxxl)`).
 
 - **Headline Font** (`var(--font-family-heading)`): `Ubuntu`, sans-serif.
-- **Body Font** (`var(--font-family-body)`): `Inter`, system-ui.
-- **Label Font** (`var(--font-family-mono)`): `JetBrains Mono`, monospace.
+- **Body Font** (`var(--font-family-body)`): `Inter`, system-ui. Used for all primary and secondary labels.
+- **Label Font** (`var(--font-family-mono)`): `JetBrains Mono`, monospace. Reserved for numeric data readouts and developer telemetry.
 
 Padding, margins, and gaps must strictly adhere to the modular scale:
 `var(--spacing-xxs)` (0.25rem) to `var(--spacing-xxxxl)` (6rem).
@@ -61,16 +74,17 @@ Padding, margins, and gaps must strictly adhere to the modular scale:
 
 ---
 
-### 🕹️ Component Interactions (Grounded Engine)
+### 🕹️ Component Interactions (Component Sovereignty)
 
-The Nordic Collection relies on static spatial depth and kinetic scaling rather than floating bounciness.
+The Nordic Collection follows the law of **Component Sovereignty**: Atoms must own their own "Reflex" logic (kinetic feedback) within their scoped styles.
 
-- **Interaction Engine**: Atoms (Buttons, Cards, Pills) use the centralized engine in `global.css`.
-  - **Hover**: Driven by `--hover-brightness` and `--blur-m`.
+- **Interaction Engine**: 
+  - **Hover**: Concentrated on **Icon Color** (White), **Subtle Scale** (1.1), and **Brightness**.
   - **Grounded Policy**: Explicitly avoid `translateY` on hover to maintain subterranean weight.
+  - **Flat Aesthetics**: Eliminate heavy inset shadows and borders during interaction to maintain a clean, high-fidelity glass look.
 - **Active States**: High-precision scale reduction via `--motion-click` (Scale: 0.95).
 - **Kinetic Physics**: Svelte Action-driven Web Animations API primitives (`use:shimmy`, `use:pulse`, `use:spin`, `use:stab`).
-- **3D Tilt**: Interactive perspective cards utilize `use:tilt` to provide hardware-accelerated perspective tracking.
+- **Sticky Navigation**: Modal headers and footers utilize **Sticky Glass Anchors** with signature-tinted backdrop filters, ensuring commands are always accessible.
 
 ---
 
@@ -80,18 +94,18 @@ The Nordic Collection is implemented through a strictly defined hierarchy of Ato
 
 #### Atoms
 
-- **Button**: Core interaction unit with kinetic feedback.
-- **Slider**: Fluid range control for intensity/entropy metrics.
+- **Button**: Core interaction unit with kinetic feedback. Owns its hover/active reflexes.
+- **Slider**: Fluid range control with **Center-Origin Ghost Fill** for midpoint-neutral metrics.
 - **GlassPill**: Floating action container for vertical narrative toolbars.
 - **ProfilePicture**: Rounded entity identity marker with initials generation.
-- **TextField**: High-precision input unit with Neural Nordic styling.
-- **Toggle**: Minimalist binary state controller.
+- **TextField**: High-precision **Field Chassis** with focus-activated instrumentation.
+- **Toggle**: Minimalist physical switch with white-glow "powered" state.
 - **DataBox**: Structural container for metadata and numeric signals.
 - **TypingIndicator**: Sensory bridge for AI entity state.
 
 #### Molecules
 
-- **LibraryCard**: High-density grid unit for story/entity selection.
+- **LibraryCard**: High-density grid unit for story/entity selection. Owns its 1.02x hover scale.
 - **VectorArray**: Row-based management for temporal data (Past/Future Vectors).
 - **StoryboardCard**: Animated entry for narrative events.
 - **Alert / Confirm**: Modal-based feedback systems for critical logic transitions.

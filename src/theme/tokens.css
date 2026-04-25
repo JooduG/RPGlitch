@@ -86,7 +86,7 @@
 
   /* Font Color Palette */
   --font-color-m: var(--color-white);
-  --font-color-s: color-mix(in srgb, var(--color-white), var(--color-black) 8%);
+  --font-color-s: var(--color-frisk);
 
   /* Standardized Typography Scale
   * M is the Midpoint (Baseline/Body).
@@ -106,9 +106,11 @@
   /* Typographic Metrics */
   --line-height-s: 1.2;
   --line-height-m: 1.5;
+
   --font-weight-m: 400;
   --font-weight-l: 700;
   --font-weight-xl: 800;
+
   --letter-spacing-s: 0.02em;
   --letter-spacing-m: 0.05em;
   --letter-spacing-l: 0.1em;
@@ -150,8 +152,6 @@
    * Scales layout components based on viewport width.
    */
   --panel-unit: clamp(280px, 35vw, 600px);
-  --panel-width-m: var(--panel-unit);
-  --panel-width-s: calc(var(--panel-unit) * 0.7);
 
   /************************************************************************************
   * 🧩 [LEVEL 3: ELEVATION]

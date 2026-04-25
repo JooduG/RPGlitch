@@ -193,9 +193,8 @@
     box-shadow: 0 0 0 1px var(--color-frisk);
   }
 
-  /* 3. Base States (Behavioral - Lower Specificity) */
   .button:focus-visible {
-    outline: 2px solid var(--color-frisk);
+    outline: 2px solid var(--color-white);
     outline-offset: 2px;
   }
 
@@ -210,10 +209,13 @@
 
   .button:active:not(:disabled, .disabled) {
     transform: scale(var(--motion-click, 0.95));
-    transition-duration: var(--motion-l);
   }
 
-  /* 4. The Hover Monster (Highest Specificity due to :not) */
+  /* 4. The Hover Logic (Internalized) */
+
+  .button:hover:not(:disabled, .disabled) {
+    filter: var(--hover-brightness);
+  }
 
   .button-primary:hover:not(:disabled, .disabled) {
     background: color-mix(in srgb, var(--color-frisk), var(--color-white) 5%);

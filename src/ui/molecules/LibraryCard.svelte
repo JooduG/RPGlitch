@@ -66,10 +66,20 @@
     border-radius: var(--border-radius-m);
     overflow: visible; /* Allow tooltips and highlights to bleed */
     border-top: var(--border-xl); /* Maintain specular highlight override */
+    transition:
+      transform var(--motion-l) var(--motion-elastic),
+      filter var(--motion-l),
+      box-shadow var(--motion-l) var(--motion-elastic);
   }
 
   .drawer-card:hover:not(:disabled, .is-disabled) {
     box-shadow: var(--shadow-m);
+    transform: scale(1.02);
+    filter: var(--hover-brightness);
+  }
+
+  .drawer-card:active:not(:disabled, .is-disabled) {
+    transform: scale(var(--motion-click));
   }
 
   .drawer-card.is-disabled {

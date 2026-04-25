@@ -69,9 +69,12 @@ RPGlitch/
 
 ### Interaction (Vertical Monolith)
 
-- **Standardization**: High-frequency actions utilize the `GlassPill` atom.
-- **Components**: The sensory interface utilizes `Slider`, `LibraryCard`, and `Storyboard` atoms for state management.
-- **Narrative Toolbar**: Vertical action strip triggered by row-hover, positioned in the inner gutter (Right for AI/Fractal, Left for User).
+- **Standardization**: High-frequency actions utilize the `GlassPill` and the **Universal Field Chassis** standard.
+- **Universal Field Chassis**: Focus-activated narrative modules with elastic expanding headers, allowing for surgical AI enhancements and metadata tracking (GRAV).
+- **Quantum Presence**: The visual representation of narrative gravity through opacity and glow intensity rather than horizontal bars.
+- **Component Sovereignty**: Atomic components (`Button`, `Slider`, `Toggle`, `LibraryCard`) own their internal kinetic reflexes (hover/active states) to ensure predictable, modular behavior.
+- **Sticky Glass Navigation**: Modal headers and footers are sticky glass anchors with signature-tinted filters, ensuring global commands (Save/Edit) are always reachable.
+- **Narrative Toolbar**: Vertical action strip triggered by row-hover, positioned in the inner gutter.
 
 ---
 

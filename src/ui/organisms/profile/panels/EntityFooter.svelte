@@ -48,13 +48,17 @@
 
 <style>
   footer {
-    margin-top: auto;
+    position: sticky;
+    bottom: calc(-1 * var(--spacing-m));
+    margin: auto calc(-1 * var(--spacing-m)) calc(-1 * var(--spacing-m));
+    padding: var(--spacing-m);
     display: grid;
     grid-template-columns: var(--spacing-xxxxl) 1fr;
     gap: var(--spacing-s);
-    background: color-mix(in srgb, var(--color-gunmetal), var(--signature-color) var(--opacity-xs));
-    border-top: 0;
-    z-index: var(--z-index-m);
+    background: color-mix(in srgb, var(--color-gunmetal) 85%, var(--signature-color) 15%);
+    backdrop-filter: var(--blur-l);
+    border-top: var(--border-s);
+    z-index: var(--z-index-xl);
     transition: all var(--motion-l);
     border-radius: 0 0 var(--border-radius-l) 0;
   }

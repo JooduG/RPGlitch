@@ -51,47 +51,11 @@
       !prompt_value.startsWith("data:"),
   );
 
-  const target_value = $derived(
-    active_field?.key === "visual-prompt"
-      ? prompt_value
-      : active_field
-        ? get_value(char, active_field.key)
-        : "",
-  );
-
-  let is_enhance_mode = $derived(is_editing && target_value.trim().length > 0);
-
   let is_creative_disabled = $derived(
     !is_editing ||
       (is_prompt_busy && (!active_field || active_field.key === "visual-prompt")) ||
       (!active_field && has_prompt_text),
   );
-
-  let creative_label = $derived.by(() => {
-    if (is_prompt_busy && (!active_field || active_field.key === "visual-prompt")) return "Busy...";
-
-    // Priority 1: Visual Prompt Context
-    const current_key = active_field?.key || "visual-prompt";
-    if (current_key === "visual-prompt") {
-      return has_prompt_text ? "Enhance" : "Fetch";
-    }
-
-    // Priority 2: Generic Field Refinement
-    if (active_field) {
-      const key = active_field.key;
-      const label = active_field.label?.toLowerCase() || "";
-      if (key.startsWith("past")) return "Enhance Memories";
-      if (key.startsWith("future")) return "Enhance Vectors";
-      if (key.includes("present") || label.includes("present")) return "Enhance Present";
-      if (key.includes("eternal") || label.includes("eternal")) return "Enhance Eternal";
-      return "Enhance";
-    }
-
-    return "Fetch";
-  });
-
-  let creative_variant = $derived(active_field && is_enhance_mode ? "magic" : "tech");
-  let generation_variant = $derived(has_prompt_text ? "magic" : "tech");
 
   async function handle_creative_action() {
     const current_target_key = active_field?.key || "visual-prompt";
@@ -192,7 +156,7 @@
         <button
           class="swatch"
           class:active={char.signature_color === hex || char.signature_color === name}
-          style="background-color: {PALETTE_VARS[hex] || hex}"
+          style="background-color: {PALETTE_VARS[hex] || hex}; --swatch-color: {PALETTE_VARS[hex] || hex};"
           aria-label={name.charAt(0).toUpperCase() + name.slice(1)}
           onclick={() => {
             char.signature_color = name;
@@ -204,74 +168,80 @@
   </div>
 
   <div class="group">
-    <div class="prompt-box">
-      <div
-        class="visual-prompt-container"
-        onfocusout={(e) => {
-          setTimeout(() => {
-            if (active_field?.key === "visual-prompt") {
-              const focused = document.activeElement;
-              if (
-                !focused?.closest(".action-button") &&
-                !focused?.closest(".visual-prompt") &&
-                busy_fields.size === 0
-              ) {
-                active_field = null;
-              }
-            }
-          }, 150);
-        }}
-      >
-        <TextField
-          class="visual-prompt"
-          is_edit={is_editing && !is_prompt_busy}
-          bind:value={char.modifiers.prompt}
-          placeholder="Enter image prompt or paste a URL..."
-          disabled={!is_editing || is_prompt_busy}
-          onfocus={() => {
-            if (is_editing) {
-              active_field = {
-                key: "visual-prompt",
-                label: "Image Prompt",
-              };
-            }
-          }}
-        />
-      </div>
-      <div class="action-row">
-        <Button
-          variant={creative_variant}
-          size="sm"
-          className="action-button"
-          label={creative_label}
-          onclick={handle_creative_action}
-          disabled={is_creative_disabled}
-        />
-        <Button
-          variant={generation_variant}
-          size="sm"
-          className="action-button"
-          label={is_prompt_busy ? "Busy..." : has_prompt_text ? "Generate" : "Upload"}
-          onclick={handle_generation_action}
-          disabled={!is_editing || is_prompt_busy}
-        />
-      </div>
+    <TextField
+      class="visual-prompt"
+      style="--signature-color: var(--color-frozen);"
+      is_edit={is_editing && !is_prompt_busy}
+      bind:value={char.modifiers.prompt}
+      placeholder="Enter image prompt or paste a URL..."
+      disabled={!is_editing || is_prompt_busy}
+      onfocus={() => {
+        if (is_editing) {
+          active_field = {
+            key: "visual-prompt",
+            label: "Image Prompt",
+          };
+        }
+      }}
+    >
+      {#snippet actions()}
+        {#if is_editing}
+          <div class="prompt-actions">
+            <Button
+              variant="ghost"
+              size="sm"
+              square={true}
+              aria-label={has_prompt_text ? "Enhance" : "Fetch"}
+              className="action-btn"
+              onclick={handle_creative_action}
+              disabled={is_creative_disabled}
+            >
+              {#if has_prompt_text}
+                <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
+                  <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="var(--color-white)"></path>
+                </svg>
+              {:else}
+                <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="var(--color-white)"></path>
+                  <polyline points="7 10 12 15 17 10" stroke="var(--color-white)"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3" stroke="var(--color-white)"></line>
+                </svg>
+              {/if}
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              square={true}
+              aria-label="Generate Image"
+              className="action-btn"
+              onclick={handle_generation_action}
+              disabled={!is_editing || is_prompt_busy}
+            >
+              <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="var(--color-white)"></path>
+                <circle cx="12" cy="13" r="4" stroke="var(--color-white)"></circle>
+              </svg>
+            </Button>
+          </div>
+        {/if}
+      {/snippet}
+    </TextField>
 
-      {#if app.visual.attempts > 0 || app.visual.error || app.visual.isOffline}
-        <div class="engine-status" class:error={app.visual.error || app.visual.isOffline}>
-          {#if app.visual.isOffline}
-            <span class="status-tag">SYSTEM OFFLINE</span>
-            <span class="status-msg">GPU Cluster Cooling Down...</span>
-          {:else if app.visual.error}
-            <span class="status-tag">ERROR</span>
-            <span class="status-msg">{app.visual.error}</span>
-          {:else if app.visual.attempts > 0}
-            <span class="status-tag pulse">RETRYING</span>
-            <span class="status-msg">Attempt {app.visual.attempts}/3...</span>
-          {/if}
-        </div>
-      {/if}
-    </div>
+    {#if app.visual.attempts > 0 || app.visual.error || app.visual.isOffline}
+      <div class="engine-status" class:error={app.visual.error || app.visual.isOffline}>
+        {#if app.visual.isOffline}
+          <span class="status-tag">SYSTEM OFFLINE</span>
+          <span class="status-msg">GPU Cluster Cooling Down...</span>
+        {:else if app.visual.error}
+          <span class="status-tag">ERROR</span>
+          <span class="status-msg">{app.visual.error}</span>
+        {:else if app.visual.attempts > 0}
+          <span class="status-tag pulse">RETRYING</span>
+          <span class="status-msg">Attempt {app.visual.attempts}/3...</span>
+        {/if}
+      </div>
+    {/if}
     <input
       type="file"
       accept="image/*"
@@ -317,68 +287,15 @@
   }
 
   .swatch.active {
-    outline: var(--spacing-xxs) solid var(--color-white);
-    outline-offset: var(--spacing-xxs);
-    box-shadow: var(--shadow-glow);
-    transform: scale(1.1);
+    box-shadow: 0 0 16px var(--swatch-color);
+    transform: scale(1.15);
     z-index: var(--z-index-m);
+    border: 1px solid rgb(255 255 255 / 50%); /* Subtle crisp edge inside the glow */
   }
 
   .swatch:disabled {
     cursor: default;
     opacity: var(--opacity-l);
-  }
-
-  .prompt-box {
-    display: flex;
-    flex-direction: column;
-    overflow: visible; /* Prevent tooltip clipping */
-    border-radius: var(--border-radius-m);
-    border: transparent;
-    background: transparent;
-    transition: all var(--motion-l) var(--motion-elastic);
-  }
-
-  .prompt-box:focus-within {
-    border-color: transparent;
-    background: transparent;
-  }
-
-  .visual-prompt-container {
-    position: relative;
-    width: 100%;
-  }
-
-  :global(.visual-prompt) {
-    padding: var(--spacing-m);
-  }
-
-  .action-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    border-top: var(--border-l);
-    overflow: visible;
-    gap: var(--spacing-xxs);
-  }
-
-  .action-row :global(.action-button) {
-    height: 2.5rem;
-    background: var(--glass-xs);
-    border-right: var(--border-l);
-    transition: all var(--motion-l) var(--motion-elastic);
-  }
-
-  :global(.action-button:last-child) {
-    border-right: none;
-  }
-
-  :global(.action-button:hover:not(:disabled)) {
-    background: var(--glass-s);
-    filter: brightness(1.2);
-  }
-
-  :global(.action-button:active:not(:disabled)) {
-    transform: scale(0.98);
   }
 
   .toggle-stack {
@@ -393,6 +310,7 @@
     gap: var(--spacing-s);
     padding: var(--spacing-xs) var(--spacing-m);
     background: var(--glass-xs);
+    border-radius: 0 0 var(--border-radius-m) var(--border-radius-m);
     border-top: var(--border-l);
     font-family: var(--font-family-mono);
     font-size: var(--font-size-xxxs);

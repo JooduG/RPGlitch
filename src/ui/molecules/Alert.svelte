@@ -68,7 +68,7 @@
     padding: 0;
     margin: auto;
     max-width: 90vw;
-    width: var(--panel-width-s);
+    width: var(--panel-unit);
     color: inherit;
     z-index: var(--z-index-xl);
     overflow: visible;

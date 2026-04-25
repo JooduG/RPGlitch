@@ -205,10 +205,7 @@ small {
    5. INTERACTION
    Global hover states, kinetic hardware scaling, and transitions.
    ---------------------------------------------------------------------------- */
-.interactive,
-.button:not(:disabled, .disabled),
-.drawer-card:not(:disabled, .is-disabled),
-.button-overlay:not(:disabled, .disabled) {
+.interactive {
   cursor: pointer;
   transition:
     transform var(--motion-l) var(--motion-elastic),
@@ -216,17 +213,11 @@ small {
     backdrop-filter var(--motion-l);
 }
 
-.interactive:hover,
-.button:hover:not(:disabled, .disabled),
-.drawer-card:hover:not(:disabled, .is-disabled),
-.button-overlay:hover:not(:disabled, .disabled) {
+.interactive:hover {
   filter: var(--hover-brightness);
-  backdrop-filter: var(--blur-m);
 }
 
-.interactive:active,
-.button:active:not(:disabled, .disabled),
-.drawer-card:active:not(:disabled, .is-disabled) {
+.interactive:active {
   transform: scale(var(--motion-click));
 }
 
@@ -275,7 +266,10 @@ small {
   border-radius: var(--border-radius-m);
   border: var(--border-xl);
   font-size: var(--font-size-xs);
-  white-space: nowrap;
+  white-space: normal;
+  width: max-content;
+  max-width: 14rem; /* Fit comfortably within wings */
+  text-align: center;
   box-shadow: var(--shadow-m);
   z-index: var(--z-index-max);
 }
@@ -284,7 +278,7 @@ small {
 [aria-label]:not(.no-tooltip):hover:not(:has([aria-label]:hover))::after {
   opacity: var(--opacity-full);
   transform: translateX(-50%) translateY(0) translateZ(0);
-  transition-delay: 400ms; /* Deliberate entrance */
+  transition-delay: 500ms; /* Deliberate entrance */
 }
 
 /* ----------------------------------------------------------------------------

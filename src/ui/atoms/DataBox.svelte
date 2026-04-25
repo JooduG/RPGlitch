@@ -43,7 +43,7 @@
 
   .data-content {
     padding: var(--spacing-s);
-    overflow: auto;
+    overflow: hidden auto;
     font-size: var(--font-size-s);
     line-height: var(--line-height-m);
     color: var(--font-color-m);

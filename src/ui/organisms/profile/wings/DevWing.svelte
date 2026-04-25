@@ -60,8 +60,12 @@
   <div class="group">
     <div class="dynamics-grid">
       {#each active_dynamics as dynamic (dynamic.source + "-" + dynamic.key)}
-        <div class="dynamic-box" class:is-editing={is_editing}>
-          <span class="dynamic-label" aria-label={dynamic.desc}>{dynamic.label}</span>
+        <div
+          class="dynamic-box"
+          class:is-editing={is_editing}
+          style="--dynamic-value: {char[dynamic.source][dynamic.key]}%"
+        >
+          <span class="dynamic-label no-tooltip" aria-label={dynamic.desc}>{dynamic.label}</span>
           <div class="value-container">
             {#if is_editing}
               <input
@@ -72,19 +76,27 @@
               />
               <div class="step-controls">
                 <button
+                  class="step-up no-tooltip"
                   onclick={() =>
                     (char[dynamic.source][dynamic.key] = Math.min(
                       100,
                       char[dynamic.source][dynamic.key] + 1,
-                    ))}>+</button
+                    ))}
+                  aria-label="Increase"
                 >
+                  <svg viewBox="0 0 24 24" class="icon-xxs"><path d="M7 14l5-5 5 5H7z" fill="currentColor"/></svg>
+                </button>
                 <button
+                  class="step-down no-tooltip"
                   onclick={() =>
                     (char[dynamic.source][dynamic.key] = Math.max(
                       0,
                       char[dynamic.source][dynamic.key] - 1,
-                    ))}>-</button
+                    ))}
+                  aria-label="Decrease"
                 >
+                  <svg viewBox="0 0 24 24" class="icon-xxs"><path d="M7 10l5 5 5-5H7z" fill="currentColor"/></svg>
+                </button>
               </div>
             {:else}
               <span class="value-display">
@@ -92,6 +104,7 @@
               </span>
             {/if}
           </div>
+          <div class="dynamic-meter"></div>
         </div>
       {/each}
     </div>
@@ -101,7 +114,7 @@
     <div class="raw-explorer">
       <details>
         <summary>View JSON Data</summary>
-        <DataBox maxHeight="20rem">
+        <DataBox maxHeight="15rem">
           <pre>{JSON.stringify(char, null, 2)}</pre>
         </DataBox>
       </details>
@@ -135,21 +148,47 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 4rem;
+    min-height: 4.5rem;
     background: var(--glass-xs);
     border: var(--border-l);
     border-radius: var(--border-radius-m);
     transition: all var(--motion-l) var(--motion-elastic);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .dynamic-box::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--color-cyan);
+    opacity: 0.2;
+  }
+
+  .dynamic-meter {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: var(--dynamic-value, 0%);
+    background: var(--color-cyan);
+    box-shadow: 0 0 10px var(--color-cyan);
+    transition: width var(--motion-s) var(--motion-dissolve);
+    z-index: 2;
   }
 
   .dynamic-label {
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-xxs);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--color-cyan);
-    margin-bottom: var(--spacing-xs);
+    letter-spacing: 0.12em;
+    color: var(--color-frisk);
+    margin-bottom: var(--spacing-xxs);
     cursor: help;
+    z-index: 1;
   }
 
   .value-container {
@@ -158,6 +197,7 @@
     justify-content: center;
     position: relative;
     width: 100%;
+    z-index: 1;
   }
 
   .value-container input {
@@ -169,13 +209,15 @@
     font-size: var(--font-size-m);
     font-weight: var(--font-weight-bold);
     text-align: center;
-    padding: var(--spacing-xxs);
+    padding: var(--spacing-xs) 0;
     outline: none;
-    transition: all var(--motion-l) var(--motion-elastic);
+    appearance: textfield;
   }
 
-  .value-container input:focus {
-    background: transparent;
+  .value-container input::-webkit-outer-spin-button,
+  .value-container input::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
   }
 
   .value-display {
@@ -183,30 +225,44 @@
     font-family: var(--font-family-mono);
     font-size: var(--font-size-m);
     font-weight: var(--font-weight-bold);
+    padding: var(--spacing-xs) 0;
   }
 
   .step-controls {
     position: absolute;
-    right: 0;
+    right: -var(--spacing-xs);
     display: flex;
     flex-direction: column;
     gap: 0;
+    opacity: 0;
+    transition: opacity var(--motion-m);
+  }
+
+  .dynamic-box:hover .step-controls,
+  .dynamic-box:focus-within .step-controls {
+    opacity: 1;
   }
 
   .step-controls button {
     background: transparent;
     border: none;
-    color: var(--font-color-s);
-    font-size: 0.8rem;
-    padding: 0 var(--spacing-xs);
+    color: var(--color-cyan);
+    padding: 2px;
     cursor: pointer;
-    opacity: 0.5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all var(--motion-l);
+    border-radius: var(--border-radius-s);
   }
 
   .step-controls button:hover {
-    opacity: 1;
-    color: var(--color-frozen);
+    color: var(--color-white);
+  }
+
+  .icon-xxs {
+    width: 1.25rem;
+    height: 1.25rem;
   }
 
   .raw-explorer summary {

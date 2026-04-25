@@ -86,7 +86,7 @@
       <div class="voice-control-row" bind:this={row_el}>
         <div class="dropdown">
           <button
-            class="voice-button"
+            class="voice-button no-tooltip"
             type="button"
             disabled={!is_editing}
             onclick={() => (show_voice_dropdown = !show_voice_dropdown)}
@@ -148,6 +148,7 @@
           bind:value={char.voice.rate}
           disabled={!is_editing || !selected_voice}
           label="Rate"
+          neutral={1.0}
         />
         <Slider
           min={0.1}
@@ -156,6 +157,7 @@
           bind:value={char.voice.pitch}
           disabled={!is_editing || !selected_voice || is_natural_voice}
           label="Pitch"
+          neutral={1.0}
         />
       </div>
     </div>

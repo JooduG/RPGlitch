@@ -9,18 +9,21 @@ description: Triggered by any task involving styling, layout, or design token im
 
 ## Overview
 
-The `css` skill is the authoritative workflow for styling and layout within the RPGlitch Engine. It enforces the Nordic Collection's visual language, utilizing native CSS Custom Properties, glassmorphism, and high-performance compositor animations to create a premium, "wow" factor experience.
+The `css` skill is the authoritative workflow for styling and layout within the RPGlitch Engine. It enforces the Nordic Collection's visual language, utilizing native CSS Custom Properties, glassmorphism, and high-performance compositor animations.
 
 ### Strategic Context
 
 - **Token Sovereignty**: Map semantic classes to `var(--token)` values. No hardcoded hex allowed.
+- **Component Sovereignty**: Kinetic logic (hover/active reflexes) MUST be scoped within atomic components. Avoid global interaction overrides for formal components.
 - **Antigravity Vibe**: Use diffused shadows, Z-axis layering, and 3D transforms for depth.
 - **Performance First**: Animate ONLY compositor properties (`transform`, `opacity`) to maintain 60fps+.
 
+---
+
 ## When to Use
 
-- **Positive Triggers**: Implementing new UI designs, adjusting layout tokens, or building micro-interactions and "Design Spells".
-- **Visual Maintenance**: Auditing for hardcoded values or refactoring legacy CSS.
+- **Positive Triggers**: Implementing new UI designs, adjusting layout tokens, building the **Universal Field Chassis**, or crafting "Design Spells".
+- **Visual Maintenance**: Auditing for hardcoded values, fixing corner-radius mathematical bleeds, or refactoring legacy CSS.
 - **EXCLUSIONS**: Do not use for core engine logic; use `javascript` or `simulation` instead.
 
 ## How It Works
@@ -33,7 +36,8 @@ The `css` skill is the authoritative workflow for styling and layout within the 
 ### Technical Constraints
 
 - **Compositor Only**: Never animate layout properties (width, height, margin) that trigger reflow.
-- **Viewport Standards**: Use `h-dvh` instead of `h-screen` for mobile compatibility.
+- **Precision Math**: Use `calc()` and precise border-radius matching (e.g., `radius - 1px`) to prevent background bleed at corners.
+- **Modern Notation**: Use modern `rgb(r g b / alpha)` notation for all transparent colors.
 - **Accessibility**: Support `safe-area-inset` and provide clear focus indicators.
 
 ## Usage

@@ -17,7 +17,6 @@
 <style>
   .wing-shell {
     width: 100%;
-    height: 100%;
     overflow: visible; /* Scroller handles it */
     display: flex;
     flex-direction: column;
@@ -32,24 +31,19 @@
 
   .scroller {
     flex: 1;
-    overflow-y: auto;
+    overflow-y: visible;
     display: flex;
     flex-direction: column;
     padding: var(--spacing-m);
     gap: var(--spacing-m);
 
-    /* Custom Scrollbar */
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-border-l) transparent;
+    /* Hide Scrollbar */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
 
   .scroller::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  .scroller::-webkit-scrollbar-thumb {
-    background: var(--color-border-l);
-    border-radius: var(--border-radius-full);
+    display: none;
   }
 
   /* Shared internal group styling */

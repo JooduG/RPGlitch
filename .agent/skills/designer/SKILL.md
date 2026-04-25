@@ -25,23 +25,23 @@ The `designer` skill is the sovereign orchestrator of the RPGlitch simulation's 
 
 ## How It Works
 
-1. **Aesthetic Audit**: Verify the task against Rule 04 (Aesthetics) and the atmospheric laws of the Chalk Regime.
-2. **Token Mapping**: Consult `DESIGN.md` to map requirements to existing tokens (Glassmorphism, Spacing).
-3. **Sensory Orchestration**: Coordinate specialized skills (`css`, `motion`, `audio`) for a unified experience.
-4. **Heritage Gate**: Reject any generic UI patterns (indigo gradients, stock grids) in favor of the research-terminal aesthetic.
+1. **Aesthetic Audit**: Verify the task against Rule 04 (Aesthetics) and the laws of the **Nordic Collection**.
+2. **Token Mapping**: Map requirements to existing tokens (Glassmorphism, Spacing, Instrumental Neutral).
+3. **Component Sovereignty**: Ensure atoms own their kinetic reflexes (hover/active states) within scoped styles.
+4. **Universal Field Chassis**: Use the focus-activated chassis for all text entry modules, utilizing **Quantum Presence** (opacity/glow) for gravity readouts.
+5. **High-Contrast instrumentation**: All primary actions must use **Pure White** icons with static hover backgrounds to prevent visual smudging.
 
 ### Interaction Engine
 
-Atoms (Buttons, Cards, Pills) must use the centralized engine. Focus on hardware-accelerated perspective (`use:tilt`) and scale reduction (`--motion-click`) for tactile depth.
+Atoms (Buttons, Cards, Toggles, Sliders) must be self-contained units of physics. Focus on high-contrast scaling and brightness shifts rather than border or background shifts during interaction.
 
-## Usage
+---
+
+## usage
 
 ```bash
-# Analyze visual regression across Nordic tokens
+# Analyze visual precision and token consistency
 npm run audit:theme
-
-# Create a new design specification in DESIGN.md
-mcp_StitchMCP_create_project title="Obsidian Sector UI"
 ```
 
 ## Present Results

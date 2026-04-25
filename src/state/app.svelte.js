@@ -220,8 +220,15 @@ export class AppStore {
   open_profile = (entity) => {
     this.toggle_profile(true, entity);
   };
-  profile_target_id = $derived(this.editing_entity?.id || null);
-  profile_target_type = $derived(this.editing_entity?.type || null);
+
+  get profile_target_id() {
+    return this.editing_entity?.id || null;
+  }
+
+  get profile_target_type() {
+    return this.editing_entity?.type || null;
+  }
+
   // SETTINGS MUTATORS
   toggle_sound = () => {
     this.settings.sound = !this.settings.sound;

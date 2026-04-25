@@ -33,8 +33,14 @@
   let active_field = $state({ key: "visual-prompt", label: "Image Prompt" });
   let show_delete_confirm = $state(false);
 
-  // Normalizer guarantees flattened schema
+  // Normalizer guarantees flattened schema. Use $effect to keep in sync if app state changes.
   let char = $state(normalize(app.editing_entity || runtime.character));
+
+  $effect(() => {
+    if (app.editing_entity && app.editing_entity.id !== char.id) {
+      char = normalize(app.editing_entity);
+    }
+  });
 
   // Theme values
   let signature_color = $derived(themeStore.get_signature_color(char));
@@ -97,7 +103,7 @@
         active instanceof HTMLTextAreaElement ||
         (active instanceof HTMLElement && active.isContentEditable);
 
-      const isWing = active?.closest?.(".wing-left, .wing-right, .dropdown-content");
+      const isWing = active?.closest?.(".wing-left, .dropdown-content");
 
       if (!isInput && !isWing && busy_fields.size === 0) {
         active_field = { key: "visual-prompt", label: "Image Prompt" };
@@ -109,7 +115,7 @@
     const target = e.target instanceof Element ? e.target : e.target.parentElement;
     if (
       !target?.closest?.(
-        "textarea, input, button, .swatch, .wing-left, .wing-right, .dropdown-content, .profile-presentation, [contenteditable]",
+        "textarea, input, button, .swatch, .wing-left, .dropdown-content, .profile-presentation, [contenteditable]",
       )
     ) {
       if (is_editing) {
@@ -145,10 +151,15 @@
       data-testid="profile-container"
       data-is-editing={is_editing}
     >
-      <!-- LEFT WING: UNIFIED IDENTITY -->
-      <aside class="wing-left" class:is-visible={is_editing}>
-        <VisualWing bind:char {is_editing} {busy_fields} bind:active_field />
-        <AudioWing bind:char {is_editing} />
+      <!-- LEFT WING: UNIFIED IDENTITY & METRICS -->
+      <aside class="wing-left" class:is-visible={is_editing || app.settings.dev_mode}>
+        {#if is_editing}
+          <VisualWing bind:char {is_editing} {busy_fields} bind:active_field />
+          <AudioWing bind:char {is_editing} />
+        {/if}
+        {#if app.settings.dev_mode}
+          <DevWing bind:char {is_editing} />
+        {/if}
       </aside>
 
       <!-- MAIN PRESENTATION PANEL -->
@@ -162,7 +173,7 @@
             <ProfilePicture entity={char} />
           </div>
           <main class="right-panel">
-            <EntityHeader bind:char {is_editing} />
+            <EntityHeader bind:char {is_editing} {busy_fields} />
             <EntityFragments bind:char {is_editing} {busy_fields} bind:active_field />
             <EntityFooter
               {is_editing}
@@ -174,11 +185,6 @@
           </main>
         </div>
       </div>
-
-      <!-- RIGHT WING: DEVELOPER METRICS -->
-      <aside class="wing-right" class:is-visible={app.settings.dev_mode}>
-        <DevWing bind:char {is_editing} />
-      </aside>
     </div>
   </Modal>
 {/if}
@@ -195,8 +201,7 @@
   }
 
   /* Wings logic integrated from ProfileWings.svelte */
-  .wing-left,
-  .wing-right {
+  .wing-left {
     width: 0;
     min-width: 0;
     max-width: 0;
@@ -211,10 +216,10 @@
     flex-direction: column;
     gap: var(--spacing-m);
     z-index: var(--z-index-m); /* Keep below main presentation */
+    order: 1;
   }
 
-  .wing-left.is-visible,
-  .wing-right.is-visible {
+  .wing-left.is-visible {
     width: 18rem;
     min-width: 18rem;
     max-width: 22rem;
@@ -223,12 +228,14 @@
     transform: scale(1);
   }
 
-  .wing-left {
-    order: 1;
+  :global(.visual-wing) {
+    flex: 1 1 auto;
+    min-height: 0;
   }
 
-  .wing-right {
-    order: 3;
+  :global(.audio-wing),
+  :global(.dev-wing) {
+    flex: 0 0 auto;
   }
 
   .profile-presentation {
@@ -274,9 +281,7 @@
   .left-panel,
   .right-panel {
     height: 100%;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
+    overflow: hidden auto;
 
     /* Custom Scrollbar (Standard) */
     scrollbar-width: thin;
@@ -284,15 +289,19 @@
   }
 
   .left-panel {
-    border-right: var(--border-l); /* Shared divider */
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid color-mix(in srgb, var(--color-gunmetal) 85%, var(--signature-color) 15%);
     background: transparent;
   }
 
   .right-panel {
-    flex: 1;
+    display: flex;
+    flex-direction: column;
     padding: var(--spacing-m);
     background-color: rgb(from var(--signature-color) r g b / 5%); /* Subtle Identity Wash */
     gap: var(--spacing-m);
+    min-height: 0; /* CRITICAL: Allow panel to be smaller than content for scrolling */
   }
 
   .left-panel::-webkit-scrollbar,

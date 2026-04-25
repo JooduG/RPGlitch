@@ -8,49 +8,64 @@
   import TextField from "@ui/atoms/TextField.svelte";
   import { fitText } from "@ui/utils/actions/fit-text.js";
 
-  let { char = $bindable(), is_editing } = $props();
+  let { char = $bindable(), is_editing, busy_fields } = $props();
 </script>
 
 <header class:is-editing={is_editing} data-testid="profile-header">
-  {#if is_editing}
-    <h1 class="name edit no-tooltip" aria-label="Edit Entity Name">
-      <span
-        contenteditable="true"
-        bind:innerText={char.name}
-        role="textbox"
-        tabindex="0"
-        data-placeholder={ENTITY_FRAGMENTS.name}
-      ></span>
-    </h1>
-  {:else}
-    <h1
-      class="name no-tooltip"
-      aria-label="Entity Name"
-      use:fitText={{
-        maxSize: 80,
-        minSize: 16,
-        lineHeight: "var(--line-height-s)",
-      }}
-    >
-      {char.name || ENTITY_FRAGMENTS.name}
-    </h1>
-  {/if}
-  <div class="description">
-    <TextField
-      is_edit={is_editing}
-      class="description"
-      placeholder={ENTITY_FRAGMENTS.description}
-      value={char.description || ""}
-      oninput={(e) => (char.description = e.target.value)}
-    />
+  <div class="header-glass-context">
+    {#if is_editing}
+      <h1 class="name edit no-tooltip" aria-label="Edit Entity Name">
+        <span
+          contenteditable="true"
+          bind:innerText={char.name}
+          role="textbox"
+          tabindex="0"
+          data-placeholder={ENTITY_FRAGMENTS.name}
+        ></span>
+      </h1>
+    {:else}
+      <h1
+        class="name no-tooltip"
+        aria-label="Entity Name"
+        use:fitText={{
+          maxSize: 80,
+          minSize: 16,
+          lineHeight: "var(--line-height-s)",
+        }}
+      >
+        {char.name || ENTITY_FRAGMENTS.name}
+      </h1>
+    {/if}
+    <div class="description">
+      <TextField
+        is_edit={is_editing}
+        class="description-field"
+        placeholder={ENTITY_FRAGMENTS.description}
+        value={char.description || ""}
+        oninput={(e) => (char.description = e.target.value)}
+        busy={busy_fields.has("description")}
+      />
+    </div>
   </div>
 </header>
 
 <style>
   header {
-    background: transparent;
+    position: sticky;
+    top: calc(-1 * var(--spacing-m));
+    margin: calc(-1 * var(--spacing-m)) calc(-1 * var(--spacing-m)) 0;
+    padding: var(--spacing-m);
+    background: color-mix(in srgb, var(--color-gunmetal) 85%, var(--signature-color) 15%);
+    backdrop-filter: var(--blur-l);
+    border-bottom: var(--border-s);
+    z-index: var(--z-index-xl);
+    transition: all var(--motion-l);
+  }
+
+  .header-glass-context {
     display: flex;
     flex-direction: column;
+    width: 100%;
   }
 
   .name {
@@ -68,13 +83,12 @@
       background var(--motion-l),
       border-color var(--motion-l),
       box-shadow var(--motion-l);
-    box-shadow: inset 0 0 0 1px transparent;
+    box-shadow: none;
     min-height: 1.5em; /* Stable height ceiling */
     line-height: var(--line-height-s);
     outline: none;
     background: transparent;
     border: none;
-    border-bottom: 1px solid transparent;
   }
 
   .name.edit {
@@ -86,7 +100,7 @@
   .name.edit:focus-within {
     outline: none;
     background: rgb(var(--color-white-rgb) / 3%);
-    border-bottom-color: var(--signature-color, var(--color-frisk));
+    border: none;
   }
 
   .name.edit span {
@@ -105,47 +119,53 @@
 
   .description {
     width: 100%;
-    padding: 0 var(--spacing-xs);
+    padding: 0; /* Align perfectly with name padding */
+    margin-top: 0;
   }
 
-  /* Target both edit and readonly modes of the TextField */
-  .description :global(.field-foundation),
-  .description :global(.readonly-field) {
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid transparent;
-    box-shadow: none;
-    padding: 0;
-    font-size: var(--font-size-l);
-    font-weight: var(--font-weight-m);
-    color: var(--font-color-m);
-    line-height: var(--line-height-m);
-    min-height: 1.5em;
-    min-width: 2px;
-    transition:
-      color var(--motion-l),
-      background var(--motion-l),
-      border-color var(--motion-l);
-    border-radius: 0;
-    text-align: left;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+  :global(.description-field) {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
   }
 
-  .description :global(.field-foundation:hover) {
-    background: transparent;
-    border-color: transparent;
+  :global(.description-field.is-focused) {
+    background: transparent !important;
+    box-shadow: none !important;
   }
 
-  .description :global(.field-foundation:focus) {
-    background: rgb(var(--color-white-rgb) / 3%);
-    border-bottom-color: var(--signature-color, var(--color-frisk));
-    outline: none;
+  :global(.description-field .field-header) {
+    display: none !important; /* Human eyes only - remove AI header */
   }
 
-  .description :global(.field-foundation::placeholder) {
-    font-size: var(--font-size-m);
-    opacity: 0.6;
+  :global(.enhance-btn) {
+    color: var(--color-white) !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 80%));
+  }
+
+  :global(.enhance-btn:hover) {
+    background: transparent !important;
+    color: var(--color-white) !important;
+    transform: scale(1.1);
+  }
+
+  :global(.description-field .field-foundation),
+  :global(.description-field .readonly-field) {
+    padding: var(--spacing-xs) !important; /* Match name padding */
+    font-size: var(--font-size-l) !important;
+    color: var(--font-color-m) !important;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+  }
+
+  :global(.description-field .field-foundation:focus) {
+    background: rgb(var(--color-white-rgb) / 3%) !important;
+    border: none !important;
   }
 </style>

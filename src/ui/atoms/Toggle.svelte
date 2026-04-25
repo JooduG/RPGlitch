@@ -71,7 +71,6 @@
     width: var(--switch-w);
     height: var(--switch-h);
     background-color: var(--glass-xs);
-    box-shadow: inset 0 1px 2px rgb(var(--color-black-rgb) / var(--opacity-s));
     border-radius: var(--border-radius-full);
     transition: all var(--motion-l) var(--motion-elastic);
     flex-shrink: 0;
@@ -85,37 +84,35 @@
     width: var(--thumb-size);
     left: calc((var(--switch-h) - var(--thumb-size)) / 2);
     top: calc((var(--switch-h) - var(--thumb-size)) / 2);
-    background-color: var(--color-frozen);
+    background-color: var(--color-frisk);
     border-radius: var(--border-radius-full);
     transition: all var(--motion-l) var(--motion-elastic);
-    box-shadow: var(--shadow-s);
   }
 
   /* Hover State */
-  .toggle-switch:hover:not(.disabled) .slider {
-    border-color: rgb(var(--color-white-rgb) / var(--opacity-s));
+  .toggle-switch:hover:not(.disabled) .slider::before {
+    filter: brightness(1.2);
   }
 
   /* Checked State */
   .toggle-switch input:checked + .slider {
-    background-color: rgb(var(--color-frozen-rgb) / 10%);
-    box-shadow: 0 0 0 1px rgb(var(--color-white-rgb) / var(--opacity-l));
+    background-color: rgb(var(--color-frozen-rgb) / 60%);
   }
 
   .toggle-switch input:checked + .slider::before {
     transform: translateX(
       calc(var(--switch-w) - var(--thumb-size) - (var(--switch-h) - var(--thumb-size)))
     );
-    background-color: var(--color-frozen);
-    box-shadow: 0 0 var(--spacing-s) rgb(var(--color-frozen-rgb) / var(--opacity-s));
+    background-color: var(--color-white);
+    box-shadow: 0 0 8px rgb(var(--color-white-rgb) / var(--opacity-m));
   }
 
   /* Label Text */
   .label-text {
-    color: var(--font-color-m);
+    color: var(--font-color-s);
     font-weight: var(--font-weight-l);
-    font-size: var(--font-size-xs);
-    letter-spacing: var(--letter-spacing-m);
+    font-size: var(--font-size-xxs);
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     font-family: var(--font-family-body);
     transition: color var(--motion-l);

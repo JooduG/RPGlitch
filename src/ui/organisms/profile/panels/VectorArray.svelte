@@ -38,6 +38,20 @@
     set_value(char, path, current);
   }
 
+  function update_weight(index, delta) {
+    const current = Array.isArray(items) ? [...items] : [];
+    const item = current[index];
+    const weight = typeof item === "object" ? (item.base_weight ?? 5) : 5;
+    const new_weight = Math.min(10, Math.max(1, weight + delta));
+
+    if (typeof item === "object") {
+      current[index] = { ...item, base_weight: new_weight };
+    } else {
+      current[index] = { text: item, base_weight: new_weight };
+    }
+    set_value(char, path, current);
+  }
+
   function remove_item(index) {
     const current = [...items];
     current.splice(index, 1);
@@ -46,7 +60,14 @@
 
   export function add_item() {
     const current = [...items];
-    current.unshift("");
+    current.unshift({
+      id: crypto.randomUUID(),
+      timestamp: Date.now(),
+      text: "",
+      type: path,
+      base_weight: 5,
+      vector_tags: [],
+    });
     set_value(char, path, current);
   }
 </script>
@@ -59,32 +80,59 @@
         class:editing={is_editing}
         transition:slide={{ duration: 400, easing: quintOut }}
       >
-        <div class="textfield">
-          <TextField
-            is_edit={is_editing}
-            value={get_item_text(item)}
-            oninput={(e) => update_item(i, e.target.value)}
-            placeholder="Enter {unit_label.toLowerCase()} detail..."
-          />
-        </div>
+        <TextField
+          is_edit={is_editing}
+          value={get_item_text(item)}
+          oninput={(e) => update_item(i, e.target.value)}
+          placeholder="Enter {unit_label.toLowerCase()} detail..."
+          weight={typeof item === "object" ? (item.base_weight ?? 5) : 5}
+        >
+          {#snippet actions()}
+            <div class="vector-header-rich">
+              <div class="weight-control">
+                <div class="weight-stack">
+                  {#if is_editing}
+                    <button onclick={() => update_weight(i, 1)} aria-label="Increase weight">
+                      <svg viewBox="0 0 24 24" class="icon-xxs"><path d="M7 14l5-5 5 5H7z" fill="currentColor"/></svg>
+                    </button>
+                  {/if}
+                  <span class="weight-val">{typeof item === "object" ? (item.base_weight ?? 5) : 5}</span>
+                  {#if is_editing}
+                    <button onclick={() => update_weight(i, -1)} aria-label="Decrease weight">
+                      <svg viewBox="0 0 24 24" class="icon-xxs"><path d="M7 10l5 5 5-5H7z" fill="currentColor"/></svg>
+                    </button>
+                  {/if}
+                </div>
+                <span class="weight-label">GRAV</span>
+              </div>
 
-        {#if is_editing}
-          <Button
-            variant="danger"
-            size="sm"
-            square={true}
-            aria-label="Remove {unit_label}"
-            className="delete-btn no-tooltip"
-            onclick={() => remove_item(i)}
-          >
-            <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
-              <polyline points="3 6 5 6 21 6"></polyline>
-              <path
-                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-              ></path>
-            </svg>
-          </Button>
-        {/if}
+              <div class="tag-cloud">
+                {#each item?.vector_tags || [] as tag (tag)}
+                  <span class="vector-tag">{tag}</span>
+                {/each}
+              </div>
+
+              {#if is_editing}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  square={true}
+                  aria-label="Remove {unit_label}"
+                  className="delete-btn"
+                  onclick={() => remove_item(i)}
+                >
+                  <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
+                    <polyline points="3 6 5 6 21 6" stroke="var(--color-white)"></polyline>
+                    <path
+                      d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                      stroke="var(--color-white)"
+                    ></path>
+                  </svg>
+                </Button>
+              {/if}
+            </div>
+          {/snippet}
+        </TextField>
       </div>
     {/each}
 
@@ -125,32 +173,112 @@
     overflow: visible;
     transition: all var(--motion-m);
     display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    padding-right: var(--spacing-xxs);
+    align-items: flex-start;
   }
 
-  .textfield {
+  .vector-header-rich {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-m);
+    justify-content: space-between;
+  }
+
+  .weight-control {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-family: var(--font-family-mono);
+    color: var(--color-white);
+    text-shadow: 0 1px 3px rgb(0 0 0 / 80%);
+  }
+
+  .weight-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.2rem;
+    line-height: 1;
+    margin-bottom: -1px; /* Visual centering adjustment for mono font */
+  }
+
+  .weight-val {
+    font-size: var(--font-size-s);
+    font-weight: var(--font-weight-xl);
+    margin: -1px 0;
+  }
+
+  .weight-stack button {
+    background: transparent;
+    border: none;
+    color: var(--color-white);
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.5;
+    transition: all var(--motion-m);
+    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 80%));
+  }
+
+  .weight-stack button:hover {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+
+  .weight-label {
+    font-size: var(--font-size-xxxs);
+    letter-spacing: 0.15em;
+    opacity: 0.8;
+    font-weight: var(--font-weight-xl);
+    margin-top: 1px;
+  }
+
+  .icon-xxs {
+    width: 0.8rem;
+    height: 0.8rem;
+  }
+
+  .tag-cloud {
     flex: 1;
-    position: relative;
+    display: flex;
+    gap: var(--spacing-xxs);
+    overflow: hidden;
+    align-items: center;
+    height: 100%;
+  }
+
+  .vector-tag {
+    font-size: 0.6rem;
+    background: rgb(var(--color-white-rgb) / 10%); /* High-end glass tag */
+    padding: 2px 8px;
+    border: 1px solid rgb(var(--color-white-rgb) / 5%);
+    border-radius: var(--border-radius-s);
+    color: var(--color-white);
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgb(0 0 0 / 80%);
   }
 
   :global(.delete-btn) {
-    transform: translateX(10px);
-    opacity: 0;
-    pointer-events: none;
-    transition:
-      opacity var(--motion-l) var(--motion-elastic),
-      transform var(--motion-l) var(--motion-elastic);
-    background: transparent;
-    margin-left: auto;
+    color: var(--color-white) !important;
+    transition: all var(--motion-m) !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 80%));
   }
 
-  .vector-item:hover :global(.delete-btn),
-  .vector-item:focus-within :global(.delete-btn) {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateX(0);
+  :global(.delete-btn:hover) {
+    color: var(--color-red) !important;
+    background: transparent !important;
+    transform: scale(1.1);
   }
 
   .placeholder-wrap {

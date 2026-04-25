@@ -5,6 +5,9 @@
    * Dynamically renders the Eternal, Present, Past, and Future sections.
    */
   import TextField from "@ui/atoms/TextField.svelte";
+  import Button from "@ui/atoms/Button.svelte";
+  import { prompt_builder } from "@core/intelligence/prompt-builder.js";
+  import { llm_service } from "@core/intelligence/llm-service.js";
   import { get_value, set_value } from "@ui/utils/field-path.js";
   import { fly } from "svelte/transition";
   import { PROFILE_SECTIONS } from "../profile-config.js";
@@ -30,6 +33,19 @@
     if (!is_editing) return;
     if (vector_refs[fieldKey]) {
       vector_refs[fieldKey].add_item();
+    }
+  }
+  async function handle_enhance(fieldKey, value) {
+    if (!value || busy_fields.has(fieldKey)) return;
+    busy_fields.add(fieldKey);
+    try {
+      const payload = prompt_builder.build_enhancement(fieldKey, value);
+      const result = await llm_service.enhance(payload);
+      if (result) set_value(char, fieldKey, result);
+    } catch (err) {
+      console.error("Enhance failed:", err);
+    } finally {
+      busy_fields.delete(fieldKey);
     }
   }
 </script>
@@ -91,7 +107,25 @@
                     label: field.label || section.label,
                   };
                 }}
-              />
+              >
+                {#snippet actions()}
+                  {#if is_editing}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      square={true}
+                      aria-label="Enhance with AI"
+                      className="enhance-btn"
+                      disabled={busy_fields.has(field.key) || !safe_get(field.key)}
+                      onclick={() => handle_enhance(field.key, safe_get(field.key))}
+                    >
+                      <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
+                        <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="var(--color-white)"></path>
+                      </svg>
+                    </Button>
+                  {/if}
+                {/snippet}
+              </TextField>
             {/if}
           </div>
         {/each}
@@ -203,8 +237,27 @@
     flex-direction: column;
     gap: var(--spacing-xxs);
     min-width: 0;
-    justify-content: flex-start;
-    align-items: flex-start;
+    justify-content: stretch;
+    align-items: stretch;
+  }
+
+  :global(.text-area.custom-field) {
+    height: 100%;
+  }
+
+  :global(.enhance-btn) {
+    color: var(--color-white) !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 80%));
+  }
+
+  :global(.enhance-btn:hover) {
+    background: transparent !important;
+    color: var(--color-white) !important;
+    transform: scale(1.1);
   }
 
   .content .row .field-group .field-label {
