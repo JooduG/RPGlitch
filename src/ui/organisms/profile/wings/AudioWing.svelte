@@ -40,8 +40,9 @@
       };
 
       const handle_outside = (e) => {
-        if (!(e.target instanceof Element)) return;
-        if (!row_el.contains(e.target) && !e.target.closest(".dropdown-content")) {
+        const target = e.target instanceof Element ? e.target : e.target.parentElement;
+        if (!target) return;
+        if (!row_el.contains(target) && !target.closest(".dropdown-content")) {
           show_voice_dropdown = false;
         }
       };
@@ -305,6 +306,7 @@
     letter-spacing: 0.1em;
   }
 
+  .voice-name-truncate,
   .voice-option .voice-name {
     white-space: nowrap;
     overflow: hidden;
