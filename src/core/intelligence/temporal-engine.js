@@ -240,7 +240,7 @@ export const temporal_engine = {
    * BATCH CONSOLIDATION (The Weaving Cycle)
    * Evicts old messages and weaves them into the Temporal Fabric.
    */
-  consolidate: async (Session, db, entities, runtime, app, mockLogArray) => {
+  consolidate: async (Session, db, entities, runtime, app) => {
     if (temporal_engine._is_weaving) return;
     temporal_engine._is_weaving = true;
 
