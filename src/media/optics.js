@@ -9,7 +9,7 @@ export const NEGATIVE_PROMPT =
   "cartoon, anime, 3d render, illustration, painting, drawing, sketch, watermark, text, signature, low quality, blurry, deformed, mutated, extra limbs, missing limbs, fused fingers, distorted face, amateur, grainy, pixelated";
 
 import { themeStore } from "../theme/palette.svelte.js";
-import { escape } from "../core/security.js";
+import { escapeXml } from "../core/text-parser.js";
 
 /**
  * Resolves camera specs based on character context.
@@ -77,7 +77,7 @@ Translate rough descriptions into a single, cohesive, highly descriptive paragra
 - SEMANTIC RESONANCE: Detect the implicit genre or aesthetic of the input. Translate generic nouns and descriptors into highly specific, genre-accurate vocabulary (e.g., replace "book" with "leather-bound grimoire", "clothes" with "tactical espionage suit", "weapon" with "serrated mono-molecular blade") to anchor the latent space. Do NOT hallucinate unprompted objects or props to force a vibe.
 </CONSTRAINTS>
 <DRAFT_DESCRIPTION>
-${escape(text)}
+${escapeXml(text)}
 </DRAFT_DESCRIPTION>
 `.trim(),
 
@@ -109,7 +109,7 @@ ${history ? `[HISTORY]\n${history}` : ""}
 ${ctxBlock}
 [INSTRUCTIONS]
 Convert intent into a single impactful image prompt.
-Input Intent: "${escape(rawIntent)}"
+Input Intent: "${escapeXml(rawIntent)}"
 [PROTOCOL]
 1. Start with <think> for composition planning.
 2. Output exactly one <image_prompt> tag.
