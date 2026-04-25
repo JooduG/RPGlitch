@@ -6,7 +6,6 @@
  */
 import { PALETTE } from "../theme/palette.svelte.js";
 import { Security } from "../core/security.js";
-import { pickRandom } from "../ui/utils/helpers.js";
 const sanitize_html = Security.sanitize;
 export const STORAGE_VERSION = 3;
 /**
@@ -56,7 +55,7 @@ export const ENTITY_TEMPLATES = {
  */
 export const get_random_signature_key = () => {
   const keys = Object.keys(PALETTE).filter((k) => k !== "default");
-  return pickRandom(keys);
+  return keys[Math.floor(Math.random() * keys.length)];
 };
 /**
  * Main Normalizer
@@ -97,7 +96,7 @@ export const normalize = (base = {}) => {
     signature_color: sanitize_html(String(signature_color)).trim() || get_random_signature_key(),
     profile_picture: sanitize_html(String(profile_picture)).trim(),
     tags: (Array.isArray(tags) ? tags : [])
-      .map((s) => (s ? sanitize_html(String(s).trim()) : ""))
+      .map((s) => sanitize_html(String(s).trim()))
       .filter(Boolean),
     // --- TEMPORAL HYBRID 6 (PURGED: appearance, identity, outfit, status) ---
     eternal: {
@@ -156,7 +155,7 @@ export const normalize = (base = {}) => {
 /**
  * Coerces a value into a strictly cleaned array of strings.
  * Used for 'past' and 'future' temporal hybrid fields.
- * @param {any} val
+ * @param {string|string[]} val
  * @returns {string[]}
  */
 export function coerce_temporal_array(val) {

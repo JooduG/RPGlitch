@@ -13,29 +13,6 @@ import { execute_jules } from "../../swarm/scripts/jules-provider.js";
 // Ensure window.ai exists to prevent reference errors in purified simulation code.
 // In development, we bridge it to our Node.js provider.
 if (typeof window !== "undefined") {
-  // Mock Element.animate for Svelte transitions in JSDOM
-  if (typeof Element !== "undefined" && !Element.prototype.animate) {
-    Element.prototype.animate = vi.fn().mockReturnValue({
-      finished: Promise.resolve(),
-      cancel: vi.fn(),
-      pause: vi.fn(),
-      play: vi.fn(),
-      reverse: vi.fn(),
-      onfinish: null,
-      oncancel: null,
-    });
-  }
-
-  // Mock HTMLDialogElement for JSDOM
-  if (typeof HTMLDialogElement !== "undefined" && !HTMLDialogElement.prototype.showModal) {
-    HTMLDialogElement.prototype.showModal = vi.fn(function () {
-      this.open = true;
-    });
-    HTMLDialogElement.prototype.close = vi.fn(function () {
-      this.open = false;
-    });
-  }
-
   window.ai = vi.fn(async (instruction, options = {}) => {
     // Adapter: convert Perchance-style window.ai call to our Jules provider
     // Note: This only runs during tests.

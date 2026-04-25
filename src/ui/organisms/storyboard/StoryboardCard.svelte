@@ -103,8 +103,8 @@
 <style>
   .storyboard-stack {
     position: relative;
-    width: var(--card-width-m);
-    height: var(--card-height-m);
+    width: var(--panel-width-s);
+    height: var(--panel-width-m);
     overflow: visible; /* Allow tooltips and specular highlights to bleed */
     transition: all var(--motion-l) var(--motion-elastic);
   }
@@ -133,8 +133,8 @@
 
   /* Fractal Overrides: Landscape (Z x Y) */
   .fractal-card {
-    width: var(--card-height-m);
-    height: var(--card-width-m);
+    width: 400px;
+    height: 280px;
   }
 
   .storyboard-stack:hover .card-border {

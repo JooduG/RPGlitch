@@ -8,9 +8,8 @@
 export const NEGATIVE_PROMPT =
   "cartoon, anime, 3d render, illustration, painting, drawing, sketch, watermark, text, signature, low quality, blurry, deformed, mutated, extra limbs, missing limbs, fused fingers, distorted face, amateur, grainy, pixelated";
 
-
+import { Security } from "../core/security.js";
 import { themeStore } from "../theme/palette.svelte.js";
-import { escapeXml } from "../core/text-parser.js";
 
 /**
  * Resolves camera specs based on character context.
@@ -76,7 +75,7 @@ Translate rough character descriptions into a single, cohesive, highly descripti
 - Sequence the description rigidly: primary subject, physical features, worn garments, environmental setting, and atmospheric lighting.
 </CONSTRAINTS>
 <DRAFT_DESCRIPTION>
-${escapeXml(text)}
+${Security.escape(text)}
 </DRAFT_DESCRIPTION>
 `.trim(),
 
@@ -89,14 +88,14 @@ ${escapeXml(text)}
     let ctxBlock;
     switch (targetType) {
       case "scene":
-        ctxBlock = `[CONTEXT: ENVIRONMENT]\nSetting: ${escapeXml(fractal?.present?.physical || "Unknown")}\n**STRICTLY NO CHARACTERS.** Focus on composition and lighting.`;
+        ctxBlock = `[CONTEXT: ENVIRONMENT]\nSetting: ${fractal?.present?.physical || "Unknown"}\n**STRICTLY NO CHARACTERS.** Focus on composition and lighting.`;
         break;
       case "user":
-        ctxBlock = `[CONTEXT: USER_PORTRAIT]\nIdentity: ${escapeXml(user?.name || "User")}\nPhysical: ${escapeXml(user?.present?.physical || "Standard")}\n**SOLO PROTOCOL.**`;
+        ctxBlock = `[CONTEXT: USER_PORTRAIT]\nIdentity: ${user?.name || "User"}\nPhysical: ${user?.present?.physical || "Standard"}\n**SOLO PROTOCOL.**`;
         break;
       case "ai":
       default:
-        ctxBlock = `[CONTEXT: ENTITY_PORTRAIT]\nIdentity: ${escapeXml(ai?.name || "AI")}\nPhysical: ${escapeXml(ai?.present?.physical || "Standard")}\n**SOLO PROTOCOL.**`;
+        ctxBlock = `[CONTEXT: ENTITY_PORTRAIT]\nIdentity: ${ai?.name || "AI"}\nPhysical: ${ai?.present?.physical || "Standard"}\n**SOLO PROTOCOL.**`;
         break;
     }
 
@@ -104,11 +103,11 @@ ${escapeXml(text)}
 [SYSTEM: SENSORY_CORTEX_V5]
 Target: ${targetType}
 Mode: ${mode.toUpperCase()}
-${history ? `[HISTORY]\n${escapeXml(history)}` : ""}
+${history ? `[HISTORY]\n${history}` : ""}
 ${ctxBlock}
 [INSTRUCTIONS]
 Convert intent into a single impactful image prompt.
-Input Intent: "${escapeXml(rawIntent)}"
+Input Intent: "${Security.escape(rawIntent)}"
 [PROTOCOL]
 1. Start with <think> for composition planning.
 2. Output exactly one <image_prompt> tag.

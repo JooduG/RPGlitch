@@ -80,9 +80,7 @@
     }
   }
 
-  
-
-  async function execute_delete() {
+  async function handle_delete() {
     try {
       await runtime.delete_entity(entity_type || "character", entity_id || char.id);
       handle_close();
@@ -99,7 +97,7 @@
         active instanceof HTMLTextAreaElement ||
         (active instanceof HTMLElement && active.isContentEditable);
 
-      const isWing = active?.closest?.(".wing-left, .wing-right, .dropdown-content");
+      const isWing = active?.closest(".wing-left, .wing-right, .dropdown-content");
 
       if (!isInput && !isWing && busy_fields.size === 0) {
         active_field = { key: "visual-prompt", label: "Image Prompt" };
@@ -110,7 +108,7 @@
   function handle_background_click(e) {
     const target = e.target instanceof Element ? e.target : e.target.parentElement;
     if (
-      !target?.closest?.(
+      !target?.closest(
         "textarea, input, button, .swatch, .wing-left, .wing-right, .dropdown-content, .profile-presentation, [contenteditable]",
       )
     ) {
@@ -133,7 +131,7 @@
     title="Delete {char.name || 'Entity'}"
     message="This action is irreversible. All associated data, including history and vectors, will be lost."
     confirm_label="Delete Permanently"
-    on_confirm={execute_delete}
+    on_confirm={handle_delete}
   />
 
   <Modal variant="profile" on_close={handle_close}>

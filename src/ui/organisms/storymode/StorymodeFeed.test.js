@@ -2,7 +2,7 @@ import { app } from "@state/app.svelte.js";
 import { session } from "@state/session.svelte.js";
 import { simulation_log } from "@state/simulation-log.svelte.js";
 import { simulationState } from "@state/status.svelte.js";
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/svelte";
+import { cleanup, fireEvent, render, screen } from "@testing-library/svelte";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import StorymodeFeed from "./StorymodeFeed.svelte";
 // Mock child components
@@ -53,12 +53,6 @@ describe("StorymodeFeed Integration (Isolated)", () => {
     render(StorymodeFeed);
     const deleteBtn = screen.getByTestId("mock-delete");
     await fireEvent.click(deleteBtn);
-
-    // Click confirm in the Modal (Need to be specific as "Delete" appears twice)
-    const modal = screen.getByRole("dialog");
-    const confirmBtn = within(modal).getByText("Delete");
-    await fireEvent.click(confirmBtn);
-
     expect(deleteSpy).toHaveBeenCalledWith("msg-123");
   });
   it("handles message editing", async () => {
