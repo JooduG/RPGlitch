@@ -13,16 +13,21 @@
   let { char = $bindable(), is_editing } = $props();
   let show_voice_dropdown = $state(false);
   let row_el = $state();
-  let coords = $state({ top: null, bottom: null, left: 0, width: 0, is_dropup: false });
+  let coords = $state({ top: null, bottom: null, left: 0, width: 0, is_dropup: false, max_h: DROPDOWN_MAX_HEIGHT });
 
   $effect(() => {
     if (show_voice_dropdown && row_el) {
       const update = () => {
         const rect = row_el.getBoundingClientRect();
         const vh = window.innerHeight;
-        const dropdown_height = DROPDOWN_MAX_HEIGHT;
-        const space_below = vh - rect.bottom;
-        const use_dropup = space_below < dropdown_height && rect.top > dropdown_height;
+        const padding = 16;
+        const space_below = vh - rect.bottom - padding;
+        const space_above = rect.top - padding;
+        
+        const use_dropup = space_below < DROPDOWN_MAX_HEIGHT && space_above > space_below;
+        const max_h = use_dropup 
+          ? Math.min(space_above, DROPDOWN_MAX_HEIGHT)
+          : Math.min(space_below, DROPDOWN_MAX_HEIGHT);
 
         coords = {
           top: use_dropup ? null : rect.bottom,
@@ -30,6 +35,7 @@
           left: rect.left,
           width: rect.width,
           is_dropup: use_dropup,
+          max_h
         };
       };
 
@@ -68,7 +74,8 @@
     `top: ${coords.top !== null ? coords.top + "px" : "auto"}; ` +
       `bottom: ${coords.bottom !== null ? coords.bottom + "px" : "auto"}; ` +
       `left: ${coords.left}px; ` +
-      `width: ${coords.width}px;`,
+      `width: ${coords.width}px; ` +
+      `max-height: ${coords.max_h}px;`,
   );
 </script>
 
@@ -241,7 +248,6 @@
     opacity: 0;
     transform: translateY(-var(--spacing-xs));
     position: fixed;
-    max-height: var(--dropdown-max-height);
     overflow-y: auto;
     z-index: var(--z-index-max);
     background: var(--glass-xxl); /* Clarified transparency */
@@ -262,6 +268,10 @@
     flex-direction: column;
     opacity: 1;
     transform: translateY(var(--spacing-xs));
+  }
+
+  .dropdown-content.dropup {
+    transform: translateY(var(--spacing-xs)); /* Start from below when opening upwards */
   }
 
   .dropdown-content.visible.dropup {
@@ -297,7 +307,8 @@
 
   .voice-option .voice-name {
     white-space: nowrap;
-    overflow: visible;
+    overflow: hidden;
+    text-overflow: ellipsis;
     flex: 1;
   }
 
