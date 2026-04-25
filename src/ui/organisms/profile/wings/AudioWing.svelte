@@ -7,6 +7,7 @@
   import { Audio } from "@media/audio-engine.svelte.js";
   import Slider from "@ui/atoms/Slider.svelte";
   import Wing from "./Wing.svelte";
+  import { click_outside } from "@ui/utils/actions/click-outside.js";
 
   let { char = $bindable(), is_editing } = $props();
   let show_voice_dropdown = $state(false);
@@ -37,7 +38,7 @@
 
 <div
   class="audio-wing-wrapper"
-  onmouseleave={() => (show_voice_dropdown = false)}
+  use:click_outside={() => (show_voice_dropdown = false)}
   role="presentation"
 >
   <Wing class="audio-wing">

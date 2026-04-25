@@ -80,3 +80,25 @@ describe("ThemeStore Color Generation", () => {
     });
   });
 });
+
+describe("ThemeStore Contrast Utilities", () => {
+  describe("get_contrast_color()", () => {
+    test("returns black for light colors", () => {
+      expect(themeStore.get_contrast_color("#ffffff")).toBe("var(--color-black)");
+      expect(themeStore.get_contrast_color("#fde047")).toBe("var(--color-black)"); // Lemon Yellow
+    });
+    test("returns white for dark colors", () => {
+      expect(themeStore.get_contrast_color("#000000")).toBe("var(--color-white)");
+      expect(themeStore.get_contrast_color("#ef4444")).toBe("var(--color-white)"); // Crimson Red
+    });
+    test("handles shorthand hex codes", () => {
+      expect(themeStore.get_contrast_color("#fff")).toBe("var(--color-black)");
+      expect(themeStore.get_contrast_color("#000")).toBe("var(--color-white)");
+    });
+    test("handles invalid inputs gracefully", () => {
+      expect(themeStore.get_contrast_color(null)).toBe("var(--color-white)");
+      expect(themeStore.get_contrast_color("invalid")).toBe("var(--color-white)");
+      expect(themeStore.get_contrast_color("var(--some-color)")).toBe("var(--color-white)");
+    });
+  });
+});
