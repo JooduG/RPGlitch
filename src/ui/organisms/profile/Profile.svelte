@@ -221,9 +221,9 @@
   }
 
   .wing-left.is-visible {
-    width: 18rem;
-    min-width: 18rem;
-    max-width: 22rem;
+    width: calc(var(--grid-unit) * 2);
+    min-width: calc(var(--grid-unit) * 2);
+    max-width: calc(var(--grid-unit) * 2);
     opacity: var(--opacity-full);
     pointer-events: auto;
     transform: scale(1);
@@ -241,7 +241,7 @@
 
   .profile-presentation {
     order: 2;
-    max-width: 64rem;
+    max-width: calc(var(--grid-unit) * 6);
     width: 100%;
     height: 100%;
     max-height: 85vh;

@@ -52,6 +52,7 @@
   .modal-layout {
     position: fixed;
     inset: 0;
+
     /* z-index moved to inline style for dynamic control */
     display: flex;
     justify-content: center;
@@ -63,7 +64,8 @@
   .modal-content {
     position: relative;
     width: 95%;
-    max-width: 500px;
+    max-width: calc(var(--grid-unit) * 4);
+    min-width: 280px;
     max-height: 90vh;
     padding: var(--spacing-xl);
     z-index: calc(var(--z-index-max) + 1);
@@ -85,7 +87,7 @@
 
   .modal-content.preview,
   .modal-content.mini {
-    max-width: 400px;
+    max-width: calc(var(--grid-unit) * 2);
   }
 
   .modal-content.mini {
