@@ -99,7 +99,7 @@
                 class="text-area custom-field {active_field?.key === field.key ? 'active' : ''}"
                 placeholder={field.description}
                 value={safe_get(field.key)}
-                oninput={(e) => set_value(char, field.key, e.target.value)}
+                oninput={(e) => set_value(char, field.key, e.currentTarget.value)}
                 busy={busy_fields.has(field.key)}
                 onfocus={() => {
                   active_field = {

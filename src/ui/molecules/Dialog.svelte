@@ -38,7 +38,7 @@
 
 {#if open}
   <Modal variant="mini" on_close={handle_cancel} z_index="var(--z-index-max)">
-    <article class="dialog-wrapper" class:is-confirm={type === 'confirm'}>
+    <article class="dialog-wrapper" class:is-confirm={type === "confirm"}>
       <header>
         <div class="title-row">
           {#if type === "alert"}
@@ -63,12 +63,7 @@
               label={confirm_label}
             />
           {:else}
-            <Button
-              variant="primary"
-              onclick={handle_cancel}
-              bind:this={confirm_btn}
-              label="OK"
-            />
+            <Button variant="primary" onclick={handle_cancel} bind:this={confirm_btn} label="OK" />
           {/if}
         </div>
       </footer>
@@ -142,6 +137,7 @@
       transform: translateY(10px);
       opacity: 0;
     }
+
     to {
       transform: translateY(0);
       opacity: 1;

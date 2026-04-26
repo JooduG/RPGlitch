@@ -1,9 +1,11 @@
 # Unified Dialog and Modal Standardization Plan (v2)
 
 ## Objective
+
 Standardize and simplify the modal system by unifying the redundant `Alert` and `Confirm` components into a single, reusable `Dialog.svelte` component. This new component will leverage the existing `Modal.svelte` wrapper to inherit the high-end `glass-xxl` "Floating Monolith" aesthetic.
 
 ## Key Files & Context
+
 - `src/ui/molecules/Alert.svelte` (To be deprecated)
 - `src/ui/molecules/Confirm.svelte` (To be deprecated)
 - `src/ui/molecules/Dialog.svelte` (New unified component)
@@ -30,6 +32,7 @@ Standardize and simplify the modal system by unifying the redundant `Alert` and 
    - Delete `Alert.svelte` and `Confirm.svelte` once references are updated.
 
 ## Verification & Testing
+
 - Trigger a "Reset Data" in the Control Panel to verify the new Confirm dialog appears correctly and scales elastically.
 - Trigger an entity deletion in the Profile to verify the Confirm dialog functionality.
 - Verify that `Dialog` maintains its visual integrity across different screen sizes.

@@ -98,7 +98,7 @@
         <TextField
           is_edit={is_editing}
           value={get_item_text(item)}
-          oninput={(e) => update_item(i, e.target.value)}
+          oninput={(e) => update_item(i, e.currentTarget.value)}
           placeholder="Enter {unit_label.toLowerCase()} detail..."
           weight={typeof item === "object" ? (item.base_weight ?? 5) : 5}
         >
@@ -133,7 +133,7 @@
                     class="tag-edit-input"
                     value={(item?.vector_tags || []).join(", ")}
                     placeholder="TAGS (COMMA SEPARATED)..."
-                    onchange={(e) => update_tags(i, e.target.value)}
+                    onchange={(e) => update_tags(i, e.currentTarget.value)}
                   />
                 {:else}
                   {#each item?.vector_tags || [] as tag (tag)}
@@ -261,14 +261,6 @@
   .weight-stack button:hover {
     opacity: 1;
     transform: scale(1.3);
-  }
-
-  .weight-label {
-    font-size: var(--font-size-xxxs);
-    letter-spacing: 0.15em;
-    opacity: 0.8;
-    font-weight: var(--font-weight-xl);
-    margin-top: 1px;
   }
 
   .icon-xxs {

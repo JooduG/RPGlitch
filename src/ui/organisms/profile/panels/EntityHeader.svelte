@@ -43,7 +43,7 @@
         noBackground={true}
         placeholder={ENTITY_FRAGMENTS.description}
         value={char.description || ""}
-        oninput={(e) => (char.description = e.target.value)}
+        oninput={(e) => (char.description = e.currentTarget.value)}
         busy={busy_fields.has("description")}
       />
     </div>

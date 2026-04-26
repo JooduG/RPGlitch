@@ -42,6 +42,8 @@
   <!-- Content -->
   <div
     class="modal-content glass-xxl {variant}"
+    role="dialog"
+    aria-modal="true"
     transition:scale={{ duration: 400, easing: quartOut, start: 0.9 }}
   >
     {@render children()}
