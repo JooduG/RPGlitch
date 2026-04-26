@@ -1,6 +1,7 @@
 <script>
   import { auto_resize } from "@ui/utils/actions/auto-resize.js";
   import { parse_markdown } from "@ui/utils/markdown.js";
+  import { fade } from "svelte/transition";
 
   let {
     value = $bindable(""),
@@ -15,6 +16,7 @@
     class: className = "",
     style = "",
     actions = null, // Snippet for the expanding header
+    status = null, // Snippet for status text (left aligned)
     weight = 0, // 0-10 for the weight line thickness/glow
     noBackground = false, // If true, removes background and border
   } = $props();
@@ -22,11 +24,11 @@
   let isFocused = $state(false);
   let paragraphs = $derived(parse_markdown(value));
 
-  // Only allow header expansion if we have actions to show
-  let canExpand = $derived(!!actions);
+  // Only allow header expansion if we have actions or status to show
+  let canExpand = $derived(!!actions || !!status);
 
   function handle_focus(e) {
-    if (!is_edit && !actions) return;
+    if (!is_edit && !canExpand) return;
     isFocused = true;
     onfocus?.(e);
   }
@@ -43,7 +45,8 @@
 
 <div
   class="field-chassis {className}"
-  class:is-focused={isFocused && canExpand}
+  class:is-focused={(isFocused || busy) && canExpand}
+  class:is-busy={busy}
   class:has-actions={!!actions}
   class:no-background={noBackground}
   style="{style}; --weight-intensity: {weight / 10}; --header-opacity: {weight > 0
@@ -51,10 +54,19 @@
     : 0.8}; --header-bg-mix: {weight > 0 ? (0.2 + (weight / 10) * 0.8) * 100 : 100}%;"
   onfocusout={handle_focus_out}
 >
-  {#if actions}
+  {#if canExpand}
     <div class="field-header">
-      <div class="header-actions">
-        {@render actions()}
+      <div class="header-content">
+        <div class="header-status" in:fade={{ duration: 300 }}>
+          {#if status}
+            {@render status()}
+          {/if}
+        </div>
+        <div class="header-actions">
+          {#if actions}
+            {@render actions()}
+          {/if}
+        </div>
       </div>
     </div>
   {/if}
@@ -64,7 +76,7 @@
       <textarea
         class="field-foundation"
         class:busy
-        class:disabled
+        class:disabled={disabled || busy}
         bind:value
         {placeholder}
         {oninput}
@@ -76,6 +88,8 @@
     {:else}
       <div
         class="readonly-field"
+        class:busy
+        class:disabled={disabled || busy}
         data-sync-id={syncId}
         use:auto_resize={{ syncId }}
         tabindex={actions ? "0" : "-1"}
@@ -164,20 +178,34 @@
       rgb(from var(--signature-color) r g b / 15%);
   }
 
-  .header-actions {
+  .header-content {
     flex: 1;
     display: flex;
     align-items: center;
-    justify-content: flex-end; /* Align actions to the right */
+    justify-content: space-between;
     padding: 0 var(--spacing-s);
     opacity: 0;
     transform: translateY(-5px);
     transition: all var(--motion-m);
   }
 
-  .field-chassis.is-focused .header-actions {
+  .field-chassis.is-focused .header-content {
     opacity: 1;
     transform: translateY(0);
+  }
+
+  .header-status {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    overflow: hidden;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
   }
 
   /* --- BODY LOGIC --- */
@@ -222,13 +250,91 @@
     opacity: 1;
   }
 
-  .field-foundation.busy {
-    cursor: wait;
+  .field-foundation.disabled,
+  .readonly-field.disabled {
+    opacity: var(--opacity-s);
   }
 
-  .field-foundation.disabled {
+  .field-foundation.busy,
+  .readonly-field.busy {
+    cursor: wait !important;
+  }
+
+  .field-foundation.disabled:not(.busy),
+  .readonly-field.disabled:not(.busy) {
     cursor: not-allowed;
-    opacity: var(--opacity-s);
+  }
+
+  /* --- STATUS UTILITIES --- */
+  :global(.status-tag) {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xxs);
+    font-weight: var(--font-weight-xl);
+    letter-spacing: var(--letter-spacing-l);
+    text-transform: uppercase;
+    opacity: 0.9;
+    color: var(--color-white);
+  }
+
+  :global(.status-msg) {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xxxs);
+    opacity: 0.6;
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-m);
+    color: var(--color-white);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  :global(.pulse) {
+    animation: pulse 1s infinite ease-in-out;
+  }
+
+  /* --- BUSY ANIMATION (The "Something") --- */
+  .field-header {
+    /* ... existing styles ... */
+    overflow: visible; /* Default allow glow to breathe */
+  }
+
+  .field-chassis.is-busy .field-header {
+    overflow: hidden; /* Clip the scan bar while busy */
+  }
+
+  .field-chassis.is-busy .field-header::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgb(var(--color-white-rgb) / 15%) 50%,
+      transparent 100%
+    );
+    width: 100%;
+    animation: scan var(--motion-xxl) linear infinite;
+  }
+
+  @keyframes scan {
+    from {
+      transform: translateX(-100%) skewX(-20deg);
+    }
+
+    to {
+      transform: translateX(100%) skewX(-20deg);
+    }
   }
 
   .readonly-field {

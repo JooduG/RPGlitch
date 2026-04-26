@@ -20,7 +20,7 @@
  *
  * FIELD SCHEMA
  *   label     {string}  — Display name for the field (UI + prompt).
- *   directive {string}  — First-person AI writing instruction for the field.
+ *   directive {string}  — Third-person AI writing instruction for the field.
  *   enhancer  {string}  — Semantic tag used for LexicalFilter prioritization.
  *
  * SECTION SCHEMA (UI-only additions, not used by engine)
@@ -44,8 +44,7 @@
  */
 export const ENTITY_FRAGMENTS = {
   name: "Name",
-  description:
-    "Description & Notes - This field is only for you and will NEVER be included in any simulation.", // UI only
+  description: "Identity Summary — Summary of the entity's vibe and role.",
   eternal: {
     label: "Eternal",
     sublabel: "Permanent Traits & Features", // UI only
@@ -53,13 +52,13 @@ export const ENTITY_FRAGMENTS = {
       non_physical: {
         label: "Non-Physical",
         directive:
-          "I will define my permanent cognitive baseline here. I will detail my psychological maturity, core archetype, gender identity, speaking style, and verbal tics.",
+          "Establish the entity's permanent cognitive and psychological baseline. Detail its core archetype, identity markers, speaking style, and verbal tics. Focus exclusively on psychological architecture; avoid narration.",
         enhancer: "CORE_COGNITIVE_ARCHITECT",
       },
       physical: {
         label: "Physical",
         directive:
-          "I will define my purely visual, permanent fragments here. I will detail my visual age, biological phenotype, build, and permanent marks like cybernetics or scars. I will strictly exclude clothing or abstract fragments.",
+          "Establish the entity's permanent visual and structural fragments for image generation. Detail its visual age, biological phenotype or material composition, physical build, and permanent marks (e.g. cybernetics, scars, or fixed structural features). Strictly exclude clothing, temporary equipment, or abstract psychological traits.",
         enhancer: "BIOMETRIC_RENDER_ENGINE",
       },
     },
@@ -71,13 +70,13 @@ export const ENTITY_FRAGMENTS = {
       non_physical: {
         label: "Non-Physical",
         directive:
-          "I will define my immediate psychological state here. I will detail my current focus, emotional volatility, and active memory pressure.",
+          "Establish the entity's immediate internal state and psychological conditions. Detail its current focus, active emotional volatility, and immediate memory pressure. Define what the entity is thinking and feeling in this specific moment; avoid narration.",
         enhancer: "TACTICAL_BEHAVIOR_ANALYZER",
       },
       physical: {
         label: "Physical",
         directive:
-          "I will define my current physical state, damage, and immediate exhaustion here. I will detail visible wounds, active HUD overlays, and current posture.",
+          "Establish the entity's immediate physical state and somatic conditions for image generation. Detail visible wounds, active HUD or status overlays, current posture, and immediate exhaustion. Strictly exclude permanent structural traits or psychological states.",
         enhancer: "SOMATIC_STATE_TRACKER",
       },
     },
@@ -87,7 +86,7 @@ export const ENTITY_FRAGMENTS = {
     sublabel: "Plans & Prophecies", // UI only
     unit_label: "Vector",
     directive:
-      "I will define my self-interest protocol here. I will detail my overarching macro-goals, lateral agendas, and ultimate narrative destiny. Use [CONSEQUENCE: ...] for stakes.",
+      "Establish the entity's active trajectory and self-interest protocols. Detail overarching macro-goals, lateral agendas, and ultimate narrative destiny. Use [CONSEQUENCE: ...] to define specific stakes or risks.",
     enhancer: "TRAJECTORY_SIMULATOR",
     type: "array",
     fields: {
@@ -102,7 +101,7 @@ export const ENTITY_FRAGMENTS = {
     sublabel: "Memories & History", // UI only
     unit_label: "Memory",
     directive:
-      "I will detail my historical anchors here. I will include my origin story, formative events, and established relationships. If I have repressed trauma or forgotten memories I will note them clearly.",
+      "Establish the entity's historical anchors and formative origins. Include defining life events and established relationships. Clearly identify any repressed traumas or significant forgotten fragments that influence behavior.",
     enhancer: "EPISODIC_MEMORY_COMPILER",
     type: "array",
     fields: {

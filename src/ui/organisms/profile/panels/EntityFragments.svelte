@@ -108,6 +108,13 @@
                   };
                 }}
               >
+                {#snippet status()}
+                  {#if busy_fields.has(field.key)}
+                    <div class="engine-status-wrap">
+                      <span class="status-tag pulse">ENHANCING</span>
+                    </div>
+                  {/if}
+                {/snippet}
                 {#snippet actions()}
                   {#if is_editing}
                     <Button

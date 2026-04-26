@@ -45,7 +45,15 @@
         value={char.description || ""}
         oninput={(e) => (char.description = e.currentTarget.value)}
         busy={busy_fields.has("description")}
-      />
+      >
+        {#snippet status()}
+          {#if busy_fields.has("description")}
+            <div class="engine-status-wrap">
+              <span class="status-tag pulse">GENERATING</span>
+            </div>
+          {/if}
+        {/snippet}
+      </TextField>
     </div>
   </div>
 </header>

@@ -102,7 +102,7 @@
           placeholder="Enter {unit_label.toLowerCase()} detail..."
           weight={typeof item === "object" ? (item.base_weight ?? 5) : 5}
         >
-          {#snippet actions()}
+          {#snippet status()}
             <div class="vector-header-rich">
               <div class="weight-control">
                 <div class="weight-stack">
@@ -141,26 +141,27 @@
                   {/each}
                 {/if}
               </div>
-
-              {#if is_editing}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  square={true}
-                  aria-label="Remove {unit_label}"
-                  className="delete-btn"
-                  onclick={() => remove_item(i)}
-                >
-                  <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
-                    <polyline points="3 6 5 6 21 6" stroke="var(--color-white)"></polyline>
-                    <path
-                      d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                      stroke="var(--color-white)"
-                    ></path>
-                  </svg>
-                </Button>
-              {/if}
             </div>
+          {/snippet}
+          {#snippet actions()}
+            {#if is_editing}
+              <Button
+                variant="ghost"
+                size="sm"
+                square={true}
+                aria-label="Remove {unit_label}"
+                className="delete-btn"
+                onclick={() => remove_item(i)}
+              >
+                <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
+                  <polyline points="3 6 5 6 21 6" stroke="var(--color-white)"></polyline>
+                  <path
+                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                    stroke="var(--color-white)"
+                  ></path>
+                </svg>
+              </Button>
+            {/if}
           {/snippet}
         </TextField>
       </div>
@@ -239,7 +240,7 @@
   }
 
   .weight-val {
-    font-size: var(--font-size-s);
+    font-size: var(--font-size-xs);
     font-weight: var(--font-weight-xl);
     margin: -1px 0;
   }
@@ -283,7 +284,7 @@
     border: none;
     color: var(--color-white);
     font-family: var(--font-family-mono);
-    font-size: 0.6rem;
+    font-size: var(--font-size-xxs);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     padding: 2px 0;
@@ -302,7 +303,7 @@
   }
 
   .vector-tag {
-    font-size: 0.6rem;
+    font-size: var(--font-size-xxs);
     background: rgb(var(--color-white-rgb) / 10%); /* High-end glass tag */
     padding: 2px 8px;
     border: var(--border-m);

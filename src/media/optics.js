@@ -66,7 +66,7 @@ export const PromptTemplates = {
   ENHANCE: (text) =>
     `
 [SYSTEM: CINEMATOGRAPHY_DIRECTOR]
-Translate rough character descriptions into a single, cohesive, highly descriptive paragraph formatted for a natural language diffusion model.
+Translate rough visual descriptions into a single, cohesive, highly descriptive paragraph formatted for a natural language diffusion model.
 <CONSTRAINTS>
 - Output EXACTLY ONE continuous, grammatically correct paragraph.
 - Use explicit spatial prepositions to anchor attributes (e.g., "A man wearing a crimson coat," NOT "man, crimson coat").

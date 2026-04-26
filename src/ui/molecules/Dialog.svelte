@@ -34,7 +34,16 @@
     on_cancel();
     open = false;
   }
+
+  function handle_keydown(e) {
+    if (open && e.key === "Enter") {
+      e.preventDefault();
+      handle_confirm();
+    }
+  }
 </script>
+
+<svelte:window onkeydown={handle_keydown} />
 
 {#if open}
   <Modal variant="mini" on_close={handle_cancel} z_index="var(--z-index-max)">

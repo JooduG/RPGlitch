@@ -172,7 +172,8 @@
     <TextField
       class="visual-prompt"
       style="--signature-color: var(--color-frozen);"
-      is_edit={is_editing && !is_prompt_busy}
+      is_edit={is_editing}
+      busy={is_prompt_busy}
       bind:value={char.modifiers.prompt}
       placeholder="Enter image prompt or paste a URL..."
       disabled={!is_editing || is_prompt_busy}
@@ -185,6 +186,21 @@
         }
       }}
     >
+      {#snippet status()}
+        {#if is_prompt_busy || app.visual.error || app.visual.isOffline}
+          <div class="engine-status-wrap" class:error={app.visual.error || app.visual.isOffline}>
+            {#if app.visual.isOffline}
+              <span class="status-tag">OFFLINE</span>
+            {:else if app.visual.error}
+              <span class="status-tag">ERROR</span>
+            {:else if app.visual.attempts > 0}
+              <span class="status-tag pulse">RETRYING</span>
+            {:else}
+              <span class="status-tag pulse">GENERATING</span>
+            {/if}
+          </div>
+        {/if}
+      {/snippet}
       {#snippet actions()}
         {#if is_editing}
           <div class="prompt-actions">
@@ -234,20 +250,6 @@
       {/snippet}
     </TextField>
 
-    {#if app.visual.attempts > 0 || app.visual.error || app.visual.isOffline}
-      <div class="engine-status" class:error={app.visual.error || app.visual.isOffline}>
-        {#if app.visual.isOffline}
-          <span class="status-tag">SYSTEM OFFLINE</span>
-          <span class="status-msg">GPU Cluster Cooling Down...</span>
-        {:else if app.visual.error}
-          <span class="status-tag">ERROR</span>
-          <span class="status-msg">{app.visual.error}</span>
-        {:else if app.visual.attempts > 0}
-          <span class="status-tag pulse">RETRYING</span>
-          <span class="status-msg">Attempt {app.visual.attempts}/3...</span>
-        {/if}
-      </div>
-    {/if}
     <input
       type="file"
       accept="image/*"
@@ -311,61 +313,14 @@
     gap: var(--spacing-xs);
   }
 
-  .engine-status {
+  .engine-status-wrap {
     display: flex;
     align-items: center;
     gap: var(--spacing-s);
-    padding: var(--spacing-xs) var(--spacing-m);
-    background: var(--glass-xs);
-    border-radius: 0 0 var(--border-radius-m) var(--border-radius-m);
-    border-top: var(--border-l);
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-xxxs);
-    color: var(--color-chalk);
-    animation: slide-in var(--motion-m) ease-out;
+    color: var(--color-white);
   }
 
-  .engine-status.error {
+  .engine-status-wrap.error {
     color: var(--color-red);
-  }
-
-  .status-tag {
-    font-weight: bold;
-    letter-spacing: 0.05em;
-    opacity: 0.8;
-  }
-
-  .status-msg {
-    opacity: 0.6;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  @keyframes pulse {
-    0%,
-    100% {
-      opacity: 1;
-    }
-
-    50% {
-      opacity: 0.5;
-    }
-  }
-
-  .pulse {
-    animation: pulse 1s infinite ease-in-out;
-  }
-
-  @keyframes slide-in {
-    from {
-      transform: translateY(-10px);
-      opacity: 0;
-    }
-
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
   }
 </style>
