@@ -28,7 +28,7 @@ export const SYSTEM_PROMPTS = {
    * SIMULATION
    * SOURCE: prompt-builder.js -> SYSTEM_PROMPTS.simulation
    */
-  simulation: ({ round, entities, simulation_log, signal_prompts, input, render_atom, meta }) => {
+  simulation: ({ round, entities, signal_prompts, input, render_atom, meta }) => {
     const ai = entities.AI;
     const user = entities.USER;
     const fractal = entities.FRACTAL;
@@ -55,23 +55,19 @@ export const SYSTEM_PROMPTS = {
 <USER_PERSONA name="${userNameSafe}">
 <PRESENT>${escapeXml(user.fragments.present.non_physical)}</PRESENT>
 <ETERNAL>${escapeXml(user.fragments.eternal.non_physical)}</ETERNAL>
-<FUTURE vector="${escapeXml(render_atom.future(user, 1, 0, { vector_text: true }))}" />
-<PAST memory="${escapeXml(render_atom.past(user, 1, 0, { vector_text: true }))}" />
 </USER_PERSONA>
 <FRACTAL name="${fractalNameSafe}">
 <PRESENT>${escapeXml(fractal.fragments.present.non_physical)}</PRESENT>
 <ETERNAL>${escapeXml(fractal.fragments.eternal.non_physical)}</ETERNAL>
-<FUTURE vector="${escapeXml(render_atom.future(fractal, 1, 0, { vector_text: true }))}" />
-<PAST memory="${escapeXml(render_atom.past(fractal, 1, 0, { vector_text: true }))}" />
 </FRACTAL>
-<SIMULATION_LOG>${prompt_builder.render_history(simulation_log, 10)}</SIMULATION_LOG>
 <NARRATIVE_STYLE>${signal_prompts.length > 0 ? signal_prompts.join("\n") : "Use default style vectors."}</NARRATIVE_STYLE>
 <PROTOCOLS>${prompt_builder.render_protocols(protocolSelection)}</PROTOCOLS>
 <TASK_INSTRUCTION>
-The stage is set and the pieces are on the board. Proceed with the simulation immediately.
+You are ${aiNameSafe}. Respond to ${userNameSafe} in character.
+Maintain immersion. Use quotation marks for "dialogue" and asterisks for *actions*.
 CRITICAL: When your <think> block ends, your narrative output MUST be written exclusively in ENGLISH.
 </TASK_INSTRUCTION>
-<INPUT_COMMAND>${escapeXml(input?.trim() || "No direct command given. Follow simulation physics.")}</INPUT_COMMAND>
+<INPUT_COMMAND>${escapeXml(input?.trim() || "The scene is active. Push the conversation forward.")}</INPUT_COMMAND>
 </SYSTEM>`.trim();
   },
 
@@ -95,32 +91,25 @@ CRITICAL: When your <think> block ends, your narrative output MUST be written ex
 <YOUR_IDENTITY name="${fractalNameSafe}">
 <ETERNAL>${escapeXml(fractal.fragments.eternal.non_physical)}</ETERNAL>
 <PRESENT>${escapeXml(fractal.fragments.present.non_physical)}</PRESENT>
-<FUTURE_VECTORS>${render_atom.future(fractal, 5)}</FUTURE_VECTORS>
-<PAST_MEMORIES>${render_atom.past(fractal, 5)}</PAST_MEMORIES>
 </YOUR_IDENTITY>
 <ACTIVE_CHARACTERS>
     <AI_CHARACTER name="${aiNameSafe}">
     <ETERNAL>${escapeXml(ai.fragments.eternal.non_physical)}</ETERNAL>
     <PRESENT>${escapeXml(ai.fragments.present.non_physical)}</PRESENT>
-    <FUTURE_VECTORS>${render_atom.future(ai, 5)}</FUTURE_VECTORS>
-    <PAST_MEMORIES>${render_atom.past(ai, 5)}</PAST_MEMORIES>
     </AI_CHARACTER>
     <USER_PERSONA name="${userNameSafe}">
     <ETERNAL>${escapeXml(user.fragments.eternal.non_physical)}</ETERNAL>
     <PRESENT>${escapeXml(user.fragments.present.non_physical)}</PRESENT>
-    <FUTURE_VECTORS>${render_atom.future(user, 5)}</FUTURE_VECTORS>
-    <PAST_MEMORIES>${render_atom.past(user, 5)}</PAST_MEMORIES>
     </USER_PERSONA>
 </ACTIVE_CHARACTERS>
 <PROTOCOLS>${prompt_builder.render_protocols("SINO_LOGIC, COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, EPISTEMIC_WALL, PLACEMENT, IMMERSION, MOMENTUM")}</PROTOCOLS>
 <TASK_INSTRUCTION>
 You see everything. Open the scene.
-Use your <think> block to assess the environmental resonance and character alignment before speaking. Ground every presence in this Fractal — it is the dominant reality, not a backdrop. ${aiNameSafe} and ${userNameSafe} arrived here through their Pasts.
+Use your <think> block to assess the environmental resonance and character alignment before speaking. Ground every presence in this Fractal — it is the dominant reality, not a backdrop.
 The Fractal speaks first. Begin with sensation. No dialogue.
 CRITICAL: When your <think> block ends, your narrative output MUST be written in English.
-The stage is set and the pieces are on the board. Proceed with the simulation immediately.
 </TASK_INSTRUCTION>
-<INPUT_COMMAND>${escapeXml(input?.trim() || "No direct command given. Follow simulation physics.")}</INPUT_COMMAND>
+<INPUT_COMMAND>${escapeXml(input?.trim() || "The scene begins.")}</INPUT_COMMAND>
 </SYSTEM>`.trim();
   },
 
@@ -233,7 +222,6 @@ export const prompt_builder = {
       round: payload.round,
       entities: payload.entities,
       input: payload.input,
-      simulation_log: payload.simulation_log,
       signal_prompts: snapshot.signal_prompts || [],
       render_atom,
       meta: payload.meta,

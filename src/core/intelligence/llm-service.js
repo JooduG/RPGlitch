@@ -172,9 +172,11 @@ export const llm_service = {
   _format_history: (messages) =>
     messages
       .map((m) => {
-        const label = m.character_name || (m.role === "user" ? "User" : "Character");
+        const label =
+          m.character_name ||
+          (m.role === "user" ? "User" : m.role === "prologue" ? "Fractal" : "Character");
         const text = m.content || m.text || "";
-        return `${label}: ${text}`;
+        return `[[${label}]]: ${text}`;
       })
       .join("\n\n"),
 };

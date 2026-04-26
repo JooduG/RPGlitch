@@ -126,7 +126,6 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain('<YOUR_IDENTITY name="Viper">');
       expect(result.system).toContain('<USER_PERSONA name="Ghost">');
       expect(result.system).toContain('<FRACTAL name="Void">');
-      expect(result.system).toContain("<SIMULATION_LOG>");
       expect(result.system).toContain("STYLE: Grit");
       expect(result.system).toContain("<PROTOCOLS>");
       expect(result.system).toContain("<TASK_INSTRUCTION>");

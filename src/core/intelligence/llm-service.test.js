@@ -81,7 +81,9 @@ describe("llm_service - generate", () => {
       { role: "system", content: "You are helpful." },
     ];
     const formatted = llm_service._format_history(messages);
-    expect(formatted).toBe("User: Hello\n\nAssistant: Hi there\n\nCharacter: You are helpful.");
+    expect(formatted).toBe(
+      "[[User]]: Hello\n\n[[Assistant]]: Hi there\n\n[[Character]]: You are helpful.",
+    );
   });
 
   it("should call window.ai with correct instruction assembly", async () => {
@@ -93,7 +95,7 @@ describe("llm_service - generate", () => {
     };
     await llm_service.generate(payload, { silent: true, raw: true });
     const expectedInstruction =
-      "System prompt\n\n\n\n[CONVERSATION HISTORY]\nUser: Hello\n\n\n\n[START RESPONSE WITH]\nStart with this";
+      "System prompt\n\n\n\n[CONVERSATION HISTORY]\n[[User]]: Hello\n\n\n\n[START RESPONSE WITH]\nStart with this";
     expect(window.ai).toHaveBeenCalledWith(expectedInstruction, expect.any(Object));
   });
 
