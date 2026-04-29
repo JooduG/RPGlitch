@@ -53,7 +53,6 @@ describe("context_broker.lexical_filter", () => {
     const data_points = [{ text: "apple" }, { text: "banana" }];
     const objective = "zebra";
     const result = context_broker.lexical_filter(data_points, objective);
-    expect(result).toHaveLength(2);
-    expect(result).toEqual(expect.arrayContaining(data_points));
+    expect(result).toEqual(data_points);
   });
 });
