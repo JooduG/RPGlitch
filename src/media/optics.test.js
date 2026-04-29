@@ -33,7 +33,7 @@ describe("PromptTemplates", () => {
   });
 
   describe("BUILDER", () => {
-    it("should build a prompt for 'ai' target by default", () => {
+    it("should build a prompt for 'ai' target", () => {
       const rawIntent = "Generate a portrait";
       const context = { ai: { name: "Nova", present: { physical: "Cybernetic" } } };
       const result = PromptTemplates.BUILDER("ai", rawIntent, context);
