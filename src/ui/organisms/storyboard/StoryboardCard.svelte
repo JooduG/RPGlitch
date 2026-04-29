@@ -35,7 +35,7 @@
   data-testid="storyboard-card"
 >
   {#if is_empty}
-    <Button variant="overlay" onclick={on_select}>
+    <Button variant="invisible" cover={true} onclick={on_select}>
       <div class="card-shell">
         <div class="empty-content">
           <div class="empty-icon-wrap">
@@ -69,7 +69,7 @@
           </div>
         </div>
 
-        <Button variant="overlay" onclick={on_select}>
+        <Button variant="invisible" cover={true} onclick={on_select}>
           <div class="visual-anchor">
             <ProfilePicture {entity} />
           </div>
@@ -81,7 +81,7 @@
     <div class="quick-link-wrapper" aria-label="View {entity.name} Profile">
       <Button
         className="profile-quick-link"
-        variant="ghost"
+        variant="invisible"
         onclick={on_view_profile}
         tabindex="-1"
       >

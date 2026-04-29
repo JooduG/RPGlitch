@@ -1,23 +1,42 @@
 <script>
   import { db } from "@data/db.js";
+  import { stories } from "@data/repository.js";
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
-  import { Session } from "@core/engine/engine.js";
+  import { session_driver } from "@core/engine/session-driver.svelte.js";
   import Button from "@ui/atoms/Button.svelte";
   import Toggle from "@ui/atoms/Toggle.svelte";
   import Modal from "@ui/molecules/Modal.svelte";
   import TextField from "@ui/atoms/TextField.svelte";
   import Dialog from "@ui/molecules/Dialog.svelte";
-
+  import StoryCard from "@ui/molecules/StoryCard.svelte";
+  import { simulation_log } from "@state/simulation-log.svelte.js";
   import { simulationState } from "@state/status.svelte.js";
 
   /**
    * Main system interface for settings and prologue configuration.
-   * Follows the [Polish Protocol] v1.0.0
+   * [Polish Protocol] v1.0.1 - Restored Mock Buttons
    */
 
   function handleAction(action) {
     app.log(`Control Panel: ${action}`, "system");
+  }
+
+  let stories_list = $state([]);
+
+  $effect(() => {
+    stories.list().then((res) => {
+      stories_list = res;
+    });
+  });
+
+  async function loadStory(id) {
+    handleAction("LoadStory: " + id);
+    await session_driver.set_active(id);
+    await runtime.sync(id);
+    await simulation_log.refresh();
+    app.set_view("storymode");
+    app.toggle_control_panel();
   }
 
   async function mock_generation(role) {
@@ -46,14 +65,12 @@
     const words = dummyText.split(" ");
     for (let i = 0; i < words.length; i++) {
       current += (i === 0 ? "" : " ") + words[i];
-      // Note: app.update_stream appends, so we need to pass just the delta
-      // For this mock, we'll just set the value directly in the state to be safe
       app.streaming.content = current;
       await new Promise((r) => setTimeout(r, 60));
     }
 
     // 3. Push to log, then end stream
-    await Session.log_turn(dummyText, name, role, { turn_type: "SYSTEM_TURN" });
+    await session_driver.log_turn(dummyText, name, role, { turn_type: "SYSTEM_TURN" });
     app.end_stream();
 
     app.log(`Mock ${role} turn complete.`, "system");
@@ -70,6 +87,13 @@
   /* --- STATE HELPERS --- */
   let isStoryboard = $derived(app.view === "storyboard");
   let isStoryMode = $derived(app.view === "storymode");
+
+  // Debug check
+  $effect(() => {
+    if (app.control_panel_open) {
+      console.log("[ControlPanel] View:", app.view);
+    }
+  });
 </script>
 
 <Dialog
@@ -114,23 +138,26 @@
       <div class="storymode">
         <Button
           label="GHOSTWRITE"
-          variant="secondary"
+          variant="primary"
           size="sm"
           onclick={() => handleAction("Ghostwrite")}
         />
         <Button label="PHOTO" variant="secondary" size="sm" onclick={() => handleAction("Photo")} />
+
+        <!-- DEBUG MOCKS -->
         <Button
           label="MOCK: PROLOGUE"
-          variant="secondary"
+          variant="invisible"
           size="sm"
           onclick={() => mock_generation("fractal")}
         />
         <Button
           label="MOCK: AI TURN"
-          variant="secondary"
+          variant="invisible"
           size="sm"
           onclick={() => mock_generation("ai")}
         />
+
         <Button
           label="END STORY"
           variant="secondary"
@@ -141,13 +168,17 @@
     {/if}
 
     <footer>
-      <div class="stories-row">
-        <Button
-          label="STORIES"
-          variant="secondary"
-          size="sm"
-          onclick={() => handleAction("OpenLibrary")}
-        />
+      <div class="stories-section">
+        <h3 class="stories-headline">STORIES</h3>
+        {#if stories_list.length > 0}
+          <div class="stories-list">
+            {#each stories_list as story (story.id)}
+              <StoryCard {story} onclick={() => loadStory(story.id)} />
+            {/each}
+          </div>
+        {:else}
+          <p class="no-stories">No stories found in the archives.</p>
+        {/if}
       </div>
 
       <div class="dev-row">
@@ -156,7 +187,7 @@
           bind:value={app.settings.dev_mode}
           onchange={() => app.save_settings()}
         />
-        <Button variant="secondary" size="sm" onclick={() => (show_reset_confirm = true)}>
+        <Button variant="danger" size="sm" onclick={() => (show_reset_confirm = true)}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="14"
@@ -206,9 +237,37 @@
     gap: var(--spacing-s);
   }
 
-  .stories-row {
+  .stories-section {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    width: 100%;
+  }
+
+  .stories-headline {
+    font-size: var(--font-size-s);
+    color: var(--font-color-m);
+    text-align: center;
+    letter-spacing: var(--letter-spacing-m);
+    margin: 0 0 var(--spacing-xs);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: var(--spacing-xxs);
+  }
+
+  .stories-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .no-stories {
+    text-align: center;
+    font-size: var(--font-size-s);
+    color: var(--font-color-m);
+    font-style: italic;
+    padding: var(--spacing-m) 0;
   }
 
   .dev-row {
