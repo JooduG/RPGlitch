@@ -13,12 +13,11 @@
     "*.stylelintignore": "ignore"
   },
   "files.exclude": {
-    "/.env": false,
-    "DESIGN.md": true,
     "**/.DS_Store": true,
     "**/.antigravityignore": true,
     "**/.eslintcache": true,
     "**/.eslintignore": true,
+    "**/.gemini/**": true,
     "**/.gemini/[!s]*": true,
     "**/.gemini/s[!e]*": true,
     "**/.geminiignore": true,
@@ -38,7 +37,9 @@
     "**/pnpm-lock.yaml": true,
     "**/test-results/**": true,
     "**/tests/**": true,
-    "**/yarn.lock": true
+    "**/yarn.lock": true,
+    "/.env": false,
+    "DESIGN.md": true
   },
   "html.validate.styles": false,
   "launch": {
