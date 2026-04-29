@@ -36,7 +36,7 @@
 **/templates/**
 **/test-results/**
 **/yarn.lock
-**/artifacts/**
+**/tmp/**
 !**/rpglitch-left-panel.txt
 .secrets
 **/.gemini/**

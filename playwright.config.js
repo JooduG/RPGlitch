@@ -7,5 +7,5 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
   },
   testDir: ".agent/skills/warden/tests/playwright",
-  outputDir: "artifacts/test-results/playwright",
+  outputDir: "tmp",
 });

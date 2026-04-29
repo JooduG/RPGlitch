@@ -10,10 +10,10 @@ import path from "path";
  */
 
 const args = process.argv.slice(2).filter((arg) => !arg.startsWith("--"));
-const outputDir = path.join(process.cwd(), "artifacts");
+const outputDir = path.join(process.cwd(), "tmp");
 const outputFile = path.join(outputDir, "audit_output.txt");
 
-// Ensure artifacts directory exists
+// Ensure tmp directory exists
 if (!fs.existsSync(outputDir)) {
   fs.mkdirSync(outputDir, { recursive: true });
 }

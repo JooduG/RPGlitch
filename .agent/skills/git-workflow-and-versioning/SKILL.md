@@ -21,7 +21,7 @@ The `git-workflow-and-versioning` skill manages the lifecycle of code changes in
 
 - **Positive Triggers**: Making any code change, initializing a feature branch, resolving merge conflicts, or performing repository maintenance via the GitHub CLI (`gh`).
 - **Release Triggers**: Preparing a production build or stabilizing a version branch.
-- **EXCLUSIONS**: Do not use for local-only scratch scripts; handle those via the `artifacts/scratch/` directory.
+- **EXCLUSIONS**: Do not use for local-only scratch scripts; handle those via the `tmp/` directory.
 
 ## How It Works
 

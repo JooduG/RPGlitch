@@ -6,9 +6,9 @@
  * Run with: npx vitest run .agent/skills/simulation/scripts/simulation-audit.js
  */
 
+import fs from "fs";
 import { describe, it } from "vitest";
 import { SimulationSimulation } from "./simulation-simulation.js";
-import fs from "fs";
 
 describe("🕹️ SYSTEM TURN: Source Audit", () => {
   it("executes the 'Gothic Trial' baseline and generates an audit report", async () => {
@@ -79,7 +79,7 @@ ${SEP}
 
     // 4. PERSISTENCE
     console.log(report);
-    fs.writeFileSync("artifacts/audit_report.md", report);
-    console.log("✅ Audit report synthesized: artifacts/audit_report.md");
+    fs.writeFileSync("tmp/audit_report.md", report);
+    console.log("✅ Audit report synthesized: tmp/audit_report.md");
   });
 });

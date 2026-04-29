@@ -90,9 +90,9 @@ jobs:
       - name: "📦 Relocate Artifacts"
         if: always()
         run: |
-          mkdir -p artifacts
-          [ -f prompt.txt ] && mv prompt.txt artifacts/ || true
-          [ -f jules_payload.json ] && mv jules_payload.json artifacts/ || true
+          mkdir -p tmp
+          [ -f prompt.txt ] && mv prompt.txt tmp/ || true
+          [ -f jules_payload.json ] && mv jules_payload.json tmp/ || true
 
   # --- JOB C: STRATEGIC OPERATIONS ---
   # Handles scheduled hygiene and swarm planning.
@@ -120,9 +120,9 @@ jobs:
       - name: "📦 Relocate Artifacts"
         if: always()
         run: |
-          mkdir -p artifacts
-          [ -f prompt.txt ] && mv prompt.txt artifacts/ || true
-          [ -f jules_payload.json ] && mv jules_payload.json artifacts/ || true
+          mkdir -p tmp
+          [ -f prompt.txt ] && mv prompt.txt tmp/ || true
+          [ -f jules_payload.json ] && mv jules_payload.json tmp/ || true
 
       # SWARM PLANNING (6 AM or Dispatch)
       - name: "🐝 Fleet Dispatch"
