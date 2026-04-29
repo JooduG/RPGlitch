@@ -60,6 +60,7 @@
 | ------------------------- | ---------------------------------------------------------- | -------------------------------------------- | ------- |
 | 2026-04-25T21:25:00Z      | Skill Rewiring & Script Realignment ([046])                | `directives`, `using-agent-skills`, `warden` | ✅ Done |
 | 2026-04-25T17:18:00+02:00 | Apply custom scrollbar to `.left-panel` for UI consistency | `css`                                        | ✅ Done |
+| 2026-04-29T22:13:00+00:00 | Unified Dialog System & Modal Standardization ([047])      | `warden`                                     | ✅ Done |
 
 ## 🧹 Backlog (Automated)
 
