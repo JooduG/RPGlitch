@@ -370,11 +370,7 @@
 
   .message-bubble.is-focused .field-header {
     height: 2.2rem;
-    background: linear-gradient(
-      to bottom,
-      color-mix(in srgb, var(--signature-color), black 40%) 0%,
-      color-mix(in srgb, var(--signature-color), transparent 100%) 100%
-    );
+    background: color-mix(in srgb, var(--signature-color), black 30%);
     border-bottom: 1px solid rgb(var(--color-white-rgb) / 12%);
     overflow: visible;
   }
@@ -458,8 +454,7 @@
   .message-content :global(strong),
   .message-content :global(b) {
     font-weight: var(--font-weight-xl);
-    color: var(--color-white);
-    text-shadow: 0 0 12px rgb(from var(--signature-color) r g b / 25%);
+    color: var(--signature-color);
   }
 
   /* High-Vis Narration */
