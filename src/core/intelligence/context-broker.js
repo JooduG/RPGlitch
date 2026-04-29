@@ -270,7 +270,7 @@ export const context_broker = {
     // avoiding repeated O(N) operations during the sort comparisons.
     return data_points
       .map((dp) => {
-        const text = (dp.text || "").toLowerCase();
+        const text = (dp?.text || "").toLowerCase();
         const hit = keywords.some((k) => text.includes(k));
         return { dp, hit: hit ? 1 : 0 };
       })
