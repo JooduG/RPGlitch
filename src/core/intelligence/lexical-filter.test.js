@@ -13,7 +13,7 @@ describe("context_broker.lexical_filter", () => {
     expect(context_broker.lexical_filter(data_points, "a b c")).toEqual(data_points);
   });
 
-  it("should sort data points with keyword matches to the top", () => {
+  it("should sort data points with keyword matches to the top and maintain stable order for others", () => {
     const data_points = [
       { text: "This is a cat." },
       { text: "The quick brown fox." },
@@ -22,10 +22,12 @@ describe("context_broker.lexical_filter", () => {
     const objective = "The quick fox";
     const result = context_broker.lexical_filter(data_points, objective);
 
-    expect(result[0].text).toBe("The quick brown fox.");
-    expect(result.slice(1)).toEqual(
-      expect.arrayContaining([{ text: "This is a cat." }, { text: "Another random sentence." }]),
-    );
+    const expected_order = [
+      { text: "The quick brown fox." },
+      { text: "This is a cat." },
+      { text: "Another random sentence." },
+    ];
+    expect(result).toEqual(expected_order);
   });
 
   it("should be case-insensitive", () => {
@@ -49,7 +51,7 @@ describe("context_broker.lexical_filter", () => {
     expect(context_broker.lexical_filter({}, "objective")).toEqual({});
   });
 
-  it("should preserve all data points even if no matches", () => {
+  it("should preserve all data points in original order if no matches", () => {
     const data_points = [{ text: "apple" }, { text: "banana" }];
     const objective = "zebra";
     const result = context_broker.lexical_filter(data_points, objective);
