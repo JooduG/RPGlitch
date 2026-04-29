@@ -9,6 +9,7 @@
     className = "", // Allow local overrides
     children = null,
     onclick = null,
+    actions = [],
     ...restProps // Pass through disabled, etc.
   } = $props();
 
@@ -49,7 +50,7 @@
     : ''} {fullWidth ? 'button-full' : ''} {className}"
   {...restProps}
   {onclick}
-  use:applyActions={restProps.actions || []}
+  use:applyActions={actions}
 >
   {#if children}
     {@render children()}
