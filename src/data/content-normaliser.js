@@ -31,7 +31,7 @@ export const ENTITY_TEMPLATES = {
       prompt: "",
       noBackground: false,
       flipped: false,
-      profilePictureSeed: 0,
+      profile_picture_seed: 0,
       colorName: "",
     },
     past: [],
