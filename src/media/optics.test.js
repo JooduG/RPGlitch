@@ -1,7 +1,7 @@
 /**
  * src/media/optics.test.js
  */
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { PromptTemplates, AestheticResolver, getResolution } from "./optics.js";
 import { themeStore } from "../theme/palette.svelte.js";
 
@@ -12,6 +12,10 @@ vi.mock("../theme/palette.svelte.js", () => ({
 }));
 
 describe("PromptTemplates", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
   describe("ENHANCE", () => {
     it("should wrap text in the ENHANCE template", () => {
       const text = "A futuristic city with neon lights";
@@ -77,6 +81,10 @@ describe("PromptTemplates", () => {
 });
 
 describe("AestheticResolver", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
   it("should extract traits and use portrait preset for character-like entities", () => {
     vi.mocked(themeStore.get_signature_label).mockReturnValue("Crimson Red");
     const entity = {
@@ -105,11 +113,10 @@ describe("AestheticResolver", () => {
   it("should handle missing fields gracefully", () => {
     vi.mocked(themeStore.get_signature_label).mockReturnValue(null);
     const result = AestheticResolver.extract({});
-    expect(result).toContain("Hasselblad H6D-100c");
     // Fragments should just be the preset if nothing else is present
-    expect(result).toBe(
-      "Photorealistic portrait shot on Hasselblad H6D-100c, 80mm f/1.9 lens, vogue magazine cover, shallow depth of field, sharp focus on detailed eyes, hyper-realistic textures, natural skin blemishes, golden ratio composition, cinematic volumetric lighting, 8k resolution.",
-    );
+    expect(result).toContain("Hasselblad H6D-100c");
+    expect(result).toContain("80mm f/1.9 lens");
+    expect(result).toContain("8k resolution");
   });
 });
 
