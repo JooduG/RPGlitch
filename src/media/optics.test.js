@@ -121,17 +121,21 @@ describe("AestheticResolver", () => {
 });
 
 describe("getResolution", () => {
-  it("should return landscape dimensions for landscape modes", () => {
-    expect(getResolution("landscape")).toEqual({ width: 768, height: 512 });
-    expect(getResolution("scene")).toEqual({ width: 768, height: 512 });
-    expect(getResolution("fractal")).toEqual({ width: 768, height: 512 });
+  it.each([
+    ["landscape", { width: 768, height: 512 }],
+    ["scene", { width: 768, height: 512 }],
+    ["fractal", { width: 768, height: 512 }],
+  ])("should return landscape dimensions for %s mode", (mode, expected) => {
+    expect(getResolution(mode)).toEqual(expected);
   });
 
-  it("should return portrait dimensions for portrait modes", () => {
-    expect(getResolution("portrait")).toEqual({ width: 512, height: 768 });
-    expect(getResolution("character")).toEqual({ width: 512, height: 768 });
-    expect(getResolution("user")).toEqual({ width: 512, height: 768 });
-    expect(getResolution("ai")).toEqual({ width: 512, height: 768 });
+  it.each([
+    ["portrait", { width: 512, height: 768 }],
+    ["character", { width: 512, height: 768 }],
+    ["user", { width: 512, height: 768 }],
+    ["ai", { width: 512, height: 768 }],
+  ])("should return portrait dimensions for %s mode", (mode, expected) => {
+    expect(getResolution(mode)).toEqual(expected);
   });
 
   it("should return square dimensions for default", () => {
