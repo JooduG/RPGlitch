@@ -13,6 +13,8 @@
 
   import Backdrop from "@ui/molecules/Backdrop.svelte";
   import LibraryCard from "@ui/molecules/LibraryCard.svelte";
+  import Button from "@ui/atoms/Button.svelte";
+  import ProfilePicture from "@ui/atoms/ProfilePicture.svelte";
 
   // --- STATE & DERIVATIONS ---
   let is_open = $derived(app.drawer.open);
@@ -108,16 +110,25 @@
 
     <div class="drawer-content no-scrollbar" use:kineticScroll>
       <div class="drawer-grid">
-        <button
+        <div 
           class="drawer-card drawer-card--new glass-s"
-          onclick={handleCreateNew}
-          aria-label="Initialize a new entity from template"
+          style="--signature-color: var(--color-frisk); --signature-rgb: var(--color-frisk-rgb);"
         >
-          <div class="new-icon-wrap">
-            <span class="drawer-card-icon">+</span>
+          <Button
+            variant="invisible"
+            cover={true}
+            onclick={handleCreateNew}
+          />
+          <div class="card-visual">
+            <ProfilePicture placeholderChar="?" />
           </div>
-          <span class="drawer-card-label">Create New</span>
-        </button>
+          <div class="card-info">
+            <h5>
+              <span class="drawer-card-label">Create New</span>
+            </h5>
+          </div>
+          <div class="signature-bar"></div>
+        </div>
 
         {#each entity_list() as entity (entity.id)}
           <LibraryCard
@@ -198,38 +209,66 @@
 
   /* --- NEW ENTITY CARD --- */
   .drawer-card--new {
-    border: var(--border-l);
-    border-style: dashed;
-    aspect-ratio: 2 / 3;
+    position: relative;
+    width: var(--grid-unit);
+    height: calc(var(--grid-unit) * 2);
+    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-m);
-    cursor: pointer;
-    transition: all var(--motion-l) var(--motion-elastic);
-    color: var(--font-color-s);
+    border: none;
     padding: 0;
-    width: 100%; /* Match LibraryCard width */
+    background: var(--glass-s);
+    cursor: pointer;
     border-radius: var(--border-radius-m);
     overflow: hidden;
+    transition:
+      transform var(--motion-l) var(--motion-elastic),
+      filter var(--motion-l);
   }
 
-  .drawer-card--new .new-icon-wrap {
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: var(--border-radius-full);
-    background: rgb(var(--color-black-rgb) / 20%);
-    border: var(--border-l);
+  .drawer-card--new:hover {
+    transform: scale(1.02);
+    filter: brightness(1.1);
+  }
+
+  .drawer-card--new:active {
+    transform: scale(var(--motion-click));
+  }
+
+  .drawer-card--new .card-visual {
+    flex: 1.5;
+    background: var(--glass-s);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: inherit;
+    overflow: hidden;
+    position: relative;
+    border-radius: var(--border-radius-m) var(--border-radius-m) 0 0;
   }
 
-  .drawer-card--new .drawer-card-icon {
-    font-size: 2rem;
-    line-height: 1;
+  .drawer-card--new .card-info {
+    flex: 0.6;
+    padding: var(--spacing-s);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--glass-s);
+    border-radius: 0 0 var(--border-radius-m) var(--border-radius-m);
+  }
+
+  /* Strip ProfilePicture's own background so card-visual glass-s shows through */
+  .drawer-card--new .card-visual :global(.profile-picture),
+  .drawer-card--new .card-visual :global(.placeholder) {
+    background: transparent;
+    background-image: none;
+  }
+
+  .drawer-card--new .card-info h5 {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
   }
 
   .drawer-card--new .drawer-card-label {
@@ -238,18 +277,23 @@
     text-transform: uppercase;
     font-size: var(--font-size-xs);
     letter-spacing: var(--letter-spacing-m);
+    color: var(--signature-color);
+    text-align: center;
   }
 
-  .drawer-card--new:hover {
-    color: var(--color-white);
-    filter: brightness(1.2);
-    border-color: var(--color-frozen);
+  .drawer-card--new .signature-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--signature-color);
+    opacity: 0.3;
+    transition: opacity var(--motion-l);
   }
 
-  .drawer-card--new:hover .new-icon-wrap {
-    background: var(--color-frozen);
-    box-shadow: 0 0 1.5rem var(--color-frozen);
-    color: var(--color-white);
+  .drawer-card--new:hover .signature-bar {
+    opacity: 1;
   }
 
   /* --- EMPTY STATE --- */

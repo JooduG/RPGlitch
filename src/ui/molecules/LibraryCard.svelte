@@ -15,6 +15,7 @@
 
   import { themeStore } from "@theme/palette.svelte.js";
   import ProfilePicture from "@ui/atoms/ProfilePicture.svelte";
+  import Button from "@ui/atoms/Button.svelte";
   import { fitText } from "@ui/utils/actions/fit-text.js";
 
   let signature_color = $derived(themeStore.get_signature_color(entity));
@@ -26,20 +27,25 @@
   }
 </script>
 
-<button
-  class="drawer-card glass-base surface-tilt"
+<div
+  class="drawer-card glass-l surface-tilt"
   class:fractal-card={type === "fractal"}
   class:is-disabled={disabled}
   style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
-  onclick={handleSelect}
-  {disabled}
-  aria-label={disabled ? "Already selected" : `Select ${name}`}
-  class:no-tooltip={true}
-  oncontextmenu={(e) => {
-    e.preventDefault();
-    if (onViewProfile) onViewProfile();
-  }}
 >
+  <Button
+    variant="invisible"
+    cover={true}
+    onclick={handleSelect}
+    {disabled}
+    aria-label={disabled ? "Already selected" : `Select ${name}`}
+    className="no-tooltip"
+    oncontextmenu={(e) => {
+      e.preventDefault();
+      if (onViewProfile) onViewProfile();
+    }}
+  />
+
   <div class="card-visual">
     <ProfilePicture {entity} />
   </div>
@@ -48,13 +54,14 @@
     <h5>
       <span class="entity-name" use:fitText>{name}</span>
     </h5>
+    <div class="signature-bar"></div>
   </div>
 
-  <div class="signature-bar"></div>
-</button>
+</div>
 
 <style>
   .drawer-card {
+    position: relative;
     width: 100%;
     flex: 0 0 auto;
     display: flex;
@@ -90,12 +97,11 @@
 
   .drawer-card .card-visual {
     flex: 1.5;
-    background: rgb(var(--color-black-rgb) / 20%); /* Softened from 50% for Nordic look */
-    border-top: none; /* Radius handled by parent overflow */
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden; /* Mask internal visual */
+    overflow: hidden;
     position: relative;
     border-radius: var(--border-radius-m) var(--border-radius-m) 0 0;
   }
@@ -106,8 +112,9 @@
     display: flex;
     align-items: center;
     background: var(--glass-s);
-    border-top: var(--border-l);
     border-radius: 0 0 var(--border-radius-m) var(--border-radius-m);
+    position: relative;
+    overflow: hidden;
   }
 
   .drawer-card .card-info h5 {
@@ -121,7 +128,8 @@
     font-family: var(--font-family-heading);
     font-weight: var(--font-weight-xl);
     text-transform: uppercase;
-    letter-spacing: var(--letter-spacing-s);
+    font-size: var(--font-size-xs);
+    letter-spacing: var(--letter-spacing-m);
     text-wrap: balance;
     display: -webkit-box;
     line-clamp: 2;
@@ -130,5 +138,21 @@
     overflow: hidden;
     margin: 0;
     padding: 0;
+    text-align: center;
+  }
+
+  .signature-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--signature-color);
+    opacity: 0.3;
+    transition: opacity var(--motion-l);
+  }
+
+  .drawer-card:hover:not(:disabled, .is-disabled) .signature-bar {
+    opacity: 1;
   }
 </style>
