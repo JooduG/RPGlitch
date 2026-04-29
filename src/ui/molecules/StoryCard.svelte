@@ -63,7 +63,7 @@
     background: var(--glass-s);
     backdrop-filter: var(--blur-s);
     border: var(--border-s);
-    border-left: 4px solid var(--signature-color, var(--color-white));
+    border-left: var(--spacing-xxs) solid var(--signature-color, var(--color-white));
     border-radius: var(--border-radius-m);
     box-shadow: var(--shadow-s);
     cursor: pointer;
@@ -109,7 +109,7 @@
   .story-info {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: var(--spacing-xxxs);
     z-index: 1;
     position: relative;
   }

@@ -87,13 +87,6 @@
   /* --- STATE HELPERS --- */
   let isStoryboard = $derived(app.view === "storyboard");
   let isStoryMode = $derived(app.view === "storymode");
-
-  // Debug check
-  $effect(() => {
-    if (app.control_panel_open) {
-      console.log("[ControlPanel] View:", app.view);
-    }
-  });
 </script>
 
 <Dialog
@@ -250,7 +243,7 @@
     text-align: center;
     letter-spacing: var(--letter-spacing-m);
     margin: 0 0 var(--spacing-xs);
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: var(--spacing-px) solid var(--color-border-s);
     padding-bottom: var(--spacing-xxs);
   }
 
