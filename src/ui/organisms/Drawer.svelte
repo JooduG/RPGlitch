@@ -210,8 +210,8 @@
   /* --- NEW ENTITY CARD --- */
   .drawer-card--new {
     position: relative;
-    width: var(--grid-unit);
-    height: calc(var(--grid-unit) * 2);
+    width: 100%;
+    aspect-ratio: 1 / 2;
     flex: 0 0 auto;
     display: flex;
     flex-direction: column;

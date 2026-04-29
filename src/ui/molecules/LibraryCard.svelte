@@ -63,6 +63,7 @@
   .drawer-card {
     position: relative;
     width: 100%;
+    aspect-ratio: 1 / 2;
     flex: 0 0 auto;
     display: flex;
     flex-direction: column;
