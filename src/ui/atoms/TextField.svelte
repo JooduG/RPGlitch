@@ -257,7 +257,7 @@
 
   .field-foundation.busy,
   .readonly-field.busy {
-    cursor: wait !important;
+    cursor: wait;
   }
 
   .field-foundation.disabled:not(.busy),
@@ -356,6 +356,7 @@
     flex-direction: column;
     align-items: flex-start;
     outline: none;
+    text-wrap: pretty;
   }
 
   .paragraph {

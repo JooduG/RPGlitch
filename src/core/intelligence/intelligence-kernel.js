@@ -108,6 +108,7 @@ export const gamemaster = {
         {
           system,
           messages: simulation_log,
+          role,
         },
         llm_options,
       );
@@ -142,7 +143,7 @@ export const gamemaster = {
     if (!result.system) return null;
     app.log("gamemaster: Generating prologue...", "system");
     const response = await this._execute_with_retry(async () => {
-      return await llm_service.generate({ system: result.system });
+      return await llm_service.generate({ system: result.system, role: "fractal" });
     });
     const fractal_name = runtime.active_fractal?.name || "Fractal Entity";
     // 1. Save Prologue
@@ -167,7 +168,7 @@ export const gamemaster = {
     if (!system) return null;
     app.log("gamemaster: Generating epilogue...", "system");
     const response = await this._execute_with_retry(async () => {
-      return await llm_service.generate({ system });
+      return await llm_service.generate({ system, role: "ai" });
     });
     await session_driver.log_turn(response, "Narrator", "ai");
     return response;

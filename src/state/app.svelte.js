@@ -170,6 +170,7 @@ export class AppStore {
     active: false,
     content: "",
     node_id: null,
+    role: "ai",
   });
   /************************************************************************************
    * 🧩 [SECTION: UI ACTIONS]
@@ -251,10 +252,11 @@ export class AppStore {
     this.save_settings();
   };
   // STREAMING CONTROL
-  start_stream = (id) => {
+  start_stream = (id, role = "ai") => {
     this.streaming.active = true;
     this.streaming.content = "";
     this.streaming.node_id = id;
+    this.streaming.role = role;
   };
   update_stream = (chunk) => {
     this.streaming.content += chunk;
@@ -262,6 +264,7 @@ export class AppStore {
   end_stream = () => {
     this.streaming.active = false;
     this.streaming.node_id = null;
+    this.streaming.role = "ai";
   };
   open_lightbox = (src, caption = "") => {
     openLightbox(src, caption);

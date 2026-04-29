@@ -9,6 +9,8 @@
   import TextField from "@ui/atoms/TextField.svelte";
   import Dialog from "@ui/molecules/Dialog.svelte";
 
+  import { simulationState } from "@state/status.svelte.js";
+
   /**
    * Main system interface for settings and prologue configuration.
    * Follows the [Polish Protocol] v1.0.0
@@ -18,19 +20,43 @@
     app.log(`Control Panel: ${action}`, "system");
   }
 
-  async function handleMockMessage(role) {
-    const name =
-      role === "fractal"
-        ? runtime.active_fractal?.name || "Fractal"
-        : runtime.active_ai?.name || "AI";
+  async function mock_generation(role) {
+    const is_fractal = role === "fractal";
+    const name = is_fractal
+      ? runtime.active_fractal?.name || "Fractal"
+      : runtime.active_ai?.name || "AI";
 
-    const dummyText =
-      role === "fractal"
-        ? `<think>The simulation layer shifts. Applying high-altitude atmospheric metrics to the local shard.</think>\n\n『 [Cyber London] · [21:30] · [Acid Neon] 』\n\nLorem ipsum dolor sit amet, **consectetur** adipiscing elit. *Sed do eiusmod* tempor incididunt ut labore et dolore magna aliqua.\n\nUt enim ad minim veniam, quis nostrud **exercitation** ullamco laboris nisi ut aliquip ex ea commodo consequat.`
-        : `<think>Subject is entering the dead-zone. Adjusting internal optics for low-light tracking.</think>\n\nDuis aute irure dolor in **reprehenderit** in voluptate velit esse cillum dolore eu fugiat nulla pariatur. *Excepteur sint occaecat* cupidatat non proident.\n\nSunt in culpa qui officia **deserunt** mollit anim id est laborum.`;
+    const dummyText = is_fractal
+      ? `<think>The simulation layer shifts. Applying high-altitude atmospheric metrics to the local shard.</think>\n\n『 [Cyber London] · [21:30] · [Acid Neon] 』\n\nLorem ipsum dolor sit amet, **consectetur** adipiscing elit. *Sed do eiusmod* tempor incididunt ut labore et dolore magna aliqua.\n\nUt enim ad minim veniam, quis nostrud **exercitation** ullamco laboris nisi ut aliquip ex ea commodo consequat.`
+      : `<think>Subject is entering the dead-zone. Adjusting internal optics for low-light tracking.</think>\n\n"Listen, champ," *voice drops to conspiratorial whisper*, "Duis aute irure dolor in **reprehenderit** in voluptate velit esse cillum dolore eu fugiat nulla pariatur."\n\n*Excepteur sint occaecat* cupidatat non proident. Sunt in culpa qui officia **deserunt** mollit anim id est laborum.`;
 
-    await Session.log_turn(dummyText, name, role);
-    app.log(`Mock ${role} message injected.`, "system");
+    // 1. Enter thinking state
+    app.toggle_control_panel(); // Close panel to see the animation
+    simulationState.start_generation(role);
+
+    // Simulate AI thinking time to show animation
+    await new Promise((r) => setTimeout(r, 2500));
+
+    // 2. Transition to streaming
+    simulationState.complete(); // Stop "thinking" indicator
+    app.start_stream("mock-node", role);
+
+    // 2. Stream in content
+    let current = "";
+    const words = dummyText.split(" ");
+    for (let i = 0; i < words.length; i++) {
+      current += (i === 0 ? "" : " ") + words[i];
+      // Note: app.update_stream appends, so we need to pass just the delta
+      // For this mock, we'll just set the value directly in the state to be safe
+      app.streaming.content = current;
+      await new Promise((r) => setTimeout(r, 60));
+    }
+
+    // 3. Push to log, then end stream
+    await Session.log_turn(dummyText, name, role, { turn_type: "SYSTEM_TURN" });
+    app.end_stream();
+
+    app.log(`Mock ${role} turn complete.`, "system");
   }
 
   let show_reset_confirm = $state(false);
@@ -94,16 +120,16 @@
         />
         <Button label="PHOTO" variant="secondary" size="sm" onclick={() => handleAction("Photo")} />
         <Button
-          label="MOCK: FRACTAL"
+          label="MOCK: PROLOGUE"
           variant="secondary"
           size="sm"
-          onclick={() => handleMockMessage("fractal")}
+          onclick={() => mock_generation("fractal")}
         />
         <Button
-          label="MOCK: AI"
+          label="MOCK: AI TURN"
           variant="secondary"
           size="sm"
-          onclick={() => handleMockMessage("ai")}
+          onclick={() => mock_generation("ai")}
         />
         <Button
           label="END STORY"

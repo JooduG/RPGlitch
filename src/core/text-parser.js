@@ -12,15 +12,30 @@ const md = new MarkdownIt({
 });
 /**
  * Extracts <think> blocks from text.
+ * Handles partial tags during streaming.
  * @param {string} text
  * @returns {{ content: string, think: string|null }}
  */
 export function parse_think_block(text) {
   if (!text) return { content: "", think: null };
-  const match = text.match(/<think>([\s\S]*?)<\/think>/i);
-  const think = match ? match[1].trim() : null;
-  const content = text.replace(/<think>[\s\S]*?<\/think>/gi, "");
-  return { content, think };
+
+  // 1. Check for complete block
+  const completeMatch = text.match(/<think>([\s\S]*?)<\/think>/i);
+  if (completeMatch) {
+    const think = completeMatch[1].trim();
+    const content = text.replace(/<think>[\s\S]*?<\/think>/gi, "");
+    return { content, think };
+  }
+
+  // 2. Check for unclosed partial block (streaming)
+  const partialMatch = text.match(/<think>([\s\S]*)$/i);
+  if (partialMatch) {
+    const think = partialMatch[1].trim();
+    // During streaming think, there is no displayable content yet
+    return { content: "", think };
+  }
+
+  return { content: text, think: null };
 }
 /**
  * Strips all <think> blocks and optional trailing newlines.

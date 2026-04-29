@@ -29,6 +29,7 @@ export const Engine = {
       throw e;
     } finally {
       simulationState.complete();
+      app.end_stream();
     }
   },
   generate_prologue: async (story_id) => {
@@ -42,6 +43,7 @@ export const Engine = {
       throw e;
     } finally {
       simulationState.complete();
+      app.end_stream();
     }
   },
   trigger_epilogue: async () => {
@@ -54,6 +56,7 @@ export const Engine = {
       throw e;
     } finally {
       simulationState.complete();
+      app.end_stream();
     }
   },
 };

@@ -11,7 +11,6 @@
   let scroll_ref = $state(null);
 
   // Derived
-  let is_thinking = $derived(simulationState.phase === "generating");
 
   // Auto-scroll logic
   $effect(() => {
@@ -29,6 +28,15 @@
     if (role === "prologue") return "fractal";
     return role;
   }
+
+  // Derived turn state
+  let is_active_turn = $derived(simulationState.phase === "generating" || app.streaming.active);
+  let active_turn_role = $derived(app.streaming.active ? app.streaming.role : simulationState.role);
+  let active_turn_name = $derived.by(() => {
+    if (active_turn_role === "ai") return app.selected_ai?.name;
+    if (active_turn_role === "fractal") return app.selected_fractal?.name;
+    return "";
+  });
 
   let show_delete_confirm = $state(false);
   let delete_target_id = $state(null);
@@ -92,10 +100,15 @@
     />
   {/each}
 
-  {#if app.streaming?.active}
-    <Message text={app.streaming.content} sender="ai" timestamp={new Date()} is_last={true} />
-  {:else if is_thinking}
-    <Message sender={simulationState.role} is_thinking={true} />
+  {#if is_active_turn}
+    <Message
+      text={app.streaming.content}
+      sender={active_turn_role}
+      character_name={active_turn_name}
+      timestamp={new Date()}
+      is_last={true}
+      busy={true}
+    />
   {:else if simulation_log.feed.length === 0}
     <div class="empty-feed-fallback">
       <p>

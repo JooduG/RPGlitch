@@ -201,7 +201,6 @@ describe("temporal_engine", () => {
       const mockEntities = { save: vi.fn() };
       const mockRuntime = { active_ai: { past: [] } };
       const mockApp = { log: vi.fn() };
-      const mockLogArray = []; // Plain array
 
       await temporal_engine.consolidate(mockSession, mockDb, mockEntities, mockRuntime, mockApp);
 

@@ -113,10 +113,9 @@ describe("llm_service - generate", () => {
       silent: false,
       raw: true,
     });
-    expect(app.start_stream).toHaveBeenCalledWith("test-node");
+    expect(app.start_stream).toHaveBeenCalledWith("test-node", "ai");
     expect(app.update_stream).toHaveBeenNthCalledWith(1, "Chunk1");
     expect(app.update_stream).toHaveBeenNthCalledWith(2, "Chunk2");
-    expect(app.end_stream).toHaveBeenCalled();
     expect(onTokenSpy).toHaveBeenCalledTimes(2);
     expect(onTokenSpy).toHaveBeenLastCalledWith("Chunk2");
   });

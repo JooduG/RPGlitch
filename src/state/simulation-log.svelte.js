@@ -18,7 +18,7 @@ export class SimulationLogStore {
   add(entry) {
     // Prevent duplicates if ID exists
     if (entry.id && this.feed.some((m) => m.id === entry.id)) return;
-    this.feed.push(entry);
+    this.feed = [...this.feed, entry];
   }
   /**
    * @param {string} id - Entry ID to remove

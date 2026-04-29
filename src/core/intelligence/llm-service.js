@@ -76,6 +76,7 @@ export const llm_service = {
    * @param {string}  [payload.system]               - The system prompt string.
    * @param {Array<{role: string, content?: string, text?: string, character_name?: string}>} [payload.messages] - Conversation history.
    * @param {string}  [payload.startWith]           - Text to prepend to the model response.
+   * @param {string}  [payload.role]                - Optional role for the generation (e.g., 'ai', 'fractal').
    * @param {string}  [payload.node_id]             - UI node ID for the stream.
    * @param {Object}  [payload.params]              - Generation parameters.
    * @param {Array}   [payload.stopSequences]       - Stop sequences.
@@ -130,7 +131,8 @@ export const llm_service = {
       // 4. Wire streaming to the app layer
       const on_token = (chunk) => {
         if (!options.silent) {
-          if (!app.streaming.active) app.start_stream(payload.node_id || "temp");
+          if (!app.streaming.active)
+            app.start_stream(payload.node_id || "temp", payload.role || "ai");
           app.update_stream(chunk);
         }
         if (options.onToken) options.onToken(chunk);
@@ -142,7 +144,7 @@ export const llm_service = {
         onToken: on_token,
       });
 
-      if (!options.silent) app.end_stream();
+      // Stream is left active so orchestrator can gracefully hand off to permanent log
 
       // 6. Sanitize unless caller opted out with raw: true
       if (typeof result === "string" && !options.raw) {
@@ -150,7 +152,7 @@ export const llm_service = {
       }
       return result;
     } catch (err) {
-      if (!options.silent) app.end_stream();
+      if (!options.silent) app.end_stream(); // Always end stream on error to prevent locking
       if (options.silent) {
         console.warn("[llm_service] Silent generation error (suppressed):", err);
         throw err;

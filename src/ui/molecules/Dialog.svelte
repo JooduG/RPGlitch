@@ -7,8 +7,6 @@
    */
   import Button from "@ui/atoms/Button.svelte";
   import Modal from "./Modal.svelte";
-  import { quartOut } from "svelte/easing";
-  import { fade } from "svelte/transition";
 
   let {
     title = "System Message",

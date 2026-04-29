@@ -8,10 +8,9 @@
   import { app } from "@state/app.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
   import ProfilePicture from "@ui/atoms/ProfilePicture.svelte";
-  let { entity, side = "left", title: raw_title = "" } = $props();
+  let { entity, side = "left" } = $props();
   // Default Fallbacks
   let name = $derived(entity?.name || "Unknown");
-  let title = $derived(raw_title || name);
   let signature_color = $derived(themeStore.get_signature_color(entity));
 </script>
 
@@ -30,9 +29,6 @@
     aria-label="View Profile: {name}"
   >
     <ProfilePicture {entity} />
-    <header class="nameplate">
-      <h3 class="nameplate-text">{title}</h3>
-    </header>
   </div>
 </article>
 
@@ -51,42 +47,5 @@
     position: relative;
     cursor: pointer;
     background: var(--glass-xs);
-  }
-
-  /* Corner Nameplate: Neural Minimalism */
-  .visual-anchor .nameplate {
-    position: absolute;
-    top: var(--spacing-m);
-    z-index: var(--z-index-l);
-    display: inline-block;
-    padding: var(--spacing-xs) var(--spacing-m);
-    background: var(--glass-xs);
-    box-shadow: var(--shadow-l);
-    border-radius: var(--border-radius-s);
-    width: fit-content;
-    max-width: 70%;
-    isolation: isolate;
-  }
-
-  .visual-anchor .nameplate-text {
-    font-family: var(--font-family-body);
-    color: var(--entity-color);
-    font-size: var(--font-size-s);
-    font-weight: var(--font-weight-l);
-    letter-spacing: var(--letter-spacing-s);
-    margin: 0;
-    text-wrap: balance;
-  }
-
-  /* Side positioning logic */
-  .side-left .nameplate {
-    left: var(--spacing-s);
-    right: auto;
-  }
-
-  .side-right .nameplate {
-    right: var(--spacing-s);
-    left: auto;
-    text-align: right;
   }
 </style>
