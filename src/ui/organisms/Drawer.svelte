@@ -110,7 +110,7 @@
 
     <div class="drawer-content no-scrollbar" use:kineticScroll>
       <div class="drawer-grid">
-        <div 
+        <div
           class="drawer-card drawer-card--new glass-s"
           style="--signature-color: var(--color-frisk); --signature-rgb: var(--color-frisk-rgb);"
         >

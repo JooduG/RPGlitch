@@ -45,9 +45,9 @@
 
 <button
   bind:this={element}
-  class="button button-{variant} {cover ? 'button-cover' : ''} {size === 'sm' ? 'button-sm' : ''} {square
-    ? 'button-square'
-    : ''} {fullWidth ? 'button-full' : ''} {className}"
+  class="button button-{variant} {cover ? 'button-cover' : ''} {size === 'sm'
+    ? 'button-sm'
+    : ''} {square ? 'button-square' : ''} {fullWidth ? 'button-full' : ''} {className}"
   {...restProps}
   {onclick}
   use:applyActions={actions}
@@ -202,7 +202,7 @@
   .button-danger:hover:not(:disabled, .disabled) {
     background: var(--color-red);
     color: var(--color-white);
-    box-shadow: 
+    box-shadow:
       0 0 1rem rgb(var(--color-red-rgb) / var(--opacity-s)),
       inset 0 0 0 var(--spacing-px) var(--color-red);
   }
@@ -235,5 +235,3 @@
     border-right: var(--spacing-px) solid var(--glass-s);
   }
 </style>
-
-

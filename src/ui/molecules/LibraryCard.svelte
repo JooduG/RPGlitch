@@ -56,7 +56,6 @@
     </h5>
     <div class="signature-bar"></div>
   </div>
-
 </div>
 
 <style>

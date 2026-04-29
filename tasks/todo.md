@@ -65,12 +65,12 @@
 
 ## 🧠 Skill Log
 
-| Timestamp (ISO 8601)      | Task                                                       | Skill Invoked                                | Outcome |
-| ------------------------- | ---------------------------------------------------------- | -------------------------------------------- | ------- |
-| 2026-04-29T23:03:00+02:00 | Final UI Polishing ([050]) — Create New card, danger/invisible borders, Nordic tokens | `css`, `frontend-ui-engineering` | ✅ Done |
-| 2026-04-29T19:45:00Z      | UI Refactoring & CSS Cleanup ([049])       | `css`, `frontend-ui-engineering`            | ✅ Done |
-| 2026-04-25T21:25:00Z      | Skill Rewiring & Script Realignment ([046])                | `directives`, `using-agent-skills`, `warden` | ✅ Done |
-| 2026-04-25T17:18:00+02:00 | Apply custom scrollbar to `.left-panel` for UI consistency | `css`                                        | ✅ Done |
+| Timestamp (ISO 8601)      | Task                                                                                  | Skill Invoked                                | Outcome |
+| ------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------- | ------- |
+| 2026-04-29T23:03:00+02:00 | Final UI Polishing ([050]) — Create New card, danger/invisible borders, Nordic tokens | `css`, `frontend-ui-engineering`             | ✅ Done |
+| 2026-04-29T19:45:00Z      | UI Refactoring & CSS Cleanup ([049])                                                  | `css`, `frontend-ui-engineering`             | ✅ Done |
+| 2026-04-25T21:25:00Z      | Skill Rewiring & Script Realignment ([046])                                           | `directives`, `using-agent-skills`, `warden` | ✅ Done |
+| 2026-04-25T17:18:00+02:00 | Apply custom scrollbar to `.left-panel` for UI consistency                            | `css`                                        | ✅ Done |
 
 ## 🧹 Backlog (Automated)
 

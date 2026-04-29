@@ -7,9 +7,9 @@
   import Button from "@ui/atoms/Button.svelte";
   import { themeStore } from "@theme/palette.svelte.js";
 
-  /** @type {{ 
-   *    story: Object, 
-   *    onclick?: (e: MouseEvent) => void 
+  /** @type {{
+   *    story: Object,
+   *    onclick?: (e: MouseEvent) => void
    *  }} */
   let { story, onclick = () => {} } = $props();
 
@@ -19,24 +19,23 @@
    */
   function format_timestamp(ts) {
     if (!ts) return "---";
-    return new Date(ts).toLocaleString("sv-SE", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).replace(",", "");
+    return new Date(ts)
+      .toLocaleString("sv-SE", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+      .replace(",", "");
   }
 
   let signature_color = $derived(
-    themeStore.get_signature_color({ signature_color: story.signature_color })
+    themeStore.get_signature_color({ signature_color: story.signature_color }),
   );
 </script>
 
-<div
-  class="story-item"
-  style="--signature-color: {signature_color}"
->
+<div class="story-item" style="--signature-color: {signature_color}">
   <Button variant="invisible" cover={true} {onclick} />
 
   <div class="story-info">
@@ -92,7 +91,9 @@
     pointer-events: none;
     opacity: 0.15;
     mask-image: linear-gradient(to left, black 0%, black 20%, transparent 100%);
-    transition: opacity var(--motion-m), width var(--motion-s);
+    transition:
+      opacity var(--motion-m),
+      width var(--motion-s);
   }
 
   .story-backdrop.has-image {

@@ -154,7 +154,9 @@
     <div class="spectrum-grid">
       {#each SPECTRUM_COLORS as [name, hex] (name)}
         <Button
-          className="swatch {char.signature_color === hex || char.signature_color === name ? 'active' : ''}"
+          className="swatch {char.signature_color === hex || char.signature_color === name
+            ? 'active'
+            : ''}"
           style="background-color: {PALETTE_VARS[hex] || hex}; --swatch-color: {PALETTE_VARS[hex] ||
             hex};"
           aria-label={name.charAt(0).toUpperCase() + name.slice(1)}

@@ -178,7 +178,13 @@
               ></path>
             </svg>
           </Button>
-          <Button variant="invisible" size="sm" square={true} aria-label="Copy" onclick={handle_copy}>
+          <Button
+            variant="invisible"
+            size="sm"
+            square={true}
+            aria-label="Copy"
+            onclick={handle_copy}
+          >
             <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor"></rect>
               <path
@@ -187,7 +193,13 @@
               ></path>
             </svg>
           </Button>
-          <Button variant="invisible" size="sm" square={true} aria-label="Delete" onclick={on_delete}>
+          <Button
+            variant="invisible"
+            size="sm"
+            square={true}
+            aria-label="Delete"
+            onclick={on_delete}
+          >
             <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
               <polyline points="3 6 5 6 21 6" stroke="currentColor"></polyline>
               <path

@@ -44,7 +44,7 @@
   let signature_color = $derived(
     entity
       ? themeStore.get_signature_color(entity)
-      : "var(--signature-color, var(--color-gunmetal))"
+      : "var(--signature-color, var(--color-gunmetal))",
   );
   let initials = $derived(placeholderChar || calculate_initials(name));
 
