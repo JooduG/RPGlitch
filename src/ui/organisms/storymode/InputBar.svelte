@@ -127,10 +127,4 @@
     fill: currentcolor;
     transition: transform var(--motion-l);
   }
-
-  /* Ensure the send button respects the disabled state visually if parent is disabled */
-  :global(.input-bar-pill.is-disabled) :global(.send-button) {
-    opacity: var(--opacity-s);
-    pointer-events: none;
-  }
 </style>
