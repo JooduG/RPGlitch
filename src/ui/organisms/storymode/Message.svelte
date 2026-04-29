@@ -348,6 +348,7 @@
 
   .message-bubble.fractal-bubble .message-content {
     text-align: center;
+    text-wrap: balance;
   }
 
   /* --- HEADER LOGIC --- */
@@ -450,7 +451,8 @@
     font-family: var(--font-family-body);
     color: var(--color-white);
     text-shadow: 0 1px 2px rgb(var(--color-black-rgb) / 60%);
-    text-wrap: balance;
+    text-align: left;
+    text-wrap: pretty;
   }
 
   /* Bold & Bright Dialogue */
