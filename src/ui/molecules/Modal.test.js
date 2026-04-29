@@ -35,7 +35,6 @@ if (!Element.prototype.animate) {
 }
 import { render, fireEvent, cleanup } from "@testing-library/svelte";
 import { test, expect, vi, describe, afterEach } from "vitest";
-import Modal from "./Modal.svelte";
 import ModalTestWrapper from "./ModalTestWrapper.svelte";
 describe("Modal.svelte", () => {
   afterEach(() => {
