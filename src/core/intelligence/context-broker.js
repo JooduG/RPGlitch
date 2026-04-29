@@ -256,16 +256,25 @@ export const context_broker = {
    * Relevance-based sorting for raw data points.
    */
   lexical_filter(data_points, objective) {
-    if (!objective) return data_points;
+    if (!objective || !Array.isArray(data_points)) return data_points;
+
     const keywords = objective
       .toLowerCase()
       .split(/\W+/)
       .filter((w) => w.length > 3);
-    const get_text = (f) => (f.text || "").toLowerCase();
-    return [...data_points].sort((a, b) => {
-      const a_hit = keywords.some((k) => get_text(a).includes(k));
-      const b_hit = keywords.some((k) => get_text(b).includes(k));
-      return (b_hit ? 1 : 0) - (a_hit ? 1 : 0);
-    });
+
+    if (keywords.length === 0) return data_points;
+
+    // Schwartzian transform: decorate-sort-undecorate
+    // This caches the lowercase text and the hit status once per data point,
+    // avoiding repeated O(N) operations during the sort comparisons.
+    return data_points
+      .map((dp) => {
+        const text = (dp?.text || "").toLowerCase();
+        const hit = keywords.some((k) => text.includes(k));
+        return { dp, hit: hit ? 1 : 0 };
+      })
+      .sort((a, b) => b.hit - a.hit)
+      .map((d) => d.dp);
   },
 };
