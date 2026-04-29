@@ -11,6 +11,25 @@
   import { DROPDOWN_MAX_HEIGHT } from "@core/constants.js";
 
   let { char = $bindable(), is_editing } = $props();
+
+  // [CRITICAL FIX] Synchronously ensure the voice object exists
+  const ensure_voice = () => {
+    if (!char.voice) {
+      char.voice = {
+        uri: "",
+        rate: 1.0,
+        pitch: 1.0,
+      };
+    } else {
+      char.voice.uri ??= "";
+      char.voice.rate ??= 1.0;
+      char.voice.pitch ??= 1.0;
+    }
+  };
+
+  ensure_voice();
+  $effect(ensure_voice);
+
   let show_voice_dropdown = $state(false);
   let row_el = $state();
   let coords = $state({
