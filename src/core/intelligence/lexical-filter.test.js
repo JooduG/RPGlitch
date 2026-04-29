@@ -41,7 +41,7 @@ describe("context_broker.lexical_filter", () => {
     // "else" is length 4, so it counts as a keyword
     const result = context_broker.lexical_filter(data_points, objective);
     // Since {something: 'else'} doesn't have 'text', it won't match in current implementation
-    expect(result).toEqual(expect.arrayContaining(data_points));
+    expect(result).toEqual(data_points);
   });
 
   it("should handle non-array data_points gracefully", () => {
