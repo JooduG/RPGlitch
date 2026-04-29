@@ -22,7 +22,7 @@
       <div aria-label="Shuffle All">
         <Button
           className="capsule-flank icon-glow"
-          variant="ghost"
+          variant="invisible"
           onclick={() => storyboard.shuffle()}
           actions={[shimmy]}
         >
@@ -39,7 +39,7 @@
     {#snippet center()}
       <Button
         className="capsule-action pop {ready_to_begin ? 'is-ready' : ''}"
-        variant="ghost"
+        variant="invisible"
         disabled={!ready_to_begin}
         onclick={storyboard.begin}
         actions={[]}
@@ -54,7 +54,7 @@
       <div aria-label="Settings">
         <Button
           className="capsule-flank icon-glow"
-          variant="ghost"
+          variant="invisible"
           onclick={app.toggle_control_panel}
           data-testid="settings-button"
           actions={[spin]}

@@ -107,21 +107,33 @@
               <div class="weight-control">
                 <div class="weight-stack">
                   {#if is_editing}
-                    <button onclick={() => update_weight(i, 1)} aria-label="Increase weight">
+                    <Button
+                      variant="invisible"
+                      size="sm"
+                      square={true}
+                      onclick={() => update_weight(i, 1)}
+                      aria-label="Increase weight"
+                    >
                       <svg viewBox="0 0 24 24" class="icon-xxs"
                         ><path d="M7 14l5-5 5 5H7z" fill="currentColor" /></svg
                       >
-                    </button>
+                    </Button>
                   {/if}
                   <span class="weight-val"
                     >{typeof item === "object" ? (item.base_weight ?? 5) : 5}</span
                   >
                   {#if is_editing}
-                    <button onclick={() => update_weight(i, -1)} aria-label="Decrease weight">
+                    <Button
+                      variant="invisible"
+                      size="sm"
+                      square={true}
+                      onclick={() => update_weight(i, -1)}
+                      aria-label="Decrease weight"
+                    >
                       <svg viewBox="0 0 24 24" class="icon-xxs"
                         ><path d="M7 10l5 5 5-5H7z" fill="currentColor" /></svg
                       >
-                    </button>
+                    </Button>
                   {/if}
                 </div>
               </div>
@@ -146,7 +158,7 @@
           {#snippet actions()}
             {#if is_editing}
               <Button
-                variant="ghost"
+                variant="invisible"
                 size="sm"
                 square={true}
                 aria-label="Remove {unit_label}"
@@ -245,21 +257,7 @@
     margin: -1px 0;
   }
 
-  .weight-stack button {
-    background: transparent;
-    border: none;
-    color: var(--color-white);
-    padding: 0;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0.5;
-    transition: all var(--motion-m);
-    filter: drop-shadow(0 1px 2px rgb(var(--color-black-rgb) / 80%));
-  }
-
-  .weight-stack button:hover {
+  .weight-stack :global(.button:hover) {
     opacity: 1;
     transform: scale(1.3);
   }

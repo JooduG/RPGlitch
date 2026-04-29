@@ -64,7 +64,7 @@ export const SYSTEM_PROMPTS = {
 <PROTOCOLS>${prompt_builder.render_protocols(protocolSelection)}</PROTOCOLS>
 <TASK_INSTRUCTION>
 You are ${aiNameSafe}. Respond to ${userNameSafe} in character.
-Maintain immersion. Use quotation marks for "dialogue" and asterisks for *actions*.
+Maintain immersion. Write actions and descriptions as standard prose without wrapping them in asterisks. Use quotation marks for "dialogue". Use bold text for emphasis. DO NOT wrap your entire response or every paragraph in asterisks.
 CRITICAL: When your <think> block ends, your narrative output MUST be written exclusively in ENGLISH.
 </TASK_INSTRUCTION>
 <INPUT_COMMAND>${escapeXml(input?.trim() || "The scene is active. Push the conversation forward.")}</INPUT_COMMAND>

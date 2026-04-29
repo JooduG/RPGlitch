@@ -153,9 +153,8 @@
   <div class="group">
     <div class="spectrum-grid">
       {#each SPECTRUM_COLORS as [name, hex] (name)}
-        <button
-          class="swatch"
-          class:active={char.signature_color === hex || char.signature_color === name}
+        <Button
+          className="swatch {char.signature_color === hex || char.signature_color === name ? 'active' : ''}"
           style="background-color: {PALETTE_VARS[hex] || hex}; --swatch-color: {PALETTE_VARS[hex] ||
             hex};"
           aria-label={name.charAt(0).toUpperCase() + name.slice(1)}
@@ -163,7 +162,8 @@
             char.signature_color = name;
           }}
           disabled={!is_editing}
-        ></button>
+          variant="invisible"
+        ></Button>
       {/each}
     </div>
   </div>
@@ -205,7 +205,7 @@
         {#if is_editing}
           <div class="prompt-actions">
             <Button
-              variant="ghost"
+              variant="invisible"
               size="sm"
               square={true}
               aria-label={has_prompt_text ? "Enhance" : "Fetch"}
@@ -229,7 +229,7 @@
             </Button>
 
             <Button
-              variant="ghost"
+              variant="invisible"
               size="sm"
               square={true}
               aria-label="Generate Image"
@@ -278,23 +278,26 @@
     padding: var(--spacing-xs) 0;
   }
 
-  .swatch {
+  .spectrum-grid :global(.button.swatch) {
     width: 100%;
     aspect-ratio: 1;
     border: 0;
+    padding: 0;
+    min-height: 0;
     border-radius: var(--border-radius-m);
     cursor: pointer;
     transition: all var(--motion-l) var(--motion-elastic);
     box-shadow: var(--shadow-s);
   }
 
-  .swatch:hover:not(:disabled) {
+  .spectrum-grid :global(.button.swatch:hover:not(:disabled)) {
     transform: scale(1.1);
     z-index: var(--z-index-m);
     box-shadow: var(--shadow-m);
+    background-color: var(--swatch-color); /* Ensure bg-color persists */
   }
 
-  .swatch.active {
+  .spectrum-grid :global(.button.swatch.active) {
     box-shadow: 0 0 16px var(--swatch-color);
     transform: scale(1.15);
     z-index: var(--z-index-m);
@@ -302,7 +305,7 @@
     border-color: rgb(var(--color-white-rgb) / var(--opacity-s));
   }
 
-  .swatch:disabled {
+  .spectrum-grid :global(.button.swatch:disabled) {
     cursor: default;
     opacity: var(--opacity-l);
   }

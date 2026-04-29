@@ -15,8 +15,15 @@
 - [x] Security Protocol (Warden/DOMPurify)
 - [x] Round Stability & Hygiene (Patch [037])
 - [x] InputBar Layout & Control Panel Wiring ([039])
-- [ ] Release Candidate Stability Audit ([043])
 - [x] Documentation Sync & Infrastructure Hygiene ([044])
+- [ ] Release Candidate Stability Audit ([043])
+- [x] Final UI Polishing & Aesthetics ([050])
+  - [x] Refine `Button` primary variant ("pure" style, borderless)
+  - [x] Update Nordic tokens (off-white → `--color-white: #f7f9fc` Nordic Ivory)
+  - [x] Migrate hard-coded `1px` borders to `var(--spacing-px)` token
+  - [x] Polish `Drawer` "Create New" card (question mark avatar, no tooltip, no glow, glass-s surface)
+  - [x] Fix `LibraryCard` signature bar bottom radius clipping
+  - [x] Remove border from danger/invisible button default state
 
 ---
 
@@ -37,6 +44,8 @@
 
 ## 🏁 Completed Missions (Recent)
 
+- **[049]** UI Refactoring & CSS Cleanup [DONE]
+- **[048]** StoryCard Refinement & Control Panel Mocks [DONE]
 - **[047]** Unified Dialog System & Modal Standardization
 - **[046]** Skill Rewiring & Script Realignment (Complete)
 - **[045]** UI Stabilization & Alignment
@@ -58,6 +67,8 @@
 
 | Timestamp (ISO 8601)      | Task                                                       | Skill Invoked                                | Outcome |
 | ------------------------- | ---------------------------------------------------------- | -------------------------------------------- | ------- |
+| 2026-04-29T23:03:00+02:00 | Final UI Polishing ([050]) — Create New card, danger/invisible borders, Nordic tokens | `css`, `frontend-ui-engineering` | ✅ Done |
+| 2026-04-29T19:45:00Z      | UI Refactoring & CSS Cleanup ([049])       | `css`, `frontend-ui-engineering`            | ✅ Done |
 | 2026-04-25T21:25:00Z      | Skill Rewiring & Script Realignment ([046])                | `directives`, `using-agent-skills`, `warden` | ✅ Done |
 | 2026-04-25T17:18:00+02:00 | Apply custom scrollbar to `.left-panel` for UI consistency | `css`                                        | ✅ Done |
 

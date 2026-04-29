@@ -10,6 +10,7 @@
   import { simulationState } from "@state/status.svelte.js";
   import GlassPill from "@ui/atoms/GlassPill.svelte";
   import { spin, stab } from "@ui/utils/actions/kinetic.js";
+  import Button from "@ui/atoms/Button.svelte";
   let { disabled = false } = $props();
   // [R5] Auto-disable when engine is busy
   let is_locked = $derived(disabled || simulationState.phase !== "idle");
@@ -45,19 +46,21 @@
 
 <GlassPill isFocused={is_focused} className="input-bar-pill {is_locked ? 'is-disabled' : ''}">
   {#snippet left()}
-    <button
-      class="icon-button settings-button"
+    <Button
+      variant="invisible"
+      size="sm"
+      square={true}
+      className="settings-button"
       onclick={() => app.toggle_control_panel()}
       aria-label="Settings"
-      type="button"
-      use:spin
+      actions={[spin]}
     >
       <svg class="icon" viewBox="0 0 24 24">
         <path
           d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"
         />
       </svg>
-    </button>
+    </Button>
   {/snippet}
 
   <textarea
@@ -74,18 +77,20 @@
   ></textarea>
 
   {#snippet right()}
-    <button
-      class="icon-button send-button"
+    <Button
+      variant="invisible"
+      size="sm"
+      square={true}
+      className="send-button"
       onclick={handle_send}
       disabled={!value.trim() || is_locked}
       aria-label="Send Message"
-      type="button"
-      use:stab
+      actions={[stab]}
     >
       <svg class="icon" viewBox="0 0 24 24">
         <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
       </svg>
-    </button>
+    </Button>
   {/snippet}
 </GlassPill>
 
@@ -95,8 +100,7 @@
     margin: var(--spacing-l) auto;
   }
 
-  :global(.input-bar-pill.is-disabled) .input-area,
-  :global(.input-bar-pill.is-disabled) .send-button {
+  :global(.input-bar-pill.is-disabled) .input-area {
     opacity: var(--opacity-m);
     pointer-events: none;
   }
@@ -116,38 +120,11 @@
     overflow-y: hidden;
   }
 
-  .icon-button {
-    background: transparent;
-    border: none;
-    color: var(--font-color-s);
-    cursor: pointer;
-    padding: var(--spacing-s);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all var(--motion-l);
-    border-radius: var(--border-radius-m);
-  }
-
-  .icon-button .icon {
+  /* Sizing for the icons within the buttons */
+  :global(.button .icon) {
     width: 1.25rem;
     height: 1.25rem;
     fill: currentcolor;
-  }
-
-  /* 1. Icon Button States */
-  .icon-button:disabled {
-    opacity: var(--opacity-xxs);
-  }
-
-  .icon-button:hover:not(:disabled) {
-    color: var(--color-white);
-    background: transparent;
-  }
-
-  /* 2. Specific Overrides */
-  .send-button:not(:disabled):hover {
-    color: var(--color-white);
-    background: transparent;
+    transition: transform var(--motion-l);
   }
 </style>

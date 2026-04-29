@@ -5,6 +5,7 @@
    * Manages character voice selection and parameters.
    */
   import { Audio } from "@media/audio-engine.svelte.js";
+  import Button from "@ui/atoms/Button.svelte";
   import Slider from "@ui/atoms/Slider.svelte";
   import Wing from "./Wing.svelte";
   import { portal } from "@ui/utils/actions/portal.js";
@@ -111,22 +112,22 @@
     <div class="group">
       <div class="voice-control-row" bind:this={row_el}>
         <div class="dropdown">
-          <button
-            class="voice-button no-tooltip"
-            type="button"
+          <Button
+            className="voice-button no-tooltip"
             disabled={!is_editing}
             onclick={() => (show_voice_dropdown = !show_voice_dropdown)}
             aria-label="Select Voice"
             aria-haspopup="listbox"
             aria-expanded={show_voice_dropdown}
             aria-controls="voice-listbox"
+            variant="invisible"
           >
             <span class="voice-name-truncate">
               {format_voice_name(
                 Audio.voice.voices.find((v) => v.uri === char.voice.uri)?.name || "Select Voice",
               )}
             </span>
-          </button>
+          </Button>
         </div>
         <div
           id="voice-listbox"
@@ -138,30 +139,30 @@
           style={dropdown_style}
         >
           {#each Audio.voice.voices as voice (voice.uri)}
-            <button
+            <Button
               role="option"
               aria-selected={char.voice.uri === voice.uri}
-              class="voice-option"
-              class:active={char.voice.uri === voice.uri}
+              className="voice-option {char.voice.uri === voice.uri ? 'active' : ''}"
               onclick={() => {
                 if (is_editing) char.voice.uri = voice.uri;
                 show_voice_dropdown = false;
               }}
+              variant="invisible"
             >
               <span class="voice-name">{format_voice_name(voice.name)}</span>
               <span class="region-pill">{voice.region}</span>
-            </button>
+            </Button>
           {/each}
         </div>
-        <button
-          class="preview-button"
-          type="button"
+        <Button
+          className="preview-button"
           aria-label="Preview Voice"
           disabled={!selected_voice}
           onclick={() => Audio.voice.preview(char.voice.uri, char.voice.rate, char.voice.pitch)}
+          variant="invisible"
         >
           🔊
-        </button>
+        </Button>
       </div>
     </div>
 
@@ -208,67 +209,55 @@
     min-width: 0;
   }
 
-  .voice-button {
+  .voice-control-row :global(.button.voice-button) {
     width: 100%;
     height: 2.5rem;
     padding: 0 var(--spacing-m);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--font-color-m);
-    font-size: var(--font-size-s);
-    cursor: pointer;
-    overflow: visible; /* Prevent tooltip clipping */
     background: var(--glass-xs);
     border: none;
     border-radius: var(--border-radius-m);
     transition: all var(--motion-l) var(--motion-elastic);
   }
 
-  .voice-button:hover:not(:disabled) {
+  .voice-control-row :global(.button.voice-button:hover:not(:disabled)) {
     background: var(--glass-s);
     filter: brightness(1.2);
   }
 
-  .voice-button:focus {
-    outline: none;
-  }
-
-  .voice-button:active:not(:disabled) {
-    transform: scale(var(--motion-click));
-  }
-
-  .voice-button:disabled {
-    opacity: var(--opacity-m);
-  }
-
-  .preview-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .voice-control-row :global(.button.preview-button) {
     aspect-ratio: 1;
     height: 2.5rem;
     width: 2.5rem;
-    color: var(--font-color-m);
-    cursor: pointer;
-    font-size: var(--font-size-m);
+    padding: 0;
     background: var(--glass-xs);
     border: none;
     border-radius: var(--border-radius-m);
     transition: all var(--motion-l) var(--motion-elastic);
+    min-height: 0;
   }
 
-  .preview-button:hover:not(:disabled) {
+  .voice-control-row :global(.button.preview-button:hover:not(:disabled)) {
     background: var(--glass-s);
     filter: brightness(1.2);
   }
 
-  .preview-button:active:not(:disabled) {
-    transform: scale(var(--motion-click));
+  .dropdown-content :global(.button.voice-option) {
+    width: 100%;
+    padding: var(--spacing-xs) var(--spacing-s);
+    background: transparent;
+    border: none;
+    text-align: left;
+    justify-content: flex-start;
+    border-radius: 0;
+    min-height: 0;
   }
 
-  .preview-button:disabled {
-    opacity: var(--opacity-s);
+  .dropdown-content :global(.button.voice-option:hover) {
+    background: var(--glass-xs);
+  }
+
+  .dropdown-content :global(.button.voice-option.active) {
+    background: var(--glass-xs);
   }
 
   .dropdown-content {
@@ -307,26 +296,7 @@
     transform: translateY(calc(-1 * var(--spacing-xs)));
   }
 
-  .voice-option {
-    width: 100%;
-    padding: var(--spacing-xs) var(--spacing-s);
-    background: transparent;
-    border: none;
-    color: var(--font-color-m);
-    text-align: left;
-    font-size: var(--font-size-s);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-s);
-    transition: all var(--motion-l);
-  }
-
-  .voice-option:hover {
-    background: var(--glass-xs);
-  }
-
-  .voice-option .region-pill {
+  :global(.button.voice-option .region-pill) {
     font-size: var(--font-size-xxs);
     text-transform: uppercase;
     font-weight: var(--font-weight-bold);
@@ -335,15 +305,11 @@
   }
 
   .voice-name-truncate,
-  .voice-option .voice-name {
+  :global(.button.voice-option .voice-name) {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     flex: 1;
-  }
-
-  .voice-option.active {
-    background: var(--glass-xs);
   }
 
   .sliders {

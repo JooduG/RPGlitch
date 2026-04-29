@@ -5,6 +5,7 @@
    * Dynamically renders and binds to all entity dynamics (Somatic or Environmental).
    */
   import DataBox from "@ui/atoms/DataBox.svelte";
+  import Button from "@ui/atoms/Button.svelte";
   import Wing from "./Wing.svelte";
 
   let { char = $bindable(), is_editing } = $props();
@@ -75,8 +76,11 @@
                 max="100"
               />
               <div class="step-controls">
-                <button
-                  class="step-up no-tooltip"
+                <Button
+                  variant="invisible"
+                  size="sm"
+                  square={true}
+                  className="step-up no-tooltip"
                   onclick={() =>
                     (char[dynamic.source][dynamic.key] = Math.min(
                       100,
@@ -87,9 +91,12 @@
                   <svg viewBox="0 0 24 24" class="icon-xxs"
                     ><path d="M7 14l5-5 5 5H7z" fill="currentColor" /></svg
                   >
-                </button>
-                <button
-                  class="step-down no-tooltip"
+                </Button>
+                <Button
+                  variant="invisible"
+                  size="sm"
+                  square={true}
+                  className="step-down no-tooltip"
                   onclick={() =>
                     (char[dynamic.source][dynamic.key] = Math.max(
                       0,
@@ -100,7 +107,7 @@
                   <svg viewBox="0 0 24 24" class="icon-xxs"
                     ><path d="M7 10l5 5 5-5H7z" fill="currentColor" /></svg
                   >
-                </button>
+                </Button>
               </div>
             {:else}
               <span class="value-display">
@@ -247,7 +254,7 @@
     opacity: 1;
   }
 
-  .step-controls button {
+  .step-controls :global(.button) {
     background: transparent;
     border: none;
     color: var(--color-cyan);
@@ -260,7 +267,7 @@
     border-radius: var(--border-radius-s);
   }
 
-  .step-controls button:hover {
+  .step-controls :global(.button:hover) {
     color: var(--color-white);
   }
 

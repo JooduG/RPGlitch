@@ -5,6 +5,7 @@
    * Handles message-level actions (Edit, Delete, Reroll) in a context-aware vertical pill.
    */
   import GlassPill from "@ui/atoms/GlassPill.svelte";
+  import Button from "@ui/atoms/Button.svelte";
 
   /**
    * @typedef {Object} Props
@@ -39,19 +40,23 @@
   <GlassPill orientation="vertical">
     <div class="toolbar-actions">
       {#if is_ai && isLast}
-        <button
-          class="toolbar-btn continue"
-          type="button"
+        <Button
+          variant="invisible"
+          size="sm"
+          square={true}
+          className="toolbar-btn continue"
           aria-label="Continue"
           onclick={(e) => onContinue?.(e)}
         >
           <svg viewBox="0 0 24 24" class="icon-m"
             ><polygon points="5 3 19 12 5 21 5 3"></polygon></svg
           >
-        </button>
-        <button
-          class="toolbar-btn reroll"
-          type="button"
+        </Button>
+        <Button
+          variant="invisible"
+          size="sm"
+          square={true}
+          className="toolbar-btn reroll"
           aria-label="Reroll"
           onclick={(e) => onRegenerate?.(e)}
         >
@@ -59,19 +64,28 @@
             <polyline points="23 4 23 10 17 10"></polyline>
             <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
           </svg>
-        </button>
+        </Button>
       {/if}
 
-      <button class="toolbar-btn edit" type="button" aria-label="Edit" onclick={(e) => onEdit?.(e)}>
+      <Button
+        variant="invisible"
+        size="sm"
+        square={true}
+        className="toolbar-btn edit"
+        aria-label="Edit"
+        onclick={(e) => onEdit?.(e)}
+      >
         <svg viewBox="0 0 24 24" class="icon-m">
           <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
         </svg>
-      </button>
+      </Button>
 
-      <button
-        class="toolbar-btn copy"
-        type="button"
+      <Button
+        variant="invisible"
+        size="sm"
+        square={true}
+        className="toolbar-btn copy"
         aria-label="Copy"
         onclick={async () => {
           try {
@@ -85,11 +99,13 @@
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
           <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
         </svg>
-      </button>
+      </Button>
 
-      <button
-        class="toolbar-btn delete"
-        type="button"
+      <Button
+        variant="invisible"
+        size="sm"
+        square={true}
+        className="toolbar-btn delete"
         aria-label="Delete"
         onclick={(e) => onDelete?.(e)}
       >
@@ -98,7 +114,7 @@
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
           ></path>
         </svg>
-      </button>
+      </Button>
     </div>
 
     <div class="toolbar-footer">
@@ -144,40 +160,36 @@
     gap: var(--spacing-xxs);
   }
 
-  .toolbar-btn {
+  :global(.toolbar-btn.button) {
     background: transparent;
     border: none;
     color: var(--font-color-s);
-    cursor: pointer;
-    padding: var(--spacing-xs);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 0; /* Let Button sm/square handle dimensions */
     transition: all var(--motion-l);
   }
 
-  .toolbar-btn:hover {
+  :global(.toolbar-btn.button:hover) {
     background: transparent;
     transform: scale(1.1);
   }
 
-  .toolbar-btn.continue:hover {
+  :global(.toolbar-btn.continue:hover) {
     color: var(--color-emerald);
   }
 
-  .toolbar-btn.reroll:hover {
+  :global(.toolbar-btn.reroll:hover) {
     color: var(--color-pink);
   }
 
-  .toolbar-btn.edit:hover {
+  :global(.toolbar-btn.edit:hover) {
     color: var(--color-amber);
   }
 
-  .toolbar-btn.copy:hover {
+  :global(.toolbar-btn.copy:hover) {
     color: var(--color-cyan);
   }
 
-  .toolbar-btn.delete:hover {
+  :global(.toolbar-btn.delete:hover) {
     color: var(--color-red);
   }
 
