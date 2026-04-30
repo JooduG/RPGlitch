@@ -276,10 +276,10 @@ export const temporal_engine = {
             // Telemetry
             await session_driver.log_system_entry(
               `Memory Weaved: ${resonance.text.substring(0, 50)}...`,
-              "telemetry",
+              "system",
               {
                 type: "MEMORY_FORMATION",
-                resonance,
+                vectors: { past: [resonance], future: [] },
                 turns_count: slice.length,
               },
             );
