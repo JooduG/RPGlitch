@@ -146,7 +146,7 @@ ${prompt_builder.render_protocols("HYGIENE, AFFIRMATIVE, PRESENT")}
 Entity: ${entityNameSafe}
 </CONTEXT>
 <INPUT_HISTORY>
-${JSON.stringify(history, null, 2)}
+${escapeXml(JSON.stringify(history, null, 2))}
 </INPUT_HISTORY>
 <TASK_INSTRUCTION>
 Distil the input history into a structured Vector object.
@@ -164,13 +164,13 @@ Output strict JSON only: { "summary": "...", "vector_tags": ["...", "..."] }
     return `
 <SYSTEM role="${roleSafe}" enhancing="${labelSafe}">
 <INSTRUCTIONS>
-${directive}
+${escapeXml(directive)}
 </INSTRUCTIONS>
 <PROTOCOLS>
 ${prompt_builder.render_protocols("HYGIENE, AFFIRMATIVE, IMMERSION, SUPPRESS_TECHNICAL_DIRECTIVES")}
 </PROTOCOLS>
 <INPUT_CONTENT>
-${content}
+${escapeXml(content)}
 </INPUT_CONTENT>
 </SYSTEM>`.trim();
   },
