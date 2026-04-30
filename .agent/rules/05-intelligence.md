@@ -86,7 +86,7 @@ All complexity routing (Level 1/2/3 → Role → Workflow) is defined there. `GE
 To maintain the technical quality trail and ensure historical continuity, all complex missions (Level 2 & Level 3) MUST have a dedicated blueprint file.
 
 - **Location**: `tasks/plan.md`
-- **Archival**: Upon mission completion (`[DONE]`), move the blueprint file content to a persistent archive or the `walkthrough.md`.
+- **Archival**: To comply with strict zero-trust hygiene (Rule 06), the blueprint file MUST be persisted to Cold Storage (see §7.3.2) and then deleted from the local workspace upon mission completion ([DONE]). Do not archive it to walkthrough.md.
 
 ---
 
