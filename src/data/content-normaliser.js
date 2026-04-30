@@ -1,6 +1,6 @@
 /**
  * src/data/content-normaliser.js
- * ðŸ§ª CONTENT NORMALISATION LOGIC
+ * 🧪 CONTENT NORMALISATION LOGIC
  * Enforces the strict "Twin-Cylinder" data structure across the app.
  * ZERO BACKWARDS COMPATIBILITY.
  */
@@ -10,7 +10,7 @@ import { pickRandom } from "../ui/utils/helpers.js";
 const sanitize_html = Security.sanitize;
 export const STORAGE_VERSION = 3;
 /**
- * ðŸ£ ENTITY TEMPLATES
+ * 🐣 ENTITY TEMPLATES
  * Defines the initial structure for new entities born in the Library.
  * Fields are empty strings so that UI 'placeholder' attributes can work correctly.
  */
@@ -168,7 +168,7 @@ export function coerce_temporal_array(val) {
     .filter((v) => v.length > 0);
 }
 /**
- * ðŸ­ THE FACTORY
+ * 🏘️ THE FACTORY
  * Creates a brand new, fully normalized entity with a RANDOM signature color.
  */
 export const create_new = (type = "character", overrides = {}) => {

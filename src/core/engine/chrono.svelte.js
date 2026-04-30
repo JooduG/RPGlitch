@@ -1,4 +1,4 @@
-// â³ CHRONO: The Heartbeat of Time
+// ⏳ CHRONO: The Heartbeat of Time
 // Manages the strict turn-based progression of the simulation.
 import { Shield } from "../security.js";
 import { app } from "../../state/app.svelte.js";
@@ -41,7 +41,7 @@ export class ChronoStore {
           runtime.character,
           runtime.active_fractal || {},
         );
-        // ðŸ›‘ CAUSALITY CHECK
+        // 🛑 CAUSALITY CHECK
         if (
           shieldContext &&
           shieldContext.causality &&
@@ -71,7 +71,7 @@ export class ChronoStore {
       await runtime.save(runtime.round);
     } catch (error) {
       app.log(`Time Fracture: ${error.message}`, "error");
-      console.error("[Chrono] ðŸ’¥ Time Fracture:", error);
+      console.error("[Chrono] 💥 Time Fracture:", error);
       // Push error to feed so user knows what happened
       simulation_log.add({
         id: `err-${Date.now()}`,

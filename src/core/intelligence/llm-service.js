@@ -2,7 +2,7 @@
  * @file src/core/intelligence/llm-service.js
  *
  * €
- * ðŸ”Œ LLM SERVICE    The Transport Layer
+ * 🔌 LLM SERVICE    The Transport Layer
  * €
  *
  * PURPOSE

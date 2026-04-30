@@ -2,7 +2,7 @@
  * @file src/core/intelligence/context-broker.js
  *
  * €
- * ðŸ”Œ CONTEXT BROKER    The State Adapter & Document Assembler
+ * 🔌 CONTEXT BROKER    The State Adapter & Document Assembler
  * €
  *
  * PURPOSE

@@ -1,6 +1,6 @@
 /**
  * src/data/repository.js
- * ðŸ“‚ THE REPOSITORY (Knowledge Access Layer)
+ * 📂 THE REPOSITORY (Knowledge Access Layer)
  * RUTHLESSLY FLATTENED SCHEMA  ZERO BACKWARDS COMPATIBILITY.
  * If it's not at the top level, it doesn't exist.
  */

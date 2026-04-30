@@ -1,4 +1,4 @@
-// ðŸ‘‘ ENGINE: The Silent Observer
+// 👑 ENGINE: The Silent Observer
 // Tracks the heartbeat of the engine without revealing it.
 export const simulationState = $state({
   phase: "idle", // "idle" | "generating" | "locked"

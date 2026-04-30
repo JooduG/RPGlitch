@@ -4,7 +4,7 @@
  * Consolidates all impulses, reactions, and signals into a unified DYNAMICS registry.
  */
 /**
- * ðŸ“¢ THE DYNAMICS REGISTRY
+ * 📢 THE DYNAMICS REGISTRY
  * -----------------------------------------------------------------------------
  * A unified table for all Reactive impulses, Passive state signals, and Physics Laws.
  * Rules    :
@@ -13,7 +13,7 @@
  * - Effect : Numerical changes (ai/fractal) and Narrative (text).
  */
 export const DYNAMICS = [
-  // ðŸ§¬ AI SOMATICS (Passive Signals)
+  // 🧪 AI SOMATICS (Passive Signals)
   {
     id: "ADRENALINE",
     trigger: "turn",
@@ -68,7 +68,7 @@ export const DYNAMICS = [
       text: "Repulsion. Hostile distance. Passive-aggressive friction.",
     },
   },
-  // ðŸŒ ENVIRONMENTAL FRACTAL (Passive Signals)
+  // 🌍 ENVIRONMENTAL FRACTAL (Passive Signals)
   {
     id: "HIGH_VELOCITY",
     trigger: "turn",
@@ -93,7 +93,7 @@ export const DYNAMICS = [
     filter: { below: { entropy: 30 } },
     effect: { text: "Structural harmony. Safe, predictable physics." },
   },
-  // âš–ï¸ PHYSICS LAWS (Ongoing Numerical Effects Each Turn)
+  // ⚖️ PHYSICS LAWS (Ongoing Numerical Effects Each Turn)
   {
     id: "INTENSITY_AUTO_LOCK",
     trigger: "turn",
@@ -118,7 +118,7 @@ export const DYNAMICS = [
     filter: { above: { affinity: 90 } },
     effect: { ai: { openness: 5 } },
   },
-  // âš¡ IMPULSES (Active Triggers)
+  // ⚡ IMPULSES (Active Triggers)
   {
     id: "SHARD",
     trigger: [

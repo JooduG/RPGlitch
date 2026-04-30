@@ -1,6 +1,6 @@
 /**
  * src/media/visual-engine.svelte.js
- * ðŸŽ¨ VISUAL ENGINE (Reactive Class)
+ * 🎨 VISUAL ENGINE (Reactive Class)
  * The sensory cortex orchestrator.
  */
 import { llm_service } from "@core/intelligence/llm-service.js";

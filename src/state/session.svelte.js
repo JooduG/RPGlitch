@@ -7,7 +7,7 @@ import { simulationState } from "@state/status.svelte.js"; // [R5] Unified State
 
 /**
  * src/state/session.svelte.js
- * ðŸ•¹ï¸ ENGINE / ðŸ“š DATA: Session Management
+ * 🕹️ ENGINE / 📚 DATA: Session Management
  * Coordinates active narrative flows and persistence.
  */
 export class ReactiveSession {
@@ -150,7 +150,7 @@ export class ReactiveSession {
   }
 
   /**
-   * ðŸ§ª DEBUG: Inject AI Message
+   * 🧪 DEBUG: Inject AI Message
    */
   async log_turn(text, character_name, role) {
     await session_driver.log_turn(text, character_name, role);
