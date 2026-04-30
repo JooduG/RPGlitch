@@ -40,23 +40,43 @@ export const session_driver = {
   },
 
   /**
-   * Create a new session entry
+   * Create a new session entry from a character/fractal selection
    */
-  create_session: async function (title = "New Story") {
-    const id = await db.simulation_log.add({
-      story_id: "init", // temporary
+  create_from_selection: async function (selection) {
+    const id = await db.stories.add({
+      title: selection.story_title || "New Story",
+      ai_id: selection.ai_id,
+      user_id: selection.user_id,
+      fractal_id: selection.fractal_id,
+      created_at: Date.now(),
+      updated_at: Date.now(),
+      round: 0,
+    });
+    const story_id = id.toString();
+    await session_driver.set_active(story_id);
+
+    // Initial system entry
+    await db.simulation_log.add({
+      story_id,
       role: "system",
       type: "text",
-      text: `Story Started: ${title}`,
+      text: `Story Started: ${selection.story_title}`,
       turn_type: "SYSTEM_TURN",
       round: 0,
       meta: { type: "STORY_START" },
       created_at: Date.now(),
     });
-    // Update the story_id to match its own row ID (standard for local-first root)
-    await db.simulation_log.update(id, { story_id: id.toString() });
-    await session_driver.set_active(id.toString());
-    return id.toString();
+
+    simulation_log.refresh();
+    return story_id;
+  },
+
+  /**
+   * Create a new session entry (Simple version)
+   */
+  create_session: async function (title = "New Story") {
+    // Legacy support or simplified start
+    return await this.create_from_selection({ story_title: title });
   },
 
   /**
@@ -68,6 +88,42 @@ export const session_driver = {
     if (typeof window !== "undefined") {
       await db.kv_settings.delete(SESSION_ID_KEY);
     }
+  },
+
+  /**
+   * Send user input (Log it)
+   */
+  send: async function (text) {
+    const character_name = runtime.active_user?.name || "User";
+    return await this.log_message(text, "user", character_name, "USER_TURN");
+  },
+
+  /**
+   * Remove last turn to allow regeneration
+   */
+  regenerate: async function () {
+    const story_id = session_driver.require_active();
+    const last = await db.simulation_log.where("story_id").equals(story_id).last();
+    if (last && last.role !== "user") {
+      await db.simulation_log.delete(last.id);
+      simulation_log.refresh();
+    }
+  },
+
+  /**
+   * Delete a log entry
+   */
+  delete_log_entry: async function (id) {
+    await db.simulation_log.delete(Number(id));
+    simulation_log.refresh();
+  },
+
+  /**
+   * Edit a log entry
+   */
+  edit_log_entry: async function (id, new_text) {
+    await db.simulation_log.update(Number(id), { text: new_text });
+    simulation_log.refresh();
   },
 
   /**
@@ -87,6 +143,27 @@ export const session_driver = {
       created_at: Date.now(),
     });
     simulation_log.refresh();
+  },
+
+  /**
+   * Legacy wrapper for log_message matching Intelligence Kernel's expected signature.
+   */
+  log_turn: async function (text, character_name, role, meta = {}) {
+    return await this.log_message(
+      text,
+      role,
+      character_name,
+      meta.turn_type || (role === "user" ? "USER_TURN" : "AI_TURN"),
+      meta,
+    );
+  },
+
+  /**
+   * Fetch history for a story.
+   */
+  load_log: async function (story_id) {
+    if (!story_id) return [];
+    return await db.simulation_log.where("story_id").equals(story_id).sortBy("created_at");
   },
 
   /**
