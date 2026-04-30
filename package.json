@@ -115,7 +115,7 @@
     "check": "node .agent/skills/using-agent-skills/scripts/summarize.js audit:warden lint test",
     "clean": "node .agent/skills/using-agent-skills/scripts/summarize.js audit:security lint audit:backlog",
     "deploy": "npm run deploy:prepare && npm run deploy:auto",
-    "deploy:auto": "node .agent/skills/shipping-and-launch/scripts/deploy-perchance.js",
+    "deploy:auto": "node .agent/skills/delivery/scripts/deploy-perchance.js",
     "deploy:prepare": "node .agent/skills/using-agent-skills/scripts/summarize.js format sync lint:fix audit test build",
     "dev": "vite",
     "forge:skill": "node .agent/skills/governance/scripts/forge-skill.js",
