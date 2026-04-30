@@ -80,7 +80,14 @@ describe("gamemaster (Intelligence Kernel)", () => {
     vi.mocked(context_broker.hydrate).mockResolvedValue(mockPayload);
     vi.mocked(prompt_builder.synthesize).mockReturnValue({
       system: "PROMPT",
-      meta: { ai: {}, fractal: {}, flags: {}, signal_prompts: [] },
+      meta: {
+        ai: {},
+        fractal: {},
+        flags: {},
+        signal_prompts: [],
+        signals: {},
+        vectors: { past: [], future: [] },
+      },
     });
     vi.mocked(llm_service.generate).mockResolvedValue("Identified.");
 

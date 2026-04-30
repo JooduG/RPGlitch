@@ -86,8 +86,8 @@ describe("prompt_builder (Refactored)", () => {
               present: { non_physical: "Present" },
               eternal: { non_physical: "Eternal" },
             },
-            past: [],
-            future: [],
+            past: [{ content: "P1", score: 0.9 }],
+            future: [{ content: "F1", score: 0.8 }],
           },
           USER: {
             name: "Ghost",
@@ -113,10 +113,11 @@ describe("prompt_builder (Refactored)", () => {
       };
 
       const snapshot = {
-        ai: { dynamics: {} },
-        fractal: { dynamics: {} },
-        flags: {},
+        ai: { dynamics: { intensity: 50, openness: 60 } },
+        fractal: { dynamics: { entropy: 10 } },
+        flags: { test: true },
         signal_prompts: ["STYLE: Grit"],
+        signals: ["SIGNAL_X"],
       };
 
       const result = prompt_builder.synthesize(payload, snapshot);
@@ -130,6 +131,15 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain("<PROTOCOLS>");
       expect(result.system).toContain("<TASK_INSTRUCTION>");
       expect(result.system).toContain("<INPUT_COMMAND>Check the console.</INPUT_COMMAND>");
+
+      // TELEMETRY VERIFICATION
+      expect(result.meta).toBeDefined();
+      expect(result.meta.ai).toEqual(snapshot.ai.dynamics);
+      expect(result.meta.fractal).toEqual(snapshot.fractal.dynamics);
+      expect(result.meta.signals).toContain("SIGNAL_X");
+      expect(result.meta.vectors).toBeDefined();
+      expect(result.meta.vectors.past).toBeInstanceOf(Array);
+      expect(result.meta.vectors.future).toBeInstanceOf(Array);
     });
   });
 });

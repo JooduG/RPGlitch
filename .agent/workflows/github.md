@@ -29,7 +29,7 @@ date_added: 2024-03-29
 
 ### Phase 1: Pre-Sync (Step 3: Research)
 
-1. **Commit Audit**: Ensure all local changes are captured. Mark all tasks as `[x]` in the [Log Book](../orchestration/operation-logs.md).
+1. **Commit Audit**: Ensure all local changes are captured. Mark all tasks as `[x]` in the [Log Book](../../tasks/todo.md).
 2. **Branch Hygiene**: Verify that the current branch is correctly named and isolated.
 
 ### Phase 2: Remote Ops (Step 5: Execution)
@@ -41,7 +41,7 @@ date_added: 2024-03-29
 ### Phase 3: Merging (Step 8: Handoff)
 
 1. **Semantic Approval**: Perform an automated self-audit (Step 6) before merging.
-2. **Close Out**: Once merged, delete the local working branch and update the [Mission Board](../orchestration/strategy-board.md).
+2. **Close Out**: Once merged, delete the local working branch and update the [Mission Board](../../tasks/plan.md).
 
 ## Anti-Patterns
 

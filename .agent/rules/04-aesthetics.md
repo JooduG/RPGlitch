@@ -1,132 +1,60 @@
 ---
 name: 04-aesthetics
-description: The Aesthetic Monarch. Defines visual physics, depth, and the Nordic Collection.
+description: The Sensory Constitution. Defines the "Why" and the "Soul" across all senses (Vision, Audio, Image Gen, Motion).
 trigger: always_on
 ---
 
 # 🛡️ 04-aesthetics
 
-> **Persona**: "I am the Aesthetic Monarch. I define the soul of RPGlitch. My light is the 'Chalk Regime', and my shadow is the 'Nordic Collection'. If a component does not feel premium, it is a breach of my law."
+> **Persona**: "I am the Aesthetic Monarch. I define the soul of RPGlitch. My light is the 'Chalk Regime', and my shadow is the 'Nordic Collection'. I establish the Laws of Feeling."
 
-## ⚖️ The Law
+## ⚖️ The Laws of Feeling
 
-### ❄️ The Nordic Collection
+### ❄️ The Nordic Collection (Neural Nordic)
 
-The interface abandons the gritty neon-glitch cliché in favor of **The Nordic Collection** (Neural Nordic) — a cool, deep, and elegant visual language. It feels like a high-end research terminal located in a frozen, subterranean facility.
+The interface is a high-end research terminal in a frozen facility. It is cool, deep, and elegant.
 
-#### Core Aesthetic Pillars
+- **Visual Law**: Abyssal radial gradients, atmospheric noise (3%), and glassmorphic blurs.
+- **Auditory Law**: Minimalist, non-intrusive soundscapes. Cool and clinical.
+- **Generative Law**: Image prompts must use the "Frozen Terminal" palette (Gunmetal, Chalk, Frozen tones).
 
-- **Abyssal Depth**: Backgrounds use deep, immersive radial gradients (`var(--bg-grad-1)` through `var(--bg-grad-4)`) starting from dark slate-blues bleeding into pure black.
-- **Atmospheric Noise**: A persistent `3%` global noise overlay adds physical texture to the viewport, breaking up digital perfection.
-- **Glass & Shadow**: Elements detach from the background via structural shadows and glassmorphic blurs, utilizing fluid, elastic physics for interactions.
+### 📐 The Chalk Regime (Tokens)
 
----
+We do not use raw values. The "Soul" is realization through strict named tokens.
 
-### 💎 Colors & Tokens
-
-We rely on strict, named tokens rather than raw hex values in our components. You MUST use exactly these CSS variables.
-
-#### Brand Primitives
-
-- **Chalk** (`var(--color-chalk)`): `#222326`. The primary high-contrast text and structural accent. Crisp, almost icy white.
-- **Gunmetal** (`var(--color-gunmetal)`): `#363840`. The core component background. Dense and non-intrusive.
-- **Frozen** (`var(--color-frozen)`): `#555d66`. The primary application accent. Used for "Instrumental Neutral" modules and hardware thumbs.
-- **Frisk** (`var(--color-frisk)` / `var(--font-color-s)`): `#8a9399`. Secondary application accent. Used for metadata, labels, and desaturated backgrounds.
-- **Cyan** (`var(--color-cyan)`): `#11aecc`. Reserved exclusively for "System/Developer" metrics and diagnostic signals.
-
-#### Surface Elevation
-
-Elevation is achieved by layering translucent glass tokens that shift from deep submerged tones to bright elevated focus:
-
-- `var(--glass-xs)`: Submerged base (Dark contrast).
-- `var(--glass-s)`: Sunken surface (Subtle depth).
-- `var(--glass-l)`: Elevated glass (Base widget layer).
-- `var(--glass-xl)`: Floating monolith (Overlay/Pop-up layer).
-- `var(--glass-xxl)`: Top-most focus (Active modal/Selection layer).
+- **Primary Source**: `src/theme/tokens.css`.
+- **Primary Standard**: 12-column grid system (`--grid-unit`).
 
 ---
 
-### 📏 The Universal Field Chassis
+## 🕹️ The Sensory Laws
 
-All narrative text entry is governed by the **Universal Field Chassis**. It treats text not as a "box," but as a dormant **Narrative Module** that awakens on focus.
+### 1. Visual Depth (The Z-Law)
 
-- **Dormant State**: Modules feature a thin 2px "Signature Line" at the top.
-- **Focus Activation**: The module elastically expands its header to reveal a functional control strip (Actions).
-- **Quantum Presence (Gravity)**: The narrative weight (GRAV) of a module is expressed through **Opacity and Glow Intensity** rather than width.
-  - High-weight (e.g., Trauma): Solid, burning line (100% opacity).
-  - Low-weight (e.g., Dream): Faint, spectral line (20% opacity).
-- **Elastic Constraints**: Fields grow elastically with content but are capped at `15rem` before triggering internal scrollbars to preserve modal integrity.
+- Elements must detach from the background via structural shadows and glass blurs.
+- Follow the Glass Elevation scale in `tokens.css` (XS to XXL).
 
----
+### 2. Kinetic Physics (The Grounded Law)
 
-### 📐 Typography & Spacing
+- **Grounded Policy**: Interactions favor depth and filters over vertical "lifts" or "bounces."
+- **Interaction Reflex**: Components own their internal kinetic feedback. Hover focuses on icon color and brightness, not layout shift.
 
-We use a strictly defined triad of fonts, scaled via an absolute T-shirt sizing scale (`var(--font-size-xxs)` through `var(--font-size-xxxxxl)`).
+### 3. Auditory Harmony
 
-- **Headline Font** (`var(--font-family-heading)`): `Ubuntu`, sans-serif.
-- **Body Font** (`var(--font-family-body)`): `Inter`, system-ui. Used for all primary and secondary labels.
-- **Label Font** (`var(--font-family-mono)`): `JetBrains Mono`, monospace. Reserved for numeric data readouts and developer telemetry.
+- Sound effects must be clinical and minimalist.
+- Audio is a feedback layer, never an interruption.
 
-Padding, margins, and gaps must strictly adhere to the modular scale:
-`var(--spacing-xxs)` (0.25rem) to `var(--spacing-xxxxl)` (6rem).
+### 4. Image Synthesis
 
-- **Ghost Label** (`var(--font-size-xxxs)`): `0.5rem`. For micro-metadata and subtle diegetic hints.
+- Every generated asset must be a final, ship-quality visual.
+- Maintain subterranean lighting (Chalk highlights) and cool palettes.
 
 ---
 
-### 🕹️ Component Interactions (Component Sovereignty)
+## 📜 Mandatory Directives
 
-The Nordic Collection follows the law of **Component Sovereignty**: Atoms must own their own "Reflex" logic (kinetic feedback) within their scoped styles.
-
-- **Interaction Engine**:
-  - **Hover**: Concentrated on **Icon Color** (White), **Subtle Scale** (1.1), and **Brightness**.
-  - **Grounded Policy**: Explicitly avoid `translateY` on hover to maintain subterranean weight.
-  - **Flat Aesthetics**: Eliminate heavy inset shadows and borders during interaction to maintain a clean, high-fidelity glass look.
-- **Active States**: High-precision scale reduction via `--motion-click` (Scale: 0.95).
-- **Kinetic Physics**: Svelte Action-driven Web Animations API primitives (`use:shimmy`, `use:pulse`, `use:spin`, `use:stab`).
-- **Sticky Navigation**: Modal headers and footers utilize **Sticky Glass Anchors** with signature-tinted backdrop filters, ensuring commands are always accessible.
-
----
-
-### 📦 Component Registry
-
-The Nordic Collection is implemented through a strictly defined hierarchy of Atomic components.
-
-#### Atoms
-
-- **Button**: Core interaction unit with kinetic feedback. Owns its hover/active reflexes.
-- **Slider**: Fluid range control with **Center-Origin Ghost Fill** for midpoint-neutral metrics.
-- **GlassPill**: Floating action container for vertical narrative toolbars.
-- **ProfilePicture**: Rounded entity identity marker with initials generation.
-- **TextField**: High-precision **Field Chassis** with focus-activated instrumentation.
-- **Toggle**: Minimalist physical switch with white-glow "powered" state.
-- **DataBox**: Structural container for metadata and numeric signals.
-- **TypingIndicator**: Sensory bridge for AI entity state.
-
-#### Molecules
-
-- **LibraryCard**: High-density grid unit for story/entity selection. Owns its 1.02x hover scale.
-- **VectorArray**: Row-based management for temporal data (Past/Future Vectors).
-- **StoryboardCard**: Animated entry for narrative events.
-- **Alert / Confirm**: Modal-based feedback systems for critical logic transitions.
-- **Modal**: The base structural layer for all overlays (using Glass-XL/XXL elevation).
-
-#### Organisms
-
-- **Storyboard**: The primary narrative container and event loom.
-- **ControlPanel**: The central hub for simulation management.
-- **EntityPanel**: The unified interface for Character and Fractal configuration.
-
----
-
-### 📜 Do's and Don'ts
-
-- **Do** use strict named tokens (`var(--color-chalk)`, `var(--spacing-xl)`) rather than raw hex/pixels.
-- **Do** maintain the semantic typography split.
-- **Do** use `aria-label` for all interactive labels and tooltips. Browser-default `title` attributes are strictly forbidden to ensure consistent Nordic styling.
-- **Don't** use standard hard glitch sharp edges; this regime favors soft glass and `var(--border-radius-m)`.
-- **Don't** use raw hex colors. To prevent eye strain, avoid `#FFFFFF` and `#000000` directly.
-
----
+- **ALWAYS** ground implementation in the source files via the `source-driven-development` skill.
+- **ALWAYS** delegate technical implementation to the specialists (`css`, `motion`, `audio`, `image-generation`) via the `designer` dispatcher.
+- **NEVER** use standard "neon glitch" clichés. This is a facility, not a rave.
 
 > "Depth is the ultimate luxury."

@@ -1,12 +1,12 @@
 /* ============================================================================
  *  src/theme/palette.svelte.js
- *  🎨 THEME STORE (REACTIVE)
+ *  [**] THEME STORE (REACTIVE)
  *  Centralized management for Signature Colors using Svelte 5 Runes.
  *  Following the "Red Thread": Foundation -> Logic -> UI Fallbacks.
  *  ============================================================================ */
 
 /**************************************************************************************
- * 🧩 [LEVEL 0: FOUNDATION REGISTRY]
+ * [LEVEL 0: FOUNDATION REGISTRY]
  * The static mapping of colors and their CSS variable counterparts.
  ************************************************************************************/
 
@@ -87,7 +87,7 @@ export const PROFILE_PICTURE_PLACEHOLDERS = {
 
 class ThemeStore {
   /************************************************************************************
-   * 🧩 [LEVEL 1: LOGIC & PARSERS]
+   * [LEVEL 1: LOGIC & PARSERS]
    * ----------------------------------------------------------------------------------
    * utilities for color transformation and entity resolution.
    ************************************************************************************/
@@ -212,7 +212,7 @@ class ThemeStore {
   }
 
   /************************************************************************************
-   * 🧩 [LEVEL 2: UI FALLBACKS & MATH]
+   * [LEVEL 2: UI FALLBACKS & MATH]
    * ----------------------------------------------------------------------------------
    * Luminosity and generative aesthetics.
    ************************************************************************************/

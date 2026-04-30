@@ -4,25 +4,33 @@ import { simulation_log } from "../../state/simulation-log.svelte.js";
 import { SESSION_ID_KEY } from "@core/constants.js";
 
 /**
- * 🕹️ SESSION (Simulation & Gamemaster)
+ * SESSION (Simulation & Gamemaster)
  * Handles persistence and state for the active story.
  */
+
+let _active_id = null;
+
 export const session_driver = {
-  active_id: null,
+  get active_id() {
+    return _active_id;
+  },
+  set active_id(val) {
+    _active_id = val;
+  },
 
   /**
    * Get the active story ID or throw.
    */
   require_active: function () {
-    if (!this.active_id) throw new Error("No active session found.");
-    return this.active_id;
+    if (!_active_id) throw new Error("No active session found.");
+    return _active_id;
   },
 
   /**
    * Set active session ID and persist it.
    */
   set_active: async function (id) {
-    this.active_id = id;
+    _active_id = id;
     runtime.story_id = id;
     if (typeof window !== "undefined") {
       await db.kv_settings.put({ key: SESSION_ID_KEY, value: id });
@@ -32,80 +40,41 @@ export const session_driver = {
   },
 
   /**
-   * Initialize session from DB.
+   * Create a new session entry
    */
-  init: async function () {
-    if (typeof window === "undefined") return;
-    const entry = await db.kv_settings.get(SESSION_ID_KEY);
-    if (entry) {
-      this.active_id = entry.value;
-      runtime.story_id = entry.value;
+  create_session: async function (title = "New Story") {
+    const id = await db.simulation_log.add({
+      story_id: "init", // temporary
+      role: "system",
+      type: "text",
+      text: `Story Started: ${title}`,
+      turn_type: "SYSTEM_TURN",
+      round: 0,
+      meta: { type: "STORY_START" },
+      created_at: Date.now(),
+    });
+    // Update the story_id to match its own row ID (standard for local-first root)
+    await db.simulation_log.update(id, { story_id: id.toString() });
+    await session_driver.set_active(id.toString());
+    return id.toString();
+  },
+
+  /**
+   * Clear active session
+   */
+  clear_active: async function () {
+    _active_id = null;
+    runtime.story_id = null;
+    if (typeof window !== "undefined") {
+      await db.kv_settings.delete(SESSION_ID_KEY);
     }
   },
 
   /**
-   * Create a new story from lobby selection
+   * Add a message to the simulation log
    */
-  create_from_selection: async function ({ ai_id, user_id, fractal_id, story_title }) {
-    const ai_snapshot = runtime.active_ai ? $state.snapshot(runtime.active_ai) : null;
-    const fractal_snapshot = runtime.active_fractal
-      ? $state.snapshot(runtime.active_fractal)
-      : null;
-    const user_snapshot = runtime.active_user ? $state.snapshot(runtime.active_user) : null;
-
-    const story_data = {
-      title: story_title,
-      ai_id: ai_id,
-      user_id: user_id,
-      fractal_id: fractal_id,
-      created_at: Date.now(),
-      updated_at: Date.now(),
-      entity_snapshots: {
-        ai: ai_snapshot,
-        fractal: fractal_snapshot,
-        user: user_snapshot,
-      },
-    };
-
-    const id = await db.stories.add(story_data);
-    story_data.id = id;
-    runtime.simulation.story.by_id[id] = story_data;
-    runtime.simulation.story.active_id = id;
-    await this.set_active(id);
-    await runtime.sync(id);
-    return id;
-  },
-
-  /**
-   * Load log entries for a story
-   */
-  load_log: async (story_id) => {
-    return await db.simulation_log.where("story_id").equals(story_id).toArray();
-  },
-
-  /**
-   * Send a user log entry (Action)
-   */
-  send: async function (text) {
-    const story_id = this.require_active();
-    await db.simulation_log.add({
-      story_id,
-      role: "user",
-      type: "text",
-      text,
-      turn_type: "USER_TURN",
-      round: runtime.round,
-      created_at: Date.now(),
-    });
-    simulation_log.refresh();
-  },
-
-  /**
-   * Add a simulation log entry (Response)
-   */
-  log_turn: async function (text, character_name, role = "assistant", meta = {}) {
-    const story_id = this.require_active();
-    const turn_type = meta.turn_type || (role === "user" ? "USER_TURN" : "AI_TURN");
+  log_message: async function (text, role, character_name, turn_type = "USER_TURN", meta = {}) {
+    const story_id = session_driver.require_active();
     await db.simulation_log.add({
       story_id,
       role,
@@ -121,32 +90,34 @@ export const session_driver = {
   },
 
   /**
-   * Regenerate: Delete last simulation turn
+   * Add a system/telemetry log entry
    */
-  regenerate: async function () {
-    const story_id = this.require_active();
-    const last_entry = await db.simulation_log.where("story_id").equals(story_id).last();
-    if (last_entry && (last_entry.role === "assistant" || last_entry.role === "ai")) {
-      await db.simulation_log.delete(last_entry.id);
-      simulation_log.refresh();
+  log_system_entry: async function (text, role = "system", meta = {}) {
+    const story_id = session_driver.require_active();
+    await db.simulation_log.add({
+      story_id,
+      role,
+      type: "text",
+      text,
+      turn_type: "SYSTEM_TURN",
+      round: runtime.round,
+      meta: $state.snapshot(meta),
+      created_at: Date.now(),
+    });
+    simulation_log.refresh();
+  },
+
+  /**
+   * Restore session from DB
+   */
+  restore_session: async function () {
+    if (typeof window === "undefined") return null;
+    const entry = await db.kv_settings.get(SESSION_ID_KEY);
+    if (entry?.value) {
+      _active_id = entry.value;
+      runtime.story_id = entry.value;
+      return entry.value;
     }
-  },
-
-  /**
-   * Delete a specific log entry by ID
-   */
-  delete_log_entry: async function (id) {
-    this.require_active();
-    await db.simulation_log.delete(id);
-    simulation_log.refresh();
-  },
-
-  /**
-   * Edit a specific log entry text
-   */
-  edit_log_entry: async function (id, new_text) {
-    this.require_active();
-    await db.simulation_log.update(id, { text: new_text });
-    simulation_log.refresh();
+    return null;
   },
 };

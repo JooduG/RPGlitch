@@ -1,0 +1,130 @@
+﻿<script>
+  /** @type {{
+   *  value?: boolean,
+   *  label?: string,
+   *  size?: "md"|"sm",
+   *  disabled?: boolean,
+   *  onchange?: (e: Event & { currentTarget: HTMLInputElement }) => void
+   * }} */
+  let {
+    value = $bindable(),
+    label,
+    size = "md",
+    disabled = false,
+    onchange = (e) => {},
+  } = $props();
+</script>
+
+<label class="toggle-switch" class:disabled class:sm={size === "sm"}>
+  <input
+    type="checkbox"
+    bind:checked={value}
+    {disabled}
+    {onchange}
+    data-testid={label ? `${label.toLowerCase().replace(/\s+/g, "-")}-toggle` : undefined}
+  />
+  <span class="slider"></span>
+  {#if label}
+    <span class="label-text">{label}</span>
+  {/if}
+</label>
+
+<style>
+  .toggle-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-m);
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding: var(--spacing-xxs) 0;
+    transition: opacity var(--motion-l);
+
+    /* --- SIZES --- */
+    --switch-w: 2.8rem;
+    --switch-h: 1.25rem;
+    --thumb-size: 1rem;
+  }
+
+  .toggle-switch.disabled {
+    opacity: var(--opacity-m);
+    cursor: default;
+  }
+
+  .toggle-switch.sm {
+    --switch-w: 2.22rem;
+    --switch-h: 1rem;
+    --thumb-size: 0.8rem;
+  }
+
+  /* Hidden Input */
+  .toggle-switch input {
+    opacity: var(--opacity-none);
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+
+  /* The Track */
+  .slider {
+    position: relative;
+    width: var(--switch-w);
+    height: var(--switch-h);
+    background-color: var(--glass-xs);
+    border-radius: var(--border-radius-full);
+    transition: all var(--motion-l) var(--motion-elastic);
+    flex-shrink: 0;
+  }
+
+  /* The Thumb */
+  .slider::before {
+    content: "";
+    position: absolute;
+    height: var(--thumb-size);
+    width: var(--thumb-size);
+    left: calc((var(--switch-h) - var(--thumb-size)) / 2);
+    top: calc((var(--switch-h) - var(--thumb-size)) / 2);
+    background-color: var(--color-frisk);
+    border-radius: var(--border-radius-full);
+    transition: all var(--motion-l) var(--motion-elastic);
+  }
+
+  /* Hover State */
+  .toggle-switch:hover:not(.disabled) .slider::before {
+    filter: brightness(1.2);
+  }
+
+  /* Checked State */
+  .toggle-switch input:checked + .slider {
+    background-color: rgb(var(--color-frozen-rgb) / 60%);
+  }
+
+  .toggle-switch input:checked + .slider::before {
+    transform: translateX(
+      calc(var(--switch-w) - var(--thumb-size) - (var(--switch-h) - var(--thumb-size)))
+    );
+    background-color: var(--color-white);
+    box-shadow: 0 0 8px rgb(var(--color-white-rgb) / var(--opacity-m));
+  }
+
+  /* Label Text */
+  .label-text {
+    color: var(--font-color-s);
+    font-weight: var(--font-weight-l);
+    font-size: var(--font-size-xxs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-family: var(--font-family-body);
+    transition: color var(--motion-l);
+  }
+
+  .toggle-switch:hover:not(.disabled) .label-text {
+    color: var(--color-white);
+  }
+
+  /* Focus State */
+  .toggle-switch input:focus-visible + .slider {
+    outline: 2px solid var(--color-frozen);
+    outline-offset: 2px;
+  }
+</style>

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Safely parses basic markdown into an AST format for rendering without eval/innerHTML.
  * Currently supports strong (**) and emphasis (*).
  *

@@ -110,10 +110,13 @@ Every operational turn must conclude with a metadata block that signals the acti
 
 Below are the most common skills to be used in this step:
 
+- **[Designer & Sensory Dispatcher](./.agent/skills/designer)**: Orchestrates the atmosphere. Directs CSS, Motion, Audio, and Image-Gen specialists.
+- **[Specification](./.agent/skills/specification)**: Moves from "raw vibe" to technical blueprint.
+- **[Planning](./.agent/skills/planning)**: Breaks work into vertical slices and delivers increments.
+- **[Governance](./.agent/skills/governance)**: Architect of Laws, ADRs, and automated audits.
+- **[Quality](./.agent/skills/quality)**: Multi-axis code review and simplification.
+- **[Delivery](./.agent/skills/delivery)**: CI/CD gates and production shipping.
 - **[Svelte Specialist](./.agent/skills/svelte)**
-- **[CSS Specialist](./.agent/skills/css)**
-- **[Motion Specialist](./.agent/skills/motion)**
-- **[Audio Specialist](./.agent/skills/audio)**
 - **[Simulation Orchestration](./.agent/skills/simulation)**
 
 ## ✅ 6. Completeness & Quality Gate

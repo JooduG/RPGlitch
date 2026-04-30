@@ -1,6 +1,6 @@
 /**
  * @file src/core/constants.js
- * 🗝️ CORE CONSTANTS
+ * ⚔️ CORE CONSTANTS
  * Central repository for storage keys and global configuration flags.
  */
 

@@ -1,5 +1,5 @@
 /**
- * 🖼️ Lightbox Store - Polish Visual Module
+ * ðŸ–¼ï¸ Lightbox Store - Polish Visual Module
  * Manages fullscreen image preview state
  */
 /** @type {{active: boolean, src: string|null, caption: string}} */

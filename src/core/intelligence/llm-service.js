@@ -1,13 +1,13 @@
 /**
  * @file src/core/intelligence/llm-service.js
  *
- * ─────────────────────────────────────────────────────────────────────────────
- * 🔌 LLM SERVICE  —  The Transport Layer
- * ─────────────────────────────────────────────────────────────────────────────
+ * €
+ * ðŸ”Œ LLM SERVICE    The Transport Layer
+ * €
  *
  * PURPOSE
  * LlmService is the single point of contact with the Perchance AI plugin
- * (window.ai). All callers — the engine, the enhancement UI, Echo — route here.
+ * (window.ai). All callers  the engine, the enhancement UI, Echo  route here.
  *
  * RESPONSIBILITIES
  * - Streaming : Connects token output to app.start_stream / update_stream / end_stream.
@@ -18,11 +18,11 @@
  * LlmService has no opinion on prompt content. It injects no rules and knows
  * nothing about the narrative. It only sends and receives.
  */
-import { ERROR_MESSAGES } from "../engine/config.js";
 import { app } from "../../state/app.svelte.js";
+import { ERROR_MESSAGES } from "../engine/config.js";
 import { strip_cognition_blocks } from "../text-parser.js";
 /************************************************************************************
- * 🧩 [SECTION: SANITIZATION]
+ * [SECTION: SANITIZATION]
  * ----------------------------------------------------------------------------------
  * Shared text-cleaning applied post-LLM to ensure clean, diegetic output.
  * Strips artifacts that Perchance AI frequently adds: code fences, filler
@@ -48,7 +48,7 @@ export function sanitize(text) {
     .trim();
 }
 /************************************************************************************
- * 🧩 [SECTION: LLM SERVICE]
+ * [SECTION: LLM SERVICE]
  * ----------------------------------------------------------------------------------
  * The primary abstraction for window.ai. All prompt execution flows through here.
  ************************************************************************************/
@@ -62,7 +62,7 @@ export const llm_service = {
    * @returns {Promise<string>}
    */
   async enhance(payload) {
-    // Use raw: true so generate() returns unprocessed output —
+    // Use raw: true so generate() returns unprocessed output
     // enhance() owns its own sanitization pass so it isn't double-stripped.
     const result = await this.generate(payload, { silent: true, raw: true });
     return typeof result === "string" ? sanitize(result) : result;

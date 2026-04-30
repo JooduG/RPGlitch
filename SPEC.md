@@ -9,7 +9,7 @@ RPGlitch is a high-fidelity, local-first simulation engine designed for immersiv
 
 ### Target Vision
 
-- **Atmospheric Canvas**: Chalk Regime aesthetics focusing on imagination.
+- **Atmospheric Canvas**: High-fidelity simulation focusing on imagination.
 - **Agentic Pacing**: Procedural story arcs managed by an autonomous Intelligence Kernel.
 - **Local Sovereignty**: Zero-latency, browser-resident state (Dexie.js).
 
@@ -17,43 +17,19 @@ RPGlitch is a high-fidelity, local-first simulation engine designed for immersiv
 
 - **Atomicity**: The simulation round increments are locked to prevent desynchronization during asynchronous turn transitions.
 - **Log Hygiene**: AI internal "thoughts" (`<think>` blocks) are purged before log persistence to maintain context window efficiency.
-- **Metadata Isolation**: Visual generation metadata (e.g., "8k", "hyper-realistic") is stripped from narrative prose to maintain diegetic immersion.
-- **XML Hygiene**: Outbound prompt attributes are escaped to prevent data structure corruption from unclosed brackets or quotes.
-- **UI: Interaction Hygiene**: Message actions sit outside the content boundary in a vertical `GlassPill` to eliminate "whitespace chin" and preserve narrative focus.
+- **Metadata Isolation**: Visual generation metadata is stripped from narrative prose to maintain diegetic immersion.
+- **XML Hygiene**: Outbound prompt attributes are escaped to prevent data structure corruption.
+- **Logic Isolation**: Structural logic must remain decoupled from sensory expression (CSS/Audio).
 
 ---
 
 ## 2. Technical Stack
 
-The engine is built on a sovereign, client-side-only stack optimized for the Perchance Two-Panel Paradigm.
+...
+(rest of section 2)
+...
 
-- **Framework**: Svelte 5 (Runes-only: `$state`, `$derived`, `$effect`).
-- **Persistence**: Dexie.js (IndexedDB).
-- **Security**: DOMPurify sanitization boundaries + Zod contract enforcement.
-- **Build**: Vite 6 (Single-file ESM output).
-- **Communication**: Post-Message bridges for Perchance inter-panel logic.
-
----
-
-## 3. Project Structure
-
-```text
-RPGlitch/
-├── SPEC.md                # This document (Master Spec)
-├── tasks/                 # Active mission board & technical plans
-├── src/
-│   ├── core/              # Logic & Round Orchestration (Temporal Engine, IQ Kernel)
-│   ├── data/              # Persistence & Entity Repositories
-│   ├── state/             # Global Reactive Runes
-│   ├── theme/             # The Chalk Regime (Tokens & Glass)
-│   ├── ui/                # Atomic Svelte 5 Components
-│   └── media/             # Internal Sensory Assets (Visual/Audio)
-└── .agent/                # AI Constitution (Rules & Skills)
-```
-
----
-
-## 4. Code Style & Design
+## 4. Code Style & Logic
 
 ### Narrative Logic (Rule 02)
 
@@ -62,19 +38,12 @@ RPGlitch/
 - **Temporal Continuum**: The engine manages the reactive transition of Future Vectors (Impulses) into Past Vectors (Memories).
 - **Atomic Locking**: All state mutations affecting the current round must be performed via an `isProcessing` gate in `ReactiveSession`.
 
-### Aesthetics (Rule 04)
+### UI & Interaction Architecture
 
-- **The Nordic Collection**: Abyssal radial gradients, atmospheric noise (3%), and glassmorphic elevation.
+- **Component Sovereignty**: Atomic components own their internal logic and kinetic reflexes to ensure predictable, modular behavior.
+- **Accessibility Sovereignty**: Use Bits UI primitives for all complex interactions (Modals, Pop-ups) to ensure WCAG compliance.
+- **State Source**: Runes ($state) are the only source of truth. Never read state from the DOM.
 - **Naming**: kebab-case (files), PascalCase (Svelte), snake_case (variables).
-
-### Interaction (Vertical Monolith)
-
-- **Standardization**: High-frequency actions utilize the `GlassPill` and the **Universal Field Chassis** standard.
-- **Universal Field Chassis**: Focus-activated narrative modules with elastic expanding headers, allowing for surgical AI enhancements and metadata tracking (GRAV).
-- **Quantum Presence**: The visual representation of narrative gravity through opacity and glow intensity rather than horizontal bars.
-- **Component Sovereignty**: Atomic components (`Button`, `Slider`, `Toggle`, `LibraryCard`) own their internal kinetic reflexes (hover/active states) to ensure predictable, modular behavior.
-- **Sticky Glass Navigation**: Modal headers and footers are sticky glass anchors with signature-tinted filters, ensuring global commands (Save/Edit) are always reachable.
-- **Narrative Toolbar**: Vertical action strip triggered by row-hover, positioned in the inner gutter.
 
 ---
 

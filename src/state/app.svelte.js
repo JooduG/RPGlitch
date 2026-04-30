@@ -1,21 +1,22 @@
 /**
  * src/state/app.svelte.js
- * 🛠️ UI: Interface State (Simulation & Gamemaster)
+ * UI: Interface State (Simulation & Gamemaster)
  * Manages modals, view states, and visual feedback using storyboard/storymode terminology.
- * ZERO NESTING — Flattened Schema only.
+ * ZERO NESTING - Flattened Schema only.
  */
+import { KV_SETTINGS_KEY } from "@core/constants.js";
+import { log as engineLog } from "@core/logger.svelte.js";
+import { normalize } from "../data/content-normaliser.js";
 import { db } from "../data/db.js";
+import { entities } from "../data/repository.js";
+import { visual_engine } from "../media/visual-engine.svelte.js";
 import { generateUUID } from "../ui/utils/helpers.js";
 import { closeLightbox, openLightbox } from "./lightbox.svelte.js";
 import { runtime } from "./runtime.svelte.js";
 import { simulationState } from "./status.svelte.js";
-import { normalize } from "../data/content-normaliser.js";
-import { visual_engine } from "../media/visual-engine.svelte.js";
-import { KV_SETTINGS_KEY } from "@core/constants.js";
-import { entities } from "../data/repository.js";
 
 /************************************************************************************
- * 🧩 [SECTION: STATE DEFINITIONS]
+ * [SECTION: STATE DEFINITIONS]
  * ----------------------------------------------------------------------------------
  * Core reactive state for the application.
  ************************************************************************************/
@@ -108,12 +109,12 @@ export class AppStore {
     };
     this.logs.unshift(entry);
     if (this.logs.length > 100) this.logs.pop();
-    if (this.settings.dev_mode) {
-      console.debug(`[Telemetry:${type.toUpperCase()}] ${message}`);
-    }
+
+    // Call engine-wide logger
+    engineLog(`[Telemetry:${type.toUpperCase()}] ${message}`);
   }
   /************************************************************************************
-   * 🧩 [SECTION: LIFECYCLE & PERSISTENCE]
+   * [SECTION: LIFECYCLE & PERSISTENCE]
    * ----------------------------------------------------------------------------------
    * Initialization and persistent storage logic.
    ************************************************************************************/
@@ -173,7 +174,7 @@ export class AppStore {
     role: "ai",
   });
   /************************************************************************************
-   * 🧩 [SECTION: UI ACTIONS]
+   * [SECTION: UI ACTIONS]
    * ----------------------------------------------------------------------------------
    * Methods for modifying UI state and triggering events.
    ************************************************************************************/

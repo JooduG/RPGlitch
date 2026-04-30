@@ -1,6 +1,6 @@
 /**
  * src/media/resilience.js
- * 🛡️ RESILIENCE LAYER
+ * ðŸ›¡ï¸ RESILIENCE LAYER
  * Implements defensive patterns to handle external API volatility.
  */
 

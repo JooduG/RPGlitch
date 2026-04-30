@@ -5,7 +5,7 @@
 import "@theme/app.css";
 import Dexie from "dexie";
 import DOMPurify from "dompurify";
-// 🚑 EMERGENCY POLYFILL: Expose to window for legacy code/perchance integration
+// ðŸš‘ EMERGENCY POLYFILL: Expose to window for legacy code/perchance integration
 // Must happen BEFORE any other code runs
 Object.assign(window, { Dexie, DOMPurify });
 // [DEV] Mock rpgLists for local development to bypass 5s bootstrap timeout
@@ -17,7 +17,7 @@ if (!window.rpgLists) {
   };
   console.info("[Engine] Injected mock rpgLists for local dev.");
 }
-// 🚀 BOOTSTRAP
+// ðŸš€ BOOTSTRAP
 import { AppBootstrap } from "./core/bootstrap.js";
 AppBootstrap.init().then(() => {
   console.info("[Engine] Entry point active. Handing off to Bootstrap.");

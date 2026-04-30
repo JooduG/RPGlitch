@@ -1,50 +1,50 @@
 /**
  * @file src/core/intelligence/entity-fragments.js
  *
- * ─────────────────────────────────────────────────────────────────────────────
- * 📋 ENTITY FRAGMENTS  —  The One True Source of Truth for Entity Taxonomy
- * ─────────────────────────────────────────────────────────────────────────────
+ * ⚔️
+ * 📋 ENTITY FRAGMENTS    The One True Source of Truth for Entity Taxonomy
+ * ⚔️
  *
  * PURPOSE
  * Defines the canonical schema for all entity fields across the simulation.
  * Every field has a UI label, an AI directive, and an enhancer tag.
  *
  * TWO EXPORTS
- * ┌─────────────────────────────────────────────────────────────────────────┐
- * │  ENTITY_FRAGMENTS  — Nested, section-grouped source of truth.           │
- * │                      Consumed by: UI components, broker (via CATALOG).  │
- * │                                                                         │
- * │  ENTITY_CATALOG    — Flat dot-keyed map derived from ENTITY_FRAGMENTS.  │
- * │                      Consumed by: ContextBroker.js for iteration.       │
- * └─────────────────────────────────────────────────────────────────────────┘
+ * Œ
+ *  ENTITY_FRAGMENTS   Nested, section-grouped source of truth.           ‚
+ *                      Consumed by: UI components, broker (via CATALOG).  ‚
+ *                                                                         ‚
+ *  ENTITY_CATALOG     Flat dot-keyed map derived from ENTITY_FRAGMENTS.  ‚
+ *                      Consumed by: ContextBroker.js for iteration.       ‚
+ *
  *
  * FIELD SCHEMA
- *   label     {string}  — Display name for the field (UI + prompt).
- *   directive {string}  — Third-person AI writing instruction for the field.
- *   enhancer  {string}  — Semantic tag used for LexicalFilter prioritization.
+ *   label     {string}   Display name for the field (UI + prompt).
+ *   directive {string}   Third-person AI writing instruction for the field.
+ *   enhancer  {string}   Semantic tag used for LexicalFilter prioritization.
  *
  * SECTION SCHEMA (UI-only additions, not used by engine)
- *   sublabel  {string}  — UI subtitle shown beneath the section header.
- *   columns   {number}  — UI grid column count for the section's fields.
+ *   sublabel  {string}   UI subtitle shown beneath the section header.
+ *   columns   {number}   UI grid column count for the section's fields.
  */
 /************************************************************************************
- * 🧩 [SECTION: ENTITY FRAGMENTS]
+ * [SECTION: ENTITY FRAGMENTS]
  * ----------------------------------------------------------------------------------
- * Source definition. Nested by temporal section → field key.
+ * Source definition. Nested by temporal section -> field key.
  * Temporal sections: Eternal, Present, Past, Future.
  ************************************************************************************/
 /**
  * Canonical taxonomy of all entity fields, grouped by temporal section.
  *
  * ESSENCE TAXONOMY
- *   Eternal / Present → each has `physical` + `non_physical` fields
- *   Past / Future     → each has a single unified field (`vectors`)
+ *   Eternal / Present -> each has `physical` + `non_physical` fields
+ *   Past / Future     -> each has a single unified field (`vectors`)
  *
  * Note: `physical` fields are excluded from simulation mode prompts by the broker.
  */
 export const ENTITY_FRAGMENTS = {
   name: "Name",
-  description: "Identity Summary — Summary of the entity's vibe and role.",
+  description: "Identity Summary  Summary of the entity's vibe and role.",
   eternal: {
     label: "Eternal",
     sublabel: "Permanent Traits & Features", // UI only
@@ -113,7 +113,7 @@ export const ENTITY_FRAGMENTS = {
   },
 };
 /************************************************************************************
- * 🧩 [SECTION: ENGINE CATALOG]
+ * [SECTION: ENGINE CATALOG]
  * ----------------------------------------------------------------------------------
  * Flattened dot-key map derived from ENTITY_FRAGMENTS for efficient broker lookups.
  * Keys use dot notation: "eternal.non_physical", "past.essence", etc.
@@ -121,9 +121,9 @@ export const ENTITY_FRAGMENTS = {
 /**
  * Builds a flat `{ [dotKey]: metadata }` map from the nested ENTITY_FRAGMENTS tree.
  * Each entry is enriched with:
- *   - `id`           {string} — Dot-notation key, e.g. "eternal.non_physical"
- *   - `section_label`{string} — Parent section display name, e.g. "Eternal"
- *   - `layer_key`    {string} — Parent section key in uppercase, e.g. "ETERNAL"
+ *   - `id`           {string}  Dot-notation key, e.g. "eternal.non_physical"
+ *   - `section_label`{string}  Parent section display name, e.g. "Eternal"
+ *   - `layer_key`    {string}  Parent section key in uppercase, e.g. "ETERNAL"
  *
  * @returns {Object.<string, Object>} Flat catalog keyed by dot-notation field ID.
  */
@@ -164,6 +164,6 @@ function build_entity_catalog() {
  *
  * @example
  * ENTITY_CATALOG["eternal.non_physical"]
- * // → { label, directive, enhancer, id, section_label: "Eternal", layer_key: "ETERNAL" }
+ * // -> { label, directive, enhancer, id, section_label: "Eternal", layer_key: "ETERNAL" }
  */
 export const ENTITY_CATALOG = build_entity_catalog();

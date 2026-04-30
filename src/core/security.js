@@ -1,7 +1,7 @@
 import DOMPurify from "dompurify";
 /**
  * src/core/security.js
- * 🛡️ SECURITY: The Shield
+ * ðŸ›¡ï¸ SECURITY: The Shield
  * Zero-Trust enforcement and data sanitization.
  */
 // 1. Sanitize HTML (Zero-Trust)

@@ -4,7 +4,7 @@
  * Consolidates all impulses, reactions, and signals into a unified DYNAMICS registry.
  */
 /**
- * 📢 THE DYNAMICS REGISTRY
+ * ðŸ“¢ THE DYNAMICS REGISTRY
  * -----------------------------------------------------------------------------
  * A unified table for all Reactive impulses, Passive state signals, and Physics Laws.
  * Rules    :
@@ -13,7 +13,7 @@
  * - Effect : Numerical changes (ai/fractal) and Narrative (text).
  */
 export const DYNAMICS = [
-  // 🧬 AI SOMATICS (Passive Signals)
+  // ðŸ§¬ AI SOMATICS (Passive Signals)
   {
     id: "ADRENALINE",
     trigger: "turn",
@@ -68,7 +68,7 @@ export const DYNAMICS = [
       text: "Repulsion. Hostile distance. Passive-aggressive friction.",
     },
   },
-  // 🌍 ENVIRONMENTAL FRACTAL (Passive Signals)
+  // ðŸŒ ENVIRONMENTAL FRACTAL (Passive Signals)
   {
     id: "HIGH_VELOCITY",
     trigger: "turn",
@@ -93,7 +93,7 @@ export const DYNAMICS = [
     filter: { below: { entropy: 30 } },
     effect: { text: "Structural harmony. Safe, predictable physics." },
   },
-  // ⚖️ PHYSICS LAWS (Ongoing Numerical Effects Each Turn)
+  // âš–ï¸ PHYSICS LAWS (Ongoing Numerical Effects Each Turn)
   {
     id: "INTENSITY_AUTO_LOCK",
     trigger: "turn",
@@ -118,7 +118,7 @@ export const DYNAMICS = [
     filter: { above: { affinity: 90 } },
     effect: { ai: { openness: 5 } },
   },
-  // ⚡ IMPULSES (Active Triggers)
+  // âš¡ IMPULSES (Active Triggers)
   {
     id: "SHARD",
     trigger: [
@@ -246,6 +246,7 @@ export const dynamics_engine = {
       flags: entities.AI?.flags || [],
       signals: {},
       signal_prompts: [],
+      contributors: {}, // Tracks which rules caused specific changes { "AI.intensity": ["VIOLENCE"] }
     };
     dynamics_engine.simulation_dynamics(next_state, history, matches);
     return next_state;
@@ -294,6 +295,7 @@ export const dynamics_engine = {
    * Applies numerical shifts from matching triggers OR matching filters (for Laws).
    */
   dynamics_numerical(state, matches) {
+    if (!state.contributors) state.contributors = {};
     const processed = new Set();
     DYNAMICS.forEach((data) => {
       if (processed.has(data.id)) return;
@@ -314,8 +316,14 @@ export const dynamics_engine = {
             const ent_state = state[ent_key];
             if (ent_state?.dynamics) {
               Object.keys(eff[ent_key]).forEach((axis) => {
-                if (ent_state.dynamics[axis] !== undefined)
+                if (ent_state.dynamics[axis] !== undefined) {
                   ent_state.dynamics[axis] += eff[ent_key][axis];
+
+                  // Track contributor
+                  const track_key = `${ent_key.toUpperCase()}.${axis}`;
+                  if (!state.contributors[track_key]) state.contributors[track_key] = [];
+                  state.contributors[track_key].push(data.id);
+                }
               });
             }
           });

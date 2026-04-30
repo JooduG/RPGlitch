@@ -1,6 +1,6 @@
 /**
  * src/media/optics.js
- * 👁️ OPTICS LAYER
+ * ðŸ‘ï¸ OPTICS LAYER
  * High-fidelity prompt engineering and aesthetic resolution.
  * Focuses on photorealistic camera specs and cinematic grounding.
  */

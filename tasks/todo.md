@@ -1,7 +1,7 @@
 # Task List - Sovereign Alignment
 
 > **Status**: `[ACTIVE]`
-> **Last Update**: 2026-04-20 (Stockholm Sync)
+> **Last Update**: 2026-04-30 (Stockholm Sync)
 > **Current Milestone**: Milestone 1 (The Foundry)
 
 ## 🗺️ Project Roadmap
@@ -24,6 +24,11 @@
   - [x] Polish `Drawer` "Create New" card (question mark avatar, no tooltip, no glow, glass-s surface)
   - [x] Fix `LibraryCard` signature bar bottom radius clipping
   - [x] Remove border from danger/invisible button default state
+- [x] Hidden Dynamics Logs & Telemetry UI ([051])
+  - [x] Implement post-simulation delta capture
+  - [x] Create Nordic-style telemetry UI in Message feed
+  - [x] Ensure system logs are filtered from AI context
+  - [x] Fix linting and formatting issues
 
 ---
 
@@ -44,6 +49,7 @@
 
 ## 🏁 Completed Missions (Recent)
 
+- **[052]** Engine Hygiene & Aesthetic Restoration [DONE]
 - **[049]** UI Refactoring & CSS Cleanup [DONE]
 - **[048]** StoryCard Refinement & Control Panel Mocks [DONE]
 - **[047]** Unified Dialog System & Modal Standardization
@@ -67,7 +73,10 @@
 
 | Timestamp (ISO 8601)      | Task                                                                                  | Skill Invoked                                | Outcome |
 | ------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------- | ------- |
-| 2026-04-30T18:19:51+00:00 | Review and cleanup task plan file tasks/plan.md                                       | `warden`, `directives`                       | ✅ Done |
+| 2026-04-30T18:14:00+02:00 | Engine Hygiene & Aesthetic Restoration ([052])                                        | `debugging-and-error-recovery`, `warden`     | ✅ Done |
+| 2026-04-30T13:40:00+02:00 | Fix Telemetry Test Mocks & Robust Mapping ([051])                                     | `test-driven-development`, `svelte`          | ✅ Done |
+| 2026-04-30T13:16:00+02:00 | Fix Telemetry UI Lints ([051])                                                        | `frontend-ui-engineering`, `css`             | ✅ Done |
+| 2026-04-30T12:56:00+02:00 | Session Boot ([/boot]) — Mental Model & Context Sync                                  | `using-agent-skills`, `data`, `warden`       | ✅ Done |
 | 2026-04-29T23:03:00+02:00 | Final UI Polishing ([050]) — Create New card, danger/invisible borders, Nordic tokens | `css`, `frontend-ui-engineering`             | ✅ Done |
 | 2026-04-29T19:45:00Z      | UI Refactoring & CSS Cleanup ([049])                                                  | `css`, `frontend-ui-engineering`             | ✅ Done |
 | 2026-04-25T21:25:00Z      | Skill Rewiring & Script Realignment ([046])                                           | `directives`, `using-agent-skills`, `warden` | ✅ Done |

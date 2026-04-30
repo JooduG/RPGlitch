@@ -1,16 +1,16 @@
 /**
  * @file src/core/intelligence/intelligence-kernel.js
  *
- * ─────────────────────────────────────────────────────────────────────────────
- * 🧠 gamemaster  —  The Brain's Core
- * ─────────────────────────────────────────────────────────────────────────────
+ * -----------------------------------------------------------------------------
+ * gamemaster - The Brain's Core
+ * -----------------------------------------------------------------------------
  *
  * PURPOSE
  * This service unifies the Intelligence Kernel (Broker, Dynamics, Builder)
  * and the Transport Layer (llm_service) into a single, cohesive execution flow.
  *
  * RESPONSIBILITIES
- * 1. gamemaster Execution: Hydrate -> Simulate -> Synthesize -> Generate.
+ * gamemaster Execution: Hydrate -> Simulate -> Synthesize -> Generate.
  * 2. Persistence  : Automatically logs turns to the Session database.
  * 3. Physics      : Updates global runtime physics based on simulation results.
  */
@@ -58,6 +58,52 @@ export const gamemaster = {
   },
 
   /**
+   * CAPTURE DYNAMICS DELTA
+   * Detects changes in entity dynamics and logs a telemetry entry.
+   */
+  async capture_dynamics_delta(snapshot) {
+    const deltas = [];
+
+    // AI Deltas
+    if (snapshot.ai?.dynamics) {
+      Object.entries(snapshot.ai.dynamics).forEach(([axis, val]) => {
+        const old_val = runtime.ai[axis] ?? 50;
+        const diff = val - old_val;
+        if (diff !== 0) {
+          const cause = snapshot.contributors?.[`AI.${axis}`]?.join(", ") || "GM";
+          deltas.push(`AI.${axis}: ${val} (${diff > 0 ? "+" : ""}${diff}) [${cause}]`);
+        }
+      });
+    }
+
+    // Fractal Deltas
+    if (snapshot.fractal?.dynamics) {
+      Object.entries(snapshot.fractal.dynamics).forEach(([axis, val]) => {
+        const old_val = runtime.fractal[axis] ?? 50;
+        const diff = val - old_val;
+        if (diff !== 0) {
+          const cause = snapshot.contributors?.[`FRACTAL.${axis}`]?.join(", ") || "GM";
+          deltas.push(`World.${axis}: ${val} (${diff > 0 ? "+" : ""}${diff}) [${cause}]`);
+        }
+      });
+    }
+
+    // Signals
+    const active_signals = Object.keys(snapshot.signals || {});
+
+    if (deltas.length > 0) {
+      await session_driver.log_system_entry(deltas.join(" | "), "telemetry", {
+        deltas,
+        signals: active_signals,
+        snapshot: {
+          ai: snapshot.ai?.dynamics,
+          fractal: snapshot.fractal?.dynamics,
+        },
+      });
+    }
+  },
+
+  /**
    * EXECUTE TURN
    * The primary simulation loop for a narrative turn.
    *
@@ -78,7 +124,7 @@ export const gamemaster = {
     // 2. HYDRATION: Fetch history and hydrate context
     const raw_messages = await session_driver.load_log(story_id);
     const simulation_log = raw_messages
-      .filter((m) => !m.meta?.consolidated)
+      .filter((m) => !m.meta?.consolidated && m.role !== "system")
       .map((m) => ({
         role: m.role === "user" ? "user" : "model",
         content: m.text || m.content || "",
@@ -87,6 +133,9 @@ export const gamemaster = {
     const payload = await context_broker.hydrate(input, "simulation", simulation_log);
     // 3. SIMULATION: Resolve physics and behaviors
     const snapshot = dynamics_engine.simulate(payload);
+
+    // 3.1 TELEMETRY: Capture deltas before runtime update
+    await this.capture_dynamics_delta(snapshot);
 
     // 3.5. MECHANICAL GATE: Inject GM bridges
     const gm_bridges = this.generate_narrative_bridges(snapshot);
@@ -122,6 +171,8 @@ export const gamemaster = {
       fractal_dynamics: meta.fractal,
       flags: meta.flags,
       signal_prompts: meta.signal_prompts,
+      signals: meta.signals,
+      vectors: meta.vectors,
       round: runtime.round,
       turn_type: "AI_TURN",
     });
