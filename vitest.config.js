@@ -23,6 +23,6 @@ export default defineConfig({
     include: ["src/**/*.{test,spec}.{js,ts}", ".agent/skills/*/scripts/*.{test,spec}.{js,ts}"],
     exclude: ["**/node_modules/**", "**/.git/**"],
     // setupFiles: [".agent/skills/warden/scripts/setup.js"],
-    setupFiles: [".agent/skills/verification/scripts/test-setup.js"],
+    setupFiles: [".agent/skills/governance/scripts/test-setup.js"],
   },
 });
