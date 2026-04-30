@@ -169,7 +169,7 @@ export function resolve(entity, vector_id, resolution = null) {
   // Telemetry
   session_driver.log_system_entry(
     `Vector Resolved: ${vector.text.substring(0, 40)}... [${resolution || "PAST"}]`,
-    "telemetry",
+    "system",
     {
       type: "VECTOR_RESOLUTION",
       vector,

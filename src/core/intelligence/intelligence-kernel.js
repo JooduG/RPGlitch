@@ -92,7 +92,8 @@ export const gamemaster = {
     const active_signals = Object.keys(snapshot.signals || {});
 
     if (deltas.length > 0) {
-      await session_driver.log_system_entry(deltas.join(" | "), "telemetry", {
+      await session_driver.log_system_entry(deltas.join(" | "), "system", {
+        type: "telemetry",
         deltas,
         signals: active_signals,
         snapshot: {

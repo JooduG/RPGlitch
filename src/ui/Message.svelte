@@ -52,7 +52,12 @@
   let is_user = $derived(sender === "user");
   let is_ai = $derived(sender === "ai");
   let is_fractal = $derived(sender === "fractal");
-  let is_telemetry = $derived(sender === "system" && meta?.type === "telemetry");
+  let is_telemetry = $derived(
+    sender === "system" &&
+      (meta?.type === "telemetry" ||
+        meta?.type === "VECTOR_RESOLUTION" ||
+        meta?.type === "MEMORY_FORMATION"),
+  );
 
   let entity = $derived.by(() => {
     // 1. Explicit character name check

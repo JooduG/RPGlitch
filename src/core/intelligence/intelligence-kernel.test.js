@@ -3,6 +3,8 @@ import { gamemaster } from "./intelligence-kernel.js";
 import { context_broker } from "./context-broker.js";
 import { prompt_builder } from "./prompt-builder.js";
 import { llm_service } from "./llm-service.js";
+import { session_driver } from "@core/engine/session-driver.svelte.js";
+import { runtime } from "@state/runtime.svelte.js";
 
 // Mock dependencies
 vi.mock("./context-broker.js", () => ({
@@ -30,11 +32,14 @@ vi.mock("@core/engine/session-driver.svelte.js", () => ({
   session_driver: {
     load_log: vi.fn().mockResolvedValue([]),
     log_turn: vi.fn().mockResolvedValue({}),
+    log_system_entry: vi.fn().mockResolvedValue({}),
   },
 }));
 
 vi.mock("@state/runtime.svelte.js", () => ({
   runtime: {
+    ai: { intensity: 50 },
+    fractal: { entropy: 50 },
     active_ai: { name: "Viper" },
     active_fractal: { name: "Void" },
     round: 1,
@@ -59,6 +64,45 @@ vi.mock("./temporal-engine.js", () => ({
 describe("gamemaster (Intelligence Kernel)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  describe("capture_dynamics_delta()", () => {
+    it("logs telemetry with system role and correct type when deltas exist", async () => {
+      const snapshot = {
+        ai: { dynamics: { intensity: 60 } }, // +10 from runtime
+        fractal: { dynamics: { entropy: 40 } }, // -10 from runtime
+        contributors: {
+          "AI.intensity": ["TEST_CAUSE"],
+        },
+        signals: { SIGNAL_1: true },
+      };
+
+      await gamemaster.capture_dynamics_delta(snapshot);
+
+      expect(session_driver.log_system_entry).toHaveBeenCalledWith(
+        expect.stringContaining("AI.intensity: 60 (+10) [TEST_CAUSE]"),
+        "system",
+        expect.objectContaining({
+          type: "telemetry",
+          deltas: expect.arrayContaining([
+            "AI.intensity: 60 (+10) [TEST_CAUSE]",
+            "World.entropy: 40 (-10) [GM]",
+          ]),
+          signals: ["SIGNAL_1"],
+        }),
+      );
+    });
+
+    it("does not log if no deltas exist", async () => {
+      const snapshot = {
+        ai: { dynamics: { intensity: 50 } }, // same as runtime
+        fractal: { dynamics: { entropy: 50 } },
+      };
+
+      await gamemaster.capture_dynamics_delta(snapshot);
+
+      expect(session_driver.log_system_entry).not.toHaveBeenCalled();
+    });
   });
 
   it("execute_turn() coordinates hydration, synthesis, and generation", async () => {
