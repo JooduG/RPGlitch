@@ -20,7 +20,7 @@
         data-testid="delete-button">Delete</Button
       >
       <Button
-        variant="signature"
+        variant="secondary"
         fullWidth={true}
         className="profile-button"
         onclick={onclick_save}
@@ -34,7 +34,7 @@
     <div class="footer-actions">
       <div class="footer-spacer"></div>
       <Button
-        variant="signature"
+        variant="secondary"
         fullWidth={true}
         className="profile-button"
         onclick={onclick_edit}

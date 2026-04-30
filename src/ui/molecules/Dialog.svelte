@@ -62,7 +62,7 @@
       <footer>
         <div class="actions">
           {#if type === "confirm"}
-            <Button variant="ghost" onclick={handle_cancel} label={cancel_label} />
+            <Button variant="invisible" onclick={handle_cancel} label={cancel_label} />
             <Button
               variant="danger"
               onclick={handle_confirm}

@@ -115,7 +115,7 @@
         Establishing context stream... If the screen remains black, please check your network or AI
         plugin settings.
       </p>
-      <Button variant="dashed" onclick={() => session.retry()} label="Retry Connection" />
+      <Button variant="primary" onclick={() => session.retry()} label="Retry Connection" />
     </div>
   {/if}
 </div>

@@ -87,12 +87,18 @@ function createRuntimeStore() {
     },
     set ai(val) {
       ai_physics = val;
+      if (entity_state.active_ai) {
+        entity_state.active_ai.dynamics = val;
+      }
     },
     get fractal() {
       return fractal_physics;
     },
     set fractal(val) {
       fractal_physics = val;
+      if (entity_state.active_fractal) {
+        entity_state.active_fractal.dynamics = val;
+      }
     },
     get simulation() {
       return simulation_state;

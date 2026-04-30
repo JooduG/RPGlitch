@@ -1,19 +1,24 @@
 <script>
   let {
     label = "",
-    variant = "primary", // primary | secondary | ghost | danger | glass | dashed | overlay | magic | tech | signature
+    variant = "primary", // primary | secondary | danger | invisible
+    cover = false, // If true, absolute-fills the parent (replaces old overlay)
     size = "md", // sm | md
     square = false, // Enforce 1:1 aspect ratio
     fullWidth = false, // Enforce 100% width
     className = "", // Allow local overrides
     children = null,
     onclick = null,
+    actions = [],
     ...restProps // Pass through disabled, etc.
   } = $props();
+
   let element;
+
   export function focus() {
     element?.focus();
   }
+
   /**
    * Helper to apply an array of actions to the button element.
    * Actions can be: [action] or [action, params]
@@ -40,12 +45,12 @@
 
 <button
   bind:this={element}
-  class="button button-{variant} {size === 'sm' ? 'button-sm' : ''} {square
-    ? 'button-square'
-    : ''} {fullWidth ? 'button-full' : ''} {className}"
+  class="button button-{variant} {cover ? 'button-cover' : ''} {size === 'sm'
+    ? 'button-sm'
+    : ''} {square ? 'button-square' : ''} {fullWidth ? 'button-full' : ''} {className}"
   {...restProps}
   {onclick}
-  use:applyActions={restProps.actions || []}
+  use:applyActions={actions}
 >
   {#if children}
     {@render children()}
@@ -69,8 +74,8 @@
     text-decoration: none;
     cursor: pointer;
     pointer-events: auto;
-    user-select: none;
     border: none;
+    user-select: none;
     border-radius: var(--border-radius-m);
     background: transparent;
     color: var(--font-color-m);
@@ -80,7 +85,8 @@
       color var(--motion-l) var(--motion-elastic),
       box-shadow var(--motion-l) var(--motion-elastic),
       transform var(--motion-l) var(--motion-elastic),
-      filter var(--motion-l) var(--motion-elastic);
+      filter var(--motion-l) var(--motion-elastic),
+      border-color var(--motion-l) var(--motion-elastic);
   }
 
   /* 1. Modifiers & Globals (Structural) */
@@ -108,92 +114,55 @@
     flex: 1;
   }
 
-  .button-round {
-    border-radius: var(--border-radius-full);
-    padding: 0;
-    width: var(--spacing-xxl);
-    height: var(--spacing-xxl);
-  }
-
-  :global(.button-group-joined) .button {
-    border-radius: 0;
-    flex: 1;
-  }
-
-  :global(.button-group-pill) .button {
-    border-radius: var(--border-radius-full);
-    min-height: var(--spacing-xl);
-  }
-
-  /* 2. Variants (Thematic) */
-
-  .button-primary {
-    background: var(--color-frisk);
-    color: var(--color-black);
-    box-shadow: var(--shadow-m);
-  }
-
-  .button-ghost {
-    color: var(--font-color-s);
-  }
-
-  .button-outline {
-    background: var(--color-border-l);
-    color: var(--font-color-s);
-  }
-
-  .button-danger {
-    color: var(--color-white);
-  }
-
-  .button-dashed {
-    border: var(--border-l);
-    border-style: dashed;
-    color: var(--font-color-s);
-  }
-
-  .button-overlay {
+  .button.button-cover {
     position: absolute;
     inset: 0;
     z-index: var(--z-index-m);
     border-radius: 0;
     padding: 0;
     min-height: 0;
-  }
-
-  .button-magic {
-    color: var(--color-frozen);
-  }
-
-  .button-tech {
-    color: var(--color-frisk);
-  }
-
-  .button-signature {
-    background: var(--signature-color, var(--color-frisk));
-    color: var(--color-white);
+    width: 100%;
+    height: 100%;
+    background: transparent;
     border: none;
-    box-shadow: var(--shadow-s);
+    box-shadow: none;
   }
 
-  .button-glass {
-    background: var(--glass-l); /* 15% Frisk */
-    backdrop-filter: var(--blur-s);
-    border: var(--border-m);
-    color: var(--color-white);
+  /* 2. Variants (Thematic) */
+
+  /* Primary: "Pure" style - Solid White/Chalk */
+  .button-primary {
+    background: var(--color-white);
+    color: var(--color-chalk);
+    box-shadow: var(--shadow-m);
+    border: none;
   }
 
+  /* Secondary: "Signature" style - Themed Frisk */
   .button-secondary {
-    background: rgb(var(--color-frisk-rgb) / 10%); /* Subtle initial state */
-    backdrop-filter: var(--blur-s);
-    border: var(--border-s);
-    color: var(--font-color-m);
+    background: var(--signature-color, var(--color-frozen));
+    color: var(--color-white);
+    box-shadow: var(--shadow-s);
+    border: var(--border-l);
   }
 
-  .button-security {
-    color: var(--font-color-m);
-    box-shadow: 0 0 0 1px var(--color-frisk);
+  /* Danger: High-alert Action */
+  .button-danger {
+    background: transparent;
+    color: var(--color-red);
+    border: none;
+    box-shadow: none;
   }
+
+  /* Invisible: No background/border (unless cover is used for interaction) */
+  .button-invisible {
+    background: transparent;
+    color: var(--font-color-s);
+    box-shadow: none;
+    border: none;
+  }
+
+  /* 3. Operational States */
 
   .button:focus-visible {
     outline: 2px solid var(--color-white);
@@ -220,63 +189,28 @@
   }
 
   .button-primary:hover:not(:disabled, .disabled) {
-    background: color-mix(in srgb, var(--color-frisk), var(--color-white) 5%);
+    filter: brightness(1.05);
     box-shadow: var(--shadow-l);
+    transform: scale(1.02);
   }
 
-  .button-ghost:hover:not(:disabled, .disabled) {
-    background: transparent;
-    color: var(--color-white);
-    filter: brightness(1.2);
-  }
-
-  .button-outline:hover:not(:disabled, .disabled) {
-    color: var(--color-white);
-    background: transparent;
-    filter: brightness(1.2);
+  .button-secondary:hover:not(:disabled, .disabled) {
+    box-shadow: var(--shadow-m);
+    border-color: var(--color-white);
   }
 
   .button-danger:hover:not(:disabled, .disabled) {
     background: var(--color-red);
     color: var(--color-white);
-    box-shadow: 0 0 1rem rgb(var(--color-red-rgb) / var(--opacity-s));
+    box-shadow:
+      0 0 1rem rgb(var(--color-red-rgb) / var(--opacity-s)),
+      inset 0 0 0 var(--spacing-px) var(--color-red);
   }
 
-  .button-dashed:hover:not(:disabled, .disabled) {
+  .button-invisible:hover:not(:disabled, .disabled) {
     background: transparent;
-    border-color: var(--font-color-m);
     color: var(--color-white);
     filter: brightness(1.2);
-  }
-
-  .button-magic:hover:not(:disabled, .disabled) {
-    background: rgb(var(--color-frozen-rgb) / 15%);
-    color: var(--color-white);
-  }
-
-  .button-tech:hover:not(:disabled, .disabled) {
-    background: rgb(var(--color-frisk-rgb) / 15%);
-    color: var(--color-white);
-  }
-
-  .button-signature:hover:not(:disabled, .disabled) {
-    box-shadow: var(--shadow-m);
-  }
-
-  .button-glass:hover:not(:disabled, .disabled) {
-    background: var(--glass-xl); /* 30% Nordic Deep Glass */
-    backdrop-filter: var(--blur-m);
-    border-color: var(--color-frisk);
-    box-shadow: var(--shadow-m);
-  }
-
-  .button-secondary:hover:not(:disabled, .disabled) {
-    background: var(--glass-l); /* 15% Frisk on hover */
-    backdrop-filter: var(--blur-m);
-  }
-
-  .button-security:hover:not(:disabled, .disabled) {
-    box-shadow: 0 0 0 1px var(--font-color-m);
   }
 
   .button :global(.icon) {
@@ -284,6 +218,11 @@
   }
 
   /* 5. Positional Overrides (Must be last) */
+  :global(.button-group-joined) .button {
+    border-radius: 0;
+    flex: 1;
+  }
+
   :global(.button-group-joined) .button:first-child {
     border-radius: var(--border-radius-m) 0 0 var(--border-radius-m);
   }
@@ -293,6 +232,6 @@
   }
 
   :global(.button-group-joined) .button:not(:last-child) {
-    border-right: 1px solid var(--glass-s);
+    border-right: var(--spacing-px) solid var(--glass-s);
   }
 </style>

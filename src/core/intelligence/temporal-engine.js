@@ -258,8 +258,8 @@ export const temporal_engine = {
           const resonance = await weave_resonance(ai, slice, "character");
           if (resonance) {
             if (!Array.isArray(ai.past)) ai.past = [];
-            ai.past.push(resonance);
-            await entities.upsert("character", ai);
+            ai.past = [...ai.past, resonance];
+            await runtime.update_entity("character", ai.id, { past: ai.past });
           }
         }
 

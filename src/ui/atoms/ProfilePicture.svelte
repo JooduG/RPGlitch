@@ -7,7 +7,7 @@
    */
   import { themeStore } from "@theme/palette.svelte.js";
   import { fitText } from "@ui/utils/actions/fit-text.js";
-  let { entity } = $props();
+  let { entity = null, placeholderChar = null } = $props();
 
   function calculate_initials(str) {
     if (!str) return "?";
@@ -39,10 +39,14 @@
   }
 
   // 1. Core Flattened Properties
-  let name = $derived(entity?.name || "Entity");
+  let name = $derived(entity?.name || (placeholderChar ? "" : "Entity"));
   let pictureUrl = $derived(entity?.profile_picture);
-  let signature_color = $derived(themeStore.get_signature_color(entity));
-  let initials = $derived(calculate_initials(name));
+  let signature_color = $derived(
+    entity
+      ? themeStore.get_signature_color(entity)
+      : "var(--signature-color, var(--color-gunmetal))",
+  );
+  let initials = $derived(placeholderChar || calculate_initials(name));
 
   // 2. Minor Modifiers
   let isNoBg = $derived(entity?.modifiers?.noBackground ?? false);

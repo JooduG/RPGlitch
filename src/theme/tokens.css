@@ -23,8 +23,8 @@
   --color-frisk-rgb: 138 147 153;
 
   /* Basic Colors */
-  --color-white: #fff;
-  --color-white-rgb: 255 255 255;
+  --color-white: #f7f9fc;
+  --color-white-rgb: 247 249 252;
   --color-black: #000;
   --color-black-rgb: 0 0 0;
 
@@ -191,10 +191,10 @@
   --color-border-m: rgb(var(--color-frozen-rgb) / var(--opacity-xs));
   --color-border-s: rgb(var(--color-chalk-rgb) / var(--opacity-s));
 
-  --border-xl: 1px solid var(--color-border-xl);
-  --border-l: 1px solid var(--color-border-l);
-  --border-m: 1px solid var(--color-border-m);
-  --border-s: 1px solid var(--color-border-s);
+  --border-xl: var(--spacing-px) solid var(--color-border-xl);
+  --border-l: var(--spacing-px) solid var(--color-border-l);
+  --border-m: var(--spacing-px) solid var(--color-border-m);
+  --border-s: var(--spacing-px) solid var(--color-border-s);
 
   /* Atmospheric Blur Scale */
   --blur-xl: blur(48px);

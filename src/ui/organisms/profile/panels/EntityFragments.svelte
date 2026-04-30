@@ -118,7 +118,7 @@
                 {#snippet actions()}
                   {#if is_editing}
                     <Button
-                      variant="ghost"
+                      variant="invisible"
                       size="sm"
                       square={true}
                       aria-label="Enhance with AI"

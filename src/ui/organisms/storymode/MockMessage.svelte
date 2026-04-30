@@ -1,4 +1,5 @@
 <script>
+  import Button from "@ui/atoms/Button.svelte";
   let { text, busy, on_delete, on_edit } = $props();
 </script>
 
@@ -9,6 +10,7 @@
   {#if text}
     <div class="text-content">{text}</div>
   {/if}
-  <button data-testid="mock-delete" onclick={on_delete}>Delete</button>
-  <button data-testid="mock-edit" onclick={on_edit}>Edit</button>
+  <Button data-testid="mock-delete" variant="invisible" size="sm" onclick={on_delete}>Delete</Button
+  >
+  <Button data-testid="mock-edit" variant="invisible" size="sm" onclick={on_edit}>Edit</Button>
 </div>

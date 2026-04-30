@@ -116,7 +116,6 @@
   class:user-row={is_user}
   class:ai-row={is_ai}
   class:fractal-row={is_fractal}
-  class:thinking-row={busy}
   class:centered-row={is_fractal}
 >
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
@@ -144,7 +143,7 @@
         <div class="header-actions">
           {#if is_ai && is_last}
             <Button
-              variant="ghost"
+              variant="invisible"
               size="sm"
               square={true}
               aria-label="Continue"
@@ -155,7 +154,7 @@
               >
             </Button>
             <Button
-              variant="ghost"
+              variant="invisible"
               size="sm"
               square={true}
               aria-label="Reroll"
@@ -167,7 +166,7 @@
               </svg>
             </Button>
           {/if}
-          <Button variant="ghost" size="sm" square={true} aria-label="Edit" onclick={on_edit}>
+          <Button variant="invisible" size="sm" square={true} aria-label="Edit" onclick={on_edit}>
             <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
               <path
                 d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
@@ -179,7 +178,13 @@
               ></path>
             </svg>
           </Button>
-          <Button variant="ghost" size="sm" square={true} aria-label="Copy" onclick={handle_copy}>
+          <Button
+            variant="invisible"
+            size="sm"
+            square={true}
+            aria-label="Copy"
+            onclick={handle_copy}
+          >
             <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor"></rect>
               <path
@@ -188,7 +193,13 @@
               ></path>
             </svg>
           </Button>
-          <Button variant="ghost" size="sm" square={true} aria-label="Delete" onclick={on_delete}>
+          <Button
+            variant="invisible"
+            size="sm"
+            square={true}
+            aria-label="Delete"
+            onclick={on_delete}
+          >
             <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
               <polyline points="3 6 5 6 21 6" stroke="currentColor"></polyline>
               <path
@@ -208,13 +219,13 @@
         </div>
       {:else}
         {#if scene_data}
-          <div class="scene-header-wrapper">
+          <div>
             <SceneHeader {...scene_data} />
           </div>
         {/if}
 
         {#if app.settings.dev_mode && think_block}
-          <div class="think-block-wrapper">
+          <div>
             <DataBox label="🎬 DevMode">
               {think_block}
             </DataBox>
@@ -224,14 +235,14 @@
         {#if attachments.length > 0}
           <div class="attachments">
             {#each attachments as src (src)}
-              <button
-                type="button"
-                class="attachment-button"
+              <Button
+                variant="invisible"
+                className="attachment-button"
                 onclick={() => app.open_lightbox(src)}
                 aria-label="View Attachment"
               >
                 <img {src} alt="Attachment" class="attachment-image" />
-              </button>
+              </Button>
             {/each}
           </div>
         {/if}
@@ -371,11 +382,7 @@
 
   .message-bubble.is-focused .field-header {
     height: 2.2rem;
-    background: linear-gradient(
-      to bottom,
-      color-mix(in srgb, var(--signature-color), black 40%) 0%,
-      color-mix(in srgb, var(--signature-color), transparent 100%) 100%
-    );
+    background: color-mix(in srgb, var(--signature-color), black 30%);
     border-bottom: 1px solid rgb(var(--color-white-rgb) / 12%);
     overflow: visible;
   }
@@ -459,8 +466,7 @@
   .message-content :global(strong),
   .message-content :global(b) {
     font-weight: var(--font-weight-xl);
-    color: var(--color-white);
-    text-shadow: 0 0 12px rgb(from var(--signature-color) r g b / 25%);
+    color: var(--signature-color);
   }
 
   /* High-Vis Narration */
@@ -517,23 +523,17 @@
     margin-bottom: var(--spacing-m);
   }
 
-  .attachment-button {
+  .message-row :global(.button.attachment-button) {
+    padding: var(--spacing-xxs);
+    min-height: 0;
     background: var(--glass-s);
     border: var(--border-l);
-    padding: var(--spacing-xxs);
     margin: 0 0 var(--spacing-xs) 0;
-    cursor: pointer;
-    border-radius: var(--border-radius-m);
-    transition: all var(--motion-l) var(--motion-elastic);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+    width: fit-content;
   }
 
-  .attachment-button:hover {
+  .message-row :global(.button.attachment-button:hover) {
     background: var(--glass-l);
-    filter: brightness(1.2);
   }
 
   .attachment-image {
