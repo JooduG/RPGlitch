@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   let {
     variant = "card", // 'card' | 'text' | 'hero' | 'profile-picture'
     width = "100%",

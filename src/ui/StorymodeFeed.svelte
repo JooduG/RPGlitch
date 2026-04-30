@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   import { app } from "@state/app.svelte.js";
   import { session } from "@state/session.svelte.js";
   import { simulation_log } from "@state/simulation-log.svelte.js";

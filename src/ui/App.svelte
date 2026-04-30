@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * @file App.svelte
    * THE CORE SHELL

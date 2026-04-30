@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * @file MessageToolbar.svelte
    * NARRATIVE CONTROL STRIP

@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   import { app } from "@state/app.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
   // ============================================

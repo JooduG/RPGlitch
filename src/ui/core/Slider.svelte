@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * @file Slider.svelte
    * 🎚️ THE DIAGNOSTIC SLIDER

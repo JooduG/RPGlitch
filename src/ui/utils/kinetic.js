@@ -1,4 +1,4 @@
-﻿/**
+/**
  * kinetic.js
  * The Physics Engine for RPGlitch.
  * Standardized motion primitives using the Web Animations API.

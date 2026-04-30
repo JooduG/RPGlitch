@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Storyboard Actions Module
  * Direct function calls for Perchance sandbox compatibility.
  * (CustomEvents are blocked in Perchance's sandbox)

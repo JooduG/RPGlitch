@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * DATABOX ATOM
    * A standardized frosted container for informational blocks.

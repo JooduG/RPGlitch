@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   import Button from "@ui/core/Button.svelte";
   import TextField from "@ui/core/TextField.svelte";
   import { quintOut } from "svelte/easing";

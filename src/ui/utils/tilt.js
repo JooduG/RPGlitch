@@ -1,4 +1,4 @@
-﻿/**
+/**
  * native-tilt.js
  * A dependency-free Svelte action that replicates vanilla-tilt.js physics.
  *

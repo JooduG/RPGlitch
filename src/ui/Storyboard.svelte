@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   import { app } from "@state/app.svelte.js";
   import LoadingSkeleton from "@ui/core/LoadingSkeleton.svelte";
   import Layout from "@ui/Layout.svelte";

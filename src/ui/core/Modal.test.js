@@ -1,4 +1,4 @@
-﻿// Polyfill Element.animate for JSDOM
+// Polyfill Element.animate for JSDOM
 if (!Element.prototype.animate) {
   Element.prototype.animate = function () {
     /** @type {any} */

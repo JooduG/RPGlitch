@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /** @type {{
    *  value?: boolean,
    *  label?: string,

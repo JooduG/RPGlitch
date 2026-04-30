@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Svelte Action: fitText
  * Automatically scales font size down to fit within the container's height/width.
  *

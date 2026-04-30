@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * @file src/ui/EntityFragments.svelte
    * THE TEMPORAL HYBRID FIELDS

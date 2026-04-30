@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * @file Modal.svelte
    * 🖼️ THE VOID CONTAINER

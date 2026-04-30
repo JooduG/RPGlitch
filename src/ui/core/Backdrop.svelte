@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * Backdrop.svelte
    * The standard darkening layer for Modals, Drawers, and Overlays.

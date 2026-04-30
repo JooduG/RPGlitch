@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * Layout.svelte
    * The Universal 10-Column Grid System for RPGlitch.

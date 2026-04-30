@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * @file src/ui/EntityFooter.svelte
    * THE COMMAND CENTER

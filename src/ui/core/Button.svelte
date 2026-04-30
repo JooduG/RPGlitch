@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   let {
     label = "",
     variant = "primary", // primary | secondary | danger | invisible

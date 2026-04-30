@@ -1,4 +1,4 @@
-﻿import { sanitizeToFragment } from "@core/security.js";
+import { sanitizeToFragment } from "@core/security.js";
 /**
  * Svelte Action: Safely injects sanitized HTML into a node.
  */

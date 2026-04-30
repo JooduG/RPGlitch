@@ -14,9 +14,6 @@ export const session_driver = {
   get active_id() {
     return _active_id;
   },
-  set active_id(val) {
-    _active_id = val;
-  },
 
   /**
    * Get the active story ID or throw.

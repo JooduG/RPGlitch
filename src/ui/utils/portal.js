@@ -1,4 +1,4 @@
-﻿/**
+/**
  * usage: <div use:portal> or <div use:portal={targetElement}>
  * Default target is document.body
  */

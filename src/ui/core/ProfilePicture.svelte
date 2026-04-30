@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * @file ProfilePicture.svelte
    * 🖼️ AGNOSTIC PROFILE IMAGE RENDERER

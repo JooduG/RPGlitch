@@ -1,4 +1,4 @@
-﻿/**
+/**
  * click-outside.js
  * Svelte 5 action to detect clicks outside a specific element.
  */

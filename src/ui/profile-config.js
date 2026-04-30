@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file src/ui/profile-config.js
  * @description Configuration for the Profile UI.
  * This file dynamically translates the central ENTITY_FRAGMENTS schema
