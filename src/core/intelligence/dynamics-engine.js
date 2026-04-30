@@ -317,7 +317,7 @@ export const dynamics_engine = {
             if (ent_state?.dynamics) {
               Object.keys(eff[ent_key]).forEach((axis) => {
                 if (ent_state.dynamics[axis] !== undefined) {
-                  ent_state.dynamics[axis] += eff[ent_key][axis];
+                  ent_state.dynamics[axis] = Math.min(100, Math.max(0, ent_state.dynamics[axis] + eff[ent_key][axis]));
 
                   // Track contributor
                   const track_key = `${ent_key.toUpperCase()}.${axis}`;
