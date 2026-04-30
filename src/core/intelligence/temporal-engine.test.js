@@ -17,6 +17,13 @@ vi.mock("./dynamics-engine.js", () => ({
   },
 }));
 
+vi.mock("../engine/session-driver.svelte.js", () => ({
+  session_driver: {
+    log_system_entry: vi.fn(),
+    require_active: vi.fn(() => "test-story-id"),
+  },
+}));
+
 vi.mock("./prompt-builder.js", () => ({
   prompt_builder: {
     build_memory_prompt: vi.fn(() => ({ system: "mock prompt", messages: [] })),

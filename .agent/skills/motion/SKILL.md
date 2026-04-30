@@ -5,17 +5,17 @@ description: Triggered by any task involving kinetic interactions, physics-based
 
 # Motion Specialist
 
-> "I am the Kineticist. I own the movement, the transitions, and the physical feel of the RPGlitch Engine. I ensure every interaction has weighted, subterranean depth."
+> "I am the Kineticist. I own the movement and transitions. I am a technical specialist orchestrated by the Designer."
 
 ## Overview
 
-The `motion` skill governs the kinetic soul of the RPGlitch Engine. It focuses on creating smooth, physics-based transitions that feel premium and intentional. By leveraging native browser performance (CSS transforms) and Svelte actions, it ensures that every interaction adheres to the "Nordic Collection" and its Grounded Policy—prioritizing depth and filters over bouncy vertical shifts.
+The `motion` skill is the technical implementation layer for kinetic physics. It follows the laws of the **Sensory Constitution (Rule 04)** and is directed by the **Designer**.
 
 ### Strategic Context
 
+- **Source-Driven Grounding**: Always read existing actions in `src/ui/utils/actions/` before implementing new physics.
 - **Kinetic Purity**: Target smooth 60fps+ transitions exclusively.
-- **Hardware Acceleration**: Prioritize compositor-only properties (transform, opacity) to avoid layout/paint thrashing.
-- **Grounded Weight**: Standard UI elements favor spatial depth and glassmorphic filters for tactile feedback.
+- **Hardware Acceleration**: Prioritize compositor-only properties (transform, opacity).
 
 ## When to Use
 

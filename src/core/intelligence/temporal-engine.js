@@ -3,9 +3,9 @@
  * @description The RPGlitch Temporal Engine (v1).
  * Consolidates Past (Historical Anchors) and Future (Active Impulses) into a unified temporal continuum.
  *
- * ─────────────────────────────────────────────────────────────────────────────
- * ⏳ THE TEMPORAL FABRIC
- * ─────────────────────────────────────────────────────────────────────────────
+ * -----------------------------------------------------------------------------
+ * THE TEMPORAL FABRIC
+ * -----------------------------------------------------------------------------
  * This engine manages "Temporal Log Entries" (Vectors).
  * - Past (Anchors)  : Backstory, Traumas, Education, Session Memories.
  * - Future (Impulses): Prophecies, Curses, Dreams, Impending Doom, Plans.
@@ -16,9 +16,10 @@ import { dynamics_engine } from "./dynamics-engine.js";
 import { llm_service } from "./llm-service.js";
 import { prompt_builder } from "./prompt-builder.js";
 import { simulation_log as log_store } from "../../state/simulation-log.svelte.js";
+import { session_driver } from "../engine/session-driver.svelte.js";
 
 /**
- * 🧩 TEMPORAL LOG ENTRY (Vector Schema)
+ * TEMPORAL LOG ENTRY (Vector Schema)
  * {
  *   id: uuid,
  *   timestamp: number,
@@ -164,6 +165,17 @@ export function resolve(entity, vector_id, resolution = null) {
 
   if (!Array.isArray(entity.past)) entity.past = [];
   entity.past.push(vector);
+
+  // Telemetry
+  session_driver.log_system_entry(
+    `Vector Resolved: ${vector.text.substring(0, 40)}... [${resolution || "PAST"}]`,
+    "system",
+    {
+      type: "VECTOR_RESOLUTION",
+      vector,
+      resolution,
+    },
+  );
 }
 
 /**
@@ -260,6 +272,17 @@ export const temporal_engine = {
             if (!Array.isArray(ai.past)) ai.past = [];
             ai.past = [...ai.past, resonance];
             await runtime.update_entity("character", ai.id, { past: ai.past });
+
+            // Telemetry
+            await session_driver.log_system_entry(
+              `Memory Weaved: ${resonance.text.substring(0, 50)}...`,
+              "system",
+              {
+                type: "MEMORY_FORMATION",
+                vectors: { past: [resonance], future: [] },
+                turns_count: slice.length,
+              },
+            );
           }
         }
 
@@ -277,7 +300,7 @@ export const temporal_engine = {
   },
 
   /**
-   * ⚙️ ENSURE MOMENTUM
+   * ENSURE MOMENTUM
    */
   ensure_momentum: (runtime, app) => {
     const fractal = runtime.active_fractal;

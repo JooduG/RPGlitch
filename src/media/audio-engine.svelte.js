@@ -1,6 +1,6 @@
 /**
  * src/media/audio-engine.svelte.js
- * 🎵 AUDIO ENGINE
+ * [**] AUDIO ENGINE
  * The sensory cortex for all things sonic. Handles sound effects,
  * notifications, and text-to-speech with Svelte 5 reactivity.
  */
@@ -10,7 +10,7 @@ import { getRpgList } from "@ui/utils/helpers.js";
 const STORAGE_KEY = "rpglitch_audio_settings";
 
 /************************************************************************************
- * 🧩 [SECTION: VOICE ENGINE]
+ * [SECTION: VOICE ENGINE]
  * Low-level wrapper for window.speechSynthesis.
  ************************************************************************************/
 export class VoiceEngine {
@@ -129,7 +129,7 @@ export class VoiceEngine {
 }
 
 /************************************************************************************
- * 🧩 [SECTION: AUDIO EFFECTS ENGINE]
+ * [SECTION: AUDIO EFFECTS ENGINE]
  * Handles sound effects and browser AudioContext state.
  ************************************************************************************/
 class AudioEffectsEngine {
@@ -259,7 +259,7 @@ class AudioEffectsEngine {
 }
 
 /************************************************************************************
- * 🧩 [SECTION: THE AUDIO SINGLETON]
+ * [SECTION: THE AUDIO SINGLETON]
  * Primary interface for the rest of the application.
  ************************************************************************************/
 export const Audio = new (class {

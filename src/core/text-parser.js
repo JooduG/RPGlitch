@@ -1,7 +1,7 @@
 /**
  * @file text_parser.js
  * @description Logic for parsing raw LLM output into structured UI data.
- * Handles: Think blocks, Image prompts, Scene Headers, and Markdown.
+ * Handles: Think blocks, Image prompts, and Markdown.
  */
 import MarkdownIt from "markdown-it";
 
@@ -88,29 +88,6 @@ export function clean_image_prompts(text) {
   return result;
 }
 /**
- * Parses Scene Headers in the format: 『 [Location] · [Time] · [Weather] 』
- * @param {string} text
- * @returns {{ content: string, header: { location: string, time: string, weather: string }|null }}
- */
-export function parse_scene_header(text) {
-  if (!text) return { content: "", header: null };
-  // Pattern: 『 [Location] · [Time] · [Weather] 』
-  const match = text.match(
-    /^『\s*\[\s*([\s\S]*?)\s*]\s*·\s*\[\s*([\s\S]*?)\s*]\s*·\s*\[\s*([\s\S]*?)\s*]\s*』/,
-  );
-  if (match) {
-    return {
-      content: text.replace(match[0], "").trim(),
-      header: {
-        location: match[1].trim(),
-        time: match[2].trim(),
-        weather: match[3].trim(),
-      },
-    };
-  }
-  return { content: text, header: null };
-}
-/**
  * Master parser that runs all passes.
  * @param {string} rawText
  * @returns {{ displayText: string, think: string|null, sceneData: object|null }}
@@ -121,16 +98,14 @@ export function parse_message(rawText) {
   // 2. Extract Think Block
   const thinkResult = parse_think_block(text);
   text = thinkResult.content;
-  // 3. Extract Scene Header
-  const headerResult = parse_scene_header(text);
 
-  // 4. Render Markdown
-  const rendered = md.render(headerResult.content).trim();
+  // 3. Render Markdown
+  const rendered = md.render(text).trim();
 
   return {
     displayText: rendered,
     think: thinkResult.think,
-    sceneData: headerResult.header,
+    sceneData: null,
   };
 }
 

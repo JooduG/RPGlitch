@@ -1,9 +1,9 @@
 /**
  * @file src/core/intelligence/context-broker.js
  *
- * ─────────────────────────────────────────────────────────────────────────────
- * 🔌 CONTEXT BROKER  —  The State Adapter & Document Assembler
- * ─────────────────────────────────────────────────────────────────────────────
+ * €
+ * 🔌 CONTEXT BROKER    The State Adapter & Document Assembler
+ * €
  *
  * PURPOSE
  * context_broker is the "Secretary" of the Intelligence Kernel. It handles
@@ -11,15 +11,15 @@
  * cleaning it, and packaging it into a unified IntelligencePayload.
  */
 import { runtime } from "../../state/runtime.svelte.js";
-import { ENTITY_CATALOG } from "./entity-fragments.js";
 import { clean_text } from "../text-parser.js";
 import { dynamics_engine } from "./dynamics-engine.js";
+import { ENTITY_CATALOG } from "./entity-fragments.js";
 import { temporal_engine } from "./temporal-engine.js";
 
 const LOG_CACHE = new WeakMap();
 
 /************************************************************************************
- * 🧩 [SECTION: PRIVATE HELPERS]
+ * [SECTION: PRIVATE HELPERS]
  ************************************************************************************/
 function get_sanitized_text(msg) {
   if (!msg || typeof msg !== "object") return "";
@@ -70,7 +70,7 @@ function to_data_points(entity) {
   return list.filter((f) => f.text.length > 0);
 }
 /************************************************************************************
- * 🧩 [SECTION: CONTEXT BROKER]
+ * [SECTION: CONTEXT BROKER]
  ************************************************************************************/
 export const context_broker = {
   /**

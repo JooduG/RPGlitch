@@ -52,7 +52,7 @@ describe("Dynamics Engine v2 (Refactored)", () => {
     });
     it("should trigger Passive Natural Force (INTENSITY_AUTO_LOCK)", () => {
       const state = createBaseState();
-      state.ai.dynamics.intensity = 95; // Above 90 — triggers PHYSICS LAW threshold
+      state.ai.dynamics.intensity = 95; // Above 90  triggers PHYSICS LAW threshold
       dynamics_engine.simulation_dynamics(state, null, []);
       // Law: Intensity > 90 -> Openness -10
       // Openness: 50 - 10 = 40. Gravity: 40 + (50-40)*.25 = 42.5 -> 43

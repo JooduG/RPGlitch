@@ -8,7 +8,7 @@ Analyze the intended action against the following factors. Resolve conflicts in 
 
 ### 1.1 Passive Governance
 
-[Rules](./.agent/rules), mandatory prerequisites ([spec-driven-development](./.agent/skills/spec-driven-development/SKILL.md) and [test-driven-development](./.agent/skills/test-driven-development/SKILL.md)), and constraints.
+[Rules](./.agent/rules), mandatory prerequisites ([specification](./.agent/skills/specification/SKILL.md) and [test-driven-development](./.agent/skills/test-driven-development/SKILL.md)), and constraints.
 
 ### 1.2 Order of operations
 
@@ -24,7 +24,7 @@ User preferences.
 
 ### 1.5 Intent Decoding
 
-Is the user's intent completely clear? If not, _Halt_ execution and invoke the [idea-refine](./.agent/skills/idea-refine/SKILL.md) skill (for conceptual ambiguity) or the [Master Dispatcher](./.agent/skills/using-agent-skills/SKILL.md) (for tactical ambiguity) to resolve intent before proceeding.
+Is the user's intent completely clear? If not, _Halt_ execution and invoke the [specification](./.agent/skills/specification/SKILL.md) skill (for conceptual ambiguity) or the [Master Dispatcher](./.agent/skills/using-agent-skills/SKILL.md) (for tactical ambiguity) to resolve intent before proceeding.
 
 ## 🧠 2. Hypothesis Generation & Triage
 
@@ -100,7 +100,7 @@ If the _logic shifts_ drastically during testing -> _update the [Plan](./tasks/p
 
 ## ⚙️ 5. The Execution & Grounding Sequence
 
-Once planned and cleared, execute the task using tools at your disposal. **EVERY** implementation must be preceded by [Spec-driven Development](./.agent/skills/spec-driven-development/SKILL.md) and verified via [Test-driven Development](./.agent/skills/test-driven-development/SKILL.md). Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers.
+Once planned and cleared, execute the task using tools at your disposal. **EVERY** implementation must be preceded by [Specification](./.agent/skills/specification/SKILL.md) and verified via [Test-driven Development](./.agent/skills/test-driven-development/SKILL.md). Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers.
 
 Every operational turn must conclude with a metadata block that signals the active role and thinking approach according to [Intelligence](.agent/rules/05-intelligence.md).
 
@@ -110,10 +110,13 @@ Every operational turn must conclude with a metadata block that signals the acti
 
 Below are the most common skills to be used in this step:
 
+- **[Designer & Sensory Dispatcher](./.agent/skills/designer)**: Orchestrates the atmosphere. Directs CSS, Motion, Audio, and Image-Gen specialists.
+- **[Specification](./.agent/skills/specification)**: Moves from "raw vibe" to technical blueprint.
+- **[Planning](./.agent/skills/planning)**: Breaks work into vertical slices and delivers increments.
+- **[Governance](./.agent/skills/governance)**: Architect of Laws, ADRs, and automated audits.
+- **[Quality](./.agent/skills/quality)**: Multi-axis code review and simplification.
+- **[Delivery](./.agent/skills/delivery)**: CI/CD gates and production shipping.
 - **[Svelte Specialist](./.agent/skills/svelte)**
-- **[CSS Specialist](./.agent/skills/css)**
-- **[Motion Specialist](./.agent/skills/motion)**
-- **[Audio Specialist](./.agent/skills/audio)**
 - **[Simulation Orchestration](./.agent/skills/simulation)**
 
 ## ✅ 6. Completeness & Quality Gate

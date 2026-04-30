@@ -1,16 +1,16 @@
 <script>
   /**
    * @file App.svelte
-   * 🎮 THE CORE SHELL
+   * THE CORE SHELL
    * View-switching logic using storyboard and storymode terminology.
    */
   import { app } from "@state/app.svelte.js";
   import { lightbox } from "@state/lightbox.svelte.js";
-  import Lightbox from "@ui/molecules/Lightbox.svelte";
-  import ControlPanel from "@ui/organisms/ControlPanel.svelte";
-  import Profile from "@ui/organisms/profile/Profile.svelte";
-  import Storyboard from "@ui/organisms/storyboard/Storyboard.svelte";
-  import Storymode from "@ui/organisms/storymode/Storymode.svelte";
+  import Lightbox from "@ui/core/Lightbox.svelte";
+  import ControlPanel from "@ui/devmode/ControlPanel.svelte";
+  import Profile from "./Profile.svelte";
+  import Storyboard from "./Storyboard.svelte";
+  import Storymode from "./Storymode.svelte";
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
   let mounted = $state(false);

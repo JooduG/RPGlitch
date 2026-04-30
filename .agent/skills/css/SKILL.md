@@ -5,16 +5,17 @@ description: Triggered by any task involving styling, layout, or design token im
 
 # CSS Specialist
 
-> "I am the Stylist. I own the Chalk Regime, the Antigravity weightlessness, and the visual soul of the RPGlitch Engine."
+> "I am the Stylist. I own the Chalk Regime layout and token mapping. I am a technical specialist orchestrated by the Designer."
 
 ## Overview
 
-The `css` skill is the authoritative workflow for styling and layout within the RPGlitch Engine. It enforces the Nordic Collection's visual language, utilizing native CSS Custom Properties, glassmorphism, and high-performance compositor animations.
+The `css` skill is the technical implementation layer for styling and layout. It follows the laws of the **Sensory Constitution (Rule 04)** and is directed by the **Designer**.
 
 ### Strategic Context
 
+- **Source-Driven Grounding**: Always read `src/theme/tokens.css` as the absolute truth for tokens.
 - **Token Sovereignty**: Map semantic classes to `var(--token)` values. No hardcoded hex allowed.
-- **Component Sovereignty**: Kinetic logic (hover/active reflexes) MUST be scoped within atomic components. Avoid global interaction overrides for formal components.
+- **Component Sovereignty**: Kinetic logic (hover/active reflexes) MUST be scoped within atomic components.
 - **Antigravity Vibe**: Use diffused shadows, Z-axis layering, and 3D transforms for depth.
 - **Performance First**: Animate ONLY compositor properties (`transform`, `opacity`) to maintain 60fps+.
 
