@@ -80,13 +80,13 @@ export const getRpgList = (key) => {
     if (Array.isArray(list) && typeof list[0] === "string" && list[0].startsWith("[")) {
       if (list[0].length > 65536) {
         console.warn(`[Helpers] getRpgList: JSON string for key '${key}' exceeds 64KB safety limit.`);
-        return list;
+        return [];
       }
       try {
         return JSON.parse(list[0]);
       } catch (e) {
         console.warn(`[Helpers] getRpgList: Failed to parse JSON for key '${key}'.`, e);
-        return list;
+        return [];
       }
     }
     return Array.isArray(list) ? list : [];
