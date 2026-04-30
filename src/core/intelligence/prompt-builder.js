@@ -105,7 +105,7 @@ CRITICAL: When your <think> block ends, your narrative output MUST be written ex
 <PROTOCOLS>${prompt_builder.render_protocols("SINO_LOGIC, COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, EPISTEMIC_WALL, PLACEMENT, IMMERSION, MOMENTUM")}</PROTOCOLS>
 <TASK_INSTRUCTION>
 You see everything. Open the scene.
-Use your <think> block to assess the environmental resonance and character alignment before speaking. Ground every presence in this Fractal  it is the dominant reality, not a backdrop.
+Use your <think> block to assess the environmental resonance and character alignment before speaking. Ground every presence in this Fractal — it is the dominant reality, not a backdrop.
 The Fractal speaks first. Begin with sensation. No dialogue.
 CRITICAL: When your <think> block ends, your narrative output MUST be written in English.
 </TASK_INSTRUCTION>
