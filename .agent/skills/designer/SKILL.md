@@ -1,111 +1,85 @@
 ---
 name: designer
-description: The Aesthetic Monarch and Creative Director. Use when defining the "vibe", modifying DESIGN.md, implementing Chalk Regime tokens, or orchestrating sensory features (CSS, Motion, Audio, Stitch).
+description: The Sensory Dispatcher and Aesthetic Monarch. Orchestrates the "vibe" and UI assembly by directing specialized agents (css, motion, audio, image-generation). Use for building components, implementing "Busy" states, and ensuring Nordic Collection alignment.
 ---
 
-# Designer & Aesthetic Monarch (The Director)
+# Designer & Sensory Dispatcher
 
-> "I am the Creative Director and Orchestrator of Atmosphere. I define the sensory soul of RPGlitch."
+> "I am the Orchestrator of Atmosphere. I bridge the gap between the Aesthetic Law and the functional UI. I assemble the sensory soul of RPGlitch."
 
 ## Overview
 
-The `designer` skill is the sovereign orchestrator of the RPGlitch simulation's sensory layer. It acts as the **Director**, coordinating between Visuals, Kinematics, Acoustics, and the overall narrative "vibe". It ensures that every interaction adheres to the **Nordic Collection** and **Chalk Regime** standards, preventing "AI Slop" through high-fidelity, subterranean-themed design principles.
+The `designer` skill is the central dispatcher for all user-facing features. It absorbs the roles of UI assembly, grid harmonization, and feedback patterns. It acts as the **Director**, coordinating between the technical specialists to ensure every interaction adheres to the **Nordic Collection** and **Chalk Regime**.
 
-### The Design Triad
+### The Dispatcher Protocol
 
-The `designer` skill coordinates three specialized domains:
+When a task involves sensory implementation, the `designer` must triage and delegate to the appropriate specialists:
 
-1.  **Visuals (`css`)**: The structural look, tokens, and Chalk Regime elevation.
-2.  **Kinematics (`motion`)**: The physical feel, weighted transitions, and interaction reflexes.
-3.  **Acoustics (`audio`)**: The minimalist sonic landscape and atmospheric SFX.
+- **Structural UI**: Handled directly by `designer` (Svelte 5 assembly).
+- **Layout/Tokens**: Delegate to `css`.
+- **Kinematics/Physics**: Delegate to `motion`.
+- **Acoustics/SFX**: Delegate to `audio`.
+- **Visual Assets**: Delegate to `image-generation`.
 
-## When to Use
+## Strategic Context
 
-- **Positive Triggers**: Defining a new "vibe", modifying `DESIGN.md` (via Rule 04), orchestrating between CSS/Motion/Audio, or managing design documentation via Stitch.
-- **Polish Triggers**: Tasks involving "Premium feel", "Atmosphere", or high-fidelity sensory feedback.
-- **EXCLUSIONS**: Do not use for mechanical logic (e.g., pure data persistence) with zero visual impact.
+- **Source-Driven Grounding**: Always read `src/theme/tokens.css` and existing atoms in `src/ui/` before building.
+- **Svelte 5 Sovereignty**: Use Runes ($state, $derived, $props) and Bits UI primitives exclusively.
+- **Atomic Design**: Assemble interfaces from `atoms` -> `molecules` -> `organisms`.
 
 ## How It Works
 
-1.  **Aesthetic Alignment**: Verify intent against Rule 04 (Aesthetics) and the **Nordic Collection**.
-2.  **Orchestration**: Delegate specific implementations to the `css`, `motion`, or `audio` skills as needed.
-3.  **The Weaver (Stitch) Sync**:
-    - **Vision**: Define the aesthetic intent.
-    - **Spec**: Update `DESIGN.md` (which points to `04-aesthetics.md`) to reflect new patterns.
-    - **Sync**: Use `npm run sync` to propagate design changes to project metadata.
-4.  **Audit & Resonance**: Use the Warden to ensure zero hardcoded hex codes and structural purity.
+### 1. UI Assembly (The Builder)
 
-### Reference Mappings & Workflows
+Assemble components using semantic HTML and Svelte 5 logic.
 
-### Design Mappings (Physical Reality)
+- Use `$props()` for boundaries and `$state()` for internal reactivity.
+- Favor **Snippets** (`{@render children?.()}`) for flexible composition.
 
-Strictly map concepts to these tokens and patterns:
+### 2. Busy State Harmonization
 
-- **Stateful variable** -> `let count = $state(0);`
-- **Derived value** -> `let doubled = $derived(count * 2);`
-- **Background color** -> `background: var(--bg-base);`
-- **Text color** -> `color: var(--font-color-m);`
-- **Subtle border** -> `border: var(--border-l);`
-- **Primary Button** -> `background: var(--color-chalk); color: var(--color-white);`
+Implement consistent "Scanning" feedback for engine-driven features:
 
-### Workflow: Edit Design Spec
+- **Chassis**: Keep headers expanded when `busy` is true.
+- **Status**: Inject minimalist tags (e.g., `REFINING...`) into the header.
+- **Locking**: Disable inputs and apply `cursor: wait`.
+- **Animation**: Delegate the "Scanning sweep" CSS to the `css` specialist.
 
-1.  **Read**: Load the current `DESIGN.md` spec from the root.
-2.  **Translate**: Hand off requested changes to the **Director** to ensure aesthetic consistency.
-3.  **Draft**: Update `DESIGN.md` with new instructions, maintaining token integrity.
+### 3. Grid System Harmonization
 
-### Workflow: Text to Design
+Align all surfaces to the **Master Ruler** (`--grid-unit`).
 
-1.  **Analyze Intent**: Extract the core "vibe" and functional requirements.
-2.  **Apply Physics**: Translate requests into `CHALK_REGIME` tokens and subterranean constraints.
-3.  **Component Breakdown**: Define Svelte 5 structure using `$state()` runes for reactive state.
-4.  **Handoff**: Execute the implementation plan via the `css` and `motion` skills.
+- Ensure container widths are multiples of `var(--grid-unit)`.
+- Use the 12-column system defined in `Layout.svelte`.
+
+### 4. System Modal Patterns (The Floating Monolith)
+
+Implement unified system dialogs (Alerts/Confirmations) using the **Floating Monolith** pattern.
+
+- **Hierarchy**: Use `Dialog.svelte` -> `Modal.svelte` (with `variant="mini"`) -> `Backdrop.svelte`.
+- **Structure**: Modals MUST follow a semantic Header -> Body -> Footer pattern.
+- **Elevation**: Use `glass-xxl` styling and pass `var(--z-index-max)` to ensure the dialog spawns in front of all other UI.
 
 ## Usage
 
 ```bash
-# Analyze visual precision and Rule 04 compliance
-npm run audit:theme
-
-# Verify Svelte 5 component aesthetic compliance
-npm run audit:svelte
-
-# Synchronize design intent with external assets
-npm run sync
-
-# Full project quality audit
+# Verify component against Rule 03/04 safety gates
 npm run verify
+
+# Audit accessibility in the browser
+mcp_chrome-devtools_list_console_messages
 ```
 
 ## Present Results
 
-Present the visual and sensory upgrades within the context of the Nordic Collection.
+Present the built UI component and its "Busy/Active" states.
 
-- **Evidence**: Screenshots of the updated UI components and snippets of the corresponding CSS tokens.
-- **Validation**: Demonstrate how the changes improve "immersion" and adhere to the Grounded Policy.
+- **Evidence**: Component code snippet and a browser screenshot.
+- **Validation**: Demonstrate source-driven alignment with `tokens.css` and Rule 04.
 
-## Common Rationalizations
+## Verification Checklist
 
-| Agent Excuse                              | The Reality                                                                |
-| :---------------------------------------- | :------------------------------------------------------------------------- |
-| "A generic indigo is fine for now."       | Premium aesthetics are axiomatic. Use Nordic Collection tokens only.       |
-| "I'll define the color in the component." | All tokens MUST be in `tokens.css` or `DESIGN.md` to maintain consistency. |
-| "Vibe is secondary to function."          | In RPGlitch, the vibe IS the function. Immersion is the product.           |
-
-## Red Flags
-
-- **Flat Design**: Missing the spatial depth, shadows, and glassmorphic layering required by Rule 04.
-- **SNAP Snapping**: Using instant state transitions instead of smooth, kinetic paths (min 0.3s).
-- **Bouncy UI**: Violating the Grounded Policy by adding vertical `translateY` to standard atoms on hover.
-
-## Troubleshooting
-
-- **Token Conflict**: If a token doesn't match the Nordic vibe, standardize it in `global.css` first.
-- **Performance Lag**: Ensure 3D effects (`use:tilt`) and gradients are hardware-accelerated.
-
-## Verification
-
-- [ ] Interface adheres strictly to the **Nordic Collection** palette and tokens.
-- [ ] No generic AI styles or layout shortcuts are present.
-- [ ] Sensory components (CSS/Motion) are performing at a smooth 60fps.
-- [ ] **Hard Evidence Recorded**: A side-by-side visual comparison or video showing the new interaction flow.
+- [ ] Component uses Svelte 5 Runes and Bits UI primitives.
+- [ ] Busy states follow the "Scanning" pattern (expanded header, disabled input).
+- [ ] Layout snaps to the 12-column `--grid-unit` system.
+- [ ] Specialized tasks (CSS/Motion/Audio) were delegated to the correct skills.

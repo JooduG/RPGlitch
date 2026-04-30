@@ -52,11 +52,11 @@ describe("AppBootstrap", () => {
     await AppBootstrap.init();
     expect(document.body.innerHTML).toContain("SYSTEM HALTED");
     expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("[Engine] ❌ Critical Failure:"),
+      expect.stringContaining("[Engine] 🚫 Critical Failure:"),
       error,
     );
     expect(app.log).toHaveBeenCalledWith(
-      expect.stringContaining("[Engine] ❌ Critical Failure: Critical Failure"),
+      expect.stringContaining("[Engine] 🚫 Critical Failure: Critical Failure"),
       "error",
     );
     consoleSpy.mockRestore();

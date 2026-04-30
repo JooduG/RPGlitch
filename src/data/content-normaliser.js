@@ -168,7 +168,7 @@ export function coerce_temporal_array(val) {
     .filter((v) => v.length > 0);
 }
 /**
- * 🏭 THE FACTORY
+ * 🏘️ THE FACTORY
  * Creates a brand new, fully normalized entity with a RANDOM signature color.
  */
 export const create_new = (type = "character", overrides = {}) => {

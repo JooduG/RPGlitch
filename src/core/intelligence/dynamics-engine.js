@@ -13,7 +13,7 @@
  * - Effect : Numerical changes (ai/fractal) and Narrative (text).
  */
 export const DYNAMICS = [
-  // 🧬 AI SOMATICS (Passive Signals)
+  // 🧪 AI SOMATICS (Passive Signals)
   {
     id: "ADRENALINE",
     trigger: "turn",
@@ -246,6 +246,7 @@ export const dynamics_engine = {
       flags: entities.AI?.flags || [],
       signals: {},
       signal_prompts: [],
+      contributors: {}, // Tracks which rules caused specific changes { "AI.intensity": ["VIOLENCE"] }
     };
     dynamics_engine.simulation_dynamics(next_state, history, matches);
     return next_state;
@@ -294,6 +295,7 @@ export const dynamics_engine = {
    * Applies numerical shifts from matching triggers OR matching filters (for Laws).
    */
   dynamics_numerical(state, matches) {
+    if (!state.contributors) state.contributors = {};
     const processed = new Set();
     DYNAMICS.forEach((data) => {
       if (processed.has(data.id)) return;
@@ -314,8 +316,14 @@ export const dynamics_engine = {
             const ent_state = state[ent_key];
             if (ent_state?.dynamics) {
               Object.keys(eff[ent_key]).forEach((axis) => {
-                if (ent_state.dynamics[axis] !== undefined)
-                  ent_state.dynamics[axis] += eff[ent_key][axis];
+                if (ent_state.dynamics[axis] !== undefined) {
+                  ent_state.dynamics[axis] = Math.min(100, Math.max(0, ent_state.dynamics[axis] + eff[ent_key][axis]));
+
+                  // Track contributor
+                  const track_key = `${ent_key.toUpperCase()}.${axis}`;
+                  if (!state.contributors[track_key]) state.contributors[track_key] = [];
+                  state.contributors[track_key].push(data.id);
+                }
               });
             }
           });

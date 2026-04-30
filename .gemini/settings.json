@@ -10,7 +10,7 @@
   "general": {
     "enablePromptCompletion": true,
     "plan": {
-      "directory": ".agent/orchestration/plans",
+      "directory": "tasks",
       "modelRouting": true
     },
     "preferredEditor": "antigravity"

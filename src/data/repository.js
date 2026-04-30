@@ -1,12 +1,12 @@
 /**
  * src/data/repository.js
  * 📂 THE REPOSITORY (Knowledge Access Layer)
- * RUTHLESSLY FLATTENED SCHEMA — ZERO BACKWARDS COMPATIBILITY.
+ * RUTHLESSLY FLATTENED SCHEMA  ZERO BACKWARDS COMPATIBILITY.
  * If it's not at the top level, it doesn't exist.
  */
+import { normalize, STORAGE_VERSION } from "./content-normaliser.js";
 import { db } from "./db.js";
 import { premade } from "./entity-premades.js";
-import { normalize, STORAGE_VERSION } from "./content-normaliser.js";
 const error = console.error;
 // ============================================================================
 // 1. DATA SEEDING (The Entity Foundry)

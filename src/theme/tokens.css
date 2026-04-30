@@ -8,7 +8,7 @@
 
 :root {
   /************************************************************************************
-  * 🧩 [LEVEL 0: FOUNDATION]
+  * [**] [LEVEL 0: FOUNDATION]
   * Core constants and physical primitives of the engine.
   ************************************************************************************/
 
@@ -75,7 +75,7 @@
   --bg-grad-4: #16243b;
 
   /************************************************************************************
-  * 🧩 [LEVEL 1: TYPOGRAPHY]
+  * [**] [LEVEL 1: TYPOGRAPHY]
   * The voice and legibility standards of the engine.
   ************************************************************************************/
 
@@ -116,7 +116,7 @@
   --letter-spacing-l: 0.1em;
 
   /************************************************************************************
-  * 🧩 [LEVEL 2: GEOMETRY & LAYOUT]
+  * [**] [LEVEL 2: GEOMETRY & LAYOUT]
   * Spatial consistency and grid boundaries.
   ************************************************************************************/
 
@@ -155,7 +155,7 @@
   --grid-unit: calc(100vw / 12);
 
   /************************************************************************************
-  * 🧩 [LEVEL 3: ELEVATION]
+  * [**] [LEVEL 3: ELEVATION]
   * Vertical stacking and depth layers.
   ************************************************************************************/
 
@@ -169,7 +169,7 @@
   --z-index-xs: -1; /* Sub-Floor (Atmospheric noise) */
 
   /************************************************************************************
-  * 🧩 [LEVEL 4: SURFACES]
+  * [**] [LEVEL 4: SURFACES]
   * Atmospheric depth markers. Binary SUNKEN vs ELEVATED logic.
   ************************************************************************************/
 
@@ -214,7 +214,7 @@
   --shadow-font: 0 1px var(--spacing-xxs) rgb(var(--color-black-rgb) / var(--opacity-s));
 
   /************************************************************************************
-  * 🧩 [LEVEL 5: INTERACTION]
+  * [**] [LEVEL 5: INTERACTION]
   * The kinetic logic of the engine.
   ************************************************************************************/
 
@@ -237,7 +237,7 @@
   --hover-background-color: rgb(var(--color-frisk-rgb) / var(--opacity-xs));
 
   /************************************************************************************
-  * 🧩 [LEVEL 6: ATOMS]
+  * [**] [LEVEL 6: ATOMS]
   * Component-specific mechanics and narrative highlights.
   ************************************************************************************/
 

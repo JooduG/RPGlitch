@@ -1,11 +1,11 @@
 // src/core/bootstrap.js
-import { sanitizeToFragment } from "./security.js";
+import { mount } from "svelte";
 import { seed_premades } from "../data/repository.js";
 import { Audio } from "../media/audio-engine.svelte.js";
 import { app } from "../state/app.svelte.js";
 import { runtime } from "../state/runtime.svelte.js";
-import { mount } from "svelte";
 import App from "../ui/App.svelte";
+import { sanitizeToFragment } from "./security.js";
 let has_initialized = false;
 /**
  * FOR TESTING ONLY: Reset the initialization guard.
@@ -40,14 +40,14 @@ export const AppBootstrap = {
       mount(App, {
         target: document.getElementById("main-app-container") || document.body,
       });
-      // 6. Tear down boot illusion — it lives in #svelte-root which is NOT the
+      // 6. Tear down boot illusion  it lives in #svelte-root which is NOT the
       //    mount target, so Svelte never cleans it up. Remove it explicitly.
       document.getElementById("svelte-root")?.remove();
-      app.log("[Engine] 🏁 System Online.", "system");
+      app.log("[Engine] >> System Online.", "system");
     } catch (err) {
-      console.error("[Engine] ❌ Critical Failure:", err);
+      console.error("[Engine] 🚫 Critical Failure:", err);
       app.log(
-        `[Engine] ❌ Critical Failure: ${err instanceof Error ? err.message : String(err)}`,
+        `[Engine] 🚫 Critical Failure: ${err instanceof Error ? err.message : String(err)}`,
         "error",
       );
       const error_template = `

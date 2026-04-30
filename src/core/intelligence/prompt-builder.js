@@ -1,9 +1,9 @@
 /**
  * @file src/core/intelligence/prompt-builder.js
  *
- * ─────────────────────────────────────────────────────────────────────────────
- * 🧠 PROMPT BUILDER — Architecture for Structural Excellence
- * ─────────────────────────────────────────────────────────────────────────────
+ * ⚙️⚙️⚙️
+ * ⚙️⚙️⚙️⚙️ PROMPT BUILDER ⚙️⚙️⚙️ Architecture for Structural Excellence
+ * ⚙️⚙️⚙️
  *
  * PURPOSE
  * This module acts as the "Assembly Line" for the Intelligence Kernel. It
@@ -11,17 +11,17 @@
  * memory into formatted XML system prompts for the LLM.
  *
  * ARCHITECTURE
- * ┌────────────────────────────────────────────────────────────────────────┐
- * │  synthesize()    : The Bridge. Compiles payloads into system prompts.  │
- * │  create_render_atom() : The Pipe. Provides proxies for RAG rendering.  │
- * │  render_history(): The Lens. Formats simulation logs for XML.          │
- * │  render_protocols(): The DNA. Inject rules from the Protocol Library.  │
- * └────────────────────────────────────────────────────────────────────────┘
+ * ⚙️⚙️⚙️⚙️
+ *  synthesize()    : The Bridge. Compiles payloads into system prompts.  ⚙️⚙️⚙️
+ *  create_render_atom() : The Pipe. Provides proxies for RAG rendering.  ⚙️⚙️⚙️
+ *  render_history(): The Lens. Formats simulation logs for XML.          ⚙️⚙️⚙️
+ *  render_protocols(): The DNA. Inject rules from the Protocol Library.  ⚙️⚙️⚙️
+ *
  */
 
-import { temporal_engine } from "./temporal-engine.js";
-import { ENTITY_CATALOG } from "./entity-fragments.js";
 import { escapeXml, strip_cognition_blocks } from "../text-parser.js";
+import { ENTITY_CATALOG } from "./entity-fragments.js";
+import { temporal_engine } from "./temporal-engine.js";
 
 export const SYSTEM_PROMPTS = {
   /**
@@ -124,7 +124,7 @@ CRITICAL: When your <think> block ends, your narrative output MUST be written in
 ${prompt_builder.render_protocols("COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE")}
 </PROTOCOLS>
 <TASK_INSTRUCTION>
-Close the scene. Resolve every active tension thread. Show — do not narrate — the
+Close the scene. Resolve every active tension thread. Show  do not narrate  the
 weight of what just happened. Leave the world visibly changed. End on sensation, not summary.
 Provide a final summary of the narrative arc and the fate of the entities involved.
 </TASK_INSTRUCTION>
@@ -177,7 +177,7 @@ ${escapeXml(content)}
 };
 
 /**
- * 🧬 PROTOCOL LIBRARY (The DNA)
+ * 🧬🧬🧬🧬🧬🧬🧬🧬 PROTOCOL LIBRARY (The DNA)
  * Rules, directives, and cosmic constraints that govern every simulation.
  * Use render_protocols() to inject these as a markdown list.
  */
@@ -187,7 +187,7 @@ const PROTOCOL_LIBRARY = {
   PLACEMENT: `PLACEMENT: You may describe any character's physical presence, position, and sensory experience in the scene. Never generate their dialogue, decisions, or internal thoughts.`,
   EPISTEMIC_WALL: `EPISTEMIC_WALL: Treat the User as a Black Box. You have no access to their internal motivations beyond what is explicitly observable.`,
   COGNITION: `COGNITION: Every response MUST begin with a <think> block for internal state assessment. You MUST assess the physical environment's geometry, atmospheric resonance, and the spatial proximity of all characters BEFORE providing any narrative output.`,
-  HYGIENE: `HYGIENE: Forbid preambles, intro-lines, and technical metadata labels (e.g. "MESSAGE:"). Start every response directly. Fourth-wall awareness is permitted only as direct, diegetic character dialogue — never as technical commentary or formatting artifacts.`,
+  HYGIENE: `HYGIENE: Forbid preambles, intro-lines, and technical metadata labels (e.g. "MESSAGE:"). Start every response directly. Fourth-wall awareness is permitted only as direct, diegetic character dialogue  never as technical commentary or formatting artifacts.`,
   AFFIRMATIVE: `AFFIRMATIVE: Use exclusively affirmative language.`,
   PRESENT: `PRESENT_TENSE: Exclusively use the present tense.`,
   IMMERSION: `SHOW, DON'T TELL: Describe actions, sensory details, and physical reactions. Avoid narrating internal emotions or abstract states; let behavior reveal condition.`,
@@ -201,7 +201,7 @@ const PROTOCOL_LIBRARY = {
 };
 
 /**
- * 🛠️ SYNTHESIS PHASE
+ * SYNTHESIS PHASE
  * The orchestration layer that produces ready-to-use LLM instruction sets.
  */
 export const prompt_builder = {
@@ -227,6 +227,15 @@ export const prompt_builder = {
       meta: payload.meta,
     });
 
+    // Capture top vectors for telemetry
+    const scoring_context = render_atom._context;
+    const ai_past = temporal_engine
+      .score(payload.entities.AI.past || [], scoring_context)
+      .slice(0, 5);
+    const ai_future = temporal_engine
+      .score(payload.entities.AI.future || [], scoring_context)
+      .slice(0, 5);
+
     return {
       system: prompt_builder.clean(system),
       meta: {
@@ -234,6 +243,11 @@ export const prompt_builder = {
         fractal: snapshot.fractal.dynamics,
         flags: snapshot.flags,
         signal_prompts: snapshot.signal_prompts,
+        signals: snapshot.signals,
+        vectors: {
+          past: ai_past,
+          future: ai_future,
+        },
       },
     };
   },
@@ -244,14 +258,15 @@ export const prompt_builder = {
         ? entities[entity_reference] || entities.AI
         : entity_reference;
 
-    const history_pool = Array.isArray(raw_messages) ? raw_messages : [];
-    const recent_history = history_pool
+    const input_pool = Array.isArray(raw_messages) ? raw_messages : [];
+    const recent_history = input_pool
       .slice(-3)
       .map((message) => message.content)
       .join(" ");
     const scoring_context = `${input || ""} ${recent_history}`.trim();
 
     return {
+      _context: scoring_context,
       past: (entity_reference, limit = 3, offset = 0, options) => {
         const entity = resolve(entity_reference);
         return temporal_engine.format(entity.past || [], scoring_context, {

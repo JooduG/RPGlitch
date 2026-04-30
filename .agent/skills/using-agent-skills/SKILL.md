@@ -15,7 +15,7 @@ Skills are not passive reference documents; they are **active engineering workfl
 
 - **Procedural Sovereignty**: Skills dictate not just _what_ to do, but _how_ to ensure quality at every level of the development lifecycle.
 - **Complexity Guard**: Prevent architectural leakage by triaging tasks into Operations (Fixed), Tactics (Enhanced), or Strategy (Speculative) tiers.
-- **Standardized Invocations**: Use a consistent protocol to declare intent and success criteria before touchings the code.
+- **Standardized Invocations**: Use a consistent protocol to declare intent and success criteria before touching the code.
 
 ## When to Use
 
@@ -35,12 +35,12 @@ Skills are not passive reference documents; they are **active engineering workfl
 
 Use this map to route your current task to the appropriate specialized skill:
 
-- **Planning**: `idea-refine`, `spec-driven-development`, `planning-and-task-breakdown`.
-- **Engineering**: `incremental-implementation`, `svelte`, `simulation`, `javascript`, `source-driven-development`.
-- **Sensory**: `designer`, `css`, `motion`, `audio`, `image-generation`.
-- **Governance**: `security-and-hardening`, `directives`, `data`.
-- **Verification**: `test-driven-development`, `browser-testing-with-devtools`, `debugging-and-error-recovery`.
-- **Shipping**: `git-workflow-and-versioning`, `shipping-and-launch`, `documentation-and-adrs`.
+- **Planning & Spec**: `specification`, `planning`, `stitch`.
+- **Engineering**: `svelte`, `javascript`, `simulation`, `source-driven-development`, `performance-optimization`, `deprecation-and-migration`.
+- **Sensory & Design**: `designer`, `css`, `motion`, `audio`, `image-generation`.
+- **Governance**: `governance`, `security-and-hardening`, `data`, `context-engineering`.
+- **Verification**: `test-driven-development`, `browser-testing-with-devtools`, `debugging-and-error-recovery`, `quality`.
+- **Delivery**: `git-workflow-and-versioning`, `delivery`.
 
 ### Complexity Triage
 
@@ -52,52 +52,38 @@ Use this map to route your current task to the appropriate specialized skill:
 
 ### Skill Invocation Protocol
 
-Declare your anchor before work begins:
+Declare your anchor and active state via the **Turn Signal** (Rule 05):
 
 ```text
-SKILL:  [skill-name]
-TASK:   [tasks/todo.md anchor | task description]
-EXIT:   [specific, measurable verification criterion]
+> [Role emoji] [Role] | `[active-skill]` | [/workflow]
+```
+
+**And log the invocation in `tasks/todo.md`:**
+
+```markdown
+| Timestamp | Task | Skill Invoked | Outcome |
+| :--- | :--- | :--- | :--- |
+| 2026-04-30T12:00Z | [Task Name] | `skill-name` | 🔄 Active |
 ```
 
 ## Usage
 
 ```bash
-# Analyze skill compliance and health
-npm run audit:skills
+# Run the warden audit for skills and templates
+npm run audit:agent
 
-# Update the Skill Log in tasks/todo.md (Rule 05)
-# | Timestamp | Task | Skill | Outcome |
+# Verify full project health
+npm run verify
 ```
-
-## Present Results
-
-Present the selected skill and the reasoning for its choice, followed by the specific invocation protocol.
-
-- **Evidence**: Quote the specific directive or logic from the target skill.
-- **Validation**: Demonstrate how the chosen skill satisfies the requirements of the task.
-
-## Common Rationalizations
-
-| Agent Excuse                            | The Reality                                                                       |
-| :-------------------------------------- | :-------------------------------------------------------------------------------- |
-| "I can fix this without a skill."       | Bypassing skills leads to technical debt and missed quality gates.                |
-| "This task is too simple for triage."   | Even small tasks benefit from being correctly tiered to ensure minimal footprint. |
-| "I'll update the Skill Log at the end." | Real-time logging (Rule 05) ensures historical continuity for future agents.      |
 
 ## Red Flags
 
 - **Logic Drift**: Modifying code without an active skill declaration or task anchor.
 - **Role Mismatch**: Attempting a Level 3 (Strategy) task with a Level 1 (Operations) workflow.
-- **Unverified Success**: Marking a task as complete without confirming the specific EXIT criteria.
+- **Unverified Success**: Marking a task as complete without confirming the specific EXIT criteria or running `npm run verify`.
 
 ## Troubleshooting
 
-- **Ambiguity**: If a task maps to multiple skills, favor the "Strategy" skills (spec/plan) first to resolve intent.
+- **Ambiguity**: If a task maps to multiple skills, favor the "Strategy" skills (`specification`/`planning`) first to resolve intent.
 - **Token Debt**: If memory is degrading, use `context-engineering` to prune active context.
-
-## Verification
-
-- [ ] All skill invocations include a clear TASK anchor and EXIT criterion.
-- [ ] Complexity tier is correctly identified before implementation starts.
-- [ ] **Hard Evidence Recorded**: Current active skill is logged in `tasks/todo.md` (Rule 05).
+- **Hallucination**: If a skill mention doesn't exist in `.agent/skills/`, it is invalid. Stick to the Directory Listing.

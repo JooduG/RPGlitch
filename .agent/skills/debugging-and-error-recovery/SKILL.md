@@ -21,7 +21,7 @@ The `debugging-and-error-recovery` skill provides a rigorous framework for resol
 
 - **Positive Triggers**: Failing tests, broken builds, unexpected runtime behavior, or console errors.
 - **Incident Response**: When a bug is reported that worked in a previous version.
-- **EXCLUSIONS**: Do not use for general feature planning or exploratory design; use `spec-driven-development` or `idea-refine` instead.
+- **EXCLUSIONS**: Do not use for general feature planning or exploratory design; use `specification` instead.
 
 ## How It Works
 
