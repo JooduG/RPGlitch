@@ -86,7 +86,7 @@ export const getRpgList = (key) => {
         return JSON.parse(list[0]);
       } catch (e) {
         console.warn(`[Helpers] getRpgList: Failed to parse JSON for key '${key}'.`, e);
-        return [];
+        return list;
       }
     }
     return Array.isArray(list) ? list : [];
