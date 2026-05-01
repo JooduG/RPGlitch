@@ -6,7 +6,7 @@
    * RUTHLESSLY FLATTENED  Zero backward compatibility.
    */
   import { themeStore } from "@theme/palette.svelte.js";
-  import { fitText } from "@ui/utils/fit-text.js";
+  import { fitText } from "@utils/fit-text.js";
   let { entity = null, placeholderChar = null } = $props();
 
   function calculate_initials(str) {

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { sanitize, llm_service } from "./llm-service.js";
+import { sanitize, llm_service } from "@core/intelligence/llm-service.js";
 import { app } from "@state/app.svelte.js";
 import { ERROR_MESSAGES } from "@core/engine/config.js";
 

@@ -1,26 +1,41 @@
-# Mission Plan: Session Driver Restoration
+# Mission Plan: [043] Release Candidate Stability Audit
 
-> **Status**: `[ACTIVE]`
-> **Mission**: Restore the integrity of the agentic Session Driver by correcting broken references in `GEMINI.md` to point to the newly consolidated skills, and initializing a fresh `tasks/plan.md` to comply with Rule 01 and Rule 05.
+Final verification and hardening of the RPGlitch Engine before the Foundry (v0.5) release. This audit ensures that the codebase is not only functional (passing tests) but also adheres to the strict aesthetic, architectural, and quality standards defined in the Sovereign Axiomatic Laws.
 
 ## Proposed Changes
 
-### [Core: Infrastructure Sync]
+### [Track 1: Code Hygiene & Logic]
 
-#### [MODIFY] `GEMINI.md`
-- **Line 11**: Replace `([spec-driven-development](./.agent/skills/spec-driven-development/SKILL.md)` with `([specification](./.agent/skills/specification/SKILL.md)`.
-- **Line 27**: Replace `[idea-refine](./.agent/skills/idea-refine/SKILL.md)` with `[specification](./.agent/skills/specification/SKILL.md)` for conceptual ambiguity resolution.
-- **Line 103**: Replace `[Spec-driven Development](./.agent/skills/spec-driven-development/SKILL.md)` with `[Specification](./.agent/skills/specification/SKILL.md)`.
-- **Line 167 & 169**: Verify and ensure references to `[Mission Plan](./tasks/plan.md)` are functioning correctly.
+#### [FIX] [intelligence-kernel.test.js](../src/core/intelligence/intelligence-kernel.test.js)
+- Resolve the ESLint warning: `'runtime' is defined but never used`.
 
-#### [CREATE] `tasks/plan.md`
-- This document (`tasks/plan.md`) serves as the active blueprint for future tasks, fulfilling the strict requirement of Rule 01 (The Handoff Law).
+#### [AUDIT] AI-Trope Sweep
+- Scan for and remove flowery language or "AI-isms" in code comments and logs (Rule 06 Compliance).
+- Ensure all technical debt is tagged with `TODO-AI` or resolved.
+
+### [Track 2: Aesthetic Consistency]
+
+#### [AUDIT] The Chalk Regime
+- Verify that all new UI components from [054] use named design tokens from `tokens.css` instead of raw values.
+- Check for glassmorphic consistency (Glass Elevation scale).
+
+#### [AUDIT] Kinetic Physics
+- Verify that hover effects and transitions focus on brightness/color rather than layout shifts (Rule 04).
+
+### [Track 3: Documentation & Meta]
+
+#### [SYNC] [SPEC.md](../SPEC.md)
+- Update version in SPEC from 0.6.0 (The Forge) to 0.5.0 (The Foundry) to match the current roadmap.
+- Ensure all recently implemented patterns (Telemetry UI, Import Aliases) are reflected in the specification.
+
+#### [AUDIT] Skill Alignment
+- Verify that all `SKILL.md` files correctly point to existing scripts and follow the new directory structure.
 
 ## Verification Plan
 
-### Automated Checks
-- Run Markdown linters (`npm run lint:md`) to ensure all broken links in `GEMINI.md` are resolved.
-- Verify `tasks/plan.md` exists and follows the expected structure.
+### Automated Tests
+- Run `npm run verify` one final time after all hygiene fixes.
 
 ### Manual Verification
-- Visual check of `GEMINI.md` to ensure the terminology aligns with the consolidated skills (`specification`, `planning`).
+- Perform a simulated round cycle and verify state persistence in Dexie.
+- Visual audit of the UI to ensure the "Frozen Terminal" palette is consistent across all features.

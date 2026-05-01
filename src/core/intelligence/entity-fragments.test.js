@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { ENTITY_FRAGMENTS, ENTITY_CATALOG } from "./entity-fragments.js";
+import { ENTITY_FRAGMENTS, ENTITY_CATALOG } from "@core/intelligence/entity-fragments.js";
 
 describe("entity-fragments", () => {
   describe("ENTITY_FRAGMENTS", () => {

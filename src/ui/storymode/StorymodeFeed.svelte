@@ -3,9 +3,9 @@
   import { session } from "@state/session.svelte.js";
   import { simulation_log } from "@state/simulation-log.svelte.js";
   import { simulationState } from "@state/status.svelte.js";
-  import Button from "@ui/core/Button.svelte";
-  import Dialog from "@ui/core/Dialog.svelte";
-  import Message from "./Message.svelte";
+  import Button from "@atoms/Button.svelte";
+  import Dialog from "@atoms/Dialog.svelte";
+  import Message from "@storymode/Message.svelte";
 
   // --- STATE ---
   let scroll_ref = $state(null);

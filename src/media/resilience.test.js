@@ -2,7 +2,7 @@
  * src/media/resilience.test.js
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { ExponentialBackoffRetryer, CircuitBreaker } from "./resilience.js";
+import { ExponentialBackoffRetryer, CircuitBreaker } from "@media/resilience.js";
 
 describe("ExponentialBackoffRetryer", () => {
   it("should return result if first call succeeds", async () => {

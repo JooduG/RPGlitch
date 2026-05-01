@@ -1,6 +1,6 @@
 <script>
-  import Button from "@ui/core/Button.svelte";
-  import TextField from "@ui/core/TextField.svelte";
+  import Button from "@atoms/Button.svelte";
+  import TextField from "@atoms/TextField.svelte";
   import { quintOut } from "svelte/easing";
   import { slide } from "svelte/transition";
 

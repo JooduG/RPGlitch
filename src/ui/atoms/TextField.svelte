@@ -1,6 +1,6 @@
 <script>
-  import { auto_resize } from "@ui/utils/auto-resize.js";
-  import { parse_markdown } from "@ui/utils/markdown.js";
+  import { auto_resize } from "@utils/auto-resize.js";
+  import { parse_markdown } from "@utils/markdown.js";
   import { fade } from "svelte/transition";
 
   let {

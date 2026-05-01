@@ -1,11 +1,11 @@
 <script>
   import { app } from "@state/app.svelte.js";
-  import LoadingSkeleton from "@ui/core/LoadingSkeleton.svelte";
-  import Layout from "@ui/Layout.svelte";
-  import Drawer from "@ui/Drawer.svelte";
-  import StoryboardCard from "./StoryboardCard.svelte";
-  import StoryboardDynamicTitle from "./StoryboardDynamicTitle.svelte";
-  import StoryboardPill from "./StoryboardPill.svelte";
+  import LoadingSkeleton from "@atoms/LoadingSkeleton.svelte";
+  import Layout from "@shell/Layout.svelte";
+  import Drawer from "@shell/Drawer.svelte";
+  import StoryboardCard from "@storyboard/StoryboardCard.svelte";
+  import StoryboardDynamicTitle from "@storyboard/StoryboardDynamicTitle.svelte";
+  import StoryboardPill from "@storyboard/StoryboardPill.svelte";
   import { onMount } from "svelte";
 
   // --- STATE ---

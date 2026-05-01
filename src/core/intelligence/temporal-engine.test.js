@@ -1,30 +1,30 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { temporal_engine } from "./temporal-engine.js";
-import { CONFIG } from "../engine/config.js";
-import { llm_service } from "./llm-service.js";
-import { dynamics_engine } from "./dynamics-engine.js";
+import { temporal_engine } from "@core/intelligence/temporal-engine.js";
+import { CONFIG } from "@core/engine/config.js";
+import { llm_service } from "@core/intelligence/llm-service.js";
+import { dynamics_engine } from "@core/intelligence/dynamics-engine.js";
 
 // Mock dependencies
-vi.mock("./llm-service.js", () => ({
+vi.mock("@core/intelligence/llm-service.js", () => ({
   llm_service: {
     generate: vi.fn(),
   },
 }));
 
-vi.mock("./dynamics-engine.js", () => ({
+vi.mock("@core/intelligence/dynamics-engine.js", () => ({
   dynamics_engine: {
     dynamics_scan: vi.fn(() => []),
   },
 }));
 
-vi.mock("../engine/session-driver.svelte.js", () => ({
+vi.mock("@core/engine/session-driver.svelte.js", () => ({
   session_driver: {
     log_system_entry: vi.fn(),
     require_active: vi.fn(() => "test-story-id"),
   },
 }));
 
-vi.mock("./prompt-builder.js", () => ({
+vi.mock("@core/intelligence/prompt-builder.js", () => ({
   prompt_builder: {
     build_memory_prompt: vi.fn(() => ({ system: "mock prompt", messages: [] })),
   },

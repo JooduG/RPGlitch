@@ -11,6 +11,13 @@
       "@data/*": ["src/data/*"],
       "@state/*": ["src/state/*"],
       "@ui/*": ["src/ui/*"],
+      "@atoms/*": ["src/ui/atoms/*"],
+      "@shell/*": ["src/ui/core/*"],
+      "@storymode/*": ["src/ui/storymode/*"],
+      "@storyboard/*": ["src/ui/storyboard/*"],
+      "@profile/*": ["src/ui/profile/*"],
+      "@devmode/*": ["src/ui/devmode/*"],
+      "@utils/*": ["src/ui/utils/*"],
       "@theme/*": ["src/theme/*"],
       "@media/*": ["src/media/*"],
       "@scholar/*": ["src/data/*"]

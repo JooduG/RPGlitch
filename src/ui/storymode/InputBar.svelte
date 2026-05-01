@@ -8,9 +8,9 @@
   import { Engine } from "@core/engine/engine.js";
   import { app } from "@state/app.svelte.js";
   import { simulationState } from "@state/status.svelte.js";
-  import GlassPill from "@ui/core/GlassPill.svelte";
-  import { spin, stab } from "@ui/utils/kinetic.js";
-  import Button from "@ui/core/Button.svelte";
+  import GlassPill from "@atoms/GlassPill.svelte";
+  import { spin, stab } from "@utils/kinetic.js";
+  import Button from "@atoms/Button.svelte";
   let { disabled = false } = $props();
   // [R5] Auto-disable when engine is busy
   let is_locked = $derived(disabled || simulationState.phase !== "idle");

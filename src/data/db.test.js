@@ -27,14 +27,14 @@ describe("Database db.js", () => {
   });
 
   it("should initialize database connection", async () => {
-    const { db, init } = await import("./db.js");
+    const { db, init } = await import("@data/db.js");
     dbInstance = db;
     await init();
     expect(db.isOpen()).toBe(true);
   });
 
   it("should log a warning when database is blocked", async () => {
-    const { db, init } = await import("./db.js");
+    const { db, init } = await import("@data/db.js");
     dbInstance = db;
     await init();
     db.on("blocked").fire({ oldVersion: 10, newVersion: 11 });
@@ -44,7 +44,7 @@ describe("Database db.js", () => {
   });
 
   it("should handle versionchange event and close DB/reload window", async () => {
-    const { db, init } = await import("./db.js");
+    const { db, init } = await import("@data/db.js");
     dbInstance = db;
     await init();
     const closeSpy = vi.spyOn(db, "close");

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { runtime } from "./runtime.svelte.js";
+import { runtime } from "@state/runtime.svelte.js";
 
 describe("Narrative Vector System", () => {
   beforeEach(() => {

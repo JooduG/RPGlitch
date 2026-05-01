@@ -1,19 +1,19 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { gamemaster } from "./intelligence-kernel.js";
-import { context_broker } from "./context-broker.js";
-import { prompt_builder } from "./prompt-builder.js";
-import { llm_service } from "./llm-service.js";
+import { gamemaster } from "@core/intelligence/intelligence-kernel.js";
+import { context_broker } from "@core/intelligence/context-broker.js";
+import { prompt_builder } from "@core/intelligence/prompt-builder.js";
+import { llm_service } from "@core/intelligence/llm-service.js";
 import { session_driver } from "@core/engine/session-driver.svelte.js";
 import { runtime } from "@state/runtime.svelte.js";
 
 // Mock dependencies
-vi.mock("./context-broker.js", () => ({
+vi.mock("@core/intelligence/context-broker.js", () => ({
   context_broker: {
     hydrate: vi.fn(),
   },
 }));
 
-vi.mock("./prompt-builder.js", () => ({
+vi.mock("@core/intelligence/prompt-builder.js", () => ({
   prompt_builder: {
     synthesize: vi.fn(),
     build_epilogue: vi.fn(),
@@ -22,7 +22,7 @@ vi.mock("./prompt-builder.js", () => ({
   },
 }));
 
-vi.mock("./llm-service.js", () => ({
+vi.mock("@core/intelligence/llm-service.js", () => ({
   llm_service: {
     generate: vi.fn(),
   },
@@ -54,7 +54,7 @@ vi.mock("@state/app.svelte.js", () => ({
   },
 }));
 
-vi.mock("./temporal-engine.js", () => ({
+vi.mock("@core/intelligence/temporal-engine.js", () => ({
   temporal_engine: {
     ensure_momentum: vi.fn(),
     consolidate: vi.fn(),

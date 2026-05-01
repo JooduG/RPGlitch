@@ -6,12 +6,12 @@
    */
   import { llm_service } from "@core/intelligence/llm-service.js";
   import { prompt_builder } from "@core/intelligence/prompt-builder.js";
-  import Button from "@ui/core/Button.svelte";
-  import TextField from "@ui/core/TextField.svelte";
-  import { get_value, set_value } from "@ui/utils/field-path.js";
+  import Button from "@atoms/Button.svelte";
+  import TextField from "@atoms/TextField.svelte";
+  import { get_value, set_value } from "@utils/field-path.js";
   import { fly } from "svelte/transition";
-  import { PROFILE_SECTIONS } from "./profile-config.js";
-  import VectorArray from "./VectorArray.svelte";
+  import { PROFILE_SECTIONS } from "@profile/profile-config.js";
+  import VectorArray from "@profile/VectorArray.svelte";
 
   let { char = $bindable(), is_editing, busy_fields, active_field = $bindable() } = $props();
 

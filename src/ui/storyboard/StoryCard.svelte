@@ -4,7 +4,7 @@
    * 📖 STORY MODULE
    * A high-fidelity atmospheric card representing a story archive.
    */
-  import Button from "@ui/core/Button.svelte";
+  import Button from "@atoms/Button.svelte";
   import { themeStore } from "@theme/palette.svelte.js";
 
   /** @type {{

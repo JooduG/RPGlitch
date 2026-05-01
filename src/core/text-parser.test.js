@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { clean_image_prompts, escapeXml, strip_cognition_blocks } from "./text-parser.js";
+import { clean_image_prompts, escapeXml, strip_cognition_blocks } from "@core/text-parser.js";
 
 describe("strip_cognition_blocks", () => {
   it("should remove <think> blocks and trailing newlines", () => {

@@ -4,9 +4,9 @@
    * ⚙️ DYNAMIC DEVELOPER CONSOLE
    * Dynamically renders and binds to all entity dynamics (Somatic or Environmental).
    */
-  import DataBox from "@ui/devmode/DataBox.svelte";
-  import Button from "@ui/core/Button.svelte";
-  import Wing from "./Wing.svelte";
+  import DataBox from "@devmode/DataBox.svelte";
+  import Button from "@atoms/Button.svelte";
+  import Wing from "@atoms/Wing.svelte";
 
   let { char = $bindable(), is_editing } = $props();
 

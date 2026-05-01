@@ -4,8 +4,8 @@
    * NARRATIVE CONTROL STRIP
    * Handles message-level actions (Edit, Delete, Reroll) in a context-aware vertical pill.
    */
-  import GlassPill from "@ui/core/GlassPill.svelte";
-  import Button from "@ui/core/Button.svelte";
+  import GlassPill from "@atoms/GlassPill.svelte";
+  import Button from "@atoms/Button.svelte";
 
   /**
    * @typedef {Object} Props

@@ -5,8 +5,8 @@
    * Standardizes Alert and Confirm into a single, cute Nordic module.
    * Uses the Header -> Body -> Footer pattern from the Profile panels.
    */
-  import Button from "@ui/core/Button.svelte";
-  import Modal from "./Modal.svelte";
+  import Button from "@atoms/Button.svelte";
+  import Modal from "@atoms/Modal.svelte";
 
   let {
     title = "System Message",

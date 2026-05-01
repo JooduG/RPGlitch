@@ -2,10 +2,10 @@
  * src/media/optics.test.js
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { PromptTemplates, AestheticResolver, getResolution } from "./optics.js";
-import { themeStore } from "../theme/palette.svelte.js";
+import { PromptTemplates, AestheticResolver, getResolution } from "@media/optics.js";
+import { themeStore } from "@theme/palette.svelte.js";
 
-vi.mock("../theme/palette.svelte.js", () => ({
+vi.mock("@theme/palette.svelte.js", () => ({
   themeStore: {
     get_signature_label: vi.fn(),
   },

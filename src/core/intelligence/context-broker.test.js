@@ -1,10 +1,10 @@
 import { describe, expect, it, beforeEach, vi } from "vitest";
-import { context_broker } from "./context-broker.js";
+import { context_broker } from "@core/intelligence/context-broker.js";
 
-import { temporal_engine } from "./temporal-engine.js";
+import { temporal_engine } from "@core/intelligence/temporal-engine.js";
 
 // Mock temporal_engine to intercept resolution calls
-vi.mock("./temporal-engine.js", () => ({
+vi.mock("@core/intelligence/temporal-engine.js", () => ({
   temporal_engine: {
     resolve: vi.fn(),
   },

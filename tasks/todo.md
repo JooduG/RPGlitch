@@ -16,7 +16,7 @@
 - [x] Round Stability & Hygiene (Patch [037])
 - [x] InputBar Layout & Control Panel Wiring ([039])
 - [x] Documentation Sync & Infrastructure Hygiene ([044])
-- [ ] Release Candidate Stability Audit ([043])
+- [ ] Release Candidate Stability Audit ([043]) - [ACTIVE]
 - [x] Final UI Polishing & Aesthetics ([050])
   - [x] Refine `Button` primary variant ("pure" style, borderless)
   - [x] Update Nordic tokens (off-white → `--color-white: #f7f9fc` Nordic Ivory)
@@ -29,6 +29,14 @@
   - [x] Update broken skill references in GEMINI.md
   - [x] Initialize fresh Mission Plan (tasks/plan.md)
   - [x] Verify globally via npm run verify
+
+- [x] UI Architecture Restructuring & Import Aliasing ([054])
+  - [x] Create feature directories in `src/ui/`
+  - [x] Move files to feature folders (atoms, core, storymode, etc.)
+  - [x] Update `jsconfig.json` path mappings
+  - [x] Synchronize `vite.config.js` and `vitest.config.js` aliases
+  - [x] Systemic import refactor & relative path fixup
+  - [x] Verify with `npm run test:unit`
 
   - [x] Implement post-simulation delta capture
   - [x] Create Nordic-style telemetry UI in Message feed
@@ -78,7 +86,8 @@
 
 | Timestamp (ISO 8601)      | Task                                                                                  | Skill Invoked                                | Outcome |
 | ------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------- | ------- |
-| 2026-04-30T18:50:00+02:00 | Documentation Maintenance — Update `using-agent-skills`                               | `using-agent-skills`, `governance`           | ✅ Done |
+| 2026-05-01T02:15:00+02:00 | Release Candidate Stability Audit ([043]) | `specification`, `planning`, `warden` | 🔄 Active |
+| 2026-05-01T02:00:00+02:00 | UI Architecture Restructuring & Import Aliasing ([054]) | `using-agent-skills`, `planning`, `warden` | ✅ Resolved |
 | 2026-04-30T22:30:00+02:00 | Session Driver Restoration ([053])                                                    | `using-agent-skills`, `specification`        | ✅ Done |
 | 2026-04-30T18:14:00+02:00 | Engine Hygiene & Aesthetic Restoration ([052])                                        | `debugging-and-error-recovery`, `warden`     | ✅ Done |
 | 2026-04-30T13:40:00+02:00 | Fix Telemetry Test Mocks & Robust Mapping ([051])                                     | `test-driven-development`, `svelte`          | ✅ Done |
