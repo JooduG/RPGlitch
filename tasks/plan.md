@@ -24,7 +24,7 @@ Final verification and hardening of the RPGlitch Engine before the Foundry (v0.5
 
 ### [Track 3: Documentation & Meta]
 
-#### [SYNC] [SPEC.md](file:///c:/Users/johng/source/repos/RPGlitch/SPEC.md)
+#### [SYNC] [SPEC.md](../SPEC.md)
 - Update version in SPEC from 0.6.0 (The Forge) to 0.5.0 (The Foundry) to match the current roadmap.
 - Ensure all recently implemented patterns (Telemetry UI, Import Aliases) are reflected in the specification.
 
