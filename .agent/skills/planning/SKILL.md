@@ -19,6 +19,11 @@ The `planning` skill is the engine of implementation. it combines task breakdown
 
 ## How It Works
 
+### 0. The Implementer's Rules
+
+- **Rule 0: Simplicity First**: Forbid premature abstractions. Implement the naive, obviously-correct version first. Abstractions must earn their complexity.
+- **Rule 0.5: Scope Discipline**: Touch only what the task requires. Do not "clean up" orthogonal code or refactor adjacent systems unless explicitly requested.
+
 ### 1. Task Breakdown
 
 Decompose specifications into discrete units of work in `tasks/plan.md`.

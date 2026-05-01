@@ -25,11 +25,21 @@ The `quality` skill is the final filter before code enters the main branch. it e
 
 - **Incremental Application**: Review ~100 line chunks.
 - **Categorization**: Label feedback as Critical, Nit, or FYI.
+- **The Rule of 500**: If refactoring touches > 500 lines, use automation (codemods) instead of manual edits.
 
-### 2. Code Simplification
+### 2. Code Simplification (The Framework)
 
-- **Preserve Behavior**: Never change what the code _does_, only how it _expresses_ it.
-- **Clarity > Cleverness**: Prefer explicit logic over "clever" shorthand.
+- **Chesterton's Fence**: Understand WHY code exists before touching it. Check git blame and edge cases.
+- **Preserve Behavior**: Never change what the code _does_, only how it _expresses_ it. Verify via tests.
+- **Clarity > Cleverness**: Prefer explicit logic over clever shorthand.
+- **Simplification Signals**:
+  - Deep nesting (3+ levels).
+  - Long functions (50+ lines).
+  - Boolean parameter flags (replace with options objects).
+  - Generic names (`data`, `result`) vs descriptive ones.
+
+### 3. Separation of Concerns
+Submit refactoring changes separately from feature or bug fix changes. A PR that refactors and adds a feature should be split.
 
 ## Usage
 

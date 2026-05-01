@@ -25,7 +25,16 @@ Execute the Warden and the test suite via `npm run verify`.
 
 - **Fail Fast**: Catch lint and type errors locally before they hit CI.
 
-### 2. The Perchance Bridge
+### 2. Parallel Verification (/ship pattern)
+
+For significant changes, fan out specialized sub-agents to verify the artifact from independent perspectives:
+- **`code-reviewer`**: Focus on race conditions, logic, and style.
+- **`security-auditor`**: Focus on auth, sanitization, and secrets.
+- **`test-engineer`**: Focus on coverage gaps and regression tests.
+
+Merge these findings into a single Go/No-Go decision. This is distinct from the `swarm` builder pattern, which is for implementation, not review.
+
+### 3. The Perchance Bridge
 
 Execute the `deploy-perchance.js` script to automate the production update.
 

@@ -22,15 +22,20 @@ The `specification` skill is the RPGlitch Engine's filter for product thinking. 
 
 ### 1. Intent Validation
 
-Never implement until the high-level vision is approved and assumptions are surfaced.
+Never implement until the high-level vision is approved and assumptions are surfaced. Before writing any spec content, explicitly list your assumptions (requirements, architecture, scope).
 
-### 2. The Blueprint
+### 2. Success Criteria Reframing
+
+Translate vague instructions into concrete, testable conditions. If a user asks to "Make the dashboard faster," reframe it as: "Dashboard LCP < 2.5s on 4G, initial load < 500ms."
+
+### 3. The Blueprint
 
 Every feature spec must contain:
 
-- **Objective**: What and why?
-- **Success Criteria**: Testable conditions that prove completion.
-- **Boundaries**: "Always do" and "Never do" rules.
+- **Objective**: What and why? Who is the user?
+- **Success Criteria**: Specific, testable conditions that prove completion.
+- **Tech Stack & Structure**: Framework, key dependencies, and directory layout.
+- **Boundaries**: "Always do" (e.g. run tests), "Ask first" (e.g. add deps), and "Never do" (e.g. commit secrets).
 - **Logic Path**: High-level data flow and state mutations.
 
 ## Usage

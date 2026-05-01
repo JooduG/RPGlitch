@@ -29,11 +29,6 @@ Records significant choices in `tasks/decisions/`.
 
 Owns the integrity of the `.agent/rules/` directory. Updates Rules (01-06) as new patterns emerge.
 
-### 3. Boundary Validation (API Design)
-
-- Trust internal logic, but strictly validate/sanitize at system edges (Rule 06).
-- Every boundary must have a typed contract (TS or JSDoc).
-
 ## Usage
 
 ```bash
