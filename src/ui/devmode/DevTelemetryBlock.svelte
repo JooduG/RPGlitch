@@ -445,7 +445,7 @@
     left: 50%;
     top: 0;
     bottom: 0;
-    width: 1px;
+    width: var(--spacing-px);
     background: rgb(var(--color-white-rgb) / 20%);
     z-index: 1;
   }

@@ -1,6 +1,6 @@
 # SPEC: RPGlitch Simulation Engine
 
-> **Version**: 0.6.0 (The Forge)
+> **Version**: 0.5.0 (The Foundry)
 > **Status**: Sovereign / Grounded
 
 ## 1. Objective
@@ -39,6 +39,9 @@ RPGlitch is a high-fidelity, local-first simulation engine designed for immersiv
 - **Atomic Locking**: All state mutations affecting the current round must be performed via an `isProcessing` gate in `ReactiveSession`.
 
 ### UI & Interaction Architecture
+
+- **Telemetry UI**: Dev tools and active metrics are routed through the unified telemetry feed to maintain transparent developer observation.
+- **Import Aliasing**: Codebase follows strict architectural module boundaries (e.g., `@core/`, `@ui/`) using structured import paths.
 
 - **Component Sovereignty**: Atomic components own their internal logic and kinetic reflexes to ensure predictable, modular behavior.
 - **Accessibility Sovereignty**: Use Bits UI primitives for all complex interactions (Modals, Pop-ups) to ensure WCAG compliance.
