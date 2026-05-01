@@ -154,10 +154,10 @@
     overflow: visible; /* Allow glow to breathe */
     opacity: var(--header-opacity);
     position: relative;
-    top: 1px; /* Visual offset to prevent top-border clash */
+    top: var(--spacing-px); /* Visual offset to prevent top-border clash */
 
-    /* Account for 1px chassis border to prevent bleed in dormant state */
-    border-radius: calc(var(--border-radius-m) - 1px) calc(var(--border-radius-m) - 1px) 0 0;
+    /* Account for var(--spacing-px) chassis border to prevent bleed in dormant state */
+    border-radius: calc(var(--border-radius-m) - var(--spacing-px)) calc(var(--border-radius-m) - var(--spacing-px)) 0 0;
 
     /* Passive Glow */
     box-shadow: 0 0 calc(var(--weight-intensity) * 6px) var(--signature-color);
@@ -170,7 +170,7 @@
       rgb(var(--color-black-rgb) / 50%),
       var(--signature-color, var(--color-frozen)) var(--header-bg-mix)
     );
-    border-bottom: 1px solid rgb(var(--color-white-rgb) / 8%);
+    border-bottom: var(--spacing-px) solid rgb(var(--color-white-rgb) / 8%);
     opacity: 1;
     top: 0; /* Snap back to top in focused state */
     overflow: visible; /* Allow tooltips and glow to breathe */

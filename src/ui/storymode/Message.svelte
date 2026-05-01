@@ -397,7 +397,7 @@
   .message-bubble.is-focused .field-header {
     height: 2.2rem;
     background: color-mix(in srgb, var(--signature-color), black 30%);
-    border-bottom: 1px solid rgb(var(--color-white-rgb) / 12%);
+    border-bottom: var(--spacing-px) solid rgb(var(--color-white-rgb) / 12%);
     overflow: visible;
   }
 
@@ -471,7 +471,7 @@
     font-size: var(--font-size-m);
     font-family: var(--font-family-body);
     color: var(--color-white);
-    text-shadow: 0 1px 2px rgb(var(--color-black-rgb) / 60%);
+    text-shadow: 0 var(--spacing-px) 2px rgb(var(--color-black-rgb) / 60%);
     text-align: left;
     text-wrap: pretty;
   }

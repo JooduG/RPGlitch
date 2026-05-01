@@ -4,7 +4,7 @@ import { context_broker } from "@core/intelligence/context-broker.js";
 import { prompt_builder } from "@core/intelligence/prompt-builder.js";
 import { llm_service } from "@core/intelligence/llm-service.js";
 import { session_driver } from "@core/engine/session-driver.svelte.js";
-import { runtime } from "@state/runtime.svelte.js";
+
 
 // Mock dependencies
 vi.mock("@core/intelligence/context-broker.js", () => ({
