@@ -29,7 +29,7 @@ export default defineConfig({
     // Explicitly include src and script test paths
     include: ["src/**/*.{test,spec}.{js,ts}", ".agent/skills/*/scripts/*.{test,spec}.{js,ts}"],
     exclude: ["**/node_modules/**", "**/.git/**"],
-    // setupFiles: [".agent/skills/warden/scripts/setup.js"],
+    // setupFiles: [".agent/skills/governance/scripts/setup.js"],
     setupFiles: [".agent/skills/governance/scripts/test-setup.js"],
   },
 });
