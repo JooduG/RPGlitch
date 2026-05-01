@@ -6,7 +6,7 @@ Final verification and hardening of the RPGlitch Engine before the Foundry (v0.5
 
 ### [Track 1: Code Hygiene & Logic]
 
-#### [FIX] [intelligence-kernel.test.js](file:///c:/Users/johng/source/repos/RPGlitch/src/core/intelligence/intelligence-kernel.test.js)
+#### [FIX] [intelligence-kernel.test.js](../src/core/intelligence/intelligence-kernel.test.js)
 - Resolve the ESLint warning: `'runtime' is defined but never used`.
 
 #### [AUDIT] AI-Trope Sweep
