@@ -4,7 +4,7 @@
    * THE COMMAND CENTER
    * Houses the primary Save, Delete, and Edit actions.
    */
-  import Button from "@ui/core/Button.svelte";
+  import Button from "@atoms/Button.svelte";
   let { is_editing, is_saving, onclick_edit, onclick_save, onclick_delete } = $props();
 </script>
 

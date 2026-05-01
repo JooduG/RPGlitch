@@ -5,10 +5,10 @@
    * The primary control for transitioning from setup to narrative.
    */
   import { app } from "@state/app.svelte.js";
-  import Button from "@ui/core/Button.svelte";
-  import GlassPill from "@ui/core/GlassPill.svelte";
-  import { shimmy, spin } from "@ui/utils/kinetic.js";
-  import { storyboard } from "./storyboard-actions.svelte.js";
+  import Button from "@atoms/Button.svelte";
+  import GlassPill from "@atoms/GlassPill.svelte";
+  import { shimmy, spin } from "@utils/kinetic.js";
+  import { storyboard } from "@storyboard/storyboard-actions.svelte.js";
 
   let ready_to_begin = $derived(app.is_ready);
   let label_text = $derived(

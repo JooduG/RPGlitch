@@ -7,7 +7,7 @@
    */
   import { app } from "@state/app.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
-  import ProfilePicture from "@ui/core/ProfilePicture.svelte";
+  import ProfilePicture from "@atoms/ProfilePicture.svelte";
   let { entity, side = "left" } = $props();
   // Default Fallbacks
   let name = $derived(entity?.name || "Unknown");

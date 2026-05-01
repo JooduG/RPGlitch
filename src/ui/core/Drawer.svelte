@@ -7,14 +7,14 @@
   import { create_new } from "@data/content-normaliser.js";
   import { entities as repository } from "@data/repository.js";
   import { app } from "@state/app.svelte.js";
-  import { kineticScroll } from "@ui/utils/kinetic.js";
+  import { kineticScroll } from "@utils/kinetic.js";
   import { quintOut } from "svelte/easing";
   import { fly } from "svelte/transition";
 
-  import Backdrop from "@ui/core/Backdrop.svelte";
-  import LibraryCard from "./LibraryCard.svelte";
-  import Button from "@ui/core/Button.svelte";
-  import ProfilePicture from "@ui/core/ProfilePicture.svelte";
+  import Backdrop from "@atoms/Backdrop.svelte";
+  import LibraryCard from "@storyboard/LibraryCard.svelte";
+  import Button from "@atoms/Button.svelte";
+  import ProfilePicture from "@atoms/ProfilePicture.svelte";
 
   // --- STATE & DERIVATIONS ---
   let is_open = $derived(app.drawer.open);

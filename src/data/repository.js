@@ -4,9 +4,9 @@
  * RUTHLESSLY FLATTENED SCHEMA  ZERO BACKWARDS COMPATIBILITY.
  * If it's not at the top level, it doesn't exist.
  */
-import { normalize, STORAGE_VERSION } from "./content-normaliser.js";
-import { db } from "./db.js";
-import { premade } from "./entity-premades.js";
+import { normalize, STORAGE_VERSION } from "@data/content-normaliser.js";
+import { db } from "@data/db.js";
+import { premade } from "@data/entity-premades.js";
 const error = console.error;
 // ============================================================================
 // 1. DATA SEEDING (The Entity Foundry)

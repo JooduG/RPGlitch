@@ -10,17 +10,17 @@
   import { runtime } from "@state/runtime.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
   import { normalize } from "@data/content-normaliser.js";
-  import ProfilePicture from "@ui/core/ProfilePicture.svelte";
-  import Modal from "@ui/core/Modal.svelte";
+  import ProfilePicture from "@atoms/ProfilePicture.svelte";
+  import Modal from "@atoms/Modal.svelte";
   // Modular Components (Flattened)
-  import EntityFooter from "./EntityFooter.svelte";
-  import EntityFragments from "./EntityFragments.svelte";
-  import EntityHeader from "./EntityHeader.svelte";
-  import Dialog from "@ui/core/Dialog.svelte";
+  import EntityFooter from "@profile/EntityFooter.svelte";
+  import EntityFragments from "@profile/EntityFragments.svelte";
+  import EntityHeader from "@profile/EntityHeader.svelte";
+  import Dialog from "@atoms/Dialog.svelte";
 
-  import AudioWing from "./AudioWing.svelte";
-  import DevWing from "./DevWing.svelte";
-  import VisualWing from "./VisualWing.svelte";
+  import AudioWing from "@profile/AudioWing.svelte";
+  import DevWing from "@devmode/DevWing.svelte";
+  import VisualWing from "@profile/VisualWing.svelte";
 
   import { SvelteSet } from "svelte/reactivity";
 

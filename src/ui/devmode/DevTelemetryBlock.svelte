@@ -4,7 +4,7 @@
    * 📡 THE TELEMETRY MODULE
    * Renders internal simulation physics, state changes (deltas), and memory vectors.
    */
-  import DataBox from "@ui/devmode/DataBox.svelte";
+  import DataBox from "@devmode/DataBox.svelte";
 
   /**
    * @typedef {Object} Props

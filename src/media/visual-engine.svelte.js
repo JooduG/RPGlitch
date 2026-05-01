@@ -9,9 +9,9 @@ import { entities } from "@data/repository.js";
 import { db } from "@data/db.js";
 import { runtime } from "@state/runtime.svelte.js";
 import { simulationState as simulation } from "@state/status.svelte.js";
-import { generateSecureSeed } from "@ui/utils/helpers.js";
-import { ExponentialBackoffRetryer, CircuitBreaker } from "./resilience.js";
-import { PromptTemplates, getResolution, NEGATIVE_PROMPT } from "./optics.js";
+import { generateSecureSeed } from "@utils/helpers.js";
+import { ExponentialBackoffRetryer, CircuitBreaker } from "@media/resilience.js";
+import { PromptTemplates, getResolution, NEGATIVE_PROMPT } from "@media/optics.js";
 
 export class VisualEngine {
   // --- Reactive State (Runes) ---

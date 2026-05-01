@@ -5,7 +5,7 @@
  * notifications, and text-to-speech with Svelte 5 reactivity.
  */
 import { db } from "@data/db.js";
-import { getRpgList } from "@ui/utils/helpers.js";
+import { getRpgList } from "@utils/helpers.js";
 
 const STORAGE_KEY = "rpglitch_audio_settings";
 

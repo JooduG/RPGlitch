@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { prompt_builder } from "./prompt-builder.js";
+import { prompt_builder } from "@core/intelligence/prompt-builder.js";
 
 describe("prompt_builder (Refactored)", () => {
   describe("Static Helpers", () => {

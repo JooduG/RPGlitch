@@ -6,7 +6,7 @@
    */
   import { quartOut } from "svelte/easing";
   import { scale } from "svelte/transition";
-  import Backdrop from "./Backdrop.svelte";
+  import Backdrop from "@atoms/Backdrop.svelte";
 
   /** @type {{
    *    on_close?: (e: any) => void,

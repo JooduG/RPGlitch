@@ -10,11 +10,11 @@
   import { app } from "@state/app.svelte.js";
   import { PALETTE, PALETTE_VARS } from "@theme/palette.svelte.js";
   import { AestheticResolver } from "@media/optics.js";
-  import Button from "@ui/core/Button.svelte";
-  import TextField from "@ui/core/TextField.svelte";
-  import Toggle from "@ui/core/Toggle.svelte";
-  import { get_value, set_value } from "@ui/utils/field-path.js";
-  import Wing from "./Wing.svelte";
+  import Button from "@atoms/Button.svelte";
+  import TextField from "@atoms/TextField.svelte";
+  import Toggle from "@atoms/Toggle.svelte";
+  import { get_value, set_value } from "@utils/field-path.js";
+  import Wing from "@atoms/Wing.svelte";
 
   const SPECTRUM_COLORS = Object.entries(PALETTE).filter(([name]) => name !== "default");
 

@@ -2,7 +2,7 @@
  * src/media/visual-engine.test.js
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { visual_engine } from "./visual-engine.svelte.js";
+import { visual_engine } from "@media/visual-engine.svelte.js";
 import { llm_service } from "@core/intelligence/llm-service.js";
 import { entities } from "@data/repository.js";
 

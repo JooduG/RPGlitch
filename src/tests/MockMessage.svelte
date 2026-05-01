@@ -1,5 +1,5 @@
 <script>
-  import Button from "@ui/core/Button.svelte";
+  import Button from "@atoms/Button.svelte";
   let { text, busy, on_delete, on_edit } = $props();
 </script>
 

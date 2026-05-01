@@ -5,7 +5,7 @@
  */
 import { app } from "@state/app.svelte.js";
 import { session } from "@state/session.svelte.js";
-import { pickRandom } from "@ui/utils/helpers.js";
+import { pickRandom } from "@utils/helpers.js";
 export const storyboard = {
   /**
    * Shuffle all selected entities randomly.

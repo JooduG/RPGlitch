@@ -4,7 +4,7 @@
  * Verifies Physics triggers, Tone resolution, and Prompt assembly.
  */
 import { describe, expect, it } from "vitest";
-import { dynamics_engine } from "./dynamics-engine.js";
+import { dynamics_engine } from "@core/intelligence/dynamics-engine.js";
 describe("Dynamics Engine v2 (Refactored)", () => {
   describe("Mechanics: simulation_dynamics", () => {
     const createBaseState = () => ({

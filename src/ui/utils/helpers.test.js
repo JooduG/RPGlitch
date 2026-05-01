@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { generateUUID, generateSecureSeed } from "./helpers.js";
+import { generateUUID, generateSecureSeed } from "@utils/helpers.js";
 
 describe("helpers", () => {
   describe("generateSecureSeed", () => {

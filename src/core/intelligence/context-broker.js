@@ -10,11 +10,11 @@
  * the Hydration phase: pulling raw state from the runtime and repository,
  * cleaning it, and packaging it into a unified IntelligencePayload.
  */
-import { runtime } from "../../state/runtime.svelte.js";
-import { clean_text } from "../text-parser.js";
-import { dynamics_engine } from "./dynamics-engine.js";
-import { ENTITY_CATALOG } from "./entity-fragments.js";
-import { temporal_engine } from "./temporal-engine.js";
+import { runtime } from "@state/runtime.svelte.js";
+import { clean_text } from "@core/text-parser.js";
+import { dynamics_engine } from "@core/intelligence/dynamics-engine.js";
+import { ENTITY_CATALOG } from "@core/intelligence/entity-fragments.js";
+import { temporal_engine } from "@core/intelligence/temporal-engine.js";
 
 const LOG_CACHE = new WeakMap();
 

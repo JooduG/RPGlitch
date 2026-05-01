@@ -4,12 +4,12 @@
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
   import { session_driver } from "@core/engine/session-driver.svelte.js";
-  import Button from "@ui/core/Button.svelte";
-  import Toggle from "@ui/core/Toggle.svelte";
-  import Modal from "@ui/core/Modal.svelte";
-  import TextField from "@ui/core/TextField.svelte";
-  import Dialog from "@ui/core/Dialog.svelte";
-  import StoryCard from "../StoryCard.svelte";
+  import Button from "@atoms/Button.svelte";
+  import Toggle from "@atoms/Toggle.svelte";
+  import Modal from "@atoms/Modal.svelte";
+  import TextField from "@atoms/TextField.svelte";
+  import Dialog from "@atoms/Dialog.svelte";
+  import StoryCard from "@storyboard/StoryCard.svelte";
   import { simulation_log } from "@state/simulation-log.svelte.js";
   import { simulationState } from "@state/status.svelte.js";
 

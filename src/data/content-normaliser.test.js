@@ -7,11 +7,11 @@ import {
   get_random_signature_key,
   ENTITY_TEMPLATES,
   STORAGE_VERSION,
-} from "./content-normaliser.js";
-import { Security } from "../core/security.js";
+} from "@data/content-normaliser.js";
+import { Security } from "@core/security.js";
 
 // Mock Security.sanitize
-vi.mock("../core/security.js", () => ({
+vi.mock("@core/security.js", () => ({
   Security: {
     sanitize: vi.fn((val) => (typeof val === "string" ? val.trim() : val)),
   },
@@ -173,7 +173,7 @@ describe("content-normaliser.js", () => {
 
   describe("get_random_signature_key()", () => {
     it("should return a valid key from the PALETTE", async () => {
-      const { PALETTE } = await import("../theme/palette.svelte.js");
+      const { PALETTE } = await import("@theme/palette.svelte.js");
       const key = get_random_signature_key();
       expect(Object.keys(PALETTE)).toContain(key);
       expect(key).not.toBe("default");

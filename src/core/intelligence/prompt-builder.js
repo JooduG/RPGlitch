@@ -19,9 +19,9 @@
  *
  */
 
-import { escapeXml, strip_cognition_blocks } from "../text-parser.js";
-import { ENTITY_CATALOG } from "./entity-fragments.js";
-import { temporal_engine } from "./temporal-engine.js";
+import { escapeXml, strip_cognition_blocks } from "@core/text-parser.js";
+import { ENTITY_CATALOG } from "@core/intelligence/entity-fragments.js";
+import { temporal_engine } from "@core/intelligence/temporal-engine.js";
 
 export const SYSTEM_PROMPTS = {
   /**

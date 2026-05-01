@@ -22,7 +22,7 @@ describe("PerchanceBridge", () => {
         delete window.oc;
       }
       // Dynamically import to get a fresh instance
-      const module = await import("./perchance-bridge.js");
+      const module = await import("@core/perchance-bridge.js");
       bridge = module.bridge;
     });
     it("should log a warning on instantiation", () => {
@@ -71,7 +71,7 @@ describe("PerchanceBridge", () => {
       };
       window.oc = mockOc;
       // Dynamically import to get a fresh instance
-      const module = await import("./perchance-bridge.js");
+      const module = await import("@core/perchance-bridge.js");
       bridge = module.bridge;
     });
     it("should not log a warning on instantiation", () => {

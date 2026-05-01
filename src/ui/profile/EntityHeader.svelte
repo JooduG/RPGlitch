@@ -5,8 +5,8 @@
    * Handles the top-level name and description of the entity.
    */
   import { ENTITY_FRAGMENTS } from "@/core/intelligence/entity-fragments.js";
-  import TextField from "@ui/core/TextField.svelte";
-  import { fitText } from "@ui/utils/fit-text.js";
+  import TextField from "@atoms/TextField.svelte";
+  import { fitText } from "@utils/fit-text.js";
 
   let { char = $bindable(), is_editing, busy_fields } = $props();
 </script>

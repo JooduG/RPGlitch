@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest";
-import { AppBootstrap, reset_bootstrap_guard } from "./bootstrap.js";
+import { AppBootstrap, reset_bootstrap_guard } from "@core/bootstrap.js";
 import * as repository from "@data/repository.js";
 import { app } from "@state/app.svelte.js";
 
@@ -30,7 +30,7 @@ vi.mock("@state/runtime.svelte.js", () => ({
 vi.mock("svelte", () => ({
   mount: vi.fn(),
 }));
-vi.mock("../ui/App.svelte", () => ({
+vi.mock("@shell/App.svelte", () => ({
   default: {},
 }));
 describe("AppBootstrap", () => {

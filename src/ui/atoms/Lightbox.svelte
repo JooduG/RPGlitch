@@ -1,6 +1,6 @@
 <script>
   import { closeLightbox, lightbox } from "@state/lightbox.svelte.js";
-  import Modal from "@ui/core/Modal.svelte";
+  import Modal from "@atoms/Modal.svelte";
 </script>
 
 {#if lightbox.active}

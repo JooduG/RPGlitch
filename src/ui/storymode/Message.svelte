@@ -8,12 +8,12 @@
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
-  import DataBox from "@ui/devmode/DataBox.svelte";
-  import TypingIndicator from "@ui/core/TypingIndicator.svelte";
-  import { safe_html } from "@ui/utils/safe-html.js";
+  import DataBox from "@devmode/DataBox.svelte";
+  import TypingIndicator from "@atoms/TypingIndicator.svelte";
+  import { safe_html } from "@utils/safe-html.js";
 
-  import Button from "@ui/core/Button.svelte";
-  import DevTelemetryBlock from "@ui/devmode/DevTelemetryBlock.svelte";
+  import Button from "@atoms/Button.svelte";
+  import DevTelemetryBlock from "@devmode/DevTelemetryBlock.svelte";
 
   /**
    * @typedef {Object} Props

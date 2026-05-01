@@ -1,6 +1,6 @@
-import { temporal_engine } from "../core/intelligence/temporal-engine.js";
-import { db } from "../data/db.js";
-import { entities } from "../data/repository.js";
+import { temporal_engine } from "@core/intelligence/temporal-engine.js";
+import { db } from "@data/db.js";
+import { entities } from "@data/repository.js";
 import { SESSION_ID_KEY } from "@core/constants.js";
 // We split the large state object into cohesive internal modules:
 // 1. Entities (character, active_user, active_ai, active_fractal)

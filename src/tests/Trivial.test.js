@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from "@testing-library/svelte";
 import { describe, expect, it } from "vitest";
-import Trivial from "./Trivial.svelte";
+import Trivial from "@/tests/Trivial.svelte";
 describe("Trivial Component", () => {
   it("renders correctly", () => {
     cleanup();

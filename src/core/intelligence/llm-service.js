@@ -18,9 +18,9 @@
  * LlmService has no opinion on prompt content. It injects no rules and knows
  * nothing about the narrative. It only sends and receives.
  */
-import { app } from "../../state/app.svelte.js";
-import { ERROR_MESSAGES } from "../engine/config.js";
-import { strip_cognition_blocks } from "../text-parser.js";
+import { app } from "@state/app.svelte.js";
+import { ERROR_MESSAGES } from "@core/engine/config.js";
+import { strip_cognition_blocks } from "@core/text-parser.js";
 /************************************************************************************
  * [SECTION: SANITIZATION]
  * ----------------------------------------------------------------------------------

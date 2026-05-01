@@ -6,11 +6,11 @@
    */
   import { app } from "@state/app.svelte.js";
   import { lightbox } from "@state/lightbox.svelte.js";
-  import Lightbox from "@ui/core/Lightbox.svelte";
-  import ControlPanel from "@ui/devmode/ControlPanel.svelte";
-  import Profile from "./Profile.svelte";
-  import Storyboard from "./Storyboard.svelte";
-  import Storymode from "./Storymode.svelte";
+  import Lightbox from "@atoms/Lightbox.svelte";
+  import ControlPanel from "@devmode/ControlPanel.svelte";
+  import Profile from "@profile/Profile.svelte";
+  import Storyboard from "@storyboard/Storyboard.svelte";
+  import Storymode from "@storymode/Storymode.svelte";
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
   let mounted = $state(false);

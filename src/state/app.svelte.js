@@ -6,14 +6,14 @@
  */
 import { KV_SETTINGS_KEY } from "@core/constants.js";
 import { log as engineLog } from "@core/logger.svelte.js";
-import { normalize } from "../data/content-normaliser.js";
-import { db } from "../data/db.js";
-import { entities } from "../data/repository.js";
-import { visual_engine } from "../media/visual-engine.svelte.js";
-import { generateUUID } from "../ui/utils/helpers.js";
-import { closeLightbox, openLightbox } from "./lightbox.svelte.js";
-import { runtime } from "./runtime.svelte.js";
-import { simulationState } from "./status.svelte.js";
+import { normalize } from "@data/content-normaliser.js";
+import { db } from "@data/db.js";
+import { entities } from "@data/repository.js";
+import { visual_engine } from "@media/visual-engine.svelte.js";
+import { generateUUID } from "@utils/helpers.js";
+import { closeLightbox, openLightbox } from "@state/lightbox.svelte.js";
+import { runtime } from "@state/runtime.svelte.js";
+import { simulationState } from "@state/status.svelte.js";
 
 /************************************************************************************
  * [SECTION: STATE DEFINITIONS]

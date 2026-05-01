@@ -4,9 +4,9 @@ import { simulation_log } from "@state/simulation-log.svelte.js";
 import { simulationState } from "@state/status.svelte.js";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/svelte";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import StorymodeFeed from "./StorymodeFeed.svelte";
+import StorymodeFeed from "@storymode/StorymodeFeed.svelte";
 // Mock child components
-vi.mock("./Message.svelte", async () => {
+vi.mock("@storymode/Message.svelte", async () => {
   return await import("@/tests/MockMessage.svelte");
 });
 describe("StorymodeFeed Integration (Isolated)", () => {

@@ -14,9 +14,9 @@
   } = $props();
 
   import { themeStore } from "@theme/palette.svelte.js";
-  import Button from "@ui/core/Button.svelte";
-  import ProfilePicture from "@ui/core/ProfilePicture.svelte";
-  import { fitText } from "@ui/utils/fit-text.js";
+  import Button from "@atoms/Button.svelte";
+  import ProfilePicture from "@atoms/ProfilePicture.svelte";
+  import { fitText } from "@utils/fit-text.js";
 
   // --- DERIVED STATE ---
   let is_empty = $derived(!entity);
