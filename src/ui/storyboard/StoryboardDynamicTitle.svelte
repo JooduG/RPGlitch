@@ -98,15 +98,19 @@
   oninput={handle_input}
   ondblclick={handle_dbl_click}
 >
-  <span class="title-content">
-    {#each title_parts as part, i (i)}
-      {#if part.color}
-        <span class="entity-name" style="color: {part.color}">{part.text}</span>
-      {:else}
-        {part.text}
-      {/if}
-    {/each}
-  </span>
+  {#if is_custom}
+    {custom_title}
+  {:else}
+    <span class="title-content">
+      {#each title_parts as part, i (i)}
+        {#if part.color}
+          <span class="entity-name" style="color: {part.color}">{part.text}</span>
+        {:else}
+          {part.text}
+        {/if}
+      {/each}
+    </span>
+  {/if}
 </h1>
 
 <style>
@@ -129,11 +133,8 @@
     margin-inline: auto;
 
     /* Soft ethereal glow */
-    text-shadow:
-      0 var(--spacing-xxs) var(--spacing-m) var(--color-border-l),
-      0 0 var(--spacing-xl) var(--color-border-l);
-    display: grid;
-    place-content: center;
+    text-shadow: 0 0 20px rgb(var(--color-black-rgb) / 50%);
+    display: block;
     min-width: 300px;
     text-align: center;
   }

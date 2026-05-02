@@ -48,15 +48,14 @@
 
 <style>
   footer {
-    position: sticky;
-    bottom: calc(-1 * var(--spacing-m));
+    position: relative;
     margin: auto calc(-1 * var(--spacing-m)) calc(-1 * var(--spacing-m));
-    padding: var(--spacing-m);
+    padding: var(--spacing-m) var(--spacing-m) var(--spacing-m) 0;
     display: grid;
     grid-template-columns: var(--spacing-xxxxl) 1fr;
-    gap: var(--spacing-s);
-    background: color-mix(in srgb, var(--color-gunmetal) 85%, var(--signature-color) 15%);
-    backdrop-filter: var(--blur-l);
+    gap: var(--spacing-m);
+    background: color-mix(in srgb, rgb(from var(--color-gunmetal) r g b / 25%), var(--signature-color) 15%);
+    backdrop-filter: var(--blur-m);
     border-top: var(--border-s);
     z-index: var(--z-index-xl);
     transition: all var(--motion-l);
@@ -72,6 +71,17 @@
 
   .footer-spacer {
     flex: 1;
+  }
+
+  @media (width <= 768px) {
+    footer {
+      grid-template-columns: 1fr;
+      padding: var(--spacing-s);
+    }
+
+    .footer-actions {
+      grid-column: 1;
+    }
   }
 
   :global(.profile-button.button) {

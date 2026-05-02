@@ -74,7 +74,7 @@
   <div class="field-body">
     {#if is_edit}
       <textarea
-        class="field-foundation"
+        class="field-foundation custom-scrollbar"
         class:busy
         class:disabled={disabled || busy}
         bind:value
@@ -87,7 +87,7 @@
       ></textarea>
     {:else}
       <div
-        class="readonly-field"
+        class="readonly-field custom-scrollbar"
         class:busy
         class:disabled={disabled || busy}
         data-sync-id={syncId}
@@ -230,18 +230,6 @@
     outline: none;
   }
 
-  /* Custom Scrollbar */
-  .field-foundation::-webkit-scrollbar,
-  .readonly-field::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-
-  .field-foundation::-webkit-scrollbar-thumb,
-  .readonly-field::-webkit-scrollbar-thumb {
-    background: var(--color-border-l);
-    border-radius: var(--border-radius-full);
-  }
 
   .field-foundation::placeholder {
     color: var(--color-frisk);
@@ -305,7 +293,6 @@
 
   /* --- BUSY ANIMATION (The "Something") --- */
   .field-header {
-    /* ... existing styles ... */
     overflow: visible; /* Default allow glow to breathe */
   }
 

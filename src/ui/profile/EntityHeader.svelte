@@ -28,9 +28,9 @@
         class="name no-tooltip"
         aria-label="Entity Name"
         use:fitText={{
-          maxSize: 80,
-          minSize: 16,
-          lineHeight: "var(--line-height-s)",
+          maxSize: 64,
+          minSize: 20,
+          lineHeight: "1.0",
         }}
       >
         {char.name || ENTITY_FRAGMENTS.name}
@@ -60,12 +60,11 @@
 
 <style>
   header {
-    position: sticky;
-    top: calc(-1 * var(--spacing-m));
+    position: relative;
     margin: calc(-1 * var(--spacing-m)) calc(-1 * var(--spacing-m)) 0;
     padding: var(--spacing-m);
-    background: color-mix(in srgb, var(--color-gunmetal) 85%, var(--signature-color) 15%);
-    backdrop-filter: var(--blur-l);
+    background: color-mix(in srgb, rgb(from var(--color-gunmetal) r g b / 20%), var(--signature-color) 12%);
+    backdrop-filter: var(--blur-m);
     border-bottom: var(--border-s);
     z-index: var(--z-index-xl);
     transition: all var(--motion-l);
@@ -80,10 +79,10 @@
 
   .name {
     width: 100%;
-    color: var(--signature-color);
-    font-size: var(--font-size-xxxxxl); /* 80px */
-    font-weight: var(--font-weight-l);
-    letter-spacing: -(var(--letter-spacing-s));
+    color: var(--color-white);
+    font-size: var(--font-size-xxxxl);
+    font-weight: var(--font-weight-xl);
+    letter-spacing: var(--letter-spacing-s);
     text-shadow: var(--shadow-font);
     margin: 0;
     padding: var(--spacing-xs);
@@ -147,11 +146,29 @@
 
   :global(.description-field .field-foundation),
   :global(.description-field .readonly-field) {
-    padding: var(--spacing-xs);
-    font-size: var(--font-size-l);
-    color: var(--font-color-m);
-    background: transparent;
     border: none;
     outline: none;
+  }
+
+  @media (width <= 768px) {
+    .name {
+      font-size: var(--font-size-xl);
+      padding: var(--spacing-xxs);
+    }
+    
+    header {
+      padding: var(--spacing-s);
+      margin-bottom: var(--spacing-s);
+    }
+  }
+
+  @media (width <= 480px) {
+    .name {
+      font-size: var(--font-size-l);
+    }
+
+    header {
+      padding: var(--spacing-xs);
+    }
   }
 </style>

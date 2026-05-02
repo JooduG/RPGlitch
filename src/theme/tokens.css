@@ -143,6 +143,12 @@
   --border-radius-xs: var(--spacing-xxxs);
   --border-radius-full: 9999px;
 
+  /* Scrollbar Metrics */
+  --scrollbar-width: 6px;
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: var(--color-gunmetal);
+  --scrollbar-thumb-hover: var(--color-frisk);
+
   /* Breakpoints Registry */
   --breakpoint-mobile: 768px;
   --breakpoint-tablet: 1024px;

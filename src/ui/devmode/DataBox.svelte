@@ -18,7 +18,7 @@
   {#if label}
     <header class="data-header">{label}</header>
   {/if}
-  <div class="data-content" class:is-code={isCode}>{@render children()}</div>
+  <div class="data-content custom-scrollbar" class:is-code={isCode}>{@render children()}</div>
 </div>
 
 <style>
@@ -60,16 +60,6 @@
     background: rgb(var(--color-black-rgb) / 10%);
   }
 
-  /* Custom Scrollbar for the data content */
-  .data-content::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-
-  .data-content::-webkit-scrollbar-thumb {
-    background: var(--color-border-l);
-    border-radius: var(--border-radius-full);
-  }
 
   :global(.data-content pre) {
     margin: 0;

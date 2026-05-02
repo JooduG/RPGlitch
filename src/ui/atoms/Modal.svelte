@@ -38,7 +38,7 @@
 <Backdrop onclick={handle_close} {z_index} />
 
 <!-- Interaction & Layout Layer -->
-<div class="modal-layout" style="z-index: calc({z_index} + 1);">
+<div class="modal-layout {variant}" style="z-index: calc({z_index} + 1);">
   <!-- Content -->
   <div
     class="modal-content glass-xxl {variant}"
@@ -63,6 +63,10 @@
     pointer-events: none;
   }
 
+  .modal-layout.profile {
+    padding: 0;
+  }
+
   .modal-content {
     position: relative;
     width: 95%;
@@ -79,12 +83,14 @@
   }
 
   .modal-content.profile {
-    max-width: 90vw;
+    width: 100%;
+    max-width: 1000px;
     background: transparent;
     backdrop-filter: none;
     border: none;
     box-shadow: none;
     overflow: visible;
+    padding: 0;
   }
 
   .modal-content.preview,

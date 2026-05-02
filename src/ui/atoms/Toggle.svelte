@@ -116,6 +116,7 @@
     text-transform: uppercase;
     font-family: var(--font-family-body);
     transition: color var(--motion-l);
+    white-space: nowrap;
   }
 
   .toggle-switch:hover:not(.disabled) .label-text {

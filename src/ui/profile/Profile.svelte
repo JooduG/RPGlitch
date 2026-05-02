@@ -153,7 +153,7 @@
       data-is-editing={is_editing}
     >
       <!-- LEFT WING: UNIFIED IDENTITY & METRICS -->
-      <aside class="wing-left" class:is-visible={is_editing || app.settings.dev_mode}>
+      <aside class="wing-left custom-scrollbar" class:is-visible={is_editing || app.settings.dev_mode}>
         {#if is_editing}
           <VisualWing bind:char {is_editing} {busy_fields} bind:active_field />
           <AudioWing bind:char {is_editing} />
@@ -168,12 +168,12 @@
         class="profile-presentation"
         style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
       >
-        <div class="presentation-shell">
+        <div class="presentation-shell custom-scrollbar">
           <div class="signature-bar"></div>
           <div class="left-panel">
             <ProfilePicture entity={char} />
           </div>
-          <main class="right-panel">
+          <main class="right-panel custom-scrollbar">
             <EntityHeader bind:char {is_editing} {busy_fields} />
             <EntityFragments bind:char {is_editing} {busy_fields} bind:active_field />
             <EntityFooter
@@ -197,7 +197,8 @@
     justify-content: center;
     gap: var(--spacing-l);
     width: 100%;
-    max-width: 90vw;
+    max-width: 100%;
+    padding: 0 var(--spacing-m);
     overflow: visible;
   }
 
@@ -207,7 +208,7 @@
     min-width: 0;
     max-width: 0;
     opacity: var(--opacity-none);
-    overflow: visible;
+    overflow: hidden; /* Hide content when collapsed */
     pointer-events: none;
     transition: all var(--motion-s) cubic-bezier(0.4, 0, 0.2, 1);
     transform: scale(0.9);
@@ -227,11 +228,17 @@
     opacity: var(--opacity-full);
     pointer-events: auto;
     transform: scale(1);
+    overflow-y: auto; /* Enable unified scrolling */
+  }
+
+  /* Local Scrollbar Theming for Wings */
+  .wing-left {
+    --scrollbar-thumb: rgb(var(--color-white-rgb) / var(--opacity-s));
+    --scrollbar-thumb-hover: rgb(var(--color-white-rgb) / var(--opacity-l));
   }
 
   :global(.visual-wing) {
-    flex: 1 1 auto;
-    min-height: 0;
+    flex: 0 0 auto;
   }
 
   :global(.audio-wing),
@@ -241,27 +248,31 @@
 
   .profile-presentation {
     order: 2;
-    max-width: calc(var(--grid-unit) * 6);
+    max-width: 1000px; /* Increased from grid-unit scale for better breathing room */
     width: 100%;
+    min-height: 0;
     height: 100%;
     max-height: 85vh;
-    background: var(--glass-xl);
-    backdrop-filter: var(--blur-l);
+    background: transparent;
+    backdrop-filter: none;
     border: var(--border-l);
     border-radius: var(--border-radius-l);
     box-shadow: var(--shadow-xl);
     position: relative;
-    overflow: visible;
+    overflow: hidden;
     z-index: var(--z-index-l);
+    display: flex;
+    flex-direction: column;
     transition: all var(--motion-s) cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .presentation-shell {
     width: 100%;
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     display: grid;
-    grid-template-columns: 35% 1fr;
-    grid-template-rows: 1fr;
+    grid-template-columns: minmax(180px, 30%) 1fr; /* Flexible portrait panel */
+    grid-template-rows: minmax(0, 1fr);
     border-radius: inherit;
     overflow: visible;
     background: transparent;
@@ -290,10 +301,6 @@
   .left-panel,
   .right-panel {
     height: 100%;
-
-    /* Custom Scrollbar (Standard) */
-    scrollbar-width: thin;
-    scrollbar-color: rgb(var(--signature-rgb) / var(--opacity-s)) transparent;
   }
 
   .left-panel {
@@ -301,7 +308,8 @@
     flex-direction: column;
     border-right: 1px solid
       color-mix(in srgb, var(--color-gunmetal) 85%, var(--signature-color) 15%);
-    background: transparent;
+    background: var(--glass-xl);
+    backdrop-filter: var(--blur-l);
     border-radius: var(--border-radius-m) 0 0 var(--border-radius-m);
     overflow: hidden;
   }
@@ -310,20 +318,91 @@
     display: flex;
     flex-direction: column;
     padding: var(--spacing-m);
-    background-color: rgb(from var(--signature-color) r g b / 5%); /* Subtle Identity Wash */
-    gap: var(--spacing-m);
+    background: transparent;
+    gap: 0;
     min-height: 0; /* CRITICAL: Allow panel to be smaller than content for scrolling */
-    overflow: visible;
+    overflow-y: auto;
   }
 
-  .left-panel::-webkit-scrollbar,
-  .right-panel::-webkit-scrollbar {
-    width: 4px;
+  /* Local Scrollbar Theming */
+  .right-panel {
+    --scrollbar-thumb: rgb(var(--signature-rgb) / var(--opacity-s));
+    --scrollbar-thumb-hover: rgb(var(--signature-rgb) / var(--opacity-l));
   }
 
-  .left-panel::-webkit-scrollbar-thumb,
-  .right-panel::-webkit-scrollbar-thumb {
-    background: rgb(var(--signature-rgb) / var(--opacity-s));
-    border-radius: var(--border-radius-full);
+  /* --- RESPONSIVE ADAPTATION --- */
+
+  @media (width <= 850px) {
+    .profile-container {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      width: 100%;
+      max-width: 100%;
+      height: 100%;
+      min-height: 0;
+      justify-content: flex-start;
+      padding: 0;
+    }
+
+    .wing-left.is-visible {
+      width: 100%;
+      min-width: 100%;
+      max-width: 100%;
+      height: auto;
+      max-height: 40vh;
+      order: 3;
+      transform: none;
+      padding: 0 var(--spacing-s);
+    }
+
+    .profile-presentation {
+      order: 1;
+      max-width: 100%;
+      height: 100%;
+      min-height: 0;
+      max-height: 100%;
+      flex: 1;
+      border-radius: 0; /* Full width on mobile feels more premium */
+      border-left: none;
+      border-right: none;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .presentation-shell {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow-y: auto; /* Unified scrollbar for mobile */
+      min-height: 0;
+    }
+
+    .left-panel {
+      flex: 0 0 clamp(140px, 20vh, 220px);
+      border-right: none;
+      border-bottom: 1px solid
+        color-mix(in srgb, var(--color-gunmetal) 85%, var(--signature-color) 15%);
+      border-radius: 0;
+    }
+
+    .right-panel {
+      flex: 0 0 auto;
+      padding: var(--spacing-m);
+      overflow-y: visible;
+      height: auto;
+    }
+  }
+
+  /* Ultra-narrow optimization */
+  @media (width <= 480px) {
+    .profile-presentation {
+      border: none;
+    }
+    
+    .right-panel {
+      padding: var(--spacing-s);
+      gap: var(--spacing-s);
+    }
   }
 </style>

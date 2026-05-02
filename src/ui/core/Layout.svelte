@@ -95,12 +95,17 @@
   @media (width <= 768px) {
     .universal-stage {
       grid-template-columns: 1fr;
-      grid-template-rows: min-content 1fr min-content;
+      grid-template-rows: min-content auto auto auto min-content;
+      overflow-y: auto; /* Allow scrolling the stack on mobile */
     }
 
-    /* Standard Mode: Hide sides */
+    /* Standard Mode: Show sides as part of the stack */
     .universal-stage:not(.layout-cinematic) .stage-column--side {
-      display: none;
+      display: flex;
+      grid-column: 1 / -1;
+      height: auto;
+      min-height: auto;
+      padding: var(--spacing-m);
     }
 
     .universal-stage .stage-header,
@@ -109,10 +114,29 @@
       position: relative;
       height: auto;
       padding: var(--spacing-m);
+      inset: auto;
+      align-items: center;
+    }
+
+    .universal-stage .stage-header {
+      grid-row: 1;
+    }
+
+    .universal-stage .stage-column.left {
+      grid-row: 2;
     }
 
     .universal-stage .stage-column--center {
       grid-column: 1 / -1;
+      grid-row: 3;
+    }
+
+    .universal-stage .stage-column.right {
+      grid-row: 4;
+    }
+
+    .universal-stage .stage-footer {
+      grid-row: 5;
     }
 
     /* Cinematic Mode: Stacked Header */
@@ -201,7 +225,7 @@
     justify-content: center;
     align-items: var(--stage-align, center);
     transition: all var(--motion-s) var(--motion-elastic);
-    overflow: visible;
+    overflow: hidden;
     min-height: 0;
     pointer-events: auto;
     grid-row: 1;

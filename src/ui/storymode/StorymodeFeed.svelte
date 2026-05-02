@@ -83,7 +83,7 @@
   confirm_label="Delete"
   on_confirm={execute_delete}
 />
-<div class="storymode-feed" bind:this={scroll_ref}>
+<div class="storymode-feed custom-scrollbar" bind:this={scroll_ref}>
   {#each simulation_log.feed as entry, index (entry.id)}
     <Message
       text={entry.text}
@@ -131,15 +131,6 @@
     flex-direction: column;
     gap: 0;
     scroll-behavior: smooth;
-  }
-
-  .storymode-feed::-webkit-scrollbar {
-    width: var(--spacing-xxs);
-  }
-
-  .storymode-feed::-webkit-scrollbar-thumb {
-    background: var(--glass-xs);
-    border-radius: var(--border-radius-full);
   }
 
   .empty-feed-fallback {

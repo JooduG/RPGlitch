@@ -17,6 +17,7 @@
 - [x] InputBar Layout & Control Panel Wiring ([039])
 - [x] Documentation Sync & Infrastructure Hygiene ([044])
 - [ ] Release Candidate Stability Audit ([043]) - [ACTIVE]
+- [ ] Profile Modal Aesthetic Overhaul ([055]) - [ACTIVE]
 - [x] Final UI Polishing & Aesthetics ([050])
   - [x] Refine `Button` primary variant ("pure" style, borderless)
   - [x] Update Nordic tokens (off-white → `--color-white: #f7f9fc` Nordic Ivory)
@@ -38,10 +39,22 @@
   - [x] Systemic import refactor & relative path fixup
   - [x] Verify with `npm run test:unit`
 
-  - [x] Implement post-simulation delta capture
-  - [x] Create Nordic-style telemetry UI in Message feed
-  - [x] Ensure system logs are filtered from AI context
-  - [x] Fix linting and formatting issues
+- **[055]** Profile Modal Aesthetic Overhaul [DONE]
+  - [x] Redesign placeholder initials (texture + identity strip)
+  - [x] Unified scrolling for header, body, and footer
+  - [x] Restore "Edit" button layout and styling (spacer + fullWidth)
+  - [x] Unify wing scrolling into a single container (removed multiple scrollbars)
+  - [x] Fix 1020px viewport squashing bug
+  - [x] Implement mobile edge-to-edge layout for profile modal
+  - [x] Enhance transparency by de-layering glass containers
+  - [x] Harden identity aesthetics (white initials, high-contrast header)
+
+- **[056]** Storyboard Mobile Layout [DONE]
+  - [x] Fix 768px layout overlapping on title and cards
+  - [x] Un-hide AI character and User persona cards on mobile
+  - [x] Re-architect universal grid to 5-row stack for mobile
+  - [x] Enable vertical scrolling for the storyboard stack
+  - [x] Verify visual integrity with browser screenshot
 
 ---
 
@@ -86,6 +99,10 @@
 
 | Timestamp (ISO 8601)      | Task                                                                                  | Skill Invoked                                | Outcome |
 | ------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------- | ------- |
+| 2026-05-01T23:20:00+02:00 | Profile Responsiveness & Transparency Refinement | `using-agent-skills`, `css`, `svelte`, `browser-testing-with-devtools` | ✅ Resolved |
+| 2026-05-01T22:43:00+02:00 | Unified Wing Scrolling | `using-agent-skills`, `css`, `svelte` | ✅ Resolved |
+| 2026-05-01T22:30:00+02:00 | Profile Modal Scrolling & Regression Fix | `using-agent-skills`, `css`, `svelte` | ✅ Resolved |
+| 2026-05-01T20:45:00+02:00 | Profile Modal Aesthetic Overhaul ([055]) | `using-agent-skills`, `planning`, `designer`, `css`, `svelte` | 🔄 Active |
 | 2026-05-01T02:15:00+02:00 | Release Candidate Stability Audit ([043]) | `specification`, `planning`, `warden` | 🔄 Active |
 | 2026-05-01T02:00:00+02:00 | UI Architecture Restructuring & Import Aliasing ([054]) | `using-agent-skills`, `planning`, `warden` | ✅ Resolved |
 | 2026-04-30T22:30:00+02:00 | Session Driver Restoration ([053])                                                    | `using-agent-skills`, `specification`        | ✅ Done |

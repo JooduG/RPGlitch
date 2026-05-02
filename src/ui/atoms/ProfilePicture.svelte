@@ -65,15 +65,17 @@
       />
     </div>
   {:else}
-    <div
-      class="placeholder"
-      use:fitText={{
-        maxSize: 150,
-        minSize: 40,
-        lineHeight: "1",
-      }}
-    >
-      {initials}
+    <div class="placeholder">
+      <div
+        class="initials-bg"
+        use:fitText={{
+          maxSize: 300,
+          minSize: 100,
+          lineHeight: "0.8",
+        }}
+      >
+        {initials}
+      </div>
     </div>
   {/if}
 </div>
@@ -117,12 +119,29 @@
     justify-content: center;
     width: 100%;
     height: 100%;
+    background-color: var(--signature-color);
+    background-image: radial-gradient(
+      circle at center,
+      transparent,
+      rgb(var(--color-black-rgb) / 30%)
+    );
+    position: relative;
+    overflow: hidden;
+  }
+
+  .initials-bg {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-family: var(--font-family-heading);
     font-weight: var(--font-weight-xl);
     color: var(--color-white);
-    text-shadow: 0 0.2rem 1rem rgb(var(--color-black-rgb) / 50%);
-    background-color: var(--signature-color);
-    background-image: linear-gradient(to bottom, transparent, rgb(var(--color-black-rgb) / 30%));
+    opacity: 1;
     text-transform: uppercase;
+    user-select: none;
+    pointer-events: none;
+    filter: drop-shadow(0 0.5rem 1rem rgb(var(--color-black-rgb) / 20%));
   }
 </style>

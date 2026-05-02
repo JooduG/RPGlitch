@@ -150,13 +150,17 @@
     overflow: visible;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-m);
+    gap: var(--spacing-l);
+    background: rgb(from var(--signature-color) r g b / 5%);
+    backdrop-filter: var(--blur-s);
+    margin: 0 calc(-1 * var(--spacing-m));
+    padding: var(--spacing-m);
   }
 
   .content .row {
     display: grid;
-    grid-template-columns: var(--spacing-xxxxl) 1fr;
-    gap: var(--spacing-s);
+    grid-template-columns: 80px 1fr;
+    gap: var(--spacing-m);
     min-width: 0;
   }
 
@@ -180,8 +184,8 @@
 
   .content .row .label h2 {
     margin: 0;
-    font-size: var(--font-size-l);
-    font-weight: var(--font-weight-l);
+    font-size: var(--font-size-s);
+    font-weight: var(--font-weight-xl);
     color: var(--signature-color);
     text-transform: uppercase;
     text-shadow: var(--shadow-font);
@@ -215,10 +219,10 @@
 
   .content .row .label p {
     margin: 0;
-    font-size: var(--font-size-xs);
+    font-size: 10px;
     color: var(--font-color-m);
-    font-weight: var(--font-weight-l);
-    opacity: var(--opacity-l);
+    font-weight: var(--font-weight-m);
+    opacity: var(--opacity-m);
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-l);
     text-shadow: var(--shadow-font);
@@ -286,5 +290,24 @@
     text-shadow: var(--shadow-font);
     margin-bottom: var(--spacing-xxs);
     width: 100%;
+  }
+
+  @media (max-width: 600px) {
+    .content .row {
+      grid-template-columns: 1fr;
+      gap: var(--spacing-xs);
+    }
+
+    .content .row .label {
+      text-align: left;
+    }
+
+    .label-box {
+      align-items: flex-start;
+    }
+
+    .content .row .split {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

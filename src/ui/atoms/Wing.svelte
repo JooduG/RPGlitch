@@ -9,7 +9,7 @@
 </script>
 
 <div class="wing-shell glass-l {className}" {...rest}>
-  <div class="scroller">
+  <div class="scroller custom-scrollbar">
     {@render children()}
   </div>
 </div>
@@ -31,19 +31,11 @@
 
   .scroller {
     flex: 1;
-    overflow-y: visible;
+    overflow: visible;
     display: flex;
     flex-direction: column;
     padding: var(--spacing-m);
     gap: var(--spacing-m);
-
-    /* Hide Scrollbar */
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  .scroller::-webkit-scrollbar {
-    display: none;
   }
 
   /* Shared internal group styling */
