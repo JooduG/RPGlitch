@@ -94,7 +94,7 @@
     },
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
-    "uuid": "^14.0.0"
+    "uuid": "^11.1.0"
   },
   "scripts": {
     "audit": "node .agent/skills/using-agent-skills/scripts/summarize.js audit:nomenclature audit:warden audit:theme audit:perf audit:backlog audit:simulation",
