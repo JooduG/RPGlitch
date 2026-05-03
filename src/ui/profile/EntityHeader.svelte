@@ -30,7 +30,7 @@
         use:fitText={{
           maxSize: 64,
           minSize: 20,
-          lineHeight: "1.0",
+          lineHeight: "1.0", /* [059.2] Tightened for better layout stability */
         }}
       >
         {char.name || ENTITY_FRAGMENTS.name}
@@ -83,7 +83,7 @@
 
   .name {
     width: 100%;
-    color: var(--color-white);
+    color: var(--signature-color);
     font-size: var(--font-size-xxxxl);
     font-weight: var(--font-weight-xl);
     letter-spacing: var(--letter-spacing-s);
@@ -97,17 +97,20 @@
       border-color var(--motion-l),
       box-shadow var(--motion-l);
     box-shadow: none;
-    min-height: 1.5em; /* Stable height ceiling */
-    line-height: var(--line-height-s);
+    min-height: 4rem; /* Stable height ceiling - matches maxSize 64px roughly */
+    line-height: 1.0;
     outline: none;
     background: transparent;
     border: none;
+    display: flex;
+    align-items: center; /* Vertically center within the stable block */
   }
 
   .name.edit {
     cursor: text;
     pointer-events: auto;
     caret-color: var(--signature-color);
+    font-size: 64px; /* Match fitText maxSize for stability */
   }
 
   .name.edit:focus-within {

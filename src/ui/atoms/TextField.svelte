@@ -229,6 +229,8 @@
     max-height: 15rem;
     text-align: left;
     outline: none;
+    display: block; /* Ensure block level */
+    margin: 0;
   }
 
   .field-foundation::placeholder {
@@ -326,14 +328,14 @@
 
   .readonly-field {
     width: 100%;
-    font-size: var(--font-size-s);
-    line-height: var(--line-height-m);
-    padding: var(--spacing-s);
-    white-space: normal;
     background: transparent;
     border: none;
     color: var(--color-white);
     font-family: var(--font-family-body);
+    font-size: var(--font-size-s);
+    line-height: var(--line-height-m);
+    padding: var(--spacing-s);
+    white-space: normal;
     height: auto;
     min-height: 2.5rem;
     max-height: 15rem;
@@ -344,6 +346,8 @@
     align-items: flex-start;
     outline: none;
     text-wrap: pretty;
+    box-sizing: border-box;
+    margin: 0;
   }
 
   .paragraph {

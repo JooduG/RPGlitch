@@ -198,11 +198,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--spacing-l);
+    gap: 0; /* Remove gap, we'll use margins on wings for precision */
     width: 100%;
     max-width: 100%;
-    padding: 0 var(--spacing-m);
     overflow: visible;
+    position: relative;
   }
 
   /* Wings logic integrated from ProfileWings.svelte */
@@ -222,6 +222,7 @@
     gap: var(--spacing-m);
     z-index: var(--z-index-m); /* Keep below main presentation */
     order: 1;
+    margin-right: 0;
   }
 
   .wing-left.is-visible {
@@ -232,6 +233,7 @@
     pointer-events: auto;
     transform: scale(1);
     overflow-y: auto; /* Enable unified scrolling */
+    margin-right: var(--spacing-l);
   }
 
   /* Local Scrollbar Theming for Wings */
@@ -251,6 +253,7 @@
 
   .profile-presentation {
     order: 2;
+    min-width: 85vh;
     max-width: 1000px; /* Increased from grid-unit scale for better breathing room */
     width: 100%;
     min-height: 0;
@@ -266,7 +269,8 @@
     z-index: var(--z-index-l);
     display: flex;
     flex-direction: column;
-    transition: all var(--motion-s) cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all var(--motion-m) cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform, width, max-width;
   }
 
   .presentation-shell {
@@ -274,7 +278,7 @@
     flex: 1;
     min-height: 0;
     display: grid;
-    grid-template-columns: minmax(180px, 30%) 1fr; /* Flexible portrait panel */
+    grid-template-columns: minmax(200px, 30%) 1fr; /* [059.1] Flexible portrait panel - saves space on mid-sized screens */
     grid-template-rows: minmax(0, 1fr);
     border-radius: inherit;
     overflow: visible;
@@ -335,7 +339,7 @@
 
   /* --- RESPONSIVE ADAPTATION --- */
 
-  @media (width <= 850px) {
+  @media (width <= 850px) { /* [059.3] Increased from 768px to account for wings */
     .profile-container {
       flex-direction: column;
       align-items: stretch;

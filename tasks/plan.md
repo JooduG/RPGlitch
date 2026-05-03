@@ -6,21 +6,26 @@ Fix the "squashed panel" issue where the fixed-width left column overwhelms the 
 
 ## Proposed Changes
 
-### [059.1] Flexible Portrait Grid
+### [059.1] Flexible Portrait Grid [DONE]
 
-- [MODIFY] [Profile.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/Profile.svelte)
+- [x] [MODIFY] [Profile.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/Profile.svelte)
   - Change `grid-template-columns` from `280px 1fr` to `minmax(200px, 30%) 1fr`. This allows the portrait to shrink gracefully on narrower screens before the vertical stack triggers.
 
-### [059.2] Header Typography Refinement
+### [059.2] Header Typography Refinement [DONE]
 
-- [MODIFY] [EntityHeader.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/EntityHeader.svelte)
+- [x] [MODIFY] [EntityHeader.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/EntityHeader.svelte)
   - Reduce `maxSize` of the name from `96` to `64`. While `96` looks great on huge screens, it's too aggressive for the "De-layered" architecture and causes overlap on mid-sized screens.
   - Adjust `lineHeight` to `1.0` for tighter name blocks.
 
-### [059.3] Breakpoint Optimization
+### [059.3] Breakpoint Optimization [DONE]
 
-- [MODIFY] [Profile.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/Profile.svelte)
+- [x] [MODIFY] [Profile.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/Profile.svelte)
   - Increase the mobile breakpoint from `768px` to `850px`. Given the presence of the side-wings, the modal needs more room to breathe in its horizontal state.
+
+### [059.4] Flexible Fragment Labels [DONE]
+
+- [x] [MODIFY] [EntityFragments.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/EntityFragments.svelte)
+  - Change `grid-template-columns` for `.row` from `80px 1fr` to `minmax(60px, 80px) 1fr`. This saves precious horizontal pixels on mid-sized viewports.
 
 ## Verification Plan
 
