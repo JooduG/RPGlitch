@@ -153,7 +153,10 @@
       data-is-editing={is_editing}
     >
       <!-- LEFT WING: UNIFIED IDENTITY & METRICS -->
-      <aside class="wing-left custom-scrollbar" class:is-visible={is_editing || app.settings.dev_mode}>
+      <aside
+        class="wing-left custom-scrollbar"
+        class:is-visible={is_editing || app.settings.dev_mode}
+      >
         {#if is_editing}
           <VisualWing bind:char {is_editing} {busy_fields} bind:active_field />
           <AudioWing bind:char {is_editing} />
@@ -399,7 +402,7 @@
     .profile-presentation {
       border: none;
     }
-    
+
     .right-panel {
       padding: var(--spacing-s);
       gap: var(--spacing-s);

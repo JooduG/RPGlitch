@@ -157,7 +157,8 @@
     top: var(--spacing-px); /* Visual offset to prevent top-border clash */
 
     /* Account for var(--spacing-px) chassis border to prevent bleed in dormant state */
-    border-radius: calc(var(--border-radius-m) - var(--spacing-px)) calc(var(--border-radius-m) - var(--spacing-px)) 0 0;
+    border-radius: calc(var(--border-radius-m) - var(--spacing-px))
+      calc(var(--border-radius-m) - var(--spacing-px)) 0 0;
 
     /* Passive Glow */
     box-shadow: 0 0 calc(var(--weight-intensity) * 6px) var(--signature-color);
@@ -229,7 +230,6 @@
     text-align: left;
     outline: none;
   }
-
 
   .field-foundation::placeholder {
     color: var(--color-frisk);

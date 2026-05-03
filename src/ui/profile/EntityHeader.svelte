@@ -63,7 +63,11 @@
     position: relative;
     margin: calc(-1 * var(--spacing-m)) calc(-1 * var(--spacing-m)) 0;
     padding: var(--spacing-m);
-    background: color-mix(in srgb, rgb(from var(--color-gunmetal) r g b / 20%), var(--signature-color) 12%);
+    background: color-mix(
+      in srgb,
+      rgb(from var(--color-gunmetal) r g b / 20%),
+      var(--signature-color) 12%
+    );
     backdrop-filter: var(--blur-m);
     border-bottom: var(--border-s);
     z-index: var(--z-index-xl);
@@ -155,7 +159,7 @@
       font-size: var(--font-size-xl);
       padding: var(--spacing-xxs);
     }
-    
+
     header {
       padding: var(--spacing-s);
       margin-bottom: var(--spacing-s);

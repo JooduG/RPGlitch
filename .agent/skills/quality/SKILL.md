@@ -39,6 +39,7 @@ The `quality` skill is the final filter before code enters the main branch. it e
   - Generic names (`data`, `result`) vs descriptive ones.
 
 ### 3. Separation of Concerns
+
 Submit refactoring changes separately from feature or bug fix changes. A PR that refactors and adds a feature should be split.
 
 ## Usage

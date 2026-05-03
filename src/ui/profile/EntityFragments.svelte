@@ -292,7 +292,7 @@
     width: 100%;
   }
 
-  @media (max-width: 600px) {
+  @media (width <= 600px) {
     .content .row {
       grid-template-columns: 1fr;
       gap: var(--spacing-xs);

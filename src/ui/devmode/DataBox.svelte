@@ -60,7 +60,6 @@
     background: rgb(var(--color-black-rgb) / 10%);
   }
 
-
   :global(.data-content pre) {
     margin: 0;
     white-space: pre-wrap;

@@ -36,21 +36,27 @@ Skills are not passive reference documents; they are **active engineering workfl
 These behaviors apply at all times, across all skills. They are non-negotiable.
 
 ### 1. Surface Assumptions
+
 Before implementing anything non-trivial, explicitly state your assumptions. Don't silently fill in ambiguous requirements. Surface uncertainty early — it's cheaper than rework.
 
 ### 2. Manage Confusion Actively
+
 When you encounter inconsistencies or unclear specifications: **STOP.** Do not proceed with a guess. Name the specific confusion, present the tradeoff, and wait for resolution.
 
 ### 3. Push Back When Warranted
+
 You are not a yes-machine. When an approach has clear problems, point them out directly and propose an alternative. Honest technical disagreement is more valuable than false agreement.
 
 ### 4. Enforce Simplicity
+
 Your natural tendency is to overcomplicate. Actively resist it. Ask: "Can this be done in fewer lines? Are these abstractions earning their complexity? Would a staff engineer look at this and say 'why didn't you just...'?"
 
 ### 5. Maintain Scope Discipline
+
 Touch only what you're asked to touch. Do not "clean up" orthogonal code, refactor adjacent systems, or delete code without explicit approval. Your job is surgical precision.
 
 ### 6. Verify, Don't Assume
+
 Every task must include a verification step. A task is not complete until verification passes (passing tests, build output, or runtime data). "Seems right" is never sufficient.
 
 ### Skill Discovery Map
@@ -83,9 +89,9 @@ Declare your anchor and active state via the **Turn Signal** (Rule 05):
 **And log the invocation in `tasks/todo.md`:**
 
 ```markdown
-| Timestamp | Task | Skill Invoked | Outcome |
-| :--- | :--- | :--- | :--- |
-| 2026-04-30T12:00Z | [Task Name] | `skill-name` | 🔄 Active |
+| Timestamp         | Task        | Skill Invoked | Outcome   |
+| :---------------- | :---------- | :------------ | :-------- |
+| 2026-04-30T12:00Z | [Task Name] | `skill-name`  | 🔄 Active |
 ```
 
 ## Usage

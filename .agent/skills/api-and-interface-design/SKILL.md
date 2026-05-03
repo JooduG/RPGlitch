@@ -14,20 +14,25 @@ Design stable, well-documented interfaces that are hard to misuse. This applies 
 ### Core Principles
 
 #### Hyrum's Law
+
 > With a sufficient number of users of an API, all observable behaviors of your system will be depended on by somebody, regardless of what you promise in the contract.
 
 Be intentional about what you expose. Every observable behavior — including undocumented quirks and error message text — becomes a de facto contract once users depend on it.
 
 #### 1. Contract First
+
 Define the interface (types, schemas) before implementation. The contract is the specification.
 
 #### 2. Consistent Error Semantics
+
 Pick one error strategy (e.g. structured JSON errors with machine-readable codes) and use it everywhere. Don't mix patterns.
 
 #### 3. Validate at Boundaries
+
 Trust internal code. Strictly validate and sanitize at system edges where external or untrusted data (third-party APIs, user input, environment variables) enters the engine.
 
 #### 4. Prefer Addition Over Modification
+
 Extend interfaces by adding optional fields rather than changing existing ones to maintain backward compatibility.
 
 ## Usage

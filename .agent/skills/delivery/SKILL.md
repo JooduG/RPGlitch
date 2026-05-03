@@ -28,6 +28,7 @@ Execute the Warden and the test suite via `npm run verify`.
 ### 2. Parallel Verification (/ship pattern)
 
 For significant changes, fan out specialized sub-agents to verify the artifact from independent perspectives:
+
 - **`code-reviewer`**: Focus on race conditions, logic, and style.
 - **`security-auditor`**: Focus on auth, sanitization, and secrets.
 - **`test-engineer`**: Focus on coverage gaps and regression tests.
