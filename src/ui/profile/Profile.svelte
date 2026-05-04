@@ -339,7 +339,8 @@
 
   /* --- RESPONSIVE ADAPTATION --- */
 
-  @media (width <= 850px) { /* [059.3] Increased from 768px to account for wings */
+  @media (width <= 850px) {
+    /* [059.3] Increased from 768px to account for wings */
     .profile-container {
       flex-direction: column;
       align-items: stretch;
