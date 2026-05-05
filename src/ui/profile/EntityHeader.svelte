@@ -30,7 +30,7 @@
         use:fitText={{
           maxSize: 64,
           minSize: 20,
-          lineHeight: "1.0", /* [059.2] Tightened for better layout stability */
+          lineHeight: "1.0" /* [059.2] Tightened for better layout stability */,
         }}
       >
         {char.name || ENTITY_FRAGMENTS.name}
@@ -98,7 +98,7 @@
       box-shadow var(--motion-l);
     box-shadow: none;
     min-height: 4rem; /* Stable height ceiling - matches maxSize 64px roughly */
-    line-height: 1.0;
+    line-height: 1;
     outline: none;
     background: transparent;
     border: none;
