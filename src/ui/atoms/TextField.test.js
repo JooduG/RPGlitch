@@ -30,14 +30,14 @@ describe("TextField", () => {
     // Note: Since snippets are harder to test with just props in some environments,
     // we'll check if the class is applied when is_focused is true.
     // In Svelte 5, snippets are passed as props.
-    const { container } = render(TextField, { 
-      status: () => "Status", 
-      actions: () => "Actions" 
+    const { container } = render(TextField, {
+      status: () => "Status",
+      actions: () => "Actions",
     });
-    
+
     const chassis = container.querySelector(".textfield");
     const input = container.querySelector(".body");
-    
+
     await fireEvent.focus(input);
     expect(chassis.classList.contains("is-expanded")).toBe(true);
   });
@@ -46,8 +46,8 @@ describe("TextField", () => {
     const { container } = render(TextField, { weight: 5 });
     const chassis = container.querySelector(".textfield");
     const style = chassis.getAttribute("style");
-    
+
     expect(style).toContain("--weight-intensity: 0.5");
-    expect(style).toContain("--header-opacity: 0.6"); 
+    expect(style).toContain("--header-opacity: 0.6");
   });
 });

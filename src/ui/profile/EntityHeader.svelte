@@ -103,7 +103,7 @@
       box-shadow var(--motion-l);
     box-shadow: none;
     min-height: 4rem; /* Stable height ceiling - matches maxSize 64px roughly */
-    line-height: 1.0;
+    line-height: 1;
     outline: none;
     background: transparent;
     border: none;

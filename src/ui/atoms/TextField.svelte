@@ -155,7 +155,7 @@
     border-radius: var(--border-radius-m);
     background: var(--glass-xs);
     border: var(--border-l);
-    transition: 
+    transition:
       border-color var(--motion-m),
       box-shadow var(--motion-m),
       background var(--motion-m);
@@ -185,7 +185,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 0 var(--spacing-s);
-    transition: 
+    transition:
       height var(--anim-physics),
       background var(--anim-physics),
       top var(--anim-physics),
@@ -204,10 +204,12 @@
       var(--signature-color, var(--color-frozen)) var(--header-bg-mix)
     );
     border-bottom: var(--spacing-px) solid rgb(var(--color-white-rgb) / 8%);
-    box-shadow: 0 0 calc(var(--weight-intensity) * 12px) rgb(from var(--signature-color) r g b / 15%);
+    box-shadow: 0 0 calc(var(--weight-intensity) * 12px)
+      rgb(from var(--signature-color) r g b / 15%);
   }
 
-  .status, .actions {
+  .status,
+  .actions {
     display: flex;
     align-items: center;
     height: 100%;
@@ -244,7 +246,8 @@
     text-wrap: pretty;
   }
 
-  .body::placeholder, .placeholder {
+  .body::placeholder,
+  .placeholder {
     color: var(--color-frisk);
     font-style: italic;
     font-weight: var(--font-weight-m);
@@ -275,8 +278,13 @@
   }
 
   @keyframes scan {
-    from { transform: translateX(-100%) skewX(-20deg); }
-    to { transform: translateX(100%) skewX(-20deg); }
+    from {
+      transform: translateX(-100%) skewX(-20deg);
+    }
+
+    to {
+      transform: translateX(100%) skewX(-20deg);
+    }
   }
 
   .p {
