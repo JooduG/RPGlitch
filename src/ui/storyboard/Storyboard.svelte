@@ -1,7 +1,7 @@
 <script>
   import { app } from "@state/app.svelte.js";
   import LoadingSkeleton from "@atoms/LoadingSkeleton.svelte";
-  import Layout from "@shell/Layout.svelte";
+  import Layout from "@ui/Layout.svelte";
   import Drawer from "@drawer/Drawer.svelte";
   import StoryboardCard from "@storyboard/StoryboardCard.svelte";
   import StoryboardDynamicTitle from "@storyboard/StoryboardDynamicTitle.svelte";

@@ -35,6 +35,10 @@
   - [x] Create feature directories in `src/ui/`
   - [x] Move files to feature folders (atoms, core, storymode, etc.)
   - [x] Update `jsconfig.json` path mappings
+  - [x] Create `src/ui/shell/Background.svelte`
+  - [x] Update `vite.config.js` aliases for `@shell`
+  - [x] Refactor `App.svelte` to use `Background`
+  - [x] Cleanup `global.css` and `index.html` redundant styles
   - [x] Synchronize `vite.config.js` and `vitest.config.js` aliases
   - [x] Systemic import refactor & relative path fixup
   - [x] Verify with `npm run test:unit`
@@ -69,7 +73,17 @@
   - [x] Integrate atmospheric expansion and "Weight Line" logic
   - [x] Flatten HTML/CSS structure to reduce nesting
   - [x] Verify visual and functional parity via unit tests
-  - [x] Run `npm run verify` to ensure zero regressions
+- **[066]** Tooltip Atom Standardization [ACTIVE]
+  - [x] Rename and relocate global renderer to `@shell`
+  - [x] Create wrapper-style `<Tooltip>` atom
+  - [x] Harden collision and edge detection
+  - [x] Migrate `VectorArray` tooltips to the new pattern
+- [x] Migrate `StorymodePanel` tooltips
+- [x] Migrate `StoryboardDynamicTitle` tooltips
+- [x] Migrate `StoryboardCard` tooltips
+- [x] Migrate `DevWing` tooltips
+- [x] Migrate `EntityHeader` tooltips
+- [x] Verify `npm run verify` passes
 
 ---
 
@@ -116,6 +130,8 @@
 | ------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ----------- |
 | 2026-05-05T16:15:00+02:00 | Type Safety & Implicit Any Fixes (VisualWing/VectorArray)                             | `test-driven-development`, `svelte`                                          | ✅ Resolved |
 | 2026-05-03T10:45:00+02:00 | TextField Flattening Refactor ([060])                                                 | `using-agent-skills`, `svelte`, `css`, `designer`, `test-driven-development` | ✅ Resolved |
+| 2026-05-05T20:17:00+02:00 | Background Rendering Refactor                                                         | `simulation`, `svelte`, `css`                                                | ✅ Done     |
+| 2026-05-05T18:46:00+02:00 | VectorArray Deep-Dive Refactor                                                        | `planning`, `svelte`, `css`                                                  | ✅ Done     |
 | 2026-05-03T08:40:00+02:00 | TextField Deep Dive Refactor ([060])                                                  | `using-agent-skills`, `svelte`, `css`, `designer`, `test-driven-development` | ✅ Resolved |
 | 2026-05-01T23:20:00+02:00 | Profile Responsiveness & Transparency Refinement                                      | `using-agent-skills`, `css`, `svelte`, `browser-testing-with-devtools`       | ✅ Resolved |
 | 2026-05-01T22:43:00+02:00 | Unified Wing Scrolling                                                                | `using-agent-skills`, `css`, `svelte`                                        | ✅ Resolved |

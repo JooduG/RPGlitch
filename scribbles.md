@@ -31,3 +31,18 @@ Execute a Mariana Trench-level deep-dive analysis into the provided file. Decons
 2.  Provide a concise changelog detailing the logical improvements, DOM nodes flattened, and the newly established generic CSS mapping system.
 
 ## TARGET FILE
+
+---
+
+### 🗂️ Refactor Status: `src/ui/profile`
+
+| File                                                                                                         | Status          | Notes                                                                                                                             |
+| :----------------------------------------------------------------------------------------------------------- | :-------------- | :-------------------------------------------------------------------------------------------------------------------------------- |
+| [EntityHeader.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/EntityHeader.svelte)       | ✅ **Reviewed** | Refactored in session `a1a37c74` (Universal SOTA Refactor).                                                                       |
+| [EntityFragments.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/EntityFragments.svelte) | ✅ **Reviewed** | Refactored in session `5183815a` (DOM flattening & nomenclature harmonization).                                                   |
+| [Profile.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/Profile.svelte)                 | ❌ **Pending**  | The primary orchestrator. While it uses the new components, it has not yet been structurally deconstructed or "flattened" itself. |
+| [VectorArray.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/VectorArray.svelte)         | ❌ **Pending**  | **Critical:** Still contains legacy Svelte 4 patterns (e.g., `export function add_item()`) and old logic flows.                   |
+| [EntityFooter.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/EntityFooter.svelte)       | ❌ **Pending**  | Simple component, but still uses legacy nomenclature; internal `@file` path documentation is incorrect.                           |
+| [AudioWing.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/AudioWing.svelte)             | ⚠️ **Partial**  | Verified for TypeScript/Runes, but lacks the "Ultra-Lean" structural harmonization.                                               |
+| [VisualWing.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/VisualWing.svelte)           | ⚠️ **Partial**  | Verified for TypeScript/Runes, but lacks the "Ultra-Lean" structural harmonization.                                               |
+| [profile-config.js](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/profile-config.js)           | ❌ **Pending**  | Pure configuration logic; not yet reviewed for architectural optimization.                                                        |

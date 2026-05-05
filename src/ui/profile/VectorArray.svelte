@@ -3,7 +3,20 @@
   import TextField from "@atoms/TextField.svelte";
   import { quintOut } from "svelte/easing";
   import { slide } from "svelte/transition";
+  import Tooltip from "@atoms/Tooltip.svelte";
 
+  /**
+   * @typedef {Object} Props
+   * @property {any} char
+   * @property {string} path
+   * @property {boolean} is_editing
+   * @property {Function} set_value
+   * @property {Function} get_value
+   * @property {string} signature_color
+   * @property {string} [unit_label]
+   */
+
+  /** @type {Props} */
   let {
     char,
     path,
@@ -14,6 +27,8 @@
     unit_label = "Vector",
   } = $props();
 
+  // --- Reactive State ---
+
   let raw_items = $derived(get_value(char, path) || []);
   let items = $derived.by(() => {
     const val = raw_items;
@@ -23,69 +38,59 @@
     return val;
   });
 
+  // --- Logic Helpers ---
+
   /** @param {any} item */
-  function get_item_text(item) {
-    if (typeof item === "string") return item;
-    return item?.text || item?.summary || "";
-  }
+  const get_text = (item) => (typeof item === "string" ? item : item?.text || item?.summary || "");
+
+  /** @param {any} item */
+  const get_weight = (item) => (typeof item === "object" ? (item.base_weight ?? 5) : 5);
 
   /**
+   * Universal patcher for array items
    * @param {number} index
-   * @param {string} new_text
+   * @param {Object} patch
    */
-  function update_item(index, new_text) {
-    const current = Array.isArray(items) ? [...items] : [];
-    if (typeof current[index] === "object") {
-      current[index] = { ...current[index], text: new_text };
-    } else {
-      current[index] = new_text;
-    }
+  function patch_item(index, patch) {
+    const current = [...items];
+    const base = typeof current[index] === "object" ? current[index] : { text: current[index] };
+    current[index] = { ...base, ...patch };
     set_value(char, path, current);
   }
 
   /**
-   * @param {number} index
-   * @param {string} raw_string
+   * @param {number} i
+   * @param {string} text
    */
-  function update_tags(index, raw_string) {
-    const current = Array.isArray(items) ? [...items] : [];
-    const tags = raw_string
-      .split(",")
-      .map((t) => t.trim())
-      .filter((t) => t.length > 0);
-
-    if (typeof current[index] === "object") {
-      current[index] = { ...current[index], vector_tags: tags };
-    } else {
-      current[index] = { text: current[index], vector_tags: tags };
-    }
-    set_value(char, path, current);
-  }
+  const update_text = (i, text) => patch_item(i, { text });
 
   /**
-   * @param {number} index
+   * @param {number} i
    * @param {number} delta
    */
-  function update_weight(index, delta) {
-    const current = Array.isArray(items) ? [...items] : [];
-    const item = current[index];
-    const weight = typeof item === "object" ? (item.base_weight ?? 5) : 5;
-    const new_weight = Math.min(10, Math.max(1, weight + delta));
+  const update_weight = (i, delta) => {
+    const weight = get_weight(items[i]);
+    patch_item(i, { base_weight: Math.min(10, Math.max(1, weight + delta)) });
+  };
 
-    if (typeof item === "object") {
-      current[index] = { ...item, base_weight: new_weight };
-    } else {
-      current[index] = { text: item, base_weight: new_weight };
-    }
-    set_value(char, path, current);
-  }
+  /**
+   * @param {number} i
+   * @param {string} raw
+   */
+  const update_tags = (i, raw) => {
+    const vector_tags = raw
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+    patch_item(i, { vector_tags });
+  };
 
   /** @param {number} index */
-  function remove_item(index) {
+  const remove_item = (index) => {
     const current = [...items];
     current.splice(index, 1);
     set_value(char, path, current);
-  }
+  };
 
   export function add_item() {
     const current = [...items];
@@ -101,92 +106,102 @@
   }
 </script>
 
-<div class="vector-panel" style="--accent-color: {signature_color}">
-  <div class="vector-list">
+<div class="wrapper" style="--accent-color: {signature_color}">
+  <div class="list">
     {#each items as item, i (i)}
       <div
-        class="vector-item tooltip-container"
+        class="item"
         class:editing={is_editing}
         transition:slide={{ duration: 400, easing: quintOut }}
       >
         <TextField
           is_edit={is_editing}
-          value={get_item_text(item)}
-          oninput={(/** @type {any} */ e) => update_item(i, e.currentTarget.value)}
+          value={get_text(item)}
+          oninput={(/** @type {any} */ e) => update_text(i, e.currentTarget.value)}
           placeholder="Enter {unit_label.toLowerCase()} detail..."
-          weight={typeof item === "object" ? (item.base_weight ?? 5) : 5}
+          weight={get_weight(item)}
         >
           {#snippet status()}
-            <div class="vector-header-rich">
-              <div class="weight-control">
-                <div class="weight-stack">
+            <div class="status">
+              <div class="weight-stepper">
+                <Tooltip text="Influence weight of this vector">
+                  <span class="weight-label">WEIGHT</span>
+                </Tooltip>
+                <div class="weight-control-wrapper">
                   {#if is_editing}
-                    <Button
-                      variant="invisible"
-                      size="sm"
-                      square={true}
-                      onclick={() => update_weight(i, 1)}
-                      aria-label="Increase weight"
-                    >
-                      <svg viewBox="0 0 24 24" class="icon-xxs"
-                        ><path d="M7 14l5-5 5 5H7z" fill="currentColor" /></svg
-                      >
-                    </Button>
+                    <div class="step-controls">
+                      <Tooltip text="Increase Weight">
+                        <Button
+                          variant="invisible"
+                          size="sm"
+                          square
+                          onclick={() => update_weight(i, 1)}
+                          aria-label="Increase Weight"
+                          className="step-up"
+                        >
+                          <svg viewBox="0 0 24 24" class="icon-stepper">
+                            <path d="M7 14l5-5 5 5H7z" fill="currentColor" />
+                          </svg>
+                        </Button>
+                      </Tooltip>
+                      <Tooltip text="Decrease Weight">
+                        <Button
+                          variant="invisible"
+                          size="sm"
+                          square
+                          onclick={() => update_weight(i, -1)}
+                          aria-label="Decrease Weight"
+                          className="step-down"
+                        >
+                          <svg viewBox="0 0 24 24" class="icon-stepper">
+                            <path d="M7 10l5 5 5-5H7z" fill="currentColor" />
+                          </svg>
+                        </Button>
+                      </Tooltip>
+                    </div>
                   {/if}
-                  <span class="weight-val"
-                    >{typeof item === "object" ? (item.base_weight ?? 5) : 5}</span
-                  >
-                  {#if is_editing}
-                    <Button
-                      variant="invisible"
-                      size="sm"
-                      square={true}
-                      onclick={() => update_weight(i, -1)}
-                      aria-label="Decrease weight"
-                    >
-                      <svg viewBox="0 0 24 24" class="icon-xxs"
-                        ><path d="M7 10l5 5 5-5H7z" fill="currentColor" /></svg
-                      >
-                    </Button>
-                  {/if}
+                  <span class="weight-val">{get_weight(item)}</span>
                 </div>
               </div>
 
-              <div class="tag-cloud">
+              <div class="tags">
                 {#if is_editing}
                   <input
                     type="text"
-                    class="tag-edit-input"
+                    class="input"
                     value={(item?.vector_tags || []).join(", ")}
                     placeholder="TAGS (COMMA SEPARATED)..."
-                    onchange={(e) => update_tags(i, e.currentTarget.value)}
+                    onchange={(/** @type {any} */ e) => update_tags(i, e.currentTarget.value)}
                   />
                 {:else}
                   {#each item?.vector_tags || [] as tag (tag)}
-                    <span class="vector-tag">{tag}</span>
+                    <span class="tag">{tag}</span>
                   {/each}
                 {/if}
               </div>
             </div>
           {/snippet}
+
           {#snippet actions()}
             {#if is_editing}
-              <Button
-                variant="invisible"
-                size="sm"
-                square={true}
-                aria-label="Remove {unit_label}"
-                className="delete-btn"
-                onclick={() => remove_item(i)}
-              >
-                <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
-                  <polyline points="3 6 5 6 21 6" stroke="var(--color-white)"></polyline>
-                  <path
-                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                    stroke="var(--color-white)"
-                  ></path>
-                </svg>
-              </Button>
+              <Tooltip text="Remove {unit_label}">
+                <Button
+                  variant="invisible"
+                  size="sm"
+                  square
+                  aria-label="Remove {unit_label}"
+                  className="delete-btn"
+                  onclick={() => remove_item(i)}
+                >
+                  <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
+                    <polyline points="3 6 5 6 21 6" stroke="var(--color-white)"></polyline>
+                    <path
+                      d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                      stroke="var(--color-white)"
+                    ></path>
+                  </svg>
+                </Button>
+              </Tooltip>
             {/if}
           {/snippet}
         </TextField>
@@ -194,8 +209,8 @@
     {/each}
 
     {#if items.length === 0 && !is_editing}
-      <div class="placeholder-wrap" in:slide>
-        <span class="system-placeholder">
+      <div class="placeholder" in:slide>
+        <span class="label">
           <svg viewBox="0 0 24 24" class="icon-xs" style="width: 14px; height: 14px;">
             <path
               fill="currentColor"
@@ -210,13 +225,13 @@
 </div>
 
 <style>
-  .vector-panel {
+  .wrapper {
     width: 100%;
     display: flex;
     flex-direction: column;
   }
 
-  .vector-list {
+  .list {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
@@ -224,7 +239,7 @@
     overflow: visible;
   }
 
-  .vector-item {
+  .item {
     position: relative;
     width: 100%;
     overflow: visible;
@@ -233,11 +248,11 @@
     align-items: flex-start;
   }
 
-  .vector-item:hover {
-    z-index: calc(var(--z-index-xxl) + 1); /* Above header */
+  .item:hover {
+    z-index: calc(var(--z-index-xxl) + 1);
   }
 
-  .vector-header-rich {
+  .status {
     width: 100%;
     height: 100%;
     display: flex;
@@ -246,42 +261,80 @@
     justify-content: space-between;
   }
 
-  .weight-control {
+  .weight-stepper {
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs);
-    font-family: var(--font-family-mono);
-    color: var(--color-white);
-    text-shadow: 0 1px 3px rgb(var(--color-black-rgb) / 80%);
+    gap: var(--spacing-s);
+    height: 100%;
+    padding-left: var(--spacing-xs);
   }
 
-  .weight-stack {
+  .weight-label {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xxxs);
+    color: var(--color-white);
+    opacity: 0.4;
+    letter-spacing: var(--letter-spacing-l);
+    cursor: help;
+  }
+
+  .weight-control-wrapper {
+    position: relative;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-width: 1.2rem;
-    line-height: 1;
-    margin-bottom: -1px; /* Visual centering adjustment for mono font */
+    min-width: 1.5rem;
   }
 
   .weight-val {
-    font-size: var(--font-size-xs);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-s);
     font-weight: var(--font-weight-xl);
-    margin: -1px 0;
+    color: var(--color-white);
   }
 
-  .weight-stack :global(.button:hover) {
+  .step-controls {
+    position: absolute;
+    right: -1.2rem;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transition: opacity var(--motion-m);
+    pointer-events: none;
+  }
+
+  .weight-control-wrapper:hover .step-controls {
     opacity: 1;
-    transform: scale(1.3);
+    pointer-events: auto;
   }
 
-  .icon-xxs {
-    width: 0.8rem;
+  .weight-stepper :global(.button) {
     height: 0.8rem;
+    width: 1rem;
+    padding: 0;
+    min-height: 0;
+    color: var(--color-white);
+    opacity: 0.5;
+    background: transparent;
+    border: none;
+    transition: all var(--motion-l);
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .tag-cloud {
+  .weight-stepper :global(.button:hover) {
+    opacity: 1;
+    color: var(--color-white);
+    transform: scale(1.1);
+  }
+
+  .icon-stepper {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  .tags {
     flex: 1;
     display: flex;
     gap: var(--spacing-xxs);
@@ -290,7 +343,7 @@
     height: 100%;
   }
 
-  .tag-edit-input {
+  .tags .input {
     width: 100%;
     background: transparent;
     border: none;
@@ -305,18 +358,18 @@
     transition: opacity var(--motion-m);
   }
 
-  .tag-edit-input:focus {
+  .tags .input:focus {
     opacity: 1;
   }
 
-  .tag-edit-input::placeholder {
+  .tags .input::placeholder {
     color: var(--color-white);
     opacity: 0.3;
   }
 
-  .vector-tag {
+  .tag {
     font-size: var(--font-size-xxs);
-    background: rgb(var(--color-white-rgb) / 10%); /* High-end glass tag */
+    background: rgb(var(--color-white-rgb) / 10%);
     padding: 2px 8px;
     border: var(--border-m);
     border-color: rgb(var(--color-white-rgb) / var(--opacity-xxs));
@@ -345,15 +398,14 @@
     transform: scale(1.1);
   }
 
-  .placeholder-wrap {
+  .placeholder {
     padding: var(--spacing-xs) var(--spacing-s);
     min-height: 2.5rem;
     display: flex;
     align-items: center;
   }
 
-  /* System Placeholder: For empty system slots */
-  .system-placeholder {
+  .placeholder .label {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-xxs);
     color: var(--color-frisk);

@@ -15,10 +15,12 @@
   import LibraryCard from "@drawer/LibraryCard.svelte";
   import Button from "@atoms/Button.svelte";
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
+  import { tooltip } from "@atoms/Tooltip.svelte";
 
   // --- STATE & DERIVATIONS ---
   let is_open = $derived(app.drawer.open);
-  let drawerType = $derived(app.drawer.type); // 'ai' | 'user' | 'fractal'
+  /** @type {'ai' | 'user' | 'fractal' | null} */
+  let drawerType = $derived(app.drawer.type);
 
   /**
    * Dynamically maps the UI drawer type to the appropriate data list.
@@ -32,6 +34,7 @@
 
   /**
    * Prevents the same entity from being used for both User and AI roles.
+   * @param {any} entity
    */
   function isDisabled(entity) {
     if (drawerType === "ai" && app.selected_user?.id === entity.id) return true;
@@ -43,12 +46,13 @@
    * Header Label Logic
    */
   let title = $derived(() => {
+    /** @type {Record<string, string>} */
     const labels = {
       ai: "Select AI Companion",
       user: "Choose Your Persona",
       fractal: "Select Fractal",
     };
-    return labels[drawerType] || "Select Entity";
+    return (drawerType ? labels[drawerType] : null) || "Select Entity";
   });
 
   // --- ACTIONS ---
@@ -63,7 +67,7 @@
 
     // 2. Construct via Factory (Random color, Empty fields, Semantic Structure)
     const plan = create_new(type, {
-      name: `New ${drawerType.toUpperCase()}`,
+      name: `New ${drawerType ? drawerType.toUpperCase() : type.toUpperCase()}`,
     });
 
     try {
@@ -78,14 +82,17 @@
       app.select_entity(drawerType, saved);
       app.open_profile(saved);
     } catch (err) {
-      app.log(`Creation failed: ${err.message}`, "error");
+      const error = /** @type {Error} */ (err);
+      app.log(`Creation failed: ${error.message}`, "error");
     }
   }
 
+  /** @param {any} entity */
   function handle_select(entity) {
     app.select_entity(drawerType, entity);
   }
 
+  /** @param {KeyboardEvent} e */
   function handleKeydown(e) {
     if (e.key === "Escape" && is_open) {
       app.close_drawer();
@@ -119,6 +126,7 @@
             cover={true}
             onclick={handleCreateNew}
             aria-label="Create new entity"
+            actions={[tooltip]}
           />
           <div class="card-visual">
             <ProfilePicture placeholderChar="?" />
@@ -134,7 +142,7 @@
         {#each entity_list() as entity (entity.id)}
           <LibraryCard
             {entity}
-            type={drawerType}
+            type={drawerType ?? undefined}
             disabled={isDisabled(entity)}
             onSelect={() => handle_select(entity)}
             onViewProfile={() => app.open_profile(entity)}

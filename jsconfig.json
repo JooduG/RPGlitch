@@ -12,7 +12,7 @@
       "@state/*": ["src/state/*"],
       "@ui/*": ["src/ui/*"],
       "@atoms/*": ["src/ui/atoms/*"],
-      "@shell/*": ["src/ui/core/*"],
+      "@drawer/*": ["src/ui/drawer/*"],
       "@storymode/*": ["src/ui/storymode/*"],
       "@storyboard/*": ["src/ui/storyboard/*"],
       "@profile/*": ["src/ui/profile/*"],

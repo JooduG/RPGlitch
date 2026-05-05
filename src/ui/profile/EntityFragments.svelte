@@ -8,6 +8,7 @@
   import { prompt_builder } from "@core/intelligence/prompt-builder.js";
   import Button from "@atoms/Button.svelte";
   import TextField from "@atoms/TextField.svelte";
+  import { tooltip } from "@atoms/Tooltip.svelte";
   import { get_value, set_value } from "@utils/field-path.js";
   import { fly } from "svelte/transition";
   import { PROFILE_SECTIONS } from "@profile/profile-config.js";
@@ -87,7 +88,7 @@
 
       <div class="body" data-columns={section.fields.length}>
         {#each section.fields as field (field.key)}
-          <div class="group tooltip-container">
+          <div class="group">
             {#if field.label && section.id === "eternal"}
               <span class="top-label">{field.label}</span>
             {/if}
@@ -136,6 +137,7 @@
                         square={true}
                         aria-label="Enhance with AI"
                         className="enhance-btn"
+                        actions={[tooltip]}
                         disabled={busy_fields.has(field.key) || !safe_get(field.key)}
                         onclick={() => handle_enhance(field.key, safe_get(field.key))}
                       >

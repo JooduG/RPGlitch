@@ -9,16 +9,15 @@
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
   import { simulationState } from "@state/status.svelte.js";
-  import Layout from "@shell/Layout.svelte";
+  import Layout from "@ui/Layout.svelte";
   import { onMount } from "svelte";
   import InputBar from "@storymode/InputBar.svelte";
   import StorymodeFeed from "@storymode/StorymodeFeed.svelte";
   import StorymodePanel from "@storymode/StorymodePanel.svelte";
-  // [FIX] Target flattened profile_picture
-  let storyFractal = $derived(runtime.active_fractal);
-  let fractalBg = $derived(storyFractal?.profile_picture || "");
+
   // Derived
   let is_thinking = $derived(simulationState.phase === "generating");
+
   // --- ON MOUNT: Hydrate Entity Lists for Color Lookups ---
   onMount(async () => {
     if (app.ai_list.length === 0) {
@@ -42,9 +41,6 @@
 </script>
 
 <div class="storymode-container">
-  {#if fractalBg}
-    <div class="fractal-wallpaper" style="background-image: url('{fractalBg}')"></div>
-  {/if}
   <Layout mode="cinematic">
     {#snippet left()}
       <StorymodePanel entity={app.selected_ai} side="left" />
@@ -69,18 +65,6 @@
     height: 100%;
     background: inherit;
     position: relative;
-  }
-
-  .fractal-wallpaper {
-    position: absolute;
-    inset: 0;
-    background-size: cover;
-    background-position: center;
-    opacity: var(--opacity-xs);
-    z-index: var(--z-index-s);
-    pointer-events: none;
-    mix-blend-mode: overlay;
-    filter: grayscale(100%) contrast(120%);
   }
 
   .game-stage {

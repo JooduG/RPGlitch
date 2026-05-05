@@ -1,14 +1,62 @@
+<script context="module">
+  /**
+   * 🖼️ Lightbox Store - Polish Visual Module
+   * Consolidated state and component logic.
+   */
+
+  /** @type {{active: boolean, src: string|null, caption: string}} */
+  let lightboxState = $state({
+    active: false,
+    src: null,
+    caption: "",
+  });
+
+  /**
+   * Reactive lightbox state (read-only export)
+   */
+  export const lightbox = {
+    get active() {
+      return lightboxState.active;
+    },
+    get src() {
+      return lightboxState.src;
+    },
+    get caption() {
+      return lightboxState.caption;
+    },
+  };
+
+  /**
+   * Opens the lightbox with an image
+   * @param {string} src - Image source URL
+   * @param {string} caption - Optional caption
+   */
+  export function openLightbox(src, caption = "") {
+    lightboxState.active = true;
+    lightboxState.src = src;
+    lightboxState.caption = caption;
+  }
+
+  /**
+   * Closes the lightbox
+   */
+  export function closeLightbox() {
+    lightboxState.active = false;
+    lightboxState.src = null;
+    lightboxState.caption = "";
+  }
+</script>
+
 <script>
-  import { closeLightbox, lightbox } from "@state/lightbox.svelte.js";
   import Modal from "@atoms/Modal.svelte";
 </script>
 
-{#if lightbox.active}
+{#if lightboxState.active}
   <Modal variant="preview" on_close={closeLightbox}>
     <div class="preview-stage">
-      <img src={lightbox.src} alt={lightbox.caption || "Preview"} />
-      {#if lightbox.caption}
-        <div class="caption">{lightbox.caption}</div>
+      <img src={lightboxState.src} alt={lightboxState.caption || "Preview"} />
+      {#if lightboxState.caption}
+        <div class="caption">{lightboxState.caption}</div>
       {/if}
     </div>
   </Modal>

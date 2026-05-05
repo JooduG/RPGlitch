@@ -16,7 +16,7 @@
   function calculate_initials(str) {
     if (!str) return "?";
     const clean_name = str.replace(/[^\p{L}\s]/gu, "");
-    
+
     /** @type {string[]} */
     const words = clean_name.trim().split(/\s+/);
     const stop_words = new Set([
@@ -72,10 +72,7 @@
     </div>
   {:else}
     <div class="placeholder">
-      <div
-        class="initials-bg"
-        use:fitText={{ minSize: 80 }}
-      >
+      <div class="initials-bg" use:fitText={{ minSize: 80 }}>
         {initials}
       </div>
     </div>
@@ -144,7 +141,7 @@
     text-transform: uppercase;
     user-select: none;
     pointer-events: none;
-    filter: drop-shadow(0 0 10px rgb(255 255 255 / 40%));
+    filter: drop-shadow(0 0 10px rgb(var(--color-white-rgb) / 40%));
     font-size: 300px;
     line-height: 0.8;
     letter-spacing: -0.05em;

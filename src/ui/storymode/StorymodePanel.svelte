@@ -12,6 +12,7 @@
   // Default Fallbacks
   let name = $derived(entity?.name || "Unknown");
   let signature_color = $derived(themeStore.get_signature_color(entity));
+  import Tooltip from "@atoms/Tooltip.svelte";
 </script>
 
 <article
@@ -20,16 +21,18 @@
   class:side-right={side === "right"}
   style="--entity-color: {signature_color}"
 >
-  <div
-    class="visual-anchor"
-    role="button"
-    tabindex="0"
-    onclick={() => app.toggle_profile(true, entity)}
-    onkeydown={(e) => e.key === "Enter" && app.toggle_profile(true, entity)}
-    aria-label="View Profile: {name}"
-  >
-    <ProfilePicture {entity} />
-  </div>
+  <Tooltip text="View Profile: {name}">
+    <div
+      class="visual-anchor"
+      role="button"
+      tabindex="0"
+      onclick={() => app.toggle_profile(true, entity)}
+      onkeydown={(e) => e.key === "Enter" && app.toggle_profile(true, entity)}
+      aria-label="View Profile: {name}"
+    >
+      <ProfilePicture {entity} />
+    </div>
+  </Tooltip>
 </article>
 
 <style>

@@ -1,6 +1,7 @@
 <script>
   import { app } from "@state/app.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
+  import Tooltip from "@atoms/Tooltip.svelte";
   // ============================================
   // LOCAL STATE (Component-Owned)
   // ============================================
@@ -22,7 +23,9 @@
   // ============================================
   // DERIVED TITLE PARTS
   // ============================================
+  /** @param {string[]} arr */
   const pick_random = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  /** @param {any} entity */
   const get_color = (entity) => themeStore.get_signature_color(entity);
   /**
    * Generates structured title parts with entity colors for rich rendering
@@ -42,6 +45,7 @@
     const has_fractal = !!fractal;
     if (has_entities && has_fractal) {
       const prefix = pick_random(STANDARD_PREFIXES);
+      /** @type {Array<{text: string, color?: string}>} */
       const parts = [{ text: `${prefix} ` }];
       if (ai && user && ai.id === user.id) {
         parts.push({ text: ai.name, color: get_color(ai) });
@@ -59,6 +63,7 @@
       return parts;
     } else if (has_entities) {
       const prefix = pick_random(STANDARD_PREFIXES);
+      /** @type {Array<{text: string, color?: string}>} */
       const parts = [{ text: `${prefix} ` }];
       if (ai && user && ai.id === user.id) {
         parts.push({ text: ai.name, color: get_color(ai) });
@@ -81,6 +86,7 @@
   // ============================================
   // EVENT HANDLERS
   // ============================================
+  /** @param {Event & { currentTarget: HTMLElement }} e */
   function handle_input(e) {
     custom_title = e.currentTarget.textContent;
     is_custom = true;
@@ -92,26 +98,28 @@
   }
 </script>
 
-<h1
-  contenteditable="true"
-  aria-label="Double-click to re-roll title"
-  oninput={handle_input}
-  ondblclick={handle_dbl_click}
->
-  {#if is_custom}
-    {custom_title}
-  {:else}
-    <span class="title-content">
-      {#each title_parts as part, i (i)}
-        {#if part.color}
-          <span class="entity-name" style="color: {part.color}">{part.text}</span>
-        {:else}
-          {part.text}
-        {/if}
-      {/each}
-    </span>
-  {/if}
-</h1>
+<Tooltip text="Double-click to re-roll title">
+  <h1
+    contenteditable="true"
+    aria-label="Double-click to re-roll title"
+    oninput={handle_input}
+    ondblclick={handle_dbl_click}
+  >
+    {#if is_custom}
+      {custom_title}
+    {:else}
+      <span class="title-content">
+        {#each title_parts as part, i (i)}
+          {#if part.color}
+            <span class="entity-name" style="color: {part.color}">{part.text}</span>
+          {:else}
+            {part.text}
+          {/if}
+        {/each}
+      </span>
+    {/if}
+  </h1>
+</Tooltip>
 
 <style>
   /* Import Satisfy font for the special story title */

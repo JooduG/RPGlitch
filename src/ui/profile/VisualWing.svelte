@@ -4,17 +4,18 @@
    * ❄️ THE ENTITY SHOWCASE ENGINE
    * Manages signature colors, generation prompts, and modifiers.
    */
-  import { llm_service } from "@core/intelligence/llm-service.js";
-  import { prompt_builder } from "@core/intelligence/prompt-builder.js";
-  import { validateImage } from "@core/security.js";
-  import { app } from "@state/app.svelte.js";
-  import { PALETTE, PALETTE_VARS } from "@theme/palette.svelte.js";
-  import { AestheticResolver } from "@media/optics.js";
   import Button from "@atoms/Button.svelte";
   import TextField from "@atoms/TextField.svelte";
   import Toggle from "@atoms/Toggle.svelte";
-  import { get_value, set_value } from "@utils/field-path.js";
   import Wing from "@atoms/Wing.svelte";
+  import { llm_service } from "@core/intelligence/llm-service.js";
+  import { prompt_builder } from "@core/intelligence/prompt-builder.js";
+  import { tooltip } from "@atoms/Tooltip.svelte";
+  import { validateImage } from "@core/security.js";
+  import { AestheticResolver } from "@media/optics.js";
+  import { app } from "@state/app.svelte.js";
+  import { PALETTE, PALETTE_VARS } from "@theme/palette.svelte.js";
+  import { get_value, set_value } from "@utils/field-path.js";
 
   const SPECTRUM_COLORS = Object.entries(PALETTE).filter(([name]) => name !== "default");
 
@@ -163,6 +164,7 @@
             : ''}"
           style="background-color: {color}; --swatch-color: {color};"
           aria-label={name.charAt(0).toUpperCase() + name.slice(1)}
+          actions={[tooltip]}
           onclick={() => {
             char.signature_color = name;
           }}
@@ -215,6 +217,7 @@
               square={true}
               aria-label={has_prompt_text ? "Enhance" : "Fetch"}
               className="action-btn"
+              actions={[tooltip]}
               onclick={handle_creative_action}
               disabled={is_creative_disabled}
             >
@@ -239,6 +242,7 @@
               square={true}
               aria-label="Generate Image"
               className="action-btn"
+              actions={[tooltip]}
               onclick={handle_generation_action}
               disabled={!is_editing || is_prompt_busy}
             >

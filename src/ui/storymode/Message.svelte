@@ -14,6 +14,7 @@
 
   import Button from "@atoms/Button.svelte";
   import DevTelemetryBlock from "@devmode/DevTelemetryBlock.svelte";
+  import { tooltip } from "@atoms/Tooltip.svelte";
 
   /**
    * @typedef {Object} Props
@@ -28,7 +29,7 @@
    * @property {(event: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement }) => any} [on_edit]
    * @property {boolean} [is_last=false]
    * @property {boolean} [busy=false]
-   * @property {Object} [meta={}]
+   * @property {Record<string, any>} [meta={}]
    */
 
   /** @type {Props} */
@@ -101,8 +102,9 @@
     isFocused = true;
   }
 
+  /** @param {FocusEvent & { currentTarget: HTMLElement, relatedTarget: EventTarget | null }} e */
   function handle_focus_out(e) {
-    if (e.currentTarget.contains(e.relatedTarget)) return;
+    if (e.relatedTarget && e.currentTarget.contains(/** @type {Node} */ (e.relatedTarget))) return;
     isFocused = false;
   }
 
@@ -160,6 +162,7 @@
                 size="sm"
                 square={true}
                 aria-label="Continue"
+                actions={[tooltip]}
                 onclick={on_continue}
               >
                 <svg viewBox="0 0 24 24" class="icon-xs"
@@ -171,6 +174,7 @@
                 size="sm"
                 square={true}
                 aria-label="Reroll"
+                actions={[tooltip]}
                 onclick={on_regenerate}
               >
                 <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
@@ -179,7 +183,14 @@
                 </svg>
               </Button>
             {/if}
-            <Button variant="invisible" size="sm" square={true} aria-label="Edit" onclick={on_edit}>
+            <Button
+              variant="invisible"
+              size="sm"
+              square={true}
+              aria-label="Edit"
+              actions={[tooltip]}
+              onclick={on_edit}
+            >
               <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
                 <path
                   d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
@@ -196,6 +207,7 @@
               size="sm"
               square={true}
               aria-label="Copy"
+              actions={[tooltip]}
               onclick={handle_copy}
             >
               <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
@@ -211,6 +223,7 @@
               size="sm"
               square={true}
               aria-label="Delete"
+              actions={[tooltip]}
               onclick={on_delete}
             >
               <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
@@ -253,6 +266,7 @@
                   className="attachment-button"
                   onclick={() => app.open_lightbox(src)}
                   aria-label="View Attachment"
+                  actions={[tooltip]}
                 >
                   <img {src} alt="Attachment" class="attachment-image" />
                 </Button>

@@ -6,6 +6,7 @@
    */
   import GlassPill from "@atoms/GlassPill.svelte";
   import Button from "@atoms/Button.svelte";
+  import { tooltip } from "@atoms/Tooltip.svelte";
 
   /**
    * @typedef {Object} Props
@@ -46,7 +47,8 @@
           square={true}
           className="toolbar-btn continue"
           aria-label="Continue"
-          onclick={(e) => onContinue?.(e)}
+          actions={[tooltip]}
+          onclick={onContinue}
         >
           <svg viewBox="0 0 24 24" class="icon-m"
             ><polygon points="5 3 19 12 5 21 5 3"></polygon></svg
@@ -58,7 +60,8 @@
           square={true}
           className="toolbar-btn reroll"
           aria-label="Reroll"
-          onclick={(e) => onRegenerate?.(e)}
+          actions={[tooltip]}
+          onclick={onRegenerate}
         >
           <svg viewBox="0 0 24 24" class="icon-m">
             <polyline points="23 4 23 10 17 10"></polyline>
@@ -73,7 +76,8 @@
         square={true}
         className="toolbar-btn edit"
         aria-label="Edit"
-        onclick={(e) => onEdit?.(e)}
+        actions={[tooltip]}
+        onclick={onEdit}
       >
         <svg viewBox="0 0 24 24" class="icon-m">
           <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -87,6 +91,7 @@
         square={true}
         className="toolbar-btn copy"
         aria-label="Copy"
+        actions={[tooltip]}
         onclick={async () => {
           try {
             await navigator.clipboard.writeText(text);
@@ -107,7 +112,8 @@
         square={true}
         className="toolbar-btn delete"
         aria-label="Delete"
-        onclick={(e) => onDelete?.(e)}
+        actions={[tooltip]}
+        onclick={onDelete}
       >
         <svg viewBox="0 0 24 24" class="icon-m">
           <polyline points="3 6 5 6 21 6"></polyline>

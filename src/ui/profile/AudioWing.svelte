@@ -9,6 +9,7 @@
   import Slider from "@atoms/Slider.svelte";
   import Wing from "@atoms/Wing.svelte";
   import { portal } from "@utils/portal.js";
+  import { tooltip } from "@atoms/Tooltip.svelte";
   import { DROPDOWN_MAX_HEIGHT } from "@core/constants.js";
 
   let { char = $bindable(), is_editing } = $props();
@@ -68,7 +69,12 @@
       };
 
       const handle_outside = (/** @type {MouseEvent} */ e) => {
-        const target = e.target instanceof Element ? e.target : (e.target instanceof Node ? e.target.parentElement : null);
+        const target =
+          e.target instanceof Element
+            ? e.target
+            : e.target instanceof Node
+              ? e.target.parentElement
+              : null;
         if (!target) return;
         if (!row_el.contains(target) && !target.closest(".dropdown-content")) {
           show_voice_dropdown = false;
@@ -115,8 +121,9 @@
       <div class="voice-control-row" bind:this={row_el}>
         <div class="dropdown">
           <Button
-            className="voice-button no-tooltip"
+            className="voice-button"
             disabled={!is_editing}
+            actions={[tooltip]}
             onclick={() => (show_voice_dropdown = !show_voice_dropdown)}
             aria-label="Select Voice"
             aria-haspopup="listbox"
@@ -159,6 +166,7 @@
         <Button
           className="preview-button"
           aria-label="Preview Voice"
+          actions={[tooltip]}
           disabled={!selected_voice}
           onclick={() => Audio.voice.preview(char.voice.uri, char.voice.rate, char.voice.pitch)}
           variant="invisible"

@@ -11,11 +11,13 @@
   import GlassPill from "@atoms/GlassPill.svelte";
   import { spin, stab } from "@utils/kinetic.js";
   import Button from "@atoms/Button.svelte";
+  import { tooltip } from "@atoms/Tooltip.svelte";
   let { disabled = false } = $props();
   // [R5] Auto-disable when engine is busy
   let is_locked = $derived(disabled || simulationState.phase !== "idle");
   let value = $state("");
   let is_focused = $state(false);
+  /** @type {HTMLTextAreaElement | undefined} */
   let textarea;
   function adjust_height() {
     if (!textarea) return;
@@ -33,6 +35,7 @@
       console.error("Failed to send message:", e);
     }
   }
+  /** @param {KeyboardEvent} e */
   function handle_keydown(e) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -53,7 +56,7 @@
       className="settings-button"
       onclick={() => app.toggle_control_panel()}
       aria-label="Settings"
-      actions={[spin]}
+      actions={[spin, tooltip]}
     >
       <svg class="icon" viewBox="0 0 24 24">
         <path
@@ -85,7 +88,7 @@
       onclick={handle_send}
       disabled={!value.trim() || is_locked}
       aria-label="Send Message"
-      actions={[stab]}
+      actions={[stab, tooltip]}
     >
       <svg class="icon" viewBox="0 0 24 24">
         <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />

@@ -23,6 +23,7 @@
 
     // Design
     noBackground = false,
+    force_expand = false, // Allow external override to force expansion
     class: className = "",
     style = "",
 
@@ -43,7 +44,7 @@
   // --- DERIVED LOGIC ---
   const paragraphs = $derived(parse_markdown(value));
   const has_meta = $derived(!!actions || !!status);
-  const is_expanded = $derived((is_focused || busy) && has_meta);
+  const is_expanded = $derived((is_focused || busy || force_expand) && has_meta);
 
   // Orchestrate the "Physical" properties of the instrument
   const intensity = $derived(weight / 10);
@@ -171,14 +172,14 @@
   .textfield.is-expanded {
     border-color: var(--color-white);
     box-shadow: 0 0 15px rgb(var(--color-white-rgb) / 5%);
-    overflow: visible;
   }
 
   .header {
     height: var(--shield-height-dormant);
-    background: var(--signature-color, var(--color-frozen));
     border-radius: calc(var(--border-radius-m) - 1px) calc(var(--border-radius-m) - 1px) 0 0;
     opacity: var(--header-opacity);
+    background: var(--signature-color, var(--color-frozen));
+    box-shadow: 0 0 calc(var(--weight-intensity) * 6px) var(--signature-color);
     position: relative;
     top: 1px;
     z-index: 2;
@@ -188,10 +189,10 @@
     padding: 0 var(--spacing-s);
     transition:
       height var(--anim-physics),
-      background var(--anim-physics),
       top var(--anim-physics),
-      opacity var(--motion-m);
-    box-shadow: 0 0 calc(var(--weight-intensity) * 6px) var(--signature-color);
+      opacity var(--motion-m),
+      background var(--anim-physics),
+      box-shadow var(--anim-physics);
     overflow: hidden;
   }
 
@@ -204,9 +205,9 @@
       rgb(var(--color-black-rgb) / 50%),
       var(--signature-color, var(--color-frozen)) var(--header-bg-mix)
     );
-    border-bottom: var(--spacing-px) solid rgb(var(--color-white-rgb) / 8%);
     box-shadow: 0 0 calc(var(--weight-intensity) * 12px)
       rgb(from var(--signature-color) r g b / 15%);
+    border-bottom: var(--spacing-px) solid rgb(var(--color-white-rgb) / 8%);
   }
 
   .status,
@@ -264,7 +265,7 @@
     cursor: wait;
   }
 
-  .textfield.is-busy .header::after {
+  .is-busy .shield::after {
     content: "";
     position: absolute;
     inset: 0;

@@ -5,21 +5,43 @@
    * View-switching logic using storyboard and storymode terminology.
    */
   import { app } from "@state/app.svelte.js";
-  import { lightbox } from "@state/lightbox.svelte.js";
+  import { lightbox } from "@atoms/Lightbox.svelte";
   import Lightbox from "@atoms/Lightbox.svelte";
   import ControlPanel from "@devmode/ControlPanel.svelte";
   import Profile from "@profile/Profile.svelte";
   import Storyboard from "@storyboard/Storyboard.svelte";
   import Storymode from "@storymode/Storymode.svelte";
+  import Tooltip from "@atoms/Tooltip.svelte";
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
+
+  // --- CONSOLIDATED BACKGROUND LOGIC ---
+  // Derived state for the active fractal background
+  let fractal_url = $derived(app.selected_fractal?.profile_picture || "");
+
+  // Opacity varies based on view for cinematic focus
+  // Storymode is dimmer to prioritize text legibility
+  let fractal_opacity = $derived(app.view === "storymode" ? 0.4 : 0.75);
   let mounted = $state(false);
   onMount(() => {
     mounted = true;
   });
-  // Reactively derive the background image from the flattened schema
-  let fractal_bg = $derived(app.selected_fractal?.profile_picture || "");
 </script>
+
+<div class="background-stage" aria-hidden="true">
+  <!-- Layer 1: The Nordic Gradient (Always Present) -->
+  <div class="gradient-layer"></div>
+
+  <!-- Layer 2: Fractal Imagery (Dynamic) -->
+  {#if fractal_url}
+    <div
+      class="fractal-layer"
+      style:background-image="url('{fractal_url}')"
+      style:opacity={fractal_opacity}
+      transition:fade={{ duration: 2000 }}
+    ></div>
+  {/if}
+</div>
 
 {#if mounted}
   <div
@@ -27,16 +49,8 @@
     class:view-storyboard={app.view === "storyboard"}
     class:view-storymode={app.view === "storymode"}
     class:has-tension={app.tension > 0}
-    class:has-fractal-bg={!!fractal_bg}
     transition:fade={{ duration: 800 }}
   >
-    {#if fractal_bg}
-      <div
-        class="fractal-background"
-        style:background-image="url('{fractal_bg}')"
-        style:opacity={app.view === "storymode" ? 0.4 : 0.75}
-      ></div>
-    {/if}
     {#if lightbox.active}
       <Lightbox />
     {/if}
@@ -52,16 +66,24 @@
       <Storymode />
     {/if}
   </div>
+  <Tooltip />
 {/if}
+
+<!-- 
+  [current_problems]
+  - [ ] Storymode components migration (Message.svelte actions/attachments)
+  - [ ] Library/Drawer refactoring (RC Audit)
+  - [ ] Verify background visibility on Perchance build
+-->
 
 <style>
   .app-container {
-    /* Grain overlay */
     position: relative;
     width: 100%;
     height: 100vh;
     overflow: hidden;
     background: transparent;
+    z-index: 1; /* Above Background.svelte (0) */
   }
 
   :global(html),
@@ -76,17 +98,40 @@
     filter: saturate(1.2) contrast(1.1);
   }
 
-  .fractal-background {
+  /* --- CONSOLIDATED BACKGROUND STYLES --- */
+  .background-stage {
     position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0; /* Floor: behind app-container (1) */
+    background-color: var(--bg-base);
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .gradient-layer {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 15% 50%, var(--bg-grad-1), transparent 50%),
+      radial-gradient(circle at 85% 30%, var(--bg-grad-2), transparent 50%),
+      radial-gradient(circle at 50% 80%, var(--bg-grad-3), transparent 50%),
+      radial-gradient(circle at 50% 10%, var(--bg-grad-4), transparent 50%);
+    background-size: cover;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+  }
+
+  .fractal-layer {
+    position: absolute;
     inset: 0;
     background-size: cover;
     background-position: center;
-    pointer-events: none;
-    z-index: var(--z-index-xs);
-    transition:
-      opacity 2s ease-in-out,
-      filter 2s ease-in-out;
+
+    /* Atmospheric softening */
     filter: blur(8px) brightness(0.3);
+    will-change: opacity, filter;
   }
 
   @keyframes reality-tremor {

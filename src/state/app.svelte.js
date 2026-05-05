@@ -11,7 +11,7 @@ import { db } from "@data/db.js";
 import { entities } from "@data/repository.js";
 import { visual_engine } from "@media/visual-engine.svelte.js";
 import { generateUUID } from "@utils/helpers.js";
-import { closeLightbox, openLightbox } from "@state/lightbox.svelte.js";
+import { closeLightbox, openLightbox } from "@atoms/Lightbox.svelte";
 import { runtime } from "@state/runtime.svelte.js";
 import { simulationState } from "@state/status.svelte.js";
 

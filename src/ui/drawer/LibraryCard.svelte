@@ -17,6 +17,7 @@
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
   import Button from "@atoms/Button.svelte";
   import { fitText } from "@utils/fit-text.js";
+  import { tooltip } from "@atoms/Tooltip.svelte";
 
   let signature_color = $derived(themeStore.get_signature_color(entity));
   let signature_rgb = $derived(themeStore.hex_to_rgb(signature_color));
@@ -39,7 +40,7 @@
     onclick={handleSelect}
     {disabled}
     aria-label={disabled ? "Already selected" : `Select ${name}`}
-    className="no-tooltip"
+    actions={[tooltip]}
     oncontextmenu={(/** @type {MouseEvent} */ e) => {
       e.preventDefault();
       if (onViewProfile) onViewProfile();

@@ -55,7 +55,6 @@ export default defineConfig({
       "@state": path.resolve(__dirname, "./src/state"),
       "@ui": path.resolve(__dirname, "./src/ui"),
       "@atoms": path.resolve(__dirname, "./src/ui/atoms"),
-      "@shell": path.resolve(__dirname, "./src/ui"),
       "@drawer": path.resolve(__dirname, "./src/ui/drawer"),
       "@storymode": path.resolve(__dirname, "./src/ui/storymode"),
       "@storyboard": path.resolve(__dirname, "./src/ui/storyboard"),
