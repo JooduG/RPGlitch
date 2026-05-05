@@ -91,6 +91,12 @@ export const normalize = (base = {}) => {
   } = base;
   const result = {
     // --- CORE METADATA ---
+    id: id || "",
+    created_at: created_at || 0,
+    updated_at: updated_at || 0,
+    origin_id: origin_id || null,
+    is_premade: is_premade ?? 0,
+    is_custom: is_custom ?? 0,
     name: sanitize_html(name).trim(),
     description: sanitize_html(description).trim(),
     type: type,
@@ -101,7 +107,7 @@ export const normalize = (base = {}) => {
       .filter(Boolean),
     // --- TEMPORAL HYBRID 6 (PURGED: appearance, identity, outfit, status) ---
     eternal: {
-      physical: sanitize_html(eternal?.physical ?? "").trim(), // Use ?? "" instead of || ""
+      physical: sanitize_html(eternal?.physical ?? "").trim(),
       non_physical: sanitize_html(eternal?.non_physical ?? "").trim(),
     },
     present: {
@@ -142,14 +148,7 @@ export const normalize = (base = {}) => {
     _backup_state,
     _last_update_msg_id,
   };
-  // [CRITICAL FIX] Preserve database identity and timestamps!
-  // Without this, Profile.svelte's `{#if char && char.id}` will fail and remain hidden.
-  if (id) result.id = id;
-  if (created_at) result.created_at = created_at;
-  if (updated_at) result.updated_at = updated_at;
-  if (origin_id) result.origin_id = origin_id;
-  if (is_premade !== undefined) result.is_premade = is_premade;
-  if (is_custom !== undefined) result.is_custom = is_custom;
+
   return result;
 };
 
@@ -188,11 +187,10 @@ export const create_new = (type = "character", overrides = {}) => {
  */
 export const format_premade = (entity, type) => {
   return {
-    ...entity,
+    ...normalize(entity),
     type: type,
     is_premade: 1,
     version: STORAGE_VERSION,
-    ...normalize(entity),
     updated_at: 0,
   };
 };

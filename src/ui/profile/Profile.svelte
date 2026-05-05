@@ -12,6 +12,9 @@
   import { normalize } from "@data/content-normaliser.js";
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
   import Modal from "@atoms/Modal.svelte";
+
+  /** @typedef {import("@data/content-normaliser.js").normalize} Normalizer */
+  /** @typedef {ReturnType<Normalizer>} Entity */
   // Modular Components (Flattened)
   import EntityFooter from "@profile/EntityFooter.svelte";
   import EntityFragments from "@profile/EntityFragments.svelte";
@@ -24,16 +27,20 @@
 
   import { SvelteSet } from "svelte/reactivity";
 
-  let { entity_id, entity_type } = $props();
+  /** @type {{ entity_id?: string, entity_type?: "character" | "fractal" }} */
+  let { entity_id = undefined, entity_type = "character" } = $props();
 
   // --- STATE ---
   let is_editing = $state(false);
   let is_saving = $state(false);
+  /** @type {SvelteSet<string>} */
   let busy_fields = new SvelteSet();
+  /** @type {{key: string, label: string}} */
   let active_field = $state({ key: "visual-prompt", label: "Image Prompt" });
   let show_delete_confirm = $state(false);
 
   // Normalizer guarantees flattened schema. Use $effect to keep in sync if app state changes.
+  /** @type {Entity} */
   let char = $state(normalize(app.editing_entity || runtime.character));
 
   $effect(() => {
@@ -64,19 +71,21 @@
       const type = entity_type || "character";
 
       if (type === "character") {
+        /** @type {any[]} */
         const characters = await entities.list("character");
         app.ai_list = characters;
         app.user_list = characters;
 
         const updated = characters.find((e) => e.id === eid);
-        if (app.selected_ai?.id === eid) app.selected_ai = updated;
-        if (app.selected_user?.id === eid) app.selected_user = updated;
+        if (app.selected_ai && app.selected_ai.id === eid) app.selected_ai = updated;
+        if (app.selected_user && app.selected_user.id === eid) app.selected_user = updated;
       } else if (type === "fractal") {
+        /** @type {any[]} */
         const fractals = await entities.list("fractal");
         app.fractal_list = fractals;
 
         const updated = fractals.find((e) => e.id === eid);
-        if (app.selected_fractal?.id === eid) app.selected_fractal = updated;
+        if (app.selected_fractal && app.selected_fractal.id === eid) app.selected_fractal = updated;
       }
     } catch (err) {
       console.error("Failed to save profile:", err);
@@ -111,8 +120,15 @@
     }, 50);
   }
 
+  /** @param {MouseEvent} e */
   function handle_background_click(e) {
-    const target = e.target instanceof Element ? e.target : e.target.parentElement;
+    const target =
+      e.target instanceof HTMLElement
+        ? e.target
+        : e.target instanceof Node
+          ? e.target.parentElement
+          : null;
+
     if (
       !target?.closest?.(
         "textarea, input, button, .swatch, .wing-left, .dropdown-content, .profile-presentation, [contenteditable]",
@@ -168,26 +184,24 @@
 
       <!-- MAIN PRESENTATION PANEL -->
       <div
-        class="profile-presentation"
+        class="profile-presentation custom-scrollbar"
         style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
       >
-        <div class="presentation-shell custom-scrollbar">
-          <div class="signature-bar"></div>
-          <div class="left-panel">
-            <ProfilePicture entity={char} />
-          </div>
-          <main class="right-panel custom-scrollbar">
-            <EntityHeader bind:char {is_editing} {busy_fields} />
-            <EntityFragments bind:char {is_editing} {busy_fields} bind:active_field />
-            <EntityFooter
-              {is_editing}
-              {is_saving}
-              onclick_edit={() => (is_editing = true)}
-              onclick_save={handle_save}
-              onclick_delete={() => (show_delete_confirm = true)}
-            />
-          </main>
+        <div class="signature-bar"></div>
+        <div class="left-panel">
+          <ProfilePicture entity={char} />
         </div>
+        <main class="right-panel custom-scrollbar">
+          <EntityHeader bind:char {is_editing} bind:active_field />
+          <EntityFragments bind:char {is_editing} {busy_fields} bind:active_field />
+          <EntityFooter
+            {is_editing}
+            {is_saving}
+            onclick_edit={() => (is_editing = true)}
+            onclick_save={handle_save}
+            onclick_delete={() => (show_delete_confirm = true)}
+          />
+        </main>
       </div>
     </div>
   </Modal>
@@ -265,44 +279,32 @@
     border-radius: var(--border-radius-l);
     box-shadow: var(--shadow-xl);
     position: relative;
-    overflow: hidden;
+    overflow: visible; /* Changed from hidden to allow signature bar to breathe */
     z-index: var(--z-index-l);
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: minmax(200px, 30%) 1fr; /* [059.1] Flexible portrait panel */
+    grid-template-rows: minmax(0, 1fr);
     transition: all var(--motion-m) cubic-bezier(0.4, 0, 0.2, 1);
     will-change: transform, width, max-width;
-  }
-
-  .presentation-shell {
-    width: 100%;
-    flex: 1;
-    min-height: 0;
-    display: grid;
-    grid-template-columns: minmax(200px, 30%) 1fr; /* [059.1] Flexible portrait panel - saves space on mid-sized screens */
-    grid-template-rows: minmax(0, 1fr);
-    border-radius: inherit;
-    overflow: visible;
-    background: transparent;
-    position: relative;
   }
 
   .signature-bar {
     position: absolute;
     top: 0;
-    left: 10%;
-    right: 10%;
+    left: 0;
+    right: 0;
     height: 1px;
     background: linear-gradient(
       90deg,
       transparent,
-      var(--signature-color) 20%,
-      var(--signature-color) 80%,
+      var(--signature-color) 15%,
+      var(--signature-color) 85%,
       transparent
     );
     z-index: var(--z-index-xxl); /* Above everything in the shell */
     pointer-events: none;
     box-shadow: 0 0 12px var(--signature-color);
-    opacity: 0.6;
+    opacity: 0.8;
   }
 
   .left-panel,
@@ -376,14 +378,7 @@
       border-right: none;
       display: flex;
       flex-direction: column;
-    }
-
-    .presentation-shell {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
       overflow-y: auto; /* Unified scrollbar for mobile */
-      min-height: 0;
     }
 
     .left-panel {

@@ -5,58 +5,62 @@
    * Handles the top-level name and description of the entity.
    */
   import { ENTITY_FRAGMENTS } from "@/core/intelligence/entity-fragments.js";
-  import TextField from "@atoms/TextField.svelte";
   import { fitText } from "@utils/fit-text.js";
+  import { auto_resize } from "@utils/auto-resize.js";
 
-  let { char = $bindable(), is_editing, busy_fields } = $props();
+  /** @typedef {import("@data/content-normaliser.js").normalize} Normalizer */
+  /** @typedef {ReturnType<Normalizer>} Entity */
+
+  /** @type {{ char: Entity, is_editing: boolean, active_field: { key: string, label: string } | null }} */
+  let {
+    char = $bindable(),
+    is_editing = false,
+    active_field = $bindable({ key: "visual-prompt", label: "Image Prompt" }),
+  } = $props();
+
+  const is_name_active = $derived(active_field?.key === "name");
 </script>
 
 <header class:is-editing={is_editing} data-testid="profile-header">
-  <div class="header-glass-context">
-    {#if is_editing}
-      <h1 class="name edit no-tooltip" aria-label="Edit Entity Name">
-        <span
-          contenteditable="true"
-          bind:innerText={char.name}
-          role="textbox"
-          tabindex="0"
-          data-placeholder={ENTITY_FRAGMENTS.name}
-        ></span>
-      </h1>
-    {:else}
-      <h1
-        class="name no-tooltip"
-        aria-label="Entity Name"
-        use:fitText={{
-          maxSize: 64,
-          minSize: 20,
-          lineHeight: "1.0" /* [059.2] Tightened for better layout stability */,
-        }}
-      >
-        {char.name || ENTITY_FRAGMENTS.name}
-      </h1>
-    {/if}
+  {#if is_editing}
+    <h1 class="banner-name edit no-tooltip" class:is-active={is_name_active} aria-label="Edit Entity Name">
+      <span
+        contenteditable="true"
+        bind:innerText={char.name}
+        role="textbox"
+        tabindex="0"
+        data-placeholder={ENTITY_FRAGMENTS.name}
+        onfocus={() => (active_field = { key: "name", label: "Entity Name" })}
+      ></span>
+    </h1>
+  {:else}
+    <h1
+      class="banner-name no-tooltip"
+      aria-label="Entity Name"
+      use:fitText={{
+        maxSize: 64,
+        minSize: 20,
+        lineHeight: "1.0" /* [059.2] Tightened for better layout stability */,
+      }}
+    >
+      {char.name || ENTITY_FRAGMENTS.name}
+    </h1>
+  {/if}
 
-    <div class="description">
-      <TextField
-        is_edit={is_editing}
-        class="description-field"
-        noBackground={true}
-        placeholder={ENTITY_FRAGMENTS.description}
-        value={char.description || ""}
-        oninput={(/** @type {any} */ e) => (char.description = e.currentTarget.value)}
-        busy={busy_fields.has("description")}
-      >
-        {#snippet status()}
-          {#if busy_fields.has("description")}
-            <div class="engine-status-wrap">
-              <span class="status-tag pulse">GENERATING</span>
-            </div>
-          {/if}
-        {/snippet}
-      </TextField>
-    </div>
-  </div>
+  {#if is_editing}
+    <textarea
+      class="banner-description custom-scrollbar"
+      placeholder={ENTITY_FRAGMENTS.description}
+      bind:value={char.description}
+      use:auto_resize
+      aria-label="Edit Entity Description"
+      onfocus={() => (active_field = null)}
+    ></textarea>
+  {:else}
+    <p class="banner-description-text" data-placeholder={ENTITY_FRAGMENTS.description}>
+      {char.description || ""}
+    </p>
+  {/if}
 </header>
 
 <style>
@@ -64,8 +68,11 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    width: 100%;
-    margin: calc(-1 * var(--spacing-m)) calc(-1 * var(--spacing-m)) 0;
+    gap: var(--spacing-xs);
+
+    /* [063] Force full width to fill parent padding area via negative margins */
+    width: calc(100% + (2 * var(--spacing-m)));
+    margin: calc(-1 * var(--spacing-m));
     padding: var(--spacing-m);
     background: color-mix(
       in srgb,
@@ -76,20 +83,13 @@
     border-bottom: var(--border-s);
     z-index: var(--z-index-xl);
     transition: all var(--motion-l);
-    border-top-right-radius: var(--border-radius-m);
+    border-top-right-radius: var(--border-radius-l);
   }
 
-  .header-glass-context {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-    width: 100%;
-  }
-
-  .name {
+  .banner-name {
     width: 100%;
     color: var(--signature-color);
-    font-size: var(--font-size-xxxxl);
+    font-size: clamp(32px, 8vw, 64px); /* Fluid typography */
     font-weight: var(--font-weight-xl);
     letter-spacing: var(--letter-spacing-s);
     text-shadow: var(--shadow-font);
@@ -102,7 +102,7 @@
       border-color var(--motion-l),
       box-shadow var(--motion-l);
     box-shadow: none;
-    min-height: 4rem; /* Stable height ceiling - matches maxSize 64px roughly */
+    min-height: 4.5rem; /* Slightly increased for clamp stability */
     line-height: 1;
     outline: none;
     background: transparent;
@@ -111,24 +111,23 @@
     align-items: center;
   }
 
-  .name.edit {
+  .banner-name.edit {
     cursor: text;
     pointer-events: auto;
     caret-color: var(--signature-color);
-    font-size: 64px;
   }
 
-  .name.edit:focus-within {
-    background: rgb(var(--color-white-rgb) / 3%);
+  .banner-name.edit:focus-within {
+    background: transparent;
   }
 
-  .name.edit span {
+  .banner-name.edit span {
     display: inline-block;
     min-width: 2px;
     outline: none;
   }
 
-  .name.edit span:empty::before {
+  .banner-name.edit span:empty::before {
     content: attr(data-placeholder);
     color: var(--color-frisk);
     opacity: 0.4;
@@ -136,34 +135,72 @@
     pointer-events: none;
   }
 
-  .description {
+  .banner-description,
+  .banner-description-text {
     width: 100%;
+    margin: 0;
+    margin-top: var(--spacing-xxs);
+    color: var(--color-white);
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-m);
+    line-height: var(--line-height-m);
+    padding: var(--spacing-xs) var(--spacing-s);
   }
 
-  .engine-status-wrap {
-    display: flex;
-    align-items: center;
+  /* [063] Naked Description Aesthetic: No borders, no focus glow, human-first reading */
+  .banner-description {
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    opacity: 0.8;
+    transition: opacity var(--motion-m);
+    border-radius: var(--border-radius-m);
+    box-shadow: none;
   }
 
-  @media (width <= 768px) {
-    .name {
-      font-size: var(--font-size-xl);
-      padding: var(--spacing-xxs);
-    }
+  .banner-description:focus {
+    opacity: 1;
+    background: transparent;
+    box-shadow: none;
+  }
 
+  .banner-description-text {
+    opacity: 0.7;
+    white-space: pre-wrap;
+    transition: opacity var(--motion-m);
+  }
+
+  .banner-description-text:empty::before {
+    content: attr(data-placeholder);
+    color: var(--color-frisk);
+    opacity: 0.4;
+    font-style: italic;
+  }
+
+  /* --- RESPONSIVE ADAPTATION --- */
+  @media (width <= 850px) {
+    /* Synchronized with Profile.svelte breakpoint */
     header {
       padding: var(--spacing-s);
-      margin-bottom: var(--spacing-s);
+      border-radius: 0;
+      margin: calc(-1 * var(--spacing-s)) calc(-1 * var(--spacing-s)) var(--spacing-s);
+    }
+
+    .banner-name {
+      font-size: var(--font-size-xl);
+      padding: var(--spacing-xxs);
+      min-height: auto;
     }
   }
 
   @media (width <= 480px) {
-    .name {
-      font-size: var(--font-size-l);
-    }
-
     header {
       padding: var(--spacing-xs);
+    }
+
+    .banner-name {
+      font-size: var(--font-size-l);
     }
   }
 </style>

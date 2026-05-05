@@ -168,7 +168,7 @@
     background: rgb(from var(--signature-color) r g b / 5%);
     backdrop-filter: var(--blur-s);
     margin: 0 calc(-1 * var(--spacing-m));
-    padding: var(--spacing-m);
+    padding: var(--spacing-xl) var(--spacing-m);
   }
 
   .row {

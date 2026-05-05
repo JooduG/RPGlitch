@@ -33,8 +33,11 @@ export class AppStore {
   control_panel_open = $state(false);
   profile_open = $state(false);
   // --- ENTITY SELECTION STATE (STORYBOARD) ---
+  /** @type {any} */
   selected_ai = $state(null);
+  /** @type {any} */
   selected_user = $state(null);
+  /** @type {any} */
   selected_fractal = $state(null);
   ai_list = $state([]);
   user_list = $state([]);
@@ -205,9 +208,12 @@ export class AppStore {
     else if (type === "fractal") this.selected_fractal = clean;
     this.drawer.open = false;
   };
+  /** @type {any} */
   editing_entity = $state(null);
   /**
    * Toggles the profile modal and prepares the target entity for editing.
+   * @param {boolean | null} force_state
+   * @param {any} entity
    */
   toggle_profile = (force_state = null, entity = null) => {
     if (force_state !== null) this.profile_open = force_state;
