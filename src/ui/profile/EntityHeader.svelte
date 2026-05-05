@@ -12,47 +12,51 @@
 </script>
 
 <header class:is-editing={is_editing} data-testid="profile-header">
-  {#if is_editing}
-    <h1 class="title editing no-tooltip" aria-label="Edit Entity Name">
-      <span
-        contenteditable="true"
-        bind:innerText={char.name}
-        role="textbox"
-        tabindex="0"
-        data-placeholder={ENTITY_FRAGMENTS.name}
-      ></span>
-    </h1>
-  {:else}
-    <h1
-      class="title no-tooltip"
-      aria-label="Entity Name"
-      use:fitText={{
-        maxSize: 64,
-        minSize: 20,
-        lineHeight: "1.0",
-      }}
-    >
-      {char.name || ENTITY_FRAGMENTS.name}
-    </h1>
-  {/if}
+  <div class="header-glass-context">
+    {#if is_editing}
+      <h1 class="name edit no-tooltip" aria-label="Edit Entity Name">
+        <span
+          contenteditable="true"
+          bind:innerText={char.name}
+          role="textbox"
+          tabindex="0"
+          data-placeholder={ENTITY_FRAGMENTS.name}
+        ></span>
+      </h1>
+    {:else}
+      <h1
+        class="name no-tooltip"
+        aria-label="Entity Name"
+        use:fitText={{
+          maxSize: 64,
+          minSize: 20,
+          lineHeight: "1.0" /* [059.2] Tightened for better layout stability */,
+        }}
+      >
+        {char.name || ENTITY_FRAGMENTS.name}
+      </h1>
+    {/if}
 
-  <TextField
-    is_edit={is_editing}
-    class="field"
-    noBackground={true}
-    placeholder={ENTITY_FRAGMENTS.description}
-    value={char.description || ""}
-    oninput={(/** @type {any} */ e) => (char.description = e.currentTarget.value)}
-    busy={busy_fields.has("description")}
-  >
-    {#snippet status()}
-      {#if busy_fields.has("description")}
-        <div class="status">
-          <span class="tag pulse">GENERATING</span>
-        </div>
-      {/if}
-    {/snippet}
-  </TextField>
+    <div class="description">
+      <TextField
+        is_edit={is_editing}
+        class="description-field"
+        noBackground={true}
+        placeholder={ENTITY_FRAGMENTS.description}
+        value={char.description || ""}
+        oninput={(/** @type {any} */ e) => (char.description = e.currentTarget.value)}
+        busy={busy_fields.has("description")}
+      >
+        {#snippet status()}
+          {#if busy_fields.has("description")}
+            <div class="engine-status-wrap">
+              <span class="status-tag pulse">GENERATING</span>
+            </div>
+          {/if}
+        {/snippet}
+      </TextField>
+    </div>
+  </div>
 </header>
 
 <style>
@@ -75,7 +79,14 @@
     border-top-right-radius: var(--border-radius-m);
   }
 
-  .title {
+  .header-glass-context {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    width: 100%;
+  }
+
+  .name {
     width: 100%;
     color: var(--signature-color);
     font-size: var(--font-size-xxxxl);
@@ -91,7 +102,7 @@
       border-color var(--motion-l),
       box-shadow var(--motion-l);
     box-shadow: none;
-    min-height: 4rem;
+    min-height: 4rem; /* Stable height ceiling - matches maxSize 64px roughly */
     line-height: 1.0;
     outline: none;
     background: transparent;
@@ -100,24 +111,24 @@
     align-items: center;
   }
 
-  .title.editing {
+  .name.edit {
     cursor: text;
     pointer-events: auto;
     caret-color: var(--signature-color);
     font-size: 64px;
   }
 
-  .title.editing:focus-within {
+  .name.edit:focus-within {
     background: rgb(var(--color-white-rgb) / 3%);
   }
 
-  .title.editing span {
+  .name.edit span {
     display: inline-block;
     min-width: 2px;
     outline: none;
   }
 
-  .title.editing span:empty::before {
+  .name.edit span:empty::before {
     content: attr(data-placeholder);
     color: var(--color-frisk);
     opacity: 0.4;
@@ -125,13 +136,17 @@
     pointer-events: none;
   }
 
-  .status {
+  .description {
+    width: 100%;
+  }
+
+  .engine-status-wrap {
     display: flex;
     align-items: center;
   }
 
   @media (width <= 768px) {
-    .title {
+    .name {
       font-size: var(--font-size-xl);
       padding: var(--spacing-xxs);
     }
@@ -143,7 +158,7 @@
   }
 
   @media (width <= 480px) {
-    .title {
+    .name {
       font-size: var(--font-size-l);
     }
 

@@ -35,7 +35,8 @@
     "mcp-sequentialthinking-tools": "^0.0.4",
     "octokit": "^4.1.0",
     "paneforge": "^1.0.2",
-    "runed": "^0.37.1"
+    "runed": "^0.37.1",
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@eslint/compat": "^2.0.3",
@@ -92,7 +93,8 @@
       "@modelcontextprotocol/sdk": "^1.29.0"
     },
     "lodash": "^4.17.21",
-    "lodash-es": "^4.17.21"
+    "lodash-es": "^4.17.21",
+    "uuid": "^14.0.0"
   },
   "scripts": {
     "audit": "node .agent/skills/using-agent-skills/scripts/summarize.js audit:nomenclature audit:warden audit:theme audit:perf audit:backlog audit:simulation",

@@ -339,7 +339,7 @@ small {
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
   border-radius: var(--border-radius-full);
-  border: 1px solid transparent;
+  border: var(--spacing-px) solid transparent;
   background-clip: content-box;
 }
 
