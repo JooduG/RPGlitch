@@ -265,30 +265,6 @@
     cursor: wait;
   }
 
-  .is-busy .shield::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgb(var(--color-white-rgb) / 15%) 50%,
-      transparent 100%
-    );
-    width: 100%;
-    animation: scan var(--motion-xxl) linear infinite;
-  }
-
-  @keyframes scan {
-    from {
-      transform: translateX(-100%) skewX(-20deg);
-    }
-
-    to {
-      transform: translateX(100%) skewX(-20deg);
-    }
-  }
-
   .p {
     width: 100%;
     margin: 0;

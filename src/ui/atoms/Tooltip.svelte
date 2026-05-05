@@ -1,4 +1,4 @@
-<script context="module">
+<script module>
   /**
    * @file Tooltip.svelte
    * @module TooltipSystem
@@ -20,13 +20,29 @@
       if (!text) return;
       this.hide();
       this.#timer = window.setTimeout(() => {
-        const rect = target.getBoundingClientRect();
+        let rect = target.getBoundingClientRect();
+
+        // Handle display: contents or elements with zero dimensions
+        // by falling back to children's bounding box via Range API
+        if (rect.width === 0 && rect.height === 0) {
+          try {
+            const range = document.createRange();
+            range.selectNodeContents(target);
+            const rangeRect = range.getBoundingClientRect();
+            if (rangeRect.width > 0 || rangeRect.height > 0) {
+              rect = rangeRect;
+            }
+          } catch (e) {
+            // Fallback to target rect if range fails
+          }
+        }
+
         this.state.text = text;
         this.state.target = target;
         this.state.x = rect.left + rect.width / 2;
         this.state.y = rect.top;
         this.state.active = true;
-      }, 500);
+      }, 400); // Slightly faster response (400ms)
     }
 
     hide() {
