@@ -273,9 +273,8 @@
     min-height: 0;
     height: 100%;
     max-height: 85vh;
-    background: transparent;
-    backdrop-filter: none;
-    border: var(--border-l);
+    background: var(--glass-xl);
+    backdrop-filter: var(--blur-l);
     border-radius: var(--border-radius-l);
     box-shadow: var(--shadow-xl);
     position: relative;
@@ -284,6 +283,7 @@
     display: grid;
     grid-template-columns: minmax(200px, 30%) 1fr; /* [059.1] Flexible portrait panel */
     grid-template-rows: minmax(0, 1fr);
+    gap: 0; /* [065] Explicitly zero gap to ensure panels touch perfectly */
     transition: all var(--motion-m) cubic-bezier(0.4, 0, 0.2, 1);
     will-change: transform, width, max-width;
   }
@@ -315,11 +315,9 @@
   .left-panel {
     display: flex;
     flex-direction: column;
-    border-right: 1px solid
-      color-mix(in srgb, var(--color-gunmetal) 85%, var(--signature-color) 15%);
-    background: var(--glass-xl);
-    backdrop-filter: var(--blur-l);
-    border-radius: var(--border-radius-m) 0 0 var(--border-radius-m);
+    background: transparent;
+    backdrop-filter: none;
+    border-radius: calc(var(--border-radius-l) - 1px) 0 0 calc(var(--border-radius-l) - 1px);
     overflow: hidden;
   }
 
@@ -331,6 +329,9 @@
     gap: 0;
     min-height: 0; /* CRITICAL: Allow panel to be smaller than content for scrolling */
     overflow-y: auto;
+
+    /* [064] Corner Hygiene: Match parent border-radius to prevent rectangular bleeding during scroll */
+    border-radius: 0 calc(var(--border-radius-l) - 1px) calc(var(--border-radius-l) - 1px) 0;
   }
 
   /* Local Scrollbar Theming */
@@ -374,8 +375,7 @@
       max-height: 100%;
       flex: 1;
       border-radius: 0; /* Full width on mobile feels more premium */
-      border-left: none;
-      border-right: none;
+      border: none;
       display: flex;
       flex-direction: column;
       overflow-y: auto; /* Unified scrollbar for mobile */
@@ -383,9 +383,7 @@
 
     .left-panel {
       flex: 0 0 clamp(140px, 20vh, 220px);
-      border-right: none;
-      border-bottom: 1px solid
-        color-mix(in srgb, var(--color-gunmetal) 85%, var(--signature-color) 15%);
+      border: none;
       border-radius: 0;
     }
 
@@ -394,6 +392,7 @@
       padding: var(--spacing-m);
       overflow-y: visible;
       height: auto;
+      border-radius: 0;
     }
   }
 

@@ -110,7 +110,7 @@
         if (url) char.profile_picture = url;
       } catch (err) {
         console.error("Generation failed:", err);
-        app.log(`Generation failed: ${err.message}`, "error");
+        app.log(`Generation failed: ${/** @type {Error} */ (err).message}`, "error");
       } finally {
         busy_fields.delete("visual-prompt");
       }
@@ -120,8 +120,10 @@
     }
   }
 
+  /** @param {Event & { currentTarget: HTMLInputElement }} e */
   async function handle_upload(e) {
-    const file = e.target.files[0];
+    if (!e.currentTarget.files) return;
+    const file = e.currentTarget.files[0];
     if (!file) return;
     try {
       await validateImage(file);
@@ -129,10 +131,11 @@
       if (url) char.profile_picture = url;
     } catch (err) {
       console.error("Upload failed:", err);
-      app.log(`Upload failed: ${err.message}`, "error");
+      app.log(`Upload failed: ${/** @type {Error} */ (err).message}`, "error");
     }
   }
 
+  /** @param {FocusEvent & { currentTarget: HTMLElement }} e */
   function handle_wing_focus_out(e) {
     const wing_root = e.currentTarget;
     setTimeout(() => {
@@ -153,12 +156,12 @@
   <div class="group">
     <div class="spectrum-grid">
       {#each SPECTRUM_COLORS as [name, hex] (name)}
+        {@const color = PALETTE_VARS[/** @type {keyof typeof PALETTE_VARS} */ (hex)] || hex}
         <Button
           className="swatch {char.signature_color === hex || char.signature_color === name
             ? 'active'
             : ''}"
-          style="background-color: {PALETTE_VARS[hex] || hex}; --swatch-color: {PALETTE_VARS[hex] ||
-            hex};"
+          style="background-color: {color}; --swatch-color: {color};"
           aria-label={name.charAt(0).toUpperCase() + name.slice(1)}
           onclick={() => {
             char.signature_color = name;

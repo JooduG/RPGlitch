@@ -1,52 +1,71 @@
 /**
  * Svelte Action: fitText
  * Automatically scales font size down to fit within the container's height/width.
+ * Harmonized Version: Respects CSS-defined font-size (like clamp) if maxSize is omitted.
  *
  * @param {HTMLElement} node
  * @param {Object} [options]
- * @param {number} [options.maxSize=24] - Maximum font size in px
+ * @param {number} [options.maxSize] - Optional: Force a starting font size in px
  * @param {number} [options.minSize=12] - Minimum font size in px
  * @param {string} [options.lineHeight='1.2'] - Line height to apply
  */
 export function fitText(node, options = {}) {
-  let maxSize = options.maxSize || 24;
-  let minSize = options.minSize || 12;
-  let lineHeight = options.lineHeight || "1.2";
+  let currentOptions = { ...options };
+
+  function adjust() {
+    // 1. Reset inline font-size to let CSS (clamp) take over
+    node.style.fontSize = "";
+    
+    // 2. Only apply line-height if explicitly requested via options
+    if (currentOptions.lineHeight) {
+      node.style.lineHeight = currentOptions.lineHeight;
+    }
+
+    const computedStyle = window.getComputedStyle(node);
+    
+    // 3. Determine minimum size: Options -> Default (10px)
+    let minSize = currentOptions.minSize || 10;
+
+    // 4. Determine starting size: use override if provided, otherwise measure CSS
+    let currentSize;
+    if (currentOptions.maxSize) {
+      currentSize = currentOptions.maxSize;
+      node.style.fontSize = `${currentSize}px`;
+    } else {
+      currentSize = parseFloat(computedStyle.fontSize);
+    }
+
+    // Tolerance of 1px to prevent subpixel rounding loops
+    const TOLERANCE = 1;
+
+    // 5. Shrink loop: only shrinks if the current text overflows its container
+    while (
+      (node.scrollHeight > node.clientHeight + TOLERANCE ||
+        node.scrollWidth > node.clientWidth + TOLERANCE) &&
+      currentSize > minSize
+    ) {
+      currentSize--;
+      node.style.fontSize = `${currentSize}px`;
+    }
+  }
+
   const resizeObserver = new ResizeObserver(() => {
-    requestAnimationFrame(() => {
-      adjustFontSize(node, maxSize, minSize, lineHeight);
-    });
+    requestAnimationFrame(adjust);
   });
+
   resizeObserver.observe(node);
-  // Initial adjust
-  adjustFontSize(node, maxSize, minSize, lineHeight);
+  adjust();
+
   return {
     update(newOptions) {
-      maxSize = newOptions.maxSize || 24;
-      minSize = newOptions.minSize || 12;
-      lineHeight = newOptions.lineHeight || "1.2";
-      adjustFontSize(node, maxSize, minSize, lineHeight);
+      currentOptions = { ...newOptions };
+      adjust();
     },
     destroy() {
       resizeObserver.disconnect();
     },
   };
 }
-function adjustFontSize(node, maxSize, minSize, lineHeight) {
-  let size = maxSize;
-  node.style.fontSize = `${size}px`;
-  node.style.lineHeight = lineHeight;
-  // Tolerance of 1px to prevent subpixel rounding loops
-  const TOLERANCE = 1;
-  // While scrolling (overflowing) and size is above min
-  // We check scrollHeight > clientHeight (vertical overflow)
-  // Or scrollWidth > clientWidth (horizontal overflow, if no-wrap)
-  while (
-    (node.scrollHeight > node.clientHeight + TOLERANCE ||
-      node.scrollWidth > node.clientWidth + TOLERANCE) &&
-    size > minSize
-  ) {
-    size--;
-    node.style.fontSize = `${size}px`;
-  }
-}
+
+
+

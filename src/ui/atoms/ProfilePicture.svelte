@@ -9,9 +9,15 @@
   import { fitText } from "@utils/fit-text.js";
   let { entity = null, placeholderChar = null } = $props();
 
+  /**
+   * @param {string | null | undefined} str
+   * @returns {string}
+   */
   function calculate_initials(str) {
     if (!str) return "?";
     const clean_name = str.replace(/[^\p{L}\s]/gu, "");
+    
+    /** @type {string[]} */
     const words = clean_name.trim().split(/\s+/);
     const stop_words = new Set([
       "the",
@@ -68,11 +74,7 @@
     <div class="placeholder">
       <div
         class="initials-bg"
-        use:fitText={{
-          maxSize: 300,
-          minSize: 100,
-          lineHeight: "0.8",
-        }}
+        use:fitText={{ minSize: 100 }}
       >
         {initials}
       </div>
@@ -143,5 +145,7 @@
     user-select: none;
     pointer-events: none;
     filter: drop-shadow(0 0.5rem 1rem rgb(var(--color-black-rgb) / 20%));
+    font-size: 300px;
+    line-height: 0.8;
   }
 </style>

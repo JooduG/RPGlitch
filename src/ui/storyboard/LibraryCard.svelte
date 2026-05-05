@@ -40,7 +40,7 @@
     {disabled}
     aria-label={disabled ? "Already selected" : `Select ${name}`}
     className="no-tooltip"
-    oncontextmenu={(e) => {
+    oncontextmenu={(/** @type {MouseEvent} */ e) => {
       e.preventDefault();
       if (onViewProfile) onViewProfile();
     }}
@@ -52,7 +52,7 @@
 
   <div class="card-info">
     <h5>
-      <span class="entity-name" use:fitText>{name}</span>
+      <span class="entity-name" use:fitText={{ minSize: 10 }}>{name}</span>
     </h5>
     <div class="signature-bar"></div>
   </div>
@@ -121,6 +121,10 @@
     margin: 0;
     padding: 0;
     width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .drawer-card .card-info .entity-name {
@@ -128,13 +132,12 @@
     font-family: var(--font-family-heading);
     font-weight: var(--font-weight-xl);
     text-transform: uppercase;
-    font-size: var(--font-size-xs);
-    letter-spacing: var(--letter-spacing-m);
+    font-size: clamp(var(--font-size-xs), 2vw + 0.5rem, var(--font-size-xxl));
+    letter-spacing: var(--letter-spacing-s);
     text-wrap: balance;
-    display: -webkit-box;
-    line-clamp: 2;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    display: block;
+    line-height: 1.2;
+    max-height: 100%;
     overflow: hidden;
     margin: 0;
     padding: 0;

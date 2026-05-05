@@ -165,10 +165,8 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-l);
-    background: rgb(from var(--signature-color) r g b / 5%);
-    backdrop-filter: var(--blur-s);
     margin: 0 calc(-1 * var(--spacing-m));
-    padding: var(--spacing-xl) var(--spacing-m);
+    padding: var(--spacing-xl) var(--spacing-m) var(--spacing-m);
   }
 
   .row {

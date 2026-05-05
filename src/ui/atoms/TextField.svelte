@@ -177,6 +177,7 @@
   .header {
     height: var(--shield-height-dormant);
     background: var(--signature-color, var(--color-frozen));
+    border-radius: calc(var(--border-radius-m) - 1px) calc(var(--border-radius-m) - 1px) 0 0;
     opacity: var(--header-opacity);
     position: relative;
     top: 1px;

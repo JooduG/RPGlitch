@@ -62,7 +62,7 @@
         <!-- Info Layer (Bottom-up Gradient Scrim) -->
         <div class="card-info-scrim">
           <div class="info-content">
-            <h2 use:fitText={{ maxSize: 32, minSize: 16, lineHeight: "1.1" }}>
+            <h2 use:fitText={{ minSize: 16 }}>
               {entity.name}
             </h2>
             <p class="description">{entity.description || "No description provided."}</p>
@@ -219,6 +219,8 @@
     font-family: var(--font-family-heading);
     color: rgb(var(--signature-rgb));
     text-shadow: var(--shadow-font);
+    font-size: 32px;
+    line-height: 1.1;
   }
 
   .description {

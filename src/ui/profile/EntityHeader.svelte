@@ -37,11 +37,7 @@
     <h1
       class="banner-name no-tooltip"
       aria-label="Entity Name"
-      use:fitText={{
-        maxSize: 64,
-        minSize: 20,
-        lineHeight: "1.0" /* [059.2] Tightened for better layout stability */,
-      }}
+      use:fitText={{ minSize: 20 }}
     >
       {char.name || ENTITY_FRAGMENTS.name}
     </h1>
@@ -79,11 +75,9 @@
       rgb(from var(--color-gunmetal) r g b / 20%),
       var(--signature-color) 12%
     );
-    backdrop-filter: var(--blur-m);
-    border-bottom: var(--border-s);
     z-index: var(--z-index-xl);
     transition: all var(--motion-l);
-    border-top-right-radius: var(--border-radius-l);
+    border-top-right-radius: calc(var(--border-radius-l) - 1px);
   }
 
   .banner-name {

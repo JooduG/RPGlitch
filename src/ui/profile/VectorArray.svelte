@@ -23,11 +23,16 @@
     return val;
   });
 
+  /** @param {any} item */
   function get_item_text(item) {
     if (typeof item === "string") return item;
     return item?.text || item?.summary || "";
   }
 
+  /**
+   * @param {number} index
+   * @param {string} new_text
+   */
   function update_item(index, new_text) {
     const current = Array.isArray(items) ? [...items] : [];
     if (typeof current[index] === "object") {
@@ -38,6 +43,10 @@
     set_value(char, path, current);
   }
 
+  /**
+   * @param {number} index
+   * @param {string} raw_string
+   */
   function update_tags(index, raw_string) {
     const current = Array.isArray(items) ? [...items] : [];
     const tags = raw_string
@@ -53,6 +62,10 @@
     set_value(char, path, current);
   }
 
+  /**
+   * @param {number} index
+   * @param {number} delta
+   */
   function update_weight(index, delta) {
     const current = Array.isArray(items) ? [...items] : [];
     const item = current[index];
@@ -67,6 +80,7 @@
     set_value(char, path, current);
   }
 
+  /** @param {number} index */
   function remove_item(index) {
     const current = [...items];
     current.splice(index, 1);
@@ -98,7 +112,7 @@
         <TextField
           is_edit={is_editing}
           value={get_item_text(item)}
-          oninput={(e) => update_item(i, e.currentTarget.value)}
+          oninput={(/** @type {any} */ e) => update_item(i, e.currentTarget.value)}
           placeholder="Enter {unit_label.toLowerCase()} detail..."
           weight={typeof item === "object" ? (item.base_weight ?? 5) : 5}
         >

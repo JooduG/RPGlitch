@@ -33,6 +33,7 @@
 
   let show_voice_dropdown = $state(false);
   let row_el = $state();
+  /** @type {{ top: number | null, bottom: number | null, left: number, width: number, is_dropup: boolean, max_h: number }} */
   let coords = $state({
     top: null,
     bottom: null,
@@ -66,8 +67,8 @@
         };
       };
 
-      const handle_outside = (e) => {
-        const target = e.target instanceof Element ? e.target : e.target.parentElement;
+      const handle_outside = (/** @type {MouseEvent} */ e) => {
+        const target = e.target instanceof Element ? e.target : (e.target instanceof Node ? e.target.parentElement : null);
         if (!target) return;
         if (!row_el.contains(target) && !target.closest(".dropdown-content")) {
           show_voice_dropdown = false;
@@ -90,6 +91,7 @@
   const selected_voice = $derived(Audio.voice.voices.find((v) => v.uri === char.voice.uri));
   const is_natural_voice = $derived(selected_voice?.name.includes("Natural"));
 
+  /** @param {string} name */
   function format_voice_name(name) {
     return name
       .replace(/Microsoft\s+/gi, "")
