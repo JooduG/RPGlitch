@@ -1,6 +1,6 @@
 <script>
   /**
-   * @file src/ui/EntityFragments.svelte
+   * @file src/ui/profile/EntityFragments.svelte
    * THE TEMPORAL HYBRID FIELDS
    * Dynamically renders the Eternal, Present, Past, and Future sections.
    */
@@ -16,25 +16,37 @@
   let { char = $bindable(), is_editing, busy_fields, active_field = $bindable() } = $props();
 
   // Track which section is hovered for the "Aperture" peek
+  /** @type {string | null} */
   let hovered_section = $state(null);
 
   // Storage for VectorArray instances to call add_item()
+  /** @type {Record<string, any>} */
   let vector_refs = $state({});
 
   /**
-   * Utility to ensure the textarea receives an empty string for empty data.
+   * Utility to ensure the field receives an empty string for empty data.
+   * @param {string} path
    */
   const safe_get = (path) => {
     const val = get_value(char, path);
     return val === undefined || val === null ? "" : val;
   };
 
-  function handle_label_click(sectionId, fieldKey) {
-    if (!is_editing) return;
+  /**
+   * Adds an item to a vector array when the section label is clicked.
+   * @param {string | undefined} fieldKey
+   */
+  function handle_add_click(fieldKey) {
+    if (!is_editing || !fieldKey) return;
     if (vector_refs[fieldKey]) {
       vector_refs[fieldKey].add_item();
     }
   }
+
+  /**
+   * @param {string} fieldKey
+   * @param {string} value
+   */
   async function handle_enhance(fieldKey, value) {
     if (!value || busy_fields.has(fieldKey)) return;
     busy_fields.add(fieldKey);
@@ -50,93 +62,94 @@
   }
 </script>
 
-<div class="content" data-testid="profile-fragments">
-  {#each PROFILE_SECTIONS as section (section.label)}
+<div class="wrapper" data-testid="profile-fragments">
+  {#each PROFILE_SECTIONS as section (section.id)}
+    {@const arrayField = section.fields.find((f) => f.type === "array")}
     <div class="row">
       <div
-        class="label"
-        class:interactive={is_editing && section.fields.some((f) => f.type === "array")}
-        onclick={() => {
-          const arrayField = section.fields.find((f) => f.type === "array");
-          if (arrayField) handle_label_click(section.id, arrayField.key);
-        }}
+        class="side"
+        class:interactive={is_editing && arrayField}
+        onclick={() => handle_add_click(arrayField?.key)}
         onmouseenter={() => (hovered_section = section.id)}
         onmouseleave={() => (hovered_section = null)}
         role="presentation"
       >
-        <div class="label-box">
-          <h2 class="dynamic-label">
-            {#if is_editing && hovered_section === section.id && section.fields.some((f) => f.type === "array")}
-              <span class="label-add" transition:fly={{ x: -10, duration: 300 }}> ADD </span>
-            {/if}
-            {section.label}
-          </h2>
-          <p>{section.sublabel}</p>
-        </div>
+        <h2 class="side-label">
+          {#if is_editing && hovered_section === section.id && arrayField}
+            <span class="label-add" transition:fly={{ x: -10, duration: 300 }}> ADD </span>
+          {/if}
+          {section.label}
+        </h2>
+        {#if section.sublabel}
+          <p class="side-text">{section.sublabel}</p>
+        {/if}
       </div>
 
-      <div class={section.fields.length === 2 ? "split" : "full"}>
+      <div class="body" data-columns={section.fields.length}>
         {#each section.fields as field (field.key)}
-          <div class="field-group tooltip-container">
+          <div class="group tooltip-container">
             {#if field.label && section.id === "eternal"}
-              <span class="field-label">{field.label}</span>
+              <span class="top-label">{field.label}</span>
             {/if}
-            {#if field.type === "array"}
-              <VectorArray
-                bind:this={vector_refs[field.key]}
-                {char}
-                path={field.key}
-                {is_editing}
-                {get_value}
-                {set_value}
-                unit_label={field.unitLabel}
-                signature_color="var(--signature-color)"
-              />
-            {:else}
-              <TextField
-                is_edit={is_editing}
-                syncId={section.label}
-                class="text-area custom-field {active_field?.key === field.key ? 'active' : ''}"
-                placeholder={field.description}
-                value={safe_get(field.key)}
-                oninput={(e) => set_value(char, field.key, e.currentTarget.value)}
-                busy={busy_fields.has(field.key)}
-                onfocus={() => {
-                  active_field = {
-                    key: field.key,
-                    label: field.label || section.label,
-                  };
-                }}
-              >
-                {#snippet status()}
-                  {#if busy_fields.has(field.key)}
-                    <div class="engine-status-wrap">
-                      <span class="status-tag pulse">ENHANCING</span>
-                    </div>
-                  {/if}
-                {/snippet}
-                {#snippet actions()}
-                  {#if is_editing}
-                    <Button
-                      variant="invisible"
-                      size="sm"
-                      square={true}
-                      aria-label="Enhance with AI"
-                      className="enhance-btn"
-                      disabled={busy_fields.has(field.key) || !safe_get(field.key)}
-                      onclick={() => handle_enhance(field.key, safe_get(field.key))}
-                    >
-                      <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
-                        <path
-                          d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"
-                          fill="var(--color-white)"
-                        ></path>
-                      </svg>
-                    </Button>
-                  {/if}
-                {/snippet}
-              </TextField>
-            {/if}
+
+            <div class="primary">
+              {#if field.type === "array"}
+                <VectorArray
+                  bind:this={vector_refs[field.key]}
+                  {char}
+                  path={field.key}
+                  {is_editing}
+                  {get_value}
+                  {set_value}
+                  unit_label={field.unitLabel}
+                  signature_color="var(--signature-color)"
+                />
+              {:else}
+                <TextField
+                  is_edit={is_editing}
+                  syncId={section.label}
+                  class="text-area custom-field {active_field?.key === field.key ? 'active' : ''}"
+                  placeholder={field.description}
+                  value={safe_get(field.key)}
+                  oninput={(/** @type {any} */ e) => set_value(char, field.key, e.currentTarget.value)}
+                  busy={busy_fields.has(field.key)}
+                  onfocus={() => {
+                    active_field = {
+                      key: field.key,
+                      label: field.label || section.label,
+                    };
+                  }}
+                >
+                  {#snippet status()}
+                    {#if busy_fields.has(field.key)}
+                      <div class="engine-status-wrap">
+                        <span class="status-tag pulse">ENHANCING</span>
+                      </div>
+                    {/if}
+                  {/snippet}
+                  {#snippet actions()}
+                    {#if is_editing}
+                      <Button
+                        variant="invisible"
+                        size="sm"
+                        square={true}
+                        aria-label="Enhance with AI"
+                        className="enhance-btn"
+                        disabled={busy_fields.has(field.key) || !safe_get(field.key)}
+                        onclick={() => handle_enhance(field.key, safe_get(field.key))}
+                      >
+                        <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
+                          <path
+                            d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"
+                            fill="var(--color-white)"
+                          ></path>
+                        </svg>
+                      </Button>
+                    {/if}
+                  {/snippet}
+                </TextField>
+              {/if}
+            </div>
           </div>
         {/each}
       </div>
@@ -145,7 +158,7 @@
 </div>
 
 <style>
-  .content {
+  .wrapper {
     flex: 1;
     overflow: visible;
     display: flex;
@@ -157,32 +170,29 @@
     padding: var(--spacing-m);
   }
 
-  .content .row {
+  .row {
     display: grid;
-    grid-template-columns: minmax(60px, 80px) 1fr; /* [059.4] Flexible labels to prevent squashing on mid-sized viewports */
+    grid-template-columns: minmax(60px, 80px) 1fr;
     gap: var(--spacing-m);
     min-width: 0;
   }
 
-  .content .row .label {
+  .side {
     text-align: right;
     align-self: center;
     padding: 0;
     cursor: default;
     transition: all var(--motion-l);
-  }
-
-  .content .row .label.interactive {
-    cursor: pointer;
-  }
-
-  .label-box {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
   }
 
-  .content .row .label h2 {
+  .side.interactive {
+    cursor: pointer;
+  }
+
+  .side-label {
     margin: 0;
     font-size: var(--font-size-s);
     font-weight: var(--font-weight-xl);
@@ -212,12 +222,7 @@
     text-shadow: 0 0 8px rgb(var(--color-white-rgb) / 40%);
   }
 
-  .content .row .label.interactive:hover {
-    filter: none;
-    backdrop-filter: none;
-  }
-
-  .content .row .label p {
+  .side-text {
     margin: 0;
     font-size: 10px;
     color: var(--font-color-m);
@@ -228,22 +233,21 @@
     text-shadow: var(--shadow-font);
   }
 
-  .content .row .split,
-  .content .row .full {
+  .body {
     display: grid;
     gap: var(--spacing-m);
     min-width: 0;
   }
 
-  .content .row .split {
+  .body[data-columns="2"] {
     grid-template-columns: 1fr 1fr;
   }
 
-  .content .row .full {
+  .body[data-columns="1"] {
     grid-template-columns: 1fr;
   }
 
-  .content .row .field-group {
+  .group {
     position: relative;
     width: 100%;
     height: 100%;
@@ -256,8 +260,12 @@
     transition: z-index 0s;
   }
 
-  .content .row .field-group:hover {
-    z-index: calc(var(--z-index-xxl) + 1); /* Above everything in the shell */
+  .group:hover {
+    z-index: calc(var(--z-index-xxl) + 1);
+  }
+
+  .primary {
+    height: 100%;
   }
 
   :global(.text-area.custom-field) {
@@ -279,7 +287,7 @@
     transform: scale(1.1);
   }
 
-  .content .row .field-group .field-label {
+  .top-label {
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-xl);
     text-transform: uppercase;
@@ -293,20 +301,17 @@
   }
 
   @media (width <= 600px) {
-    .content .row {
+    .row {
       grid-template-columns: 1fr;
       gap: var(--spacing-xs);
     }
 
-    .content .row .label {
+    .side {
       text-align: left;
-    }
-
-    .label-box {
       align-items: flex-start;
     }
 
-    .content .row .split {
+    .body[data-columns] {
       grid-template-columns: 1fr;
     }
   }
