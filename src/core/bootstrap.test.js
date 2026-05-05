@@ -30,7 +30,7 @@ vi.mock("@state/runtime.svelte.js", () => ({
 vi.mock("svelte", () => ({
   mount: vi.fn(),
 }));
-vi.mock("@shell/App.svelte", () => ({
+vi.mock("@ui/App.svelte", () => ({
   default: {},
 }));
 describe("AppBootstrap", () => {

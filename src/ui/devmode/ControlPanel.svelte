@@ -9,7 +9,7 @@
   import Modal from "@atoms/Modal.svelte";
   import TextField from "@atoms/TextField.svelte";
   import Dialog from "@atoms/Dialog.svelte";
-  import StoryCard from "@storyboard/StoryCard.svelte";
+  import StoryCard from "@devmode/StoryCard.svelte";
   import { simulation_log } from "@state/simulation-log.svelte.js";
   import { simulationState } from "@state/status.svelte.js";
 

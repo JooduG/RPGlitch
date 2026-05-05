@@ -12,7 +12,7 @@
   import { fly } from "svelte/transition";
 
   import Backdrop from "@atoms/Backdrop.svelte";
-  import LibraryCard from "@storyboard/LibraryCard.svelte";
+  import LibraryCard from "@drawer/LibraryCard.svelte";
   import Button from "@atoms/Button.svelte";
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
 

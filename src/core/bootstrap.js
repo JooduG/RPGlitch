@@ -4,7 +4,7 @@ import { seed_premades } from "@data/repository.js";
 import { Audio } from "@media/audio-engine.svelte.js";
 import { app } from "@state/app.svelte.js";
 import { runtime } from "@state/runtime.svelte.js";
-import App from "@shell/App.svelte";
+import App from "@ui/App.svelte";
 import { sanitizeToFragment } from "@core/security.js";
 let has_initialized = false;
 /**

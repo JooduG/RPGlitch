@@ -59,21 +59,23 @@
   {:else}
     <div class="card-shell">
       <div class="storyboard-card">
-        <!-- Info Layer (Bottom-up Gradient Scrim) -->
-        <div class="card-info-scrim">
-          <div class="info-content">
-            <h2 use:fitText={{ minSize: 16 }}>
-              {entity.name}
-            </h2>
-            <p class="description">{entity.description || "No description provided."}</p>
-          </div>
-        </div>
-
         <Button variant="invisible" cover={true} onclick={on_select}>
           <div class="visual-anchor">
             <ProfilePicture {entity} />
           </div>
         </Button>
+
+        <!-- Info Layer (Bottom-up Gradient Scrim) -->
+        <div class="card-info-scrim">
+          <div class="info-content">
+            <h2 use:fitText={{ minSize: 26 }}>
+              {entity.name}
+            </h2>
+            <div class="description-wrap">
+              <p class="description">{entity.description || "No description provided."}</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -198,20 +200,21 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 50%;
+    height: 45%;
     background: linear-gradient(
       to top,
       var(--color-chalk) 0%,
-      rgb(from var(--color-chalk) r g b / 80%) 40%,
+      rgb(from var(--color-chalk) r g b / 50%) 40%,
       transparent 100%
     );
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    padding: var(--spacing-xl) var(--spacing-m) var(--spacing-m);
+    padding: var(--spacing-xxl) var(--spacing-m) var(--spacing-m);
     z-index: var(--z-index-l);
     pointer-events: none; /* Let overlay button handle clicks */
-    background-clip: padding-box;
+    border-bottom-left-radius: var(--border-radius-l);
+    border-bottom-right-radius: var(--border-radius-l);
   }
 
   .info-content h2 {
@@ -220,17 +223,29 @@
     color: rgb(var(--signature-rgb));
     text-shadow: var(--shadow-font);
     font-size: 32px;
-    line-height: 1.1;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    max-width: 75%;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .description-wrap {
+    position: relative;
+    margin-top: var(--spacing-xs);
   }
 
   .description {
-    margin: var(--spacing-xs) 0 0;
-    font-size: var(--font-size-s);
-    color: var(--font-color-s);
-    line-height: 1.4;
+    margin: 0;
+    font-size: 14px; /* Fixed standard label size */
+    color: var(--font-color-m);
+    line-height: 1.3;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }

@@ -37,7 +37,7 @@
     <h1
       class="banner-name no-tooltip"
       aria-label="Entity Name"
-      use:fitText={{ minSize: 20 }}
+      use:fitText={{ minSize: 40 }}
     >
       {char.name || ENTITY_FRAGMENTS.name}
     </h1>
@@ -85,7 +85,7 @@
     color: var(--signature-color);
     font-size: clamp(32px, 8vw, 64px); /* Fluid typography */
     font-weight: var(--font-weight-xl);
-    letter-spacing: var(--letter-spacing-s);
+    letter-spacing: -0.02em;
     text-shadow: var(--shadow-font);
     margin: 0;
     padding: var(--spacing-xs);

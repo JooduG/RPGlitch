@@ -74,7 +74,7 @@
     <div class="placeholder">
       <div
         class="initials-bg"
-        use:fitText={{ minSize: 100 }}
+        use:fitText={{ minSize: 80 }}
       >
         {initials}
       </div>
@@ -144,8 +144,9 @@
     text-transform: uppercase;
     user-select: none;
     pointer-events: none;
-    filter: drop-shadow(0 0.5rem 1rem rgb(var(--color-black-rgb) / 20%));
+    filter: drop-shadow(0 0 10px rgb(255 255 255 / 40%));
     font-size: 300px;
     line-height: 0.8;
+    letter-spacing: -0.05em;
   }
 </style>
