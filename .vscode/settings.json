@@ -18,15 +18,9 @@
     "configurations": []
   },
   "markdown.validate.enabled": true,
-  "markdown.validate.ignoredLinks": [
-    "always_on | on_change | manual",
-    "high | medium | low"
-  ],
+  "markdown.validate.ignoredLinks": ["always_on | on_change | manual", "high | medium | low"],
   "markdown.validate.referenceLinks.enabled": "ignore",
-  "stylelint.validate": [
-    "css",
-    "svelte"
-  ],
+  "stylelint.validate": ["css", "svelte"],
   "typescript.tsdk": "node_modules\\typescript\\lib",
   "files.exclude": {
     "**/.DS_Store": true,
@@ -45,5 +39,6 @@
     "**/yarn.lock": true,
     "/.env": false,
     "DESIGN.md": true
-  }
+  },
+  "github-actions.workflows.pinned.workflows": [".github/workflows/jules-auto.yml"]
 }
