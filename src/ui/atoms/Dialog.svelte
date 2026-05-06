@@ -46,7 +46,7 @@
 
 {#if open}
   <Modal variant="mini" on_close={handle_cancel} z_index="var(--z-index-xxl)" {busy}>
-    <article class="wrapper" class:is-confirm={type === "confirm"} {...rest}>
+    <article class="wrapper" class:is-confirm={type === "confirm"} class:is-busy={busy} {...rest}>
       <header class="header">
         {#if type === "alert"}
           <span class="icon" aria-hidden="true">i</span>
@@ -81,6 +81,15 @@
     flex-direction: column;
     width: 100%;
     animation: slide-up var(--motion-m) var(--motion-elastic);
+  }
+
+  .wrapper.is-busy {
+    cursor: wait;
+    filter: brightness(0.8) grayscale(0.5);
+  }
+
+  .wrapper.is-busy > * {
+    pointer-events: none;
   }
 
   .header {

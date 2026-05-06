@@ -99,6 +99,7 @@
 
   /* Busy State Logic */
   .base.is-busy {
+    cursor: wait;
     filter: brightness(0.8) grayscale(0.5);
     pointer-events: none;
   }

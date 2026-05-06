@@ -86,6 +86,9 @@
   .wrapper.is-busy {
     cursor: wait;
     filter: brightness(0.8) grayscale(0.5);
+  }
+
+  .wrapper.is-busy > * {
     pointer-events: none;
   }
 

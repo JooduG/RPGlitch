@@ -246,7 +246,15 @@
 
   /* --- Controls --- */
 
-  :global(.select),
+  :global(.select) {
+    height: var(--icon-m);
+    min-height: 0;
+    background: var(--glass-xs);
+    border: none;
+    border-radius: var(--border-radius-m);
+    transition: all var(--motion-l) var(--motion-elastic);
+  }
+
   :global(.preview) {
     height: var(--icon-m);
     min-height: 0;
