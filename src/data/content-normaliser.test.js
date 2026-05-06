@@ -105,7 +105,10 @@ describe("content-normaliser.js", () => {
         updated_at: 2000,
         origin_id: "origin-456",
         is_premade: 1,
-        is_custom: true,
+        is_custom: 1,
+        is_chosen: 1,
+        is_snapshot: 1,
+        version: 5,
       };
       const result = normalize(input);
       expect(result.id).toBe("id-123");
@@ -113,7 +116,44 @@ describe("content-normaliser.js", () => {
       expect(result.updated_at).toBe(2000);
       expect(result.origin_id).toBe("origin-456");
       expect(result.is_premade).toBe(1);
-      expect(result.is_custom).toBe(true);
+      expect(result.is_custom).toBe(1);
+      expect(result.is_chosen).toBe(1);
+      expect(result.is_snapshot).toBe(1);
+      expect(result.version).toBe(5);
+
+      // Verify camelCase mappings
+      expect(result.originId).toBe("origin-456");
+      expect(result.isCustom).toBe(1);
+      expect(result.isPremade).toBe(1);
+      expect(result.isChosen).toBe(1);
+      expect(result.isSnapshot).toBe(1);
+    });
+
+    it("should handle camelCase variants for database flags", () => {
+      const input = {
+        createdAt: 1000,
+        updatedAt: 2000,
+        originId: "origin-456",
+        isPremade: 1,
+        isCustom: 1,
+        isChosen: 1,
+        isSnapshot: 1,
+      };
+      const result = normalize(input);
+      expect(result.created_at).toBe(1000);
+      expect(result.updated_at).toBe(2000);
+      expect(result.origin_id).toBe("origin-456");
+      expect(result.is_premade).toBe(1);
+      expect(result.is_custom).toBe(1);
+      expect(result.is_chosen).toBe(1);
+      expect(result.is_snapshot).toBe(1);
+
+      // Verify camelCase preservation
+      expect(result.originId).toBe("origin-456");
+      expect(result.isCustom).toBe(1);
+      expect(result.isPremade).toBe(1);
+      expect(result.isChosen).toBe(1);
+      expect(result.isSnapshot).toBe(1);
     });
 
     it("should process tags into a sanitized array of strings", () => {
