@@ -1,8 +1,12 @@
 /**
- * src/data/repository.js
- * 📂 THE REPOSITORY (Knowledge Access Layer)
- * RUTHLESSLY FLATTENED SCHEMA  ZERO BACKWARDS COMPATIBILITY.
- * If it's not at the top level, it doesn't exist.
+ * @typedef {Object} Story
+ * @property {string|number} id
+ * @property {string} title
+ * @property {'concluded'|'active'} state
+ * @property {number} lastPlayed
+ * @property {string} fractal_profile_picture
+ * @property {string} fractal_name
+ * @property {string} signature_color
  */
 import { normalize, STORAGE_VERSION } from "@data/content-normaliser.js";
 import { db } from "@data/db.js";

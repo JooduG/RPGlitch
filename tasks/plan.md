@@ -1,5 +1,43 @@
 # Mission Plan
 
+## Mission [070]: ControlPanel Type Tightening [DONE]
+
+### Goal
+
+Strictly define prop interfaces for `ControlPanel` inputs to eliminate runtime type coercion and enforce the "Ultra-Lean" data contract.
+
+### Proposed Changes
+
+#### [070.1] ControlPanel Prop Interfaces [DONE]
+
+- [x] [MODIFY] `src/ui/devmode/ControlPanel.svelte`
+  - [x] Implement TypeScript interfaces for `control` props.
+- [x] [MODIFY] `src/state/control.svelte.js`
+  - [x] Tighten type definitions for exported reactive objects.
+
+---
+
+## Mission [069]: TextField Class Normalization [DONE]
+
+### Goal
+
+Standardize the `TextField` component usage in `ControlPanel.svelte` by replacing the legacy `prologue-field` class with the "Ultra-Lean" Chalk Regime semantic standard (`text-area custom-field`).
+
+### Completed Changes
+
+#### [069.1] ControlPanel Normalization [DONE]
+
+- [x] [MODIFY] `src/ui/devmode/ControlPanel.svelte`
+  - Replace legacy `class="prologue-field"` with `class="text-area custom-field"`.
+
+### Verification Results
+
+- [x] **Lint**: Passed `npm run lint`.
+- [x] **Tests**: Passed `npm run test`.
+- [x] **Aesthetic Parity**: Standardized classes inherit global styles without drift.
+
+---
+
 ## Mission [067]: UI Architecture Simplification [DONE]
 
 ### Goal
@@ -11,30 +49,21 @@ Simplify and standardize the UI architecture by aggressively merging dispersed s
 #### [067.1] Tooltip Consolidation [DONE]
 
 - [x] [MODIFY] `src/ui/atoms/Tooltip.svelte`
-  - Merged portal rendering logic from `TooltipRenderer.svelte` and state management from `tooltip.svelte.js`.
-  - Action `tooltip` and singleton `tooltip_manager` are now exported from `context="module"`.
 - [x] [DELETE] `src/ui/shell/TooltipRenderer.svelte`
 - [x] [DELETE] `src/ui/atoms/tooltip.svelte.js`
 - [x] [MODIFY] `src/ui/App.svelte`
-  - Replaced `<TooltipRenderer />` with global `<Tooltip />` instance.
 - [x] [MODIFY] System-wide imports
-  - Updated all components (Drawer, LibraryCard, AudioWing, etc.) to import `tooltip` from `@atoms/Tooltip.svelte`.
 
 #### [067.2] Lightbox Consolidation [DONE]
 
 - [x] [MODIFY] `src/ui/atoms/Lightbox.svelte`
-  - Merged state and methods from `lightbox.svelte.js`.
-  - Reactive `lightbox` state and methods `openLightbox`/`closeLightbox` are now exported from `context="module"`.
 - [x] [DELETE] `src/state/lightbox.svelte.js`
 - [x] [MODIFY] `src/state/app.svelte.js`
-  - Updated imports to point to `@atoms/Lightbox.svelte`.
 - [x] [MODIFY] `src/ui/App.svelte`
-  - Updated imports and usage.
 
 #### [067.3] Background Consolidation [DONE]
 
 - [x] [MODIFY] `src/ui/App.svelte`
-  - Inlined the gradient and fractal rendering logic and styles directly into the root app shell.
 - [x] [DELETE] `src/ui/shell/Background.svelte`
 
 ### Verification Results

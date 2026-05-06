@@ -161,7 +161,7 @@
 
   <div class="prompt">
     <TextField
-      class="field {active_field?.key === 'visual-prompt' ? 'active' : ''}"
+      class="text-area custom-field {active_field?.key === 'visual-prompt' ? 'active' : ''}"
       is_edit={is_editing}
       busy={is_prompt_busy}
       bind:value={char.modifiers.prompt}

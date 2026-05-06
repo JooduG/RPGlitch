@@ -13,15 +13,32 @@
   import { simulation_log } from "@state/simulation-log.svelte.js";
   import { simulationState } from "@state/status.svelte.js";
 
+  /** @typedef {import('@data/repository.js').Story} Story */
+  /** @typedef {import('@state/control.svelte.js').AppSettings} AppSettings */
+  /** @typedef {'ai' | 'fractal'} MockRole */
+
   /**
-   * Main system interface for settings and prologue configuration.
-   * [Polish Protocol] v1.0.1 - Restored Mock Buttons
+   * @typedef {Object} Props
+   * @property {AppSettings} [settings=app.settings] - Explicit settings object for the panel.
+   * @property {string} [prologue=app.prologue] - Narrative prologue text.
    */
 
+  /** @type {Props} */
+  let { settings = $bindable(app.settings), prologue = $bindable(app.prologue) } = $props();
+
+  /**
+   * Main system interface for settings and prologue configuration.
+   * [070] - Implemented strict Prop interfaces and type tightening.
+   */
+
+  /**
+   * @param {string} action
+   */
   function handleAction(action) {
     app.log(`Control Panel: ${action}`, "system");
   }
 
+  /** @type {Story[]} */
   let stories_list = $state([]);
 
   $effect(() => {
@@ -30,15 +47,21 @@
     });
   });
 
+  /**
+   * @param {string|number} id
+   */
   async function loadStory(id) {
     handleAction("LoadStory: " + id);
-    await session_driver.set_active(id);
-    await runtime.sync(id);
+    await session_driver.set_active(String(id));
+    await runtime.sync(String(id));
     await simulation_log.refresh();
     app.set_view("storymode");
     app.toggle_control_panel();
   }
 
+  /**
+   * @param {MockRole} role
+   */
   async function mock_generation(role) {
     const is_fractal = role === "fractal";
     const name = is_fractal
@@ -104,12 +127,12 @@
     <header>
       <Toggle
         label="CALL MODE"
-        bind:value={app.settings.call_mode}
+        bind:value={settings.call_mode}
         onchange={() => app.save_settings()}
       />
       <Toggle
         label="NOTIFICATIONS"
-        bind:value={app.settings.sound}
+        bind:value={settings.sound}
         onchange={() => app.save_settings()}
       />
     </header>
@@ -118,10 +141,10 @@
     {#if isStoryboard}
       <div class="storyboard">
         <TextField
-          class="prologue-field"
+          class="text-area custom-field"
           is_edit={true}
           placeholder="(Optional) e.g., 'Start in media res', 'Describe the weather first'"
-          bind:value={app.prologue}
+          bind:value={prologue}
         />
       </div>
     {/if}
@@ -163,7 +186,7 @@
     <footer>
       <div class="stories-section">
         <h3 class="stories-headline">STORIES</h3>
-        {#if stories_list.length > 0}
+        {#if stories_list && stories_list.length > 0}
           <div class="stories-list">
             {#each stories_list as story (story.id)}
               <StoryCard {story} onclick={() => loadStory(story.id)} />
@@ -177,7 +200,7 @@
       <div class="dev-row">
         <Toggle
           label="DevMode"
-          bind:value={app.settings.dev_mode}
+          bind:value={settings.dev_mode}
           onchange={() => app.save_settings()}
         />
         <Button variant="danger" size="sm" onclick={() => (show_reset_confirm = true)}>
