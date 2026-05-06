@@ -28,10 +28,10 @@
     class: className = "",
     style = "",
 
-    // Slots/Snippets
-    header_actions = null, // Header actions snippet
-    status = null, // Header status snippet
-    actions = [], // Svelte actions for the wrapper
+    // Snippets
+    header_actions = null,
+    status = null,
+    actions = [],
 
     // Events
     oninput = undefined,
@@ -45,12 +45,9 @@
 
   // --- DERIVED LOGIC ---
   const paragraphs = $derived(parse_markdown(value));
-  const has_meta = $derived(!!header_actions || !!status);
-  const is_expanded = $derived((is_focused || busy) && has_meta);
-
-  // Orchestrate the "Physical" properties of the instrument
+  const is_expanded = $derived((is_focused || busy) && (!!header_actions || !!status));
   const intensity = $derived(weight / 10);
-  const header_opacity = $derived(weight > 0 ? 0.2 + (weight / 10) * 0.8 : 0.8);
+  const header_opacity = $derived(weight > 0 ? 0.2 + intensity * 0.8 : 0.8);
 
   // --- HANDLERS ---
   /** @param {FocusEvent} e */
@@ -62,8 +59,8 @@
 
   /** @param {FocusEvent} e */
   function handle_blur(e) {
-    const target = /** @type {HTMLElement} */ (e.currentTarget);
-    if (e.relatedTarget && target.contains(/** @type {Node} */ (e.relatedTarget))) return;
+    const root = /** @type {HTMLElement} */ (e.currentTarget);
+    if (e.relatedTarget && root.contains(/** @type {Node} */ (e.relatedTarget))) return;
     is_focused = false;
     onblur?.(e);
   }
@@ -72,38 +69,36 @@
 <div
   class="wrapper {className}"
   class:is-expanded={is_expanded}
-  class:is-busy={busy}
-  class:is-no-bg={no_background}
-  class:is-disabled={disabled}
-  style="{style}; --signature-color: {signature_color}; --weight-intensity: {intensity}; --header-opacity: {header_opacity};"
+  data-expanded={is_expanded}
+  data-busy={busy}
+  data-no-bg={no_background}
+  data-disabled={disabled || busy}
+  style="{style}; --tf-accent: {signature_color}; --weight-intensity: {intensity}; --header-opacity: {header_opacity};"
   onfocusout={handle_blur}
   use:use_actions={actions}
   aria-busy={busy}
   aria-disabled={disabled || busy}
 >
   <header class="header">
-    <div class="status-zone">
-      {#if status && is_expanded}
-        <div class="snippet" in:fade={{ duration: 200, delay: 100 }}>
+    {#if is_expanded}
+      {#if status}
+        <div class="status" in:fade={{ duration: 200, delay: 100 }}>
           {@render status()}
         </div>
       {/if}
-    </div>
-
-    <div class="action-zone">
-      {#if header_actions && is_expanded}
-        <div class="snippet" in:fade={{ duration: 200, delay: 150 }}>
+      {#if header_actions}
+        <div class="actions" in:fade={{ duration: 200, delay: 150 }}>
           {@render header_actions()}
         </div>
       {/if}
-    </div>
+    {/if}
   </header>
 
   {#if is_edit}
     <textarea
       {...rest}
-      class="body custom-scrollbar is-edit"
-      class:is-busy={busy}
+      class="body custom-scrollbar"
+      data-mode="edit"
       bind:value
       {placeholder}
       {oninput}
@@ -116,7 +111,7 @@
     <div
       {...rest}
       class="body custom-scrollbar is-readonly"
-      class:is-busy={busy}
+      data-mode="readonly"
       data-sync-id={syncId}
       use:auto_resize={{ syncId }}
       tabindex={disabled ? -1 : 0}
@@ -127,16 +122,16 @@
     >
       {#if paragraphs.length > 0}
         {#each paragraphs as tokens, i (i)}
-          <p class="p" class:is-spaced={i > 0}>
+          <p class="paragraph" data-spaced={i > 0}>
             {#each tokens as token, j (j)}
               {#if token.type === "text"}
                 {token.content}
               {:else if token.type === "strong"}
-                <strong class="bold">{token.content}</strong>
+                <strong class="strong">{token.content}</strong>
               {:else if token.type === "em"}
-                <em class="italic">{token.content}</em>
+                <em class="em">{token.content}</em>
               {:else if token.type === "strong-em"}
-                <strong class="bold"><em class="italic">{token.content}</em></strong>
+                <strong class="strong"><em class="em">{token.content}</em></strong>
               {/if}
             {/each}
           </p>
@@ -168,13 +163,13 @@
     overflow: hidden;
   }
 
-  .wrapper.is-no-bg {
+  .wrapper[data-no-bg="true"] {
     background: transparent;
     border: none;
     box-shadow: none;
   }
 
-  .wrapper.is-expanded {
+  .wrapper[data-expanded="true"] {
     border-color: var(--color-white);
     box-shadow: 0 0 15px rgb(var(--color-white-rgb) / 5%);
   }
@@ -182,8 +177,8 @@
   .header {
     height: var(--shield-height-dormant);
     border-radius: calc(var(--border-radius-m) - 1px) calc(var(--border-radius-m) - 1px) 0 0;
-    background: rgb(from var(--signature-color) r g b / var(--header-opacity));
-    box-shadow: 0 0 calc(var(--weight-intensity) * 6px) var(--signature-color);
+    background: rgb(from var(--tf-accent) r g b / var(--header-opacity));
+    box-shadow: 0 0 calc(var(--weight-intensity) * 6px) var(--tf-accent);
     position: relative;
     top: 1px;
     z-index: 2;
@@ -200,25 +195,22 @@
     overflow: hidden;
   }
 
-  .wrapper.is-expanded .header {
+  .wrapper[data-expanded="true"] .header {
     height: var(--shield-height-active);
     top: 0;
-    box-shadow: 0 0 calc(var(--weight-intensity) * 12px)
-      rgb(from var(--signature-color) r g b / 15%);
+    box-shadow: 0 0 calc(var(--weight-intensity) * 12px) rgb(from var(--tf-accent) r g b / 15%);
     border-bottom: var(--spacing-px) solid rgb(var(--color-white-rgb) / 8%);
   }
 
-  .status-zone,
-  .action-zone {
+  .status,
+  .actions {
     display: flex;
     align-items: center;
     height: 100%;
   }
 
-  .snippet {
-    display: flex;
-    align-items: center;
-    height: 100%;
+  .actions {
+    margin-left: auto;
   }
 
   .body {
@@ -242,11 +234,11 @@
     z-index: 1;
   }
 
-  .body.is-edit {
+  .body[data-mode="edit"] {
     resize: none;
   }
 
-  .body.is-readonly {
+  .body[data-mode="readonly"] {
     display: flex;
     flex-direction: column;
     text-wrap: pretty;
@@ -260,44 +252,40 @@
     opacity: 0.7;
   }
 
-  .is-disabled {
+  .wrapper[data-disabled="true"] {
     opacity: var(--opacity-s);
     cursor: not-allowed;
   }
 
-  .wrapper.is-busy {
+  .wrapper[data-busy="true"] {
     cursor: wait;
     filter: brightness(0.8) grayscale(0.5);
   }
 
-  .wrapper.is-busy > * {
+  .wrapper[data-busy="true"] > * {
     pointer-events: none;
   }
 
-  .body.is-busy {
-    opacity: var(--opacity-s);
-  }
-
-  .p {
+  .paragraph {
     width: 100%;
     margin: 0;
   }
 
-  .p.is-spaced {
+  .paragraph[data-spaced="true"] {
     margin-top: var(--spacing-s);
   }
 
-  .bold {
+  .strong {
     font-weight: var(--font-weight-xl);
     color: var(--color-white);
   }
 
-  .italic {
+  .em {
     font-style: italic;
     opacity: 0.9;
   }
 
-  /* Global child overrides */
+  /* Global child overrides for injected snippet content */
   :global(.status-tag) {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-xxs);

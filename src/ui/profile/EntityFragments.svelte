@@ -105,6 +105,7 @@
               <TextField
                 is_edit={is_editing}
                 syncId={section.label}
+                signature_color="var(--signature-color)"
                 class="text-area custom-field {active_field?.key === field.key ? 'active' : ''}"
                 placeholder={field.description}
                 value={safe_get(field.key)}

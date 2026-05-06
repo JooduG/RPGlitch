@@ -8,7 +8,9 @@
 
 ### Milestone 1: The Foundry (v0.5) - [ACTIVE]
 
+- [x] **[071]** VisualWing Grid Refinement [DONE]
 - [x] Core Runes Foundation (Svelte 5)
+
 - [x] The Data Pillar (Dexie.js)
 - [x] Diegetic UI Base (Nordic Regime)
 - [x] Chrono Kinetics (Simulation Cycle)
@@ -142,6 +144,8 @@
 
 | Timestamp (ISO 8601)      | Task                                                                                  | Skill Invoked                                                                            | Outcome     |
 | ------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ----------- |
+| 2026-05-06T19:44+02:00    | VisualWing Aesthetic Restoration                                                      | `css`, `designer`, `quality`                                                             | ✅ Done     |
+| 2026-05-06T18:34+02:00    | VisualWing Grid Refinement [071]                                                      | `planning`, `css`, `svelte`, `quality`                                                   | ✅ Done     |
 | 2026-05-06T18:16+02:00    | ControlPanel Type Tightening [070]                                                    | `svelte`, `quality`, `test-driven-development`                                           | ✅ Done     |
 | 2026-05-06T15:57+02:00    | ControlPanel Type Tightening                                                          | planning                                                                                 | ✅ Resolved |
 | 2026-05-06T15:54+02:00    | TextField Class Normalization                                                         | design-normalization                                                                     | ✅ Resolved |

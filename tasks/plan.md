@@ -1,5 +1,29 @@
 # Mission Plan
 
+## Mission [071]: VisualWing Grid Refinement [DONE]
+
+### Goal
+
+Optimize the `VisualWing` color spectrum grid for responsiveness and perfect square geometry. Eliminate horizontal overflow in narrow sidebar contexts by implementing a fluid auto-fill layout. Execute an Ultra-Lean refactor to flatten the DOM and normalize nomenclature.
+
+### Completed Changes
+
+#### [071.1] Responsive Grid Implementation [DONE]
+
+- [x] [MODIFY] `src/ui/profile/VisualWing.svelte`
+  - [x] Implement `repeat(auto-fill, minmax(2.25rem, 1fr))` for the color grid.
+  - [x] Enforce strict 1:1 aspect ratio and zero design drift.
+  - [x] Flatten DOM (remove redundant `.prompt` wrapper).
+  - [x] Normalize nomenclature (`.wrapper`, `.swatches`, `.controls`).
+
+### Verification Results
+
+- [x] **Unit Tests**: Passed 4 tests in `VisualWing.test.js`.
+- [x] **Responsiveness**: Verified fluid wrapping across breakpoints.
+- [x] **Aesthetics**: Strictly square swatches with Chalk Regime kinetic feedback.
+
+---
+
 ## Mission [070]: ControlPanel Type Tightening [DONE]
 
 ### Goal

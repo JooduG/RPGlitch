@@ -15,11 +15,15 @@
     square = false, // 1:1 aspect ratio
     full_width = false, // 100% width
     busy = false, // async state
-    class: className = "",
+    class: svelte_class = "",
+    className = "", // legacy alias — accepts both `class` and `className`
     children = null,
     actions = [], // Svelte actions orchestration
     ...rest
   } = $props();
+
+  // Merge both aliases so call sites don't need migration
+  const resolved_class = $derived([svelte_class, className].filter(Boolean).join(" "));
 
   /** @type {HTMLButtonElement} */
   let element;
@@ -34,7 +38,7 @@
   bind:this={element}
   type="button"
   {...rest}
-  class="wrapper variant-{variant} {className}"
+  class="wrapper variant-{variant} {resolved_class}"
   class:is-cover={cover}
   class:is-sm={size === "sm"}
   class:is-square={square}
@@ -91,8 +95,7 @@
 
   .wrapper.is-square {
     padding: 0;
-    width: var(--icon-m);
-    height: var(--icon-m);
+    min-height: var(--spacing-m);
     aspect-ratio: 1;
     flex-shrink: 0;
   }

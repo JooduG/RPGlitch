@@ -2,7 +2,7 @@
   /**
    * @file src/ui/profile/VisualWing.svelte
    * ❄️ THE ENTITY SHOWCASE ENGINE
-   * Manages signature colors, generation prompts, and modifiers.
+   * Manages signature colors, generation prompts, and image modifiers.
    * Part of the RPGlitch "Chalk Regime" UI collection.
    */
   import Button from "@atoms/Button.svelte";
@@ -14,17 +14,23 @@
   import { validateImage } from "@core/security.js";
   import { AestheticResolver } from "@media/optics.js";
   import { app } from "@state/app.svelte.js";
-  import { PALETTE, PALETTE_VARS } from "@theme/palette.svelte.js";
+  import { PALETTE, PALETTE_VARS, themeStore } from "@theme/palette.svelte.js";
   import { get_value, set_value } from "@utils/field-path.js";
-
-  const SPECTRUM_COLORS = Object.entries(PALETTE).filter(([name]) => name !== "default");
 
   /** @type {{ char: any, is_editing: boolean, busy_fields: Set<string>, active_field: any }} */
   let { char = $bindable(), is_editing, busy_fields, active_field = $bindable() } = $props();
 
+  // --- CONSTANTS ---
+
+  const SPECTRUM_COLORS = Object.entries(PALETTE).filter(([name]) => name !== "default");
+
   // --- INITIALIZATION ---
 
-  /** Ensures the modifiers object exists with all required fields. */
+  /**
+   * Ensures the modifiers object exists with all required fields.
+   * Called bare (for synchronous init) and inside $effect (for reactive re-sync
+   * when `char` is swapped at runtime).
+   */
   const sync_modifiers = () => {
     if (!char.modifiers) {
       char.modifiers = {
@@ -54,7 +60,10 @@
   // --- DERIVED ---
 
   const is_prompt_busy = $derived(app.visual.isLoading || busy_fields.has("visual-prompt"));
+
   const prompt_value = $derived((char.modifiers.prompt || "").trim());
+
+  /** True when the prompt is freeform text (not a URL or data URI). */
   const has_prompt_text = $derived(
     prompt_value.length > 0 &&
       !prompt_value.startsWith("http") &&
@@ -69,7 +78,10 @@
 
   // --- HANDLERS ---
 
-  /** Triggers AI enhancement or metadata extraction based on the active field. */
+  /**
+   * Triggers AI enhancement for the active field, or extracts optics metadata
+   * when no prompt text is present.
+   */
   async function handle_creative_action() {
     const current_key = active_field?.key || "visual-prompt";
     if (busy_fields.has(current_key)) return;
@@ -94,13 +106,16 @@
         }
       }
     } catch (err) {
-      console.error("Creative action failed:", err);
+      console.error("[VisualWing] Creative action failed:", err);
     } finally {
       busy_fields.delete(current_key);
     }
   }
 
-  /** Triggers image generation or falls back to the file upload dialog. */
+  /**
+   * Triggers image generation when a prompt exists, or opens the file picker
+   * as a fallback for direct uploads.
+   */
   async function handle_generate() {
     if (busy_fields.has("visual-prompt")) return;
 
@@ -125,7 +140,7 @@
   }
 
   /**
-   * Handles manual image upload and validation.
+   * Handles manual image upload with security validation.
    * @param {Event & { currentTarget: HTMLInputElement }} e
    */
   async function handle_upload(e) {
@@ -141,14 +156,14 @@
   }
 </script>
 
-<section class="wing glass-l">
-  <div class="spectrum">
+<section class="wrapper glass-l">
+  <!-- Signature Color Swatches -->
+  <div class="swatches">
     {#each SPECTRUM_COLORS as [name, hex] (name)}
       {@const color = PALETTE_VARS[/** @type {keyof typeof PALETTE_VARS} */ (hex)] || hex}
       <Button
-        className="swatch {char.signature_color === hex || char.signature_color === name
-          ? 'active'
-          : ''}"
+        square={true}
+        className="swatch {themeStore.get_signature_label(char) === name ? 'active' : ''}"
         style="background-color: {color}; --swatch-color: {color};"
         aria-label={name}
         actions={[tooltip]}
@@ -159,93 +174,85 @@
     {/each}
   </div>
 
-  <div class="prompt">
-    <TextField
-      class="text-area custom-field {active_field?.key === 'visual-prompt' ? 'active' : ''}"
-      is_edit={is_editing}
-      busy={is_prompt_busy}
-      bind:value={char.modifiers.prompt}
-      placeholder="Enter image prompt or paste a URL..."
-      disabled={!is_editing || is_prompt_busy}
-      onfocus={() => is_editing && (active_field = { key: "visual-prompt", label: "Image Prompt" })}
-    >
-      {#snippet status()}
-        {#if is_prompt_busy || app.visual.error || app.visual.isOffline}
-          <div class="status" class:is-error={app.visual.error || app.visual.isOffline}>
-            {#if app.visual.isOffline}
-              <span class="tag">OFFLINE</span>
-            {:else if app.visual.error}
-              <span class="tag">ERROR</span>
-            {:else if app.visual.attempts > 0}
-              <span class="tag pulse">RETRYING</span>
-            {:else}
-              <span class="tag pulse">GENERATING</span>
-            {/if}
-          </div>
-        {/if}
-      {/snippet}
+  <!-- Image Prompt -->
+  <TextField
+    class="prompt-field {active_field?.key === 'visual-prompt' ? 'active' : ''}"
+    is_edit={is_editing}
+    busy={is_prompt_busy}
+    bind:value={char.modifiers.prompt}
+    placeholder="Enter image prompt or paste a URL..."
+    disabled={!is_editing || is_prompt_busy}
+    onfocus={() => is_editing && (active_field = { key: "visual-prompt", label: "Image Prompt" })}
+  >
+    {#snippet status()}
+      {#if is_prompt_busy || app.visual.error || app.visual.isOffline}
+        <div class="status" class:is-error={app.visual.error || app.visual.isOffline}>
+          {#if app.visual.isOffline}
+            <span class="tag">OFFLINE</span>
+          {:else if app.visual.error}
+            <span class="tag">ERROR</span>
+          {:else if app.visual.attempts > 0}
+            <span class="tag pulse">RETRYING</span>
+          {:else}
+            <span class="tag pulse">GENERATING</span>
+          {/if}
+        </div>
+      {/if}
+    {/snippet}
 
-      {#snippet header_actions()}
-        {#if is_editing}
-          <div class="actions">
-            <Button
-              variant="invisible"
-              size="sm"
-              square
-              aria-label={has_prompt_text ? "Enhance Prompt" : "Fetch Data"}
-              className="action"
-              actions={[tooltip]}
-              onclick={handle_creative_action}
-              disabled={is_creative_disabled}
-            >
-              {#if has_prompt_text}
-                <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
-                  <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="var(--color-white)"
-                  ></path>
-                </svg>
-              {:else}
-                <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="var(--color-white)"
-                  ></path>
-                  <polyline points="7 10 12 15 17 10" stroke="var(--color-white)"></polyline>
-                  <line x1="12" y1="15" x2="12" y2="3" stroke="var(--color-white)"></line>
-                </svg>
-              {/if}
-            </Button>
-
-            <Button
-              variant="invisible"
-              size="sm"
-              square
-              aria-label="Generate Image"
-              className="action"
-              actions={[tooltip]}
-              onclick={handle_generate}
-              disabled={!is_editing || is_prompt_busy}
-            >
+    {#snippet header_actions()}
+      {#if is_editing}
+        <div class="actions">
+          <Button
+            variant="invisible"
+            size="sm"
+            square
+            aria-label={has_prompt_text ? "Enhance Prompt" : "Fetch Data"}
+            className="action"
+            actions={[tooltip]}
+            onclick={handle_creative_action}
+            disabled={is_creative_disabled}
+          >
+            {#if has_prompt_text}
               <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
-                <path
-                  d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
-                  stroke="var(--color-white)"
+                <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="var(--color-white)"
                 ></path>
-                <circle cx="12" cy="13" r="4" stroke="var(--color-white)"></circle>
               </svg>
-            </Button>
-          </div>
-        {/if}
-      {/snippet}
-    </TextField>
+            {:else}
+              <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="var(--color-white)"
+                ></path>
+                <polyline points="7 10 12 15 17 10" stroke="var(--color-white)"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3" stroke="var(--color-white)"></line>
+              </svg>
+            {/if}
+          </Button>
 
-    <input
-      type="file"
-      accept="image/*"
-      class="upload"
-      bind:this={file_input}
-      onchange={handle_upload}
-    />
-  </div>
+          <Button
+            variant="invisible"
+            size="sm"
+            square
+            aria-label="Generate Image"
+            className="action"
+            actions={[tooltip]}
+            onclick={handle_generate}
+            disabled={!is_editing || is_prompt_busy}
+          >
+            <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
+              <path
+                d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+                stroke="var(--color-white)"
+              ></path>
+              <circle cx="12" cy="13" r="4" stroke="var(--color-white)"></circle>
+            </svg>
+          </Button>
+        </div>
+      {/if}
+    {/snippet}
+  </TextField>
 
-  <div class="modifiers">
+  <!-- Image Controls -->
+  <div class="controls">
     <Toggle
       label="No Background"
       bind:value={char.modifiers.no_background}
@@ -253,12 +260,20 @@
     />
     <Toggle label="Mirror Image" bind:value={char.modifiers.flipped} disabled={!is_editing} />
   </div>
+
+  <input
+    type="file"
+    accept="image/*"
+    class="upload"
+    bind:this={file_input}
+    onchange={handle_upload}
+  />
 </section>
 
 <style>
-  /* --- Wing Shell --- */
+  /* --- Wing Wrapper --- */
 
-  .wing {
+  .wrapper {
     width: 100%;
     overflow: visible;
     display: flex;
@@ -272,85 +287,113 @@
     gap: var(--spacing-m);
   }
 
-  /* --- Spectrum --- */
+  /* --- Swatches --- */
 
-  .spectrum {
+  .swatches {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    grid-auto-rows: 1fr;
     gap: var(--spacing-xs);
-    padding: var(--spacing-xs) 0;
+    width: 100%;
   }
 
-  .spectrum :global(.swatch) {
+  .swatches :global(.swatch) {
     width: 100%;
-    aspect-ratio: 1;
+    aspect-ratio: 1 / 1;
     border: 0;
     padding: 0;
+    min-width: 0;
     min-height: 0;
     border-radius: var(--border-radius-m);
     cursor: pointer;
-    transition: all var(--motion-l) var(--motion-elastic);
+    transition:
+      transform var(--motion-m) var(--motion-dissolve),
+      box-shadow var(--motion-m) var(--motion-dissolve),
+      outline var(--motion-m) var(--motion-dissolve),
+      filter var(--motion-m) var(--motion-dissolve);
     box-shadow: var(--shadow-s);
   }
 
-  .spectrum :global(.swatch:hover:not(:disabled)) {
-    transform: scale(1.1);
+  .swatches :global(.swatch:hover:not(:disabled, .active)) {
     z-index: var(--z-index-m);
     box-shadow: var(--shadow-m);
-    background-color: var(--swatch-color);
+    filter: brightness(1.15);
   }
 
-  .spectrum :global(.swatch.active) {
-    box-shadow: 0 0 16px var(--swatch-color);
-    transform: scale(1.15);
+  .swatches :global(.swatch.active) {
+    outline: 2px solid rgb(var(--color-white-rgb) / 70%);
+    outline-offset: 2px;
+    box-shadow:
+      0 0 0 1px rgb(var(--color-white-rgb) / 15%) inset,
+      0 0 14px 3px var(--swatch-color);
+    transform: scale(1.06);
     z-index: var(--z-index-m);
-    border: var(--border-l);
-    border-color: rgb(var(--color-white-rgb) / var(--opacity-s));
+    cursor: default;
   }
 
-  .spectrum :global(.swatch:disabled) {
+  /* Suppress Button's internal hover filter when active */
+  .swatches :global(.swatch.active:hover) {
+    filter: none;
+  }
+
+  .swatches :global(.swatch:disabled) {
     cursor: default;
     opacity: var(--opacity-l);
   }
 
-  /* --- Prompt --- */
+  /* --- Status & Actions --- */
 
-  .prompt {
-    position: relative;
-    width: 100%;
-  }
-
-  .upload {
-    display: none;
-  }
-
-  /* --- Modifiers --- */
-
-  .modifiers {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-  }
-
-  /* --- Status --- */
-
-  .status {
+  :global(.prompt-field .status) {
     display: flex;
     align-items: center;
     gap: var(--spacing-s);
     color: var(--color-white);
   }
 
-  .status.is-error {
+  :global(.prompt-field .status.is-error) {
     color: var(--color-red);
   }
 
-  /* --- Actions --- */
+  :global(.prompt-field .tag) {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xxs);
+    font-weight: var(--font-weight-xl);
+    letter-spacing: var(--letter-spacing-l);
+    text-transform: uppercase;
+    color: inherit;
+  }
 
-  .actions {
+  :global(.prompt-field .tag.pulse) {
+    animation: pulse-tag 1.4s ease-in-out infinite;
+  }
+
+  :global(.prompt-field .actions) {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
+  }
+
+  .upload {
+    display: none;
+  }
+
+  /* --- Controls --- */
+
+  .controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  /* --- Animations --- */
+
+  @keyframes pulse-tag {
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.4;
+    }
   }
 </style>

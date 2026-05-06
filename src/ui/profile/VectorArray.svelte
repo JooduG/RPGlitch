@@ -129,6 +129,7 @@
     >
       <TextField
         is_edit={is_editing}
+        {signature_color}
         value={item.text}
         oninput={(/** @type {Event & { currentTarget: HTMLTextAreaElement }} */ e) =>
           patch_item(i, { text: e.currentTarget.value })}
