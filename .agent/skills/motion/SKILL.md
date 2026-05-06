@@ -70,8 +70,13 @@ To maintain kinetic continuity during engine processing (generation/refinement),
 </div>
 
 <style>
-  .header-status { animation: fade-in var(--motion-m) ease-out; }
-  textarea.busy { cursor: wait; opacity: var(--opacity-s); }
+  .header-status {
+    animation: fade-in var(--motion-m) ease-out;
+  }
+  textarea.busy {
+    cursor: wait;
+    opacity: var(--opacity-s);
+  }
 </style>
 ```
 

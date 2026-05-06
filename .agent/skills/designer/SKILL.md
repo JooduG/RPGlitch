@@ -45,6 +45,7 @@ Delegate to `user-interface` for positioning floating elements (dropdowns, toolt
 ### 4. System Modal Patterns (The Floating Monolith)
 
 Implement unified system dialogs (Alerts/Confirmations) using the **Floating Monolith** pattern.
+
 - **Hierarchy**: Use `Dialog.svelte` -> `Modal.svelte` (with `variant="mini"`) -> `Backdrop.svelte`.
 - **Elevation**: Use `glass-xxl` styling and `var(--z-index-max)`.
 

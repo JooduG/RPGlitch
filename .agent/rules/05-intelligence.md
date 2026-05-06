@@ -14,18 +14,18 @@ trigger: always_on
 
 Use this reference to select the appropriate MCP reasoning framework based on the shape of the problem.
 
-| Block Type      | Trigger                                       | MCP / Framework                                       |
-| :-------------- | :-------------------------------------------- | :---------------------------------------------------- |
-| **Research**    | Knowledge gaps, library patterns, web access. | `find-docs`, `svelte`, `deepwiki`, `firecrawl`, `data` |
-| **Simulation**  | Core engine mutations, **Enhancement**, unit tests. | `simulation`, `node`, `vitest` (Local)                |
-| **Sensory**     | Vision, **Optics**, Audio, Design.            | `designer`, `image-generation`, `audio`, `css`        |
-| **Operations**  | Repository lifecycle, PRs, Issues.            | **GH CLI** (`gh`)                                     |
-| **Resonance**   | Quality gates, template compliance, health.   | `warden`                                              |
-| **Reasoning**   | Multi-step breakdown, chain-of-thought.       | `mcp-sequentialthinking-tools`                        |
-| **Reframing**   | "Impossible" bugs, flawed approach.           | `waldzell-clear-thought`                              |
-| **Diversity**   | Trade-offs, simulated expertise.              | `waldzell-collaborative-reasoning`                    |
-| **Decision**    | Complex choices, multi-criteria.              | `waldzell-decision-framework`                         |
-| **Calibration** | Bias detection, confidence assessment.        | `waldzell-metacognitive-monitoring`                   |
+| Block Type      | Trigger                                             | MCP / Framework                                        |
+| :-------------- | :-------------------------------------------------- | :----------------------------------------------------- |
+| **Research**    | Knowledge gaps, library patterns, web access.       | `find-docs`, `svelte`, `deepwiki`, `firecrawl`, `data` |
+| **Simulation**  | Core engine mutations, **Enhancement**, unit tests. | `simulation`, `node`, `vitest` (Local)                 |
+| **Sensory**     | Vision, **Optics**, Audio, Design.                  | `designer`, `image-generation`, `audio`, `css`         |
+| **Operations**  | Repository lifecycle, PRs, Issues.                  | **GH CLI** (`gh`)                                      |
+| **Resonance**   | Quality gates, template compliance, health.         | `warden`                                               |
+| **Reasoning**   | Multi-step breakdown, chain-of-thought.             | `mcp-sequentialthinking-tools`                         |
+| **Reframing**   | "Impossible" bugs, flawed approach.                 | `waldzell-clear-thought`                               |
+| **Diversity**   | Trade-offs, simulated expertise.                    | `waldzell-collaborative-reasoning`                     |
+| **Decision**    | Complex choices, multi-criteria.                    | `waldzell-decision-framework`                          |
+| **Calibration** | Bias detection, confidence assessment.              | `waldzell-metacognitive-monitoring`                    |
 
 ---
 

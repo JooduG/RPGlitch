@@ -56,16 +56,17 @@ Call the `query-docs` tool with:
 
 The query directly affects result quality. Be specific and include relevant details.
 
-| Quality | Example |
-|---------|---------|
-| Good | `"How to set up authentication with JWT in Express.js"` |
-| Good | `"React useEffect cleanup function with async operations"` |
-| Bad | `"auth"` |
-| Bad | `"hooks"` |
+| Quality | Example                                                    |
+| ------- | ---------------------------------------------------------- |
+| Good    | `"How to set up authentication with JWT in Express.js"`    |
+| Good    | `"React useEffect cleanup function with async operations"` |
+| Bad     | `"auth"`                                                   |
+| Bad     | `"hooks"`                                                  |
 
 ### Error Handling
 
 If a tool fails with a quota error:
+
 1. Inform the user their Context7 quota is exhausted.
 2. Suggest they authenticate if using the CLI, or wait for reset.
 3. Fall back to training knowledge ONLY after informing the user, and clearly note it may be outdated.

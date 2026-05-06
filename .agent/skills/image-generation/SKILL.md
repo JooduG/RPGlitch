@@ -74,6 +74,7 @@ Present the generated image and the prompt used for synthesis.
 ## Optics (Physical Grounding)
 
 When generating visual-only physical fragments:
+
 1. **Field Restriction**: Strictly synthesize prompts from `physical` fields ONLY (`eternal.physical` and `present.physical`).
 2. **Narrative Isolation**: NEVER include data from `non_physical` fields or narrative vectors (`past`, `future`) in visual prompts.
 3. **Visual Sovereignty**: Focus on visual appearance, including biological traits, clothing, gear, and environmental lighting.

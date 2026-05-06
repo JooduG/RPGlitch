@@ -245,7 +245,8 @@
   /* --- Controls --- */
 
   :global(.select),
-  :global(.preview) {    height: var(--icon-m);
+  :global(.preview) {
+    height: var(--icon-m);
     min-height: 0;
     background: var(--glass-xs);
     border: none;

@@ -67,7 +67,7 @@ const update = () => {
   coords = {
     top: use_dropup ? null : rect.bottom,
     bottom: use_dropup ? vh - rect.top : null,
-    max_h
+    max_h,
   };
 };
 ```
