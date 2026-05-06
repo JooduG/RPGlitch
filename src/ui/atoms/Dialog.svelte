@@ -45,7 +45,7 @@
 <svelte:window onkeydown={(e) => open && !busy && e.key === "Enter" && handle_confirm()} />
 
 {#if open}
-  <Modal variant="mini" on_close={handle_cancel} z_index="var(--z-index-xxl)" {busy}>
+  <Modal variant="mini" on_close={handle_cancel} z_index="var(--z-index-max)" {busy}>
     <article class="wrapper" class:is-confirm={type === "confirm"} class:is-busy={busy} {...rest}>
       <header class="header">
         {#if type === "alert"}
