@@ -1,12 +1,13 @@
 <script>
   /**
    * @file TextField.svelte
-   * @component TextField
-   * A high-fidelity, local-first text instrument.
-   * Part of the RPGlitch "Chalk Regime" atom collection.
+   * 🕹️ SOTA ATOMIC TEXT INSTRUMENT
+   * High-performance, reactive text field with markdown rendering and atmospheric effects.
+   * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  import { auto_resize } from "@utils/auto-resize.js";
-  import { parse_markdown } from "@utils/markdown.js";
+  import { use_actions } from "@ui/utils/use-actions.js";
+  import { auto_resize } from "@ui/utils/auto-resize.js";
+  import { parse_markdown } from "@ui/utils/markdown.js";
   import { fade } from "svelte/transition";
 
   let {
@@ -22,19 +23,21 @@
     weight = 0, // 0-10 for line prominence and atmospheric glow
 
     // Design
-    noBackground = false,
+    no_background = false,
+    signature_color = "var(--color-frozen)",
     class: className = "",
     style = "",
 
     // Slots/Snippets
-    actions = null, // Snippet for header actions (right)
-    status = null, // Snippet for status indicators (left)
+    header_actions = null, // Header actions snippet
+    status = null, // Header status snippet
+    actions = [], // Svelte actions for the wrapper
 
     // Events
     oninput = undefined,
     onfocus = undefined,
     onblur = undefined,
-    ...restProps
+    ...rest
   } = $props();
 
   // --- LOCAL STATE ---
@@ -42,7 +45,7 @@
 
   // --- DERIVED LOGIC ---
   const paragraphs = $derived(parse_markdown(value));
-  const has_meta = $derived(!!actions || !!status);
+  const has_meta = $derived(!!header_actions || !!status);
   const is_expanded = $derived((is_focused || busy) && has_meta);
 
   // Orchestrate the "Physical" properties of the instrument
@@ -67,28 +70,30 @@
 </script>
 
 <div
-  class="textfield {className}"
+  class="wrapper {className}"
   class:is-expanded={is_expanded}
   class:is-busy={busy}
-  class:no-background={noBackground}
+  class:is-no-bg={no_background}
   class:is-disabled={disabled}
-  style="{style}; --weight-intensity: {intensity}; --header-opacity: {header_opacity};"
+  style="{style}; --signature-color: {signature_color}; --weight-intensity: {intensity}; --header-opacity: {header_opacity};"
   onfocusout={handle_blur}
-  {...restProps}
+  use:use_actions={actions}
+  aria-busy={busy}
+  aria-disabled={disabled || busy}
 >
   <header class="header">
-    <div class="status">
+    <div class="status-zone">
       {#if status && is_expanded}
-        <div class="snippet-wrapper" in:fade={{ duration: 200, delay: 100 }}>
+        <div class="snippet" in:fade={{ duration: 200, delay: 100 }}>
           {@render status()}
         </div>
       {/if}
     </div>
 
-    <div class="actions">
-      {#if actions && is_expanded}
-        <div class="snippet-wrapper" in:fade={{ duration: 200, delay: 150 }}>
-          {@render actions()}
+    <div class="action-zone">
+      {#if header_actions && is_expanded}
+        <div class="snippet" in:fade={{ duration: 200, delay: 150 }}>
+          {@render header_actions()}
         </div>
       {/if}
     </div>
@@ -96,7 +101,8 @@
 
   {#if is_edit}
     <textarea
-      class="body custom-scrollbar edit-mode"
+      {...rest}
+      class="body custom-scrollbar is-edit"
       class:is-busy={busy}
       bind:value
       {placeholder}
@@ -108,7 +114,8 @@
     ></textarea>
   {:else}
     <div
-      class="body custom-scrollbar readonly-mode"
+      {...rest}
+      class="body custom-scrollbar is-readonly"
       class:is-busy={busy}
       data-sync-id={syncId}
       use:auto_resize={{ syncId }}
@@ -120,7 +127,7 @@
     >
       {#if paragraphs.length > 0}
         {#each paragraphs as tokens, i (i)}
-          <p class="p" class:spaced={i > 0}>
+          <p class="p" class:is-spaced={i > 0}>
             {#each tokens as token, j (j)}
               {#if token.type === "text"}
                 {token.content}
@@ -142,7 +149,7 @@
 </div>
 
 <style>
-  .textfield {
+  .wrapper {
     --shield-height-dormant: 2px;
     --shield-height-active: 2.2rem;
     --anim-physics: var(--motion-l) var(--motion-elastic);
@@ -161,13 +168,13 @@
     overflow: hidden;
   }
 
-  .textfield.no-background {
+  .wrapper.is-no-bg {
     background: transparent;
     border: none;
     box-shadow: none;
   }
 
-  .textfield.is-expanded {
+  .wrapper.is-expanded {
     border-color: var(--color-white);
     box-shadow: 0 0 15px rgb(var(--color-white-rgb) / 5%);
   }
@@ -175,7 +182,7 @@
   .header {
     height: var(--shield-height-dormant);
     border-radius: calc(var(--border-radius-m) - 1px) calc(var(--border-radius-m) - 1px) 0 0;
-    background: rgb(from var(--signature-color, var(--color-frozen)) r g b / var(--header-opacity));
+    background: rgb(from var(--signature-color) r g b / var(--header-opacity));
     box-shadow: 0 0 calc(var(--weight-intensity) * 6px) var(--signature-color);
     position: relative;
     top: 1px;
@@ -193,23 +200,22 @@
     overflow: hidden;
   }
 
-  .textfield.is-expanded .header {
+  .wrapper.is-expanded .header {
     height: var(--shield-height-active);
     top: 0;
-    background: rgb(from var(--signature-color, var(--color-frozen)) r g b / var(--header-opacity));
     box-shadow: 0 0 calc(var(--weight-intensity) * 12px)
       rgb(from var(--signature-color) r g b / 15%);
     border-bottom: var(--spacing-px) solid rgb(var(--color-white-rgb) / 8%);
   }
 
-  .status,
-  .actions {
+  .status-zone,
+  .action-zone {
     display: flex;
     align-items: center;
     height: 100%;
   }
 
-  .snippet-wrapper {
+  .snippet {
     display: flex;
     align-items: center;
     height: 100%;
@@ -236,11 +242,11 @@
     z-index: 1;
   }
 
-  .body.edit-mode {
+  .body.is-edit {
     resize: none;
   }
 
-  .body.readonly-mode {
+  .body.is-readonly {
     display: flex;
     flex-direction: column;
     text-wrap: pretty;
@@ -259,8 +265,17 @@
     cursor: not-allowed;
   }
 
-  .is-busy .body {
+  .wrapper.is-busy {
     cursor: wait;
+    filter: brightness(0.8) grayscale(0.5);
+  }
+
+  .wrapper.is-busy > * {
+    pointer-events: none;
+  }
+
+  .body.is-busy {
+    opacity: var(--opacity-s);
   }
 
   .p {
@@ -268,7 +283,7 @@
     margin: 0;
   }
 
-  .p.spaced {
+  .p.is-spaced {
     margin-top: var(--spacing-s);
   }
 
@@ -282,6 +297,7 @@
     opacity: 0.9;
   }
 
+  /* Global child overrides */
   :global(.status-tag) {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-xxs);

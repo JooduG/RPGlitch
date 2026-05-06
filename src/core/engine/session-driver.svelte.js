@@ -25,6 +25,7 @@ export const session_driver = {
 
   /**
    * Set active session ID and persist it.
+   * @param {string} id
    */
   set_active: async function (id) {
     _active_id = id;

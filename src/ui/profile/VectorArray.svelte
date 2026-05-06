@@ -44,9 +44,23 @@
     unit_label = "Vector",
   } = $props();
 
+  // --- FACTORY ---
+
+  /** @returns {VectorItem} */
+  function make_item() {
+    return {
+      id: generateUUID(),
+      timestamp: Date.now(),
+      text: "",
+      type: path,
+      base_weight: 5,
+      vector_tags: [],
+    };
+  }
+
   // --- DERIVED STATE ---
 
-  /** Normalized array of vector objects */
+  /** Normalized array of vector objects. */
   const items = $derived.by(() => {
     const raw = get_value(char, path) || [];
     const arr = Array.isArray(raw) ? raw : typeof raw === "string" && raw.trim() ? [raw] : [];
@@ -59,18 +73,11 @@
           vector_tags: val.vector_tags ?? [],
         };
       }
-      return {
-        id: generateUUID(),
-        timestamp: Date.now(),
-        text: String(val || ""),
-        type: path,
-        base_weight: 5,
-        vector_tags: [],
-      };
+      return { ...make_item(), text: String(val || "") };
     });
   });
 
-  // --- LOGIC HANDLERS ---
+  // --- HANDLERS ---
 
   /**
    * Patches a specific item and triggers state sync.
@@ -100,21 +107,16 @@
 
   /** @param {number} index */
   function remove_item(index) {
-    const current = items.filter((_, i) => i !== index);
-    set_value(char, path, current);
+    set_value(
+      char,
+      path,
+      items.filter((_, i) => i !== index),
+    );
   }
 
-  /** Expose add_item for external orchestration */
+  /** Expose add_item for external orchestration. */
   export function add_item() {
-    const newItem = {
-      id: generateUUID(),
-      timestamp: Date.now(),
-      text: "",
-      type: path,
-      base_weight: 5,
-      vector_tags: [],
-    };
-    set_value(char, path, [newItem, ...items]);
+    set_value(char, path, [make_item(), ...items]);
   }
 </script>
 
@@ -144,7 +146,7 @@
                 onclick={() => update_weight(i, -1)}
                 aria-label="Decrease Weight"
               >
-                <span class="char">&lt;</span>
+                <span class="step-char">&lt;</span>
               </Button>
             {/if}
 
@@ -159,7 +161,7 @@
                 onclick={() => update_weight(i, 1)}
                 aria-label="Increase Weight"
               >
-                <span class="char">&gt;</span>
+                <span class="step-char">&gt;</span>
               </Button>
             {/if}
           </div>
@@ -168,7 +170,7 @@
             {#if is_editing}
               <input
                 type="text"
-                class="input"
+                class="tags-input"
                 value={item.vector_tags.join(", ")}
                 placeholder="TAGS (COMMA SEPARATED)..."
                 onchange={(e) => update_tags(i, e.currentTarget.value)}
@@ -181,7 +183,7 @@
           </div>
         {/snippet}
 
-        {#snippet actions()}
+        {#snippet header_actions()}
           {#if is_editing}
             <Button
               variant="invisible"
@@ -208,8 +210,8 @@
   {/each}
 
   {#if items.length === 0 && !is_editing}
-    <div class="empty" in:slide>
-      <div class="msg">
+    <div class="empty-state" in:slide>
+      <span class="empty-msg">
         <svg viewBox="0 0 24 24" class="icon-xs" style="width: 14px; height: 14px;">
           <path
             fill="currentColor"
@@ -217,12 +219,14 @@
           />
         </svg>
         AWAITING {unit_label.toUpperCase()} DATA STREAM...
-      </div>
+      </span>
     </div>
   {/if}
 </div>
 
 <style>
+  /* --- LAYOUT --- */
+
   .wrapper {
     width: 100%;
     display: flex;
@@ -243,7 +247,7 @@
     z-index: calc(var(--z-index-xxl) + 1);
   }
 
-  /* --- HEADER COMPONENTS --- */
+  /* --- STEPPER --- */
 
   .stepper {
     display: grid;
@@ -273,6 +277,16 @@
     height: 100%;
   }
 
+  .step-char {
+    font-family: var(--font-family-mono);
+    font-size: 0.85rem;
+    font-weight: var(--font-weight-bold);
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   :global(.step) {
     display: flex;
     align-items: center;
@@ -294,7 +308,7 @@
     opacity: 0.9;
   }
 
-  .stepper :global(.button.step:hover) {
+  .stepper :global(.step:hover) {
     opacity: 1;
     color: var(--color-white);
     background: transparent;
@@ -313,16 +327,6 @@
     transform: scale(0.85);
   }
 
-  .char {
-    font-family: var(--font-family-mono);
-    font-size: 0.85rem;
-    font-weight: var(--font-weight-bold);
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
   /* --- TAGS --- */
 
   .tags {
@@ -334,7 +338,7 @@
     height: 100%;
   }
 
-  .input {
+  .tags-input {
     width: 100%;
     background: transparent;
     border: none;
@@ -343,17 +347,17 @@
     font-size: var(--font-size-xxs);
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-l);
-    padding: 0; /* Removed 2px padding to fix vertical drift */
+    padding: 0;
     outline: none;
     opacity: 0.8;
     transition: opacity var(--motion-m);
   }
 
-  .input:focus {
+  .tags-input:focus {
     opacity: 1;
   }
 
-  .input::placeholder {
+  .tags-input::placeholder {
     color: var(--color-white);
     opacity: 0.3;
   }
@@ -373,7 +377,7 @@
     text-shadow: 0 1px 2px rgb(var(--color-black-rgb) / 80%);
     display: flex;
     align-items: center;
-    height: calc(100% - 8px); /* Ensure it fits perfectly within the centered flex container */
+    height: calc(100% - 8px);
   }
 
   /* --- ACTIONS --- */
@@ -393,14 +397,14 @@
 
   /* --- EMPTY STATE --- */
 
-  .empty {
+  .empty-state {
     padding: var(--spacing-xs) var(--spacing-s);
     min-height: 2.5rem;
     display: flex;
     align-items: center;
   }
 
-  .msg {
+  .empty-msg {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-xxs);
     color: var(--color-frisk);

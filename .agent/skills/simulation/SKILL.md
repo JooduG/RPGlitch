@@ -9,7 +9,7 @@ description: Triggered by any task involving core engine logic, round/turn orche
 
 ## Overview
 
-The `simulation` skill is the core metaphysical heartbeat of the RPGlitch Engine. It orchestrates the flow of rounds and turns, manages the transition between system physics (System Turn) and AI storytelling (AI Turn), and ensures that the world state remains consistent and reactive.
+The `simulation` skill is the core metaphysical heartbeat of the RPGlitch Engine. It orchestrates the flow of rounds and turns, manages the transition between system physics (System Turn) and AI storytelling (AI Turn), and ensures that the world state remains consistent and reactive. It also governs **Entity Enhancement**—the refinement of character and fractal fragments into high-fidelity narrative data.
 
 ## When to Use
 
@@ -22,7 +22,8 @@ The `simulation` skill is the core metaphysical heartbeat of the RPGlitch Engine
 1.  **System Turn (Metaphysical Chronos)**: Synchronous execution of physics and state mutations. UI is locked to prevent race conditions.
 2.  **AI Turn (Asynchronous Storyteller)**: AI processes the packaged state kernel and streams narrative reaction in the background.
 3.  **User Turn (Protagonist)**: UI is released, enabling input for the next cycle.
-4.  **Drivetrain & Dashboard**: Specialized harnesses verify hydration, physics, and narrative synthesis.
+4.  **Entity Enhancement (The Soul)**: Refine raw descriptions into dense, 3rd-person affirmative fragments.
+5.  **Drivetrain & Dashboard**: Specialized harnesses verify hydration, physics, and narrative synthesis.
 
 ## Usage
 
@@ -59,9 +60,30 @@ Present the updated simulation cycle results and state mutation logs.
 - **State Drift**: If the Echo (Dexie) does not match the Live state (Runes), force a reconciliation sync.
 - **Race conditions**: Ensure all async AI streams are cancellable if a new round is triggered prematurely.
 
+## Descriptive Purity (Enhancement)
+
+| Section     | Field Role     | Directive                                   |
+| :---------- | :------------- | :------------------------------------------ |
+| **Eternal** | `non_physical` | Permanent core essence, voice and logic.    |
+| **Eternal** | `physical`     | Permanent visual traits.                    |
+| **Present** | `non_physical` | Immediate processing or internal state.     |
+| **Present** | `physical`     | Temporary physical conditions.              |
+| **Past**    | `vectors`      | Critical precedents and historical anchors. |
+| **Future**  | `vectors`      | Impending intent and narrative trajectory.  |
+
+When asked to refine or "enhance" entity profile fields:
+
+1. **Perspective Sovereignty**: Use **3rd Person** exclusively. No "I" or "me".
+2. **Affirmative Precision**: Describe what _is_ there, not what is absent.
+3. **Continuous Flow**: Output exactly one continuous paragraph for non-array fields.
+4. **Vector Integrity**: For **Past** and **Future**, maintain short, impactful vector statements.
+5. **Narrative Restraint**: Focus on traits and state; do not write dialogue or story events.
+6. **Physical Fields**: Must be optimised for image generation.
+7. **Non-Physical Fields**: Must be optimised for narrative generation.
+
 ## Verification
 
 - [ ] System Turn mutations verified as synchronous and properly sanitized (Rule 06).
 - [ ] AI Character reactions verified as in-character and strictly reactive (Rule 02).
 - [ ] Narrative Echo is successfully synchronized with the live `$state` via Dexie transactions.
-- [ ] **Hard Evidence Recorded**: Simulation Audit results in [audit_report.md](../../../audit_report.md) confirm correct Entity Hydration and Physics Synthesis.
+- [ ] **Hard Evidence Recorded**: Simulation Audit results in [audit_report.md](../../../tmp/audit_report.md) confirm correct Entity Hydration and Physics Synthesis.

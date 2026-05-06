@@ -66,7 +66,8 @@ Use this map to route your current task to the appropriate specialized skill:
 - **Planning & Spec**: `specification`, `planning`, `stitch`.
 - **Engineering**: `svelte`, `javascript`, `simulation`, `source-driven-development`, `performance-optimization`, `deprecation-and-migration`.
 - **Sensory & Design**: `designer`, `css`, `motion`, `audio`, `image-generation`.
-- **Governance**: `governance`, `security-and-hardening`, `data`, `context-engineering`.
+- **Governance**: `governance`, `security-and-hardening`, `context-engineering`.
+- **Research & Context**: `find-docs`, `data`, `deepwiki`, `firecrawl`.
 - **Verification**: `test-driven-development`, `browser-testing-with-devtools`, `debugging-and-error-recovery`, `quality`.
 - **Delivery**: `git-workflow-and-versioning`, `delivery`.
 

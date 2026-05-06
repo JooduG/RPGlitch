@@ -47,7 +47,7 @@
   }
 </script>
 
-<GlassPill isFocused={is_focused} className="input-bar-pill {is_locked ? 'is-disabled' : ''}">
+<GlassPill {is_focused} class="input-bar-pill {is_locked ? 'is-disabled' : ''}">
   {#snippet left()}
     <Button
       variant="invisible"
@@ -124,7 +124,7 @@
   }
 
   /* Sizing for the icons within the buttons */
-  :global(.button .icon) {
+  :global(button .icon) {
     width: 1.25rem;
     height: 1.25rem;
     fill: currentcolor;

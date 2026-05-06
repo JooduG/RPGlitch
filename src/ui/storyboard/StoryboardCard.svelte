@@ -16,7 +16,7 @@
   import { themeStore } from "@theme/palette.svelte.js";
   import Button from "@atoms/Button.svelte";
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
-  import { fitText } from "@utils/fit-text.js";
+  import { fit_text } from "@utils/fit-text.js";
   import { tooltip } from "@atoms/Tooltip.svelte";
 
   // --- DERIVED STATE ---
@@ -70,7 +70,7 @@
         <!-- Info Layer (Bottom-up Gradient Scrim) -->
         <div class="card-info-scrim">
           <div class="info-content">
-            <h2 use:fitText={{ minSize: 26 }}>
+            <h2 use:fit_text={{ minSize: 26 }}>
               {entity.name}
             </h2>
             <div class="description-wrap">
@@ -278,7 +278,7 @@
   }
 
   /* Profile Link Button: Handles visual transitions ONLY */
-  :global(.profile-quick-link.button) {
+  :global(.profile-quick-link) {
     width: 100%;
     height: 100%;
     padding: 0;

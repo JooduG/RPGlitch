@@ -36,7 +36,7 @@ Always check `package.json` first. Do not assume versions from memory. For RPGli
 
 ### Step 2: Fetch Official Documentation
 
-Prioritize MCP servers (Svelte, context7) over general web search. Avoid second-party tutorials or blog posts which may contain unverified patterns or "slop".
+Prioritize MCP servers (Svelte, context7) over general web search. For all third-party libraries, frameworks, or APIs, invoke the `find-docs` skill to ensure current patterns. Avoid second-party tutorials or blog posts which may contain unverified patterns or "slop".
 
 ### Step 3: Cite Your Sources
 

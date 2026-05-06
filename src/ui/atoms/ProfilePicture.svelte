@@ -1,24 +1,42 @@
 <script>
   /**
    * @file ProfilePicture.svelte
-   * 🖼️ AGNOSTIC PROFILE IMAGE RENDERER
-   * Handles real images, placeholders, and glitch overlays.
-   * RUTHLESSLY FLATTENED  Zero backward compatibility.
+   * 🖼️ SOTA PROFILE IMAGE RENDERER
+   * Handles real images, placeholders, and watermark-style initials.
+   * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
   import { themeStore } from "@theme/palette.svelte.js";
-  import { fitText } from "@utils/fit-text.js";
-  let { entity = null, placeholderChar = null } = $props();
+  import { fit_text } from "@ui/utils/fit-text.js";
+  import { use_actions } from "@ui/utils/use-actions.js";
+
+  let {
+    // Data
+    entity = null,
+    placeholder_char = null,
+
+    // State
+    busy = false,
+
+    // Design
+    class: className = "",
+
+    // Slots/Snippets
+    actions = [],
+
+    ...rest
+  } = $props();
 
   /**
-   * @param {string | null | undefined} str
+   * Generates initials from entity name, filtering common stop words.
+   * @param {string} str
    * @returns {string}
    */
-  function calculate_initials(str) {
+  const calculate_initials = (str) => {
     if (!str) return "?";
-    const clean_name = str.replace(/[^\p{L}\s]/gu, "");
-
-    /** @type {string[]} */
-    const words = clean_name.trim().split(/\s+/);
+    const words = str
+      .replace(/[^\p{L}\s]/gu, "")
+      .trim()
+      .split(/\s+/);
     const stop_words = new Set([
       "the",
       "a",
@@ -33,46 +51,48 @@
       "by",
       "with",
     ]);
-    let filtered_words = words.filter((w) => !stop_words.has(w.toLowerCase()));
-    if (filtered_words.length === 0) filtered_words = words;
+    let filtered = words.filter((w) => !stop_words.has(w.toLowerCase()));
+
     return (
-      filtered_words
+      (filtered.length ? filtered : words)
         .slice(0, 3)
         .map((w) => w.charAt(0))
         .join("")
         .toUpperCase() || "?"
     );
-  }
+  };
 
-  // 1. Core Flattened Properties
-  let name = $derived(entity?.name || (placeholderChar ? "" : "Entity"));
-  let pictureUrl = $derived(entity?.profile_picture);
-  let signature_color = $derived(
-    entity
-      ? themeStore.get_signature_color(entity)
-      : "var(--signature-color, var(--color-gunmetal))",
+  // 1. Reactive State
+  const name = $derived(entity?.name || (placeholder_char ? "" : "Entity"));
+  const media_url = $derived(entity?.profile_picture);
+  const signature_color = $derived(
+    entity ? themeStore.get_signature_color(entity) : "var(--color-gunmetal)",
   );
-  let initials = $derived(placeholderChar || calculate_initials(name));
+  const initials = $derived(placeholder_char || calculate_initials(name));
 
-  // 2. Minor Modifiers
-  let isNoBg = $derived(entity?.modifiers?.noBackground ?? false);
-  let isFlipped = $derived(entity?.modifiers?.flipped ?? false);
+  // 2. Modifiers
+  const is_no_bg = $derived(entity?.modifiers?.no_background ?? false);
+  const is_flipped = $derived(entity?.modifiers?.flipped ?? false);
 </script>
 
-<div class="profile-picture" style="--signature-color: {signature_color}">
-  {#if pictureUrl}
-    <div class="image-container">
-      <img
-        src={pictureUrl}
-        alt="{name} Profile"
-        class="picture"
-        class:no-bg={isNoBg}
-        class:flipped={isFlipped}
-      />
-    </div>
+<div
+  {...rest}
+  class="wrapper {className}"
+  class:is-busy={busy}
+  style="--signature-color: {signature_color}"
+  use:use_actions={actions}
+>
+  {#if media_url}
+    <img
+      src={media_url}
+      alt="{name} Profile"
+      class="media"
+      class:no-bg={is_no_bg}
+      class:flipped={is_flipped}
+    />
   {:else}
-    <div class="placeholder">
-      <div class="initials-bg" use:fitText={{ minSize: 80 }}>
+    <div class="status">
+      <div class="initials" use:fit_text={{ maxSize: 600, minSize: 10 }}>
         {initials}
       </div>
     </div>
@@ -80,7 +100,7 @@
 </div>
 
 <style>
-  .profile-picture {
+  .wrapper {
     width: 100%;
     height: 100%;
     display: flex;
@@ -88,62 +108,73 @@
     justify-content: center;
     overflow: hidden;
     background: var(--glass-xs);
-  }
-
-  .image-container {
     position: relative;
-    width: 100%;
-    height: 100%;
+    transition: filter var(--motion-m);
   }
 
-  .picture {
+  .wrapper.is-busy {
+    filter: brightness(0.8) grayscale(0.5);
+    cursor: wait;
+    pointer-events: none;
+  }
+
+  .media {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
+    transition: filter var(--motion-m);
   }
 
-  .picture.no-bg {
+  .media.no-bg {
     object-fit: contain;
     filter: drop-shadow(0 0.5rem 1rem rgb(var(--color-black-rgb) / 50%));
   }
 
-  .picture.flipped {
+  .media.flipped {
     transform: scaleX(-1);
   }
 
-  .placeholder {
+  /* Placeholder State: Neural Nordic Depth */
+  .status {
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
     height: 100%;
     background-color: var(--signature-color);
+
+    /* Atmospheric Depth: Radial Vignette */
     background-image: radial-gradient(
       circle at center,
-      transparent,
-      rgb(var(--color-black-rgb) / 30%)
+      transparent 0%,
+      rgb(var(--color-black-rgb) / 40%) 100%
     );
-    position: relative;
-    overflow: hidden;
   }
 
-  .initials-bg {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  /* The Watermark Initials */
+  .initials {
     font-family: var(--font-family-heading);
     font-weight: var(--font-weight-xl);
     color: var(--color-white);
-    opacity: 1;
     text-transform: uppercase;
     user-select: none;
     pointer-events: none;
-    filter: drop-shadow(0 0 10px rgb(var(--color-white-rgb) / 40%));
-    font-size: 300px;
-    line-height: 0.8;
+    line-height: 0.7;
     letter-spacing: -0.05em;
+
+    /* Punchy "Branded" Aesthetics - Boosted Presence */
+    opacity: 0.35;
+    mix-blend-mode: soft-light;
+
+    /* Subtle Depth Shadow */
+    filter: drop-shadow(0 0 20px rgb(var(--color-white-rgb) / 15%));
+
+    /* Layout Hardening */
+    white-space: nowrap;
+    text-align: center;
+    padding: 8%;
   }
 </style>

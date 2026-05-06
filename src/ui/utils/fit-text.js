@@ -9,7 +9,7 @@
  * @param {number} [options.minSize=12] - Minimum font size in px
  * @param {string} [options.lineHeight='1.2'] - Line height to apply
  */
-export function fitText(node, options = {}) {
+export function fit_text(node, options = {}) {
   let currentOptions = { ...options };
   let frameId = null;
 

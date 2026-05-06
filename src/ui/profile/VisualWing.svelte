@@ -8,7 +8,6 @@
   import Button from "@atoms/Button.svelte";
   import TextField from "@atoms/TextField.svelte";
   import Toggle from "@atoms/Toggle.svelte";
-  import Wing from "@profile/Wing.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
   import { llm_service } from "@core/intelligence/llm-service.js";
   import { prompt_builder } from "@core/intelligence/prompt-builder.js";
@@ -23,36 +22,36 @@
   /** @type {{ char: any, is_editing: boolean, busy_fields: Set<string>, active_field: any }} */
   let { char = $bindable(), is_editing, busy_fields, active_field = $bindable() } = $props();
 
-  // --- STATE MANAGEMENT ---
+  // --- INITIALIZATION ---
 
-  /** Synchronously ensure the modifiers object exists with required schema */
+  /** Ensures the modifiers object exists with all required fields. */
   const sync_modifiers = () => {
     if (!char.modifiers) {
       char.modifiers = {
         prompt: "",
-        noBackground: false,
+        no_background: false,
         flipped: false,
         profile_picture_seed: 0,
-        colorName: "",
+        color_name: "",
       };
       return;
     }
-
-    // Ensure individual fields exist without re-assigning the whole object
-    if (char.modifiers.prompt === undefined) char.modifiers.prompt = "";
-    if (char.modifiers.noBackground === undefined) char.modifiers.noBackground = false;
-    if (char.modifiers.flipped === undefined) char.modifiers.flipped = false;
-    if (char.modifiers.profile_picture_seed === undefined) char.modifiers.profile_picture_seed = 0;
-    if (char.modifiers.colorName === undefined) char.modifiers.colorName = "";
+    char.modifiers.prompt ??= "";
+    char.modifiers.no_background ??= false;
+    char.modifiers.flipped ??= false;
+    char.modifiers.profile_picture_seed ??= 0;
+    char.modifiers.color_name ??= "";
   };
 
   sync_modifiers();
   $effect(sync_modifiers);
 
+  // --- STATE ---
+
   /** @type {HTMLInputElement | undefined} */
   let file_input = $state();
 
-  // --- DERIVED LOGIC ---
+  // --- DERIVED ---
 
   const is_prompt_busy = $derived(app.visual.isLoading || busy_fields.has("visual-prompt"));
   const prompt_value = $derived((char.modifiers.prompt || "").trim());
@@ -68,9 +67,9 @@
       (!active_field && has_prompt_text),
   );
 
-  // --- LOGIC HANDLERS ---
+  // --- HANDLERS ---
 
-  /** Triggers AI enhancement or metadata extraction based on context */
+  /** Triggers AI enhancement or metadata extraction based on the active field. */
   async function handle_creative_action() {
     const current_key = active_field?.key || "visual-prompt";
     if (busy_fields.has(current_key)) return;
@@ -101,31 +100,34 @@
     }
   }
 
-  /** Triggers image generation via external engine or falls back to upload */
+  /** Triggers image generation or falls back to the file upload dialog. */
   async function handle_generate() {
     if (busy_fields.has("visual-prompt")) return;
-    busy_fields.add("visual-prompt");
 
-    if (has_prompt_text) {
-      app.log(`[VisualWing] Generating... Prompt: ${prompt_value}`, "system");
-      try {
-        const url = await app.visual.generate(prompt_value, {
-          noBackground: char.modifiers.noBackground,
-        });
-        if (url) char.profile_picture = url;
-      } catch (err) {
-        app.log(`Generation failed: ${/** @type {Error} */ (err).message}`, "error");
-      } finally {
-        busy_fields.delete("visual-prompt");
-      }
-    } else {
+    if (!has_prompt_text) {
       file_input?.click();
+      return;
+    }
+
+    busy_fields.add("visual-prompt");
+    app.log(`[VisualWing] Generating... Prompt: ${prompt_value}`, "system");
+
+    try {
+      const url = await app.visual.generate(prompt_value, {
+        no_background: char.modifiers.no_background,
+      });
+      if (url) char.profile_picture = url;
+    } catch (err) {
+      app.log(`Generation failed: ${/** @type {Error} */ (err).message}`, "error");
+    } finally {
       busy_fields.delete("visual-prompt");
     }
   }
 
-  /** Handles manual image upload and validation */
-  /** @param {Event & { currentTarget: HTMLInputElement }} e */
+  /**
+   * Handles manual image upload and validation.
+   * @param {Event & { currentTarget: HTMLInputElement }} e
+   */
   async function handle_upload(e) {
     const file = e.currentTarget.files?.[0];
     if (!file) return;
@@ -137,26 +139,9 @@
       app.log(`Upload failed: ${/** @type {Error} */ (err).message}`, "error");
     }
   }
-
-  /** Focus tracking to clear active field when clicking outside */
-  /** @param {FocusEvent & { currentTarget: HTMLElement }} e */
-  function handle_focus_out(e) {
-    const root = e.currentTarget;
-    setTimeout(() => {
-      const focus = document.activeElement;
-      if (
-        root &&
-        !root.contains(focus) &&
-        busy_fields.size === 0 &&
-        !focus?.closest(".text-area")
-      ) {
-        active_field = null;
-      }
-    }, 50);
-  }
 </script>
 
-<Wing onfocusout={handle_focus_out}>
+<section class="wing glass-l">
   <div class="spectrum">
     {#each SPECTRUM_COLORS as [name, hex] (name)}
       {@const color = PALETTE_VARS[/** @type {keyof typeof PALETTE_VARS} */ (hex)] || hex}
@@ -176,7 +161,7 @@
 
   <div class="prompt">
     <TextField
-      class="control {active_field?.key === 'visual-prompt' ? 'active' : ''}"
+      class="text-area custom-field {active_field?.key === 'visual-prompt' ? 'active' : ''}"
       is_edit={is_editing}
       busy={is_prompt_busy}
       bind:value={char.modifiers.prompt}
@@ -188,19 +173,19 @@
         {#if is_prompt_busy || app.visual.error || app.visual.isOffline}
           <div class="status" class:is-error={app.visual.error || app.visual.isOffline}>
             {#if app.visual.isOffline}
-              <span class="status-tag">OFFLINE</span>
+              <span class="tag">OFFLINE</span>
             {:else if app.visual.error}
-              <span class="status-tag">ERROR</span>
+              <span class="tag">ERROR</span>
             {:else if app.visual.attempts > 0}
-              <span class="status-tag pulse">RETRYING</span>
+              <span class="tag pulse">RETRYING</span>
             {:else}
-              <span class="status-tag pulse">GENERATING</span>
+              <span class="tag pulse">GENERATING</span>
             {/if}
           </div>
         {/if}
       {/snippet}
 
-      {#snippet actions()}
+      {#snippet header_actions()}
         {#if is_editing}
           <div class="actions">
             <Button
@@ -208,7 +193,7 @@
               size="sm"
               square
               aria-label={has_prompt_text ? "Enhance Prompt" : "Fetch Data"}
-              className="action-btn"
+              className="action"
               actions={[tooltip]}
               onclick={handle_creative_action}
               disabled={is_creative_disabled}
@@ -233,7 +218,7 @@
               size="sm"
               square
               aria-label="Generate Image"
-              className="action-btn"
+              className="action"
               actions={[tooltip]}
               onclick={handle_generate}
               disabled={!is_editing || is_prompt_busy}
@@ -254,27 +239,50 @@
     <input
       type="file"
       accept="image/*"
-      class="hidden-input"
+      class="upload"
       bind:this={file_input}
       onchange={handle_upload}
     />
   </div>
 
   <div class="modifiers">
-    <Toggle label="No Background" bind:value={char.modifiers.noBackground} disabled={!is_editing} />
+    <Toggle
+      label="No Background"
+      bind:value={char.modifiers.no_background}
+      disabled={!is_editing}
+    />
     <Toggle label="Mirror Image" bind:value={char.modifiers.flipped} disabled={!is_editing} />
   </div>
-</Wing>
+</section>
 
 <style>
+  /* --- Wing Shell --- */
+
+  .wing {
+    width: 100%;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    transition: all var(--motion-l) var(--motion-elastic);
+    background-color: rgb(var(--color-gunmetal-rgb) / 45%);
+    padding: var(--spacing-m);
+    gap: var(--spacing-m);
+  }
+
+  /* --- Spectrum --- */
+
   .spectrum {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
+    grid-auto-rows: 1fr;
     gap: var(--spacing-xs);
     padding: var(--spacing-xs) 0;
   }
 
-  .spectrum :global(.button.swatch) {
+  .spectrum :global(.swatch) {
     width: 100%;
     aspect-ratio: 1;
     border: 0;
@@ -286,14 +294,14 @@
     box-shadow: var(--shadow-s);
   }
 
-  .spectrum :global(.button.swatch:hover:not(:disabled)) {
+  .spectrum :global(.swatch:hover:not(:disabled)) {
     transform: scale(1.1);
     z-index: var(--z-index-m);
     box-shadow: var(--shadow-m);
     background-color: var(--swatch-color);
   }
 
-  .spectrum :global(.button.swatch.active) {
+  .spectrum :global(.swatch.active) {
     box-shadow: 0 0 16px var(--swatch-color);
     transform: scale(1.15);
     z-index: var(--z-index-m);
@@ -301,25 +309,31 @@
     border-color: rgb(var(--color-white-rgb) / var(--opacity-s));
   }
 
-  .spectrum :global(.button.swatch:disabled) {
+  .spectrum :global(.swatch:disabled) {
     cursor: default;
     opacity: var(--opacity-l);
   }
+
+  /* --- Prompt --- */
 
   .prompt {
     position: relative;
     width: 100%;
   }
 
-  .hidden-input {
+  .upload {
     display: none;
   }
+
+  /* --- Modifiers --- */
 
   .modifiers {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
   }
+
+  /* --- Status --- */
 
   .status {
     display: flex;
@@ -331,6 +345,8 @@
   .status.is-error {
     color: var(--color-red);
   }
+
+  /* --- Actions --- */
 
   .actions {
     display: flex;

@@ -463,7 +463,7 @@
   }
 
   /* Ghost Icon Lighting */
-  .header-actions :global(.button) {
+  .header-actions :global(button) {
     color: color-mix(in srgb, var(--color-white), var(--signature-color) 20%);
     transition: all var(--motion-l);
   }

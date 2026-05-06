@@ -11,7 +11,7 @@ export function parse_markdown(text) {
   return paragraphs.map((p) => {
     let normalized = p.replace(/\n/g, " ");
     let tokens = [];
-    const regex = /\*\*\*([\s\S]*?)\*\*\*|\*\*([\s\S]*?)\*\*|\*([\s\S]*?)\*/g;
+    const regex = /\*\*\*([\s\S]+?)\*\*\*|\*\*([\s\S]+?)\*\*|\*([\s\S]+?)\*/g;
     let lastIndex = 0;
     let match;
     while ((match = regex.exec(normalized)) !== null) {

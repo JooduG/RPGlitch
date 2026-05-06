@@ -1,69 +1,121 @@
 <script>
+  import { use_actions } from "@ui/utils/use-actions.js";
   /**
-   * @file Slider.svelte
-   * 🎚️ THE DIAGNOSTIC SLIDER
-   * A reusable Nordic range input with a glass track and Frozen knob.
+   * @typedef {Object} Props
+   * @property {number} [value] - Current slider value.
+   * @property {number} [min] - Minimum range value.
+   * @property {number} [max] - Maximum range value.
+   * @property {number} [step] - Incremental step size.
+   * @property {boolean} [disabled] - Interactive lock state.
+   * @property {boolean} [busy] - Async lock state.
+   * @property {string} [label] - Descriptive label.
+   * @property {number | null} [neutral] - The 'zero' point for the fill gradient.
+   * @property {any[]} [actions] - Svelte actions orchestration.
+   * @property {string} [class] - External styling.
+   * @property {string} [style] - Inline styling.
+   * @property {(e: Event & { currentTarget: HTMLInputElement }) => void} [onchange] - Change callback.
    */
+
+  /** @type {Props} */
   let {
     value = $bindable(1.0),
     min = 0,
     max = 2.0,
     step = 0.1,
     disabled = false,
+    busy = false,
     label = "",
     neutral = null,
-    onchange = null,
+    actions = [],
+    class: className = "",
+    style = "",
+    onchange = undefined,
+    ...rest
   } = $props();
 
-  let center_val = $derived(neutral !== null ? neutral : (min + max) / 2);
-  let val_pct = $derived(((value - min) / (max - min)) * 100);
-  let center_pct = $derived(((center_val - min) / (max - min)) * 100);
+  // Logic Calculations
+  const center_val = $derived(neutral ?? (min + max) / 2);
+  const val_pct = $derived(((value - min) / (max - min)) * 100);
+  const center_pct = $derived(((center_val - min) / (max - min)) * 100);
 
-  let fill_start = $derived(Math.min(val_pct, center_pct));
-  let fill_end = $derived(Math.max(val_pct, center_pct));
+  const fill_start = $derived(Math.min(val_pct, center_pct));
+  const fill_end = $derived(Math.max(val_pct, center_pct));
+
+  // Diagnostic identifier
+  const test_id = $derived(
+    label ? `${label.toLowerCase().replace(/\s+/g, "-")}-slider` : "generic-slider",
+  );
 </script>
 
 <label
-  class="slider-group"
-  class:disabled
-  style="--fill-start: {fill_start}%; --fill-end: {fill_end}%;"
+  class="wrapper {className}"
+  class:is-disabled={disabled || busy}
+  class:is-busy={busy}
+  style="{style}; --fill-start: {fill_start}%; --fill-end: {fill_end}%;"
+  data-testid={test_id}
+  aria-busy={busy}
+  aria-disabled={disabled || busy}
+  use:use_actions={actions}
 >
-  <span class="slider-label">
-    {label.toUpperCase()}: {disabled ? "DISABLED" : (value ?? 1.0).toFixed(1)}
+  <span class="header">
+    {label.toUpperCase()}: {busy ? "BUSY..." : disabled ? "DISABLED" : (value ?? 1.0).toFixed(1)}
   </span>
-  <input type="range" {min} {max} {step} bind:value {disabled} onchange={(e) => onchange?.(e)} />
+  <input
+    type="range"
+    {...rest}
+    {min}
+    {max}
+    {step}
+    bind:value
+    disabled={disabled || busy}
+    {onchange}
+  />
 </label>
 
 <style>
-  .slider-group {
+  .wrapper {
     display: flex;
     flex-direction: column;
     justify-content: center;
     position: relative;
     width: 100%;
     gap: var(--spacing-xxs);
+    cursor: pointer;
   }
 
-  .slider-label {
+  .wrapper.is-disabled {
+    opacity: var(--opacity-s);
+    filter: grayscale(1);
+    cursor: default;
+  }
+
+  .wrapper.is-busy {
+    cursor: wait;
+    filter: brightness(0.8) grayscale(0.5);
+  }
+
+  .wrapper.is-busy > * {
+    pointer-events: none;
+  }
+
+  /* --- ELEMENTS --- */
+
+  .header {
     font-family: var(--font-family-body);
     font-size: var(--font-size-xxs);
     color: var(--font-color-s);
     text-transform: uppercase;
     text-align: left;
     letter-spacing: 0.12em;
-    margin-bottom: var(--spacing-xxs);
     font-weight: var(--font-weight-l);
     transition: color var(--motion-l);
+    user-select: none;
+    margin-bottom: var(--spacing-xxs);
   }
 
-  .slider-group:hover:not(.disabled) .slider-label {
+  /* Hover state for label */
+  .wrapper:hover:not(.is-disabled) .header {
     color: var(--color-white);
-  }
-
-  .slider-group.disabled {
-    opacity: var(--opacity-s);
-    filter: grayscale(1);
-    cursor: default;
   }
 
   input[type="range"] {
@@ -132,10 +184,6 @@
       filter var(--motion-l);
   }
 
-  .slider-group:hover:not(.disabled) input[type="range"]::-webkit-slider-thumb {
-    filter: brightness(1.2);
-  }
-
   input[type="range"]::-moz-range-thumb {
     appearance: none;
     width: var(--spacing-s);
@@ -152,7 +200,13 @@
       filter var(--motion-l);
   }
 
-  .slider-group:hover:not(.disabled) input[type="range"]::-moz-range-thumb {
+  /* --- STATES --- */
+
+  .wrapper:hover:not(.is-disabled) input[type="range"]::-webkit-slider-thumb {
+    filter: brightness(1.2);
+  }
+
+  .wrapper:hover:not(.is-disabled) input[type="range"]::-moz-range-thumb {
     filter: brightness(1.2);
   }
 

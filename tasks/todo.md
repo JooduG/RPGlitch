@@ -17,7 +17,7 @@
 - [x] InputBar Layout & Control Panel Wiring ([039])
 - [x] Documentation Sync & Infrastructure Hygiene ([044])
 - [ ] Release Candidate Stability Audit ([043]) - [ACTIVE]
-- [ ] Profile Modal Aesthetic Overhaul ([055]) - [ACTIVE]
+- [x] Profile Modal Aesthetic Overhaul ([055])
 - [x] Final UI Polishing & Aesthetics ([050])
   - [x] Refine `Button` primary variant ("pure" style, borderless)
   - [x] Update Nordic tokens (off-white → `--color-white: #f7f9fc` Nordic Ivory)
@@ -73,13 +73,31 @@
   - [x] Refine header background vibrancy and vertical alignment
   - [x] Verify zero-drift and zero-lint via npm run verify
 
-- **[067]** UI Architecture Simplification [DONE]
+- [x] **[067]** UI Architecture Simplification [DONE]
   - [x] Consolidate Tooltip into a single Atom (`@atoms/Tooltip.svelte`)
   - [x] Purge `TooltipRenderer.svelte` and `tooltip.svelte.js`
   - [x] Consolidate Lightbox into `@atoms/Lightbox.svelte`
   - [x] Rename Lightbox to ImagePreview for intuitive naming
   - [x] Purge `Background.svelte` into `App.svelte`
   - [x] Update system-wide imports to the new pattern
+
+- [x] **[068]** Profile Wing Cluster Refactor [DONE]
+  - [x] Harden focus-out logic in Profile/VisualWing
+  - [x] Renamed Wing.svelte .scroller to .body
+  - [x] Move leaked global styles to DevWing
+  - [x] Eager voice initialization in AudioWing
+  - [x] Fix prop mismatch in App.svelte
+  - [x] Verify zero-drift and zero-lint via npm run verify
+
+- [x] **[069]** TextField Class Normalization [DONE]
+  - [x] Standardize `ControlPanel.svelte` to use `text-area custom-field`
+  - [x] Verify zero-drift and zero-lint via npm run verify
+
+- [x] **[070]** ControlPanel Type Tightening [DONE]
+  - [x] Add JSDoc `@typedef` for `Story` and `MockRole`
+  - [x] Annotate `stories_list` as `Story[]`
+  - [x] Type `handleAction`, `loadStory`, and `mock_generation` parameters
+  - [x] Verify zero-drift via `npm run verify` (31 files · 264 tests · exit 0)
 
 ---
 
@@ -122,29 +140,37 @@
 
 ## 🧠 Skill Log
 
-| 2026-05-06T06:52:00+02:00 | Move Wing.svelte to @profile | `using-agent-skills`, `svelte` | ✅ Done |
-| 2026-05-06T06:48:00+02:00 | Merge profile-config into entity-fragments | `using-agent-skills`, `svelte` | ✅ Done |
-| 2026-05-06T05:51:00+02:00 | TextField & VectorArray Stabilization ([060]) | `using-agent-skills`, `svelte`, `css`, `designer` | ✅ Resolved |
-| 2026-05-05T16:15:00+02:00 | Type Safety & Implicit Any Fixes (VisualWing/VectorArray) | `test-driven-development`, `svelte` | ✅ Resolved |
-| 2026-05-03T10:45:00+02:00 | TextField Flattening Refactor ([060]) | `using-agent-skills`, `svelte`, `css`, `designer`, `test-driven-development` | ✅ Resolved |
-| 2026-05-05T20:17:00+02:00 | Background Rendering Refactor | `simulation`, `svelte`, `css` | ✅ Done |
-| 2026-05-05T18:46:00+02:00 | VectorArray Deep-Dive Refactor | `planning`, `svelte`, `css` | ✅ Done |
-| 2026-05-03T08:40:00+02:00 | TextField Deep Dive Refactor ([060]) | `using-agent-skills`, `svelte`, `css`, `designer`, `test-driven-development` | ✅ Resolved |
-| 2026-05-01T23:20:00+02:00 | Profile Responsiveness & Transparency Refinement | `using-agent-skills`, `css`, `svelte`, `browser-testing-with-devtools` | ✅ Resolved |
-| 2026-05-01T22:43:00+02:00 | Unified Wing Scrolling | `using-agent-skills`, `css`, `svelte` | ✅ Resolved |
-| 2026-05-01T22:30:00+02:00 | Profile Modal Scrolling & Regression Fix | `using-agent-skills`, `css`, `svelte` | ✅ Resolved |
-| 2026-05-01T20:45:00+02:00 | Profile Modal Aesthetic Overhaul ([055]) | `using-agent-skills`, `planning`, `designer`, `css`, `svelte` | 🔄 Active |
-| 2026-05-01T02:15:00+02:00 | Release Candidate Stability Audit ([043]) | `specification`, `planning`, `warden` | 🔄 Active |
-| 2026-05-01T02:00:00+02:00 | UI Architecture Restructuring & Import Aliasing ([054]) | `using-agent-skills`, `planning`, `warden` | ✅ Resolved |
-| 2026-04-30T22:30:00+02:00 | Session Driver Restoration ([053]) | `using-agent-skills`, `specification` | ✅ Done |
-| 2026-04-30T18:14:00+02:00 | Engine Hygiene & Aesthetic Restoration ([052]) | `debugging-and-error-recovery`, `warden` | ✅ Done |
-| 2026-04-30T13:40:00+02:00 | Fix Telemetry Test Mocks & Robust Mapping ([051]) | `test-driven-development`, `svelte` | ✅ Done |
-| 2026-04-30T13:16:00+02:00 | Fix Telemetry UI Lints ([051]) | `frontend-ui-engineering`, `css` | ✅ Done |
-| 2026-04-30T12:56:00+02:00 | Session Boot ([/boot]) — Mental Model & Context Sync | `using-agent-skills`, `data`, `warden` | ✅ Done |
-| 2026-04-29T23:03:00+02:00 | Final UI Polishing ([050]) — Create New card, danger/invisible borders, Nordic tokens | `css`, `frontend-ui-engineering` | ✅ Done |
-| 2026-04-29T19:45:00Z | UI Refactoring & CSS Cleanup ([049]) | `css`, `frontend-ui-engineering` | ✅ Done |
-| 2026-04-25T21:25:00Z | Skill Rewiring & Script Realignment ([046]) | `directives`, `using-agent-skills`, `warden` | ✅ Done |
-| 2026-04-25T17:18:00+02:00 | Apply custom scrollbar to `.left-panel` for UI consistency | `css` | ✅ Done |
+| Timestamp (ISO 8601)      | Task                                                                                  | Skill Invoked                                                                            | Outcome     |
+| ------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ----------- |
+| 2026-05-06T18:16+02:00    | ControlPanel Type Tightening [070]                                                    | `svelte`, `quality`, `test-driven-development`                                           | ✅ Done     |
+| 2026-05-06T15:57+02:00    | ControlPanel Type Tightening                                                          | planning                                                                                 | ✅ Resolved |
+| 2026-05-06T15:54+02:00    | TextField Class Normalization                                                         | design-normalization                                                                     | ✅ Resolved |
+| 2026-05-06T15:41:00+02:00 | Create PR for UI Refactor ([176])                                                     | `github`, `using-agent-skills`                                                           | ✅ Created  |
+| 2026-05-06T13:05:00+02:00 | Consolidate Entity Enhancement Logic                                                  | `simulation`, `image-generation`, `02-simulation`, `05-intelligence`, `entity-fragments` | ✅ Resolved |
+| 2026-05-06T08:18:00+02:00 | Profile Wing Cluster Refactor ([068])                                                 | `using-agent-skills`, `svelte`, `css`, `designer`, `warden`                              | ✅ Resolved |
+| 2026-05-06T06:52:00+02:00 | Move Wing.svelte to @profile                                                          | `using-agent-skills`, `svelte`                                                           | ✅ Done     |
+| 2026-05-06T06:48:00+02:00 | Merge profile-config into entity-fragments                                            | `using-agent-skills`, `svelte`                                                           | ✅ Done     |
+| 2026-05-06T05:51:00+02:00 | TextField & VectorArray Stabilization ([060])                                         | `using-agent-skills`, `svelte`, `css`, `designer`                                        | ✅ Resolved |
+| 2026-05-05T16:15:00+02:00 | Type Safety & Implicit Any Fixes (VisualWing/VectorArray)                             | `test-driven-development`, `svelte`                                                      | ✅ Resolved |
+| 2026-05-03T10:45:00+02:00 | TextField Flattening Refactor ([060])                                                 | `using-agent-skills`, `svelte`, `css`, `designer`, `test-driven-development`             | ✅ Resolved |
+| 2026-05-05T20:17:00+02:00 | Background Rendering Refactor                                                         | `simulation`, `svelte`, `css`                                                            | ✅ Done     |
+| 2026-05-05T18:46:00+02:00 | VectorArray Deep-Dive Refactor                                                        | `planning`, `svelte`, `css`                                                              | ✅ Done     |
+| 2026-05-03T08:40:00+02:00 | TextField Deep Dive Refactor ([060])                                                  | `using-agent-skills`, `svelte`, `css`, `designer`, `test-driven-development`             | ✅ Resolved |
+| 2026-05-01T23:20:00+02:00 | Profile Responsiveness & Transparency Refinement                                      | `using-agent-skills`, `css`, `svelte`, `browser-testing-with-devtools`                   | ✅ Resolved |
+| 2026-05-01T22:43:00+02:00 | Unified Wing Scrolling                                                                | `using-agent-skills`, `css`, `svelte`                                                    | ✅ Resolved |
+| 2026-05-01T22:30:00+02:00 | Profile Modal Scrolling & Regression Fix                                              | `using-agent-skills`, `css`, `svelte`                                                    | ✅ Resolved |
+| 2026-05-01T20:45:00+02:00 | Profile Modal Aesthetic Overhaul ([055])                                              | `using-agent-skills`, `planning`, `designer`, `css`, `svelte`                            | 🔄 Active   |
+| 2026-05-01T02:15:00+02:00 | Release Candidate Stability Audit ([043])                                             | `specification`, `planning`, `warden`                                                    | 🔄 Active   |
+| 2026-05-01T02:00:00+02:00 | UI Architecture Restructuring & Import Aliasing ([054])                               | `using-agent-skills`, `planning`, `warden`                                               | ✅ Resolved |
+| 2026-04-30T22:30:00+02:00 | Session Driver Restoration ([053])                                                    | `using-agent-skills`, `specification`                                                    | ✅ Done     |
+| 2026-04-30T18:14:00+02:00 | Engine Hygiene & Aesthetic Restoration ([052])                                        | `debugging-and-error-recovery`, `warden`                                                 | ✅ Done     |
+| 2026-04-30T13:40:00+02:00 | Fix Telemetry Test Mocks & Robust Mapping ([051])                                     | `test-driven-development`, `svelte`                                                      | ✅ Done     |
+| 2026-04-30T13:16:00+02:00 | Fix Telemetry UI Lints ([051])                                                        | `frontend-ui-engineering`, `css`                                                         | ✅ Done     |
+| 2026-04-30T12:56:00+02:00 | Session Boot ([/boot]) — Mental Model & Context Sync                                  | `using-agent-skills`, `data`, `warden`                                                   | ✅ Done     |
+| 2026-04-29T23:03:00+02:00 | Final UI Polishing ([050]) — Create New card, danger/invisible borders, Nordic tokens | `css`, `frontend-ui-engineering`                                                         | ✅ Done     |
+| 2026-04-29T19:45:00Z      | UI Refactoring & CSS Cleanup ([049])                                                  | `css`, `frontend-ui-engineering`                                                         | ✅ Done     |
+| 2026-04-25T21:25:00Z      | Skill Rewiring & Script Realignment ([046])                                           | `directives`, `using-agent-skills`, `warden`                                             | ✅ Done     |
+| 2026-04-25T17:18:00+02:00 | Apply custom scrollbar to `.left-panel` for UI consistency                            | `css`                                                                                    | ✅ Done     |
 
 ## 🧹 Backlog (Automated)
 

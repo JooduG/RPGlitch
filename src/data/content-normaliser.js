@@ -29,10 +29,10 @@ export const ENTITY_TEMPLATES = {
     present: { physical: "", non_physical: "" },
     modifiers: {
       prompt: "",
-      noBackground: false,
+      no_background: false,
       flipped: false,
       profile_picture_seed: 0,
-      colorName: "",
+      color_name: "",
     },
     past: [],
     future: [],
@@ -147,7 +147,8 @@ export const normalize = (base = {}) => {
     // --- MODIFIERS (Visual/Aesthetic overrides) ---
     modifiers: {
       prompt: sanitize_html(modifiers?.prompt ?? visuals?.prompt ?? "").trim(),
-      noBackground: !!(
+      no_background: !!(
+        modifiers?.no_background ??
         modifiers?.noBackground ??
         visuals?.noBackground ??
         visuals?.no_background ??
@@ -157,7 +158,13 @@ export const normalize = (base = {}) => {
       profile_picture_seed: Number(
         modifiers?.profile_picture_seed ?? visuals?.profile_picture_seed ?? 0,
       ),
-      colorName: sanitize_html(modifiers?.colorName ?? visuals?.colorName ?? "").trim(),
+      color_name: sanitize_html(
+        modifiers?.color_name ??
+          modifiers?.colorName ??
+          visuals?.colorName ??
+          visuals?.color_name ??
+          "",
+      ).trim(),
     },
     // --- DYNAMICS (Physics Sliders) ---
     dynamics: (() => {

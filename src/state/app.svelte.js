@@ -15,6 +15,11 @@ import { closeImagePreview, openImagePreview } from "@atoms/ImagePreview.svelte"
 import { runtime } from "@state/runtime.svelte.js";
 import { simulationState } from "@state/status.svelte.js";
 
+/** @typedef {import('./control.svelte.js').AppSettings} AppSettings */
+/** @typedef {import('./control.svelte.js').DrawerState} DrawerState */
+/** @typedef {import('./control.svelte.js').SimulationControl} SimulationControl */
+/** @typedef {import('./control.svelte.js').FateSystem} FateSystem */
+
 /************************************************************************************
  * [SECTION: STATE DEFINITIONS]
  * ----------------------------------------------------------------------------------
@@ -43,7 +48,7 @@ export class AppStore {
   user_list = $state([]);
   fractal_list = $state([]);
   entities_loaded = $state(false);
-  // --- ENTITY DRAWER STATE ---
+  /** @type {DrawerState} */
   drawer = $state({
     open: false,
     type: null, // 'ai' | 'user' | 'fractal'
@@ -51,11 +56,11 @@ export class AppStore {
   });
   // --- NARRATIVE CONFIG ---
   prologue = $state(""); // Starting directions/context
-  // --- SIMULATION STATE ---
+  /** @type {SimulationControl} */
   simulation = $state({
     loading: false, // STASIS: True when Chrono is processing
   });
-  // --- FATE SYSTEM ---
+  /** @type {FateSystem} */
   fate = $state({
     active: false,
     hand: [],
@@ -65,7 +70,7 @@ export class AppStore {
   tension = $derived(
     simulationState.phase === "generating" || simulationState.phase === "locked" ? 1 : 0,
   );
-  // --- SETTINGS ---
+  /** @type {AppSettings} */
   settings = $state({
     sound: true,
     call_mode: false,

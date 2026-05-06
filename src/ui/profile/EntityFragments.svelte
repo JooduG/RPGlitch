@@ -16,16 +16,14 @@
 
   let { char = $bindable(), is_editing, busy_fields, active_field = $bindable() } = $props();
 
-  // Track which section is hovered for the "Aperture" peek
   /** @type {string | null} */
   let hovered_section = $state(null);
 
-  // Storage for VectorArray instances to call add_item()
   /** @type {Record<string, any>} */
   let vector_refs = $state({});
 
   /**
-   * Utility to ensure the field receives an empty string for empty data.
+   * Returns the field value, defaulting to an empty string.
    * @param {string} path
    */
   const safe_get = (path) => {
@@ -34,17 +32,16 @@
   };
 
   /**
-   * Adds an item to a vector array when the section label is clicked.
+   * Delegates to a VectorArray instance to prepend a new item.
    * @param {string | undefined} fieldKey
    */
   function handle_add_click(fieldKey) {
     if (!is_editing || !fieldKey) return;
-    if (vector_refs[fieldKey]) {
-      vector_refs[fieldKey].add_item();
-    }
+    vector_refs[fieldKey]?.add_item();
   }
 
   /**
+   * Streams an AI enhancement for a plain-text field.
    * @param {string} fieldKey
    * @param {string} value
    */
@@ -75,14 +72,14 @@
         onmouseleave={() => (hovered_section = null)}
         role="presentation"
       >
-        <h2 class="side-label">
+        <h2 class="section-label">
           {#if is_editing && hovered_section === section.id && arrayField}
-            <span class="label-add" transition:fly={{ x: -10, duration: 300 }}> ADD </span>
+            <span class="add-hint" transition:fly={{ x: -10, duration: 300 }}>ADD</span>
           {/if}
           {section.label}
         </h2>
         {#if section.sublabel}
-          <p class="side-text">{section.sublabel}</p>
+          <p class="section-sub">{section.sublabel}</p>
         {/if}
       </div>
 
@@ -90,69 +87,66 @@
         {#each section.fields as field (field.key)}
           <div class="group">
             {#if field.label && section.id === "eternal"}
-              <span class="top-label">{field.label}</span>
+              <span class="field-label">{field.label}</span>
             {/if}
 
-            <div class="primary">
-              {#if field.type === "array"}
-                <VectorArray
-                  bind:this={vector_refs[field.key]}
-                  {char}
-                  path={field.key}
-                  {is_editing}
-                  {get_value}
-                  {set_value}
-                  unit_label={field.unitLabel}
-                  signature_color="var(--signature-color)"
-                />
-              {:else}
-                <TextField
-                  is_edit={is_editing}
-                  syncId={section.label}
-                  class="text-area custom-field {active_field?.key === field.key ? 'active' : ''}"
-                  placeholder={field.description}
-                  value={safe_get(field.key)}
-                  oninput={(/** @type {any} */ e) =>
-                    set_value(char, field.key, e.currentTarget.value)}
-                  busy={busy_fields.has(field.key)}
-                  onfocus={() => {
-                    active_field = {
-                      key: field.key,
-                      label: field.label || section.label,
-                    };
-                  }}
-                >
-                  {#snippet status()}
-                    {#if busy_fields.has(field.key)}
-                      <div class="engine-status-wrap">
-                        <span class="status-tag pulse">ENHANCING</span>
-                      </div>
-                    {/if}
-                  {/snippet}
-                  {#snippet actions()}
-                    {#if is_editing}
-                      <Button
-                        variant="invisible"
-                        size="sm"
-                        square={true}
-                        aria-label="Enhance with AI"
-                        className="enhance-btn"
-                        actions={[tooltip]}
-                        disabled={busy_fields.has(field.key) || !safe_get(field.key)}
-                        onclick={() => handle_enhance(field.key, safe_get(field.key))}
-                      >
-                        <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
-                          <path
-                            d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"
-                            fill="var(--color-white)"
-                          ></path>
-                        </svg>
-                      </Button>
-                    {/if}
-                  {/snippet}
-                </TextField>
-              {/if}
-            </div>
+            {#if field.type === "array"}
+              <VectorArray
+                bind:this={vector_refs[field.key]}
+                {char}
+                path={field.key}
+                {is_editing}
+                {get_value}
+                {set_value}
+                unit_label={field.unitLabel}
+                signature_color="var(--signature-color)"
+              />
+            {:else}
+              <TextField
+                is_edit={is_editing}
+                syncId={section.label}
+                class="text-area custom-field {active_field?.key === field.key ? 'active' : ''}"
+                placeholder={field.description}
+                value={safe_get(field.key)}
+                oninput={(/** @type {any} */ e) =>
+                  set_value(char, field.key, e.currentTarget.value)}
+                busy={busy_fields.has(field.key)}
+                onfocus={() => {
+                  active_field = {
+                    key: field.key,
+                    label: field.label || section.label,
+                  };
+                }}
+              >
+                {#snippet status()}
+                  {#if busy_fields.has(field.key)}
+                    <span class="status pulse">ENHANCING</span>
+                  {/if}
+                {/snippet}
+
+                {#snippet header_actions()}
+                  {#if is_editing}
+                    <Button
+                      variant="invisible"
+                      size="sm"
+                      square={true}
+                      aria-label="Enhance with AI"
+                      className="enhance-btn"
+                      actions={[tooltip]}
+                      disabled={busy_fields.has(field.key) || !safe_get(field.key)}
+                      onclick={() => handle_enhance(field.key, safe_get(field.key))}
+                    >
+                      <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
+                        <path
+                          d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"
+                          fill="var(--color-white)"
+                        ></path>
+                      </svg>
+                    </Button>
+                  {/if}
+                {/snippet}
+              </TextField>
+            {/if}
           </div>
         {/each}
       </div>
@@ -161,6 +155,8 @@
 </div>
 
 <style>
+  /* --- LAYOUT --- */
+
   .wrapper {
     flex: 1;
     overflow: visible;
@@ -178,6 +174,8 @@
     min-width: 0;
   }
 
+  /* --- SIDE LABEL --- */
+
   .side {
     text-align: right;
     align-self: center;
@@ -193,7 +191,7 @@
     cursor: pointer;
   }
 
-  .side-label {
+  .section-label {
     margin: 0;
     font-size: var(--font-size-s);
     font-weight: var(--font-weight-xl);
@@ -207,7 +205,7 @@
     position: relative;
   }
 
-  .label-add {
+  .add-hint {
     position: absolute;
     right: calc(100% + var(--spacing-xxs));
     top: 50%;
@@ -223,7 +221,7 @@
     text-shadow: 0 0 8px rgb(var(--color-white-rgb) / 40%);
   }
 
-  .side-text {
+  .section-sub {
     margin: 0;
     font-size: 10px;
     color: var(--font-color-m);
@@ -233,6 +231,8 @@
     letter-spacing: var(--letter-spacing-l);
     text-shadow: var(--shadow-font);
   }
+
+  /* --- BODY GRID --- */
 
   .body {
     display: grid;
@@ -247,6 +247,8 @@
   .body[data-columns="1"] {
     grid-template-columns: 1fr;
   }
+
+  /* --- FIELD GROUP --- */
 
   .group {
     position: relative;
@@ -265,9 +267,30 @@
     z-index: calc(var(--z-index-xxl) + 1);
   }
 
-  .primary {
-    height: 100%;
+  .field-label {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-xl);
+    text-transform: uppercase;
+    color: var(--signature-color);
+    opacity: var(--opacity-full);
+    text-align: center;
+    text-shadow: var(--shadow-font);
+    margin-bottom: var(--spacing-xxs);
+    width: 100%;
   }
+
+  /* --- STATUS --- */
+
+  .status {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xxs);
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-l);
+    color: var(--color-white);
+    opacity: 0.7;
+  }
+
+  /* --- GLOBAL OVERRIDES --- */
 
   :global(.text-area.custom-field) {
     height: 100%;
@@ -288,18 +311,7 @@
     transform: scale(1.1);
   }
 
-  .top-label {
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-xl);
-    text-transform: uppercase;
-    color: var(--signature-color);
-    opacity: var(--opacity-full);
-    margin-left: 0;
-    text-align: center;
-    text-shadow: var(--shadow-font);
-    margin-bottom: var(--spacing-xxs);
-    width: 100%;
-  }
+  /* --- RESPONSIVE --- */
 
   @media (width <= 600px) {
     .row {

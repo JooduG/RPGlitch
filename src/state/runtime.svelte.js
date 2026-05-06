@@ -180,6 +180,10 @@ function createRuntimeStore() {
       return null;
     },
     // --- DATA SYNC ---
+    /**
+     * Synchronizes the runtime state with the database.
+     * @param {string|null} [active_story_id] - Optional ID to force sync a specific story.
+     */
     sync: async (active_story_id = null) => {
       if (active_story_id) simulation_state.story_id = active_story_id;
       if (!simulation_state.story_id) {

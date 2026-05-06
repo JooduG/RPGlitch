@@ -1,8 +1,6 @@
 {
   "context": {
-    "fileFiltering": {
-      "respectGitIgnore": false
-    }
+    "fileFiltering": {}
   },
   "ide": {
     "hasSeenNudge": true
@@ -10,8 +8,7 @@
   "general": {
     "enablePromptCompletion": true,
     "plan": {
-      "directory": "tasks",
-      "modelRouting": true
+      "@": ".tasks/plan.md"
     },
     "preferredEditor": "antigravity"
   },
@@ -119,7 +116,6 @@
   },
   "ui": {
     "accessibility": {},
-    "showLineNumbers": false,
     "theme": "Atom One"
   },
   "skills": {
@@ -131,5 +127,13 @@
       "google-calendar",
       "gmail"
     ]
+  },
+  "experimental": {
+    "gemmaModelRouter": {
+      "classifier": {
+        "host": "http://localhost:9379",
+        "model": "gemma3-1b-gpu-custom"
+      }
+    }
   }
 }

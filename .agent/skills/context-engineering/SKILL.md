@@ -42,7 +42,7 @@ The `context-engineering` skill is the practice of deliberately curating what th
 # Analyze current context signal-to-noise ratio
 # (Note: This is an internal reasoning step)
 
-# Refresh task context
+# Refresh historical context via the 'data' skill
 mcp_data_read_knowledge_base "ReactiveSession implementation patterns"
 ```
 

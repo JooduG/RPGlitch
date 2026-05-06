@@ -166,7 +166,7 @@
     gap: var(--spacing-xxs);
   }
 
-  :global(.toolbar-btn.button) {
+  :global(.toolbar-btn) {
     background: transparent;
     border: none;
     color: var(--font-color-s);
@@ -174,7 +174,7 @@
     transition: all var(--motion-l);
   }
 
-  :global(.toolbar-btn.button:hover) {
+  :global(.toolbar-btn:hover) {
     background: transparent;
     transform: scale(1.1);
   }
