@@ -264,8 +264,14 @@
     cursor: not-allowed;
   }
 
-  .is-busy .body {
+  .wrapper.is-busy {
     cursor: wait;
+  }
+
+  .body.is-busy {
+    cursor: wait;
+    opacity: var(--opacity-s);
+    pointer-events: none;
   }
 
   .p {

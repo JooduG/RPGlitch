@@ -116,7 +116,7 @@
 
   /** @param {MouseEvent} e */
   function handle_bg_click(e) {
-    const target = e.target instanceof HTMLElement ? e.target : null;
+    const target = e.target instanceof Element ? e.target : null;
     if (
       !target?.closest?.(
         "textarea, input, button, .swatch, .wings, .dropdown, .card, [contenteditable]",

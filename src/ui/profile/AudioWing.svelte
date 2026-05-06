@@ -17,14 +17,16 @@
 
   // --- INITIALIZATION ---
 
-  /** Ensure the voice state object is initialized correctly. */
-  if (!char.voice) {
-    char.voice = { uri: "", rate: 1.0, pitch: 1.0 };
-  } else {
-    char.voice.uri ??= "";
-    char.voice.rate ??= 1.0;
-    char.voice.pitch ??= 1.0;
-  }
+  $effect(() => {
+    /** Ensure the voice state object is initialized correctly. */
+    if (!char.voice) {
+      char.voice = { uri: "", rate: 1.0, pitch: 1.0 };
+    } else {
+      char.voice.uri ??= "";
+      char.voice.rate ??= 1.0;
+      char.voice.pitch ??= 1.0;
+    }
+  });
 
   // --- STATE ---
 
