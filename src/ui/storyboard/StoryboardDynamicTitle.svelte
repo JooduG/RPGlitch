@@ -2,6 +2,7 @@
   import { app } from "@state/app.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
   import { tooltip } from "@atoms/Tooltip.svelte";
+  import { pickRandom } from "@core/utils.js";
   // ============================================
   // LOCAL STATE (Component-Owned)
   // ============================================
@@ -23,8 +24,6 @@
   // ============================================
   // DERIVED TITLE PARTS
   // ============================================
-  /** @param {string[]} arr */
-  const pick_random = (arr) => arr[Math.floor(Math.random() * arr.length)];
   /** @param {any} entity */
   const get_color = (entity) => themeStore.get_signature_color(entity);
   /**
@@ -44,7 +43,7 @@
     const has_entities = ai || user;
     const has_fractal = !!fractal;
     if (has_entities && has_fractal) {
-      const prefix = pick_random(STANDARD_PREFIXES);
+      const prefix = pickRandom(STANDARD_PREFIXES);
       /** @type {Array<{text: string, color?: string}>} */
       const parts = [{ text: `${prefix} ` }];
       if (ai && user && ai.id === user.id) {
@@ -62,7 +61,7 @@
       parts.push({ text: fractal.name, color: get_color(fractal) });
       return parts;
     } else if (has_entities) {
-      const prefix = pick_random(STANDARD_PREFIXES);
+      const prefix = pickRandom(STANDARD_PREFIXES);
       /** @type {Array<{text: string, color?: string}>} */
       const parts = [{ text: `${prefix} ` }];
       if (ai && user && ai.id === user.id) {
@@ -78,7 +77,7 @@
       }
       return parts;
     } else if (has_fractal) {
-      const prefix = pick_random(FRACTAL_PREFIXES);
+      const prefix = pickRandom(FRACTAL_PREFIXES);
       return [{ text: `${prefix} ` }, { text: fractal.name, color: get_color(fractal) }];
     }
     return [{ text: "Your story begins here..." }];
