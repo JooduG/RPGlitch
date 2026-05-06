@@ -1,8 +1,6 @@
 {
   "context": {
-    "fileFiltering": {
-      "respectGitIgnore": false
-    }
+    "fileFiltering": {}
   },
   "ide": {
     "hasSeenNudge": true
@@ -10,8 +8,7 @@
   "general": {
     "enablePromptCompletion": true,
     "plan": {
-      "directory": "tasks",
-      "modelRouting": true
+      "@": ".tasks/plan.md"
     },
     "preferredEditor": "antigravity"
   },
@@ -26,7 +23,9 @@
       "url": "https://mcp.context7.com/mcp"
     },
     "data": {
-      "args": ["./.agent/skills/data/scripts/knowledge.js"],
+      "args": [
+        "./.agent/skills/data/scripts/knowledge.js"
+      ],
       "command": "node",
       "env": {
         "PINECONE_API_KEY": "pcsk_vvGN2_67wnzYvzpZzBpiTWu39K2hWCp19hnS7GDeXYm6PbWothAyacBq67wmcQwspSivq",
@@ -58,7 +57,9 @@
     "playwright": {
       "args": [],
       "command": "./node_modules/.bin/playwright-mcp.cmd",
-      "excludeTools": ["browser_close"]
+      "excludeTools": [
+        "browser_close"
+      ]
     },
     "StitchMCP": {
       "args": [
@@ -119,7 +120,6 @@
   },
   "ui": {
     "accessibility": {},
-    "showLineNumbers": false,
     "theme": "Atom One"
   },
   "skills": {
@@ -131,5 +131,13 @@
       "google-calendar",
       "gmail"
     ]
+  },
+  "experimental": {
+    "gemmaModelRouter": {
+      "classifier": {
+        "host": "http://localhost:9379",
+        "model": "gemma3-1b-gpu-custom"
+      }
+    }
   }
 }

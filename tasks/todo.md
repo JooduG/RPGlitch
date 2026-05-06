@@ -73,13 +73,21 @@
   - [x] Refine header background vibrancy and vertical alignment
   - [x] Verify zero-drift and zero-lint via npm run verify
 
-- **[067]** UI Architecture Simplification [DONE]
+- [x] **[067]** UI Architecture Simplification [DONE]
   - [x] Consolidate Tooltip into a single Atom (`@atoms/Tooltip.svelte`)
   - [x] Purge `TooltipRenderer.svelte` and `tooltip.svelte.js`
   - [x] Consolidate Lightbox into `@atoms/Lightbox.svelte`
   - [x] Rename Lightbox to ImagePreview for intuitive naming
   - [x] Purge `Background.svelte` into `App.svelte`
   - [x] Update system-wide imports to the new pattern
+
+- [x] **[068]** Profile Wing Cluster Refactor [DONE]
+  - [x] Harden focus-out logic in Profile/VisualWing
+  - [x] Renamed Wing.svelte .scroller to .body
+  - [x] Move leaked global styles to DevWing
+  - [x] Eager voice initialization in AudioWing
+  - [x] Fix prop mismatch in App.svelte
+  - [x] Verify zero-drift and zero-lint via npm run verify
 
 ---
 
@@ -122,6 +130,8 @@
 
 ## 🧠 Skill Log
 
+| 2026-05-06T13:05:00+02:00 | Consolidate Entity Enhancement Logic | `simulation`, `image-generation`, `02-simulation`, `05-intelligence`, `entity-fragments` | ✅ Resolved |
+| 2026-05-06T08:18:00+02:00 | Profile Wing Cluster Refactor ([068]) | `using-agent-skills`, `svelte`, `css`, `designer`, `warden` | ✅ Resolved |
 | 2026-05-06T06:52:00+02:00 | Move Wing.svelte to @profile | `using-agent-skills`, `svelte` | ✅ Done |
 | 2026-05-06T06:48:00+02:00 | Merge profile-config into entity-fragments | `using-agent-skills`, `svelte` | ✅ Done |
 | 2026-05-06T05:51:00+02:00 | TextField & VectorArray Stabilization ([060]) | `using-agent-skills`, `svelte`, `css`, `designer` | ✅ Resolved |

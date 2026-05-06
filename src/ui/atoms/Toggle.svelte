@@ -1,36 +1,63 @@
 <script>
-  /** @type {{
-   *  value?: boolean,
-   *  label?: string,
-   *  size?: "md"|"sm",
-   *  disabled?: boolean,
-   *  onchange?: (e: Event & { currentTarget: HTMLInputElement }) => void
-   * }} */
+  /**
+   * @typedef {Object} Props
+   * @property {boolean} [value] - Current toggle state.
+   * @property {string} [label] - Optional label text.
+   * @property {"md" | "sm"} [size] - Component scale.
+   * @property {boolean} [disabled] - Interactive lock state.
+   * @property {boolean} [busy] - Async lock state.
+   * @property {any[]} [actions] - Svelte actions.
+   * @property {string} [class] - External styling.
+   * @property {(e: Event & { currentTarget: HTMLInputElement }) => void} [onchange] - Change callback.
+   */
+
+  import { use_actions } from "@ui/utils/use-actions.js";
+
+  /** @type {Props} */
   let {
-    value = $bindable(),
-    label,
+    value = $bindable(false),
+    label = "",
     size = "md",
     disabled = false,
-    onchange = (e) => {},
+    busy = false,
+    actions = [],
+    class: className = "",
+    onchange = undefined,
+    ...rest
   } = $props();
+
+  // Derived identifier for testing
+  const test_id = $derived(
+    label ? `${label.toLowerCase().replace(/\s+/g, "-")}-toggle` : undefined,
+  );
 </script>
 
-<label class="toggle-switch" class:disabled class:sm={size === "sm"}>
+<label
+  class="wrapper {className}"
+  class:is-disabled={disabled || busy}
+  class:is-busy={busy}
+  class:is-sm={size === "sm"}
+  aria-busy={busy}
+  aria-disabled={disabled || busy}
+  use:use_actions={actions}
+>
   <input
     type="checkbox"
+    {...rest}
     bind:checked={value}
-    {disabled}
+    disabled={disabled || busy}
     {onchange}
-    data-testid={label ? `${label.toLowerCase().replace(/\s+/g, "-")}-toggle` : undefined}
+    data-testid={test_id}
   />
-  <span class="slider"></span>
+  <span class="track"></span>
+
   {#if label}
-    <span class="label-text">{label}</span>
+    <span class="label">{label}</span>
   {/if}
 </label>
 
 <style>
-  .toggle-switch {
+  .wrapper {
     display: inline-flex;
     align-items: center;
     gap: var(--spacing-m);
@@ -40,25 +67,35 @@
     padding: var(--spacing-xxs) 0;
     transition: opacity var(--motion-l);
 
-    /* --- SIZES --- */
+    /* Internal Tokens */
     --switch-w: 2.8rem;
     --switch-h: 1.25rem;
     --thumb-size: 1rem;
   }
 
-  .toggle-switch.disabled {
+  /* --- MODIFIERS --- */
+
+  .wrapper.is-disabled {
     opacity: var(--opacity-m);
     cursor: default;
   }
 
-  .toggle-switch.sm {
+  .wrapper.is-busy {
+    cursor: wait;
+    filter: brightness(0.8) grayscale(0.5);
+    pointer-events: none;
+  }
+
+  .wrapper.is-sm {
     --switch-w: 2.22rem;
     --switch-h: 1rem;
     --thumb-size: 0.8rem;
   }
 
-  /* Hidden Input */
-  .toggle-switch input {
+  /* --- ELEMENTS --- */
+
+  /* Logic Kernel */
+  .wrapper input {
     opacity: var(--opacity-none);
     width: 0;
     height: 0;
@@ -66,7 +103,7 @@
   }
 
   /* The Track */
-  .slider {
+  .track {
     position: relative;
     width: var(--switch-w);
     height: var(--switch-h);
@@ -77,7 +114,7 @@
   }
 
   /* The Thumb */
-  .slider::before {
+  .track::before {
     content: "";
     position: absolute;
     height: var(--thumb-size);
@@ -89,17 +126,19 @@
     transition: all var(--motion-l) var(--motion-elastic);
   }
 
-  /* Hover State */
-  .toggle-switch:hover:not(.disabled) .slider::before {
+  /* --- STATES --- */
+
+  /* Hover Interaction */
+  .wrapper:hover:not(.is-disabled) .track::before {
     filter: brightness(1.2);
   }
 
-  /* Checked State */
-  .toggle-switch input:checked + .slider {
+  /* Checked Appearance */
+  .wrapper input:checked + .track {
     background-color: rgb(var(--color-frozen-rgb) / 60%);
   }
 
-  .toggle-switch input:checked + .slider::before {
+  .wrapper input:checked + .track::before {
     transform: translateX(
       calc(var(--switch-w) - var(--thumb-size) - (var(--switch-h) - var(--thumb-size)))
     );
@@ -107,8 +146,8 @@
     box-shadow: 0 0 8px rgb(var(--color-white-rgb) / var(--opacity-m));
   }
 
-  /* Label Text */
-  .label-text {
+  /* Label Styling */
+  .label {
     color: var(--font-color-s);
     font-weight: var(--font-weight-l);
     font-size: var(--font-size-xxs);
@@ -119,12 +158,12 @@
     white-space: nowrap;
   }
 
-  .toggle-switch:hover:not(.disabled) .label-text {
+  .wrapper:hover:not(.is-disabled) .label {
     color: var(--color-white);
   }
 
-  /* Focus State */
-  .toggle-switch input:focus-visible + .slider {
+  /* Accessibility Focus */
+  .wrapper input:focus-visible + .track {
     outline: 2px solid var(--color-frozen);
     outline-offset: 2px;
   }

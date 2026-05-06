@@ -60,7 +60,7 @@ When external facts are needed. Coordinate specialized MCPs for deep inquiry via
 
 - **[Data](./.agent/skills/data)**: Dual-layer memory system via the [Data](./.agent/skills/data/SKILL.md) skill to maintain technical precision and historical continuity.
   - Tools: `read_knowledge_base`, `describe_knowledge_base` and `query_cold_storage`.
-- **Context7**: Up-to-date documentation and library patterns.
+- **[Find Docs](./.agent/skills/find-docs/SKILL.md)**: Up-to-date documentation and library patterns via Context7.
   - Tools: `resolve-library-id` and `query-docs`.
 - **Svelte**: Official Svelte 5 logic and code verification.
   - Tools: `get-documentation` and `list-sections`.
@@ -118,6 +118,7 @@ Below are the most common skills to be used in this step:
 - **[Quality](./.agent/skills/quality)**: Multi-axis code review and simplification.
 - **[Delivery](./.agent/skills/delivery)**: CI/CD gates and production shipping.
 - **[Svelte Specialist](./.agent/skills/svelte)**
+- **[Find Docs](./.agent/skills/find-docs/SKILL.md)**
 - **[Simulation Orchestration](./.agent/skills/simulation)**
 
 ## ✅ 6. Completeness & Quality Gate

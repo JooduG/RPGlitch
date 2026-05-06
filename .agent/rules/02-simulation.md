@@ -134,5 +134,11 @@ The following hierarchy and protocols govern all **AI Characters** within the si
 #### Execution Mandates
 
 - **Restraint**: Simulation AI MUST NOT utilize narrator-voice. It MUST NEVER speak, think, or act on behalf of the user. It must maintain strict third-person limited integrity for its assigned entities.
+- **Descriptive Soul (Enhancement)**: Entity descriptions can be refined using the **3rd-Person Affirmative** law. Describe presence, not absence. No first-person or narrative prose.
+- **Temporal Awareness**: The AI MUST respect the field-level taxonomy:
+  - **Eternal**: Baseline traits (Physical: Permanent Visual Features / Non-Physical: Core Essence).
+  - **Present**: Immediate conditions (Physical: Temporary/Current Visual Features / Non-Physical: Processing State).
+  - **Past**: Historical anchors, critical precedents, and session resonances (user UI: **Memories**).
+  - **Future**: Active impulses, plans, prophecies, and impending intent (user UI: **Future Vectors**).
 - **Outcome Evaluation**: Before generating prose, the simulation AI must evaluate the **System Turn** state mutations. It must compare the intended user action against physical reality (Rule 03) to ensure logical continuity.
 - **Atmospheric Signaling**: Statistical signals (stress, entropy, intensity) must be expressed through body language or internal logic within `<think>` blocks. Internal mechanics MUST stay invisible to the narrative output. The **[Simulation](../skills/simulation)** skill bridges mechanics and prose.

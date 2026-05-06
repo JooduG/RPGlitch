@@ -2,10 +2,10 @@
   /**
    * @file src/ui/profile/EntityHeader.svelte
    * 🪪 THE IDENTITY BANNER
-   * Handles the top-level name and description of the entity.
+   * Renders the entity's name and description in read and edit states.
    */
   import { ENTITY_FRAGMENTS } from "@/core/intelligence/entity-fragments.js";
-  import { fitText } from "@utils/fit-text.js";
+  import { fit_text } from "@utils/fit-text.js";
   import { auto_resize } from "@utils/auto-resize.js";
   import { tooltip } from "@atoms/Tooltip.svelte";
 
@@ -25,7 +25,7 @@
 <header class:is-editing={is_editing} data-testid="profile-header">
   {#if is_editing}
     <h1
-      class="banner-name edit"
+      class="name edit"
       class:is-active={is_name_active}
       use:tooltip={{ text: "Edit Entity Name" }}
       aria-label="Edit Entity Name"
@@ -41,10 +41,10 @@
     </h1>
   {:else}
     <h1
-      class="banner-name"
+      class="name"
       use:tooltip={{ text: "Entity Name" }}
       aria-label="Entity Name"
-      use:fitText={{ minSize: 40 }}
+      use:fit_text={{ minSize: 40 }}
     >
       {char.name || ENTITY_FRAGMENTS.name}
     </h1>
@@ -52,7 +52,7 @@
 
   {#if is_editing}
     <textarea
-      class="banner-description custom-scrollbar"
+      class="description edit custom-scrollbar"
       use:tooltip={{ text: "Edit Entity Description" }}
       placeholder={ENTITY_FRAGMENTS.description}
       bind:value={char.description}
@@ -61,7 +61,7 @@
       onfocus={() => (active_field = null)}
     ></textarea>
   {:else}
-    <p class="banner-description-text" data-placeholder={ENTITY_FRAGMENTS.description}>
+    <p class="description" data-placeholder={ENTITY_FRAGMENTS.description}>
       {char.description || ""}
     </p>
   {/if}
@@ -74,7 +74,7 @@
     flex-direction: column;
     gap: var(--spacing-xs);
 
-    /* [063] Force full width to fill parent padding area via negative margins */
+    /* [063] Bleed full width into parent padding via negative margins */
     width: calc(100% + (2 * var(--spacing-m)));
     margin: calc(-1 * var(--spacing-m));
     padding: var(--spacing-m);
@@ -88,48 +88,44 @@
     border-top-right-radius: calc(var(--border-radius-l) - 1px);
   }
 
-  .banner-name {
+  /* ── NAME ─────────────────────────────────────────────────────────── */
+  .name {
     width: 100%;
+    margin: 0;
+    padding: var(--spacing-xs);
     color: var(--signature-color);
-    font-size: clamp(32px, 8vw, 64px); /* Fluid typography */
+    font-size: clamp(32px, 8vw, 64px);
     font-weight: var(--font-weight-xl);
     letter-spacing: -0.02em;
     text-shadow: var(--shadow-font);
-    margin: 0;
-    padding: var(--spacing-xs);
     text-align: left;
+    line-height: 1;
+    min-height: 4.5rem;
+    outline: none;
+    background: transparent;
+    border: none;
     border-radius: var(--border-radius-m);
+    box-shadow: none;
+    display: flex;
+    align-items: center;
     transition:
       background var(--motion-l),
       border-color var(--motion-l),
       box-shadow var(--motion-l);
-    box-shadow: none;
-    min-height: 4.5rem; /* Slightly increased for clamp stability */
-    line-height: 1;
-    outline: none;
-    background: transparent;
-    border: none;
-    display: flex;
-    align-items: center;
   }
 
-  .banner-name.edit {
+  .name.edit {
     cursor: text;
-    pointer-events: auto;
     caret-color: var(--signature-color);
   }
 
-  .banner-name.edit:focus-within {
-    background: transparent;
-  }
-
-  .banner-name.edit span {
+  .name.edit span {
     display: inline-block;
     min-width: 2px;
     outline: none;
   }
 
-  .banner-name.edit span:empty::before {
+  .name.edit span:empty::before {
     content: attr(data-placeholder);
     color: var(--color-frisk);
     opacity: 0.4;
@@ -137,50 +133,48 @@
     pointer-events: none;
   }
 
-  .banner-description,
-  .banner-description-text {
+  /* ── DESCRIPTION ──────────────────────────────────────────────────── */
+  .description {
     width: 100%;
     margin: 0;
     margin-top: var(--spacing-xxs);
+    padding: var(--spacing-xs) var(--spacing-s);
     color: var(--color-white);
     font-family: var(--font-family-body);
     font-size: var(--font-size-m);
     line-height: var(--line-height-m);
-    padding: var(--spacing-xs) var(--spacing-s);
   }
 
-  /* [063] Naked Description Aesthetic: No borders, no focus glow, human-first reading */
-  .banner-description {
+  /* [063] Naked textarea: borderless, no glow, human-first reading */
+  .description.edit {
     background: transparent;
     border: none;
     outline: none;
     resize: none;
     opacity: 0.8;
-    transition: opacity var(--motion-m);
     border-radius: var(--border-radius-m);
     box-shadow: none;
+    transition: opacity var(--motion-m);
   }
 
-  .banner-description:focus {
+  .description.edit:focus {
     opacity: 1;
-    background: transparent;
-    box-shadow: none;
   }
 
-  .banner-description-text {
+  .description:not(.edit) {
     opacity: 0.7;
     white-space: pre-wrap;
     transition: opacity var(--motion-m);
   }
 
-  .banner-description-text:empty::before {
+  .description:not(.edit):empty::before {
     content: attr(data-placeholder);
     color: var(--color-frisk);
     opacity: 0.4;
     font-style: italic;
   }
 
-  /* --- RESPONSIVE ADAPTATION --- */
+  /* ── RESPONSIVE ───────────────────────────────────────────────────── */
   @media (width <= 850px) {
     /* Synchronized with Profile.svelte breakpoint */
     header {
@@ -189,7 +183,7 @@
       margin: calc(-1 * var(--spacing-s)) calc(-1 * var(--spacing-s)) var(--spacing-s);
     }
 
-    .banner-name {
+    .name {
       font-size: var(--font-size-xl);
       padding: var(--spacing-xxs);
       min-height: auto;
@@ -201,7 +195,7 @@
       padding: var(--spacing-xs);
     }
 
-    .banner-name {
+    .name {
       font-size: var(--font-size-l);
     }
   }

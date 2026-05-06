@@ -32,10 +32,10 @@ describe("TextField", () => {
     // In Svelte 5, snippets are passed as props.
     const { container } = render(TextField, {
       status: () => "Status",
-      actions: () => "Actions",
+      header_actions: () => "Actions",
     });
 
-    const chassis = container.querySelector(".textfield");
+    const chassis = container.querySelector(".wrapper");
     const input = container.querySelector(".body");
 
     await fireEvent.focus(input);
@@ -44,7 +44,7 @@ describe("TextField", () => {
 
   test("applies atmospheric weight styles", () => {
     const { container } = render(TextField, { weight: 5 });
-    const chassis = container.querySelector(".textfield");
+    const chassis = container.querySelector(".wrapper");
     const style = chassis.getAttribute("style");
 
     expect(style).toContain("--weight-intensity: 0.5");

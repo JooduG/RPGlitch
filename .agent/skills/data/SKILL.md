@@ -9,7 +9,7 @@ description: Triggered by any task involving knowledge base ingestion, cold stor
 
 ## Overview
 
-The `data` skill is responsible for the RPGlitch dual-layer memory system. It manages high-fidelity working memory for active development and persistent cold storage for historical forensics. This ensures that technical precision and the "Why" behind architectural decisions are preserved across sessions.
+The `data` skill is responsible for the RPGlitch dual-layer memory system. It manages high-fidelity working memory for active development and persistent cold storage for historical forensics. This skill works in tandem with `context-engineering` to ensure that technical precision and the "Why" behind architectural decisions are preserved across sessions without bloating the active context window.
 
 ### Strategic Context
 

@@ -1,111 +1,49 @@
 <script>
+  /**
+   * @file Button.svelte
+   * 🕹️ SOTA ATOMIC BUTTON COMPONENT
+   * High-performance, multi-variant interaction layer.
+   * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
+   */
+  import { use_actions } from "@ui/utils/use-actions.js";
+
   let {
     label = "",
     variant = "primary", // primary | secondary | danger | invisible
-    cover = false, // If true, absolute-fills the parent (replaces old overlay)
+    cover = false, // absolute-fill parent
     size = "md", // sm | md
-    square = false, // Enforce 1:1 aspect ratio
-    fullWidth = false, // Enforce 100% width
-    className = "", // Allow local overrides
+    square = false, // 1:1 aspect ratio
+    full_width = false, // 100% width
+    busy = false, // async state
+    class: className = "",
     children = null,
-    onclick = null,
-    actions = [],
-    ...restProps // Pass through disabled, etc.
+    actions = [], // Svelte actions orchestration
+    ...rest
   } = $props();
 
   /** @type {HTMLButtonElement} */
   let element;
 
+  /** API: Focus the button */
   export function focus() {
     element?.focus();
-  }
-
-  /**
-   * Helper to apply an array of actions to the button element.
-   * Actions can be: [action] or [action, params]
-   * @param {HTMLElement} node
-   * @param {Array<any>} actions
-   */
-  function applyActions(node, actions) {
-    /** @type {Array<{action: Function, result: {update?: Function, destroy?: Function} | void}>} */
-    let instances = [];
-
-    /** @param {Array<any>} list */
-    const init = (list) => {
-      instances = /** @type {any} */ (
-        list
-          .map((item) => {
-            const action = Array.isArray(item) ? item[0] : item;
-            const params = Array.isArray(item) ? item[1] : undefined;
-            if (typeof action === "function") {
-              return { action, result: action(node, params) };
-            }
-            return null;
-          })
-          .filter(Boolean)
-      );
-    };
-
-    init(actions);
-
-    return {
-      /** @param {Array<any>} newActions */
-      update(newActions) {
-        // If action count changes, full teardown/re-init
-        if (newActions.length !== instances.length) {
-          instances.forEach((i) => {
-            if (i.result && typeof i.result === "object" && i.result.destroy) {
-              i.result.destroy();
-            }
-          });
-          init(newActions);
-          return;
-        }
-
-        // Attempt surgical update
-        /**
-         * @param {any} item
-         * @param {number} index
-         */
-        newActions.forEach((item, index) => {
-          const action = Array.isArray(item) ? item[0] : item;
-          const params = Array.isArray(item) ? item[1] : undefined;
-          const instance = instances[index];
-
-          if (action !== instance.action) {
-            if (instance.result && typeof instance.result === "object" && instance.result.destroy) {
-              instance.result.destroy();
-            }
-            instance.action = action;
-            instance.result = action(node, params);
-          } else if (
-            instance.result &&
-            typeof instance.result === "object" &&
-            instance.result.update
-          ) {
-            instance.result.update(params);
-          }
-        });
-      },
-      destroy() {
-        instances.forEach((i) => {
-          if (i.result && typeof i.result === "object" && i.result.destroy) {
-            i.result.destroy();
-          }
-        });
-      },
-    };
   }
 </script>
 
 <button
   bind:this={element}
-  class="button button-{variant} {cover ? 'button-cover' : ''} {size === 'sm'
-    ? 'button-sm'
-    : ''} {square ? 'button-square' : ''} {fullWidth ? 'button-full' : ''} {className}"
-  {...restProps}
-  {onclick}
-  use:applyActions={actions}
+  type="button"
+  {...rest}
+  class="wrapper variant-{variant} {className}"
+  class:is-cover={cover}
+  class:is-sm={size === "sm"}
+  class:is-square={square}
+  class:is-full={full_width}
+  class:is-busy={busy}
+  aria-busy={busy}
+  aria-disabled={rest.disabled || busy}
+  disabled={rest.disabled || busy}
+  use:use_actions={actions}
 >
   {#if children}
     {@render children()}
@@ -115,7 +53,7 @@
 </button>
 
 <style>
-  .button {
+  .wrapper {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -134,7 +72,7 @@
     border-radius: var(--border-radius-m);
     background: transparent;
     color: var(--font-color-m);
-    position: relative; /* Anchor tooltips correctly */
+    position: relative;
     transition:
       background-color var(--motion-l) var(--motion-elastic),
       color var(--motion-l) var(--motion-elastic),
@@ -144,14 +82,14 @@
       border-color var(--motion-l) var(--motion-elastic);
   }
 
-  /* 1. Modifiers & Globals (Structural) */
-  .button.button-sm {
+  /* 1. Structural Modifiers */
+  .wrapper.is-sm {
     min-height: var(--spacing-xl);
     padding: var(--spacing-xxs) var(--spacing-s);
     font-size: var(--font-size-xs);
   }
 
-  .button.button-square {
+  .wrapper.is-square {
     padding: 0;
     width: var(--icon-m);
     height: var(--icon-m);
@@ -159,17 +97,17 @@
     flex-shrink: 0;
   }
 
-  .button.button-square.button-sm {
+  .wrapper.is-square.is-sm {
     width: var(--icon-s);
     height: var(--icon-s);
   }
 
-  .button.button-full {
+  .wrapper.is-full {
     width: 100%;
     flex: 1;
   }
 
-  .button.button-cover {
+  .wrapper.is-cover {
     position: absolute;
     inset: 0;
     z-index: var(--z-index-m);
@@ -183,49 +121,37 @@
     box-shadow: none;
   }
 
-  /* 2. Variants (Thematic) */
-
-  /* Primary: "Pure" style - Solid White/Chalk */
-  .button-primary {
+  /* 2. Thematic Variants */
+  .variant-primary {
     background: var(--color-white);
     color: var(--color-chalk);
     box-shadow: var(--shadow-m);
-    border: none;
   }
 
-  /* Secondary: "Signature" style - Themed Frisk */
-  .button-secondary {
+  .variant-secondary {
     background: var(--signature-color, var(--color-frozen));
     color: var(--color-white);
     box-shadow: var(--shadow-s);
     border: var(--border-l);
   }
 
-  /* Danger: High-alert Action */
-  .button-danger {
+  .variant-danger {
     background: transparent;
     color: var(--color-red);
-    border: none;
-    box-shadow: none;
   }
 
-  /* Invisible: No background/border (unless cover is used for interaction) */
-  .button-invisible {
+  .variant-invisible {
     background: transparent;
     color: var(--font-color-s);
-    box-shadow: none;
-    border: none;
   }
 
   /* 3. Operational States */
-
-  .button:focus-visible {
+  .wrapper:focus-visible {
     outline: 2px solid var(--color-white);
     outline-offset: 2px;
   }
 
-  .button:disabled,
-  .button.disabled {
+  .wrapper:disabled {
     opacity: var(--opacity-s);
     filter: grayscale(1);
     pointer-events: none;
@@ -233,28 +159,33 @@
     box-shadow: none;
   }
 
-  .button:active:not(:disabled, .disabled) {
+  .wrapper:active:not(:disabled) {
     transform: scale(var(--motion-click, 0.95));
   }
 
-  /* 4. The Hover Logic (Internalized) */
-
-  .button:hover:not(:disabled, .disabled) {
+  .wrapper:hover:not(:disabled) {
     filter: var(--hover-brightness);
   }
 
-  .button-primary:hover:not(:disabled, .disabled) {
+  .wrapper.is-busy {
+    cursor: wait;
+    filter: brightness(0.8) grayscale(0.5);
+    pointer-events: none;
+  }
+
+  /* 4. Interaction Logic */
+  .variant-primary:hover:not(:disabled) {
     filter: brightness(1.05);
     box-shadow: var(--shadow-l);
     transform: scale(1.02);
   }
 
-  .button-secondary:hover:not(:disabled, .disabled) {
+  .variant-secondary:hover:not(:disabled) {
     box-shadow: var(--shadow-m);
     border-color: var(--color-white);
   }
 
-  .button-danger:hover:not(:disabled, .disabled) {
+  .variant-danger:hover:not(:disabled) {
     background: var(--color-red);
     color: var(--color-white);
     box-shadow:
@@ -262,31 +193,13 @@
       inset 0 0 0 var(--spacing-px) var(--color-red);
   }
 
-  .button-invisible:hover:not(:disabled, .disabled) {
+  .variant-invisible:hover:not(:disabled) {
     background: transparent;
     color: var(--color-white);
     filter: brightness(1.2);
   }
 
-  .button :global(.icon) {
+  .wrapper :global(.icon) {
     pointer-events: none;
-  }
-
-  /* 5. Positional Overrides (Must be last) */
-  :global(.button-group-joined) .button {
-    border-radius: 0;
-    flex: 1;
-  }
-
-  :global(.button-group-joined) .button:first-child {
-    border-radius: var(--border-radius-m) 0 0 var(--border-radius-m);
-  }
-
-  :global(.button-group-joined) .button:last-child {
-    border-radius: 0 var(--border-radius-m) var(--border-radius-m) 0;
-  }
-
-  :global(.button-group-joined) .button:not(:last-child) {
-    border-right: var(--spacing-px) solid var(--glass-s);
   }
 </style>

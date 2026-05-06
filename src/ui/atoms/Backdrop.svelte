@@ -1,42 +1,69 @@
 <script>
   /**
-   * Backdrop.svelte
-   * The standard darkening layer for Modals, Drawers, and Overlays.
+   * @file Backdrop.svelte
+   * 🕹️ SOTA ATOMIC BACKDROP
+   * Standard shielding overlay for Modals, Drawers, and Panels.
+   * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  /**
-   * @typedef {Object} Props
-   * @property {(e: MouseEvent) => void} [onclick]
-   * @property {number|string} [z_index]
-   * @property {boolean} [blur]
-   * @property {import('svelte').Snippet} [children]
-   */
-  /** @type {Props} */
-  let { onclick, z_index = 100, blur = true, children = undefined } = $props();
+  import { use_actions } from "@ui/utils/use-actions.js";
   import { fade } from "svelte/transition";
+
+  let {
+    // State
+    is_blurred = true,
+    busy = false,
+
+    // Design
+    z_index = "var(--z-index-xl)",
+    class: className = "",
+
+    // Slots/Snippets
+    children = null,
+    actions = [],
+
+    ...rest
+  } = $props();
 </script>
 
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-  class="backdrop"
-  transition:fade={{ duration: 200 }}
-  style="z-index: {z_index}; --backdrop-blur: {blur ? 'blur(2px)' : 'none'};"
-  {onclick}
+  {...rest}
+  class="wrapper {className}"
+  class:is-blurred={is_blurred}
+  class:is-busy={busy}
+  style:z-index={z_index}
+  transition:fade={{ duration: 300 }}
+  use:use_actions={actions}
 >
-  {#if children}
-    {@render children()}
-  {/if}
+  {@render children?.()}
 </div>
 
 <style>
-  .backdrop {
+  .wrapper {
     position: fixed;
     inset: 0;
-    background: var(--glass-xs); /* Standard dark overlay */
-    backdrop-filter: var(--backdrop-blur);
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+
+    /* Atmosphere */
+    background: var(--glass-xs);
     cursor: pointer;
+
+    /* Physics */
+    z-index: var(--z-index-xl);
+
+    /* Interaction Hygiene */
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    pointer-events: auto;
+  }
+
+  .wrapper.is-blurred {
+    backdrop-filter: var(--blur-s);
+  }
+
+  .wrapper.is-busy {
+    cursor: wait;
+    pointer-events: none;
   }
 </style>

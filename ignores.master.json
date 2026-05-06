@@ -59,7 +59,8 @@
     ".secrets",
     "**/.gemini/**",
     "**/.jules/**",
-    "act_output.log"
+    "act_output.log",
+    "gha-creds-*.json"
   ],
   "linters": {
     "eslint": [],

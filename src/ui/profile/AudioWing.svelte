@@ -8,7 +8,6 @@
   import { Audio } from "@media/audio-engine.svelte.js";
   import Button from "@atoms/Button.svelte";
   import Slider from "@atoms/Slider.svelte";
-  import Wing from "@profile/Wing.svelte";
   import { portal } from "@utils/portal.js";
   import { tooltip } from "@atoms/Tooltip.svelte";
   import { DROPDOWN_MAX_HEIGHT } from "@core/constants.js";
@@ -19,15 +18,13 @@
   // --- INITIALIZATION ---
 
   /** Ensure the voice state object is initialized correctly. */
-  $effect(() => {
-    if (!char.voice) {
-      char.voice = { uri: "", rate: 1.0, pitch: 1.0 };
-    } else {
-      char.voice.uri ??= "";
-      char.voice.rate ??= 1.0;
-      char.voice.pitch ??= 1.0;
-    }
-  });
+  if (!char.voice) {
+    char.voice = { uri: "", rate: 1.0, pitch: 1.0 };
+  } else {
+    char.voice.uri ??= "";
+    char.voice.rate ??= 1.0;
+    char.voice.pitch ??= 1.0;
+  }
 
   // --- STATE ---
 
@@ -52,10 +49,10 @@
   /**
    * Cleans voice names by stripping vendor and redundant locale info.
    * @param {string} name
-   * @param {string} region
+   * @param {string} [region]
    */
   const format_name = (name, region = "") => {
-    let clean = name
+    const clean = name
       .replace(/Microsoft\s+/gi, "")
       .replace(/\s*Online\s*\(Natural\)/gi, "")
       .replace(/\s+-\s+English\s+\(.*\)/gi, "")
@@ -68,7 +65,7 @@
   };
 
   /**
-   * Formats the region string into displayable parts.
+   * Formats the region string into a single-element array for iteration.
    * @param {string} region
    */
   const format_region = (region) => (region ? [region] : []);
@@ -84,53 +81,52 @@
   // --- INTERACTION ---
 
   $effect(() => {
-    if (show_dropdown && anchor_el) {
-      const update = () => {
-        const rect = anchor_el.getBoundingClientRect();
-        const vh = window.innerHeight;
-        const pad = 16;
-        const below = vh - rect.bottom - pad;
-        const above = rect.top - pad;
+    if (!show_dropdown || !anchor_el) return;
 
-        const is_dropup = below < DROPDOWN_MAX_HEIGHT && above > below;
-        const max_h = is_dropup
-          ? Math.min(above, DROPDOWN_MAX_HEIGHT)
-          : Math.min(below, DROPDOWN_MAX_HEIGHT);
+    const update = () => {
+      const rect = anchor_el.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const pad = 16;
+      const below = vh - rect.bottom - pad;
+      const above = rect.top - pad;
+      const is_dropup = below < DROPDOWN_MAX_HEIGHT && above > below;
+      const max_h = is_dropup
+        ? Math.min(above, DROPDOWN_MAX_HEIGHT)
+        : Math.min(below, DROPDOWN_MAX_HEIGHT);
 
-        coords = {
-          top: is_dropup ? null : rect.bottom,
-          bottom: is_dropup ? vh - rect.top : null,
-          left: rect.left,
-          width: rect.width,
-          is_dropup,
-          max_h,
-        };
+      coords = {
+        top: is_dropup ? null : rect.bottom,
+        bottom: is_dropup ? vh - rect.top : null,
+        left: rect.left,
+        width: rect.width,
+        is_dropup,
+        max_h,
       };
+    };
 
-      const handle_outside = (/** @type {MouseEvent} */ e) => {
-        const target = e.target instanceof Element ? e.target : null;
-        if (!target) return;
-        if (!anchor_el.contains(target) && !target.closest(".menu")) show_dropdown = false;
-      };
+    const handle_outside = (/** @type {MouseEvent} */ e) => {
+      const target = e.target instanceof Element ? e.target : null;
+      if (!target) return;
+      if (!anchor_el.contains(target) && !target.closest(".menu")) show_dropdown = false;
+    };
 
-      update();
-      window.addEventListener("scroll", update, true);
-      window.addEventListener("resize", update);
-      window.addEventListener("mousedown", handle_outside, true);
+    update();
+    window.addEventListener("scroll", update, true);
+    window.addEventListener("resize", update);
+    window.addEventListener("mousedown", handle_outside, true);
 
-      return () => {
-        window.removeEventListener("scroll", update, true);
-        window.removeEventListener("resize", update);
-        window.removeEventListener("mousedown", handle_outside, true);
-      };
-    }
+    return () => {
+      window.removeEventListener("scroll", update, true);
+      window.removeEventListener("resize", update);
+      window.removeEventListener("mousedown", handle_outside, true);
+    };
   });
 </script>
 
-<Wing class="audio-wing">
+<section class="wing glass-l">
   <div class="header" bind:this={anchor_el}>
     <Button
-      className="voice-select {show_dropdown ? 'active' : ''}"
+      className="select {show_dropdown ? 'active' : ''}"
       disabled={!is_editing}
       onclick={() => (show_dropdown = !show_dropdown)}
       aria-label="Select Voice"
@@ -138,9 +134,7 @@
       aria-expanded={show_dropdown}
       variant="invisible"
     >
-      <span class="truncate">
-        {format_name(selected_voice?.name || "Select Voice")}
-      </span>
+      <span class="truncate">{format_name(selected_voice?.name || "Select Voice")}</span>
     </Button>
 
     <div
@@ -155,7 +149,7 @@
         <Button
           role="option"
           aria-selected={char.voice.uri === voice.uri}
-          className="item {char.voice.uri === voice.uri ? 'active' : ''}"
+          className="option {char.voice.uri === voice.uri ? 'active' : ''}"
           onclick={() => {
             if (is_editing) char.voice.uri = voice.uri;
             show_dropdown = false;
@@ -173,7 +167,7 @@
     </div>
 
     <Button
-      className="preview-btn"
+      className="preview"
       actions={[tooltip]}
       tooltip="Preview Voice"
       aria-label="Preview Voice"
@@ -211,9 +205,27 @@
       neutral={1.0}
     />
   </div>
-</Wing>
+</section>
 
 <style>
+  /* --- Wing Shell --- */
+
+  .wing {
+    width: 100%;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    transition: all var(--motion-l) var(--motion-elastic);
+    background-color: rgb(var(--color-gunmetal-rgb) / 45%);
+    padding: var(--spacing-m);
+    gap: var(--spacing-m);
+  }
+
+  /* --- Layout --- */
+
   .header {
     position: relative;
     display: grid;
@@ -230,11 +242,10 @@
     width: 100%;
   }
 
-  /* --- Components --- */
+  /* --- Controls --- */
 
-  :global(.voice-select.button),
-  :global(.preview-btn.button) {
-    height: var(--icon-m);
+  :global(.select),
+  :global(.preview) {    height: var(--icon-m);
     min-height: 0;
     background: var(--glass-xs);
     border: none;
@@ -242,19 +253,19 @@
     transition: all var(--motion-l) var(--motion-elastic);
   }
 
-  :global(.voice-select.button:hover:not(:disabled)),
-  :global(.preview-btn.button:hover:not(:disabled)),
-  :global(.voice-select.button.active) {
+  :global(.select:hover:not(:disabled)),
+  :global(.preview:hover:not(:disabled)),
+  :global(.select.active) {
     background: var(--glass-s);
     filter: brightness(1.2);
   }
 
-  :global(.voice-select.button) {
+  :global(.select) {
     width: 100%;
     padding: 0 var(--spacing-m);
   }
 
-  :global(.preview-btn.button) {
+  :global(.preview) {
     width: var(--icon-m);
     padding: 0;
   }
@@ -265,7 +276,7 @@
     visibility: hidden;
     pointer-events: none;
     opacity: 0;
-    transform: translateY(-var(--spacing-xs));
+    transform: translateY(calc(-1 * var(--spacing-xs)));
     position: fixed;
     overflow-y: auto;
     z-index: var(--z-index-max);
@@ -295,7 +306,9 @@
     transform: translateY(calc(-1 * var(--spacing-xs)));
   }
 
-  :global(.item.button) {
+  /* --- Menu Items --- */
+
+  :global(.option) {
     width: 100%;
     padding: var(--spacing-xs) var(--spacing-s);
     background: transparent;
@@ -309,22 +322,22 @@
     min-height: 0;
   }
 
-  :global(.item.button:hover),
-  :global(.item.button.active) {
+  :global(.option:hover),
+  :global(.option.active) {
     background: var(--glass-xs);
   }
 
   /* --- Labels & Tags --- */
 
   .truncate,
-  :global(.item.button .label) {
+  :global(.option .label) {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
     flex: 1;
   }
 
-  :global(.item.button .tags) {
+  :global(.option .tags) {
     display: flex;
     flex-flow: row wrap;
     justify-content: flex-end;
@@ -339,7 +352,7 @@
     flex-shrink: 0;
   }
 
-  :global(.item.button .tags span) {
+  :global(.option .tags span) {
     white-space: nowrap;
   }
 </style>

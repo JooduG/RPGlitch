@@ -2,65 +2,69 @@
   /**
    * @file LibraryCard.svelte
    * 🃏 THE ARCHIVE TAROT
-   * A compact version of StoryboardCard for the Library drawer.
-   * Flattened Schema Compliant.
+   * Compact entity card for the Library drawer.
    */
-  let {
-    entity,
-    type = "ai", // "ai" | "user" | "fractal"
-    disabled = false,
-    onSelect,
-    onViewProfile,
-  } = $props();
+
+  /**
+   * @type {{
+   *   entity: any,
+   *   type?: 'ai' | 'user' | 'fractal',
+   *   disabled?: boolean,
+   *   onSelect?: () => void,
+   *   onViewProfile?: () => void,
+   * }}
+   */
+  let { entity, type = "ai", disabled = false, onSelect, onViewProfile } = $props();
 
   import { themeStore } from "@theme/palette.svelte.js";
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
   import Button from "@atoms/Button.svelte";
-  import { fitText } from "@utils/fit-text.js";
-  import { tooltip } from "@atoms/Tooltip.svelte";
+  import { fit_text } from "@utils/fit-text.js";
+
+  // --- STATE ---
 
   let signature_color = $derived(themeStore.get_signature_color(entity));
   let signature_rgb = $derived(themeStore.hex_to_rgb(signature_color));
   let name = $derived(entity?.name || "Untitled");
 
-  function handleSelect() {
+  // --- ACTIONS ---
+
+  function handle_select() {
     if (!disabled && onSelect) onSelect();
   }
 </script>
 
 <div
-  class="drawer-card glass-l surface-tilt"
-  class:fractal-card={type === "fractal"}
-  class:is-disabled={disabled}
+  class="card glass-l"
+  class:fractal={type === "fractal"}
+  class:disabled
   style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
 >
   <Button
     variant="invisible"
     cover={true}
-    onclick={handleSelect}
+    onclick={handle_select}
     {disabled}
     aria-label={disabled ? "Already selected" : `Select ${name}`}
-    actions={[tooltip]}
     oncontextmenu={(/** @type {MouseEvent} */ e) => {
       e.preventDefault();
       if (onViewProfile) onViewProfile();
     }}
   />
 
-  <div class="card-visual">
+  <div class="visual">
     <ProfilePicture {entity} />
   </div>
 
-  <div class="card-info">
-    <h5>
-      <span class="entity-name" use:fitText={{ minSize: 14 }}>{name}</span>
-    </h5>
-    <div class="signature-bar"></div>
+  <div class="info">
+    <span class="name" use:fit_text={{ minSize: 14 }}>{name}</span>
+    <div class="bar"></div>
   </div>
 </div>
 
 <style>
-  .drawer-card {
+  /* --- CARD SHELL --- */
+  .card {
     position: relative;
     width: 100%;
     aspect-ratio: 2 / 3;
@@ -80,23 +84,24 @@
       box-shadow var(--motion-l) var(--motion-elastic);
   }
 
-  .drawer-card:hover:not(:disabled, .is-disabled) {
+  .card:hover:not(:disabled, .disabled) {
     box-shadow: var(--shadow-m);
     transform: scale(1.02);
     filter: var(--hover-brightness);
   }
 
-  .drawer-card:active:not(:disabled, .is-disabled) {
+  .card:active:not(:disabled, .disabled) {
     transform: scale(var(--motion-click));
   }
 
-  .drawer-card.is-disabled {
+  .card.disabled {
     opacity: var(--opacity-m);
     filter: grayscale(1);
     pointer-events: none;
   }
 
-  .drawer-card .card-visual {
+  /* --- VISUAL (image area) --- */
+  .visual {
     flex: 1.5;
     background: transparent;
     display: flex;
@@ -107,7 +112,8 @@
     border-radius: var(--border-radius-m) var(--border-radius-m) 0 0;
   }
 
-  .drawer-card .card-info {
+  /* --- INFO (name footer) --- */
+  .info {
     flex: 0.6;
     padding: var(--spacing-s);
     display: flex;
@@ -118,16 +124,7 @@
     overflow: hidden;
   }
 
-  .drawer-card .card-info h5 {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .drawer-card .card-info .entity-name {
+  .name {
     color: var(--signature-color);
     font-family: var(--font-family-heading);
     font-weight: var(--font-weight-xl);
@@ -142,9 +139,11 @@
     margin: 0;
     padding: 0;
     text-align: center;
+    width: 100%;
   }
 
-  .signature-bar {
+  /* --- SIGNATURE BAR --- */
+  .bar {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -155,7 +154,7 @@
     transition: opacity var(--motion-l);
   }
 
-  .drawer-card:hover:not(:disabled, .is-disabled) .signature-bar {
+  .card:hover:not(:disabled, .disabled) .bar {
     opacity: 1;
   }
 </style>

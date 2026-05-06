@@ -52,13 +52,13 @@ export const ENTITY_FRAGMENTS = {
       non_physical: {
         label: "Non-Physical",
         directive:
-          "Establish the entity's permanent cognitive and psychological baseline. Detail its core archetype, identity markers, speaking style, and verbal tics. Focus exclusively on psychological architecture; avoid narration.",
+          "Define the entity's baseline psychological architecture or core essence in the **3rd-person affirmative**. Detail fundamental logic, identity markers, and its signature **Narrative Voice** or **Communication Patterns**. Include specific vocabulary, tone, and any desirable linguistic patterns or structural tics. This serves as the foundation for all reactive behavior; avoid narration.",
         enhancer: "CORE_COGNITIVE_ARCHITECT",
       },
       physical: {
         label: "Physical",
         directive:
-          "Establish the entity's permanent visual and structural fragments for image generation. Detail its visual age, biological phenotype or material composition, physical build, and permanent marks (e.g. cybernetics, scars, or fixed structural features). Strictly exclude clothing, temporary equipment, or abstract psychological traits.",
+          "Synthesize the entity's permanent visual fragments for image generation using the **3rd-person affirmative**. Focus on structural composition, material properties, and signature attire/geometry. Detail textures, permanent marks, and lighting-reactive surfaces. For indcreased realism include imperfections.",
         enhancer: "BIOMETRIC_RENDER_ENGINE",
       },
     },
@@ -70,13 +70,13 @@ export const ENTITY_FRAGMENTS = {
       non_physical: {
         label: "Non-Physical",
         directive:
-          "Establish the entity's immediate internal state and psychological conditions. Detail its current focus, active emotional volatility, and immediate memory pressure. Define what the entity is thinking and feeling in this specific moment; avoid narration.",
+          "Capture the entity's current internal volatility or state pressure. Detail mental processing focus, active cognitive triggers, and immediate emotional pressure. This drives reactive behavior in the current moment.",
         enhancer: "TACTICAL_BEHAVIOR_ANALYZER",
       },
       physical: {
         label: "Physical",
         directive:
-          "Establish the entity's immediate physical state and somatic conditions for image generation. Detail visible wounds, active HUD or status overlays, current posture, and immediate exhaustion. Strictly exclude permanent structural traits or psychological states.",
+          "Synthesize the entity's situational physical state for image generation. Focus on active coverage (attire/gear/plates), visible damage, posture, and environmental overlays (e.g., status effects, grime). Detail the immediate presence.",
         enhancer: "SOMATIC_STATE_TRACKER",
       },
     },
@@ -86,7 +86,7 @@ export const ENTITY_FRAGMENTS = {
     sublabel: "Plans & Prophecies", // UI only
     unit_label: "Vector",
     directive:
-      "Establish the entity's active trajectory and self-interest protocols. Detail overarching macro-goals, lateral agendas, and ultimate narrative destiny. Use [CONSEQUENCE: ...] to define specific stakes or risks.",
+      "Map the entity's active trajectory and narrative impulses. Detail operational objectives, evolving vectors, and impending destiny. Define the stakes driving the next state transition.",
     enhancer: "TRAJECTORY_SIMULATOR",
     type: "array",
     fields: {
@@ -101,7 +101,7 @@ export const ENTITY_FRAGMENTS = {
     sublabel: "Memories & History", // UI only
     unit_label: "Memory",
     directive:
-      "Establish the entity's historical anchors and formative origins. Include defining life events and established relationships. Clearly identify any repressed traumas or significant forgotten fragments that influence behavior.",
+      "Anchor the entity in their historical context. Detail formative records, critical precedents, and established resonances. These 'Echoes' provide weight and depth to their current state.",
     enhancer: "EPISODIC_MEMORY_COMPILER",
     type: "array",
     fields: {

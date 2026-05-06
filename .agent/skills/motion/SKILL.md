@@ -1,6 +1,6 @@
 ---
 name: motion
-description: Triggered by any task involving kinetic interactions, physics-based UI transitions, or Svelte action-based animations.
+description: Triggered by any task involving kinetic interactions, physics-based UI transitions, Svelte action-based animations, or engine "Busy" (Scanning) states.
 ---
 
 # Motion Specialist
@@ -29,6 +29,7 @@ The `motion` skill is the technical implementation layer for kinetic physics. It
 2. **Svelte Action Implementation**: Define refined motion logic in `src/ui/utils/actions/` and apply via `use:action`.
 3. **Compositor Optimization**: Ensure all animations bypass the heavy lifting of the rendering pipeline.
 4. **Kinetic Audit**: Verify FPS stability and responsiveness of interaction triggers in the browser.
+5. **Busy State Integration**: Implement consistent "Scanning" feedback for engine processes to maintain kinetic continuity.
 
 ### The Interaction Engine
 
@@ -45,6 +46,33 @@ npm run audit:perf
 
 # Verify kinetic UI responsiveness via unit tests
 npm run audit:logic src/ui/utils/actions/
+```
+
+### The Pulse & Busy States
+
+To maintain kinetic continuity during engine processing (generation/refinement), follow the "Scanning" pattern:
+
+- **Layout Stability**: Never swap a `textarea` for a `div` when busy; preserve the user's focus and scroll position.
+- **Header Expansion**: Ensure component headers remain expanded (`class:is-focused`) when `busy` is true.
+- **Scanning Aesthetic**: Inject minimalist status tags (e.g., `REFINING...`) into the header and apply the `wait` cursor.
+- **Fade-In Logic**: Apply a subtle fade-in animation to status text to reduce visual aggression.
+
+#### Implementation (Svelte 5)
+
+```svelte
+<div class="field-chassis" class:is-focused={isFocused || busy}>
+  <div class="field-header">
+    <div class="header-status">{@render status?.()}</div>
+  </div>
+  <div class="field-body">
+    <textarea class:busy disabled={busy} ...></textarea>
+  </div>
+</div>
+
+<style>
+  .header-status { animation: fade-in var(--motion-m) ease-out; }
+  textarea.busy { cursor: wait; opacity: var(--opacity-s); }
+</style>
 ```
 
 ## Present Results

@@ -43,10 +43,10 @@ describe("content-normaliser.js", () => {
         future: [],
         modifiers: {
           prompt: "",
-          noBackground: false,
+          no_background: false,
           flipped: false,
           profile_picture_seed: 0,
-          colorName: "",
+          color_name: "",
         },
         voice: {
           uri: "",
@@ -76,16 +76,16 @@ describe("content-normaliser.js", () => {
           no_background: true,
           flipped: true,
           profile_picture_seed: 123,
-          colorName: "Blue",
+          color_name: "Blue",
         },
       };
       const result = normalize(input);
       expect(result.modifiers).toEqual({
         prompt: "test prompt",
-        noBackground: true,
+        no_background: true,
         flipped: true,
         profile_picture_seed: 123,
-        colorName: "Blue",
+        color_name: "Blue",
       });
     });
 

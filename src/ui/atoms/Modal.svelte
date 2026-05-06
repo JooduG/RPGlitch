@@ -3,86 +3,80 @@
    * @file Modal.svelte
    * 🖼️ THE VOID CONTAINER
    * A generic glassmorphic modal wrapper.
+   * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  import { quartOut } from "svelte/easing";
   import { scale } from "svelte/transition";
+  import { quartOut } from "svelte/easing";
   import Backdrop from "@atoms/Backdrop.svelte";
+  import { use_actions } from "@ui/utils/use-actions.js";
 
-  /** @type {{
-   *    on_close?: (e: any) => void,
-   *    variant?: "standard" | "profile" | "preview" | "mini",
-   *    z_index?: string,
-   *    children: import('svelte').Snippet
-   *  }} */
   let {
-    on_close = () => {},
+    // State
+    busy = false,
+
+    // Design
     variant = "standard",
     z_index = "var(--z-index-xl)",
-    children,
+    class: className = "",
+
+    // Handlers
+    on_close = () => {},
+
+    // Slots/Snippets
+    children = null,
+    actions = [],
+
+    ...rest
   } = $props();
-
-  /** @param {KeyboardEvent} e */
-  function handle_keydown(e) {
-    if (e.key === "Escape") on_close(e);
-  }
-
-  /** @param {MouseEvent} e */
-  function handle_close(e) {
-    on_close(e);
-  }
 </script>
 
-<svelte:window onkeydown={handle_keydown} />
+<svelte:window onkeydown={(e) => e.key === "Escape" && on_close(e)} />
 
-<!-- Visual Layer -->
-<Backdrop onclick={handle_close} {z_index} />
-
-<!-- Interaction & Layout Layer -->
-<div class="modal-layout {variant}" style="z-index: calc({z_index} + 1);">
-  <!-- Content -->
+<!-- 
+  DOM FLATTENED: 
+  The Modal content is nested directly within the Backdrop.
+  This eliminates the redundant .modal-layout wrapper and leverages 
+  the Backdrop's existing flex-centering and transition logic.
+-->
+<Backdrop onclick={on_close} {z_index} {busy}>
   <div
-    class="modal-content glass-xxl {variant}"
+    {...rest}
+    class="base glass-xxl {variant} {className}"
+    class:is-busy={busy}
     role="dialog"
     aria-modal="true"
+    tabindex="-1"
+    onclick={(e) => e.stopPropagation()}
     transition:scale={{ duration: 400, easing: quartOut, start: 0.9 }}
+    use:use_actions={actions}
   >
-    {@render children()}
+    {@render children?.()}
   </div>
-</div>
+</Backdrop>
 
 <style>
-  .modal-layout {
-    position: fixed;
-    inset: 0;
-
-    /* z-index moved to inline style for dynamic control */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: var(--spacing-m);
-    pointer-events: none;
-  }
-
-  .modal-layout.profile {
-    padding: 0;
-  }
-
-  .modal-content {
+  /**
+   * ULTRA-LEAN NOMENCLATURE:
+   * .base - The core modal container.
+   */
+  .base {
     position: relative;
     width: 95%;
     max-width: 480px;
     min-width: 280px;
     max-height: 90vh;
     padding: var(--spacing-xl);
-    z-index: calc(var(--z-index-max) + 1);
     display: flex;
     flex-direction: column;
     gap: var(--spacing-l);
     overflow: hidden;
+    cursor: default; /* Reset cursor from Backdrop's pointer */
     pointer-events: auto;
+    transition: filter var(--motion-m);
   }
 
-  .modal-content.profile {
+  /* Variant Specifics */
+  .base.profile {
     width: 100%;
     max-width: 1000px;
     background: transparent;
@@ -93,13 +87,19 @@
     padding: 0;
   }
 
-  .modal-content.preview,
-  .modal-content.mini {
+  .base.preview,
+  .base.mini {
     max-width: 320px;
   }
 
-  .modal-content.mini {
+  .base.mini {
     padding: var(--spacing-l);
     gap: var(--spacing-m);
+  }
+
+  /* Busy State Logic */
+  .base.is-busy {
+    filter: brightness(0.8) grayscale(0.5);
+    pointer-events: none;
   }
 </style>

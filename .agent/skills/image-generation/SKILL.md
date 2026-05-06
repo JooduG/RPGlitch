@@ -9,7 +9,7 @@ description: Triggered by any task involving prompt engineering, visual asset re
 
 ## Overview
 
-The `image-generation` skill manages the visual library of the RPGlitch Engine. It translates diegetic character descriptions and world-building cues into high-fidelity visual assets using generative AI tools. This skill ensures that every image adheres to the "Nordic Collection" aesthetic and is properly indexed for local-first simulation performance.
+The `image-generation` skill manages the visual library of the RPGlitch Engine. It translates diegetic character descriptions and world-building cues into high-fidelity visual assets using generative AI tools. This skill ensures that every image adheres to the "Nordic Collection" aesthetic and is properly indexed for local-first simulation performance. It is responsible for **Optics**—translating physical fragments into visual-only geometry.
 
 ### Strategic Context
 
@@ -28,7 +28,8 @@ The `image-generation` skill manages the visual library of the RPGlitch Engine. 
 1. **Prompt Engineering**: Synthesize character/fractal metadata into a high-fidelity, stylistically-aligned prompt.
 2. **Generation**: Invoke the `generate_image` tool to create the asset.
 3. **Registry Integration**: Save the image to `src/media/images/` and update the `ImageRegistry` for state-driven recall.
-4. **Metadata Archival**: Store the successful prompt for iterative refinement or future consistency checks.
+4. **Physical Grounding**: Filter descriptions to focus on texture, geometry, and lighting.
+5. **Metadata Archival**: Store the successful prompt for iterative refinement or future consistency checks.
 
 ### Asset Management
 
@@ -69,6 +70,15 @@ Present the generated image and the prompt used for synthesis.
 
 - **Style Mismatch**: Refine the negative prompt to exclude "vibrant", "warm", "neon", or "over-lit" elements.
 - **Registry Desync**: Run a cleanup script to reconcile the `src/media/` folder with the `ImageRegistry`.
+
+## Optics (Physical Grounding)
+
+When generating visual-only physical fragments:
+1. **Field Restriction**: Strictly synthesize prompts from `physical` fields ONLY (`eternal.physical` and `present.physical`).
+2. **Narrative Isolation**: NEVER include data from `non_physical` fields or narrative vectors (`past`, `future`) in visual prompts.
+3. **Visual Sovereignty**: Focus on visual appearance, including biological traits, clothing, gear, and environmental lighting.
+4. **Hardware Precision**: Focus on surface textures, material properties, and geometric anomalies.
+5. **Adjective Adjacency**: Group adjectives directly before their nouns to prevent visual bleeding in the model.
 
 ## Verification
 

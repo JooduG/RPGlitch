@@ -1,6 +1,6 @@
 <script>
   /**
-   * @file LibraryDrawer.svelte
+   * @file Drawer.svelte
    * 🐣 THE ENTITY BIRTHPLACE
    * Slide-up sheet for selecting or creating entities (AI, User, or Fractal).
    */
@@ -15,71 +15,62 @@
   import LibraryCard from "@drawer/LibraryCard.svelte";
   import Button from "@atoms/Button.svelte";
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
-  import { tooltip } from "@atoms/Tooltip.svelte";
 
   // --- STATE & DERIVATIONS ---
-  let is_open = $derived(app.drawer.open);
-  /** @type {'ai' | 'user' | 'fractal' | null} */
-  let drawerType = $derived(app.drawer.type);
 
-  /**
-   * Dynamically maps the UI drawer type to the appropriate data list.
-   */
-  let entity_list = $derived(() => {
-    if (drawerType === "ai") return app.ai_list;
-    if (drawerType === "user") return app.user_list;
-    if (drawerType === "fractal") return app.fractal_list;
-    return [];
-  });
+  let is_open = $derived(app.drawer.open);
+
+  /** @type {'ai' | 'user' | 'fractal' | null} */
+  let drawer_type = $derived(app.drawer.type);
+
+  /** Maps the UI drawer type to the appropriate entity list. */
+  let entity_list = $derived(
+    drawer_type === "ai"
+      ? app.ai_list
+      : drawer_type === "user"
+        ? app.user_list
+        : drawer_type === "fractal"
+          ? app.fractal_list
+          : [],
+  );
+
+  /** @type {Record<string, string>} */
+  const TITLES = {
+    ai: "Select AI Companion",
+    user: "Choose Your Persona",
+    fractal: "Select Fractal",
+  };
+
+  let title = $derived((drawer_type ? TITLES[drawer_type] : null) ?? "Select Entity");
+
+  // --- GUARDS ---
 
   /**
    * Prevents the same entity from being used for both User and AI roles.
    * @param {any} entity
    */
-  function isDisabled(entity) {
-    if (drawerType === "ai" && app.selected_user?.id === entity.id) return true;
-    if (drawerType === "user" && app.selected_ai?.id === entity.id) return true;
+  function is_disabled(entity) {
+    if (drawer_type === "ai" && app.selected_user?.id === entity.id) return true;
+    if (drawer_type === "user" && app.selected_ai?.id === entity.id) return true;
     return false;
   }
-
-  /**
-   * Header Label Logic
-   */
-  let title = $derived(() => {
-    /** @type {Record<string, string>} */
-    const labels = {
-      ai: "Select AI Companion",
-      user: "Choose Your Persona",
-      fractal: "Select Fractal",
-    };
-    return (drawerType ? labels[drawerType] : null) || "Select Entity";
-  });
 
   // --- ACTIONS ---
 
   /**
-   * THE BIRTH EVENT: handleCreateNew
+   * THE BIRTH EVENT: handle_create_new
    * Uses the Factory to generate a fresh entity and persists it to the DB.
    */
-  async function handleCreateNew() {
-    // 1. Map UI role to DB type
-    const type = drawerType === "fractal" ? "fractal" : "character";
-
-    // 2. Construct via Factory (Random color, Empty fields, Semantic Structure)
+  async function handle_create_new() {
+    const type = drawer_type === "fractal" ? "fractal" : "character";
     const plan = create_new(type, {
-      name: `New ${drawerType ? drawerType.toUpperCase() : type.toUpperCase()}`,
+      name: `New ${drawer_type ? drawer_type.toUpperCase() : type.toUpperCase()}`,
     });
 
     try {
-      // 3. Save to Database via Repository
       const saved = await repository.upsert(type, plan);
-
-      // 4. Log the event for telemetry
       app.log(`Birthed new ${type}: ${saved.id}`, "db");
-
-      // 5. Select and Open for Editing
-      // This closes the drawer and slides the Profile wing into view.
-      app.select_entity(drawerType, saved);
+      app.select_entity(drawer_type, saved);
       app.open_profile(saved);
     } catch (err) {
       const error = /** @type {Error} */ (err);
@@ -89,76 +80,72 @@
 
   /** @param {any} entity */
   function handle_select(entity) {
-    app.select_entity(drawerType, entity);
+    app.select_entity(drawer_type, entity);
   }
 
   /** @param {KeyboardEvent} e */
-  function handleKeydown(e) {
-    if (e.key === "Escape" && is_open) {
-      app.close_drawer();
-    }
+  function handle_keydown(e) {
+    if (e.key === "Escape" && is_open) app.close_drawer();
   }
 </script>
 
-<svelte:window onkeydown={handleKeydown} />
+<svelte:window onkeydown={handle_keydown} />
 
 {#if is_open}
   <Backdrop onclick={() => app.close_drawer()} z_index="calc(var(--z-index-xl) - 1)" />
 
   <div
-    class="entity-drawer glass-l"
+    class="drawer glass-l"
     role="dialog"
     aria-labelledby="drawer-title"
     transition:fly={{ y: "100%", duration: 500, easing: quintOut }}
   >
-    <header class="drawer-header">
-      <h3 id="drawer-title">{title()}</h3>
+    <header class="header">
+      <h3 id="drawer-title">{title}</h3>
     </header>
 
-    <div class="drawer-content no-scrollbar" use:kineticScroll>
-      <div class="drawer-grid">
+    <div class="body no-scrollbar" use:kineticScroll>
+      <div class="grid">
+        <!-- "Create New" card -->
         <div
-          class="drawer-card drawer-card--new glass-s"
+          class="card--new glass-s"
           style="--signature-color: var(--color-frisk); --signature-rgb: var(--color-frisk-rgb);"
         >
           <Button
             variant="invisible"
             cover={true}
-            onclick={handleCreateNew}
+            onclick={handle_create_new}
             aria-label="Create new entity"
-            actions={[tooltip]}
           />
-          <div class="card-visual">
-            <ProfilePicture placeholderChar="?" />
+          <div class="visual">
+            <ProfilePicture placeholder_char="?" />
           </div>
-          <div class="card-info">
-            <h5>
-              <span class="drawer-card-label">Create New</span>
-            </h5>
+          <div class="info">
+            <span class="label">Create New</span>
           </div>
-          <div class="signature-bar"></div>
+          <div class="bar"></div>
         </div>
 
-        {#each entity_list() as entity (entity.id)}
+        {#each entity_list as entity (entity.id)}
           <LibraryCard
             {entity}
-            type={drawerType ?? undefined}
-            disabled={isDisabled(entity)}
+            type={drawer_type ?? undefined}
+            disabled={is_disabled(entity)}
             onSelect={() => handle_select(entity)}
             onViewProfile={() => app.open_profile(entity)}
           />
         {/each}
       </div>
 
-      {#if entity_list().length === 0}
-        <div class="drawer-empty">
+      {#if entity_list.length === 0}
+        <div class="empty">
           <svg class="empty-icon" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"
             />
           </svg>
-          <h4>No {drawerType === "fractal" ? "Realities" : "Entities"} Found</h4>
+          <h4>No {drawer_type === "fractal" ? "Realities" : "Entities"} Found</h4>
           <p>Click "Create New" to initialize one.</p>
         </div>
       {/if}
@@ -167,7 +154,8 @@
 {/if}
 
 <style>
-  .entity-drawer {
+  /* --- SHELL --- */
+  .drawer {
     position: fixed;
     bottom: 0;
     left: 50%;
@@ -184,7 +172,8 @@
     box-shadow: var(--shadow-xl);
   }
 
-  .drawer-header {
+  /* --- HEADER --- */
+  .header {
     padding: var(--spacing-m) var(--spacing-l);
     display: flex;
     justify-content: space-between;
@@ -192,7 +181,7 @@
     border-bottom: var(--border-xl);
   }
 
-  .drawer-header h3 {
+  .header h3 {
     margin: 0;
     letter-spacing: var(--letter-spacing-l);
     font-weight: var(--font-weight-xl);
@@ -203,13 +192,15 @@
     text-shadow: var(--shadow-font);
   }
 
-  .drawer-content {
+  /* --- BODY --- */
+  .body {
     flex: 1;
     overflow-y: auto;
     padding: var(--spacing-xl);
   }
 
-  .drawer-grid {
+  /* --- GRID --- */
+  .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: var(--spacing-l);
@@ -217,7 +208,7 @@
   }
 
   /* --- NEW ENTITY CARD --- */
-  .drawer-card--new {
+  .card--new {
     position: relative;
     width: 100%;
     aspect-ratio: 2 / 3;
@@ -235,16 +226,16 @@
       filter var(--motion-l);
   }
 
-  .drawer-card--new:hover {
+  .card--new:hover {
     transform: scale(1.02);
     filter: brightness(1.1);
   }
 
-  .drawer-card--new:active {
+  .card--new:active {
     transform: scale(var(--motion-click));
   }
 
-  .drawer-card--new .card-visual {
+  .card--new .visual {
     flex: 1.5;
     background: var(--glass-s);
     display: flex;
@@ -255,7 +246,14 @@
     border-radius: var(--border-radius-m) var(--border-radius-m) 0 0;
   }
 
-  .drawer-card--new .card-info {
+  /* Strip ProfilePicture's own background so .visual glass-s shows through */
+  .card--new .visual :global(.profile-picture),
+  .card--new .visual :global(.placeholder) {
+    background: transparent;
+    background-image: none;
+  }
+
+  .card--new .info {
     flex: 0.6;
     padding: var(--spacing-s);
     display: flex;
@@ -265,22 +263,7 @@
     border-radius: 0 0 var(--border-radius-m) var(--border-radius-m);
   }
 
-  /* Strip ProfilePicture's own background so card-visual glass-s shows through */
-  .drawer-card--new .card-visual :global(.profile-picture),
-  .drawer-card--new .card-visual :global(.placeholder) {
-    background: transparent;
-    background-image: none;
-  }
-
-  .drawer-card--new .card-info h5 {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-  }
-
-  .drawer-card--new .drawer-card-label {
+  .card--new .label {
     font-weight: var(--font-weight-xl);
     font-family: var(--font-family-heading);
     text-transform: uppercase;
@@ -290,7 +273,7 @@
     text-align: center;
   }
 
-  .drawer-card--new .signature-bar {
+  .card--new .bar {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -301,12 +284,12 @@
     transition: opacity var(--motion-l);
   }
 
-  .drawer-card--new:hover .signature-bar {
+  .card--new:hover .bar {
     opacity: 1;
   }
 
   /* --- EMPTY STATE --- */
-  .drawer-empty {
+  .empty {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -316,31 +299,32 @@
     color: var(--font-color-s);
   }
 
-  .drawer-empty .empty-icon {
+  .empty-icon {
     width: 80px;
     height: 80px;
     opacity: var(--opacity-xs);
     margin-bottom: var(--spacing-m);
   }
 
-  .drawer-empty h4 {
+  .empty h4 {
     margin: 0;
     font-size: 1.5rem;
     font-weight: var(--font-weight-xl);
   }
 
-  .drawer-empty p {
+  .empty p {
     opacity: var(--opacity-l);
     margin-top: 0.5rem;
   }
 
+  /* --- RESPONSIVE --- */
   @media (width <= 768px) {
-    .entity-drawer {
+    .drawer {
       max-width: 100vw;
       border-radius: var(--border-radius-xl) var(--border-radius-xl) 0 0;
     }
 
-    .drawer-grid {
+    .grid {
       grid-template-columns: repeat(2, 1fr);
       gap: var(--spacing-m);
     }

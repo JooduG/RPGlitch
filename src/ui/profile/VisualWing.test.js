@@ -16,17 +16,17 @@ function ensureModifiers(char) {
   if (!char.modifiers) {
     char.modifiers = {
       prompt: "",
-      noBackground: false,
+      no_background: false,
       flipped: false,
       profile_picture_seed: 0,
-      colorName: "",
+      color_name: "",
     };
   } else {
     char.modifiers.prompt ??= "";
-    char.modifiers.noBackground ??= false;
+    char.modifiers.no_background ??= false;
     char.modifiers.flipped ??= false;
     char.modifiers.profile_picture_seed ??= 0;
-    char.modifiers.colorName ??= "";
+    char.modifiers.color_name ??= "";
   }
 }
 
@@ -59,7 +59,7 @@ describe("VisualWing Stability (Hotfix)", () => {
     ensureModifiers(char);
     expect(char.modifiers).toBeDefined();
     expect(char.modifiers.prompt).toBe("");
-    expect(char.modifiers.noBackground).toBe(false);
+    expect(char.modifiers.no_background).toBe(false);
   });
 
   test("ensureModifiers preserves existing modifiers and fills missing fields", () => {
@@ -70,7 +70,7 @@ describe("VisualWing Stability (Hotfix)", () => {
     };
     ensureModifiers(char);
     expect(char.modifiers.prompt).toBe("Existing prompt");
-    expect(char.modifiers.noBackground).toBe(false);
+    expect(char.modifiers.no_background).toBe(false);
     expect(char.modifiers.profile_picture_seed).toBe(0);
   });
 

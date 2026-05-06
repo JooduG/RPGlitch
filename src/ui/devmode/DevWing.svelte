@@ -6,7 +6,6 @@
    */
   import DataBox from "@devmode/DataBox.svelte";
   import Button from "@atoms/Button.svelte";
-  import Wing from "@profile/Wing.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
 
   let { char = $bindable(), is_editing } = $props();
@@ -60,7 +59,7 @@
   });
 </script>
 
-<Wing class="dev-wing">
+<section class="wing glass-l">
   <div class="group">
     <div class="dynamics-grid">
       {#each active_dynamics as dynamic (dynamic.source + "-" + dynamic.key)}
@@ -149,9 +148,30 @@
       </div>
     </footer>
   </div>
-</Wing>
+</section>
 
 <style>
+  .wing {
+    width: 100%;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    transition: all var(--motion-l) var(--motion-elastic);
+    background-color: rgb(var(--color-gunmetal-rgb) / 45%);
+    padding: var(--spacing-m);
+    gap: var(--spacing-m);
+  }
+
+  .group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    width: 100%;
+  }
+
   .dynamics-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -259,7 +279,7 @@
     opacity: 1;
   }
 
-  .step-controls :global(.button) {
+  .step-controls :global(*) {
     background: transparent;
     border: none;
     color: var(--color-cyan);
@@ -272,7 +292,7 @@
     border-radius: var(--border-radius-s);
   }
 
-  .step-controls :global(.button:hover) {
+  .step-controls :global(:hover) {
     color: var(--color-white);
   }
 

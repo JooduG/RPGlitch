@@ -16,8 +16,9 @@ Use this reference to select the appropriate MCP reasoning framework based on th
 
 | Block Type      | Trigger                                       | MCP / Framework                                       |
 | :-------------- | :-------------------------------------------- | :---------------------------------------------------- |
-| **Research**    | Knowledge gaps, library patterns, web access. | `context7`, `svelte`, `deepwiki`, `firecrawl`, `data` |
-| **Logic**       | Core engine mutations, unit tests.            | `node`, `vitest` (Local)                              |
+| **Research**    | Knowledge gaps, library patterns, web access. | `find-docs`, `svelte`, `deepwiki`, `firecrawl`, `data` |
+| **Simulation**  | Core engine mutations, **Enhancement**, unit tests. | `simulation`, `node`, `vitest` (Local)                |
+| **Sensory**     | Vision, **Optics**, Audio, Design.            | `designer`, `image-generation`, `audio`, `css`        |
 | **Operations**  | Repository lifecycle, PRs, Issues.            | **GH CLI** (`gh`)                                     |
 | **Resonance**   | Quality gates, template compliance, health.   | `warden`                                              |
 | **Reasoning**   | Multi-step breakdown, chain-of-thought.       | `mcp-sequentialthinking-tools`                        |
@@ -57,8 +58,11 @@ To prevent cognitive drift, nomenclature is absolute.
 - **RPglitch**: (Deprecated) See **RPGlitch**.
 - **RPGlitch**: The core simulation engine and repository name.
 - **Temporal Engine**: The consolidated intelligence module managing the temporal continuum of an entity.
-- **Past Vectors**: (User UI: **Memories**) Historical anchors, traumas, and session resonances.
-- **Future Vectors**: Active impulses, plans, prophecies, and impending intent.
+- **Temporal Essence**: The four-quadrant state architecture: **Eternal** (Baseline), **Present** (Immediate), **Past** (History), and **Future** (Intent).
+- **Enhancement**: The process of refining raw entity data into high-fidelity fragments using the **3rd-Person Affirmative** law. Primarily targets `non_physical` fields and `vector` arrays.
+- **Optics**: Physical fragments and image-prompts optimized for geometric and texture precision. Strictly synthesized from `physical` fields, excluding narrative traits.
+- **Past Vectors**: (User UI: **Memories**) Historical anchors, critical precedents, and session resonances. Stored in the `past` vector array.
+- **Future Vectors**: Active impulses, plans, prophecies, and impending intent. Stored in the `future` vector array.
 - **Entity**: The fundamental unit of the simulation. An `entity` is either a `character` or a `fractal`.
 - **Fractal**: World, setting, or environmental entity.
 - **User Persona**: Human-controlled character (Entity).

@@ -2,6 +2,7 @@
 
 # 🧠 Skills (Capabilities)
 skills:
+  api-and-interface-design: .agent/skills/api-and-interface-design/SKILL.md
   audio: .agent/skills/audio/SKILL.md
   browser-testing-with-devtools: .agent/skills/browser-testing-with-devtools/SKILL.md
   context-engineering: .agent/skills/context-engineering/SKILL.md
@@ -23,7 +24,7 @@ skills:
   simulation: .agent/skills/simulation/SKILL.md
   source-driven-development: .agent/skills/source-driven-development/SKILL.md
   specification: .agent/skills/specification/SKILL.md
-  stitch: .agent/skills/stitch/SKILL.md
+  stitch-skill: .agent/skills/stitch-skill/SKILL.md
   supabase-postgres-best-practices: .agent/skills/supabase-postgres-best-practices/SKILL.md
   svelte: .agent/skills/svelte/SKILL.md
   swarm: .agent/skills/swarm/SKILL.md
@@ -62,4 +63,3 @@ governance:
 workspace:
   tracks: tasks/plan.md
   mission_board: tasks/todo.md
-  next: tasks/handover.md

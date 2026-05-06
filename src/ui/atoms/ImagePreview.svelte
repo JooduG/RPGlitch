@@ -1,90 +1,100 @@
 <script module>
   /**
-   * 🖼️ ImagePreview Store - Polish Visual Module
-   * Consolidated state and component logic.
+   * 🖼️ ImagePreview - State-driven Lightbox Kernel
+   * Managed via Svelte 5 Global Module State.
    */
 
-  /** @type {{active: boolean, src: string|null, caption: string}} */
-  let imagePreviewState = $state({
+  /** @type {{ active: boolean, src: string | null, caption: string }} */
+  let state = $state({
     active: false,
     src: null,
     caption: "",
   });
 
   /**
-   * Reactive image preview state (read-only export)
+   * Reactive state interface (Read-only)
    */
   export const imagePreview = {
     get active() {
-      return imagePreviewState.active;
+      return state.active;
     },
     get src() {
-      return imagePreviewState.src;
+      return state.src;
     },
     get caption() {
-      return imagePreviewState.caption;
+      return state.caption;
     },
   };
 
   /**
-   * Opens the image preview with an image
-   * @param {string} src - Image source URL
-   * @param {string} caption - Optional caption
+   * Trigger Lightbox
+   * @param {string} src - Image Source
+   * @param {string} caption - Optional metadata
    */
-  export function openImagePreview(src, caption = "") {
-    imagePreviewState.active = true;
-    imagePreviewState.src = src;
-    imagePreviewState.caption = caption;
-  }
+  export const openImagePreview = (src, caption = "") => {
+    state.active = true;
+    state.src = src;
+    state.caption = caption;
+  };
 
-  /**
-   * Closes the image preview
-   */
-  export function closeImagePreview() {
-    imagePreviewState.active = false;
-    imagePreviewState.src = null;
-    imagePreviewState.caption = "";
-  }
+  /** Close Lightbox */
+  export const closeImagePreview = () => (state.active = false);
 </script>
 
 <script>
   import Modal from "@atoms/Modal.svelte";
 </script>
 
-{#if imagePreviewState.active}
+{#if state.active}
   <Modal variant="preview" on_close={closeImagePreview}>
-    <div class="preview-stage">
-      <img src={imagePreviewState.src} alt={imagePreviewState.caption || "Preview"} />
-      {#if imagePreviewState.caption}
-        <div class="caption">{imagePreviewState.caption}</div>
-      {/if}
-    </div>
+    <img class="visual" src={state.src} alt={state.caption || "Preview"} />
+
+    {#if state.caption}
+      <div class="label">{state.caption}</div>
+    {/if}
   </Modal>
 {/if}
 
 <style>
-  .preview-stage {
-    position: relative;
+  /**
+   * 📐 DOM Flattening & Nomenclature Harmonization
+   * We target the Modal's content container directly to eliminate redundant layers.
+   * Generic, semantic class names: .visual, .label.
+   */
+  :global(.modal-content.preview) {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    max-width: 95vw;
+    max-height: 95vh;
+    width: auto;
+    padding: var(--spacing-m);
+    gap: var(--spacing-m); /* Parity with original margin-top */
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    overflow: visible;
   }
 
-  .preview-stage img {
+  .visual {
     max-width: 90vw;
     max-height: 85vh;
     border-radius: var(--border-radius-s);
     box-shadow: var(--shadow-xxl);
-    pointer-events: auto;
     object-fit: contain;
+    pointer-events: auto;
   }
 
-  .preview-stage .caption {
-    margin-top: var(--spacing-m);
+  .label {
     color: var(--font-color-m);
     background: rgb(var(--color-black-rgb) / var(--opacity-m));
     padding: var(--spacing-s) var(--spacing-m);
     border-radius: var(--border-radius-s);
     font-size: var(--font-size-m);
+    text-align: center;
+    max-width: 80%;
+    z-index: 1;
+    box-shadow: var(--shadow-l);
   }
 </style>

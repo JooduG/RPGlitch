@@ -53,7 +53,7 @@
     <ImagePreview />
   {/if}
   {#if app.profile_open}
-    <Profile entity_id={app.profile_target_id} entity_type={app.profile_target_type} />
+    <Profile entity_type={app.profile_target_type} />
   {/if}
   {#if app.control_panel_open}
     <ControlPanel />

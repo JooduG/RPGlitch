@@ -1,24 +1,43 @@
 <script>
   /**
-   * 📡 TYPING INDICATOR / ACTIVITY DOTS
-   * Standard activity indicator for entities.
-   * Supports pill (chat), glass (bubbles), and minimal states.
+   * @file TypingIndicator.svelte
+   * 📡 TYPING INDICATOR
+   * Animated activity dots for entity "is typing" states.
+   * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
+  import { use_actions } from "@ui/utils/use-actions.js";
+
   let {
-    variant = "glass", // 'glass', 'pill', 'minimal'
-    signatureColor = "var(--color-gunmetal)",
-    className = "",
+    // Design
+    variant = "glass", // 'glass' | 'pill' | 'minimal'
+    signature_color = "var(--color-gunmetal)",
+    class: className = "",
+
+    // State
+    busy = false,
+
+    // Slots/Snippets
+    actions = [],
+
+    ...rest
   } = $props();
 </script>
 
-<div class="activity-dots {variant} {className}" style="--activity-color: {signatureColor}">
+<div
+  {...rest}
+  class="wrapper {variant} {className}"
+  class:is-busy={busy}
+  style="--activity-color: {signature_color}"
+  use:use_actions={actions}
+>
   <div class="dot"></div>
   <div class="dot"></div>
   <div class="dot"></div>
 </div>
 
 <style>
-  .activity-dots {
+  /* ── Root ─────────────────────────────────────────────── */
+  .wrapper {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -28,8 +47,8 @@
     transition: all var(--motion-l) var(--motion-elastic);
   }
 
-  /* Variant: Glass (Default - Floating Bubble) */
-  .activity-dots.glass {
+  /* ── Variant: glass (default — floating bubble) ──────── */
+  .wrapper.glass {
     padding: var(--spacing-xs) var(--spacing-l);
     background: var(--glass-l);
     border: var(--border-s);
@@ -37,27 +56,32 @@
     height: 2.5rem;
   }
 
-  /* Variant: Pill (Chat/Inline) */
-  .activity-dots.pill {
+  .wrapper.glass .dot {
+    background-color: var(--font-color-m);
+  }
+
+  /* ── Variant: pill (inline / chat) ───────────────────── */
+  .wrapper.pill {
     padding: var(--spacing-xs) var(--spacing-m);
     background: var(--activity-color);
     height: var(--spacing-xl);
   }
 
-  /* Variant: Minimal (Pure dots) */
-  .activity-dots.minimal {
+  /* ── Variant: minimal (bare dots) ────────────────────── */
+  .wrapper.minimal {
     padding: 0;
     background: transparent;
     border: none;
     height: auto;
   }
 
+  /* ── Dot ──────────────────────────────────────────────── */
   .dot {
     width: var(--spacing-xs);
     height: var(--spacing-xs);
     background-color: var(--color-white);
     border-radius: var(--border-radius-full);
-    animation: bounce 1.4s infinite ease-in-out both;
+    animation: typing-pulse 1.4s infinite ease-in-out both;
   }
 
   .dot:nth-child(1) {
@@ -68,7 +92,14 @@
     animation-delay: -0.16s;
   }
 
-  @keyframes bounce {
+  /* ── Busy State ───────────────────────────────────────── */
+  .wrapper.is-busy {
+    filter: brightness(0.8) grayscale(0.5);
+    opacity: var(--opacity-s);
+  }
+
+  /* ── Keyframes ────────────────────────────────────────── */
+  @keyframes typing-pulse {
     0%,
     80%,
     100% {
@@ -80,10 +111,5 @@
       transform: scale(1);
       opacity: 1;
     }
-  }
-
-  /* Adjust dot color for glass variant if needed */
-  .glass .dot {
-    background-color: var(--font-color-m);
   }
 </style>

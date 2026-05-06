@@ -1,8 +1,7 @@
 <script>
   /**
    * @file src/ui/profile/EntityFooter.svelte
-   * THE COMMAND CENTER
-   * Houses the primary Save, Delete, and Edit actions.
+   * THE COMMAND CENTER — Primary Save, Delete, and Edit actions.
    * Part of the RPGlitch "Chalk Regime" UI collection.
    */
   import Button from "@atoms/Button.svelte";
@@ -10,9 +9,9 @@
   /**
    * @typedef {Object} Props
    * @property {boolean} is_editing - Global editing state
-   * @property {boolean} is_saving - Global saving state
-   * @property {Function} onclick_edit - Handler for entering edit mode
-   * @property {Function} onclick_save - Handler for saving changes
+   * @property {boolean} is_saving  - Global saving state
+   * @property {Function} onclick_edit   - Handler for entering edit mode
+   * @property {Function} onclick_save   - Handler for saving changes
    * @property {Function} onclick_delete - Handler for deleting the entity
    */
 
@@ -20,13 +19,12 @@
   let { is_editing, is_saving, onclick_edit, onclick_save, onclick_delete } = $props();
 </script>
 
-<footer class="wrapper" data-testid="entity-footer">
-  <div class="actions">
-    {#if is_editing}
+<footer class="footer" data-testid="entity-footer">
+  {#if is_editing}
+    <div class="actions">
       <Button
         variant="danger"
-        fullWidth
-        className="btn"
+        full_width
         onclick={onclick_delete}
         disabled={is_saving}
         data-testid="delete-button"
@@ -35,31 +33,27 @@
       </Button>
       <Button
         variant="secondary"
-        fullWidth
-        className="btn"
+        full_width
         onclick={onclick_save}
         disabled={is_saving}
         data-testid="save-button"
       >
         {is_saving ? "Saving..." : "Save"}
       </Button>
-    {:else}
-      <div class="spacer"></div>
-      <Button
-        variant="secondary"
-        fullWidth
-        className="btn"
-        onclick={onclick_edit}
-        data-testid="edit-button"
-      >
+    </div>
+  {:else}
+    <span class="gap"></span>
+    <div class="actions">
+      <span class="spacer"></span>
+      <Button variant="secondary" full_width onclick={onclick_edit} data-testid="edit-button">
         Edit
       </Button>
-    {/if}
-  </div>
+    </div>
+  {/if}
 </footer>
 
 <style>
-  .wrapper {
+  .footer {
     position: relative;
     margin: auto calc(-1 * var(--spacing-m)) calc(-1 * var(--spacing-m));
     padding: var(--spacing-m) var(--spacing-m) var(--spacing-m) 0;
@@ -76,6 +70,12 @@
     border-radius: 0 0 var(--border-radius-l) 0;
   }
 
+  /* Fills column 1 when only the Edit button is shown. */
+  .gap {
+    grid-column: 1;
+  }
+
+  /* Occupies column 2; flex distributes buttons equally. */
   .actions {
     grid-column: 2;
     display: flex;
@@ -83,14 +83,14 @@
     width: 100%;
   }
 
-  .spacer {
-    flex: 1;
-  }
-
   @media (width <= 768px) {
-    .wrapper {
+    .footer {
       grid-template-columns: 1fr;
       padding: var(--spacing-s);
+    }
+
+    .gap {
+      display: none;
     }
 
     .actions {
@@ -98,7 +98,13 @@
     }
   }
 
-  :global(.btn.button) {
+  /* Phantom slot; mirrors Delete's position in readonly mode. */
+  .spacer {
+    flex: 1;
+  }
+
+  /* Stretch every Button inside .actions to share space equally. */
+  :global(.actions > *) {
     flex: 1;
   }
 </style>

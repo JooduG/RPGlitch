@@ -18,7 +18,7 @@
 </script>
 
 <div class="pill-container">
-  <GlassPill className="unified-capsule">
+  <GlassPill class="unified-capsule">
     {#snippet left()}
       <Button
         className="capsule-flank icon-glow"
@@ -82,8 +82,8 @@
   }
 
   /* Scoped overrides to maintain existing Storyboard specific dimensions */
-  :global(.unified-capsule .capsule-flank.button),
-  :global(.unified-capsule .capsule-action.button) {
+  :global(.unified-capsule .capsule-flank),
+  :global(.unified-capsule .capsule-action) {
     background: transparent;
     transition: all var(--motion-l);
     border: none;

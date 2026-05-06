@@ -1,10 +1,8 @@
 <script>
   /**
    * @file src/ui/profile/Profile.svelte
-   * 🧬 THE ENTITY EDITOR (REBORN)
-   * The primary orchestrator for viewing and editing entities.
-   * Uses the new flattened architecture for better modularity and focus.
-   * Part of the RPGlitch "Chalk Regime" UI collection.
+   * 🧬 ENTITY EDITOR — Primary orchestrator for viewing and editing entities.
+   * Chalk Regime UI · Flat DOM · Ultra-Lean CSS
    */
   import { entities } from "@/data/repository.js";
   import { app } from "@state/app.svelte.js";
@@ -22,8 +20,10 @@
   import VisualWing from "@profile/VisualWing.svelte";
   import { SvelteSet } from "svelte/reactivity";
 
-  /** @type {{ entity_id?: string, entity_type?: "character" | "fractal" }} */
-  let { entity_id = undefined, entity_type = "character" } = $props();
+  const DEFAULT_FIELD = { key: "visual-prompt", label: "Image Prompt" };
+
+  /** @type {{ entity_type?: "character" | "fractal" }} */
+  let { entity_type = "character" } = $props();
 
   // --- STATE ---
 
@@ -34,8 +34,8 @@
   /** @type {SvelteSet<string>} */
   let busy_fields = new SvelteSet();
 
-  /** @type {{key: string, label: string}} */
-  let active_field = $state({ key: "visual-prompt", label: "Image Prompt" });
+  /** @type {{key: string, label: string} | null} */
+  let active_field = $state(DEFAULT_FIELD);
 
   /** @type {any} */
   let char = $state(normalize(app.editing_entity || runtime.character));
@@ -48,9 +48,7 @@
   // --- EFFECTS ---
 
   $effect(() => {
-    if (app.editing_entity && app.editing_entity.id !== char.id) {
-      char = normalize(app.editing_entity);
-    }
+    if (app.editing_entity) char = normalize(app.editing_entity);
   });
 
   // --- HANDLERS ---
@@ -67,24 +65,22 @@
     is_editing = false;
     is_saving = true;
     try {
-      await runtime.save_entity(entity_type || "character", char);
-      const eid = char.id;
-      const type = entity_type || "character";
+      await runtime.save_entity(entity_type, char);
 
-      if (type === "character") {
+      if (entity_type === "character") {
         const characters = await entities.list("character");
         app.ai_list = characters;
         app.user_list = characters;
 
-        const updated = characters.find((/** @type {any} */ e) => e.id === eid);
-        if (app.selected_ai?.id === eid) app.selected_ai = updated;
-        if (app.selected_user?.id === eid) app.selected_user = updated;
-      } else if (type === "fractal") {
+        const updated = characters.find((/** @type {any} */ e) => e.id === char.id);
+        if (app.selected_ai?.id === char.id) app.selected_ai = updated;
+        if (app.selected_user?.id === char.id) app.selected_user = updated;
+      } else if (entity_type === "fractal") {
         const fractals = await entities.list("fractal");
         app.fractal_list = fractals;
 
-        const updated = fractals.find((/** @type {any} */ e) => e.id === eid);
-        if (app.selected_fractal?.id === eid) app.selected_fractal = updated;
+        const updated = fractals.find((/** @type {any} */ e) => e.id === char.id);
+        if (app.selected_fractal?.id === char.id) app.selected_fractal = updated;
       }
     } catch (err) {
       console.error("Failed to save profile:", err);
@@ -96,7 +92,7 @@
 
   async function handle_delete() {
     try {
-      await runtime.delete_entity(entity_type || "character", entity_id || char.id);
+      await runtime.delete_entity(entity_type, char.id);
       handle_close();
     } catch (err) {
       console.error("Failed to delete entity:", err);
@@ -110,30 +106,25 @@
         active instanceof HTMLInputElement ||
         active instanceof HTMLTextAreaElement ||
         (active instanceof HTMLElement && active.isContentEditable);
-      const is_wing = active?.closest?.(".wing, .dropdown");
+      const is_wing = active?.closest?.(".wings, .dropdown");
 
       if (!is_input && !is_wing && busy_fields.size === 0) {
-        active_field = { key: "visual-prompt", label: "Image Prompt" };
+        active_field = DEFAULT_FIELD;
       }
     }, 50);
   }
 
   /** @param {MouseEvent} e */
   function handle_bg_click(e) {
-    const target =
-      e.target instanceof HTMLElement
-        ? e.target
-        : e.target instanceof Node
-          ? e.target.parentElement
-          : null;
+    const target = e.target instanceof HTMLElement ? e.target : null;
     if (
       !target?.closest?.(
-        "textarea, input, button, .swatch, .wing, .dropdown, .presentation, [contenteditable]",
+        "textarea, input, button, .swatch, .wings, .dropdown, .card, [contenteditable]",
       )
     ) {
       if (is_editing) {
         is_editing = false;
-        active_field = { key: "visual-prompt", label: "Image Prompt" };
+        active_field = DEFAULT_FIELD;
       } else {
         handle_close();
       }
@@ -162,7 +153,7 @@
       role="presentation"
       data-is-editing={is_editing}
     >
-      <aside class="wing custom-scrollbar" class:is-visible={is_editing || app.settings.dev_mode}>
+      <aside class="wings custom-scrollbar" class:is-visible={is_editing || app.settings.dev_mode}>
         {#if is_editing}
           <VisualWing bind:char {is_editing} {busy_fields} bind:active_field />
           <AudioWing bind:char {is_editing} />
@@ -173,14 +164,14 @@
       </aside>
 
       <div
-        class="presentation custom-scrollbar"
+        class="card custom-scrollbar"
         style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
       >
-        <div class="bar"></div>
-        <div class="panel-left">
+        <div class="signature-bar"></div>
+        <div class="avatar">
           <ProfilePicture entity={char} />
         </div>
-        <main class="panel-right custom-scrollbar">
+        <main class="body custom-scrollbar">
           <EntityHeader bind:char {is_editing} bind:active_field />
           <EntityFragments bind:char {is_editing} {busy_fields} bind:active_field />
           <EntityFooter
@@ -208,7 +199,9 @@
     position: relative;
   }
 
-  .wing {
+  /* ── Wings sidebar ─────────────────────────────────────────── */
+
+  .wings {
     width: 0;
     min-width: 0;
     max-width: 0;
@@ -229,7 +222,7 @@
     --scrollbar-thumb-hover: rgb(var(--color-white-rgb) / var(--opacity-l));
   }
 
-  .wing.is-visible {
+  .wings.is-visible {
     width: 240px;
     min-width: 240px;
     max-width: 240px;
@@ -240,7 +233,9 @@
     margin-right: var(--spacing-l);
   }
 
-  .presentation {
+  /* ── Card (glassmorphic entity panel) ─────────────────────── */
+
+  .card {
     order: 2;
     min-width: 85vh;
     max-width: 1000px;
@@ -262,7 +257,9 @@
     will-change: transform, width, max-width;
   }
 
-  .bar {
+  /* ── Signature accent bar ──────────────────────────────────── */
+
+  .signature-bar {
     position: absolute;
     top: 0;
     left: 0;
@@ -281,7 +278,9 @@
     opacity: 0.8;
   }
 
-  .panel-left {
+  /* ── Avatar column (ProfilePicture) ────────────────────────── */
+
+  .avatar {
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -290,7 +289,9 @@
     overflow: hidden;
   }
 
-  .panel-right {
+  /* ── Body column (scrollable content) ─────────────────────── */
+
+  .body {
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -304,6 +305,8 @@
     --scrollbar-thumb-hover: rgb(var(--signature-rgb) / var(--opacity-l));
   }
 
+  /* ── Responsive: tablet / mobile ──────────────────────────── */
+
   @media (width <= 850px) {
     .wrapper {
       flex-direction: column;
@@ -313,7 +316,7 @@
       padding: 0;
     }
 
-    .wing.is-visible {
+    .wings.is-visible {
       width: 100%;
       min-width: 100%;
       max-width: 100%;
@@ -324,7 +327,7 @@
       padding: 0 var(--spacing-s);
     }
 
-    .presentation {
+    .card {
       order: 1;
       max-width: 100%;
       height: 100%;
@@ -336,12 +339,12 @@
       overflow-y: auto;
     }
 
-    .panel-left {
+    .avatar {
       flex: 0 0 clamp(140px, 20vh, 220px);
       border-radius: 0;
     }
 
-    .panel-right {
+    .body {
       flex: 0 0 auto;
       padding: var(--spacing-m);
       overflow-y: visible;
@@ -351,7 +354,7 @@
   }
 
   @media (width <= 480px) {
-    .panel-right {
+    .body {
       padding: var(--spacing-s);
       gap: var(--spacing-s);
     }
