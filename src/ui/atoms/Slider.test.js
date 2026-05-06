@@ -25,4 +25,19 @@ describe("Slider Atom", () => {
     expect(input.disabled).toBe(true);
     expect(getByText("INTENSITY: DISABLED")).toBeDefined();
   });
+
+  test("applies style prop to the wrapper label", () => {
+    const { container } = render(Slider, {
+      style: "margin-top: 20px; color: red;",
+    });
+    const wrapper = container.querySelector(".wrapper");
+    const input = container.querySelector("input");
+    const style = wrapper.getAttribute("style");
+
+    expect(style).toContain("margin-top: 20px");
+    expect(style).toContain("color: red");
+    expect(style).toContain("--fill-start");
+
+    expect(input.getAttribute("style")).toBeNull();
+  });
 });

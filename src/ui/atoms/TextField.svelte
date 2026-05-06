@@ -70,7 +70,6 @@
 </script>
 
 <div
-  {...rest}
   class="wrapper {className}"
   class:is-expanded={is_expanded}
   class:is-busy={busy}
@@ -102,6 +101,7 @@
 
   {#if is_edit}
     <textarea
+      {...rest}
       class="body custom-scrollbar is-edit"
       class:is-busy={busy}
       bind:value
@@ -114,6 +114,7 @@
     ></textarea>
   {:else}
     <div
+      {...rest}
       class="body custom-scrollbar is-readonly"
       class:is-busy={busy}
       data-sync-id={syncId}

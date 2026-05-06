@@ -12,6 +12,7 @@
    * @property {number | null} [neutral] - The 'zero' point for the fill gradient.
    * @property {any[]} [actions] - Svelte actions orchestration.
    * @property {string} [class] - External styling.
+   * @property {string} [style] - Inline styling.
    * @property {(e: Event & { currentTarget: HTMLInputElement }) => void} [onchange] - Change callback.
    */
 
@@ -27,6 +28,7 @@
     neutral = null,
     actions = [],
     class: className = "",
+    style = "",
     onchange = undefined,
     ...rest
   } = $props();
@@ -49,7 +51,7 @@
   class="wrapper {className}"
   class:is-disabled={disabled || busy}
   class:is-busy={busy}
-  style="--fill-start: {fill_start}%; --fill-end: {fill_end}%;"
+  style="{style}; --fill-start: {fill_start}%; --fill-end: {fill_end}%;"
   data-testid={test_id}
   aria-busy={busy}
   aria-disabled={disabled || busy}

@@ -8,6 +8,7 @@
    * @property {boolean} [busy] - Async lock state.
    * @property {any[]} [actions] - Svelte actions.
    * @property {string} [class] - External styling.
+   * @property {string} [style] - Inline styling.
    * @property {(e: Event & { currentTarget: HTMLInputElement }) => void} [onchange] - Change callback.
    */
 
@@ -22,6 +23,7 @@
     busy = false,
     actions = [],
     class: className = "",
+    style = "",
     onchange = undefined,
     ...rest
   } = $props();
@@ -39,6 +41,7 @@
   class:is-sm={size === "sm"}
   aria-busy={busy}
   aria-disabled={disabled || busy}
+  {style}
   use:use_actions={actions}
 >
   <input

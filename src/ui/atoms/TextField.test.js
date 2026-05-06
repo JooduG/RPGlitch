@@ -50,4 +50,32 @@ describe("TextField", () => {
     expect(style).toContain("--weight-intensity: 0.5");
     expect(style).toContain("--header-opacity: 0.6");
   });
+
+  test("drills ...rest props to the internal body element", () => {
+    // Edit mode
+    const { container: containerEdit } = render(TextField, {
+      is_edit: true,
+      name: "test-field",
+      required: true,
+      "data-testid": "inner-element",
+    });
+    const wrapperEdit = containerEdit.querySelector(".wrapper");
+    const textarea = containerEdit.querySelector("textarea");
+
+    expect(wrapperEdit.getAttribute("name")).toBeNull();
+    expect(textarea.getAttribute("name")).toBe("test-field");
+    expect(textarea.hasAttribute("required")).toBe(true);
+
+    // Readonly mode
+    const { container: containerReadonly } = render(TextField, {
+      is_edit: false,
+      name: "test-field-readonly",
+      "data-testid": "inner-element-readonly",
+    });
+    const wrapperReadonly = containerReadonly.querySelector(".wrapper");
+    const bodyReadonly = containerReadonly.querySelector(".body.is-readonly");
+
+    expect(wrapperReadonly.getAttribute("name")).toBeNull();
+    expect(bodyReadonly.getAttribute("name")).toBe("test-field-readonly");
+  });
 });

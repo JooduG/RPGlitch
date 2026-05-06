@@ -24,4 +24,16 @@ describe("Toggle Atom", () => {
 
     expect(input.disabled).toBe(true);
   });
+
+  test("applies style prop to the wrapper label", () => {
+    const { container } = render(Toggle, {
+      style: "margin-top: 20px; color: red;",
+    });
+    const wrapper = container.querySelector(".wrapper");
+    const input = container.querySelector("input");
+
+    expect(wrapper.getAttribute("style")).toContain("margin-top: 20px");
+    expect(wrapper.getAttribute("style")).toContain("color: red");
+    expect(input.getAttribute("style")).toBeNull();
+  });
 });
