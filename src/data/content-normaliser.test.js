@@ -156,6 +156,20 @@ describe("content-normaliser.js", () => {
       expect(result.isSnapshot).toBe(1);
     });
 
+    it("should prioritize snake_case over camelCase when both are present", () => {
+      const input = {
+        is_custom: 1,
+        isCustom: 0,
+        origin_id: "snake-id",
+        originId: "camel-id",
+      };
+      const result = normalize(input);
+      expect(result.is_custom).toBe(1);
+      expect(result.isCustom).toBe(1);
+      expect(result.origin_id).toBe("snake-id");
+      expect(result.originId).toBe("snake-id");
+    });
+
     it("should process tags into a sanitized array of strings", () => {
       const input = { tags: [" tag1 ", "tag2", null, 123] };
       const result = normalize(input);

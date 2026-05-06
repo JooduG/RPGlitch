@@ -99,24 +99,31 @@ export const normalize = (base = {}) => {
     _backup_state = null,
     _last_update_msg_id = null,
   } = base;
+
+  const norm_is_premade = is_premade ?? isPremade ?? 0;
+  const norm_is_custom = is_custom ?? isCustom ?? 0;
+  const norm_is_chosen = is_chosen ?? isChosen ?? 0;
+  const norm_is_snapshot = is_snapshot ?? isSnapshot ?? 0;
+  const norm_origin_id = origin_id || originId || null;
+
   const result = {
     // --- CORE METADATA ---
     id: id || "",
     created_at: created_at || createdAt || 0,
     updated_at: updated_at || updatedAt || 0,
-    origin_id: origin_id || originId || null,
-    is_premade: is_premade ?? isPremade ?? 0,
-    is_custom: is_custom ?? isCustom ?? 0,
-    is_chosen: is_chosen ?? isChosen ?? 0,
-    is_snapshot: is_snapshot ?? isSnapshot ?? 0,
+    origin_id: norm_origin_id,
+    is_premade: norm_is_premade,
+    is_custom: norm_is_custom,
+    is_chosen: norm_is_chosen,
+    is_snapshot: norm_is_snapshot,
     version: version || 0,
 
     // [BACKWARD COMPAT] CamelCase DB flags for Dexie indexes
-    isCustom: is_custom ?? isCustom ?? 0,
-    isPremade: is_premade ?? isPremade ?? 0,
-    isChosen: is_chosen ?? isChosen ?? 0,
-    isSnapshot: is_snapshot ?? isSnapshot ?? 0,
-    originId: origin_id || originId || null,
+    isCustom: norm_is_custom,
+    isPremade: norm_is_premade,
+    isChosen: norm_is_chosen,
+    isSnapshot: norm_is_snapshot,
+    originId: norm_origin_id,
 
     name: sanitize_html(name).trim(),
     description: sanitize_html(description).trim(),
