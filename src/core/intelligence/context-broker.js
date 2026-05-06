@@ -57,7 +57,6 @@ function to_data_points(entity) {
     let val = get_path_value(entity, fieldId);
 
     if (val && typeof val === "string") {
-      // FIX: Increase limit to 2000 for Entity Fragments to prevent truncation of identity blocks
       list.push({
         text: clean_text(val, 2000),
         type: metadata.label,
