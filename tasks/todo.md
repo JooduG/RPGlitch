@@ -121,6 +121,7 @@
 
 ## 🧠 Skill Log
 
+| 2026-05-06T06:48:00+02:00 | Merge profile-config into entity-fragments | `using-agent-skills`, `svelte` | ✅ Done |
 | 2026-05-06T05:51:00+02:00 | TextField & VectorArray Stabilization ([060]) | `using-agent-skills`, `svelte`, `css`, `designer` | ✅ Resolved |
 | 2026-05-05T16:15:00+02:00 | Type Safety & Implicit Any Fixes (VisualWing/VectorArray) | `test-driven-development`, `svelte` | ✅ Resolved |
 | 2026-05-03T10:45:00+02:00 | TextField Flattening Refactor ([060]) | `using-agent-skills`, `svelte`, `css`, `designer`, `test-driven-development` | ✅ Resolved |

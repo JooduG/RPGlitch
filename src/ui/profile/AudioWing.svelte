@@ -16,10 +16,10 @@
   /** @type {{ char: any, is_editing: boolean }} */
   let { char = $bindable(), is_editing } = $props();
 
-  // --- STATE MANAGEMENT ---
+  // --- INITIALIZATION ---
 
-  /** Synchronously ensure the voice object exists */
-  const ensure_voice = () => {
+  /** Ensure the voice state object is initialized correctly. */
+  $effect(() => {
     if (!char.voice) {
       char.voice = { uri: "", rate: 1.0, pitch: 1.0 };
     } else {
@@ -27,10 +27,9 @@
       char.voice.rate ??= 1.0;
       char.voice.pitch ??= 1.0;
     }
-  };
+  });
 
-  ensure_voice();
-  $effect(ensure_voice);
+  // --- STATE ---
 
   let show_dropdown = $state(false);
   let anchor_el = $state();
@@ -45,7 +44,7 @@
     max_h: DROPDOWN_MAX_HEIGHT,
   });
 
-  // --- DERIVED LOGIC ---
+  // --- DERIVED ---
 
   const selected_voice = $derived(Audio.voice.voices.find((v) => v.uri === char.voice.uri));
   const is_natural = $derived(selected_voice?.name.includes("Natural"));
@@ -62,7 +61,7 @@
       .replace(/\s+-\s+English\s+\(.*\)/gi, "")
       .replace(new RegExp(`\\b${region}\\b`, "gi"), "")
       .replace(/\b(English|Swedish|German|French|Spanish|Italian|UK|US)\b/gi, "")
-      .replace(/\s*-\s*$/, "") // Strip trailing hyphen
+      .replace(/\s*-\s*$/, "")
       .replace(/\s+/g, " ")
       .trim();
     return clean || name;
@@ -82,7 +81,7 @@
       `max-height: ${coords.max_h}px;`,
   );
 
-  // --- EFFECTS ---
+  // --- INTERACTION ---
 
   $effect(() => {
     if (show_dropdown && anchor_el) {
@@ -109,14 +108,9 @@
       };
 
       const handle_outside = (/** @type {MouseEvent} */ e) => {
-        const target =
-          e.target instanceof Element
-            ? e.target
-            : e.target instanceof Node
-              ? e.target.parentElement
-              : null;
+        const target = e.target instanceof Element ? e.target : null;
         if (!target) return;
-        if (!anchor_el.contains(target) && !target.closest(".dropdown")) show_dropdown = false;
+        if (!anchor_el.contains(target) && !target.closest(".menu")) show_dropdown = false;
       };
 
       update();
@@ -133,108 +127,94 @@
   });
 </script>
 
-<div class="wrapper" role="presentation">
-  <Wing class="audio-wing">
-    <div class="group">
-      <div class="control" bind:this={anchor_el}>
+<Wing class="audio-wing">
+  <div class="header" bind:this={anchor_el}>
+    <Button
+      className="voice-select {show_dropdown ? 'active' : ''}"
+      disabled={!is_editing}
+      onclick={() => (show_dropdown = !show_dropdown)}
+      aria-label="Select Voice"
+      aria-haspopup="listbox"
+      aria-expanded={show_dropdown}
+      variant="invisible"
+    >
+      <span class="truncate">
+        {format_name(selected_voice?.name || "Select Voice")}
+      </span>
+    </Button>
+
+    <div
+      use:portal
+      role="listbox"
+      class="menu"
+      class:is-visible={show_dropdown}
+      class:is-dropup={coords.is_dropup}
+      style={dropdown_style}
+    >
+      {#each Audio.voice.voices as voice (voice.uri)}
         <Button
-          className="voice-btn {show_dropdown ? 'active' : ''}"
-          disabled={!is_editing}
-          onclick={() => (show_dropdown = !show_dropdown)}
-          aria-label="Select Voice"
-          aria-haspopup="listbox"
-          aria-expanded={show_dropdown}
+          role="option"
+          aria-selected={char.voice.uri === voice.uri}
+          className="item {char.voice.uri === voice.uri ? 'active' : ''}"
+          onclick={() => {
+            if (is_editing) char.voice.uri = voice.uri;
+            show_dropdown = false;
+          }}
           variant="invisible"
         >
-          <span class="truncate">
-            {format_name(selected_voice?.name || "Select Voice")}
-          </span>
+          <span class="label">{format_name(voice.name, voice.region)}</span>
+          <div class="tags">
+            {#each format_region(voice.region) as part, j (voice.uri + j)}
+              <span>{part}</span>
+            {/each}
+          </div>
         </Button>
-
-        <div
-          use:portal
-          role="listbox"
-          class="dropdown"
-          class:is-visible={show_dropdown}
-          class:is-dropup={coords.is_dropup}
-          style={dropdown_style}
-        >
-          {#each Audio.voice.voices as voice (voice.uri)}
-            <Button
-              role="option"
-              aria-selected={char.voice.uri === voice.uri}
-              className="option {char.voice.uri === voice.uri ? 'active' : ''}"
-              onclick={() => {
-                if (is_editing) char.voice.uri = voice.uri;
-                show_dropdown = false;
-              }}
-              variant="invisible"
-            >
-              <span class="name">{format_name(voice.name, voice.region)}</span>
-              <div class="pill">
-                {#each format_region(voice.region) as part, j (voice.uri + j)}
-                  <span>{part}</span>
-                {/each}
-              </div>
-            </Button>
-          {/each}
-        </div>
-
-        <Button
-          className="preview-btn"
-          actions={[tooltip]}
-          tooltip="Preview Voice"
-          aria-label="Preview Voice"
-          square
-          disabled={!selected_voice}
-          onclick={() => Audio.voice.preview(char.voice.uri, char.voice.rate, char.voice.pitch)}
-          variant="invisible"
-        >
-          <svg viewBox="0 0 24 24" class="icon-xs">
-            <path
-              fill="currentColor"
-              d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"
-            />
-          </svg>
-        </Button>
-      </div>
+      {/each}
     </div>
 
-    <div class="group">
-      <div class="sliders">
-        <Slider
-          min={0.1}
-          max={2.0}
-          step={0.1}
-          bind:value={char.voice.rate}
-          disabled={!is_editing || !selected_voice}
-          label="Rate"
-          neutral={1.0}
+    <Button
+      className="preview-btn"
+      actions={[tooltip]}
+      tooltip="Preview Voice"
+      aria-label="Preview Voice"
+      square
+      disabled={!selected_voice}
+      onclick={() => Audio.voice.preview(char.voice.uri, char.voice.rate, char.voice.pitch)}
+      variant="invisible"
+    >
+      <svg viewBox="0 0 24 24" class="icon-xs">
+        <path
+          fill="currentColor"
+          d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"
         />
-        <Slider
-          min={0.1}
-          max={2.0}
-          step={0.1}
-          bind:value={char.voice.pitch}
-          disabled={!is_editing || !selected_voice || is_natural}
-          label="Pitch"
-          neutral={1.0}
-        />
-      </div>
-    </div>
-  </Wing>
-</div>
+      </svg>
+    </Button>
+  </div>
+
+  <div class="body">
+    <Slider
+      min={0.1}
+      max={2.0}
+      step={0.1}
+      bind:value={char.voice.rate}
+      disabled={!is_editing || !selected_voice}
+      label="Rate"
+      neutral={1.0}
+    />
+    <Slider
+      min={0.1}
+      max={2.0}
+      step={0.1}
+      bind:value={char.voice.pitch}
+      disabled={!is_editing || !selected_voice || is_natural}
+      label="Pitch"
+      neutral={1.0}
+    />
+  </div>
+</Wing>
 
 <style>
-  .wrapper {
-    display: contents;
-  }
-
-  .group {
-    width: 100%;
-  }
-
-  .control {
+  .header {
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
@@ -243,9 +223,16 @@
     align-items: center;
   }
 
-  /* --- Instrument Buttons (Shared) --- */
+  .body {
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacing-m);
+    width: 100%;
+  }
 
-  :global(.voice-btn.button),
+  /* --- Components --- */
+
+  :global(.voice-select.button),
   :global(.preview-btn.button) {
     height: var(--icon-m);
     min-height: 0;
@@ -255,16 +242,14 @@
     transition: all var(--motion-l) var(--motion-elastic);
   }
 
-  :global(.voice-btn.button:hover:not(:disabled)),
+  :global(.voice-select.button:hover:not(:disabled)),
   :global(.preview-btn.button:hover:not(:disabled)),
-  :global(.voice-btn.button.active) {
+  :global(.voice-select.button.active) {
     background: var(--glass-s);
     filter: brightness(1.2);
   }
 
-  /* --- Specifics --- */
-
-  :global(.voice-btn.button) {
+  :global(.voice-select.button) {
     width: 100%;
     padding: 0 var(--spacing-m);
   }
@@ -274,7 +259,9 @@
     padding: 0;
   }
 
-  .dropdown {
+  /* --- Menu --- */
+
+  .menu {
     visibility: hidden;
     pointer-events: none;
     opacity: 0;
@@ -289,26 +276,26 @@
       opacity var(--motion-l) ease,
       transform var(--motion-l) var(--motion-elastic),
       visibility var(--motion-l);
-  }
-
-  .dropdown.is-visible {
-    visibility: visible;
-    pointer-events: auto;
     display: flex;
     flex-direction: column;
+  }
+
+  .menu.is-visible {
+    visibility: visible;
+    pointer-events: auto;
     opacity: 1;
     transform: translateY(var(--spacing-xs));
   }
 
-  .dropdown.is-dropup {
+  .menu.is-dropup {
     transform: translateY(var(--spacing-xs));
   }
 
-  .dropdown.is-visible.is-dropup {
+  .menu.is-visible.is-dropup {
     transform: translateY(calc(-1 * var(--spacing-xs)));
   }
 
-  :global(.option.button) {
+  :global(.item.button) {
     width: 100%;
     padding: var(--spacing-xs) var(--spacing-s);
     background: transparent;
@@ -322,12 +309,22 @@
     min-height: 0;
   }
 
-  :global(.option.button:hover),
-  :global(.option.button.active) {
+  :global(.item.button:hover),
+  :global(.item.button.active) {
     background: var(--glass-xs);
   }
 
-  :global(.option.button .pill) {
+  /* --- Labels & Tags --- */
+
+  .truncate,
+  :global(.item.button .label) {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    flex: 1;
+  }
+
+  :global(.item.button .tags) {
     display: flex;
     flex-flow: row wrap;
     justify-content: flex-end;
@@ -342,21 +339,7 @@
     flex-shrink: 0;
   }
 
-  :global(.option.button .pill span) {
+  :global(.item.button .tags span) {
     white-space: nowrap;
-  }
-
-  .truncate,
-  :global(.option.button .name) {
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    flex: 1;
-  }
-
-  .sliders {
-    display: flex;
-    flex-direction: row;
-    gap: var(--spacing-m);
-    width: 100%;
   }
 </style>

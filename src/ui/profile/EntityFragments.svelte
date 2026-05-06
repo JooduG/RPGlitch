@@ -11,7 +11,7 @@
   import { tooltip } from "@atoms/Tooltip.svelte";
   import { get_value, set_value } from "@utils/field-path.js";
   import { fly } from "svelte/transition";
-  import { PROFILE_SECTIONS } from "@profile/profile-config.js";
+  import { PROFILE_SECTIONS } from "@core/intelligence/entity-fragments.js";
   import VectorArray from "@profile/VectorArray.svelte";
 
   let { char = $bindable(), is_editing, busy_fields, active_field = $bindable() } = $props();
