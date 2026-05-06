@@ -105,11 +105,11 @@
     justify-content: center;
     width: 1.25rem;
     height: 1.25rem;
-    background: rgb(var(--color-frozen-rgb) / 10%);
+    background: rgb(var(--color-frozen-rgb) / var(--opacity-s));
     color: var(--color-frozen);
     border-radius: var(--border-radius-full);
-    font-size: 10px;
-    font-weight: 800;
+    font-size: var(--font-size-xxs);
+    font-weight: var(--font-weight-xl);
     text-transform: uppercase;
   }
 

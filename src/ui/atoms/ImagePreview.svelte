@@ -61,7 +61,7 @@
    * We target the Modal's content container directly to eliminate redundant layers.
    * Generic, semantic class names: .visual, .label.
    */
-  :global(.modal-content.preview) {
+  :global(.base.preview) {
     display: flex;
     flex-direction: column;
     align-items: center;
