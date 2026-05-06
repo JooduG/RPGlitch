@@ -71,6 +71,7 @@
 
 <!-- 
   [current_problems]
+  - [x] Tooltip Atom Standardization & Bloat Purge
   - [ ] Storymode components migration (Message.svelte actions/attachments)
   - [ ] Library/Drawer refactoring (RC Audit)
   - [ ] Verify background visibility on Perchance build

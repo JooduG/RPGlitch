@@ -7,7 +7,7 @@
   import { ENTITY_FRAGMENTS } from "@/core/intelligence/entity-fragments.js";
   import { fitText } from "@utils/fit-text.js";
   import { auto_resize } from "@utils/auto-resize.js";
-  import Tooltip from "@atoms/Tooltip.svelte";
+  import { tooltip } from "@atoms/Tooltip.svelte";
 
   /** @typedef {import("@data/content-normaliser.js").normalize} Normalizer */
   /** @typedef {ReturnType<Normalizer>} Entity */
@@ -24,37 +24,42 @@
 
 <header class:is-editing={is_editing} data-testid="profile-header">
   {#if is_editing}
-    <Tooltip text="Edit Entity Name">
-      <h1 class="banner-name edit" class:is-active={is_name_active} aria-label="Edit Entity Name">
-        <span
-          contenteditable="true"
-          bind:innerText={char.name}
-          role="textbox"
-          tabindex="0"
-          data-placeholder={ENTITY_FRAGMENTS.name}
-          onfocus={() => (active_field = { key: "name", label: "Entity Name" })}
-        ></span>
-      </h1>
-    </Tooltip>
+    <h1
+      class="banner-name edit"
+      class:is-active={is_name_active}
+      use:tooltip={{ text: "Edit Entity Name" }}
+      aria-label="Edit Entity Name"
+    >
+      <span
+        contenteditable="true"
+        bind:innerText={char.name}
+        role="textbox"
+        tabindex="0"
+        data-placeholder={ENTITY_FRAGMENTS.name}
+        onfocus={() => (active_field = { key: "name", label: "Entity Name" })}
+      ></span>
+    </h1>
   {:else}
-    <Tooltip text="Entity Name">
-      <h1 class="banner-name" aria-label="Entity Name" use:fitText={{ minSize: 40 }}>
-        {char.name || ENTITY_FRAGMENTS.name}
-      </h1>
-    </Tooltip>
+    <h1
+      class="banner-name"
+      use:tooltip={{ text: "Entity Name" }}
+      aria-label="Entity Name"
+      use:fitText={{ minSize: 40 }}
+    >
+      {char.name || ENTITY_FRAGMENTS.name}
+    </h1>
   {/if}
 
   {#if is_editing}
-    <Tooltip text="Edit Entity Description">
-      <textarea
-        class="banner-description custom-scrollbar"
-        placeholder={ENTITY_FRAGMENTS.description}
-        bind:value={char.description}
-        use:auto_resize
-        aria-label="Edit Entity Description"
-        onfocus={() => (active_field = null)}
-      ></textarea>
-    </Tooltip>
+    <textarea
+      class="banner-description custom-scrollbar"
+      use:tooltip={{ text: "Edit Entity Description" }}
+      placeholder={ENTITY_FRAGMENTS.description}
+      bind:value={char.description}
+      use:auto_resize
+      aria-label="Edit Entity Description"
+      onfocus={() => (active_field = null)}
+    ></textarea>
   {:else}
     <p class="banner-description-text" data-placeholder={ENTITY_FRAGMENTS.description}>
       {char.description || ""}

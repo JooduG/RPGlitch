@@ -7,7 +7,7 @@
   import DataBox from "@devmode/DataBox.svelte";
   import Button from "@atoms/Button.svelte";
   import Wing from "@atoms/Wing.svelte";
-  import Tooltip from "@atoms/Tooltip.svelte";
+  import { tooltip } from "@atoms/Tooltip.svelte";
 
   let { char = $bindable(), is_editing } = $props();
 
@@ -69,9 +69,7 @@
           class:is-editing={is_editing}
           style="--dynamic-value: {char[dynamic.source][dynamic.key]}%"
         >
-          <Tooltip text={dynamic.desc}>
-            <span class="dynamic-label">{dynamic.label}</span>
-          </Tooltip>
+          <span class="dynamic-label" use:tooltip={dynamic.desc}>{dynamic.label}</span>
           <div class="value-container">
             {#if is_editing}
               <input
@@ -81,42 +79,40 @@
                 max="100"
               />
               <div class="step-controls">
-                <Tooltip text="Increase">
-                  <Button
-                    variant="invisible"
-                    size="sm"
-                    square={true}
-                    className="step-up"
-                    onclick={() =>
-                      (char[dynamic.source][dynamic.key] = Math.min(
-                        100,
-                        char[dynamic.source][dynamic.key] + 1,
-                      ))}
-                    aria-label="Increase"
+                <Button
+                  variant="invisible"
+                  size="sm"
+                  square={true}
+                  className="step-up"
+                  actions={[[tooltip, "Increase"]]}
+                  onclick={() =>
+                    (char[dynamic.source][dynamic.key] = Math.min(
+                      100,
+                      char[dynamic.source][dynamic.key] + 1,
+                    ))}
+                  aria-label="Increase"
+                >
+                  <svg viewBox="0 0 24 24" class="icon-xxs"
+                    ><path d="M7 14l5-5 5 5H7z" fill="currentColor" /></svg
                   >
-                    <svg viewBox="0 0 24 24" class="icon-xxs"
-                      ><path d="M7 14l5-5 5 5H7z" fill="currentColor" /></svg
-                    >
-                  </Button>
-                </Tooltip>
-                <Tooltip text="Decrease">
-                  <Button
-                    variant="invisible"
-                    size="sm"
-                    square={true}
-                    className="step-down"
-                    onclick={() =>
-                      (char[dynamic.source][dynamic.key] = Math.max(
-                        0,
-                        char[dynamic.source][dynamic.key] - 1,
-                      ))}
-                    aria-label="Decrease"
+                </Button>
+                <Button
+                  variant="invisible"
+                  size="sm"
+                  square={true}
+                  className="step-down"
+                  actions={[[tooltip, "Decrease"]]}
+                  onclick={() =>
+                    (char[dynamic.source][dynamic.key] = Math.max(
+                      0,
+                      char[dynamic.source][dynamic.key] - 1,
+                    ))}
+                  aria-label="Decrease"
+                >
+                  <svg viewBox="0 0 24 24" class="icon-xxs"
+                    ><path d="M7 10l5 5 5-5H7z" fill="currentColor" /></svg
                   >
-                    <svg viewBox="0 0 24 24" class="icon-xxs"
-                      ><path d="M7 10l5 5 5-5H7z" fill="currentColor" /></svg
-                    >
-                  </Button>
-                </Tooltip>
+                </Button>
               </div>
             {:else}
               <span class="value-display">

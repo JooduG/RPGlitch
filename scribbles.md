@@ -34,15 +34,15 @@ Execute a Mariana Trench-level deep-dive analysis into the provided file. Decons
 
 ---
 
-### 🗂️ Refactor Status: `src/ui/profile`
+## 🗂️ Refactor Status: `src/ui/profile`
 
-| File                                                                                                         | Status          | Notes                                                                                                                             |
-| :----------------------------------------------------------------------------------------------------------- | :-------------- | :-------------------------------------------------------------------------------------------------------------------------------- |
-| [EntityHeader.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/EntityHeader.svelte)       | ✅ **Reviewed** | Refactored in session `a1a37c74` (Universal SOTA Refactor).                                                                       |
-| [EntityFragments.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/EntityFragments.svelte) | ✅ **Reviewed** | Refactored in session `5183815a` (DOM flattening & nomenclature harmonization).                                                   |
-| [Profile.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/Profile.svelte)                 | ❌ **Pending**  | The primary orchestrator. While it uses the new components, it has not yet been structurally deconstructed or "flattened" itself. |
-| [VectorArray.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/VectorArray.svelte)         | ❌ **Pending**  | **Critical:** Still contains legacy Svelte 4 patterns (e.g., `export function add_item()`) and old logic flows.                   |
-| [EntityFooter.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/EntityFooter.svelte)       | ❌ **Pending**  | Simple component, but still uses legacy nomenclature; internal `@file` path documentation is incorrect.                           |
-| [AudioWing.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/AudioWing.svelte)             | ⚠️ **Partial**  | Verified for TypeScript/Runes, but lacks the "Ultra-Lean" structural harmonization.                                               |
-| [VisualWing.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/VisualWing.svelte)           | ⚠️ **Partial**  | Verified for TypeScript/Runes, but lacks the "Ultra-Lean" structural harmonization.                                               |
-| [profile-config.js](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/profile-config.js)           | ❌ **Pending**  | Pure configuration logic; not yet reviewed for architectural optimization.                                                        |
+| File                                                                                                         | Status          | Notes                                                                                                |
+| :----------------------------------------------------------------------------------------------------------- | :-------------- | :--------------------------------------------------------------------------------------------------- |
+| [EntityHeader.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/EntityHeader.svelte)       | ✅ **Reviewed** | Refactored in session `a1a37c74` (Universal SOTA Refactor).                                          |
+| [EntityFragments.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/EntityFragments.svelte) | ✅ **Reviewed** | Refactored in session `5183815a` (DOM flattening & nomenclature harmonization).                      |
+| [Profile.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/Profile.svelte)                 | ✅ **Reviewed** | Orchestrator refactored: DOM flattened (wings/presentation), nomenclature harmonized, logic cleaned. |
+| [VectorArray.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/VectorArray.svelte)         | ✅ **Reviewed** | SOTA Refactor: DOM flattened, CSS harmonized (Ultra-Lean), logic simplified with runes.              |
+| [EntityFooter.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/EntityFooter.svelte)       | ✅ **Reviewed** | SOTA Refactor: Path corrected, DOM flattened, nomenclature harmonized.                               |
+| [AudioWing.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/AudioWing.svelte)             | ✅ **Reviewed** | SOTA Refactor: Path corrected, DOM flattened, nomenclature harmonized (Ultra-Lean).                  |
+| [VisualWing.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/VisualWing.svelte)           | ✅ **Reviewed** | SOTA Refactor: DOM flattened, nomenclature harmonized, logic cleaned for Svelte 5.                   |
+| [profile-config.js](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/profile-config.js)           | ✅ **Reviewed** | Configuration logic verified for architectural optimization.                                         |

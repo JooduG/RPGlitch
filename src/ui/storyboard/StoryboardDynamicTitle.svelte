@@ -1,7 +1,7 @@
 <script>
   import { app } from "@state/app.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
-  import Tooltip from "@atoms/Tooltip.svelte";
+  import { tooltip } from "@atoms/Tooltip.svelte";
   // ============================================
   // LOCAL STATE (Component-Owned)
   // ============================================
@@ -98,28 +98,27 @@
   }
 </script>
 
-<Tooltip text="Double-click to re-roll title">
-  <h1
-    contenteditable="true"
-    aria-label="Double-click to re-roll title"
-    oninput={handle_input}
-    ondblclick={handle_dbl_click}
-  >
-    {#if is_custom}
-      {custom_title}
-    {:else}
-      <span class="title-content">
-        {#each title_parts as part, i (i)}
-          {#if part.color}
-            <span class="entity-name" style="color: {part.color}">{part.text}</span>
-          {:else}
-            {part.text}
-          {/if}
-        {/each}
-      </span>
-    {/if}
-  </h1>
-</Tooltip>
+<h1
+  use:tooltip={{ text: "Double-click to re-roll title" }}
+  contenteditable="true"
+  aria-label="Double-click to re-roll title"
+  oninput={handle_input}
+  ondblclick={handle_dbl_click}
+>
+  {#if is_custom}
+    {custom_title}
+  {:else}
+    <span class="title-content">
+      {#each title_parts as part, i (i)}
+        {#if part.color}
+          <span class="entity-name" style="color: {part.color}">{part.text}</span>
+        {:else}
+          {part.text}
+        {/if}
+      {/each}
+    </span>
+  {/if}
+</h1>
 
 <style>
   /* Import Satisfy font for the special story title */

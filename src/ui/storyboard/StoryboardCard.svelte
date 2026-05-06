@@ -17,7 +17,7 @@
   import Button from "@atoms/Button.svelte";
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
   import { fitText } from "@utils/fit-text.js";
-  import Tooltip from "@atoms/Tooltip.svelte";
+  import { tooltip } from "@atoms/Tooltip.svelte";
 
   // --- DERIVED STATE ---
   let is_empty = $derived(!entity);
@@ -29,84 +29,83 @@
   let signature_rgb = $derived(themeStore.hex_to_rgb(signature_color));
 </script>
 
-<Tooltip text={is_empty ? `Select ${role_label}` : `Change ${role_label}`}>
-  <div
-    class="storyboard-stack {type}-card glass-base"
-    style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
-    aria-label={is_empty ? `Select ${role_label}` : `Change ${role_label}`}
-    data-testid="storyboard-card"
-  >
-    {#if is_empty}
-      <Button variant="invisible" cover={true} onclick={on_select}>
-        <div class="card-shell">
-          <div class="empty-content">
-            <div class="empty-icon-wrap">
-              {#if type === "fractal"}
-                <svg viewBox="0 0 24 24" class="icon">
-                  <path fill="currentColor" d="M19,12L12,22L5,12L12,2M12,2L19,12H5L12,2Z" />
-                </svg>
-              {:else}
-                <svg viewBox="0 0 24 24" class="icon">
-                  <path
-                    fill="currentColor"
-                    d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
-                  />
-                </svg>
-              {/if}
-            </div>
-            <span class="empty-slug">{role_label}</span>
-          </div>
-        </div>
-      </Button>
-    {:else}
+<div
+  class="storyboard-stack {type}-card glass-base"
+  use:tooltip={{ text: is_empty ? `Select ${role_label}` : `Change ${role_label}` }}
+  style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
+  aria-label={is_empty ? `Select ${role_label}` : `Change ${role_label}`}
+  data-testid="storyboard-card"
+>
+  {#if is_empty}
+    <Button variant="invisible" cover={true} onclick={on_select}>
       <div class="card-shell">
-        <div class="storyboard-card">
-          <Button variant="invisible" cover={true} onclick={on_select}>
-            <div class="visual-anchor">
-              <ProfilePicture {entity} />
-            </div>
-          </Button>
+        <div class="empty-content">
+          <div class="empty-icon-wrap">
+            {#if type === "fractal"}
+              <svg viewBox="0 0 24 24" class="icon">
+                <path fill="currentColor" d="M19,12L12,22L5,12L12,2M12,2L19,12H5L12,2Z" />
+              </svg>
+            {:else}
+              <svg viewBox="0 0 24 24" class="icon">
+                <path
+                  fill="currentColor"
+                  d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+                />
+              </svg>
+            {/if}
+          </div>
+          <span class="empty-slug">{role_label}</span>
+        </div>
+      </div>
+    </Button>
+  {:else}
+    <div class="card-shell">
+      <div class="storyboard-card">
+        <Button variant="invisible" cover={true} onclick={on_select}>
+          <div class="visual-anchor">
+            <ProfilePicture {entity} />
+          </div>
+        </Button>
 
-          <!-- Info Layer (Bottom-up Gradient Scrim) -->
-          <div class="card-info-scrim">
-            <div class="info-content">
-              <h2 use:fitText={{ minSize: 26 }}>
-                {entity.name}
-              </h2>
-              <div class="description-wrap">
-                <p class="description">{entity.description || "No description provided."}</p>
-              </div>
+        <!-- Info Layer (Bottom-up Gradient Scrim) -->
+        <div class="card-info-scrim">
+          <div class="info-content">
+            <h2 use:fitText={{ minSize: 26 }}>
+              {entity.name}
+            </h2>
+            <div class="description-wrap">
+              <p class="description">{entity.description || "No description provided."}</p>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Profile Quick-Link (Wrapped to prevent opacity layer flattening for tooltip) -->
-      <div class="quick-link-wrapper">
-        <Tooltip text="View {entity.name} Profile">
-          <Button
-            className="profile-quick-link"
-            variant="invisible"
-            aria-label="View {entity.name} Profile"
-            onclick={on_view_profile}
-            tabindex="-1"
-          >
-            <div class="button-surface"></div>
-            <svg viewBox="0 0 24 24" class="icon-s">
-              <path
-                fill="currentColor"
-                d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"
-              />
-            </svg>
-          </Button>
-        </Tooltip>
-      </div>
-    {/if}
+    <!-- Profile Quick-Link (Wrapped to prevent opacity layer flattening for tooltip) -->
+    <div class="quick-link-wrapper">
+      <Button
+        className="profile-quick-link"
+        actions={[tooltip]}
+        tooltip="View {entity.name} Profile"
+        variant="invisible"
+        aria-label="View {entity.name} Profile"
+        onclick={on_view_profile}
+        tabindex="-1"
+      >
+        <div class="button-surface"></div>
+        <svg viewBox="0 0 24 24" class="icon-s">
+          <path
+            fill="currentColor"
+            d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"
+          />
+        </svg>
+      </Button>
+    </div>
+  {/if}
 
-    <!-- Border Highlight (Dedicated layer to prevent ::after collisions) -->
-    <div class="card-border"></div>
-  </div>
-</Tooltip>
+  <!-- Border Highlight (Dedicated layer to prevent ::after collisions) -->
+  <div class="card-border"></div>
+</div>
 
 <style>
   .storyboard-stack {

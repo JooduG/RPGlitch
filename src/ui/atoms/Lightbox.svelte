@@ -1,4 +1,4 @@
-<script context="module">
+<script module>
   /**
    * 🖼️ Lightbox Store - Polish Visual Module
    * Consolidated state and component logic.

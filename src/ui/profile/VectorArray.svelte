@@ -1,19 +1,36 @@
 <script>
+  /**
+   * @file src/ui/profile/VectorArray.svelte
+   * THE VECTOR ARRAY INSTRUMENT
+   * A high-fidelity list orchestrator for entity characteristics.
+   * Part of the RPGlitch "Chalk Regime" UI collection.
+   */
   import Button from "@atoms/Button.svelte";
   import TextField from "@atoms/TextField.svelte";
-  import { quintOut } from "svelte/easing";
+  import { tooltip } from "@atoms/Tooltip.svelte";
   import { slide } from "svelte/transition";
-  import Tooltip from "@atoms/Tooltip.svelte";
+  import { quintOut } from "svelte/easing";
+  import { generateUUID } from "@core/utils.js";
+
+  /**
+   * @typedef {Object} VectorItem
+   * @property {string} id
+   * @property {number} timestamp
+   * @property {string} text
+   * @property {string} type
+   * @property {number} base_weight
+   * @property {string[]} vector_tags
+   */
 
   /**
    * @typedef {Object} Props
-   * @property {any} char
-   * @property {string} path
-   * @property {boolean} is_editing
-   * @property {Function} set_value
-   * @property {Function} get_value
-   * @property {string} signature_color
-   * @property {string} [unit_label]
+   * @property {any} char - The entity object being edited
+   * @property {string} path - The dot-path to the array in char
+   * @property {boolean} is_editing - Global editing state
+   * @property {Function} set_value - Utility to update char state
+   * @property {Function} get_value - Utility to read char state
+   * @property {string} signature_color - The theme accent color
+   * @property {string} [unit_label] - Display label for individual items
    */
 
   /** @type {Props} */
@@ -27,56 +44,67 @@
     unit_label = "Vector",
   } = $props();
 
-  // --- Reactive State ---
+  // --- DERIVED STATE ---
 
-  let raw_items = $derived(get_value(char, path) || []);
-  let items = $derived.by(() => {
+  /** @type {VectorItem[] | string} */
+  const raw_items = $derived(get_value(char, path) || []);
+
+  /** @type {VectorItem[]} */
+  const items = $derived.by(() => {
     const val = raw_items;
     if (!Array.isArray(val)) {
-      return typeof val === "string" && val.trim() ? [val.trim()] : [];
+      return typeof val === "string" && val.trim()
+        ? [
+            {
+              id: generateUUID(),
+              timestamp: Date.now(),
+              text: val.trim(),
+              type: path,
+              base_weight: 5,
+              vector_tags: [],
+            },
+          ]
+        : [];
     }
     return val;
   });
 
-  // --- Logic Helpers ---
-
-  /** @param {any} item */
-  const get_text = (item) => (typeof item === "string" ? item : item?.text || item?.summary || "");
-
-  /** @param {any} item */
-  const get_weight = (item) => (typeof item === "object" ? (item.base_weight ?? 5) : 5);
+  // --- LOGIC HANDLERS ---
 
   /**
-   * Universal patcher for array items
+   * Patches a specific item in the array and triggers a state sync.
    * @param {number} index
-   * @param {Object} patch
+   * @param {Partial<VectorItem>} patch
    */
   function patch_item(index, patch) {
     const current = [...items];
-    const base = typeof current[index] === "object" ? current[index] : { text: current[index] };
+    const item = current[index];
+    const base =
+      typeof item === "object" && item !== null
+        ? item
+        : {
+            id: generateUUID(),
+            timestamp: Date.now(),
+            text: String(item || ""),
+            type: path,
+            base_weight: 5,
+            vector_tags: [],
+          };
     current[index] = { ...base, ...patch };
     set_value(char, path, current);
   }
 
-  /**
-   * @param {number} i
-   * @param {string} text
-   */
+  /** @param {number} i, @param {string} text */
   const update_text = (i, text) => patch_item(i, { text });
 
-  /**
-   * @param {number} i
-   * @param {number} delta
-   */
+  /** @param {number} i, @param {number} delta */
   const update_weight = (i, delta) => {
-    const weight = get_weight(items[i]);
+    const item = items[i];
+    const weight = typeof item === "object" ? (item.base_weight ?? 5) : 5;
     patch_item(i, { base_weight: Math.min(10, Math.max(1, weight + delta)) });
   };
 
-  /**
-   * @param {number} i
-   * @param {string} raw
-   */
+  /** @param {number} i, @param {string} raw */
   const update_tags = (i, raw) => {
     const vector_tags = raw
       .split(",")
@@ -92,10 +120,11 @@
     set_value(char, path, current);
   };
 
+  /** Expose add_item for external orchestration (e.g. from parent fragment labels) */
   export function add_item() {
     const current = [...items];
     current.unshift({
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       timestamp: Date.now(),
       text: "",
       type: path,
@@ -107,131 +136,124 @@
 </script>
 
 <div class="wrapper" style="--accent-color: {signature_color}">
-  <div class="list">
-    {#each items as item, i (i)}
-      <div
-        class="item"
-        class:editing={is_editing}
-        transition:slide={{ duration: 400, easing: quintOut }}
+  {#each items as item, i (item.id || i)}
+    <div
+      class="item"
+      class:is-editing={is_editing}
+      transition:slide={{ duration: 400, easing: quintOut }}
+    >
+      <TextField
+        is_edit={is_editing}
+        value={typeof item === "string" ? item : item?.text || ""}
+        oninput={(/** @type {any} */ e) => update_text(i, e.currentTarget.value)}
+        placeholder="Enter {unit_label.toLowerCase()} detail..."
+        weight={typeof item === "object" ? (item.base_weight ?? 5) : 5}
       >
-        <TextField
-          is_edit={is_editing}
-          value={get_text(item)}
-          oninput={(/** @type {any} */ e) => update_text(i, e.currentTarget.value)}
-          placeholder="Enter {unit_label.toLowerCase()} detail..."
-          weight={get_weight(item)}
-        >
-          {#snippet status()}
-            <div class="status">
-              <div class="weight-stepper">
-                <Tooltip text="Influence weight of this vector">
-                  <span class="weight-label">WEIGHT</span>
-                </Tooltip>
-                <div class="weight-control-wrapper">
-                  {#if is_editing}
-                    <div class="step-controls">
-                      <Tooltip text="Increase Weight">
-                        <Button
-                          variant="invisible"
-                          size="sm"
-                          square
-                          onclick={() => update_weight(i, 1)}
-                          aria-label="Increase Weight"
-                          className="step-up"
-                        >
-                          <svg viewBox="0 0 24 24" class="icon-stepper">
-                            <path d="M7 14l5-5 5 5H7z" fill="currentColor" />
-                          </svg>
-                        </Button>
-                      </Tooltip>
-                      <Tooltip text="Decrease Weight">
-                        <Button
-                          variant="invisible"
-                          size="sm"
-                          square
-                          onclick={() => update_weight(i, -1)}
-                          aria-label="Decrease Weight"
-                          className="step-down"
-                        >
-                          <svg viewBox="0 0 24 24" class="icon-stepper">
-                            <path d="M7 10l5 5 5-5H7z" fill="currentColor" />
-                          </svg>
-                        </Button>
-                      </Tooltip>
-                    </div>
-                  {/if}
-                  <span class="weight-val">{get_weight(item)}</span>
-                </div>
-              </div>
-
-              <div class="tags">
+        {#snippet status()}
+          <div class="status">
+            <div class="stepper">
+              <span class="label" use:tooltip={{ text: "Influence weight of this vector" }}
+                >WEIGHT</span
+              >
+              <div class="control">
                 {#if is_editing}
-                  <input
-                    type="text"
-                    class="input"
-                    value={(item?.vector_tags || []).join(", ")}
-                    placeholder="TAGS (COMMA SEPARATED)..."
-                    onchange={(/** @type {any} */ e) => update_tags(i, e.currentTarget.value)}
-                  />
-                {:else}
-                  {#each item?.vector_tags || [] as tag (tag)}
-                    <span class="tag">{tag}</span>
-                  {/each}
+                  <div class="buttons">
+                    <Button
+                      variant="invisible"
+                      size="sm"
+                      square
+                      actions={[tooltip]}
+                      tooltip="Increase Weight"
+                      onclick={() => update_weight(i, 1)}
+                      aria-label="Increase Weight"
+                      className="up"
+                    >
+                      <svg viewBox="0 0 24 24" class="icon"
+                        ><path d="M7 14l5-5 5 5H7z" fill="currentColor" /></svg
+                      >
+                    </Button>
+                    <Button
+                      variant="invisible"
+                      size="sm"
+                      square
+                      actions={[tooltip]}
+                      tooltip="Decrease Weight"
+                      onclick={() => update_weight(i, -1)}
+                      aria-label="Decrease Weight"
+                      className="down"
+                    >
+                      <svg viewBox="0 0 24 24" class="icon"
+                        ><path d="M7 10l5 5 5-5H7z" fill="currentColor" /></svg
+                      >
+                    </Button>
+                  </div>
                 {/if}
+                <span class="value">{typeof item === "object" ? (item.base_weight ?? 5) : 5}</span>
               </div>
             </div>
-          {/snippet}
 
-          {#snippet actions()}
-            {#if is_editing}
-              <Tooltip text="Remove {unit_label}">
-                <Button
-                  variant="invisible"
-                  size="sm"
-                  square
-                  aria-label="Remove {unit_label}"
-                  className="delete-btn"
-                  onclick={() => remove_item(i)}
-                >
-                  <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
-                    <polyline points="3 6 5 6 21 6" stroke="var(--color-white)"></polyline>
-                    <path
-                      d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                      stroke="var(--color-white)"
-                    ></path>
-                  </svg>
-                </Button>
-              </Tooltip>
-            {/if}
-          {/snippet}
-        </TextField>
-      </div>
-    {/each}
+            <div class="meta">
+              {#if is_editing}
+                <input
+                  type="text"
+                  class="tags-input"
+                  value={(item?.vector_tags || []).join(", ")}
+                  placeholder="TAGS (COMMA SEPARATED)..."
+                  onchange={(/** @type {any} */ e) => update_tags(i, e.currentTarget.value)}
+                />
+              {:else}
+                {#each item?.vector_tags || [] as tag (tag)}
+                  <span class="tag">{tag}</span>
+                {/each}
+              {/if}
+            </div>
+          </div>
+        {/snippet}
 
-    {#if items.length === 0 && !is_editing}
-      <div class="placeholder" in:slide>
-        <span class="label">
-          <svg viewBox="0 0 24 24" class="icon-xs" style="width: 14px; height: 14px;">
-            <path
-              fill="currentColor"
-              d="M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"
-            />
-          </svg>
-          AWAITING {unit_label.toUpperCase()} DATA STREAM...
-        </span>
-      </div>
-    {/if}
-  </div>
+        {#snippet actions()}
+          {#if is_editing}
+            <Button
+              variant="invisible"
+              size="sm"
+              square
+              actions={[tooltip]}
+              tooltip="Remove {unit_label}"
+              aria-label="Remove {unit_label}"
+              className="delete-btn"
+              onclick={() => remove_item(i)}
+            >
+              <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
+                <polyline points="3 6 5 6 21 6" stroke="var(--color-white)"></polyline>
+                <path
+                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                  stroke="var(--color-white)"
+                ></path>
+              </svg>
+            </Button>
+          {/if}
+        {/snippet}
+      </TextField>
+    </div>
+  {/each}
+
+  {#if items.length === 0 && !is_editing}
+    <div class="placeholder" in:slide>
+      <span class="label">
+        <svg viewBox="0 0 24 24" class="icon-xs" style="width: 14px; height: 14px;">
+          <path
+            fill="currentColor"
+            d="M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"
+          />
+        </svg>
+        AWAITING {unit_label.toUpperCase()} DATA STREAM...
+      </span>
+    </div>
+  {/if}
 </div>
 
 <style>
   .wrapper {
     width: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .list {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
@@ -261,7 +283,7 @@
     justify-content: space-between;
   }
 
-  .weight-stepper {
+  .stepper {
     display: flex;
     align-items: center;
     gap: var(--spacing-s);
@@ -269,7 +291,7 @@
     padding-left: var(--spacing-xs);
   }
 
-  .weight-label {
+  .stepper .label {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-xxxs);
     color: var(--color-white);
@@ -278,7 +300,7 @@
     cursor: help;
   }
 
-  .weight-control-wrapper {
+  .stepper .control {
     position: relative;
     display: flex;
     align-items: center;
@@ -286,14 +308,14 @@
     min-width: 1.5rem;
   }
 
-  .weight-val {
+  .stepper .value {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-s);
     font-weight: var(--font-weight-xl);
     color: var(--color-white);
   }
 
-  .step-controls {
+  .stepper .buttons {
     position: absolute;
     right: -1.2rem;
     display: flex;
@@ -303,12 +325,12 @@
     pointer-events: none;
   }
 
-  .weight-control-wrapper:hover .step-controls {
+  .stepper .control:hover .buttons {
     opacity: 1;
     pointer-events: auto;
   }
 
-  .weight-stepper :global(.button) {
+  .stepper :global(.button) {
     height: 0.8rem;
     width: 1rem;
     padding: 0;
@@ -323,18 +345,18 @@
     justify-content: center;
   }
 
-  .weight-stepper :global(.button:hover) {
+  .stepper :global(.button:hover) {
     opacity: 1;
     color: var(--color-white);
     transform: scale(1.1);
   }
 
-  .icon-stepper {
+  .stepper .icon {
     width: 1.2rem;
     height: 1.2rem;
   }
 
-  .tags {
+  .meta {
     flex: 1;
     display: flex;
     gap: var(--spacing-xxs);
@@ -343,7 +365,7 @@
     height: 100%;
   }
 
-  .tags .input {
+  .tags-input {
     width: 100%;
     background: transparent;
     border: none;
@@ -358,11 +380,11 @@
     transition: opacity var(--motion-m);
   }
 
-  .tags .input:focus {
+  .tags-input:focus {
     opacity: 1;
   }
 
-  .tags .input::placeholder {
+  .tags-input::placeholder {
     color: var(--color-white);
     opacity: 0.3;
   }

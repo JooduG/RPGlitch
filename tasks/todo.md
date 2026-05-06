@@ -67,23 +67,19 @@
   - [x] Implement flexible fragment labels (`minmax(60px, 80px)`)
   - [x] Verify visual integrity via unit tests and layout audit
 
-- **[060]** TextField Deep Dive Refactor [DONE]
+- [x] **[060]** TextField Deep Dive Refactor [DONE]
   - [x] Complete architectural rebuild of `TextField.svelte`
   - [x] Implement Svelte 5 Runes and "Physical Instrument" kinetics
   - [x] Integrate atmospheric expansion and "Weight Line" logic
   - [x] Flatten HTML/CSS structure to reduce nesting
   - [x] Verify visual and functional parity via unit tests
-- **[066]** Tooltip Atom Standardization [ACTIVE]
-  - [x] Rename and relocate global renderer to `@shell`
-  - [x] Create wrapper-style `<Tooltip>` atom
-  - [x] Harden collision and edge detection
-  - [x] Migrate `VectorArray` tooltips to the new pattern
-- [x] Migrate `StorymodePanel` tooltips
-- [x] Migrate `StoryboardDynamicTitle` tooltips
-- [x] Migrate `StoryboardCard` tooltips
-- [x] Migrate `DevWing` tooltips
-- [x] Migrate `EntityHeader` tooltips
-- [x] Verify `npm run verify` passes
+
+- **[067]** UI Architecture Simplification [DONE]
+  - [x] Consolidate Tooltip into a single Atom (`@atoms/Tooltip.svelte`)
+  - [x] Purge `TooltipRenderer.svelte` and `tooltip.svelte.js`
+  - [x] Consolidate Lightbox into `@atoms/Lightbox.svelte`
+  - [x] Purge `Background.svelte` into `App.svelte`
+  - [x] Update system-wide imports to the new pattern
 
 ---
 

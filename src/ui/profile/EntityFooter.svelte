@@ -1,53 +1,65 @@
 <script>
   /**
-   * @file src/ui/EntityFooter.svelte
+   * @file src/ui/profile/EntityFooter.svelte
    * THE COMMAND CENTER
    * Houses the primary Save, Delete, and Edit actions.
+   * Part of the RPGlitch "Chalk Regime" UI collection.
    */
   import Button from "@atoms/Button.svelte";
+
+  /**
+   * @typedef {Object} Props
+   * @property {boolean} is_editing - Global editing state
+   * @property {boolean} is_saving - Global saving state
+   * @property {Function} onclick_edit - Handler for entering edit mode
+   * @property {Function} onclick_save - Handler for saving changes
+   * @property {Function} onclick_delete - Handler for deleting the entity
+   */
+
+  /** @type {Props} */
   let { is_editing, is_saving, onclick_edit, onclick_save, onclick_delete } = $props();
 </script>
 
-<footer data-testid="entity-footer">
-  {#if is_editing}
-    <div class="footer-actions">
+<footer class="wrapper" data-testid="entity-footer">
+  <div class="actions">
+    {#if is_editing}
       <Button
         variant="danger"
-        fullWidth={true}
-        className="profile-button"
+        fullWidth
+        className="btn"
         onclick={onclick_delete}
         disabled={is_saving}
-        data-testid="delete-button">Delete</Button
+        data-testid="delete-button"
       >
+        Delete
+      </Button>
       <Button
         variant="secondary"
-        fullWidth={true}
-        className="profile-button"
+        fullWidth
+        className="btn"
         onclick={onclick_save}
         disabled={is_saving}
         data-testid="save-button"
       >
         {is_saving ? "Saving..." : "Save"}
       </Button>
-    </div>
-  {:else}
-    <div class="footer-actions">
-      <div class="footer-spacer"></div>
+    {:else}
+      <div class="spacer"></div>
       <Button
         variant="secondary"
-        fullWidth={true}
-        className="profile-button"
+        fullWidth
+        className="btn"
         onclick={onclick_edit}
         data-testid="edit-button"
       >
         Edit
       </Button>
-    </div>
-  {/if}
+    {/if}
+  </div>
 </footer>
 
 <style>
-  footer {
+  .wrapper {
     position: relative;
     margin: auto calc(-1 * var(--spacing-m)) calc(-1 * var(--spacing-m));
     padding: var(--spacing-m) var(--spacing-m) var(--spacing-m) 0;
@@ -64,29 +76,29 @@
     border-radius: 0 0 var(--border-radius-l) 0;
   }
 
-  .footer-actions {
+  .actions {
     grid-column: 2;
     display: flex;
     gap: var(--spacing-m);
     width: 100%;
   }
 
-  .footer-spacer {
+  .spacer {
     flex: 1;
   }
 
   @media (width <= 768px) {
-    footer {
+    .wrapper {
       grid-template-columns: 1fr;
       padding: var(--spacing-s);
     }
 
-    .footer-actions {
+    .actions {
       grid-column: 1;
     }
   }
 
-  :global(.profile-button.button) {
+  :global(.btn.button) {
     flex: 1;
   }
 </style>

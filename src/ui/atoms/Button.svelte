@@ -13,6 +13,7 @@
     ...restProps // Pass through disabled, etc.
   } = $props();
 
+  /** @type {HTMLButtonElement} */
   let element;
 
   export function focus() {
@@ -22,22 +23,76 @@
   /**
    * Helper to apply an array of actions to the button element.
    * Actions can be: [action] or [action, params]
+   * @param {HTMLElement} node
+   * @param {Array<any>} actions
    */
   function applyActions(node, actions) {
-    const destructors = [];
-    actions.forEach((item) => {
-      const action = Array.isArray(item) ? item[0] : item;
-      const params = Array.isArray(item) ? item[1] : undefined;
-      if (typeof action === "function") {
-        const result = action(node, params);
-        if (result && result.destroy) {
-          destructors.push(result.destroy);
-        }
-      }
-    });
+    /** @type {Array<{action: Function, result: {update?: Function, destroy?: Function} | void}>} */
+    let instances = [];
+
+    /** @param {Array<any>} list */
+    const init = (list) => {
+      instances = /** @type {any} */ (
+        list
+          .map((item) => {
+            const action = Array.isArray(item) ? item[0] : item;
+            const params = Array.isArray(item) ? item[1] : undefined;
+            if (typeof action === "function") {
+              return { action, result: action(node, params) };
+            }
+            return null;
+          })
+          .filter(Boolean)
+      );
+    };
+
+    init(actions);
+
     return {
+      /** @param {Array<any>} newActions */
+      update(newActions) {
+        // If action count changes, full teardown/re-init
+        if (newActions.length !== instances.length) {
+          instances.forEach((i) => {
+            if (i.result && typeof i.result === "object" && i.result.destroy) {
+              i.result.destroy();
+            }
+          });
+          init(newActions);
+          return;
+        }
+
+        // Attempt surgical update
+        /**
+         * @param {any} item
+         * @param {number} index
+         */
+        newActions.forEach((item, index) => {
+          const action = Array.isArray(item) ? item[0] : item;
+          const params = Array.isArray(item) ? item[1] : undefined;
+          const instance = instances[index];
+
+          if (action !== instance.action) {
+            if (instance.result && typeof instance.result === "object" && instance.result.destroy) {
+              instance.result.destroy();
+            }
+            instance.action = action;
+            instance.result = action(node, params);
+          } else if (
+            instance.result &&
+            typeof instance.result === "object" &&
+            instance.result.update
+          ) {
+            instance.result.update(params);
+          }
+        });
+      },
       destroy() {
-        destructors.forEach((d) => d());
+        instances.forEach((i) => {
+          if (i.result && typeof i.result === "object" && i.result.destroy) {
+            i.result.destroy();
+          }
+        });
       },
     };
   }

@@ -2,85 +2,124 @@
   /**
    * @file Tooltip.svelte
    * @module TooltipSystem
-   * Consolidated Tooltip Atom: State, Action, Wrapper, and Renderer.
+   * Consolidated Tooltip Atom: State, Action, and Renderer.
+   * Flattened architecture for maximum efficiency and zero-bloat.
    */
 
-  class TooltipManager {
-    state = $state({
-      text: null,
-      target: null,
-      active: false,
-      x: 0,
-      y: 0,
-    });
+  /**
+   * @typedef {Object} TooltipState
+   * @property {string | null} text - Current tooltip text
+   * @property {HTMLElement | null} target - The element currently being hovered
+   * @property {boolean} active - Visibility toggle
+   * @property {number} x - Horizontal position
+   * @property {number} y - Vertical position
+   */
 
-    #timer = null;
+  /**
+   * Global reactive state for the tooltip system.
+   * @type {TooltipState}
+   */
+  export const tooltip_state = $state({
+    text: null,
+    target: null,
+    active: false,
+    x: 0,
+    y: 0,
+  });
 
-    show(target, text) {
-      if (!text) return;
-      this.hide();
-      this.#timer = window.setTimeout(() => {
-        let rect = target.getBoundingClientRect();
+  /** @type {number | null} */
+  let timer = null;
 
-        // Handle display: contents or elements with zero dimensions
-        // by falling back to children's bounding box via Range API
-        if (rect.width === 0 && rect.height === 0) {
-          try {
-            const range = document.createRange();
-            range.selectNodeContents(target);
-            const rangeRect = range.getBoundingClientRect();
-            if (rangeRect.width > 0 || rangeRect.height > 0) {
-              rect = rangeRect;
-            }
-          } catch (e) {
-            // Fallback to target rect if range fails
+  /**
+   * Triggers the tooltip visibility with a slight delay for kinetic comfort.
+   * @param {HTMLElement} target
+   * @param {string} text
+   */
+  export function show_tooltip(target, text) {
+    if (!text) return;
+    hide_tooltip();
+
+    timer = window.setTimeout(() => {
+      let rect = target.getBoundingClientRect();
+
+      // Handle display: contents or elements with zero dimensions
+      // by falling back to children's bounding box via Range API
+      if (rect.width === 0 && rect.height === 0) {
+        try {
+          const range = document.createRange();
+          range.selectNodeContents(target);
+          const rangeRect = range.getBoundingClientRect();
+          if (rangeRect.width > 0 || rangeRect.height > 0) {
+            rect = rangeRect;
           }
+        } catch (e) {
+          // Fallback to target rect if range fails
         }
-
-        this.state.text = text;
-        this.state.target = target;
-        this.state.x = rect.left + rect.width / 2;
-        this.state.y = rect.top;
-        this.state.active = true;
-      }, 400); // Slightly faster response (400ms)
-    }
-
-    hide() {
-      if (this.#timer) {
-        window.clearTimeout(this.#timer);
-        this.#timer = null;
       }
-      this.state.active = false;
-      this.state.text = null;
-      this.state.target = null;
-    }
+
+      tooltip_state.text = text;
+      tooltip_state.target = target;
+      tooltip_state.x = rect.left + rect.width / 2;
+      tooltip_state.y = rect.top;
+      tooltip_state.active = true;
+    }, 400); // Standard Nordic response (400ms)
   }
 
-  export const tooltip_manager = new TooltipManager();
+  /**
+   * Immediately hides the tooltip and clears active timers.
+   */
+  export function hide_tooltip() {
+    if (timer) {
+      window.clearTimeout(timer);
+      timer = null;
+    }
+    tooltip_state.active = false;
+    tooltip_state.text = null;
+    tooltip_state.target = null;
+  }
 
   /**
    * Svelte Action: use:tooltip
+   * @param {HTMLElement} node
+   * @param {string | {text: string} | null} text
    */
   export function tooltip(node, text) {
+    /** @param {MouseEvent | FocusEvent} e */
     const handle_enter = (e) => {
-      if (e.type === "mouseover" && node.contains(e.relatedTarget)) return;
-      const active_text = text || node.getAttribute("aria-label") || node.getAttribute("title");
+      if (
+        e instanceof MouseEvent &&
+        e.type === "mouseover" &&
+        node.contains(/** @type {Node} */ (e.relatedTarget))
+      )
+        return;
+
+      // Robustly handle both string and object parameters (use:tooltip={{ text: "..." }})
+      const resolved_text = typeof text === "object" ? text?.text : text;
+      const active_text =
+        resolved_text || node.getAttribute("aria-label") || node.getAttribute("title");
+
       if (active_text) {
         if (node.hasAttribute("title")) {
-          node.dataset.tooltipTitle = node.getAttribute("title");
+          node.dataset.tooltipTitle = node.getAttribute("title") || "";
           node.setAttribute("title", "");
         }
-        tooltip_manager.show(node, active_text);
+        show_tooltip(node, active_text);
       }
     };
 
+    /** @param {MouseEvent | FocusEvent} e */
     const handle_leave = (e) => {
-      if (e.type === "mouseout" && node.contains(e.relatedTarget)) return;
+      if (
+        e instanceof MouseEvent &&
+        e.type === "mouseout" &&
+        node.contains(/** @type {Node} */ (e.relatedTarget))
+      )
+        return;
       if (node.dataset.tooltipTitle) {
         node.setAttribute("title", node.dataset.tooltipTitle);
         delete node.dataset.tooltipTitle;
       }
-      tooltip_manager.hide();
+      hide_tooltip();
     };
 
     node.addEventListener("mouseover", handle_enter);
@@ -89,8 +128,16 @@
     node.addEventListener("focusout", handle_leave);
 
     return {
+      /** @param {string | {text: string} | null} new_text */
       update(new_text) {
         text = new_text;
+        // If this node is the active target, sync the text immediately
+        if (tooltip_state.target === node && tooltip_state.active) {
+          const resolved_text = typeof text === "object" ? text?.text : text;
+          const active_text =
+            resolved_text || node.getAttribute("aria-label") || node.getAttribute("title");
+          if (active_text) tooltip_state.text = active_text;
+        }
       },
       destroy() {
         node.removeEventListener("mouseover", handle_enter);
@@ -101,7 +148,7 @@
           node.setAttribute("title", node.dataset.tooltipTitle);
           delete node.dataset.tooltipTitle;
         }
-        if (tooltip_manager.state.target === node) tooltip_manager.hide();
+        if (tooltip_state.target === node) hide_tooltip();
       },
     };
   }
@@ -111,11 +158,8 @@
   import { portal } from "@utils/portal.js";
   import { scale } from "svelte/transition";
 
-  /** @type {{text?: string, children?: import('svelte').Snippet}} */
-  let { text, children } = $props();
-
   // --- RENDERER LOGIC ---
-  const { state: tooltip_state } = tooltip_manager;
+  /** @type {HTMLElement | null} */
   let tooltip_el = $state(null);
   let ready = $state(false);
   let transform_override = $state("translateX(-50%) translateY(-100%)");
@@ -156,13 +200,7 @@
   });
 </script>
 
-{#if children}
-  <div class="tooltip-trigger" use:tooltip={text}>
-    {@render children()}
-  </div>
-{:else if text}
-  <span use:tooltip={text} class="tooltip-dot"></span>
-{:else if tooltip_state.active && tooltip_state.text}
+{#if tooltip_state.active && tooltip_state.text}
   <!-- GLOBAL RENDERER INSTANCE -->
   <div
     use:portal
@@ -187,19 +225,6 @@
 {/if}
 
 <style>
-  .tooltip-trigger {
-    display: contents;
-  }
-
-  .tooltip-dot {
-    display: inline-block;
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: var(--color-chalk);
-    opacity: 0.5;
-  }
-
   .tooltip-portal {
     position: fixed;
     z-index: var(--z-index-max);
