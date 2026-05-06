@@ -5,11 +5,11 @@
    * Container for the active game session, simulation log, and side panels.
    * Flattened Schema Compliant.
    */
-  import { entities } from "@/data/repository.js";
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
   import { simulationState } from "@state/status.svelte.js";
   import Layout from "@ui/Layout.svelte";
+  import Skeleton from "@atoms/Skeleton.svelte";
   import { onMount } from "svelte";
   import InputBar from "@storymode/InputBar.svelte";
   import StorymodeFeed from "@storymode/StorymodeFeed.svelte";
@@ -18,55 +18,44 @@
   // Derived
   let is_thinking = $derived(simulationState.phase === "generating");
 
-  // --- ON MOUNT: Hydrate Entity Lists for Color Lookups ---
+  // --- ON MOUNT ---
   onMount(async () => {
-    if (app.ai_list.length === 0) {
-      try {
-        const [ais, users, fractals] = await Promise.all([
-          entities.list("character"),
-          entities.list("character"),
-          entities.list("fractal"),
-        ]);
-        app.ai_list = ais;
-        app.user_list = users;
-        app.fractal_list = fractals;
-      } catch (e) {
-        console.error("[Storymode] Failed to hydrate colors:", e);
-      }
-    }
     if (!runtime.is_ready) {
       await runtime.sync();
     }
   });
 </script>
 
-<div class="storymode-container">
-  <Layout mode="cinematic">
-    {#snippet left()}
+<Layout mode="cinematic">
+  {#snippet left()}
+    {#if !app.entities_loaded}
+      <Skeleton variant="card" width="100%" height="100%" />
+    {:else}
       <StorymodePanel entity={app.selected_ai} side="left" />
-    {/snippet}
-    {#snippet center()}
-      <div class="game-stage">
+    {/if}
+  {/snippet}
+  {#snippet center()}
+    <div class="game-stage">
+      {#if !app.entities_loaded}
+        <Skeleton variant="card" width="100%" height="100%" />
+      {:else}
         <StorymodeFeed />
         <div class="input-container">
           <InputBar disabled={is_thinking} />
         </div>
-      </div>
-    {/snippet}
-    {#snippet right()}
+      {/if}
+    </div>
+  {/snippet}
+  {#snippet right()}
+    {#if !app.entities_loaded}
+      <Skeleton variant="card" width="100%" height="100%" />
+    {:else}
       <StorymodePanel entity={app.selected_user} side="right" />
-    {/snippet}
-  </Layout>
-</div>
+    {/if}
+  {/snippet}
+</Layout>
 
 <style>
-  .storymode-container {
-    width: 100%;
-    height: 100%;
-    background: inherit;
-    position: relative;
-  }
-
   .game-stage {
     width: 100%;
     height: 100%;

@@ -11,7 +11,7 @@ import { db } from "@data/db.js";
 import { entities } from "@data/repository.js";
 import { visual_engine } from "@media/visual-engine.svelte.js";
 import { generateUUID } from "@utils/helpers.js";
-import { closeLightbox, openLightbox } from "@atoms/Lightbox.svelte";
+import { closeImagePreview, openImagePreview } from "@atoms/ImagePreview.svelte";
 import { runtime } from "@state/runtime.svelte.js";
 import { simulationState } from "@state/status.svelte.js";
 
@@ -42,6 +42,7 @@ export class AppStore {
   ai_list = $state([]);
   user_list = $state([]);
   fractal_list = $state([]);
+  entities_loaded = $state(false);
   // --- ENTITY DRAWER STATE ---
   drawer = $state({
     open: false,
@@ -145,6 +146,7 @@ export class AppStore {
       this.ai_list = characters;
       this.user_list = characters;
       this.fractal_list = fractals;
+      this.entities_loaded = true;
     } catch (e) {
       console.error("[AppStore] Failed to load lobby entities:", e);
     }
@@ -194,8 +196,8 @@ export class AppStore {
   close_drawer = () => {
     this.drawer.open = false;
   };
-  close_lightbox = () => {
-    closeLightbox();
+  close_image_preview = () => {
+    closeImagePreview();
   };
   /**
    * Selects an entity for the current session.
@@ -273,8 +275,8 @@ export class AppStore {
     this.streaming.node_id = null;
     this.streaming.role = "ai";
   };
-  open_lightbox = (src, caption = "") => {
-    openLightbox(src, caption);
+  open_image_preview = (src, caption = "") => {
+    openImagePreview(src, caption);
   };
   reroll_title = () => {
     this.drawer.reroll_count++;

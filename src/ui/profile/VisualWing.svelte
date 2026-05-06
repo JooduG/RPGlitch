@@ -8,7 +8,7 @@
   import Button from "@atoms/Button.svelte";
   import TextField from "@atoms/TextField.svelte";
   import Toggle from "@atoms/Toggle.svelte";
-  import Wing from "@atoms/Wing.svelte";
+  import Wing from "@profile/Wing.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
   import { llm_service } from "@core/intelligence/llm-service.js";
   import { prompt_builder } from "@core/intelligence/prompt-builder.js";
@@ -42,8 +42,7 @@
     if (char.modifiers.prompt === undefined) char.modifiers.prompt = "";
     if (char.modifiers.noBackground === undefined) char.modifiers.noBackground = false;
     if (char.modifiers.flipped === undefined) char.modifiers.flipped = false;
-    if (char.modifiers.profile_picture_seed === undefined)
-      char.modifiers.profile_picture_seed = 0;
+    if (char.modifiers.profile_picture_seed === undefined) char.modifiers.profile_picture_seed = 0;
     if (char.modifiers.colorName === undefined) char.modifiers.colorName = "";
   };
 
@@ -145,7 +144,12 @@
     const root = e.currentTarget;
     setTimeout(() => {
       const focus = document.activeElement;
-      if (root && !root.contains(focus) && busy_fields.size === 0 && !focus?.closest(".text-area")) {
+      if (
+        root &&
+        !root.contains(focus) &&
+        busy_fields.size === 0 &&
+        !focus?.closest(".text-area")
+      ) {
         active_field = null;
       }
     }, 50);
@@ -257,11 +261,7 @@
   </div>
 
   <div class="modifiers">
-    <Toggle
-      label="No Background"
-      bind:value={char.modifiers.noBackground}
-      disabled={!is_editing}
-    />
+    <Toggle label="No Background" bind:value={char.modifiers.noBackground} disabled={!is_editing} />
     <Toggle label="Mirror Image" bind:value={char.modifiers.flipped} disabled={!is_editing} />
   </div>
 </Wing>

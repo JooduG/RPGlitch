@@ -8,7 +8,7 @@
   import { Audio } from "@media/audio-engine.svelte.js";
   import Button from "@atoms/Button.svelte";
   import Slider from "@atoms/Slider.svelte";
-  import Wing from "@atoms/Wing.svelte";
+  import Wing from "@profile/Wing.svelte";
   import { portal } from "@utils/portal.js";
   import { tooltip } from "@atoms/Tooltip.svelte";
   import { DROPDOWN_MAX_HEIGHT } from "@core/constants.js";

@@ -6,7 +6,7 @@
    */
   import DataBox from "@devmode/DataBox.svelte";
   import Button from "@atoms/Button.svelte";
-  import Wing from "@atoms/Wing.svelte";
+  import Wing from "@profile/Wing.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
 
   let { char = $bindable(), is_editing } = $props();

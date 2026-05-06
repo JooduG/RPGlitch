@@ -77,6 +77,7 @@
   - [x] Consolidate Tooltip into a single Atom (`@atoms/Tooltip.svelte`)
   - [x] Purge `TooltipRenderer.svelte` and `tooltip.svelte.js`
   - [x] Consolidate Lightbox into `@atoms/Lightbox.svelte`
+  - [x] Rename Lightbox to ImagePreview for intuitive naming
   - [x] Purge `Background.svelte` into `App.svelte`
   - [x] Update system-wide imports to the new pattern
 
@@ -121,6 +122,7 @@
 
 ## 🧠 Skill Log
 
+| 2026-05-06T06:52:00+02:00 | Move Wing.svelte to @profile | `using-agent-skills`, `svelte` | ✅ Done |
 | 2026-05-06T06:48:00+02:00 | Merge profile-config into entity-fragments | `using-agent-skills`, `svelte` | ✅ Done |
 | 2026-05-06T05:51:00+02:00 | TextField & VectorArray Stabilization ([060]) | `using-agent-skills`, `svelte`, `css`, `designer` | ✅ Resolved |
 | 2026-05-05T16:15:00+02:00 | Type Safety & Implicit Any Fixes (VisualWing/VectorArray) | `test-driven-development`, `svelte` | ✅ Resolved |

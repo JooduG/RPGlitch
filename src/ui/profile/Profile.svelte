@@ -230,9 +230,9 @@
   }
 
   .wing.is-visible {
-    width: calc(var(--grid-unit) * 2);
-    min-width: calc(var(--grid-unit) * 2);
-    max-width: calc(var(--grid-unit) * 2);
+    width: 240px;
+    min-width: 240px;
+    max-width: 240px;
     opacity: var(--opacity-full);
     pointer-events: auto;
     transform: scale(1);

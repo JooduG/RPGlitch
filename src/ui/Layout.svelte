@@ -83,7 +83,9 @@
 
     /* background: radial-gradient(circle at bottom, var(--color-gunmetal), var(--color-black) 70%); */
     color: var(--color-white);
-    transition: all var(--motion-s) var(--motion-elastic);
+    transition:
+      opacity var(--motion-s) var(--motion-elastic),
+      transform var(--motion-s) var(--motion-elastic);
     pointer-events: none;
   }
 
@@ -224,16 +226,13 @@
     flex-direction: column;
     justify-content: center;
     align-items: var(--stage-align, center);
-    transition: all var(--motion-s) var(--motion-elastic);
+    transition:
+      opacity var(--motion-s) var(--motion-elastic),
+      transform var(--motion-s) var(--motion-elastic);
     overflow: hidden;
     min-height: 0;
     pointer-events: auto;
     grid-row: 1;
-  }
-
-  /* SIDE COLUMN (WINGS) STYLING */
-  .stage-column--side {
-    transition: all var(--motion-s) var(--motion-elastic);
   }
 
   /* 

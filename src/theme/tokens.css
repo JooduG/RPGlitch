@@ -154,12 +154,6 @@
   --breakpoint-tablet: 1024px;
   --breakpoint-desktop: 1280px;
 
-  /* Responsive Metric: The Grid Unit
-   * The fundamental building block of the 12-column system.
-   * Spans exactly 1/12th of the viewport width.
-   */
-  --grid-unit: calc(100vw / 12);
-
   /************************************************************************************
   * [**] [LEVEL 3: ELEVATION]
   * Vertical stacking and depth layers.
@@ -187,8 +181,8 @@
   --glass-xs: rgb(var(--color-black-rgb) / var(--opacity-s)); /* Solid Depth Contrast */
 
   /* Container Dimensions */
-  --card-width-m: calc(var(--grid-unit) * 2);
-  --card-height-m: calc(var(--grid-unit) * 3);
+  --card-width-m: clamp(160px, 16vw, 240px);
+  --card-height-m: clamp(240px, 24vw, 360px);
   --dropdown-max-height: 300px;
 
   /* Specular Edges */

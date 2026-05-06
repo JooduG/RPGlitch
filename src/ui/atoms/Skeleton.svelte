@@ -13,9 +13,7 @@
   style:width
   style:height
   style:aspect-ratio={aspectRatio}
->
-  <div class="shimmer"></div>
-</div>
+></div>
 
 <style>
   .skeleton {

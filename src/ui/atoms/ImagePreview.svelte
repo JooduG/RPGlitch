@@ -1,49 +1,49 @@
 <script module>
   /**
-   * 🖼️ Lightbox Store - Polish Visual Module
+   * 🖼️ ImagePreview Store - Polish Visual Module
    * Consolidated state and component logic.
    */
 
   /** @type {{active: boolean, src: string|null, caption: string}} */
-  let lightboxState = $state({
+  let imagePreviewState = $state({
     active: false,
     src: null,
     caption: "",
   });
 
   /**
-   * Reactive lightbox state (read-only export)
+   * Reactive image preview state (read-only export)
    */
-  export const lightbox = {
+  export const imagePreview = {
     get active() {
-      return lightboxState.active;
+      return imagePreviewState.active;
     },
     get src() {
-      return lightboxState.src;
+      return imagePreviewState.src;
     },
     get caption() {
-      return lightboxState.caption;
+      return imagePreviewState.caption;
     },
   };
 
   /**
-   * Opens the lightbox with an image
+   * Opens the image preview with an image
    * @param {string} src - Image source URL
    * @param {string} caption - Optional caption
    */
-  export function openLightbox(src, caption = "") {
-    lightboxState.active = true;
-    lightboxState.src = src;
-    lightboxState.caption = caption;
+  export function openImagePreview(src, caption = "") {
+    imagePreviewState.active = true;
+    imagePreviewState.src = src;
+    imagePreviewState.caption = caption;
   }
 
   /**
-   * Closes the lightbox
+   * Closes the image preview
    */
-  export function closeLightbox() {
-    lightboxState.active = false;
-    lightboxState.src = null;
-    lightboxState.caption = "";
+  export function closeImagePreview() {
+    imagePreviewState.active = false;
+    imagePreviewState.src = null;
+    imagePreviewState.caption = "";
   }
 </script>
 
@@ -51,12 +51,12 @@
   import Modal from "@atoms/Modal.svelte";
 </script>
 
-{#if lightboxState.active}
-  <Modal variant="preview" on_close={closeLightbox}>
+{#if imagePreviewState.active}
+  <Modal variant="preview" on_close={closeImagePreview}>
     <div class="preview-stage">
-      <img src={lightboxState.src} alt={lightboxState.caption || "Preview"} />
-      {#if lightboxState.caption}
-        <div class="caption">{lightboxState.caption}</div>
+      <img src={imagePreviewState.src} alt={imagePreviewState.caption || "Preview"} />
+      {#if imagePreviewState.caption}
+        <div class="caption">{imagePreviewState.caption}</div>
       {/if}
     </div>
   </Modal>

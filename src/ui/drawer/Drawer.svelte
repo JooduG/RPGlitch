@@ -173,7 +173,7 @@
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
-    max-width: calc(var(--grid-unit) * 10);
+    max-width: 1200px;
     max-height: 85vh;
     border-radius: var(--border-radius-xl) var(--border-radius-xl) 0 0;
     z-index: var(--z-index-xl);
@@ -211,7 +211,7 @@
 
   .drawer-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(var(--grid-unit), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: var(--spacing-l);
     width: 100%;
   }

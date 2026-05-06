@@ -1,56 +1,27 @@
 <script>
   import { app } from "@state/app.svelte.js";
-  import LoadingSkeleton from "@atoms/LoadingSkeleton.svelte";
+  import Skeleton from "@atoms/Skeleton.svelte";
   import Layout from "@ui/Layout.svelte";
   import Drawer from "@drawer/Drawer.svelte";
   import StoryboardCard from "@storyboard/StoryboardCard.svelte";
   import StoryboardDynamicTitle from "@storyboard/StoryboardDynamicTitle.svelte";
   import StoryboardPill from "@storyboard/StoryboardPill.svelte";
-  import { onMount } from "svelte";
-
-  // --- STATE ---
-  let loading = $state(true);
-
-  onMount(async () => {
-    try {
-      await app.load_entities();
-    } catch (e) {
-      console.error("[Storyboard] Failed to load lobby:", e);
-    } finally {
-      loading = false;
-    }
-  });
 </script>
 
-{#if loading}
-  <!-- Global Skeleton Loader -->
-  <div class="skeleton-boot">
-    <LoadingSkeleton
-      variant="card"
-      width="var(--card-width, 25vh)"
-      height="var(--card-height, 40vh)"
-    />
-    <LoadingSkeleton
-      variant="card"
-      width="var(--card-height, 40vh)"
-      height="var(--card-width, 25vh)"
-    />
-    <LoadingSkeleton
-      variant="card"
-      width="var(--card-width, 25vh)"
-      height="var(--card-height, 40vh)"
-    />
-  </div>
-{:else}
-  <Layout align="center">
-    {#snippet header()}
+<Layout align="center">
+  {#snippet header()}
+    {#if app.entities_loaded}
       <div class="header-container">
         <StoryboardDynamicTitle />
       </div>
-    {/snippet}
+    {/if}
+  {/snippet}
 
-    <!-- LEFT: AI -->
-    {#snippet left()}
+  <!-- LEFT: AI -->
+  {#snippet left()}
+    {#if !app.entities_loaded}
+      <Skeleton variant="card" width="var(--card-width, 25vh)" height="var(--card-height, 40vh)" />
+    {:else}
       <StoryboardCard
         type="ai"
         entity={app.selected_ai}
@@ -58,10 +29,14 @@
         on_select={() => app.open_drawer("ai")}
         on_view_profile={() => app.toggle_profile(true, app.selected_ai)}
       />
-    {/snippet}
+    {/if}
+  {/snippet}
 
-    <!-- CENTER: Fractal -->
-    {#snippet center()}
+  <!-- CENTER: Fractal -->
+  {#snippet center()}
+    {#if !app.entities_loaded}
+      <Skeleton variant="card" width="var(--card-height, 40vh)" height="var(--card-width, 25vh)" />
+    {:else}
       <StoryboardCard
         type="fractal"
         entity={app.selected_fractal}
@@ -69,10 +44,14 @@
         on_select={() => app.open_drawer("fractal")}
         on_view_profile={() => app.toggle_profile(true, app.selected_fractal)}
       />
-    {/snippet}
+    {/if}
+  {/snippet}
 
-    <!-- RIGHT: User -->
-    {#snippet right()}
+  <!-- RIGHT: User -->
+  {#snippet right()}
+    {#if !app.entities_loaded}
+      <Skeleton variant="card" width="var(--card-width, 25vh)" height="var(--card-height, 40vh)" />
+    {:else}
       <StoryboardCard
         type="user"
         entity={app.selected_user}
@@ -80,68 +59,26 @@
         on_select={() => app.open_drawer("user")}
         on_view_profile={() => app.toggle_profile(true, app.selected_user)}
       />
-    {/snippet}
+    {/if}
+  {/snippet}
 
-    {#snippet footer()}
+  {#snippet footer()}
+    {#if app.entities_loaded}
       <div class="controls-layer">
         <StoryboardPill />
       </div>
-    {/snippet}
-  </Layout>
+    {/if}
+  {/snippet}
+</Layout>
 
-  <!-- Entity Drawer (The Library) -->
+<!-- Entity Drawer (The Library) -->
+{#if app.entities_loaded}
   <Drawer />
 {/if}
 
 <style>
   .header-container {
     text-align: center;
-  }
-
-  /* Boot Loader: Matches Layout.svelte 12-col grid */
-  .skeleton-boot {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    height: 100vh;
-    width: 100%;
-    position: fixed;
-    inset: 0;
-    align-items: center;
-    align-content: center;
-    background: var(--bg-base);
-  }
-
-  .skeleton-boot :global(.skeleton:nth-child(1)) {
-    grid-column: 2 / span 2;
-    justify-self: center;
-  }
-
-  .skeleton-boot :global(.skeleton:nth-child(2)) {
-    grid-column: 4 / span 6;
-    justify-self: center;
-  }
-
-  .skeleton-boot :global(.skeleton:nth-child(3)) {
-    grid-column: 10 / span 2;
-    justify-self: center;
-  }
-
-  /* Mobile Stack */
-  @media (width <= 768px) {
-    .skeleton-boot {
-      grid-template-columns: 1fr;
-      padding-bottom: 0;
-      align-items: center;
-    }
-
-    .skeleton-boot :global(.skeleton:nth-child(1)),
-    .skeleton-boot :global(.skeleton:nth-child(3)) {
-      display: none;
-    }
-
-    .skeleton-boot :global(.skeleton:nth-child(2)) {
-      grid-column: 1 / -1;
-    }
   }
 
   .controls-layer {

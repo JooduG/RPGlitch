@@ -70,7 +70,7 @@
   .modal-content {
     position: relative;
     width: 95%;
-    max-width: calc(var(--grid-unit) * 3);
+    max-width: 480px;
     min-width: 280px;
     max-height: 90vh;
     padding: var(--spacing-xl);
@@ -95,7 +95,7 @@
 
   .modal-content.preview,
   .modal-content.mini {
-    max-width: calc(var(--grid-unit) * 2);
+    max-width: 320px;
   }
 
   .modal-content.mini {

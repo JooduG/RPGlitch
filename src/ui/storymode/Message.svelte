@@ -264,7 +264,7 @@
                 <Button
                   variant="invisible"
                   className="attachment-button"
-                  onclick={() => app.open_lightbox(src)}
+                  onclick={() => app.open_image_preview(src)}
                   aria-label="View Attachment"
                   actions={[tooltip]}
                 >
@@ -315,7 +315,7 @@
   .message-bubble {
     width: fit-content;
     min-width: 12rem;
-    max-width: calc(6 * var(--grid-unit));
+    max-width: 50vw;
     display: flex;
     flex-direction: column;
     position: relative;

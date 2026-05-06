@@ -5,8 +5,8 @@
    * View-switching logic using storyboard and storymode terminology.
    */
   import { app } from "@state/app.svelte.js";
-  import { lightbox } from "@atoms/Lightbox.svelte";
-  import Lightbox from "@atoms/Lightbox.svelte";
+  import { imagePreview } from "@atoms/ImagePreview.svelte";
+  import ImagePreview from "@atoms/ImagePreview.svelte";
   import ControlPanel from "@devmode/ControlPanel.svelte";
   import Profile from "@profile/Profile.svelte";
   import Storyboard from "@storyboard/Storyboard.svelte";
@@ -22,9 +22,8 @@
   // Opacity varies based on view for cinematic focus
   // Storymode is dimmer to prioritize text legibility
   let fractal_opacity = $derived(app.view === "storymode" ? 0.4 : 0.75);
-  let mounted = $state(false);
   onMount(() => {
-    mounted = true;
+    app.load_entities();
   });
 </script>
 
@@ -43,39 +42,29 @@
   {/if}
 </div>
 
-{#if mounted}
-  <div
-    class="app-container"
-    class:view-storyboard={app.view === "storyboard"}
-    class:view-storymode={app.view === "storymode"}
-    class:has-tension={app.tension > 0}
-    transition:fade={{ duration: 800 }}
-  >
-    {#if lightbox.active}
-      <Lightbox />
-    {/if}
-    {#if app.profile_open}
-      <Profile entity_id={app.profile_target_id} entity_type={app.profile_target_type} />
-    {/if}
-    {#if app.control_panel_open}
-      <ControlPanel />
-    {/if}
-    {#if app.view === "storyboard"}
-      <Storyboard />
-    {:else if app.view === "storymode"}
-      <Storymode />
-    {/if}
-  </div>
-  <Tooltip />
-{/if}
-
-<!-- 
-  [current_problems]
-  - [x] Tooltip Atom Standardization & Bloat Purge
-  - [ ] Storymode components migration (Message.svelte actions/attachments)
-  - [ ] Library/Drawer refactoring (RC Audit)
-  - [ ] Verify background visibility on Perchance build
--->
+<div
+  class="app-container"
+  class:view-storyboard={app.view === "storyboard"}
+  class:view-storymode={app.view === "storymode"}
+  class:has-tension={app.tension > 0}
+  in:fade={{ duration: 800 }}
+>
+  {#if imagePreview.active}
+    <ImagePreview />
+  {/if}
+  {#if app.profile_open}
+    <Profile entity_id={app.profile_target_id} entity_type={app.profile_target_type} />
+  {/if}
+  {#if app.control_panel_open}
+    <ControlPanel />
+  {/if}
+  {#if app.view === "storyboard"}
+    <Storyboard />
+  {:else if app.view === "storymode"}
+    <Storymode />
+  {/if}
+</div>
+<Tooltip />
 
 <style>
   .app-container {

@@ -73,12 +73,15 @@ function createRuntimeStore() {
     get character() {
       return entity_state.character;
     },
+    /** @returns {any} */
     get active_user() {
       return entity_state.active_user;
     },
+    /** @returns {any} */
     get active_ai() {
       return entity_state.active_ai;
     },
+    /** @returns {any} */
     get active_fractal() {
       return entity_state.active_fractal;
     },
