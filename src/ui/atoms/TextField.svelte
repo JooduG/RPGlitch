@@ -23,7 +23,6 @@
 
     // Design
     noBackground = false,
-    force_expand = false, // Allow external override to force expansion
     class: className = "",
     style = "",
 
@@ -44,12 +43,11 @@
   // --- DERIVED LOGIC ---
   const paragraphs = $derived(parse_markdown(value));
   const has_meta = $derived(!!actions || !!status);
-  const is_expanded = $derived((is_focused || busy || force_expand) && has_meta);
+  const is_expanded = $derived((is_focused || busy) && has_meta);
 
   // Orchestrate the "Physical" properties of the instrument
   const intensity = $derived(weight / 10);
   const header_opacity = $derived(weight > 0 ? 0.2 + (weight / 10) * 0.8 : 0.8);
-  const header_bg_mix = $derived(weight > 0 ? (0.2 + (weight / 10) * 0.8) * 100 : 100);
 
   // --- HANDLERS ---
   /** @param {FocusEvent} e */
@@ -74,14 +72,14 @@
   class:is-busy={busy}
   class:no-background={noBackground}
   class:is-disabled={disabled}
-  style="{style}; --weight-intensity: {intensity}; --header-opacity: {header_opacity}; --header-bg-mix: {header_bg_mix}%;"
+  style="{style}; --weight-intensity: {intensity}; --header-opacity: {header_opacity};"
   onfocusout={handle_blur}
   {...restProps}
 >
   <header class="header">
     <div class="status">
       {#if status && is_expanded}
-        <div in:fade={{ duration: 200, delay: 100 }}>
+        <div class="snippet-wrapper" in:fade={{ duration: 200, delay: 100 }}>
           {@render status()}
         </div>
       {/if}
@@ -89,7 +87,7 @@
 
     <div class="actions">
       {#if actions && is_expanded}
-        <div in:fade={{ duration: 200, delay: 150 }}>
+        <div class="snippet-wrapper" in:fade={{ duration: 200, delay: 150 }}>
           {@render actions()}
         </div>
       {/if}
@@ -177,8 +175,7 @@
   .header {
     height: var(--shield-height-dormant);
     border-radius: calc(var(--border-radius-m) - 1px) calc(var(--border-radius-m) - 1px) 0 0;
-    opacity: var(--header-opacity);
-    background: var(--signature-color, var(--color-frozen));
+    background: rgb(from var(--signature-color, var(--color-frozen)) r g b / var(--header-opacity));
     box-shadow: 0 0 calc(var(--weight-intensity) * 6px) var(--signature-color);
     position: relative;
     top: 1px;
@@ -199,12 +196,7 @@
   .textfield.is-expanded .header {
     height: var(--shield-height-active);
     top: 0;
-    opacity: 1;
-    background: color-mix(
-      in srgb,
-      rgb(var(--color-black-rgb) / 50%),
-      var(--signature-color, var(--color-frozen)) var(--header-bg-mix)
-    );
+    background: rgb(from var(--signature-color, var(--color-frozen)) r g b / var(--header-opacity));
     box-shadow: 0 0 calc(var(--weight-intensity) * 12px)
       rgb(from var(--signature-color) r g b / 15%);
     border-bottom: var(--spacing-px) solid rgb(var(--color-white-rgb) / 8%);
@@ -212,6 +204,12 @@
 
   .status,
   .actions {
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  .snippet-wrapper {
     display: flex;
     align-items: center;
     height: 100%;

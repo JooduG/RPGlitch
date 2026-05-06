@@ -46,92 +46,75 @@
 
   // --- DERIVED STATE ---
 
-  /** @type {VectorItem[] | string} */
-  const raw_items = $derived(get_value(char, path) || []);
-
-  /** @type {VectorItem[]} */
+  /** Normalized array of vector objects */
   const items = $derived.by(() => {
-    const val = raw_items;
-    if (!Array.isArray(val)) {
-      return typeof val === "string" && val.trim()
-        ? [
-            {
-              id: generateUUID(),
-              timestamp: Date.now(),
-              text: val.trim(),
-              type: path,
-              base_weight: 5,
-              vector_tags: [],
-            },
-          ]
-        : [];
-    }
-    return val;
+    const raw = get_value(char, path) || [];
+    const arr = Array.isArray(raw) ? raw : typeof raw === "string" && raw.trim() ? [raw] : [];
+
+    return arr.map((val) => {
+      if (typeof val === "object" && val !== null) {
+        return {
+          ...val,
+          base_weight: val.base_weight ?? 5,
+          vector_tags: val.vector_tags ?? [],
+        };
+      }
+      return {
+        id: generateUUID(),
+        timestamp: Date.now(),
+        text: String(val || ""),
+        type: path,
+        base_weight: 5,
+        vector_tags: [],
+      };
+    });
   });
 
   // --- LOGIC HANDLERS ---
 
   /**
-   * Patches a specific item in the array and triggers a state sync.
+   * Patches a specific item and triggers state sync.
    * @param {number} index
    * @param {Partial<VectorItem>} patch
    */
   function patch_item(index, patch) {
     const current = [...items];
-    const item = current[index];
-    const base =
-      typeof item === "object" && item !== null
-        ? item
-        : {
-            id: generateUUID(),
-            timestamp: Date.now(),
-            text: String(item || ""),
-            type: path,
-            base_weight: 5,
-            vector_tags: [],
-          };
-    current[index] = { ...base, ...patch };
+    current[index] = { ...current[index], ...patch };
     set_value(char, path, current);
   }
 
-  /** @param {number} i, @param {string} text */
-  const update_text = (i, text) => patch_item(i, { text });
-
-  /** @param {number} i, @param {number} delta */
-  const update_weight = (i, delta) => {
-    const item = items[i];
-    const weight = typeof item === "object" ? (item.base_weight ?? 5) : 5;
+  /** @param {number} i @param {number} delta */
+  function update_weight(i, delta) {
+    const weight = items[i]?.base_weight ?? 5;
     patch_item(i, { base_weight: Math.min(10, Math.max(1, weight + delta)) });
-  };
+  }
 
-  /** @param {number} i, @param {string} raw */
-  const update_tags = (i, raw) => {
+  /** @param {number} i @param {string} raw */
+  function update_tags(i, raw) {
     const vector_tags = raw
       .split(",")
       .map((t) => t.trim())
       .filter(Boolean);
     patch_item(i, { vector_tags });
-  };
+  }
 
   /** @param {number} index */
-  const remove_item = (index) => {
-    const current = [...items];
-    current.splice(index, 1);
+  function remove_item(index) {
+    const current = items.filter((_, i) => i !== index);
     set_value(char, path, current);
-  };
+  }
 
-  /** Expose add_item for external orchestration (e.g. from parent fragment labels) */
+  /** Expose add_item for external orchestration */
   export function add_item() {
-    const current = [...items];
-    current.unshift({
+    const newItem = {
       id: generateUUID(),
       timestamp: Date.now(),
       text: "",
       type: path,
       base_weight: 5,
       vector_tags: [],
-    });
-    set_value(char, path, current);
+    };
+    set_value(char, path, [newItem, ...items]);
   }
 </script>
 
@@ -144,69 +127,57 @@
     >
       <TextField
         is_edit={is_editing}
-        value={typeof item === "string" ? item : item?.text || ""}
-        oninput={(/** @type {any} */ e) => update_text(i, e.currentTarget.value)}
+        value={item.text}
+        oninput={(/** @type {Event & { currentTarget: HTMLTextAreaElement }} */ e) =>
+          patch_item(i, { text: e.currentTarget.value })}
         placeholder="Enter {unit_label.toLowerCase()} detail..."
-        weight={typeof item === "object" ? (item.base_weight ?? 5) : 5}
+        weight={item.base_weight}
       >
         {#snippet status()}
-          <div class="status">
-            <div class="stepper">
-              <span class="label" use:tooltip={{ text: "Influence weight of this vector" }}
-                >WEIGHT</span
+          <div class="stepper" use:tooltip={{ text: "Influence weight of this vector" }}>
+            {#if is_editing}
+              <Button
+                variant="invisible"
+                size="sm"
+                square
+                className="step down"
+                onclick={() => update_weight(i, -1)}
+                aria-label="Decrease Weight"
               >
-              <div class="control">
-                {#if is_editing}
-                  <div class="buttons">
-                    <Button
-                      variant="invisible"
-                      size="sm"
-                      square
-                      actions={[tooltip]}
-                      tooltip="Increase Weight"
-                      onclick={() => update_weight(i, 1)}
-                      aria-label="Increase Weight"
-                      className="up"
-                    >
-                      <svg viewBox="0 0 24 24" class="icon"
-                        ><path d="M7 14l5-5 5 5H7z" fill="currentColor" /></svg
-                      >
-                    </Button>
-                    <Button
-                      variant="invisible"
-                      size="sm"
-                      square
-                      actions={[tooltip]}
-                      tooltip="Decrease Weight"
-                      onclick={() => update_weight(i, -1)}
-                      aria-label="Decrease Weight"
-                      className="down"
-                    >
-                      <svg viewBox="0 0 24 24" class="icon"
-                        ><path d="M7 10l5 5 5-5H7z" fill="currentColor" /></svg
-                      >
-                    </Button>
-                  </div>
-                {/if}
-                <span class="value">{typeof item === "object" ? (item.base_weight ?? 5) : 5}</span>
-              </div>
-            </div>
+                <span class="char">&lt;</span>
+              </Button>
+            {/if}
 
-            <div class="meta">
-              {#if is_editing}
-                <input
-                  type="text"
-                  class="tags-input"
-                  value={(item?.vector_tags || []).join(", ")}
-                  placeholder="TAGS (COMMA SEPARATED)..."
-                  onchange={(/** @type {any} */ e) => update_tags(i, e.currentTarget.value)}
-                />
-              {:else}
-                {#each item?.vector_tags || [] as tag (tag)}
-                  <span class="tag">{tag}</span>
-                {/each}
-              {/if}
-            </div>
+            <span class="weight">{item.base_weight}</span>
+
+            {#if is_editing}
+              <Button
+                variant="invisible"
+                size="sm"
+                square
+                className="step up"
+                onclick={() => update_weight(i, 1)}
+                aria-label="Increase Weight"
+              >
+                <span class="char">&gt;</span>
+              </Button>
+            {/if}
+          </div>
+
+          <div class="tags">
+            {#if is_editing}
+              <input
+                type="text"
+                class="input"
+                value={item.vector_tags.join(", ")}
+                placeholder="TAGS (COMMA SEPARATED)..."
+                onchange={(e) => update_tags(i, e.currentTarget.value)}
+              />
+            {:else}
+              {#each item.vector_tags as tag (tag)}
+                <span class="tag">{tag}</span>
+              {/each}
+            {/if}
           </div>
         {/snippet}
 
@@ -219,7 +190,7 @@
               actions={[tooltip]}
               tooltip="Remove {unit_label}"
               aria-label="Remove {unit_label}"
-              className="delete-btn"
+              className="delete"
               onclick={() => remove_item(i)}
             >
               <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
@@ -237,8 +208,8 @@
   {/each}
 
   {#if items.length === 0 && !is_editing}
-    <div class="placeholder" in:slide>
-      <span class="label">
+    <div class="empty" in:slide>
+      <div class="msg">
         <svg viewBox="0 0 24 24" class="icon-xs" style="width: 14px; height: 14px;">
           <path
             fill="currentColor"
@@ -246,7 +217,7 @@
           />
         </svg>
         AWAITING {unit_label.toUpperCase()} DATA STREAM...
-      </span>
+      </div>
     </div>
   {/if}
 </div>
@@ -258,13 +229,11 @@
     flex-direction: column;
     gap: var(--spacing-xs);
     position: relative;
-    overflow: visible;
   }
 
   .item {
     position: relative;
     width: 100%;
-    overflow: visible;
     transition: all var(--motion-m);
     display: flex;
     align-items: flex-start;
@@ -274,98 +243,98 @@
     z-index: calc(var(--z-index-xxl) + 1);
   }
 
-  .status {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-m);
-    justify-content: space-between;
-  }
+  /* --- HEADER COMPONENTS --- */
 
   .stepper {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-s);
+    display: grid;
+    grid-template-columns: 1.2rem 1.4rem 1.2rem;
+    place-items: center;
+    min-width: 3.8rem;
     height: 100%;
-    padding-left: var(--spacing-xs);
+    margin-right: var(--spacing-s);
+    user-select: none;
+    align-self: center;
   }
 
-  .stepper .label {
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-xxxs);
-    color: var(--color-white);
-    opacity: 0.4;
-    letter-spacing: var(--letter-spacing-l);
-    cursor: help;
-  }
-
-  .stepper .control {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 1.5rem;
-  }
-
-  .stepper .value {
+  .weight {
+    grid-column: 2;
     font-family: var(--font-family-mono);
     font-size: var(--font-size-s);
     font-weight: var(--font-weight-xl);
     color: var(--color-white);
-  }
-
-  .stepper .buttons {
-    position: absolute;
-    right: -1.2rem;
-    display: flex;
-    flex-direction: column;
-    opacity: 0;
-    transition: opacity var(--motion-m);
+    min-width: 0.8rem;
+    text-align: center;
     pointer-events: none;
+    z-index: 1;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
   }
 
-  .stepper .control:hover .buttons {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .stepper :global(.button) {
-    height: 0.8rem;
-    width: 1rem;
-    padding: 0;
-    min-height: 0;
-    color: var(--color-white);
-    opacity: 0.5;
-    background: transparent;
+  :global(.step) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: none;
     border: none;
-    transition: all var(--motion-l);
+    color: var(--color-text-pri);
+    font-size: 0.8rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: all var(--motion-m);
+    z-index: 2;
+    padding: 0;
+  }
+
+  :global(.textfield.is-expanded .header) :global(.step) {
+    opacity: 0.9;
+  }
+
+  .stepper :global(.button.step:hover) {
+    opacity: 1;
+    color: var(--color-white);
+    background: transparent;
+    filter: none;
+  }
+
+  :global(.step.down) {
+    grid-column: 1;
+  }
+
+  :global(.step.up) {
+    grid-column: 3;
+  }
+
+  :global(.step:active) {
+    transform: scale(0.85);
+  }
+
+  .char {
+    font-family: var(--font-family-mono);
+    font-size: 0.85rem;
+    font-weight: var(--font-weight-bold);
+    line-height: 1;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
-  .stepper :global(.button:hover) {
-    opacity: 1;
-    color: var(--color-white);
-    transform: scale(1.1);
-  }
+  /* --- TAGS --- */
 
-  .stepper .icon {
-    width: 1.2rem;
-    height: 1.2rem;
-  }
-
-  .meta {
+  .tags {
     flex: 1;
     display: flex;
+    align-items: center;
     gap: var(--spacing-xxs);
     overflow: hidden;
-    align-items: center;
     height: 100%;
   }
 
-  .tags-input {
+  .input {
     width: 100%;
     background: transparent;
     border: none;
@@ -373,18 +342,18 @@
     font-family: var(--font-family-mono);
     font-size: var(--font-size-xxs);
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    padding: 2px 0;
+    letter-spacing: var(--letter-spacing-l);
+    padding: 0; /* Removed 2px padding to fix vertical drift */
     outline: none;
     opacity: 0.8;
     transition: opacity var(--motion-m);
   }
 
-  .tags-input:focus {
+  .input:focus {
     opacity: 1;
   }
 
-  .tags-input::placeholder {
+  .input::placeholder {
     color: var(--color-white);
     opacity: 0.3;
   }
@@ -399,35 +368,39 @@
     color: var(--color-white);
     opacity: 0.9;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: var(--letter-spacing-l);
     white-space: nowrap;
     text-shadow: 0 1px 2px rgb(var(--color-black-rgb) / 80%);
+    display: flex;
+    align-items: center;
+    height: calc(100% - 8px); /* Ensure it fits perfectly within the centered flex container */
   }
 
-  :global(.delete-btn) {
+  /* --- ACTIONS --- */
+
+  :global(.delete) {
     color: var(--color-white);
     transition: all var(--motion-m);
-    border: none;
-    outline: none;
-    box-shadow: none;
     background: transparent;
     filter: drop-shadow(0 1px 2px rgb(var(--color-black-rgb) / 80%));
   }
 
-  :global(.delete-btn:hover) {
+  :global(.delete:hover) {
     color: var(--color-red);
     background: transparent;
     transform: scale(1.1);
   }
 
-  .placeholder {
+  /* --- EMPTY STATE --- */
+
+  .empty {
     padding: var(--spacing-xs) var(--spacing-s);
     min-height: 2.5rem;
     display: flex;
     align-items: center;
   }
 
-  .placeholder .label {
+  .msg {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-xxs);
     color: var(--color-frisk);
