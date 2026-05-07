@@ -137,7 +137,6 @@
     background: var(--signature-color, var(--color-frozen));
     color: var(--color-white);
     box-shadow: var(--shadow-s);
-    border: var(--border-l);
   }
 
   .variant-danger {

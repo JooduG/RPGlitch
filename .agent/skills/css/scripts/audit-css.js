@@ -17,7 +17,7 @@ export const cssRules = [
     id: "PIXEL_BORDER",
     severity: "ADVICE",
     regex: /border:\s*[1-9]px/,
-    message: "❌ Pixel border detected. Use depth markers like --border-l or shadows.",
+    message: "❌ Pixel border detected. Use depth markers like shadows.",
   },
 ];
 

@@ -155,7 +155,6 @@
     position: relative;
     border-radius: var(--border-radius-m);
     background: var(--glass-xs);
-    border: var(--border-l);
     transition:
       border-color var(--motion-m),
       box-shadow var(--motion-m),

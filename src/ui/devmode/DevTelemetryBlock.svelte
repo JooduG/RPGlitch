@@ -381,7 +381,6 @@
   /* Deltas */
   .deltas-tray {
     padding-bottom: var(--spacing-xs);
-    border-bottom: var(--border-l);
   }
 
   .delta-grid {
@@ -397,7 +396,6 @@
     background: rgb(var(--color-black-rgb) / 30%);
     padding: var(--spacing-xxxs) var(--spacing-xs);
     border-radius: var(--border-radius-s);
-    border: var(--border-l);
     white-space: nowrap;
     transition: all var(--motion-m);
   }
@@ -493,7 +491,6 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--spacing-l);
-    border-top: var(--border-l);
     padding-top: var(--spacing-m);
   }
 
@@ -553,7 +550,6 @@
 
   /* Signals */
   .signals-tray {
-    border-top: var(--border-l);
     padding-top: var(--spacing-m);
   }
 

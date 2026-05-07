@@ -96,8 +96,6 @@
     height: var(--card-height-m);
     overflow: hidden;
     border-radius: var(--border-radius-l);
-    border: var(--border-l);
-    box-shadow: var(--shadow-m);
     transition: all var(--motion-l) var(--motion-elastic);
   }
 
@@ -260,7 +258,6 @@
     justify-content: center;
     border-radius: 50%;
     background: var(--glass-xxl);
-    border: var(--border-l);
     backdrop-filter: var(--blur-xl);
     color: var(--color-white);
     transition: all var(--motion-s) ease;

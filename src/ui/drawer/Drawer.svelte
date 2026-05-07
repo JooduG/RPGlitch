@@ -196,7 +196,7 @@
   .body {
     flex: 1;
     overflow-y: auto;
-    padding: var(--spacing-xl);
+    padding: 0 var(--spacing-l) var(--spacing-m);  
   }
 
   /* --- GRID --- */

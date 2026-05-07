@@ -186,7 +186,6 @@
     justify-content: center;
     min-height: 4.5rem;
     background: var(--glass-xs);
-    border: var(--border-l);
     border-radius: var(--border-radius-m);
     transition: all var(--motion-l) var(--motion-elastic);
     position: relative;

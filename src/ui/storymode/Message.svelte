@@ -322,7 +322,6 @@
     border-radius: var(--border-radius-xl);
     transition: all var(--motion-l) var(--motion-elastic);
     background: color-mix(in srgb, var(--glass-xs), var(--signature-color) 3%);
-    border: var(--border-l);
     border-color: rgb(var(--color-white-rgb) / 5%);
     overflow: hidden;
     outline: none;
@@ -556,7 +555,6 @@
     padding: var(--spacing-xxs);
     min-height: 0;
     background: var(--glass-s);
-    border: var(--border-l);
     margin: 0 0 var(--spacing-xs) 0;
     width: fit-content;
   }
