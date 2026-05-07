@@ -12,6 +12,7 @@ skills:
   delivery: .agent/skills/delivery/SKILL.md
   deprecation-and-migration: .agent/skills/deprecation-and-migration/SKILL.md
   designer: .agent/skills/designer/SKILL.md
+  find-docs: .agent/skills/find-docs/SKILL.md
   git-workflow-and-versioning: .agent/skills/git-workflow-and-versioning/SKILL.md
   governance: .agent/skills/governance/SKILL.md
   image-generation: .agent/skills/image-generation/SKILL.md
@@ -29,6 +30,7 @@ skills:
   svelte: .agent/skills/svelte/SKILL.md
   swarm: .agent/skills/swarm/SKILL.md
   test-driven-development: .agent/skills/test-driven-development/SKILL.md
+  user-interface: .agent/skills/user-interface/SKILL.md
   using-agent-skills: .agent/skills/using-agent-skills/SKILL.md
 
 # ⚡ Workflows (Standard Operating Procedures)
