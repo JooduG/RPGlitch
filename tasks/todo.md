@@ -40,7 +40,7 @@
   - [x] Create `src/ui/shell/Background.svelte`
   - [x] Update `vite.config.js` aliases for `@shell`
   - [x] Refactor `App.svelte` to use `Background`
-  - [x] Cleanup `global.css` and `index.html` redundant styles
+  - [x] Cleanup `globals.css` and `index.html` redundant styles
   - [x] Synchronize `vite.config.js` and `vitest.config.js` aliases
   - [x] Systemic import refactor & relative path fixup
   - [x] Verify with `npm run test:unit`
