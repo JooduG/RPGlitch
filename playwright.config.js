@@ -6,6 +6,6 @@ export default defineConfig({
     port: 4000,
     reuseExistingServer: !process.env.CI,
   },
-  testDir: ".agent/skills/governance/tests/playwright",
+  testDir: ".agents/skills/governance/tests/playwright",
   outputDir: "tmp",
 });

@@ -8,7 +8,7 @@ Analyze the intended action against the following factors. Resolve conflicts in 
 
 ### 1.1 Passive Governance
 
-[Rules](./.agent/rules), mandatory prerequisites ([specification](./.agent/skills/specification/SKILL.md) and [test-driven-development](./.agent/skills/test-driven-development/SKILL.md)), and constraints.
+[Rules](./.agents/rules), mandatory prerequisites ([specification](./.agents/skills/specification/SKILL.md) and [test-driven-development](./.agents/skills/test-driven-development/SKILL.md)), and constraints.
 
 ### 1.2 Order of operations
 
@@ -24,7 +24,7 @@ User preferences.
 
 ### 1.5 Intent Decoding
 
-Is the user's intent completely clear? If not, _Halt_ execution and invoke the [specification](./.agent/skills/specification/SKILL.md) skill (for conceptual ambiguity) or the [Master Dispatcher](./.agent/skills/using-agent-skills/SKILL.md) (for tactical ambiguity) to resolve intent before proceeding.
+Is the user's intent completely clear? If not, _Halt_ execution and invoke the [specification](./.agents/skills/specification/SKILL.md) skill (for conceptual ambiguity) or the [Master Dispatcher](./.agents/skills/using-agent-skills/SKILL.md) (for tactical ambiguity) to resolve intent before proceeding.
 
 ## 🧠 2. Hypothesis Generation & Triage
 
@@ -36,15 +36,15 @@ Rank your hypotheses by likelihood. **Do not** discard outliers prematurely.
 
 ### 2.2 Complexity Triage
 
-Perform Complexity Triage via the [Master Dispatcher](./.agent/skills/using-agent-skills/SKILL.md) and map the task to a complexity level to determine the active role and thinking approach.
+Perform Complexity Triage via the [Master Dispatcher](./.agents/skills/using-agent-skills/SKILL.md) and map the task to a complexity level to determine the active role and thinking approach.
 
-- **Level 1** _Code Building_: ⚒️ **Operations** Role -> ⚡ -> _[/build](./.agent/workflows/build.md)_.
-- **Level 2** _Concrete Planning_: 🎨 **Tactics** Role -> 🧠 _[/plan](./.agent/workflows/plan.md)_ -> **Level**1.
-- **Level 3** _Abstract Specification_: 🎭 **Strategy** Role -> 🤔 _[/spec](./.agent/workflows/spec.md)_ -> **Level 2**.
+- **Level 1** _Code Building_: ⚒️ **Operations** Role -> ⚡ -> _[/build](./.agents/workflows/build.md)_.
+- **Level 2** _Concrete Planning_: 🎨 **Tactics** Role -> 🧠 _[/plan](./.agents/workflows/plan.md)_ -> **Level**1.
+- **Level 3** _Abstract Specification_: 🎭 **Strategy** Role -> 🤔 _[/spec](./.agents/workflows/spec.md)_ -> **Level 2**.
 
 ### 2.3 Risk & Level Mapping
 
-Map the risk tier based on your most severe likely hypothesis. Level 3 tasks REQUIRE transition to the **Strategy** role to resolve ambiguity using the [Master Dispatcher](./.agent/skills/using-agent-skills/SKILL.md).
+Map the risk tier based on your most severe likely hypothesis. Level 3 tasks REQUIRE transition to the **Strategy** role to resolve ambiguity using the [Master Dispatcher](./.agents/skills/using-agent-skills/SKILL.md).
 
 - **Low Risk (Level 1)**: Typos, CSS tweaks, minor logic.
 - **Medium Risk (Level 2)**: Refactors, state migrations, features.
@@ -52,15 +52,15 @@ Map the risk tier based on your most severe likely hypothesis. Level 3 tasks REQ
 
 ## 🔍 3. Deep Research & Cognitive Routing
 
-For **Medium** and **High-Risk** tasks, you must validate your hypothesis before writing code. Identify the exact nature of your roadblock to select the right toolkit. First, consult the [Master Dispatcher](./.agent/skills/using-agent-skills/SKILL.md) to select the appropriate workflow. Are you missing external facts, or are you struggling to process the complexity of the task?
+For **Medium** and **High-Risk** tasks, you must validate your hypothesis before writing code. Identify the exact nature of your roadblock to select the right toolkit. First, consult the [Master Dispatcher](./.agents/skills/using-agent-skills/SKILL.md) to select the appropriate workflow. Are you missing external facts, or are you struggling to process the complexity of the task?
 
 ### 3.1 Knowledge Deficit
 
-When external facts are needed. Coordinate specialized MCPs for deep inquiry via the [Using Agent Skills](./.agent/skills/using-agent-skills/SKILL.md) router. When exploring, missing optional tool parameters is acceptable. Execute the tool with available info _instead of halting to ask the user_.
+When external facts are needed. Coordinate specialized MCPs for deep inquiry via the [Using Agent Skills](./.agents/skills/using-agent-skills/SKILL.md) router. When exploring, missing optional tool parameters is acceptable. Execute the tool with available info _instead of halting to ask the user_.
 
-- **[Data](./.agent/skills/data)**: Dual-layer memory system via the [Data](./.agent/skills/data/SKILL.md) skill to maintain technical precision and historical continuity.
+- **[Data](./.agents/skills/data)**: Dual-layer memory system via the [Data](./.agents/skills/data/SKILL.md) skill to maintain technical precision and historical continuity.
   - Tools: `read_knowledge_base`, `describe_knowledge_base` and `query_cold_storage`.
-- **[Find Docs](./.agent/skills/find-docs/SKILL.md)**: Up-to-date documentation and library patterns via Context7.
+- **[Find Docs](./.agents/skills/find-docs/SKILL.md)**: Up-to-date documentation and library patterns via Context7.
   - Tools: `resolve-library-id` and `query-docs`.
 - **Svelte**: Official Svelte 5 logic and code verification.
   - Tools: `get-documentation` and `list-sections`.
@@ -100,9 +100,9 @@ If the _logic shifts_ drastically during testing -> _update the [Plan](./tasks/p
 
 ## ⚙️ 5. The Execution & Grounding Sequence
 
-Once planned and cleared, execute the task using tools at your disposal. **EVERY** implementation must be preceded by [Specification](./.agent/skills/specification/SKILL.md) and verified via [Test-driven Development](./.agent/skills/test-driven-development/SKILL.md). Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers.
+Once planned and cleared, execute the task using tools at your disposal. **EVERY** implementation must be preceded by [Specification](./.agents/skills/specification/SKILL.md) and verified via [Test-driven Development](./.agents/skills/test-driven-development/SKILL.md). Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers.
 
-Every operational turn must conclude with a metadata block that signals the active role and thinking approach according to [Intelligence](.agent/rules/05-intelligence.md).
+Every operational turn must conclude with a metadata block that signals the active role and thinking approach according to [Intelligence](.agents/rules/05-intelligence.md).
 
 - **🎭 Strategy**: High-level architecture and vision (/spec).
 - **🎨 Tactics**: Planning, scoping, and track management (/plan).
@@ -110,16 +110,16 @@ Every operational turn must conclude with a metadata block that signals the acti
 
 Below are the most common skills to be used in this step:
 
-- **[Designer & Sensory Dispatcher](./.agent/skills/designer)**: Orchestrates the atmosphere. Directs CSS, Motion, Audio, and Image-Gen specialists.
-- **[Specification](./.agent/skills/specification)**: Moves from "raw vibe" to technical blueprint.
-- **[Planning](./.agent/skills/planning)**: Breaks work into vertical slices and delivers increments.
-- **[API & Interface Design](./.agent/skills/api-and-interface-design)**: Ensures stable, hard-to-misuse contracts and boundary validation.
-- **[Governance](./.agent/skills/governance)**: Architect of Laws, ADRs, and automated audits.
-- **[Quality](./.agent/skills/quality)**: Multi-axis code review and simplification.
-- **[Delivery](./.agent/skills/delivery)**: CI/CD gates and production shipping.
-- **[Svelte Specialist](./.agent/skills/svelte)**
-- **[Find Docs](./.agent/skills/find-docs/SKILL.md)**
-- **[Simulation Orchestration](./.agent/skills/simulation)**
+- **[Designer & Sensory Dispatcher](./.agents/skills/designer)**: Orchestrates the atmosphere. Directs CSS, Motion, Audio, and Image-Gen specialists.
+- **[Specification](./.agents/skills/specification)**: Moves from "raw vibe" to technical blueprint.
+- **[Planning](./.agents/skills/planning)**: Breaks work into vertical slices and delivers increments.
+- **[API & Interface Design](./.agents/skills/api-and-interface-design)**: Ensures stable, hard-to-misuse contracts and boundary validation.
+- **[Governance](./.agents/skills/governance)**: Architect of Laws, ADRs, and automated audits.
+- **[Quality](./.agents/skills/quality)**: Multi-axis code review and simplification.
+- **[Delivery](./.agents/skills/delivery)**: CI/CD gates and production shipping.
+- **[Svelte Specialist](./.agents/skills/svelte)**
+- **[Find Docs](./.agents/skills/find-docs/SKILL.md)**
+- **[Simulation Orchestration](./.agents/skills/simulation)**
 
 ## ✅ 6. Completeness & Quality Gate
 
@@ -132,13 +132,13 @@ Ensure that all requirements, constraints, options, and preferences are exhausti
 - [ ] **Performance Budget** respected (CLS < 0.1, LCP < 2.5s).
 - [ ] **Local CI Verification**: Pass `npm run verify` locally.
 - [ ] **Chalk Regime Verification**: I have scanned my generated code and confirm there are ZERO raw `px`, `rem`, or `#` values, and ZERO hallucinated CSS variables.
-- [ ] All [Rules](./.agent/rules/) have been respected.
-  - [ ] [Foundation](./.agent/rules/01-foundation.md)
-  - [ ] [Simulation](./.agent/rules/02-simulation.md)
-  - [ ] [Infrastructure](./.agent/rules/03-infrastructure.md)
-  - [ ] [Aesthetics](./.agent/rules/04-aesthetics.md)
-  - [ ] [Intelligence](./.agent/rules/05-intelligence.md)
-  - [ ] [Compliance](./.agent/rules/06-compliance.md)
+- [ ] All [Rules](./.agents/rules/) have been respected.
+  - [ ] [Foundation](./.agents/rules/01-foundation.md)
+  - [ ] [Simulation](./.agents/rules/02-simulation.md)
+  - [ ] [Infrastructure](./.agents/rules/03-infrastructure.md)
+  - [ ] [Aesthetics](./.agents/rules/04-aesthetics.md)
+  - [ ] [Intelligence](./.agents/rules/05-intelligence.md)
+  - [ ] [Compliance](./.agents/rules/06-compliance.md)
 
 ## ⏳ 7. Persistence, Patience & Circuit Breakers
 

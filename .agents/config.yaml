@@ -1,0 +1,67 @@
+# .agents/config.yaml
+
+# 🧠 Skills (Capabilities)
+skills:
+  api-and-interface-design: .agents/skills/api-and-interface-design/SKILL.md
+  audio: .agents/skills/audio/SKILL.md
+  browser-testing-with-devtools: .agents/skills/browser-testing-with-devtools/SKILL.md
+  context-engineering: .agents/skills/context-engineering/SKILL.md
+  css: .agents/skills/css/SKILL.md
+  data: .agents/skills/data/SKILL.md
+  debugging-and-error-recovery: .agents/skills/debugging-and-error-recovery/SKILL.md
+  delivery: .agents/skills/delivery/SKILL.md
+  deprecation-and-migration: .agents/skills/deprecation-and-migration/SKILL.md
+  designer: .agents/skills/designer/SKILL.md
+  find-docs: .agents/skills/find-docs/SKILL.md
+  git-workflow-and-versioning: .agents/skills/git-workflow-and-versioning/SKILL.md
+  governance: .agents/skills/governance/SKILL.md
+  image-generation: .agents/skills/image-generation/SKILL.md
+  javascript: .agents/skills/javascript/SKILL.md
+  motion: .agents/skills/motion/SKILL.md
+  performance-optimization: .agents/skills/performance-optimization/SKILL.md
+  planning: .agents/skills/planning/SKILL.md
+  quality: .agents/skills/quality/SKILL.md
+  security-and-hardening: .agents/skills/security-and-hardening/SKILL.md
+  simulation: .agents/skills/simulation/SKILL.md
+  source-driven-development: .agents/skills/source-driven-development/SKILL.md
+  specification: .agents/skills/specification/SKILL.md
+  stitch-skill: .agents/skills/stitch-skill/SKILL.md
+  supabase-postgres-best-practices: .agents/skills/supabase-postgres-best-practices/SKILL.md
+  svelte: .agents/skills/svelte/SKILL.md
+  swarm: .agents/skills/swarm/SKILL.md
+  test-driven-development: .agents/skills/test-driven-development/SKILL.md
+  user-interface: .agents/skills/user-interface/SKILL.md
+  using-agent-skills: .agents/skills/using-agent-skills/SKILL.md
+
+# ⚡ Workflows (Standard Operating Procedures)
+workflows:
+  10x: .agents/workflows/idea-generation.md
+  boot: .agents/workflows/boot.md
+  build: .agents/workflows/build.md
+  code-simplify: .agents/workflows/code-simplify.md
+  continue: .agents/workflows/continue.md
+  github: .agents/workflows/github.md
+  plan: .agents/workflows/plan.md
+  review: .agents/workflows/review.md
+  ship: .agents/workflows/ship.md
+  spec: .agents/workflows/spec.md
+  swarm: .agents/workflows/swarm.md
+  test: .agents/workflows/test.md
+  update-npm-dependencies-check-updates: .agents/workflows/update-npm-dependencies-check-updates.md
+
+# ⚖️ Governance (The Law & The Audit)
+governance:
+  mandate: GEMINI.md
+  audit_level: C3
+  rules:
+    rule-foundation: .agents/rules/01-foundation.md
+    rule-simulation: .agents/rules/02-simulation.md
+    rule-infrastructure: .agents/rules/03-infrastructure.md
+    rule-aesthetics: .agents/rules/04-aesthetics.md
+    rule-intelligence: .agents/rules/05-intelligence.md
+    rule-compliance: .agents/rules/06-compliance.md
+
+# 📝 Workspace (Active Memory)
+workspace:
+  tracks: tasks/plan.md
+  mission_board: tasks/todo.md

@@ -92,7 +92,7 @@ RPGlitch operates a dual-layer memory system to ensure the simulation is both te
 
 ## 🚀 Performance & Best Practices (Supabase/Postgres)
 
-The project includes a specialized skill for **Postgres performance optimization** located in `.agent/skills/supabase-postgres-best-practices/`.
+The project includes a specialized skill for **Postgres performance optimization** located in `.agents/skills/supabase-postgres-best-practices/`.
 
 - **Objective**: Ensure the data layer is optimized for high-fidelity simulation and agentic retrieval.
 - **Key Areas**: Query performance, Connection management, Security/RLS, and Schema design.
@@ -125,12 +125,12 @@ RPGlitch utilizes an agentic "Swarm" to handle complex, multi-file features in p
 | `npm run swarm:merge`    | Consolidate output and perform the 80% Gate audit.     |
 
 > [!TIP]
-> For a detailed walkthrough of manual swarm coordination, see the **[/07-swarm](.agent/workflows/swarm.md)** workflow.
+> For a detailed walkthrough of manual swarm coordination, see the **[/07-swarm](.agents/workflows/swarm.md)** workflow.
 
 ---
 
 ## 🗺️ Documentation & Rules
 
-- [Prime Directive](.agent/rules/01-foundation.md)
+- [Prime Directive](.agents/rules/01-foundation.md)
 - [Sovereign Rules](GEMINI.md)
-- [Automated Workflows](.agent/workflows)
+- [Automated Workflows](.agents/workflows)

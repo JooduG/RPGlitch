@@ -29,8 +29,8 @@
   "include": [
     "src/**/*",
     "types.d.ts",
-    ".agent/skills/swarm/scripts/swarm-engine.js",
-    ".agent/skills/data/scripts/knowledge.js"
+    ".agents/skills/swarm/scripts/swarm-engine.js",
+    ".agents/skills/data/scripts/knowledge.js"
   ],
   "exclude": [
     "**/.git/**",

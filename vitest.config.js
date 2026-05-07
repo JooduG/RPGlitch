@@ -27,9 +27,9 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     // Explicitly include src and script test paths
-    include: ["src/**/*.{test,spec}.{js,ts}", ".agent/skills/*/scripts/*.{test,spec}.{js,ts}"],
+    include: ["src/**/*.{test,spec}.{js,ts}", ".agents/skills/*/scripts/*.{test,spec}.{js,ts}"],
     exclude: ["**/node_modules/**", "**/.git/**"],
-    // setupFiles: [".agent/skills/governance/scripts/setup.js"],
-    setupFiles: [".agent/skills/governance/scripts/test-setup.js"],
+    // setupFiles: [".agents/skills/governance/scripts/setup.js"],
+    setupFiles: [".agents/skills/governance/scripts/test-setup.js"],
   },
 });

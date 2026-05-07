@@ -116,7 +116,7 @@ jobs:
         uses: "google-labs-code/jules-action@main"
         with:
           jules_api_key: "${{ secrets.JULES_API_KEY }}"
-          prompt: "Execute .agent/rules/06-compliance.md (Audit section). Target Critical/High vulnerabilities."
+          prompt: "Execute .agents/rules/06-compliance.md (Audit section). Target Critical/High vulnerabilities."
       - name: "📦 Relocate Artifacts"
         if: always()
         run: |
@@ -141,14 +141,14 @@ jobs:
         run: |
           # Simplified sequence: find PRs, update, merge.
           # Resolve PRs, update, and merge based on task completion.
-          npx tsx .agent/skills/swarm/scripts/automation/swarm-merge.ts --base ${{ github.event.inputs.base_branch || 'main' }}
+          npx tsx .agents/skills/swarm/scripts/automation/swarm-merge.ts --base ${{ github.event.inputs.base_branch || 'main' }}
 
       # PERSISTENCE
       - name: "🧠 RAG Sync"
         if: github.event.schedule == '0 4 * * *'
         env:
           PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
-        run: node .agent/skills/data/scripts/index.js upsert || true
+        run: node .agents/skills/data/scripts/index.js upsert || true
 
       - name: "💾 Commit Hygiene"
         if: github.event.schedule == '0 4 * * *'
