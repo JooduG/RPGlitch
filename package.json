@@ -95,7 +95,11 @@
     },
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
-    "uuid": "^14.0.0"
+    "uuid": "^14.0.0",
+    "axios": "^1.15.1",
+    "hono": "^4.12.16",
+    "express-rate-limit": "^8.5.0",
+    "ip-address": "^10.1.1"
   },
   "scripts": {
     "audit": "node .agent/skills/using-agent-skills/scripts/summarize.js audit:nomenclature audit:warden audit:theme audit:perf audit:backlog audit:simulation",
