@@ -19,8 +19,8 @@
   --color-gunmetal-rgb: 54 56 64;
   --color-frozen: #555d66;
   --color-frozen-rgb: 85 93 102;
-  --color-frisk: #8a9399;
-  --color-frisk-rgb: 138 147 153;
+  --color-frisk: #f2f7fa;
+  --color-frisk-rgb: 242 247 250;
 
   /* Basic Colors */
   --color-white: #f7f9fc;
@@ -58,14 +58,17 @@
   /* Translucency (Standardized Scale)
   * M is the Baseline (Solid). Decreasing scales into translucency.
   */
-  --opacity-m: 1; /* Solid Baseline */
-  --opacity-l: 0.85; /* Substantial Overlay */
-  --opacity-s: 0.4; /* Soft Background */
-  --opacity-xs: 0.15; /* Subtle Hint */
-  --opacity-xxs: 0.05; /* Ghost Veil */
-  --opacity-xxxs: 0.02; /* Whisper State */
+  --opacity-max: 1;
+  --opacity-xxl: 0.8; /* Heavy (Shadows/Active) */
+  --opacity-xl: 0.6; /* Substantial */
+  --opacity-l: 0.4; /* Peak Focus (Glass-XXL) */
+  --opacity-m: 0.25; /* Floating (Glass-XL) */
+  --opacity-s: 0.15; /* Base (Glass-L) */
+  --opacity-xs: 0.08; /* Ghost (Glass-S/XS) */
+  --opacity-xxs: 0.04; /* Whisper (Glass-XXS) */
+  --opacity-xxxs: 0.02; /* Detail Veil */
   --opacity-none: 0;
-  --opacity-full: 1;
+  --opacity-min: var(--opacity-xxxs);
 
   /* Atmospheric Foundations */
   --bg-base: var(--color-chalk);
@@ -85,8 +88,8 @@
   --font-family-mono: "JetBrains Mono", monospace;
 
   /* Font Color Palette */
-  --font-color-m: var(--color-white);
-  --font-color-s: var(--color-frisk);
+  --font-color-m: var(--color-frisk);
+  --font-color-s: var(--color-frozen);
 
   /* Standardized Typography Scale
   * M is the Midpoint (Baseline/Body).
@@ -110,6 +113,7 @@
   --font-weight-m: 400;
   --font-weight-l: 700;
   --font-weight-xl: 800;
+  --font-weight-xxl: 950;
 
   --letter-spacing-s: 0.02em;
   --letter-spacing-m: 0.05em;
@@ -173,45 +177,37 @@
   * Atmospheric depth markers. Binary SUNKEN vs ELEVATED logic.
   ************************************************************************************/
 
-  /* Signature Glassmorph Scale */
-  --glass-xxl: rgb(var(--color-frisk-rgb) / var(--opacity-s)); /* Surface Focus */
-  --glass-xl: rgb(var(--color-frozen-rgb) / var(--opacity-s)); /* Floating Monolith */
-  --glass-l: rgb(var(--color-frozen-rgb) / var(--opacity-xxs)); /* Elevated Base */
-  --glass-s: rgb(var(--color-frozen-rgb) / var(--opacity-xs)); /* Sunken Surface */
-  --glass-xs: rgb(var(--color-black-rgb) / var(--opacity-s)); /* Solid Depth Contrast */
+  /* Signature Glassmorph Scale (Peak -> Floor) */
+  --glass-xxl: rgb(var(--color-white-rgb) / var(--opacity-l)); /* Peak Focus (Strong Frisk) */
+  --glass-xl: rgb(var(--color-frisk-rgb) / var(--opacity-m)); /* Floating Layer (Soft Frisk) */
+  --glass-l: rgb(var(--color-frozen-rgb) / var(--opacity-s)); /* Elevated Base (Subtle Frisk) */
 
-  /* Container Dimensions */
-  --card-width-m: clamp(160px, 16vw, 240px);
-  --card-height-m: clamp(240px, 24vw, 360px);
-  --dropdown-max-height: 300px;
+  --glass-s: rgb(var(--color-gunmetal-rgb) / var(--opacity-s)); /* Sunken Surface (Soft Gunmetal) */
+  --glass-xs: rgb(var(--color-chalk-rgb) / var(--opacity-m)); /* Deep Recess (Firm Gunmetal) */
+  --glass-xxs: rgb(var(--color-black-rgb) / var(--opacity-l)); /* The Pit (Solid Chalk) */
 
-  /* Specular Edges */
-  --color-border-xl: rgb(var(--color-frisk-rgb) / var(--opacity-s));
-  --color-border-l: rgb(var(--color-frisk-rgb) / var(--opacity-xs));
-  --color-border-m: rgb(var(--color-frozen-rgb) / var(--opacity-xs));
-  --color-border-s: rgb(var(--color-chalk-rgb) / var(--opacity-s));
-
-  --border-xl: var(--spacing-px) solid var(--color-border-xl);
-  --border-l: var(--spacing-px) solid var(--color-border-l);
-  --border-m: var(--spacing-px) solid var(--color-border-m);
-  --border-s: var(--spacing-px) solid var(--color-border-s);
+  /* Tapered Edges (Overhead Lighting) */
+  --border-color-rgb: var(--color-frisk-rgb);
+  --border-top: var(--spacing-px) solid rgb(var(--border-color-rgb) / 15%);
+  --border-side: var(--spacing-px) solid rgb(var(--border-color-rgb) / 8%);
+  --border-bottom: var(--spacing-px) solid rgb(var(--border-color-rgb) / 4%);
 
   /* Atmospheric Blur Scale */
-  --blur-xl: blur(48px);
-  --blur-l: blur(24px);
-  --blur-m: blur(12px);
-  --blur-s: blur(4px);
+  --blur-l: blur(64px);
+  --blur-m: blur(32px);
+  --blur-s: blur(12px);
 
-  /* Layer Shadows */
+  /* Layer Shadows (Clean Nordic Bloom) */
   --shadow-xxl: 0 var(--spacing-xl) var(--spacing-xxxxl)
-    rgb(var(--color-black-rgb) / var(--opacity-m));
+    rgb(var(--color-chalk-rgb) / var(--opacity-s));
   --shadow-xl: 0 var(--spacing-m) var(--spacing-xxxxl)
-    rgb(var(--color-black-rgb) / var(--opacity-l));
-  --shadow-l: 0 var(--spacing-xs) var(--spacing-xl) rgb(var(--color-black-rgb) / var(--opacity-s));
-  --shadow-m: 0 var(--spacing-xxs) var(--spacing-m) rgb(var(--color-black-rgb) / var(--opacity-s));
-  --shadow-s: 0 var(--spacing-xxs) var(--spacing-xs) rgb(var(--color-black-rgb) / var(--opacity-xs));
-  --shadow-glow: 0 0 var(--spacing-l) rgb(var(--color-frozen-rgb) / var(--opacity-s));
-  --shadow-font: 0 1px var(--spacing-xxs) rgb(var(--color-black-rgb) / var(--opacity-s));
+    rgb(var(--color-chalk-rgb) / var(--opacity-xs));
+  --shadow-l: 0 var(--spacing-xs) var(--spacing-xl) rgb(var(--color-chalk-rgb) / var(--opacity-xxs));
+  --shadow-m: 0 var(--spacing-xxs) var(--spacing-m) rgb(var(--color-chalk-rgb) / var(--opacity-xxs));
+  --shadow-s: 0 var(--spacing-xxs) var(--spacing-xs)
+    rgb(var(--color-chalk-rgb) / var(--opacity-xxxs));
+  --shadow-glow: 0 0 var(--spacing-l) rgb(var(--color-frisk-rgb) / var(--opacity-s));
+  --shadow-font: 0 1px var(--spacing-xxs) rgb(var(--color-chalk-rgb) / var(--opacity-s));
 
   /************************************************************************************
   * [**] [LEVEL 5: INTERACTION]
@@ -233,7 +229,7 @@
 
   /* State Constants */
   --motion-click: 0.95;
-  --hover-brightness: brightness(1.1);
+  --hover-brightness: brightness(1.25);
   --hover-background-color: rgb(var(--color-frisk-rgb) / var(--opacity-xs));
 
   /************************************************************************************
@@ -242,7 +238,13 @@
   ************************************************************************************/
 
   /* Button & Widget Metrics */
-  --icon-m: 2.5rem;
-  --icon-s: 2rem;
+  --icon-l: 2.5rem;
+  --icon-m: 2rem;
+  --icon-s: 1.5rem;
   --icon-xs: 1rem;
+
+  /* Container Dimensions */
+  --card-width-m: clamp(160px, 16vw, 240px);
+  --card-height-m: clamp(240px, 24vw, 360px);
+  --dropdown-max-height: 300px;
 }

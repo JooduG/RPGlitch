@@ -58,7 +58,7 @@
 
 <style>
   .wrapper {
-    display: inline-flex;
+    display: inline;
     align-items: center;
     justify-content: center;
     gap: var(--spacing-xs);
@@ -111,6 +111,8 @@
   }
 
   .wrapper.is-cover {
+    align-items: center;
+    justify-content: center;
     position: absolute;
     inset: 0;
     z-index: var(--z-index-m);

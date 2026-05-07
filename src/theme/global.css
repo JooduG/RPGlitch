@@ -153,41 +153,67 @@ small {
    4. SURFACES
    Structural glass panels matching the 5-layer elevation system.
    ---------------------------------------------------------------------------- */
+.glass-xxs {
+  background: var(--glass-xxs);
+  backdrop-filter: var(--blur-s);
+  border-top: var(--border-top);
+  border-left: var(--border-side);
+  border-right: var(--border-side);
+  border-bottom: var(--border-bottom);
+  border-radius: var(--border-radius-m);
+}
+
 .glass-xs {
   background: var(--glass-xs);
   backdrop-filter: var(--blur-s);
-  border: var(--border-s);
+  border-top: var(--border-top);
+  border-left: var(--border-side);
+  border-right: var(--border-side);
+  border-bottom: var(--border-bottom);
   border-radius: var(--border-radius-m);
 }
 
 .glass-s {
   background: var(--glass-s);
-  backdrop-filter: var(--blur-m);
-  border: var(--border-m);
+  backdrop-filter: var(--blur-s);
+  border-top: var(--border-top);
+  border-left: var(--border-side);
+  border-right: var(--border-side);
+  border-bottom: var(--border-bottom);
   border-radius: var(--border-radius-m);
 }
 
 .glass-l {
   background: var(--glass-l);
-  backdrop-filter: var(--blur-l);
-  border: var(--border-l);
+  backdrop-filter: var(--blur-m);
+  border-top: var(--border-top);
+  border-left: var(--border-side);
+  border-right: var(--border-side);
+  border-bottom: var(--border-bottom);
   border-radius: var(--border-radius-m);
+  box-shadow: var(--shadow-l);
 }
 
 .glass-xl {
   background: var(--glass-xl);
-  backdrop-filter: var(--blur-xl);
-  border: var(--border-xl);
+  backdrop-filter: var(--blur-l);
+  border-top: var(--border-top);
+  border-left: var(--border-side);
+  border-right: var(--border-side);
+  border-bottom: var(--border-bottom);
   border-radius: var(--border-radius-m);
+  box-shadow: var(--shadow-xl);
 }
 
 .glass-xxl {
   background: var(--glass-xxl);
-  backdrop-filter: var(--blur-xl);
-  border: var(--border-xl);
-  border-top: 1px solid rgb(var(--color-white-rgb) / 15%);
+  backdrop-filter: var(--blur-l);
+  border-top: var(--border-top);
+  border-left: var(--border-side);
+  border-right: var(--border-side);
+  border-bottom: var(--border-bottom);
   border-radius: var(--border-radius-m);
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--shadow-xxl);
 }
 
 /* ----------------------------------------------------------------------------
@@ -292,7 +318,8 @@ small {
    ---------------------------------------------------------------------------- */
 .icon-xs,
 .icon-s,
-.icon-m {
+.icon-m,
+.icon-l {
   display: inline-block;
   vertical-align: middle;
   flex-shrink: 0;
@@ -325,4 +352,14 @@ small {
 .icon-m {
   width: var(--icon-m);
   height: var(--icon-m);
+}
+
+.icon-l {
+  width: var(--icon-l);
+  height: var(--icon-l);
+}
+
+.icon-l {
+  width: var(--icon-xl);
+  height: var(--icon-xl);
 }
