@@ -319,7 +319,7 @@
     display: flex;
     flex-direction: column;
     position: relative;
-    border-radius: 1.25rem;
+    border-radius: var(--border-radius-xl);
     transition: all var(--motion-l) var(--motion-elastic);
     background: color-mix(in srgb, var(--glass-xs), var(--signature-color) 3%);
     border: var(--border-l);
@@ -336,16 +336,16 @@
 
   /* Soft Point Corner Directionality */
   .user-bubble {
-    border-bottom-right-radius: 4px;
+    border-bottom-right-radius: var(--border-radius-s);
   }
 
   .ai-bubble {
-    border-bottom-left-radius: 4px;
+    border-bottom-left-radius: var(--border-radius-s);
   }
 
   .message-bubble.is-focused {
     border-color: var(--color-white);
-    box-shadow: 0 0 20px rgb(var(--color-white-rgb) / 8%);
+    box-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-l) var(--color-white-glow);
     background: color-mix(in srgb, var(--glass-xs), var(--signature-color) 6%);
     overflow: visible;
   }
@@ -357,7 +357,7 @@
     inset: 0;
     pointer-events: none;
     border-radius: inherit;
-    padding: 1.5px;
+    padding: var(--spacing-border);
     background: linear-gradient(
       to bottom,
       color-mix(in srgb, transparent, var(--signature-color) 40%),
@@ -404,8 +404,8 @@
     flex-direction: column;
     position: relative;
     top: 0;
-    border-radius: 1.25rem 1.25rem 0 0;
-    z-index: 2;
+    border-radius: var(--border-radius-xl) var(--border-radius-xl) var(--spacing-0) var(--spacing-0);
+    z-index: var(--z-index-2);
   }
 
   .message-bubble.is-focused .field-header {
@@ -477,7 +477,7 @@
   .message-body {
     padding: var(--spacing-m) var(--spacing-l);
     position: relative;
-    z-index: 1;
+    z-index: var(--z-index-1);
   }
 
   .message-content {

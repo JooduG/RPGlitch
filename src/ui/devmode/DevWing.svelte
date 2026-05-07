@@ -211,9 +211,9 @@
     height: 2px;
     width: var(--dynamic-value, 0%);
     background: var(--color-cyan);
-    box-shadow: 0 0 10px var(--color-cyan);
+    box-shadow: 0 0 var(--spacing-s) var(--color-cyan);
     transition: width var(--motion-s) var(--motion-dissolve);
-    z-index: 2;
+    z-index: var(--z-index-m);
   }
 
   .dynamic-label {
@@ -224,7 +224,7 @@
     color: var(--color-frisk);
     margin-bottom: var(--spacing-xxs);
     cursor: help;
-    z-index: 1;
+    z-index: var(--z-index-m);
   }
 
   .value-container {
@@ -233,7 +233,7 @@
     justify-content: center;
     position: relative;
     width: 100%;
-    z-index: 1;
+    z-index: var(--z-index-m);
   }
 
   .value-container input {
@@ -283,7 +283,7 @@
     background: transparent;
     border: none;
     color: var(--color-cyan);
-    padding: 2px;
+    padding: var(--spacing-xxxs);
     cursor: pointer;
     display: flex;
     align-items: center;

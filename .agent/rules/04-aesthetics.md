@@ -18,12 +18,14 @@ The interface is a high-end research terminal in a frozen facility. It is cool, 
 - **Auditory Law**: Minimalist, non-intrusive soundscapes. Cool and clinical.
 - **Generative Law**: Image prompts must use the "Frozen Terminal" palette (Gunmetal, Chalk, Frozen tones).
 
-### 📐 The Chalk Regime (Tokens)
+### 📐 The Chalk Regime (Tokens) [FATAL CONSTRAINT]
 
-We do not use raw values. The "Soul" is realization through strict named tokens.
+You are strictly operating within a closed-loop token system. The "Soul" is realization through strict named tokens.
 
-- **Primary Source**: `src/theme/tokens.css`.
-- **Primary Standard**: 12-column grid system (`--grid-unit`).
+- **Primary Source**: `src/theme/engine.css`.
+- **CRITICAL HALT CONDITION**: You are STRICTLY FORBIDDEN from writing raw pixel values (`px`), rems (`rem`), ems (`em`), or hex codes (`#`) in ANY file.
+- If you are about to write `padding: 16px;`, you MUST HALT, read `src/theme/engine.css`, and use `padding: var(--spacing-m);` instead.
+- If a required variable does not exist in `engine.css`, DO NOT hallucinate one. You must HALT execution and prompt the user to authorize a new Level 7 Alias.
 
 ---
 
@@ -32,7 +34,7 @@ We do not use raw values. The "Soul" is realization through strict named tokens.
 ### 1. Visual Depth (The Z-Law)
 
 - Elements must detach from the background via structural shadows and glass blurs.
-- Follow the Glass Elevation scale in `tokens.css` (XS to XXL).
+- Follow the Glass Elevation scale in `engine.css` (XS to XXL).
 
 ### 2. Kinetic Physics (The Grounded Law)
 

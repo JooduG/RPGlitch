@@ -59,6 +59,10 @@ Touch only what you're asked to touch. Do not "clean up" orthogonal code, refact
 
 Every task must include a verification step. A task is not complete until verification passes (passing tests, build output, or runtime data). "Seems right" is never sufficient.
 
+### 7. Maintain Workspace Hygiene
+
+Never create temporary diagnostic files, logs, or command redirects in the project root. All such artifacts MUST be placed in the `tmp/` directory. If the directory does not exist, create it.
+
 ### Skill Discovery Map
 
 Use this map to route your current task to the appropriate specialized skill:

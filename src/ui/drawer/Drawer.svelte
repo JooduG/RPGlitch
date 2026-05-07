@@ -294,27 +294,27 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 4rem 2rem;
+    padding: var(--spacing-xxxl) var(--spacing-xl);
     text-align: center;
     color: var(--font-color-s);
   }
 
   .empty-icon {
-    width: 80px;
-    height: 80px;
+    width: var(--font-size-xxxxxl);
+    height: var(--font-size-xxxxxl);
     opacity: var(--opacity-xs);
     margin-bottom: var(--spacing-m);
   }
 
   .empty h4 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: var(--font-size-xxl);
     font-weight: var(--font-weight-xl);
   }
 
   .empty p {
     opacity: var(--opacity-l);
-    margin-top: 0.5rem;
+    margin-top: var(--spacing-xs);
   }
 
   /* --- RESPONSIVE --- */

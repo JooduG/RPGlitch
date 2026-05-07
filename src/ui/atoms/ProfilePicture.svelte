@@ -175,6 +175,6 @@
     /* Layout Hardening */
     white-space: nowrap;
     text-align: center;
-    padding: 8%;
+    padding: var(--spacing-xs);
   }
 </style>

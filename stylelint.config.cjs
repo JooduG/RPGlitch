@@ -2,17 +2,100 @@ const master = require("./ignores.master.json");
 
 /** @type {import('stylelint').Config} */
 module.exports = {
-  // one source of truth for ignore globs
+  // One source of truth for ignore globs
   ignoreFiles: master.stylelintIgnore || [],
   extends: [
     "stylelint-config-standard-scss",
     "stylelint-config-html/svelte",
     "stylelint-prettier/recommended",
   ],
-  overrides: [{ files: ["**/*.svelte"], customSyntax: "postcss-html" }],
+  plugins: [
+    // This is the AI-killer plugin. It enforces variables over raw values.
+    "stylelint-declaration-strict-value",
+  ],
+  overrides: [
+    {
+      files: ["**/*.svelte"],
+      customSyntax: "postcss-html",
+    },
+    {
+      // THE CHALK REGIME EXEMPTION:
+      // We must allow raw values ONLY in the theme files where the tokens are born.
+      files: ["src/theme/**/*.css"],
+      rules: {
+        "scale-unlimited/declaration-strict-value": null,
+        "color-no-hex": null,
+      },
+    },
+  ],
   rules: {
-    // Accept kebab-case and optional BEM modifier: e.g.
-    // .card-title, .card-title--editing
+    /* ========================================================================
+       [**] THE CHALK REGIME (AI HALLUCINATION DEFENSES)
+       ======================================================================== */
+
+    // FATAL: Block all raw hex codes globally outside of engine.css
+    "color-no-hex": [
+      true,
+      {
+        message:
+          "RPGlitch Engine [FATAL]: Hex codes are strictly forbidden. Use var(--color-*) from engine.css.",
+      },
+    ],
+
+    // FATAL: Force AI to use variables for structural and aesthetic properties
+    "scale-unlimited/declaration-strict-value": [
+      [
+        "/color/", // Catches color, background-color, border-color
+        "fill",
+        "stroke",
+        "/padding/", // Catches padding, padding-top, padding-left, etc.
+        "/margin/", // Catches margin, margin-top, etc.
+        "/border/", // Catches border, border-top, border-radius, etc.
+        "top",
+        "right",
+        "bottom",
+        "left",
+        "gap",
+        "font-size",
+        "box-shadow",
+        "z-index",
+      ],
+      {
+        expandShorthand: true,
+        // Allow structural constants that aren't tied to the design system
+        ignoreValues: [
+          "transparent",
+          "inherit",
+          "initial",
+          "currentColor",
+          "currentcolor",
+          "none",
+          "auto",
+          "0",
+          "inset",
+          "100%",
+          "50%",
+          "1fr",
+          "100vh",
+          "100vw",
+          "max-content",
+          "min-content",
+          "fit-content",
+          "solid",
+          "dashed",
+          "dotted",
+          "double",
+        ],
+        message:
+          "RPGlitch Engine [FATAL]: Raw values hallucinated! You MUST use a variable from engine.css (e.g., var(--spacing-m)). Halt and read the tokens file.",
+      },
+    ],
+
+    /* ========================================================================
+       [**] STANDARD ARCHITECTURE RULES
+       ======================================================================== */
+
+    // Accept kebab-case and optional BEM modifier: e.g., .card-title, .card-title--editing
     "selector-class-pattern": [
       "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:--[a-z0-9]+(?:-[a-z0-9]+)*)?$",
       {
@@ -21,23 +104,28 @@ module.exports = {
           "Expected class selector to be kebab-case, optionally with a BEM modifier (--modifier).",
       },
     ],
+
     "selector-pseudo-class-no-unknown": [
       true,
       {
         ignorePseudoClasses: ["global", "deep", "slotted"],
       },
     ],
-    // "no-descending-specificity": null,
-    // 1. Unplug the rgba vs rgb debate completely
-    // "color-function-alias-notation": null,
 
-    // 2. Unplug the decimals vs percentages debate
-    // "alpha-value-notation": null,
+    /* ========================================================================
+       [**] DEVELOPER SANITY OVERRIDES
+       ======================================================================== */
 
-    // 3. Let yourself use empty lines for readability
+    // Unplug the decimals vs percentages debate for alpha
+    "alpha-value-notation": null,
+
+    // Let yourself use empty lines for readability
     "custom-property-empty-line-before": null,
 
-    // 4. Stop it from yelling about your cascading duplicate variables
-    // "declaration-block-no-duplicate-custom-properties": null,
+    // Stop it from yelling about cascading duplicate variables in engine.css
+    "declaration-block-no-duplicate-custom-properties": null,
+
+    // Unplug modern color-function demands to preserve legacy RPGlitch palettes
+    "color-function-notation": null,
   },
 };

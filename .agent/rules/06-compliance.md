@@ -30,6 +30,17 @@ When fixing a bug caused by invalid data, validating at a single point is insuff
 
 ---
 
+### 1.2 Temporary Workspace Hygiene
+
+To prevent repository clutter and ensure a clean production environment:
+
+1.  **Redirection**: ALL temporary diagnostic files, logs, or command outputs generated during a session MUST be placed in the `tmp/` directory at the root.
+2.  **Naming**: Files should be descriptively named (e.g., `tmp/lint-audit.txt`) and are considered transient.
+3.  **Cleanup**: The `tmp/` directory is ignored by git (`.gitignore`) and should be purged periodically or after mission completion.
+4.  **Forbidden**: Creating `.txt` or `.log` files directly in the root or `src/` directories is strictly prohibited.
+
+---
+
 ### 2. Automated Defense (The Warden)
 
 Before any task is marked complete, the ecosystem must survive these automated sweeps.

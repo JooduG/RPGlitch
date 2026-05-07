@@ -9,12 +9,12 @@ import { safeStatSync } from "./safe-fs.js";
 
 // 1. Import Domain Rules (Updated Paths)
 import { cssRules, themeRules } from "../../css/scripts/audit-css.js";
-import { rule_rules, workflow_rules } from "./audit-templates.js";
-import { skill_rules } from "./audit-skills.js";
-import { scan_nomenclature } from "./audit-nomenclature.js";
-import { projectRules } from "./warden-project.js";
-import { svelteRules } from "../../svelte/scripts/audit-svelte.js";
 import { securityRules } from "../../security-and-hardening/scripts/audit-security.js";
+import { svelteRules } from "../../svelte/scripts/audit-svelte.js";
+import { scan_nomenclature } from "./audit-nomenclature.js";
+import { skill_rules } from "./audit-skills.js";
+import { rule_rules, workflow_rules } from "./audit-templates.js";
+import { projectRules } from "./warden-project.js";
 
 const ROOT_DIR = process.cwd();
 const SRC_DIR = path.join(ROOT_DIR, "src");
@@ -87,7 +87,7 @@ class Auditor {
     const ext = path.extname(filePath);
     const relPath = path.relative(ROOT_DIR, filePath).replace(/\\/g, "/");
 
-    if (relPath.includes("audit-") || relPath.endsWith("tokens.css")) return;
+    if (relPath.includes("audit-") || relPath.endsWith("engine.css")) return;
 
     let rules = [];
 

@@ -270,7 +270,7 @@
     min-width: 0.8rem;
     text-align: center;
     pointer-events: none;
-    z-index: 1;
+    z-index: var(--z-index-1);
     line-height: 1;
     display: flex;
     align-items: center;
@@ -280,7 +280,7 @@
 
   .step-char {
     font-family: var(--font-family-mono);
-    font-size: 0.85rem;
+    font-size: var(--font-size-s);
     font-weight: var(--font-weight-bold);
     line-height: 1;
     display: flex;
@@ -297,11 +297,11 @@
     background: none;
     border: none;
     color: var(--color-text-pri);
-    font-size: 0.8rem;
+    font-size: var(--font-size-s);
     cursor: pointer;
     opacity: 0;
     transition: all var(--motion-m);
-    z-index: 2;
+    z-index: var(--z-index-2);
     padding: 0;
   }
 
@@ -366,7 +366,7 @@
   .tag {
     font-size: var(--font-size-xxs);
     background: rgb(var(--color-white-rgb) / 10%);
-    padding: 2px 8px;
+    padding: var(--spacing-2px) var(--spacing-xs);
     border: var(--border-m);
     border-color: rgb(var(--color-white-rgb) / var(--opacity-xxs));
     border-radius: var(--border-radius-s);

@@ -110,7 +110,10 @@
   .wrapper:hover {
     background: var(--glass-xxl);
     backdrop-filter: var(--blur-xl);
-    box-shadow: 0 12px 24px -12px rgb(from var(--signature-color) r g b / 40%);
+    --card-hover-shadow: 0 var(--spacing-s) var(--spacing-l) calc(var(--spacing-s) * -1)
+      rgb(from var(--signature-color) r g b / 40%);
+
+    box-shadow: var(--card-hover-shadow);
   }
 
   .wrapper:active {
@@ -129,7 +132,7 @@
   }
 
   .wrapper:hover .border {
-    box-shadow: inset 0 0 0 1.5px var(--signature-color);
+    box-shadow: inset 0 0 0 var(--spacing-border) var(--signature-color);
   }
 
   .wrapper:focus-visible {
@@ -137,7 +140,9 @@
   }
 
   .wrapper:focus-visible .border {
-    box-shadow: inset 0 0 0 2.5px var(--signature-color);
+    --border-focus-shadow: inset 0 0 0 2.5px var(--signature-color);
+
+    box-shadow: var(--border-focus-shadow);
   }
 
   /* --- PLACEHOLDER --- */
@@ -198,7 +203,7 @@
     font-family: var(--font-family-heading);
     color: rgb(var(--signature-rgb));
     text-shadow: var(--shadow-font);
-    font-size: 32px;
+    font-size: var(--font-size-xxxl);
     line-height: 1;
     letter-spacing: -0.01em;
     max-width: 75%;
@@ -216,7 +221,7 @@
 
   .details p {
     margin: 0;
-    font-size: 14px;
+    font-size: var(--font-size-s);
     color: var(--font-color-m);
     line-height: 1.3;
     display: -webkit-box;

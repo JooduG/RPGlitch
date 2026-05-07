@@ -145,8 +145,8 @@
 
 <style>
   .wrapper {
-    --shield-height-dormant: 2px;
-    --shield-height-active: 2.2rem;
+    --shield-height-dormant: var(--spacing-xxxs);
+    --shield-height-active: var(--spacing-xl);
     --anim-physics: var(--motion-l) var(--motion-elastic);
 
     width: 100%;
@@ -171,17 +171,17 @@
 
   .wrapper[data-expanded="true"] {
     border-color: var(--color-white);
-    box-shadow: 0 0 15px rgb(var(--color-white-rgb) / 5%);
+    box-shadow: 0 0 var(--spacing-m) rgb(var(--color-white-rgb) / 5%);
   }
 
   .header {
     height: var(--shield-height-dormant);
     border-radius: calc(var(--border-radius-m) - 1px) calc(var(--border-radius-m) - 1px) 0 0;
     background: rgb(from var(--tf-accent) r g b / var(--header-opacity));
-    box-shadow: 0 0 calc(var(--weight-intensity) * 6px) var(--tf-accent);
+    box-shadow: 0 0 calc(var(--weight-intensity) * var(--spacing-xs)) var(--tf-accent);
     position: relative;
-    top: 1px;
-    z-index: 2;
+    top: var(--spacing-px);
+    z-index: var(--z-index-m);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -198,7 +198,8 @@
   .wrapper[data-expanded="true"] .header {
     height: var(--shield-height-active);
     top: 0;
-    box-shadow: 0 0 calc(var(--weight-intensity) * 12px) rgb(from var(--tf-accent) r g b / 15%);
+    box-shadow: 0 0 calc(var(--weight-intensity) * var(--spacing-s))
+      rgb(from var(--tf-accent) r g b / 15%);
     border-bottom: var(--spacing-px) solid rgb(var(--color-white-rgb) / 8%);
   }
 
@@ -215,8 +216,8 @@
 
   .body {
     width: 100%;
-    min-height: 2.5rem;
-    max-height: 15rem;
+    min-height: var(--spacing-xxl);
+    max-height: 15rem; /* Checked against raw? */
     padding: var(--spacing-s);
     background: transparent;
     border: none;
@@ -231,7 +232,7 @@
     display: block;
     overflow: hidden auto;
     position: relative;
-    z-index: 1;
+    z-index: var(--z-index-m);
   }
 
   .body[data-mode="edit"] {

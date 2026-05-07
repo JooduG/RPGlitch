@@ -193,9 +193,10 @@
   .variant-danger:hover:not(:disabled) {
     background: var(--color-red);
     color: var(--color-white);
-    box-shadow:
-      0 0 1rem rgb(var(--color-red-rgb) / var(--opacity-s)),
-      inset 0 0 0 var(--spacing-px) var(--color-red);
+    --danger-hover-shadow:
+      0 0 var(--spacing-m) var(--color-red-glow), inset 0 0 0 var(--spacing-px) var(--color-red);
+
+    box-shadow: var(--danger-hover-shadow);
   }
 
   .variant-invisible:hover:not(:disabled) {

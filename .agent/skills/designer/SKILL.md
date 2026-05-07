@@ -24,9 +24,10 @@ When a task involves sensory implementation, the `designer` must triage and dele
 
 ## Strategic Context
 
-- **Source-Driven Grounding**: Always read `src/theme/tokens.css` and existing atoms in `src/ui/` before building.
+- **Source-Driven Grounding**: Always read `src/theme/engine.css` and existing atoms in `src/ui/` before building.
 - **Svelte 5 Sovereignty**: Use Runes ($state, $derived, $props) and Bits UI primitives exclusively.
 - **Atomic Design**: Assemble interfaces from `atoms` -> `molecules` -> `organisms`.
+- **Token Compliance (Zero Tolerance)**: You must enforce the Chalk Regime. When assembling structural UI that requires spacing, colors, or typography, you must exclusively use `var(--token-name)`. If you invent a raw value or a missing token, your output will be rejected.
 
 ## How It Works
 

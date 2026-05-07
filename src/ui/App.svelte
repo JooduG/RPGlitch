@@ -73,7 +73,7 @@
     height: 100vh;
     overflow: hidden;
     background: transparent;
-    z-index: 1; /* Above Background.svelte (0) */
+    z-index: var(--z-index-1); /* Above Background.svelte (0) */
   }
 
   :global(html),

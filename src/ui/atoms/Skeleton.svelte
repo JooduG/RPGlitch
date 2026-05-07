@@ -88,7 +88,7 @@
     filter: blur(var(--blur-xl));
     animation: shimmer 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
     pointer-events: none;
-    z-index: 1;
+    z-index: var(--z-index-m);
   }
 
   @keyframes shimmer {

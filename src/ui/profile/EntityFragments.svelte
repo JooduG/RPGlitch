@@ -219,12 +219,13 @@
     pointer-events: none;
     letter-spacing: var(--letter-spacing-l);
     white-space: nowrap;
-    text-shadow: 0 0 8px rgb(var(--color-white-rgb) / 40%);
+    text-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-xs)
+      rgb(var(--color-white-rgb) / 40%);
   }
 
   .section-sub {
     margin: 0;
-    font-size: 10px;
+    font-size: var(--font-size-xxs);
     color: var(--font-color-m);
     font-weight: var(--font-weight-m);
     opacity: var(--opacity-m);
@@ -265,7 +266,7 @@
   }
 
   .group:hover {
-    z-index: calc(var(--z-index-xxl) + 1);
+    z-index: calc(var(--z-index-xxl) + var(--z-index-1));
   }
 
   .field-label {
@@ -303,7 +304,9 @@
     outline: none;
     box-shadow: none;
     background: transparent;
-    filter: drop-shadow(0 1px 2px rgb(var(--color-black-rgb) / 80%));
+    filter: drop-shadow(
+      var(--spacing-0) var(--spacing-px) var(--spacing-2px) rgb(var(--color-black-rgb) / 80%)
+    );
   }
 
   :global(.enhance-btn:hover) {

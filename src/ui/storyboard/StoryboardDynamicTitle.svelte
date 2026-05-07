@@ -110,7 +110,9 @@
     <span class="title-content">
       {#each title_parts as part, i (i)}
         {#if part.color}
-          <span class="entity-name" style="color: {part.color}">{part.text}</span>
+          <span class="entity-name" style="--part-color: {part.color}; color: var(--part-color);"
+            >{part.text}</span
+          >
         {:else}
           {part.text}
         {/if}
@@ -152,9 +154,10 @@
   h1:focus-within {
     outline: none;
     background: var(--glass-l);
-    box-shadow:
-      0 0 0 var(--spacing-xxs) var(--signature-color),
-      var(--color-pink);
+    --title-focus-shadow:
+      0 0 0 var(--spacing-xxs) var(--signature-color), 0 0 var(--spacing-l) var(--color-pink);
+
+    box-shadow: var(--title-focus-shadow);
   }
 
   h1 .title-content {

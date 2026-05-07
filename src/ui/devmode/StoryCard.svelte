@@ -7,8 +7,9 @@
   import Button from "@atoms/Button.svelte";
   import { themeStore } from "@theme/palette.svelte.js";
 
+  /** @typedef {import('@data/repository.js').Story} Story */
   /** @type {{
-   *    story: Object,
+   *    story: Story,
    *    onclick?: (e: MouseEvent) => void
    *  }} */
   let { story, onclick = () => {} } = $props();
@@ -16,6 +17,7 @@
   /**
    * Formats timestamps to a standard Swedish/ISO-adjacent format.
    * Clean YYYY-MM-DD HH:mm without seconds or commas.
+   * @param {number|string|Date} ts
    */
   function format_timestamp(ts) {
     if (!ts) return "---";
@@ -111,7 +113,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xxxs);
-    z-index: 1;
+    z-index: var(--z-index-m);
     position: relative;
   }
 

@@ -144,7 +144,7 @@
       var(--glass-xs) var(--fill-end),
       var(--glass-xs) 100%
     );
-    box-shadow: inset 0 1px 2px rgb(var(--color-black-rgb) / var(--opacity-s));
+    box-shadow: inset var(--spacing-0) var(--spacing-px) var(--spacing-xxxs) var(--color-white-glow);
     border-radius: var(--border-radius-full);
     border: none;
   }
@@ -161,7 +161,7 @@
       var(--glass-xs) var(--fill-end),
       var(--glass-xs) 100%
     );
-    box-shadow: inset 0 1px 2px rgb(var(--color-black-rgb) / var(--opacity-s));
+    box-shadow: inset var(--spacing-0) var(--spacing-px) var(--spacing-xxxs) var(--color-white-glow);
     border-radius: var(--border-radius-full);
     border: none;
   }
@@ -174,10 +174,10 @@
     background: var(--color-white);
     border-radius: var(--border-radius-full);
     cursor: pointer;
-    box-shadow:
-      0 0 8px var(--color-white),
-      var(--shadow-s);
-    margin-top: -0.25rem; /* Centering on 0.25rem track */
+    --thumb-shadow: 0 0 var(--spacing-xs) var(--color-white), var(--shadow-s);
+
+    box-shadow: var(--thumb-shadow);
+    margin-top: calc(var(--spacing-xxs) * -1); /* Centering on var(--spacing-xxs) track */
     border: none;
     transition:
       transform var(--motion-l) var(--motion-elastic),
@@ -191,9 +191,9 @@
     background: var(--color-white);
     border-radius: var(--border-radius-full);
     cursor: pointer;
-    box-shadow:
-      0 0 8px var(--color-white),
-      var(--shadow-s);
+    --thumb-shadow: 0 0 var(--spacing-xs) var(--color-white), var(--shadow-s);
+
+    box-shadow: var(--thumb-shadow);
     border: none;
     transition:
       transform var(--motion-l) var(--motion-elastic),

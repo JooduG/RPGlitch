@@ -164,7 +164,7 @@
       <Button
         square={true}
         className="swatch {themeStore.get_signature_label(char) === name ? 'active' : ''}"
-        style="background-color: {color}; --swatch-color: {color};"
+        style="--swatch-dynamic-bg: {color}; background-color: var(--swatch-dynamic-bg); --swatch-color: var(--swatch-dynamic-bg);"
         aria-label={name}
         actions={[tooltip]}
         onclick={() => (char.signature_color = name)}
@@ -322,9 +322,11 @@
   .swatches :global(.swatch.active) {
     outline: 2px solid rgb(var(--color-white-rgb) / 70%);
     outline-offset: 2px;
-    box-shadow:
-      0 0 0 1px rgb(var(--color-white-rgb) / 15%) inset,
-      0 0 14px 3px var(--swatch-color);
+    --active-swatch-shadow:
+      0 0 0 var(--spacing-px) rgb(var(--color-white-rgb) / 15%) inset,
+      0 0 var(--spacing-s) var(--spacing-xxs) var(--swatch-color);
+
+    box-shadow: var(--active-swatch-shadow);
     transform: scale(1.06);
     z-index: var(--z-index-m);
     cursor: default;

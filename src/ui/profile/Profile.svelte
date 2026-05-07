@@ -274,7 +274,9 @@
     );
     z-index: var(--z-index-xxl);
     pointer-events: none;
-    box-shadow: 0 0 12px var(--signature-color);
+    --signature-glow: 0 0 var(--spacing-s) var(--signature-color);
+
+    box-shadow: var(--signature-glow);
     opacity: 0.8;
   }
 

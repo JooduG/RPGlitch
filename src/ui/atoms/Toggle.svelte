@@ -149,7 +149,7 @@
       calc(var(--switch-w) - var(--thumb-size) - (var(--switch-h) - var(--thumb-size)))
     );
     background-color: var(--color-white);
-    box-shadow: 0 0 8px rgb(var(--color-white-rgb) / var(--opacity-m));
+    box-shadow: 0 0 var(--spacing-xs) rgb(var(--color-white-rgb) / var(--opacity-m));
   }
 
   /* Label Styling */

@@ -7,8 +7,24 @@
   import DataBox from "@devmode/DataBox.svelte";
 
   /**
+   * @typedef {Object} TelemetryMeta
+   * @property {string} [type] - The type of telemetry event.
+   * @property {Object} [ai] - AI character state.
+   * @property {Object} [dynamics] - Dynamic simulation state.
+   * @property {Object} [snapshot] - State snapshot.
+   * @property {Object} [snapshot.ai] - AI snapshot.
+   * @property {Object} [snapshot.fractal] - Fractal snapshot.
+   * @property {Object} [fractal] - Fractal entity state.
+   * @property {Object} [fractal_dynamics] - Fractal dynamic state.
+   * @property {Object} [vectors] - Narrative vectors.
+   * @property {any[]} [vectors.past] - Past memory vectors.
+   * @property {any[]} [vectors.future] - Future intent vectors.
+   * @property {any[]|Object} [signals] - Atmospheric signals.
+   * @property {any[]} [deltas] - State deltas.
+   */
+  /**
    * @typedef {Object} Props
-   * @property {Object} [meta={}] - The telemetry metadata object.
+   * @property {TelemetryMeta} [meta={}] - The telemetry metadata object.
    * @property {string} [time=""] - Optional timestamp to display.
    */
 
@@ -17,12 +33,16 @@
 
   let ai = $derived(meta.ai || meta.dynamics || meta.snapshot?.ai || {});
   let fractal = $derived(meta.fractal || meta.fractal_dynamics || meta.snapshot?.fractal || {});
-  let vectors = $derived(meta.vectors || { past: [], future: [] });
+  let vectors = $derived({
+    past: meta.vectors?.past || [],
+    future: meta.vectors?.future || [],
+  });
   let signals = $derived(
     Array.isArray(meta.signals) ? meta.signals : Object.keys(meta.signals || {}),
   );
   let deltas = $derived(meta.deltas || []);
 
+  /** @param {number} val */
   function get_pct(val) {
     return Math.max(0, Math.min(100, Math.round(val || 50)));
   }
@@ -147,9 +167,9 @@
                       <div
                         class="metric-fill"
                         style="
-                          left: {Math.min(50, get_pct(val))}%;
-                          width: {Math.abs(get_pct(val) - 50)}%;
-                          background: {get_pct(val) > 50
+                          --metric-offset: {Math.min(50, get_pct(val))}%;
+                          --metric-span: {Math.abs(get_pct(val) - 50)}%;
+                          --metric-color: {get_pct(val) > 50
                           ? 'var(--color-cyan)'
                           : 'var(--color-frozen)'}
                         "
@@ -173,9 +193,9 @@
                       <div
                         class="metric-fill"
                         style="
-                          left: {Math.min(50, get_pct(val))}%;
-                          width: {Math.abs(get_pct(val) - 50)}%;
-                          background: {get_pct(val) > 50
+                          --metric-offset: {Math.min(50, get_pct(val))}%;
+                          --metric-span: {Math.abs(get_pct(val) - 50)}%;
+                          --metric-color: {get_pct(val) > 50
                           ? 'var(--color-cyan)'
                           : 'var(--color-frozen)'}
                         "
@@ -257,7 +277,7 @@
     }
 
     70% {
-      box-shadow: 0 0 0 10px rgb(var(--color-cyan-rgb) / 0%);
+      box-shadow: 0 0 0 var(--spacing-s) rgb(var(--color-cyan-rgb) / 0%);
     }
 
     100% {
@@ -375,7 +395,7 @@
     font-size: var(--font-size-xxxs);
     color: var(--color-white);
     background: rgb(var(--color-black-rgb) / 30%);
-    padding: 3px 8px;
+    padding: var(--spacing-xxxs) var(--spacing-xs);
     border-radius: var(--border-radius-s);
     border: var(--border-l);
     white-space: nowrap;
@@ -432,7 +452,7 @@
 
   .metric-track {
     flex: 1;
-    height: 4px;
+    height: var(--spacing-xxs);
     background: var(--glass-s);
     border-radius: var(--border-radius-full);
     position: relative;
@@ -447,11 +467,14 @@
     bottom: 0;
     width: var(--spacing-px);
     background: rgb(var(--color-white-rgb) / 20%);
-    z-index: 1;
+    z-index: var(--z-index-m);
   }
 
   .metric-fill {
     position: absolute;
+    left: var(--metric-offset, 0%);
+    width: var(--metric-span, 0%);
+    background: var(--metric-color, var(--color-cyan));
     height: 100%;
     border-radius: var(--border-radius-full);
     transition: all var(--motion-l);
@@ -493,7 +516,7 @@
     padding: var(--spacing-xxs) var(--spacing-xs);
     border-radius: var(--border-radius-s);
     background: rgb(var(--color-black-rgb) / 15%);
-    border-left: 2px solid transparent;
+    border-left: var(--spacing-xxxs) solid transparent;
   }
 
   .vector-item.future {
@@ -541,7 +564,7 @@
   }
 
   .signal-pill {
-    padding: 2px var(--spacing-xs);
+    padding: var(--spacing-xxxs) var(--spacing-xs);
     background: var(--glass-s);
     border: var(--border-m);
     border-color: rgb(var(--color-cyan-rgb) / 20%);

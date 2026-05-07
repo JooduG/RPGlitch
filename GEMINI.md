@@ -131,6 +131,7 @@ Ensure that all requirements, constraints, options, and preferences are exhausti
 - [ ] **Reproduction Case** verified (for bug fixes).
 - [ ] **Performance Budget** respected (CLS < 0.1, LCP < 2.5s).
 - [ ] **Local CI Verification**: Pass `npm run verify` locally.
+- [ ] **Chalk Regime Verification**: I have scanned my generated code and confirm there are ZERO raw `px`, `rem`, or `#` values, and ZERO hallucinated CSS variables.
 - [ ] All [Rules](./.agent/rules/) have been respected.
   - [ ] [Foundation](./.agent/rules/01-foundation.md)
   - [ ] [Simulation](./.agent/rules/02-simulation.md)
