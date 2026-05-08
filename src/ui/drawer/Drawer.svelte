@@ -13,7 +13,6 @@
 
   import Backdrop from "@atoms/Backdrop.svelte";
   import LibraryCard from "@drawer/LibraryCard.svelte";
-  import Button from "@atoms/Button.svelte";
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
 
   // --- STATE & DERIVATIONS ---
@@ -101,22 +100,26 @@
     transition:fly={{ y: "100%", duration: 500, easing: quintOut }}
   >
     <header class="header">
-      <h3 id="drawer-title">{title}</h3>
+      <h2 id="drawer-title">{title}</h2>
     </header>
 
     <div class="body no-scrollbar" use:kineticScroll>
       <div class="grid">
         <!-- "Create New" card -->
         <div
-          class="card--new glass-s"
+          class="card--new glass-s interactable"
           style="--signature-color: var(--color-frisk); --signature-rgb: var(--color-frisk-rgb);"
+          role="button"
+          tabindex="0"
+          aria-label="Create new entity"
+          onclick={handle_create_new}
+          onkeydown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              handle_create_new();
+            }
+          }}
         >
-          <Button
-            variant="invisible"
-            cover={true}
-            onclick={handle_create_new}
-            aria-label="Create new entity"
-          />
           <div class="visual">
             <ProfilePicture placeholder_char="?" />
           </div>
@@ -139,13 +142,7 @@
 
       {#if entity_list.length === 0}
         <div class="empty">
-          <svg class="empty-icon" viewBox="0 0 24 24">
-            <path
-              fill="currentColor"
-              d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"
-            />
-          </svg>
-          <h4>No {drawer_type === "fractal" ? "Realities" : "Entities"} Found</h4>
+          <h2>No {drawer_type === "fractal" ? "Realities" : "Entities"} Found</h2>
           <p>Click "Create New" to initialize one.</p>
         </div>
       {/if}
@@ -178,17 +175,13 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: var(--border-xl);
   }
 
-  .header h3 {
+  .header h2 {
     margin: 0;
     letter-spacing: var(--letter-spacing-l);
     font-weight: var(--font-weight-xl);
-    font-size: var(--font-size-xl);
-    font-family: var(--font-family-heading);
     text-transform: uppercase;
-    color: var(--color-white);
     text-shadow: var(--shadow-font);
   }
 
@@ -202,7 +195,7 @@
   /* --- GRID --- */
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: var(--spacing-l);
     width: 100%;
   }
@@ -267,7 +260,7 @@
     font-weight: var(--font-weight-xl);
     font-family: var(--font-family-heading);
     text-transform: uppercase;
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-body);
     letter-spacing: var(--letter-spacing-m);
     color: var(--signature-color);
     text-align: center;
@@ -280,7 +273,7 @@
     right: 0;
     height: 2px;
     background: var(--signature-color);
-    opacity: 0.3;
+    opacity: 0;
     transition: opacity var(--motion-l);
   }
 
@@ -299,16 +292,9 @@
     color: var(--font-color-s);
   }
 
-  .empty-icon {
-    width: var(--font-size-xxxxxl);
-    height: var(--font-size-xxxxxl);
-    opacity: var(--opacity-xs);
-    margin-bottom: var(--spacing-m);
-  }
-
-  .empty h4 {
+  .empty h2 {
     margin: 0;
-    font-size: var(--font-size-xxl);
+    font-size: var(--font-size-h4);
     font-weight: var(--font-weight-xl);
   }
 

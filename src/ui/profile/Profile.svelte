@@ -165,7 +165,7 @@
       role="presentation"
       data-is-editing={is_editing}
     >
-      <aside class="wings custom-scrollbar" class:is-visible={is_editing || app.settings.dev_mode}>
+      <aside class="wings scrollbar" class:is-visible={is_editing || app.settings.dev_mode}>
         {#if is_editing}
           <VisualWing bind:char {is_editing} {busy_fields} bind:active_field />
           <AudioWing bind:char {is_editing} />
@@ -176,14 +176,14 @@
       </aside>
 
       <div
-        class="card custom-scrollbar"
+        class="card scrollbar"
         style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
       >
         <div class="signature-bar"></div>
         <div class="avatar">
           <ProfilePicture entity={char} />
         </div>
-        <main class="body custom-scrollbar">
+        <main class="body scrollbar">
           <EntityHeader bind:char {is_editing} bind:active_field />
           <EntityFragments bind:char {is_editing} {busy_fields} bind:active_field />
           <EntityFooter

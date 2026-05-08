@@ -129,7 +129,7 @@
   @import "https://fonts.googleapis.com/css2?family=Satisfy&display=swap";
 
   h1 {
-    font-size: clamp(var(--font-size-xxxl), 10vw, var(--font-size-xxxxxl));
+    font-size: clamp(var(--font-size-h3), 10vw, var(--font-size-h1));
     line-height: 1.1;
     margin: 0;
     font-family: Satisfy, cursive;

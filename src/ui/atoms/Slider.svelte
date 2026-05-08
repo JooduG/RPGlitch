@@ -102,7 +102,7 @@
 
   .header {
     font-family: var(--font-family-body);
-    font-size: var(--font-size-xxs);
+    font-size: var(--font-size-tiny);
     color: var(--font-color-s);
     text-transform: uppercase;
     text-align: left;

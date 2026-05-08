@@ -52,7 +52,7 @@
           if (rangeRect.width > 0 || rangeRect.height > 0) {
             rect = rangeRect;
           }
-        } catch (e) {
+        } catch {
           // Fallback to target rect if range fails
         }
       }
@@ -173,7 +173,7 @@
   $effect(() => {
     if (tooltip_state.active && tooltip_el) {
       const rect = tooltip_el.getBoundingClientRect();
-      const padding = 12;
+      const padding = 12; // Matches var(--spacing-s) for safety boundaries
       let x_offset_px = 0;
       arrow_flipped = false;
 
@@ -186,7 +186,7 @@
       if (rect.top < padding && tooltip_state.target) {
         arrow_flipped = true;
         const target_rect = tooltip_state.target.getBoundingClientRect();
-        flip_style = `top: ${target_rect.bottom + 8}px;`;
+        flip_style = `top: calc(${target_rect.bottom}px + var(--spacing-xs));`;
         transform_override = `translateX(-50%) translateY(0%) translateX(${x_offset_px}px)`;
       } else {
         flip_style = "";
@@ -208,7 +208,7 @@
     bind:this={tooltip_el}
     class:ready
     style:left="{tooltip_state.x}px"
-    style:top="{tooltip_state.y - 8}px"
+    style:top="calc({tooltip_state.y}px - var(--spacing-xs))"
     style={flip_style}
     style:transform={transform_override}
     data-flipped={arrow_flipped}
@@ -255,7 +255,7 @@
     padding: var(--spacing-xs) var(--spacing-s);
     border-radius: var(--border-radius-m);
     border: var(--border-xl);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-tiny);
     font-family: var(--font-family-body);
     text-transform: none;
     letter-spacing: normal;
@@ -272,7 +272,7 @@
     border-left: var(--spacing-tooltip-arrow) solid transparent;
     border-right: var(--spacing-tooltip-arrow) solid transparent;
     border-top: var(--spacing-tooltip-arrow) solid
-      var(--border-color, rgb(var(--color-white-rgb) / 20%));
+      var(--border-color, rgb(var(--color-white-rgb) / var(--opacity-s)));
     position: absolute;
     bottom: calc(var(--spacing-tooltip-arrow) * -1);
     left: 50%;
@@ -288,7 +288,7 @@
     border-left: var(--spacing-tooltip-arrow) solid transparent;
     border-right: var(--spacing-tooltip-arrow) solid transparent;
     border-top: var(--spacing-tooltip-arrow) solid var(--color-frozen);
-    opacity: 0.4;
+    opacity: var(--opacity-l);
   }
 
   .tooltip-portal[data-flipped="true"] .tooltip-arrow {
@@ -296,7 +296,7 @@
     bottom: auto;
     border-top: none;
     border-bottom: var(--spacing-tooltip-arrow) solid
-      var(--border-color, rgb(var(--color-white-rgb) / 20%));
+      var(--border-color, rgb(var(--color-white-rgb) / var(--opacity-s)));
   }
 
   .tooltip-portal[data-flipped="true"] .tooltip-arrow::after {

@@ -2,8 +2,8 @@
   /**
    * @file StoryboardCard.svelte
    * 🃏 THE SELECTION TAROT
-   * Refactored: Universal SOTA Refactor & DOM Harmonization
-   * Harmonized: Ultra-Lean Nomenclature (wrapper, body, placeholder, scrim, content, actions, border)
+   * Refactored: Mariana Trench SOTA Refactor
+   * Standard: Ultra-Lean DOM & Chalk Regime Enforcement
    */
   let {
     entity,
@@ -19,56 +19,56 @@
   import { fit_text } from "@utils/fit-text.js";
   import { tooltip } from "@atoms/Tooltip.svelte";
 
-  // --- REACTIVE STATE ---
+  // --- STATE & DERIVATIONS ---
+
   let is_empty = $derived(!entity);
   let signature_color = $derived(
     is_empty ? "var(--color-frisk)" : themeStore.get_signature_color(entity),
   );
   let signature_rgb = $derived(themeStore.hex_to_rgb(signature_color));
+
+  let a11y_label = $derived(is_empty ? `Select ${role_label}` : `Change ${role_label}`);
 </script>
 
 <div
-  class="wrapper {type}-card glass-l"
-  use:tooltip={{ text: is_empty ? `Select ${role_label}` : `Change ${role_label}` }}
+  class="card {type}-card glass-l interactable"
+  use:tooltip={{ text: a11y_label }}
   style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
-  aria-label={is_empty ? `Select ${role_label}` : `Change ${role_label}`}
+  aria-label={a11y_label}
   data-testid="storyboard-card"
 >
   {#if is_empty}
+    <!-- Empty State / Placeholder -->
     <Button variant="invisible" cover={true} onclick={on_select} className="placeholder">
-      {#if type === "fractal"}
-        <svg viewBox="0 0 24 24" class="icon-l">
-          <path fill="currentColor" d="M19,12L12,22L5,12L12,2M12,2L19,12H5L12,2Z" />
-        </svg>
-      {:else}
-        <svg viewBox="0 0 24 24" class="icon-l">
-          <path
-            fill="currentColor"
-            d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
-          />
-        </svg>
-      {/if}
-      <span class="label">{role_label}</span>
+      <div class="placeholder-content">
+        {#if type === "fractal"}
+          <svg viewBox="0 0 24 24" class="icon-xl icon-outline">
+            <path d="M19,12L12,22L5,12L12,2M12,2L19,12H5L12,2Z" />
+          </svg>
+        {:else}
+          <svg viewBox="0 0 24 24" class="icon-xl icon-outline">
+            <path
+              d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+            />
+          </svg>
+        {/if}
+        <span class="label">{role_label}</span>
+      </div>
     </Button>
   {:else}
+    <!-- Occupied State -->
     <Button variant="invisible" cover={true} onclick={on_select} className="body">
       <ProfilePicture {entity} />
     </Button>
 
-    <div class="scrim">
-      <div class="content">
-        <h2 use:fit_text={{ minSize: 26 }}>
-          {entity.name}
-        </h2>
-        <div class="details">
-          <p>{entity.description || "No description provided."}</p>
-        </div>
-      </div>
+    <div class="overlay">
+      <h3 use:fit_text={{ minSize: 26 }}>{entity.name}</h3>
+      <p>{entity.description || "No description provided."}</p>
     </div>
 
     <div class="actions">
       <Button
-        className="profile-link"
+        className="action-btn"
         actions={[tooltip]}
         tooltip="View {entity.name} Profile"
         variant="invisible"
@@ -76,157 +76,152 @@
         onclick={on_view_profile}
         tabindex="-1"
       >
-        <svg viewBox="0 0 24 24" class="icon">
+        <svg viewBox="0 0 24 24" class="icon-s icon-solid">
           <path
-            fill="currentColor"
             d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"
           />
         </svg>
       </Button>
     </div>
   {/if}
-
-  <div class="border"></div>
 </div>
 
 <style>
-  .wrapper {
+  /* --- CARD SHELL --- */
+  .card {
     position: relative;
     width: var(--card-width-m);
     height: var(--card-height-m);
     overflow: hidden;
     border-radius: var(--border-radius-l);
-    transition: all var(--motion-l) var(--motion-elastic);
   }
 
-  /* Fractal Landscape Logic */
+  /* Landscape Orientation for Fractals */
   .fractal-card {
     width: var(--card-height-m);
     height: var(--card-width-m);
   }
 
-  .wrapper:hover {
+  .card:hover {
     background: var(--glass-xxl);
     backdrop-filter: var(--blur-xl);
-    --card-hover-shadow: 0 var(--spacing-s) var(--spacing-l) calc(var(--spacing-s) * -1)
-      rgb(from var(--signature-color) r g b / 40%);
-
-    box-shadow: var(--card-hover-shadow);
+    box-shadow: 0 var(--spacing-s) var(--spacing-xl) calc(var(--spacing-s) * -1)
+      rgb(from var(--signature-color) r g b / var(--opacity-l));
   }
 
-  .wrapper:active {
+  .card:active {
     background: var(--glass-s);
-    backdrop-filter: var(--blur-m);
-    transition-duration: var(--motion-s);
   }
 
-  .border {
+  /* Structural Border (Pseudo-element) */
+  .card::after {
+    content: "";
     position: absolute;
     inset: 0;
     pointer-events: none;
     border-radius: var(--border-radius-l);
-    transition: box-shadow var(--motion-l) ease;
+    box-shadow: inset 0 0 0 var(--spacing-px) transparent;
+    transition: box-shadow var(--motion-m) ease;
     z-index: var(--z-index-xl);
   }
 
-  .wrapper:hover .border {
+  .card:hover::after {
     box-shadow: inset 0 0 0 var(--spacing-border) var(--signature-color);
   }
 
-  .wrapper:focus-visible {
+  .card:focus-visible {
     outline: none;
   }
 
-  .wrapper:focus-visible .border {
-    --border-focus-shadow: inset 0 0 0 2.5px var(--signature-color);
-
-    box-shadow: var(--border-focus-shadow);
+  .card:focus-visible::after {
+    box-shadow: inset 0 0 0 var(--spacing-border) var(--signature-color);
   }
 
   /* --- PLACEHOLDER --- */
-  .wrapper :global(.button.placeholder) {
+  .card :global(.button.placeholder) {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .placeholder-content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     gap: var(--spacing-m);
-    padding: var(--spacing-xl);
-    text-align: center;
     color: var(--font-color-s);
-  }
-
-  .placeholder .icon {
-    width: 64px;
-    height: 64px;
     opacity: var(--opacity-m);
+    transition: opacity var(--motion-m) ease;
   }
 
-  .placeholder .label {
+  .card:hover .placeholder-content {
+    opacity: var(--opacity-max);
+  }
+
+  .placeholder-content .label {
     font-family: var(--font-family-heading);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-tiny);
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-l);
-    opacity: var(--opacity-m);
   }
 
   /* --- BODY --- */
-  .wrapper :global(.button.body) {
+  .card :global(.button.body) {
     width: 100%;
     height: 100%;
     overflow: hidden;
   }
 
-  .scrim {
+  /* --- OVERLAY --- */
+  .overlay {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 45%;
+    height: 50%;
     background: linear-gradient(
       to top,
       var(--color-chalk) 0%,
-      rgb(from var(--color-chalk) r g b / 50%) 40%,
+      rgb(from var(--color-chalk) r g b / var(--opacity-xl)) 50%,
       transparent 100%
     );
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    padding: var(--spacing-xxl) var(--spacing-m) var(--spacing-m);
+    padding: var(--spacing-xl) var(--spacing-m) var(--spacing-m);
     z-index: var(--z-index-l);
     pointer-events: none;
   }
 
-  .content h2 {
+  .overlay h3 {
     margin: 0;
     font-family: var(--font-family-heading);
     color: rgb(var(--signature-rgb));
     text-shadow: var(--shadow-font);
-    font-size: var(--font-size-xxxl);
+    font-size: var(--font-size-h3);
     line-height: 1;
-    letter-spacing: -0.01em;
-    max-width: 75%;
+    letter-spacing: var(--letter-spacing-s);
+    max-width: 80%;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
 
-  .details {
-    position: relative;
-    margin-top: var(--spacing-xs);
-  }
-
-  .details p {
-    margin: 0;
-    font-size: var(--font-size-s);
+  .overlay p {
+    margin: var(--spacing-xxs) 0 0;
+    font-size: var(--font-size-small);
     color: var(--font-color-m);
-    line-height: 1.3;
+    line-height: var(--line-height-s);
     display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    opacity: var(--opacity-xl);
   }
 
   /* --- ACTIONS --- */
@@ -234,43 +229,35 @@
     position: absolute;
     top: var(--spacing-m);
     right: var(--spacing-m);
-    z-index: var(--z-index-max);
-    width: 36px;
-    height: 36px;
+    z-index: var(--z-index-xxl);
     visibility: hidden;
     opacity: 0;
-    transition:
-      opacity var(--motion-s) ease,
-      visibility var(--motion-s) ease;
+    transition: all var(--motion-m) ease;
+    transform: translateY(calc(var(--spacing-xs) * -1));
   }
 
-  .wrapper:hover .actions {
+  .card:hover .actions {
     visibility: visible;
     opacity: 1;
+    transform: translateY(0);
   }
 
-  .actions :global(.button.profile-link) {
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
+  .actions :global(.button.action-btn) {
+    width: var(--icon-xl);
+    height: var(--icon-xl);
+    border-radius: var(--border-radius-full);
     background: var(--glass-xxl);
     backdrop-filter: var(--blur-xl);
     color: var(--color-white);
-    transition: all var(--motion-s) ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--motion-m) var(--motion-elastic);
   }
 
-  .actions:hover :global(.button.profile-link) {
-    background: color-mix(in srgb, var(--glass-xxl), var(--color-white) 15%);
-    border-color: var(--color-white);
-    transform: scale(1.1);
-  }
-
-  .profile-link .icon {
-    width: 20px;
-    height: 20px;
+  .actions :global(.button.action-btn:hover) {
+    background: color-mix(in srgb, var(--glass-xxl), var(--color-white) var(--opacity-s));
+    transform: scale(1.15);
+    box-shadow: 0 0 var(--spacing-m) rgb(from var(--signature-color) r g b / var(--opacity-m));
   }
 </style>

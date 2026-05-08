@@ -353,7 +353,7 @@
     flex-flow: row wrap;
     justify-content: flex-end;
     gap: var(--spacing-xxs);
-    font-size: var(--font-size-xxs);
+    font-size: var(--font-size-tiny);
     text-transform: uppercase;
     font-weight: var(--font-weight-bold);
     color: var(--font-color-s);

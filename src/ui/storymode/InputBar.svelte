@@ -126,7 +126,7 @@
     resize: none;
     outline: none;
     font-family: inherit;
-    font-size: var(--font-size-m);
+    font-size: var(--font-size-body);
     line-height: var(--line-height-m);
     max-height: 12.5rem; /* Standardized ~200px */
     overflow-y: hidden;

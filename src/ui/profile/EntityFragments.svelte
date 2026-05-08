@@ -194,7 +194,7 @@
 
   .section-label {
     margin: 0;
-    font-size: var(--font-size-s);
+    font-size: var(--font-size-small);
     font-weight: var(--font-weight-xl);
     color: var(--signature-color);
     text-transform: uppercase;
@@ -212,7 +212,7 @@
     top: 50%;
     transform: translateY(-50%);
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-tiny);
     font-weight: var(--font-weight-xl);
     color: var(--color-white);
     opacity: 0.8;
@@ -225,7 +225,7 @@
 
   .section-sub {
     margin: 0;
-    font-size: var(--font-size-xxs);
+    font-size: var(--font-size-tiny);
     color: var(--font-color-m);
     font-weight: var(--font-weight-m);
     opacity: var(--opacity-m);
@@ -270,7 +270,7 @@
   }
 
   .field-label {
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-tiny);
     font-weight: var(--font-weight-xl);
     text-transform: uppercase;
     color: var(--signature-color);
@@ -285,7 +285,7 @@
 
   .status {
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-xxs);
+    font-size: var(--font-size-nano);
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-l);
     color: var(--color-white);

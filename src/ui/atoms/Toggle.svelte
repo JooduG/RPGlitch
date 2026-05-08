@@ -156,7 +156,7 @@
   .label {
     color: var(--font-color-s);
     font-weight: var(--font-weight-l);
-    font-size: var(--font-size-xxs);
+    font-size: var(--font-size-tiny);
     letter-spacing: 0.12em;
     text-transform: uppercase;
     font-family: var(--font-family-body);

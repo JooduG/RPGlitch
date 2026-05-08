@@ -18,7 +18,6 @@
 
   import { themeStore } from "@theme/palette.svelte.js";
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
-  import Button from "@atoms/Button.svelte";
   import { fit_text } from "@utils/fit-text.js";
 
   // --- STATE ---
@@ -38,23 +37,25 @@
 </script>
 
 <div
-  class="card glass-l"
+  class="card glass-l interactable"
   class:fractal={type === "fractal"}
   class:disabled
   style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
->
-  <Button
-    variant="invisible"
-    cover={true}
-    onclick={handle_select}
-    {disabled}
-    aria-label={disabled ? "Already selected" : `Select ${name}`}
-    oncontextmenu={(/** @type {MouseEvent} */ e) => {
+  role="button"
+  tabindex="0"
+  aria-label={disabled ? "Already selected" : `Select ${name}`}
+  onclick={handle_select}
+  oncontextmenu={(/** @type {MouseEvent} */ e) => {
+    e.preventDefault();
+    if (onViewProfile) onViewProfile();
+  }}
+  onkeydown={(e) => {
+    if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      if (onViewProfile) onViewProfile();
-    }}
-  />
-
+      handle_select();
+    }
+  }}
+>
   <div class="visual">
     <ProfilePicture {entity} />
   </div>
@@ -77,24 +78,8 @@
     border: none;
     padding: 0;
     background: transparent;
-    cursor: pointer;
     border-radius: var(--border-radius-m);
     overflow: visible; /* Allow tooltips and highlights to bleed */
-    border-top: var(--border-xl); /* Maintain specular highlight override */
-    transition:
-      transform var(--motion-l) var(--motion-elastic),
-      filter var(--motion-l),
-      box-shadow var(--motion-l) var(--motion-elastic);
-  }
-
-  .card:hover:not(:disabled, .disabled) {
-    box-shadow: var(--shadow-m);
-    transform: scale(1.02);
-    filter: var(--hover-brightness);
-  }
-
-  .card:active:not(:disabled, .disabled) {
-    transform: scale(var(--motion-click));
   }
 
   .card.disabled {
@@ -132,7 +117,7 @@
     font-family: var(--font-family-heading);
     font-weight: var(--font-weight-xl);
     text-transform: uppercase;
-    font-size: clamp(var(--font-size-xs), 2vw + 0.5rem, var(--font-size-xxl));
+    font-size: clamp(var(--font-size-tiny), 2vw + 0.5rem, var(--font-size-h4));
     letter-spacing: var(--letter-spacing-s);
     text-wrap: balance;
     display: block;
@@ -151,7 +136,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 2px;
+    height: var(--spacing-2px);
     background: var(--signature-color);
     opacity: 0.3;
     transition: opacity var(--motion-l);

@@ -1,9 +1,8 @@
 /* stylelint-disable prettier/prettier */
 
 /* ============================================================================
- * THE RPGLITCH MONOLITH (ENGINE.CSS)
- * Single Source of Truth. No fragmented files.
- * Architecture: Variables -> Resets -> Base Elements -> Utility Constructs.
+ * THE RPGLITCH ENGINE (ENGINE.CSS)
+ * Single Source of Truth. Architecture: Variables -> Resets -> Base -> Utilities.
  * ============================================================================ */
 
 :root {
@@ -89,20 +88,18 @@
   --font-color-s: var(--color-frozen);
   --font-color-m: var(--color-frisk);
 
-  /* Size Scale (Ascending) */
-  --font-size-xxxs: var(--spacing-xs);
-  --font-size-xxs: 0.625rem; /* Ghost Label */
-  --font-size-xs: var(--spacing-s); /* Micro Metadata */
-  --font-size-s: 0.875rem; /* Auxiliary Info */
-  --font-size-m: var(--spacing-m); /* Dense Text */
-  --font-size-l: 1.125rem; /* BASELINE Body */
-  --font-size-xl: 1.25rem; /* Large Body */
-  --font-size-xxl: var(--spacing-l); /* Feature Copy */
-  --font-size-xxxl: var(--spacing-xl); /* Subheading */
-  --font-size-xxxxl: 2.5rem; /* Medium Heading */
-  --font-size-xxxxxl: 5rem; /* Major Heading */
-
-  /* Display Focus */
+  /* Size Scale (Semantic) */
+  --font-size-ghost: var(--spacing-xxs); /* 0.25rem */
+  --font-size-nano: var(--spacing-xs); /* 0.5rem */
+  --font-size-tiny: 0.75rem; /* Consolidated Metadata */
+  --font-size-small: 0.875rem; /* Auxiliary Info */
+  --font-size-body: var(--spacing-m); /* 1rem (Standard) */
+  --font-size-h6: 1.125rem;
+  --font-size-h5: 1.25rem;
+  --font-size-h4: var(--spacing-l); /* 1.5rem */
+  --font-size-h3: var(--spacing-xl); /* 2rem */
+  --font-size-h2: 2.5rem;
+  --font-size-h1: 5rem;
 
   /* Weights (Ascending) */
   --font-weight-m: 400;
@@ -157,91 +154,105 @@
   --scrollbar-thumb: var(--color-gunmetal);
   --scrollbar-thumb-hover: var(--color-frisk);
 
-  /* Specialized Components */
+  /* Specialized Dimensions */
   --spacing-tooltip-arrow: 6px;
   --spacing-2px: 2px;
-
-  /****************************************************************************
-   * [4] ELEVATION & SURFACES
-   ****************************************************************************/
-
-  /* Z-Index (Ascending) */
-  --z-index-xs: -1; /* Sub-Floor */
-  --z-index-1: 1;
-  --z-index-2: 2;
-  --z-index-s: 0;
-  --z-index-m: 10; /* Floor */
-  --z-index-l: 100; /* Surface */
-  --z-index-xl: 450; /* Overlays */
-  --z-index-xxl: 950; /* Shields */
-  --z-index-max: 9999; /* Focus Layers */
-
-  /* Glassmorph Scale (Ascending Depth) */
-  --glass-xxs: rgb(var(--color-black-rgb) / var(--opacity-l)); /* The Pit */
-  --glass-xs: rgb(var(--color-chalk-rgb) / var(--opacity-m)); /* Deep Recess */
-  --glass-s: rgb(var(--color-gunmetal-rgb) / var(--opacity-s)); /* Sunken Surface */
-  --glass-l: rgb(var(--color-frozen-rgb) / var(--opacity-s)); /* Elevated Base */
-  --glass-xl: rgb(var(--color-frisk-rgb) / var(--opacity-m)); /* Floating Layer */
-  --glass-xxl: rgb(var(--color-white-rgb) / var(--opacity-l)); /* Peak Focus */
-
-  /* Blur Scale (Ascending) */
-  --blur-s: blur(12px);
-  --blur-m: blur(32px);
-  --blur-l: blur(64px);
-
-  /* Shadows (Ascending Intensity) */
-  --shadow-font: 0 1px var(--spacing-xxs) rgb(var(--color-chalk-rgb) / var(--opacity-s));
-  --shadow-glow: 0 0 var(--spacing-l) rgb(var(--color-frisk-rgb) / var(--opacity-s));
-  --shadow-s: 0 var(--spacing-xxs) var(--spacing-xs)
-    rgb(var(--color-chalk-rgb) / var(--opacity-xxxs));
-  --shadow-m: 0 var(--spacing-xxs) var(--spacing-m) rgb(var(--color-chalk-rgb) / var(--opacity-xxs));
-  --shadow-l: 0 var(--spacing-xs) var(--spacing-xl) rgb(var(--color-chalk-rgb) / var(--opacity-xxs));
-  --shadow-xl: 0 var(--spacing-m) var(--spacing-xxxxl)
-    rgb(var(--color-chalk-rgb) / var(--opacity-xs));
-  --shadow-xxl: 0 var(--spacing-xl) var(--spacing-xxxxl)
-    rgb(var(--color-chalk-rgb) / var(--opacity-s));
-
-  /* Tapered Edges */
-  --border-color-rgb: var(--color-frisk-rgb);
-  --border-bottom: var(--spacing-px) solid rgb(var(--border-color-rgb) / 4%);
-  --border-side: var(--spacing-px) solid rgb(var(--border-color-rgb) / 8%);
-  --border-top: var(--spacing-px) solid rgb(var(--border-color-rgb) / 15%);
-
-  /****************************************************************************
-   * [5] KINETICS & ATOMS
-   ****************************************************************************/
-
-  /* Motion Timing (Ascending Duration) */
-  --motion-l: 0.2s; /* Fast / Reflex */
-  --motion-m: 0.3s; /* Standard / Fluent */
-  --motion-s: 0.6s; /* Slow / Atmospheric */
-  --motion-xl: 0.8s; /* Cinematic / Ultra-Slow */
-  --motion-xxl: 2.5s; /* Pulse */
-
-  /* Motion Curves */
-  --motion-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --motion-dissolve: cubic-bezier(0.2, 1, 0.2, 1);
-
-  /* State Constants */
-  --motion-click: 0.95;
-  --hover-brightness: brightness(1.25);
-  --hover-background-color: rgb(var(--color-frisk-rgb) / var(--opacity-xs));
-
-  /* Dimensions (Ascending) */
-  --icon-xs: 1rem;
-  --icon-s: 1.5rem;
-  --icon-m: 2rem;
-  --icon-l: 2.5rem;
-  --icon-xl: 3rem;
-
-  --card-width-m: clamp(160px, 16vw, 240px);
-  --card-height-m: clamp(240px, 24vw, 360px);
-
   --width-sidebar: 240px;
   --width-modal-max: 1000px;
-
   --dropdown-max-height: 300px;
+  --card-width-m: clamp(160px, 16vw, 240px);
+  --card-height-m: clamp(240px, 24vw, 360px);
+  --width-tooltip: 14rem;
+
+  /****************************************************************************
+   * [4] ELEVATION (Z-INDEX & SHADOWS)
+   ****************************************************************************/
+
+  /* Z-Index Layers */
+  --z-index-min: -1;
+  --z-index-base: 0;
+  --z-index-s: 10;
+  --z-index-1: 10;
+  --z-index-2: 20;
+  --z-index-m: 50;
+  --z-index-l: 100;
+  --z-index-xl: 200;
+  --z-index-xxl: 300;
+  --z-index-modal: 1000;
+  --z-index-max: 9999;
+
+  /* Shadows (Ascending) */
+  --shadow-s: 0 2px 4px rgb(0 0 0 / 10%);
+  --shadow-m: 0 4px 8px rgb(0 0 0 / 20%);
+  --shadow-l: 0 8px 16px rgb(0 0 0 / 30%);
+  --shadow-xl: 0 12px 24px rgb(0 0 0 / 40%);
+  --shadow-xxl: 0 20px 40px rgb(0 0 0 / 50%);
+  --shadow-font: 0 1px 2px rgb(0 0 0 / 50%);
+
+  /****************************************************************************
+   * [5] MOTION (PHYSICS)
+   ****************************************************************************/
+
+  /* Durations */
+  --motion-s: 100ms;
+  --motion-m: 250ms;
+  --motion-l: 400ms;
+
+  /* Easing */
+  --motion-elastic: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --motion-lift: 1.02;
+  --motion-click: 0.96;
+
+  /****************************************************************************
+   * [6] SURFACES (GLASSMORPH)
+   ****************************************************************************/
+
+  /* Glass Backdrops */
+  --glass-xxs: rgb(var(--color-white-rgb) / 0.02);
+  --glass-xs: rgb(var(--color-white-rgb) / 0.04);
+  --glass-s: rgb(var(--color-white-rgb) / 0.08);
+  --glass-m: rgb(var(--color-white-rgb) / 0.15);
+  --glass-l: rgb(var(--color-white-rgb) / 0.25);
+  --glass-xl: rgb(var(--color-white-rgb) / 0.4);
+  --glass-xxl: rgb(var(--color-white-rgb) / 0.6);
+
+  /* Blurs */
+  --blur-s: blur(4px);
+  --blur-m: blur(8px);
+  --blur-l: blur(12px);
+  --blur-xl: blur(20px);
+
+  /****************************************************************************
+   * [7] BORDERS & OUTLINES
+   ****************************************************************************/
+
+  --border-s: var(--spacing-px) solid rgb(var(--color-white-rgb) / 0.08);
+  --border-m: var(--spacing-px) solid rgb(var(--color-white-rgb) / 0.15);
+  --border-l: var(--spacing-px) solid rgb(var(--color-white-rgb) / 0.25);
+  --border-xl: var(--spacing-px) solid rgb(var(--color-white-rgb) / 0.4);
+
+  --border-top: var(--spacing-px) solid rgb(var(--color-white-rgb) / 0.1);
+  --border-side: var(--spacing-px) solid rgb(var(--color-white-rgb) / 0.05);
+  --border-bottom: var(--spacing-px) solid rgb(var(--color-black-rgb) / 0.2);
+
+  /****************************************************************************
+   * [8] ASSETS (ICONS)
+   ****************************************************************************/
+
+  --icon-xs: 12px;
+  --icon-s: 16px;
+  --icon-m: 20px;
+  --icon-l: 24px;
+  --icon-xl: 32px;
+  --icon-xxl: 48px;
+
+  /* Interaction Utilities */
+  --hover-brightness: brightness(1.2);
 }
+
+/****************************************************************************
+   * [4] ELEVATION & SURFACES
+   ****************************************************************************/
 
 /* ============================================================================
  * RESETS & NORMALIZATION
@@ -252,7 +263,6 @@ body {
   font-size: 100%;
   box-sizing: border-box;
   height: 100vh;
-  width: 100vw;
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -266,6 +276,7 @@ body {
   box-sizing: inherit;
 }
 
+/* Universal Scrollbar Hide (unless specified) */
 *::-webkit-scrollbar {
   width: 0;
   height: 0;
@@ -284,41 +295,17 @@ body {
   background-color: var(--bg-base);
   font-family: var(--font-family-body);
   color: var(--font-color-m);
-  font-size: var(--font-size-m);
+  font-size: var(--font-size-body);
   line-height: var(--line-height-m);
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-white);
-  outline-offset: 2px;
+  outline: var(--spacing-border) solid var(--color-white);
+  outline-offset: var(--spacing-border);
   border-radius: var(--border-radius-s);
 }
 
-/* Typography Scales (Ascending) */
-h6 {
-  font-size: var(--font-size-m);
-}
-
-h5 {
-  font-size: var(--font-size-l);
-}
-
-h4 {
-  font-size: var(--font-size-xl);
-}
-
-h3 {
-  font-size: var(--font-size-xxl);
-}
-
-h2 {
-  font-size: var(--font-size-xxxl);
-}
-
-h1 {
-  font-size: var(--font-size-xxxxl);
-}
-
+/* Headings */
 h1,
 h2,
 h3,
@@ -334,6 +321,31 @@ h6 {
   text-wrap: balance;
 }
 
+h1 {
+  font-size: var(--font-size-h1);
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+}
+
+h3 {
+  font-size: var(--font-size-h3);
+}
+
+h4 {
+  font-size: var(--font-size-h4);
+}
+
+h5 {
+  font-size: var(--font-size-h5);
+}
+
+h6 {
+  font-size: var(--font-size-h6);
+}
+
+/* Text Content */
 p,
 li,
 figcaption {
@@ -343,13 +355,13 @@ figcaption {
 }
 
 small {
-  font-size: var(--font-size-s);
+  font-size: var(--font-size-small);
 }
 
 a {
   color: inherit;
   text-decoration: underline;
-  text-underline-offset: 4px;
+  text-underline-offset: var(--spacing-xxs);
   transition: opacity var(--motion-l);
 }
 
@@ -357,37 +369,28 @@ a:hover {
   opacity: var(--opacity-l);
 }
 
+/* Code & Mono */
 pre,
 code,
 kbd,
 samp {
   font-family: var(--font-family-mono);
-  font-size: 0.9em;
+  font-size: var(--font-size-small);
 }
 
 kbd {
   font-weight: var(--font-weight-l);
   background: var(--glass-s);
-  padding: 2px 4px;
+  padding: var(--spacing-xxxs) var(--spacing-xxs);
   border-radius: var(--border-radius-xs);
   border: var(--border-bottom);
-
-  /* Inherited standard border style */
 }
 
 /* ============================================================================
- * UTILITY CONSTRUCTS
+ * GLOBAL UTILITIES
  * ============================================================================ */
 
-/* State Utilities */
-body:not(.mode-developer) .developer-content {
-  display: none;
-}
-
-body.modal-open {
-  overflow: hidden;
-}
-
+/* Accessibility */
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -415,42 +418,54 @@ body.modal-open {
   top: 0;
 }
 
-/* Scrollbar Utilities */
+/* State */
+body:not(.mode-developer) .developer-content {
+  display: none;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Scrollbar Layer */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.custom-scrollbar {
+.scrollbar {
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
-.custom-scrollbar::-webkit-scrollbar {
+.scrollbar::-webkit-scrollbar {
   width: var(--scrollbar-width);
   height: var(--scrollbar-width);
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
+.scrollbar::-webkit-scrollbar-track {
   background: var(--scrollbar-track);
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
+.scrollbar::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
   border-radius: var(--border-radius-full);
   border: var(--spacing-px) solid transparent;
   background-clip: content-box;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+.scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--scrollbar-thumb-hover);
 }
 
-/* Interaction */
+/* ============================================================================
+ * INTERACTION LAYER (PHYSICS)
+ * ============================================================================ */
+
 .interactive {
   cursor: pointer;
   transition:
@@ -463,75 +478,80 @@ body.modal-open {
   filter: var(--hover-brightness);
 }
 
+.interactable {
+  cursor: pointer;
+  transition:
+    transform var(--motion-l) var(--motion-elastic),
+    filter var(--motion-l),
+    box-shadow var(--motion-l) var(--motion-elastic);
+}
+
+.interactable:hover:not(:disabled, .disabled) {
+  transform: scale(var(--motion-lift));
+  filter: var(--hover-brightness);
+  box-shadow: var(--shadow-m);
+}
+
+.interactable:active:not(:disabled, .disabled) {
+  transform: scale(var(--motion-click));
+}
+
 .interactive:active {
   transform: scale(var(--motion-click));
 }
 
-/* Glass Surfaces (Ascending Size/Intensity) */
-.glass-xxs {
-  background: var(--glass-xxs);
+/* ============================================================================
+ * SURFACE PHYSICS (GLASSMORPH)
+ * ============================================================================ */
+
+.glass-xxs,
+.glass-xs,
+.glass-s,
+.glass-l,
+.glass-xl,
+.glass-xxl {
   backdrop-filter: var(--blur-s);
   border-top: var(--border-top);
   border-left: var(--border-side);
   border-right: var(--border-side);
   border-bottom: var(--border-bottom);
   border-radius: var(--border-radius-m);
+}
+
+.glass-xxs {
+  background: var(--glass-xxs);
 }
 
 .glass-xs {
   background: var(--glass-xs);
-  backdrop-filter: var(--blur-s);
-  border-top: var(--border-top);
-  border-left: var(--border-side);
-  border-right: var(--border-side);
-  border-bottom: var(--border-bottom);
-  border-radius: var(--border-radius-m);
 }
 
 .glass-s {
   background: var(--glass-s);
-  backdrop-filter: var(--blur-s);
-  border-top: var(--border-top);
-  border-left: var(--border-side);
-  border-right: var(--border-side);
-  border-bottom: var(--border-bottom);
-  border-radius: var(--border-radius-m);
 }
 
 .glass-l {
   background: var(--glass-l);
   backdrop-filter: var(--blur-m);
-  border-top: var(--border-top);
-  border-left: var(--border-side);
-  border-right: var(--border-side);
-  border-bottom: var(--border-bottom);
-  border-radius: var(--border-radius-m);
   box-shadow: var(--shadow-l);
 }
 
 .glass-xl {
   background: var(--glass-xl);
   backdrop-filter: var(--blur-l);
-  border-top: var(--border-top);
-  border-left: var(--border-side);
-  border-right: var(--border-side);
-  border-bottom: var(--border-bottom);
-  border-radius: var(--border-radius-m);
   box-shadow: var(--shadow-xl);
 }
 
 .glass-xxl {
   background: var(--glass-xxl);
   backdrop-filter: var(--blur-l);
-  border-top: var(--border-top);
-  border-left: var(--border-side);
-  border-right: var(--border-side);
-  border-bottom: var(--border-bottom);
-  border-radius: var(--border-radius-m);
   box-shadow: var(--shadow-xxl);
 }
 
-/* Icons (Ascending Size) */
+/* ============================================================================
+ * ATOMIC UTILITIES (ICONS)
+ * ============================================================================ */
+
 .icon-xs,
 .icon-s,
 .icon-m,
@@ -565,11 +585,6 @@ body.modal-open {
   height: var(--icon-s);
 }
 
-.icon-s {
-  width: var(--icon-s);
-  height: var(--icon-s);
-}
-
 .icon-m {
   width: var(--icon-m);
   height: var(--icon-m);
@@ -583,4 +598,9 @@ body.modal-open {
 .icon-xl {
   width: var(--icon-xl);
   height: var(--icon-xl);
+}
+
+.icon-xxl {
+  width: var(--icon-xxl);
+  height: var(--icon-xxl);
 }

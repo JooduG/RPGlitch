@@ -108,7 +108,7 @@
     background: rgb(var(--color-frozen-rgb) / var(--opacity-s));
     color: var(--color-frozen);
     border-radius: var(--border-radius-full);
-    font-size: var(--font-size-xxs);
+    font-size: var(--font-size-tiny);
     font-weight: var(--font-weight-xl);
     text-transform: uppercase;
   }
@@ -116,7 +116,7 @@
   .title {
     margin: 0;
     font-family: var(--font-family-heading);
-    font-size: var(--font-size-l);
+    font-size: var(--font-size-h6);
     font-weight: var(--font-weight-l);
     color: var(--font-color-m);
     letter-spacing: -0.01em;
@@ -125,7 +125,7 @@
   .body {
     padding: var(--spacing-xs) 0 var(--spacing-l);
     color: var(--font-color-s);
-    font-size: var(--font-size-m);
+    font-size: var(--font-size-body);
     line-height: var(--line-height-m);
   }
 

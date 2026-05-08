@@ -51,8 +51,8 @@ export default defineConfig({
     },
   },
   server: {
-    port: 4000,
-    strictPort: true, // Fail if port 4000 is taken, rather than silently jumping to 4001
+    port: 4001,
+    strictPort: false, // Fail if port 4000 is taken, rather than silently jumping to 4001
     open: true, // Automatically open embedded browser on boot
   },
   preview: {

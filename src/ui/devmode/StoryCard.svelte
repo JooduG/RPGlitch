@@ -118,13 +118,13 @@
   }
 
   .story-title {
-    font-size: var(--font-size-m);
+    font-size: var(--font-size-body);
     font-weight: var(--font-weight-m);
     color: var(--color-white);
   }
 
   .story-meta {
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-tiny);
     color: var(--font-color-m);
   }
 </style>

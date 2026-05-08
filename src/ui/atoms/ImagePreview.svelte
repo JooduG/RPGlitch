@@ -91,7 +91,7 @@
     background: rgb(var(--color-black-rgb) / var(--opacity-m));
     padding: var(--spacing-s) var(--spacing-m);
     border-radius: var(--border-radius-s);
-    font-size: var(--font-size-m);
+    font-size: var(--font-size-body);
     text-align: center;
     max-width: 80%;
     z-index: var(--z-index-m);

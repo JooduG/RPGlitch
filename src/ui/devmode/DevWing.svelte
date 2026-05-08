@@ -217,7 +217,7 @@
 
   .dynamic-label {
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-xxs);
+    font-size: var(--font-size-tiny);
     text-transform: uppercase;
     letter-spacing: 0.12em;
     color: var(--color-frisk);
@@ -241,7 +241,7 @@
     border: none;
     color: var(--font-color-m);
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-m);
+    font-size: var(--font-size-body);
     font-weight: var(--font-weight-bold);
     text-align: center;
     padding: var(--spacing-xs) 0;
@@ -258,7 +258,7 @@
   .value-display {
     color: var(--font-color-m);
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-m);
+    font-size: var(--font-size-body);
     font-weight: var(--font-weight-bold);
     padding: var(--spacing-xs) 0;
   }
@@ -301,7 +301,7 @@
   }
 
   .raw-explorer summary {
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-tiny);
     font-weight: var(--font-weight-bold);
     color: var(--color-cyan);
     text-transform: uppercase;
@@ -323,7 +323,7 @@
     display: flex;
     justify-content: space-between;
     gap: var(--spacing-s);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-tiny);
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }

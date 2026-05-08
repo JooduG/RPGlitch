@@ -273,16 +273,19 @@ export function kineticScroll(node) {
     requestAnimationFrame(applyMomentum);
   };
 
-  /** @param {any} e */
-  const onMove = (e) => {
+  const onMove = (/** @type {any} */ e) => {
     if (!isDown) return;
-
-    // Prevent native scrolling while dragging - jules review
-    if (e.cancelable) e.preventDefault();
 
     const pageY = e.pageY || (e.touches ? e.touches[0].pageY : 0);
     const y = pageY - node.offsetTop;
     const walk = (y - startY) * 1.5;
+
+    // DRAG THRESHOLD: Only prevent default and scroll if we've moved more than 5px
+    if (Math.abs(walk) < 10) return;
+
+    // Prevent native scrolling while dragging - jules review
+    if (e.cancelable) e.preventDefault();
+
     node.scrollTop = scrollTop - walk;
 
     const now = Date.now();

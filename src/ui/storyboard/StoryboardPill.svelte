@@ -5,11 +5,81 @@
    * The primary control for transitioning from setup to narrative.
    */
   import { app } from "@state/app.svelte.js";
+  import { session } from "@state/session.svelte.js";
   import Button from "@atoms/Button.svelte";
   import GlassPill from "@atoms/GlassPill.svelte";
   import { shimmy, spin } from "@utils/kinetic.js";
-  import { storyboard } from "@storyboard/storyboard-actions.svelte.js";
+  import { pickRandom } from "@utils/helpers.js";
   import { tooltip } from "@atoms/Tooltip.svelte";
+
+  /**
+   * Storyboard Orchestration Logic
+   * Inlined for cohesion and Perchance compatibility.
+   */
+  const storyboard = {
+    /**
+     * Shuffle all selected entities randomly.
+     */
+    async shuffle() {
+      if (!app.ai_list.length) {
+        await app.load_entities();
+      }
+      if (!app.ai_list.length) return;
+
+      // 1. Random AI
+      app.selected_ai = pickRandom(Array.isArray(app.ai_list) ? app.ai_list : []);
+
+      // 2. Random User (Cannot be same as AI)
+      let available_users = app.user_list;
+      if (app.selected_ai && Array.isArray(app.user_list)) {
+        available_users = app.user_list.filter((u) => u.id !== app.selected_ai.id);
+      }
+
+      if (available_users.length) {
+        app.selected_user = pickRandom(available_users);
+      } else if (app.user_list.length) {
+        app.selected_user = app.user_list[0];
+      }
+
+      // 3. Random Fractal
+      if (Array.isArray(app.fractal_list) && app.fractal_list.length) {
+        app.selected_fractal = pickRandom(Array.isArray(app.fractal_list) ? app.fractal_list : []);
+      }
+
+      // Sync title
+      if (typeof app.reroll_title === "function") {
+        app.reroll_title();
+      }
+    },
+
+    /**
+     * Begin the story with current selections.
+     */
+    async begin() {
+      // 🛡️ LOBBY BYPASS LOGIC
+      if (app.settings.dev_mode) {
+        app.log("Lobby Bypass Triggered (DEV_MODE)", "system");
+        const selection = {
+          ai: app.selected_ai || { id: "dev_ai", name: "Dev AI" },
+          user: app.selected_user || { id: "dev_user", name: "Dev User" },
+          fractal: app.selected_fractal || {
+            id: "dev_fractal",
+            name: "Dev Fractal",
+          },
+        };
+        await session.start(selection);
+        return;
+      }
+
+      if (!app.selected_ai || !app.selected_user || !app.selected_fractal) return;
+
+      await session.start({
+        ai: app.selected_ai,
+        user: app.selected_user,
+        fractal: app.selected_fractal,
+      });
+    },
+  };
 
   let ready_to_begin = $derived(app.is_ready);
   let label_text = $derived(
@@ -122,7 +192,7 @@
   .label {
     font-family: var(--font-family-body);
     font-weight: var(--font-weight-l);
-    font-size: var(--font-size-s);
+    font-size: var(--font-size-small);
     letter-spacing: var(--letter-spacing-m);
     color: var(--font-color-m);
     text-shadow: var(--shadow-font);

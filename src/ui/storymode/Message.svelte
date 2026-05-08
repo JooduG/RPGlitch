@@ -448,7 +448,7 @@
   }
 
   .entity-name {
-    font-size: var(--font-size-xxs);
+    font-size: var(--font-size-tiny);
     font-weight: var(--font-weight-xl);
     color: var(--color-white);
     text-shadow: 0 0 8px rgb(var(--color-white-rgb) / 30%);
@@ -456,7 +456,7 @@
   }
 
   .timestamp {
-    font-size: var(--font-size-xxxs);
+    font-size: var(--font-size-nano);
     color: var(--color-white);
     opacity: 0.5;
   }
@@ -487,7 +487,7 @@
 
   .message-content {
     line-height: var(--line-height-m);
-    font-size: var(--font-size-m);
+    font-size: var(--font-size-body);
     font-family: var(--font-family-body);
     color: var(--color-white);
     text-shadow: 0 var(--spacing-px) 2px rgb(var(--color-black-rgb) / 60%);

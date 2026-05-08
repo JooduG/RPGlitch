@@ -266,7 +266,7 @@
   }
 
   .stories-headline {
-    font-size: var(--font-size-s);
+    font-size: var(--font-size-small);
     color: var(--font-color-m);
     text-align: center;
     letter-spacing: var(--letter-spacing-m);
@@ -285,7 +285,7 @@
 
   .no-stories {
     text-align: center;
-    font-size: var(--font-size-s);
+    font-size: var(--font-size-small);
     color: var(--font-color-m);
     font-style: italic;
     padding: var(--spacing-m) 0;

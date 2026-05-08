@@ -97,7 +97,7 @@
   {#if is_edit}
     <textarea
       {...rest}
-      class="body custom-scrollbar"
+      class="body scrollbar"
       data-mode="edit"
       bind:value
       {placeholder}
@@ -110,7 +110,7 @@
   {:else}
     <div
       {...rest}
-      class="body custom-scrollbar is-readonly"
+      class="body scrollbar is-readonly"
       data-mode="readonly"
       data-sync-id={syncId}
       use:auto_resize={{ syncId }}
@@ -223,7 +223,7 @@
     outline: none;
     color: var(--color-white);
     font-family: var(--font-family-body);
-    font-size: var(--font-size-s);
+    font-size: var(--font-size-small);
     line-height: var(--line-height-m);
     text-align: left;
     box-sizing: border-box;
@@ -288,7 +288,7 @@
   /* Global child overrides for injected snippet content */
   :global(.status-tag) {
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-xxs);
+    font-size: var(--font-size-tiny);
     font-weight: var(--font-weight-xl);
     letter-spacing: var(--letter-spacing-l);
     text-transform: uppercase;
@@ -297,7 +297,7 @@
 
   :global(.status-msg) {
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-xxxs);
+    font-size: var(--font-size-ghost);
     opacity: 0.6;
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-m);

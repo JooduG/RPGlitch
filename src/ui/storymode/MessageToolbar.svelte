@@ -218,7 +218,7 @@
 
   .timestamp-label {
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-xxs);
+    font-size: var(--font-size-tiny);
     color: var(--font-color-s);
     opacity: var(--opacity-m);
     letter-spacing: var(--letter-spacing-s);

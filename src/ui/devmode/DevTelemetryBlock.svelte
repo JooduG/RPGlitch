@@ -296,14 +296,14 @@
 
   .resonance-title {
     display: block;
-    font-size: var(--font-size-s);
+    font-size: var(--font-size-small);
     color: var(--color-white);
     font-weight: var(--font-weight-xl);
     letter-spacing: -0.02em;
   }
 
   .resonance-desc {
-    font-size: var(--font-size-xxs);
+    font-size: var(--font-size-tiny);
     color: var(--font-color-s);
     margin: var(--spacing-xxs) 0 0 0;
   }
@@ -364,12 +364,12 @@
 
   .telemetry-time {
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-xxxxs);
+    font-size: var(--font-size-ghost);
     color: var(--font-color-s);
   }
 
   .sub-label {
-    font-size: var(--font-size-xxxxs);
+    font-size: var(--font-size-ghost);
     color: var(--color-cyan);
     opacity: 0.6;
     margin-bottom: var(--spacing-xs);
@@ -391,7 +391,7 @@
 
   .delta-item {
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-xxxs);
+    font-size: var(--font-size-nano);
     color: var(--color-white);
     background: rgb(var(--color-black-rgb) / 30%);
     padding: var(--spacing-xxxs) var(--spacing-xs);
@@ -435,7 +435,7 @@
   }
 
   .metric-label {
-    font-size: var(--font-size-xxs);
+    font-size: var(--font-size-tiny);
     color: var(--font-color-s);
     text-transform: lowercase;
     min-width: 5rem;
@@ -479,7 +479,7 @@
   }
 
   .metric-value {
-    font-size: var(--font-size-xxxs);
+    font-size: var(--font-size-nano);
     color: var(--color-white);
     min-width: 1.5rem;
     text-align: right;
@@ -508,7 +508,7 @@
   .vector-item {
     display: flex;
     gap: var(--spacing-s);
-    font-size: var(--font-size-xxs);
+    font-size: var(--font-size-tiny);
     line-height: var(--line-height-s);
     padding: var(--spacing-xxs) var(--spacing-xs);
     border-radius: var(--border-radius-s);
@@ -542,7 +542,7 @@
   }
 
   .empty-hint {
-    font-size: var(--font-size-xxxs);
+    font-size: var(--font-size-nano);
     color: var(--font-color-s);
     opacity: 0.3;
     font-family: var(--font-family-mono);
@@ -566,7 +566,7 @@
     border-color: rgb(var(--color-cyan-rgb) / 20%);
     color: var(--color-cyan);
     border-radius: var(--border-radius-full);
-    font-size: var(--font-size-xxxxs);
+    font-size: var(--font-size-ghost);
     font-family: var(--font-family-mono);
     text-transform: uppercase;
   }

@@ -264,7 +264,7 @@
   .weight {
     grid-column: 2;
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-s);
+    font-size: var(--font-size-small);
     font-weight: var(--font-weight-xl);
     color: var(--color-white);
     min-width: 0.8rem;
@@ -280,7 +280,7 @@
 
   .step-char {
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-s);
+    font-size: var(--font-size-small);
     font-weight: var(--font-weight-bold);
     line-height: 1;
     display: flex;
@@ -297,7 +297,7 @@
     background: none;
     border: none;
     color: var(--color-text-pri);
-    font-size: var(--font-size-s);
+    font-size: var(--font-size-small);
     cursor: pointer;
     opacity: 0;
     transition: all var(--motion-m);
@@ -345,7 +345,7 @@
     border: none;
     color: var(--color-white);
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-xxs);
+    font-size: var(--font-size-tiny);
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-l);
     padding: 0;
@@ -364,7 +364,7 @@
   }
 
   .tag {
-    font-size: var(--font-size-xxs);
+    font-size: var(--font-size-tiny);
     background: rgb(var(--color-white-rgb) / 10%);
     padding: var(--spacing-2px) var(--spacing-xs);
     border: var(--border-m);
@@ -407,7 +407,7 @@
 
   .empty-msg {
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-xxs);
+    font-size: var(--font-size-nano);
     color: var(--color-frisk);
     opacity: var(--opacity-s);
     letter-spacing: var(--letter-spacing-l);

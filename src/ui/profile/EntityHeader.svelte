@@ -52,7 +52,7 @@
 
   {#if is_editing}
     <textarea
-      class="description edit custom-scrollbar"
+      class="description edit scrollbar"
       use:tooltip={{ text: "Edit Entity Description" }}
       placeholder={ENTITY_FRAGMENTS.description}
       bind:value={char.description}
@@ -141,7 +141,7 @@
     padding: var(--spacing-xs) var(--spacing-s);
     color: var(--color-white);
     font-family: var(--font-family-body);
-    font-size: var(--font-size-m);
+    font-size: var(--font-size-body);
     line-height: var(--line-height-m);
   }
 
@@ -184,7 +184,7 @@
     }
 
     .name {
-      font-size: var(--font-size-xl);
+      font-size: var(--font-size-h5);
       padding: var(--spacing-xxs);
       min-height: auto;
     }
@@ -196,7 +196,7 @@
     }
 
     .name {
-      font-size: var(--font-size-l);
+      font-size: var(--font-size-h6);
     }
   }
 </style>

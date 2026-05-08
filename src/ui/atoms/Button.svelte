@@ -66,7 +66,7 @@
     min-height: var(--spacing-xxl);
     font-family: inherit;
     font-weight: var(--font-weight-l);
-    font-size: var(--font-size-s);
+    font-size: var(--font-size-small);
     line-height: 1;
     text-decoration: none;
     cursor: pointer;
@@ -90,7 +90,7 @@
   .wrapper.is-sm {
     min-height: var(--spacing-xl);
     padding: var(--spacing-xxs) var(--spacing-s);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-tiny);
   }
 
   .wrapper.is-square {

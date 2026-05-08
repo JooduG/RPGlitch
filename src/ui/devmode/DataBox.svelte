@@ -18,7 +18,7 @@
   {#if label}
     <header class="data-header">{label}</header>
   {/if}
-  <div class="data-content custom-scrollbar" class:is-code={isCode}>{@render children()}</div>
+  <div class="data-content scrollbar" class:is-code={isCode}>{@render children()}</div>
 </div>
 
 <style>
@@ -41,7 +41,7 @@
   .data-header {
     padding: var(--spacing-xs) var(--spacing-s);
     background: rgb(var(--color-white-rgb) / 3%);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-tiny);
     font-weight: var(--font-weight-xl);
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-l);
@@ -51,7 +51,7 @@
   .data-content {
     padding: var(--spacing-s);
     overflow: hidden auto;
-    font-size: var(--font-size-s);
+    font-size: var(--font-size-small);
     line-height: var(--line-height-m);
     color: var(--font-color-m);
   }
@@ -64,7 +64,7 @@
     margin: 0;
     white-space: pre-wrap;
     font-family: inherit;
-    font-size: var(--font-size-xxs);
+    font-size: var(--font-size-tiny);
     opacity: 0.9;
   }
 </style>

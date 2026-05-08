@@ -355,7 +355,7 @@
 
   :global(.prompt-field .tag) {
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-xxs);
+    font-size: var(--font-size-tiny);
     font-weight: var(--font-weight-xl);
     letter-spacing: var(--letter-spacing-l);
     text-transform: uppercase;
