@@ -7,7 +7,7 @@
   import { create_new } from "@data/content-normaliser.js";
   import { entities as repository } from "@data/repository.js";
   import { app } from "@state/app.svelte.js";
-  import { kineticScroll } from "@utils/kinetic.js";
+  import { kinetic_scroll } from "@utils/kinetic.js";
   import { quintOut } from "svelte/easing";
   import { fly } from "svelte/transition";
 
@@ -103,7 +103,7 @@
       <h2 id="drawer-title">{title}</h2>
     </header>
 
-    <div class="body no-scrollbar" use:kineticScroll>
+    <div class="body no-scrollbar" use:kinetic_scroll>
       <div class="grid">
         <!-- "Create New" card -->
         <div

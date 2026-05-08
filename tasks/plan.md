@@ -1,29 +1,36 @@
-# Update Legacy .agent/ References
+# Storymode SOTA Refactor (Mariana Trench)
 
-This plan outlines the steps to identify and update all remaining occurrences of the legacy `.agent/` directory reference to the new `.agents/` structure. This follows a recent rename to stabilize the environment and ensure all automated workflows function correctly.
+This mission targets the core simulation interface components to ensure they meet the highest standards of architectural purity and aesthetic fidelity. Following the success of the `StoryboardCard` refactor, we will apply the same "Mariana Trench" philosophy to the Storymode layer.
 
 ## User Review Required
 
-> [!NOTE]
-> The search identified legacy references in `.agents/archive/` and `.agents/snapshots/`. Per previous instructions, these will be **ignored** as they are historical records. Only active configuration, documentation, and templates will be updated.
+> [!IMPORTANT]
+> The refactor involves significant DOM flattening. While visual parity is the goal, some minute adjustments to scroll behavior or spacing might occur. We will verify these via manual UI audit.
 
 ## Proposed Changes
 
-### Documentation & Configuration
+### Storymode Components
 
-#### [MODIFY] [DESIGN.md](file:///c:/Users/johng/source/repos/RPGlitch/DESIGN.md)
+#### [MODIFY] [Message.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/storymode/Message.svelte)
 
-- Update the link to Aesthetics rules from `.agent/rules/` to `.agents/rules/`.
+- **Flattening**: Reduce redundant `div` wrappers in the message row and bubble structure.
+- **Logic**: Refactor entity and signature color resolution into a more declarative `$derived` structure.
+- **CSS**: Harmonize nomenclature with Ultra-Lean standards. Replace hardcoded dimensions with design tokens (e.g., `min-width`, `max-width`).
+- **Optimization**: Ensure the holographic border and glassmorphic effects are performant.
 
-#### [MODIFY] [vitest.config.js](file:///c:/Users/johng/source/repos/RPGlitch/vitest.config.js)
+#### [NEW] [Message.test.js](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/storymode/Message.test.js)
 
-- Update comments on lines 35 and 39 that incorrectly refer to `.agent`. Note that the actual code already correctly uses `.agents`.
+- Implement component-level tests for sender-based styling, signature color resolution, and action button visibility.
 
-### Swarm Skill Templates
+#### [MODIFY] [StorymodeFeed.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/storymode/StorymodeFeed.svelte)
 
-#### [MODIFY] [manifest.json](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/swarm/templates/manifest.json)
+- **CSS**: Replace `12.5rem` and `25rem` with semantic tokens or CSS variables.
+- **Logic**: Review auto-scroll implementation for potential Svelte 5 optimizations.
 
-- Update `meta.workflow` and `meta.skill` paths to use `.agents/` instead of `.agent/`.
+#### [MODIFY] [InputBar.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/storymode/InputBar.svelte)
+
+- **Flattening**: Ensure the `GlassPill` usage is optimal.
+- **CSS**: Replace hardcoded `1.25rem` and `12.5rem` with design tokens.
 
 ---
 
@@ -31,10 +38,12 @@ This plan outlines the steps to identify and update all remaining occurrences of
 
 ### Automated Tests
 
-- Run `npm run audit` to ensure all audited paths and nomenclature are correct.
-- Run `npm run test:unit` to verify that the Vitest configuration change (even if just comments) hasn't introduced any issues.
-- Run `npm run deploy:prepare` to perform a full system check (lint, audit, test, build).
+- `npm run test:unit` (specifically `StorymodeFeed.test.js`).
+- `npm run deploy:prepare` (Lint/Audit/Build).
 
-### Manual Verification
+### Manual Verification (The Proving Grounds)
 
-- Verify that the link in `DESIGN.md` correctly points to the existing file in the `.agents/rules/` directory.
+- **Visual Audit**: Verify glassmorphism, signature colors, and holographic borders in the story feed.
+- **Interaction Audit**: Test hover states, focus behavior, and action button visibility.
+- **Responsive Audit**: Check centering for Fractal messages and alignment for User/AI messages.
+- **Scroll Audit**: Ensure auto-scroll remains fluid during streaming.

@@ -28,7 +28,7 @@
  * @property {Record<string, any>} signals
  * @property {string[]} signal_prompts
  * @property {Record<string, string[]>} contributors
- * @property {Record<string, any>} [key]
+ * @property {Object.<string, *>} [index]
  */
 
 /**

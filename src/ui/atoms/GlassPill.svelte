@@ -20,7 +20,7 @@
    * @property {import('svelte').Snippet} [bottom]
    * @property {import('svelte').Snippet} [left]
    * @property {import('svelte').Snippet} [right]
-   * @property {any[]} [actions]
+   * @property {any[]} [actions=[]]
    */
 
   /** @type {Props} */
@@ -43,7 +43,7 @@
 
 <div
   {...rest}
-  class="wrapper {orientation} {className}"
+  class="wrapper {orientation} {className} glass-l"
   class:is-focused={is_focused}
   class:is-busy={busy}
   style="--pill-signature: {signature_color};"
@@ -64,23 +64,39 @@
 
 <style>
   .wrapper {
+    /* --- Layout --- */
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--border-radius-full);
-    transition: all var(--motion-l);
+    gap: var(--spacing-xxs);
     z-index: var(--z-index-m);
     pointer-events: auto;
 
-    /* Merged glass-base/pill-backing logic */
-    background: var(--glass-xl);
-    backdrop-filter: var(--blur-l);
-    border: var(--border-xl);
-    gap: var(--spacing-xxs);
+    /* --- Surface --- */
+    border-radius: var(--border-radius-full);
+
+    /* --- Motion --- */
+    transition:
+      border-color var(--motion-l),
+      box-shadow var(--motion-l),
+      background var(--motion-l),
+      filter var(--motion-l),
+      transform var(--motion-l),
+      opacity var(--motion-l);
   }
 
-  /* --- ORIENTATION LOGIC --- */
+  /* --- Kinetic Stabilization --- */
+  .wrapper[data-kinetic="true"] {
+    transition:
+      border-color var(--motion-l),
+      box-shadow var(--motion-l),
+      background var(--motion-l),
+      filter var(--motion-l),
+      opacity var(--motion-l);
+  }
+
+  /* --- Orientation Logic --- */
   .horizontal {
     flex-direction: row;
     padding: var(--spacing-xxs) var(--spacing-xs);
@@ -92,20 +108,20 @@
     padding: var(--spacing-xs) var(--spacing-xxs);
   }
 
-  /* --- FOCUS STATES --- */
+  /* --- Focus States --- */
   .wrapper.is-focused {
     border-color: var(--pill-signature);
     box-shadow: 0 0 var(--spacing-m) color-mix(in srgb, var(--pill-signature) 30%, transparent);
   }
 
-  /* --- BUSY STATE --- */
+  /* --- Busy State --- */
   .wrapper.is-busy {
     cursor: wait;
     filter: grayscale(1) brightness(0.8);
     pointer-events: none;
   }
 
-  /* Ensure child snippets inherit alignment */
+  /* --- Global Child Resets --- */
   .wrapper :global(svg) {
     display: block;
   }

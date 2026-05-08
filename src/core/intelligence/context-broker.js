@@ -33,6 +33,7 @@ const LOG_CACHE = new WeakMap();
  ************************************************************************************/
 /**
  * @param {any} msg
+ * @returns {string}
  */
 function get_sanitized_text(msg) {
   if (!msg || typeof msg !== "object") return "";
@@ -47,6 +48,7 @@ function get_sanitized_text(msg) {
  * Resolves a dot-notation path against a nested object.
  * @param {any} obj
  * @param {string} path
+ * @returns {any}
  */
 function get_path_value(obj, path) {
   const parts = path.split(".");
@@ -97,7 +99,7 @@ export const context_broker = {
    *
    * @param {string} input - The current user input.
    * @param {string} [type="simulation"] - 'simulation' | 'logic' | 'image'
-   * @param {any[]} simulation_log - Recent message log.
+   * @param {any[]} [simulation_log] - Recent message log.
    */
   async hydrate(input, type = "simulation", simulation_log = []) {
     const round = runtime.round || 1;
@@ -127,7 +129,19 @@ export const context_broker = {
     const entities = /** @type {Record<string, any>} */ ({});
     // Synchronous hydration of entities
     entries.forEach(({ role, data }) => {
-      const raw = /** @type {SimulationEntity} */ (data || { name: role, role, fragments: [] });
+      const raw = /** @type {SimulationEntity} */ (
+        data || {
+          id: null,
+          name: role,
+          role,
+          fragments: [],
+          eternal: { physical: "", non_physical: "" },
+          present: { physical: "", non_physical: "" },
+          past: [],
+          future: [],
+          dynamics: {},
+        }
+      );
       const data_points = to_data_points(raw);
       // Lexical filtering for AI relevance
       const filtered =
@@ -147,12 +161,14 @@ export const context_broker = {
         eternal: { physical: "", non_physical: "" },
         present: { physical: "", non_physical: "" },
       };
-      filtered.forEach((f) => {
+      filtered.forEach((/** @type {DataPoint} */ f) => {
         const layer = f.layer?.toLowerCase();
         const field = f.type === "Physical" ? "physical" : "non_physical";
         if (layer && (layer === "eternal" || layer === "present")) {
-          if (fragments[layer][field] === "") {
-            fragments[layer][field] = f.text;
+          const l = /** @type {"eternal"|"present"} */ (layer);
+          const fld = /** @type {"physical"|"non_physical"} */ (field);
+          if (fragments[l][fld] === "") {
+            fragments[l][fld] = f.text;
           }
         }
       });

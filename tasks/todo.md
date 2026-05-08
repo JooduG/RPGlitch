@@ -14,6 +14,10 @@
   - [x] Svelte 5 logic check via autofixer
   - [x] Clean delete of legacy actions file
 - [x] Mariana Trench Refactor: `StoryboardCard.svelte`
+- [ ] Storymode SOTA Refactor: `Message.svelte`
+- [ ] Storymode SOTA Refactor: `StorymodeFeed.svelte`
+- [ ] Storymode SOTA Refactor: `InputBar.svelte`
+- [ ] Wire up Kinetic Animations: `StoryboardPill.svelte`
 - [ ] Verification
   - [ ] Build & Lint check
   - [ ] Manual UI audit
@@ -25,3 +29,5 @@
 | 2026-05-08T01:44+02:00 | Update legacy paths | `using-agent-skills` | ✅ Resolved |
 | 2026-05-08T06:24+02:00 | Storyboard Merge    | `svelte`             | ✅ Resolved |
 | 2026-05-08T06:44+02:00 | StoryboardCard SOTA | `designer`           | ✅ Resolved |
+| 2026-05-08T16:35+02:00 | UI Audit            | `browser-testing`    | ✅ Resolved |
+| 2026-05-08T16:40+02:00 | Storymode SOTA Plan | `planning`           | 🔄 Active   |

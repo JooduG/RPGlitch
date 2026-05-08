@@ -207,14 +207,13 @@
    * [6] SURFACES (GLASSMORPH)
    ****************************************************************************/
 
-  /* Glass Backdrops */
-  --glass-xxs: rgb(var(--color-white-rgb) / 0.02);
-  --glass-xs: rgb(var(--color-white-rgb) / 0.04);
-  --glass-s: rgb(var(--color-white-rgb) / 0.08);
-  --glass-m: rgb(var(--color-white-rgb) / 0.15);
-  --glass-l: rgb(var(--color-white-rgb) / 0.25);
-  --glass-xl: rgb(var(--color-white-rgb) / 0.4);
-  --glass-xxl: rgb(var(--color-white-rgb) / 0.6);
+  /* Glass Backdrops - Restored Depth Logic (Nordic Collection) */
+  --glass-xxs: rgb(var(--color-black-rgb) / var(--opacity-l)); /* The Pit (Deepest Recess) */
+  --glass-xs: rgb(var(--color-chalk-rgb) / var(--opacity-m)); /* Recess */
+  --glass-s: rgb(var(--color-gunmetal-rgb) / var(--opacity-s)); /* Sunken */
+  --glass-l: rgb(var(--color-frozen-rgb) / var(--opacity-s)); /* Elevated */
+  --glass-xl: rgb(var(--color-frisk-rgb) / var(--opacity-m)); /* Floating */
+  --glass-xxl: rgb(var(--color-white-rgb) / var(--opacity-l)); /* Peak Focus (Highest Elevation) */
 
   /* Blurs */
   --blur-s: blur(4px);
@@ -248,6 +247,9 @@
 
   /* Interaction Utilities */
   --hover-brightness: brightness(1.2);
+  --motion-transition-all:
+    transform var(--motion-l) var(--motion-elastic), filter var(--motion-l),
+    box-shadow var(--motion-l) var(--motion-elastic);
 }
 
 /****************************************************************************
@@ -466,24 +468,9 @@ body.modal-open {
  * INTERACTION LAYER (PHYSICS)
  * ============================================================================ */
 
-.interactive {
-  cursor: pointer;
-  transition:
-    transform var(--motion-l) var(--motion-elastic),
-    filter var(--motion-l),
-    backdrop-filter var(--motion-l);
-}
-
-.interactive:hover {
-  filter: var(--hover-brightness);
-}
-
 .interactable {
   cursor: pointer;
-  transition:
-    transform var(--motion-l) var(--motion-elastic),
-    filter var(--motion-l),
-    box-shadow var(--motion-l) var(--motion-elastic);
+  transition: var(--motion-transition, var(--motion-transition-all));
 }
 
 .interactable:hover:not(:disabled, .disabled) {
@@ -493,10 +480,6 @@ body.modal-open {
 }
 
 .interactable:active:not(:disabled, .disabled) {
-  transform: scale(var(--motion-click));
-}
-
-.interactive:active {
   transform: scale(var(--motion-click));
 }
 
@@ -510,7 +493,6 @@ body.modal-open {
 .glass-l,
 .glass-xl,
 .glass-xxl {
-  backdrop-filter: var(--blur-s);
   border-top: var(--border-top);
   border-left: var(--border-side);
   border-right: var(--border-side);
@@ -520,14 +502,17 @@ body.modal-open {
 
 .glass-xxs {
   background: var(--glass-xxs);
+  backdrop-filter: var(--blur-s);
 }
 
 .glass-xs {
   background: var(--glass-xs);
+  backdrop-filter: var(--blur-s);
 }
 
 .glass-s {
   background: var(--glass-s);
+  backdrop-filter: var(--blur-s);
 }
 
 .glass-l {

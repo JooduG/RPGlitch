@@ -1,327 +1,340 @@
 /**
- * kinetic.js
- * The Physics Engine for RPGlitch.
- * Standardized motion primitives using the Web Animations API.
- *
- * "Identical Math System-Wide."
+ * @file kinetic.js
+ * 🕹️ THE PHYSICS ENGINE
+ * High-performance motion primitives using Web Animations API (WAAPI).
+ * RUTHLESSLY STANDARDIZED: Identical math system-wide.
  */
-// --- Constants & Token Integration ---
+
+/* --- Token Integration --- */
+
 /**
  * @param {string} token
- * @param {any} fallback
+ * @param {number} fallback
+ * @returns {number}
  */
-const getMotionToken = (token, fallback) => {
+const get_motion_token = (token, fallback) => {
   if (typeof window === "undefined") return fallback;
   const val = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
   if (!val) return fallback;
-  if (val.endsWith("s")) return parseFloat(val) * 1000;
+
   if (val.endsWith("ms")) return parseFloat(val);
-  return isNaN(parseFloat(val)) ? val : parseFloat(val);
+  if (val.endsWith("s")) return parseFloat(val) * 1000;
+  return isNaN(parseFloat(val)) ? fallback : parseFloat(val);
 };
 
-// Standardized Durations (ms)
-const MOTION_FAST = getMotionToken("--motion-l", 200);
-const MOTION_SLOW = getMotionToken("--motion-s", 600);
+/**
+ * @param {string} token
+ * @param {string} fallback
+ * @returns {string}
+ */
+const get_easing_token = (token, fallback) => {
+  if (typeof window === "undefined") return fallback;
+  const val = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+  return val || fallback;
+};
 
-// Physics Primitives
-const SHIMMY_DEG = 45;
-const PULSE_SCALE = 1.05;
-const EASE_ELASTIC = getMotionToken("--motion-elastic", "cubic-bezier(0.34, 1.56, 0.64, 1)");
-const EASE_SMOOTH = "ease-in-out";
+// Global Constants
+const MOTION_FAST = get_motion_token("--motion-s", 100);
+const MOTION_SLOW = get_motion_token("--motion-l", 400);
+const EASE_ELASTIC = get_easing_token("--motion-elastic", "cubic-bezier(0.34, 1.56, 0.64, 1)");
+
+/* --- Kinetic Primitives --- */
+
 /**
  * Shimmy Action
- * A subtle nervous twitch, rotational.
- * Usage: use:shimmy
- */
-/**
+ * A nervous high-frequency jitter (rotation + translation).
  * @param {HTMLElement} node
  */
 export function shimmy(node) {
+  const DEG = 30;
+  const X = 1;
   /** @type {Animation|null} */
   let animation = null;
-  /**
-   *
-   */
-  function trigger() {
+
+  const get_target = () => node.querySelector("svg") || node;
+
+  const trigger = () => {
+    const target = get_target();
     if (animation) animation.cancel();
-    // Keyframes for the "Jazz Hands" (12 to 3)
-    const keyframes = [
-      { transform: "rotate(0deg)", offset: 0 },
-      { transform: `rotate(${SHIMMY_DEG}deg)`, offset: 0.5 },
-      { transform: "rotate(0deg)", offset: 1 },
-    ];
-    animation = node.animate(keyframes, {
-      duration: MOTION_FAST,
-      easing: EASE_SMOOTH,
-      iterations: Infinity,
-    });
-  }
-  /**
-   *
-   */
-  function cleanup() {
+    animation = target.animate(
+      [
+        { transform: "translate(0, 0) rotate(0deg)" },
+        { transform: `translate(-${X}px, 0.5px) rotate(-${DEG}deg)` },
+        { transform: `translate(${X}px, -0.5px) rotate(${DEG}deg)` },
+        { transform: "translate(0, 0) rotate(0deg)" },
+      ],
+      {
+        duration: typeof MOTION_SLOW === "number" ? MOTION_SLOW : parseFloat(MOTION_SLOW),
+        easing: "linear",
+        iterations: Infinity,
+      },
+    );
+  };
+
+  const stop = () => {
     if (animation) {
       animation.cancel();
       animation = null;
     }
-  }
-  // We trigger on mouseenter and stop on mouseleave to mimic CSS :hover
+  };
+
   node.addEventListener("mouseenter", trigger);
-  node.addEventListener("mouseleave", cleanup);
+  node.addEventListener("mouseleave", stop);
+
   return {
     destroy() {
-      cleanup();
+      stop();
       node.removeEventListener("mouseenter", trigger);
-      node.removeEventListener("mouseleave", cleanup);
+      node.removeEventListener("mouseleave", stop);
     },
   };
 }
+shimmy.is_kinetic = true;
+
 /**
  * Pulse Action
  * A "Pop" scale effect.
- * Usage: use:pulse
- */
-/**
  * @param {HTMLElement} node
  */
 export function pulse(node) {
+  const SCALE = 1.05;
   /** @type {Animation|null} */
   let animation = null;
-  /**
-   *
-   */
-  function trigger() {
+
+  const trigger = () => {
     if (animation) animation.cancel();
-    const keyframes = [{ transform: "scale(1)" }, { transform: `scale(${PULSE_SCALE})` }];
-    // Fill: forwards to keep it scaled while hovering
-    animation = node.animate(keyframes, {
-      duration: MOTION_FAST,
+    animation = node.animate([{ transform: "scale(1)" }, { transform: `scale(${SCALE})` }], {
+      duration: typeof MOTION_FAST === "number" ? MOTION_FAST : parseFloat(MOTION_FAST),
       easing: "ease-out",
       fill: "forwards",
     });
-  }
-  /**
-   *
-   */
-  function cleanup() {
+  };
+
+  const stop = () => {
     if (animation) {
-      animation.reverse(); // Animate back smoothly
-      const anim = animation;
-      anim.onfinish = () => anim.cancel();
+      animation.reverse();
+      animation.onfinish = () => animation?.cancel();
     }
-  }
+  };
+
   node.addEventListener("mouseenter", trigger);
-  node.addEventListener("mouseleave", cleanup);
+  node.addEventListener("mouseleave", stop);
+
   return {
     destroy() {
-      // cleanup handles listeners removal? No, cleanup is for animation.
-      // We need to remove listeners.
       if (animation) animation.cancel();
       node.removeEventListener("mouseenter", trigger);
-      node.removeEventListener("mouseleave", cleanup);
+      node.removeEventListener("mouseleave", stop);
     },
   };
 }
+pulse.is_kinetic = true;
+
 /**
  * Spin Action
  * A 90 degree rotation.
- * Usage: use:spin
- */
-/**
  * @param {HTMLElement} node
  */
 export function spin(node) {
-  const targetSelector = "svg";
   /** @type {Animation|null} */
   let animation = null;
 
-  /**
-   *
-   */
-  function getTarget() {
-    return node.querySelector(targetSelector) || node;
-  }
+  const get_target = () => node.querySelector("svg") || node;
 
-  /**
-   *
-   */
-  function trigger() {
-    const target = getTarget();
+  const trigger = () => {
+    const target = get_target();
     if (animation) {
       animation.playbackRate = 1;
       animation.play();
     } else {
       animation = target.animate([{ transform: "rotate(0deg)" }, { transform: "rotate(90deg)" }], {
-        duration: MOTION_SLOW,
+        duration: typeof MOTION_SLOW === "number" ? MOTION_SLOW : parseFloat(MOTION_SLOW),
         easing: EASE_ELASTIC,
         fill: "forwards",
       });
     }
-  }
+  };
 
-  /**
-   *
-   */
-  function reset() {
+  const stop = () => {
     if (animation) {
       animation.playbackRate = -1;
       animation.play();
     }
-  }
+  };
 
   node.addEventListener("mouseenter", trigger);
-  node.addEventListener("mouseleave", reset);
+  node.addEventListener("mouseleave", stop);
+
   return {
     destroy() {
       if (animation) animation.cancel();
       node.removeEventListener("mouseenter", trigger);
-      node.removeEventListener("mouseleave", reset);
+      node.removeEventListener("mouseleave", stop);
     },
   };
 }
+spin.is_kinetic = true;
+
+/**
+ * Roll Action
+ * A full 360 degree rotation. Perfect for re-roll buttons.
+ * @param {HTMLElement} node
+ */
+export function roll(node) {
+  /** @type {Animation|null} */
+  let animation = null;
+
+  const get_target = () => node.querySelector("svg") || node;
+
+  const trigger = () => {
+    const target = get_target();
+    if (animation) animation.cancel();
+    animation = target.animate([{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }], {
+      duration: typeof MOTION_SLOW === "number" ? MOTION_SLOW : parseFloat(MOTION_SLOW),
+      easing: EASE_ELASTIC,
+      fill: "forwards",
+    });
+  };
+
+  node.addEventListener("mouseenter", trigger);
+
+  return {
+    destroy() {
+      if (animation) animation.cancel();
+      node.removeEventListener("mouseenter", trigger);
+    },
+  };
+}
+roll.is_kinetic = true;
+
 /**
  * Stab Action
  * A quick horizontal thrust.
- * Usage: use:stab
- */
-/**
  * @param {HTMLElement} node
  */
 export function stab(node) {
-  const targetSelector = "svg";
-  const DISTANCE = 5; // px
+  const DISTANCE = 5;
   /** @type {Animation|null} */
   let animation = null;
-  /**
-   *
-   */
-  function getTarget() {
-    return node.querySelector(targetSelector) || node;
-  }
-  /**
-   *
-   */
-  function trigger() {
+
+  const get_target = () => node.querySelector("svg") || node;
+
+  const trigger = () => {
     if (animation) animation.cancel();
-    const target = getTarget();
-    // Keyframes: Start -> Thrust Right -> Return
-    const keyframes = [
-      { transform: "translateX(0)", offset: 0 },
-      { transform: `translateX(${DISTANCE}px)`, offset: 0.2 }, // Fast out (20% of time)
-      { transform: "translateX(0)", offset: 1 }, // Slow return (80% of time)
-    ];
-    animation = target.animate(keyframes, {
-      duration: MOTION_SLOW,
-      easing: "ease-out",
-      iterations: Infinity,
-    });
-  }
-  /**
-   *
-   */
-  function cleanup() {
+    const target = get_target();
+    animation = target.animate(
+      [
+        { transform: "translateX(0)", offset: 0 },
+        { transform: `translateX(${DISTANCE}px)`, offset: 0.2 },
+        { transform: "translateX(0)", offset: 1 },
+      ],
+      {
+        duration: typeof MOTION_SLOW === "number" ? MOTION_SLOW : parseFloat(MOTION_SLOW),
+        easing: "ease-out",
+        iterations: Infinity,
+      },
+    );
+  };
+
+  const stop = () => {
     if (animation) {
       animation.cancel();
       animation = null;
     }
-  }
+  };
+
   node.addEventListener("mouseenter", trigger);
-  node.addEventListener("mouseleave", cleanup);
+  node.addEventListener("mouseleave", stop);
+
   return {
     destroy() {
-      cleanup();
+      stop();
       node.removeEventListener("mouseenter", trigger);
-      node.removeEventListener("mouseleave", cleanup);
+      node.removeEventListener("mouseleave", stop);
     },
   };
 }
+stab.is_kinetic = true;
 
 /**
  * Kinetic Scroll Action
  * Enables drag-to-scroll with momentum.
- * Usage: use:kineticScroll
- */
-/**
  * @param {HTMLElement} node
  */
-export function kineticScroll(node) {
-  let isDown = false;
-  /** @type {number} */
-  let startY = 0;
-  /** @type {number} */
-  let scrollTop = 0;
+export function kinetic_scroll(node) {
+  let is_down = false;
+  let start_y = 0;
+  let scroll_top = 0;
   let velocity = 0;
-  let lastY = 0;
-  let lastTime = 0;
-  /** @type {number|null} */
-  let rafId = null;
+  let last_y = 0;
+  let last_time = 0;
+  /**
+   * @type {number | null}
+   */
+  let raf_id = null;
 
-  /** @param {any} e */
-  const onDown = (e) => {
-    isDown = true;
-    const pageY = e.pageY || (e.touches ? e.touches[0].pageY : 0);
-    startY = pageY - node.offsetTop;
-    scrollTop = node.scrollTop;
+  const on_down = (/** @type {any} */ e) => {
+    is_down = true;
+    const page_y = e.pageY || (e.touches ? e.touches[0].pageY : 0);
+    start_y = page_y - node.offsetTop;
+    scroll_top = node.scrollTop;
     velocity = 0;
-    lastY = pageY;
-    lastTime = Date.now();
-    if (rafId) cancelAnimationFrame(rafId);
+    last_y = page_y;
+    last_time = Date.now();
+    if (raf_id) cancelAnimationFrame(raf_id);
   };
 
-  const onUp = () => {
-    isDown = false;
-    requestAnimationFrame(applyMomentum);
+  const on_up = () => {
+    is_down = false;
+    requestAnimationFrame(apply_momentum);
   };
 
-  const onMove = (/** @type {any} */ e) => {
-    if (!isDown) return;
-
-    const pageY = e.pageY || (e.touches ? e.touches[0].pageY : 0);
-    const y = pageY - node.offsetTop;
-    const walk = (y - startY) * 1.5;
-
-    // DRAG THRESHOLD: Only prevent default and scroll if we've moved more than 5px
-    if (Math.abs(walk) < 10) return;
-
-    // Prevent native scrolling while dragging - jules review
-    if (e.cancelable) e.preventDefault();
-
-    node.scrollTop = scrollTop - walk;
-
-    const now = Date.now();
-    const dt = now - lastTime;
-    const dy = pageY - lastY;
-    if (dt > 0) velocity = dy / dt;
-    lastY = pageY;
-    lastTime = now;
-  };
-
-  const applyMomentum = () => {
-    if (isDown || Math.abs(velocity) < 0.1) return;
+  const apply_momentum = () => {
+    if (is_down || Math.abs(velocity) < 0.1) return;
     node.scrollTop -= velocity * 10;
     velocity *= 0.95;
-    rafId = requestAnimationFrame(applyMomentum);
+    raf_id = requestAnimationFrame(apply_momentum);
   };
 
-  node.addEventListener("mousedown", onDown);
-  node.addEventListener("mouseleave", onUp);
-  node.addEventListener("mouseup", onUp);
-  node.addEventListener("mousemove", onMove);
+  const on_move = (/** @type {any} */ e) => {
+    if (!is_down) return;
 
-  node.addEventListener("touchstart", onDown, { passive: true });
-  node.addEventListener("touchend", onUp);
-  node.addEventListener("touchmove", onMove, { passive: false });
+    const page_y = e.pageY || (e.touches ? e.touches[0].pageY : 0);
+    const y = page_y - node.offsetTop;
+    const walk = (y - start_y) * 1.5;
+
+    if (Math.abs(walk) < 10) return;
+    if (e.cancelable) e.preventDefault();
+
+    node.scrollTop = scroll_top - walk;
+
+    const now = Date.now();
+    const dt = now - last_time;
+    const dy = page_y - last_y;
+    if (dt > 0) velocity = dy / dt;
+    last_y = page_y;
+    last_time = now;
+  };
+
+  node.addEventListener("mousedown", on_down);
+  node.addEventListener("mouseleave", on_up);
+  node.addEventListener("mouseup", on_up);
+  node.addEventListener("mousemove", on_move);
+
+  node.addEventListener("touchstart", on_down, { passive: true });
+  node.addEventListener("touchend", on_up);
+  node.addEventListener("touchmove", on_move, { passive: false });
 
   return {
     destroy() {
-      if (rafId) cancelAnimationFrame(rafId);
-      node.removeEventListener("mousedown", onDown);
-      node.removeEventListener("mouseleave", onUp);
-      node.removeEventListener("mouseup", onUp);
-      node.removeEventListener("mousemove", onMove);
-      node.removeEventListener("touchstart", onDown);
-      node.removeEventListener("touchend", onUp);
-      node.removeEventListener("touchmove", onMove);
+      if (raf_id) cancelAnimationFrame(raf_id);
+      node.removeEventListener("mousedown", on_down);
+      node.removeEventListener("mouseleave", on_up);
+      node.removeEventListener("mouseup", on_up);
+      node.removeEventListener("mousemove", on_move);
+      node.removeEventListener("touchstart", on_down);
+      node.removeEventListener("touchend", on_up);
+      node.removeEventListener("touchmove", on_move);
     },
   };
 }

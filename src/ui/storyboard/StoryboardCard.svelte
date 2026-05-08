@@ -5,10 +5,20 @@
    * Refactored: Mariana Trench SOTA Refactor
    * Standard: Ultra-Lean DOM & Chalk Regime Enforcement
    */
+  /**
+   * @typedef {Object} Props
+   * @property {any} [entity] - The entity to display
+   * @property {string} [role_label] - Label for the role (e.g., "Narrator")
+   * @property {"ai" | "fractal" | "user"} [type] - The type of card
+   * @property {import('svelte/elements').MouseEventHandler<HTMLButtonElement>} [on_select] - Click handler for card selection
+   * @property {import('svelte/elements').MouseEventHandler<HTMLButtonElement>} [on_view_profile] - Click handler for profile view
+   */
+
+  /** @type {Props} */
   let {
     entity,
     role_label = "",
-    type = "user", // "ai" | "fractal" | "user"
+    type = "user",
     on_select = () => {},
     on_view_profile = () => {},
   } = $props();
@@ -100,17 +110,6 @@
   .fractal-card {
     width: var(--card-height-m);
     height: var(--card-width-m);
-  }
-
-  .card:hover {
-    background: var(--glass-xxl);
-    backdrop-filter: var(--blur-xl);
-    box-shadow: 0 var(--spacing-s) var(--spacing-xl) calc(var(--spacing-s) * -1)
-      rgb(from var(--signature-color) r g b / var(--opacity-l));
-  }
-
-  .card:active {
-    background: var(--glass-s);
   }
 
   /* Structural Border (Pseudo-element) */

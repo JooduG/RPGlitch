@@ -10,9 +10,9 @@
    * @typedef {Object} Props
    * @property {boolean} is_editing - Global editing state
    * @property {boolean} is_saving  - Global saving state
-   * @property {Function} onclick_edit   - Handler for entering edit mode
-   * @property {Function} onclick_save   - Handler for saving changes
-   * @property {Function} onclick_delete - Handler for deleting the entity
+   * @property {import('svelte/elements').MouseEventHandler<HTMLButtonElement>} onclick_edit   - Handler for entering edit mode
+   * @property {import('svelte/elements').MouseEventHandler<HTMLButtonElement>} onclick_save   - Handler for saving changes
+   * @property {import('svelte/elements').MouseEventHandler<HTMLButtonElement>} onclick_delete - Handler for deleting the entity
    */
 
   /** @type {Props} */

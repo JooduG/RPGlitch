@@ -11,9 +11,7 @@
 <Layout align="center">
   {#snippet header()}
     {#if app.entities_loaded}
-      <div class="header-container">
-        <StoryboardDynamicTitle />
-      </div>
+      <StoryboardDynamicTitle />
     {/if}
   {/snippet}
 
@@ -64,9 +62,7 @@
 
   {#snippet footer()}
     {#if app.entities_loaded}
-      <div class="controls-layer">
-        <StoryboardPill />
-      </div>
+      <StoryboardPill />
     {/if}
   {/snippet}
 </Layout>
@@ -75,16 +71,3 @@
 {#if app.entities_loaded}
   <Drawer />
 {/if}
-
-<style>
-  .header-container {
-    text-align: center;
-  }
-
-  .controls-layer {
-    margin-top: auto;
-    pointer-events: auto;
-    display: flex;
-    justify-content: center;
-  }
-</style>
